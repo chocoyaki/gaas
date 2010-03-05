@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2010/03/05 02:38:04  ycaniou
+ * Integration of SGE (still not complete) + fixes
+ *
  * Revision 1.5  2010/02/01 02:05:45  ycaniou
  * First step to integrate SGE. Still miss mpi/OpenMP types for SGE to work.
  * Remove SparseSolver which will become a cori batch example once tested
@@ -136,10 +139,10 @@ PBS_BatchSystem::askBatchJobStatus(int batchJobID)
   chaine = (char*)malloc(sizeof(char)*(strlen(wait4Command) * 2
 				       + NBDIGITS_MAX_BATCH_JOB_ID * 2
 				       + strlen(waitFilter) * 2
-				       + strlen(filename) * 3
-				       + 73 + 1) ) ;
+				       + strlen(filename) * 2
+				       + 85 + 1) ) ;
   /* See EOF to get an example of what we parse */
-  // ugly trick to use a PBS which do not keep the status of the batch once finished
+  // ugly trick to use a PBS which does not keep the status of the batch once finished
   sprintf(chaine,"TMP_VAL=`%s %d 2>/dev/null | %s`;if [ \"$TMP_VAL\" == \"\" ];then echo E > %s;else %s %d | %s > %s;fi",
 	  wait4Command,batchJobID,waitFilter,
 	  filename,

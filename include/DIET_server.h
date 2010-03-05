@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.49  2010/03/05 02:38:03  ycaniou
+ * Integration of SGE (still not complete) + fixes
+ *
  * Revision 1.48  2009/11/27 03:24:29  ycaniou
  * Add user_command possibility before the end of Batch prologue (only
  * to be used for batch dependent code!)
@@ -267,6 +270,9 @@ typedef struct {
   diet_arg_desc_t* param_desc;
 
 #if defined HAVE_ALT_BATCH
+  char * parallel_environment ;
+  /* Only usefull for SGE. Seems to be dependant on local configuration...
+     I have seen mpich, mpich2, lam, ompi, mpichgm, openmp */
   unsigned short int parallel_flag ;
   int nbprocs ;
 #endif

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2010/03/05 02:38:04  ycaniou
+ * Integration of SGE (still not complete) + fixes
+ *
  * Revision 1.13  2009/11/27 03:24:30  ycaniou
  * Add user_command possibility before the end of Batch prologue (only
  * to be used for batch dependent code!)
@@ -49,6 +52,10 @@ int solve_random(diet_profile_t * pb)
 
   printf("Resolving batch service random!\n\n") ;
 
+  /* Set mandatory information, like walltime */
+  make_perf(pb) ;
+  diet_scalar_desc_set(diet_parameter(pb,0), &(pb->nbprocs)) ;
+
   /*****************************************************/
   /* Put the command to submit into a script           */
   /* Some unecessary things, only for the example      */
@@ -62,11 +69,7 @@ int solve_random(diet_profile_t * pb)
 	  "echo \"Name of the frontale station: $DIET_NAME_FRONTALE\"\n"
 	  "echo \"Number of nodes:  $DIET_BATCH_NBNODES\"\n"
 	  "\n") ;
-  
-  /* Set mandatory information, like walltime */
-  make_perf(pb) ;
-  diet_scalar_desc_set(diet_parameter(pb,0), &(pb->nbprocs)) ;
-  
+    
   /* Submission */
   result = diet_submit_parallel(pb, NULL, script) ;
 

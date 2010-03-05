@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2010/03/05 02:38:04  ycaniou
+ * Integration of SGE (still not complete) + fixes
+ *
  * Revision 1.8  2009/11/27 03:24:30  ycaniou
  * Add user_command possibility before the end of Batch prologue (only
  * to be used for batch dependent code!)
@@ -228,10 +231,19 @@ BatchSystem::diet_submit_parallel(diet_profile_t * profile,
 	    this->serial,
 	    this->walltime, small_chaine) ;
   else
-    sprintf(options,
-	    "%s%d%s%s",
-	    this->nodesNumber, profile->nbprocs,
-	    this->walltime, small_chaine) ;
+    switch( (int)batch_ID ) {
+    case BatchCreator::SGE:
+      sprintf(options,
+	      "%s $NSLOTS %s%s",
+	      this->nodesNumber,
+	      this->walltime, small_chaine) ;
+      break ;
+    default:
+      sprintf(options,
+	      "%s%d%s%s",
+	      this->nodesNumber, profile->nbprocs,
+	      this->walltime, small_chaine) ;
+    }
   sprintf(options+strlen(options),
 	  "%s%s",
 	  submittingQueue, batchQueueName) ;

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.87  2010/03/05 02:38:03  ycaniou
+ * Integration of SGE (still not complete) + fixes
+ *
  * Revision 1.86  2010/01/14 11:06:10  bdepardo
  * Compiles with gcc 4.4
  *
@@ -470,6 +473,7 @@ diet_profile_desc_alloc(const char* path,
 #if defined HAVE_ALT_BATCH
   // By default, the profile is registered in the server as sequential
   diet_profile_desc_set_sequential( desc ) ;
+  desc->parallel_environment = NULL ;
 #endif
   return desc;
 }
