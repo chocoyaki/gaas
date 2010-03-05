@@ -3,6 +3,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2010/03/05 04:11:05  ycaniou
+ * Remove warning when printing size_t
+ *
  * Revision 1.7  2006/06/30 15:26:02  ycaniou
  * C++ commentaries -> C commentaries to remove compilation warnings
  *
@@ -31,7 +34,7 @@
     size_t i, j;                           \
     printf("%s (%s-major) = \n", #mat,     \
            (rm) ? "row" : "column");       \
-    printf(" %zd %zd \n",m,n);               \
+    printf(" %lu %lu \n", (unsigned long)m, (unsigned long)n);	\
     for (i = 0; i < (m); i++) {            \
       for (j = 0; j < (n); j++) {          \
         if (rm)                            \
