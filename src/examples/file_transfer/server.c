@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2010/03/05 15:52:09  ycaniou
+ * Ordered things in CMakelist.txt and update Display (Batch, build_version...)
+ * Fix version guess of compiler (was gcc only)
+ * Use option to avoid %zd warning
+ * Undo previous cast of size_t into int
+ *
  * Revision 1.16  2007/06/11 09:34:48  ycaniou
  * Modified the example, so that the default behavior of the server is now
  *   to return the out file, and not a random behavior
@@ -77,7 +83,7 @@ solve_size(diet_profile_t* pb)
   fprintf(stderr, "Solve size ");
   
   diet_file_get(diet_parameter(pb,0), NULL, &arg_size, &path1) ;
-  fprintf(stderr, "on %s (%d) ", path1, (int) arg_size);
+  fprintf(stderr, "on %s (%zd) ", path1, arg_size);
   if ((status = stat(path1, &buf)))
     return status;
   /* Regular file */
@@ -88,7 +94,7 @@ solve_size(diet_profile_t* pb)
   diet_free_data(diet_parameter(pb,0));
   
   diet_file_get(diet_parameter(pb,1), NULL, &arg_size, &path2);
-  fprintf(stderr, "and %s (%d) ...", path2, (int) arg_size);
+  fprintf(stderr, "and %s (%zd) ...", path2, arg_size);
   if ((status = stat(path2, &buf)))
     return status;
   if (!(buf.st_mode & S_IFREG))

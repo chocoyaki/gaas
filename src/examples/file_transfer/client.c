@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2010/03/05 15:52:09  ycaniou
+ * Ordered things in CMakelist.txt and update Display (Batch, build_version...)
+ * Fix version guess of compiler (was gcc only)
+ * Use option to avoid %zd warning
+ * Undo previous cast of size_t into int
+ *
  * Revision 1.13  2007/06/28 19:04:50  ycaniou
  * C++ commentaries into C ones
  *
@@ -106,8 +112,8 @@ main(int argc, char* argv[])
     }
     diet_file_get(diet_parameter(profile,4), NULL, &out_size, &path);
     if (path && (*path != '\0')) {
-      printf("Location of returned file is %s, its size is %d.\n",
-	     path, (int) out_size);
+      printf("Location of returned file is %s, its size is %zd.\n",
+	     path, out_size);
       /* If uncommented, next line unlink file */
       /* diet_free_data(diet_parameter(profile,4)); */
     }

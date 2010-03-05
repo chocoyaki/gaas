@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2010/03/05 15:52:09  ycaniou
+ * Ordered things in CMakelist.txt and update Display (Batch, build_version...)
+ * Fix version guess of compiler (was gcc only)
+ * Use option to avoid %zd warning
+ * Undo previous cast of size_t into int
+ *
  * Revision 1.7  2009/06/23 09:26:56  bisnard
  * new API method for EFT estimation
  *
@@ -70,7 +76,7 @@ greyscale(diet_profile_t* pb)
   fprintf(stderr, "GREYSCALE SOLVING\n");
 
   diet_file_get(diet_parameter(pb,0), NULL, &arg_size, &path1) ;
-  fprintf(stderr, "on %s (%d) \n", path1, (int) arg_size);
+  fprintf(stderr, "on %s (%zd) \n", path1, arg_size);
 
 
   path_result = (char*)malloc(strlen(path1) + 10);
@@ -108,7 +114,7 @@ flip(diet_profile_t* pb)
   fprintf(stderr, "FLIP SOLVING\n");
 
   diet_file_get(diet_parameter(pb,0), NULL, &arg_size, &path1) ;
-  fprintf(stderr, "on %s (%d) \n", path1, (int) arg_size);
+  fprintf(stderr, "on %s (%zd) \n", path1, arg_size);
 
   path_result = (char*)malloc(strlen(path1) + 10);
 
@@ -145,7 +151,7 @@ duplicate(diet_profile_t* pb)
   fprintf(stderr, "DUPLICATE SOLVING\n");
 
   diet_file_get(diet_parameter(pb,0), NULL, &arg_size, &path1) ;
-  fprintf(stderr, "on %s (%d) \n", path1, (int) arg_size);
+  fprintf(stderr, "on %s (%zd) \n", path1, arg_size);
 
 
   path_result1 = (char*)malloc(strlen(path1) + 10);

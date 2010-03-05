@@ -9,6 +9,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2010/03/05 15:52:08  ycaniou
+ * Ordered things in CMakelist.txt and update Display (Batch, build_version...)
+ * Fix version guess of compiler (was gcc only)
+ * Use option to avoid %zd warning
+ * Undo previous cast of size_t into int
+ *
  * Revision 1.9  2006/06/30 15:26:03  ycaniou
  * C++ commentaries -> C commentaries to remove compilation warnings
  *
@@ -92,7 +98,7 @@
     size_t i, j;                           \
     printf("%s (%s-major) = \n", #mat,     \
            (rm) ? "row" : "column");       \
-    printf(" %zd %zd \n",m,n);               \
+    printf(" %zd %zd \n",m,n);		   \
     for (i = 0; i < (m); i++) {            \
       for (j = 0; j < (n); j++) {          \
         if (rm)                            \

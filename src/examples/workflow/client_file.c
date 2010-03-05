@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2010/03/05 15:52:09  ycaniou
+ * Ordered things in CMakelist.txt and update Display (Batch, build_version...)
+ * Fix version guess of compiler (was gcc only)
+ * Use option to avoid %zd warning
+ * Undo previous cast of size_t into int
+ *
  * Revision 1.7  2008/12/09 09:01:06  bisnard
  * added new param to diet_wf_profile_alloc to select btw dag or functional wf
  *
@@ -76,14 +82,14 @@ main(int argc, char* argv[])
     printf("The workflow submission succeed\n");
     diet_wf_file_get(profile, "n3#out1", &out_size1, &path1);
     if (path1 && (*path1 != '\0')) {
-      printf("Location of returned file is %s, its size is %d.\n",
-	     path1, (int) out_size1);
+      printf("Location of returned file is %s, its size is %zd.\n",
+	     path1, out_size1);
       /* diet_free_data(diet_parameter(profile,4)); */
     }
     diet_wf_file_get(profile, "n3#out2", &out_size2, &path2);
     if (path2 && (*path2 != '\0')) {
-      printf("Location of returned file is %s, its size is %d.\n",
-	     path2, (int) out_size2);
+      printf("Location of returned file is %s, its size is %zd.\n",
+	     path2, out_size2);
       /* diet_free_data(diet_parameter(profile,4)); */
     }
 

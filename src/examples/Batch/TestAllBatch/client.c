@@ -7,6 +7,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2010/03/05 15:52:08  ycaniou
+ * Ordered things in CMakelist.txt and update Display (Batch, build_version...)
+ * Fix version guess of compiler (was gcc only)
+ * Use option to avoid %zd warning
+ * Undo previous cast of size_t into int
+ *
  * Revision 1.2  2009/11/27 03:24:30  ycaniou
  * Add user_command possibility before the end of Batch prologue (only
  * to be used for batch dependent code!)
@@ -88,8 +94,8 @@ main(int argc, char* argv[])
       server_found = 1 ;
       diet_file_get(diet_parameter(profile,3), NULL, &file_size, &path);
       if (path && (*path != '\0')) {
-	printf("Location of returned file is %s, its size is %d.\n",
-	       path, (int) file_size);
+	printf("Location of returned file is %s, its size is %zd.\n",
+	       path, file_size);
       }
     } else printf("Error in diet_parallel_call()\n") ;
   } else if ( SUBMISSION_TYPE == 0 ) {
@@ -99,8 +105,8 @@ main(int argc, char* argv[])
       server_found = 1 ;
       diet_file_get(diet_parameter(profile,3), NULL, &file_size, &path);
       if (path && (*path != '\0')) {
-	printf("Location of returned file is %s, its size is %d.\n",
-	       path, (int) file_size);
+	printf("Location of returned file is %s, its size is %zd.\n",
+	       path, file_size);
       }
     } else printf("Error in diet_call()\n") ;
   } else { /* only sequential servers are considered */
@@ -110,8 +116,8 @@ main(int argc, char* argv[])
       server_found = 1 ;
       diet_file_get(diet_parameter(profile,3), NULL, &file_size, &path);
       if (path && (*path != '\0')) {
-	printf("Location of returned file is %s, its size is %d.\n",
-	       path, (int) file_size);
+	printf("Location of returned file is %s, its size is %zd.\n",
+	       path, file_size);
       }
     } else printf("Error in diet_sequential_call()\n") ;
   }

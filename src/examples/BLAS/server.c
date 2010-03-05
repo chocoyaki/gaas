@@ -9,6 +9,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2010/03/05 15:52:07  ycaniou
+ * Ordered things in CMakelist.txt and update Display (Batch, build_version...)
+ * Fix version guess of compiler (was gcc only)
+ * Use option to avoid %zd warning
+ * Undo previous cast of size_t into int
+ *
  * Revision 1.13  2006/06/30 15:26:02  ycaniou
  * C++ commentaries -> C commentaries to remove compilation warnings
  *
@@ -151,16 +157,16 @@ solve_dgemm(diet_profile_t* pb)
     tA = (tA == 'T') ? 'N' : 'T';
     tB = (tB == 'T') ? 'N' : 'T';
     fprintf(stderr,
-	    "dgemm args : m=%d, n=%d, k=%d, alpha=%f, beta=%f, tA=%c, tB=%c\n",
-	    (int)n, (int)m, (int)k, *alpha, *beta, tB, tA);
+	    "dgemm args : m=%zd, n=%zd, k=%zd, alpha=%f, beta=%f, tA=%c, tB=%c\n",
+	    n, m, k, *alpha, *beta, tB, tA);
     dgemm_(&tB, &tA, &n, &m, &k, alpha,
 	   B, (tB == 'T') ? &k : &n,
 	   A, (tA == 'T') ? &m : &k,
 	   beta, C, &n);  
   } else {
     fprintf(stderr,
-	    "dgemm args : m=%d, n=%d, k=%d, alpha=%f, beta=%f, tA=%c, tB=%c\n",
-	    (int)m, (int)n, (int)k, *alpha, *beta, tA, tB);
+	    "dgemm args : m=%zd, n=%zd, k=%zd, alpha=%f, beta=%f, tA=%c, tB=%c\n",
+	    m, n, k, *alpha, *beta, tA, tB);
     dgemm_(&tA, &tB, &m, &n, &k, alpha,
 	   A, (tA == 'T') ? &k : &m,
 	   B, (tB == 'T') ? &n : &k,

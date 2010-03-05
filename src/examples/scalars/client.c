@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2010/03/05 15:52:09  ycaniou
+ * Ordered things in CMakelist.txt and update Display (Batch, build_version...)
+ * Fix version guess of compiler (was gcc only)
+ * Use option to avoid %zd warning
+ * Undo previous cast of size_t into int
+ *
  * Revision 1.5  2006/06/30 15:26:03  ycaniou
  * C++ commentaries -> C commentaries to remove compilation warnings
  *
@@ -119,7 +125,7 @@ main(int argc, char* argv[])
   } else if (pb[4]) {
     f1 = 1.1e38;
     f2 = 2.2e38;
-    printf("Before the call: f1=%lg, f2=%lg\n", f1, f2);
+    printf("Before the call: f1=%f, f2=%f\n", f1, f2);
     diet_scalar_set(diet_parameter(profile,0), &f1,  DIET_VOLATILE, DIET_FLOAT);
     diet_scalar_set(diet_parameter(profile,1), &f2,  DIET_VOLATILE, DIET_FLOAT);
     diet_scalar_set(diet_parameter(profile,2), NULL, DIET_VOLATILE, DIET_FLOAT);

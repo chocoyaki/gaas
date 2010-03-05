@@ -9,6 +9,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.29  2010/03/05 15:52:08  ycaniou
+ * Ordered things in CMakelist.txt and update Display (Batch, build_version...)
+ * Fix version guess of compiler (was gcc only)
+ * Use option to avoid %zd warning
+ * Undo previous cast of size_t into int
+ *
  * Revision 1.28  2006/11/16 09:55:55  eboix
  *   DIET_config.h is no longer used. --- Injay2461
  *
@@ -129,8 +135,8 @@ solve_MatSUM(diet_profile_t* pb)
   tA = (oA == DIET_ROW_MAJOR) ? 'T' : 'N';
   tB = (oB == DIET_ROW_MAJOR) ? 'T' : 'N';
   if ((mA != mB) || (nA != nB)) {
-    fprintf(stderr, "MatSUM error: mA=%ld, nA=%ld ; mB=%ld, nB=%ld\n",
-	    (long)mA, (long)nA, (long)mB, (long)nB);
+    fprintf(stderr, "MatSUM error: mA=%zd, nA=%zd ; mB=%zd, nB=%zd\n",
+	    mA, nA, mB, nB);
     return 1;
   }
   diet_matrix_get(diet_parameter(pb,(arg_idx+2)), &C, NULL, &mC, &nC, &oC);

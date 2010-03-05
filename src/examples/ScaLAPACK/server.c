@@ -9,6 +9,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2010/03/05 15:52:08  ycaniou
+ * Ordered things in CMakelist.txt and update Display (Batch, build_version...)
+ * Fix version guess of compiler (was gcc only)
+ * Use option to avoid %zd warning
+ * Undo previous cast of size_t into int
+ *
  * Revision 1.2  2003/08/09 17:32:47  pcombes
  * Update to the new diet_profile_desc_t.
  *
@@ -229,7 +235,7 @@ solve_pdgemm(diet_profile_t* pb)
 
   if ((k_ != k) || (m_ != m) || (n_ != n)) {
     fprintf(stderr, "pdgemm Error: invalid matrix dimensions: ");
-    fprintf(stderr, "%dx%d = %dx%d * %dx%d\n", m_, n_, m, k, k_, n);
+    fprintf(stderr, "%zdx%zd = %zdx%zd * %zdx%zd\n", m_, n_, m, k, k_, n);
     return 1;
   }
 
@@ -246,7 +252,7 @@ solve_pdgemm(diet_profile_t* pb)
 	     A, (tA == 'T') ? &m : &k,
 	     beta, C, &n);  
     } else {
-      printf("dgemm args : m=%d, n=%d, k=%d, alpha=%f, beta=%f, tA=%c, tB=%c\n",
+      printf("dgemm args : m=%zd, n=%zd, k=%zd, alpha=%f, beta=%f, tA=%c, tB=%c\n",
 	     m, n, k, *alpha, *beta, tA, tB);
       dgemm_(&tA, &tB, &m, &n, &k, alpha,
 	     A, (tA == 'T') ? &k : &m,

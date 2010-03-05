@@ -10,6 +10,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2010/03/05 15:52:08  ycaniou
+ * Ordered things in CMakelist.txt and update Display (Batch, build_version...)
+ * Fix version guess of compiler (was gcc only)
+ * Use option to avoid %zd warning
+ * Undo previous cast of size_t into int
+ *
  * Revision 1.10  2008/08/13 16:49:38  bdepardo
  * Added #include <string.h> in order to compile with gcc 4.3
  *
@@ -296,9 +302,9 @@ main(int argc, char* argv[])
     return 1;
   }
   // create pool thread and give job ....
-  int incr = 0;
+  size_t incr = 0;
   worker* tab[n_threads];
-  while (incr < (int)n_threads){
+  while (incr < n_threads){
     tab[incr] = new worker(incr);
     incr++;
   }

@@ -29,7 +29,20 @@ SET( DIET_VERSION ${DIET_MAJOR_VERSION}.${DIET_MINOR_VERSION})
 IF (DIET_REVISION_VERSION)
 	SET( DIET_VERSION ${DIET_VERSION}.${DIET_REVISION_VERSION})
 ENDIF (DIET_REVISION_VERSION)
-EXEC_PROGRAM(date ARGS "+%Y/%m/%d-%H:%M:%S" OUTPUT_VARIABLE BUILD_DATE )
+
+# Get Date
+IF( WIN32 )
+  EXECUTE_PROCESS(COMMAND "date" "+%Y/%m/%d-%H:%M:%S" 
+  			  OUTPUT_VARIABLE BUILD_DATE )
+  STRING( STRIP ${BUILD_DATE} BUILD_DATE) # get rid of newline
+ELSEIF( UNIX )
+  EXECUTE_PROCESS(COMMAND "date" "+%Y/%m/%d-%H:%M:%S" 
+  			  OUTPUT_VARIABLE BUILD_DATE )
+  STRING( STRIP ${BUILD_DATE} BUILD_DATE) # get rid of newline
+ELSE( WIN32 )
+  MESSAGE(SEND_ERROR "date not implemented")
+       		     SET(${BUILD_DATE} 000000)
+ENDIF( WIN32 )
 SET( DIET_BUILD_VERSION ${BUILD_DATE})
 
 # --------------------- OPTIONS OF THE PROJECT -----------------------------
@@ -60,10 +73,6 @@ OPTION( DIET_TAU_PROFILING "Build DIET with TAU profiling support. (In developpm
 MARK_AS_ADVANCED( DIET_TAU_PROFILING )
 OPTION( DIET_USE_MULTICALL "Build DIET with the multiple async call (In development)" OFF)
 MARK_AS_ADVANCED( DIET_USE_MULTICALL )
-# ---- get C and CXX compiler version -----#
-EXEC_PROGRAM(${CMAKE_C_COMPILER} ARGS "-dumpversion" OUTPUT_VARIABLE CMAKE_C_COMPILER_VERSION )
-EXEC_PROGRAM(${CMAKE_CXX_COMPILER} ARGS "-dumpversion" OUTPUT_VARIABLE CMAKE_CXX_COMPILER_VERSION )
-
 
 # --------------------- OPTIONS SET BY DEFAULT  ----------------------------
 # One might wish not to compile DIET but just to build the docs:
@@ -73,6 +82,10 @@ OPTION( DIET_BUILD_LIBRARIES "Build DIET libraries." ON )
 OPTION( BUILD_SHARED_LIBS "Build libraries as shared libraries." ON )
 
 # --------------------- OPTIONS COHERENCE SANITY CHECKS --------------------
+
+IF( DIET_USE_ALT_BATCH AND NOT DIET_USE_CORI )
+  MESSAGE( SEND_ERROR "Because of needed batch estimations, CORI must also be selected." )
+ENDIF( DIET_USE_ALT_BATCH AND NOT DIET_USE_CORI )
 
 IF( DIET_BUILD_BLAS_EXAMPLES AND NOT DIET_BUILD_EXAMPLES )
   MESSAGE( SEND_ERROR "For DIET_BUILD_BLAS_EXAMPLES to be effective you MUST also set DIET_BUILD_EXAMPLES" )
@@ -99,8 +112,6 @@ ENDIF( DIET_USE_DYNAMICS AND NOT DIET_USE_DAGDA )
 IF( DIET_WITH_MULTI_MA AND DIET_USE_JXTA )
  MESSAGE(SEND_ERROR "Either set DIET_WITH_MULTI_MA or DIET_USE_JXTA. Not both.")
 ENDIF( DIET_WITH_MULTI_MA AND DIET_USE_JXTA )
-
-
 
 # --------------------- DEPENDENCIES TOWARDS "CLASSIC" C++ HEADERS ---------
 # This is just a convenience to advance the detection of any potential missing
@@ -150,28 +161,6 @@ FOREACH( function_to_check ${DIET_FUNCTIONS_TO_CHECK} )
     MESSAGE(FATAL_ERROR "Missing ${function_to_check} function.")
   ENDIF( NOT dummyfound${function_to_check} )
 ENDFOREACH( function_to_check )
-
-IF( DIET_USE_ALT_BATCH )
-    # In that case, CORI must also be present because of CORI_BATCH
-    IF( NOT DIET_USE_CORI )
-      MESSAGE( "Because of needed batch estimations, CORI must also be selected." )
-      SET( DIET_USE_CORI ON )
-    ENDIF( NOT DIET_USE_CORI )
-
-    # The HAVE_ALT_BATCH compiler flags has too many occurences to be cleanly
-    # associated with all the concerned files by using
-    # SET_SOURCE_FILES_PROPERTIES combined with PROPERTIES COMPILE_FLAGS.
-    # [For example ServiceTable.hh gets included in many places...]
-    ADD_DEFINITIONS( -DHAVE_ALT_BATCH )
-ENDIF( DIET_USE_ALT_BATCH )
-
-### CORI (COllector of Resource Information) is heavily dependant on
-# system calls for probing ressources:
-IF( DIET_USE_CORI )
-  ADD_DEFINITIONS( -DHAVE_CORI )
-  INCLUDE( ${DIET_SOURCE_DIR}/Cmake/ConfigureCORI.cmake )
-ENDIF( DIET_USE_CORI )
-
 
 #-------------- PLATFORM SPECIFIC COMPILATION FLAGS -----------------------
 # Requires CMake >= 2.4.7
@@ -226,8 +215,6 @@ ELSEIF( FREEBSD )
   ADD_DEFINITIONS( -D__freebsd__ )
 ENDIF( CYGWIN )
 
-
-
 # --------------------- DEPENDENCIES TOWARDS EXTERNAL PACKAGES -------------
 # Path to additional modules (i.e. used by FIND_PACKAGE commands making
 # reference to non CMake defined "standard" modules):
@@ -249,8 +236,6 @@ ELSE( OMNIORB4_FOUND )
   MESSAGE("    omniORB installation...")
   SET( OMNIORB4_DIR "" CACHE PATH "Root of omniORB instal tree." )
 ENDIF( OMNIORB4_FOUND )
-
-
 
 ## No mor
 #IF( DIET_BUILD_DOCUMENTATION )
@@ -280,6 +265,20 @@ ENDIF( OMNIORB4_FOUND )
 #  ENDIF( DIET_BUILD_DOCUMENTATION )
 #ENDIF( DIET_BUILD_DOCUMENTATION )
 
+# --------------------------- Batch support ------------------------
+IF( DIET_USE_ALT_BATCH )
+    ADD_DEFINITIONS( -DHAVE_ALT_BATCH )
+ENDIF( DIET_USE_ALT_BATCH )
+
+# --------------------------- CORI support ------------------------
+# CORI (COllector of Resource Information) is heavily dependant on
+# system calls for probing ressources:
+IF( DIET_USE_CORI )
+  ADD_DEFINITIONS( -DHAVE_CORI )
+  INCLUDE( ${DIET_SOURCE_DIR}/Cmake/ConfigureCORI.cmake )
+ENDIF( DIET_USE_CORI )
+
+# --------------------------- JXTA Multi MA support ------------------------
 # Enable dynamic MULTI-Master-Agent support based on JXTA library
 # (refer to http://www.jxta.org/ ). This is similar to functionalities offered
 # the DIET_WITH_MULTI_MA option (see below) except that JXTA is used in place
@@ -301,6 +300,7 @@ IF( DIET_USE_JXTA )
   ENDIF( NOT JAVA_INCLUDE_PATH )
 ENDIF( DIET_USE_JXTA )
 
+# --------------------------- Multi MA support ------------------------
 # So called MULTI-Master-Agent
 IF( DIET_WITH_MULTI_MA )
   ADD_DEFINITIONS( -DHAVE_MULTI_MA )
@@ -323,6 +323,7 @@ IF( DIET_USE_FAST )
   ENDIF( FAST_FOUND )
 ENDIF( DIET_USE_FAST )
 
+# --------------------------- Juxmem support ------------------------
 # Enable distributed shared memory based on Juxtaposed Memory (JuxMem)
 # library (refer to http://juxmem.gforge.inria.fr/ ).
 IF( DIET_USE_JUXMEM )
@@ -334,6 +335,7 @@ IF( DIET_USE_JUXMEM )
   ENDIF( JUXMEM_FOUND )
 ENDIF( DIET_USE_JUXMEM )
 
+# --------------------------- Statistic support ------------------------
 IF( DIET_WITH_STATISTICS )
   # Enable generation of the statistics log:
   ADD_DEFINITIONS( -DHAVE_STATISTICS )
@@ -344,7 +346,7 @@ IF( DIET_BUILD_EXAMPLES AND DIET_BUILD_BLAS_EXAMPLES )
   FIND_PACKAGE( BLAS )
 ENDIF( DIET_BUILD_EXAMPLES AND DIET_BUILD_BLAS_EXAMPLES )
 
-### Workflow support:
+# --------------------------- Workflow support ------------------------
 IF( DIET_USE_WORKFLOW )
   FIND_PACKAGE( Xerces )
   IF( XERCES_FOUND )
@@ -421,8 +423,21 @@ ENDIF( DIET_USE_MULTICALL )
 # --------------- OFFER BUILD MODE EXTENSIONS AND DEFAULTS  ----------------
 INCLUDE( ${DIET_SOURCE_DIR}/Cmake/DietDefaultBuildTypes.cmake )
 
-# ---------------- HANDLE SPECIFICITIES OF THE C COMPILER ------------------
+# --------------- HANDLE SPECIFICITIES OF THE C COMPILER -------------------
 INCLUDE( ${DIET_SOURCE_DIR}/Cmake/ConfigureCCompiler.cmake )
+
+#---------------- COMPILER SPECIFIC COMPILATION FLAGS ----------------------
+
+IF( CMAKE_COMPILER_IS_GNUCC )
+  # Get version
+  EXEC_PROGRAM(${CMAKE_C_COMPILER} ARGS "-dumpversion" 
+  				   OUTPUT_VARIABLE CMAKE_C_COMPILER_VERSION )
+  EXEC_PROGRAM(${CMAKE_CXX_COMPILER} ARGS "-dumpversion"
+  				     OUTPUT_VARIABLE CMAKE_CXX_COMPILER_VERSION)
+  # Use ISO 99C
+  SET( CMAKE_C_FLAGS ${CMAKE_C_FLAGS} " -std=gnu99" )
+  STRING( REPLACE ";" " " CMAKE_C_FLAGS ${CMAKE_C_FLAGS} ) # transform previous list in a string
+ENDIF( CMAKE_COMPILER_IS_GNUCC )
 
 # ---------------- SET THE LINKER SEARCH PATH (RPATH) ----------------------
 SET( CMAKE_INSTALL_RPATH_USE_LINK_PATH ON
