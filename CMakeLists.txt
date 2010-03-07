@@ -3,7 +3,7 @@
 #############################################################################
 
 PROJECT(DIET)
-CMAKE_MINIMUM_REQUIRED(VERSION 2.4)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 IF( COMMAND CMAKE_POLICY )
   # CMAKE policy CMP0002: CMake 2.6 introduces policy CMP0002 which
