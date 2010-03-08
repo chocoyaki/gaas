@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2010/03/08 13:18:36  bisnard
+ * corrected bug in EFT calculation when task duration exceeds the estimation
+ *
  * Revision 1.8  2009/08/17 15:24:31  bdepardo
  * JobQueue wasn't thread safe. Added most of the code into critical sections.
  *
@@ -172,14 +175,18 @@ JobQueue::estimateEFTwithFIFOSched() {
     if (job.status == DIET_JOB_RUNNING) {
       nbJobsRunning++;
       double remainCompTime =  job.startTime + job.estCompTime - currTime;
+      double newEFT = procMap.begin()->first;
       if (remainCompTime > 0) {
-
-        // add this job to the proc with lowest EFT
-        double newEFT = procMap.begin()->first + remainCompTime;
-        procMap.erase(procMap.begin());
-        procMap.insert(make_pair(newEFT,0));
-
+        // if elapsed time < estimated time, estimated remaining time is known
+        newEFT += remainCompTime;
+      } else {
+        // if elapsed time > estimated time, remaining time is unknown
+        // we use an estimation of 10% of the computation time
+        newEFT += job.estCompTime / 10;
       }
+      // add this job to the processor with lowest EFT
+      procMap.erase(procMap.begin());
+      procMap.insert(make_pair(newEFT,0));
     }
   }
 
