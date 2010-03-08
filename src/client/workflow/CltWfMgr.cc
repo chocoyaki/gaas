@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.38  2010/03/08 13:37:50  bisnard
+ * replaced WfLogService by DietLogComponent
+ *
  * Revision 1.37  2009/10/23 13:59:24  bisnard
  * replaced \n by std::endl
  *
@@ -234,11 +237,17 @@ CltWfMgr::execNodeCommon(const char * node_id,
       if (isSedDefined) {
         SeD_var sed_var = SeD::_narrow(sed);
         launcher->setSeD(sed_var, (unsigned long) reqID, ev);
+        if (myLC) {
+          myLC->logWfNodeStart(dag_id, node_id,
+                               sed_var->getDataMgrID(),
+                               node->getPbName().c_str(),
+                               (unsigned long) reqID);
+        }
+      } else {
+        if (myLC) {
+          myLC->logWfNodeStart(dag_id, node_id);
+        }
       }
-
-//       if (this->myWfLogService != WfLogService::_nil()) {
-//         myWfLogService->nodeIsRunning(node_id, SeDHostName.c_str());
-//       }
 
       // NODE-LEVEL TRY BLOCK
       try {
@@ -257,6 +266,9 @@ CltWfMgr::execNodeCommon(const char * node_id,
             }
           }
           UNLOCK
+          if (myLC) {
+            myLC->logWfNodeFinish(dag_id, node_id);
+          }
           return 0;
         } else failureReason = "Node failure";
 
@@ -264,9 +276,7 @@ CltWfMgr::execNodeCommon(const char * node_id,
         failureReason = "Data error: " + e.ErrorMsg();
       } // end of NODE-LEVEL TRY BLOCK
 
-//       if (this->myWfLogService != WfLogService::_nil()) {
-//         myWfLogService->nodeIsDone(node_id);
-//       }
+
 
     } catch (WfStructException& e) {
       failureReason = e.ErrorMsg();
@@ -280,13 +290,16 @@ CltWfMgr::execNodeCommon(const char * node_id,
   } else failureReason = "Dag not found";
   cerr << "Execution of node " << dag_id << "-" << node_id << " failed! "
        << "(" << failureReason << ")" << endl;
+  if (myLC) {
+    myLC->logWfNodeFailed(dag_id, node_id);
+  }
   return 1;
 }
 
 CltWfMgr::CltWfMgr() : cltWfReqId(0), dagSentCount(0), mySem(0) {
   this->myMA = MasterAgent::_nil();
   this->myMaDag = MaDag::_nil();
-  this->myWfLogService = WfLogService::_nil();
+  this->myLC = NULL;
   gettimeofday(&this->refTime, NULL); // init reference time
 }
 
@@ -316,11 +329,11 @@ CltWfMgr::setMA(MasterAgent_var ma) {
 }
 
 /**
- * Set the workflow log service reference
+ * Set the log service reference
  */
 void
-CltWfMgr::setWfLogSrv(WfLogService_var logSrv) {
-  this->myWfLogService = logSrv;
+CltWfMgr::setLogComponent(DietLogComponent* logComponent) {
+  this->myLC = logComponent;
 }
 
 /**
@@ -520,18 +533,6 @@ CltWfMgr::wfDagCallCommon(diet_wf_desc_t *dagProfile, Dag *dag, bool parse, bool
     res = 1;
   }
   UNLOCK  /** UNLOCK (End of critical section for MaDAG call) */
-
-  // Call the Workflow Log Service if used
-  try {
-    if (this->myWfLogService != WfLogService::_nil()) {
-      myWfLogService->setWf(dagProfile->abstract_wf);
-    }
-  } catch (CORBA::SystemException& e) {
-    cerr << "WfLogService : Caught a CORBA " << e._name() << " exception ("
-         << e.NP_minorString() << ")" << endl ;
-  } catch (...) {
-    cerr << "Unknown exception with WfLogService (setWf)" << endl;
-  }
 
   delete dagProfile->abstract_wf;
   delete corba_profile;

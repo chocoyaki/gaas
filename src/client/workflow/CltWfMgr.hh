@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.20  2010/03/08 13:37:50  bisnard
+ * replaced WfLogService by DietLogComponent
+ *
  * Revision 1.19  2009/09/25 12:39:18  bisnard
  * modified includes to reduce inter-dependencies
  *
@@ -103,7 +106,7 @@
 #include "CltMan.hh"
 #include "MasterAgent.hh"
 #include "MaDag.hh"
-#include "WfLogService.hh"
+#include "DietLogComponent.hh"
 
 // DIET headers
 #include "DIET_data.h"
@@ -181,12 +184,12 @@ public:
   setMA(MasterAgent_var ma);
 
   /**
-   * Set the workflow log service reference
+   * Set the log service reference
    *
-   * @param logSrv workflow log service reference
+   * @param logComponent log service reference
    */
   void
-  setWfLogSrv(WfLogService_var logSrv);
+  setLogComponent(DietLogComponent* logComponent);
 
   /**
    * Get a new workflow request ID (for multi-dag submit)
@@ -414,9 +417,9 @@ private:
   MasterAgent_var myMA;
 
   /**
-   * Workflow log service CORBA object reference
+   * Log service reference
    */
-  WfLogService_var myWfLogService;
+  DietLogComponent* myLC;
 
   /**
    * Local workflow request ID counter
