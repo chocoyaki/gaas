@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.51  2010/03/08 13:43:23  bisnard
+ * added new logged event when a wf node becomes ready
+ *
  * Revision 1.50  2009/10/07 08:14:08  bisnard
  * modified trace messages
  *
@@ -197,8 +200,10 @@
 #include "marshalling.hh"
 #include "est_internal.hh"
 #include <math.h>
+#include <iomanip>
 #include "debug.hh"
 #include "statistics.hh"
+#include "DietLogComponent.hh"
 
 #include "MaDag_impl.hh"
 #include "MultiWfScheduler.hh"
@@ -328,7 +333,7 @@ MultiWfScheduler::scheduleNewDag(Dag * newDag, MetaDag * metaDag)
   OrderedNodeQueue * readyNodeQ = this->createNodeQueue(newDag);
 
   // Init queue by setting input nodes as ready
-  newDag->setInputNodesReady();
+  newDag->setInputNodesReady(this);
 
   // Insert node queue into pool of node queues managed by the scheduler
   TRACE_TEXT (TRACE_ALL_STEPS, "Inserting new node queue into queue pool" << endl);
@@ -369,6 +374,7 @@ MultiWfScheduler::run() {
   }
 
   TRACE_TEXT(TRACE_ALL_STEPS,"Multi-Workflow scheduler is running" << endl);
+  cout << setiosflags(ios_base::fixed) << setprecision(0);  // display double as int
   /// Start a ROUND of node ordering & mapping
   /// New rounds are started as long as some nodes can be mapped to ressources
   /// (if no more ressources then we wait until a node is finished or a new dag
@@ -826,6 +832,19 @@ MultiWfScheduler::wakeUp(bool newDag, DagNode *node) {
   myWakeUpLock.unlock();
   // call POST on semaphore
   this->mySem.post();
+}
+
+/**
+ * Call the LogService when a node becomes ready for queueing
+ * (happens when node has no more pending dependencies)
+ */
+void
+MultiWfScheduler::handlerNodeReady(DagNode *node) {
+  DietLogComponent* LC = myMaDag->getDietLogComponent();
+  if (LC) {
+    LC->logWfNodeReady(node->getDag()->getId().c_str(),
+                       node->getId().c_str());
+  }
 }
 
 /**

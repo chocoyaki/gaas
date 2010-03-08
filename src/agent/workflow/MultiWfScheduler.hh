@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.23  2010/03/08 13:43:23  bisnard
+ * added new logged event when a wf node becomes ready
+ *
  * Revision 1.22  2009/09/25 12:42:09  bisnard
  * - use new DagNodeLauncher classes to manage threads
  * - added dag cancellation method
@@ -307,6 +310,12 @@ namespace madag {
      */
     virtual void
         wakeUp(bool newDag, DagNode * node = NULL);
+
+    /**
+     * Updates scheduler when a node has no (more) dependencies
+     */
+    virtual void
+        handlerNodeReady(DagNode *node);
 
     /**
      * Updates scheduler when a node has been completed successfully
