@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.140  2010/03/08 13:22:23  bisnard
+ * initialize DietLogComponent for DAGDA agent and Client Wf Mgr
+ *
  * Revision 1.139  2009/09/25 12:42:28  bisnard
  * added dag cancellation method
  *
@@ -341,6 +344,7 @@ using namespace std;
 #include "Parsers.hh"
 #include "SeD.hh"
 #include "statistics.hh"
+#include "DietLogComponent.hh"
 
 #if HAVE_DAGDA
 #include "DIET_Dagda.hh"
@@ -392,8 +396,10 @@ static size_t USE_ASYNC_API = 1;
 #ifdef HAVE_WORKFLOW
 /** The MA DAG reference */
 static MaDag_var MA_DAG = MaDag::_nil();
-static WfLogService_var myWfLogService = WfLogService::_nil();
 #endif
+
+/** The DietLogComponent */
+DietLogComponent* dietLogComponent;
 
 /****************************************************************************/
 /* Manage MA name and Session Number for data persistency issue             */
@@ -531,7 +537,6 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
     myargc = tmp_argc;
   }
 
-
   /* Get the USE_ASYNC_API flag */
   value = Parsers::Results::getParamValue(Parsers::Results::USEASYNCAPI);
   if (value != NULL)
@@ -578,6 +583,69 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
   /* Initialize statistics module */
   stat_init();
 
+  // modif bisnard_logs_1
+  /* Initialize LogService */
+  bool useLS = false;
+  unsigned int* ULSptr;
+  int outBufferSize;
+  unsigned int* OBSptr;
+  int flushTime;
+  unsigned int* FTptr;
+
+  ULSptr = (unsigned int*)Parsers::Results::getParamValue(
+              Parsers::Results::USELOGSERVICE);
+  if (ULSptr == NULL) {
+// 	  WARNING(" useLogService not configured. Disabled by default\n");
+  } else {
+    if (*ULSptr) {
+      useLS = true;
+    }
+  }
+  if (useLS) {
+    OBSptr = (unsigned int*)Parsers::Results::getParamValue(
+  	       Parsers::Results::LSOUTBUFFERSIZE);
+    if (OBSptr != NULL) {
+      outBufferSize = (int)(*OBSptr);
+    } else {
+      outBufferSize = 0;
+//       WARNING("lsOutbuffersize not configured, using default");
+    }
+    FTptr = (unsigned int*)Parsers::Results::getParamValue(
+  	       Parsers::Results::LSFLUSHINTERVAL);
+    if (FTptr != NULL) {
+      flushTime = (int)(*FTptr);
+    } else {
+      flushTime = 10000;
+//       WARNING("lsFlushinterval not configured, using default");
+    }
+    TRACE_TEXT(TRACE_ALL_STEPS, "LogService enabled\n");
+    char* agtTypeName = strdup("CLIENT");
+    char* agtParentName;
+    agtParentName = (char*)Parsers::Results::getParamValue
+                          (Parsers::Results::MANAME);
+
+    if (userDefName != NULL){
+      dietLogComponent = new DietLogComponent(userDefName, outBufferSize);
+    } else {
+#if HAVE_DAGDA
+      // Use DAGDA agent as component name (same ref as in data transfer logs)
+      dietLogComponent = new DietLogComponent(DagdaFactory::getClientName(), outBufferSize);
+#else
+      dietLogComponent = new DietLogComponent("", outBufferSize);
+#endif
+    }
+    ORBMgr::activate(dietLogComponent);
+
+    if (dietLogComponent->run(agtTypeName, agtParentName, flushTime) != 0) {
+      WARNING("Could not initialize DietLogComponent");
+      dietLogComponent = NULL; // this should not happen;
+    }
+    free(agtTypeName);
+
+  } else {
+    dietLogComponent = NULL;
+  }
+  // end modif bisnard_logs_1
 
   //create_file();
   MA_MUTEX.unlock();
@@ -585,6 +653,22 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
   /** get Num session*/
   num_Session = MA->get_session_num();
 
+#ifdef HAVE_CCS
+  char * specific_scheduling = (char*)
+    Parsers::Results::getParamValue(Parsers::Results::USE_SPECIFIC_SCHEDULING);
+  if ((specific_scheduling != NULL) && (strlen(specific_scheduling) > 1)) {
+    SpecificClientScheduler::setSchedulingId(specific_scheduling);
+  }
+#endif // HAVE_CCS
+
+#if HAVE_DAGDA
+  // Dagda component activation.
+  DagdaImpl* tmpDataManager = DagdaFactory::getClientDataManager();
+  tmpDataManager->setLogComponent( dietLogComponent ); // modif bisnard_logs_1
+  ORBMgr::activate(tmpDataManager);
+#endif // HAVE_DAGDA
+
+// modif bisnard_logs_1
 #ifdef HAVE_WORKFLOW
   // Workflow parsing
   /* Find the MA_DAG */
@@ -600,44 +684,15 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
     }
     else {
       CltWfMgr::instance()->setMaDag(MA_DAG);
+      CltWfMgr::instance()->setLogComponent(dietLogComponent);
     }
   } // end if (MA_DAG_name != NULL)
-
-  // check if the Workflow Log Service is used
-  USE_WF_LOG_SERVICE = (char*) Parsers::Results::getParamValue(Parsers::Results::USEWFLOGSERVICE);
-  if (USE_WF_LOG_SERVICE != NULL) {
-    if (!strcmp(USE_WF_LOG_SERVICE, "1")) {
-      TRACE_TEXT(TRACE_MAIN_STEPS, "Connecting to Workflow Log Service" << endl);
-      CORBA::Object_var obj =
-        ORBMgr::getObjReference(ORBMgr::WFLOGSERVICE, "WfLogService");
-      WfLogService_var wfLogSrv = WfLogService::_narrow(obj);
-      if (CORBA::is_nil(wfLogSrv)) {
-	ERROR("cannot locate the Workflow Log Service ", 1);
-      }
-      else {
-        CltWfMgr::instance()->setWfLogSrv(wfLogSrv);
-      }
-    }
-  }
 
   // Init the Xerces engine
   XMLPlatformUtils::Initialize();
 
 #endif
-
-#ifdef HAVE_CCS
-  char * specific_scheduling = (char*)
-    Parsers::Results::getParamValue(Parsers::Results::USE_SPECIFIC_SCHEDULING);
-  if ((specific_scheduling != NULL) && (strlen(specific_scheduling) > 1)) {
-    SpecificClientScheduler::setSchedulingId(specific_scheduling);
-  }
-#endif // HAVE_CCS
-
-#if HAVE_DAGDA
-  // Dagda component activation.
-  DagdaImpl* tmpDataManager = DagdaFactory::getClientDataManager();
-  ORBMgr::activate(tmpDataManager);
-#endif // HAVE_DAGDA
+//end modif bisnard_logs_1
 
 /* DAGDA needs some parameters later... */
 #if ! HAVE_DAGDA
