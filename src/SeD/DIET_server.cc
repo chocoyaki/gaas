@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.88  2010/03/08 13:33:40  bisnard
+ * initialize DietLogComponent for DAGDA agent
+ *
  * Revision 1.87  2010/03/05 02:38:03  ycaniou
  * Integration of SGE (still not complete) + fixes
  *
@@ -953,6 +956,7 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
   SeD->linkToDataMgr(dataMgr);
 #else
   dataManager = DagdaFactory::getSeDDataManager();
+  dataManager->setLogComponent( dietLogComponent ); // modif bisnard_logs_1
 
   ORBMgr::activate(dataManager);
   SeD->setDataManager(dataManager);
@@ -1506,7 +1510,7 @@ diet_set_server_status( diet_server_status_t status )
 
 #ifdef HAVE_ALT_BATCH
 int
-diet_submit_parallel(diet_profile_t * profile, 
+diet_submit_parallel(diet_profile_t * profile,
 		     const char * addon_prologue,
 		     const char * command)
 {
