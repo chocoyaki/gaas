@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2010/03/08 13:19:13  bisnard
+ * added new events for workflow monitoring
+ *
  * Revision 1.1  2010/03/03 14:26:35  bdepardo
  * BEWARE!!!
  * Huge modifications to take into account CYGWIN.
@@ -309,6 +312,7 @@ public:
    * (No ID here, ID exists only in async and is client-specific)
    */
   void logBeginSolve(const char* path, const corba_profile_t* problem);
+  void logEndDownload(const char* path, const corba_profile_t* problem); // modif bisnard_logs_1
   void logEndSolve(const char* path, const corba_profile_t* problem);
 
   /**
@@ -321,6 +325,9 @@ public:
 			    const char* destAgent);
   void logDataEndTransfer(const char* dataID,
 			    const char* destAgent);
+  void logDataTransferTime(const char* dataID,
+                           const char* destAgent,
+                           const unsigned long elapsedTime);  // modif bisnard_logs_1
 
 #if HAVE_JUXMEM
   /**
@@ -400,6 +407,36 @@ public:
 
 #ifdef HAVE_WORKFLOW
 
+  // modif bisnard_logs_1
+  /**
+   * Send msg : workflow node queued (ie ready for execution)
+   */
+  void logWfNodeReady(const char *dagName,
+                      const char *nodeName);
+
+  /**
+   * Send msg : workflow node execution start
+   */
+  void logWfNodeStart(const char *dagName,
+                      const char *nodeName,
+                      const char *sedName,
+                      const char *pbName,
+                      const unsigned long reqID);
+  void logWfNodeStart(const char *dagName,
+                      const char *nodeName);
+
+  /**
+   * Send msg : workflow node execution finish
+   */
+  void logWfNodeFinish(const char *dagName,
+                       const char *nodeName);
+
+  /**
+   * Send msg : workflow node failure
+   */
+  void logWfNodeFailed(const char *dagName,
+                       const char *nodeName);
+  // end modif bisnard_logs_1
   /**
    * Send msg and workflow processing time
    *

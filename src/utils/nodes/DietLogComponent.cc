@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2010/03/08 13:19:13  bisnard
+ * added new events for workflow monitoring
+ *
  * Revision 1.1  2010/03/03 14:26:35  bdepardo
  * BEWARE!!!
  * Huge modifications to take into account CYGWIN.
@@ -277,9 +280,10 @@ DietLogComponent::DietLogComponent(const char* name,
   isConnected = false;
 
   pingThread=NULL;
+  flushBufferThread=NULL; // modif bisnard_logs_1
 
   // define tags
-  tagCount = 23;
+  tagCount = 29;  // modif bisnard_logs_1
   tagFlags = createBoolArrayFalse(tagCount);
   tagNames = new char*[this->tagCount];
   tagNames[0] = strdup("ADD_SERVICE");
@@ -307,7 +311,12 @@ DietLogComponent::DietLogComponent(const char* name,
   tagNames[20] = strdup("NEW_PARENT");
   tagNames[21] = strdup("DISCONNECT");
   tagNames[22] = strdup("REMOVE");
-
+  tagNames[23] = strdup("DATA_TRANSFER_TIME");  // modif bisnard_logs_1
+  tagNames[24] = strdup("DAGNODE_READY");       // modif bisnard_logs_1
+  tagNames[25] = strdup("DAGNODE_START");       // modif bisnard_logs_1
+  tagNames[26] = strdup("DAGNODE_FINISH");      // modif bisnard_logs_1
+  tagNames[27] = strdup("DAGNODE_FAILED");      // modif bisnard_logs_1
+  tagNames[28] = strdup("END_DOWNLOAD");        // modif bisnard_logs_1
 
   CORBA::Object_ptr myLCCptr;
 
@@ -884,6 +893,20 @@ DietLogComponent::logBeginSolve(const char* path,
   }
 }
 
+// modif bisnard_logs_1
+void
+DietLogComponent::logEndDownload(const char* path,
+				 const corba_profile_t* problem) {
+  if (tagFlags[28]) {
+    char* s;
+    s = (char*)malloc((strlen(path)+num_Digits(problem->dietReqID)+2)*sizeof(char));
+    sprintf(s,"%s %ld",(const char *)(path),(unsigned long)(problem->dietReqID));
+    log(tagNames[28], s);
+    free(s);
+  }
+}
+// end modif bisnard_logs_1
+
 void
 DietLogComponent::logEndSolve(const char* path,
 			      const corba_profile_t* problem) {
@@ -977,6 +1000,19 @@ DietLogComponent::logDataEndTransfer(const char* dataID,
     free(s);
   }
 }
+
+// modif bisnard_logs_1
+void
+DietLogComponent::logDataTransferTime(const char* dataID,
+		     const char* destAgent, const unsigned long elapsedTime) {
+  if (tagFlags[23]) {
+    char* s;
+    s = (char*)malloc((strlen(dataID)+strlen(destAgent)+num_Digits(elapsedTime)+3)*sizeof(char));
+    sprintf(s,"%s %s %ld",dataID, destAgent, elapsedTime);
+    log(tagNames[23], s);
+  }
+}
+// end modif bisnard_logs_1
 
 #if HAVE_JUXMEM
 void
@@ -1130,6 +1166,68 @@ void DietLogComponent::logDetectorParams(const char *observed, double Pl, double
 #endif
 
 #ifdef HAVE_WORKFLOW
+// modif bisnard_logs_1
+/**
+ * Send node ready
+ */
+void DietLogComponent::logWfNodeReady(const char *dagName,
+                                      const char *nodeName)
+{
+  char* log_msg = (char*)malloc((strlen(dagName)+strlen(nodeName)+1)*sizeof(char)+1);
+  sprintf(log_msg,"%s:%s",dagName,nodeName);
+  log(tagNames[24], log_msg);
+  free(log_msg);
+}
+
+/**
+ * Send node execution start
+ */
+void DietLogComponent::logWfNodeStart(const char *dagName,
+                                      const char *nodeName,
+                                      const char *sedName,
+                                      const char *pbName,
+                                      const unsigned long reqID)
+{
+  char* log_msg = (char*)malloc((strlen(dagName)+strlen(nodeName)+strlen(pbName)
+                                 +strlen(sedName)+num_Digits(reqID)+4)*sizeof(char)+1);
+  sprintf(log_msg,"%s:%s:%s:%s %ld",dagName,nodeName,sedName,pbName,reqID);
+  log(tagNames[25], log_msg);
+  free(log_msg);
+}
+
+void DietLogComponent::logWfNodeStart(const char *dagName,
+                                      const char *nodeName)
+{
+  char* log_msg = (char*)malloc((strlen(dagName)+strlen(nodeName)+1)*sizeof(char)+1);
+  sprintf(log_msg,"%s:%s",dagName,nodeName);
+  log(tagNames[25], log_msg);
+  free(log_msg);
+}
+
+/**
+ * Send node execution finish
+ */
+void DietLogComponent::logWfNodeFinish(const char *dagName,
+                                       const char *nodeName)
+{
+  char* log_msg = (char*)malloc((strlen(dagName)+strlen(nodeName)+1)*sizeof(char)+1);
+  sprintf(log_msg,"%s:%s",dagName,nodeName);
+  log(tagNames[26], log_msg);
+  free(log_msg);
+}
+
+/**
+ * Send node failure
+ */
+void DietLogComponent::logWfNodeFailed(const char *dagName,
+                                       const char *nodeName)
+{
+  char* log_msg = (char*)malloc((strlen(dagName)+strlen(nodeName)+1)*sizeof(char)+1);
+  sprintf(log_msg,"%s:%s",dagName,nodeName);
+  log(tagNames[27], log_msg);
+  free(log_msg);
+}
+// end modif bisnard_logs_1
 /**
  * Send madag schedulerType
  */
