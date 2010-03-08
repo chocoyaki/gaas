@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.116  2010/03/08 13:33:09  bisnard
+ * new method to retrieve DAGDA agent ID (CORBA)
+ *
  * Revision 1.115  2009/11/30 17:58:08  bdepardo
  * New methods to remove the SeD in a cleaner way.
  *
@@ -469,7 +472,7 @@ SeDImpl::bindParent(const char * parentName) {
 
   /* Now we try to subscribe to a new parent */
   this->parent = parentTmp;
-    
+
   try {
     childID = this->parent->serverSubscribe(this->_this(), localHostName,
 #if HAVE_JXTA
@@ -555,7 +558,7 @@ SeDImpl::run(ServiceTable* services)
   /* Bind this SeD to its name in the CORBA Naming Service */
   name = (char*)Parsers::Results::getParamValue(Parsers::Results::NAME);
   if (name == NULL) {
-    /* Generate a name for this SeD and print it */    
+    /* Generate a name for this SeD and print it */
     name = new char[strlen(localHostName) + 7];
     sprintf(name, "%ld_%s", random() % 99999, localHostName);
     this->myName = new char[strlen(name)+1];
@@ -977,6 +980,10 @@ SeDImpl::solve(const char* path, corba_profile_t& pb)
 
   /* Data transfer */
   downloadSyncSeDData(profile,pb,cvt) ;
+
+  if (dietLogComponent != NULL) {
+    dietLogComponent->logEndDownload(path, &pb);
+  }
 
   /* Copying the name of the service in the profile...
    * Not sure this should be done here, but currently it isn't done
@@ -2002,5 +2009,13 @@ SeDImpl::addService(const corba_profile_desc_t& profile)
 
   return parent->addServices(this->childID, profiles);
 }
+
+// modif bisnard_logs_1
+char *
+SeDImpl::getDataMgrID() {
+  return CORBA::string_dup(this->dataManager->getID()) ;
+}
+// end modif bisnard_logs_1
+
 #endif //HAVE_DAGDA
 

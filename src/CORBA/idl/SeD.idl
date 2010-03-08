@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.20  2010/03/08 13:33:08  bisnard
+ * new method to retrieve DAGDA agent ID (CORBA)
+ *
  * Revision 1.19  2009/10/26 09:02:51  bdepardo
  * Added 3 methods to dynamically manage the hierarchy:
  * - long bindParent(in string parentName): change the parent of the SeD
@@ -105,7 +108,7 @@ interface SeD {
 		     in corba_pb_desc_t pb);
 
  /** update TIME_SINCE_LAST_SOLVE before client sends data */
-  void updateTimeSinceLastSolve() ;	
+  void updateTimeSinceLastSolve() ;
 
   /** Solve function: all arguments are inout for "const" reasons. */
   long solve(in string path, inout corba_profile_t pb);
@@ -119,6 +122,14 @@ interface SeD {
 
   oneway void solveAsync(in string path, in corba_profile_t pb,
                       in string volatileclientPtr);
+
+// modif bisnard_logs_1
+#if HAVE_DAGDA
+  /** get the DataMgr ID **/
+  string getDataMgrID();
+#endif
+// end modif bisnard_logs_1
+
 };
 
 

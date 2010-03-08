@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.48  2010/03/08 13:33:09  bisnard
+ * new method to retrieve DAGDA agent ID (CORBA)
+ *
  * Revision 1.47  2009/11/30 17:58:08  bdepardo
  * New methods to remove the SeD in a cleaner way.
  *
@@ -392,6 +395,7 @@ public:
   int removeService(const diet_profile_t* const profile);
   int removeServiceDesc(const diet_profile_desc_t* profile);
   int addService(const corba_profile_desc_t& profile);
+  virtual char* getDataMgrID(); // modif bisnard_logs_1
 #endif
 
 private:
