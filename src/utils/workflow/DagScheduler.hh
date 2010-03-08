@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2010/03/08 13:50:48  bisnard
+ * handle node ready event (for logging)
+ *
  * Revision 1.1  2009/01/16 13:53:09  bisnard
  * new abstract class to simplify dag event handling
  *
@@ -31,6 +34,16 @@ class DagScheduler {
      */
     virtual void
         handlerDagDone(Dag *dag) = 0;
+
+    /**
+     * Handle NODE READY event
+     * This event is triggered when one dag node's dependencies (ie previous
+     * nodes) are all completed. This is also triggered if the node has no
+     * dependencies when created (input node).
+     * @param node  the dag node reference
+     */
+    virtual void
+        handlerNodeReady(DagNode *node) = 0;
 
     /**
      * Handle NODE DONE event

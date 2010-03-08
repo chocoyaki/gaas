@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2010/03/08 13:50:48  bisnard
+ * handle node ready event (for logging)
+ *
  * Revision 1.16  2009/09/25 12:46:56  bisnard
  * - use new DagNodeLauncher classes to manage threads
  * - removed node_running attribute
@@ -453,13 +456,13 @@ public:
    * set the node as ready for execution
    */
   void
-  setAsReady();
+  setAsReady(DagScheduler* scheduler = NULL);
 
   /**
    * Called when a previous node execution is done *
    */
   void
-  prevNodeHasDone();
+  prevNodeHasDone(DagScheduler* scheduler = NULL);
 
   /**
    * Another method to get if the node is ready for execution *

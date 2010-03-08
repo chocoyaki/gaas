@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.27  2010/03/08 13:50:48  bisnard
+ * handle node ready event (for logging)
+ *
  * Revision 1.26  2009/09/25 12:49:11  bisnard
  * avoid deadlocks due to new thread mgmt in DagNodeLauncher
  *
@@ -373,7 +376,7 @@ public:
    * (used to notify node queue)
    */
   void
-  setInputNodesReady();
+  setInputNodesReady(DagScheduler* scheduler);
 
   /**
    * get the estimated makespan of the DAG

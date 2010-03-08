@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.33  2010/03/08 13:50:48  bisnard
+ * handle node ready event (for logging)
+ *
  * Revision 1.32  2009/09/25 12:49:11  bisnard
  * avoid deadlocks due to new thread mgmt in DagNodeLauncher
  *
@@ -595,13 +598,13 @@ Dag::getInputNodes() {
  * set all input nodes as ready
  */
 void
-Dag::setInputNodesReady() {
+Dag::setInputNodesReady(DagScheduler* scheduler) {
   vector<DagNode *> inputs = this->getInputNodes();
   for (vector<DagNode *>::iterator p = inputs.begin();
        p != inputs.end();
        p++) {
     DagNode * node = (DagNode *) *p;
-    node->setAsReady();
+    node->setAsReady(scheduler);
   }
 }
 
@@ -745,7 +748,7 @@ Dag::setNodeDone(DagNode* node, DagScheduler* scheduler) {
       for (list<WfNode*>::iterator nextIter = node->nextNodesBegin();
            nextIter != node->nextNodesEnd();
            ++nextIter) {
-          (dynamic_cast<DagNode*>(*nextIter))->prevNodeHasDone();
+          (dynamic_cast<DagNode*>(*nextIter))->prevNodeHasDone(scheduler);
       }
     }
     // manage dag termination when the current node is the last

@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.25  2010/03/08 13:50:48  bisnard
+ * handle node ready event (for logging)
+ *
  * Revision 1.24  2009/10/07 08:12:42  bisnard
  * fixed bug when using prec tag in dags
  *
@@ -149,7 +152,7 @@ DagNode::DagNode(const string& id, Dag *dag, FWorkflow* wf)
  * Node destructor
  */
 DagNode::~DagNode() {
-  TRACE_TEXT (TRACE_ALL_STEPS, "~DagNode() destructor (id: " << getCompleteId() << ") ..." << endl);
+//   TRACE_TEXT (TRACE_ALL_STEPS, "~DagNode() destructor (id: " << getCompleteId() << ") ..." << endl);
   if (profile != NULL)
     diet_profile_free(profile);
   if (myQueue)
@@ -459,7 +462,7 @@ DagNode::createProfile() {
  */
 void
 DagNode::initProfileSubmit() {
-  TRACE_TEXT(TRACE_ALL_STEPS,"Creating profile for Submit" << endl);
+//   TRACE_TEXT(TRACE_ALL_STEPS,"Creating profile for Submit" << endl);
   createProfile();
   for (map<string, WfPort*>::iterator p = ports.begin();
        p != ports.end();
@@ -467,7 +470,7 @@ DagNode::initProfileSubmit() {
     DagNodePort * dagPort = dynamic_cast<DagNodePort*>(p->second);
     dagPort->initProfileSubmit();
   }
-  TRACE_TEXT(TRACE_ALL_STEPS,"Profile for Submit done (" << myId << ")" << endl);
+//   TRACE_TEXT(TRACE_ALL_STEPS,"Profile for Submit done (" << myId << ")" << endl);
 }
 
 /**
@@ -534,7 +537,7 @@ DagNode::newChar(const string value) {
     charParams.push_back(cx);
   }
   else {
-    TRACE_TEXT (TRACE_ALL_STEPS, "$$$$$$$$$$$$$ Add a NULL" << endl);
+//     TRACE_TEXT (TRACE_ALL_STEPS, "$$$$$$$$$$$$$ Add a NULL" << endl);
     charParams.push_back(NULL);
   }
   return charParams[charParams.size() - 1];
@@ -552,7 +555,7 @@ DagNode::newShort(const string value) {
     shortParams.push_back(sx);
   }
   else {
-    TRACE_TEXT (TRACE_ALL_STEPS, "$$$$$$$$$$$$$ Add a NULL" << endl);
+//     TRACE_TEXT (TRACE_ALL_STEPS, "$$$$$$$$$$$$$ Add a NULL" << endl);
     shortParams.push_back(NULL);
   }
   return shortParams[shortParams.size() - 1];
@@ -571,8 +574,8 @@ DagNode::newInt(const string value) {
     intParams.push_back(ix);
   }
   else {
-    TRACE_TEXT (TRACE_ALL_STEPS,
-		"$$$$$$$$$$$$$ Add a NULL" << endl);
+//     TRACE_TEXT (TRACE_ALL_STEPS,
+// 		"$$$$$$$$$$$$$ Add a NULL" << endl);
     intParams.push_back(NULL);
   }
   return intParams[intParams.size() - 1];
@@ -591,8 +594,8 @@ DagNode::newLong(const string value) {
     longParams.push_back(lx);
   }
   else {
-    TRACE_TEXT (TRACE_ALL_STEPS,
-		"$$$$$$$$$$$$$ Add a NULL" << endl);
+//     TRACE_TEXT (TRACE_ALL_STEPS,
+// 		"$$$$$$$$$$$$$ Add a NULL" << endl);
     longParams.push_back(NULL);
   }
   return longParams[longParams.size() - 1];
@@ -852,9 +855,12 @@ DagNode::isReady() const {
  * (Notifies the nodequeue if available)
  */
 void
-DagNode::setAsReady() {
+DagNode::setAsReady(DagScheduler* scheduler) {
   if (this->myQueue != NULL) {
     this->myQueue->notifyStateChange(this);
+  }
+  if (scheduler) {
+    scheduler->handlerNodeReady(this);
   }
 }
 
@@ -926,10 +932,10 @@ DagNode::setAsDone(DagScheduler* scheduler) {
 /**
  * Called when a previous node execution is done (MaDag side)
  */
-void DagNode::prevNodeHasDone() {
+void DagNode::prevNodeHasDone(DagScheduler* scheduler) {
   prevNodesTodoCount--;
   if (this->isReady()) {
-    this->setAsReady();
+    this->setAsReady(scheduler);
   }
 }
 
