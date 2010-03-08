@@ -8,10 +8,13 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2010/03/08 13:58:51  bisnard
+ * compute data transfer time using real elapsed time instead of process time
+ *
  * Revision 1.5  2008/11/07 14:32:14  bdepardo
  * Headers correction
  *
- *							    
+ *
  ***********************************************************/
 
 #include "AdvancedDagdaComponent.hh"
@@ -20,22 +23,30 @@
 #include <iostream>
 #include <fstream>
 #include <ctime>
+#include <sys/time.h> // modif bisnard_logs_1
 #include "debug.hh"
 
 using namespace std;
 
+// modif bisnard_logs_1
 char* AdvancedDagdaComponent::sendFile(const corba_data_t &data, Dagda_ptr dest) {
-  clock_t begin;
-  clock_t end;
+  struct timeval tv1;
+  struct timeval tv2;
   char* ret;
-  
-  begin = clock();
+
+  gettimeofday(&tv1, NULL);
   ret = DagdaImpl::sendFile(data, dest);
-  end = clock();
-  
-  double elapsed=end-begin;
+  gettimeofday(&tv2, NULL);
+
+  double elapsed=(tv2.tv_sec-tv1.tv_sec) * 1000000 + \
+                 (tv2.tv_usec-tv1.tv_usec);
   TRACE_TEXT(TRACE_ALL_STEPS, "Data " << data.desc.id.idNumber <<
-    " transfered in " << elapsed << " time unit(s)." << endl);
+    " transfered in " << elapsed << " microsecond(s)." << endl);
+
+//   if (getLogComponent())
+//     getLogComponent()->logDataTransferTime(data.desc.id.idNumber,
+//                                            dest->getID(),
+//                                            (unsigned long) elapsed);
 
   if (stats!=NULL && elapsed!=0) {
     stats->addStat(string(getID()), string(dest->getID()),
@@ -47,19 +58,25 @@ char* AdvancedDagdaComponent::sendFile(const corba_data_t &data, Dagda_ptr dest)
 }
 
 char* AdvancedDagdaComponent::sendData(const char* ID, Dagda_ptr dest) {
-  clock_t begin;
-  clock_t end;
+  struct timeval tv1;
+  struct timeval tv2;
   char* ret;
   corba_data_t* data = getData(ID);
   size_t dataSize = data_sizeof(&data->desc);
-  
-  begin = clock();
+
+  gettimeofday(&tv1, NULL);
   ret = DagdaImpl::sendData(ID, dest);
-  end = clock();
-  
-  double elapsed=end-begin;
+  gettimeofday(&tv2, NULL);
+
+  double elapsed = (tv2.tv_sec-tv1.tv_sec) * 1000000 + \
+                   (tv2.tv_usec-tv1.tv_usec);
   TRACE_TEXT(TRACE_ALL_STEPS, "Data " << data->desc.id.idNumber <<
-    " transfered in " << elapsed << " time unit(s)." << endl);
+    " transfered in " << elapsed << " microsecond(s)." << endl);
+
+//   if (getLogComponent())
+//     getLogComponent()->logDataTransferTime(data->desc.id.idNumber,
+//                                            dest->getID(),
+//                                            (unsigned long) elapsed);
 
   if (stats!=NULL && elapsed!=0) {
     stats->addStat(string(getID()), string(dest->getID()),
@@ -69,6 +86,7 @@ char* AdvancedDagdaComponent::sendData(const char* ID, Dagda_ptr dest) {
   }
   return ret;
 }
+// end modif bisnard_logs_1
 
 void AdvancedDagdaComponent::lclAddData(Dagda_ptr src, const corba_data_t& data) {
   try {
@@ -91,7 +109,7 @@ void AdvancedDagdaComponent::lclAddData(Dagda_ptr src, const corba_data_t& data)
 	used = getUsedDiskSpace();
       }
       if (used+needed>max) needed += used-max;
-      
+
       if (mngFunction(this, needed, DGD_OBJ_TYPE(data)))
 	throw Dagda::NotEnoughSpace(ex.available);
       SimpleDagdaImpl::lclAddData(src, data);
@@ -206,7 +224,7 @@ void AdvancedDagdaComponent::incNbUsage(const char* dataID) {
 
 void AdvancedDagdaComponent::shareData(const corba_data_t& data) {
   std::map<string,Dagda_ptr>::iterator itch;
-  
+
   childrenMutex.lock();
   for (itch=getChildren()->begin();itch!=getChildren()->end();)
     try {
