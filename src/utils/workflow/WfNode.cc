@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2010/03/08 13:50:19  bisnard
+ * debug too verbose
+ *
  * Revision 1.4  2009/10/12 15:00:14  bisnard
  * added some const
  *
@@ -292,8 +295,6 @@ WfNode::addNodePredecessor(WfNode * node, const string& fullNodeId) {
  */
 void
 WfNode::setPrev(int index, WfNode * node) {
-    TRACE_TEXT (TRACE_ALL_STEPS, "The node " << myId << " has a new previous node " <<
- 		node->getId() << endl);
     prevNodes[index] = node;
     node->addNext(this);
 }

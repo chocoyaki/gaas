@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2010/03/08 13:50:19  bisnard
+ * debug too verbose
+ *
  * Revision 1.9  2008/11/08 19:12:40  bdepardo
  * A few warnings removal
  *
@@ -125,8 +128,8 @@ OrderedNodeQueue::~OrderedNodeQueue() { }
 // of the ready nodes list without doing any re-ordering
 void
 OrderedNodeQueue::pushNode(DagNode * node) {
-  TRACE_TEXT (TRACE_ALL_STEPS,
-      "Node " << node->getCompleteId() << " inserted at end of queue" << endl);
+//   TRACE_TEXT (TRACE_ALL_STEPS,
+//       "Node " << node->getCompleteId() << " inserted at end of queue" << endl);
   orderedNodes.push_back(node);
   node->setNodeQueue(this);
   this->nodeCounter++;
@@ -225,15 +228,15 @@ PriorityNodeQueue::pushNode(DagNode * insNode) {
   insNode->setNodeQueue(this);
   this->nodeCounter++;
 
-  if (nodeIter != orderedNodes.end()) {
-    TRACE_TEXT (TRACE_ALL_STEPS,
-      "Node " << insNode->getCompleteId() << " inserted before "
-          << curNode->getCompleteId() << " in queue" << endl);
-  } else if (curNode != NULL) {
-    TRACE_TEXT (TRACE_ALL_STEPS,
-      "Node " << insNode->getCompleteId() << " inserted last in queue" << endl);
-  } else {
-    TRACE_TEXT (TRACE_ALL_STEPS,
-      "Node " << insNode->getCompleteId() << " inserted first in queue" << endl);
-  }
+//   if (nodeIter != orderedNodes.end()) {
+//     TRACE_TEXT (TRACE_ALL_STEPS,
+//       "Node " << insNode->getCompleteId() << " inserted before "
+//           << curNode->getCompleteId() << " in queue" << endl);
+//   } else if (curNode != NULL) {
+//     TRACE_TEXT (TRACE_ALL_STEPS,
+//       "Node " << insNode->getCompleteId() << " inserted last in queue" << endl);
+//   } else {
+//     TRACE_TEXT (TRACE_ALL_STEPS,
+//       "Node " << insNode->getCompleteId() << " inserted first in queue" << endl);
+//   }
 }

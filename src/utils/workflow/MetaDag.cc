@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2010/03/08 13:50:19  bisnard
+ * debug too verbose
+ *
  * Revision 1.6  2009/09/25 12:49:11  bisnard
  * avoid deadlocks due to new thread mgmt in DagNodeLauncher
  *
@@ -124,8 +127,6 @@ MetaDag::setReleaseFlag(bool release, bool& isDone) {
 
 WfNode*
 MetaDag::getNode(const string& nodeId) throw (WfStructException) {
-  TRACE_TEXT (TRACE_ALL_STEPS,"Searching node " << nodeId
-                               << " in Metadag " << myId << endl);
   Dag * dag = NULL;
   string baseNodeId;
   string::size_type dagSep  = nodeId.find(":");
