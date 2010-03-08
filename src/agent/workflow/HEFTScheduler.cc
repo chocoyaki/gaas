@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2010/03/08 13:42:46  bisnard
+ * removed debug output
+ *
  * Revision 1.13  2009/09/25 12:39:13  bisnard
  * modified includes to reduce inter-dependencies
  *
@@ -210,10 +213,8 @@ HEFTScheduler::computeNodeWeights(const wf_response_t * wf_response,
     ix = n->getSubmitIndex(); // the index was stored before submitting to MA
     double w = 0;
     int    nbServers = wf_response->wfn_seq_resp[ix].response.servers.length();
-    cout << "[" << n->getId() << "]: nb servers = " << nbServers << endl;
     for (unsigned int jx=0; jx < nbServers; jx++) {
           w += this->getNodeDurationEst(wf_response, ix, jx);
-          cout << "[" << n->getId() << "]: w= " << w << endl;
     } // end for jx
     if (nbServers > 0) n->setEstDuration( w / nbServers);
     TRACE_TEXT (TRACE_ALL_STEPS, " HEFT : node " << n->getCompleteId() << " weight :"
