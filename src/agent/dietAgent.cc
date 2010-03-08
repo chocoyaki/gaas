@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.37  2010/03/08 13:21:51  bisnard
+ * initialize DietLogComponent for DAGDA agent
+ *
  * Revision 1.36  2010/03/03 10:19:03  bdepardo
  * Changed \n into endl
  *
@@ -179,7 +182,7 @@ main(int argc, char** argv)
 
   Parsers::Results::param_type_t compParam[] =
     {Parsers::Results::AGENTTYPE, Parsers::Results::NAME};
-  
+
   if ((res = Parsers::beginParsing(config_file_name)))
     return res;
   if ((res =
@@ -220,7 +223,7 @@ main(int argc, char** argv)
   /* Get listening port & hostname */
 
     // size_t --> unsigned int
-  unsigned int* port = (unsigned int*) 
+  unsigned int* port = (unsigned int*)
     (Parsers::Results::getParamValue(Parsers::Results::DIETPORT));
   char* host = (char*)
     (Parsers::Results::getParamValue(Parsers::Results::DIETHOSTNAME));
@@ -235,7 +238,7 @@ main(int argc, char** argv)
 	    sprintf(endPoint, "giop:tcp::%u", *port);
     } else {
 	    sprintf(endPoint, "giop:tcp:%s:%u", host,*port);
-    }	    
+    }
     myargv[myargc + 1] = (char*)endPoint;
     myargc = tmp_argc;
   }
@@ -280,7 +283,7 @@ main(int argc, char** argv)
     if (*ULSptr) {
       useLS = true;
     }
-  }  
+  }
   if (useLS) {
     // size_t --> unsigned int
     OBSptr = (unsigned int*)Parsers::Results::getParamValue(
@@ -299,7 +302,7 @@ main(int argc, char** argv)
     } else {
       flushTime = 10000;
       WARNING("lsFlushinterval not configured, using default");
-    }    
+    }
   }
 
   if (useLS) {
@@ -327,7 +330,7 @@ main(int argc, char** argv)
       dietLogComponent = NULL; // this should not happen;
     }
     free(agtTypeName);
-    
+
   } else {
     TRACE_TEXT(TRACE_ALL_STEPS, "LogService disabled" << endl);
     dietLogComponent = NULL;
@@ -339,13 +342,14 @@ main(int argc, char** argv)
 #endif // ! HAVE_JUXMEM && ! HAVE_DAGDA
 #if HAVE_DAGDA
   DagdaImpl* dataManager = DagdaFactory::getAgentDataManager();
+  dataManager->setLogComponent( dietLogComponent ); // modif bisnard_logs_1
 #endif // HAVE_DAGDA
 
   /* Create, activate, and launch the agent */
 
   if (agtType == Parsers::Results::DIET_LOCAL_AGENT) {
     Agt = new LocalAgentImpl();
-    TRACE_TEXT(NO_TRACE, 
+    TRACE_TEXT(NO_TRACE,
 	       "## LA_IOR " << ORBMgr::getIORString(Agt->_this()) << endl);
     fsync(1);
     fflush(NULL);
@@ -355,7 +359,7 @@ main(int argc, char** argv)
     res = ((LocalAgentImpl*)Agt)->run();
   } else {
     Agt = new MasterAgentImpl();
-    TRACE_TEXT(NO_TRACE, 
+    TRACE_TEXT(NO_TRACE,
 	     "## MA_IOR " << ORBMgr::getIORString(Agt->_this()) << endl);
     fsync(1);
     fflush(NULL);
@@ -397,12 +401,12 @@ main(int argc, char** argv)
     WARNING("parsing " << config_file_name << ": no ackFile specified");
   }
   else
-  { 
+  {
     cerr << "Open OutFile: "<< ackFile <<endl;
     ofstream out (ackFile);
     out << "ok" << endl << endl;
     out.close();
-  } 
+  }
 #endif
 
 
