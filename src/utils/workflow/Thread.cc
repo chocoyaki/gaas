@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2010/03/15 14:00:09  bdepardo
+ * C++ includes instead of C includes
+ *
  * Revision 1.6  2009/09/29 11:42:45  bisnard
  * commented out getId() due to pthread_t being actually an opaque type
  *
@@ -39,7 +42,7 @@
 
 #include <iostream>
 #include <assert.h>
-#include <string.h>
+#include <cstring>
 #include <cstdlib>
 #include "Thread.hh"
 

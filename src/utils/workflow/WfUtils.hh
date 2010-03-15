@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2010/03/15 14:00:09  bdepardo
+ * C++ includes instead of C includes
+ *
  * Revision 1.14  2009/10/02 07:46:15  bisnard
  * conversion of types for gwendia wf language
  *
@@ -70,7 +73,7 @@
 #define _WFUTILS_HH_
 
 //#include "DIET_data.h"
-#include <stdio.h>
+#include <cstdio>
 
 #include <omniconfig.h>
 #include <omnithread.h>
