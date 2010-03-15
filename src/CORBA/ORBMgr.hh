@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.19  2010/03/15 14:01:46  bdepardo
+ * Changes to support Cygwin: switching from classical mutex to semaphore
+ * due to double locking problems with mutex implementation under Cygwin
+ * (recursive mutex.)
+ *
  * Revision 1.18  2009/10/26 07:25:36  bdepardo
  * Changed default behavior: now a DIET element will wait on a SIGINT signal.
  * This allows a clean termination.
@@ -62,6 +67,10 @@
 
 #include <omniORB4/CORBA.h>
 #include <setjmp.h>
+
+#ifdef __cygwin__
+#include <semaphore.h>
+#endif
 
 #define INTERRUPTION_MGR 1
 
@@ -139,7 +148,12 @@ private:
   getRootContext();
 
 #if INTERRUPTION_MGR
+
+#ifdef __cygwin__
+  static sem_t waitLock;
+#else
   static omni_mutex waitLock;
+#endif
   static void
   SigIntHandler(int sig);
 #endif // INTERRUPTION_MGR

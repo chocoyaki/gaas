@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.23  2010/03/15 14:01:46  bdepardo
+ * Changes to support Cygwin: switching from classical mutex to semaphore
+ * due to double locking problems with mutex implementation under Cygwin
+ * (recursive mutex.)
+ *
  * Revision 1.22  2010/02/25 16:00:13  bdepardo
  * Removed maxGIOPConnectionPerServer = 50 from the default options.
  * This prevented the user from tweaking this value within the configuration
@@ -72,6 +77,10 @@ using namespace std;
 #include <signal.h>
 #include <setjmp.h>
 
+#ifdef __cygwin__
+#include <semaphore.h>
+#endif
+
 #include "ORBMgr.hh"
 #include "debug.hh"
 
@@ -91,7 +100,13 @@ const char* ORBMgr::CONTEXTS[] =
   };
 
 #if INTERRUPTION_MGR
+
+#ifndef __cygwin__
 omni_mutex ORBMgr::waitLock;
+#else
+sem_t ORBMgr::waitLock;
+#endif
+
 #endif
 
 int
@@ -179,12 +194,19 @@ ORBMgr::wait()
   signal(SIGINT, ORBMgr::SigIntHandler);
   try {
     std::cout << "Press CTRL+C to exit" << std::endl;
+#ifdef __cygwin__
+  sem_init(&waitLock,0,1);
+  sem_wait(&waitLock);
+  sem_wait(&waitLock);
+  sem_post(&waitLock);
+#else
     waitLock.lock();
     waitLock.lock();
     waitLock.unlock();
   } catch (...) {
     ERROR("exception caught in ORBMgr::" << __FUNCTION__, true);
   }
+#endif
   return 0;
 }
 #else // INTERRUPTION_MGR
@@ -411,7 +433,13 @@ ORBMgr::SigIntHandler(int sig)
 {
   /* Prevent from raising a new SIGINT handler */
   signal(SIGINT, SIG_IGN);
+#ifndef __cygwin__  
   waitLock.unlock();
+#else
+  sem_post(&waitLock);
+#endif
+
+//  ORBMgr::destroy();
 }
 #endif // INTERRUPTION_MGR
 
@@ -444,3 +472,7 @@ ORBMgr::getRootContext()
   }
   return rootContext;
 } // getRootContext()
+
+
+
+
