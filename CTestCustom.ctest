@@ -1,0 +1,18 @@
+SET( CTEST_CUSTOM_WARNING_EXCEPTION
+  
+  "omniORB4/cdrStream.h"
+  "omniORB4/callDescriptor.h"
+  "stl_function.h"
+  "stl_tree.h"
+  "@GLIBC_PRIVATE"
+  "GLIBC_2."
+)
+
+SET( CTEST_CUSTOM_MAXIMUM_NUMBER_OF_WARNINGS 500 )
+
+IF ( LAUNCH_TESTING )
+SET( CTEST_CUSTOM_PRE_TEST
+  "/Users/ecaron/dietsrc/diet/src/Testing/OmniDaemon.bash start" )
+SET( CTEST_CUSTOM_POST_TEST
+  "/Users/ecaron/dietsrc/diet/src/Testing/OmniDaemon.bash stop" )
+ENDIF ( LAUNCH_TESTING )
