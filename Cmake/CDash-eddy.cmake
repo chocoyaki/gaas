@@ -81,7 +81,7 @@ DIET_USE_CORI:BOOL=ON
 
 ///////////////////////////////////////////////// USE_DART OPTION
 //Build DIET for dart reporting...
-DIET_USE_DART:BOOL=ON
+DIET_USE_DART:BOOL=OFF
 
 ///////////////////////////////////////////////// USE_FD OPTION
 //Use Diet Fault Detector.
