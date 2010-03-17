@@ -17,7 +17,7 @@ INSTALL_FILES(
   ${CMAKE_BINARY_DIR}/include/Makefile.inc
 )
 
-ADD_SUBDIRECTORY( Ctest )
+# ADD_SUBDIRECTORY( Ctest )
 
 # FIXME: wait until cmake disposes of a more powerful INSTALL_FILES
 #        to add the equivalent of the following line (refer to thread
