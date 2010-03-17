@@ -1,7 +1,6 @@
 #############################################################################
 # DIET main cmake entry point: comment or perish...                         #
 #############################################################################
-
 PROJECT(DIET)
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
@@ -50,6 +49,7 @@ OPTION( DIET_BUILD_BLAS_EXAMPLES "Build BLAS based DIET examples." OFF )
 OPTION( DIET_BUILD_EXAMPLES      "Build DIET examples." OFF )
 #OPTION( DIET_BUILD_DOCUMENTATION "Build the documentation." OFF ) ## go in the doc dir
 OPTION( DIET_USE_ALT_BATCH  "Build DIET with Batch support." OFF )
+OPTION( DIET_USE_CDASH "Build DIET with CDash reporting support." OFF)
 OPTION( DIET_USE_CORI   "Build DIET with CORI support." OFF )
 OPTION( DIET_USE_DART   "Build DIET with dart reporting support." OFF)
 OPTION( DIET_USE_DYNAMICS   "Build DIET with dynamic hierarchy modifications features." OFF)
@@ -447,7 +447,7 @@ SET( CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib
 SET(CMAKE_INSTALL_NAME_DIR ${CMAKE_INSTALL_PREFIX}/lib)
 
 # ------------------- CTEST SUPPORT ----------------------------------------
-IF( BUILD_TESTING OR DIET_USE_DART )
+IF( BUILD_TESTING OR DIET_USE_DART OR DIET_USE_CDASH )
   INCLUDE( ${DIET_SOURCE_DIR}/Cmake/FindTestingUtils.cmake )
   # Caveat emptor:
   # 1/ Excerpt from docs about ENABLE_TESTING:
@@ -467,7 +467,7 @@ IF( BUILD_TESTING OR DIET_USE_DART )
   ELSE( EXECUTABLE_OUTPUT_PATH )
     SET (CXX_TEST_PATH .)
   ENDIF (EXECUTABLE_OUTPUT_PATH)
-ENDIF( BUILD_TESTING OR DIET_USE_DART )
+ENDIF( BUILD_TESTING OR DIET_USE_DART OR DIET_USE_CDASH)
 
 # ---------------- OPTIONAL DART2 CLIENT SUPPORT ---------------------------
 # Refer to http://na-mic.org/Wiki/index.php/Dart2Summary
@@ -476,6 +476,14 @@ IF( DIET_USE_DART )
   # a CTestConfig.cmake file: refer to Modules/CTest.cmake for further details.
   INCLUDE( CTest )
 ENDIF( DIET_USE_DART )
+
+# ---------------- OPTIONAL CDASH SUPPORT ---------------------------
+IF( DIET_USE_CDASH )
+  # With the following include you somehow engage yourself in providing
+  # a CTestConfig.cmake file: refer to Modules/CTest.cmake for further details.
+  INCLUDE( ${CMAKE_MODULE_PATH}/CDash-eddy.cmake )
+  INCLUDE( CTest )
+ENDIF( DIET_USE_CDASH )
 
 
 # ---------------- TAU PROFILING SUPPORT -----------------------------------
@@ -488,8 +496,6 @@ IF( DIET_TAU_PROFILING )
   OPTION( TAU_KEEP_MOD_SRC "Keep generated instrumented files." OFF )
   INCLUDE( ${CMAKE_MODULE_PATH}/TAU/TAU_Profiling.cmake )
 ENDIF( DIET_TAU_PROFILING )
-
-
 
 # ---------------- DYNAMIC HIERARCHY MODIFICATION FEATURES ----------------
 IF( DIET_USE_DYNAMICS )
