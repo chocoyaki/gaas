@@ -10,6 +10,7 @@ IF( DIET_BUILD_LIBRARIES )
     ${OMNIORB4_INCLUDE_DIR}
     ${DIET_SOURCE_DIR}/agent            # for MasterAgent.hh
     ${DIET_SOURCE_DIR}/src/utils
+    ${DIET_SOURCE_DIR}/src/utils/nodes
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${DIET_SOURCE_DIR}/src/CORBA        # for e.g. marshalling.hh
     ${DIET_SOURCE_DIR}/include          # for DIET_data.h
@@ -26,7 +27,7 @@ IF( DIET_BUILD_LIBRARIES )
   ENDIF( DIET_USE_JUXMEM )
 
   IF( DIET_USE_DAGDA )
-    INCLUDE_DIRECTORIES( ${DIET_SOURCE_DIR}/src/utils/DAGDA  ${DIET_SOURCE_DIR}/src/utils/nodes ${UUID_PATH} )
+    INCLUDE_DIRECTORIES( ${DIET_SOURCE_DIR}/src/utils/DAGDA  ${UUID_PATH} )
   ENDIF( DIET_USE_DAGDA )
 
 # COMPILE LIBRARY DIET_client
