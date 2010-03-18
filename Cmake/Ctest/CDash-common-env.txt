@@ -1,0 +1,32 @@
+####### Variable required still hard coded 
+############################
+SET( CMAKE_DIR "/usr/local/bin/")
+SET( OMNIORB4_DIR "$ENV{HOME}/local/omniORB-4.1.4")
+SET( DIR_CURRENT "$ENV{HOME}/diet" )
+SET( CTEST_SOURCE_DIRECTORY "$ENV{HOME}/diet" )
+SET( CTEST_BINARY_DIRECTORY "$ENV{HOME}/diet/BUILD" )
+
+####### Project Information
+############################
+SET(PROJECT_NAME "DIET")
+SET(CTEST_PROJECT_NAME "DIET")
+SET(CTEST_SITE "mycomputer")
+
+####### Drop information 
+############################
+SET (CTEST_DROP_METHOD "http")
+SET (CTEST_DROP_SITE "cdash.inria.fr")
+SET (CTEST_DROP_LOCATION "/CDash/submit.php?project=DIET")
+SET (CTEST_COMPRESS_SUBMISSION ON)
+SET (CTEST_TRIGGER_SITE "http://${DROP_SITE}/cgi-bin/Submit-CMake-TestingResults.pl")
+
+####### Cmake and Ctets configuration
+############################
+SET( CTEST_CMAKE_COMMAND "${CMAKE_DIR}/cmake " )
+SET(CTEST_CMAKE_COMMAND "${CMAKE_DIR}/cmake ./")
+SET(CTEST_CONFIGURE_COMMAND "${CMAKE_DIR}/cmake ./")
+SET( CTEST_COMMAND "${CMAKE_DIR}/ctest" )
+SET( CTEST_BUILD_COMMAND "make")
+SET( CTEST_START_WITH_EMPTY_BINARY_DIRECTORY TRUE )
+SET( CTEST_NIGHTLY_START_TIME "22:00:00 MEST")
+
