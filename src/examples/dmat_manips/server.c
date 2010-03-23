@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.30  2010/03/23 12:44:18  glemahec
+ * Correction des exemples pour DAGDA
+ *
  * Revision 1.29  2010/03/05 15:52:08  ycaniou
  * Ordered things in CMakelist.txt and update Display (Batch, build_version...)
  * Fix version guess of compiler (was gcc only)
@@ -60,10 +63,9 @@
 /*   - MatSUM = matrix addition (and thus SqMatSUM and SqMatSUM_opt) */
 /*   - MatPROD = matrix product                                      */
 
-#define NB_SRV 5
+#define NB_SRV 3
 static const char* SRV[NB_SRV] =
-  {"T", "MatPROD", "MatSUM", "SqMatSUM", "SqMatSUM_opt"};
-
+  {"T", "MatPROD", "MatSUM"};
 
 /*
  * SOLVE FUNCTIONS
@@ -72,26 +74,25 @@ static const char* SRV[NB_SRV] =
 int
 solve_T(diet_profile_t* pb)
 {
-  size_t* m = NULL;
-  size_t* n = NULL;
+  size_t m;
+  size_t n;
   double* A = NULL;
+  double* C = NULL;
   diet_matrix_order_t o;
-  int res;
+  int res, i;
 
   printf("Solve T ...");
 
-  diet_scalar_get(diet_parameter(pb,0), &m, NULL);
-  diet_scalar_get(diet_parameter(pb,1), &n, NULL);
-  diet_matrix_get(diet_parameter(pb,2), &A, NULL, NULL, NULL, &o);
-  
-  if ((res = T(*m, *n, A, (o == DIET_ROW_MAJOR))))
+  diet_matrix_get(diet_parameter(pb, 0), &A, NULL, &m, &n, &o);
+  C = malloc(n*m*sizeof(double));
+  for (i=0; i<n*m; ++i)
+    C[i]=A[i];
+  if ((res = T(m, n, A, (o == DIET_ROW_MAJOR))))
     return res;
   
   /* no need to set order */
-  diet_matrix_desc_set(diet_parameter(pb,2), *n, *m, DIET_MATRIX_ORDER_COUNT);
-
-  diet_free_data(diet_parameter(pb,0));
-  diet_free_data(diet_parameter(pb,1));
+  diet_matrix_set(diet_parameter(pb,1), C, DIET_VOLATILE, DIET_DOUBLE, n, m, o);
+  print_matrix(A, m, n, o);
 
   printf(" done\n");
   return 0;
@@ -106,32 +107,12 @@ solve_MatSUM(diet_profile_t* pb)
   double* A = NULL;
   double* B = NULL;
   double* C = NULL;
-  int arg_idx, res;
+  int res;
   
   printf("Solve MatSUM ...");
 
-
-#if defined(__FAST_0_4__)
-  /**
-   * In FAST 0.4.x, base/plus is declared to the LDIF base with only the two
-   * matrix dimensions as arguments. But the library expects the user to give
-   * two matrices, and it extracts itself their dimensions.
-   */
-  arg_idx = 0;
-
-#else  /* __FAST_0_4__ */
-  /**
-   * In FAST 0.8 and later, base/plus is also declared to the LDIF base with
-   * only the two matrix dimensions as arguments. But there is no more
-   * extraction of the dimensions, and then the two first arguments must be
-   * these dimensions.
-   */
-  arg_idx = 2;
-
-#endif /* __FAST_0_4__ */
-
-  diet_matrix_get(diet_parameter(pb,arg_idx), &A, NULL, &mA, &nA, &oA);
-  diet_matrix_get(diet_parameter(pb,(arg_idx+1)), &B, NULL, &mB, &nB, &oB);
+  diet_matrix_get(diet_parameter(pb, 0), &A, NULL, &mA, &nA, &oA);
+  diet_matrix_get(diet_parameter(pb, 1), &B, NULL, &mB, &nB, &oB);
   tA = (oA == DIET_ROW_MAJOR) ? 'T' : 'N';
   tB = (oB == DIET_ROW_MAJOR) ? 'T' : 'N';
   if ((mA != mB) || (nA != nB)) {
@@ -139,8 +120,10 @@ solve_MatSUM(diet_profile_t* pb)
 	    mA, nA, mB, nB);
     return 1;
   }
-  diet_matrix_get(diet_parameter(pb,(arg_idx+2)), &C, NULL, &mC, &nC, &oC);
-
+  
+  diet_matrix_get(diet_parameter(pb, 2), &C, NULL, &mC, &nC, &oC);
+  C = calloc(mC*nC, sizeof *C);
+  
   if (oC == DIET_ROW_MAJOR) {
     tA = (tA == 'T') ? 'N' : 'T';
     tB = (tB == 'T') ? 'N' : 'T';
@@ -148,17 +131,9 @@ solve_MatSUM(diet_profile_t* pb)
   } else {
     res = MatSUM(tA, tB, mA, nA, A, B, C);
   }
+  diet_matrix_set(diet_parameter(pb, 2), C, DIET_VOLATILE, DIET_DOUBLE, mC, nC, oC);
   if (res)
     return res;
-
-#if ! HAVE_JUXMEM  
-  diet_free_data(diet_parameter(pb,0));
-  diet_free_data(diet_parameter(pb,1));
-#if !defined(__FAST_0_4__)
-  diet_free_data(diet_parameter(pb,2));
-  diet_free_data(diet_parameter(pb,3));
-#endif /* ! __FAST_0_4__ */
-#endif /* ! HAVE_JUXMEM */
 
   printf(" done\n");
   return res;
@@ -168,37 +143,18 @@ solve_MatSUM(diet_profile_t* pb)
 int
 solve_MatPROD(diet_profile_t* pb)
 {
-  size_t mA, nA, mB, nB;
+  size_t mA, nA, mB, nB, nC, mC;
   char tA, tB;
   diet_matrix_order_t oA, oB, oC;
   double* A = NULL;
   double* B = NULL;
   double* C = NULL;
-  int arg_idx, res;
+  int res;
   
   printf("Solve MatPROD ...");
 
-#if defined(__FAST_0_4__)
-  /**
-   * In FAST 0.4.x, base/mult is declared to the LDIF base with only the three
-   * relevant matrix dimensions as arguments. But the library expects the user
-   * to give two matrices, and it extracts itself their dimensions.
-   */
-  arg_idx = 0;
-
-#else  /* __FAST_0_4__ */
-  /**
-   * In FAST 0.8 and later, base/plus is also declared to the LDIF base with
-   * only the three relevant matrix dimensions as arguments. But there is no
-   * more extraction of the dimensions, and then the three first arguments must
-   * be these dimensions.
-   */
-  arg_idx = 3;
-
-#endif /* __FAST_0_4__ */
-
-  diet_matrix_get(diet_parameter(pb,arg_idx), &A, NULL, &mA, &nA, &oA);
-  diet_matrix_get(diet_parameter(pb,(arg_idx+1)), &B, NULL, &mB, &nB, &oB);
+  diet_matrix_get(diet_parameter(pb, 0), &A, NULL, &mA, &nA, &oA);
+  diet_matrix_get(diet_parameter(pb, 1), &B, NULL, &mB, &nB, &oB);
   tA = (oA == DIET_ROW_MAJOR) ? 'T' : 'N';
   tB = (oB == DIET_ROW_MAJOR) ? 'T' : 'N';
   if (nA != mB) {
@@ -206,8 +162,8 @@ solve_MatPROD(diet_profile_t* pb)
     (long)mA, (long)nA, (long)mB, (long)nB);
     return 1;
   }
-  diet_matrix_get(diet_parameter(pb,(arg_idx+2)), &C, NULL, NULL, NULL, &oC);
-  
+  diet_matrix_get(diet_parameter(pb, 2), &C, NULL, &mC, &nC, &oC);
+  C = calloc(mC*nC, sizeof *C);
   
   if (oC == DIET_ROW_MAJOR) {
     tA = (tA == 'T') ? 'N' : 'T';
@@ -217,15 +173,7 @@ solve_MatPROD(diet_profile_t* pb)
     res = MatPROD(tA, tB, mA, nA, A, nB, B, C);
   }
 
-#if ! HAVE_JUXMEM
-  diet_free_data(diet_parameter(pb,0));
-  diet_free_data(diet_parameter(pb,1));
-#if !defined(__FAST_0_4__)
-  diet_free_data(diet_parameter(pb,2));
-  diet_free_data(diet_parameter(pb,3));
-  diet_free_data(diet_parameter(pb,4));
-#endif /* ! __FAST_0_4__ */
-#endif /* ! HAVE_JUXMEM */
+  diet_matrix_set(diet_parameter(pb, 2), C, DIET_VOLATILE, DIET_DOUBLE, mC, nC, oC);
 
   printf(" done\n");
   return res;
@@ -234,8 +182,8 @@ solve_MatPROD(diet_profile_t* pb)
 int
 usage(char* cmd)
 {
-  fprintf(stderr, "Usage: %s <file.cfg> [all | [%s][%s][%s][%s][%s] ]\n",
-	  cmd, SRV[0], SRV[1], SRV[2], SRV[3], SRV[4]);
+  fprintf(stderr, "Usage: %s <file.cfg> [all | [%s][%s][%s] ]\n",
+	  cmd, SRV[0], SRV[1], SRV[2]);
   return 1;
 }
 
@@ -249,10 +197,10 @@ main(int argc, char* argv[])
 {
   size_t i,j;
   int res;
-  int services[NB_SRV] = {0, 0, 0, 0, 0};
+  int services[NB_SRV] = {0, 0, 0};
 
   diet_profile_desc_t* profile = NULL;
-  diet_convertor_t*    cvt     = NULL;
+  diet_convertor_t* cvt = NULL;
   
   if (argc < 3) {
     return usage(argv[0]);
@@ -265,152 +213,46 @@ main(int argc, char* argv[])
       break;
     } else {
       for (j = 0; j < NB_SRV; j++) {
-	if (!strcmp(SRV[j], path)) {
-	  services[j] = 1;
-	  break;
-	}
+        if (!strcmp(SRV[j], path)) {
+          services[j] = 1;
+        break;
       }
-      if (j == NB_SRV)
-	exit(usage(argv[0]));
+    }
+    if (j == NB_SRV)
+      exit(usage(argv[0]));
     }
   }
   
   diet_service_table_init(NB_SRV);
   
   if (services[0]) {
-    profile = diet_profile_desc_alloc(SRV[0], -1, 0, 0);
-    diet_generic_desc_set(diet_param_desc(profile,0), DIET_MATRIX, DIET_DOUBLE);
-    /**
-     * Example of convertor:
-     *  solve_T assumes that the profile is (IN m, IN n, INOUT A), but we
-     *  declare a simpler service as (INOUT A). The convertor will let DIET
-     *  extract automatically m and n before calling solve_T.
-     */
-    cvt = diet_convertor_alloc("T", 1, 2, 2);
-    diet_arg_cvt_set(&(cvt->arg_convs[0]), DIET_CVT_MAT_NB_ROW, 0, NULL, 0);
-    diet_arg_cvt_set(&(cvt->arg_convs[1]), DIET_CVT_MAT_NB_COL, 0, NULL, 0);
-    diet_arg_cvt_short_set(&(cvt->arg_convs[2]), 0, NULL);
-    
-    diet_service_table_add(profile, cvt, solve_T);
+    profile = diet_profile_desc_alloc("T", 0, 0, 1);
+    diet_generic_desc_set(diet_param_desc(profile, 0), DIET_MATRIX, DIET_DOUBLE);
+    diet_generic_desc_set(diet_param_desc(profile, 1), DIET_MATRIX, DIET_DOUBLE);
+
+    diet_service_table_add(profile, NULL, solve_T);
     diet_profile_desc_free(profile);
-    diet_convertor_free(cvt);
   }
   
-  if (services[1] || services[2] || services[3]) {
-    const char* path = "still undefined";
-    profile = diet_profile_desc_alloc(path, 1, 1, 2);
+  if (services[1]) {
+    profile = diet_profile_desc_alloc("MatPROD", 1, 1, 2);
     diet_generic_desc_set(diet_param_desc(profile,0), DIET_MATRIX, DIET_DOUBLE);
     diet_generic_desc_set(diet_param_desc(profile,1), DIET_MATRIX, DIET_DOUBLE);
     diet_generic_desc_set(diet_param_desc(profile,2), DIET_MATRIX, DIET_DOUBLE);
 
-#if defined(__FAST_0_4__)
-    /**
-     * As FAST 0.4.x performs the conversion matrices -> dimensions, there is no
-     * convertor to define for the arguments. But the names of the services
-     * offered differ from the names used in the LDIF base. So let us define
-     * convertors that only convert the paths.
-     */
-    cvt = diet_convertor_alloc("still undefined", 1, 1, 2);
-    diet_arg_cvt_short_set(&(cvt->arg_convs[0]), 0, NULL);
-    diet_arg_cvt_short_set(&(cvt->arg_convs[1]), 1, NULL);
-    diet_arg_cvt_short_set(&(cvt->arg_convs[2]), 2, NULL);
-
-    for (i = 1; i <= 3; i++) {
-      if (services[i]) {
-	free(profile->path);
-	profile->path = strdup(SRV[i]);
-	free(cvt->path);
-	cvt->path = strdup((i == 1) ? "base/mult" : "base/plus");
-	if (diet_service_table_add(profile, cvt,
-				   (i == 1) ? solve_MatPROD : solve_MatSUM))
-	  return 1;
-      }
-    }
-    
-#else  /* __FAST_0_4__ */
-    {
-      diet_convertor_t* cvt_SUM = NULL;
-      /**
-       * solve_MatPROD assumes that the profile is
-       * (IN mA, IN nA, IN nB, IN A, IN B, OUT C), but we declare a simpler
-       * service as (IN A, IN B, OUT C). The convertor will let DIET extract
-       * automatically mA, nA and nB before calling solve_MatPROD.
-       */
-      cvt = diet_convertor_alloc("base/mult", 4, 4, 5);
-      diet_arg_cvt_set(&(cvt->arg_convs[0]), DIET_CVT_MAT_NB_ROW, 0, NULL, 0);
-      diet_arg_cvt_set(&(cvt->arg_convs[1]), DIET_CVT_MAT_NB_COL, 0, NULL, 0);
-      diet_arg_cvt_set(&(cvt->arg_convs[2]), DIET_CVT_MAT_NB_COL, 1, NULL, 1);
-      diet_arg_cvt_short_set(&(cvt->arg_convs[3]), 0, NULL);
-      diet_arg_cvt_short_set(&(cvt->arg_convs[4]), 1, NULL);
-      diet_arg_cvt_short_set(&(cvt->arg_convs[5]), 2, NULL);
-
-      /**
-       * solve_MatSUM assumes that the profile is
-       * (IN mA, IN nA, IN A, IN B, OUT C), but we declare simpler services as
-       * (IN A, IN B, OUT C). The convertor will let DIET extract automatically
-       * mA and nA before calling solve_MatSUM.
-       */
-      cvt_SUM = diet_convertor_alloc("base/plus", 3, 3, 4);
-      diet_arg_cvt_set(&(cvt_SUM->arg_convs[0]), DIET_CVT_MAT_NB_ROW, 0, NULL, 0);
-      diet_arg_cvt_set(&(cvt_SUM->arg_convs[1]), DIET_CVT_MAT_NB_COL, 0, NULL, 0);
-      diet_arg_cvt_short_set(&(cvt_SUM->arg_convs[2]), 0, NULL);
-      diet_arg_cvt_short_set(&(cvt_SUM->arg_convs[3]), 1, NULL);
-      diet_arg_cvt_short_set(&(cvt_SUM->arg_convs[4]), 2, NULL);
-
-      for (i = 1; i <= 3; i++) {
-	if (i == 2) {
-	  diet_convertor_free(cvt);
-	  cvt = cvt_SUM;
-	}
-	if (services[i]) {
-	  free(profile->path);
-	  profile->path = strdup(SRV[i]);
-	  if (diet_service_table_add(profile, cvt,
-				     (i == 1) ? solve_MatPROD : solve_MatSUM))
-	    return 1;
-	}
-      }
-    }
-#endif /* __FAST_0_4__ */
-
-    diet_convertor_free(cvt);
+    diet_service_table_add(profile, NULL, solve_MatPROD);
     diet_profile_desc_free(profile);
-
-  } /* if (services[1] || services[2] || services[3]) */
-
-
-  if (services[4]) {
-    profile = diet_profile_desc_alloc(SRV[4], 0, 1, 1);
+  }
+  
+  if (services[2]) {
+    profile = diet_profile_desc_alloc("MatSUM", 1, 1, 2);
     diet_generic_desc_set(diet_param_desc(profile,0), DIET_MATRIX, DIET_DOUBLE);
     diet_generic_desc_set(diet_param_desc(profile,1), DIET_MATRIX, DIET_DOUBLE);
-
-#if defined(__FAST_0_4__)
-    /* Profile expected by solve_MatSUM: (IN A, IN B, OUT C) */
-    cvt = diet_convertor_alloc("base/plus", 1, 1, 2);
-    i = 0;
-#else  /* __FAST_0_4__ */
-    /* Profile expected by solve_MatSUM: (IN mA, IN nA, IN A, IN B, OUT C)
-     * Thus, we must extract the first two dimensions. */
-    cvt = diet_convertor_alloc("base/plus", 3, 3, 4);
-    diet_arg_cvt_set(&(cvt->arg_convs[0]), DIET_CVT_MAT_NB_ROW, 0, NULL, 0);
-    diet_arg_cvt_set(&(cvt->arg_convs[1]), DIET_CVT_MAT_NB_COL, 0, NULL, 0);
-    i = 2;
-#endif /* __FAST_0_4__ */
-    /**
-     * As SqMatSUM_opt is declared with the profile (IN A, INOUT B) (to match a
-     * sub-service of the BLAS dgemm), the convertor must tell DIET to
-     * "duplicate" the (i+2)th argument. Actually, "duplicate" concerns only the
-     * description of the argument, not the memory space needed for the whole
-     * matrices.
-     */
-    diet_arg_cvt_short_set(&(cvt->arg_convs[i]), 0, NULL);
-    diet_arg_cvt_short_set(&(cvt->arg_convs[i+1]), 1, NULL);
-    diet_arg_cvt_short_set(&(cvt->arg_convs[i+2]), 1, NULL);
-    if (diet_service_table_add(profile, cvt, solve_MatSUM))
-      return 1;
-    diet_convertor_free(cvt);
-    diet_profile_desc_free(profile);    
-  }
+    diet_generic_desc_set(diet_param_desc(profile,2), DIET_MATRIX, DIET_DOUBLE);
+    
+    diet_service_table_add(profile, NULL, solve_MatSUM);
+    diet_profile_desc_free(profile);
+  } 
 
   diet_print_service_table();
   res = diet_SeD(argv[1], argc, argv);

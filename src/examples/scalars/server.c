@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2010/03/23 12:44:19  glemahec
+ * Correction des exemples pour DAGDA
+ *
  * Revision 1.3  2006/06/30 15:26:03  ycaniou
  * C++ commentaries -> C commentaries to remove compilation warnings
  *
@@ -125,7 +128,7 @@ solve_ADD(diet_profile_t* pb)
     diet_scalar_desc_set(diet_parameter(pb,2), l3);
   }
 
-  diet_free_data(diet_parameter(pb,0));
+ // diet_free_data(diet_parameter(pb,0));
 
   printf("Solve ADD ... done\n");
   return res;

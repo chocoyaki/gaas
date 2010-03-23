@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2010/03/23 12:44:19  glemahec
+ * Correction des exemples pour DAGDA
+ *
  * Revision 1.14  2010/03/05 15:52:09  ycaniou
  * Ordered things in CMakelist.txt and update Display (Batch, build_version...)
  * Fix version guess of compiler (was gcc only)
@@ -86,7 +89,7 @@ main(int argc, char* argv[])
   } 
 
   profile = diet_profile_alloc(path, 1, 1, 4);
-  if (diet_file_set(diet_parameter(profile,0), DIET_VOLATILE, argv[2])) {
+  if (diet_file_set(diet_parameter(profile,0), DIET_PERSISTENT, argv[2])) {
     printf("diet_file_set error\n");
     return 1;
   }

@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.28  2010/03/23 12:44:18  glemahec
+ * Correction des exemples pour DAGDA
+ *
  * Revision 1.27  2006/06/30 15:26:02  ycaniou
  * C++ commentaries -> C commentaries to remove compilation warnings
  *
@@ -72,9 +75,9 @@
   }
 
 
-#define NB_PB 5
+#define NB_PB 3
 static const char* PB[NB_PB] =
-  {"T", "MatPROD", "MatSUM", "SqMatSUM", "SqMatSUM_opt"};
+  {"T", "MatPROD", "MatSUM"};
 
 
 /* argv[1]: client config file path
@@ -83,8 +86,8 @@ static const char* PB[NB_PB] =
 void
 usage(char* cmd)
 {
-  fprintf(stderr, "Usage: %s %s <file.cfg> [%s|%s|%s|%s|%s]\n", cmd,
-	  "[--repeat <n>] [--pause <n µs>]", PB[0], PB[1], PB[2], PB[3], PB[4]);
+  fprintf(stderr, "Usage: %s %s <file.cfg> [%s|%s|%s|%s]\n", cmd,
+	  "[--repeat <n>] [--pause <n µs>]", PB[0], PB[1], PB[2], PB[3]);
   fprintf(stderr, "    ex: %s client.cfg T\n", cmd);
   fprintf(stderr, "        %s --repeat 1000 client.cfg MatSUM\n", cmd);
   fprintf(stderr, "        %s --repeat 1000 --pause 1000 %s\n",
@@ -107,7 +110,7 @@ main(int argc, char* argv[])
   double* C = NULL;
   diet_matrix_order_t oA, oB, oC;
 
-  int   pb[NB_PB] = {0, 0, 0, 0, 0};
+  int   pb[NB_PB] = {0, 0, 0};
 
   /* STATS */
   char* STAT_FILE_NAME = NULL;
@@ -142,9 +145,6 @@ main(int argc, char* argv[])
   }
   path = argv[argc - 1];
   
-#undef print_condition
-#define print_condition n_loops == 1
-
   if (diet_initialize(argv[1], argc, argv)) {
     fprintf(stderr, "DIET initialization failed !\n");
     return 1;
@@ -153,9 +153,7 @@ main(int argc, char* argv[])
   for (i = 0; i < NB_PB; i++) {
     if ((pb[i] = !strcmp(path, PB[i]))) break;
   }
-  /* Square matrix problems: */
-  if (pb[3] || pb[4])
-    n = m;
+  
 
   if ((STAT_FILE_NAME = getenv("DIET_STAT_FILE_NAME")))
     STAT_FILE = fopen(STAT_FILE_NAME, "wc");
@@ -184,26 +182,24 @@ main(int argc, char* argv[])
   }
 
   for (i = 0; i < n_loops; i++) {
-    if (pb[3] || pb[4]){  /* Square matrix problems */
-      n = 2; m = 2;
-    } else if (pb[1] || pb[2]){
+    if (pb[1] || pb[2]){
       n = 2; m = 3;
     }
   
     if (pb[0]) {
-      profile = diet_profile_alloc(path, -1, 0, 0);
-      diet_matrix_set(diet_parameter(profile,0),
+      profile = diet_profile_alloc(path, 0, 0, 1);
+      diet_matrix_set(diet_parameter(profile, 0),
 		      A, DIET_VOLATILE, DIET_DOUBLE, m, n, oA);
+      diet_matrix_set(diet_parameter(profile, 1),
+                      NULL, DIET_VOLATILE, DIET_DOUBLE, n, m, oA);
       print_matrix(A, m, n, (oA == DIET_ROW_MAJOR));
-
-    } else if (pb[1] || pb[2] || pb[3]) {
-      
+    } else if (pb[1] || pb[2]){
       profile = diet_profile_alloc(path, 1, 1, 2);
       diet_matrix_set(diet_parameter(profile,0),
 		      A, DIET_VOLATILE, DIET_DOUBLE, m, n, oA);
       print_matrix(A, m, n, (oA == DIET_ROW_MAJOR));
       if (pb[1]) {
-        diet_matrix_set(diet_parameter(profile,1),
+       diet_matrix_set(diet_parameter(profile,1),
 		        B, DIET_VOLATILE, DIET_DOUBLE, n, m, oB);
         print_matrix(B, n, m, (oB == DIET_ROW_MAJOR));
         diet_matrix_set(diet_parameter(profile,2),
@@ -215,56 +211,27 @@ main(int argc, char* argv[])
         diet_matrix_set(diet_parameter(profile,2),
 		        NULL, DIET_VOLATILE, DIET_DOUBLE, m, n, oC);
       }
-      
-    } else if (pb[4]) {
- 
-      profile = diet_profile_alloc(path, 0, 1, 1);
-      diet_matrix_set(diet_parameter(profile,0),
-		      A, DIET_VOLATILE, DIET_DOUBLE, m, m, oA);
-      print_matrix(A, m, m, (oA == DIET_ROW_MAJOR));
-      diet_matrix_set(diet_parameter(profile,1),
-		      B, DIET_VOLATILE, DIET_DOUBLE, m, m, oB);
-      print_matrix(B, m, m, (oB == DIET_ROW_MAJOR));
-    
     } else {
       fprintf(stderr, "Unknown problem: %s !\n", path);
       return 1;
     } 
-    
-    gettimeofday(&tv, NULL);
-    sec = tv.tv_sec;
-  
-    if ((STAT_FILE) && (tv.tv_sec >= sec + 1)) {
-      fprintf(STAT_FILE, "%10ld.%06ld|%s|%zd requests\n", 
-	      (long int)tv.tv_sec, (long int)tv.tv_usec, "INFO", nb_of_requests);
-      sec = tv.tv_sec;
-      nb_of_requests = 0;
-    }
-    if (pause != 0) {
-      fflush(stderr);
-      tv_pause.tv_sec = 0;
-      tv_pause.tv_usec = pause;
-      select(0, NULL, NULL, NULL, &tv_pause);
-    }
    
     nb_of_requests++;
     if (!diet_call(profile)) {
+
       if (pb[0]) {
-	diet_matrix_get(diet_parameter(profile,0), NULL, NULL, &m, &n, &oA);
-	print_matrix(A, m, n, (oA == DIET_ROW_MAJOR));
-      } else if (pb[4]) {
-	diet_matrix_get(diet_parameter(profile,0), NULL, NULL, &m, &n, &oB);
-	print_matrix(B, m, n, (oB == DIET_ROW_MAJOR));
+        diet_matrix_get(diet_parameter(profile, 1), &C, NULL, &m, &n, &oA);
+        print_matrix(C, m, n, (oA == DIET_ROW_MAJOR));
+        diet_free_data(diet_parameter(profile, 1));
       } else {
-	diet_matrix_get(diet_parameter(profile,2), &C, NULL, &m, &n, &oC);
-	print_matrix(C, m, n, (oC == DIET_ROW_MAJOR));
-	diet_free_data(diet_parameter(profile,2));
+        diet_matrix_get(diet_parameter(profile, 2), &C, NULL, &m, &n, &oC);
+        print_matrix(C, m, n, (oC == DIET_ROW_MAJOR));
+        diet_free_data(diet_parameter(profile, 2));
       }
     }
     diet_profile_free(profile);
   }
 
-  /* diet_profile_free(profile); */
   diet_finalize();
 
   return 0;

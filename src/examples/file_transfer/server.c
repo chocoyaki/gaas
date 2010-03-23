@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.18  2010/03/23 12:44:19  glemahec
+ * Correction des exemples pour DAGDA
+ *
  * Revision 1.17  2010/03/05 15:52:09  ycaniou
  * Ordered things in CMakelist.txt and update Display (Batch, build_version...)
  * Fix version guess of compiler (was gcc only)
@@ -79,6 +82,8 @@ solve_size(diet_profile_t* pb)
   char* path_result = NULL;
   int status = 0;
   struct stat buf;
+  size_t* s1 = calloc(1, sizeof *s1),
+        * s2 = calloc(1, sizeof *s2);
 
   fprintf(stderr, "Solve size ");
   
@@ -89,33 +94,27 @@ solve_size(diet_profile_t* pb)
   /* Regular file */
   if (!(buf.st_mode & S_IFREG))
     return 2;
-  diet_scalar_desc_set(diet_parameter(pb,2), &buf.st_size);
-  /* Unlink file */
-  diet_free_data(diet_parameter(pb,0));
+  *s1 = buf.st_size;
+  diet_scalar_set(diet_parameter(pb,2), s1, DIET_VOLATILE, DIET_INT);
   
-  diet_file_get(diet_parameter(pb,1), NULL, &arg_size, &path2);
+  diet_file_get(diet_parameter(pb, 1), NULL, &arg_size, &path2);
   fprintf(stderr, "and %s (%zd) ...", path2, arg_size);
   if ((status = stat(path2, &buf)))
     return status;
   if (!(buf.st_mode & S_IFREG))
     return 2;
-  diet_scalar_desc_set(diet_parameter(pb,3), &buf.st_size);
-  /* do not apply diet_free_data on param 1, since it is also the OUT file. */
-
-  /* Replace in the following:
-     1) if choose randomly if returns a NULL file or param 1
-     if (diet_file_desc_set(diet_parameter(pb,4), (rand()&1) ? path2 : NULL)) {
-     2) if determinist behavior (for test suite)
-  */
-  if (diet_file_desc_set(diet_parameter(pb,4), path2)) {
+  *s2 = buf.st_size;
+  diet_scalar_set(diet_parameter(pb,3), s2, DIET_VOLATILE, DIET_INT);
+  
+  path2 = strdup(path1);
+  
+  if (diet_file_set(diet_parameter(pb,4), DIET_VOLATILE, path2)) {
     printf("diet_file_desc_set error\n");
     return 1;
   }
   printf(" done\n");
-  /* Get the name of the file returned as the result */
-  diet_file_get(diet_parameter(pb,4), NULL, NULL, &path_result);
-  if (path_result)
-    printf("Returned file: %s.\n", path_result);
+
+  printf("Returned file: %s.\n", path2);
 
   /* **************
      Don't free the string names since they are not replicated from CORBA obj
