@@ -1,8 +1,8 @@
 ####### Include the file CDash-common-env.txt  with the Ctest environment 
 ####### You can fill this file with information of your local environment
 ############################
-
-INCLUDE ( "CDash-common-env.txt" )
+SET ( CVSFORCE "0" )
+INCLUDE( "CDash-common-env.txt" )
 
 SET(CTEST_BUILD_NAME "myos_gcc_x.x.x_OmniORB_x.x.x")
 
