@@ -14,5 +14,9 @@ ctest_configure(BUILD "${CTEST_SOURCE_DIRECTORY}")
 ctest_build(BUILD "${CTEST_SOURCE_DIRECTORY}") 
 ##ctest_test(BUILD "${CTEST_SOURCE_DIRECTORY}")
 
+IF ( CVSFORCE MATCHES "1" )
+  ctest_update()
+ENDIF( CVSFORCE MATCHES "1" )
+
 ctest_submit()
 
