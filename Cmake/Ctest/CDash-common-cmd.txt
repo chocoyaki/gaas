@@ -1,11 +1,22 @@
+####### Ctest running
+############################
+
+
 ####### Create the cache from compilation set 
 ############################
 file(WRITE "${CTEST_SOURCE_DIRECTORY}/CMakeCache.txt" "${CTEST_INITIAL_CACHE}")
 
 ####### Ctest running
 ############################
-ctest_start(Experimental)
+ctest_start( ${MODEL} )
+IF ( CVSFORCE MATCHES "1" )
+   ctest_update()
+ENDIF( CVSFORCE MATCHES "1" )
+
 ctest_configure(BUILD "${CTEST_SOURCE_DIRECTORY}") 
+
 ctest_build(BUILD "${CTEST_SOURCE_DIRECTORY}") 
-ctest_test(BUILD "${CTEST_SOURCE_DIRECTORY}")
+##ctest_test(BUILD "${CTEST_SOURCE_DIRECTORY}")
+
 ctest_submit()
+
