@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.29  2010/03/26 15:15:36  bdepardo
+ * Print usage when the parameters are not correct.
+ *
  * Revision 1.28  2010/03/23 12:44:18  glemahec
  * Correction des exemples pour DAGDA
  *
@@ -86,8 +89,8 @@ static const char* PB[NB_PB] =
 void
 usage(char* cmd)
 {
-  fprintf(stderr, "Usage: %s %s <file.cfg> [%s|%s|%s|%s]\n", cmd,
-	  "[--repeat <n>] [--pause <n µs>]", PB[0], PB[1], PB[2], PB[3]);
+  fprintf(stderr, "Usage: %s %s <file.cfg> [%s|%s|%s]\n", cmd,
+	  "[--repeat <n>] [--pause <n µs>]", PB[0], PB[1], PB[2]);
   fprintf(stderr, "    ex: %s client.cfg T\n", cmd);
   fprintf(stderr, "        %s --repeat 1000 client.cfg MatSUM\n", cmd);
   fprintf(stderr, "        %s --repeat 1000 --pause 1000 %s\n",
@@ -124,6 +127,10 @@ main(int argc, char* argv[])
   for (i = 1; i < argc - 2; i++) {
     if (strcmp("--repeat", argv[i]) == 0) {
       n_loops = atoi(argv[i + 1]);
+      if (n_loops < 0) {
+        fprintf(stderr, "Argument to option %s must be >= 0.\n", argv[i]);
+        usage(argv[0]);
+      }
       i++;
       memmove(argv + i - 2, argv + i, (argc - i)*sizeof(char*));
       i -= 2;
