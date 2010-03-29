@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.8  2010/03/29 23:52:47  ecaron
+%* Update configuration information for DIET v2.4
+%*
 %* Revision 1.7  2010/02/25 07:15:57  ycaniou
 %* DAGDA -> macro + sc
 %* Add info logs ‡ dagda.tex
@@ -36,6 +39,7 @@
 %****************************************************************************%
 
 \chapter{Appendix}
+\label{ch:appendix}
 \section{Configuration files}
 
 \begin{description}
@@ -179,6 +183,7 @@
   \item Type: Address
   \item Description: FAST
   \end{itemize}
+\fixme{un peu d'explication}
 
 \item{\bf{useAsyncAPI}}
   \begin{itemize}
@@ -187,7 +192,7 @@
   \item Type: Boolean
   \item Description: ?
   \end{itemize}
-
+\fixme{à quoi sert useAsyncAPI ???}
 \item{\bf{useLogService}}
   \begin{itemize}
   \item Component: Agent and \sed
@@ -266,7 +271,8 @@
   \item Component: \sed
   \item Mode: All
   \item Type: Boolean
-  \item Description: ?
+  \item Description: should SeD restrict the number of concurrent solves?
+  This should be used in conjunction with \emph{maxConcJobs}. 
   \end{itemize}
 
 \item{\bf{maxConcJobs}}
@@ -274,15 +280,18 @@
   \item Component: \sed
   \item Mode: All
   \item Type: Integer
-  \item Description: ?
+  \item Description: If useConcJobLimit == true, how many jobs can run at once?
+  This shoudl be used in conjunction with \emph{maxConcJobs}.
+  
   \end{itemize}
 
 \item{\bf{locationID}}
   \begin{itemize}
-  \item Component: ?
-  \item Mode: ?
+  \item Component: \sed
+  \item Mode: \dagda
   \item Type: String
-  \item Description: ?
+  \item Description: This parameter is used for alternative transfer cost
+  prediction.
   \end{itemize}
 
 \item{\bf{MADAGNAME}}
@@ -294,25 +303,31 @@
     will connect.
   \end{itemize}
 
-\item{\bf{USEWFLOGSERVICE}}
-  \begin{itemize}
-  \item Component: ?
-  \item Mode: Workflow
-  \item Type: String
-  \item Description: ?
-  \end{itemize}
+% OUTDATED
+%
+% \item{\bf{USEWFLOGSERVICE}}
+%   \begin{itemize}
+%   \item Component: 
+%   \item Mode: Workflow
+%   \item Type: String
+%   \item Description: ?
+%   \end{itemize}
+\fixme{USEWFLOGSERVICE a été supprimé, mais est ce que c'est bien plus utilisé,
+j'ai fait un grep sur le code et je ne trouve d'occurence plus que dans le
+parser, donc je dirais que c'est outdated. A valider}
 
 \item{\bf{schedulerModule}}
   \begin{itemize}
-  \item Component: ?
+  \item Component: Agent
   \item Mode: User scheduling
   \item Type: String
-  \item Description: The path to the scheduler library file.
+  \item Description: The path to the scheduler library file containing the
+  implementation of the plugin scheduler class.
   \end{itemize}
 
 \item{\bf{moduleConfigFile}}
   \begin{itemize}
-  \item Component: ?
+  \item Component: Agent
   \item Mode: User scheduling
   \item Type: String
   \item Description: Optional configuration file for the module.
@@ -362,10 +377,12 @@
 
 \item{\bf{initRequestID}}
   \begin{itemize}
-  \item Component: ?
-  \item Mode: ?
+  \item Component: MA
+  \item Mode: All
   \item Type: Integer
-  \item Description: ?
+  \item Description: When a request is sent to the Master Agent, a request ID
+  is associated and by default it begins at 1. If this parameter is provided, it
+  will begins at initRequestID.
   \end{itemize}
 
 \item{\bf{ackFile}}
@@ -379,66 +396,82 @@
 
 \item{\bf{maxMsgSize}}
   \begin{itemize}
-  \item Component: ?
+  \item Component: All
   \item Mode: \dagda
   \item Type: Integer
-  \item Description: ? 
+  \item Description: The maximum size of a CORBA message sent by \dagda. By
+  default this value is equal to the omniORB \textit{giopMaxMsgSize} size.
   \end{itemize}
 
 \item{\bf{maxDiskSpace}}
   \begin{itemize}
-  \item Component: ?
+  \item Component: All
   \item Mode: \dagda
   \item Type: Integer
-  \item Description: ?
+  \item Description: The maximum disk space used by \dagda to store the data. If set
+to 0, \dagda will not take care of the disk usage. By default this value is
+equal to the available disk space on the disk partition chosen by the
+  \textit{storageDirectory} option. 
   \end{itemize}
 
 \item{\bf{maxMemSpace}}
   \begin{itemize}
-  \item Component: ?
+  \item Component: All
   \item Mode: \dagda
   \item Type: Integer
-  \item Description: ?
+  \item Description: The maximum memory space used by \dagda to store the data. If set
+to 0, \dagda will not take care of the memory usage. By default no maximum
+memory usage is set. Same effect than to choose 0.
   \end{itemize}
 
 \item{\bf{cacheAlgorithm}}
   \begin{itemize}
-  \item Component: ?
+  \item Component: All
   \item Mode: \dagda
   \item Type: String
-  \item Description: ? 
+  \item Description: The cache replacement algorithm used when \dagda needs more space
+to store a data. Possible values are: \textit{LRU, LFU, FIFO}. By default, 
+no cache replacement algorithm. \dagda never replace a data by
+another one.
   \end{itemize}
 
 \item{\bf{shareFiles}}
   \begin{itemize}
-  \item Component: ?
+  \item Component: Agent
   \item Mode: \dagda
   \item Type: Boolean
-  \item Description: ?
+  \item Description: The \dagda component shares its file data with all its children
+(when the path is accessible by them, for example, if the storage directory is
+on a NFS partition). Value can be 0 or 1.  By default no file sharing - 0.
   \end{itemize}
 
 \item{\bf{dataBackupFile}}
   \begin{itemize}
-  \item Component: ?
+  \item Component: Agent and SeD
   \item Mode: \dagda
   \item Type: String
-  \item Description: ? 
+  \item Description: The path to the file that will be used when \dagda save all its
+stored data/data path when asked by the user (Checkpointing). By default, no
+checkpointing is possible.
   \end{itemize}
 
 \item{\bf{restoreOnStart}}
   \begin{itemize}
-  \item Component: ?
+  \item Component: Agent and SeD
   \item Mode: \dagda
   \item Type: Boolean
-  \item Description: ?
+  \item Description: \dagda will load the \textit{dataBackupFile} file at start and
+restore all the data recorded at the last checkpointing event. Possible values
+are 0 or 1. By default, no file loading on start - 0.
   \end{itemize}
 
 \item{\bf{storageDirectory}}
   \begin{itemize}
-  \item Component: ?
+  \item Component: All
   \item Mode: \dagda or Batch
   \item Type: String
-  \item Description: ? 
+  \item Description: The directory on which \dagda will store the data files.
+  By default \texttt{/tmp} is used.
   \end{itemize}
 
 \item{\bf{USE\_SPECIFIC\_SCHEDULING}}
