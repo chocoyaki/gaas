@@ -1,4 +1,20 @@
 +----------+
+| diet 2.4 |
++----------+
+	
+* Cygwin port
+
+	- Added the support of Windows platform inside Cygwin. DIET is
+	now available on Windows through a port in Cygwin. It as been
+	successfully tested on Cygwin 1.5.25 and Cygwin 1.7.1.
+	- It should be noticed that the workflow module is not available
+	on this platform.
+
+
+* Compilation process in general has been improved to remove cyclic 
+dependancies between libraries during the link.
+
++----------+
 | diet 2.3 |
 +----------+ 
 	
