@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.4  2010/03/29 21:53:25  ecaron
+%* Corrections
+%*
 %* Revision 1.3  2010/02/25 07:21:15  ycaniou
 %* Add log infos at beginning of document
 %* Ispelled
@@ -24,7 +27,7 @@
 So far we saw that \diet's hierarchy was mainly static: once the shape
 of the hierarchy chosen, and the hierarchy deployed, the only thing
 you can do is kill part of the hierarchy, or add new subtrees to the
-already hierarchy. But whenever an agent is killed, the whole
+existing hierarchy. But whenever an agent is killed, the whole
 underlying hierarchy is lost. This has several drawbacks: some \sed
 will become unavailable, and if you want to reuse the machines on
 which those \sed (or agents) are, you need to kill the existing \diet
@@ -56,7 +59,7 @@ You now have access to the following CORBA methods:
   ``\verb|parentName|'' if this parent can be contacted, otherwise the
   element keeps its old parent. If the element already has a parent,
   it unsubscribes itself from the parent, so that this latter is able
-  to update its service table and list of children. A null value is
+  to update its service table and list of children. A \texttt{null} value is
   returned if the change occurred, otherwise a value different from 0
   is returned if a problem occurred.
 
