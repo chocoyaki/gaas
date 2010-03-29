@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2010/03/29 15:09:09  bdepardo
+ * Bug fix when compiling with Dagda
+ *
  * Revision 1.4  2009/08/06 14:00:53  bdepardo
  * Linear version of Fibonacci
  *
@@ -94,21 +97,19 @@ int
 solve_fib(diet_profile_t* pb)
 {
   int res = 0;
-  long * tmp = NULL;
+  long * tmp = malloc(sizeof(long));
   
   /* For integers, we can use the longest type to store values
      of smaller types. */
   long* l1 = NULL;
   diet_scalar_get(diet_parameter(pb,0), &l1, NULL);
-  diet_scalar_get(diet_parameter(pb,1), &tmp, NULL);
   printf("Solve fibonacci %ld...\n", *l1);
 
-/*   *tmp = fibonacci(*l1); */
   *tmp = (*fibonacci_algo)(*l1);
 
-  diet_scalar_desc_set(diet_parameter(pb,1), tmp);
+  diet_scalar_set(diet_parameter(pb,1), tmp, DIET_VOLATILE, DIET_LONGINT);
   
-  diet_free_data(diet_parameter(pb,0));
+  //diet_free_data(diet_parameter(pb,0));
 
   printf("Solve fibonacci ... done\n");
   return res;
