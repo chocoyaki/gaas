@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.8  2010/03/29 21:05:10  ecaron
+%* Corrections
+%*
 %* Revision 1.7  2010/02/25 07:15:57  ycaniou
 %* DAGDA -> macro + sc
 %* Add info logs à dagda.tex
@@ -16,11 +19,12 @@
 %****************************************************************************%
 
 \chapter{\dagda extension}
+\label{ch:dagda}
 
 \dagda (\textbf{D}ata \textbf{A}rrangement for \textbf{G}rid and
 \textbf{D}istributed \textbf{A}pplications) is a new data manager for
-\diet.  \dagda offers  to the \diet application developers a simple
-and efficient way  to manage the data. It was not designed to replace
+\diet. \dagda offers to the \diet application developers a simple
+and efficient way to manage the data. It was not designed to replace
 the JuxMem extension but to be possibly coupled with it. In a future
 work, \dagda will be divided in two parts: The \dagda data manager and
 the \dagda data interface. The data interface will make interactions
@@ -77,16 +81,16 @@ output data are already stored on the platform and they should be
 updated after the job execution.
 \begin{enumerate}
   \item The client sends a request to the Master Agent.
-  \item The Master agent returns one or more SeD references.
+  \item The Master agent returns one or more \sed references.
   \item The client sends its request to the chosen node. The
     parameters data are identified by a unique ID and the problem
     profile contains a reference to the client's data manager.
-  \item Receiving the request the SeD asks the client to transfer the
+  \item Receiving the request the \sed asks the client to transfer the
     data of the user and it asks to the \dagda architecture to obtain
     the persistent data already stored on the platform.
-  \item The SeD executes the job. After the execution, the SeD stores
+  \item The \sed executes the job. After the execution, the \sed stores
     the output data and it informs the client that the data are ready
-    to be downloaded. It also asks to the architecture to update the
+    to be downloaded. It also asks the architecture to update the
     modified output data.
   \item The client upload its results and the data are updated on the
     nodes.
@@ -216,7 +220,7 @@ When a data is replicated on a site, it is possible that not enough
 disk/memory space is available. In that case, \dagda allows to choose
 a strategy to delete a persistent data. Only a simple persistent data
 can be deleted, the sticky ones are never deleted by the chosen
-algorithm. \dagda offers three algorithm to manage the cache
+algorithm. \dagda offers three algorithms to manage the cache
 replacement:
 \begin{itemize}
   \item LRU: The least recently used persistent data of sufficient
@@ -233,11 +237,11 @@ By compiling \diet with the \dagda extension activated, the
 directory.  This file contains some data management functions and
 macros.
 \subsection{Note on the memory management}
-On the SeD side, \dagda and the SeD share the same data pointers, that
+On the \sed side, \dagda and the \sed share the same data pointers, that
 means that if the pointer is a local variable reference, when \dagda
 will use the data, it will read an unallocated variable. The users
 should allways allocate the data with a \textit{"malloc"/"calloc"} or
-\textit{"new"} call on the SeD and agent sides. Because \dagda takes
+\textit{"new"} call on the \sed and agent sides. Because \dagda takes
 the control of the data pointer, there is no risk of memory leak even
 if the service allocate a new pointer at each call. The data lifetime
 is managed by \dagda and the data will be freed according to its
@@ -247,24 +251,24 @@ persistence mode.\\[4mm]
   \textbf{{\Huge \Biohazard}}
 \end{minipage}
 \begin{minipage}{\textwidth - 2cm}
-\textbf{On the SeD and agent sides, \dagda takes the control of the data
+\textbf{On the \sed and agent sides, \dagda takes the control of the data
 pointers. To free a data may cause major bugs which could be very hard to
 find. The users could only free a \diet data on the client side after the end of
 a transfer.}
 \end{minipage}
 
 \subsection{Synchronous data transfers}
-All of the following functions returns at the end of the transfer or
-if an error occured. They all returns an integer value: 0 if the
-operation succeed, another value if it failed.
+All of the following functions return at the end of the transfer or
+if an error occured. They all return an integer value: 0 if the
+operation succeeds, another value if it fails.
 
 \subsubsection{\dagda \textit{put} data macros/functions.}
 \label{sec:syncPutFunctions}
 The following functions put a data on the \dagda hierarchy to be used
-later.  The last parameter is allways a pointer to a C-string which
+later.  The last parameter is always a pointer to a C-string which
 will be initialized with a pointer to the ID string of the data. This
 string is allocated by \dagda and can be freed when the user does not
-need it anymore.  The first parameter is allways a pointer to the
+need it anymore.  The first parameter is always a pointer to the
 data: For a scalar value a pointer on the data, for a vector, matrix
 or string, a pointer on the first element of the data. The
 \textit{"value"} argument for a file is a C-string containing the path
@@ -285,13 +289,13 @@ allways be DIET\_PERSISTENT or DIET\_STICKY.  The VOLATILE and
 \begin{itemize}
   \item[-] \verb#dagda_put_scalar(void* value, diet_base_type_t base_type,#\\
            \verb#                 diet_persistence_mode_t mode, char** ID)#:\\
-           This macro adds to the platform, the scalar data of type
+           This macro adds to the platform the scalar data of type
            \textit{"base\_type"} pointed by \textit{"value"} with the
            persistence mode \textit{"mode"} (DIET\_PERSISTENT or DIET\_STICKY)
            and initializes \textit{"*ID"} with the ID of the data.
   \item[-] \verb#dagda_put_vector(void* value, diet_base_type_t base_type,#\\
            \verb#                 diet_persistent_mode_t mode, size_t size, char** ID)#:\\
-           This macro adds to the platform, the vector of \textit{"size"}
+           This macro adds to the platform the vector of \textit{"size"}
            \textit{"base\_type"} elements pointed by \textit{"value"} with the
            persistence mode \textit{"mode"} and stores the data ID in
            \textit{"ID"}.
@@ -321,7 +325,7 @@ using its ID:
     The scalar value using the ID \textit{"ID"} is obtained from
     \dagda and the \textit{"value"} argument is initialized with a
     pointer to the data.  The \textit{"base\_type"} pointer content is
-    set to the data base type. This last parameter is optionnal and
+    set to the data base type. This last parameter is optional and
     can be set to NULL if the user does not want to get the
     \textit{"base\_type"} value.
 
@@ -358,15 +362,15 @@ With \dagda, there is two way to manage the asynchronous data
 transfers, depending of the data usage:
 \begin{itemize}
   \item With end-of-transfer control: \dagda maintains a reference to
-    the transfer thread. It only release this reference after a call
+    the transfer thread. It only releases this reference after a call
     to the corresponding waiting function. The client developer should
-    allways use these functions, that's why a data ID is only returned
+    always use these functions, that's why a data ID is only returned
     by the \textit{"dagda\_wait\_*"} and
     \textit{"dagda\_wait\_data\_ID"} functions.
   \item Without end-of-transfer control: The data is loaded from/to
     the \dagda hierarchy without the possibility to wait for the end
     of the transfer.  These functions should only be called from an
-    agent plugin scheduler, a SeD plugin scheduler or a SeD if the
+    agent plugin scheduler, a \sed plugin scheduler or a \sed if the
     data transfer without usage of the data is one of the objectives
     of the called service. The data adding functions without control
     should be used very carefully because there is no way to be sure
@@ -375,7 +379,7 @@ transfers, depending of the data usage:
 With asynchronous transfers, the user should take care of the data
 lifetime because \dagda does not duplicate the data pointed by the
 passed pointer.  For example, if the program uses a local variable
-reference to add a data to the \dagda hierarchy and go out of the
+reference to add a data to the \dagda hierarchy and goes out of the
 variable scope, a crash could occured because the data pointer could
 be freed by the system before \dagda has finished to read it.
 \subsubsection{\dagda asynchronous \textit{put} macros/functions}
@@ -395,8 +399,8 @@ unsigned int. This value will be passed to the
 \item[-] \verb#dagda_put_string_async(char* value, diet_persistence_mode_t mode)#
 \item[-] \verb#dagda_put_file_async(char* path, diet_persistence_mode_t mode)#
 \end{itemize}
-After calling to one of these functions, the user can obtain the data ID by
-calling to the \textit{"dagda\_wait\_data\_ID"} function by using a transfer
+After a call to one of these functions, the user can obtain the data ID by
+calling the \textit{"dagda\_wait\_data\_ID"} function with a transfer
 reference.
 \begin{itemize}
   \item[-] \verb#dagda_wait_data_ID(unsigned int transferRef, char** ID)#:\\
@@ -418,11 +422,11 @@ is an unsigned int. This value will be passed to the corresponding
 \item[-] \verb#dagda_get_file_async(char* ID)#
 \end{itemize}
 
-After asking for an asynchronous transfer, the user has to wait for
-the end of it by calling the corresponding \textit{"dagda\_wait\_*"}
-function.  The arguments to these functions are the same than for the
-synchronous \textit{"dagda\_get\_*"} functions. See Section
-\ref{sec:syncGetFunctions} for more details.
+After asking for an asynchronous transfer, the user has to wait the 
+end by calling the corresponding \textit{"dagda\_wait\_*"} function.
+ The arguments of these functions are the same than for the synchronous
+ \textit{"dagda\_get\_*"} functions. 
+ See Section \ref{sec:syncGetFunctions} for more details.
 
 \begin{itemize}
 \item[-] \verb#dagda_wait_scalar(unsigned int transferRef, void** value,#\\
@@ -436,10 +440,10 @@ synchronous \textit{"dagda\_get\_*"} functions. See Section
 \item[-] \verb#dagda_wait_file(unsigned int transferRef, char** path)#
 \end{itemize}
 
-It is frequent that a plugin scheduler developer wants to make an
-asynchronous data transfer to the local \diet node. In that case, to
-wait the end of the transfers before to return can be a problem. But
-with the previously defined functions, \dagda maintains a reference to
+A plugin scheduler developer often wants to make an
+asynchronous data transfer to the local \diet node. Problems can arise if you
+want to wait the completion of the tranfer before returning. 
+But with the previously defined functions, \dagda maintains a reference to
 the transfer thread which will be released after a call to the waiting
 function. To avoid \dagda to keep infinitely these references, the
 user should call the \textit{"dagda\_load\_*"} functions instead of
@@ -454,24 +458,24 @@ the \textit{"dagda\_get\_*\_async"} ones.
 \end{itemize}
 
 \subsection{Data checkpointing with \dagda}
-\dagda allows the SeD administrator to choose a file where \dagda will
-store all the data that it manages. When a SeD has a configured valid
+\dagda allows the \sed administrator to choose a file where \dagda will
+store all the data it's managing. When a \sed has a configured and valid
 path name to a backup file (\textit{"dataBackupFile"} option in the
-configuration file), a client can ask to the agents or SeDs \dagda
+configuration file), a client can ask to the agents or \seds \dagda
 components to save the data.\\
 
 The \verb#dagda_save_platform()# function, which can only be called
-from a client, records all the data managed by the agents or SeDs
+from a client, records all the data managed by the agents' or \seds'
 \dagda components that allow it.\\ Then, the \textit{"restoreOnStart"}
 configuration file option asks to the \dagda component to restore the
 data stored on the \textit{"dataBackupFile"} file when the component
 starts. This mechanism allows to stop the \diet platform for a while
-and to restart it conserving the same data distribution.
+and restart it conserving the same data distribution.
 
 \subsection{Create data ID aliases.}
 For many applications using large sets of data shared by several
 users, to use an automatically generated ID to retrieve a data is
-impossible or difficult.  \dagda allows the user to define data
+difficult or even impossible. \dagda allows the user to define data
 aliases, using human readable and expressive strings to retrieve a
 data ID. Two functions are defined to do it:
 \begin{itemize}
@@ -479,7 +483,7 @@ data ID. Two functions are defined to do it:
   \verb#dagda_data_alias(const char* id, const char* alias)#:\\ Tries
   to associate \textit{"alias"} to \textit{"id"}. If the alias is
   already defined, returns a non zero value. A data can have several
-  aliases but an alias is allways associated to only one data.
+  aliases but an alias is always associated to only one data.
 \item[-]
   \verb#dagda_id_from_alias(const char* alias, char** id)#:\\ This
   function tries to retrieve the data id associated to the alias.
@@ -520,14 +524,14 @@ Some things to keep in mind when using \dagda as data manager for
 \diet:
 \begin{itemize}
 \item All the data managed by \dagda are entirely managed by \dagda:
-  The user must not free them. \dagda avoids memory leaks, so the user
+  The user don't have to free them. \dagda avoids memory leaks, so the user
   does not have to worry about the memory management for the data
   managed by \dagda.
 \item When using more than one \dagda component on a node, the user
   should define a different storage directory for each component. For
-  example, the Master Agent and one SeD are launched on the same
+  example, the Master Agent and one \sed are launched on the same
   computer: the user can define the storage directory of the Master
-  Agent as ``/tmp/MA'' and the one for the SeD as ``/tmp/SeD1''. Do
+  Agent as ``/tmp/MA'' and the one for the \sed as ``/tmp/SeD1''. Do
   not forget to create the directories before to use \dagda. This tip
   avoids many bugs which are really hard to find.
 \item The \dagda API can be used to transfer the parameters of a
@@ -540,7 +544,7 @@ Some things to keep in mind when using \dagda as data manager for
   linked to the \diet hierarchy, so using the API to add a data and
   then to use it as a profile parameter makes \dagda to do additional
   and useless transfers.
-\item \dagda can be used without any configuration, but it is allways
+\item \dagda can be used without any configuration, but it is always
   a good idea to define all the \dagda parameters in the configuration
   files.
 \end{itemize}
@@ -552,7 +556,7 @@ the following e-mail address: \url{gael.le.mahec@ens-lyon.fr}.
 The next version of \dagda will allow the users to develop their own
 cache replacement algorithms and network capacity measurements
 methods. \dagda will be separated in two parts: A data management
-interface and a the \dagda data manager itself. \dagda will implement
+interface and the \dagda data manager itself. \dagda will implement
 the GridRPC data management API extension.
 
 %%% Local Variables:
