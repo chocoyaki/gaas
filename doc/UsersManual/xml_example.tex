@@ -9,6 +9,9 @@
 %****************************************************************************%
 %* $Id$ 
 %* $Log$
+%* Revision 1.4  2010/03/29 23:13:54  ecaron
+%* Update for DIET 2.4
+%*
 %* Revision 1.3  2006/10/31 21:29:58  ecaron
 %* XML file example for Deployment chapter in DIET User's Manual
 %* 
@@ -16,7 +19,7 @@
 
 
 \lstset{language=XML, 
-        basicstyle=\scriptsize, 
+        basicstyle=\tiny, 
         keywordstyle=\bfseries,
         showspaces=false,
         showtabs=false,
@@ -29,66 +32,80 @@
 <?xml version="1.0" standalone="no"?>
 <!DOCTYPE diet_configuration SYSTEM "../GoDIET.dtd">
 <diet_configuration>
-  <goDiet debug="1" saveStdOut="yes" 
-          saveStdErr="no" useUniqueDirs="yes"/>
+  <goDiet debug="2" saveStdOut="yes" saveStdErr="yes" useUniqueDirs="no" log="no"/>
   <resources>
     <scratch dir="/tmp/GoDIET_scratch"/>
-    <storage label="disk1">
-      <scratch dir="/tmp/run_scratch"/>
-      <scp server="hostX.site1.fr" login="<your login on this machine>"/>
+    <storage label="disk-1">
+        <scratch dir="/tmp/run_scratch"/>
+        <scp server="res1" login="doe"/>
     </storage>
-    <storage label="clusterX_disk">
-      <scratch dir="/tmp/run_scratch"/> <scp server="hostX.clusterX.fr"/>
+    <storage label="disk-2">
+        <scratch dir="/tmp/run_scratch"/>
+        <scp server="res2" login="foo"/>
     </storage>
-    <compute label="host1" disk="disk1">
-      <ssh server="host1.site1.fr" login="<your login>"/>
-      <env path="<bindir1>:<bindir2>:..."
-           LD_LIBRARY_PATH="<libdir1>:<libdir2>:..."/>
-      <end_point contact="192.5.59.198"/>
+    <storage label="disk-3">
+        <scratch dir="/tmp/run_scratch"/>
+        <scp server="res3" login="bar"/>
+    </storage>
+    <compute label="res1" disk="disk-1">
+        <ssh server="res1" login="doe"/>
+	<env>
+	      <var name="PATH" value=""/>
+	      <var name="LD_LIBRARY_PATH" value=""/>
+	</env>
     </compute>
-    <compute label="host2" disk="disk1">
-      <ssh server="host2.site1.fr"/>
-      <env path="<bindir1>" LD_LIBRARY_PATH="<libdir1>"/>
+    <compute label="res2" disk="disk-2">
+        <ssh server="res2" login="foo"/>
+	       <env>
+		       <var name="PATH" value=""/>
+		       <var name="LD_LIBRARY_PATH" value=""/>
+	       </env>
     </compute>
-    <cluster label="clusterX" disk="clusterX_disk" login="<your login>"/>
-      <env path="<bindir1>:<bindir2>:..."
-           LD_LIBRARY_PATH="<libdir1>:<libdir2>:..."/>
-      <node label="clusterX_host1" disk="clusterX_disk">
-        <ssh server="host1.clusterX.fr"/> <end_point contact="192.5.80.103"/>
+	<cluster label="res3" disk="disk-3" login="bar">
+      <env> 
+      	<var name="PATH" value=""/>
+        <var name="LD_LIBRARY_PATH" value=""/>
+      </env>
+      <node label="res3_host1">
+        <ssh server="host1.res3.fr"/> 
+        <end_point contact="192.5.80.103"/>
       </node>
-      <node label="clusterX_host2" disk="clusterX_disk">
-        <ssh server="host2.clusterX.fr"/>
+      <node label="res3_host2">
+        <ssh server="host2.res3.fr"/>
       </node>
     </cluster>
   </resources>
- 
   <diet_services>
-    <omni_names contact="<ip or hostname>" port="2810">
-      <config server="clusterX_host1" trace_level="1" 
-              remote_binary="omniNames"/>
+	  <omni_names contact="res1_IP" port="2121">
+        <config server="res1" remote_binary="omniNames"/>
     </omni_names>
-    <log_central connectDuringLaunch="no|yes">
-      <config server="clusterX_host2" remote_binary="LogCentral"/>
-    </log_central>
   </diet_services>
- 
   <diet_hierarchy>
-    <master_agent label="MyMA">
-      <config server="host1" trace_level="1"
-              remote_binary="<binary name for agent>"/>
-      <local_agent label="MyLA">
-        <config server="host2" trace_level="1" remote_binary="dietAgent"/>
-        <SeD label="MySeD">
-          <config server="clusterX_host2" remote_binary="<binary name for SeD>"/>
-          <parameters string="T"/>
+    <master_agent label="MA">
+        <config server="res1" remote_binary="dietAgent"/>
+           <cfg_options>
+	     <option name="traceLevel" value="1"/>
+	   </cfg_options>
+            <SeD label="SeD1">
+                <config server="res2" remote_binary="server_dyn_add_rem"/>
+           <cfg_options>
+	     <option name="traceLevel" value="1"/>
+	   </cfg_options>
+            </SeD>
+        <SeD label="SeD2">
+            <config server="res3_host1" remote_binary="server_dyn_add_rem"/>
+           <cfg_options>
+	     <option name="traceLevel" value="30"/>
+	   </cfg_options>
+	   <parameters string="T"/>
         </SeD>
-      </local_agent>
-      <SeD label="MySeD">
-        <config server="clusterX_host1" remote_binary="server"/>
-      </SeD>
+        <SeD label="SeD3">
+            <config server="res3_host2" remote_binary="server_dyn_add_rem"/>
+           <cfg_options>
+	     <option name="traceLevel" value="1"/>
+	   </cfg_options>
+        </SeD>
     </master_agent>
   </diet_hierarchy>      
 </diet_configuration>
 \end{lstlisting}
-
-
