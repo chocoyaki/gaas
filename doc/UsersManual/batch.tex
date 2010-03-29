@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.14  2010/03/29 21:00:05  ecaron
+%* - corrections and fixme
+%*
 %* Revision 1.13  2010/02/25 08:55:43  ycaniou
 %* Add a couple of macro like \seddiet \sedj (differs from \sed$_\diet$ which
 %*   adds a space)
@@ -220,7 +223,7 @@ void diet_profile_desc_set_parallel(diet_profile_desc_t* profile)
 
 By default, a service is registered as sequential. Nevertheless, for
 code readability reasons, we also give the pendant function to
-explicitly register a sequantial service:
+explicitly register a sequential service:
 
 \begin{lstlisting}[language=c,basewidth={.5em,.4em},fontadjust]
 void diet_profile_desc_set_sequential(diet_profile_desc_t* profile)
@@ -234,9 +237,10 @@ provides all the mechanisms to transparently submit the job to them.
 
 %FIXME: ‡ quel point parle t-on d'elagi ?
 \diet is able to submit batch scripts to %numerous batch schedulers,
-oar1.6 and loadleveler.
+oar1.6/2.0, PBS/Torque and loadleveler.
 %among which: "condor", "dqs", "loadleveler", "lsf", "pbs", "sge" or
 %"oar".
+\fixme{A confirmer les batch schedulers supportés}
 The name of the batch scheduler managing the parallel resource where
 the \sed is running has to be incorporated with the keyword
 \verb!batchName! in the server configuration file. Only this makes the
@@ -256,7 +260,7 @@ all resources before submission because of access rights).  Note that
 concerning OAR (v1.6), in order to use the CoRI\_batch features (see
 Section~\ref{section:cori_batch}), the Batch \sed deployer must also
 provide the keyword \verb$internQueue$ with the corresponding name.
-
+/fixme{C'est valable pour OAR1.6 ou OAR2 aussi?}
 For example, the server configuration file can contain the following
 lines:
 
