@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.59  2010/03/29 20:58:29  ecaron
+%* Update date and revision number
+%*
 %* Revision 1.58  2010/02/25 08:55:43  ycaniou
 %* Add a couple of macro like \seddiet \sedj (differs from \sed$_\diet$ which
 %*   adds a space)
@@ -102,6 +105,13 @@
 \sbox{\logobox}{\includegraphics[scale=0.4]{fig/logo_DIET}}
 \newcommand{\logo}{\usebox{\logobox}}
 
+%%%%
+
+\newcounter{rmq}[section]
+\setcounter{rmq}{0}
+\newenvironment{remarque}{\addtocounter{rmq}{1}\textbf{N.B. \thermq:}}{}
+
+%%%%
 
 %%%%
 \renewcommand{\title}{DIET User's Manual}
@@ -155,7 +165,7 @@
 \newcommand{\threads}{\textit{threads}}
 \newcommand{\nsl}{NetSolve}
 \newcommand{\fixme}[1]{\fbox{\textsl{{\bf #1}}}}
-\newcommand{\dietversion}{2.3}
+\newcommand{\dietversion}{2.4}
 
 %%%%
 % Document beginning
@@ -182,7 +192,7 @@
 \small{
 \begin{tabular}{ll}
   \textbf{VERSION}  & \dietversion\\
-  \textbf{DATE}     & July 2008\\
+  \textbf{DATE}     & April 2010\\
   \textbf{PROJECT MANAGER}  & Fr\'ed\'eric \textsc{Desprez}.\\
   \textbf{EDITORIAL STAFF}  & Yves \textsc{Caniou}, Eddy \textsc{Caron} and David ~\textsc{Loureiro}.\\
   \textbf{AUTHORS STAFF}    & 
