@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2010/03/29 15:15:29  glemahec
+ * Bug fix when compiling with Dagda
+ *
  * Revision 1.5  2010/03/29 15:09:09  bdepardo
  * Bug fix when compiling with Dagda
  *
@@ -109,7 +112,7 @@ solve_fib(diet_profile_t* pb)
 
   diet_scalar_set(diet_parameter(pb,1), tmp, DIET_VOLATILE, DIET_LONGINT);
   
-  //diet_free_data(diet_parameter(pb,0));
+  diet_free_data(diet_parameter(pb,0));
 
   printf("Solve fibonacci ... done\n");
   return res;

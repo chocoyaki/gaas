@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.65  2010/03/29 15:15:29  glemahec
+ * Bug fix when compiling with Dagda
+ *
  * Revision 1.64  2009/08/26 10:34:29  bisnard
  * added new API methods for workflows (data in/out, transcript)
  *
@@ -1095,6 +1098,7 @@ diet_file_get_desc(diet_arg_t* arg)
 int
 diet_free_data(diet_arg_t* arg)
 {
+#ifndef HAVE_DAGDA
   if (diet_is_persistent(*arg)) {
     TRACE_TEXT(TRACE_ALL_STEPS, " attempt to use " << __FUNCTION__
             << " on persistent data - IGNORED");
@@ -1133,6 +1137,7 @@ diet_free_data(diet_arg_t* arg)
         return 1;
       }
   }
+#endif
   return 0;
 }
 
