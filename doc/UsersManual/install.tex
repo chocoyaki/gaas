@@ -10,6 +10,10 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.47  2010/03/29 23:11:57  ecaron
+%* - Add information about windows
+%* - Corrections
+%*
 %* Revision 1.46  2010/02/25 08:05:27  ycaniou
 %* e.g -> Use macro
 %* Typo + ispell
@@ -93,8 +97,8 @@ C/C++ and java. Thus, we could expect \diet to be effective on any platform
 offering decent version of such compilers.
 
 \diet undergoes daily regression tests (see
-\url{http://graal.ens-lyon.fr/DietDashboard}) on various hardwares, a couple of
-Un*x based operating systems (under different distributions), MacOSX and AIX,
+\url{http://cdash.inria.fr/CDash/index.php?project=DIET}) on various hardwares,
+a couple of Un*x based operating systems (under different distributions), MacOSX and AIX,
 and mainly with GCC. But thanks to users reports (punctual deployments and
 special tests conduced before every release), \diet is known to be effective on
 a wide range of platforms.
@@ -110,8 +114,8 @@ single report.
 \subsection{Hardware dependencies}
 \diet is fully tested on Linux/i386 and Linux/i686 platforms. \diet is known to
 be effective on Linux/Sparc, Linux/i64, Linux/amd64, Linux/Alpha,
-Linux/PowerPC, AIX/PowerPC and MacOS/PowerPC platforms.  At some point in \diet
-history, \diet used to be tested on the Solaris/Sparc platform...
+Linux/PowerPC, AIX/PowerPC, MacOS/PowerPC and Windows XP(Cygwin)/i386 platforms. 
+At some point in \diet history, \diet used to be tested on the Solaris/Sparc platform...
 
 \subsection{Supported compilers}
 \diet is supported on GCC with versions ranging from 3.2.X to 4.3.4.  Note that
@@ -122,8 +126,8 @@ and Intel compiler.
 
 \subsection{Operating system dependencies}
 \diet is fully tested on Linux [with varying distributions like Debian, Red Hat
-  Enterprise Linux (REL-ES-3), Fedora Core (5)], on AIX (5.3) and on MacOSX
-(Darwin 8).
+  Enterprise Linux (REL-ES-3), Fedora Core (5)], on AIX (5.3) on MacOSX
+(Darwin 8) and on Windows (Cygwin 1.5.25 and Cygwin 1.7.1).
 
 \subsection{Software dependencies}
 \label{sec:software_dependencies}
@@ -327,6 +331,11 @@ functionalities. This explains the usage of configuration flags in order to
 obtain the compilation of the desired extensions.
 
 \begin{itemize}
+  \item \verb+DIET_USE_DAGDA+ enables the use of the new data management
+  module of \diet. \dagda offers to the \diet application developers a 
+  simple and efficient way to manage the data. See Chapter\ref{ch:dagda} for
+  more details.
+
 \item
   \verb+DIET_USE_ALT_BATCH+ enables the transparent submission to
   batch servers. See Chapter~\ref{chapter:parallelSubmission} for more
@@ -407,7 +416,17 @@ obtain the compilation of the desired extensions.
   functionalities but based on JXTA.
 
 \item
-  \verb+DIET_USE_WORKFLOW+ enables the support of workflow.
+  \verb+DIET_USE_WORKFLOW+ enables the support of workflow. For the support
+  of workflows inside \diet, Xerces and Xqilla libraries are mandatory 
+  (see \url{http://xerces.apache.org/xerces-c/} and
+  \url{http://xqilla.sourceforge.net/HomePage}). For more details about the
+  workflow support in \diet see chapter \ref{ch:workflows}. Note that
+  setting the \verb+DIET_USE_WORKFLOW+ will force the option
+  \linebreak\verb+DIET_USE_DAGDA+ to be set.
+
+\item \verb+DIET_USE_DYNAMICS+ enables a mode in which you can dynamically
+modify its shape using CORBA calls. See chapter \ref{ch:dynamic} for more
+details about the option and how it works.
 
 \item
   \verb+DIET_WITH_STATISTICS+ enables the generation of statistics logs
@@ -439,6 +458,7 @@ compilation or some developers extensions:
   setting the \verb+DIET_USE_DART+ will force the option
   \linebreak\verb+BUILD_TESTING+ to be set.
 
+\fixme{Surement ˆ remplacer par l'Žquivalent pour CDash ou ˆ enlever non ?}
 \item
   \verb+Maintainer+ By default cmake offers four different build modes
   that one toggles by positioning \verb+CMAKE_BUILD_TYPE+ built-in
@@ -559,6 +579,9 @@ archive:
   example, you can use \texttt{scalar\_server} that gathers four different
   elementary services.
 \end{itemize}
+
+\fixme{Rajouter les exemples dynamics, batch, etc ou alors supprimer workflow
+et on laisse que les exemples de base?}
 
 \subsection{Compiling the examples}
 \label{subsection:compiling-examples}
