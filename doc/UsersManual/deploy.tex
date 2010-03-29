@@ -11,6 +11,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.25  2010/03/29 21:18:17  ecaron
+%* Update GoDIET commands
+%*
 %* Revision 1.24  2010/02/25 08:05:27  ycaniou
 %* e.g -> Use macro
 %* Typo + ispell
@@ -422,7 +425,8 @@ use a specific port to be able to federate themselves. This port is only used
 for initializing connections between MAs. If this parameter is not set, the MA
 will not accept incoming connection.\\
 
-
+You can find the full set of \diet configuration file options in the chapter
+\ref{ch:appendix}.
 
 %====[ Example ]=========================================
 \subsection{Example}
@@ -609,13 +613,16 @@ mode you have a number of options:
 \begin{verbatim}
 GoDIET> help
 The following commands are available:
-    launch:     launch entire DIET platform
-    stop:       kill entire DIET platform using kill pid
-    status:     print run status of each DIET component
-    history:    print history of commands executed
-    help:       print this message
-    exit:       exit GoDIET, do not change running
-    platform.
+   launch:       launch entire DIET platform
+   launch_check: launch entire DIET platform then check its status
+   relaunch:     kill the current platform and launch entire DIET platform once again
+   stop:         kill entire DIET platform using kill pid
+   status:       print run status of each DIET component
+   history:      print history of commands executed
+   help:         print this message
+   check:        check the platform status
+   stop_check:   stop the platform status then check its status before exit
+   exit:         exit GoDIET, do not change running platform.
 \end{verbatim}
 
 We will now launch this example; note that this example is intentionally very
@@ -693,6 +700,16 @@ Trying to stop element OmniNames
 \input{xml_example.tex}.
 \caption{Example XML input file for \godiet.\label{fig:godietXml}}
 \end{figure}
+
+On of the main problems when writing a \godiet XML input file is to be compliant
+with the dtd. A good tool to validate a \godiet file before using \godiet is
+\textbf{xmllint}. This tool exist on most platforms and with the following
+command:
+\begin{verbatim}
+$ xmllint your_xml_file --dtdvalid path_to_GoDIET.dtd -noout
+\end{verbatim}
+you will see the different lines where there is problem and a clear description
+of why your XML file is not compliant.
 
 %%% Local Variables:
 %%% mode: latex
