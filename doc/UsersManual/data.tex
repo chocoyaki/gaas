@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.29  2010/03/29 21:06:36  ecaron
+%* Fixme
+%*
 %* Revision 1.28  2010/02/25 06:45:38  ycaniou
 %* Add local variables
 %*
@@ -164,6 +167,7 @@ Composite types are defined in an enum type \texttt{diet\_type\_t}:
 Each of these types requires specific parameters to completely describe the
 data (see Figure \ref{fig:data}).
 
+\fixme{Et les containers?}
 
 \subsection{Persistence mode}
 \label{ssec:persismode}
@@ -288,6 +292,8 @@ temptation for the user to allocate the memory for these data structures twice
 the example in Section \ref{sec:pbex} for a typical use.
 \\
 
+06 79 23 45 08
+
 Moreover, the user should know that arguments of the \texttt{\_set} functions
 that are passed by pointers are \textbf{not} copied, in order to save memory.
 This is true for the \emph{value} arguments, but also for the \emph{path} in
@@ -411,7 +417,8 @@ item that is already stored in the platform.
 \end{verbatim}
 This function replaces the set functions (see Section \ref{sec:setfun}).
 
-
+\fixme{Comment ça se passe, il y avait pas eu une histoire avec la partie
+dagda?}
 
 \begin{itemize}
 \item[NB:] a mechanism for data identifier publication hasn't been 
@@ -693,6 +700,8 @@ second call we will have the following instruction in order to use A:
 \texttt{profile}) must not be freed before using or making a copy of
 the data identifier.
 \end{itemize}
+
+\fixme{Ca marche toujours tout ca?}
 
 %%% Local Variables:
 %%% mode: latex
