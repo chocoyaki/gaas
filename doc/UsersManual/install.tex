@@ -10,6 +10,10 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.49  2010/03/31 06:04:23  ycaniou
+%* Add batch example explaination
+%* Typo--
+%*
 %* Revision 1.48  2010/03/31 05:47:21  ycaniou
 %* Typos + options order
 %*
@@ -232,7 +236,7 @@ mentioning:
    setting and the customization of various C/C++ compiler options.
 \item
    \verb+CMAKE_INSTALL_PREFIX+ variable defines the location of the install
-   directory (defaulted to \verb+/usr/local+ on un*x).  This is cmake's
+   directory (defaulted to \verb+/usr/local+ on Un*x).  This is cmake's
    portable equivalent of the autotools configure's \texttt{--prefix=} option.
 \end{itemize}
 %
@@ -486,29 +490,58 @@ compilation or some developers extensions:
 Once the configuration is properly made one can check the choices made by
 looking the little summary proposed by cmake.  This summary should look like
 (\verb+[...]+ denotes eluded portions): {\footnotesize
+
+%%  - Install prefix: /home/diet/local/diet
+%%  - OmniORB found: YES
+%%    * OmniORB directory: /home/diet/local/omniORB-4.0.7
+%%    * OmniORB includes: /home/diet/local/omniORB-4.0.7/include
+%%    * OmniORB libraries: /home/diet/local/omniORB-4.0.7/lib/libomniDynamic4.so;
+%%      [...]libomniORB4.so;[...]libomnithread.so;[...]libCOS4.so;[...]
+%%  - General options:
+%%    * Documentation: ON
+%%    * Dynamics Libraries: ON
+%%    * Examples: ON
+%%    * BLAS Examples: ON
+%%  - Options set:
+%%    * Batch: ON
+%%      -- Appleseeds directory: /home/diet/local/appleseeds-2.2.1
+%%      -- Appleseeds includes:  [...]appleseeds-2.2.1/include/appleseeds
+%%      -- Appleseeds library:   [...]appleseeds-2.2.1/lib/libappleseeds.a
+%%    * CORI: ON
+%%    * Dart: ON
+%%    * JXTA: ON
+%%    * JuxMem: ON
+
 \begin{verbatim}
 ~/DIET > ./cmake ..
 [...]
- - Install prefix: /home/diet/local/diet
- - OmniORB found: YES
-   * OmniORB directory: /home/diet/local/omniORB-4.0.7
-   * OmniORB includes: /home/diet/local/omniORB-4.0.7/include
-   * OmniORB libraries: /home/diet/local/omniORB-4.0.7/lib/libomniDynamic4.so;
-     [...]libomniORB4.so;[...]libomnithread.so;[...]libCOS4.so;[...]
- - General options:
-   * Documentation: ON
-   * Dynamics Libraries: ON
-   * Examples: ON
-   * BLAS Examples: ON
- - Options set:
-   * Batch: ON
-     -- Appleseeds directory: /home/diet/local/appleseeds-2.2.1
-     -- Appleseeds includes:  [...]appleseeds-2.2.1/include/appleseeds
-     -- Appleseeds library:   [...]appleseeds-2.2.1/lib/libappleseeds.a
-   * CORI: ON
-   * Dart: ON
-   * JXTA: ON
-   * JuxMem: ON
+- XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+-- XXXXXXXXXXXXXXXXXXXXXX  DIET configuration summary  XXXXXXXXXXXXXXXXXXXXXX
+-- XXXXXXXXXXXXXXXXXXXXXXXXXXX 2010/03/31-07:47:15 XXXXXXXXXXXXXXXXXXXXXXXXXX
+-- XXX System name Linux
+-- XXX - Install prefix: /home/diet/local/diet
+-- XXX - C compiler   : /usr/bin/gcc
+-- XXX    * version   : 4.3.4
+-- XXX    * options   :  -Dinline="static __inline__" -Dconst="" -std=gnu99
+-- XXX - CXX compiler : /usr/bin/c++
+-- XXX    *  version  : 4.3.4
+-- XXX    *  options  : -lpthread -g -D__linux__
+-- XXX - OmniORB found: YES
+-- XXX   * OmniORB version: 4.1.2
+-- XXX   * OmniORB directory:
+-- XXX   * OmniORB includes: /usr/include
+-- XXX   * OmniORB libraries: [...]libomniDynamic4.so;[...]libomniORB4.so;[...]libomnithread.so
+-- XXX - General options:
+-- XXX   * Dynamics Libraries: ON
+-- XXX   * Examples: ON
+-- XXX   * BLAS Examples: ON
+-- XXX - Options set:
+-- XXX   * Batch: ON
+-- XXX   * CORI: ON
+-- XXX   * JXTA: ON
+-- XXX   * JuxMem: ON
+-- XXX   * Statistics: ON
+-- XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 [...]
 \end{verbatim}
 } A more complete, yet technical, way of making sure is to check the
@@ -522,7 +555,7 @@ package/library detections made by cmake.
 You are now done with the configuration stage (equivalent of both the
 \verb+bootstrap.sh+ and \verb+./configure+ stage of the
 \verb+autotools+). You are now back to your platform level
-development tools \ie \verb+make+ when working on Unices. Hence you
+development tools, \ie \verb+make+ when working on Unices. Hence you
 can now proceed with the compiling process by launching \verb+make+.
 
 \subsubsection{Testing}
@@ -543,21 +576,12 @@ installation stage with the \verb+make install+ command.
 A set of various examples of \diet server/client are provided within the \diet
 archive:
 \begin{itemize}
-\item{\texttt{file\_transfer}}: the server computes the sizes of two input
-  files and returns them. A third output parameter may be returned; the server
-  decides randomly whether to send back the first file. This is to show how to
-  manage a variable number of arguments: the profile declares all arguments
-  that may be filled, even if they might not be all filled at each
-  request/computation.
+\item{\texttt{Batch}}: A simple basic example on how to use the batch API is
+  given here: no IN or INOUT args, the client receives as a result the number
+  of processors on which the service has been executed. The service only writes
+  to a file, with batch-independent mnemonics, some information on the batch
+  system.
 
-\item{\texttt{dmat\_manips}}: the server offers matrix manipulation routines:
-  transposition (\texttt{T}), product (\texttt{MatPROD}) and sum
-  (\texttt{MatSUM}, \texttt{SqMatSUM} for square matrices, and
-  \texttt{SqMatSUM\_opt} for square matrices but re-using the memory space of
-  the second operand for the result). Any subset of these operations can be
-  specified on the command line. The last two of them are given for
-  compatibility with a BLAS server as explained below.
-  
 \item{\texttt{BLAS}}: the server offers the \texttt{dgemm} BLAS
   functionality. We plan to offer all BLAS (Basic Linear Algebraic Subroutines)
   in the future. Since this function computes $C = \alpha AB + \beta C$, it can
@@ -567,7 +591,22 @@ archive:
   \texttt{dgemm\_} function only, and the other one (\texttt{client.c}) to use
   all BLAS functions (but currently only \texttt{dgemm\_}) and sub-services,
   such as \texttt{MatPROD}.
-  
+
+\item{\texttt{dmat\_manips}}: the server offers matrix manipulation routines:
+  transposition (\texttt{T}), product (\texttt{MatPROD}) and sum
+  (\texttt{MatSUM}, \texttt{SqMatSUM} for square matrices, and
+  \texttt{SqMatSUM\_opt} for square matrices but re-using the memory space of
+  the second operand for the result). Any subset of these operations can be
+  specified on the command line. The last two of them are given for
+  compatibility with a BLAS server as explained below.
+
+\item{\texttt{file\_transfer}}: the server computes the sizes of two input
+  files and returns them. A third output parameter may be returned; the server
+  decides randomly whether to send back the first file. This is to show how to
+  manage a variable number of arguments: the profile declares all arguments
+  that may be filled, even if they might not be all filled at each
+  request/computation.
+
 \item{\texttt{\scalapack}}: the server is designed to offer all
   \scalapack\  (parallel version of the LAPACK library) functions but only
   manages the \texttt{pdgemm\_} function so far. The \texttt{pdgemm\_} routine
@@ -586,8 +625,9 @@ archive:
   elementary services.
 \end{itemize}
 
-\fixme{Rajouter les exemples dynamics, batch, etc ou alors supprimer workflow
-et on laisse que les exemples de base?}
+\fixme{Rajouter les exemples dynamics, etc ou alors supprimer workflow et on
+  laisse que les exemples de base? -> Ou on dit qu'on fournit notamment les
+  exemples listés là ?}
 
 \subsection{Compiling the examples}
 \label{subsection:compiling-examples}

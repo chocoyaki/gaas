@@ -1,5 +1,5 @@
 A simple basic example on how to use the batch API is given here: no
-IN or INOUT args, the client receive as a result the number of
+IN or INOUT args, the client receives as a result the number of
 processors on which the service has been executed.
 
 More elaborated ones can be found in subdirectories:
