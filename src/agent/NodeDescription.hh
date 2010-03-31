@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2010/03/31 21:15:39  bdepardo
+ * Changed C headers into C++ headers
+ *
  * Revision 1.6  2004/09/29 13:35:31  sdahan
  * Add the Multi-MAs feature.
  *
@@ -37,7 +40,7 @@
 #define _NODEDESCRIPTION_HH_
 
 #include "ms_function.hh"
-#include <assert.h>
+#include <cassert>
 #include "debug.hh"
 
 /**

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2010/03/31 21:15:40  bdepardo
+ * Changed C headers into C++ headers
+ *
  * Revision 1.5  2010/01/14 13:15:08  bdepardo
  * "\n" -> endl
  *
@@ -39,7 +42,7 @@
 #include <fstream>	/*file reading*/
 #include <cstdlib>
 #include <string>
-#include <math.h>
+#include <cmath>
 
 #define className Cori_batch
 

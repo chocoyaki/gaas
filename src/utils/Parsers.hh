@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.38  2010/03/31 21:15:40  bdepardo
+ * Changed C headers into C++ headers
+ *
  * Revision 1.37  2009/09/07 14:34:53  bdepardo
  * Added an option in client configuration file to select, when launching the
  * client, the maximum number of SeD the client can receive.
@@ -169,10 +172,10 @@
 #define _PARSERS_HH_
 
 #include <fstream>
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
 #include <unistd.h>
-#include <stdlib.h>
+#include <cstdlib>
 #include "ts_container/ts_set.hh"
 #include "ms_function.hh"
 

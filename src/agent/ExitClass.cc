@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2010/03/31 21:15:39  bdepardo
+ * Changed C headers into C++ headers
+ *
  * Revision 1.3  2010/03/03 10:19:03  bdepardo
  * Changed \n into endl
  *
@@ -23,7 +26,7 @@ using namespace std;
 #include "ExitClass.hh"
 
 #include <iostream>
-#include <stdlib.h>
+#include <cstdlib>
 
 #include "Parsers.hh"
 

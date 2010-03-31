@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2010/03/31 21:15:39  bdepardo
+ * Changed C headers into C++ headers
+ *
  * Revision 1.4  2010/03/03 10:19:03  bdepardo
  * Changed \n into endl
  *
@@ -43,13 +46,13 @@
 #include "ms_function.hh"
 #include "debug.hh"
 #include "ORBMgr.hh"
-#include <stdio.h>
+#include <cstdio>
 #include <sys/types.h> 
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h> 
-#include <string.h>
-#include <errno.h>
+#include <cstring>
+#include <cerrno>
 
 extern unsigned int TRACE_LEVEL;
 

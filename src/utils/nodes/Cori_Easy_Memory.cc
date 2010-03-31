@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2010/03/31 21:15:41  bdepardo
+ * Changed C headers into C++ headers
+ *
  * Revision 1.1  2010/03/03 14:26:35  bdepardo
  * BEWARE!!!
  * Huge modifications to take into account CYGWIN.
@@ -33,13 +36,12 @@
 #ifdef CORI_HAVE_SYS_SYSINFO
 #include <sys/sysinfo.h> // get_phys_pages (),get_avphys_pages ()
 #endif
-#include <stdio.h>
+#include <cstdio>
 #include "Cori_Easy_Memory.hh"
 #include <cstdlib> //system()
-#include <stdlib.h>//popen - pclose
 #include <iostream>
 #include <fstream>	
-#include <string>
+#include <cstring>
 //#include <string.h>//srtcmp
 #include <string>
 #include "debug.hh"

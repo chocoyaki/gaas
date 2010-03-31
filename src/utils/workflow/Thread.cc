@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2010/03/31 21:15:41  bdepardo
+ * Changed C headers into C++ headers
+ *
  * Revision 1.7  2010/03/15 14:00:09  bdepardo
  * C++ includes instead of C includes
  *
@@ -41,7 +44,7 @@
  ****************************************************************************/
 
 #include <iostream>
-#include <assert.h>
+#include <cassert>
 #include <cstring>
 #include <cstdlib>
 #include "Thread.hh"

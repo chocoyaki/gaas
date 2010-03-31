@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.90  2010/03/31 21:15:39  bdepardo
+ * Changed C headers into C++ headers
+ *
  * Revision 1.89  2010/03/31 19:37:54  bdepardo
  * Changed "\n" into std::endl
  *
@@ -215,8 +218,8 @@
 #include <iostream>
 using namespace std;
 #include <unistd.h>  // For gethostname()
-#include <stdlib.h>
-#include <signal.h>
+#include <cstdlib>
+#include <csignal>
 
 #include "DIET_server.h"
 

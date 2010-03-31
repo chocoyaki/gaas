@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2010/03/31 21:15:40  bdepardo
+ * Changed C headers into C++ headers
+ *
  * Revision 1.3  2006/11/16 09:55:55  eboix
  *   DIET_config.h is no longer used. --- Injay2461
  *
@@ -28,7 +31,7 @@
 
 #include <omnithread.h>
 #include <sys/types.h>
-#include <assert.h>
+#include <cassert>
 
 /**
  * The AccessController class coordinates access to a resource between

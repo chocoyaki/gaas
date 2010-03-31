@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2010/03/31 21:15:40  bdepardo
+ * Changed C headers into C++ headers
+ *
  * Revision 1.10  2010/03/31 19:37:55  bdepardo
  * Changed "\n" into std::endl
  *
@@ -59,11 +62,11 @@
  ****************************************************************************/
 
 using namespace std ;
-#include <string.h>
-#include <stdlib.h>
+#include <cstring>
+#include <cstdlib>
 #include <sys/types.h>   // for chmod()
 #include <sys/stat.h>    // for S_IWUSR, S_IXUSR, chmod()
-#include <errno.h>       // for errno
+#include <cerrno>       // for errno
 #include <unistd.h>      // for read()
 #include <fcntl.h>       // for O_RDONLY
 
@@ -214,7 +217,7 @@ BatchSystem::diet_submit_parallel(diet_profile_t * profile,
   */
   options = (char*)calloc(9000,sizeof(char)) ; /* FIXME: Reduce size */
   if( options == NULL )  {
-    ERROR("error allocating memory when building script (options)..." << endl
+    ERROR("error allocating memory when building script (options)..." << endl <<
 	  "Service not launched", -1);
   }
   
@@ -288,7 +291,7 @@ BatchSystem::diet_submit_parallel(diet_profile_t * profile,
 				       + 300
 				       + strlen(command))) ;
   if( script == NULL ) {
-    ERROR("error allocating memory when building script..." << endl
+    ERROR("error allocating memory when building script..." << endl <<
 	  "Service not launched", -1);
   }
 

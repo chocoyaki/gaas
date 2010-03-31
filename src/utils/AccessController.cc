@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2010/03/31 21:15:40  bdepardo
+ * Changed C headers into C++ headers
+ *
  * Revision 1.4  2007/04/16 22:43:44  ycaniou
  * Make all necessary changes to have the new option HAVE_ALT_BATCH operational.
  * This is indented to replace HAVE_BATCH.
@@ -35,10 +38,10 @@
 
 #include "AccessController.hh"
 
-#include <stdio.h>
+#include <cstdio>
 #include <iostream>
 using namespace std;
-#include <stdlib.h>
+#include <cstdlib>
 
 #include "omnithread.h"
 #include "debug.hh"

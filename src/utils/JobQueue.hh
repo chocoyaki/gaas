@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2010/03/31 21:15:40  bdepardo
+ * Changed C headers into C++ headers
+ *
  * Revision 1.4  2009/06/23 09:29:35  bisnard
  * implemented scheduling simulation method to estimate SeD's EFT
  *
@@ -35,7 +38,7 @@ using namespace std;
 #include <omnithread.h>
 #include <map>
 #include <list>
-#include <time.h>
+#include <ctime>
 
 class JobQueue {
 

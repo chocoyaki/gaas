@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.38  2010/03/31 21:15:39  bdepardo
+ * Changed C headers into C++ headers
+ *
  * Revision 1.37  2010/03/08 13:21:51  bisnard
  * initialize DietLogComponent for DAGDA agent
  *
@@ -122,8 +125,8 @@
 
 #include "ExitClass.hh"
 #include <iostream>
-#include <stdlib.h>
-#include <signal.h>
+#include <cstdlib>
+#include <csignal>
 
 using namespace std;
 

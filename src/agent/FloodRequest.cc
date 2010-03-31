@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2010/03/31 21:15:39  bdepardo
+ * Changed C headers into C++ headers
+ *
  * Revision 1.6  2010/03/03 10:19:03  bdepardo
  * Changed \n into endl
  *
@@ -42,7 +45,7 @@
 
 #ifdef HAVE_MULTI_MA
 
-#include <assert.h>
+#include <cassert>
 
 //#include <stdio.h>
 //#define disp(act)  printf("-> %s %s\n", __ASSERT_FUNCTION, #act) ; act ; printf("-< %s %s\n", __ASSERT_FUNCTION, #act) ;

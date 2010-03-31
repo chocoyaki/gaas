@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2010/03/31 21:15:41  bdepardo
+ * Changed C headers into C++ headers
+ *
  * Revision 1.7  2005/10/05 14:06:47  alsu
  * elimination of the troubling parameter of the ts_map template that is
  * different between the various versions STL libraries distributed with
@@ -33,7 +36,7 @@
 #include <map>
 #include <omniconfig.h>
 #include <omnithread.h>
-#include <assert.h>
+#include <cassert>
 
 /**
  * This is a thread safe version of the STL map. All the methods are

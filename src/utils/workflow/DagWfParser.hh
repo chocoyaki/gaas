@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.27  2010/03/31 21:15:41  bdepardo
+ * Changed C headers into C++ headers
+ *
  * Revision 1.26  2009/10/14 09:19:18  bisnard
  * moved XML utility methods to public part
  *
@@ -117,8 +120,8 @@
 #include <xercesc/dom/DOMNamedNodeMap.hpp>
 #include <xercesc/dom/DOMElement.hpp>
 #include <xercesc/dom/DOMAttr.hpp>
-#include <string.h>
-#include <stdlib.h>
+#include <cstring>
+#include <cstdlib>
 
 // Workflow related headers
 #include "WfUtils.hh"

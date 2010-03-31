@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2010/03/31 21:15:40  bdepardo
+ * Changed C headers into C++ headers
+ *
  * Revision 1.3  2006/06/30 15:37:35  ycaniou
  * Code presentation, commentaries (nothing really "touched")
  *
@@ -39,7 +42,7 @@
  * @author Sylvain DAHAN - LIFC Besancon (France)
  */
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <sys/types.h>
 #include <iostream>
 

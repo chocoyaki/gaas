@@ -1,7 +1,7 @@
 #include "MultiCall.hh"
 #include "est_internal.hh"
 #include <iostream>
-#include <stdlib.h>
+#include <cstdlib>
 
 using namespace std;
 

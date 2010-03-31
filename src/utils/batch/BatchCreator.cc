@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2010/03/31 21:15:40  bdepardo
+ * Changed C headers into C++ headers
+ *
  * Revision 1.7  2010/03/31 19:37:55  bdepardo
  * Changed "\n" into std::endl
  *
@@ -45,7 +48,7 @@
 #include "PBS_BatchSystem.hh"
 #include "BatchCreator.hh"
 
-#include <string.h>
+#include <cstring>
 
 #ifdef YC_DEBUG
 #include "debug.hh"

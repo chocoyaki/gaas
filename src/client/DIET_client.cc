@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.142  2010/03/31 21:15:39  bdepardo
+ * Changed C headers into C++ headers
+ *
  * Revision 1.141  2010/03/31 19:37:55  bdepardo
  * Changed "\n" into std::endl
  *
@@ -333,10 +336,10 @@
 #include <fstream>
 using namespace std;
 #include <unistd.h> // For gethostname()
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
+#include <cstdlib>
+#include <cstdio>
+#include <cstring>
+#include <cmath>
 
 #include "debug.hh"
 #include "est_internal.hh"

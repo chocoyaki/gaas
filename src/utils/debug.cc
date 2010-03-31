@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.43  2010/03/31 21:15:40  bdepardo
+ * Changed C headers into C++ headers
+ *
  * Revision 1.42  2010/01/14 13:15:08  bdepardo
  * "\n" -> endl
  *
@@ -142,9 +145,9 @@
  ****************************************************************************/
 
 
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
 
 #include "debug.hh"
 #include "est_internal.hh"

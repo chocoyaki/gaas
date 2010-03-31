@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2010/03/31 21:15:39  bdepardo
+ * Changed C headers into C++ headers
+ *
  * Revision 1.3  2006/11/16 09:55:54  eboix
  *   DIET_config.h is no longer used. --- Injay2461
  *
@@ -32,7 +35,7 @@
 
 #include "ReferenceUpdateThread.hh"
 
-#include <stdio.h>
+#include <cstdio>
 
 ReferenceUpdateThread::ReferenceUpdateThread(MasterAgentImpl* owner,
 					     unsigned int period) 

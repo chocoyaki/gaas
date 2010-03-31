@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2010/03/31 21:15:40  bdepardo
+ * Changed C headers into C++ headers
+ *
  * Revision 1.5  2003/07/04 09:48:06  pcombes
  * Use new ERROR and WARNING macros.
  *
@@ -22,10 +25,10 @@
 
 #include "DIET_mutex.h"
 
-#include <stdio.h>
+#include <cstdio>
 #include <iostream>
 using namespace std;
-#include <stdlib.h>
+#include <cstdlib>
 
 #include "debug.hh"
 #include "omnithread.h"

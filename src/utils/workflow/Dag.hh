@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.28  2010/03/31 21:15:41  bdepardo
+ * Changed C headers into C++ headers
+ *
  * Revision 1.27  2010/03/08 13:50:48  bisnard
  * handle node ready event (for logging)
  *
@@ -119,7 +122,7 @@
 #include "DIET_client.h" // for diet_ReqID_t
 
 #include <sys/time.h>
-#include <time.h>
+#include <ctime>
 
 #include "WfNode.hh"
 #include "MasterAgent.hh"

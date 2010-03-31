@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2010/03/31 21:15:41  bdepardo
+ * Changed C headers into C++ headers
+ *
  * Revision 1.2  2010/03/08 13:19:13  bisnard
  * added new events for workflow monitoring
  *
@@ -138,10 +141,10 @@
  *
  ****************************************************************************/
 
-#include <string.h>
-#include <stdlib.h>
+#include <cstring>
+#include <cstdlib>
 #include <unistd.h>   // For gethostname()
-#include <time.h>
+#include <ctime>
 #include <iostream>
 #include <string>
 using namespace std;

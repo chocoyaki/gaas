@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2010/03/31 21:15:41  bdepardo
+ * Changed C headers into C++ headers
+ *
  * Revision 1.1  2010/03/03 14:26:35  bdepardo
  * BEWARE!!!
  * Huge modifications to take into account CYGWIN.
@@ -23,11 +26,11 @@
  * Collector for CPU Information (default mode)
  *
  ****************************************************************************/
-#include <stdlib.h>           // for getloadavg
+#include <cstdlib>           // for getloadavg
 #include <iostream>
 #include <string>
 #include <fstream> 
-#include <math.h>             // for HUGE_VAL
+#include <cmath>             // for HUGE_VAL
 #ifdef CORI_HAVE_SYS_TYPES
 #include <sys/types.h>        // for sysctl on some systems
 #endif
@@ -38,7 +41,7 @@
 #include <sys/sysinfo.h>      // for get_nproc
 #endif
 #include "Cori_Easy_CPU.hh"
-#include <stdio.h>
+#include <cstdio>
 #include "debug.hh"
 using namespace std;
 

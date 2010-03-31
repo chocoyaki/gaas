@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2010/03/31 21:15:39  bdepardo
+ * Changed C headers into C++ headers
+ *
  * Revision 1.3  2005/10/18 11:05:43  eboix
  *  * Cmake/DIET_config.h.in: clean up of flags
  *  - HAVE_LOGSERVICE no longer used since diet is now allways compiled with
@@ -51,9 +54,9 @@
  *
  ****************************************************************************/
 
-#include <limits.h>
-#include <stdlib.h>
-#include <string.h>
+#include <climits>
+#include <cstdlib>
+#include <cstring>
 
 #include "response.hh"
 #include "Schedulers.hh"

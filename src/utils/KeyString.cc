@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2010/03/31 21:15:40  bdepardo
+ * Changed C headers into C++ headers
+ *
  * Revision 1.2  2004/10/08 12:04:02  hdail
  * Corrected mis-matched return values for hash in .cc and .hh.  Caused problem
  * for comptability with 64-bit machines.
@@ -19,12 +22,12 @@
 
 #include "ms_function.hh"
 #include "KeyString.hh"
-#include <assert.h>
-#include <string.h>
+#include <cassert>
+#include <cstring>
 
 /* disp_state is a macro that displayed the attribut's value of the
    object and the name of the called methods */
-//#include <stdio.h>
+//#include <cstdio>
 //#define disp_state(fct) printf("KeyString::%s %s (%lx)\n", fct, (const char*)this->value ? (const char*)this->value : "empty-string", (long)(const char*)this->value)
 #define disp_state(fct)
 

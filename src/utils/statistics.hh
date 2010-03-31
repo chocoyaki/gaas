@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2010/03/31 21:15:40  bdepardo
+ * Changed C headers into C++ headers
+ *
  * Revision 1.15  2008/11/08 19:12:38  bdepardo
  * A few warnings removal
  *
@@ -56,7 +59,7 @@
 // The first part is ALWAYS defined, so we can link any program
 // even when the macro HAVE_STATISTICS is not defined
 
-#include <stdio.h>
+#include <cstdio>
 #include <sys/time.h>
 
 #if HAVE_STATISTICS

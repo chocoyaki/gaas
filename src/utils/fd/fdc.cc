@@ -7,6 +7,9 @@
 /****************************************************************************/
 /* $Id$ 
  * $Log$
+ * Revision 1.7  2010/03/31 21:15:40  bdepardo
+ * Changed C headers into C++ headers
+ *
  * Revision 1.6  2010/03/03 17:49:18  glemahec
  * Little correction for cygwin compatibility
  *
@@ -24,11 +27,11 @@
  * A
  *
  ****************************************************************************/
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include <unistd.h>
-#include <string.h>
-#include <signal.h>
+#include <cstring>
+#include <csignal>
 #include <sys/socket.h>
 #include <sys/time.h>
 #include "threadoverlay.h"

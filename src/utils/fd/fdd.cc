@@ -7,6 +7,9 @@
 /****************************************************************************/
 /* $Id$ 
  * $Log$
+ * Revision 1.5  2010/03/31 21:15:40  bdepardo
+ * Changed C headers into C++ headers
+ *
  * Revision 1.4  2006/11/07 00:37:44  ecaron
  * Bug fix for MacOSX support
  *
@@ -22,12 +25,12 @@
 #include <sys/stat.h>
 #include <sys/msg.h>
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include <unistd.h>
-#include <string.h>
-#include <signal.h>
-#include <errno.h>
+#include <cstring>
+#include <csignal>
+#include <cerrno>
 #include "threadoverlay.h"
 
 #include "fdd.h"

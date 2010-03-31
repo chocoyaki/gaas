@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2010/03/31 21:15:41  bdepardo
+ * Changed C headers into C++ headers
+ *
  * Revision 1.6  2009/08/19 15:51:11  bdepardo
  * Did not compile in release mode
  *
@@ -38,7 +41,7 @@
 #include <set>
 #include <omniconfig.h>
 #include <omnithread.h>
-#include <assert.h>
+#include <cassert>
 
 /**
  * This is a thread safe version of the STL set. Some methods are

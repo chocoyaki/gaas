@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2010/03/31 21:15:39  bdepardo
+ * Changed C headers into C++ headers
+ *
  * Revision 1.8  2010/03/31 19:37:54  bdepardo
  * Changed "\n" into std::endl
  *
@@ -58,7 +61,7 @@
  * date: 2004/06/11 15:45:39  ctedesch
  * add DIET/JXTA
 /****************************************************************************/
-#include <string.h>
+#include <cstring>
 #include "DIET_server.cc"
 #include "dmat_jxta_progs.h"
 #include "jni.h"

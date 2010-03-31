@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2010/03/31 21:15:41  bdepardo
+ * Changed C headers into C++ headers
+ *
  * Revision 1.6  2004/09/29 13:35:32  sdahan
  * Add the Multi-MAs feature.
  *
@@ -31,7 +34,7 @@
 #include <vector>
 #include <omniconfig.h>
 #include <omnithread.h>
-#include <assert.h>
+#include <cassert>
 
 /**
  * This is a thread safe version of the STL vector. All the methods are

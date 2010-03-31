@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.30  2010/03/31 21:15:39  bdepardo
+ * Changed C headers into C++ headers
+ *
  * Revision 1.29  2008/07/11 08:42:22  rbolze
  * change cout by TRACE_TEXT(TRACE_MAIN_STEPS
  *
@@ -87,7 +90,7 @@
  * adding methods that allow tranfer time between servers to be computed
  ***************************************************************************/
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <unistd.h>    // For gethostname()
 
 #include "DataMgrImpl.hh"

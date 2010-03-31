@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.67  2010/03/31 21:15:40  bdepardo
+ * Changed C headers into C++ headers
+ *
  * Revision 1.66  2010/03/31 19:37:55  bdepardo
  * Changed "\n" into std::endl
  *
@@ -205,8 +208,8 @@
  * Replace silly base type DIET_BYTE by DIET_SHORT.
  ****************************************************************************/
 
-#include <stdlib.h>
-#include <stdio.h>
+#include <cstdlib>
+#include <cstdio>
 #include <iostream>
 using namespace std;
 #include <sys/stat.h>

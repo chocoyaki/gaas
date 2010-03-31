@@ -7,6 +7,9 @@
 /****************************************************************************/
 /* $Id$ 
  * $Log$
+ * Revision 1.4  2010/03/31 21:15:40  bdepardo
+ * Changed C headers into C++ headers
+ *
  * Revision 1.3  2006/06/20 13:29:16  abouteil
  *
  *
@@ -18,7 +21,7 @@
 #include <sys/time.h>
 #include <sys/msg.h>
 
-#include <errno.h>
+#include <cerrno>
 #include "threadoverlay.h"
 
 #include "fdd.h"

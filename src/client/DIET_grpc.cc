@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2010/03/31 21:15:39  bdepardo
+ * Changed C headers into C++ headers
+ *
  * Revision 1.13  2009/07/07 08:57:52  bisnard
  * Changes due to DIET_client library split in two libraries (DIETCall).
  * New signature for client core functions (diet_call_common)
@@ -69,7 +72,7 @@
 
 #include "DIET_client.h" // includes DIET_grpc.h
 #include <ORBMgr.hh>
-#include <stdarg.h>
+#include <cstdarg>
 #include "debug.hh"
 #include "DIETCall.hh"
 #include <vector>

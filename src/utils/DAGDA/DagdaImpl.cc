@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.35  2010/03/31 21:15:40  bdepardo
+ * Changed C headers into C++ headers
+ *
  * Revision 1.34  2009/11/06 14:42:44  bisnard
  * modified filename generator to avoid loosing the file extension
  * during transfers and to suppress double slash in pathes
@@ -56,7 +59,7 @@
 #include "marshalling.hh"
 
 #include <unistd.h>
-#include <errno.h>
+#include <cerrno>
 #include <fnmatch.h>
 
 #include <list>

@@ -7,6 +7,9 @@
 /****************************************************************************/
 /* $Id$ 
  * $Log$
+ * Revision 1.5  2010/03/31 21:15:40  bdepardo
+ * Changed C headers into C++ headers
+ *
  * Revision 1.4  2006/11/01 14:02:25  ecaron
  * Correct wrong end line character (Ctrl+M)
  *
@@ -18,7 +21,7 @@
  * A
  *
  ****************************************************************************/
-#include <stdlib.h>
+#include <cstdlib>
 
 #include "hashtable.h"
 

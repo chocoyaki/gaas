@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.94  2010/03/31 21:15:38  bdepardo
+ * Changed C headers into C++ headers
+ *
  * Revision 1.93  2010/03/31 19:37:54  bdepardo
  * Changed "\n" into std::endl
  *
@@ -278,7 +281,7 @@
  ****************************************************************************/
 
 #include <fstream>
-#include <stdlib.h>
+#include <cstdlib>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>

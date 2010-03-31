@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2010/03/31 21:15:39  bdepardo
+ * Changed C headers into C++ headers
+ *
  * Revision 1.16  2008/10/22 14:16:37  gcharrie
  * Adding MultiCall. It is used to devide a profile and make several calls with just one SeD. Some documentation will be added soon.
  *
@@ -72,7 +75,7 @@
 #include <vector>
 #include <omnithread.h>
 #include <sys/types.h>
-#include <assert.h>
+#include <cassert>
 
 #include "DIET_client.h"
 #include "DIET_data_internal.hh"

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2010/03/31 21:15:41  bdepardo
+ * Changed C headers into C++ headers
+ *
  * Revision 1.1  2010/03/03 14:26:35  bdepardo
  * BEWARE!!!
  * Huge modifications to take into account CYGWIN.
@@ -26,14 +29,14 @@
 #if CORI_HAVE_SYS_TIME
 #include <sys/time.h>
 #endif //CORI_HAVE_SYS_TIME
-#include <string.h>
-#include <signal.h>
+#include <cstring>
+#include <csignal>
 #ifdef HAVE_UNISTD_H 
 #include <unistd.h>//alarm
 #endif //HAVE_UNISTD_H
 #include "Cori_Easy_Disk.hh"
-#include <math.h> //rand
-#include <stdlib.h>//popen - pclose
+#include <cmath> //rand
+#include <cstdlib>//popen - pclose
 #include "debug.hh" 
 
 using namespace std;

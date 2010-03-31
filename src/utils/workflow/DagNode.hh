@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.18  2010/03/31 21:15:41  bdepardo
+ * Changed C headers into C++ headers
+ *
  * Revision 1.17  2010/03/08 13:50:48  bisnard
  * handle node ready event (for logging)
  *
@@ -68,7 +71,7 @@
 #include <vector>
 
 #include <sys/time.h>
-#include <time.h>
+#include <ctime>
 
 // DIET core headers
 #include "DIET_grpc.h"

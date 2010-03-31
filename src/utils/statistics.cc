@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.18  2010/03/31 21:15:40  bdepardo
+ * Changed C headers into C++ headers
+ *
  * Revision 1.17  2010/03/31 19:37:55  bdepardo
  * Changed "\n" into std::endl
  *
@@ -57,9 +60,9 @@
  * Put main Makefile in root directory.
  ****************************************************************************/
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <sys/types.h>
 #include <unistd.h>
 #include "debug.hh"

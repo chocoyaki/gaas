@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.39  2010/03/31 21:15:40  bdepardo
+ * Changed C headers into C++ headers
+ *
  * Revision 1.38  2010/03/08 13:37:50  bisnard
  * replaced WfLogService by DietLogComponent
  *
@@ -158,7 +161,7 @@
  *
  ****************************************************************************/
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <iostream>
 #include <fstream>
 #include <sstream>

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2010/03/31 21:15:41  bdepardo
+ * Changed C headers into C++ headers
+ *
  * Revision 1.1  2010/03/03 14:26:35  bdepardo
  * BEWARE!!!
  * Huge modifications to take into account CYGWIN.
@@ -32,7 +35,7 @@
  ****************************************************************************/
 #include "FASTMgr.hh"
 #include "CORIMgr.hh"
-#include <math.h>
+#include <cmath>
 #include "est_internal.hh"
 
 #include <iostream>

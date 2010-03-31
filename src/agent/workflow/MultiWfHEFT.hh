@@ -10,6 +10,9 @@
 
 /* $Id$
  * $Log$
+ * Revision 1.10  2010/03/31 21:15:39  bdepardo
+ * Changed C headers into C++ headers
+ *
  * Revision 1.9  2009/02/06 14:50:35  bisnard
  * setup exceptions
  *
@@ -50,7 +53,7 @@
 #ifndef _MULTIWFHEFT_HH_
 #define _MULTIWFHEFT_HH_
 
-#include <math.h>
+#include <cmath>
 
 #include "debug.hh"
 

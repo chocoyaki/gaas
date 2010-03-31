@@ -7,6 +7,9 @@
 /****************************************************************************/
 /* $Id$ 
  * $Log$
+ * Revision 1.6  2010/03/31 21:15:40  bdepardo
+ * Changed C headers into C++ headers
+ *
  * Revision 1.5  2007/03/30 15:48:34  dart
  * - Add <sys/socket.h> to compile under AIX with XLC v8.0
  * - Change h_addr to http_addr in udp_server.cc to avoid the error message
@@ -28,10 +31,10 @@
 #include <sys/time.h>
 #include <sys/socket.h>
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include <unistd.h>
-#include <string.h>
+#include <cstring>
 #include "threadoverlay.h"
 
 

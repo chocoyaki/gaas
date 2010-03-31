@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2010/03/31 21:15:39  bdepardo
+ * Changed C headers into C++ headers
+ *
  * Revision 1.9  2007/03/27 08:59:05  glemahec
  * Adapts the Request destructor to a dynamically loaded class.
  *
@@ -38,10 +41,10 @@
 
 #include "Request.hh"
 
-#include <assert.h>
+#include <cassert>
 #include <iostream>
 using namespace std;
-#include <stdio.h>
+#include <cstdio>
 
 #include "debug.hh"
 

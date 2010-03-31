@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2010/03/31 21:15:40  bdepardo
+ * Changed C headers into C++ headers
+ *
  * Revision 1.5  2005/10/04 12:05:39  alsu
  * minor changes to pacify gcc/g++ 4.0
  *
@@ -28,7 +31,7 @@
 #include <omniconfig.h>
 #include <omnithread.h>
 #include <sys/types.h>
-#include <assert.h>
+#include <cassert>
 
 #include "debug.hh"
 

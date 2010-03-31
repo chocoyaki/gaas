@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.52  2010/03/31 21:15:39  bdepardo
+ * Changed C headers into C++ headers
+ *
  * Revision 1.51  2010/03/08 13:43:23  bisnard
  * added new logged event when a wf node becomes ready
  *
@@ -199,7 +202,7 @@
 
 #include "marshalling.hh"
 #include "est_internal.hh"
-#include <math.h>
+#include <cmath>
 #include <iomanip>
 #include "debug.hh"
 #include "statistics.hh"

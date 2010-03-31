@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.24  2010/03/31 21:15:38  bdepardo
+ * Changed C headers into C++ headers
+ *
  * Revision 1.23  2010/03/15 14:01:46  bdepardo
  * Changes to support Cygwin: switching from classical mutex to semaphore
  * due to double locking problems with mutex implementation under Cygwin
@@ -74,8 +77,8 @@
 
 using namespace std;
 #include <iostream>
-#include <signal.h>
-#include <setjmp.h>
+#include <csignal>
+#include <csetjmp>
 
 #ifdef __cygwin__
 #include <semaphore.h>

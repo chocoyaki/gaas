@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.118  2010/03/31 21:15:39  bdepardo
+ * Changed C headers into C++ headers
+ *
  * Revision 1.117  2010/03/31 19:37:54  bdepardo
  * Changed "\n" into std::endl
  *
@@ -282,14 +285,14 @@
 
 #include <iostream>
 using namespace std;
-#include <math.h>
-#include <string.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstring>
+#include <cstdlib>
 #include <unistd.h>   // For gethostname()
-#include <time.h>
+#include <ctime>
 
 #ifdef HAVE_DYNAMICS
-#include <signal.h>
+#include <csignal>
 #endif // HAVE_DYNAMICS
 
 /* CLEAN ME: this was a hilarious pun except that slimfast_api.h is nowhere

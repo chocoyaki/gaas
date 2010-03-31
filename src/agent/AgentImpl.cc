@@ -5,6 +5,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.61  2010/03/31 21:15:39  bdepardo
+ * Changed C headers into C++ headers
+ *
  * Revision 1.60  2010/03/03 10:19:03  bdepardo
  * Changed \n into endl
  *
@@ -198,14 +201,14 @@
 #include "AgentImpl.hh"
 #include <iostream>
 using namespace std;
-#include <math.h>
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstring>
+#include <cstdio>
+#include <cstdlib>
 #include <unistd.h>  // For gethostname()
 
 #ifdef HAVE_DYNAMICS
-#include <signal.h>
+#include <csignal>
 #endif // HAVE_DYNAMICS
 
 #include "common_types.hh"
