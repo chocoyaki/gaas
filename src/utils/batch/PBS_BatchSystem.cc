@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2010/03/31 19:37:55  bdepardo
+ * Changed "\n" into std::endl
+ *
  * Revision 1.6  2010/03/05 02:38:04  ycaniou
  * Integration of SGE (still not complete) + fixes
  *
@@ -56,10 +59,10 @@ const char * PBS_BatchSystem::statusNames[] = {
 PBS_BatchSystem::PBS_BatchSystem(int ID, const char * batchname)
 {
   if( pathToNFS == NULL ) {
-    ERROR_EXIT("PBS needs a path to a NFS directory to store its script\n") ;
+    ERROR_EXIT("PBS needs a path to a NFS directory to store its script") ;
   }
 #if defined YC_DEBUG
-  TRACE_TEXT(TRACE_ALL_STEPS,"Nom NFS: " << getNFSPath() << "\n") ;
+  TRACE_TEXT(TRACE_ALL_STEPS,"Nom NFS: " << getNFSPath() << endl) ;
 #endif
 
   batch_ID = ID ;
@@ -148,7 +151,7 @@ PBS_BatchSystem::askBatchJobStatus(int batchJobID)
 	  filename,
 	  wait4Command,batchJobID,waitFilter, filename) ;
 #if defined YC_DEBUG
-  TRACE_TEXT(TRACE_ALL_STEPS,"Execute:\n " << chaine << "\n") ;
+  TRACE_TEXT(TRACE_ALL_STEPS,"Execute:" << endl << chaine << endl) ;
 #endif
   if( system(chaine) != 0 ) {
     ERROR("Cannot submit script", NB_STATUS) ;
@@ -176,8 +179,7 @@ PBS_BatchSystem::askBatchJobStatus(int batchJobID)
   }
     
   if( i==NB_STATUS ) {
-    ERROR("Cannot get batch job " << batchJobID << " status: " << chaine
-	  << "\n",NB_STATUS) ;
+    ERROR("Cannot get batch job " << batchJobID << " status: " << chaine, NB_STATUS) ;
   }
   /* Remove temporary file by closing it */
 #if REMOVE_BATCH_TEMPORARY_FILE
@@ -212,7 +214,7 @@ PBS_BatchSystem::isBatchJobCompleted(int batchJobID)
 int
 PBS_BatchSystem::getNbResources()
 {
-  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented\n\n") ;
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl) ;
   return getNbTotResources() ;
 }
 
@@ -233,7 +235,7 @@ PBS_BatchSystem::getMaxWalltime()
 int
 PBS_BatchSystem::getMaxProcs()
 {
-  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented\n\n") ;
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl) ;
   return getNbResources() ;
 }
 
@@ -242,14 +244,14 @@ PBS_BatchSystem::getMaxProcs()
 int
 PBS_BatchSystem::getNbTotFreeResources()
 {
-  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented\n\n") ;
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl) ;
   return getNbResources() ;
 }
 
 int
 PBS_BatchSystem::getNbFreeResources()
 {
-  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented\n\n") ;
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl) ;
   return getNbResources() ;
 }
 

@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2010/03/31 19:37:54  bdepardo
+ * Changed "\n" into std::endl
+ *
  * Revision 1.7  2006/11/28 14:27:11  ctedesch
  * add old logs in header
  *
@@ -116,7 +119,7 @@ solve_T(diet_profile_t* pb)
   diet_free_data(diet_parameter(pb,0));
   diet_free_data(diet_parameter(pb,1));
 
-  printf(" done\n");
+  TRACE_TEXT(TRACE_ALL_STEPS, "done" << endl);
   return 0;
 }
 
@@ -181,7 +184,7 @@ solve_MatSUM(diet_profile_t* pb)
   diet_free_data(diet_parameter(pb,3));
 #endif // ! __FAST_0_4__
 
-  printf(" done\n");
+  TRACE_TEXT(TRACE_ALL_STEPS, "done" << endl);
   return res;
 }
 
@@ -246,7 +249,7 @@ solve_MatPROD(diet_profile_t* pb)
   diet_free_data(diet_parameter(pb,4));
 #endif // ! __FAST_0_4__
 
-  printf(" done\n");
+  TRACE_TEXT(TRACE_ALL_STEPS, "done" << endl);
   return res;
 }
 
@@ -556,7 +559,7 @@ JNIEXPORT jint JNICALL
               Parsers::Results::USELOGSERVICE);
   useLS = false;
   if (ULSptr == NULL) {
-    cout << "WARNING: useLogService not configured. Disabled by default\n";
+    cout << "WARNING: useLogService not configured. Disabled by default" << endl;
   } else {
     if (*ULSptr) {
       useLS = true;
@@ -584,7 +587,7 @@ JNIEXPORT jint JNICALL
   }
 
   if (useLS) {
-    TRACE_TEXT(TRACE_MAIN_STEPS, "LogService enabled\n");
+    TRACE_TEXT(TRACE_MAIN_STEPS, "LogService enabled" << endl);
     char* parentName;
     parentName = (char*)Parsers::Results::getParamValue
                           (Parsers::Results::PARENTNAME);
@@ -597,7 +600,7 @@ JNIEXPORT jint JNICALL
       dietLogComponent = NULL; // this should never happen;
     }
   } else {
-    TRACE_TEXT(TRACE_MAIN_STEPS, "LogService disabled\n");
+    TRACE_TEXT(TRACE_MAIN_STEPS, "LogService disabled" << endl);
     dietLogComponent = NULL;
   }
 

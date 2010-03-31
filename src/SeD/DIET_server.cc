@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.89  2010/03/31 19:37:54  bdepardo
+ * Changed "\n" into std::endl
+ *
  * Revision 1.88  2010/03/08 13:33:40  bisnard
  * initialize DietLogComponent for DAGDA agent
  *
@@ -507,7 +510,7 @@ diet_aggregator_desc_t*
 diet_profile_desc_aggregator(diet_profile_desc_t* profile)
 {
   if (profile == NULL) {
-    WARNING(__FUNCTION__ << ": NULL profile\n");
+    WARNING(__FUNCTION__ << ": NULL profile");
     return (NULL);
   }
   return (&(profile->aggregator));
@@ -517,7 +520,7 @@ diet_aggregator_set_type(diet_aggregator_desc_t* agg,
                          diet_aggregator_type_t atype)
 {
   if (agg == NULL) {
-    ERROR(__FUNCTION__ << ": NULL aggregator\n", 0);
+    ERROR(__FUNCTION__ << ": NULL aggregator", 0);
   }
   if (atype != DIET_AGG_DEFAULT &&
       atype != DIET_AGG_PRIORITY
@@ -527,13 +530,12 @@ diet_aggregator_set_type(diet_aggregator_desc_t* agg,
 #endif
 /*************************************/
 	  ) {
-    ERROR(__FUNCTION__ << ": unknown aggregation type (" << atype << ")\n", 0);
+    ERROR(__FUNCTION__ << ": unknown aggregation type (" << atype << ")", 0);
   }
   if (agg->agg_method != DIET_AGG_DEFAULT) {
     WARNING(__FUNCTION__ <<
             ": overriding previous aggregation type (" <<
-            agg->agg_method <<
-            ")\n");
+            agg->agg_method);
   }
   agg->agg_method = atype;
   memset(&(agg->agg_specific), 0, sizeof (agg->agg_specific));
@@ -567,17 +569,17 @@ diet_aggregator_priority_max(diet_aggregator_desc_t* agg,
                              int tag)
 {
   if (agg == NULL) {
-    ERROR(__FUNCTION__ << ": NULL aggregator\n", 0);
+    ERROR(__FUNCTION__ << ": NULL aggregator", 0);
   }
   if (agg->agg_method != DIET_AGG_PRIORITY) {
-    ERROR(__FUNCTION__ << ": aggregator not a priority list\n", 0);
+    ERROR(__FUNCTION__ << ": aggregator not a priority list", 0);
   }
   if (! __diet_agg_pri_add_value(&(agg->agg_specific.agg_specific_priority),
                                  tag)) {
     ERROR(__FUNCTION__ <<
           ": failure adding value to priority list (" <<
           tag <<
-          ")\n", 0);
+          ")", 0);
   }
   return (1);
 }
@@ -586,17 +588,17 @@ diet_aggregator_priority_min(diet_aggregator_desc_t* agg,
                              int tag)
 {
   if (agg == NULL) {
-    ERROR(__FUNCTION__ << ": NULL aggregator\n", 0);
+    ERROR(__FUNCTION__ << ": NULL aggregator", 0);
   }
   if (agg->agg_method != DIET_AGG_PRIORITY) {
-    ERROR(__FUNCTION__ << ": aggregator not a priority list\n", 0);
+    ERROR(__FUNCTION__ << ": aggregator not a priority list", 0);
   }
   if (! __diet_agg_pri_add_value(&(agg->agg_specific.agg_specific_priority),
                                  -tag)) {
     ERROR(__FUNCTION__ <<
           ": failure adding value to priority list (" <<
           -tag <<
-          ")\n", 0);
+          ")", 0);
   }
   return (1);
 }
@@ -605,17 +607,17 @@ int
 diet_aggregator_priority_maxuser(diet_aggregator_desc_t* agg, int val)
 {
   if (agg == NULL) {
-    ERROR(__FUNCTION__ << ": NULL aggregator\n", 0);
+    ERROR(__FUNCTION__ << ": NULL aggregator", 0);
   }
   if (agg->agg_method != DIET_AGG_PRIORITY) {
-    ERROR(__FUNCTION__ << ": aggregator not a priority list\n", 0);
+    ERROR(__FUNCTION__ << ": aggregator not a priority list", 0);
   }
   if (! __diet_agg_pri_add_value(&(agg->agg_specific.agg_specific_priority),
                                  EST_USERDEFINED + val)) {
     ERROR(__FUNCTION__ <<
           ": failure adding value to priority list (" <<
           (EST_USERDEFINED + val) <<
-          ")\n", 0);
+          ")", 0);
   }
   return (1);
 }
@@ -623,17 +625,17 @@ int
 diet_aggregator_priority_minuser(diet_aggregator_desc_t* agg, int val)
 {
   if (agg == NULL) {
-    ERROR(__FUNCTION__ << ": NULL aggregator\n", 0);
+    ERROR(__FUNCTION__ << ": NULL aggregator", 0);
   }
   if (agg->agg_method != DIET_AGG_PRIORITY) {
-    ERROR(__FUNCTION__ << ": aggregator not a priority list\n", 0);
+    ERROR(__FUNCTION__ << ": aggregator not a priority list", 0);
   }
   if (! __diet_agg_pri_add_value(&(agg->agg_specific.agg_specific_priority),
                                  -(EST_USERDEFINED + val))) {
     ERROR(__FUNCTION__ <<
           ": failure adding value to priority list (" <<
           -(EST_USERDEFINED + val) <<
-          ")\n", 0);
+          ")", 0);
   }
   return (1);
 }
@@ -715,8 +717,8 @@ diet_convertor_check(const diet_convertor_t* const cvt,
 #define CHECK_ERROR(formatted_text)                         \
   if (res == 0)                                             \
     cerr << "DIET ERROR while checking the convertor from " \
-	 << profile->path << " to " << cvt->path << ":\n";  \
-  cerr << formatted_text << ".\n";                  \
+	 << profile->path << " to " << cvt->path << ":" << endl; \
+  cerr << formatted_text << "." << endl;				 \
   res = 1;
 
 
@@ -734,12 +736,12 @@ diet_convertor_check(const diet_convertor_t* const cvt,
 	(out < 0) || (out > profile->last_out)) {
       if (cvt->arg_convs[i].arg == NULL) {
 	CHECK_ERROR("- the argument convertor " << i << " references no "
-		    << "argument ;\n  it should reference either an index of "
+		    << "argument ;" << endl << " it should reference either an index of "
 		    << "the profile, or a constant argument");
       }
     } else if (cvt->arg_convs[i].arg != NULL) {
       CHECK_ERROR("- the argument convertor " << i << " references too many "
-		  << "arguments ;\n  it should reference either an index of "
+		  << "arguments ;" << endl << " it should reference either an index of "
 		  << "the profile, or a constant argument");
     }
   }
@@ -885,7 +887,7 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
   }
 
   if (useLS) {
-    TRACE_TEXT(TRACE_ALL_STEPS, "* LogService: enabled\n");
+    TRACE_TEXT(TRACE_ALL_STEPS, "* LogService: enabled" << endl);
     char* parentName;
     parentName = (char*)Parsers::Results::getParamValue
                           (Parsers::Results::PARENTNAME);
@@ -900,11 +902,11 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
     if (dietLogComponent->run("SeD", parentName, flushTime) != 0) {
       // delete(dietLogComponent); // DLC is activated, do not delete !
       WARNING("Could not initialize DietLogComponent");
-      TRACE_TEXT(TRACE_ALL_STEPS, "* LogService: disabled\n");
+      TRACE_TEXT(TRACE_ALL_STEPS, "* LogService: disabled" << endl);
       dietLogComponent = NULL; // this should never happen;
     }
   } else {
-    TRACE_TEXT(TRACE_ALL_STEPS, "* LogService: disabled\n");
+    TRACE_TEXT(TRACE_ALL_STEPS, "* LogService: disabled" << endl);
     dietLogComponent = NULL;
   }
 
@@ -928,7 +930,7 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
 #ifdef HAVE_ALT_BATCH
   /* Define the role of the SeD: batch, serial, etc. */
   SeD->setServerStatus( st ) ;
-  TRACE_TEXT(TRACE_MAIN_STEPS, "setServerStatus " << (int)st << "\n");
+  TRACE_TEXT(TRACE_MAIN_STEPS, "setServerStatus " << (int)st << endl);
 #endif
 
   /* Set SeD to use LogService object */
@@ -970,7 +972,7 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
   if (ackFile != NULL) {
     cerr << "Open OutFile: "<< ackFile <<endl;
     ofstream out (ackFile);
-    out << "ok\n" << endl;
+    out << "ok" << endl;
     out.close();
   }
 #endif
@@ -1010,7 +1012,7 @@ diet_est_set(estVector_t ev, int userTag, double value)
     ERROR(__FUNCTION__ <<
           ": userTag must be non-negative (" <<
           userTag <<
-          ")\n", -1);
+          ")", -1);
   }
 
   return (diet_est_set_internal(ev, userTag + EST_USERDEFINED, value));
@@ -1026,7 +1028,7 @@ diet_est_get(estVectorConst_t ev, int userTag, double errVal)
     ERROR(__FUNCTION__ <<
           ": userTag must be non-negative (" <<
           userTag <<
-          ")\n", errVal);
+          ")", errVal);
   }
 
   return (diet_est_get_internal(ev, userTag + EST_USERDEFINED, errVal));
@@ -1042,13 +1044,13 @@ diet_est_get_system(estVectorConst_t ev, int systemTag, double errVal)
     ERROR(__FUNCTION__ <<
           ": systemTag must be non-negative (" <<
           systemTag <<
-          ")\n", errVal);
+          ")", errVal);
   }
   if (systemTag >= EST_USERDEFINED) {
     ERROR(__FUNCTION__ <<
           ": systemTag "<<systemTag <<" must be smaller than (" <<
           EST_USERDEFINED<<
-          ")\n", errVal);
+          ")", errVal);
   }
   return (diet_est_get_internal(ev,systemTag, errVal));
 }
@@ -1063,7 +1065,7 @@ diet_est_defined(estVectorConst_t ev, int userTag)
     ERROR(__FUNCTION__ <<
           ": userTag must be non-negative (" <<
           userTag <<
-          ")\n", -1);
+          ")", -1);
   }
 
   return (diet_est_defined_internal(ev, userTag + EST_USERDEFINED));
@@ -1078,13 +1080,13 @@ diet_est_defined_system(estVectorConst_t ev, int systemTag)
     ERROR(__FUNCTION__ <<
           ": userTag must be non-negative (" <<
           systemTag <<
-          ")\n", -1);
+          ")", -1);
   }
    if (systemTag >= EST_USERDEFINED) {
     ERROR(__FUNCTION__ <<
           ": systemTag "<<systemTag <<" must be smaller than (" <<
           EST_USERDEFINED<<
-          ")\n", -1);
+          ")", -1);
   }
 
   return (diet_est_defined_internal(ev, systemTag ));
@@ -1100,7 +1102,7 @@ diet_est_array_size(estVectorConst_t ev, int userTag)
     ERROR(__FUNCTION__ <<
           ": userTag must be non-negative (" <<
           userTag <<
-          ")\n", -1);
+          ")", -1);
   }
 
   return (diet_est_array_size_internal(ev, userTag + EST_USERDEFINED));
@@ -1115,13 +1117,13 @@ diet_est_array_size_system(estVectorConst_t ev, int systemTag)
     ERROR(__FUNCTION__ <<
           ": userTag must be non-negative (" <<
           systemTag <<
-          ")\n", -1);
+          ")", -1);
   }
    if (systemTag >= EST_USERDEFINED) {
     ERROR(__FUNCTION__ <<
           ": systemTag "<<systemTag <<" must be smaller than (" <<
           EST_USERDEFINED<<
-          ")\n", -1);
+          ")", -1);
   }
 
   return (diet_est_array_size_internal(ev, systemTag));
@@ -1137,10 +1139,10 @@ diet_est_array_set(estVector_t ev, int userTag, int idx, double value)
     ERROR(__FUNCTION__ <<
           ": userTag must be non-negative (" <<
           userTag <<
-          ")\n", -1);
+          ")", -1);
   }
   if (idx < 0) {
-    ERROR(__FUNCTION__ << ": idx must be non-negative (" << idx << ")\n", -1);
+    ERROR(__FUNCTION__ << ": idx must be non-negative (" << idx << ")", -1);
   }
 
   return (diet_est_array_set_internal(ev,
@@ -1159,13 +1161,13 @@ diet_est_array_get(estVectorConst_t ev, int userTag, int idx, double errVal)
     ERROR(__FUNCTION__ <<
           ": userTag must be non-negative (" <<
           userTag <<
-          ")\n", errVal);
+          ")", errVal);
   }
   if (idx < 0) {
     ERROR(__FUNCTION__ <<
           ": idx must be non-negative (" <<
           idx <<
-          ")\n", errVal);
+          ")", errVal);
   }
 
   return (diet_est_array_get_internal(ev,
@@ -1184,19 +1186,19 @@ diet_est_array_get_system(estVectorConst_t ev, int systemTag, int idx, double er
     ERROR(__FUNCTION__ <<
           ": userTag must be non-negative (" <<
           systemTag <<
-          ")\n", errVal);
+          ")", errVal);
   }
   if (idx < 0) {
     ERROR(__FUNCTION__ <<
           ": idx must be non-negative (" <<
           idx <<
-          ")\n", errVal);
+          ")", errVal);
   }
   if (systemTag >= EST_USERDEFINED) {
     ERROR(__FUNCTION__ <<
           ": systemTag "<<systemTag <<" must be smaller than (" <<
           EST_USERDEFINED<<
-          ")\n", errVal);
+          ")", errVal);
   }
   return (diet_est_array_get_internal(ev,
                                       systemTag,
@@ -1215,10 +1217,10 @@ diet_est_array_defined(estVectorConst_t ev, int userTag, int idx)
     ERROR(__FUNCTION__ <<
           ": userTag must be non-negative (" <<
           userTag <<
-          ")\n", -1);
+          ")", -1);
   }
   if (idx < 0) {
-    ERROR(__FUNCTION__ << ": idx must be non-negative (" << idx << ")\n", -1);
+    ERROR(__FUNCTION__ << ": idx must be non-negative (" << idx << ")", -1);
   }
 
   return (diet_est_array_defined_internal(ev,
@@ -1236,16 +1238,16 @@ diet_est_array_defined_system(estVectorConst_t ev, int systemTag, int idx)
     ERROR(__FUNCTION__ <<
           ": userTag must be non-negative (" <<
           systemTag <<
-          ")\n", -1);
+          ")", -1);
   }
   if (idx < 0) {
-    ERROR(__FUNCTION__ << ": idx must be non-negative (" << idx << ")\n", -1);
+    ERROR(__FUNCTION__ << ": idx must be non-negative (" << idx << ")", -1);
   }
   if (systemTag >= EST_USERDEFINED) {
     ERROR(__FUNCTION__ <<
           ": systemTag "<<systemTag <<" must be smaller than (" <<
           EST_USERDEFINED<<
-          ")\n", -1);
+          ")", -1);
   }
   return (diet_est_array_defined_internal(ev,
                                           systemTag,
@@ -1300,7 +1302,7 @@ diet_estimate_cori(estVector_t ev,
 	  value = 0 ;
 	}
 	diet_est_set_internal(ev,info_type,value);
-	ERROR(__FUNCTION__ << ": info_type must be EST_TCOMP,EST_FREECPU,EST_FREEMEM, EST_NBCPU or EST_ALLINFOS!)\n", -1);
+	ERROR(__FUNCTION__ << ": info_type must be EST_TCOMP,EST_FREECPU,EST_FREEMEM, EST_NBCPU or EST_ALLINFOS!)", -1);
       }
       //#endif //HAVE_FAST
       break ;
@@ -1311,7 +1313,7 @@ diet_estimate_cori(estVector_t ev,
   case EST_COLL_GANGLIA:
   case EST_COLL_NAGIOS:
   default:
-    ERROR("Requested collector not implemented\n", -1) ;
+    ERROR("Requested collector not implemented", -1) ;
   }
   return 0 ;
 }
@@ -1495,13 +1497,13 @@ diet_set_server_status( diet_server_status_t status )
     //#if defined YC_DEBUG
     switch((int)st) {
     case BATCH:
-      TRACE_TEXT(TRACE_MAIN_STEPS,"SeD is batch\n") ;
+      TRACE_TEXT(TRACE_MAIN_STEPS,"SeD is batch" << endl) ;
       break ;
     case SERIAL:
-      TRACE_TEXT(TRACE_MAIN_STEPS,"SeD is sequential\n") ;
+      TRACE_TEXT(TRACE_MAIN_STEPS,"SeD is sequential" << endl) ;
       break ;
     default:
-      TRACE_TEXT(TRACE_MAIN_STEPS,"Server status list to update\n") ;
+      TRACE_TEXT(TRACE_MAIN_STEPS,"Server status list to update" << endl) ;
     }
   //#endif
   } else ERROR_EXIT("Server status not recognized") ;

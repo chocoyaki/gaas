@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.141  2010/03/31 19:37:55  bdepardo
+ * Changed "\n" into std::endl
+ *
  * Revision 1.140  2010/03/08 13:22:23  bisnard
  * initialize DietLogComponent for DAGDA agent and Client Wf Mgr
  *
@@ -595,7 +598,7 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
   ULSptr = (unsigned int*)Parsers::Results::getParamValue(
               Parsers::Results::USELOGSERVICE);
   if (ULSptr == NULL) {
-// 	  WARNING(" useLogService not configured. Disabled by default\n");
+// 	  WARNING(" useLogService not configured. Disabled by default");
   } else {
     if (*ULSptr) {
       useLS = true;
@@ -618,7 +621,7 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
       flushTime = 10000;
 //       WARNING("lsFlushinterval not configured, using default");
     }
-    TRACE_TEXT(TRACE_ALL_STEPS, "LogService enabled\n");
+    TRACE_TEXT(TRACE_ALL_STEPS, "LogService enabled" << endl);
     char* agtTypeName = strdup("CLIENT");
     char* agtParentName;
     agtParentName = (char*)Parsers::Results::getParamValue

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2010/03/31 19:37:55  bdepardo
+ * Changed "\n" into std::endl
+ *
  * Revision 1.5  2009/11/27 03:24:30  ycaniou
  * Add user_command possibility before the end of Batch prologue (only
  * to be used for batch dependent code!)
@@ -54,10 +57,10 @@ const char * Loadleveler_BatchSystem::statusNames[] = {
 Loadleveler_BatchSystem::Loadleveler_BatchSystem(int ID, const char * batchname)
 {
   if( pathToNFS == NULL ) {
-    ERROR_EXIT("LL needs a path to a NFS directory to store its script\n") ;
+    ERROR_EXIT("LL needs a path to a NFS directory to store its script") ;
   }
 #if defined YC_DEBUG
-  TRACE_TEXT(TRACE_ALL_STEPS,"Nom NFS: " << getNFSPath() << "\n") ;
+  TRACE_TEXT(TRACE_ALL_STEPS,"Nom NFS: " << getNFSPath() << endl) ;
 #endif
 
   batch_ID = ID ;
@@ -153,7 +156,7 @@ Loadleveler_BatchSystem::askBatchJobStatus(int batchJobID)
   sprintf(chaine,"%s %d | %s > %s",
 	  wait4Command,batchJobID,waitFilter,filename) ;
 #if defined YC_DEBUG
-  TRACE_TEXT(TRACE_ALL_STEPS,"Execute:\n " << chaine << "\n") ;
+  TRACE_TEXT(TRACE_ALL_STEPS,"Execute: " << endl << chaine << endl) ;
 #endif
   if( system(chaine) != 0 ) {
     ERROR("Cannot submit script", NB_STATUS) ;
@@ -184,8 +187,7 @@ Loadleveler_BatchSystem::askBatchJobStatus(int batchJobID)
   }
     
   if( i==NB_STATUS ) {
-    ERROR("Cannot get batch job " << batchJobID << " status: " << chaine
-	  << "\n",NB_STATUS) ;
+    ERROR("Cannot get batch job " << batchJobID << " status: " << chaine, NB_STATUS) ;
   }
   /* Remove temporary file by closing it */
 #if REMOVE_BATCH_TEMPORARY_FILE
@@ -220,28 +222,28 @@ Loadleveler_BatchSystem::isBatchJobCompleted(int batchJobID)
 int
 Loadleveler_BatchSystem::getNbResources()
 {
-  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented\n\n") ;
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl) ;
   return 16 ;
 }
 
 int
 Loadleveler_BatchSystem::getNbTotResources()
 {
-  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented\n\n") ;
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl) ;
   return 16 ;
 }
 
 int
 Loadleveler_BatchSystem::getMaxWalltime()
 {
-  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented\n\n") ;
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl) ;
   return 500 ;
 }
 
 int
 Loadleveler_BatchSystem::getMaxProcs()
 {
-  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented\n\n") ;
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl) ;
   return getNbResources() ;
 }
 
@@ -250,7 +252,7 @@ Loadleveler_BatchSystem::getMaxProcs()
 int
 Loadleveler_BatchSystem::getNbTotFreeResources()
 {
-  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented\n\n") ;
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl) ;
   return getNbResources() ;
 }
 
@@ -331,7 +333,7 @@ Loadleveler_BatchSystem::getNbFreeResources()
 // }
 // print "$nb_host\n";
 
-  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented\n\n") ;
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl) ;
   return getNbResources() ;
 }
 

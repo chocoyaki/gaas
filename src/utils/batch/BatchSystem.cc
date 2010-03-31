@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2010/03/31 19:37:55  bdepardo
+ * Changed "\n" into std::endl
+ *
  * Revision 1.9  2010/03/05 02:38:04  ycaniou
  * Integration of SGE (still not complete) + fixes
  *
@@ -211,8 +214,8 @@ BatchSystem::diet_submit_parallel(diet_profile_t * profile,
   */
   options = (char*)calloc(9000,sizeof(char)) ; /* FIXME: Reduce size */
   if( options == NULL )  {
-    ERROR("error allocating memory when building script (options)... \n"
-	  "Service not launched\n\n", -1);
+    ERROR("error allocating memory when building script (options)..." << endl
+	  "Service not launched", -1);
   }
   
   /* Convert the walltime in hh:mm:ss, standard for every batch */
@@ -285,8 +288,8 @@ BatchSystem::diet_submit_parallel(diet_profile_t * profile,
 				       + 300
 				       + strlen(command))) ;
   if( script == NULL ) {
-    ERROR("error allocating memory when building script... \n"
-	  "Service not launched\n\n", -1);
+    ERROR("error allocating memory when building script..." << endl
+	  "Service not launched", -1);
   }
 
   switch( (int)batch_ID ) 
@@ -350,7 +353,7 @@ BatchSystem::diet_submit_parallel(diet_profile_t * profile,
   }
 
 #if defined YC_DEBUG
-  TRACE_TEXT(TRACE_MAIN_STEPS,"Nom script: " << filename << "\n") ;
+  TRACE_TEXT(TRACE_MAIN_STEPS,"Nom script: " << filename << endl) ;
 #endif
   
   if( writen(file_descriptor, script, strlen(script)) != strlen(script) ) {
@@ -369,12 +372,12 @@ BatchSystem::diet_submit_parallel(diet_profile_t * profile,
   file_descriptor_2 = mkstemp( filename_2 ) ;
   if( file_descriptor_2 == -1 ) {
     ERROR("Cannot create batch I/O redirection file."
-	  " Verify that tmp path is ok\n",-1) ;
+	  " Verify that tmp path is ok",-1) ;
   }
 
 #if defined YC_DEBUG
   TRACE_TEXT(TRACE_MAIN_STEPS,
-	     "Fichier pour l'ID du job batch : " << filename_2 << "\n") ; 
+	     "Fichier pour l'ID du job batch : " << filename_2 << endl) ; 
 #endif
   /* Submit and grep the jobID */
   chaine = (char*)malloc(sizeof(char)*(strlen(submitCommand)
@@ -386,7 +389,7 @@ BatchSystem::diet_submit_parallel(diet_profile_t * profile,
 	  submitCommand,filename,jid_extract_patterns,filename_2) ;
 #if defined YC_DEBUG
   TRACE_TEXT(TRACE_MAIN_STEPS,
-	     "Submit avec la ligne :\n" << chaine << "\n\n") ;
+	     "Submit avec la ligne :" << endl << chaine << endl << endl) ;
 #endif
 
   if( system(chaine) == -1 ) {
@@ -410,7 +413,7 @@ BatchSystem::diet_submit_parallel(diet_profile_t * profile,
     small_chaine[nbread-1] = '\0' ;
   /* Store the JobID in correlation with DIET_taskID */
   if( storeBatchJobID(atoi(small_chaine), profile->dietReqID, filename) < 0 ) {
-    ERROR("Not enough memory to store new batch information\n",-1) ;
+    ERROR("Not enough memory to store new batch information",-1) ;
   }
 
   /* Remove temporary files by closing them */
@@ -602,10 +605,10 @@ BatchSystem::replaceAllOccurencesInString(char ** input,
 #if defined YC_DEBUG_
   int passa = 0 ;
   TRACE_TEXT(TRACE_MAIN_STEPS, "Replace " << occurence << " by " 
-	     << by << "\n") ;
+	     << by << endl) ;
   cout << "Script:" << strlen(*input) 
-       << "--------------------------------------\n" << *input 
-       << "\n--------------------------------------------\n" ;
+       << "--------------------------------------" << endl << *input 
+       << endl << "--------------------------------------------" << endl ;
 #endif
 
   resultingString = (char*)calloc(lengthResult,sizeof(char)) ;
@@ -624,7 +627,7 @@ BatchSystem::replaceAllOccurencesInString(char ** input,
 	TRACE_TEXT(TRACE_MAIN_STEPS, "Pass " << passa 
 		   << "Reallocate memory:"
 		   << tmpLength + (int)(indexEnd-indexBegin) + lengthBy + 1
-		   << " > " << lengthResult << "\n") ;
+		   << " > " << lengthResult << endl) ;
 #endif
 	tmpString = (char*)realloc(resultingString,
 				   tmpLength
@@ -678,7 +681,7 @@ BatchSystem::replaceAllOccurencesInString(char ** input,
   }
 #if defined YC_DEBUG_
   cout << "Finished: script size" << strlen(resultingString)
-       << " / " << lengthResult << "\n\n" ;
+       << " / " << lengthResult << endl << endl ;
 #endif
   return found ;
 }
@@ -713,7 +716,7 @@ BatchSystem::readn(int fd, char * buffer, int n)
   char * ptr;
 
 #if defined YC_DEBUG_
-  TRACE_TEXT(TRACE_ALL_STEPS,"Enter readn() " << n << " octets to read\n") ;
+  TRACE_TEXT(TRACE_ALL_STEPS,"Enter readn() " << n << " octets to read" << endl) ;
 #endif
 
   ptr = buffer ;
@@ -779,11 +782,11 @@ BatchSystem::createUniqueTemporaryTmpFile(const char * pattern)
   file_descriptor = mkstemp( filename ) ;
   if( file_descriptor == -1 ) {
     ERROR("Cannot create batch I/O redirection file."
-	  " Verify that tmp path is ok and that there is space left.\n", 0) ;
+	  " Verify that tmp path is ok and that there is space left", 0) ;
   }
 #if defined YC_DEBUG
   TRACE_TEXT(TRACE_MAIN_STEPS,
-	     "Fichier pour stocker info batch : " << filename << "\n") ; 
+	     "Fichier pour stocker info batch : " << filename << endl) ; 
 #endif
  
   return filename ;
@@ -800,11 +803,11 @@ BatchSystem::createUniqueTemporaryNFSFile(const char * pattern)
   file_descriptor = mkstemp( filename ) ;
   if( file_descriptor == -1 ) {
     ERROR("Cannot create batch I/O redirection file."
-	  " Verify that tmp path is ok and that there is space left.\n", 0) ;
+	  " Verify that tmp path is ok and that there is space left", 0) ;
   }
 #if defined YC_DEBUG
   TRACE_TEXT(TRACE_MAIN_STEPS,
-	     "Fichier pour stocker info batch : " << filename << "\n") ; 
+	     "Fichier pour stocker info batch : " << filename << endl) ; 
 #endif
  
   return filename ;
@@ -855,8 +858,8 @@ BatchSystem::launchCommandAndGetInt(const char * submitCommand,
 				       + 4 ) ) ;
   sprintf(chaine,"%s > %s", submitCommand,filename) ;
 #if defined YC_DEBUG
-  TRACE_TEXT(TRACE_MAIN_STEPS, "Submit avec la ligne :\n" << chaine << 
-	     "\n\n") ;
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Submit avec la ligne :" << endl << chaine
+	     << endl << endl) ;
 #endif
 
   if( system(chaine) == -1 ) {
@@ -889,8 +892,8 @@ BatchSystem::launchCommandAndGetResultFilename(const char * submitCommand,
 				       + 4 ) ) ;
   sprintf(chaine,"%s > %s", submitCommand,filename) ;
 #if defined YC_DEBUG
-  TRACE_TEXT(TRACE_MAIN_STEPS, "Submit avec la ligne :\n" << chaine << 
-	     "\n\n") ;
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Submit avec la ligne :" << endl
+	     << chaine << endl << endl) ;
 #endif
 
   if( system(chaine) == -1 ) {

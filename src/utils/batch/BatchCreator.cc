@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2010/03/31 19:37:55  bdepardo
+ * Changed "\n" into std::endl
+ *
  * Revision 1.6  2009/11/27 03:24:30  ycaniou
  * Add user_command possibility before the end of Batch prologue (only
  * to be used for batch dependent code!)
@@ -101,15 +104,15 @@ BatchCreator::existBatchScheduler(const char * batchName,
 #ifdef YC_DEBUG
     TRACE_TEXT(TRACE_MAIN_STEPS, "YC_DEBUG: "
 	       << "NUMBER_OF_SUPPORTED_BATCH: " << NUMBER_OF_SUPPORTED_BATCH
-	       << "\n") ;
+	       << endl) ;
     TRACE_TEXT(TRACE_MAIN_STEPS, "YC_DEBUG: "
 	       << " ; BatchID: " << id_tmp
 	       << " ; batchName: " << batchName
-	       << "\n") ;
+	       << endl) ;
     TRACE_TEXT(TRACE_MAIN_STEPS, "YC_DEBUG: "
 	       << " ; batchNames[batchID]: " << batchNames[id_tmp]
 	       << " ; cmp(): " << strncmp(batchName,batchNames[id_tmp],4)
-	       << "\n\n\n") ;
+	       << endl << endl << endl) ;
 #endif
 
     *batchID = (batchID_t)id_tmp ;

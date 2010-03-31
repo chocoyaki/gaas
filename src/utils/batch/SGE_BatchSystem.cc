@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2010/03/31 19:37:55  bdepardo
+ * Changed "\n" into std::endl
+ *
  * Revision 1.7  2010/03/05 02:38:04  ycaniou
  * Integration of SGE (still not complete) + fixes
  *
@@ -63,10 +66,10 @@ SGE_BatchSystem::SGE_BatchSystem(int ID, const char * batchname)
   /* FIXME: Dont know if this is true -> Check it! */
 
   if( pathToNFS == NULL ) {
-    ERROR_EXIT("SGE needs a path to a NFS directory to store its script\n") ;
+    ERROR_EXIT("SGE needs a path to a NFS directory to store its script") ;
   }
 #if defined YC_DEBUG
-  TRACE_TEXT(TRACE_ALL_STEPS,"Nom NFS: " << getNFSPath() << "\n") ;
+  TRACE_TEXT(TRACE_ALL_STEPS,"Nom NFS: " << getNFSPath() << endl) ;
 #endif
 
   batch_ID = ID ;
@@ -138,7 +141,7 @@ SGE_BatchSystem::askBatchJobStatus(int batchJobID)
     ERROR("Cannot create batch I/O redirection file", NB_STATUS) ;
   }
 #if defined YC_DEBUG
-  TRACE_TEXT(TRACE_ALL_STEPS,"Fichier_finish: " << filename << "\n") ;
+  TRACE_TEXT(TRACE_ALL_STEPS,"Fichier_finish: " << filename << endl) ;
 #endif
 
   /* Ask batch system the job status */      
@@ -154,7 +157,7 @@ SGE_BatchSystem::askBatchJobStatus(int batchJobID)
 	  filename,
 	  wait4Command,batchJobID,waitFilter, filename) ;
 #if defined YC_DEBUG
-  TRACE_TEXT(TRACE_ALL_STEPS,"Execute:\n " << chaine << "\n") ;
+  TRACE_TEXT(TRACE_ALL_STEPS,"Execute:" << endl << chaine << endl) ;
 #endif
   if( system(chaine) != 0 ) {
     ERROR("Cannot submit script", NB_STATUS) ;
@@ -177,8 +180,7 @@ SGE_BatchSystem::askBatchJobStatus(int batchJobID)
   }
   
   if( i==NB_STATUS ) {
-    ERROR("Cannot get batch job " << batchJobID << " status: " << chaine
-	  << "\n",NB_STATUS) ;
+    ERROR("Cannot get batch job " << batchJobID << " status: " << chaine, NB_STATUS) ;
   }
   /* Remove temporary file by closing it */
 #if REMOVE_BATCH_TEMPORARY_FILE
@@ -213,28 +215,28 @@ SGE_BatchSystem::isBatchJobCompleted(int batchJobID)
 int
 SGE_BatchSystem::getNbTotResources()
 {
-  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented\n\n") ;
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl) ;
   return 16 ;
 }
 
 int
 SGE_BatchSystem::getNbResources()
 {
-  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented\n\n") ;
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl) ;
   return 16 ;
 }
 
 int
 SGE_BatchSystem::getMaxWalltime()
 {
-  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented\n\n") ;
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl) ;
   return 500 ;
 }
 
 int
 SGE_BatchSystem::getMaxProcs()
 {
-  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented\n\n") ;
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl) ;
   return getNbResources() ;
 }
 
@@ -243,14 +245,14 @@ SGE_BatchSystem::getMaxProcs()
 int
 SGE_BatchSystem::getNbTotFreeResources()
 {
-  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented\n\n") ;
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl) ;
   return getNbResources() ;
 }
 
 int
 SGE_BatchSystem::getNbFreeResources()
 {
-  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented\n\n") ;
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl) ;
   return getNbResources() ;
 }
 

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2010/03/31 19:37:55  bdepardo
+ * Changed "\n" into std::endl
+ *
  * Revision 1.10  2010/02/01 07:59:33  bdepardo
  * Correct interQueueName to internQueueName. Compile before commiting ;-)
  *
@@ -72,10 +75,10 @@ const char * const OAR1_6BatchSystem::statusNames[] = {
 OAR1_6BatchSystem::OAR1_6BatchSystem(int ID, const char * batchname)
 {
   if( pathToNFS == NULL ) {
-    ERROR_EXIT("OAR1.6 needs a path to a NFS directory to store its script\n") ;
+    ERROR_EXIT("OAR1.6 needs a path to a NFS directory to store its script") ;
   }
 #if defined YC_DEBUG
-  TRACE_TEXT(TRACE_ALL_STEPS,"Nom NFS: " << getNFSPath() << "\n") ;
+  TRACE_TEXT(TRACE_ALL_STEPS,"Nom NFS: " << getNFSPath() << endl) ;
 #endif
 
   batch_ID = ID ;
@@ -84,11 +87,11 @@ OAR1_6BatchSystem::OAR1_6BatchSystem(int ID, const char * batchname)
   internQueueName = strdup((char*)
     Parsers::Results::getParamValue(Parsers::Results::INTERNOARQUEUENAME)) ;
   if( internQueueName == NULL ) {
-    ERROR_EXIT("We need to know the internal queue name to be able to gather information with Cori\n") ;
+    ERROR_EXIT("We need to know the internal queue name to be able to gather information with Cori") ;
   }
 #if defined YC_DEBUG
   TRACE_TEXT(TRACE_ALL_STEPS,"Nom queue interne: " << internQueueName 
-	     << "\n") ;
+	     << endl) ;
 #endif
   
   shell = BatchSystem::emptyString ;
@@ -163,7 +166,7 @@ OAR1_6BatchSystem::askBatchJobStatus(int batchJobID)
   sprintf(chaine,"%s %d | %s > %s",
 	  wait4Command,batchJobID,waitFilter,filename) ;
 #if defined YC_DEBUG
-  TRACE_TEXT(TRACE_ALL_STEPS,"Execute:\n " << chaine << "\n") ;
+  TRACE_TEXT(TRACE_ALL_STEPS,"Execute:" << endl << chaine << endl) ;
 #endif
   if( system(chaine) != 0 ) {
     ERROR("Cannot submit script", NB_STATUS) ;
@@ -184,8 +187,7 @@ OAR1_6BatchSystem::askBatchJobStatus(int batchJobID)
   }
   
   if( i==NB_STATUS ) {
-    ERROR("Cannot get batch job " << batchJobID << " status: " << chaine
-	  << "\n",NB_STATUS) ;
+    ERROR("Cannot get batch job " << batchJobID << " status: " << chaine, NB_STATUS) ;
   }
   /* Remove temporary file by closing it */
 #if REMOVE_BATCH_TEMPORARY_FILE
@@ -234,7 +236,7 @@ OAR1_6BatchSystem::getNbResources() /* in the queue internQueueName */
   char chaine[500] ;
     
   if( internQueueName == NULL ) {
-    WARNING("No internal queue Name given: use total information\n\n") ;    
+    WARNING("No internal queue Name given: use total information" << endl << endl) ;    
     return getNbTotResources() ;
   }
 
@@ -257,14 +259,14 @@ OAR1_6BatchSystem::getResourcesName()
 int
 OAR1_6BatchSystem::getMaxWalltime()
 {
-  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented\n\n") ;
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl) ;
   return 500 ;
 }
 
 int
 OAR1_6BatchSystem::getMaxProcs()
 {
-  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented\n\n") ;
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl) ;
   return getNbResources() ;
 }
 
@@ -289,7 +291,7 @@ OAR1_6BatchSystem::getNbFreeResources()
   int j, k ;
     
   if( internQueueName == NULL ) {
-    WARNING("No internal queue Name given: use total information\n\n") ;    
+    WARNING("No internal queue Name given: use total information" << endl << endl) ;    
     return getNbTotResources() ;
   }
   

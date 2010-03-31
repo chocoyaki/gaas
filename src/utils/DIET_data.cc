@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.66  2010/03/31 19:37:55  bdepardo
+ * Changed "\n" into std::endl
+ *
  * Revision 1.65  2010/03/29 15:15:29  glemahec
  * Bug fix when compiling with Dagda
  *
@@ -219,7 +222,7 @@ using namespace std;
 #define DATA_INTERNAL_WARNING(formatted_msg)                                \
   INTERNAL_WARNING(__FUNCTION__ << ": " << formatted_msg << endl            \
                    << "Your program might have written in a DIET-reserved " \
-                   << "space: please make sure\n you are using use the API "\
+                   << "space: please make sure" << endl << "you are using use the API "	\
                    << "functions to fill in DIET data structures")
 
 

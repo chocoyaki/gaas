@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2010/03/31 19:37:54  bdepardo
+ * Changed "\n" into std::endl
+ *
  * Revision 1.13  2008/09/04 15:22:25  bisnard
  * Changed name of multiwf heuristic HEFT to GHEFT
  *
@@ -73,10 +76,10 @@ using namespace std;
 extern unsigned int TRACE_LEVEL;
 
 void usage(char * s) {
-  fprintf(stderr, "Usage: %s <file.cfg> [sched] [pfm] [IRD]\n", s);
-  fprintf(stderr, "sched = -basic (default) | -g_heft | -g_aging_heft | -fairness | -srpt | -fcfs \n");
-  fprintf(stderr, "pfm   = -pfm_any (default) | -pfm_sameservices \n");
-  fprintf(stderr, "IRD   = -IRD <value> \n");
+  cerr << "Usage: " << s << " <file.cfg> [sched] [pfm] [IRD]" << endl;
+  cerr << "sched = -basic (default) | -g_heft | -g_aging_heft | -fairness | -srpt | -fcfs" << endl;
+  cerr << "pfm   = -pfm_any (default) | -pfm_sameservices" << endl;
+  cerr << "IRD   = -IRD <value>" << endl;
   exit(1);
 }
 

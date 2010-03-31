@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.93  2010/03/31 19:37:54  bdepardo
+ * Changed "\n" into std::endl
+ *
  * Revision 1.92  2009/03/27 09:09:23  bisnard
  * replace container size attr by dynamic value
  *
@@ -442,7 +445,7 @@ __mrsh_data_desc_type(corba_data_desc_t* dest,
     dest->specific.pstr(pstr);
     dest->specific.pstr().length = src->specific.pstr.length;
     dest->specific.pstr().param = CORBA::string_dup(src->specific.pstr.param);
-//     cout << "mrsh_data_desc: param is " << dest->specific.pstr().param << "\n";
+//     cout << "mrsh_data_desc: param is " << dest->specific.pstr().param << endl;
     break;
   }
   case DIET_FILE: {
@@ -560,7 +563,7 @@ mrsh_data(corba_data_t* dest, diet_data_t* src, int release)
     dest->value.replace(size, size, value, release); // 0 if persistent 1 elsewhere
 //     cout << "mrsh_data:: size is " << size << endl;
   }
-//    cout << "mrsh_data: value is " << dest->value.get_buffer() << "\n";
+//    cout << "mrsh_data: value is " << dest->value.get_buffer() << endl;
   return 0;
 }
 
@@ -685,7 +688,7 @@ unmrsh_data_desc(diet_data_desc_t* dest, const corba_data_desc_t* const src)
                          (diet_persistence_mode_t)src->mode,
                          src->specific.pstr().length,
                          src->specific.pstr().param);
-//     cout << "unmrsh_data_desc: param is " << src->specific.pstr().param << "\n";
+//     cout << "unmrsh_data_desc: param is " << src->specific.pstr().param << endl;
     break;
   }
   case DIET_FILE: {
@@ -862,7 +865,7 @@ unmrsh_data(diet_data_t* dest, corba_data_t* src, int upDown)
 #if ! HAVE_JUXMEM && ! HAVE_DAGDA
   }
 #endif // ! HAVE_JUXMEM && ! HAVE_DAGDA
-//   cout << "unmrsh_data: value is " << dest->value << "\n";
+//   cout << "unmrsh_data: value is " << dest->value << endl;
   return 0;
 }
 
