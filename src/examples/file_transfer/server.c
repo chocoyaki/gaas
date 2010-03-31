@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.19  2010/03/31 02:24:47  ycaniou
+ * Warnings--
+ * Remove unecessary includes
+ *
  * Revision 1.18  2010/03/23 12:44:19  glemahec
  * Correction des exemples pour DAGDA
  *
@@ -79,7 +83,6 @@ solve_size(diet_profile_t* pb)
   size_t arg_size  = 0;
   char* path1 = NULL;
   char* path2 = NULL;
-  char* path_result = NULL;
   int status = 0;
   struct stat buf;
   size_t* s1 = calloc(1, sizeof *s1),

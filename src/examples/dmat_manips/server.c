@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.31  2010/03/31 02:24:47  ycaniou
+ * Warnings--
+ * Remove unecessary includes
+ *
  * Revision 1.30  2010/03/23 12:44:18  glemahec
  * Correction des exemples pour DAGDA
  *
@@ -198,9 +202,7 @@ main(int argc, char* argv[])
   size_t i,j;
   int res;
   int services[NB_SRV] = {0, 0, 0};
-
   diet_profile_desc_t* profile = NULL;
-  diet_convertor_t* cvt = NULL;
   
   if (argc < 3) {
     return usage(argv[0]);

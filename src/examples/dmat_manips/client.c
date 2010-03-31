@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.30  2010/03/31 02:24:47  ycaniou
+ * Warnings--
+ * Remove unecessary includes
+ *
  * Revision 1.29  2010/03/26 15:15:36  bdepardo
  * Print usage when the parameters are not correct.
  *
@@ -54,7 +58,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/stat.h>
-#include <sys/time.h>
 #include <time.h>
 
 #include "DIET_client.h"
@@ -118,9 +121,8 @@ main(int argc, char* argv[])
   /* STATS */
   char* STAT_FILE_NAME = NULL;
   FILE* STAT_FILE      = NULL;
-  struct timeval tv, tv_pause;
   size_t nb_of_requests;
-  int sec, pause = 0;
+  int pause = 0;
   
   srand(time(NULL));
 
