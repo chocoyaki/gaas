@@ -6,8 +6,8 @@
 #
 # FOR THE TIME BEING ALL THE DEFAULTS AND EXTENSIONS SET HERE ARE NOT
 # OVERRIDABLE EITHER FROM THE COMMAND LINE NOR FROM THE GUIs.
-# Hence if you need to change some of those defaults you'ell get to
-# edit this file and manage things manually... Sorry for that !
+# Hence if you need to change some of those defaults you'll get to
+# edit this file and manage things manually... Sorry for that!
 #
 ################# OFFER AN EXTRA MAINTAINER BUILD MODE #######################
 # The extra maintainer build type is a build mode for which the compilers

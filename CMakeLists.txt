@@ -233,7 +233,7 @@ ELSE( OMNIORB4_FOUND )
   MESSAGE("    Providing OMNIORB4_DIR (as above described) is probably the")
   MESSAGE("    simplest solution unless you have a really customized/odd")
   MESSAGE("    omniORB installation...")
-  SET( OMNIORB4_DIR "" CACHE PATH "Root of omniORB instal tree." )
+  SET( OMNIORB4_DIR "" CACHE PATH "Root of omniORB install tree." )
 ENDIF( OMNIORB4_FOUND )
 
 ## No mor
@@ -491,7 +491,6 @@ ENDIF( DIET_TAU_PROFILING )
 IF( DIET_USE_DYNAMICS )
   ADD_DEFINITIONS( -DHAVE_DYNAMICS )
 ENDIF( DIET_USE_DYNAMICS )
-
 
 # ---------------- STATIC LINKING FIXES ------------------------------------
 # When BUILD_SHARED_LIBS is NOT set, we assume that we not only expect
