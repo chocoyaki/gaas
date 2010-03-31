@@ -10,6 +10,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.48  2010/03/31 05:47:21  ycaniou
+%* Typos + options order
+%*
 %* Revision 1.47  2010/03/29 23:11:57  ecaron
 %* - Add information about windows
 %* - Corrections
@@ -120,9 +123,11 @@ At some point in \diet history, \diet used to be tested on the Solaris/Sparc pla
 \subsection{Supported compilers}
 \diet is supported on GCC with versions ranging from 3.2.X to 4.3.4.  Note that
 due to omniORB 4 (see \ref{sec:software_dependencies}) requirements towards
-thread-safe management of exception handling, compiling \diet with \verb+gcc+
-requires at least \verb+gcc-2.96+. \diet is also supported on XL complier(IBM)
-and Intel compiler.
+thread-safe management of exception handling, compiling \diet with GCC
+%\verb+gcc+
+requires at least the version 2.96.
+%\verb+gcc-2.96+. 
+\diet is also supported on XL compiler (IBM) and Intel compiler.
 
 \subsection{Operating system dependencies}
 \diet is fully tested on Linux [with varying distributions like Debian, Red Hat
@@ -331,16 +336,6 @@ functionalities. This explains the usage of configuration flags in order to
 obtain the compilation of the desired extensions.
 
 \begin{itemize}
-  \item \verb+DIET_USE_DAGDA+ enables the use of the new data management
-  module of \diet. \dagda offers to the \diet application developers a 
-  simple and efficient way to manage the data. See Chapter\ref{ch:dagda} for
-  more details.
-
-\item
-  \verb+DIET_USE_ALT_BATCH+ enables the transparent submission to
-  batch servers. See Chapter~\ref{chapter:parallelSubmission} for more
-  details.
-
 \item
   \verb+DIET_BUILD_BLAS_EXAMPLES+ option activates the compilation of
   the BLAS based \diet examples, as a sub-module of examples.  The
@@ -357,6 +352,11 @@ obtain the compilation of the desired extensions.
   \verb+DIET_BUILD_BLAS_EXAMPLES+ is disabled by default.
 
 \item
+  \verb+DIET_USE_ALT_BATCH+ enables the transparent submission to
+  batch servers. See Chapter~\ref{chapter:parallelSubmission} for more
+  details.
+
+\item
   \verb+DIET_USE_CORI+ CoRI, which stands for COllector of Resource
   Information, provides a framework for probing hardware and
   performance information about the \sed. CoRI also yields a very
@@ -368,6 +368,15 @@ obtain the compilation of the desired extensions.
   provides a possible tactical approach for tuning the performance of
   your favorite plug-in scheduler.  Chapter~\ref{chapter:performance}
   describes in more details CoRI and its possible usage within \diet.
+
+\item \verb+DIET_USE_DAGDA+ enables the use of the new data management
+  module of \diet. \dagda offers to the \diet application developers a 
+  simple and efficient way to manage the data. See Chapter\ref{ch:dagda} for
+  more details.
+
+\item \verb+DIET_USE_DYNAMICS+ enables a mode in which you can dynamically
+  modify its shape using CORBA calls. See chapter \ref{ch:dynamic} for more
+  details about the option and how it works.
 
 \item
   \verb+DIET_USE_FAST+ activates \diet support of FAST (refer to
@@ -405,6 +414,16 @@ obtain the compilation of the desired extensions.
   offers similar functionalities but based on CORBA.
 
 \item
+  \verb+DIET_USE_WORKFLOW+ enables the support of workflow. For the support
+  of workflows inside \diet, Xerces and Xqilla libraries are mandatory 
+  (see \url{http://xerces.apache.org/xerces-c/} and
+  \url{http://xqilla.sourceforge.net/HomePage}). For more details about the
+  workflow support in \diet see chapter \ref{ch:workflows}. Note that
+  setting the \verb+DIET_USE_WORKFLOW+ will force the option
+  %\linebreak
+  \verb+DIET_USE_DAGDA+ to be set.
+
+\item
   \label{sec:multimainstall}
   \verb+DIET_WITH_MULTI_MA+ activates the so called MULTI Master Agent
   support which allows the user to connect several MA for them to act
@@ -414,19 +433,6 @@ obtain the compilation of the desired extensions.
   Note that MULTI-Master-Agent support is based on the CORBA layer
   which is to be opposed with \verb+DIET_USE_JXTA+ which offers similar
   functionalities but based on JXTA.
-
-\item
-  \verb+DIET_USE_WORKFLOW+ enables the support of workflow. For the support
-  of workflows inside \diet, Xerces and Xqilla libraries are mandatory 
-  (see \url{http://xerces.apache.org/xerces-c/} and
-  \url{http://xqilla.sourceforge.net/HomePage}). For more details about the
-  workflow support in \diet see chapter \ref{ch:workflows}. Note that
-  setting the \verb+DIET_USE_WORKFLOW+ will force the option
-  \linebreak\verb+DIET_USE_DAGDA+ to be set.
-
-\item \verb+DIET_USE_DYNAMICS+ enables a mode in which you can dynamically
-modify its shape using CORBA calls. See chapter \ref{ch:dynamic} for more
-details about the option and how it works.
 
 \item
   \verb+DIET_WITH_STATISTICS+ enables the generation of statistics logs
@@ -458,7 +464,7 @@ compilation or some developers extensions:
   setting the \verb+DIET_USE_DART+ will force the option
   \linebreak\verb+BUILD_TESTING+ to be set.
 
-\fixme{Surement ˆ remplacer par l'Žquivalent pour CDash ou ˆ enlever non ?}
+\fixme{Sûrement à remplacer par l'équivalent pour CDash ou à enlever non ?}
 \item
   \verb+Maintainer+ By default cmake offers four different build modes
   that one toggles by positioning \verb+CMAKE_BUILD_TYPE+ built-in
