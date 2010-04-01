@@ -92,13 +92,9 @@ ENDIF( DIET_USE_ALT_BATCH )
   # Install the files needed for a scheduler creation.
 
   IF( DIET_USE_USERSCHED )
-    INSTALL_FILES(
-       /include/scheduler
-       FILES
-         marshalling.hh
-    )
+    INSTALL( FILES marshalling.hh DESTINATION include/scheduler )
   ENDIF( DIET_USE_USERSCHED )
 # ------------------------------------------------------------------
   
-  INSTALL_TARGETS(/lib/ CorbaCommon )
+  INSTALL( TARGETS CorbaCommon DESTINATION lib )
 ENDIF( DIET_BUILD_LIBRARIES )

@@ -51,12 +51,11 @@ IF( DIET_BUILD_LIBRARIES )
   IF( DIET_USE_USERSCHED )
     SET( AgentCommon_SOURCES ${AgentCommon_SOURCES} UserScheduler.cc)
     SET(DynamicLoadingLibrary dl)
-    INSTALL_FILES(
-      /include/scheduler
-      FILES
+    INSTALL( FILES
         GlobalSchedulers.hh
 	UserScheduler.hh
 	Schedulers.hh
+	DESTINATION include/scheduler
     )
   ENDIF( DIET_USE_USERSCHED )
   #########################################################################
@@ -90,7 +89,7 @@ IF( DIET_BUILD_LIBRARIES )
     ${DAGDA_LIBRARIES}
     ${CORI_LIBRARIES}                          # defined a little above
   )
-  INSTALL_TARGETS(/lib/ AgentCommon )
+  INSTALL( TARGETS AgentCommon DESTINATION lib )
   
   #########################################################################
   ADD_EXECUTABLE( dietAgent dietAgent.cc )
@@ -103,7 +102,7 @@ IF( DIET_BUILD_LIBRARIES )
       SUBDIRS( workflow )
   ENDIF ( DIET_USE_WORKFLOW)
   
-  INSTALL_TARGETS(/bin/ dietAgent )
+  INSTALL( TARGETS dietAgent DESTINATION bin )
   
   #########################################################################
   IF( DIET_USE_JXTA )
@@ -145,7 +144,7 @@ IF( DIET_BUILD_LIBRARIES )
       ${OMNIORB4_LIBRARIES}
     )
 
-    INSTALL_TARGETS( /lib/ dietLocalAgent )
+    INSTALL( TARGETS dietLocalAgent DESTINATION lib )
   
     ADD_CUSTOM_COMMAND(
       OUTPUT    ${CMAKE_CURRENT_BINARY_DIR}/JXTAMultiMA.class
@@ -193,7 +192,7 @@ IF( DIET_BUILD_LIBRARIES )
       ${OMNIORB4_LIBRARIES}
     )
 
-    INSTALL_TARGETS( /lib/ dietMasterAgent )
+    INSTALL( TARGETS dietMasterAgent DESTINATION lib )
   
   ENDIF( DIET_USE_JXTA )
 #########################################################################

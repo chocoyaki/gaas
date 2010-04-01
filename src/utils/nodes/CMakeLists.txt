@@ -50,7 +50,7 @@ IF( DIET_BUILD_LIBRARIES )
        ${OMNIORB4_LIBRARIES} )
   TARGET_LINK_LIBRARIES( UtilsNodes
 			 ${UtilsNodesTmpLib} )
-  INSTALL_TARGETS( /lib/ UtilsNodes )
+  INSTALL( TARGETS UtilsNodes DESTINATION lib )
   ### FIXME: the following is kludgy! See note "MacOS X and unresolved symbol"
   # in src/CORBA/CMakeLists.txt
 #  IF( APPLE )
@@ -103,7 +103,7 @@ IF( DIET_BUILD_LIBRARIES )
 
     TARGET_LINK_LIBRARIES( UtilsCori
 			   ${UtilsCoriTmpLib} )
-    INSTALL_TARGETS( /lib/ UtilsCori )
+    INSTALL( TARGETS UtilsCori DESTINATION lib )
     ### FIXME: the following is kludgy!
     # See note "MacOS X and unresolved symbol"
     # in src/CORBA/CMakeLists.txt

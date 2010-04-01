@@ -15,5 +15,5 @@ ELSE( NOT DIET_USE_USERSCHED )
     TARGET_LINK_LIBRARIES(HostnameRR UtilsCommon CorbaCommon omniORB4
                           AgentCommon omnithread UtilsSeDClt IDLCommon)
   ENDIF( APPLE )
-  INSTALL_TARGETS(/bin/examples/agent_scheduler/ HostnameRR)
+  INSTALL( TARGETS HostnameRR DESTINATION bin/examples/agent_scheduler )
 ENDIF( NOT DIET_USE_USERSCHED )

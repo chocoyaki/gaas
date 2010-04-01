@@ -18,8 +18,6 @@ INCLUDE_DIRECTORIES(
 # Client
 ADD_EXECUTABLE( client_DynamicServiceMgr client.cc )
 TARGET_LINK_LIBRARIES( client_DynamicServiceMgr ${DIET_CLIENT_LIBRARIES} )
-INSTALL_TARGETS( /bin/examples/dynamicServiceMgr client_DynamicServiceMgr )
-
 
 # Server
 SET( DYNAMICSERVICEMGR_SERVER_SRC
@@ -28,22 +26,25 @@ SET( DYNAMICSERVICEMGR_SERVER_SRC
   )
 ADD_EXECUTABLE( server_DynamicServiceMgr ${DYNAMICSERVICEMGR_SERVER_SRC} )
 TARGET_LINK_LIBRARIES( server_DynamicServiceMgr ${DIET_SERVER_LIBRARIES} dl)
-INSTALL_TARGETS( /bin/examples/dynamicServiceMgr server_DynamicServiceMgr )
+
+# install client and server 
+INSTALL( TARGETS client_DynamicServiceMgr server_DynamicServiceMgr DESTINATION bin/examples/dynamicServiceMgr )
 
 # Library for Dynamic Service Mgr
 ADD_LIBRARY( DynamicServiceMgr_example
   service.cc
   )
 TARGET_LINK_LIBRARIES( DynamicServiceMgr_example ${DIET_SERVER_LIBRARIES} )
-INSTALL_TARGETS( /bin/examples/dynamicServiceMgr DynamicServiceMgr_example )
 
 ADD_LIBRARY( DynamicServiceMgr_example2
   service2.cc
   )
 TARGET_LINK_LIBRARIES( DynamicServiceMgr_example2 ${DIET_SERVER_LIBRARIES} )
-INSTALL_TARGETS( /bin/examples/dynamicServiceMgr DynamicServiceMgr_example2 )
+
+# install libraries
+INSTALL( TARGETS DynamicServiceMgr_example DynamicServiceMgr_example2 DESTINATION bin/examples/dynamicServiceMgr )
 
 
 # README
-INSTALL_FILES( /bin/examples/dynamicServiceMgr FILES README )
+INSTALL( FILES README DESTINATION bin/examples/dynamicServiceMgr )
 

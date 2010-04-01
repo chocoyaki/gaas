@@ -39,7 +39,7 @@ IF( DIET_BUILD_LIBRARIES )
       MaDag
       UtilsNodes
       )
-  INSTALL_TARGETS(/bin/ maDagAgent )
-  INSTALL_TARGETS(/lib/ MaDag )
+  INSTALL( TARGETS maDagAgent DESTINATION bin )
+  INSTALL( TARGETS MaDag DESTINATION lib )
 
 ENDIF( DIET_BUILD_LIBRARIES )

@@ -22,7 +22,7 @@ IF( DIET_USE_BATCH )
     ADD_EXECUTABLE( ${loop_var} ${loop_var}.c )
     TARGET_LINK_LIBRARIES( ${loop_var} ${DIET_SERVER_LIBRARIES} )
     SET_TARGET_PROPERTIES( ${loop_var} PROPERTIES LINKER_LANGUAGE CXX )
-    INSTALL_TARGETS( /bin/examples/Batch ${loop_var} )
+    INSTALL( TARGETS ${loop_var} DESTINATION bin/examples/Batch )
   ENDFOREACH( loop_var )
   
   ### ... and their respective clients
@@ -31,7 +31,7 @@ IF( DIET_USE_BATCH )
   FOREACH( loop_var ${C_CLIENT_EXAMPLES} )
     ADD_EXECUTABLE( ${loop_var} ${loop_var}.c )
     TARGET_LINK_LIBRARIES( ${loop_var} ${DIET_CLIENT_LIBRARIES} )
-    INSTALL_TARGETS( /bin/examples/Batch ${loop_var} )
+    INSTALL( TARGETS ${loop_var} DESTINATION bin/examples/Batch )
   ENDFOREACH( loop_var )
 
   ### Do Lammps example
@@ -48,7 +48,7 @@ ELSE( DIET_USE_BATCH )
   FOREACH( loop_var ${C_SERVER_EXAMPLES} )
     ADD_EXECUTABLE( ${loop_var} ${loop_var}.c )
     TARGET_LINK_LIBRARIES( ${loop_var} ${DIET_SERVER_LIBRARIES} )
-    INSTALL_TARGETS( /bin/examples/Batch ${loop_var} )
+    INSTALL( TARGETS ${loop_var} DESTINATION bin/examples/Batch )
   ENDFOREACH( loop_var )
   
   ### ... and their respective clients
@@ -57,7 +57,7 @@ ELSE( DIET_USE_BATCH )
   FOREACH( loop_var ${C_CLIENT_EXAMPLES} )
     ADD_EXECUTABLE( ${loop_var} ${loop_var}.c )
     TARGET_LINK_LIBRARIES( ${loop_var} ${DIET_CLIENT_LIBRARIES} )
-    INSTALL_TARGETS( /bin/examples/Batch ${loop_var} )
+    INSTALL( TARGETS ${loop_var} DESTINATION bin/examples/Batch )
   ENDFOREACH( loop_var )
 
   ### Do Lammps example, Decrypthon suites, SparseSolver/PasTiX prototype

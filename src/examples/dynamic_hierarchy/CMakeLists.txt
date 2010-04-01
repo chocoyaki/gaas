@@ -18,15 +18,13 @@ INCLUDE_DIRECTORIES(
 # Client to connect an element to a new parent
 ADD_EXECUTABLE( connect connect.cc )
 TARGET_LINK_LIBRARIES( connect ${DIET_SERVER_LIBRARIES} AgentCommon)
-INSTALL_TARGETS( /bin/examples/dynamic_hierarchy connect )
 
 # Client to disconnect an element from its parent
 ADD_EXECUTABLE( disconnect disconnect.cc )
 TARGET_LINK_LIBRARIES( disconnect ${DIET_SERVER_LIBRARIES} AgentCommon)
-INSTALL_TARGETS( /bin/examples/dynamic_hierarchy disconnect )
 
 # Client to kill part of a hierarchy
 ADD_EXECUTABLE( remove remove.cc )
 TARGET_LINK_LIBRARIES( remove ${DIET_SERVER_LIBRARIES} AgentCommon)
-INSTALL_TARGETS( /bin/examples/dynamic_hierarchy remove )
 
+INSTALL( TARGETS connect disconnect remove DESTINATION bin/examples/dynamic_hierarchy )

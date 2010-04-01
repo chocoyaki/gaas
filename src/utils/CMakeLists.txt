@@ -8,7 +8,7 @@ IF( DIET_USE_DAGDA )
     DataRelationMgr.cc
   )
   TARGET_LINK_LIBRARIES( UtilsDagda UtilsCommon ${OMNIORB4_LIBRARIES})
-  INSTALL_TARGETS( /lib/ UtilsDagda )
+  INSTALL( TARGETS UtilsDagda DESTINATION lib)
 ENDIF( DIET_USE_DAGDA )
 
 IF( DIET_USE_FD )
@@ -50,13 +50,13 @@ IF( DIET_BUILD_LIBRARIES )
   # DIET_TARGET_IDL_GENERATED_HEADER_FILES for more details.
   ADD_DEPENDENCIES( UtilsCommon ALL DIET_TARGET_IDL_GENERATED_HEADER_FILES )
   TARGET_LINK_LIBRARIES( UtilsCommon IDLCommon ${OMNIORB4_LIBRARIES} )
-  INSTALL_TARGETS( /lib/ UtilsCommon )
+  INSTALL( TARGETS UtilsCommon DESTINATION lib )
   ########################################################################
   ### UtilsVector library:
   ADD_LIBRARY( UtilsVector
     Vector.c
   )
-  INSTALL_TARGETS( /lib/ UtilsVector )
+  INSTALL( TARGETS UtilsVector DESTINATION lib )
 
   ########################################################################
   ### UtilsSedBatch library:
@@ -71,7 +71,7 @@ IF( DIET_BUILD_LIBRARIES )
 			 ${CMAKE_CURRENT_BINARY_DIR} )
     ADD_LIBRARY( UtilsSeDBatch batch.c )
     TARGET_LINK_LIBRARIES( UtilsSeDBatch ${APPLESEEDS_LIBRARIES} -lpthread )
-    INSTALL_TARGETS( /lib/ UtilsSeDBatch )
+    INSTALL( TARGETS UtilsSeDBatch DESTINATION lib )
   ENDIF( DIET_USE_BATCH )
 
   IF( DIET_USE_ALT_BATCH )
@@ -85,7 +85,7 @@ IF( DIET_BUILD_LIBRARIES )
 		 PBS_BatchSystem.cc
 		 SGE_BatchSystem.cc )
     TARGET_LINK_LIBRARIES( UtilsSeDBatch -lpthread UtilsCommon )
-    INSTALL_TARGETS( /lib/ UtilsSeDBatch )
+    INSTALL( TARGETS UtilsSeDBatch DESTINATION lib )
   ENDIF( DIET_USE_ALT_BATCH )
 
 ENDIF( DIET_BUILD_LIBRARIES )
@@ -95,9 +95,7 @@ ENDIF( DIET_BUILD_LIBRARIES )
 ## New : For scheduler load support.
 ## Install the files needed for scheduler development.
 IF( DIET_USE_USERSCHED )
-    INSTALL_FILES(
-      /include/scheduler
-      FILES
+    INSTALL( FILES
         est_internal.hh
 	debug.hh
 	LinkedList.hh
@@ -105,8 +103,10 @@ IF( DIET_USE_USERSCHED )
 	Vector.h
 	Parsers.hh
 	ms_function.hh
+
+	DESTINATION
+        include/scheduler
     )
-    INSTALL_FILES(
-      /include/scheduler/ts_container FILES ts_container/ts_set.hh )
+    INSTALL( FILES ts_container/ts_set.hh  DESTINATION include/scheduler/ts_container )
 ENDIF( DIET_USE_USERSCHED )
 

@@ -25,7 +25,7 @@ FOREACH( filename ${DIET_CONFIG_FILES_GLOB} )
     ${filenameDest}
     IMMEDIATE
   )
-  INSTALL_FILES( /etc/ FILES ${filenameDest} )
+  INSTALL( FILES ${filenameDest} DESTINATION etc )
 ENDFOREACH( filename )
 
 ## FIXME: find out why we cannot test availability of the hostname command with

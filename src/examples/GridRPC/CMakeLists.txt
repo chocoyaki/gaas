@@ -9,6 +9,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.4  2010/04/01 10:03:59  bdepardo
+#* Changed	deprecated INSTALL_FILES and INSTALL_TARGETS to	INSTALL.
+#*
 #* Revision 1.3  2008/04/07 15:33:44  ycaniou
 #* This should remove all HAVE_BATCH occurences (still appears in the doc, which
 #*   must be updated.. soon :)
@@ -26,8 +29,8 @@ INCLUDE_DIRECTORIES( ${DIET_SOURCE_DIR}/include )     # For DIET_client.h
 
 ADD_EXECUTABLE( standard-test standard-test.c )
 TARGET_LINK_LIBRARIES( standard-test ${DIET_CLIENT_LIBRARIES} ${DIET_SERVER_LIBRARIES} )
-INSTALL_TARGETS( /bin/examples/GridRPC standard-test )
 
 ADD_EXECUTABLE( server server.c )
 TARGET_LINK_LIBRARIES( server ${DIET_SERVER_LIBRARIES} )
-INSTALL_TARGETS( /bin/examples/GridRPC server )
+
+INSTALL( TARGETS standard-test server DESTINATION bin/examples/GridRPC )

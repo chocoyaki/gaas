@@ -60,12 +60,11 @@ IF( DIET_BUILD_LIBRARIES )
 ## Install the files needed for scheduler development.
   IF( DIET_USE_USERSCHED )
      SET( DIET_IDL_FLAGS "${DIET_IDL_FLAGS} -DUSERSCHED" )
-     INSTALL_FILES(
-       /include/scheduler
-       FILES
-         response.hh
-	 common_types.hh
-	 SeD.hh
+     INSTALL( FILES
+         ${CMAKE_CURRENT_BINARY_DIR}/response.hh
+	 ${CMAKE_CURRENT_BINARY_DIR}/common_types.hh
+	 ${CMAKE_CURRENT_BINARY_DIR}/SeD.hh
+	 DESTINATION include/scheduler
      )
   ENDIF( DIET_USE_USERSCHED )
 
@@ -189,7 +188,7 @@ IF( DIET_BUILD_LIBRARIES )
   TARGET_LINK_LIBRARIES( IDLCommon
     ${OMNIORB4_LIBRARIES}
   )
-  INSTALL_TARGETS(/lib/ IDLCommon )
+  INSTALL( TARGETS IDLCommon DESTINATION lib )
 
   ADD_LIBRARY( IDLAgent
     common_typesSK.cc
@@ -219,7 +218,7 @@ IF( DIET_BUILD_LIBRARIES )
     ${OMNIORB4_LIBRARIES}
     ${DagdaLibs}
   )
-  INSTALL_TARGETS(/lib/ IDLAgent )
+  INSTALL( TARGETS IDLAgent DESTINATION lib )
 
   ADD_LIBRARY( IDLLA
     LocalAgentSK.cc
@@ -229,7 +228,7 @@ IF( DIET_BUILD_LIBRARIES )
     IDLAgent
     ${OMNIORB4_LIBRARIES}
   )
-  INSTALL_TARGETS(/lib/ IDLLA )
+  INSTALL( TARGETS IDLLA DESTINATION lib )
 
   ADD_LIBRARY( IDLMA
     MasterAgentSK.cc
@@ -240,7 +239,7 @@ IF( DIET_BUILD_LIBRARIES )
     IDLCommon
     ${OMNIORB4_LIBRARIES}
   )
-  INSTALL_TARGETS(/lib/ IDLMA )
+  INSTALL( TARGETS IDLMA DESTINATION lib )
 
   ## Use Dagda as data manager.
   IF( DIET_USE_DAGDA )
@@ -249,7 +248,7 @@ IF( DIET_BUILD_LIBRARIES )
     TARGET_LINK_LIBRARIES( IDLDagda
       IDLCommon
       ${OMNIORB4_LIBRARIES} )
-    INSTALL_TARGETS(/lib/ IDLDagda )
+    INSTALL( TARGETS IDLDagda DESTINATION lib )
   ENDIF( DIET_USE_DAGDA )
 
   ##########################################################################
@@ -269,7 +268,7 @@ IF( DIET_BUILD_LIBRARIES )
     ${OMNIORB4_LIBRARIES}
   )
 
-  INSTALL_TARGETS(/lib/ IDLWf )
+  INSTALL( TARGETS IDLWf DESTINATION lib )
   ENDIF ( DIET_USE_WORKFLOW )
   ##########################################################################
 ENDIF( DIET_BUILD_LIBRARIES )

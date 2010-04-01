@@ -87,7 +87,7 @@ IF( DIET_BUILD_LIBRARIES )
   ENDIF( NOT BUILD_SHARED_LIBS )
       
   
-  INSTALL_TARGETS( /lib/ DIET_SeD )
+  INSTALL( TARGETS DIET_SeD DESTINATION lib )
 ###################################
 
   IF( DIET_USE_JXTA )
@@ -126,7 +126,7 @@ IF( DIET_BUILD_LIBRARIES )
       ${OMNIORB4_LIBRARIES}
     )
 
-    INSTALL_TARGETS( /lib/ SeDJNI )
+    INSTALL( TARGETS SeDJNI DESTINATION lib )
 
   ENDIF( DIET_USE_JXTA )
 ###################################

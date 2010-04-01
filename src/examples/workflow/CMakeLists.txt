@@ -23,13 +23,13 @@ SET (CLIENTS  generic_client
 FOREACH (sed ${SEDs})
   ADD_EXECUTABLE( ${sed} ${sed}.c )
   TARGET_LINK_LIBRARIES( ${sed} ${DIET_SERVER_LIBRARIES} )
-  INSTALL_TARGETS( /bin/examples/workflow ${sed} )
+  INSTALL( TARGETS ${sed} DESTINATION bin/examples/workflow )
 ENDFOREACH (sed)
 
 FOREACH (client ${CLIENTS})
   ADD_EXECUTABLE( ${client} ${client}.c )
   TARGET_LINK_LIBRARIES( ${client} ${DIET_CLIENT_LIBRARIES} )
-  INSTALL_TARGETS( /bin/examples/workflow ${client} )
+  INSTALL( TARGETS ${client} DESTINATION bin/examples/workflow )
 ENDFOREACH (client)
 
 ADD_SUBDIRECTORY( xml )

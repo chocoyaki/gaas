@@ -8,19 +8,19 @@ ELSE( NOT DIET_USE_CORI )
   ### A server...
   ADD_EXECUTABLE( server server.c )
   TARGET_LINK_LIBRARIES( server ${DIET_SERVER_LIBRARIES} )
-  INSTALL_TARGETS( /bin/examples/cori server )
   
   ### ... a client...
   ADD_EXECUTABLE( client client.c )
   TARGET_LINK_LIBRARIES( client ${DIET_CLIENT_LIBRARIES} )
-  INSTALL_TARGETS( /bin/examples/cori client )
 
+  ### ... a multithreaded client ... 
   ADD_EXECUTABLE( clientthread client_thread.cc )
   TARGET_LINK_LIBRARIES( clientthread ${DIET_CLIENT_LIBRARIES} )
-  INSTALL_TARGETS( /bin/examples/cori clientthread )
 
   ### ... and a test program
   ADD_EXECUTABLE( coriEasyTester coriEasyTester.cc )
   TARGET_LINK_LIBRARIES( coriEasyTester ${DIET_SERVER_LIBRARIES} )
-  INSTALL_TARGETS( /bin/examples/cori coriEasyTester )
+
+  ### install everything
+  INSTALL( TARGETS server client clientthread coriEasyTester DESTINATION bin/examples/cori )
 ENDIF( NOT DIET_USE_CORI )

@@ -8,7 +8,7 @@ INCLUDE_DIRECTORIES( ${DIET_SOURCE_DIR}/include )
 ### A single server...
 ADD_EXECUTABLE( server server.c )
 TARGET_LINK_LIBRARIES( server ${DIET_SERVER_LIBRARIES} )
-INSTALL_TARGETS( /bin/examples/dmat_manips server )
+INSTALL( TARGETS server DESTINATION bin/examples/dmat_manips )
 
 ### ... and many clients
 SET( C_CLIENT_EXAMPLES
@@ -19,7 +19,7 @@ SET( C_CLIENT_EXAMPLES
 FOREACH( loop_var ${C_CLIENT_EXAMPLES} )
   ADD_EXECUTABLE( ${loop_var} ${loop_var}.c )
   TARGET_LINK_LIBRARIES( ${loop_var} ${DIET_CLIENT_LIBRARIES} )
-  INSTALL_TARGETS( /bin/examples/dmat_manips ${loop_var} )
+  INSTALL( TARGETS ${loop_var} DESTINATION bin/examples/dmat_manips )
 ENDFOREACH( loop_var )
 
 ####################################### C++ written examples
@@ -37,6 +37,6 @@ INCLUDE_DIRECTORIES( ${OMNIORB4_INCLUDE_DIR} )
 FOREACH( loop_var ${CXX_EXAMPLES} )
   ADD_EXECUTABLE( ${loop_var} ${loop_var}.cc )
   TARGET_LINK_LIBRARIES( ${loop_var} ${DIET_CLIENT_LIBRARIES} )
-  INSTALL_TARGETS( /bin/examples/dmat_manips ${loop_var} )
+  INSTALL( TARGETS ${loop_var} DESTINATION bin/examples/dmat_manips )
 ENDFOREACH( loop_var )
 
