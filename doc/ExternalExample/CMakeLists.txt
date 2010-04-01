@@ -33,9 +33,9 @@ SET( CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib
 ### Define a simple server...
 ADD_EXECUTABLE( simple_server simple_server.c )
 TARGET_LINK_LIBRARIES( simple_server ${DIET_SERVER_LIBRARIES} )
-INSTALL_TARGETS( /bin simple_server )
+INSTALL( TARGETS simple_server DESTINATION bin )
 
 ### ... and it's associated simple client.
 ADD_EXECUTABLE( simple_client simple_client.c )
 TARGET_LINK_LIBRARIES( simple_client ${DIET_CLIENT_LIBRARIES} )
-INSTALL_TARGETS( /bin simple_client )
+INSTALL( TARGETS simple_client DESTINATION bin )

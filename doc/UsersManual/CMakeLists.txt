@@ -63,4 +63,4 @@ ADD_LATEX_DOCUMENT(UsersManual.tex
                                 fig/dagdaArch.pdf
 		   DEFAULT_PDF
 		   )
-INSTALL_FILES(/doc FILES  ${CMAKE_CURRENT_BINARY_DIR}/UsersManual.pdf)
+INSTALL( FILES ${CMAKE_CURRENT_BINARY_DIR}/UsersManual.pdf DESTINATION doc )

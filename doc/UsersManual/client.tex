@@ -10,6 +10,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.20  2010/04/01 10:11:50  bdepardo
+%* Changed	deprecated INSTALL_FILES and INSTALL_TARGETS to	INSTALL.
+%*
 %* Revision 1.19  2010/03/29 21:04:16  ecaron
 %* Remove information about autotools compilation (outdated)
 %*
@@ -334,12 +337,12 @@ LINK_DIRECTORIES( ${DIET_LIBRARY_DIR} )
 ### Define a simple server...
 ADD_EXECUTABLE( simple_server simple_server.c )
 TARGET_LINK_LIBRARIES( simple_server ${DIET_SERVER_LIBRARIES} )
-INSTALL_TARGETS( /bin simple_server )
+INSTALL( TARGETS simple_server DESTINATION bin )
 
 ### ... and it's associated simple client.
 ADD_EXECUTABLE( simple_client simple_client.c )
 TARGET_LINK_LIBRARIES( simple_client ${DIET_CLIENT_LIBRARIES} )
-INSTALL_TARGETS( /bin simple_client )
+INSTALL( TARGETS simple_client DESTINATION bin )
 \end{verbatim}
 }
 

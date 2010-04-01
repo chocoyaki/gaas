@@ -32,5 +32,5 @@ ADD_LATEX_DOCUMENT(ProgrammersGuide.tex
 			  fig/DietCancelSequenceDiagram.png
 		   DEFAULT_PDF
 		   )
-INSTALL_FILES(/doc FILES  ${CMAKE_CURRENT_BINARY_DIR}/ProgrammersGuide.pdf)
+INSTALL( FILES ${CMAKE_CURRENT_BINARY_DIR}/ProgrammersGuide.pdf DESTINATION doc )
 
