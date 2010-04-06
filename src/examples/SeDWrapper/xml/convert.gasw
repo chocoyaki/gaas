@@ -1,0 +1,10 @@
+<description>
+	<executable name="convert">
+		<value value="file://convert"/>
+		<input name="input_image" option="noa" type="file"/>
+		<output name="output_image" option="nob" type="file">
+		  <value value="file://$na1.jpg"/>
+		</output>
+	</executable>
+</description>
+
