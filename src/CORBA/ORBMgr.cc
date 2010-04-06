@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.25  2010/04/06 14:30:05  ecaron
+ * Correction for compilation error under Cygwin : bad #endif location in ORBMgr::wait function.
+ *
  * Revision 1.24  2010/03/31 21:15:38  bdepardo
  * Changed C headers into C++ headers
  *
@@ -194,30 +197,30 @@ ORBMgr::activate(PortableServer::ServantBase* obj,
 int
 ORBMgr::wait()
 {
-  signal(SIGINT, ORBMgr::SigIntHandler);
-  try {
-    std::cout << "Press CTRL+C to exit" << std::endl;
+ signal(SIGINT, ORBMgr::SigIntHandler);
+ try {
+   std::cout << "Press CTRL+C to exit" << std::endl;
 #ifdef __cygwin__
-  sem_init(&waitLock,0,1);
-  sem_wait(&waitLock);
-  sem_wait(&waitLock);
-  sem_post(&waitLock);
+ sem_init(&waitLock,0,1);
+ sem_wait(&waitLock);
+ sem_wait(&waitLock);
+ sem_post(&waitLock);
 #else
-    waitLock.lock();
-    waitLock.lock();
-    waitLock.unlock();
-  } catch (...) {
-    ERROR("exception caught in ORBMgr::" << __FUNCTION__, true);
-  }
+   waitLock.lock();
+   waitLock.lock();
+   waitLock.unlock();
 #endif
-  return 0;
+ } catch (...) {
+   ERROR("exception caught in ORBMgr::" << __FUNCTION__, true);
+ }
+ return 0;
 }
-#else // INTERRUPTION_MGR
+#else // INTERRUPTION_MGR                                                                                                                                                                                                                  
 int
 ORBMgr::wait()
 {
-  ORB->run();
-  return 0;
+ ORB->run();
+ return 0;
 }
 #endif // INTERRUPTION_MGR
 
