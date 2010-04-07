@@ -35,7 +35,9 @@ ENDIF ( DIET_USE_DAGDA )
 
 IF ( DIET_USE_WORKFLOW )
   ADD_SUBDIRECTORY ( workflow )
-  ADD_SUBDIRECTORY ( SeDWrapper )
+  # Do not compile SeDWrapper example for as long as Diet 3.0 is not released:
+  # this example requires BOOST.
+  # ADD_SUBDIRECTORY ( SeDWrapper )
 ENDIF ( DIET_USE_WORKFLOW )
 
 # IF ( DIET_USE_CCS )
