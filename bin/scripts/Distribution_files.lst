@@ -17,6 +17,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.34  2010/04/08 09:39:20  bisnard
+#* added files for functional workflows and containers
+#*
 #* Revision 1.33  2008/07/25 08:12:43  rbolze
 #* add MultiWfFCFS.*
 #*
@@ -166,6 +169,7 @@ Cmake/FindJuxmem.cmake
 Cmake/FindOmniORB.cmake
 Cmake/FindTestingUtils.cmake
 Cmake/FindXerces.cmake
+Cmake/FindXQilla.cmake
 Cmake/xercesv.cc.in
 Cmake/Makefile.inc.in
 Cmake/README
@@ -213,7 +217,7 @@ src/CORBA/idl/common_types.idl
 src/CORBA/idl/idlRules.mk
 src/CORBA/idl/response.idl
 src/CORBA/idl/CltMan.idl
-src/CORBA/idl/WfLogSrv.idl
+src/CORBA/idl/WfLogService.idl
 
 # SeD section
 [Untemplated]
@@ -279,6 +283,8 @@ src/agent/workflow/HEFTScheduler.hh
 src/agent/workflow/MaDag_impl.cc
 src/agent/workflow/MaDag_impl.hh
 src/agent/workflow/maDagAgent.cc
+src/agent/workflow/MaDagNodeLauncher.cc
+src/agent/workflow/MaDagNodeLauncher.hh
 src/agent/workflow/MultiWfBasicScheduler.cc
 src/agent/workflow/MultiWfBasicScheduler.hh
 src/agent/workflow/MultiWfFOFT.cc
@@ -300,16 +306,47 @@ src/utils/workflow/CMakeLists.txt
 [Templated]
 src/utils/workflow/Dag.cc
 src/utils/workflow/Dag.hh
+src/utils/workflow/DagNode.cc
+src/utils/workflow/DagNode.hh
+src/utils/workflow/DagNodeLauncher.cc
+src/utils/workflow/DagNodeLauncher.hh
+src/utils/workflow/DagNodePort.cc
+src/utils/workflow/DagNodePort.hh
+src/utils/workflow/DagScheduler.hh
 src/utils/workflow/DagWfParser.cc
 src/utils/workflow/DagWfParser.hh
-src/utils/workflow/Node.cc
-src/utils/workflow/Node.hh
+src/utils/workflow/FActivityNode.cc
+src/utils/workflow/FActivityNode.hh
+src/utils/workflow/FDataHandle.cc
+src/utils/workflow/FDataHandle.hh
+src/utils/workflow/FIfNode.cc
+src/utils/workflow/FIfNode.hh
+src/utils/workflow/FLoopNode.cc
+src/utils/workflow/FLoopNode.hh
+src/utils/workflow/FNode.cc
+src/utils/workflow/FNode.hh
+src/utils/workflow/FNodePort.cc
+src/utils/workflow/FNodePort.hh
+src/utils/workflow/FWorkflow.cc
+src/utils/workflow/FWorkflow.dtd
+src/utils/workflow/FWorkflow.hh
+src/utils/workflow/InputIterator.cc
+src/utils/workflow/InputIterator.hh
+src/utils/workflow/MetaDag.cc
+src/utils/workflow/MetaDag.hh
 src/utils/workflow/NodeQueue.cc
 src/utils/workflow/NodeQueue.hh
+src/utils/workflow/NodeSet.hh
 src/utils/workflow/Thread.cc
 src/utils/workflow/Thread.hh
-src/utils/workflow/WfConfig.cc
-src/utils/workflow/WfConfig.hh
+src/utils/workflow/WfDataWriter.cc
+src/utils/workflow/WfDataWriter.hh
+src/utils/workflow/WfExpression.cc
+src/utils/workflow/WfExpression.hh
+src/utils/workflow/WfNode.cc
+src/utils/workflow/WfNode.hh
+src/utils/workflow/WfPortAdapter.cc
+src/utils/workflow/WfPortAdapter.hh
 src/utils/workflow/WfPort.cc
 src/utils/workflow/WfPort.hh
 src/utils/workflow/WfUtils.cc
@@ -321,6 +358,8 @@ src/client/workflow/CMakeLists.txt
 [Templated]
 src/client/workflow/CltWfMgr.cc
 src/client/workflow/CltWfMgr.hh
+src/client/workflow/CltDagNodeLauncher.cc
+src/client/workflow/CltDagNodeLauncher.hh
 
 # Client section
 [Untemplated]
@@ -332,8 +371,12 @@ src/client/CallbackImpl.cc
 src/client/CallbackImpl.hh
 src/client/SpecificClientScheduler.cc
 src/client/SpecificClientScheduler.hh
+src/client/DIETCall.cc
+src/client/DIETCall.hh
 src/client/DIET_client.cc
 src/client/DIET_grpc.cc
+src/client/MultiCall.cc
+src/client/MultiCall.hh
 
 # examples section
 [Untemplated]
@@ -377,6 +420,12 @@ src/examples/ScaLAPACK/pdgemm_client.c
 src/examples/ScaLAPACK/server.c
 
 [Untemplated]
+src/examples/containers/CMakeLists.txt
+[Templated]
+src/examples/containers/client.c
+src/examples/containers/server.c
+
+[Untemplated]
 src/examples/cori/CMakeLists.txt
 [Templated]
 src/examples/cori/client.c
@@ -414,25 +463,44 @@ src/examples/scalars/client.c
 src/examples/scalars/server.c
 
 [Untemplated]
+src/examples/SeDWrapper/CMakeLists.txt
+src/examples/SeDWrapper/xml/CMakeLists.txt
+src/examples/SeDWrapper/xml/convert_dag.xml
+src/examples/SeDWrapper/xml/convert.gasw
+src/examples/SeDWrapper/xml/README.txt
+[Templated]
+src/examples/SeDWrapper/GASWServer.cc
+src/examples/SeDWrapper/SeDDescrParser.cc
+src/examples/SeDWrapper/SeDDescrParser.hh
+src/examples/SeDWrapper/SeDService.cc
+src/examples/SeDWrapper/SeDService.hh
+
+[Untemplated]
 src/examples/workflow/CMakeLists.txt
 src/examples/workflow/xml/CMakeLists.txt
+src/examples/workflow/xml/container.xml
+src/examples/workflow/xml/container2.xml
+src/examples/workflow/xml/data.xml
+src/examples/workflow/xml/file.xml
+src/examples/workflow/xml/func_scalar.xml
+src/examples/workflow/xml/func_string.xml
+src/examples/workflow/xml/logo_diet.jpg
+src/examples/workflow/xml/matrix.xml
+src/examples/workflow/xml/scalar.xml
+src/examples/workflow/xml/string.xml
 [Templated]
+src/examples/workflow/client_container.c
 src/examples/workflow/client_file.c
 src/examples/workflow/client_matrix.c
 src/examples/workflow/client_scalar.c
 src/examples/workflow/client_string.c
-src/examples/workflow/double.c
 src/examples/workflow/file_manip.c
 src/examples/workflow/generic_client.c
 src/examples/workflow/int2str.c
-src/examples/workflow/mul_succ.c
-src/examples/workflow/mul_sum.c
 src/examples/workflow/progs.h
 src/examples/workflow/scalar_server.c
-src/examples/workflow/square.c
 src/examples/workflow/strlen.c
-src/examples/workflow/succ.c
-src/examples/workflow/sum.c
+src/examples/workflow/utils_client.c
 
 [Untemplated]
 src/examples/cfgs/CMakeLists.txt
@@ -534,6 +602,8 @@ src/utils/SGE_BatchSystem.cc
 src/utils/SGE_BatchSystem.hh
 src/utils/JobQueue.cc
 src/utils/JobQueue.hh
+src/utils/DataRelationMgr.cc
+src/utils/DataRelationMgr.hh
 
 [Untemplated]
 src/utils/fd/CMakeLists.txt
@@ -574,6 +644,8 @@ src/utils/DAGDA/DagdaImpl.cc
 src/utils/DAGDA/DagdaImpl.hh
 src/utils/DAGDA/CacheAlgorithms.cc
 src/utils/DAGDA/CacheAlgorithms.hh
+src/utils/DAGDA/Container.cc
+src/utils/DAGDA/Container.hh
 src/utils/DAGDA/DIET_Dagda.cc
 src/utils/DAGDA/DIET_Dagda.h
 src/utils/DAGDA/DIET_Dagda.hh
@@ -636,6 +708,7 @@ doc/UsersManual/plugin.tex
 doc/UsersManual/prediction.tex
 doc/UsersManual/server.tex
 doc/UsersManual/xml_example.tex
+doc/UsersManual/workflow.tex
 
 [Untemplated]
 doc/UsersManual/UsersManual.pdf
