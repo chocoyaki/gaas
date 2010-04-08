@@ -17,6 +17,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.35  2010/04/08 11:48:49  dloureir
+#* Update corresponding to the new architecture of the utils directory
+#*
 #* Revision 1.34  2010/04/08 09:39:20  bisnard
 #* added files for functional workflows and containers
 #*
@@ -545,41 +548,17 @@ src/utils/CMakeLists.txt
 [Templated]
 src/utils/AccessController.cc
 src/utils/AccessController.hh
-src/utils/CORIMgr.cc
-src/utils/CORIMgr.hh
 src/utils/Cori_batch.cc
 src/utils/Cori_batch.hh
-src/utils/Cori_Data_Easy.cc
-src/utils/Cori_Data_Easy.hh
-src/utils/Cori_Easy_CPU.cc
-src/utils/Cori_Easy_CPU.hh
-src/utils/Cori_Easy_Disk.cc
-src/utils/Cori_Easy_Disk.hh
-src/utils/Cori_Easy_Memory.cc
-src/utils/Cori_Easy_Memory.hh
-src/utils/Cori_Fast.cc
-src/utils/Cori_Fast.hh
-src/utils/Cori_Metric.cc
-src/utils/Cori_Metric.hh
-src/utils/Counter.cc
-src/utils/Counter.hh
 src/utils/DIET_data.cc
 src/utils/DIET_data_internal.hh
 src/utils/DIET_mutex.cc
-src/utils/DietLogComponent.cc
-src/utils/DietLogComponent.hh
-src/utils/FASTMgr.cc
-src/utils/FASTMgr.hh
 src/utils/KeyString.cc
 src/utils/KeyString.hh
 src/utils/LinkedList.hh
-src/utils/MonitoringThread.cc
-src/utils/MonitoringThread.hh
 src/utils/Parsers.cc
 src/utils/Parsers.hh
 src/utils/ReadersWriterLock.hh
-src/utils/ServiceTable.cc
-src/utils/ServiceTable.hh
 src/utils/Vector.c
 src/utils/Vector.h
 src/utils/debug.cc
@@ -604,6 +583,35 @@ src/utils/JobQueue.cc
 src/utils/JobQueue.hh
 src/utils/DataRelationMgr.cc
 src/utils/DataRelationMgr.hh
+
+# Utils/nodes section
+[Untemplated]
+src/utils/nodes/CMakeLists.txt
+[Templated]
+src/utils/nodes/CORIMgr.cc
+src/utils/nodes/CORIMgr.hh
+src/utils/nodes/Cori_Data_Easy.cc
+src/utils/nodes/Cori_Data_Easy.hh
+src/utils/nodes/Cori_Easy_CPU.cc
+src/utils/nodes/Cori_Easy_CPU.hh
+src/utils/nodes/Cori_Easy_Disk.cc
+src/utils/nodes/Cori_Easy_Disk.hh
+src/utils/nodes/Cori_Easy_Memory.cc
+src/utils/nodes/Cori_Easy_Memory.hh
+src/utils/nodes/Cori_Fast.cc
+src/utils/nodes/Cori_Fast.hh
+src/utils/nodes/Cori_Metric.cc
+src/utils/nodes/Cori_Metric.hh
+src/utils/nodes/Counter.cc
+src/utils/nodes/Counter.hh
+src/utils/nodes/DietLogComponent.cc
+src/utils/nodes/DietLogComponent.hh
+src/utils/nodes/FASTMgr.cc
+src/utils/nodes/FASTMgr.hh
+src/utils/nodes/MonitoringThread.cc
+src/utils/nodes/MonitoringThread.hh
+src/utils/nodes/ServiceTable.cc
+src/utils/nodes/ServiceTable.hh
 
 [Untemplated]
 src/utils/fd/CMakeLists.txt
@@ -720,6 +728,7 @@ doc/ExternalExample/simple_client.c
 doc/ExternalExample/simple_server.c
 doc/ExternalExample/Makefile
 doc/ExternalExample/CMakeLists.txt
+doc/ExternalExample/Cmake/FindDiet.cmake
 
 # Ici, je mets les sources des documents dans les [Devel_*] pour ne laisser que
 # le ps final dans la distrib normale. Du coup, le r�pertoire doc/ aura des
