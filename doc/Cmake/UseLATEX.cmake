@@ -343,7 +343,7 @@ MACRO(LATEX_PROCESS_IMAGES dvi_outputs pdf_outputs)
 
       # Make sure the output directory exists.
       GET_FILENAME_COMPONENT(path "${output_dir}/${file}" PATH)
-      MAKE_DIRECTORY("${path}")
+      FILE(MAKE_DIRECTORY "${path}")
 
       # Do conversions for dvi.
       LATEX_CONVERT_IMAGE(${dvi_outputs} "${file}" .eps 
