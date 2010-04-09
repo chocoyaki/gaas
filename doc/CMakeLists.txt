@@ -44,12 +44,12 @@ SET( CMAKE_MODULE_PATH ${DIET_DOC_SOURCE_DIR}/Cmake )
 IF( BUILD_DOCUMENTATION )
   IF( IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/ProgrammersGuide )
     SET( PROGRAMMERSGUIDE "ProgrammersGuide.pdf")
-    SUBDIRS( ProgrammersGuide )
+    ADD_SUBDIRECTORY( ProgrammersGuide )
   ENDIF( IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/ProgrammersGuide )
 
   IF( IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/UsersManual )
     SET( USERSMANUAL "UsersManual.pdf")
-      SUBDIRS( UsersManual )
+      ADD_SUBDIRECTORY( UsersManual )
   ENDIF( IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/UsersManual )
 
 INCLUDE( ${DIET_DOC_SOURCE_DIR}/Cmake/DisplayDocSummary.cmake )
@@ -57,7 +57,7 @@ INCLUDE( ${DIET_DOC_SOURCE_DIR}/Cmake/DisplayDocSummary.cmake )
 ## FIXME find a way to manage Doxygen
   SET( DOXYGEN OFF )
   # FIXME: following Tutorial subdir is not yet translated to cmake:
-  # SUBDIRS( Tutorial )
+  # ADD_SUBDIRECTORY( Tutorial )
   IF( DOXYGEN )
     SET( DIET_DOXYGEN_INPUT
       "${DIET_SOURCE_DIR}/include                                                      ${DIET_SOURCE_DIR}/src" )

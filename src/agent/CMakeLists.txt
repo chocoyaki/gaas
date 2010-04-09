@@ -99,7 +99,7 @@ IF( DIET_BUILD_LIBRARIES )
      )
 
   IF (DIET_USE_WORKFLOW)
-      SUBDIRS( workflow )
+      ADD_SUBDIRECTORY( workflow )
   ENDIF ( DIET_USE_WORKFLOW)
   
   INSTALL( TARGETS dietAgent DESTINATION bin )
