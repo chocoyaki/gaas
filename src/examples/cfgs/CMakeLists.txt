@@ -8,7 +8,7 @@
 SET( DIET_EXAMPLES_CONFIG_BUILD ON BOOL "Whether the configuration files were built" )
 
 # FIXME: already defined in Cmake/FindTestingUtils.cmake 
-EXEC_PROGRAM( hostname
+EXECUTE_PROCESS(COMMAND hostname
   OUTPUT_VARIABLE DIET_CMAKE_HOSTNAME
 )
 FILE( GLOB DIET_CONFIG_FILES_GLOB 

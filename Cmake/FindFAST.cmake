@@ -26,13 +26,13 @@ FIND_PROGRAM( FAST_CONFIG_EXECUTABLE
 )
 
 IF( FAST_CONFIG_EXECUTABLE )
-  EXEC_PROGRAM( ${FAST_CONFIG_EXECUTABLE}
-    ARGS "--libs fast"
+  EXECUTE_PROCESS(COMMAND ${FAST_CONFIG_EXECUTABLE}
+    "--libs fast"
     OUTPUT_VARIABLE TEMP_OUTPUT )
   SET( FAST_LIBRARIES ${TEMP_OUTPUT}
     CACHE STRING "FAST libraries link directives" )
-  EXEC_PROGRAM( ${FAST_CONFIG_EXECUTABLE}
-    ARGS "--cflags fast"
+  EXECUTE_PROCESS(COMMAND ${FAST_CONFIG_EXECUTABLE}
+    "--cflags fast"
     OUTPUT_VARIABLE TEMP_OUTPUT )
   SET( FAST_INCLUDE_DIR ${TEMP_OUTPUT}
     CACHE STRING "FAST preprocessor include directives" )
@@ -40,8 +40,8 @@ IF( FAST_CONFIG_EXECUTABLE )
   # through "fast-config --vesion fast": it extracts major and minor version
   # number but alas the parsing requires some shell functionality... For the
   # time being, we will skip this part:
-  EXEC_PROGRAM( ${FAST_CONFIG_EXECUTABLE}
-    ARGS "--version fast"
+  EXECUTE_PROCESS(COMMAND ${FAST_CONFIG_EXECUTABLE}
+    "--version fast"
     OUTPUT_VARIABLE TEMP_OUTPUT )
   SET( FAST_VERSION ${TEMP_OUTPUT}
     CACHE STRING "FAST version number" )

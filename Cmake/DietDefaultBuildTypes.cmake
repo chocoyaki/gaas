@@ -30,8 +30,7 @@ IF( CMAKE_COMPILER_IS_GNUCC AND CMAKE_COMPILER_IS_GNUCXX )
   # or not we simply check g++ major version number (as opposed to heavier
   # solutions like making trial invocations and checking the result). Hence
   # the following definition of GNUCXX_MAJOR_VERSION_BIGER_THAN_FOUR):
-  EXEC_PROGRAM( ${CMAKE_CXX_COMPILER}
-               ARGS -dumpversion
+  EXECUTE_PROCESS(COMMAND ${CMAKE_CXX_COMPILER} -dumpversion
                OUTPUT_VARIABLE GNUCXX_VERSION )
   STRING(COMPARE GREATER ${GNUCXX_VERSION} "4.0.0"
     GNUCXX_MAJOR_VERSION_BIGER_THAN_FOUR
