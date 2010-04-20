@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.25  2010/04/20 12:00:43  glemahec
+ * Ajout de l option de compilation TRANSFER_PROGRESSION => Extension de l API DAGDA pour compatibilite services de gestion de fichiers.
+ *
  * Revision 1.24  2009/11/06 14:44:47  bisnard
  * removed debug message
  *
@@ -43,6 +46,10 @@
  ************************************************************/
 #include "DIET_Dagda.hh"
 #include "DagdaFactory.hh"
+#if DAGDA_PROGRESSION
+#include "Transfers.hh"
+#include <stdexcept>
+#endif
 extern "C" {
 #include "DIET_Dagda.h"
 } // extern "C"
@@ -1124,5 +1131,38 @@ int dagda_get_container_elements(const char* idContainer, diet_container_t* cont
   return 0;
 }
 
+#if DAGDA_PROGRESSION
+double dagda_get_progress(const char* transferId) {
+  Transfers* instance = Transfers::getInstance();
+  
+  try {
+    return instance->getProgress(transferId);
+  } catch (runtime_error& err) {
+    return 0;
+  }
+}
+
+void dagda_rem_progress(const char* transferId) {
+  Transfers* instance = Transfers::getInstance();
+  
+  try {
+    instance->remTransfer(transferId);
+  } catch (runtime_error& err) {
+    cerr << "Error: " << err.what() << endl;
+  }
+}
+#else
+double dagda_get_progress(const char* transferId) {
+  cerr << "DIET was not compile with DAGDA_PROGRESSION set.";
+  cerr << " Please re-compile DIET activating this option." << endl;
+  return 0;
+}
+
+void dagda_rem_progress(const char* transferId) {
+  cerr << "DIET was not compile with DAGDA_PROGRESSION set.";
+  cerr << " Please re-compile DIET activating this option." << endl;
+  return 0;
+}
+#endif
 
 END_API

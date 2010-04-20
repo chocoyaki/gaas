@@ -10,6 +10,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2010/04/20 12:00:43  glemahec
+ * Ajout de l option de compilation TRANSFER_PROGRESSION => Extension de l API DAGDA pour compatibilite services de gestion de fichiers.
+ *
  * Revision 1.14  2010/03/08 13:59:36  bisnard
  * bug correction for agent name getters (removed static vars)
  *
@@ -39,6 +42,7 @@
 #include <sstream>
 #include <string>
 #include <dirent.h>
+#include <sys/types.h>
 #include <sys/stat.h>
 
 size_t availableDiskSpace(const char* path) {
@@ -125,9 +129,10 @@ const char* DagdaFactory::getStorageDir() {
 
   /* Test if the directory exists */
   if((dp  = opendir(storageDir.c_str())) == NULL) {
-    ERROR_EXIT("The DAGDA storage directory '" << storageDir << "' cannot be opened");
-  }
-  closedir(dp);
+    if (mkdir(storageDir.c_str(), 493)) // create the directory with rwxr-xr-x permissions
+      ERROR_EXIT("The DAGDA storage directory '" << storageDir << "' cannot be opened");
+  } else
+    closedir(dp);
 
   /* Test if the directory has sufficient rights */
   if (!stat(storageDir.c_str(), &tmpStat)) {

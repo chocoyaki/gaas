@@ -63,6 +63,7 @@ OPTION( DIET_WITH_MULTI_MA   "Build DIET with MULTI-Master-Agent support." OFF )
 OPTION( DIET_USE_USERSCHED   "Build DIET with user scheduler support (Experimental)." OFF )
 OPTION( DIET_USE_ENDIANNESS  "Build DIET with endianness management  (Experimental)." OFF )
 OPTION( DIET_USE_CCS         "Build DIET with client custom scheduling  (Experimental)." OFF )
+OPTION( TRANSFER_PROGRESSION "Build DIET with DAGDA progression API" OFF )
 # Ackfile support
 OPTION( DIET_USE_ACKFILE     "Build DIET with acknowledge file." OFF)
 ## Use Dagda as data manager.
@@ -374,6 +375,10 @@ ENDIF( DIET_USE_WORKFLOW )
 IF( DIET_USE_ACKFILE )
   ADD_DEFINITIONS( -DHAVE_ACKFILE )
 ENDIF( DIET_USE_ACKFILE )
+
+IF( TRANSFER_PROGRESSION )
+  ADD_DEFINITIONS( -DDAGDA_PROGRESSION )
+ENDIF( TRANSFER_PROGRESSION )
 
 # --------------- New : For users agents scheduler support ------------------
 IF( DIET_USE_USERSCHED )

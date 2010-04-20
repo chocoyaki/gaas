@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2010/04/20 12:00:43  glemahec
+ * Ajout de l option de compilation TRANSFER_PROGRESSION => Extension de l API DAGDA pour compatibilite services de gestion de fichiers.
+ *
  * Revision 1.10  2009/04/17 08:50:49  bisnard
  * added handling of container empty elements
  *
@@ -94,6 +97,9 @@ int dagda_add_container_null_element(const char* idContainer, int index);
  * it is declared on the local dagda manager */
 int dagda_get_container_elements(const char* idContainer, diet_container_t* content);
 
+double dagda_get_progress(const char* dataId);
+void dagda_rem_progress(const char* transferId);
+  
 /* Put macros */
 #define dagda_put_scalar(value, base_type, mode, ID) \
   dagda_put_data(value, DIET_SCALAR, base_type, mode, 0, 0, \

@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.36  2010/04/20 12:00:43  glemahec
+ * Ajout de l option de compilation TRANSFER_PROGRESSION => Extension de l API DAGDA pour compatibilite services de gestion de fichiers.
+ *
  * Revision 1.35  2010/03/31 21:15:40  bdepardo
  * Changed C headers into C++ headers
  *
@@ -72,6 +75,9 @@
 #include "DagdaImpl.hh"
 #include "DagdaFactory.hh"
 #include "Container.hh"
+#if DAGDA_PROGRESSION
+#include "Transfers.hh"
+#endif
 
 #if HAVE_ADVANCED_UUID
 #include <uuid/uuid.h>
@@ -215,6 +221,11 @@ char* DagdaImpl::sendFile(const corba_data_t &data, Dagda_ptr dest) {
 
   bool replace = true;
   char* distPath = NULL;
+#if DAGDA_PROGRESSION
+  char* destHost = dest->getHostname();
+  Transfers::getInstance()->newTransfer(string(data.desc.id.idNumber)+">>"+destHost,
+                                        fileSize);
+#endif
   if (getLogComponent())
     getLogComponent()->logDataBeginTransfer(data.desc.id.idNumber, dest->getID());
   for (unsigned long i=0; i<nBlocks; ++i) {
@@ -233,6 +244,9 @@ char* DagdaImpl::sendFile(const corba_data_t &data, Dagda_ptr dest) {
 
     wrote+=toSend;
     replace=false;
+#if DAGDA_PROGRESSION
+    Transfers::getInstance()->incProgress(string(data.desc.id.idNumber)+">>"+destHost);
+#endif
   }
   if (getLogComponent())
     getLogComponent()->logDataEndTransfer(data.desc.id.idNumber, dest->getID());
