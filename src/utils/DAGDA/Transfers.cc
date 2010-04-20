@@ -1,3 +1,18 @@
+/****************************************************************************/
+/* Object to obtain transfers progression.                                  */
+/*                                                                          */
+/*  Author(s):                                                              */
+/*    - Gaël Le Mahec (gael.le.mahec@ens-lyon.fr)                           */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+/* $Id$
+ * $Log$
+ * Revision 1.2  2010/04/20 12:30:33  glemahec
+ * Ajout des fichiers Transfers.?? dans Distribution_files.lst et des en-tetes dans lesdits fichiers
+ *
+ ****************************************************************************/
+
 #include <string>
 #include <map>
 #include <stdexcept>

@@ -17,6 +17,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.36  2010/04/20 12:30:33  glemahec
+#* Ajout des fichiers Transfers.?? dans Distribution_files.lst et des en-tetes dans lesdits fichiers
+#*
 #* Revision 1.35  2010/04/08 11:48:49  dloureir
 #* Update corresponding to the new architecture of the utils directory
 #*
@@ -661,6 +664,8 @@ src/utils/DAGDA/NetworkStats.cc
 src/utils/DAGDA/NetworkStats.hh
 src/utils/DAGDA/DagdaCatalog.cc
 src/utils/DAGDA/DagdaCatalog.hh
+src/utils/DAGDA/Transfers.cc
+src/utils/DAGDA/Transfers.hh
 
 # lib section
 [Untemplated]
