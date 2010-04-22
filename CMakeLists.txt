@@ -63,7 +63,7 @@ OPTION( DIET_WITH_MULTI_MA   "Build DIET with MULTI-Master-Agent support." OFF )
 OPTION( DIET_USE_USERSCHED   "Build DIET with user scheduler support (Experimental)." OFF )
 OPTION( DIET_USE_ENDIANNESS  "Build DIET with endianness management  (Experimental)." OFF )
 OPTION( DIET_USE_CCS         "Build DIET with client custom scheduling  (Experimental)." OFF )
-OPTION( TRANSFER_PROGRESSION "Build DIET with DAGDA progression API" OFF )
+OPTION( DIET_TRANSFER_PROGRESSION "Build DIET with DAGDA progression API" OFF )
 # Ackfile support
 OPTION( DIET_USE_ACKFILE     "Build DIET with acknowledge file." OFF)
 ## Use Dagda as data manager.
@@ -102,6 +102,11 @@ ENDIF( DIET_USE_WORKFLOW AND NOT DIET_USE_DAGDA )
 IF( DIET_USE_DYNAMICS AND NOT DIET_USE_DAGDA )
   MESSAGE(SEND_ERROR "DIET_USE_DYNAMICS requires DIET_USE_DAGDA.")
 ENDIF( DIET_USE_DYNAMICS AND NOT DIET_USE_DAGDA )
+
+IF( DIET_TRANSFER_PROGRESSION AND NOT DIET_USE_DAGDA )
+  MESSAGE(SEND_ERROR "DIET_TRANSFER_PROGRESSION requires DIET_USE_DAGDA.")
+ENDIF( DIET_TRANSFER_PROGRESSION AND NOT DIET_USE_DAGDA )
+
 
 # JXTA (see below) is used to provide functionalities similar to the ones
 # of the DIET_WITH_MULTI_MA. For the time being those two extensions
@@ -376,9 +381,6 @@ IF( DIET_USE_ACKFILE )
   ADD_DEFINITIONS( -DHAVE_ACKFILE )
 ENDIF( DIET_USE_ACKFILE )
 
-IF( TRANSFER_PROGRESSION )
-  ADD_DEFINITIONS( -DDAGDA_PROGRESSION )
-ENDIF( TRANSFER_PROGRESSION )
 
 # --------------- New : For users agents scheduler support ------------------
 IF( DIET_USE_USERSCHED )
@@ -407,6 +409,10 @@ IF( DIET_USE_DAGDA )
   ELSE( UUIDLIB )
     SET( UUIDLIB "")
   ENDIF( UUIDLIB )
+
+  IF( DIET_TRANSFER_PROGRESSION )
+    ADD_DEFINITIONS( -DDAGDA_PROGRESSION )
+  ENDIF( DIET_TRANSFER_PROGRESSION )
 ENDIF( DIET_USE_DAGDA )
 
 # --------------- DIET Endianness support  ------------------
