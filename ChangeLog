@@ -14,6 +14,10 @@
 * Compilation process in general has been improved to remove cyclic 
 dependancies between libraries during the link.
 
+* Dynamic hierarchy
+	Added the possibility to dynamically change the hierarchy shape
+	via CORBA calls.
+	
 +----------+
 | diet 2.3 |
 +----------+ 
