@@ -8,6 +8,10 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.26  2010/04/26 15:03:05  bdepardo
+ * Removed the line "return 0;" in dagda_rem_progress which has a void return
+ * type.
+ *
  * Revision 1.25  2010/04/20 12:00:43  glemahec
  * Ajout de l option de compilation TRANSFER_PROGRESSION => Extension de l API DAGDA pour compatibilite services de gestion de fichiers.
  *
@@ -1161,7 +1165,6 @@ double dagda_get_progress(const char* transferId) {
 void dagda_rem_progress(const char* transferId) {
   cerr << "DIET was not compile with DAGDA_PROGRESSION set.";
   cerr << " Please re-compile DIET activating this option." << endl;
-  return 0;
 }
 #endif
 
