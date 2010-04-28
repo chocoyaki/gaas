@@ -7,6 +7,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2010/04/28 14:12:03  bdepardo
+ * fscanf warnings correction.
+ *
  * Revision 1.16  2009/10/13 14:50:08  bisnard
  * updated gwendia types
  *
@@ -317,11 +320,12 @@ WfCst::readChar(const char * fileName, char * mat, unsigned long mat_size) {
   open_file(fileName, myFile);
   unsigned long p = 0;
   char c;
-  fscanf(myFile, "%c", &c);
-  while (!feof(myFile) && (p<mat_size)) {
+  int res;
+  res = fscanf(myFile, "%c", &c);
+  while (res && !feof(myFile) && (p<mat_size)) {
     if ((c != '\n') && (c != '\r') && (c!=' '))
       mat[p++] = c;
-    fscanf(myFile, "%c", &c);
+    res = fscanf(myFile, "%c", &c);
   }
   //  rewind(myFile);
   fclose(myFile);
@@ -333,10 +337,11 @@ WfCst::readShort(const char * fileName, short * mat, unsigned long mat_size) {
   open_file(fileName, myFile);
   unsigned long p = 0;
   short i;
-  fscanf(myFile, "%hd", &i);
-  while (!feof(myFile) && (p<mat_size)) {
+  int res;
+  res = fscanf(myFile, "%hd", &i);
+  while (res && !feof(myFile) && (p<mat_size)) {
     mat[p++] = i;
-    fscanf(myFile, "%hd", &i);
+    res = fscanf(myFile, "%hd", &i);
   }
   //  rewind(myFile);
   fclose(myFile);
@@ -348,10 +353,11 @@ WfCst::readInt(const char * fileName, int * mat, unsigned long mat_size) {
   open_file(fileName, myFile);
   unsigned long p = 0;
   int i;
-  fscanf(myFile, "%d", &i);
-  while (!feof(myFile) && (p<mat_size)) {
+  int res;
+  res = fscanf(myFile, "%d", &i);
+  while (res && !feof(myFile) && (p<mat_size)) {
     mat[p++] = i;
-    fscanf(myFile, "%d", &i);
+    res = fscanf(myFile, "%d", &i);
   }
   //  rewind(myFile);
   fclose(myFile);
@@ -363,10 +369,11 @@ WfCst::readLong(const char * fileName, long * mat, unsigned long mat_size) {
   open_file(fileName, myFile);
   unsigned long p = 0;
   long l;
-  fscanf(myFile, "%ld", &l);
-  while (!feof(myFile)&& (p<mat_size)) {
+  int res;
+  res = fscanf(myFile, "%ld", &l);
+  while (res && !feof(myFile)&& (p<mat_size)) {
     mat[p++] = l;
-    fscanf(myFile, "%ld", &l);
+    res = fscanf(myFile, "%ld", &l);
   }
   //  rewind(myFile);
   fclose(myFile);
@@ -380,10 +387,11 @@ WfCst::readFloat(const char * fileName, float * mat, unsigned long mat_size) {
 
   unsigned long p = 0;
   float f;
-  fscanf(myFile, "%f", &f);
-  while (!feof(myFile)&& (p<mat_size)) {
+  int res;
+  res = fscanf(myFile, "%f", &f);
+  while (res && !feof(myFile)&& (p<mat_size)) {
     mat[p++] = f;
-    fscanf(myFile, "%f", &f);
+    res = fscanf(myFile, "%f", &f);
   }
 
   fclose(myFile);
@@ -397,10 +405,11 @@ WfCst::readDouble(const char * fileName, double * mat, unsigned long mat_size) {
 
   unsigned long p = 0;
   double d;
-  fscanf(myFile, "%lf", &d);
-  while (!feof(myFile)&& (p<mat_size)) {
+  int res;
+  res = fscanf(myFile, "%lf", &d);
+  while (res && !feof(myFile)&& (p<mat_size)) {
     mat[p++] = d;
-    fscanf(myFile, "%lf", &d);
+    res = fscanf(myFile, "%lf", &d);
   }
 
   fclose(myFile);
