@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2010/04/28 14:11:49  bdepardo
+ * Bug correction for while condition.
+ *
  * Revision 1.4  2009/08/26 10:32:11  bisnard
  * corrected  warnings
  *
@@ -142,6 +145,14 @@ FLoopNode::setDoMap(const string& leftPortName,
     myFinalOutMap.mapPorts(outPort, loopInPort);
     myFinalLoopMap.mapPortToVoid(loopOutPort);
     myFinalVoidOutMap.mapPortToVoid(outPort);
+    // set direct in->out map (in case of no iteration at all)
+    try {
+      FNodeInPort* inPort = checkAssignPort<FNodeInPort>(loopInPort->getInterfaceRef());
+      myDirectInOutMap.mapPorts(outPort, inPort);
+    } catch (const WfStructException& e) {
+      // missing init attribute for in port ==> DirectMap will assign VOID
+      myDirectInOutMap.mapPortToVoid(outPort);
+    }
   } catch (const WfStructException& e) {
     cerr << "SINK out port for LOOP out port '" << loopOutPort->getId() << "' not found" << endl;
     throw;
@@ -271,8 +282,10 @@ FLoopNode::instanciate(Dag* dag) {
     myLoopIterator->removeItem();
 
     // CHECK if tag length matches loop tag length
-    if (currTag.getLevel() != loopTagLength) {
-      INTERNAL_ERROR(__FUNCTION__ << "Loop contains workflow with different in/out tag level",1);
+    if (loopTagLength) {	// must have been set before
+      if (currTag.getLevel() != loopTagLength) {
+	INTERNAL_ERROR(__FUNCTION__ << "Loop contains workflow with different in/out tag level",1);
+      }
     }
 
     // CHECK if data received is the last VOID item that terminates the iteration
@@ -367,8 +380,14 @@ FLoopNode::createRealInstance(Dag* dag,
     }
 
   } else {
-    TRACE_TEXT (TRACE_ALL_STEPS,"==> While condition is FALSE ==> create VOID instance" << endl);
-    createVoidInstance(currTag, currDataLine);
+    TRACE_TEXT (TRACE_ALL_STEPS,"==> While condition is FALSE ==> apply direct in-out mappings" << endl);
+    // create new tag for the first (and last) void iteration of the loop
+    FDataTag* firstIterTag = new FDataTag(currTag,0,true);
+    // apply VOID mapping for loop out ports
+    myFinalLoopMap.applyMap(*firstIterTag, currDataLine);
+    delete firstIterTag;
+    // apply DIRECT output mapping for out ports
+    myDirectInOutMap.applyMap(currTag, currDataLine);
   }
 }
 

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2010/04/28 14:11:49  bdepardo
+ * Bug correction for while condition.
+ *
  * Revision 1.3  2009/07/23 12:30:10  bisnard
  * new method finalize() for functional wf nodes
  * removed const on currDataLine parameter for instance creation
@@ -91,6 +94,7 @@ class FLoopNode : public FProcNode {
     FNodePortMap  myFinalOutMap;  // used for IN LOOP => OUT
     FNodePortMap  myFinalLoopMap; // used for VOID => OUT LOOP
     FNodePortMap  myFinalVoidOutMap;  // used for VOID => OUT
+    FNodePortMap  myDirectInOutMap;   // used for IN => OUT (no loop iteration)
     InputIterator*  myLoopIterator;
 
   private:
