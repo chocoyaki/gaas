@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2010/05/05 13:13:51  amuresan
+ * First commit for the Eucalyptus BatchSystem.
+ * Added SOAP client for the Amazon EC2 SOAP interface and
+ * a new implementation of the BatchSystem base-class.
+ *
  * Revision 1.8  2010/03/31 21:15:40  bdepardo
  * Changed C headers into C++ headers
  *
@@ -46,6 +51,7 @@
 #include "OAR2_XBatchSystem.hh"
 #include "Loadleveler_BatchSystem.hh"
 #include "PBS_BatchSystem.hh"
+#include "Eucalyptus_BatchSystem.hh"
 #include "BatchCreator.hh"
 
 #include <cstring>
@@ -59,7 +65,8 @@ const char * const BatchCreator::batchNames[NUMBER_OF_SUPPORTED_BATCH] = {
   "loadleveler",
   "sge",
   "pbs",
-  "oar2.x"
+  "oar2.x",
+  "eucalyptus"
 } ;
 
 // "shellscript",
@@ -88,6 +95,8 @@ BatchCreator::getBatchSystem( const char * batchName )
     return new PBS_BatchSystem(batchID,batchNames[batchID]) ;
   case OAR2_X:
     return new OAR2_XBatchSystem(batchID,batchNames[batchID]) ;
+  case EUCALYPTUS:
+    return new Eucalyptus_BatchSystem(batchID, batchNames[batchID]);
   default:
     return NULL ;
   }

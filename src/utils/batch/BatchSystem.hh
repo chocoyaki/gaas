@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2010/05/05 13:13:51  amuresan
+ * First commit for the Eucalyptus BatchSystem.
+ * Added SOAP client for the Amazon EC2 SOAP interface and
+ * a new implementation of the BatchSystem base-class.
+ *
  * Revision 1.8  2009/11/27 03:24:30  ycaniou
  * Add user_command possibility before the end of Batch prologue (only
  * to be used for batch dependent code!)
@@ -133,7 +138,7 @@ public :
       of the batch prologue (e.g., QUEUE for LL).
       Returns -1 if error, 0 on succes.
   */
-  int
+  virtual int
   diet_submit_parallel(diet_profile_t * profile,
 		       const char * addon_prologue,
 		       const char * command) ;

@@ -76,6 +76,23 @@ IF( DIET_BUILD_LIBRARIES )
 
   IF( DIET_USE_ALT_BATCH )
     INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} )
+    INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} ${DIET_SOURCE_DIR}/src/utils/EucaLib )
+    ADD_DEFINITIONS( -DWITH_OPENSSL )
+
+    ########################################################################
+    # Build the Eucalyptus SOAP client library and its associated BatchSystem
+    ADD_LIBRARY( EucalyptusLib
+        EucaLib/ec2wrapper.c
+        EucaLib/soapC.c
+        EucaLib/soapClient.c
+        EucaLib/stdsoap2.c
+        EucaLib/dom.c
+        EucaLib/plugin/smdevp.c
+        EucaLib/plugin/wsseapi.c )
+    TARGET_LINK_LIBRARIES( EucalyptusLib -lssl -lcrypto )
+        ADD_DEFINITIONS( -DWITH_DOM -DWITH_OPENSSL )
+    INSTALL_TARGETS( /lib/ EucalyptusLib )
+        
     ADD_LIBRARY( UtilsSeDBatch
 		 BatchCreator.cc
 		 BatchSystem.cc
@@ -83,8 +100,9 @@ IF( DIET_BUILD_LIBRARIES )
 		 OAR2_XBatchSystem.cc
 		 Loadleveler_BatchSystem.cc
 		 PBS_BatchSystem.cc
-		 SGE_BatchSystem.cc )
-    TARGET_LINK_LIBRARIES( UtilsSeDBatch -lpthread UtilsCommon )
+		 SGE_BatchSystem.cc
+         Eucalyptus_BatchSystem.cc )
+    TARGET_LINK_LIBRARIES( UtilsSeDBatch EucalyptusLib -lpthread UtilsCommon -lssl -lcrypto )
     INSTALL( TARGETS UtilsSeDBatch DESTINATION lib )
   ENDIF( DIET_USE_ALT_BATCH )
 

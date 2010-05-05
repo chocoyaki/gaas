@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.55  2010/05/05 13:13:51  amuresan
+ * First commit for the Eucalyptus BatchSystem.
+ * Added SOAP client for the Amazon EC2 SOAP interface and
+ * a new implementation of the BatchSystem base-class.
+ *
  * Revision 1.54  2010/01/14 13:15:08  bdepardo
  * "\n" -> endl
  *
@@ -254,7 +259,19 @@ Parsers::Results::param_t Parsers::Results::params[] =
    /* [41] */ ,{"internOARbatchQueueName", 23, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
 #endif
    /* [42] */ ,{"clientMaxNbSeD", 14, Parsers::parseULong, 0, NULL, Results::ULONG_PARAMETER}
-  } ;
+#ifdef HAVE_ALT_BATCH
+   /* [43] */ ,{"cloudURL", 8, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
+   /* [44] */ ,{"emiName", 7, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER} 
+   /* [45] */ ,{"eriName", 7, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
+   /* [46] */ ,{"ekiName", 7, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
+   /* [47] */ ,{"keyName", 7, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
+   /* [48] */ ,{"vmType", 6, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
+   /* [49] */ ,{"vmMinCount", 10, Parsers::parseInt, 0, NULL, Results::INT_PARAMETER}
+   /* [50] */ ,{"vmMaxCount", 10, Parsers::parseInt, 0, NULL, Results::INT_PARAMETER}
+   /* [51] */ ,{"pathToCert", 10, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
+   /* [52] */ ,{"pathToPK", 8, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
+#endif
+} ;
 
 #define IS_ADDRESS(i) ((i == Results::LDAPBASE) || (i == Results::NWSNAMESERVER) || (i == Results::NWSFORECASTER))
 

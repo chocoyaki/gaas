@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.39  2010/05/05 13:13:51  amuresan
+ * First commit for the Eucalyptus BatchSystem.
+ * Added SOAP client for the Amazon EC2 SOAP interface and
+ * a new implementation of the BatchSystem base-class.
+ *
  * Revision 1.38  2010/03/31 21:15:40  bdepardo
  * Changed C headers into C++ headers
  *
@@ -280,6 +285,18 @@ public:
       INTERNOARQUEUENAME,
 #endif
       CLIENT_MAX_NB_SED,
+#ifdef HAVE_ALT_BATCH
+      CLOUDURL,
+      EMINAME,
+      ERINAME,
+      EKINAME,
+      KEYNAME,
+      VMTYPE,
+      VMMINCOUNT,
+      VMMAXCOUNT,
+      PATHTOCERT,
+      PATHTOPK,
+#endif
       NB_PARAM_TYPE
     } param_type_t;
 

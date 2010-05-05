@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2010/05/05 13:13:51  amuresan
+ * First commit for the Eucalyptus BatchSystem.
+ * Added SOAP client for the Amazon EC2 SOAP interface and
+ * a new implementation of the BatchSystem base-class.
+ *
  * Revision 1.7  2009/11/27 03:24:30  ycaniou
  * Add user_command possibility before the end of Batch prologue (only
  * to be used for batch dependent code!)
@@ -61,6 +66,7 @@ public :
     SGE,
     PBS,
     OAR2_X,
+    EUCALYPTUS,
     NUMBER_OF_SUPPORTED_BATCH
   } batchID_t ;
 
