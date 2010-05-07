@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.58  2010/05/07 07:40:47  bdepardo
+ * Remove a warning about a cast from string constant to char*.
+ *
  * Revision 1.57  2010/03/03 10:19:03  bdepardo
  * Changed \n into endl
  *
@@ -311,7 +314,7 @@ MasterAgentImpl::run()
   char* neighbours = static_cast<char*>(Parsers::Results::
 			   getParamValue(Parsers::Results::NEIGHBOURS)) ;
   if (neighbours == NULL)
-    neighbours = "" ;
+    neighbours = const_cast<char*>("") ;
   neighbours = ms_strdup(neighbours) ;
   char* comma, *begin_copy ;
   begin_copy = neighbours ;
