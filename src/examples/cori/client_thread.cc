@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2010/05/07 08:19:03  bdepardo
+ * Removed a warning
+ *
  * Revision 1.2  2009/11/19 07:27:41  ycaniou
  * Remove warnings
  *
@@ -71,6 +74,8 @@ call(void* par) {
     diet_free_data(diet_parameter(profile,1));
     diet_profile_free(profile);
   }
+
+  return NULL;
 }
 
 int
