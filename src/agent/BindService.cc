@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2010/05/07 08:08:55  bdepardo
+ * Remove a warning
+ *
  * Revision 1.5  2010/03/31 21:15:39  bdepardo
  * Changed C headers into C++ headers
  *
@@ -65,7 +68,7 @@ void BindService::run(void* ptr) {
     socklen_t clientLen = static_cast<socklen_t>(sizeof(clientAddr));
     int newSockFd = accept(listenSocket, (struct sockaddr *) &clientAddr, 
 			   &clientLen);
-    if (newSockFd < 0)
+    if (newSockFd < 0) {
       if (errno == EBADF) {
 	doNotStop = false ;
 	TRACE_TEXT(TRACE_ALL_STEPS, "bind service closed") ;
@@ -74,6 +77,7 @@ void BindService::run(void* ptr) {
 	WARNING("error on accept (bind service): " << strerror(errno));
 	continue ;
       }
+    }
     int n = write(newSockFd, ior, strlen(ior));
     if (n < 0) 
       WARNING("error when writing to socket (bind service): " << strerror(errno));
