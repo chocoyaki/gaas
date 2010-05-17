@@ -2,6 +2,12 @@
 ############################
 SET( CMAKE_DIR "/usr/local/bin/")
 SET( OMNIORB4_DIR "$ENV{HOME}/local/omniORB-4.1.4")
+
+####### Variable optionally still hard coded 
+############################
+SET ( XQILLA_DIR "$ENV{HOME}/local/XQilla-2.2.4")
+SET ( XERCES_DIR "$ENV{HOME}/local/xerces-c-3_0_1")
+
 SET( DIR_CURRENT "$ENV{HOME}/dietCDASH" )
 
 IF ( CVSFORCE MATCHES "0" )
