@@ -17,6 +17,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.38  2010/05/19 00:01:37  ecaron
+#* Remove var_desc.xml file from distrib (outdated file)
+#*
 #* Revision 1.37  2010/05/18 23:56:22  ecaron
 #* Remove src/examples/Batch/SparseSolver files from distrib
 #*
@@ -543,7 +546,6 @@ src/examples/workflow/xml/file.xml
 src/examples/workflow/xml/matrix.xml
 src/examples/workflow/xml/scalar.xml
 src/examples/workflow/xml/string.xml
-src/examples/workflow/xml/var_desc.xml
 src/examples/workflow/xml/logo_diet.jpg
 
 # Utils section
