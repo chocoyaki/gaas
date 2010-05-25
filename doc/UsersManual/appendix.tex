@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.9  2010/05/25 08:04:49  bdepardo
+%* Fixmes removal
+%*
 %* Revision 1.8  2010/03/29 23:52:47  ecaron
 %* Update configuration information for DIET v2.4
 %*
@@ -181,18 +184,18 @@
   \item Component: Agent and \sed
   \item Mode: FAST
   \item Type: Address
-  \item Description: FAST
+  \item Description: NWS forecast module used by FAST.
   \end{itemize}
-\fixme{un peu d'explication}
+
 
 \item{\bf{useAsyncAPI}}
   \begin{itemize}
   \item Component: Agent and \sed
-  \item Mode: ?
+  \item Mode: All
   \item Type: Boolean
-  \item Description: ?
+  \item Description: No longer used
   \end{itemize}
-\fixme{à quoi sert useAsyncAPI ???}
+
 \item{\bf{useLogService}}
   \begin{itemize}
   \item Component: Agent and \sed
@@ -312,9 +315,9 @@
 %   \item Type: String
 %   \item Description: ?
 %   \end{itemize}
-\fixme{USEWFLOGSERVICE a été supprimé, mais est ce que c'est bien plus utilisé,
-j'ai fait un grep sur le code et je ne trouve d'occurence plus que dans le
-parser, donc je dirais que c'est outdated. A valider}
+% \fixme{USEWFLOGSERVICE a été supprimé, mais est ce que c'est bien plus utilisé,
+% j'ai fait un grep sur le code et je ne trouve d'occurence plus que dans le
+% parser, donc je dirais que c'est outdated. A valider}
 
 \item{\bf{schedulerModule}}
   \begin{itemize}
