@@ -17,7 +17,10 @@ dependancies between libraries during the link.
 * Dynamic hierarchy
 	Added the possibility to dynamically change the hierarchy shape
 	via CORBA calls.
-	
+
+* DAGDA can now return transfers progressions. Accessible from the API
+	when activating a compilation option.
+
 +----------+
 | diet 2.3 |
 +----------+ 
