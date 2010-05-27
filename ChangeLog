@@ -2,7 +2,7 @@
 | diet 2.4 |
 +----------+
 	
-* Cygwin port
+* Windows version
 
 	- Added the support of Windows platform inside Cygwin. DIET is
 	now available on Windows through a port in Cygwin. It as been
@@ -10,20 +10,25 @@
 	- It should be noticed that the workflow module is not available
 	on this platform.
 
+* Compilation improvement
 
-* Compilation process in general has been improved to remove cyclic 
-dependancies between libraries during the link.
+	- Compilation process in general has been improved to remove
+	cyclic dependancies between libraries during the link.
 
 * Dynamic hierarchy
-	Added the possibility to dynamically change the hierarchy shape
+	
+	- Added the possibility to dynamically change the hierarchy shape
 	via CORBA calls.
 
-* DAGDA can now return transfers progressions. Accessible from the API
-	when activating a compilation option.
+* Data Management
 
-* Workflow
-	The workflow engine now supports in addition to the existing
-	MaDag language a new workflow language that provides a higher
+	- DAGDA can now return transfers progressions. Accessible from the
+	API when activating a compilation option.
+
+* Workflow Management 
+	
+	- The workflow engine now supports in addition to the existing
+	MAdag language a new workflow language that provides a higher
 	level of abstraction with loops and conditional structures as
 	well as operators on the data flows and multiple instanciation
 	of services for parallel processing. 
