@@ -21,6 +21,13 @@ dependancies between libraries during the link.
 * DAGDA can now return transfers progressions. Accessible from the API
 	when activating a compilation option.
 
+* Workflow
+	The workflow engine now supports in addition to the existing
+	MaDag language a new workflow language that provides a higher
+	level of abstraction with loops and conditional structures as
+	well as operators on the data flows and multiple instanciation
+	of services for parallel processing. 
+
 +----------+
 | diet 2.3 |
 +----------+ 
