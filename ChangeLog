@@ -24,6 +24,7 @@
 
 	- DAGDA can now return transfers progressions. Accessible from the
 	API when activating a compilation option.
+	- Data containers are introduced to manage variable-length data sets.
 
 * Workflow Management 
 	
@@ -32,7 +33,7 @@
 	level of abstraction with loops and conditional structures as
 	well as operators on the data flows and multiple instanciation
 	of services for parallel processing (language defined by the
-	Gwendia project: http://gwendia.polytech.unice.fr/)
+	Gwendia project: http://gwendia.polytech.unice.fr
 
 +----------+
 | diet 2.3 |
