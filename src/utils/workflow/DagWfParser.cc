@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.39  2010/06/11 14:10:09  bisnard
+ * fixed warning
+ *
  * Revision 1.38  2009/11/06 13:06:37  bisnard
  * replaced 'list' tag by 'array' tag in data files
  *
@@ -1460,7 +1463,7 @@ DataSourceHandler::startItem(const   Attributes&     attrs) {
 
 void
 DataSourceHandler::characters (const  XMLCh* const     chars,
-                               const  unsigned int     length) {
+                               const  XMLSize_t        length) {
   // note that this test will work only for small chunks of text (only one call
   // of the handler)
   if (isItemFound) {

@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.28  2010/06/11 14:10:09  bisnard
+ * fixed warning
+ *
  * Revision 1.27  2010/03/31 21:15:41  bdepardo
  * Changed C headers into C++ headers
  *
@@ -652,7 +655,7 @@ class DataSourceHandler : public DefaultHandler {
                     const   XMLCh* const    qname);
 
     void characters (const  XMLCh* const     chars,
-                     const  unsigned int     length);
+                     const  XMLSize_t        length);
 
     void fatalError(const SAXParseException& e);
     void warning(const SAXParseException& e);
