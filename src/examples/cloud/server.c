@@ -1,3 +1,18 @@
+/****************************************************************************/
+/* Example client for the Cloud Batch System                                */
+/*                                                                          */
+/* Author(s):                                                               */
+/*    - Adrian Muresan (adrian.muresan@ens-lyon.fr)                         */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+/* $Id$
+ * $Log$
+ * Revision 1.2  2010/06/14 21:27:24  amuresan
+ * Added header to cloud example files and client config file.
+ *
+ *****************************************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
