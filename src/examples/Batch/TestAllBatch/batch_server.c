@@ -7,6 +7,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2010/06/15 08:10:53  amuresan
+ * Added cloud configuration files to src/examples/cfgs/
+ *
  * Revision 1.5  2009/11/27 03:24:30  ycaniou
  * Add user_command possibility before the end of Batch prologue (only
  * to be used for batch dependent code!)
@@ -61,7 +64,7 @@ copyFile( char * inputName, char * outputName )
     perror("open") ;
     exit(-1) ;
   }
-  if((outputFile = open(outputName, O_WRONLY | O_CREAT)) == -1) {
+  if((outputFile = open(outputName, O_WRONLY | O_CREAT, S_IRUSR|S_IWUSR)) == -1) {
     perror("open") ;
     exit(-1) ;
   }
