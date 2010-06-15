@@ -76,33 +76,58 @@ IF( DIET_BUILD_LIBRARIES )
 
   IF( DIET_USE_ALT_BATCH )
     INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} )
-    INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} ${DIET_SOURCE_DIR}/src/utils/EucaLib )
-    ADD_DEFINITIONS( -DWITH_OPENSSL )
 
-    ########################################################################
-    # Build the Eucalyptus SOAP client library and its associated BatchSystem
-    ADD_LIBRARY( EucalyptusLib
-        EucaLib/ec2wrapper.c
-        EucaLib/soapC.c
-        EucaLib/soapClient.c
-        EucaLib/stdsoap2.c
-        EucaLib/dom.c
-        EucaLib/plugin/smdevp.c
-        EucaLib/plugin/wsseapi.c )
-    TARGET_LINK_LIBRARIES( EucalyptusLib -lssl -lcrypto )
-        ADD_DEFINITIONS( -DWITH_DOM -DWITH_OPENSSL )
-    INSTALL_TARGETS( /lib/ EucalyptusLib )
+    IF( DIET_USE_CLOUD)
+        ########################################################################
+        # Build the Eucalyptus SOAP client library and its associated BatchSystem
+        INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} ${DIET_SOURCE_DIR}/src/utils/EucaLib
+            ${GSOAP_INCLUDE_DIRS} ${GSOAP_PLUGIN_DIR} ${GSOAP_PLUGIN_DIR}/.. )
+        ADD_DEFINITIONS( -DWITH_OPENSSL )
+
+        # For now compile with the sources of gSOAP since linking with the library gives a position independend code error:
+        # "relocation R_X86_64_32 against `a local symbol' can not be used when making a shared object; recompile with -fPIC"
+        # TODO: fix the above thing
+        ADD_LIBRARY( EucalyptusLib
+            EucaLib/ec2wrapper.c
+            EucaLib/soapC.c
+            EucaLib/soapClient.c
+
+            ${GSOAP_PLUGIN_DIR}/../stdsoap2.c
+            ${GSOAP_PLUGIN_DIR}/../dom.c
+            ${GSOAP_PLUGIN_DIR}/smdevp.c
+            ${GSOAP_PLUGIN_DIR}/wsseapi.c )
         
-    ADD_LIBRARY( UtilsSeDBatch
-		 BatchCreator.cc
-		 BatchSystem.cc
-		 OAR1_6BatchSystem.cc
-		 OAR2_XBatchSystem.cc
-		 Loadleveler_BatchSystem.cc
-		 PBS_BatchSystem.cc
-		 SGE_BatchSystem.cc
-         Eucalyptus_BatchSystem.cc )
-    TARGET_LINK_LIBRARIES( UtilsSeDBatch EucalyptusLib -lpthread UtilsCommon -lssl -lcrypto )
+        TARGET_LINK_LIBRARIES( EucalyptusLib -lssl -lcrypto
+        #${GSOAP_LIBRARIES} 
+        )
+            ADD_DEFINITIONS( -DWITH_DOM -DWITH_OPENSSL )
+        INSTALL_TARGETS( /lib/ EucalyptusLib )
+            
+        # Build SeDBatch library with the Cloud component
+        INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} ${DIET_SOURCE_DIR}/src/utils/EucaLib
+            ${GSOAP_INCLUDE_DIRS} ${GSOAP_PLUGIN_DIR} ${GSOAP_PLUGIN_DIR}/.. )
+        ADD_LIBRARY( UtilsSeDBatch
+            BatchCreator.cc
+            BatchSystem.cc
+            OAR1_6BatchSystem.cc
+            OAR2_XBatchSystem.cc
+            Loadleveler_BatchSystem.cc
+            PBS_BatchSystem.cc
+            SGE_BatchSystem.cc
+            Eucalyptus_BatchSystem.cc )
+        TARGET_LINK_LIBRARIES( UtilsSeDBatch EucalyptusLib -lpthread UtilsCommon -lssl -lcrypto )
+    ELSE( DIET_USE_CLOUD )
+        # Build SeDBatch library without the Cloud component
+        ADD_LIBRARY( UtilsSeDBatch
+            BatchCreator.cc
+            BatchSystem.cc
+            OAR1_6BatchSystem.cc
+            OAR2_XBatchSystem.cc
+            Loadleveler_BatchSystem.cc
+            PBS_BatchSystem.cc
+            SGE_BatchSystem.cc )
+        TARGET_LINK_LIBRARIES( UtilsSeDBatch -lpthread UtilsCommon )
+    ENDIF( DIET_USE_CLOUD)
     INSTALL( TARGETS UtilsSeDBatch DESTINATION lib )
   ENDIF( DIET_USE_ALT_BATCH )
 

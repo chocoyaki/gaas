@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2010/06/15 18:21:52  amuresan
+ * Added separate compilation flag for Cloud features.
+ * Removed gSOAP files from the kit, referencing an installed gSOAP package in cmake.
+ * Added meta headers for cloud example files.
+ * Added Cloud-related files to the release listing.
+ *
  * Revision 1.9  2010/05/05 13:13:51  amuresan
  * First commit for the Eucalyptus BatchSystem.
  * Added SOAP client for the Amazon EC2 SOAP interface and
@@ -51,7 +57,11 @@
 #include "OAR2_XBatchSystem.hh"
 #include "Loadleveler_BatchSystem.hh"
 #include "PBS_BatchSystem.hh"
+
+#ifdef HAVE_CLOUD
 #include "Eucalyptus_BatchSystem.hh"
+#endif
+
 #include "BatchCreator.hh"
 
 #include <cstring>
@@ -66,7 +76,10 @@ const char * const BatchCreator::batchNames[NUMBER_OF_SUPPORTED_BATCH] = {
   "sge",
   "pbs",
   "oar2.x",
+
+#ifdef HAVE_CLOUD
   "eucalyptus"
+#endif
 } ;
 
 // "shellscript",
@@ -95,8 +108,12 @@ BatchCreator::getBatchSystem( const char * batchName )
     return new PBS_BatchSystem(batchID,batchNames[batchID]) ;
   case OAR2_X:
     return new OAR2_XBatchSystem(batchID,batchNames[batchID]) ;
+
+#ifdef HAVE_CLOUD
   case EUCALYPTUS:
     return new Eucalyptus_BatchSystem(batchID, batchNames[batchID]);
+#endif
+
   default:
     return NULL ;
   }

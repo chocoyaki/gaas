@@ -17,6 +17,12 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.39  2010/06/15 18:21:51  amuresan
+#* Added separate compilation flag for Cloud features.
+#* Removed gSOAP files from the kit, referencing an installed gSOAP package in cmake.
+#* Added meta headers for cloud example files.
+#* Added Cloud-related files to the release listing.
+#*
 #* Revision 1.38  2010/05/19 00:01:37  ecaron
 #* Remove var_desc.xml file from distrib (outdated file)
 #*
@@ -188,7 +194,8 @@ Cmake/README
 Cmake/Ctest/CMakeLists.txt
 Cmake/Ctest/CTestCustom.ctest.in
 Cmake/Ctest/OmniDaemon.bash.in
-
+Cmake/FindGSOAP.cmake
+Cmake/FindPackageHandleStandardArgs.cmake
 
 # Include section
 [Untemplated]
@@ -414,6 +421,15 @@ src/examples/Batch/TestAllBatch/client.c
 src/examples/Batch/TestAllBatch/concatenation.sh
 
 [Untemplated]
+src/examples/cloud/CMakeLists.txt
+src/examples/cloud/client_cloud.cfg
+src/examples/cloud/SeD_cloud.cfg
+
+[Templated]
+src/examples/cloud/server.c
+src/examples/cloud/client.c
+
+[Untemplated]
 src/examples/GridRPC/CMakeLists.txt
 [Templated]
 src/examples/GridRPC/server.c
@@ -589,6 +605,20 @@ src/utils/JobQueue.cc
 src/utils/JobQueue.hh
 src/utils/DataRelationMgr.cc
 src/utils/DataRelationMgr.hh
+
+#Utils/Cloud section
+[Templated]
+src/utils/Eucalyptus_BatchSystem.cc
+src/utils/Eucalyptus_BatchSystem.hh
+src/utils/EucaLib/AmazonEC2Binding.nsmap
+src/utils/EucaLib/ec2wrapper.h
+src/utils/EucaLib/ec2wrapper.c
+src/utils/EucaLib/euca.h
+src/utils/EucaLib/soapC.c
+src/utils/EucaLib/soapClient.c
+src/utils/EucaLib/soapClientLib.c
+src/utils/EucaLib/soapH.h
+src/utils/EucaLib/soapStub.h
 
 # Utils/nodes section
 [Untemplated]

@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.40  2010/06/15 18:21:52  amuresan
+ * Added separate compilation flag for Cloud features.
+ * Removed gSOAP files from the kit, referencing an installed gSOAP package in cmake.
+ * Added meta headers for cloud example files.
+ * Added Cloud-related files to the release listing.
+ *
  * Revision 1.39  2010/05/05 13:13:51  amuresan
  * First commit for the Eucalyptus BatchSystem.
  * Added SOAP client for the Amazon EC2 SOAP interface and
@@ -285,7 +291,7 @@ public:
       INTERNOARQUEUENAME,
 #endif
       CLIENT_MAX_NB_SED,
-#ifdef HAVE_ALT_BATCH
+#ifdef HAVE_CLOUD
       CLOUDURL,
       EMINAME,
       ERINAME,

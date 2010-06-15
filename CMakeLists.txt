@@ -49,6 +49,7 @@ OPTION( DIET_BUILD_BLAS_EXAMPLES "Build BLAS based DIET examples." OFF )
 OPTION( DIET_BUILD_EXAMPLES      "Build DIET examples." OFF )
 #OPTION( DIET_BUILD_DOCUMENTATION "Build the documentation." OFF ) ## go in the doc dir
 OPTION( DIET_USE_ALT_BATCH  "Build DIET with Batch support." OFF )
+OPTION( DIET_USE_CLOUD "Build DIET with Cloud (EC2 compatible) support." OFF )
 OPTION( DIET_USE_CORI   "Build DIET with CORI support." OFF )
 OPTION( DIET_USE_DART   "Build DIET with dart reporting support." OFF)
 OPTION( DIET_USE_DYNAMICS   "Build DIET with dynamic hierarchy modifications features." OFF)
@@ -86,6 +87,10 @@ OPTION( BUILD_SHARED_LIBS "Build libraries as shared libraries." ON )
 IF( DIET_USE_ALT_BATCH AND NOT DIET_USE_CORI )
   MESSAGE( SEND_ERROR "Because of needed batch estimations, CORI must also be selected." )
 ENDIF( DIET_USE_ALT_BATCH AND NOT DIET_USE_CORI )
+
+IF( DIET_USE_CLOUD AND NOT DIET_USE_ALT_BATCH )
+  MESSAGE( SEND_ERROR "DIET_USE_ALT_BATCH must be set for Cloud functionality, as Cloud is a subsystem of it" )
+ENDIF( DIET_USE_CLOUD AND NOT DIET_USE_ALT_BATCH )
 
 IF( DIET_BUILD_BLAS_EXAMPLES AND NOT DIET_BUILD_EXAMPLES )
   MESSAGE( SEND_ERROR "For DIET_BUILD_BLAS_EXAMPLES to be effective you MUST also set DIET_BUILD_EXAMPLES" )
@@ -274,6 +279,33 @@ ENDIF( OMNIORB4_FOUND )
 IF( DIET_USE_ALT_BATCH )
     ADD_DEFINITIONS( -DHAVE_ALT_BATCH )
 ENDIF( DIET_USE_ALT_BATCH )
+
+# --------------------------- Cloud support ------------------------
+IF( DIET_USE_CLOUD )
+    ADD_DEFINITIONS( -DHAVE_CLOUD )
+  
+    # Find the gSOAP package
+    FIND_PACKAGE( GSOAP )
+    IF( GSOAP_FOUND )
+
+      # gSOAP needs to be installed with WSSE support (this is a gSOAP plugin)
+    FIND_FILE( GSOAP_PLUGIN_DIR
+        NAMES wsseapi.h
+        PATHS ${GSOAP_INCLUDE_DIR}/plugin ${GSOAP_PLUGIN_DIR}
+    )
+    IF ( NOT GSOAP_PLUGIN_DIR )
+        MESSAGE( SEND_ERROR "Package gSOAP does not have the WSSE plugin.")
+        SET( DIET_USE_CLOUD OFF )
+    ELSE( NOT GSOAP_PLUGIN_DIR )
+        SET( GSOAP_PLUGIN_DIR "" CACHE PATH "The root of the plugins directory for gSOAP, for wsse.h")
+    ENDIF( NOT GSOAP_PLUGIN_DIR )
+
+    ELSE( GSOAP_FOUND )
+        MESSAGE( SEND_ERROR "Package gSOAP could not be found.")
+        SET( GSOAP_DIR "" CACHE PATH "Root of gSOAP install tree." )
+    ENDIF( GSOAP_FOUND )
+
+ENDIF( DIET_USE_CLOUD )
 
 # --------------------------- CORI support ------------------------
 # CORI (COllector of Resource Information) is heavily dependant on
