@@ -1,0 +1,157 @@
+%****************************************************************************%
+%* diet Programmer's guide, Cloud submission                                *%
+%*                                                                          *%
+%*  Author(s):                                                              *%
+%*    - Adrian Muresan (adrian.muresan@ens-lyon.fr)                         *%
+%*                                                                          *%
+%* $LICENSE$                                                                *%
+%****************************************************************************%
+%* $Id$
+%* $Log$
+%* Revision 1.1  2010/07/07 15:10:52  amuresan
+%* Added Cloud entry for the UsersGuide and ProgrammersGuide.
+%*
+%****************************************************************************%
+
+\chapter{Cloud submissions}\label{chapter:cloudSubmission}
+\section{Introduction}
+
+The user must understand the relationship between \diet Cloud and the Cloud system it is using.
+A Cloud system is seen as a provider of on-demand resources and as such, the \diet Cloud SeD
+is the front-end to the Cloud system from the \diet user's point of view.
+
+The \diet platform remains completely outside of the Cloud system and virtual resources are
+instantiated based on how they are needed. These virtual resources contain the task that solves
+the service required by the \diet client. It is the responsibility of the \diet service
+creator to provide Virtual Machine images that contain the service implementation. 
+
+The \diet Cloud system is part of the \diet Barch system and it is recommended that the user
+reads the corresponding chapter before the current.
+
+\section{Compatibility and requirements}
+
+The current version of \diet Cloud has been built on top of the Amazon EC2 SOAP interface,
+version 2009-08-15 and is compatible with any cloud system that offers a front-end with
+this interface.
+
+We have used our own installation of \textsc{Eucalyptus}\footnote{\url{http://open.eucalyptus.com/}}
+for testing and development. The installation process of the cloud system will not be
+detailed as it is outside the scope of the current topic. For details on the installation and usage
+of the cloud system please refer to your Cloud provider's documentation. The rest of this chapter
+assumes the existing installation and correct functioning of a Cloud system that the user can
+access.
+
+To be able to reserv virtual resources on an Amazon EC2 compatible cloud system, the Cloud user
+mush have knowledge of the following resources:
+\begin{itemize}
+\item \verb!The URL of the Cloud system!
+\item \verb!Virtual machine images' names!: the user should know what virtual resources she wants
+to instantiate. To be more precise, the user must know the names associated to the virtual machine
+images, machine kernel images and machine ramdisk images that she wants to use.
+\item \verb!Virtual machine instance type!: if the user requires a specific type of virtual machine
+that is specialized with larger quantities of virtual CPUs, memory space or disk space offered.
+An Amazon EC2 compatible Cloud system offers 5 different types of virtual machines that vary these
+three quantities. The exact values are not standard. Eucalyptus provides the possibility of
+per-installation configuration of these types.
+\item \verb!The number of virtual resources to instantiate!
+\item \verb!The X509 certificate that is associated to the Cloud installation!: this is provided by
+the Cloud system after its installation and the user's registration in the system.
+\item \verb!The user's key!: after registering in the Cloud system, each user receives a key
+that is used for signing all the requests that she makes to the Cloud system.
+\item \verb!A keypair to use for the reservation!: the user must create a keypair that is to be used
+when performing reservations.
+\end{itemize}
+
+
+\section{Configuration for compilation}
+
+In order to enable the compilation and installation of the \diet Cloud system, its corresponding make flag
+must be enabled when configuring. This flag is named \verb!DIET_USE_CLOUD!. This is a part of
+the alternate batch system so it also needs to be installed (the \verb!DIET_USE_ALT_BATCH! flag). The \diet
+batch system is dependent on CORI so it also needs to be installed (the \verb!DIET_USE_CORI! flag).
+
+The installation of the Cloud system is dependent on an installation of gSOAP\footnote{\url{http://www.cs.fsu.edu/~engelen/soap.html}}
+that contains the WSSE plugin.
+This is the Web Service Security plugin. It is the responsibility of the \diet user to ensure a propper
+installation of gSOAP and its WSSE plugin. The will try to automatically detect an installation of gSOAP
+with its components. If this fails, then the \diet user will have to manually specify the installation
+path of the gSOAP package and its WSSE plugin.
+
+Examples of the use of the \diet Cloud system will also be compiled if the \verb!DIET_BUILD_EXAMPLES! flag
+is triggered.
+
+For more information on compiling and installing \diet please see the section dedicated specifically to that purpose.
+
+
+\section{Server configuration file}
+
+Eucalyptus and Amazon EC2 supports 5 different types of Virtual Machines to instantiate. These differe
+from one-another by CPU, memory and disk characteristics. Eucalyptus allows the modification of these
+characteristics. The 5 VM types and their associated default characteristics inside \textbf{Eucalyptus} are:
+\begin{enumerate}
+\item{m1.small}: 1 VCPU, 128 MB RAM, 2 GB Disk
+\item{c1.medium}: 1 VCPU, 256 MB RAM, 5 GB Disk 
+\item{m1.large}: 2 VCPU, 512 MB RAM, 10 GB Disk 
+\item{m1.xlarge}: 2 VCPU, 1024 MB RAM, 20 GB Disk 
+\item{c1.xlarge}: 4 VCPU, 2048 MB RAM, 20 GB Disk 
+\end{enumerate}
+
+Configuring the server part is done by using the following options:
+\begin{itemize}
+\item \textsc{batchName}: the name of the batch system to be used. This is recognized internally by the
+\diet Batch System and should always have the value \textbf{eucalyptus}.
+\item \textsc{pathToNFS}: path to a temporary directory
+\item \textsc{cloudURL}: the URL of the Cloud System's management service
+\item \textsc{emiName}: the name of the Virtual Machine Image containing the service
+\item \textsc{eriName}: the name of the Ramdisk image to be used when instantiating the service
+\item \textsc{ekiName}: the name of the Kernel image to be used when instantiating the service
+\item \textsc{vmType}: the type of the Virtual Machine to be instantiated
+\item \textsc{keyName}: the name of the keypair created for use in the Cloud System
+\item \textsc{vmMinCount}: minimum number of VM instances that is acceptable for the current service call to succede
+\item \textsc{vmMaxCount}: maximum number of VM instances for the current service call
+\item \textsc{pathToCert}: path to the X.509 certificate given by the Cloud System
+\item \textsc{pathToPK}: path to the private key that the current Cloud user has associated to the Cloud System
+\end{itemize}
+
+An example of a valid configuration is the following:
+\begin{lstlisting}[language=bash,basewidth={.5em,.4em},fontadjust]
+batchName = eucalyptus
+pathToNFS = /tmp
+cloudURL = http://140.77.13.186:8773/services/Eucalyptus
+emiName = emi-82011336
+eriName = eri-0ADF1561
+ekiName = eki-CBC01482 
+vmType = m1.small
+keyName = mykey
+vmMinCount = 1
+vmMaxCount = 1
+pathToCert = /home/adi/.euca/euca2-admin-0b298100-cert.pem
+pathToPK = /home/adi/.euca/euca2-admin-0b298100-pk.pem
+\end{lstlisting}
+
+\section{Registering the service}
+
+\diet's Cloud module behaves like any other Batch System. A \sed programed this way
+is actually a service residing at the front-end of a Cloud. It will be able to access
+directly all the Virtual Machines that the Cloud has instantiated.
+Defining and registering the Cloud-enabled \diet service is done in the same way as
+defining a batch service. \diet's Batch System module will internally invoke the
+\textbf{Eucalyptus} Batch System which will instantiate the Virtual Resources
+corresponding to the current service.
+
+\section{Service API}
+
+Programming the \sed Cloud is done in the same way as programming normal Batch System.
+The programmer builds a shell script that will execute his job. To facilitate access
+to the instantiated Virtual Machines, the \verb!DIET_CLOUD_VMS! meta-variable can
+be used inside the shell script. This will automatically be replaced upon submission
+with a list of the IP addresses of all the instantiated virtual resources.
+
+\section{Example of client/server}
+
+The \diet sources also contain working examples for the \sed Cloud. These can be
+found in: \verb!<diet_src>/src/examples/cloud!. The examples are built automatically
+if the \verb!DIET_BUILD_EXAMPLES! and \verb!DIET_HAVE_CLOUD! make flags are selected.
+Note that the user {\it must change} the service configuration file to match his
+own Cloud installation.
+

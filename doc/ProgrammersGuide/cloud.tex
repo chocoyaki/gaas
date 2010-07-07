@@ -1,0 +1,82 @@
+%****************************************************************************%
+%* diet Programmer's guide, Cloud submission                                *%
+%*                                                                          *%
+%*  Author(s):                                                              *%
+%*    - Adrian Muresan (adrian.muresan@ens-lyon.fr)                         *%
+%*                                                                          *%
+%* $LICENSE$                                                                *%
+%****************************************************************************%
+%* $Id$
+%* $Log$
+%* Revision 1.1  2010/07/07 15:10:51  amuresan
+%* Added Cloud entry for the UsersGuide and ProgrammersGuide.
+%*
+%****************************************************************************%
+
+The current chapter details the conceptual and implementation details of \diet's Cloud
+component. It contains details about the design of the component, the cloud interface
+that was used and the API exposed to the \diet programmer.
+
+\section{Objectives}
+
+The goal of the Cloud component is to allow \diet services to use an Amazon EC2 compatible
+Cloud platform for on-demand resource provisioning.
+
+\section{Implementation}
+
+Given the goals, the easiest way to use a Cloud platform in \diet is to consider it
+a new type of batch system. \diet is easy to extend in this field and all that is needed
+is an interface to the Cloud provider and a new implementation for the \textbf{BatchSystem}
+abstract class.
+
+\subsection{Eucalyptus SOAP interface}
+
+\textsc{Eucalyptus} has been used as the cloud provider during the development process. It has
+been chosen because of its open-source nature and its compatibility with the Amazon EC2 interface.
+Managing Virtual Machines in \textsc{Eucalyptus}\footnote{\url{http://open.eucalyptus.com/}}
+is done via its web service interface. During
+the development, the implemented version of the EC2 interface is 2009-08-15. This corresponds to
+version 1.6 of \textsc{Eucalyptus}.
+
+In order to generate a C stub for the web service interface, the gSOAP\footnote{\url{http://www.cs.fsu.edu/~engelen/soap.html}}
+package has been used. This automatically generates the interface. The resulting files
+are placed in the \verb!<diet_src>/src/util/EucaLib! directory. Please note that the WSSE
+plugin for gSOAP should also be installed. This enables Web service security.
+
+Generating the SOAP stub is done in two steps:
+\begin{enumerate}
+\item{Generate the intermediary header file} - this is necessary for gSOAP:
+
+\verb!wsdl2h -Nec2 -c -o euca.h -t WS-typemap.dat ec2.2008-12-01.wsdl!
+
+In the above command, \textbf{ec2.2008-12-01.wsdl} is a WSDL file describing the web service
+interface of the Cloud platform and S-typemap.dat contains type definitions that wsdl2h uses
+to parse the wsdl and are required to enable ws-security. The \textbf{-Nec2} option creates
+a friendly name (\textbf{ec2}) for the generated structures and functions.
+
+\textbf{Note:} it is necessary to make sure that the generated .h file contains an '#import "wsse.h"'
+directive somewhere at the beginning of its content. The generated .h files from ec2 wsdl files do not
+contain this directive by default and this causes errors later on. If the generated .h does not contain
+the directive, then it should be manually added: \verb!#import "wsse.h"!. One must pay attention as this
+statement is an \textbf{import} which is internally used by gSOAP in the second phase and not a C/C++
+\textbf{include} statement.
+\item{Generate the stub} with a pure C output and client-side only (the server side stub is not needed):
+
+\verb!soapcpp2 -I import -c -C euca.h!
+
+In the above statement, \textbf{-I import} must specify the directory that contains the Web Service Security plugin, \textbf{wsse.h}, which
+is used internally by gSOAP.
+\end{enumerate}
+
+\textbf{Note:} when including the generated files in a compilation, linking should also be done agains
+\textbf{libssl} and \textbf{libcrypto}.
+
+\subsection{Eucalyptus Batch System}
+
+
+
+\section{Installation}
+
+Please refer to the users manual.
+
+
