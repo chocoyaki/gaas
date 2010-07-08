@@ -19,6 +19,7 @@ ADD_LATEX_DOCUMENT(UsersManual.tex
 			  client.tex
 			  server.tex 
 			  batch.tex
+              cloud.tex
 			  plugin.tex
 			  prediction.tex
 			  deploy.tex

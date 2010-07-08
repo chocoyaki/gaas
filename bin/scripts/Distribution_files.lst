@@ -17,6 +17,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.40  2010/07/08 14:28:09  amuresan
+#* Added cloud.tex in cmakelists for user and programmer guids; added cloud.tex to distro file list.
+#*
 #* Revision 1.39  2010/06/15 18:21:51  amuresan
 #* Added separate compilation flag for Cloud features.
 #* Removed gSOAP files from the kit, referencing an installed gSOAP package in cmake.
@@ -755,6 +758,7 @@ doc/UsersManual/prediction.tex
 doc/UsersManual/server.tex
 doc/UsersManual/xml_example.tex
 doc/UsersManual/workflow.tex
+doc/UsersManual/cloud.tex
 
 [Untemplated]
 doc/UsersManual/UsersManual.pdf
@@ -786,6 +790,7 @@ doc/ProgrammersGuide/Annexe1.tex
 doc/ProgrammersGuide/CS.tex
 doc/ProgrammersGuide/ProgrammersGuide.tex
 doc/ProgrammersGuide/batch.tex
+doc/ProgrammersGuide/cloud.tex
 doc/ProgrammersGuide/source_tree.tex
 doc/ProgrammersGuide/start.tex
 bin/scripts/make_dist.pl

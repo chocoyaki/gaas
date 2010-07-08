@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.3  2010/07/08 14:28:11  amuresan
+%* Added cloud.tex in cmakelists for user and programmer guids; added cloud.tex to distro file list.
+%*
 %* Revision 1.2  2010/07/08 11:44:12  amuresan
 %* Completed entry in the ProgrammersGuide for the cloud component
 %*
@@ -57,7 +60,7 @@ interface of the Cloud platform and S-typemap.dat contains type definitions that
 to parse the wsdl and are required to enable ws-security. The \textbf{-Nec2} option creates
 a friendly name (\textbf{ec2}) for the generated structures and functions.
 
-\textbf{Note:} it is necessary to make sure that the generated .h file contains an '#import "wsse.h"'
+\textbf{Note:} it is necessary to make sure that the generated .h file contains an '\#import "wsse.h"'
 directive somewhere at the beginning of its content. The generated .h files from ec2 wsdl files do not
 contain this directive by default and this causes errors later on. If the generated .h does not contain
 the directive, then it should be manually added: \verb!#import "wsse.h"!. One must pay attention as this
@@ -100,13 +103,13 @@ Running a service call is done in 3 steps:
 interface. Note that the VMs are not obtained instantly. Booting a VM takes time. The method returns
 instantly and polling is performed until all the VMs have been booted and have an associated IP address.
 To prevent infinite waiting, a maximum number of tries is performed.
-\item \textbf{Running the service} script on the \sed machine. It has access to the instantiated VMs
+\item \textbf{Running the service} script on the SeD machine. It has access to the instantiated VMs
 inside the script via their IP addresses by using the \verb!DIET_CLOUD_VMS! meta-variable.
 \item \textbf{Terminating the VMs} by running another SOAP request to the Cloud front-end coresponding
 to the method responsible for termination.
 \end{enumerate}
 
-The configuration for a \sed Cloud is done normally through the configuration file. Details about
+The configuration for a SeD Cloud is done normally through the configuration file. Details about
 the configuration file and the valid options can be found in the user's manual.
 
 \section{Installation}

@@ -11,6 +11,7 @@ ADD_LATEX_DOCUMENT(ProgrammersGuide.tex
 			  source_tree.tex
 			  CS.tex
 			  batch.tex
+              cloud.tex
 			  debug.tex
 			  package.tex
 			  Annexe1.tex
