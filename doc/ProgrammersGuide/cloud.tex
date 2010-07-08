@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.2  2010/07/08 11:44:12  amuresan
+%* Completed entry in the ProgrammersGuide for the cloud component
+%*
 %* Revision 1.1  2010/07/07 15:10:51  amuresan
 %* Added Cloud entry for the UsersGuide and ProgrammersGuide.
 %*
@@ -65,18 +68,49 @@ statement is an \textbf{import} which is internally used by gSOAP in the second 
 \verb!soapcpp2 -I import -c -C euca.h!
 
 In the above statement, \textbf{-I import} must specify the directory that contains the Web Service Security plugin, \textbf{wsse.h}, which
-is used internally by gSOAP.
+is used internally by gSOAP. The resulting source file will contain structure definitions for the types
+used by the SOAP interface and methods used for calling the desired web method.
 \end{enumerate}
 
 \textbf{Note:} when including the generated files in a compilation, linking should also be done agains
 \textbf{libssl} and \textbf{libcrypto}.
 
+Calling a method from the SOAP interface is done by going through the following steps:
+\begin{enumerate}
+\item Generating the SOAP message with the three security headers required by the EC2 interface
+\footnote{\url{http://docs.amazonwebservices.com/AWSEC2/latest/DeveloperGuide/index.html?using-soap-api.html}}:
+\begin{enumerate}
+\item \textbf{Binary security token} contains the X.509 certificate encoded in base64
+\item \textbf{Signature} contains an XML digital signature using a signature algorithm and digest method
+\item \textbf{Timestamp} requests to Amazon EC2 are only valid for 5 minutes to prevent replay attacks
+\end{enumerate}
+\item Instantiating and filling in the structures corresponding to the request and reply of the methods that is to be invoked.
+\item Performing the method invokation by calling its corresponding generated C method from the stub.
+\item Using the information from the response structure passed to the invoked method.
+\end{enumerate}
+
 \subsection{Eucalyptus Batch System}
 
+The Cloud component has been implemented as a \textbf{BatchSystem}. This has been done by subclassing
+\textbf{BatchSystem} and implementing its virtual methods.
 
+Running a service call is done in 3 steps:
+\begin{enumerate}
+\item \textbf{Obtaining the Virtual Machines} through a SOAP call to the corresponding method of the EC2
+interface. Note that the VMs are not obtained instantly. Booting a VM takes time. The method returns
+instantly and polling is performed until all the VMs have been booted and have an associated IP address.
+To prevent infinite waiting, a maximum number of tries is performed.
+\item \textbf{Running the service} script on the \sed machine. It has access to the instantiated VMs
+inside the script via their IP addresses by using the \verb!DIET_CLOUD_VMS! meta-variable.
+\item \textbf{Terminating the VMs} by running another SOAP request to the Cloud front-end coresponding
+to the method responsible for termination.
+\end{enumerate}
+
+The configuration for a \sed Cloud is done normally through the configuration file. Details about
+the configuration file and the valid options can be found in the user's manual.
 
 \section{Installation}
 
-Please refer to the users manual.
+Please refer to the user's manual.
 
 
