@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2010/07/09 16:01:46  amuresan
+ * Cleared out the installation process of the Cloud component with gSOAP.
+ * A part of gSOAP needs to be re-compiled for the WSSE plugin.
+ *
  * Revision 1.2  2010/06/15 18:21:52  amuresan
  * Added separate compilation flag for Cloud features.
  * Removed gSOAP files from the kit, referencing an installed gSOAP package in cmake.
@@ -25,9 +29,9 @@
 
 #include "soapH.h"
 #include "AmazonEC2Binding.nsmap"
-#include <wsseapi.h>
-#include <smdevp.h>
-#include <stdsoap2.h>
+#include "plugin/wsseapi.h"
+#include "plugin/smdevp.h"
+#include "stdsoap2.h"
 
 //#include "ec2wrapper.h"
 

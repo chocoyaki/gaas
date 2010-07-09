@@ -81,31 +81,37 @@ IF( DIET_BUILD_LIBRARIES )
         ########################################################################
         # Build the Eucalyptus SOAP client library and its associated BatchSystem
         INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} ${DIET_SOURCE_DIR}/src/utils/EucaLib
-            ${GSOAP_INCLUDE_DIRS} ${GSOAP_PLUGIN_DIR} ${GSOAP_PLUGIN_DIR}/.. )
-        ADD_DEFINITIONS( -DWITH_OPENSSL )
+            ${GSOAP_SRC_DIR}
+            )
+        ADD_DEFINITIONS( -DWITH_DOM -DWITH_OPENSSL )
 
-        # For now compile with the sources of gSOAP since linking with the library gives a position independend code error:
-        # "relocation R_X86_64_32 against `a local symbol' can not be used when making a shared object; recompile with -fPIC"
-        # TODO: fix the above thing
+        # Yes, part of gSOAP needs to be recompiled in order to use the WSSE plugin.
+        # This is the way it was built to work. There is no automatic build for
+        # the WSSE plugin and therefore this is the only way.
+        #
+        # This is also what the gSOAP community advises in their doc inside the package:
+        # doc/wsse/html/wsse.html
+        # Save yourself some time and just read this next time.
         ADD_LIBRARY( EucalyptusLib
             EucaLib/ec2wrapper.c
             EucaLib/soapC.c
             EucaLib/soapClient.c
 
-            ${GSOAP_PLUGIN_DIR}/../stdsoap2.c
-            ${GSOAP_PLUGIN_DIR}/../dom.c
-            ${GSOAP_PLUGIN_DIR}/smdevp.c
-            ${GSOAP_PLUGIN_DIR}/wsseapi.c )
+            ${GSOAP_SRC_DIR}/stdsoap2.c
+            ${GSOAP_SRC_DIR}/dom.c
+            ${GSOAP_SRC_DIR}/plugin/smdevp.c
+            ${GSOAP_SRC_DIR}/plugin/wsseapi.c
+            )
         
         TARGET_LINK_LIBRARIES( EucalyptusLib -lssl -lcrypto
-        #${GSOAP_LIBRARIES} 
         )
             ADD_DEFINITIONS( -DWITH_DOM -DWITH_OPENSSL )
         INSTALL_TARGETS( /lib/ EucalyptusLib )
             
         # Build SeDBatch library with the Cloud component
         INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} ${DIET_SOURCE_DIR}/src/utils/EucaLib
-            ${GSOAP_INCLUDE_DIRS} ${GSOAP_PLUGIN_DIR} ${GSOAP_PLUGIN_DIR}/.. )
+            ${GSOAP_SRC_DIR}
+            )
         ADD_LIBRARY( UtilsSeDBatch
             BatchCreator.cc
             BatchSystem.cc

@@ -283,28 +283,7 @@ ENDIF( DIET_USE_ALT_BATCH )
 # --------------------------- Cloud support ------------------------
 IF( DIET_USE_CLOUD )
     ADD_DEFINITIONS( -DHAVE_CLOUD )
-  
-    # Find the gSOAP package
-    FIND_PACKAGE( GSOAP )
-    IF( GSOAP_FOUND )
-
-      # gSOAP needs to be installed with WSSE support (this is a gSOAP plugin)
-    FIND_FILE( GSOAP_PLUGIN_DIR
-        NAMES wsseapi.h
-        PATHS ${GSOAP_INCLUDE_DIR}/plugin ${GSOAP_PLUGIN_DIR}
-    )
-    IF ( NOT GSOAP_PLUGIN_DIR )
-        MESSAGE( SEND_ERROR "Package gSOAP does not have the WSSE plugin.")
-        SET( DIET_USE_CLOUD OFF )
-    ELSE( NOT GSOAP_PLUGIN_DIR )
-        SET( GSOAP_PLUGIN_DIR "" CACHE PATH "The root of the plugins directory for gSOAP, for wsse.h")
-    ENDIF( NOT GSOAP_PLUGIN_DIR )
-
-    ELSE( GSOAP_FOUND )
-        MESSAGE( SEND_ERROR "Package gSOAP could not be found.")
-        SET( GSOAP_DIR "" CACHE PATH "Root of gSOAP install tree." )
-    ENDIF( GSOAP_FOUND )
-
+    SET( GSOAP_SRC_DIR "~" CACHE PATH "Root of gSOAP source tree." )
 ENDIF( DIET_USE_CLOUD )
 
 # --------------------------- CORI support ------------------------
