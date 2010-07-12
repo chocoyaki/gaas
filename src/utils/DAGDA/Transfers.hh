@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2010/07/12 17:23:07  glemahec
+ * DIET 2.5 beta 1 - The missing commit
+ *
  * Revision 1.2  2010/04/20 12:30:33  glemahec
  * Ajout des fichiers Transfers.?? dans Distribution_files.lst et des en-tetes dans lesdits fichiers
  *
@@ -32,8 +35,8 @@ private:
   std::map<std::string, struct transfer_t> progress;
   void incProgress(const std::string& id);
   
-  friend char* DagdaImpl::sendFile(const corba_data_t&, Dagda_ptr dest);
-  friend char* DagdaImpl::sendData(const char*, Dagda_ptr dest);
+  friend char* DagdaImpl::sendFile(const corba_data_t&, const char* destName);
+  friend char* DagdaImpl::sendData(const char*, const char* destName);
   Transfers(unsigned long long msgSize);
 public:
   static Transfers* getInstance();
