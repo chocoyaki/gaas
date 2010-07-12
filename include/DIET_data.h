@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.71  2010/07/12 16:17:51  glemahec
+ * DIET 2.5 beta 1 - Introduce DIET forwarders
+ *
  * Revision 1.70  2009/11/27 03:24:29  ycaniou
  * Add user_command possibility before the end of Batch prologue (only
  * to be used for batch dependent code!)
@@ -384,7 +387,7 @@ typedef struct {
    Since a profile will not be freed until profile_free is called, it is
    possible to refer to each parameter for data handles (cf. below)         */
 diet_profile_t*
-diet_profile_alloc(char* pb_name, int last_in, int last_inout, int last_out);
+diet_profile_alloc(const char* pb_name, int last_in, int last_inout, int last_out);
 int
 diet_profile_free(diet_profile_t* profile);
 
@@ -450,14 +453,14 @@ diet_paramstring_set(diet_arg_t* arg,
 /* Computes the file size
    ! Warning ! The path is not duplicated !!! */
 int
-diet_file_set(diet_arg_t* arg, diet_persistence_mode_t mode, char* path);
+diet_file_set(diet_arg_t* arg, diet_persistence_mode_t mode, const char* path);
 
 int
 diet_container_set(diet_arg_t* arg, diet_persistence_mode_t mode);
 
   /** sets only identifier : data is present inside the platform */
 void
-diet_use_data(diet_arg_t* arg, char* id);
+diet_use_data(diet_arg_t* arg, const char* id);
 
 /****************************************************************************/
 /* Utils for getting argument descriptions and values                       */

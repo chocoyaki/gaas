@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.50  2010/07/12 16:17:51  glemahec
+ * DIET 2.5 beta 1 - Introduce DIET forwarders
+ *
  * Revision 1.49  2010/03/05 02:38:03  ycaniou
  * Integration of SGE (still not complete) + fixes
  *
@@ -516,7 +519,7 @@ void diet_print_service_table();
    Advanced omniORB users can set these arguments that are transmitted to
    the ORB initialization. */
 int
-diet_SeD(char* config_file_name, int argc, char* argv[]);
+diet_SeD(const char* config_file_name, int argc, char* argv[]);
 
 /****************************************************************************/
 /* DIET batch submit call                                                   */

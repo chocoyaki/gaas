@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.40  2010/07/12 16:17:51  glemahec
+ * DIET 2.5 beta 1 - Introduce DIET forwarders
+ *
  * Revision 1.39  2009/09/25 12:34:01  bisnard
  * added dag cancellation API function
  *
@@ -152,7 +155,7 @@ extern "C" {
 /****************************************************************************/
 
 diet_error_t
-diet_initialize(char* config_file_name, int argc, char* argv[]);
+diet_initialize(const char* config_file_name, int argc, char* argv[]);
 diet_error_t
 diet_finalize();
 

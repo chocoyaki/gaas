@@ -66,10 +66,10 @@ IF( CMAKE_COMPILER_IS_GNUCC AND CMAKE_COMPILER_IS_GNUCXX )
   # Proceed with the definitions:
   IF( GNUCXX_MAJOR_VERSION_BIGER_THAN_FOUR )
     SET( CMAKE_CXX_FLAGS_MAINTAINER
-       "-Wall -Wabi -Woverloaded-virtual -Wstrict-null-sentinel"
+       "-Wall -Wno-abi -Woverloaded-virtual -Wstrict-null-sentinel"
      )
   ELSE( GNUCXX_MAJOR_VERSION_BIGER_THAN_FOUR )
-    SET( CMAKE_CXX_FLAGS_MAINTAINER "-Wall -Wabi -Woverloaded-virtual" )
+    SET( CMAKE_CXX_FLAGS_MAINTAINER "-Wall -Wno-abi -Woverloaded-virtual" )
   ENDIF( GNUCXX_MAJOR_VERSION_BIGER_THAN_FOUR )
 
   SET( CMAKE_CXX_FLAGS_MAINTAINER

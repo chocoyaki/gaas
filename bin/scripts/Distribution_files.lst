@@ -17,6 +17,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.41  2010/07/12 16:17:51  glemahec
+#* DIET 2.5 beta 1 - Introduce DIET forwarders
+#*
 #* Revision 1.40  2010/07/08 14:28:09  amuresan
 #* Added cloud.tex in cmakelists for user and programmer guids; added cloud.tex to distro file list.
 #*
@@ -241,6 +244,30 @@ src/CORBA/idl/response.idl
 src/CORBA/idl/CltMan.idl
 src/CORBA/idl/WfLogService.idl
 
+src/CORBA/DIETForwarder.cc
+src/CORBA/DIETForwarder.hh
+src/CORBA/NetConfig.cc
+src/CORBA/NetConfig.hh
+src/CORBA/Options.cc
+src/CORBA/Options.hh
+src/CORBA/SSHTunnel.cc
+src/CORBA/SSHTunnel.hh
+src/CORBA/dietFwdr.cc
+src/CORBA/dietFwdr.hh
+src/CORBA/idl/AgentFwdr.idl
+src/CORBA/idl/CallbackFwdr.idl
+src/CORBA/idl/CltManFwdr.idl
+src/CORBA/idl/DagdaFwdr.idl
+src/CORBA/idl/DataMgrFwdr.idl
+src/CORBA/idl/Forwarder.idl
+src/CORBA/idl/LocMgrFwdr.idl
+src/CORBA/idl/LocalAgentFwdr.idl
+src/CORBA/idl/LogComponentFwdr.idl
+src/CORBA/idl/MaDagFwdr.idl
+src/CORBA/idl/MasterAgentFwdr.idl
+src/CORBA/idl/SeDFwdr.idl
+src/CORBA/idl/WfLogServiceFwdr.idl
+
 # SeD section
 [Untemplated]
 src/SeD/CMakeLists.txt
@@ -373,6 +400,8 @@ src/utils/workflow/WfPort.cc
 src/utils/workflow/WfPort.hh
 src/utils/workflow/WfUtils.cc
 src/utils/workflow/WfUtils.hh
+src/utils/workflow/WfLogServiceImpl.cc
+src/utils/workflow/WfLogServiceImpl.hh
 
 # client workflow section
 [Untemplated]
