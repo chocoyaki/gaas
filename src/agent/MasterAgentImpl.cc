@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.60  2010/07/12 20:14:32  glemahec
+ * DIET 2.5 beta 1 - Forwarders with Multi-MAs bug correction
+ *
  * Revision 1.59  2010/07/12 16:14:11  glemahec
  * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
  *
@@ -682,7 +685,7 @@ MasterAgentImpl::updateRefs()
       } else {
 				TRACE_TEXT(TRACE_ALL_STEPS, "found" << endl) ;
 				try {
-					bool result = ma->handShake(_this(), bindName) ;
+					bool result = ma->handShake(myName, bindName) ;
 					if (result) {
 						TRACE_TEXT(TRACE_ALL_STEPS, "connection accepted" << endl) ;
 						knownMAs[*iter] = MADescription(ma, ma->getHostname()) ;
@@ -716,15 +719,16 @@ MasterAgentImpl::updateRefs()
 /****************************************************************************/
 
 CORBA::Boolean
-MasterAgentImpl::handShake(MasterAgent_ptr me, const char* myName)
+MasterAgentImpl::handShake(const char* maName, const char* myName)
 {
   TRACE_TEXT(TRACE_ALL_STEPS, myName << " is shaking my hand (" << knownMAs.size() << "/" << maxMAlinks << ")" << endl) ;
-	
+	MasterAgent_ptr me = ORBMgr::getMgr()->resolve<MasterAgent, MasterAgent_ptr>(AGENTCTXT,
+																																							 maName);
 	
   /* FIXME: There is probably a cleaner way to find if to IOR are equal */
-  char* myior = ORBMgr::getIORString(_this());
-  char* hisior = ORBMgr::getIORString(me);
-  if (!strcmp(myior, hisior)) {
+  string myior = ORBMgr::getMgr()->getIOR(_this());
+  string hisior = ORBMgr::getMgr()->getIOR(me);
+  if (myior==hisior) {
     TRACE_TEXT(TRACE_ALL_STEPS, "I refuse to handshake with myself" << endl) ;
     /* we need to return now, because the knownMA locker is already
 		 taken by the updateRefs function which call the handshake
@@ -754,12 +758,13 @@ MasterAgentImpl::handShake(MasterAgent_ptr me, const char* myName)
 /*                           Flooding Algorithm                             */
 /****************************************************************************/
 
-void MasterAgentImpl::searchService(MasterAgent_ptr predecessor,
+void MasterAgentImpl::searchService(const char* predecessorStr,
 																		const char* predecessorId,
 																		const corba_request_t& request) {
 	
   char statMsg[128];
-	
+	MasterAgent_ptr predecessor =
+		ORBMgr::getMgr()->resolve<MasterAgent, MasterAgent_ptr>(AGENTCTXT, predecessorStr);
   //printTime() ;
   //fprintf(stderr, ">>>>>searchService from %s, %d, %s\n", predecessorId,  (int)request.reqID, (const char*)myName) ;
   TRACE_TEXT(TRACE_ALL_STEPS, predecessorId << " search "
@@ -1141,9 +1146,9 @@ char* MasterAgentFwdrImpl::getBindName() {
 	return forwarder->getBindName(objName);
 }
 
-void MasterAgentFwdrImpl::updateRefs() {
+/*void MasterAgentFwdrImpl::updateRefs() {
 	forwarder->updateRefs(objName);
-}
+}*/
 
 void MasterAgentFwdrImpl::searchService(const char* predecessor,
 																				const char* predecessorId,

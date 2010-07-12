@@ -32,7 +32,7 @@ IF( DIET_BUILD_LIBRARIES )
   ### AgentCommon library:
   SET(AgentCommon_SOURCES
       AgentImpl.cc
-#      BindService.cc
+      BindService.cc
       ExitClass.cc
       FloodRequest.cc
       FloodRequestsList.cc

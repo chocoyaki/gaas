@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.22  2010/07/12 20:14:32  glemahec
+ * DIET 2.5 beta 1 - Forwarders with Multi-MAs bug correction
+ *
  * Revision 1.21  2010/07/12 16:14:11  glemahec
  * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
  *
@@ -303,7 +306,7 @@ public:
 #ifdef HAVE_MULTI_MA
 	virtual CORBA::Boolean handShake(const char* name, const char* myName);
   virtual char* getBindName() ;
-  void updateRefs();
+  //void updateRefs();
   virtual void searchService(const char* predecessor,
 														 const char* predecessorId,
 														 const corba_request_t& request);

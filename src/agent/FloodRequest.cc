@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2010/07/12 20:14:32  glemahec
+ * DIET 2.5 beta 1 - Forwarders with Multi-MAs bug correction
+ *
  * Revision 1.7  2010/03/31 21:15:39  bdepardo
  * Changed C headers into C++ headers
  *
@@ -156,12 +159,12 @@ bool FloodRequest::floodNextStep() {
     case NeighbouringMA::nmaStateNotContacted :
       // first contact with the MA
       try {
-	MA->searchService(owner.getIor(),ownerId, request) ;
-	iter->second.state = NeighbouringMA::nmaStateFlooding ;
-	completelyFlooded = false ;
-	nbOfWaitingResponse++ ;
+				MA->searchService(ownerId, ownerId, request) ;
+				iter->second.state = NeighbouringMA::nmaStateFlooding ;
+				completelyFlooded = false ;
+				nbOfWaitingResponse++ ;
       } catch(CORBA::SystemException& ex) {
-	iter->second.state = NeighbouringMA::nmaStateFlooded ;
+				iter->second.state = NeighbouringMA::nmaStateFlooded ;
       }
       break ;
     case NeighbouringMA::nmaStateFlooding :

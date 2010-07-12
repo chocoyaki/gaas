@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2010/07/12 20:14:32  glemahec
+ * DIET 2.5 beta 1 - Forwarders with Multi-MAs bug correction
+ *
  * Revision 1.6  2010/05/07 08:08:55  bdepardo
  * Remove a warning
  *
@@ -91,7 +94,7 @@ void BindService::run(void* ptr) {
 BindService::~BindService() {}
 
 BindService::BindService(MasterAgentImpl* ma, unsigned int port) {
-  ior = ORBMgr::getIORString(ma->_this()) ;
+  ior = CORBA::string_dup(ORBMgr::getMgr()->getIOR(ma->_this()).c_str());
 
   struct sockaddr_in serverAddr;
   listenSocket = socket(AF_INET, SOCK_STREAM, 0);
@@ -162,7 +165,7 @@ MasterAgent_ptr BindService::lookup(const char* addr) {
     return MasterAgent::_nil();
   }
   close(sockfd) ;
-  CORBA::Object_var obj = ORBMgr::stringToObject(buffer) ;
+  CORBA::Object_var obj = ORBMgr::getMgr()->resolveObject(buffer) ;
   if (CORBA::is_nil(obj)) {
     TRACE_TEXT(TRACE_ALL_STEPS, "is nil: " << buffer << endl);
     return MasterAgent::_nil();
