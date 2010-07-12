@@ -1,0 +1,58 @@
+/****************************************************************************/
+/* DIET forwarder implementation - Client forwarder implementation          */
+/*                                                                          */
+/*  Author(s):                                                              */
+/*    - Gael Le Mahec   (gael.le.mahec@ens-lyon.fr)                         */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+/* $Id$ */
+/* $Log$
+/* Revision 1.1  2010/07/12 16:08:56  glemahec
+/* DIET 2.5 beta 1 - Forwarder implementations
+/* */
+#include "DIETForwarder.hh"
+#include "ORBMgr.hh"
+#include <string>
+
+using namespace std;
+
+
+::CORBA::Long DIETForwarder::notifyResults(const char* path,
+																					 const ::corba_profile_t& pb,
+																					 ::CORBA::Long reqID,
+																					 const char* objName)
+{
+	string objString(objName);
+	string name;
+	
+	if (!remoteCall(objString)) {
+		return peer->notifyResults(path, pb, reqID, objString.c_str());
+	}
+	
+	name = getName(objString);
+	
+	Callback_var cb = ORBMgr::getMgr()->resolve<Callback, Callback_var>(CLIENTCTXT, name,
+																																			this->name);
+	return cb->notifyResults(path, pb, reqID);
+}
+
+::CORBA::Long DIETForwarder::solveResults(const char* path,
+																					const ::corba_profile_t& pb,
+																					::CORBA::Long reqID,
+																					::CORBA::Long result,
+																					const char* objName)
+{
+	string objString(objName);
+	string name;
+	
+	if (!remoteCall(objString)) {
+		return peer->solveResults(path, pb, reqID, result, objString.c_str());
+	}
+	
+	name = getName(objString);
+	
+	Callback_var cb = ORBMgr::getMgr()->resolve<Callback, Callback_var>(CLIENTCTXT, name,
+																																			this->name);
+	return cb->solveResults(path, pb, reqID, result);
+}
