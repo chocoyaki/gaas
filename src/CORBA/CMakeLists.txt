@@ -66,9 +66,9 @@ ENDIF( DIET_USE_ALT_BATCH )
   #   src/idl/IDLCommon      (OK, no dependencies)
   #   src/utils/UtilsCommon  (OK, depends on IDLCommon)
   #   src/CORBA/CorbaCommon  (OK, depends on UtilsCommon and IDLCommon)
-  ADD_LIBRARY( CorbaCommon
+  ADD_LIBRARY( CorbaCommon STATIC
     ORBMgr.cc
-    marshalling.cc 
+    marshalling.cc
   )
 
 IF( DIET_USE_ALT_BATCH )
@@ -85,6 +85,92 @@ ENDIF( DIET_USE_ALT_BATCH )
 
   TARGET_LINK_LIBRARIES( CorbaCommon
     UtilsCommon
+#    LibForwarder
+    ${OMNIORB4_LIBRARIES}
+  )
+
+# Forwarder
+  INCLUDE_DIRECTORIES(
+    ${DIET_SOURCE_DIR}/src/agent
+    ${DIET_SOURCE_DIR}/src/client
+    ${DIET_SOURCE_DIR}/src/utils/nodes
+    ${DIET_SOURCE_DIR}/src/client/workflow
+    ${DIET_SOURCE_DIR}/src/agent/workflow
+    ${DIET_SOURCE_DIR}/src/utils/workflow
+    ${DIET_SOURCE_DIR}/src/SeD
+  )
+
+  SET(Forwarder_SOURCES
+    SSHTunnel.cc
+    Options.cc
+    NetConfig.cc
+    forwarders/Agent.cc
+    forwarders/Callback.cc
+    forwarders/MasterAgent.cc
+    forwarders/SeD.cc
+    forwarders/LogComponent.cc
+  )
+
+  IF (DIET_USE_DAGDA)
+    SET(Forwarder_SOURCES
+      ${Forwarder_SOURCES}
+      forwarders/Dagda.cc
+    )
+  ELSE (DIET_USE_DAGDA)
+    SET(Forwarder_SOURCES
+	${Forwarder_SOURCES}
+	forwarders/DataMgr.cc
+	forwarders/LocMgr.cc
+    )
+  ENDIF (DIET_USE_DAGDA)
+  IF (DIET_USE_WORKFLOW)
+    SET(Forwarder_SOURCES
+      ${Forwarder_SOURCES}
+      forwarders/CltMan.cc
+      forwarders/MaDag.cc
+      forwarders/WfLogService.cc
+    )
+  ENDIF (DIET_USE_WORKFLOW)
+
+  ADD_EXECUTABLE(dietForwarder
+    dietFwdr.cc
+    DIETForwarder.cc
+    ${Forwarder_SOURCES}
+  )
+  ADD_LIBRARY(LibForwarder STATIC
+    ${Forwarder_SOURCES}
+  )
+
+  SET(Forwarder_Libs
+    AgentCommon
+    DIET_SeD_static
+    DIETCall
+  )
+
+  IF (DIET_USE_DAGDA)
+    SET(Forwarder_Libs
+      ${Forwarder_Libs}
+#      IDLDagda
+    )
+  ENDIF (DIET_USE_DAGDA)
+
+  IF (DIET_USE_WORKFLOW)
+    SET(Forwarder_Libs
+      ${Forwarder_Libs}
+ #     Dagda
+      CltWf
+      MaDag
+    )
+  ENDIF(DIET_USE_WORKFLOW)
+
+  TARGET_LINK_LIBRARIES( dietForwarder
+    forwarderIDL
+    ${Forwarder_Libs}
+    ${OMNIORB4_LIBRARIES}
+  )
+  TARGET_LINK_LIBRARIES( LibForwarder
+    forwarderIDL
+    ${Forwarder_Libs}
     ${OMNIORB4_LIBRARIES}
   )
 
@@ -96,5 +182,6 @@ ENDIF( DIET_USE_ALT_BATCH )
   ENDIF( DIET_USE_USERSCHED )
 # ------------------------------------------------------------------
   
-  INSTALL( TARGETS CorbaCommon DESTINATION lib )
+#  INSTALL( TARGETS CorbaCommon DESTINATION lib )
+INSTALL( TARGETS dietForwarder DESTINATION bin )
 ENDIF( DIET_BUILD_LIBRARIES )

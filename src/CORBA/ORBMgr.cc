@@ -1,484 +1,557 @@
-/****************************************************************************/
-/* DIET ORB Manager implementation                                          */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
-/*    - Frederic LOMBARD (Frederic.Lombard@lifc.univ-fcomte.fr)             */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
-/* $Id$
- * $Log$
- * Revision 1.25  2010/04/06 14:30:05  ecaron
- * Correction for compilation error under Cygwin : bad #endif location in ORBMgr::wait function.
- *
- * Revision 1.24  2010/03/31 21:15:38  bdepardo
- * Changed C headers into C++ headers
- *
- * Revision 1.23  2010/03/15 14:01:46  bdepardo
- * Changes to support Cygwin: switching from classical mutex to semaphore
- * due to double locking problems with mutex implementation under Cygwin
- * (recursive mutex.)
- *
- * Revision 1.22  2010/02/25 16:00:13  bdepardo
- * Removed maxGIOPConnectionPerServer = 50 from the default options.
- * This prevented the user from tweaking this value within the configuration
- * file.
- *
- * Revision 1.21  2009/10/26 07:25:36  bdepardo
- * Changed default behavior: now a DIET element will wait on a SIGINT signal.
- * This allows a clean termination.
- *
- * Revision 1.20  2008/04/14 09:10:38  bisnard
- *  - Workflow rescheduling (CltReoMan) no longer used with MaDag v2
- *  - AbstractWfSched and derived classes no longer used with MaDag v2
- *
- * Revision 1.19  2006/11/16 09:55:50  eboix
- *   DIET_config.h is no longer used. --- Injay2461
- *
- * Revision 1.18  2006/07/10 09:55:27  aamar
- * Workflow monitoring and client reordering objects added to
- * the CONTEXT array
- *
- * Revision 1.17  2006/04/14 14:15:07  aamar
- * Adding the "dietMaDag" value in the CONTEXTS array
- *
- * Revision 1.15  2004/09/29 13:35:31  sdahan
- * Add the Multi-MAs feature.
- *
- * Revision 1.14  2004/03/01 18:40:40  rbolze
- * remove functions getIOD() and setIOD(..)
- * change in wait() : wait CRTL+D to exit
- * change in activate(...)
- * this change are provide by cpontvieux
- *
- * Revision 1.13  2003/10/06 10:04:13  cpontvie
- * Moving the interruption manager here
- * The current interruption is mapped on SIGINT (Ctrl+C)
- * The 'wait' function now return after the SIGINT
- *
- * Revision 1.12  2003/09/22 21:06:12  pcombes
- * Generalize the bind/unbindAgentToName and getAgentReference methods.
- *
- * Revision 1.9  2003/08/28 16:54:08  cpontvie
- * Add functions deactivate, unbindAgent, get_orb, get_poa, get_poa_bidir, 
- * get_oid, set_oid
- *
- * Revision 1.5  2003/06/02 08:53:16  cpera
- * Update api for asynchronize calls, manage bidir poa.
- *
- * Revision 1.4  2003/05/13 17:20:06  pcombes
- * Catch all CORBA exceptions in registers and requests to name server.
- *
- * Revision 1.3  2003/05/05 14:10:55  pcombes
- * Add destroy and stringToObject methods.
- *
- * Revision 1.1  2003/02/04 09:58:13  pcombes
- * Unify ORBs interface with a manager class: ORBMgr
- ****************************************************************************/
-
-
-using namespace std;
+#include <string>
+#include <list>
+#include <map>
+#include <sstream>
+#include <stdexcept>
 #include <iostream>
-#include <csignal>
-#include <csetjmp>
 
-#ifdef __cygwin__
-#include <semaphore.h>
-#endif
+#include <omniORB4/CORBA.h>
+#include <omniORB4/omniURI.h>
 
 #include "ORBMgr.hh"
-#include "debug.hh"
+#include "Forwarder.hh"
 
-/** The trace level. */
-extern unsigned int TRACE_LEVEL;
+using namespace std;
 
-/* Initialize private static members. */
-CORBA::ORB_ptr ORBMgr::ORB = CORBA::ORB::_nil();
-PortableServer::POA_var ORBMgr::POA = PortableServer::POA::_nil();
-PortableServer::POA_var ORBMgr::POA_BIDIR = PortableServer::POA::_nil();
-const char* ORBMgr::CONTEXTS[] =
-  {"dietAgent", "dietDataMgr", "dietLocMgr", "LogService", "dietSeD"
-#ifdef HAVE_WORKFLOW
-   , "dietMaDag"
-   , "WfLogService"
-#endif
-  };
-
-#if INTERRUPTION_MGR
-
-#ifndef __cygwin__
-omni_mutex ORBMgr::waitLock;
-#else
-sem_t ORBMgr::waitLock;
-#endif
-
-#endif
-
-int
-ORBMgr::init(int argc, char** argv, bool init_POA)
-{
-#if defined (__OMNIORB4__)
-  const char* options[][2]
-    = {{"inConScanPeriod","0"},{"outConScanPeriod","0"},
-       //{"maxGIOPConnectionPerServer","50"},
-       //{"giopMaxMsgSize","33554432"},
-       {0,0}};
-  ORB = CORBA::ORB_init(argc, argv, "omniORB4", options);
-#else
-#error "This version of omniORB is not supported !!!"
-#endif
-
+/* Manager initialization. */
+void ORBMgr::init(CORBA::ORB_ptr ORB) {
+  CORBA::Object_var object;
+  PortableServer::POA_var initPOA;
+  PortableServer::POAManager_var manager;
+  CORBA::PolicyList policies;
+  CORBA::Any policy;
+  CosNaming::NamingContext_var rootContext, context;
+  CosNaming::Name cosName;
+  
   if (CORBA::is_nil(ORB))
-    return 1;
-
-  if (init_POA) {
-    CORBA::Object_var obj;
-    PortableServer::POAManager_var pman;
-    CORBA::PolicyList pl;
-    CORBA::Any a;
-
-    obj = ORB->resolve_initial_references("RootPOA");
-    POA = PortableServer::POA::_narrow(obj);
-    // Get the POAManager Ref and activate it
-    pman = POA->the_POAManager();
-
-    // Create a POA with the Bidirectional policy
-    pl.length(1);
-    a <<= BiDirPolicy::BOTH;
-    pl[0] =
-      ORBMgr::ORB->create_policy(BiDirPolicy::BIDIRECTIONAL_POLICY_TYPE, a);
-    ORBMgr::POA_BIDIR = ORBMgr::POA->create_POA("bidir", pman, pl);
-
-    pman->activate();
-  }
-  return 0;
-
+    throw runtime_error("ORB not initialized");
+  
+  object = ORB->resolve_initial_references("RootPOA");
+  initPOA = PortableServer::POA::_narrow(object);
+  manager = initPOA->the_POAManager();
+  policies.length(1);
+  policy <<= BiDirPolicy::BOTH;
+  policies[0] = ORB->create_policy(BiDirPolicy::BIDIRECTIONAL_POLICY_TYPE,
+                                   policy);
+  POA = initPOA->create_POA("bidir", manager, policies);
+  
+  manager->activate();
 }
 
-void
-ORBMgr::destroy()
-{
-  try {
-#if INTERRUPTION_MGR
-    signal(SIGINT, SIG_DFL);
-#endif // INTERRUPTION_MGR
-    ORB->shutdown(true);
-    ORB->destroy();
-  } catch (...) {};
+ORBMgr::ORBMgr(int argc, char* argv[]) {
+  const char* opts[][2]= {{0,0}};
+  
+  ORB = CORBA::ORB_init(argc, argv, "omniORB4", opts);
+  init(ORB);
 }
 
-
-int
-ORBMgr::activate(PortableServer::ServantBase* obj,
-                 PortableServer::ObjectId_var* idVar_ptr)
-{
-  PortableServer::ObjectId_var objId;
-  try {
-    if (!CORBA::is_nil(ORBMgr::POA_BIDIR)) {
-      objId = ORBMgr::POA_BIDIR->activate_object(obj);
-    } else {
-      objId = ORBMgr::POA->activate_object(obj);
-    }
-    obj->_remove_ref();
-  } catch (...) {
-    INTERNAL_ERROR("exception caught in ORBMgr::" << __FUNCTION__, -1);
-  }
-
-  if (idVar_ptr != NULL) {
-    // copy the objectId if user needs it
-    *idVar_ptr = objId;
-  }
-  return 0;
+ORBMgr::ORBMgr(CORBA::ORB_ptr ORB) {
+  this->ORB = ORB;
+  init(ORB);
 }
 
-
-#if INTERRUPTION_MGR
-int
-ORBMgr::wait()
-{
- signal(SIGINT, ORBMgr::SigIntHandler);
- try {
-   std::cout << "Press CTRL+C to exit" << std::endl;
-#ifdef __cygwin__
- sem_init(&waitLock,0,1);
- sem_wait(&waitLock);
- sem_wait(&waitLock);
- sem_post(&waitLock);
-#else
-   waitLock.lock();
-   waitLock.lock();
-   waitLock.unlock();
-#endif
- } catch (...) {
-   ERROR("exception caught in ORBMgr::" << __FUNCTION__, true);
- }
- return 0;
+ORBMgr::ORBMgr(CORBA::ORB_ptr ORB, PortableServer::POA_var POA) {
+  this->ORB=ORB;
+  this->POA=POA;
 }
-#else // INTERRUPTION_MGR                                                                                                                                                                                                                  
-int
-ORBMgr::wait()
-{
- ORB->run();
- return 0;
+
+ORBMgr::~ORBMgr() {
+	ORB->shutdown(true);
+	ORB->destroy();
 }
-#endif // INTERRUPTION_MGR
 
-
-int
-ORBMgr::bindObjToName(CORBA::Object_ptr obj, ORBMgr::object_type_t type,
-		      const char* name)
+void ORBMgr::bind(const string& ctxt, const string& name,
+                  CORBA::Object_ptr object,
+									const bool rebind)
 {
+  CORBA::Object_var obj;
   CosNaming::NamingContext_var rootContext, context;
   CosNaming::Name cosName;
-
-  rootContext = ORBMgr::getRootContext();
+	
+  obj = ORB->resolve_initial_references("NameService");
+  if (CORBA::is_nil(obj))
+    throw runtime_error("Error resolving initial references");
+  
+  rootContext = CosNaming::NamingContext::_narrow(obj);
+  
   if (CORBA::is_nil(rootContext))
-    return 1;
+    throw runtime_error("Error initializing root context");
   
   cosName.length(1);
-  cosName[0].id   = CONTEXTS[type];   // string copied
-  cosName[0].kind = (const char*) ""; // string copied    
-  // Note on kind: The kind field is used to indicate the type
-  // of the object. This is to avoid conventions such as that used
-  // by files (name.type -- e.g. test.ps = postscript etc.)
-
+  cosName[0].id = ctxt.c_str();
+  cosName[0].kind = "";
   try {
-    try {
-      context = rootContext->bind_new_context(cosName);
-    } catch(CosNaming::NamingContext::AlreadyBound& ex) {
-      // If the context already exists, this exception will be raised.
-      // In this case, just resolve the name and assign testContext
-      // to the object returned:
-      CORBA::Object_var tmpobj;
-      tmpobj = rootContext->resolve(cosName);
-      context = CosNaming::NamingContext::_narrow(tmpobj);
-      if (CORBA::is_nil(context)) {
-	INTERNAL_ERROR("failed to narrow the naming context for "
-		       << CONTEXTS[type], 1);
-      }
-    }
-
-    /* Bind the object (obj) to testContext */
-    cosName[0].id   = (const char*) name; // string copied
-    cosName[0].kind = (const char*) "";   // string copied
-
-    // Bind obj with name Echo to the testContext:
-    try {
-      context->bind(cosName,obj);
-    } catch(CosNaming::NamingContext::AlreadyBound& ex) {
-      context->rebind(cosName,obj);
-    }
-
-    // Note: Using rebind() will overwrite any Object previously bound
-    //       to /test/Echo with obj.
-    //       Alternatively, bind() can be used, which will raise a
-    //       CosNaming::NamingContext::AlreadyBound exception if the name
-    //       supplied is already bound to an object.
-
-    // Amendment: When using OrbixNames, it is necessary to first try bind
-    // and then rebind, as rebind on it's own will throw a NotFoundexception if
-    // the Name has not already been bound. [This is incorrect behaviour -
-    // it should just bind].
-  } catch (CORBA::COMM_FAILURE& ex) {
-    ERROR("system exception caught (COMM_FAILURE), unable to connect to "
-	  << "the CORBA name server", 1);
-  }
-  catch (omniORB::fatalException& ex) {
-    throw;
-  }
-  catch (...) {
-    INTERNAL_ERROR("system exception caught while using the naming service", 1);
-  }
-  return 0;
-} // bindObjToName(...)
-
-
-int
-ORBMgr::unbindObj(object_type_t type, const char* name)
-{
-  CosNaming::NamingContext_var rootContext, context;
-  CosNaming::Name cosName;
-
-  rootContext = ORBMgr::getRootContext();
-  if (CORBA::is_nil(rootContext))
-    return 1;
-
-  cosName.length(1);
-
-  cosName[0].id = CONTEXTS[type];     // string copied
-  cosName[0].kind = (const char*) ""; // string copied
-  // Note on kind: The kind field is used to indicate the type
-  // of the object. This is to avoid conventions such as that used
-  // by files (name.type -- e.g. test.ps = postscript etc.)
-
-  try {
-    try {
-      // Resolve the name and assign testContext to the object returned:
-      CORBA::Object_var tmpobj;
-      tmpobj = rootContext->resolve(cosName);
-      context = CosNaming::NamingContext::_narrow(tmpobj);
-      if (CORBA::is_nil(context)) {
-        INTERNAL_ERROR("failed to narrow the naming context for "
-		       << CONTEXTS[type], 1);
-      }
-    } catch(CosNaming::NamingContext::NotFound& ex) {
-      ERROR("root context for dietAgent not found", 1);
-    } catch (...) {
-      INTERNAL_ERROR("system exception caught while using the naming service",
-                     1);
-    }
-
-    /* Unbind obj to the agent context */
-    cosName[0].id   = (const char*) name; // string copied
-    cosName[0].kind = (const char*) "";   // string copied
-
-    // Unbind obj with name name to the context:
-    context->unbind(cosName);
-  } catch (CORBA::COMM_FAILURE& ex) {
-    ERROR("system exception caught (COMM_FAILURE), unable to connect to "
-	  << "the CORBA name server", 1);
-  } catch (omniORB::fatalException& ex) {
-    throw;
-  } catch (...) {
-    INTERNAL_ERROR("system exception caught while using the naming service", 1);
-  }
-  return 0;
-} // unbindObj(...)
-
-
-CORBA::Object_ptr
-ORBMgr::getObjReference(ORBMgr::object_type_t type, const char* name)
-{
-  CosNaming::NamingContext_var rootContext;
-  CORBA::Object_ptr obj;
-  CosNaming::Name cosName;
-  
-  rootContext = ORBMgr::getRootContext();
-  if (CORBA::is_nil(rootContext))
-    return CORBA::Object::_nil();
-
-  // Create a name object, containing the name CONTEXT[type]/name:
-  cosName.length(2);
-  cosName[0].id   = CONTEXTS[type];     // string copied
-  cosName[0].kind = (const char*) "";   // string copied
-  cosName[1].id   = (const char*) name; // string copied
-  cosName[1].kind = (const char*) "";   // string copied
-  // Note on kind: The kind field is used to indicate the type
-  // of the object. This is to avoid conventions such as that used
-  // by files (name.type -- e.g. test.ps = postscript etc.)
-
-  try {
-    // Resolve the name to an object reference, and assign the reference 
-    // returned to a CORBA::Object:
+    context = rootContext->bind_new_context(cosName);
+  } catch (CosNaming::NamingContext::AlreadyBound& err) {
     obj = rootContext->resolve(cosName);
-  } catch(CosNaming::NamingContext::NotFound& ex) {
-    // This exception is thrown if any of the components of the
-    // path [contexts or the object] aren't found:
-    ERROR("context for " << name << " not found", CORBA::Object::_nil());
-  } catch (CORBA::COMM_FAILURE& ex) {
-    ERROR("system exception caught (COMM_FAILURE): unable to connect to "
-	  << "the CORBA name server", CORBA::Object::_nil());
-  } catch(omniORB::fatalException& ex) {
-    throw;
-  } catch (...) {
-    INTERNAL_ERROR("system exception caught while using the naming service", 1);
+    context = CosNaming::NamingContext::_narrow(obj);
+    if (CORBA::is_nil(context))
+      throw runtime_error(string("Error creating context ")+ctxt);
   }
-  return obj;
-
-} // getObjReference(...)
-
-
-char*
-ORBMgr::getIORString(CORBA::Object_ptr obj)
-{
+  cosName[0].id = name.c_str();
+  cosName[0].kind = "";
   try {
-    return ORB->object_to_string(obj);  
-  } catch (...) {}
-  return NULL;
-}
-
-CORBA::Object_ptr
-ORBMgr::stringToObject(const char* IOR)
-{
-  try {
-    return ORB->string_to_object(IOR);
-  } catch (...) {
-    ERROR("Bad format for stringified reference: "<< IOR,
-	  CORBA::Object::_nil());
+    context->bind(cosName, object);
+  } catch (CosNaming::NamingContext::AlreadyBound& err) {
+		if (rebind)
+			context->rebind(cosName, object);
+		else
+			throw runtime_error("Already bound!");
   }
-  return CORBA::Object::_nil();
 }
 
-CORBA::ORB_ptr
-ORBMgr::getORB()
-{
-  return ORB;
+void ORBMgr::bind(const string& ctxt, const string& name,
+									const string& IOR, const bool rebind) {
+  CORBA::Object_ptr object = ORB->string_to_object(IOR.c_str());
+	
+  bind(ctxt, name, object, rebind);
 }
 
-PortableServer::POA_var
-ORBMgr::getPOA()
-{
-  return POA;
+void ORBMgr::rebind(const string& ctxt, const string& name,
+										CORBA::Object_ptr object) {
+	bind(ctxt, name, object, true);
 }
 
-
-PortableServer::POA_var
-ORBMgr::getPOA_BIDIR()
-{
-  return POA_BIDIR;
+void ORBMgr::rebind(const string& ctxt, const string& name,
+                    const string& IOR) {
+  CORBA::Object_ptr object = ORB->string_to_object(IOR.c_str());
+  
+  rebind(ctxt, name, object);
 }
 
+void ORBMgr::unbind(const string& ctxt, const string& name) {
+  CORBA::Object_var obj;
+  CosNaming::NamingContext_var rootContext, context;
+  CosNaming::Name cosName;
+	std::list<pair<string,string> >::iterator it;
+  
+  obj = ORB->resolve_initial_references("NameService");
+  rootContext = CosNaming::NamingContext::_narrow(obj);
+  
+  cosName.length(1);
+  cosName[0].id = ctxt.c_str();
+  cosName[0].kind = "";
+  
+  obj = rootContext->resolve(cosName);
+  context = CosNaming::NamingContext::_narrow(obj);
+  if (CORBA::is_nil(context))
+    throw runtime_error(string("Error retrieving context ")+ctxt);
+  cosName[0].id = name.c_str();
+  cosName[0].kind = "";
+  try {
+    context->unbind(cosName);
+  } catch (CosNaming::NamingContext::NotFound& err) {
+    throw runtime_error("Object "+name+" not found in " + ctxt +" context");
+  }
+}
 
-#if INTERRUPTION_MGR
-/**
- * The SIGINT handler function
- */
-void
-ORBMgr::SigIntHandler(int sig)
+void ORBMgr::fwdsBind(const string& ctxt, const string& name,
+											const string& ior, const string& fwName)
 {
-  /* Prevent from raising a new SIGINT handler */
-  signal(SIGINT, SIG_IGN);
-#ifndef __cygwin__  
-  waitLock.unlock();
+	std::list<string> forwarders = ORBMgr::list(FWRDCTXT);
+	std::list<string>::const_iterator it;
+	
+	for (it=forwarders.begin(); it!=forwarders.end(); ++it) {
+		if (fwName==*it) continue;
+		Forwarder_var fwd = resolve<Forwarder, Forwarder_var>(FWRDCTXT, *it);
+		string objName = ctxt+"/"+name;
+		try {
+			fwd->bind(objName.c_str(), ior.c_str());
+		} catch (const CORBA::TRANSIENT& err) {
+			cerr << "Unable to contact DIET forwarder " << *it << endl;
+			continue;
+		}
+	}
+}
+
+void ORBMgr::fwdsUnbind(const string& ctxt, const string& name,
+												const string& fwName)
+{
+	std::list<string> forwarders = ORBMgr::list(FWRDCTXT);
+	std::list<string>::const_iterator it;
+	
+	for (it=forwarders.begin(); it!=forwarders.end(); ++it) {
+		if (fwName==*it) continue;
+		Forwarder_var fwd = resolve<Forwarder, Forwarder_var>(FWRDCTXT, *it);
+		string objName = ctxt+"/"+name;
+		try {
+			fwd->unbind(objName.c_str());
+		} catch (const CORBA::TRANSIENT& err) {
+			cerr << "Unable to contact DIET forwarder " << *it << endl;
+			continue;
+		}
+	}
+}
+
+CORBA::Object_ptr ORBMgr::resolveObject(const string& IOR) const {
+  return ORB->string_to_object(IOR.c_str());
+}
+
+CORBA::Object_ptr ORBMgr::resolveObject(const string& context, const string& name,
+																				const string& fwdName) const {
+	string ctxt = context;
+	bool localAgent = false;
+
+	/* The object to resolve is it a local agent ?*/
+	if (ctxt == LOCALAGENT) {
+		ctxt = AGENTCTXT;
+		localAgent = true;
+	}
+	if (ctxt == MASTERAGENT) {
+		ctxt = AGENTCTXT;
+	}
+	
+	/* Use object cache. */
+  if (cache.find(ctxt+"/"+name)!=cache.end()) {
+    return cache[ctxt+"/"+name];
+	}
+  CORBA::Object_ptr object = ORB->resolve_initial_references("NameService");
+  CosNaming::NamingContext_var rootContext =
+    CosNaming::NamingContext::_narrow(object);
+  CosNaming::Name cosName;
+  
+  cosName.length(2);
+  cosName[0].id   = ctxt.c_str();
+  cosName[0].kind = "";
+  cosName[1].id   = name.c_str();
+  cosName[1].kind = "";
+  
+  try {
+    object = rootContext->resolve(cosName);
+		/* If the object is not a forwarder object, then
+		 * search if we need to use a forwarder to reach it.
+		 */
+		if (ctxt!=FWRDCTXT) {
+			string objIOR = getIOR(object);
+			IOP::IOR ior;
+			makeIOR(objIOR, ior);
+			
+			std::list<string> forwarders = ORBMgr::list(FWRDCTXT);
+			std::list<string>::const_iterator it;
+			for (it=forwarders.begin(); it!=forwarders.end(); ++it) {
+				// This is the same forwarder...
+				if (*it==fwdName) continue;
+				Forwarder_var fwd = resolve<Forwarder, Forwarder_var>(FWRDCTXT, *it);
+				string objName = ctxt+"/"+name;
+				string ior = getIOR(object);
+				string objHost = getHost(ior);
+				try {
+					if (fwd->manage(objHost.c_str())) {
+						if (ctxt==AGENTCTXT) {
+							if (!localAgent) {
+								object = fwd->getMasterAgent(name.c_str());
+							}	else {
+								object = fwd->getLocalAgent(name.c_str());
+								if (CORBA::is_nil(object))
+									object = fwd->getAgent(name.c_str());
+							}
+							break;
+						}
+						if (ctxt==CLIENTCTXT) {
+							object = fwd->getCallback(name.c_str());
+							break;
+						}
+						if (ctxt==SEDCTXT) {
+							object = fwd->getSeD(name.c_str());
+							break;
+						}
+#ifdef HAVE_DAGDA
+						if (ctxt==DAGDACTXT) {
+							object = fwd->getDagda(name.c_str());
+							break;
+						}
 #else
-  sem_post(&waitLock);
+						if (ctxt==DATAMGRCTXT) {
+							object = fwd->getDataMgr(name.c_str());
+							break;
+						}
+						if (ctxt==LOCMGRCTXT) {
+							object = fwd->getLocMgr(name.c_str());
+							break;
+						}
 #endif
-
-//  ORBMgr::destroy();
-}
-#endif // INTERRUPTION_MGR
-
-
-CosNaming::NamingContext_var
-ORBMgr::getRootContext()
-{
-  CosNaming::NamingContext_var rootContext;
-  try {
-    // Obtain a reference to the root context of the Name service:
-    CORBA::Object_ptr initServ;
-    initServ = ORB->resolve_initial_references("NameService");
-
-    // Narrow the object returned by resolve_initial_references()
-    // to a CosNaming::NamingContext object:
-    rootContext = CosNaming::NamingContext::_narrow(initServ);
-    if (CORBA::is_nil(rootContext)) 
-      {
-	INTERNAL_ERROR("failed to narrow the root naming context", 1);
-      }
-  } catch(CORBA::ORB::InvalidName& ex) {
-    INTERNAL_ERROR("service required is invalid [does not exist]", 1);
-  } catch (CORBA::Exception& e) {
-    CORBA::Any tmp;
-    tmp <<= e;
-    CORBA::TypeCode_var tc = tmp.type();
-    ERROR("exception caught (" << tc->name() << ") while attempting to "
-	  << "connect to the CORBA name server",
-	  CosNaming::NamingContext::_nil());
+#ifdef HAVE_WORKFLOW
+						if (ctxt==WFMGRCTXT) {
+							object = fwd->getCltMan(name.c_str());
+							break;
+						}
+						if (ctxt==MADAGCTXT) {
+							object = fwd->getMaDag(name.c_str());
+							break;
+						}
+#endif
+					}
+				} catch (const CORBA::TRANSIENT& err) {
+					cerr << "Unable to contact DIET forwarder \"" << *it << "\"" << endl;
+					continue;
+				}
+			}
+		}
+  } catch (CosNaming::NamingContext::NotFound& err) {
+		cerr << "Error resolving " << ctxt << "/" << name << endl;
+    throw runtime_error("Error resolving "+ctxt+"/"+name);
   }
-  return rootContext;
-} // getRootContext()
+  cache[ctxt+"/"+name] = CORBA::Object::_duplicate(object);
+
+  return CORBA::Object::_duplicate(object);
+}
+
+std::list<string> ORBMgr::list(CosNaming::NamingContext_var& ctxt) const {
+	std::list<string> result;
+	CosNaming::BindingList_var ctxtList;
+	CosNaming::BindingIterator_var it;
+	CosNaming::Binding_var bv;
+
+	ctxt->list(256, ctxtList, it);
+	for (unsigned int i=0; i<ctxtList->length(); ++i)
+		if (ctxtList[i].binding_type==CosNaming::nobject)
+			for (unsigned int j=0; j<ctxtList[i].binding_name.length(); ++j) {
+				result.push_back(string(ctxtList[i].binding_name[j].id));
+			}
+	if (CORBA::is_nil(it)) return result;
+	while (it->next_one(bv)) {
+		if (bv->binding_type==CosNaming::nobject)
+			for (unsigned int j=0; j<bv->binding_name.length(); ++j) {
+				result.push_back(string(bv->binding_name[j].id));
+			}
+	}
+	return result;
+}
+
+std::list<string> ORBMgr::list(const std::string& ctxtName) const {
+	std::list<string> result;
+	
+	CORBA::Object_ptr object = ORB->resolve_initial_references("NameService");
+	CosNaming::NamingContext_var rootContext =
+		CosNaming::NamingContext::_narrow(object);
+	CosNaming::BindingList_var bindingList;
+	CosNaming::BindingIterator_var it;
+	
+	rootContext->list(256, bindingList, it);
+
+	for (unsigned int i=0; i<bindingList->length(); ++i) {
+		if (bindingList[i].binding_type==CosNaming::ncontext)
+			if (string(bindingList[i].binding_name[0].id)==ctxtName) {
+				std::list<string> tmpRes;
+				CORBA::Object_ptr ctxtObj = rootContext->resolve(bindingList[i].binding_name);
+				CosNaming::NamingContext_var ctxt =
+					CosNaming::NamingContext::_narrow(ctxtObj);
+			
+				tmpRes = list(ctxt);
+				result.insert(result.end(), tmpRes.begin(), tmpRes.end());
+		}
+	}
+	if (CORBA::is_nil(it)) return result;
+	CosNaming::Binding_var bv;
+	while (it->next_one(bv))
+		if (bv->binding_type==CosNaming::ncontext)
+			if (string(bv->binding_name[0].id)==ctxtName) {
+				std::list<string> tmpRes;
+				CORBA::Object_ptr ctxtObj = rootContext->resolve(bv->binding_name);
+				CosNaming::NamingContext_var ctxt =
+				CosNaming::NamingContext::_narrow(ctxtObj);
+				
+				tmpRes = list(ctxt);
+				result.insert(result.end(), tmpRes.begin(), tmpRes.end());
+			}
+	return result;
+}
 
 
+string ORBMgr::getIOR(CORBA::Object_ptr object) const {
+  return ORB->object_to_string(object);
+}
+
+string ORBMgr::getIOR(const string& ctxt, const string& name) const {
+  return ORB->object_to_string(resolveObject(ctxt, name));
+}
+
+void ORBMgr::activate(PortableServer::ServantBase* object) const {
+  POA->activate_object(object);
+  object->_remove_ref();
+}
+
+void ORBMgr::deactivate(PortableServer::ServantBase* object) const {
+	PortableServer::ObjectId* id = POA->servant_to_id(object);
+	POA->deactivate_object(*id);
+}
 
 
+void ORBMgr::wait() const {
+  ORB->run();
+}
+
+ORBMgr* ORBMgr::getMgr() {
+	if (theMgr==NULL)
+		throw runtime_error("ORB manager not initialized!");
+	else return theMgr;
+}
+
+void ORBMgr::init(int argc, char* argv[]) {
+	theMgr = new ORBMgr(argc, argv);
+}
+
+ORBMgr* ORBMgr::theMgr = NULL;
+
+
+/* Translate the string passed as first argument in bytes and
+ * record them into the buffer.
+ */
+void hexStringToBuffer(const char* ptr, const size_t size,
+											 cdrMemoryStream& buffer) {
+	stringstream ss;
+	int value;
+	CORBA::Octet c;
+	
+	for (unsigned int i=0; i<size; i+=2) {
+		ss << ptr[i] << ptr[i+1];
+		ss >> hex >> value;
+		c = value;
+		buffer.marshalOctet(c);
+		ss.flush();
+		ss.clear();
+	}
+}
+
+/* Make an IOP::IOR object using a stringified IOR. */
+void ORBMgr::makeIOR(const string& strIOR, IOP::IOR& ior)
+{
+	/* An IOR must start with "IOR:" or "ior:" */
+	if (strIOR.find("IOR:")!=0 && strIOR.find("ior:")!=0)
+		throw runtime_error("Bad IOR: "+strIOR);
+
+	const char* tab = strIOR.c_str();
+	size_t size = (strIOR.length()-4);
+	cdrMemoryStream buffer(size, false);
+	CORBA::Boolean byteOrder;
+	
+	/* Convert the hex bytes string into buffer. */
+	hexStringToBuffer(tab+4, size, buffer);
+	buffer.rewindInputPtr();
+	/* Get the endianness and init the buffer flag. */
+	byteOrder = buffer.unmarshalBoolean();
+	buffer.setByteSwapFlag(byteOrder);
+	
+	/* Get the object type id. */
+	ior.type_id = IOP::IOR::unmarshaltype_id(buffer);
+	/* Get the IOR profiles. */
+	ior.profiles <<= buffer;
+}
+
+/* Convert IOP::IOR to a stringified IOR. */
+void ORBMgr::makeString(const IOP::IOR& ior, string& strIOR) {
+	strIOR = "IOR:";
+	cdrMemoryStream buffer(0, true);
+	stringstream ss;
+	unsigned char* ptr;
+		
+	buffer.marshalBoolean(omni::myByteOrder);
+	buffer.marshalRawString(ior.type_id);
+	ior.profiles >>= buffer;
+	
+	buffer.rewindInputPtr();
+	ptr = static_cast<unsigned char*>(buffer.bufPtr());
+	
+	for (unsigned long i=0; i < buffer.bufSize(); ++ptr, ++i)
+	{
+		string str;
+		unsigned char c = *ptr;
+		if (c<16) ss << '0';
+		ss << (unsigned short) c;
+		ss >> hex  >> str;
+		ss.flush();
+		ss.clear();
+		strIOR+=str;
+	}
+}
+
+/* Get the hostname of the first profile in this IOR. */
+string ORBMgr::getHost(IOP::IOR& ior) {
+	IIOP::ProfileBody body;
+	
+	if (ior.profiles.length()==0)
+		return "nohost";
+	
+	IIOP::unmarshalProfile(ior.profiles[0], body);
+	return string(body.address.host);
+}
+
+/* Get the hostname of the first profile in IOR passed
+ * as a string.
+ */
+string ORBMgr::getHost(const string& strIOR) {
+	IOP::IOR ior;
+	makeIOR(strIOR, ior);
+	return getHost(ior);
+}
+
+/* Get the port of the first profile in this IOR. */
+unsigned int ORBMgr::getPort(IOP::IOR& ior) {
+	IIOP::ProfileBody body;
+	
+	if (ior.profiles.length()==0)
+		return 0;
+	
+	IIOP::unmarshalProfile(ior.profiles[0], body);
+	return body.address.port;
+}
+
+/* Get the port of the first profile in IOR passed
+ * as a string.
+ */
+unsigned int ORBMgr::getPort(const string& strIOR) {
+	IOP::IOR ior;
+	makeIOR(strIOR, ior);
+	return getPort(ior);
+}
+
+/* Get the type id of the IOR. */
+string ORBMgr::getTypeID(IOP::IOR& ior) {
+	return string(ior.type_id);
+}
+
+/* Get the type id of the IOR passed as a string. */
+std::string ORBMgr::getTypeID(const string& strIOR) {
+	IOP::IOR ior;
+	makeIOR(strIOR, ior);
+	return getTypeID(ior);
+}
+
+std::string ORBMgr::convertIOR(IOP::IOR& ior, const std::string& host,
+															 const unsigned int port)
+{
+	IIOP::ProfileBody body;
+	IOP::TaggedProfile profile;
+	CORBA::ULong max_data;
+	CORBA::ULong nb_data;
+	CORBA::Octet* buffer;
+	std::string result;
+
+	if (ior.profiles.length()==0)
+		throw runtime_error("Invalid IOR");
+	
+	for (unsigned int i=0; i<ior.profiles.length(); ++i)
+		if (ior.profiles[i].tag==IOP::TAG_INTERNET_IOP) {
+			IIOP::unmarshalProfile(ior.profiles[i], body);
+			
+			body.address.host = host.c_str();
+			body.address.port = port;
+			
+			IIOP::encodeProfile(body, profile);
+			
+			max_data = profile.profile_data.maximum();
+			nb_data = profile.profile_data.length();
+			buffer = profile.profile_data.get_buffer(true);
+			ior.profiles[i].profile_data.replace(max_data, nb_data, buffer, true);
+		}
+	makeString(ior, result);
+	return result;
+}
+
+std::string ORBMgr::convertIOR(const std::string& strIOR, const std::string& host,
+															 const unsigned int port)
+{
+	IOP::IOR ior;
+	makeIOR(strIOR, ior);
+	return convertIOR(ior, host, port);
+}

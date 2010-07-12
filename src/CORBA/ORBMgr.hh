@@ -1,166 +1,139 @@
 /****************************************************************************/
-/* DIET ORB Manager header                                                  */
+/* ORB manager v. 2.0 - CORBA management with DIET forwarders               */
 /*                                                                          */
 /*  Author(s):                                                              */
-/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
+/*    - Gaël Le Mahec (gael.le.mahec@ens-lyon.fr                            */
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.20  2010/03/31 21:15:38  bdepardo
- * Changed C headers into C++ headers
+ * Revision 1.21  2010/07/12 16:11:04  glemahec
+ * DIET 2.5 beta 1 - New ORB manager; dietForwarder application
  *
- * Revision 1.19  2010/03/15 14:01:46  bdepardo
- * Changes to support Cygwin: switching from classical mutex to semaphore
- * due to double locking problems with mutex implementation under Cygwin
- * (recursive mutex.)
- *
- * Revision 1.18  2009/10/26 07:25:36  bdepardo
- * Changed default behavior: now a DIET element will wait on a SIGINT signal.
- * This allows a clean termination.
- *
- * Revision 1.17  2009/06/23 09:15:32  bisnard
- * bug correction (enum mismatch for CORBA contexts)
- *
- * Revision 1.16  2006/11/16 09:55:51  eboix
- *   DIET_config.h is no longer used. --- Injay2461
- *
- * Revision 1.15  2006/10/31 21:14:04  ecaron
- * Correct wrong header
- *
- * Revision 1.14  2006/07/10 09:55:27  aamar
- * Workflow monitoring and client reordering objects added to
- * the CONTEXT array
- *
- * Revision 1.13  2006/04/14 14:15:33  aamar
- * Adding the value MA_DAG in object_type_t enumeration.
- *
- * Revision 1.12  2005/04/28 13:07:05  eboix
- *     Inclusion of CORBA.h substitued with omniORB4/CORBA.h. --- Injay 2461
- *
- * Revision 1.11  2004/03/01 18:38:10  rbolze
- * remove function getOID() end setOID(..)
- * change in signature of activate(..)
- * this change are provide by cpontvieux
- *
- * Revision 1.10  2003/10/06 10:04:00  cpontvie
- * Moving the interruption manager here
- * The current interruption is mapped on SIGINT (Ctrl+C)
- * The 'wait' function now return after the SIGINT
- *
- * Revision 1.9  2003/09/22 21:06:12  pcombes
- * Generalize the bind/unbindAgentToName and getAgentReference methods.
- *
- * Revision 1.4  2003/06/02 08:53:16  cpera
- * Update api for asynchronize calls, manage bidir poa.
- *
- * Revision 1.3  2003/05/05 14:10:55  pcombes
- * Add destroy and stringToObject methods.
- *
- * Revision 1.2  2003/04/10 12:43:56  pcombes
- * Use the TRACE_LEVEL of the debug module. Uniformize return codes.
- *
- * Revision 1.1  2003/02/04 09:58:13  pcombes
- * Unify ORBs interface with a manager class: ORBMgr
- ****************************************************************************/
-
-#ifndef _ORBMGR_HH_
-#define _ORBMGR_HH_
-
-#include <omniORB4/CORBA.h>
-#include <csetjmp>
-
-#ifdef __cygwin__
-#include <semaphore.h>
-#endif
-
-#define INTERRUPTION_MGR 1
-
-/**
- * This class unifies the interface to all ORBs supported by DIET.
  */
 
-class ORBMgr
-{
+#ifndef ORBMGR_HH
+#define ORBMGR_HH
+#include <string>
+#include <map>
+#include <list>
 
-public:
+#include <omniORB4/CORBA.h>
+#include <sys/types.h>
 
-  static int
-  init(int argc, char** argv, bool init_POA = true);
+#include "Forwarder.hh"
 
-  static void
-  destroy();
+#define DAGDACTXT   "Dagda"
+#define LOGCOMPCTXT "LogService"
+#define AGENTCTXT	  "dietAgent"
+#define SEDCTXT			"dietSeD"
+#define DATAMGRCTXT "dataMgrDTM"
+#define LOCMGRCTXT	"locMgrDTM"
+#define MADAGCTXT		"dietMADag"
+#define WFMGRCTXT		"dietWfMgr"
+#define CLIENTCTXT  "dietClient"
+#define WFLOGCTXT		"WfLogService"
+#define FWRDCTXT		"dietForwarder"
+/* LOCALAGENT & MASTERAGENT are not context strings. */
+#define LOCALAGENT  "localAgent" 
+#define MASTERAGENT "masterAgent"
 
-  static int
-  activate(PortableServer::ServantBase* obj,
-           PortableServer::ObjectId_var* idVar_ptr = NULL);
 
-  static int
-  wait();
-
-  typedef enum {
-    AGENT = 0,
-    DATAMGR,
-    LOCMGR,
-    LOGSERVICE,
-    SED
-    /**
-     * Code not secure since the enum is used to index the CONTEXTS array *
-     */
-#ifdef HAVE_WORKFLOW
-    , MA_DAG
-    , WFLOGSERVICE
-#endif // HAVE_WORKFLOW
-  } object_type_t;
-
-  static int
-  bindObjToName(CORBA::Object_ptr obj, object_type_t type, const char* name);
-
-  static int
-  unbindObj(object_type_t type, const char* name);
-
-  static CORBA::Object_ptr
-  getObjReference(object_type_t type, const char* name);
-
-  static char*
-  getIORString(CORBA::Object_ptr obj);
-
-  static CORBA::Object_ptr
-  stringToObject(const char* IOR);
-
-  static CORBA::ORB_ptr
-  getORB();
-
-  static PortableServer::POA_var
-  getPOA();
-
-  static PortableServer::POA_var
-  getPOA_BIDIR();
-
+class ORBMgr {
 private:
+	/* The omniORB Object Request Broker for this manager. */
+  CORBA::ORB_ptr ORB;
+	/* The Portable Object Adaptor. */
+  PortableServer::POA_var POA;
+  
+	/* CORBA initialization. */
+  void init(CORBA::ORB_ptr ORB);
 
-  static CORBA::ORB_ptr          ORB;
-  static PortableServer::POA_var POA;
-  static PortableServer::POA_var POA_BIDIR;
+	/* Object cache to avoid to contact OmniNames too many times. */
+  mutable std::map<std::string, CORBA::Object_ptr> cache;
 
-  static PortableServer::ObjectId_var OBJECT_ID;
-  static const char* CONTEXTS[];
+	/* The manager instance. */
+	static ORBMgr* theMgr;
+public:
+	/* Constructors. */
+  ORBMgr(int argc, char* argv[]);
+  ORBMgr(CORBA::ORB_ptr ORB);
+  ORBMgr(CORBA::ORB_ptr ORB, PortableServer::POA_var POA);
+  
+	/* Destructor. */
+  ~ORBMgr();
 
-  static CosNaming::NamingContext_var
-  getRootContext();
+	/* Bind the object using its ctxt/name */
+  void bind(const std::string& ctxt, const std::string& name,
+            CORBA::Object_ptr object, const bool rebind = false);
+	/* Bind an object using its IOR. */
+  void bind(const std::string& ctxt, const std::string& name,
+            const std::string& IOR, const bool rebind = false);
+	/* Rebind objects. */
+  void rebind(const std::string& ctxt, const std::string& name,
+              CORBA::Object_ptr object);
+  void rebind(const std::string& ctxt, const std::string& name,
+              const std::string& IOR);
+	/* Unbind an object. */
+  void unbind(const std::string& ctxt, const std::string& name);
+	
+	/* Forwarders binding. */
+	void fwdsBind(const std::string& ctxt, const std::string& name,
+								const std::string& ior, const std::string& fwName = "");
+  /* Forwarders unbinding. */
+	void fwdsUnbind(const std::string& ctxt, const std::string& name,
+									const std::string& fwName = "");
+	
+	/* Resolve an object using its IOR or ctxt/name. */
+  CORBA::Object_ptr resolveObject(const std::string& IOR) const;
+  CORBA::Object_ptr resolveObject(const std::string& ctxt, const std::string& name,
+																	const std::string& fwdName = "") const;
+	
+	/* Get the list of the objects id binded in the omniNames server for a given context. */
+	std::list<std::string> list(CosNaming::NamingContext_var& ctxt) const;
+	std::list<std::string> list(const std::string& ctxtName) const;
+	
+	template <typename CORBA_object, typename CORBA_ptr>
+	CORBA_ptr resolve(const std::string& ctxt, const std::string& name,
+										const std::string& fwdName = "") const {
+		return CORBA_object::_duplicate(CORBA_object::_narrow(resolveObject(ctxt, name, fwdName)));
+	}
+	template <typename CORBA_object, typename CORBA_ptr>
+	CORBA_ptr resolve(const std::string& IOR) const {
+		return CORBA_object::_duplicate(CORBA_object::_narrow(resolveObject(IOR)));
+	}																
+  
+	/* Return the IOR of the passed object. */
+	std::string getIOR(CORBA::Object_ptr object) const;
+  std::string getIOR(const std::string& ctxt, const std::string& name) const;
+	
+	/* Activate an object. */
+  void activate(PortableServer::ServantBase* object) const;
+	/* Deactivate an object. */
+	void deactivate(PortableServer::ServantBase* object) const;
 
-#if INTERRUPTION_MGR
-
-#ifdef __cygwin__
-  static sem_t waitLock;
-#else
-  static omni_mutex waitLock;
-#endif
-  static void
-  SigIntHandler(int sig);
-#endif // INTERRUPTION_MGR
+	/* Wait for the request on activated objects. */
+  void wait() const;
+	
+	static void init(int argc, char* argv[]);
+	
+	static ORBMgr* getMgr();
+	
+	/* IOR management functions. */
+	static void makeIOR(const std::string& strIOR, IOP::IOR& ior);
+	static void makeString(const IOP::IOR& ior, std::string& strIOR);
+	static std::string getHost(IOP::IOR& ior);
+	static std::string getHost(const std::string& strIOR);
+	static unsigned int getPort(IOP::IOR& ior);
+	static unsigned int getPort(const std::string& strIOR);
+	static std::string getTypeID(IOP::IOR& ior);
+	static std::string getTypeID(const std::string& strIOR);
+	static std::string convertIOR(IOP::IOR& ior, const std::string& host,
+																const unsigned int port);
+	static std::string convertIOR(const std::string& ior, const std::string& host,
+																const unsigned int port);
 };
 
 
-#endif // _ORBMGR_HH_
+#endif
