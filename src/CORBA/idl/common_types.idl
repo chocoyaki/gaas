@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.32  2010/07/12 15:54:11  glemahec
+ * DIET 2.5 beta 1 - Forwarder IDL files
+ *
  * Revision 1.31  2008/09/09 10:05:56  bisnard
  * container mgmt using Dagda agent
  *
@@ -296,7 +299,7 @@ struct corba_data_desc_t {
   long base_type;
   type specific;
 #if HAVE_DAGDA
-  string dataManager; // This data Dagda data manager IOR.
+  string dataManager; // This data Dagda data manager name.
 #endif
 };
 typedef sequence<corba_data_desc_t> SeqCorbaDataDesc_t;
@@ -461,7 +464,7 @@ struct corba_profile_t {
   long   walltime ;
 #endif
 #if HAVE_DAGDA
-  string clientIOR;
+  string clientName;
 #endif
 };
 

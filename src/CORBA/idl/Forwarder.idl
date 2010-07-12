@@ -1,0 +1,124 @@
+/****************************************************************************/
+/* DIET forwarder IDL description                                           */
+/*                                                                          */
+/*  Author(s):                                                              */
+/*    - Gael Le Mahec   (gael.le.mahec@ens-lyon.fr)                         */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+/* $Id$ */
+/* $Log$
+/* Revision 1.1  2010/07/12 15:54:35  glemahec
+/* DIET 2.5 beta 1 - Forwarder IDL files
+/* */
+
+#ifndef FORWARDER_IDL
+#define FORWARDER_IDL
+
+#include "common_types.idl"
+#include "response.idl"
+
+#include "AgentFwdr.idl"
+#include "CallbackFwdr.idl"
+#include "LocalAgentFwdr.idl"
+#include "LogComponentFwdr.idl"
+#include "MasterAgentFwdr.idl"
+#include "SeDFwdr.idl"
+
+#if HAVE_DAGDA
+#include "DagdaFwdr.idl"
+#else
+#include "DataMgrFwdr.idl"
+#include "LocMgrFwdr.idl"
+#endif
+
+#if HAVE_WORKFLOW
+#include "CltManFwdr.idl"
+#include "MaDagFwdr.idl"
+#include "WfLogServiceFwdr.idl"
+#endif
+
+interface Forwarder :
+  MasterAgentForwarder
+	, CallbackForwarder
+	, SeDForwarder
+	, ComponentConfiguratorForwader
+#if HAVE_WORKFLOW
+  , CltManForwarder
+	, MaDagForwarder
+	, WfLogServiceForwarder
+#endif
+#if HAVE_DAGDA
+	, DagdaForwarder
+#else
+  , DataMgrForwarder
+	, LocMgrForwarder
+#endif
+{
+	/* The object name is not valid. */
+	exception BadNameException {
+		string name;
+	};
+	/* The name does not refer to a registered object. */
+	exception UnknownObject {
+		string name;
+	};
+	
+	/* Get objects from the Forwarder. */
+	Agent getAgent(in string name);
+	Callback getCallback(in string name);
+	LocalAgent getLocalAgent(in string name);
+	//ComponentConfigurator getComponentConfigurator(in string name);
+	//LogCentralComponent getLogCentralComponent(in string name);
+  MasterAgent getMasterAgent(in string name);
+	SeD getSeD(in string name);
+	
+#if HAVE_DAGDA
+	Dagda getDagda(in string name);
+#else
+	DataMgr getDataMgr(in string name);
+	LocMgr getLocMgr(in string name);
+#endif
+
+#if HAVE_WORKFLOW
+  CltMan getCltMan(in string name);
+	MaDag getMaDag(in string name);
+  WfLogService getWfLogService(in string name);
+#endif
+	/* Common methods. */
+	long ping(in string objName);
+  oneway void getRequest(in corba_request_t req, in string objName);
+  string getHostname(in string objName);
+#if HAVE_DYNAMICS
+  long bindParent(in string parentName, in string objName);
+  long disconnect(in string objName);
+  long removeElement(in boolean recursive, in string objName);
+#endif
+#ifndef HAVE_DAGDA
+  string whereData(in string argID, in string objName);
+  string setMyName(in string objName);
+  string whichSeDOwner(in string argID, in string objName);
+  void printList(in string objName);
+
+#endif
+	/* CORBA remote management. */
+	void bind(in string objName, in string ior);
+	oneway void unbind(in string objName);
+	
+	/* Peer connection. */
+	void connectPeer(in string ior, in string host, in long port);
+	string getIOR();
+	
+	/* Obtain informations about this forwarder. */
+	string getName();
+	SeqString acceptList();
+	SeqString rejectList();
+	boolean manage(in string hostname);
+	
+	SeqString routeTree();
+	
+	/* Forwarders management. */
+	/* traceRoute, ping, topology, ... */
+};
+
+#endif

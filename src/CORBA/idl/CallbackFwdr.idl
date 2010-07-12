@@ -1,0 +1,34 @@
+/****************************************************************************/
+/* DIET forwarder IDL description                                           */
+/*                                                                          */
+/*  Author(s):                                                              */
+/*    - Gael Le Mahec   (gael.le.mahec@ens-lyon.fr)                         */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+/* $Id$ */
+/* $Log$
+/* Revision 1.1  2010/07/12 15:54:11  glemahec
+/* DIET 2.5 beta 1 - Forwarder IDL files
+/* */
+
+
+#ifndef CALLBACKFWDR_IDL
+#define CALLBACKFWDR_IDL
+
+#include "Callback.idl"
+#include "common_types.idl"
+
+interface CallbackFwdr : Callback {
+
+};
+
+interface CallbackForwarder {
+  long notifyResults(in string path, in corba_profile_t pb,
+										 in long reqID, in string objName);
+  long solveResults(in string path, in corba_profile_t pb,
+										in long reqID, in long result,
+										in string objName);
+};
+
+#endif

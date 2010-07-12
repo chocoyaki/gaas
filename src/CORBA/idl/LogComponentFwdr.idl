@@ -1,0 +1,66 @@
+/****************************************************************************/
+/* DIET forwarder IDL description                                           */
+/*                                                                          */
+/*  Author(s):                                                              */
+/*    - Gael Le Mahec   (gael.le.mahec@ens-lyon.fr)                         */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+/* $Id$ */
+/* $Log$
+/* Revision 1.1  2010/07/12 15:54:11  glemahec
+/* DIET 2.5 beta 1 - Forwarder IDL files
+/* */
+
+
+#ifndef LOGCOMPONENTFWDR_IDL
+#define LOGCOMPONENTFWDR_IDL
+
+#include "LogComponent.idl"
+
+interface ComponentConfiguratorFwdr : ComponentConfigurator {
+
+};
+
+interface LogCentralComponentFwdr : LogCentralComponent {
+
+};
+
+interface ComponentConfiguratorForwader {
+  void setTagFilter(in tag_list_t tagList, in string objName);
+
+  void addTagFilter(in tag_list_t tagList, in string objName);
+
+  void removeTagFilter(in tag_list_t tagList, in string objName);
+
+  void test(in string objName);
+};
+
+
+interface LogCentralComponentForwarder {
+  void test(in string objName);
+
+  short connectComponent(inout string componentName,
+												 in string componentHostname,
+												 in string message,
+												 in string compConfiguratorName,
+												 in log_time_t componentTime,
+												 inout tag_list_t initialConfig,
+												 in string objName);
+
+  short disconnectComponent(in string componentName,
+														in string message,
+														in string objName);
+
+  oneway void sendBuffer(in log_msg_buf_t buffer,
+												 in string objName);
+
+  string getHostnameOf(in string componentName, in string objName);
+
+  oneway void ping(in string componentName, in string objName);
+
+  oneway void synchronize(in string componentName,
+													in log_time_t componentTime,
+													in string objName);
+};
+#endif

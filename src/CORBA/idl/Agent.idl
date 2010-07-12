@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2010/07/12 15:54:07  glemahec
+ * DIET 2.5 beta 1 - Forwarder IDL files
+ *
  * Revision 1.10  2009/10/26 09:06:40  bdepardo
  * Added 1 method to dynamically manage the hierarchy:
  * - long removeElement(in boolean recursive): kills the element, and
@@ -62,11 +65,6 @@
 
 #include "common_types.idl"
 #include "response.idl"
-#include "SeD.idl"
-
-#ifdef HAVE_DAGDA
-#include "Dagda.idl"
-#endif
 
 /****************************************************************************/
 /* Agent interface                                                          */
@@ -80,7 +78,7 @@ interface Agent {
    * same as for addServices method. Returns a registration number wich
    * indentifies the child amongst the other children of this agent.
    */
-  long agentSubscribe(in Agent me, in string hostname,
+  long agentSubscribe(in string agentName, in string hostname,
 			       in SeqCorbaProfileDesc_t services);
   /**
    * Invoked by servers to register as a child of this agent. As it is useless
@@ -88,7 +86,7 @@ interface Agent {
    * addServices method. Returns a registration number wich indentifies the
    * child amongst the other children of this agent.
    */
-  long serverSubscribe(in SeD me,
+  long serverSubscribe(in string seDName,
                        in string hostname,
 #if HAVE_JXTA
                        in string uuid,
@@ -111,7 +109,7 @@ interface Agent {
 			in SeqCorbaProfileDesc_t services);
 #endif // HAVE_DYNAMICS
 
-#ifdef HAVE_DAGDA
+//#ifdef HAVE_DAGDA
   /**
    * Invoked by SeDImpl::removeService(...) after removing a service
    * locally on a SeD. Used to inform the rest of the hierarchy that this
@@ -119,7 +117,7 @@ interface Agent {
    */
   long childRemoveService(in unsigned long childID,
 			  in corba_profile_desc_t profile);
-#endif
+//#endif
 
   /**
    * Service table update method. Propagate the update of the problem list up
@@ -144,7 +142,7 @@ interface Agent {
   /** Used to get the host name of the Agent */
   string getHostname() ;
 #if HAVE_DAGDA
-  Dagda getDataManager();
+  string getDataManager();
 #endif
 };
 

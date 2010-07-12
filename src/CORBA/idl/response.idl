@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.18  2010/07/12 15:54:11  glemahec
+ * DIET 2.5 beta 1 - Forwarder IDL files
+ *
  * Revision 1.17  2009/02/06 14:51:55  bisnard
  * setup exceptions for workflows
  *
@@ -90,8 +93,8 @@
  */
 
 struct corba_server_t {
-  SeD    ior;
-  string hostName;
+	string SeDName;
+	string hostName;
 #if HAVE_JXTA
   string uuid;
 #endif // HAVE_JXTA

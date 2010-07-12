@@ -1,0 +1,62 @@
+/****************************************************************************/
+/* DIET forwarder IDL description                                           */
+/*                                                                          */
+/*  Author(s):                                                              */
+/*    - Gael Le Mahec   (gael.le.mahec@ens-lyon.fr)                         */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+/* $Id$ */
+/* $Log$
+/* Revision 1.1  2010/07/12 15:54:10  glemahec
+/* DIET 2.5 beta 1 - Forwarder IDL files
+/* */
+
+
+#ifndef AGENTFWDR_IDL
+#define AGENTFWDR_IDL
+
+#include "Agent.idl"
+#include "common_types.idl"
+
+interface AgentFwdr : Agent {
+
+};
+
+interface AgentForwarder {
+	long agentSubscribe(in string agentName, in string hostname,
+											in SeqCorbaProfileDesc_t services,
+											in string objName);
+	long serverSubscribe(in string seDName,
+                       in string hostname,
+#if HAVE_JXTA
+                       in string uuid,
+#endif // HAVE_JXTA
+                       in SeqCorbaProfileDesc_t services,
+											 in string objName);
+
+#ifdef HAVE_DYNAMICS
+  long childUnsubscribe(in unsigned long childID,
+												in SeqCorbaProfileDesc_t services,
+												in string objName);
+#endif // HAVE_DYNAMICS
+
+//#ifdef HAVE_DAGDA
+  long childRemoveService(in unsigned long childID,
+													in corba_profile_desc_t profile,
+													in string objName);
+//#endif
+  long addServices(in unsigned long myID,
+                   in SeqCorbaProfileDesc_t services,
+									 in string objName);
+
+  oneway void getResponse(in corba_response_t resp,
+													in string objName);
+
+#if HAVE_DAGDA
+  string getDataManager(in string objName);
+#endif
+};
+
+
+#endif

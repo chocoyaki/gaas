@@ -1,0 +1,45 @@
+/****************************************************************************/
+/* DIET forwarder IDL description                                           */
+/*                                                                          */
+/*  Author(s):                                                              */
+/*    - Gael Le Mahec   (gael.le.mahec@ens-lyon.fr)                         */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+/* $Id$ */
+/* $Log$
+/* Revision 1.1  2010/07/12 15:54:11  glemahec
+/* DIET 2.5 beta 1 - Forwarder IDL files
+/* */
+
+
+#ifndef SEDFWDR_IDL
+#define SEDFWDR_IDL
+
+#include "SeD.idl"
+
+interface SeDFwdr : SeD {
+
+};
+
+interface SeDForwarder {
+  long checkContract(inout corba_estimation_t estimation,
+										 in corba_pb_desc_t pb,
+										 in string objName);
+
+  void updateTimeSinceLastSolve(in string objName) ;
+
+  long solve(in string path, inout corba_profile_t pb,
+						 in string objName);
+
+  oneway void solveAsync(in string path, in corba_profile_t pb,
+												 in string volatileclientPtr,
+												 in string objName);
+
+
+#if HAVE_DAGDA
+  string getDataMgrID(in string objName);
+#endif
+};
+
+#endif

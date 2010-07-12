@@ -62,11 +62,11 @@ interface Dagda {
   boolean pfmIsDataPresent(in string dataID);
 
   /* Add a data. */
-  void lclAddData(in Dagda src, in corba_data_t data)
+  void lclAddData(in string srcDagda, in corba_data_t data)
     raises(InvalidPathName, ReadError, WriteError, NotEnoughSpace);
-  void lvlAddData(in Dagda src, in corba_data_t data)
+  void lvlAddData(in string srcDagda, in corba_data_t data)
     raises(InvalidPathName, ReadError, WriteError, NotEnoughSpace);
-  void pfmAddData(in Dagda src, in corba_data_t data)
+  void pfmAddData(in string srcDagda, in corba_data_t data)
     raises(InvalidPathName, ReadError, WriteError, NotEnoughSpace);
   /* Register a file. (without copying it. Used to declare a file present at
      launching time or shared by SeDs.) */
@@ -95,9 +95,9 @@ interface Dagda {
   void pfmRemData(in string dataID);
 
   /* Update a data. */
-  void lclUpdateData(in Dagda src, in corba_data_t data);
-  void lvlUpdateData(in Dagda src, in corba_data_t data);
-  void pfmUpdateData(in Dagda src, in corba_data_t data);
+  void lclUpdateData(in string srcDagda, in corba_data_t data);
+  void lvlUpdateData(in string srcDagda, in corba_data_t data);
+  void pfmUpdateData(in string srcDagda, in corba_data_t data);
 
   /* Get the data description list. */
   SeqCorbaDataDesc_t lclGetDataDescList();
@@ -126,7 +126,7 @@ interface Dagda {
   string writeFile(in SeqChar data, in string basename, in boolean replace)
     raises(InvalidPathName, WriteError, NotEnoughSpace);
   /* Send a file to a node. */
-  string sendFile(in corba_data_t data, in Dagda dest)
+  string sendFile(in corba_data_t data, in string destDagda)
     raises(InvalidPathName, ReadError, WriteError);
   /* Record a data into memory. If "replace" is true,
      the data is erased or created and replaced by the new one.
@@ -138,23 +138,23 @@ interface Dagda {
 		    in boolean replace, in long offset)
     raises(NotEnoughSpace);
   /* Send a data to a node. */
-  string sendData(in string ID, in Dagda dest)
+  string sendData(in string ID, in string destDagda)
     raises(DataNotFound);
   /* Send a container to a node */
-  string sendContainer(in string ID, in Dagda dest, in boolean sendElements)
+  string sendContainer(in string ID, in string destDagda, in boolean sendElements)
     raises(DataNotFound);
 
 
-  typedef sequence<Dagda> SeqDagda_t;
+  typedef sequence<string> SeqDagda_t;
   enum dataStatus { ready, downloading, notOwner };
   /* Get the managers of a data. */
-  SeqDagda_t lvlGetDataManagers(in string dataID);
-  SeqDagda_t pfmGetDataManagers(in string dataID);
+  SeqString lvlGetDataManagers(in string dataID);
+  SeqString pfmGetDataManagers(in string dataID);
 
   /* Ask to this node to become its child. */
-  void subscribe(in Dagda me);
+  void subscribe(in string dagdaName);
   /* Unsubscribe. */
-  void unsubscribe(in Dagda me);
+  void unsubscribe(in string dagdaName);
 
   /* To identify the data manager node. */
   string getID();
@@ -166,7 +166,7 @@ interface Dagda {
 
   dataStatus getDataStatus(in string dataID);
 
-  Dagda getBestSource(in Dagda dest, in string dataID)
+  string getBestSource(in string destDagda, in string dataID)
     raises(DataNotFound);
 
   void checkpointState();

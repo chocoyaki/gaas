@@ -1,0 +1,42 @@
+/****************************************************************************/
+/* DIET forwarder IDL description                                           */
+/*                                                                          */
+/*  Author(s):                                                              */
+/*    - Gael Le Mahec   (gael.le.mahec@ens-lyon.fr)                         */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+/* $Id$ */
+/* $Log$
+/* Revision 1.1  2010/07/12 15:54:11  glemahec
+/* DIET 2.5 beta 1 - Forwarder IDL files
+/* */
+
+
+#ifndef CLTMANFWDR_IDL
+#define CLTMANFWDR_IDL
+
+#include "CltMan.idl"
+
+interface CltManFwdr : CltMan {
+
+};
+
+interface CltManForwarder {
+	long execNodeOnSed(in string node_id,
+										 in string dag_id,
+										 in string seDName,
+										 in unsigned long reqID,
+										 inout corba_estimation_t ev,
+										 in string objName);
+
+  long execNode(in string node_id,
+								in string dag_id,
+								in string objName);
+
+  string release(in string dag_id,
+								 in boolean successful,
+								 in string objName);
+};
+
+#endif

@@ -1,0 +1,106 @@
+/****************************************************************************/
+/* DIET forwarder IDL description                                           */
+/*                                                                          */
+/*  Author(s):                                                              */
+/*    - Gael Le Mahec   (gael.le.mahec@ens-lyon.fr)                         */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+/* $Id$ */
+/* $Log$
+/* Revision 1.1  2010/07/12 15:54:11  glemahec
+/* DIET 2.5 beta 1 - Forwarder IDL files
+/* */
+
+
+#ifndef MASTERAGENTFWDR_IDL
+#define MASTERAGENTFWDR_IDL
+
+#include "MasterAgent.idl"
+#include "AgentFwdr.idl"
+
+interface MasterAgentFwdr : MasterAgent {
+
+};
+
+interface MasterAgentForwarder : AgentForwarder {
+  corba_response_t submit(in corba_pb_desc_t pb_profile,
+													in unsigned long maxServers,
+													in string objName);
+
+  long get_session_num(in string objName);
+
+  string get_data_id(in string objName);
+
+  unsigned long dataLookUp(in string id,
+													 in string objName);
+
+#ifdef HAVE_DAGDA
+  corba_data_desc_t get_data_arg(in string argID,
+																 in string objName)
+	  raises(Dagda::DataNotFound);
+#else
+  corba_data_desc_t get_data_arg(in string argID,
+																 in string objName);
+#endif
+
+  long diet_free_pdata(in string argID, in string objName);
+
+  SeqCorbaProfileDesc_t getProfiles(out long length,
+																		in string objName);
+
+#ifdef HAVE_MULTI_MA
+  boolean handShake(in string masterAgentName, in string myName,
+										in string objName);
+
+  string getBindName(in string objName);
+
+  oneway void searchService(in string masterAgentName,
+			    in string myName,
+			    in corba_request_t request,
+					in string objName);
+
+  oneway void stopFlooding(in long reqId, in string senderId,
+													 in string objName);
+
+  oneway void serviceNotFound(in long reqId, in string senderId,
+															in string objName);
+
+  oneway void newFlood(in long reqId, in string senderId,
+											 in string objName);
+
+  oneway void floodedArea(in long reqId, in string senderId,
+													in string objName);
+
+  oneway void alreadyContacted(in long reqId,
+															 in string senderId,
+															 in string objName);
+
+  oneway void serviceFound(in long reqId, in corba_response_t decision,
+													 in string objName);
+
+#endif // HAVE_MULTI_MA
+
+#ifdef HAVE_WORKFLOW
+  wf_response_t submit_pb_set (in corba_pb_desc_seq_t seq_pb,
+															 in string objName);
+
+    response_seq_t
+    submit_pb_seq(in corba_pb_desc_seq_t pb_seq,
+                  in long reqCount,
+                  out boolean complete,
+                  out long firstReqId,
+                  out long seqReqId,
+									in string objName);
+#endif // HAVE_WORKFLOW
+
+#ifdef HAVE_DAGDA
+  SeqString searchData(in string request,
+											 in string objName);
+  long insertData(in string key, in SeqString values,
+									in string objName);
+#endif
+};
+
+
+#endif

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2010/07/12 15:54:11  glemahec
+ * DIET 2.5 beta 1 - Forwarder IDL files
+ *
  * Revision 1.15  2009/08/26 09:27:30  bisnard
  * allow Dagda exception forwarding in get_data_arg
  *
@@ -107,7 +110,7 @@ interface MasterAgent : Agent {
 #ifdef HAVE_MULTI_MA
 
   /** MAs federation management */
-  boolean handShake(in MasterAgent me, in string myName);
+  boolean handShake(in string masterAgentName, in string myName);
 
   /** returns the address of the MA's bind service */
   string getBindName();
@@ -115,7 +118,7 @@ interface MasterAgent : Agent {
   /**
    * send a new request to the MA.
    */
-  oneway void searchService(in MasterAgent me,
+  oneway void searchService(in string masterAgentName,
 			    in string myName,
 			    in corba_request_t request) ;
 

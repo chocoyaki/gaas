@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2010/07/12 15:54:11  glemahec
+ * DIET 2.5 beta 1 - Forwarder IDL files
+ *
  * Revision 1.7  2008/12/02 14:17:48  bisnard
  * manage multi-dag cancellation when one dag fails
  *
@@ -38,7 +41,6 @@
 #define _CLTMAN_IDL_
 
 #include "response.idl"
-#include "SeD.idl"
 
 interface CltMan {
 
@@ -59,7 +61,7 @@ interface CltMan {
   long
   execNodeOnSed(in string node_id,
                 in string dag_id,
-                in SeD sed_ref,
+                in string seDName,
                 in unsigned long reqID,
                 inout corba_estimation_t ev);
 
@@ -82,8 +84,7 @@ interface CltMan {
   string
   release(in string dag_id, in boolean successful);
 
-  void
-  ping();
+  long ping();
 };
 
 #endif // _CLTMAN_IDL_

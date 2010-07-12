@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2010/07/12 15:54:11  glemahec
+ * DIET 2.5 beta 1 - Forwarder IDL files
+ *
  * Revision 1.7  2007/07/13 16:44:39  ecaron
  * Remove deprecated code (ALTPREDICT part)
  *
@@ -43,20 +46,20 @@ interface DataMgr {
   /**
    * Method invoked by the Data Manager to get a data identified by id.
    */
-  void putData(in string argID, in DataMgr me);
+  void putData(in string argID, in string me);
 
   /**
    * Remove data identified by cdataId after a data transfer.
    * Invoked by the loc Manager Father
    */
-  long rmDataRef(in string argID);
+  long rmDataRefDataMgr(in string argID);
  
   /**
    * Invoked by a Loc Manager because this Data Manager is holding an IN or
    * INOUT argument identified by argID. Returns this Data Manager reference or
    * DataMgr::_nil() if the data were not present.
    */
-  DataMgr whereData(in string argID);
+  string whereData(in string argID);
 
   /** Sending data to remote Data Manager. */
   void sendData(inout corba_data_t arg);

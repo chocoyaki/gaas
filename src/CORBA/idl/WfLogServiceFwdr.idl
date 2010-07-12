@@ -1,0 +1,42 @@
+/****************************************************************************/
+/* DIET forwarder IDL description                                           */
+/*                                                                          */
+/*  Author(s):                                                              */
+/*    - Gael Le Mahec   (gael.le.mahec@ens-lyon.fr)                         */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+/* $Id$ */
+/* $Log$
+/* Revision 1.1  2010/07/12 15:54:11  glemahec
+/* DIET 2.5 beta 1 - Forwarder IDL files
+/* */
+
+
+#ifndef WFLOGSERVICEFWDR_IDL
+#define WFLOGSERVICEFWDR_IDL
+
+#include "WfLogService.idl"
+
+interface WfLogServiceFwdr : WfLogService {
+
+};
+
+interface WfLogServiceForwarder {
+	void setWf(in string workflow_description,
+						 in string objName);
+
+  void nodeIsDone(in string node_id,
+									in string objName);
+
+  void nodeIsRunning(in string node_id, in string hostname,
+										 in string objName);
+
+  void nodeIsStarting(in string node_id,
+											in string objName);
+
+  void nodeIsWaiting(in string node_id,
+										 in string objName);
+};
+
+#endif

@@ -1,0 +1,31 @@
+/****************************************************************************/
+/* DIET forwarder IDL description                                           */
+/*                                                                          */
+/*  Author(s):                                                              */
+/*    - Gael Le Mahec   (gael.le.mahec@ens-lyon.fr)                         */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+/* $Id$ */
+/* $Log$
+/* Revision 1.1  2010/07/12 15:54:11  glemahec
+/* DIET 2.5 beta 1 - Forwarder IDL files
+/* */
+
+
+#ifndef DATAMGRFWDR_IDL
+#define DATAMGRFWDR_IDL
+
+#include "DataMgr.idl"
+
+interface DataMgrFwdr : DataMgr {
+
+};
+
+interface DataMgrForwarder {
+	void putData(in string argID, in string me, in string objName);
+  long rmDataRefDataMgr(in string argID, in string objName); 
+  void sendData(inout corba_data_t arg, in string objName);
+};
+
+#endif

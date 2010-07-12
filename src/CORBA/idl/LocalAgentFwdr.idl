@@ -1,0 +1,35 @@
+/****************************************************************************/
+/* DIET forwarder IDL description                                           */
+/*                                                                          */
+/*  Author(s):                                                              */
+/*    - Gael Le Mahec   (gael.le.mahec@ens-lyon.fr)                         */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+/* $Id$ */
+/* $Log$
+/* Revision 1.1  2010/07/12 15:54:11  glemahec
+/* DIET 2.5 beta 1 - Forwarder IDL files
+/* */
+
+
+#ifndef LOCALAGENTFWDR_IDL
+#define LOCALAGENTFWDR_IDL
+
+#include "LocalAgent.idl"
+#include "AgentFwdr.idl"
+
+interface LocalAgentFwdr : LocalAgent {
+
+};
+
+interface LocalAgentForwarder : AgentForwarder {
+#ifdef HAVE_DYNAMICS
+  long bindParent(in string parentName,
+									in string objName);
+  long disconnect(in string objName);
+#endif // HAVE_DYNAMICS
+
+};
+
+#endif

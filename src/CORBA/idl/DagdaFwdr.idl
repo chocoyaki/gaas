@@ -1,0 +1,141 @@
+/****************************************************************************/
+/* DIET forwarder IDL description                                           */
+/*                                                                          */
+/*  Author(s):                                                              */
+/*    - Gael Le Mahec   (gael.le.mahec@ens-lyon.fr)                         */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+/* $Id$ */
+/* $Log$
+/* Revision 1.1  2010/07/12 15:54:11  glemahec
+/* DIET 2.5 beta 1 - Forwarder IDL files
+/* */
+
+
+#ifndef DAGDAFWDR_IDL
+#define DAGDAFWDR_IDL
+
+#include "Dagda.idl"
+
+interface DagdaFwdr : Dagda {
+
+};
+
+interface DagdaForwarder {
+  boolean lclIsDataPresent(in string dataID,
+													 in string objName);
+  boolean lvlIsDataPresent(in string dataID,
+													 in string objName);
+  boolean pfmIsDataPresent(in string dataID,
+													 in string objName);
+
+  void lclAddData(in string srcDagda, in corba_data_t data,
+									in string objName)
+    raises(Dagda::InvalidPathName, Dagda::ReadError, Dagda::WriteError,
+					 Dagda::NotEnoughSpace);
+  void lvlAddData(in string srcDagda, in corba_data_t data,
+									in string objName)
+    raises(Dagda::InvalidPathName, Dagda::ReadError, Dagda::WriteError,
+					 Dagda::NotEnoughSpace);
+  void pfmAddData(in string srcDagda, in corba_data_t data,
+									in string objName)
+    raises(Dagda::InvalidPathName, Dagda::ReadError, Dagda::WriteError,
+					 Dagda::NotEnoughSpace);
+
+  void registerFile(in corba_data_t data, in string objName)
+    raises(Dagda::InvalidPathName, Dagda::UnreachableFile);
+
+  void lclAddContainerElt(in string containerID,
+                          in string dataID,
+                          in long index,
+                          in long flag,
+													in string objName)
+    raises(Dagda::DataNotFound);
+
+  long lclGetContainerSize(in string containerID, in string objName);
+
+  void lclGetContainerElts(in string containerID,
+                           inout SeqString dataIDSeq,
+                           inout SeqLong flagSeq,
+                           in boolean ordered,
+													 in string objName);
+
+  void lclRemData(in string dataID, in string objName);
+  void lvlRemData(in string dataID, in string objName);
+  void pfmRemData(in string dataID, in string objName);
+
+  void lclUpdateData(in string srcDagda, in corba_data_t data, in string objName);
+  void lvlUpdateData(in string srcDagda, in corba_data_t data, in string objName);
+  void pfmUpdateData(in string srcDagda, in corba_data_t data, in string objName);
+
+  SeqCorbaDataDesc_t lclGetDataDescList(in string objName);
+  SeqCorbaDataDesc_t lvlGetDataDescList(in string objName);
+  SeqCorbaDataDesc_t pfmGetDataDescList(in string objName);
+
+  corba_data_desc_t lclGetDataDesc(in string dataID,
+																	 in string objName)
+    raises(Dagda::DataNotFound);
+  corba_data_desc_t lvlGetDataDesc(in string dataID,
+																	 in string objName)
+    raises(Dagda::DataNotFound);
+  corba_data_desc_t pfmGetDataDesc(in string dataID,
+																	 in string objName)
+    raises(Dagda::DataNotFound);
+
+  oneway void lclReplicate(in string dataID, in long ruleTarget,
+													 in string pattern, in boolean replace,
+													 in string objName);
+  oneway void lvlReplicate(in string dataID, in long ruleTarget,
+													 in string pattern, in boolean replace,
+													 in string objName);
+  oneway void pfmReplicate(in string dataID, in long ruleTarget,
+													 in string pattern, in boolean replace,
+													 in string objName);
+
+  string writeFile(in SeqChar data, in string basename, in boolean replace,
+									 in string objName)
+    raises(Dagda::InvalidPathName, Dagda::WriteError, Dagda::NotEnoughSpace);
+		
+  string sendFile(in corba_data_t data, in string destDagda,
+									in string objName)
+    raises(Dagda::InvalidPathName, Dagda::ReadError, Dagda::WriteError);
+		
+  string recordData(in SeqChar data, in corba_data_desc_t dataDesc,
+										in boolean replace, in long offset,
+										in string objName)
+    raises(Dagda::NotEnoughSpace);
+		
+  string sendData(in string ID, in string destDagda, in string objName)
+    raises(Dagda::DataNotFound);
+		
+  string sendContainer(in string ID, in string destDagda, in boolean sendElements,
+											 in string objName)
+    raises(Dagda::DataNotFound);
+
+
+  SeqString lvlGetDataManagers(in string dataID, in string objName);
+  SeqString pfmGetDataManagers(in string dataID, in string objName);
+
+  void subscribe(in string dagdaName, in string objName);
+  void unsubscribe(in string dagdaName, in string objName);
+
+  string getID(in string objName);
+
+  void lockData(in string dataID, in string objName);
+  void unlockData(in string dataID, in string objName);
+
+  Dagda::dataStatus getDataStatus(in string dataID, in string objName);
+
+  string getBestSource(in string destDagda, in string dataID, in string objName)
+    raises(Dagda::DataNotFound);
+
+  void checkpointState(in string objName);
+
+#ifdef HAVE_DYNAMICS
+  void subscribeParent(in string parentID, in string objName);
+  void unsubscribeParent(in string objName);
+#endif
+};
+
+#endif
