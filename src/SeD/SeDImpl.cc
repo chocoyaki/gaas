@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.119  2010/07/12 16:14:10  glemahec
+ * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
+ *
  * Revision 1.118  2010/03/31 21:15:39  bdepardo
  * Changed C headers into C++ headers
  *
@@ -393,6 +396,8 @@ SeDImpl::initialize()
 SeDImpl::~SeDImpl()
 {
   /* FIXME: Tables should be destroyed. */
+	ORBMgr::getMgr()->unbind(SEDCTXT, myName);
+	ORBMgr::getMgr()->fwdsUnbind(SEDCTXT, myName);
   stat_finalize();
 }
 
@@ -444,8 +449,10 @@ SeDImpl::bindParent(const char * parentName) {
 
   /* Does the new parent exists? */
   Agent_var parentTmp =
-    Agent::_duplicate(Agent::_narrow(ORBMgr::getObjReference(ORBMgr::AGENT,
-							     parentName)));
+	ORBMgr::getMgr()->resolve<Agent,Agent_var>(AGENTCTXT, parentName);
+	
+  /*  Agent::_duplicate(Agent::_narrow(ORBMgr::getObjReference(ORBMgr::AGENT,
+							     parentName)));*/
   if (CORBA::is_nil(parentTmp)) {
     if (CORBA::is_nil(this->parent)) {
       WARNING("cannot locate agent " << parentName << ", will now wait");
@@ -480,7 +487,7 @@ SeDImpl::bindParent(const char * parentName) {
   this->parent = parentTmp;
 
   try {
-    childID = this->parent->serverSubscribe(this->_this(), localHostName,
+    childID = this->parent->serverSubscribe(myName, localHostName,
 #if HAVE_JXTA
 				      uuid,
 #endif //HAVE_JXTA
@@ -559,7 +566,6 @@ SeDImpl::run(ServiceTable* services)
   }
   localHostName[255] = '\0'; // If truncated, ensure null termination
 
-#ifdef HAVE_DYNAMICS
   char * name;
   /* Bind this SeD to its name in the CORBA Naming Service */
   name = (char*)Parsers::Results::getParamValue(Parsers::Results::NAME);
@@ -575,10 +581,13 @@ SeDImpl::run(ServiceTable* services)
     strcpy(this->myName, name);
   }
   TRACE_TEXT(TRACE_ALL_STEPS, "* Declared myself as: " << this->myName << std::endl);
-  if (ORBMgr::bindObjToName(_this(), ORBMgr::SED, this->myName)) {
+  try {
+		ORBMgr::getMgr()->bind(SEDCTXT, this->myName, this->_this(), true);
+		ORBMgr::getMgr()->fwdsBind(SEDCTXT, this->myName,
+															 ORBMgr::getMgr()->getIOR(_this()));
+	} catch (...) {
     ERROR("could not declare myself as " << this->myName, 1);
   }
-#endif // HAVE_DYNAMICS
 
   this->SrvT = services;
 
@@ -621,8 +630,11 @@ SeDImpl::run(ServiceTable* services)
 #endif // HAVE_DYNAMICS
   }
   parent =
-    Agent::_duplicate(Agent::_narrow(ORBMgr::getObjReference(ORBMgr::AGENT,
-                                                             parent_name)));
+		ORBMgr::getMgr()->resolve<Agent, Agent_var>(AGENTCTXT, parent_name);
+  /*  Agent::_duplicate(Agent::_narrow(ORBMgr::getObjReference(ORBMgr::AGENT,
+                                                             parent_name)));*/
+	cout << "*******" << endl;
+	cout << "Parent IOR: " << ORBMgr::getMgr()->getIOR(parent) << endl;
   if (CORBA::is_nil(parent)) {
 #ifndef HAVE_DYNAMICS
     ERROR("cannot locate agent " << parent_name, 1);
@@ -643,7 +655,7 @@ SeDImpl::run(ServiceTable* services)
   if (! CORBA::is_nil(parent)) {
 #endif // HAVE_DYNAMICS
   try {
-    childID = parent->serverSubscribe(this->_this(), localHostName,
+    childID = parent->serverSubscribe(this->myName, localHostName,
 #if HAVE_JXTA
                                       uuid,
 #endif //HAVE_JXTA
@@ -807,7 +819,7 @@ SeDImpl::getRequest(const corba_request_t& creq)
   } else {
     resp.servers.length(1);
 
-    resp.servers[0].loc.ior      = SeD::_duplicate(_this());
+    resp.servers[0].loc.SeDName  = CORBA::string_dup(myName);
     resp.servers[0].loc.hostName = CORBA::string_dup(this->localHostName);
     resp.servers[0].loc.port     = this->port;
     resp.servers[0].estim.estValues.length(0);
@@ -944,8 +956,6 @@ SeDImpl::solve(const char* path, corba_profile_t& pb)
   int solve_res(0);
   char statMsg[128];
 
-  int i;//, arg_idx;
-
   /* Record the SedImpl address */
   profile.SeDPtr = (const void*) this ;
 
@@ -1006,7 +1016,7 @@ SeDImpl::solve(const char* path, corba_profile_t& pb)
   TRACE_TEXT(TRACE_MAIN_STEPS,"SeD::solve complete" << endl
          << "************************************************************"<< endl);
 #if ! HAVE_DAGDA
-  for (i = 0; i <= cvt->last_in; i++) {
+  for (int i = 0; i <= cvt->last_in; i++) {
     diet_free_data(&(profile.parameters[i]));
   }
 #endif // ! HAVE_DAGDA
@@ -1146,7 +1156,8 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
   // If nil, it is not necessary to solve ...
   try {
     //ServiceTable::ServiceReference_t ref(-1);
-    CORBA::Object_var cb = ORBMgr::stringToObject(volatileclientREF);
+    CORBA::Object_var cb = ORBMgr::getMgr()->resolveObject(CLIENTCTXT, volatileclientREF);
+		//ORBMgr::stringToObject(volatileclientREF);
     if (CORBA::is_nil(cb)) {
       ERROR("SeD::" << __FUNCTION__ << ": received a nil callback",);
     } else {
@@ -2026,4 +2037,56 @@ SeDImpl::getDataMgrID() {
 // end modif bisnard_logs_1
 
 #endif //HAVE_DAGDA
+
+SeDFwdrImpl::SeDFwdrImpl(Forwarder_ptr fwdr, const char* objName) {
+	this->forwarder = Forwarder::_duplicate(fwdr);
+	this->objName = CORBA::string_dup(objName);
+}
+
+CORBA::Long SeDFwdrImpl::ping() {
+	return forwarder->ping(objName);
+}
+
+#ifdef HAVE_DYNAMICS
+CORBA::Long SeDFwdrImpl::bindParent(const char * parentName) {
+	return forwarder->bindParent(parentName, objName);
+}
+
+CORBA::Long SeDFwdrImpl::disconnect() {
+	return forwarder->disconnect(objName);
+}
+
+CORBA::Long SeDFwdrImpl::removeElement() {
+	return forwarder->removeElement(false, objName);
+}
+
+#endif
+void SeDFwdrImpl::getRequest(const corba_request_t& req) {
+	return forwarder->getRequest(req, objName);
+}
+
+CORBA::Long SeDFwdrImpl::checkContract(corba_estimation_t& estimation,
+																			 const corba_pb_desc_t& pb)
+{
+	return forwarder->checkContract(estimation, pb, objName);
+}
+
+void SeDFwdrImpl::updateTimeSinceLastSolve() {
+	forwarder->updateTimeSinceLastSolve(objName);
+}
+
+CORBA::Long SeDFwdrImpl::solve(const char* pbName, corba_profile_t& pb) {
+	return forwarder->solve(pbName, pb, objName);
+}
+
+void SeDFwdrImpl::solveAsync(const char* pb_name, const corba_profile_t& pb,
+														 const char * volatileclientIOR)
+{
+	forwarder->solveAsync(pb_name, pb, volatileclientIOR, objName);
+}
+#ifdef HAVE_DAGDA
+char* SeDFwdrImpl::getDataMgrID() {
+	return forwarder->getDataMgrID(objName);	
+}
+#endif
 

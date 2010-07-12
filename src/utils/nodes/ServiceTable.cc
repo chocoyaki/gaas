@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2010/07/12 16:14:13  glemahec
+ * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
+ *
  * Revision 1.2  2010/03/31 21:15:41  bdepardo
  * Changed C headers into C++ headers
  *
@@ -496,7 +499,7 @@ ServiceTable::rmService(const ServiceReference_t ref)
 }
 
 
-#ifdef HAVE_DAGDA
+//#ifdef HAVE_DAGDA
 /** removes a service on a given child */
 int
 ServiceTable::rmChildService(const corba_profile_desc_t* profile, CORBA::ULong childID)
@@ -539,7 +542,7 @@ ServiceTable::rmChildService(const corba_profile_desc_t* profile, CORBA::ULong c
 
   return 0;
 }
-#endif // HAVE_DAGDA
+//#endif // HAVE_DAGDA
 
 
 int

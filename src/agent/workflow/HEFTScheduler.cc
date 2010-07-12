@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2010/07/12 16:14:11  glemahec
+ * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
+ *
  * Revision 1.14  2010/03/08 13:42:46  bisnard
  * removed debug output
  *
@@ -140,8 +143,9 @@ HEFTScheduler::setNodesEFT(std::vector<DagNode *>& orderedNodes,
 	 ix<wf_response->wfn_seq_resp[pb_index].response.servers.length();
 	 ix++) {
       string ss(CORBA::string_dup(wf_response->wfn_seq_resp[pb_index].response.servers[ix].loc.hostName));
-      SeD_ptr curSeDPtr = wf_response->wfn_seq_resp[pb_index].response.servers[ix].loc.ior;
-
+      string sedName = string(wf_response->wfn_seq_resp[pb_index].response.servers[ix].loc.SeDName);
+			SeD_ptr curSeDPtr = ORBMgr::getMgr()->resolve<SeD, SeD_ptr>(SEDCTXT, sedName);
+			
       // get availability of current server (loop to check SeD ref equivalence - this is used to
       // avoid conflicts if two SeDs share the same hostname)
       double EST = initTime; // earliest start time among all SeDs for this service

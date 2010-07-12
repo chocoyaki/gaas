@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2010/07/12 16:14:12  glemahec
+ * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
+ *
  * Revision 1.3  2009/10/23 13:59:24  bisnard
  * replaced \n by std::endl
  *
@@ -48,9 +51,11 @@ CltDagNodeLauncher::execNode(bool& successful)
 
   // diet call
   try {
+		SeD_var sed = ORBMgr::getMgr()->resolve<SeD, SeD_var>(SEDCTXT, myChosenServer);
+
     if (!diet_call_common(myNode->getDag()->getExecutionAgent(),
                           myNode->getProfile(),
-                          myChosenServer,
+                          sed,
                           &myEstimVect,
                           MAX_EXEC_SERVERS)) {
       TRACE_TEXT (TRACE_MAIN_STEPS, traceHeader << "diet call DONE reqID=" <<

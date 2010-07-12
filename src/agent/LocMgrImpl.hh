@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2010/07/12 16:14:11  glemahec
+ * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
+ *
  * Revision 1.10  2008/07/16 00:44:11  ecaron
  * Remove HAVE_ALTPREDICT
  *
@@ -38,6 +41,8 @@
 #include "ts_container/ts_map.hh"
 #include "ts_container/ts_vector.hh"
 
+#include "Forwarder.hh"
+#include "LocMgrFwdr.hh"
 
 /** Local Loc structure for data type management */
 
@@ -82,10 +87,10 @@ public:
   
   /** Subscribe a LocMgr as a child. Remotely called by a LocMgr. */
   virtual CORBA::ULong
-  locMgrSubscribe(LocMgr_ptr me, const char* hostName);
+  locMgrSubscribe(const char* me, const char* hostName);
   /** Subscribe a DataMgr as a child. Remotely called by a DataMgr. */
   virtual CORBA::ULong
-  dataMgrSubscribe(DataMgr_ptr me, const char* hostName);
+  dataMgrSubscribe(const char* me, const char* hostName);
  
   /** add data reference to the reference List  */
   virtual void
@@ -93,7 +98,7 @@ public:
 
   /** remove reference from the reference list */
   virtual void
-  rmDataRef(const char* argID, CORBA::ULong cChildID);
+  rmDataRefLocMgr(const char* argID, CORBA::ULong cChildID);
   
   /** remove reference from the reference list  */
   virtual CORBA::Long
@@ -104,12 +109,12 @@ public:
   updateDataRef(const corba_data_desc_t& arg, CORBA::ULong cChildID, CORBA::Long upDown);
   
   /** look for a data reference, recover DataMgr object reference */
-  virtual DataMgr_ptr
+  virtual char*
   whereData(const char* argID);
 
   /** look for a data reference, but only in the subtree, 
    * recover DataMgr object reference. */
-  virtual DataMgr_ptr
+  virtual char*
   whereDataSubtree(const char* argID);
 
   void
@@ -178,6 +183,28 @@ private:
   /** print DataLocList content */
   void printList();
 
+};
+
+class LocMgrFwdrImpl : public POA_LocMgr,
+	public PortableServer::RefCountServantBase
+{
+private:
+	Forwarder_ptr forwarder;
+	char* objName;
+public:
+	LocMgrFwdrImpl(Forwarder_ptr fwdr, const char* objName);
+	::CORBA::ULong locMgrSubscribe(const char* me, const char* hostName);
+  ::CORBA::ULong dataMgrSubscribe(const char* me, const char* hostName);
+  void addDataRef(const ::corba_data_desc_t& arg, ::CORBA::ULong cChildID);
+  void rmDataRefLocMgr(const char* argID, ::CORBA::ULong cChildID);
+  void updateDataRef(const ::corba_data_desc_t& arg, ::CORBA::ULong cChildID, ::CORBA::Long upDown);
+  char* whereData(const char* argID);
+  char* whereDataSubtree(const char* argID);
+  void updateDataProp(const char* argID);
+  ::CORBA::Long rm_pdata(const char* argID);
+  char* setMyName();
+  char* whichSeDOwner(const char* argID);
+	void printList();
 };
 
 #endif // _LOCMGRIMPL_HH_

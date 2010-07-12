@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.91  2010/07/12 16:14:09  glemahec
+ * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
+ *
  * Revision 1.90  2010/03/31 21:15:39  bdepardo
  * Changed C headers into C++ headers
  *
@@ -756,7 +759,7 @@ diet_convertor_check(const diet_convertor_t* const cvt,
 /****************************************************************************/
 
 int
-diet_SeD(char* config_file_name, int argc, char* argv[])
+diet_SeD(const char* config_file_name, int argc, char* argv[])
 {
   SeDImpl* SeD;
   int    res(0);
@@ -847,7 +850,9 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
   }
 
   /* ORB initialization */
-  if (ORBMgr::init(myargc, (char**)myargv)) {
+  try {
+		ORBMgr::init(myargc, (char**)myargv);
+	} catch (...) {
     ERROR("ORB initialization failed", 1);
   }
 
@@ -901,7 +906,7 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
       dietLogComponent = new DietLogComponent("", outBufferSize);
     }
 
-    ORBMgr::activate(dietLogComponent);
+    ORBMgr::getMgr()->activate(dietLogComponent);
     if (dietLogComponent->run("SeD", parentName, flushTime) != 0) {
       // delete(dietLogComponent); // DLC is activated, do not delete !
       WARNING("Could not initialize DietLogComponent");
@@ -926,7 +931,7 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
   /* SeD creation */
   SeD = new SeDImpl();
   TRACE_TEXT(NO_TRACE,
-	     "## SED_IOR " << ORBMgr::getIORString(SeD->_this()) << endl);
+	     "## SED_IOR " << ORBMgr::getMgr()->getIOR(SeD->_this()) << endl);
   fsync(1);
   fflush(NULL);
 
@@ -940,7 +945,7 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
   SeD->setDietLogComponent(dietLogComponent);
 
   /* Activate SeD */
-  ORBMgr::activate(SeD);
+  ORBMgr::getMgr()->activate(SeD);
   if (SeD->run(SRVT)) {
     ERROR("unable to launch the SeD", 1);
   }
@@ -952,9 +957,21 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
 #else
 #if ! HAVE_DAGDA
   /* Set-up and activate Data Manager for DTM usage */
-  dataMgr = new DataMgrImpl();
+	char* nm = (char*)
+		Parsers::Results::getParamValue(Parsers::Results::PARENTNAME);
+	if (nm==NULL) {
+		ERROR("Cannot create the local data manager. SeD needs a parent name", 1);
+	}
+	string dtmName(nm);
+	dtmName="DataMgr-"+dtmName;
+
+  dataMgr = new DataMgrImpl(dtmName.c_str());
   dataMgr->setDietLogComponent(dietLogComponent);
-  ORBMgr::activate(dataMgr);
+  ORBMgr::getMgr()->activate(dataMgr);
+	ORBMgr::getMgr()->bind(DATAMGRCTXT, dtmName, dataMgr->_this(), true);
+  ORBMgr::getMgr()->fwdsBind(DATAMGRCTXT, dtmName,
+														 ORBMgr::getMgr()->getIOR(dataMgr->_this()));
+	
   if (dataMgr->run()) {
     ERROR("unable to launch the DataManager", 1);
   }
@@ -963,7 +980,7 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
   dataManager = DagdaFactory::getSeDDataManager();
   dataManager->setLogComponent( dietLogComponent ); // modif bisnard_logs_1
 
-  ORBMgr::activate(dataManager);
+  ORBMgr::getMgr()->activate(dataManager);
   SeD->setDataManager(dataManager);
 #endif // ! HAVE_DAGDA
 #endif // HAVE_JUXMEM
@@ -988,7 +1005,7 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
 #endif
 
   /* Wait for RPCs : */
-  ORBMgr::wait();
+  ORBMgr::getMgr()->wait();
 
 #ifdef HAVE_DYNAMICS
   signal(SIGINT, SIG_IGN);
@@ -998,7 +1015,7 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
 
   /* shutdown and destroy the ORB
    * Servants will be deactivated and deleted automatically */
-  ORBMgr::destroy();
+  delete ORBMgr::getMgr();
 
   TRACE_TEXT(TRACE_ALL_STEPS, "SeD has exited" << std::endl);
 

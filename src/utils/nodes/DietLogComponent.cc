@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2010/07/12 16:14:13  glemahec
+ * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
+ *
  * Revision 1.3  2010/03/31 21:15:41  bdepardo
  * Changed C headers into C++ headers
  *
@@ -324,7 +327,7 @@ DietLogComponent::DietLogComponent(const char* name,
   CORBA::Object_ptr myLCCptr;
 
   try {
-    myLCCptr = ORBMgr::getObjReference(ORBMgr::LOGSERVICE, "LogComponent");
+    myLCCptr = ORBMgr::getMgr()->resolveObject(LOGCOMPCTXT, "LogComponent");
   } catch(CORBA::SystemException &e) {
     DLC_ERROR("Could not resolve 'LogService./LogComponent.' from the NS",1);
   }
@@ -365,7 +368,7 @@ int DietLogComponent::run(const char* agentType,
       name,
       hostName,
       msg,
-      this->_this(),
+      name,
       time,
       currentTagList
     );
@@ -1255,3 +1258,26 @@ void
 
 
 #endif // HAVE_WORKFLOW
+
+DietLogComponentFwdr::DietLogComponentFwdr(Forwarder_ptr fwdr,
+																					 const char* objName)
+{
+	this->forwarder = Forwarder::_duplicate(fwdr);
+	this->objName = CORBA::string_dup(objName);
+}
+
+void DietLogComponentFwdr::setTagFilter(const tag_list_t& tagList) {
+	forwarder->setTagFilter(tagList, objName);
+}
+
+void DietLogComponentFwdr::addTagFilter(const tag_list_t& tagList) {
+	forwarder->addTagFilter(tagList, objName);
+}
+
+void DietLogComponentFwdr::removeTagFilter(const tag_list_t& tagList) {
+	forwarder->removeTagFilter(tagList, objName);
+}
+
+void DietLogComponentFwdr::test() {
+	forwarder->test(objName);
+}

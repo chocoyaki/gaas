@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2010/07/12 16:14:13  glemahec
+ * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
+ *
  * Revision 1.1  2009/09/25 12:36:18  bisnard
  * created new classes DagNodeLauncher & childs
  *
@@ -38,7 +41,7 @@ class DagNodeLauncher : public Thread
      * @param ev  the Estimation vector for this SeD (required to call diet_call_common)
      */
     void
-        setSeD(const SeD_var& sed, const unsigned long reqID, corba_estimation_t& ev);
+        setSeD(const char* sed, const unsigned long reqID, corba_estimation_t& ev);
 
     /**
       * Run method
@@ -60,7 +63,7 @@ class DagNodeLauncher : public Thread
     DagNode*      myNode;
     DagScheduler *  myDagScheduler;
     bool          isSedDefined;
-    SeD_var       myChosenServer;
+    char*       myChosenServer;
     corba_estimation_t   myEstimVect;
     unsigned long myReqID;
 

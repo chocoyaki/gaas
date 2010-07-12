@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2010/07/12 16:14:12  glemahec
+ * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
+ *
  * Revision 1.11  2010/04/20 12:00:43  glemahec
  * Ajout de l option de compilation TRANSFER_PROGRESSION => Extension de l API DAGDA pour compatibilite services de gestion de fichiers.
  *
@@ -23,7 +26,10 @@
  ***********************************************************/
 #ifndef __DIET_DAGDA_H__
 #define __DIET_DAGDA_H__
-
+#ifndef HAVE_DAGDA
+#define HAVE_DAGDA 1
+#endif
+#include "DIET_data.h"
 #ifdef __cplusplus
 extern "C" {
 #endif

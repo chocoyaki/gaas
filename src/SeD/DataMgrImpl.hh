@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2010/07/12 16:14:10  glemahec
+ * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
+ *
  * Revision 1.15  2008/07/16 00:46:48  ecaron
  * Remove HAVE_ALTPREDICT (deprecated code)
  *
@@ -74,6 +77,9 @@
 #include "ts_container/ts_map.hh"
 #include "DietLogComponent.hh"
 
+#include "Forwarder.hh"
+#include "DataMgrFwdr.hh"
+
 /** defines string comparison for map management */
 
 struct cmpID
@@ -90,7 +96,7 @@ class DataMgrImpl : public POA_DataMgr,
 {
 public:                                              
 
-  DataMgrImpl();
+  DataMgrImpl(const char* id);
 
   ~DataMgrImpl();
 
@@ -126,15 +132,14 @@ public:
 
   /** invoke remote DataManger, it has to send the data */
   virtual void
-  putData(const char* argID, const DataMgr_ptr me);
+  putData(const char* argID, const char* me);
 
   /** remove data from the list */
   virtual CORBA::Long
-  rmDataRef(const char* argID);
+  rmDataRefDataMgr(const char* argID);
 
   /** looking for dataManager localization */
-  virtual DataMgr_ptr
-  whereData(const char* argID);
+  virtual char* whereData(const char* argID);
 
   /** send data to a DataManager */
   virtual void
@@ -177,7 +182,7 @@ private:
   /**************************************************************************/
   /* Private fields                                                         */
   /**************************************************************************/
-  
+  char* id;
   /** Local host name */
   char localHostName[256];
   /** ID of this DataMgr amongst the children of its parent */
@@ -237,4 +242,20 @@ private:
 
 };
 
+class DataMgrFwdrImpl : public POA_DataMgr,
+	public PortableServer::RefCountServantBase
+{
+private:
+	Forwarder_ptr forwarder;
+	char* objName;
+public:
+	DataMgrFwdrImpl(Forwarder_ptr fwdr, const char* objName);
+	virtual void putData(const char* argID, const char* me);
+	virtual CORBA::Long rmDataRefDataMgr(const char* argID);
+	virtual char* whereData(const char* argID);
+	virtual void sendData(corba_data_t& arg);
+	virtual void printList();
+	virtual char* setMyName();
+	virtual char* whichSeDOwner(const char * argId);
+};
 #endif // _DATAMGRIMPL_HH_

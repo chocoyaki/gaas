@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.21  2010/07/12 16:14:11  glemahec
+ * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
+ *
  * Revision 1.20  2008/06/25 09:55:56  bisnard
  * removed unused parameter in submit_pb_set & corrected bug with ReqIDs
  *
@@ -103,6 +106,9 @@ class FloodRequestsList ;
 #include "DagdaCatalog.hh"
 #endif
 
+#include "Forwarder.hh"
+#include "MasterAgentFwdr.hh"
+
 class MasterAgentImpl : public POA_MasterAgent, public AgentImpl
 {
 
@@ -161,7 +167,7 @@ public :
 #ifdef HAVE_MULTI_MA
   /** Ask the authorization to create a link with this Master Agent */
   virtual CORBA::Boolean
-  handShake(MasterAgent_ptr me, const char* myName);
+  handShake(const char* name, const char* myName);
   /** returns the address of the bind service of the Master Agent */
   virtual char*
   getBindName() ;
@@ -169,7 +175,7 @@ public :
       connect to some new Master Agent if there is not enough links. */
   void
   updateRefs();
-  virtual void searchService(MasterAgent_ptr predecessor,
+  virtual void searchService(const char* predecessor,
 			     const char* predecessorId,
 			     const corba_request_t& request);
   virtual void stopFlooding(CORBA::Long reqId,
@@ -248,4 +254,88 @@ private :
 #endif
 }; // MasterAgentImpl
 
+class MasterAgentFwdrImpl : public POA_MasterAgentFwdr,
+	public PortableServer::RefCountServantBase
+{
+protected:
+	Forwarder_ptr forwarder;
+	char* objName;
+public:
+	MasterAgentFwdrImpl(Forwarder_ptr fwdr, const char* objName);
+	
+	virtual CORBA::Long
+  agentSubscribe(const char* me, const char* hostName,
+								 const SeqCorbaProfileDesc_t& services);
+	virtual CORBA::Long
+  serverSubscribe(const char* me, const char* hostName,
+#if HAVE_JXTA
+								  const char* uuid,
+#endif // HAVE_JXTA
+									const SeqCorbaProfileDesc_t& services);
+	
+#ifdef HAVE_DYNAMICS
+	virtual CORBA::Long
+  childUnsubscribe(CORBA::ULong childID,
+									 const SeqCorbaProfileDesc_t& services);
+	
+  virtual CORBA::Long removeElement(bool recursive);
+	
+  CORBA::Long bindParent(const char * parentName);
+	
+  CORBA::Long disconnect();
+#endif // HAVE_DYNAMICS
+	virtual void getResponse(const corba_response_t& resp);
+	virtual CORBA::Long ping();
+	
+  virtual char* getHostname();
+	
+  virtual CORBA::Long addServices(CORBA::ULong myID,
+																	const SeqCorbaProfileDesc_t& services);
+	
+	corba_response_t* submit(const corba_pb_desc_t& pb_profile, CORBA::ULong maxServers);
+	virtual CORBA::Long get_session_num();
+	virtual char * get_data_id();
+	virtual CORBA::ULong dataLookUp(const char* argID);
+	virtual corba_data_desc_t* get_data_arg(const char* argID);
+	virtual CORBA::Long diet_free_pdata(const char *argID);
+	virtual  SeqCorbaProfileDesc_t* getProfiles(CORBA::Long& length);
+	
+#ifdef HAVE_MULTI_MA
+	virtual CORBA::Boolean handShake(const char* name, const char* myName);
+  virtual char* getBindName() ;
+  void updateRefs();
+  virtual void searchService(const char* predecessor,
+														 const char* predecessorId,
+														 const corba_request_t& request);
+  virtual void stopFlooding(CORBA::Long reqId,
+														const char* senderId);
+  virtual void serviceNotFound(CORBA::Long reqId,
+															 const char* senderId);
+  virtual void newFlood(CORBA::Long reqId,
+												const char* senderId);
+  virtual void floodedArea(CORBA::Long reqId,
+													 const char* senderId);
+  virtual void alreadyContacted(CORBA::Long reqId,
+																const char* senderId);
+  virtual void serviceFound(CORBA::Long reqId,
+														const corba_response_t& decision);
+#endif
+#ifdef HAVE_WORKFLOW
+	virtual wf_response_t * submit_pb_set (const corba_pb_desc_seq_t& seq_pb);
+	
+	virtual response_seq_t* submit_pb_seq(const corba_pb_desc_seq_t& pb_seq,
+																				CORBA::Long reqCount,
+																				CORBA::Boolean& complete,
+																				CORBA::Long& firstReqId,
+																				CORBA::Long& seqReqId);
+	
+#endif
+	virtual CORBA::Long
+  childRemoveService(CORBA::ULong childID, const corba_profile_desc_t& profile);
+#ifdef HAVE_DAGDA
+	SeqString* searchData(const char* request);
+  CORBA::Long insertData(const char* key, const SeqString& values);
+	virtual char* getDataManager();
+#endif
+};
 #endif // _MASTERAGENTIMPL_HH_

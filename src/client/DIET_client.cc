@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.143  2010/07/12 16:14:11  glemahec
+ * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
+ *
  * Revision 1.142  2010/03/31 21:15:39  bdepardo
  * Changed C headers into C++ headers
  *
@@ -340,6 +343,8 @@ using namespace std;
 #include <cstdio>
 #include <cstring>
 #include <cmath>
+#include <algorithm>
+#include <sstream>
 
 #include "debug.hh"
 #include "est_internal.hh"
@@ -395,6 +400,7 @@ static omni_mutex      MA_MUTEX;
 unsigned long MAX_SERVERS = 10;
 
 /** IOR reference sent to the SeD to let him contact the callback server */
+/* ===> Change !!! No more the IOR !!!! */
 char* REF_CALLBACK_SERVER;
 /** Flag for using the asynchronous API (set at configuration time) */
 static size_t USE_ASYNC_API = 1;
@@ -467,11 +473,16 @@ status_to_grpc_code(int err) {
 /****************************************************************************/
 /* Initialize and Finalize session                                          */
 /****************************************************************************/
+/* Transformation function for the host name. */
+int chgName(int c) {
+	if (c=='.') return '-';
+	return c;
+}
 
 BEGIN_API
 
 diet_error_t
-diet_initialize(char* config_file_name, int argc, char* argv[])
+diet_initialize(const char* config_file_name, int argc, char* argv[])
 {
   char*  MA_name;
   int    res(0);
@@ -550,7 +561,9 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
 
   if (USE_ASYNC_API == 1) {
     /* Initialize the ORB */
-    if (ORBMgr::init(myargc, (char**)myargv)) {
+    try {
+			ORBMgr::init(myargc, (char**)myargv);
+		}	catch (...) {
       ERROR("ORB initialization failed", 1);
     }
     // Create sole instance of synchronized CallAsyncMgr class
@@ -558,16 +571,36 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
     // Create servant callback object
     CallbackImpl* cb = new CallbackImpl();
     // activate servant callback
-    if (ORBMgr::activate(cb) != 0) return -1;
+    try {
+			ORBMgr::getMgr()->activate(cb);
+		} catch (...) {
+			return -1;
+		}
     CORBA::Object_var obj = cb->_this();
     // create corba client callback serveur reference ...
-    REF_CALLBACK_SERVER = ORBMgr::getIORString(obj);
+		//
+		ostringstream os;
+		char host[256];
+		
+		gethostname(host, 256);
+		host[255]='\0';
+
+		std::transform(host, host+strlen(host), host, chgName);
+		
+		os << "DIET-client-" << host << "-" << getpid();
+    REF_CALLBACK_SERVER = CORBA::string_dup(os.str().c_str());
+		
+		ORBMgr::getMgr()->bind(CLIENTCTXT, os.str(), obj);
+		ORBMgr::getMgr()->fwdsBind(CLIENTCTXT, os.str(),
+															 ORBMgr::getMgr()->getIOR(obj));
     //This is done in the activate() of the newest ORBMgr version
     //cb->_remove_ref();
     if (REF_CALLBACK_SERVER == NULL) return -1;
   }
   else {
-    if (ORBMgr::init(myargc, (char**)myargv, false)) {
+    try {
+			ORBMgr::init(myargc, (char**)myargv);
+		}	catch (...) {
       ERROR("ORB initialization failed", 1);
     }
   }
@@ -581,7 +614,7 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
    Parsers::Results::getParamValue(Parsers::Results::MANAME);
    TRACE_TEXT (TRACE_MAIN_STEPS,"MA NAME PARSING = " << MA_name << endl);
    MA_Name = CORBA::string_dup(MA_name);
-  MA = MasterAgent::_narrow(ORBMgr::getObjReference(ORBMgr::AGENT, MA_name));
+  MA = ORBMgr::getMgr()->resolve<MasterAgent, MasterAgent_var>(AGENTCTXT, MA_Name);
   if (CORBA::is_nil(MA)) {
     ERROR("cannot locate Master Agent " << MA_name, 1);
   }
@@ -640,7 +673,7 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
       dietLogComponent = new DietLogComponent("", outBufferSize);
 #endif
     }
-    ORBMgr::activate(dietLogComponent);
+    ORBMgr::getMgr()->activate(dietLogComponent);
 
     if (dietLogComponent->run(agtTypeName, agtParentName, flushTime) != 0) {
       WARNING("Could not initialize DietLogComponent");
@@ -671,7 +704,7 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
   // Dagda component activation.
   DagdaImpl* tmpDataManager = DagdaFactory::getClientDataManager();
   tmpDataManager->setLogComponent( dietLogComponent ); // modif bisnard_logs_1
-  ORBMgr::activate(tmpDataManager);
+  ORBMgr::getMgr()->activate(tmpDataManager);
 #endif // HAVE_DAGDA
 
 // modif bisnard_logs_1
@@ -683,8 +716,9 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
     TRACE_TEXT(TRACE_MAIN_STEPS,
                "MA DAG NAME PARSING = " << MA_DAG_name << endl);
     MA_DAG_name = CORBA::string_dup(MA_DAG_name);
-    MA_DAG =
-      MaDag::_narrow(ORBMgr::getObjReference(ORBMgr::MA_DAG, MA_DAG_name));
+    MA_DAG = ORBMgr::getMgr()->resolve<MaDag, MaDag_var>(MADAGCTXT, MA_DAG_name);
+		
+    //  MaDag::_narrow(ORBMgr::getObjReference(ORBMgr::MA_DAG, MA_DAG_name));
     if (CORBA::is_nil(MA_DAG)) {
       ERROR("Cannot locate MA DAG " << MA_DAG_name, 1);
     }
@@ -736,7 +770,6 @@ diet_finalize()
     }
     caMgr->release();
   }
-  ORBMgr::destroy();
   MA_MUTEX.lock();
   MA = MasterAgent::_nil();
   MA_MUTEX.unlock();
@@ -744,7 +777,14 @@ diet_finalize()
 #if HAVE_JUXMEM
   terminateJuxMem();
 #endif // HAVE_JUXMEM
-
+#ifdef HAVE_DAGDA
+	string dagdaName = DagdaFactory::getDataManager()->getID();
+	ORBMgr::getMgr()->unbind(DAGDACTXT, dagdaName);
+	ORBMgr::getMgr()->fwdsUnbind(DAGDACTXT, dagdaName);
+#endif
+	ORBMgr::getMgr()->unbind(CLIENTCTXT, REF_CALLBACK_SERVER);
+	ORBMgr::getMgr()->fwdsUnbind(CLIENTCTXT, REF_CALLBACK_SERVER);
+	delete ORBMgr::getMgr();
   /* end fileName */
   // *fileName='\0';
   return 0;

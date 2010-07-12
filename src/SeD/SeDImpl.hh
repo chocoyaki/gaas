@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.49  2010/07/12 16:14:10  glemahec
+ * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
+ *
  * Revision 1.48  2010/03/08 13:33:09  bisnard
  * new method to retrieve DAGDA agent ID (CORBA)
  *
@@ -265,6 +268,9 @@ extern "C" {
 #include "SeDScheduler.hh"
 #endif
 
+#include "Forwarder.hh"
+#include "SeDFwdr.hh"
+
 /****************************************************************************/
 /* SeD class                                                                */
 /****************************************************************************/
@@ -407,10 +413,8 @@ private:
   /** Reference of the parent */
   Agent_var parent;
 
-#ifdef HAVE_DYNAMICS
   /** Identity in the CORBA Naming Service */
   char* myName;
-#endif // HAVE_DYNAMICS
 
   /** ID of this agent amongst the children of its parent */
   ChildID childID;
@@ -518,6 +522,34 @@ private:
 
   inline void
   downloadSeDDataJuxMem(diet_profile_t* profile);
+};
+
+class SeDFwdrImpl : public POA_SeD,
+	public PortableServer::RefCountServantBase
+{
+protected:
+	Forwarder_ptr forwarder;
+	char* objName;
+public:
+	SeDFwdrImpl(Forwarder_ptr fwdr, const char* objName);
+	virtual CORBA::Long ping();
+#ifdef HAVE_DYNAMICS
+  virtual CORBA::Long bindParent(const char * parentName);
+  virtual CORBA::Long disconnect();
+  virtual CORBA::Long removeElement();
+#endif
+	virtual void getRequest(const corba_request_t& req);
+  virtual CORBA::Long checkContract(corba_estimation_t& estimation,
+																		const corba_pb_desc_t& pb);
+	
+  virtual void updateTimeSinceLastSolve() ;
+	
+  virtual CORBA::Long solve(const char* pbName, corba_profile_t& pb);
+	virtual void solveAsync(const char* pb_name, const corba_profile_t& pb,
+													const char * volatileclientIOR);
+#ifdef HAVE_DAGDA
+	virtual char* getDataMgrID();
+#endif
 };
 
 #endif // _SED_IMPL_HH_

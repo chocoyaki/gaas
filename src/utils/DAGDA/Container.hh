@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2010/07/12 16:14:12  glemahec
+ * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
+ *
  * Revision 1.5  2009/09/25 12:43:37  bisnard
  * modified send method to handle missing relationships
  *
@@ -39,6 +42,31 @@
 #include <map>
 
 class Container {
+private:
+	/**
+	 * The DAGDA ID of the container
+	 */
+	std::string  myID;
+	
+	/**
+	 * The Data Mgr that contains the container
+	 */
+	Dagda_ptr myMgr;
+	
+	/**
+	 * The data relation Mgr that manages the container-elements relationship
+	 */
+	DataRelationMgr*  myRelMgr;
+	
+	/**
+	 * Not found flag
+	 */
+	bool notFound;
+	
+	/**
+	 * Nb of elements in the container
+	 */
+	int nbOfElements;
 
   public:
 
@@ -91,35 +119,7 @@ class Container {
      * @param sendData  if true, will send all the elements of the container
      *                  if false, will send only the relationships
      */
-    char* send(Dagda_ptr dest, bool sendData = true);
-
-  private:
-
-    /**
-     * The DAGDA ID of the container
-     */
-    std::string  myID;
-
-    /**
-     * The Data Mgr that contains the container
-     */
-    Dagda_ptr myMgr;
-
-    /**
-     * The data relation Mgr that manages the container-elements relationship
-     */
-    DataRelationMgr*  myRelMgr;
-
-    /**
-     * Nb of elements in the container
-     */
-    int nbOfElements;
-
-    /**
-     * Not found flag
-     */
-    bool notFound;
-
+    char* send(const char* destName, bool sendData = true);
 
 }; // end class Container
 

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.41  2010/07/12 16:14:12  glemahec
+ * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
+ *
  * Revision 1.40  2010/06/15 18:21:52  amuresan
  * Added separate compilation flag for Cloud features.
  * Removed gSOAP files from the kit, referencing an installed gSOAP package in cmake.
@@ -400,7 +403,7 @@ public:
    * the parameter structures)
    */
   static int
-  beginParsing(char* filePath);
+  beginParsing(const char* filePath);
   
   /**
    * Free the parameters structures: all calls to Results::getParamValue must

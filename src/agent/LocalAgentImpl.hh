@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2010/07/12 16:14:11  glemahec
+ * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
+ *
  * Revision 1.7  2009/10/26 09:17:37  bdepardo
  * Added methods for dynamic hierarchy management:
  * - bindParent(const char * parentName)
@@ -46,6 +49,9 @@
 
 #include "Agent.hh"
 #include "AgentImpl.hh"
+
+#include "Forwarder.hh"
+#include "LocalAgentFwdr.hh"
 
 class LocalAgentImpl : public POA_LocalAgent, public AgentImpl
 {
@@ -117,5 +123,53 @@ private:
 
 
 }; // LocalAgentImpl
+
+class LocalAgentFwdrImpl : public POA_LocalAgentFwdr,
+	public PortableServer::RefCountServantBase
+{
+private:
+	Forwarder_ptr forwarder;
+	char* objName;
+public:
+	LocalAgentFwdrImpl(Forwarder_ptr fwdr, const char* objName);
+	
+	virtual CORBA::Long
+  agentSubscribe(const char* me, const char* hostName,
+								 const SeqCorbaProfileDesc_t& services);
+	virtual CORBA::Long
+  serverSubscribe(const char* me, const char* hostName,
+#if HAVE_JXTA
+								  const char* uuid,
+#endif // HAVE_JXTA
+									const SeqCorbaProfileDesc_t& services);
+	
+#ifdef HAVE_DYNAMICS
+	virtual CORBA::Long
+  childUnsubscribe(CORBA::ULong childID,
+									 const SeqCorbaProfileDesc_t& services);
+	
+  virtual CORBA::Long removeElement(bool recursive);
+	
+  CORBA::Long bindParent(const char * parentName);
+	
+  CORBA::Long disconnect();
+#endif // HAVE_DYNAMICS
+	
+  virtual void getRequest(const corba_request_t& req);
+	
+	virtual void getResponse(const corba_response_t& resp);
+	virtual CORBA::Long ping();
+	
+  virtual char* getHostname();
+	
+  virtual CORBA::Long addServices(CORBA::ULong myID,
+																	const SeqCorbaProfileDesc_t& services);
+	
+  virtual CORBA::Long
+  childRemoveService(CORBA::ULong childID, const corba_profile_desc_t& profile);
+#ifdef HAVE_DAGDA
+	virtual char* getDataManager();
+#endif
+};
 
 #endif // _LOCALAGENTIMPL_HH_

@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2010/07/12 16:14:12  glemahec
+ * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
+ *
  * Revision 1.6  2010/03/08 13:58:51  bisnard
  * compute data transfer time using real elapsed time instead of process time
  *
@@ -25,97 +28,98 @@
 #include <ctime>
 #include <sys/time.h> // modif bisnard_logs_1
 #include "debug.hh"
+//#include "ORBMgr2.hh"
 
 using namespace std;
 
 // modif bisnard_logs_1
-char* AdvancedDagdaComponent::sendFile(const corba_data_t &data, Dagda_ptr dest) {
+char* AdvancedDagdaComponent::sendFile(const corba_data_t &data, const char* destName) {
   struct timeval tv1;
   struct timeval tv2;
   char* ret;
-
+	
   gettimeofday(&tv1, NULL);
-  ret = DagdaImpl::sendFile(data, dest);
+  ret = DagdaImpl::sendFile(data, destName);
   gettimeofday(&tv2, NULL);
-
+	
   double elapsed=(tv2.tv_sec-tv1.tv_sec) * 1000000 + \
-                 (tv2.tv_usec-tv1.tv_usec);
+	(tv2.tv_usec-tv1.tv_usec);
   TRACE_TEXT(TRACE_ALL_STEPS, "Data " << data.desc.id.idNumber <<
-    " transfered in " << elapsed << " microsecond(s)." << endl);
-
-//   if (getLogComponent())
-//     getLogComponent()->logDataTransferTime(data.desc.id.idNumber,
-//                                            dest->getID(),
-//                                            (unsigned long) elapsed);
-
+						 " transfered in " << elapsed << " microsecond(s)." << endl);
+	
+	//   if (getLogComponent())
+	//     getLogComponent()->logDataTransferTime(data.desc.id.idNumber,
+	//                                            dest->getID(),
+	//                                            (unsigned long) elapsed);
+	
   if (stats!=NULL && elapsed!=0) {
-    stats->addStat(string(getID()), string(dest->getID()),
-      ((double) data_sizeof(&data.desc))/elapsed);
-	stats->addStat(string(dest->getID()), string(getID()),
-      ((double) data_sizeof(&data.desc))/elapsed);
+    stats->addStat(string(getID()), destName,
+									 ((double) data_sizeof(&data.desc))/elapsed);
+		stats->addStat(string(destName), string(getID()),
+									 ((double) data_sizeof(&data.desc))/elapsed);
   }
   return ret;
 }
 
-char* AdvancedDagdaComponent::sendData(const char* ID, Dagda_ptr dest) {
+char* AdvancedDagdaComponent::sendData(const char* ID, const char* destName) {
   struct timeval tv1;
   struct timeval tv2;
   char* ret;
   corba_data_t* data = getData(ID);
   size_t dataSize = data_sizeof(&data->desc);
-
+	
   gettimeofday(&tv1, NULL);
-  ret = DagdaImpl::sendData(ID, dest);
+  ret = DagdaImpl::sendData(ID, destName);
   gettimeofday(&tv2, NULL);
-
+	
   double elapsed = (tv2.tv_sec-tv1.tv_sec) * 1000000 + \
-                   (tv2.tv_usec-tv1.tv_usec);
+	(tv2.tv_usec-tv1.tv_usec);
   TRACE_TEXT(TRACE_ALL_STEPS, "Data " << data->desc.id.idNumber <<
-    " transfered in " << elapsed << " microsecond(s)." << endl);
-
-//   if (getLogComponent())
-//     getLogComponent()->logDataTransferTime(data->desc.id.idNumber,
-//                                            dest->getID(),
-//                                            (unsigned long) elapsed);
-
+						 " transfered in " << elapsed << " microsecond(s)." << endl);
+	
+	//   if (getLogComponent())
+	//     getLogComponent()->logDataTransferTime(data->desc.id.idNumber,
+	//                                            dest->getID(),
+	//                                            (unsigned long) elapsed);
+	
   if (stats!=NULL && elapsed!=0) {
-    stats->addStat(string(getID()), string(dest->getID()),
-      ((double) dataSize)/elapsed);
-	stats->addStat(string(dest->getID()), string(getID()),
-      ((double) dataSize)/elapsed);
+    stats->addStat(string(getID()), destName,
+									 ((double) dataSize)/elapsed);
+		stats->addStat(destName, string(getID()),
+									 ((double) dataSize)/elapsed);
   }
   return ret;
 }
 // end modif bisnard_logs_1
 
-void AdvancedDagdaComponent::lclAddData(Dagda_ptr src, const corba_data_t& data) {
+void AdvancedDagdaComponent::lclAddData(const char* srcName, const corba_data_t& data) {
   try {
-    SimpleDagdaImpl::lclAddData(src, data);
-	setRegisterTime(data.desc.id.idNumber);
-	if (shareFiles && DGD_OBJ_TYPE(data)==DIET_FILE_OBJ)
-	  shareData(data);
+    SimpleDagdaImpl::lclAddData(srcName, data);
+		setRegisterTime(data.desc.id.idNumber);
+		if (shareFiles && DGD_OBJ_TYPE(data)==DIET_FILE_OBJ)
+			shareData(data);
   } catch (Dagda::NotEnoughSpace ex) {
     TRACE_TEXT(TRACE_ALL_STEPS, "Needs more space. Try to call the selected cache "
-	       << "algorithm." << endl);
+							 << "algorithm." << endl);
     if (mngFunction!=NULL) {
       size_t needed = data_sizeof(&data.desc);
       size_t max;
       size_t used;
       if (DGD_OBJ_TYPE(data)==DIET_MEM_OBJ) {
-	max = getMemMaxSpace();
-	used = getUsedMemSpace();
+				max = getMemMaxSpace();
+				used = getUsedMemSpace();
       } else {
-	max = getDiskMaxSpace();
-	used = getUsedDiskSpace();
+				max = getDiskMaxSpace();
+				used = getUsedDiskSpace();
       }
       if (used+needed>max) needed += used-max;
-
+			
       if (mngFunction(this, needed, DGD_OBJ_TYPE(data)))
-	throw Dagda::NotEnoughSpace(ex.available);
-      SimpleDagdaImpl::lclAddData(src, data);
+				throw Dagda::NotEnoughSpace(ex.available);
+      SimpleDagdaImpl::lclAddData(srcName, data);
       setRegisterTime(data.desc.id.idNumber);
       if (shareFiles && DGD_OBJ_TYPE(data)==DIET_FILE_OBJ)
-	shareData(data);
+				shareData(data);
     } else
       throw Dagda::NotEnoughSpace(ex.available);
   }
@@ -124,7 +128,7 @@ void AdvancedDagdaComponent::lclAddData(Dagda_ptr src, const corba_data_t& data)
 void AdvancedDagdaComponent::registerFile(const corba_data_t& data) {
   if (strcmp(data.desc.specific.file().path, "")==0)
     throw Dagda::InvalidPathName(data.desc.id.idNumber,
-	  data.desc.specific.file().path);
+																 data.desc.specific.file().path);
   ifstream file(data.desc.specific.file().path);
   if (!file.is_open())
     throw Dagda::UnreachableFile(data.desc.specific.file().path);
@@ -135,36 +139,36 @@ void AdvancedDagdaComponent::registerFile(const corba_data_t& data) {
 
 corba_data_t* AdvancedDagdaComponent::getData(const char* dataID) {
   string id(dataID);
-
+	
   setUsageTime(id);
   incNbUsage(dataID);
-
+	
   return SimpleDagdaImpl::getData(dataID);
 }
 
-Dagda_ptr AdvancedDagdaComponent::getBestSource(Dagda_ptr dest, const char* dataID) {
-  SeqDagda_t* managers = pfmGetDataManagers(dataID);
-
+char* AdvancedDagdaComponent::getBestSource(const char* dest, const char* dataID) {
+  SeqString* managers = pfmGetDataManagers(dataID);
+	
   if (managers->length()==0)
     throw Dagda::DataNotFound(dataID);
-
+	
   if (stats!=NULL) {
     TRACE_TEXT(TRACE_ALL_STEPS, "Data " << dataID << " has " <<
-             managers->length() << " replica(s) on the platform." << endl);
+							 managers->length() << " replica(s) on the platform." << endl);
     double maxStat=0;
-	Dagda_ptr found = (*managers)[0];
-
+		string found = string((*managers)[0]);
+		
     for (unsigned int i=0; i<managers->length(); ++i) {
-	  Dagda_ptr curMngr = (*managers)[i];
-      double curStat = stats->getStat(string(getID()), string(curMngr->getID()));
-	  if (stats->cmpStats(curStat, maxStat)) {
-	    maxStat = curStat;
-		found = curMngr;
-	  }
+			string curMngr = string((*managers)[i]);
+      double curStat = stats->getStat(string(getID()), curMngr);
+			if (stats->cmpStats(curStat, maxStat)) {
+				maxStat = curStat;
+				found = curMngr;
+			}
     }
-	return found;
+		return CORBA::string_dup(found.c_str());
   }
-
+	
   return SimpleDagdaImpl::getBestSource(dest, dataID);
 }
 
@@ -224,22 +228,22 @@ void AdvancedDagdaComponent::incNbUsage(const char* dataID) {
 
 void AdvancedDagdaComponent::shareData(const corba_data_t& data) {
   std::map<string,Dagda_ptr>::iterator itch;
-
+	
   childrenMutex.lock();
   for (itch=getChildren()->begin();itch!=getChildren()->end();)
     try {
       (*itch).second->registerFile(data);
-	  itch++;
+			itch++;
     } catch (CORBA::COMM_FAILURE& e1) {
-	  getChildren()->erase(itch++);
+			getChildren()->erase(itch++);
     } catch (CORBA::TRANSIENT& e2) {
       getChildren()->erase(itch++);
     } catch (Dagda::InvalidPathName& e3) {
-	  WARNING("Fail to share the file \"" << e3.path << "\" (invalid path name) on " <<
-			  (*itch).second->getID() << " data manager.");
-	} catch (Dagda::UnreachableFile& e4) {
-	  WARNING("File \"" << e4.path << "\" is unreachable on " << (*itch).second->getID() <<
-	          " data manager.");
-	}
+			WARNING("Fail to share the file \"" << e3.path << "\" (invalid path name) on " <<
+							(*itch).second->getID() << " data manager.");
+		} catch (Dagda::UnreachableFile& e4) {
+			WARNING("File \"" << e4.path << "\" is unreachable on " << (*itch).second->getID() <<
+							" data manager.");
+		}
   childrenMutex.unlock();
 }

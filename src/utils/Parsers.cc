@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.57  2010/07/12 16:14:12  glemahec
+ * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
+ *
  * Revision 1.56  2010/06/15 18:21:52  amuresan
  * Added separate compilation flag for Cloud features.
  * Removed gSOAP files from the kit, referencing an installed gSOAP package in cmake.
@@ -329,12 +332,12 @@ Parsers::Results::getParamValue(Results::param_type_t param_type)
  * the parameter structures)
  */
 int
-Parsers::beginParsing(char* filePath)
+Parsers::beginParsing(const char* filePath)
 {
   if ((filePath == NULL) || (*filePath == '\0')) {
     PARSERS_ERROR("no file to parse", DIET_FILE_IO_ERROR);
   }
-  Parsers::path = filePath;
+  Parsers::path = CORBA::string_dup(filePath);
   Parsers::file.open(filePath);
   if (! Parsers::file.good()) {
     PARSERS_ERROR("could not open " << filePath, DIET_FILE_IO_ERROR);

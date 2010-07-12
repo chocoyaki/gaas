@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.31  2010/07/12 16:14:10  glemahec
+ * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
+ *
  * Revision 1.30  2010/03/31 21:15:39  bdepardo
  * Changed C headers into C++ headers
  *
@@ -104,12 +107,13 @@
 #include "ts_container/ts_map.hh"
 
 /** Data Manager Constructor */
-DataMgrImpl::DataMgrImpl()
+DataMgrImpl::DataMgrImpl(const char* id)
 {
   this->childID  = (childID)-1;
   this->parent = LocMgr::_nil();
   this->dataDescList.clear();
   this->dietLogComponent = NULL;
+	this->id = CORBA::string_dup(id);
 }
 
 DataMgrImpl::~DataMgrImpl(){
@@ -135,8 +139,9 @@ DataMgrImpl::run()
     return 1;
   strcat(strcpy(parentName, name), "Loc");
   parent =
-    LocMgr::_duplicate(LocMgr::_narrow(ORBMgr::getObjReference(ORBMgr::LOCMGR,
-							       parentName)));
+		ORBMgr::getMgr()->resolve<LocMgr, LocMgr_var>(LOCMGRCTXT, parentName);
+/*    LocMgr::_duplicate(LocMgr::_narrow(ORBMgr::getObjReference(ORBMgr::LOCMGR,
+							       parentName)));*/
   if (CORBA::is_nil(this->parent)) {
     ERROR("cannot locate my parent " << parentName, 1);
   }
@@ -148,7 +153,7 @@ DataMgrImpl::run()
    }
 #endif // 0
 
-  this->childID = this->parent->dataMgrSubscribe(_this(), localHostName);
+  this->childID = this->parent->dataMgrSubscribe(this->id, localHostName);
   return 0;
 }
 
@@ -159,7 +164,7 @@ DataMgrImpl::setDietLogComponent(DietLogComponent* dietLogComponent) {
 
 char *
 DataMgrImpl::setMyName() {
-return CORBA::string_dup((const char*)(this->localHostName));
+	return CORBA::string_dup((const char*)(this->localHostName));
 }
 
 /************************************************************ 
@@ -403,7 +408,7 @@ DataMgrImpl::sendData(corba_data_t& arg)
       sprintf(out_path, "%s",in_path);
       ofstream outfile(out_path);
       for (int i = 0; i < arg.desc.specific.file().size; i++) {
-	outfile.put(arg.value[i]);
+				outfile.put(arg.value[i]);
       }
     }
   }
@@ -458,12 +463,14 @@ DataMgrImpl::getData(corba_data_t& cData)
   } else { // data not locally present
  
     DataMgr_ptr dataSrc;
+		char* dataSrcName;
   
-    dataSrc = parent->whereData(strdup(cData.desc.id.idNumber));
+    dataSrcName = parent->whereData(strdup(cData.desc.id.idNumber));
+		dataSrc = ORBMgr::getMgr()->resolve<DataMgr, DataMgr_ptr>(DATAMGRCTXT, dataSrcName);
     /* invoke remote Data Manager that will send Data */  
     gettimeofday(&t1, NULL);
 
-    dataSrc->putData(CORBA::string_dup(cData.desc.id.idNumber), this->_this());
+    dataSrc->putData(CORBA::string_dup(cData.desc.id.idNumber), CORBA::string_dup(id));
     // copy value to cData that is used by solver
    gettimeofday(&t2, NULL);
    cout << "MEASURED TRANSFER TIME = " << ((t2.tv_sec - t1.tv_sec) + ((float)(t2.tv_usec - t1.tv_usec))/1000000) << " seconds" << endl;
@@ -521,8 +528,9 @@ DataMgrImpl::printList()
  * Method invoked by Data Manager me to get data. Sends data to me DataManager *
  ******************************************************************************/
 void
-DataMgrImpl::putData(const char* argID, const DataMgr_ptr me)
+DataMgrImpl::putData(const char* argID, const char* name)
 {
+	DataMgr_ptr me = ORBMgr::getMgr()->resolve<DataMgr, DataMgr_ptr>(DATAMGRCTXT, name);
   corba_data_t *dest= new corba_data_t;
   dest->desc.id.idNumber=CORBA::string_dup(argID);
   cpEltListToDataT(dest);
@@ -533,7 +541,7 @@ DataMgrImpl::putData(const char* argID, const DataMgr_ptr me)
     if (dest->desc.specific.file().path && strcmp("",dest->desc.specific.file().path)){
       dataValue = SeqChar::allocbuf(dest->desc.specific.file().size);
       for (int i = 0; i < dest->desc.specific.file().size; i++) {
-	dataValue[i] = infile.get();
+				dataValue[i] = infile.get();
       }
       infile.close();
     } else {
@@ -639,7 +647,7 @@ DataMgrImpl::addData(corba_data_t& dataDesc, int inout)
  * the new owner (a Data Manager) got it               *
  ******************************************************/
 CORBA::Long
-DataMgrImpl::rmDataRef(const char* argID)
+DataMgrImpl::rmDataRefDataMgr(const char* argID)
 {
   rmDataDescFromList(CORBA::string_dup(argID));
   printList1();
@@ -651,14 +659,14 @@ DataMgrImpl::rmDataRef(const char* argID)
  * Invoked by Loc Manager Parent which is looking for a data.  *
  * Returns _this() if data present nil elsewhere               *
  **************************************************************/
-DataMgr_ptr
+char*
 DataMgrImpl::whereData(const char* argID)
 {
   if(dataLookup(CORBA::string_dup(argID))){ 
     //  dataDescList.unlock();
-    return(this->_this());
+    return CORBA::string_dup(this->id);
   } else {
-    return(DataMgr::_nil());
+    return CORBA::string_dup("");
   }
 } // whereData(const char* argID)
 
@@ -712,7 +720,6 @@ DataMgrImpl::dataIDUnlock(const corba_data_id_t &cDataID)
 {
 }
 
-
 #if 0
 void
 DataMgrImpl::updateDataRefOrder(corba_data_t& dataDesc)
@@ -737,5 +744,37 @@ DataMgrImpl::updateDataProperty(corba_data_t& dataDesc)
 {
 
 }
-
 #endif // 0
+
+DataMgrFwdrImpl::DataMgrFwdrImpl(Forwarder_ptr fwdr, const char* objName) {
+	this->forwarder = Forwarder::_duplicate(fwdr);
+	this->objName = CORBA::string_dup(objName);
+}
+
+void DataMgrFwdrImpl::putData(const char* argID, const char* me) {
+	forwarder->putData(argID, me, objName);
+}
+
+CORBA::Long DataMgrFwdrImpl::rmDataRefDataMgr(const char* argID) {
+	return forwarder->rmDataRefDataMgr(argID, objName);
+}
+
+char* DataMgrFwdrImpl::whereData(const char* argID) {
+	return forwarder->whereData(argID, objName);
+}
+
+void DataMgrFwdrImpl::sendData(corba_data_t& arg) {
+	forwarder->sendData(arg, objName);
+}
+
+void DataMgrFwdrImpl::printList() {
+	forwarder->printList(objName);
+}
+
+char* DataMgrFwdrImpl::setMyName() {
+	return forwarder->setMyName(objName);
+}
+
+char* DataMgrFwdrImpl::whichSeDOwner(const char * argId) {
+	return forwarder->whichSeDOwner(argId, objName);
+}

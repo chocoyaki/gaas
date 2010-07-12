@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.39  2010/07/12 16:14:11  glemahec
+ * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
+ *
  * Revision 1.38  2010/03/31 21:15:39  bdepardo
  * Changed C headers into C++ headers
  *
@@ -261,7 +264,9 @@ main(int argc, char** argv)
 
   /* Initialize the ORB */
 
-  if (ORBMgr::init(myargc, (char**)myargv)) {
+  try {
+		ORBMgr::init(myargc, (char**)myargv);
+	} catch (...) {
     ERROR("ORB initialization failed", 1);
   }
 
@@ -320,7 +325,7 @@ main(int argc, char** argv)
     // the agent names should be correct if we arrive here
 
     dietLogComponent = new DietLogComponent(agtName, outBufferSize);
-    ORBMgr::activate(dietLogComponent);
+    ORBMgr::getMgr()->activate(dietLogComponent);
 
     if (agtType == Parsers::Results::DIET_LOCAL_AGENT) {
       agtTypeName = strdup("LA");
@@ -353,21 +358,21 @@ main(int argc, char** argv)
   if (agtType == Parsers::Results::DIET_LOCAL_AGENT) {
     Agt = new LocalAgentImpl();
     TRACE_TEXT(NO_TRACE,
-	       "## LA_IOR " << ORBMgr::getIORString(Agt->_this()) << endl);
+	       "## LA_IOR " << ORBMgr::getMgr()->getIOR(Agt->_this()) << endl);
     fsync(1);
     fflush(NULL);
 
-    ORBMgr::activate((LocalAgentImpl*)Agt);
+    ORBMgr::getMgr()->activate((LocalAgentImpl*)Agt);
     Agt->setDietLogComponent(dietLogComponent);   /* LogService */
     res = ((LocalAgentImpl*)Agt)->run();
   } else {
     Agt = new MasterAgentImpl();
     TRACE_TEXT(NO_TRACE,
-	     "## MA_IOR " << ORBMgr::getIORString(Agt->_this()) << endl);
+	     "## MA_IOR " << ORBMgr::getMgr()->getIOR(Agt->_this()) << endl);
     fsync(1);
     fflush(NULL);
 
-    ORBMgr::activate((MasterAgentImpl*)Agt);
+    ORBMgr::getMgr()->activate((MasterAgentImpl*)Agt);
     Agt->setDietLogComponent(dietLogComponent);   /* LogService */
     res = ((MasterAgentImpl*)Agt)->run();
   }
@@ -384,13 +389,13 @@ main(int argc, char** argv)
   // Use Dagda instead of DTM.
 #if ! HAVE_DAGDA
   /* Launch the DTM LocMgr */
-  ORBMgr::activate(Loc);
+  ORBMgr::getMgr()->activate(Loc);
   if (Loc->run()) {
     ERROR("unable to launch the LocMgr", 1);
   }
   Agt->linkToLocMgr(Loc);
 #else
-  ORBMgr::activate(dataManager);
+  ORBMgr::getMgr()->activate(dataManager);
   Agt->setDataManager(dataManager->_this());
 #endif // ! HAVE_DAGDA
 #endif // ! HAVE_JUXMEM
@@ -414,7 +419,9 @@ main(int argc, char** argv)
 
 
   /* Wait for RPCs (blocking call): */
-  if (ORBMgr::wait()) {
+  try{
+		ORBMgr::getMgr()->wait();
+	} catch (...) {
     WARNING("Error while exiting the ORBMgr::wait() function");
   }
 
@@ -427,7 +434,7 @@ main(int argc, char** argv)
 
   /* shutdown and destroy the ORB
    * Servants will be deactivated and deleted automatically */
-  ORBMgr::destroy();
+  delete ORBMgr::getMgr();
 
   TRACE_TEXT(TRACE_ALL_STEPS, "Agent has exited" << std::endl);
 

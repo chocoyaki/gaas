@@ -5,6 +5,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.62  2010/07/12 16:14:11  glemahec
+ * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
+ *
  * Revision 1.61  2010/03/31 21:15:39  bdepardo
  * Changed C headers into C++ headers
  *
@@ -270,9 +273,9 @@ AgentImpl::~AgentImpl()
   TRACE_TEXT(TRACE_STRUCTURES, "Remove the Request list...");
   this->reqList.clear();
   TRACE_TEXT(TRACE_STRUCTURES, "Done" << endl);
-  if (ORBMgr::unbindObj(ORBMgr::AGENT, this->myName)) {
-    WARNING("could not undeclare myself as " << this->myName);
-  }
+  ORBMgr::getMgr()->unbind(AGENTCTXT, this->myName);
+	ORBMgr::getMgr()->fwdsUnbind(AGENTCTXT, this->myName);
+
   stat_finalize();
   TRACE_TEXT(TRACE_STRUCTURES, "All Done" << endl);
 } // ~AgentImpl()
@@ -305,10 +308,19 @@ AgentImpl::run()
     return 1;
   this->myName = new char[strlen(name)+1];
   strcpy(this->myName, name);
-  if (ORBMgr::bindObjToName(_this(), ORBMgr::AGENT, this->myName)) {
-    ERROR("could not declare myself as " << this->myName, 1);
-  }
-
+	Parsers::Results::agent_type_t agtType =
+		*((Parsers::Results::agent_type_t*)
+			Parsers::Results::getParamValue(Parsers::Results::AGENTTYPE));
+	
+	
+  ORBMgr::getMgr()->bind(AGENTCTXT, this->myName, _this(), true);
+	if (agtType == Parsers::Results::DIET_LOCAL_AGENT)
+		ORBMgr::getMgr()->fwdsBind(LOCALAGENT, this->myName,
+															 ORBMgr::getMgr()->getIOR(_this()));
+	else 
+		ORBMgr::getMgr()->fwdsBind(MASTERAGENT, this->myName,
+															 ORBMgr::getMgr()->getIOR(_this()));
+	
 #if !HAVE_CORI
     // Init FAST (HAVE_FAST is managed by the FASTMgr class)
   return FASTMgr::init();
@@ -340,8 +352,8 @@ void AgentImpl::setDataManager(Dagda_ptr dataManager) {
   this->dataManager=dataManager;
 }
 
-Dagda_ptr AgentImpl::getDataManager() {
-  return Dagda::_duplicate(dataManager);
+char* AgentImpl::getDataManager() {
+  return CORBA::string_dup(dataManager->getID());
 }
 #endif // HAVE_DAGDA
 
@@ -359,7 +371,7 @@ AgentImpl::setDietLogComponent(DietLogComponent* dietLogComponent) {
  * Subscribe an agent as a LA child. Remotely called by an LA.
  */
 CORBA::Long
-AgentImpl::agentSubscribe(Agent_ptr me, const char* hostName,
+AgentImpl::agentSubscribe(const char* name, const char* hostName,
     const SeqCorbaProfileDesc_t& services)
 {
   CORBA::ULong retID = (this->childIDCounter)++; // thread safe Counter class
@@ -369,7 +381,13 @@ AgentImpl::agentSubscribe(Agent_ptr me, const char* hostName,
 
   /* the size of the list is childIDCounter+1 (first index is 0) */
   this->LAChildren.resize(this->childIDCounter);
-  LocalAgent_var meLA = LocalAgent::_narrow(me) ;
+	
+  //LocalAgent_var meLA = LocalAgent::_narrow(me) ;
+	cout << __FILE__ << ": l. " << __LINE__ << " (" << __FUNCTION__ << ")" << endl;
+	cout << "Local agent name: " << name << endl;
+	LocalAgent_var meLA = ORBMgr::getMgr()->resolve<LocalAgent, LocalAgent_var>(LOCALAGENT, name);
+	cout << "Local agent IOR: " << ORBMgr::getMgr()->getIOR(meLA) << endl;
+	
   this->LAChildren[retID] = LAChild(meLA, hostName);
   (this->nbLAChildren)++; // thread safe Counter class
 
@@ -385,16 +403,18 @@ AgentImpl::agentSubscribe(Agent_ptr me, const char* hostName,
  * Subscribe a server as a SeD child. Remotely called by a SeD.
  */
 CORBA::Long
-AgentImpl::serverSubscribe(SeD_ptr me, const char* hostName,
+AgentImpl::serverSubscribe(const char* name, const char* hostName,
 #if HAVE_JXTA
 			   const char* uuid,
 #endif // HAVE_JXTA
 			   const SeqCorbaProfileDesc_t& services)
 {
+	SeD_ptr me = ORBMgr::getMgr()->resolve<SeD, SeD_ptr>(SEDCTXT, name);
   CORBA::ULong retID;
 
   TRACE_TEXT(TRACE_MAIN_STEPS, "A server has registered from " << hostName
 	     << ", with " << services.length() << " services." << endl);
+	cout << "subscribed SeD IOR: " << ORBMgr::getMgr()->getIOR(me) << endl;
 
   assert (hostName != NULL);
   retID = (this->childIDCounter)++; // thread safe
@@ -560,7 +580,7 @@ AgentImpl::addServices(CORBA::ULong myID,
 } // addServices(CORBA::ULong myID, const SeqCorbaProfileDesc_t& services)
 
 
-#ifdef HAVE_DAGDA
+//#ifdef HAVE_DAGDA
 CORBA::Long
 AgentImpl::childRemoveService(CORBA::ULong childID, const corba_profile_desc_t& profile)
 {
@@ -578,7 +598,7 @@ AgentImpl::childRemoveService(CORBA::ULong childID, const corba_profile_desc_t& 
 
   return (result);
 }
-#endif // HAVE_DAGDA
+//#endif // HAVE_DAGDA
 
 
 /****************************************************************************/
@@ -614,6 +634,7 @@ AgentImpl::findServer(Request* req, size_t max_srv)
   serviceRef = SrvT->lookupService(&(creq.pb));
 
   if (serviceRef == -1) {
+
     WARNING("no service found for request " << creq.reqID);
     srvTMutex.unlock();
 
@@ -633,6 +654,7 @@ AgentImpl::findServer(Request* req, size_t max_srv)
 
     /* Contact the children. The responses array will not be ready until all
        children are contacted. Thus lock the responses mutex now.           */
+
     req->lock();
 
     // Copy matching children for sendRequest ...
@@ -643,8 +665,10 @@ AgentImpl::findServer(Request* req, size_t max_srv)
 
     srvTMutex.unlock();
 
-    for (i = 0; i < (size_t)mc->nb_children; i++) {
+    for (i = 0; i < (size_t)mc->nb_children; ++i) {
+			cout << __FILE__ << ": l. " << __LINE__ << " (" << __FUNCTION__ << ")" << endl;
       sendRequest(mc->children[i], &creq);
+			cout << __FILE__ << ": l. " << __LINE__ << " (" << __FUNCTION__ << ")" << endl;
     } // for (i = 0; i < ms->nb_children; i++)
 
     delete[] mc->children;
@@ -705,7 +729,9 @@ AgentImpl::findServer(Request* req, size_t max_srv)
     /* (This call implicitly unlocks the responses mutex)     */
     TRACE_TEXT(TRACE_ALL_STEPS, "Waiting for " << nbChildrenContacted
 	       << " responses to request " << creq.reqID <<  "..." << endl);
+		cout << __FILE__ << ": l. " << __LINE__ << " (" << __FUNCTION__ << ")" << endl;
     req->waitResponses(nbChildrenContacted);
+		cout << __FILE__ << ": l. " << __LINE__ << " (" << __FUNCTION__ << ")" << endl;
     req->unlock();
 
     /* The thread is awakened when all responses are gathered */
@@ -874,13 +900,20 @@ AgentImpl::sendRequest(CORBA::ULong * children,
   try {
     /* Is the child an agent ? */
     if (childID < static_cast<CORBA::ULong>(LAChildren.size())) {
+			cout << __FILE__ << ": l. " << __LINE__ << " (" << __FUNCTION__ << ")" << endl;
       LAChild& childDesc = LAChildren[childID];
+			cout << __FILE__ << ": l. " << __LINE__ << " (" << __FUNCTION__ << ")" << endl;
       if (childDesc.defined()) {
+				cout << __FILE__ << ": l. " << __LINE__ << " (" << __FUNCTION__ << ")" << endl;
         try {
           try {
             /* checks if the child is alive with a ping */
+						cout << __FILE__ << ": l. " << __LINE__ << " (" << __FUNCTION__ << ")" << endl;
             childDesc->ping();
-            childDesc->getRequest(*req);
+						cout << __FILE__ << ": l. " << __LINE__ << " (" << __FUNCTION__ << ")" << endl;
+						childDesc->getRequest(*req);
+						cout << "childDesc IOR: " << ORBMgr::getMgr()->getIOR(childDesc.operator->()) << endl;
+						cout << __FILE__ << ": l. " << __LINE__ << " (" << __FUNCTION__ << ")" << endl;
           } catch (CORBA::COMM_FAILURE& ex) {
             throw (comm_failure_t)0;
           } catch (CORBA::TRANSIENT& e) {
@@ -915,7 +948,10 @@ AgentImpl::sendRequest(CORBA::ULong * children,
         try {
           try {
             /* checks if the child is alive with a ping */
+						cout << __FILE__ << ": l. " << __LINE__ << " (" << __FUNCTION__ << ")" << endl;
+						cout << "SeD IOR: " << ORBMgr::getMgr()->getIOR(childDesc.operator->()) << endl;
             childDesc->ping();
+						cout << __FILE__ << ": l. " << __LINE__ << " (" << __FUNCTION__ << ")" << endl;
 #if defined HAVE_ALT_BATCH
 	    /* When requesting to a SeD, the request must be set
 	       to the flag of the registered profile.
@@ -1074,3 +1110,76 @@ AgentImpl::getChildHostName(CORBA::Long childID)
   return hostName;
 } // getChildHostName(CORBA::Long childID)
 
+// Forwarder part
+AgentFwdrImpl::AgentFwdrImpl(Forwarder_ptr fwdr, const char* objName) {
+	this->forwarder = Forwarder::_duplicate(fwdr);
+	this->objName = CORBA::string_dup(objName);
+}
+
+CORBA::Long
+AgentFwdrImpl::agentSubscribe(const char* me, const char* hostName,
+															const SeqCorbaProfileDesc_t& services)
+{
+	return forwarder->agentSubscribe(me, hostName, services, objName);
+}
+
+CORBA::Long
+AgentFwdrImpl::serverSubscribe(const char* me, const char* hostName,
+#if HAVE_JXTA
+															 const char* uuid,
+#endif // HAVE_JXTA
+															 const SeqCorbaProfileDesc_t& services)
+{
+#if HAVE_JXTA
+	return forwarder->serverSubscribe(me, hostName, uuid, services, objName);
+#else
+	return forwarder->serverSubscribe(me, hostName, services, objName);
+#endif
+}
+
+#ifdef HAVE_DYNAMICS
+CORBA::Long
+AgentFwdrImpl::childUnsubscribe(CORBA::ULong childID,
+																const SeqCorbaProfileDesc_t& services)
+{
+	return forwarder->childUnsubscribe(childID, services, objName);
+}
+
+CORBA::Long AgentFwdrImpl::removeElement(bool recursive) {
+	return forwarder->removeElement(recursive, objName);
+}
+
+#endif // HAVE_DYNAMICS
+
+CORBA::Long
+AgentFwdrImpl::childRemoveService(CORBA::ULong childID,
+																	const corba_profile_desc_t& profile)
+{
+	return forwarder->childRemoveService(childID, profile, objName);
+}
+
+#ifdef HAVE_DAGDA
+char* AgentFwdrImpl::getDataManager() {
+	return forwarder->getDataManager(objName);
+}
+
+#endif
+
+CORBA::Long
+AgentFwdrImpl::addServices(CORBA::ULong myID,
+													 const SeqCorbaProfileDesc_t& services)
+{
+	return forwarder->addServices(myID, services, objName);
+}
+
+void AgentFwdrImpl::getResponse(const corba_response_t& resp) {
+	forwarder->getResponse(resp, objName);
+}
+
+CORBA::Long AgentFwdrImpl::ping() {
+	return forwarder->ping(objName);
+}
+
+char* AgentFwdrImpl::getHostname() {
+	return forwarder->getHostname(objName);
+}

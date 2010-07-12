@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.27  2010/07/12 16:14:11  glemahec
+ * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
+ *
  * Revision 1.26  2009/11/30 17:57:47  bdepardo
  * New methods to remove the agent in a cleaner way when killing it.
  *
@@ -133,25 +136,29 @@
 #include "ts_container/ts_map.hh"
 #include "DietLogComponent.hh"
 
+// Forwarder part
+#include "Forwarder.hh"
+#include "AgentFwdr.hh"
+
 class AgentImpl : public POA_Agent,
-		  public PortableServer::RefCountServantBase
+public PortableServer::RefCountServantBase
 {
 public:
   
   /**************************************************************************/
   /* Public methods                                                         */
   /**************************************************************************/
-
+	
   AgentImpl();
   virtual
   ~AgentImpl();
-
+	
   /**
    * Launch this agent (initialization + registration in the hierarchy).
    */
   virtual int
   run();
-
+	
   // Dagda doesn't use the DTM Location Manager.
 #if ! HAVE_DAGDA
   /** Set this->locMgr */
@@ -160,37 +167,37 @@ public:
 #else
   void
   setDataManager(Dagda_ptr dataManager);
-
+	
   /*DagdaImpl* */
-  Dagda_ptr getDataManager();
+  char* getDataManager();
 #endif // ! HAVE_DAGDA
-
+	
   /**
    * Set the DietLogManager. If the dietLogManager is NULL, no
    * monitoring information will be sent.
    */
   void
   setDietLogComponent(DietLogComponent* dietLogComponent);
-
+	
   /** Subscribe an agent as a LA child. Remotely called by an LA. */
   virtual CORBA::Long
-  agentSubscribe(Agent_ptr me, const char* hostName,
-		 const SeqCorbaProfileDesc_t& services);
-
+  agentSubscribe(const char* me, const char* hostName,
+								 const SeqCorbaProfileDesc_t& services);
+	
   /** Subscribe a server as a SeD child. Remotely called by an SeD. */
   virtual CORBA::Long
-  serverSubscribe(SeD_ptr me, const char* hostName,
+  serverSubscribe(const char* me, const char* hostName,
 #if HAVE_JXTA
-		  const char* uuid,
+									const char* uuid,
 #endif // HAVE_JXTA
-		  const SeqCorbaProfileDesc_t& services);
-
+									const SeqCorbaProfileDesc_t& services);
+	
 #ifdef HAVE_DYNAMICS
   /** Unsubscribe a child. Remotely called by an SeD. */
   virtual CORBA::Long
   childUnsubscribe(CORBA::ULong childID,
-		   const SeqCorbaProfileDesc_t& services);
-
+									 const SeqCorbaProfileDesc_t& services);
+	
   /** Sends a request to the agent to commit suicide.
    * If "recursive" is true, then the agent forwards the request
    * to its children.
@@ -200,48 +207,48 @@ public:
   void removeElementChildren(bool recursive);
   void removeElementClean(bool recursive);
 #endif // HAVE_DYNAMICS
-
-
-
+	
+	
+	
   /** Add services into the service table, and attach them to child me.*/
   virtual CORBA::Long
   addServices(CORBA::ULong myID, const SeqCorbaProfileDesc_t& services);
-
-#ifdef HAVE_DAGDA
+	
+//#ifdef HAVE_DAGDA
   /** Remove services into the service table for a given child */
   virtual CORBA::Long
   childRemoveService(CORBA::ULong childID, const corba_profile_desc_t& profile);
-#endif
-
-
+//#endif
+	
+	
   /** Get the response of a child */
   virtual void
   getResponse(const corba_response_t& resp);
-
-
+	
+	
   /** Used to test if this agent is alive. */
   virtual CORBA::Long
   ping();
-
+	
   /** returns the hostname of the agent */
   virtual char*
   getHostname() ;
-
-
+	
+	
 protected:
-
+	
   /**************************************************************************/
   /* Private fields                                                         */
   /**************************************************************************/
-
+	
   /** Local host name */
   char* localHostName;
-
+	
   /** Identity in the CORBA Naming Service */
   char* myName;
   /** ID of next subscribing child */
   Counter childIDCounter;
-
+	
   /** Number of children of this agent that are local agents */
   Counter nbLAChildren;
   typedef NodeDescription<LocalAgent, LocalAgent_ptr> LAChild;
@@ -259,10 +266,10 @@ protected:
   ServiceTable* SrvT;
   /** Mutex for accesses to SrvT */
   omni_mutex srvTMutex;
-
+	
   /** All requests beeing processed */ 
   ts_map<RequestID, Request*> reqList;
- 
+	
   /** Data Location Manager associated to this agent */
   // Dagda doesn't require this.
 #if ! HAVE_DAGDA
@@ -270,7 +277,7 @@ protected:
 #else
   Dagda_ptr dataManager;
 #endif // ! HAVE_DAGDA
-
+	
   /**************************************************************************/
   /* Private methods                                                        */
   /**************************************************************************/
@@ -282,7 +289,7 @@ protected:
    */
   corba_response_t*
   findServer(Request* req, size_t max_srv);
- 
+	
 #if not defined HAVE_ALT_BATCH
   /** Send the request structure \c req to the child whose ID is \c childID. */
   void
@@ -295,12 +302,12 @@ protected:
    */
   void
   sendRequest(CORBA::ULong * childID, 
-	      size_t numero_child,
-	      const corba_request_t * req,
-	      int * nb_children_contacted,
-	      CORBA::ULong frontier) ;
+							size_t numero_child,
+							const corba_request_t * req,
+							int * nb_children_contacted,
+							CORBA::ULong frontier) ;
 #endif
-
+	
   /**
    * Get communication time between this agent and the child \c childID for a data
    * amount of size \c size. The way of the data transfer can be specified with
@@ -309,7 +316,7 @@ protected:
    */
   inline double
   getCommTime(CORBA::Long childID, unsigned long size, bool to = true);
-
+	
   /**
    * Return a pointer to a unique aggregated response from various responses.
    * @param request contains pointers to the scheduler and the responses.
@@ -317,11 +324,11 @@ protected:
    */
   corba_response_t*
   aggregate(Request* request, size_t max_srv);
-
+	
   /** Get host name of a child (returned string is ms_stralloc'd). */
   char*
   getChildHostName(CORBA::Long childID);
-
+	
   /**
    * Ptr to the DietLogComponent. This ptr can be NULL, so it has to
    * be checked every time it is used. If it is NULL, no monitoring 
@@ -330,4 +337,43 @@ protected:
   DietLogComponent* dietLogComponent;
 };
 
+class AgentFwdrImpl : public POA_AgentFwdr,
+  public PortableServer::RefCountServantBase
+{
+protected:
+	Forwarder_ptr forwarder;
+	char* objName;
+public:
+	AgentFwdrImpl(Forwarder_ptr fwdr, const char* objName);
+	
+	virtual CORBA::Long
+  agentSubscribe(const char* me, const char* hostName,
+								 const SeqCorbaProfileDesc_t& services);
+	virtual CORBA::Long
+  serverSubscribe(const char* me, const char* hostName,
+#if HAVE_JXTA
+								  const char* uuid,
+#endif // HAVE_JXTA
+									const SeqCorbaProfileDesc_t& services);
+#ifdef HAVE_DYNAMICS
+  virtual CORBA::Long
+  childUnsubscribe(CORBA::ULong childID,
+									 const SeqCorbaProfileDesc_t& services);
+	
+  virtual CORBA::Long removeElement(bool recursive);
+#endif // HAVE_DYNAMICS
+  virtual CORBA::Long
+  childRemoveService(CORBA::ULong childID, const corba_profile_desc_t& profile);
+#ifdef HAVE_DAGDA
+	virtual char* getDataManager();
+#endif
+	virtual CORBA::Long
+  addServices(CORBA::ULong myID, const SeqCorbaProfileDesc_t& services);
+	
+  virtual void getResponse(const corba_response_t& resp);
+	virtual CORBA::Long ping();
+	
+  virtual char* getHostname();
+	
+};
 #endif // _AGENTIMPL_HH_

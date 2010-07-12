@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2010/07/12 16:14:11  glemahec
+ * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
+ *
  * Revision 1.5  2010/03/03 10:31:39  bdepardo
  * Changed \n into endl
  *
@@ -32,6 +35,7 @@
 #include "marshalling.hh"
 #include "statistics.hh"
 #include "CallAsyncMgr.hh"
+#include "ORBMgr.hh"
 
 #if HAVE_DAGDA
 #include "DIET_Dagda.hh"
@@ -48,16 +52,16 @@
 #endif // HAVE_JUXMEM
 
 #ifdef HAVE_FD
-  #include "fd/fd.h"
-  #ifndef DIET_DEFAULT_FD_QOS
-  /* set a default QoS for fault detector
-   * 30s detection time, 60s false detection, 1 month between two errors
-   */
-  #define DIET_DEFAULT_FD_QOS 30.0, 2678400.0, 60.0
-  #endif // DIET_DEFAULT_FD_QOS
+#include "fd/fd.h"
+#ifndef DIET_DEFAULT_FD_QOS
+/* set a default QoS for fault detector
+ * 30s detection time, 60s false detection, 1 month between two errors
+ */
+#define DIET_DEFAULT_FD_QOS 30.0, 2678400.0, 60.0
+#endif // DIET_DEFAULT_FD_QOS
 
-  /* Recovery after failure func */
-  static void diet_call_failure_recover(fd_handle fd) { }
+/* Recovery after failure func */
+static void diet_call_failure_recover(fd_handle fd) { }
 #endif // HAVE_FD
 
 #ifdef HAVE_CCS
@@ -95,13 +99,13 @@ request_submission(MasterAgent_var& MA,
   diet_reqID_t reqID;
   char statMsg[128];
   chosenServer = SeD::_nil();
-
+	
   if (mrsh_pb_desc(&corba_pb, profile)) {
     ERROR("profile is wrongly built", 1);
   }
-
+	
   /* Request submission : try nb_tries times */
-
+	
   stat_in("Client","request_submission");
   subm_count = 0;
   do {
@@ -109,14 +113,14 @@ request_submission(MasterAgent_var& MA,
 #if ! HAVE_JUXMEM && ! HAVE_DAGDA
     /* data property base_type and type retrieval : used for scheduler */
     int i = 0;
-
+		
     for (i = 0, data_OK = 0 ;
          (i <= corba_pb.last_out && data_OK == 0) ;
          i++) {
       char* new_id = strdup(corba_pb.param_desc[i].id.idNumber);
-
+			
       if(strlen(new_id) != 0) {
-	/* then data is known. Check that it's still in plaform */
+				/* then data is known. Check that it's still in plaform */
         corba_data_desc_t *arg_desc = new corba_data_desc_t;
         arg_desc = MA->get_data_arg(new_id);
         const char * tmp="-1";
@@ -129,7 +133,7 @@ request_submission(MasterAgent_var& MA,
       }
     }
 #endif // ! HAVE_JUXMEM && ! HAVE_DAGDA
-
+		
 #if HAVE_DAGDA && ! HAVE_JUXMEM
     {
       diet_error_t ret;
@@ -137,7 +141,7 @@ request_submission(MasterAgent_var& MA,
         return ret;
     }
 #endif // HAVE_DAGDA && ! HAVE_JUXMEM
-
+		
     if(data_OK == 0) {
       /* Submit to the agent. */
       try {
@@ -151,19 +155,19 @@ request_submission(MasterAgent_var& MA,
         ERROR("caught a CORBA exception (" << tc->name()
               << ") while submitting problem", 1);
       }
-
+			
       /* set the req ID here before checking the errors */
       if (response != NULL) {
-	reqID = response->reqID;
+				reqID = response->reqID;
       }
-
+			
       /* Check response */
       if (!response || response->servers.length() == 0) {
         WARNING("no server found for problem " << corba_pb.path);
         server_OK = -1;
-
+				
       } else {
-
+				
         if (TRACE_LEVEL >= TRACE_MAIN_STEPS) {
           TRACE_TEXT(TRACE_MAIN_STEPS,
                      "The Master Agent found the following server(s):" << endl);
@@ -173,58 +177,17 @@ request_submission(MasterAgent_var& MA,
                        << response->servers[i].loc.port << endl);
           }
         }
-#if 0
-        /** Contract checking has been commented out in Jan 2006 by Holly
-         * because noone has used it for years.  Leaving code here as
-         * background info for someone pursuing research in contract
-         * checking. */
-
-        /* Check the contracts of the servers answered. */
-        server_OK = 0;
-        while ((size_t) server_OK < response->servers.length()) {
-          try {
-            int           idx       = server_OK;
-            SeD_ptr       server    = response->servers[idx].loc.ior;
-
-            estVector_t ev = &(response->servers[idx].estim);
-            CORBA::Double totalTime =
-              diet_est_get_internal(ev, EST_TOTALTIME, HUGE_VAL);
-
-            if (server->checkContract(response->servers[idx].estim,
-                                      corba_pb)) {
-              server_OK++;
-              continue;
-            }
-
-            ev = &(response->servers[idx].estim);
-            CORBA::Double newTotalTime =
-              diet_est_get_internal(ev, EST_TOTALTIME, HUGE_VAL);
-            if ((totalTime == newTotalTime) ||
-                ((newTotalTime - totalTime) <
-                 (ERROR_RATE * MAX(totalTime, newTotalTime)))) {
-              break;
-            }
-            server_OK++;
-          } catch (CORBA::Exception& e) {
-            server_OK++;
-            continue;
-          }
-        }
-        if ((size_t) server_OK == response->servers.length()) {
-          server_OK = -1;
-        }
-#endif    // Contract checking commented out
         server_OK = 0;    // Use this when no contract checking
       } // end else  [if (!response || response->servers.length() == 0)]
     } // end if data ok
   } while ((response) && (response->servers.length() > 0) &&
            (server_OK == -1) && (++subm_count < nb_tries) && (data_OK == 0));
-
+	
   if(data_OK == 1) {
     ERROR (" data with ID " <<  bad_id << " not inside the platform.", 1);
     delete (bad_id);
   } else {
-
+		
     if (!response || response->servers.length() == 0) {
       if (response) {
         delete response;
@@ -234,11 +197,13 @@ request_submission(MasterAgent_var& MA,
     if (server_OK == -1) {
       delete response;
       ERROR("unable to find a server after " << nb_tries << " tries."
-          << "The platform might be overloaded, try again later please", GRPC_SERVER_NOT_FOUND);
+						<< "The platform might be overloaded, try again later please", GRPC_SERVER_NOT_FOUND);
     }
-
+		
     if (server_OK >= 0) {
-      chosenServer = response->servers[server_OK].loc.ior;
+      string serverName = string(response->servers[server_OK].loc.SeDName);
+			chosenServer = ORBMgr::getMgr()->resolve<SeD, SeD_var>(SEDCTXT, serverName);
+
       /* The estimation vector of the chosen SeD is copied into the profile.
        * This is done because:
        * 1/ the SeD cannot store the estimations for all requests as many
@@ -248,7 +213,7 @@ request_submission(MasterAgent_var& MA,
        * different estimation vector.
        */
       estim   = new corba_estimation_t(response->servers[server_OK].estim);
-
+			
       reqID = response->reqID;
 #ifdef HAVE_FD
       fd_handle fd = fd_make_handle();
@@ -256,25 +221,25 @@ request_submission(MasterAgent_var& MA,
       fd_set_service(fd, response->servers[server_OK].loc.hostName, 1);
       fd_observe(fd);
 #endif
-
+			
 #ifdef HAVE_CCS
       if (SpecificClientScheduler::isEnabled()) {
-	SCHED_MUTEX.lock();
-	SpecificClientScheduler::start(chosenServer, response);
-	SCHED_MUTEX.unlock();
+				SCHED_MUTEX.lock();
+				SpecificClientScheduler::start(chosenServer, response);
+				SCHED_MUTEX.unlock();
       }
 #endif // HAVE CCS
-
+			
 #ifdef HAVE_MULTICALL
       MultiCall::set_response(response);
 #endif //HAVE_MULTICALL
-
+			
     }
     sprintf(statMsg, "request_submission %ld", (unsigned long) reqID);
     stat_out("Client",statMsg);
     profile->dietReqID = reqID ;
   }
-
+	
   return 0;
 }
 
@@ -305,7 +270,7 @@ uploadClientDataJuxMem(diet_profile_t* profile)
   struct timeval t_end;
   struct timeval t_result;
 #endif
-
+	
   for (i = 0; i <= profile->last_inout; i++) {
     /**
      * If there is no data id (for both IN or INOUT case), this a new
@@ -314,30 +279,30 @@ uploadClientDataJuxMem(diet_profile_t* profile)
      * persistent! Else let CORBA move them
      */
     if (profile->parameters[i].desc.id == NULL &&
-	profile->parameters[i].desc.mode == DIET_PERSISTENT) {
+				profile->parameters[i].desc.mode == DIET_PERSISTENT) {
       profile->parameters[i].desc.id =
-	juxmem->attach(profile->parameters[i].value,
-		       data_sizeof(&(profile->parameters[i].desc)),
-		       1, 1, EC_PROTOCOL, BASIC_SOG);
+			juxmem->attach(profile->parameters[i].value,
+										 data_sizeof(&(profile->parameters[i].desc)),
+										 1, 1, EC_PROTOCOL, BASIC_SOG);
       TRACE_TEXT(TRACE_MAIN_STEPS, "A data space with ID = "
-		 << profile->parameters[i].desc.id
-		 << " for IN data has been attached inside JuxMem!" << endl);
+								 << profile->parameters[i].desc.id
+								 << " for IN data has been attached inside JuxMem!" << endl);
       /* The local memory is flush inside JuxMem */
 #if JUXMEM_LATENCY_THROUGHPUT
-	gettimeofday(&t_begin, NULL);
+			gettimeofday(&t_begin, NULL);
 #endif
       juxmem->msync(profile->parameters[i].value);
 #if JUXMEM_LATENCY_THROUGHPUT
-	gettimeofday(&t_end, NULL);
-	timersub(&t_end, &t_begin, &t_result);
-	latency = (t_result.tv_usec + (t_result.tv_sec * 1000. * 1000)) / 1000.;
-	throughput = (data_sizeof(&(profile.parameters[i].desc)) / (1024. * 1024.)) / (latency / 1000.);
-	sprintf(statMsg, "IN/INOUT %s msync. Latency: %f, Throughput: %f\n", profile->parameters[i].desc.id, latency, throughput);
-	stat_out("JuxMem", statMsg);
+			gettimeofday(&t_end, NULL);
+			timersub(&t_end, &t_begin, &t_result);
+			latency = (t_result.tv_usec + (t_result.tv_sec * 1000. * 1000)) / 1000.;
+			throughput = (data_sizeof(&(profile.parameters[i].desc)) / (1024. * 1024.)) / (latency / 1000.);
+			sprintf(statMsg, "IN/INOUT %s msync. Latency: %f, Throughput: %f\n", profile->parameters[i].desc.id, latency, throughput);
+			stat_out("JuxMem", statMsg);
 #endif
-	if (i <= profile->last_in) {
-	  juxmem->detach(profile->parameters[i].value);
-	}
+			if (i <= profile->last_in) {
+				juxmem->detach(profile->parameters[i].value);
+			}
     }
   }
 }
@@ -356,7 +321,7 @@ downloadClientDataJuxMem(diet_profile_t* profile)
   struct timeval t_end;
   struct timeval t_result;
 #endif
-
+	
   for (i = profile->last_in + 1; i <= profile->last_out; i++) {
     /**
      * Retrieve INOUT or OUT data only if DIET_PERSISTENT_RETURN.
@@ -365,26 +330,26 @@ downloadClientDataJuxMem(diet_profile_t* profile)
      * data. If value is NULL, a memory area will allocated.
      */
     if (profile->parameters[i].desc.id != NULL &&
-	profile->parameters[i].desc.mode == DIET_PERSISTENT_RETURN) {
+				profile->parameters[i].desc.mode == DIET_PERSISTENT_RETURN) {
       if (i <= profile->last_inout) {
-	TRACE_TEXT(TRACE_MAIN_STEPS, "Reading IN_OUT data with ID = " << profile->parameters[i].desc.id << " from JuxMem ..." << endl);
+				TRACE_TEXT(TRACE_MAIN_STEPS, "Reading IN_OUT data with ID = " << profile->parameters[i].desc.id << " from JuxMem ..." << endl);
       } else {
-	TRACE_TEXT(TRACE_MAIN_STEPS, "Retrieving OUT data with ID = " << profile->parameters[i].desc.id << " from JuxMem ..." << endl);
-	profile->parameters[i].value = juxmem->mmap(profile->parameters[i].value, data_sizeof(&(profile->parameters[i].desc)), profile->parameters[i].desc.id, 0);
+				TRACE_TEXT(TRACE_MAIN_STEPS, "Retrieving OUT data with ID = " << profile->parameters[i].desc.id << " from JuxMem ..." << endl);
+				profile->parameters[i].value = juxmem->mmap(profile->parameters[i].value, data_sizeof(&(profile->parameters[i].desc)), profile->parameters[i].desc.id, 0);
       }
 #if JUXMEM_LATENCY_THROUGHPUT
-	gettimeofday(&t_begin, NULL);
+			gettimeofday(&t_begin, NULL);
 #endif
-	juxmem->acquireRead(profile->parameters[i].value);
-	juxmem->release(profile->parameters[i].value);
+			juxmem->acquireRead(profile->parameters[i].value);
+			juxmem->release(profile->parameters[i].value);
 #if JUXMEM_LATENCY_THROUGHPUT
-	gettimeofday(&t_end, NULL);
-	timersub(&t_end, &t_begin, &t_result);
-	latency = (t_result.tv_usec + (t_result.tv_sec * 1000. * 1000)) / 1000.;
-	timersub(&t_begin, &(this->t_begin), &t_result);
-	time = (t_result.tv_usec + (t_result.tv_sec * 1000. * 1000)) / 1000.;
-	throughput = (data_sizeof(&(profile.parameters[i].desc)) / (1024. * 1024.)) / (latency / 1000.);
-	fprintf(stderr, "%f INOUT %s read. Latency: %f, Throughput: %f\n", time, profile.parameters[i].desc.id, latency, throughput);
+			gettimeofday(&t_end, NULL);
+			timersub(&t_end, &t_begin, &t_result);
+			latency = (t_result.tv_usec + (t_result.tv_sec * 1000. * 1000)) / 1000.;
+			timersub(&t_begin, &(this->t_begin), &t_result);
+			time = (t_result.tv_usec + (t_result.tv_sec * 1000. * 1000)) / 1000.;
+			throughput = (data_sizeof(&(profile.parameters[i].desc)) / (1024. * 1024.)) / (latency / 1000.);
+			fprintf(stderr, "%f INOUT %s read. Latency: %f, Throughput: %f\n", time, profile.parameters[i].desc.id, latency, throughput);
 #endif
       juxmem->detach(profile->parameters[i].value);
     }
@@ -417,7 +382,7 @@ diet_call_common(MasterAgent_var& MA,
   char statMsg[128];
   corba_estimation_t emptyEstimVect;
   stat_in("Client","diet_call");
-
+	
   if (CORBA::is_nil(chosenServer)) {
     if (!(res = request_submission(MA, profile, chosenServer, estimVect, maxServers))) {
       corba_profile.estim = *estimVect; // copy estimation vector
@@ -436,13 +401,14 @@ diet_call_common(MasterAgent_var& MA,
   } else {
     corba_profile.estim = emptyEstimVect;
   }
-
+	
   // Server is chosen, update its timeSinceLastSolve
   chosenServer->updateTimeSinceLastSolve() ;
+
 #if HAVE_JUXMEM
   uploadClientDataJuxMem(profile);
 #endif // HAVE_JUXMEM
-
+	
 #if HAVE_DAGDA
   dagda_mrsh_profile(&corba_profile, profile, MA);
 #else
@@ -450,18 +416,18 @@ diet_call_common(MasterAgent_var& MA,
   if (mrsh_profile_to_in_args(&corba_profile, profile)) {
     ERROR("profile is wrongly built", 1);
   }
-
+	
   int j = 0;
   bool found = false;
   while ((j <= corba_profile.last_out) && (found == false)) {
     if (diet_is_persistent(corba_profile.parameters[j])) {
-// && (MA->dataLookUp(strdup(corba_profile.parameters[i].desc.id.idNumber))))
-       found = true;
+			// && (MA->dataLookUp(strdup(corba_profile.parameters[i].desc.id.idNumber))))
+			found = true;
     }
     j++;
   }
   if(found == true){
-//     create_file();
+		//     create_file();
   }
 #if ! HAVE_JUXMEM
   /* data property base_type and type retrieval: used for scheduler */
@@ -473,22 +439,22 @@ diet_call_common(MasterAgent_var& MA,
       const_cast<corba_data_desc_t&>(corba_profile.parameters[i].desc) = *arg_desc;
     }
   }
-
+	
   /* generate new ID for data if not already existant */
   for(int i = 0 ; i <= corba_profile.last_out ; i++) {
     if((corba_profile.parameters[i].desc.mode > DIET_VOLATILE ) &&
        (corba_profile.parameters[i].desc.mode < DIET_PERSISTENCE_MODE_COUNT) &&
        (MA->dataLookUp(strdup(corba_profile.parameters[i].desc.id.idNumber))))
-      {
-	char* new_id = MA->get_data_id();
-	corba_profile.parameters[i].desc.id.idNumber = new_id;
-      }
+		{
+			char* new_id = MA->get_data_id();
+			corba_profile.parameters[i].desc.id.idNumber = new_id;
+		}
   }
 #endif // ! HAVE_JUXMEM
 #endif // HAVE_DAGDA
   /* Computation */
   sprintf(statMsg, "computation %ld", (unsigned long) profile->dietReqID);
-
+	
   stat_in("Client",statMsg);
   TRACE_TEXT(TRACE_MAIN_STEPS, "Calling the ref Corba of the SeD" << endl);
 #if HAVE_FD
@@ -496,9 +462,9 @@ diet_call_common(MasterAgent_var& MA,
 #endif
   /* CORBA CALL to SED */
   solve_res = chosenServer->solve(profile->pb_name, corba_profile);
-
+	
   stat_out("Client",statMsg);
-
+	
 #if ! HAVE_DAGDA
   /* reaffect identifier */
   for(int i = 0;i <= profile->last_out;i++) {
@@ -507,18 +473,18 @@ diet_call_common(MasterAgent_var& MA,
       profile->parameters[i].desc.id = strdup(corba_profile.parameters[i].desc.id.idNumber);
     }
   }
-
+	
   if (unmrsh_out_args_to_profile(profile, &corba_profile)) {
     INTERNAL_ERROR("returned profile is wrongly built", 1);
   }
 #else
   dagda_download_SeD_data(profile, &corba_profile);
 #endif // ! HAVE_DAGDA
-
+	
 #if HAVE_JUXMEM
   downloadClientDataJuxMem(profile);
 #endif // HAVE_JUXMEM
-
+	
   sprintf(statMsg, "diet_call %ld", (unsigned long) profile->dietReqID);
   stat_out("Client",statMsg);
   return solve_res;
@@ -548,11 +514,11 @@ diet_call_async_common(MasterAgent_var& MA,
   diet_error_t res(0);
   // get sole CallAsyncMgr singleton
   caMgr = CallAsyncMgr::Instance();
-
+	
   stat_in("Client","diet_call_async");
-
+	
   try {
-
+		
     if (CORBA::is_nil(chosenServer)) {
       if (!(res = request_submission(MA, profile, chosenServer, estimVect, maxServers))) {
         corba_profile.estim = *estimVect; // copy estimation vector
@@ -562,7 +528,7 @@ diet_call_async_common(MasterAgent_var& MA,
         return res;
       }
       if (CORBA::is_nil(chosenServer)) {
-	caMgr->setReqErrorCode(profile->dietReqID, GRPC_SERVER_NOT_FOUND);
+				caMgr->setReqErrorCode(profile->dietReqID, GRPC_SERVER_NOT_FOUND);
         return GRPC_SERVER_NOT_FOUND;
       }
     }
@@ -573,89 +539,89 @@ diet_call_async_common(MasterAgent_var& MA,
     } else {
       corba_profile.estim = emptyEstimVect;
     }
-
+		
 #ifdef HAVE_MULTICALL
     int max = MultiCall::get_response()->servers.length();
     for (int counter = 0; counter < max; counter++) {
       if (MultiCall::updateCall(profile, chosenServer)) {
 #endif //HAVE_MULTICALL
-
+				
 #if HAVE_JUXMEM
-    uploadClientDataJuxMem(profile);
+				uploadClientDataJuxMem(profile);
 #endif
-
+				
 #if HAVE_DAGDA
-  dagda_mrsh_profile(&corba_profile, profile, MA);
+				dagda_mrsh_profile(&corba_profile, profile, MA);
 #else
-    if (mrsh_profile_to_in_args(&corba_profile, profile)) {
-      caMgr->setReqErrorCode(profile->dietReqID, GRPC_INVALID_FUNCTION_HANDLE);
-      ERROR("profile is wrongly built", 1);
-    }
-
-    int j = 0;
-    bool found = false;
-    while ((j <= corba_profile.last_out) && (found == false)) {
-      if (diet_is_persistent(corba_profile.parameters[j])) {
-  // && (MA->dataLookUp(strdup(corba_profile.parameters[i].desc.id.idNumber))))
-        found = true;
-      }
-      j++;
-    }
-    if(found == true){
-//       create_file();
-    }
+				if (mrsh_profile_to_in_args(&corba_profile, profile)) {
+					caMgr->setReqErrorCode(profile->dietReqID, GRPC_INVALID_FUNCTION_HANDLE);
+					ERROR("profile is wrongly built", 1);
+				}
+				
+				int j = 0;
+				bool found = false;
+				while ((j <= corba_profile.last_out) && (found == false)) {
+					if (diet_is_persistent(corba_profile.parameters[j])) {
+						// && (MA->dataLookUp(strdup(corba_profile.parameters[i].desc.id.idNumber))))
+						found = true;
+					}
+					j++;
+				}
+				if(found == true){
+					//       create_file();
+				}
 #endif
-
+				
 #if ! HAVE_JUXMEM
 #if ! HAVE_DAGDA
-    int i = 0;
-    /* data property base_type and type retrieval : used for scheduler */
-    for(i = 0;i <= corba_profile.last_out;i++) {
-      char* new_id = strdup(corba_profile.parameters[i].desc.id.idNumber);
-      if(strlen(new_id) != 0) {
-        corba_data_desc_t *arg_desc = new corba_data_desc_t;
-        arg_desc = MA->get_data_arg(new_id);
-        const_cast<corba_data_desc_t&>(corba_profile.parameters[i].desc) = *arg_desc;
-      }
-    }
-    /* generate new ID for data if not already existant */
-    for(i = 0;i <= corba_profile.last_out;i++) {
-      if ((corba_profile.parameters[i].desc.mode > DIET_VOLATILE ) &&
-          (corba_profile.parameters[i].desc.mode < DIET_PERSISTENCE_MODE_COUNT)
-     && (MA->dataLookUp(strdup(corba_profile.parameters[i].desc.id.idNumber))))
-      {
-        char* new_id = MA->get_data_id();
-        corba_profile.parameters[i].desc.id.idNumber = new_id;
-      }
-    }
+				int i = 0;
+				/* data property base_type and type retrieval : used for scheduler */
+				for(i = 0;i <= corba_profile.last_out;i++) {
+					char* new_id = strdup(corba_profile.parameters[i].desc.id.idNumber);
+					if(strlen(new_id) != 0) {
+						corba_data_desc_t *arg_desc = new corba_data_desc_t;
+						arg_desc = MA->get_data_arg(new_id);
+						const_cast<corba_data_desc_t&>(corba_profile.parameters[i].desc) = *arg_desc;
+					}
+				}
+				/* generate new ID for data if not already existant */
+				for(i = 0;i <= corba_profile.last_out;i++) {
+					if ((corba_profile.parameters[i].desc.mode > DIET_VOLATILE ) &&
+							(corba_profile.parameters[i].desc.mode < DIET_PERSISTENCE_MODE_COUNT)
+							&& (MA->dataLookUp(strdup(corba_profile.parameters[i].desc.id.idNumber))))
+					{
+						char* new_id = MA->get_data_id();
+						corba_profile.parameters[i].desc.id.idNumber = new_id;
+					}
+				}
 #endif // ! HAVE_DAGDA
 #endif // ! HAVE_JUXMEM
-
-    // create corba client callback server...
-    // TODO : modify addAsyncCall function because profile has the reqID
-    if (caMgr->addAsyncCall(profile->dietReqID, profile) != 0) {
-      return 1;
-    }
-
-    stat_in("Client","computation_async");
-    chosenServer->solveAsync(profile->pb_name, corba_profile,
-                             refCallbackServer);
-
-    stat_out("Client","computation_async");
-
-    if (unmrsh_out_args_to_profile(profile, &corba_profile)) {
-      INTERNAL_ERROR("returned profile is wrongly built", 1);
-    }
-
+				
+				// create corba client callback server...
+				// TODO : modify addAsyncCall function because profile has the reqID
+				if (caMgr->addAsyncCall(profile->dietReqID, profile) != 0) {
+					return 1;
+				}
+				
+				stat_in("Client","computation_async");
+				chosenServer->solveAsync(profile->pb_name, corba_profile,
+																 refCallbackServer);
+				
+				stat_out("Client","computation_async");
+				
+				if (unmrsh_out_args_to_profile(profile, &corba_profile)) {
+					INTERNAL_ERROR("returned profile is wrongly built", 1);
+				}
+				
 #if HAVE_JUXMEM
-    downloadClientDataJuxMem(profile);
+				downloadClientDataJuxMem(profile);
 #endif // HAVE_JUXMEM
-
+				
 #ifdef HAVE_MULTICALL
       } //endif (a call must be done)
     } //end for (for each SeD)
 #endif
-
+		
   } catch (const CORBA::Exception &e) {
     // Process any other User exceptions. Use the .id() method to
     // record or display useful information
@@ -676,7 +642,7 @@ diet_call_async_common(MasterAgent_var& MA,
     profile->dietReqID = -1;
     return 1;
   }
-
+	
   stat_out("Client","diet_call_async");
   return 0;
 }

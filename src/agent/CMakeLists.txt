@@ -32,18 +32,24 @@ IF( DIET_BUILD_LIBRARIES )
   ### AgentCommon library:
   SET(AgentCommon_SOURCES
       AgentImpl.cc
-      BindService.cc
+#      BindService.cc
       ExitClass.cc
       FloodRequest.cc
       FloodRequestsList.cc
       GlobalSchedulers.cc
       LocalAgentImpl.cc
-      LocMgrImpl.cc
       MasterAgentImpl.cc
       ReferenceUpdateThread.cc
       Request.cc
       Schedulers.cc
   )
+IF (NOT DIET_USE_DAGDA)
+  SET(AgentCommon_SOURCES
+      ${AgentCommon_SOURCES}
+      LocMgrImpl.cc
+  )
+ENDIF(NOT DIET_USE_DAGDA)
+
   #########################################################################
   ### New : When the DIET_USE_USERSCHED option is set, add the source code
   ###       for dynamic library load at agent level.
@@ -68,7 +74,7 @@ IF( DIET_BUILD_LIBRARIES )
     )
   ENDIF( DIET_USE_DAGDA )
 
-  ADD_LIBRARY( AgentCommon ${AgentCommon_SOURCES} )
+  ADD_LIBRARY( AgentCommon STATIC ${AgentCommon_SOURCES})
 
   IF( DIET_USE_CORI )
       SET( CORI_LIBRARIES
@@ -81,6 +87,7 @@ IF( DIET_BUILD_LIBRARIES )
     CorbaCommon
     IDLLA
     IDLMA
+    forwarderIDL
     ${OMNIORB4_LIBRARIES}
   ## New : This variable is only set when DIET_USE_USERSCHED is on. Seems
   ##       to be useless on MacOS X...
@@ -89,7 +96,7 @@ IF( DIET_BUILD_LIBRARIES )
     ${DAGDA_LIBRARIES}
     ${CORI_LIBRARIES}                          # defined a little above
   )
-  INSTALL( TARGETS AgentCommon DESTINATION lib )
+#  INSTALL( TARGETS AgentCommon DESTINATION lib )
   
   #########################################################################
   ADD_EXECUTABLE( dietAgent dietAgent.cc )
@@ -144,7 +151,7 @@ IF( DIET_BUILD_LIBRARIES )
       ${OMNIORB4_LIBRARIES}
     )
 
-    INSTALL( TARGETS dietLocalAgent DESTINATION lib )
+#    INSTALL( TARGETS dietLocalAgent DESTINATION lib )
   
     ADD_CUSTOM_COMMAND(
       OUTPUT    ${CMAKE_CURRENT_BINARY_DIR}/JXTAMultiMA.class
@@ -192,7 +199,7 @@ IF( DIET_BUILD_LIBRARIES )
       ${OMNIORB4_LIBRARIES}
     )
 
-    INSTALL( TARGETS dietMasterAgent DESTINATION lib )
+#    INSTALL( TARGETS dietMasterAgent DESTINATION lib )
   
   ENDIF( DIET_USE_JXTA )
 #########################################################################

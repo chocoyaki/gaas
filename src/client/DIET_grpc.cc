@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2010/07/12 16:14:11  glemahec
+ * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
+ *
  * Revision 1.14  2010/03/31 21:15:39  bdepardo
  * Changed C headers into C++ headers
  *
@@ -71,7 +74,7 @@
  ****************************************************************************/
 
 #include "DIET_client.h" // includes DIET_grpc.h
-#include <ORBMgr.hh>
+#include "ORBMgr.hh"
 #include <cstdarg>
 #include "debug.hh"
 #include "DIETCall.hh"
@@ -627,7 +630,7 @@ grpc_call(grpc_function_handle_t* handle, ...)
   va_end(ap);
 
   res = diet_call_common(MA, profile, server, NULL, MAX_SERVERS);
-  (*handle)->server = ORBMgr::getIORString(server);
+  (*handle)->server = CORBA::string_dup(ORBMgr::getMgr()->getIOR(server).c_str());
   //  diet_profile_free(profile);
   return res;
 }
@@ -692,8 +695,9 @@ grpc_call_argstack(grpc_function_handle_t* handle, grpc_arg_stack_t* args)
   if ((res = grpc_build_profile(profile, (*handle)->func_name, args)))
     return res;
 
-  chosenObject = ORBMgr::stringToObject((*handle)->server);
-  chosenServer = SeD::_narrow(chosenObject);
+/*  chosenObject = ORBMgr::stringToObject((*handle)->server);
+  chosenServer = SeD::_narrow(chosenObject);*/
+	chosenServer = ORBMgr::getMgr()->resolve<SeD, SeD_var>(SEDCTXT, (*handle)->server);
   res = diet_call_common(MA, profile, chosenServer, NULL, MAX_SERVERS);
   //  diet_profile_free(profile);
   return res;
@@ -712,8 +716,10 @@ grpc_call_argstack_async(grpc_function_handle_t* handle,
   if ((res = grpc_build_profile(profile, (*handle)->func_name, args)))
     return res;
 
-  chosenObject = ORBMgr::stringToObject((*handle)->server);
-  chosenServer = SeD::_narrow(chosenObject);
+/*  chosenObject = ORBMgr::stringToObject((*handle)->server);
+  chosenServer = SeD::_narrow(chosenObject);*/
+	chosenServer = ORBMgr::getMgr()->resolve<SeD, SeD_var>(SEDCTXT, (*handle)->server);
+  res = diet_call_common(MA, profile, chosenServer, NULL, MAX_SERVERS);
   res = diet_call_async_common(MA, profile, chosenServer, NULL, MAX_SERVERS,
                                REF_CALLBACK_SERVER);
   *sessionID = profile->dietReqID;

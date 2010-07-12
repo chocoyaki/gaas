@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.53  2010/07/12 16:14:11  glemahec
+ * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
+ *
  * Revision 1.52  2010/03/31 21:15:39  bdepardo
  * Changed C headers into C++ headers
  *
@@ -492,7 +495,9 @@ MultiWfScheduler::run() {
               WARNING("SeD estimation function does not provide correct values for "
                       << "computation time (EST_COMPTIME) and EFT (EST_EFT)");
             }
-            SeD_ptr curSeDPtr = servEst->loc.ior;
+            string sedName = string(servEst->loc.SeDName);
+						SeD_ptr curSeDPtr = ORBMgr::getMgr()->resolve<SeD, SeD_ptr>(SEDCTXT, sedName);
+						
             string hostname(CORBA::string_dup(servEst->loc.hostName));
             TRACE_TEXT(TRACE_ALL_STEPS,"  server " << hostname << ": compTime="
                        << compTime << ": EFT=" << EFT << endl);
@@ -527,7 +532,7 @@ MultiWfScheduler::run() {
             DagNodeLauncher *launcher = new MaDagNodeLauncher( n, this,
                                               myMaDag->getCltMan(n->getDag()->getId()));
             // record chosen SeD information
-            launcher->setSeD(servEst->loc.ior, submitReqID, servEst->estim);
+            launcher->setSeD(servEst->loc.SeDName, submitReqID, servEst->estim);
             // start node execution
             n->setRealStartTime(this->getRelCurrTime());
             n->start(launcher); // non-blocking

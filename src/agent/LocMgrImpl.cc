@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.20  2010/07/12 16:14:11  glemahec
+ * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
+ *
  * Revision 1.19  2010/03/03 10:19:03  bdepardo
  * Changed \n into endl
  *
@@ -140,9 +143,12 @@ LocMgrImpl::run()
   // FIXME : rewrite strcat to ms_strcat
   strcat(strcpy(this->myName, name), "Loc");
 
-  if (ORBMgr::bindObjToName(_this(), ORBMgr::LOCMGR, this->myName)) {
+  /*if (ORBMgr::bindObjToName(_this(), ORBMgr::LOCMGR, this->myName)) {
     ERROR("LocMgr: could not declare myself as " << this->myName, 1);
-  }
+  }*/
+	ORBMgr::getMgr()->bind(LOCMGRCTXT, myName, _this());
+	ORBMgr::getMgr()->fwdsBind(LOCMGRCTXT, myName,
+														 ORBMgr::getMgr()->getIOR(_this()));
 
   /* Get the parent reference */
   name = (char*)
@@ -152,8 +158,9 @@ LocMgrImpl::run()
     strcpy(parentName, name);
     strcat(parentName, "Loc");
     parent =
-      LocMgr::_duplicate(LocMgr::_narrow(ORBMgr::getObjReference(ORBMgr::LOCMGR,
-								 parentName)));
+      /*LocMgr::_duplicate(LocMgr::_narrow(ORBMgr::getObjReference(ORBMgr::LOCMGR,
+								 parentName)));*/
+		ORBMgr::getMgr()->resolve<LocMgr, LocMgr_ptr>(LOCMGRCTXT, parentName);
     if (CORBA::is_nil(parent)) {
       ERROR("LocMgr: cannot locate my parent " << parentName, 1);
     }
@@ -172,8 +179,10 @@ LocMgrImpl::run()
 
 /** Subscribe a LocMgr as a child. Remotely called by an LocMgr. */
 CORBA::ULong
-LocMgrImpl::locMgrSubscribe(LocMgr_ptr me, const char* hostName)
+LocMgrImpl::locMgrSubscribe(const char* name, const char* hostName)
 {
+	LocMgr_ptr me = ORBMgr::getMgr()->resolve<LocMgr, LocMgr_ptr>(LOCMGRCTXT,
+																																name);
   CORBA::ULong retID = (this->childIDCounter)++; // thread safe
 
   /* the size of the list is childIDCounter+1 (first index is 0) */
@@ -183,7 +192,7 @@ LocMgrImpl::locMgrSubscribe(LocMgr_ptr me, const char* hostName)
   
   if (! CORBA::is_nil(this->parent)) { // LocMgr associated to an MA.
     if (this->childID == (ChildID)-1)
-      this->childID = this->parent->locMgrSubscribe(_this(), this->localHostName);
+      this->childID = this->parent->locMgrSubscribe(myName, this->localHostName);
   }
   
   return retID;
@@ -192,9 +201,11 @@ LocMgrImpl::locMgrSubscribe(LocMgr_ptr me, const char* hostName)
 
 /** Subscribe a DataMgr as a child. Remotely called by a DataMgr. */
 CORBA::ULong
-LocMgrImpl::dataMgrSubscribe(DataMgr_ptr me, const char* hostName)
+LocMgrImpl::dataMgrSubscribe(const char* name, const char* hostName)
 {
-   CORBA::ULong retID = (this->childIDCounter)++; // thread safe
+	DataMgr_ptr me = ORBMgr::getMgr()->resolve<DataMgr, DataMgr_ptr>(DATAMGRCTXT,
+																																	 name);
+  CORBA::ULong retID = (this->childIDCounter)++; // thread safe
 
   /* the size of the list is childIDCounter+1 (first index is 0) */
   this->dataMgrChildren.resize(this->childIDCounter);
@@ -203,7 +214,7 @@ LocMgrImpl::dataMgrSubscribe(DataMgr_ptr me, const char* hostName)
 
   if (! CORBA::is_nil(this->parent)) { // LocMgr associated to an MA.
     if (this->childID == (ChildID)-1)
-      this->childID = this->parent->locMgrSubscribe(_this(), this->localHostName);
+      this->childID = this->parent->locMgrSubscribe(myName, this->localHostName);
   }
   
   return(retID);
@@ -248,7 +259,7 @@ LocMgrImpl::rm_pdata(const char* argID)
 	dataMgrChild theData = dataMgrChildren[cChildID];
 	if(theData.defined()){
 	  DataMgr_ptr dataChild = theData.getIor();
-	  return dataChild->rmDataRef(ms_strdup(argID));
+	  return dataChild->rmDataRefDataMgr(ms_strdup(argID));
 	} else return 0;
       } else return 0;
     }
@@ -260,12 +271,12 @@ LocMgrImpl::rm_pdata(const char* argID)
 
 /** Remove Data Reference from the Reference List */
 void
-LocMgrImpl::rmDataRef(const char *argID, CORBA::ULong cChildID)
+LocMgrImpl::rmDataRefLocMgr(const char *argID, CORBA::ULong cChildID)
 {
   dataLocList.erase(strdup(argID));
   printList1();
   if (this->parent != LocMgr::_nil()) {
-    parent->rmDataRef(argID,cChildID);
+    parent->rmDataRefLocMgr(argID,cChildID);
   }
 }
 
@@ -300,7 +311,7 @@ LocMgrImpl::updateDataRef(const corba_data_desc_t& arg,
 	dataMgrChild theData = dataMgrChildren[oldChildID];
 	if(theData.defined()){
 	  DataMgr_ptr dataChild = theData.getIor();
-	  dataChild->rmDataRef(ms_strdup(arg.id.idNumber));
+	  dataChild->rmDataRefDataMgr(ms_strdup(arg.id.idNumber));
 	}
       }
     } else {
@@ -331,7 +342,7 @@ LocMgrImpl::updateDataRef(const corba_data_desc_t& arg,
 	  dataMgrChild theData = dataMgrChildren[oldChildID];	  
 	  if(theData.defined()){
 	    DataMgr_ptr dataChild = theData.getIor();
-	    dataChild->rmDataRef(ms_strdup(arg.id.idNumber));
+	    dataChild->rmDataRefDataMgr(ms_strdup(arg.id.idNumber));
 	  }
 	}
       }
@@ -354,7 +365,7 @@ LocMgrImpl::updateDataRef(const corba_data_desc_t& arg,
 	dataMgrChild theData = dataMgrChildren[oldChildID];
 	if (theData.defined()){
 	  DataMgr_ptr dataChild = theData.getIor();
-	  dataChild->rmDataRef(arg.id.idNumber);
+	  dataChild->rmDataRefDataMgr(arg.id.idNumber);
 	}
       }
     }
@@ -535,13 +546,13 @@ LocMgrImpl::whichSeDOwner(const char* argID)
 /**
  * Returns the IOR of the Data Manager holding the searched data
  */
-DataMgr_ptr
+char*
 LocMgrImpl::whereData(const char* argID)
 {
   /** Check first if data exists locally or in subtree */
-  DataMgr_ptr dataMgrRef = this->whereDataSubtree(argID);
+  char* dataMgrRef = this->whereDataSubtree(argID);
 
-  if (dataMgrRef == DataMgr::_nil()) {
+  if (strcmp(dataMgrRef, "")==0) {
     dataLocList.lock();
     dataLocList.begin();
 
@@ -550,7 +561,7 @@ LocMgrImpl::whereData(const char* argID)
       /** I am the root Loc Manager */
       dataLocList.unlock();
       WARNING("Data item " << argID << " not found in hierarchy" << endl);
-      dataMgrRef = DataMgr::_nil();
+      dataMgrRef = CORBA::string_dup("");
     } else {
       /** I am not the root.  Try asking my parent. */
       dataLocList.unlock();
@@ -564,7 +575,7 @@ LocMgrImpl::whereData(const char* argID)
  * Returns the reference to the Data Manager holding the needed data.
  * Only search for the data locally and in the subtree under this LocMgr.
  */
-DataMgr_ptr
+char*
 LocMgrImpl::whereDataSubtree(const char* argID)
 {
   dataLocList.lock();
@@ -583,7 +594,7 @@ LocMgrImpl::whereDataSubtree(const char* argID)
         LocMgr_ptr locChild = theLoc.getIor();
         return locChild->whereDataSubtree(ms_strdup(argID)) ;
       } else {
-        return DataMgr::_nil();
+        return CORBA::string_dup("");
       }
 
     } else {
@@ -594,17 +605,17 @@ LocMgrImpl::whereDataSubtree(const char* argID)
           DataMgr_ptr dataChild = theData.getIor();
           return dataChild->whereData(ms_strdup(argID)) ;
         } else {
-          return DataMgr::_nil();
+          return CORBA::string_dup("");
         }
       } else {
         WARNING("Unknown object cChildID" << endl);
-        return DataMgr::_nil();
+        return CORBA::string_dup("");
       }
     }
   } else {
     dataLocList.unlock();
     TRACE_TEXT(TRACE_STRUCTURES, "Data " << argID << " not in subhierarchy" << endl);
-    return DataMgr::_nil();
+    return CORBA::string_dup("");
   }
 } // whereDataSubtree(const char* argID)
 
@@ -617,3 +628,68 @@ LocMgrImpl::updateDataProp(const char *argID)
   }
 }
 
+// Forwarders part
+LocMgrFwdrImpl::LocMgrFwdrImpl(Forwarder_ptr fwdr,
+															 const char* objName)
+{
+	this->forwarder = Forwarder::_duplicate(fwdr);
+	this->objName = CORBA::string_dup(objName);
+}
+
+::CORBA::ULong LocMgrFwdrImpl::locMgrSubscribe(const char* me,
+																							 const char* hostName)
+{
+	return forwarder->locMgrSubscribe(me, hostName, objName);
+}
+
+::CORBA::ULong LocMgrFwdrImpl::dataMgrSubscribe(const char* me,
+																								const char* hostName)
+{
+	return forwarder->dataMgrSubscribe(me, hostName, objName);
+}
+
+void LocMgrFwdrImpl::addDataRef(const ::corba_data_desc_t& arg,
+																::CORBA::ULong cChildID)
+{
+	forwarder->addDataRef(arg, cChildID, objName);
+}
+
+void LocMgrFwdrImpl::rmDataRefLocMgr(const char* argID,
+																		 ::CORBA::ULong cChildID)
+{
+	forwarder->rmDataRefLocMgr(argID, cChildID, objName);
+}
+
+void LocMgrFwdrImpl::updateDataRef(const ::corba_data_desc_t& arg,
+																	 ::CORBA::ULong cChildID, ::CORBA::Long upDown)
+{
+	forwarder->updateDataRef(arg, cChildID, upDown, objName);
+}
+
+char* LocMgrFwdrImpl::whereData(const char* argID) {
+	return forwarder->whereData(argID, objName);
+}
+
+char* LocMgrFwdrImpl::whereDataSubtree(const char* argID) {
+	return forwarder->whereDataSubtree(argID, objName);
+}
+
+void LocMgrFwdrImpl::updateDataProp(const char* argID) {
+	forwarder->updateDataProp(argID, objName);
+}
+
+::CORBA::Long LocMgrFwdrImpl::rm_pdata(const char* argID) {
+	return forwarder->rm_pdata(argID, objName);
+}
+
+char* LocMgrFwdrImpl::setMyName() {
+	return forwarder->setMyName(objName);
+}
+
+char* LocMgrFwdrImpl::whichSeDOwner(const char* argID) {
+	return forwarder->whichSeDOwner(argID, objName);
+}
+
+void LocMgrFwdrImpl::printList() {
+	forwarder->printList(objName);
+}

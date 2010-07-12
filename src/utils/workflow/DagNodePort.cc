@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.19  2010/07/12 16:14:13  glemahec
+ * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
+ *
  * Revision 1.18  2009/08/26 10:33:08  bisnard
  * implementation of workflow status & restart
  *
@@ -157,7 +160,8 @@ DagNodePort::setDataID(const string& dataID) {
 
 bool
 DagNodePort::isDataIDAvailable(MasterAgent_var& MA) {
-  return MA->getDataManager()->pfmIsDataPresent(myDataID.c_str());
+	Dagda_var dataManager = ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT,MA->getDataManager());
+  return dataManager->pfmIsDataPresent(myDataID.c_str());
 }
 
 void

@@ -13,7 +13,7 @@ IF( DIET_BUILD_LIBRARIES )
     ${XERCES_INCLUDE_DIR}
     ${XQILLA_INCLUDE_DIR}
     )
-  ADD_LIBRARY ( UtilsWf
+  ADD_LIBRARY ( UtilsWf STATIC
     WfNode.cc Dag.cc MetaDag.cc FWorkflow.cc FNode.cc
     WfExpression.cc WfDataWriter.cc
     FActivityNode.cc FIfNode.cc FLoopNode.cc
@@ -24,14 +24,15 @@ IF( DIET_BUILD_LIBRARIES )
     NodeQueue.cc
     FDataHandle.cc InputIterator.cc
     Thread.cc WfUtils.cc
+    WfLogServiceImpl.cc
     )
 
-  TARGET_LINK_LIBRARIES( UtilsWf AgentCommon DIET_Dagda
+  TARGET_LINK_LIBRARIES( UtilsWf AgentCommon DIET_Dagda_static
     ${DIET_DAGDA_LIBRARY}
     ${XERCES_LIBRARY}  ${OMNIORB4_LIBRARIES} ${XQILLA_LIBRARY}
     )
 
-  INSTALL( TARGETS UtilsWf DESTINATION lib )
+#  INSTALL( TARGETS UtilsWf DESTINATION lib )
 
   INSTALL( FILES FWorkflow.dtd DESTINATION etc )
 

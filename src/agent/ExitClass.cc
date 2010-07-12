@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2010/07/12 16:14:11  glemahec
+ * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
+ *
  * Revision 1.4  2010/03/31 21:15:39  bdepardo
  * Changed C headers into C++ headers
  *
@@ -51,7 +54,7 @@ ExitClass::exitFunction()
     if (ExitClass::agent != NULL) {
       delete ExitClass::agent;
     }
-    ORBMgr::destroy();
+    delete ORBMgr::getMgr();
   } catch (...) {}
   TRACE_TEXT(TRACE_MAIN_STEPS, "Agent stopped !" << endl);
 

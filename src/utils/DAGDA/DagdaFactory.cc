@@ -10,6 +10,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2010/07/12 16:14:12  glemahec
+ * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
+ *
  * Revision 1.15  2010/04/20 12:00:43  glemahec
  * Ajout de l option de compilation TRANSFER_PROGRESSION => Extension de l API DAGDA pour compatibilite services de gestion de fichiers.
  *
@@ -41,6 +44,8 @@
 
 #include <sstream>
 #include <string>
+#include <algorithm>
+
 #include <dirent.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -67,7 +72,7 @@ DagdaImpl* DagdaFactory::agentDataManager = NULL;
 DagdaImpl* DagdaFactory::localDataManager = NULL;
 std::string DagdaFactory::storageDir;
 
-std::string DagdaFactory::defaultStorageDir("/tmp");
+std::string DagdaFactory::defaultStorageDir = "/tmp";
 /* If somebody wants to use another ORB than omniORB... */
 unsigned long DagdaFactory::defaultMaxMsgSize =
 #ifdef __OMNIORB4__
@@ -191,14 +196,22 @@ const char* DagdaFactory::getAgentName() {
   return CORBA::string_dup(result.c_str());
 }
 
+/* Transformation function for the host name. */
+int chg(int c) {
+	if (c=='.') return '-';
+	return c;
+}
+
 const char* DagdaFactory::getClientName() {
   std::ostringstream name;
   char host[256];
 
   gethostname(host, 256);
   host[255]='\0';
+	
+	std::transform(host, host+strlen(host), host, chg);
 
-  name << "DAGDA-client." << host << "." << getpid();
+  name << "DAGDA-client-" << host << "-" << getpid();
   return CORBA::string_dup(name.str().c_str());
 }
 
@@ -208,8 +221,10 @@ const char* DagdaFactory::getSeDName() {
 
   gethostname(host, 256);
   host[255]='\0';
+	
+	std::transform(host, host+strlen(host), host, chg);
 
-  name << "DAGDA-SeD." << host << "." << getpid();
+  name << "DAGDA-SeD-" << host << "-" << getpid();
   return CORBA::string_dup(name.str().c_str());
 }
 
@@ -219,8 +234,10 @@ const char* DagdaFactory::getDefaultName() {
 
   gethostname(host, 256);
   host[255]='\0';
+	
+	std::transform(host, host+strlen(host), host, chg);
 
-  name << "DAGDA-Agent." << host << "." << getpid();
+  name << "DAGDA-Agent-" << host << "-" << getpid();
   return CORBA::string_dup(name.str().c_str());
 }
 

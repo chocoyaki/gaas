@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2010/07/12 16:14:11  glemahec
+ * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
+ *
  * Revision 1.8  2006/08/09 21:39:35  aamar
  * Notify result before setting the request error code
  *
@@ -40,6 +43,9 @@ using namespace std;
 #include <CallbackImpl.hh>
 #define TRACE_LEVEL 50
 #include "debug.hh"
+
+#include "Forwarder.hh"
+#include "CallbackFwdr.hh"
 
 CallbackImpl::CallbackImpl()
 {
@@ -78,4 +84,28 @@ CallbackImpl::solveResults(const char * path,
   if (solve_res != GRPC_NO_ERROR)
     CallAsyncMgr::Instance()->setReqErrorCode(reqID, solve_res);
   return err;
+}
+
+CallbackFwdrImpl::CallbackFwdrImpl(Forwarder_ptr fwdr, const char* objName) {
+	this->forwarder = Forwarder::_duplicate(fwdr);
+	this->objName = CORBA::string_dup(objName);
+}
+
+CORBA::Long CallbackFwdrImpl::ping() {
+	return forwarder->ping(objName);
+}
+
+CORBA::Long CallbackFwdrImpl::notifyResults(const char * path,
+																						const corba_profile_t& pb,
+																						CORBA::Long reqID)
+{
+	return forwarder->notifyResults(path, pb, reqID, objName);
+}
+
+CORBA::Long CallbackFwdrImpl::solveResults(const char * path, 
+																					 const corba_profile_t& pb,
+																					 CORBA::Long reqID,
+																					 CORBA::Long solve_res)
+{
+	return forwarder->solveResults(path, pb, reqID, solve_res, objName);
 }

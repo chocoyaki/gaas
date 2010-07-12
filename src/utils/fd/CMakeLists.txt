@@ -13,7 +13,7 @@ IF( DIET_BUILD_LIBRARIES )
     ${DIET_SOURCE_DIR}/include
     )
   
-  ADD_LIBRARY( fd
+  ADD_LIBRARY( fd STATIC
     application_watcher.cc
     fdc.cc
     fdd.cc 
@@ -26,5 +26,5 @@ IF( DIET_BUILD_LIBRARIES )
     list.cc
   )
   TARGET_LINK_LIBRARIES( fd m UtilsNodes)
-  INSTALL( TARGETS fd DESTINATION lib )
+#  INSTALL( TARGETS fd DESTINATION lib )
 ENDIF( DIET_BUILD_LIBRARIES )

@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.24  2010/07/12 16:14:11  glemahec
+ * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
+ *
  * Revision 1.23  2009/09/25 12:42:09  bisnard
  * - use new DagNodeLauncher classes to manage threads
  * - added dag cancellation method
@@ -136,6 +139,9 @@
 #include "DietLogComponent.hh"
 #include "DagWfParser.hh"
 #include "MetaDag.hh"
+
+#include "Forwarder.hh"
+#include "MaDagFwdr.hh"
 
 class MaDag_impl : public POA_MaDag,
 		   public PortableServer::RefCountServantBase {
@@ -333,6 +339,25 @@ private:
 
 };
 
+class MaDagFwdrImpl : public POA_MaDag,
+public PortableServer::RefCountServantBase {
+protected:
+	Forwarder_ptr forwarder;
+	char* objName;
+public:
+	MaDagFwdrImpl(Forwarder_ptr fwdr, const char* objName);
+	virtual CORBA::Long
+	processDagWf(const corba_wf_desc_t& dag_desc, const char* cltMgrRef,
+							 CORBA::Long wfReqId);
+  virtual CORBA::Long
+	processMultiDagWf(const corba_wf_desc_t& dag_desc, const char* cltMgrRef,
+										CORBA::Long wfReqId, CORBA::Boolean release);
+	virtual CORBA::Long getWfReqId();
+	virtual void releaseMultiDag(CORBA::Long wfReqId);
+	virtual void cancelDag(CORBA::Long dagId);
+	virtual void setPlatformType(MaDag::pfmType_t pfmType);
+	virtual CORBA::Long	ping();
+};
 
 #endif   /* not defined _MADAG_IMPL_HH */
 

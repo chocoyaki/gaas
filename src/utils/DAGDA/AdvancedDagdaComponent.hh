@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2010/07/12 16:14:12  glemahec
+ * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
+ *
  * Revision 1.5  2008/11/07 14:32:14  bdepardo
  * Headers correction
  *
@@ -81,15 +84,15 @@ public:
 	/*registerTime(), nbUsage(),*/ stats(stats), shareFiles(shareFiles) {}
 
 
-  virtual char* sendFile(const corba_data_t &data, Dagda_ptr dest);
-  virtual char* sendData(const char* ID, Dagda_ptr dest);
+  virtual char* sendFile(const corba_data_t &data, const char* dest);
+  virtual char* sendData(const char* ID, const char* dest);
 
-  virtual void lclAddData(Dagda_ptr src, const corba_data_t& data);
+  virtual void lclAddData(const char* src, const corba_data_t& data);
   virtual void registerFile(const corba_data_t& data);
   std::map<std::string, corba_data_t>* getData() { return SimpleDagdaImpl::getData(); }
   virtual corba_data_t* getData(const char* dataID);
 
-  virtual Dagda_ptr getBestSource(Dagda_ptr dest, const char* dataID);
+  virtual char* getBestSource(const char* dest, const char* dataID);
   
   virtual clock_t getRegisterTime(const char* dataID);
   virtual clock_t getLastUsageTime(const char* dataID);

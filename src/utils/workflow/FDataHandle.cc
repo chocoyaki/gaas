@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.19  2010/07/12 16:14:13  glemahec
+ * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
+ *
  * Revision 1.18  2009/10/23 14:04:25  bisnard
  * bug corrections in FDataHandle
  *
@@ -823,6 +826,7 @@ FDataHandle::addProperty(const string& propKey, const string& propValue) {
 
 const string&
 FDataHandle::getProperty(const string& propKey) throw (WfDataHandleException) {
+	return propKey;
 }
 
 void
@@ -876,7 +880,8 @@ FDataHandle::uploadTreeData(MasterAgent_var& MA) {
   }
   // check data ID
   if (isDataIDDefined()) {
-    if (! MA->getDataManager()->pfmIsDataPresent(myDataID.c_str())) {
+		Dagda_var dataManager = ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT, MA->getDataManager());
+    if (! dataManager->pfmIsDataPresent(myDataID.c_str())) {
       if (isValueDefined()) {
         myAdapterType = ADAPTER_VALUE;
         downloadDataID();

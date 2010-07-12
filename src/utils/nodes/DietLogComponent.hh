@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2010/07/12 16:14:13  glemahec
+ * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
+ *
  * Revision 1.2  2010/03/08 13:19:13  bisnard
  * added new events for workflow monitoring
  *
@@ -91,6 +94,9 @@
 #include "ORBMgr.hh"
 #include "common_types.hh"
 #include "response.hh"
+
+#include "Forwarder.hh"
+#include "LogComponentFwdr.hh"
 
 #define PINGTHREAD_SYNCHRO_FREQUENCY      60
 #define PINGTHREAD_SLEEP_SEC              1
@@ -545,6 +551,20 @@ private:
    * the tag must be sent, otherwise it must not be sent.
    */
   bool* tagFlags;
+};
+
+class DietLogComponentFwdr:  public POA_ComponentConfigurator,
+  public PortableServer::RefCountServantBase
+{
+protected:
+	Forwarder_ptr forwarder;
+	char* objName;
+public:
+	DietLogComponentFwdr(Forwarder_ptr fwdr, const char* objName);
+	void setTagFilter(const tag_list_t& tagList);
+  void addTagFilter(const tag_list_t& tagList);
+  void removeTagFilter(const tag_list_t& tagList);
+  void test();
 };
 
 #endif

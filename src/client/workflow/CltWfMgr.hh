@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.21  2010/07/12 16:14:12  glemahec
+ * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
+ *
  * Revision 1.20  2010/03/08 13:37:50  bisnard
  * replaced WfLogService by DietLogComponent
  *
@@ -113,6 +116,10 @@
 #include "DIET_client.h"
 #include "marshalling.hh"
 
+// Forwarder part
+#include "Forwarder.hh"
+#include "CltManFwdr.hh"
+
 class NodeSet;
 class FWorkflow;
 class Dag;
@@ -121,7 +128,7 @@ class MetaDag;
 using namespace std;
 
 class CltWfMgr : public POA_CltMan,
-                 public PortableServer::RefCountServantBase{
+public PortableServer::RefCountServantBase{
 public:
   /**
    * Executes a node on a specified Sed (CORBA method)
@@ -134,10 +141,10 @@ public:
   virtual CORBA::Long
   execNodeOnSed(const char * node_id,
                 const char * dag_id,
-                _objref_SeD* sed,
+                const char * sed,
                 const CORBA::ULong reqID,
                 corba_estimation_t& ev);
-
+	
   /**
    * Executes a node without specifying the Sed (CORBA method)
    *
@@ -146,7 +153,7 @@ public:
    */
   virtual CORBA::Long
   execNode(const char * node_id, const char * dag_id);
-
+	
   /**
    * (CORBA method)
    * Release the waiting semaphore. This method is used by the MA DAG when workflow execution
@@ -154,19 +161,18 @@ public:
    */
   virtual char *
   release(const char * dag_id, bool successful);
-
+	
   /**
    * Debug function
    */
-  virtual void
-  ping();
-
+  virtual CORBA::Long ping();
+	
   /**
    * Give access to unique reference of CltWfMgr
    */
   static CltWfMgr *
   instance();
-
+	
   /**
    * Set the MaDag reference
    *
@@ -174,7 +180,7 @@ public:
    */
   void
   setMaDag(MaDag_var maDagRef);
-
+	
   /**
    * Set the Master Agent reference
    *
@@ -182,7 +188,7 @@ public:
    */
   void
   setMA(MasterAgent_var ma);
-
+	
   /**
    * Set the log service reference
    *
@@ -190,13 +196,13 @@ public:
    */
   void
   setLogComponent(DietLogComponent* logComponent);
-
+	
   /**
    * Get a new workflow request ID (for multi-dag submit)
    */
   CORBA::Long
   getNewWfReqID();
-
+	
   /**
    * Execute a dag using the MA DAG.
    * (if the wfReqID is set in the profile, then this call is part of several
@@ -205,14 +211,14 @@ public:
    */
   diet_error_t
   wfDagCall(diet_wf_desc_t * profile);
-
+	
   /**
    * Execute a functional workflow using the MA DAG
    * @param profile workflow description
    */
   diet_error_t
   wfFunctionalCall(diet_wf_desc_t * profile);
-
+	
   /**
    * Cancel a running dag. This method returns immediately as it only set the dag's status.
    * Dag will continue running until currently running nodes are finished, and then
@@ -220,19 +226,19 @@ public:
    */
   diet_error_t
   cancelDag(const char* dagId);
-
+	
   /**
    * Display all results from a dag
    */
   diet_error_t
   printAllDagResults(diet_wf_desc_t* profile);
-
+	
   /**
    * DIsplay all results from a functional wf
    */
   diet_error_t
   printAllFunctionalWfResults(diet_wf_desc_t* profile);
-
+	
   /**
    * Read the workflow/dag execution transcript from a file (XML)
    * (file name is stored in profile)
@@ -240,7 +246,7 @@ public:
    */
   diet_error_t
   readWorkflowExecutionTranscript(diet_wf_desc_t * profile);
-
+	
   /**
    * Store the workflow/dag execution transcript in a file (XML)
    * (file name is stored in profile)
@@ -249,7 +255,7 @@ public:
   diet_error_t
   saveWorkflowExecutionTranscript(diet_wf_desc_t * profile,
                                   const char * transcriptFileName);
-
+	
   /**
    * Store the workflow data file (XML format) after workflow execution.
    * This file can be used as input for another execution of a workflow
@@ -260,42 +266,42 @@ public:
   diet_error_t
   saveWorkflowDataFile(diet_wf_desc_t * profile,
                        const char * dataFileName);
-
+	
   /**
    * Get a scalar result from a dag
    */
-   int
-   getWfOutputScalar(diet_wf_desc_t* profile,
-                   const char * id,
-		   void** value);
-
+	int
+	getWfOutputScalar(diet_wf_desc_t* profile,
+										const char * id,
+										void** value);
+	
   /**
    * Get a string result from a dag
    */
-   int
-   getWfOutputString(diet_wf_desc_t* profile,
-                   const char * id,
-		   char** value);
-
+	int
+	getWfOutputString(diet_wf_desc_t* profile,
+										const char * id,
+										char** value);
+	
   /**
    * Get a file result from a dag
    */
-   int
-   getWfOutputFile(diet_wf_desc_t* profile,
-                   const char * id,
-		   size_t* size, char** path);
-
+	int
+	getWfOutputFile(diet_wf_desc_t* profile,
+									const char * id,
+									size_t* size, char** path);
+	
   /**
    * Get a matrix result from a dag
    */
-   int
-   getWfOutputMatrix(diet_wf_desc_t* profile,
-                   const char * id,
-		   void** value,
-		   size_t* nb_rows,
-		   size_t *nb_cols,
-		   diet_matrix_order_t* order);
-
+	int
+	getWfOutputMatrix(diet_wf_desc_t* profile,
+										const char * id,
+										void** value,
+										size_t* nb_rows,
+										size_t *nb_cols,
+										diet_matrix_order_t* order);
+	
   /**
    * Get a container result from a dag
    */
@@ -303,7 +309,7 @@ public:
   getWfOutputContainer(diet_wf_desc_t* profile,
                        const char * id,
                        char** dataID);
-
+	
   /**
    * Get sink results from a functional workflow
    * @return dataID contains the DAGDA ID of a container containing all results
@@ -312,7 +318,7 @@ public:
   getWfSinkContainer(diet_wf_desc_t* profile,
                      const char * id,
                      char** dataID);
-
+	
   /**
    * terminate a workflow session and free the memory
    *
@@ -320,30 +326,32 @@ public:
    */
   void
   wf_free(diet_wf_desc_t * profile);
-
+	
 private:
-
+	std::string name;
   /***************************************************************************/
   /*                           PRIVATE methods                               */
   /***************************************************************************/
-
+	
   /**
    * Private constructor
    */
-  CltWfMgr();
-
+  CltWfMgr(const string& name);
+	
   /**
    * Get current time (in milliseconds)
    */
   double
   getCurrTime();
-
+	
   /**
    * Return the object IOR
    */
-  const char *
-  myIOR();
-
+  /*const char *
+	 myIOR();*/
+	const string& myName() const;
+	
+	
   /**
    * Return the DAG with a given identifier
    * @param dag_id Dag identifier
@@ -351,35 +359,35 @@ private:
    */
   Dag *
   getDag(std::string dag_id);
-
+	
   /**
    * Initialize status for functional workflow
    */
   void
-      initDagStatus(FWorkflow* wf);
-
+	initDagStatus(FWorkflow* wf);
+	
   /**
    * Set the dag status regarding dags sent for a given functional workflow
    */
   void
-      setWfSubmissionComplete(FWorkflow* wf);
-
+	setWfSubmissionComplete(FWorkflow* wf);
+	
   /**
    * Get the status regarding dags sent for a given functional workflow
    */
   bool
-      isWfSubmissionComplete(FWorkflow* wf);
-
+	isWfSubmissionComplete(FWorkflow* wf);
+	
   /**
    * Common part of node execution
    */
   CORBA::Long
-      execNodeCommon(const char * node_id,
-                     const char * dag_id,
-                     _objref_SeD* sed,
-                     const CORBA::ULong reqID,
-                     corba_estimation_t& ev);
-
+	execNodeCommon(const char * node_id,
+								 const char * dag_id,
+								 const char * sed,
+								 const CORBA::ULong reqID,
+								 corba_estimation_t& ev);
+	
   /**
    * Common part of the dag submission
    * @param dagProfile  the diet profile containing the XML code for the Dag
@@ -389,80 +397,104 @@ private:
    * @param release will close the wfReqId on MaDag side if set to true
    */
   diet_error_t
-      wfDagCallCommon(diet_wf_desc_t *dagProfile, Dag *dag, bool parse, bool release);
-
-
+	wfDagCallCommon(diet_wf_desc_t *dagProfile, Dag *dag, bool parse, bool release);
+	
+	
   /***************************************************************************/
   /*                          PRIVATE attributes                             */
   /***************************************************************************/
-
+	
   /**
    * Unique instance reference
    */
   static CltWfMgr * myInstance;
-
+	
   /**
    * Default data file name
    */
   static string defaultDataFileName;
-
+	
   /**
    * MaDag CORBA object reference
    */
   MaDag_var myMaDag;
-
+	
   /**
    * Master Agent reference
    */
   MasterAgent_var myMA;
-
+	
   /**
    * Log service reference
    */
   DietLogComponent* myLC;
-
+	
   /**
    * Local workflow request ID counter
    * (different from wf request ID on MaDag)
    */
   int cltWfReqId;
-
+	
   /**
    * Map for profiles and their dags or workflows
    */
   std::map<diet_wf_desc_t *, NodeSet *> myProfiles;
-
+	
   /**
    * Map for metadags
    */
   std::map<CORBA::Long, MetaDag*> myMetaDags;
-
+	
   /**
    * Dags status for functional workflows
    */
   std::map<FWorkflow*,bool> allDagsSent;
-
+	
   /**
    * Dag sent counter
    */
   int dagSentCount;
-
+	
   /**
-    * Critical section
+	 * Critical section
    */
   omni_mutex myLock;
-
+	
   /**
    * Synchronisation semaphores
    */
   omni_semaphore mySem;
-
+	
   bool instanciationPending;
   /**
    * Reference time
    */
   struct timeval refTime;
 };
+
+/* Forwarder part. */
+class CltWfMgrFwdr : public POA_CltManFwdr,
+	public PortableServer::RefCountServantBase
+{
+private:
+	Forwarder_ptr forwarder;
+	char* objName;
+public:
+	CltWfMgrFwdr(Forwarder_ptr fwdr, const char* objName);
+	
+	virtual CORBA::Long execNodeOnSed(const char * node_id,
+																		const char * dag_id,
+																		const char * sed,
+																		const CORBA::ULong reqID,
+																		corba_estimation_t& ev);
+	
+  virtual CORBA::Long execNode(const char * node_id, const char * dag_id);
+	
+  virtual char * release(const char * dag_id, bool successful);
+	
+  virtual CORBA::Long ping();
+};
+
 
 
 #endif   /* not defined _CLTWFMGR._HH */

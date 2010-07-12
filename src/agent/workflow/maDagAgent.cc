@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2010/07/12 16:14:11  glemahec
+ * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
+ *
  * Revision 1.14  2010/03/31 19:37:54  bdepardo
  * Changed "\n" into std::endl
  *
@@ -194,13 +197,15 @@ int main(int argc, char * argv[]){
 
   /* INIT ORB and CREATE MADAG CORBA OBJECT */
 
-  if (ORBMgr::init(myargc, myargv)) {
+  try {
+		ORBMgr::init(myargc, myargv);
+	} catch (...) {
     ERROR("ORB initialization failed", 1);
   }
 
   MaDag_impl * maDag_impl = IRD ? new MaDag_impl(name,schedType,IRD_value) :
       new MaDag_impl(name, schedType);
-  ORBMgr::activate((MaDag_impl*)maDag_impl);
+  ORBMgr::getMgr()->activate((MaDag_impl*)maDag_impl);
 
   /* Change platform type */
   if (argc >=4) {
@@ -209,13 +214,15 @@ int main(int argc, char * argv[]){
   }
 
   /* Wait for RPCs (blocking call): */
-  if (ORBMgr::wait()) {
+  try {
+		ORBMgr::getMgr()->wait();
+	} catch (...) {
     WARNING("Error while exiting the ORBMgr::wait() function");
   }
 
   /* shutdown and destroy the ORB
    * Servants will be deactivated and deleted automatically */
-  ORBMgr::destroy();
+  delete ORBMgr::getMgr();
 
 
   XMLPlatformUtils::Terminate();

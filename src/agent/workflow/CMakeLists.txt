@@ -13,7 +13,7 @@ IF( DIET_BUILD_LIBRARIES )
 
   INCLUDE_DIRECTORIES( ${XERCES_INCLUDE_DIR} )
 
-  ADD_LIBRARY( MaDag
+  ADD_LIBRARY( MaDag STATIC
     MaDagNodeLauncher.cc
     MaDag_impl.cc
     WfScheduler.cc HEFTScheduler.cc
@@ -40,6 +40,6 @@ IF( DIET_BUILD_LIBRARIES )
       UtilsNodes
       )
   INSTALL( TARGETS maDagAgent DESTINATION bin )
-  INSTALL( TARGETS MaDag DESTINATION lib )
+#  INSTALL( TARGETS MaDag DESTINATION lib )
 
 ENDIF( DIET_BUILD_LIBRARIES )

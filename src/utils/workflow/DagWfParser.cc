@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.40  2010/07/12 16:14:13  glemahec
+ * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
+ *
  * Revision 1.39  2010/06/11 14:10:09  bisnard
  * fixed warning
  *
@@ -1463,7 +1466,7 @@ DataSourceHandler::startItem(const   Attributes&     attrs) {
 
 void
 DataSourceHandler::characters (const  XMLCh* const     chars,
-                               const  XMLSize_t        length) {
+                               const  XMLSize_t     length) {
   // note that this test will work only for small chunks of text (only one call
   // of the handler)
   if (isItemFound) {

@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2010/07/12 16:14:12  glemahec
+ * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
+ *
  * Revision 1.7  2009/10/02 07:42:42  bisnard
  * reduced trace verbosity for containers
  *
@@ -113,7 +116,9 @@ Container::getAllElements(SeqString& dataIDSeq, SeqLong& flagSeq, bool ordered) 
  * from a call to the platform.
  */
 char *
-Container::send(Dagda_ptr dest, bool sendData) {
+Container::send(const char* destName, bool sendData) {
+	Dagda_ptr dest = ORBMgr::getMgr()->resolve<Dagda,Dagda_ptr>(DAGDACTXT, destName);
+
   SeqString* dataIDSeq = new SeqString();
   SeqLong*   flagSeq = new SeqLong();
   this->getAllElements(*dataIDSeq, *flagSeq, true);
@@ -121,8 +126,8 @@ Container::send(Dagda_ptr dest, bool sendData) {
   TRACE_TEXT(TRACE_ALL_STEPS, "Sending container " << myID << " ("
                               << dataIDSeq->length() << " elements / sendData="
                               << sendData << ")" << endl);
+	
   for (unsigned int ix = 0; ix < dataIDSeq->length(); ++ix) {
-
     if ((*dataIDSeq)[ix] != NULL) {
       const char* eltID = (*dataIDSeq)[ix];
       if (sendData) {
@@ -135,8 +140,10 @@ Container::send(Dagda_ptr dest, bool sendData) {
         }
         corba_data_t eltData;
         eltData.desc = *eltDesc;
-        Dagda_var srcMgr = Dagda::_narrow(ORBMgr::stringToObject(eltDesc->dataManager));
-        dest->lclAddData(srcMgr, eltData);
+//        Dagda_var srcMgr = Dagda::_narrow(ORBMgr::stringToObject(eltDesc->dataManager));
+				Dagda_ptr srcMgr = ORBMgr::getMgr()->resolve<Dagda, Dagda_ptr>(string(eltDesc->dataManager));
+				string srcName = srcMgr->getID();
+        dest->lclAddData(srcName.c_str(), eltData);
       }
       // add relationship container-data to destination mgr
       dest->lclAddContainerElt(myID.c_str(), eltID, ix, (*flagSeq)[ix]);

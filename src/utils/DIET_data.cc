@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.68  2010/07/12 16:14:12  glemahec
+ * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
+ *
  * Revision 1.67  2010/03/31 21:15:40  bdepardo
  * Changed C headers into C++ headers
  *
@@ -323,7 +326,7 @@ data_sizeof(const corba_data_desc_t* desc)
 
 /** Alter the part of a descriptor that is common to all types. */
 inline int
-generic_set_desc(diet_data_desc_t* desc, char* const id,
+generic_set_desc(diet_data_desc_t* desc, const char* id,
                  const diet_persistence_mode_t mode,
                  const diet_data_type_t type, const diet_base_type_t base_type)
 {
@@ -333,7 +336,7 @@ generic_set_desc(diet_data_desc_t* desc, char* const id,
   if ((status = diet_generic_desc_set(&(desc->generic), type, base_type)))
     return status;
   if (id != NULL)
-    desc->id = id;
+    desc->id = CORBA::string_dup(id);
   if (mode != DIET_PERSISTENCE_MODE_COUNT)
     desc->mode = mode;
   return status;
@@ -432,15 +435,15 @@ paramstring_set_desc(diet_data_desc_t* desc,
  * Each -1 (NULL for pointers) argument does not alter the corresponding field.
  */
 int
-file_set_desc(diet_data_desc_t* desc, char* const id,
-              const diet_persistence_mode_t mode, char* const path)
+file_set_desc(diet_data_desc_t* desc, const char* id,
+              const diet_persistence_mode_t mode, const char* path)
 {
   int status(0);
   struct stat buf;
   if ((status = generic_set_desc(desc, id, mode, DIET_FILE, DIET_CHAR)))
     return status;
   if (path) {
-    desc->specific.file.path = path;
+    desc->specific.file.path = CORBA::string_dup(path);
     if ((status = stat(path, &buf)))
       return status;
     if (!(buf.st_mode & S_IFREG))
@@ -585,7 +588,7 @@ extern "C" {
 
 /* Called from client */
 diet_profile_t*
-diet_profile_alloc(char* pb_name, int last_in, int last_inout, int last_out)
+diet_profile_alloc(const char* pb_name, int last_in, int last_inout, int last_out)
 {
   diet_profile_t* res(NULL);
   res = new diet_profile_t;
@@ -758,15 +761,15 @@ diet_container_set(diet_arg_t* arg,
 }
 
 void
-diet_use_data(diet_arg_t* arg, char* id){
+diet_use_data(diet_arg_t* arg, const char* id){
 
   arg->value = NULL;
-  arg->desc.id=id;
+  arg->desc.id=CORBA::string_dup(id);
 }
 
 /* Computes the file size (stocked in a field of arg) */
 int
-diet_file_set(diet_arg_t* arg, diet_persistence_mode_t mode, char* path)
+diet_file_set(diet_arg_t* arg, diet_persistence_mode_t mode, const char* path)
 {
   int status(0);
   if ((status = file_set_desc(&(arg->desc), NULL, mode, path)))

@@ -41,16 +41,19 @@ IF( DIET_BUILD_LIBRARIES )
 #				 COMPILE_FLAGS "${FAST_INCLUDE_DIR}")
 #  ENDIF( DIET_USE_CORI )
 
-  ADD_LIBRARY( UtilsNodes ${UtilsNodesSource})
+  ADD_LIBRARY( UtilsNodes STATIC ${UtilsNodesSource})
   SET( UtilsNodesTmpLib
 #       UtilsSeDClt
        UtilsCommon
        IDLAgent
        CorbaCommon
+       forwarderIDL
+       IDLLA
+       IDLMA
        ${OMNIORB4_LIBRARIES} )
   TARGET_LINK_LIBRARIES( UtilsNodes
 			 ${UtilsNodesTmpLib} )
-  INSTALL( TARGETS UtilsNodes DESTINATION lib )
+#  INSTALL( TARGETS UtilsNodes DESTINATION lib )
   ### FIXME: the following is kludgy! See note "MacOS X and unresolved symbol"
   # in src/CORBA/CMakeLists.txt
 #  IF( APPLE )
@@ -91,7 +94,7 @@ IF( DIET_BUILD_LIBRARIES )
 	   Cori_Metric.cc
 	   CORIMgr.cc )
 
-    ADD_LIBRARY( UtilsCori ${UtilsCoriSource} )
+    ADD_LIBRARY( UtilsCori STATIC ${UtilsCoriSource} )
 
     SET_SOURCE_FILES_PROPERTIES( FASTMgr.cc PROPERTIES
 				 COMPILE_FLAGS "${FAST_INCLUDE_DIR}")
@@ -103,7 +106,7 @@ IF( DIET_BUILD_LIBRARIES )
 
     TARGET_LINK_LIBRARIES( UtilsCori
 			   ${UtilsCoriTmpLib} )
-    INSTALL( TARGETS UtilsCori DESTINATION lib )
+#    INSTALL( TARGETS UtilsCori DESTINATION lib )
     ### FIXME: the following is kludgy!
     # See note "MacOS X and unresolved symbol"
     # in src/CORBA/CMakeLists.txt

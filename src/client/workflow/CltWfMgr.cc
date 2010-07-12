@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.40  2010/07/12 16:14:12  glemahec
+ * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
+ *
  * Revision 1.39  2010/03/31 21:15:40  bdepardo
  * Changed C headers into C++ headers
  *
@@ -203,25 +206,31 @@ string CltWfMgr::defaultDataFileName("data.xml");
 CORBA::Long
 CltWfMgr::execNodeOnSed(const char * node_id,
                         const char * dag_id,
-                        _objref_SeD* sed,
+                        const char * sedName,
                         const CORBA::ULong reqID,
                         corba_estimation_t& ev) {
-  return execNodeCommon(node_id, dag_id, sed, reqID, ev);
+	
+  return execNodeCommon(node_id, dag_id, sedName, reqID, ev);
 }
 
 CORBA::Long
 CltWfMgr::execNode(const char * node_id, const char * dag_id) {
-  SeD_var sed = SeD::_nil();
   corba_estimation_t ev;
-  return execNodeCommon(node_id, dag_id, sed, 0, ev);
+  return execNodeCommon(node_id, dag_id, NULL, 0, ev);
 }
 
 CORBA::Long
 CltWfMgr::execNodeCommon(const char * node_id,
                         const char * dag_id,
-                        _objref_SeD* sed,
+                        const char* sedName,
                         const CORBA::ULong reqID,
                         corba_estimation_t& ev) {
+	SeD_var sed;
+	if (sedName==NULL)
+		sed = SeD::_nil();
+	else
+		sed = ORBMgr::getMgr()->resolve<SeD, SeD_var>(SEDCTXT, sedName);
+	
   bool isSedDefined = !(sed == SeD::_nil());
   string failureReason;
   FWorkflow* wf;
@@ -239,7 +248,7 @@ CltWfMgr::execNodeCommon(const char * node_id,
       string SeDHostName = "";
       if (isSedDefined) {
         SeD_var sed_var = SeD::_narrow(sed);
-        launcher->setSeD(sed_var, (unsigned long) reqID, ev);
+        launcher->setSeD(sedName, (unsigned long) reqID, ev);
         if (myLC) {
           myLC->logWfNodeStart(dag_id, node_id,
                                sed_var->getDataMgrID(),
@@ -299,7 +308,9 @@ CltWfMgr::execNodeCommon(const char * node_id,
   return 1;
 }
 
-CltWfMgr::CltWfMgr() : cltWfReqId(0), dagSentCount(0), mySem(0) {
+CltWfMgr::CltWfMgr(const string& name) :
+  name(name), cltWfReqId(0), dagSentCount(0), mySem(0)
+{
   this->myMA = MasterAgent::_nil();
   this->myMaDag = MaDag::_nil();
   this->myLC = NULL;
@@ -309,8 +320,18 @@ CltWfMgr::CltWfMgr() : cltWfReqId(0), dagSentCount(0), mySem(0) {
 CltWfMgr *
 CltWfMgr::instance() {
   if (myInstance == NULL) {
-    myInstance = new CltWfMgr();
-    ORBMgr::activate(myInstance);
+		ostringstream os;
+		char host[256];
+		
+		gethostname(host, 256);
+		host[255]='\0';
+		
+		os << "CltWfMgr-" << host << "-" << getpid();
+    myInstance = new CltWfMgr(os.str());
+    ORBMgr::getMgr()->activate(myInstance);
+		ORBMgr::getMgr()->bind(WFMGRCTXT, os.str(), myInstance->_this());
+		ORBMgr::getMgr()->fwdsBind(WFMGRCTXT, os.str(),
+															 ORBMgr::getMgr()->getIOR(myInstance->_this()));
   }
   return myInstance;
 }
@@ -495,9 +516,9 @@ CltWfMgr::wfDagCallCommon(diet_wf_desc_t *dagProfile, Dag *dag, bool parse, bool
     if (wfReqID < 0) {
       wfReqID = this->myMaDag->getWfReqId();
       dagProfile->wfReqID = wfReqID;
-      dagID   = this->myMaDag->processDagWf(*corba_profile, myIOR(), wfReqID);
+      dagID   = this->myMaDag->processDagWf(*corba_profile, myName().c_str(), wfReqID);
     } else {
-      dagID   = this->myMaDag->processMultiDagWf(*corba_profile, myIOR(), wfReqID, release);
+      dagID   = this->myMaDag->processMultiDagWf(*corba_profile, myName().c_str(), wfReqID, release);
     }
   } catch (CORBA::SystemException& e) {
     cerr << "Caught a CORBA " << e._name() << " exception ("
@@ -1097,17 +1118,20 @@ CltWfMgr::wf_free(diet_wf_desc_t * profile) {
 /**
  * Return the object IOR
  */
-const char *
+/*const char *
 CltWfMgr::myIOR() {
-  return ORBMgr::getIORString(this->_this());
-} // end ping
+  return CORBA::string_dup(ORBMgr::getMgr()->getIOR(this->_this()).c_str());
+} // end ping*/
+const string& CltWfMgr::myName() const {
+	return name;
+}
 
 /**
  * Debug function
  */
-void
-CltWfMgr::ping() {
+CORBA::Long CltWfMgr::ping() {
   TRACE_TEXT (TRACE_ALL_STEPS, "ping!!!!!!!!!!!!!!"<< endl);
+	return 0;
 } // end ping
 
 /**
@@ -1130,4 +1154,37 @@ CltWfMgr::getDag(string dag_id) {
   }
   UNLOCK  /** UNLOCK */
   return dag;
+}
+
+/* Forwarder part. */
+
+/* Constructor takes the object name and the forwarder to use to
+ * contact the object.
+ */
+CltWfMgrFwdr::CltWfMgrFwdr(Forwarder_ptr fwdr, const char* objName) {
+	this->forwarder = Forwarder::_duplicate(fwdr);
+	this->objName = CORBA::string_dup(objName);
+}
+
+/* Each method simply calls the forwarder correponding method. */
+/* i.e: fun(a, b, ...) => forwarder->fun(a, b, ..., objName) */
+CORBA::Long CltWfMgrFwdr::execNodeOnSed(const char * node_id,
+																				const char * dag_id,
+																				const char * sed,
+																				const CORBA::ULong reqID,
+																				corba_estimation_t& ev)
+{
+	return forwarder->execNodeOnSed(node_id, dag_id, sed, reqID, ev, objName);
+}
+	
+CORBA::Long CltWfMgrFwdr::execNode(const char * node_id, const char * dag_id) {
+	return forwarder->execNode(node_id, dag_id, objName);
+}
+	
+char * CltWfMgrFwdr::release(const char * dag_id, bool successful) {
+	return forwarder->release(dag_id, successful, objName);
+}
+	
+CORBA::Long CltWfMgrFwdr::ping() {
+	return forwarder->ping(objName);
 }
