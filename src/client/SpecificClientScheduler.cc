@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$ 
  * $Log$
+ * Revision 1.4  2010/07/13 08:17:39  glemahec
+ * DIET 2.5 beta 1 - Client Specific Scheduler compilation error correction
+ *
  * Revision 1.3  2009/09/23 14:16:18  bdepardo
  * Burst request now checks whether or not the SeDs it knows are still in the
  * list of available SeD, and removes them if necessary.
@@ -26,7 +29,9 @@
 #include <iostream>
 #include <vector>
 #include <list>
+#include <string>
 
+#include "ORBMgr.hh"
 #include "debug.hh"
 
 using namespace std;
@@ -95,12 +100,12 @@ SpecificClientScheduler::setScheduler(SpecificClientScheduler * scheduler) {
 void
 SpecificClientScheduler::burstRequest(SeD_var& chosenServer,
                                 corba_response_t * response) {
-  static vector<SeD_var> availableSeDs;
+  static vector<string> availableSeDs;
   static vector<int> use;
   static int min = 0;
   unsigned int ix, jx;
   bool found;
-  vector<SeD_var>::iterator i_s, i_r;
+  vector<string>::iterator i_s, i_r;
   vector<int>::iterator i_us, i_ur;
   
   // Remove obsolete SeDs
@@ -108,7 +113,7 @@ SpecificClientScheduler::burstRequest(SeD_var& chosenServer,
        i_s != availableSeDs.end() && i_us != use.end(); ++ i_s, ++ i_us) {
     found = false;
     for (ix=0; ix < response->servers.length(); ++ ix) {
-      if ((*i_s)->_is_equivalent(response->servers[ix].loc.ior._ptr)) {
+      if (*i_s == static_cast<char*>(response->servers[ix].loc.SeDName)) {
         found = true;
         break;
       }
@@ -129,13 +134,13 @@ SpecificClientScheduler::burstRequest(SeD_var& chosenServer,
   for (ix=0; ix < response->servers.length(); ix++) {
     found = false;
     for (i_s = availableSeDs.begin(); i_s != availableSeDs.end(); ++ i_s) {
-      if ((*i_s)->_is_equivalent(response->servers[ix].loc.ior._ptr)) {
+      if (*i_s == static_cast<char*>(response->servers[ix].loc.SeDName)) {
         found = true;
         break;
       }
     }
     if (!found) {
-      availableSeDs.push_back(response->servers[ix].loc.ior);
+      availableSeDs.push_back(string(response->servers[ix].loc.SeDName));
       TRACE_FUNCTION(TRACE_ALL_STEPS, "Adding a new SeD to the list");
       use.push_back(min);
     }
@@ -159,7 +164,7 @@ SpecificClientScheduler::burstRequest(SeD_var& chosenServer,
 		 " The SeDs vector contains " << availableSeDs.size() <<
 		 " references");
   (*i_ur) += 1;
-  chosenServer = *i_r;
+  chosenServer = ORBMgr::getMgr()->resolve<SeD, SeD_var>(SEDCTXT, *i_r);
 }
 
 /**
@@ -169,20 +174,20 @@ SpecificClientScheduler::burstRequest(SeD_var& chosenServer,
 void
 SpecificClientScheduler::burstLimitRequest(SeD_var& chosenServer,
                                            corba_response_t * response) {
-  static vector<SeD_var> availableSeDs;
+  static vector<string> availableSeDs;
   static vector<int> use;
 
   // Add news SeDs
   for (unsigned int ix=0; ix < response->servers.length(); ix++) {
     bool found = false;
     for (unsigned int jx=0; jx < availableSeDs.size(); jx++) {
-      if (availableSeDs[jx]->_is_equivalent(response->servers[ix].loc.ior._ptr)) {
+      if (availableSeDs[jx]==static_cast<char*>(response->servers[ix].loc.SeDName)) {
         found = true;
         break;
       }
     }
     if (!found) {
-      availableSeDs.push_back(response->servers[ix].loc.ior);
+      availableSeDs.push_back(string(response->servers[ix].loc.SeDName));
       use.push_back(0);
       for (unsigned int ax = 0; ax < allowed_req_per_sed; ax++)
         mySem.post();
@@ -205,7 +210,7 @@ SpecificClientScheduler::burstLimitRequest(SeD_var& chosenServer,
     " The SeDs vector contains " << availableSeDs.size() <<
     " references" << endl;
   use[idx]++;
-  chosenServer = availableSeDs[idx];  
+  chosenServer = ORBMgr::getMgr()->resolve<SeD, SeD_var>(SEDCTXT, availableSeDs[idx]);
 }
 
 void
