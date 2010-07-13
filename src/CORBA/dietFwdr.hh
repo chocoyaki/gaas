@@ -8,8 +8,11 @@
 /****************************************************************************/
 /* $Id$ */
 /* $Log$
-/* Revision 1.1  2010/07/12 16:11:04  glemahec
-/* DIET 2.5 beta 1 - New ORB manager; dietForwarder application
+/* Revision 1.2  2010/07/13 15:24:13  glemahec
+/* Warnings corrections and some robustness improvements
+/* */
+/* Revision 1.1  2010/07/12 16:11:04  glemahec */
+/* DIET 2.5 beta 1 - New ORB manager; dietForwarder application */
 /* */
 #include <string>
 #include "Options.hh"
@@ -90,3 +93,5 @@ void ssh_login(const std::string& login, Configuration* cfg);
 void key_path(const std::string& path, Configuration* cfg);
 void nb_retry(const std::string& nb, Configuration* cfg);
 
+/* Transformation function for the host name. */
+int change(int c);

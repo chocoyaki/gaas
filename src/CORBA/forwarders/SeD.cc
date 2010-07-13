@@ -8,8 +8,11 @@
 /****************************************************************************/
 /* $Id$ */
 /* $Log$
-/* Revision 1.1  2010/07/12 16:08:56  glemahec
-/* DIET 2.5 beta 1 - Forwarder implementations
+/* Revision 1.2  2010/07/13 15:24:13  glemahec
+/* Warnings corrections and some robustness improvements
+/* */
+/* Revision 1.1  2010/07/12 16:08:56  glemahec */
+/* DIET 2.5 beta 1 - Forwarder implementations */
 /* */
 #include "DIETForwarder.hh"
 #include "ORBMgr.hh"

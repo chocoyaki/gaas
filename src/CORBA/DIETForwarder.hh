@@ -8,8 +8,11 @@
 /****************************************************************************/
 /* $Id$ */
 /* $Log$
-/* Revision 1.1  2010/07/12 16:11:03  glemahec
-/* DIET 2.5 beta 1 - New ORB manager; dietForwarder application
+/* Revision 1.2  2010/07/13 15:24:13  glemahec
+/* Warnings corrections and some robustness improvements
+/* */
+/* Revision 1.1  2010/07/12 16:11:03  glemahec */
+/* DIET 2.5 beta 1 - New ORB manager; dietForwarder application */
 /* */
 
 #ifndef DIETFORWARDER_HH
@@ -17,6 +20,8 @@
 
 #include <string>
 #include <map>
+
+#include <omnithread.h>
 
 #include "NetConfig.hh"
 
@@ -33,9 +38,16 @@ private:
 	 * disappear.
 	 */
 	std::map<std::string, ::CORBA::Object_ptr> objectCache;
+	/* We also maintain a list of activated servant objects. */
+	std::map<std::string, PortableServer::ServantBase*> servants;
+	
 	::CORBA::Object_ptr getObjectCache(const std::string& name);
 	/* The forwarder associated to this one. */
 	Forwarder_var peer;
+	/* Mutexes */
+	omni_mutex peerMutex;   // To wait for the peer initialization
+	omni_mutex cachesMutex; // Protect access to caches
+	
 	std::string peerName;
 	std::string name;
 	/* To determine if the call is from another forwarder and
@@ -86,6 +98,9 @@ public:
 	/* Set this forwarder peer object (not CORBA). */
 	void setPeer(Forwarder_ptr peer);
 	char* getIOR();
+	
+	void removeObject(const std::string& name);
+	void cleanCaches();
 	
 	char* getName();
 	SeqString* acceptList();

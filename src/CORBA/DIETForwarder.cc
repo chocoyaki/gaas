@@ -8,8 +8,11 @@
 /****************************************************************************/
 /* $Id$ */
 /* $Log$
-/* Revision 1.1  2010/07/12 16:11:03  glemahec
-/* DIET 2.5 beta 1 - New ORB manager; dietForwarder application
+/* Revision 1.2  2010/07/13 15:24:13  glemahec
+/* Warnings corrections and some robustness improvements
+/* */
+/* Revision 1.1  2010/07/12 16:11:03  glemahec */
+/* DIET 2.5 beta 1 - New ORB manager; dietForwarder application */
 /* */
 
 #include "DIETForwarder.hh"
@@ -61,9 +64,12 @@ bool DIETForwarder::remoteCall(string& objName) {
 {
 	map<string, ::CORBA::Object_ptr>::iterator it;
 	
+	cachesMutex.lock();
 	if ((it=objectCache.find(name))!=objectCache.end()) {
+		cachesMutex.unlock();
 		return CORBA::Object::_duplicate(it->second);
 	}
+	cachesMutex.unlock();
 	return ::CORBA::Object::_nil();	
 }
 
@@ -71,6 +77,7 @@ DIETForwarder::DIETForwarder(const string& name, const string& cfgPath) :
 	netCfg(cfgPath)
 {
 	this->name = name;
+	peerMutex.lock(); // Wait for the peer init.
 }
 
 /* DIET object factory methods. */
@@ -89,8 +96,13 @@ Agent_ptr DIETForwarder::getAgent(const char* name)
 	}
 	
 	AgentFwdrImpl * agent = new AgentFwdrImpl(this->_this(), nm.c_str());
+	
 	ORBMgr::getMgr()->activate(agent);
+	
+	cachesMutex.lock();
+	servants[nm] = agent;
 	objectCache[nm] = CORBA::Object::_duplicate(agent->_this());
+	cachesMutex.unlock();
 	
 	return Agent::_duplicate(agent->_this());
 }
@@ -109,8 +121,13 @@ Callback_ptr DIETForwarder::getCallback(const char* name)
 		return Callback::_duplicate(Callback::_narrow(object));
 	
 	CallbackFwdrImpl * callback = new CallbackFwdrImpl(this->_this(), nm.c_str());
+
 	ORBMgr::getMgr()->activate(callback);
+	
+	cachesMutex.lock();
+	servants[nm] = callback;
 	objectCache[nm] = CORBA::Object::_duplicate(callback->_this());
+	cachesMutex.unlock();
 	
 	return Callback::_duplicate(callback->_this());
 }
@@ -128,8 +145,13 @@ LocalAgent_ptr DIETForwarder::getLocalAgent(const char* name)
 		return LocalAgent::_duplicate(LocalAgent::_narrow(object));
 	}
 	LocalAgentFwdrImpl * agent = new LocalAgentFwdrImpl(this->_this(), nm.c_str());
+
 	ORBMgr::getMgr()->activate(agent);
+	
+	cachesMutex.lock();
+	servants[nm] = agent;
 	objectCache[nm] = CORBA::Object::_duplicate(agent->_this());
+	cachesMutex.unlock();
 	
 	return LocalAgent::_duplicate(agent->_this());
 }
@@ -149,8 +171,12 @@ LocalAgent_ptr DIETForwarder::getLocalAgent(const char* name)
 	
 	DietLogComponentFwdr * comp = new DietLogComponentFwdr(this->_this(), nm.c_str());
 	ORBMgr::getMgr()->activate(comp);
+ 
+	cachesMutex.lock();
+  servants[nm] = comp;
 	objectCache[name] = CORBA::Object::_duplicate(comp->_this());
-	
+	cachesMutex.unlock();
+
 	return ComponentConfigurator::_duplicate(comp->_this());
 	
 }*/
@@ -175,7 +201,11 @@ MasterAgent_ptr DIETForwarder::getMasterAgent(const char* name)
 	
 	MasterAgentFwdrImpl * agent = new MasterAgentFwdrImpl(this->_this(), nm.c_str());
 	ORBMgr::getMgr()->activate(agent);
+	
+	cachesMutex.lock();
+	servants[nm] = agent;
 	objectCache[nm] = CORBA::Object::_duplicate(agent->_this());
+	cachesMutex.unlock();
 	
 	return MasterAgent::_duplicate(agent->_this());
 }
@@ -195,8 +225,12 @@ SeD_ptr DIETForwarder::getSeD(const char* name)
 	
 	SeDFwdrImpl * sed = new SeDFwdrImpl(this->_this(), nm.c_str());
 	ORBMgr::getMgr()->activate(sed);
-	objectCache[nm] = CORBA::Object::_duplicate(sed->_this());
 	
+	cachesMutex.lock();
+	objectCache[nm] = CORBA::Object::_duplicate(sed->_this());
+	servants[nm] = sed;
+	cachesMutex.unlock();
+
 	return SeD::_duplicate(sed->_this());
 }
 
@@ -216,7 +250,11 @@ Dagda_ptr DIETForwarder::getDagda(const char* name)
 	}
 	DagdaFwdrImpl * dagda = new DagdaFwdrImpl(this->_this(), nm.c_str());
 	ORBMgr::getMgr()->activate(dagda);
+	
+	cachesMutex.lock();
+	servants[nm] = dagda;
 	objectCache[nm] = CORBA::Object::_duplicate(dagda->_this());
+	cachesMutex.unlock();
 	
 	return Dagda::_duplicate(dagda->_this());
 }
@@ -237,7 +275,11 @@ DataMgr_ptr DIETForwarder::getDataMgr(const char* name)
 	
 	DataMgrFwdrImpl * dtm = new DataMgrFwdrImpl(this->_this(), nm.c_str());
 	ORBMgr::getMgr()->activate(dtm);
+	
+	cachesMutex.lock();
+	servants[nm] = dtm;
 	objectCache[nm] = CORBA::Object::_duplicate(dtm->_this());
+	cachesMutex.unlock();
 	
 	return DataMgr::_duplicate(dtm->_this());
 }
@@ -257,7 +299,11 @@ LocMgr_ptr DIETForwarder::getLocMgr(const char* name)
 	
 	LocMgrFwdrImpl * dtm = new LocMgrFwdrImpl(this->_this(), nm.c_str());
 	ORBMgr::getMgr()->activate(dtm);
+	
+	cachesMutex.lock();
+	servants[nm] = dtm;
 	objectCache[nm] = CORBA::Object::_duplicate(dtm->_this());
+	cachesMutex.unlock();
 	
 	return LocMgr::_duplicate(dtm->_this());
 }
@@ -279,7 +325,11 @@ CltMan_ptr DIETForwarder::getCltMan(const char* name)
 	
 	CltWfMgrFwdr * mgr = new CltWfMgrFwdr(this->_this(), nm.c_str());
 	ORBMgr::getMgr()->activate(mgr);
+	
+	cachesMutex.lock();
+	servants[nm] = mgr;
 	objectCache[nm] = CORBA::Object::_duplicate(mgr->_this());
+	cachesMutex.unlock();
 	
 	return CltManFwdr::_duplicate(mgr->_this());
 }
@@ -299,7 +349,11 @@ MaDag_ptr DIETForwarder::getMaDag(const char* name)
 	
 	MaDagFwdrImpl * madag = new MaDagFwdrImpl(this->_this(), nm.c_str());
 	ORBMgr::getMgr()->activate(madag);
+	
+	cachesMutex.lock();
+	servants[nm] = madag;
 	objectCache[nm] = CORBA::Object::_duplicate(madag->_this());
+	cachesMutex.unlock();
 	
 	return MaDag::_duplicate(madag->_this());
 }
@@ -319,7 +373,11 @@ WfLogService_ptr DIETForwarder::getWfLogService(const char* name)
 	
 	WfLogServiceFwdrImpl * wfl = new WfLogServiceFwdrImpl(this->_this(), nm.c_str());
 	ORBMgr::getMgr()->activate(wfl);
+	
+	cachesMutex.lock();
 	objectCache[nm] = CORBA::Object::_duplicate(wfl->_this());
+	servants[nm] = wfl;
+	cachesMutex.unlock();
 	
 	return WfLogService::_duplicate(wfl->_this());
 }
@@ -329,10 +387,7 @@ WfLogService_ptr DIETForwarder::getWfLogService(const char* name)
 /* Common methods implementations. */
 ::CORBA::Long DIETForwarder::ping(const char* objName)
 {
-	/* ping() is a common function to different idl classes. */
-	/* Temp: always return 0. To be changer later... */
-	//return 0;
-	/* -------- */
+	WAITPEERINIT
 	string objString(objName);
 	string name;
 	string ctxt;
@@ -632,6 +687,11 @@ void DIETForwarder::printList(const char* objName) {
 #endif
 
 void DIETForwarder::bind(const char* objName, const char* ior) {
+	/* To avoid crashes when the peer forwarder is not ready: */
+	/* If the peer was not initialized, the following call is blocking. */
+	peerMutex.lock();
+	peerMutex.unlock();
+
 	string objString(objName);
 	string name;
 	string ctxt;
@@ -688,20 +748,63 @@ void DIETForwarder::unbind(const char* objName) {
 	ctxt = name.substr(0, pos);
 	name = name.substr(pos+1);
 	
+	removeObject(name);
+	
 	ORBMgr::getMgr()->unbind(ctxt, name);
 	// Broadcast the unbinding to all forwarders.
 	ORBMgr::getMgr()->fwdsUnbind(ctxt, name, this->name);
+}
+
+void DIETForwarder::removeObject(const string& name) {
+	map<string, ::CORBA::Object_ptr>::iterator it;
+	map<string, PortableServer::ServantBase*>::iterator jt;
+	/* If the object is in the servant cache. */
+	cachesMutex.lock();
+	if ((jt=servants.find(name))!=servants.end()) {
+		/* - Deactivate object. */
+		try {
+			ORBMgr::getMgr()->deactivate(jt->second);
+		} catch (...) {
+			/* There was a problem with the servant. But we want
+			 * to remove it...
+			 */
+		}
+		/* - Remove it activated servants. */
+		servants.erase(jt);
+	}
+	/* Remove the object from the cache. */
+	if ((it=objectCache.find(name))!=objectCache.end())
+		objectCache.erase(it);	
+	cachesMutex.unlock();
+}
+
+void DIETForwarder::cleanCaches() {
+	map<string, ::CORBA::Object_ptr>::iterator it;
+	list<string> invalidObjects;
+	list<string>::const_iterator jt;
+	
+	for (it=objectCache.begin(); it!=objectCache.end(); ++it) {
+		try {
+			Forwarder_var object = Forwarder::_narrow(it->second);
+			object->getName();
+		} catch (const CORBA::TRANSIENT& err) {
+			invalidObjects.push_back(it->first);
+		}
+	}
+	for (jt=invalidObjects.begin(); jt!=invalidObjects.end(); ++jt)
+		removeObject(*jt);
 }
 
 void DIETForwarder::connectPeer(const char* ior, const char* host,
 																const ::CORBA::Long port)
 {
 	string converted = ORBMgr::convertIOR(ior, host, port);
-	peer = ORBMgr::getMgr()->resolve<Forwarder, Forwarder_ptr>(converted);
+	setPeer(ORBMgr::getMgr()->resolve<Forwarder, Forwarder_ptr>(converted));
 }
 
 void DIETForwarder::setPeer(Forwarder_ptr peer) {
 	this->peer = Forwarder::_duplicate(Forwarder::_narrow(peer));
+	peerMutex.unlock(); // Peer was init.
 }
 
 

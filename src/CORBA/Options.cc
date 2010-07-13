@@ -8,8 +8,11 @@
 /****************************************************************************/
 /* $Id$ */
 /* $Log$
-/* Revision 1.1  2010/07/12 16:11:04  glemahec
-/* DIET 2.5 beta 1 - New ORB manager; dietForwarder application
+/* Revision 1.2  2010/07/13 15:24:13  glemahec
+/* Warnings corrections and some robustness improvements
+/* */
+/* Revision 1.1  2010/07/12 16:11:04  glemahec */
+/* DIET 2.5 beta 1 - New ORB manager; dietForwarder application */
 /* */
 #include "Options.hh"
 

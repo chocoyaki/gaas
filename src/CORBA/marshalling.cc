@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.95  2010/07/13 15:24:13  glemahec
+ * Warnings corrections and some robustness improvements
+ *
  * Revision 1.94  2010/03/31 21:15:38  bdepardo
  * Changed C headers into C++ headers
  *
@@ -584,13 +587,13 @@ __mrsh_data_id_desc(corba_data_desc_t* dest,
 
   return (0);
 }
-
+#if ! HAVE_DAGDA
 static void
 __mrsh_data_id(corba_data_t* dest, const diet_data_t* const src) {
   __mrsh_data_id_desc(&(dest->desc), &(src->desc));
   dest->value.length(0);
 }
-
+#endif
 /****************************************************************************/
 /* Data structure unmarshalling                                             */
 /****************************************************************************/

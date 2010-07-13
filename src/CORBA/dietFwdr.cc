@@ -8,8 +8,11 @@
 /****************************************************************************/
 /* $Id$ */
 /* $Log$
-/* Revision 1.1  2010/07/12 16:11:04  glemahec
-/* DIET 2.5 beta 1 - New ORB manager; dietForwarder application
+/* Revision 1.2  2010/07/13 15:24:13  glemahec
+/* Warnings corrections and some robustness improvements
+/* */
+/* Revision 1.1  2010/07/12 16:11:04  glemahec */
+/* DIET 2.5 beta 1 - New ORB manager; dietForwarder application */
 /* */
 #include "DIETForwarder.hh"
 #include "ORBMgr.hh"
@@ -21,8 +24,10 @@
 #include <iostream>
 #include <cstdlib>
 #include <string>
+#include <cstring>
 #include <sstream>
 #include <fstream>
+#include <algorithm>
 
 #include <omniORB4/CORBA.h>
 
@@ -63,17 +68,23 @@ int main(int argc, char* argv[], char* envp[]) {
 	opt.processOptions();
 	
 	if (cfg.getName()=="") {
+		std::ostringstream name;
+		char host[256];
+		
+		gethostname(host, 256);
+		host[255]='\0';
+		
+		std::transform(host, host+strlen(host), host, change);
+		name << "Forwarder-" << host << "-" << getpid();
 		cerr << "Missing parameter: name (use --name to fix it)" << endl;
-		return EXIT_FAILURE;
+		cerr << "Use default name: " << name.str() << endl;
+		cfg.setName(name.str());
 	}
 	if (cfg.getCfgPath()=="") {
 		cerr << "Missing parameter: net-config (use --net-config <file> to fix it)" << endl;
 		return EXIT_FAILURE;
 	}
-	if (cfg.createTo() && !cfg.createFrom()) {
-		cerr << "Error: tunnel configuration inconsistency" << endl;
-		return EXIT_FAILURE;
-	}
+	
 	if (cfg.createFrom()) {
 		if (cfg.getPeerName()==""       ||
 				cfg.getSshHost()==""        ||
@@ -387,3 +398,9 @@ void FwrdConfig::setNbRetry(const int nb) {
 void FwrdConfig::setCfgPath(const string& path) {
 	this->cfgPath = path;
 }
+
+int change(int c) {
+	if (c=='.') return '-';
+	return c;
+}
+
