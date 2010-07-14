@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$ */
 /* $Log$
+/* Revision 1.3  2010/07/14 22:43:26  glemahec
+/* Remove WAITPEERINIT macro
+/*
 /* Revision 1.2  2010/07/13 15:24:13  glemahec
 /* Warnings corrections and some robustness improvements
 /* */
@@ -387,7 +390,6 @@ WfLogService_ptr DIETForwarder::getWfLogService(const char* name)
 /* Common methods implementations. */
 ::CORBA::Long DIETForwarder::ping(const char* objName)
 {
-	WAITPEERINIT
 	string objString(objName);
 	string name;
 	string ctxt;
