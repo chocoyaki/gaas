@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.120  2010/07/14 23:45:47  bdepardo
+ * Warning correction
+ *
  * Revision 1.119  2010/07/12 16:14:10  glemahec
  * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
  *
@@ -1074,7 +1077,6 @@ SeDImpl::parallel_solve(const char* path, corba_profile_t& pb,
   diet_convertor_t* cvt(NULL);
   int solve_res(0);
   char statMsg[128];
-  int i ;
 
   /* Copying the name of the service in the profile...
    * Not sure this should be done here, but currently it isn't done
@@ -1123,7 +1125,7 @@ SeDImpl::parallel_solve(const char* path, corba_profile_t& pb,
   TRACE_TEXT(TRACE_MAIN_STEPS,"SeD::parallel_solve() completed" << endl
          << "************************************************************" << endl);
 #if ! HAVE_DAGDA
-  for (i = 0; i <= cvt->last_in; i++) {
+  for (int i = 0; i <= cvt->last_in; i++) {
     diet_free_data(&(profile.parameters[i]));
   }
 #endif
