@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2010/07/14 23:45:30  bdepardo
+ * Header corrections
+ *
  * Revision 1.6  2010/07/12 16:14:11  glemahec
  * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
  *
@@ -28,7 +31,7 @@
  * Added new parameters to functions request_submission, diet_call_common
  * and diet_call_async_common to replace global variables.
  *
- */
+ ****************************************************************************/
 
 #include "DIETCall.hh"
 #include "debug.hh"

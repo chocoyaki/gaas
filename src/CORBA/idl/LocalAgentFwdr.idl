@@ -6,11 +6,14 @@
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
-/* $Id$ */
-/* $Log$
-/* Revision 1.1  2010/07/12 15:54:11  glemahec
-/* DIET 2.5 beta 1 - Forwarder IDL files
-/* */
+/* $Id$
+ * $Log$
+ * Revision 1.2  2010/07/14 23:45:31  bdepardo
+ * Header corrections
+ *
+ * Revision 1.1  2010/07/12 15:54:11  glemahec
+ * DIET 2.5 beta 1 - Forwarder IDL files
+ ****************************************************************************/
 
 
 #ifndef LOCALAGENTFWDR_IDL

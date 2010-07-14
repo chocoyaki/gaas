@@ -6,14 +6,18 @@
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
-/* $Id$ */
-/* $Log$
-/* Revision 1.2  2010/07/13 15:24:13  glemahec
-/* Warnings corrections and some robustness improvements
-/* */
-/* Revision 1.1  2010/07/12 16:11:04  glemahec */
-/* DIET 2.5 beta 1 - New ORB manager; dietForwarder application */
-/* */
+/* $Id$
+ * $Log$
+ * Revision 1.3  2010/07/14 23:45:30  bdepardo
+ * Header corrections
+ *
+ * Revision 1.2  2010/07/13 15:24:13  glemahec
+ * Warnings corrections and some robustness improvements
+ *
+ * Revision 1.1  2010/07/12 16:11:04  glemahec
+ * DIET 2.5 beta 1 - New ORB manager; dietForwarder application
+ ****************************************************************************/
+
 #include <string>
 #include "Options.hh"
 

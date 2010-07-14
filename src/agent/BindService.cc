@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2010/07/14 23:45:30  bdepardo
+ * Header corrections
+ *
  * Revision 1.7  2010/07/12 20:14:32  glemahec
  * DIET 2.5 beta 1 - Forwarders with Multi-MAs bug correction
  *
@@ -42,7 +45,7 @@
  * Revision 1.1  2004/09/29 13:35:31  sdahan
  * Add the Multi-MAs feature.
  *
- */
+ ****************************************************************************/
 
 #include "MasterAgentImpl.hh"
 #include "BindService.hh"

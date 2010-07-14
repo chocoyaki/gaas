@@ -1,3 +1,19 @@
+/****************************************************************************/
+/* ORB manager v. 2.0 - CORBA management with DIET forwarders               */
+/*                                                                          */
+/*  Author(s):                                                              */
+/*    - Gaël Le Mahec (gael.le.mahec@ens-lyon.fr)                           */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+/* $Id$
+ * $Log$
+ * Revision 1.27  2010/07/14 23:45:30  bdepardo
+ * Header corrections
+ *
+ *
+ ****************************************************************************/
+
 #include <string>
 #include <list>
 #include <map>

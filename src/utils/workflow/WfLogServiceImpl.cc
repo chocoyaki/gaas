@@ -1,3 +1,19 @@
+/****************************************************************************/
+/* Workflows LogService                                                     */
+/*                                                                          */
+/*  Author(s):                                                              */
+/*    - Gaël Le Mahec (gael.le.mahec@ens-lyon.fr)                           */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+/* $Id$
+ * $Log$
+ * Revision 1.2  2010/07/14 23:45:25  bdepardo
+ * Header corrections
+ *
+ *
+ ****************************************************************************/
+
 #include "wfLogServiceImpl.hh"
 
 WfLogServiceFwdrImpl::WfLogServiceFwdrImpl(Forwarder_ptr fwdr,
