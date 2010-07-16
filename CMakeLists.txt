@@ -21,9 +21,9 @@ ENDIF( COMMAND CMAKE_POLICY )
 
 
 SET( DIET_MAJOR_VERSION 2 )
-SET( DIET_MINOR_VERSION 4 )
+SET( DIET_MINOR_VERSION 5 )
 
-SET( DIET_REVISION_VERSION rc2 )
+SET( DIET_REVISION_VERSION rc1 )
 SET( DIET_VERSION ${DIET_MAJOR_VERSION}.${DIET_MINOR_VERSION})
 IF (DIET_REVISION_VERSION)
 	SET( DIET_VERSION ${DIET_VERSION}.${DIET_REVISION_VERSION})
@@ -111,7 +111,6 @@ ENDIF( DIET_USE_DYNAMICS AND NOT DIET_USE_DAGDA )
 IF( DIET_TRANSFER_PROGRESSION AND NOT DIET_USE_DAGDA )
   MESSAGE(SEND_ERROR "DIET_TRANSFER_PROGRESSION requires DIET_USE_DAGDA.")
 ENDIF( DIET_TRANSFER_PROGRESSION AND NOT DIET_USE_DAGDA )
-
 
 # JXTA (see below) is used to provide functionalities similar to the ones
 # of the DIET_WITH_MULTI_MA. For the time being those two extensions
@@ -224,6 +223,28 @@ ELSEIF( FREEBSD )
   MESSAGE( STATUS "XXX System name FreeBSD" )
   ADD_DEFINITIONS( -D__freebsd__ )
 ENDIF( CYGWIN )
+
+# because x86_64 can't link static libraries to shared libraries
+# and from 2.5, this is what is done in DIET
+# see http://www.mail-archive.com/cross-lfs%40linuxfromscratch.org/msg00411.html
+#You will get these messages on x86_64 any place that libtool tries to use a static (.a) library in a .la, and as it says, it can't link. These "recompile with -fPIC" messages fall into three types - 
+#(i) recompile the current package with -fPIC
+#(ii) fix a broken symlink (I had a dangling symlink for ncurses in my scripts, because of a typo - on x86 libtool couldn't find the .so but took the .a and ran with it, on x86_64 it barfed). 
+#(iii) convert a Makefile to use .la instead of .a (very uncommon).
+
+# Note: CMAKE_SYSTEM_PROCESSOR return the equivalent of uname -p, note uname -m
+
+IF(UNIX AND NOT WIN32)
+  FIND_PROGRAM(CMAKE_UNAME uname /bin /usr/bin /usr/local/bin )
+  IF(CMAKE_UNAME)
+    EXEC_PROGRAM(uname ARGS -m OUTPUT_VARIABLE SYSTEM_PROC_TYPE)
+    SET(SYSTEM_PROC_TYPE ${SYSTEM_PROC_TYPE} CACHE INTERNAL 
+    	"processor type (i386 and x86_64)")
+    IF(SYSTEM_PROC_TYPE MATCHES "x86_64")
+      ADD_DEFINITIONS(-fPIC)
+    ENDIF(SYSTEM_PROC_TYPE MATCHES "x86_64")
+  ENDIF(CMAKE_UNAME)
+ENDIF(UNIX AND NOT WIN32)
 
 # --------------------- DEPENDENCIES TOWARDS EXTERNAL PACKAGES -------------
 # Path to additional modules (i.e. used by FIND_PACKAGE commands making
