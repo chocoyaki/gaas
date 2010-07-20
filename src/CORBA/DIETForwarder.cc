@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2010/07/20 08:56:22  bisnard
+ * Updated WfLogService IDL
+ *
  * Revision 1.4  2010/07/14 23:45:30  bdepardo
  * Header corrections
  *
@@ -424,13 +427,6 @@ WfLogService_ptr DIETForwarder::getWfLogService(const char* name)
 		MaDag_var madag = ORBMgr::getMgr()->resolve<MaDag, MaDag_var>(MADAGCTXT, name,
 																																	this->name);
 		return madag->ping();
-	}
-	if (ctxt==string(WFLOGCTXT)) {
-		WfLogService_var wfl =
-			ORBMgr::getMgr()->resolve<WfLogService, WfLogService_var>(WFLOGCTXT, name,
-																																this->name);
-		wfl->ping();
-		return 0;
 	}
 #endif
 	if (ctxt==string(SEDCTXT)) {

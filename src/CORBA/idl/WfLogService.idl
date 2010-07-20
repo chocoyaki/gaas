@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2010/07/20 08:56:23  bisnard
+ * Updated WfLogService IDL
+ *
  * Revision 1.7  2009/06/23 09:16:19  bisnard
  * changed CORBA class name WfLogSrv to match DIET_Dashboard
  *
@@ -29,23 +32,62 @@
 #define _WFLOGSERVICE_IDL_
 
 interface WfLogService {
-  void
-  setWf(in string workflow_description);
+
+  oneway void
+  initWorkflow(in string wfId, in string name, in string parentWfId);
 
   void
-  nodeIsDone(in string node_id);
+  updateWorkflow(in string wfId, in string wfState, in string data);
 
   void
-  nodeIsRunning(in string node_id, in string hostname);
+  createDag(in string dagId, in string wfId);
 
   void
-  nodeIsStarting(in string node_id);
+  updateDag(in string dagId, in string wfId, in string dagState, in string data);
+  
+  void
+  createDagNode(in string dagNodeId, in string dagId, in string wfId);
 
   void
-  nodeIsWaiting(in string node_id);
+  createDagNodePort(in string dagNodePortId, in string portDirection,
+		    in string dagNodeId, in string wfId);
 
   void
-  ping();
+  setInPortDependencies(in string dagNodePortId, in string dagNodeId, in string wfId,
+                        in string dependencies);
+  
+  void
+  createDagNodeLink(in string srcNodeId, in string srcWfId,
+		    in string destNodeId, in string destWfId);
+		    
+  void
+  createDagNodeData(in string dagNodeId, in string wfId,
+		    in string dagNodePortId, in string dataId);
+
+  void
+  createDataElements(in string dataId, in string elementIdList);
+
+  void
+  createSourceDataTree(in string sourceId, in string wfId, in string dataIdTree);
+
+  void
+  createSinkData(in string sinkId, in string wfId, in string dataId);
+
+  void
+  nodeIsReady(in string dagNodeId, in string wfId);
+
+  void
+  nodeIsStarting(in string dagNodeId, in string wfId, in string pbName, in string hostname);
+		    
+  void
+  nodeIsRunning(in string dagNodeId, in string wfId);
+
+  void
+  nodeIsDone(in string dagNodeId, in string wfId);
+
+  void
+  nodeIsFailed(in string dagNodeId, in string wfId);
+
 };
 
 #endif // _WFLOGSERVICE_IDL_

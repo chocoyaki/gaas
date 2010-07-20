@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2010/07/20 08:56:23  bisnard
+ * Updated WfLogService IDL
+ *
  * Revision 1.2  2010/07/14 23:45:31  bdepardo
  * Header corrections
  *
@@ -26,20 +29,62 @@ interface WfLogServiceFwdr : WfLogService {
 };
 
 interface WfLogServiceForwarder {
-	void setWf(in string workflow_description,
-						 in string objName);
 
-  void nodeIsDone(in string node_id,
-									in string objName);
+  oneway void
+  initWorkflow(in string wfId, in string name, in string parentWfId, in string objName);
 
-  void nodeIsRunning(in string node_id, in string hostname,
-										 in string objName);
+  void
+  updateWorkflow(in string wfId, in string wfState, in string data, in string objName);
 
-  void nodeIsStarting(in string node_id,
-											in string objName);
+  void
+  createDag(in string dagId, in string wfId, in string objName);
 
-  void nodeIsWaiting(in string node_id,
-										 in string objName);
+  void
+  updateDag(in string dagId, in string wfId, in string dagState, in string data, in string objName);
+  
+  void
+  createDagNode(in string dagNodeId, in string dagId, in string wfId, in string objName);
+
+  void
+  createDagNodePort(in string dagNodePortId, in string portDirection,
+		    in string dagNodeId, in string wfId, in string objName);
+
+  void
+  setInPortDependencies(in string dagNodePortId, in string dagNodeId, in string wfId,
+                        in string dependencies, in string objName);
+  
+  void
+  createDagNodeLink(in string srcNodeId, in string srcWfId,
+		    in string destNodeId, in string destWfId, in string objName);
+		    
+  void
+  createDagNodeData(in string dagNodeId, in string wfId,
+		    in string dagNodePortId, in string dataId, in string objName);
+
+  void
+  createDataElements(in string dataId, in string elementIdList, in string objName);
+
+  void
+  createSourceDataTree(in string sourceId, in string wfId, in string dataIdTree, in string objName);
+
+  void
+  createSinkData(in string sinkId, in string wfId, in string dataId, in string objName);
+
+  void
+  nodeIsReady(in string dagNodeId, in string wfId, in string objName);
+
+  void
+  nodeIsStarting(in string dagNodeId, in string wfId, in string pbName, in string hostname, in string objName);
+		    
+  void
+  nodeIsRunning(in string dagNodeId, in string wfId, in string objName);
+
+  void
+  nodeIsDone(in string dagNodeId, in string wfId, in string objName);
+
+  void
+  nodeIsFailed(in string dagNodeId, in string wfId, in string objName);
+
 };
 
 #endif

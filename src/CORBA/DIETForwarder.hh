@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2010/07/20 08:56:22  bisnard
+ * Updated WfLogService IDL
+ *
  * Revision 1.3  2010/07/14 23:45:30  bdepardo
  * Header corrections
  *
@@ -407,17 +410,24 @@ public:
 #endif
 #ifdef HAVE_WORKFLOW
 	/* WfLogServiceFwdr implementation. */
-	void setWf(const char* workflow_description,
-						 const char* objName);
-  void nodeIsDone(const char* node_id,
-									const char* objName);
-  void nodeIsRunning(const char* node_id,
-										 const char* hostname,
-										 const char* objName);
-  void nodeIsStarting(const char* node_id,
-											const char* objName);
-  void nodeIsWaiting(const char* node_id,
-										 const char* objName);
+	void initWorkflow(const char* wfId, const char* name, const char* parentWfId, const char* objName);
+  void updateWorkflow(const char* wfId, const char* wfState, const char* data, const char* objName);
+  void createDag(const char* dagId, const char* wfId, const char* objName);
+  void updateDag(const char* dagId, const char* wfId, const char* dagState, const char* data, const char* objName);
+  void createDagNode(const char* dagNodeId, const char* dagId, const char* wfId, const char* objName);
+  void createDagNodePort(const char* dagNodePortId, const char* portDirection, const char* dagNodeId, const char* wfId, const char* objName);
+  void setInPortDependencies(const char* dagNodePortId, const char* dagNodeId, const char* wfId, const char* dependencies, const char* objName);
+  void createDagNodeLink(const char* srcNodeId, const char* srcWfId, const char* destNodeId, const char* destWfId, const char* objName);
+  void createDagNodeData(const char* dagNodeId, const char* wfId, const char* dagNodePortId, const char* dataId, const char* objName);
+  void createDataElements(const char* dataId, const char* elementIdList, const char* objName);
+  void createSourceDataTree(const char* sourceId, const char* wfId, const char* dataIdTree, const char* objName);
+  void createSinkData(const char* sinkId, const char* wfId, const char* dataId, const char* objName);
+  void nodeIsReady(const char* dagNodeId, const char* wfId, const char* objName);
+  void nodeIsStarting(const char* dagNodeId, const char* wfId, const char* pbName, const char* hostname, const char* objName);
+  void nodeIsRunning(const char* dagNodeId, const char* wfId, const char* objName);
+  void nodeIsDone(const char* dagNodeId, const char* wfId, const char* objName);
+  void nodeIsFailed(const char* dagNodeId, const char* wfId, const char* objName);
+  
 #endif
 	/* Utility fonctions to extract name & context from context/name. */
 	static std::string getName(const std::string& namectxt);
