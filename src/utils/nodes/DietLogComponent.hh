@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2010/07/20 09:16:53  bisnard
+ * Added const
+ *
  * Revision 1.3  2010/07/12 16:14:13  glemahec
  * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
  *
@@ -451,7 +454,7 @@ public:
    *
    */
   void
-	logDag(char * msg);
+	logDag(const char * msg);
   /**
    * Send msg : madag schedulerType
    *
@@ -459,7 +462,7 @@ public:
    *
    */
   void
-	maDagSchedulerType(char * msg);
+	maDagSchedulerType(const char * msg);
 #endif // HAVE_WORKFLOW
 
 private:

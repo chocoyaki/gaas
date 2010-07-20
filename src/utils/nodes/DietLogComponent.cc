@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2010/07/20 09:16:44  bisnard
+ * Added const
+ *
  * Revision 1.4  2010/07/12 16:14:13  glemahec
  * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
  *
@@ -1172,7 +1175,7 @@ void DietLogComponent::logDetectorParams(const char *observed, double Pl, double
 #endif
 
 #ifdef HAVE_WORKFLOW
-// modif bisnard_logs_1
+
 /**
  * Send node ready
  */
@@ -1233,12 +1236,12 @@ void DietLogComponent::logWfNodeFailed(const char *dagName,
   log(tagNames[27], log_msg);
   free(log_msg);
 }
-// end modif bisnard_logs_1
+
 /**
  * Send madag schedulerType
  */
 void
-  DietLogComponent::maDagSchedulerType(char* msg) {
+  DietLogComponent::maDagSchedulerType(const char* msg) {
   char* log_msg = (char*)malloc(strlen(msg)*sizeof(char)+1);
   sprintf(log_msg,"%s",msg);
   log(tagNames[18], log_msg);
@@ -1249,7 +1252,7 @@ void
  * Send dag identifier and workflow processing time in the MA
  */
 void
-  DietLogComponent::logDag(char* msg) {
+  DietLogComponent::logDag(const char* msg) {
   char* log_msg = (char*)malloc(strlen(msg)*sizeof(char)+1);
   sprintf(log_msg,"%s",msg);
   log(tagNames[19], log_msg);
