@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2010/07/20 09:08:47  bisnard
+ * Added name parameter to wf client (used by gui)
+ *
  * Revision 1.12  2009/09/25 12:54:02  bisnard
  * fixed bug for dag submission
  * make command-line parameters standard
@@ -59,7 +62,7 @@
 #include <sys/stat.h>
 #include <time.h>
 #include <sys/time.h>
-
+#include <libgen.h> /* basename() */
 #include "DIET_client.h"
 
 /* argv[1]: client config file path
@@ -67,11 +70,11 @@
 
 void usage(char * s) {
   fprintf(stderr, "Usage: %s <file.cfg> -dag <dag_file>\n", s);
-  fprintf(stderr, "       %s <file.cfg> -wf <wf_file> <data_file> [transcript_file]\n", s);
+  fprintf(stderr, "       %s <file.cfg> -wf <wf_file> <data_file> [transcript_file] [-name WFNAME]\n", s);
   exit(1);
 }
 int checkUsage(int argc, char ** argv) {
-  if ((argc < 4) || (argc > 6)) {
+  if ((argc < 4) || (argc > 8)) {
     usage(argv[0]);
   }
   return 0;
@@ -81,7 +84,8 @@ int
 main(int argc, char* argv[])
 {
   diet_wf_desc_t * profile;
-  char *wfFileName, *dataFileName, *transcriptFileName;
+  char *wfFileName, *dataFileName, *transcriptFileName, *wfName, *dagFileName;
+  int curPos = 0;
   wf_level_t wfType;
   char wfTypeName[10];
   struct timeval t1, t2;
@@ -94,42 +98,54 @@ main(int argc, char* argv[])
     return 1;
   }
 
-  wfFileName = argv[3];
+  wfFileName = (char*) NULL;
   dataFileName = (char*) NULL;
   transcriptFileName = (char*) NULL;
+  wfName = (char*) NULL;
+  dagFileName = (char*) NULL;
 
   if (!strcmp(argv[2],"-dag")) {
     strcpy(wfTypeName, "dag");
     wfType = DIET_WF_DAG;
+    if (argc > 4) usage(argv[0]);
   } else if (!strcmp(argv[2],"-wf")) {
     strcpy(wfTypeName, "workflow");
     wfType = DIET_WF_FUNCTIONAL;
+    if (argc < 5) usage(argv[0]);
   } else {
     usage(argv[0]);
   }
 
   if (wfType == DIET_WF_FUNCTIONAL) {
-    if (argc >= 5) {
-      dataFileName = argv[4];
+    wfFileName = argv[3];
+    dataFileName = argv[4];
+    curPos = 5;
+    if ((argc > curPos) && (strcmp(argv[curPos], "-name"))) {
+	transcriptFileName = argv[curPos];
+	curPos++;
     }
-    if (argc >= 6) {
-      transcriptFileName = argv[5];
+    if ((argc > curPos) && (!strcmp(argv[curPos], "-name"))) {
+      curPos++;
+      if (argc > curPos)
+	wfName = argv[curPos];
+      else
+	wfName = "";
+    } else {
+      wfName = basename(wfFileName);
     }
-  } else {
-    if (argc >= 5) {
-      transcriptFileName = argv[4];
-    }
+  } else {	/* DIET_WF_DAG */
+    dagFileName = argv[3];
   }
 
   gettimeofday(&t1, NULL);
 
-  /*
-   * Allocate a DIET workflow profile
-   * The same method is used for both dags and functional workflows
-   */
-  profile = diet_wf_profile_alloc(wfFileName,"test", wfType);
 
   if (wfType == DIET_WF_FUNCTIONAL) {
+    
+    /*
+     * Allocate the workflow profile
+     */
+    profile = diet_wf_profile_alloc(wfFileName, wfName, wfType);
     /*
     * For functional workflows ONLY
     * Defines which file is used to provide the data to instanciate the wf
@@ -142,6 +158,11 @@ main(int argc, char* argv[])
     * (file will be overwritten if existing)
     */
     diet_wf_set_transcript_file(profile, transcriptFileName);
+  } else {	/* DIET_WF_DAG */
+    /*
+     * Allocate the dag profile
+     */
+    profile = diet_wf_profile_alloc(dagFileName,"test", wfType);
   }
 
   printf("Try to execute the %s\n", wfTypeName);
