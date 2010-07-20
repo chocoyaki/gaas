@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.32  2010/07/20 08:59:36  bisnard
+ * Added event generation
+ *
  * Revision 1.31  2010/07/12 16:14:11  glemahec
  * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
  *
@@ -173,6 +176,8 @@
 #include "MultiWfHEFT.hh"
 #include "MultiWfSRPT.hh"
 #include "MultiWfFCFS.hh"
+#include "EventManager.hh"
+#include "MaDagLogCentralDispatcher.hh"
 #include "debug.hh"
 
 using namespace std;
@@ -196,71 +201,45 @@ myName(name), myMultiWfSched(NULL), wfReqIdCounter(0), dagIdCounter(0) {
   }
 	
   /* Bind the MA DAG to its name in the CORBA Naming Service */
-	try {
-		ORBMgr::getMgr()->bind(MADAGCTXT, this->myName, _this());
-		ORBMgr::getMgr()->fwdsBind(MADAGCTXT, this->myName,
-															 ORBMgr::getMgr()->getIOR(_this()));
-	} catch (...) {
-		ERROR_EXIT("could not declare myself as " << this->myName);
-	}
+  try {
+    ORBMgr::getMgr()->bind(MADAGCTXT, this->myName, _this());
+    ORBMgr::getMgr()->fwdsBind(MADAGCTXT, this->myName,
+			       ORBMgr::getMgr()->getIOR(_this()));
+  } catch (...) {
+    ERROR_EXIT("could not declare myself as " << this->myName);
+  }
 	
-  TRACE_TEXT(TRACE_MAIN_STEPS,
-						 endl <<  "MA DAG " << this->myName << " created." << endl);
-	
-  TRACE_TEXT(NO_TRACE,
-						 "## MADAG_IOR " << ORBMgr::getMgr()->getIOR(this->_this()) << endl);
-	
-	this->setupDietLogComponent();
-	char* scheduler_type;
+  TRACE_TEXT(TRACE_MAIN_STEPS, endl <<  "MA DAG " << this->myName << " created." << endl);
+  TRACE_TEXT(NO_TRACE, "## MADAG_IOR " << ORBMgr::getMgr()->getIOR(this->_this()) << endl);
+  this->setupDietLogComponent();
+  if (dietLogComponent != NULL) {
+    EventManager::getEventMgr()->addObserver(new MaDagLogCentralDispatcher(dietLogComponent));
+  }
   // starting the multiwfscheduler
   switch (schedType) {
     case BASIC:
       this->myMultiWfSched = new MultiWfBasicScheduler(this);
-      if (this->dietLogComponent != NULL) {
-      	scheduler_type=strdup("BASIC");
-      	dietLogComponent->maDagSchedulerType(scheduler_type);
-      	free(scheduler_type);
-      }
+      sendEventFrom<MultiWfScheduler, MultiWfScheduler::CONSTR>(myMultiWfSched, "Created", "BASIC", EventBase::INFO); 
       break;
     case GHEFT:
       this->myMultiWfSched = new MultiWfHEFT(this);
-      if (this->dietLogComponent != NULL) {
-      	scheduler_type=strdup("GLOBAL_HEFT");
-      	dietLogComponent->maDagSchedulerType(scheduler_type);
-      	free(scheduler_type);
-      }
+      sendEventFrom<MultiWfScheduler, MultiWfScheduler::CONSTR>(myMultiWfSched, "Created", "GLOBAL_HEFT", EventBase::INFO); 
       break;
     case FOFT:
       this->myMultiWfSched = new MultiWfFOFT(this);
-      if (this->dietLogComponent != NULL) {
-      	scheduler_type=strdup("FOFT");
-      	dietLogComponent->maDagSchedulerType(scheduler_type);
-      	free(scheduler_type);
-      }
+      sendEventFrom<MultiWfScheduler, MultiWfScheduler::CONSTR>(myMultiWfSched, "Created", "FOFT", EventBase::INFO); 
       break;
     case GAHEFT:
       this->myMultiWfSched = new MultiWfAgingHEFT(this);
-      if (this->dietLogComponent != NULL) {
-      	scheduler_type=strdup("GLOBAL_AGING_HEFT");
-      	dietLogComponent->maDagSchedulerType(scheduler_type);
-      	free(scheduler_type);
-      }
+      sendEventFrom<MultiWfScheduler, MultiWfScheduler::CONSTR>(myMultiWfSched, "Created", "GLOBAL_AGING_HEFT", EventBase::INFO); 
       break;
     case SRPT:
       this->myMultiWfSched = new MultiWfSRPT(this);
-      if (this->dietLogComponent != NULL) {
-      	scheduler_type=strdup("SRPT");
-      	dietLogComponent->maDagSchedulerType(scheduler_type);
-      	free(scheduler_type);
-      }
+      sendEventFrom<MultiWfScheduler, MultiWfScheduler::CONSTR>(myMultiWfSched, "Created", "SRPT", EventBase::INFO); 
       break;
     case FCFS:
       this->myMultiWfSched = new MultiWfFCFS(this);
-      if (this->dietLogComponent != NULL) {
-      	scheduler_type=strdup("FCFS");
-      	dietLogComponent->maDagSchedulerType(scheduler_type);
-      	free(scheduler_type);
-      }
+      sendEventFrom<MultiWfScheduler, MultiWfScheduler::CONSTR>(myMultiWfSched, "Created", "FCFS", EventBase::INFO); 
       break;
   }
 	
@@ -390,7 +369,7 @@ MaDag_impl::parseNewDag(const corba_wf_desc_t& wf_desc,
                         MetaDag * mDag)
 throw (MaDag::InvalidDag) {
   // CREATION & PARSING
-  Dag *        newDag = new Dag();
+  Dag *        newDag = new Dag(dagId);
   SingleDagParser* reader = new SingleDagParser(*newDag, wf_desc.abstract_wf);
 	
   try {
@@ -400,8 +379,6 @@ throw (MaDag::InvalidDag) {
   }
 	
   delete reader;
-  newDag->setId(dagId);
-	
   // CHECK STRUCTURE
   NodeSet * contextNodeSet;
   if (mDag == NULL) {
@@ -600,41 +577,48 @@ MaDag_impl::setupDietLogComponent(){
 }
 
 MaDagFwdrImpl::MaDagFwdrImpl(Forwarder_ptr fwdr, const char* objName) {
-	this->forwarder = Forwarder::_duplicate(fwdr);
-	this->objName = CORBA::string_dup(objName);
+  this->forwarder = Forwarder::_duplicate(fwdr);
+  this->objName = CORBA::string_dup(objName);
 }
 
-CORBA::Long MaDagFwdrImpl::processDagWf(const corba_wf_desc_t& dag_desc,
-																				const char* cltMgrRef,
-																				CORBA::Long wfReqId)
+CORBA::Long
+MaDagFwdrImpl::processDagWf(const corba_wf_desc_t& dag_desc,
+			    const char* cltMgrRef,
+			    CORBA::Long wfReqId)
 {
-	return forwarder->processDagWf(dag_desc, cltMgrRef, wfReqId, objName);
+  return forwarder->processDagWf(dag_desc, cltMgrRef, wfReqId, objName);
 }
 
-CORBA::Long MaDagFwdrImpl::processMultiDagWf(const corba_wf_desc_t& dag_desc,
-																						 const char* cltMgrRef,
-																						 CORBA::Long wfReqId, CORBA::Boolean release)
+CORBA::Long
+MaDagFwdrImpl::processMultiDagWf(const corba_wf_desc_t& dag_desc,const char* cltMgrRef,
+				 CORBA::Long wfReqId,
+				 CORBA::Boolean release)
 {
-	return forwarder->processMultiDagWf(dag_desc, cltMgrRef, wfReqId, release, objName);
+  return forwarder->processMultiDagWf(dag_desc, cltMgrRef, wfReqId, release, objName);
 }
 
-CORBA::Long MaDagFwdrImpl::getWfReqId() {
-	return forwarder->getWfReqId(objName);
+CORBA::Long
+MaDagFwdrImpl::getWfReqId() {
+  return forwarder->getWfReqId(objName);
 }
 
-void MaDagFwdrImpl::releaseMultiDag(CORBA::Long wfReqId) {
-	forwarder->releaseMultiDag(wfReqId, objName);
+void
+MaDagFwdrImpl::releaseMultiDag(CORBA::Long wfReqId) {
+  forwarder->releaseMultiDag(wfReqId, objName);
 }
 
-void MaDagFwdrImpl::cancelDag(CORBA::Long dagId) {
-	forwarder->cancelDag(dagId, objName);
+void
+MaDagFwdrImpl::cancelDag(CORBA::Long dagId) {
+  forwarder->cancelDag(dagId, objName);
 }
 
-void MaDagFwdrImpl::setPlatformType(MaDag::pfmType_t pfmType) {
-	forwarder->setPlatformType(pfmType, objName);
+void
+MaDagFwdrImpl::setPlatformType(MaDag::pfmType_t pfmType) {
+  forwarder->setPlatformType(pfmType, objName);
 }
 
-CORBA::Long	MaDagFwdrImpl::ping() {
-	return forwarder->ping(objName);
+CORBA::Long 
+MaDagFwdrImpl::ping() {
+  return forwarder->ping(objName);
 }
 

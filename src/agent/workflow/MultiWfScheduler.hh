@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.24  2010/07/20 08:59:36  bisnard
+ * Added event generation
+ *
  * Revision 1.23  2010/03/08 13:43:23  bisnard
  * added new logged event when a wf node becomes ready
  *
@@ -154,6 +157,11 @@ namespace madag {
      */
     typedef enum {PFM_ANY, PFM_SAME_SERVICES }
       pfmType_t;
+      
+    /**
+     * Event message types
+     */
+    enum { CONSTR };
 
     MultiWfScheduler(MaDag_impl * maDag, nodePolicy_t nodePol);
 
@@ -215,6 +223,12 @@ namespace madag {
      */
     virtual void
         cancelDag(const string& dagId);
+	
+    /**
+     * Returns a description
+     */
+    virtual string
+	toString() const;
 
   protected:
 

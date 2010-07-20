@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.54  2010/07/20 08:59:36  bisnard
+ * Added event generation
+ *
  * Revision 1.53  2010/07/12 16:14:11  glemahec
  * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
  *
@@ -217,8 +220,10 @@
 #include "MaDagNodeLauncher.hh"
 #include "Dag.hh"
 #include "DagNode.hh"
+#include "events/EventTypes.hh"
 
 using namespace madag;
+using namespace events;
 
 /****************************************************************************/
 /*                                                                          */
@@ -242,6 +247,12 @@ MultiWfScheduler::MultiWfScheduler(MaDag_impl* maDag, nodePolicy_t nodePol)
 MultiWfScheduler::~MultiWfScheduler() {
   if (this->mySched != NULL)
     delete this->mySched;
+}
+
+string 
+MultiWfScheduler::toString() const
+{
+  return "MultiWfScheduler";
 }
 
 /**
@@ -495,9 +506,9 @@ MultiWfScheduler::run() {
               WARNING("SeD estimation function does not provide correct values for "
                       << "computation time (EST_COMPTIME) and EFT (EST_EFT)");
             }
+
             string sedName = string(servEst->loc.SeDName);
-						SeD_ptr curSeDPtr = ORBMgr::getMgr()->resolve<SeD, SeD_ptr>(SEDCTXT, sedName);
-						
+	    SeD_ptr curSeDPtr = ORBMgr::getMgr()->resolve<SeD, SeD_ptr>(SEDCTXT, sedName);
             string hostname(CORBA::string_dup(servEst->loc.hostName));
             TRACE_TEXT(TRACE_ALL_STEPS,"  server " << hostname << ": compTime="
                        << compTime << ": EFT=" << EFT << endl);
@@ -848,11 +859,12 @@ MultiWfScheduler::wakeUp(bool newDag, DagNode *node) {
  */
 void
 MultiWfScheduler::handlerNodeReady(DagNode *node) {
-  DietLogComponent* LC = myMaDag->getDietLogComponent();
-  if (LC) {
-    LC->logWfNodeReady(node->getDag()->getId().c_str(),
-                       node->getId().c_str());
-  }
+//   DietLogComponent* LC = myMaDag->getDietLogComponent();
+//   if (LC) {
+//     LC->logWfNodeReady(node->getDag()->getId().c_str(),
+//                        node->getId().c_str());
+//   }
+  sendEventFrom<DagNode, DagNode::READY>(node, "Node ready", "" , EventBase::INFO);
 }
 
 /**

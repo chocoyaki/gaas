@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2010/07/20 08:59:36  bisnard
+ * Added event generation
+ *
  * Revision 1.15  2010/07/12 16:14:11  glemahec
  * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
  *
@@ -144,7 +147,7 @@ HEFTScheduler::setNodesEFT(std::vector<DagNode *>& orderedNodes,
 	 ix++) {
       string ss(CORBA::string_dup(wf_response->wfn_seq_resp[pb_index].response.servers[ix].loc.hostName));
       string sedName = string(wf_response->wfn_seq_resp[pb_index].response.servers[ix].loc.SeDName);
-			SeD_ptr curSeDPtr = ORBMgr::getMgr()->resolve<SeD, SeD_ptr>(SEDCTXT, sedName);
+      SeD_ptr curSeDPtr = ORBMgr::getMgr()->resolve<SeD, SeD_ptr>(SEDCTXT, sedName);
 			
       // get availability of current server (loop to check SeD ref equivalence - this is used to
       // avoid conflicts if two SeDs share the same hostname)
@@ -216,7 +219,7 @@ HEFTScheduler::computeNodeWeights(const wf_response_t * wf_response,
     n->setEstDuration(0);
     ix = n->getSubmitIndex(); // the index was stored before submitting to MA
     double w = 0;
-    int    nbServers = wf_response->wfn_seq_resp[ix].response.servers.length();
+    unsigned int    nbServers = wf_response->wfn_seq_resp[ix].response.servers.length();
     for (unsigned int jx=0; jx < nbServers; jx++) {
           w += this->getNodeDurationEst(wf_response, ix, jx);
     } // end for jx

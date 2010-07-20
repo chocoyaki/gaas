@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2010/07/20 08:59:36  bisnard
+ * Added event generation
+ *
  * Revision 1.1  2009/09/25 12:35:50  bisnard
  * created new classes DagNodeLauncher & childs
  *
@@ -32,16 +35,16 @@ namespace madag {
                          CltMan_ptr clientMgr);
 
       virtual void
-          execNode(bool& successful);
+          execNode();
 
       virtual void
           finishNode();
 
     protected:
 
-      CltMan_ptr          myCltMgr;
       MultiWfScheduler *  myScheduler;
-
+      CltMan_ptr          myCltMgr;
+      
   };
 
 }

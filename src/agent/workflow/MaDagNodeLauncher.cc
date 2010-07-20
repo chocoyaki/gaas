@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2010/07/20 08:59:36  bisnard
+ * Added event generation
+ *
  * Revision 1.1  2009/09/25 12:35:50  bisnard
  * created new classes DagNodeLauncher & childs
  *
@@ -30,7 +33,7 @@ MaDagNodeLauncher::MaDagNodeLauncher(DagNode * parent,
 }
 
 void
-MaDagNodeLauncher::execNode(bool& successful)
+MaDagNodeLauncher::execNode()
 {
   Dag *  dag    = myNode->getDag();
   string dagId  = dag->getId();
@@ -41,7 +44,7 @@ MaDagNodeLauncher::execNode(bool& successful)
 
   try
   {
-    if (isSedDefined)
+    if (isSeDDefinedFlag)
     {
       TRACE_TEXT (TRACE_ALL_STEPS, nodePx << "call client (sed defined) - request #"
           << this->myReqID << endl);
@@ -68,7 +71,7 @@ MaDagNodeLauncher::execNode(bool& successful)
     clientFailure = true;
   }
 
-  successful = !clientFailure && !res;
+  isSuccessfulFlag = !clientFailure && !res;
 }
 
 void

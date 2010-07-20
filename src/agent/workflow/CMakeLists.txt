@@ -5,6 +5,7 @@ IF( DIET_BUILD_LIBRARIES )
     ${OMNIORB4_INCLUDE_DIR}
     ${DIET_SOURCE_DIR}/src/utils
     ${DIET_SOURCE_DIR}/src/utils/workflow
+    ${DIET_SOURCE_DIR}/src/utils/events
     ${DIET_BINARY_DIR}/src/CORBA/idl
     ${DIET_SOURCE_DIR}/src/CORBA
     ${CMAKE_CURRENT_SOURCE_DIR}
@@ -15,6 +16,7 @@ IF( DIET_BUILD_LIBRARIES )
 
   ADD_LIBRARY( MaDag STATIC
     MaDagNodeLauncher.cc
+    MaDagLogCentralDispatcher.cc
     MaDag_impl.cc
     WfScheduler.cc HEFTScheduler.cc
     MultiWfScheduler.cc
