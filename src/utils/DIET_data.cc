@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.69  2010/07/20 09:15:31  bisnard
+ * Check if file exists in wf_profile_alloc
+ *
  * Revision 1.68  2010/07/12 16:14:12  glemahec
  * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
  *
@@ -1178,10 +1181,14 @@ diet_wf_profile_alloc(const char* wf_file_name,
   profile->abstract_wf = (char*)malloc(stat_p.st_size + 1);
   strcpy(profile->abstract_wf, "");
   file = fopen(wf_file_name, "r");
-  while (fgets(line, LINE_LENGTH, file) != NULL) {
-    strcat(profile->abstract_wf, line);
+  if (file != NULL) {
+    while (fgets(line, LINE_LENGTH, file) != NULL) {
+      strcat(profile->abstract_wf, line);
+    }
+    fclose(file);
+  } else {
+    WARNING("Initializing workflow profile with invalid file : " << wf_file_name);
   }
-  fclose(file);
 
   return profile;
 }
