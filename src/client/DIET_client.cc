@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.145  2010/07/20 09:36:40  glemahec
+ * Move "include WfLogservice.hh" inside "ifdef HAVE_WORKFLOW" directive
+ *
  * Revision 1.144  2010/07/20 09:05:03  bisnard
  * Activating WfLogService
  *
@@ -359,7 +362,6 @@ using namespace std;
 #include "SeD.hh"
 #include "statistics.hh"
 #include "DietLogComponent.hh"
-#include "WfLogService.hh"
 
 #if HAVE_DAGDA
 #include "DIET_Dagda.hh"
@@ -376,6 +378,7 @@ using namespace std;
 #endif // HAVE_CCS
 
 #ifdef HAVE_WORKFLOW
+#include "WfLogService.hh"
 #include "workflow/CltWfMgr.hh"
 #include "workflow/DagWfParser.hh"
 #endif
