@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.22  2010/07/20 09:22:33  bisnard
+ * changes for dietForwarder
+ *
  * Revision 1.21  2010/07/12 16:14:12  glemahec
  * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
  *
@@ -110,6 +113,7 @@
 #include "MasterAgent.hh"
 #include "MaDag.hh"
 #include "DietLogComponent.hh"
+#include "WfLogService.hh"
 
 // DIET headers
 #include "DIET_data.h"
@@ -196,7 +200,14 @@ public:
    */
   void
   setLogComponent(DietLogComponent* logComponent);
-	
+  
+  /**
+   * Set the workflow log service (GUI)
+   * @param logService wf log service reference
+   */
+  void
+  setWfLogService(WfLogService_var logService);
+
   /**
    * Get a new workflow request ID (for multi-dag submit)
    */
@@ -428,7 +439,12 @@ private:
    * Log service reference
    */
   DietLogComponent* myLC;
-	
+  
+  /**
+   * Wf Log Service Ref
+   */
+  WfLogService_var myLS;
+  
   /**
    * Local workflow request ID counter
    * (different from wf request ID on MaDag)
