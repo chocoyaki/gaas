@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.144  2010/07/20 09:05:03  bisnard
+ * Activating WfLogService
+ *
  * Revision 1.143  2010/07/12 16:14:11  glemahec
  * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
  *
@@ -356,6 +359,7 @@ using namespace std;
 #include "SeD.hh"
 #include "statistics.hh"
 #include "DietLogComponent.hh"
+#include "WfLogService.hh"
 
 #if HAVE_DAGDA
 #include "DIET_Dagda.hh"
@@ -727,6 +731,22 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
       CltWfMgr::instance()->setLogComponent(dietLogComponent);
     }
   } // end if (MA_DAG_name != NULL)
+  
+  // check if the Workflow Log Service is used
+  USE_WF_LOG_SERVICE = (char*) Parsers::Results::getParamValue(Parsers::Results::USEWFLOGSERVICE);
+  if (USE_WF_LOG_SERVICE != NULL) {
+    if (!strcmp(USE_WF_LOG_SERVICE, "1")) {
+      TRACE_TEXT(TRACE_MAIN_STEPS, "Connecting to Workflow Log Service" << endl);
+      WfLogService_var wfLogSrv =
+        ORBMgr::getMgr()->resolve<WfLogService, WfLogService_var>(WFLOGCTXT, "WfLogService");
+      if (CORBA::is_nil(wfLogSrv)) {
+	ERROR("cannot locate the Workflow Log Service ", 1);
+      }
+      else {
+        CltWfMgr::instance()->setWfLogService(wfLogSrv);
+      }
+    }
+  }
 
   // Init the Xerces engine
   XMLPlatformUtils::Initialize();
