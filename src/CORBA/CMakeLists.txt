@@ -130,6 +130,10 @@ ENDIF( DIET_USE_ALT_BATCH )
       forwarders/MaDag.cc
       forwarders/WfLogService.cc
     )
+    INCLUDE_DIRECTORIES(
+      ${XERCES_INCLUDE_DIR}
+      ${XQILLA_INCLUDE_DIR}
+    )
   ENDIF (DIET_USE_WORKFLOW)
 
   ADD_EXECUTABLE(dietForwarder

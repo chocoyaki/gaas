@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2010/07/20 14:31:46  glemahec
+ * Forwarder robustness + bug corrections
+ *
  * Revision 1.2  2010/07/14 23:45:31  bdepardo
  * Header corrections
  *
@@ -57,16 +60,7 @@ interface Forwarder :
   , DataMgrForwarder
 	, LocMgrForwarder
 #endif
-{
-	/* The object name is not valid. */
-	exception BadNameException {
-		string name;
-	};
-	/* The name does not refer to a registered object. */
-	exception UnknownObject {
-		string name;
-	};
-	
+{	
 	/* Get objects from the Forwarder. */
 	Agent getAgent(in string name);
 	Callback getCallback(in string name);
@@ -89,23 +83,33 @@ interface Forwarder :
   WfLogService getWfLogService(in string name);
 #endif
 	/* Common methods. */
-	long ping(in string objName);
+	long ping(in string objName)
+		raises(UnknownObject, BadNameException);
   oneway void getRequest(in corba_request_t req, in string objName);
-  string getHostname(in string objName);
+  string getHostname(in string objName)
+		raises(UnknownObject, BadNameException);
 #if HAVE_DYNAMICS
-  long bindParent(in string parentName, in string objName);
-  long disconnect(in string objName);
-  long removeElement(in boolean recursive, in string objName);
+  long bindParent(in string parentName, in string objName)
+		raises(UnknownObject, BadNameException);
+  long disconnect(in string objName)
+		raises(UnknownObject, BadNameException);
+  long removeElement(in boolean recursive, in string objName)
+		raises(UnknownObject, BadNameException);
 #endif
 #ifndef HAVE_DAGDA
-  string whereData(in string argID, in string objName);
-  string setMyName(in string objName);
-  string whichSeDOwner(in string argID, in string objName);
-  void printList(in string objName);
+  string whereData(in string argID, in string objName)
+		raises(UnknownObject, BadNameException);
+  string setMyName(in string objName)
+		raises(UnknownObject, BadNameException);
+  string whichSeDOwner(in string argID, in string objName)
+		raises(UnknownObject, BadNameException);
+  void printList(in string objName)
+		raises(UnknownObject, BadNameException);
 
 #endif
 	/* CORBA remote management. */
-	void bind(in string objName, in string ior);
+	void bind(in string objName, in string ior)
+		raises(UnknownObject, BadNameException);
 	oneway void unbind(in string objName);
 	
 	/* Peer connection. */

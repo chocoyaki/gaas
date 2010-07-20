@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2010/07/20 14:31:46  glemahec
+ * Forwarder robustness + bug corrections
+ *
  * Revision 1.3  2010/07/20 09:20:11  bisnard
  * integration with eclipse gui and with dietForwarder
  *
@@ -109,4 +112,3 @@ void WfLogServiceFwdrImpl::updateWorkflow(const char* wfId, const char* wfState,
 {
   forwarder->updateWorkflow(wfId, wfState, data, objName);
 }
-

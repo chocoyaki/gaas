@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2010/07/20 14:31:45  glemahec
+ * Forwarder robustness + bug corrections
+ *
  * Revision 1.5  2010/07/20 08:56:22  bisnard
  * Updated WfLogService IDL
  *
@@ -28,6 +31,7 @@
 
 #include "Forwarder.hh"
 #include "ORBMgr.hh"
+#include "common_types.hh"
 
 #include "AgentImpl.hh"
 #include "CallbackImpl.hh"
@@ -86,7 +90,8 @@ DIETForwarder::DIETForwarder(const string& name, const string& cfgPath) :
 	netCfg(cfgPath)
 {
 	this->name = name;
-	peerMutex.lock(); // Wait for the peer init.
+	// Wait for the peer init. The unlock will be done on setPeer().
+	peerMutex.lock(); 
 }
 
 /* DIET object factory methods. */
@@ -434,7 +439,7 @@ WfLogService_ptr DIETForwarder::getWfLogService(const char* name)
 																													this->name);
 		return sed->ping();
 	}
-	throw Forwarder::BadNameException(objString.c_str());
+	throw BadNameException(objString.c_str());
 }
 
 void DIETForwarder::getRequest(const ::corba_request_t& req, const char* objName)
@@ -442,18 +447,13 @@ void DIETForwarder::getRequest(const ::corba_request_t& req, const char* objName
 	string objString(objName);
 	string name;
 	string ctxt;
-	size_t pos;
 	
 	if (!remoteCall(objString)) {
 		return peer->getRequest(req, objString.c_str());
 	}
 	
-	name = objString;
-
-	if ((pos=name.find('/'))==string::npos)
-		throw Forwarder::BadNameException(name.c_str());
-	ctxt = name.substr(0, pos);
-	name = name.substr(pos+1);
+	name = getName(objString);
+	ctxt = getCtxt(objString);
 	
 	if (ctxt==string(AGENTCTXT)) {
 		LocalAgent_var agent = ORBMgr::getMgr()->resolve<LocalAgent, LocalAgent_var>(ctxt, name,
@@ -465,7 +465,8 @@ void DIETForwarder::getRequest(const ::corba_request_t& req, const char* objName
 																													this->name);
 		return sed->getRequest(req);
 	}
-	throw Forwarder::BadNameException(objString.c_str());
+	/* oneway CORBA function. Can't throw anything. */
+	//throw BadNameException(objString.c_str());
 }
 
 char* DIETForwarder::getHostname(const char* objName)
@@ -473,7 +474,6 @@ char* DIETForwarder::getHostname(const char* objName)
 	string objString(objName);
 	string name;
 	string ctxt;
-	size_t pos;
 	
 	if (!remoteCall(objString)) {
 		return peer->getHostname(objString.c_str());
@@ -481,10 +481,11 @@ char* DIETForwarder::getHostname(const char* objName)
 	
 	name = objString;
 	
-	if ((pos=name.find('/'))==string::npos)
-		throw Forwarder::BadNameException(name.c_str());
-	ctxt = name.substr(0, pos);
-	name = name.substr(pos+1);
+	if (name.find('/')==string::npos)
+		throw BadNameException(name.c_str());
+
+	ctxt = getCtxt(objString);
+	name = getName(objString);
 	
 	if (ctxt==string(AGENTCTXT)) {
 		Agent_var agent = ORBMgr::getMgr()->resolve<Agent, Agent_var>(ctxt, name,
@@ -498,7 +499,7 @@ char* DIETForwarder::getHostname(const char* objName)
 		return dagda->getHostname();
 	}
 #endif
-	throw Forwarder::BadNameException(objString.c_str());
+	throw BadNameException(objString.c_str());
 }
 
 #ifdef HAVE_DYNAMICS
@@ -507,7 +508,6 @@ char* DIETForwarder::getHostname(const char* objName)
 	string objString(objName);
 	string name;
 	string ctxt;
-	size_t pos;
 	
 	if (!remoteCall(objString)) {
 		return peer->bindParent(parentName, objString.c_str());
@@ -515,10 +515,11 @@ char* DIETForwarder::getHostname(const char* objName)
 	
 	name = objString;
 	
-	if ((pos=name.find('/'))==string::npos)
-		throw Forwarder::BadNameException(name.c_str());
-	ctxt = name.substr(0, pos);
-	name = name.substr(pos+1);
+	if (name.find('/')==string::npos)
+		throw BadNameException(name.c_str());
+
+	ctxt = getCtxt(objString);
+	name = getName(objString);
 	
 	if (ctxt==string(AGENTCTXT)) {
 		LocalAgent_var agent = ORBMgr::getMgr()->resolve<LocalAgent, LocalAgent_var>(ctxt, name,
@@ -530,7 +531,7 @@ char* DIETForwarder::getHostname(const char* objName)
 																													this->name);
 		return sed->bindParent(parentName);
 	}
-	throw Forwarder::BadNameException(objString.c_str());
+	throw BadNameException(objString.c_str());
 }
 
 ::CORBA::Long DIETForwarder::disconnect(const char* objName)
@@ -538,7 +539,6 @@ char* DIETForwarder::getHostname(const char* objName)
 	string objString(objName);
 	string name;
 	string ctxt;
-	size_t pos;
 	
 	if (!remoteCall(objString)) {
 		return peer->disconnect(objString.c_str());
@@ -546,10 +546,11 @@ char* DIETForwarder::getHostname(const char* objName)
 	
 	name = objString;
 	
-	if ((pos=name.find('/'))==string::npos)
-		throw Forwarder::BadNameException(name.c_str());
-	ctxt = name.substr(0, pos);
-	name = name.substr(pos+1);
+	if (name.find('/')==string::npos)
+		throw BadNameException(name.c_str());
+
+	ctxt = getCtxt(objString);
+	name = getName(objString);
 	
 	if (ctxt==string(AGENTCTXT)) {
 		LocalAgent_var agent = ORBMgr::getMgr()->resolve<LocalAgent, LocalAgent_var>(ctxt, name,
@@ -561,7 +562,7 @@ char* DIETForwarder::getHostname(const char* objName)
 																													this->name);
 		return sed->disconnect();
 	}
-	throw Forwarder::BadNameException(objString.c_str());
+	throw BadNameException(objString.c_str());
 }
 
 ::CORBA::Long DIETForwarder::removeElement(::CORBA::Boolean recursive, const char* objName)
@@ -569,7 +570,6 @@ char* DIETForwarder::getHostname(const char* objName)
 	string objString(objName);
 	string name;
 	string ctxt;
-	size_t pos;
 	
 	if (!remoteCall(objString)) {
 		return peer->removeElement(recursive, objString.c_str());
@@ -577,10 +577,11 @@ char* DIETForwarder::getHostname(const char* objName)
 	
 	name = objString;
 	
-	if ((pos=name.find('/'))==string::npos)
-		throw Forwarder::BadNameException(name.c_str());
-	ctxt = name.substr(0, pos);
-	name = name.substr(pos+1);
+	if (name.find('/')==string::npos)
+		throw BadNameException(name.c_str());
+
+	ctxt = getCtxt(objString);
+	name = getName(objString);
 	
 	if (ctxt==string(AGENTCTXT)) {
 		Agent_var agent = ORBMgr::getMgr()->resolve<Agent, Agent_var>(ctxt, name,
@@ -592,7 +593,7 @@ char* DIETForwarder::getHostname(const char* objName)
 																													this->name);
 		return sed->removeElement();
 	}
-	throw Forwarder::BadNameException(objString.c_str());
+	throw BadNameException(objString.c_str());
 }
 #endif
 
@@ -602,42 +603,51 @@ char* DIETForwarder::whereData(const char* argID,
 {
 	string objString(objName);
 	string name;
+	string ctxt;
 	
 	if (!remoteCall(objString)) {
 		return peer->whereData(argID, objString.c_str());
 	}
 	
+	ctxt = getCtxt(objString);
 	name = getName(objString);
-	if (getCtxt(objString)==LOCMGRCTXT) {
+	
+	if (ctxt==LOCMGRCTXT) {
 		LocMgr_var mgr = ORBMgr::getMgr()->resolve<LocMgr, LocMgr_var>(LOCMGRCTXT, name,
 																																	 this->name);
 		return mgr->whereData(argID);
-	} else {
-		DataMgr_var mgr = ORBMgr::getMgr()->resolve<DataMgr, DataMgr_var>(LOCMGRCTXT, name,
+	}
+	if (ctxt==DATAMGRCTXT) {
+		DataMgr_var mgr = ORBMgr::getMgr()->resolve<DataMgr, DataMgr_var>(DATAMGRCTXT, name,
 																																			this->name);
 		return mgr->whereData(argID);
 	}
+	throw BadNameException(objString.c_str());
 }
 
 char* DIETForwarder::setMyName(const char* objName) {
 	string objString(objName);
 	string name;
+	string ctxt;
 	
 	if (!remoteCall(objString)) {
 		return peer->setMyName(objString.c_str());
 	}
 	
+	ctxt = getCtxt(objString);
 	name = getName(objString);
-	if (getCtxt(objString)==LOCMGRCTXT) {
+	
+	if (ctxt==LOCMGRCTXT) {
 		LocMgr_var mgr = ORBMgr::getMgr()->resolve<LocMgr, LocMgr_var>(LOCMGRCTXT, name,
 																																	 this->name);
 		return mgr->setMyName();
-	} else {
-		DataMgr_var mgr = ORBMgr::getMgr()->resolve<DataMgr, DataMgr_var>(LOCMGRCTXT, name,
+	}
+	if (ctxt==DATAMGRCTXT) {
+		DataMgr_var mgr = ORBMgr::getMgr()->resolve<DataMgr, DataMgr_var>(DATAMGRCTXT, name,
 																																			this->name);
 		return mgr->setMyName();
 	}
-
+	throw BadNameException(objString.c_str());
 }
 
 char* DIETForwarder::whichSeDOwner(const char* argID,
@@ -645,45 +655,51 @@ char* DIETForwarder::whichSeDOwner(const char* argID,
 {
 	string objString(objName);
 	string name;
+	string ctxt;
 	
 	if (!remoteCall(objString)) {
 		return peer->whichSeDOwner(argID, objString.c_str());
 	}
 	
+	ctxt = getCtxt(objString);
 	name = getName(objString);
 	
-	if (getCtxt(objString)==LOCMGRCTXT) {
+	if (ctxt==LOCMGRCTXT) {
 		LocMgr_var mgr = ORBMgr::getMgr()->resolve<LocMgr, LocMgr_var>(LOCMGRCTXT, name,
 																																	 this->name);
-		
 		return mgr->whichSeDOwner(argID);
-	} else {
-		DataMgr_var mgr = ORBMgr::getMgr()->resolve<DataMgr, DataMgr_var>(LOCMGRCTXT, name,
+	}
+	if (ctxt==DATAMGRCTXT) {
+		DataMgr_var mgr = ORBMgr::getMgr()->resolve<DataMgr, DataMgr_var>(DATAMGRCTXT, name,
 																																			this->name);
 		return mgr->whichSeDOwner(argID);
 	}
-
+	throw BadNameException(objString.c_str());
 }
 
 void DIETForwarder::printList(const char* objName) {
 	string objString(objName);
 	string name;
+	string ctxt;
 	
 	if (!remoteCall(objString)) {
 		return peer->printList(objString.c_str());
 	}
 	
+	ctxt = getCtxt(objString);
 	name = getName(objString);
 	
-	if (getCtxt(objString)==LOCMGRCTXT) {
+	if (ctxt==LOCMGRCTXT) {
 		LocMgr_var mgr = ORBMgr::getMgr()->resolve<LocMgr, LocMgr_var>(LOCMGRCTXT, name,
 																																	 this->name);
 		return mgr->printList();
-	} else {
-		DataMgr_var mgr = ORBMgr::getMgr()->resolve<DataMgr, DataMgr_var>(LOCMGRCTXT, name,
+	}
+	if (ctxt==DATAMGRCTXT) {
+		DataMgr_var mgr = ORBMgr::getMgr()->resolve<DataMgr, DataMgr_var>(DATAMGRCTXT, name,
 																																			this->name);
 		return mgr->printList();
 	}
+	throw BadNameException(objString.c_str());
 }
 #endif
 
@@ -696,17 +712,14 @@ void DIETForwarder::bind(const char* objName, const char* ior) {
 	string objString(objName);
 	string name;
 	string ctxt;
-	size_t pos;
 
 	if (!remoteCall(objString)) {
 		return peer->bind(objString.c_str(), ior);
 	}
-	name = objString;
 	
-	if ((pos=name.find('/'))==string::npos)
-		throw Forwarder::BadNameException(name.c_str());
-	ctxt = name.substr(0, pos);
-	name = name.substr(pos+1);
+	ctxt = getCtxt(objString);
+	name = getName(objString);
+	
 	if (ctxt==LOCALAGENT) {
 		ctxt = AGENTCTXT;
 		/* Specific case for local agent.
@@ -716,16 +729,17 @@ void DIETForwarder::bind(const char* objName, const char* ior) {
 		LocalAgent_ptr agent = getLocalAgent(name.c_str());
 		objectCache[ctxt+"/"+name] = CORBA::Object::_duplicate(agent);
 		
-	}
-	if (ctxt==MASTERAGENT) {
-		ctxt = AGENTCTXT;
-		/* Specific case for master agent.
-		 It is added into the cache to avoid resolution
-		 problems later.
-		 */
-		MasterAgent_ptr agent = getMasterAgent(name.c_str());
-		objectCache[ctxt+"/"+name] = CORBA::Object::_duplicate(agent);
-		
+	} else {
+		if (ctxt==MASTERAGENT) {
+			ctxt = AGENTCTXT;
+			/* Specific case for master agent.
+			 It is added into the cache to avoid resolution
+			 problems later.
+			 */
+			MasterAgent_ptr agent = getMasterAgent(name.c_str());
+			objectCache[ctxt+"/"+name] = CORBA::Object::_duplicate(agent);
+		} else
+			throw BadNameException(objName);
 	}
 	ORBMgr::getMgr()->bind(ctxt, name, ior, true);
 	// Broadcast the binding to all forwarders.
@@ -736,7 +750,6 @@ void DIETForwarder::unbind(const char* objName) {
 	string objString(objName);
 	string name;
 	string ctxt;
-	size_t pos;
 	
 	if (!remoteCall(objString)) {
 		return peer->unbind(objString.c_str());
@@ -744,10 +757,11 @@ void DIETForwarder::unbind(const char* objName) {
 	
 	name = objString;
 	
-	if ((pos=name.find('/'))==string::npos)
-		throw Forwarder::BadNameException(name.c_str());
-	ctxt = name.substr(0, pos);
-	name = name.substr(pos+1);
+	if (name.find('/')==string::npos)
+		return;
+	
+	ctxt = getCtxt(objString);
+	name = getName(objString);
 	
 	removeObject(name);
 	
@@ -770,15 +784,16 @@ void DIETForwarder::removeObject(const string& name) {
 			 * to remove it...
 			 */
 		}
-		/* - Remove it activated servants. */
+		/* - Remove activated servants. */
 		servants.erase(jt);
 	}
 	/* Remove the object from the cache. */
 	if ((it=objectCache.find(name))!=objectCache.end())
-		objectCache.erase(it);	
+		objectCache.erase(it);
 	cachesMutex.unlock();
 }
 
+/* Remove non existing objects from the caches. */
 void DIETForwarder::cleanCaches() {
 	map<string, ::CORBA::Object_ptr>::iterator it;
 	list<string> invalidObjects;
@@ -805,7 +820,8 @@ void DIETForwarder::connectPeer(const char* ior, const char* host,
 
 void DIETForwarder::setPeer(Forwarder_ptr peer) {
 	this->peer = Forwarder::_duplicate(Forwarder::_narrow(peer));
-	peerMutex.unlock(); // Peer was init.
+  // Peer was init. The lock was done on the constructor.
+	peerMutex.unlock();
 }
 
 

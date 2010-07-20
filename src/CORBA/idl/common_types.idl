@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.33  2010/07/20 14:31:46  glemahec
+ * Forwarder robustness + bug corrections
+ *
  * Revision 1.32  2010/07/12 15:54:11  glemahec
  * DIET 2.5 beta 1 - Forwarder IDL files
  *
@@ -170,7 +173,14 @@ typedef sequence<long>   SeqLong;
 typedef sequence<char>   SeqChar;
 typedef sequence<string> SeqString;
 
-
+/* The object name is not valid. */
+exception BadNameException {
+	string name;
+};
+/* The name does not refer to a registered object. */
+exception UnknownObject {
+	string name;
+};
 
 /****************************************************************************/
 /* DATA PERISTENCY: Data Description for Data Manager                       */
