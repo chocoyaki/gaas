@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.23  2010/07/20 09:20:11  bisnard
+ * integration with eclipse gui and with dietForwarder
+ *
  * Revision 1.22  2009/10/23 13:59:25  bisnard
  * replaced \n by std::endl
  *
@@ -91,8 +94,10 @@
 #include "Dag.hh"
 #include "DagNodePort.hh"
 #include "DagWfParser.hh"
+#include "EventTypes.hh"
 
 using namespace std;
+using namespace events;
 
 FNode::FNode(FWorkflow* wf, const string& id, nodeInstStatus_t initStatus)
   : WfNode(id), wf(wf), myStatus(initStatus) {}
@@ -102,8 +107,15 @@ FNode::~FNode() {
 }
 
 FWorkflow *
-FNode::getWorkflow() {
+FNode::getWorkflow() const {
   return wf;
+}
+
+FWorkflow* 
+FNode::getRootWorkflow() const
+{
+  if (wf == NULL) return NULL;
+  return wf->getRootWorkflow();
 }
 
 const string&
@@ -176,8 +188,7 @@ FNode::newPort(string portId,
       p = new FNodeInPort(this, portId, portType, dataType, depth, ind);
       break;
     case WfPort::PORT_INOUT:
-      INTERNAL_ERROR("Functional Inout port not implemented yet",0);
-      /* p = new FNodeInOutPort(this, portId, dataType, depth, ind); */
+      p = new FNodeInOutPort(this, portId, dataType, depth, ind);
       break;
     case WfPort::PORT_OUT:
       p = new FNodeOutPort(this, portId, portType, dataType, depth, ind);
@@ -249,6 +260,12 @@ FNode::traceId() {
   return "["+myId+"]: ";
 }
 
+string FNode::toString() const
+{
+  return myId;
+}
+
+
 /*****************************************************************************/
 /*                           FConstantNode                                   */
 /*****************************************************************************/
@@ -287,8 +304,7 @@ FConstantNode::initialize() {
   if (!myDataID.empty()) {
     TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "Initialize constant (ID=/"
                               << myDataID << "/)" << endl);
-    myDH = new FDataHandle(singleTag, myOutPort->getBaseDataType(), 0);
-    myDH->setDataID(myDataID);
+    myDH = new FDataHandle(singleTag, myOutPort->getBaseDataType(), 0, myDataID);
 
   } else if (!myValue.empty()) {
     TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "Initialize constant (value=/"
@@ -367,6 +383,10 @@ FSourceNode::instanciate(Dag* dag) {
     }
     // instanciation is completed when file has been read
     myStatus = N_INSTANC_END;
+    // send event containing the serialized data tree
+    ostringstream dataTree;
+    myOutPort->writeAllDataAsXML(dataTree);
+    sendEventFrom<FSourceNode, FSourceNode::DATATREE>(this, "data tree", dataTree.str(), EventBase::INFO);
 
   } else {
     // do nothing
@@ -502,8 +522,9 @@ FSinkNode::finalize() { }
 
 void
 FSinkNode::downloadResults() {
-  TRACE_TEXT (TRACE_ALL_STEPS,traceId() << "Downloading data IDs and values" << endl);
   myOutPort->downloadAllData();
+  string rootDataID = myOutPort->getBufferContainerID();
+  sendEventFrom<FSinkNode, FSinkNode::DATAID>(this, "data id", rootDataID, EventBase::INFO);
 }
 
 void
@@ -724,6 +745,7 @@ FProcNode::initialize() {
     string portId = port->getId();
     // check if current port is an input and is not constant
     if (((port->getPortType() == WfPort::PORT_IN)
+	  || (port->getPortType() == WfPort::PORT_INOUT)
           || (port->getPortType() == WfPort::PORT_PARAM))
          && !isConstantInput(ix)
          && !isIteratorDefined(portId)) {

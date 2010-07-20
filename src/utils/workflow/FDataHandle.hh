@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2010/07/20 09:20:11  bisnard
+ * integration with eclipse gui and with dietForwarder
+ *
  * Revision 1.15  2009/09/25 12:49:45  bisnard
  * handle user data tags
  *
@@ -297,6 +300,20 @@ class FDataHandle {
     FDataHandle(const FDataTag&   tag,
                 WfCst::WfDataType valueType,
                 const string&     value);
+		
+    /**
+     * Constructor of a data handle referencing a data ID (from data manager)
+     * @param tag 	the data tag attached to this handle
+     * @param dataType 	the type of the data
+     * @param dataDepth	the data depth (>0 if a data is a container)
+     * @param dataId	the data ID string
+     * @param isOwner	if true, DH is allowed to free the data (remove from platform)
+     */
+    FDataHandle(const FDataTag&   tag,
+                WfCst::WfDataType dataType,
+                unsigned int      dataDepth,
+		const string&	  dataId,
+		bool		  isOwner = false);
 
     /**
      * Constructor of a data handle (used for buffer or data with dataID)
@@ -345,6 +362,12 @@ class FDataHandle {
      */
     const FDataTag&
         getTag() const;
+	
+    /**
+     * Get a string description of the handle
+     */
+    string
+	toString() const;
 
     /**
      * Set the data tree properties (cardinal and boundaries)
@@ -359,9 +382,10 @@ class FDataHandle {
      * If no data Id but value available, get a new data Id
      * If a data Id is invalid then try to recover a new one (if value available)
      * @param MA  the execution agent that manages the data
+     * @exception WfDataHandleException(eVALUE_UNDEF) if no value and dataID invalid
      */
     void
-	uploadTreeData(MasterAgent_var& MA);
+	uploadTreeData(MasterAgent_var& MA) throw (WfDataHandleException);
 
     /**
      * Set the predefined cardinal (statically provided before execution)
@@ -398,9 +422,17 @@ class FDataHandle {
      */
     FDataHandle*
         getParent() const;
+	
+    /**
+     * Returns true if the data depends from a unique source port
+     * (false for data aggregating several elements from different ports
+     *  and for data handle defined by value or data ID)
+     */
+    bool
+	isSourcePortDefined() const;
 
     /**
-     * Get the source port (if defined)
+     * Get the DAG NODE source port (if defined)
      * @return ptr to port
      * @exception WfDataHandleException(eINVALID_ADAPT)
      */
@@ -538,15 +570,16 @@ class FDataHandle {
      * @exception WfDataHandleException(eVALUE_UNDEF)
      */
     void
-        downloadValue();
+        downloadValue() throw (WfDataHandleException);
 
     /**
      * Get the dataID from the dag node (after execution)
      * Does change the adapter type to DATAID
      * @exception WfDataHandleException(eINVALID_ADAPT)
+     * @Exception WfDataException(eID_UNDEF)
      */
     void
-        downloadDataID();
+        downloadDataID() throw (WfDataHandleException, WfDataException);
 
     /**
      * Get the dataIDs of all tree and values of the leaves (after execution)
@@ -561,13 +594,6 @@ class FDataHandle {
      */
     void
         downloadCardinal();
-
-    /**
-     * Get the content (dataID of elements) from the dag node (after execution)
-     * @exception WfDataHandleException(eINVALID_ADAPT)
-     */
-    void
-        downloadElementDataIDs();
 
     /**
      * Returns true if the data contains all its childs at the given level
@@ -625,7 +651,7 @@ class FDataHandle {
       ADAPTER_VOID,         // = void data (non-existent)
       ADAPTER_VALUE,        // = data value only (constant or data source)
       ADAPTER_DATAID,       // = data ID available
-      ADAPTER_DATAID_ELT    // = element of a data with data ID defined
+      ADAPTER_DELETED	    // = data has been deleted from the platform
     } FDataHdlAdapterType;
     // ADAPTER_MULTIPLE status implies that all descendants are defined
     // all adapter types may change to ADAPTER_DATAID when setDataID is called

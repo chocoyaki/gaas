@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.21  2010/07/20 09:20:11  bisnard
+ * integration with eclipse gui and with dietForwarder
+ *
  * Revision 1.20  2009/10/23 14:04:25  bisnard
  * bug corrections in FDataHandle
  *
@@ -92,10 +95,11 @@ extern "C" {
 #include "Dag.hh"
 #include "DagNode.hh"
 #include "DagNodePort.hh"
-
+#include "EventTypes.hh"
 
 
 using namespace std;
+using namespace events;
 
 string WfMultiplePortAdapter::parLeftChar = "(";
 string WfMultiplePortAdapter::parRightChar = ")";
@@ -301,10 +305,10 @@ WfSimplePortAdapter::getSourceDataType() {
   return getSourcePort()->getDataType(getDepth());
 }
 
-unsigned int
-WfSimplePortAdapter::getSourceDataCardinal() {
-  return getSourcePort()->getDataIDCardinal(getSourceDataID());
-}
+// unsigned int
+// WfSimplePortAdapter::getSourceDataCardinal() {
+//   return getSourcePort()->getDataIDCardinal(getSourceDataID());
+// }
 
 bool
 WfSimplePortAdapter::isDataIDCreator() {
@@ -504,11 +508,11 @@ WfMultiplePortAdapter::getSourceDataType() {
   return WfCst::TYPE_CONTAINER;
 }
 
-unsigned int
-WfMultiplePortAdapter::getSourceDataCardinal() {
-  getSourceDataID(); // to initialize data if not already done
-  return adapters.size();
-}
+// unsigned int
+// WfMultiplePortAdapter::getSourceDataCardinal() {
+//   getSourceDataID(); // to initialize data if not already done
+//   return adapters.size();
+// }
 
 bool
 WfMultiplePortAdapter::isDataIDCreator() {
@@ -580,10 +584,10 @@ WfVoidAdapter::getSourceDataType() {
   throw WfDataException(WfDataException::eVOID_DATA,"");
 }
 
-unsigned int
-WfVoidAdapter::getSourceDataCardinal() {
-  return 1;
-}
+// unsigned int
+// WfVoidAdapter::getSourceDataCardinal() {
+//   return 1;
+// }
 
 bool
 WfVoidAdapter::isDataIDCreator() {
@@ -688,7 +692,7 @@ WfValueAdapter::getSourceDataID() {
     } // end (switch)
   } catch (Dagda::ReadError& ex) {
     errorMsg += "(Read Error)";
-    throw WfDataException(WfDataException::eINVALID_VALUE, errorMsg);
+    throw WfDataException(WfDataException::eREADFILERROR, errorMsg);
   } catch (...) {
     errorMsg += "(Dagda Exception)";
     throw WfDataException(WfDataException::eINVALID_VALUE, errorMsg);
@@ -703,11 +707,11 @@ WfValueAdapter::getSourceDataType() {
   return myDataType;
 }
 
-unsigned int
-WfValueAdapter::getSourceDataCardinal() {
-  WARNING("Cannot get cardinal of a WfValueAdapter");
-  return 0;
-}
+// unsigned int
+// WfValueAdapter::getSourceDataCardinal() {
+//   WARNING("Cannot get cardinal of a WfValueAdapter");
+//   return 0;
+// }
 
 bool
 WfValueAdapter::isDataIDCreator() {
@@ -795,29 +799,28 @@ WfValueAdapter::newDouble() {
 
 string WfDataIDAdapter::IDStartTag = string("#IDDEB#");
 string WfDataIDAdapter::IDFinishTag = string("#IDFIN#");
+map<string, vector<string> >	WfDataIDAdapter::myCache;
 
 WfDataIDAdapter::WfDataIDAdapter(WfCst::WfDataType dataType,
                                  unsigned int dataDepth,
                                  const string& dataID)
-  : myDataID(dataID), myDataType(dataType), myDepth(dataDepth),
-    myElementIdx(0) {
+  : myDataID(dataID), myDataType(dataType), myDepth(dataDepth)
+{
 //   TRACE_TEXT (TRACE_ALL_STEPS,"Creating DataID adapter (TYPE=" << dataType
 //                               << ") dataID=/" << dataID << "/" << endl);
-}
-
-WfDataIDAdapter::WfDataIDAdapter(WfCst::WfDataType dataType,
-                                 unsigned int      dataDepth,
-                                 unsigned int      elementIdx,
-                                 const string&     containerID)
-  : myDataID(), myDataType(dataType), myDepth(dataDepth),
-    myElementIdx(elementIdx), myContainerID(containerID) {
+  if (dataID.empty()) {
+    WARNING("Creating WfDataIDAdapter with empty data ID");
+  }
 }
 
 WfDataIDAdapter::WfDataIDAdapter(const string& dataID)
-  : myDataID(dataID), myDataType(WfCst::TYPE_UNKNOWN), myDepth(0),
-    myElementIdx(0) {
+  : myDataID(dataID), myDataType(WfCst::TYPE_UNKNOWN), myDepth(0)
+{
 //   TRACE_TEXT (TRACE_ALL_STEPS,"Creating DataID adapter dataID=/"
 //                                << dataID << "/" << endl);
+  if (dataID.empty()) {
+    WARNING("Creating WfDataIDAdapter with empty data ID");
+  }
 }
 
 WfDataIDAdapter::~WfDataIDAdapter() {}
@@ -834,40 +837,11 @@ throw (WfStructException) {
 
 string
 WfDataIDAdapter::getSourceRef() const {
-  if (myDataID.empty())
-    throw WfDataException(WfDataException::eID_UNDEF,"missing dataID in adapter");
-
   return IDStartTag + myDataID + IDFinishTag;
 }
 
 const string&
 WfDataIDAdapter::getSourceDataID() {
-  if (myDataID.empty()) {
-    // retrieve dataID in case this is an element of a dataID (2nd constructor)
-    diet_container_t *content = new diet_container_t;
-    if (myContainerID.empty()) {
-      WARNING("WfDataIDAdapter::getSourceDataID() : empty container ID");
-    }
-    TRACE_TEXT (TRACE_ALL_STEPS, "data ID '" + myContainerID + "' : get container ID list" << endl);
-    try {
-      dagda_get_container(myContainerID.c_str());
-    } catch (...) {
-      string errorMsg = "data ID '" + myContainerID + "' : not found or invalid type";
-      throw WfDataException(WfDataException::eNOTFOUND, errorMsg);
-    }
-    if (dagda_get_container_elements(myContainerID.c_str(), content)) {
-      string errorMsg = "data ID '" + myContainerID + "' : cannot get container elements";
-      throw WfDataException(WfDataException::eINVALID_CONTAINER, errorMsg);
-    }
-    if (content->size <= myElementIdx) {
-      string errorMsg = "data ID '" + myContainerID + "' : index not found";
-      throw WfDataException(WfDataException::eINVALID_CONTAINER, errorMsg);
-    }
-    if (content->elt_ids[myElementIdx]) {	// element may be empty
-      myDataID = content->elt_ids[myElementIdx];
-    }
-    delete content;
-  }
   return myDataID;
 }
 
@@ -876,13 +850,15 @@ WfDataIDAdapter::getSourceDataType() {
   return myDataType;
 }
 
-//FIXME very similar to DagNodeOutPort::getDataIDList without cache
-unsigned int
-WfDataIDAdapter::getSourceDataCardinal() {
-  if (myDataID.empty()) {
-    getSourceDataID();
-  }
-  if (!myDataID.empty() && (myDepth > 0)) {
+void 
+WfDataIDAdapter::getElements(vector< string >& vectID)
+{
+  if (myDataID.empty()) return;
+//     TRACE_TEXT(TRACE_ALL_STEPS,"Get elements of container with ID : " << myDataID << endl);
+  map<string, vector<string> >::const_iterator cacheIter = myCache.find(myDataID);
+  if (cacheIter != myCache.end()) {
+    vectID = cacheIter->second;
+  } else {
     diet_container_t *content = new diet_container_t;
     content->size = 0;
     try {
@@ -895,11 +871,38 @@ WfDataIDAdapter::getSourceDataCardinal() {
       string errorMsg = "container ID '" + myDataID + "' : cannot get container elements";
       throw WfDataException(WfDataException::eINVALID_CONTAINER, errorMsg);
     }
-    unsigned int card = content->size;
+    if (content->size != vectID.size()) {
+      vectID.resize(content->size);
+    }
+    string eltIdsMsg = "";
+    for (unsigned int i = 0; i<content->size; ++i) {
+      if (content->elt_ids[i] != NULL) {
+	vectID[i] = content->elt_ids[i];
+	eltIdsMsg += vectID[i];
+      } else {
+	eltIdsMsg += WfVoidAdapter::voidRef;
+      }
+      if (i != content->size-1) eltIdsMsg += ";";
+    }
+    sendEventFrom<WfDataIDAdapter, WfDataIDAdapter::ELTIDLIST>(this,
+		"Container elements", eltIdsMsg, EventBase::INFO);
+    free( content->elt_ids );
     delete content;
-    return card;
+    
+    // update cache
+    myCache[myDataID] = vectID;
   }
-  return 0;
+}
+
+string 
+WfDataIDAdapter::getDataID() const
+{
+  return myDataID;
+}
+
+string WfDataIDAdapter::toString() const
+{
+  return "Adapter ID=" + myDataID;
 }
 
 bool
@@ -928,25 +931,17 @@ WfDataIDAdapter::getAndWriteData(WfDataWriter* dataWriter,
   try {
     if (dataDepth > 0) {
       dataWriter->startContainer();
-      diet_container_t* content = new diet_container_t;
-      content->size = 0;
-      try {
-        dagda_get_container(dataID.c_str());
-      } catch (...) {
-        throw WfDataException(WfDataException::eNOTFOUND, dataID);
-      }
-      if (dagda_get_container_elements(dataID.c_str(), content))
-          throw WfDataException(WfDataException::eINVALID_CONTAINER, dataID);
-
-      for (unsigned int ix=0; ix<content->size; ++ix) {
-        char* eltID = content->elt_ids[ix];
-        if (eltID == NULL) {
+      WfDataIDAdapter	adapter(dataID);
+      vector<string> 	vectID;
+      adapter.getElements(vectID);
+      
+      for (vector<string>::iterator eltIter = vectID.begin();
+	   eltIter != vectID.end();
+	   ++eltIter) {
+        if ((*eltIter).empty())
           dataWriter->voidElement();
-        } else if (*eltID == 0) {
-          WARNING("Empty data ID at index " << ix << " in container " << dataID << endl);
-        } else {
-          getAndWriteData(dataWriter, eltID, dataType, dataDepth-1);
-        }
+	else
+          getAndWriteData(dataWriter, *eltIter, dataType, dataDepth-1);
       } // end for
 
       dataWriter->endContainer();
@@ -993,7 +988,7 @@ WfDataIDAdapter::getAndWriteData(WfDataWriter* dataWriter,
     throw WfDataException(WfDataException::eNOTFOUND, errorMsg);
   } catch (Dagda::ReadError& e) {
     string errorMsg = "Data ID = " + string(dataID.c_str());
-    throw WfDataException(WfDataException::eINVALID_VALUE, errorMsg);
+    throw WfDataException(WfDataException::eREADFILERROR, errorMsg);
   }
 }
 

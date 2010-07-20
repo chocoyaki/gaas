@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.29  2010/07/20 09:20:11  bisnard
+ * integration with eclipse gui and with dietForwarder
+ *
  * Revision 1.28  2010/06/11 14:10:09  bisnard
  * fixed warning
  *
@@ -464,6 +467,11 @@ class MultiDagParser : public DagParser {
     MultiDagParser ( const string& xmlFileName );
 
     virtual ~MultiDagParser();
+    
+    /**
+     * Set the default workflow that contains the dags
+     */
+    void setWorkflow(FWorkflow* wf);
 
     /**
      * Parse a <dags> DOM element
@@ -481,6 +489,7 @@ class MultiDagParser : public DagParser {
   protected:
 
     list<Dag*>	myDags;
+    FWorkflow*	myWorkflow;
 
 }; // end class MultiDagParser
 

@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.19  2010/07/20 09:20:11  bisnard
+ * integration with eclipse gui and with dietForwarder
+ *
  * Revision 1.18  2009/07/10 12:55:59  bisnard
  * implemented while loop workflow node
  *
@@ -273,7 +276,7 @@ public:
   getInterfaceRef();
 
 protected:
-
+  
   /**
    * Ports linking on one side only
    * @param remPort  remote port

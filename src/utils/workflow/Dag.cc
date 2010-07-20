@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.34  2010/07/20 09:20:11  bisnard
+ * integration with eclipse gui and with dietForwarder
+ *
  * Revision 1.33  2010/03/08 13:50:48  bisnard
  * handle node ready event (for logging)
  *
@@ -160,17 +163,25 @@
 #include "DagNodePort.hh"
 #include "DagWfParser.hh"
 #include "DagScheduler.hh"
+#include "EventTypes.hh"
 
 using namespace std;
+using namespace events;
 
-Dag::Dag()
-  : myId(""), myWf(NULL), myExecAgent(MasterAgent::_nil()), startTime(0),
+Dag::Dag(string id)
+  : myId(id), myWf(NULL), myExecAgent(MasterAgent::_nil()), startTime(0),
     finishTime(0), estDelay(0), tmpDag(false), cancelled(false) {
+  if (id.empty()) {
+    WARNING("Dag created with empty id - may cause errors");
+  }
 }
 
-Dag::Dag(MasterAgent_var& MA)
-  : myId(""), myWf(NULL), startTime(0), finishTime(0),
+Dag::Dag(string id, MasterAgent_var& MA)
+  : myId(id), myWf(NULL), startTime(0), finishTime(0),
     estDelay(0), tmpDag(false), cancelled(false) {
+  if (id.empty()) {
+    WARNING("Dag created with empty id - may cause errors");
+  }
   if (MA != MasterAgent::_nil())
     myExecAgent = MA;
   else {
@@ -182,7 +193,6 @@ Dag::Dag(MasterAgent_var& MA)
  * DAG destructor: will delete all the nodes of the dag (if not a temp dag)
  */
 Dag::~Dag() {
-  TRACE_TEXT (TRACE_ALL_STEPS,"~Dag() destructor ..." <<  endl);
   if (! this->tmpDag) {
     while (! nodes.empty() ) {
        DagNode * p = begin()->second ;
@@ -195,11 +205,13 @@ Dag::~Dag() {
 
 void
 Dag::setId(const string& id) {
+  if (!myId.empty())
+    sendEventFrom<Dag, MODID>(this, "Dag id modified", id, EventBase::INFO);
   this->myId = id;
 }
 
 const string&
-Dag::getId() {
+Dag::getId() const {
   return this->myId;
 }
 
@@ -209,8 +221,10 @@ Dag::setWorkflow(FWorkflow * wf) {
 }
 
 FWorkflow *
-Dag::getWorkflow() {
-  return this->myWf;
+Dag::getWorkflow() const throw (WfStructException) {
+  if (myWf != NULL)
+    return myWf;
+  throw WfStructException(WfStructException::eWF_UNDEF, "dag_id=" + getId());
 }
 
 MasterAgent_var&
@@ -244,6 +258,8 @@ Dag::createDagNode(const string& id, FWorkflow* wf) throw (WfStructException) {
     throw WfStructException(WfStructException::eDUPLICATE_NODE,"node id="+id);
   DagNode* newDagNode = new DagNode(id, this, wf);
   this->nodes[id] = newDagNode;
+  EventManager::getEventMgr()->sendEvent(
+    new EventCreateObject<DagNode,Dag>(newDagNode, this) );
   return newDagNode;
 }
 
@@ -329,6 +345,11 @@ Dag::begin() {
 map <string, DagNode *>::iterator
 Dag::end() {
  return nodes.end();
+}
+
+string
+Dag::toString() const {
+  return "DAG " + getId();
 }
 
 /**
@@ -799,5 +820,6 @@ Dag::setAsCancelled(DagScheduler* scheduler) {
     // queues and will inform the client of cancellation)
     scheduler->handlerDagDone(this);
   }
+  sendEventFrom<Dag, STATE>(this, "Dag cancelled", "", EventBase::INFO);
 }
 

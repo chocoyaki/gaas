@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2010/07/20 09:20:11  bisnard
+ * integration with eclipse gui and with dietForwarder
+ *
  * Revision 1.16  2009/09/25 12:49:45  bisnard
  * handle user data tags
  *
@@ -82,15 +85,18 @@ class FNodeInPort;
 /*                         FNodePort (Abstract)                              */
 /*****************************************************************************/
 
-//NOTE this class could be removed (no real common point btw FNodeInPort
-// and FNodeOutPort)
-
 class FNodePort : public WfPort {
 
   public:
     FNodePort(WfNode * parent, const string& _id, WfPort::WfPortType _portType,
               WfCst::WfDataType _type, unsigned int _depth, unsigned int _ind);
     virtual ~FNodePort();
+    
+    /**
+     * Get a description of the node
+     */
+    virtual string
+    toString() const;
 
   protected:
 
@@ -99,14 +105,14 @@ class FNodePort : public WfPort {
      * @return ref to FNode
      */
     FNode*
-        getParentFNode();
+    getParentFNode();
 
     /**
      * Get the parent node (applicable only if port of processor node)
      * @return  ref to ProcNode (will exit if ref is NULL)
      */
     FProcNode*
-        getParentProcNode();
+    getParentProcNode();
 
 }; // end class FNodePort
 
@@ -114,7 +120,7 @@ class FNodePort : public WfPort {
 /*                           FNodeOutPort                                    */
 /*****************************************************************************/
 
-class FNodeOutPort : public FNodePort {
+class FNodeOutPort : public virtual FNodePort {
 
   public:
 
@@ -244,7 +250,7 @@ class FNodeOutPort : public FNodePort {
 
     void
     setPendingDataTransfer(FDataHandle* dataHdl,
-                           FNodeInPort* inPort);
+                           FNodeInPort* inPort) throw (WfDataHandleException);
 
     void
     checkTotalDataNb(FNodeInPort *inPort);
@@ -265,7 +271,7 @@ class FNodeOutPort : public FNodePort {
 /*                            FNodeInPort                                    */
 /*****************************************************************************/
 
-class FNodeInPort : public FNodePort {
+class FNodeInPort : public virtual FNodePort {
 
   public:
 
@@ -325,7 +331,7 @@ class FNodeInPort : public FNodePort {
      * @param nodeInst  the node instance - NOT NULL
      * @param dataHdl   the data Handle to be used (as source) - NOT NULL
      */
-    virtual void
+    void
         createRealInstance(Dag* dag, DagNode* nodeInst, FDataHandle* dataHdl);
 
 
@@ -352,6 +358,38 @@ class FNodeInPort : public FNodePort {
 
 }; // end class FNodeInPort
 
+
+/*****************************************************************************/
+/*                          FNodeInOutPort                                   */
+/*****************************************************************************/
+
+class FNodeInOutPort : public FNodeInPort, public FNodeOutPort {
+  
+  public:
+    
+    FNodeInOutPort(WfNode* parent, const std::string& _id,
+		   WfCst::WfDataType _type, unsigned int _depth, 
+		   unsigned int _ind);
+		      
+    /**
+     * Method to setup ports connection on each side
+     */
+    virtual void
+        connectToPort(WfPort* remPort);
+		   
+    /**
+     * Instanciate the port as a real input/output port
+     * @param dag       the dag being instanciated
+     * @param nodeInst  the node instance - NOT NULL
+     * @param tag	the tag of the instance
+     * @param dataHdl   the data Handle to be used (as source) - NOT NULL
+     */
+    FDataHandle*
+        createRealInstance(Dag* dag, DagNode* nodeInst, const FDataTag& tag,
+			   FDataHandle* dataHdl);
+
+};
+
 /*****************************************************************************/
 /*                          FNodeParamPort                                   */
 /*****************************************************************************/
@@ -366,11 +404,6 @@ class FNodeParamPort : public FNodeInPort {
     FNodeParamPort(WfNode * parent, const string& _id,
                    WfCst::WfDataType _type, unsigned int _ind);
     virtual ~FNodeParamPort();
-
-  private:
-    // not applicable
-    virtual void
-        createRealInstance(Dag* dag, DagNode* nodeInst, FDataHandle* dataHdl);
 
 };
 

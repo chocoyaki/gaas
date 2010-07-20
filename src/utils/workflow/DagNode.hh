@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.19  2010/07/20 09:20:11  bisnard
+ * integration with eclipse gui and with dietForwarder
+ *
  * Revision 1.18  2010/03/31 21:15:41  bdepardo
  * Changed C headers into C++ headers
  *
@@ -93,10 +96,12 @@ using namespace std;
 class WfDataException {
   public:
     enum WfDataErrorType { eNOTFOUND,
+			   eNOTAVAIL,
                            eWRONGTYPE,
                            eINVALID_CONTAINER,
                            eID_UNDEF,
                            eVOID_DATA,
+                           eREADFILERROR,
                            eINVALID_VALUE };
     WfDataException(WfDataErrorType t, const string& info)
       { this->why = t; this->info = info; }
@@ -129,6 +134,16 @@ public:
    * @param wf         the workflow that generated this dag node (optional)
    */
   DagNode(const string& id, Dag *dag = NULL, FWorkflow* wf = NULL);
+  
+  /**
+   * Dag Node event message types
+   */
+  enum eventMsg_e {
+    READY,
+    START,
+    FINISH,
+    FAILED
+  };
 
   /**
    * DagNode destructor
@@ -151,14 +166,14 @@ public:
    * get the node Dag reference
    */
   Dag *
-  getDag();
+  getDag() const;
 
   /**
    * get the node Wf reference
    * (may return NULL if node does not belong to a functional workflow)
    */
   FWorkflow *
-  getWorkflow();
+  getWorkflow() const;
 
   /**
    * set the node problem name (ie service name)
@@ -170,7 +185,7 @@ public:
    * get the problem name
    */
   const string&
-  getPbName();
+  getPbName() const;
 
   /**
    * create a new port
@@ -188,6 +203,12 @@ public:
    */
   virtual void
   addNodePredecessor(WfNode * node, const string& fullNodeId);
+  
+  /**
+   * Returns a string description of the node
+   */
+  virtual string
+  toString() const;
 
   /**
    * returns an XML representation of a node (includes current state)

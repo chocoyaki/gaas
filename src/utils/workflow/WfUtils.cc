@@ -7,6 +7,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.18  2010/07/20 09:20:11  bisnard
+ * integration with eclipse gui and with dietForwarder
+ *
  * Revision 1.17  2010/04/28 14:12:03  bdepardo
  * fscanf warnings correction.
  *
@@ -97,12 +100,16 @@ WfStructException::ErrorMsg() const {
       errorMsg = "Unknown port (" + Info() + ")"; break;
     case eDUPLICATE_NODE:
       errorMsg = "Duplicate node (" + Info() + ")"; break;
+    case eDUPLICATE_PORT:
+      errorMsg = "Duplicate port (" + Info() + ")"; break;
     case eTYPE_MISMATCH:
       errorMsg = "Type mismatch (" + Info() + ")"; break;
     case eDEPTH_MISMATCH:
       errorMsg = "Depth mismatch (" + Info() + ")"; break;
     case eINVALID_EXPR:
       errorMsg = "Invalid expression (" + Info() + ")"; break;
+    case eWF_UNDEF:
+      errorMsg = "Workflow not defined (" + Info() + ")"; break;
     case eOTHER:
       errorMsg = Info(); break;
   }

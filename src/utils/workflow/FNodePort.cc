@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.20  2010/07/20 09:20:11  bisnard
+ * integration with eclipse gui and with dietForwarder
+ *
  * Revision 1.19  2009/10/23 13:59:25  bisnard
  * replaced \n by std::endl
  *
@@ -85,6 +88,9 @@
 extern "C" {
   #include "DIET_Dagda.h"
 }
+#include "EventTypes.hh"
+
+using namespace events;
 
 /**
  * Constructors & destructors
@@ -117,6 +123,11 @@ FNodePort::getParentProcNode() {
   return parent;
 }
 
+string
+FNodePort::toString() const {
+ return "FPORT " + getId() + "[FNODE=" + getParent()->getId() + "]";
+}
+
 /*****************************************************************************/
 /*                           FNodeOutPort                                    */
 /*****************************************************************************/
@@ -146,6 +157,7 @@ FNodeOutPort::connectToPort(WfPort* remPort) {
   // cast & add to list of connected in ports
   FNodeInPort* srcPort = dynamic_cast<FNodeInPort*>(remPort);
   if (srcPort == NULL) {
+    cerr << "OUT=" << getId() << " / IN=" << remPort->getId() << endl;
     INTERNAL_ERROR("Wrong connected node type in functional node OUT port", 0);
   }
   myConnectedPorts.push_back(srcPort);
@@ -224,7 +236,7 @@ FNodeOutPort::sendData(FDataHandle* dataHdl) {
 
 void
 FNodeOutPort::setPendingDataTransfer(FDataHandle* dataHdl,
-                                     FNodeInPort* inPort) {
+                                     FNodeInPort* inPort) throw (WfDataHandleException) {
   DagNodeOutPort* dagOutPort = dynamic_cast<DagNodeOutPort*>(dataHdl->getSourcePort());
   DagNode*        dagNode = dynamic_cast<DagNode*>(dagOutPort->getParent());
   FWorkflow*      wf = dagNode->getWorkflow();
@@ -401,6 +413,7 @@ FNodeInPort::addData(FDataHandle* dataHdl) {
   if (dataHdl->getDepth() == depth) {
     const FDataTag& dataTag = dataHdl->getTag();
     // check if value is required
+    TRACE_TEXT(TRACE_ALL_STEPS,"Checking value: " << (valueRequired ? "yes" : "no") << endl);
     if ((valueRequired) && (!dataHdl->isValueDefined())) {
       dataHdl->downloadValue(); // may throw VALUE_UNDEF exception
     }
@@ -412,8 +425,10 @@ FNodeInPort::addData(FDataHandle* dataHdl) {
 
   // SPLIT CURRENT DATA => calls addData on the childrens
   } else if (dataHdl->getDepth() > depth) {
-    if (dataHdl->isDataIDDefined()) {
-      dataHdl->downloadElementDataIDs();  // set cardinal and elements data ID
+    try {
+      dataHdl->downloadCardinal();
+    } catch (WfDataException& e) {
+      if (e.Type() != WfDataException::eID_UNDEF) throw;
     }
     if (dataHdl->isCardinalDefined()) {
       TRACE_TEXT (TRACE_ALL_STEPS,"Adding data elements (SPLIT)" << endl);
@@ -495,7 +510,76 @@ FNodeInPort::createRealInstance(Dag* dag, DagNode* nodeInst, FDataHandle* dataHd
   WfPortAdapter * portAdapter = dataHdl->createPortAdapter(dag->getId());
   portInst->setPortAdapter(portAdapter);
   TRACE_TEXT (TRACE_ALL_STEPS,"Setting ADAPTER = " << portAdapter->getSourceRef() << endl);
+}
 
+/*****************************************************************************/
+/*                          FNodeInOutPort                                   */
+/*****************************************************************************/
+
+
+FNodeInOutPort::FNodeInOutPort(WfNode * parent,
+			       const string& _id,
+			       WfCst::WfDataType _type,
+			       unsigned int _depth,
+			       unsigned int _ind)
+  : FNodePort(parent, _id, WfPort::PORT_INOUT, _type, _depth, _ind),
+    FNodeInPort(parent, _id, WfPort::PORT_INOUT, _type, _depth, _ind),
+    FNodeOutPort(parent, _id, WfPort::PORT_INOUT, _type, _depth, _ind)
+    { }
+
+void
+FNodeInOutPort::connectToPort(WfPort* remPort) {
+  switch(remPort->getPortType()) {
+    case WfPort::PORT_IN:
+    case WfPort::PORT_IN_LOOP:
+      FNodeOutPort::connectToPort(remPort);
+      break;
+    case WfPort::PORT_ARG:
+    case WfPort::PORT_OUT:
+    case WfPort::PORT_OUT_LOOP:
+    case WfPort::PORT_OUT_THEN:
+    case WfPort::PORT_OUT_ELSE:
+      WfPort::connectToPort(remPort);
+      break;
+    default:
+    {
+      INTERNAL_ERROR("Cannot disambiguate inOut to inOut link", 0);
+    }
+  }
+}
+
+FDataHandle*
+FNodeInOutPort::createRealInstance(Dag* dag, DagNode* nodeInst, const FDataTag& tag,
+				   FDataHandle* dataHdl) {
+  if (!nodeInst) {
+    INTERNAL_ERROR("FNodeInPort::instanciate called with NULL instance",1);
+  }
+  if (!dataHdl) {
+    INTERNAL_ERROR("FNodeInPort::instanciate called with NULL data handle",1);
+  }
+  // create a DagNodeInOutPort for the nodeInst
+  string portId = this->getId();
+  TRACE_TEXT (TRACE_ALL_STEPS,"   # Creating new instance of IN-OUT port: " << portId << endl);
+  WfPort* portInst = nodeInst->newPort(portId,
+                                      getIndex(),
+                                      portType,
+                                      getBaseDataType(),
+                                      depth);
+  WfPortAdapter * portAdapter = dataHdl->createPortAdapter(dag->getId());
+  portInst->setPortAdapter(portAdapter);
+  TRACE_TEXT (TRACE_ALL_STEPS,"Setting ADAPTER = " << portAdapter->getSourceRef() << endl);
+  DagNodeOutPort* portInstPtr = dynamic_cast<DagNodeOutPort*>(portInst);
+  FDataHandle* outDataHdl;
+  // create a FDataHandle corresponding to the new port instance
+  //  - its depth equals the depth of the out port
+  //  - its tag equals the tag of the node instance
+  //  - its port equals the portInst
+  outDataHdl = new FDataHandle(tag, depth, false, portInstPtr);
+  // set the cardinal information if available
+  if (card) {
+    outDataHdl->setCardinalList(*card);
+  }
+  return outDataHdl;
 }
 
 /*****************************************************************************/
@@ -506,16 +590,18 @@ FNodeParamPort::FNodeParamPort(WfNode * parent,
                            const string& _id,
                            WfCst::WfDataType _type,
                            unsigned int _ind)
-  : FNodeInPort(parent, _id, WfPort::PORT_PARAM, _type, 0, _ind) {
+  : FNodePort(parent, _id, WfPort::PORT_PARAM, _type, 0, _ind),
+    FNodeInPort(parent, _id, WfPort::PORT_PARAM, _type, 0, _ind) {
   setValueRequired();
 }
 
 FNodeParamPort::~FNodeParamPort() {
 }
 
-void
-FNodeParamPort::createRealInstance(Dag* dag, DagNode* nodeInst, FDataHandle* dataHdl) {
-}
+// FDataHandle*
+// FNodeParamPort::createRealInstance(Dag* dag, DagNode* nodeInst, FDataHandle* dataHdl) {
+//   return NULL;
+// }
 
 
 /*****************************************************************************/

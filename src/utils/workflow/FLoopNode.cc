@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2010/07/20 09:20:11  bisnard
+ * integration with eclipse gui and with dietForwarder
+ *
  * Revision 1.5  2010/04/28 14:11:49  bdepardo
  * Bug correction for while condition.
  *
@@ -36,7 +39,8 @@ class FLoopInPort : public FNodeInPort {
 
     FLoopInPort(WfNode * parent, const string& _id, WfPort::WfPortType _portType,
               WfCst::WfDataType _type, unsigned int _depth, unsigned int _ind)
-      : FNodeInPort(parent,_id,_portType,_type,_depth,_ind),
+      : FNodePort(parent,_id,_portType,_type,_depth,_ind),
+	FNodeInPort(parent,_id,_portType,_type,_depth,_ind),
         setPrecedence(false) {
     }
 
@@ -55,7 +59,8 @@ class FLoopOutPort : public FNodeOutPort {
   public:
     FLoopOutPort(WfNode * parent, const string& _id, WfPort::WfPortType _portType,
                WfCst::WfDataType _type, unsigned int _depth, unsigned int _ind)
-      : FNodeOutPort(parent,_id,_portType,_type,_depth,_ind) {
+      : FNodePort(parent,_id,_portType,_type,_depth,_ind),
+	FNodeOutPort(parent,_id,_portType,_type,_depth,_ind) {
     }
 
 };

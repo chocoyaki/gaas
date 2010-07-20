@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.22  2010/07/20 09:20:11  bisnard
+ * integration with eclipse gui and with dietForwarder
+ *
  * Revision 1.21  2009/10/23 14:03:14  bisnard
  * new method FSourceNode::createList
  *
@@ -110,7 +113,14 @@ public:
    * @return workflow ptr or NULL if no parent wf
    */
   FWorkflow *
-      getWorkflow();
+      getWorkflow() const;
+      
+  /**
+   * Get the root workflow (ie not a subwf) the node belongs to
+   * @return workflow ptr or NULL if no parent wf
+   */
+  virtual FWorkflow*
+      getRootWorkflow() const;
 
   /**
    * Create a new port
@@ -215,6 +225,12 @@ public:
    */
   virtual void
       freeNodePersistentData(MasterAgent_var& MA);
+      
+  /**
+   * Write a text description of the node
+   */
+  virtual string
+      toString() const;
 
 protected:
   /**
@@ -337,6 +353,14 @@ class FSourceNode : public FNode {
                 const string& id,
                 WfCst::WfDataType type);
     virtual ~FSourceNode();
+    
+    /***************************************************/
+    /* event message types                             */
+    /***************************************************/
+  
+    enum eventMsg_e {
+      DATATREE
+    };
 
     const string&
         getDefaultPortName() const;
@@ -450,6 +474,14 @@ class FSinkNode : public FNode {
                WfCst::WfDataType type,
                unsigned int depth);
      virtual ~FSinkNode();
+     
+     /***************************************************/
+     /* event message types                             */
+     /***************************************************/
+  
+     enum eventMsg_e {
+       DATAID
+     };
 
      virtual const string&
          getDefaultPortName() const;

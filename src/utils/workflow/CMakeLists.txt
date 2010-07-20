@@ -6,6 +6,7 @@ IF( DIET_BUILD_LIBRARIES )
     ${CMAKE_CURRENT_SOURCE_DIR}         # for DIET_data_internal.hh
     ${DIET_SOURCE_DIR}/src/utils/DAGDA
     ${DIET_SOURCE_DIR}/src/utils/nodes
+    ${DIET_SOURCE_DIR}/src/utils/events
     ${DIET_SOURCE_DIR}/src/utils
     ${DIET_SOURCE_DIR}/include
     ${DIET_SOURCE_DIR}/src/SeD
@@ -13,7 +14,9 @@ IF( DIET_BUILD_LIBRARIES )
     ${XERCES_INCLUDE_DIR}
     ${XQILLA_INCLUDE_DIR}
     )
+
   ADD_LIBRARY ( UtilsWf STATIC
+    WfLogDispatcher.cc
     WfNode.cc Dag.cc MetaDag.cc FWorkflow.cc FNode.cc
     WfExpression.cc WfDataWriter.cc
     FActivityNode.cc FIfNode.cc FLoopNode.cc
@@ -27,7 +30,7 @@ IF( DIET_BUILD_LIBRARIES )
     WfLogServiceImpl.cc
     )
 
-  TARGET_LINK_LIBRARIES( UtilsWf AgentCommon DIET_Dagda_static
+  TARGET_LINK_LIBRARIES( UtilsWf AgentCommon DIET_Dagda_static UtilsEvents
     ${DIET_DAGDA_LIBRARY}
     ${XERCES_LIBRARY}  ${OMNIORB4_LIBRARIES} ${XQILLA_LIBRARY}
     )

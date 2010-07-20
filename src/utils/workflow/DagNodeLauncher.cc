@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2010/07/20 09:20:11  bisnard
+ * integration with eclipse gui and with dietForwarder
+ *
  * Revision 1.2  2010/07/12 16:14:13  glemahec
  * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
  *
@@ -22,7 +25,8 @@
 
 DagNodeLauncher::DagNodeLauncher(DagNode * parent,
                                  DagScheduler * scheduler)
-  : myNode(parent), myDagScheduler(scheduler), isSedDefined(false), myReqID(0)
+  : myNode(parent), myDagScheduler(scheduler), isSeDDefinedFlag(false), myReqID(0),
+  isSuccessfulFlag(false)
 {
   myChosenServer = NULL;
 }
@@ -35,19 +39,40 @@ DagNodeLauncher::setSeD(const char* sed,
   myChosenServer = CORBA::string_dup(sed);
   myReqID = reqID;
   myEstimVect = ev; // COPY of estimation vector (required)
-  isSedDefined = true;
+  isSeDDefinedFlag = true;
 }
+
+//FIXME should return the hostname not the dataMgr name (temp for gwendia exp.)
+string 
+DagNodeLauncher::getSeDName() const
+{
+  if (isSeDDefined())
+    return myChosenServer;
+  else
+    return "";
+}
+
+
+string 
+DagNodeLauncher::toString() const
+{
+  string s = "DagNode Launcher (";
+  s += myNode->getId();
+  s += ")";
+  return s;
+}
+
 
 void *
 DagNodeLauncher::run()
 {
-  bool ok = false;
-
-  execNode(ok);
-  if (ok)   myNode->setAsDone(myDagScheduler);
-  else      myNode->setAsFailed(myDagScheduler);
+  execNode();
+  if (isSuccessfulFlag)   
+    myNode->setAsDone(myDagScheduler);
+  else      
+    myNode->setAsFailed(myDagScheduler);
   finishNode();
-	return NULL;
+  return NULL;
 };
 
 void

@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2010/07/20 09:20:11  bisnard
+ * integration with eclipse gui and with dietForwarder
+ *
  * Revision 1.13  2009/08/26 10:33:09  bisnard
  * implementation of workflow status & restart
  *
@@ -130,15 +133,6 @@ class WfPortAdapter {
         getSourceDataType() = 0;
 
     /**
-     * Cardinal of data retrieval (used for node execution - step 2)
-     * REQUIRED: idem as getSourceDataID()
-     * REQUIRED: to be used only with adapters pointing to container data
-     * @return the size of the container corresponding to the adapter
-     */
-    virtual unsigned int
-        getSourceDataCardinal() = 0;
-
-    /**
      * Data value retrieval and display
      * @param dataWriter  the data output formatter
      */
@@ -214,9 +208,6 @@ class WfSimplePortAdapter : public WfPortAdapter {
 
     WfCst::WfDataType
         getSourceDataType();
-
-    unsigned int
-        getSourceDataCardinal();
 
     bool
         isDataIDCreator();
@@ -299,8 +290,6 @@ class WfMultiplePortAdapter : public WfPortAdapter {
         getSourceDataID();
     WfCst::WfDataType
         getSourceDataType();
-    unsigned int
-        getSourceDataCardinal();
     bool
         isDataIDCreator();
     void
@@ -356,8 +345,6 @@ class WfVoidAdapter : public WfPortAdapter {
         getSourceDataID();  // throws exception WfDataException::eVOID_DATA
     WfCst::WfDataType
         getSourceDataType(); // throws exception WfDataException::eVOID_DATA
-    unsigned int
-        getSourceDataCardinal();
     bool
         isDataIDCreator();
     void
@@ -413,8 +400,6 @@ class WfValueAdapter : public WfPortAdapter {
         getSourceDataID();
     WfCst::WfDataType
         getSourceDataType();
-    unsigned int
-        getSourceDataCardinal(); // should not be used
     bool
         isDataIDCreator();
     void
@@ -474,22 +459,24 @@ class WfDataIDAdapter : public WfPortAdapter {
     WfDataIDAdapter(WfCst::WfDataType dataType,
                     unsigned int      dataDepth,
                     const string&     dataID);
-
+    
     /**
-     * The sub-dataID constructor is used when the dataID references a container
-     * and the adapter references an element of this container
-     * @param dataType the type of the data (type of elements if depth>0)
-     * @param dataDepth the depth of the data (>0 if container)
-     * @param elementIdx  the index of the element in the container
-     * @param containerID  the dataID of the parent container
+     * Basic constructor with dataID only
+     * Note: cannot be used for writing data value (requires depth)
+     * TODO modify writeDataValue to avoid using depth
+     * @param dataID the data ID
      */
-    WfDataIDAdapter(WfCst::WfDataType dataType,
-                    unsigned int      dataDepth,
-                    unsigned int      elementIdx,
-                    const string&     containerID);
+    WfDataIDAdapter(const string& dataID);
 
     ~WfDataIDAdapter();
-
+    
+    /**
+     * Event Message types
+     */
+     enum eventMsg_e {
+       ELTIDLIST
+     };
+    
     /**
      * Tags used to delimitate the reference within the 'source' attribute
      * inside a DAG node. As a value adapter may be an element of a multiple
@@ -514,22 +501,25 @@ class WfDataIDAdapter : public WfPortAdapter {
         getSourceDataID();
     WfCst::WfDataType
         getSourceDataType();
-    unsigned int
-        getSourceDataCardinal(); // should not be used
     bool
         isDataIDCreator();
     void
         writeDataValue(WfDataWriter* dataWriter);
     void
         freeAdapterPersistentData(MasterAgent_var& MA);
+	
+    // specific dataID adapter methods
+
+    void
+	getElements(vector<string>& vectID);
+	
+    string
+	getDataID() const;
+
+    string
+	toString() const;
 
   protected:
-
-    /**
-     * Basic constructor with dataID only (used by MADAG for DAG parsing)
-     * @param dataID the data ID
-     */
-    WfDataIDAdapter(const string& dataID);
 
     static void
         getAndWriteData(WfDataWriter* dataWriter,
@@ -540,10 +530,12 @@ class WfDataIDAdapter : public WfPortAdapter {
     string myDataID; //FIXME move to parent class
     WfCst::WfDataType myDataType;
     unsigned int myDepth;
-
-    // the following attributes used only for container element
-    unsigned int myElementIdx;
-    string myContainerID;
+    
+    /**
+     * Cache containing the elements of container data
+     * Used to avoid requesting the dataMgr for the same vectors of elts
+     */
+    static map<string, vector<string> >	myCache;
 
 };
 

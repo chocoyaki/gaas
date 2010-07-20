@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.23  2010/07/20 09:20:11  bisnard
+ * integration with eclipse gui and with dietForwarder
+ *
  * Revision 1.22  2009/10/23 14:01:17  bisnard
  * improved exception handling
  * avoid double instanciation of sinks
@@ -97,14 +100,21 @@
 #include "FActivityNode.hh"
 #include "FIfNode.hh"
 #include "FLoopNode.hh"
+#include "EventTypes.hh"
 
-FWorkflow::FWorkflow(const string& id,
-                     FWorkflow*  parentWf)
-  : FProcNode(parentWf, id) {
+using namespace events;
+
+FWorkflow::FWorkflow(string id, string name): FProcNode(NULL, id), myName(name)
+{
+}
+
+
+FWorkflow::FWorkflow(string id, string name, FWorkflow*  parentWf)
+  : FProcNode(parentWf, id), myName(name)
+{
 }
 
 FWorkflow::~FWorkflow() {
-  TRACE_TEXT (TRACE_ALL_STEPS,"~FWorkflow() " << getId() << " destructor ..." <<  endl);
   // free nodes
   while (! myInterface.empty() ) {
     FNode * p = myInterface.begin()->second;
@@ -116,6 +126,18 @@ FWorkflow::~FWorkflow() {
     myProc.erase( myProc.begin() );
     delete p;
   }
+}
+
+string FWorkflow::getName() const
+{
+  return myName;
+}
+
+FWorkflow* 
+FWorkflow::getRootWorkflow() const
+{
+  if (getWorkflow() == NULL) return const_cast<FWorkflow*>(this);
+  return getWorkflow()->getRootWorkflow();
 }
 
 WfNode *
@@ -269,13 +291,15 @@ FWorkflow::createLoop(const string& id) throw (WfStructException)
 }
 
 FWorkflow*
-FWorkflow::createSubWorkflow(const string& id) throw (WfStructException)
+FWorkflow::createSubWorkflow(const string& id, const string& name) throw (WfStructException)
 {
   try {
     getProcNode(id);
   } catch (WfStructException& e) {
     TRACE_TEXT (TRACE_ALL_STEPS,"Creating sub-workflow node : " << id << endl);
-    FWorkflow* node = new FWorkflow(id, this);
+    FWorkflow* node = new FWorkflow(id, name, this);
+    EventManager::getEventMgr()->sendEvent(
+      new EventCreateObject<FWorkflow,FWorkflow>(node, this) );
     myProc[id] = node;
     return node;
   }
@@ -456,6 +480,11 @@ FWorkflow::initialize() {
       ++iter) {
     ((FProcNode*) iter->second)->initialize();
   }
+}
+
+string
+FWorkflow::toString() const {
+  return "WORKFLOW " + getId();
 }
 
 /**
@@ -790,7 +819,7 @@ FWorkflow::handlerDagNodeDone(DagNode* dagNode) {
     pendingDagNodeInfo_t info = (pendingDagNodeInfo_t) (pendingIter++)->second;
     TRACE_TEXT (TRACE_ALL_STEPS, traceId() << " ## RETRY DATA SUBMISSION FOR INSTANCE : "
                                 << dagNode->getId() << endl);
-
+    
     try {
       // update the data ID
       info.dataHdl->downloadDataID();

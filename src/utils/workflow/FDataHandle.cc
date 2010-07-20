@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.20  2010/07/20 09:20:11  bisnard
+ * integration with eclipse gui and with dietForwarder
+ *
  * Revision 1.19  2010/07/12 16:14:13  glemahec
  * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
  *
@@ -84,7 +87,6 @@
 #include "FDataHandle.hh"
 #include "DagNode.hh"
 #include "Dag.hh"
-
 
 /*****************************************************************************/
 /*                            FDataTag class                                 */
@@ -416,12 +418,7 @@ FDataHandle::FDataHandle(const FDataTag& tag,
         setCardinal(1); // by default a VOID container DH has 1 element
 
     } else if (parentHdl->myAdapterType == ADAPTER_DATAID) {
-      myAdapterType = ADAPTER_DATAID_ELT;
-
-    } else if (parentHdl->myAdapterType == ADAPTER_DATAID_ELT) {
-      // this case is not used because dataID elements are resolved (ie their
-      // data ID is retrieved) just after creation
-      INTERNAL_ERROR(__FUNCTION__ << "invalid case: child of DATAID_ELT DH",1);
+      INTERNAL_ERROR(__FUNCTION__ << "invalid DH constructor params: child of DATAID DH",1);
     }
   } else {
     // TRACE_TEXT (TRACE_ALL_STEPS, " / adapter = UNDEF" << endl);
@@ -437,6 +434,22 @@ FDataHandle::FDataHandle(const FDataTag& tag,
     myCompletionDepth(0), cardDef(true), valueDef(true), dataIDOwner(false) {
 //   TRACE_TEXT (TRACE_ALL_STEPS, "Creating data handle : tag = " << myTag.toString()
 //        << " / value=" << value << " / adapter = VALUE " << endl);
+}
+
+FDataHandle::FDataHandle(const FDataTag&   tag,
+			 WfCst::WfDataType dataType,
+			 unsigned int      dataDepth,
+			 const string&	   dataId,
+			 bool 		   isOwner)
+  : myTag(tag), myParentHdl(NULL), myPort(NULL), myPortElementIndexes(NULL),
+    myAdapterType(ADAPTER_DATAID), myValue(), myValueType(dataType),
+    myDataID(dataId), myDepth(dataDepth),  myCard(0), myCardList(NULL),
+    myCompletionDepth(0), cardDef(false), valueDef(false), dataIDOwner(isOwner)
+{
+   TRACE_TEXT (TRACE_ALL_STEPS, "Creating data handle : tag = " << myTag.toString()
+       << " / dataID = " << dataId << " / owner = " << isOwner << endl);
+   if (myDepth > 0)
+     myData = new map<FDataTag,FDataHandle*>();
 }
 
 FDataHandle::FDataHandle(const FDataTag& tag,
@@ -556,6 +569,11 @@ FDataHandle::getTag() const {
   return myTag;
 }
 
+string
+FDataHandle::toString() const {
+  return "Data Handle";
+}
+
 //private
 void
 FDataHandle::setCardinal(unsigned int card) {
@@ -612,10 +630,18 @@ FDataHandle::getParent() const {
   return myParentHdl;
 }
 
+bool
+FDataHandle::isSourcePortDefined() const {
+  return (myAdapterType != ADAPTER_MULTIPLE) && 
+    ((myPort != NULL) || ((myParentHdl != NULL) && (myParentHdl->isSourcePortDefined())));
+}
+
 DagNodeOutPort*
 FDataHandle::getSourcePort() const throw (WfDataHandleException) {
   if (myPort != NULL)
     return myPort;
+//   else if ((myParentHdl != NULL) && (myParentHdl->isSourcePortDefined()))
+//     return myParentHdl->getSourcePort();
   else
     throw WfDataHandleException(WfDataHandleException::eINVALID_ADAPT,
                                 "Cannot get source port - tag="
@@ -648,7 +674,7 @@ FDataHandle::setAsVoid() {
 
 bool
 FDataHandle::isAdapterDefined() const {
-  return (myAdapterType != ADAPTER_UNDEFINED);
+  return ((myAdapterType != ADAPTER_UNDEFINED) && (myAdapterType != ADAPTER_DELETED));
 }
 
 /**
@@ -732,10 +758,11 @@ FDataHandle::isLastChild() const {
  * Check on all childs if adapter is defined
  * Updates the adapter if all its childs have a defined adapter
  * Updates the completion depth at the same time
- * IMPORTANT: ONLY METHOD THAT CHANGES myAdapterType after construction
  */
 void
 FDataHandle::updateAncestors() {
+//   TRACE_TEXT(TRACE_ALL_STEPS,"Update ancestors for " << getTag().toString() << "(size=" << myData->size() 
+// 	      << " / cardinal=" << (isCardinalDefined() ? getCardinal() : 0) << ")" << endl);
   if (!isCardinalDefined() || (myData->size() != myCard)) {
     return;
   }
@@ -868,7 +895,7 @@ FDataHandle::updateTreeCardinalRec(bool isLast, bool parentTagMod) {
 
 /** RECURSIVE **/
 void
-FDataHandle::uploadTreeData(MasterAgent_var& MA) {
+FDataHandle::uploadTreeData(MasterAgent_var& MA) throw (WfDataHandleException) {
   // check childs
   if ((myDepth > 0) && (myData->size() > 0)) {
     for (map<FDataTag,FDataHandle*>::iterator childIter = myData->begin();
@@ -883,13 +910,17 @@ FDataHandle::uploadTreeData(MasterAgent_var& MA) {
 		Dagda_var dataManager = ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT, MA->getDataManager());
     if (! dataManager->pfmIsDataPresent(myDataID.c_str())) {
       if (isValueDefined()) {
+	// data ID is obsolete so try to recreate one using value
         myAdapterType = ADAPTER_VALUE;
         downloadDataID();
       } else {
-        myAdapterType = ADAPTER_UNDEFINED;
+	string errorMsg = "Missing value and invalid data ID (tag=" + getTag().toString() + ")";
+        throw WfDataHandleException(WfDataHandleException::eVALUE_UNDEF, errorMsg);
       }
     }
   } else if (isValueDefined()) {
+    // create a copy of the data on the platform using the value
+    // will change the adapterType to ADAPTER_DATAID
     downloadDataID();
   }
 }
@@ -901,12 +932,34 @@ FDataHandle::begin() throw (WfDataHandleException) {
     throw WfDataHandleException(WfDataHandleException::eBAD_STRUCT,
                           "Tried to get elements of non-container data handle");
   }
+  // if the dataID is known then the first call to begin will
+  // create the childs automatically with their dataID set
+  vector<string>* childIDVect = NULL;
+  if (isDataIDDefined() && (myData->size() == 0)) {
+    WfDataIDAdapter* adapterID = dynamic_cast<WfDataIDAdapter*>(createPortAdapter());
+    childIDVect = new vector<string>();
+    // retrieve the child IDs using the ID adapter
+    try {
+      adapterID->getElements(*childIDVect);
+    } catch(WfDataException& e) {
+      delete childIDVect;
+      throw WfDataHandleException(WfDataHandleException::eBAD_STRUCT,
+				  "Cannot retrieve element IDs : " + e.ErrorMsg());
+    }
+    if (!isCardinalDefined()) setCardinal(childIDVect->size());
+  }
   // if the cardinal is defined then the first call to begin will
   // create the childs automatically
   if (isCardinalDefined() && (myData->size() == 0)) {
     for (unsigned int ix=0; ix < myCard; ++ix) {
       FDataTag  childTag(getTag(),ix, (ix == myCard-1));
-      FDataHandle* childHdl = new FDataHandle(childTag, myDepth-1, this);
+      // Create new data handle
+      FDataHandle* childHdl;
+      if (childIDVect)
+	childHdl = new FDataHandle(childTag, myValueType, myDepth-1, (*childIDVect)[ix], true);
+      else
+	childHdl = new FDataHandle(childTag, myDepth-1, this);
+      // Insert the data handle as child of this one
       this->addChild(childHdl);
       // set the cardinal list (static cardinal info) for childs
       if ((myCardList) && (myCardList->size() > 1)) {
@@ -915,6 +968,7 @@ FDataHandle::begin() throw (WfDataHandleException) {
         childHdl->setCardinalList(cardListStart, cardListEnd);
       }
     }
+    if (childIDVect) delete childIDVect;
   }
   return myData->begin();
 }
@@ -938,12 +992,6 @@ FDataHandle::createPortAdapter(const string& currDagName) {
       myAdapter = new WfDataIDAdapter(getValueType(),
                                       getDepth(),
                                       getDataID());
-
-  } else if (myAdapterType == ADAPTER_DATAID_ELT) {
-      myAdapter = new WfDataIDAdapter(getValueType(),
-                                      getDepth(),
-                                      myTag.getLastIndex(),
-                                      getParent()->getDataID());
 
   } else if (myAdapterType == ADAPTER_VALUE) {
       myAdapter = new WfValueAdapter(getValueType(),
@@ -1056,7 +1104,7 @@ FDataHandle::writeValue(WfDataWriter *dataWriter) {
  * Get the value (in XML format) and store it in myValue
  */
 void
-FDataHandle::downloadValue() {
+FDataHandle::downloadValue() throw (WfDataHandleException) {
   if (isValueDefined()) return;
 //   TRACE_TEXT (TRACE_ALL_STEPS,"Retrieving value of data..." << endl);
   ostringstream  valStr;
@@ -1077,6 +1125,8 @@ FDataHandle::downloadValue() {
     string errorMsg = "Cannot get data (" + e.ErrorMsg() + ")";
     delete dataWriter;
     throw WfDataHandleException(WfDataHandleException::eVALUE_UNDEF, errorMsg);
+  } catch (...) {
+    WARNING("Uncaught exception in FDataHandle::downloadValue()");
   }
   myValue = valStr.str();	//FIXME use setValue
   valueDef = true;
@@ -1085,7 +1135,7 @@ FDataHandle::downloadValue() {
 }
 
 void
-FDataHandle::downloadDataID() {
+FDataHandle::downloadDataID() throw (WfDataHandleException, WfDataException) {
   if (isDataIDDefined()) return;
   if (isAdapterDefined()) {
     // Create an adapter
@@ -1097,10 +1147,11 @@ FDataHandle::downloadDataID() {
       if (e.Type() == WfDataException::eVOID_DATA)
         setAsVoid();
       else {
-        delete adapter;
-        throw WfDataHandleException(WfDataHandleException::eINVALID_ADAPT,
-                                    "Cannot download data ID : " + e.ErrorMsg());
+	delete adapter;
+        throw;
       }
+    } catch (...) {
+      WARNING("Uncaught exception in FDataHandle::downloadDataID()");
     }
     // Check ownership of dataID
     if (adapter->isDataIDCreator())
@@ -1115,7 +1166,7 @@ FDataHandle::downloadTreeData() {
     try {
       downloadDataID();
       downloadValue();
-    } catch (WfDataHandleException& e) {
+    } catch (WfDataException& e) {
       WARNING("Data Error (" << e.ErrorMsg() << ")" << endl);
     }
   } else {
@@ -1126,9 +1177,10 @@ FDataHandle::downloadTreeData() {
     }
     try {
       downloadDataID();
-    } catch (WfDataHandleException& e) {
+    } catch (WfDataException& e) {
       WARNING("Data Error (" << e.ErrorMsg() << ")" << endl);
     }
+    downloadDataID();
   }
 }
 
@@ -1140,25 +1192,14 @@ FDataHandle::downloadCardinal() {
                                 "Cannot get cardinal of 0-depth data - tag="
                                 + myTag.toString());
   }
-  if (isAdapterDefined()) {
-    WfPortAdapter *adapter = createPortAdapter();
-    setCardinal(adapter->getSourceDataCardinal());
-    delete adapter;
+  downloadDataID();
+  if (isDataIDDefined()) {
+    // will create childs and get the cardinal at the same time
+    begin();
   } else {
     throw WfDataHandleException(WfDataHandleException::eINVALID_ADAPT,
                                 "Cannot get cardinal due to invalid adapter - tag="
                                 + myTag.toString());
-  }
-}
-
-void
-FDataHandle::downloadElementDataIDs() {
-  downloadDataID();
-  downloadCardinal();
-  for (map<FDataTag,FDataHandle*>::iterator childIter = this->begin();
-       childIter != this->end();
-       ++childIter) {
-    ((FDataHandle*)childIter->second)->downloadDataID();
   }
 }
 
@@ -1185,11 +1226,9 @@ FDataHandle::freePersistentDataRec(MasterAgent_var& MA) {
     if (MA->diet_free_pdata(dataId)==0) {
       WARNING("Could not delete persistent data: " << dataId << endl);
     }
-    myAdapterType = ADAPTER_UNDEFINED;  // avoid warning in case of double call
+    myAdapterType = ADAPTER_DELETED;  // avoid warning in case of double call
   }
   if (myDepth > 0) {
-    if (isDataIDDefined())
-      downloadElementDataIDs();
     for (map<FDataTag,FDataHandle*>::iterator childIter = this->begin();
          childIter != this->end();
          ++childIter) {

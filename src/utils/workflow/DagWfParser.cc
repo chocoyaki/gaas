@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.41  2010/07/20 09:20:11  bisnard
+ * integration with eclipse gui and with dietForwarder
+ *
  * Revision 1.40  2010/07/12 16:14:13  glemahec
  * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
  *
@@ -167,6 +170,7 @@
 #include "FIfNode.hh"
 #include "FLoopNode.hh"
 #include "FDataHandle.hh"
+#include "EventTypes.hh"
 
 #ifndef XTOC
 #define XTOC(x) XMLString::transcode(x) // Use iff x is a XMLCh *
@@ -175,6 +179,7 @@
 #endif
 
 using namespace std;
+using namespace events;
 
 /**
  * XML Parsing errors description
@@ -671,11 +676,11 @@ SingleDagParser::parseRoot(DOMNode* root) {
 /*****************************************************************************/
 
 MultiDagParser::MultiDagParser()
-  : DagParser() {
+  : DagParser(), myWorkflow(NULL) {
 }
 
 MultiDagParser::MultiDagParser( const string& xmlFileName )
-  : DagParser(xmlFileName) {
+  : DagParser(xmlFileName), myWorkflow(NULL) {
 }
 
 MultiDagParser::~MultiDagParser() {
@@ -685,6 +690,11 @@ MultiDagParser::~MultiDagParser() {
 list<Dag*>&
 MultiDagParser::getDags() {
   return myDags;
+}
+
+void 
+MultiDagParser::setWorkflow(FWorkflow* wf) {
+  myWorkflow = wf;
 }
 
 void
@@ -697,6 +707,7 @@ MultiDagParser::parseRoot(DOMNode* root) {
   }
   XREL(_rootNodeName);
   DOMNode * child = root->getFirstChild();
+  int dagCounter = 0;
   while ((child != NULL)) {
     // Parse all the <dag> elements
     if (child->getNodeType() == DOMNode::ELEMENT_NODE) {
@@ -710,10 +721,17 @@ MultiDagParser::parseRoot(DOMNode* root) {
                                   "A MultiDag should only contain <dag> elements");
       }
       XREL(_childName);
-      Dag * currDag = new Dag();
+      string suffix = "." + itoa(dagCounter);
+      Dag * currDag = new Dag(myXmlFileName + suffix);
+      if (myWorkflow) {
+	currDag->setWorkflow(myWorkflow);
+	EventManager::getEventMgr()->sendEvent(
+	  new EventCreateObject<Dag,FWorkflow>(currDag, myWorkflow) );
+      }
       myDags.push_back(currDag);
       this->setCurrentDag(*currDag);
       this->parseOneDag(child);
+      dagCounter++;
     }
     child = child->getNextSibling();
   }
@@ -890,19 +908,18 @@ FWfParser::createNode(const DOMElement* element, const string& elementName) {
     node = workflow.createLoop(name);
 
   } else if (elementName == "subWorkflow") {
-    FWorkflow*  subWf = workflow.createSubWorkflow(name);
     // initialize workflow from XML file defined in the <include> tag
     checkMandatoryAttr(elementName,"class",nclass);
     map<string,string>::iterator classIter = myClassFiles.find(nclass);
     if (classIter == myClassFiles.end())
       throw XMLParsingException(XMLParsingException::eINVALID_REF,
                               "Unknown workflow class (missing include) : " + nclass);
-    // Parse the workflow XML
+    // Create sub-workflow and parse the workflow XML
     string xmlWfFileName = (string) classIter->second;
-    TRACE_TEXT (TRACE_ALL_STEPS, "Parsing SUB-WORKFLOW '" << name << "' XML" << endl);
-    FWfParser reader(*subWf, xmlWfFileName);
+    FWorkflow* 	subWf = workflow.createSubWorkflow(name, nclass);
+    FWfParser 	reader(*subWf, xmlWfFileName);
     reader.parseXml(true);
-    // Set the data file for the sub-wf
+    // Use the same data file as parent workflow
     subWf->setDataSrcXmlFile(workflow.getDataSrcXmlFile());
 
     node = (WfNode*) subWf;

@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.20  2010/07/20 09:20:11  bisnard
+ * integration with eclipse gui and with dietForwarder
+ *
  * Revision 1.19  2009/09/25 12:39:18  bisnard
  * modified includes to reduce inter-dependencies
  *
@@ -101,14 +104,37 @@ public:
   /* constructors/destructor                         */
   /***************************************************/
 
-  FWorkflow(const string& id,
-            FWorkflow*  parentWf = NULL);
+  /**
+   * Constructor of toplevel workflow (no parent)
+   * @param id	  workflow identifier
+   * @param name  name of the workflow (only descriptive)
+   */
+  FWorkflow(string id, string name);
+  
+  /**
+   * Constructor of sub-workflow (child of another workflow)
+   * @param id	      a unique identifier (among all parent wf processors)
+   * @param parentWf  ref to the parent wf
+   */
+  FWorkflow(string id, string name, FWorkflow* parentWf);
 
   /**
    * FWorkflow destructor
    * Note: it does not delete the instantiated dags (use deleteAllDags)
    */
   virtual ~FWorkflow();
+  
+  /***************************************************/
+  /* event message types                             */
+  /***************************************************/
+  
+  enum eventMsg_e {
+    INST,
+    INSTDONE,
+    INSTERROR,
+    COMPLETED,
+    CANCELLED
+  };
 
   /***************************************************/
   /*            NodeSet methods                      */
@@ -151,6 +177,14 @@ public:
   /***************************************************/
   /*               public methods                    */
   /***************************************************/
+  string
+  getName() const;
+  
+  virtual string
+  toString() const;
+  
+  virtual FWorkflow*
+  getRootWorkflow() const;
 
   void
   setDataSrcXmlFile(const string& dataFileName);
@@ -179,7 +213,7 @@ public:
   createLoop(const string& id) throw (WfStructException);
 
   FWorkflow*
-  createSubWorkflow(const string& id) throw (WfStructException);
+  createSubWorkflow(const string& id, const string& name) throw (WfStructException);
 
   FSourceNode*
   createSource(const string& id, WfCst::WfDataType type) throw (WfStructException);
@@ -312,6 +346,12 @@ public:
 
 
 private:
+  
+  /**
+   * Workflow Name
+   * (descriptive)
+   */
+  string myName;
 
   /**
    * Workflow nodes for the interface (sources, sinks, constants)

@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.29  2010/07/20 09:20:11  bisnard
+ * integration with eclipse gui and with dietForwarder
+ *
  * Revision 1.28  2010/03/31 21:15:41  bdepardo
  * Changed C headers into C++ headers
  *
@@ -147,13 +150,16 @@ public:
 
   /**
    * Dag constructor WITHOUT DAG execution agent
+   * @param id	required non-empty identifier
    */
-  Dag();
+  Dag(string id);
 
   /**
    * Dag constructor WITH DAG execution agent (DIET MasterAgent)
+   * @param id  required non-empty identifier
+   * @param MA	master agent (DIET platform MA used for dag execution)
    */
-  Dag(MasterAgent_var& MA);
+  Dag(string id, MasterAgent_var& MA);
 
   /**
    * Dag destructor
@@ -180,6 +186,16 @@ public:
    */
   virtual void
   checkPrec(NodeSet* contextNodeSet) throw (WfStructException);
+  
+  /***************************************************/
+  /* event message types                             */
+  /***************************************************/
+  
+  enum eventMsg_e {
+    MODID,
+    EMPTY,
+    STATE
+  };
 
   /***************************************************/
   /*               public methods                    */
@@ -195,7 +211,7 @@ public:
    * Get the dag id
    */
   const string&
-  getId();
+  getId() const;
 
   /**
    * Set the functional wf that created this dag
@@ -207,7 +223,7 @@ public:
    * Get the functional wf
    */
   FWorkflow *
-  getWorkflow();
+  getWorkflow() const throw (WfStructException);
 
   /**
    * Set the execution agent
@@ -263,6 +279,12 @@ public:
    */
   map <string, DagNode *>::iterator
   end();
+  
+  /**
+   * Returns a string description of the dag
+   */
+  string
+  toString() const;
 
   /**
    * returns the XML description of the dag

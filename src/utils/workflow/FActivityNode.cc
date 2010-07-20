@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2010/07/20 09:20:11  bisnard
+ * integration with eclipse gui and with dietForwarder
+ *
  * Revision 1.8  2009/10/02 07:43:51  bisnard
  * modified trace verbosity
  *
@@ -135,8 +138,9 @@ FActivityNode::createRealInstance(Dag* dag,
 
 	FDataHandle* dataHdl = new FDataHandle( currTag,
 						FPort->getBaseDataType(),
-						FPort->getDepth() );
-	dataHdl->setDataID( DPort->getDataID() );	//TODO manage exceptions
+						FPort->getDepth(),
+						DPort->getDataID() );
+
 	TRACE_TEXT (TRACE_ALL_STEPS,"Port " << DPort->getId() << " data ID = "
 				    << dataHdl->getDataID() << endl);
 
@@ -163,30 +167,46 @@ FActivityNode::createRealInstance(Dag* dag,
 	portIter != ports.end();
 	++portIter) {
       WfPort* port = (WfPort*) portIter->second;
-      FNodeInPort* inPort;
-      FNodeOutPort* outPort;
-      FDataHandle* dataHdl;
       switch(port->getPortType()) {
 	case WfPort::PORT_IN:
-	  inPort = dynamic_cast<FNodeInPort*>(port);
+	{
+	  FNodeInPort* inPort = dynamic_cast<FNodeInPort*>(port);
 	  // get the input data handle from the map (if not found set as NULL)
-	  dataHdl = currDataLine[inPort->getIndex()];
+	  FDataHandle* dataHdl = currDataLine[inPort->getIndex()];
 	  if (dataHdl == NULL) {
 	    INTERNAL_ERROR("FActivityNode: Input data handle is invalid",1);
 	  }
 	  // instanciate port with data handle
 	  inPort->createRealInstance(dag, dagNode, dataHdl);
 	  break;
+	}
 	case WfPort::PORT_OUT:
-	  outPort = dynamic_cast<FNodeOutPort*>(port);
+	{
+	  FNodeOutPort* outPort = dynamic_cast<FNodeOutPort*>(port);
 	  // instanciate port with dagNode and tag
-	  dataHdl = outPort->createRealInstance(dag, dagNode, currTag);
+	  FDataHandle* dataHdl = outPort->createRealInstance(dag, dagNode, currTag);
 	  if (dataHdl == NULL) {
 	    INTERNAL_ERROR("FActivityNode: Output data handle is invalid",1);
 	  }
 	  outPort->storeData(dataHdl);
 	  outPort->sendData(dataHdl);
 	  break;
+	}
+	case WfPort::PORT_INOUT:
+	{
+	  FNodeInOutPort* inOutPort = dynamic_cast<FNodeInOutPort*>(port);
+	  FDataHandle* inDataHdl = currDataLine[inOutPort->getIndex()];
+	  if (inDataHdl == NULL) {
+	    INTERNAL_ERROR("FActivityNode: Input data handle is invalid",1);
+	  }
+	  FDataHandle* outDataHdl = inOutPort->createRealInstance(dag, dagNode, currTag, inDataHdl);
+	  if (outDataHdl == NULL) {
+	    INTERNAL_ERROR("FActivityNode: Output data handle is invalid",1);
+	  }
+	  inOutPort->storeData(outDataHdl);
+	  inOutPort->sendData(outDataHdl);
+	  break;
+	}
 	default:
 	  INTERNAL_ERROR("Invalid port type for FActivityNode",1);
       }

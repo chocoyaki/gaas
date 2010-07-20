@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.26  2010/07/20 09:20:11  bisnard
+ * integration with eclipse gui and with dietForwarder
+ *
  * Revision 1.25  2010/03/08 13:50:48  bisnard
  * handle node ready event (for logging)
  *
@@ -95,6 +98,9 @@
 #include "Dag.hh"
 #include "DagNode.hh"
 #include "DagNodePort.hh"
+#include "EventTypes.hh"
+
+using namespace events;
 
 /****************************************************************************/
 /*                                                                          */
@@ -107,6 +113,8 @@ WfDataException::ErrorMsg() const {
   switch(Type()) {
     case eNOTFOUND:
       errorMsg = "Data not found (" + Info() + ")"; break;
+    case eNOTAVAIL:
+      errorMsg = "Data not available (" + Info() + ")"; break;
     case eWRONGTYPE:
       errorMsg = "Wrong data type (" + Info() + ")"; break;
     case eINVALID_CONTAINER:
@@ -115,6 +123,8 @@ WfDataException::ErrorMsg() const {
       errorMsg = "Undefined data ID (" + Info() + ")"; break;
     case eINVALID_VALUE:
       errorMsg = "Invalid init value (" + Info() + ")"; break;
+    case eREADFILERROR:
+      errorMsg = "Cannot read file (" + Info() + ")"; break;
     case eVOID_DATA:
       errorMsg = "Void data (" + Info() + ")"; break;
   }
@@ -133,6 +143,9 @@ WfDataException::ErrorMsg() const {
 
 DagNode::DagNode(const string& id, Dag *dag, FWorkflow* wf)
   : WfNode(id), myDag(dag), myWf(wf), isStarted(false), isTerminated(false) {
+  if (id.empty()) {
+    WARNING("Creating dagNode with empty id - may cause errors");
+  }
   this->prevNodesTodoCount = 0;
   this->task_done = false;
   this->profile = NULL;
@@ -257,7 +270,7 @@ DagNode::setDag(Dag *dag) {
 }
 
 Dag *
-DagNode::getDag() {
+DagNode::getDag() const {
   if (this->myDag != NULL)
     return this->myDag;
   else {
@@ -266,7 +279,7 @@ DagNode::getDag() {
 }
 
 FWorkflow *
-DagNode::getWorkflow() {
+DagNode::getWorkflow() const {
   return myWf;
 }
 
@@ -276,7 +289,7 @@ DagNode::setPbName(const string& pbName) {
 }
 
 const string&
-DagNode::getPbName() {
+DagNode::getPbName() const {
   return this->myPb;
 }
 
@@ -302,8 +315,13 @@ void
 DagNode::addNodePredecessor(WfNode * node, const string& fullNodeId) {
   // check if predecessor is not already done
   DagNode *predNode = dynamic_cast<DagNode*>(node);
-  if ((predNode == NULL) || !predNode->isDone())
+  if (predNode == NULL) {
+    INTERNAL_ERROR(__FUNCTION__ << " : Invalid predecessor node type or null ptr", 0);
+  }
+  // predecessor is added only if not already finished
+  if (!predNode->isDone()) {
     addPrevId(fullNodeId);
+  }
 }
 
 /**
@@ -325,7 +343,7 @@ DagNode::newPort(string portId, unsigned int ind,
                  unsigned int depth) throw (WfStructException) {
   if (isPortDefined(portId))
     throw WfStructException(WfStructException::eDUPLICATE_PORT,"port id="+portId);
-  WfPort * p = NULL;
+  DagNodePort * p = NULL;
   switch (portType) {
     case WfPort::PORT_IN:
       p = new DagNodeInPort(this, portId, dataType, depth, ind);
@@ -343,7 +361,14 @@ DagNode::newPort(string portId, unsigned int ind,
       INTERNAL_ERROR("Invalid port type for DagNode",1);
   }
   this->ports[portId] = p;
-  return p;
+  EventManager::getEventMgr()->sendEvent(
+    new EventCreateObject<DagNodePort,DagNode>(p, this) );
+  return (WfPort*) p;
+}
+
+string
+DagNode::toString() const {
+  return "DAG_NODE " + getId();
 }
 
 void

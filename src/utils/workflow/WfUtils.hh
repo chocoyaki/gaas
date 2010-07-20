@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2010/07/20 09:20:11  bisnard
+ * integration with eclipse gui and with dietForwarder
+ *
  * Revision 1.15  2010/03/15 14:00:09  bdepardo
  * C++ includes instead of C includes
  *
@@ -98,6 +101,7 @@ class WfStructException {
                              eTYPE_MISMATCH,
                              eDEPTH_MISMATCH,
                              eINVALID_EXPR,
+			     eWF_UNDEF,
                              eOTHER };
     WfStructException(WfStructErrorType t, const std::string& info)
       { this->why = t; this->info = info; }
