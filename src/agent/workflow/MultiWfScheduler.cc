@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.55  2010/07/20 16:41:30  bdepardo
+ * Changed the initialization order of the attributes in
+ * MultiWfScheduler::MultiWfScheduler to remove warnings.
+ * Handle MULTIWF_NO_METRIC in a switch in run() to remove a warning.
+ *
  * Revision 1.54  2010/07/20 08:59:36  bisnard
  * Added event generation
  *
@@ -237,8 +242,8 @@ using namespace events;
 /****************************************************************************/
 
 MultiWfScheduler::MultiWfScheduler(MaDag_impl* maDag, nodePolicy_t nodePol)
-  : mySem(0), myMaDag(maDag), nodePolicy(nodePol), interRoundDelay(100),
-    platformType(PFM_ANY) {
+  : nodePolicy(nodePol), platformType(PFM_ANY), mySem(0), interRoundDelay(100), 
+    myMaDag(maDag) {
   this->mySched   = new HEFTScheduler();
   this->execQueue = NULL; // must be initialized in derived class constructor
   gettimeofday(&this->refTime, NULL); // init reference time
@@ -382,12 +387,14 @@ MultiWfScheduler::run() {
   char statMsg[64];
 
   switch (this->nodePolicy) {
-    case MULTIWF_NODE_METRIC:
-      nodePolicyCount = -1;   // ie no limit (take all ready nodes)
-      break;
-    case MULTIWF_DAG_METRIC:
-      nodePolicyCount = 1;    // ie take only 1 ready node
-      break;
+  case MULTIWF_NODE_METRIC:
+    nodePolicyCount = -1;   // ie no limit (take all ready nodes)
+    break;
+  case MULTIWF_DAG_METRIC:
+    nodePolicyCount = 1;    // ie take only 1 ready node
+    break;
+  case MULTIWF_NO_METRIC:
+    break;
   }
 
   TRACE_TEXT(TRACE_ALL_STEPS,"Multi-Workflow scheduler is running" << endl);
