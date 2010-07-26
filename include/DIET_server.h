@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.51  2010/07/26 17:33:19  bdepardo
+ * Add ifdefs for CORI
+ *
  * Revision 1.50  2010/07/12 16:17:51  glemahec
  * DIET 2.5 beta 1 - Introduce DIET forwarders
  *
@@ -584,6 +587,8 @@ double diet_est_array_get_system(estVectorConst_t ev,
 int diet_est_array_defined(estVectorConst_t ev, int userTag, int idx);
 int diet_est_array_defined_system(estVectorConst_t ev, int systemTag, int idx);
 
+#ifdef HAVE_CORI
+
 #ifdef HAVE_ALT_BATCH
 /* These two functions shall be removed and a better mechanism found
    for example vhen and if CoRI is rewritten. Or clients using CoRI must
@@ -607,7 +612,12 @@ int diet_estimate_cori_add_collector(diet_est_collect_tag_t collector_type,
 
 void diet_estimate_coriEasy_print();
 
+#else // HAVE_CORI
+
 int diet_estimate_fast(estVector_t ev, const diet_profile_t* const profilePtr);
+
+#endif //HAVE_CORI
+
 
 int diet_estimate_lastexec(estVector_t ev,
                            const diet_profile_t* const profilePtr);
