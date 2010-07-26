@@ -14,8 +14,7 @@ IF( DIET_BUILD_LIBRARIES )
 # 	 EventObserver.cc
 	 EventManager.cc )
 
-  ADD_LIBRARY( UtilsEvents ${UtilsEventsSource})
+  ADD_LIBRARY( UtilsEvents STATIC ${UtilsEventsSource})
 
-  INSTALL( TARGETS UtilsEvents DESTINATION lib )
 
 ENDIF( DIET_BUILD_LIBRARIES )
