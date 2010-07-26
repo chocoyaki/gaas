@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.41  2010/07/26 00:05:20  bdepardo
+ * Removed multiple declarations of diet_probe_or()
+ *
  * Revision 1.40  2010/07/12 16:17:51  glemahec
  * DIET 2.5 beta 1 - Introduce DIET forwarders
  *
@@ -278,15 +281,8 @@ diet_error_string(diet_error_t error);
  */
 diet_error_t
 diet_get_failed_session(diet_reqID_t* reqIdPtr);
-/*
- * check if one of the requests contained in the array id reqIdArray has
- * completed.
- * Return the completed request ID if exist. Otherwise return an error code
- */
-diet_error_t
-diet_probe_or(diet_reqID_t* reqIdArray,
-	      size_t length,
-	      diet_reqID_t* reqIdPtr);
+
+
 /****************************************************************************/
 /*    get available Services in the DIET Platform                           */
 /****************************************************************************/
