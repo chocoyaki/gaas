@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2010/07/26 14:27:49  bisnard
+ * fixed bug with undefined sed ref
+ *
  * Revision 1.5  2010/07/20 09:22:33  bisnard
  * changes for dietForwarder
  *
@@ -65,7 +68,11 @@ CltDagNodeLauncher::execNode()
 
   // diet call
   try {
-		SeD_var sed = ORBMgr::getMgr()->resolve<SeD, SeD_var>(SEDCTXT, myChosenServer);
+		SeD_var sed;
+		if (myChosenServer == NULL)
+			sed = SeD::_nil();
+		else 
+			sed = ORBMgr::getMgr()->resolve<SeD, SeD_var>(SEDCTXT, myChosenServer);
 
     if (!diet_call_common(myNode->getDag()->getExecutionAgent(),
                           myNode->getProfile(),
