@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.146  2010/07/27 10:24:33  glemahec
+ * Improve robustness & general performance
+ *
  * Revision 1.145  2010/07/20 09:36:40  glemahec
  * Move "include WfLogservice.hh" inside "ifdef HAVE_WORKFLOW" directive
  *
@@ -349,6 +352,7 @@ using namespace std;
 #include <cstdio>
 #include <cstring>
 #include <cmath>
+#include <csignal>
 #include <algorithm>
 #include <sstream>
 
@@ -769,8 +773,18 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
     MAX_SERVERS = *(unsigned long *)(value);
     TRACE_TEXT (TRACE_MAIN_STEPS,"Max number of SeD allowed = " << MAX_SERVERS << endl);
   }
+	/* Catch signals to try to exit cleanly. */
+	signal(SIGABRT, diet_finalize_sig);
+	signal(SIGTERM, diet_finalize_sig);
 
   return 0;
+}
+
+/* DIET finalize call through signal catch function. */
+void diet_finalize_sig(int dummy) {
+	(void) dummy;
+	int status = static_cast<int>(diet_finalize());
+	exit(status);
 }
 
 diet_error_t

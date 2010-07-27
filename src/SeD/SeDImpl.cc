@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.121  2010/07/27 10:24:33  glemahec
+ * Improve robustness & general performance
+ *
  * Revision 1.120  2010/07/14 23:45:47  bdepardo
  * Warning correction
  *
@@ -452,7 +455,7 @@ SeDImpl::bindParent(const char * parentName) {
 
   /* Does the new parent exists? */
   Agent_var parentTmp =
-	ORBMgr::getMgr()->resolve<Agent,Agent_var>(AGENTCTXT, parentName);
+		ORBMgr::getMgr()->resolve<Agent,Agent_var>(AGENTCTXT, parentName);
 	
   /*  Agent::_duplicate(Agent::_narrow(ORBMgr::getObjReference(ORBMgr::AGENT,
 							     parentName)));*/
@@ -658,11 +661,14 @@ SeDImpl::run(ServiceTable* services)
   if (! CORBA::is_nil(parent)) {
 #endif // HAVE_DYNAMICS
   try {
+		cout << "parent->serverSubscribe(" << this->myName << ", " << localHostName
+		<< ", *profiles)" << endl;
     childID = parent->serverSubscribe(this->myName, localHostName,
 #if HAVE_JXTA
                                       uuid,
 #endif //HAVE_JXTA
                                       *profiles);
+		cout << "subscribe !" << endl;
   } catch (CORBA::Exception& e) {
     CORBA::Any tmp;
     tmp <<= e;

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.28  2010/07/27 10:24:32  glemahec
+ * Improve robustness & general performance
+ *
  * Revision 1.27  2010/07/14 23:45:30  bdepardo
  * Header corrections
  *
@@ -155,6 +158,7 @@ void ORBMgr::unbind(const string& ctxt, const string& name) {
   cosName[0].id = name.c_str();
   cosName[0].kind = "";
   try {
+		removeObjectFromCache(ctxt, name);
     context->unbind(cosName);
   } catch (CosNaming::NamingContext::NotFound& err) {
     throw runtime_error("Object "+name+" not found in " + ctxt +" context");
@@ -174,8 +178,8 @@ void ORBMgr::fwdsBind(const string& ctxt, const string& name,
 		try {
 			fwd->bind(objName.c_str(), ior.c_str());
 		} catch (const CORBA::TRANSIENT& err) {
-			cerr << "Unable to contact DIET forwarder " << *it << endl;
 			continue;
+		} catch (BadNameException& err) {
 		}
 	}
 }
@@ -216,11 +220,38 @@ CORBA::Object_ptr ORBMgr::resolveObject(const string& context, const string& nam
 	if (ctxt == MASTERAGENT) {
 		ctxt = AGENTCTXT;
 	}
-	
+	cacheMutex.lock();
 	/* Use object cache. */
   if (cache.find(ctxt+"/"+name)!=cache.end()) {
-    return cache[ctxt+"/"+name];
+		CORBA::Object_ptr ptr = cache[ctxt+"/"+name];
+		cacheMutex.unlock();
+		
+		try {
+			cout << "Check if the object is still present" << endl;
+			if (ptr->_non_existent()) {
+				cout << "Remove non existing object from cache (" << ctxt
+						 << "/" << name << ")" << endl;
+				removeObjectFromCache(name);
+			} else {
+				cout << "Use object from cache (" << ctxt
+					   << "/" << name << ")" << endl;
+				return ptr;
+			}
+		} catch (const CORBA::OBJECT_NOT_EXIST& err) {
+			cout << "Remove non existing object from cache (" << ctxt
+					 << "/" << name << ")" << endl;
+			removeObjectFromCache(name);
+		} catch (const CORBA::TRANSIENT& err) {
+			cout << "Remove unreachable object from cache (" << ctxt
+			<< "/" << name << ")" << endl;
+			removeObjectFromCache(name);
+		} catch (const CORBA::COMM_FAILURE& err) {
+			cout << "Remove unreachable object from cache (" << ctxt
+			<< "/" << name << ")" << endl;
+			removeObjectFromCache(name);
+		}
 	}
+	cacheMutex.unlock();
   CORBA::Object_ptr object = ORB->resolve_initial_references("NameService");
   CosNaming::NamingContext_var rootContext =
     CosNaming::NamingContext::_narrow(object);
@@ -234,6 +265,7 @@ CORBA::Object_ptr ORBMgr::resolveObject(const string& context, const string& nam
   
   try {
     object = rootContext->resolve(cosName);
+
 		/* If the object is not a forwarder object, then
 		 * search if we need to use a forwarder to reach it.
 		 */
@@ -251,8 +283,11 @@ CORBA::Object_ptr ORBMgr::resolveObject(const string& context, const string& nam
 				string objName = ctxt+"/"+name;
 				string ior = getIOR(object);
 				string objHost = getHost(ior);
+				cout << "Ask forwarder " << *it << " for host " << objHost << endl;
 				try {
 					if (fwd->manage(objHost.c_str())) {
+						cout << "Object " << ctxt << "/" << name << ")"
+							   << "is reachable through forwarder " << *it << endl;
 						if (ctxt==AGENTCTXT) {
 							if (!localAgent) {
 								object = fwd->getMasterAgent(name.c_str());
@@ -296,6 +331,8 @@ CORBA::Object_ptr ORBMgr::resolveObject(const string& context, const string& nam
 							break;
 						}
 #endif
+					} else {
+						cout << "Direct access to object " << ctxt << "/" << name << endl;
 					}
 				} catch (const CORBA::TRANSIENT& err) {
 					cerr << "Unable to contact DIET forwarder \"" << *it << "\"" << endl;
@@ -307,8 +344,10 @@ CORBA::Object_ptr ORBMgr::resolveObject(const string& context, const string& nam
 		cerr << "Error resolving " << ctxt << "/" << name << endl;
     throw runtime_error("Error resolving "+ctxt+"/"+name);
   }
+	cacheMutex.lock();
   cache[ctxt+"/"+name] = CORBA::Object::_duplicate(object);
-
+	cacheMutex.unlock();
+	
   return CORBA::Object::_duplicate(object);
 }
 
@@ -570,4 +609,42 @@ std::string ORBMgr::convertIOR(const std::string& strIOR, const std::string& hos
 	IOP::IOR ior;
 	makeIOR(strIOR, ior);
 	return convertIOR(ior, host, port);
+}
+
+/* Object cache management functions. */
+void ORBMgr::resetCache() const {
+	cacheMutex.lock();
+	cache.clear();
+	cacheMutex.unlock();
+}
+
+void ORBMgr::removeObjectFromCache(const string& name) const {
+	map<string, CORBA::Object_ptr>::iterator it;
+	cacheMutex.lock();
+	if ((it=cache.find(name))!=cache.end())	cache.erase(it);
+	cacheMutex.unlock();
+}
+
+void ORBMgr::removeObjectFromCache(const string& ctxt,
+																	 const string& name) const {
+	removeObjectFromCache(ctxt+"/"+name);
+}
+
+void ORBMgr::cleanCache() const {
+	map<string, CORBA::Object_ptr>::iterator it;
+	std::list<string> toRemove;
+	std::list<string>::const_iterator jt;
+
+	cacheMutex.lock();
+	for (it=cache.begin(); it!=cache.end(); ++it) {
+		try {
+			if (it->second->_non_existent())
+				toRemove.push_back(it->first);
+		} catch (const CORBA::OBJECT_NOT_EXIST& err) {
+			toRemove.push_back(it->first);
+		}
+	}
+	cacheMutex.unlock();
+	for (jt=toRemove.begin(); jt!=toRemove.end(); ++jt)
+		removeObjectFromCache(*jt);
 }

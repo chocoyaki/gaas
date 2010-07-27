@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.34  2010/07/27 10:24:32  glemahec
+ * Improve robustness & general performance
+ *
  * Revision 1.33  2010/07/20 14:31:46  glemahec
  * Forwarder robustness + bug corrections
  *
@@ -176,6 +179,8 @@ typedef sequence<string> SeqString;
 /* The object name is not valid. */
 exception BadNameException {
 	string name;
+	string function;
+	string forwarder_name;
 };
 /* The name does not refer to a registered object. */
 exception UnknownObject {

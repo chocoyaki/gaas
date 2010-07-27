@@ -283,7 +283,6 @@ IF( DIET_BUILD_LIBRARIES )
 #  INSTALL( TARGETS IDLWf DESTINATION lib )
   ENDIF ( DIET_USE_WORKFLOW )
   ##########################################################################
-  ## should be add_executable(dietForwarder) ...
   SET(FWDRLIB_SOURCES
     ForwarderSK.cc
     ForwarderDynSK.cc
@@ -335,6 +334,8 @@ IF( DIET_BUILD_LIBRARIES )
   )
   SET(FORWARDER_LIBS
     ${FORWARDER_LIBS}
+    pthread
+    IDLAgent
     ${OMNIORB4_LIBRARIES}
   )
   TARGET_LINK_LIBRARIES(forwarderIDL

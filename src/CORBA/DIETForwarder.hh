@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2010/07/27 10:24:31  glemahec
+ * Improve robustness & general performance
+ *
  * Revision 1.4  2010/07/20 08:56:22  bisnard
  * Updated WfLogService IDL
  *
@@ -105,7 +108,8 @@ public:
 	void setPeer(Forwarder_ptr peer);
 	char* getIOR();
 	
-	void removeObject(const std::string& name);
+	/* Object caches management functions. */
+	void removeObjectFromCache(const std::string& name);
 	void cleanCaches();
 	
 	char* getName();

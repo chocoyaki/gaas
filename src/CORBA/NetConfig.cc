@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2010/07/27 10:24:32  glemahec
+ * Improve robustness & general performance
+ *
  * Revision 1.3  2010/07/14 23:45:30  bdepardo
  * Header corrections
  *
@@ -213,8 +216,16 @@ bool match(const string& hostname, const list<string> l) {
 }
 
 bool NetConfig::manage(const std::string& hostname) const {
-	if (!match(hostname, accept)) return false;
-	if (match(hostname, reject)) return false;
+	if (!match(hostname, accept)) {
+		//cout << "The hostname " << hostname << " does not match "
+    //     << "any element of the accept list" << endl;
+		return false;
+	}
+	if (match(hostname, reject)) {
+		//cout << "The hostname " << hostname << "matches "
+		//		 << "an element of the reject list" << endl;
+		return false;
+	}
 	return true;
 }
 

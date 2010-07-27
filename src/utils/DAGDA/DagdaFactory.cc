@@ -10,6 +10,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2010/07/27 10:24:34  glemahec
+ * Improve robustness & general performance
+ *
  * Revision 1.16  2010/07/12 16:14:12  glemahec
  * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
  *
@@ -70,7 +73,7 @@ DagdaImpl* DagdaFactory::clientDataManager = NULL;
 DagdaImpl* DagdaFactory::sedDataManager = NULL;
 DagdaImpl* DagdaFactory::agentDataManager = NULL;
 DagdaImpl* DagdaFactory::localDataManager = NULL;
-std::string DagdaFactory::storageDir;
+std::string DagdaFactory::storageDir = "";
 
 std::string DagdaFactory::defaultStorageDir = "/tmp";
 /* If somebody wants to use another ORB than omniORB... */
@@ -145,7 +148,6 @@ const char* DagdaFactory::getStorageDir() {
       ERROR_EXIT("The DAGDA storage directory '" << storageDir << "' does not have sufficient rights (rwx)");
     }
   }
-
 
   return storageDir.c_str();
 }

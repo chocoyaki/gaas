@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.23  2010/07/27 10:24:32  glemahec
+ * Improve robustness & general performance
+ *
  * Revision 1.22  2010/07/14 23:45:30  bdepardo
  * Header corrections
  *
@@ -24,6 +27,8 @@
 
 #include <omniORB4/CORBA.h>
 #include <sys/types.h>
+
+#include <omnithread.h>
 
 #include "Forwarder.hh"
 
@@ -55,6 +60,8 @@ private:
 
 	/* Object cache to avoid to contact OmniNames too many times. */
   mutable std::map<std::string, CORBA::Object_ptr> cache;
+	/* Cache mutex. */
+	mutable omni_mutex cacheMutex;
 
 	/* The manager instance. */
 	static ORBMgr* theMgr;
@@ -136,6 +143,13 @@ public:
 																const unsigned int port);
 	static std::string convertIOR(const std::string& ior, const std::string& host,
 																const unsigned int port);
+	
+	/* Object cache management functions. */
+	void resetCache() const;
+	void removeObjectFromCache(const std::string& name) const;
+	void removeObjectFromCache(const std::string& ctxt,
+														 const std::string& name) const;
+	void cleanCache() const;
 };
 
 

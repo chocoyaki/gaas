@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2010/07/27 10:24:32  glemahec
+ * Improve robustness & general performance
+ *
  * Revision 1.3  2010/07/14 23:45:30  bdepardo
  * Header corrections
  *
@@ -24,7 +27,7 @@
 #include <string>
 
 #include <unistd.h>
-#include <signal.h>
+#include <csignal>
 
 class SSHConnection {
 private:

@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.61  2010/07/27 10:24:33  glemahec
+ * Improve robustness & general performance
+ *
  * Revision 1.60  2010/07/12 20:14:32  glemahec
  * DIET 2.5 beta 1 - Forwarders with Multi-MAs bug correction
  *
@@ -1061,8 +1064,8 @@ MasterAgentImpl::submit_pb_seq(const corba_pb_desc_seq_t& pb_seq,
 	reqCount_mutex.unlock();
 	
 	gettimeofday(&end, NULL);
-	time_t ptime = (end.tv_sec - start.tv_sec)* 1000 +
-	(end.tv_usec - start.tv_usec)/1000;
+/*	time_t ptime = (end.tv_sec - start.tv_sec)* 1000 +
+	(end.tv_usec - start.tv_usec)/1000;*/
 	if (dietLogComponent != NULL) {
 		// TO DO: update dietLogComponent with the new data structure
 		// dietLogComponent->logDagSubmit(wf_response, ptime);

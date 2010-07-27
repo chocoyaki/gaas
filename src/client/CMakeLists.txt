@@ -85,6 +85,7 @@ IF( DIET_BUILD_LIBRARIES )
     UtilsCommon
     UtilsVector
     DIETCall
+    pthread
     ${OMNIORB4_LIBRARIES}
     ${DAGDA_LIBRARIES}
   )

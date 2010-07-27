@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.42  2010/07/27 10:24:31  glemahec
+ * Improve robustness & general performance
+ *
  * Revision 1.41  2010/07/26 00:05:20  bdepardo
  * Removed multiple declarations of diet_probe_or()
  *
@@ -161,7 +164,8 @@ diet_error_t
 diet_initialize(const char* config_file_name, int argc, char* argv[]);
 diet_error_t
 diet_finalize();
-
+/* DIET finalize call through signals catch function. */
+void diet_finalize_sig(int dummy);
 
 /****************************************************************************/
 /* Data handles                                                             */

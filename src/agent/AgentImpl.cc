@@ -5,6 +5,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.63  2010/07/27 10:24:33  glemahec
+ * Improve robustness & general performance
+ *
  * Revision 1.62  2010/07/12 16:14:11  glemahec
  * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
  *
@@ -409,6 +412,7 @@ AgentImpl::serverSubscribe(const char* name, const char* hostName,
 #endif // HAVE_JXTA
 			   const SeqCorbaProfileDesc_t& services)
 {
+	cout << "SeD subscribe: " << name << " (" << hostName << endl;
 	SeD_ptr me = ORBMgr::getMgr()->resolve<SeD, SeD_ptr>(SEDCTXT, name);
   CORBA::ULong retID;
 
