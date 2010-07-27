@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2010/07/27 13:25:01  glemahec
+ * Forwarders robustness improvements
+ *
  * Revision 1.7  2010/07/27 10:24:31  glemahec
  * Improve robustness & general performance
  *
@@ -875,6 +878,24 @@ void DIETForwarder::setPeer(Forwarder_ptr peer) {
   // Peer was init. The lock was done on the constructor.
 	peerMutex.unlock();
 }
+
+Forwarder_var DIETForwarder::getPeer() {
+		// Wait for setPeer
+		peerMutex.lock();
+		peerMutex.unlock();
+	try {
+		// Check if peer is still alive
+		peer->getName();
+	} catch (const CORBA::COMM_FAILURE& err) {
+		// Lock peerMutex, then wait for setPeer
+		// (setPeer() unlock the mutex
+		peerMutex.lock();
+		peerMutex.lock();
+		peerMutex.unlock();
+	}
+	return peer;
+}
+
 
 char* DIETForwarder::getIOR() {
 	return CORBA::string_dup(ORBMgr::getMgr()->getIOR(_this()).c_str());

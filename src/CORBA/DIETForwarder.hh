@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2010/07/27 13:25:01  glemahec
+ * Forwarders robustness improvements
+ *
  * Revision 1.5  2010/07/27 10:24:31  glemahec
  * Improve robustness & general performance
  *
@@ -106,6 +109,7 @@ public:
 									 const ::CORBA::Long port);
 	/* Set this forwarder peer object (not CORBA). */
 	void setPeer(Forwarder_ptr peer);
+	Forwarder_var getPeer();
 	char* getIOR();
 	
 	/* Object caches management functions. */
