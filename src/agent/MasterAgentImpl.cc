@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.62  2010/07/27 12:43:07  glemahec
+ * Bugs corrections
+ *
  * Revision 1.61  2010/07/27 10:24:33  glemahec
  * Improve robustness & general performance
  *
@@ -469,8 +472,6 @@ MasterAgentImpl::submit(const corba_pb_desc_t& pb_profile,
                         const char *clientLocID)
 #endif
 {
-	cout << __FILE__ << ": l." << __LINE__ << " (" << __FUNCTION__ << ")" << endl;
-	cout << "submit(profile, " << maxServers << ")" << endl; 
   corba_request_t   creq;
   corba_response_t* decision(NULL);
   char statMsg[128];

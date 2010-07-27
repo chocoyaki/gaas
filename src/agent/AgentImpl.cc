@@ -5,6 +5,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.64  2010/07/27 12:43:07  glemahec
+ * Bugs corrections
+ *
  * Revision 1.63  2010/07/27 10:24:33  glemahec
  * Improve robustness & general performance
  *
@@ -412,7 +415,6 @@ AgentImpl::serverSubscribe(const char* name, const char* hostName,
 #endif // HAVE_JXTA
 			   const SeqCorbaProfileDesc_t& services)
 {
-	cout << "SeD subscribe: " << name << " (" << hostName << endl;
 	SeD_ptr me = ORBMgr::getMgr()->resolve<SeD, SeD_ptr>(SEDCTXT, name);
   CORBA::ULong retID;
 
@@ -670,9 +672,7 @@ AgentImpl::findServer(Request* req, size_t max_srv)
     srvTMutex.unlock();
 
     for (i = 0; i < (size_t)mc->nb_children; ++i) {
-			cout << __FILE__ << ": l. " << __LINE__ << " (" << __FUNCTION__ << ")" << endl;
       sendRequest(mc->children[i], &creq);
-			cout << __FILE__ << ": l. " << __LINE__ << " (" << __FUNCTION__ << ")" << endl;
     } // for (i = 0; i < ms->nb_children; i++)
 
     delete[] mc->children;
@@ -904,20 +904,13 @@ AgentImpl::sendRequest(CORBA::ULong * children,
   try {
     /* Is the child an agent ? */
     if (childID < static_cast<CORBA::ULong>(LAChildren.size())) {
-			cout << __FILE__ << ": l. " << __LINE__ << " (" << __FUNCTION__ << ")" << endl;
       LAChild& childDesc = LAChildren[childID];
-			cout << __FILE__ << ": l. " << __LINE__ << " (" << __FUNCTION__ << ")" << endl;
       if (childDesc.defined()) {
-				cout << __FILE__ << ": l. " << __LINE__ << " (" << __FUNCTION__ << ")" << endl;
         try {
           try {
             /* checks if the child is alive with a ping */
-						cout << __FILE__ << ": l. " << __LINE__ << " (" << __FUNCTION__ << ")" << endl;
             childDesc->ping();
-						cout << __FILE__ << ": l. " << __LINE__ << " (" << __FUNCTION__ << ")" << endl;
 						childDesc->getRequest(*req);
-						cout << "childDesc IOR: " << ORBMgr::getMgr()->getIOR(childDesc.operator->()) << endl;
-						cout << __FILE__ << ": l. " << __LINE__ << " (" << __FUNCTION__ << ")" << endl;
           } catch (CORBA::COMM_FAILURE& ex) {
             throw (comm_failure_t)0;
           } catch (CORBA::TRANSIENT& e) {
@@ -952,10 +945,7 @@ AgentImpl::sendRequest(CORBA::ULong * children,
         try {
           try {
             /* checks if the child is alive with a ping */
-						cout << __FILE__ << ": l. " << __LINE__ << " (" << __FUNCTION__ << ")" << endl;
-						cout << "SeD IOR: " << ORBMgr::getMgr()->getIOR(childDesc.operator->()) << endl;
             childDesc->ping();
-						cout << __FILE__ << ": l. " << __LINE__ << " (" << __FUNCTION__ << ")" << endl;
 #if defined HAVE_ALT_BATCH
 	    /* When requesting to a SeD, the request must be set
 	       to the flag of the registered profile.

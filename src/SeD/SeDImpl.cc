@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.122  2010/07/27 12:43:06  glemahec
+ * Bugs corrections
+ *
  * Revision 1.121  2010/07/27 10:24:33  glemahec
  * Improve robustness & general performance
  *
@@ -639,8 +642,6 @@ SeDImpl::run(ServiceTable* services)
 		ORBMgr::getMgr()->resolve<Agent, Agent_var>(AGENTCTXT, parent_name);
   /*  Agent::_duplicate(Agent::_narrow(ORBMgr::getObjReference(ORBMgr::AGENT,
                                                              parent_name)));*/
-	cout << "*******" << endl;
-	cout << "Parent IOR: " << ORBMgr::getMgr()->getIOR(parent) << endl;
   if (CORBA::is_nil(parent)) {
 #ifndef HAVE_DYNAMICS
     ERROR("cannot locate agent " << parent_name, 1);
