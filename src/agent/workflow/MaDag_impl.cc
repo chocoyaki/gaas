@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.33  2010/07/27 15:05:26  glemahec
+ * Bug correction
+ *
  * Revision 1.32  2010/07/20 08:59:36  bisnard
  * Added event generation
  *
@@ -202,7 +205,7 @@ myName(name), myMultiWfSched(NULL), wfReqIdCounter(0), dagIdCounter(0) {
 	
   /* Bind the MA DAG to its name in the CORBA Naming Service */
   try {
-    ORBMgr::getMgr()->bind(MADAGCTXT, this->myName, _this());
+    ORBMgr::getMgr()->bind(MADAGCTXT, this->myName, _this(), true);
     ORBMgr::getMgr()->fwdsBind(MADAGCTXT, this->myName,
 			       ORBMgr::getMgr()->getIOR(_this()));
   } catch (...) {
