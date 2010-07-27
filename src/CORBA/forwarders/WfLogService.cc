@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2010/07/27 16:16:49  glemahec
+ * Forwarders robustness
+ *
  * Revision 1.4  2010/07/20 08:56:23  bisnard
  * Updated WfLogService IDL
  *
@@ -33,7 +36,7 @@ void DIETForwarder::createDag(const char* dagId, const char* wfId, const char* o
 	string name;
 
 	if (!remoteCall(objString)) {
-		return peer->createDag(dagId, wfId, objName);
+		return getPeer()->createDag(dagId, wfId, objName);
 	}
 	
 	name = getName(objString);
@@ -49,7 +52,7 @@ void DIETForwarder::createDagNode(const char* dagNodeId, const char* dagId, cons
 	string name;
 
 	if (!remoteCall(objString)) {
-		return peer->createDagNode(dagNodeId, dagId, wfId, objName);
+		return getPeer()->createDagNode(dagNodeId, dagId, wfId, objName);
 	}
 	
 	name = getName(objString);
@@ -65,7 +68,7 @@ void DIETForwarder::createDagNodeData(const char* dagNodeId, const char* wfId, c
 	string name;
 
 	if (!remoteCall(objString)) {
-		return peer->createDagNodeData(dagNodeId, wfId, dagNodePortId, dataId, objName);
+		return getPeer()->createDagNodeData(dagNodeId, wfId, dagNodePortId, dataId, objName);
 	}
 	
 	name = getName(objString);
@@ -81,7 +84,7 @@ void DIETForwarder::createDagNodeLink(const char* srcNodeId, const char* srcWfId
 	string name;
 
 	if (!remoteCall(objString)) {
-		return peer->createDagNodeLink(srcNodeId, srcWfId, destNodeId, destWfId, objName);
+		return getPeer()->createDagNodeLink(srcNodeId, srcWfId, destNodeId, destWfId, objName);
 	}
 	
 	name = getName(objString);
@@ -97,7 +100,7 @@ void DIETForwarder::createDagNodePort(const char* dagNodePortId, const char* por
 	string name;
 
 	if (!remoteCall(objString)) {
-		return peer->createDagNodePort(dagNodePortId, portDirection, dagNodeId, wfId, objName);
+		return getPeer()->createDagNodePort(dagNodePortId, portDirection, dagNodeId, wfId, objName);
 	}
 	
 	name = getName(objString);
@@ -113,7 +116,7 @@ void DIETForwarder::createDataElements(const char* dataId, const char* elementId
 	string name;
 
 	if (!remoteCall(objString)) {
-		return peer->createDataElements(dataId, elementIdList, objName);
+		return getPeer()->createDataElements(dataId, elementIdList, objName);
 	}
 	
 	name = getName(objString);
@@ -129,7 +132,7 @@ void DIETForwarder::createSinkData(const char* sinkId, const char* wfId, const c
 	string name;
 
 	if (!remoteCall(objString)) {
-		return peer->createSinkData(sinkId, wfId, dataId, objName);
+		return getPeer()->createSinkData(sinkId, wfId, dataId, objName);
 	}
 	
 	name = getName(objString);
@@ -145,7 +148,7 @@ void DIETForwarder::createSourceDataTree(const char* sourceId, const char* wfId,
 	string name;
 
 	if (!remoteCall(objString)) {
-		return peer->createSourceDataTree(sourceId, wfId, dataIdTree, objName);
+		return getPeer()->createSourceDataTree(sourceId, wfId, dataIdTree, objName);
 	}
 	
 	name = getName(objString);
@@ -161,7 +164,7 @@ void DIETForwarder::initWorkflow(const char* wfId, const char* wfName, const cha
 	string name;
 
 	if (!remoteCall(objString)) {
-		return peer->initWorkflow(wfId, wfName, parentWfId, objName);
+		return getPeer()->initWorkflow(wfId, wfName, parentWfId, objName);
 	}
 	
 	name = getName(objString);
@@ -177,7 +180,7 @@ void DIETForwarder::setInPortDependencies(const char* dagNodePortId, const char*
 	string name;
 
 	if (!remoteCall(objString)) {
-		return peer->setInPortDependencies(dagNodePortId, dagNodeId, wfId, dependencies, objName);
+		return getPeer()->setInPortDependencies(dagNodePortId, dagNodeId, wfId, dependencies, objName);
 	}
 	
 	name = getName(objString);
@@ -193,7 +196,7 @@ void DIETForwarder::updateDag(const char* dagId, const char* wfId, const char* d
 	string name;
 
 	if (!remoteCall(objString)) {
-		return peer->updateDag(dagId, wfId, dagState, data, objName);
+		return getPeer()->updateDag(dagId, wfId, dagState, data, objName);
 	}
 	
 	name = getName(objString);
@@ -209,7 +212,7 @@ void DIETForwarder::updateWorkflow(const char* wfId, const char* wfState, const 
 	string name;
 
 	if (!remoteCall(objString)) {
-		return peer->updateWorkflow(wfId, wfState, data, objName);
+		return getPeer()->updateWorkflow(wfId, wfState, data, objName);
 	}
 	
 	name = getName(objString);
@@ -225,7 +228,7 @@ void DIETForwarder::nodeIsDone(const char* node_id, const char* wfId, const char
 	string name;
 
 	if (!remoteCall(objString)) {
-		return peer->nodeIsDone(node_id, wfId, objString.c_str());
+		return getPeer()->nodeIsDone(node_id, wfId, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -241,7 +244,7 @@ void DIETForwarder::nodeIsFailed(const char* node_id, const char* wfId, const ch
 	string name;
 
 	if (!remoteCall(objString)) {
-		return peer->nodeIsFailed(node_id, wfId, objString.c_str());
+		return getPeer()->nodeIsFailed(node_id, wfId, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -257,7 +260,7 @@ void DIETForwarder::nodeIsReady(const char* node_id, const char* wfId, const cha
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->nodeIsReady(node_id, wfId, objString.c_str());
+		return getPeer()->nodeIsReady(node_id, wfId, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -273,7 +276,7 @@ void DIETForwarder::nodeIsRunning(const char* node_id, const char* wfId, const c
 	string name;
 
 	if (!remoteCall(objString)) {
-		return peer->nodeIsRunning(node_id, wfId, objString.c_str());
+		return getPeer()->nodeIsRunning(node_id, wfId, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -290,7 +293,7 @@ void DIETForwarder::nodeIsStarting(const char* node_id, const char* wfId, const 
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->nodeIsStarting(node_id, wfId, pbName, hostname, objString.c_str());
+		return getPeer()->nodeIsStarting(node_id, wfId, pbName, hostname, objString.c_str());
 	}
 	
 	name = getName(objString);

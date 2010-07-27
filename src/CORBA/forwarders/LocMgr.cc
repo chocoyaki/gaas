@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2010/07/27 16:16:49  glemahec
+ * Forwarders robustness
+ *
  * Revision 1.3  2010/07/14 23:45:30  bdepardo
  * Header corrections
  *
@@ -32,7 +35,7 @@ using namespace std;
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->locMgrSubscribe(lmName, hostname, objString.c_str());
+		return getPeer()->locMgrSubscribe(lmName, hostname, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -51,7 +54,7 @@ using namespace std;
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->dataMgrSubscribe(dtmName, hostname, objString.c_str());
+		return getPeer()->dataMgrSubscribe(dtmName, hostname, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -69,7 +72,7 @@ void DIETForwarder::addDataRef(const ::corba_data_desc_t& arg,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->addDataRef(arg, cChildID, objString.c_str());
+		return getPeer()->addDataRef(arg, cChildID, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -87,7 +90,7 @@ void DIETForwarder::rmDataRefLocMgr(const char* argID,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->rmDataRefLocMgr(argID, cChildID, objString.c_str());
+		return getPeer()->rmDataRefLocMgr(argID, cChildID, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -106,7 +109,7 @@ void DIETForwarder::updateDataRef(const ::corba_data_desc_t& arg,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->updateDataRef(arg, cChildID, upDown, objString.c_str());
+		return getPeer()->updateDataRef(arg, cChildID, upDown, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -123,7 +126,7 @@ char* DIETForwarder::whereDataSubtree(const char* argID,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->whereDataSubtree(argID, objString.c_str());
+		return getPeer()->whereDataSubtree(argID, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -140,7 +143,7 @@ void DIETForwarder::updateDataProp(const char* argID,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->updateDataProp(argID, objString.c_str());
+		return getPeer()->updateDataProp(argID, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -157,7 +160,7 @@ void DIETForwarder::updateDataProp(const char* argID,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->rm_pdata(argID, objString.c_str());
+		return getPeer()->rm_pdata(argID, objString.c_str());
 	}
 	
 	name = getName(objString);

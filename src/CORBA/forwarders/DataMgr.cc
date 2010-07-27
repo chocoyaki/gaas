@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2010/07/27 16:16:49  glemahec
+ * Forwarders robustness
+ *
  * Revision 1.3  2010/07/14 23:45:30  bdepardo
  * Header corrections
  *
@@ -32,7 +35,7 @@ void DIETForwarder::putData(const char* argID,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->putData(argID, me, objString.c_str());
+		return getPeer()->putData(argID, me, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -50,7 +53,7 @@ void DIETForwarder::putData(const char* argID,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->rmDataRefDataMgr(argID, objString.c_str());
+		return getPeer()->rmDataRefDataMgr(argID, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -67,7 +70,7 @@ void DIETForwarder::sendData(::corba_data_t& arg,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->sendData(arg, objString.c_str());
+		return getPeer()->sendData(arg, objString.c_str());
 	}
 	
 	name = getName(objString);

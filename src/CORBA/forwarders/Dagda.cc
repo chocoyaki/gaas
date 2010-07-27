@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2010/07/27 16:16:49  glemahec
+ * Forwarders robustness
+ *
  * Revision 1.3  2010/07/14 23:45:30  bdepardo
  * Header corrections
  *
@@ -32,7 +35,7 @@ using namespace std;
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->lclIsDataPresent(dataID, objString.c_str());
+		return getPeer()->lclIsDataPresent(dataID, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -49,7 +52,7 @@ using namespace std;
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->lvlIsDataPresent(dataID, objString.c_str());
+		return getPeer()->lvlIsDataPresent(dataID, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -66,7 +69,7 @@ using namespace std;
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->pfmIsDataPresent(dataID, objString.c_str());
+		return getPeer()->pfmIsDataPresent(dataID, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -84,7 +87,7 @@ void DIETForwarder::lclAddData(const char* srcDagda,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->lclAddData(srcDagda, data, objString.c_str());
+		return getPeer()->lclAddData(srcDagda, data, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -102,7 +105,7 @@ void DIETForwarder::lvlAddData(const char* srcDagda,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->lvlAddData(srcDagda, data, objString.c_str());
+		return getPeer()->lvlAddData(srcDagda, data, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -120,7 +123,7 @@ void DIETForwarder::pfmAddData(const char* srcDagda,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->pfmAddData(srcDagda, data, objString.c_str());
+		return getPeer()->pfmAddData(srcDagda, data, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -137,7 +140,7 @@ void DIETForwarder::registerFile(const ::corba_data_t& data,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->registerFile(data, objString.c_str());
+		return getPeer()->registerFile(data, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -157,7 +160,7 @@ void DIETForwarder::lclAddContainerElt(const char* containerID,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->lclAddContainerElt(containerID, dataID, index,
+		return getPeer()->lclAddContainerElt(containerID, dataID, index,
 																		flag, objString.c_str());
 	}
 	
@@ -175,7 +178,7 @@ void DIETForwarder::lclAddContainerElt(const char* containerID,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->lclGetContainerSize(containerID, objString.c_str());
+		return getPeer()->lclGetContainerSize(containerID, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -195,7 +198,7 @@ void DIETForwarder::lclGetContainerElts(const char* containerID,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->lclGetContainerElts(containerID, dataIDSeq,
+		return getPeer()->lclGetContainerElts(containerID, dataIDSeq,
 																		 flagSeq, ordered,
 																		 objString.c_str());
 	}
@@ -214,7 +217,7 @@ void DIETForwarder::lclRemData(const char* dataID,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->lclRemData(dataID, objString.c_str());
+		return getPeer()->lclRemData(dataID, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -231,7 +234,7 @@ void DIETForwarder::lvlRemData(const char* dataID,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->lvlRemData(dataID, objString.c_str());
+		return getPeer()->lvlRemData(dataID, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -248,7 +251,7 @@ void DIETForwarder::pfmRemData(const char* dataID,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->pfmRemData(dataID, objString.c_str());
+		return getPeer()->pfmRemData(dataID, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -266,7 +269,7 @@ void DIETForwarder::lclUpdateData(const char* srcDagda,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->lclUpdateData(srcDagda, data, objString.c_str());
+		return getPeer()->lclUpdateData(srcDagda, data, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -284,7 +287,7 @@ void DIETForwarder::lvlUpdateData(const char* srcDagda,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->lvlUpdateData(srcDagda, data, objString.c_str());
+		return getPeer()->lvlUpdateData(srcDagda, data, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -302,7 +305,7 @@ void DIETForwarder::pfmUpdateData(const char* srcDagda,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->pfmUpdateData(srcDagda, data, objString.c_str());
+		return getPeer()->pfmUpdateData(srcDagda, data, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -317,7 +320,7 @@ SeqCorbaDataDesc_t* DIETForwarder::lclGetDataDescList(const char* objName) {
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->lclGetDataDescList(objString.c_str());
+		return getPeer()->lclGetDataDescList(objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -332,7 +335,7 @@ SeqCorbaDataDesc_t* DIETForwarder::lvlGetDataDescList(const char* objName) {
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->lvlGetDataDescList(objString.c_str());
+		return getPeer()->lvlGetDataDescList(objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -347,7 +350,7 @@ SeqCorbaDataDesc_t* DIETForwarder::pfmGetDataDescList(const char* objName) {
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->pfmGetDataDescList(objString.c_str());
+		return getPeer()->pfmGetDataDescList(objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -364,7 +367,7 @@ corba_data_desc_t* DIETForwarder::lclGetDataDesc(const char* dataID,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->lclGetDataDesc(dataID, objString.c_str());
+		return getPeer()->lclGetDataDesc(dataID, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -381,7 +384,7 @@ corba_data_desc_t* DIETForwarder::lvlGetDataDesc(const char* dataID,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->lvlGetDataDesc(dataID, objString.c_str());
+		return getPeer()->lvlGetDataDesc(dataID, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -398,7 +401,7 @@ corba_data_desc_t* DIETForwarder::pfmGetDataDesc(const char* dataID,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->pfmGetDataDesc(dataID, objString.c_str());
+		return getPeer()->pfmGetDataDesc(dataID, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -418,7 +421,7 @@ void DIETForwarder::lclReplicate(const char* dataID,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->lclReplicate(dataID, ruleTarget, pattern, replace,
+		return getPeer()->lclReplicate(dataID, ruleTarget, pattern, replace,
 															objString.c_str());
 	}
 	
@@ -439,7 +442,7 @@ void DIETForwarder::lvlReplicate(const char* dataID,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->lvlReplicate(dataID, ruleTarget, pattern, replace,
+		return getPeer()->lvlReplicate(dataID, ruleTarget, pattern, replace,
 															objString.c_str());
 	}
 	
@@ -460,7 +463,7 @@ void DIETForwarder::pfmReplicate(const char* dataID,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->pfmReplicate(dataID, ruleTarget, pattern, replace,
+		return getPeer()->pfmReplicate(dataID, ruleTarget, pattern, replace,
 															objString.c_str());
 	}
 	
@@ -480,7 +483,7 @@ char* DIETForwarder::writeFile(const ::SeqChar& data,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->writeFile(data, basename, replace,	objString.c_str());
+		return getPeer()->writeFile(data, basename, replace,	objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -498,7 +501,7 @@ char* DIETForwarder::sendFile(const ::corba_data_t& data,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->sendFile(data, destDagda,	objString.c_str());
+		return getPeer()->sendFile(data, destDagda,	objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -518,7 +521,7 @@ char* DIETForwarder::recordData(const ::SeqChar& data,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->recordData(data, dataDesc, replace, offset,
+		return getPeer()->recordData(data, dataDesc, replace, offset,
 														objString.c_str());
 	}
 	
@@ -537,7 +540,7 @@ char* DIETForwarder::sendData(const char* ID,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->sendData(ID, destDagda, objString.c_str());
+		return getPeer()->sendData(ID, destDagda, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -556,7 +559,7 @@ char* DIETForwarder::sendContainer(const char* ID,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->sendContainer(ID, destDagda, sendElements,
+		return getPeer()->sendContainer(ID, destDagda, sendElements,
 															 objString.c_str());
 	}
 	
@@ -574,7 +577,7 @@ SeqString* DIETForwarder::lvlGetDataManagers(const char* dataID,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->lvlGetDataManagers(dataID, objString.c_str());
+		return getPeer()->lvlGetDataManagers(dataID, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -591,7 +594,7 @@ SeqString* DIETForwarder::pfmGetDataManagers(const char* dataID,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->pfmGetDataManagers(dataID, objString.c_str());
+		return getPeer()->pfmGetDataManagers(dataID, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -608,7 +611,7 @@ void DIETForwarder::subscribe(const char* dagdaName,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->subscribe(dagdaName, objString.c_str());
+		return getPeer()->subscribe(dagdaName, objString.c_str());
 	}
 	name = getName(objString);
 	
@@ -624,7 +627,7 @@ void DIETForwarder::unsubscribe(const char* dagdaName,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->unsubscribe(dagdaName, objString.c_str());
+		return getPeer()->unsubscribe(dagdaName, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -639,7 +642,7 @@ char* DIETForwarder::getID(const char* objName) {
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->getID(objString.c_str());
+		return getPeer()->getID(objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -657,7 +660,7 @@ void DIETForwarder::lockData(const char* dataID,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->lockData(dataID, objString.c_str());
+		return getPeer()->lockData(dataID, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -674,7 +677,7 @@ void DIETForwarder::unlockData(const char* dataID,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->unlockData(dataID, objString.c_str());
+		return getPeer()->unlockData(dataID, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -691,7 +694,7 @@ Dagda::dataStatus DIETForwarder::getDataStatus(const char* dataID,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->getDataStatus(dataID, objString.c_str());
+		return getPeer()->getDataStatus(dataID, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -709,7 +712,7 @@ char* DIETForwarder::getBestSource(const char* destDagda,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->getBestSource(destDagda, dataID, objString.c_str());
+		return getPeer()->getBestSource(destDagda, dataID, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -724,7 +727,7 @@ void DIETForwarder::checkpointState(const char* objName) {
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->checkpointState(objString.c_str());
+		return getPeer()->checkpointState(objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -742,7 +745,7 @@ void DIETForwarder::subscribeParent(const char* parentID,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->subscribeParent(parentID, objString.c_str());
+		return getPeer()->subscribeParent(parentID, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -757,7 +760,7 @@ void DIETForwarder::unsubscribeParent(const char* objName) {
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->unsubscribeParent(objString.c_str());
+		return getPeer()->unsubscribeParent(objString.c_str());
 	}
 	
 	name = getName(objString);

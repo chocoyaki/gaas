@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2010/07/27 16:16:48  glemahec
+ * Forwarders robustness
+ *
  * Revision 1.6  2010/07/27 13:25:01  glemahec
  * Forwarders robustness improvements
  *
@@ -103,6 +106,7 @@ public:
 	/* CORBA remote management implementation. */
 	void bind(const char* objName, const char* ior);
   void unbind(const char* objName);
+	SeqString* getBindings(const char* ctxt);
 	
 	/* Connect the peer forwarder. */
 	void connectPeer(const char* ior, const char* host,

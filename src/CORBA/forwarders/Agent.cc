@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2010/07/27 16:16:49  glemahec
+ * Forwarders robustness
+ *
  * Revision 1.4  2010/07/27 10:24:32  glemahec
  * Improve robustness & general performance
  *
@@ -37,7 +40,7 @@ using namespace std;
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->agentSubscribe(agentName, hostname, services, objString.c_str());
+		return getPeer()->agentSubscribe(agentName, hostname, services, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -59,7 +62,7 @@ using namespace std;
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->serverSubscribe(seDName, hostname,
+		return getPeer()->serverSubscribe(seDName, hostname,
 #ifdef HAVE_JXTA
 																 uuid,
 #endif
@@ -85,7 +88,7 @@ using namespace std;
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->childUnsubscribe(childID, services, objString.c_str());
+		return getPeer()->childUnsubscribe(childID, services, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -104,7 +107,7 @@ using namespace std;
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->childRemoveService(childID, profile, objString.c_str());
+		return getPeer()->childRemoveService(childID, profile, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -122,7 +125,7 @@ using namespace std;
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->addServices(myID, services, objString.c_str());
+		return getPeer()->addServices(myID, services, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -139,7 +142,7 @@ void DIETForwarder::getResponse(const ::corba_response_t& resp,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->getResponse(resp, objString.c_str());
+		return getPeer()->getResponse(resp, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -155,7 +158,7 @@ char* DIETForwarder::getDataManager(const char* objName) {
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->getDataManager(objString.c_str());
+		return getPeer()->getDataManager(objString.c_str());
 	}
 	
 	name = getName(objString);

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2010/07/27 16:16:49  glemahec
+ * Forwarders robustness
+ *
  * Revision 1.3  2010/07/14 23:45:30  bdepardo
  * Header corrections
  *
@@ -33,7 +36,7 @@ using namespace std;
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->processDagWf(dag_desc, cltMgrRef, wfReqId, objString.c_str());
+		return getPeer()->processDagWf(dag_desc, cltMgrRef, wfReqId, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -53,7 +56,7 @@ using namespace std;
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->processMultiDagWf(dag_desc, cltMgrRef, wfReqId, release,
+		return getPeer()->processMultiDagWf(dag_desc, cltMgrRef, wfReqId, release,
 																	 objString.c_str());
 	}
 	
@@ -69,7 +72,7 @@ using namespace std;
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->getWfReqId(objString.c_str());
+		return getPeer()->getWfReqId(objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -86,7 +89,7 @@ void DIETForwarder::releaseMultiDag(::CORBA::Long wfReqId,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->releaseMultiDag(wfReqId, objString.c_str());
+		return getPeer()->releaseMultiDag(wfReqId, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -103,7 +106,7 @@ void DIETForwarder::cancelDag(::CORBA::Long dagId,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->cancelDag(dagId, objString.c_str());
+		return getPeer()->cancelDag(dagId, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -120,7 +123,7 @@ void DIETForwarder::setPlatformType(::MaDag::pfmType_t pfmType,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->setPlatformType(pfmType, objString.c_str());
+		return getPeer()->setPlatformType(pfmType, objString.c_str());
 	}
 	
 	name = getName(objString);

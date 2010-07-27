@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2010/07/27 16:16:49  glemahec
+ * Forwarders robustness
+ *
  * Revision 1.3  2010/07/14 23:45:30  bdepardo
  * Header corrections
  *
@@ -36,7 +39,7 @@ using namespace std;
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->execNodeOnSed(node_id, dag_id, seDName,
+		return getPeer()->execNodeOnSed(node_id, dag_id, seDName,
 															 reqID, ev, objString.c_str());
 	}
 	
@@ -55,7 +58,7 @@ using namespace std;
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->execNode(node_id, dag_id, objString.c_str());
+		return getPeer()->execNode(node_id, dag_id, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -73,7 +76,7 @@ char* DIETForwarder::release(const char* dag_id,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->release(dag_id, successful, objString.c_str());
+		return getPeer()->release(dag_id, successful, objString.c_str());
 	}
 	
 	name = getName(objString);

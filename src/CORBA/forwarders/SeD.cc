@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2010/07/27 16:16:49  glemahec
+ * Forwarders robustness
+ *
  * Revision 1.3  2010/07/14 23:45:30  bdepardo
  * Header corrections
  *
@@ -32,7 +35,7 @@ using namespace std;
 	string name;
 
 	if (!remoteCall(objString)) {
-		return peer->checkContract(estimation, pb, objString.c_str());
+		return getPeer()->checkContract(estimation, pb, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -47,7 +50,7 @@ void DIETForwarder::updateTimeSinceLastSolve(const char* objName) {
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->updateTimeSinceLastSolve(objString.c_str());
+		return getPeer()->updateTimeSinceLastSolve(objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -66,7 +69,7 @@ void DIETForwarder::updateTimeSinceLastSolve(const char* objName) {
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->solve(path, pb, objString.c_str());
+		return getPeer()->solve(path, pb, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -85,7 +88,7 @@ void DIETForwarder::solveAsync(const char* path,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->solveAsync(path, pb, volatileclientPtr, objString.c_str());
+		return getPeer()->solveAsync(path, pb, volatileclientPtr, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -101,7 +104,7 @@ char* DIETForwarder::getDataMgrID(const char* objName) {
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->getDataMgrID(objString.c_str());
+		return getPeer()->getDataMgrID(objString.c_str());
 	}
 	
 	name = getName(objString);

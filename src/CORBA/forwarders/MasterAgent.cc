@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2010/07/27 16:16:49  glemahec
+ * Forwarders robustness
+ *
  * Revision 1.3  2010/07/14 23:45:30  bdepardo
  * Header corrections
  *
@@ -36,7 +39,7 @@ corba_response_t* DIETForwarder::submit(const ::corba_pb_desc_t& pb_profile,
 	if (!remoteCall(objString)) {
 		cout << "Forwarder remote call submit(pb_profile, " << maxServers << ", " << maxServers;
 		cout << ", " << objString << ")" << endl;
-		return peer->submit(pb_profile, maxServers, objString.c_str());
+		return getPeer()->submit(pb_profile, maxServers, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -55,7 +58,7 @@ corba_response_t* DIETForwarder::submit(const ::corba_pb_desc_t& pb_profile,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->get_session_num(objString.c_str());
+		return getPeer()->get_session_num(objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -71,7 +74,7 @@ char* DIETForwarder::get_data_id(const char* objName) {
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->get_data_id(objString.c_str());
+		return getPeer()->get_data_id(objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -89,7 +92,7 @@ char* DIETForwarder::get_data_id(const char* objName) {
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->dataLookUp(id, objString.c_str());
+		return getPeer()->dataLookUp(id, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -107,7 +110,7 @@ corba_data_desc_t* DIETForwarder::get_data_arg(const char* argID,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->get_data_arg(argID, objString.c_str());
+		return getPeer()->get_data_arg(argID, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -125,7 +128,7 @@ corba_data_desc_t* DIETForwarder::get_data_arg(const char* argID,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->diet_free_pdata(argID, objString.c_str());
+		return getPeer()->diet_free_pdata(argID, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -143,7 +146,7 @@ SeqCorbaProfileDesc_t* DIETForwarder::getProfiles(::CORBA::Long& length,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->getProfiles(length, objString.c_str());
+		return getPeer()->getProfiles(length, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -162,7 +165,7 @@ wf_response_t* DIETForwarder::submit_pb_set(const ::corba_pb_desc_seq_t& seq_pb,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->submit_pb_set(seq_pb, objString.c_str());
+		return getPeer()->submit_pb_set(seq_pb, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -183,7 +186,7 @@ response_seq_t* DIETForwarder::submit_pb_seq(const ::corba_pb_desc_seq_t& pb_seq
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->submit_pb_seq(pb_seq, reqCount, complete, firstReqId,
+		return getPeer()->submit_pb_seq(pb_seq, reqCount, complete, firstReqId,
 															 seqReqId, objString.c_str());
 	}
 	
@@ -203,7 +206,7 @@ SeqString* DIETForwarder::searchData(const char* request,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->searchData(request, objString.c_str());
+		return getPeer()->searchData(request, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -222,7 +225,7 @@ SeqString* DIETForwarder::searchData(const char* request,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->insertData(key, values, objString.c_str());
+		return getPeer()->insertData(key, values, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -242,7 +245,7 @@ SeqString* DIETForwarder::searchData(const char* request,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->handShake(masterAgentName, myName, objString.c_str());
+		return getPeer()->handShake(masterAgentName, myName, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -258,7 +261,7 @@ char* DIETForwarder::getBindName(const char* objName) {
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->getBindName(objString.c_str());
+		return getPeer()->getBindName(objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -278,7 +281,7 @@ void DIETForwarder::searchService(const char* masterAgentName,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->searchService(masterAgentName, myName, request,
+		return getPeer()->searchService(masterAgentName, myName, request,
 															 objString.c_str());
 	}
 	
@@ -298,7 +301,7 @@ void DIETForwarder::stopFlooding(::CORBA::Long reqId,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->stopFlooding(reqId, senderId, objString.c_str());
+		return getPeer()->stopFlooding(reqId, senderId, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -317,7 +320,7 @@ void DIETForwarder::serviceNotFound(::CORBA::Long reqId,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->serviceNotFound(reqId, senderId, objString.c_str());
+		return getPeer()->serviceNotFound(reqId, senderId, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -336,7 +339,7 @@ void DIETForwarder::newFlood(::CORBA::Long reqId,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->newFlood(reqId, senderId, objString.c_str());
+		return getPeer()->newFlood(reqId, senderId, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -355,7 +358,7 @@ void DIETForwarder::floodedArea(::CORBA::Long reqId,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->floodedArea(reqId, senderId, objString.c_str());
+		return getPeer()->floodedArea(reqId, senderId, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -374,7 +377,7 @@ void DIETForwarder::alreadyContacted(::CORBA::Long reqId,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->alreadyContacted(reqId, senderId, objString.c_str());
+		return getPeer()->alreadyContacted(reqId, senderId, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -393,7 +396,7 @@ void DIETForwarder::serviceFound(::CORBA::Long reqId,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->serviceFound(reqId, decision, objString.c_str());
+		return getPeer()->serviceFound(reqId, decision, objString.c_str());
 	}
 	
 	name = getName(objString);

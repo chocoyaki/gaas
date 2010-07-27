@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.29  2010/07/27 16:16:48  glemahec
+ * Forwarders robustness
+ *
  * Revision 1.28  2010/07/27 10:24:32  glemahec
  * Improve robustness & general performance
  *
@@ -269,7 +272,7 @@ CORBA::Object_ptr ORBMgr::resolveObject(const string& context, const string& nam
 		/* If the object is not a forwarder object, then
 		 * search if we need to use a forwarder to reach it.
 		 */
-		if (ctxt!=FWRDCTXT) {
+		if (ctxt!=FWRDCTXT && fwdName!="no-Forwarder") {
 			string objIOR = getIOR(object);
 			IOP::IOR ior;
 			makeIOR(objIOR, ior);

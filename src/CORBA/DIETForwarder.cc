@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2010/07/27 16:16:48  glemahec
+ * Forwarders robustness
+ *
  * Revision 1.8  2010/07/27 13:25:01  glemahec
  * Forwarders robustness improvements
  *
@@ -456,7 +459,7 @@ WfLogService_ptr DIETForwarder::getWfLogService(const char* name)
 	string ctxt;
 	
 	if (!remoteCall(objString)) {
-		return peer->ping(objString.c_str());
+		return getPeer()->ping(objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -499,7 +502,7 @@ void DIETForwarder::getRequest(const ::corba_request_t& req, const char* objName
 	string ctxt;
 	
 	if (!remoteCall(objString)) {
-		return peer->getRequest(req, objString.c_str());
+		return getPeer()->getRequest(req, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -526,7 +529,7 @@ char* DIETForwarder::getHostname(const char* objName)
 	string ctxt;
 	
 	if (!remoteCall(objString)) {
-		return peer->getHostname(objString.c_str());
+		return getPeer()->getHostname(objString.c_str());
 	}
 	
 	name = objString;
@@ -560,7 +563,7 @@ char* DIETForwarder::getHostname(const char* objName)
 	string ctxt;
 	
 	if (!remoteCall(objString)) {
-		return peer->bindParent(parentName, objString.c_str());
+		return getPeer()->bindParent(parentName, objString.c_str());
 	}
 	
 	name = objString;
@@ -591,7 +594,7 @@ char* DIETForwarder::getHostname(const char* objName)
 	string ctxt;
 	
 	if (!remoteCall(objString)) {
-		return peer->disconnect(objString.c_str());
+		return getPeer()->disconnect(objString.c_str());
 	}
 	
 	name = objString;
@@ -622,7 +625,7 @@ char* DIETForwarder::getHostname(const char* objName)
 	string ctxt;
 	
 	if (!remoteCall(objString)) {
-		return peer->removeElement(recursive, objString.c_str());
+		return getPeer()->removeElement(recursive, objString.c_str());
 	}
 	
 	name = objString;
@@ -656,7 +659,7 @@ char* DIETForwarder::whereData(const char* argID,
 	string ctxt;
 	
 	if (!remoteCall(objString)) {
-		return peer->whereData(argID, objString.c_str());
+		return getPeer()->whereData(argID, objString.c_str());
 	}
 	
 	ctxt = getCtxt(objString);
@@ -681,7 +684,7 @@ char* DIETForwarder::setMyName(const char* objName) {
 	string ctxt;
 	
 	if (!remoteCall(objString)) {
-		return peer->setMyName(objString.c_str());
+		return getPeer()->setMyName(objString.c_str());
 	}
 	
 	ctxt = getCtxt(objString);
@@ -708,7 +711,7 @@ char* DIETForwarder::whichSeDOwner(const char* argID,
 	string ctxt;
 	
 	if (!remoteCall(objString)) {
-		return peer->whichSeDOwner(argID, objString.c_str());
+		return getPeer()->whichSeDOwner(argID, objString.c_str());
 	}
 	
 	ctxt = getCtxt(objString);
@@ -733,7 +736,7 @@ void DIETForwarder::printList(const char* objName) {
 	string ctxt;
 	
 	if (!remoteCall(objString)) {
-		return peer->printList(objString.c_str());
+		return getPeer()->printList(objString.c_str());
 	}
 	
 	ctxt = getCtxt(objString);
@@ -765,7 +768,7 @@ void DIETForwarder::bind(const char* objName, const char* ior) {
 
 	if (!remoteCall(objString)) {
 		cout << "Forward bind to peer" << endl;
-		return peer->bind(objString.c_str(), ior);
+		return getPeer()->bind(objString.c_str(), ior);
 	}
 	ctxt = getCtxt(objString);
 	name = getName(objString);
@@ -799,13 +802,39 @@ void DIETForwarder::bind(const char* objName, const char* ior) {
 	cout << "Binded !" << endl;
 }
 
+/* Return the local bindings. Result is a set of couple
+ * (object name, object ior)
+ */
+SeqString* DIETForwarder::getBindings(const char* ctxt) {
+	list<string> objects;
+	list<string>::iterator it;
+	SeqString* result = new SeqString();
+	unsigned int cmpt = 0;
+	
+	objects = ORBMgr::getMgr()->list(ctxt);
+	result->length(objects.size()*2);
+
+	for (it=objects.begin(); it!=objects.end(); ++it) {
+		try {
+			CORBA::Object_ptr obj = ORBMgr::getMgr()->resolveObject(ctxt, it->c_str(),
+																															"no-Forwarder");
+			(*result)[cmpt++]=it->c_str();
+			(*result)[cmpt++]=ORBMgr::getMgr()->getIOR(obj).c_str();
+		} catch (const runtime_error& err) {
+			continue;
+		}
+	}
+	result->length(cmpt);
+	return result;
+}
+
 void DIETForwarder::unbind(const char* objName) {
 	string objString(objName);
 	string name;
 	string ctxt;
 	
 	if (!remoteCall(objString)) {
-		return peer->unbind(objString.c_str());
+		return getPeer()->unbind(objString.c_str());
 	}
 	
 	name = objString;
@@ -887,6 +916,12 @@ Forwarder_var DIETForwarder::getPeer() {
 		// Check if peer is still alive
 		peer->getName();
 	} catch (const CORBA::COMM_FAILURE& err) {
+		// Lock peerMutex, then wait for setPeer
+		// (setPeer() unlock the mutex
+		peerMutex.lock();
+		peerMutex.lock();
+		peerMutex.unlock();
+	} catch (const CORBA::TRANSIENT& err) {
 		// Lock peerMutex, then wait for setPeer
 		// (setPeer() unlock the mutex
 		peerMutex.lock();

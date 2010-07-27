@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2010/07/27 16:16:48  glemahec
+ * Forwarders robustness
+ *
  * Revision 1.3  2010/07/14 23:45:30  bdepardo
  * Header corrections
  *
@@ -222,6 +225,11 @@ int main(int argc, char* argv[], char* envp[]) {
 			peer->connectPeer(ior.c_str(), tunnel.getRemoteHost().c_str(),
 												tunnel.getRemotePortFrom());
 			forwarder->setPeer(peer);
+			SeqString* bindings = peer->getBindings(AGENTCTXT);
+			for (unsigned int i=0; i<bindings->length(); ++i) {
+				cout << "************ Dist bindings ****************" << endl;
+				cout << (*bindings)[i] << endl;
+			}
 		} catch (CORBA::TRANSIENT& err) {
 			cout << "Unable to contact remote peer. Waiting for connection..." << endl;
 		}

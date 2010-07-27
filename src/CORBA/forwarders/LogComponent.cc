@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2010/07/27 16:16:49  glemahec
+ * Forwarders robustness
+ *
  * Revision 1.3  2010/07/14 23:45:30  bdepardo
  * Header corrections
  *
@@ -31,7 +34,7 @@ void DIETForwarder::setTagFilter(const ::tag_list_t& tagList,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->setTagFilter(tagList, objString.c_str());
+		return getPeer()->setTagFilter(tagList, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -50,7 +53,7 @@ void DIETForwarder::addTagFilter(const ::tag_list_t& tagList,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->addTagFilter(tagList, objString.c_str());
+		return getPeer()->addTagFilter(tagList, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -70,7 +73,7 @@ void DIETForwarder::removeTagFilter(const ::tag_list_t& tagList,
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->removeTagFilter(tagList, objString.c_str());
+		return getPeer()->removeTagFilter(tagList, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -88,7 +91,7 @@ void DIETForwarder::test(const char* objName) {
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->test(objString.c_str());
+		return getPeer()->test(objString.c_str());
 	}
 	
 	name = getName(objString);

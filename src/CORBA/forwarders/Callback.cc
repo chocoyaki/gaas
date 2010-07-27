@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2010/07/27 16:16:49  glemahec
+ * Forwarders robustness
+ *
  * Revision 1.3  2010/07/14 23:45:30  bdepardo
  * Header corrections
  *
@@ -34,7 +37,7 @@ using namespace std;
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->notifyResults(path, pb, reqID, objString.c_str());
+		return getPeer()->notifyResults(path, pb, reqID, objString.c_str());
 	}
 	
 	name = getName(objString);
@@ -54,7 +57,7 @@ using namespace std;
 	string name;
 	
 	if (!remoteCall(objString)) {
-		return peer->solveResults(path, pb, reqID, result, objString.c_str());
+		return getPeer()->solveResults(path, pb, reqID, result, objString.c_str());
 	}
 	
 	name = getName(objString);
