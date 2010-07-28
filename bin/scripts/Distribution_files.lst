@@ -17,6 +17,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.42  2010/07/28 12:12:46  bisnard
+#* Added event mgmt utils
+#*
 #* Revision 1.41  2010/07/12 16:17:51  glemahec
 #* DIET 2.5 beta 1 - Introduce DIET forwarders
 #*
@@ -331,6 +334,8 @@ src/agent/workflow/HEFTScheduler.cc
 src/agent/workflow/HEFTScheduler.hh
 src/agent/workflow/MaDag_impl.cc
 src/agent/workflow/MaDag_impl.hh
+src/agent/workflow/MaDagLogCentralDispatcher.cc
+src/agent/workflow/MaDagLogCentralDispatcher.hh
 src/agent/workflow/maDagAgent.cc
 src/agent/workflow/MaDagNodeLauncher.cc
 src/agent/workflow/MaDagNodeLauncher.hh
@@ -381,7 +386,7 @@ src/utils/workflow/FWorkflow.dtd
 src/utils/workflow/FWorkflow.hh
 src/utils/workflow/InputIterator.cc
 src/utils/workflow/InputIterator.hh
-src/utils/workflow/MetaDag.cc
+src/utils/workflow/MetaDag.cc	
 src/utils/workflow/MetaDag.hh
 src/utils/workflow/NodeQueue.cc
 src/utils/workflow/NodeQueue.hh
@@ -400,6 +405,8 @@ src/utils/workflow/WfPort.cc
 src/utils/workflow/WfPort.hh
 src/utils/workflow/WfUtils.cc
 src/utils/workflow/WfUtils.hh
+src/utils/workflow/WfLogDispatcher.hh
+src/utils/workflow/WfLogDispatcher.cc
 src/utils/workflow/WfLogServiceImpl.cc
 src/utils/workflow/WfLogServiceImpl.hh
 
@@ -411,6 +418,8 @@ src/client/workflow/CltWfMgr.cc
 src/client/workflow/CltWfMgr.hh
 src/client/workflow/CltDagNodeLauncher.cc
 src/client/workflow/CltDagNodeLauncher.hh
+src/client/workflow/CltWfLogCentralDispatcher.cc
+src/client/workflow/CltWfLogCentralDispatcher.hh
 
 # Client section
 [Untemplated]
@@ -680,6 +689,22 @@ src/utils/nodes/MonitoringThread.cc
 src/utils/nodes/MonitoringThread.hh
 src/utils/nodes/ServiceTable.cc
 src/utils/nodes/ServiceTable.hh
+
+# Utils/events section
+[Untemplated]
+src/utils/events/CMakeLists.txt
+[Templated]
+src/utils/events/EventBase.cc
+src/utils/events/EventBase.hh
+src/utils/events/EventDispatcher.cc
+src/utils/events/EventDispatcher.hh
+src/utils/events/EventManager.cc
+src/utils/events/EventManager.hh
+src/utils/events/EventHandler.hh
+src/utils/events/EventLogger.hh
+src/utils/events/EventObserver.hh
+src/utils/events/EventTypes.hh
+src/utils/events/TypeInfo.hh
 
 [Untemplated]
 src/utils/fd/CMakeLists.txt
