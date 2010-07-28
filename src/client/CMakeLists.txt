@@ -72,8 +72,7 @@ IF( DIET_BUILD_LIBRARIES )
   IF( DIET_USE_DAGDA )
     SET( DAGDA_LIBRARIES
 #         IDLDagda
-#	 Dagda
-         DIET_Dagda_static
+	 Dagda
     )
   ENDIF( DIET_USE_DAGDA )
 

@@ -87,7 +87,7 @@ ENDIF(NOT DIET_USE_DAGDA)
     CorbaCommon
     IDLLA
     IDLMA
-    forwarderIDL
+#    IDLForwarder
     ${OMNIORB4_LIBRARIES}
   ## New : This variable is only set when DIET_USE_USERSCHED is on. Seems
   ##       to be useless on MacOS X...

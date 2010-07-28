@@ -72,8 +72,8 @@ ENDIF( DIET_USE_ALT_BATCH )
   )
 
 IF( DIET_USE_ALT_BATCH )
-  ADD_DEPENDENCIES( CorbaCommon 
-		    DIET_TARGET_IDL_GENERATED_HEADERS 
+  ADD_DEPENDENCIES( CorbaCommon
+		    DIET_TARGET_IDL_GENERATED_HEADERS
 		    BatchSystem.hh )
   TARGET_LINK_LIBRARIES( CorbaCommon
     UtilsSeDBatch
@@ -168,12 +168,12 @@ ENDIF( DIET_USE_ALT_BATCH )
   ENDIF(DIET_USE_WORKFLOW)
 
   TARGET_LINK_LIBRARIES( dietForwarder
-    forwarderIDL
+    IDLForwarder
     ${Forwarder_Libs}
     ${OMNIORB4_LIBRARIES}
   )
   TARGET_LINK_LIBRARIES( LibForwarder
-    forwarderIDL
+    IDLForwarder
     ${Forwarder_Libs}
     ${OMNIORB4_LIBRARIES}
   )

@@ -30,7 +30,7 @@ IF( DIET_BUILD_LIBRARIES )
     WfLogServiceImpl.cc
     )
 
-  TARGET_LINK_LIBRARIES( UtilsWf AgentCommon DIET_Dagda_static UtilsEvents
+  TARGET_LINK_LIBRARIES( UtilsWf AgentCommon Dagda UtilsEvents
     ${DIET_DAGDA_LIBRARY}
     ${XERCES_LIBRARY}  ${OMNIORB4_LIBRARIES} ${XQILLA_LIBRARY}
     )

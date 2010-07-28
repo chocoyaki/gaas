@@ -47,7 +47,7 @@ IF( DIET_BUILD_LIBRARIES )
        UtilsCommon
        IDLAgent
        CorbaCommon
-       forwarderIDL
+       IDLForwarder
        IDLLA
        IDLMA
        ${OMNIORB4_LIBRARIES} )

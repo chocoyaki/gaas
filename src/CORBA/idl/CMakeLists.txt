@@ -149,7 +149,7 @@ IF( DIET_BUILD_LIBRARIES )
       COMMAND   ${OMNIORB4_IDL_COMPILER} ARGS ${DIET_IDL_FLAGS}
                 ${CMAKE_CURRENT_SOURCE_DIR}/${loop_var}.idl
       DEPENDS   ${CMAKE_CURRENT_SOURCE_DIR}/${loop_var}.idl
-      IMPLICIT_DEPENDS CXX ${CMAKE_CURRENT_SOURCE_DIR}/${loop_var}.idl
+      IMPLICIT_DEPENDS CXX ${loop_var}.idl
       COMMENT   "idl generated code: ${loop_var}SK.cc, ${loop_var}DynSK.cc and ${loop_var}.hh"
   ) 
   endforeach(loop_var)
@@ -235,6 +235,7 @@ IF( DIET_BUILD_LIBRARIES )
    )
   TARGET_LINK_LIBRARIES( IDLLA
     IDLAgent
+    IDLCommon
     ${OMNIORB4_LIBRARIES}
   )
 #  INSTALL( TARGETS IDLLA DESTINATION lib )
@@ -329,16 +330,14 @@ IF( DIET_BUILD_LIBRARIES )
     )
   ENDIF(DIET_USE_WORKFLOW)
 
-  ADD_LIBRARY(forwarderIDL STATIC
+  ADD_LIBRARY(IDLForwarder STATIC
     ${FWDRLIB_SOURCES}
   )
   SET(FORWARDER_LIBS
     ${FORWARDER_LIBS}
-    pthread
-    IDLAgent
     ${OMNIORB4_LIBRARIES}
   )
-  TARGET_LINK_LIBRARIES(forwarderIDL
+  TARGET_LINK_LIBRARIES(IDLForwarder
     ${ForwarderLibs}
   )
 
