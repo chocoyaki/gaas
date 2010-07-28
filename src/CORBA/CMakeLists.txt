@@ -148,7 +148,7 @@ ENDIF( DIET_USE_ALT_BATCH )
   SET(Forwarder_Libs
     AgentCommon
     DIET_SeD_static
-    DIETCall
+#    DIETCall
   )
 
   IF (DIET_USE_DAGDA)

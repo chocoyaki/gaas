@@ -32,34 +32,57 @@ IF( DIET_BUILD_LIBRARIES )
 
 # COMPILE LIBRARY DIET_client
 
-  ADD_LIBRARY( DIET_client SHARED
+  SET(DIET_client_SOURCES
     DIET_client.cc
     DIET_grpc.cc
-  )
-
-# COMPILE LIBRARY DIETCall
-
-  SET(DIETCall_SOURCES
+######
     DIETCall.cc
     CallAsyncMgr.cc
     CallbackImpl.cc
   )
-
   IF (DIET_USE_MULTICALL)
-    SET(DIETCall_SOURCES
+    SET(DIET_client_SOURCES
       MultiCall.cc
-      ${DIETCall_SOURCES}
+      ${DIET_client_SOURCES}
     )
   ENDIF (DIET_USE_MULTICALL)
 
   IF (DIET_USE_CCS)
-    SET(DIETCall_SOURCES
+    SET(DIET_client_SOURCES
       SpecificClientScheduler.cc
-      ${DIETCall_SOURCES}
+      ${DIET_client_SOURCES}
       )
   ENDIF (DIET_USE_CCS)
 
-  ADD_LIBRARY( DIETCall STATIC ${DIETCall_SOURCES} )
+  ADD_LIBRARY( DIET_client SHARED
+    ${DIET_client_SOURCES}
+  )
+  ADD_LIBRARY( DIET_client_static STATIC
+    ${DIET_client_SOURCES}
+  )
+# COMPILE LIBRARY DIETCall
+
+#  SET(DIETCall_SOURCES
+#    DIETCall.cc
+#    CallAsyncMgr.cc
+#    CallbackImpl.cc
+#  )
+
+#  IF (DIET_USE_MULTICALL)
+#    SET(DIETCall_SOURCES
+#      MultiCall.cc
+#      ${DIETCall_SOURCES}
+#    )
+#  ENDIF (DIET_USE_MULTICALL)
+
+#  IF (DIET_USE_CCS)
+#    SET(DIETCall_SOURCES
+#      SpecificClientScheduler.cc
+#      ${DIETCall_SOURCES}
+#      )
+#  ENDIF (DIET_USE_CCS)
+
+#  ADD_LIBRARY( DIETCall STATIC ${DIETCall_SOURCES} )
 
 # COMPILE LIBRARIES FROM SUBDIRS
 
@@ -79,34 +102,42 @@ IF( DIET_BUILD_LIBRARIES )
   TARGET_LINK_LIBRARIES( DIET_client
     CorbaCommon
     IDLAgent
-    IDLCommon
-    IDLMA
+#    IDLCommon
+#    IDLMA
     UtilsCommon
     UtilsVector
-    DIETCall
-    pthread
-    ${OMNIORB4_LIBRARIES}
+#    DIETCall
+#    pthread
+#    ${OMNIORB4_LIBRARIES}
     ${DAGDA_LIBRARIES}
   )
 
-  TARGET_LINK_LIBRARIES( DIETCall
+  TARGET_LINK_LIBRARIES( DIET_client_static
     CorbaCommon
     IDLAgent
-    IDLCommon
-    IDLMA
     UtilsCommon
     UtilsVector
-    UtilsNodes
-    ${OMNIORB4_LIBRARIES}
     ${DAGDA_LIBRARIES}
   )
 
+#  TARGET_LINK_LIBRARIES( DIETCall
+#    CorbaCommon
+#    IDLAgent
+#    IDLCommon
+#    IDLMA
+#    UtilsCommon
+#    UtilsVector
+#    UtilsNodes
+#    ${OMNIORB4_LIBRARIES}
+#    ${DAGDA_LIBRARIES}
+#  )
+
   IF( DIET_USE_BATCH )
-    TARGET_LINK_LIBRARIES( DIETCall UtilsSeDBatch )
+#    TARGET_LINK_LIBRARIES( DIETCall UtilsSeDBatch )
     TARGET_LINK_LIBRARIES( DIET_client UtilsSeDBatch )
   ENDIF( DIET_USE_BATCH )
   IF( DIET_USE_ALT_BATCH )
-    TARGET_LINK_LIBRARIES( DIETCall UtilsSeDBatch )
+#    TARGET_LINK_LIBRARIES( DIETCall UtilsSeDBatch )
     TARGET_LINK_LIBRARIES( DIET_client UtilsSeDBatch )
   ENDIF( DIET_USE_ALT_BATCH )
 
@@ -118,18 +149,18 @@ IF( DIET_BUILD_LIBRARIES )
     )
   ENDIF ( DIET_USE_WORKFLOW)
 
-  IF( DIET_USE_JUXMEM )
-    TARGET_LINK_LIBRARIES( DIETCall ${JUXMEM_LIBRARIES} )
-  ENDIF( DIET_USE_JUXMEM )
+#  IF( DIET_USE_JUXMEM )
+#    TARGET_LINK_LIBRARIES( DIETCall ${JUXMEM_LIBRARIES} )
+#  ENDIF( DIET_USE_JUXMEM )
 
-  IF (DIET_USE_FD)
-    TARGET_LINK_LIBRARIES( DIETCall fd )
-  ENDIF (DIET_USE_FD)
+#  IF (DIET_USE_FD)
+#    TARGET_LINK_LIBRARIES( DIETCall fd )
+#  ENDIF (DIET_USE_FD)
 
-  IF( NOT BUILD_SHARED_LIBS )
-    TARGET_LINK_LIBRARIES( DIET_client stdc++ )
-    TARGET_LINK_LIBRARIES( DIETCall stdc++ )
-  ENDIF( NOT BUILD_SHARED_LIBS )
+#  IF( NOT BUILD_SHARED_LIBS )
+#    TARGET_LINK_LIBRARIES( DIET_client stdc++ )
+#    TARGET_LINK_LIBRARIES( DIETCall stdc++ )
+#  ENDIF( NOT BUILD_SHARED_LIBS )
 
   # INSTALL LIBRARIES
 #  INSTALL( TARGETS DIETCall DIET_client DESTINATION lib)

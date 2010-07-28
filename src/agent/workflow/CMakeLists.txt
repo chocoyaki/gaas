@@ -31,7 +31,8 @@ IF( DIET_BUILD_LIBRARIES )
     AgentCommon
     UtilsWf
     CltWf
-    DIETCall
+#    DIETCall
+    DIET_client_static
     ${XERCES_LIBRARY}
     ${OMNIORB4_LIBRARIES}
     )

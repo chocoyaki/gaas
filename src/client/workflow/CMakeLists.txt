@@ -23,8 +23,10 @@ IF( DIET_BUILD_LIBRARIES )
     CltWfMgr.cc )
 
   TARGET_LINK_LIBRARIES( CltWf
-    UtilsWf IDLWf DIETCall
+    UtilsWf IDLWf
+# DIETCall
 # IDLForwarder
+#    DIET_client_static
     ${XERCES_LIBRARY}  ${OMNIORB4_LIBRARIES}
     )
 
