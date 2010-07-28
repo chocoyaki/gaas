@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2010/07/28 12:06:38  bisnard
+ * changed include file name
+ *
  * Revision 1.1  2010/07/20 09:13:57  bisnard
  * Adding event dispatcher
  *
@@ -19,7 +22,7 @@
 #include <string>
 #include <map>
 #include <iostream>
-#include "type_info.h"
+#include "TypeInfo.hh"
 #include "EventObserver.hh"
 
 namespace events {
