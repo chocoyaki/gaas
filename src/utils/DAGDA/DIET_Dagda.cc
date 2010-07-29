@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.28  2010/07/29 15:32:11  bisnard
+ * fixed bug with id generation when SeD name is defined
+ *
  * Revision 1.27  2010/07/12 16:14:12  glemahec
  * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
  *
@@ -467,15 +470,16 @@ MasterAgent_var masterAgent = NULL;
 // DAGDA should use the uuid library to avoid id's conflicts.
 char * get_data_id()
 {
+	SimpleDagdaImpl* localManager = (SimpleDagdaImpl*) DagdaFactory::getDataManager();
 #if ! HAVE_ADVANCED_UUID
   static int num_data = 0;
   ostringstream id;
-  char* name =
-	(char*) Parsers::Results::getParamValue(Parsers::Results::NAME);
+  char* name = localManager->getID();
 	
-  if (name!=NULL)
+  if (name!=NULL) {
     id << "DAGDA://id." << name << "." << getpid() << "." << num_data++;
-  else
+		CORBA::string_free(name);
+	} else
     id << "DAGDA://id." << "client." << getpid() << "." << num_data++;
 	
   return CORBA::string_dup(id.str().c_str());
@@ -483,15 +487,15 @@ char * get_data_id()
   uuid_t uuid;
   char ID[37];
   ostringstream id;
-  char* name =
-	(char*) Parsers::Results::getParamValue(Parsers::Results::NAME);
-	
+  char* name = localManager->getID();
+  
   uuid_generate(uuid);
   uuid_unparse(uuid, ID);
 	
-  if (name!=NULL)
+  if (name!=NULL) {
     id << "DAGDA://id-" << ID << "-" << name;
-  else
+		CORBA::string_free(name);
+	} else
     id << "DAGDA://id-" << ID << "-client-" << getpid();
 	
   return CORBA::string_dup(id.str().c_str());
