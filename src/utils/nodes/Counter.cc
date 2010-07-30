@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2010/07/30 14:44:26  glemahec
+ * Temporary corrections for the new compilation process. Parallel compilation is still broken and there is a big mess on the CMakeLists files...
+ *
  * Revision 1.2  2010/03/31 21:15:41  bdepardo
  * Changed C headers into C++ headers
  *
@@ -73,3 +76,37 @@ Counter::operator CORBA::ULong() const {
   valueMutex.unlock() ;
   return valueBuf ;
 }
+
+Counter & Counter::operator--() {
+	assert(value > 0) ;
+	valueMutex.lock() ;
+	value-- ;
+	valueMutex.unlock() ;
+	return *this ;
+}
+
+Counter & Counter::operator++() {
+	assert(value < value + 1) ;
+	valueMutex.lock() ;
+	value++ ;
+	valueMutex.unlock() ;
+	return *this ;
+}
+
+Counter & Counter::operator-=(const Counter & aCounter) {
+	assert(value > 0) ;
+	valueMutex.lock() ;
+	value = value - static_cast<CORBA::ULong>(aCounter) ;
+	valueMutex.unlock() ;
+	return *this ;
+}
+
+Counter & Counter::operator+=(const Counter & aCounter) {
+	assert(value < value + 1) ;
+	valueMutex.lock() ;
+	value = value + static_cast<CORBA::ULong>(aCounter) ;
+	valueMutex.unlock() ;
+	return *this ;
+}
+
+

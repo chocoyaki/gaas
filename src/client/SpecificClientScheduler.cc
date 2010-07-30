@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$ 
  * $Log$
+ * Revision 1.5  2010/07/30 14:44:25  glemahec
+ * Temporary corrections for the new compilation process. Parallel compilation is still broken and there is a big mess on the CMakeLists files...
+ *
  * Revision 1.4  2010/07/13 08:17:39  glemahec
  * DIET 2.5 beta 1 - Client Specific Scheduler compilation error correction
  *
@@ -103,7 +106,7 @@ SpecificClientScheduler::burstRequest(SeD_var& chosenServer,
   static vector<string> availableSeDs;
   static vector<int> use;
   static int min = 0;
-  unsigned int ix, jx;
+  unsigned int ix;//, jx;
   bool found;
   vector<string>::iterator i_s, i_r;
   vector<int>::iterator i_us, i_ur;
@@ -267,7 +270,7 @@ SpecificClientScheduler::isOptionEnabled(string option, vector<string>& params) 
 void
 SpecificClientScheduler::removeBlanks(string& token) {
   // remove blank
-  int blankIt;
+  unsigned int blankIt;
   while ( (blankIt = token.find_first_of(" ")) != token.npos) {
     token.erase(blankIt, blankIt + 1);
   }
@@ -275,7 +278,7 @@ SpecificClientScheduler::removeBlanks(string& token) {
 
 void
 SpecificClientScheduler::stringSplit(string str, string delim, vector<string>& results) {
-  int cutAt;
+  unsigned int cutAt;
   while( (cutAt = str.find_first_of(delim)) != str.npos ) {
     if(cutAt > 0) {
       string token = str.substr(0,cutAt);

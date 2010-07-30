@@ -23,12 +23,8 @@ IF( DIET_BUILD_LIBRARIES )
     CltWfMgr.cc )
 
   TARGET_LINK_LIBRARIES( CltWf
-    UtilsWf IDLWf
-# DIETCall
-# IDLForwarder
-#    DIET_client_static
-    ${XERCES_LIBRARY}  ${OMNIORB4_LIBRARIES}
-    )
+    DIET_Utils
+  )
 
 #  INSTALL( TARGETS CltWf DESTINATION lib )
 

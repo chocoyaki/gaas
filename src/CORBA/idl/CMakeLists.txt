@@ -107,7 +107,6 @@ IF( DIET_BUILD_LIBRARIES )
       ${IDL_SOURCES} )
   ENDIF ( DIET_USE_WORKFLOW )
 
-  ## Use Dagda as data manager.
   IF( DIET_USE_DAGDA )
     SET( IDL_SOURCES
        Dagda
@@ -159,186 +158,60 @@ IF( DIET_BUILD_LIBRARIES )
     ${CMAKE_CURRENT_BINARY_DIR}
   )
 
-  IF (DIET_USE_WORKFLOW)
-    ADD_LIBRARY( IDLCommon STATIC
-      CallbackDynSK.cc
-      CallbackSK.cc
-      common_typesSK.cc
-      common_typesDynSK.cc
-      responseDynSK.cc
-      responseSK.cc
-      SeDSK.cc
-      SeDDynSK.cc
-      CltManSK.cc
-      CltManDynSK.cc
-    )
-  ELSE ( DIET_USE_WORKFLOW )
-    ADD_LIBRARY( IDLCommon STATIC
-      CallbackDynSK.cc
-      CallbackSK.cc
-      common_typesSK.cc
-      common_typesDynSK.cc
-      responseDynSK.cc
-      responseSK.cc
-      SeDSK.cc
-      SeDDynSK.cc
-    )
-  ENDIF (DIET_USE_WORKFLOW)
-# Forwarder libs
-  SET(ForwarderLibs
-    IDLCommon
-    ${OMNIORB4_LIBRARIES}
-  )
-
-  TARGET_LINK_LIBRARIES( IDLCommon
-    ${OMNIORB4_LIBRARIES}
-  )
-#  INSTALL( TARGETS IDLCommon DESTINATION lib )
-
-  ADD_LIBRARY( IDLAgent STATIC
+  set(DIET_CORBA_SOURCES
+    AgentDynSK.cc
+    AgentSK.cc
+    AgentFwdrDynSK.cc
+    AgentFwdrSK.cc
+    CallbackDynSK.cc
+    CallbackSK.cc
+    CallbackFwdrDynSK.cc
+    CallbackFwdrSK.cc
     common_typesSK.cc
     common_typesDynSK.cc
-    SeDSK.cc
-    SeDDynSK.cc
-    responseSK.cc
-    responseDynSK.cc
-    AgentSK.cc
-    AgentDynSK.cc
-    LocalAgentSK.cc
+    ForwarderDynSK.cc
+    ForwarderSK.cc
     LocalAgentDynSK.cc
-    MasterAgentSK.cc
-    MasterAgentDynSK.cc
+    LocalAgentSK.cc
+    LocalAgentFwdrDynSK.cc
+    LocalAgentFwdrSK.cc
     LogComponentDynSK.cc
     LogComponentSK.cc
+    LogComponentFwdrDynSK.cc
+    LogComponentFwdrSK.cc
     LogTypesSK.cc
     LogTypesDynSK.cc
-    ${DATAMGR_IDL_BUILD_SRC}
-  )
-  IF( DIET_USE_DAGDA )
-    SET( DagdaLibs IDLDagda )
-    SET(ForwarderLibs
-      ${ForwarderLibs}
-      IDLDagda
-    )
-  ENDIF( DIET_USE_DAGDA )
-
-  TARGET_LINK_LIBRARIES( IDLAgent
-    IDLCommon
-    ${OMNIORB4_LIBRARIES}
-    ${DagdaLibs}
-  )
-#  INSTALL( TARGETS IDLAgent DESTINATION lib )
-
-  ADD_LIBRARY( IDLLA STATIC
-    LocalAgentSK.cc
-    LocalAgentDynSK.cc
-   )
-  TARGET_LINK_LIBRARIES( IDLLA
-    IDLAgent
-    IDLCommon
-    ${OMNIORB4_LIBRARIES}
-  )
-#  INSTALL( TARGETS IDLLA DESTINATION lib )
-
-  ADD_LIBRARY( IDLMA STATIC
     MasterAgentSK.cc
     MasterAgentDynSK.cc
-  )
-  TARGET_LINK_LIBRARIES( IDLMA
-    IDLAgent
-    IDLCommon
-    ${OMNIORB4_LIBRARIES}
-  )
-#  INSTALL( TARGETS IDLMA DESTINATION lib )
-
-  ## Use Dagda as data manager.
-  IF( DIET_USE_DAGDA )
-    ADD_LIBRARY( IDLDagda STATIC
-      DagdaSK.cc )
-    TARGET_LINK_LIBRARIES( IDLDagda
-      IDLCommon
-      ${OMNIORB4_LIBRARIES} )
-#    INSTALL( TARGETS IDLDagda DESTINATION lib )
-  ENDIF( DIET_USE_DAGDA )
-
-  ##########################################################################
-  IF ( DIET_USE_WORKFLOW )
-  ADD_LIBRARY ( IDLWf STATIC
-    MaDagSK.cc
-    MaDagDynSK.cc
-    WfLogServiceSK.cc
-    WfLogServiceDynSK.cc
-    CltManSK.cc
-    CltManDynSK.cc
-    )
-
-
-  TARGET_LINK_LIBRARIES( IDLWf
-    IDLCommon
-    ${OMNIORB4_LIBRARIES}
-  )
-  SET(ForwarderLibs
-      ${ForwarderLibs}
-      IDLWf
-    )
-#  INSTALL( TARGETS IDLWf DESTINATION lib )
-  ENDIF ( DIET_USE_WORKFLOW )
-  ##########################################################################
-  SET(FWDRLIB_SOURCES
-    ForwarderSK.cc
-    ForwarderDynSK.cc
-    LogTypesSK.cc
-    LogTypesDynSK.cc
-    AgentFwdrSK.cc
-    CallbackFwdrSK.cc
-    LocalAgentFwdrSK.cc
-    LogComponentFwdrSK.cc
     MasterAgentFwdrSK.cc
-    SeDFwdrSK.cc
-    AgentFwdrDynSK.cc
-    CallbackFwdrDynSK.cc
-    LocalAgentFwdrDynSK.cc
-    LogComponentFwdrDynSK.cc
     MasterAgentFwdrDynSK.cc
+    responseDynSK.cc
+    responseSK.cc
+    SeDSK.cc
+    SeDDynSK.cc
+    SeDFwdrSK.cc
     SeDFwdrDynSK.cc
+    ${DATAMGR_IDL_BUILD_SRC}
   )
-  IF (DIET_USE_DAGDA)
-    SET(FWDRLIB_SOURCES
-      DagdaFwdrSK.cc
-      DagdaFwdrDynSK.cc
-      ${FWDRLIB_SOURCES}
-    )
-  ELSE (DIET_USE_DAGDA)
-    SET(FWDRLIB_SOURCES
-      DataMgrFwdrSK.cc
-      LocMgrFwdrSK.cc
-      DataMgrFwdrDynSK.cc
-      LocMgrFwdrDynSK.cc
-      ${FWDRLIB_SOURCES}
-    )
-  ENDIF(DIET_USE_DAGDA)
 
-  IF (DIET_USE_WORKFLOW)
-    SET(FWDRLIB_SOURCES
+  if (DIET_USE_WORKFLOW)
+    set(DIET_CORBA_SOURCES
+      ${DIET_CORBA_SOURCES}
+      CltManSK.cc
+      CltManDynSK.cc
       CltManFwdrSK.cc
-      MaDagFwdrSK.cc
-      WfLogServiceFwdrSK.cc
       CltManFwdrDynSK.cc
+      MaDagSK.cc
+      MaDagDynSK.cc
+      MaDagFwdrSK.cc
       MaDagFwdrDynSK.cc
+      WfLogServiceSK.cc
+      WfLogServiceDynSK.cc
+      WfLogServiceFwdrSK.cc
       WfLogServiceFwdrDynSK.cc
-      ${FWDRLIB_SOURCES}
     )
-  ENDIF(DIET_USE_WORKFLOW)
-
-  ADD_LIBRARY(IDLForwarder STATIC
-    ${FWDRLIB_SOURCES}
+  endif (DIET_USE_WORKFLOW)
+  add_library(DIET_CORBA STATIC
+    ${DIET_CORBA_SOURCES}
   )
-  SET(FORWARDER_LIBS
-    ${FORWARDER_LIBS}
-    ${OMNIORB4_LIBRARIES}
-  )
-  TARGET_LINK_LIBRARIES(IDLForwarder
-    ${ForwarderLibs}
-  )
-
 ENDIF( DIET_BUILD_LIBRARIES )

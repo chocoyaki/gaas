@@ -42,17 +42,25 @@ IF( DIET_BUILD_LIBRARIES )
 #  ENDIF( DIET_USE_CORI )
 
   ADD_LIBRARY( UtilsNodes STATIC ${UtilsNodesSource})
-  SET( UtilsNodesTmpLib
+  IF (NOT DIET_USE_DAGDA)
+    TARGET_LINK_LIBRARIES(UtilsNodes
+      DIET_Utils
+    )
+  ENDIF(NOT DIET_USE_DAGDA)
+#  SET_TARGET_PROPERTIES( UtilsNodes PROPERTIES LINK_FLAGS "-flat_namespace")
+
+#  SET( UtilsNodesTmpLib
 #       UtilsSeDClt
-       UtilsCommon
-       IDLAgent
-       CorbaCommon
-       IDLForwarder
-       IDLLA
-       IDLMA
-       ${OMNIORB4_LIBRARIES} )
-  TARGET_LINK_LIBRARIES( UtilsNodes
-			 ${UtilsNodesTmpLib} )
+#       UtilsCommon
+#       IDLAgent
+#       CorbaCommon
+#       IDLForwarder
+#       IDLLA
+#       IDLMA
+#       ${OMNIORB4_LIBRARIES}
+#  )
+#  TARGET_LINK_LIBRARIES( UtilsNodes
+#			 ${UtilsNodesTmpLib} )
 #  INSTALL( TARGETS UtilsNodes DESTINATION lib )
   ### FIXME: the following is kludgy! See note "MacOS X and unresolved symbol"
   # in src/CORBA/CMakeLists.txt
@@ -60,7 +68,7 @@ IF( DIET_BUILD_LIBRARIES )
 #    SET_TARGET_PROPERTIES( UtilsNodes
 #      PROPERTIES LINK_FLAGS "-flat_namespace -undefined suppress" )
 #  ENDIF( APPLE )
-  TARGET_LINK_LIBRARIES( UtilsNodes ${UtilsNodesTmpLib} ${FAST_LIBRARIES} )
+#  TARGET_LINK_LIBRARIES( UtilsNodes ${UtilsNodesTmpLib} ${FAST_LIBRARIES} )
 
 ########################################################################
 ### Cori library:          ***      for the SeD       ***
@@ -95,17 +103,22 @@ IF( DIET_BUILD_LIBRARIES )
 	   CORIMgr.cc )
 
     ADD_LIBRARY( UtilsCori STATIC ${UtilsCoriSource} )
+    IF (NOT DIET_USE_DAGDA)
+      TARGET_LINK_LIBRARIES(UtilsCori
+        CorbaCommon
+      )
+    ENDIF(NOT DIET_USE_DAGDA)
 
     SET_SOURCE_FILES_PROPERTIES( FASTMgr.cc PROPERTIES
 				 COMPILE_FLAGS "${FAST_INCLUDE_DIR}")
-    SET( UtilsCoriTmpLib
-         UtilsNodes
+#    SET( UtilsCoriTmpLib
+#         UtilsNodes
 #         UtilsSeDClt
-         UtilsCommon
-         ${OMNIORB4_LIBRARIES} )
+#         UtilsCommon
+#         ${OMNIORB4_LIBRARIES} )
 
-    TARGET_LINK_LIBRARIES( UtilsCori
-			   ${UtilsCoriTmpLib} )
+#    TARGET_LINK_LIBRARIES( UtilsCori
+#			   ${UtilsCoriTmpLib} )
 #    INSTALL( TARGETS UtilsCori DESTINATION lib )
     ### FIXME: the following is kludgy!
     # See note "MacOS X and unresolved symbol"
@@ -114,7 +127,7 @@ IF( DIET_BUILD_LIBRARIES )
  #       SET_TARGET_PROPERTIES( UtilsCori
  #       PROPERTIES LINK_FLAGS "-flat_namespace -undefined suppress" )
  #   ENDIF( APPLE )
-    TARGET_LINK_LIBRARIES( UtilsCori ${UtilsCoriTmpLib} ${FAST_LIBRARIES} )
+#    TARGET_LINK_LIBRARIES( UtilsCori ${UtilsCoriTmpLib} ${FAST_LIBRARIES} )
 
   ENDIF( DIET_USE_CORI )
 

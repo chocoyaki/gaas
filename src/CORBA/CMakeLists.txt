@@ -29,43 +29,7 @@ IF( DIET_USE_ALT_BATCH )
     INCLUDE_DIRECTORIES( ${JUXMEM_INCLUDE_DIR} )
   ENDIF( DIET_USE_JUXMEM )
 ENDIF( DIET_USE_ALT_BATCH )
-  
-  # Note concerning unresolved symbols in CorbaCommon library:
-  # CorbaCommon uses some "stuff" defined in src/utils/DIET_data.cc [e.g.
-  # matrix_set_desc(...)] or in src/utils/debug.cc. Hence CorbaCommon should
-  # be linked against UtilsCommon for all symbols to be resolved (and thus
-  # for diet not to be dirty). But in order to build the UtilsCommon library
-  # one first needs to generate the idl headers. Note that CorbaCommon
-  # also depends on those idl generated headers since it depends on 
-  # the library IDLMA (which in turn depends on IDLCommon which itself
-  # depends on the idl generated code).
-  # The problem is that this clean and classical dependency tree collides
-  # with the directory layout that cmake uses for collecting the targets it
-  # is in charge of building. Indeed for historical reasons (due to cmake's
-  # ADD_SUBDIRECTORY command) cmake uses a depth first recursive algorithm
-  # in order to walk the directory tree (in order to collect the
-  # CMakeLists.txt files and the target definitions it contains).
-  # Indeed for the dependencies to be respected we should build the
-  # libraries in the following order:
-  #   src/CORBA/idl/IDLCommon
-  #   src/utils/UtilsCommon   (depends on IDLCommon)
-  #   src/CORBA/CorbaCommon   (depends on IDLCommon AND UtilsCommon)
-  # Alas when walking the directory tree, cmake will define these library
-  # targets either in the following order:
-  #   src/CORBA/idl/IDLCommon (OK, no dependencies)
-  #   src/CORBA/CorbaCommon   (Failure: missing UtilsCommon)
-  #   src/utils/UtilsCommon   (OK, depends on IDLCommon)
-  # or we could also try:
-  #   src/utils/UtilsCommon   (Failure: missing IDLCommon)
-  #   src/CORBA/idl/IDLCommon (OK, no dependencies)
-  #   src/CORBA/CorbaCommon   (OK, depends on UtilsCommon and IDLCommon)
-  # We are doomed !
-  # A possible solution would be to change the directory layout by promoting
-  # idl subdirectory from src/CORBA/idl to src/idl. Cmake targets would
-  # now be defined in the following way:
-  #   src/idl/IDLCommon      (OK, no dependencies)
-  #   src/utils/UtilsCommon  (OK, depends on IDLCommon)
-  #   src/CORBA/CorbaCommon  (OK, depends on UtilsCommon and IDLCommon)
+
   ADD_LIBRARY( CorbaCommon STATIC
     ORBMgr.cc
     marshalling.cc
@@ -75,18 +39,16 @@ IF( DIET_USE_ALT_BATCH )
   ADD_DEPENDENCIES( CorbaCommon
 		    DIET_TARGET_IDL_GENERATED_HEADERS
 		    BatchSystem.hh )
-  TARGET_LINK_LIBRARIES( CorbaCommon
-    UtilsSeDBatch
-  )
+#  TARGET_LINK_LIBRARIES( CorbaCommon
+#    UtilsSeDBatch
+#  )
 ELSE( DIET_USE_ALT_BATCH )
   ADD_DEPENDENCIES( CorbaCommon 
 		    DIET_TARGET_IDL_GENERATED_HEADERS )
 ENDIF( DIET_USE_ALT_BATCH )
 
   TARGET_LINK_LIBRARIES( CorbaCommon
-    UtilsCommon
-#    LibForwarder
-    ${OMNIORB4_LIBRARIES}
+    DIET_CORBA
   )
 
 # Forwarder
@@ -136,47 +98,74 @@ ENDIF( DIET_USE_ALT_BATCH )
     )
   ENDIF (DIET_USE_WORKFLOW)
 
-  ADD_EXECUTABLE(dietForwarder
-    dietFwdr.cc
-    DIETForwarder.cc
-    ${Forwarder_SOURCES}
-  )
   ADD_LIBRARY(LibForwarder STATIC
     ${Forwarder_SOURCES}
   )
-
-  SET(Forwarder_Libs
-    AgentCommon
-    DIET_SeD_static
-#    DIETCall
+  ADD_EXECUTABLE(dietForwarder
+    ORBMgr.cc
+    marshalling.cc
+    dietFwdr.cc
+    DIETForwarder.cc
+    ${Forwarder_SOURCES}
   )
 
   IF (DIET_USE_DAGDA)
     SET(Forwarder_Libs
       ${Forwarder_Libs}
-#      IDLDagda
+      ${UUIDLIB}
+      Dagda
     )
   ENDIF (DIET_USE_DAGDA)
 
-  IF (DIET_USE_WORKFLOW)
-    SET(Forwarder_Libs
-      ${Forwarder_Libs}
- #     Dagda
+#  IF (DIET_USE_ALT_BATCH)
+#    SET(Forwarder_Libs
+#      ${Forwarder_Libs}
+#      UtilsSeDBatch
+#    )
+#  ENDIF (DIET_USE_ALT_BATCH)
+
+  SET(Forwarder_Libs
+#    UtilsNodes
+    DIET_Utils
+#    ${Forwarder_Libs}
+#    DIET_CORBA
+#    DIET_SeD_static
+#    DIET_client_static
+    ${Forwarder_Libs}
+    DIET_CORBA
+    CorbaCommon
+    UtilsNodes
+    DIET_Utils
+  )
+
+IF (DIET_USE_WORKFLOW)
+  SET(Forwarder_Libs
+    ${Forwarder_Libs}
       CltWf
       MaDag
-    )
-  ENDIF(DIET_USE_WORKFLOW)
+      UtilsWf
+      UtilsEvents
+      ${XERCES_LIBRARY}
+      ${XQILLA_LIBRARY}
+  )
+ENDIF(DIET_USE_WORKFLOW)
+  SET(Forwarder_Libs
+    ${Forwarder_Libs}
+
+    AgentCommon
+    DIET_SeD_static
+    DIET_client_static
+
+    ${OMNIORB4_LIBRARIES}
+    pthread
+  )
 
   TARGET_LINK_LIBRARIES( dietForwarder
-    IDLForwarder
     ${Forwarder_Libs}
-    ${OMNIORB4_LIBRARIES}
   )
-  TARGET_LINK_LIBRARIES( LibForwarder
-    IDLForwarder
-    ${Forwarder_Libs}
-    ${OMNIORB4_LIBRARIES}
-  )
+  if (DIET_USE_USERSCHED)
+    target_link_libraries(dietForwarder ${CMAKE_DL_LIBS})
+  endif (DIET_USE_USERSCHED)
 
   ## ------------- New : For scheduler load support. ---------------
   # Install the files needed for a scheduler creation.

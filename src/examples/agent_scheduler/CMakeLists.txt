@@ -12,8 +12,8 @@ ELSE( NOT DIET_USE_USERSCHED )
                        ${OMNIORB4_DIR}/include)
 
   IF ( APPLE )
-    TARGET_LINK_LIBRARIES(HostnameRR UtilsCommon CorbaCommon omniORB4
-                          AgentCommon omnithread UtilsSeDClt IDLCommon)
+    TARGET_LINK_LIBRARIES(HostnameRR CorbaCommon omniORB4
+                          AgentCommon omnithread )
   ENDIF( APPLE )
   INSTALL( TARGETS HostnameRR DESTINATION bin/examples/agent_scheduler )
 ENDIF( NOT DIET_USE_USERSCHED )

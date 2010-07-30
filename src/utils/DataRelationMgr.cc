@@ -9,6 +9,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2010/07/30 14:44:26  glemahec
+ * Temporary corrections for the new compilation process. Parallel compilation is still broken and there is a big mess on the CMakeLists files...
+ *
  * Revision 1.5  2009/10/02 07:43:21  bisnard
  * reduced trace verbosity for containers
  *
@@ -111,7 +114,7 @@ DataRelationMgr::getRelationNb(const string& dataID) {
 
 unsigned int
 DataRelationMgr::getRelationMaxIndex(const string& dataID) {
-  unsigned int max = 0;
+  int max = 0;
   myLock.lock();
   for (multimap<std::string, dataRelationValue_t>::iterator iter = myMap.lower_bound(dataID);
        iter != myMap.upper_bound(dataID);

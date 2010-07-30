@@ -46,50 +46,52 @@ ENDIF(NOT DIET_USE_DAGDA)
   # To use Dagda instead of DTM.
   IF( DIET_USE_DAGDA )
     INCLUDE_DIRECTORIES( ${DIET_SOURCE_DIR}/src/utils/DAGDA ${UUID_PATH} )
-    SET( DAGDA_LIBRARIES
-         IDLDagda
-	 Dagda )
+    SET( DIET_SeD_Libs
+      ${DIET_SeD_Libs}
+      ${UUIDLIB}
+      Dagda
+    )
   ENDIF( DIET_USE_DAGDA )
+  IF (DIET_USE_FD)
+    SET(DIET_SeD_Libs
+      ${DIET_SeD_Libs}
+      fd
+    )
+  ENDIF (DIET_USE_FD)
 
   ADD_LIBRARY( DIET_SeD SHARED ${DIET_SeD_SOURCES} )
   ADD_LIBRARY( DIET_SeD_static STATIC ${DIET_SeD_SOURCES} )
   
-  SET( DIET_SeDTmpLib
+  SET( DIET_SeD_Libs
+       ${DIET_SeD_Libs}
+       DIET_CORBA
        CorbaCommon
        UtilsNodes
-       IDLAgent
-       IDLCommon
-       UtilsCommon
-       UtilsVector
+       DIET_Utils
        ${OMNIORB4_LIBRARIES}
-       ${DAGDA_LIBRARIES} )
+       pthread
+  )
 
   IF( NOT DIET_USE_ALT_BATCH )
     IF( DIET_USE_CORI )      # Then the lib is compiled independantly
-      SET( DIET_SeDTmpLib
-	   ${DIET_SeDTmpLib}
+      SET( DIET_SeD_Libs
+	   ${DIET_SeD_Libs}
 	   UtilsCori )
     ENDIF( DIET_USE_CORI )
   ENDIF( NOT DIET_USE_ALT_BATCH )
 
   TARGET_LINK_LIBRARIES( DIET_SeD
-			 ${DIET_SeDTmpLib} )
-  TARGET_LINK_LIBRARIES( DIET_SeD_static
-			 ${DIET_SeDTmpLib} ) 
-
+			 ${DIET_SeD_Libs} )
   IF(DIET_USE_FD)
-    TARGET_LINK_LIBRARIES( DIET_SeD fd )
     TARGET_LINK_LIBRARIES( DIET_SeD_static fd )
- ENDIF(DIET_USE_FD)
+  ENDIF(DIET_USE_FD)
   
   IF( DIET_USE_ALT_BATCH )
     TARGET_LINK_LIBRARIES( DIET_SeD UtilsSeDBatch )
-    TARGET_LINK_LIBRARIES( DIET_SeD_static UtilsSeDBatch )
   ENDIF( DIET_USE_ALT_BATCH )
 
   IF( DIET_USE_JUXMEM )
     TARGET_LINK_LIBRARIES( DIET_SeD ${JUXMEM_LIBRARIES} )
-    TARGET_LINK_LIBRARIES( DIET_SeD_static ${JUXMEM_LIBRARIES} )
   ENDIF( DIET_USE_JUXMEM )
 
   IF( NOT BUILD_SHARED_LIBS )

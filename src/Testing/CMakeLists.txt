@@ -54,7 +54,7 @@ IF( BUILD_TESTING )
   ENDFOREACH( loop_file ${DIET_TEST_SOURCES} )
 
   TARGET_LINK_LIBRARIES( ${DIET_TEST_NAME}
-    UtilsCommon        # FIXME: this is a dependency of the CorbaCommon
+#    UtilsCommon        # FIXME: this is a dependency of the CorbaCommon
                        # target and should NOT figure here !
     CorbaCommon        # Used by TestORBMgrInit.cxx
   )

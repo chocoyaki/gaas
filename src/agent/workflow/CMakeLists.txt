@@ -14,7 +14,7 @@ IF( DIET_BUILD_LIBRARIES )
 
   INCLUDE_DIRECTORIES( ${XERCES_INCLUDE_DIR} )
 
-  ADD_LIBRARY( MaDag STATIC
+  set(MaDag_SOURCES
     MaDagNodeLauncher.cc
     MaDagLogCentralDispatcher.cc
     MaDag_impl.cc
@@ -24,25 +24,23 @@ IF( DIET_BUILD_LIBRARIES )
     MultiWfFOFT.cc
     MultiWfHEFT.cc
     MultiWfSRPT.cc
-    MultiWfFCFS.cc )
+    MultiWfFCFS.cc 
+  )
+  ADD_LIBRARY( MaDag STATIC
+    ${MaDag_SOURCES}
+  )
 
-  TARGET_LINK_LIBRARIES ( MaDag
-    IDLWf
-    AgentCommon
-    UtilsWf
-    CltWf
-#    DIETCall
-    DIET_client_static
-    ${XERCES_LIBRARY}
-    ${OMNIORB4_LIBRARIES}
-    )
-
-  ADD_EXECUTABLE ( maDagAgent maDagAgent.cc )
+  ADD_EXECUTABLE ( maDagAgent maDagAgent.cc ${MaDag_SOURCES} )
   TARGET_LINK_LIBRARIES (maDagAgent
-      MaDag
-      UtilsNodes
-      )
+      Dagda
+      CorbaCommon
+      DIET_Utils
+      ${UUIDLIB}
+      ${XERCES_LIBRARY}
+      ${XQILLA_LIBRARY}
+      ${OMNIORB4_LIBRARIES}
+      pthread
+  )
   INSTALL( TARGETS maDagAgent DESTINATION bin )
-#  INSTALL( TARGETS MaDag DESTINATION lib )
 
 ENDIF( DIET_BUILD_LIBRARIES )

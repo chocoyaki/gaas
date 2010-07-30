@@ -3,11 +3,11 @@
 #****************************************************************************#
 
 IF ( DIET_USE_DAGDA )
-   SET( DIET_CLIENT_LIBRARIES DIET_client Dagda UtilsNodes UtilsCommon)
-   SET( DIET_SERVER_LIBRARIES DIET_SeD Dagda UtilsNodes UtilsCommon)
+   SET( DIET_CLIENT_LIBRARIES DIET_client DIET_Dagda)
+   SET( DIET_SERVER_LIBRARIES DIET_SeD DIET_Dagda)
 ELSE ( DIET_USE_DAGDA )
-   SET( DIET_CLIENT_LIBRARIES DIET_client UtilsNodes UtilsCommon)
-   SET( DIET_SERVER_LIBRARIES DIET_SeD UtilsNodes UtilsCommon)
+   SET( DIET_CLIENT_LIBRARIES DIET_client)
+   SET( DIET_SERVER_LIBRARIES DIET_SeD)
 ENDIF ( DIET_USE_DAGDA )
 
 IF( DIET_USE_DYNAMICS )

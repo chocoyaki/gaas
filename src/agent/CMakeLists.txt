@@ -56,7 +56,7 @@ ENDIF(NOT DIET_USE_DAGDA)
   ###       Install the needed files for user scheduler development.
   IF( DIET_USE_USERSCHED )
     SET( AgentCommon_SOURCES ${AgentCommon_SOURCES} UserScheduler.cc)
-    SET(DynamicLoadingLibrary dl)
+#    SET(DynamicLoadingLibrary dl)
     INSTALL( FILES
         GlobalSchedulers.hh
 	UserScheduler.hh
@@ -68,42 +68,61 @@ ENDIF(NOT DIET_USE_DAGDA)
   # To use Dagda instead of DTM.
   IF( DIET_USE_DAGDA )
     INCLUDE_DIRECTORIES( ${DIET_SOURCE_DIR}/src/utils/DAGDA ${UUID_PATH} )
-    SET( DAGDA_LIBRARIES
-      Dagda
-      IDLDagda
-    )
+#    SET( DAGDA_LIBRARIES
+#      Dagda
+#    )
   ENDIF( DIET_USE_DAGDA )
 
   ADD_LIBRARY( AgentCommon STATIC ${AgentCommon_SOURCES})
+  IF (NOT DIET_USE_DAGDA)
+    TARGET_LINK_LIBRARIES(AgentCommon
+      DIET_Utils
+    )
+  ENDIF (NOT DIET_USE_DAGDA)
 
   IF( DIET_USE_CORI )
       SET( CORI_LIBRARIES
 	   UtilsCori )
   ENDIF( DIET_USE_CORI )
-
-  TARGET_LINK_LIBRARIES( AgentCommon
-    UtilsNodes
-    UtilsVector
-    CorbaCommon
-    IDLLA
-    IDLMA
-#    IDLForwarder
-    ${OMNIORB4_LIBRARIES}
-  ## New : This variable is only set when DIET_USE_USERSCHED is on. Seems
-  ##       to be useless on MacOS X...
-    ${DynamicLoadingLibrary}
-  ## Only set when DIET_USE_DAGDA is on.
-    ${DAGDA_LIBRARIES}
-    ${CORI_LIBRARIES}                          # defined a little above
-  )
-#  INSTALL( TARGETS AgentCommon DESTINATION lib )
   
   #########################################################################
-  ADD_EXECUTABLE( dietAgent dietAgent.cc )
+  ADD_EXECUTABLE( dietAgent ${AgentCommon_SOURCES} dietAgent.cc )
+	
+  if (DIET_USE_DAGDA)
+    set(dietAgent_Libs
+      ${dietAgent_Libs}
+      ${UUIDLIB}
+      Dagda
+    )
+  endif(DIET_USE_DAGDA)
+	
+  set(dietAgent_Libs
+    ${dietAgent_Libs}
+    DIET_CORBA
+    CorbaCommon
+    DIET_Utils
+#    UtilsNodes
+    LibForwarder
+    ${OMNIORB4_LIBRARIES}
+    pthread
+
+    ${CMAKE_DL_LIBS}
+  )
+  if (DIET_USE_WORKFLOW)
+    set(dietAgent_Libs
+      ${dietAgent_Libs}
+      CltWf
+      MaDag
+#      UtilsWf
+#      UtilsEvents
+      ${XERCES_LIBRARY}
+      ${XQILLA_LIBRARY}
+    )
+  endif(DIET_USE_WORKFLOW)
+
   TARGET_LINK_LIBRARIES( dietAgent
-      AgentCommon
-      UtilsNodes
-     )
+     ${dietAgent_Libs}
+   )
 
   IF (DIET_USE_WORKFLOW)
       ADD_SUBDIRECTORY( workflow )
@@ -141,15 +160,15 @@ ENDIF(NOT DIET_USE_DAGDA)
     INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} )  # For LA.h ...
     ADD_LIBRARY( dietLocalAgent ${CMAKE_CURRENT_SOURCE_DIR}/localAgentJNI.cc )
 
-    TARGET_LINK_LIBRARIES( dietLocalAgent
-      AgentCommon
-      UtilsNodes
-      UtilsVector
-      CorbaCommon
-      IDLLA
-      IDLMA
-      ${OMNIORB4_LIBRARIES}
-    )
+#    TARGET_LINK_LIBRARIES( dietLocalAgent
+#      AgentCommon
+#      UtilsNodes
+#      UtilsVector
+#      CorbaCommon
+#      IDLLA
+#      IDLMA
+#      ${OMNIORB4_LIBRARIES}
+#    )
 
 #    INSTALL( TARGETS dietLocalAgent DESTINATION lib )
   
@@ -189,15 +208,15 @@ ENDIF(NOT DIET_USE_DAGDA)
     INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} )
     ADD_LIBRARY( dietMasterAgent ${CMAKE_CURRENT_SOURCE_DIR}/masterAgentJNI.cc )
 
-    TARGET_LINK_LIBRARIES( dietMasterAgent
-      AgentCommon
-      UtilsNodes
-      UtilsVector
-      CorbaCommon
-      IDLLA
-      IDLMA
-      ${OMNIORB4_LIBRARIES}
-    )
+#    TARGET_LINK_LIBRARIES( dietMasterAgent
+#      AgentCommon
+#      UtilsNodes
+#      UtilsVector
+#      CorbaCommon
+#      IDLLA
+#      IDLMA
+#      ${OMNIORB4_LIBRARIES}
+#    )
 
 #    INSTALL( TARGETS dietMasterAgent DESTINATION lib )
   

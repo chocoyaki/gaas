@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2010/07/30 14:44:26  glemahec
+ * Temporary corrections for the new compilation process. Parallel compilation is still broken and there is a big mess on the CMakeLists files...
+ *
  * Revision 1.2  2010/03/31 21:15:41  bdepardo
  * Changed C headers into C++ headers
  *
@@ -86,7 +89,7 @@ public :
    * @param n the initial value of the counter. It must be positive or
    * null.
    */
-  inline Counter(CORBA::ULong n=0)  : value(n) {}
+  Counter(CORBA::ULong n=0)  : value(n) {}
 
   /**
    * Creates a copy of the counter given in arguments.
@@ -115,54 +118,26 @@ public :
    *
    * @todo replace the assert by an exception.
    */
-  inline Counter & operator++() {
-    assert(value < value + 1) ;
-    valueMutex.lock() ;
-    value++ ;
-    valueMutex.unlock() ;
-    return *this ;
-  }
-
+  Counter& operator++();
   /**
    * Increments the counter by a given value. 
    * An assert check that the counter does not overflow its capacity.
    *
    * @todo replace the assert by an exception.
    */
-  inline Counter & operator+=(const Counter & aCounter) {
-    assert(value < value + 1) ;
-    valueMutex.lock() ;
-    value = value + static_cast<CORBA::ULong>(aCounter) ;
-    valueMutex.unlock() ;
-    return *this ;
-  }
-
+  Counter & operator+=(const Counter & aCounter);
   /**
    * Decrements the counter. An assert check that the counter is
    * greater than 0. The argument is not used.
    */
-  inline Counter & operator--() {
-    assert(value > 0) ;
-    valueMutex.lock() ;
-    value-- ;
-    valueMutex.unlock() ;
-    return *this ;
-  }
-
+  Counter & operator--();
   /**
    * Decrements the counter by a given value. 
    * An assert check that the counter is greater than 0.
    *
    * @todo replace the assert by an exception.
    */
-  inline Counter & operator-=(const Counter & aCounter) {
-    assert(value > 0) ;
-    valueMutex.lock() ;
-    value = value - static_cast<CORBA::ULong>(aCounter) ;
-    valueMutex.unlock() ;
-    return *this ;
-  }
-
+  Counter & operator-=(const Counter & aCounter);
   /**
    * The instance get the same value as \c aCounter.
    *

@@ -1,15 +1,26 @@
 # DIET cmake local file
-## Use Dagda as data manager.
-IF( DIET_USE_DAGDA )
-  SET (DIET_DAGDA_LIBRARY Dagda)
-  ADD_SUBDIRECTORY( DAGDA )
-  INCLUDE_DIRECTORIES( ${DIET_SOURCE_DIR}/src/utils/DAGDA ${UUID_PATH} )
-  ADD_LIBRARY( UtilsDagda STATIC
+
+set(DIET_Utils_SOURCES
+  debug.cc
+  DIET_data.cc
+  KeyString.cc
+  ms_function.cc
+  Parsers.cc
+  statistics.cc
+  AccessController.cc
+  JobQueue.cc
+  DIET_mutex.cc
+  est_internal.cc
+  Vector.c
+)
+
+if (DIET_USE_DAGDA)
+  set(DIET_Utils_SOURCES
+    ${DIET_Utils_SOURCES}
     DataRelationMgr.cc
   )
-  TARGET_LINK_LIBRARIES( UtilsDagda UtilsCommon ${OMNIORB4_LIBRARIES})
-#  INSTALL( TARGETS UtilsDagda DESTINATION lib)
-ENDIF( DIET_USE_DAGDA )
+  add_subdirectory(DAGDA)
+endif (DIET_USE_DAGDA)
 
 ADD_SUBDIRECTORY(events)
 
@@ -28,37 +39,6 @@ IF( DIET_BUILD_LIBRARIES )
     ${DIET_SOURCE_DIR}/src/SeD		# for SeDImpl.hh in Cori_batch
     ${DIET_SOURCE_DIR}/src/agent	# for ChildID.hh in SeDImpl
   )
-
-  ########################################################################
-
-
-  ########################################################################
-  ### UtilsCommon library:
-  ADD_LIBRARY( UtilsCommon STATIC
-    debug.cc
-    DIET_data.cc
-    KeyString.cc
-    ms_function.cc
-    Parsers.cc
-    statistics.cc
-    AccessController.cc
-    JobQueue.cc
-    DIET_mutex.cc
-    est_internal.cc
-  )
-  # The following dependency expresses that before compiling UtilsCommon one
-  # first needs to generate the header files [like common_types.h] with idl.
-  # Track down the definition of the commidity target
-  # DIET_TARGET_IDL_GENERATED_HEADER_FILES for more details.
-  ADD_DEPENDENCIES( UtilsCommon ALL DIET_TARGET_IDL_GENERATED_HEADER_FILES )
-  TARGET_LINK_LIBRARIES( UtilsCommon IDLCommon ${OMNIORB4_LIBRARIES} )
-#  INSTALL( TARGETS UtilsCommon DESTINATION lib )
-  ########################################################################
-  ### UtilsVector library:
-  ADD_LIBRARY( UtilsVector STATIC
-    Vector.c
-  )
-#  INSTALL( TARGETS UtilsVector DESTINATION lib )
 
   ########################################################################
   ### UtilsSedBatch library:
@@ -125,7 +105,7 @@ IF( DIET_BUILD_LIBRARIES )
             PBS_BatchSystem.cc
             SGE_BatchSystem.cc
             Eucalyptus_BatchSystem.cc )
-        TARGET_LINK_LIBRARIES( UtilsSeDBatch EucalyptusLib -lpthread UtilsCommon -lssl -lcrypto )
+        TARGET_LINK_LIBRARIES( UtilsSeDBatch EucalyptusLib -lpthread -lssl -lcrypto )
     ELSE( DIET_USE_CLOUD )
         # Build SeDBatch library without the Cloud component
         ADD_LIBRARY( UtilsSeDBatch STATIC
@@ -136,10 +116,23 @@ IF( DIET_BUILD_LIBRARIES )
             Loadleveler_BatchSystem.cc
             PBS_BatchSystem.cc
             SGE_BatchSystem.cc )
-        TARGET_LINK_LIBRARIES( UtilsSeDBatch -lpthread UtilsCommon )
     ENDIF( DIET_USE_CLOUD)
-#    INSTALL( TARGETS UtilsSeDBatch DESTINATION lib )
   ENDIF( DIET_USE_ALT_BATCH )
+
+  add_library(DIET_Utils STATIC
+    ${DIET_Utils_SOURCES}
+  )
+
+  target_link_libraries(DIET_Utils UtilsNodes)
+  if (DIET_USE_ALT_BATCH)
+    target_link_libraries(DIET_Utils UtilsSeDBatch)
+  endif (DIET_USE_ALT_BATCH)
+  if (DIET_USE_WORKFLOW)
+    target_link_libraries(DIET_Utils UtilsWf UtilsEvents)
+  endif (DIET_USE_WORKFLOW)
+  if (DIET_USE_CORI)
+    target_link_libraries(DIET_Utils UtilsCori)
+  endif (DIET_USE_CORI)
 
 ENDIF( DIET_BUILD_LIBRARIES )
 

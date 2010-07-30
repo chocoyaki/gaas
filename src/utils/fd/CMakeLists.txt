@@ -25,6 +25,6 @@ IF( DIET_BUILD_LIBRARIES )
     heap.cc
     list.cc
   )
-  TARGET_LINK_LIBRARIES( fd m UtilsNodes)
+#  TARGET_LINK_LIBRARIES( fd m UtilsNodes)
 #  INSTALL( TARGETS fd DESTINATION lib )
 ENDIF( DIET_BUILD_LIBRARIES )
