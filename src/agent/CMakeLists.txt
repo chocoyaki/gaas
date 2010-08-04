@@ -1,8 +1,7 @@
 # DIET cmake local file
 
-IF( DIET_BUILD_LIBRARIES )
-  IF( HAVE_ALT_BATCH )
-    INCLUDE_DIRECTORIES(
+if (HAVE_ALT_BATCH)
+  include_directories(
       ${OMNIORB4_INCLUDE_DIR}
       ${DIET_SOURCE_DIR}/src/utils
       ${DIET_SOURCE_DIR}/src/utils/nodes
@@ -11,8 +10,8 @@ IF( DIET_BUILD_LIBRARIES )
       ${CMAKE_CURRENT_SOURCE_DIR}
       ${DIET_SOURCE_DIR}/include
     )
-  ELSE( HAVE_ALT_BATCH )
-    INCLUDE_DIRECTORIES(
+else (HAVE_ALT_BATCH)
+  include_directories(
       ${OMNIORB4_INCLUDE_DIR}
       ${DIET_SOURCE_DIR}/src/utils
       ${DIET_SOURCE_DIR}/src/utils/nodes
@@ -21,205 +20,175 @@ IF( DIET_BUILD_LIBRARIES )
       ${CMAKE_CURRENT_SOURCE_DIR}
       ${DIET_SOURCE_DIR}/include
       ${DIET_SOURCE_DIR}/src/SeD	# for SeDImpl.hh from Cori_Metric
-    )
-  ENDIF( HAVE_ALT_BATCH )
-  
-  #########################################################################
-  IF (DIET_USE_WORKFLOW) 
-    INCLUDE_DIRECTORIES( ${XERCES_INCLUDE_DIR} )
-  ENDIF ( DIET_USE_WORKFLOW)
-  #########################################################################
-  ### AgentCommon library:
-  SET(AgentCommon_SOURCES
-      AgentImpl.cc
-      BindService.cc
-      ExitClass.cc
-      FloodRequest.cc
-      FloodRequestsList.cc
-      GlobalSchedulers.cc
-      LocalAgentImpl.cc
-      MasterAgentImpl.cc
-      ReferenceUpdateThread.cc
-      Request.cc
-      Schedulers.cc
   )
-IF (NOT DIET_USE_DAGDA)
-  SET(AgentCommon_SOURCES
+endif (HAVE_ALT_BATCH)
+  
+if (DIET_USE_WORKFLOW) 
+  include_directories(${XERCES_INCLUDE_DIR})
+endif (DIET_USE_WORKFLOW)
+
+# AgentCommon library:
+set(AgentCommon_SOURCES
+    AgentImpl.cc
+    BindService.cc
+    ExitClass.cc
+    FloodRequest.cc
+    FloodRequestsList.cc
+    GlobalSchedulers.cc
+    LocalAgentImpl.cc
+    MasterAgentImpl.cc
+    ReferenceUpdateThread.cc
+    Request.cc
+    Schedulers.cc
+)
+if (NOT DIET_USE_DAGDA)
+  set(AgentCommon_SOURCES
       ${AgentCommon_SOURCES}
       LocMgrImpl.cc
   )
-ENDIF(NOT DIET_USE_DAGDA)
+endif (NOT DIET_USE_DAGDA)
 
-  #########################################################################
-  ### New : When the DIET_USE_USERSCHED option is set, add the source code
-  ###       for dynamic library load at agent level.
-  ###       Install the needed files for user scheduler development.
-  IF( DIET_USE_USERSCHED )
-    SET( AgentCommon_SOURCES ${AgentCommon_SOURCES} UserScheduler.cc)
-#    SET(DynamicLoadingLibrary dl)
-    INSTALL( FILES
-        GlobalSchedulers.hh
-	UserScheduler.hh
-	Schedulers.hh
-	DESTINATION include/scheduler
-    )
-  ENDIF( DIET_USE_USERSCHED )
-  #########################################################################
-  # To use Dagda instead of DTM.
-  IF( DIET_USE_DAGDA )
-    INCLUDE_DIRECTORIES( ${DIET_SOURCE_DIR}/src/utils/DAGDA ${UUID_PATH} )
-#    SET( DAGDA_LIBRARIES
-#      Dagda
-#    )
-  ENDIF( DIET_USE_DAGDA )
+# When the DIET_USE_USERSCHED option is set, add the source code
+# for dynamic library load at agent level.
+# Install the needed files for user scheduler development.
+if (DIET_USE_USERSCHED)
+  set (AgentCommon_SOURCES ${AgentCommon_SOURCES} UserScheduler.cc)
+  install(FILES
+    GlobalSchedulers.hh
+    UserScheduler.hh
+    Schedulers.hh
+    DESTINATION include/scheduler
+  )
+endif (DIET_USE_USERSCHED)
 
-  ADD_LIBRARY( AgentCommon STATIC ${AgentCommon_SOURCES})
-  IF (NOT DIET_USE_DAGDA)
-    TARGET_LINK_LIBRARIES(AgentCommon
-      DIET_Utils
-    )
-  ENDIF (NOT DIET_USE_DAGDA)
+# To use Dagda instead of DTM.
+if (DIET_USE_DAGDA)
+  include_directories(${DIET_SOURCE_DIR}/src/utils/DAGDA ${UUID_PATH})
+endif (DIET_USE_DAGDA)
 
-  IF( DIET_USE_CORI )
-      SET( CORI_LIBRARIES
-	   UtilsCori )
-  ENDIF( DIET_USE_CORI )
+add_library(AgentCommon STATIC ${AgentCommon_SOURCES})
+if (NOT DIET_USE_DAGDA)
+  target_link_libraries(AgentCommon
+    DIET_Utils
+  )
+endif (NOT DIET_USE_DAGDA)
+
+if (DIET_USE_CORI)
+  set(CORI_LIBRARIES UtilsCori)
+endif (DIET_USE_CORI)
   
-  #########################################################################
-  ADD_EXECUTABLE( dietAgent ${AgentCommon_SOURCES} dietAgent.cc )
+add_executable(dietAgent ${AgentCommon_SOURCES} dietAgent.cc)
+
+corba_headers(IDL_HDRS
+  Agent
+	MasterAgent
+	LocalAgent
+	common_types
+	Dagda
+)
+
+# AgentCommon library & dietAgent depends on CORBA files.
+add_dependencies(dietAgent CORBAFiles)
+add_dependencies(AgentCommon CORBAFiles)
+
 	
-  if (DIET_USE_DAGDA)
-    set(dietAgent_Libs
-      ${dietAgent_Libs}
-      ${UUIDLIB}
-      Dagda
-    )
-  endif(DIET_USE_DAGDA)
-	
+if (DIET_USE_DAGDA)
   set(dietAgent_Libs
     ${dietAgent_Libs}
-    DIET_CORBA
-    CorbaCommon
-    DIET_Utils
-#    UtilsNodes
-    LibForwarder
-    ${OMNIORB4_LIBRARIES}
-    pthread
-
-    ${CMAKE_DL_LIBS}
+    ${UUIDLIB}
+    Dagda
   )
-  if (DIET_USE_WORKFLOW)
-    set(dietAgent_Libs
-      ${dietAgent_Libs}
-      CltWf
-      MaDag
-#      UtilsWf
-#      UtilsEvents
-      ${XERCES_LIBRARY}
-      ${XQILLA_LIBRARY}
-    )
-  endif(DIET_USE_WORKFLOW)
+endif(DIET_USE_DAGDA)
+	
+set(dietAgent_Libs
+  ${dietAgent_Libs}
+  DIET_CORBA
+  CorbaCommon
+  DIET_Utils
+  LibForwarder
+  ${OMNIORB4_LIBRARIES}
+  pthread
+  ${CMAKE_DL_LIBS}
+)
+if (DIET_USE_WORKFLOW)
+  set(dietAgent_Libs
+    ${dietAgent_Libs}
+    CltWf
+    MaDag
+    ${XERCES_LIBRARY}
+    ${XQILLA_LIBRARY}
+  )
+endif (DIET_USE_WORKFLOW)
 
-  TARGET_LINK_LIBRARIES( dietAgent
-     ${dietAgent_Libs}
-   )
+target_link_libraries(dietAgent ${dietAgent_Libs})
 
-  IF (DIET_USE_WORKFLOW)
-      ADD_SUBDIRECTORY( workflow )
-  ENDIF ( DIET_USE_WORKFLOW)
+if (DIET_USE_WORKFLOW)
+  add_subdirectory(workflow)
+endif (DIET_USE_WORKFLOW)
   
-  INSTALL( TARGETS dietAgent DESTINATION bin )
+install(TARGETS dietAgent DESTINATION bin)
   
-  #########################################################################
-  IF( DIET_USE_JXTA )
+if (DIET_USE_JXTA)
+  add_custom_command(
+    OUTPUT    ${CMAKE_CURRENT_BINARY_DIR}/LA.class
+    COMMAND   ${JAVA_COMPILE}
+    ARGS      -d ${CMAKE_CURRENT_BINARY_DIR}
+              ${CMAKE_CURRENT_SOURCE_DIR}/LA.java
+    DEPENDS   ${CMAKE_CURRENT_SOURCE_DIR}/LA.java
+    COMMENT   "java compile local agent"
+  )
+  add_custom_command(
+    OUTPUT    ${CMAKE_CURRENT_BINARY_DIR}/LA.h
+    COMMAND   ${JAVA_HEADER_COMPILE}
+    ARGS      -classpath ${CMAKE_CURRENT_BINARY_DIR}
+              -d ${CMAKE_CURRENT_BINARY_DIR}
+              LA
+    DEPENDS   ${CMAKE_CURRENT_BINARY_DIR}/LA.class
+    COMMENT   "java header compile local agent"
+  )
+  set_source_file_properties( 
+    ${CMAKE_CURRENT_SOURCE_DIR}/localAgentJNI.cc
+    PROPERTIES
+      OBJECT_DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/LA.h
+      COMPILE_FLAGS "-I${JAVA_INCLUDE_PATH}"
+  )
 
-    ADD_CUSTOM_COMMAND(
-      OUTPUT    ${CMAKE_CURRENT_BINARY_DIR}/LA.class
-      COMMAND   ${JAVA_COMPILE}
-      ARGS      -d ${CMAKE_CURRENT_BINARY_DIR}
-                ${CMAKE_CURRENT_SOURCE_DIR}/LA.java
-      DEPENDS   ${CMAKE_CURRENT_SOURCE_DIR}/LA.java
-      COMMENT   "java compile local agent"
-    )
-    ADD_CUSTOM_COMMAND(
-      OUTPUT    ${CMAKE_CURRENT_BINARY_DIR}/LA.h
-      COMMAND   ${JAVA_HEADER_COMPILE}
-      ARGS      -classpath ${CMAKE_CURRENT_BINARY_DIR}
-                -d ${CMAKE_CURRENT_BINARY_DIR}
-                LA
-      DEPENDS   ${CMAKE_CURRENT_BINARY_DIR}/LA.class
-      COMMENT   "java header compile local agent"
-    )
-    SET_SOURCE_FILES_PROPERTIES( 
-      ${CMAKE_CURRENT_SOURCE_DIR}/localAgentJNI.cc
-      PROPERTIES
-        OBJECT_DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/LA.h
-        COMPILE_FLAGS "-I${JAVA_INCLUDE_PATH}"
-    )
-
-    INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} )  # For LA.h ...
-    ADD_LIBRARY( dietLocalAgent ${CMAKE_CURRENT_SOURCE_DIR}/localAgentJNI.cc )
-
-#    TARGET_LINK_LIBRARIES( dietLocalAgent
-#      AgentCommon
-#      UtilsNodes
-#      UtilsVector
-#      CorbaCommon
-#      IDLLA
-#      IDLMA
-#      ${OMNIORB4_LIBRARIES}
-#    )
-
-#    INSTALL( TARGETS dietLocalAgent DESTINATION lib )
+  include_direcories(${CMAKE_CURRENT_BINARY_DIR})  # For LA.h ...
+  add_library(dietLocalAgent ${CMAKE_CURRENT_SOURCE_DIR}/localAgentJNI.cc)
   
-    ADD_CUSTOM_COMMAND(
-      OUTPUT    ${CMAKE_CURRENT_BINARY_DIR}/JXTAMultiMA.class
-                ${CMAKE_CURRENT_BINARY_DIR}/ReqMgr.class
-                ${CMAKE_CURRENT_BINARY_DIR}/UuidsMgr.class
-      COMMAND   ${JAVA_COMPILE}
-      ARGS      -d ${CMAKE_CURRENT_BINARY_DIR}
-      -classpath ${CMAKE_CURRENT_SOURCE_DIR}:${DIET_SOURCE_DIR}/src/lib/jxta.jar
-                ${CMAKE_CURRENT_SOURCE_DIR}/JXTAMultiMA.java
-                ${CMAKE_CURRENT_SOURCE_DIR}/ReqMgr.java
-                ${CMAKE_CURRENT_SOURCE_DIR}/UuidsMgr.java
-      DEPENDS   ${CMAKE_CURRENT_SOURCE_DIR}/JXTAMultiMA.java
-                ${CMAKE_CURRENT_SOURCE_DIR}/ReqMgr.java
-                ${CMAKE_CURRENT_SOURCE_DIR}/UuidsMgr.java
-      COMMENT   "java compile multi master agent"
-    )
+  add_custom_command(
+    OUTPUT    ${CMAKE_CURRENT_BINARY_DIR}/JXTAMultiMA.class
+              ${CMAKE_CURRENT_BINARY_DIR}/ReqMgr.class
+              ${CMAKE_CURRENT_BINARY_DIR}/UuidsMgr.class
+    COMMAND   ${JAVA_COMPILE}
+    ARGS      -d ${CMAKE_CURRENT_BINARY_DIR}
+    -classpath ${CMAKE_CURRENT_SOURCE_DIR}:${DIET_SOURCE_DIR}/src/lib/jxta.jar
+              ${CMAKE_CURRENT_SOURCE_DIR}/JXTAMultiMA.java
+              ${CMAKE_CURRENT_SOURCE_DIR}/ReqMgr.java
+              ${CMAKE_CURRENT_SOURCE_DIR}/UuidsMgr.java
+    DEPENDS   ${CMAKE_CURRENT_SOURCE_DIR}/JXTAMultiMA.java
+              ${CMAKE_CURRENT_SOURCE_DIR}/ReqMgr.java
+              ${CMAKE_CURRENT_SOURCE_DIR}/UuidsMgr.java
+    COMMENT   "java compile multi master agent"
+  )
 
-    ADD_CUSTOM_COMMAND(
-      OUTPUT    ${CMAKE_CURRENT_BINARY_DIR}/JXTAMultiMA.h
-      COMMAND   ${JAVA_HEADER_COMPILE}
-      ARGS      -classpath ${CMAKE_CURRENT_BINARY_DIR}
-                -d ${CMAKE_CURRENT_BINARY_DIR}
-                JXTAMultiMA
-      DEPENDS   ${CMAKE_CURRENT_BINARY_DIR}/JXTAMultiMA.class
-      COMMENT   "java header compile master agent"
-    )
+  add_custom_command(
+    OUTPUT    ${CMAKE_CURRENT_BINARY_DIR}/JXTAMultiMA.h
+    COMMAND   ${JAVA_HEADER_COMPILE}
+    ARGS      -classpath ${CMAKE_CURRENT_BINARY_DIR}
+              -d ${CMAKE_CURRENT_BINARY_DIR}
+              JXTAMultiMA
+    DEPENDS   ${CMAKE_CURRENT_BINARY_DIR}/JXTAMultiMA.class
+    COMMENT   "java header compile master agent"
+  )
 
-    SET_SOURCE_FILES_PROPERTIES( 
-      ${CMAKE_CURRENT_SOURCE_DIR}/masterAgentJNI.cc
-      PROPERTIES
-        OBJECT_DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/JXTAMultiMA.h
-        COMPILE_FLAGS "-I${JAVA_INCLUDE_PATH}"
-    )
+  set_source_file_properties( 
+    ${CMAKE_CURRENT_SOURCE_DIR}/masterAgentJNI.cc
+    PROPERTIES
+      OBJECT_DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/JXTAMultiMA.h
+      COMPILE_FLAGS "-I${JAVA_INCLUDE_PATH}"
+  )
   
-    INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} )
-    ADD_LIBRARY( dietMasterAgent ${CMAKE_CURRENT_SOURCE_DIR}/masterAgentJNI.cc )
-
-#    TARGET_LINK_LIBRARIES( dietMasterAgent
-#      AgentCommon
-#      UtilsNodes
-#      UtilsVector
-#      CorbaCommon
-#      IDLLA
-#      IDLMA
-#      ${OMNIORB4_LIBRARIES}
-#    )
-
-#    INSTALL( TARGETS dietMasterAgent DESTINATION lib )
-  
-  ENDIF( DIET_USE_JXTA )
-#########################################################################
-ENDIF( DIET_BUILD_LIBRARIES )
+  include_directories(${CMAKE_CURRENT_BINARY_DIR})
+  add_library(dietMasterAgent ${CMAKE_CURRENT_SOURCE_DIR}/masterAgentJNI.cc)  
+endif (DIET_USE_JXTA)

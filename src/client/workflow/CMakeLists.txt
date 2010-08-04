@@ -2,7 +2,6 @@
 #* DIET cmake local file                                                    *#
 #****************************************************************************#
 
-IF( DIET_BUILD_LIBRARIES )
   INCLUDE_DIRECTORIES(
     ${OMNIORB4_INCLUDE_DIR}
     ${DIET_SOURCE_DIR}/src/utils
@@ -22,10 +21,9 @@ IF( DIET_BUILD_LIBRARIES )
     CltWfLogCentralDispatcher.cc
     CltWfMgr.cc )
 
+# CltWf depends on CORBAFiles
+add_dependencies(CltWf CORBAFiles)
+
   TARGET_LINK_LIBRARIES( CltWf
     DIET_Utils
   )
-
-#  INSTALL( TARGETS CltWf DESTINATION lib )
-
-ENDIF( DIET_BUILD_LIBRARIES )

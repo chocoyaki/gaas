@@ -14,6 +14,8 @@ set(DIET_Utils_SOURCES
   Vector.c
 )
 
+
+
 if (DIET_USE_DAGDA)
   set(DIET_Utils_SOURCES
     ${DIET_Utils_SOURCES}
@@ -28,7 +30,6 @@ IF( DIET_USE_FD )
   ADD_SUBDIRECTORY( fd )
 ENDIF (DIET_USE_FD)
 
-IF( DIET_BUILD_LIBRARIES )
   INCLUDE_DIRECTORIES(
     ${OMNIORB4_INCLUDE_DIR}
     ${DIET_BINARY_DIR}/src/CORBA/idl
@@ -53,7 +54,7 @@ IF( DIET_BUILD_LIBRARIES )
 			 ${CMAKE_CURRENT_BINARY_DIR} )
     ADD_LIBRARY( UtilsSeDBatch STATIC batch.c )
     TARGET_LINK_LIBRARIES( UtilsSeDBatch ${APPLESEEDS_LIBRARIES} -lpthread )
-#    INSTALL( TARGETS UtilsSeDBatch DESTINATION lib )
+    add_dependencies(UtilsSeDBatch DIET_CORBA)
   ENDIF( DIET_USE_BATCH )
 
   IF( DIET_USE_ALT_BATCH )
@@ -115,7 +116,10 @@ IF( DIET_BUILD_LIBRARIES )
             OAR2_XBatchSystem.cc
             Loadleveler_BatchSystem.cc
             PBS_BatchSystem.cc
-            SGE_BatchSystem.cc )
+            SGE_BatchSystem.cc
+        )
+        add_dependencies(UtilsSeDBatch DIET_CORBA)
+
     ENDIF( DIET_USE_CLOUD)
   ENDIF( DIET_USE_ALT_BATCH )
 
@@ -134,8 +138,7 @@ IF( DIET_BUILD_LIBRARIES )
     target_link_libraries(DIET_Utils UtilsCori)
   endif (DIET_USE_CORI)
 
-ENDIF( DIET_BUILD_LIBRARIES )
-
+  add_dependencies(DIET_Utils DIET_CORBA)
 
 ########################################################################
 ## New : For scheduler load support.
@@ -153,6 +156,6 @@ IF( DIET_USE_USERSCHED )
 	DESTINATION
         include/scheduler
     )
-    INSTALL( FILES ts_container/ts_set.hh  DESTINATION include/scheduler/ts_container )
+    INSTALL(FILES ts_container/ts_set.hh  DESTINATION include/scheduler/ts_container )
 ENDIF( DIET_USE_USERSCHED )
 

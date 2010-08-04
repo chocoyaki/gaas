@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.96  2010/08/04 09:06:18  glemahec
+ * Parallel compilation
+ *
  * Revision 1.95  2010/07/13 15:24:13  glemahec
  * Warnings corrections and some robustness improvements
  *
@@ -295,16 +298,8 @@
 #include "DIET_data_internal.hh"     // for data_sizeof()
 
 #if defined HAVE_ALT_BATCH
-// -- GLM: Bug correction --
-//#include "SeDImpl.hh"
 #include "Parsers.hh"
-// ----
 #include "BatchSystem.hh"
-#endif
-
-#if HAVE_DAGDA
-#include "DagdaFactory.hh"
-#include "ORBMgr.hh"
 #endif
 
 extern unsigned int TRACE_LEVEL;

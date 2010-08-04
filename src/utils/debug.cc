@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.44  2010/08/04 09:06:20  glemahec
+ * Parallel compilation
+ *
  * Revision 1.43  2010/03/31 21:15:40  bdepardo
  * Changed C headers into C++ headers
  *
@@ -150,6 +153,7 @@
 #include <cstdlib>
 
 #include "debug.hh"
+#include "common_types.hh"
 #include "est_internal.hh"
 #include "marshalling.hh"
 #include "DIET_data_internal.hh"

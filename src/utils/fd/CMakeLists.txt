@@ -3,7 +3,6 @@
 #*                                                                          *#
 #****************************************************************************#
 
-IF( DIET_BUILD_LIBRARIES )
   INCLUDE_DIRECTORIES(
     ${OMNIORB4_INCLUDE_DIR}
     ${DIET_BINARY_DIR}/src/CORBA/idl
@@ -25,6 +24,4 @@ IF( DIET_BUILD_LIBRARIES )
     heap.cc
     list.cc
   )
-#  TARGET_LINK_LIBRARIES( fd m UtilsNodes)
-#  INSTALL( TARGETS fd DESTINATION lib )
-ENDIF( DIET_BUILD_LIBRARIES )
+  add_dependencies(fd DIET_CORBA)

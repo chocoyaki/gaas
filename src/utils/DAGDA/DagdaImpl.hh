@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.29  2010/08/04 09:06:20  glemahec
+ * Parallel compilation
+ *
  * Revision 1.28  2010/07/12 16:14:12  glemahec
  * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
  *
@@ -58,6 +61,8 @@
 
 #include "Forwarder.hh"
 #include "DagdaFwdr.hh"
+
+#include <omnithread.h>
 
 typedef enum {DGD_CLIENT_MNGR, DGD_AGENT_MNGR, DGD_SED_MNGR} dagda_manager_type_t;
 

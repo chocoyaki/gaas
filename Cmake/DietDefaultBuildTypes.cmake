@@ -90,11 +90,11 @@ IF( CMAKE_COMPILER_IS_GNUCC AND CMAKE_COMPILER_IS_GNUCXX )
     IF( GNUCXX_MAJOR_VERSION_BIGER_THAN_FOUR )
       IF( CYGWIN )
         SET( CMAKE_EXE_LINKER_FLAGS_MAINTAINER
-        "-Wl,--unresolved-symbols=report-all,--warn-unresolved-symbols,--warn-once --enable-auto-import --export-dynamic -Wl,--export-dynamic,--enable-auto-import"
+        "-Wl,--warn-once --enable-auto-import --export-dynamic -Wl,--export-dynamic,--enable-auto-import"
         )
       ELSE( CYGWIN )
         SET( CMAKE_EXE_LINKER_FLAGS_MAINTAINER
-        "-Wl,--unresolved-symbols=report-all,--warn-unresolved-symbols,--warn-once"
+        "-Wl,--warn-once"
         )
       ENDIF( CYGWIN )
     ELSE( GNUCXX_MAJOR_VERSION_BIGER_THAN_FOUR )

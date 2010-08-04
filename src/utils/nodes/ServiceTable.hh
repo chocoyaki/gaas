@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2010/08/04 09:06:21  glemahec
+ * Parallel compilation
+ *
  * Revision 1.3  2010/07/12 16:14:13  glemahec
  * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
  *
@@ -142,6 +145,8 @@
 #include "DIET_server.h"
 
 #include <cstdio>
+#include <omniORB4/CORBA.h>
+
 #include "common_types.hh"
 
 

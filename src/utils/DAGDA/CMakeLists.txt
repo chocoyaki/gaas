@@ -33,7 +33,9 @@ IF( DIET_BUILD_LIBRARIES )
   ADD_LIBRARY( DIET_Dagda SHARED ${DAGDA_SOURCES} )
   
   SET(DAGDA_Libs
+    DIET_CORBA
     CorbaCommon
+    UtilsNodes
     DIET_Utils
     ${UUIDLIB}
     pthread
@@ -51,7 +53,7 @@ IF( DIET_BUILD_LIBRARIES )
     ${DAGDA_Libs}
   )
   target_link_libraries(Dagda
-    DIET_Utils
+    ${DAGDA_Libs}
   )
 
   INSTALL(TARGETS DIET_Dagda DESTINATION lib)

@@ -1,216 +1,180 @@
-IF( DIET_BUILD_LIBRARIES )
-  INCLUDE_DIRECTORIES(
-    ${OMNIORB4_INCLUDE_DIR}
-    ${DIET_BINARY_DIR}/src/CORBA/idl
-    ${DIET_SOURCE_DIR}/src/CORBA        # for e.g. marshalling.hh
-    ${CMAKE_CURRENT_SOURCE_DIR}         # for DIET_data_internal.hh
-    ${DIET_SOURCE_DIR}/include
-    ${DIET_SOURCE_DIR}/src/utils	# for BatchSystems.hh in Cori_batch
-    ${DIET_SOURCE_DIR}/src/SeD		# for SeDImpl.hh in Cori_batch
-    ${DIET_SOURCE_DIR}/src/agent	# for ChildID.hh in SeDImpl
-    ${DIET_SOURCE_DIR}/src/utils/DAGDA
+include_directories(
+  ${OMNIORB4_INCLUDE_DIR}
+  ${DIET_BINARY_DIR}/src/CORBA/idl
+  ${DIET_SOURCE_DIR}/src/CORBA        # for e.g. marshalling.hh
+  ${CMAKE_CURRENT_SOURCE_DIR}         # for DIET_data_internal.hh
+  ${DIET_SOURCE_DIR}/include
+  ${DIET_SOURCE_DIR}/src/utils	# for BatchSystems.hh in Cori_batch
+  ${DIET_SOURCE_DIR}/src/SeD		# for SeDImpl.hh in Cori_batch
+  ${DIET_SOURCE_DIR}/src/agent	# for ChildID.hh in SeDImpl
+  ${DIET_SOURCE_DIR}/src/utils/DAGDA
+)
+
+########################################################################
+### UtilsNodes library: contains CoRI if asked by the installer!
+# Note:
+#    lib only built, linked with SeD and agent when HAVE_ALT_BATCH not set,
+#    or included in DIET_SeD *and* a lib built and linked to the agent
+
+# Build the lib, either for SeD and agent if !HAVE_ALT_BATCH, either
+# for the agent if HAVE_ALT_BATCH
+
+set(UtilsNodesSource
+  Counter.cc
+  DietLogComponent.cc
+  FASTMgr.cc
+  MonitoringThread.cc
+  ServiceTable.cc
+)
+
+add_library(UtilsNodes STATIC ${UtilsNodesSource})
+add_dependencies(UtilsNodes DIET_CORBA)
+
+if (NOT DIET_USE_DAGDA)
+  target_link_libraries(UtilsNodes
+    DIET_Utils
   )
-
-  ########################################################################
-  ### UtilsNodes library: contains CoRI if asked by the installer!
-  # Note:
-  #    lib only built, linked with SeD and agent when HAVE_ALT_BATCH not set,
-  #    or included in DIET_SeD *and* a lib built and linked to the agent
-
-  # Build the lib, either for SeD and agent if !HAVE_ALT_BATCH, either
-  # for the agent if HAVE_ALT_BATCH
-
-  SET(   UtilsNodesSource
-	 Counter.cc
-	 DietLogComponent.cc
-	 FASTMgr.cc
-	 MonitoringThread.cc
-	 ServiceTable.cc )
-
-#  IF( DIET_USE_CORI )
-#    SET(   UtilsNodesSource
-#	   ${UtilsNodesSource}
-#	   Cori_Data_Easy.cc
-#	   Cori_Easy_CPU.cc
-#	   Cori_Easy_Disk.cc
-#	   Cori_Easy_Memory.cc
-#	   Cori_Fast.cc
-#	   Cori_Metric.cc
-#	   CORIMgr.cc )
-#    SET_SOURCE_FILES_PROPERTIES( FASTMgr.cc PROPERTIES
-#				 COMPILE_FLAGS "${FAST_INCLUDE_DIR}")
-#  ENDIF( DIET_USE_CORI )
-
-  ADD_LIBRARY( UtilsNodes STATIC ${UtilsNodesSource})
-  IF (NOT DIET_USE_DAGDA)
-    TARGET_LINK_LIBRARIES(UtilsNodes
-      DIET_Utils
-    )
-  ENDIF(NOT DIET_USE_DAGDA)
-#  SET_TARGET_PROPERTIES( UtilsNodes PROPERTIES LINK_FLAGS "-flat_namespace")
-
-#  SET( UtilsNodesTmpLib
-#       UtilsSeDClt
-#       UtilsCommon
-#       IDLAgent
-#       CorbaCommon
-#       IDLForwarder
-#       IDLLA
-#       IDLMA
-#       ${OMNIORB4_LIBRARIES}
-#  )
-#  TARGET_LINK_LIBRARIES( UtilsNodes
-#			 ${UtilsNodesTmpLib} )
-#  INSTALL( TARGETS UtilsNodes DESTINATION lib )
-  ### FIXME: the following is kludgy! See note "MacOS X and unresolved symbol"
-  # in src/CORBA/CMakeLists.txt
-#  IF( APPLE )
-#    SET_TARGET_PROPERTIES( UtilsNodes
-#      PROPERTIES LINK_FLAGS "-flat_namespace -undefined suppress" )
-#  ENDIF( APPLE )
-#  TARGET_LINK_LIBRARIES( UtilsNodes ${UtilsNodesTmpLib} ${FAST_LIBRARIES} )
+endif (NOT DIET_USE_DAGDA)
 
 ########################################################################
 ### Cori library:          ***      for the SeD       ***
 # Note: lib only built when HAVE_ALT_BATCH not set,
 #       or included in DIET_SeD *and* a lib built for the agent
 
-  IF( DIET_USE_CORI )
-    # Still to verify that compilation goes ok after, ie,
-    # things must be included in the files when compiling DIET_SeD
+if (DIET_USE_CORI)
+  # Still to verify that compilation goes ok after, ie,
+  # things must be included in the files when compiling DIET_SeD
 
-    SET( CORI_BATCH_CLEAN_COMPILE_FLAG "" )
-    IF( DIET_USE_ALT_BATCH )      # Then extract from the lib SeD related staff
-      SET( CORI_BATCH_CLEAN_COMPILE_FLAG
-	   ${CORI_BATCH_CLEAN_COMPILE_FLAG}
-	   "-D CLEAN_CORILIB_FROM_BATCH_STAFF" )
-    ENDIF( DIET_USE_ALT_BATCH )
-    SET_SOURCE_FILES_PROPERTIES( Cori_Metric.cc
-       PROPERTIES COMPILE_FLAGS "${CORI_BATCH_CLEAN_COMPILE_FLAG}" )
+  set(CORI_BATCH_CLEAN_COMPILE_FLAG "")
+  if (DIET_USE_ALT_BATCH)      # Then extract from the lib SeD related
+    set(CORI_BATCH_CLEAN_COMPILE_FLAG ${CORI_BATCH_CLEAN_COMPILE_FLAG}
+      "-D CLEAN_CORILIB_FROM_BATCH_STAFF"
+    )
+  endif (DIET_USE_ALT_BATCH)
+  set_source_files_properties(Cori_Metric.cc
+     PROPERTIES COMPILE_FLAGS "${CORI_BATCH_CLEAN_COMPILE_FLAG}"
+  )
 
-    # Build the lib, either for SeD and agent if !HAVE_ALT_BATCH, either
-    # for the agent if HAVE_ALT_BATCH
+  # Build the lib, either for SeD and agent if !HAVE_ALT_BATCH, either
+  # for the agent if HAVE_ALT_BATCH
 
-    # CORI extensions are only compiled when CORI is required:
-    SET(   UtilsCoriSource
-	   FASTMgr.cc
-	   Cori_Data_Easy.cc
-	   Cori_Easy_CPU.cc
-	   Cori_Easy_Disk.cc
-	   Cori_Easy_Memory.cc
-	   Cori_Fast.cc
-	   Cori_Metric.cc
-	   CORIMgr.cc )
+  # CORI extensions are only compiled when CORI is required:
+  set(UtilsCoriSource
+    FASTMgr.cc
+    Cori_Data_Easy.cc
+    Cori_Easy_CPU.cc
+    Cori_Easy_Disk.cc
+    Cori_Easy_Memory.cc
+    Cori_Fast.cc
+    Cori_Metric.cc
+    CORIMgr.cc
+  )
 
-    ADD_LIBRARY( UtilsCori STATIC ${UtilsCoriSource} )
-    IF (NOT DIET_USE_DAGDA)
-      TARGET_LINK_LIBRARIES(UtilsCori
-        CorbaCommon
-      )
-    ENDIF(NOT DIET_USE_DAGDA)
+  add_library(UtilsCori STATIC ${UtilsCoriSource})
+  add_dependencies(UtilsCori DIET_CORBA)
+  if (NOT DIET_USE_DAGDA)
+    target_link_libraries(UtilsCori
+      CorbaCommon
+    )
+  endif(NOT DIET_USE_DAGDA)
 
-    SET_SOURCE_FILES_PROPERTIES( FASTMgr.cc PROPERTIES
-				 COMPILE_FLAGS "${FAST_INCLUDE_DIR}")
-#    SET( UtilsCoriTmpLib
-#         UtilsNodes
-#         UtilsSeDClt
-#         UtilsCommon
-#         ${OMNIORB4_LIBRARIES} )
-
-#    TARGET_LINK_LIBRARIES( UtilsCori
-#			   ${UtilsCoriTmpLib} )
-#    INSTALL( TARGETS UtilsCori DESTINATION lib )
-    ### FIXME: the following is kludgy!
-    # See note "MacOS X and unresolved symbol"
-    # in src/CORBA/CMakeLists.txt
- #   IF( APPLE )
- #       SET_TARGET_PROPERTIES( UtilsCori
- #       PROPERTIES LINK_FLAGS "-flat_namespace -undefined suppress" )
- #   ENDIF( APPLE )
-#    TARGET_LINK_LIBRARIES( UtilsCori ${UtilsCoriTmpLib} ${FAST_LIBRARIES} )
-
-  ENDIF( DIET_USE_CORI )
-
-ENDIF( DIET_BUILD_LIBRARIES )
+  set_source_files_properties(FASTMgr.cc PROPERTIES
+    COMPILE_FLAGS "${FAST_INCLUDE_DIR}"
+  )
 
 ########################################################################
 ### CORI related properties:
-IF( DIET_USE_CORI )
 
-  # Refer to ConfigureCORI.cmake for definition of CORI_HAVE_* variables:
-  SET( CORI_EASY_CPU_COMPILE_FLAGS  "")
-  SET( CORI_EASY_MEMORY_COMPILE_FLAGS  "")
-  IF( CORI_HAVE_PROCCPU )
-    SET( CORI_EASY_CPU_COMPILE_FLAGS
-      "${CORI_EASY_CPU_COMPILE_FLAGS} -D CORI_HAVE_PROCCPU" )
-  ENDIF( CORI_HAVE_PROCCPU )
+# Refer to ConfigureCORI.cmake for definition of CORI_HAVE_* variables:
+  set(CORI_EASY_CPU_COMPILE_FLAGS  "")
+  set( CORI_EASY_MEMORY_COMPILE_FLAGS  "")
+  if (CORI_HAVE_PROCCPU)
+    set( CORI_EASY_CPU_COMPILE_FLAGS
+      "${CORI_EASY_CPU_COMPILE_FLAGS} -D CORI_HAVE_PROCCPU"
+    )
+  endif(CORI_HAVE_PROCCPU)
 
-  IF( CORI_HAVE_PROCMEM )
-    SET( CORI_EASY_MEMORY_COMPILE_FLAGS
-      "${CORI_EASY_MEMORY_COMPILE_FLAGS} -D CORI_HAVE_PROCMEM" )
-  ENDIF( CORI_HAVE_PROCMEM )
+  if (CORI_HAVE_PROCMEM)
+    set(CORI_EASY_MEMORY_COMPILE_FLAGS
+      "${CORI_EASY_MEMORY_COMPILE_FLAGS} -D CORI_HAVE_PROCMEM"
+    )
+  endif(CORI_HAVE_PROCMEM)
 
-  IF( CORI_HAVE_SYS_TYPES )
-    SET( CORI_EASY_CPU_COMPILE_FLAGS
-      "${CORI_EASY_CPU_COMPILE_FLAGS} -D CORI_HAVE_SYS_TYPES" )
-  ENDIF( CORI_HAVE_SYS_TYPES )
+  if (CORI_HAVE_SYS_TYPES)
+    set( CORI_EASY_CPU_COMPILE_FLAGS
+      "${CORI_EASY_CPU_COMPILE_FLAGS} -D CORI_HAVE_SYS_TYPES"
+    )
+  endif (CORI_HAVE_SYS_TYPES)
 
-  IF( CORI_HAVE_SYS_SYSCTL )
-    SET( CORI_EASY_CPU_COMPILE_FLAGS
-      "${CORI_EASY_CPU_COMPILE_FLAGS} -D CORI_HAVE_SYS_SYSCTL" )
-  ENDIF( CORI_HAVE_SYS_SYSCTL )
+  if (CORI_HAVE_SYS_SYSCTL)
+    set(CORI_EASY_CPU_COMPILE_FLAGS
+      "${CORI_EASY_CPU_COMPILE_FLAGS} -D CORI_HAVE_SYS_SYSCTL"
+    )
+  endif (CORI_HAVE_SYS_SYSCTL)
+ 
+  if (CORI_HAVE_SYS_SYSINFO)
+    set(CORI_EASY_CPU_COMPILE_FLAGS
+      "${CORI_EASY_CPU_COMPILE_FLAGS} -D CORI_HAVE_SYS_SYSINFO"
+    )
+    set(CORI_EASY_MEMORY_COMPILE_FLAGS
+      "${CORI_EASY_MEMORY_COMPILE_FLAGS} -D CORI_HAVE_SYS_SYSINFO"
+    )
+  endif (CORI_HAVE_SYS_SYSINFO)
 
-  IF( CORI_HAVE_SYS_SYSINFO )
-    SET( CORI_EASY_CPU_COMPILE_FLAGS
-      "${CORI_EASY_CPU_COMPILE_FLAGS} -D CORI_HAVE_SYS_SYSINFO" )
-    SET( CORI_EASY_MEMORY_COMPILE_FLAGS
-      "${CORI_EASY_MEMORY_COMPILE_FLAGS} -D CORI_HAVE_SYS_SYSINFO" )
-  ENDIF( CORI_HAVE_SYS_SYSINFO )
+  if (CORI_HAVE_get_avphys_pages)
+    set(CORI_EASY_MEMORY_COMPILE_FLAGS
+      "${CORI_EASY_MEMORY_COMPILE_FLAGS} -D CORI_HAVE_get_avphys_pages"
+    )
+  endif (CORI_HAVE_get_avphys_pages)
 
-  IF( CORI_HAVE_get_avphys_pages )
-    SET( CORI_EASY_MEMORY_COMPILE_FLAGS
-      "${CORI_EASY_MEMORY_COMPILE_FLAGS} -D CORI_HAVE_get_avphys_pages" )
-  ENDIF( CORI_HAVE_get_avphys_pages )
-
-  IF( CORI_HAVE_get_nprocs )
-    SET( CORI_EASY_CPU_COMPILE_FLAGS
-      "${CORI_EASY_CPU_COMPILE_FLAGS} -D CORI_HAVE_get_nprocs" )
-  ENDIF( CORI_HAVE_get_nprocs )
+  if (CORI_HAVE_get_nprocs)
+    set(CORI_EASY_CPU_COMPILE_FLAGS
+      "${CORI_EASY_CPU_COMPILE_FLAGS} -D CORI_HAVE_get_nprocs"
+    )
+  endif (CORI_HAVE_get_nprocs)
 
   # FIXME: looks like never used !
-  IF( CORI_HAVE_get_phys_pages )
-    SET( CORI_EASY_MEMORY_COMPILE_FLAGS
-      "${CORI_EASY_MEMORY_COMPILE_FLAGS} -D CORI_HAVE_get_phys_pages" )
-  ENDIF( CORI_HAVE_get_phys_pages )
+  if (CORI_HAVE_get_phys_pages)
+    set(CORI_EASY_MEMORY_COMPILE_FLAGS
+      "${CORI_EASY_MEMORY_COMPILE_FLAGS} -D CORI_HAVE_get_phys_pages"
+    )
+  endif (CORI_HAVE_get_phys_pages)
 
-  IF( CORI_HAVE_getloadavg )
-    SET( CORI_EASY_CPU_COMPILE_FLAGS
-      "${CORI_EASY_CPU_COMPILE_FLAGS} -D CORI_HAVE_getloadavg" )
-  ENDIF( CORI_HAVE_getloadavg )
+  if (CORI_HAVE_getloadavg)
+    set(CORI_EASY_CPU_COMPILE_FLAGS
+      "${CORI_EASY_CPU_COMPILE_FLAGS} -D CORI_HAVE_getloadavg"
+    )
+  endif (CORI_HAVE_getloadavg)
 
-  IF( CORI_HAVE_getpagesize )
-    SET( CORI_EASY_MEMORY_COMPILE_FLAGS
-      "${CORI_EASY_MEMORY_COMPILE_FLAGS} -D CORI_HAVE_getpagesize" )
-  ENDIF( CORI_HAVE_getpagesize )
+  if (CORI_HAVE_getpagesize)
+    set(CORI_EASY_MEMORY_COMPILE_FLAGS
+      "${CORI_EASY_MEMORY_COMPILE_FLAGS} -D CORI_HAVE_getpagesize"
+    )
+  endif (CORI_HAVE_getpagesize)
 
-  IF( CORI_HAVE_sysconf )
-    SET( CORI_EASY_CPU_COMPILE_FLAGS
-      "${CORI_EASY_CPU_COMPILE_FLAGS} -D CORI_HAVE_sysconf" )
-  ENDIF( CORI_HAVE_sysconf )
+  if (CORI_HAVE_sysconf)
+    set(CORI_EASY_CPU_COMPILE_FLAGS
+      "${CORI_EASY_CPU_COMPILE_FLAGS} -D CORI_HAVE_sysconf"
+    )
+  endif (CORI_HAVE_sysconf)
 
-  IF( CORI_HAVE_sysctl )
-    SET( CORI_EASY_CPU_COMPILE_FLAGS
-      "${CORI_EASY_CPU_COMPILE_FLAGS} -D CORI_HAVE_sysctl" )
-  ENDIF( CORI_HAVE_sysctl )
+  if (CORI_HAVE_sysctl)
+    set(CORI_EASY_CPU_COMPILE_FLAGS
+      "${CORI_EASY_CPU_COMPILE_FLAGS} -D CORI_HAVE_sysctl"
+    )
+  endif (CORI_HAVE_sysctl)
 
-  IF( CORI_HAVE_sysctlbyname )
-    SET( CORI_EASY_CPU_COMPILE_FLAGS
-      "${CORI_EASY_CPU_COMPILE_FLAGS} -D CORI_HAVE_sysctlbyname" )
-  ENDIF( CORI_HAVE_sysctlbyname )
+  if (CORI_HAVE_sysctlbyname)
+    set(CORI_EASY_CPU_COMPILE_FLAGS
+        "${CORI_EASY_CPU_COMPILE_FLAGS} -D CORI_HAVE_sysctlbyname"
+    )
+  endif (CORI_HAVE_sysctlbyname)
 
-  SET_SOURCE_FILES_PROPERTIES( Cori_Easy_CPU.cc
-     PROPERTIES COMPILE_FLAGS "${CORI_EASY_CPU_COMPILE_FLAGS}" )
-  SET_SOURCE_FILES_PROPERTIES( Cori_Easy_Memory.cc
-     PROPERTIES COMPILE_FLAGS "${CORI_EASY_MEMORY_COMPILE_FLAGS}" )
+  set_source_files_properties(Cori_Easy_CPU.cc
+     PROPERTIES COMPILE_FLAGS "${CORI_EASY_CPU_COMPILE_FLAGS}"
+  )
+  set_source_files_properties( Cori_Easy_Memory.cc
+     PROPERTIES COMPILE_FLAGS "${CORI_EASY_MEMORY_COMPILE_FLAGS}"
+  )
 
-ENDIF( DIET_USE_CORI )
+endif (DIET_USE_CORI)

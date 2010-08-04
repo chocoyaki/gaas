@@ -1,20 +1,16 @@
-IF( DIET_BUILD_LIBRARIES )
-  INCLUDE_DIRECTORIES(
-    ${OMNIORB4_INCLUDE_DIR}
-    ${DIET_SOURCE_DIR}/include
-    ${DIET_SOURCE_DIR}/src/utils
-  )
+INCLUDE_DIRECTORIES(
+  ${OMNIORB4_INCLUDE_DIR}
+  ${DIET_SOURCE_DIR}/include
+  ${DIET_SOURCE_DIR}/src/utils
+)
 
-  ########################################################################
-  ### UtilsEvents library
+########################################################################
+### UtilsEvents library
 
-  SET(   UtilsEventsSource
-	 EventBase.cc
-	 EventDispatcher.cc
-# 	 EventObserver.cc
-	 EventManager.cc )
+set(UtilsEventsSource
+  EventBase.cc
+  EventDispatcher.cc
+  EventManager.cc )
 
-  ADD_LIBRARY( UtilsEvents STATIC ${UtilsEventsSource})
-
-
-ENDIF( DIET_BUILD_LIBRARIES )
+add_library(UtilsEvents STATIC ${UtilsEventsSource})
+add_dependencies(UtilsEvents DIET_CORBA)

@@ -1,6 +1,5 @@
 # DIET cmake local file
 
-IF( DIET_BUILD_LIBRARIES )
   INCLUDE_DIRECTORIES(
     ${OMNIORB4_INCLUDE_DIR}
     ${DIET_SOURCE_DIR}/src/utils
@@ -31,6 +30,11 @@ IF( DIET_BUILD_LIBRARIES )
   )
 
   ADD_EXECUTABLE ( maDagAgent maDagAgent.cc ${MaDag_SOURCES} )
+
+# maDagAgent & MaDag depends on CORBA files.
+add_dependencies(maDagAgent CORBAFiles)
+add_dependencies(MaDag CORBAFiles)
+
   TARGET_LINK_LIBRARIES (maDagAgent
       Dagda
       CorbaCommon
@@ -42,5 +46,3 @@ IF( DIET_BUILD_LIBRARIES )
       pthread
   )
   INSTALL( TARGETS maDagAgent DESTINATION bin )
-
-ENDIF( DIET_BUILD_LIBRARIES )

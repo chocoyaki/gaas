@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2010/08/04 09:06:18  glemahec
+ * Parallel compilation
+ *
  * Revision 1.7  2010/07/27 16:16:48  glemahec
  * Forwarders robustness
  *
@@ -41,6 +44,7 @@
 #include "NetConfig.hh"
 
 #include "Forwarder.hh"
+#include "common_types.hh"
 
 class DIETForwarder : public POA_Forwarder,
 			public PortableServer::RefCountServantBase
