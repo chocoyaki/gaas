@@ -1,10 +1,10 @@
 #############################################################################
 # DIET main cmake entry point: comment or perish...                         #
 #############################################################################
-PROJECT(DIET)
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+project(DIET)
+cmake_minimum_required(VERSION 2.6)
 
-IF( COMMAND CMAKE_POLICY )
+if (COMMAND CMAKE_POLICY)
   # CMAKE policy CMP0002: CMake 2.6 introduces policy CMP0002 which
   # requires all logical target names to be globally unique (duplicate
   # target names previously worked in some cases by accident but were
@@ -16,77 +16,106 @@ IF( COMMAND CMAKE_POLICY )
   CMAKE_POLICY( SET CMP0002 OLD )
 
   # See `cmake --help-policy CMP0003`
-  CMAKE_POLICY( SET CMP0003 NEW )
-ENDIF( COMMAND CMAKE_POLICY )
+  cmake_policy( SET CMP0003 NEW )
+endif (COMMAND CMAKE_POLICY)
 
 
-SET( DIET_MAJOR_VERSION 2 )
-SET( DIET_MINOR_VERSION 5 )
+set(DIET_MAJOR_VERSION 2)
+set(DIET_MINOR_VERSION 5)
 
-SET( DIET_REVISION_VERSION rc1 )
-SET( DIET_VERSION ${DIET_MAJOR_VERSION}.${DIET_MINOR_VERSION})
-IF (DIET_REVISION_VERSION)
-	SET( DIET_VERSION ${DIET_VERSION}.${DIET_REVISION_VERSION})
-ENDIF (DIET_REVISION_VERSION)
+set(DIET_REVISION_VERSION alpha1)
+
+set(DIET_VERSION ${DIET_MAJOR_VERSION}.${DIET_MINOR_VERSION})
+
+if (DIET_REVISION_VERSION)
+	set(DIET_VERSION ${DIET_VERSION}.${DIET_REVISION_VERSION})
+endif (DIET_REVISION_VERSION)
 
 # Get Date
-IF( WIN32 )
-  EXECUTE_PROCESS(COMMAND "date" "+%Y/%m/%d-%H:%M:%S" 
-  			  OUTPUT_VARIABLE BUILD_DATE )
-  STRING( STRIP ${BUILD_DATE} BUILD_DATE) # get rid of newline
-ELSEIF( UNIX )
-  EXECUTE_PROCESS(COMMAND "date" "+%Y/%m/%d-%H:%M:%S" 
-  			  OUTPUT_VARIABLE BUILD_DATE )
-  STRING( STRIP ${BUILD_DATE} BUILD_DATE) # get rid of newline
-ELSE( WIN32 )
-  MESSAGE(SEND_ERROR "date not implemented")
-       		     SET(${BUILD_DATE} 000000)
-ENDIF( WIN32 )
-SET( DIET_BUILD_VERSION ${BUILD_DATE})
+if (WIN32)
+  execute_process(COMMAND "date" "+%Y/%m/%d-%H:%M:%S" 
+  			  OUTPUT_VARIABLE BUILD_DATE)
+  string(STRIP ${BUILD_DATE} BUILD_DATE) # get rid of newline
+elseif (UNIX)
+  execute_process(COMMAND "date" "+%Y/%m/%d-%H:%M:%S" 
+  			  OUTPUT_VARIABLE BUILD_DATE)
+  string(STRIP ${BUILD_DATE} BUILD_DATE) # get rid of newline
+else (WIN32)
+  message(SEND_ERROR "date not implemented")
+	set(${BUILD_DATE} 000000)
+endif (WIN32)
+
+set(DIET_BUILD_VERSION ${BUILD_DATE})
 
 # --------------------- OPTIONS OF THE PROJECT -----------------------------
-OPTION( DIET_BUILD_BLAS_EXAMPLES "Build BLAS based DIET examples." OFF )
-OPTION( DIET_BUILD_EXAMPLES      "Build DIET examples." OFF )
-#OPTION( DIET_BUILD_DOCUMENTATION "Build the documentation." OFF ) ## go in the doc dir
-OPTION( DIET_USE_ALT_BATCH  "Build DIET with Batch support." OFF )
-OPTION( DIET_USE_CLOUD "Build DIET with Cloud (EC2 compatible) support." OFF )
-OPTION( DIET_USE_CORI   "Build DIET with CORI support." OFF )
-OPTION( DIET_USE_DART   "Build DIET with dart reporting support." OFF)
-OPTION( DIET_USE_DYNAMICS   "Build DIET with dynamic hierarchy modifications features." OFF)
-OPTION( DIET_USE_FAST   "Build DIET with FAST support." OFF )
-OPTION( DIET_USE_FD     "Build DIET with Fault Detector support." OFF)
-OPTION( DIET_USE_JUXMEM "Build DIET with JuxMem support." OFF )
-OPTION( DIET_USE_JXTA   "Build DIET with JXTA architecture support." OFF )
-OPTION( DIET_USE_WORKFLOW    "Build DIET with workflow support..." OFF)
-OPTION( DIET_WITH_STATISTICS "Build DIET with generation of statistics." OFF )
-OPTION( DIET_WITH_MULTI_MA   "Build DIET with MULTI-Master-Agent support." OFF )
-# New : User scheduler at agents level support.
-OPTION( DIET_USE_USERSCHED   "Build DIET with user scheduler support (Experimental)." OFF )
-OPTION( DIET_USE_ENDIANNESS  "Build DIET with endianness management  (Experimental)." OFF )
-OPTION( DIET_USE_CCS         "Build DIET with client custom scheduling  (Experimental)." OFF )
-OPTION( DIET_TRANSFER_PROGRESSION "Build DIET with DAGDA progression API" OFF )
-# Ackfile support
-OPTION( DIET_USE_ACKFILE     "Build DIET with acknowledge file." OFF)
-## Use Dagda as data manager.
-OPTION( DIET_USE_DAGDA "Build DIET with Dagda as data manager. (In developpment)." OFF )
+# Options dependencies:
+#    - DIET_USE_ALT_BATCH => DIET_USE_CORI
+#    - DIET_USE_DYNAMICS => DIET_USE_DAGDA (!DIET_USE_DTM)
+
+option(DIET_BUILD_BLAS_EXAMPLES "Build BLAS based DIET examples." OFF)
+option(DIET_BUILD_EXAMPLES      "Build DIET examples." OFF)
+option(DIET_USE_ALT_BATCH  "Build DIET with Batch support." OFF)
+option(DIET_USE_CLOUD "Build DIET with Cloud (EC2 compatible) support." OFF)
+
+if (DIET_USE_ALT_BATCH)
+  if (NOT DIET_USE_CORI)
+    set(DIET_USE_CORI ON CACHE BOOL "Cori support" FORCE)
+    message(WARNING "CORI was activated for batch support.")
+  endif (NOT DIET_USE_CORI)
+  option(DIET_USE_CORI "Build DIET with CORI support (Mandatory for the batch support)." ON)
+else (DIET_USE_ALT_BATCH)
+  option(DIET_USE_CORI   "Build DIET with CORI support." OFF)
+endif (DIET_USE_ALT_BATCH)
+
+option(DIET_USE_DART   "Build DIET with dart reporting support." OFF)
+option(DIET_USE_DYNAMICS   "Build DIET with dynamic hierarchy modifications features." OFF)
+option(DIET_USE_FAST   "Build DIET with FAST support." OFF)
+option(DIET_USE_FD     "Build DIET with Fault Detector support." OFF)
+option(DIET_USE_JUXMEM "Build DIET with JuxMem support." OFF)
+option(DIET_USE_JXTA   "Build DIET with JXTA architecture support." OFF)
+option(DIET_USE_WORKFLOW    "Build DIET with workflow support..." OFF)
+option(DIET_WITH_STATISTICS "Build DIET with generation of statistics." OFF)
+option(DIET_WITH_MULTI_MA   "Build DIET with MULTI-Master-Agent support." OFF)
+option(DIET_USE_USERSCHED   "Build DIET with user scheduler support (Experimental)." OFF)
+option(DIET_USE_ENDIANNESS  "Build DIET with endianness management  (Experimental)." OFF)
+option(DIET_USE_CCS         "Build DIET with client custom scheduling  (Experimental)." OFF)
+option(DIET_TRANSFER_PROGRESSION "Build DIET with DAGDA progression API" OFF )
+option(DIET_USE_ACKFILE     "Build DIET with acknowledge file." OFF)
+
+if (DIET_USE_DYNAMICS OR DIET_USE_WORKFLOW)
+	if (DIET_USE_DTM)
+    set(DIET_USE_DTM OFF CACHE BOOL "DTM support" FORCE)
+		message(WARNING "DTM was deactivated for dynamic and/or workflow support.")
+	endif (DIET_USE_DTM)
+
+endif (DIET_USE_DYNAMICS OR DIET_USE_WORKFLOW)
+option(DIET_USE_DTM "Build DIET with DTM as data manager." OFF)
+
 # Profiling, used to add counters with TAU (http://http://www.cs.uoregon.edu/research/tau/home.php)
-OPTION( DIET_TAU_PROFILING "Build DIET with TAU profiling support. (In developpment)." OFF )
-MARK_AS_ADVANCED( DIET_TAU_PROFILING )
-OPTION( DIET_USE_MULTICALL "Build DIET with the multiple async call (In development)" OFF)
-MARK_AS_ADVANCED( DIET_USE_MULTICALL )
+option( DIET_TAU_PROFILING "Build DIET with TAU profiling support. (In developpment)." OFF )
+mark_as_advanced(DIET_TAU_PROFILING)
+option( DIET_USE_MULTICALL "Build DIET with the multiple async call (In development)" OFF)
+mark_as_advanced(DIET_USE_MULTICALL)
+
+# Now Dagda is the default DIET data manager.
+if (DIET_USE_DTM)
+  set(DIET_USE_DAGDA OFF CACHE INTERNAL "Use Dagda as data manager")
+else (DIET_USE_DTM)
+  set(DIET_USE_DAGDA ON CACHE INTERNAL "Use Dagda as data manager")
+endif (DIET_USE_DTM)
 
 # --------------------- OPTIONS SET BY DEFAULT  ----------------------------
 # One might wish not to compile DIET but just to build the docs:
-OPTION( DIET_BUILD_LIBRARIES "Build DIET libraries." ON )
+option(DIET_BUILD_LIBRARIES "Build DIET libraries." ON)
 # Are libraries dynamic libraries as opposed to library archives ?
 # Note: this variable is a cmake internal, hence not prefixed with DIET_.
-OPTION( BUILD_SHARED_LIBS "Build libraries as shared libraries." ON )
+option(BUILD_SHARED_LIBS "Build libraries as shared libraries." ON)
 
 # --------------------- OPTIONS COHERENCE SANITY CHECKS --------------------
 
-IF( DIET_USE_ALT_BATCH AND NOT DIET_USE_CORI )
-  MESSAGE( SEND_ERROR "Because of needed batch estimations, CORI must also be selected." )
-ENDIF( DIET_USE_ALT_BATCH AND NOT DIET_USE_CORI )
+if (DIET_USE_ALT_BATCH AND NOT DIET_USE_CORI)
+  message(SEND_ERROR "Because of needed batch estimations, CORI must also be selected.")
+endif (DIET_USE_ALT_BATCH AND NOT DIET_USE_CORI)
 
 IF( DIET_USE_CLOUD AND NOT DIET_USE_ALT_BATCH )
   MESSAGE( SEND_ERROR "DIET_USE_ALT_BATCH must be set for Cloud functionality, as Cloud is a subsystem of it" )
