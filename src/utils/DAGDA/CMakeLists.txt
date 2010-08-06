@@ -37,7 +37,7 @@ IF( DIET_BUILD_LIBRARIES )
     CorbaCommon
     UtilsNodes
     DIET_Utils
-    ${UUIDLIB}
+    ${UUID_LIB}
     pthread
     ${OMNIORB4_LIBRARIES}
   )

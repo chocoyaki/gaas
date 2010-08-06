@@ -95,7 +95,7 @@ add_dependencies(AgentCommon CORBAFiles)
 if (DIET_USE_DAGDA)
   set(dietAgent_Libs
     ${dietAgent_Libs}
-    ${UUIDLIB}
+    ${UUID_LIB}
     Dagda
   )
 endif(DIET_USE_DAGDA)

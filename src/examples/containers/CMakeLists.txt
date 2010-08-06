@@ -7,9 +7,9 @@ INCLUDE_DIRECTORIES( ${DIET_SOURCE_DIR}/include
                      ${DIET_SOURCE_DIR}/src/utils/DAGDA )
 
 
-SET( SEDs server )
+SET( SEDs containers_server )
 
-SET (CLIENTS  client )
+SET (CLIENTS  containers_client )
 
 FOREACH (sed ${SEDs})
   ADD_EXECUTABLE( ${sed} ${sed}.c )

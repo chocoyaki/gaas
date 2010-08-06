@@ -4,22 +4,6 @@
 project(DIET)
 cmake_minimum_required(VERSION 2.6)
 
-if (COMMAND CMAKE_POLICY)
-  # CMAKE policy CMP0002: CMake 2.6 introduces policy CMP0002 which
-  # requires all logical target names to be globally unique (duplicate
-  # target names previously worked in some cases by accident but were
-  # not diagnosed). Projects using duplicate target names and working
-  # accidentally will receive warnings referencing the policy.
-  # Thus we set to 'OLD' this policy in order to remove the warnings.
-  # THIS SHOULD BE SET TO 'NEW', but it requires that all targets have a 
-  # different name, which currently isn't the case.
-  CMAKE_POLICY( SET CMP0002 OLD )
-
-  # See `cmake --help-policy CMP0003`
-  cmake_policy( SET CMP0003 NEW )
-endif (COMMAND CMAKE_POLICY)
-
-
 set(DIET_MAJOR_VERSION 2)
 set(DIET_MINOR_VERSION 5)
 
@@ -47,15 +31,61 @@ endif (WIN32)
 
 set(DIET_BUILD_VERSION ${BUILD_DATE})
 
+# because x86_64 can't link static libraries to shared libraries
+# and from 2.5, this is what is done in DIET
+# see http://www.mail-archive.com/cross-lfs%40linuxfromscratch.org/msg00411.html
+# You will get these messages on x86_64 any place that libtool tries to use a static (.a) library in a .la, and as it says, it can't link. These "recompile with -fPIC" messages fall into three types - 
+# (i) recompile the current package with -fPIC
+# (ii) fix a broken symlink (I had a dangling symlink for ncurses in my scripts, because of a typo - on x86 libtool couldn't find the .so but took the .a and ran with it, on x86_64 it barfed). 
+# (iii) convert a Makefile to use .la instead of .a (very uncommon).
+
+# Note: CMAKE_SYSTEM_PROCESSOR return the equivalent of uname -p, note uname -m
+
+if (UNIX AND NOT WIN32)
+  find_program(CMAKE_UNAME uname /bin /usr/bin /usr/local/bin )
+  if (CMAKE_UNAME)
+    exec_program(uname ARGS -m OUTPUT_VARIABLE SYSTEM_PROC_TYPE)
+    set(SYSTEM_PROC_TYPE ${SYSTEM_PROC_TYPE} CACHE INTERNAL 
+    	"processor type (i386 and x86_64)")
+    if (SYSTEM_PROC_TYPE MATCHES "x86_64")
+		  # TODO: Should be done only for libraries build
+      add_definitions(-fPIC)
+		endif(SYSTEM_PROC_TYPE MATCHES "x86_64")
+  endif(CMAKE_UNAME)
+endif(UNIX AND NOT WIN32)
+
+
 # --------------------- OPTIONS OF THE PROJECT -----------------------------
 # Options dependencies:
+#    - DIET_BUILD_BLAS_EXAMPLES => DIET_BUILD_EXAMPLES
 #    - DIET_USE_ALT_BATCH => DIET_USE_CORI
 #    - DIET_USE_DYNAMICS => DIET_USE_DAGDA (!DIET_USE_DTM)
+#    - DIET_WORKFLOW => DIET_USE_DAGDA (!DIET_USE_DTM)
+#    - DIET_TRANSFER_PROGRESSION => DIET_USE_DAGDA
+#    - DIET_USE_CLOUD => DIET_USE_ALT_BATCH
 
 option(DIET_BUILD_BLAS_EXAMPLES "Build BLAS based DIET examples." OFF)
-option(DIET_BUILD_EXAMPLES      "Build DIET examples." OFF)
-option(DIET_USE_ALT_BATCH  "Build DIET with Batch support." OFF)
+if (DIET_BUILD_BLAS_EXAMPLES)
+  if (NOT DIET_BUILD_EXAMPLES)
+	  set(DIET_BUILD_EXAMPLES ON CACHE BOOL "Build DIET examples." FORCE)
+	  message(WARNING "Examples building was activated.")
+	endif (NOT DIET_BUILD_EXAMPLES)
+	option(DIET_BUILD_EXAMPLES "Build DIET examples. (Mandatory for BLAS examples building.)" ON)
+else (DIET_BUILD_BLAS_EXAMPLES)
+  option(DIET_BUILD_EXAMPLES      "Build DIET examples." OFF)
+endif (DIET_BUILD_BLAS_EXAMPLES)
+
 option(DIET_USE_CLOUD "Build DIET with Cloud (EC2 compatible) support." OFF)
+
+if (DIET_USE_CLOUD)
+  if (NOT DIET_USE_ALT_BATCH)
+  	set(DIET_USE_ALT_BATCH ON CACHE BOOL "Batch support" FORCE)
+    message(WARNING "Batch was activated for cloud support.")
+	endif (NOT DIET_USE_ALT_BATCH)
+	option(DIET_USE_ALT_BATCH "Build DIET with Batch support (Mandatory for cloud support)." ON)
+else (DIET_USE_CLOUD)
+	option(DIET_USE_ALT_BATCH  "Build DIET with Batch support." OFF)
+endif (DIET_USE_CLOUD)
 
 if (DIET_USE_ALT_BATCH)
   if (NOT DIET_USE_CORI)
@@ -72,14 +102,15 @@ option(DIET_USE_DYNAMICS   "Build DIET with dynamic hierarchy modifications feat
 option(DIET_USE_FAST   "Build DIET with FAST support." OFF)
 option(DIET_USE_FD     "Build DIET with Fault Detector support." OFF)
 option(DIET_USE_JUXMEM "Build DIET with JuxMem support." OFF)
-option(DIET_USE_JXTA   "Build DIET with JXTA architecture support." OFF)
 option(DIET_USE_WORKFLOW    "Build DIET with workflow support..." OFF)
 option(DIET_WITH_STATISTICS "Build DIET with generation of statistics." OFF)
 option(DIET_WITH_MULTI_MA   "Build DIET with MULTI-Master-Agent support." OFF)
 option(DIET_USE_USERSCHED   "Build DIET with user scheduler support (Experimental)." OFF)
 option(DIET_USE_ENDIANNESS  "Build DIET with endianness management  (Experimental)." OFF)
 option(DIET_USE_CCS         "Build DIET with client custom scheduling  (Experimental)." OFF)
-option(DIET_TRANSFER_PROGRESSION "Build DIET with DAGDA progression API" OFF )
+if (NOT DIET_USE_DTM)
+  option(DIET_TRANSFER_PROGRESSION "Build DIET with DAGDA progression API" OFF )
+endif (NOT DIET_USE_DTM)
 option(DIET_USE_ACKFILE     "Build DIET with acknowledge file." OFF)
 
 if (DIET_USE_DYNAMICS OR DIET_USE_WORKFLOW)
@@ -87,7 +118,6 @@ if (DIET_USE_DYNAMICS OR DIET_USE_WORKFLOW)
     set(DIET_USE_DTM OFF CACHE BOOL "DTM support" FORCE)
 		message(WARNING "DTM was deactivated for dynamic and/or workflow support.")
 	endif (DIET_USE_DTM)
-
 endif (DIET_USE_DYNAMICS OR DIET_USE_WORKFLOW)
 option(DIET_USE_DTM "Build DIET with DTM as data manager." OFF)
 
@@ -104,52 +134,14 @@ else (DIET_USE_DTM)
   set(DIET_USE_DAGDA ON CACHE INTERNAL "Use Dagda as data manager")
 endif (DIET_USE_DTM)
 
+# JXTA architecture is deprecated
+#option(DIET_USE_JXTA   "Build DIET with JXTA architecture support." OFF)
+
+
 # --------------------- OPTIONS SET BY DEFAULT  ----------------------------
-# One might wish not to compile DIET but just to build the docs:
-option(DIET_BUILD_LIBRARIES "Build DIET libraries." ON)
 # Are libraries dynamic libraries as opposed to library archives ?
 # Note: this variable is a cmake internal, hence not prefixed with DIET_.
 option(BUILD_SHARED_LIBS "Build libraries as shared libraries." ON)
-
-# --------------------- OPTIONS COHERENCE SANITY CHECKS --------------------
-
-if (DIET_USE_ALT_BATCH AND NOT DIET_USE_CORI)
-  message(SEND_ERROR "Because of needed batch estimations, CORI must also be selected.")
-endif (DIET_USE_ALT_BATCH AND NOT DIET_USE_CORI)
-
-IF( DIET_USE_CLOUD AND NOT DIET_USE_ALT_BATCH )
-  MESSAGE( SEND_ERROR "DIET_USE_ALT_BATCH must be set for Cloud functionality, as Cloud is a subsystem of it" )
-ENDIF( DIET_USE_CLOUD AND NOT DIET_USE_ALT_BATCH )
-
-IF( DIET_BUILD_BLAS_EXAMPLES AND NOT DIET_BUILD_EXAMPLES )
-  MESSAGE( SEND_ERROR "For DIET_BUILD_BLAS_EXAMPLES to be effective you MUST also set DIET_BUILD_EXAMPLES" )
-ENDIF( DIET_BUILD_BLAS_EXAMPLES AND NOT DIET_BUILD_EXAMPLES )
-
-IF( NOT DIET_BUILD_LIBRARIES  AND DIET_BUILD_EXAMPLES )
-  MESSAGE(SEND_ERROR "DIET_BUILD_LIBRARIES must be set for building examples.")
-ENDIF( NOT DIET_BUILD_LIBRARIES AND DIET_BUILD_EXAMPLES )
-
-IF( DIET_USE_WORKFLOW AND NOT DIET_USE_DAGDA )
-  MESSAGE(SEND_ERROR "DIET_USE_WORKFLOW requires DIET_USE_DAGDA.")
-ENDIF( DIET_USE_WORKFLOW AND NOT DIET_USE_DAGDA )
-
-IF( DIET_USE_DYNAMICS AND NOT DIET_USE_DAGDA )
-  MESSAGE(SEND_ERROR "DIET_USE_DYNAMICS requires DIET_USE_DAGDA.")
-ENDIF( DIET_USE_DYNAMICS AND NOT DIET_USE_DAGDA )
-
-IF( DIET_TRANSFER_PROGRESSION AND NOT DIET_USE_DAGDA )
-  MESSAGE(SEND_ERROR "DIET_TRANSFER_PROGRESSION requires DIET_USE_DAGDA.")
-ENDIF( DIET_TRANSFER_PROGRESSION AND NOT DIET_USE_DAGDA )
-
-# JXTA (see below) is used to provide functionalities similar to the ones
-# of the DIET_WITH_MULTI_MA. For the time being those two extensions
-# are not incompatible at compile time. Yet, requiring both probably
-# means you are either an expert or a lost newbie...
-# In order to prevent trouble, we assume the user is newbie and we
-# explicitely require a disambiguation
-IF( DIET_WITH_MULTI_MA AND DIET_USE_JXTA )
- MESSAGE(SEND_ERROR "Either set DIET_WITH_MULTI_MA or DIET_USE_JXTA. Not both.")
-ENDIF( DIET_WITH_MULTI_MA AND DIET_USE_JXTA )
 
 # --------------------- DEPENDENCIES TOWARDS "CLASSIC" C++ HEADERS ---------
 # This is just a convenience to advance the detection of any potential missing
@@ -158,9 +150,9 @@ ENDIF( DIET_WITH_MULTI_MA AND DIET_USE_JXTA )
 # preprocessing stage of the compilation...
 # [Those tests are a translation of the AC_CHECK_HEADER(...) that were expressed
 # in the configure.ac of the autotools version].
-INCLUDE(${CMAKE_ROOT}/Modules/CheckIncludeFileCXX.cmake)
+include(${CMAKE_ROOT}/Modules/CheckIncludeFileCXX.cmake)
 
-SET( DIET_INCLUDES_TO_CHECK
+set(DIET_INCLUDES_TO_CHECK
   assert.h
   iostream
   limits.h
@@ -169,14 +161,15 @@ SET( DIET_INCLUDES_TO_CHECK
   string.h
   unistd.h
   sys/stat.h
-  sys/types.h )
+  sys/types.h
+)
 
-FOREACH( include_to_check ${DIET_INCLUDES_TO_CHECK} )
+foreach (include_to_check ${DIET_INCLUDES_TO_CHECK})
   CHECK_INCLUDE_FILE_CXX( ${include_to_check} dummyfound${include_to_check} )
-  IF ( NOT dummyfound${include_to_check} )
-    MESSAGE(FATAL_ERROR "Missing ${include_to_check} header file.")
-  ENDIF( NOT dummyfound${include_to_check} )
-ENDFOREACH( include_to_check )
+  if (NOT dummyfound${include_to_check})
+    message(FATAL_ERROR "Missing ${include_to_check} header file.")
+  endif (NOT dummyfound${include_to_check})
+endforeach (include_to_check)
 
 # --------------------- DEPENDENCIES TOWARDS SYSTEM FUNCTIONS ------------
 # This is just a convenience to advance the detection of any potential missing
@@ -187,34 +180,34 @@ ENDFOREACH( include_to_check )
 # in the configure.ac of the autotools version].
 INCLUDE(${CMAKE_ROOT}/Modules/CheckFunctionExists.cmake)
 
-SET( DIET_FUNCTIONS_TO_CHECK
+set(DIET_FUNCTIONS_TO_CHECK
   gethostname
   gettimeofday
   strdup
-  strtok_r )
+  strtok_r
+)
 
-FOREACH( function_to_check ${DIET_FUNCTIONS_TO_CHECK} )
+foreach(function_to_check ${DIET_FUNCTIONS_TO_CHECK})
   CHECK_FUNCTION_EXISTS( ${function_to_check} dummyfound${function_to_check} )
-  IF ( NOT dummyfound${function_to_check} )
-    MESSAGE(FATAL_ERROR "Missing ${function_to_check} function.")
-  ENDIF( NOT dummyfound${function_to_check} )
-ENDFOREACH( function_to_check )
+  if (NOT dummyfound${function_to_check})
+    message(FATAL_ERROR "Missing ${function_to_check} function.")
+  endif (NOT dummyfound${function_to_check})
+endforeach (function_to_check)
 
 #-------------- PLATFORM SPECIFIC COMPILATION FLAGS -----------------------
 # Requires CMake >= 2.4.7
 # Used within omniORB, when set remove some warnings/errors
 # Not tested under SunOS & FreeBSD
-#
-STRING( COMPARE EQUAL ${CMAKE_SYSTEM_NAME} "AIX" AIX )
-STRING( COMPARE EQUAL ${CMAKE_SYSTEM_NAME} "Darwin" APPLE )
-STRING( COMPARE EQUAL ${CMAKE_SYSTEM_NAME} "Linux" LINUX )
-STRING( COMPARE EQUAL ${CMAKE_SYSTEM_NAME} "SunOS" SUNOS )
-STRING( COMPARE EQUAL ${CMAKE_SYSTEM_NAME} "FreeBSD" FREEBSD )
-STRING( COMPARE EQUAL ${CMAKE_SYSTEM_NAME} "CYGWIN" CYGWIN )
 
-IF( CYGWIN )
-  MESSAGE( STATUS "XXX System name Cygwin on Windows" )
-  ADD_DEFINITIONS( -D__cygwin__ )
+string(COMPARE EQUAL ${CMAKE_SYSTEM_NAME} "AIX" AIX)
+string(COMPARE EQUAL ${CMAKE_SYSTEM_NAME} "Darwin" APPLE)
+string(COMPARE EQUAL ${CMAKE_SYSTEM_NAME} "Linux" LINUX)
+string(COMPARE EQUAL ${CMAKE_SYSTEM_NAME} "SunOS" SUNOS)
+string(COMPARE EQUAL ${CMAKE_SYSTEM_NAME} "FreeBSD" FREEBSD)
+string(COMPARE EQUAL ${CMAKE_SYSTEM_NAME} "CYGWIN" CYGWIN)
+
+if (CYGWIN)
+  add_definitions(-D__cygwin__)
 
   # Workflow compilation on Windows inside the Cygwin environment
   # is not permitted until the good compilation of the libraries of
@@ -222,311 +215,229 @@ IF( CYGWIN )
   # For instance it is not possible so we have to wait for the 
   # problem resolution
   # TODO : solve the problem.
-  SET( DIET_USE_WORKFLOW OFF CACHE BOOL "Unable to compile workflow on Windows with Cygwin. " FORCE )
+  set(DIET_USE_WORKFLOW OFF CACHE BOOL "Unable to compile workflow on Windows with Cygwin. " FORCE)
 
-ELSEIF( AIX )
-  MESSAGE( STATUS "XXX System name Aix" )
-  ADD_DEFINITIONS( -D__aix__ )
-
-ELSEIF( APPLE )
-  MESSAGE( STATUS "XXX System name Darwin" )
-  ADD_DEFINITIONS( -D__darwin__ )
-
-  # Static linking for a binary is forbidden on mac systems...
-  # Static compilation of libraries is authorized...
-  # So, if we are on a mac system let's just disable the static
-  # compilation option.
-  # http://developer.apple.com/qa/qa2001/qa1118.html
-  MARK_AS_ADVANCED( BUILD_SHARED_LIBS )
-  SET( BUILD_SHARED_LIBS ON CACHE BOOL "Unable to compile static binaries on APPLE systems." FORCE )
-
-ELSEIF( LINUX )
-  MESSAGE( STATUS "XXX System name Linux" )
-  ADD_DEFINITIONS( -D__linux__ )
-
-ELSEIF( SUNOS )
-  MESSAGE( STATUS "XXX System name SunOS" )
-  ADD_DEFINITIONS( -D__sunos__ )
-
-ELSEIF( FREEBSD )
-  MESSAGE( STATUS "XXX System name FreeBSD" )
-  ADD_DEFINITIONS( -D__freebsd__ )
-ENDIF( CYGWIN )
-
-# because x86_64 can't link static libraries to shared libraries
-# and from 2.5, this is what is done in DIET
-# see http://www.mail-archive.com/cross-lfs%40linuxfromscratch.org/msg00411.html
-#You will get these messages on x86_64 any place that libtool tries to use a static (.a) library in a .la, and as it says, it can't link. These "recompile with -fPIC" messages fall into three types - 
-#(i) recompile the current package with -fPIC
-#(ii) fix a broken symlink (I had a dangling symlink for ncurses in my scripts, because of a typo - on x86 libtool couldn't find the .so but took the .a and ran with it, on x86_64 it barfed). 
-#(iii) convert a Makefile to use .la instead of .a (very uncommon).
-
-# Note: CMAKE_SYSTEM_PROCESSOR return the equivalent of uname -p, note uname -m
-
-IF(UNIX AND NOT WIN32)
-  FIND_PROGRAM(CMAKE_UNAME uname /bin /usr/bin /usr/local/bin )
-  IF(CMAKE_UNAME)
-    EXEC_PROGRAM(uname ARGS -m OUTPUT_VARIABLE SYSTEM_PROC_TYPE)
-    SET(SYSTEM_PROC_TYPE ${SYSTEM_PROC_TYPE} CACHE INTERNAL 
-    	"processor type (i386 and x86_64)")
-    IF(SYSTEM_PROC_TYPE MATCHES "x86_64")
-      ADD_DEFINITIONS(-fPIC)
-    ENDIF(SYSTEM_PROC_TYPE MATCHES "x86_64")
-  ENDIF(CMAKE_UNAME)
-ENDIF(UNIX AND NOT WIN32)
+elseif (AIX)
+  add_definitions(-D__aix__)
+elseif (APPLE)
+  add_definitions( -D__darwin__)
+elseif (LINUX)
+  add_definitions(-D__linux__)
+elseif (SUNOS)
+  add_definitions(-D__sunos__)
+elseif(FREEBSD)
+  add_definitions(-D__freebsd__)
+endif (CYGWIN)
 
 # --------------------- DEPENDENCIES TOWARDS EXTERNAL PACKAGES -------------
 # Path to additional modules (i.e. used by FIND_PACKAGE commands making
 # reference to non CMake defined "standard" modules):
-SET( CMAKE_MODULE_PATH ${DIET_SOURCE_DIR}/Cmake )
+set(CMAKE_MODULE_PATH ${DIET_SOURCE_DIR}/Cmake)
 
 # OmniORB is mandatory:
-FIND_PACKAGE( OmniORB )
-IF( OMNIORB4_FOUND )
-  ADD_DEFINITIONS( -D__OMNIORB4__ )
-	IF (DIET_BUILD_LIBRARIES)
-		SET(OMNIORB4_LIBRARIES ${OMNIORB4_LIBRARIES_sh})
-	ELSE (DIET_BUILD_LIBRARIES)
-		SET(OMNIORB4_LIBRARIES ${OMNIORB4_LIBRARIES_st})
-	ENDIF (DIET_BUILD_LIBRARIES)
-ELSE( OMNIORB4_FOUND )
-  MESSAGE("omniORB installation was not found. Please provide OMNIORB4_DIR:")
-  MESSAGE("  - through the GUI when working with ccmake, ")
-  MESSAGE("  - as a command line argument when working with cmake e.g. ")
-  MESSAGE("    cmake .. -DOMNIORB4_DIR:PATH=/usr/local/omniORB-4.0.7 ")
-  MESSAGE("Note: the following message is triggered by cmake on the first ")
-  MESSAGE("    undefined necessary PATH variable (e.g.  OMNIORB4_INCLUDE_DIR).")
-  MESSAGE("    Providing OMNIORB4_DIR (as above described) is probably the")
-  MESSAGE("    simplest solution unless you have a really customized/odd")
-  MESSAGE("    omniORB installation...")
-  SET( OMNIORB4_DIR "" CACHE PATH "Root of omniORB install tree." )
-ENDIF( OMNIORB4_FOUND )
-
-## No mor
-#IF( DIET_BUILD_DOCUMENTATION )
-#  FIND_PACKAGE( LATEX )
-#
-#  FIND_PACKAGE( Transfig )
-#  IF( NOT TRANSFIG_FOUND )
-#    MESSAGE( "Transfig installation was not found. Please provide FIG2DEV." )
-#    SET( DIET_BUILD_DOCUMENTATION OFF )
-#  ENDIF( NOT TRANSFIG_FOUND )
-#
-#  FIND_PACKAGE( ImageMagick )
-#  IF( NOT IMAGEMAGICK_CONVERT_EXECUTABLE )
-#    MESSAGE( "Convert ImageMagick utility was not found." )
-#    MESSAGE( "Please provide IMAGEMAGICK_CONVERT_EXECUTABLE." )
-#    SET( DIET_BUILD_DOCUMENTATION OFF )
-#  ENDIF( NOT IMAGEMAGICK_CONVERT_EXECUTABLE )
-#
-#  FIND_PACKAGE( Doxygen )
-#  IF( NOT DOXYGEN_EXECUTABLE OR NOT DOXYGEN_DOT_EXECUTABLE )
-#    MESSAGE( "Doxygen or Dot were not found." )
-#    SET( DIET_BUILD_DOCUMENTATION OFF )
-#  ENDIF( NOT DOXYGEN_EXECUTABLE OR NOT DOXYGEN_DOT_EXECUTABLE )
-#
-#  IF( DIET_BUILD_DOCUMENTATION )
-#    ADD_SUBDIRECTORY( doc )
-#  ENDIF( DIET_BUILD_DOCUMENTATION )
-#ENDIF( DIET_BUILD_DOCUMENTATION )
+find_package(OmniORB)
+if (OMNIORB4_FOUND)
+  add_definitions(-D__OMNIORB4__)
+	if (BUILD_SHARED_LIBS)
+	  # Link DIET to OmniORB shared libs
+		set(OMNIORB4_LIBRARIES ${OMNIORB4_LIBRARIES_sh})
+	else (BUILD_SHARED_LIBS)
+	  # Link DIET to OmniORB static libs
+		set(OMNIORB4_LIBRARIES ${OMNIORB4_LIBRARIES_st})
+	endif (BUILD_SHARED_LIBS)
+else (OMNIORB4_FOUND)
+  message("omniORB installation was not found. Please provide OMNIORB4_DIR:")
+  message("  - through the GUI when working with ccmake, ")
+  message("  - as a command line argument when working with cmake e.g. ")
+  message("    cmake .. -DOMNIORB4_DIR:PATH=/usr/local/omniORB-4.0.7 ")
+  message("Note: the following message is triggered by cmake on the first ")
+  message("    undefined necessary PATH variable (e.g.  OMNIORB4_INCLUDE_DIR).")
+  message("    Providing OMNIORB4_DIR (as above described) is probably the")
+  message("    simplest solution unless you have a really customized/odd")
+  message("    omniORB installation...")
+  set(OMNIORB4_DIR "" CACHE PATH "Root of omniORB install tree.")
+endif (OMNIORB4_FOUND)
 
 # --------------------------- Batch support ------------------------
-IF( DIET_USE_ALT_BATCH )
-    ADD_DEFINITIONS( -DHAVE_ALT_BATCH )
-ENDIF( DIET_USE_ALT_BATCH )
+if (DIET_USE_ALT_BATCH)
+    add_definitions(-DHAVE_ALT_BATCH)
+endif (DIET_USE_ALT_BATCH)
 
 # --------------------------- Cloud support ------------------------
-IF( DIET_USE_CLOUD )
-    ADD_DEFINITIONS( -DHAVE_CLOUD )
-    SET( GSOAP_SRC_DIR "~" CACHE PATH "Root of gSOAP source tree." )
-ENDIF( DIET_USE_CLOUD )
+if (DIET_USE_CLOUD)
+    add_definitions(-DHAVE_CLOUD)
+    set(GSOAP_SRC_DIR "~" CACHE PATH "Root of gSOAP source tree.")
+endif (DIET_USE_CLOUD)
 
 # --------------------------- CORI support ------------------------
 # CORI (COllector of Resource Information) is heavily dependant on
 # system calls for probing ressources:
-IF( DIET_USE_CORI )
-  ADD_DEFINITIONS( -DHAVE_CORI )
-  INCLUDE( ${DIET_SOURCE_DIR}/Cmake/ConfigureCORI.cmake )
-ENDIF( DIET_USE_CORI )
+if (DIET_USE_CORI)
+  add_definitions(-DHAVE_CORI)
+  include(${DIET_SOURCE_DIR}/Cmake/ConfigureCORI.cmake)
+endif (DIET_USE_CORI)
 
 # --------------------------- JXTA Multi MA support ------------------------
+##### JXTA support is deprecated
 # Enable dynamic MULTI-Master-Agent support based on JXTA library
 # (refer to http://www.jxta.org/ ). This is similar to functionalities offered
 # the DIET_WITH_MULTI_MA option (see below) except that JXTA is used in place
 # of CORBA. JXTA allows the creation of a new MA on demand and it's
 # integration within the multi-hierarchy of existing MAs.
-IF( DIET_USE_JXTA )
-  # Looking for the java compiler, javac, javah...
-  FIND_PACKAGE( JavaExtended )
-  IF( JAVA_FOUND )
-    ADD_DEFINITIONS(-DHAVE_JXTA)
-  ELSE( JAVA_FOUND )
-    SET( DIET_USE_JXTA OFF )
-  ENDIF( JAVA_FOUND )
-  # For locating the jni.h:
-  FIND_PACKAGE( JNI )
-  IF( NOT JAVA_INCLUDE_PATH )
-    MESSAGE( SEND_ERROR "JXTA exension: could not find jni.h.")
-    SET( DIET_USE_JXTA OFF )
-  ENDIF( NOT JAVA_INCLUDE_PATH )
-ENDIF( DIET_USE_JXTA )
+#IF( DIET_USE_JXTA )
+# Looking for the java compiler, javac, javah...
+#  FIND_PACKAGE( JavaExtended )
+#  IF( JAVA_FOUND )
+#    ADD_DEFINITIONS(-DHAVE_JXTA)
+#  ELSE( JAVA_FOUND )
+#    SET( DIET_USE_JXTA OFF )
+#  ENDIF( JAVA_FOUND )
+# For locating the jni.h:
+#  FIND_PACKAGE( JNI )
+#  IF( NOT JAVA_INCLUDE_PATH )
+#    MESSAGE( SEND_ERROR "JXTA exension: could not find jni.h.")
+#    SET( DIET_USE_JXTA OFF )
+#  ENDIF( NOT JAVA_INCLUDE_PATH )
+#ENDIF( DIET_USE_JXTA )
 
 # --------------------------- Multi MA support ------------------------
 # So called MULTI-Master-Agent
-IF( DIET_WITH_MULTI_MA )
-  ADD_DEFINITIONS( -DHAVE_MULTI_MA )
-ENDIF( DIET_WITH_MULTI_MA )
+if (DIET_WITH_MULTI_MA)
+  add_definitions(-DHAVE_MULTI_MA)
+endif (DIET_WITH_MULTI_MA)
 
 # Define for Fault Detection system
-IF( DIET_USE_FD )
-  ADD_DEFINITIONS( -DHAVE_FD )
-ENDIF( DIET_USE_FD )
+if (DIET_USE_FD)
+  add_definitions(-DHAVE_FD)
+endif (DIET_USE_FD)
 
-IF( DIET_USE_FAST )
-  FIND_PACKAGE( FAST )
-  IF( FAST_FOUND )
-    ADD_DEFINITIONS( -DHAVE_FAST )
+if (DIET_USE_FAST)
+  find_package(FAST)
+  if (FAST_FOUND)
+    add_definitions(-DHAVE_FAST)
     ### FIXME: we only ported the FAST 0.8.x API way of doing things.
     ### Nevertheless the code still makes references to the FAST 0.4.x API
     ### (search for defines __FAST_0_4__ versus __FAST_0_8__. Should we trash
     ### the FAST 0.4.x API support ?
-    ADD_DEFINITIONS( -D__FAST_0_8__ )
-  ENDIF( FAST_FOUND )
-ENDIF( DIET_USE_FAST )
+    add_definitions(-D__FAST_0_8__)
+  endif (FAST_FOUND)
+endif (DIET_USE_FAST)
 
 # --------------------------- Juxmem support ------------------------
 # Enable distributed shared memory based on Juxtaposed Memory (JuxMem)
 # library (refer to http://juxmem.gforge.inria.fr/ ).
-IF( DIET_USE_JUXMEM )
-  FIND_PACKAGE( Juxmem )
-  IF( JUXMEM_FOUND )
-    ADD_DEFINITIONS( -DHAVE_JUXMEM )
-  ELSE( JUXMEM_FOUND )
-    SET( DIET_USE_JUXMEM OFF CACHE BOOL "Build DIET with JuxMem support." )
-  ENDIF( JUXMEM_FOUND )
-ENDIF( DIET_USE_JUXMEM )
+if (DIET_USE_JUXMEM)
+  find_package(Juxmem)
+  if (JUXMEM_FOUND)
+    add_definitions(-DHAVE_JUXMEM)
+  else (JUXMEM_FOUND)
+    set(DIET_USE_JUXMEM OFF CACHE BOOL "Build DIET with JuxMem support.")
+  endif (JUXMEM_FOUND)
+endif (DIET_USE_JUXMEM)
 
 # --------------------------- Statistic support ------------------------
-IF( DIET_WITH_STATISTICS )
+if (DIET_WITH_STATISTICS)
   # Enable generation of the statistics log:
-  ADD_DEFINITIONS( -DHAVE_STATISTICS )
-ENDIF( DIET_WITH_STATISTICS )
+  add_definitions( -DHAVE_STATISTICS )
+endif (DIET_WITH_STATISTICS)
 
-IF( DIET_BUILD_EXAMPLES AND DIET_BUILD_BLAS_EXAMPLES )
+if (DIET_BUILD_BLAS_EXAMPLES)
   # BLAS (Basic Linear Algebric Subroutines) examples subdir requires...BLAS !
-  FIND_PACKAGE( BLAS )
-ENDIF( DIET_BUILD_EXAMPLES AND DIET_BUILD_BLAS_EXAMPLES )
+  find_package(BLAS)
+endif (DIET_BUILD_BLAS_EXAMPLES)
 
 # --------------------------- Workflow support ------------------------
-IF( DIET_USE_WORKFLOW )
-  FIND_PACKAGE( Xerces )
-  IF( XERCES_FOUND )
-    IF( XERCES_VERSION LESS 30 )
-      MESSAGE( "Diet Workflow support requires at least version 3.0 of Xerces." )
-      MESSAGE( "Workflow support will be disabled" )
-      SET( DIET_USE_WORKFLOW OFF)
-    ELSE( XERCES_VERSION LESS 30 )
-      FIND_PACKAGE( XQilla )
-      IF( XQILLA_FOUND )
-        ADD_DEFINITIONS( -DHAVE_WORKFLOW )
-        SET ( DIET_USE_DAGDA ON )
-      ELSE ( XQILLA_FOUND )
-        MESSAGE( "Diet Workflow support requires XQilla library." )
-        MESSAGE( "Workflow support will be disabled" )
-        SET( DIET_USE_WORKFLOW OFF)
-      ENDIF ( XQILLA_FOUND )
-    ENDIF( XERCES_VERSION LESS 30 )
-  ELSE( XERCES_FOUND )
-    SET( DIET_USE_WORKFLOW OFF
-         CACHE BOOL "Build DIET with workflow support..." )
-  ENDIF( XERCES_FOUND )
-ENDIF( DIET_USE_WORKFLOW )
+if (DIET_USE_WORKFLOW)
+  find_package(Xerces)
+  if (XERCES_FOUND)
+    if (XERCES_VERSION LESS 30)
+      message("Diet Workflow support requires at least version 3.0 of Xerces.")
+      message("Workflow support will be disabled")
+      set(DIET_USE_WORKFLOW OFF)
+    else (XERCES_VERSION LESS 30)
+      find_package(XQilla)
+      if (XQILLA_FOUND)
+        add_definitions(-DHAVE_WORKFLOW)
+      else (XQILLA_FOUND)
+        message("Diet Workflow support requires XQilla library." )
+        message("Workflow support will be disabled")
+        set(DIET_USE_WORKFLOW OFF)
+      endif (XQILLA_FOUND)
+    endif(XERCES_VERSION LESS 30)
+  else (XERCES_FOUND)
+    set(DIET_USE_WORKFLOW OFF
+         CACHE BOOL "Build DIET with workflow support...")
+  endif (XERCES_FOUND)
+endif (DIET_USE_WORKFLOW)
 
 # --------------------------- Ackfile support ------------------------
-IF( DIET_USE_ACKFILE )
-  ADD_DEFINITIONS( -DHAVE_ACKFILE )
-ENDIF( DIET_USE_ACKFILE )
+if (DIET_USE_ACKFILE)
+  add_definitions(-DHAVE_ACKFILE)
+endif (DIET_USE_ACKFILE)
 
+# --------------- For users agents scheduler support ------------------
+if (DIET_USE_USERSCHED)
+  add_definitions(-DUSERSCHED)
+endif(DIET_USE_USERSCHED)
 
-# --------------- New : For users agents scheduler support ------------------
-IF( DIET_USE_USERSCHED )
-  ADD_DEFINITIONS( -DUSERSCHED )
-ENDIF( DIET_USE_USERSCHED )
-
-# --------------- New : Dagda as data manager support ---------------
-IF( DIET_USE_DAGDA )
-  ADD_DEFINITIONS( -DHAVE_DAGDA )
-  # Advance data ID depending on the uuid lib.
-  FIND_FILE( UUIDLIB
-    NAMES uuid.h
-    PATHS /usr/include /usr/include/uuid
-      /include /include/uuid
-      /usr/local/include /usr/local/include/uuid
-      ${UUID_PATH}/uuid
-  )
-  IF ( UUIDLIB )
-    ADD_DEFINITIONS( -DHAVE_ADVANCED_UUID )
-    IF ( NOT APPLE )
-      # This library is not needed on Mac OS X.
-       SET( UUIDLIB uuid )
-    ELSE( NOT APPLE )
-      SET( UUIDLIB "")
-    ENDIF( NOT APPLE )
-  ELSE( UUIDLIB )
-    SET( UUIDLIB "")
-  ENDIF( UUIDLIB )
-
-  IF( DIET_TRANSFER_PROGRESSION )
-    ADD_DEFINITIONS( -DDAGDA_PROGRESSION )
-  ENDIF( DIET_TRANSFER_PROGRESSION )
-ENDIF( DIET_USE_DAGDA )
+# --------------- Dagda as data manager support ---------------
+if (DIET_USE_DAGDA)
+  find_package(UUID)
+	if (NOT UUID_FOUND)
+	  message(WARNING "UUID lib was not found. DIET will use unsafe data names. Please provide a valid path to uuid installation and/or install e2fstools")
+	endif (NOT UUID_FOUND)
+  add_definitions(-DHAVE_DAGDA)
+  if (DIET_TRANSFER_PROGRESSION)
+    add_definitions(-DDAGDA_PROGRESSION)
+  endif (DIET_TRANSFER_PROGRESSION)
+endif (DIET_USE_DAGDA)
 
 # --------------- DIET Endianness support  ------------------
-IF( DIET_USE_ENDIANNESS )
-  ADD_DEFINITIONS( -DWITH_ENDIANNESS )
-ENDIF( DIET_USE_ENDIANNESS )
+if (DIET_USE_ENDIANNESS)
+  add_definitions(-DWITH_ENDIANNESS)
+endif (DIET_USE_ENDIANNESS)
 
 # --------------- DIET custom client scheduling support  ------------------
-IF( DIET_USE_CCS )
-  ADD_DEFINITIONS( -DHAVE_CCS )
-ENDIF( DIET_USE_CCS )
+if (DIET_USE_CCS)
+  add_definitions(-DHAVE_CCS)
+endif (DIET_USE_CCS)
 
 # --------------- DIET multiple async call support  ------------------
-IF( DIET_USE_MULTICALL )
-  ADD_DEFINITIONS( -DHAVE_MULTICALL )
-ENDIF( DIET_USE_MULTICALL )
+if (DIET_USE_MULTICALL)
+  add_definitions( -DHAVE_MULTICALL )
+endif (DIET_USE_MULTICALL)
 
 # --------------- OFFER BUILD MODE EXTENSIONS AND DEFAULTS  ----------------
-INCLUDE( ${DIET_SOURCE_DIR}/Cmake/DietDefaultBuildTypes.cmake )
+include(${DIET_SOURCE_DIR}/Cmake/DietDefaultBuildTypes.cmake)
 
 # --------------- HANDLE SPECIFICITIES OF THE C COMPILER -------------------
-INCLUDE( ${DIET_SOURCE_DIR}/Cmake/ConfigureCCompiler.cmake )
+include(${DIET_SOURCE_DIR}/Cmake/ConfigureCCompiler.cmake)
 
 #---------------- COMPILER SPECIFIC COMPILATION FLAGS ----------------------
 
-IF( CMAKE_COMPILER_IS_GNUCC AND NOT APPLE )
+if (CMAKE_COMPILER_IS_GNUCC AND NOT APPLE)
   # Get version
-  EXECUTE_PROCESS(COMMAND ${CMAKE_C_COMPILER} "-dumpversion" 
+  execute_process(COMMAND ${CMAKE_C_COMPILER} "-dumpversion" 
     OUTPUT_VARIABLE CMAKE_C_COMPILER_VERSION
     OUTPUT_STRIP_TRAILING_WHITESPACE)
-  EXECUTE_PROCESS(COMMAND ${CMAKE_CXX_COMPILER} "-dumpversion"
+  execute_process(COMMAND ${CMAKE_CXX_COMPILER} "-dumpversion"
     OUTPUT_VARIABLE CMAKE_CXX_COMPILER_VERSION 
     OUTPUT_STRIP_TRAILING_WHITESPACE)
   # Use ISO 99C
-  SET( CMAKE_C_FLAGS ${CMAKE_C_FLAGS} " -std=gnu99" )
-  STRING( REPLACE ";" " " CMAKE_C_FLAGS ${CMAKE_C_FLAGS} ) # transform previous list in a string
-ENDIF( CMAKE_COMPILER_IS_GNUCC AND NOT APPLE )
+  set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} " -std=gnu99")
+  string(REPLACE ";" " " CMAKE_C_FLAGS ${CMAKE_C_FLAGS}) # transform previous list in a string
+endif (CMAKE_COMPILER_IS_GNUCC AND NOT APPLE)
 
 # ---------------- SET THE LINKER SEARCH PATH (RPATH) ----------------------
-SET( CMAKE_INSTALL_RPATH_USE_LINK_PATH ON
-     CACHE BOOL "Whether to set an rpath for dynamic libraries." )
-SET( CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib
-     CACHE STRING "Rpath set at install stage." FORCE )
-SET(CMAKE_INSTALL_NAME_DIR ${CMAKE_INSTALL_PREFIX}/lib)
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH ON
+    CACHE BOOL "Whether to set an rpath for dynamic libraries.")
+set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib
+    CACHE STRING "Rpath set at install stage." FORCE)
+set(CMAKE_INSTALL_NAME_DIR ${CMAKE_INSTALL_PREFIX}/lib)
 
 # ------------------- CTEST SUPPORT ----------------------------------------
-IF( BUILD_TESTING OR DIET_USE_DART )
-  INCLUDE( ${DIET_SOURCE_DIR}/Cmake/FindTestingUtils.cmake )
+if (BUILD_TESTING OR DIET_USE_DART)
+  include(${DIET_SOURCE_DIR}/Cmake/FindTestingUtils.cmake)
   # Caveat emptor:
   # 1/ Excerpt from docs about ENABLE_TESTING:
   #    [...] ctest expects to find a test file in the build directory root.
@@ -540,36 +451,36 @@ IF( BUILD_TESTING OR DIET_USE_DART )
   ENABLE_TESTING()
   # For comments on the following CXX_TEST_PATH refer to
   #   http://public.kitware.com/pipermail/cmake/2002-January/002643.html
-  IF( EXECUTABLE_OUTPUT_PATH )
-    SET( CXX_TEST_PATH ${EXECUTABLE_OUTPUT_PATH} )
-  ELSE( EXECUTABLE_OUTPUT_PATH )
-    SET (CXX_TEST_PATH .)
-  ENDIF (EXECUTABLE_OUTPUT_PATH)
-ENDIF( BUILD_TESTING OR DIET_USE_DART)
+  if (EXECUTABLE_OUTPUT_PATH)
+    set(CXX_TEST_PATH ${EXECUTABLE_OUTPUT_PATH})
+  else (EXECUTABLE_OUTPUT_PATH)
+    set(CXX_TEST_PATH .)
+  endif (EXECUTABLE_OUTPUT_PATH)
+endif (BUILD_TESTING OR DIET_USE_DART)
 
 # ---------------- OPTIONAL DART2 CLIENT SUPPORT ---------------------------
 # Refer to http://na-mic.org/Wiki/index.php/Dart2Summary
-IF( DIET_USE_DART )
+if (DIET_USE_DART)
   # With the following include you somehow engage yourself in providing
   # a CTestConfig.cmake file: refer to Modules/CTest.cmake for further details.
-  INCLUDE( CTest )
-ENDIF( DIET_USE_DART )
+  include(CTest)
+endif (DIET_USE_DART)
 
 # ---------------- TAU PROFILING SUPPORT -----------------------------------
 # Refer to http://www.cs.uoregon.edu/research/tau/home.php for TAU installation
-IF( DIET_TAU_PROFILING )
+if (DIET_TAU_PROFILING)
   # Still testing this part
   # the following include will add the path to the installation of TAU, and
   # will determine the configuration used in TAU.
   # The CXX and C compilers will be replaced with the TAU script: tau_compiler.sh
-  OPTION( TAU_KEEP_MOD_SRC "Keep generated instrumented files." OFF )
-  INCLUDE( ${CMAKE_MODULE_PATH}/TAU/TAU_Profiling.cmake )
-ENDIF( DIET_TAU_PROFILING )
+  option(TAU_KEEP_MOD_SRC "Keep generated instrumented files." OFF)
+  include(${CMAKE_MODULE_PATH}/TAU/TAU_Profiling.cmake)
+endif (DIET_TAU_PROFILING)
 
 # ---------------- DYNAMIC HIERARCHY MODIFICATION FEATURES ----------------
-IF( DIET_USE_DYNAMICS )
-  ADD_DEFINITIONS( -DHAVE_DYNAMICS )
-ENDIF( DIET_USE_DYNAMICS )
+if (DIET_USE_DYNAMICS)
+  add_definitions(-DHAVE_DYNAMICS)
+endif (DIET_USE_DYNAMICS)
 
 # ---------------- STATIC LINKING FIXES ------------------------------------
 # When BUILD_SHARED_LIBS is NOT set, we assume that we not only expect
@@ -607,11 +518,11 @@ ENDIF( CYGWIN )
 
 
 # --------------------------------------------------------------------------
-ADD_SUBDIRECTORY( src )
-ADD_SUBDIRECTORY( include )
-ADD_SUBDIRECTORY( Cmake )
+add_subdirectory(src)
+add_subdirectory(include)
+add_subdirectory(Cmake)
 
 # --------------------------------------------------------------------------
-INCLUDE( ${DIET_SOURCE_DIR}/Cmake/DisplaySummary.cmake )
+include(${DIET_SOURCE_DIR}/Cmake/DisplaySummary.cmake)
 
 ## eof - CMakeLists.txt

@@ -118,7 +118,7 @@ add_dependencies(LibForwarder CORBAFiles)
 if (DIET_USE_DAGDA)
   set(Forwarder_Libs
     ${Forwarder_Libs}
-    ${UUIDLIB}
+    ${UUID_LIB}
     Dagda
   )
 endif (DIET_USE_DAGDA)

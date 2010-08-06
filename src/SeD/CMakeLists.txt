@@ -47,7 +47,7 @@ if (DIET_USE_DAGDA)
   include_directories(${DIET_SOURCE_DIR}/src/utils/DAGDA ${UUID_PATH})
   set(DIET_SeD_Libs
     ${DIET_SeD_Libs}
-    ${UUIDLIB}
+    ${UUID_LIB}
     Dagda
   )
 endif (DIET_USE_DAGDA)

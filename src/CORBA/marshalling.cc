@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.97  2010/08/06 14:25:26  glemahec
+ * Cmake corrections + uuid lib module + fPIC error control
+ *
  * Revision 1.96  2010/08/04 09:06:18  glemahec
  * Parallel compilation
  *
@@ -1411,7 +1414,7 @@ mrsh_wf_desc(corba_wf_desc_t* dest,
  */
 int
 post_call(diet_profile_t * profile) {
-  for (unsigned int ix=0; ix<=profile->last_inout; ix++) {
+  for (int ix=0; ix<=profile->last_inout; ix++) {
     if ( (profile->parameters[ix].desc.generic.type != DIET_FILE) &&
          (profile->parameters[ix].desc.generic.type != DIET_STRING) &&
          (profile->parameters[ix].desc.generic.type != DIET_PARAMSTRING) ) {

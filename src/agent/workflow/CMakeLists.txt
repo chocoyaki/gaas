@@ -39,7 +39,7 @@ add_dependencies(MaDag CORBAFiles)
       Dagda
       CorbaCommon
       DIET_Utils
-      ${UUIDLIB}
+      ${UUID_LIB}
       ${XERCES_LIBRARY}
       ${XQILLA_LIBRARY}
       ${OMNIORB4_LIBRARIES}

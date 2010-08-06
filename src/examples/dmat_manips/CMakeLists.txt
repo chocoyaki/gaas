@@ -6,13 +6,13 @@ INCLUDE_DIRECTORIES( ${DIET_SOURCE_DIR}/include )
 
 ####################################### C written examples
 ### A single server...
-ADD_EXECUTABLE( server server.c )
-TARGET_LINK_LIBRARIES( server ${DIET_SERVER_LIBRARIES} )
-INSTALL( TARGETS server DESTINATION bin/examples/dmat_manips )
+ADD_EXECUTABLE( dmat_manips_server dmat_manips_server.c )
+TARGET_LINK_LIBRARIES( dmat_manips_server ${DIET_SERVER_LIBRARIES} )
+INSTALL( TARGETS dmat_manips_server DESTINATION bin/examples/dmat_manips )
 
 ### ... and many clients
 SET( C_CLIENT_EXAMPLES
-  client
+  dmat_manips_client
   clientWithID
   clientJuxMem )
 

@@ -9,6 +9,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.5  2010/08/06 14:25:28  glemahec
+#* Cmake corrections + uuid lib module + fPIC error control
+#*
 #* Revision 1.4  2010/04/01 10:03:59  bdepardo
 #* Changed	deprecated INSTALL_FILES and INSTALL_TARGETS to	INSTALL.
 #*
@@ -30,7 +33,7 @@ INCLUDE_DIRECTORIES( ${DIET_SOURCE_DIR}/include )     # For DIET_client.h
 ADD_EXECUTABLE( standard-test standard-test.c )
 TARGET_LINK_LIBRARIES( standard-test ${DIET_CLIENT_LIBRARIES} ${DIET_SERVER_LIBRARIES} )
 
-ADD_EXECUTABLE( server server.c )
-TARGET_LINK_LIBRARIES( server ${DIET_SERVER_LIBRARIES} )
+ADD_EXECUTABLE(gridrpc_server gridrpc_server.c )
+TARGET_LINK_LIBRARIES( gridrpc_server ${DIET_SERVER_LIBRARIES} )
 
-INSTALL( TARGETS standard-test server DESTINATION bin/examples/GridRPC )
+INSTALL( TARGETS standard-test gridrpc_server DESTINATION bin/examples/GridRPC )

@@ -26,7 +26,7 @@ IF( DIET_USE_BATCH )
   ENDFOREACH( loop_var )
   
   ### ... and their respective clients
-  SET( C_CLIENT_EXAMPLES client async_client )
+  SET( C_CLIENT_EXAMPLES batch_client async_client )
   
   FOREACH( loop_var ${C_CLIENT_EXAMPLES} )
     ADD_EXECUTABLE( ${loop_var} ${loop_var}.c )
@@ -52,7 +52,7 @@ ELSE( DIET_USE_BATCH )
   ENDFOREACH( loop_var )
   
   ### ... and their respective clients
-  SET( C_CLIENT_EXAMPLES client async_client )
+  SET( C_CLIENT_EXAMPLES batch_client async_client )
   
   FOREACH( loop_var ${C_CLIENT_EXAMPLES} )
     ADD_EXECUTABLE( ${loop_var} ${loop_var}.c )

@@ -10,7 +10,7 @@ INCLUDE_DIRECTORIES( ${DIET_SOURCE_DIR}/include )
 
 ### One server...
 SET( C_SERVER_EXAMPLES
-  batch_server )
+  allbatch_server )
 
 FOREACH( loop_var ${C_SERVER_EXAMPLES} )
   ADD_EXECUTABLE( ${loop_var} ${loop_var}.c )
@@ -20,7 +20,7 @@ FOREACH( loop_var ${C_SERVER_EXAMPLES} )
 ENDFOREACH( loop_var )
   
 ### ... and the client
-SET( C_CLIENT_EXAMPLES client )
+SET( C_CLIENT_EXAMPLES allbatch_client )
  
 FOREACH( loop_var ${C_CLIENT_EXAMPLES} )
   ADD_EXECUTABLE( ${loop_var} ${loop_var}.c )

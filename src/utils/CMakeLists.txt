@@ -24,13 +24,13 @@ if (DIET_USE_DAGDA)
   add_subdirectory(DAGDA)
 endif (DIET_USE_DAGDA)
 
-ADD_SUBDIRECTORY(events)
+add_subdirectory(events)
 
-IF( DIET_USE_FD )
-  ADD_SUBDIRECTORY( fd )
-ENDIF (DIET_USE_FD)
+if (DIET_USE_FD)
+  add_subdirectory(fd)
+endif (DIET_USE_FD)
 
-  INCLUDE_DIRECTORIES(
+  include_directories(
     ${OMNIORB4_INCLUDE_DIR}
     ${DIET_BINARY_DIR}/src/CORBA/idl
     ${DIET_SOURCE_DIR}/src/CORBA        # for e.g. marshalling.hh
@@ -43,30 +43,30 @@ ENDIF (DIET_USE_FD)
 
   ########################################################################
   ### UtilsSedBatch library:
-  IF( DIET_USE_BATCH )
-    CONFIGURE_FILE(
+  if (DIET_USE_BATCH)
+    configure_file(
       batch_configure.h.in
       ${CMAKE_CURRENT_BINARY_DIR}/batch_configure.h
       IMMEDIATE
     )
 
-    INCLUDE_DIRECTORIES( ${APPLESEEDS_INCLUDE_DIR}
-			 ${CMAKE_CURRENT_BINARY_DIR} )
-    ADD_LIBRARY( UtilsSeDBatch STATIC batch.c )
-    TARGET_LINK_LIBRARIES( UtilsSeDBatch ${APPLESEEDS_LIBRARIES} -lpthread )
-    add_dependencies(UtilsSeDBatch DIET_CORBA)
-  ENDIF( DIET_USE_BATCH )
+    include_directories(${APPLESEEDS_INCLUDE_DIR}
+			${CMAKE_CURRENT_BINARY_DIR} )
+    add_library(UtilsSeDBatch STATIC batch.c)
+    target_link_libraries(UtilsSeDBatch ${APPLESEEDS_LIBRARIES} -lpthread)
+    add_dependencies(UtilsSeDBatch CORBAFiles)
+  endif (DIET_USE_BATCH)
 
-  IF( DIET_USE_ALT_BATCH )
-    INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} )
+  if (DIET_USE_ALT_BATCH)
+    include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-    IF( DIET_USE_CLOUD)
+    if (DIET_USE_CLOUD)
         ########################################################################
         # Build the Eucalyptus SOAP client library and its associated BatchSystem
-        INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} ${DIET_SOURCE_DIR}/src/utils/EucaLib
+        include_directories(${CMAKE_CURRENT_BINARY_DIR} ${DIET_SOURCE_DIR}/src/utils/EucaLib
             ${GSOAP_SRC_DIR}
             )
-        ADD_DEFINITIONS( -DWITH_DOM -DWITH_OPENSSL )
+        add_definitions( -DWITH_DOM -DWITH_OPENSSL )
 
         # Yes, part of gSOAP needs to be recompiled in order to use the WSSE plugin.
         # This is the way it was built to work. There is no automatic build for
@@ -75,29 +75,33 @@ ENDIF (DIET_USE_FD)
         # This is also what the gSOAP community advises in their doc inside the package:
         # doc/wsse/html/wsse.html
         # Save yourself some time and just read this next time.
-        ADD_LIBRARY( EucalyptusLib
-            EucaLib/ec2wrapper.c
-            EucaLib/soapC.c
-            EucaLib/soapClient.c
+        add_library(EucalyptusLib
+          EucaLib/ec2wrapper.c
+          EucaLib/soapC.c
+          EucaLib/soapClient.c
 
-            ${GSOAP_SRC_DIR}/stdsoap2.c
-            ${GSOAP_SRC_DIR}/dom.c
-            ${GSOAP_SRC_DIR}/plugin/smdevp.c
-            ${GSOAP_SRC_DIR}/plugin/wsseapi.c
-            )
-        
-        TARGET_LINK_LIBRARIES( EucalyptusLib -lssl -lcrypto
+          ${GSOAP_SRC_DIR}/stdsoap2.c
+          ${GSOAP_SRC_DIR}/dom.c
+          ${GSOAP_SRC_DIR}/plugin/smdevp.c
+          ${GSOAP_SRC_DIR}/plugin/wsseapi.c
         )
-            ADD_DEFINITIONS( -DWITH_DOM -DWITH_OPENSSL )
-        INSTALL_TARGETS( /lib/ EucalyptusLib )
+        
+        target_link_libraries(EucalyptusLib -lssl -lcrypto)
+        add_definitions( -DWITH_DOM -DWITH_OPENSSL )
+        install(TARGETS EucalyptusLib DESTINATION lib)
             
         # Build SeDBatch library with the Cloud component
-        INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} ${DIET_SOURCE_DIR}/src/utils/EucaLib
-            ${GSOAP_INCLUDE_DIRS} ${GSOAP_PLUGIN_DIR} ${GSOAP_PLUGIN_DIR}/.. )
-        ADD_LIBRARY( UtilsSeDBatch STATIC
-            ${GSOAP_SRC_DIR}
-            )
-        ADD_LIBRARY( UtilsSeDBatch
+        include_directories(
+          ${CMAKE_CURRENT_BINARY_DIR}
+          ${DIET_SOURCE_DIR}/src/utils/EucaLib
+          ${GSOAP_INCLUDE_DIRS}
+          ${GSOAP_PLUGIN_DIR}
+          ${GSOAP_PLUGIN_DIR}/..
+        )
+#        add_library(UtilsSeDBatch STATIC
+#            ${GSOAP_SRC_DIR}
+#        )
+        add_library(UtilsSeDBatch STATIC
             BatchCreator.cc
             BatchSystem.cc
             OAR1_6BatchSystem.cc
@@ -105,11 +109,17 @@ ENDIF (DIET_USE_FD)
             Loadleveler_BatchSystem.cc
             PBS_BatchSystem.cc
             SGE_BatchSystem.cc
-            Eucalyptus_BatchSystem.cc )
-        TARGET_LINK_LIBRARIES( UtilsSeDBatch EucalyptusLib -lpthread -lssl -lcrypto )
-    ELSE( DIET_USE_CLOUD )
+            Eucalyptus_BatchSystem.cc
+        )
+        target_link_libraries(UtilsSeDBatch
+          EucalyptusLib
+          -lpthread
+          -lssl
+          -lcrypto
+        )
+    else (DIET_USE_CLOUD)
         # Build SeDBatch library without the Cloud component
-        ADD_LIBRARY( UtilsSeDBatch STATIC
+        add_library(UtilsSeDBatch STATIC
             BatchCreator.cc
             BatchSystem.cc
             OAR1_6BatchSystem.cc
@@ -119,9 +129,8 @@ ENDIF (DIET_USE_FD)
             SGE_BatchSystem.cc
         )
         add_dependencies(UtilsSeDBatch DIET_CORBA)
-
-    ENDIF( DIET_USE_CLOUD)
-  ENDIF( DIET_USE_ALT_BATCH )
+    endif (DIET_USE_CLOUD)
+  endif (DIET_USE_ALT_BATCH)
 
   add_library(DIET_Utils STATIC
     ${DIET_Utils_SOURCES}
@@ -138,24 +147,24 @@ ENDIF (DIET_USE_FD)
     target_link_libraries(DIET_Utils UtilsCori)
   endif (DIET_USE_CORI)
 
-  add_dependencies(DIET_Utils DIET_CORBA)
-
 ########################################################################
-## New : For scheduler load support.
 ## Install the files needed for scheduler development.
-IF( DIET_USE_USERSCHED )
-    INSTALL( FILES
-        est_internal.hh
-	debug.hh
-	LinkedList.hh
-	DIET_data_internal.hh
-	Vector.h
-	Parsers.hh
-	ms_function.hh
-
-	DESTINATION
-        include/scheduler
-    )
-    INSTALL(FILES ts_container/ts_set.hh  DESTINATION include/scheduler/ts_container )
-ENDIF( DIET_USE_USERSCHED )
+if (DIET_USE_USERSCHED)
+  INSTALL(FILES
+    est_internal.hh
+    debug.hh
+    LinkedList.hh
+    DIET_data_internal.hh
+    Vector.h
+    Parsers.hh
+    ms_function.hh
+    DESTINATION
+    include/scheduler
+  )
+  install(FILES
+    ts_container/ts_set.hh
+    DESTINATION
+    include/scheduler/ts_container
+  )
+endif (DIET_USE_USERSCHED)
 

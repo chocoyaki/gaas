@@ -83,7 +83,7 @@ endif ( DIET_USE_WORKFLOW )
 
 if (DIET_USE_DAGDA)
   set(DIET_client_Libs
-    ${UUIDLIB}
+    ${UUID_LIB}
     Dagda
     ${DIET_client_Libs}
   )
