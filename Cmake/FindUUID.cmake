@@ -54,14 +54,15 @@ set(SYS_INCLUDE_DIRS
 )
 
 # Advance data ID depending on the uuid lib.
-set(UUID_DIRS ${SYS_INCLUDE_DIRS})
 foreach (dir ${SYS_INCLUDE_DIRS})
-  set(UUID_DIRS ${UUID_DIRS} ${dir}/uuid)
+  set(UUID_DIRS ${UUID_DIRS} ${dir}/uuid ${dir})
 endforeach (dir)
+
 # Search for uuid.h
 find_path(UUID_INCLUDE_DIR
   NAMES uuid.h
   PATHS ${UUID_DIRS}
+  NO_DEFAULT_PATH
 )
 
 if (UUID_INCLUDE_DIR)
@@ -70,7 +71,7 @@ if (UUID_INCLUDE_DIR)
     find_library(UUID_LIB
       NAMES
         ${CMAKE_SHARED_LIBRARY_PREFIX}uuid${CMAKE_SHARED_LIBRARY_SUFFIX}
-      PATHS ${SYS_LIB_DIRS} /lib/e2fsprogs ${UUID_PATH}/lib
+      PATHS ${SYS_LIB_DIRS}
       NO_DEFAULT_PATH
     )
     if (UUID_LIB)
@@ -96,7 +97,11 @@ if (UUID_FOUND)
 			  VALID_LIB
 				${CMAKE_BINARY_DIR}/Cmake
 				${CMAKE_BINARY_DIR}/Cmake/libuuid_test.cc
-				CMAKE_FLAGS "-shared -I${UUID_INCLUDE_DIR} ${UUID_LIB}"
+				CMAKE_FLAGS -DCXXFLAGS:string="-shared -fPIC"
+				  -DINCLUDE_DIRECTORIES:string="${UUID_INCLUDE_DIR}"
+					-DLIBRARY_DIRECTORIES:string="${SYS_LIB_DIRS}"
+				  -DLINK_LIBRARIES:string="uuid"
+				OUTPUT_VARIABLE err
 			)
 			if (NOT VALID_LIB)
 			  message(WARNING "Library ${UUID_LIB} cannot be used for DIET compilation.

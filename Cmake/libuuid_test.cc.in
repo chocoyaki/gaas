@@ -1,6 +1,8 @@
+#include <cstdlib>
 #include <@UUID_INCLUDE_DIR@/uuid.h>
 
-void uuid_test() {
+int main(int argc, char* argv[]) {
   uuid_t out;
   uuid_generate(out);
+	return EXIT_SUCCESS;
 }
