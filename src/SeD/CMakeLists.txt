@@ -85,6 +85,7 @@ if (NOT DIET_USE_ALT_BATCH)
 endif (NOT DIET_USE_ALT_BATCH)
 
 target_link_libraries(DIET_SeD ${DIET_SeD_Libs})
+target_link_libraries(DIET_SeD_static ${DIET_SeD_Libs})
 if (DIET_USE_FD)
   target_link_libraries( DIET_SeD_static fd )
 endif (DIET_USE_FD)

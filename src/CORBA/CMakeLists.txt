@@ -129,7 +129,7 @@ set(Forwarder_Libs
   DIET_CORBA
   CorbaCommon
   UtilsNodes
-  DIET_Utils
+#  DIET_Utils
 )
 
 if (DIET_USE_WORKFLOW)
