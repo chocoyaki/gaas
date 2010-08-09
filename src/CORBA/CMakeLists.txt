@@ -129,7 +129,6 @@ set(Forwarder_Libs
   DIET_CORBA
   CorbaCommon
   UtilsNodes
-#  DIET_Utils
 )
 
 if (DIET_USE_WORKFLOW)
@@ -150,6 +149,8 @@ set(Forwarder_Libs
   DIET_client_static
   ${OMNIORB4_LIBRARIES}
 )
+
+message(STATUS "DIET forwarder libs: ${Forwarder_Libs}")
 
 target_link_libraries(dietForwarder
   ${Forwarder_Libs}

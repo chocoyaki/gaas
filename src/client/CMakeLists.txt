@@ -47,7 +47,7 @@ if (DIET_USE_CCS)
   )
 endif (DIET_USE_CCS)
 
-add_library(DIET_client SHARED
+add_library(DIET_client
   ${DIET_client_SOURCES}
 )
 

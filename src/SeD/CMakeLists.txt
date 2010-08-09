@@ -59,7 +59,7 @@ if (DIET_USE_FD)
   )
 endif (DIET_USE_FD)
 
-add_library(DIET_SeD SHARED ${DIET_SeD_SOURCES})
+add_library(DIET_SeD ${DIET_SeD_SOURCES})
 add_library(DIET_SeD_static STATIC ${DIET_SeD_SOURCES})
 
 # DIET_Sed shared & static libraries depends on CORBA files.
@@ -99,7 +99,7 @@ if (DIET_USE_JUXMEM)
 endif (DIET_USE_JUXMEM)
 
 if (NOT BUILD_SHARED_LIBS)
-  target_link_libraires(DIET_SeD stdc++)
+  target_link_libraries(DIET_SeD stdc++)
 endif (NOT BUILD_SHARED_LIBS)
 
 install(TARGETS DIET_SeD DESTINATION lib)

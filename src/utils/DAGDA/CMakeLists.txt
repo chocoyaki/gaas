@@ -28,7 +28,7 @@ if (DIET_TRANSFER_PROGRESSION)
 endif (DIET_TRANSFER_PROGRESSION)
 
 add_library(Dagda STATIC ${DAGDA_SOURCES})
-add_library(DIET_Dagda SHARED ${DAGDA_SOURCES})
+add_library(DIET_Dagda ${DAGDA_SOURCES})
   
 set(DAGDA_Libs
   DIET_CORBA
