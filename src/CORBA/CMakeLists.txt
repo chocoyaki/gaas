@@ -151,7 +151,7 @@ set(Forwarder_Libs
   ${OMNIORB4_LIBRARIES}
 )
 
-target_link_libraries( dietForwarder
+target_link_libraries(dietForwarder
   ${Forwarder_Libs}
 )
 if (DIET_USE_USERSCHED)

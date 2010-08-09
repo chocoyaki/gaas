@@ -1,62 +1,58 @@
 #****************************************************************************#
 #* DIET cmake local file                                                    *#
 #****************************************************************************#
+set(DAGDA_SOURCES
+  DagdaImpl.cc
+  DagdaFactory.cc
+  DagdaCatalog.cc
+  CacheAlgorithms.cc
+  NetworkStats.cc
+  AdvancedDagdaComponent.cc
+  Container.cc
+  DIET_Dagda.cc
+)
 
-IF( DIET_BUILD_LIBRARIES )
-  SET(DAGDA_SOURCES
-    DagdaImpl.cc
-    DagdaFactory.cc
-    DagdaCatalog.cc
-    CacheAlgorithms.cc
-    NetworkStats.cc
-    AdvancedDagdaComponent.cc
-    Container.cc
-    DIET_Dagda.cc
-  )
+include_directories(
+  ${OMNIORB4_INCLUDE_DIR}
+  ${DIET_SOURCE_DIR}/src/utils
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  ${DIET_SOURCE_DIR}/src/CORBA
+  ${DIET_SOURCE_DIR}/include
+  ${DIET_BINARY_DIR}/src/CORBA/idl
+  ${DIET_SOURCE_DIR}/src/agent
+  ${DIET_SOURCE_DIR}/src/utils/nodes
+)
 
-  INCLUDE_DIRECTORIES(
-    ${OMNIORB4_INCLUDE_DIR}
-    ${DIET_SOURCE_DIR}/src/utils
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${DIET_SOURCE_DIR}/src/CORBA
-    ${DIET_SOURCE_DIR}/include
-    ${DIET_BINARY_DIR}/src/CORBA/idl
-    ${DIET_SOURCE_DIR}/src/agent
-    ${DIET_SOURCE_DIR}/src/utils/nodes
-  )
+if (DIET_TRANSFER_PROGRESSION)
+  set(DAGDA_SOURCES ${DAGDA_SOURCES} Transfers.cc)
+endif (DIET_TRANSFER_PROGRESSION)
 
-  IF( DIET_TRANSFER_PROGRESSION )
-    SET( DAGDA_SOURCES ${DAGDA_SOURCES} Transfers.cc )
-  ENDIF( DIET_TRANSFER_PROGRESSION )
-
-  ADD_LIBRARY( Dagda STATIC ${DAGDA_SOURCES} )
-  ADD_LIBRARY( DIET_Dagda SHARED ${DAGDA_SOURCES} )
+add_library(Dagda STATIC ${DAGDA_SOURCES})
+add_library(DIET_Dagda SHARED ${DAGDA_SOURCES})
   
-  SET(DAGDA_Libs
-    DIET_CORBA
-    CorbaCommon
-    UtilsNodes
-    DIET_Utils
-    ${UUID_LIB}
-    pthread
-    ${OMNIORB4_LIBRARIES}
-  )
+set(DAGDA_Libs
+  DIET_CORBA
+  CorbaCommon
+  UtilsNodes
+  DIET_Utils
+  ${UUID_LIB}
+  pthread
+  ${OMNIORB4_LIBRARIES}
+)
 
-  IF( CYGWIN )
-    set(DAGDA_Libs
-      ${DAGDA_Libs}
-      /lib/e2fsprogs/libuuid.a
-    )
-  ENDIF( CYGWIN )  
-
-  TARGET_LINK_LIBRARIES( DIET_Dagda
+if (CYGWIN)
+  set(DAGDA_Libs
     ${DAGDA_Libs}
+    /lib/e2fsprogs/libuuid.a
   )
-  target_link_libraries(Dagda
-    ${DAGDA_Libs}
-  )
+endif (CYGWIN)
 
-  INSTALL(TARGETS DIET_Dagda DESTINATION lib)
-  INSTALL( FILES DIET_Dagda.h DESTINATION include )
+target_link_libraries(DIET_Dagda
+  ${DAGDA_Libs}
+)
+target_link_libraries(Dagda
+  ${DAGDA_Libs}
+)
 
-ENDIF( DIET_BUILD_LIBRARIES )
+install(TARGETS DIET_Dagda DESTINATION lib)
+install( FILES DIET_Dagda.h DESTINATION include)

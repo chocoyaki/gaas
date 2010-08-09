@@ -129,9 +129,9 @@ mark_as_advanced(DIET_USE_MULTICALL)
 
 # Now Dagda is the default DIET data manager.
 if (DIET_USE_DTM)
-  set(DIET_USE_DAGDA OFF CACHE INTERNAL "Use Dagda as data manager")
+  set(DIET_USE_DAGDA OFF CACHE INTERNAL "Use Dagda as data manager" FORCE)
 else (DIET_USE_DTM)
-  set(DIET_USE_DAGDA ON CACHE INTERNAL "Use Dagda as data manager")
+  set(DIET_USE_DAGDA ON CACHE INTERNAL "Use Dagda as data manager" FORCE)
 endif (DIET_USE_DTM)
 
 # JXTA architecture is deprecated
