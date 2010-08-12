@@ -135,8 +135,8 @@ foreach(loop_var ${IDL_SOURCES})
     COMMENT   "idl generated code: ${loop_var}SK.cc, ${loop_var}DynSK.cc and ${loop_var}.hh"
   )
   set(DIET_CORBA_SOURCES ${DIET_CORBA_SOURCES}
-    ${loop_var}SK.cc
-    ${loop_var}DynSK.cc
+    ${CMAKE_CURRENT_BINARY_DIR}/${loop_var}SK.cc
+    ${CMAKE_CURRENT_BINARY_DIR}/${loop_var}DynSK.cc
   )
   set(IDL_GENERATED_HEADERS
     ${IDL_GENERATED_HEADERS}
