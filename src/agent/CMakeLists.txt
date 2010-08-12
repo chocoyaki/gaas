@@ -67,11 +67,11 @@ if (DIET_USE_DAGDA)
 endif (DIET_USE_DAGDA)
 
 add_library(AgentCommon STATIC ${AgentCommon_SOURCES})
-if (NOT DIET_USE_DAGDA)
+#if (NOT DIET_USE_DAGDA)
   target_link_libraries(AgentCommon
     DIET_Utils
   )
-endif (NOT DIET_USE_DAGDA)
+#endif (NOT DIET_USE_DAGDA)
 
 if (DIET_USE_CORI)
   set(CORI_LIBRARIES UtilsCori)
