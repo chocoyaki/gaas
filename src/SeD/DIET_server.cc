@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.92  2010/08/13 14:22:36  dloureir
+ * Missing case in profile deallocation where last_out = -1 and desc->param_desc was null
+ *
  * Revision 1.91  2010/07/12 16:14:09  glemahec
  * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
  *
@@ -493,19 +496,23 @@ diet_profile_desc_alloc(const char* path,
 int
 diet_profile_desc_free(diet_profile_desc_t* desc)
 {
-  int res = 0;
 
   if (!desc)
     return 1;
   free(desc->path);
   if ((desc->last_out > -1) && desc->param_desc) {
     delete[] desc->param_desc;
-    res = 0;
-  } else {
-    res = 1;
+    delete desc;
+
+    return 0;
   }
+  if ((desc->last_out == -1) && desc->param_desc == NULL) {
+      delete desc;
+      return 0;
+    }
+
   delete desc;
-  return res;
+  return 1;
 }
 
 
