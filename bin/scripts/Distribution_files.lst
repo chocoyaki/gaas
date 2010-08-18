@@ -17,6 +17,13 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.43  2010/08/18 07:36:43  bdepardo
+#* Added files for dynamic hierarchy:
+#* - dyn_add_rem
+#* - dynamicServiceMgr
+#* - dynamic_hierarchy
+#* Added string_server.c for workflows.
+#*
 #* Revision 1.42  2010/07/28 12:12:46  bisnard
 #* Added event mgmt utils
 #*
@@ -566,8 +573,31 @@ src/examples/workflow/generic_client.c
 src/examples/workflow/int2str.c
 src/examples/workflow/progs.h
 src/examples/workflow/scalar_server.c
+src/examples/workflow/string_server.c
 src/examples/workflow/strlen.c
 src/examples/workflow/utils_client.c
+
+[Untemplated]
+src/examples/dyn_add_rem/CMakeLists.txt
+src/examples/dyn_add_rem/README
+src/examples/dynamicServiceMgr/CMakeLists.txt
+src/examples/dynamicServiceMgr/README
+src/examples/dynamic_hierarchy/CMakeLists.txt
+[Templated]
+src/examples/dyn_add_rem/client.cc
+src/examples/dyn_add_rem/server.cc
+src/examples/dynamicServiceMgr/DynamicServiceMgr.cc
+src/examples/dynamicServiceMgr/DynamicServiceMgr.hh
+src/examples/dynamicServiceMgr/client.cc
+src/examples/dynamicServiceMgr/server.cc
+src/examples/dynamicServiceMgr/service.cc
+src/examples/dynamicServiceMgr/service.hh
+src/examples/dynamicServiceMgr/service2.cc
+src/examples/dynamicServiceMgr/service2.hh
+src/examples/dynamic_hierarchy/connect.cc
+src/examples/dynamic_hierarchy/disconnect.cc
+src/examples/dynamic_hierarchy/remove.cc
+
 
 [Untemplated]
 src/examples/cfgs/CMakeLists.txt
