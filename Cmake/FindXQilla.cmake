@@ -21,7 +21,7 @@
 #
 
 FILE( APPEND ${CMAKE_BINARY_DIR}/CMakeOutput.log
-      "FindXQilla.cmake: Looking for XQilla C++ library.\n\n" )
+  "FindXQilla.cmake: Looking for XQilla C++ library.\n\n" )
 
 FIND_PATH(
   XQILLA_INCLUDE_DIR xqilla/xqilla-simple.hpp
@@ -29,45 +29,72 @@ FIND_PATH(
   ${XQILLA_DIR}/include
   /usr/include
   /usr/local/include
-)
+  )
 
 IF ( CYGWIN )
 
-FIND_LIBRARY(
-  XQILLA_LIBRARY xqilla
-  PATHS
-  ${XQILLA_DIR}/bin
-  /bin
-  /usr/bin
-  /usr/local/bin
-  ${XQILLA_DIR}/lib
-  /lib
-  /usr/lib
-  /usr/local/lib
-)
+  # Search for shared library
+  FIND_LIBRARY(
+    XQILLA_LIBRARY_sh NAMES ${CMAKE_SHARED_LIBRARY_PREFIX}xqilla${CMAKE_SHARED_LIBRARY_SUFFIX}
+    PATHS
+    ${XQILLA_DIR}/bin
+    /bin
+    /usr/bin
+    /usr/local/bin
+    ${XQILLA_DIR}/lib
+    /lib
+    /usr/lib
+    /usr/local/lib
+    )
+
+  # Search for static library
+  FIND_LIBRARY(
+    XQILLA_LIBRARY_st NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}xqilla${CMAKE_STATIC_LIBRARY_SUFFIX}
+    PATHS
+    ${XQILLA_DIR}/bin
+    /bin
+    /usr/bin
+    /usr/local/bin
+    ${XQILLA_DIR}/lib
+    /lib
+    /usr/lib
+    /usr/local/lib
+    )
 
 ELSE ( CYGWIN )
 
-FIND_LIBRARY(
-  XQILLA_LIBRARY xqilla
-  PATHS
-  ${XQILLA_DIR}/lib
-  /lib
-  /usr/lib
-  /usr/local/lib
-)
+  # Search for shared library
+  FIND_LIBRARY(
+    XQILLA_LIBRARY_sh NAMES ${CMAKE_SHARED_LIBRARY_PREFIX}xqilla${CMAKE_SHARED_LIBRARY_SUFFIX}
+    PATHS
+    ${XQILLA_DIR}/lib
+    /lib
+    /usr/lib
+    /usr/local/lib
+    )
+
+  # Search for static library
+  FIND_LIBRARY(
+    XQILLA_LIBRARY_st NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}xqilla${CMAKE_STATIC_LIBRARY_SUFFIX}
+    PATHS
+    ${XQILLA_DIR}/lib
+    /lib
+    /usr/lib
+    /usr/local/lib
+    )
 
 ENDIF ( CYGWIN )
 
 SET( XQILLA_FOUND FALSE )
 
 IF( XQILLA_INCLUDE_DIR )
-IF( XQILLA_LIBRARY )
-  SET( XQILLA_FOUND TRUE )
-  MARK_AS_ADVANCED ( XQILLA_DIR )
-  MARK_AS_ADVANCED ( XQILLA_INCLUDE_DIR )
-  MARK_AS_ADVANCED ( XQILLA_LIBRARY )
-ENDIF( XQILLA_LIBRARY )
+  IF( XQILLA_LIBRARY_sh )
+    SET( XQILLA_FOUND TRUE )
+    MARK_AS_ADVANCED ( XQILLA_DIR )
+    MARK_AS_ADVANCED ( XQILLA_INCLUDE_DIR )
+    MARK_AS_ADVANCED ( XQILLA_LIBRARY_sh )
+    MARK_AS_ADVANCED ( XQILLA_LIBRARY_st )
+  ENDIF( XQILLA_LIBRARY_sh )
 ENDIF( XQILLA_INCLUDE_DIR )
 
 

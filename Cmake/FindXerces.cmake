@@ -33,9 +33,25 @@ FIND_PATH(
 
 IF ( CYGWIN )
 
+  # Search for shared library
   FIND_LIBRARY(
-    XERCES_LIBRARY 
-    NAMES xerces-c
+    XERCES_LIBRARY_sh 
+    NAMES ${CMAKE_SHARED_LIBRARY_PREFIX}xerces-c${CMAKE_SHARED_LIBRARY_SUFFIX}
+    PATHS 
+    ${XERCES_DIR}/bin
+    /bin
+    /usr/bin
+    /usr/local/bin
+    ${XERCES_DIR}/lib
+    /lib
+    /usr/lib
+    /usr/local/lib
+  )
+
+  # Search for static library
+  FIND_LIBRARY(
+    XERCES_LIBRARY_st 
+    NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}xerces-c${CMAKE_STATIC_LIBRARY_SUFFIX}
     PATHS 
     ${XERCES_DIR}/bin
     /bin
@@ -48,9 +64,20 @@ IF ( CYGWIN )
   )
   
 ELSE ( CYGWIN )
-
+  
+  # Search for shared library
   FIND_LIBRARY(
-    XERCES_LIBRARY xerces-c
+    XERCES_LIBRARY_sh NAMES ${CMAKE_SHARED_LIBRARY_PREFIX}xerces-c${CMAKE_SHARED_LIBRARY_SUFFIX}
+    PATHS
+    ${XERCES_DIR}/lib
+    /lib
+    /usr/lib
+    /usr/local/lib
+  )
+
+  # Search for static library
+  FIND_LIBRARY(
+    XERCES_LIBRARY_st NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}xerces-c${CMAKE_STATIC_LIBRARY_SUFFIX}
     PATHS
     ${XERCES_DIR}/lib
     /lib
@@ -61,14 +88,16 @@ ELSE ( CYGWIN )
 ENDIF( CYGWIN )
 
 SET( XERCES_FOUND FALSE )
+  
 
 IF( XERCES_INCLUDE_DIR )
-IF( XERCES_LIBRARY )
-  SET( XERCES_FOUND TRUE )
-  MARK_AS_ADVANCED ( XERCES_DIR )
-  MARK_AS_ADVANCED ( XERCES_INCLUDE_DIR )
-  MARK_AS_ADVANCED ( XERCES_LIBRARY )
-ENDIF( XERCES_LIBRARY )
+  IF( XERCES_LIBRARY_sh )
+    SET( XERCES_FOUND TRUE )
+    MARK_AS_ADVANCED ( XERCES_DIR )
+    MARK_AS_ADVANCED ( XERCES_INCLUDE_DIR )
+    MARK_AS_ADVANCED ( XERCES_LIBRARY_sh )
+    MARK_AS_ADVANCED ( XERCES_LIBRARY_st )
+  ENDIF( XERCES_LIBRARY_sh )
 ENDIF( XERCES_INCLUDE_DIR )
 
 
