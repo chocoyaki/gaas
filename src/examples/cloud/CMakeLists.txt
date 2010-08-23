@@ -8,9 +8,9 @@ ELSE( NOT DIET_USE_ALT_BATCH )
 
   INCLUDE_DIRECTORIES( ${DIET_SOURCE_DIR}/include )
 
-  ### Two servers...
+  ### One server...
   SET( C_SERVER_EXAMPLES
-       server 
+       cloud_server 
        )
 
   FOREACH( loop_var ${C_SERVER_EXAMPLES} )
@@ -21,8 +21,8 @@ ELSE( NOT DIET_USE_ALT_BATCH )
     INSTALL( TARGETS ${loop_var} DESTINATION bin/examples/cloud )
   ENDFOREACH( loop_var )
   
-  ### ... and their respective clients
-  SET( C_CLIENT_EXAMPLES client )
+  ### ... and its respective client
+  SET( C_CLIENT_EXAMPLES cloud_client )
   
   FOREACH( loop_var ${C_CLIENT_EXAMPLES} )
     ADD_EXECUTABLE( ${loop_var} ${loop_var}.c )

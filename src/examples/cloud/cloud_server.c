@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.1  2010/08/23 09:44:28  amuresan
+ * Fixed cmake conflicting target problem
+ *
  * Revision 1.2  2010/06/14 21:27:24  amuresan
  * Added header to cloud example files and client config file.
  *
