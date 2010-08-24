@@ -21,7 +21,7 @@
 	value CDATA #REQUIRED
         cardinality CDATA #IMPLIED>
 <!ELEMENT processors ((processor|condition|merge|filter|loop|subWorkflow)*)>
-<!ELEMENT processor (param*,in+,out*,iterationstrategy?,(diet|beanshell|gasw)*)>
+<!ELEMENT processor (param*,in+,inOut*,out*,iterationstrategy?,(diet|beanshell|gasw)*)>
 <!ATTLIST processor
 	name CDATA #REQUIRED>
 <!ELEMENT param EMPTY>
@@ -33,6 +33,13 @@
 	name CDATA #REQUIRED
 	type CDATA #REQUIRED
 	depth CDATA "0"
+	interface CDATA #IMPLIED>
+<!ELEMENT inOut EMPTY>
+<!ATTLIST inOut
+	name CDATA #REQUIRED
+	type CDATA #REQUIRED
+	depth CDATA "0"
+	card CDATA #IMPLIED
 	interface CDATA #IMPLIED>
 <!ELEMENT out EMPTY>
 <!ATTLIST out
