@@ -11,6 +11,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.42  2010/08/26 11:05:46  bdepardo
+ * Check that data file exists before trying to parse it.
+ * Throws an XMLParsingException::eFILENOTFOUND exception if it does not exist.
+ *
  * Revision 1.41  2010/07/20 09:20:11  bisnard
  * integration with eclipse gui and with dietForwarder
  *
@@ -1302,6 +1306,12 @@ DataSourceParser::parseXml(const string& dataFileName) throw (XMLParsingExceptio
   if (dataFileName.empty())
     throw XMLParsingException(XMLParsingException::eINVALID_DATA,
                               "Empty XML File name");
+
+   struct stat buffer ;
+   if ( stat( dataFileName.c_str(), &buffer ) ) 
+     throw XMLParsingException(XMLParsingException::eFILENOTFOUND,
+			       "XML File '" + dataFileName + "' does not exist");
+
 
   SAX2XMLReader* parser = XMLReaderFactory::createXMLReader();
   parser->setFeature(XMLUni::fgSAX2CoreValidation, false);
