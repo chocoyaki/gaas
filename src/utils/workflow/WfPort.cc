@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.21  2010/08/26 07:48:39  bisnard
+ * added check for non-connected input ports
+ *
  * Revision 1.20  2009/08/26 10:32:11  bisnard
  * corrected  warnings
  *
@@ -144,6 +147,13 @@ WfPort::isOutput() const {
           || (portType == PORT_OUT_THEN)
           || (portType == PORT_OUT_ELSE)
           || (portType == PORT_OUT_LOOP));
+}
+
+bool
+WfPort::isInput() const {
+	return ((portType == PORT_IN)
+					|| (portType == PORT_IN_LOOP)
+					|| (portType == PORT_INOUT));
 }
 
 string

@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.20  2010/08/26 07:48:39  bisnard
+ * added check for non-connected input ports
+ *
  * Revision 1.19  2010/07/20 09:20:11  bisnard
  * integration with eclipse gui and with dietForwarder
  *
@@ -164,6 +167,12 @@ public:
   short
   getPortType() const;
 
+	/**
+   * Returns true if the port is an input
+   */
+  bool
+  isInput() const;
+	
   /**
    * Returns true if the port is an output
    */

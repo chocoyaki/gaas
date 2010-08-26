@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.24  2010/08/26 07:48:39  bisnard
+ * added check for non-connected input ports
+ *
  * Revision 1.23  2010/07/20 09:20:11  bisnard
  * integration with eclipse gui and with dietForwarder
  *
@@ -219,7 +222,16 @@ void
 FNode::connectToWfPort(FNodePort* port) {}
 
 void
-FNode::initialize() {}
+FNode::initialize() {
+	for (map<string, WfPort*>::iterator portIter = ports.begin();
+       portIter != ports.end();
+       ++portIter) {
+		WfPort* port = (WfPort*) portIter->second;
+		if (port->isInput() && !port->isConnected()) {
+      WARNING("Input port '" << port->getCompleteId() << "' is not connected to a source");
+		}
+	}
+}
 
 void
 FNode::finalize() {
