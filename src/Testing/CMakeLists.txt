@@ -44,6 +44,8 @@ IF( BUILD_TESTING )
   INCLUDE_DIRECTORIES(
     ${OMNIORB4_INCLUDE_DIR}
     ${DIET_SOURCE_DIR}/src/CORBA
+    ${DIET_SOURCE_DIR}/src/CORBA
+    ${CMAKE_CURRENT_SOURCE_DIR}
     ${DIET_SOURCE_DIR}/include   # for DIET_data.h
   )
 
@@ -57,6 +59,8 @@ IF( BUILD_TESTING )
 #    UtilsCommon        # FIXME: this is a dependency of the CorbaCommon
                        # target and should NOT figure here !
     CorbaCommon        # Used by TestORBMgrInit.cxx
+    DIET_CORBA
+    ${OMNIORB4_LIBRARIES}
   )
   
 ENDIF( BUILD_TESTING )
