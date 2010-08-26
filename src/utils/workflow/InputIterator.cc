@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2010/08/26 07:09:37  bisnard
+ * 'fixed warning'
+ *
  * Revision 1.6  2009/10/23 14:02:45  bisnard
  * removed debug trace messages
  *
@@ -54,12 +57,12 @@ PortInputIterator::PortInputIterator(FNodeInPort * inPort)
 
 void
 PortInputIterator::begin() {
-//   TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "begin() : "
-//                       << myInPort->myQueue.size() << " items in the queue" << endl);
+  TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "begin() : "
+                      << myInPort->myQueue.size() << " items in the queue" << endl);
   myQueueIter = myInPort->myQueue.begin();
   if (!isAtEnd()) {
-//   TRACE_TEXT (TRACE_ALL_STEPS,"  and first item is "
-//       << ((FDataHandle*) myQueueIter->second)->getTag().toString() << endl);
+  TRACE_TEXT (TRACE_ALL_STEPS,"  and first item is "
+      << ((FDataHandle*) myQueueIter->second)->getTag().toString() << endl);
   }
 }
 
@@ -538,7 +541,8 @@ MatchIterator::removeItem() {
   // mark the removed item
   myFlags[*currTag] = true;
   // increment the counter of matched items for the left tag
-  unsigned int matchCount = incrementMatchCount(leftTag);
+	incrementMatchCount(leftTag);
+//   unsigned int matchCount = incrementMatchCount(leftTag);
 //   TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "removeItem(): match count of "
 //       << leftTag.toString() << " is " << matchCount << endl);
   // remove the matched right item (it cannot be used by other left items)
@@ -616,7 +620,7 @@ DotIterator::isMatched() {
   InputIterator *firstInput = getFirstInput();
   // get the current tag (from first input iterator)
   const FDataTag& firstTag = firstInput->getCurrentTag();
-//   TRACE_TEXT (TRACE_ALL_STEPS, traceId() << " matching tag " << firstTag.toString() << endl);
+  TRACE_TEXT (TRACE_ALL_STEPS, traceId() << " matching tag " << firstTag.toString() << endl);
   // initialize the input loop on second input
   vector<InputIterator*>::iterator inputIter = myInputs.begin();
   ++inputIter;
@@ -626,16 +630,19 @@ DotIterator::isMatched() {
     InputIterator *currInput = (InputIterator*) *(inputIter++);
     if (!(currInput->find(firstTag))) {
         allMatched = false;
-//         TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "match failed for input : "
-//              << currInput->getId() << endl);
+        TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "match failed for input : "
+             << currInput->getId() << endl);
     }
   }
+  if (allMatched) {
+		TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "Match OK");
+	}
   return allMatched;
 }
 
 void
 DotIterator::begin() {
-//   TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "begin() ..." << endl);
+  TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "begin() ..." << endl);
   if (isEmpty()) {
     getFirstInput()->end();
   } else {
@@ -651,7 +658,7 @@ DotIterator::end() {
 
 void
 DotIterator::next() {
-//   TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "next() ..." << endl);
+  TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "next() ..." << endl);
   if (isAtEnd()) {
     INTERNAL_ERROR("Calling next on empty match iterator",1);
   }
