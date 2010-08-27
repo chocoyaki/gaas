@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.56  2010/08/27 07:41:53  bisnard
+ * Fixed warning
+ *
  * Revision 1.55  2010/07/20 16:41:30  bdepardo
  * Changed the initialization order of the attributes in
  * MultiWfScheduler::MultiWfScheduler to remove warnings.
@@ -625,6 +628,7 @@ MultiWfScheduler::run() {
       usleep(this->interRoundDelay * 1000);
     } // end if
   } // end while (true)
+  return NULL;
 }
 
 /****************************************************************************/

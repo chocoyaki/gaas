@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2010/08/27 07:41:53  bisnard
+ * Fixed warning
+ *
  * Revision 1.13  2009/09/25 12:42:09  bisnard
  * - use new DagNodeLauncher classes to manage threads
  * - added dag cancellation method
@@ -138,6 +141,7 @@ MultiWfBasicScheduler::run() {
 
     }
   }
+  return NULL;
 }
 
 /**
