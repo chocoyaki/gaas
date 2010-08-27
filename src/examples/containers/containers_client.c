@@ -40,9 +40,6 @@ main(int argc, char* argv[])
         char * ID4;
         char * ID5;
 	diet_container_t content1, content2;
-        long *outsleepTime1 = NULL;
-        long *outsleepTime2 = NULL;
-        char *path2 = NULL;
         char *path3 = NULL;
         profile1 = diet_profile_alloc(service_name,1,1,2);
         // set INPUT scalar parameter
@@ -90,9 +87,9 @@ main(int argc, char* argv[])
             /* The first two elements are empty */
             if ((content2.elt_ids[0] != NULL) || (content2.elt_ids[1] != NULL))
               printf("ERROR: first two elements of the CHILD container are not empty\n");
-            dagda_get_scalar(content2.elt_ids[2],&outsleepTime2, NULL);
+            dagda_get_scalar(content2.elt_ids[2],&outsleepTime, NULL);
             dagda_get_file(content2.elt_ids[3],&path3);
-            printf("Container contains: VOID, VOID, %ld, %s\n", *outsleepTime2, path3);
+            printf("Container contains: VOID, VOID, %ld, %s\n", *outsleepTime, path3);
           } else {
             printf("ERROR: OUTPUT CHILD container does not contain expected nb of elements\n");
           }

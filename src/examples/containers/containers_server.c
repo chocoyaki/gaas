@@ -49,6 +49,7 @@ add_service(char* service_name)
   if (diet_service_table_add(profile, NULL, service )) return 1;
   /* Free the profile, since it was deep copied */
   diet_profile_desc_free(profile);
+	return 0;
 }
 /*
  * set_up_scheduler :
@@ -148,7 +149,6 @@ service(diet_profile_t* pb)
 	int res = 0;
         char * ID1;
         char * ID2;
-        char * ID3;
         char * ID4;
         char * path1 = NULL;
 	long* outsleepTime = (long*) malloc(sizeof(long));
@@ -160,7 +160,7 @@ service(diet_profile_t* pb)
         dagda_get_container_elements((*diet_parameter(pb,1)).desc.id, &content1);
         if (content1.size != 1) {
           printf("Container does not contain expected nb of elements\n");
-          printf("It contains %ld elements\n",content1.size);
+          printf("It contains %d elements\n",content1.size);
         } else {
           printf("Retrieve CHILD container (not downloaded by DIET)\n");
           dagda_get_container(content1.elt_ids[0]);
@@ -168,7 +168,7 @@ service(diet_profile_t* pb)
           dagda_get_container_elements(content1.elt_ids[0], &content2);
           if (content2.size !=2) {
             printf("Container does not contain expected nb of elements\n");
-            printf("It contains %ld elements\n",content2.size);
+            printf("It contains %d elements\n",content2.size);
           } else {
             printf("Get elements\n");
             long *sleepTime1 = NULL;
