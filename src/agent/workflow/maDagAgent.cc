@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2010/08/27 07:47:31  bisnard
+ * 'fixed warning'
+ *
  * Revision 1.15  2010/07/12 16:14:11  glemahec
  * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
  *
@@ -148,10 +151,6 @@ int main(int argc, char * argv[]){
     Parsers::endParsing();
     return res;
   }
-
-  Parsers::Results::agent_type_t agtType =
-    *((Parsers::Results::agent_type_t*)
-      Parsers::Results::getParamValue(Parsers::Results::AGENTTYPE));
 
   char* name = (char*)
     Parsers::Results::getParamValue(Parsers::Results::NAME);
