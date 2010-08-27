@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.43  2010/08/27 07:30:26  bisnard
+ * 'added missing include'
+ *
  * Revision 1.42  2010/08/26 11:05:46  bdepardo
  * Check that data file exists before trying to parse it.
  * Throws an XMLParsingException::eFILENOTFOUND exception if it does not exist.
@@ -149,6 +152,7 @@
  ****************************************************************************/
 
 #include <iostream>
+#include <sys/stat.h>
 
 #include <xercesc/framework/LocalFileInputSource.hpp>
 #include <xercesc/framework/MemBufInputSource.hpp>
