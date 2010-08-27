@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.25  2010/08/27 13:23:07  bisnard
+ * 'fixed segfault when using empty constant values'
+ *
  * Revision 1.24  2010/08/26 07:48:39  bisnard
  * added check for non-connected input ports
  *
@@ -318,7 +321,7 @@ FConstantNode::initialize() {
                               << myDataID << "/)" << endl);
     myDH = new FDataHandle(singleTag, myOutPort->getBaseDataType(), 0, myDataID);
 
-  } else if (!myValue.empty()) {
+  } else {
     TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "Initialize constant (value=/"
                               << myValue << "/)" << endl);
     myDH = new FDataHandle(singleTag, myOutPort->getBaseDataType(), myValue);
