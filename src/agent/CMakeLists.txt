@@ -48,30 +48,19 @@ if (NOT DIET_USE_DAGDA)
   )
 endif (NOT DIET_USE_DAGDA)
 
-# When the DIET_USE_USERSCHED option is set, add the source code
-# for dynamic library load at agent level.
-# Install the needed files for user scheduler development.
-if (DIET_USE_USERSCHED)
-  set (AgentCommon_SOURCES ${AgentCommon_SOURCES} UserScheduler.cc)
-  install(FILES
-    GlobalSchedulers.hh
-    UserScheduler.hh
-    Schedulers.hh
-    DESTINATION include/scheduler
-  )
-endif (DIET_USE_USERSCHED)
-
 # To use Dagda instead of DTM.
 if (DIET_USE_DAGDA)
   include_directories(${DIET_SOURCE_DIR}/src/utils/DAGDA ${UUID_PATH})
 endif (DIET_USE_DAGDA)
 
+if (DIET_USE_USERSCHED)
+  set (AgentCommon_SOURCES ${AgentCommon_SOURCES} UserScheduler.cc)
+endif (DIET_USE_USERSCHED)
+
 add_library(AgentCommon STATIC ${AgentCommon_SOURCES})
-#if (NOT DIET_USE_DAGDA)
-  target_link_libraries(AgentCommon
-    DIET_Utils
-  )
-#endif (NOT DIET_USE_DAGDA)
+target_link_libraries(AgentCommon
+  DIET_Utils
+)
 
 if (DIET_USE_CORI)
   set(CORI_LIBRARIES UtilsCori)
@@ -81,10 +70,10 @@ add_executable(dietAgent ${AgentCommon_SOURCES} dietAgent.cc)
 
 corba_headers(IDL_HDRS
   Agent
-	MasterAgent
-	LocalAgent
-	common_types
-	Dagda
+  MasterAgent
+  LocalAgent
+  common_types
+  Dagda
 )
 
 # AgentCommon library & dietAgent depends on CORBA files.
@@ -127,6 +116,19 @@ if (DIET_USE_WORKFLOW)
 endif (DIET_USE_WORKFLOW)
   
 install(TARGETS dietAgent DESTINATION bin)
+
+# When the DIET_USE_USERSCHED option is set, add the source code
+# for dynamic library load at agent level.
+# Install the needed files for user scheduler development.
+if (DIET_USE_USERSCHED)
+  install(FILES
+    GlobalSchedulers.hh
+    UserScheduler.hh
+    Schedulers.hh
+    DESTINATION include/scheduler
+  )
+  install(TARGETS AgentCommon DESTINATION lib)    
+endif (DIET_USE_USERSCHED)
   
 if (DIET_USE_JXTA)
   add_custom_command(
