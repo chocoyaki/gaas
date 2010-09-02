@@ -22,7 +22,7 @@
  
 INCLUDE( ${CMAKE_ROOT}/Modules/CheckLibraryExists.cmake )
 
-SET( BLAS_DEFAULT_LIB_PATH /usr/lib /usr/local/lib )
+SET( BLAS_DEFAULT_LIB_PATH /usr/lib /usr/local/lib /usr/lib64)
 SET( BLAS_PATHS ${BLAS_DIR} ${BLAS_DEFAULT_LIB_PATH} )
 SET( BLAS_FOUND "" )
 
@@ -36,7 +36,8 @@ SET( BLAS_FOUND "" )
 #                 path and library name) when found, "" when unfound.
 # Note: this can be seen as the autoconf AC_CHECK_LIB() equivalent...somehow.
 MACRO(BLAS_CHECK_LIBRARY ARG_LIB ARG_FUNCTION ARG_LIB_PATHS VARIABLE)
-  IF("${VARIABLE}" MATCHES "^${VARIABLE}$")
+  STRING(REGEX MATCH "^${VARIABLE}$" LEADSPACE "${VARIABLE}")
+  IF(LEADSPACE)
     FILE( APPEND ${CMAKE_BINARY_DIR}/CMakeOutput.log
           "FindBlas.cmake: BLAS_CHECK_LIBRARY looking for library ${ARG_LIB} " )
     FILE( APPEND ${CMAKE_BINARY_DIR}/CMakeOutput.log
@@ -64,10 +65,10 @@ MACRO(BLAS_CHECK_LIBRARY ARG_LIB ARG_FUNCTION ARG_LIB_PATHS VARIABLE)
     ELSE( ${VARIABLE} )
       FILE( APPEND ${CMAKE_BINARY_DIR}/CMakeOutput.log "not found.\n" )
     ENDIF( ${VARIABLE} )
-  ELSE("${VARIABLE}" MATCHES "^${VARIABLE}$")
+  ELSE(LEADSPACE)
     FILE( APPEND ${CMAKE_BINARY_DIR}/CMakeOutput.log
           "FindBlas.cmake: passed variable was prepended with a space?\n" )
-  ENDIF("${VARIABLE}" MATCHES "^${VARIABLE}$")
+  ENDIF(LEADSPACE)
 ENDMACRO(BLAS_CHECK_LIBRARY)
 
 ### BLAS in ATLAS library ?
