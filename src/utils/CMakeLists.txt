@@ -147,6 +147,11 @@ endif (DIET_USE_FD)
     target_link_libraries(DIET_Utils UtilsCori)
   endif (DIET_USE_CORI)
 
+if (DIET_USE_USERSCHED)
+  install(TARGETS DIET_Utils DESTINATION lib)    
+endif (DIET_USE_USERSCHED)
+
+
 ########################################################################
 ## Install the files needed for scheduler development.
 if (DIET_USE_USERSCHED)
