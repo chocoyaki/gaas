@@ -5,7 +5,8 @@
 # The following variables are set:
 # OMNIORB4_FOUND        - When false, don't try to use omniORB
 # OMNIORB4_INCLUDE_DIR  - Directories to include to use omniORB
-# OMNIORB4_LIBRARIES    - Files to link against to use omniORB
+# OMNIORB4_LIBRARIES_sh - Files to link against to use omniORB (shared libraries)
+# OMNIORB4_LIBRARIES_st - Files to link against to use omniORB (static libraries)
 # OMNIORB4_IDL_COMPILER - The idl compiler command (when found)
 # OMNIORB4_VERSION      - A string of the form X.Y.Z representing the version
 # OMNIORB4_OMNINAMES_COMMAND - the omniNames ORB server command (when found)
