@@ -10,6 +10,10 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2010/09/02 17:29:49  bdepardo
+ * Fixed a memory corruption when linking two DIET library:
+ * defaultStorageDir cannot be a static string, we need to use a static method
+ *
  * Revision 1.6  2008/11/07 14:32:14  bdepardo
  * Headers correction
  *
@@ -34,7 +38,7 @@ private:
   static unsigned long defaultMaxMsgSize;
   static unsigned long defaultMaxDiskSpace;
   static unsigned long defaultMaxMemSpace;
-  static std::string defaultStorageDir;
+  static std::string getDefaultStorageDir();
 public:
   static DagdaImpl* getClientDataManager();
   static DagdaImpl* getSeDDataManager();

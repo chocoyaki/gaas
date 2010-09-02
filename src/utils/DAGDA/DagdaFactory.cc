@@ -10,6 +10,10 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.18  2010/09/02 17:29:49  bdepardo
+ * Fixed a memory corruption when linking two DIET library:
+ * defaultStorageDir cannot be a static string, we need to use a static method
+ *
  * Revision 1.17  2010/07/27 10:24:34  glemahec
  * Improve robustness & general performance
  *
@@ -75,7 +79,6 @@ DagdaImpl* DagdaFactory::agentDataManager = NULL;
 DagdaImpl* DagdaFactory::localDataManager = NULL;
 std::string DagdaFactory::storageDir = "";
 
-std::string DagdaFactory::defaultStorageDir = "/tmp";
 /* If somebody wants to use another ORB than omniORB... */
 unsigned long DagdaFactory::defaultMaxMsgSize =
 #ifdef __OMNIORB4__
@@ -124,6 +127,10 @@ DagdaImpl* DagdaFactory::createDataManager(dagda_manager_type_t type) {
   return result;
 }
 
+std::string DagdaFactory::getDefaultStorageDir() {
+  return "/tmp";
+}
+
 const char* DagdaFactory::getStorageDir() {
   DIR *dp;
   struct stat tmpStat;
@@ -131,7 +138,7 @@ const char* DagdaFactory::getStorageDir() {
   if (storageDir.empty()) {
     char* storage = (char*)
 	  Parsers::Results::getParamValue(Parsers::Results::STORAGEDIR);
-    if (storage==NULL) storageDir = defaultStorageDir;
+    if (storage==NULL) storageDir = DagdaFactory::getDefaultStorageDir();
 	else storageDir = storage;
   }
 
