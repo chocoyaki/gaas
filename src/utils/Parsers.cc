@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.58  2010/09/02 12:07:47  bdepardo
+ * Changed initialization of Parsers::path to remove a memory leak
+ *
  * Revision 1.57  2010/07/12 16:14:12  glemahec
  * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
  *
@@ -286,7 +289,7 @@ Parsers::Results::param_t Parsers::Results::params[] =
 
 
 ifstream Parsers::file;
-char*    Parsers::path = strdup("");
+char*    Parsers::path = NULL;
 // size_t --> unsigned int
 unsigned int   Parsers::noLine = 0;
 
