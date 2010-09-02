@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.147  2010/09/02 17:46:12  bdepardo
+ * Removed strdup in ErrorCodeStr to remove memory leaks.
+ *
  * Revision 1.146  2010/07/27 10:24:33  glemahec
  * Improve robustness & general performance
  *
@@ -424,6 +427,7 @@ static MaDag_var MA_DAG = MaDag::_nil();
 /** The DietLogComponent */
 DietLogComponent* dietLogComponent;
 
+
 /****************************************************************************/
 /* Manage MA name and Session Number for data persistency issue             */
 /****************************************************************************/
@@ -437,25 +441,24 @@ DietLogComponent* dietLogComponent;
 /*
  * String representation of error code
  */
-// const char * const ErrorCodeStr[] = {
-char * ErrorCodeStr[] = {	// because of grpc_error_string that returns a char *
-  strdup("GRPC_NO_ERROR"),
-  strdup("GRPC_NOT_INITIALIZED"),
-  strdup("GRPC_CONFIGFILE_NOT_FOUND"),
- strdup("GRPC_CONFIGFILE_ERROR"),
- strdup("GRPC_SERVER_NOT_FOUND"),
- strdup("GRPC_FUNCTION_NOT_FOUND"),
- strdup("GRPC_INVALID_FUNCTION_HANDLE"),
- strdup("GRPC_INVALID_SESSION_ID"),
- strdup("GRPC_RPC_REFUSED"),
- strdup("GRPC_COMMUNICATION_FAILED"),
- strdup("GRPC_SESSION_FAILED"),
- strdup("GRPC_NOT_COMPLETED"),
- strdup("GRPC_NONE_COMPLETED"),
- strdup("GRPC_OTHER_ERROR_CODE"),
- strdup("GRPC_UNKNOWN_ERROR_CODE"),
- strdup("GRPC_ALREADY_INITIALIZED"),
- strdup("GRPC_LAST_ERROR_CODE")};
+const char * const ErrorCodeStr[] = {
+  "GRPC_NO_ERROR",
+  "GRPC_NOT_INITIALIZED",
+  "GRPC_CONFIGFILE_NOT_FOUND",
+  "GRPC_CONFIGFILE_ERROR",
+  "GRPC_SERVER_NOT_FOUND",
+  "GRPC_FUNCTION_NOT_FOUND",
+  "GRPC_INVALID_FUNCTION_HANDLE",
+  "GRPC_INVALID_SESSION_ID",
+  "GRPC_RPC_REFUSED",
+  "GRPC_COMMUNICATION_FAILED",
+  "GRPC_SESSION_FAILED",
+  "GRPC_NOT_COMPLETED",
+  "GRPC_NONE_COMPLETED",
+  "GRPC_OTHER_ERROR_CODE",
+  "GRPC_UNKNOWN_ERROR_CODE",
+  "GRPC_ALREADY_INITIALIZED",
+  "GRPC_LAST_ERROR_CODE"};
 
 
 diet_error_t
@@ -773,9 +776,10 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
     MAX_SERVERS = *(unsigned long *)(value);
     TRACE_TEXT (TRACE_MAIN_STEPS,"Max number of SeD allowed = " << MAX_SERVERS << endl);
   }
-	/* Catch signals to try to exit cleanly. */
-	signal(SIGABRT, diet_finalize_sig);
-	signal(SIGTERM, diet_finalize_sig);
+
+  /* Catch signals to try to exit cleanly. */
+  signal(SIGABRT, diet_finalize_sig);
+  signal(SIGTERM, diet_finalize_sig);
 
   return 0;
 }
@@ -788,8 +792,7 @@ void diet_finalize_sig(int dummy) {
 }
 
 diet_error_t
-diet_finalize()
-{
+diet_finalize() {
 #if HAVE_WORKFLOW
   // Terminate the xerces XML engine
   XMLPlatformUtils::Terminate();
@@ -814,6 +817,7 @@ diet_finalize()
 #if HAVE_JUXMEM
   terminateJuxMem();
 #endif // HAVE_JUXMEM
+
 #ifdef HAVE_DAGDA
 	string dagdaName = DagdaFactory::getDataManager()->getID();
 	ORBMgr::getMgr()->unbind(DAGDACTXT, dagdaName);
@@ -824,6 +828,7 @@ diet_finalize()
 	delete ORBMgr::getMgr();
   /* end fileName */
   // *fileName='\0';
+
   return 0;
 }
 
@@ -1313,7 +1318,7 @@ char *
 diet_error_string(diet_error_t error) {
   if (error<0 || error>16)
     return strdup("GRPC_UNKNOWN_ERROR CODE");
-  return ErrorCodeStr[error];
+  return strdup(ErrorCodeStr[error]);
 }
 /***************************************************************************
  * return identifier of the failed session
