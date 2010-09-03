@@ -1,4 +1,5 @@
-/*************************************************************************//**
+/*************************************************************************/
+/**
 \file
 \brief
  DIET server interface                                                    
@@ -172,6 +173,9 @@ with FAST (if available). It is there to allow profile conversion (for
 */
 /* $Id$
  * $Log$
+ * Revision 1.53  2010/09/03 10:08:55  bdepardo
+ * Changed C++ into C comments to remove warnings
+ *
  * Revision 1.52  2010/08/30 22:24:56  dloureir
  * Adding a lot od Doxygen documentation to the API.
  * There is a certain (huge) number of warnings, todos and remarks that must
@@ -1454,7 +1458,7 @@ int diet_estimate_cori_add_collector(diet_est_collect_tag_t collector_type,
 
 void diet_estimate_coriEasy_print();
 
-#else // HAVE_CORI
+#else /* HAVE_CORI */
 
 /**
  Function used to put values from FAST in the estimation vector
@@ -1474,7 +1478,7 @@ void diet_estimate_coriEasy_print();
 	
 int diet_estimate_fast(estVector_t ev, const diet_profile_t* const profilePtr);
 
-#endif //HAVE_CORI
+#endif /* HAVE_CORI */
 
 /**
  Function used to set the time since last solve in the estimation vector
