@@ -92,6 +92,7 @@ double eft_eval(diet_profile_t* pb, double computationTimeEstim) {
   jobVector_t    jobVect = NULL;
   int            jobNb,i ;
   struct timeval currentTime;
+  double already_done;
 
   EFT = computationTimeEstim; /* init with current job's computation time */
   /* add the computation time for all other jobs on the SeD */
@@ -107,7 +108,7 @@ double eft_eval(diet_profile_t* pb, double computationTimeEstim) {
       if (jobVect[i].status == DIET_JOB_RUNNING) {
         gettimeofday(&currentTime, NULL);
         /* use minimum in case computation time is longer than expected */
-        double already_done = (double)(currentTime.tv_sec*1000 + currentTime.tv_usec/1000) - jobVect[i].startTime;
+        already_done = (double)(currentTime.tv_sec*1000 + currentTime.tv_usec/1000) - jobVect[i].startTime;
         EFT -= (already_done > tcomp) ? tcomp : already_done;
         printf("\033[0;33m jobVect[%d] already_done=%f \033[0m \n",i,already_done);
       }
@@ -127,13 +128,13 @@ performance_eval(diet_profile_t* pb, estVector_t perfValues)
 {
   double         perf_val, EFT;
 
-  // set the value for COMPTIME
-  // perf_val in millisecond;
+  /* set the value for COMPTIME */
+  /* perf_val in millisecond; */
   perf_val = comptime_eval(pb);
   diet_estimate_comptime(perfValues,perf_val);
   printf("TCOMP=%f\n",perf_val);
 
-  // compute EFT and set the value as USERDEFINED
+  /* compute EFT and set the value as USERDEFINED */
   EFT = eft_eval(pb,perf_val);
   diet_est_set(perfValues,0, EFT);
   printf("EFT=%f\n",EFT);
@@ -160,7 +161,7 @@ service(diet_profile_t* pb)
         dagda_get_container_elements((*diet_parameter(pb,1)).desc.id, &content1);
         if (content1.size != 1) {
           printf("Container does not contain expected nb of elements\n");
-          printf("It contains %d elements\n",content1.size);
+          printf("It contains %d elements\n",(int)content1.size);
         } else {
           printf("Retrieve CHILD container (not downloaded by DIET)\n");
           dagda_get_container(content1.elt_ids[0]);
@@ -168,7 +169,7 @@ service(diet_profile_t* pb)
           dagda_get_container_elements(content1.elt_ids[0], &content2);
           if (content2.size !=2) {
             printf("Container does not contain expected nb of elements\n");
-            printf("It contains %d elements\n",content2.size);
+            printf("It contains %d elements\n",(int)content2.size);
           } else {
             printf("Get elements\n");
             long *sleepTime1 = NULL;

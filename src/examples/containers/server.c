@@ -126,16 +126,18 @@ performance_eval(diet_profile_t* pb, estVector_t perfValues)
 {
   double         perf_val, EFT;
 
-  // set the value for COMPTIME
-  // perf_val in millisecond;
+  /* set the value for COMPTIME */
+  /* perf_val in millisecond; */
   perf_val = comptime_eval(pb);
   diet_estimate_comptime(perfValues,perf_val);
   printf("TCOMP=%f\n",perf_val);
 
-  // compute EFT and set the value as USERDEFINED
+  /* compute EFT and set the value as USERDEFINED */
   EFT = eft_eval(pb,perf_val);
   diet_est_set(perfValues,0, EFT);
   printf("EFT=%f\n",EFT);
+
+  sleep(10);
 }
 
 /*
@@ -153,6 +155,7 @@ service(diet_profile_t* pb)
         char * path1 = NULL;
 	long* outsleepTime = (long*) malloc(sizeof(long));
 	printf("###############\n");
+	sleep(10);
         diet_container_t content1, content2;
        /* no need to call dagda_get_container for root container as it is
         * downloaded automatically by DIET */

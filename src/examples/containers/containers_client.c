@@ -23,6 +23,14 @@ main(int argc, char* argv[])
         char *path1 = (char*) "/tmp/logo_diet.jpg";
 	long *outsleepTime = NULL;
 	char * service_name = NULL;
+	diet_profile_t* profile1;
+        char * ID1;
+        char * ID2;
+        char * ID3;
+        char * ID4;
+        char * ID5;
+	diet_container_t content1, content2;
+        char *path3 = NULL;
         if(argc == 4){
 		service_name = argv[2];
 		sleepTime = (long) atoi(argv[3]);
@@ -33,19 +41,11 @@ main(int argc, char* argv[])
 	  fprintf(stderr, "DIET initialization failed !\n");
 	  return 1;
 	}
-	diet_profile_t* profile1;
-        char * ID1;
-        char * ID2;
-        char * ID3;
-        char * ID4;
-        char * ID5;
-	diet_container_t content1, content2;
-        char *path3 = NULL;
         profile1 = diet_profile_alloc(service_name,1,1,2);
-        // set INPUT scalar parameter
+        /* set INPUT scalar parameter */
         diet_scalar_set(diet_parameter(profile1,0), &sleepTime,DIET_VOLATILE, DIET_LONGINT);
 
-        // set INPUT container profile
+        /* set INPUT container profile */
         printf("PUT first element on platform (scalar)\n");
         dagda_put_scalar(&sleepTime, DIET_LONGINT, DIET_PERSISTENT, &ID1);
         printf("PUT second element on platform (file)\n");
@@ -63,7 +63,7 @@ main(int argc, char* argv[])
         printf("Add PARENT container to profile\n");
         diet_use_data(diet_parameter(profile1,1), ID4);
 
-        // set OUTPUT container profile
+        /* set OUTPUT container profile */
         diet_container_set(diet_parameter(profile1,2), DIET_PERSISTENT);
 
         printf("Start DIET CALL\n");
