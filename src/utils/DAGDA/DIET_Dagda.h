@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2010/09/03 10:09:28  bdepardo
+ * Changed C++ comments into C comments to remove warnings.
+ *
  * Revision 1.12  2010/07/12 16:14:12  glemahec
  * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
  *
@@ -152,7 +155,7 @@ void dagda_rem_progress(const char* transferId);
 #define dagda_get_container(ID) \
   dagda_get_data(ID, NULL, DIET_CONTAINER, NULL, NULL, NULL, NULL, NULL)
 
-// Asynchronous versions.
+/* Asynchronous versions. */
 /* Put macros */
 #define dagda_put_scalar_async(value, base_type, mode) \
   dagda_put_data_async(value, DIET_SCALAR, base_type, mode, 0, 0, \
