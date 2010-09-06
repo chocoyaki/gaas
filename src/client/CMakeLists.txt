@@ -78,6 +78,7 @@ if (DIET_USE_WORKFLOW)
     UtilsEvents
     ${XQILLA_LIBRARY}
     ${XERCES_LIBRARY}
+    pthread
   )
 endif ( DIET_USE_WORKFLOW )
 
