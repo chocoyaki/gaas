@@ -83,9 +83,9 @@ endif ( DIET_USE_WORKFLOW )
 
 if (DIET_USE_DAGDA)
   set(DIET_client_Libs
-    ${UUID_LIB}
-    Dagda
     ${DIET_client_Libs}
+    ${UUID_LIB}
+    DIET_Dagda
   )
 endif( DIET_USE_DAGDA )
 

@@ -48,7 +48,7 @@ if (DIET_USE_DAGDA)
   set(DIET_SeD_Libs
     ${DIET_SeD_Libs}
     ${UUID_LIB}
-    Dagda
+    DIET_Dagda
   )
 endif (DIET_USE_DAGDA)
 

@@ -119,7 +119,7 @@ if (DIET_USE_DAGDA)
   set(Forwarder_Libs
     ${Forwarder_Libs}
     ${UUID_LIB}
-    Dagda
+    DIET_Dagda
   )
 endif (DIET_USE_DAGDA)
 
