@@ -10,8 +10,8 @@ include_directories(
   ${DIET_SOURCE_DIR}/include
   ${DIET_SOURCE_DIR}/src/SeD
   ${DIET_SOURCE_DIR}/src/agent
-  ${XERCES_INCLUDE_DIR}
   ${XQILLA_INCLUDE_DIR}
+  ${XERCES_INCLUDE_DIR}
 )
 
 add_library(UtilsWf STATIC

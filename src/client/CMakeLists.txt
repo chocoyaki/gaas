@@ -76,8 +76,8 @@ if (DIET_USE_WORKFLOW)
     MaDag
     UtilsWf
     UtilsEvents
-    ${XERCES_LIBRARY}
     ${XQILLA_LIBRARY}
+    ${XERCES_LIBRARY}
   )
 endif ( DIET_USE_WORKFLOW )
 

@@ -41,8 +41,8 @@ TARGET_LINK_LIBRARIES (maDagAgent
   CorbaCommon
   DIET_Utils
   ${UUID_LIB}
-  ${XERCES_LIBRARY}
   ${XQILLA_LIBRARY}
+  ${XERCES_LIBRARY}
   ${OMNIORB4_LIBRARIES}
   pthread
   )

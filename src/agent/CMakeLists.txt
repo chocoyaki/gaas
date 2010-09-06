@@ -104,8 +104,8 @@ if (DIET_USE_WORKFLOW)
     ${dietAgent_Libs}
     CltWf
     MaDag
-    ${XERCES_LIBRARY}
     ${XQILLA_LIBRARY}
+    ${XERCES_LIBRARY}
   )
 endif (DIET_USE_WORKFLOW)
 
