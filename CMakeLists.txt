@@ -72,10 +72,11 @@ endif(UNIX AND NOT WIN32)
 option(DIET_BUILD_BLAS_EXAMPLES "Build BLAS based DIET examples." OFF)
 if (DIET_BUILD_BLAS_EXAMPLES)
   if (NOT DIET_BUILD_EXAMPLES)
-	  set(DIET_BUILD_EXAMPLES ON CACHE BOOL "Build DIET examples." FORCE)
-	  message(WARNING "Examples building was activated.")
-	endif (NOT DIET_BUILD_EXAMPLES)
-	option(DIET_BUILD_EXAMPLES "Build DIET examples. (Mandatory for BLAS examples building.)" ON)
+    set(DIET_BUILD_EXAMPLES ON CACHE BOOL "Build DIET examples." FORCE)
+    message(WARNING "Examples building was activated.")
+  endif (NOT DIET_BUILD_EXAMPLES)
+  option(DIET_BUILD_EXAMPLES "Build DIET examples. (Mandatory for BLAS examples building.)" ON)
+  
 else (DIET_BUILD_BLAS_EXAMPLES)
   option(DIET_BUILD_EXAMPLES      "Build DIET examples." OFF)
 endif (DIET_BUILD_BLAS_EXAMPLES)
@@ -349,6 +350,11 @@ endif (DIET_WITH_STATISTICS)
 if (DIET_BUILD_BLAS_EXAMPLES)
   # BLAS (Basic Linear Algebric Subroutines) examples subdir requires...BLAS !
   find_package(BLAS)
+  IF (BUILD_SHARED_LIBS)
+    SET(BLAS_LIBRARIES ${BLAS_LIBRARIES_sh})
+  ELSE (BUILD_SHARED_LIBS)
+    SET(BLAS_LIBRARIES ${BLAS_LIBRARIES_st})
+  ENDIF (BUILD_SHARED_LIBS)
 endif (DIET_BUILD_BLAS_EXAMPLES)
 
 # --------------------------- Workflow support ------------------------
@@ -388,6 +394,7 @@ endif (DIET_USE_WORKFLOW)
 if (DIET_USE_ACKFILE)
   add_definitions(-DHAVE_ACKFILE)
 endif (DIET_USE_ACKFILE)
+
 
 # --------------- For users agents scheduler support ------------------
 if (DIET_USE_USERSCHED)
