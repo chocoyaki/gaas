@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2010/09/06 07:41:13  bdepardo
+ * Fixed warnings
+ *
  * Revision 1.1  2009/01/22 10:16:04  bisnard
  * new example for container usage in workflows
  *
@@ -67,7 +70,6 @@ main(int argc, char* argv[])
 {
   diet_wf_desc_t * profile;
   char * fileName;
-  double * result = NULL;
   char *dataID = NULL;
 
   checkUsage(argc, argv);

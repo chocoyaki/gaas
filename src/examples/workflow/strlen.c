@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2010/09/06 07:41:13  bdepardo
+ * Fixed warnings
+ *
  * Revision 1.5  2009/06/23 09:26:56  bisnard
  * new API method for EFT estimation
  *
@@ -59,7 +62,7 @@ STRLEN(diet_profile_t* pb)
 
   diet_string_get(diet_parameter(pb,0), &str, NULL);
   diet_scalar_get(diet_parameter(pb,1), &len, NULL);
-  fprintf(stderr, "strlen(%s) = %d\n", str, strlen(str));
+  fprintf(stderr, "strlen(%s) = %d\n", str, (int)strlen(str));
   *(int*)len = strlen(str);
 
   diet_scalar_desc_set(diet_parameter(pb,1), len);

@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2010/09/06 07:41:13  bdepardo
+ * Fixed warnings
+ *
  * Revision 1.7  2009/07/10 12:02:39  bisnard
  * fixed string allocation bug
  *
@@ -82,7 +85,7 @@ set_up_scheduler(diet_profile_desc_t* profile){
 void check_data(const char* ID) {
   char *value;
   dagda_get_string(ID, &value);
-  fprintf(stderr,"CHECK DATA %s : len=%d value=%s\n", ID, strlen(value), value);
+  fprintf(stderr,"CHECK DATA %s : len=%d value=%s\n", ID, (int)strlen(value), value);
 }
 
 /**
@@ -126,7 +129,7 @@ process_container(short depth, const char *outputstr, const char *parentID) {
 }
 
 int container_string_length(const char* contID, short depth, char getContainer) {
-  int i;
+  unsigned int i;
   short length = 0;
   diet_container_t content;
   char *eltStr;
@@ -166,7 +169,7 @@ int container_string_length(const char* contID, short depth, char getContainer) 
 }
 
 void container_string_get(const char* contID, short depth, char *contStr) {
-  int i;
+  unsigned int i;
   diet_container_t content;
   char *eltStr;
   if (depth < 0) {
@@ -226,7 +229,7 @@ processor(diet_profile_t* pb)
     if (ports_depth_table[i] == 0) {
       /* check_data((*diet_parameter(pb, i)).desc.id); */
       diet_string_get(diet_parameter(pb, i), &inputstr, NULL);
-      fprintf(stderr, "INPUT %d (len=%d): %s (%p)\n", i, strlen(inputstr), inputstr, inputstr);
+      fprintf(stderr, "INPUT %d (len=%d): %s (%p)\n", i, (int)strlen(inputstr), inputstr, inputstr);
       strcat(outputstr, inputstr);
     } else {
       container_string_get(pb->parameters[i].desc.id, ports_depth_table[i], outputstr);
@@ -235,7 +238,7 @@ processor(diet_profile_t* pb)
       strcat(outputstr,separator_c);
   }
   strcat(outputstr,parRight_c);
-  fprintf(stderr, "INPUT STRING = %s (len=%d)\n", outputstr, strlen(outputstr));
+  fprintf(stderr, "INPUT STRING = %s (len=%d)\n", outputstr, (int)strlen(outputstr));
 
   /* store output in profile */
   if (nb_out == 1) {

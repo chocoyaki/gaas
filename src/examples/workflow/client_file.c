@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2010/09/06 07:41:13  bdepardo
+ * Fixed warnings
+ *
  * Revision 1.8  2010/03/05 15:52:09  ycaniou
  * Ordered things in CMakelist.txt and update Display (Batch, build_version...)
  * Fix version guess of compiler (was gcc only)
@@ -63,7 +66,6 @@ main(int argc, char* argv[])
   diet_wf_desc_t * profile;
   char * fileName;
   char * path1 = NULL, * path2 = NULL;
-  char command1[255], command2[255];
   size_t out_size1 = 0 , out_size2 = 0;
 
   checkUsage(argc, argv);

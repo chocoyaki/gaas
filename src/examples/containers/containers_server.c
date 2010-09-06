@@ -153,8 +153,8 @@ service(diet_profile_t* pb)
         char * ID4;
         char * path1 = NULL;
 	long* outsleepTime = (long*) malloc(sizeof(long));
-	printf("###############\n");
         diet_container_t content1, content2;
+	printf("###############\n");
        /* no need to call dagda_get_container for root container as it is
         * downloaded automatically by DIET */
         printf("Get PARENT container element list\n");
@@ -171,8 +171,8 @@ service(diet_profile_t* pb)
             printf("Container does not contain expected nb of elements\n");
             printf("It contains %d elements\n",(int)content2.size);
           } else {
-            printf("Get elements\n");
             long *sleepTime1 = NULL;
+            printf("Get elements\n");
             dagda_get_scalar(content2.elt_ids[0],&sleepTime1, NULL);
             dagda_get_file(content2.elt_ids[1],&path1);
             printf("Container contains: %ld, %s\n", *sleepTime1, path1);
