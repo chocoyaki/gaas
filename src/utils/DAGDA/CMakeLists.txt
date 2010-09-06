@@ -27,7 +27,6 @@ if (DIET_TRANSFER_PROGRESSION)
   set(DAGDA_SOURCES ${DAGDA_SOURCES} Transfers.cc)
 endif (DIET_TRANSFER_PROGRESSION)
 
-add_library(Dagda STATIC ${DAGDA_SOURCES})
 add_library(DIET_Dagda ${DAGDA_SOURCES})
   
 set(DAGDA_Libs
@@ -48,9 +47,6 @@ if (CYGWIN)
 endif (CYGWIN)
 
 target_link_libraries(DIET_Dagda
-  ${DAGDA_Libs}
-)
-target_link_libraries(Dagda
   ${DAGDA_Libs}
 )
 
