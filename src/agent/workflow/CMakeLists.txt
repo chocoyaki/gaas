@@ -35,14 +35,14 @@
 add_dependencies(maDagAgent CORBAFiles)
 add_dependencies(MaDag CORBAFiles)
 
-  TARGET_LINK_LIBRARIES (maDagAgent
-      Dagda
-      CorbaCommon
-      DIET_Utils
-      ${UUID_LIB}
-      ${XERCES_LIBRARY}
-      ${XQILLA_LIBRARY}
-      ${OMNIORB4_LIBRARIES}
-      pthread
+TARGET_LINK_LIBRARIES (maDagAgent
+  DIET_Dagda
+  CorbaCommon
+  DIET_Utils
+  ${UUID_LIB}
+  ${XERCES_LIBRARY}
+  ${XQILLA_LIBRARY}
+  ${OMNIORB4_LIBRARIES}
+  pthread
   )
-  INSTALL( TARGETS maDagAgent DESTINATION bin )
+INSTALL( TARGETS maDagAgent DESTINATION bin )

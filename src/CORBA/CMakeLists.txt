@@ -45,8 +45,15 @@ endif (DIET_USE_ALT_BATCH)
 # Link CorbaCommon to DIET_CORBA, DIET_Utils and OmniORB
 target_link_libraries(CorbaCommon
   DIET_CORBA
-  DIET_Utils
 )
+
+# DTM requires to be linked against DIET_Utils
+if (NOT DIET_USE_DAGDA)
+  target_link_libraries(CorbaCommon
+    DIET_Utils
+    )
+endif (NOT DIET_USE_DAGDA)
+
 
 if (DIET_USE_ALT_BATCH)
   target_link_libraries(CorbaCommon UtilsSeDBatch)
