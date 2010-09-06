@@ -37,6 +37,7 @@ add_dependencies(MaDag CORBAFiles)
 
 TARGET_LINK_LIBRARIES (maDagAgent
   DIET_Dagda
+  UtilsWf
   CorbaCommon
   DIET_Utils
   ${UUID_LIB}

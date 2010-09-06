@@ -30,6 +30,6 @@ add_library(UtilsWf STATIC
 )
 
 target_link_libraries(UtilsWf
-  Dagda
+  DIET_Dagda
 )
 install(FILES FWorkflow.dtd DESTINATION etc)
