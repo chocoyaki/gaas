@@ -66,7 +66,7 @@ IF( CMAKE_COMPILER_IS_GNUCC AND CMAKE_COMPILER_IS_GNUCXX )
   # Proceed with the definitions:
   IF( GNUCXX_MAJOR_VERSION_BIGER_THAN_FOUR )
     SET( CMAKE_CXX_FLAGS_MAINTAINER
-       "-Wall -Wno-abi -Woverloaded-virtual -Wstrict-null-sentinel"
+       "-Wall -Wextra -Wno-abi -Woverloaded-virtual -Wstrict-null-sentinel"
      )
   ELSE( GNUCXX_MAJOR_VERSION_BIGER_THAN_FOUR )
     SET( CMAKE_CXX_FLAGS_MAINTAINER "-Wall -Wno-abi -Woverloaded-virtual" )
@@ -80,7 +80,7 @@ IF( CMAKE_COMPILER_IS_GNUCC AND CMAKE_COMPILER_IS_GNUCXX )
   )
 
   SET( CMAKE_C_FLAGS_MAINTAINER
-    "-Wall -pedantic"
+    "-Wall -Wextra -pedantic"
     CACHE STRING 
     "Flags used by the C compiler during maintainer builds."
     FORCE
