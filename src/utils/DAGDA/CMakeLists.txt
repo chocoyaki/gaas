@@ -33,7 +33,7 @@ set(DAGDA_Libs
   DIET_CORBA
   CorbaCommon
   UtilsNodes
-  DIET_Utils
+#  DIET_Utils
   ${UUID_LIB}
   pthread
   ${OMNIORB4_LIBRARIES}
