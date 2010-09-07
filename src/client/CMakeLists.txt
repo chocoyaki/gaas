@@ -59,7 +59,19 @@ add_library(DIET_client_static STATIC
 add_dependencies(DIET_client_static DIET_CORBA)
 add_dependencies(DIET_client CORBAFiles)
 
+
+# /!\ DIET_Dagda has to be included first (before any other DIET
+# library), otherwise it won't work on APPLE.
+if (DIET_USE_DAGDA)
+  set(DIET_client_Libs
+    ${DIET_client_Libs}
+    ${UUID_LIB}
+    DIET_Dagda
+  )
+endif( DIET_USE_DAGDA )
+
 set(DIET_client_Libs
+  ${DIET_client_Libs}
   DIET_CORBA
   DIET_Utils
   LibForwarder

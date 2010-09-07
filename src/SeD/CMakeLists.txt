@@ -45,6 +45,8 @@ endif (DIET_USE_JUXMEM)
 # To use Dagda instead of DTM.
 if (DIET_USE_DAGDA)
   include_directories(${DIET_SOURCE_DIR}/src/utils/DAGDA ${UUID_PATH})
+  # /!\ DIET_Dagda has to be included first (before any other DIET
+  # library), otherwise it won't work on APPLE.
   set(DIET_SeD_Libs
     ${DIET_SeD_Libs}
     ${UUID_LIB}
