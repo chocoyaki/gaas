@@ -152,8 +152,8 @@ endif (DIET_USE_WORKFLOW)
 set(Forwarder_Libs
   ${Forwarder_Libs}
   AgentCommon
-  DIET_SeD_static
-  DIET_client_static
+  DIET_SeD
+  DIET_client
   ${OMNIORB4_LIBRARIES}
 )
 
