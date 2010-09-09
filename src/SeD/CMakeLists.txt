@@ -2,10 +2,12 @@
 #* DIET cmake local file                                                    *#
 #****************************************************************************#
 
+## Sources
 set(DIET_SeD_SOURCES
   DIET_server.cc
   SeDImpl.cc
 )
+
 if (NOT DIET_USE_DAGDA)
   set(DIET_SeD_SOURCES
       ${DIET_SeD_SOURCES}
@@ -41,10 +43,21 @@ include_directories(${OMNIORB4_INCLUDE_DIR}
 if (DIET_USE_JUXMEM)
   include_directories(${JUXMEM_INCLUDE_DIR})
 endif (DIET_USE_JUXMEM)
-  
-# To use Dagda instead of DTM.
+
 if (DIET_USE_DAGDA)
   include_directories(${DIET_SOURCE_DIR}/src/utils/DAGDA ${UUID_PATH})
+endif (DIET_USE_DAGDA)
+
+
+add_library(DIET_SeD ${DIET_SeD_SOURCES})
+
+# DIET_Sed shared & static libraries depends on CORBA files.
+add_dependencies(DIET_SeD CORBAFiles)
+
+
+## Dependencies towards other libraries  
+# To use Dagda instead of DTM.
+if (DIET_USE_DAGDA)
   # /!\ DIET_Dagda has to be included first (before any other DIET
   # library), otherwise it won't work on APPLE.
   set(DIET_SeD_Libs
@@ -54,20 +67,8 @@ if (DIET_USE_DAGDA)
   )
 endif (DIET_USE_DAGDA)
 
-if (DIET_USE_FD)
-  set(DIET_SeD_Libs
-    ${DIET_SeD_Libs}
-    fd
-  )
-endif (DIET_USE_FD)
 
-add_library(DIET_SeD ${DIET_SeD_SOURCES})
-add_library(DIET_SeD_static STATIC ${DIET_SeD_SOURCES})
-
-# DIET_Sed shared & static libraries depends on CORBA files.
-add_dependencies(DIET_SeD_static  CORBAFiles)
-add_dependencies(DIET_SeD CORBAFiles)
-  
+# common DIET libs
 set(DIET_SeD_Libs
   ${DIET_SeD_Libs}
   DIET_CORBA
@@ -77,6 +78,7 @@ set(DIET_SeD_Libs
   ${OMNIORB4_LIBRARIES}
 )
 
+# CORI
 if (NOT DIET_USE_ALT_BATCH)
   if (DIET_USE_CORI)      # Then the lib is compiled independantly
     set(DIET_SeD_Libs
@@ -86,11 +88,17 @@ if (NOT DIET_USE_ALT_BATCH)
   endif (DIET_USE_CORI)
 endif (NOT DIET_USE_ALT_BATCH)
 
-target_link_libraries(DIET_SeD ${DIET_SeD_Libs})
-target_link_libraries(DIET_SeD_static ${DIET_SeD_Libs})
+# Fault detection
 if (DIET_USE_FD)
-  target_link_libraries( DIET_SeD_static fd )
+  set(DIET_SeD_Libs
+    ${DIET_SeD_Libs}
+    fd
+  )
 endif (DIET_USE_FD)
+
+
+
+target_link_libraries(DIET_SeD ${DIET_SeD_Libs})
   
 if (DIET_USE_ALT_BATCH)
   target_link_libraries(DIET_SeD UtilsSeDBatch)
@@ -104,8 +112,13 @@ if (NOT BUILD_SHARED_LIBS)
   target_link_libraries(DIET_SeD stdc++)
 endif (NOT BUILD_SHARED_LIBS)
 
+
+# Install DIET_SeD library only, not the static one
 install(TARGETS DIET_SeD DESTINATION lib)
 
+
+
+## JXTA
 if (DIET_USE_JXTA)
   add_custom_command(
     OUTPUT    ${CMAKE_CURRENT_BINARY_DIR}/JXTASeD.class

@@ -51,12 +51,8 @@ add_library(DIET_client
   ${DIET_client_SOURCES}
 )
 
-add_library(DIET_client_static STATIC
-  ${DIET_client_SOURCES}
-)
 
 # DIET client shared & static libraries depends on CORBA files.
-add_dependencies(DIET_client_static DIET_CORBA)
 add_dependencies(DIET_client CORBAFiles)
 
 
