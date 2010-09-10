@@ -3,9 +3,9 @@
 #****************************************************************************#
 # AppleSeeds related examples
 
-IF( NOT DIET_USE_BATCH AND NOT DIET_USE_ALT_BATCH)
+IF( NOT DIET_USE_ALT_BATCH)
   MESSAGE( STATUS "Batch Lammps related example NOT compiled." )
-ELSE( NOT DIET_USE_BATCH AND NOT DIET_USE_ALT_BATCH )
+ELSE( NOT DIET_USE_ALT_BATCH )
 
   INCLUDE_DIRECTORIES( ${DIET_SOURCE_DIR}/include )
 
@@ -30,4 +30,4 @@ ELSE( NOT DIET_USE_BATCH AND NOT DIET_USE_ALT_BATCH )
     TARGET_LINK_LIBRARIES( ${loop_var} ${DIET_CLIENT_LIBRARIES} )
     INSTALL( TARGETS ${loop_var} DESTINATION bin/examples/Batch/Lammps )
   ENDFOREACH( loop_var )
-ENDIF( NOT DIET_USE_BATCH AND NOT DIET_USE_ALT_BATCH )
+ENDIF( NOT DIET_USE_ALT_BATCH )
