@@ -35,20 +35,27 @@ IF( BUILD_TESTING )
   
   # In order to drop the binary were ctest will find it:
   SET( DIET_TEST_NAME ${CXX_TEST_PATH}/${DIET_TEST_BASENAME} )
-  
-  # And build the corresponding binary (indirectly named after the
-  # DIET_TEST_BASENAME we chose) out of the above constructed list of tests:
-  ADD_EXECUTABLE( ${DIET_TEST_NAME} ${GENERATED_DIET_MAIN_TEST} )
-  
+ 
   # Some of the test make inclusions:
   INCLUDE_DIRECTORIES(
     ${OMNIORB4_INCLUDE_DIR}
     ${DIET_SOURCE_DIR}/src/CORBA
-    ${DIET_SOURCE_DIR}/src/CORBA/idl
+    ${DIET_BINARY_DIR}/src/CORBA/idl
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${DIET_SOURCE_DIR}/include   # for DIET_data.h
   )
+ 
+  # And build the corresponding binary (indirectly named after the
+  # DIET_TEST_BASENAME we chose) out of the above constructed list of tests:
+  ADD_EXECUTABLE( ${DIET_TEST_NAME} ${GENERATED_DIET_MAIN_TEST} )
 
+
+  # First thing to do is to start omniNames
+  ADD_TEST( startOmninames ${DIET_SOURCE_DIR}/src/Testing/RunOmniORB.sh
+    ${OMNIORB4_OMNINAMES_COMMAND}
+    ${DIET_CTEST_FQDN_HOSTNAME}
+    ${DIET_CTEST_OMNIORB_NAMESERVICE_PORT} )
+ 
   # Add each atomic test:
   FOREACH( loop_file ${DIET_TEST_SOURCES} )
     GET_FILENAME_COMPONENT( name ${loop_file} NAME_WE )
@@ -56,11 +63,13 @@ IF( BUILD_TESTING )
   ENDFOREACH( loop_file ${DIET_TEST_SOURCES} )
 
   TARGET_LINK_LIBRARIES( ${DIET_TEST_NAME}
-#    UtilsCommon        # FIXME: this is a dependency of the CorbaCommon
-                       # target and should NOT figure here !
     CorbaCommon        # Used by TestORBMgrInit.cxx
     DIET_CORBA
     ${OMNIORB4_LIBRARIES}
   )
+
+  # Kill omniNames in the end
+  ADD_TEST( killOmninames ${DIET_SOURCE_DIR}/src/Testing/KillOmniORB.sh
+    ${OMNIORB4_OMNINAMES_COMMAND} )
   
 ENDIF( BUILD_TESTING )
