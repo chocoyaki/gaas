@@ -43,20 +43,6 @@ endif (DIET_USE_FD)
 
   ########################################################################
   ### UtilsSedBatch library:
-  if (DIET_USE_BATCH)
-    configure_file(
-      batch_configure.h.in
-      ${CMAKE_CURRENT_BINARY_DIR}/batch_configure.h
-      IMMEDIATE
-    )
-
-    include_directories(${APPLESEEDS_INCLUDE_DIR}
-			${CMAKE_CURRENT_BINARY_DIR} )
-    add_library(UtilsSeDBatch STATIC batch.c)
-    target_link_libraries(UtilsSeDBatch ${APPLESEEDS_LIBRARIES} -lpthread)
-    add_dependencies(UtilsSeDBatch CORBAFiles)
-  endif (DIET_USE_BATCH)
-
   if (DIET_USE_ALT_BATCH)
     include_directories(${CMAKE_CURRENT_BINARY_DIR})
 

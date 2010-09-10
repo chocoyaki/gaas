@@ -102,10 +102,6 @@ target_link_libraries( DIET_client
   ${DIET_client_Libs}
 )
 
-if (DIET_USE_BATCH)
-  target_link_libraries(DIET_client UtilsSeDBatch)
-endif (DIET_USE_BATCH)
-
 if (DIET_USE_ALT_BATCH)
   target_link_libraries( DIET_client UtilsSeDBatch )
 endif (DIET_USE_ALT_BATCH)
