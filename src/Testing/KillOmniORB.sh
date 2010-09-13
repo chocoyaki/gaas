@@ -9,7 +9,12 @@ OMNINAMESCMD=$1
 
 USER=`logname`
 
-PID=`ps x -U $USER | grep "$OMNINAMESCMD" | grep -v "grep" | grep -v "$0" | awk '{print \$1}'`
+if [ "$USER" == "" ]; then
+    PID=`ps x | grep "$OMNINAMESCMD" | grep -v "grep" | grep -v "$0" | awk '{print \$1}'`
+else
+    PID=`ps x -U $USER | grep "$OMNINAMESCMD" | grep -v "grep" | grep -v "$0" | awk '{print \$1}'`
+fi 
+
 if [ $? -ne 0 ]; then
     exit 1
 fi

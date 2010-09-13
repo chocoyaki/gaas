@@ -11,8 +11,8 @@ PORT=$3
 
 OMNIORB_CONFIG=""
 
-echo "$OMNINAMESCMD -start $PORT -always -ignoreport -ORBendPoint giop:tcp:$HOSTNAME:$PORT > /dev/null 2>&1 &"
-$OMNINAMESCMD -start $PORT -always -ignoreport -ORBendPoint giop:tcp:$HOSTNAME:$PORT > /dev/null 2>&1 &
+echo "nohup $OMNINAMESCMD -start $PORT -always -ignoreport -ORBendPoint giop:tcp:$HOSTNAME:$PORT < /dev/null > /dev/null 2>&1 &"
+nohup $OMNINAMESCMD -start $PORT -always -ignoreport -ORBendPoint giop:tcp:$HOSTNAME:$PORT < /dev/null > /dev/null 2>&1 &
 
 if [ $? -ne 0 ]; then
     exit 1
