@@ -1,0 +1,398 @@
+%****************************************************************************%
+%* DIET User's FAQ main file                                                *%
+%*                                                                          *%
+%*  Author(s):                                                              *%
+%*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       *%
+%*                                                                          *%
+%* $LICENSE$                                                                *%
+%****************************************************************************%
+%* $Id$
+%* $Log$
+%* Revision 1.1  2010/09/14 17:07:28  bdepardo
+%* Users FAQ
+%*
+%****************************************************************************%
+
+\documentclass[12pt,a4paper]{book}
+%\makeatletter
+%\makeatother
+\usepackage{fancyhdr}
+\usepackage[headings]{fullpage}
+
+\usepackage[pdftex]{graphicx} % Pour l'insertion d'images
+\DeclareGraphicsExtensions{.jpg,.mps,.pdf,.png} % Formats d'images
+
+\usepackage[pdftex]{thumbpdf}      % Vignettes
+\usepackage{xcolor} % required for colors by hyperef
+\usepackage[pdftex,                %
+    bookmarks         = true,%     % Signets
+    bookmarksnumbered = true,%     % Signets numérotés
+    pdfpagemode       = true,%     % Signets/vignettes fermés à l'ouverture
+%   pdfpagemode       = Fullscreen,
+    pdfstartview      = FitV,%     % La page prend toute la hauteur
+    pdfpagelayout     = SinglePage,% Vue par page
+    colorlinks        = true,%     % Liens en couleur
+    linkbordercolor   = white, % Couleur de la boîte sur les liens normal 
+    citebordercolor   = white, % Couleur de la boîte sur les citations 
+    filebordercolor   = white, % Couleur sur la boîte sur les fichiers 
+    urlbordercolor    = white, % Couleur sur la boîte sur les URL
+    linkcolor         = cyan, % Liens internes
+    urlcolor          = blue, %  % Couleur des liens externes
+    pdfborder         = {0 0 0}%   % Style de bordure : ici, pas de bordure
+    ]{hyperref}%                   % Utilisation de HyperTeX
+
+
+\hypersetup{ % Modifiez la valeur des champs suivants
+    pdfauthor   = {DIET Team},%
+    pdftitle    = {DIET User's FAQ},%
+    pdfsubject  = {FAQ},%
+    pdfkeywords = {DIET, Grid-RPC},%
+    pdfcreator  = {PDFLaTeX},%
+    pdfproducer = {PDFLaTeX}}
+
+
+%\usepackage[french]{babel}
+%\usepackage[latin1]{inputenc}
+%\usepackage{multicol}
+\usepackage{verbatim}
+\usepackage{url}
+\usepackage{subfigure}
+\usepackage{listings}
+\usepackage{xspace}
+\usepackage{calc}
+\usepackage{marvosym} % More symbols
+\graphicspath{{./fig}}
+
+\usepackage{pifont} % for \ding{52} dagda
+
+\newsavebox{\logobox}
+\sbox{\logobox}{\includegraphics[scale=0.4]{fig/logo_DIET}}
+\newcommand{\logo}{\usebox{\logobox}}
+
+%%%%
+
+\newcounter{rmq}[section]
+\setcounter{rmq}{0}
+\newenvironment{remarque}{\addtocounter{rmq}{1}\textbf{N.B. \thermq:}}{}
+
+%%%%
+
+%%%%
+\renewcommand{\title}{DIET User's FAQ}
+%%%%
+
+\pagestyle{fancyplain}
+\fancyhead[L]{\title}
+% \lhead[\fancyplain{\title}{\title}]
+%       {\fancyplain{\title}{\title}}
+\chead{}
+\rhead[\fancyplain{\logo}{\logo}]{\fancyplain{\logo}{\logo}}
+
+\lfoot[\fancyplain{\scriptsize{\copyright} ~INRIA, ENS-Lyon, UCBL}{\scriptsize{\copyright} ~INRIA, ENS-Lyon, UCBL}]{\fancyplain{\scriptsize{\copyright} ~INRIA, ENS-Lyon, UCBL}{\scriptsize{\copyright} ~INRIA, ENS-Lyon, UCBL}}
+\cfoot[\fancyplain{}{}]{\fancyplain{}{}}
+\rfoot[\fancyplain{Page~\thepage}{Page~\thepage}]
+      {\fancyplain{Page~\thepage}{Page~\thepage}}
+
+
+\newcommand{\ie}{\emph{i.e.,} }
+\newcommand{\eg}{\emph{e.g.,} }
+
+\newcommand{\dietj}{{\sc Diet}$_J$\xspace}
+\newcommand{\sedj}{{\textit SeD}$_J$\xspace}
+\newcommand{\seddiet}{{\textit SeD}$_{\sc Diet}$\xspace}
+\newcommand{\sedsdiet}{{\textit SeDs}$_{\sc Diet}$\xspace}
+\newcommand{\MAj}{{\textit MA}$_J$\xspace}
+\newcommand{\MAsj}{{\textit MAs}$_J$\xspace}
+\newcommand{\MAdiet}{{\textit MA}$_{\sc Diet}$\xspace}
+\newcommand{\MAsdiet}{{\textit MAs}$_{\sc Diet}$\xspace}
+\newcommand{\LAj}{{\textit LA}$_J$\xspace}
+\newcommand{\LAsj}{{\textit LAs}$_J$\xspace}
+\newcommand{\LAdiet}{{\textit LA}$_{\sc Diet}$\xspace}
+\newcommand{\LAsdiet}{{\textit LAs}$_{\sc Diet}$\xspace}
+\newcommand{\clientj}{{\textit client}$_J$\xspace}
+\newcommand{\clientsj}{{\textit clients}$_J$\xspace}
+\newcommand{\clientdiet}{{\textit client}$_{\sc Diet}$\xspace}
+\newcommand{\dagda}{{\sc Dagda}\xspace}
+\newcommand{\diet}{{\sc Diet}\xspace}
+\newcommand{\dietforwarder}{{\sc Diet}Forwarder\xspace}
+\newcommand{\godiet}{{\sc GoDiet}\xspace}
+\newcommand{\madag}{{\sc M$A_{DAG}$}\xspace}
+\newcommand{\pse}{PSE\xspace}
+\newcommand{\nes}{NES\xspace}
+\newcommand{\ptop}{\textit{Peer-to-Peer}}
+\newcommand{\red}{\textit{Red}}
+\newcommand{\sci}{Scilab}
+\newcommand{\scip}{Scilab$_{//}$}
+\newcommand{\scalapack}{ScaLAPACK}
+\newcommand{\sed}{\textit{SeD}\xspace}
+\newcommand{\seds}{\textit{SeD}s\xspace}
+\newcommand{\thread}{\textit{thread}}
+\newcommand{\threads}{\textit{threads}}
+\newcommand{\nsl}{NetSolve}
+\newcommand{\fixme}[1]{\fbox{\textsl{{\bf #1}}}}
+\newcommand{\dietversion}{2.5}
+
+%%%%
+% Document beginning
+%%%%
+
+\begin{document}
+
+%%%%
+% First sheet
+%%%%
+
+\thispagestyle{empty}
+\vspace*{3cm}
+\vspace*{3cm}
+
+\begin{center}
+\includegraphics[scale=.5]{fig/logo_DIET_big}\\[2ex]
+\textbf{\Huge USER'S FAQ\\[2ex]}
+\end{center}
+
+\vfill
+
+\noindent
+\small{
+\begin{tabular}{ll}
+  \textbf{VERSION}  & \dietversion\\
+  \textbf{DATE}     & September 2010\\
+  \textbf{PROJECT MANAGER}  & Fr\'ed\'eric \textsc{Desprez}.\\
+  \textbf{EDITORIAL STAFF}  & Yves \textsc{Caniou}, Eddy \textsc{Caron} and David ~\textsc{Loureiro}.\\
+  \textbf{AUTHORS STAFF}    & 
+\begin{minipage}[t]{12cm}
+  Eug\`ene \textsc{Pamba Capo-Chichi}.
+\end{minipage} \\
+  \textbf{Copyright}& INRIA, ENS-Lyon, UCBL
+\end{tabular}\\
+}
+
+\newpage
+\thispagestyle{empty}
+\ 
+
+%%%%
+% End of first sheet
+%%%%
+
+
+\newpage
+\tableofcontents
+
+\setlength{\columnseprule}{1pt}
+
+
+\noindent The purpose of this document is to give answers to several simple questions in order to facilitate the familiarization with DIET for new users (newbies).\\
+
+\noindent \textcolor{red}{DIET: What does it mean?}\\
+DIET is an acronym of Distributed Interactive Engineering Toolbox.\\
+
+\noindent \textcolor{red}{What is the purpose of DIET?}\\
+The aim of the DIET project is to develop a set of tools to build computational servers. 
+The Distributed Interactive Engineering Toolbox (DIET) project is focused on the development of scalable middleware with initial efforts focused on distributing the scheduling 
+problem across multiple agents. It consists of a set of elements that can be used together to build applications using the Grid-RPC paradigm. 
+This middleware is able to find an appropriate server according to the information given in the client's request.\\
+
+\noindent \textcolor{red}{How to get/download DIET?}\\
+DIET is available at: \url{http://graal.ens-lyon.fr/~diet/}.\\
+  
+\noindent However, the graal members can directly download it from the Graal server using a CVS command. Before connecting to the Graal server, the new graal member has to generate a couple
+of private/public keys by executing the ssh-keygen command.\\
+The generated public key (and localized on the .ssh directory) has to be sent to the graal administrator: eddy.caron@ens-lyon.fr.\\
+ 
+\noindent \textcolor{red}{How to install DIET?}\\
+Before installing DIET, the user needs to install other essential packages which are: 
+
+\begin{itemize}
+ \item OMNIORB4 available on \url{http://www.yolinux.com/TUTORIALS/CORBA.html} and,
+ \item ccmake on \url{http://www.cmake.org/cmake/help/install.html}.\\
+\end{itemize}
+
+\noindent After that DIET can be installed. For more information about installation, the user manual is available on the directory: diet-\dietversion/doc/UsersManual (Chapter II). The installation is also well described on the README in diet-\dietversion/Cmake.\\ 
+  
+\noindent \textcolor{red}{How to configure OMNIORB4?}\\
+Set environment variables:
+\begin{verbatim}
+export OMNIORB4_DIR="OMNIORB4_install_directory"
+export OMNIORB4_INCLUDE_DIR="OMNIORB4_install_directory/include"
+
+export OMNINAMES_LOGDIR="/var/omninames" for root 
+export OMNINAMES_LOGDIR="/tmp" for non root user 
+(For OMNINAMES_LOGDIR, the previous directories can be changed according to the user permission).
+ 
+export PATH="OMNIORB4_install_directory/bin:$PATH"
+\end{verbatim}
+
+\noindent The OMNIORB4\_install\_directory is the path of the directory where OMNIORB4 is installed. It is also essential to export the omniORB4.cfg file:\\
+
+\begin{verbatim}
+
+#****************************************************************************#
+# (*) Reference to the CORBA Name server, to which all agents register and
+#     connect to get references on other agent
+#****************************************************************************#
+InitRef = NameService=corbaname::127.0.0.1:2809
+supportBootstrapAgent = 1
+\end{verbatim}
+
+\noindent \textcolor{red}{What is a simple way to better understand how DIET works?}\\
+The scalars example (on diet-\dietversion/dietbin/src/examples/scalars) is a very simple and interesting client/server example to understand how DIET works.\\
+
+\noindent \textcolor{red}{How is the scalars example run?}\\
+The first step is to run the CORBA naming service:\\
+$>$ omniNames -start\\
+ 
+\noindent This error can occur:
+\begin{verbatim}
+root@capo-chichi:/home/paco/Desktop/DIET/FAQ# omniNames -start
+Sat Sep 11 20:27:23 2010:
+Error: log file '/var/omninames/omninames-capo-chichi.log' exists.  Can't use -start option.
+\end{verbatim}
+
+\noindent There exist two solutions to solve it:
+\begin{enumerate}
+ \item by executing : $>$ omniNames,
+
+\begin{verbatim}
+root@capo-chichi:/home/paco/Desktop/DIET/FAQ# omniNames
+Sat Sep 11 20:27:26 2010:
+Read log file successfully.
+Root context is IOR:010000002b00000049444c3a6f6d672e6f72672f436f734e616d696e672f4e616d696e67436f6e746578744578743a312e300000010000000000000070000000010102000e0000003139322e3136382e312e31303400f90a0b0000004e616d6553657276696365000300000000000000080000000100000000545441010000001c000000010000000100010001000000010001050901010001000000090101000354544108000000ccf6844c010037fa
+Checkpointing Phase 1: Prepare.
+Checkpointing Phase 2: Commit.
+Checkpointing completed.
+\end{verbatim}
+
+ \item by erasing the log files generated on OMNINAMES log directory and restarting the command omniNames.
+\end{enumerate}
+
+\noindent The second step is to run an agent by using the dietAgent command (diet-\dietversion/dietbin/src/examples/scalars):
+$>$dietAgent MA.cfg\\
+\noindent The last step is the execution of server and client programs:\\
+$>$ ./server Sed.cfg\\
+$>$./client client.cfg CADD where CADD is one of the service offer by the Sed.
+\begin{verbatim}
+/* This server offers all additions of two scalars:                  */
+/*   - CADD = sum of two chars                                       */
+/*   - BADD = sum of two bytes                                       */
+/*   - IADD = sum of two ints                                        */
+/*   - LADD = sum of two longs                                       */
+/*   - FADD = sum of two floats                                      */
+/*   - DADD = sum of two doubles                                     */
+\end{verbatim}
+
+\noindent This is one example of the 3 configurations files MA.cfg, SeD.cfg and client.cfg:
+
+\begin{verbatim}
+MA.cfg
+
+/***MA configuration file****/
+traceLevel = 1
+agentType = DIET_MASTER_AGENT
+name = MA0
+
+SeD.cfg
+
+/***SeD configuration file****/
+traceLevel = 10
+parentName = MAO
+
+client.cfg
+
+/***Client configuration file****/
+traceLevel = 10
+MAName = MA0
+\end{verbatim}
+
+\noindent For a better understanding of this example, the code sources of these programs (client.c and server.c) are available on diet-\dietversion/src/examples/scalars.\\
+
+\noindent \textcolor{red}{What is GoDiet?}\\
+GoDiet is a Java-based tool for automatic Diet deployment that manages configuration file creation, staging of files, launch of elements, monitoring and reporting on launch
+success, and process cleanup when the Diet deployment is no longer needed.\\
+
+
+\noindent \textcolor{red}{How to get/download GoDiet?} \\
+\noindent Graal members have to simply do the following:
+\begin{itemize}
+\item export CVSROOT=":ext:login@graal.ens-lyon.fr:/home/CVS/graal"
+\item cvs co -d GoDiet\_CVS GRAAL/devel/diet/diet-contrib/GoDIET\\
+\end{itemize}
+
+\noindent \textcolor{red}{How to install GoDiet?}
+
+\noindent The installation of GoDiet needs to check other essential pakages such as: ant, libgcj and opensdk. GoDiet uses ssh localhost connection for running 
+that is why it is important to check it:
+\begin{verbatim}
+paco@capo-chichi:~$ ssh localhost 
+ssh: connect to host localhost port 22: Connection refused
+\end{verbatim}
+
+\noindent To solve it, the user has to do:
+\begin{verbatim}
+paco@capo-chichi:~$ sudo apt-get install ssh
+[sudo] password for paco: 
+Lecture des listes de paquets... Fait
+Construction de l'arbre des dependances       
+Lecture des informations d'état... Fait
+Les paquets supplémentaires suivants seront installes : 
+  openssh-server
+Paquets suggeres :
+  rssh molly-guard openssh-blacklist openssh-blacklist-extra
+Les NOUVEAUX paquets suivants seront installes :
+  openssh-server ssh
+\end{verbatim}
+
+\noindent And checking:
+\begin{verbatim}
+paco@capo-chichi:~$ ssh localhost
+The authenticity of host 'localhost (127.0.0.1)' can't be established.
+RSA key fingerprint is 4f:0f:e3:b3:55:d8:91:e4:81:1c:fc:2c:bf:34:da:72.
+Are you sure you want to continue connecting (yes/no)? yes
+Warning: Permanently added 'localhost' (RSA) to the list of known hosts.
+paco@localhost's password: 
+Linux capo-chichi 2.6.32-24-generic #42-Ubuntu SMP Fri Aug 20 14:24:04 UTC 2010 i686 GNU/Linux
+Ubuntu 10.04.1 LTS
+\end{verbatim}
+
+\noindent After checking all things described previously, GoDIET-2.3.0.jar is generated by the command ant:
+
+\begin{verbatim}
+paco@capo-chichi:~/Desktop/DIET/Godiet/GoDiet_CVS$ ant 
+Buildfile: build.xml
+init:
+idlj:
+     [echo]  Generating stubs, helper classes and ties from IDL
+     [echo]  Generating for tasks ...
+
+package:
+
+idlj_diet:
+     [echo]  Generaxting stubs, helper classes and ties from
+     [echo]     IDL
+                 . 
+                 . 
+                 .
+\end{verbatim}
+
+\noindent \textcolor{red}{How is GoDiet run?}\\
+\noindent The command for running GoDiet is: java -jar GoDIET-2.3.0.jar your\_xml\_file
+\begin{verbatim}
+paco@capo-chichi:~/DIET/Godiet/GoDiet_CVS$ java -jar GoDIET-2.3.0.jar examples/example1.xml
+Parsing xml file: examples/example1.xml
+\end{verbatim}
+
+\noindent On the example1.xml file, you have to ckeck PATH and LD\_LIBRARY\_PATH:
+
+\begin{verbatim}
+<env>
+		    <var name="PATH" value="/home/paco/DIET/diet-\dietversion/dietbin/src/examples/scalars:$PATH"/>
+		    <var name="LD_LIBRARY_PATH" value="$LD_LIBRARY_PATH"/>
+</env>
+\end{verbatim}
+
+\noindent After that just follow instructions on the UsersManual (Chapter 9, p. 91).
+
+\end{document}
+
+% http://www.gps-sdr.com/
