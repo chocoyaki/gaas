@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.29  2010/09/17 08:33:33  glemahec
+ * Bug correction for INOUT non scalar data
+ *
  * Revision 1.28  2010/07/29 15:32:11  bisnard
  * fixed bug with id generation when SeD name is defined
  *
@@ -163,7 +166,8 @@ void dagda_mrsh_profile(corba_profile_t* corba_profile, diet_profile_t* profile,
       // parameter. It is set to 0 to avoid  double free.
       if (profile->parameters[i].value!=NULL)
         storedData->value.replace(size, size,
-                                  (CORBA::Char*) profile->parameters[i].value, 0);
+                                  (CORBA::Char*) profile->parameters[i].value,
+																	i<=profile->last_in ? 0:1);
 			
       // Only scalar values are sent into the profile.
 			// For other types, the peer has to download them.
@@ -221,40 +225,36 @@ void dagda_download_SeD_data(diet_profile_t* profile,
 		Dagda_var remoteManager =
 			ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT, remoteManagerName);
 		
-    if (pb->parameters[i].desc.mode != DIET_PERSISTENT &&
-        pb->parameters[i].desc.mode != DIET_STICKY) {
-      // The data needs to be downloaded.
-      if (pb->parameters[i].desc.specific._d() != DIET_SCALAR ) {
-        inserted = dataManager->getData(pb->parameters[i].desc.id.idNumber);
-        size = inserted->value.length();
-        CORBA::Char* value = inserted->value.get_buffer();
-        char*  path = inserted->desc.specific.file().path;
-        size_t fileSize = inserted->desc.specific.file().size;
-        // Data downloading.
-        dataManager->lclAddData(remoteManagerName.c_str(), pb->parameters[i]);
+    // The data needs to be downloaded.
+    if (pb->parameters[i].desc.specific._d() != DIET_SCALAR ) {
+      inserted = dataManager->getData(pb->parameters[i].desc.id.idNumber);
+      size = inserted->value.length();
+      CORBA::Char* value = inserted->value.get_buffer(true);
+      char*  path = inserted->desc.specific.file().path;
+      size_t fileSize = inserted->desc.specific.file().size;
+      // Data downloading.
+      dataManager->lclAddData(remoteManagerName.c_str(), pb->parameters[i]);
 				
-        inserted = dataManager->getData(pb->parameters[i].desc.id.idNumber);
-        // The files are transmitted separately.
-        if (pb->parameters[i].desc.specific._d() != DIET_FILE) {
-          // Optimisation necessaire. Voir cote serveur...
-          for (size_t j=0; j<size; ++j)
-            value[j]=inserted->value[j];
-          inserted->value.replace(size, size, value, 0);
-        }
-        else {
-          // INOUT file: Remove the previous one.
-          unlink(inserted->desc.specific.file().path);
-          rename(path, inserted->desc.specific.file().path);
-          inserted->desc.specific.file().path = path;
-          inserted->desc.specific.file().size = fileSize;
-        }
-      } else {
-				// Scalar data: The value is transmitted inside the profile.
-        inserted = dataManager->getData(pb->parameters[i].desc.id.idNumber);
-        size = inserted->value.length();
+      inserted = dataManager->getData(pb->parameters[i].desc.id.idNumber);
+      // The files are transmitted separately.
+      if (pb->parameters[i].desc.specific._d() != DIET_FILE) {
+        // Optimisation necessaire. Voir cote serveur...
         for (size_t j=0; j<size; ++j)
-          inserted->value[j]=pb->parameters[i].value[j];
+          value[j]=inserted->value[j];
+        inserted->value.replace(size, size, value, 0);
+      } else {
+        // INOUT file: Remove the previous one.
+        unlink(inserted->desc.specific.file().path);
+        rename(path, inserted->desc.specific.file().path);
+        inserted->desc.specific.file().path = path;
+        inserted->desc.specific.file().size = fileSize;
       }
+	  } else {
+		  // Scalar data: The value is transmitted inside the profile.
+      inserted = dataManager->getData(pb->parameters[i].desc.id.idNumber);
+      size = inserted->value.length();
+      for (size_t j=0; j<size; ++j)
+        inserted->value[j]=pb->parameters[i].value[j];
     }
     // Remove the remote volatile data
     if (pb->parameters[i].desc.mode==DIET_VOLATILE)
@@ -275,12 +275,12 @@ void dagda_download_SeD_data(diet_profile_t* profile,
         inserted = dataManager->getData(pb->parameters[i].desc.id.idNumber);
         size = inserted->value.length();
         unmrsh_data_desc(&profile->parameters[i].desc, &inserted->desc);
-        profile->parameters[i].value = inserted->value.get_buffer();
+        profile->parameters[i].value = inserted->value.get_buffer(true);
       } else {
         data.desc = pb->parameters[i].desc;
         size = pb->parameters[i].value.length();
         inserted = dataManager->addData(data);
-        CORBA::Char* value = pb->parameters[i].value.get_buffer(1);
+        CORBA::Char* value = pb->parameters[i].value.get_buffer(true);
         inserted->value.replace(size, size, value , 0);
         unmrsh_data_desc(&profile->parameters[i].desc, &inserted->desc);
         profile->parameters[i].value = inserted->value.get_buffer();
