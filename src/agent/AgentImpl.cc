@@ -5,6 +5,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.65  2010/09/17 14:06:21  bdepardo
+ * Use TRACE_TEXT instead of cout
+ *
  * Revision 1.64  2010/07/27 12:43:07  glemahec
  * Bugs corrections
  *
@@ -389,10 +392,9 @@ AgentImpl::agentSubscribe(const char* name, const char* hostName,
   this->LAChildren.resize(this->childIDCounter);
 	
   //LocalAgent_var meLA = LocalAgent::_narrow(me) ;
-	cout << __FILE__ << ": l. " << __LINE__ << " (" << __FUNCTION__ << ")" << endl;
-	cout << "Local agent name: " << name << endl;
-	LocalAgent_var meLA = ORBMgr::getMgr()->resolve<LocalAgent, LocalAgent_var>(LOCALAGENT, name);
-	cout << "Local agent IOR: " << ORBMgr::getMgr()->getIOR(meLA) << endl;
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Local agent name: " << name << endl);
+  LocalAgent_var meLA = ORBMgr::getMgr()->resolve<LocalAgent, LocalAgent_var>(LOCALAGENT, name);
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Local agent IOR: " << ORBMgr::getMgr()->getIOR(meLA) << endl);
 	
   this->LAChildren[retID] = LAChild(meLA, hostName);
   (this->nbLAChildren)++; // thread safe Counter class
@@ -420,7 +422,7 @@ AgentImpl::serverSubscribe(const char* name, const char* hostName,
 
   TRACE_TEXT(TRACE_MAIN_STEPS, "A server has registered from " << hostName
 	     << ", with " << services.length() << " services." << endl);
-	cout << "subscribed SeD IOR: " << ORBMgr::getMgr()->getIOR(me) << endl;
+  TRACE_TEXT(TRACE_MAIN_STEPS, "subscribed SeD IOR: " << ORBMgr::getMgr()->getIOR(me) << endl);
 
   assert (hostName != NULL);
   retID = (this->childIDCounter)++; // thread safe
@@ -733,9 +735,7 @@ AgentImpl::findServer(Request* req, size_t max_srv)
     /* (This call implicitly unlocks the responses mutex)     */
     TRACE_TEXT(TRACE_ALL_STEPS, "Waiting for " << nbChildrenContacted
 	       << " responses to request " << creq.reqID <<  "..." << endl);
-		cout << __FILE__ << ": l. " << __LINE__ << " (" << __FUNCTION__ << ")" << endl;
     req->waitResponses(nbChildrenContacted);
-		cout << __FILE__ << ": l. " << __LINE__ << " (" << __FUNCTION__ << ")" << endl;
     req->unlock();
 
     /* The thread is awakened when all responses are gathered */
