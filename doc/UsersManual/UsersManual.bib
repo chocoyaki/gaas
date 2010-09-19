@@ -45,6 +45,9 @@
 @Comment %******************************************************************%
 @Comment %* $Id$
 @Comment %* $Log$
+@Comment %* Revision 1.19  2010/09/19 10:35:46  bdepardo
+@Comment %* Added a section on how to choose the shape of the hierarchy
+@Comment %*
 @Comment %* Revision 1.18  2008/07/17 09:06:25  rbolze
 @Comment %* some corrections + ref
 @Comment %*
@@ -112,6 +115,72 @@
 @Comment %* Revision 1.3  2003/04/10 11:15:59  pcombes
 @Comment %* Add the header.
 @Comment %******************************************************************%
+
+
+@InProceedings{ InProceedingsCaron.CCD_08,
+address = {Miami, Florida},
+author = {Caron, Eddy and Chouhan, Pushpinder Kaur and Desprez, Fr{\'e}d{\'e}ric},
+booktitle = {The 17th Heterogeneous Computing Workshop (HCW'08)},
+keywords = {Deployment, ASP, Grid computing, DIET, LEGO},
+month = apr,
+organization = {In conjunction with IPDPS 2008},
+title = {Automatic Middleware Deployment Planning on Heterogeneous Platfoms},
+year = 2008 
+}
+
+@InProceedings{ InProceedingsCaron.CCL_04,
+address = {Santa Fe. New Mexico},
+author = {Caron, Eddy and Chouhan, Pushpinder Kaur and Legrand, Arnaud},
+booktitle = {The 13th Heterogeneous Computing Workshop (HCW 2004)},
+keywords = {Deployment,Grid Computing, Network Enabled Server, Steady-state scheduling, Resource localization and selection,DIET},
+month = apr,
+pages = {109b (10 pages)},
+title = {Automatic Deployment for Hierarchical Network Enabled Server},
+year = {2004} 
+}
+
+@techreport{CARON:2010:INRIA-00490406:1,
+	Abstract = {{A}ccessing the power of distributed resources can nowadays easily be done using a middleware based on a client/server approach. {S}everal architectures exist for those middlewares. {T}he most scalable ones rely on a hierarchical design. {D}etermining the best shape for the hierarchy, the one giving the best throughput of services, is not an easy task. {W}e first propose a computation and communication model for such hierarchical middleware. {O}ur model takes into account the deployment of several services in the hierarchy. {T}hen, based on this model, we propose algorithms for automatically constructing a hierarchy on two kind of heterogeneous platforms: communication homogeneous/computation heterogeneous platforms, and fully heterogeneous platforms. {T}he proposed algorithm aim at offering the users the best obtained to requested throughput ratio, while providing fairness on this ratio for the different kind of services, and using as few resources as possible. {F}or each kind of platforms, we compare our model with experimental results on a real middleware called {D}iet.},
+	Affiliation = {{L}aboratoire de l'{I}nformatique du {P}arall{\'e}lisme - {LIP} - {INRIA} - {CNRS} : {UMR}5668 - {U}niversit{\'e} {C}laude {B}ernard - {L}yon {I} - {\'E}cole normale sup{\'e}rieure de {L}yon - {ENS} {L}yon - {GRAAL} - {INRIA} {R}h{\^o}ne-{A}lpes / {LIP} {L}aboratoire de l'{I}nformatique du {P}arall{\'e}lisme - {CNRS} : {UMR}5668 - {INRIA} - {\'E}cole normale sup{\'e}rieure de {L}yon - {ENS} {L}yon - {U}niversit{\'e} {C}laude {B}ernard - {L}yon {I} - {L}aboratoire d'informatique du {P}arall{\'e}lisme},
+	Author = {Caron, Eddy and Depardon, Benjamin and Desprez, Fr{\'e}d{\'e}ric},
+	Date-Added = {2010-06-08 16:41:45 +0200},
+	Date-Modified = {2010-06-08 16:42:29 +0200},
+	Day = {08},
+	Hal_Id = {inria-00490406},
+	Institution = {INRIA},
+	Keywords = {{H}ierarchical middleware; {D}eployment; {M}odelization; {G}rid},
+	Language = {{A}nglais},
+	Month = {06},
+	Note = {Also available as LIP Research Report RRLIP2010-19},
+	Number = {{RR}-7309},
+	Pages = {32},
+	Title = {{M}odelization for the {D}eployment of a {H}ierarchical {M}iddleware on a {H}eterogeneous {P}latform},
+	Type = {Research Report},
+	Url = {http://hal.inria.fr/inria-00490406/PDF/RR-7309.pdf},
+	Year = {2010}
+}
+
+
+@techreport{CARON:2010:INRIA-00456045:3,
+	Abstract = {{A}ccessing the power of distributed resources can nowadays easily be done using a middleware based on a client/server approach. {S}everal architectures exist for those middlewares. {T}he most scalable ones rely on a hierarchical design. {D}etermining the best shape for the hierarchy, the one giving the best throughput of services, is not an easy task. {W}e first propose a computation and communication model for such hierarchical middleware. {O}ur model takes into account the deployment of several services in the hierarchy. {T}hen, based on this model, we propose an algorithm for automatically constructing a hierarchy. {T}his algorithm aims at offering the users the best obtained to requested throughput ratio, while providing fairness on this ratio for the different kind of services, and using as few resources as possible. {F}inally, we compare our model with experimental results on a real middleware called {DIET}.},
+	Affiliation = {{L}aboratoire de l'{I}nformatique du {P}arall{\'e}lisme - {LIP} - {INRIA} - {CNRS} : {UMR}5668 - {U}niversit{\'e} {C}laude {B}ernard - {L}yon {I} - {\'E}cole normale sup{\'e}rieure de {L}yon - {ENS} {L}yon},
+	Author = {Caron, Eddy and Depardon, Benjamin and Desprez, Fr{\'e}d{\'e}ric},
+	Date-Added = {2010-05-04 08:50:42 +0200},
+	Date-Modified = {2010-06-08 16:51:36 +0200},
+	Day = {11},
+	Institution = {INRIA},
+	Keywords = {{H}ierarchical middleware; {D}eployment; {M}odelization; {G}rid},
+	Language = {{A}nglais},
+	Month = {02},
+	Note = {Also available as LIP Research Report RRLIP2010-10},
+	Number = {{RR}-7201},
+	Pages = {63},
+	Title = {{M}odelization for the {D}eployment of a {H}ierarchical {M}iddleware on a {H}omogeneous {P}latform},
+	Type = {Research Report},
+	Url = {http://hal.inria.fr/inria-00456045/PDF/RR-7201.pdf},
+	Year = {2010}
+}
+
 
 @Book{FK99,
   author    = "I. Foster and C. Kesselman (Eds.)",

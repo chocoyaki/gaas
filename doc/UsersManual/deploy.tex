@@ -6,11 +6,15 @@
 %*    - Raphael BOLZE (Raphael.Bolze@ens-lyon.fr)                           *%
 %*    - Eddy CARON (Eddy Caron@ens-lyon.fr)                                 *%
 %*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       *%
+%*    - Benjamin DEPARDON (Benjamin.Depardon@ens-lyon.fr)                   *%
 %*                                                                          *%
 %* $LICENSE$                                                                *%
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.26  2010/09/19 10:35:46  bdepardo
+%* Added a section on how to choose the shape of the hierarchy
+%*
 %* Revision 1.25  2010/03/29 21:18:17  ecaron
 %* Update GoDIET commands
 %*
@@ -710,6 +714,53 @@ $ xmllint your_xml_file --dtdvalid path_to_GoDIET.dtd -noout
 \end{verbatim}
 you will see the different lines where there is problem and a clear description
 of why your XML file is not compliant.
+
+\clearpage
+
+\section{Shape of the hierarchy}
+
+A recurrent question people ask when first using \diet, is \emph{how should my
+  hierarchy look like?} There is unfortunately no universal answer to
+this. The shape highly depends on the performances you want \diet to
+attain. The performance metric that we often use to characterize the
+performance of \diet is the \emph{throughput} the clients get, \ie the number
+of serviced requests per time unit. 
+
+Several heuristics have been proposed to determine the shape of the hierarchy
+based on the users' requirements. We can distinguish two main studies. The
+first one focused on deploying a single service in a \diet
+hierarchy~\cite{InProceedingsCaron.CCD_08,InProceedingsCaron.CCL_04}. The shape
+of the best hierarchy on a fully homogeneous platform is a \emph{Complete
+Spanning d-ary tree} (CSD tree). The second study focused on deploying several
+services alongside in a single hierarchy. Heuristics based on linear
+programming and genetic algorithm have been proposed for different kinds of
+platform~\cite{CARON:2010:INRIA-00490406:1,CARON:2010:INRIA-00456045:3}.
+
+Even though the above mentioned studies can provide good, if not the best,
+deployments, they heavily rely on modelizations and benchmarks of \diet and the
+services. This process can be quite long. Thus, we propose in this section a
+simple but somehow efficient way of deploying a hopefully ``good'' hierarchy.
+(Note that if you do not care about performances, a simple star
+graph should be enough, \ie an MA and all your \seds directly connected to it.)
+Here are a few general remarks on \diet hierarchies:
+\begin{itemize}
+\item The more computations your service needs, the more powerful server you
+  should choose to put a \sed on.
+\item Scheduling performances of agents depends on the number of children they
+  have, as well as on the number of services each of the child knows. An agent
+  will be more efficient when all its children know one and the same
+  service. Thus it is a good idea to group all \seds having the same
+  characteristics under a common agent.
+\item The services declared by an agent to its parent is the union of all
+  services present in its underlying hierarchy.
+\item It is usually a good idea to group all \diet elements having the same
+  services and present on a given cluster under a common agent.
+\item There is usually no need for too many levels of agents.
+\item If you suspect that an agent does not schedule the requests fast enough,
+  and that it is overloaded, then add two (or more) agents under this agent,
+  and divide the previous children between these new agents.
+\end{itemize}
+
 
 %%% Local Variables:
 %%% mode: latex
