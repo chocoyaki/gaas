@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.2  2010/09/21 14:49:07  kcoulomb
+%* Correctifs sur la FAQ de DIET
+%*
 %* Revision 1.1  2010/09/14 17:07:28  bdepardo
 %* Users FAQ
 %*
@@ -215,16 +218,18 @@ Before installing DIET, the user needs to install other essential packages which
 Set environment variables:
 \begin{verbatim}
 export OMNIORB4_DIR="OMNIORB4_install_directory"
-export OMNIORB4_INCLUDE_DIR="OMNIORB4_install_directory/include"
+export OMNIORB4_INCLUDE_DIR=$OMNIORB4_DIR/include
 
 export OMNINAMES_LOGDIR="/var/omninames" for root 
 export OMNINAMES_LOGDIR="/tmp" for non root user 
 (For OMNINAMES_LOGDIR, the previous directories can be changed according to the user permission).
  
-export PATH="OMNIORB4_install_directory/bin:$PATH"
+export PATH=$OMNIORB4_DIR/bin:$PATH
+export OMNIORB_CONFIG=$OMNIORB4_DIR/etc/omniORB4.cfg 
 \end{verbatim}
 
 \noindent The OMNIORB4\_install\_directory is the path of the directory where OMNIORB4 is installed. It is also essential to export the omniORB4.cfg file:\\
+
 
 \begin{verbatim}
 
@@ -241,9 +246,12 @@ The scalars example (on diet-\dietversion/dietbin/src/examples/scalars) is a ver
 
 \noindent \textcolor{red}{How is the scalars example run?}\\
 The first step is to run the CORBA naming service:\\
+If you are launching CORBA for the first time, type:\\
 $>$ omniNames -start\\
- 
-\noindent This error can occur:
+Otherwise you can directly launch\\
+$>$ omniNames\\
+
+\noindent This error can occur if use use the start option whereas you have already used the naming service:
 \begin{verbatim}
 root@capo-chichi:/home/paco/Desktop/DIET/FAQ# omniNames -start
 Sat Sep 11 20:27:23 2010:
@@ -270,8 +278,8 @@ Checkpointing completed.
 \noindent The second step is to run an agent by using the dietAgent command (diet-\dietversion/dietbin/src/examples/scalars):
 $>$dietAgent MA.cfg\\
 \noindent The last step is the execution of server and client programs:\\
-$>$ ./server Sed.cfg\\
-$>$./client client.cfg CADD where CADD is one of the service offer by the Sed.
+$>$ ./server\footnote{Depending on the compilation, the programm may be called scalars\_server} Sed.cfg\\
+$>$./client\footnote{Depending on the compilation, the programm may be called scalars\_client} client.cfg CADD where CADD is one of the service offer by the Sed.
 \begin{verbatim}
 /* This server offers all additions of two scalars:                  */
 /*   - CADD = sum of two chars                                       */
@@ -382,7 +390,7 @@ paco@capo-chichi:~/DIET/Godiet/GoDiet_CVS$ java -jar GoDIET-2.3.0.jar examples/e
 Parsing xml file: examples/example1.xml
 \end{verbatim}
 
-\noindent On the example1.xml file, you have to ckeck PATH and LD\_LIBRARY\_PATH:
+\noindent On the example1.xml file, you have to ckeck local paths (with the hdail login), the PATH and LD\_LIBRARY\_PATH:
 
 \begin{verbatim}
 <env>
@@ -391,7 +399,7 @@ Parsing xml file: examples/example1.xml
 </env>
 \end{verbatim}
 
-\noindent After that just follow instructions on the UsersManual (Chapter 9, p. 91).
+\noindent After that, use the \textit {launch} command to start the example. For more, you have to follow instructions on the DIET UsersManual (Chapter 9, p. 91).
 
 \end{document}
 
