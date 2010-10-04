@@ -7,6 +7,10 @@
 /****************************************************************************/
 /* $Id$ 
  * $Log$
+ * Revision 1.9  2010/10/04 09:56:03  bdepardo
+ * Machine name was not initialized in fd_observe: directly use
+ * handle->machine_name
+ *
  * Revision 1.8  2010/10/04 08:17:23  bdepardo
  * Changed memory management from C to C++ (malloc/free -> new/delete)
  * This corrects a bug at initialization
@@ -188,7 +192,6 @@ int fd_observe (fd_handle handle)
   double alpha, eta;
   int i;
   double tau_sec;
-  char machine_name [1024];
 
   if (!configure_nfde (0.01, 0.02, handle->tdu, handle->tmrl, handle->tmu, &alpha, &eta)) {
     /* !! QoS impossible */
@@ -238,7 +241,7 @@ int fd_observe (fd_handle handle)
   /* connection */
   if (connect (sock, (struct sockaddr *) &addr, sizeof (addr)) != -1) {
     /* send request */
-    request_len = snprintf (buffer, sizeof (buffer), "OBSERVE %s %X %X %.9f", machine_name, p->id, p->service_number, eta);
+    request_len = snprintf (buffer, sizeof (buffer), "OBSERVE %s %X %X %.9f", handle->machine_name, p->id, p->service_number, eta);
     write (sock, buffer, request_len+1);
     /* force system to send data now */
     shutdown (sock, SHUT_WR);
