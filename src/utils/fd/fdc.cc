@@ -7,6 +7,10 @@
 /****************************************************************************/
 /* $Id$ 
  * $Log$
+ * Revision 1.8  2010/10/04 08:17:23  bdepardo
+ * Changed memory management from C to C++ (malloc/free -> new/delete)
+ * This corrects a bug at initialization
+ *
  * Revision 1.7  2010/03/31 21:15:40  bdepardo
  * Changed C headers into C++ headers
  *
@@ -106,7 +110,7 @@ void __attribute__ ((destructor)) fini_library (void)
 /* makes a new handle with all data set to default values */
 fd_handle fd_make_handle (void)
 {
-  fd_handle result = (fd_handle) malloc (sizeof (fd_handle));
+  fd_handle result = new _fd_handle;
   result->suspect = 1;  /* watched processes are initially suspected */
   result->tdu = 0;
   result->tmrl = 0;
@@ -168,7 +172,7 @@ void fd_get_logger(fd_handle handle, DietLogComponent **l)
 /* frees a handle */
 void fd_free_handle (fd_handle handle)
 {
-  free (handle);
+  delete handle;
 }
 
 /* observation */
@@ -207,7 +211,7 @@ int fd_observe (fd_handle handle)
   addr.sin_port = htons(fd_TCP_port);
   addr.sin_addr.s_addr = handle->address;
   
-  p = (watched_process) malloc (sizeof(watched_process));
+  p = new _watched_process;
   p->id = next_watched_id;
   ++next_watched_id;
   p->service_number = handle->service_number;
@@ -245,7 +249,7 @@ int fd_observe (fd_handle handle)
       thread_mutex_lock (&watched_mutex);
       hashtable_remove (watched_hash, p);
       thread_mutex_unlock (&watched_mutex);
-      free (p);
+      delete p;
       close(sock);
       return -1;
     }
@@ -254,7 +258,7 @@ int fd_observe (fd_handle handle)
     return 0;
   } 
   /* connection failed */
-  free (p);
+  delete p;
   return -1;
 }
 

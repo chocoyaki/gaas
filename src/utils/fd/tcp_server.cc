@@ -7,6 +7,10 @@
 /****************************************************************************/
 /* $Id$ 
  * $Log$
+ * Revision 1.7  2010/10/04 08:17:23  bdepardo
+ * Changed memory management from C to C++ (malloc/free -> new/delete)
+ * This corrects a bug at initialization
+ *
  * Revision 1.6  2010/03/31 21:15:40  bdepardo
  * Changed C headers into C++ headers
  *
@@ -76,7 +80,7 @@ void* process_tcp_query (void* psock)
 
     if (s != NULL) {
       /* create a new beating process */
-      p = (beating_process) malloc (sizeof (beating_process));
+      p = new _beating_process;
       p->id = cn_id;
       p->service_number = cn_service_number;
       p->eta = cn_eta;
@@ -112,7 +116,7 @@ void* process_tcp_query (void* psock)
     if (p != NULL) {
       hashtable_remove (beating_hash, p);
       p->valid = 0;
-      q = (beating_process) malloc (sizeof (beating_process));
+      q = new _beating_process;
       q->id = reconf_new_id;
       q->service_number = p->service_number;
       q->valid = 1;
@@ -133,7 +137,7 @@ void* process_tcp_query (void* psock)
   } 
   /* close connexion */
   close (acc_sock);
-  free (psock);
+  delete psock;
   
   return NULL;  
 }
@@ -182,7 +186,7 @@ void* setup_tcp_server (void *nothing) {
   };
 
   while (1) {
-    acc_sock = (int*) malloc (sizeof (int));
+    acc_sock = new int;
     
     /* accept a new connexion */
     acc_len = sizeof (struct sockaddr_in);

@@ -7,6 +7,10 @@
 /****************************************************************************/
 /* $Id$ 
  * $Log$
+ * Revision 1.6  2010/10/04 08:17:23  bdepardo
+ * Changed memory management from C to C++ (malloc/free -> new/delete)
+ * This corrects a bug at initialization
+ *
  * Revision 1.5  2010/03/31 21:15:40  bdepardo
  * Changed C headers into C++ headers
  *
@@ -109,11 +113,11 @@ void* setup_heartbeat_sender (void *nothing)
             (void *) &service);
           thread_mutex_unlock (&provided_mutex);
           hashtable_remove (beating_hash, (void *) p);
-          free (p);
+          delete p;
         }
       }
     } else {
-      free (p);
+      delete p;
     }
   }
 }

@@ -7,6 +7,10 @@
 /****************************************************************************/
 /* $Id$ 
  * $Log$
+ * Revision 1.5  2010/10/04 08:17:23  bdepardo
+ * Changed memory management from C to C++ (malloc/free -> new/delete)
+ * This corrects a bug at initialization
+ *
  * Revision 1.4  2010/03/31 21:15:40  bdepardo
  * Changed C headers into C++ headers
  *
@@ -28,7 +32,7 @@
 /* constructor */
 heap heap_new (int (*compare)(void*, void*))
 {
-	heap result = (heap) malloc (sizeof (heap));
+	heap result = new _heap;
 	result->compare = compare;
 	result->data = (void **) malloc (HEAP_MIN_SIZE * sizeof (void *));
 	result->nb_elements = 0;
@@ -40,7 +44,7 @@ heap heap_new (int (*compare)(void*, void*))
 void heap_destroy (heap h)
 {
 	free (h->data);
-	free (h);
+	delete h;
 }
 
 /* emptiness test */

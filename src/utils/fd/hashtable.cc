@@ -7,6 +7,10 @@
 /****************************************************************************/
 /* $Id$ 
  * $Log$
+ * Revision 1.6  2010/10/04 08:17:23  bdepardo
+ * Changed memory management from C to C++ (malloc/free -> new/delete)
+ * This corrects a bug at initialization
+ *
  * Revision 1.5  2010/03/31 21:15:40  bdepardo
  * Changed C headers into C++ headers
  *
@@ -31,7 +35,7 @@ hashtable hashtable_new (unsigned int (*hash)(void *),
 	unsigned int (*matches)(void *, void*))
 {
 	int i;
-	hashtable result = (hashtable) malloc (sizeof (hashtable));
+	hashtable result = new _hashtable;
 	result->hash = hash;
 	result->matches = matches;
 	result->data = (list*) malloc (HASHTABLE_SIZE * sizeof (list));
@@ -46,7 +50,7 @@ void hashtable_destroy (hashtable h)
 	int i;
 	for (i = 0; i < HASHTABLE_SIZE; ++i)
 		list_destroy (h->data[i]);
-	free (h);
+	delete h;
 }
 
 
@@ -86,7 +90,7 @@ void hashtable_remove (hashtable h, void* c)
 	/* special case 2 : searched element is at head */
 	current = list_tail (l);
 	if (h->matches (list_head (l), c)) {
-		free (l);
+		delete l;
 		h->data [key] = current;
 		return;
 	}
@@ -96,7 +100,7 @@ void hashtable_remove (hashtable h, void* c)
 	while (current != NULL) {
 		if (h->matches (list_head (current), c)) {
 			previous->tail = list_tail (current);
-			free (current);
+			delete current;
 			return;
 		} else {
 			previous = current;

@@ -7,6 +7,10 @@
 /****************************************************************************/
 /* $Id$ 
  * $Log$
+ * Revision 1.6  2010/10/04 08:17:23  bdepardo
+ * Changed memory management from C to C++ (malloc/free -> new/delete)
+ * This corrects a bug at initialization
+ *
  * Revision 1.5  2010/03/31 21:15:40  bdepardo
  * Changed C headers into C++ headers
  *
@@ -186,7 +190,7 @@ void fd_register_service (pid_t client, int service_number)
 {
   provided_service s, sp;
 
-  s = (provided_service) malloc (sizeof (provided_service));
+  s = new _provided_service;
   s->service_number = service_number;
   s->client = client;
   /* check the service is not already provided */
@@ -195,7 +199,7 @@ void fd_register_service (pid_t client, int service_number)
   if (sp == NULL) {
     hashtable_insert (provided_hash, s);
   } else {
-    free (s);
+    delete s;
   }
   thread_mutex_unlock (&provided_mutex);
 }
@@ -205,14 +209,14 @@ void fd_unregister_service (pid_t client, int service_number)
 {
   provided_service s, sp;
 
-  s = (provided_service) malloc (sizeof (provided_service));
+  s = new _provided_service;
   s->service_number = service_number;
   thread_mutex_lock (&provided_mutex);
   sp = (provided_service) hashtable_search (provided_hash, s);
   if ((sp != NULL) && (sp->client == client)) {
     hashtable_remove (provided_hash, sp);
-    free (sp);
+    delete sp;
   }
   thread_mutex_unlock (&provided_mutex);
-  free (s);
+  delete s;
 }
