@@ -7,6 +7,10 @@
 /****************************************************************************/
 /* $Id$ 
  * $Log$
+ * Revision 1.10  2010/10/05 03:17:13  bdepardo
+ * Send correct adress to observed process.
+ * Use constants for hostname size.
+ *
  * Revision 1.9  2010/10/04 09:56:03  bdepardo
  * Machine name was not initialized in fd_observe: directly use
  * handle->machine_name
@@ -240,8 +244,10 @@ int fd_observe (fd_handle handle)
   thread_mutex_unlock (&watched_mutex);
   /* connection */
   if (connect (sock, (struct sockaddr *) &addr, sizeof (addr)) != -1) {
+    char machine_name[MAX_HOSTNAME_SIZE];
+    gethostname(machine_name, MAX_HOSTNAME_SIZE);
     /* send request */
-    request_len = snprintf (buffer, sizeof (buffer), "OBSERVE %s %X %X %.9f", handle->machine_name, p->id, p->service_number, eta);
+    request_len = snprintf (buffer, sizeof (buffer), "OBSERVE %s %X %X %.9f", machine_name, p->id, p->service_number, eta);
     write (sock, buffer, request_len+1);
     /* force system to send data now */
     shutdown (sock, SHUT_WR);
