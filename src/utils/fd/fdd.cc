@@ -7,6 +7,9 @@
 /****************************************************************************/
 /* $Id$ 
  * $Log$
+ * Revision 1.7  2010/10/05 02:39:41  bdepardo
+ * Initialize global variables in fd_init() (called in init_library())
+ *
  * Revision 1.6  2010/10/04 08:17:23  bdepardo
  * Changed memory management from C to C++ (malloc/free -> new/delete)
  * This corrects a bug at initialization
@@ -52,16 +55,16 @@
 unsigned int next_watched_id = 0;  /* to give unique IDs */
 heap watched;    /* watched applications (we accept the heartbeats) */
 hashtable watched_hash;
-thread_mutex_t watched_mutex = THREAD_MUTEX_INITIALIZER;
-thread_cond_t new_watched_cond = THREAD_COND_INITIALIZER;
+thread_mutex_t watched_mutex = NULL;
+thread_cond_t new_watched_cond = NULL;
 
-thread_mutex_t provided_mutex = THREAD_MUTEX_INITIALIZER;
+thread_mutex_t provided_mutex = NULL;
 hashtable provided_hash;  /* all the services we provide */
 
 heap beating;    /* beating applications (we send the heartbeats) */
 hashtable beating_hash;
-thread_mutex_t beating_mutex = THREAD_MUTEX_INITIALIZER;
-thread_cond_t new_beating_cond = THREAD_COND_INITIALIZER;
+thread_mutex_t beating_mutex = NULL;
+thread_cond_t new_beating_cond = NULL;
 
 
 /* compares watches processes */
@@ -160,6 +163,14 @@ int launch_thread (void *(*f)(void *)) {
 
 /* initialisation */
 void fd_init(void) {
+  /* Init all global variables */
+  watched_mutex = THREAD_MUTEX_INITIALIZER;
+  new_watched_cond = THREAD_COND_INITIALIZER;
+  provided_mutex = THREAD_MUTEX_INITIALIZER;
+  beating_mutex = THREAD_MUTEX_INITIALIZER;
+  new_beating_cond = THREAD_COND_INITIALIZER;
+
+
   watched = heap_new (compare_watched_processes);
   watched_hash = hashtable_new (hash_watched_process,
     match_watched_processes);
