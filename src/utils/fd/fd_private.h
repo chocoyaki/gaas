@@ -7,6 +7,9 @@
 /****************************************************************************/
 /* $Id$ 
  * $Log$
+ * Revision 1.4  2010/10/05 03:14:55  bdepardo
+ * Define constants for hostname and buffer sizes
+ *
  * Revision 1.3  2006/06/20 13:29:16  abouteil
  *
  *
@@ -27,6 +30,9 @@
 
 #define fd_TCP_port 4000	/* for TCP communications */
 #define fd_UDP_port 4001	/* for UDP communications */
+
+const unsigned int MAX_HOSTNAME_SIZE = 1024;
+const unsigned int MAX_BUFFER_SIZE = 1084;
 
 /* prints out a human-readable message and exits with failure status */
 #define fatal_error(s) (perror(s),exit(-errno))
