@@ -7,6 +7,9 @@
 /****************************************************************************/
 /* $Id$ 
  * $Log$
+ * Revision 1.5  2010/10/05 03:32:29  bdepardo
+ * C++ headers
+ *
  * Revision 1.4  2010/10/05 03:14:55  bdepardo
  * Define constants for hostname and buffer sizes
  *
@@ -22,9 +25,9 @@
 #ifndef __FD_PRIVATE_H_
 #define __FD_PRIVATE_H_
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <unistd.h>
-#include <errno.h>
+#include <cerrno>
 
 #include "fd.h"
 
