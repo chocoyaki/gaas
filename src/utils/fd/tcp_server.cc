@@ -7,6 +7,10 @@
 /****************************************************************************/
 /* $Id$ 
  * $Log$
+ * Revision 1.8  2010/10/05 03:16:40  bdepardo
+ * Use hostname and buffer sizes constants.
+ * Loop until an available port is found.
+ *
  * Revision 1.7  2010/10/04 08:17:23  bdepardo
  * Changed memory management from C to C++ (malloc/free -> new/delete)
  * This corrects a bug at initialization
@@ -48,8 +52,8 @@ void* process_tcp_query (void* psock)
 {
   int acc_sock = *((int*) psock);
   int nbread;      /* nb of bytes read */
-  char buffer[1084];    /* communication buffer */
-  char machine_name[1024];
+  char buffer[MAX_BUFFER_SIZE];    /* communication buffer */
+  char machine_name[MAX_HOSTNAME_SIZE];
   struct hostent *ent;
 
   struct _provided_service serv;  
@@ -137,7 +141,7 @@ void* process_tcp_query (void* psock)
   } 
   /* close connexion */
   close (acc_sock);
-  delete psock;
+  delete (int*) psock;
   
   return NULL;  
 }
@@ -155,6 +159,8 @@ void* setup_tcp_server (void *nothing) {
 
   /* thread */
   thread_t pth;
+
+  int ppp = 1;
 
   /* socket creation */
   server_sock = socket (PF_INET, SOCK_STREAM, 0);
@@ -175,10 +181,15 @@ void* setup_tcp_server (void *nothing) {
   my_addr.sin_addr.s_addr = INADDR_ANY;
   
   /* bind the socket */
-  if (bind (server_sock, (struct sockaddr *) &my_addr,
+  while (bind (server_sock, (struct sockaddr *) &my_addr,
     sizeof (struct sockaddr)) == -1) {
-    fatal_error ("TCP bind");
+    my_addr.sin_port = htons(fd_TCP_port + ppp);
+    ++ ppp;
   };
+  // if (bind (server_sock, (struct sockaddr *) &my_addr,
+  //   sizeof (struct sockaddr)) == -1) {
+  //   fatal_error ("TCP bind");
+  // };
 
   /* get ready to accept */
   if (listen (server_sock, 128) == -1) {

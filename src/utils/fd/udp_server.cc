@@ -7,6 +7,10 @@
 /****************************************************************************/
 /* $Id$ 
  * $Log$
+ * Revision 1.7  2010/10/05 03:16:40  bdepardo
+ * Use hostname and buffer sizes constants.
+ * Loop until an available port is found.
+ *
  * Revision 1.6  2010/03/31 21:15:40  bdepardo
  * Changed C headers into C++ headers
  *
@@ -69,6 +73,8 @@ void* setup_udp_server (void *nothing) {
   int h_sock;
   struct sockaddr_in http_addr;
 
+  int ppp = 1;
+
   /* socket creation */
   server_sock = socket (PF_INET, SOCK_DGRAM, 0);
   if (server_sock == -1) {
@@ -88,10 +94,15 @@ void* setup_udp_server (void *nothing) {
   my_addr.sin_addr.s_addr = htonl (INADDR_ANY);
   
   /* bind the socket */
-  if (bind (server_sock, (struct sockaddr *) &my_addr,
+  while (bind (server_sock, (struct sockaddr *) &my_addr,
     sizeof (struct sockaddr)) == -1) {
-    fatal_error ("UDP bind");
-  };
+    my_addr.sin_port = htons(fd_UDP_port + ppp);
+    ++ ppp;
+  }
+  // if (bind (server_sock, (struct sockaddr *) &my_addr,
+  //   sizeof (struct sockaddr)) == -1) {
+  //   fatal_error ("UDP bind");
+  // };
 
   while (1) {
     client_address_length = sizeof (struct sockaddr);
@@ -178,6 +189,7 @@ void* setup_udp_server (void *nothing) {
             if (connect (h_sock, (struct sockaddr *)&http_addr,
               sizeof (http_addr)) != -1) {
               /* send request */
+	      printf("## Sending a new request \n");
               write (h_sock, h_buffer, h_request_len+1);
             }
             close (h_sock);
