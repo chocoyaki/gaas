@@ -7,6 +7,9 @@
 /****************************************************************************/
 /* $Id$ 
  * $Log$
+ * Revision 1.11  2010/10/05 03:24:14  bdepardo
+ * Constant for buffer size
+ *
  * Revision 1.10  2010/10/05 03:17:13  bdepardo
  * Send correct adress to observed process.
  * Use constants for hostname size.
@@ -188,7 +191,7 @@ int fd_observe (fd_handle handle)
 {
   watched_process p;
   struct timeval tv;
-  char buffer[1084];
+  char buffer[MAX_BUFFER_SIZE];
   int nb_read;
   int request_len;
   int sock;        /* socket for HTTP connection */
