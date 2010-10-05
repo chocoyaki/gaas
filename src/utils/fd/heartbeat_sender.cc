@@ -7,6 +7,9 @@
 /****************************************************************************/
 /* $Id$ 
  * $Log$
+ * Revision 1.7  2010/10/05 03:15:39  bdepardo
+ * Infinit loop rewriting
+ *
  * Revision 1.6  2010/10/04 08:17:23  bdepardo
  * Changed memory management from C to C++ (malloc/free -> new/delete)
  * This corrects a bug at initialization
@@ -67,7 +70,7 @@ void* setup_heartbeat_sender (void *nothing)
     fatal_error ("socket");
   };
   thread_mutex_lock (&beating_mutex);
-  while (1) {
+  for(;;) {
     if (heap_is_empty (beating)) {
       /* wait for a beating process to be added */
       thread_cond_wait (&new_beating_cond,

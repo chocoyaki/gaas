@@ -7,6 +7,9 @@
 /****************************************************************************/
 /* $Id$ 
  * $Log$
+ * Revision 1.5  2010/10/05 03:15:39  bdepardo
+ * Infinit loop rewriting
+ *
  * Revision 1.4  2010/03/31 21:15:40  bdepardo
  * Changed C headers into C++ headers
  *
@@ -32,9 +35,8 @@ void* setup_application_watcher (void *nothing)
 {
   watched_process p;
   struct timeval t;
-
   thread_mutex_lock (&watched_mutex);
-  while (1) {
+  for(;;) {
     if (heap_is_empty (watched)) {
       /* wait for a watched process to be added */
       thread_cond_wait (&new_watched_cond, &watched_mutex);
