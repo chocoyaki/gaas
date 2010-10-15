@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.38  2010/10/15 07:25:08  glemahec
+ * Correction. Needs more tests
+ *
  * Revision 1.37  2010/07/12 16:14:12  glemahec
  * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
  *
@@ -135,16 +138,19 @@ size_t DagdaImpl::getMemMaxSpace() {
 /* Write the data to a file. Can be done in several time. */
 /* CORBA */
 char* DagdaImpl::writeFile(const SeqChar& data, const char* basename,
-													 CORBA::Boolean replace) {
+						   CORBA::Boolean replace) {
   std::ofstream file;
-  std::string filename(getDataPath());
+  std::string filename;
+
+  filename = getDataPath();
   filename.append("/");
   filename.append(basename);
 	
-  if (replace)
+  if (replace) {
     file.open(filename.c_str());
-  else
+  } else {
     file.open(filename.c_str(), std::ios_base::app);
+  }
 	
   if (!file.is_open()) throw Dagda::WriteError(errno);
   file.write((const char*) data.get_buffer(), data.length());
@@ -275,7 +281,8 @@ char* DagdaImpl::recordData(const SeqChar& data,
   TRACE_TEXT(TRACE_ALL_STEPS, "\tRecord " << data.length() << " bytes for the data "
              << dataDesc.id.idNumber << endl);
   if (replace) {
-    (*getData())[dataId].value.length(data_sizeof(&dataDesc));
+	if ((*getData())[dataId].value.length()!=data_sizeof(&dataDesc))
+	  (*getData())[dataId].value.length(data_sizeof(&dataDesc));
   }
 	
   CORBA::Char* buffer = (*getData())[dataId].value.get_buffer(true);

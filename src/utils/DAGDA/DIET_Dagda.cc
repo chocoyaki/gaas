@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.31  2010/10/15 07:25:08  glemahec
+ * Correction. Needs more tests
+ *
  * Revision 1.30  2010/10/15 02:38:55  bdepardo
  * Bug correction in INOUT data
  *
@@ -212,8 +215,6 @@ void dagda_download_SeD_data(diet_profile_t* profile,
   size_t size;
   // Free the remote volatile data.
   for (int i=0; i<=pb->last_in; ++i) {
-    //    Dagda_var remoteManager =
-    //    Dagda::_narrow(ORBMgr::stringToObject(pb->parameters[i].desc.dataManager));
     Dagda_var remoteManager =
       ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT, string(pb->parameters[i].desc.dataManager));
     if (pb->parameters[i].desc.mode==DIET_VOLATILE)
@@ -222,50 +223,31 @@ void dagda_download_SeD_data(diet_profile_t* profile,
   // Downloads the INOUT data from the SeD to the client.
   for (int i=pb->last_in+1; i<=pb->last_inout; ++i) {
     // Get a reference to the data manager of the data.
-    //Dagda_var remoteManager =
-    //Dagda::_narrow(ORBMgr::stringToObject(pb->parameters[i].desc.dataManager));
     string remoteManagerName = string(pb->parameters[i].desc.dataManager);
     Dagda_var remoteManager =
       ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT, remoteManagerName);
 		
     // The data needs to be downloaded.
     inserted = dataManager->getData(pb->parameters[i].desc.id.idNumber);
-    size = inserted->value.length();
-    if (pb->parameters[i].desc.specific._d() != DIET_SCALAR ) {
-      CORBA::Char* value = inserted->value.get_buffer(true);
-      // Data downloading.
-      dataManager->lclAddData(remoteManagerName.c_str(), pb->parameters[i]);
+    string path(inserted->desc.specific.file().path);
+
+    dataManager->lclAddData(remoteManagerName.c_str(), pb->parameters[i]);
 				
-      // The files are transmitted separately.
-      if (pb->parameters[i].desc.specific._d() != DIET_FILE) {
-        // Optimisation necessaire. Voir cote serveur...
-        for (size_t j=0; j<size; ++j)
-          value[j]=inserted->value[j];
-        inserted->value.replace(size, size, value, 0);
-      } else {
-        // INOUT file: Remove the previous one.
-	char*  path = inserted->desc.specific.file().path;
-	size_t fileSize = inserted->desc.specific.file().size;
-        unlink(inserted->desc.specific.file().path);
-        rename(path, inserted->desc.specific.file().path);
-        inserted->desc.specific.file().path = path;
-        inserted->desc.specific.file().size = fileSize;
-      }
-      profile->parameters[i].value = inserted->value.get_buffer(true);
-    } else {
-      // Scalar data: The value is transmitted inside the profile.
-      for (size_t j=0; j<size; ++j)
-        inserted->value[j]=pb->parameters[i].value[j];
-      profile->parameters[i].value = inserted->value.get_buffer(true);
+    // The files are transmitted separately.
+    if (pb->parameters[i].desc.specific._d() == DIET_FILE) {      
+	  size_t fileSize = inserted->desc.specific.file().size;
+      unlink(path.c_str());
+      rename(inserted->desc.specific.file().path, path.c_str());
+      inserted->desc.specific.file().size = fileSize;
     }
+	// Give back the pointer to the client.
+	inserted->value.get_buffer(true);
     // Remove the remote volatile data
     if (pb->parameters[i].desc.mode==DIET_VOLATILE)
       remoteManager->lclRemData(pb->parameters[i].desc.id.idNumber);
   }
   // Download the OUT data.
   for (int i=pb->last_inout+1; i<=pb->last_out; ++i) {
-    //Dagda_var remoteManager =
-    //Dagda::_narrow(ORBMgr::stringToObject(pb->parameters[i].desc.dataManager));
     string remoteManagerName = string(pb->parameters[i].desc.dataManager);
     Dagda_var remoteManager =
       ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT, remoteManagerName);
@@ -273,7 +255,7 @@ void dagda_download_SeD_data(diet_profile_t* profile,
     if (pb->parameters[i].desc.mode != DIET_PERSISTENT &&
         pb->parameters[i].desc.mode != DIET_STICKY) {
       if (pb->parameters[i].desc.specific._d() != DIET_SCALAR ) {
-	dataManager->lclAddData(remoteManagerName.c_str(), pb->parameters[i]);
+		dataManager->lclAddData(remoteManagerName.c_str(), pb->parameters[i]);
         inserted = dataManager->getData(pb->parameters[i].desc.id.idNumber);
         size = inserted->value.length();
         unmrsh_data_desc(&profile->parameters[i].desc, &inserted->desc);
