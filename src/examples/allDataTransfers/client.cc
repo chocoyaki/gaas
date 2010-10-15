@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2010/10/15 07:07:45  bdepardo
+ * String service
+ *
  * Revision 1.1  2010/10/15 06:08:08  bdepardo
  * Client/Server to test all kinds of data transfers.
  * Each profile has 1 IN, 1 INOUT and 1 OUT all of the same type.
@@ -19,29 +22,29 @@
  *
  ****************************************************************************/
 
-#include <cmath>
-#include <cstring>
-#include <cstdlib>
 #include <iostream>
 
 #include "DIET_client.h"
 #include "progs.hh"
 
-#define print_condition 1
 
 const unsigned int SIZE = 3;
 
-#define NB_PB 6
+static const unsigned int NB_PB = 6;
 static const char* PB[NB_PB] =
   {"CADD", "BADD", "IADD", "LADD", "FADD", "DADD"};
 
-#define NB_PB_VECTOR 6
+static const unsigned int NB_PB_VECTOR = 6;
 static const char* PB_VECTOR[NB_PB_VECTOR] =
   {"CVADD", "BVADD", "IVADD", "LVADD", "FVADD", "DVADD"};
 
-#define NB_PB_MATRIX 6
+static const unsigned int NB_PB_MATRIX = 6;
 static const char* PB_MATRIX[NB_PB_MATRIX] =
   {"CMADD", "BMADD", "IMADD", "LMADD", "FMADD", "DMADD"};
+
+static const unsigned int NB_PB_STRING = 1;
+static const char* PB_STRING[NB_PB_STRING] =
+  {"SPRINT"};
 
 
 /* argv[1]: client config file path */
@@ -702,6 +705,59 @@ main(int argc, char* argv[]) {
 
 
 
+  /**
+   * String types
+   */
+  std::cout << "######################################################################" << std::endl;
+  std::cout << "#                              STRING                                #" << std::endl;
+  std::cout << "######################################################################" << std::endl;
+
+  char *s1;
+  char *s2;
+  char *s3;
+
+  s1 = (char *) malloc(sizeof(char) * (SIZE + 1));
+  s2 = (char *) malloc(sizeof(char) * (SIZE + 1));
+  for (i = 0; i < SIZE; ++ i) {
+    s1[i] = 'a';
+    s2[i] = 'b';
+  }
+  s1[SIZE] = '\0';
+  s2[SIZE] = '\0';
+
+  /* Characters: no choice it has to be DIET_CHAR */
+  std::cout << "#### Characters" << std::endl;
+  profile = diet_profile_alloc(PB_STRING[0], 0, 1, 2);
+
+  diet_string_set(diet_parameter(profile,0), s1, DIET_VOLATILE);
+  std::cout << "s1: " << s1 << std::endl;
+  diet_string_set(diet_parameter(profile,1), s2, DIET_VOLATILE);
+  std::cout << "s2 (before call): " << s2 << std::endl;
+  diet_string_set(diet_parameter(profile,2), NULL, DIET_VOLATILE);
+
+  if (!diet_call(profile)) {
+    diet_string_get(diet_parameter(profile, 2), &s3, NULL);
+    std::cout << "s2 (after call): " << s2 << std::endl;
+    std::cout << "s3:" << s3 << std::endl;
+    diet_free_data(diet_parameter(profile, 1));
+    diet_free_data(diet_parameter(profile, 2));
+    free(s3);
+  } else {
+    std::cerr << "diet_call has returned with an error code on " << PB_STRING[0] << "!" << std::endl;
+    error = error | (1<<errorPos);
+  }
+  ++ errorPos;
+  diet_profile_free(profile);
+  free(s1);
+  free(s2);
+
+  std::cout << "######################################################################" << std::endl;
+  std::cout << "#                             \\STRING                                #" << std::endl;
+  std::cout << "######################################################################" << std::endl;
+
+
+
+
   /* End DIET */
   diet_finalize();
 
@@ -722,6 +778,10 @@ main(int argc, char* argv[]) {
   for (i = 0; i < NB_PB_MATRIX; ++ i) {
     if (error & (1 << (i + NB_PB + NB_PB_VECTOR)))
       std::cout << "## Matrix: error in problem " << PB_MATRIX[i] << std::endl;
+  }
+  for (i = 0; i < NB_PB_STRING; ++ i) {
+    if (error & (1 << (i + NB_PB + NB_PB_VECTOR + NB_PB_STRING)))
+      std::cout << "## String: error in problem " << PB_STRING[i] << std::endl;
   }
   std::cout << "######################################################################" << std::endl;
   std::cout << "#                             \\ERRORS                                #" << std::endl;

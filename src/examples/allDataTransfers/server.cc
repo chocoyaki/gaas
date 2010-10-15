@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2010/10/15 07:07:45  bdepardo
+ * String service
+ *
  * Revision 1.1  2010/10/15 06:08:08  bdepardo
  * Client/Server to test all kinds of data transfers.
  * Each profile has 1 IN, 1 INOUT and 1 OUT all of the same type.
@@ -21,10 +24,12 @@
 
 
 #include <iostream>
-#include <cstring>
 
 #include "DIET_server.h"
 #include "progs.hh"
+
+static const unsigned int STRING_SIZE = 27;
+static const char *STRING_TEST = "abcdefghijklmnopqrstuvwxyz";
 
 /* This server offers all additions of two scalars:                  */
 /*   - CADD = sum of two chars                                       */
@@ -33,7 +38,7 @@
 /*   - LADD = sum of two longs                                       */
 /*   - FADD = sum of two floats                                      */
 /*   - DADD = sum of two doubles                                     */
-#define NB_SRV_SCALAR 6
+static const unsigned int NB_SRV_SCALAR = 6;
 static const char* SRV_SCALAR[NB_SRV_SCALAR] =
   {"CADD", "BADD", "IADD", "LADD", "FADD", "DADD"};
 
@@ -44,7 +49,7 @@ static const char* SRV_SCALAR[NB_SRV_SCALAR] =
 /*   - LVADD = sum of two longs                                      */
 /*   - FVADD = sum of two floats                                     */
 /*   - DVADD = sum of two doubles                                    */
-#define NB_SRV_VECTOR 6
+static const unsigned int NB_SRV_VECTOR = 6;
 static const char* SRV_VECTOR[NB_SRV_VECTOR] =
   {"CVADD", "BVADD", "IVADD", "LVADD", "FVADD", "DVADD"};
 
@@ -55,10 +60,16 @@ static const char* SRV_VECTOR[NB_SRV_VECTOR] =
 /*   - LMADD = sum of two longs                                      */
 /*   - FMADD = sum of two floats                                     */
 /*   - DMADD = sum of two doubles                                    */
-#define NB_SRV_MATRIX 6
+static const unsigned int NB_SRV_MATRIX = 6;
 static const char* SRV_MATRIX[NB_SRV_MATRIX] =
   {"CMADD", "BMADD", "IMADD", "LMADD", "FMADD", "DMADD"};
 
+
+
+/* This server offers a service to print strings */
+static const unsigned int NB_SRV_STRING = 1;
+static const char* SRV_STRING[NB_SRV_SCALAR] =
+  {"SPRINT"};
 
 /*
  * Scalar solve function
@@ -323,6 +334,43 @@ solve_MADD(diet_profile_t* pb) {
 
 
 
+/*
+ * String solve function
+ */
+int
+solve_SPRINT(diet_profile_t* pb) {
+  int res = 0;
+  char* s1 = NULL;
+  char* s2 = NULL;
+  char* s3 = NULL;
+  char* stmp = NULL;
+  std::cout << "Solve SPRINT ..." << std::endl;
+
+  /* Get data */
+  diet_string_get(diet_parameter(pb, 0), &s1, NULL);
+  diet_string_get(diet_parameter(pb, 1), &s2, NULL);
+  diet_string_get(diet_parameter(pb, 2), &s3, NULL);
+
+  s3 = strdup(STRING_TEST);
+
+  /* print */
+  std::cout << "s1: " << s1 << std::endl;
+  std::cout << "s2: " << s2 << std::endl;
+  for (unsigned int i = 0; i < strlen(s2); ++ i)
+    s2[i] = 'c';
+  std::cout << "s2: " << s2 << std::endl;
+  std::cout << "s3: " << s3 << std::endl;
+  diet_string_set(diet_parameter(pb, 1), s2, DIET_VOLATILE);
+  diet_string_set(diet_parameter(pb, 2), s3, DIET_VOLATILE);
+
+  diet_free_data(diet_parameter(pb,0));
+
+  std::cout << "Solve SPRINT ... done" << std::endl;
+  return res;
+}
+
+
+
 
 int
 usage(char* cmd) {
@@ -398,6 +446,24 @@ main(int argc, char* argv[]) {
 			  DIET_MATRIX, (diet_base_type_t)i);
  
     if (diet_service_table_add(profile, NULL, solve_MADD))
+      return 1;
+    diet_profile_desc_free(profile);
+  }
+
+
+  /**
+   * String types
+   */
+  for (i = 0; i < NB_SRV_STRING; i++) {
+    profile = diet_profile_desc_alloc(SRV_STRING[i], 0, 1, 2);
+    diet_generic_desc_set(diet_param_desc(profile,0),
+			  DIET_STRING, DIET_CHAR);
+    diet_generic_desc_set(diet_param_desc(profile,1), 
+			  DIET_STRING, DIET_CHAR);
+    diet_generic_desc_set(diet_param_desc(profile,2), 
+			  DIET_STRING, DIET_CHAR);
+ 
+    if (diet_service_table_add(profile, NULL, solve_SPRINT))
       return 1;
     diet_profile_desc_free(profile);
   }
