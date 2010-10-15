@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.30  2010/10/15 02:38:55  bdepardo
+ * Bug correction in INOUT data
+ *
  * Revision 1.29  2010/08/04 09:06:20  glemahec
  * Parallel compilation
  *
@@ -74,7 +77,7 @@ public:
 		
     gethostname(host, 256);
     host[255]='\0';
-	  hostname = CORBA::string_dup(host);
+    hostname = CORBA::string_dup(host);
     logComponent=NULL;
   }
   ~DagdaImpl();
@@ -271,9 +274,9 @@ public:
   virtual void remData(const char* dataID) = 0;
   virtual SeqCorbaDataDesc_t* getDataDescList() = 0;
   virtual int init(const char* ID, const char* parentID,
-									 const char* dataPath, const unsigned long maxMsgSize,
-									 const unsigned long diskMaxSpace,
-									 const unsigned long memMaxSpace) = 0;
+		   const char* dataPath, const unsigned long maxMsgSize,
+		   const unsigned long diskMaxSpace,
+		   const unsigned long memMaxSpace) = 0;
 	
   // Accessors.
   void setDataPath(const char* path);
@@ -288,23 +291,23 @@ public:
   size_t getUsedMemSpace() { return usedMemSpace; }
   void useDiskSpace(size_t size) {
     usedDiskSpaceMutex.lock();
-		usedDiskSpace += size;
-		usedDiskSpaceMutex.unlock();
+    usedDiskSpace += size;
+    usedDiskSpaceMutex.unlock();
   }
   void useMemSpace(size_t size) {
     usedMemSpaceMutex.lock();
     usedMemSpace += size;
-		usedMemSpaceMutex.unlock();
+    usedMemSpaceMutex.unlock();
   }
   void freeDiskSpace(size_t size) {
     usedDiskSpaceMutex.lock();
     usedDiskSpace -= size; // FIXME maybe check if not going below 0
-		usedDiskSpaceMutex.unlock();
+    usedDiskSpaceMutex.unlock();
   }
   void freeMemSpace(size_t size) {
     usedMemSpaceMutex.lock();
     usedMemSpace -= size;
-		usedMemSpaceMutex.unlock();
+    usedMemSpaceMutex.unlock();
   }
   std::map<std::string, Dagda_ptr>* getChildren() { return &children; }
   std::map<std::string, corba_data_t>* getData() { return &data; }
@@ -325,8 +328,8 @@ protected:
   DataRelationMgr* getContainerRelationMgr() { return containerRelationMgr; }
 private:
   size_t make_corba_data(corba_data_t& data, diet_data_type_t type,
-												 diet_base_type_t base_type, diet_persistence_mode_t mode,
-												 size_t nb_r, size_t nb_c, diet_matrix_order_t order, void* value, char* path);
+			 diet_base_type_t base_type, diet_persistence_mode_t mode,
+			 size_t nb_r, size_t nb_c, diet_matrix_order_t order, void* value, char* path);
   int writeDataDesc(corba_data_t& data, std::ofstream& file);
   int writeData(corba_data_t& data, std::ofstream& file);
   int readData(corba_data_t& data, std::ifstream& file);
@@ -401,11 +404,11 @@ public:
   virtual void pfmUpdateData(const char* src, const corba_data_t& data);
 	
   virtual void lclReplicate(const char* dataID, CORBA::Long target,
-														const char* pattern, bool replace);
+			    const char* pattern, bool replace);
   virtual void lvlReplicate(const char* dataID, CORBA::Long target,
-														const char* pattern, bool replace);
+			    const char* pattern, bool replace);
   virtual void pfmReplicate(const char* dataID, CORBA::Long target,
-														const char* pattern, bool replace);
+			    const char* pattern, bool replace);
 	
   virtual SeqCorbaDataDesc_t* lclGetDataDescList();
   virtual SeqCorbaDataDesc_t* lvlGetDataDescList();
