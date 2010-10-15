@@ -1,0 +1,731 @@
+/****************************************************************************/
+/* DIET all data transfers example: a client for transfering all data types */
+/*                                                                          */
+/*  Author(s):                                                              */
+/*    - Benjamin Depardon (Benjamin.Depardon@ens-lyon.fr)                   */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+/* $Id$
+ * $Log$
+ * Revision 1.1  2010/10/15 06:08:08  bdepardo
+ * Client/Server to test all kinds of data transfers.
+ * Each profile has 1 IN, 1 INOUT and 1 OUT all of the same type.
+ * Currently are implemented:
+ * - base types:
+ *   DIET_CHAR, DIET_SHORT, DIET_INT, DIET_LONGINT, DIET_FLOAT and DIET_DOUBLE
+ * - data types:
+ *   DIET_SCALAR, DIET_VECTOR and DIET_MATRIX
+ *
+ ****************************************************************************/
+
+#include <cmath>
+#include <cstring>
+#include <cstdlib>
+#include <iostream>
+
+#include "DIET_client.h"
+#include "progs.hh"
+
+#define print_condition 1
+
+const unsigned int SIZE = 3;
+
+#define NB_PB 6
+static const char* PB[NB_PB] =
+  {"CADD", "BADD", "IADD", "LADD", "FADD", "DADD"};
+
+#define NB_PB_VECTOR 6
+static const char* PB_VECTOR[NB_PB_VECTOR] =
+  {"CVADD", "BVADD", "IVADD", "LVADD", "FVADD", "DVADD"};
+
+#define NB_PB_MATRIX 6
+static const char* PB_MATRIX[NB_PB_MATRIX] =
+  {"CMADD", "BMADD", "IMADD", "LMADD", "FMADD", "DMADD"};
+
+
+/* argv[1]: client config file path */
+
+void
+usage(char* cmd) {
+  std::cerr << "Usage: " << cmd << " <file.cfg>" << std::endl;
+  exit(1);
+}
+
+int
+main(int argc, char* argv[]) {
+  unsigned int i;
+  unsigned int errorPos = 0;
+  diet_profile_t* profile = NULL;
+  int error = 0;
+
+  if (argc != 2) {
+    usage(argv[0]);
+  }
+
+  /* Initialize DIET */
+  if (diet_initialize(argv[1], argc, argv)) {
+    std::cerr << "DIET initialization failed !" << std::endl;
+    return 1;
+  }
+
+  /**
+   * Scalar types
+   */
+  /* Use the long type for all "integer" types. */
+  long     l1 = 0;
+  long     l2 = 0;
+  long*   pl3 = NULL;
+  /* It is not possible to apply this rule for floating types ... */
+  float    f1 = 0.0;
+  float    f2 = 0.0;
+  float*  pf3 = NULL;
+  double   d1 = 0.0;
+  double   d2 = 0.0;
+  double* pd3 = NULL;
+
+  std::cout << "######################################################################" << std::endl;
+  std::cout << "#                            SCALARS                                 #" << std::endl;
+  std::cout << "######################################################################" << std::endl;
+  /* Characters */
+  l1 = (char) 0x1;
+  l2 = (char) 0x2;
+  std::cout << "#### Characters" << std::endl;
+  std::cout << "Before the call: l1=" << (char) l1 << ", l2=" << (char)l2 << std::endl;
+  profile = diet_profile_alloc(PB[0], 0, 1, 2);
+  diet_scalar_set(diet_parameter(profile,0), &l1,  DIET_VOLATILE, DIET_CHAR);
+  diet_scalar_set(diet_parameter(profile,1), &l2,  DIET_VOLATILE, DIET_CHAR);
+  diet_scalar_set(diet_parameter(profile,2), NULL, DIET_VOLATILE, DIET_CHAR);
+  if (!diet_call(profile)) {
+    diet_scalar_get(diet_parameter(profile,2), &pl3, NULL);
+    std::cout << "After the call: l1=" << (long) l1 << ", l2=" << (long)l2
+	      << ", l3=" << (long)*pl3 << std::endl;
+  } else {
+    std::cerr << "diet_call has returned with an error code on " << PB[0] << "!" << std::endl;
+    error = error | (1<<errorPos);
+  }
+  ++ errorPos;
+  diet_profile_free(profile);
+
+
+  /* Short */
+  l1 = (short) 0x11;
+  l2 = (short) 0x22;
+  std::cout << "#### Shorts" << std::endl;
+  std::cout << "Before the call: l1=" << (short) l1 << ", l2=" << (short)l2 << std::endl;
+  profile = diet_profile_alloc(PB[1], 0, 1, 2);
+  diet_scalar_set(diet_parameter(profile,0), &l1,  DIET_VOLATILE, DIET_SHORT);
+  diet_scalar_set(diet_parameter(profile,1), &l2,  DIET_VOLATILE, DIET_SHORT);
+  diet_scalar_set(diet_parameter(profile,2), NULL, DIET_VOLATILE, DIET_SHORT);
+  if (!diet_call(profile)) {
+    diet_scalar_get(diet_parameter(profile,2), &pl3, NULL);
+    std::cout << "After the call: l1=" << (long) l1 << ", l2=" << (long)l2
+	      << ", l3=" << (long)*pl3 << std::endl;
+  } else {
+    std::cerr << "diet_call has returned with an error code on " << PB[1] << "!" << std::endl;
+    error = error | (1<<errorPos);
+  }
+  ++ errorPos;
+  diet_profile_free(profile);
+
+  /* Integer */
+  l1 = (int) 0x1111;
+  l2 = (int) 0x2222;
+  std::cout << "#### Integers" << std::endl;
+  std::cout << "Before the call: l1=" << (int) l1 << ", l2=" << (int)l2 << std::endl;
+  profile = diet_profile_alloc(PB[2], 0, 1, 2);
+  diet_scalar_set(diet_parameter(profile,0), &l1,  DIET_VOLATILE, DIET_INT);
+  diet_scalar_set(diet_parameter(profile,1), &l2,  DIET_VOLATILE, DIET_INT);
+  diet_scalar_set(diet_parameter(profile,2), NULL, DIET_VOLATILE, DIET_INT);
+  if (!diet_call(profile)) {
+    diet_scalar_get(diet_parameter(profile,2), &pl3, NULL);
+    std::cout << "After the call: l1=" << (long) l1 << ", l2=" << (long)l2
+	      << ", l3=" << (long)*pl3 << std::endl;
+  } else {
+    std::cerr << "diet_call has returned with an error code on " << PB[2] << "!" << std::endl;
+    error = error | (1<<errorPos);
+  }
+  ++ errorPos;
+  diet_profile_free(profile);
+
+
+  /* Long */
+  l1 = 0x11111111;
+  l2 = 0x22222222;
+  std::cout << "#### Longs" << std::endl;
+  std::cout << "Before the call: l1=" << (long) l1 << ", l2=" << (long)l2 << std::endl;
+  profile = diet_profile_alloc(PB[3], 0, 1, 2);
+  diet_scalar_set(diet_parameter(profile,0), &l1,  DIET_VOLATILE, DIET_LONGINT);
+  diet_scalar_set(diet_parameter(profile,1), &l2,  DIET_VOLATILE, DIET_LONGINT);
+  diet_scalar_set(diet_parameter(profile,2), NULL, DIET_VOLATILE, DIET_LONGINT);
+  if (!diet_call(profile)) {
+    diet_scalar_get(diet_parameter(profile,2), &pl3, NULL);
+    std::cout << "After the call: l1=" << (long) l1 << ", l2=" << (long)l2
+	      << ", l3=" << (long)*pl3 << std::endl;
+  } else {
+    std::cerr << "diet_call has returned with an error code on " << PB[3] << "!" << std::endl;
+    error = error | (1<<errorPos);
+  }
+  ++ errorPos;
+  diet_profile_free(profile);
+
+  /* Float */
+  f1 = 1.1e38;
+  f2 = 2.2e38;
+  std::cout << "#### Floats" << std::endl;
+  std::cout << "Before the call: f1=" << f1 << ", f2=" << f2 << std::endl;
+  profile = diet_profile_alloc(PB[4], 0, 1, 2);
+  diet_scalar_set(diet_parameter(profile,0), &f1,  DIET_VOLATILE, DIET_FLOAT);
+  diet_scalar_set(diet_parameter(profile,1), &f2,  DIET_VOLATILE, DIET_FLOAT);
+  diet_scalar_set(diet_parameter(profile,2), NULL, DIET_VOLATILE, DIET_FLOAT);
+  if (!diet_call(profile)) {
+    diet_scalar_get(diet_parameter(profile,2), &pf3, NULL);
+    std::cout << "After the call: f1=" << (float) f1 << ", f2=" << (float)f2
+	      << ", f3=" << (float)*pf3 << std::endl;
+  } else {
+    std::cerr << "diet_call has returned with an error code on " << PB[4] << "!" << std::endl;
+    error = error | (1<<errorPos);
+  }
+  ++ errorPos;
+  diet_profile_free(profile);
+
+  /* Double */
+  d1 = 1.1e307;
+  d2 = 2.2e307;
+  std::cout << "#### Doubles" << std::endl;
+  std::cout << "Before the call: d1=" << d1 << ", d2=" << d2 << std::endl;
+  profile = diet_profile_alloc(PB[5], 0, 1, 2);
+  diet_scalar_set(diet_parameter(profile,0), &d1,  DIET_VOLATILE, DIET_DOUBLE);
+  diet_scalar_set(diet_parameter(profile,1), &d2,  DIET_VOLATILE, DIET_DOUBLE);
+  diet_scalar_set(diet_parameter(profile,2), NULL, DIET_VOLATILE, DIET_DOUBLE);    
+  if (!diet_call(profile)) {
+    diet_scalar_get(diet_parameter(profile,2), &pd3, NULL);
+    std::cout << "After the call: d1=" << (float) d1 << ", l2=" << (double)d2
+	      << ", l3=" << (double)*pd3 << std::endl;
+  } else {
+    std::cerr << "diet_call has returned with an error code on " << PB[5] << "!" << std::endl;
+    error = error | (1<<errorPos);
+  }
+  ++ errorPos;
+  diet_profile_free(profile);
+  std::cout << "######################################################################" << std::endl;
+  std::cout << "#                            \\SCALARS                                #" << std::endl;
+  std::cout << "######################################################################" << std::endl;
+  
+
+
+
+
+  /**
+   * Vector types
+   */
+  size_t n = SIZE;
+  void *A = NULL;
+  void *B = NULL;
+  void *C = NULL;
+  std::cout << "######################################################################" << std::endl;
+  std::cout << "#                            VECTORS                                 #" << std::endl;
+  std::cout << "######################################################################" << std::endl;
+
+  /* Use the long type for all "integer" types. */
+  A = (long *) malloc(sizeof(long) * SIZE);
+  B = (long *) malloc(sizeof(long) * SIZE);
+  for (i = 0; i < SIZE; ++ i) {
+    ((long *)A)[i] = i;
+    ((long *)B)[i] = i + SIZE;
+  }
+
+  /* Characters */
+  std::cout << "#### Characters" << std::endl;
+  profile = diet_profile_alloc(PB_VECTOR[0], 0, 1, 2);
+
+  diet_vector_set(diet_parameter(profile,0),
+		  (long *) A, DIET_VOLATILE, DIET_CHAR, n);
+  std::cout << "A:" << std::endl;
+  printVector((long *)A, n);
+  diet_vector_set(diet_parameter(profile,1),
+		  (long *) B, DIET_VOLATILE, DIET_CHAR, n);
+  std::cout << "B (before call):" << std::endl;
+  printVector((long *)B, n);
+  diet_vector_set(diet_parameter(profile,2),
+		  NULL, DIET_VOLATILE, DIET_CHAR, n);
+
+  if (!diet_call(profile)) {
+    diet_vector_get(diet_parameter(profile, 2), (long **) &C, NULL, &n);
+    std::cout << "B (after call):" << std::endl;
+    printVector((long *)B, n);
+    std::cout << "C:" << std::endl;
+    printVector((long *)C, n);
+    diet_free_data(diet_parameter(profile, 1));
+    diet_free_data(diet_parameter(profile, 2));
+    free(C);
+  } else {
+    std::cerr << "diet_call has returned with an error code on " << PB_VECTOR[0] << "!" << std::endl;
+    error = error | (1<<errorPos);
+  }
+  ++ errorPos;
+  diet_profile_free(profile);
+
+  /* Short */
+  for (i = 0; i < SIZE; ++ i) {
+    ((long *)B)[i] = i + SIZE;
+  }
+  std::cout << "#### Shorts" << std::endl;
+  profile = diet_profile_alloc(PB_VECTOR[1], 0, 1, 2);
+
+  diet_vector_set(diet_parameter(profile,0),
+		  (long *) A, DIET_VOLATILE, DIET_SHORT, n);
+  std::cout << "A:" << std::endl;
+  printVector((long *)A, n);
+  diet_vector_set(diet_parameter(profile,1),
+		  (long *) B, DIET_VOLATILE, DIET_SHORT, n);
+  std::cout << "B (before call):" << std::endl;
+  printVector((long *)B, n);
+  diet_vector_set(diet_parameter(profile,2),
+		  NULL, DIET_VOLATILE, DIET_SHORT, n);
+
+  if (!diet_call(profile)) {
+    diet_vector_get(diet_parameter(profile, 2), (long **) &C, NULL, &n);
+    std::cout << "B (after call):" << std::endl;
+    printVector((long *)B, n);
+    std::cout << "C:" << std::endl;
+    printVector((long *)C, n);
+    diet_free_data(diet_parameter(profile, 1));
+    diet_free_data(diet_parameter(profile, 2));
+    free(C);
+  } else {
+    std::cerr << "diet_call has returned with an error code on " << PB_VECTOR[1] << "!" << std::endl;
+    error = error | (1<<errorPos);
+  }
+  ++ errorPos;
+  diet_profile_free(profile);
+
+  /* Integer */
+  for (i = 0; i < SIZE; ++ i) {
+    ((long *)B)[i] = i + SIZE;
+  }
+  std::cout << "#### Integers" << std::endl;
+  profile = diet_profile_alloc(PB_VECTOR[2], 0, 1, 2);
+
+  diet_vector_set(diet_parameter(profile,0),
+		  (long *) A, DIET_VOLATILE, DIET_INT, n);
+  std::cout << "A:" << std::endl;
+  printVector((long *)A, n);
+  diet_vector_set(diet_parameter(profile,1),
+		  (long *) B, DIET_VOLATILE, DIET_INT, n);
+  std::cout << "B (before call):" << std::endl;
+  printVector((long *)B, n);
+  diet_vector_set(diet_parameter(profile,2),
+		  NULL, DIET_VOLATILE, DIET_INT, n);
+
+  if (!diet_call(profile)) {
+    diet_vector_get(diet_parameter(profile, 2), (long **) &C, NULL, &n);
+    std::cout << "B (after call):" << std::endl;
+    printVector((long *)B, n);
+    std::cout << "C:" << std::endl;
+    printVector((long *)C, n);
+    diet_free_data(diet_parameter(profile, 1));
+    diet_free_data(diet_parameter(profile, 2));
+    free(C);
+  } else {
+    std::cerr << "diet_call has returned with an error code on " << PB_VECTOR[2] << "!" << std::endl;
+    error = error | (1<<errorPos);
+  }
+  ++ errorPos;
+  diet_profile_free(profile);
+
+  /* Long */
+  for (i = 0; i < SIZE; ++ i) {
+    ((long *)B)[i] = i + SIZE;
+  }
+  std::cout << "#### Long" << std::endl;
+  profile = diet_profile_alloc(PB_VECTOR[3], 0, 1, 2);
+
+  diet_vector_set(diet_parameter(profile,0),
+		  (long *) A, DIET_VOLATILE, DIET_LONGINT, n);
+  std::cout << "A:" << std::endl;
+  printVector((long *)A, n);
+  diet_vector_set(diet_parameter(profile,1),
+		  (long *) B, DIET_VOLATILE, DIET_LONGINT, n);
+  std::cout << "B (before call):" << std::endl;
+  printVector((long *)B, n);
+  diet_vector_set(diet_parameter(profile,2),
+		  NULL, DIET_VOLATILE, DIET_LONGINT, n);
+
+  if (!diet_call(profile)) {
+    diet_vector_get(diet_parameter(profile, 2), (long **) &C, NULL, &n);
+    std::cout << "B (after call):" << std::endl;
+    printVector((long *)B, n);
+    std::cout << "C:" << std::endl;
+    printVector((long *)C, n);
+    diet_free_data(diet_parameter(profile, 1));
+    diet_free_data(diet_parameter(profile, 2));
+    free(C);
+  } else {
+    std::cerr << "diet_call has returned with an error code on " << PB_VECTOR[3] << "!" << std::endl;
+    error = error | (1<<errorPos);
+  }
+  ++ errorPos;
+  diet_profile_free(profile);
+  free(A);
+  free(B);
+
+  /* Float */
+  A = (float *) malloc(sizeof(float) * SIZE);
+  B = (float *) malloc(sizeof(float) * SIZE);
+  for (i = 0; i < SIZE; ++ i) {
+    ((float *)A)[i] = i * 2.0;
+    ((float *)B)[i] = (i + SIZE) * 2.0;
+  }
+  std::cout << "#### Floats" << std::endl;
+  profile = diet_profile_alloc(PB_VECTOR[4], 0, 1, 2);
+
+  diet_vector_set(diet_parameter(profile,0),
+		  (float *) A, DIET_VOLATILE, DIET_FLOAT, n);
+  std::cout << "A:" << std::endl;
+  printVector((float *)A, n);
+  diet_vector_set(diet_parameter(profile,1),
+		  (float *) B, DIET_VOLATILE, DIET_FLOAT, n);
+  std::cout << "B (before call):" << std::endl;
+  printVector((float *)B, n);
+  diet_vector_set(diet_parameter(profile,2),
+		  NULL, DIET_VOLATILE, DIET_FLOAT, n);
+
+  if (!diet_call(profile)) {
+    diet_vector_get(diet_parameter(profile, 2), (float **) &C, NULL, &n);
+    std::cout << "B (after call):" << std::endl;
+    printVector((float *)B, n);
+    std::cout << "C:" << std::endl;
+    printVector((float *)C, n);
+    diet_free_data(diet_parameter(profile, 1));
+    diet_free_data(diet_parameter(profile, 2));
+    free(C);
+  } else {
+    std::cerr << "diet_call has returned with an error code on " << PB_VECTOR[4] << "!" << std::endl;
+    error = error | (1<<errorPos);
+  }
+  ++ errorPos;
+  diet_profile_free(profile);
+  free(A);
+  free(B);
+
+  /* Double */
+  A = (double *) malloc(sizeof(double) * SIZE);
+  B = (double *) malloc(sizeof(double) * SIZE);
+  for (i = 0; i < SIZE; ++ i) {
+    ((double *)A)[i] = i * 2.0;
+    ((double *)B)[i] = (i + SIZE) * 2.0;
+  }
+  std::cout << "#### Doubles" << std::endl;
+  profile = diet_profile_alloc(PB_VECTOR[5], 0, 1, 2);
+
+  diet_vector_set(diet_parameter(profile,0),
+		  (double *) A, DIET_VOLATILE, DIET_DOUBLE, n);
+  std::cout << "A:" << std::endl;
+  printVector((double *)A, n);
+  diet_vector_set(diet_parameter(profile,1),
+		  (double *) B, DIET_VOLATILE, DIET_DOUBLE, n);
+  std::cout << "B (before call):" << std::endl;
+  printVector((double *)B, n);
+  diet_vector_set(diet_parameter(profile,2),
+		  NULL, DIET_VOLATILE, DIET_DOUBLE, n);
+
+  if (!diet_call(profile)) {
+    diet_vector_get(diet_parameter(profile, 2), (double **) &C, NULL, &n);
+    std::cout << "B (after call):" << std::endl;
+    printVector((double *)B, n);
+    std::cout << "C:" << std::endl;
+    printVector((double *)C, n);
+    diet_free_data(diet_parameter(profile, 1));
+    diet_free_data(diet_parameter(profile, 2));
+    free(C);
+  } else {
+    std::cerr << "diet_call has returned with an error code on " << PB_VECTOR[5] << "!" << std::endl;
+    error = error | (1<<errorPos);
+  }
+  ++ errorPos;
+  diet_profile_free(profile);
+  free(A);
+  free(B);
+
+  std::cout << "######################################################################" << std::endl;
+  std::cout << "#                            \\VECTORS                                #" << std::endl;
+  std::cout << "######################################################################" << std::endl;
+
+
+
+
+
+  /**
+   * Matrix types
+   */
+  size_t m = SIZE;
+  diet_matrix_order_t oA, oB, oC;
+  std::cout << "######################################################################" << std::endl;
+  std::cout << "#                            MATRICES                                #" << std::endl;
+  std::cout << "######################################################################" << std::endl;
+  oA = DIET_ROW_MAJOR;
+  oB = DIET_ROW_MAJOR;
+  oC = DIET_ROW_MAJOR;
+
+
+
+  /* Use the long type for all "integer" types. */
+  A = (long *) malloc(sizeof(long) * SIZE * SIZE);
+  B = (long *) malloc(sizeof(long) * SIZE * SIZE);
+  for (i = 0; i < SIZE * SIZE; ++ i) {
+    ((long *)A)[i] = i;
+    ((long *)B)[i] = i + SIZE;
+  }
+
+  /* Characters */
+  std::cout << "#### Characters" << std::endl;
+  profile = diet_profile_alloc(PB_MATRIX[0], 0, 1, 2);
+
+  diet_matrix_set(diet_parameter(profile,0),
+		  (long *) A, DIET_VOLATILE, DIET_CHAR, m, n, oA);
+  std::cout << "A:" << std::endl;
+  printMatrix((long *)A, m, n, (oA == DIET_ROW_MAJOR));
+  diet_matrix_set(diet_parameter(profile,1),
+		  (long *) B, DIET_VOLATILE, DIET_CHAR, n, m, oB);
+  std::cout << "B (before call):" << std::endl;
+  printMatrix((long *)B, n, m, (oB == DIET_ROW_MAJOR));
+  diet_matrix_set(diet_parameter(profile,2),
+		  NULL, DIET_VOLATILE, DIET_CHAR, m, m, oC);
+
+  if (!diet_call(profile)) {
+    diet_matrix_get(diet_parameter(profile, 2), (long **) &C, NULL, &m, &n, &oC);
+    std::cout << "B (after call):" << std::endl;
+    printMatrix((long *)B, n, m, (oB == DIET_ROW_MAJOR));
+    std::cout << "C:" << std::endl;
+    printMatrix((long *)C, m, n, (oC == DIET_ROW_MAJOR));
+    diet_free_data(diet_parameter(profile, 1));
+    diet_free_data(diet_parameter(profile, 2));
+    free(C);
+  } else {
+    std::cerr << "diet_call has returned with an error code on " << PB_MATRIX[0] << "!" << std::endl;
+    error = error | (1<<errorPos);
+  }
+  ++ errorPos;
+  diet_profile_free(profile);
+
+
+
+  /* Short */
+  for (i = 0; i < SIZE * SIZE; ++ i) {
+    ((long *)B)[i] = i + SIZE;
+  }
+  std::cout << "#### Shorts" << std::endl;
+  profile = diet_profile_alloc(PB_MATRIX[1], 0, 1, 2);
+
+  diet_matrix_set(diet_parameter(profile,0),
+		  (long *) A, DIET_VOLATILE, DIET_SHORT, m, n, oA);
+  std::cout << "A:" << std::endl;
+  printMatrix((long *)A, m, n, (oA == DIET_ROW_MAJOR));
+  diet_matrix_set(diet_parameter(profile,1),
+		  (long *) B, DIET_VOLATILE, DIET_SHORT, n, m, oB);
+  std::cout << "B (before call):" << std::endl;
+  printMatrix((long *)B, n, m, (oB == DIET_ROW_MAJOR));
+  diet_matrix_set(diet_parameter(profile,2),
+		  NULL, DIET_VOLATILE, DIET_SHORT, m, m, oC);
+
+  if (!diet_call(profile)) {
+    diet_matrix_get(diet_parameter(profile, 2), (short **) &C, NULL, &m, &n, &oC);
+    std::cout << "B (after call):" << std::endl;
+    printMatrix((long *)B, n, m, (oB == DIET_ROW_MAJOR));
+    std::cout << "C:" << std::endl;
+    printMatrix((long *)C, m, n, (oC == DIET_ROW_MAJOR));
+    diet_free_data(diet_parameter(profile, 1));
+    diet_free_data(diet_parameter(profile, 2));
+  } else {
+    std::cerr << "diet_call has returned with an error code on " << PB_MATRIX[1] << "!" << std::endl;
+    error = error | (1<<errorPos);
+  }
+  ++ errorPos;
+  diet_profile_free(profile);
+  free(C);
+
+  /* Integer */
+  for (i = 0; i < SIZE * SIZE; ++ i) {
+    ((long *)B)[i] = i + SIZE;
+  }
+  std::cout << "#### Integers" << std::endl;
+  profile = diet_profile_alloc(PB_MATRIX[2], 0, 1, 2);
+
+  diet_matrix_set(diet_parameter(profile,0),
+		  (long *) A, DIET_VOLATILE, DIET_INT, m, n, oA);
+  std::cout << "A:" << std::endl;
+  printMatrix((long *)A, m, n, (oA == DIET_ROW_MAJOR));
+  diet_matrix_set(diet_parameter(profile,1),
+		  (long *) B, DIET_VOLATILE, DIET_INT, n, m, oB);
+  std::cout << "B (before call):" << std::endl;
+  printMatrix((long *)B, n, m, (oB == DIET_ROW_MAJOR));
+  diet_matrix_set(diet_parameter(profile,2),
+		  NULL, DIET_VOLATILE, DIET_INT, m, m, oC);
+
+  if (!diet_call(profile)) {
+    diet_matrix_get(diet_parameter(profile, 2), (long **) &C, NULL, &m, &n, &oC);
+    std::cout << "B (after call):" << std::endl;
+    printMatrix((long *)B, n, m, (oB == DIET_ROW_MAJOR));
+    std::cout << "C:" << std::endl;
+    printMatrix((long *)C, m, n, (oC == DIET_ROW_MAJOR));
+    diet_free_data(diet_parameter(profile, 1));
+    diet_free_data(diet_parameter(profile, 2));
+    free(C);
+  } else {
+    std::cerr << "diet_call has returned with an error code on " << PB_MATRIX[2] << "!" << std::endl;
+    error = error | (1<<errorPos);
+  }
+  ++ errorPos;
+  diet_profile_free(profile);
+
+
+  /* Long */
+  for (i = 0; i < SIZE * SIZE; ++ i) {
+    ((long *)B)[i] = i + SIZE;
+  }
+  std::cout << "#### Longs" << std::endl;
+  profile = diet_profile_alloc(PB_MATRIX[3], 0, 1, 2);
+
+  diet_matrix_set(diet_parameter(profile,0),
+		  (long *) A, DIET_VOLATILE, DIET_LONGINT, m, n, oA);
+  std::cout << "A:" << std::endl;
+  printMatrix((long *)A, m, n, (oA == DIET_ROW_MAJOR));
+  diet_matrix_set(diet_parameter(profile,1),
+		  (long *) B, DIET_VOLATILE, DIET_LONGINT, n, m, oB);
+  std::cout << "B (before call):" << std::endl;
+  printMatrix((long *)B, n, m, (oB == DIET_ROW_MAJOR));
+  diet_matrix_set(diet_parameter(profile,2),
+		  NULL, DIET_VOLATILE, DIET_LONGINT, m, m, oC);
+
+  if (!diet_call(profile)) {
+    diet_matrix_get(diet_parameter(profile, 2), (long **) &C, NULL, &m, &n, &oC);
+    std::cout << "B (after call):" << std::endl;
+    printMatrix((long *)B, n, m, (oB == DIET_ROW_MAJOR));
+    std::cout << "C:" << std::endl;
+    printMatrix((long *)C, m, n, (oC == DIET_ROW_MAJOR));
+    diet_free_data(diet_parameter(profile, 1));
+    diet_free_data(diet_parameter(profile, 2));
+    free(C);
+  } else {
+    std::cerr << "diet_call has returned with an error code on " << PB_MATRIX[3] << "!" << std::endl;
+    error = error | (1<<errorPos);
+  }
+  ++ errorPos;
+  diet_profile_free(profile);
+  free(A);
+  free(B);
+
+
+  /* Float */
+  std::cout << "#### Floats" << std::endl;
+  A = (float *) malloc(sizeof(float) * SIZE * SIZE);
+  B = (float *) malloc(sizeof(float) * SIZE * SIZE);
+  for (i = 0; i < SIZE * SIZE; ++ i) {
+    ((float *)A)[i] = i * 2.0;
+    ((float *)B)[i] = (i + SIZE) * 2.0;
+  }
+  profile = diet_profile_alloc(PB_MATRIX[4], 0, 1, 2);
+
+  diet_matrix_set(diet_parameter(profile,0),
+		  (float *) A, DIET_VOLATILE, DIET_FLOAT, m, n, oA);
+  std::cout << "A:" << std::endl;
+  printMatrix((float *)A, m, n, (oA == DIET_ROW_MAJOR));
+  diet_matrix_set(diet_parameter(profile,1),
+		  (float *) B, DIET_VOLATILE, DIET_FLOAT, n, m, oB);
+  std::cout << "B (before call):" << std::endl;
+  printMatrix((float *)B, n, m, (oB == DIET_ROW_MAJOR));
+  diet_matrix_set(diet_parameter(profile,2),
+		  NULL, DIET_VOLATILE, DIET_FLOAT, m, m, oC);
+
+  if (!diet_call(profile)) {
+    diet_matrix_get(diet_parameter(profile, 2), (float **) &C, NULL, &m, &n, &oC);
+    std::cout << "B (after call):" << std::endl;
+    printMatrix((float *)B, n, m, (oB == DIET_ROW_MAJOR));
+    std::cout << "C:" << std::endl;
+    printMatrix((float *)C, m, n, (oC == DIET_ROW_MAJOR));
+    diet_free_data(diet_parameter(profile, 1));
+    diet_free_data(diet_parameter(profile, 2));
+    free(C);
+  } else {
+    std::cerr << "diet_call has returned with an error code on " << PB_MATRIX[4] << "!" << std::endl;
+    error = error | (1<<errorPos);
+  }
+  ++ errorPos;
+  diet_profile_free(profile);
+  free(A);
+  free(B);
+
+  /* Double */
+  std::cout << "#### Doubles" << std::endl;
+  A = (double *) malloc(sizeof(double) * SIZE * SIZE);
+  B = (double *) malloc(sizeof(double) * SIZE * SIZE);
+  for (i = 0; i < SIZE * SIZE; ++ i) {
+    ((double *)A)[i] = i * 2.0;
+    ((double *)B)[i] = (i + SIZE) * 2.0;
+  }
+  profile = diet_profile_alloc(PB_MATRIX[5], 0, 1, 2);
+
+  diet_matrix_set(diet_parameter(profile,0),
+		  (double *) A, DIET_VOLATILE, DIET_DOUBLE, m, n, oA);
+  std::cout << "A:" << std::endl;
+  printMatrix((double *)A, m, n, (oA == DIET_ROW_MAJOR));
+  diet_matrix_set(diet_parameter(profile,1),
+		  (double *) B, DIET_VOLATILE, DIET_DOUBLE, n, m, oB);
+  std::cout << "B (before call):" << std::endl;
+  printMatrix((double *)B, n, m, (oB == DIET_ROW_MAJOR));
+  diet_matrix_set(diet_parameter(profile,2),
+		  NULL, DIET_VOLATILE, DIET_DOUBLE, m, m, oC);
+
+  if (!diet_call(profile)) {
+    diet_matrix_get(diet_parameter(profile, 2), (double **) &C, NULL, &m, &n, &oC);
+    std::cout << "B (after call):" << std::endl;
+    printMatrix((double *)B, n, m, (oB == DIET_ROW_MAJOR));
+    std::cout << "C:" << std::endl;
+    printMatrix((double *)C, m, n, (oC == DIET_ROW_MAJOR));
+    diet_free_data(diet_parameter(profile, 1));
+    diet_free_data(diet_parameter(profile, 2));
+    free(C);
+  } else {
+    std::cerr << "diet_call has returned with an error code on " << PB_MATRIX[5] << "!" << std::endl;
+    error = error | (1<<errorPos);
+  }
+  ++ errorPos;
+  diet_profile_free(profile);
+  free(A);
+  free(B);
+
+  std::cout << "######################################################################" << std::endl;
+  std::cout << "#                            \\MATRICES                               #" << std::endl;
+  std::cout << "######################################################################" << std::endl;
+
+
+
+
+  /* End DIET */
+  diet_finalize();
+
+
+  /* Check on errors */
+  std::cout << "######################################################################" << std::endl;
+  std::cout << "#                             ERRORS                                 #" << std::endl;
+  std::cout << "######################################################################" << std::endl;
+  std::cout << "Error code: " << error << std::endl;
+  for (i = 0; i < NB_PB; ++ i) {
+    if (error & (1 << i))
+      std::cout << "## Scalars: error in problem " << PB[i] << std::endl;
+  }
+  for (i = 0; i < NB_PB_VECTOR; ++ i) {
+    if (error & (1 << (i + NB_PB)))
+      std::cout << "## Vector: error in problem " << PB_VECTOR[i] << std::endl;
+  }
+  for (i = 0; i < NB_PB_MATRIX; ++ i) {
+    if (error & (1 << (i + NB_PB + NB_PB_VECTOR)))
+      std::cout << "## Matrix: error in problem " << PB_MATRIX[i] << std::endl;
+  }
+  std::cout << "######################################################################" << std::endl;
+  std::cout << "#                             \\ERRORS                                #" << std::endl;
+  std::cout << "######################################################################" << std::endl;
+
+  return error;
+}
