@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2010/10/15 07:43:56  bdepardo
+ * Added Paramstring
+ *
  * Revision 1.2  2010/10/15 07:07:45  bdepardo
  * String service
  *
@@ -68,8 +71,13 @@ static const char* SRV_MATRIX[NB_SRV_MATRIX] =
 
 /* This server offers a service to print strings */
 static const unsigned int NB_SRV_STRING = 1;
-static const char* SRV_STRING[NB_SRV_SCALAR] =
+static const char* SRV_STRING[NB_SRV_STRING] =
   {"SPRINT"};
+
+/* This server offers a service to print paramstrings */
+static const unsigned int NB_SRV_PSTRING = 1;
+static const char* SRV_PSTRING[NB_SRV_PSTRING] =
+  {"PSPRINT"};
 
 /*
  * Scalar solve function
@@ -343,7 +351,7 @@ solve_SPRINT(diet_profile_t* pb) {
   char* s1 = NULL;
   char* s2 = NULL;
   char* s3 = NULL;
-  char* stmp = NULL;
+
   std::cout << "Solve SPRINT ..." << std::endl;
 
   /* Get data */
@@ -369,6 +377,34 @@ solve_SPRINT(diet_profile_t* pb) {
   return res;
 }
 
+/*
+ * Paramstring solve function
+ */
+int
+solve_PSPRINT(diet_profile_t* pb) {
+  int res = 0;
+  char* s1 = NULL;
+  char* s2 = NULL;
+  std::cout << "Solve PSPRINT ..." << std::endl;
+
+  /* Get data */
+  diet_paramstring_get(diet_parameter(pb, 0), &s1, NULL);
+  diet_paramstring_get(diet_parameter(pb, 1), &s2, NULL);
+
+
+  /* print */
+  std::cout << "s1: " << s1 << std::endl;
+  std::cout << "s2: " << s2 << std::endl;
+  for (unsigned int i = 0; i < strlen(s2); ++ i)
+    s2[i] = 'c';
+  std::cout << "s2: " << s2 << std::endl;
+  diet_paramstring_set(diet_parameter(pb, 1), s2, DIET_VOLATILE);
+
+  diet_free_data(diet_parameter(pb,0));
+
+  std::cout << "Solve PSPRINT ... done" << std::endl;
+  return res;
+}
 
 
 
@@ -464,6 +500,22 @@ main(int argc, char* argv[]) {
 			  DIET_STRING, DIET_CHAR);
  
     if (diet_service_table_add(profile, NULL, solve_SPRINT))
+      return 1;
+    diet_profile_desc_free(profile);
+  }
+
+
+  /**
+   * Paramstring types
+   */
+  for (i = 0; i < NB_SRV_PSTRING; i++) {
+    profile = diet_profile_desc_alloc(SRV_PSTRING[i], 0, 1, 1);
+    diet_generic_desc_set(diet_param_desc(profile,0),
+			  DIET_PARAMSTRING, DIET_CHAR);
+    diet_generic_desc_set(diet_param_desc(profile,1), 
+			  DIET_PARAMSTRING, DIET_CHAR);
+ 
+    if (diet_service_table_add(profile, NULL, solve_PSPRINT))
       return 1;
     diet_profile_desc_free(profile);
   }

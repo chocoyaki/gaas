@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2010/10/15 07:43:56  bdepardo
+ * Added Paramstring
+ *
  * Revision 1.2  2010/10/15 07:07:45  bdepardo
  * String service
  *
@@ -46,6 +49,9 @@ static const unsigned int NB_PB_STRING = 1;
 static const char* PB_STRING[NB_PB_STRING] =
   {"SPRINT"};
 
+static const unsigned int NB_PB_PSTRING = 1;
+static const char* PB_PSTRING[NB_PB_PSTRING] =
+  {"PSPRINT"};
 
 /* argv[1]: client config file path */
 
@@ -757,6 +763,50 @@ main(int argc, char* argv[]) {
 
 
 
+  /**
+   * String types
+   */
+  std::cout << "######################################################################" << std::endl;
+  std::cout << "#                           PARAMSTRING                              #" << std::endl;
+  std::cout << "######################################################################" << std::endl;
+
+  s1 = (char *) malloc(sizeof(char) * (SIZE + 1));
+  s2 = (char *) malloc(sizeof(char) * (SIZE + 1));
+  s3 = NULL;
+  for (i = 0; i < SIZE; ++ i) {
+    s1[i] = 'a';
+    s2[i] = 'b';
+  }
+  s1[SIZE] = '\0';
+  s2[SIZE] = '\0';
+
+  /* Characters: no choice it has to be DIET_CHAR */
+  std::cout << "#### Characters" << std::endl;
+  profile = diet_profile_alloc(PB_PSTRING[0], 0, 1, 1);
+
+  diet_paramstring_set(diet_parameter(profile,0), s1, DIET_VOLATILE);
+  std::cout << "s1: " << s1 << std::endl;
+  diet_paramstring_set(diet_parameter(profile,1), s2, DIET_VOLATILE);
+  std::cout << "s2 (before call): " << s2 << std::endl;
+
+  if (!diet_call(profile)) {
+    std::cout << "s2 (after call): " << s2 << std::endl;
+    diet_free_data(diet_parameter(profile, 1));
+  } else {
+    std::cerr << "diet_call has returned with an error code on " << PB_PSTRING[0] << "!" << std::endl;
+    error = error | (1<<errorPos);
+  }
+  ++ errorPos;
+  diet_profile_free(profile);
+  free(s1);
+  free(s2);
+
+  std::cout << "######################################################################" << std::endl;
+  std::cout << "#                          \\PARAMSTRING                              #" << std::endl;
+  std::cout << "######################################################################" << std::endl;
+
+
+
 
   /* End DIET */
   diet_finalize();
@@ -780,8 +830,12 @@ main(int argc, char* argv[]) {
       std::cout << "## Matrix: error in problem " << PB_MATRIX[i] << std::endl;
   }
   for (i = 0; i < NB_PB_STRING; ++ i) {
-    if (error & (1 << (i + NB_PB + NB_PB_VECTOR + NB_PB_STRING)))
+    if (error & (1 << (i + NB_PB + NB_PB_VECTOR + NB_PB_MATRIX)))
       std::cout << "## String: error in problem " << PB_STRING[i] << std::endl;
+  }
+  for (i = 0; i < NB_PB_PSTRING; ++ i) {
+    if (error & (1 << (i + NB_PB + NB_PB_VECTOR + NB_PB_MATRIX + NB_PB_STRING)))
+      std::cout << "## Paramstring: error in problem " << PB_PSTRING[i] << std::endl;
   }
   std::cout << "######################################################################" << std::endl;
   std::cout << "#                             \\ERRORS                                #" << std::endl;
