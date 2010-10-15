@@ -17,6 +17,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.44  2010/10/15 06:11:07  bdepardo
+#* Added files for allDataTransfers example
+#*
 #* Revision 1.43  2010/08/18 07:36:43  bdepardo
 #* Added files for dynamic hierarchy:
 #* - dyn_add_rem
@@ -576,6 +579,14 @@ src/examples/workflow/scalar_server.c
 src/examples/workflow/string_server.c
 src/examples/workflow/strlen.c
 src/examples/workflow/utils_client.c
+
+[Untemplated]
+src/examples/allDataTransfers/CMakeLists.txt
+[Templated]
+src/examples/allDataTransfers/client.cc
+src/examples/allDataTransfers/server.cc
+src/examples/allDataTransfers/progs.cc
+
 
 [Untemplated]
 src/examples/dyn_add_rem/CMakeLists.txt
