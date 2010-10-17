@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.70  2010/10/17 15:38:39  bdepardo
+ * More explicit message in diet_paramstring_set when a NULL pointer is passed
+ * as parameter: explain that paramstrings cannot be used as OUT parameters.
+ *
  * Revision 1.69  2010/07/20 09:15:31  bisnard
  * Check if file exists in wf_profile_alloc
  *
@@ -735,7 +739,9 @@ diet_paramstring_set(diet_arg_t* arg,
 {
   int status(0);
   if (!value) {
-    ERROR(__FUNCTION__ << " misused (value is NULL)", 1);
+    ERROR(__FUNCTION__ << " misused (value is NULL)."
+	  << endl << "Make sure you allocated the paramstring pointer."
+	  << endl << "Note that paramstrings cannot be used as OUT parameters", 1);
   }
   if ((status = paramstring_set_desc(&(arg->desc),
                                      NULL,
