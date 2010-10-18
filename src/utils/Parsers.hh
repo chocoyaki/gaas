@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.42  2010/10/18 08:18:21  bisnard
+ * removed USE_ASYNC_API option
+ *
  * Revision 1.41  2010/07/12 16:14:12  glemahec
  * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
  *
@@ -250,7 +253,6 @@ public:
       FASTUSE,            
       LDAPUSE, LDAPBASE, LDAPMASK,
       NWSUSE, NWSNAMESERVER, NWSFORECASTER,
-      USEASYNCAPI,
       USELOGSERVICE, LSOUTBUFFERSIZE, LSFLUSHINTERVAL,
       NEIGHBOURS, MAXNEIGHBOURS, MINNEIGHBOURS, UPDATELINKPERIOD,
       BINDSERVICEPORT, USECONCJOBLIMIT, MAXCONCJOBS,
