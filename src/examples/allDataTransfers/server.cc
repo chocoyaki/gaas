@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2010/10/18 08:35:43  bdepardo
+ * Added includes cstdlib and cstring
+ *
  * Revision 1.5  2010/10/18 08:18:54  bdepardo
  * Added containers
  *
@@ -33,6 +36,8 @@
 
 
 #include <iostream>
+#include <cstdlib>
+#include <cstring>
 #include <sys/stat.h>
 
 #include "DIET_server.h"
