@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2010/10/18 08:18:54  bdepardo
+ * Added containers
+ *
  * Revision 1.4  2010/10/18 06:51:39  bdepardo
  * Added file transfer
  *
@@ -32,6 +35,7 @@
 #include <sys/stat.h>
 
 #include "DIET_client.h"
+#include "DIET_Dagda.h"
 #include "progs.hh"
 
 
@@ -60,6 +64,10 @@ static const char* PB_PSTRING[NB_PB_PSTRING] =
 static const unsigned int NB_PB_FILE = 1;
 static const char* PB_FILE[NB_PB_FILE] =
   {"FTRANSFER"};
+
+static const unsigned int NB_PB_CONTAINER = 1;
+static const char* PB_CONTAINER[NB_PB_CONTAINER] =
+  {"LCADD"};
 
 /* argv[1]: client config file path */
 
@@ -871,6 +879,83 @@ main(int argc, char* argv[]) {
 
 
 
+  std::cout << "######################################################################" << std::endl;
+  std::cout << "#                              CONTAINER                              #" << std::endl;
+  std::cout << "######################################################################" << std::endl;
+
+
+  /* Characters: no choice it has to be DIET_CHAR */
+  std::cout << "#### Characters" << std::endl;
+  profile = diet_profile_alloc(PB_CONTAINER[0], 0, 1, 2);
+
+  long l3, l4;
+  l1 = 1;
+  l2 = 2;
+  l3 = 3;
+  l4 = 4;
+  char *p1, *p2, *p3, *p4;
+
+  /* IN */
+  dagda_create_container(&s1);
+  dagda_put_scalar(&l1, DIET_LONGINT, DIET_PERSISTENT, &p1);
+  dagda_add_container_element(s1, p1, 0);
+  dagda_put_scalar(&l2, DIET_LONGINT, DIET_PERSISTENT, &p2);
+  dagda_add_container_element(s1, p2, 1);
+  diet_use_data(diet_parameter(profile,0), s1);
+
+  /* INOUT */
+  dagda_create_container(&s2);
+  dagda_put_scalar(&l3, DIET_LONGINT, DIET_PERSISTENT, &p3);
+  dagda_add_container_element(s2, p3, 0);
+  dagda_put_scalar(&l4, DIET_LONGINT, DIET_PERSISTENT, &p4);
+  dagda_add_container_element(s2, p4, 1);
+  diet_use_data(diet_parameter(profile,1), s2);
+
+  /* OUT */
+  diet_container_set(diet_parameter(profile,2), DIET_PERSISTENT);
+
+  if (!diet_call(profile)) {
+    diet_container_t content1;
+    long * pl1, *pl2, *pl3;
+    
+    s1 = (profile->parameters[1]).desc.id;
+    dagda_get_container(s1);
+    dagda_get_container_elements(s1, &content1);
+    dagda_get_scalar(content1.elt_ids[0], &pl1, NULL);
+    dagda_get_scalar(content1.elt_ids[1], &pl2, NULL);
+    dagda_get_scalar(content1.elt_ids[2], &pl3, NULL);
+    std::cout << "Container 2: " << std::endl
+	      << " - l1 = " << *pl1 << std::endl
+	      << " - l2 = " << *pl2 << std::endl
+	      << " - l3 = " << *pl3 << std::endl;
+    free(content1.elt_ids);
+
+
+    s1 = (profile->parameters[2]).desc.id;
+    dagda_get_container(s1);
+    dagda_get_container_elements(s1, &content1);
+    dagda_get_scalar(content1.elt_ids[0], &pl1, NULL);
+    dagda_get_scalar(content1.elt_ids[1], &pl2, NULL);
+    std::cout << "Container 3: " << std::endl
+	      << " - l1 = " << *pl1 << std::endl
+	      << " - l2 = " << *pl2 << std::endl;
+    free(content1.elt_ids);
+
+    diet_free_data(diet_parameter(profile, 1));
+    diet_free_data(diet_parameter(profile, 2));
+  } else {
+    std::cerr << "diet_call has returned with an error code on " << PB_CONTAINER[0] << "!" << std::endl;
+    error = error | (1<<errorPos);
+  }
+  ++ errorPos;
+  diet_profile_free(profile);
+
+  std::cout << "######################################################################" << std::endl;
+  std::cout << "#                            \\CONTAINER                              #" << std::endl;
+  std::cout << "######################################################################" << std::endl;
+
+
+
   /* End DIET */
   diet_finalize();
 
@@ -897,12 +982,19 @@ main(int argc, char* argv[]) {
       std::cout << "## String: error in problem " << PB_STRING[i] << std::endl;
   }
   for (i = 0; i < NB_PB_PSTRING; ++ i) {
-    if (error & (1 << (i + NB_PB + NB_PB_VECTOR + NB_PB_MATRIX + NB_PB_STRING)))
+    if (error & (1 << (i + NB_PB + NB_PB_VECTOR + NB_PB_MATRIX
+		       + NB_PB_STRING)))
       std::cout << "## Paramstring: error in problem " << PB_PSTRING[i] << std::endl;
   }
   for (i = 0; i < NB_PB_FILE; ++ i) {
-    if (error & (1 << (i + NB_PB + NB_PB_VECTOR + NB_PB_MATRIX + NB_PB_STRING + NB_PB_PSTRING)))
+    if (error & (1 << (i + NB_PB + NB_PB_VECTOR + NB_PB_MATRIX
+		       + NB_PB_STRING + NB_PB_PSTRING)))
       std::cout << "## File: error in problem " << PB_FILE[i] << std::endl;
+  }
+  for (i = 0; i < NB_PB_CONTAINER; ++ i) {
+    if (error & (1 << (i + NB_PB + NB_PB_VECTOR + NB_PB_MATRIX
+		       + NB_PB_STRING + NB_PB_PSTRING + NB_PB_FILE)))
+      std::cout << "## Container: error in problem " << PB_CONTAINER[i] << std::endl;
   }
   std::cout << "######################################################################" << std::endl;
   std::cout << "#                             \\ERRORS                                #" << std::endl;

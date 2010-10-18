@@ -3,7 +3,8 @@
 #* Example devoted to the management of scalars (and their encoding length).*#
 #****************************************************************************#
 
-INCLUDE_DIRECTORIES( ${DIET_SOURCE_DIR}/include )     # For DIET_client.h
+INCLUDE_DIRECTORIES( ${DIET_SOURCE_DIR}/include
+                     ${DIET_SOURCE_DIR}/src/utils/DAGDA )
 
 ADD_EXECUTABLE( transfers_client client.cc )
 TARGET_LINK_LIBRARIES( transfers_client ${DIET_CLIENT_LIBRARIES} )

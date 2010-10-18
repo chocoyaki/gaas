@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2010/10/18 08:18:54  bdepardo
+ * Added containers
+ *
  * Revision 1.4  2010/10/18 06:51:39  bdepardo
  * Added file transfer
  *
@@ -33,6 +36,7 @@
 #include <sys/stat.h>
 
 #include "DIET_server.h"
+#include "DIET_Dagda.h"
 #include "progs.hh"
 
 static const unsigned int STRING_SIZE = 27;
@@ -89,6 +93,12 @@ static const char* SRV_PSTRING[NB_SRV_PSTRING] =
 static const unsigned int NB_SRV_FILE = 1;
 static const char* SRV_FILE[NB_SRV_FILE] =
   {"FTRANSFER"};
+
+/* This server offers addition of 2 longs stored in a container: */
+/*   - LCADD = sum of two longs                                           */
+static const unsigned int NB_SRV_CONTAINER = 1;
+static const char* SRV_CONTAINER[NB_SRV_CONTAINER] =
+  {"LCADD"};
 
 
 /*
@@ -464,9 +474,67 @@ solve_FTRANSFER(diet_profile_t* pb) {
   std::cout << "Returned file: " << path3 << std::endl;
 
 
-  //  diet_free_data(diet_parameter(pb,0));
+  diet_free_data(diet_parameter(pb,0));
   
   return 0;
+}
+
+
+/*
+ * Container solve function
+ */
+int
+solve_CONTAINER(diet_profile_t* pb) {
+  int res = 0;
+  char * ID_long1;
+  char * ID_long2;
+  long *l1, *l2, *l3;
+  diet_container_t content1, content2;
+
+  /* no need to call dagda_get_container for root container as it is
+   * downloaded automatically by DIET */
+  std::cout << "Get container 1 element list" << std::endl;
+  dagda_get_container_elements((*diet_parameter(pb,0)).desc.id, &content1);
+  std::cout << "Container 1 contains " << content1.size << " elements." << std::endl;
+
+  std::cout << "Get container 2 element list" << std::endl;
+  dagda_get_container_elements((*diet_parameter(pb,1)).desc.id, &content2);
+  std::cout << "Container 2 contains " << content2.size << " elements." << std::endl;
+
+  std::cout << "Init OUTPUT container" << std::endl;
+  dagda_init_container(diet_parameter(pb,2));
+
+  std::cout << "Get container 1 elements" << std::endl;
+  dagda_get_scalar(content1.elt_ids[0], &l1, NULL);
+  dagda_get_scalar(content1.elt_ids[1], &l2, NULL);
+  l3 = new long;
+  *l3 = *l1 + *l2;
+  std::cout << "l1 = " << *l1 << ", l2 = " << *l2
+	    << ", l3 = " << *l3 << std::endl;
+  dagda_put_scalar(l3, DIET_LONGINT, DIET_PERSISTENT, &ID_long1);
+
+  std::cout << "Put 1st element of OUTPUT container" << std::endl;
+  dagda_add_container_element((*diet_parameter(pb,2)).desc.id, ID_long1, 0);
+
+
+  std::cout << "Get container 2 elements" << std::endl;
+  dagda_get_scalar(content2.elt_ids[0], &l1, NULL);
+  dagda_get_scalar(content2.elt_ids[1], &l2, NULL);
+  l3 = new long;
+  *l3 = *l1 + *l2;
+  std::cout << "l1 = " << *l1 << ", l2 = " << *l2
+	    << ", l3 = " << *l3 << std::endl;
+  dagda_put_scalar(l3, DIET_LONGINT, DIET_PERSISTENT, &ID_long2);
+
+  std::cout << "Put 2st element of OUTPUT container" << std::endl;
+  dagda_add_container_element((*diet_parameter(pb,2)).desc.id, ID_long2, 1);
+  dagda_add_container_element((*diet_parameter(pb,1)).desc.id, ID_long2, 2);
+
+  diet_free_data(diet_parameter(pb,0));
+  
+  free(content1.elt_ids);
+  free(content2.elt_ids);
+  return res;
 }
 
 
@@ -601,6 +669,25 @@ main(int argc, char* argv[]) {
     diet_profile_desc_free(profile);
   }
 
+
+
+  /**
+   * Container types
+   */
+  for (i = 0; i < NB_SRV_CONTAINER; i++) {
+    profile = diet_profile_desc_alloc(SRV_CONTAINER[i], 0, 1, 2);
+    diet_generic_desc_set(diet_param_desc(profile,0),
+			  DIET_CONTAINER, DIET_CHAR);
+    diet_generic_desc_set(diet_param_desc(profile,1), 
+    			  DIET_CONTAINER, DIET_CHAR);
+     diet_generic_desc_set(diet_param_desc(profile,2), 
+			  DIET_CONTAINER, DIET_CHAR);
+ 
+    if (diet_service_table_add(profile, NULL, solve_CONTAINER))
+      return 1;
+    diet_profile_desc_free(profile);
+  }
+ 
 
   diet_print_service_table();
   res = diet_SeD(argv[1], argc, argv);
