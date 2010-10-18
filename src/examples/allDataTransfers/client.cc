@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2010/10/18 06:51:39  bdepardo
+ * Added file transfer
+ *
  * Revision 1.3  2010/10/15 07:43:56  bdepardo
  * Added Paramstring
  *
@@ -26,6 +29,7 @@
  ****************************************************************************/
 
 #include <iostream>
+#include <sys/stat.h>
 
 #include "DIET_client.h"
 #include "progs.hh"
@@ -53,11 +57,15 @@ static const unsigned int NB_PB_PSTRING = 1;
 static const char* PB_PSTRING[NB_PB_PSTRING] =
   {"PSPRINT"};
 
+static const unsigned int NB_PB_FILE = 1;
+static const char* PB_FILE[NB_PB_FILE] =
+  {"FTRANSFER"};
+
 /* argv[1]: client config file path */
 
 void
 usage(char* cmd) {
-  std::cerr << "Usage: " << cmd << " <file.cfg>" << std::endl;
+  std::cerr << "Usage: " << cmd << " <DIET_config.cfg> <file1>" << std::endl;
   exit(1);
 }
 
@@ -68,7 +76,7 @@ main(int argc, char* argv[]) {
   diet_profile_t* profile = NULL;
   int error = 0;
 
-  if (argc != 2) {
+  if (argc != 3) {
     usage(argv[0]);
   }
 
@@ -808,6 +816,61 @@ main(int argc, char* argv[]) {
 
 
 
+  std::cout << "######################################################################" << std::endl;
+  std::cout << "#                                FILE                                #" << std::endl;
+  std::cout << "######################################################################" << std::endl;
+
+  size_t arg_size  = 0;
+  struct stat buf;
+  int status = 0;
+
+  s1 = argv[1];
+  s2 = argv[2];
+
+  /* Characters: no choice it has to be DIET_CHAR */
+  std::cout << "#### Characters" << std::endl;
+  profile = diet_profile_alloc(PB_FILE[0], 0, 1, 2);
+
+  if (diet_file_set(diet_parameter(profile,0), DIET_PERSISTENT, s1))
+    std::cout << "Error on diet_file_set on s1" << std::endl;
+  std::cout << "File s1: " << s1 << std::endl;
+  if (diet_file_set(diet_parameter(profile,1), DIET_VOLATILE, s2))
+    std::cout << "Error on diet_file_set on s2" << std::endl;
+  std::cout << "File s2 (before call): " << s2 << std::endl;
+  if (diet_file_set(diet_parameter(profile,2), DIET_VOLATILE, NULL))
+    std::cout << "Error on diet_file_set on s3" << std::endl;
+
+  if (!diet_call(profile)) {
+    diet_file_get(diet_parameter(profile, 2), NULL, &arg_size, &s3);
+    std::cout << "s2 (after call): " << s2 << std::endl;
+    std::cout << "s3:" << s3 << std::endl;
+
+    if ((status = stat(s2, &buf)) || !(buf.st_mode & S_IFREG)) {
+      std::cerr << "Problem on s2 in " << PB_FILE[0] << "!" << std::endl;
+      error = error | (1<<errorPos);
+    }
+
+    if ((status = stat(s3, &buf)) || !(buf.st_mode & S_IFREG)) {
+      std::cerr << "Problem on s3 in " << PB_FILE[0] << "!" << std::endl;
+      error = error | (1<<errorPos);
+    }
+
+    diet_free_data(diet_parameter(profile, 1));
+    diet_free_data(diet_parameter(profile, 2));
+    free(s3);
+  } else {
+    std::cerr << "diet_call has returned with an error code on " << PB_FILE[0] << "!" << std::endl;
+    error = error | (1<<errorPos);
+  }
+  ++ errorPos;
+  diet_profile_free(profile);
+
+  std::cout << "######################################################################" << std::endl;
+  std::cout << "#                               \\FILE                                #" << std::endl;
+  std::cout << "######################################################################" << std::endl;
+
+
+
   /* End DIET */
   diet_finalize();
 
@@ -836,6 +899,10 @@ main(int argc, char* argv[]) {
   for (i = 0; i < NB_PB_PSTRING; ++ i) {
     if (error & (1 << (i + NB_PB + NB_PB_VECTOR + NB_PB_MATRIX + NB_PB_STRING)))
       std::cout << "## Paramstring: error in problem " << PB_PSTRING[i] << std::endl;
+  }
+  for (i = 0; i < NB_PB_FILE; ++ i) {
+    if (error & (1 << (i + NB_PB + NB_PB_VECTOR + NB_PB_MATRIX + NB_PB_STRING + NB_PB_PSTRING)))
+      std::cout << "## File: error in problem " << PB_FILE[i] << std::endl;
   }
   std::cout << "######################################################################" << std::endl;
   std::cout << "#                             \\ERRORS                                #" << std::endl;

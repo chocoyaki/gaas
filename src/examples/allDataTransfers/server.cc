@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2010/10/18 06:51:39  bdepardo
+ * Added file transfer
+ *
  * Revision 1.3  2010/10/15 07:43:56  bdepardo
  * Added Paramstring
  *
@@ -27,6 +30,7 @@
 
 
 #include <iostream>
+#include <sys/stat.h>
 
 #include "DIET_server.h"
 #include "progs.hh"
@@ -68,7 +72,6 @@ static const char* SRV_MATRIX[NB_SRV_MATRIX] =
   {"CMADD", "BMADD", "IMADD", "LMADD", "FMADD", "DMADD"};
 
 
-
 /* This server offers a service to print strings */
 static const unsigned int NB_SRV_STRING = 1;
 static const char* SRV_STRING[NB_SRV_STRING] =
@@ -78,6 +81,15 @@ static const char* SRV_STRING[NB_SRV_STRING] =
 static const unsigned int NB_SRV_PSTRING = 1;
 static const char* SRV_PSTRING[NB_SRV_PSTRING] =
   {"PSPRINT"};
+
+
+/* This server offers a service to transfer files:
+ * Copies the IN file to the OUT file, INOUT is unchanged
+ */
+static const unsigned int NB_SRV_FILE = 1;
+static const char* SRV_FILE[NB_SRV_FILE] =
+  {"FTRANSFER"};
+
 
 /*
  * Scalar solve function
@@ -408,6 +420,57 @@ solve_PSPRINT(diet_profile_t* pb) {
 
 
 
+/*
+ * File solve function
+ */
+int
+solve_FTRANSFER(diet_profile_t* pb) {
+  size_t arg_size  = 0;
+  char* path1 = NULL;
+  char* path2 = NULL;
+  char* path3 = NULL;
+  int status = 0;
+  struct stat buf;
+
+  /* IN file */
+  std::cout << "Solve size ";
+  diet_file_get(diet_parameter(pb,0), NULL, &arg_size, &path1) ;
+  std::cout << "on " << path1 << " (" << arg_size << ")" << std::endl;
+  if ((status = stat(path1, &buf)))
+    return status;
+  /* Regular file */
+  if (!(buf.st_mode & S_IFREG))
+    return 2;
+  
+  /*  INOUT file */
+  diet_file_get(diet_parameter(pb, 1), NULL, &arg_size, &path2);
+  std::cout << " and on " << path2 << " (" << arg_size << ")" << std::endl;
+  if ((status = stat(path2, &buf)))
+    return status;
+  if (!(buf.st_mode & S_IFREG))
+    return 2;
+  if (diet_file_set(diet_parameter(pb,1), DIET_VOLATILE, path2)) {
+    std::cerr << "diet_file_desc_set error on INOUT file" << std::endl;
+    return 1;
+  }
+  
+  /* Send IN file as OUT file */
+  path3 = strdup(path1);
+  if (diet_file_set(diet_parameter(pb,2), DIET_VOLATILE, path3)) {
+    std::cerr << "diet_file_desc_set error on OUT file" << std::endl;
+    return 1;
+  }
+
+  std::cout << "Returned file: " << path3 << std::endl;
+
+
+  //  diet_free_data(diet_parameter(pb,0));
+  
+  return 0;
+}
+
+
+
 int
 usage(char* cmd) {
   std::cerr << "Usage: " << cmd << " <file.cfg>" << std::endl;
@@ -516,6 +579,24 @@ main(int argc, char* argv[]) {
 			  DIET_PARAMSTRING, DIET_CHAR);
  
     if (diet_service_table_add(profile, NULL, solve_PSPRINT))
+      return 1;
+    diet_profile_desc_free(profile);
+  }
+
+
+  /**
+   * File types
+   */
+  for (i = 0; i < NB_SRV_FILE; i++) {
+    profile = diet_profile_desc_alloc(SRV_FILE[i], 0, 1, 2);
+    diet_generic_desc_set(diet_param_desc(profile,0),
+			  DIET_FILE, DIET_CHAR);
+    diet_generic_desc_set(diet_param_desc(profile,1), 
+    			  DIET_FILE, DIET_CHAR);
+     diet_generic_desc_set(diet_param_desc(profile,2), 
+			  DIET_FILE, DIET_CHAR);
+ 
+    if (diet_service_table_add(profile, NULL, solve_FTRANSFER))
       return 1;
     diet_profile_desc_free(profile);
   }
