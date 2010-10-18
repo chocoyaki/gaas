@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.59  2010/10/18 08:20:12  bisnard
+ * Modified initialization of Parser to avoid crash due to calling
+ * beginParsing twice.
+ *
  * Revision 1.58  2010/09/02 12:07:47  bdepardo
  * Changed initialization of Parsers::path to remove a memory leak
  *
@@ -341,7 +345,13 @@ Parsers::beginParsing(const char* filePath)
     PARSERS_ERROR("no file to parse", DIET_FILE_IO_ERROR);
   }
   Parsers::path = CORBA::string_dup(filePath);
+  Parsers::file.clear();
+  if (Parsers::file.is_open()) {
+    Parsers::file.close();  // Closing the file before re-opening it
+    Parsers::endParsing();  // Free all the parsed parameters
+  }
   Parsers::file.open(filePath);
+
   if (! Parsers::file.good()) {
     PARSERS_ERROR("could not open " << filePath, DIET_FILE_IO_ERROR);
   }
@@ -358,16 +368,6 @@ Parsers::beginParsing(const char* filePath)
 int
 Parsers::endParsing()
 {
-  if (! Parsers::file.is_open()) {
-    PARSERS_WARNING("file was already closed");
-  }
-  else {
-    Parsers::file.close();
-    // FIXME: this test is wrong
-    //if (! Parsers::file.is_open())
-    //  PARSERS_WARNING("could not close file");
-  }
-
     // size_t --> unsigned int
   for (unsigned int i = Results::TRACELEVEL; i < Results::NB_PARAM_TYPE; i++) {
     if (Results::params[i].value != NULL) {
@@ -440,8 +440,10 @@ Parsers::parseCfgFile(bool checkFASTEntries, unsigned int nbCompulsoryParams,
     if (*ptr == '\0') /* empty lines */
       continue;
     parse_res = Parsers::parseCfgLine(ptr);
-    if (parse_res)
+    if (parse_res) {
+      Parsers::file.close();
       return parse_res;
+    }
   }
 
   /* If no traceLevel specified, set it to default */
