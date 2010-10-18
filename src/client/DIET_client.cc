@@ -10,6 +10,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.148  2010/10/18 07:30:00  bisnard
+ * - removed USE_ASYNC_API ifdef
+ * - fixed bug with MA_MUTEX causing diet_initialize to hang
+ * - added exception blocks in diet_initialize for CORBA calls
+ *
  * Revision 1.147  2010/09/02 17:46:12  bdepardo
  * Removed strdup in ErrorCodeStr to remove memory leaks.
  *
@@ -416,8 +421,6 @@ unsigned long MAX_SERVERS = 10;
 /** IOR reference sent to the SeD to let him contact the callback server */
 /* ===> Change !!! No more the IOR !!!! */
 char* REF_CALLBACK_SERVER;
-/** Flag for using the asynchronous API (set at configuration time) */
-static size_t USE_ASYNC_API = 1;
 
 #ifdef HAVE_WORKFLOW
 /** The MA DAG reference */
@@ -512,12 +515,12 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
 #endif // HAVE_WORKFLOW
 
   MA_MUTEX.lock();
-
   if (!CORBA::is_nil(MA)) {
     WARNING(__FUNCTION__ << ": diet_finalize has not been called");
     MA_MUTEX.unlock();
     return 15;
   }
+  MA_MUTEX.unlock();
 
   /* Set arguments for ORBMgr::init */
   if (argc) {
@@ -531,7 +534,6 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
   Parsers::Results::param_type_t compParam[] = {Parsers::Results::MANAME};
 
   if ((res = Parsers::beginParsing(config_file_name))) {
-    MA_MUTEX.unlock();
     return res;
   }
   res = Parsers::parseCfgFile(false,
@@ -539,7 +541,6 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
                               (Parsers::Results::param_type_t*) compParam);
   if (res) {
     Parsers::endParsing();
-    MA_MUTEX.unlock();
     return res;
   }
 
@@ -568,56 +569,42 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
     myargc = tmp_argc;
   }
 
-  /* Get the USE_ASYNC_API flag */
-  value = Parsers::Results::getParamValue(Parsers::Results::USEASYNCAPI);
-  if (value != NULL)
-    USE_ASYNC_API = *(size_t *)(value);
-
-  if (USE_ASYNC_API == 1) {
-    /* Initialize the ORB */
-    try {
-			ORBMgr::init(myargc, (char**)myargv);
-		}	catch (...) {
-      ERROR("ORB initialization failed", 1);
-    }
-    // Create sole instance of synchronized CallAsyncMgr class
-    CallAsyncMgr::Instance();
-    // Create servant callback object
-    CallbackImpl* cb = new CallbackImpl();
-    // activate servant callback
-    try {
-			ORBMgr::getMgr()->activate(cb);
-		} catch (...) {
-			return -1;
-		}
-    CORBA::Object_var obj = cb->_this();
-    // create corba client callback serveur reference ...
-		//
-		ostringstream os;
-		char host[256];
-		
-		gethostname(host, 256);
-		host[255]='\0';
-
-		std::transform(host, host+strlen(host), host, chgName);
-		
-		os << "DIET-client-" << host << "-" << getpid();
-    REF_CALLBACK_SERVER = CORBA::string_dup(os.str().c_str());
-		
-		ORBMgr::getMgr()->bind(CLIENTCTXT, os.str(), obj);
-		ORBMgr::getMgr()->fwdsBind(CLIENTCTXT, os.str(),
-															 ORBMgr::getMgr()->getIOR(obj));
-    //This is done in the activate() of the newest ORBMgr version
-    //cb->_remove_ref();
-    if (REF_CALLBACK_SERVER == NULL) return -1;
+  /* Initialize the ORB */
+  try {
+    ORBMgr::init(myargc, (char**)myargv);
+  }	catch (...) {
+    ERROR("ORB initialization failed", 1);
   }
-  else {
-    try {
-			ORBMgr::init(myargc, (char**)myargv);
-		}	catch (...) {
-      ERROR("ORB initialization failed", 1);
-    }
+  
+  // Create sole instance of synchronized CallAsyncMgr class
+  CallAsyncMgr::Instance();
+  // Create servant callback object
+  CallbackImpl* cb = new CallbackImpl();
+  // activate servant callback
+  try {
+    ORBMgr::getMgr()->activate(cb);
+  } catch (...) {
+    return -1;
   }
+  CORBA::Object_var obj = cb->_this();
+  
+  // create corba client callback serveur reference
+  ostringstream os;
+  char host[256];
+  gethostname(host, 256);
+  host[255]='\0';
+  std::transform(host, host+strlen(host), host, chgName);
+  os << "DIET-client-" << host << "-" << getpid();
+  REF_CALLBACK_SERVER = CORBA::string_dup(os.str().c_str());
+  try {
+    ORBMgr::getMgr()->bind(CLIENTCTXT, os.str(), obj);
+    ORBMgr::getMgr()->fwdsBind(CLIENTCTXT, os.str(),
+                               ORBMgr::getMgr()->getIOR(obj));
+  } catch (...) {
+    ERROR("Connection to omniNames failed (Callback server bind)", 1);
+  }
+  if (REF_CALLBACK_SERVER == NULL) return -1;
+
 
 #if HAVE_JUXMEM
   initJuxMem();
@@ -625,14 +612,18 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
 
   /* Find Master Agent */
   MA_name = (char*)
-   Parsers::Results::getParamValue(Parsers::Results::MANAME);
-   TRACE_TEXT (TRACE_MAIN_STEPS,"MA NAME PARSING = " << MA_name << endl);
-   MA_Name = CORBA::string_dup(MA_name);
-  MA = ORBMgr::getMgr()->resolve<MasterAgent, MasterAgent_var>(AGENTCTXT, MA_Name);
-  if (CORBA::is_nil(MA)) {
-    ERROR("cannot locate Master Agent " << MA_name, 1);
+  Parsers::Results::getParamValue(Parsers::Results::MANAME);
+  TRACE_TEXT (TRACE_MAIN_STEPS,"MA NAME PARSING = " << MA_name << endl);
+  MA_Name = CORBA::string_dup(MA_name);
+  MA_MUTEX.lock();
+  try {
+    MA = ORBMgr::getMgr()->resolve<MasterAgent, MasterAgent_var>(AGENTCTXT, MA_Name);
+  } catch (...) {
+    MA_MUTEX.unlock();
+    return -1;
   }
-
+  MA_MUTEX.unlock();
+  
   /* Initialize statistics module */
   stat_init();
 
@@ -721,7 +712,6 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
   ORBMgr::getMgr()->activate(tmpDataManager);
 #endif // HAVE_DAGDA
 
-// modif bisnard_logs_1
 #ifdef HAVE_WORKFLOW
   // Workflow parsing
   /* Find the MA_DAG */
@@ -762,13 +752,6 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
   XMLPlatformUtils::Initialize();
 
 #endif
-//end modif bisnard_logs_1
-
-/* DAGDA needs some parameters later... */
-#if ! HAVE_DAGDA
-  /* We do not need the parsing results any more */
-  Parsers::endParsing();
-#endif
 
   /* Has the maximum number of SeD been specified? */
   value = Parsers::Results::getParamValue(Parsers::Results::CLIENT_MAX_NB_SED);
@@ -776,6 +759,12 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
     MAX_SERVERS = *(unsigned long *)(value);
     TRACE_TEXT (TRACE_MAIN_STEPS,"Max number of SeD allowed = " << MAX_SERVERS << endl);
   }
+
+  /* DAGDA needs some parameters later... */
+#if ! HAVE_DAGDA
+  /* We do not need the parsing results any more */
+  Parsers::endParsing();
+#endif
 
   /* Catch signals to try to exit cleanly. */
   signal(SIGABRT, diet_finalize_sig);
@@ -799,17 +788,16 @@ diet_finalize() {
 #endif // HAVE_WORKFLOW
 
   stat_finalize();
-  if (USE_ASYNC_API == 1) {
 
-    CallAsyncMgr * caMgr = CallAsyncMgr::Instance();
-    while (caMgr->areThereWaitRules() > 0) {
-      omni_thread::sleep(1);
-      // must be replace by a call to waitall
-      // must be a call to diet_finalize_force ....
-      // Maybe we must split async api from sync api ...
-    }
-    caMgr->release();
+  CallAsyncMgr * caMgr = CallAsyncMgr::Instance();
+  while (caMgr->areThereWaitRules() > 0) {
+    omni_thread::sleep(1);
+    // must be replace by a call to waitall
+    // must be a call to diet_finalize_force ....
+    // Maybe we must split async api from sync api ...
   }
+  caMgr->release();
+
   MA_MUTEX.lock();
   MA = MasterAgent::_nil();
   MA_MUTEX.unlock();
