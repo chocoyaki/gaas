@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.30  2010/10/18 07:18:26  bisnard
+ * allow re-initialization of the ORB
+ *
  * Revision 1.29  2010/07/27 16:16:48  glemahec
  * Forwarders robustness
  *
@@ -446,6 +449,8 @@ ORBMgr* ORBMgr::getMgr() {
 }
 
 void ORBMgr::init(int argc, char* argv[]) {
+  if (theMgr)
+    delete theMgr;
 	theMgr = new ORBMgr(argc, argv);
 }
 
