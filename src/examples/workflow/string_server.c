@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2010/10/20 02:54:37  bdepardo
+ * Check usage
+ *
  * Revision 1.8  2010/09/06 07:41:13  bdepardo
  * Fixed warnings
  *
@@ -301,6 +304,8 @@ int main(int argc, char * argv[]) {
 
   int res,i;
   diet_profile_desc_t* profile = NULL;
+
+  checkUsage(argc, argv);
 
   /* service name */
   strcpy (name_str, argv[2]);
