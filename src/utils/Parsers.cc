@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.60  2010/10/20 03:39:22  bdepardo
+ * Removed "useAsyncAPI" since it has been removed from Parser.hh
+ *
  * Revision 1.59  2010/10/18 08:20:12  bisnard
  * Modified initialization of Parser to avoid crash due to calling
  * beginParsing twice.
@@ -225,67 +228,66 @@ Parsers::Results::param_t Parsers::Results::params[] =
    /* [11] */ {"nwsUse", 6, Parsers::parseUse, 0, NULL, Results::INT_PARAMETER},
    /* [12] */ {"nwsNameserver", 13, Parsers::parseAddress, 0, NULL, Results::ADDRESS_PARAMETER},
    /* [13] */ {"nwsForecaster", 13, Parsers::parseAddress, 0, NULL, Results::ADDRESS_PARAMETER},
-   /* [14] */ {"useAsyncAPI", 11, Parsers::parseUse, 0, NULL, Results::INT_PARAMETER},
-   /* [15] */ {"useLogService", 13, Parsers::parseUse, 0, NULL, Results::INT_PARAMETER},
-   /* [16] */ {"lsOutbuffersize", 15, Parsers::parsePort, 0, NULL, Results::INT_PARAMETER},
-   /* [17] */ {"lsFlushinterval", 15, Parsers::parsePort, 0, NULL, Results::INT_PARAMETER},
-   /* [18] */ {"neighbours", 10, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER},
-   /* [19] */ {"maximumNeighbours", 17, Parsers::parsePort, 0, NULL, Results::INT_PARAMETER},
-   /* [20] */ {"minimumNeighbours", 17, Parsers::parsePort, 0, NULL, Results::INT_PARAMETER},
-   /* [21] */ {"updateLinkPeriod", 16, Parsers::parsePort, 0, NULL, Results::INT_PARAMETER},
-   /* [22] */ {"bindServicePort", 15, Parsers::parsePort, 0, NULL, Results::INT_PARAMETER},
-   /* [23] */ {"useConcJobLimit", 15, Parsers::parseUse, 0, NULL, Results::INT_PARAMETER},
-   /* [24] */ {"maxConcJobs", 11, Parsers::parseInt, 0, NULL, Results::INT_PARAMETER}
-   /* [25] */ ,{"locationID", 10, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
-   /* [26] */ ,{"MADAGNAME", 9, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
-   /* [27] */ ,{"USEWFLOGSERVICE", 15, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
+   /* [14] */ {"useLogService", 13, Parsers::parseUse, 0, NULL, Results::INT_PARAMETER},
+   /* [15] */ {"lsOutbuffersize", 15, Parsers::parsePort, 0, NULL, Results::INT_PARAMETER},
+   /* [16] */ {"lsFlushinterval", 15, Parsers::parsePort, 0, NULL, Results::INT_PARAMETER},
+   /* [17] */ {"neighbours", 10, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER},
+   /* [18] */ {"maximumNeighbours", 17, Parsers::parsePort, 0, NULL, Results::INT_PARAMETER},
+   /* [19] */ {"minimumNeighbours", 17, Parsers::parsePort, 0, NULL, Results::INT_PARAMETER},
+   /* [20] */ {"updateLinkPeriod", 16, Parsers::parsePort, 0, NULL, Results::INT_PARAMETER},
+   /* [21] */ {"bindServicePort", 15, Parsers::parsePort, 0, NULL, Results::INT_PARAMETER},
+   /* [22] */ {"useConcJobLimit", 15, Parsers::parseUse, 0, NULL, Results::INT_PARAMETER},
+   /* [23] */ {"maxConcJobs", 11, Parsers::parseInt, 0, NULL, Results::INT_PARAMETER}
+   /* [24] */ ,{"locationID", 10, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
+   /* [25] */ ,{"MADAGNAME", 9, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
+   /* [26] */ ,{"USEWFLOGSERVICE", 15, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
 /* New : For user scheduler support. */
 /*       schedulerModule  : The path to the scheduler library file. */
 /*       moduleConfigFile : Optionnal configuration file for the module. */
 #ifdef USERSCHED
-   /* [28] */ ,{"schedulerModule", 15, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
-   /* [29] */ ,{"moduleConfigFile", 16, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
+   /* [27] */ ,{"schedulerModule", 15, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
+   /* [28] */ ,{"moduleConfigFile", 16, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
 #endif
 #ifdef HAVE_ALT_BATCH
-   /* [30] */ ,{"batchName", 9, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
-   /* [31] */ ,{"batchQueue", 10, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
-   /* [32] */ ,{"pathToNFS", 9, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
-   /* [33] */ ,{"pathToTmp", 9, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
+   /* [29] */ ,{"batchName", 9, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
+   /* [30] */ ,{"batchQueue", 10, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
+   /* [31] */ ,{"pathToNFS", 9, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
+   /* [32] */ ,{"pathToTmp", 9, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
 #endif
-   /* [34] */ ,{"initRequestID", 13, Parsers::parseInt, 0, NULL, Results::INT_PARAMETER}
+   /* [33] */ ,{"initRequestID", 13, Parsers::parseInt, 0, NULL, Results::INT_PARAMETER}
 #ifdef HAVE_ACKFILE
-   /* [35] */ ,{"ackFile", 7, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
+   /* [34] */ ,{"ackFile", 7, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
 #endif
 #if HAVE_DAGDA
-   /* [36] */ ,{"maxMsgSize", 10, Parsers::parseULong, 0, NULL, Results::ULONG_PARAMETER}
-   /* [37] */ ,{"maxDiskSpace", 12, Parsers::parseULong, 0, NULL, Results::ULONG_PARAMETER}
-   /* [38] */ ,{"maxMemSpace", 11, Parsers::parseULong, 0, NULL, Results::ULONG_PARAMETER}
-   /* [39] */ ,{"cacheAlgorithm", 14, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
-   /* [40] */ ,{"shareFiles", 10, Parsers::parseUse, 0, NULL, Results::INT_PARAMETER}
-   /* [41] */ ,{"dataBackupFile", 14, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
-   /* [42] */ ,{"restoreOnStart", 14, Parsers::parseUse, 0, NULL, Results::INT_PARAMETER}
+   /* [35] */ ,{"maxMsgSize", 10, Parsers::parseULong, 0, NULL, Results::ULONG_PARAMETER}
+   /* [36] */ ,{"maxDiskSpace", 12, Parsers::parseULong, 0, NULL, Results::ULONG_PARAMETER}
+   /* [37] */ ,{"maxMemSpace", 11, Parsers::parseULong, 0, NULL, Results::ULONG_PARAMETER}
+   /* [38] */ ,{"cacheAlgorithm", 14, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
+   /* [39] */ ,{"shareFiles", 10, Parsers::parseUse, 0, NULL, Results::INT_PARAMETER}
+   /* [40] */ ,{"dataBackupFile", 14, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
+   /* [41] */ ,{"restoreOnStart", 14, Parsers::parseUse, 0, NULL, Results::INT_PARAMETER}
 #endif // HAVE_DAGDA
 #if HAVE_DAGDA || HAVE_ALT_BATCH
-   /* [43] */ ,{"storageDirectory", 16, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
+   /* [42] */ ,{"storageDirectory", 16, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
 #endif
 #ifdef HAVE_CCS
-   /* [44] */ ,{"USE_SPECIFIC_SCHEDULING", 23, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
+   /* [43] */ ,{"USE_SPECIFIC_SCHEDULING", 23, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
 #endif
 #ifdef HAVE_ALT_BATCH
-   /* [41] */ ,{"internOARbatchQueueName", 23, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
+   /* [44] */ ,{"internOARbatchQueueName", 23, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
 #endif
-   /* [42] */ ,{"clientMaxNbSeD", 14, Parsers::parseULong, 0, NULL, Results::ULONG_PARAMETER}
+   /* [45] */ ,{"clientMaxNbSeD", 14, Parsers::parseULong, 0, NULL, Results::ULONG_PARAMETER}
 #ifdef HAVE_CLOUD
-   /* [43] */ ,{"cloudURL", 8, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
-   /* [44] */ ,{"emiName", 7, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER} 
-   /* [45] */ ,{"eriName", 7, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
-   /* [46] */ ,{"ekiName", 7, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
-   /* [47] */ ,{"keyName", 7, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
-   /* [48] */ ,{"vmType", 6, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
-   /* [49] */ ,{"vmMinCount", 10, Parsers::parseInt, 0, NULL, Results::INT_PARAMETER}
-   /* [50] */ ,{"vmMaxCount", 10, Parsers::parseInt, 0, NULL, Results::INT_PARAMETER}
-   /* [51] */ ,{"pathToCert", 10, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
-   /* [52] */ ,{"pathToPK", 8, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
+   /* [46] */ ,{"cloudURL", 8, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
+   /* [47] */ ,{"emiName", 7, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER} 
+   /* [48] */ ,{"eriName", 7, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
+   /* [49] */ ,{"ekiName", 7, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
+   /* [50] */ ,{"keyName", 7, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
+   /* [51] */ ,{"vmType", 6, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
+   /* [52] */ ,{"vmMinCount", 10, Parsers::parseInt, 0, NULL, Results::INT_PARAMETER}
+   /* [53] */ ,{"vmMaxCount", 10, Parsers::parseInt, 0, NULL, Results::INT_PARAMETER}
+   /* [54] */ ,{"pathToCert", 10, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
+   /* [55] */ ,{"pathToPK", 8, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
 #endif
 } ;
 
