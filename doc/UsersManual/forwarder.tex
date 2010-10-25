@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.3  2010/10/25 08:30:05  bdepardo
+%* Explanation on -C option which is mandatory to create the connection.
+%*
 %* Revision 1.2  2010/09/10 13:05:29  bdepardo
 %* Typos
 %*
@@ -101,6 +104,7 @@ The \diet forwarder executable takes several options to be launched:
   connection (by default: \verb#$HOME/.ssh/id_rsa#).
 \item \verb#--remote-port#: the port to listen on the ssh host.
 \item \verb#--net-config#: the path to the configuration file.
+\item \verb#-C#: create the tunnel from this forwarder.
 \end{itemize}
 The remote port can be chosen randomly among the available TCP ports
 on the remote host.\\
@@ -112,11 +116,14 @@ on the remote host.\\
   and its network configuration.
 \item Launch the second peer, passing it it the first peer name, the
   ssh connection informations, the remote port to use and its network
-  configuration.
+  configuration, and the \verb#-C# option to force it to create the
+  ssh tunnel.
 \end{itemize}
 
 \noindent\textit{Rem: The forwarders must be launched before the \diet
   hierarchy.}
+
+
 \subsection{Configuration file}
 To describe to which networks a forwarder gives an access to, users pass a
 configuration file to the executable through the \verb#--net-config#
@@ -178,7 +185,7 @@ three networks.
   dietUser $\backslash$\\
   \hspace*{4.2cm}{\tiny$--$}ssh-key id\_rsa\_net2
   {\tiny$--$}remote-port 50000 $\backslash$\\
-  \hspace*{4.2cm}{\tiny$--$}net-config net1.cfg}\\[2mm]
+  \hspace*{4.2cm}{\tiny$--$}net-config net1.cfg {\tiny$-$}C}\\[2mm]
 \noindent\textbf{Command line to launch \textit{Fwd2}: }\\
 {\small \it fwd.net2\$ dietForwarder {\tiny$--$}name Fwd2
   {\tiny$--$}net-config net2.cfg}\\[3mm]
@@ -197,6 +204,7 @@ accept:.*
 reject:localhost
 \end{verbatim}
 
+Note that \textit{Fwd2} has to be launched before \textit{Fwd1}.
 When the two forwarders are launched, the user can deploy his \diet
 hierarchy. All the communications through  \diet forwarders are
 transparent.
@@ -225,7 +233,7 @@ To connect the three domains, we need 4 forwarders (2 pairs): one on
   dietUser $\backslash$\\
   \hspace*{4.2cm}{\tiny$--$}ssh-key id\_rsa\_net1
   {\tiny$--$}remote-port 50000 $\backslash$\\
-  \hspace*{4.2cm}{\tiny$--$}net-config net2-1.cfg}\\[2mm]
+  \hspace*{4.2cm}{\tiny$--$}net-config net2-1.cfg {\tiny$-$}C}\\[2mm]
 
 \noindent\textbf{Command line to launch \textit{Fwd2-3}: }\\
 {\small \it fwd.net2\$ dietForwarder {\tiny$--$}name Fwd2-3
@@ -234,7 +242,7 @@ To connect the three domains, we need 4 forwarders (2 pairs): one on
   dietUser $\backslash$\\
   \hspace*{4.2cm}{\tiny$--$}ssh-key id\_rsa\_net3
   {\tiny$--$}remote-port 50000 $\backslash$\\
-  \hspace*{4.2cm}{\tiny$--$}net-config net2-3.cfg}\\[2mm]
+  \hspace*{4.2cm}{\tiny$--$}net-config net2-3.cfg {\tiny$-$}C}\\[2mm]
 
 \noindent\textbf{Command line to launch \textit{Fwd3}: }\\
 {\small \it fwd.net3\$ dietForwarder {\tiny$--$}name Fwd3
@@ -273,3 +281,5 @@ reject:.*\.net3
 Using this configuration, a communication from a host on \textit{net1}
 to a host on \textit{net3} is first routed from \textit{Fwd1} to
 \textit{Fwd2-1} and then from \textit{Fwd2-3} to \textit{Fwd3}.
+Note that \textit{Fwd1} has to be launched before \textit{Fwd2-1}, and
+\textit{Fwd3} has to be launched before \textit{Fwd2-3}.
