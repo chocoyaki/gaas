@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.4  2010/10/26 01:45:03  bdepardo
+%* Typos
+%*
 %* Revision 1.3  2010/10/25 08:30:05  bdepardo
 %* Explanation on -C option which is mandatory to create the connection.
 %*
@@ -133,7 +136,7 @@ reachable using this forwarder:
 \item The \verb#accept# rules: these rules describe which network can
   be accessed using the forwarder.
 \item The \verb#reject# rules: these rules describe which network
-  cannot be accessed usin the forwarder.\\
+  cannot be accessed using the forwarder.\\
 \end{itemize}
 
 A rule is a regular expression that describes a set of hostnames or IP
@@ -142,7 +145,7 @@ addresses. \textit{localhost} is a special rule that represent, the
 network interface IP addresses.\\
 
 A \diet forwarder configuration file line always starts with
-\textit{accept:} or \textit{reject:} immediatly followed by a regular
+\textit{accept:} or \textit{reject:} immediately followed by a regular
 expression.\\
 
 The rules are evaluated starting by the \textit{accept} rules. Then
@@ -157,7 +160,7 @@ Examples of configuration files are given in section
 \section{Configuration examples}
 \label{sec:ForwarderExamples}
 The first example presents the configurations of \diet forwarders to
-connect a SeD located on a network only reachable through ssh to a
+connect a \sed located on a network only reachable through ssh to a
 \diet hierarchy located on another network.\\
 
 The second example presents the configurations of \diet forwarders to
@@ -174,7 +177,7 @@ three networks.
   \textit{fwd.net1} using an ssh connection.
 \item The forwarder on \textit{fwd.net1} is named \textit{Fwd1}, the
   forwarder on \textit{fwd.net2} is named \textit{Fwd2}.
-\item One SeD is launched on \textit{fwd.net2}, the rest of the \diet
+\item One \sed is launched on \textit{fwd.net2}, the rest of the \diet
   hierarchy is launched on the \textit{net1} domain.\\
 \end{itemize}
 
