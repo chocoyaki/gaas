@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2010/10/27 06:56:30  bdepardo
+ * Solved compilation problems
+ *
  * Revision 1.2  2010/10/27 06:41:25  amuresan
  * modified Eucalyptus_BatchSystem to be able to use existing VMs also
  *
@@ -38,12 +41,14 @@ void mat_to_str(diet_profile_t*pb,int index, char*cumul)
   diet_matrix_order_t o;
   char nb[100];
   double* M = NULL;
+  int i, j;
+
   diet_matrix_get(diet_parameter(pb, index), &M, NULL, &m, &n, &o);
   strcat(cumul, "[");
-  for(int i=0;i<m;i++)
+  for(i=0;i<m;i++)
   {
       strcat(cumul, "[");
-      for(int j=0;j<n;j++)
+      for(j=0;j<n;j++)
       {
           sprintf(nb, "%.2lf", M[i*n+j]);
           strcat(cumul, nb);
@@ -77,8 +82,9 @@ int solve_cloud(diet_profile_t *pb)
 {
     char * result = (char*)malloc(9000 * sizeof(char));
     char * C = (char*)malloc(9000 * sizeof(char));
+    int res;
 
-    char*aux, *strA, *strB, *strC;
+    char*aux, *strA, *strB;
     char*script_start =
         "#!/bin/bash\n\n"
         "for h in $DIET_CLOUD_VMS\n"
@@ -117,18 +123,18 @@ int solve_cloud(diet_profile_t *pb)
     strB[0] = 0;
     mat_to_str(pb, 0, strA);
     mat_to_str(pb, 1, strB);
-//    printf("A: %s\nB: %s\n", strA, strB);
+    /*    printf("A: %s\nB: %s\n", strA, strB); */
     sprintf(aux, "%sa=%s\nb=%s\n%s\0", script_start, strA, strB, script_end);
 
   /* Call performance prediction or not, but fields are to be fullfilled */ 
   make_perf(pb) ; 
          
   /* Submission */ 
-  int res = diet_submit_parallel(pb, 
-          NULL,
-          aux) ;
+  res = diet_submit_parallel(pb, 
+			     NULL,
+			     aux) ;
 
-//  printf("submitted script '%s' and got result %d\n", aux, res);
+  /*  printf("submitted script '%s' and got result %d\n", aux, res); */
   result[0] = '\0';
 
   read_all(result, "info");

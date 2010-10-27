@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2010/10/27 06:56:30  bdepardo
+ * Solved compilation problems
+ *
  * Revision 1.2  2010/10/27 06:41:25  amuresan
  * modified Eucalyptus_BatchSystem to be able to use existing VMs also
  *
@@ -59,11 +62,11 @@ int main(int argc, char **argv)
 /* Initialize a DIET session */
   diet_initialize("./client_cloud.cfg", argc, argv);
   /* Create the profile as explained in Chapter 3 */
-  profile = diet_profile_alloc("cloud-demo",1, 1, 3); // last_in, last_inout, last_out
+  profile = diet_profile_alloc("cloud-demo",1, 1, 3); /* last_in, last_inout, last_out */
   /* Set profile arguments */
   diet_string_set(diet_parameter(profile,3), NULL,    DIET_VOLATILE);
   
-  // init matrixes
+  /* init matrixes */
   oA = ((double)rand()/(double)RAND_MAX <= 0.5) ? DIET_ROW_MAJOR : 
                                                   DIET_COL_MAJOR;
   oB = ((double)rand()/(double)RAND_MAX <= 0.5) ? DIET_ROW_MAJOR : 
@@ -107,5 +110,7 @@ int main(int argc, char **argv)
   /* Free profile */
   diet_profile_free(profile);
   diet_finalize();
+
+  return 0;
 }
 
