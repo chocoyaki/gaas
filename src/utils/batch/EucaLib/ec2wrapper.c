@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2010/10/27 06:41:36  amuresan
+ * modified Eucalyptus_BatchSystem to be able to use existing VMs also
+ *
  * Revision 1.3  2010/07/09 16:01:46  amuresan
  * Cleared out the installation process of the Cloud component with gSOAP.
  * A part of gSOAP needs to be re-compiled for the WSSE plugin.
@@ -98,7 +101,7 @@ int soap_wsse_add_security_header(struct soap * soap, EVP_PKEY * pk, X509 * cert
 		soap_wsse_add_BinarySecurityTokenX509(soap, "X509Token", cert)		// Add the binary security token
 		|| soap_wsse_add_KeyInfo_SecurityTokenReferenceX509(soap, "#X509Token")	// Add the security token reference
 		|| soap_wsse_sign_body(soap, SOAP_SMD_SIGN_RSA_SHA1, pk, 0)	// Sign the message body
-		|| soap_wsse_add_Timestamp(soap, NULL, CONST_5MIN);				// Amazon uses 5 minutes expiration for timestamps
+		|| soap_wsse_add_Timestamp(soap, "Time", CONST_5MIN);				// Amazon uses 5 minutes expiration for timestamps
 }
 
 #ifdef __cplusplus

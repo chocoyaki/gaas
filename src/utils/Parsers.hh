@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.43  2010/10/27 06:41:30  amuresan
+ * modified Eucalyptus_BatchSystem to be able to use existing VMs also
+ *
  * Revision 1.42  2010/10/18 08:18:21  bisnard
  * removed USE_ASYNC_API option
  *
@@ -307,6 +310,9 @@ public:
       VMMAXCOUNT,
       PATHTOCERT,
       PATHTOPK,
+      PATHTOSSHKEY,
+      INSTANTIATEVMS,
+      SECURITYGROUP,
 #endif
       NB_PARAM_TYPE
     } param_type_t;

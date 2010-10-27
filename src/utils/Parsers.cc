@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.61  2010/10/27 06:41:30  amuresan
+ * modified Eucalyptus_BatchSystem to be able to use existing VMs also
+ *
  * Revision 1.60  2010/10/20 03:39:22  bdepardo
  * Removed "useAsyncAPI" since it has been removed from Parser.hh
  *
@@ -288,6 +291,9 @@ Parsers::Results::param_t Parsers::Results::params[] =
    /* [53] */ ,{"vmMaxCount", 10, Parsers::parseInt, 0, NULL, Results::INT_PARAMETER}
    /* [54] */ ,{"pathToCert", 10, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
    /* [55] */ ,{"pathToPK", 8, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
+   /* [56] */ ,{"pathToSSHKey", 12, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
+   /* [57] */ ,{"instantiateVMs", 14, Parsers::parseInt, 0, NULL, Results::INT_PARAMETER}
+   /* [58] */ ,{"securityGroup", 13, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
 #endif
 } ;
 

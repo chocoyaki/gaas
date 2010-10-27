@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2010/10/27 06:41:30  amuresan
+ * modified Eucalyptus_BatchSystem to be able to use existing VMs also
+ *
  * Revision 1.1  2010/05/05 13:13:51  amuresan
  * First commit for the Eucalyptus BatchSystem.
  * Added SOAP client for the Amazon EC2 SOAP interface and
@@ -18,6 +21,9 @@
 
 #ifndef _EUCALYPTUS_BATCH_SYSTEM_HH_
 #define _EUCALYPTUS_BATCH_SYSTEM_HH_
+
+#define CLOUD_LOG
+#define CLOUD_DEBUG
 
 #include "BatchSystem.hh"
 #include "Parsers.hh"
@@ -30,7 +36,8 @@ typedef enum
 	C1_MEDIUM,
 	M1_LARGE,
 	M1_XLARGE,
-	C1_XLARGE
+	C1_XLARGE,
+    T1_MICRO
 }VMTYPE;
 
 class Eucalyptus_BatchSystem : public BatchSystem
@@ -96,8 +103,16 @@ public :
   /****************** Performance Prediction Functions ***************/
 
 private :
+  int VM_Buff_count;
+
   int
   init(char*pathToPrivateKey, char*pathToCert);
+ 
+  void
+  doWait(int count, char* addresses);
+
+  void
+  allocVmNames();
 
   /****************** Eucalyptus VM Management ***********************/
   /* Makes a reservation on an Eucalyptus cloud and returns the number of instantiated VMs.
@@ -143,6 +158,9 @@ private :
   /* VM type that is defined as a string value inside the config file. */
   static const char * vmTypes[];
 
+  /* This holds the instance states given by the Cloud system to the running instances */
+  char **vmStates;
+
   /* This holds the instance names given by the Cloud system to the running instances */
   char **vmNames;
 
@@ -154,6 +172,10 @@ private :
 
   /* Same as above, but this holds the private IP addresses. Note that they might be the same. */
   char **vmPrivIPs;
+
+  /* Security group
+   */
+  char *securityGroup;
 
   /* When isueing a reservation to an Amazon-like cloud an identifier is received for that reservation.
    * This string holds that value
@@ -168,6 +190,12 @@ private :
   
   /* Actual number of VMs to instantiated and is read from the SeD .cfg file. */
   int actualCount;
+
+  /* Path to the ssh key used for authentication on the VMs */
+  char * pathToSSHKey;
+
+  /* Flag that tells wether to instantiate new VMs or use existing ones */
+  int instantiateVMs;
 
   /* This holds the private key of the Cloud user used to sign the SOAP requests
    * and its path is read from the SeD .cfg file.

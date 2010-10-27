@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2010/10/27 06:41:30  amuresan
+ * modified Eucalyptus_BatchSystem to be able to use existing VMs also
+ *
  * Revision 1.1  2010/05/05 13:13:51  amuresan
  * First commit for the Eucalyptus BatchSystem.
  * Added SOAP client for the Amazon EC2 SOAP interface and
@@ -21,14 +24,14 @@
 #include "Parsers.hh"
 
 #define INFTY 999999
-#define CLOUD_DEBUG
 
 const char * Eucalyptus_BatchSystem::vmTypes[] = { 
     "m1.small",
     "c1.medium",
     "m1.large",
     "m1.xlarge",
-    "c1.xlarge"
+    "c1.xlarge",
+    "t1.micro"
 };
 
 Eucalyptus_BatchSystem::Eucalyptus_BatchSystem(int ID, const char * batchname)
@@ -40,7 +43,9 @@ Eucalyptus_BatchSystem::Eucalyptus_BatchSystem(int ID, const char * batchname)
     char * pathToPrivateKey;
     
     // Member initialization here
+    VM_Buff_count = 100;
     state = WAITING;
+    vmStates = NULL;
     vmNames = NULL;
     vmIPs = NULL;
     vmPrivIPs = NULL;
@@ -52,10 +57,21 @@ Eucalyptus_BatchSystem::Eucalyptus_BatchSystem(int ID, const char * batchname)
     sleepTimeout = 5;
 
     // Parameters from the config file here
+    securityGroup = GetStringValueOrNull(tmp, Parsers::Results::SECURITYGROUP); 
+#ifdef CLOUD_DEBUG
+    if(securityGroup != NULL)
+        fprintf(stdout, "Security group: %s\n", securityGroup);
+#endif
     eucaURL = GetStringValueOrNull(tmp, Parsers::Results::CLOUDURL);
     emiName = GetStringValueOrNull(tmp, Parsers::Results::EMINAME);
     eriName = GetStringValueOrNull(tmp, Parsers::Results::ERINAME);
     ekiName = GetStringValueOrNull(tmp, Parsers::Results::EKINAME);
+    pathToSSHKey = GetStringValueOrNull(tmp, Parsers::Results::PATHTOSSHKEY);
+    vpTmp = Parsers::Results::getParamValue(Parsers::Results::INSTANTIATEVMS);
+    if(vpTmp != NULL)
+        instantiateVMs = *(int*)vpTmp;
+    else
+        instantiateVMs = 1;
     tmp = (char*) Parsers::Results::getParamValue(Parsers::Results::VMTYPE);
     for(index = 0;index<sizeof(vmTypes) / sizeof(char*);index++)
         if(!strcmp(tmp, vmTypes[index]))
@@ -65,6 +81,9 @@ Eucalyptus_BatchSystem::Eucalyptus_BatchSystem(int ID, const char * batchname)
     if(index >= sizeof(vmTypes) / sizeof(char*))
         index = 0;
     vmType = (VMTYPE)index; // VM type 
+#ifdef CLOUD_DEBUG
+    fprintf(stdout, "VMType = %s and index = %d\n", tmp, index);
+#endif
     keyName = GetStringValueOrNull(tmp, Parsers::Results::KEYNAME);
     vpTmp = Parsers::Results::getParamValue(Parsers::Results::VMMINCOUNT);
     if(vpTmp != NULL)
@@ -91,83 +110,109 @@ int Eucalyptus_BatchSystem::diet_submit_parallel(diet_profile_t * profile,
     const char * addon_prologue,
     const char * command)
 {
-    if(makeEucalyptusReservation(vmMinCount, vmMaxCount))
-	{
+    if(instantiateVMs)
+    {
+        if(makeEucalyptusReservation(vmMinCount, vmMaxCount))
+	    {
+            state = ERROR;
+#ifdef CLOUD_DEBUG
+            fprintf(stderr, "ERROR: Cannot perform reservation\n");
+#endif
+            return 0;
+	    }
+    }
+    else if(describeInstances())
+    {
+        printf("error describing\n");
+        terminateEucalyptusInstance();
         state = ERROR;
 #ifdef CLOUD_DEBUG
-        fprintf(stderr, "ERROR: Cannot perform reservation\n");
+        fprintf(stderr, "ERROR: Cannot call 'DescribeInstances' to cloud at address '%s'\n", eucaURL);
 #endif
-	}
-	else
-	{
-        int count = 0;
-        char unassigned = 1;
-        int index = 0;
-        // wait while the VMs have no assigned IP addresses
-        state = SUBMITTED;
-        while(unassigned)
+        return 0;
+    }
+    printf("Described instances\n");
+
+    int count = 0;
+    char unassigned = 1;
+    int index = 0;
+    // wait while the VMs have no assigned IP addresses
+    state = SUBMITTED;
+    while(unassigned)
+    {
+        unassigned = 0;
+        if(count > maxTries)
         {
-            unassigned = 0;
-            if(count > maxTries)
-            {
 #ifdef CLOUD_DEBUG
-                fprintf(stderr, "ERROR: Cannot retrieve IP addresses after %d tries to cloud at address '%s'\n",
-                        count, eucaURL);
+            fprintf(stderr, "ERROR: Cannot retrieve IP addresses after %d tries to cloud at address '%s'\n",
+                    count, eucaURL);
+#endif
+            return 0;
+        }
+        for(index = 0;index < actualCount;index++)
+            if(strcmp(vmIPs[index], "0.0.0.0") == 0 || strlen(vmIPs[index]) <= 1 || strcmp(vmStates[index], "running") != 0)
+            {
+                unassigned = 1;
+                break;
+            }
+        if(actualCount == 0)
+            unassigned = 1;
+        if(unassigned)
+        {
+#ifdef CLOUD_DEBUG
+            fprintf(stdout, "INFO: Some VMs do not have an IP address assigned, waiting for %d seconds...\n",
+                    sleepTimeout);
+#endif
+            sleep(sleepTimeout);
+            if(describeInstances())
+            {
+                terminateEucalyptusInstance();
+                state = ERROR;
+#ifdef CLOUD_DEBUG
+                fprintf(stderr, "ERROR: Cannot call 'DescribeInstances' to cloud at address '%s'\n", eucaURL);
 #endif
                 return 0;
             }
-            for(index = 0;index < actualCount;index++)
-                if(strcmp(vmIPs[index], "0.0.0.0") == 0)
-                {
-                    unassigned = 1;
-                    break;
-                }
-            if(unassigned)
-            {
-#ifdef CLOUD_DEBUG
-                fprintf(stdout, "INFO: Some VMs do not have an IP address assigned, waiting for %d seconds...\n",
-                        sleepTimeout);
-#endif
-                sleep(sleepTimeout);
-                if(describeInstances())
-                {
-                    terminateEucalyptusInstance();
-                    state = ERROR;
-#ifdef CLOUD_DEBUG
-                    fprintf(stderr, "ERROR: Cannot call 'DescribeInstances' to cloud at address '%s'\n", eucaURL);
-#endif
-                    return 0;
-                }
-            }
-            count++;
         }
+        count++;
+    }
 #ifdef CLOUD_DEBUG
-        fprintf(stdout, "INFO: Created instances with the following IP address mapping:\n");
-        for(index=0;index<actualCount;index++)
-            fprintf(stdout, "\t%s -> %s\n", vmNames[index], vmIPs[index]);
+    fprintf(stdout, "INFO: Created instances with the following IP address mapping:\n");
+    for(index=0;index<actualCount;index++)
+        fprintf(stdout, "\t%s -> %s\n", vmNames[index], vmIPs[index]);
 #endif
-        // prepare the script for running, replace the meta-variables inside the script
-        char *script = (char*)malloc(9000 * sizeof(char));
-        char *addresses = (char*)malloc((16 * actualCount + 1) * sizeof(char)); // 16 is the max length of an IP address plus a whitespace
-        addresses[0] = '\0';
-        for(index = 0;index < actualCount;index++)
-            sprintf(addresses, "%s%s ", addresses, vmIPs[index]);
-        sprintf(script, "%s", command);
-        replaceAllOccurencesInString(&script, "$DIET_CLOUD_VMS", addresses);
+    // prepare the script for running, replace the meta-variables inside the script
+    char *script = (char*)malloc(9000 * sizeof(char));
+    char *addresses = (char*)malloc((100 * actualCount + 1) * sizeof(char));
+    addresses[0] = '\0';
+    for(index = 0;index < actualCount;index++)
+        sprintf(addresses, "%s%s ", addresses, vmIPs[index]);
+    sprintf(script, "%s", command);
+    replaceAllOccurencesInString(&script, "$DIET_CLOUD_VMS", addresses);
+    replaceAllOccurencesInString(&script, "$PATH_TO_SSH_KEY", pathToSSHKey);
 
-        state = RUNNING;
-        if(system(script))
-		{
-            state = ERROR;
 #ifdef CLOUD_DEBUG
-            fprintf(stderr, "ERROR: Could not run system command\n");
+    fprintf(stdout, "INFO: running:\n%s", script);
 #endif
-		}
+
+    if(instantiateVMs)
+       doWait(20, addresses);
+
+    state = RUNNING;
+    if(system(script))
+    {
+        state = ERROR;
+#ifdef CLOUD_DEBUG
+        fprintf(stderr, "ERROR: Could not run system command\n");
+#endif
+    }
+    if(instantiateVMs)
+    {
         terminateEucalyptusInstance();
 #ifdef CLOUD_DEBUG
         fprintf(stdout, "INFO: Terminated instances\n");
 #endif
-	}
+    }
     state = TERMINATED;
 	return 0;
 }
@@ -248,6 +293,48 @@ Eucalyptus_BatchSystem::getNbFreeResources()
 /*************************** Performance Prediction *************************/
 
 /*************************** Eucalyptus VM Management ***********************/
+void Eucalyptus_BatchSystem::doWait(int count, char*addresses)
+{
+    int result,
+        index = 0;
+
+    char * s = 
+        "#!/bin/bash\n\n"
+        "for h in $DIET_CLOUD_VMS\n"
+        "do\n"
+        "ssh ec2-user@$h -i $PATH_TO_SSH_KEY -o StrictHostKeyChecking=no 'hostname ; uname -a' > wait\n"
+        "done";
+    char*script = (char*)malloc(1000);
+    sprintf(script, "%s", s);
+
+    replaceAllOccurencesInString(&script, "$DIET_CLOUD_VMS", addresses);
+    replaceAllOccurencesInString(&script, "$PATH_TO_SSH_KEY", pathToSSHKey);
+
+#ifdef CLOUD_DEBUG
+    fprintf(stdout, "INFO: waiting with script:\n%s\n", script);
+#endif
+    do
+    {
+        result = system(script);
+        index++;
+#ifdef CLOUD_DEBUG
+        fprintf(stdout, "Attempt %d with result %d...\n", index, result);
+#endif
+        if(result)
+            sleep(sleepTimeout);
+    }
+    while(index < count && result);
+
+}
+
+void Eucalyptus_BatchSystem::allocVmNames()
+{
+    vmStates = (char**)malloc(VM_Buff_count * sizeof(char*));
+    vmNames = (char**)malloc(VM_Buff_count * sizeof(char*));
+    vmIPs = (char**)malloc(VM_Buff_count * sizeof(char*));
+    vmPrivIPs = (char**)malloc(VM_Buff_count * sizeof(char*));
+}
+
 int Eucalyptus_BatchSystem::makeEucalyptusReservation(int minVMCount, int maxVMCount)
 {
     // TODO: fix this crude way of saying "I'm empty":
@@ -289,8 +376,18 @@ int Eucalyptus_BatchSystem::makeEucalyptusReservation(int minVMCount, int maxVMC
         rirespp->instancesSet->__sizeitem = 0;
         rirespp->instancesSet->item = NULL;
         rirespp->groupSet = (struct ec2__GroupSetType*)malloc(sizeof(struct ec2__GroupSetType));
-        rirespp->groupSet->__sizeitem = 0;
-        rirespp->groupSet->item = NULL;
+        if(securityGroup == NULL)
+        {
+            rirespp->groupSet->__sizeitem = 0;
+            rirespp->groupSet->item = NULL;
+        }
+        else
+        {
+            struct ec2__GroupItemType* gitem = (struct ec2__GroupItemType*)malloc(sizeof(struct ec2__GroupItemType));
+            gitem->groupId = strdup(securityGroup);
+            rirespp->groupSet->__sizeitem = 1;
+            rirespp->groupSet->item = gitem;
+        }
         struct ec2__RunInstancesResponseType response;
         int index;
         if(soap_call___ec2__RunInstances(s, eucaURL, "RunInstances", rireqp, rirespp) == SOAP_OK)
@@ -300,12 +397,11 @@ int Eucalyptus_BatchSystem::makeEucalyptusReservation(int minVMCount, int maxVMC
             fprintf(stdout, "INFO: Called RunInstances, reserved %d resources\n", actualCount);
 #endif
             reservationId = strdup(rirespp->reservationId);
-            vmNames = (char**)malloc(actualCount * sizeof(char*));
-            vmIPs = (char**)malloc(actualCount * sizeof(char*));
-            vmPrivIPs = (char**)malloc(actualCount * sizeof(char*));
+            allocVmNames();
             for(index=0;index<actualCount;index++)
             {
                 item = &rirespp->instancesSet->item[index];
+                vmStates[index] = strdup(item->instanceState->name);
                 vmNames[index] = strdup(item->instanceId);
                 vmIPs[index] = strdup(item->dnsName);
                 vmPrivIPs[index] = strdup(item->privateDnsName);
@@ -413,23 +509,46 @@ int Eucalyptus_BatchSystem::describeInstances()
         fprintf(stderr, "INFO: Found %d reservations(s)\n", respp->reservationSet->__sizeitem);
 #endif
         int r;
+        actualCount = 0;
         for(r=0;r<respp->reservationSet->__sizeitem;r++)
+        {
+            
+            if(reservationId == NULL || instantiateVMs == 0)
+                reservationId = strdup(respp->reservationSet->item[r].reservationId);
+            printf("INFO: ReservationId: %s\n", reservationId);
             if(strcmp(respp->reservationSet->item[r].reservationId, reservationId) == 0)
             {
                 reservation = &respp->reservationSet->item[r];
+                // Update the number of instances in case the service uses existing VMs
+                //actualCount = reservation->instancesSet->__sizeitem;
                 for(index=0;index<reservation->instancesSet->__sizeitem;index++)
                 {
+                    printf("in reservation\n");
+                    if(vmNames == NULL)
+                        allocVmNames();
                     runningItem = &reservation->instancesSet->item[index];
                     state = runningItem->instanceState;
-                    vmNames[index] = strdup(runningItem->instanceId);
-                    vmIPs[index] = strdup(runningItem->dnsName);
-                    vmPrivIPs[index] = strdup(runningItem->privateDnsName);
+                    if(strcmp(state->name, "running") == 0 || strcmp(state->name, "pending") == 0)
+                    {
+                        vmStates[actualCount] = strdup(state->name);
+                        vmNames[actualCount] = strdup(runningItem->instanceId);
+                        vmIPs[actualCount] = strdup(runningItem->dnsName);
+                        vmPrivIPs[actualCount] = strdup(runningItem->privateDnsName);
+                        actualCount++;
+                    }
+//                    else
+//                    {
+//                        vmNames[index] = "";
+//                        vmIPs[index] = "";
+//                        vmPrivIPs[index] = "";
+//                    }
 #ifdef CLOUD_DEBUG
                     fprintf(stdout, "INFO: VM with ID '%s' has state '%s' and IP '%s'\n",
                         runningItem->instanceId, state->name, runningItem->dnsName);
 #endif
                 }
             }
+        }
     }
     else // an error occurred
     {
@@ -482,7 +601,7 @@ struct soap * Eucalyptus_BatchSystem::newDefaultSoap()
 #endif
         return NULL;
     }
-#ifdef CLOUD_LOG
+#ifdef SOAP_DEBUG
     soap_set_recv_logfile(s, "RECV.log");
     soap_set_sent_logfile(s, "SENT.log");
     soap_set_test_logfile(s, "TEST.log");
