@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2010/10/27 10:53:05  amuresan
+ * modified cloud examples to take config files as command line args
+ *
  * Revision 1.2  2010/10/27 06:41:30  amuresan
  * modified Eucalyptus_BatchSystem to be able to use existing VMs also
  *
@@ -42,7 +45,7 @@ Eucalyptus_BatchSystem::Eucalyptus_BatchSystem(int ID, const char * batchname)
     char * pathToCert;
     char * pathToPrivateKey;
     
-    // Member initialization here
+    /* Member initialization here */
     VM_Buff_count = 100;
     state = WAITING;
     vmStates = NULL;
@@ -56,7 +59,7 @@ Eucalyptus_BatchSystem::Eucalyptus_BatchSystem(int ID, const char * batchname)
     maxTries = 50;
     sleepTimeout = 5;
 
-    // Parameters from the config file here
+    /* Parameters from the config file here */
     securityGroup = GetStringValueOrNull(tmp, Parsers::Results::SECURITYGROUP); 
 #ifdef CLOUD_DEBUG
     if(securityGroup != NULL)
@@ -80,7 +83,7 @@ Eucalyptus_BatchSystem::Eucalyptus_BatchSystem(int ID, const char * batchname)
         }
     if(index >= sizeof(vmTypes) / sizeof(char*))
         index = 0;
-    vmType = (VMTYPE)index; // VM type 
+    vmType = (VMTYPE)index;
 #ifdef CLOUD_DEBUG
     fprintf(stdout, "VMType = %s and index = %d\n", tmp, index);
 #endif
@@ -136,7 +139,7 @@ int Eucalyptus_BatchSystem::diet_submit_parallel(diet_profile_t * profile,
     int count = 0;
     char unassigned = 1;
     int index = 0;
-    // wait while the VMs have no assigned IP addresses
+    /* wait while the VMs have no assigned IP addresses */
     state = SUBMITTED;
     while(unassigned)
     {
@@ -181,7 +184,7 @@ int Eucalyptus_BatchSystem::diet_submit_parallel(diet_profile_t * profile,
     for(index=0;index<actualCount;index++)
         fprintf(stdout, "\t%s -> %s\n", vmNames[index], vmIPs[index]);
 #endif
-    // prepare the script for running, replace the meta-variables inside the script
+    /* prepare the script for running, replace the meta-variables inside the script */
     char *script = (char*)malloc(9000 * sizeof(char));
     char *addresses = (char*)malloc((100 * actualCount + 1) * sizeof(char));
     addresses[0] = '\0';
@@ -302,7 +305,7 @@ void Eucalyptus_BatchSystem::doWait(int count, char*addresses)
         "#!/bin/bash\n\n"
         "for h in $DIET_CLOUD_VMS\n"
         "do\n"
-        "ssh ec2-user@$h -i $PATH_TO_SSH_KEY -o StrictHostKeyChecking=no 'hostname ; uname -a' > wait\n"
+        "ssh ec2-user@$h -i $PATH_TO_SSH_KEY -o StrictHostKeyChecking=no 'hostname ; uname -a'\n"
         "done";
     char*script = (char*)malloc(1000);
     sprintf(script, "%s", s);
@@ -337,7 +340,7 @@ void Eucalyptus_BatchSystem::allocVmNames()
 
 int Eucalyptus_BatchSystem::makeEucalyptusReservation(int minVMCount, int maxVMCount)
 {
-    // TODO: fix this crude way of saying "I'm empty":
+    /* TODO: fix this crude way of saying "I'm empty": */
     vmNames = NULL;
     vmIPs = NULL;
     vmPrivIPs = NULL;
@@ -415,7 +418,7 @@ int Eucalyptus_BatchSystem::makeEucalyptusReservation(int minVMCount, int maxVMC
             soap_print_fault(s, stderr);
             return 1;
         }
-        // TODO: do the WHOLE cleanup, a lot more structs were allocated
+        /* TODO: do the WHOLE cleanup, a lot more structs were allocated */
         free(rireqp);
         free(rirespp);
     }
@@ -456,7 +459,7 @@ int Eucalyptus_BatchSystem::terminateEucalyptusInstance()
                 fprintf(stdout, "\nnew state is: %s\n", tirtp->instancesSet->item[index].shutdownState->name);
 #endif
         }
-        else // an error occurred
+        else /* an error occurred */
         {
 #ifdef CLOUD_DEBUG
             fprintf(stderr, "ERROR: Cannot perform call to 'TerminateInstances' to URL '%s'\n", eucaURL);
@@ -519,8 +522,7 @@ int Eucalyptus_BatchSystem::describeInstances()
             if(strcmp(respp->reservationSet->item[r].reservationId, reservationId) == 0)
             {
                 reservation = &respp->reservationSet->item[r];
-                // Update the number of instances in case the service uses existing VMs
-                //actualCount = reservation->instancesSet->__sizeitem;
+                /* Update the number of instances in case the service uses existing VMs */
                 for(index=0;index<reservation->instancesSet->__sizeitem;index++)
                 {
                     printf("in reservation\n");
@@ -536,12 +538,6 @@ int Eucalyptus_BatchSystem::describeInstances()
                         vmPrivIPs[actualCount] = strdup(runningItem->privateDnsName);
                         actualCount++;
                     }
-//                    else
-//                    {
-//                        vmNames[index] = "";
-//                        vmIPs[index] = "";
-//                        vmPrivIPs[index] = "";
-//                    }
 #ifdef CLOUD_DEBUG
                     fprintf(stdout, "INFO: VM with ID '%s' has state '%s' and IP '%s'\n",
                         runningItem->instanceId, state->name, runningItem->dnsName);
@@ -550,7 +546,7 @@ int Eucalyptus_BatchSystem::describeInstances()
             }
         }
     }
-    else // an error occurred
+    else /* an error occurred */
     {
 #ifdef CLOUD_DEBUG
         fprintf(stderr, "ERROR: Cannot perform call to 'DescribeInstances' to URL '%s'\n", eucaURL);
@@ -608,14 +604,14 @@ struct soap * Eucalyptus_BatchSystem::newDefaultSoap()
 #endif
     soap_register_plugin(s, soap_wsse);
     if(soap_wsse_add_security_header(s, rsa_private_key, cert))
-    { // Error branch
+    { /* Error branch */
         free(s);
 #ifdef CLOUD_LOG
         fprintf(stderr, "ERROR: Cannot add security headers to the SOAP message\n");
 #endif
     }
     else
-    { // ok branch
+    { /* ok branch */
         return s;
     }
     return NULL;

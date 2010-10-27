@@ -31,4 +31,6 @@ ELSE( NOT DIET_USE_ALT_BATCH )
     INSTALL( TARGETS ${loop_var} DESTINATION bin/examples/cloud )
   ENDFOREACH( loop_var )
 
+  INSTALL( FILES A.in DESTINATION bin/examples/cloud )
+  INSTALL( FILES B.in DESTINATION bin/examples/cloud )
 ENDIF( NOT DIET_USE_ALT_BATCH )

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2010/10/27 10:53:00  amuresan
+ * modified cloud examples to take config files as command line args
+ *
  * Revision 1.3  2010/10/27 06:56:30  bdepardo
  * Solved compilation problems
  *
@@ -27,6 +30,23 @@
 #include <string.h>
 
 #include "DIET_server.h"
+
+void usage(char* me)
+{
+    fprintf(stderr, "Usage: %s <file.cfg>\n"
+            "\t ex: %s SeD_cloud.cfg\n",
+            me, me);
+}
+
+char args(int argc, char**argv)
+{
+    if(argc <= 1)
+    {
+        usage(argv[0]);
+        return 0;
+    }
+    return 1;
+}
 
 void make_perf(diet_profile_t *pb)
 {
@@ -89,7 +109,7 @@ int solve_cloud(diet_profile_t *pb)
         "#!/bin/bash\n\n"
         "for h in $DIET_CLOUD_VMS\n"
         "do\n"
-        "ssh ec2-user@$h -i $PATH_TO_SSH_KEY -o StrictHostKeyChecking=no 'hostname ; uname -a' > info\n"
+        "ssh ec2-user@$h -i $PATH_TO_SSH_KEY -o StrictHostKeyChecking=no 'hostname ; uname -a ; ps aux ; export ; ls /' > info\n"
 
         "ssh ec2-user@$h -i $PATH_TO_SSH_KEY -o StrictHostKeyChecking=no '"
         "echo \""
@@ -149,6 +169,8 @@ int solve_cloud(diet_profile_t *pb)
 }
 int main(int argc, char* argv[])
 {
+  if(!args(argc, argv))
+    return 1;
   diet_profile_desc_t *profile;
   diet_set_server_status( BATCH ) ;
   
@@ -159,10 +181,10 @@ int main(int argc, char* argv[])
   profile = diet_profile_desc_alloc("cloud-demo", 1, 1, 3);
   diet_profile_desc_set_parallel(profile);
 
-  // info string
+  /* info string */
   diet_generic_desc_set(diet_param_desc(profile,3), DIET_STRING, DIET_CHAR);
   
-  // mat-prod params
+  /* mat-prod params */
   diet_generic_desc_set(diet_param_desc(profile,0), DIET_MATRIX, DIET_DOUBLE);
   diet_generic_desc_set(diet_param_desc(profile,1), DIET_MATRIX, DIET_DOUBLE);
   diet_generic_desc_set(diet_param_desc(profile,2), DIET_STRING, DIET_CHAR);
@@ -174,7 +196,7 @@ int main(int argc, char* argv[])
   diet_profile_desc_free(profile);
   
   /* Launch the SeD: no return call */
-  diet_SeD("./SeD_cloud.cfg", argc, argv);
+  diet_SeD(argv[1], argc, argv);
   
   /* Dead code */
   return 0;
