@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2010/10/28 10:21:48  bdepardo
+ * Set nbRetry by default to 3.
+ * Code formating.
+ *
  * Revision 1.4  2010/07/27 16:16:48  glemahec
  * Forwarders robustness
  *
@@ -43,376 +47,377 @@
 using namespace std;
 
 int main(int argc, char* argv[], char* envp[]) {
-	/* Forwarder configuration. */
-	FwrdConfig cfg(argv[0]);
+  /* Forwarder configuration. */
+  FwrdConfig cfg(argv[0]);
 	
-	Options opt(&cfg, argc, argv, envp);
-	/* Mandatory parameter. */
-	opt.setOptCallback("--name", name);
+  Options opt(&cfg, argc, argv, envp);
+  /* Mandatory parameter. */
+  opt.setOptCallback("--name", name);
 	
-	/* Mandatory when creating tunnels. */
-	opt.setOptCallback("--peer-name", peer_name);
-	opt.setOptCallback("--ssh-host", ssh_host);
-	opt.setOptCallback("--remote-port", remote_port_from);
-	/* Optionnal, set to "localhost" by default. */
-	opt.setOptCallback("--remote-host", remote_host);
+  /* Mandatory when creating tunnels. */
+  opt.setOptCallback("--peer-name", peer_name);
+  opt.setOptCallback("--ssh-host", ssh_host);
+  opt.setOptCallback("--remote-port", remote_port_from);
+  /* Optionnal, set to "localhost" by default. */
+  opt.setOptCallback("--remote-host", remote_host);
 
-	/* Optionnal - default values are set to port 22,
-	 * current user login and $HOME/.ssh/id_[rsa|dsa].
-	 */
-	opt.setOptCallback("--ssh-port", ssh_port);
-	opt.setOptCallback("--ssh-login", ssh_login);
-	opt.setOptCallback("--ssh-key", key_path);
+  /* Optionnal - default values are set to port 22,
+   * current user login and $HOME/.ssh/id_[rsa|dsa].
+   */
+  opt.setOptCallback("--ssh-port", ssh_port);
+  opt.setOptCallback("--ssh-login", ssh_login);
+  opt.setOptCallback("--ssh-key", key_path);
 	
-	/* Optionnal parameters/flags. */
-	opt.setOptCallback("--retry", nb_retry);
-	opt.setOptCallback("--peer-ior", peer_ior);
-	opt.setFlagCallback('C', create);
-	//opt.setFlagCallback('f', create_from);
+  /* Optionnal parameters/flags. */
+  opt.setOptCallback("--retry", nb_retry);
+  opt.setOptCallback("--peer-ior", peer_ior);
+  opt.setFlagCallback('C', create);
+  //opt.setFlagCallback('f', create_from);
 	
-	opt.setOptCallback("--net-config", net_config);
+  opt.setOptCallback("--net-config", net_config);
 
-	opt.processOptions();
+  opt.processOptions();
 	
-	if (cfg.getName()=="") {
-		std::ostringstream name;
-		char host[256];
+  if (cfg.getName()=="") {
+    std::ostringstream name;
+    char host[256];
 		
-		gethostname(host, 256);
-		host[255]='\0';
+    gethostname(host, 256);
+    host[255]='\0';
 		
-		std::transform(host, host+strlen(host), host, change);
-		name << "Forwarder-" << host << "-" << getpid();
-		cerr << "Missing parameter: name (use --name to fix it)" << endl;
-		cerr << "Use default name: " << name.str() << endl;
-		cfg.setName(name.str());
-	}
-	if (cfg.getCfgPath()=="") {
-		cerr << "Missing parameter: net-config (use --net-config <file> to fix it)" << endl;
-		return EXIT_FAILURE;
-	}
+    std::transform(host, host+strlen(host), host, change);
+    name << "Forwarder-" << host << "-" << getpid();
+    cerr << "Missing parameter: name (use --name to fix it)" << endl;
+    cerr << "Use default name: " << name.str() << endl;
+    cfg.setName(name.str());
+  }
+  if (cfg.getCfgPath()=="") {
+    cerr << "Missing parameter: net-config (use --net-config <file> to fix it)" << endl;
+    return EXIT_FAILURE;
+  }
 	
-	if (cfg.createFrom()) {
-		if (cfg.getPeerName()==""       ||
-				cfg.getSshHost()==""        ||
-				cfg.getRemotePortFrom()=="")
-		{
-			cerr << "Missing parameter(s) to create tunnel.";
-			cerr << " Mandatory parameters:" << endl;
-			cerr << '\t' << "- Peer name (--peer-name <name>)" << endl;
-			cerr << '\t' << "- SSH host (--ssh-host <host>)" << endl;
-			cerr << '\t' << "- Remote port (--remote-port <port>)" << endl;
-			return EXIT_FAILURE;
-		}
-	}
+  if (cfg.createFrom()) {
+    if (cfg.getPeerName()==""       ||
+	cfg.getSshHost()==""        ||
+	cfg.getRemotePortFrom()=="")
+      {
+	cerr << "Missing parameter(s) to create tunnel.";
+	cerr << " Mandatory parameters:" << endl;
+	cerr << '\t' << "- Peer name (--peer-name <name>)" << endl;
+	cerr << '\t' << "- SSH host (--ssh-host <host>)" << endl;
+	cerr << '\t' << "- Remote port (--remote-port <port>)" << endl;
+	return EXIT_FAILURE;
+      }
+  }
 	
 	
-	SSHTunnel tunnel;
-	DIETForwarder* forwarder = new DIETForwarder(cfg.getName(), cfg.getCfgPath());
-	ORBMgr::init(argc, argv);
-	ORBMgr* mgr = ORBMgr::getMgr();
-	string ior;
-	int count = 0;
+  SSHTunnel tunnel;
+  DIETForwarder* forwarder = new DIETForwarder(cfg.getName(), cfg.getCfgPath());
+  ORBMgr::init(argc, argv);
+  ORBMgr* mgr = ORBMgr::getMgr();
+  string ior;
+  int count = 0;
 	
-	mgr->activate(forwarder);
-	do {
-		try {
-			mgr->bind(FWRDCTXT, cfg.getName(), forwarder->_this(), true);
-			break;
-		} catch (CORBA::TRANSIENT& err) {
-			cerr << "Error when binding the forwarder " << cfg.getName() << endl;
-			if (count++<cfg.getNbRetry()) {
-				sleep(5);
-				continue;
-			}
-			mgr->deactivate(forwarder);
-			return EXIT_FAILURE;
-		}
-	} while (true);
+  mgr->activate(forwarder);
+  do {
+    try {
+      mgr->bind(FWRDCTXT, cfg.getName(), forwarder->_this(), true);
+      break;
+    } catch (CORBA::TRANSIENT& err) {
+      cerr << "Error when binding the forwarder " << cfg.getName() << endl;
+      if (count++<cfg.getNbRetry()) {
+	sleep(5);
+	continue;
+      }
+      mgr->deactivate(forwarder);
+      return EXIT_FAILURE;
+    }
+  } while (true);
 	
-	/* Write the IOR to a file on /tmp. */
-	ior = mgr->getIOR(forwarder->_this());
-	string iorFilename("/tmp/DIET-forwarder-ior-");
-	iorFilename+=cfg.getName()+".tmp";
-	ofstream of(iorFilename.c_str(), ios_base::trunc);
+  /* Write the IOR to a file on /tmp. */
+  ior = mgr->getIOR(forwarder->_this());
+  string iorFilename("/tmp/DIET-forwarder-ior-");
+  iorFilename+=cfg.getName()+".tmp";
+  ofstream of(iorFilename.c_str(), ios_base::trunc);
 	
-	if (!of.is_open()) {
-		cerr << "Warning: cannot open file " << iorFilename
-				 << " to store the IOR" << endl;
-	} else {	
-		cout << "Write IOR to " << iorFilename << endl;
-		if (cfg.createFrom()) { // Creating tunnel(s)
-			istringstream is(cfg.getRemotePortFrom());
-			int port;
+  if (!of.is_open()) {
+    cerr << "Warning: cannot open file " << iorFilename
+	 << " to store the IOR" << endl;
+  } else {	
+    cout << "Write IOR to " << iorFilename << endl;
+    if (cfg.createFrom()) { // Creating tunnel(s)
+      istringstream is(cfg.getRemotePortFrom());
+      int port;
 			
-			is >> port;
-			of << ORBMgr::convertIOR(ior, cfg.getRemoteHost(), port);
-		}	else // Waiting for connexion.
-			of << ior;
-		of.close();
-	}
-	cout << "Forwarder: " << ior << endl;
+      is >> port;
+      of << ORBMgr::convertIOR(ior, cfg.getRemoteHost(), port);
+    }	else // Waiting for connexion.
+      of << ior;
+    of.close();
+  }
+  cout << "Forwarder: " << ior << endl;
 	
 	
-	tunnel.setSshHost(cfg.getSshHost());
-	tunnel.setRemoteHost(cfg.getRemoteHost());
+  tunnel.setSshHost(cfg.getSshHost());
+  tunnel.setRemoteHost(cfg.getRemoteHost());
 	
-	tunnel.setRemotePortFrom(cfg.getRemotePortFrom());
-//	tunnel.setLocalPortFrom(cfg.getLocalPortFrom());
+  tunnel.setRemotePortFrom(cfg.getRemotePortFrom());
+  //	tunnel.setLocalPortFrom(cfg.getLocalPortFrom());
 	
-	tunnel.setSshPath(cfg.getSshPath());
-	tunnel.setSshPort(cfg.getSshPort());
-	tunnel.setSshLogin(cfg.getSshLogin());
-	tunnel.setSshKeyPath(cfg.getSshKeyPath());
+  tunnel.setSshPath(cfg.getSshPath());
+  tunnel.setSshPort(cfg.getSshPort());
+  tunnel.setSshLogin(cfg.getSshLogin());
+  tunnel.setSshKeyPath(cfg.getSshKeyPath());
 	
-	/* Manage the peer IOR. */
-	if (cfg.getPeerIOR()=="" && cfg.createFrom()) {
-		/* Try to retrieve the peer IOR. */
-		SSHCopy copy(cfg.getSshHost(),
-								 "/tmp/DIET-forwarder-ior-"+cfg.getPeerName()+".tmp",
-								 "/tmp/DIET-forwarder-ior-"+cfg.getPeerName()+".tmp");
-		copy.setSshPath("/usr/bin/scp");
-		copy.setSshPort(cfg.getSshPort());
-		copy.setSshLogin(cfg.getSshLogin());
-		copy.setSshKeyPath(cfg.getSshKeyPath());
-		if (copy.getFile()) {
-			cfg.setPeerIOR("/tmp/DIET-forwarder-ior-"+cfg.getPeerName()+".tmp");
-		}
-	}
-	if (cfg.getPeerIOR()!="" && cfg.getPeerIOR().find("IOR:")!=0) {
-		/* Extract the IOR from a file. */
-		ifstream file(cfg.getPeerIOR().c_str());
-		string peerIOR;
-		if (!file.is_open()) {
-			cerr << "Error: Invalid peer-ior parameter" << endl;
-			return EXIT_FAILURE;
-		}
-		file >> peerIOR;
-		cfg.setPeerIOR(peerIOR);
-	}
+  /* Manage the peer IOR. */
+  if (cfg.getPeerIOR()=="" && cfg.createFrom()) {
+    /* Try to retrieve the peer IOR. */
+    SSHCopy copy(cfg.getSshHost(),
+		 "/tmp/DIET-forwarder-ior-"+cfg.getPeerName()+".tmp",
+		 "/tmp/DIET-forwarder-ior-"+cfg.getPeerName()+".tmp");
+    copy.setSshPath("/usr/bin/scp");
+    copy.setSshPort(cfg.getSshPort());
+    copy.setSshLogin(cfg.getSshLogin());
+    copy.setSshKeyPath(cfg.getSshKeyPath());
+    if (copy.getFile()) {
+      cfg.setPeerIOR("/tmp/DIET-forwarder-ior-"+cfg.getPeerName()+".tmp");
+    }
+  }
+  if (cfg.getPeerIOR()!="" && cfg.getPeerIOR().find("IOR:")!=0) {
+    /* Extract the IOR from a file. */
+    ifstream file(cfg.getPeerIOR().c_str());
+    string peerIOR;
+    if (!file.is_open()) {
+      cerr << "Error: Invalid peer-ior parameter" << endl;
+      return EXIT_FAILURE;
+    }
+    file >> peerIOR;
+    cfg.setPeerIOR(peerIOR);
+  }
 	
-	if (cfg.getPeerIOR()!="") {
-		tunnel.setRemotePortTo(ORBMgr::getPort(cfg.getPeerIOR()));
-	} else {
-		tunnel.setRemotePortTo(cfg.getRemotePortTo());
-	}
-	if (cfg.getRemoteHost()=="") {
-		if (cfg.getPeerIOR()!="")
-			tunnel.setRemoteHost(ORBMgr::getHost(cfg.getPeerIOR()));
-		else
-			tunnel.setRemoteHost("localhost");
-	} else {
-		tunnel.setRemoteHost(cfg.getRemoteHost());
-	}
+  if (cfg.getPeerIOR()!="") {
+    tunnel.setRemotePortTo(ORBMgr::getPort(cfg.getPeerIOR()));
+  } else {
+    tunnel.setRemotePortTo(cfg.getRemotePortTo());
+  }
+  if (cfg.getRemoteHost()=="") {
+    if (cfg.getPeerIOR()!="")
+      tunnel.setRemoteHost(ORBMgr::getHost(cfg.getPeerIOR()));
+    else
+      tunnel.setRemoteHost("localhost");
+  } else {
+    tunnel.setRemoteHost(cfg.getRemoteHost());
+  }
 	
-	tunnel.setLocalPortTo(ORBMgr::getPort(ior));
+  tunnel.setLocalPortTo(ORBMgr::getPort(ior));
 
-	tunnel.createTunnelTo(cfg.createTo());
-	tunnel.createTunnelFrom(cfg.createFrom());
+  tunnel.createTunnelTo(cfg.createTo());
+  tunnel.createTunnelFrom(cfg.createFrom());
 	
-	tunnel.open();
+  tunnel.open();
 
-	/* Try to find the peer. */
-	if (cfg.getPeerIOR()!="") {
-		string peerIOR = cfg.getPeerIOR();
-		peerIOR = ORBMgr::convertIOR(peerIOR, "localhost", tunnel.getLocalPortFrom());
+  /* Try to find the peer. */
+  if (cfg.getPeerIOR()!="") {
+    string peerIOR = cfg.getPeerIOR();
+    peerIOR = ORBMgr::convertIOR(peerIOR, "localhost", tunnel.getLocalPortFrom());
 
-		Forwarder_var peer;
+    Forwarder_var peer;
 		
-		peer = mgr->resolve<Forwarder, Forwarder_var>(peerIOR);
+    peer = mgr->resolve<Forwarder, Forwarder_var>(peerIOR);
 		
-		try {
-			peer->connectPeer(ior.c_str(), tunnel.getRemoteHost().c_str(),
-												tunnel.getRemotePortFrom());
-			forwarder->setPeer(peer);
-			SeqString* bindings = peer->getBindings(AGENTCTXT);
-			for (unsigned int i=0; i<bindings->length(); ++i) {
-				cout << "************ Dist bindings ****************" << endl;
-				cout << (*bindings)[i] << endl;
-			}
-		} catch (CORBA::TRANSIENT& err) {
-			cout << "Unable to contact remote peer. Waiting for connection..." << endl;
-		}
-	}
+    try {
+      peer->connectPeer(ior.c_str(), tunnel.getRemoteHost().c_str(),
+			tunnel.getRemotePortFrom());
+      forwarder->setPeer(peer);
+      SeqString* bindings = peer->getBindings(AGENTCTXT);
+      for (unsigned int i=0; i<bindings->length(); ++i) {
+	cout << "************ Dist bindings ****************" << endl;
+	cout << (*bindings)[i] << endl;
+      }
+    } catch (CORBA::TRANSIENT& err) {
+      cout << "Unable to contact remote peer. Waiting for connection..." << endl;
+    }
+  }
 
-	mgr->wait();
+  mgr->wait();
 	
-	return EXIT_SUCCESS;
+  return EXIT_SUCCESS;
 }
 
 void name(const string& name, Configuration* cfg) {
-	static_cast<FwrdConfig*>(cfg)->setName(name);
+  static_cast<FwrdConfig*>(cfg)->setName(name);
 }
 
 void peer_name(const string& name, Configuration* cfg) {
-	static_cast<FwrdConfig*>(cfg)->setPeerName(name);
+  static_cast<FwrdConfig*>(cfg)->setPeerName(name);
 }
 
 void peer_ior(const string& ior, Configuration* cfg) {
-	static_cast<FwrdConfig*>(cfg)->setPeerIOR(ior);
+  static_cast<FwrdConfig*>(cfg)->setPeerIOR(ior);
 }
 
 void net_config(const string& path, Configuration* cfg) {
-	static_cast<FwrdConfig*>(cfg)->setCfgPath(path);
+  static_cast<FwrdConfig*>(cfg)->setCfgPath(path);
 }
 
 void ssh_host(const string& host, Configuration* cfg) {
-	static_cast<FwrdConfig*>(cfg)->setSshHost(host);
+  static_cast<FwrdConfig*>(cfg)->setSshHost(host);
 }
 
 void remote_host(const string& host, Configuration* cfg) {
-	static_cast<FwrdConfig*>(cfg)->setRemoteHost(host);
+  static_cast<FwrdConfig*>(cfg)->setRemoteHost(host);
 }
 
 void remote_port_to(const string& port, Configuration* cfg) {
-	static_cast<FwrdConfig*>(cfg)->setRemotePortTo(port);
+  static_cast<FwrdConfig*>(cfg)->setRemotePortTo(port);
 }
 
 void remote_port_from(const string& port, Configuration* cfg) {
-	static_cast<FwrdConfig*>(cfg)->setRemotePortFrom(port);
+  static_cast<FwrdConfig*>(cfg)->setRemotePortFrom(port);
 }
 
 void local_port_from(const string& port, Configuration* cfg) {
-	static_cast<FwrdConfig*>(cfg)->setLocalPortFrom(port);
+  static_cast<FwrdConfig*>(cfg)->setLocalPortFrom(port);
 }
 
 void ssh_path(const string& path, Configuration* cfg) {
-	static_cast<FwrdConfig*>(cfg)->setSshPath(path);
+  static_cast<FwrdConfig*>(cfg)->setSshPath(path);
 }
 
 void ssh_port(const string& port, Configuration* cfg) {
-	static_cast<FwrdConfig*>(cfg)->setSshPort(port);
+  static_cast<FwrdConfig*>(cfg)->setSshPort(port);
 }
 
 void ssh_login(const string& login, Configuration* cfg) {
-	static_cast<FwrdConfig*>(cfg)->setSshLogin(login);
+  static_cast<FwrdConfig*>(cfg)->setSshLogin(login);
 }
 
 void key_path(const string& path, Configuration* cfg) {
-	static_cast<FwrdConfig*>(cfg)->setSshKeyPath(path);
+  static_cast<FwrdConfig*>(cfg)->setSshKeyPath(path);
 }
 
 void create(const string& create, Configuration* cfg) {
-	(void) create;
-	static_cast<FwrdConfig*>(cfg)->createTo(true);
-	static_cast<FwrdConfig*>(cfg)->createFrom(true);
+  (void) create;
+  static_cast<FwrdConfig*>(cfg)->createTo(true);
+  static_cast<FwrdConfig*>(cfg)->createFrom(true);
 }
 
 void nb_retry(const string& nb, Configuration* cfg) {
-	istringstream is(nb);
-	int n;
-	is >> n;
-	static_cast<FwrdConfig*>(cfg)->setNbRetry(n);
+  istringstream is(nb);
+  int n;
+  is >> n;
+  static_cast<FwrdConfig*>(cfg)->setNbRetry(n);
 }
 /* Fwdr configuration implementation. */
 FwrdConfig::FwrdConfig(const string& pgName) : Configuration(pgName)
 {
-	createTunnelTo = false;
-	createTunnelFrom = false;
+  createTunnelTo = false;
+  createTunnelFrom = false;
+  nbRetry = 3;
 }
 
 const string& FwrdConfig::getName() const {
-	return name;
+  return name;
 }
 const string& FwrdConfig::getPeerName() const {
-	return peerName;
+  return peerName;
 }
 const string& FwrdConfig::getPeerIOR() const {
-	return peerIOR;
+  return peerIOR;
 }
 
 const string& FwrdConfig::getSshHost() const {
-	return sshHost;
+  return sshHost;
 }
 const string& FwrdConfig::getRemoteHost() const {
-	return remoteHost;
+  return remoteHost;
 }
 const string& FwrdConfig::getRemotePortTo() const {
-	return remotePortTo;
+  return remotePortTo;
 }
 const string& FwrdConfig::getRemotePortFrom() const {
-	return remotePortFrom;
+  return remotePortFrom;
 }
 const string& FwrdConfig::getLocalPortFrom() const {
-	return localPortFrom;
+  return localPortFrom;
 }
 bool  FwrdConfig::createTo() const {
-	return createTunnelTo;
+  return createTunnelTo;
 }
 bool  FwrdConfig::createFrom() const {
-	return createTunnelFrom;
+  return createTunnelFrom;
 }
 const string& FwrdConfig::getSshPath() const {
-	return sshPath;
+  return sshPath;
 }
 const string& FwrdConfig::getSshPort() const {
-	return sshPort;
+  return sshPort;
 }
 const string& FwrdConfig::getSshLogin() const {
-	return sshLogin;
+  return sshLogin;
 }
 const string& FwrdConfig::getSshKeyPath() const {
-	return sshKeyPath;
+  return sshKeyPath;
 }
 int  FwrdConfig::getNbRetry() const {
-	return nbRetry;
+  return nbRetry;
 }
 const string& FwrdConfig::getCfgPath() const {
-	return cfgPath;
+  return cfgPath;
 }
 
 void FwrdConfig::setName(const string& name) {
-	this->name = name;
+  this->name = name;
 }
 void FwrdConfig::setPeerName(const string& name) {
-	this->peerName = name;
+  this->peerName = name;
 }
 void FwrdConfig::setPeerIOR(const string& ior) {
-	this->peerIOR = ior;
+  this->peerIOR = ior;
 }
 
 void FwrdConfig::setSshHost(const string& host) {
-	this->sshHost = host;
+  this->sshHost = host;
 }
 void FwrdConfig::setRemoteHost(const string& host) {
-	this->remoteHost = host;
+  this->remoteHost = host;
 }
 void FwrdConfig::setRemotePortTo(const string& port) {
-	this->remotePortTo = port;
+  this->remotePortTo = port;
 }
 void FwrdConfig::setRemotePortFrom(const string& port) {
-	this->remotePortFrom = port;
+  this->remotePortFrom = port;
 }
 void FwrdConfig::setLocalPortFrom(const string& port) {
-	this->localPortFrom = port;
+  this->localPortFrom = port;
 }
 void FwrdConfig::createTo(bool create) {
-	this->createTunnelTo = create;
+  this->createTunnelTo = create;
 }
 void FwrdConfig::createFrom(bool create) {
-	this->createTunnelFrom = create;
+  this->createTunnelFrom = create;
 }
 void FwrdConfig::setSshPath(const string& path) {
-	this->sshPath = path;
+  this->sshPath = path;
 }
 void FwrdConfig::setSshPort(const string& port) {
-	this->sshPort = port;
+  this->sshPort = port;
 }
 void FwrdConfig::setSshLogin(const string& login) {
-	this->sshLogin = login;
+  this->sshLogin = login;
 }
 void FwrdConfig::setSshKeyPath(const string& path) {
-	this->sshKeyPath = path;
+  this->sshKeyPath = path;
 }
 void FwrdConfig::setNbRetry(const int nb) {
-	this->nbRetry = nb;
+  this->nbRetry = nb;
 }
 void FwrdConfig::setCfgPath(const string& path) {
-	this->cfgPath = path;
+  this->cfgPath = path;
 }
 
 int change(int c) {
-	if (c=='.') return '-';
-	return c;
+  if (c=='.') return '-';
+  return c;
 }
 
