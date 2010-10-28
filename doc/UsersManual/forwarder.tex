@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.6  2010/10/28 10:20:37  bdepardo
+%* Added missing parameters --nb-retry, --peer-ior
+%*
 %* Revision 1.5  2010/10/28 10:12:35  bdepardo
 %* Added missing option --remote-host.
 %*
@@ -112,6 +115,11 @@ The \diet forwarder executable takes several options to be launched:
 \item \verb#--remote-host#: the host to which the connection is made
   by the tunnel (corresponds to \verb#host# in the ssh options
   \verb#-L# and \verb#-R#).
+\item \verb#--nb-retry#: the number of times the local forwarder tries
+  to bind itself to the distant forwarder (default is 3).
+\item \verb#--peer-ior#: if you already know the IOR of the distant
+  forwarder, then you can pass it to your local forwarder. By default,
+  the local forwarder retrieves the IOR of its peer.
 \item \verb#--net-config#: the path to the configuration file.
 \item \verb#-C#: create the tunnel from this forwarder.
 \end{itemize}
