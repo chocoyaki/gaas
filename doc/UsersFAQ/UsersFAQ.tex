@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.3  2010/10/29 01:47:19  bisnard
+%* Added FAQ for error message
+%*
 %* Revision 1.2  2010/09/21 14:49:07  kcoulomb
 %* Correctifs sur la FAQ de DIET
 %*
@@ -400,6 +403,9 @@ Parsing xml file: examples/example1.xml
 \end{verbatim}
 
 \noindent After that, use the \textit {launch} command to start the example. For more, you have to follow instructions on the DIET UsersManual (Chapter 9, p. 91).
+
+\noindent \textcolor{red}{What does mean the error message: "DIET ERROR: caught a CORBA exception (TRANSIENT) while submitting problem."?}\\
+\noindent The reason is probably that you are using a different version of DIET on the client side and on the server (Master Agent or SeD) side. For example this happens if you use a DIET v2.5 client with a DIET v2.4 MA.
 
 \end{document}
 
