@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.32  2010/11/02 21:34:26  bdepardo
+ * Typo in message
+ *
  * Revision 1.31  2010/11/02 05:53:18  bdepardo
  * Correct a bug preventing the SeDs from connecting to an LA through the
  * forwarders: when resolving an agent we first try to resolve MA or LA
@@ -298,8 +301,8 @@ CORBA::Object_ptr ORBMgr::resolveObject(const string& context, const string& nam
 	cout << "Ask forwarder " << *it << " for host " << objHost << endl;
 	try {
 	  if (fwd->manage(objHost.c_str())) {
-	    cout << "Object " << ctxt << "/" << name << ")"
-		 << "is reachable through forwarder " << *it << endl;
+	    cout << "Object (" << ctxt << "/" << name << ")"
+		 << " is reachable through forwarder " << *it << endl;
 	    if (ctxt==AGENTCTXT) {
 	      if (!localAgent)
 		object = fwd->getMasterAgent(name.c_str());
