@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.24  2010/11/02 05:53:18  bdepardo
+ * Correct a bug preventing the SeDs from connecting to an LA through the
+ * forwarders: when resolving an agent we first try to resolve MA or LA
+ * depending on the context, but if this fails, then we fall back to resolving
+ * a general agent.
+ *
  * Revision 1.23  2010/07/27 10:24:32  glemahec
  * Improve robustness & general performance
  *
@@ -50,106 +56,106 @@
 
 class ORBMgr {
 private:
-	/* The omniORB Object Request Broker for this manager. */
+  /* The omniORB Object Request Broker for this manager. */
   CORBA::ORB_ptr ORB;
-	/* The Portable Object Adaptor. */
+  /* The Portable Object Adaptor. */
   PortableServer::POA_var POA;
   
-	/* CORBA initialization. */
+  /* CORBA initialization. */
   void init(CORBA::ORB_ptr ORB);
 
-	/* Object cache to avoid to contact OmniNames too many times. */
+  /* Object cache to avoid to contact OmniNames too many times. */
   mutable std::map<std::string, CORBA::Object_ptr> cache;
-	/* Cache mutex. */
-	mutable omni_mutex cacheMutex;
+  /* Cache mutex. */
+  mutable omni_mutex cacheMutex;
 
-	/* The manager instance. */
-	static ORBMgr* theMgr;
+  /* The manager instance. */
+  static ORBMgr* theMgr;
 public:
-	/* Constructors. */
+  /* Constructors. */
   ORBMgr(int argc, char* argv[]);
   ORBMgr(CORBA::ORB_ptr ORB);
   ORBMgr(CORBA::ORB_ptr ORB, PortableServer::POA_var POA);
   
-	/* Destructor. */
+  /* Destructor. */
   ~ORBMgr();
 
-	/* Bind the object using its ctxt/name */
+  /* Bind the object using its ctxt/name */
   void bind(const std::string& ctxt, const std::string& name,
             CORBA::Object_ptr object, const bool rebind = false);
-	/* Bind an object using its IOR. */
+  /* Bind an object using its IOR. */
   void bind(const std::string& ctxt, const std::string& name,
             const std::string& IOR, const bool rebind = false);
-	/* Rebind objects. */
+  /* Rebind objects. */
   void rebind(const std::string& ctxt, const std::string& name,
               CORBA::Object_ptr object);
   void rebind(const std::string& ctxt, const std::string& name,
               const std::string& IOR);
-	/* Unbind an object. */
+  /* Unbind an object. */
   void unbind(const std::string& ctxt, const std::string& name);
 	
-	/* Forwarders binding. */
-	void fwdsBind(const std::string& ctxt, const std::string& name,
-								const std::string& ior, const std::string& fwName = "");
+  /* Forwarders binding. */
+  void fwdsBind(const std::string& ctxt, const std::string& name,
+		const std::string& ior, const std::string& fwName = "");
   /* Forwarders unbinding. */
-	void fwdsUnbind(const std::string& ctxt, const std::string& name,
-									const std::string& fwName = "");
+  void fwdsUnbind(const std::string& ctxt, const std::string& name,
+		  const std::string& fwName = "");
 	
-	/* Resolve an object using its IOR or ctxt/name. */
+  /* Resolve an object using its IOR or ctxt/name. */
   CORBA::Object_ptr resolveObject(const std::string& IOR) const;
   CORBA::Object_ptr resolveObject(const std::string& ctxt, const std::string& name,
-																	const std::string& fwdName = "") const;
+				  const std::string& fwdName = "") const;
 	
-	/* Get the list of the objects id binded in the omniNames server for a given context. */
-	std::list<std::string> list(CosNaming::NamingContext_var& ctxt) const;
-	std::list<std::string> list(const std::string& ctxtName) const;
+  /* Get the list of the objects id binded in the omniNames server for a given context. */
+  std::list<std::string> list(CosNaming::NamingContext_var& ctxt) const;
+  std::list<std::string> list(const std::string& ctxtName) const;
 	
-	template <typename CORBA_object, typename CORBA_ptr>
-	CORBA_ptr resolve(const std::string& ctxt, const std::string& name,
-										const std::string& fwdName = "") const {
-		return CORBA_object::_duplicate(CORBA_object::_narrow(resolveObject(ctxt, name, fwdName)));
-	}
-	template <typename CORBA_object, typename CORBA_ptr>
-	CORBA_ptr resolve(const std::string& IOR) const {
-		return CORBA_object::_duplicate(CORBA_object::_narrow(resolveObject(IOR)));
-	}																
+  template <typename CORBA_object, typename CORBA_ptr>
+  CORBA_ptr resolve(const std::string& ctxt, const std::string& name,
+		    const std::string& fwdName = "") const {
+    return CORBA_object::_duplicate(CORBA_object::_narrow(resolveObject(ctxt, name, fwdName)));
+  }
+  template <typename CORBA_object, typename CORBA_ptr>
+  CORBA_ptr resolve(const std::string& IOR) const {
+    return CORBA_object::_duplicate(CORBA_object::_narrow(resolveObject(IOR)));
+  }																
   
-	/* Return the IOR of the passed object. */
-	std::string getIOR(CORBA::Object_ptr object) const;
+  /* Return the IOR of the passed object. */
+  std::string getIOR(CORBA::Object_ptr object) const;
   std::string getIOR(const std::string& ctxt, const std::string& name) const;
 	
-	/* Activate an object. */
+  /* Activate an object. */
   void activate(PortableServer::ServantBase* object) const;
-	/* Deactivate an object. */
-	void deactivate(PortableServer::ServantBase* object) const;
+  /* Deactivate an object. */
+  void deactivate(PortableServer::ServantBase* object) const;
 
-	/* Wait for the request on activated objects. */
+  /* Wait for the request on activated objects. */
   void wait() const;
 	
-	static void init(int argc, char* argv[]);
+  static void init(int argc, char* argv[]);
 	
-	static ORBMgr* getMgr();
+  static ORBMgr* getMgr();
 	
-	/* IOR management functions. */
-	static void makeIOR(const std::string& strIOR, IOP::IOR& ior);
-	static void makeString(const IOP::IOR& ior, std::string& strIOR);
-	static std::string getHost(IOP::IOR& ior);
-	static std::string getHost(const std::string& strIOR);
-	static unsigned int getPort(IOP::IOR& ior);
-	static unsigned int getPort(const std::string& strIOR);
-	static std::string getTypeID(IOP::IOR& ior);
-	static std::string getTypeID(const std::string& strIOR);
-	static std::string convertIOR(IOP::IOR& ior, const std::string& host,
-																const unsigned int port);
-	static std::string convertIOR(const std::string& ior, const std::string& host,
-																const unsigned int port);
+  /* IOR management functions. */
+  static void makeIOR(const std::string& strIOR, IOP::IOR& ior);
+  static void makeString(const IOP::IOR& ior, std::string& strIOR);
+  static std::string getHost(IOP::IOR& ior);
+  static std::string getHost(const std::string& strIOR);
+  static unsigned int getPort(IOP::IOR& ior);
+  static unsigned int getPort(const std::string& strIOR);
+  static std::string getTypeID(IOP::IOR& ior);
+  static std::string getTypeID(const std::string& strIOR);
+  static std::string convertIOR(IOP::IOR& ior, const std::string& host,
+				const unsigned int port);
+  static std::string convertIOR(const std::string& ior, const std::string& host,
+				const unsigned int port);
 	
-	/* Object cache management functions. */
-	void resetCache() const;
-	void removeObjectFromCache(const std::string& name) const;
-	void removeObjectFromCache(const std::string& ctxt,
-														 const std::string& name) const;
-	void cleanCache() const;
+  /* Object cache management functions. */
+  void resetCache() const;
+  void removeObjectFromCache(const std::string& name) const;
+  void removeObjectFromCache(const std::string& ctxt,
+			     const std::string& name) const;
+  void cleanCache() const;
 };
 
 
