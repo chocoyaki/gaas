@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.149  2010/11/04 23:20:38  bdepardo
+ * Set signal handlers to default when entering diet_finalize(), as the
+ * handler can cause multiple calls to diet_finalize().
+ *
  * Revision 1.148  2010/10/18 07:30:00  bisnard
  * - removed USE_ASYNC_API ifdef
  * - fixed bug with MA_MUTEX causing diet_initialize to hang
@@ -782,6 +786,12 @@ void diet_finalize_sig(int dummy) {
 
 diet_error_t
 diet_finalize() {
+  /* Set signal handlers to default */
+  signal(SIGINT, SIG_DFL);
+  signal(SIGABRT, SIG_DFL);
+  signal(SIGTERM, SIG_DFL);
+
+
 #if HAVE_WORKFLOW
   // Terminate the xerces XML engine
   XMLPlatformUtils::Terminate();
@@ -805,18 +815,18 @@ diet_finalize() {
 #if HAVE_JUXMEM
   terminateJuxMem();
 #endif // HAVE_JUXMEM
-
+  
 #ifdef HAVE_DAGDA
-	string dagdaName = DagdaFactory::getDataManager()->getID();
-	ORBMgr::getMgr()->unbind(DAGDACTXT, dagdaName);
-	ORBMgr::getMgr()->fwdsUnbind(DAGDACTXT, dagdaName);
+  string dagdaName = DagdaFactory::getDataManager()->getID();
+  ORBMgr::getMgr()->unbind(DAGDACTXT, dagdaName);
+  ORBMgr::getMgr()->fwdsUnbind(DAGDACTXT, dagdaName);
 #endif
-	ORBMgr::getMgr()->unbind(CLIENTCTXT, REF_CALLBACK_SERVER);
-	ORBMgr::getMgr()->fwdsUnbind(CLIENTCTXT, REF_CALLBACK_SERVER);
-	delete ORBMgr::getMgr();
+  ORBMgr::getMgr()->unbind(CLIENTCTXT, REF_CALLBACK_SERVER);
+  ORBMgr::getMgr()->fwdsUnbind(CLIENTCTXT, REF_CALLBACK_SERVER);
+  delete ORBMgr::getMgr();
   /* end fileName */
   // *fileName='\0';
-
+  
   return 0;
 }
 
