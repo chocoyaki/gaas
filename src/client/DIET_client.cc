@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.150  2010/11/05 02:56:12  glemahec
+ * Remove omni_thread_fatal error: MA_MUTEX is now a pointer initialized at the beginning of diet_initialize.
+ *
  * Revision 1.149  2010/11/04 23:20:38  bdepardo
  * Set signal handlers to default when entering diet_finalize(), as the
  * handler can cause multiple calls to diet_finalize().
@@ -414,7 +417,7 @@ extern unsigned int TRACE_LEVEL;
 
 /** The Master Agent reference */
 MasterAgent_var MA = MasterAgent::_nil();
-static omni_mutex      MA_MUTEX;
+omni_mutex*      MA_MUTEX;
 
 /** Error rate for contract checking */
 #define ERROR_RATE 0.1
@@ -512,19 +515,20 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
   void*  value(NULL);
   char*  userDefName;
 
-
+  // MA_MUTEX initialization
+  MA_MUTEX = new omni_mutex();
 #ifdef HAVE_WORKFLOW
   char*  MA_DAG_name(NULL);
   char*  USE_WF_LOG_SERVICE(NULL);
 #endif // HAVE_WORKFLOW
 
-  MA_MUTEX.lock();
+  MA_MUTEX->lock();
   if (!CORBA::is_nil(MA)) {
     WARNING(__FUNCTION__ << ": diet_finalize has not been called");
-    MA_MUTEX.unlock();
+    MA_MUTEX->unlock();
     return 15;
   }
-  MA_MUTEX.unlock();
+  MA_MUTEX->unlock();
 
   /* Set arguments for ORBMgr::init */
   if (argc) {
@@ -619,14 +623,14 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
   Parsers::Results::getParamValue(Parsers::Results::MANAME);
   TRACE_TEXT (TRACE_MAIN_STEPS,"MA NAME PARSING = " << MA_name << endl);
   MA_Name = CORBA::string_dup(MA_name);
-  MA_MUTEX.lock();
+  MA_MUTEX->lock();
   try {
     MA = ORBMgr::getMgr()->resolve<MasterAgent, MasterAgent_var>(AGENTCTXT, MA_Name);
   } catch (...) {
-    MA_MUTEX.unlock();
+    MA_MUTEX->unlock();
     return -1;
   }
-  MA_MUTEX.unlock();
+  MA_MUTEX->unlock();
   
   /* Initialize statistics module */
   stat_init();
@@ -696,7 +700,7 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
   // end modif bisnard_logs_1
 
   //create_file();
-  MA_MUTEX.unlock();
+  MA_MUTEX->unlock();
 
   /** get Num session*/
   num_Session = MA->get_session_num();
@@ -808,9 +812,9 @@ diet_finalize() {
   }
   caMgr->release();
 
-  MA_MUTEX.lock();
+  MA_MUTEX->lock();
   MA = MasterAgent::_nil();
-  MA_MUTEX.unlock();
+  MA_MUTEX->unlock();
 
 #if HAVE_JUXMEM
   terminateJuxMem();
