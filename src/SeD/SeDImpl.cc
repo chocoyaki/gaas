@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.123  2010/11/09 02:23:34  bdepardo
+ * Changed SeD name generation: now uses the PID of the process.
+ *
  * Revision 1.122  2010/07/27 12:43:06  glemahec
  * Bugs corrections
  *
@@ -302,6 +305,7 @@ using namespace std;
 #include <cstdlib>
 #include <unistd.h>   // For gethostname()
 #include <ctime>
+#include <sys/types.h>
 
 #ifdef HAVE_DYNAMICS
 #include <csignal>
@@ -568,6 +572,9 @@ SeDImpl::removeElementClean() {
 int
 SeDImpl::run(ServiceTable* services)
 {
+  /* initialize random seed: */
+  srand(time(NULL));
+
   SeqCorbaProfileDesc_t* profiles(NULL);
   stat_init();
   if (gethostname(localHostName, 256)) {
@@ -580,11 +587,13 @@ SeDImpl::run(ServiceTable* services)
   name = (char*)Parsers::Results::getParamValue(Parsers::Results::NAME);
   if (name == NULL) {
     /* Generate a name for this SeD and print it */
-    name = new char[strlen(localHostName) + 7];
-    sprintf(name, "%ld_%s", random() % 99999, localHostName);
+    std::stringstream oss;
+    pid_t pid = getpid();
+    oss << localHostName << "_" << pid << "_" << rand() % 10000;
+    name = strdup(oss.str().c_str());
     this->myName = new char[strlen(name)+1];
     strcpy(this->myName, name);
-    delete [] name;
+    free(name);
   } else {
     this->myName = new char[strlen(name)+1];
     strcpy(this->myName, name);
