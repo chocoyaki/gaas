@@ -8,6 +8,10 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.11  2010/11/09 03:58:28  bdepardo
+%* Info on name for SeDs.
+%* Reorganise parameters by alphabetical order
+%*
 %* Revision 1.10  2010/09/10 13:05:29  bdepardo
 %* Typos
 %*
@@ -49,30 +53,16 @@
 \section{Configuration files}
 
 \begin{description}
-\item{\bf{traceLevel}}
-  \begin{itemize}
-  \item Component: All
-    \item Mode: All
-  \item Type: Integer
-  \item Description: traceLevel for the \diet agent:
-    \begin{itemize}
-    \item  0 \diet prints only warnings and errors on the standard error
-      output,
-    \item 1 [default] \diet prints information on the main steps
-      of a call,
-    \item 5 \diet prints information on all internal steps too,
-    \item 10 \diet prints all the communication structures too,
-    \item $>10$ (traceLevel - 10) is given to the ORB to print CORBA messages
-      too.
-    \end{itemize}
-  \end{itemize}
 
-\item{\bf{MAName}}
+
+%%%% A
+\item{\bf{ackFile}}
   \begin{itemize}
-  \item Component: Client
-  \item Mode: All
+  \item Component: Agent and \sed
+  \item Mode: Acknowledge file
   \item Type: String
-  \item Description: Master Agent name.
+  \item Description: Path to a file that will be created when the
+    element is ready to execute.
   \end{itemize}
 
 \item{\bf{agentType}}
@@ -86,14 +76,60 @@
     LA).
   \end{itemize}
 
-\item{\bf{dietPort}}
+%%%% B
+\item{\bf{batchName}}
   \begin{itemize}
-  \item Component: All
+  \item Component: \sed
+  \item Mode: Batch
+  \item Type: String
+  \item Description: The reservation batch system's name.
+  \end{itemize}
+
+\item{\bf{batchQueue}}
+  \begin{itemize}
+  \item Component: \sed
+  \item Mode: Batch
+  \item Type: String
+  \item Description: The name of the queue where the job will be submitted.
+  \end{itemize}
+
+\item{\bf{bindServicePort}}
+  \begin{itemize}
+  \item Component: MA
   \item Mode: All
   \item Type: Integer
-  \item Description: the listening port of the agent. If not
-    specified, let the ORB get a port from the system (if the default
-    2809 was busy).
+  \item Description: port used by the Master Agent to share its IOR.
+  \end{itemize}
+
+%%%% C
+\item{\bf{cacheAlgorithm}}
+  \begin{itemize}
+  \item Component: All
+  \item Mode: \dagda
+  \item Type: String
+  \item Description: The cache replacement algorithm used when \dagda needs more space
+to store a data. Possible values are: \textit{LRU, LFU, FIFO}. By default, 
+no cache replacement algorithm. \dagda never replace a data by
+another one.
+  \end{itemize}
+
+\item{\bf{clientMaxNbSeD}}
+  \begin{itemize}
+  \item Component: Client
+  \item Mode: All
+  \item Type: Integer
+  \item Description: The maximum number of \sed the client should receive.
+  \end{itemize}
+
+%%%% D
+\item{\bf{dataBackupFile}}
+  \begin{itemize}
+  \item Component: Agent and SeD
+  \item Mode: \dagda
+  \item Type: String
+  \item Description: The path to the file that will be used when \dagda save all its
+stored data/data path when asked by the user (Checkpointing). By default, no
+checkpointing is possible.
   \end{itemize}
 
 \item{\bf{dietHostName}}
@@ -106,28 +142,19 @@
     one are available).
   \end{itemize}
 
-\item{\bf{name}}
+\item{\bf{dietPort}}
   \begin{itemize}
-  \item Component: Agent and \sed
+  \item Component: All
   \item Mode: All
-  \item Type: String
-  \item Description: The name of the element. The ORB configuration files of the clients
-    and the children of this MA (LAs and SeDs) must point at the same CORBA
-    Naming Service as the one pointed at by the ORB configuration file of
-    this agent.
+  \item Type: Integer
+  \item Description: the listening port of the agent. If not
+    specified, let the ORB get a port from the system (if the default
+    2809 was busy).
   \end{itemize}
 
-\item{\bf{parentName}}
-  \begin{itemize}
-  \item Component: LA and \sed
-  \item Mode: All
-  \item Type: String
-  \item Description: the name of the agent to which the element will
-    register. This agent must have registered at the same CORBA Naming
-    Service that is  pointed to by your ORB configuration.
-  \end{itemize}
+%%%% E
 
-
+%%%% F
 \item{\bf{fastUse}}
   \begin{itemize}
   \item Component: Agent and \sed
@@ -139,15 +166,35 @@
     deploying an LDAP base nor an NWS platform.
   \end{itemize}
 
-\item{\bf{ldapUse}}
+%%%% G
+
+%%%% H
+
+%%%% I
+\item{\bf{initRequestID}}
   \begin{itemize}
-  \item Component: Agent and \sed
-  \item Mode: FAST
-  \item Type: Boolean
-  \item Description: 0 tells FAST not to look for the services in an
-    LDAP base.
+  \item Component: MA
+  \item Mode: All
+  \item Type: Integer
+  \item Description: When a request is sent to the Master Agent, a request ID
+  is associated and by default it begins at 1. If this parameter is provided, it
+  will begins at initRequestID.
   \end{itemize}
 
+\item{\bf{internOARbatchQueueName}}
+  \begin{itemize}
+  \item Component: \sed
+  \item Mode: Batch
+  \item Type: String
+  \item Description: only useful when using CORI batch features with
+    OAR 1.6
+  \end{itemize}
+
+%%%% J
+
+%%%% K
+
+%%%% L
 \item{\bf{ldapBase}}
   \begin{itemize}
   \item Component: Agent and \sed
@@ -165,46 +212,22 @@
   \item Description: the mask which is registered in the LDAP base.
   \end{itemize}
 
-\item{\bf{nwsUse}}
+\item{\bf{ldapUse}}
   \begin{itemize}
   \item Component: Agent and \sed
   \item Mode: FAST
   \item Type: Boolean
-  \item Description: 0 tells FAST not to use NWS for its comm times
-    forecasts.
+  \item Description: 0 tells FAST not to look for the services in an
+    LDAP base.
   \end{itemize}
 
-\item{\bf{nwsNameserver}}
+\item{\bf{locationID}}
   \begin{itemize}
-  \item Component: Agent and \sed
-  \item Mode: FAST
-  \item Type: Address
-  \item Description: <host:port> of the NWS nameserver.
-  \end{itemize}
-
-\item{\bf{nwsForecaster}}
-  \begin{itemize}
-  \item Component: Agent and \sed
-  \item Mode: FAST
-  \item Type: Address
-  \item Description: NWS forecast module used by FAST.
-  \end{itemize}
-
-
-\item{\bf{useAsyncAPI}}
-  \begin{itemize}
-  \item Component: Agent and \sed
-  \item Mode: All
-  \item Type: Boolean
-  \item Description: No longer used
-  \end{itemize}
-
-\item{\bf{useLogService}}
-  \begin{itemize}
-  \item Component: Agent and \sed
-  \item Mode: All
-  \item Type: Boolean
-  \item Description: 1 to use the LogService for monitoring.
+  \item Component: \sed
+  \item Mode: \dagda
+  \item Type: String
+  \item Description: This parameter is used for alternative transfer cost
+  prediction.
   \end{itemize}
 
 \item{\bf{lsOutbuffersize}}
@@ -223,62 +246,25 @@
   \item Description: the flush interval for the outgoing message buffer.
   \end{itemize}
 
-\item{\bf{neighbours}}
+%%%% M
+\item{\bf{MADAGNAME}}
   \begin{itemize}
-  \item Component: MA
-  \item Mode: Multi MA
+  \item Component: Client
+  \item Mode: Workflow
   \item Type: String
-  \item Description: A list of Master Agent that must be contacted to
-    build a federation. The format is a list of host:port.
+  \item Description: the name of the \madag agent to wich the client
+    will connect.
   \end{itemize}
 
-\item{\bf{minimumNeighbours}}
+\item{\bf{MAName}}
   \begin{itemize}
-  \item Component: MA
-  \item Mode: Multi MA
-  \item Type: Integer
-  \item Description: Minimum number of connected neighbours. If the
-    agent has less that this number of connected neighbours, is going to
-    find some new connections. 
-  \end{itemize}
-
-\item{\bf{maximumNeighbours}}
-  \begin{itemize}
-  \item Component: MA
-  \item Mode: Integer 
-  \item Type: Multi MA
-  \item Description: maximum number of connected neighbours. The agent
-    does not accept a greater number of connection to build the federation
-    than maximumNeighbours.
-  \end{itemize}
-
-\item{\bf{updateLinkPeriod}}
-  \begin{itemize}
-  \item Component: MA
-  \item Mode: Multi MA
-  \item Type: Integer
-  \item Description: The agent check at a regular time basis that all
-    it's neighbours are still alive and try to connect to a new one if the
-    number of connections is less than
-    \emph{minimumNeighbours}. \emph{updateLinkPeriod} indicate the period
-    in second between two checks.
-  \end{itemize}
-
-\item{\bf{bindServicePort}}
-  \begin{itemize}
-  \item Component: MA
+  \item Component: Client
   \item Mode: All
-  \item Type: Integer
-  \item Description: port used by the Master Agent to share its IOR.
-  \end{itemize}
-
-\item{\bf{useConcJobLimit}}
-  \begin{itemize}
-  \item Component: \sed
-  \item Mode: All
-  \item Type: Boolean
-  \item Description: should SeD restrict the number of concurrent solves?
-  This should be used in conjunction with \emph{maxConcJobs}. 
+  \item Type: String
+  \item Description: Master Agent name.  The ORB configuration files of the clients
+    and the children of this MA (LAs and SeDs) must point at the same CORBA
+    Naming Service as the one pointed at by the ORB configuration file of
+    this agent.
   \end{itemize}
 
 \item{\bf{maxConcJobs}}
@@ -291,44 +277,54 @@
   
   \end{itemize}
 
-\item{\bf{locationID}}
+\item{\bf{maxDiskSpace}}
   \begin{itemize}
-  \item Component: \sed
+  \item Component: All
   \item Mode: \dagda
-  \item Type: String
-  \item Description: This parameter is used for alternative transfer cost
-  prediction.
+  \item Type: Integer
+  \item Description: The maximum disk space used by \dagda to store the data. If set
+to 0, \dagda will not take care of the disk usage. By default this value is
+equal to the available disk space on the disk partition chosen by the
+  \textit{storageDirectory} option. 
   \end{itemize}
 
-\item{\bf{MADAGNAME}}
+\item{\bf{maximumNeighbours}}
   \begin{itemize}
-  \item Component: Client
-  \item Mode: Workflow
-  \item Type: String
-  \item Description: the name of the \madag agent to wich the client
-    will connect.
+  \item Component: MA
+  \item Mode: Integer 
+  \item Type: Multi MA
+  \item Description: maximum number of connected neighbours. The agent
+    does not accept a greater number of connection to build the federation
+    than maximumNeighbours.
   \end{itemize}
 
-% OUTDATED
-%
-% \item{\bf{USEWFLOGSERVICE}}
-%   \begin{itemize}
-%   \item Component: 
-%   \item Mode: Workflow
-%   \item Type: String
-%   \item Description: ?
-%   \end{itemize}
-% \fixme{USEWFLOGSERVICE a été supprimé, mais est ce que c'est bien plus utilisé,
-% j'ai fait un grep sur le code et je ne trouve d'occurence plus que dans le
-% parser, donc je dirais que c'est outdated. A valider}
-
-\item{\bf{schedulerModule}}
+\item{\bf{maxMemSpace}}
   \begin{itemize}
-  \item Component: Agent
-  \item Mode: User scheduling
-  \item Type: String
-  \item Description: The path to the scheduler library file containing the
-  implementation of the plugin scheduler class.
+  \item Component: All
+  \item Mode: \dagda
+  \item Type: Integer
+  \item Description: The maximum memory space used by \dagda to store the data. If set
+to 0, \dagda will not take care of the memory usage. By default no maximum
+memory usage is set. Same effect than to choose 0.
+  \end{itemize}
+
+\item{\bf{maxMsgSize}}
+  \begin{itemize}
+  \item Component: All
+  \item Mode: \dagda
+  \item Type: Integer
+  \item Description: The maximum size of a CORBA message sent by \dagda. By
+  default this value is equal to the omniORB \textit{giopMaxMsgSize} size.
+  \end{itemize}
+
+\item{\bf{minimumNeighbours}}
+  \begin{itemize}
+  \item Component: MA
+  \item Mode: Multi MA
+  \item Type: Integer
+  \item Description: Minimum number of connected neighbours. If the
+    agent has less that this number of connected neighbours, is going to
+    find some new connections. 
   \end{itemize}
 
 \item{\bf{moduleConfigFile}}
@@ -339,20 +335,61 @@
   \item Description: Optional configuration file for the module.
   \end{itemize}
 
-\item{\bf{batchName}}
+%%%% N
+\item{\bf{name}}
   \begin{itemize}
-  \item Component: \sed
-  \item Mode: Batch
+  \item Component: Agent and \sed
+  \item Mode: All
   \item Type: String
-  \item Description: The reservation batch system's name.
+  \item Description: The name of the element. This parameter is not mandatory
+    for a \sed as it can generate a name during launch time.
   \end{itemize}
 
-\item{\bf{batchQueue}}
+\item{\bf{neighbours}}
   \begin{itemize}
-  \item Component: \sed
-  \item Mode: Batch
+  \item Component: MA
+  \item Mode: Multi MA
   \item Type: String
-  \item Description: The name of the queue where the job will be submitted.
+  \item Description: A list of Master Agent that must be contacted to
+    build a federation. The format is a list of host:port.
+  \end{itemize}
+
+\item{\bf{nwsForecaster}}
+  \begin{itemize}
+  \item Component: Agent and \sed
+  \item Mode: FAST
+  \item Type: Address
+  \item Description: NWS forecast module used by FAST.
+  \end{itemize}
+
+\item{\bf{nwsNameserver}}
+  \begin{itemize}
+  \item Component: Agent and \sed
+  \item Mode: FAST
+  \item Type: Address
+  \item Description: <host:port> of the NWS nameserver.
+  \end{itemize}
+
+\item{\bf{nwsUse}}
+  \begin{itemize}
+  \item Component: Agent and \sed
+  \item Mode: FAST
+  \item Type: Boolean
+  \item Description: 0 tells FAST not to use NWS for its comm times
+    forecasts.
+  \end{itemize}
+
+%%%% O
+
+%%%% P
+\item{\bf{parentName}}
+  \begin{itemize}
+  \item Component: LA and \sed
+  \item Mode: All
+  \item Type: String
+  \item Description: the name of the agent to which the element will
+    register. This agent must have registered at the same CORBA Naming
+    Service that is  pointed to by your ORB configuration.
   \end{itemize}
 
 \item{\bf{pathToNFS}}
@@ -372,73 +409,28 @@
     read/write rights.
   \end{itemize}
 
-\item{\bf{internOARbatchQueueName}}
+%%%% Q
+
+%%%% R
+\item{\bf{restoreOnStart}}
   \begin{itemize}
-  \item Component: \sed
-  \item Mode: Batch
+  \item Component: Agent and SeD
+  \item Mode: \dagda
+  \item Type: Boolean
+  \item Description: \dagda will load the \textit{dataBackupFile} file at start and
+restore all the data recorded at the last checkpointing event. Possible values
+are 0 or 1. By default, no file loading on start - 0.
+  \end{itemize}
+
+
+%%%% S
+\item{\bf{schedulerModule}}
+  \begin{itemize}
+  \item Component: Agent
+  \item Mode: User scheduling
   \item Type: String
-  \item Description: only useful when using CORI batch features with
-    OAR 1.6
-  \end{itemize}
-
-\item{\bf{initRequestID}}
-  \begin{itemize}
-  \item Component: MA
-  \item Mode: All
-  \item Type: Integer
-  \item Description: When a request is sent to the Master Agent, a request ID
-  is associated and by default it begins at 1. If this parameter is provided, it
-  will begins at initRequestID.
-  \end{itemize}
-
-\item{\bf{ackFile}}
-  \begin{itemize}
-  \item Component: Agent and \sed
-  \item Mode: Acknowledge file
-  \item Type: String
-  \item Description: Path to a file that will be created when the
-    element is ready to execute.
-  \end{itemize}
-
-\item{\bf{maxMsgSize}}
-  \begin{itemize}
-  \item Component: All
-  \item Mode: \dagda
-  \item Type: Integer
-  \item Description: The maximum size of a CORBA message sent by \dagda. By
-  default this value is equal to the omniORB \textit{giopMaxMsgSize} size.
-  \end{itemize}
-
-\item{\bf{maxDiskSpace}}
-  \begin{itemize}
-  \item Component: All
-  \item Mode: \dagda
-  \item Type: Integer
-  \item Description: The maximum disk space used by \dagda to store the data. If set
-to 0, \dagda will not take care of the disk usage. By default this value is
-equal to the available disk space on the disk partition chosen by the
-  \textit{storageDirectory} option. 
-  \end{itemize}
-
-\item{\bf{maxMemSpace}}
-  \begin{itemize}
-  \item Component: All
-  \item Mode: \dagda
-  \item Type: Integer
-  \item Description: The maximum memory space used by \dagda to store the data. If set
-to 0, \dagda will not take care of the memory usage. By default no maximum
-memory usage is set. Same effect than to choose 0.
-  \end{itemize}
-
-\item{\bf{cacheAlgorithm}}
-  \begin{itemize}
-  \item Component: All
-  \item Mode: \dagda
-  \item Type: String
-  \item Description: The cache replacement algorithm used when \dagda needs more space
-to store a data. Possible values are: \textit{LRU, LFU, FIFO}. By default, 
-no cache replacement algorithm. \dagda never replace a data by
-another one.
+  \item Description: The path to the scheduler library file containing the
+  implementation of the plugin scheduler class.
   \end{itemize}
 
 \item{\bf{shareFiles}}
@@ -451,26 +443,6 @@ another one.
 on a NFS partition). Value can be 0 or 1.  By default no file sharing - 0.
   \end{itemize}
 
-\item{\bf{dataBackupFile}}
-  \begin{itemize}
-  \item Component: Agent and SeD
-  \item Mode: \dagda
-  \item Type: String
-  \item Description: The path to the file that will be used when \dagda save all its
-stored data/data path when asked by the user (Checkpointing). By default, no
-checkpointing is possible.
-  \end{itemize}
-
-\item{\bf{restoreOnStart}}
-  \begin{itemize}
-  \item Component: Agent and SeD
-  \item Mode: \dagda
-  \item Type: Boolean
-  \item Description: \dagda will load the \textit{dataBackupFile} file at start and
-restore all the data recorded at the last checkpointing event. Possible values
-are 0 or 1. By default, no file loading on start - 0.
-  \end{itemize}
-
 \item{\bf{storageDirectory}}
   \begin{itemize}
   \item Component: All
@@ -478,6 +450,56 @@ are 0 or 1. By default, no file loading on start - 0.
   \item Type: String
   \item Description: The directory on which \dagda will store the data files.
   By default \texttt{/tmp} is used.
+  \end{itemize}
+
+
+%%%% T
+\item{\bf{traceLevel}}
+  \begin{itemize}
+  \item Component: All
+    \item Mode: All
+  \item Type: Integer
+  \item Description: traceLevel for the \diet agent:
+    \begin{itemize}
+    \item  0 \diet prints only warnings and errors on the standard error
+      output,
+    \item 1 [default] \diet prints information on the main steps
+      of a call,
+    \item 5 \diet prints information on all internal steps too,
+    \item 10 \diet prints all the communication structures too,
+    \item $>10$ (traceLevel - 10) is given to the ORB to print CORBA messages
+      too.
+    \end{itemize}
+  \end{itemize}
+
+%%%% U
+\item{\bf{updateLinkPeriod}}
+  \begin{itemize}
+  \item Component: MA
+  \item Mode: Multi MA
+  \item Type: Integer
+  \item Description: The agent check at a regular time basis that all
+    it's neighbours are still alive and try to connect to a new one if the
+    number of connections is less than
+    \emph{minimumNeighbours}. \emph{updateLinkPeriod} indicate the period
+    in second between two checks.
+  \end{itemize}
+
+\item{\bf{useConcJobLimit}}
+  \begin{itemize}
+  \item Component: \sed
+  \item Mode: All
+  \item Type: Boolean
+  \item Description: should SeD restrict the number of concurrent solves?
+  This should be used in conjunction with \emph{maxConcJobs}. 
+  \end{itemize}
+
+\item{\bf{useLogService}}
+  \begin{itemize}
+  \item Component: Agent and \sed
+  \item Mode: All
+  \item Type: Boolean
+  \item Description: 1 to use the LogService for monitoring.
   \end{itemize}
 
 \item{\bf{USE\_SPECIFIC\_SCHEDULING}}
@@ -496,13 +518,42 @@ are 0 or 1. By default, no file loading on start - 0.
     \end{itemize}
   \end{itemize}
 
-\item{\bf{clientMaxNbSeD}}
-  \begin{itemize}
-  \item Component: Client
-  \item Mode: All
-  \item Type: Integer
-  \item Description: The maximum number of \sed the client should receive.
-  \end{itemize}
+%%%% V
+
+%%%% W
+
+%%%% X
+
+%%%% Y
+
+%%%% Z
+
+
+
+
+
+% OUTDATED
+%
+% \item{\bf{USEWFLOGSERVICE}}
+%   \begin{itemize}
+%   \item Component: 
+%   \item Mode: Workflow
+%   \item Type: String
+%   \item Description: ?
+%   \end{itemize}
+% \fixme{USEWFLOGSERVICE a été supprimé, mais est ce que c'est bien plus utilisé,
+% j'ai fait un grep sur le code et je ne trouve d'occurence plus que dans le
+% parser, donc je dirais que c'est outdated. A valider}
+
+
+
+
+
+
+
+
+
+
 
 \end{description}
 
