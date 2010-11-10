@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2010/11/10 02:41:23  kcoulomb
+ * Small modifications to use the log service (LogService divided in 2 separated contexts, one for components and one for tools)
+ *
  * Revision 1.4  2010/07/20 09:16:53  bisnard
  * Added const
  *
@@ -100,6 +103,7 @@
 
 #include "Forwarder.hh"
 #include "LogComponentFwdr.hh"
+
 
 #define PINGTHREAD_SYNCHRO_FREQUENCY      60
 #define PINGTHREAD_SLEEP_SEC              1
@@ -260,7 +264,7 @@ public:
    * messages will not be cached but sent immediately.
    */
   DietLogComponent(const char* name,
-        int outBufferMaxSize);
+		   int outBufferMaxSize);
 
   /**
    * Release the memory allocated by this class;
@@ -506,6 +510,9 @@ private:
    * Remote LogCentralComponent object
    */
   LogCentralComponent_var myLCC;
+  // Name of the component
+  std::string myName;
+
 
   /**
    * this components name

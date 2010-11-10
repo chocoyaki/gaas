@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2010/11/10 02:41:23  kcoulomb
+ * Small modifications to use the log service (LogService divided in 2 separated contexts, one for components and one for tools)
+ *
  * Revision 1.5  2010/07/20 09:16:44  bisnard
  * Added const
  *
@@ -283,8 +286,9 @@ PingThread::run_undetached(void* params)
  */
 
 DietLogComponent::DietLogComponent(const char* name,
-        int outBufferMaxSize) {
+				   int outBufferMaxSize) {
   this->name = CORBA::string_dup(name);
+  this->myName = string(name);
   this->outBufferMaxSize = outBufferMaxSize;
   isConnected = false;
 
@@ -327,30 +331,66 @@ DietLogComponent::DietLogComponent(const char* name,
   tagNames[27] = strdup("DAGNODE_FAILED");      // modif bisnard_logs_1
   tagNames[28] = strdup("END_DOWNLOAD");        // modif bisnard_logs_1
 
-  CORBA::Object_ptr myLCCptr;
+//   CORBA::Object_ptr myLCCptr;
 
-  try {
-    myLCCptr = ORBMgr::getMgr()->resolveObject(LOGCOMPCTXT, "LogComponent");
-  } catch(CORBA::SystemException &e) {
-    DLC_ERROR("Could not resolve 'LogService./LogComponent.' from the NS",1);
-  }
-  if (CORBA::is_nil(myLCCptr)) {
-    DLC_ERROR("Could not resolve 'LogService./LogComponent.' from the NS",1);
-  }
+//   try {
+//     myLCCptr = ORBMgr::getMgr()->resolveObject(LOGCOMPCTXT, "LCC");
+//   } catch(CORBA::SystemException &e) {
+//     DLC_ERROR("Could not resolve 'LogService./LogComponent (LCC).' from the NS",1);
+//   }
+//   if (CORBA::is_nil(myLCCptr)) {
+//     DLC_ERROR("Could not resolve 'LogService./LogComponent (LCC).' from the NS",1);
+//   }
 
-  try {
-    myLCC = LogCentralComponent::_narrow(myLCCptr);
-  } catch(CORBA::SystemException &e) {
-    DLC_ERROR("Could not narrow the LogCentralComponent",1);
-  }
+//   try {
+//     myLCC = LogCentralComponent::_narrow(myLCCptr);
+//   } catch(CORBA::SystemException &e) {
+//     DLC_ERROR("Could not narrow the LogCentralComponent",1);
+//   }
+
+//   try{
+//     ORBMgr::getMgr()->bind(LOGCOMPCTXT, name, _this(), true);
+//   }
+//   catch (...){
+//     DLC_ERROR("Bind FAILED  in the LogService context\n", 1);
+//   }
+
+//   if (CORBA::is_nil(myLCC)){
+//     fprintf (stderr, "NARROW NIL ICI AUSSI \n");
+//}
+
+//  try{
+//    ORBMgr::getMgr()->bind("LogForwarder", name, _this(), true);
+//  }
+//  catch (...){
+//  }
+
 }
+
 
 int DietLogComponent::run(const char* agentType,
                           const char* parentName,
                           int outBufferTime) {
+   CORBA::Object_ptr myLCCptr;
+
+    // Connexion to the LCC
+    myLCC = ORBMgr::getMgr()->resolve<LogCentralComponent, LogCentralComponent_ptr>("LogServiceC", "LCC");
+    if (CORBA::is_nil(myLCC)){
+      fprintf (stderr, "Failed to narrow the LCC ! \n");
+    }
+
+    try{
+      ORBMgr::getMgr()->bind(LOGCOMPCTXT, myName, _this(), false);
+      ORBMgr::getMgr()->fwdsBind(LOGCOMPCTXT, myName,
+				 ORBMgr::getMgr()->getIOR(_this()));
+    }
+    catch (...){
+      fprintf (stderr, "Bind failed  in the LogService context\n");
+    }
+
+
   // Connect myself to the LogCentral
   short ret=0;
-
   char* hostName = new char[256];
   if(gethostname(hostName,255) != 0) {
     delete hostName;
@@ -711,7 +751,6 @@ DietLogComponent::synchronize() {
 void DietLogComponent::sendOutBuffer() {
   if (isConnected) {
     dlcMutex.lock();
-
     if (outBuffer.length() > 0) {
       try {
         myLCC->sendBuffer(outBuffer);
@@ -728,7 +767,6 @@ void DietLogComponent::sendOutBuffer() {
 void
 DietLogComponent::log(const char* tag, const char* msg) {
   log_msg_t logMsg;
-
   if (isConnected) {
     logMsg.componentName = CORBA::string_dup(name);
     logMsg.time = getLocalTime();

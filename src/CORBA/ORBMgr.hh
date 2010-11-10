@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.25  2010/11/10 02:41:23  kcoulomb
+ * Small modifications to use the log service (LogService divided in 2 separated contexts, one for components and one for tools)
+ *
  * Revision 1.24  2010/11/02 05:53:18  bdepardo
  * Correct a bug preventing the SeDs from connecting to an LA through the
  * forwarders: when resolving an agent we first try to resolve MA or LA
@@ -39,7 +42,7 @@
 #include "Forwarder.hh"
 
 #define DAGDACTXT   "Dagda"
-#define LOGCOMPCTXT "LogService"
+#define LOGCOMPCTXT "LogServiceC"
 #define AGENTCTXT	  "dietAgent"
 #define SEDCTXT			"dietSeD"
 #define DATAMGRCTXT "dataMgrDTM"
