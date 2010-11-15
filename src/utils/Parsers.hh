@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.44  2010/11/15 07:17:13  amuresan
+ * added dirty mutex hack to stop multiple requests from not working correctly (TODO: fix elegantly)
+ *
  * Revision 1.43  2010/10/27 06:41:30  amuresan
  * modified Eucalyptus_BatchSystem to be able to use existing VMs also
  *
@@ -313,6 +316,7 @@ public:
       PATHTOSSHKEY,
       INSTANTIATEVMS,
       SECURITYGROUP,
+      USERNAME,
 #endif
       NB_PARAM_TYPE
     } param_type_t;

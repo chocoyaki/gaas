@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2010/11/15 07:17:13  amuresan
+ * added dirty mutex hack to stop multiple requests from not working correctly (TODO: fix elegantly)
+ *
  * Revision 1.2  2010/10/27 06:41:30  amuresan
  * modified Eucalyptus_BatchSystem to be able to use existing VMs also
  *
@@ -24,6 +27,8 @@
 
 #define CLOUD_LOG
 #define CLOUD_DEBUG
+
+//#include <omnithread.h> /* need omni_mutex and for thread-local storage */
 
 #include "BatchSystem.hh"
 #include "Parsers.hh"
@@ -155,32 +160,9 @@ private :
   /* Job status */
   batchJobState state;
 
-  /* VM type that is defined as a string value inside the config file. */
-  static const char * vmTypes[];
-
-  /* This holds the instance states given by the Cloud system to the running instances */
-  char **vmStates;
-
-  /* This holds the instance names given by the Cloud system to the running instances */
-  char **vmNames;
-
-  /* This holds the public IP addresses of the VM instances given depending on
-   * the Cloud system's networking configuration i.e. for Eucalyptus this
-   * can be: managed, system (an external dhcp) or static.
-   */
-  char **vmIPs;
-
-  /* Same as above, but this holds the private IP addresses. Note that they might be the same. */
-  char **vmPrivIPs;
-
   /* Security group
    */
   char *securityGroup;
-
-  /* When isueing a reservation to an Amazon-like cloud an identifier is received for that reservation.
-   * This string holds that value
-   */
-  char *reservationId;
 
   /* Minimum number of VMs to instantiate and is read from the SeD .cfg file. */
   int vmMinCount;
@@ -217,6 +199,9 @@ private :
   /* This holds the name of the Eucalyptus Ramdisk Image to be instantiated and is read from the SeD .cfg file. */
   char * eriName;
 
+  /* This holds the name of the Eucalyptus Ramdisk Image to be instantiated and is read from the SeD .cfg file. */
+  char * userName;
+
   /* This holds the name of the Eucalyptus virtual machine type to be instantiated and is read from the SeD .cfg file. */
   VMTYPE vmType;
 
@@ -235,6 +220,43 @@ private :
    * Current value is 5.
    */
   int sleepTimeout;
+
+  /********** Thread management ************/
+
+  /* Mutex for synchronizing requests received in parallel */
+  omni_mutex request_mutex;
+
+  /* Thread id to local index mapping */
+  int *thread_local_id;
+
+  /* Maximum number of threads */
+  int max_threads;
+
+  /********** thread local data **********/
+
+  /* VM type that is defined as a string value inside the config file. */
+  static const char * vmTypes[];
+
+  /* This holds the instance states given by the Cloud system to the running instances */
+  char **vmStates;
+
+  /* This holds the instance names given by the Cloud system to the running instances */
+  char **vmNames;
+
+  /* This holds the public IP addresses of the VM instances given depending on
+   * the Cloud system's networking configuration i.e. for Eucalyptus this
+   * can be: managed, system (an external dhcp) or static.
+   */
+  char **vmIPs;
+
+  /* Same as above, but this holds the private IP addresses. Note that they might be the same. */
+  char **vmPrivIPs;
+
+  /* When isueing a reservation to an Amazon-like cloud an identifier is received for that reservation.
+   * This string holds that value
+   */
+  char *reservationId;
+
 };
 
 #endif // _EUCALYPTUS_BATCH_SYSTEM_HH_

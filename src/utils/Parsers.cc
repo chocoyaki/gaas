@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.62  2010/11/15 07:17:13  amuresan
+ * added dirty mutex hack to stop multiple requests from not working correctly (TODO: fix elegantly)
+ *
  * Revision 1.61  2010/10/27 06:41:30  amuresan
  * modified Eucalyptus_BatchSystem to be able to use existing VMs also
  *
@@ -294,6 +297,7 @@ Parsers::Results::param_t Parsers::Results::params[] =
    /* [56] */ ,{"pathToSSHKey", 12, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
    /* [57] */ ,{"instantiateVMs", 14, Parsers::parseInt, 0, NULL, Results::INT_PARAMETER}
    /* [58] */ ,{"securityGroup", 13, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
+   /* [59] */ ,{"userName", 8, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
 #endif
 } ;
 

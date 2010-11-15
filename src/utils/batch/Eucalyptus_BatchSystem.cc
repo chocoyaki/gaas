@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2010/11/15 07:17:13  amuresan
+ * added dirty mutex hack to stop multiple requests from not working correctly (TODO: fix elegantly)
+ *
  * Revision 1.3  2010/10/27 10:53:05  amuresan
  * modified cloud examples to take config files as command line args
  *
@@ -84,9 +87,6 @@ Eucalyptus_BatchSystem::Eucalyptus_BatchSystem(int ID, const char * batchname)
     if(index >= sizeof(vmTypes) / sizeof(char*))
         index = 0;
     vmType = (VMTYPE)index;
-#ifdef CLOUD_DEBUG
-    fprintf(stdout, "VMType = %s and index = %d\n", tmp, index);
-#endif
     keyName = GetStringValueOrNull(tmp, Parsers::Results::KEYNAME);
     vpTmp = Parsers::Results::getParamValue(Parsers::Results::VMMINCOUNT);
     if(vpTmp != NULL)
@@ -100,6 +100,14 @@ Eucalyptus_BatchSystem::Eucalyptus_BatchSystem(int ID, const char * batchname)
         vmMaxCount = 1;
     pathToCert = GetStringValueOrNull(tmp, Parsers::Results::PATHTOCERT);
     pathToPrivateKey = GetStringValueOrNull(tmp, Parsers::Results::PATHTOPK);
+    userName = GetStringValueOrNull(tmp, Parsers::Results::USERNAME);
+#ifdef CLOUD_DEBUG
+    fprintf(stdout, "VMType = %s and index = %d\n", tmp, index);
+    if(userName == NULL)
+        fprintf(stdout, "INFO: userName is NULL\n");
+    else
+        fprintf(stdout, "INFO: userName = '%s'\n", userName);
+#endif
     init(pathToPrivateKey, pathToCert);
 }
 
@@ -113,6 +121,10 @@ int Eucalyptus_BatchSystem::diet_submit_parallel(diet_profile_t * profile,
     const char * addon_prologue,
     const char * command)
 {
+    request_mutex.lock();
+#ifdef CLOUD_DEBUG
+    fprintf(stdout, "INFO: omnithread id: %d\n", omni_thread::self()->id());
+#endif
     if(instantiateVMs)
     {
         if(makeEucalyptusReservation(vmMinCount, vmMaxCount))
@@ -121,6 +133,8 @@ int Eucalyptus_BatchSystem::diet_submit_parallel(diet_profile_t * profile,
 #ifdef CLOUD_DEBUG
             fprintf(stderr, "ERROR: Cannot perform reservation\n");
 #endif
+            
+            request_mutex.unlock();
             return 0;
 	    }
     }
@@ -132,8 +146,10 @@ int Eucalyptus_BatchSystem::diet_submit_parallel(diet_profile_t * profile,
 #ifdef CLOUD_DEBUG
         fprintf(stderr, "ERROR: Cannot call 'DescribeInstances' to cloud at address '%s'\n", eucaURL);
 #endif
+        request_mutex.unlock();
         return 0;
     }
+
     printf("Described instances\n");
 
     int count = 0;
@@ -150,6 +166,7 @@ int Eucalyptus_BatchSystem::diet_submit_parallel(diet_profile_t * profile,
             fprintf(stderr, "ERROR: Cannot retrieve IP addresses after %d tries to cloud at address '%s'\n",
                     count, eucaURL);
 #endif
+            request_mutex.unlock();
             return 0;
         }
         for(index = 0;index < actualCount;index++)
@@ -174,6 +191,7 @@ int Eucalyptus_BatchSystem::diet_submit_parallel(diet_profile_t * profile,
 #ifdef CLOUD_DEBUG
                 fprintf(stderr, "ERROR: Cannot call 'DescribeInstances' to cloud at address '%s'\n", eucaURL);
 #endif
+                request_mutex.unlock();
                 return 0;
             }
         }
@@ -191,6 +209,7 @@ int Eucalyptus_BatchSystem::diet_submit_parallel(diet_profile_t * profile,
     for(index = 0;index < actualCount;index++)
         sprintf(addresses, "%s%s ", addresses, vmIPs[index]);
     sprintf(script, "%s", command);
+    replaceAllOccurencesInString(&script, "$USERNAME", userName);
     replaceAllOccurencesInString(&script, "$DIET_CLOUD_VMS", addresses);
     replaceAllOccurencesInString(&script, "$PATH_TO_SSH_KEY", pathToSSHKey);
 
@@ -199,7 +218,7 @@ int Eucalyptus_BatchSystem::diet_submit_parallel(diet_profile_t * profile,
 #endif
 
     if(instantiateVMs)
-       doWait(20, addresses);
+    doWait(20, addresses);
 
     state = RUNNING;
     if(system(script))
@@ -217,7 +236,9 @@ int Eucalyptus_BatchSystem::diet_submit_parallel(diet_profile_t * profile,
 #endif
     }
     state = TERMINATED;
-	return 0;
+
+    request_mutex.unlock();
+    return 0;
 }
 
 BatchSystem::batchJobState
@@ -305,11 +326,12 @@ void Eucalyptus_BatchSystem::doWait(int count, char*addresses)
         "#!/bin/bash\n\n"
         "for h in $DIET_CLOUD_VMS\n"
         "do\n"
-        "ssh ec2-user@$h -i $PATH_TO_SSH_KEY -o StrictHostKeyChecking=no 'hostname ; uname -a'\n"
+        "ssh $USERNAME@$h -i $PATH_TO_SSH_KEY -o StrictHostKeyChecking=no 'hostname ; uname -a'\n"
         "done";
     char*script = (char*)malloc(1000);
     sprintf(script, "%s", s);
 
+    replaceAllOccurencesInString(&script, "$USERNAME", userName);
     replaceAllOccurencesInString(&script, "$DIET_CLOUD_VMS", addresses);
     replaceAllOccurencesInString(&script, "$PATH_TO_SSH_KEY", pathToSSHKey);
 

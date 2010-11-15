@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2010/11/15 07:17:12  amuresan
+ * added dirty mutex hack to stop multiple requests from not working correctly (TODO: fix elegantly)
+ *
  * Revision 1.4  2010/10/27 10:53:00  amuresan
  * modified cloud examples to take config files as command line args
  *
@@ -106,12 +109,13 @@ int solve_cloud(diet_profile_t *pb)
 
     char*aux, *strA, *strB;
     char*script_start =
+
         "#!/bin/bash\n\n"
         "for h in $DIET_CLOUD_VMS\n"
         "do\n"
-        "ssh ec2-user@$h -i $PATH_TO_SSH_KEY -o StrictHostKeyChecking=no 'hostname ; uname -a ; ps aux ; export ; ls /' > info\n"
+        "ssh $USERNAME@$h -i $PATH_TO_SSH_KEY -o StrictHostKeyChecking=no 'hostname ; uname -a ; ps aux ; export ; ls /' > info\n"
 
-        "ssh ec2-user@$h -i $PATH_TO_SSH_KEY -o StrictHostKeyChecking=no '"
+        "ssh $USERNAME@$h -i $PATH_TO_SSH_KEY -o StrictHostKeyChecking=no '"
         "echo \""
         "def zero(m,n):\n"
         "    return [[0 for r in range(n)] for c in range(m)]\n"
