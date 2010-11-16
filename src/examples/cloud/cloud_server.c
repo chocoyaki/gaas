@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2010/11/16 01:42:28  amuresan
+ *  - added proper concurrency support for cloud part
+ *  - fixed small data initialization bug with cloud server example
+ *
  * Revision 1.5  2010/11/15 07:17:12  amuresan
  * added dirty mutex hack to stop multiple requests from not working correctly (TODO: fix elegantly)
  *
@@ -163,6 +167,7 @@ int solve_cloud(diet_profile_t *pb)
 
   read_all(result, "info");
   printf("Info result: %s", result);
+  C[0] = '\0';
   read_all(C, "mult");
   printf("MatMult result: %s", C);
 

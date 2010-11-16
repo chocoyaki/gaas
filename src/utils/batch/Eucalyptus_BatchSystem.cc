@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2010/11/16 01:42:28  amuresan
+ *  - added proper concurrency support for cloud part
+ *  - fixed small data initialization bug with cloud server example
+ *
  * Revision 1.4  2010/11/15 07:17:13  amuresan
  * added dirty mutex hack to stop multiple requests from not working correctly (TODO: fix elegantly)
  *
@@ -49,18 +53,24 @@ Eucalyptus_BatchSystem::Eucalyptus_BatchSystem(int ID, const char * batchname)
     char * pathToPrivateKey;
     
     /* Member initialization here */
+    /* TODO: move these as SeD config parameters where applicable */
     VM_Buff_count = 100;
     state = WAITING;
+
+    /*
     vmStates = NULL;
     vmNames = NULL;
     vmIPs = NULL;
     vmPrivIPs = NULL;
     reservationId = NULL;
     actualCount = 0;
+    */
+
     rsa_private_key = NULL;
     cert = NULL;
     maxTries = 50;
     sleepTimeout = 5;
+    max_threads = 100;
 
     /* Parameters from the config file here */
     securityGroup = GetStringValueOrNull(tmp, Parsers::Results::SECURITYGROUP); 
@@ -108,6 +118,16 @@ Eucalyptus_BatchSystem::Eucalyptus_BatchSystem(int ID, const char * batchname)
     else
         fprintf(stdout, "INFO: userName = '%s'\n", userName);
 #endif
+    /* initialize per thread data */
+    thread_local_id = (int*)malloc(max_threads * sizeof(int));
+    request_state = (request_data_t**)malloc(max_threads * sizeof(request_data_t*));
+
+    for(index = 0;index < max_threads;index++)
+    {
+        thread_local_id[index] = -1;
+        request_state[index] = NULL;
+    }
+
     init(pathToPrivateKey, pathToCert);
 }
 
@@ -121,32 +141,38 @@ int Eucalyptus_BatchSystem::diet_submit_parallel(diet_profile_t * profile,
     const char * addon_prologue,
     const char * command)
 {
-    request_mutex.lock();
+    request_data_t * req_state = request_begin(omni_thread::self()->id());
+    if(state == NULL)
+    {
+#ifdef CLOUD_DEBUG
+        fprintf(stderr, "ERROR: Cannot create local data for new request. Increase number of maximum threads local variable.\n");
+#endif
+        state = ERROR;
+        return 0;
+    }
 #ifdef CLOUD_DEBUG
     fprintf(stdout, "INFO: omnithread id: %d\n", omni_thread::self()->id());
 #endif
     if(instantiateVMs)
     {
-        if(makeEucalyptusReservation(vmMinCount, vmMaxCount))
+        if(makeEucalyptusReservation(req_state, vmMinCount, vmMaxCount))
 	    {
             state = ERROR;
 #ifdef CLOUD_DEBUG
             fprintf(stderr, "ERROR: Cannot perform reservation\n");
 #endif
             
-            request_mutex.unlock();
             return 0;
 	    }
     }
-    else if(describeInstances())
+    else if(describeInstances(req_state))
     {
         printf("error describing\n");
-        terminateEucalyptusInstance();
+        terminateEucalyptusInstance(req_state);
         state = ERROR;
 #ifdef CLOUD_DEBUG
         fprintf(stderr, "ERROR: Cannot call 'DescribeInstances' to cloud at address '%s'\n", eucaURL);
 #endif
-        request_mutex.unlock();
         return 0;
     }
 
@@ -166,16 +192,15 @@ int Eucalyptus_BatchSystem::diet_submit_parallel(diet_profile_t * profile,
             fprintf(stderr, "ERROR: Cannot retrieve IP addresses after %d tries to cloud at address '%s'\n",
                     count, eucaURL);
 #endif
-            request_mutex.unlock();
             return 0;
         }
-        for(index = 0;index < actualCount;index++)
-            if(strcmp(vmIPs[index], "0.0.0.0") == 0 || strlen(vmIPs[index]) <= 1 || strcmp(vmStates[index], "running") != 0)
+        for(index = 0;index < req_state->actualCount;index++)
+            if(strcmp(req_state->vmIPs[index], "0.0.0.0") == 0 || strlen(req_state->vmIPs[index]) <= 1 || strcmp(req_state->vmStates[index], "running") != 0)
             {
                 unassigned = 1;
                 break;
             }
-        if(actualCount == 0)
+        if(req_state->actualCount == 0)
             unassigned = 1;
         if(unassigned)
         {
@@ -184,14 +209,13 @@ int Eucalyptus_BatchSystem::diet_submit_parallel(diet_profile_t * profile,
                     sleepTimeout);
 #endif
             sleep(sleepTimeout);
-            if(describeInstances())
+            if(describeInstances(req_state))
             {
-                terminateEucalyptusInstance();
+                terminateEucalyptusInstance(req_state);
                 state = ERROR;
 #ifdef CLOUD_DEBUG
                 fprintf(stderr, "ERROR: Cannot call 'DescribeInstances' to cloud at address '%s'\n", eucaURL);
 #endif
-                request_mutex.unlock();
                 return 0;
             }
         }
@@ -199,15 +223,15 @@ int Eucalyptus_BatchSystem::diet_submit_parallel(diet_profile_t * profile,
     }
 #ifdef CLOUD_DEBUG
     fprintf(stdout, "INFO: Created instances with the following IP address mapping:\n");
-    for(index=0;index<actualCount;index++)
-        fprintf(stdout, "\t%s -> %s\n", vmNames[index], vmIPs[index]);
+    for(index=0;index<req_state->actualCount;index++)
+        fprintf(stdout, "\t%s -> %s\n", req_state->vmNames[index], req_state->vmIPs[index]);
 #endif
     /* prepare the script for running, replace the meta-variables inside the script */
     char *script = (char*)malloc(9000 * sizeof(char));
-    char *addresses = (char*)malloc((100 * actualCount + 1) * sizeof(char));
+    char *addresses = (char*)malloc((100 * req_state->actualCount + 1) * sizeof(char));
     addresses[0] = '\0';
-    for(index = 0;index < actualCount;index++)
-        sprintf(addresses, "%s%s ", addresses, vmIPs[index]);
+    for(index = 0;index < req_state->actualCount;index++)
+        sprintf(addresses, "%s%s ", addresses, req_state->vmIPs[index]);
     sprintf(script, "%s", command);
     replaceAllOccurencesInString(&script, "$USERNAME", userName);
     replaceAllOccurencesInString(&script, "$DIET_CLOUD_VMS", addresses);
@@ -230,14 +254,13 @@ int Eucalyptus_BatchSystem::diet_submit_parallel(diet_profile_t * profile,
     }
     if(instantiateVMs)
     {
-        terminateEucalyptusInstance();
+        terminateEucalyptusInstance(req_state);
 #ifdef CLOUD_DEBUG
         fprintf(stdout, "INFO: Terminated instances\n");
 #endif
     }
     state = TERMINATED;
 
-    request_mutex.unlock();
     return 0;
 }
 
@@ -352,22 +375,22 @@ void Eucalyptus_BatchSystem::doWait(int count, char*addresses)
 
 }
 
-void Eucalyptus_BatchSystem::allocVmNames()
+void Eucalyptus_BatchSystem::allocVmNames(request_data_t * req_state)
 {
-    vmStates = (char**)malloc(VM_Buff_count * sizeof(char*));
-    vmNames = (char**)malloc(VM_Buff_count * sizeof(char*));
-    vmIPs = (char**)malloc(VM_Buff_count * sizeof(char*));
-    vmPrivIPs = (char**)malloc(VM_Buff_count * sizeof(char*));
+    req_state->vmStates = (char**)malloc(VM_Buff_count * sizeof(char*));
+    req_state->vmNames = (char**)malloc(VM_Buff_count * sizeof(char*));
+    req_state->vmIPs = (char**)malloc(VM_Buff_count * sizeof(char*));
+    req_state->vmPrivIPs = (char**)malloc(VM_Buff_count * sizeof(char*));
 }
 
-int Eucalyptus_BatchSystem::makeEucalyptusReservation(int minVMCount, int maxVMCount)
+int Eucalyptus_BatchSystem::makeEucalyptusReservation(request_data_t * req_state, int minVMCount, int maxVMCount)
 {
     /* TODO: fix this crude way of saying "I'm empty": */
-    vmNames = NULL;
-    vmIPs = NULL;
-    vmPrivIPs = NULL;
+    req_state->vmNames = NULL;
+    req_state->vmIPs = NULL;
+    req_state->vmPrivIPs = NULL;
+    req_state->actualCount = 0;
 
-    actualCount = 0;
     struct soap *s = newDefaultSoap();
 
     if(s)
@@ -417,19 +440,19 @@ int Eucalyptus_BatchSystem::makeEucalyptusReservation(int minVMCount, int maxVMC
         int index;
         if(soap_call___ec2__RunInstances(s, eucaURL, "RunInstances", rireqp, rirespp) == SOAP_OK)
         {
-            actualCount = rirespp->instancesSet->__sizeitem;
+            req_state->actualCount = rirespp->instancesSet->__sizeitem;
 #ifdef CLOUD_DEBUG
-            fprintf(stdout, "INFO: Called RunInstances, reserved %d resources\n", actualCount);
+            fprintf(stdout, "INFO: Called RunInstances, reserved %d resources\n", req_state->actualCount);
 #endif
-            reservationId = strdup(rirespp->reservationId);
-            allocVmNames();
-            for(index=0;index<actualCount;index++)
+            req_state->reservationId = strdup(rirespp->reservationId);
+            allocVmNames(req_state);
+            for(index=0; index < req_state->actualCount; index++)
             {
                 item = &rirespp->instancesSet->item[index];
-                vmStates[index] = strdup(item->instanceState->name);
-                vmNames[index] = strdup(item->instanceId);
-                vmIPs[index] = strdup(item->dnsName);
-                vmPrivIPs[index] = strdup(item->privateDnsName);
+                req_state->vmStates[index] = strdup(item->instanceState->name);
+                req_state->vmNames[index] = strdup(item->instanceId);
+                req_state->vmIPs[index] = strdup(item->dnsName);
+                req_state->vmPrivIPs[index] = strdup(item->privateDnsName);
             }
         }
         else
@@ -454,7 +477,7 @@ int Eucalyptus_BatchSystem::makeEucalyptusReservation(int minVMCount, int maxVMC
     return 0;
 }
 
-int Eucalyptus_BatchSystem::terminateEucalyptusInstance()
+int Eucalyptus_BatchSystem::terminateEucalyptusInstance(request_data_t * req_state)
 {
     struct soap *s = newDefaultSoap();
 
@@ -466,10 +489,10 @@ int Eucalyptus_BatchSystem::terminateEucalyptusInstance()
 
         titp = (struct ec2__TerminateInstancesType *)malloc(sizeof(struct ec2__TerminateInstancesType));
         titp->instancesSet = (struct ec2__TerminateInstancesInfoType*)malloc(sizeof(struct ec2__TerminateInstancesInfoType));
-        titp->instancesSet->__sizeitem = actualCount;
-        titp->instancesSet->item = (struct ec2__TerminateInstancesItemType*)malloc(actualCount * sizeof(struct ec2__TerminateInstancesItemType));
-        for(index = 0;index<actualCount;index++)
-            titp->instancesSet->item[index].instanceId = vmNames[index];
+        titp->instancesSet->__sizeitem = req_state->actualCount;
+        titp->instancesSet->item = (struct ec2__TerminateInstancesItemType*)malloc(req_state->actualCount * sizeof(struct ec2__TerminateInstancesItemType));
+        for(index = 0; index < req_state->actualCount; index++)
+            titp->instancesSet->item[index].instanceId = req_state->vmNames[index];
 
         tirtp = (struct ec2__TerminateInstancesResponseType*)malloc(sizeof(struct ec2__TerminateInstancesResponseType));
         tirtp->instancesSet = (struct ec2__TerminateInstancesResponseInfoType*)malloc(sizeof(struct ec2__TerminateInstancesResponseInfoType));
@@ -500,7 +523,7 @@ int Eucalyptus_BatchSystem::terminateEucalyptusInstance()
     return 0;
 }
 
-int Eucalyptus_BatchSystem::describeInstances()
+int Eucalyptus_BatchSystem::describeInstances(request_data_t * req_state)
 {
     struct soap * s;
     int index;
@@ -521,10 +544,10 @@ int Eucalyptus_BatchSystem::describeInstances()
 
     ditp = (struct ec2__DescribeInstancesType*)malloc(sizeof(struct ec2__DescribeInstancesType));
     ditp->instancesSet = (struct ec2__DescribeInstancesInfoType*)malloc(sizeof(struct ec2__DescribeInstancesInfoType));
-    ditp->instancesSet->item = (struct ec2__DescribeInstancesItemType*)malloc(actualCount * sizeof(struct ec2__DescribeInstancesItemType));
-    ditp->instancesSet->__sizeitem = actualCount;
-    for(index = 0;index<actualCount;index++)
-        ditp->instancesSet->item[index].instanceId = vmNames[index];
+    ditp->instancesSet->item = (struct ec2__DescribeInstancesItemType*)malloc(req_state->actualCount * sizeof(struct ec2__DescribeInstancesItemType));
+    ditp->instancesSet->__sizeitem = req_state->actualCount;
+    for(index = 0; index < req_state->actualCount; index++)
+        ditp->instancesSet->item[index].instanceId = req_state->vmNames[index];
     respp = (struct ec2__DescribeInstancesResponseType *)malloc(sizeof(struct ec2__DescribeInstancesResponseType));
     respp->reservationSet = NULL;
 
@@ -534,31 +557,31 @@ int Eucalyptus_BatchSystem::describeInstances()
         fprintf(stderr, "INFO: Found %d reservations(s)\n", respp->reservationSet->__sizeitem);
 #endif
         int r;
-        actualCount = 0;
+        req_state->actualCount = 0;
         for(r=0;r<respp->reservationSet->__sizeitem;r++)
         {
             
-            if(reservationId == NULL || instantiateVMs == 0)
-                reservationId = strdup(respp->reservationSet->item[r].reservationId);
-            printf("INFO: ReservationId: %s\n", reservationId);
-            if(strcmp(respp->reservationSet->item[r].reservationId, reservationId) == 0)
+            if(req_state->reservationId == NULL || instantiateVMs == 0)
+                req_state->reservationId = strdup(respp->reservationSet->item[r].reservationId);
+            printf("INFO: ReservationId: %s\n", req_state->reservationId);
+            if(strcmp(respp->reservationSet->item[r].reservationId, req_state->reservationId) == 0)
             {
                 reservation = &respp->reservationSet->item[r];
                 /* Update the number of instances in case the service uses existing VMs */
                 for(index=0;index<reservation->instancesSet->__sizeitem;index++)
                 {
                     printf("in reservation\n");
-                    if(vmNames == NULL)
-                        allocVmNames();
+                    if(req_state->vmNames == NULL)
+                        allocVmNames(req_state);
                     runningItem = &reservation->instancesSet->item[index];
                     state = runningItem->instanceState;
                     if(strcmp(state->name, "running") == 0 || strcmp(state->name, "pending") == 0)
                     {
-                        vmStates[actualCount] = strdup(state->name);
-                        vmNames[actualCount] = strdup(runningItem->instanceId);
-                        vmIPs[actualCount] = strdup(runningItem->dnsName);
-                        vmPrivIPs[actualCount] = strdup(runningItem->privateDnsName);
-                        actualCount++;
+                        req_state->vmStates[req_state->actualCount] = strdup(state->name);
+                        req_state->vmNames[req_state->actualCount] = strdup(runningItem->instanceId);
+                        req_state->vmIPs[req_state->actualCount] = strdup(runningItem->dnsName);
+                        req_state->vmPrivIPs[req_state->actualCount] = strdup(runningItem->privateDnsName);
+                        req_state->actualCount++;
                     }
 #ifdef CLOUD_DEBUG
                     fprintf(stdout, "INFO: VM with ID '%s' has state '%s' and IP '%s'\n",
@@ -637,4 +660,49 @@ struct soap * Eucalyptus_BatchSystem::newDefaultSoap()
         return s;
     }
     return NULL;
+}
+
+/********************* Multi-threading ***********************/
+Eucalyptus_BatchSystem::request_data_t * Eucalyptus_BatchSystem::request_begin(int thread_id)
+{
+    int index;
+    index = 0;
+    
+    request_mutex.lock();
+
+    while(index < max_threads && thread_local_id[index] != -1)
+        index++;
+    if(index >= max_threads)
+        return NULL;
+    thread_local_id[index] = thread_id;
+
+    request_mutex.unlock();
+
+    if(request_state[index] == NULL)
+        request_state[index] = (request_data_t*)malloc(sizeof(request_data_t));
+    
+    request_state[index]->vmStates = NULL;
+    request_state[index]->vmNames = NULL;
+    request_state[index]->vmIPs = NULL;
+    request_state[index]->vmPrivIPs = NULL;
+    request_state[index]->reservationId = NULL;
+    request_state[index]->actualCount = 0;
+    
+    return request_state[index];
+}
+
+void Eucalyptus_BatchSystem::request_end(int thread_id)
+{
+    int index;
+    index = 0;
+    
+    request_mutex.lock();
+
+    while(index < max_threads && thread_local_id[index] != -1)
+        index++;
+    if(index >= max_threads)
+        return;
+    thread_local_id[index] = -1;
+
+    request_mutex.unlock();
 }

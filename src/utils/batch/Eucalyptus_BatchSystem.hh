@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2010/11/16 01:42:28  amuresan
+ *  - added proper concurrency support for cloud part
+ *  - fixed small data initialization bug with cloud server example
+ *
  * Revision 1.3  2010/11/15 07:17:13  amuresan
  * added dirty mutex hack to stop multiple requests from not working correctly (TODO: fix elegantly)
  *
@@ -108,6 +112,33 @@ public :
   /****************** Performance Prediction Functions ***************/
 
 private :
+  /* Struct to hold per request thread data */
+
+  typedef struct {
+    /* This holds the instance states given by the Cloud system to the running instances */
+    char **vmStates;
+
+    /* This holds the instance names given by the Cloud system to the running instances */
+    char **vmNames;
+
+    /* This holds the public IP addresses of the VM instances given depending on
+    * the Cloud system's networking configuration i.e. for Eucalyptus this
+    * can be: managed, system (an external dhcp) or static.
+    */
+    char **vmIPs;
+
+    /* Same as above, but this holds the private IP addresses. Note that they might be the same. */
+    char **vmPrivIPs;
+
+    /* When isueing a reservation to an Amazon-like cloud an identifier is received for that reservation.
+    * This string holds that value
+    */
+    char *reservationId;
+  
+    /* Actual number of VMs to instantiated and is read from the SeD .cfg file. */
+    int actualCount;
+  } request_data_t;
+  
   int VM_Buff_count;
 
   int
@@ -117,7 +148,7 @@ private :
   doWait(int count, char* addresses);
 
   void
-  allocVmNames();
+  allocVmNames(request_data_t * state);
 
   /****************** Eucalyptus VM Management ***********************/
   /* Makes a reservation on an Eucalyptus cloud and returns the number of instantiated VMs.
@@ -126,7 +157,7 @@ private :
    *  vmIPs - ip addresses of the instantiated vms
    */
   int
-  makeEucalyptusReservation(int minVMCount, int maxVMCount);
+  makeEucalyptusReservation(request_data_t * state, int minVMCount, int maxVMCount);
   
   /* Calls 'DescribeInstances' for the resources in the current reservation and updates the
    * VM instance names and IP addresses.
@@ -137,11 +168,11 @@ private :
    *    != 0 - an error
    */
   int
-  describeInstances();
+  describeInstances(request_data_t * state);
 
   /* Terminates an Eucalyptus VM and returns a status code representing the success or failure of the operation. */
   int
-  terminateEucalyptusInstance();
+  terminateEucalyptusInstance(request_data_t * state);
 
   /* Utility function to create a default SOAP message with the three required security headers.
    * Returns:
@@ -157,8 +188,19 @@ private :
   char *
   GetStringValueOrNull(char*tmp, Parsers::Results::param_type_t param);
 
+  /************* Multi-threading helpers **************/
+
+  /* Initiate data for a new request's state */
+  request_data_t * request_begin(int thread_id);
+
+  /* Uninitialize data when a request is done */
+  void request_end(int thread_id);
+
   /* Job status */
   batchJobState state;
+
+  /* VM type that is defined as a string value inside the config file. */
+  static const char * vmTypes[];
 
   /* Security group
    */
@@ -170,9 +212,6 @@ private :
   /* Maximum number of VMs to instantiate and is read from the SeD .cfg file. */
   int vmMaxCount;
   
-  /* Actual number of VMs to instantiated and is read from the SeD .cfg file. */
-  int actualCount;
-
   /* Path to the ssh key used for authentication on the VMs */
   char * pathToSSHKey;
 
@@ -234,29 +273,8 @@ private :
 
   /********** thread local data **********/
 
-  /* VM type that is defined as a string value inside the config file. */
-  static const char * vmTypes[];
-
-  /* This holds the instance states given by the Cloud system to the running instances */
-  char **vmStates;
-
-  /* This holds the instance names given by the Cloud system to the running instances */
-  char **vmNames;
-
-  /* This holds the public IP addresses of the VM instances given depending on
-   * the Cloud system's networking configuration i.e. for Eucalyptus this
-   * can be: managed, system (an external dhcp) or static.
-   */
-  char **vmIPs;
-
-  /* Same as above, but this holds the private IP addresses. Note that they might be the same. */
-  char **vmPrivIPs;
-
-  /* When isueing a reservation to an Amazon-like cloud an identifier is received for that reservation.
-   * This string holds that value
-   */
-  char *reservationId;
-
+  /* Per-request thread data. Used for simultaneous multiple-request handling. */
+  request_data_t ** request_state;
 };
 
 #endif // _EUCALYPTUS_BATCH_SYSTEM_HH_
