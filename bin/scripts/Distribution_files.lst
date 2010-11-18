@@ -17,6 +17,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.45  2010/11/18 05:15:35  bdepardo
+#* Updated example files
+#*
 #* Revision 1.44  2010/10/15 06:11:07  bdepardo
 #* Added files for allDataTransfers example
 #*
@@ -455,10 +458,12 @@ src/examples/BLAS/CMakeLists.txt
 [Templated]
 src/examples/BLAS/client.c
 src/examples/BLAS/dgemm_client.c
+src/examples/BLAS/dgemm_client_thread.cc
 src/examples/BLAS/server.c
 
 [Untemplated]
 src/examples/Batch/CMakeLists.txt
+src/examples/Batch/README.txt
 src/examples/Batch/TestAllBatch/CMakeLists.txt
 
 [Templated]
@@ -467,7 +472,9 @@ src/examples/Batch/batch_server.c
 src/examples/Batch/client.c
 src/examples/Batch/concatenation.c
 src/examples/Batch/sequential_server.c
+src/examples/Batch/TestAllBatch/allbatch_server.c
 src/examples/Batch/TestAllBatch/batch_server.c
+src/examples/Batch/TestAllBatch/allbatch_client.c
 src/examples/Batch/TestAllBatch/client.c
 src/examples/Batch/TestAllBatch/concatenation.sh
 
@@ -475,10 +482,12 @@ src/examples/Batch/TestAllBatch/concatenation.sh
 src/examples/cloud/CMakeLists.txt
 src/examples/cloud/client_cloud.cfg
 src/examples/cloud/SeD_cloud.cfg
+src/examples/cloud/A.in
+src/examples/cloud/B.in
 
 [Templated]
-src/examples/cloud/server.c
-src/examples/cloud/client.c
+src/examples/cloud/cloud_server.c
+src/examples/cloud/cloud_client.c
 
 [Untemplated]
 src/examples/GridRPC/CMakeLists.txt
@@ -488,6 +497,14 @@ src/examples/GridRPC/standard-test.c
 
 [Untemplated]
 src/examples/JXTA/CMakeLists.txt
+src/examples/JXTA/scripts/LA1/LA1_jxta_load.sh
+src/examples/JXTA/scripts/MMA1/MMA1_load.sh
+src/examples/JXTA/scripts/MMA2/MMA2_load.sh
+src/examples/JXTA/scripts/MMA3/MMA3_load.sh
+src/examples/JXTA/scripts/SeD1/SeD1_jxta_load.sh
+src/examples/JXTA/scripts/SeD2/SeD2_jxta_load.sh
+src/examples/JXTA/scripts/SeD3/SeD3_jxta_load.sh
+src/examples/JXTA/scripts/client/client_jxta_load.sh
 [Templated]
 src/examples/JXTA/JXTAClient.java
 src/examples/ScaLAPACK/client.c
@@ -499,14 +516,15 @@ src/examples/ScaLAPACK/server.c
 [Untemplated]
 src/examples/containers/CMakeLists.txt
 [Templated]
-src/examples/containers/client.c
-src/examples/containers/server.c
+src/examples/containers/containers_client.c
+src/examples/containers/containers_server.c
 
 [Untemplated]
 src/examples/cori/CMakeLists.txt
 [Templated]
 src/examples/cori/client.c
 src/examples/cori/coriEasyTester.cc
+src/examples/cori/client_thread.cc
 src/examples/cori/progs.h
 src/examples/cori/server.c
 
@@ -514,7 +532,7 @@ src/examples/cori/server.c
 src/examples/dmat_manips/CMakeLists.txt
 [Templated]
 src/examples/dmat_manips/Global_macros.hh
-src/examples/dmat_manips/client.c
+src/examples/dmat_manips/dmat_manips_client.c
 src/examples/dmat_manips/clientJuxMem.c
 src/examples/dmat_manips/clientWithID.c
 src/examples/dmat_manips/parallelClient.cc
@@ -523,21 +541,23 @@ src/examples/dmat_manips/parallelClient3.cc
 src/examples/dmat_manips/parallelClient4.cc
 src/examples/dmat_manips/progs.h
 src/examples/dmat_manips/serialClient.cc
-src/examples/dmat_manips/server.c
+src/examples/dmat_manips/dmat_manips_server.c
 
 [Untemplated]
 src/examples/file_transfer/CMakeLists.txt
 [Templated]
-src/examples/file_transfer/client.c
-src/examples/file_transfer/server.c
+src/examples/file_transfer/file_transfer_client.c
+src/examples/file_transfer/file_transfer_server.c
+
+[Templated]
 src/examples/plugin_example/client.c
 src/examples/plugin_example/server.c
 
 [Untemplated]
 src/examples/scalars/CMakeLists.txt
 [Templated]
-src/examples/scalars/client.c
-src/examples/scalars/server.c
+src/examples/scalars/scalars_client.c
+src/examples/scalars/scalars_server.c
 
 [Untemplated]
 src/examples/SeDWrapper/CMakeLists.txt
@@ -591,12 +611,16 @@ src/examples/allDataTransfers/progs.cc
 [Untemplated]
 src/examples/dyn_add_rem/CMakeLists.txt
 src/examples/dyn_add_rem/README
-src/examples/dynamicServiceMgr/CMakeLists.txt
-src/examples/dynamicServiceMgr/README
-src/examples/dynamic_hierarchy/CMakeLists.txt
+
 [Templated]
 src/examples/dyn_add_rem/client.cc
 src/examples/dyn_add_rem/server.cc
+
+[Untemplated]
+src/examples/dynamicServiceMgr/CMakeLists.txt
+src/examples/dynamicServiceMgr/README
+
+[Templated]
 src/examples/dynamicServiceMgr/DynamicServiceMgr.cc
 src/examples/dynamicServiceMgr/DynamicServiceMgr.hh
 src/examples/dynamicServiceMgr/client.cc
@@ -605,6 +629,11 @@ src/examples/dynamicServiceMgr/service.cc
 src/examples/dynamicServiceMgr/service.hh
 src/examples/dynamicServiceMgr/service2.cc
 src/examples/dynamicServiceMgr/service2.hh
+
+[Untemplated]
+src/examples/dynamic_hierarchy/CMakeLists.txt
+
+[Templated]
 src/examples/dynamic_hierarchy/connect.cc
 src/examples/dynamic_hierarchy/disconnect.cc
 src/examples/dynamic_hierarchy/remove.cc
@@ -622,8 +651,13 @@ src/examples/cfgs/SeD.cfg.in
 src/examples/cfgs/SeD1.cfg.in
 src/examples/cfgs/SeD2.cfg.in
 src/examples/cfgs/SeD3.cfg.in
+src/examples/cfgs/SeD_batch.cfg.in
+src/examples/cfgs/SeD_cloud.cfg
 src/examples/cfgs/base.ldif
 src/examples/cfgs/client.cfg
+src/examples/cfgs/client.cfg.in
+src/examples/cfgs/client_wf.cfg
+src/examples/cfgs/client_wf.cfg.in
 src/examples/cfgs/omniORB3.cfg
 src/examples/cfgs/omniORB4.cfg.in
 src/examples/cfgs/plus_mult_dgemm.ldif.in
@@ -632,19 +666,6 @@ src/examples/cfgs/ldap_schema/core.schema
 src/examples/cfgs/ldap_schema/cosine.schema
 src/examples/cfgs/ldap_schema/inetorgperson.schema
 src/examples/cfgs/ldap_schema/nis.schema
-src/examples/JXTA/scripts/LA1/LA1_jxta_load.sh
-src/examples/JXTA/scripts/MMA1/MMA1_load.sh
-src/examples/JXTA/scripts/MMA2/MMA2_load.sh
-src/examples/JXTA/scripts/MMA3/MMA3_load.sh
-src/examples/JXTA/scripts/SeD1/SeD1_jxta_load.sh
-src/examples/JXTA/scripts/SeD2/SeD2_jxta_load.sh
-src/examples/JXTA/scripts/SeD3/SeD3_jxta_load.sh
-src/examples/JXTA/scripts/client/client_jxta_load.sh
-src/examples/workflow/xml/file.xml
-src/examples/workflow/xml/matrix.xml
-src/examples/workflow/xml/scalar.xml
-src/examples/workflow/xml/string.xml
-src/examples/workflow/xml/logo_diet.jpg
 
 # Utils section
 [Untemplated]
