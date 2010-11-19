@@ -17,6 +17,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.46  2010/11/19 16:48:25  bdepardo
+#* Updated Cmake directory
+#*
 #* Revision 1.45  2010/11/18 05:15:35  bdepardo
 #* Updated example files
 #*
@@ -188,6 +191,7 @@ INSTALL.txt
 ChangeLog
 LICENCE_eng
 LICENCE_fr
+COPYING
 
 # Cmake Section
 [Untemplated]
@@ -204,20 +208,30 @@ Cmake/FindAppleSeeds.cmake
 Cmake/FindBLAS.cmake
 Cmake/FindDiet.cmake
 Cmake/FindFAST.cmake
+Cmake/FindGSOAP.cmake
 Cmake/FindJavaExtended.cmake
 Cmake/FindJuxmem.cmake
 Cmake/FindOmniORB.cmake
+Cmake/FindPackageHandleStandardArgs.cmake
 Cmake/FindTestingUtils.cmake
-Cmake/FindXerces.cmake
+Cmake/FindUUID.cmake
 Cmake/FindXQilla.cmake
-Cmake/xercesv.cc.in
+Cmake/FindXerces.cmake
 Cmake/Makefile.inc.in
 Cmake/README
+Cmake/libuuid_test.cc.in
+Cmake/xercesv.cc.in
 Cmake/Ctest/CMakeLists.txt
 Cmake/Ctest/CTestCustom.ctest.in
 Cmake/Ctest/OmniDaemon.bash.in
-Cmake/FindGSOAP.cmake
-Cmake/FindPackageHandleStandardArgs.cmake
+Cmake/TAU/Makefile_C
+Cmake/TAU/Makefile_CXX
+Cmake/TAU/TAU_Profiling.cmake
+Cmake/TAU/TAU_preprocessor_c.py
+Cmake/TAU/TAU_preprocessor_cxx.py
+Cmake/TAU/TAU_preprocessor_f90.py
+Cmake/TAU/instrument_rules.tau
+Cmake/TAU/instrument_rules_dyn.tau
 
 # Include section
 [Untemplated]
@@ -915,10 +929,10 @@ bin/scripts/Distribution_files.lst
 
 [Devel_Untemplated]
 bin/scripts/remote-compile.in
-# Untemplated, Ah ! sacr� Christophe...
+# Untemplated, Ah ! sacre Christophe...
 doc/Doxyfile
 doc/Doxyfile.in
-# Lequel des deux doxyfile ? Et les ent�tes ?
+# Lequel des deux doxyfile ? Et les entetes ?
 doc/ProgrammersGuide/CMakeLists.txt
 doc/ProgrammersGuide/fig/CallAsyncProbeSequenceDiagram1.png
 doc/ProgrammersGuide/fig/CallAsyncSequenceDiagram.png
@@ -956,7 +970,7 @@ doc/UsersManual/CMakeLists.txt
 
 # Section [Devel_templated] :
 #  Fichiers avec template � mettre dans la distrib pour d�veloppeurs seulement.
-[devel_templated]
+[Devel_templated]
 doc/Tutorial/Tutorial.tex
 doc/Tutorial/exercise2/client_smprod.c
 doc/Tutorial/exercise2/client_smprodAsync.c
