@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2010/11/20 11:56:19  bdepardo
+ * Added #ifndef
+ *
  * Revision 1.5  2009/03/25 15:06:41  glemahec
  * Bug correction (data alias)
  *
@@ -16,6 +19,9 @@
  *
  *
  ***********************************************************/
+#ifndef _DAGDACATALOG_HH_
+#define _DAGDACATALOG_HH_
+
 #include <map>
 #include <list>
 #include <string>
@@ -57,3 +63,4 @@ protected:
   }
 };
 
+#endif // _DAGDACATALOG_HH_
