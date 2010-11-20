@@ -17,6 +17,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.47  2010/11/20 11:56:44  bdepardo
+#* Update for v2.5
+#*
 #* Revision 1.46  2010/11/19 16:48:25  bdepardo
 #* Updated Cmake directory
 #*
@@ -251,52 +254,71 @@ src/CMakeLists.txt
 # CORBA section
 [Untemplated]
 src/CORBA/CMakeLists.txt
-src/CORBA/idl/CMakeLists.txt
 [Templated]
-src/CORBA/ORBMgr.cc
-src/CORBA/ORBMgr.hh
-src/CORBA/marshalling.cc
-src/CORBA/marshalling.hh
-src/CORBA/idl/Agent.idl
-src/CORBA/idl/Callback.idl
-src/CORBA/idl/Dagda.idl
-src/CORBA/idl/DataMgr.idl
-src/CORBA/idl/LocMgr.idl
-src/CORBA/idl/LocalAgent.idl
-src/CORBA/idl/LogComponent.idl
-src/CORBA/idl/LogTypes.idl
-src/CORBA/idl/MaDag.idl
-src/CORBA/idl/MasterAgent.idl
-src/CORBA/idl/SeD.idl
-src/CORBA/idl/common_types.idl
-src/CORBA/idl/idlRules.mk
-src/CORBA/idl/response.idl
-src/CORBA/idl/CltMan.idl
-src/CORBA/idl/WfLogService.idl
-
 src/CORBA/DIETForwarder.cc
 src/CORBA/DIETForwarder.hh
 src/CORBA/NetConfig.cc
 src/CORBA/NetConfig.hh
+src/CORBA/ORBMgr.cc
+src/CORBA/ORBMgr.hh
 src/CORBA/Options.cc
 src/CORBA/Options.hh
 src/CORBA/SSHTunnel.cc
 src/CORBA/SSHTunnel.hh
 src/CORBA/dietFwdr.cc
 src/CORBA/dietFwdr.hh
+src/CORBA/marshalling.cc
+src/CORBA/marshalling.hh
+
+# idl section
+[Untemplated]
+src/CORBA/idl/CMakeLists.txt
+[Templated]
+src/CORBA/idl/Agent.idl
 src/CORBA/idl/AgentFwdr.idl
+src/CORBA/idl/Callback.idl
 src/CORBA/idl/CallbackFwdr.idl
+src/CORBA/idl/CltMan.idl
 src/CORBA/idl/CltManFwdr.idl
+src/CORBA/idl/Dagda.idl
 src/CORBA/idl/DagdaFwdr.idl
+src/CORBA/idl/DataMgr.idl
 src/CORBA/idl/DataMgrFwdr.idl
 src/CORBA/idl/Forwarder.idl
+src/CORBA/idl/LocMgr.idl
 src/CORBA/idl/LocMgrFwdr.idl
+src/CORBA/idl/LocalAgent.idl
 src/CORBA/idl/LocalAgentFwdr.idl
+src/CORBA/idl/LogComponent.idl
 src/CORBA/idl/LogComponentFwdr.idl
+src/CORBA/idl/LogTypes.idl
+src/CORBA/idl/MaDag.idl
 src/CORBA/idl/MaDagFwdr.idl
+src/CORBA/idl/MasterAgent.idl
 src/CORBA/idl/MasterAgentFwdr.idl
+src/CORBA/idl/SeD.idl
 src/CORBA/idl/SeDFwdr.idl
+src/CORBA/idl/WfLogService.idl
 src/CORBA/idl/WfLogServiceFwdr.idl
+src/CORBA/idl/common_types.idl
+src/CORBA/idl/idlRules.mk
+src/CORBA/idl/response.idl
+
+# forwarders section
+[Templated]
+src/CORBA/forwarders/Agent.cc
+src/CORBA/forwarders/Callback.cc
+src/CORBA/forwarders/CltMan.cc
+src/CORBA/forwarders/Dagda.cc
+src/CORBA/forwarders/DataMgr.cc
+src/CORBA/forwarders/LocMgr.cc
+src/CORBA/forwarders/LogComponent.cc
+src/CORBA/forwarders/MaDag.cc
+src/CORBA/forwarders/MasterAgent.cc
+src/CORBA/forwarders/SeD.cc
+src/CORBA/forwarders/WfLogService.cc
+
+
 
 # SeD section
 [Untemplated]
@@ -359,31 +381,32 @@ src/agent/workflow/CMakeLists.txt
 [Templated]
 src/agent/workflow/HEFTScheduler.cc
 src/agent/workflow/HEFTScheduler.hh
-src/agent/workflow/MaDag_impl.cc
-src/agent/workflow/MaDag_impl.hh
 src/agent/workflow/MaDagLogCentralDispatcher.cc
 src/agent/workflow/MaDagLogCentralDispatcher.hh
-src/agent/workflow/maDagAgent.cc
 src/agent/workflow/MaDagNodeLauncher.cc
 src/agent/workflow/MaDagNodeLauncher.hh
+src/agent/workflow/MaDag_impl.cc
+src/agent/workflow/MaDag_impl.hh
 src/agent/workflow/MultiWfBasicScheduler.cc
 src/agent/workflow/MultiWfBasicScheduler.hh
-src/agent/workflow/MultiWfFOFT.cc
-src/agent/workflow/MultiWfFOFT.hh
-src/agent/workflow/MultiWfSRPT.cc
-src/agent/workflow/MultiWfSRPT.hh
 src/agent/workflow/MultiWfFCFS.cc
 src/agent/workflow/MultiWfFCFS.hh
-src/agent/workflow/MultiWfScheduler.cc
-src/agent/workflow/MultiWfScheduler.hh
+src/agent/workflow/MultiWfFOFT.cc
+src/agent/workflow/MultiWfFOFT.hh
 src/agent/workflow/MultiWfHEFT.cc
 src/agent/workflow/MultiWfHEFT.hh
+src/agent/workflow/MultiWfSRPT.cc
+src/agent/workflow/MultiWfSRPT.hh
+src/agent/workflow/MultiWfScheduler.cc
+src/agent/workflow/MultiWfScheduler.hh
 src/agent/workflow/WfScheduler.cc
 src/agent/workflow/WfScheduler.hh
+src/agent/workflow/maDagAgent.cc
 
 # utils workflow section
 [Untemplated]
 src/utils/workflow/CMakeLists.txt
+src/utils/workflow/FWorkflow.dtd
 [Templated]
 src/utils/workflow/Dag.cc
 src/utils/workflow/Dag.hh
@@ -409,7 +432,6 @@ src/utils/workflow/FNode.hh
 src/utils/workflow/FNodePort.cc
 src/utils/workflow/FNodePort.hh
 src/utils/workflow/FWorkflow.cc
-src/utils/workflow/FWorkflow.dtd
 src/utils/workflow/FWorkflow.hh
 src/utils/workflow/InputIterator.cc
 src/utils/workflow/InputIterator.hh
@@ -424,29 +446,29 @@ src/utils/workflow/WfDataWriter.cc
 src/utils/workflow/WfDataWriter.hh
 src/utils/workflow/WfExpression.cc
 src/utils/workflow/WfExpression.hh
-src/utils/workflow/WfNode.cc
-src/utils/workflow/WfNode.hh
-src/utils/workflow/WfPortAdapter.cc
-src/utils/workflow/WfPortAdapter.hh
-src/utils/workflow/WfPort.cc
-src/utils/workflow/WfPort.hh
-src/utils/workflow/WfUtils.cc
-src/utils/workflow/WfUtils.hh
-src/utils/workflow/WfLogDispatcher.hh
 src/utils/workflow/WfLogDispatcher.cc
+src/utils/workflow/WfLogDispatcher.hh
 src/utils/workflow/WfLogServiceImpl.cc
 src/utils/workflow/WfLogServiceImpl.hh
+src/utils/workflow/WfNode.cc
+src/utils/workflow/WfNode.hh
+src/utils/workflow/WfPort.cc
+src/utils/workflow/WfPort.hh
+src/utils/workflow/WfPortAdapter.cc
+src/utils/workflow/WfPortAdapter.hh
+src/utils/workflow/WfUtils.cc
+src/utils/workflow/WfUtils.hh
 
 # client workflow section
 [Untemplated]
 src/client/workflow/CMakeLists.txt
 [Templated]
-src/client/workflow/CltWfMgr.cc
-src/client/workflow/CltWfMgr.hh
 src/client/workflow/CltDagNodeLauncher.cc
 src/client/workflow/CltDagNodeLauncher.hh
 src/client/workflow/CltWfLogCentralDispatcher.cc
 src/client/workflow/CltWfLogCentralDispatcher.hh
+src/client/workflow/CltWfMgr.cc
+src/client/workflow/CltWfMgr.hh
 
 # Client section
 [Untemplated]
@@ -456,14 +478,14 @@ src/client/CallAsyncMgr.cc
 src/client/CallAsyncMgr.hh
 src/client/CallbackImpl.cc
 src/client/CallbackImpl.hh
-src/client/SpecificClientScheduler.cc
-src/client/SpecificClientScheduler.hh
 src/client/DIETCall.cc
 src/client/DIETCall.hh
 src/client/DIET_client.cc
 src/client/DIET_grpc.cc
 src/client/MultiCall.cc
 src/client/MultiCall.hh
+src/client/SpecificClientScheduler.cc
+src/client/SpecificClientScheduler.hh
 
 # examples section
 [Untemplated]
@@ -692,6 +714,10 @@ src/utils/Cori_batch.hh
 src/utils/DIET_data.cc
 src/utils/DIET_data_internal.hh
 src/utils/DIET_mutex.cc
+src/utils/DataRelationMgr.cc
+src/utils/DataRelationMgr.hh
+src/utils/JobQueue.cc
+src/utils/JobQueue.hh
 src/utils/KeyString.cc
 src/utils/KeyString.hh
 src/utils/LinkedList.hh
@@ -708,22 +734,25 @@ src/utils/ms_function.cc
 src/utils/ms_function.hh
 src/utils/statistics.cc
 src/utils/statistics.hh
-src/utils/BatchSystem.cc
-src/utils/BatchSystem.hh
+
+# utils/batch section
+[Templated]
 src/utils/BatchCreator.cc
 src/utils/BatchCreator.hh
-src/utils/OAR1_6BatchSystem.cc
-src/utils/OAR1_6BatchSystem.hh
+src/utils/BatchSystem.cc
+src/utils/BatchSystem.hh
 src/utils/Loadleveler_BatchSystem.cc
 src/utils/Loadleveler_BatchSystem.hh
+src/utils/OAR1_6BatchSystem.cc
+src/utils/OAR1_6BatchSystem.hh
+src/utils/OAR2_XBatchSystem.cc
+src/utils/OAR2_XBatchSystem.hh
+src/utils/PBS_BatchSystem.cc
+src/utils/PBS_BatchSystem.hh
 src/utils/SGE_BatchSystem.cc
 src/utils/SGE_BatchSystem.hh
-src/utils/JobQueue.cc
-src/utils/JobQueue.hh
-src/utils/DataRelationMgr.cc
-src/utils/DataRelationMgr.hh
 
-#Utils/Cloud section
+# Utils/Cloud section
 [Templated]
 src/utils/Eucalyptus_BatchSystem.cc
 src/utils/Eucalyptus_BatchSystem.hh
@@ -774,14 +803,15 @@ src/utils/events/EventBase.cc
 src/utils/events/EventBase.hh
 src/utils/events/EventDispatcher.cc
 src/utils/events/EventDispatcher.hh
-src/utils/events/EventManager.cc
-src/utils/events/EventManager.hh
 src/utils/events/EventHandler.hh
 src/utils/events/EventLogger.hh
+src/utils/events/EventManager.cc
+src/utils/events/EventManager.hh
 src/utils/events/EventObserver.hh
 src/utils/events/EventTypes.hh
 src/utils/events/TypeInfo.hh
 
+# Utils/Fault Detector section
 [Untemplated]
 src/utils/fd/CMakeLists.txt
 [Templated]
@@ -807,18 +837,19 @@ src/utils/fd/tcp_server.h
 src/utils/fd/threadoverlay.h
 src/utils/fd/udp_server.cc
 src/utils/fd/udp_server.h
+
+# Utils/ts_container section
+[Templated]
 src/utils/ts_container/ts_map.hh
 src/utils/ts_container/ts_set.hh
 src/utils/ts_container/ts_vector.hh
+
+# Utils/DAGDA section
 [Untemplated]
 src/utils/DAGDA/CMakeLists.txt
 [Templated]
 src/utils/DAGDA/AdvancedDagdaComponent.cc
 src/utils/DAGDA/AdvancedDagdaComponent.hh
-src/utils/DAGDA/DagdaFactory.cc
-src/utils/DAGDA/DagdaFactory.hh
-src/utils/DAGDA/DagdaImpl.cc
-src/utils/DAGDA/DagdaImpl.hh
 src/utils/DAGDA/CacheAlgorithms.cc
 src/utils/DAGDA/CacheAlgorithms.hh
 src/utils/DAGDA/Container.cc
@@ -826,10 +857,14 @@ src/utils/DAGDA/Container.hh
 src/utils/DAGDA/DIET_Dagda.cc
 src/utils/DAGDA/DIET_Dagda.h
 src/utils/DAGDA/DIET_Dagda.hh
-src/utils/DAGDA/NetworkStats.cc
-src/utils/DAGDA/NetworkStats.hh
 src/utils/DAGDA/DagdaCatalog.cc
 src/utils/DAGDA/DagdaCatalog.hh
+src/utils/DAGDA/DagdaFactory.cc
+src/utils/DAGDA/DagdaFactory.hh
+src/utils/DAGDA/DagdaImpl.cc
+src/utils/DAGDA/DagdaImpl.hh
+src/utils/DAGDA/NetworkStats.cc
+src/utils/DAGDA/NetworkStats.hh
 src/utils/DAGDA/Transfers.cc
 src/utils/DAGDA/Transfers.hh
 
@@ -865,42 +900,11 @@ src/lib/licenses/saxpath-license.txt
 # Section TESTING (equivalent d'un make test donc dans release user):
 [Untemplated]
 src/Testing/CMakeLists.txt
+src/Testing/KillOmniORB.sh
+src/Testing/RunOmniORB.sh
 src/Testing/TestDummy.cxx
 src/Testing/TestORBMgrInit.cxx
 
-
-# Doc section
-[Devel_Untemplated]
-doc/CMakeLists.txt
-[Devel_Templated]
-doc/UsersManual/UsersManual.bib
-doc/UsersManual/UsersManual.tex
-doc/UsersManual/client.tex
-doc/UsersManual/dashboard.tex
-doc/UsersManual/data.tex
-doc/UsersManual/deploy.tex
-doc/UsersManual/description.tex
-doc/UsersManual/install.tex
-doc/UsersManual/juxmem.tex
-doc/UsersManual/jxta.tex
-doc/UsersManual/plugin.tex
-doc/UsersManual/prediction.tex
-doc/UsersManual/server.tex
-doc/UsersManual/xml_example.tex
-doc/UsersManual/workflow.tex
-doc/UsersManual/cloud.tex
-
-[Untemplated]
-doc/UsersManual/UsersManual.pdf
-
-# Doc/ExternalExample section
-[Untemplated]
-doc/ExternalExample/README
-doc/ExternalExample/simple_client.c
-doc/ExternalExample/simple_server.c
-doc/ExternalExample/Makefile
-doc/ExternalExample/CMakeLists.txt
-doc/ExternalExample/Cmake/FindDiet.cmake
 
 # Ici, je mets les sources des documents dans les [Devel_*] pour ne laisser que
 # le ps final dans la distrib normale. Du coup, le r�pertoire doc/ aura des
@@ -911,28 +915,108 @@ doc/ExternalExample/Cmake/FindDiet.cmake
 # d�compress�e, et puis que sais-je encore ?
 # Bref, c'est du packaging, de la d�co...
 
-[Devel_Untemplated]
-doc/ProgrammersGuide/fig/CMakeLists.txt
-doc/ProgrammersGuide/ProgrammersGuide.pdf
 
-[Devel_templated]
-doc/ProgrammersGuide/Annexe1.tex
-doc/ProgrammersGuide/CS.tex
-doc/ProgrammersGuide/ProgrammersGuide.tex
-doc/ProgrammersGuide/batch.tex
-doc/ProgrammersGuide/cloud.tex
-doc/ProgrammersGuide/source_tree.tex
-doc/ProgrammersGuide/start.tex
-bin/scripts/make_dist.pl
-bin/scripts/distrib_file.sh
-bin/scripts/Distribution_files.lst
-
+# Doc section
 [Devel_Untemplated]
-bin/scripts/remote-compile.in
-# Untemplated, Ah ! sacre Christophe...
+doc/CMakeLists.txt
 doc/Doxyfile
 doc/Doxyfile.in
-# Lequel des deux doxyfile ? Et les entetes ?
+
+
+# Doc/UserManual section
+[Devel_Untemplated]
+doc/UsersManual/CMakeLists.txt
+doc/UsersManual/fig/DIETScheduling.graffle/Icon
+doc/UsersManual/fig/DIETScheduling.graffle/data.plist
+doc/UsersManual/fig/DIETScheduling.graffle/image1.png
+doc/UsersManual/fig/DIETScheduling.graffle/image2.png
+doc/UsersManual/fig/DIETScheduling.graffle/image3.png
+doc/UsersManual/fig/DIETScheduling.pdf
+doc/UsersManual/fig/DIET_arch_request-2.pdf
+doc/UsersManual/fig/DiagrammeGridRPCDietStructure.fig
+doc/UsersManual/fig/FAST.fig
+doc/UsersManual/fig/Forwarder.png
+doc/UsersManual/fig/JXTAConfig.ps
+doc/UsersManual/fig/VizDIET.pdf
+doc/UsersManual/fig/VizDIET_screenshot_2.gif
+doc/UsersManual/fig/VizDIET_screenshot_2.png
+doc/UsersManual/fig/dagdaArch.pdf
+doc/UsersManual/fig/dagdaArch.ps
+doc/UsersManual/fig/data.fig
+doc/UsersManual/fig/global_platform.fig
+doc/UsersManual/fig/global_platform_jxta.fig
+doc/UsersManual/fig/init.fig
+doc/UsersManual/fig/logo_DIET.gif
+doc/UsersManual/fig/logo_DIET.png
+doc/UsersManual/fig/logo_DIET2.gif
+doc/UsersManual/fig/logo_DIET_big.gif
+doc/UsersManual/fig/logo_DIET_big.png
+doc/UsersManual/fig/multima.fig
+doc/UsersManual/fig/overviewCori.fig
+doc/UsersManual/fig/schdl00.pdf
+doc/UsersManual/fig/schdl00.ps
+doc/UsersManual/fig/schdl01.pdf
+doc/UsersManual/fig/schdl01.ps
+doc/UsersManual/fig/schdl02.pdf
+doc/UsersManual/fig/schdl02.ps
+doc/UsersManual/fig/schdl03.pdf
+doc/UsersManual/fig/schdl03.ps
+doc/UsersManual/fig/schdl04.pdf
+doc/UsersManual/fig/schdl04.ps
+doc/UsersManual/fig/schdl05.pdf
+doc/UsersManual/fig/schdl05.ps
+doc/UsersManual/fig/smprod.fig
+doc/UsersManual/fig/submit_pb.fig
+doc/UsersManual/fig/wf_archi1.fig
+doc/UsersManual/fig/wf_archi2.fig
+doc/UsersManual/fig/wf_example1.fig
+
+[Devel_Templated]
+doc/UsersManual/UsersManual.bib
+doc/UsersManual/UsersManual.tex
+doc/UsersManual/agent_scheduler.tex
+doc/UsersManual/appendix.tex
+doc/UsersManual/batch.tex
+doc/UsersManual/batch.tex.in
+doc/UsersManual/client.tex
+doc/UsersManual/client_scheduler.tex
+doc/UsersManual/cloud.tex
+doc/UsersManual/dagda.tex
+doc/UsersManual/dashboard.tex
+doc/UsersManual/data.tex
+doc/UsersManual/deploy.tex
+doc/UsersManual/description.tex
+doc/UsersManual/dynamic.tex
+doc/UsersManual/forwarder.tex
+doc/UsersManual/install.tex
+doc/UsersManual/juxmem.tex
+doc/UsersManual/jxta.tex
+doc/UsersManual/multima.tex
+doc/UsersManual/plugin.tex
+doc/UsersManual/prediction.tex
+doc/UsersManual/server.tex
+doc/UsersManual/workflow.tex
+doc/UsersManual/xml_example.tex
+
+[Untemplated]
+doc/UsersManual/UsersManual.pdf
+
+
+
+# Doc/ExternalExample section
+[Untemplated]
+doc/ExternalExample/CMakeLists.txt
+doc/ExternalExample/Makefile
+doc/ExternalExample/README
+doc/ExternalExample/simple_client.c
+doc/ExternalExample/simple_server.c
+doc/ExternalExample/Cmake/FindDiet.cmake
+
+
+# Doc/ProgrammersGuide section
+[Devel_Untemplated]
+doc/ProgrammersGuide/CMakeLists.txt
+doc/ProgrammersGuide/ProgrammersGuide.pdf
 doc/ProgrammersGuide/CMakeLists.txt
 doc/ProgrammersGuide/fig/CallAsyncProbeSequenceDiagram1.png
 doc/ProgrammersGuide/fig/CallAsyncSequenceDiagram.png
@@ -949,33 +1033,60 @@ doc/ProgrammersGuide/fig/DiagrammeGridRPCDietStructure.fig
 doc/ProgrammersGuide/fig/DietCancelSequenceDiagram.png
 doc/ProgrammersGuide/fig/WaitRulesClassDiagram.png
 doc/ProgrammersGuide/fig/logo_DIET.gif
+doc/ProgrammersGuide/fig/logo_DIET.png
 
-doc/UsersManual/fig/CMakeLists.txt
-doc/UsersManual/fig/data.fig
-doc/UsersManual/fig/DIET_arch_request-2.ps
-doc/UsersManual/fig/FAST.fig
-doc/UsersManual/fig/JXTAConfig.ps
-doc/UsersManual/fig/VizDIET.pdf
-doc/UsersManual/fig/VizDIET_screenshot_2.gif
-doc/UsersManual/fig/global_platform.fig
-doc/UsersManual/fig/global_platform_jxta.fig
-doc/UsersManual/fig/init.fig
-doc/UsersManual/fig/logo_DIET.gif
-doc/UsersManual/fig/logo_DIET2.gif
-doc/UsersManual/fig/logo_DIET_big.gif
-doc/UsersManual/fig/overviewCori.fig
-doc/UsersManual/fig/smprod.fig
-doc/UsersManual/fig/submit_pb.fig
-doc/UsersManual/CMakeLists.txt
+[Devel_templated]
+doc/ProgrammersGuide/Annexe1.tex
+doc/ProgrammersGuide/CS.tex
+doc/ProgrammersGuide/ProgrammersGuide.tex
+doc/ProgrammersGuide/batch.tex
+doc/ProgrammersGuide/cloud.tex
+doc/ProgrammersGuide/debug.tex
+doc/ProgrammersGuide/package.tex
+doc/ProgrammersGuide/source_tree.tex
+doc/ProgrammersGuide/start.tex
 
-# Section [Devel_templated] :
-#  Fichiers avec template � mettre dans la distrib pour d�veloppeurs seulement.
+
+# doc/UsersFAQ section
+[Devel_untemplated]
+doc/UsersFAQ/CMakeLists.txt
+
+[Devel_templated]
+doc/UsersFAQ/UsersFAQ.tex
+doc/UsersFAQ/fig/logo_DIET.gif
+doc/UsersFAQ/fig/logo_DIET.png
+doc/UsersFAQ/fig/logo_DIET2.gif
+doc/UsersFAQ/fig/logo_DIET_big.gif
+doc/UsersFAQ/fig/logo_DIET_big.png
+
+[Untemplated]
+doc/UsersFAQ/UsersFAQ.pdf
+
+
+# doc/Tutorial section
+[Devel_untemplated]
+doc/Tutorial/Tutorial.bib
+doc/Tutorial/exercise2/matrix1
+doc/Tutorial/solutions/env_vars.bash.in
+doc/Tutorial/solutions/env_vars.csh.in
+doc/Tutorial/solutions/omniORB.cfg.in
+doc/Tutorial/solutions/cfgs/LA1.cfg
+doc/Tutorial/solutions/cfgs/LA2.cfg
+doc/Tutorial/solutions/cfgs/MA1.cfg
+doc/Tutorial/solutions/cfgs/SeD.cfg
+doc/Tutorial/solutions/cfgs/client.cfg
+doc/Tutorial/solutions/exercise2/matrix1
+doc/Tutorial/solutions/exercise3/client.c
+doc/Tutorial/solutions/exercise3/server.c
+
 [Devel_templated]
 doc/Tutorial/Tutorial.tex
+doc/Tutorial/exercise2/Makefile
 doc/Tutorial/exercise2/client_smprod.c
 doc/Tutorial/exercise2/client_smprodAsync.c
 doc/Tutorial/exercise2/client_smprod_file.c
 doc/Tutorial/exercise2/server.c
+doc/Tutorial/exercise3/Makefile
 doc/Tutorial/exercise3/client.c
 doc/Tutorial/exercise3/server.c
 doc/Tutorial/solutions/exercise2/client_smprod.c
@@ -983,28 +1094,26 @@ doc/Tutorial/solutions/exercise2/client_smprodAsync.c
 doc/Tutorial/solutions/exercise2/client_smprod_file.c
 doc/Tutorial/solutions/exercise2/server.c
 
-# Section [Devel_Untemplated] :
+# Cmake Section
 [Devel_untemplated]
-bin/scripts/extract.pl
-doc/Tutorial/Tutorial.bib
-doc/Tutorial/exercise2/matrix1
-doc/Tutorial/solutions/cfgs/client.cfg
-doc/Tutorial/solutions/cfgs/LA1.cfg
-doc/Tutorial/solutions/cfgs/LA2.cfg
-doc/Tutorial/solutions/cfgs/MA1.cfg
-doc/Tutorial/solutions/cfgs/SeD.cfg
-doc/Tutorial/solutions/env_vars.bash.in
-doc/Tutorial/solutions/env_vars.csh.in
-doc/Tutorial/solutions/omniORB.cfg.in
-doc/Tutorial/solutions/exercise2/matrix1
-doc/Tutorial/solutions/exercise3/client.c
-doc/Tutorial/solutions/exercise3/server.c
 Cmake/TODO
 
 # Section TESTING:
 # Les utilitaires servant a mettre en place et a developper la test suite
 # sont reserve aux developpeurs:
+[Devel_Untemplated]
 src/Testing/Utilities/README
 src/Testing/Utilities/LightClient/MainFrame.java
 src/Testing/Utilities/LightClient/Makefile
 src/Testing/Utilities/LightClient/README
+
+
+
+# bin/scripts section
+[Devel_Untemplated]
+bin/scripts/Distribution_files.lst
+bin/scripts/README
+bin/scripts/distrib_file.sh
+bin/scripts/extract.pl
+bin/scripts/make_dist.pl
+bin/scripts/remote-compile.in
