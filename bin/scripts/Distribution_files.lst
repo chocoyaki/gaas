@@ -17,6 +17,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.48  2010/11/22 08:14:10  bdepardo
+#* Removed src/CORBA/idl/idlRules.mk
+#*
 #* Revision 1.47  2010/11/20 11:56:44  bdepardo
 #* Update for v2.5
 #*
@@ -301,7 +304,6 @@ src/CORBA/idl/SeDFwdr.idl
 src/CORBA/idl/WfLogService.idl
 src/CORBA/idl/WfLogServiceFwdr.idl
 src/CORBA/idl/common_types.idl
-src/CORBA/idl/idlRules.mk
 src/CORBA/idl/response.idl
 
 # forwarders section
