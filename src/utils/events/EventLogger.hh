@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2010/11/24 15:36:59  bdepardo
+ * New line at the end of file to prevent warnings
+ *
  * Revision 1.1  2010/07/20 09:13:57  bisnard
  * Adding event dispatcher
  *
@@ -45,3 +48,4 @@ class EventLogger : public EventObserver {
 }
 
 #endif // EVENTLOGGER_HH_
+
