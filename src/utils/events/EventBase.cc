@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2010/11/24 15:38:05  bdepardo
+ * New line at the end of the file to prevent warnings
+ *
  * Revision 1.1  2010/07/20 09:13:57  bisnard
  * Adding event dispatcher
  *
@@ -42,3 +45,4 @@ ostream&
 operator << (ostream& out, const EventBase& e) {
   return out << e.toString();
 }
+
