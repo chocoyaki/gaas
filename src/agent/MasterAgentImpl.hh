@@ -10,6 +10,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.23  2010/11/24 15:18:08  bdepardo
+ * searchData is now available on all agents. SeDs are now able to retrieve
+ * a DAGDA data from an alias specified by a client.
+ * Currently a SeD cannot declare an alias.
+ *
  * Revision 1.22  2010/07/12 20:14:32  glemahec
  * DIET 2.5 beta 1 - Forwarders with Multi-MAs bug correction
  *
@@ -108,6 +113,7 @@ class FloodRequestsList ;
 #if HAVE_DAGDA
 #include "DagdaCatalog.hh"
 #endif
+
 
 #include "Forwarder.hh"
 #include "MasterAgentFwdr.hh"
@@ -228,11 +234,15 @@ public :
 
 #endif // HAVE_WORKFLOW
 #if HAVE_DAGDA
-  SeqString* searchData(const char* request);
-  CORBA::Long insertData(const char* key, const SeqString& values);
+  virtual SeqString* searchData(const char* request);
+  virtual CORBA::Long insertData(const char* key, const SeqString& values);
 #endif
 
 private :
+#if HAVE_DAGDA
+  DagdaCatalog* catalog;
+#endif
+	
   /** ID of next incoming request. */
   Counter reqIDCounter;
   Counter num_session;
@@ -252,9 +262,6 @@ private :
 #endif // HAVE_MULTI_MA
   void
   cp_arg_to_pb(corba_data_desc_t& pb, corba_data_desc_t arg_desc);
-#if HAVE_DAGDA
-  DagdaCatalog* catalog;
-#endif
 }; // MasterAgentImpl
 
 class MasterAgentFwdrImpl : public POA_MasterAgentFwdr,
@@ -336,9 +343,9 @@ public:
 	virtual CORBA::Long
   childRemoveService(CORBA::ULong childID, const corba_profile_desc_t& profile);
 #ifdef HAVE_DAGDA
-	SeqString* searchData(const char* request);
-  CORBA::Long insertData(const char* key, const SeqString& values);
-	virtual char* getDataManager();
+  virtual SeqString* searchData(const char* request);
+  virtual CORBA::Long insertData(const char* key, const SeqString& values);
+  virtual char* getDataManager();
 #endif
 };
 #endif // _MASTERAGENTIMPL_HH_

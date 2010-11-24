@@ -5,6 +5,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.66  2010/11/24 15:18:08  bdepardo
+ * searchData is now available on all agents. SeDs are now able to retrieve
+ * a DAGDA data from an alias specified by a client.
+ * Currently a SeD cannot declare an alias.
+ *
  * Revision 1.65  2010/09/17 14:06:21  bdepardo
  * Use TRACE_TEXT instead of cout
  *
@@ -329,6 +334,8 @@ AgentImpl::run()
 	else 
 		ORBMgr::getMgr()->fwdsBind(MASTERAGENT, this->myName,
 															 ORBMgr::getMgr()->getIOR(_this()));
+
+
 	
 #if !HAVE_CORI
     // Init FAST (HAVE_FAST is managed by the FASTMgr class)
@@ -1155,6 +1162,11 @@ AgentFwdrImpl::childRemoveService(CORBA::ULong childID,
 #ifdef HAVE_DAGDA
 char* AgentFwdrImpl::getDataManager() {
 	return forwarder->getDataManager(objName);
+}
+
+SeqString*
+AgentFwdrImpl::searchData(const char* request) {
+  return forwarder->searchData(request, objName);
 }
 
 #endif

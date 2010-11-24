@@ -10,6 +10,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.21  2010/11/24 15:18:08  bdepardo
+ * searchData is now available on all agents. SeDs are now able to retrieve
+ * a DAGDA data from an alias specified by a client.
+ * Currently a SeD cannot declare an alias.
+ *
  * Revision 1.20  2010/11/02 05:54:30  bdepardo
  * Removed ugly couts
  *
@@ -222,6 +227,13 @@ LocalAgentImpl::bindParent(const char * parentName) {
   return rv;
 }
 
+
+#if HAVE_DAGDA
+SeqString*
+LocalAgentImpl::searchData(const char* request) {
+  return this->parent->searchData(request);
+}
+#endif
 
 
 CORBA::Long
@@ -471,6 +483,13 @@ CORBA::Long LocalAgentFwdrImpl::removeElement(bool recursive) {
   return forwarder->removeElement(recursive, objName);
 }
 #endif // HAVE_DYNAMICS
+
+#if HAVE_DAGDA
+SeqString*
+LocalAgentFwdrImpl::searchData(const char* request) {
+  return forwarder->searchData(request, objName);
+}
+#endif
 
 void LocalAgentFwdrImpl::getRequest(const corba_request_t& req) {
   forwarder->getRequest(req, objName);

@@ -10,6 +10,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.28  2010/11/24 15:18:08  bdepardo
+ * searchData is now available on all agents. SeDs are now able to retrieve
+ * a DAGDA data from an alias specified by a client.
+ * Currently a SeD cannot declare an alias.
+ *
  * Revision 1.27  2010/07/12 16:14:11  glemahec
  * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
  *
@@ -136,12 +141,14 @@
 #include "ts_container/ts_map.hh"
 #include "DietLogComponent.hh"
 
+
+
 // Forwarder part
 #include "Forwarder.hh"
 #include "AgentFwdr.hh"
 
 class AgentImpl : public POA_Agent,
-public PortableServer::RefCountServantBase
+		  public PortableServer::RefCountServantBase
 {
 public:
   
@@ -171,6 +178,11 @@ public:
   /*DagdaImpl* */
   char* getDataManager();
 #endif // ! HAVE_DAGDA
+
+#if HAVE_DAGDA
+  virtual SeqString*
+  searchData(const char* request) = 0;
+#endif
 	
   /**
    * Set the DietLogManager. If the dietLogManager is NULL, no
@@ -182,21 +194,21 @@ public:
   /** Subscribe an agent as a LA child. Remotely called by an LA. */
   virtual CORBA::Long
   agentSubscribe(const char* me, const char* hostName,
-								 const SeqCorbaProfileDesc_t& services);
+		 const SeqCorbaProfileDesc_t& services);
 	
   /** Subscribe a server as a SeD child. Remotely called by an SeD. */
   virtual CORBA::Long
   serverSubscribe(const char* me, const char* hostName,
 #if HAVE_JXTA
-									const char* uuid,
+		  const char* uuid,
 #endif // HAVE_JXTA
-									const SeqCorbaProfileDesc_t& services);
+		  const SeqCorbaProfileDesc_t& services);
 	
 #ifdef HAVE_DYNAMICS
   /** Unsubscribe a child. Remotely called by an SeD. */
   virtual CORBA::Long
   childUnsubscribe(CORBA::ULong childID,
-									 const SeqCorbaProfileDesc_t& services);
+		   const SeqCorbaProfileDesc_t& services);
 	
   /** Sends a request to the agent to commit suicide.
    * If "recursive" is true, then the agent forwards the request
@@ -214,11 +226,11 @@ public:
   virtual CORBA::Long
   addServices(CORBA::ULong myID, const SeqCorbaProfileDesc_t& services);
 	
-//#ifdef HAVE_DAGDA
+  //#ifdef HAVE_DAGDA
   /** Remove services into the service table for a given child */
   virtual CORBA::Long
   childRemoveService(CORBA::ULong childID, const corba_profile_desc_t& profile);
-//#endif
+  //#endif
 	
 	
   /** Get the response of a child */
@@ -236,7 +248,7 @@ public:
 	
 	
 protected:
-	
+
   /**************************************************************************/
   /* Private fields                                                         */
   /**************************************************************************/
@@ -302,10 +314,10 @@ protected:
    */
   void
   sendRequest(CORBA::ULong * childID, 
-							size_t numero_child,
-							const corba_request_t * req,
-							int * nb_children_contacted,
-							CORBA::ULong frontier) ;
+	      size_t numero_child,
+	      const corba_request_t * req,
+	      int * nb_children_contacted,
+	      CORBA::ULong frontier) ;
 #endif
 	
   /**
@@ -338,40 +350,42 @@ protected:
 };
 
 class AgentFwdrImpl : public POA_AgentFwdr,
-  public PortableServer::RefCountServantBase
+		      public PortableServer::RefCountServantBase
 {
 protected:
-	Forwarder_ptr forwarder;
-	char* objName;
+  Forwarder_ptr forwarder;
+  char* objName;
 public:
-	AgentFwdrImpl(Forwarder_ptr fwdr, const char* objName);
+  AgentFwdrImpl(Forwarder_ptr fwdr, const char* objName);
 	
-	virtual CORBA::Long
+  virtual CORBA::Long
   agentSubscribe(const char* me, const char* hostName,
-								 const SeqCorbaProfileDesc_t& services);
-	virtual CORBA::Long
+		 const SeqCorbaProfileDesc_t& services);
+  virtual CORBA::Long
   serverSubscribe(const char* me, const char* hostName,
 #if HAVE_JXTA
-								  const char* uuid,
+		  const char* uuid,
 #endif // HAVE_JXTA
-									const SeqCorbaProfileDesc_t& services);
+		  const SeqCorbaProfileDesc_t& services);
 #ifdef HAVE_DYNAMICS
   virtual CORBA::Long
   childUnsubscribe(CORBA::ULong childID,
-									 const SeqCorbaProfileDesc_t& services);
+		   const SeqCorbaProfileDesc_t& services);
 	
   virtual CORBA::Long removeElement(bool recursive);
 #endif // HAVE_DYNAMICS
   virtual CORBA::Long
   childRemoveService(CORBA::ULong childID, const corba_profile_desc_t& profile);
 #ifdef HAVE_DAGDA
-	virtual char* getDataManager();
+  virtual char* getDataManager();
+  SeqString*
+  searchData(const char* request);
 #endif
-	virtual CORBA::Long
+  virtual CORBA::Long
   addServices(CORBA::ULong myID, const SeqCorbaProfileDesc_t& services);
 	
   virtual void getResponse(const corba_response_t& resp);
-	virtual CORBA::Long ping();
+  virtual CORBA::Long ping();
 	
   virtual char* getHostname();
 	
