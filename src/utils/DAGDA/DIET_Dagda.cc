@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.32  2010/11/24 15:14:47  bdepardo
+ * Added a method to retrieve the parent of a Diet element.
+ *
  * Revision 1.31  2010/10/15 07:25:08  glemahec
  * Correction. Needs more tests
  *
@@ -449,6 +452,7 @@ void dagda_upload_data(diet_profile_t& profile, corba_profile_t& pb) {
 Dagda_var entryPoint = NULL;
 // A reference to the MA.
 MasterAgent_var masterAgent = NULL;
+Agent_var parentAgent = NULL;
 
 // Returns an new ID
 // DAGDA should use the uuid library to avoid id's conflicts.
@@ -501,6 +505,23 @@ MasterAgent_var getMasterAgent() {
   masterAgent = MasterAgent::_duplicate(MA);
   return MasterAgent::_duplicate(masterAgent);
 }
+
+Agent_var getParent() {
+  if (parentAgent!=NULL) return parentAgent;
+  char* parent_name =
+    (char*) Parsers::Results::getParamValue(Parsers::Results::PARENTNAME);
+  if (parent_name==NULL) return NULL;
+	
+  Agent_var Parent = 
+    ORBMgr::getMgr()->resolve<Agent, Agent_var>(AGENTCTXT, parent_name);
+  if (CORBA::is_nil(Parent)) {
+    WARNING("cannot locate parent Agent " << parent_name);
+    return NULL;
+  }
+  parentAgent = Agent::_duplicate(Parent);
+  return Agent::_duplicate(parentAgent);
+}
+
 
 // The reference to the MA DAGDA component is obtained from the ORB
 // only one time.
@@ -892,6 +913,7 @@ int dagda_get_data(const char* dataID, void** value, diet_data_type_t type,
         manager->lclAddData(src, data);
         inserted = manager->getData(dataID);
       } catch (Dagda::DataNotFound& ex) {
+	cerr << "dagda_get_data: data not found" << endl;
         return 1;
       } catch (CORBA::SystemException& e) {
 	cerr << "dagda_get_data: Caught a CORBA " << e._name() << " exception ("
@@ -909,6 +931,7 @@ int dagda_get_data(const char* dataID, void** value, diet_data_type_t type,
         manager->lclAddData(src, data);
         inserted = manager->getData(dataID);
       } catch (Dagda::DataNotFound& ex) {
+	cerr << "dagda_get_data: data not found" << endl;
         return 1;
       }
     }
@@ -917,6 +940,7 @@ int dagda_get_data(const char* dataID, void** value, diet_data_type_t type,
   }
 	
   if (inserted->desc.specific._d()!=type && type!=DIET_UNKNOWN_TYPE) {
+    cerr << "dagda_get_data: unknown data type" << endl;
     return 1;
   }
   if (value!=NULL) *value = inserted->value.get_buffer(false);
@@ -1025,9 +1049,17 @@ int dagda_data_alias(const char* id, const char* alias) {
 int dagda_id_from_alias(const char* alias, char** id) {
   MasterAgent_var MA = getMasterAgent();
 	
-  if (MA==NULL) {
-    WARNING("Try to call " << __FUNCTION__ << " outside a client.");
-    return 1;
+  if (MA == NULL) {
+    // WARNING("Try to call " << __FUNCTION__ << " outside a client.");
+
+    Agent_var parent = getParent();
+    SeqString* attributes = parent->searchData(alias);
+    if (attributes->length()==0) {
+      return 1;
+    }
+    *id = (*attributes)[0];
+
+    return 0;
   }
   SeqString* attributes = MA->searchData(alias);
   if (attributes->length()==0) return 1;
