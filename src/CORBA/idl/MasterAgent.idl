@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2010/11/24 15:12:56  bdepardo
+ * searchData is now available on all agents. SeDs are now able to retrieve
+ * a DAGDA data from an alias specified by a client.
+ * Currently a SeD cannot declare an alias.
+ *
  * Revision 1.16  2010/07/12 15:54:11  glemahec
  * DIET 2.5 beta 1 - Forwarder IDL files
  *
@@ -174,7 +179,6 @@ interface MasterAgent : Agent {
 #endif // HAVE_WORKFLOW
 
 #ifdef HAVE_DAGDA
-  SeqString searchData(in string request);
   long insertData(in string key, in SeqString values);
 #endif
 };

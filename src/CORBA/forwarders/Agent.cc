@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2010/11/24 15:12:56  bdepardo
+ * searchData is now available on all agents. SeDs are now able to retrieve
+ * a DAGDA data from an alias specified by a client.
+ * Currently a SeD cannot declare an alias.
+ *
  * Revision 1.5  2010/07/27 16:16:49  glemahec
  * Forwarders robustness
  *
@@ -167,4 +172,23 @@ char* DIETForwarder::getDataManager(const char* objName) {
 																																this->name);
 	return agent->getDataManager();
 }
+
+SeqString* DIETForwarder::searchData(const char* request,
+				     const char* objName)
+{
+  string objString(objName);
+  string name;
+	
+  if (!remoteCall(objString)) {
+    return getPeer()->searchData(request, objString.c_str());
+  }
+	
+  name = getName(objString);
+	
+  Agent_var agent = ORBMgr::getMgr()->resolve<Agent, Agent_var>(AGENTCTXT,
+								name,
+								this->name);
+  return agent->searchData(request);
+}
+
 #endif
