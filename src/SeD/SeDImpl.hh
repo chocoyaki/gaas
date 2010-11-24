@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.50  2010/11/24 12:30:17  bdepardo
+ * Added getName() method.
+ * Moved name and hostname initialization from run() to initialize() method,
+ * this allows the logComponent to retrieve the name of the SeD.
+ *
  * Revision 1.49  2010/07/12 16:14:10  glemahec
  * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
  *
@@ -334,6 +339,8 @@ public:
 
   virtual CORBA::Long
   solve(const char* pbName, corba_profile_t& pb);
+
+  char* getName();
 
 #if defined HAVE_ALT_BATCH
   /* Set if server is SERIAL, BATCH,.. */

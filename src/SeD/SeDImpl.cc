@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.124  2010/11/24 12:30:17  bdepardo
+ * Added getName() method.
+ * Moved name and hostname initialization from run() to initialize() method,
+ * this allows the logComponent to retrieve the name of the SeD.
+ *
  * Revision 1.123  2010/11/09 02:23:34  bdepardo
  * Changed SeD name generation: now uses the PID of the process.
  *
@@ -314,18 +319,18 @@ using namespace std;
 /* CLEAN ME: this was a hilarious pun except that slimfast_api.h is nowhere
    to be found. The Changelog file of package fast-0.8.7 simply mentions:
    - For the LONG CHANGELOG entry of version 0.8.0:
-      - SLiM is dead
-      - slimfast_api.h renamed to fast.h
+   - SLiM is dead
+   - slimfast_api.h renamed to fast.h
    - For entry 0.2.13:
-      - slimfast_api.h used to be generated from the concatenation of
-        several atomic files.h. [...]
-  Also refer to src/utils/FASTMgr.cc, where the inclusion of slimfast_api.h
-  is bound to the definition of __FAST_0_4__ preprocessing symbol...
-  Hence it really looks like (to me at least) the following include should
-  be simply removed ? Anyone knows better ?   --- Injay2461
-  #if HAVE_FAST
-  #include "slimfast_api.h"
-  #endif // HAVE_FAST
+   - slimfast_api.h used to be generated from the concatenation of
+   several atomic files.h. [...]
+   Also refer to src/utils/FASTMgr.cc, where the inclusion of slimfast_api.h
+   is bound to the definition of __FAST_0_4__ preprocessing symbol...
+   Hence it really looks like (to me at least) the following include should
+   be simply removed ? Anyone knows better ?   --- Injay2461
+   #if HAVE_FAST
+   #include "slimfast_api.h"
+   #endif // HAVE_FAST
 */
 
 #include "SeDImpl.hh"
@@ -362,8 +367,8 @@ using namespace std;
 /** The trace level. */
 extern unsigned int TRACE_LEVEL;
 
-#define SED_TRACE_FUNCTION(formatted_text)       \
-  TRACE_TEXT(TRACE_ALL_STEPS, "SeD::");          \
+#define SED_TRACE_FUNCTION(formatted_text)		\
+  TRACE_TEXT(TRACE_ALL_STEPS, "SeD::");			\
   TRACE_FUNCTION(TRACE_ALL_STEPS,formatted_text)
 
 SeDImpl::SeDImpl()
@@ -404,13 +409,35 @@ SeDImpl::initialize()
 			  For the moment, NULL is like FIFO
 		       */
 #endif
+
+  if (gethostname(localHostName, 256)) {
+    WARNING("could not get hostname");
+  }
+  localHostName[255] = '\0'; // If truncated, ensure null termination
+
+  char * name;
+  /* Bind this SeD to its name in the CORBA Naming Service */
+  name = (char*)Parsers::Results::getParamValue(Parsers::Results::NAME);
+  if (name == NULL) {
+    /* Generate a name for this SeD and print it */
+    std::stringstream oss;
+    pid_t pid = getpid();
+    oss << localHostName << "_" << pid << "_" << rand() % 10000;
+    name = strdup(oss.str().c_str());
+    this->myName = new char[strlen(name)+1];
+    strcpy(this->myName, name);
+    free(name);
+  } else {
+    this->myName = new char[strlen(name)+1];
+    strcpy(this->myName, name);
+  }
 }
 
 SeDImpl::~SeDImpl()
 {
   /* FIXME: Tables should be destroyed. */
-	ORBMgr::getMgr()->unbind(SEDCTXT, myName);
-	ORBMgr::getMgr()->fwdsUnbind(SEDCTXT, myName);
+  ORBMgr::getMgr()->unbind(SEDCTXT, myName);
+  ORBMgr::getMgr()->fwdsUnbind(SEDCTXT, myName);
   stat_finalize();
 }
 
@@ -462,10 +489,10 @@ SeDImpl::bindParent(const char * parentName) {
 
   /* Does the new parent exists? */
   Agent_var parentTmp =
-		ORBMgr::getMgr()->resolve<Agent,Agent_var>(AGENTCTXT, parentName);
+    ORBMgr::getMgr()->resolve<Agent,Agent_var>(AGENTCTXT, parentName);
 	
   /*  Agent::_duplicate(Agent::_narrow(ORBMgr::getObjReference(ORBMgr::AGENT,
-							     parentName)));*/
+      parentName)));*/
   if (CORBA::is_nil(parentTmp)) {
     if (CORBA::is_nil(this->parent)) {
       WARNING("cannot locate agent " << parentName << ", will now wait");
@@ -502,9 +529,9 @@ SeDImpl::bindParent(const char * parentName) {
   try {
     childID = this->parent->serverSubscribe(myName, localHostName,
 #if HAVE_JXTA
-				      uuid,
+					    uuid,
 #endif //HAVE_JXTA
-				      *profiles);
+					    *profiles);
 
     TRACE_TEXT(TRACE_ALL_STEPS, "* Bound myself to parent: " << parentName << std::endl);
 
@@ -577,33 +604,13 @@ SeDImpl::run(ServiceTable* services)
 
   SeqCorbaProfileDesc_t* profiles(NULL);
   stat_init();
-  if (gethostname(localHostName, 256)) {
-    ERROR("could not get hostname", 1);
-  }
-  localHostName[255] = '\0'; // If truncated, ensure null termination
 
-  char * name;
-  /* Bind this SeD to its name in the CORBA Naming Service */
-  name = (char*)Parsers::Results::getParamValue(Parsers::Results::NAME);
-  if (name == NULL) {
-    /* Generate a name for this SeD and print it */
-    std::stringstream oss;
-    pid_t pid = getpid();
-    oss << localHostName << "_" << pid << "_" << rand() % 10000;
-    name = strdup(oss.str().c_str());
-    this->myName = new char[strlen(name)+1];
-    strcpy(this->myName, name);
-    free(name);
-  } else {
-    this->myName = new char[strlen(name)+1];
-    strcpy(this->myName, name);
-  }
   TRACE_TEXT(TRACE_ALL_STEPS, "* Declared myself as: " << this->myName << std::endl);
   try {
-		ORBMgr::getMgr()->bind(SEDCTXT, this->myName, this->_this(), true);
-		ORBMgr::getMgr()->fwdsBind(SEDCTXT, this->myName,
-															 ORBMgr::getMgr()->getIOR(_this()));
-	} catch (...) {
+    ORBMgr::getMgr()->bind(SEDCTXT, this->myName, this->_this(), true);
+    ORBMgr::getMgr()->fwdsBind(SEDCTXT, this->myName,
+			       ORBMgr::getMgr()->getIOR(_this()));
+  } catch (...) {
     ERROR("could not declare myself as " << this->myName, 1);
   }
 
@@ -648,9 +655,9 @@ SeDImpl::run(ServiceTable* services)
 #endif // HAVE_DYNAMICS
   }
   parent =
-		ORBMgr::getMgr()->resolve<Agent, Agent_var>(AGENTCTXT, parent_name);
+    ORBMgr::getMgr()->resolve<Agent, Agent_var>(AGENTCTXT, parent_name);
   /*  Agent::_duplicate(Agent::_narrow(ORBMgr::getObjReference(ORBMgr::AGENT,
-                                                             parent_name)));*/
+      parent_name)));*/
   if (CORBA::is_nil(parent)) {
 #ifndef HAVE_DYNAMICS
     ERROR("cannot locate agent " << parent_name, 1);
@@ -670,26 +677,26 @@ SeDImpl::run(ServiceTable* services)
 #ifdef HAVE_DYNAMICS
   if (! CORBA::is_nil(parent)) {
 #endif // HAVE_DYNAMICS
-  try {
-		cout << "parent->serverSubscribe(" << this->myName << ", " << localHostName
-		<< ", *profiles)" << endl;
-    childID = parent->serverSubscribe(this->myName, localHostName,
+    try {
+      cout << "parent->serverSubscribe(" << this->myName << ", " << localHostName
+	   << ", *profiles)" << endl;
+      childID = parent->serverSubscribe(this->myName, localHostName,
 #if HAVE_JXTA
-                                      uuid,
+					uuid,
 #endif //HAVE_JXTA
-                                      *profiles);
-		cout << "subscribe !" << endl;
-  } catch (CORBA::Exception& e) {
-    CORBA::Any tmp;
-    tmp <<= e;
-    CORBA::TypeCode_var tc = tmp.type();
-    ERROR("exception caught (" << tc->name() << ") while subscribing to "
-          << parent_name << ": either the latter is down, "
-          << "or there is a problem with the CORBA name server", 1);
-  }
-  if (childID < 0) {
-    ERROR(__FUNCTION__ << ": error subscribing server", 1);
-  }
+					*profiles);
+      cout << "subscribe !" << endl;
+    } catch (CORBA::Exception& e) {
+      CORBA::Any tmp;
+      tmp <<= e;
+      CORBA::TypeCode_var tc = tmp.type();
+      ERROR("exception caught (" << tc->name() << ") while subscribing to "
+	    << parent_name << ": either the latter is down, "
+	    << "or there is a problem with the CORBA name server", 1);
+    }
+    if (childID < 0) {
+      ERROR(__FUNCTION__ << ": error subscribing server", 1);
+    }
 #ifdef HAVE_DYNAMICS
   } // end: if (! CORBA::is_nil(parent))
 #endif // HAVE_DYNAMICS
@@ -743,12 +750,12 @@ SeDImpl::run(ServiceTable* services)
   }
 
 #if HAVE_CORI
- return CORIMgr::startCollectors();
+  return CORIMgr::startCollectors();
 #else //HAVE_CORI
- return FASTMgr::init();
+  return FASTMgr::init();
 #endif //HAVE_CORI
 
-}
+} // end: run
 
 #if HAVE_JUXMEM
 /** Set this->juxmem */
@@ -834,7 +841,7 @@ SeDImpl::getRequest(const corba_request_t& creq)
     resp.servers.length(0);
     TRACE_TEXT(TRACE_MAIN_STEPS,
 	       "service not found ??????????????????????????????????????"
-			       << endl) ;
+	       << endl) ;
   } else {
     resp.servers.length(1);
 
@@ -865,11 +872,11 @@ SeDImpl::getRequest(const corba_request_t& creq)
     displayResponse(stdout, &resp);
   }
 
-/** Commented to cut overhead of un-needed log messages
-  if (dietLogComponent != NULL) {
-    dietLogComponent->logSedChosen(&creq,&resp);
-  }
-*/
+  /** Commented to cut overhead of un-needed log messages
+      if (dietLogComponent != NULL) {
+      dietLogComponent->logSedChosen(&creq,&resp);
+      }
+  */
   stat_out("SeD",statMsg);
 
 #ifndef HAVE_DYNAMICS
@@ -894,8 +901,8 @@ SeDImpl::checkContract(corba_estimation_t& estimation,
 
 void persistent_data_release(corba_data_t* arg){
 
- switch((diet_data_type_t)(arg->desc.specific._d())) {
- case DIET_VECTOR: {
+  switch((diet_data_type_t)(arg->desc.specific._d())) {
+  case DIET_VECTOR: {
     corba_vector_specific_t vect;
 
     vect.size = 0;
@@ -966,6 +973,12 @@ SeDImpl::getEFT() {
   return 0;
 }
 
+char*
+SeDImpl::getName() {
+  return CORBA::string_dup(myName);
+}
+
+
 CORBA::Long
 SeDImpl::solve(const char* path, corba_profile_t& pb)
 {
@@ -980,7 +993,7 @@ SeDImpl::solve(const char* path, corba_profile_t& pb)
 
   ref = SrvT->lookupService(path, &pb);
   if (ref == -1) {
-   ERROR("SeD::" << __FUNCTION__ << ": service not found", 1);
+    ERROR("SeD::" << __FUNCTION__ << ": service not found", 1);
   }
 
   /* Record time at which solve started (when not using queues)
@@ -1033,7 +1046,7 @@ SeDImpl::solve(const char* path, corba_profile_t& pb)
   uploadSyncSeDData(profile,pb,cvt) ;
 
   TRACE_TEXT(TRACE_MAIN_STEPS,"SeD::solve complete" << endl
-         << "************************************************************"<< endl);
+	     << "************************************************************"<< endl);
 #if ! HAVE_DAGDA
   for (int i = 0; i <= cvt->last_in; i++) {
     diet_free_data(&(profile.parameters[i]));
@@ -1073,8 +1086,8 @@ SeDImpl::getServerStatus()
 
 CORBA::Long
 SeDImpl::parallel_solve(const char* path, corba_profile_t& pb,
-		     ServiceTable::ServiceReference_t& ref,
-		     diet_profile_t& profile)
+			ServiceTable::ServiceReference_t& ref,
+			diet_profile_t& profile)
 {
   /*************************************************************
    **                  submit a parallel job                  **
@@ -1139,7 +1152,7 @@ SeDImpl::parallel_solve(const char* path, corba_profile_t& pb,
   uploadSyncSeDData(profile,pb,cvt) ;
 
   TRACE_TEXT(TRACE_MAIN_STEPS,"SeD::parallel_solve() completed" << endl
-         << "************************************************************" << endl);
+	     << "************************************************************" << endl);
 #if ! HAVE_DAGDA
   for (int i = 0; i <= cvt->last_in; i++) {
     diet_free_data(&(profile.parameters[i]));
@@ -1167,7 +1180,7 @@ SeDImpl::parallel_solve(const char* path, corba_profile_t& pb,
 
 void
 SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
-                     const char* volatileclientREF)
+		    const char* volatileclientREF)
 {
 
   // test validity of volatileclientREF
@@ -1175,7 +1188,7 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
   try {
     //ServiceTable::ServiceReference_t ref(-1);
     CORBA::Object_var cb = ORBMgr::getMgr()->resolveObject(CLIENTCTXT, volatileclientREF);
-		//ORBMgr::stringToObject(volatileclientREF);
+    //ORBMgr::stringToObject(volatileclientREF);
     if (CORBA::is_nil(cb)) {
       ERROR("SeD::" << __FUNCTION__ << ": received a nil callback",);
     } else {
@@ -1410,22 +1423,22 @@ SeDImpl::parallel_AsyncSolve(const char * path, const corba_profile_t & pb,
     }
   } catch (const CORBA::Exception &e) {
 
-//     // Process any other User exceptions. Use the .id() method to
-//     // record or display useful information
-//     CORBA::Any tmp;
-//     tmp <<= e;
-//     CORBA::TypeCode_var tc = tmp.type();
-//     const char * p = tc->name();
-//     if (*p != '\0') {
-//       ERROR("exception caught in SeD::" << __FUNCTION__ << '(' << p << ')',);
-//     } else {
-//       ERROR("exception caught in SeD::" << __FUNCTION__
-//             << '(' << tc->id() << ')',);
-//     }
-//   } catch (...) {
-//     // Process any other exceptions. This would catch any other C++
-//     // exceptions and should probably never occur
-//     ERROR("unknown exception caught",);
+    //     // Process any other User exceptions. Use the .id() method to
+    //     // record or display useful information
+    //     CORBA::Any tmp;
+    //     tmp <<= e;
+    //     CORBA::TypeCode_var tc = tmp.type();
+    //     const char * p = tc->name();
+    //     if (*p != '\0') {
+    //       ERROR("exception caught in SeD::" << __FUNCTION__ << '(' << p << ')',);
+    //     } else {
+    //       ERROR("exception caught in SeD::" << __FUNCTION__
+    //             << '(' << tc->id() << ')',);
+    //     }
+    //   } catch (...) {
+    //     // Process any other exceptions. This would catch any other C++
+    //     // exceptions and should probably never occur
+    //     ERROR("unknown exception caught",);
   }
 }
 #endif // HAVE_ALT_BATCH
@@ -1627,20 +1640,20 @@ SeDImpl::estimate(corba_estimation_t& estimation,
     /** no metrics construction here: only RR Scheduling at
 	the moment when Cori is installed*/
 
- /***** START CoRI-based metrics *****/
+    /***** START CoRI-based metrics *****/
 #if HAVE_CORI //dummy values
 
 #ifdef HAVE_ALT_BATCH
     /* TODO:
        - If Batch, we have to make a RR that is more robust than
-         just a RR on sites (cf mail from YC the 20 apr 2008)
+       just a RR on sites (cf mail from YC the 20 apr 2008)
        - We can add some values that can be transfered to the client
-         for contract-client based checking
+       for contract-client based checking
        - We can check here if client constraints given in a contract are
-         respected, and if not, delete memory for the vector and do like
-	 in SeDImpl.cc:getRequest(), resp.servers.length(0) as a response
-	 by making SeDImpl.cc:estimate() return 0 or 1 and changing the
-	 code accordingly in getRequest().
+       respected, and if not, delete memory for the vector and do like
+       in SeDImpl.cc:getRequest(), resp.servers.length(0) as a response
+       by making SeDImpl.cc:estimate() return 0 or 1 and changing the
+       code accordingly in getRequest().
     */
     switch(server_status) {
     case BATCH:
@@ -1683,8 +1696,8 @@ SeDImpl::estimate(corba_estimation_t& estimation,
 #endif // HAVE_ALT_BATCH
 
 #else //HAVE_CORI
-   /***** START FAST-based metrics *****/
-   diet_estimate_fast(eVals, &profile);
+    /***** START FAST-based metrics *****/
+    diet_estimate_fast(eVals, &profile);
 #endif  //!HAVE_CORI
 
 
@@ -1714,7 +1727,7 @@ SeDImpl::estimate(corba_estimation_t& estimation,
             diet_est_set_internal(eVals, EST_TOTALTIME, HUGE_VAL);
             break;
           }
-//         estimation.totalTime += estimation.commTimes[i];
+	  //         estimation.totalTime += estimation.commTimes[i];
           newTotalTime += diet_est_array_get_internal(eVals,
                                                       EST_COMMTIME,
                                                       i,
@@ -1749,12 +1762,12 @@ SeDImpl::estimate(corba_estimation_t& estimation,
     if ((pb.param_desc[i].mode > DIET_VOLATILE)
         && (pb.param_desc[i].mode <= DIET_STICKY)
         && (*(pb.param_desc[i].id.idNumber) != '\0')) {
-//       estimation.commTimes[i] = 0;
+      //       estimation.commTimes[i] = 0;
       diet_est_array_set_internal(eVals, EST_COMMTIME, i, 0.0);
     }
   }
 
-//   cout << "AS: [" << __FUNCTION__ << "] num values = " << estimation.estValues.length() << endl;
+  //   cout << "AS: [" << __FUNCTION__ << "] num values = " << estimation.estValues.length() << endl;
 }
 
 inline void
@@ -1768,20 +1781,20 @@ SeDImpl::downloadAsyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
   downloadSeDDataJuxMem(&profile);
 #else
 #if ! HAVE_DAGDA
-      int i;
-      for (i = 0; i <= pb.last_inout; i++) {
-        if(pb.parameters[i].value.length() == 0){
-          this->dataMgr->getData(const_cast<corba_data_t&>(pb.parameters[i]));
-        } else {
-          if( diet_is_persistent(pb.parameters[i]) ) {
-            this->dataMgr->addData(const_cast<corba_data_t&>(pb.parameters[i]),
-                                   0);
-          }
-        }
+  int i;
+  for (i = 0; i <= pb.last_inout; i++) {
+    if(pb.parameters[i].value.length() == 0){
+      this->dataMgr->getData(const_cast<corba_data_t&>(pb.parameters[i]));
+    } else {
+      if( diet_is_persistent(pb.parameters[i]) ) {
+	this->dataMgr->addData(const_cast<corba_data_t&>(pb.parameters[i]),
+			       0);
       }
-      unmrsh_in_args_to_profile(&profile, &(const_cast<corba_profile_t&>(pb)),
-				cvt);
-      //      displayProfile(&profile, path);
+    }
+  }
+  unmrsh_in_args_to_profile(&profile, &(const_cast<corba_profile_t&>(pb)),
+			    cvt);
+  //      displayProfile(&profile, path);
 #else
   dagda_download_data(profile, pb);
 #endif // ! HAVE_DAGDA
@@ -1834,51 +1847,51 @@ SeDImpl::uploadAsyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
   TRACE_TIME(TRACE_MAIN_STEPS, "SeD uploads client datas" << endl);
 
 #if HAVE_JUXMEM
-      uploadSeDDataJuxMem(&profile);
-      mrsh_profile_to_out_args(&(const_cast<corba_profile_t&>(pb)), &profile, cvt);
+  uploadSeDDataJuxMem(&profile);
+  mrsh_profile_to_out_args(&(const_cast<corba_profile_t&>(pb)), &profile, cvt);
 #else
 #if ! HAVE_DAGDA
   int i ;
-      for(i=0;i<=pb.last_in;i++){
-        if(diet_is_persistent(pb.parameters[i])) {
-          if (pb.parameters[i].desc.specific._d() != DIET_FILE) {
-            CORBA::Char *p1 (NULL);
-            const_cast<SeqChar&>(pb.parameters[i].value).replace(0,0,p1,1);
-          }
-          persistent_data_release(
-              const_cast<corba_data_t*>(&(pb.parameters[i])));
-        }
+  for(i=0;i<=pb.last_in;i++){
+    if(diet_is_persistent(pb.parameters[i])) {
+      if (pb.parameters[i].desc.specific._d() != DIET_FILE) {
+	CORBA::Char *p1 (NULL);
+	const_cast<SeqChar&>(pb.parameters[i].value).replace(0,0,p1,1);
       }
+      persistent_data_release(
+			      const_cast<corba_data_t*>(&(pb.parameters[i])));
+    }
+  }
 
-      mrsh_profile_to_out_args(&(const_cast<corba_profile_t&>(pb)), &profile, cvt);
-      /*      for (i = profile.last_in + 1 ; i <= profile.last_inout; i++) {
-        if ( diet_is_persistent(profile.parameters[i])) {
+  mrsh_profile_to_out_args(&(const_cast<corba_profile_t&>(pb)), &profile, cvt);
+  /*      for (i = profile.last_in + 1 ; i <= profile.last_inout; i++) {
+	  if ( diet_is_persistent(profile.parameters[i])) {
           this->dataMgr->updateDataList(const_cast<corba_data_t&>(pb.parameters[i]));
-        }
-        }*/
+	  }
+	  }*/
 
-      for (i = pb.last_inout + 1 ; i <= pb.last_out; i++) {
-        if ( diet_is_persistent(pb.parameters[i])) {
-          this->dataMgr->addData(const_cast<corba_data_t&>(pb.parameters[i]),
-                                 1);
-        }
-      }
+  for (i = pb.last_inout + 1 ; i <= pb.last_out; i++) {
+    if ( diet_is_persistent(pb.parameters[i])) {
+      this->dataMgr->addData(const_cast<corba_data_t&>(pb.parameters[i]),
+			     1);
+    }
+  }
 #else // ! HAVE_DAGDA
   dagda_upload_data(profile, pb);
 #endif // ! HAVE_DAGDA
 
-      /* Free data */
+  /* Free data */
 #if 0
-      for(i=0;i<pb.last_out;i++)
-        if(!diet_is_persistent(profile.parameters[i])) {
-            // FIXME : adding file test
-          CORBA::Char *p1 (NULL);
-          p1 = pbc.parameters[i].value.get_buffer(1);
-          _CORBA_Sequence<unsigned char>::freebuf((_CORBA_Char *)p1);
-          }
+  for(i=0;i<pb.last_out;i++)
+    if(!diet_is_persistent(profile.parameters[i])) {
+      // FIXME : adding file test
+      CORBA::Char *p1 (NULL);
+      p1 = pbc.parameters[i].value.get_buffer(1);
+      _CORBA_Sequence<unsigned char>::freebuf((_CORBA_Char *)p1);
+    }
 
 #endif
-      // FIXME: persistent data should not be freed but referenced in the data list.
+  // FIXME: persistent data should not be freed but referenced in the data list.
 #endif // HAVE_JUXMEM
 }
 
@@ -2057,54 +2070,54 @@ SeDImpl::getDataMgrID() {
 #endif //HAVE_DAGDA
 
 SeDFwdrImpl::SeDFwdrImpl(Forwarder_ptr fwdr, const char* objName) {
-	this->forwarder = Forwarder::_duplicate(fwdr);
-	this->objName = CORBA::string_dup(objName);
+  this->forwarder = Forwarder::_duplicate(fwdr);
+  this->objName = CORBA::string_dup(objName);
 }
 
 CORBA::Long SeDFwdrImpl::ping() {
-	return forwarder->ping(objName);
+  return forwarder->ping(objName);
 }
 
 #ifdef HAVE_DYNAMICS
 CORBA::Long SeDFwdrImpl::bindParent(const char * parentName) {
-	return forwarder->bindParent(parentName, objName);
+  return forwarder->bindParent(parentName, objName);
 }
 
 CORBA::Long SeDFwdrImpl::disconnect() {
-	return forwarder->disconnect(objName);
+  return forwarder->disconnect(objName);
 }
 
 CORBA::Long SeDFwdrImpl::removeElement() {
-	return forwarder->removeElement(false, objName);
+  return forwarder->removeElement(false, objName);
 }
 
 #endif
 void SeDFwdrImpl::getRequest(const corba_request_t& req) {
-	return forwarder->getRequest(req, objName);
+  return forwarder->getRequest(req, objName);
 }
 
 CORBA::Long SeDFwdrImpl::checkContract(corba_estimation_t& estimation,
-																			 const corba_pb_desc_t& pb)
+				       const corba_pb_desc_t& pb)
 {
-	return forwarder->checkContract(estimation, pb, objName);
+  return forwarder->checkContract(estimation, pb, objName);
 }
 
 void SeDFwdrImpl::updateTimeSinceLastSolve() {
-	forwarder->updateTimeSinceLastSolve(objName);
+  forwarder->updateTimeSinceLastSolve(objName);
 }
 
 CORBA::Long SeDFwdrImpl::solve(const char* pbName, corba_profile_t& pb) {
-	return forwarder->solve(pbName, pb, objName);
+  return forwarder->solve(pbName, pb, objName);
 }
 
 void SeDFwdrImpl::solveAsync(const char* pb_name, const corba_profile_t& pb,
-														 const char * volatileclientIOR)
+			     const char * volatileclientIOR)
 {
-	forwarder->solveAsync(pb_name, pb, volatileclientIOR, objName);
+  forwarder->solveAsync(pb_name, pb, volatileclientIOR, objName);
 }
 #ifdef HAVE_DAGDA
 char* SeDFwdrImpl::getDataMgrID() {
-	return forwarder->getDataMgrID(objName);	
+  return forwarder->getDataMgrID(objName);	
 }
 #endif
 
