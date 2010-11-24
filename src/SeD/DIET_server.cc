@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.93  2010/11/24 12:30:42  bdepardo
+ * Changed logComponenent initialization, now uses the real SeD name.
+ *
  * Revision 1.92  2010/08/13 14:22:36  dloureir
  * Missing case in profile deallocation where last_out = -1 and desc->param_desc was null
  *
@@ -327,7 +330,7 @@ diet_service_table_add(const diet_profile_desc_t* const profile,
     actual_cvt = diet_convertor_alloc(profile->path, profile->last_in,
 				      profile->last_inout, profile->last_out);
 #if defined HAVE_ALT_BATCH
-     // TODO: Must I add something about convertors ??
+    // TODO: Must I add something about convertors ??
 #endif
 
     for (int i = 0; i <= profile->last_out; i++)
@@ -507,9 +510,9 @@ diet_profile_desc_free(diet_profile_desc_t* desc)
     return 0;
   }
   if ((desc->last_out == -1) && desc->param_desc == NULL) {
-      delete desc;
-      return 0;
-    }
+    delete desc;
+    return 0;
+  }
 
   delete desc;
   return 1;
@@ -537,12 +540,12 @@ diet_aggregator_set_type(diet_aggregator_desc_t* agg,
   }
   if (atype != DIET_AGG_DEFAULT &&
       atype != DIET_AGG_PRIORITY
-/* New : For scheduler load support. */
+      /* New : For scheduler load support. */
 #ifdef USERSCHED
       && atype != DIET_AGG_USER
 #endif
-/*************************************/
-	  ) {
+      /*************************************/
+      ) {
     ERROR(__FUNCTION__ << ": unknown aggregation type (" << atype << ")", 0);
   }
   if (agg->agg_method != DIET_AGG_DEFAULT) {
@@ -727,11 +730,11 @@ diet_convertor_check(const diet_convertor_t* const cvt,
 {
   int res = 0;
 
-#define CHECK_ERROR(formatted_text)                         \
-  if (res == 0)                                             \
-    cerr << "DIET ERROR while checking the convertor from " \
-	 << profile->path << " to " << cvt->path << ":" << endl; \
-  cerr << formatted_text << "." << endl;				 \
+#define CHECK_ERROR(formatted_text)					\
+  if (res == 0)								\
+    cerr << "DIET ERROR while checking the convertor from "		\
+	 << profile->path << " to " << cvt->path << ":" << endl;	\
+  cerr << formatted_text << "." << endl;				\
   res = 1;
 
 
@@ -772,7 +775,6 @@ diet_SeD(const char* config_file_name, int argc, char* argv[])
   int    res(0);
   int    myargc;
   char** myargv;
-  char*  userDefName;
   char*  name;
   DietLogComponent* dietLogComponent;     /* LogService */
   MonitoringThread* monitoringThread;
@@ -810,11 +812,6 @@ diet_SeD(const char* config_file_name, int argc, char* argv[])
   }
 
   /* Some more checks */
-
-  // NOTE: if non-NULL, userDefName will be used for LogService
-  userDefName = (char*)
-    Parsers::Results::getParamValue(Parsers::Results::NAME);
-
   name = (char*)
     Parsers::Results::getParamValue(Parsers::Results::MANAME);
   if (name != NULL)
@@ -834,11 +831,11 @@ diet_SeD(const char* config_file_name, int argc, char* argv[])
     myargv = (char**)realloc(myargv, tmp_argc * sizeof(char*));
     myargv[myargc] = strdup("-ORBendPoint") ;
     if (port == NULL) {
-	    sprintf(endPoint, "giop:tcp:%s:", host);
+      sprintf(endPoint, "giop:tcp:%s:", host);
     } else if (host == NULL)  {
-	    sprintf(endPoint, "giop:tcp::%u", *port);
+      sprintf(endPoint, "giop:tcp::%u", *port);
     } else {
-	    sprintf(endPoint, "giop:tcp:%s:%u", host,*port);
+      sprintf(endPoint, "giop:tcp:%s:%u", host,*port);
     }
     myargv[myargc + 1] = (char*)endPoint;
     myargc = tmp_argc;
@@ -858,8 +855,8 @@ diet_SeD(const char* config_file_name, int argc, char* argv[])
 
   /* ORB initialization */
   try {
-		ORBMgr::init(myargc, (char**)myargv);
-	} catch (...) {
+    ORBMgr::init(myargc, (char**)myargv);
+  } catch (...) {
     ERROR("ORB initialization failed", 1);
   }
 
@@ -871,8 +868,7 @@ diet_SeD(const char* config_file_name, int argc, char* argv[])
   int flushTime;
   unsigned int* FTptr;
 
-  ULSptr = (unsigned int*)Parsers::Results::getParamValue(
-              Parsers::Results::USELOGSERVICE);
+  ULSptr = (unsigned int*)Parsers::Results::getParamValue(Parsers::Results::USELOGSERVICE);
   useLS = false;
   if (ULSptr != NULL) {
     if (*ULSptr) {
@@ -881,52 +877,23 @@ diet_SeD(const char* config_file_name, int argc, char* argv[])
   }
 
   if (useLS) {
-    OBSptr = (unsigned int*)Parsers::Results::getParamValue(
-  	       Parsers::Results::LSOUTBUFFERSIZE);
+    OBSptr = (unsigned int*)Parsers::Results::getParamValue(Parsers::Results::LSOUTBUFFERSIZE);
     if (OBSptr != NULL) {
       outBufferSize = (int)(*OBSptr);
     } else {
       outBufferSize = 0;
       TRACE_TEXT(TRACE_ALL_STEPS,
-            "lsOutbuffersize not configured, using default");
+		 "lsOutbuffersize not configured, using default");
     }
-    FTptr = (unsigned int*)Parsers::Results::getParamValue(
-  	       Parsers::Results::LSFLUSHINTERVAL);
+    FTptr = (unsigned int*)Parsers::Results::getParamValue(Parsers::Results::LSFLUSHINTERVAL);
     if (FTptr != NULL) {
       flushTime = (int)(*FTptr);
     } else {
       flushTime = 10000;
       TRACE_TEXT(TRACE_ALL_STEPS,
-            "lsFlushinterval not configured, using default");
+		 "lsFlushinterval not configured, using default");
     }
   }
-
-  if (useLS) {
-    TRACE_TEXT(TRACE_ALL_STEPS, "* LogService: enabled" << endl);
-    char* parentName;
-    parentName = (char*)Parsers::Results::getParamValue
-                          (Parsers::Results::PARENTNAME);
-
-    if (userDefName != NULL){
-      dietLogComponent = new DietLogComponent(userDefName, outBufferSize);
-    } else {
-      dietLogComponent = new DietLogComponent("", outBufferSize);
-    }
-
-    ORBMgr::getMgr()->activate(dietLogComponent);
-    if (dietLogComponent->run("SeD", parentName, flushTime) != 0) {
-      // delete(dietLogComponent); // DLC is activated, do not delete !
-      WARNING("Could not initialize DietLogComponent");
-      TRACE_TEXT(TRACE_ALL_STEPS, "* LogService: disabled" << endl);
-      dietLogComponent = NULL; // this should never happen;
-    }
-  } else {
-    TRACE_TEXT(TRACE_ALL_STEPS, "* LogService: disabled" << endl);
-    dietLogComponent = NULL;
-  }
-
-  // Just start the thread, as it might not be FAST-related
-  monitoringThread = new MonitoringThread(dietLogComponent);
 
 #if HAVE_FD
   /* very simple registration: SeD only is observable by FD, no details on
@@ -949,6 +916,28 @@ diet_SeD(const char* config_file_name, int argc, char* argv[])
 #endif
 
   /* Set SeD to use LogService object */
+  if (useLS) {
+    TRACE_TEXT(TRACE_ALL_STEPS, "* LogService: enabled" << endl);
+    char* parentName;
+    parentName = (char*)Parsers::Results::getParamValue
+      (Parsers::Results::PARENTNAME);
+
+    dietLogComponent = new DietLogComponent(SeD->getName(), outBufferSize);
+
+    ORBMgr::getMgr()->activate(dietLogComponent);
+    if (dietLogComponent->run("SeD", parentName, flushTime) != 0) {
+      // delete(dietLogComponent); // DLC is activated, do not delete !
+      WARNING("Could not initialize DietLogComponent");
+      TRACE_TEXT(TRACE_ALL_STEPS, "* LogService: disabled" << endl);
+      dietLogComponent = NULL; // this should never happen;
+    }
+  } else {
+    TRACE_TEXT(TRACE_ALL_STEPS, "* LogService: disabled" << endl);
+    dietLogComponent = NULL;
+  }
+
+  // Just start the thread, as it might not be FAST-related
+  monitoringThread = new MonitoringThread(dietLogComponent);
   SeD->setDietLogComponent(dietLogComponent);
 
   /* Activate SeD */
@@ -959,25 +948,25 @@ diet_SeD(const char* config_file_name, int argc, char* argv[])
 
 #if HAVE_JUXMEM
   /** JuxMem creation */
-  juxmem = new JuxMem::Wrapper(userDefName);
+  juxmem = new JuxMem::Wrapper(SeD->getName());
   SeD->linkToJuxMem(juxmem);
 #else
 #if ! HAVE_DAGDA
   /* Set-up and activate Data Manager for DTM usage */
-	char* nm = (char*)
-		Parsers::Results::getParamValue(Parsers::Results::PARENTNAME);
-	if (nm==NULL) {
-		ERROR("Cannot create the local data manager. SeD needs a parent name", 1);
-	}
-	string dtmName(nm);
-	dtmName="DataMgr-"+dtmName;
+  char* nm = (char*)
+    Parsers::Results::getParamValue(Parsers::Results::PARENTNAME);
+  if (nm==NULL) {
+    ERROR("Cannot create the local data manager. SeD needs a parent name", 1);
+  }
+  string dtmName(nm);
+  dtmName="DataMgr-"+dtmName;
 
   dataMgr = new DataMgrImpl(dtmName.c_str());
   dataMgr->setDietLogComponent(dietLogComponent);
   ORBMgr::getMgr()->activate(dataMgr);
-	ORBMgr::getMgr()->bind(DATAMGRCTXT, dtmName, dataMgr->_this(), true);
+  ORBMgr::getMgr()->bind(DATAMGRCTXT, dtmName, dataMgr->_this(), true);
   ORBMgr::getMgr()->fwdsBind(DATAMGRCTXT, dtmName,
-														 ORBMgr::getMgr()->getIOR(dataMgr->_this()));
+			     ORBMgr::getMgr()->getIOR(dataMgr->_this()));
 	
   if (dataMgr->run()) {
     ERROR("unable to launch the DataManager", 1);
@@ -1005,7 +994,7 @@ diet_SeD(const char* config_file_name, int argc, char* argv[])
 #endif
 
   /* We do not need the parsing results any more */
-  Parsers::endParsing();
+  //  Parsers::endParsing();
 
 #ifdef HAVE_DAGDA
   sedImpl = SeD;
@@ -1109,7 +1098,7 @@ diet_est_defined_system(estVectorConst_t ev, int systemTag)
           systemTag <<
           ")", -1);
   }
-   if (systemTag >= EST_USERDEFINED) {
+  if (systemTag >= EST_USERDEFINED) {
     ERROR(__FUNCTION__ <<
           ": systemTag "<<systemTag <<" must be smaller than (" <<
           EST_USERDEFINED<<
@@ -1146,7 +1135,7 @@ diet_est_array_size_system(estVectorConst_t ev, int systemTag)
           systemTag <<
           ")", -1);
   }
-   if (systemTag >= EST_USERDEFINED) {
+  if (systemTag >= EST_USERDEFINED) {
     ERROR(__FUNCTION__ <<
           ": systemTag "<<systemTag <<" must be smaller than (" <<
           EST_USERDEFINED<<
@@ -1307,32 +1296,32 @@ diet_estimate_cori(estVector_t ev,
 {
   fast_param_t fastparam={(diet_profile_t*)data,SRVT};
   switch( collector_type ) {
-    case EST_COLL_FAST:
-      //#if HAVE_FAST
-      //testing already here, because it is possible that an internal call use tag COMMTIME
-      if ((info_type==EST_TCOMP)||
-	  (info_type==EST_FREECPU)||
-	  (info_type==EST_FREEMEM)||
-	  (info_type==EST_NBCPU)||
-	  (info_type==EST_ALLINFOS))
-	CORIMgr::call_cori_mgr(&ev,info_type,collector_type,&fastparam);
-      else {
-	// FIXME: set the default values for each type
-	double value ;
-	switch( info_type ) {
-	case EST_TCOMP:
-	case EST_FREECPU:
-	case EST_FREEMEM:
-	case EST_NBCPU:
-	case EST_ALLINFOS:
-	default:
-	  value = 0 ;
-	}
-	diet_est_set_internal(ev,info_type,value);
-	ERROR(__FUNCTION__ << ": info_type must be EST_TCOMP,EST_FREECPU,EST_FREEMEM, EST_NBCPU or EST_ALLINFOS!)", -1);
+  case EST_COLL_FAST:
+    //#if HAVE_FAST
+    //testing already here, because it is possible that an internal call use tag COMMTIME
+    if ((info_type==EST_TCOMP)||
+	(info_type==EST_FREECPU)||
+	(info_type==EST_FREEMEM)||
+	(info_type==EST_NBCPU)||
+	(info_type==EST_ALLINFOS))
+      CORIMgr::call_cori_mgr(&ev,info_type,collector_type,&fastparam);
+    else {
+      // FIXME: set the default values for each type
+      double value ;
+      switch( info_type ) {
+      case EST_TCOMP:
+      case EST_FREECPU:
+      case EST_FREEMEM:
+      case EST_NBCPU:
+      case EST_ALLINFOS:
+      default:
+	value = 0 ;
       }
-      //#endif //HAVE_FAST
-      break ;
+      diet_est_set_internal(ev,info_type,value);
+      ERROR(__FUNCTION__ << ": info_type must be EST_TCOMP,EST_FREECPU,EST_FREEMEM, EST_NBCPU or EST_ALLINFOS!)", -1);
+    }
+    //#endif //HAVE_FAST
+    break ;
   case EST_COLL_EASY:
   case EST_COLL_BATCH:
     CORIMgr::call_cori_mgr( &ev, info_type, collector_type, data ) ;
@@ -1354,54 +1343,54 @@ diet_estimate_cori_add_collector(diet_est_collect_tag_t collector_type,
 void
 print_message(){
   cerr<<"=default value used"<<endl;
-  }
+}
 
 void
 diet_estimate_coriEasy_print(){
   int tmp_int=TRACE_LEVEL;
   TRACE_LEVEL=15;
 
-   cerr<<"start printing CoRI values.."<<endl;
-   estVector_t vec=new corba_estimation_t();
+  cerr<<"start printing CoRI values.."<<endl;
+  estVector_t vec=new corba_estimation_t();
 
-   CORIMgr::add(EST_COLL_EASY,NULL);
+  CORIMgr::add(EST_COLL_EASY,NULL);
 
-   int minut=15;
+  int minut=15;
 
-   if  (diet_estimate_cori(vec,EST_AVGFREECPU,EST_COLL_EASY,&minut))
-     print_message();
+  if  (diet_estimate_cori(vec,EST_AVGFREECPU,EST_COLL_EASY,&minut))
+    print_message();
 
-   if  (diet_estimate_cori(vec,EST_CACHECPU,EST_COLL_EASY,NULL))
-     print_message();
+  if  (diet_estimate_cori(vec,EST_CACHECPU,EST_COLL_EASY,NULL))
+    print_message();
 
-   if  (diet_estimate_cori(vec,EST_NBCPU,EST_COLL_EASY,NULL))
-     print_message();
+  if  (diet_estimate_cori(vec,EST_NBCPU,EST_COLL_EASY,NULL))
+    print_message();
 
-   if  (diet_estimate_cori(vec,EST_BOGOMIPS,EST_COLL_EASY,NULL))
-     print_message();
-   const char * tmp="./" ;
-   if  (diet_estimate_cori(vec,EST_DISKACCESREAD,EST_COLL_EASY,tmp))
-     print_message();
+  if  (diet_estimate_cori(vec,EST_BOGOMIPS,EST_COLL_EASY,NULL))
+    print_message();
+  const char * tmp="./" ;
+  if  (diet_estimate_cori(vec,EST_DISKACCESREAD,EST_COLL_EASY,tmp))
+    print_message();
 
-   if  (diet_estimate_cori(vec,EST_DISKACCESWRITE,EST_COLL_EASY,tmp))
-     print_message();
+  if  (diet_estimate_cori(vec,EST_DISKACCESWRITE,EST_COLL_EASY,tmp))
+    print_message();
 
-   if  (diet_estimate_cori(vec,EST_TOTALSIZEDISK,EST_COLL_EASY,tmp))
-     print_message();
+  if  (diet_estimate_cori(vec,EST_TOTALSIZEDISK,EST_COLL_EASY,tmp))
+    print_message();
 
-   if  (diet_estimate_cori(vec,EST_FREESIZEDISK,EST_COLL_EASY,tmp))
-     print_message();
+  if  (diet_estimate_cori(vec,EST_FREESIZEDISK,EST_COLL_EASY,tmp))
+    print_message();
 
-   if  (diet_estimate_cori(vec,EST_TOTALMEM,EST_COLL_EASY,NULL))
-     print_message();
+  if  (diet_estimate_cori(vec,EST_TOTALMEM,EST_COLL_EASY,NULL))
+    print_message();
 
-   if  (diet_estimate_cori(vec,EST_FREEMEM,EST_COLL_EASY,NULL))
-     print_message();
+  if  (diet_estimate_cori(vec,EST_FREEMEM,EST_COLL_EASY,NULL))
+    print_message();
 
-   cerr<<"end printing CoRI values"<<endl;
-   TRACE_LEVEL=tmp_int;
+  cerr<<"end printing CoRI values"<<endl;
+  TRACE_LEVEL=tmp_int;
 
-   /* FIXME (YC->ANY): release vec ? */
+  /* FIXME (YC->ANY): release vec ? */
 }
 
 #else //HAVE_CORI
@@ -1502,9 +1491,9 @@ int diet_estimate_eft(estVector_t ev,
     ERROR(__FUNCTION__ <<": ref on SeD not initialized?", 1);
   }
   /*
-   ** casting away const-ness, because we know that the
-   ** method doesn't change the SeD
-   */
+  ** casting away const-ness, because we know that the
+  ** method doesn't change the SeD
+  */
   double value = jobEstimatedCompTime + ((SeDImpl*) refSeD)->getEFT();
   diet_est_set_internal(ev, EST_EFT, value);
   return 0;
@@ -1532,7 +1521,7 @@ diet_set_server_status( diet_server_status_t status )
     default:
       TRACE_TEXT(TRACE_MAIN_STEPS,"Server status list to update" << endl) ;
     }
-  //#endif
+    //#endif
   } else ERROR_EXIT("Server status not recognized") ;
 }
 #endif
