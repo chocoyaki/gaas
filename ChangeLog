@@ -3,17 +3,23 @@
 +----------+
 
 * Compilation & installation improvements
-	- The DIET compilation now produces only the three main dynamic
+	
+	- DIET compilation now produces only three main dynamic
 	  libraries: DIET_client, DIET_SeD and DIET_Dagda
 	- The DIET internal parts are now compiled as static libraries
 	  and are linked to the three dynamic ones. The installation
 	  copies only these three libraries.
 
 * DIET forwarder
+	
 	- A new DIET component: The DIET forwarder that forwards the
 	  DIET CORBA messages through SSH tunnel.
 	- DIET forwarders allow to build DIET hierarchy on different
 	  networks that can only be reached through SSH.
+
+* DIET cloud
+	
+	- DIET cloud now works with Amazon EC2
 
 +----------+
 | diet 2.4 |
