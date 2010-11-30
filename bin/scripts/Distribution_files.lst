@@ -17,6 +17,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.49  2010/11/30 20:14:57  ecaron
+#* Some corrections about the required files
+#*
 #* Revision 1.48  2010/11/22 08:14:10  bdepardo
 #* Removed src/CORBA/idl/idlRules.mk
 #*
@@ -437,7 +440,7 @@ src/utils/workflow/FWorkflow.cc
 src/utils/workflow/FWorkflow.hh
 src/utils/workflow/InputIterator.cc
 src/utils/workflow/InputIterator.hh
-src/utils/workflow/MetaDag.cc	
+src/utils/workflow/MetaDag.cc
 src/utils/workflow/MetaDag.hh
 src/utils/workflow/NodeQueue.cc
 src/utils/workflow/NodeQueue.hh
@@ -643,8 +646,7 @@ src/examples/allDataTransfers/CMakeLists.txt
 [Templated]
 src/examples/allDataTransfers/client.cc
 src/examples/allDataTransfers/server.cc
-src/examples/allDataTransfers/progs.cc
-
+src/examples/allDataTransfers/progs.hh
 
 [Untemplated]
 src/examples/dyn_add_rem/CMakeLists.txt
