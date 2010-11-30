@@ -1,18 +1,18 @@
-/*************************************************************************//**
- \file
- \brief
- GridRPC compliancy for the client interface of DIET
- 
- @author
- \arg Philippe COMBES (Philippe.Combes@ens-lyon.fr)                    
- \arg Eddy CARON (Eddy.Caron@ens-lyon.fr)								
- \arg Cedric Tedeschi (Cedric.Tedeschi@ens-lyon.fr)					
- 
- \remarks License:                                                                          
- $LICENSE$                                      
- */
- /* $Id$
+/****************************************************************************/
+/*  GridRPC compliancy for the client interface of DIET                     */
+/*                                                                          */
+/*  Author(s):                                                              */
+/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
+/*    - Eddy CARON (Eddy.Caron@ens-lyon.fr)								    */
+/*    - Cedric TEDESCHI (Cedric.Tedeschi@ens-lyon.fr)	                    */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/ 
+/* $Id$
  * $Log$
+ * Revision 1.15  2010/11/30 22:03:40  dloureir
+ * Correcting headers to put more less-friendly information prior to doxygen documentation.
+ *
  * Revision 1.14  2010/08/30 22:24:56  dloureir
  * Adding a lot od Doxygen documentation to the API.
  * There is a certain (huge) number of warnings, todos and remarks that must
@@ -71,6 +71,19 @@
  * the draft dated to 07/21/2003)
  *
  ****************************************************************************/
+/**
+ \file
+ \brief
+ GridRPC compliancy for the client interface of DIET
+ 
+ @author
+ \arg Philippe COMBES (Philippe.Combes@ens-lyon.fr)                    
+ \arg Eddy CARON (Eddy.Caron@ens-lyon.fr)								
+ \arg Cedric Tedeschi (Cedric.Tedeschi@ens-lyon.fr)					
+ 
+ \remarks License:                                                                          
+ $LICENSE$                                      
+ */
 
 
 #ifndef _DIET_GRPC_H_

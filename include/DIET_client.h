@@ -1,78 +1,16 @@
-/*************************************************************************//**
-\brief DIET client interface                                 
-                                                                          
-\author Philippe COMBES (Philippe.Combes@ens-lyon.fr)                   
-
-\remarks License:                                                                          
-$LICENSE$                                               
-
-\details
-
-To use a \c DIET platform and access services implemented on the DIET Server Daemon
-a client program must use the DIET Client API described in this file.
-
-\page DIETclient DIET Client interface
-
-The most difficult part of building a client program is to understand how
-to describe the problem interface. Once this step is done, it is
-fairly easy to build calls to \b DIET.
-
-\section clientProgramStructure Structure of a client program
-
-Since the client side of \b DIET is a library, a client program has to define a
-main function that uses \b DIET through function calls. The complete
-data interface is described in \c DIET_data.
-
-Here is an exemple of code including \c DIET_client.h
-
-\code
-#include <stdio.h>
-#include <stdlib.h>
-
-#include "DIET_client.h"
-
-int main(int argc, char *argv[])
-{
-  diet_initialize(configuration_file, argc, argv);
-  // Successive DIET calls ...
-  diet_finalize();
-}
-\endcode
-
-The client program must open its \b DIET session with a call to
-\c diet_initialize, which parses the configuration file to set
-all options and get a reference to the \b DIET \b Master \b Agent. The session
-is closed with a call to \c diet_finalize, which frees all
-resources associated with this session on the client. Note that
-memory allocated for all \b INOUT and \b OUT arguments brought back onto
-the client during the session is not freed during
-\c diet_finalize; this allows the user to continue to use the
-data, but also requires that the user explicitly free the memory.
-The user must also free the memory he or she allocated for \b IN
-arguments.
-
-\section ClientAPI Client API
-
-The client API follows the GridRPC definition: all
-\c diet_ functions are \b duplicated with \c grpc_
-functions.  Both \c diet_initialize \c grpc_initialize
-and \c diet_finalize \c grpc_finalize belong to the
-GridRPC API. 
- 
-    A problem is managed through a \e function_handle, that
-associates a server to a problem name. For compliance with GridRPC
-\c DIET accepts \c diet_function_handle_init, but the server 
-specified in the call will be ignored; \c DIET is designed to
-automatically select the best server. The structure allocation is
-performed through the function
-\c diet_function_handle_default.
-
-The \e function_handle returned is associated to the problem description,
-its profile, in the call to \c diet_call.
-                 
-*/
+/****************************************************************************/
+/* DIET client interface                                                    */
+/*                                                                          */
+/*  Author(s):                                                              */
+/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/ 
 /* $Id$
  * $Log$
+ * Revision 1.44  2010/11/30 22:03:40  dloureir
+ * Correcting headers to put more less-friendly information prior to doxygen documentation.
+ *
  * Revision 1.43  2010/08/30 22:24:56  dloureir
  * Adding a lot od Doxygen documentation to the API.
  * There is a certain (huge) number of warnings, todos and remarks that must
@@ -214,6 +152,79 @@ its profile, in the call to \c diet_call.
  * diet_service_table_add. But all the solvers needed before in programs using
  * DIET can be transformed into convertors.
  ****************************************************************************/
+/**
+\brief DIET client interface                                 
+                                                                          
+\author Philippe COMBES (Philippe.Combes@ens-lyon.fr)                   
+
+\remarks License:                                                                          
+$LICENSE$                                               
+
+\details
+
+To use a \c DIET platform and access services implemented on the DIET Server Daemon
+a client program must use the DIET Client API described in this file.
+
+\page DIETclient DIET Client interface
+
+The most difficult part of building a client program is to understand how
+to describe the problem interface. Once this step is done, it is
+fairly easy to build calls to \b DIET.
+
+\section clientProgramStructure Structure of a client program
+
+Since the client side of \b DIET is a library, a client program has to define a
+main function that uses \b DIET through function calls. The complete
+data interface is described in \c DIET_data.
+
+Here is an exemple of code including \c DIET_client.h
+
+\code
+#include <stdio.h>
+#include <stdlib.h>
+
+#include "DIET_client.h"
+
+int main(int argc, char *argv[])
+{
+  diet_initialize(configuration_file, argc, argv);
+  // Successive DIET calls ...
+  diet_finalize();
+}
+\endcode
+
+The client program must open its \b DIET session with a call to
+\c diet_initialize, which parses the configuration file to set
+all options and get a reference to the \b DIET \b Master \b Agent. The session
+is closed with a call to \c diet_finalize, which frees all
+resources associated with this session on the client. Note that
+memory allocated for all \b INOUT and \b OUT arguments brought back onto
+the client during the session is not freed during
+\c diet_finalize; this allows the user to continue to use the
+data, but also requires that the user explicitly free the memory.
+The user must also free the memory he or she allocated for \b IN
+arguments.
+
+\section ClientAPI Client API
+
+The client API follows the GridRPC definition: all
+\c diet_ functions are \b duplicated with \c grpc_
+functions.  Both \c diet_initialize \c grpc_initialize
+and \c diet_finalize \c grpc_finalize belong to the
+GridRPC API. 
+ 
+    A problem is managed through a \e function_handle, that
+associates a server to a problem name. For compliance with GridRPC
+\c DIET accepts \c diet_function_handle_init, but the server 
+specified in the call will be ignored; \c DIET is designed to
+automatically select the best server. The structure allocation is
+performed through the function
+\c diet_function_handle_default.
+
+The \e function_handle returned is associated to the problem description,
+its profile, in the call to \c diet_call.
+                 
+*/
 
 #ifndef _DIET_CLIENT_H_
 #define _DIET_CLIENT_H_

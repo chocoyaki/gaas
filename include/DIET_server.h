@@ -1,178 +1,16 @@
-/*************************************************************************/
-/**
-\file
-\brief
- DIET server interface                                                    
- 
- @author
- \arg Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       
-     
- @remark
- $LICENSE$                                                                
- 
- @details
- 
- A \c DIET server program is the link between the \c DIET Server Deamon
- (SeD) and the libraries that implement the service to offer.
- 
- \section ProgramStructure Structure of the program
- 
- As for the client side, the \c DIET SeD is a library. So the server
- developer needs to define the \c main function. Within the
- \c main, the \c DIET server will be launched with a call to
- \c diet_SeD which will never return (except if some errors
- occur).
- 
- \code
- #include <stdio.h>
- #include <stdlib.h>
- 
- #include "DIET_server.h"
-\endcode
- 
- The second step is to define a function whose prototype is "\c DIET-normalized"
- and which will be able to convert the function into the library function prototype.
- Let us consider a library function with the following prototype:
-\code
- int service(int arg1, char *arg2, double *arg3);
- \endcode
- 
- This function cannot be called directly by \c DIET, since such a prototype is hard
- to manipulate dynamically. The user must define a "solve" function whose
- prototype only consists of a \c diet_profile_t.
- This function will be called by the \diet \sed through a pointer.
-
- \code
- int solve_service(diet_profile_t *pb)
- {
- int    *arg1;
- char   *arg2;
- double *arg3;
- 
- diet_scalar_get(diet_parameter(pb,0), &arg1, NULL);
- diet_string_get(diet_parameter(pb,1), &arg2, NULL);
- diet_scalar_get(diet_parameter(pb,2), &arg3, NULL);
- return service(*arg1, arg2, arg3);
- }
-\endocde
- 
- Several API functions help the user to write this "solve"
- function, particularly for getting IN arguments as well as setting
- OUT arguments.
- 
- \subsubsection GettingArguments Getting IN, INOUT and OUT arguments
- 
- The \c diet_*_get functions defined in \c DIET_data.h are still
- usable here. Do not forget that the necessary memory space for OUT arguments is
- allocated by \diet. So the user should call the \c diet_*_get functions
- to retrieve the pointer to the zone his/her program should write to.
- 
- \subsubsection SettingArguments Setting INOUT and OUT arguments
- 
- To set INOUT and OUT arguments, use the \c diet_*_desc_set defined
- in \c DIET_server.h, these are helpful for writing "solve"
- functions only. Using these functions, the server developer must keep in
- mind the fact that he cannot alter the memory space pointed to by
- value fields on the server. Indeed, this would make \c DIET confused
- about how to manage the data (And the server developer
- should not be confused by the fact that
- \c diet_scalar_desc_set uses a value, since scalar values
- are copied into the data descriptor.).
- 
-\code
- //
- // If value                 is NULL,
- // or if order              is DIET_MATRIX_ORDER_COUNT,
- // or if nb_rows or nb_cols is 0,
- // or if path               is NULL,
- // then the corresponding field is not modified.
- 
-
-int
-diet_scalar_desc_set(diet_data_t* data, void* value);
-
-// No use of diet_vector_desc_set: size should not be altered by server
-
-// You can alter nb_r and nb_c, but the total size must remain the same
-int
-diet_matrix_desc_set(diet_data_t* data,
-                     size_t nb_r, size_t nb_c, diet_matrix_order_t order);
-
-// No use of diet_string_desc_set: length should not be altered by server
-
-int
-diet_file_desc_set(diet_data_t* data, char* path);
-\endcode
-
-
-\section ServerAPI Server API
-
-\subsubsection DefiningServices Defining services
-
-First, declare the service(s) that will be offered (It is
-possible to declare several services for one single SeD.).
-Each service is described by a profile description called
-\c diet_profile_desc_t since the service does not specify
-the sizes of the data. The \c diet_profile_desc_t type is
-defined in \c DIET_server.h, and is very similar to
-\c diet_profile_t. The difference is that the prototype is
-described with the generic parts of \e diet_data_desc only,
-whereas the client description uses full \e diet_data.
-
- \code
-	struct diet_data_generic {
-		diet_data_type_t type;
-		diet_base_type_t base_type;
-	};
-	
-	file DIET_server.h:
-	typedef struct diet_data_generic diet_arg_desc_t;
-	
-	typedef struct {
-		char*            path;
-		int              last_in, last_inout, last_out;
-		diet_arg_desc_t* param_desc;
-	} diet_profile_desc_t;
-	
-	diet_profile_desc_t* diet_profile_desc_alloc(const char* path,
-												 int last_in, int last_inout, int last_out);
-	int diet_profile_desc_free(diet_profile_desc_t* desc);
-	
-	diet_profile_desc_t *diet_profile_desc_alloc(int last_in, int last_inout, int last_out);
-	
-	int diet_profile_desc_free(diet_profile_desc_t *desc);
-	\endcode
-
-Each profile can be allocated with \c diet_profile_desc_alloc with the
-same semantics as for \c diet_profile_alloc. Every argument of the
-profile will then be set with \c diet_generic_desc_set.
-
-\subsubsection DeclaringServices Declaring services
-
-Every service must be added in the service table before the server is
-launched:
- 
-\code
- typedef int (* diet_solve_t)(diet_profile_t *);
-	int diet_service_table_init(int max_size);
-	int diet_service_table_add(diet_profile_desc_t *profile,
-							   diet_convertor_t    *cvt,
-							   diet_solve_t         solve_func);
-	void diet_print_service_table();
-	\endcode
-
-The parameter \c diet_solve_t \c solve_func is the type of the
-\c solve_service function: a function pointer used by \c DIET to launch the
-computation.
-
-The parameter \c diet_convertor_t \c *cvt is to be used in combination
-with FAST (if available). It is there to allow profile conversion (for
- multiple services, or when differences occur between the \diet and the FAST
- profile).
- 
-*/
+/****************************************************************************/
+/* DIET server interface                                                    */
+/*                                                                          */
+/*  Author(s):                                                              */
+/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.54  2010/11/30 22:03:40  dloureir
+ * Correcting headers to put more less-friendly information prior to doxygen documentation.
+ *
  * Revision 1.53  2010/09/03 10:08:55  bdepardo
  * Changed C++ into C comments to remove warnings
  *
@@ -407,6 +245,178 @@ with FAST (if available). It is there to allow profile conversion (for
  * diet_service_table_add. But all the solvers needed before in programs using
  * DIET can be transformed into convertors.
  ****************************************************************************/
+/**
+\file
+\brief
+ DIET server interface                                                    
+ 
+ @author
+ \arg Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       
+     
+ @remark
+ $LICENSE$                                                                
+ 
+ @details
+ 
+ A \c DIET server program is the link between the \c DIET Server Deamon
+ (SeD) and the libraries that implement the service to offer.
+ 
+ \section ProgramStructure Structure of the program
+ 
+ As for the client side, the \c DIET SeD is a library. So the server
+ developer needs to define the \c main function. Within the
+ \c main, the \c DIET server will be launched with a call to
+ \c diet_SeD which will never return (except if some errors
+ occur).
+ 
+ \code
+ #include <stdio.h>
+ #include <stdlib.h>
+ 
+ #include "DIET_server.h"
+\endcode
+ 
+ The second step is to define a function whose prototype is "\c DIET-normalized"
+ and which will be able to convert the function into the library function prototype.
+ Let us consider a library function with the following prototype:
+\code
+ int service(int arg1, char *arg2, double *arg3);
+ \endcode
+ 
+ This function cannot be called directly by \c DIET, since such a prototype is hard
+ to manipulate dynamically. The user must define a "solve" function whose
+ prototype only consists of a \c diet_profile_t.
+ This function will be called by the \diet \sed through a pointer.
+
+ \code
+ int solve_service(diet_profile_t *pb)
+ {
+ int    *arg1;
+ char   *arg2;
+ double *arg3;
+ 
+ diet_scalar_get(diet_parameter(pb,0), &arg1, NULL);
+ diet_string_get(diet_parameter(pb,1), &arg2, NULL);
+ diet_scalar_get(diet_parameter(pb,2), &arg3, NULL);
+ return service(*arg1, arg2, arg3);
+ }
+\endocde
+ 
+ Several API functions help the user to write this "solve"
+ function, particularly for getting IN arguments as well as setting
+ OUT arguments.
+ 
+ \subsubsection GettingArguments Getting IN, INOUT and OUT arguments
+ 
+ The \c diet_*_get functions defined in \c DIET_data.h are still
+ usable here. Do not forget that the necessary memory space for OUT arguments is
+ allocated by \diet. So the user should call the \c diet_*_get functions
+ to retrieve the pointer to the zone his/her program should write to.
+ 
+ \subsubsection SettingArguments Setting INOUT and OUT arguments
+ 
+ To set INOUT and OUT arguments, use the \c diet_*_desc_set defined
+ in \c DIET_server.h, these are helpful for writing "solve"
+ functions only. Using these functions, the server developer must keep in
+ mind the fact that he cannot alter the memory space pointed to by
+ value fields on the server. Indeed, this would make \c DIET confused
+ about how to manage the data (And the server developer
+ should not be confused by the fact that
+ \c diet_scalar_desc_set uses a value, since scalar values
+ are copied into the data descriptor.).
+ 
+\code
+ //
+ // If value                 is NULL,
+ // or if order              is DIET_MATRIX_ORDER_COUNT,
+ // or if nb_rows or nb_cols is 0,
+ // or if path               is NULL,
+ // then the corresponding field is not modified.
+ 
+
+int
+diet_scalar_desc_set(diet_data_t* data, void* value);
+
+// No use of diet_vector_desc_set: size should not be altered by server
+
+// You can alter nb_r and nb_c, but the total size must remain the same
+int
+diet_matrix_desc_set(diet_data_t* data,
+                     size_t nb_r, size_t nb_c, diet_matrix_order_t order);
+
+// No use of diet_string_desc_set: length should not be altered by server
+
+int
+diet_file_desc_set(diet_data_t* data, char* path);
+\endcode
+
+
+\section ServerAPI Server API
+
+\subsubsection DefiningServices Defining services
+
+First, declare the service(s) that will be offered (It is
+possible to declare several services for one single SeD.).
+Each service is described by a profile description called
+\c diet_profile_desc_t since the service does not specify
+the sizes of the data. The \c diet_profile_desc_t type is
+defined in \c DIET_server.h, and is very similar to
+\c diet_profile_t. The difference is that the prototype is
+described with the generic parts of \e diet_data_desc only,
+whereas the client description uses full \e diet_data.
+
+ \code
+	struct diet_data_generic {
+		diet_data_type_t type;
+		diet_base_type_t base_type;
+	};
+	
+	file DIET_server.h:
+	typedef struct diet_data_generic diet_arg_desc_t;
+	
+	typedef struct {
+		char*            path;
+		int              last_in, last_inout, last_out;
+		diet_arg_desc_t* param_desc;
+	} diet_profile_desc_t;
+	
+	diet_profile_desc_t* diet_profile_desc_alloc(const char* path,
+												 int last_in, int last_inout, int last_out);
+	int diet_profile_desc_free(diet_profile_desc_t* desc);
+	
+	diet_profile_desc_t *diet_profile_desc_alloc(int last_in, int last_inout, int last_out);
+	
+	int diet_profile_desc_free(diet_profile_desc_t *desc);
+	\endcode
+
+Each profile can be allocated with \c diet_profile_desc_alloc with the
+same semantics as for \c diet_profile_alloc. Every argument of the
+profile will then be set with \c diet_generic_desc_set.
+
+\subsubsection DeclaringServices Declaring services
+
+Every service must be added in the service table before the server is
+launched:
+ 
+\code
+ typedef int (* diet_solve_t)(diet_profile_t *);
+	int diet_service_table_init(int max_size);
+	int diet_service_table_add(diet_profile_desc_t *profile,
+							   diet_convertor_t    *cvt,
+							   diet_solve_t         solve_func);
+	void diet_print_service_table();
+	\endcode
+
+The parameter \c diet_solve_t \c solve_func is the type of the
+\c solve_service function: a function pointer used by \c DIET to launch the
+computation.
+
+The parameter \c diet_convertor_t \c *cvt is to be used in combination
+with FAST (if available). It is there to allow profile conversion (for
+ multiple services, or when differences occur between the \diet and the FAST
+ profile).
+ 
+*/
 
 
 #ifndef _DIET_SERVER_H_

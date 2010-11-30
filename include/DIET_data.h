@@ -1,4 +1,270 @@
-/*************************************************************************//**
+/****************************************************************************/
+/* DIET data interface                                                      */
+/*                                                                          */
+/*  Author(s):                                                              */
+/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/ 
+/* $Id$
+ * $Log$
+ * Revision 1.73  2010/11/30 22:03:40  dloureir
+ * Correcting headers to put more less-friendly information prior to doxygen documentation.
+ *
+ * Revision 1.72  2010/08/30 22:24:56  dloureir
+ * Adding a lot od Doxygen documentation to the API.
+ * There is a certain (huge) number of warnings, todos and remarks that must
+ *  be corrected.
+ * For example: function declared in DIET_server.h and implemented in
+ * DIET_Data.cc ... Error code not understandable for users and not documented
+ *
+ * Revision 1.71  2010/07/12 16:17:51  glemahec
+ * DIET 2.5 beta 1 - Introduce DIET forwarders
+ *
+ * Revision 1.70  2009/11/27 03:24:29  ycaniou
+ * Add user_command possibility before the end of Batch prologue (only
+ * to be used for batch dependent code!)
+ * Memory leak/segfault--
+ * New easy Batch basic example
+ * Management of OAR2_X Batch scheduler
+ *
+ * Revision 1.69  2009/11/19 14:45:00  ycaniou
+ * Walltime in profile is in seconds
+ * Renamed Global var
+ * Management of time HH:MM:SS in batch scripts
+ *
+ * Revision 1.68  2009/08/26 10:34:27  bisnard
+ * added new API methods for workflows (data in/out, transcript)
+ *
+ * Revision 1.67  2009/07/23 12:25:20  bisnard
+ * new API method to get functional wf results as a container
+ *
+ * Revision 1.66  2009/06/23 09:21:31  bisnard
+ * added new estimation vector entry (EST_EFT)
+ *
+ * Revision 1.65  2009/03/27 09:09:40  bisnard
+ * replace container size attr by dynamic value
+ *
+ * Revision 1.64  2009/01/22 09:01:04  bisnard
+ * added client method to retrieve workflow container output
+ *
+ * Revision 1.63  2009/01/16 16:33:09  bisnard
+ * added API method to provide data source filename for functional wf
+ *
+ * Revision 1.62  2008/12/12 15:29:51  bisnard
+ * added wfReqId field to diet_wf_desc_t
+ *
+ * Revision 1.61  2008/12/02 10:22:09  bisnard
+ * functional workflow submission API update
+ *
+ * Revision 1.60  2008/09/10 09:15:54  bisnard
+ * new diet type for containers
+ *
+ * Revision 1.59  2008/07/10 08:07:50  ycaniou
+ * Removed a warning
+ *
+ * Revision 1.58  2008/06/10 21:01:27  ycaniou
+ * Cosmetics
+ *
+ * Revision 1.57  2008/05/16 12:21:50  bisnard
+ * obsolete wf scheduler choice
+ *
+ * Revision 1.56  2008/05/11 16:19:48  ycaniou
+ * Check that pathToTmp and pathToNFS exist
+ * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
+ * Rewrite of the propagation of the request concerning job parallel_flag
+ * Implementation of Cori_batch system
+ * Numerous information can be dynamically retrieved through batch systems
+ *
+ * Revision 1.55  2008/04/18 13:47:22  glemahec
+ * Everything about DAGDA is now in utils/DAGDA directory.
+ *
+ * Revision 1.54  2008/04/10 09:13:30  bisnard
+ * New version of the MaDag where workflow node execution is triggered by the MaDag agent and done by a new CORBA object CltWfMgr located in the client
+ *
+ * Revision 1.53  2008/04/07 15:33:40  ycaniou
+ * This should remove all HAVE_BATCH occurences (still appears in the doc, which
+ *   must be updated.. soon :)
+ * Add the definition of DIET_BATCH_JOBID wariable in batch scripts
+ *
+ * Revision 1.52  2008/01/01 19:45:22  ycaniou
+ * Modifications for batch management. Loadleveler is now ok.
+ *
+ * Revision 1.51  2007/12/18 13:04:27  glemahec
+ * This commit adds the "diet_estimate_waiting_jobs" function to obtain the
+ * number of jobs waiting in the FIFO queue when using the max concurrent
+ * jobs limit. This function has to be used in the SeD plugin schedulers.
+ *
+ * Revision 1.50  2007/06/28 18:23:18  rbolze
+ * add dietReqID in the profile.
+ * and propagate this change to all functions that  have both reqID and profile parameters.
+ * TODO : look at the asynchronous mechanism (client->SED) to propage this change.
+ *
+ * Revision 1.49  2007/05/30 11:16:33  aamar
+ * Updating workflow runtime to support concurrent call (Reordering is not
+ * working now - TO FIX -).
+ *
+ * Revision 1.48  2007/04/16 22:43:42  ycaniou
+ * Make all necessary changes to have the new option HAVE_ALT_BATCH operational.
+ * This is indented to replace HAVE_BATCH.
+ *
+ * First draw to manage batch systems with a new Cori plug-in.
+ *
+ * Revision 1.47  2007/03/26 13:10:42  glemahec
+ * Adds the aggregator type DIET_AGG_USER for user agent scheduler.
+ *
+ * Revision 1.46  2006/11/06 12:09:40  aamar
+ * Workflow support:
+ *   - Add diet_wf_file_get and diet_wf_matrix_get methods.
+ *
+ * Revision 1.45  2006/10/20 09:51:47  aamar
+ * Add the function get_all_results to the API (workflow).
+ *
+ * Revision 1.44  2006/08/30 11:56:13  ycaniou
+ * Commit the changements on the API for batch/parallel submissions
+ *
+ * Revision 1.43  2006/07/25 14:23:17  ycaniou
+ * Changed dietJobID field to dietReqID which is more coherent with the rest
+ *   of the code
+ *
+ * Revision 1.42  2006/06/30 15:47:42  ycaniou
+ * Coquilles, and batch stuff
+ *
+ * Revision 1.41  2006/06/01 13:02:38  ycaniou
+ * BATCH: Add nbprocess field in diet_profile_t
+ *
+ * Revision 1.40  2006/04/18 13:10:17  ycaniou
+ * C++ -> C commentaries to avoid warning
+ *
+ * Revision 1.39  2006/04/14 14:11:08  aamar
+ * Adding the C data structures for workflow support and the methods for
+ * their manipulation.
+ * The function diet_wf_profile_free is no longer used -> TO REMOVE
+ * The get methods is to move to DIET_client.h
+ *       struct diet_wf_desc_t;
+ *       diet_wf_desc_t* diet_wf_profile_alloc(const char* wf_file_name);
+ *       void diet_wf_profile_free(diet_wf_desc_t * profile);
+ *       int _diet_wf_scalar_get(const char * id, void** value);
+ *       int _diet_wf_string_get(const char * id, char** value);
+ *
+ * Revision 1.38  2006/04/12 16:13:11  ycaniou
+ * Commentaries C++->C to avoid compilation warnings
+ *
+ * Revision 1.37  2006/01/25 21:07:59  pfrauenk
+ * CoRI - plugin scheduler: the type diet_est_tag_t est replace by int
+ *        some new fonctions in DIET_server.h to manage the estVector
+ *
+ * Revision 1.36  2006/01/19 21:18:47  pfrauenk
+ * CoRI: adding 2 new functions - correction of some comments
+ *
+ * Revision 1.35  2005/12/15 12:25:06  pfrauenk
+ * CoRI functionality added by Peter Frauenkron
+ *
+ * Revision 1.34  2005/10/04 12:05:40  alsu
+ * minor changes to pacify gcc/g++ 4.0
+ *
+ * Revision 1.33  2005/09/05 15:53:39  hdail
+ * Addition of estimation tags EST_COMMPROXIMITY and EST_TRANSFEREFFORT.
+ *
+ * Revision 1.32  2005/08/31 14:34:30  alsu
+ * New plugin scheduling interface: estVector_t is no longer a structure
+ * in and of itself; but rather a pointer to a corba_estimation_t
+ * object.
+ *
+ * Revision 1.31  2005/08/30 12:49:57  ycaniou
+ * Added the  diet_submit_call_t in DIET_server.h and the dietJobID field in
+ *   the diet_profile_t
+ * Added some comments in batch.tex
+ *
+ * Revision 1.30  2005/06/27 09:53:10  alsu
+ * corrected comments for the diet_string_get and diet_paramstring_get macros
+ *
+ * Revision 1.29  2005/05/27 08:18:16  mjan
+ * Moving JuxMem in a more appropriate place (src/utils)
+ * Added log messages for VizDIET
+ * Added use of JuxMem in the client side
+ *
+ * Revision 1.28  2005/05/18 14:18:09  mjan
+ * Initial adding of JuxMem support inside DIET. dmat_manips examples tested without JuxMem and with JuxMem
+ *
+ * Revision 1.27  2005/05/15 15:29:33  alsu
+ * - adding new aggregator structure
+ * - removing obsolete estimation tags
+ *
+ * Revision 1.26  2005/05/10 11:55:05  alsu
+ * optimized and retested estimation vector
+ *
+ * Revision 1.25  2005/05/02 14:51:53  ycaniou
+ * The client API has now the functions diet_call_batch() and diet_call_async_batch(). The client has also the possibility to modify the profile so that it is a batch, parallel or if he wants a special number of procs.
+ * Changes in diet_profile_t and diet_profile_desc_t structures
+ * Functions to register a parallel or batch problem.
+ * The SeD developper must end its profile solve function by a call to diet_submit_batch().
+ *
+ * Revision 1.24  2004/12/15 18:09:58  alsu
+ * cleaner, easier to document interface: changing diet_perfmetric_t back
+ * to the simpler one-argument (of type diet_profile_t) version, and
+ * hiding a copy of the pointer back to the SeD in the profile.
+ *
+ * Revision 1.23  2004/12/08 15:02:51  alsu
+ * plugin scheduler first-pass validation testing complete.  merging into
+ * main CVS trunk; ready for more rigorous testing.
+ *
+ * Revision 1.22.2.4  2004/11/26 16:54:30  alsu
+ * string/paramstring functions calculate length on their own (so that
+ * they can be null-terminated automatically)
+ *
+ * Revision 1.22.2.3  2004/11/24 09:30:15  alsu
+ * - adding new datatype DIET_PARAMSTRING, which allows users to define
+ *   strings for which the value is important for performance evaluation
+ *   (and which is consequently stored in the argument description, much
+ *   like what is done for DIET_SCALAR arguments)
+ * - adding functions to access the type-specific data structures stored
+ *   in the diet_data_desc_t.specific union (for use in custom
+ *   performance metrics to access data such as those that are described
+ *   above)
+ *
+ * Revision 1.22.2.2  2004/10/27 22:35:50  alsu
+ * include
+ *
+ * Revision 1.22.2.1  2004/10/26 14:12:52  alsu
+ * (Tag: AS-plugin-sched)
+ *  - branch created to avoid conflicting with release 1.2 (imminent)
+ *  - initial commit on branch, new dynamic performance info structure in
+ *    the profile
+ *
+ * Revision 1.22  2004/02/27 10:31:47  bdelfabr
+ * modifications applied to corresponding header files
+ *
+ * Revision 1.21  2003/10/21 13:30:08  bdelfabr
+ * removing diet_matrix_set_with_id method
+ *
+ * Revision 1.20  2003/10/10 14:57:22  bdelfabr
+ * adding diet_matrix_set_with_id
+ *
+ * Revision 1.19  2003/09/27 07:51:06  pcombes
+ * Replace silly base type DIET_BYTE by DIET_SHORT.
+ *
+ * Revision 1.17  2003/07/25 20:37:36  pcombes
+ * Separate the DIET API (slightly modified) from the GridRPC API (version of
+ * the draft dated to 07/21/2003)
+ *
+ * Revision 1.14  2003/04/10 11:27:14  pcombes
+ * Add the mode DIET_PERSISTENT_RETURN.
+ *
+ * Revision 1.13  2003/02/07 17:02:10  pcombes
+ * Remove diet_value. Add diet_is_persistent and diet_free_data.
+ * Unify diet_scalar_get prototype to the one of the other _get functions.
+ *
+ * Remove the descriptors set functions.
+ * Add convertors in API :
+ *     Convertors let DIET build the sequence of arguments, that the
+ *     correspunding solver needs, from the client sequence of arguments
+ *     (which might match another service declared with the same solver).
+ * For compatibility with old API, just add NULL for the convertor argument in
+ * diet_service_table_add. But all the solvers needed before in programs using
+ * DIET can be transformed into convertors.
+ ****************************************************************************/
+/**
 
  \brief DIET data interface                                 
                                                                           
@@ -464,261 +730,7 @@ are respectively:
  Grid RPC working group of the Open Grid Forum.
  
 */
-/* $Id$
- * $Log$
- * Revision 1.72  2010/08/30 22:24:56  dloureir
- * Adding a lot od Doxygen documentation to the API.
- * There is a certain (huge) number of warnings, todos and remarks that must
- *  be corrected.
- * For example: function declared in DIET_server.h and implemented in
- * DIET_Data.cc ... Error code not understandable for users and not documented
- *
- * Revision 1.71  2010/07/12 16:17:51  glemahec
- * DIET 2.5 beta 1 - Introduce DIET forwarders
- *
- * Revision 1.70  2009/11/27 03:24:29  ycaniou
- * Add user_command possibility before the end of Batch prologue (only
- * to be used for batch dependent code!)
- * Memory leak/segfault--
- * New easy Batch basic example
- * Management of OAR2_X Batch scheduler
- *
- * Revision 1.69  2009/11/19 14:45:00  ycaniou
- * Walltime in profile is in seconds
- * Renamed Global var
- * Management of time HH:MM:SS in batch scripts
- *
- * Revision 1.68  2009/08/26 10:34:27  bisnard
- * added new API methods for workflows (data in/out, transcript)
- *
- * Revision 1.67  2009/07/23 12:25:20  bisnard
- * new API method to get functional wf results as a container
- *
- * Revision 1.66  2009/06/23 09:21:31  bisnard
- * added new estimation vector entry (EST_EFT)
- *
- * Revision 1.65  2009/03/27 09:09:40  bisnard
- * replace container size attr by dynamic value
- *
- * Revision 1.64  2009/01/22 09:01:04  bisnard
- * added client method to retrieve workflow container output
- *
- * Revision 1.63  2009/01/16 16:33:09  bisnard
- * added API method to provide data source filename for functional wf
- *
- * Revision 1.62  2008/12/12 15:29:51  bisnard
- * added wfReqId field to diet_wf_desc_t
- *
- * Revision 1.61  2008/12/02 10:22:09  bisnard
- * functional workflow submission API update
- *
- * Revision 1.60  2008/09/10 09:15:54  bisnard
- * new diet type for containers
- *
- * Revision 1.59  2008/07/10 08:07:50  ycaniou
- * Removed a warning
- *
- * Revision 1.58  2008/06/10 21:01:27  ycaniou
- * Cosmetics
- *
- * Revision 1.57  2008/05/16 12:21:50  bisnard
- * obsolete wf scheduler choice
- *
- * Revision 1.56  2008/05/11 16:19:48  ycaniou
- * Check that pathToTmp and pathToNFS exist
- * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
- * Rewrite of the propagation of the request concerning job parallel_flag
- * Implementation of Cori_batch system
- * Numerous information can be dynamically retrieved through batch systems
- *
- * Revision 1.55  2008/04/18 13:47:22  glemahec
- * Everything about DAGDA is now in utils/DAGDA directory.
- *
- * Revision 1.54  2008/04/10 09:13:30  bisnard
- * New version of the MaDag where workflow node execution is triggered by the MaDag agent and done by a new CORBA object CltWfMgr located in the client
- *
- * Revision 1.53  2008/04/07 15:33:40  ycaniou
- * This should remove all HAVE_BATCH occurences (still appears in the doc, which
- *   must be updated.. soon :)
- * Add the definition of DIET_BATCH_JOBID wariable in batch scripts
- *
- * Revision 1.52  2008/01/01 19:45:22  ycaniou
- * Modifications for batch management. Loadleveler is now ok.
- *
- * Revision 1.51  2007/12/18 13:04:27  glemahec
- * This commit adds the "diet_estimate_waiting_jobs" function to obtain the
- * number of jobs waiting in the FIFO queue when using the max concurrent
- * jobs limit. This function has to be used in the SeD plugin schedulers.
- *
- * Revision 1.50  2007/06/28 18:23:18  rbolze
- * add dietReqID in the profile.
- * and propagate this change to all functions that  have both reqID and profile parameters.
- * TODO : look at the asynchronous mechanism (client->SED) to propage this change.
- *
- * Revision 1.49  2007/05/30 11:16:33  aamar
- * Updating workflow runtime to support concurrent call (Reordering is not
- * working now - TO FIX -).
- *
- * Revision 1.48  2007/04/16 22:43:42  ycaniou
- * Make all necessary changes to have the new option HAVE_ALT_BATCH operational.
- * This is indented to replace HAVE_BATCH.
- *
- * First draw to manage batch systems with a new Cori plug-in.
- *
- * Revision 1.47  2007/03/26 13:10:42  glemahec
- * Adds the aggregator type DIET_AGG_USER for user agent scheduler.
- *
- * Revision 1.46  2006/11/06 12:09:40  aamar
- * Workflow support:
- *   - Add diet_wf_file_get and diet_wf_matrix_get methods.
- *
- * Revision 1.45  2006/10/20 09:51:47  aamar
- * Add the function get_all_results to the API (workflow).
- *
- * Revision 1.44  2006/08/30 11:56:13  ycaniou
- * Commit the changements on the API for batch/parallel submissions
- *
- * Revision 1.43  2006/07/25 14:23:17  ycaniou
- * Changed dietJobID field to dietReqID which is more coherent with the rest
- *   of the code
- *
- * Revision 1.42  2006/06/30 15:47:42  ycaniou
- * Coquilles, and batch stuff
- *
- * Revision 1.41  2006/06/01 13:02:38  ycaniou
- * BATCH: Add nbprocess field in diet_profile_t
- *
- * Revision 1.40  2006/04/18 13:10:17  ycaniou
- * C++ -> C commentaries to avoid warning
- *
- * Revision 1.39  2006/04/14 14:11:08  aamar
- * Adding the C data structures for workflow support and the methods for
- * their manipulation.
- * The function diet_wf_profile_free is no longer used -> TO REMOVE
- * The get methods is to move to DIET_client.h
- *       struct diet_wf_desc_t;
- *       diet_wf_desc_t* diet_wf_profile_alloc(const char* wf_file_name);
- *       void diet_wf_profile_free(diet_wf_desc_t * profile);
- *       int _diet_wf_scalar_get(const char * id, void** value);
- *       int _diet_wf_string_get(const char * id, char** value);
- *
- * Revision 1.38  2006/04/12 16:13:11  ycaniou
- * Commentaries C++->C to avoid compilation warnings
- *
- * Revision 1.37  2006/01/25 21:07:59  pfrauenk
- * CoRI - plugin scheduler: the type diet_est_tag_t est replace by int
- *        some new fonctions in DIET_server.h to manage the estVector
- *
- * Revision 1.36  2006/01/19 21:18:47  pfrauenk
- * CoRI: adding 2 new functions - correction of some comments
- *
- * Revision 1.35  2005/12/15 12:25:06  pfrauenk
- * CoRI functionality added by Peter Frauenkron
- *
- * Revision 1.34  2005/10/04 12:05:40  alsu
- * minor changes to pacify gcc/g++ 4.0
- *
- * Revision 1.33  2005/09/05 15:53:39  hdail
- * Addition of estimation tags EST_COMMPROXIMITY and EST_TRANSFEREFFORT.
- *
- * Revision 1.32  2005/08/31 14:34:30  alsu
- * New plugin scheduling interface: estVector_t is no longer a structure
- * in and of itself; but rather a pointer to a corba_estimation_t
- * object.
- *
- * Revision 1.31  2005/08/30 12:49:57  ycaniou
- * Added the  diet_submit_call_t in DIET_server.h and the dietJobID field in
- *   the diet_profile_t
- * Added some comments in batch.tex
- *
- * Revision 1.30  2005/06/27 09:53:10  alsu
- * corrected comments for the diet_string_get and diet_paramstring_get macros
- *
- * Revision 1.29  2005/05/27 08:18:16  mjan
- * Moving JuxMem in a more appropriate place (src/utils)
- * Added log messages for VizDIET
- * Added use of JuxMem in the client side
- *
- * Revision 1.28  2005/05/18 14:18:09  mjan
- * Initial adding of JuxMem support inside DIET. dmat_manips examples tested without JuxMem and with JuxMem
- *
- * Revision 1.27  2005/05/15 15:29:33  alsu
- * - adding new aggregator structure
- * - removing obsolete estimation tags
- *
- * Revision 1.26  2005/05/10 11:55:05  alsu
- * optimized and retested estimation vector
- *
- * Revision 1.25  2005/05/02 14:51:53  ycaniou
- * The client API has now the functions diet_call_batch() and diet_call_async_batch(). The client has also the possibility to modify the profile so that it is a batch, parallel or if he wants a special number of procs.
- * Changes in diet_profile_t and diet_profile_desc_t structures
- * Functions to register a parallel or batch problem.
- * The SeD developper must end its profile solve function by a call to diet_submit_batch().
- *
- * Revision 1.24  2004/12/15 18:09:58  alsu
- * cleaner, easier to document interface: changing diet_perfmetric_t back
- * to the simpler one-argument (of type diet_profile_t) version, and
- * hiding a copy of the pointer back to the SeD in the profile.
- *
- * Revision 1.23  2004/12/08 15:02:51  alsu
- * plugin scheduler first-pass validation testing complete.  merging into
- * main CVS trunk; ready for more rigorous testing.
- *
- * Revision 1.22.2.4  2004/11/26 16:54:30  alsu
- * string/paramstring functions calculate length on their own (so that
- * they can be null-terminated automatically)
- *
- * Revision 1.22.2.3  2004/11/24 09:30:15  alsu
- * - adding new datatype DIET_PARAMSTRING, which allows users to define
- *   strings for which the value is important for performance evaluation
- *   (and which is consequently stored in the argument description, much
- *   like what is done for DIET_SCALAR arguments)
- * - adding functions to access the type-specific data structures stored
- *   in the diet_data_desc_t.specific union (for use in custom
- *   performance metrics to access data such as those that are described
- *   above)
- *
- * Revision 1.22.2.2  2004/10/27 22:35:50  alsu
- * include
- *
- * Revision 1.22.2.1  2004/10/26 14:12:52  alsu
- * (Tag: AS-plugin-sched)
- *  - branch created to avoid conflicting with release 1.2 (imminent)
- *  - initial commit on branch, new dynamic performance info structure in
- *    the profile
- *
- * Revision 1.22  2004/02/27 10:31:47  bdelfabr
- * modifications applied to corresponding header files
- *
- * Revision 1.21  2003/10/21 13:30:08  bdelfabr
- * removing diet_matrix_set_with_id method
- *
- * Revision 1.20  2003/10/10 14:57:22  bdelfabr
- * adding diet_matrix_set_with_id
- *
- * Revision 1.19  2003/09/27 07:51:06  pcombes
- * Replace silly base type DIET_BYTE by DIET_SHORT.
- *
- * Revision 1.17  2003/07/25 20:37:36  pcombes
- * Separate the DIET API (slightly modified) from the GridRPC API (version of
- * the draft dated to 07/21/2003)
- *
- * Revision 1.14  2003/04/10 11:27:14  pcombes
- * Add the mode DIET_PERSISTENT_RETURN.
- *
- * Revision 1.13  2003/02/07 17:02:10  pcombes
- * Remove diet_value. Add diet_is_persistent and diet_free_data.
- * Unify diet_scalar_get prototype to the one of the other _get functions.
- *
- * Remove the descriptors set functions.
- * Add convertors in API :
- *     Convertors let DIET build the sequence of arguments, that the
- *     correspunding solver needs, from the client sequence of arguments
- *     (which might match another service declared with the same solver).
- * For compatibility with old API, just add NULL for the convertor argument in
- * diet_service_table_add. But all the solvers needed before in programs using
- * DIET can be transformed into convertors.
- ****************************************************************************/
+
 
 #ifndef _DIET_DATA_H_
 #define _DIET_DATA_H_
