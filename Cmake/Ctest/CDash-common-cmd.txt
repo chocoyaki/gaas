@@ -1,14 +1,12 @@
 ####### Ctest running
 ############################
 
-
 ####### Ctest running
 ############################
 ctest_start( ${MODEL} TRACK ${MODEL} )
 IF ( CVSFORCE MATCHES "1" )
   ctest_update()
 ENDIF( CVSFORCE MATCHES "1" )
-
 
 ####### Create the cache from compilation set 
 ############################
