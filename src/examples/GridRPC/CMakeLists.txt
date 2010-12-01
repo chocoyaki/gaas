@@ -9,6 +9,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.6  2010/12/01 06:32:42  bdepardo
+#* The server source file is server.c and not gridrpc_server.c
+#*
 #* Revision 1.5  2010/08/06 14:25:28  glemahec
 #* Cmake corrections + uuid lib module + fPIC error control
 #*
@@ -33,7 +36,7 @@ INCLUDE_DIRECTORIES( ${DIET_SOURCE_DIR}/include )     # For DIET_client.h
 ADD_EXECUTABLE( standard-test standard-test.c )
 TARGET_LINK_LIBRARIES( standard-test ${DIET_CLIENT_LIBRARIES} ${DIET_SERVER_LIBRARIES} )
 
-ADD_EXECUTABLE(gridrpc_server gridrpc_server.c )
+ADD_EXECUTABLE(server server.c )
 TARGET_LINK_LIBRARIES( gridrpc_server ${DIET_SERVER_LIBRARIES} )
 
 INSTALL( TARGETS standard-test gridrpc_server DESTINATION bin/examples/GridRPC )
