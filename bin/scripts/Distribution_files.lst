@@ -17,6 +17,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.50  2010/12/01 06:25:35  bdepardo
+#* Added missing files in src/examples/Batch
+#*
 #* Revision 1.49  2010/11/30 20:14:57  ecaron
 #* Some corrections about the required files
 #*
@@ -509,9 +512,11 @@ src/examples/Batch/TestAllBatch/CMakeLists.txt
 
 [Templated]
 src/examples/Batch/async_client.c
+src/examples/Batch/batch_client.c
 src/examples/Batch/batch_server.c
 src/examples/Batch/client.c
 src/examples/Batch/concatenation.c
+src/examples/Batch/parallel_server.c
 src/examples/Batch/sequential_server.c
 src/examples/Batch/TestAllBatch/allbatch_server.c
 src/examples/Batch/TestAllBatch/batch_server.c
