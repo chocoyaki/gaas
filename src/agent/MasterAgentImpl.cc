@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.64  2010/12/08 15:49:45  bdepardo
+ * Added missing include in Multi-MA mode
+ *
  * Revision 1.63  2010/11/24 15:18:08  bdepardo
  * searchData is now available on all agents. SeDs are now able to retrieve
  * a DAGDA data from an alias specified by a client.
@@ -237,19 +240,26 @@
  ****************************************************************************/
 
 
+#include <iostream>
+#include <cstdio>
+
+#if HAVE_DAGDA && HAVE_ADVANCED_UUID
+#include <uuid/uuid.h>
+#endif
+
+
 #include "MasterAgentImpl.hh"
 #include "debug.hh"
 #include "Parsers.hh"
 #include "statistics.hh"
 #include "ReferenceUpdateThread.hh"
 #include "FloodRequestsList.hh"
-#include <iostream>
-using namespace std;
-#include <stdio.h>
 
-#if HAVE_DAGDA && HAVE_ADVANCED_UUID
-#include <uuid/uuid.h>
+#ifdef HAVE_MULTI_MA
+#include "ORBMgr.hh"
 #endif
+
+using namespace std;
 
 
 #ifdef HAVE_WORKFLOW
