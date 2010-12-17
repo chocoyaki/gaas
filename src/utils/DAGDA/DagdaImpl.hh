@@ -8,6 +8,11 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.31  2010/12/17 09:48:01  kcoulomb
+ * * Set diet to use the new log with forwarders
+ * * Fix a CoRI problem
+ * * Add library version remove DTM flag from ccmake because deprecated
+ *
  * Revision 1.30  2010/10/15 02:38:55  bdepardo
  * Bug correction in INOUT data
  *
@@ -51,9 +56,10 @@
 #include "Dagda.hh"
 #include "common_types.hh"
 #include "DIET_data.h"
-#include "DietLogComponent.hh"
 #include "DataRelationMgr.hh"
-
+#ifdef USE_LOG_SERVICE
+#include "DietLogComponent.hh"
+#endif
 #include <unistd.h>
 
 #include <list>
@@ -78,7 +84,9 @@ public:
     gethostname(host, 256);
     host[255]='\0';
     hostname = CORBA::string_dup(host);
+#ifdef USE_LOG_SERVICE
     logComponent=NULL;
+#endif
   }
   ~DagdaImpl();
 	
@@ -318,8 +326,12 @@ public:
   void setID(char* ID) { this->ID = ID; }
   char* getID() { return CORBA::string_dup(this->ID); } // CORBA
   std::string getStateFile() { return stateFile; }
+
+#ifdef USE_LOG_SERVICE
   DietLogComponent* getLogComponent() { return logComponent; }
   void setLogComponent(DietLogComponent* comp) { logComponent=comp; }
+#endif //USE_LOG_SERVICE
+
   void setStateFile(std::string path) { stateFile=path; }
   void saveState();
   void restoreState();
@@ -346,7 +358,9 @@ private:
   std::map<std::string, corba_data_t> data;
   std::map<std::string, Dagda::dataStatus> dataStatus;
   std::string stateFile;
+#ifdef USE_LOG_SERVICE
   DietLogComponent* logComponent;
+#endif
 protected:
   DataRelationMgr* containerRelationMgr; // container-elements relationships
   omni_mutex dataMutex;

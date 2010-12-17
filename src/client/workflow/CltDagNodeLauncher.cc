@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2010/12/17 09:48:00  kcoulomb
+ * * Set diet to use the new log with forwarders
+ * * Fix a CoRI problem
+ * * Add library version remove DTM flag from ccmake because deprecated
+ *
  * Revision 1.6  2010/07/26 14:27:49  bisnard
  * fixed bug with undefined sed ref
  *
@@ -34,6 +39,7 @@
 #include "Dag.hh"
 #include "DagNode.hh"
 #include "EventTypes.hh"
+#include "ORBMgr.hh"
 
 using namespace events;
 

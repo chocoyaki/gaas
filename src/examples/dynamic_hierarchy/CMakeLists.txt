@@ -15,6 +15,7 @@ INCLUDE_DIRECTORIES(
   ${DIET_SOURCE_DIR}/include
 )
 
+
 # Client to connect an element to a new parent
 ADD_EXECUTABLE( connect connect.cc )
 TARGET_LINK_LIBRARIES( connect ${DIET_SERVER_LIBRARIES} AgentCommon)

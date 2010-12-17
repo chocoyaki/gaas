@@ -7,6 +7,11 @@
 /****************************************************************************/
 /* $Id$ 
  * $Log$
+ * Revision 1.12  2010/12/17 09:48:01  kcoulomb
+ * * Set diet to use the new log with forwarders
+ * * Fix a CoRI problem
+ * * Add library version remove DTM flag from ccmake because deprecated
+ *
  * Revision 1.11  2010/10/05 03:24:14  bdepardo
  * Constant for buffer size
  *
@@ -94,8 +99,9 @@ void (*failure_handler) (fd_handle) = NULL;
 /* notify client that h has changed state (is suspect, is not any more suspect) */
 void fd_notify(fd_handle h)
 {
+#ifdef USE_LOG_SERVICE
   if(h->log) h->log->logFailure(h->machine_name);
-  
+#endif  
   if (transition_handler != NULL) {
     transition_handler (h);
   }
@@ -126,7 +132,9 @@ fd_handle fd_make_handle (void)
   result->tdu = 0;
   result->tmrl = 0;
   result->tmu = 0;
+#ifdef USE_LOG_SERVICE
   result->log = NULL;
+#endif
   return result;
 }
 
@@ -169,6 +177,7 @@ int fd_set_service (fd_handle handle, const char* machine, int service_number)
     return 0;
   }
 }
+#ifdef USE_LOG_SERVICE
 
 void fd_set_logger(fd_handle handle, DietLogComponent *l)
 {
@@ -179,7 +188,7 @@ void fd_get_logger(fd_handle handle, DietLogComponent **l)
 {
   *l = handle->log;
 }
-
+#endif
 /* frees a handle */
 void fd_free_handle (fd_handle handle)
 {

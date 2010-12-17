@@ -22,6 +22,7 @@ FOREACH( loop_var ${C_CLIENT_EXAMPLES} )
   INSTALL( TARGETS ${loop_var} DESTINATION bin/examples/dmat_manips )
 ENDFOREACH( loop_var )
 
+
 ####################################### C++ written examples
 SET( CXX_EXAMPLES
   serialClient

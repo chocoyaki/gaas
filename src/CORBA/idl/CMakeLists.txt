@@ -75,16 +75,13 @@ set(IDL_SOURCES
   common_types
   Agent
   Callback
-  LogComponent
   LocalAgent
-  LogTypes
   MasterAgent
   response
   SeD
   AgentFwdr
   CallbackFwdr
   LocalAgentFwdr
-  LogComponentFwdr
   MasterAgentFwdr
   SeDFwdr
   Forwarder
@@ -140,9 +137,9 @@ foreach(loop_var ${IDL_SOURCES})
   )
   set(IDL_GENERATED_HEADERS
     ${IDL_GENERATED_HEADERS}
-		${CMAKE_CURRENT_BINARY_DIR}/${loop_var}.hh
-		CACHE INTERNAL "CORBA generated headers"
-  )
+    ${CMAKE_CURRENT_BINARY_DIR}/${loop_var}.hh
+    CACHE INTERNAL "CORBA generated headers"
+    )
 endforeach(loop_var)
 
 # Create the CORBAFiles target.
@@ -153,3 +150,4 @@ add_custom_target(CORBAFiles
 # Compile the main static CORBA library
 add_library(DIET_CORBA STATIC ${DIET_CORBA_SOURCES})
 add_dependencies(DIET_CORBA ${IDL_GENERATED_HEADERS})
+

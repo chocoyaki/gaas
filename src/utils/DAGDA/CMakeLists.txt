@@ -28,7 +28,8 @@ if (DIET_TRANSFER_PROGRESSION)
 endif (DIET_TRANSFER_PROGRESSION)
 
 add_library(DIET_Dagda ${DAGDA_SOURCES})
-  
+SET_TARGET_PROPERTIES (DIET_Dagda  PROPERTIES VERSION ${DIET_VERSION})
+
 set(DAGDA_Libs
   DIET_CORBA
   CorbaCommon
@@ -38,6 +39,12 @@ set(DAGDA_Libs
   pthread
   ${OMNIORB4_LIBRARIES}
 )
+
+if (DIET_USE_LOG)
+set(DAGDA_Libs
+  ${DAGDA_Libs}
+  DietLogLibrary)
+endif (DIET_USE_LOG)
 
 if (CYGWIN)
   set(DAGDA_Libs
@@ -52,3 +59,9 @@ target_link_libraries(DIET_Dagda
 
 install(TARGETS DIET_Dagda DESTINATION lib)
 install( FILES DIET_Dagda.h DESTINATION include)
+
+if (DIET_USE_LOG)
+  include_directories(
+    ${LOG_SRC_DIR}
+    ${DIET_SOURCE_DIR}/src/utils/log)
+endif (DIET_USE_LOG)

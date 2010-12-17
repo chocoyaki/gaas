@@ -5,6 +5,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.67  2010/12/17 09:47:59  kcoulomb
+ * * Set diet to use the new log with forwarders
+ * * Fix a CoRI problem
+ * * Add library version remove DTM flag from ccmake because deprecated
+ *
  * Revision 1.66  2010/11/24 15:18:08  bdepardo
  * searchData is now available on all agents. SeDs are now able to retrieve
  * a DAGDA data from an alias specified by a client.
@@ -264,7 +269,9 @@ AgentImpl::AgentImpl()
 #endif // ! HAVE_DAGDA
   this->myName               = NULL;
   this->localHostName        = NULL;
+#ifdef USE_LOG_SERVICE
   this->dietLogComponent     = NULL;
+#endif
 } // AgentImpl()
 
 AgentImpl::~AgentImpl()
@@ -373,11 +380,12 @@ char* AgentImpl::getDataManager() {
 }
 #endif // HAVE_DAGDA
 
+#ifdef USE_LOG_SERVICE
 void
 AgentImpl::setDietLogComponent(DietLogComponent* dietLogComponent) {
   this->dietLogComponent = dietLogComponent;
 }
-
+#endif
 
 /****************************************************************************/
 /* Subscribing and adding services                                          */
@@ -537,10 +545,11 @@ AgentImpl::removeElementChildren(bool recursive) {
 void
 AgentImpl::removeElementClean(bool recursive) {
   removeElementChildren(recursive);
-
+#ifdef USE_LOG_SERVICE
   /* Log */
   if (dietLogComponent != NULL)
     dietLogComponent->logRemoveElement();
+#endif
 }
 #endif // HAVE_DYNAMICS
 

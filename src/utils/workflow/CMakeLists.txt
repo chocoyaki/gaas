@@ -14,6 +14,21 @@ include_directories(
   ${XERCES_INCLUDE_DIR}
 )
 
+
+if (DIET_USE_LOG)
+  include_directories(
+    ${LOG_SRC_DIR}
+    ${LOG_SRC_DIR}/monitor
+    ${LOG_SRC_DIR}/idl
+    ${DIET_SOURCE_DIR}/src/utils/log)
+
+  set(Forwarder_Libs
+    ${Forwarder_Libs}
+    DietLogLibrary)
+
+endif (DIET_USE_LOG)
+
+
 add_library(UtilsWf STATIC
   WfLogDispatcher.cc
   WfNode.cc Dag.cc MetaDag.cc FWorkflow.cc FNode.cc

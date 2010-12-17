@@ -1,6 +1,7 @@
 #include "CltWfLogCentralDispatcher.hh"
 #include "debug.hh"
 
+#ifdef USE_LOG_SERVICE
 CltWfLogCentralDispatcher::CltWfLogCentralDispatcher(DietLogComponent* LC): myLC(LC)
 {
   if (myLC == NULL) {
@@ -45,4 +46,4 @@ CltWfLogCentralDispatcher::onDagNodeFailed(const events::EventFrom< DagNodeLaunc
 			);
 }
 
-
+#endif

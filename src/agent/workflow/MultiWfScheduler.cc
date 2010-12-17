@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.57  2010/12/17 09:48:00  kcoulomb
+ * * Set diet to use the new log with forwarders
+ * * Fix a CoRI problem
+ * * Add library version remove DTM flag from ccmake because deprecated
+ *
  * Revision 1.56  2010/08/27 07:41:53  bisnard
  * Fixed warning
  *
@@ -220,8 +225,10 @@
 #include <iomanip>
 #include "debug.hh"
 #include "statistics.hh"
+#ifdef USE_LOG_SERVICE
 #include "DietLogComponent.hh"
-
+#endif
+#include "ORBMgr.hh"
 #include "MaDag_impl.hh"
 #include "MultiWfScheduler.hh"
 #include "HEFTScheduler.hh"
@@ -971,9 +978,11 @@ MultiWfScheduler::releaseDag(Dag * dag) {
       message = cltMan->release(dagId.c_str(), !dag->isCancelled());
       TRACE_TEXT (TRACE_ALL_STEPS," Release message : " << message << endl);
        // INFORM LOGMANAGER
+#ifdef USE_LOG_SERIVCE
       if (myMaDag->dietLogComponent != NULL) {
         myMaDag->dietLogComponent->logDag(message);
       }
+#endif
       stat_flush();
       delete message;
   } catch(CORBA::SystemException& e) {

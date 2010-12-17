@@ -1,6 +1,7 @@
 #include "MaDagLogCentralDispatcher.hh"
 #include "debug.hh"
 
+#ifdef USE_LOG_SERVICE
 MaDagLogCentralDispatcher::MaDagLogCentralDispatcher(DietLogComponent* LC): myLC(LC)
 {
   if (myLC == NULL) {
@@ -23,3 +24,4 @@ MaDagLogCentralDispatcher::onDagNodeReady(const events::EventFrom< DagNode, even
   myLC->logWfNodeReady(event->getSource()->getDag()->getId().c_str(),
 		       event->getSource()->getId().c_str());
 }
+#endif

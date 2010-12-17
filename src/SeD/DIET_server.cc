@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.94  2010/12/17 09:47:59  kcoulomb
+ * * Set diet to use the new log with forwarders
+ * * Fix a CoRI problem
+ * * Add library version remove DTM flag from ccmake because deprecated
+ *
  * Revision 1.93  2010/11/24 12:30:42  bdepardo
  * Changed logComponenent initialization, now uses the real SeD name.
  *
@@ -239,8 +244,11 @@ using namespace std;
 #include "Parsers.hh"
 #include "SeDImpl.hh"
 #include "Vector.h"
+
+#ifdef USE_LOG_SERVICE
 #include "DietLogComponent.hh"
 #include "MonitoringThread.hh"
+#endif
 
 #if HAVE_CORI
 #include "CORIMgr.hh"
@@ -776,8 +784,11 @@ diet_SeD(const char* config_file_name, int argc, char* argv[])
   int    myargc;
   char** myargv;
   char*  name;
+#ifdef USE_LOG_SERVICE
   DietLogComponent* dietLogComponent;     /* LogService */
   MonitoringThread* monitoringThread;
+#endif
+
 #if HAVE_JUXMEM
   JuxMem::Wrapper* juxmem;
 #else
@@ -915,6 +926,7 @@ diet_SeD(const char* config_file_name, int argc, char* argv[])
   TRACE_TEXT(TRACE_MAIN_STEPS, "setServerStatus " << (int)st << endl);
 #endif
 
+#ifdef USE_LOG_SERVICE
   /* Set SeD to use LogService object */
   if (useLS) {
     TRACE_TEXT(TRACE_ALL_STEPS, "* LogService: enabled" << endl);
@@ -922,7 +934,7 @@ diet_SeD(const char* config_file_name, int argc, char* argv[])
     parentName = (char*)Parsers::Results::getParamValue
       (Parsers::Results::PARENTNAME);
 
-    dietLogComponent = new DietLogComponent(SeD->getName(), outBufferSize);
+    dietLogComponent = new DietLogComponent(SeD->getName(), outBufferSize, myargc, (char**)myargv);
 
     ORBMgr::getMgr()->activate(dietLogComponent);
     if (dietLogComponent->run("SeD", parentName, flushTime) != 0) {
@@ -939,6 +951,7 @@ diet_SeD(const char* config_file_name, int argc, char* argv[])
   // Just start the thread, as it might not be FAST-related
   monitoringThread = new MonitoringThread(dietLogComponent);
   SeD->setDietLogComponent(dietLogComponent);
+#endif
 
   /* Activate SeD */
   ORBMgr::getMgr()->activate(SeD);
@@ -962,7 +975,9 @@ diet_SeD(const char* config_file_name, int argc, char* argv[])
   dtmName="DataMgr-"+dtmName;
 
   dataMgr = new DataMgrImpl(dtmName.c_str());
+#ifdef USE_LOG_SERVICE
   dataMgr->setDietLogComponent(dietLogComponent);
+#endif
   ORBMgr::getMgr()->activate(dataMgr);
   ORBMgr::getMgr()->bind(DATAMGRCTXT, dtmName, dataMgr->_this(), true);
   ORBMgr::getMgr()->fwdsBind(DATAMGRCTXT, dtmName,
@@ -974,7 +989,9 @@ diet_SeD(const char* config_file_name, int argc, char* argv[])
   SeD->linkToDataMgr(dataMgr);
 #else
   dataManager = DagdaFactory::getSeDDataManager();
+#ifdef USE_LOG_SERVICE
   dataManager->setLogComponent( dietLogComponent ); // modif bisnard_logs_1
+#endif
 
   ORBMgr::getMgr()->activate(dataManager);
   SeD->setDataManager(dataManager);

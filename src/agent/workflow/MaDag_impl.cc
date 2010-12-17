@@ -10,6 +10,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.34  2010/12/17 09:48:00  kcoulomb
+ * * Set diet to use the new log with forwarders
+ * * Fix a CoRI problem
+ * * Add library version remove DTM flag from ccmake because deprecated
+ *
  * Revision 1.33  2010/07/27 15:05:26  glemahec
  * Bug correction
  *
@@ -214,10 +219,12 @@ myName(name), myMultiWfSched(NULL), wfReqIdCounter(0), dagIdCounter(0) {
 	
   TRACE_TEXT(TRACE_MAIN_STEPS, endl <<  "MA DAG " << this->myName << " created." << endl);
   TRACE_TEXT(NO_TRACE, "## MADAG_IOR " << ORBMgr::getMgr()->getIOR(this->_this()) << endl);
+#ifdef USE_LOG_SERVICE
   this->setupDietLogComponent();
   if (dietLogComponent != NULL) {
     EventManager::getEventMgr()->addObserver(new MaDagLogCentralDispatcher(dietLogComponent));
   }
+#endif
   // starting the multiwfscheduler
   switch (schedType) {
     case BASIC:
@@ -492,6 +499,7 @@ MaDag_impl::setPlatformType(MaDag::pfmType_t pfmType) {
   }
 }
 
+#ifdef USE_LOG_SERVICE
 /**
  * Get the DietLogComponent
  */
@@ -561,7 +569,7 @@ MaDag_impl::setupDietLogComponent(){
 		(Parsers::Results::NAME);
     // the agent names should be correct if we arrive here
 		
-    this->dietLogComponent = new DietLogComponent(agtName, outBufferSize);
+    this->dietLogComponent = new DietLogComponent(agtName, outBufferSize, 0, NULL);
     ORBMgr::getMgr()->activate(dietLogComponent);
 		
     agtTypeName = strdup("MA_DAG");
@@ -578,6 +586,7 @@ MaDag_impl::setupDietLogComponent(){
     this->dietLogComponent = NULL;
   }
 }
+#endif
 
 MaDagFwdrImpl::MaDagFwdrImpl(Forwarder_ptr fwdr, const char* objName) {
   this->forwarder = Forwarder::_duplicate(fwdr);

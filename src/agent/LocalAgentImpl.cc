@@ -10,6 +10,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.22  2010/12/17 09:47:59  kcoulomb
+ * * Set diet to use the new log with forwarders
+ * * Fix a CoRI problem
+ * * Add library version remove DTM flag from ccmake because deprecated
+ *
  * Revision 1.21  2010/11/24 15:18:08  bdepardo
  * searchData is now available on all agents. SeDs are now able to retrieve
  * a DAGDA data from an alias specified by a client.
@@ -129,10 +134,12 @@ LocalAgentImpl::disconnect() {
       
       /* Unsubscribe data manager */
       this->dataManager->unsubscribeParent();
-			
+
+#ifdef USE_LOG_SERVICE
       /* Log */
       if (dietLogComponent != NULL)
       	dietLogComponent->logDisconnect();
+#endif
     } catch (CORBA::Exception& e) {
       CORBA::Any tmp;
       tmp <<= e;
@@ -210,9 +217,11 @@ LocalAgentImpl::bindParent(const char * parentName) {
     /* Data manager also needs to connect to the new parent */
     this->dataManager->subscribeParent(parentName);
 		
+#ifdef USE_LOG_SERVICE
     /* Log */
     if (dietLogComponent != NULL)
       dietLogComponent->logNewParent("LA", parentName);
+#endif
   } catch (CORBA::Exception& e) {
     CORBA::Any tmp;
     tmp <<= e;
@@ -402,9 +411,11 @@ LocalAgentImpl::getRequest(const corba_request_t& req)
 #endif
   char statMsg[128];
 	
+#ifdef USE_LOG_SERVICE
   if (dietLogComponent != NULL) {
     dietLogComponent->logAskForSeD(&req);
   }
+#endif
 	
   Request* currRequest = new Request(&req);
 	
@@ -418,9 +429,11 @@ LocalAgentImpl::getRequest(const corba_request_t& req)
   corba_response_t& resp = *(this->findServer(currRequest, req.max_srv));
   resp.myID = this->childID;
 
+#ifdef USE_LOG_SERVICE
   if (dietLogComponent != NULL) {
     dietLogComponent->logSedChosen(&req, &resp);
   }
+#endif
 	
   /* The agent is an LA, the response must be sent to the parent */
 #ifndef HAVE_DYNAMICS

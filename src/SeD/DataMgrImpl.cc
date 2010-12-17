@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.32  2010/12/17 09:47:59  kcoulomb
+ * * Set diet to use the new log with forwarders
+ * * Fix a CoRI problem
+ * * Add library version remove DTM flag from ccmake because deprecated
+ *
  * Revision 1.31  2010/07/12 16:14:10  glemahec
  * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
  *
@@ -112,8 +117,10 @@ DataMgrImpl::DataMgrImpl(const char* id)
   this->childID  = (childID)-1;
   this->parent = LocMgr::_nil();
   this->dataDescList.clear();
+#ifdef USE_LOG_SERVICE
   this->dietLogComponent = NULL;
-	this->id = CORBA::string_dup(id);
+#endif
+  this->id = CORBA::string_dup(id);
 }
 
 DataMgrImpl::~DataMgrImpl(){
@@ -156,12 +163,12 @@ DataMgrImpl::run()
   this->childID = this->parent->dataMgrSubscribe(this->id, localHostName);
   return 0;
 }
-
+#ifdef USE_LOG_SERVICE
 void
 DataMgrImpl::setDietLogComponent(DietLogComponent* dietLogComponent) {
   this->dietLogComponent = dietLogComponent;
 }
-
+#endif
 char *
 DataMgrImpl::setMyName() {
 	return CORBA::string_dup((const char*)(this->localHostName));
@@ -283,6 +290,7 @@ DataMgrImpl::addDataDescToList(corba_data_t* dataDesc, int inout) // FIXME : die
   }
  
   char * type_data = (char *)malloc(10*sizeof(char));
+#ifdef USE_LOG_SERVICE
   if (dietLogComponent != NULL) {
     switch ((diet_data_type_t)(dataDesc->desc.specific._d())) {
       case DIET_SCALAR: {
@@ -311,6 +319,7 @@ DataMgrImpl::addDataDescToList(corba_data_t* dataDesc, int inout) // FIXME : die
     }
     dietLogComponent->logDataStore(dataDesc->desc.id.idNumber, data_sizeof(&(dataDesc->desc)),(long)(dataDesc->desc.base_type), type_data);
   }
+#endif
 }// addDataDescToList(corba_data_t* dataDesc, int inout)
 
 
@@ -329,10 +338,11 @@ DataMgrImpl::changePath(corba_data_t& dataDesc, char * newPath)
 void
 DataMgrImpl::rmDataDescFromList(char* argID)
 {
+#ifdef USE_LOG_SERVICE
   if (dietLogComponent != NULL) {
     dietLogComponent->logDataRelease(argID);
   }
-
+#endif
   corba_data_t &the_data= dataDescList[ms_strdup(argID)] ;
   //CORBA::Char *p1 (NULL);
   //  p1 = pbc.parameters[i].value.get_buffer(1);
@@ -551,11 +561,12 @@ DataMgrImpl::putData(const char* argID, const char* name)
     dest->value.replace(dest->desc.specific.file().size,dest->desc.specific.file().size , dataValue, 1);
   }
   
+#ifdef USE_LOG_SERVICE
   // FIXME: we cannot get the name of the receiving agent yet
   if (dietLogComponent != NULL) {
     dietLogComponent->logDataBeginTransfer(argID, "");
   }
-
+#endif
   struct timeval t1, t2;
   gettimeofday(&t1, NULL);
   me->sendData(*dest);
@@ -563,11 +574,12 @@ DataMgrImpl::putData(const char* argID, const char* name)
   TRACE_TEXT(TRACE_MAIN_STEPS,"TIME TO SENDATA = " 
   << ((t2.tv_sec - t1.tv_sec) + ((float)(t2.tv_usec - t1.tv_usec))/1000000)  << endl);
 
+#ifdef USE_LOG_SERVICE
   // FIXME: we cannot get the name of the receiving agent yet
   if (dietLogComponent != NULL) {
     dietLogComponent->logDataEndTransfer(argID, "");
   }
-
+#endif
   delete dest;
 } // putData(const char* argID, const DataMgr_ptr me)
 

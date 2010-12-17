@@ -115,18 +115,14 @@ option(DIET_WITH_MULTI_MA   "Build DIET with MULTI-Master-Agent support." OFF)
 option(DIET_USE_USERSCHED   "Build DIET with user scheduler support (Experimental)." OFF)
 option(DIET_USE_ENDIANNESS  "Build DIET with endianness management  (Experimental)." OFF)
 option(DIET_USE_CCS         "Build DIET with client custom scheduling  (Experimental)." OFF)
+set (DIET_USE_DAGDA CACHE INTERNAL ON FORCE)
 if (NOT DIET_USE_DTM)
   option(DIET_TRANSFER_PROGRESSION "Build DIET with DAGDA progression API" OFF )
 endif (NOT DIET_USE_DTM)
 option(DIET_USE_ACKFILE     "Build DIET with acknowledge file." OFF)
 
 if (DIET_USE_DYNAMICS OR DIET_USE_WORKFLOW)
-	if (DIET_USE_DTM)
-    set(DIET_USE_DTM OFF CACHE BOOL "DTM support" FORCE)
-		message(WARNING "DTM was deactivated for dynamic and/or workflow support.")
-	endif (DIET_USE_DTM)
 endif (DIET_USE_DYNAMICS OR DIET_USE_WORKFLOW)
-option(DIET_USE_DTM "Build DIET with DTM as data manager." OFF)
 
 # Profiling, used to add counters with TAU (http://http://www.cs.uoregon.edu/research/tau/home.php)
 option( DIET_TAU_PROFILING "Build DIET with TAU profiling support. (In developpment)." OFF )
@@ -134,12 +130,6 @@ mark_as_advanced(DIET_TAU_PROFILING)
 option( DIET_USE_MULTICALL "Build DIET with the multiple async call (In development)" OFF)
 mark_as_advanced(DIET_USE_MULTICALL)
 
-# Now Dagda is the default DIET data manager.
-if (DIET_USE_DTM)
-  set(DIET_USE_DAGDA OFF CACHE INTERNAL "Use Dagda as data manager" FORCE)
-else (DIET_USE_DTM)
-  set(DIET_USE_DAGDA ON CACHE INTERNAL "Use Dagda as data manager" FORCE)
-endif (DIET_USE_DTM)
 
 # JXTA architecture is deprecated
 #option(DIET_USE_JXTA   "Build DIET with JXTA architecture support." OFF)
@@ -402,6 +392,13 @@ if (DIET_USE_USERSCHED)
   add_definitions(-DUSERSCHED)
 endif(DIET_USE_USERSCHED)
 
+# Now Dagda is the default DIET data manager.
+if (DIET_USE_DTM)
+  set(DIET_USE_DAGDA OFF CACHE INTERNAL "Use Dagda as data manager" FORCE)
+else (DIET_USE_DTM)
+  set(DIET_USE_DAGDA ON CACHE INTERNAL "Use Dagda as data manager" FORCE)
+endif (DIET_USE_DTM)
+
 # --------------- Dagda as data manager support ---------------
 if (DIET_USE_DAGDA)
   find_package(UUID)
@@ -412,8 +409,23 @@ if (DIET_USE_DAGDA)
   if (DIET_TRANSFER_PROGRESSION)
     add_definitions(-DDAGDA_PROGRESSION)
   endif (DIET_TRANSFER_PROGRESSION)
+else (DIET_USE_DAGDA)
+  set (DIET_USE_DYNAMICS OFF)
 endif (DIET_USE_DAGDA)
 
+
+#-------------------- DIET log service use -------------------
+option(DIET_USE_LOG "Allow Diet to send log message to log service " OFF)
+
+if (DIET_USE_LOG)
+  find_package (LOGSERVICE)
+  if (LOGSERVICE_FOUND)
+    add_definitions(-DUSE_LOG_SERVICE)
+  else(LOGSERIVCE_FOUND)
+  set(LOGSERVICE_DIR "" CACHE PATH "Root of log service install tree.")
+  endif (LOGSERVICE_FOUND)
+  
+endif (DIET_USE_LOG)
 # --------------- DIET Endianness support  ------------------
 if (DIET_USE_ENDIANNESS)
   add_definitions(-DWITH_ENDIANNESS)

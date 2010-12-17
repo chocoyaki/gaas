@@ -8,6 +8,11 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.39  2010/12/17 09:48:01  kcoulomb
+ * * Set diet to use the new log with forwarders
+ * * Fix a CoRI problem
+ * * Add library version remove DTM flag from ccmake because deprecated
+ *
  * Revision 1.38  2010/10/15 07:25:08  glemahec
  * Correction. Needs more tests
  *
@@ -236,8 +241,10 @@ char* DagdaImpl::sendFile(const corba_data_t &data, const char* destName) {
   Transfers::getInstance()->newTransfer(string(data.desc.id.idNumber)+">>"+destHost,
                                         fileSize);
 #endif
+#ifdef USE_LOG_SERVICE
   if (getLogComponent())
     getLogComponent()->logDataBeginTransfer(data.desc.id.idNumber, dest->getID());
+#endif
   for (unsigned long i=0; i<nBlocks; ++i) {
     SeqChar buffer;
     unsigned long toSend = (fileSize-wrote > getMaxMsgSize() ?
@@ -258,8 +265,10 @@ char* DagdaImpl::sendFile(const corba_data_t &data, const char* destName) {
     Transfers::getInstance()->incProgress(string(data.desc.id.idNumber)+">>"+destHost);
 #endif
   }
+#ifdef USE_LOG_SERVICE
   if (getLogComponent())
     getLogComponent()->logDataEndTransfer(data.desc.id.idNumber, dest->getID());
+#endif
   return distPath;
 }
 
@@ -994,6 +1003,7 @@ corba_data_t* SimpleDagdaImpl::addData(const corba_data_t& data) {
   if (data.desc.specific._d()==DIET_SCALAR) useMemSpace(data.value.length());
   dataMutex.unlock();
   /* Log with DietLogComponent. */
+#ifdef USE_LOG_SERVICE
   if (getLogComponent()!=NULL) {
     string dType;
     switch (data.desc.specific._d()) {
@@ -1019,10 +1029,11 @@ corba_data_t* SimpleDagdaImpl::addData(const corba_data_t& data) {
         dType = "UNKNOWN";
     }
     getLogComponent()->logDataStore(data.desc.id.idNumber,
-																		data_sizeof(&data.desc),
-																		data.desc.base_type,
-																		dType.c_str());
+				    data_sizeof(&data.desc),
+				    data.desc.base_type,
+				    dType.c_str());
   }
+#endif
   return &(*getData())[string(data.desc.id.idNumber)];
 }
 
@@ -1048,9 +1059,11 @@ void SimpleDagdaImpl::remData(const char* dataID) {
     }
   }
   dataMutex.unlock();
+#ifdef USE_LOG_SERVICE
   if (getLogComponent()) {
     getLogComponent()->logDataRelease(dataID);
   }
+#endif
 }
 
 SeqCorbaDataDesc_t* SimpleDagdaImpl::getDataDescList() {

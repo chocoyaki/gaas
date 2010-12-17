@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2010/12/17 09:48:02  kcoulomb
+ * * Set diet to use the new log with forwarders
+ * * Fix a CoRI problem
+ * * Add library version remove DTM flag from ccmake because deprecated
+ *
  * Revision 1.2  2010/03/31 21:15:41  bdepardo
  * Changed C headers into C++ headers
  *
@@ -52,7 +57,9 @@ int
 Easy_Memory::get_Total_Memory(double * result)
 {
   double temp1,temp2,temp3;
+  fprintf (stderr, "Getting total memory \n");
   if (!get_Info_Memory_byProcMem(&temp1,0)){
+    fprintf (stderr, "Getting total memory 1 : result = %lf\n", temp1);
     *result=temp1;
     return 0;
   }
@@ -61,6 +68,7 @@ Easy_Memory::get_Total_Memory(double * result)
       &&(!get_Avail_Memory_byvmstat(&temp2))
       &&(!get_Avail_Memory_bysysinfo(&temp3)))
   {
+    fprintf (stderr, "Getting total memory 2 : result1 = %lf, result2 = %lf, result3=%lf\n",temp1, temp2, temp3);
     double pagesize= temp2/temp3;
     *result=temp1*pagesize;
     return 0;
@@ -102,7 +110,9 @@ Easy_Memory::get_Total_Memory_bysysinfo(double * result)
   // int getpagesize (void)
   // Inquire about the virtual memory page size of the machine.
 #if defined CORI_HAVE_get_avphys_pages && defined (CORI_HAVE_getpagesize)
-  *result=get_phys_pages ()*getpagesize()/(1024*1024);
+  fprintf (stderr, "phys %lf \n", (double)get_phys_pages ());
+  fprintf (stderr, "page %lf \n", (double)getpagesize ());
+  *result=(get_phys_pages ()/1024)*(getpagesize()/1024);
   return 0;
 #else
     //chercher autre solutions

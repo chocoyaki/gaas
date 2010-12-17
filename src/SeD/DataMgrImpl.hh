@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2010/12/17 09:47:59  kcoulomb
+ * * Set diet to use the new log with forwarders
+ * * Fix a CoRI problem
+ * * Add library version remove DTM flag from ccmake because deprecated
+ *
  * Revision 1.16  2010/07/12 16:14:10  glemahec
  * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
  *
@@ -75,8 +80,9 @@
 #include "ServiceTable.hh"
 #include "LinkedList.hh"
 #include "ts_container/ts_map.hh"
+#ifdef USE_LOG_SERVICE
 #include "DietLogComponent.hh"
-
+#endif
 #include "Forwarder.hh"
 #include "DataMgrFwdr.hh"
 
@@ -103,6 +109,7 @@ public:
   int
   run();
 
+#ifdef USE_LOG_SERVICE
   /**
    * Sets the dietLogComponent of this DataMgr. If this function
    * is not called or the parameter is NULL, no monitoring information
@@ -110,7 +117,7 @@ public:
    */
   void
   setDietLogComponent(DietLogComponent* dietLogComponent);
-
+#endif
   void
   printvalue(double *value,long unsigned int size);
   /** look for data presence */
@@ -200,13 +207,14 @@ private:
   /** List of lock to manage data transmission */
   dietDataIDLockList_t lockList;
 
+#ifdef USE_LOG_SERVICE
   /**
    * The dietLogComponent. This ptr can be null to indicate that
    * no monitoring information must be generated, so don't forget
    * to check it before usage.
    */
   DietLogComponent* dietLogComponent;
-
+#endif
   /**************************************************************************/
   /* Private methods                                                        */
   /**************************************************************************/

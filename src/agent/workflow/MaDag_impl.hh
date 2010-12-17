@@ -11,6 +11,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.25  2010/12/17 09:48:00  kcoulomb
+ * * Set diet to use the new log with forwarders
+ * * Fix a CoRI problem
+ * * Add library version remove DTM flag from ccmake because deprecated
+ *
  * Revision 1.24  2010/07/12 16:14:11  glemahec
  * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
  *
@@ -136,7 +141,9 @@
 #include "MultiWfScheduler.hh"
 #include "CltMan.hh"
 #include "MaDag.hh"
+#ifdef USE_LOG_SERVICE
 #include "DietLogComponent.hh"
+#endif
 #include "DagWfParser.hh"
 #include "MetaDag.hh"
 
@@ -231,6 +238,7 @@ public:
   virtual void
       setPlatformType(MaDag::pfmType_t pfmType);
 
+#ifdef USE_LOG_SERVICE
    /**
    * Ptr to the DietLogComponent. This ptr can be NULL, so it has to
    * be checked every time it is used. If it is NULL, no monitoring
@@ -243,7 +251,7 @@ public:
    */
   DietLogComponent*
       getDietLogComponent();
-
+#endif
   /**
    * Get the MA
    */
@@ -285,11 +293,13 @@ protected:
               MetaDag * mDag = NULL)
         throw (MaDag::InvalidDag);
 
+#ifdef USE_LOG_SERVICE
   /**
    * setup the DietLogComponent
    */
   void
   setupDietLogComponent();
+#endif
 
 private:
   /**

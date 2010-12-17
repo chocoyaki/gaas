@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.21  2010/12/17 09:48:02  kcoulomb
+ * * Set diet to use the new log with forwarders
+ * * Fix a CoRI problem
+ * * Add library version remove DTM flag from ccmake because deprecated
+ *
  * Revision 1.20  2010/07/20 09:20:11  bisnard
  * integration with eclipse gui and with dietForwarder
  *
@@ -87,6 +92,7 @@
 #include "FDataHandle.hh"
 #include "DagNode.hh"
 #include "Dag.hh"
+#include "ORBMgr.hh"
 
 /*****************************************************************************/
 /*                            FDataTag class                                 */

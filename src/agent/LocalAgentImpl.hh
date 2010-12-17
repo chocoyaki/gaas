@@ -10,6 +10,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2010/12/17 09:47:59  kcoulomb
+ * * Set diet to use the new log with forwarders
+ * * Fix a CoRI problem
+ * * Add library version remove DTM flag from ccmake because deprecated
+ *
  * Revision 1.9  2010/11/24 15:18:08  bdepardo
  * searchData is now available on all agents. SeDs are now able to retrieve
  * a DAGDA data from an alias specified by a client.
@@ -64,7 +69,7 @@ class LocalAgentImpl : public POA_LocalAgent, public AgentImpl
 public :
 
   LocalAgentImpl();
-  ~LocalAgentImpl() {};
+  ~LocalAgentImpl(){};
 
   /** Force call for POA_LocalAgent::_this. */
   inline LocalAgent_ptr

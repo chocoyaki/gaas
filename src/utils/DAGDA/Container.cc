@@ -8,6 +8,11 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2010/12/17 09:48:01  kcoulomb
+ * * Set diet to use the new log with forwarders
+ * * Fix a CoRI problem
+ * * Add library version remove DTM flag from ccmake because deprecated
+ *
  * Revision 1.8  2010/07/12 16:14:12  glemahec
  * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
  *
@@ -45,6 +50,7 @@
 #include "Container.hh"
 #include "DagdaFactory.hh"
 #include "DagdaImpl.hh"
+#include "ORBMgr.hh"x
 
 using namespace std;
 

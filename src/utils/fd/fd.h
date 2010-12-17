@@ -7,6 +7,11 @@
 /****************************************************************************/
 /* $Id$ 
  * $Log$
+ * Revision 1.4  2010/12/17 09:48:01  kcoulomb
+ * * Set diet to use the new log with forwarders
+ * * Fix a CoRI problem
+ * * Add library version remove DTM flag from ccmake because deprecated
+ *
  * Revision 1.3  2006/06/20 13:29:16  abouteil
  *
  *
@@ -21,7 +26,9 @@
 #include <unistd.h>
 #include <netdb.h>
 
+#ifdef USE_LOG_SERVICE
 #include "DietLogComponent.hh"
+#endif
 
 /* type of handles - should be condidered opaque */
 typedef struct _fd_handle {
@@ -32,7 +39,9 @@ typedef struct _fd_handle {
 	char* machine_name;	/* observed machine name */
 	in_addr_t address;	/* observed machine IP address */
 	int service_number;	/* observed service */
+#ifdef USE_LOG_SERVICE
         DietLogComponent *log;  /* Diet centralized log service to use */
+#endif
 } _fd_handle;
 typedef struct _fd_handle* fd_handle;
 
@@ -55,11 +64,13 @@ void fd_get_service (fd_handle handle, char*, int, int*);
 /* sets the machine name and service number of a handle */
 int fd_set_service (fd_handle handle, const char*, int);
 
+#ifdef USE_LOG_SERVICE
 /* sets the diet logger of a handle */
 void fd_set_logger(fd_handle handle, DietLogComponent *l);
 
 /* gets the current diet logger used by a handle */
 void fd_get_logger(fd_handle handle, DietLogComponent **l);
+#endif
 
 /* frees a handle */
 void fd_free_handle (fd_handle handle);

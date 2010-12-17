@@ -11,6 +11,13 @@
     ${DIET_SOURCE_DIR}/src/utils/nodes        # for DIET_data_internal.hh
     ${DIET_SOURCE_DIR}/include
     )
+if (DIET_USE_LOG)
+  include_directories(
+    ${LOG_SRC_DIR}
+    ${LOG_SRC_DIR}/idl
+    ${LOG_SRC_DIR}/monitor
+    ${DIET_SOURCE_DIR}/src/utils/log)
+endif(DIET_USE_LOG)
   
   ADD_LIBRARY( fd STATIC
     application_watcher.cc

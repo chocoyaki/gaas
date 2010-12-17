@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2010/12/17 09:47:59  kcoulomb
+ * * Set diet to use the new log with forwarders
+ * * Fix a CoRI problem
+ * * Add library version remove DTM flag from ccmake because deprecated
+ *
  * Revision 1.6  2010/11/24 15:12:56  bdepardo
  * searchData is now available on all agents. SeDs are now able to retrieve
  * a DAGDA data from an alias specified by a client.
@@ -33,6 +38,7 @@
 #include "ORBMgr.hh"
 #include <string>
 #include <iostream>
+#include <stdio.h>
 
 using namespace std;
 
@@ -56,22 +62,22 @@ using namespace std;
 }
 
 ::CORBA::Long DIETForwarder::serverSubscribe(const char* seDName,
-																						 const char* hostname,
+					     const char* hostname,
 #ifdef HAVE_JXTA
-																						 const char* uuid,
+					     const char* uuid,
 #endif
-																						 const ::SeqCorbaProfileDesc_t& services,
-																						 const char* objName)
+					     const ::SeqCorbaProfileDesc_t& services,
+					     const char* objName)
 {
-	string objString(objName);
-	string name;
+  string objString(objName);
+  string name;
 	
 	if (!remoteCall(objString)) {
-		return getPeer()->serverSubscribe(seDName, hostname,
+	  return getPeer()->serverSubscribe(seDName, hostname,
 #ifdef HAVE_JXTA
-																 uuid,
+					    uuid,
 #endif
-																 services, objString.c_str());
+					    services, objString.c_str());
 	}
 	name = getName(objString);
 	

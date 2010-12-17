@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2010/12/17 09:47:59  kcoulomb
+ * * Set diet to use the new log with forwarders
+ * * Fix a CoRI problem
+ * * Add library version remove DTM flag from ccmake because deprecated
+ *
  * Revision 1.5  2010/07/27 16:16:49  glemahec
  * Forwarders robustness
  *
@@ -33,7 +38,7 @@
 #include "AgentFwdr.idl"
 #include "CallbackFwdr.idl"
 #include "LocalAgentFwdr.idl"
-#include "LogComponentFwdr.idl"
+//#include "LogComponentFwdr.idl"
 #include "MasterAgentFwdr.idl"
 #include "SeDFwdr.idl"
 
@@ -54,7 +59,7 @@ interface Forwarder :
   MasterAgentForwarder
 	, CallbackForwarder
 	, SeDForwarder
-	, ComponentConfiguratorForwader
+  //	, ComponentConfiguratorForwader
 #if HAVE_WORKFLOW
   , CltManForwarder
 	, MaDagForwarder

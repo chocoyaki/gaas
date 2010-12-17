@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2010/12/17 09:47:59  kcoulomb
+ * * Set diet to use the new log with forwarders
+ * * Fix a CoRI problem
+ * * Add library version remove DTM flag from ccmake because deprecated
+ *
  * Revision 1.8  2010/08/04 09:06:18  glemahec
  * Parallel compilation
  *
@@ -324,12 +329,12 @@ public:
   ::CORBA::Long rm_pdata(const char* argID, const char* objName);
 #endif // HAVE_DAGDA
 	/* LogComponentFwdr implementation. */
-	void setTagFilter(const ::tag_list_t& tagList,
-										const char* objName);
-  void addTagFilter(const ::tag_list_t& tagList,
-										const char* objName);
-  void removeTagFilter(const ::tag_list_t& tagList,
-											 const char* objName);
+//	void setTagFilter(const ::tag_list_t& tagList,
+//										const char* objName);
+//  void addTagFilter(const ::tag_list_t& tagList,
+//										const char* objName);
+//  void removeTagFilter(const ::tag_list_t& tagList,
+//											 const char* objName);
   void test(const char* objName);
 #ifdef HAVE_WORKFLOW
 	/* MaDagFwdr implementation. */

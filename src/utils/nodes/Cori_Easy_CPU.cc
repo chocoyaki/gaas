@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2010/12/17 09:48:02  kcoulomb
+ * * Set diet to use the new log with forwarders
+ * * Fix a CoRI problem
+ * * Add library version remove DTM flag from ccmake because deprecated
+ *
  * Revision 1.2  2010/03/31 21:15:41  bdepardo
  * Changed C headers into C++ headers
  *
@@ -119,11 +124,10 @@ Easy_CPU::get_CPU_Bogomips(vector <double> * vlist){
   
 int 
 Easy_CPU::get_CPU_Number(double * result){
-  
-if ((!get_CPU_Number_byget_nprocs(result))||
-    (!get_CPU_Number_byNum_Proc(result)))
-  { return 0;}
-    else return 1;
+  if ((!get_CPU_Number_byget_nprocs(result))||
+      (!get_CPU_Number_byNum_Proc(result)))
+    return 0;
+  return 1;
 }
 
 
@@ -194,10 +198,11 @@ Easy_CPU::get_CPU_Number_byget_nprocs(double * result){
 /* For these two pieces of information the GNU C library also provides */
 /* functions to get the information directly. The functions are        */
 /* declared in sys/sysinfo.h This function is a GNU extension.         */
-
+  fprintf (stderr, "TADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n");
 #ifdef CORI_HAVE_get_nprocs
- 
+  fprintf (stderr, "Getting nprocs : res=%lf \n", *result);
   *result=get_nprocs ();
+  fprintf (stderr, "-> nprocs : res=%lf \n", *result);
   return 0;
   
 #endif

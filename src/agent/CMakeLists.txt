@@ -1,5 +1,6 @@
 # DIET cmake local file
 
+
 if (HAVE_ALT_BATCH)
   include_directories(
       ${OMNIORB4_INCLUDE_DIR}
@@ -109,6 +110,12 @@ if (DIET_USE_WORKFLOW)
   )
 endif (DIET_USE_WORKFLOW)
 
+if (DIET_USE_LOG)
+  set (dietAgent_Libs
+    ${dietAgent_Libs}
+    DietLogLibrary)
+endif (DIET_USE_LOG)
+
 target_link_libraries(dietAgent ${dietAgent_Libs})
 
 if (DIET_USE_WORKFLOW)
@@ -148,14 +155,14 @@ if (DIET_USE_JXTA)
     DEPENDS   ${CMAKE_CURRENT_BINARY_DIR}/LA.class
     COMMENT   "java header compile local agent"
   )
-  set_source_file_properties( 
+  set_source_files_properties( 
     ${CMAKE_CURRENT_SOURCE_DIR}/localAgentJNI.cc
     PROPERTIES
       OBJECT_DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/LA.h
       COMPILE_FLAGS "-I${JAVA_INCLUDE_PATH}"
   )
 
-  include_direcories(${CMAKE_CURRENT_BINARY_DIR})  # For LA.h ...
+  include_directories(${CMAKE_CURRENT_BINARY_DIR})  # For LA.h ...
   add_library(dietLocalAgent ${CMAKE_CURRENT_SOURCE_DIR}/localAgentJNI.cc)
   
   add_custom_command(
@@ -184,7 +191,7 @@ if (DIET_USE_JXTA)
     COMMENT   "java header compile master agent"
   )
 
-  set_source_file_properties( 
+  set_source_files_properties( 
     ${CMAKE_CURRENT_SOURCE_DIR}/masterAgentJNI.cc
     PROPERTIES
       OBJECT_DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/JXTAMultiMA.h
@@ -194,3 +201,10 @@ if (DIET_USE_JXTA)
   include_directories(${CMAKE_CURRENT_BINARY_DIR})
   add_library(dietMasterAgent ${CMAKE_CURRENT_SOURCE_DIR}/masterAgentJNI.cc)  
 endif (DIET_USE_JXTA)
+
+
+if (DIET_USE_LOG)
+  include_directories(
+    ${LOG_SRC_DIR}
+    ${DIET_SOURCE_DIR}/src/utils/log)
+endif (DIET_USE_LOG)

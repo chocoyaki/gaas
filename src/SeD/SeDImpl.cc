@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.125  2010/12/17 09:47:59  kcoulomb
+ * * Set diet to use the new log with forwarders
+ * * Fix a CoRI problem
+ * * Add library version remove DTM flag from ccmake because deprecated
+ *
  * Revision 1.124  2010/11/24 12:30:17  bdepardo
  * Added getName() method.
  * Moved name and hostname initialization from run() to initialize() method,
@@ -312,6 +317,10 @@ using namespace std;
 #include <ctime>
 #include <sys/types.h>
 
+
+#include <sstream>
+
+
 #ifdef HAVE_DYNAMICS
 #include <csignal>
 #endif // HAVE_DYNAMICS
@@ -395,7 +404,9 @@ SeDImpl::initialize()
   this->localHostName[0] = '\0';
   (this->lastSolveStart).tv_sec = -1;
   (this->lastSolveStart).tv_usec = -1;
+#ifdef USE_LOG_SERVICE
   this->dietLogComponent = NULL;
+#endif
 
 #if !HAVE_CORI && HAVE_FAST
   this->fastUse = 1;
@@ -462,14 +473,16 @@ SeDImpl::disconnect() {
       /* Unsubscribe data manager */
       this->dataManager->unsubscribeParent();
 
+#ifdef USE_LOG_SERVICE
       /* Log */
       if (dietLogComponent != NULL)
       	dietLogComponent->logDisconnect();
+#endif
     } catch (CORBA::Exception& e) {
       CORBA::Any tmp;
       tmp <<= e;
       CORBA::TypeCode_var tc = tmp.type();
-      WARNING("exception caught (" << tc->name() << ") while unsubscribing to "
+      WARNING("exception caught 11(" << tc->name() << ") while unsubscribing to "
 	      << "parent: either the latter is down, "
 	      << "or there is a problem with the CORBA name server");
       rv = 1;
@@ -517,7 +530,7 @@ SeDImpl::bindParent(const char * parentName) {
       CORBA::Any tmp;
       tmp <<= e;
       CORBA::TypeCode_var tc = tmp.type();
-      WARNING("exception caught (" << tc->name() << ") while unsubscribing to "
+      WARNING("exception caught 22(" << tc->name() << ") while unsubscribing to "
 	      << "parent: either the latter is down, "
 	      << "or there is a problem with the CORBA name server");
     }
@@ -537,15 +550,16 @@ SeDImpl::bindParent(const char * parentName) {
 
     /* Data manager also needs to connect to the new parent */
     this->dataManager->subscribeParent(parentName);
-
+#ifdef USE_LOG_SERVICE
     /* Log */
     if (dietLogComponent != NULL)
       dietLogComponent->logNewParent("SeD", parentName);
+#endif
   } catch (CORBA::Exception& e) {
     CORBA::Any tmp;
     tmp <<= e;
     CORBA::TypeCode_var tc = tmp.type();
-    WARNING("exception caught (" << tc->name() << ") while subscribing to "
+    WARNING("exception caught 33(" << tc->name() << ") while subscribing to "
 	    << parentName << ": either the latter is down, "
 	    << "or there is a problem with the CORBA name server");
     rv = 1;
@@ -588,9 +602,11 @@ SeDImpl::removeElementClean() {
 
   delete profiles;
 
+#ifdef USE_LOG_SERVICE
   /* Log */
   if (dietLogComponent != NULL)
     dietLogComponent->logRemoveElement();
+#endif
 }
 
 #endif // HAVE_DYNAMICS
@@ -668,11 +684,13 @@ SeDImpl::run(ServiceTable* services)
 
   profiles = SrvT->getProfiles();
 
+#ifdef USE_LOG_SERVICE
   if (dietLogComponent != NULL) {
     for (CORBA::ULong i=0; i<profiles->length(); i++) {
       dietLogComponent->logAddService(&((*profiles)[i]));
     }
   }
+#endif // USE_LOG_SERVICE
 
 #ifdef HAVE_DYNAMICS
   if (! CORBA::is_nil(parent)) {
@@ -782,10 +800,12 @@ SeDImpl::setDataManager(DagdaImpl* dataManager) {
 }
 #endif
 
+#ifdef USE_LOG_SERVICE
 void
 SeDImpl::setDietLogComponent(DietLogComponent* dietLogComponent) {
   this->dietLogComponent = dietLogComponent;
 }
+#endif
 
 /*
 ** The server receives a request by an agent
@@ -1016,9 +1036,11 @@ SeDImpl::solve(const char* path, corba_profile_t& pb)
   sprintf(statMsg, "solve %ld", (unsigned long) pb.dietReqID);
   stat_in("SeD",statMsg);
 
+#ifdef USE_LOG_SERVICE
   if (dietLogComponent != NULL) {
     dietLogComponent->logBeginSolve(path, &pb);
   }
+#endif
 
   this->jobQueue->setJobStarted(pb.dietReqID);
 
@@ -1029,9 +1051,11 @@ SeDImpl::solve(const char* path, corba_profile_t& pb)
   /* Data transfer */
   downloadSyncSeDData(profile,pb,cvt) ;
 
+#ifdef USE_LOG_SERVICE
   if (dietLogComponent != NULL) {
     dietLogComponent->logEndDownload(path, &pb);
   }
+#endif
 
   /* Copying the name of the service in the profile...
    * Not sure this should be done here, but currently it isn't done
@@ -1060,9 +1084,11 @@ SeDImpl::solve(const char* path, corba_profile_t& pb)
   stat_out("SeD",statMsg);
   stat_flush();
 
+#ifdef USE_LOG_SERVICE
   if (dietLogComponent != NULL) {
     dietLogComponent->logEndSolve(path, &pb);
   }
+#endif
 
   if (this->useConcJobLimit){
     this->accessController->releaseResource();
@@ -1123,9 +1149,11 @@ SeDImpl::parallel_solve(const char* path, corba_profile_t& pb,
 
   this->jobQueue->setJobStarted(pb.dietReqID);
 
+#ifdef USE_LOG_SERVICE
   if (dietLogComponent != NULL) {
     dietLogComponent->logBeginSolve(path, &pb);
   }
+#endif
 
   TRACE_TEXT(TRACE_MAIN_STEPS, "SeD::parallel_solve() invoked on pb: "
 	     << path << endl);
@@ -1163,9 +1191,11 @@ SeDImpl::parallel_solve(const char* path, corba_profile_t& pb,
   stat_out("SeD",statMsg);
   stat_flush();
 
+#ifdef USE_LOG_SERVICE
   if (dietLogComponent != NULL) {
     dietLogComponent->logEndSolve(path, &pb);
   }
+#endif
 
   this->jobQueue->setJobFinished(profile.dietReqID);
   this->jobQueue->deleteJob(profile.dietReqID);
@@ -1225,9 +1255,11 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
 	sprintf(statMsg, "solveAsync %ld", (unsigned long) pb.dietReqID);
 	stat_in("SeD",statMsg);
 
+#ifdef USE_LOG_SERVICE
 	if (dietLogComponent != NULL) {
 	  dietLogComponent->logBeginSolve(path, &pb);
 	}
+#endif
 
 	TRACE_TEXT(TRACE_MAIN_STEPS,
 		   "SeD::solveAsync invoked on pb: " << path
@@ -1254,9 +1286,11 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
 	stat_out("SeD",statMsg);
 	stat_flush();
 
+#ifdef USE_LOG_SERVICE
 	if (dietLogComponent != NULL) {
 	  dietLogComponent->logEndSolve(path, &pb);
 	}
+#endif
 
 	/* Release resource before returning the data.  Caution: this could be a
 	 * problem for applications with lots of data. */
@@ -1288,15 +1322,15 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
     CORBA::TypeCode_var tc = tmp.type();
     const char * p = tc->name();
     if (*p != '\0') {
-      ERROR("exception caught in SeD::" << __FUNCTION__ << '(' << p << ')',);
+      ERROR("exception caught 55in SeD::" << __FUNCTION__ << '(' << p << ')',);
     } else {
-      ERROR("exception caught in SeD::" << __FUNCTION__
+      ERROR("exception caught 66in SeD::" << __FUNCTION__
 	    << '(' << tc->id() << ')',);
     }
   } catch (...) {
     // Process any other exceptions. This would catch any other C++
     // exceptions and should probably never occur
-    ERROR("unknown exception caught",);
+    ERROR("unknown exception caught 77",);
   }
 }
 
@@ -1338,9 +1372,11 @@ SeDImpl::parallel_AsyncSolve(const char * path, const corba_profile_t & pb,
       sprintf(statMsg, "solve_AsyncParallel %ld", (unsigned long) pb.dietReqID);
       stat_in("SeD",statMsg);
 
+#ifdef USE_LOG_SERVICE
       if (dietLogComponent != NULL) {
 	dietLogComponent->logBeginSolve(path, &pb);
       }
+#endif
 
       TRACE_TEXT(TRACE_MAIN_STEPS,
 		 "SeD::solve_AsyncParallel invoked on pb: " << path
@@ -1401,9 +1437,11 @@ SeDImpl::parallel_AsyncSolve(const char * path, const corba_profile_t & pb,
       stat_out("SeD",statMsg);
       stat_flush();
 
+#ifdef USE_LOG_SERVICE
       if (dietLogComponent != NULL) {
 	dietLogComponent->logEndSolve(path, &pb);
       }
+#endif
 
       /* Release resource before returning the data.  Caution: this could be a
        * problem for applications with lots of data. */
@@ -2053,9 +2091,11 @@ SeDImpl::addService(const corba_profile_desc_t& profile)
   profiles.length(1);
   profiles[0] = this->SrvT->getProfile(sref);
 
+#ifdef USE_LOG_SERVICE
   if (dietLogComponent != NULL) {
     dietLogComponent->logAddService(&(profiles[0]));
   }
+#endif
 
   return parent->addServices(this->childID, profiles);
 }

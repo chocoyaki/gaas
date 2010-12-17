@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2010/12/17 09:47:59  kcoulomb
+ * * Set diet to use the new log with forwarders
+ * * Fix a CoRI problem
+ * * Add library version remove DTM flag from ccmake because deprecated
+ *
  * Revision 1.10  2010/10/28 06:53:49  bdepardo
  * Bind messages are more explicit
  *
@@ -48,9 +53,13 @@
 #include "AgentImpl.hh"
 #include "CallbackImpl.hh"
 #include "LocalAgentImpl.hh"
-#include "DietLogComponent.hh"
 #include "MasterAgentImpl.hh"
 #include "SeDImpl.hh"
+
+#ifdef USE_LOG_SERVICE
+#include "DietLogComponent.hh"
+#endif
+
 #ifndef HAVE_DAGDA
 #include "DataMgrImpl.hh"
 #include "LocMgrImpl.hh"

@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.1  2010/12/17 09:48:01  kcoulomb
+ * * Set diet to use the new log with forwarders
+ * * Fix a CoRI problem
+ * * Add library version remove DTM flag from ccmake because deprecated
+ *
  * Revision 1.5  2010/11/10 02:41:23  kcoulomb
  * Small modifications to use the log service (LogService divided in 2 separated contexts, one for components and one for tools)
  *
@@ -95,14 +100,16 @@
 #define _DIETLOGCOMPONENT_HH_
 
 #include "LogComponent.hh"
+#include "DIET_data.h"
 
 #include "omnithread.h"
-#include "ORBMgr.hh"
-#include "common_types.hh"
+#include "LogORBMgr.hh"
+#include "commonLogTypes.hh"
 #include "response.hh"
+#include "common_types.hh"
 
-#include "Forwarder.hh"
-#include "LogComponentFwdr.hh"
+//#include "CorbaLogForwarder.hh"
+//#include "LogComponentFwdr.hh"
 
 
 #define PINGTHREAD_SYNCHRO_FREQUENCY      60
@@ -264,7 +271,7 @@ public:
    * messages will not be cached but sent immediately.
    */
   DietLogComponent(const char* name,
-		   int outBufferMaxSize);
+		   int outBufferMaxSize, int argc, char** argv);
 
   /**
    * Release the memory allocated by this class;
@@ -567,11 +574,11 @@ class DietLogComponentFwdr:  public POA_ComponentConfigurator,
   public PortableServer::RefCountServantBase
 {
 protected:
-	Forwarder_ptr forwarder;
+	CorbaLogForwarder_ptr forwarder;
 	char* objName;
 public:
-	DietLogComponentFwdr(Forwarder_ptr fwdr, const char* objName);
-	void setTagFilter(const tag_list_t& tagList);
+  DietLogComponentFwdr(CorbaLogForwarder_ptr fwdr, const char* objName);
+  void setTagFilter(const tag_list_t& tagList);
   void addTagFilter(const tag_list_t& tagList);
   void removeTagFilter(const tag_list_t& tagList);
   void test();

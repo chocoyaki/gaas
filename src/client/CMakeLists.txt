@@ -14,6 +14,12 @@ include_directories(
   ${DIET_SOURCE_DIR}/src/agent
 )
 
+if (DIET_USE_LOG)
+  include_directories(
+    ${LOG_SRC_DIR}
+    ${DIET_SOURCE_DIR}/src/utils/log)
+endif (DIET_USE_LOG)
+
 if (DIET_USE_WORKFLOW)
   include_directories( ${XERCES_INCLUDE_DIR} )
 endif ( DIET_USE_WORKFLOW)
@@ -51,6 +57,7 @@ add_library(DIET_client
   ${DIET_client_SOURCES}
 )
 
+SET_TARGET_PROPERTIES (DIET_client  PROPERTIES VERSION ${DIET_VERSION})
 
 # DIET client shared & static libraries depends on CORBA files.
 add_dependencies(DIET_client CORBAFiles)
@@ -98,6 +105,7 @@ if (DIET_USE_DAGDA)
   )
 endif( DIET_USE_DAGDA )
 
+
 target_link_libraries( DIET_client
   ${DIET_client_Libs}
 )
@@ -124,5 +132,13 @@ endif (DIET_USE_FD)
 if (NOT BUILD_SHARED_LIBS)
   target_link_libraries(DIET_client stdc++)
 endif (NOT BUILD_SHARED_LIBS)
+
+
+# Link with log only if log enabled
+if (DIET_USE_LOG)
+  Target_link_libraries(DIET_client
+    DietLogLibrary)
+endif (DIET_USE_LOG)
+
 
 install(TARGETS DIET_client DESTINATION lib)

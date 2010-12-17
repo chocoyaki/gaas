@@ -10,6 +10,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.151  2010/12/17 09:48:00  kcoulomb
+ * * Set diet to use the new log with forwarders
+ * * Fix a CoRI problem
+ * * Add library version remove DTM flag from ccmake because deprecated
+ *
  * Revision 1.150  2010/11/05 02:56:12  glemahec
  * Remove omni_thread_fatal error: MA_MUTEX is now a pointer initialized at the beginning of diet_initialize.
  *
@@ -380,7 +385,10 @@ using namespace std;
 #include "Parsers.hh"
 #include "SeD.hh"
 #include "statistics.hh"
+
+#ifdef USE_LOG_SERVICE
 #include "DietLogComponent.hh"
+#endif
 
 #if HAVE_DAGDA
 #include "DIET_Dagda.hh"
@@ -434,9 +442,10 @@ char* REF_CALLBACK_SERVER;
 static MaDag_var MA_DAG = MaDag::_nil();
 #endif
 
+#ifdef USE_LOG_SERVICE
 /** The DietLogComponent */
 DietLogComponent* dietLogComponent;
-
+#endif
 
 /****************************************************************************/
 /* Manage MA name and Session Number for data persistency issue             */
@@ -653,6 +662,7 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
       useLS = true;
     }
   }
+#ifdef USE_LOG_SERVICE
   if (useLS) {
     OBSptr = (unsigned int*)Parsers::Results::getParamValue(
   	       Parsers::Results::LSOUTBUFFERSIZE);
@@ -677,13 +687,13 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
                           (Parsers::Results::MANAME);
 
     if (userDefName != NULL){
-      dietLogComponent = new DietLogComponent(userDefName, outBufferSize);
+      dietLogComponent = new DietLogComponent(userDefName, outBufferSize, argc, argv);
     } else {
 #if HAVE_DAGDA
       // Use DAGDA agent as component name (same ref as in data transfer logs)
-      dietLogComponent = new DietLogComponent(DagdaFactory::getClientName(), outBufferSize);
+      dietLogComponent = new DietLogComponent(DagdaFactory::getClientName(), outBufferSize, argc, argv);
 #else
-      dietLogComponent = new DietLogComponent("", outBufferSize);
+      dietLogComponent = new DietLogComponent("", outBufferSize, argc, argv);
 #endif
     }
     ORBMgr::getMgr()->activate(dietLogComponent);
@@ -697,6 +707,7 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
   } else {
     dietLogComponent = NULL;
   }
+#endif
   // end modif bisnard_logs_1
 
   //create_file();
@@ -716,7 +727,9 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
 #if HAVE_DAGDA
   // Dagda component activation.
   DagdaImpl* tmpDataManager = DagdaFactory::getClientDataManager();
+#ifdef USE_LOG_SERVICE
   tmpDataManager->setLogComponent( dietLogComponent ); // modif bisnard_logs_1
+#endif
   ORBMgr::getMgr()->activate(tmpDataManager);
 #endif // HAVE_DAGDA
 
@@ -736,7 +749,9 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
     }
     else {
       CltWfMgr::instance()->setMaDag(MA_DAG);
+#ifdef USE_LOG_SERVICE
       CltWfMgr::instance()->setLogComponent(dietLogComponent);
+#endif
     }
   } // end if (MA_DAG_name != NULL)
   

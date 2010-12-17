@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.51  2010/12/17 09:47:59  kcoulomb
+ * * Set diet to use the new log with forwarders
+ * * Fix a CoRI problem
+ * * Add library version remove DTM flag from ccmake because deprecated
+ *
  * Revision 1.50  2010/11/24 12:30:17  bdepardo
  * Added getName() method.
  * Moved name and hostname initialization from run() to initialize() method,
@@ -249,9 +254,12 @@
 #include "DIET_data_internal.hh"
 #include "response.hh"
 #include "ServiceTable.hh"
-#include "DietLogComponent.hh"
 #include "AccessController.hh"
 #include "JobQueue.hh"
+
+#ifdef USE_LOG_SERVICE
+#include "DietLogComponent.hh"
+#endif
 
 #if ! HAVE_JUXMEM
 #if ! HAVE_DAGDA
@@ -319,6 +327,7 @@ public:
   linkToJuxMem(JuxMem::Wrapper* juxmem);
 #endif // ! HAVE_JUXMEM
 
+#ifdef USE_LOG_SERVICE
   /**
    * Set the DietLogComponent of this SeD. If this function is not
    * called or the parameter is NULL, no monitoring information is
@@ -326,6 +335,7 @@ public:
    */
   void
   setDietLogComponent(DietLogComponent* dietLogComponent);
+#endif
 
   virtual void
   getRequest(const corba_request_t& req);
@@ -482,13 +492,14 @@ private:
   omni_mutex fastMutex; //FIXME : is never in use!!
 #endif //!HAVE_CORI && HAVE_FAST
 
+#ifdef USE_LOG_SERVICE
   /**
    * The actual dietLogComponent of this SeD. If it contains NULL,
    * no monitoring information must be gathered, so it must be checked
    * each time before it is used.
    */
   DietLogComponent* dietLogComponent;
-
+#endif
 
   /**************************************************************************/
   /* Private methods                                                        */

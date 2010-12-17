@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.21  2010/12/17 09:48:02  kcoulomb
+ * * Set diet to use the new log with forwarders
+ * * Fix a CoRI problem
+ * * Add library version remove DTM flag from ccmake because deprecated
+ *
  * Revision 1.20  2010/07/20 09:20:11  bisnard
  * integration with eclipse gui and with dietForwarder
  *
@@ -82,6 +87,7 @@ extern "C" {
 #include "DagdaFactory.hh"
 #include "DagdaImpl.hh"
 #include "EventTypes.hh"
+#include "ORBMgr.hh"
 
 using namespace std;
 using namespace events;

@@ -42,7 +42,7 @@ ENDIF( INLINE_SUPPORTED )
 ### Is the C compiler ANSI C-conforming for const ?
 CHECK_C_COMPILER_SUPPORTS_CONST( CONST_SUPPORTED )
 IF( NOT CONST_SUPPORTED )
-  SET( DIET_CMAKE_C_FLAGS "${DIET_CMAKE_C_FLAGS} -Dconst=\"\"" )
+  SET( DIET_CMAKE_C_FLAGS "${DIET_CMAKE_C_FLAGS} -Dconst=\"\" " ) # Modif de -Dconst=\"\" par -Dconst=. Modif non stable sur toute les machines
 ENDIF( NOT CONST_SUPPORTED )
 
 ### Pass the results to cmake internal flags:

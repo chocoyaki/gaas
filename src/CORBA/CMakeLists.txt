@@ -79,7 +79,7 @@ set(Forwarder_SOURCES
   forwarders/Callback.cc
   forwarders/MasterAgent.cc
   forwarders/SeD.cc
-  forwarders/LogComponent.cc
+#  forwarders/LogComponent.cc
 )
 
 if (DIET_USE_DAGDA)
@@ -174,3 +174,17 @@ if (DIET_USE_USERSCHED)
 endif (DIET_USE_USERSCHED)
   
 install(TARGETS dietForwarder DESTINATION bin)
+
+
+if (DIET_USE_LOG)
+  include_directories(
+    ${LOG_SRC_DIR}
+    ${LOG_SRC_DIR}/monitor
+    ${LOG_SRC_DIR}/idl
+    ${DIET_SOURCE_DIR}/src/utils/log)
+
+  set(Forwarder_Libs
+    ${Forwarder_Libs}
+    DietLogLibrary)
+
+endif (DIET_USE_LOG)

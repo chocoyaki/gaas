@@ -14,7 +14,9 @@ set(DIET_Utils_SOURCES
   Vector.c
 )
 
-
+if (DIET_USE_LOG)
+  add_subdirectory (log)
+endif (DIET_USE_LOG)
 
 if (DIET_USE_DAGDA)
   set(DIET_Utils_SOURCES

@@ -8,6 +8,7 @@ set(DIET_SeD_SOURCES
   SeDImpl.cc
 )
 
+
 if (NOT DIET_USE_DAGDA)
   set(DIET_SeD_SOURCES
       ${DIET_SeD_SOURCES}
@@ -40,6 +41,12 @@ include_directories(${OMNIORB4_INCLUDE_DIR}
   ${DIET_BINARY_DIR}/src/CORBA/idl
 )
   
+if (DIET_USE_LOG)
+  include_directories(
+    ${LOG_SRC_DIR}
+    ${DIET_SOURCE_DIR}/src/utils/log)
+endif (DIET_USE_LOG)
+
 if (DIET_USE_JUXMEM)
   include_directories(${JUXMEM_INCLUDE_DIR})
 endif (DIET_USE_JUXMEM)
@@ -50,6 +57,7 @@ endif (DIET_USE_DAGDA)
 
 
 add_library(DIET_SeD ${DIET_SeD_SOURCES})
+SET_TARGET_PROPERTIES (DIET_SeD PROPERTIES VERSION ${DIET_VERSION})
 
 # DIET_Sed shared & static libraries depends on CORBA files.
 add_dependencies(DIET_SeD CORBAFiles)
@@ -67,6 +75,12 @@ if (DIET_USE_DAGDA)
   )
 endif (DIET_USE_DAGDA)
 
+# Link with log only if log enabled
+if (DIET_USE_LOG)
+  set(DIET_SeD_Libs
+    ${DIET_SeD_Libs}
+    DietLogLibrary)
+endif (DIET_USE_LOG)
 
 # common DIET libs
 set(DIET_SeD_Libs
@@ -77,6 +91,7 @@ set(DIET_SeD_Libs
   DIET_Utils
   ${OMNIORB4_LIBRARIES}
 )
+
 
 # CORI
 if (NOT DIET_USE_ALT_BATCH)

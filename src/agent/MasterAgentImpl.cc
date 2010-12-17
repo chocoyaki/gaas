@@ -10,6 +10,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.65  2010/12/17 09:48:00  kcoulomb
+ * * Set diet to use the new log with forwarders
+ * * Fix a CoRI problem
+ * * Add library version remove DTM flag from ccmake because deprecated
+ *
  * Revision 1.64  2010/12/08 15:49:45  bdepardo
  * Added missing include in Multi-MA mode
  *
@@ -509,9 +514,11 @@ MasterAgentImpl::submit(const corba_pb_desc_t& pb_profile,
     creq.clientLocationID = CORBA::string_dup(clientLocID);
 #endif // HAVE_ALTPREDICT
 		
+#ifdef USE_LOG_SERVICE
     if (dietLogComponent != NULL) {
       dietLogComponent->logAskForSeD(&creq);
     }
+#endif
 		
     decision = submit_local(creq) ;
 		
@@ -560,9 +567,11 @@ MasterAgentImpl::submit(const corba_pb_desc_t& pb_profile,
     WARNING("An exception was caught" << endl) ;
   }
 	
+#ifdef USE_LOG_SERVICE
   if (dietLogComponent != NULL) {
     dietLogComponent->logSedChosen(&creq, decision);
   }
+#endif
 	
   TRACE_TEXT(TRACE_MAIN_STEPS,
 	     "**************************************************" << endl);
@@ -976,9 +985,11 @@ MasterAgentImpl::logNeighbors() {
   knownMAs.unlock() ;
   TRACE_TEXT(TRACE_MAIN_STEPS, "Multi-MAs neighbors " << str << endl);
 	
+#ifdef USE_LOG_SERVICE
   if (dietLogComponent!=NULL) {
     dietLogComponent->logNeighbors(str);
   }
+#endif
 }
 
 #endif // HAVE_MULTI_MA
@@ -1084,12 +1095,13 @@ MasterAgentImpl::submit_pb_seq(const corba_pb_desc_seq_t& pb_seq,
   gettimeofday(&end, NULL);
   /*	time_t ptime = (end.tv_sec - start.tv_sec)* 1000 +
 	(end.tv_usec - start.tv_usec)/1000;*/
-  if (dietLogComponent != NULL) {
-    // TO DO: update dietLogComponent with the new data structure
-    // dietLogComponent->logDagSubmit(wf_response, ptime);
-  }
-	
-  return response_seq;
+#ifdef USE_LOG_SERVICE
+	if (dietLogComponent != NULL) {
+		// TO DO: update dietLogComponent with the new data structure
+		// dietLogComponent->logDagSubmit(wf_response, ptime);
+	}
+#endif	
+	return response_seq;
 }
 #endif // HAVE_WORKFLOW
 

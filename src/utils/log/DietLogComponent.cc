@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.1  2010/12/17 09:48:01  kcoulomb
+ * * Set diet to use the new log with forwarders
+ * * Fix a CoRI problem
+ * * Add library version remove DTM flag from ccmake because deprecated
+ *
  * Revision 1.6  2010/11/10 02:41:23  kcoulomb
  * Small modifications to use the log service (LogService divided in 2 separated contexts, one for components and one for tools)
  *
@@ -158,7 +163,7 @@
 #include <string>
 using namespace std;
 
-#include "ORBMgr.hh"
+#include "LogORBMgr.hh"
 #include "debug.hh"
 #include "DietLogComponent.hh"
 
@@ -286,7 +291,15 @@ PingThread::run_undetached(void* params)
  */
 
 DietLogComponent::DietLogComponent(const char* name,
-				   int outBufferMaxSize) {
+				   int outBufferMaxSize, int argc, char** argv) {
+  try {
+    fprintf (stderr, "Before Init \n");
+    LogORBMgr::init(argc, (char **)argv, true);
+    fprintf (stderr, "After Init \n");
+  } catch (...) {
+    fprintf (stderr, "Failed to initialize log orb manager \n");
+  }
+
   this->name = CORBA::string_dup(name);
   this->myName = string(name);
   this->outBufferMaxSize = outBufferMaxSize;
@@ -334,7 +347,7 @@ DietLogComponent::DietLogComponent(const char* name,
 //   CORBA::Object_ptr myLCCptr;
 
 //   try {
-//     myLCCptr = ORBMgr::getMgr()->resolveObject(LOGCOMPCTXT, "LCC");
+//     myLCCptr = LogORBMgr::getMgr()->resolveObject(LOGCOMPCTXT, "LCC");
 //   } catch(CORBA::SystemException &e) {
 //     DLC_ERROR("Could not resolve 'LogService./LogComponent (LCC).' from the NS",1);
 //   }
@@ -349,7 +362,7 @@ DietLogComponent::DietLogComponent(const char* name,
 //   }
 
 //   try{
-//     ORBMgr::getMgr()->bind(LOGCOMPCTXT, name, _this(), true);
+//     LogORBMgr::getMgr()->bind(LOGCOMPCTXT, name, _this(), true);
 //   }
 //   catch (...){
 //     DLC_ERROR("Bind FAILED  in the LogService context\n", 1);
@@ -360,11 +373,11 @@ DietLogComponent::DietLogComponent(const char* name,
 //}
 
 //  try{
-//    ORBMgr::getMgr()->bind("LogForwarder", name, _this(), true);
+//    LogORBMgr::getMgr()->bind("LogForwarder", name, _this(), true);
 //  }
 //  catch (...){
 //  }
-
+//  LogORBMgr::getMgr()->activate(this);
 }
 
 
@@ -372,22 +385,22 @@ int DietLogComponent::run(const char* agentType,
                           const char* parentName,
                           int outBufferTime) {
    CORBA::Object_ptr myLCCptr;
-
+   fprintf (stderr, "Running \n");
     // Connexion to the LCC
-    myLCC = ORBMgr::getMgr()->resolve<LogCentralComponent, LogCentralComponent_ptr>("LogServiceC", "LCC");
+    myLCC = LogORBMgr::getMgr()->resolve<LogCentralComponent, LogCentralComponent_ptr>("LogServiceC", "LCC");
     if (CORBA::is_nil(myLCC)){
       fprintf (stderr, "Failed to narrow the LCC ! \n");
     }
-
+   fprintf (stderr, "Running after resolve LCC\n");
     try{
-      ORBMgr::getMgr()->bind(LOGCOMPCTXT, myName, _this(), false);
-      ORBMgr::getMgr()->fwdsBind(LOGCOMPCTXT, myName,
-				 ORBMgr::getMgr()->getIOR(_this()));
+      LogORBMgr::getMgr()->bind(LOGCOMPCTXT, myName, _this(), false);
+      LogORBMgr::getMgr()->fwdsBind(LOGCOMPCTXT, myName,
+				 LogORBMgr::getMgr()->getIOR(_this()));
     }
     catch (...){
       fprintf (stderr, "Bind failed  in the LogService context\n");
     }
-
+   fprintf (stderr, "Running after bind\n");
 
   // Connect myself to the LogCentral
   short ret=0;
@@ -407,6 +420,7 @@ int DietLogComponent::run(const char* agentType,
   log_time_t time = getLocalTime();
   tag_list_t currentTagList;
   try {
+   fprintf (stderr, "Running b4 connect\n");
     ret = myLCC->connectComponent(
       name,
       hostName,
@@ -415,6 +429,7 @@ int DietLogComponent::run(const char* agentType,
       time,
       currentTagList
     );
+    fprintf (stderr, "Running and connected \n");
   } catch (CORBA::SystemException &e) {
     delete(msg);
     delete(hostName);
@@ -467,6 +482,7 @@ DietLogComponent::~DietLogComponent() {
   }
   delete tagNames;
   delete tagFlags;
+  delete LogORBMgr::getMgr();
 }
 
 /**
@@ -1300,10 +1316,10 @@ void
 
 #endif // HAVE_WORKFLOW
 
-DietLogComponentFwdr::DietLogComponentFwdr(Forwarder_ptr fwdr,
+DietLogComponentFwdr::DietLogComponentFwdr(CorbaLogForwarder_ptr fwdr,
 																					 const char* objName)
 {
-	this->forwarder = Forwarder::_duplicate(fwdr);
+	this->forwarder = CorbaLogForwarder::_duplicate(fwdr);
 	this->objName = CORBA::string_dup(objName);
 }
 

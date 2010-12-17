@@ -10,6 +10,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.29  2010/12/17 09:47:59  kcoulomb
+ * * Set diet to use the new log with forwarders
+ * * Fix a CoRI problem
+ * * Add library version remove DTM flag from ccmake because deprecated
+ *
  * Revision 1.28  2010/11/24 15:18:08  bdepardo
  * searchData is now available on all agents. SeDs are now able to retrieve
  * a DAGDA data from an alias specified by a client.
@@ -139,7 +144,10 @@
 #include "ServiceTable.hh"
 #include "ts_container/ts_vector.hh"
 #include "ts_container/ts_map.hh"
+
+#ifdef USE_LOG_SERVICE
 #include "DietLogComponent.hh"
+#endif
 
 
 
@@ -179,6 +187,7 @@ public:
   char* getDataManager();
 #endif // ! HAVE_DAGDA
 
+
 #if HAVE_DAGDA
   virtual SeqString*
   searchData(const char* request) = 0;
@@ -188,8 +197,10 @@ public:
    * Set the DietLogManager. If the dietLogManager is NULL, no
    * monitoring information will be sent.
    */
+#ifdef USE_LOG_SERVICE	
   void
   setDietLogComponent(DietLogComponent* dietLogComponent);
+#endif
 	
   /** Subscribe an agent as a LA child. Remotely called by an LA. */
   virtual CORBA::Long
@@ -340,13 +351,15 @@ protected:
   /** Get host name of a child (returned string is ms_stralloc'd). */
   char*
   getChildHostName(CORBA::Long childID);
-	
+
+#ifdef USE_LOG_SERVICE	
   /**
    * Ptr to the DietLogComponent. This ptr can be NULL, so it has to
    * be checked every time it is used. If it is NULL, no monitoring 
    * messages have to be sent.
    */
   DietLogComponent* dietLogComponent;
+#endif
 };
 
 class AgentFwdrImpl : public POA_AgentFwdr,

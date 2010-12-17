@@ -7,6 +7,11 @@
 /****************************************************************************/
 /* $Id$ 
  * $Log$
+ * Revision 1.8  2010/12/17 09:48:01  kcoulomb
+ * * Set diet to use the new log with forwarders
+ * * Fix a CoRI problem
+ * * Add library version remove DTM flag from ccmake because deprecated
+ *
  * Revision 1.7  2010/10/05 03:16:40  bdepardo
  * Use hostname and buffer sizes constants.
  * Loop until an available port is found.
@@ -162,10 +167,10 @@ void* setup_udp_server (void *nothing) {
             /* no need to reinsert in heap since it
              * is insensitive to the ID
              */
-
+#ifdef USE_LOG_SERVICE
             p->handle->log->logDetectorParams(p->handle->machine_name, 
                                               pl, vd, eta, alpha);
-
+#endif
 
             /* send HTTP message to peer */
             h_request_len = sprintf (h_buffer,

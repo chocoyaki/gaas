@@ -10,6 +10,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.40  2010/12/17 09:48:00  kcoulomb
+ * * Set diet to use the new log with forwarders
+ * * Fix a CoRI problem
+ * * Add library version remove DTM flag from ccmake because deprecated
+ *
  * Revision 1.39  2010/07/12 16:14:11  glemahec
  * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
  *
@@ -138,7 +143,10 @@ using namespace std;
 #include "MasterAgentImpl.hh"
 #include "ORBMgr.hh"
 #include "Parsers.hh"
+
+#ifdef USE_LOG_SERVICE
 #include "DietLogComponent.hh"
+#endif
 
 #if ! HAVE_JUXMEM && ! HAVE_DAGDA
 #include "LocMgrImpl.hh"    // DTM header file
@@ -152,8 +160,10 @@ using namespace std;
 /** The trace level. */
 extern unsigned int TRACE_LEVEL;
 
+#ifdef USE_LOG_SERVICE
 /** The DietLogComponent */
 DietLogComponent* dietLogComponent;
+#endif
 
 /** The Agent object. */
 AgentImpl* Agt;
@@ -265,8 +275,8 @@ main(int argc, char** argv)
   /* Initialize the ORB */
 
   try {
-		ORBMgr::init(myargc, (char**)myargv);
-	} catch (...) {
+    ORBMgr::init(myargc, (char**)myargv);
+  } catch (...) {
     ERROR("ORB initialization failed", 1);
   }
 
@@ -313,6 +323,7 @@ main(int argc, char** argv)
     }
   }
 
+#ifdef USE_LOG_SERVICE
   if (useLS) {
     TRACE_TEXT(TRACE_ALL_STEPS, "LogService enabled" << endl);
     char* agtTypeName;
@@ -324,8 +335,8 @@ main(int argc, char** argv)
                           (Parsers::Results::NAME);
     // the agent names should be correct if we arrive here
 
-    dietLogComponent = new DietLogComponent(agtName, outBufferSize);
-    ORBMgr::getMgr()->activate(dietLogComponent);
+    dietLogComponent = new DietLogComponent(agtName, outBufferSize, myargc, (char **)myargv);
+    //    ORBMgr::getMgr()->activate(dietLogComponent);
 
     if (agtType == Parsers::Results::DIET_LOCAL_AGENT) {
       agtTypeName = strdup("LA");
@@ -343,6 +354,7 @@ main(int argc, char** argv)
     TRACE_TEXT(TRACE_ALL_STEPS, "LogService disabled" << endl);
     dietLogComponent = NULL;
   }
+#endif
 
 #if ! HAVE_JUXMEM && ! HAVE_DAGDA
   /* Create the DTM Data Location Manager */
@@ -350,7 +362,9 @@ main(int argc, char** argv)
 #endif // ! HAVE_JUXMEM && ! HAVE_DAGDA
 #if HAVE_DAGDA
   DagdaImpl* dataManager = DagdaFactory::getAgentDataManager();
+#ifdef USE_LOG_SERVICE
   dataManager->setLogComponent( dietLogComponent ); // modif bisnard_logs_1
+#endif
 #endif // HAVE_DAGDA
 
   /* Create, activate, and launch the agent */
@@ -363,7 +377,9 @@ main(int argc, char** argv)
     fflush(NULL);
 
     ORBMgr::getMgr()->activate((LocalAgentImpl*)Agt);
+#ifdef USE_LOG_SERVICE
     Agt->setDietLogComponent(dietLogComponent);   /* LogService */
+#endif
     res = ((LocalAgentImpl*)Agt)->run();
   } else {
     Agt = new MasterAgentImpl();
@@ -373,7 +389,9 @@ main(int argc, char** argv)
     fflush(NULL);
 
     ORBMgr::getMgr()->activate((MasterAgentImpl*)Agt);
+#ifdef USE_LOG_SERVICE
     Agt->setDietLogComponent(dietLogComponent);   /* LogService */
+#endif
     res = ((MasterAgentImpl*)Agt)->run();
   }
 

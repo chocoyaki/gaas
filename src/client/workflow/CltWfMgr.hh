@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.23  2010/12/17 09:48:00  kcoulomb
+ * * Set diet to use the new log with forwarders
+ * * Fix a CoRI problem
+ * * Add library version remove DTM flag from ccmake because deprecated
+ *
  * Revision 1.22  2010/07/20 09:22:33  bisnard
  * changes for dietForwarder
  *
@@ -112,7 +117,9 @@
 #include "CltMan.hh"
 #include "MasterAgent.hh"
 #include "MaDag.hh"
+#ifdef USE_LOG_SERVICE
 #include "DietLogComponent.hh"
+#endif
 #include "WfLogService.hh"
 
 // DIET headers
@@ -192,7 +199,7 @@ public:
    */
   void
   setMA(MasterAgent_var ma);
-	
+#ifdef USE_LOG_SERVICE	
   /**
    * Set the log service reference
    *
@@ -200,7 +207,7 @@ public:
    */
   void
   setLogComponent(DietLogComponent* logComponent);
-  
+#endif
   /**
    * Set the workflow log service (GUI)
    * @param logService wf log service reference
@@ -434,12 +441,14 @@ private:
    * Master Agent reference
    */
   MasterAgent_var myMA;
-	
+
+#ifdef USE_LOG_SERVICE	
   /**
    * Log service reference
    */
   DietLogComponent* myLC;
-  
+#endif
+
   /**
    * Wf Log Service Ref
    */

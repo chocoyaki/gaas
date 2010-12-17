@@ -9,13 +9,15 @@
 #include "Dag.hh"
 #include "FWorkflow.hh"
 #include "DagNodeLauncher.hh"
+#ifdef USE_LOG_SERVICE
 #include "DietLogComponent.hh"
-
+#endif
 using namespace events;
 using namespace madag;
 
 class MaDagLogCentralDispatcher : public EventDispatcher {
   public:
+#ifdef USE_LOG_SERVICE
     MaDagLogCentralDispatcher(DietLogComponent* LC);
     
     void onMultiWfSchedulerCreation(const EventFrom<MultiWfScheduler, EventStandardMsg<MultiWfScheduler, MultiWfScheduler::CONSTR> >* event);
@@ -27,6 +29,7 @@ class MaDagLogCentralDispatcher : public EventDispatcher {
 
   private:
     DietLogComponent*	myLC;
+#endif
 };
 
 

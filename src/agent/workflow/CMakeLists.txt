@@ -15,8 +15,8 @@
 
   set(MaDag_SOURCES
     MaDagNodeLauncher.cc
-    MaDagLogCentralDispatcher.cc
     MaDag_impl.cc
+    MaDagLogCentralDispatcher.cc
     WfScheduler.cc HEFTScheduler.cc
     MultiWfScheduler.cc
     MultiWfBasicScheduler.cc
@@ -25,6 +25,20 @@
     MultiWfSRPT.cc
     MultiWfFCFS.cc 
   )
+
+if (DIET_USE_LOG)
+  include_directories(
+    ${LOG_SRC_DIR}
+    ${LOG_SRC_DIR}/monitor
+    ${LOG_SRC_DIR}/idl
+    ${DIET_SOURCE_DIR}/src/utils/log)
+
+  set(Forwarder_Libs
+    ${Forwarder_Libs}
+    DietLogLibrary)
+
+endif (DIET_USE_LOG)
+
   ADD_LIBRARY( MaDag STATIC
     ${MaDag_SOURCES}
   )

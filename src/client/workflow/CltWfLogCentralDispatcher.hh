@@ -8,12 +8,14 @@
 #include "Dag.hh"
 #include "FWorkflow.hh"
 #include "DagNodeLauncher.hh"
+#ifdef USE_LOG_SERVICE
 #include "DietLogComponent.hh"
-
+#endif
 using namespace events;
 
 class CltWfLogCentralDispatcher : public EventDispatcher {
   public:
+#ifdef USE_LOG_SERVICE
     CltWfLogCentralDispatcher(DietLogComponent* LC);
     
     void onDagNodeReady(const EventFrom<DagNode, EventStandardMsg<DagNode, DagNode::READY> >* event);
@@ -23,6 +25,7 @@ class CltWfLogCentralDispatcher : public EventDispatcher {
     
   private:
     DietLogComponent*	myLC;
+#endif
 };
 
 

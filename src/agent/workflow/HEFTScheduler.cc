@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2010/12/17 09:48:00  kcoulomb
+ * * Set diet to use the new log with forwarders
+ * * Fix a CoRI problem
+ * * Add library version remove DTM flag from ccmake because deprecated
+ *
  * Revision 1.16  2010/07/20 08:59:36  bisnard
  * Added event generation
  *
@@ -73,6 +78,7 @@
 #include "HEFTScheduler.hh"
 #include "DagNode.hh"
 #include "debug.hh"
+#include "ORBMgr.hh"
 
 using namespace madag;
 

@@ -8,7 +8,19 @@ include_directories(
   ${DIET_SOURCE_DIR}/src/SeD		# for SeDImpl.hh in Cori_batch
   ${DIET_SOURCE_DIR}/src/agent	# for ChildID.hh in SeDImpl
   ${DIET_SOURCE_DIR}/src/utils/DAGDA
+  ${DIET_SOURCE_DIR}/src/utils/log
 )
+
+
+if (DIET_USE_LOG)
+#  MESSAGE ("${LOG_LIB_DIR}")
+#  MESSAGE ("${LOG_SRC_DIR}")
+  include_directories(
+    ${LOG_SRC_DIR}
+    ${LOG_SRC_DIR}/idl
+    ${LOG_SRC_DIR}/monitor
+    ${DIET_SOURCE_DIR}/src/utils/log)
+endif(DIET_USE_LOG)
 
 ########################################################################
 ### UtilsNodes library: contains CoRI if asked by the installer!
@@ -21,14 +33,20 @@ include_directories(
 
 set(UtilsNodesSource
   Counter.cc
-  DietLogComponent.cc
+#  DietLogComponent.cc
   FASTMgr.cc
-  MonitoringThread.cc
   ServiceTable.cc
 )
 
+if (DIET_USE_LOG)
+  set(UtilsNodesSource
+    ${UtilsNodesSource}
+    MonitoringThread.cc)
+endif (DIET_USE_LOG)
+
 add_library(UtilsNodes STATIC ${UtilsNodesSource})
 add_dependencies(UtilsNodes DIET_CORBA)
+
 
 if (NOT DIET_USE_DAGDA)
   target_link_libraries(UtilsNodes
@@ -72,6 +90,9 @@ if (DIET_USE_CORI)
 
   add_library(UtilsCori STATIC ${UtilsCoriSource})
   add_dependencies(UtilsCori DIET_CORBA)
+
+  install (TARGETS UtilsCori DESTINATION lib)
+
   if (NOT DIET_USE_DAGDA)
     target_link_libraries(UtilsCori
       CorbaCommon
@@ -176,5 +197,6 @@ if (DIET_USE_CORI)
   set_source_files_properties( Cori_Easy_Memory.cc
      PROPERTIES COMPILE_FLAGS "${CORI_EASY_MEMORY_COMPILE_FLAGS}"
   )
+
 
 endif (DIET_USE_CORI)

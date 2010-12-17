@@ -10,6 +10,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2010/12/17 09:48:02  kcoulomb
+ * * Set diet to use the new log with forwarders
+ * * Fix a CoRI problem
+ * * Add library version remove DTM flag from ccmake because deprecated
+ *
  * Revision 1.1  2010/03/03 14:26:35  bdepardo
  * BEWARE!!!
  * Huge modifications to take into account CYGWIN.
@@ -28,6 +33,7 @@
 
 #include <omniconfig.h>
 #include <omnithread.h>
+
 #include "DietLogComponent.hh"
 
 /**

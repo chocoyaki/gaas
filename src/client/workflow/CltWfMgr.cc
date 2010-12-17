@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.42  2010/12/17 09:48:00  kcoulomb
+ * * Set diet to use the new log with forwarders
+ * * Fix a CoRI problem
+ * * Add library version remove DTM flag from ccmake because deprecated
+ *
  * Revision 1.41  2010/07/20 09:22:33  bisnard
  * changes for dietForwarder
  *
@@ -303,7 +308,9 @@ CltWfMgr::CltWfMgr(const string& name) :
 {
   this->myMA = MasterAgent::_nil();
   this->myMaDag = MaDag::_nil();
+#ifdef USE_LOG_SERVICE
   this->myLC = NULL;
+#endif
   this->myLS = WfLogService::_nil();
   gettimeofday(&this->refTime, NULL); // init reference time
   
@@ -348,6 +355,7 @@ CltWfMgr::setMA(MasterAgent_var ma) {
   this->myMA = ma;
 }
 
+#ifdef USE_LOG_SERVICE
 /**
  * Set the log service reference
  */
@@ -355,6 +363,7 @@ void
 CltWfMgr::setLogComponent(DietLogComponent* logComponent) {
   this->myLC = logComponent;
 }
+#endif
 
 void
 CltWfMgr::setWfLogService(WfLogService_var logService) {

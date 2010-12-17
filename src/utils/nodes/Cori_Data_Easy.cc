@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2010/12/17 09:48:02  kcoulomb
+ * * Set diet to use the new log with forwarders
+ * * Fix a CoRI problem
+ * * Add library version remove DTM flag from ccmake because deprecated
+ *
  * Revision 1.2  2010/03/31 21:15:41  bdepardo
  * Changed C headers into C++ headers
  *
@@ -183,6 +188,7 @@ Cori_Data_Easy::get_Information(int type_Info,
      break;
   case EST_NBCPU:
      res=cpu->get_CPU_Number(&temp);
+     fprintf (stderr, "Trouve %lf cpu \n", temp);
      convertSimple(temp, info,type_Info);
     break;
   case EST_BOGOMIPS:
