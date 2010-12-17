@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2010/12/17 16:30:49  bdepardo
+ * Removed letter 'x' after an include...
+ *
  * Revision 1.9  2010/12/17 09:48:01  kcoulomb
  * * Set diet to use the new log with forwarders
  * * Fix a CoRI problem
@@ -50,7 +53,7 @@
 #include "Container.hh"
 #include "DagdaFactory.hh"
 #include "DagdaImpl.hh"
-#include "ORBMgr.hh"x
+#include "ORBMgr.hh"
 
 using namespace std;
 
