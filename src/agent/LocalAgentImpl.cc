@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.23  2010/12/17 16:30:08  bdepardo
+ * searchData shouldn't be between #ifdef HAVE_DYNAMICS
+ *
  * Revision 1.22  2010/12/17 09:47:59  kcoulomb
  * * Set diet to use the new log with forwarders
  * * Fix a CoRI problem
@@ -237,14 +240,6 @@ LocalAgentImpl::bindParent(const char * parentName) {
 }
 
 
-#if HAVE_DAGDA
-SeqString*
-LocalAgentImpl::searchData(const char* request) {
-  return this->parent->searchData(request);
-}
-#endif
-
-
 CORBA::Long
 LocalAgentImpl::removeElement(bool recursive) {
   SeqCorbaProfileDesc_t* profiles(NULL);
@@ -271,6 +266,16 @@ LocalAgentImpl::removeElement(bool recursive) {
 }
 
 #endif // HAVE_DYNAMICS
+
+
+#if HAVE_DAGDA
+SeqString*
+LocalAgentImpl::searchData(const char* request) {
+  return this->parent->searchData(request);
+}
+#endif // HAVE_DAGDA
+
+
 
 
 /**
