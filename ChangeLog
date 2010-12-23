@@ -11,6 +11,7 @@
 	- DTM available with : 
 	> cmake -DDIET_USE_DTM=1 -DDIET_USE_DAGDA=0 -DDIET_USE_DYNAMICS=0 ..  
 	> make
+	
 +----------+
 | diet 2.5 |
 +----------+
