@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.152  2010/12/24 10:33:04  hguemar
+ * minor fixes to DIET_client.cc
+ *
  * Revision 1.151  2010/12/17 09:48:00  kcoulomb
  * * Set diet to use the new log with forwarders
  * * Fix a CoRI problem
@@ -375,6 +378,7 @@ using namespace std;
 #include <csignal>
 #include <algorithm>
 #include <sstream>
+#include <stdexcept>
 
 #include "debug.hh"
 #include "est_internal.hh"
@@ -535,7 +539,7 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
   if (!CORBA::is_nil(MA)) {
     WARNING(__FUNCTION__ << ": diet_finalize has not been called");
     MA_MUTEX->unlock();
-    return 15;
+    return GRPC_ALREADY_INITIALIZED;
   }
   MA_MUTEX->unlock();
 
@@ -793,7 +797,7 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
   signal(SIGABRT, diet_finalize_sig);
   signal(SIGTERM, diet_finalize_sig);
 
-  return 0;
+  return GRPC_NO_ERROR;
 }
 
 /* DIET finalize call through signal catch function. */
@@ -836,17 +840,31 @@ diet_finalize() {
 #endif // HAVE_JUXMEM
   
 #ifdef HAVE_DAGDA
-  string dagdaName = DagdaFactory::getDataManager()->getID();
-  ORBMgr::getMgr()->unbind(DAGDACTXT, dagdaName);
-  ORBMgr::getMgr()->fwdsUnbind(DAGDACTXT, dagdaName);
+  try {
+      string dagdaName = DagdaFactory::getDataManager()->getID();
+      ORBMgr::getMgr()->unbind(DAGDACTXT, dagdaName);
+      ORBMgr::getMgr()->fwdsUnbind(DAGDACTXT, dagdaName);
+  } catch( const char * str ) {
+      std::cerr << "Exception caught: "
+		<< str
+		<< "\n";
+  } catch( ... ) {}
 #endif
-  ORBMgr::getMgr()->unbind(CLIENTCTXT, REF_CALLBACK_SERVER);
-  ORBMgr::getMgr()->fwdsUnbind(CLIENTCTXT, REF_CALLBACK_SERVER);
-  delete ORBMgr::getMgr();
+  try {
+      ORBMgr *mgr = ORBMgr::getMgr();
+      mgr->unbind(CLIENTCTXT, REF_CALLBACK_SERVER);
+      mgr->fwdsUnbind(CLIENTCTXT, REF_CALLBACK_SERVER);
+      delete mgr;
+  } catch( std::runtime_error& e ) {
+      std::cerr << "Exception caugh: "
+		<< e.what()
+		<< "\n";
+  } catch( ... ) {}
+  
   /* end fileName */
   // *fileName='\0';
   
-  return 0;
+  return GRPC_NO_ERROR;
 }
 
 END_API
