@@ -122,7 +122,7 @@ if (DIET_USE_WORKFLOW)
   add_subdirectory(workflow)
 endif (DIET_USE_WORKFLOW)
   
-install(TARGETS dietAgent DESTINATION bin)
+install(TARGETS dietAgent DESTINATION ${BIN_INSTALL_DIR})
 
 # When the DIET_USE_USERSCHED option is set, add the source code
 # for dynamic library load at agent level.
@@ -134,7 +134,7 @@ if (DIET_USE_USERSCHED)
     Schedulers.hh
     DESTINATION include/scheduler
   )
-  install(TARGETS AgentCommon DESTINATION lib)    
+  install(TARGETS AgentCommon DESTINATION ${LIB_INSTALL_DIR})
 endif (DIET_USE_USERSCHED)
   
 if (DIET_USE_JXTA)

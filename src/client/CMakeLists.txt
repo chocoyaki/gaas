@@ -141,4 +141,4 @@ if (DIET_USE_LOG)
 endif (DIET_USE_LOG)
 
 
-install(TARGETS DIET_client DESTINATION lib)
+install(TARGETS DIET_client DESTINATION ${LIB_INSTALL_DIR})

@@ -1,80 +1,101 @@
-PROJECT ( DIET_DOC ) 
-CMAKE_MINIMUM_REQUIRED( VERSION 2.4 )
+project( diet-doc )
+cmake_minimum_required( VERSION 2.6 )
 
-# Policy CMP0002 is set to use the old behavior in order
-# to remove warnings with UseLATEX.cmake
-# (it uses variables in ADD_CUSTOM_TARGET where a constant
-# would be a better choice: uniq IDs are required).
+# update module path
+set( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/Cmake )
+
+# set documentation install dir
+set( DOC_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/share/doc/${PROJECT_NAME}"
+  CACHE PATH "Directory where doc will be installed" FORCE )
+
+# create doc target if non-existant
+add_custom_target( doc ALL )
+
+# cleanup
+set_property( DIRECTORY APPEND PROPERTY
+  ADDITIONAL_MAKE_CLEAN_FILES doc )
+
+##############################################################################
+# Doxygen is required for building API doc
+# no Doxygen, no API doc
 #
-# Example of the obtained warnings:
-#  CMake Warning (dev) at Cmake/UseLATEX.cmake:548 (ADD_CUSTOM_TARGET):
-#    Policy CMP0002 is not set: Logical target names must be globally unique.
-#    Run "cmake --help-policy CMP0002" for policy details.  Use the cmake_policy
-#    command to set the policy and suppress this warning.
-#  Call Stack (most recent call first):
-#    Cmake/UseLATEX.cmake:647 (ADD_LATEX_TARGETS)
-#    UsersManual/CMakeLists.txt:15 (ADD_LATEX_DOCUMENT)
-#  This warning is for project developers.  Use -Wno-dev to suppress it.
-CMAKE_POLICY( SET CMP0002 OLD )
+##############################################################################
+find_package( Doxygen )
+if( NOT DOXYGEN_FOUND )
+  message( WARNING "doxygen not found." )
+  message( WARNING "API documentation will not be generated." )
+else()
+  # tell doxygen where our sources lives
+  get_filename_component( SRC_DIR ${PROJECT_SOURCE_DIR} PATH )
 
-OPTION( BUILD_DOCUMENTATION "Build the documentation." ON )
-SET( CMAKE_MODULE_PATH ${DIET_DOC_SOURCE_DIR}/Cmake )
-  FIND_PACKAGE( LATEX )
+  # setup our configuration file
+  # since CMake manage list as semi-colons separated strings
+  # we have to preprocess them in order to have something
+  # understandable by Doxygen
+  set( DIET_DOXYGEN_INPUT_IN ${SRC_DIR}/include
+    ${SRC_DIR}/src )
+  foreach( ENTRY ${DIET_DOXYGEN_INPUT_IN} )
+    set( DIET_DOXYGEN_INPUT "${DIET_DOXYGEN_INPUT} ${ENTRY}" )
+  endforeach()
+  
+  set( DIET_DOXYGEN_IMAGE_PATH_IN ${SRC_DIR}/src/examples
+    ${SRC_DIR}/doc/ProgrammersGuide
+    ${SRC_DIR}/doc/ProgrammersGuide/fig
+    ${SRC_DIR}/doc/UsersManual )
+  foreach( ENTRY ${DIET_DOXYGEN_IMAGE_PATH_IN} )
+    set( DIET_DOXYGEN_IMAGE_PATH "${DIET_DOXYGEN_IMAGE_PATH} ${ENTRY}" )
+  endforeach()
+  
+  set( DIET_DOXYGEN_EXCLUDE ${SRC_DIR}/examples )
+  
+  configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in
+    ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile )
+  
+  # add doxygen target
+  add_custom_target( doc-html ${DOXYGEN_EXECUTABLE}
+    ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile )
+  
+  # add doc-html as dependency to doc target
+  add_dependencies( doc doc-html )
 
-  FIND_PACKAGE( Transfig )
+  # install generated documentation
+  install( DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/API
+    DESTINATION ${DOC_INSTALL_DIR} )
+endif()
 
-  IF( NOT TRANSFIG_FOUND )
-    MESSAGE( "Transfig installation was not found. Please provide FIG2DEV." )
-    SET( BUILD_DOCUMENTATION OFF )
-  ENDIF( NOT TRANSFIG_FOUND )
 
-  FIND_PACKAGE( ImageMagick )
-  IF( NOT IMAGEMAGICK_CONVERT_EXECUTABLE )
-    MESSAGE( "Convert ImageMagick utility was not found." )
-    MESSAGE( "Please provide IMAGEMAGICK_CONVERT_EXECUTABLE." )
-    SET( BUILD_DOCUMENTATION OFF )
-  ENDIF( NOT IMAGEMAGICK_CONVERT_EXECUTABLE )
+#############################################################################
+# Guides require latex, transfig and ImageMagick to be installed
+#
+#############################################################################
+find_package( LATEX )
+find_package( Transfig )
+find_package( ImageMagick )
 
-  FIND_PACKAGE( Doxygen )
-  IF( NOT DOXYGEN_EXECUTABLE OR NOT DOXYGEN_DOT_EXECUTABLE )
-    MESSAGE( "Doxygen or Dot (from graphviz package) were not found." )
-    SET( BUILD_DOCUMENTATION OFF )
-  ENDIF( NOT DOXYGEN_EXECUTABLE OR NOT DOXYGEN_DOT_EXECUTABLE )
+set( ENABLE_GUIDE ON )
+if( NOT PDFLATEX_COMPILER )
+  message( WARNING "Latex installation was not found." )
+  set( ENABLE_GUIDE OFF )
+endif()
 
-IF( BUILD_DOCUMENTATION )
-  IF( IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/ProgrammersGuide )
-    SET( PROGRAMMERSGUIDE "ProgrammersGuide.pdf")
-    ADD_SUBDIRECTORY( ProgrammersGuide )
-  ENDIF( IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/ProgrammersGuide )
+if( NOT TRANSFIG_FOUND )
+  message( WARNING "Transfig installation was not found. Please provide FIG2DEV." )
+  set( ENABLE_GUIDE OFF )
+endif()
 
-  IF( IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/UsersManual )
-    SET( USERSMANUAL "UsersManual.pdf")
-      ADD_SUBDIRECTORY( UsersManual )
-  ENDIF( IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/UsersManual )
+if( NOT IMAGEMAGICK_CONVERT_EXECUTABLE )
+  message( "Convert ImageMagick utility was not found." )
+  message( "Please provide IMAGEMAGICK_CONVERT_EXECUTABLE." )
+  set( ENABLE_GUIDE OFF )
+endif()
 
-  IF( IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/UsersFAQ )
-    SET( USERSFAQ "UsersFAQ.pdf")
-      ADD_SUBDIRECTORY( UsersFAQ )
-  ENDIF( IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/UsersFAQ )
-
-INCLUDE( ${DIET_DOC_SOURCE_DIR}/Cmake/DisplayDocSummary.cmake )
-
-## FIXME find a way to manage Doxygen
-  SET( DOXYGEN OFF )
-  # FIXME: following Tutorial subdir is not yet translated to cmake:
-  # ADD_SUBDIRECTORY( Tutorial )
-  IF( DOXYGEN )
-    SET( DIET_DOXYGEN_INPUT
-      "${DIET_SOURCE_DIR}/include                                                      ${DIET_SOURCE_DIR}/src" )
-    SET( DIET_DOXYGEN_EXCLUDE
-      "${DIET_SOURCE_DIR}/src/examples" )
-    SET( DIET_DOXYGEN_IMAGE_PATH
-      "${CMAKE_CURRENT_SOURCE_DIR}/ProgrammersGuide/fig                                ${CMAKE_CURRENT_BINARY_DIR}/ProgrammersGuide/                                   ${CMAKE_CURRENT_BINARY_DIR}/UsersManual" )
-    CONFIGURE_FILE( ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in
-      ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
-      IMMEDIATE )
-    ADD_CUSTOM_TARGET(doc-html ALL
-      ${DOXYGEN}
-      ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile )
-  ENDIF( DOXYGEN )
-ENDIF( BUILD_DOCUMENTATION )
+if( ENABLE_GUIDE )
+  include( Cmake/UseLATEX.cmake )
+  add_subdirectory( ProgrammersGuide )
+  # UsersManual correctly built but cmake may raise an error
+  # due to latex number of warnings
+  add_subdirectory( UsersManual )
+  add_subdirectory( UsersFAQ )
+else()
+  message( WARNING "Guides will not be built due to missing requirements." )
+endif()

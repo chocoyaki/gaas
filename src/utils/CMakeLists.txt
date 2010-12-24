@@ -76,7 +76,7 @@ endif (DIET_USE_FD)
         
         target_link_libraries(EucalyptusLib -lssl -lcrypto)
         add_definitions( -DWITH_DOM -DWITH_OPENSSL )
-        install(TARGETS EucalyptusLib DESTINATION lib)
+        install(TARGETS EucalyptusLib DESTINATION ${LIB_INSTALL_DIR})
             
         # Build SeDBatch library with the Cloud component
         include_directories(
@@ -136,7 +136,7 @@ endif (DIET_USE_FD)
   endif (DIET_USE_CORI)
 
 if (DIET_USE_USERSCHED)
-  install(TARGETS DIET_Utils DESTINATION lib)    
+  install(TARGETS DIET_Utils DESTINATION ${LIB_INSTALL_DIR})
 endif (DIET_USE_USERSCHED)
 
 
@@ -152,12 +152,12 @@ if (DIET_USE_USERSCHED)
     Parsers.hh
     ms_function.hh
     DESTINATION
-    include/scheduler
+    ${INCLUDE_INSTALL_DIR}/scheduler
   )
   install(FILES
     ts_container/ts_set.hh
     DESTINATION
-    include/scheduler/ts_container
+    ${INCLUDE_INSTALL_DIR}/scheduler/ts_container
   )
 endif (DIET_USE_USERSCHED)
 

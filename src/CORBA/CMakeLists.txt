@@ -170,10 +170,10 @@ endif (DIET_USE_USERSCHED)
 # Install the files needed for a scheduler creation.
 
 if (DIET_USE_USERSCHED)
-  install( FILES marshalling.hh DESTINATION include/scheduler )
+  install( FILES marshalling.hh DESTINATION ${INCLUDE_INSTALL_DIR}/scheduler )
 endif (DIET_USE_USERSCHED)
   
-install(TARGETS dietForwarder DESTINATION bin)
+install(TARGETS dietForwarder DESTINATION ${BIN_INSTALL_DIR})
 
 
 if (DIET_USE_LOG)

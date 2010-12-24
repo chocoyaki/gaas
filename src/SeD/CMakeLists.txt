@@ -129,7 +129,7 @@ endif (NOT BUILD_SHARED_LIBS)
 
 
 # Install DIET_SeD library only, not the static one
-install(TARGETS DIET_SeD DESTINATION lib)
+install(TARGETS DIET_SeD DESTINATION ${LIB_INSTALL_DIR})
 
 
 

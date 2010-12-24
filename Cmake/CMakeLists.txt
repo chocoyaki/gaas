@@ -1,17 +1,16 @@
 ### Build the configuration file for external projects using DIET and cmake:
-CONFIGURE_FILE( DietConfig.cmake.in
+configure_file( DietConfig.cmake.in
   ${CMAKE_CURRENT_BINARY_DIR}/DietConfig.cmake
   @ONLY )
-INSTALL( FILES ${CMAKE_CURRENT_BINARY_DIR}/DietConfig.cmake DESTINATION share )
+# install in CMake module path
+install( FILES ${CMAKE_CURRENT_BINARY_DIR}/DietConfig.cmake DESTINATION ${CMAKE_MOD_INSTALL_DIR} )
 
 ### Build the configuration file for external projects using DIET and make:
-GET_DIRECTORY_PROPERTY( COMPILE_FLAGS DEFINITIONS )
-CONFIGURE_FILE(
-  ${CMAKE_CURRENT_SOURCE_DIR}/Makefile.inc.in
+get_directory_property( COMPILE_FLAGS DEFINITIONS )
+configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/Makefile.inc.in
   ${CMAKE_BINARY_DIR}/include/Makefile.inc
-  IMMEDIATE
-)
-INSTALL( FILES ${CMAKE_BINARY_DIR}/include/Makefile.inc DESTINATION include )
+  IMMEDIATE )
+install( FILES ${CMAKE_BINARY_DIR}/include/Makefile.inc DESTINATION ${INCLUDE_INSTALL_DIR} )
 
 # ADD_SUBDIRECTORY( Ctest )
 

@@ -57,8 +57,8 @@ target_link_libraries(DIET_Dagda
   ${DAGDA_Libs}
 )
 
-install(TARGETS DIET_Dagda DESTINATION lib)
-install( FILES DIET_Dagda.h DESTINATION include)
+install(TARGETS DIET_Dagda DESTINATION ${LIB_INSTALL_DIR})
+install( FILES DIET_Dagda.h DESTINATION ${INCLUDE_INSTALL_DIR})
 
 if (DIET_USE_LOG)
   include_directories(

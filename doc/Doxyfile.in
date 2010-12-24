@@ -3,7 +3,7 @@
 #****************************************************************************#
 
 INPUT = @DIET_DOXYGEN_INPUT@
-OUTPUT_DIRECTORY = @CMAKE_CURRENT_BINARY@
+OUTPUT_DIRECTORY = @CMAKE_CURRENT_BINARY_DIR@
 PROJECT_NAME = DIET
 EXTRACT_ALL = YES
 EXTRACT_PRIVATE = YES

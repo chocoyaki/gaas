@@ -6,7 +6,6 @@ cmake_minimum_required(VERSION 2.6)
 
 set(DIET_MAJOR_VERSION 2)
 set(DIET_MINOR_VERSION 5)
-
 set(DIET_REVISION_VERSION 0)
 
 set(DIET_VERSION ${DIET_MAJOR_VERSION}.${DIET_MINOR_VERSION})
@@ -482,7 +481,7 @@ if (BUILD_TESTING OR DIET_USE_DART)
   #    the ADD_SUBDIRECTORY( src ) command (see below).
   # 3/ Dart2 support also requires the ENABLE_TESTING() to be present
   #    and invoked prior to the INCLUDE( CTest ) command (see below).
-  ENABLE_TESTING()
+  enable_testing()
   # For comments on the following CXX_TEST_PATH refer to
   #   http://public.kitware.com/pipermail/cmake/2002-January/002643.html
   if (EXECUTABLE_OUTPUT_PATH)
@@ -550,6 +549,17 @@ ELSE( CYGWIN )
   SET( DIET_INSTALL_LIBS_DIR ${CMAKE_INSTALL_PREFIX}/lib )
 ENDIF( CYGWIN )
 
+# installation customization hooks
+# manage lib/lib64 install issue
+set( LIB_SUFFIX "" CACHE STRING "Define suffix of lib directory name (32/64)" FORCE )
+set( LIB_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}"
+  CACHE PATH "Directory where lib will be installed" FORCE )
+set( BIN_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/bin"
+  CACHE PATH "Directory where binary will be installed" FORCE )
+set( INCLUDE_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/include"
+  CACHE PATH "Directory where include will be installed" FORCE )
+set( CMAKE_MOD_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/share"
+  CACHE PATH "Directory where cmake modules will be installed" FORCE )
 
 # --------------------------------------------------------------------------
 add_subdirectory(src)
