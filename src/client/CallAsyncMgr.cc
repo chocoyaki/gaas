@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.29  2010/12/24 16:06:01  hguemar
+ * - fix a typo in doxygen comment (DIET_server.h)
+ * - replace CallAsyncMgr::deleteAllAsyncCall() return value by GRPC_NO_ERROR
+ *
  * Revision 1.28  2010/03/03 10:31:39  bdepardo
  * Changed \n into endl
  *
@@ -184,7 +188,7 @@ int CallAsyncMgr::deleteAllAsyncCall()
        ++p) {
     deleteAsyncCallWithoutLock(p->first);
   }
-  return 0;
+  return GRPC_NO_ERROR;
 }
 
 /*********************************************************************

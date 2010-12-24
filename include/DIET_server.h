@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.55  2010/12/24 16:06:01  hguemar
+ * - fix a typo in doxygen comment (DIET_server.h)
+ * - replace CallAsyncMgr::deleteAllAsyncCall() return value by GRPC_NO_ERROR
+ *
  * Revision 1.54  2010/11/30 22:03:40  dloureir
  * Correcting headers to put more less-friendly information prior to doxygen documentation.
  *
@@ -300,7 +304,7 @@
  diet_scalar_get(diet_parameter(pb,2), &arg3, NULL);
  return service(*arg1, arg2, arg3);
  }
-\endocde
+\endcode
  
  Several API functions help the user to write this "solve"
  function, particularly for getting IN arguments as well as setting
