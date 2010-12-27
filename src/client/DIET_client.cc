@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.153  2010/12/27 16:39:31  bdepardo
+ * Removed a few "unused variable" warnings
+ *
  * Revision 1.152  2010/12/24 10:33:04  hguemar
  * minor fixes to DIET_client.cc
  *
@@ -652,10 +655,6 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
   /* Initialize LogService */
   bool useLS = false;
   unsigned int* ULSptr;
-  int outBufferSize;
-  unsigned int* OBSptr;
-  int flushTime;
-  unsigned int* FTptr;
 
   ULSptr = (unsigned int*)Parsers::Results::getParamValue(
               Parsers::Results::USELOGSERVICE);
@@ -667,7 +666,12 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
     }
   }
 #ifdef USE_LOG_SERVICE
+  int outBufferSize;
+  int flushTime;
+  unsigned int* FTptr;
+
   if (useLS) {
+    unsigned int* OBSptr;
     OBSptr = (unsigned int*)Parsers::Results::getParamValue(
   	       Parsers::Results::LSOUTBUFFERSIZE);
     if (OBSptr != NULL) {
@@ -698,7 +702,7 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
       dietLogComponent = new DietLogComponent(DagdaFactory::getClientName(), outBufferSize, argc, argv);
 #else
       dietLogComponent = new DietLogComponent("", outBufferSize, argc, argv);
-#endif
+#endif // end: HAVE_DAGDA
     }
     ORBMgr::getMgr()->activate(dietLogComponent);
 
@@ -711,7 +715,7 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
   } else {
     dietLogComponent = NULL;
   }
-#endif
+#endif // end: USE_LOG_SERVICE
   // end modif bisnard_logs_1
 
   //create_file();
