@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.33  2010/12/27 16:40:06  bdepardo
+ * Removed an "unused variable" warning
+ *
  * Revision 1.32  2010/12/17 09:47:59  kcoulomb
  * * Set diet to use the new log with forwarders
  * * Fix a CoRI problem
@@ -289,8 +292,8 @@ DataMgrImpl::addDataDescToList(corba_data_t* dataDesc, int inout) // FIXME : die
     
   }
  
-  char * type_data = (char *)malloc(10*sizeof(char));
 #ifdef USE_LOG_SERVICE
+  char * type_data = (char *)malloc(10*sizeof(char));
   if (dietLogComponent != NULL) {
     switch ((diet_data_type_t)(dataDesc->desc.specific._d())) {
       case DIET_SCALAR: {
@@ -317,9 +320,12 @@ DataMgrImpl::addDataDescToList(corba_data_t* dataDesc, int inout) // FIXME : die
         break;
       }
     }
-    dietLogComponent->logDataStore(dataDesc->desc.id.idNumber, data_sizeof(&(dataDesc->desc)),(long)(dataDesc->desc.base_type), type_data);
+    dietLogComponent->logDataStore(dataDesc->desc.id.idNumber,
+				   data_sizeof(&(dataDesc->desc)),
+				   (long)(dataDesc->desc.base_type),
+				   type_data);
   }
-#endif
+#endif // end: USE_LOG_SERVICE
 }// addDataDescToList(corba_data_t* dataDesc, int inout)
 
 
