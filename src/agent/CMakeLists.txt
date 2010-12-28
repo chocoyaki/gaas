@@ -1,28 +1,21 @@
 # DIET cmake local file
 
-
-if (HAVE_ALT_BATCH)
-  include_directories(
-      ${OMNIORB4_INCLUDE_DIR}
-      ${DIET_SOURCE_DIR}/src/utils
-      ${DIET_SOURCE_DIR}/src/utils/nodes
-      ${DIET_BINARY_DIR}/src/CORBA/idl
-      ${DIET_SOURCE_DIR}/src/CORBA
-      ${CMAKE_CURRENT_SOURCE_DIR}
-      ${DIET_SOURCE_DIR}/include
-    )
-else (HAVE_ALT_BATCH)
-  include_directories(
-      ${OMNIORB4_INCLUDE_DIR}
-      ${DIET_SOURCE_DIR}/src/utils
-      ${DIET_SOURCE_DIR}/src/utils/nodes
-      ${DIET_BINARY_DIR}/src/CORBA/idl
-      ${DIET_SOURCE_DIR}/src/CORBA
-      ${CMAKE_CURRENT_SOURCE_DIR}
-      ${DIET_SOURCE_DIR}/include
-      ${DIET_SOURCE_DIR}/src/SeD	# for SeDImpl.hh from Cori_Metric
+include_directories(
+  ${OMNIORB4_INCLUDE_DIR}
+  ${DIET_SOURCE_DIR}/src/utils
+  ${DIET_SOURCE_DIR}/src/utils/nodes
+  ${DIET_BINARY_DIR}/src/CORBA/idl
+  ${DIET_SOURCE_DIR}/src/CORBA
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  ${DIET_SOURCE_DIR}/include
+  ${DIET_SOURCE_DIR}/src/SeD	# for SeDImpl.hh from Cori_Metric
   )
-endif (HAVE_ALT_BATCH)
+
+if (DIET_USE_ALT_BATCH)
+  include_directories(
+      ${DIET_SOURCE_DIR}/src/utils/batch
+    )
+endif (DIET_USE_ALT_BATCH)
   
 if (DIET_USE_WORKFLOW) 
   include_directories(${XERCES_INCLUDE_DIR})

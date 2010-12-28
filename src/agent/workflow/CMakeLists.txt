@@ -11,6 +11,11 @@
     ${DIET_SOURCE_DIR}/include
     )
 
+if (DIET_USE_ALT_BATCH) 
+  include_directories(${DIET_SOURCE_DIR}/src/utils/batch)
+endif (DIET_USE_ALT_BATCH)  
+
+
   INCLUDE_DIRECTORIES( ${XERCES_INCLUDE_DIR} )
 
   set(MaDag_SOURCES

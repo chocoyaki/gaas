@@ -14,6 +14,7 @@ include_directories(
   ${DIET_SOURCE_DIR}/src/agent
 )
 
+
 if (DIET_USE_LOG)
   include_directories(
     ${LOG_SRC_DIR}

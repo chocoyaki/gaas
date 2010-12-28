@@ -14,6 +14,11 @@ include_directories(
   ${XERCES_INCLUDE_DIR}
 )
 
+if (DIET_USE_ALT_BATCH) 
+  include_directories(${DIET_SOURCE_DIR}/src/utils/batch)
+endif (DIET_USE_ALT_BATCH)  
+
+
 
 if (DIET_USE_LOG)
   include_directories(

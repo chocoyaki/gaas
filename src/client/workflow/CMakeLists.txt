@@ -2,6 +2,10 @@
 #* DIET cmake local file                                                    *#
 #****************************************************************************#
 
+if (DIET_USE_ALT_BATCH) 
+  include_directories(${DIET_SOURCE_DIR}/src/utils/batch)
+endif (DIET_USE_ALT_BATCH)  
+
   INCLUDE_DIRECTORIES(
     ${OMNIORB4_INCLUDE_DIR}
     ${DIET_SOURCE_DIR}/src/utils

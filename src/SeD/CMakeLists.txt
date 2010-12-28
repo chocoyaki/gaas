@@ -17,9 +17,10 @@ if (NOT DIET_USE_DAGDA)
 endif(NOT DIET_USE_DAGDA)
 
 if (DIET_USE_ALT_BATCH)  # in that case, put lib UtilsCoRI in lib DIET_SeD
+  include_directories(${DIET_SOURCE_DIR}/src/utils/batch)
   set(DIET_SeD_SOURCES
     ${DIET_SeD_SOURCES}
-    ${DIET_SOURCE_DIR}/src/utils/Cori_batch.cc
+    ${DIET_SOURCE_DIR}/src/utils/batch/Cori_batch.cc
     ${DIET_SOURCE_DIR}/src/utils/nodes/FASTMgr.cc
     ${DIET_SOURCE_DIR}/src/utils/nodes/Cori_Data_Easy.cc
     ${DIET_SOURCE_DIR}/src/utils/nodes/Cori_Easy_CPU.cc

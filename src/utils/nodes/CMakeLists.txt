@@ -4,12 +4,17 @@ include_directories(
   ${DIET_SOURCE_DIR}/src/CORBA        # for e.g. marshalling.hh
   ${CMAKE_CURRENT_SOURCE_DIR}         # for DIET_data_internal.hh
   ${DIET_SOURCE_DIR}/include
-  ${DIET_SOURCE_DIR}/src/utils	# for BatchSystems.hh in Cori_batch
+  ${DIET_SOURCE_DIR}/src/utils	
   ${DIET_SOURCE_DIR}/src/SeD		# for SeDImpl.hh in Cori_batch
   ${DIET_SOURCE_DIR}/src/agent	# for ChildID.hh in SeDImpl
   ${DIET_SOURCE_DIR}/src/utils/DAGDA
   ${DIET_SOURCE_DIR}/src/utils/log
 )
+
+if (DIET_USE_ALT_BATCH) 
+  include_directories(${DIET_SOURCE_DIR}/src/utils/batch)
+endif (DIET_USE_ALT_BATCH)  
+
 
 
 if (DIET_USE_LOG)

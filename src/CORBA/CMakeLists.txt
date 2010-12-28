@@ -39,6 +39,7 @@ add_dependencies(CorbaCommon CORBAFiles)
 
 # Dependency when compiling with Batch support
 if (DIET_USE_ALT_BATCH)
+  include_directories( ${DIET_SOURCE_DIR}/src/utils/batch )
   add_dependencies( CorbaCommon BatchSystem.hh )
 endif (DIET_USE_ALT_BATCH)
 
