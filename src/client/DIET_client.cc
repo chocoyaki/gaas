@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.154  2010/12/28 10:35:45  hguemar
+ * move parsing error codes from src/utils/Parsers.hh to include/DIET_grpc.h
+ *
  * Revision 1.153  2010/12/27 16:39:31  bdepardo
  * Removed a few "unused variable" warnings
  *
@@ -484,8 +487,21 @@ const char * const ErrorCodeStr[] = {
   "GRPC_OTHER_ERROR_CODE",
   "GRPC_UNKNOWN_ERROR_CODE",
   "GRPC_ALREADY_INITIALIZED",
-  "GRPC_LAST_ERROR_CODE"};
+  "GRPC_LAST_ERROR_CODE",
+  "XML_MALFORMED",
+  "DAG_BADSTRUCT",
+  "WFL_BADSTRUCT",
+  "SRV_MISS",
+  "DIET_PARSE_ERROR",
+  "DIET_FILE_IO_ERROR",
+  "DIET_MISSING_PARAMETERS"
+};
 
+/* TODO: as soon as we get Boost, enable this piece of code
+ * make sure that our error code string array is up2date.
+ */
+//#include <boost/static_assert.hpp>
+//BOOST_STATIC_ASSERT( sizeof(ErrorCodeStr)/sizeof(char*) == DIET_LAST_ERROR );
 
 diet_error_t
 status_to_grpc_code(int err) {
@@ -1355,7 +1371,7 @@ diet_get_error(diet_reqID_t reqID) {
  ***************************************************************************/
 char *
 diet_error_string(diet_error_t error) {
-  if (error<0 || error>16)
+  if (error<0 || error>DIET_LAST_ERROR)
     return strdup("GRPC_UNKNOWN_ERROR CODE");
   return strdup(ErrorCodeStr[error]);
 }

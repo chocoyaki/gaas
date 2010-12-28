@@ -8,6 +8,9 @@
 /****************************************************************************/ 
 /* $Id$
  * $Log$
+ * Revision 1.45  2010/12/28 10:35:45  hguemar
+ * move parsing error codes from src/utils/Parsers.hh to include/DIET_grpc.h
+ *
  * Revision 1.44  2010/11/30 22:03:40  dloureir
  * Correcting headers to put more less-friendly information prior to doxygen documentation.
  *
@@ -258,7 +261,6 @@ command-line arguments used for omniORB.
 \arg DIET_FILE_IO_ERROR if an IO error happened during the config file parsing
 \arg DIET_PARSE_ERROR if the config file parsing happened
 
-@todo some error codes are not from the DIET_grpc.h file and should perhaps be transferred to it in order for the user to be able to manage them from the client code correctly
 @see the DIET_grpc.h file for more information about error values.
 */
 	

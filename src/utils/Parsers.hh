@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.45  2010/12/28 10:35:46  hguemar
+ * move parsing error codes from src/utils/Parsers.hh to include/DIET_grpc.h
+ *
  * Revision 1.44  2010/11/15 07:17:13  amuresan
  * added dirty mutex hack to stop multiple requests from not working correctly (TODO: fix elegantly)
  *
@@ -199,13 +202,11 @@
 #include <cstring>
 #include <unistd.h>
 #include <cstdlib>
+/* required for error code definition */
+#include "DIET_grpc.h"
 #include "ts_container/ts_set.hh"
 #include "ms_function.hh"
 
-// Added by EQ for EC from Parsers.cc
-#define DIET_PARSE_ERROR        1
-#define DIET_FILE_IO_ERROR      2
-#define DIET_MISSING_PARAMETERS 3
 
 #define PARSERS_ERROR(formatted_msg,return_value)                          \
   ERROR("Parsers::" << __FUNCTION__ << ": " << formatted_msg, return_value)

@@ -10,6 +10,9 @@
 /****************************************************************************/ 
 /* $Id$
  * $Log$
+ * Revision 1.16  2010/12/28 10:35:45  hguemar
+ * move parsing error codes from src/utils/Parsers.hh to include/DIET_grpc.h
+ *
  * Revision 1.15  2010/11/30 22:03:40  dloureir
  * Correcting headers to put more less-friendly information prior to doxygen documentation.
  *
@@ -743,6 +746,17 @@ extern "C" {
 	 */
 #define SRV_MISS      20
 #endif
+	/****************************************************************************/
+	/* DIET Config Parser error codes														*/
+	/****************************************************************************/
+
+#define DIET_PARSE_ERROR        21
+#define DIET_FILE_IO_ERROR      22
+#define DIET_MISSING_PARAMETERS 23
+
+/* don't forget to update ErrorCodeStr in DIET_client.cc
+   each time, you add a new error code */
+#define DIET_LAST_ERROR         24
 	
 	/****************************************************************************/
 	/* GridRPC Session code														*/
