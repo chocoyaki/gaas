@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2010/12/28 09:03:14  bdepardo
+ * Removed a warning
+ *
  * Revision 1.1  2010/12/17 09:48:01  kcoulomb
  * * Set diet to use the new log with forwarders
  * * Fix a CoRI problem
@@ -384,7 +387,6 @@ DietLogComponent::DietLogComponent(const char* name,
 int DietLogComponent::run(const char* agentType,
                           const char* parentName,
                           int outBufferTime) {
-   CORBA::Object_ptr myLCCptr;
    fprintf (stderr, "Running \n");
     // Connexion to the LCC
     myLCC = LogORBMgr::getMgr()->resolve<LogCentralComponent, LogCentralComponent_ptr>("LogServiceC", "LCC");
