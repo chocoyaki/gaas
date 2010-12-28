@@ -8,6 +8,10 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.16  2010/12/28 17:50:48  bdepardo
+%* Added \xspace in \diet command.
+%* Typos.
+%*
 %* Revision 1.15  2010/07/07 15:10:51  amuresan
 %* Added Cloud entry for the UsersGuide and ProgrammersGuide.
 %*
@@ -71,6 +75,7 @@
 %\usepackage[latin1]{inputenc}
 \usepackage{multicol}
 \usepackage{verbatim}
+\usepackage{xspace}
 \usepackage[headings]{fullpage}
 \usepackage{url}
 \usepackage[pdftex]{graphicx}
@@ -97,9 +102,9 @@
 
 
 \newcommand{\fixme}[1]{\fbox{\textsl{{\bf FIXME: }#1}}}
-\newcommand{\CMakeLists}{\textsf{CmakeLists.txt}}
-\newcommand{\cmake}{\texttt{cmake}}
-\newcommand{\diet}{\textsc{Diet}}
+\newcommand{\CMakeLists}{\textsf{CmakeLists.txt}\xspace}
+\newcommand{\cmake}{\texttt{cmake}\xspace}
+\newcommand{\diet}{\textsc{Diet}\xspace}
 
 \begin{document}
 
