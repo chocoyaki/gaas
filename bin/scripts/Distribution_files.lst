@@ -17,6 +17,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.51  2010/12/29 15:02:53  bdepardo
+#* SeD batch source files have been moved from src/utils to src/utils/batch
+#*
 #* Revision 1.50  2010/12/01 06:25:35  bdepardo
 #* Added missing files in src/examples/Batch
 #*
@@ -718,8 +721,6 @@ src/utils/CMakeLists.txt
 [Templated]
 src/utils/AccessController.cc
 src/utils/AccessController.hh
-src/utils/Cori_batch.cc
-src/utils/Cori_batch.hh
 src/utils/DIET_data.cc
 src/utils/DIET_data_internal.hh
 src/utils/DIET_mutex.cc
@@ -746,34 +747,36 @@ src/utils/statistics.hh
 
 # utils/batch section
 [Templated]
-src/utils/BatchCreator.cc
-src/utils/BatchCreator.hh
-src/utils/BatchSystem.cc
-src/utils/BatchSystem.hh
-src/utils/Loadleveler_BatchSystem.cc
-src/utils/Loadleveler_BatchSystem.hh
-src/utils/OAR1_6BatchSystem.cc
-src/utils/OAR1_6BatchSystem.hh
-src/utils/OAR2_XBatchSystem.cc
-src/utils/OAR2_XBatchSystem.hh
+src/utils/batch/Cori_batch.cc
+src/utils/batch/Cori_batch.hh
+src/utils/batch/BatchCreator.cc
+src/utils/batch/BatchCreator.hh
+src/utils/batch/BatchSystem.cc
+src/utils/batch/BatchSystem.hh
+src/utils/batch/Loadleveler_BatchSystem.cc
+src/utils/batch/Loadleveler_BatchSystem.hh
+src/utils/batch/OAR1_6BatchSystem.cc
+src/utils/batch/OAR1_6BatchSystem.hh
+src/utils/batch/OAR2_XBatchSystem.cc
+src/utils/batch/OAR2_XBatchSystem.hh
 src/utils/PBS_BatchSystem.cc
-src/utils/PBS_BatchSystem.hh
-src/utils/SGE_BatchSystem.cc
-src/utils/SGE_BatchSystem.hh
+src/utils/batch/PBS_BatchSystem.hh
+src/utils/batch/SGE_BatchSystem.cc
+src/utils/batch/SGE_BatchSystem.hh
 
 # Utils/Cloud section
 [Templated]
-src/utils/Eucalyptus_BatchSystem.cc
-src/utils/Eucalyptus_BatchSystem.hh
-src/utils/EucaLib/AmazonEC2Binding.nsmap
-src/utils/EucaLib/ec2wrapper.h
-src/utils/EucaLib/ec2wrapper.c
-src/utils/EucaLib/euca.h
-src/utils/EucaLib/soapC.c
-src/utils/EucaLib/soapClient.c
-src/utils/EucaLib/soapClientLib.c
-src/utils/EucaLib/soapH.h
-src/utils/EucaLib/soapStub.h
+src/utils/batch/Eucalyptus_BatchSystem.cc
+src/utils/batch/Eucalyptus_BatchSystem.hh
+src/utils/batch/EucaLib/AmazonEC2Binding.nsmap
+src/utils/batch/EucaLib/ec2wrapper.h
+src/utils/batch/EucaLib/ec2wrapper.c
+src/utils/batch/EucaLib/euca.h
+src/utils/batch/EucaLib/soapC.c
+src/utils/batch/EucaLib/soapClient.c
+src/utils/batch/EucaLib/soapClientLib.c
+src/utils/batch/EucaLib/soapH.h
+src/utils/batch/EucaLib/soapStub.h
 
 # Utils/nodes section
 [Untemplated]
