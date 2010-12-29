@@ -14,13 +14,15 @@
 * Source code organization:
 	- SeD batch source files have been moved from src/utils to
 	src/utils/batch
+	- Move parsers error codes to DIET_grpc.h, people using DIET_* error codes
+	  might have to recompile their applications.
 
 +----------+
 | diet 2.5 |
 +----------+
 
 * Compilation & installation improvements
-	
+
 	- DIET compilation now produces only three main dynamic
 	  libraries: DIET_client, DIET_SeD and DIET_Dagda
 	- The DIET internal parts are now compiled as static libraries
@@ -28,20 +30,20 @@
 	  copies only these three libraries.
 
 * DIET forwarder
-	
+
 	- A new DIET component: The DIET forwarder that forwards the
 	  DIET CORBA messages through SSH tunnel.
 	- DIET forwarders allow to build DIET hierarchy on different
 	  networks that can only be reached through SSH.
 
 * DIET cloud
-	
+
 	- DIET cloud now works with Amazon EC2
 
 +----------+
 | diet 2.4 |
 +----------+
-	
+
 * Windows version
 
 	- Added the support of Windows platform inside Cygwin. DIET is
@@ -56,7 +58,7 @@
 	cyclic dependancies between libraries during the link.
 
 * Dynamic hierarchy
-	
+
 	- Added the possibility to dynamically change the hierarchy shape
 	via CORBA calls.
 
@@ -66,8 +68,8 @@
 	API when activating a compilation option.
 	- Data containers are introduced to manage variable-length data sets.
 
-* Workflow Management 
-	
+* Workflow Management
+
 	- The workflow engine now supports in addition to the existing
 	MAdag language a new workflow language that provides a higher
 	level of abstraction with loops and conditional structures as
@@ -77,8 +79,8 @@
 
 +----------+
 | diet 2.3 |
-+----------+ 
-	
++----------+
+
 * Parallel Subsmissions
 
 	- The server API has been extended to provide transparent submission
@@ -91,7 +93,7 @@
 	still only a few information, but one can now get some information
 	on the batch system state, such as the number of idle nodes. These can
 	be used to dynamically tune a batch script.
-	
+
 * Loadable Schedulers
 
 	- Added support for scheduler module at agent level. The user can
@@ -104,7 +106,7 @@
 	and implicit data distribution/replication. DAGDA extends the standard
 	DIET API with data management functions which can be called from a
 	client, a server or an agent through a plugin scheduler.
-	
+
 * Workflow
 	the workflow management system of DIET has been redesigned.
 	4 differents scheduling heuristics have been implemented:
@@ -117,23 +119,23 @@
 	  according to the slowdown of each dag.
 	See UserManual for more details.
 
-* All bug was resolved. If you found a new one please refer to  
+* All bug was resolved. If you found a new one please refer to
   http://graal.ens-lyon.fr/bugzilla
 
 * DietLogComponents now implement the test() method, in order to allow LogCentral to test if an old component is reachable when a new component tries to sign in with the same name.
-	
+
 +----------+
 | diet 2.2 |
-+----------+ 
-	
++----------+
+
 * Workflow
 
 	- Workflow support added to DIET. A workflow engine and a special
 	agent the maDagAgent were added to manage and schedule workflow
 	submissions.
-    
+
 * Fault Tolerance
-	
+
 	- Added support for Chandra&Aguilera&Toueg failure detector. This
 	failure detector may be used to observe failures of components and
 	restart them.  Failure detector triggers callback upon definitive
@@ -141,27 +143,27 @@
 	procedure for failed SeDs.
 
 * JuxMem
-	
+
 	- Added support for asynchronous calls and refactorized implementation
 	- Updated for JuxMem 0.3
 
 * CMake
-        - DIET used a cmake based building process 
+        - DIET used a cmake based building process
 	(autotool version was abandoned)
 
-* All bug was resolved. If you found a new one please refer to  
+* All bug was resolved. If you found a new one please refer to
   http://graal.ens-lyon.fr/bugzilla
 
 +----------+
 | diet 2.1 |
-+----------+ 
++----------+
 
 * CoRI Collectors of ressource information
-        - This new functionality allows to acces in an easy way to 
-	 information about every SeD. In conjunction with the 
-	 plug-in scheduler, you can now specify your own scheduler 
+        - This new functionality allows to acces in an easy way to
+	 information about every SeD. In conjunction with the
+	 plug-in scheduler, you can now specify your own scheduler
 	 and your own method to collect the ressource information.
- 
+
 * JuxMem
 	- JuxMem support inside DIET has been updated for JuxMem 0.2.
 	Removed C++ wrapper inside src/utils (included in JuxMem).
@@ -172,7 +174,7 @@
 	updated when the DIET server API is modified.
 
 * DIET with MacOSX
-	- Bug corrections to compile on MacOSX. 
+	- Bug corrections to compile on MacOSX.
 	Remark : DIET requires Xcode 2.1 and the CVS version of omniORB 4.1.x
 	         Compilation has been tested on MacOSX 10.4.x
 
@@ -180,14 +182,14 @@
         - DIET now has a cmake based building process.
 
 and gcc 4.x support, few bug fix...
-	
+
 * Known bugs but not resolved
 	- INOUT parameters are not changed in asynchronous mode (bug #9 in
 	  bugzilla)
 
 +----------+
 | diet 2.0 |
-+----------+ 
++----------+
 
 * Plug-in
 	- add support for user-defined performance metrics at SeD-level,
@@ -195,13 +197,13 @@ and gcc 4.x support, few bug fix...
 	scheduling process at agents.
 
 * LogService
-	- DIET can now send enhanced log information including tracking 
+	- DIET can now send enhanced log information including tracking
 	read and write operations in JuxMem and tracking user-defined plug-in
 	scheduler details.
 
 * JuxMem
-	- JuxMem is a distributed memory system based on JXTA peer-to-peer 
-	technologies.  DIET now how the ability to store and retrieve data 
+	- JuxMem is a distributed memory system based on JXTA peer-to-peer
+	technologies.  DIET now how the ability to store and retrieve data
 	in JuxMem.  Experimental.
 
 * Multi-MA
@@ -210,16 +212,16 @@ and gcc 4.x support, few bug fix...
 
 * Bug corrections
 	- file length limits are too small (bug #10 in bugzilla)
-	- dmat_manips clients crash when useAsyncAPI = 0 in config file. 
-	  option not needed, so removed from config files. 
+	- dmat_manips clients crash when useAsyncAPI = 0 in config file.
+	  option not needed, so removed from config files.
 	  (bug #11 in bugzilla)
-	- when building in a separate directory make install fails due to 
+	- when building in a separate directory make install fails due to
 	  dependency on src/libs/*.jar.  Dependency removed with not
 	  compiling with JXTA options. (bug #12)
 	- union type embedded in a struct in idl/common_types.idl can not
 	  be compiled by java compiler.  structure re-arranged to correct
 	  the problem (bug #13)
-	- when user re-uses the same profile for multiple service 
+	- when user re-uses the same profile for multiple service
 	  declarations without calling free in between, MA crashes.
 	  bug was introduced after release 1.1, and has been corrected for
 	  release 2.0. (bug #14)
@@ -230,16 +232,16 @@ and gcc 4.x support, few bug fix...
 
 +----------+
 | diet 1.1 |
-+----------+ 
++----------+
 
 * logService
 	- add LogManager to DIET component (MAs, LAs and SeDs) to enable DIET
 	to suscribe to LogService. ( use configure with  :
 	--enable--logservice option)
-	
+
 * Data persistance
 	- add data persistance with DTM in DIET, now SeDs can store DATA.
-	
+
 * DIET multi-MA with JXTA
 	- a prototype of multi-MA based on JXTA. ( use configure with :
 	--enable-JXTA-mode option)
@@ -255,7 +257,7 @@ and gcc 4.x support, few bug fix...
 	- empty file for DATA_PERSISTANCE even if we don't use it (bug #6 in bugzilla)
 	- option --repeat in dmat_manip/client.c example (bug #7 in bugzilla)
 	- parsing file on 64 bit architectures (bug #8 in bugzilla)
-	
+
 * known bugs but not resolved
 	- INOUT parameters are not changed in asynchronous mode ( bug #9 in
 	bugzilla)
@@ -265,7 +267,7 @@ and gcc 4.x support, few bug fix...
 
 +----------+
 | diet 1.0 |
-+----------+ 
++----------+
 
 * GNU autotools: automake and autoconf.
   - Apparition of this ChangeLog.
@@ -293,7 +295,7 @@ and gcc 4.x support, few bug fix...
     for each argument, even OUT ones, when it is possible to guess their
     sizes).
   - The data loc are removed. Let us the data manager take care of that.
-  
+
 * Scheduling
   - Big purge in the agent ! It does not compute the persistent data transfer
     times (which is done at the SeD level by the data manager), but only the
