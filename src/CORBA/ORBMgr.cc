@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.33  2010/12/29 14:56:13  hguemar
+ * set static ORBMgr instance to 0
+ *
  * Revision 1.32  2010/11/02 21:34:26  bdepardo
  * Typo in message
  *
@@ -46,6 +49,8 @@
 #include "Forwarder.hh"
 
 using namespace std;
+
+ORBMgr * ORBMgr::theMgr = 0;
 
 /* Manager initialization. */
 void ORBMgr::init(CORBA::ORB_ptr ORB) {
@@ -92,6 +97,7 @@ ORBMgr::ORBMgr(CORBA::ORB_ptr ORB, PortableServer::POA_var POA) {
 ORBMgr::~ORBMgr() {
   ORB->shutdown(true);
   ORB->destroy();
+  theMgr = 0;
 }
 
 void ORBMgr::bind(const string& ctxt, const string& name,
@@ -466,9 +472,6 @@ void ORBMgr::init(int argc, char* argv[]) {
     delete theMgr;
   theMgr = new ORBMgr(argc, argv);
 }
-
-ORBMgr* ORBMgr::theMgr = NULL;
-
 
 /* Translate the string passed as first argument in bytes and
  * record them into the buffer.
