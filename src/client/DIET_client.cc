@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.155  2010/12/29 14:55:49  hguemar
+ * Fix successive diet_finalize() successive call crash
+ *
  * Revision 1.154  2010/12/28 10:35:45  hguemar
  * move parsing error codes from src/utils/Parsers.hh to include/DIET_grpc.h
  *
@@ -834,6 +837,11 @@ diet_finalize() {
   signal(SIGABRT, SIG_DFL);
   signal(SIGTERM, SIG_DFL);
 
+  // ensure that CORBA is active before doing anything
+  if (CORBA::is_nil(MA)) {
+    WARNING(__FUNCTION__ << ": diet_finalize has already been called");
+    return GRPC_NO_ERROR;
+  }
 
 #if HAVE_WORKFLOW
   // Terminate the xerces XML engine
