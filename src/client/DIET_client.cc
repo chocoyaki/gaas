@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.156  2010/12/29 14:56:34  hguemar
+ * minor fixes in code error handling
+ *
  * Revision 1.155  2010/12/29 14:55:49  hguemar
  * Fix successive diet_finalize() successive call crash
  *
@@ -497,14 +500,15 @@ const char * const ErrorCodeStr[] = {
   "SRV_MISS",
   "DIET_PARSE_ERROR",
   "DIET_FILE_IO_ERROR",
-  "DIET_MISSING_PARAMETERS"
+  "DIET_MISSING_PARAMETERS",
+  "DIET_LAST_ERROR_CODE"
 };
 
 /* TODO: as soon as we get Boost, enable this piece of code
  * make sure that our error code string array is up2date.
  */
-//#include <boost/static_assert.hpp>
-//BOOST_STATIC_ASSERT( sizeof(ErrorCodeStr)/sizeof(char*) == DIET_LAST_ERROR );
+// #include <boost/static_assert.hpp>
+// BOOST_STATIC_ASSERT( sizeof(ErrorCodeStr)/sizeof(char*) == DIET_LAST_ERROR_CODE + 1 );
 
 diet_error_t
 status_to_grpc_code(int err) {
@@ -1379,8 +1383,8 @@ diet_get_error(diet_reqID_t reqID) {
  ***************************************************************************/
 char *
 diet_error_string(diet_error_t error) {
-  if (error<0 || error>DIET_LAST_ERROR)
-    return strdup("GRPC_UNKNOWN_ERROR CODE");
+  if (error<0 || error>DIET_LAST_ERROR_CODE)
+    return strdup(ErrorCodeStr[GRPC_UNKNOWN_ERROR_CODE]);
   return strdup(ErrorCodeStr[error]);
 }
 /***************************************************************************

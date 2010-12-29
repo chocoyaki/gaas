@@ -10,6 +10,9 @@
 /****************************************************************************/ 
 /* $Id$
  * $Log$
+ * Revision 1.17  2010/12/29 14:56:34  hguemar
+ * minor fixes in code error handling
+ *
  * Revision 1.16  2010/12/28 10:35:45  hguemar
  * move parsing error codes from src/utils/Parsers.hh to include/DIET_grpc.h
  *
@@ -756,7 +759,7 @@ extern "C" {
 
 /* don't forget to update ErrorCodeStr in DIET_client.cc
    each time, you add a new error code */
-#define DIET_LAST_ERROR         24
+#define DIET_LAST_ERROR_CODE    24
 	
 	/****************************************************************************/
 	/* GridRPC Session code														*/
