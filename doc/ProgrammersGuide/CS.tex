@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.7  2010/12/29 11:08:41  kcoulomb
+%* Update diet coding standard based on sysfera coding standard
+%*
 %* Revision 1.6  2008/04/07 22:26:26  ecaron
 %* Updated files to pdflatex compilation
 %*
@@ -155,6 +158,14 @@ significant character of all these lines.
 
 \subsection{Defining a new class}
 
+Each C++ header must start with a:
+\begin{verbatim}                                                               
+#ifndef _CLASSNAME_HH_                                                         
+#define _CLASSNAME_HH_                                                         
+\end{verbatim}
+and ends with a $\#endif$.
+A header must contain only one class (unless there are some inner classes/nested
+ classes required)
 In a class declaration, the public part comes before the private one. Inner each
 part, declare the field first, and all methods then.
 
@@ -162,10 +173,18 @@ The file in which the class is declared should be named
 \texttt{$<$ClassName$>$.hh} and the one in which it is implemented should be named 
 \texttt{$<$ClassName$>$.cc}.
 
+The include files follow this order:
+\begin{itemize}
+\item The system include
+\item The DIET include
+\item The local include
+\end{itemize}
+Warning, in C++ include the C++ files (cstdio and not stdio)
 
 \section{Naming}
 
 Please follow the chapter 9 of the JAVA coding conventions.
+All names must be English.
 
 \subsection{Classes}
 
@@ -175,9 +194,17 @@ Use whole words-avoid acronyms and abbreviations (unless the abbreviation is
 much more widely used than the long form, such as URL or HTML).
 \footnotesize
 \begin{verbatim}
+Wrong:
+class lapin
+class 3nutella
+class Lehomard
+class HtmlParser
+
+Right:
+class HTMLParser
 class AgentImpl
-{
-  ...
+class Toto
+class LinusTorvald
 \end{verbatim}
 \normalsize
 
@@ -188,20 +215,37 @@ Methods should be verbs, in mixed case with the first letter lowercase, with the
 first letter of each internal word capitalized.
 \footnotesize
 \begin{verbatim}
-run();
-addServices();
+Wrong:
+  addservice();
+  chocolat();
+
+Right:
+  run();
+  addServices();
 \end{verbatim}
 \normalsize
-
+Here is a set of useful verbs \textit{add, run, launch, submit, send, receive,
+start, stop, get, set, have, is, emit, call}
 
 \subsection{Member Variables}
 
 Member variable names should be short yet meaningful. The choice of a variable
 name should be mnemonic - that is, designed to indicate to the casual observer
-the intent of its use.
+the intent of its use. Moreover, each member
+ variable must be pre-fixed using the 'm' letter. m stands for member. 
+Do not use 'this' to use the variables.
+
 \footnotesize
 \begin{verbatim}
-float myWidth;
+Wrong:
+  float minimum;
+  int size;
+  char *name;
+
+Right:
+  float mminimum;
+  int msize;
+  char *mname;
 \end{verbatim}
 \normalsize
 
@@ -245,8 +289,29 @@ typedef enum {
 \subsection{Types}
 
 Type names must be suffixed with \texttt{\_t}: \texttt{diet\_type\_t}.
+\begin{verbatim}
+Wrong:
+  diet_type
 
+Right:
+  diet_type_t
+\end{verbatim}
 
+\subsection{Getter/Setter}
+Getter/setter/boolean functions must start with get/set/is(or have).
+If they just return/set something, they must be implemented in the header
+file.
+\begin{verbatim}
+Wrong:
+  bool local();
+  int child();
+  void size(int s);
+
+Right:
+  bool isLocal() {return mlocal;} 
+  int  getNumberChildren() {return mchildren;}
+  void setSize(int s) {msize = s;}
+\end{verbatim}
 
 \section{Comments and Documentation}
 
@@ -387,7 +452,7 @@ read the least source code line.
 Please do not use tabs inside of the code and wrap lines after the 80th
 character in a line. We do not like tabs because different editors and editor
 settings always lead to different displays. However, it is permitted to insert
-tabs if and if only they correspond to 8 charcters in the indentation (as for
+tabs if and if only they correspond to 4 characters in the indentation (as for
 GNU-Emacs standards).
 
 Lines have to be indented by two spaces for each code block level.  See more
@@ -398,6 +463,27 @@ quickly feed the 80 characters width of a line. For \texttt{CMakeLists.txt}
 files it was thus chosen to use a 2 or 3 characters indentation width.
 If we strictly conform to the above limited-tabs recommendation,
 \texttt{CMakeLists.txt} should thus remain tab free.
+
+
+In the CMakeLists.txt files the following standards are to be followed :
+\begin{itemize}
+\item The function/macro commands are to be written in lower case \\
+\begin{verbatim}
+  WRONG add_Dependencies, ADD_DEPENDENCIES, ...
+  RIGHT add_library, add_custom_command, ...
+\end{verbatim}
+\item The parameters are to be in upper case with a space between the first 
+  parameter and the opening bracket, and no space between the command and
+  the bracket. There is a space between the last parameter nad the closing 
+  bracket.
+\begin{verbatim}
+  WRONG add_library ( TOTO ), add_executable(TITI)
+  RIGHT target_link_libraries ( myLib,
+                                toto )
+\end{verbatim}                                
+\item If a variable is hidden to the user in ccmake, there must be an 
+  explanation in the CMakeLists.txt file.
+\end{itemize}
 
 \section{Declarations}
 
@@ -410,10 +496,17 @@ Initialize variables at declaration. It is accepted not to initialize
 The asterisk of a pointer declaration and the \texttt{\&} of a reference
 declaration are parts of the \textbf{type} name. The space has to be put in
 between the \texttt{*} or the \texttt{\&} and the type name.
+Pointers must be initialized at the declaration.
 \footnotesize
-\begin{verbatim}
+ \begin{verbatim}
+Wrong:
+  char* toto;
+  int \& titi;
 
-\end{verbatim}
+Right:
+  char *toto = NULL;
+  int \&titi = myObject();
+\end{itemize}
 \normalsize
 
 \subsection{Functions}
@@ -464,6 +557,7 @@ Statements inside the function body should be indented with 2 spaces like
 statements inside a compound statement.  In contrast to functions, the opening
 left brace of a compound statement should be at the end of the line beginning
 the compound statement and the closing right brace should be alone on a line.
+Fragments of arithmetic expressions must be with spaces.
 Some examples:\\
 
 \footnotesize
@@ -537,6 +631,8 @@ Past experience leads us to some best-practice coding advices:
 \item Use \verb+#if 0+ to disable code sections and add a short comment why this
   code was disabled.
 %\item Avoid casting a CORBA type variable with a C/C++ type.
+\item DO NOT USE GOTO OR LABEL
+\item Do not use C cast in C++. Use dynamic\_cast, static\_cast, reinterpret\_cast or const\_cast depending on the context
 \end{itemize}
 
 %\end{document}
