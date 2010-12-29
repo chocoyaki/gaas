@@ -5,12 +5,15 @@
 * Compilation :
 	- DIET compilation needs the log service at compilation to use the log service at runtime.
 	- Add libraries versions when compiling the 3 main libraries
-	- Fix the cmake CheckFunctionExist problem 
+	- Fix the cmake CheckFunctionExist problem
 	- Correct the cori compil because use of cmake flags in source code (->add_definitions)
-	- Remove DTM from ccmake compilation because deprecated. 	
-	- DTM available with : 
-	> cmake -DDIET_USE_DTM=1 -DDIET_USE_DAGDA=0 -DDIET_USE_DYNAMICS=0 ..  
-	> make	
+	- Remove DTM from ccmake compilation because deprecated.
+	- DTM available with:
+	> cmake -DDIET_USE_DTM=1 -DDIET_USE_DAGDA=0 -DDIET_USE_DYNAMICS=0 ..
+	> make
+* Source code organization:
+	- SeD batch source files have been moved from src/utils to
+	src/utils/batch
 
 +----------+
 | diet 2.5 |
