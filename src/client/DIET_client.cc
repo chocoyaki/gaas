@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.157  2011/01/11 00:24:32  hguemar
+ * replace value by appropriate error constant
+ *
  * Revision 1.156  2010/12/29 14:56:34  hguemar
  * minor fixes in code error handling
  *
@@ -924,7 +927,7 @@ int
 diet_free(diet_data_handle_t* handle)
 {
   delete handle;
-  return 0;
+  return GRPC_NO_ERROR;
 }
 
 END_API
