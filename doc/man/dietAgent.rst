@@ -179,7 +179,7 @@ figuration file:
   String representing the LDAP base storing FAST-known services address 
   in the form host:port .
 
-  [Remark: Remark : DIET must be compiled with FAST ]
+  [Remark: DIET must be compiled with FAST ]
 
 **ldapMask**
 String specifying the mask registered in the LDAP base.

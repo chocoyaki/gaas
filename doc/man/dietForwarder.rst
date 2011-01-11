@@ -6,7 +6,7 @@ dietForwarder
 :Date:   2011-01-10
 :Copyright: DIET developers
 :License: GPLv3
-:Version: 0.1:
+:Version: 0.1
 :Manual section: 1
 
 NAME
@@ -194,3 +194,9 @@ WWW: http://graal.ens-lyon.fr/DIET
 SEE ALSO
 ========
 omniNames(1), DIETAgent(1)
+
+BUGS
+====
+
+On some systems, forwarder rules won't work unless you use 
+IP addresses instead of hostnames 
