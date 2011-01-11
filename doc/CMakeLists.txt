@@ -99,3 +99,15 @@ if( ENABLE_GUIDE )
 else()
   message( WARNING "Guides will not be built due to missing requirements." )
 endif()
+
+
+#############################################################################
+# man pages generation
+# we need rst2man for the generation
+#
+#############################################################################
+find_program( RST2MAN_BIN rst2man )
+
+if( RST2MAN_BIN )
+  add_subdirectory( man )
+endif()
