@@ -17,6 +17,10 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.52  2011/01/12 22:35:14  ecaron
+#* - Bug fix on PBS_BatchSystem path
+#* - Use BUILDDOC directory by default for the documentation generation
+#*
 #* Revision 1.51  2010/12/29 15:02:53  bdepardo
 #* SeD batch source files have been moved from src/utils to src/utils/batch
 #*
@@ -759,7 +763,7 @@ src/utils/batch/OAR1_6BatchSystem.cc
 src/utils/batch/OAR1_6BatchSystem.hh
 src/utils/batch/OAR2_XBatchSystem.cc
 src/utils/batch/OAR2_XBatchSystem.hh
-src/utils/PBS_BatchSystem.cc
+src/utils/batch/PBS_BatchSystem.cc
 src/utils/batch/PBS_BatchSystem.hh
 src/utils/batch/SGE_BatchSystem.cc
 src/utils/batch/SGE_BatchSystem.hh
@@ -1011,9 +1015,7 @@ doc/UsersManual/workflow.tex
 doc/UsersManual/xml_example.tex
 
 [Untemplated]
-doc/UsersManual/UsersManual.pdf
-
-
+doc/BUILDDOC/UsersManual/UsersManual.pdf
 
 # Doc/ExternalExample section
 [Untemplated]
@@ -1023,7 +1025,6 @@ doc/ExternalExample/README
 doc/ExternalExample/simple_client.c
 doc/ExternalExample/simple_server.c
 doc/ExternalExample/Cmake/FindDiet.cmake
-
 
 # Doc/ProgrammersGuide section
 [Devel_Untemplated]
@@ -1058,7 +1059,6 @@ doc/ProgrammersGuide/package.tex
 doc/ProgrammersGuide/source_tree.tex
 doc/ProgrammersGuide/start.tex
 
-
 # doc/UsersFAQ section
 [Devel_untemplated]
 doc/UsersFAQ/CMakeLists.txt
@@ -1072,7 +1072,7 @@ doc/UsersFAQ/fig/logo_DIET_big.gif
 doc/UsersFAQ/fig/logo_DIET_big.png
 
 [Untemplated]
-doc/UsersFAQ/UsersFAQ.pdf
+doc/BUILDDOC/UsersFAQ/UsersFAQ.pdf
 
 
 # doc/Tutorial section
@@ -1118,8 +1118,6 @@ src/Testing/Utilities/README
 src/Testing/Utilities/LightClient/MainFrame.java
 src/Testing/Utilities/LightClient/Makefile
 src/Testing/Utilities/LightClient/README
-
-
 
 # bin/scripts section
 [Devel_Untemplated]
