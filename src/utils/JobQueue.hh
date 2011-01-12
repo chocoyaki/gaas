@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2011/01/12 09:12:17  bdepardo
+ * Removed warning during code documentation generation
+ *
  * Revision 1.5  2010/03/31 21:15:40  bdepardo
  * Changed C headers into C++ headers
  *
@@ -41,72 +44,76 @@ using namespace std;
 #include <ctime>
 
 class JobQueue {
-
-  public:
-
-    JobQueue(int maxConcurrentJobsNb = 1);
-    ~JobQueue();
-
-    /**
-     * Add a job in the waiting queue for the SeD
-     * (called when the SOLVE request arrives)
-     * @param dietReqID the identifier of the request
-     * @param jobEstCompTime  the estimated duration of the job
-     * @param ev  the vector of estimations (for bw compatibility)
-     */
-    void
-        addJobWaiting(int dietReqID,
-                      double jobEstCompTime,
-                      corba_estimation_t& ev);
-
-    /**
-     * Change the status of the job to RUNNING
-     * (called when the SOLVE request gets a ressource)
-     * @param dietReqID the identifier of the request
-     */
-    bool
-        setJobStarted(int dietReqId);
-
-    bool
-        setJobFinished(int dietReqId);
-
-    bool
-        deleteJob(int dietReqId);
-
-    /**
-     * @deprecated (kept for backward compatibility)
-     * Get the stored list of jobs
-     * @param jobVector ref to job table
-     */
-    int
-        getActiveJobTable(jobVector_t& jobVector);
-
-    /**
-     * Earliest Finish Time estimation using FIFO scheduling
-     * This method consider all running and waiting jobs in the queue
-     * and calculates the EFT using maxConcurrentJobsNb processors.
-     * @return  the EFT value from now (in ms)
-     */
-    double
-        estimateEFTwithFIFOSched();
-
-  private:
-
-    /// Container for the list of jobs
-    map<int, diet_job_t>  myJobs;
-
-    /// FIFO queue to store waiting jobs (for EFT processing)
-    list<int>   myWaitingQueue;
-
-    /// Lock for thread-safe access to variables
-    omni_mutex myLock;
-
-    /// Counter of active jobs (ie not finished)
-    int nbActiveJobs;
-
-    /// Number of processors
-    int nbProc;
-
+  
+public:
+  
+  JobQueue(int maxConcurrentJobsNb = 1);
+  ~JobQueue();
+  
+  /**
+   * Add a job in the waiting queue for the SeD
+   * (called when the SOLVE request arrives)
+   * @param dietReqID the identifier of the request
+   * @param jobEstCompTime  the estimated duration of the job
+   * @param ev  the vector of estimations (for bw compatibility)
+   */
+  void
+  addJobWaiting(int dietReqID,
+                double jobEstCompTime,
+                corba_estimation_t& ev);
+  
+  /**
+   * Change the status of the job to RUNNING
+   * (called when the SOLVE request gets a ressource)
+   * @param dietReqId the identifier of the request
+   */
+  bool
+  setJobStarted(int dietReqId);
+  
+  /**
+   * Change the status of the job to FINISHED
+   * @param dietReqId the identifier of the request
+   */
+  bool
+  setJobFinished(int dietReqId);
+  
+  bool
+  deleteJob(int dietReqId);
+  
+  /**
+   * @deprecated (kept for backward compatibility)
+   * Get the stored list of jobs
+   * @param jobVector ref to job table
+   */
+  int
+  getActiveJobTable(jobVector_t& jobVector);
+  
+  /**
+   * Earliest Finish Time estimation using FIFO scheduling
+   * This method consider all running and waiting jobs in the queue
+   * and calculates the EFT using maxConcurrentJobsNb processors.
+   * @return  the EFT value from now (in ms)
+   */
+  double
+  estimateEFTwithFIFOSched();
+  
+private:
+  
+  /// Container for the list of jobs
+  map<int, diet_job_t>  myJobs;
+  
+  /// FIFO queue to store waiting jobs (for EFT processing)
+  list<int>   myWaitingQueue;
+  
+  /// Lock for thread-safe access to variables
+  omni_mutex myLock;
+  
+  /// Counter of active jobs (ie not finished)
+  int nbActiveJobs;
+  
+  /// Number of processors
+  int nbProc;
+  
 }; // class JobQueue
 
 #endif // _JOBQUEUE_HH_

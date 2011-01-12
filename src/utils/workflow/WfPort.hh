@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.21  2011/01/12 09:12:18  bdepardo
+ * Removed warning during code documentation generation
+ *
  * Revision 1.20  2010/08/26 07:48:39  bisnard
  * added check for non-connected input ports
  *
@@ -262,7 +265,6 @@ public:
 
   /**
    * Ports linking (used for node execution)
-   * @param nodeSet   container for the linked nodes
    */
   virtual void
   connectPorts() throw (WfStructException);

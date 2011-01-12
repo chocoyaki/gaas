@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2011/01/12 09:12:17  bdepardo
+ * Removed warning during code documentation generation
+ *
  * Revision 1.2  2010/11/24 15:36:59  bdepardo
  * New line at the end of file to prevent warnings
  *
@@ -50,7 +53,6 @@ class EventManager {
     /**
      * Add a new observer with a basic filter on severity
      * @param observer	the observer
-     * @param severityLevel minimum level of severity
      */
     void addObserver(EventObserver* observer);
     

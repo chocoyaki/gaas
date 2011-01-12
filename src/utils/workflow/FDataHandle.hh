@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2011/01/12 09:12:18  bdepardo
+ * Removed warning during code documentation generation
+ *
  * Revision 1.16  2010/07/20 09:20:11  bisnard
  * integration with eclipse gui and with dietForwarder
  *
@@ -284,7 +287,6 @@ class FDataHandle {
      * @param depth the depth of this data (0 if not a container)
      * @param isVoid  set to true to create a VOID data
      * @param port the port that produces the data (NULL if void data)
-     * @param portLevel the level of the port (if port is provided)
      */
     FDataHandle(const FDataTag& tag,
                 unsigned int depth,
@@ -576,7 +578,7 @@ class FDataHandle {
      * Get the dataID from the dag node (after execution)
      * Does change the adapter type to DATAID
      * @exception WfDataHandleException(eINVALID_ADAPT)
-     * @Exception WfDataException(eID_UNDEF)
+     * @exception WfDataException(eID_UNDEF)
      */
     void
         downloadDataID() throw (WfDataHandleException, WfDataException);

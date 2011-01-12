@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2011/01/12 09:12:18  bdepardo
+ * Removed warning during code documentation generation
+ *
  * Revision 1.4  2009/08/26 10:32:11  bisnard
  * corrected  warnings
  *
@@ -105,7 +108,7 @@ class WfExprVariable {
 
     /**
      * Set the value of the variable
-     * @param value raw value if scalar, XML-encoded if container
+     * @param varValue raw value if scalar, XML-encoded if container
      */
     virtual void
         setValue(const std::string& varValue);

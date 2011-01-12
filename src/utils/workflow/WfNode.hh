@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2011/01/12 09:12:18  bdepardo
+ * Removed warning during code documentation generation
+ *
  * Revision 1.3  2009/10/12 15:00:14  bisnard
  * added some const
  *
@@ -239,7 +242,6 @@ public:
    * @param portType  the port type (in, out, inout)
    * @param dataType  the data type (constant defined in WfCst class)
    * @param depth     the depth of the list structure (0 if no list)
-   * @param v         the parameter value
    */
   virtual WfPort *
   newPort(string id,

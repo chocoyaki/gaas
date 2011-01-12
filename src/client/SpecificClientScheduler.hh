@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2011/01/12 09:12:16  bdepardo
+ * Removed warning during code documentation generation
+ *
  * Revision 1.2  2007/07/12 08:43:49  aamar
  * Correct prototype (virtual void) of pre/post diet_call functions.
  *
@@ -95,7 +98,7 @@ public:
   isOptionEnabled(std::string option, std::vector<std::string>& params);
 
   /**
-   * Utility method
+   * Utility method: remove blanks from a string
    *
    * @param token string to trim
    */
@@ -103,10 +106,11 @@ public:
   removeBlanks(std::string& token);
 
   /**
-   * Utility method
+   * Utility method: split a string given a delimiter
    *
    * @param str the string to split
    * @param delim string delimeter
+   * @param results the elements of the split string
    */
   
   static void

@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2011/01/12 09:12:18  bdepardo
+ * Removed warning during code documentation generation
+ *
  * Revision 1.5  2010/03/08 13:50:19  bisnard
  * debug too verbose
  *
@@ -325,9 +328,10 @@ WfNode::prevNodesEnd() {
 
 /**
  * Add a next node reference *
+ * @param node the node to add
  */
 void
-WfNode::addNext(WfNode * node) {
+WfNode::addNext(WfNode *node) {
   nextNodes.push_back(node);
 }
 
