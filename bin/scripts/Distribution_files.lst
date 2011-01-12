@@ -17,6 +17,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.53  2011/01/12 22:57:39  ecaron
+#* New path for DIETLogComponent
+#*
 #* Revision 1.52  2011/01/12 22:35:14  ecaron
 #* - Bug fix on PBS_BatchSystem path
 #* - Use BUILDDOC directory by default for the documentation generation
@@ -802,8 +805,8 @@ src/utils/nodes/Cori_Metric.cc
 src/utils/nodes/Cori_Metric.hh
 src/utils/nodes/Counter.cc
 src/utils/nodes/Counter.hh
-src/utils/nodes/DietLogComponent.cc
-src/utils/nodes/DietLogComponent.hh
+src/utils/log/DietLogComponent.cc
+src/utils/log/DietLogComponent.hh
 src/utils/nodes/FASTMgr.cc
 src/utils/nodes/FASTMgr.hh
 src/utils/nodes/MonitoringThread.cc
