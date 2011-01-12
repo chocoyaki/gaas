@@ -1,19 +1,25 @@
 +----------+
 | diet 2.6 |
 +----------+
-* DIET now works once more with LogService
-* Compilation:
+
+* Logservice
+
+	DIET now works once more with LogService
+
+* Compilation improvements:
+	
 	- DIET compilation needs the log service at compilation to use the log service at runtime.
 	- Add libraries versions when compiling the 3 main libraries
 	- Fix the cmake CheckFunctionExist problem
 	- Correct the cori compil because use of cmake flags in source code (->add_definitions)
 	- Remove DTM from ccmake compilation because deprecated.
-	- DTM available with:
-	> cmake -DDIET_USE_DTM=1 -DDIET_USE_DAGDA=0 -DDIET_USE_DYNAMICS=0 ..
-	> make
+	  Nevertheless DTM data manager still available with:
+	     > cmake -DDIET_USE_DTM=1 -DDIET_USE_DAGDA=0 -DDIET_USE_DYNAMICS=0 ..
+	     > make
+
 * Source code organization:
-	- SeD batch source files have been moved from src/utils to
-	src/utils/batch
+
+	- SeD batch source files have been moved from src/utils to src/utils/batch
 	- Move parsers error codes to DIET_grpc.h, people using DIET_* error codes
 	  might have to recompile their applications.
 
