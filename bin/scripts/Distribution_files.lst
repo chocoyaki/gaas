@@ -17,6 +17,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.56  2011/01/13 12:16:21  ecaron
+#* Add 2 man page files
+#*
 #* Revision 1.55  2011/01/13 10:19:52  ecaron
 #* Move path for UsersManual.pdf and UsersFAQ
 #*
@@ -1082,6 +1085,16 @@ doc/UsersFAQ/fig/logo_DIET_big.png
 
 [Untemplated]
 doc/UsersFAQ.pdf
+
+# doc/man section
+[Devel_untemplated]
+doc/man/CMakeLists.txt
+doc/dietAgent.rst
+doc/dietForwarder.rst
+
+[Untemplated]
+doc/man/dietAgent.1
+doc/man/dietForwarder.1
 
 # doc/Tutorial section
 [Devel_untemplated]
