@@ -558,13 +558,13 @@ ENDIF( CYGWIN )
 # manage lib/lib64 install issue
 set( LIB_SUFFIX "" CACHE STRING "Define suffix of lib directory name (32/64)" )
 set( LIB_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}"
-  CACHE PATH "Directory where lib will be installed" )
+  CACHE INTERNAL "Directory where lib will be installed")
 set( BIN_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/bin"
-  CACHE PATH "Directory where binary will be installed" )
+  CACHE INTERNAL "Directory where binary will be installed" )
 set( INCLUDE_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/include"
-  CACHE PATH "Directory where include will be installed" )
+  CACHE INTERNAL "Directory where include will be installed" )
 set( CMAKE_MOD_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/share/cmake/Modules"
-  CACHE PATH "Directory where cmake modules will be installed" )
+  CACHE INTERNAL "Directory where cmake modules will be installed" )
 
 # --------------------------------------------------------------------------
 add_subdirectory(src)
