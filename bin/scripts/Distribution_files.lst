@@ -17,6 +17,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.57  2011/01/13 23:46:03  ecaron
+#* AmazonEC2Binding.nsmap and concatenation.sh are Untemplated file
+#*
 #* Revision 1.56  2011/01/13 12:16:21  ecaron
 #* Add 2 man page files
 #*
@@ -527,6 +530,7 @@ src/examples/BLAS/server.c
 src/examples/Batch/CMakeLists.txt
 src/examples/Batch/README.txt
 src/examples/Batch/TestAllBatch/CMakeLists.txt
+src/examples/Batch/TestAllBatch/concatenation.sh
 
 [Templated]
 src/examples/Batch/async_client.c
@@ -540,7 +544,6 @@ src/examples/Batch/TestAllBatch/allbatch_server.c
 src/examples/Batch/TestAllBatch/batch_server.c
 src/examples/Batch/TestAllBatch/allbatch_client.c
 src/examples/Batch/TestAllBatch/client.c
-src/examples/Batch/TestAllBatch/concatenation.sh
 
 [Untemplated]
 src/examples/cloud/CMakeLists.txt
@@ -780,11 +783,13 @@ src/utils/batch/SGE_BatchSystem.cc
 src/utils/batch/SGE_BatchSystem.hh
 
 # Utils/Cloud section
+[Untemplated]
+src/utils/batch/EucaLib/AmazonEC2Binding.nsmap
+
 [Templated]
 src/utils/batch/CMakeLists.txt
 src/utils/batch/Eucalyptus_BatchSystem.cc
 src/utils/batch/Eucalyptus_BatchSystem.hh
-src/utils/batch/EucaLib/AmazonEC2Binding.nsmap
 src/utils/batch/EucaLib/ec2wrapper.h
 src/utils/batch/EucaLib/ec2wrapper.c
 src/utils/batch/EucaLib/euca.h
@@ -793,6 +798,7 @@ src/utils/batch/EucaLib/soapClient.c
 src/utils/batch/EucaLib/soapClientLib.c
 src/utils/batch/EucaLib/soapH.h
 src/utils/batch/EucaLib/soapStub.h
+
 
 # Utils/nodes section
 [Untemplated]
