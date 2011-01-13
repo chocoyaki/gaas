@@ -1,3 +1,18 @@
+/****************************************************************************/
+/* Client example using Containers                                          */
+/*                                                                          */
+/* Author(s):                                                               */
+/*   - Gaël Le Mahec (gael.le.mahec@ens-lyon.fr)                            */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+/* $Id$
+ * $Log$
+ * Revision 1.4  2011/01/13 23:50:21  ecaron
+ * Add missing header
+ *
+ ****************************************************************************/
+
 #include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
