@@ -17,6 +17,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.54  2011/01/13 08:57:19  bdepardo
+#* Add missing src/utils/batch/CMakeLists.txt
+#*
 #* Revision 1.53  2011/01/12 22:57:39  ecaron
 #* New path for DIETLogComponent
 #*
@@ -773,6 +776,7 @@ src/utils/batch/SGE_BatchSystem.hh
 
 # Utils/Cloud section
 [Templated]
+src/utils/batch/CMakeLists.txt
 src/utils/batch/Eucalyptus_BatchSystem.cc
 src/utils/batch/Eucalyptus_BatchSystem.hh
 src/utils/batch/EucaLib/AmazonEC2Binding.nsmap
