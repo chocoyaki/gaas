@@ -17,6 +17,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.58  2011/01/13 23:52:56  ecaron
+#* CMakeLists.txt is Untemplated
+#*
 #* Revision 1.57  2011/01/13 23:46:03  ecaron
 #* AmazonEC2Binding.nsmap and concatenation.sh are Untemplated file
 #*
@@ -785,9 +788,9 @@ src/utils/batch/SGE_BatchSystem.hh
 # Utils/Cloud section
 [Untemplated]
 src/utils/batch/EucaLib/AmazonEC2Binding.nsmap
+src/utils/batch/CMakeLists.txt
 
 [Templated]
-src/utils/batch/CMakeLists.txt
 src/utils/batch/Eucalyptus_BatchSystem.cc
 src/utils/batch/Eucalyptus_BatchSystem.hh
 src/utils/batch/EucaLib/ec2wrapper.h
