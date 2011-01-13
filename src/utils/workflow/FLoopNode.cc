@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2011/01/13 23:07:20  ecaron
+ * Bug fix in header
+ *
  * Revision 1.6  2010/07/20 09:20:11  bisnard
  * integration with eclipse gui and with dietForwarder
  *
@@ -27,7 +30,7 @@
  * Revision 1.1  2009/07/07 09:06:08  bisnard
  * new class FLoopNode to handle workflow loops
  *
- */
+ ****************************************************************************/
 
 #include "FLoopNode.hh"
 

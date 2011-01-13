@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2011/01/13 23:07:20  ecaron
+ * Bug fix in header
+ *
  * Revision 1.4  2010/04/28 14:11:49  bdepardo
  * Bug correction for while condition.
  *
@@ -21,7 +24,7 @@
  * Revision 1.1  2009/07/07 09:06:08  bisnard
  * new class FLoopNode to handle workflow loops
  *
- */
+ ****************************************************************************/
 
 #ifndef _FLOOPNODE_HH_
 #define _FLOOPNODE_HH_
