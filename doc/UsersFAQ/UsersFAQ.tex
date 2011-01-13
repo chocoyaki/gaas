@@ -2,12 +2,15 @@
 %* DIET User's FAQ main file                                                *%
 %*                                                                          *%
 %*  Author(s):                                                              *%
-%*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       *%
+%*    - Benjamin Depardon (Benjamin.Depardon@ens-lyon.fr)                   *%
 %*                                                                          *%
 %* $LICENSE$                                                                *%
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.5  2011/01/13 09:16:05  bdepardo
+%* A few more questions
+%*
 %* Revision 1.4  2010/12/01 12:49:53  ecaron
 %* bug fix for the DIET URL
 %*
@@ -389,7 +392,7 @@ idlj_diet:
                  .
 \end{verbatim}
 
-\noindent \textcolor{red}{How is GoDiet run?}\\
+\noindent \textcolor{red}{How do I run GoDiet?}\\
 \noindent The command for running GoDiet is: java -jar GoDIET-2.3.0.jar your\_xml\_file
 \begin{verbatim}
 paco@capo-chichi:~/DIET/Godiet/GoDiet_CVS$ java -jar GoDIET-2.3.0.jar examples/example1.xml
@@ -405,10 +408,33 @@ Parsing xml file: examples/example1.xml
 </env>
 \end{verbatim}
 
-\noindent After that, use the \textit {launch} command to start the example. For more, you have to follow instructions on the DIET UsersManual (Chapter 9, p. 91).
+\noindent After that, use the \textit {launch} command to start the example. For more, you have to follow instructions on the DIET UsersManual (Chapter 9, p. 91).\\
 
-\noindent \textcolor{red}{What does mean the error message: "DIET ERROR: caught a CORBA exception (TRANSIENT) while submitting problem."?}\\
-\noindent The reason is probably that you are using a different version of DIET on the client side and on the server (Master Agent or SeD) side. For example this happens if you use a DIET v2.5 client with a DIET v2.4 MA.
+
+\noindent \textcolor{red}{What does mean the error message: "DIET
+  ERROR: caught a CORBA exception (TRANSIENT) while submitting
+  problem."?}\\
+\noindent The reason is probably that you are using a different
+version of DIET on the client side and on the server side (Master Agent or
+SeD). For example this happens if you use a DIET v2.6 client with
+a DIET v2.4 MA.\\
+
+
+
+\noindent \textcolor{red}{I run omniNames, the configuration file
+  seems OK, but the MA tells me it cannot contact the naming
+  service. What's wrong?}\\
+\noindent Check your omniORB configuration file. If the host is
+specified with the hostname, try to put the IP adress instead.\\
+
+
+\noindent \textcolor{red}{I get a TRANSIENT\_ConnectionFailed error.
+  What's wrong?}\\
+\noindent Check your omniORB configuration file. If necessary, when
+running omniNames add the endPointPublish option with the correct
+listening adress and port.\\
+
+
 
 \end{document}
 
