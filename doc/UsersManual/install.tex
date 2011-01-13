@@ -10,6 +10,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.51  2011/01/13 16:36:16  bdepardo
+%* Installation flags for cmake
+%*
 %* Revision 1.50  2010/05/25 08:04:49  bdepardo
 %* Fixmes removal
 %*
@@ -484,6 +487,18 @@ compilation or some developers extensions:
   build type sets the compilers flags, respectively the linker flags,
   with all the possible warning flags activated, resp. with the
   additional debug flags.
+
+\item
+  Several options (not accessible through the ccmake GUI) can control the
+  installation paths for libraries, binaries, includes and modules. By default
+  the value of these install paths are respectively
+  \verb+${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}+,
+  \verb+${CMAKE_INSTALL_PREFIX}/bin+, \verb+${CMAKE_INSTALL_PREFIX}/include+,
+  \verb+${CMAKE_INSTALL_PREFIX}/share/cmake/Modules+. They can independently be
+  set up using the following variables \verb+LIB_INSTALL_DIR+,
+  \verb+BIN_INSTALL_DIR+, \verb+INSTALL_INSTALL_DIR+ and
+  \verb+CMAKE_MOD_INSTALL_DIR+. You can set those on the command line when
+  calling cmake or ccmake, for example \verb+cmake .. -DLIB_INSTALL_DIR=${HOME}/lib+.
 \end{itemize}
 
 %==================
