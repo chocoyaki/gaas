@@ -1,3 +1,18 @@
+/****************************************************************************/
+/* The MA DAG LogCentral Dispatcher                                         */
+/*                                                                          */
+/* Author(s):                                                               */
+/*   - Benjamin Isnard (Benjamin.Isnard@ens-lyon.fr)                        */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+/* $Id$
+ * $Log$
+ * Revision 1.3  2011/01/13 23:01:09  ecaron
+ * Add header for MaDag LogCentral Dispatcher
+ *
+ ****************************************************************************/
+
 #ifndef MADAGLOGCENTRALDISPATCHER_HH_
 #define MADAGLOGCENTRALDISPATCHER_HH_
 
