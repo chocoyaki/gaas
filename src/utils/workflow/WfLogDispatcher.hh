@@ -1,3 +1,18 @@
+/****************************************************************************/
+/* Workflow Log Dispatcher                                                  */
+/*                                                                          */
+/* Author(s):                                                               */
+/*   - Benjamin Isnard (benjamin.isnard@ens-lyon.fr)                        */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+/* $Id$
+ * $Log$
+ * Revision 1.2  2011/01/13 23:36:12  ecaron
+ * Add missing header
+ *
+ ****************************************************************************/
+
 #ifndef WFLOGDISPATCHER_HH_
 #define WFLOGDISPATCHER_HH_
 

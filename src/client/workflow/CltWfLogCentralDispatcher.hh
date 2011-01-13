@@ -1,3 +1,18 @@
+/****************************************************************************/
+/* Control Workflow LogCentral Dispatcher                                   */
+/*                                                                          */
+/* Author(s):                                                               */
+/*   - Benjamin Isnard (benjamin.isnard@ens-lyon.fr)                        */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+/* $Id$
+ * $Log$
+ * Revision 1.3  2011/01/13 23:38:19  ecaron
+ * Add missing header
+ *
+ ****************************************************************************/
+
 #ifndef CLTWFLOGCENTRALDISPATCHER_HH_
 #define CLTWFLOGCENTRALDISPATCHER_HH_
 

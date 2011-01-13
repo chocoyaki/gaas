@@ -1,3 +1,20 @@
+/****************************************************************************/
+/* MultiCall.                                                               */
+/* It is used to devide a profile and make several calls with just one SeD. */
+/*                                                                          */
+/*                                                                          */
+/* Author(s):                                                               */
+/*   - Ghislain Charrier (Ghislain.Charrier@ens-lyon.fr)                    */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+/* $Id$
+ * $Log$
+ * Revision 1.3  2011/01/13 23:42:40  ecaron
+ * Add missing header
+ *
+ ****************************************************************************/
+
 #ifndef _MULTICALL_HH_
 #define _MULTICALL_HH_
 
