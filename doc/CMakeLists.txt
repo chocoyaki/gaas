@@ -110,4 +110,7 @@ find_program( RST2MAN_BIN rst2man )
 
 if( RST2MAN_BIN )
   add_subdirectory( man )
+else()
+  message( WARNING "Man pages will not be built due to missing requirements." )
+  message( WARNING "Please install rst2man (usually included in python-docutils package)" )
 endif()
