@@ -22,8 +22,8 @@ set_property( DIRECTORY APPEND PROPERTY
 ##############################################################################
 find_package( Doxygen )
 if( NOT DOXYGEN_FOUND )
-  message( WARNING "doxygen not found." )
-  message( WARNING "API documentation will not be generated." )
+  message( WARNING " doxygen not found." )
+  message( WARNING " API documentation will not be generated." )
 else()
   # tell doxygen where our sources lives
   get_filename_component( SRC_DIR ${PROJECT_SOURCE_DIR} PATH )
@@ -74,12 +74,12 @@ find_package( ImageMagick )
 
 set( ENABLE_GUIDE ON )
 if( NOT PDFLATEX_COMPILER )
-  message( WARNING "Latex installation was not found." )
+  message( WARNING " Latex installation was not found." )
   set( ENABLE_GUIDE OFF )
 endif()
 
 if( NOT TRANSFIG_FOUND )
-  message( WARNING "Transfig installation was not found. Please provide FIG2DEV." )
+  message( WARNING " Transfig installation was not found. Please provide FIG2DEV." )
   set( ENABLE_GUIDE OFF )
 endif()
 
@@ -97,7 +97,7 @@ if( ENABLE_GUIDE )
   add_subdirectory( UsersManual )
   add_subdirectory( UsersFAQ )
 else()
-  message( WARNING "Guides will not be built due to missing requirements." )
+  message( WARNING " Guides will not be built due to missing requirements." )
 endif()
 
 
@@ -111,6 +111,6 @@ find_program( RST2MAN_BIN rst2man )
 if( RST2MAN_BIN )
   add_subdirectory( man )
 else()
-  message( WARNING "Man pages will not be built due to missing requirements." )
-  message( WARNING "Please install rst2man (usually included in python-docutils package)" )
+  message( WARNING " Man pages will not be built due to missing requirements." )
+  message( WARNING " Please install rst2man (usually included in python-docutils package)" )
 endif()
