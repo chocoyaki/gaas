@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.6  2011/01/13 09:27:11  bdepardo
+%* Cannot do a static build on Apple platforms
+%*
 %* Revision 1.5  2011/01/13 09:16:05  bdepardo
 %* A few more questions
 %*
@@ -434,6 +437,32 @@ specified with the hostname, try to put the IP adress instead.\\
 running omniNames add the endPointPublish option with the correct
 listening adress and port.\\
 
+
+\noindent \textcolor{red}{Compiling DIET statically on mac OS
+  platforms.}\\
+\noindent If you plan to compile DIET statically on mac platforms\dots
+don't. You may face such an error:
+\begin{verbatim}
+/usr/libexec/gcc/i686-apple-darwin8/4.0.1/ld: can't locate file for: -lcrt0.o
+collect2: ld returned 1 exit status
+make[2]: *** [src/agent/dietAgent] Error 1
+make[1]: *** [src/agent/CMakeFiles/dietAgent.dir/all] Error 2
+make: *** [all] Error 2
+\end{verbatim}
+or something like describe here:
+\url{http://lists.apple.com/archives/xcode-users/2007/Apr/msg00327.html}.\\ 
+
+
+Here is the explanation of the problem:
+\url{http://developer.apple.com/qa/qa2001/qa1118.html}.
+
+It seems that one can create static libraries but can't create static
+executables.
+
+Please consider creating dynamic executable instead!
+
+You should also be aware that since DIET 2.3 static compilation is
+disabled on mac platforms.
 
 
 \end{document}
