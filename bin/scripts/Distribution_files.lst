@@ -17,6 +17,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.55  2011/01/13 10:19:52  ecaron
+#* Move path for UsersManual.pdf and UsersFAQ
+#*
 #* Revision 1.54  2011/01/13 08:57:19  bdepardo
 #* Add missing src/utils/batch/CMakeLists.txt
 #*
@@ -25,7 +28,6 @@
 #*
 #* Revision 1.52  2011/01/12 22:35:14  ecaron
 #* - Bug fix on PBS_BatchSystem path
-#* - Use BUILDDOC directory by default for the documentation generation
 #*
 #* Revision 1.51  2010/12/29 15:02:53  bdepardo
 #* SeD batch source files have been moved from src/utils to src/utils/batch
@@ -1022,7 +1024,7 @@ doc/UsersManual/workflow.tex
 doc/UsersManual/xml_example.tex
 
 [Untemplated]
-doc/BUILDDOC/UsersManual/UsersManual.pdf
+doc/UsersManual.pdf
 
 # Doc/ExternalExample section
 [Untemplated]
@@ -1079,8 +1081,7 @@ doc/UsersFAQ/fig/logo_DIET_big.gif
 doc/UsersFAQ/fig/logo_DIET_big.png
 
 [Untemplated]
-doc/BUILDDOC/UsersFAQ/UsersFAQ.pdf
-
+doc/UsersFAQ.pdf
 
 # doc/Tutorial section
 [Devel_untemplated]
