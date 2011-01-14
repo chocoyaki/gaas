@@ -2,10 +2,11 @@
 | diet 2.6 |
 +----------+
 
-* Logservice
+* External DIET tools are back 
 
 	DIET now works once more with LogService
-
+	DIET now works once more with GoDIET 
+	
 * Compilation improvements:
 	
 	- DIET compilation needs the log service at compilation to use the log service at runtime.
@@ -13,7 +14,7 @@
 	- Fix the cmake CheckFunctionExist problem
 	- Correct the cori compil because use of cmake flags in source code (->add_definitions)
 	- Remove DTM from ccmake compilation because deprecated.
-	  Nevertheless DTM data manager still available with:
+	  Nevertheless DTM data manager is still available with:
 	     > cmake -DDIET_USE_DTM=1 -DDIET_USE_DAGDA=0 -DDIET_USE_DYNAMICS=0 ..
 	     > make
 
