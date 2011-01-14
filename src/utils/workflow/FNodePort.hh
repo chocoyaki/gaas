@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.18  2011/01/14 01:30:56  bdepardo
+ * Correct bug preventing two INOUT ports from being connected
+ *
  * Revision 1.17  2010/07/20 09:20:11  bisnard
  * integration with eclipse gui and with dietForwarder
  *
@@ -373,9 +376,13 @@ class FNodeInOutPort : public FNodeInPort, public FNodeOutPort {
 		      
     /**
      * Method to setup ports connection on each side
+     * endOfLink is here to disambiguate cases where an inout port could be
+     * both in or out port:
+     * if enOfLink is set to true, then this port is an in port, otherwise it
+     * is an out port
      */
     virtual void
-        connectToPort(WfPort* remPort);
+    connectToPort(WfPort* remPort, bool endOfLink);
 		   
     /**
      * Instanciate the port as a real input/output port

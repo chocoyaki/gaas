@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.22  2011/01/14 01:30:56  bdepardo
+ * Correct bug preventing two INOUT ports from being connected
+ *
  * Revision 1.21  2010/07/20 09:20:11  bisnard
  * integration with eclipse gui and with dietForwarder
  *
@@ -96,6 +99,7 @@ extern "C" {
 #include "DagNode.hh"
 #include "DagNodePort.hh"
 #include "EventTypes.hh"
+#include "FNodePort.hh"
 
 
 using namespace std;
@@ -273,8 +277,21 @@ WfSimplePortAdapter::connectPorts(WfPort* port, unsigned int adapterLevel)
     throw WfStructException(WfStructException::eTYPE_MISMATCH,errorMsg);
 
   this->portPtr = linkedPort;       // SET the port ref FOR THE ADAPTER
-  port->connectToPort(linkedPort);  // SET the connection on my port
-  linkedPort->connectToPort(port);  // SET the connection on remote port
+  // SET the connection on my port
+  if (port->getPortType() == WfPort::PORT_INOUT
+      && NULL != dynamic_cast<FNodeInOutPort*>(port)) {
+    dynamic_cast<FNodeInOutPort*>(port)->connectToPort(linkedPort, false);
+  } else {
+    port->connectToPort(linkedPort);
+  }
+
+  // SET the connection on remote port
+  if (linkedPort->getPortType() == WfPort::PORT_INOUT
+      && NULL != dynamic_cast<FNodeInOutPort*>(linkedPort)) {
+      dynamic_cast<FNodeInOutPort*>(linkedPort)->connectToPort(port, true);
+  } else {
+    linkedPort->connectToPort(port);
+  }
 
   // check data depth compatibility
   if (port->getDepth() != adapterLevel + linkedPort->getDepth() - getDepth())

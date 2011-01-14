@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.21  2011/01/14 01:30:56  bdepardo
+ * Correct bug preventing two INOUT ports from being connected
+ *
  * Revision 1.20  2010/07/20 09:20:11  bisnard
  * integration with eclipse gui and with dietForwarder
  *
@@ -528,7 +531,7 @@ FNodeInOutPort::FNodeInOutPort(WfNode * parent,
     { }
 
 void
-FNodeInOutPort::connectToPort(WfPort* remPort) {
+FNodeInOutPort::connectToPort(WfPort* remPort, bool endOfLink) {
   switch(remPort->getPortType()) {
     case WfPort::PORT_IN:
     case WfPort::PORT_IN_LOOP:
@@ -541,9 +544,11 @@ FNodeInOutPort::connectToPort(WfPort* remPort) {
     case WfPort::PORT_OUT_ELSE:
       WfPort::connectToPort(remPort);
       break;
-    default:
-    {
-      INTERNAL_ERROR("Cannot disambiguate inOut to inOut link", 0);
+    default: {
+      if (endOfLink)
+        FNodeOutPort::connectToPort(remPort);
+      else
+        WfPort::connectToPort(remPort);
     }
   }
 }
