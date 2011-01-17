@@ -17,7 +17,7 @@
 # DIET_DIR      - The directory containing DIETConfig.cmake. This is either
 #                 the share sub-directory of the root of a build tree, or
 #                 the share sub-directory a Diet's installation directory.
-#                 Hence, DIET_DIR + "/share/DietConfig.cmake" = DIET_USE_FILE
+#                 Hence, DIET_DIR + "/share/cmake/Modules/DietConfig.cmake" = DIET_USE_FILE
 # DIET_FOUND    - Whether DIET was found. If this is true, DIET_DIR is okay.
 #
 
@@ -37,7 +37,7 @@ IF( NOT DIET_DIR )
   ##### Construct a set of paths relative to the system search path.
   SET( DIET_DIR_SEARCH "" )
   FOREACH( dir ${DIET_DIR_SEARCH2} )
-    SET( DIET_DIR_SEARCH ${DIET_DIR_SEARCH} "${dir}/../share" )
+    SET( DIET_DIR_SEARCH ${DIET_DIR_SEARCH} "${dir}/../share/cmake/Modules/" )
   ENDFOREACH( dir )
 
   ##### Look for an installation or build tree.
