@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2011/01/17 16:38:51  bdepardo
+ * Missing space in virtual~Runnable() = 0;
+ *
  * Revision 1.4  2009/09/29 11:42:45  bisnard
  * commented out getId() due to pthread_t being actually an opaque type
  *
@@ -41,7 +44,7 @@ public:
   /*********************************************************************/
   /* public methods                                                    */
   /*********************************************************************/
-  virtual~Runnable() = 0;
+  virtual ~Runnable() = 0;
 
   virtual void*
   run() = 0;
