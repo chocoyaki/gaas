@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2011/01/17 18:35:16  bdepardo
+ * Add missing #ifndef... #define
+ *
  * Revision 1.6  2003/04/10 13:28:15  pcombes
  * Apply new Coding Standards.
  *
@@ -29,6 +32,8 @@
  *               configure option, but still not tested with FAST !
  ****************************************************************************/
 
+#ifndef _PROGS_H_
+#define _PROGS_H_
 
 #include <unistd.h>
 #include <stdlib.h>
@@ -183,3 +188,4 @@ MatPROD(char tA, char tB,
   return 0;
 }
 
+#endif // _PROGS_H_

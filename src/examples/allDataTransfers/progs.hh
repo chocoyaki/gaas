@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2011/01/17 18:35:17  bdepardo
+ * Add missing #ifndef... #define
+ *
  * Revision 1.1  2010/10/15 06:08:08  bdepardo
  * Client/Server to test all kinds of data transfers.
  * Each profile has 1 IN, 1 INOUT and 1 OUT all of the same type.
@@ -18,6 +21,8 @@
  *   DIET_SCALAR, DIET_VECTOR and DIET_MATRIX
  *
  ****************************************************************************/
+#ifndef _PROGS_HH_
+#define _PROGS_HH_
 
 
 #include <iostream>
@@ -112,6 +117,6 @@ VecSUM(size_t n, T* A, T* B, T* C) {
   return 0;
 }
 
-
+#endif // _PROGS_HH_
   
 

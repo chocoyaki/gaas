@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2011/01/17 18:35:16  bdepardo
+ * Add missing #ifndef... #define
+ *
  * Revision 1.1  2006/11/07 12:39:04  aamar
  * *** empty log message ***
  *
@@ -31,7 +34,8 @@
  * FAST support: convertors implemented and compatible to --without-fast
  *               configure option, but still not tested with FAST !
  ****************************************************************************/
-
+#ifndef _PROGS_H_
+#define _PROGS_H_
 
 #include <unistd.h>
 #include <stdlib.h>
@@ -186,3 +190,4 @@ MatPROD(char tA, char tB,
   return 0;
 }
 
+#endif // _PROGS_H_

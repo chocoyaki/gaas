@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2011/01/17 18:35:17  bdepardo
+ * Add missing #ifndef... #define
+ *
  * Revision 1.3  2010/07/14 23:45:30  bdepardo
  * Header corrections
  *
@@ -17,6 +20,10 @@
  * Revision 1.1  2010/07/12 16:11:04  glemahec
  * DIET 2.5 beta 1 - New ORB manager; dietForwarder application
  ****************************************************************************/
+
+#ifndef _DIETFWDR_HH_
+#define _DIETFWDR_HH_
+
 
 #include <string>
 #include "Options.hh"
@@ -99,3 +106,5 @@ void nb_retry(const std::string& nb, Configuration* cfg);
 
 /* Transformation function for the host name. */
 int change(int c);
+
+#endif // _DIETFWDR_HH_

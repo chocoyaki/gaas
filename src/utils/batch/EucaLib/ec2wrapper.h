@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2011/01/17 18:35:15  bdepardo
+ * Add missing #ifndef... #define
+ *
  * Revision 1.3  2010/07/09 16:01:46  amuresan
  * Cleared out the installation process of the Cloud component with gSOAP.
  * A part of gSOAP needs to be re-compiled for the WSSE plugin.
@@ -25,6 +28,8 @@
  * a new implementation of the BatchSystem base-class.
  *
  ****************************************************************************/
+#ifndef _EC2WRAPPER_H_
+#define _EC2WRAPPER_H_
 
 #include "soapH.h"
 #include "plugin/smdevp.h"
@@ -61,5 +66,7 @@ extern int soap_wsse_add_security_header(struct soap * soap, EVP_PKEY * pk, X509
 #ifdef __cplusplus
 }
 #endif
+
+#endif // _EC2WRAPPER_H_
 
 /* end of ec2wrapper.h */
