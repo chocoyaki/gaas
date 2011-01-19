@@ -61,6 +61,26 @@ else()
   # install generated documentation
   install( DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/API
     DESTINATION ${DOC_INSTALL_DIR} )
+
+
+  ## generate manpages
+  # setup our configuration file
+  # since CMake manage list as semi-colons separated strings
+  # we have to preprocess them in order to have something
+  # understandable by Doxygen
+  set( DIET_DOXYGEN_INPUT ${SRC_DIR}/include )
+    
+  configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile-man.in
+    ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile-man )
+  
+  # add doxygen target
+  add_custom_target( doc-man-doxygen ${DOXYGEN_EXECUTABLE}
+    ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile-man )
+  
+  # add doc-html as dependency to doc target
+  add_dependencies( doc doc-man-doxygen )
+
+  # TODO install
 endif()
 
 
