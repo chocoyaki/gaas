@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2011/01/19 17:51:07  bdepardo
+ * Variable 'pos' is assigned a value that is never used -> remove these variables
+ *
  * Revision 1.11  2010/12/17 09:47:59  kcoulomb
  * * Set diet to use the new log with forwarders
  * * Fix a CoRI problem
@@ -116,11 +119,10 @@ DIETForwarder::DIETForwarder(const string& name, const string& cfgPath) :
 
 /* DIET object factory methods. */
 Agent_ptr DIETForwarder::getAgent(const char* name) {
-  size_t pos;
   string nm(name);
   ::CORBA::Object_ptr object;
 	
-  if ((pos=nm.find('/'))==string::npos) {
+  if (nm.find('/')==string::npos) {
     nm = string(AGENTCTXT)+"/"+nm;
   }
   object = getObjectCache(nm);
@@ -145,11 +147,10 @@ Agent_ptr DIETForwarder::getAgent(const char* name) {
 
 Callback_ptr DIETForwarder::getCallback(const char* name)
 {
-  size_t pos;
   string nm(name);
   ::CORBA::Object_ptr object;
 		
-  if ((pos=nm.find('/'))==string::npos) {
+  if (nm.find('/')==string::npos) {
     nm = string(CLIENTCTXT)+"/"+nm;
   }
   object = getObjectCache(nm);
@@ -174,10 +175,9 @@ Callback_ptr DIETForwarder::getCallback(const char* name)
 
 LocalAgent_ptr DIETForwarder::getLocalAgent(const char* name)
 {
-  size_t pos;
   string nm(name);
   ::CORBA::Object_ptr object;
-  if ((pos=nm.find('/'))==string::npos) {
+  if (nm.find('/')==string::npos) {
     nm = string(AGENTCTXT)+"/"+nm;
   }
   object = getObjectCache(nm);
@@ -201,11 +201,10 @@ LocalAgent_ptr DIETForwarder::getLocalAgent(const char* name)
 
 /*DietLogComponent_ptr DIETForwarder::getLogComponent(const char* name)
   {
-  size_t pos;
   string nm(name);
   ::CORBA::Object_ptr object;
 	
-  if ((pos=nm.find('/'))==string::npos) {
+  if (nm.find('/')==string::npos) {
   nm = string(AGENTCTXT)+"/"+nm;
   }
   object = getObjectCache(nm);
@@ -235,11 +234,10 @@ LocalAgent_ptr DIETForwarder::getLocalAgent(const char* name)
 
 MasterAgent_ptr DIETForwarder::getMasterAgent(const char* name)
 {
-  size_t pos;
   string nm(name);
   ::CORBA::Object_ptr object;
 		
-  if ((pos=nm.find('/'))==string::npos) {
+  if (nm.find('/')==string::npos) {
     nm = string(AGENTCTXT)+"/"+nm;
   }
   object = getObjectCache(nm);
@@ -262,11 +260,10 @@ MasterAgent_ptr DIETForwarder::getMasterAgent(const char* name)
 
 SeD_ptr DIETForwarder::getSeD(const char* name)
 {
-  size_t pos;
   string nm(name);
   ::CORBA::Object_ptr object;
 		
-  if ((pos=nm.find('/'))==string::npos) {
+  if (nm.find('/')==string::npos) {
     nm = string(SEDCTXT)+"/"+nm;
   }
   object = getObjectCache(nm);
@@ -291,11 +288,10 @@ SeD_ptr DIETForwarder::getSeD(const char* name)
 #ifdef HAVE_DAGDA
 Dagda_ptr DIETForwarder::getDagda(const char* name)
 {
-  size_t pos;
   string nm(name);
   ::CORBA::Object_ptr object;
 		
-  if ((pos=nm.find('/'))==string::npos) {
+  if (nm.find('/')==string::npos) {
     nm = string(DAGDACTXT)+"/"+nm;
   }
   object = getObjectCache(nm);
@@ -319,11 +315,10 @@ Dagda_ptr DIETForwarder::getDagda(const char* name)
 #else
 DataMgr_ptr DIETForwarder::getDataMgr(const char* name)
 {
-  size_t pos;
   string nm(name);
   ::CORBA::Object_ptr object;
 	
-  if ((pos=nm.find('/'))==string::npos) {
+  if (nm.find('/')==string::npos) {
     nm = string(DATAMGRCTXT)+"/"+nm;
   }
   object = getObjectCache(nm);
@@ -347,11 +342,10 @@ DataMgr_ptr DIETForwarder::getDataMgr(const char* name)
 
 LocMgr_ptr DIETForwarder::getLocMgr(const char* name)
 {
-  size_t pos;
   string nm(name);
   ::CORBA::Object_ptr object;
 	
-  if ((pos=nm.find('/'))==string::npos) {
+  if (nm.find('/')==string::npos) {
     nm = string(LOCMGRCTXT)+"/"+nm;
   }
   object = getObjectCache(nm);
@@ -377,11 +371,10 @@ LocMgr_ptr DIETForwarder::getLocMgr(const char* name)
 #ifdef HAVE_WORKFLOW
 CltMan_ptr DIETForwarder::getCltMan(const char* name)
 {
-  size_t pos;
   string nm(name);
   ::CORBA::Object_ptr object;
 	
-  if ((pos=nm.find('/'))==string::npos) {
+  if (nm.find('/')==string::npos) {
     nm = string(WFMGRCTXT)+"/"+nm;
   }
   object = getObjectCache(nm);
@@ -405,11 +398,10 @@ CltMan_ptr DIETForwarder::getCltMan(const char* name)
 
 MaDag_ptr DIETForwarder::getMaDag(const char* name)
 {
-  size_t pos;
   string nm(name);
   ::CORBA::Object_ptr object;
 	
-  if ((pos=nm.find('/'))==string::npos) {
+  if (nm.find('/')==string::npos) {
     nm = string(AGENTCTXT)+"/"+nm;
   }
   object = getObjectCache(nm);
@@ -433,11 +425,10 @@ MaDag_ptr DIETForwarder::getMaDag(const char* name)
 
 WfLogService_ptr DIETForwarder::getWfLogService(const char* name)
 {
-  size_t pos;
   string nm(name);
   ::CORBA::Object_ptr object;
 	
-  if ((pos=nm.find('/'))==string::npos) {
+  if (nm.find('/')==string::npos) {
     nm = string(WFLOGCTXT)+"/"+nm;
   }
   object = getObjectCache(nm);
