@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.24  2011/01/20 17:46:13  bdepardo
+ * Fixed memory leak
+ *
  * Revision 1.23  2010/03/04 08:56:09  bdepardo
  * Include C++ headers instead of C headers.
  * strchr returns a const char* and not a char*, hence, in order to compile
@@ -1499,6 +1502,7 @@ PriorityScheduler::deserialize(const char* serializedScheduler)
   for (int valIter = 0 ; valIter < numValues ; valIter++) {
     int curVal;
     if (sscanf(strPtr, "%d", &curVal) != 1) {
+      delete[] values;
       INTERNAL_ERROR("error reading value " <<
                      valIter <<
                      ") for Priority scheduler", -1);
