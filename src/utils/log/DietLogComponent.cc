@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2011/01/20 17:18:27  bdepardo
+ * Reduced variables scopes
+ *
  * Revision 1.2  2010/12/28 09:03:14  bdepardo
  * Removed a warning
  *
@@ -495,7 +498,6 @@ void
 DietLogComponent::setTagFilter(const tag_list_t& tagList) {
   bool* newList = createBoolArrayFalse(tagCount);
   bool* oldList;
-  int idx;
 
   // check for '*'
   if (containsStar(&tagList)) {
@@ -504,6 +506,7 @@ DietLogComponent::setTagFilter(const tag_list_t& tagList) {
     }
   } else {
     // change config configuration
+    int idx;
     for (int i=0; i < (int)tagList.length(); i++) {
       idx = getTagIndex(tagList[i]);
       if (idx != -1) {
@@ -523,8 +526,6 @@ DietLogComponent::setTagFilter(const tag_list_t& tagList) {
 
 void
 DietLogComponent::addTagFilter(const tag_list_t& tagList) {
-  int idx;
-
   dlcMutex.lock();
   // check for '*'
   if (containsStar(&tagList)) {
@@ -533,6 +534,8 @@ DietLogComponent::addTagFilter(const tag_list_t& tagList) {
     }
   } else {
     // create new configuration
+    int idx;
+
     for (int i=0; i < (int)tagList.length(); i++) {
       idx = getTagIndex(tagList[i]);
       if (idx != -1) {
@@ -546,8 +549,6 @@ DietLogComponent::addTagFilter(const tag_list_t& tagList) {
 
 void
 DietLogComponent::removeTagFilter(const tag_list_t& tagList) {
-  int idx;
-
   dlcMutex.lock();
   // check for '*'
   if (containsStar(&tagList)) {
@@ -555,6 +556,7 @@ DietLogComponent::removeTagFilter(const tag_list_t& tagList) {
       tagFlags[i]=false;
     }
   } else {
+    int idx;
     // change configuration
     for (int i=0; i < (int)tagList.length(); i++) {
       idx = getTagIndex(tagList[i]);
@@ -893,45 +895,45 @@ DietLogComponent::logSedChosen(const corba_request_t* request,
 			       const corba_response_t* response) {
   if (tagFlags[2]) {
     char* s;
-    unsigned int i,j;
     if (response->servers.length()>0){
-	string estim_string = "";
-    	for ( i=0 ; i < response->servers.length();i++){
-		estim_string.append(" ");
-		estim_string.append(response->servers[i].loc.hostName);
-		for (j=0 ; j < response->servers[i].estim.estValues.length() ; j++){
-			int valTagInt = response->servers[i].estim.estValues[j].v_tag;
-			estim_string.append(";");
-			estim_string.append(getEstimationTags(valTagInt));
-			estim_string.append("=");
-			//char* v_value= new char[256];
-			char v_value[128];
-			sprintf(v_value,"%f",response->servers[i].estim.estValues[j].v_value);
-			estim_string.append(v_value);
-			//delete(v_value);
-		}
-	}
-    s = (char*)malloc((strlen(request->pb.path)
-	    +num_Digits(request->reqID)
-	    +num_Digits(response->servers.length())
-	    +estim_string.length()
-	    +5)*sizeof(char));
-    sprintf(s,"%s %ld %ld%s"
-	    ,(const char *)(request->pb.path)
-	    ,(unsigned long)(request->reqID)
-	    ,(unsigned long)(response->servers.length())
-	    ,(const char *)(estim_string.c_str())
-	    );
-    }else{
-     s = (char*)malloc((strlen(request->pb.path)
-	    +num_Digits(request->reqID)
-	    +num_Digits(response->servers.length())
-	    +3)*sizeof(char));
-     sprintf(s,"%s %ld %ld",
-	    (const char *)(request->pb.path),
-	    (unsigned long)(request->reqID),
-	    (unsigned long)(response->servers.length()) );
-     }
+      unsigned int i,j;
+      string estim_string = "";
+      for ( i=0 ; i < response->servers.length();i++){
+        estim_string.append(" ");
+        estim_string.append(response->servers[i].loc.hostName);
+        for (j=0 ; j < response->servers[i].estim.estValues.length() ; j++){
+          int valTagInt = response->servers[i].estim.estValues[j].v_tag;
+          estim_string.append(";");
+          estim_string.append(getEstimationTags(valTagInt));
+          estim_string.append("=");
+          //char* v_value= new char[256];
+          char v_value[128];
+          sprintf(v_value,"%f",response->servers[i].estim.estValues[j].v_value);
+          estim_string.append(v_value);
+          //delete(v_value);
+        }
+      }
+      s = (char*)malloc((strlen(request->pb.path)
+                         +num_Digits(request->reqID)
+                         +num_Digits(response->servers.length())
+                         +estim_string.length()
+                         +5)*sizeof(char));
+      sprintf(s,"%s %ld %ld%s"
+              ,(const char *)(request->pb.path)
+              ,(unsigned long)(request->reqID)
+              ,(unsigned long)(response->servers.length())
+              ,(const char *)(estim_string.c_str())
+              );
+    } else {
+      s = (char*)malloc((strlen(request->pb.path)
+                         +num_Digits(request->reqID)
+                         +num_Digits(response->servers.length())
+                         +3)*sizeof(char));
+      sprintf(s,"%s %ld %ld",
+              (const char *)(request->pb.path),
+              (unsigned long)(request->reqID),
+              (unsigned long)(response->servers.length()) );
+    }
     log(tagNames[2], s);
     free(s);
   }
