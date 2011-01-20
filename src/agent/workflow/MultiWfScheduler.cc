@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.58  2011/01/20 18:31:50  bdepardo
+ * Prefer prefix ++/-- operators for non-primitive types.
+ * Removed unused variable
+ *
  * Revision 1.57  2010/12/17 09:48:00  kcoulomb
  * * Set diet to use the new log with forwarders
  * * Fix a CoRI problem
@@ -534,7 +538,7 @@ MultiWfScheduler::run() {
               bool ressAvailable = true;
               for (map<SeD_ptr, bool>::iterator ressAvailIter=ressAvail.begin();
                    ressAvailIter!=ressAvail.end();
-                   ressAvailIter++) {
+                   ++ressAvailIter) {
                 if (curSeDPtr->_is_equivalent(ressAvailIter->first)) {
                   ressAvailable = false;
                   break;
@@ -597,7 +601,7 @@ MultiWfScheduler::run() {
           qp2 = readyQueues.erase(qp2);       // removes from the list
           this->deleteNodeQueue(curReadyQ);   // deletes both queues
         } else {
-          qp2++;
+          ++qp2;
         }
       } // end while
       // Round-robbin on remaining queues
@@ -801,7 +805,7 @@ MultiWfScheduler::createNodeQueue(Dag * dag)  {
   ChainedNodeQueue *  waitQ   = new ChainedNodeQueue(readyQ);
   for (std::map <std::string, DagNode *>::iterator nodeIt = dag->begin();
        nodeIt != dag->end();
-       nodeIt++) {
+       ++nodeIt) {
     waitQ->pushNode(&(*nodeIt->second));
   }
   this->waitingQueues[readyQ] = waitQ; // used to destroy waiting queue
@@ -967,7 +971,6 @@ MultiWfScheduler::releaseDag(Dag * dag) {
   typedef size_t comm_failure_t;
   string dagId = dag->getId();
   char * message;
-  bool clientFailure;
   MetaDag * metaDag = this->getMetaDag(dag);
 
   // RELEASE THE CLIENT MANAGER
@@ -989,7 +992,6 @@ MultiWfScheduler::releaseDag(Dag * dag) {
       cout << "Caught a CORBA " << e._name() << " exception ("
            << e.NP_minorString() << ")" << endl ;
       WARNING("Connection problems with Client occured - Release cancelled");
-      clientFailure = true;
       dag->setAsCancelled(NULL);
       if (metaDag)
         metaDag->setReleaseFlag(true);  // allow MaDag to destroy the metadag

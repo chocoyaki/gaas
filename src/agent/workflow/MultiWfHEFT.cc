@@ -10,6 +10,10 @@
 
 /* $Id$
  * $Log$
+ * Revision 1.13  2011/01/20 18:31:50  bdepardo
+ * Prefer prefix ++/-- operators for non-primitive types.
+ * Removed unused variable
+ *
  * Revision 1.12  2009/09/25 12:39:14  bisnard
  * modified includes to reduce inter-dependencies
  *
@@ -130,7 +134,7 @@ MultiWfAgingHEFT::intraDagSchedule(Dag * dag, MasterAgent_var MA)
 
   // Store the HEFT Priority of nodes
   for (map <string,DagNode *>::iterator iter = dag->begin(); iter != dag->end();
-       iter++) {
+       ++iter) {
     DagNode * node = (DagNode*) iter->second;
     this->nodesHEFTPrio[node] = node->getPriority();
   }

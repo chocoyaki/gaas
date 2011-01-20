@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2011/01/20 18:31:50  bdepardo
+ * Prefer prefix ++/-- operators for non-primitive types.
+ * Removed unused variable
+ *
  * Revision 1.14  2010/08/27 07:41:53  bisnard
  * Fixed warning
  *
@@ -164,7 +168,7 @@ MultiWfBasicScheduler::createNodeQueue(Dag * dag)  {
   ChainedNodeQueue *  waitQ   = new ChainedNodeQueue(readyQ);
   for (std::map <std::string, DagNode *>::iterator nodeIt = dag->begin();
        nodeIt != dag->end();
-       nodeIt++) {
+       ++nodeIt) {
     waitQ->pushNode(&(*nodeIt->second));
   }
   this->waitingQueues[readyQ] = waitQ; // used to destroy waiting queue

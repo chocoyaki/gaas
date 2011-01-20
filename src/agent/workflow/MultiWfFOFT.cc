@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.20  2011/01/20 18:31:50  bdepardo
+ * Prefer prefix ++/-- operators for non-primitive types.
+ * Removed unused variable
+ *
  * Revision 1.19  2009/09/25 12:39:13  bisnard
  * modified includes to reduce inter-dependencies
  *
@@ -133,7 +137,7 @@ MultiWfFOFT::intraDagSchedule(Dag * dag, MasterAgent_var MA)
 
   // Initialize nodesFlag and nodesHEFTPrio
   for (map <string,DagNode *>::iterator iter = dag->begin(); iter != dag->end();
-       iter++) {
+       ++iter) {
     DagNode * node = (DagNode*) iter->second;
     this->nodesFlag[node] = false;
     this->nodesHEFTPrio[node] = node->getPriority();
