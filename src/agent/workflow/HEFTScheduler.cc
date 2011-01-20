@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.18  2011/01/20 18:25:06  bdepardo
+ * Removed useless variable
+ *
  * Revision 1.17  2010/12/17 09:48:00  kcoulomb
  * * Set diet to use the new log with forwarders
  * * Fix a CoRI problem
@@ -139,7 +142,6 @@ HEFTScheduler::setNodesEFT(std::vector<DagNode *>& orderedNodes,
        p++) {
     DagNode *        n = (DagNode *) *p;
     unsigned int  pb_index = 0; // index of the service (problem) in the wf_response
-    unsigned int  sed_ind = 0;  // index of the chosen server in the wf_response
     SeD_ptr       chosenSeDPtr; // ref to the chosen SeD
     double        EFT = 0;      // earliest finish time for current node
 
@@ -177,7 +179,6 @@ HEFTScheduler::setNodesEFT(std::vector<DagNode *>& orderedNodes,
       double nodeDuration = this->getNodeDurationEst(wf_response, pb_index, ix);
       if ( ( EST + nodeDuration < EFT ) || (EFT == 0)) {
 	EFT = EST + nodeDuration;
-	sed_ind = ix;
         chosenSeDPtr = curSeDPtr;
       }
     } // end for ix
