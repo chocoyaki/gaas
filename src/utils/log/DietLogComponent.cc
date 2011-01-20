@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2011/01/20 17:31:10  bdepardo
+ * Mismatching allocation and deallocation
+ *
  * Revision 1.3  2011/01/20 17:18:27  bdepardo
  * Reduced variables scopes
  *
@@ -409,9 +412,9 @@ int DietLogComponent::run(const char* agentType,
 
   // Connect myself to the LogCentral
   short ret=0;
-  char* hostName = new char[256];
+  char* hostName = (char*) malloc(256 * sizeof(char));
   if(gethostname(hostName,255) != 0) {
-    delete hostName;
+    free(hostName);
     hostName = strdup("unknownHost");
   }
   char* msg;
@@ -436,12 +439,12 @@ int DietLogComponent::run(const char* agentType,
     );
     fprintf (stderr, "Running and connected \n");
   } catch (CORBA::SystemException &e) {
-    delete(msg);
-    delete(hostName);
+    free(msg);
+    free(hostName);
     cout << "Error: could not connect to the LogCentral" << endl;
     DLC_ERROR("SystemException",-1);
   }
-  delete[] hostName;  // alloc'ed with new[]
+  free(hostName);  // alloc'ed with new[]
   free(msg);          // alloc'ed with strdup (e.g. malloc)
 
   if (ret != LS_OK) {
