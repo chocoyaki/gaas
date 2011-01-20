@@ -8,6 +8,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2011/01/20 23:52:34  bdepardo
+ * Removed unused variable.
+ * Reduced scope of a variable.
+ * Removed potential bug: Undefined behaviour: addresses is used wrong in call
+ * to sprintf or snprintf. Quote: If copying takes place between objects that
+ * overlap as a result of a call to sprintf() or snprintf(), the results are undefined.
+ *
  * Revision 1.5  2010/11/16 01:42:28  amuresan
  *  - added proper concurrency support for cloud part
  *  - fixed small data initialization bug with cloud server example
@@ -228,11 +235,11 @@ int Eucalyptus_BatchSystem::diet_submit_parallel(diet_profile_t * profile,
 #endif
     /* prepare the script for running, replace the meta-variables inside the script */
     char *script = (char*)malloc(9000 * sizeof(char));
-    char *addresses = (char*)malloc((100 * req_state->actualCount + 1) * sizeof(char));
-    addresses[0] = '\0';
+    std::string addr = "";
     for(index = 0;index < req_state->actualCount;index++)
-        sprintf(addresses, "%s%s ", addresses, req_state->vmIPs[index]);
+      addr += req_state->vmIPs[index];
     sprintf(script, "%s", command);
+    char *addresses = strdup(addr.c_str());
     replaceAllOccurencesInString(&script, "$USERNAME", userName);
     replaceAllOccurencesInString(&script, "$DIET_CLOUD_VMS", addresses);
     replaceAllOccurencesInString(&script, "$PATH_TO_SSH_KEY", pathToSSHKey);
@@ -437,9 +444,9 @@ int Eucalyptus_BatchSystem::makeEucalyptusReservation(request_data_t * req_state
             rirespp->groupSet->item = gitem;
         }
         struct ec2__RunInstancesResponseType response;
-        int index;
         if(soap_call___ec2__RunInstances(s, eucaURL, "RunInstances", rireqp, rirespp) == SOAP_OK)
         {
+          int index;
             req_state->actualCount = rirespp->instancesSet->__sizeitem;
 #ifdef CLOUD_DEBUG
             fprintf(stdout, "INFO: Called RunInstances, reserved %d resources\n", req_state->actualCount);
@@ -538,7 +545,6 @@ int Eucalyptus_BatchSystem::describeInstances(request_data_t * req_state)
     struct ec2__DescribeInstancesType*ditp;
     struct ec2__DescribeInstancesResponseType *respp;
     struct ec2__InstanceStateType *state;
-    struct ec2__DescribeInstancesItemType *item;
     struct ec2__RunningInstancesItemType *runningItem;
     struct ec2__ReservationInfoType *reservation;
 
