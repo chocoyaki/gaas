@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2011/01/20 23:20:04  bdepardo
+ * Fixed possible bug: Dangerous usage of 'hostname' (strncpy doesn't always 0-terminate it)
+ *
  * Revision 1.8  2010/07/14 23:45:30  bdepardo
  * Header corrections
  *
@@ -122,7 +125,8 @@ BindService::BindService(MasterAgentImpl* ma, unsigned int port) {
 MasterAgent_ptr BindService::lookup(const char* addr) {
   assert(addr != NULL) ;
   char hostname[256] ;
-  strncpy(hostname, addr, sizeof(hostname)) ;
+  strncpy(hostname, addr, sizeof(hostname) - 1) ;
+  hostname[sizeof(hostname) - 1] = '\0';
   char* idx = strchr(hostname, ':') ;
   int portNo = 0;
   if (idx != NULL) {
