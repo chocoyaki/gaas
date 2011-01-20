@@ -7,6 +7,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2011/01/20 23:37:09  bdepardo
+ * Fixed memory leaks, and file resources leaks
+ *
  * Revision 1.6  2010/06/15 08:10:53  amuresan
  * Added cloud configuration files to src/examples/cfgs/
  *
@@ -163,6 +166,7 @@ int solve_concatenation_seq(diet_profile_t *pb)
   if( file_descriptor == -1 ) {
     perror("mkstemp") ;
   }
+  close(file_descriptor);
   if( diet_file_desc_set(diet_parameter(pb,3), path_result) ) {
     printf("diet_file_desc_set() error\n");
     return 1;
@@ -220,6 +224,7 @@ int solve_concatenation_seq(diet_profile_t *pb)
   copying = (char*)calloc(6000,sizeof(char)) ;  /* TODO: Reduce size */
   if( copying == NULL ) {
     fprintf(stderr,"Memory allocation problem.. not solving the service\n\n") ;
+    free(prologue);
     return 2 ;
   }
   sprintf(copying,
@@ -254,6 +259,9 @@ int solve_concatenation_seq(diet_profile_t *pb)
   cmd = (char*)calloc(5000,sizeof(char)) ;  /* TODO: Reduce size */
   if( cmd == NULL ) {
     fprintf(stderr,"Memory allocation problem.. not solving the service\n\n") ;
+    free(prologue);
+    free(copying);
+    free(local_output_filename);
     return 2 ;
   }
   sprintf(cmd,
@@ -291,6 +299,10 @@ int solve_concatenation_seq(diet_profile_t *pb)
   epilogue = (char*)malloc(1000*sizeof(char)) ;  /* was 200 */
   if( epilogue == NULL ) {
     fprintf(stderr,"Memory allocation problem.. not solving the service\n\n") ;
+    free(prologue);
+    free(copying);
+    free(cmd);
+    free(local_output_filename);
     return 2 ;
   }
   sprintf(epilogue,
@@ -310,6 +322,11 @@ int solve_concatenation_seq(diet_profile_t *pb)
 			   + 1 ) * sizeof(char) ) ;
   if( script == NULL ) {
     fprintf(stderr,"Memory allocation problem.. not solving the service\n\n") ;
+    free(prologue);
+    free(copying);
+    free(cmd);
+    free(epilogue);
+    free(local_output_filename);
     return 2 ;
   }
   sprintf(script,"%s%s%s%s",prologue,copying,cmd,epilogue) ;
@@ -327,6 +344,7 @@ int solve_concatenation_seq(diet_profile_t *pb)
   free(cmd) ;
   free(epilogue) ;
   free(script) ;
+  free(local_output_filename);
 
   /* Don't free path1, path2 and path_result */
   if( result == -1 )
@@ -385,6 +403,7 @@ int solve_concatenation_parallel(diet_profile_t *pb)
   if( file_descriptor == -1 ) {
     perror("mkstemp") ;
   }
+  close(file_descriptor);
   if( diet_file_desc_set(diet_parameter(pb,3), path_result) ) {
     printf("diet_file_desc_set() error\n");
     return 1;
@@ -442,6 +461,7 @@ int solve_concatenation_parallel(diet_profile_t *pb)
   copying = (char*)calloc(6000,sizeof(char)) ;  /* TODO: Reduce size */
   if( copying == NULL ) {
     fprintf(stderr,"Memory allocation problem.. not solving the service\n\n") ;
+    free(prologue);
     return 2 ;
   }
   sprintf(copying,
@@ -476,6 +496,9 @@ int solve_concatenation_parallel(diet_profile_t *pb)
   cmd = (char*)calloc(5000,sizeof(char)) ;  /* TODO: Reduce size */
   if( cmd == NULL ) {
     fprintf(stderr,"Memory allocation problem.. not solving the service\n\n") ;
+    free(prologue);
+    free(copying);
+    free(local_output_filename);
     return 2 ;
   }
   sprintf(cmd,
@@ -513,6 +536,10 @@ int solve_concatenation_parallel(diet_profile_t *pb)
   epilogue = (char*)malloc(1000*sizeof(char)) ;  /* was 200 */
   if( epilogue == NULL ) {
     fprintf(stderr,"Memory allocation problem.. not solving the service\n\n") ;
+    free(cmd);
+    free(prologue);
+    free(copying);
+    free(local_output_filename);
     return 2 ;
   }
   sprintf(epilogue,
@@ -532,6 +559,11 @@ int solve_concatenation_parallel(diet_profile_t *pb)
 			   + 1 ) * sizeof(char) ) ;
   if( script == NULL ) {
     fprintf(stderr,"Memory allocation problem.. not solving the service\n\n") ;
+    free(cmd);
+    free(prologue);
+    free(copying);
+    free(epilogue);
+    free(local_output_filename);
     return 2 ;
   }
   sprintf(script,"%s%s%s%s",prologue,copying,cmd,epilogue) ;
@@ -549,6 +581,7 @@ int solve_concatenation_parallel(diet_profile_t *pb)
   free(cmd) ;
   free(epilogue) ;
   free(script) ;
+  free(local_output_filename);
 
   /* Don't free path1, path2 and path_result */
   if( result == -1 )
