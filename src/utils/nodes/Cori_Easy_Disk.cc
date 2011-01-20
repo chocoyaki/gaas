@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2011/01/20 23:25:36  bdepardo
+ * Fixed memory leaks
+ *
  * Revision 1.2  2010/03/31 21:15:41  bdepardo
  * Changed C headers into C++ headers
  *
@@ -116,7 +119,7 @@ void
 createPath(char **path_file,const char* path)
 {
   char *namefile = new char[8];
-  int nombre= (int)((double)rand() / ((double)RAND_MAX + 1) * 9999);
+  int nombre = (int)((double)rand() / ((double)RAND_MAX + 1) * 9999);
 
   sprintf(namefile, "%i", nombre);
 
@@ -131,6 +134,7 @@ createPath(char **path_file,const char* path)
   strcpy(*path_file,path);
   strcat(*path_file,namefile);
   }
+  delete [] namefile;
 }
 
 double  
@@ -342,6 +346,8 @@ Easy_Disk::get_Write_Speed_by_gettimeofday(const char* path,
  writespeed=Mpersec/COUNTPERBUFFER;
  removePath_file(&path_file); 
  *result=writespeed;
+
+ delete [] buffer;
  return 0;
 }
 
@@ -431,6 +437,8 @@ Easy_Disk::get_Write_Speed_by_sig_alarm(const char* path,
   writespeed=Mpersec/COUNTPERBUFFER;
   removePath_file(&path_file); 
   *result=writespeed;
+
+  delete [] buffer;
   return 0;
 }
 
@@ -496,12 +504,14 @@ Easy_Disk::get_Read_Speed_by_gettimeofday(const char* path,
   infile.close();
   /*STOP clock*/
   double Mbytepersecond;
-  if (elapsed_time==0)
+  if (elapsed_time==0) {
+    delete [] buffer;
     return 1;
+  }
   Mbytepersecond=j*FILESIZE_MB/elapsed_time;
   readspeed=Mbytepersecond/COUNTPERBUFFER;
   
-  delete []buffer;
+  delete [] buffer;
   removePath_file(&path_file);
   *result=readspeed;
   return 0;
