@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2011/01/20 23:54:49  bdepardo
+ * Prefer prefix ++/-- operators for non-primitive types.
+ *
  * Revision 1.3  2010/12/17 09:48:02  kcoulomb
  * * Set diet to use the new log with forwarders
  * * Fix a CoRI problem
@@ -265,7 +268,7 @@ Cori_Data_Easy::convertArray(vector <double> vect,
   while( iter1 != vect.end()) {
     diet_est_array_set_internal(*estvect,typeOfInfo,i,*iter1);
     i++; 
-    iter1++;
+    ++iter1;
   }
   return 0;
 }
