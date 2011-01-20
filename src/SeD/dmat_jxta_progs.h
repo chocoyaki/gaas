@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2011/01/20 17:38:50  bdepardo
+ * Added #ifndef _DMAT_JXTA_PROGS_H_
+ * #define _DMAT_JXTA_PROGS_H_
+ *
  * Revision 1.6  2006/11/28 13:51:29  ctedesch
  * old logs in header
  *
@@ -29,11 +33,12 @@
  * revision 1.1
  * date: 2004/06/11 15:45:39  ctedesch
  * add DIET/JXTA
-/****************************************************************************/
+ ****************************************************************************/
 
 
 /****************************************************************************/
-
+#ifndef _DMAT_JXTA_PROGS_H_
+#define _DMAT_JXTA_PROGS_H_
 
 #include <unistd.h>
 #include <stdlib.h>
@@ -188,3 +193,4 @@ MatPROD(char tA, char tB,
   return 0;
 }
 
+#endif // _DMAT_JXTA_PROGS_H_
