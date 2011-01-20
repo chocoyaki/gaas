@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.23  2011/01/20 18:52:11  bdepardo
+ * Set a pointer to NULL
+ *
  * Revision 1.22  2011/01/14 01:30:56  bdepardo
  * Correct bug preventing two INOUT ports from being connected
  *
@@ -671,7 +674,7 @@ WfValueAdapter::getSourceRef() const {
 const string&
 WfValueAdapter::getSourceDataID() {
   if (!myDataID.empty()) return myDataID;
-  char *valID;
+  char *valID = NULL;
   char **valIDPtr = &valID;
   string errorMsg = "DAGDA failed to upload data to the platform (value '" + myValue + "')";
   try {
@@ -968,8 +971,14 @@ WfDataIDAdapter::getAndWriteData(WfDataWriter* dataWriter,
       dagda_get_scalar(dataID.c_str(),&value,NULL);
       dataWriter->itemValue(value, (WfCst::WfDataType) dataType);
     } else if (dataType == WfCst::TYPE_INT) {
-      int *value;
-      dagda_get_scalar(dataID.c_str(),&value,NULL);
+      int *value = NULL;
+      int re;
+      re = dagda_get_scalar(dataID.c_str(),&value,NULL);
+      TRACE_TEXT(TRACE_MAIN_STEPS, "BBB return value = " << re << endl);
+      TRACE_TEXT(TRACE_MAIN_STEPS, "BBB ID: " << dataID << endl);
+      if (value == NULL) {
+        TRACE_TEXT(TRACE_MAIN_STEPS, "BBB null value " << endl);
+      }
       dataWriter->itemValue(value, (WfCst::WfDataType) dataType);
     } else if (dataType == WfCst::TYPE_LONGINT) {
       long *value;
