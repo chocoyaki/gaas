@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.95  2011/01/20 17:36:59  bdepardo
+ * Removed memory leak
+ *
  * Revision 1.94  2010/12/17 09:47:59  kcoulomb
  * * Set diet to use the new log with forwarders
  * * Fix a CoRI problem
@@ -488,8 +491,11 @@ diet_profile_desc_alloc(const char* path,
       return NULL;
   }
   desc = new diet_profile_desc_t;
-  if (!desc)
+  if (!desc) {
+    if (param_desc != NULL)
+      delete[] param_desc;
     return NULL;
+  }
   desc->aggregator.agg_method = DIET_AGG_DEFAULT;
   desc->path       = strdup(path);
   desc->last_in    = last_in;
