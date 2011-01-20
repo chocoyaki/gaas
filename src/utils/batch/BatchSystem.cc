@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2011/01/20 19:10:47  bdepardo
+ * Removed resource leaks on file descriptors
+ *
  * Revision 1.11  2010/03/31 21:15:40  bdepardo
  * Changed C headers into C++ headers
  *
@@ -377,6 +380,7 @@ BatchSystem::diet_submit_parallel(diet_profile_t * profile,
     ERROR("Cannot create batch I/O redirection file."
 	  " Verify that tmp path is ok",-1) ;
   }
+  close(file_descriptor_2);
 
 #if defined YC_DEBUG
   TRACE_TEXT(TRACE_MAIN_STEPS,
@@ -791,7 +795,7 @@ BatchSystem::createUniqueTemporaryTmpFile(const char * pattern)
   TRACE_TEXT(TRACE_MAIN_STEPS,
 	     "Fichier pour stocker info batch : " << filename << endl) ; 
 #endif
- 
+  close(file_descriptor);
   return filename ;
 }
 
@@ -813,6 +817,7 @@ BatchSystem::createUniqueTemporaryNFSFile(const char * pattern)
 	     "Fichier pour stocker info batch : " << filename << endl) ; 
 #endif
  
+  close(file_descriptor);
   return filename ;
 }
 
