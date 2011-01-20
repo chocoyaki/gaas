@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.19  2011/01/20 18:27:03  bdepardo
+ * Prefer prefix ++/-- operators for non-primitive types.
+ *
  * Revision 1.18  2011/01/20 18:25:06  bdepardo
  * Removed useless variable
  *
@@ -109,7 +112,7 @@ HEFTScheduler::setNodesPriority(const wf_response_t * wf_response, Dag * dag) {
   DagNode * n = NULL;
   for (std::map <std::string, DagNode *>::iterator p = dag->begin();
        p != dag->end();
-       p++) {
+       ++p) {
          n = (DagNode *)(p->second);
          if (n->isAnExit())
            rank(n);
@@ -139,7 +142,7 @@ HEFTScheduler::setNodesEFT(std::vector<DagNode *>& orderedNodes,
   // LOOP-1: for all dag nodes in the order provided
   for (std::vector<DagNode *>::iterator p = orderedNodes.begin();
        p != orderedNodes.end();
-       p++) {
+       ++p) {
     DagNode *        n = (DagNode *) *p;
     unsigned int  pb_index = 0; // index of the service (problem) in the wf_response
     SeD_ptr       chosenSeDPtr; // ref to the chosen SeD
@@ -162,7 +165,7 @@ HEFTScheduler::setNodesEFT(std::vector<DagNode *>& orderedNodes,
       double EST = initTime; // earliest start time among all SeDs for this service
       for (map<SeD_ptr, double>::iterator availIter=avail.begin();
            availIter!=avail.end();
-           availIter++) {
+           ++availIter) {
         if (curSeDPtr->_is_equivalent(availIter->first)) {
           EST = availIter->second;
           curSeDPtr = availIter->first;  // replace pointer to SeD by equivalent
@@ -221,7 +224,7 @@ HEFTScheduler::computeNodeWeights(const wf_response_t * wf_response,
   int ix = 0; // index of the node response in wf_response
   for (std::map <std::string, DagNode *>::iterator p = dag->begin();
        p != dag->end();
-       p++) {
+       ++p) {
     n = (DagNode *)(p->second);
     n->setEstDuration(0);
     ix = n->getSubmitIndex(); // the index was stored before submitting to MA
