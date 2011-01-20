@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2011/01/20 23:56:12  bdepardo
+ * Removed resource leak: psfile
+ *
  * Revision 1.3  2010/12/17 09:48:02  kcoulomb
  * * Set diet to use the new log with forwarders
  * * Fix a CoRI problem
@@ -305,7 +308,8 @@ Easy_CPU::get_CPU_ActualLoad_Byps(double * actualload){
   else  
     fscanf (psfile,"%s",buffer);
   if (strcmp(buffer,"%CPU")!=0){
-     return 1;
+    pclose(psfile);
+    return 1;
   }  
   float loadCPU=0;
   float tmp=0;
