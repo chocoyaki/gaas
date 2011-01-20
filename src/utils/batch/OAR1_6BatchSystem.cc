@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2011/01/20 19:19:33  bdepardo
+ * Removed resource leak on a file descriptor
+ *
  * Revision 1.11  2010/03/31 19:37:55  bdepardo
  * Changed "\n" into std::endl
  *
@@ -310,6 +313,9 @@ OAR1_6BatchSystem::getNbFreeResources()
   if( fileToParse == NULL ) {
     WARNING("GetNbRsource: Cannot open file " << filenameToParse << endl 
 	    << endl) ;
+    if( fclose(file) != 0 ) {
+      WARNING("Couln't close file") ;
+    }
     return getNbTotResources() ;
   }
 
