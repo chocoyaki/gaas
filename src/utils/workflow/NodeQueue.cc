@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2011/01/21 16:42:24  bdepardo
+ * Prefer prefix ++/-- operators for non-primitive types.
+ *
  * Revision 1.10  2010/03/08 13:50:19  bisnard
  * debug too verbose
  *
@@ -78,7 +81,7 @@ NodeQueue::pushNodes(vector<DagNode *> nodes) {
   vector<DagNode *>::iterator iter = nodes.begin();
   while (iter != nodes.end()) {
     this->pushNode(*iter);
-    iter++;
+    ++iter;
   }
 }
 
@@ -166,7 +169,7 @@ OrderedNodeQueue::removeNode(DagNode * node) {
       node->setNodeQueue(NULL);
       this->nodeCounter--;
     } else {
-      np++;
+      ++np;
     }
   }
 }
@@ -222,7 +225,7 @@ PriorityNodeQueue::pushNode(DagNode * insNode) {
   while ((nodeIter != orderedNodes.end())
           && (curNode = (DagNode *) *nodeIter)
           && (curNode->getPriority() >= insNodePrio)) {
-    nodeIter++;
+    ++nodeIter;
   }
   orderedNodes.insert(nodeIter, insNode);
   insNode->setNodeQueue(this);

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.30  2011/01/21 16:40:41  bdepardo
+ * Prefer prefix ++/-- operators for non-primitive types.
+ *
  * Revision 1.29  2010/12/24 16:06:01  hguemar
  * - fix a typo in doxygen comment (DIET_server.h)
  * - replace CallAsyncMgr::deleteAllAsyncCall() return value by GRPC_NO_ERROR
@@ -220,7 +223,7 @@ int CallAsyncMgr::deleteAsyncCallWithoutLock(diet_reqID_t reqID)
           j->second->status=STATUS_CANCEL;
           i = rulesConds.find(j->second);
           if (i != rulesConds.end()) i->second->post();
-          j++;
+          ++j;
           k++;
         }
       }
@@ -574,7 +577,7 @@ int CallAsyncMgr::notifyRst (diet_reqID_t reqID, corba_profile_t * dp)
     RulesConditionMap::iterator i = rulesConds.begin();
     for(j = rulesIDs.lower_bound(reqID);
         j != rulesIDs.upper_bound(reqID);
-        j++)
+        ++j)
     {  
       bool plenty = true;
       for (int k = 0; k < j->second->length; k++){
@@ -671,7 +674,7 @@ int CallAsyncMgr::release()
   int rst = 0, tmp_rst = 0;
   while(h != caList.end()){
     if ((tmp_rst = deleteAsyncCallWithoutLock(h->first)) < 0) rst = tmp_rst;
-    h++;
+    ++h;
   }
   return rst;
 }
@@ -807,8 +810,9 @@ CallAsyncMgr::getAllSessionIDs(int& len) {
   int ix=0;
   for (CallAsyncList::iterator p = caList.begin();
        p != caList.end();
-       p++) {
-    sessions[ix++] = p->first;
+       ++p) {
+    sessions[ix] = p->first;
+    ix++;
   }
 
   return sessions;

@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.66  2011/01/21 16:47:16  bdepardo
+ * Prefer prefix ++/-- operators for non-primitive types.
+ *
  * Revision 1.65  2010/12/17 09:48:00  kcoulomb
  * * Set diet to use the new log with forwarders
  * * Fix a CoRI problem
@@ -706,7 +709,7 @@ MasterAgentImpl::updateRefs()
   int loopCpt = 0 ;
 	
   for(StrList::iterator iter = MAIds.begin() ;
-      iter != MAIds.end() ; iter++) {
+      iter != MAIds.end() ; ++iter) {
     if(loopCpt < maxMAlinks) {
       TRACE_TEXT(TRACE_ALL_STEPS, "Resolving " << *iter << "...");
       ma = bindSrv->lookup(*iter) ;
@@ -973,12 +976,12 @@ MasterAgentImpl::logNeighbors() {
   size_t str_len = 1 ;
   knownMAs.lock() ;
   for(MasterAgentImpl::MAList::iterator iter = knownMAs.begin() ;
-      iter != knownMAs.end() ; iter++)
+      iter != knownMAs.end() ; ++iter)
     str_len += strlen(iter->first) + 1 ;
   str = new char[str_len] ;
   str[0] = 0 ;
   for(MasterAgentImpl::MAList::iterator iter = knownMAs.begin() ;
-      iter != knownMAs.end() ; iter++) {
+      iter != knownMAs.end() ; ++iter) {
     strcat(str, iter->first) ;
     strcat(str, " ") ;
   }

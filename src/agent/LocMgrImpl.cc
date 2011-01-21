@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.21  2011/01/21 16:37:50  bdepardo
+ * Prefer prefix ++/-- operators for non-primitive types.
+ *
  * Revision 1.20  2010/07/12 16:14:11  glemahec
  * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
  *
@@ -450,7 +453,7 @@ LocMgrImpl::printList1()
       }
       TRACE_TEXT(TRACE_ALL_STEPS,"| " << cur->first << " |   " << SonName  << endl);
       TRACE_TEXT(TRACE_ALL_STEPS,"+------------+" << endl); 
-      cur++;
+      ++cur;
     }
     dataLocList.unlock();
     TRACE_TEXT(TRACE_ALL_STEPS,"+------------+----------------------------+" << endl); 
