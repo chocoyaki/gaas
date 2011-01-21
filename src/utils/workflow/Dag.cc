@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.35  2011/01/21 11:25:41  bisnard
+ * fixed iterator name conflict
+ *
  * Revision 1.34  2010/07/20 09:20:11  bisnard
  * integration with eclipse gui and with dietForwarder
  *
@@ -549,17 +552,17 @@ Dag::getNodesByPriority() {
        p++) {
     n1 = (DagNode*)(p->second);
     // found where insert the node
-    std::vector<DagNode*>::iterator p = sorted_list->begin();
+    std::vector<DagNode*>::iterator q = sorted_list->begin();
     bool b = false;
     DagNode * n2 = NULL;
-    while ((p != sorted_list->end()) && (!b)) {
-      n2 = *p;
+    while ((q != sorted_list->end()) && (!b)) {
+      n2 = *q;
       if (n2->getPriority() < n1->getPriority())
         b = true;
       else
-        p++;
+        q++;
     }
-    sorted_list->insert(p, n1);
+    sorted_list->insert(q, n1);
   }
   return *sorted_list;
 }
