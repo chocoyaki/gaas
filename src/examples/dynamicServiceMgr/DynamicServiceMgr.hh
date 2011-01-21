@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2011/01/21 17:31:29  bdepardo
+ * Prefer prefix ++/-- operators for non-primitive types.
+ * The function 'InstanciationError::message' can be const
+ *
  * Revision 1.1  2008/12/08 15:32:43  bdepardo
  * Added an example to dynamically load a service given a library:
  * the library is sent by the client, and the SeD loads it and uses the new
@@ -41,7 +45,7 @@ public:
   InstanciationError(const char* error):errorCode(error) {}
   InstanciationError(const InstanciationError &error) :
     errorCode(error.errorCode) {};
-  const char* message() { return errorCode; }
+  const char* message() const { return errorCode; }
 private:
   const char* errorCode;
 };

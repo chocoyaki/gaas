@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2011/01/21 17:31:29  bdepardo
+ * Prefer prefix ++/-- operators for non-primitive types.
+ * The function 'InstanciationError::message' can be const
+ *
  * Revision 1.2  2010/03/03 14:05:16  bdepardo
  * Definition for CYGWIN compilation
  *
@@ -47,7 +51,7 @@ DynamicServiceMgr::~DynamicServiceMgr() {
   removeService* rmS;
   const char* error;
 
-  for (i_m = this->services.begin(); i_m != this->services.end(); i_m ++) {
+  for (i_m = this->services.begin(); i_m != this->services.end(); ++ i_m) {
     if (!(i_m->second)) {
       WARNING("Problem while dealing with an \"opened\" module");
       InstanciationError exception(dlerror());
