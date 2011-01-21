@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2011/01/21 18:16:16  bdepardo
+ * Prefer prefix ++/-- operators for non-primitive types.
+ *
  * Revision 1.6  2011/01/12 09:12:18  bdepardo
  * Removed warning during code documentation generation
  *
@@ -450,7 +453,7 @@ WfNode::getPortNb(WfPort::WfPortType portType) const {
     WfPort *port = (WfPort*) portIter->second;
     if (port->getPortType() == portType)
       count++;
-    portIter++;
+    ++portIter;
   }
   return count;
 }
@@ -465,7 +468,7 @@ WfNode::getPortByIndex(unsigned int portIdx) const {
     const WfPort *port = (const WfPort*) portIter->second;
     if (port->getIndex() == portIdx)
       return port;
-    portIter++;
+    ++portIter;
   }
   return NULL;
 }

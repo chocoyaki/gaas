@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.40  2011/01/21 18:12:02  bdepardo
+ * Prefer prefix ++/-- operators for non-primitive types.
+ *
  * Revision 1.39  2010/12/17 09:48:01  kcoulomb
  * * Set diet to use the new log with forwarders
  * * Fix a CoRI problem
@@ -526,12 +529,12 @@ CORBA::Boolean SimpleDagdaImpl::lvlIsDataPresent(const char* dataID) {
   for (itch=getChildren()->begin();itch!=getChildren()->end();)
     try {
       if ((*itch).second->lvlIsDataPresent(dataID)) {
-				childrenMutex.unlock();
-				return true;
-			}
-			itch++;
+        childrenMutex.unlock();
+        return true;
+      }
+      ++itch;
     } catch (CORBA::COMM_FAILURE& e1) {
-			getChildren()->erase(itch++);
+      getChildren()->erase(itch++);
     } catch (CORBA::TRANSIENT& e2) {
       getChildren()->erase(itch++);
     }
@@ -672,11 +675,11 @@ void SimpleDagdaImpl::lvlRemData(const char* dataID) {
   childrenMutex.lock();
   for (itch=getChildren()->begin();itch!=getChildren()->end();)
     try {
-			if ((*itch).second->lvlIsDataPresent(dataID))
+      if ((*itch).second->lvlIsDataPresent(dataID))
         (*itch).second->lvlRemData(dataID);
-			itch++;
-		} catch (CORBA::COMM_FAILURE& e1) {
-			getChildren()->erase(itch++);
+      ++itch;
+    } catch (CORBA::COMM_FAILURE& e1) {
+      getChildren()->erase(itch++);
     } catch (CORBA::TRANSIENT& e2) {
       getChildren()->erase(itch++);
     }
@@ -704,7 +707,8 @@ void SimpleDagdaImpl::lclUpdateData(const char* srcName, const corba_data_t& dat
 
 //
 /* CORBA */
-void SimpleDagdaImpl::lvlUpdateData(const char* srcName, const corba_data_t& data) {
+void SimpleDagdaImpl::lvlUpdateData(const char* srcName,
+                                    const corba_data_t& data) {
   std::map<string,Dagda_ptr>::iterator itch;
   if (lclIsDataPresent(data.desc.id.idNumber))
     lclUpdateData(srcName, data);
@@ -713,9 +717,9 @@ void SimpleDagdaImpl::lvlUpdateData(const char* srcName, const corba_data_t& dat
   for (itch=getChildren()->begin();itch!=getChildren()->end();)
     try {
       (*itch).second->lvlUpdateData(srcName, data);
-			itch++;
-		} catch (CORBA::COMM_FAILURE& e1) {
-			getChildren()->erase(itch++);
+      ++itch;
+    } catch (CORBA::COMM_FAILURE& e1) {
+      getChildren()->erase(itch++);
     } catch (CORBA::TRANSIENT& e2) {
       getChildren()->erase(itch++);
     }
@@ -803,7 +807,7 @@ void SimpleDagdaImpl::lclReplicate(const char* dataID, CORBA::Long target,
 }
 
 void SimpleDagdaImpl::lvlReplicate(const char* dataID, CORBA::Long target,
-																	 const char* pattern, CORBA::Boolean replace) {
+                                   const char* pattern, CORBA::Boolean replace) {
   std::map<string,Dagda_ptr>::iterator itch;
 	
   lclReplicate(dataID, target, pattern, replace);
@@ -812,9 +816,9 @@ void SimpleDagdaImpl::lvlReplicate(const char* dataID, CORBA::Long target,
   for (itch=getChildren()->begin();itch!=getChildren()->end();)
     try {
       (*itch).second->lvlReplicate(dataID, target, pattern, replace);
-			itch++;
-		} catch (CORBA::COMM_FAILURE& e1) {
-			getChildren()->erase(itch++);
+      ++itch;
+    } catch (CORBA::COMM_FAILURE& e1) {
+      getChildren()->erase(itch++);
     } catch (CORBA::TRANSIENT& e2) {
       getChildren()->erase(itch++);
     }
@@ -855,9 +859,9 @@ SeqCorbaDataDesc_t* SimpleDagdaImpl::lvlGetDataDescList() {
       for (unsigned int j=0; j<childList->length(); ++j)
         dataMap[(*childList)[j].id.idNumber]=(*childList)[j];
       delete childList;
-			itch++;
+      ++itch;
     } catch (CORBA::COMM_FAILURE& e1) {
-			getChildren()->erase(itch++);
+      getChildren()->erase(itch++);
     } catch (CORBA::TRANSIENT& e2) {
       getChildren()->erase(itch++);
     }
@@ -902,13 +906,13 @@ corba_data_desc_t* SimpleDagdaImpl::lvlGetDataDesc(const char* dataID) {
   for (itch=getChildren()->begin();itch!=getChildren()->end();)
     try {
       if ((*itch).second->lvlIsDataPresent(dataID)) {
-				childrenMutex.unlock();
+        childrenMutex.unlock();
         return (*itch).second->lvlGetDataDesc(dataID);
-			}
-			itch++;
+      }
+      ++itch;
     } catch (CORBA::COMM_FAILURE& e1) {
-			cout << "CORBA Comm failure!!" << endl;
-			getChildren()->erase(itch++);
+      cout << "CORBA Comm failure!!" << endl;
+      getChildren()->erase(itch++);
     } catch (CORBA::TRANSIENT& e2) {
       cout << "CORBA Comm failure!!" << endl;
       getChildren()->erase(itch++);
@@ -941,9 +945,9 @@ SeqString* SimpleDagdaImpl::lvlGetDataManagers(const char* dataID) {
       for (unsigned int j=0; j< managers->length(); ++j)
         dtmList.push_back(string((*managers)[j]));
       delete managers;
-			itch++;
+      ++itch;
     } catch (CORBA::COMM_FAILURE& e1) {
-			getChildren()->erase(itch++);
+      getChildren()->erase(itch++);
     } catch (CORBA::TRANSIENT& e2) {
       getChildren()->erase(itch++);
     }
@@ -1415,10 +1419,10 @@ void DagdaImpl::checkpointState() {
   childrenMutex.lock();
   for (itch=getChildren()->begin();itch!=getChildren()->end();)
     try {
-			omni_thread::create(thrdCheckpointChild, (*itch).second);
-			itch++;
+      omni_thread::create(thrdCheckpointChild, (*itch).second);
+      ++itch;
     } catch (CORBA::COMM_FAILURE& e1) {
-			getChildren()->erase(itch++);
+      getChildren()->erase(itch++);
     } catch (CORBA::TRANSIENT& e2) {
       getChildren()->erase(itch++);
     }

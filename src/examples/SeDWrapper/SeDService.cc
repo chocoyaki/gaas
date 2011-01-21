@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2011/01/21 18:17:11  bdepardo
+ * Prefer prefix ++/-- operators for non-primitive types.
+ *
  * Revision 1.1  2010/04/06 15:02:37  bdepardo
  * Added SeDWrapper example. This example is compiled when workflows are activated.
  *
@@ -199,7 +202,7 @@ SeDService::getOutputNb() const {
 SeDArgument *
 SeDService::getArg(unsigned int idx) const {
   list<SeDArgument*>::const_iterator argIter = myArgs.begin();
-  for (int ix = 0; ix < idx; ++ix) argIter++;
+  for (int ix = 0; ix < idx; ++ix) ++argIter;
   return *argIter;
 }
 

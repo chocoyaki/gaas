@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2011/01/21 18:12:02  bdepardo
+ * Prefer prefix ++/-- operators for non-primitive types.
+ *
  * Revision 1.7  2010/07/12 16:14:12  glemahec
  * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
  *
@@ -233,17 +236,17 @@ void AdvancedDagdaComponent::shareData(const corba_data_t& data) {
   for (itch=getChildren()->begin();itch!=getChildren()->end();)
     try {
       (*itch).second->registerFile(data);
-			itch++;
+      ++itch;
     } catch (CORBA::COMM_FAILURE& e1) {
-			getChildren()->erase(itch++);
+      getChildren()->erase(itch++);
     } catch (CORBA::TRANSIENT& e2) {
       getChildren()->erase(itch++);
     } catch (Dagda::InvalidPathName& e3) {
-			WARNING("Fail to share the file \"" << e3.path << "\" (invalid path name) on " <<
-							(*itch).second->getID() << " data manager.");
-		} catch (Dagda::UnreachableFile& e4) {
-			WARNING("File \"" << e4.path << "\" is unreachable on " << (*itch).second->getID() <<
-							" data manager.");
-		}
+      WARNING("Fail to share the file \"" << e3.path << "\" (invalid path name) on " <<
+              (*itch).second->getID() << " data manager.");
+    } catch (Dagda::UnreachableFile& e4) {
+      WARNING("File \"" << e4.path << "\" is unreachable on " << (*itch).second->getID() <<
+              " data manager.");
+    }
   childrenMutex.unlock();
 }
