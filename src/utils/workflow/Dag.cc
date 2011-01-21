@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.36  2011/01/21 14:18:07  bdepardo
+ * Prefer prefix ++/-- operators for non-primitive types.
+ *
  * Revision 1.35  2011/01/21 11:25:41  bisnard
  * fixed iterator name conflict
  *
@@ -549,7 +552,7 @@ Dag::getNodesByPriority() {
   TRACE_TEXT (TRACE_ALL_STEPS, "Sorting dag nodes by priority" << endl);
   for (std::map <std::string, DagNode *>::iterator p = this->begin();
        p != this->end();
-       p++) {
+       ++p) {
     n1 = (DagNode*)(p->second);
     // found where insert the node
     std::vector<DagNode*>::iterator q = sorted_list->begin();
@@ -560,7 +563,7 @@ Dag::getNodesByPriority() {
       if (n2->getPriority() < n1->getPriority())
         b = true;
       else
-        q++;
+        ++q;
     }
     sorted_list->insert(q, n1);
   }
@@ -610,7 +613,7 @@ Dag::getInputNodes() {
   DagNode * node = NULL;
   for (map<string, DagNode *>::iterator p = this->nodes.begin();
        p != this->nodes.end();
-       p++) {
+       ++p) {
     node = (DagNode *)(p->second);
     if ((node != NULL) && (node->isAnInput()))
       v.push_back(node);
@@ -626,7 +629,7 @@ Dag::setInputNodesReady(DagScheduler* scheduler) {
   vector<DagNode *> inputs = this->getInputNodes();
   for (vector<DagNode *>::iterator p = inputs.begin();
        p != inputs.end();
-       p++) {
+       ++p) {
     DagNode * node = (DagNode *) *p;
     node->setAsReady(scheduler);
   }
