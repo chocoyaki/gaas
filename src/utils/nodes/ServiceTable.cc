@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2011/01/21 00:11:05  bdepardo
+ * Reduced scope of a variable
+ *
  * Revision 1.3  2010/07/12 16:14:13  glemahec
  * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
  *
@@ -744,7 +747,7 @@ ServiceTable::getChildren(const corba_pb_desc_t * pb_desc,
     SRVT_ERROR("wrong service reference");
   }
   
-  int first_found = -1, second_found = -1 ; // at most, two indices: // and seq
+  int first_found = -1; // at most, two indices: // and seq
   size_t i(0), j(0) ;
   ServiceTable::matching_children_t * mc = NULL ;
   
@@ -763,6 +766,7 @@ ServiceTable::getChildren(const corba_pb_desc_t * pb_desc,
 
   if( pb_desc->parallel_flag == 0 ) { /* Test if there is same profile with
 					 different parallel flag */
+    int second_found = -1;
     i++ ;
     /* Search for 2nd occurence of service in table */  
     while( (i < nb_s) && (!profile_match(&(profiles[i]), pb_desc)) )
