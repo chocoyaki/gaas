@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2011/01/21 00:00:53  bdepardo
+ * Removed memory leak.
+ * Removed: llocation with fopen, while doesn't release it.
+ *
  * Revision 1.3  2010/12/17 09:48:02  kcoulomb
  * * Set diet to use the new log with forwarders
  * * Fix a CoRI problem
@@ -139,11 +143,14 @@ Easy_Memory::get_Avail_Memory_bysysinfo(double * result)
 int
 test_filename(char ** filename){
   char* testing=*filename;
-  while (fopen(testing,"r+")!=NULL){
+  FILE *f;
+  while ((f = fopen(testing,"r+")) != NULL){
+    fclose(f);
     char *tmp=new char[strlen(testing)+2];
     strcpy (tmp,testing);
     testing=new char[strlen(testing)+2];
     strcpy (testing,tmp);
+    delete [] tmp;
     strcat(testing,"_");
   }
   filename=&testing;
