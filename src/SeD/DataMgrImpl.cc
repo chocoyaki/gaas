@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.34  2011/01/21 18:07:00  bdepardo
+ * Prefer prefix ++/-- operators for non-primitive types.
+ *
  * Revision 1.33  2010/12/27 16:40:06  bdepardo
  * Removed an "unused variable" warning
  *
@@ -524,7 +527,7 @@ DataMgrImpl::printList1()
       << cur->first 
       << "    |" << endl 
       << "+-----------------+" << endl);
-      cur++;
+      ++cur;
     }
     dataDescList.unlock();
   }
