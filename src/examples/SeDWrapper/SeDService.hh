@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2011/01/21 18:20:21  bdepardo
+ * Set a few methods to const
+ *
  * Revision 1.1  2010/04/06 15:02:37  bdepardo
  * Added SeDWrapper example. This example is compiled when workflows are activated.
  *
@@ -56,12 +59,12 @@ class SeDArgument {
 
     SeDService *getService() { return myParent; }
 
-    Io_t getIo() { return myIo; }
-    Type_t getType() { return myType; }
-    const string& getOption() { return myOption; }
+    Io_t getIo() const { return myIo; }
+    Type_t getType() const { return myType; }
+    const string& getOption() const { return myOption; }
     const string& getValue();
-    const string& getTemplate() { return myTemplate; }
-    const string& getLabel() { return myLabel; }
+    const string& getTemplate() const { return myTemplate; }
+    const string& getLabel() const { return myLabel; }
 
     void setIo(Io_t io) { myIo = io; }
     void setType(Type_t type) { myType = type; }
@@ -124,8 +127,8 @@ class SeDService {
     void setAvgComputationTime(double time) { myAvgCompTime = time; }
 
     // Properties getters
-    const string& getName() { return myName; }
-    const string& getExecName() { return myExecName; }
+    const string& getName() const { return myName; }
+    const string& getExecName() const { return myExecName; }
     double getAvgComputationTime() const { return myAvgCompTime; }
 
     // Elements builders (order of creation = order of the params)
@@ -153,7 +156,7 @@ class SeDService {
     /* EXECUTION */
 
     int createWorkingDirectory(const string& currentDirectory);
-    const string& getWorkingDirectory();
+    const string& getWorkingDirectory() const;
     int removeWorkingDirectory();
 
     int cpyDependencies();

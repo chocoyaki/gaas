@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2011/01/21 18:20:21  bdepardo
+ * Set a few methods to const
+ *
  * Revision 1.2  2011/01/21 18:17:11  bdepardo
  * Prefer prefix ++/-- operators for non-primitive types.
  *
@@ -276,7 +279,7 @@ SeDService::createWorkingDirectory(const string& currentDirectory) {
 }
 
 const string&
-SeDService::getWorkingDirectory() {
+SeDService::getWorkingDirectory() const {
   return myWorkingDir;
 }
 
