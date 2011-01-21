@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2011/01/21 17:26:05  bdepardo
+ * Prefer prefix ++/-- operators for non-primitive types.
+ *
  * Revision 1.2  2010/03/31 21:15:41  bdepardo
  * Changed C headers into C++ headers
  *
@@ -63,7 +66,7 @@ CORIMgr::startCollectors()
   iter1 = collector_v->begin();
   while( iter1 != collector_v->end()) { 
       res=iter1->start(iter1->get_Collector_type())||res;
-      iter1++;
+      ++iter1;
     }
   return res;
 }
@@ -81,7 +84,7 @@ CORIMgr::call_cori_mgr(estVector_t *ev,
     if (name==iter1->get_Collector_type())
       return iter1->call_cori_metric(info_type,ev,datav);
     
-    iter1++;
+    ++iter1;
   }
   INTERNAL_WARNING("The collector "<<name<<" is not present in CORIMgr");
   return 1;

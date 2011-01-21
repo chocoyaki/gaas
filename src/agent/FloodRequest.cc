@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2011/01/21 17:27:31  bdepardo
+ * Prefer prefix ++/-- operators for non-primitive types.
+ *
  * Revision 1.8  2010/07/12 20:14:32  glemahec
  * DIET 2.5 beta 1 - Forwarders with Multi-MAs bug correction
  *
@@ -92,7 +95,7 @@ FloodRequest::FloodRequest(const MasterAgentImpl::MADescription& predecessor,
   // copy the list of the neighboring MAs but without the MA that had
   // send this request. 
   for(MasterAgentImpl::MAList::iterator iter = knownMAs.begin() ;
-      iter != knownMAs.end() ; iter++) {
+      iter != knownMAs.end() ; ++iter) {
     NeighbouringMA& newNeighbouringMA = neighbouringMAs[iter->first] ;
     newNeighbouringMA.maDescription = iter->second ;
     if (predecessor.defined() && (iter->first ==
@@ -137,7 +140,7 @@ bool FloodRequest::flooded() {
 						    is found or if
 						    there is no other
 						    MA. */
-      iter++) {
+      ++iter) {
     if (iter->second.state != NeighbouringMA::nmaStateFlooded)
       result = false ;
   }
@@ -153,7 +156,7 @@ bool FloodRequest::floodNextStep() {
   bool completelyFlooded = true ;
 
   for(NeighbouringMAs::iterator iter = neighbouringMAs.begin() ;
-      iter != neighbouringMAs.end() ; iter++) {
+      iter != neighbouringMAs.end() ; ++iter) {
     MasterAgentImpl::MADescription& MA = iter->second.maDescription ;
     switch(iter->second.state) {
     case NeighbouringMA::nmaStateNotContacted :
@@ -212,7 +215,7 @@ void FloodRequest::stopFlooding() {
   /* tell to all the contacted MA that the service is found and the
      flooding must stop. */
   for(NeighbouringMAs::iterator iter = neighbouringMAs.begin() ;
-      iter != neighbouringMAs.end() ; iter++) {
+      iter != neighbouringMAs.end() ; ++iter) {
     if(iter->second.state != NeighbouringMA::nmaStateNotContacted &&
        iter->second.state != NeighbouringMA::nmaStateAlreadyContacted) {
       try {

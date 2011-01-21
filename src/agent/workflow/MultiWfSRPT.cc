@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2011/01/21 17:28:50  bdepardo
+ * Prefer prefix ++/-- operators for non-primitive types.
+ *
  * Revision 1.3  2009/09/25 12:39:14  bisnard
  * modified includes to reduce inter-dependencies
  *
@@ -66,7 +69,7 @@ MultiWfSRPT::setExecPriority(DagNode * node) {
   double  RPT = 0; // remaining processing time
   // loop over all dag nodes and add their computation time if not yet executed
   for (std::map<std::string,DagNode*>::iterator np = dag->begin();
-       np != dag->end(); np++) {
+       np != dag->end(); ++np) {
     DagNode * curNode = (DagNode *) np->second;
     if (!curNode->isDone() && !curNode->hasFailed()) {
       RPT += curNode->getEstDuration();
