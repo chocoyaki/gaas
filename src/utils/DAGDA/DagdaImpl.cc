@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.41  2011/01/22 16:27:52  glemahec
+ * Bug workflows/#156 correction (#155 too ?) - pointers management was bugged when reusing INOUT data.
+ *
  * Revision 1.40  2011/01/21 18:12:02  bdepardo
  * Prefer prefix ++/-- operators for non-primitive types.
  *
@@ -293,11 +296,17 @@ char* DagdaImpl::recordData(const SeqChar& data,
   TRACE_TEXT(TRACE_ALL_STEPS, "\tRecord " << data.length() << " bytes for the data "
              << dataDesc.id.idNumber << endl);
   if (replace) {
-	if ((*getData())[dataId].value.length()!=data_sizeof(&dataDesc))
-	  (*getData())[dataId].value.length(data_sizeof(&dataDesc));
+    if ((*getData())[dataId].value.length()!=data_sizeof(&dataDesc))
+      (*getData())[dataId].value.length(data_sizeof(&dataDesc));
   }
-	
-  CORBA::Char* buffer = (*getData())[dataId].value.get_buffer(true);
+  
+  CORBA::Char* buffer;
+  // If the pointer is managed by DAGDA, ask the control.
+  if ((*getData())[dataId].value.release())
+    buffer = (*getData())[dataId].value.get_buffer(true);
+  else
+    buffer = (*getData())[dataId].value.get_buffer(false);
+  
   memcpy(buffer+offset, data.get_buffer(), data.length());
   (*getData())[dataId].value.replace(data_sizeof(&dataDesc), data_sizeof(&dataDesc), buffer, true);
 	

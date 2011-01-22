@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2011/01/22 16:27:51  glemahec
+ * Bug workflows/#156 correction (#155 too ?) - pointers management was bugged when reusing INOUT data.
+ *
  * Revision 1.6  2010/10/18 08:35:43  bdepardo
  * Added includes cstdlib and cstring
  *
@@ -120,7 +123,7 @@ main(int argc, char* argv[]) {
   l1 = (char) 0x1;
   l2 = (char) 0x2;
   std::cout << "#### Characters" << std::endl;
-  std::cout << "Before the call: l1=" << (char) l1 << ", l2=" << (char)l2 << std::endl;
+  std::cout << "Before the call: l1=" << (short) l1 << ", l2=" << (short)l2 << std::endl;
   profile = diet_profile_alloc(PB[0], 0, 1, 2);
   diet_scalar_set(diet_parameter(profile,0), &l1,  DIET_VOLATILE, DIET_CHAR);
   diet_scalar_set(diet_parameter(profile,1), &l2,  DIET_VOLATILE, DIET_CHAR);
@@ -868,7 +871,7 @@ main(int argc, char* argv[]) {
     }
 
     diet_free_data(diet_parameter(profile, 1));
-    diet_free_data(diet_parameter(profile, 2));
+    //diet_free_data(diet_parameter(profile, 2));
     free(s3);
   } else {
     std::cerr << "diet_call has returned with an error code on " << PB_FILE[0] << "!" << std::endl;
