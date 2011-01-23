@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2011/01/23 19:20:00  bdepardo
+ * Fixed memory and resources leaks, variables scopes, unread variables
+ *
  * Revision 1.4  2010/10/27 10:53:00  amuresan
  * modified cloud examples to take config files as command line args
  *
@@ -102,6 +105,9 @@ char matrix_from_file(char* file_path, double** mat, int* n, int* m)
 
     for(i=0;i<*n * *m;i++)
         fscanf(fi, "%lf", &(*mat)[i]);
+
+    fclose(fi);
+
     return 1;
 }
 

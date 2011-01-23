@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2011/01/23 19:20:01  bdepardo
+ * Fixed memory and resources leaks, variables scopes, unread variables
+ *
  * Revision 1.9  2010/10/20 02:54:37  bdepardo
  * Check usage
  *
@@ -132,7 +135,6 @@ process_container(short depth, const char *outputstr, const char *parentID) {
 }
 
 int container_string_length(const char* contID, short depth, char getContainer) {
-  unsigned int i;
   short length = 0;
   diet_container_t content;
   char *eltStr;
@@ -152,6 +154,7 @@ int container_string_length(const char* contID, short depth, char getContainer) 
 
   fprintf(stderr, "(%d) getting element ids (container ID = %s)\n", depth, contID);
   if (!dagda_get_container_elements(contID, &content)) {
+    unsigned int i;
     for (i=0; i<content.size; i++) {
       if (content.elt_ids[i] == NULL)
           length += 6;
@@ -172,7 +175,6 @@ int container_string_length(const char* contID, short depth, char getContainer) 
 }
 
 void container_string_get(const char* contID, short depth, char *contStr) {
-  unsigned int i;
   diet_container_t content;
   char *eltStr;
   if (depth < 0) {
@@ -181,6 +183,7 @@ void container_string_get(const char* contID, short depth, char *contStr) {
   }
   if (!dagda_get_container_elements(contID, &content)) {
     strcat(contStr,parLeft_c);
+    unsigned int i;
     for (i=0; i<content.size; i++) {
       if (content.elt_ids[i] == NULL) {
         strcat(contStr, "[VOID]");
@@ -345,5 +348,5 @@ int main(int argc, char * argv[]) {
 
   diet_print_service_table();
   res = diet_SeD(argv[1], argc, argv);
-  return 0;
+  return res;
 }

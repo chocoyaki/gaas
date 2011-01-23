@@ -7,6 +7,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2011/01/23 19:20:00  bdepardo
+ * Fixed memory and resources leaks, variables scopes, unread variables
+ *
  * Revision 1.1  2010/08/06 14:25:28  glemahec
  * Cmake corrections + uuid lib module + fPIC error control
  *
@@ -166,6 +169,7 @@ int solve_concatenation_seq(diet_profile_t *pb)
   if( file_descriptor == -1 ) {
     perror("mkstemp") ;
   }
+  close(file_descriptor);
   if( diet_file_desc_set(diet_parameter(pb,3), path_result) ) {
     printf("diet_file_desc_set() error\n");
     return 1;
@@ -223,6 +227,7 @@ int solve_concatenation_seq(diet_profile_t *pb)
   copying = (char*)calloc(6000,sizeof(char)) ;  /* TODO: Reduce size */
   if( copying == NULL ) {
     fprintf(stderr,"Memory allocation problem.. not solving the service\n\n") ;
+    free(prologue);
     return 2 ;
   }
   sprintf(copying,
@@ -257,6 +262,9 @@ int solve_concatenation_seq(diet_profile_t *pb)
   cmd = (char*)calloc(5000,sizeof(char)) ;  /* TODO: Reduce size */
   if( cmd == NULL ) {
     fprintf(stderr,"Memory allocation problem.. not solving the service\n\n") ;
+    free(prologue);
+    free(copying);
+    free(local_output_filename);
     return 2 ;
   }
   sprintf(cmd,
@@ -294,6 +302,10 @@ int solve_concatenation_seq(diet_profile_t *pb)
   epilogue = (char*)malloc(1000*sizeof(char)) ;  /* was 200 */
   if( epilogue == NULL ) {
     fprintf(stderr,"Memory allocation problem.. not solving the service\n\n") ;
+    free(prologue);
+    free(copying);
+    free(cmd);
+    free(local_output_filename);
     return 2 ;
   }
   sprintf(epilogue,
@@ -313,6 +325,11 @@ int solve_concatenation_seq(diet_profile_t *pb)
 			   + 1 ) * sizeof(char) ) ;
   if( script == NULL ) {
     fprintf(stderr,"Memory allocation problem.. not solving the service\n\n") ;
+    free(prologue);
+    free(copying);
+    free(cmd);
+    free(epilogue);
+    free(local_output_filename);
     return 2 ;
   }
   sprintf(script,"%s%s%s%s",prologue,copying,cmd,epilogue) ;
@@ -330,6 +347,7 @@ int solve_concatenation_seq(diet_profile_t *pb)
   free(cmd) ;
   free(epilogue) ;
   free(script) ;
+  free(local_output_filename);
 
   /* Don't free path1, path2 and path_result */
   if( result == -1 )
@@ -388,6 +406,7 @@ int solve_concatenation_parallel(diet_profile_t *pb)
   if( file_descriptor == -1 ) {
     perror("mkstemp") ;
   }
+  close(file_descriptor);
   if( diet_file_desc_set(diet_parameter(pb,3), path_result) ) {
     printf("diet_file_desc_set() error\n");
     return 1;
@@ -445,6 +464,7 @@ int solve_concatenation_parallel(diet_profile_t *pb)
   copying = (char*)calloc(6000,sizeof(char)) ;  /* TODO: Reduce size */
   if( copying == NULL ) {
     fprintf(stderr,"Memory allocation problem.. not solving the service\n\n") ;
+    free(prologue);
     return 2 ;
   }
   sprintf(copying,
@@ -479,6 +499,9 @@ int solve_concatenation_parallel(diet_profile_t *pb)
   cmd = (char*)calloc(5000,sizeof(char)) ;  /* TODO: Reduce size */
   if( cmd == NULL ) {
     fprintf(stderr,"Memory allocation problem.. not solving the service\n\n") ;
+    free(prologue);
+    free(copying);
+    free(local_output_filename);
     return 2 ;
   }
   sprintf(cmd,
@@ -516,6 +539,10 @@ int solve_concatenation_parallel(diet_profile_t *pb)
   epilogue = (char*)malloc(1000*sizeof(char)) ;  /* was 200 */
   if( epilogue == NULL ) {
     fprintf(stderr,"Memory allocation problem.. not solving the service\n\n") ;
+    free(prologue);
+    free(copying);
+    free(cmd);
+    free(local_output_filename);
     return 2 ;
   }
   sprintf(epilogue,
@@ -535,6 +562,11 @@ int solve_concatenation_parallel(diet_profile_t *pb)
 			   + 1 ) * sizeof(char) ) ;
   if( script == NULL ) {
     fprintf(stderr,"Memory allocation problem.. not solving the service\n\n") ;
+    free(prologue);
+    free(copying);
+    free(cmd);
+    free(epilogue);
+    free(local_output_filename);
     return 2 ;
   }
   sprintf(script,"%s%s%s%s",prologue,copying,cmd,epilogue) ;
@@ -552,6 +584,7 @@ int solve_concatenation_parallel(diet_profile_t *pb)
   free(cmd) ;
   free(epilogue) ;
   free(script) ;
+  free(local_output_filename);
 
   /* Don't free path1, path2 and path_result */
   if( result == -1 )

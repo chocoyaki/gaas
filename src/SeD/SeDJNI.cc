@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2011/01/23 19:19:58  bdepardo
+ * Fixed memory and resources leaks, variables scopes, unread variables
+ *
  * Revision 1.9  2010/03/31 21:15:39  bdepardo
  * Changed C headers into C++ headers
  *
@@ -686,6 +689,7 @@ JNICALL Java_JXTASeD_solveJXTA (JNIEnv *env, jobject obj,
     inter[j] = '\0';
 
     mat1Value[k++] = strToDouble(inter);
+    delete [] inter;
   }
   
   k = 0;
@@ -697,6 +701,7 @@ JNICALL Java_JXTASeD_solveJXTA (JNIEnv *env, jobject obj,
     inter[j] = '\0';
 
     mat2Value[k++] = strToDouble(inter);
+    delete [] inter;
   }
 
   /* create the 3 matrices */
@@ -765,7 +770,7 @@ JNICALL Java_JXTASeD_solveJXTA (JNIEnv *env, jobject obj,
   profile.last_out = 2;
   profile.parameters = seqData;
 
-  long int ret = SeD->solve(pbName, profile, rID);
+  SeD->solve(pbName, profile, rID);
 
   /* extract and print the result */
   char *matRes = new char[nbR * nbC * sizeof (double)];
@@ -790,8 +795,11 @@ JNICALL Java_JXTASeD_solveJXTA (JNIEnv *env, jobject obj,
       strcat(resul, " ");
     }
   }
-  return (env->NewStringUTF(resul));
 
+  free(mat1Char);
+  free(mat2Char);
+
+  return (env->NewStringUTF(resul));
 } // solveJXTA
 
 /* parse the char * and return it as a long int */
@@ -824,13 +832,14 @@ double strToDouble (char *str)
 /* return a char * representing the parameter int value */
 char *itoa (int i)
 {
-  char *s = new char [50];
   int tmp = i;
-  int cpt = 0;
   if (tmp == 0) {
     return "0";
   }
   else {
+    int cpt = 0;
+    char *s = new char [50];
+
     while (tmp >= 1) {
 	s[cpt++] = tmp % 10 + '0';
 	tmp-=tmp % 10;
@@ -843,7 +852,8 @@ char *itoa (int i)
     for (int i = strlen(s)- 1; i >= 0; i--)
       srev[irev++] = s[i];
     srev[irev] = '\0';
-    
+   
+    delete [] s;
     return (srev);
   }
 } // itoa

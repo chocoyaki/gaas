@@ -69,10 +69,8 @@ int solve_lammps(diet_profile_t *pb)
   char * epilogue = NULL ;
   char * script = NULL ;
   char * path1 = NULL ;
-  char * path2 = NULL ;
   char * path_result = NULL ;
   char * local_output_filename = NULL ;
-  double * ptr_nbreel = NULL ;
   int status = 0 ;
   int result ;
   char * machine_filename ;
@@ -126,6 +124,7 @@ int solve_lammps(diet_profile_t *pb)
   if( makeMachineFile( & machine_file_descriptor, & machine_filename ) != 0 ) {
     fprintf(stderr,
 	    "Making machineFile problem.. not solving the service\n\n") ;
+    free(machine_filename);
     return 2 ;
   }
   
@@ -133,6 +132,7 @@ int solve_lammps(diet_profile_t *pb)
   prologue = (char*)malloc(200*sizeof(char)) ;  
   if( prologue == NULL ) {
     fprintf(stderr,"Memory allocation problem.. not solving the service\n\n") ;
+    free(machine_filename);
     return 2 ;
   }
   sprintf(prologue,
@@ -141,6 +141,8 @@ int solve_lammps(diet_profile_t *pb)
   copying = (char*)malloc(600*sizeof(char)) ;  
   if( copying == NULL ) {
     fprintf(stderr,"Memory allocation problem.. not solving the service\n\n") ;
+    free(prologue);
+    free(machine_filename);
     return 2 ;
   }
   sprintf(copying,
@@ -167,6 +169,9 @@ int solve_lammps(diet_profile_t *pb)
   cmd = (char*)malloc(500*sizeof(char)) ;
   if( cmd == NULL ) {
     fprintf(stderr,"Memory allocation problem.. not solving the service\n\n") ;
+    free(prologue);
+    free(copying);
+    free(machine_filename);
     return 2 ;
   }
   sprintf(cmd,
@@ -186,6 +191,10 @@ int solve_lammps(diet_profile_t *pb)
   epilogue = (char*)malloc(200*sizeof(char)) ;  
   if( epilogue == NULL ) {
     fprintf(stderr,"Memory allocation problem.. not solving the service\n\n") ;
+    free(prologue);
+    free(copying);
+    free(cmd);
+    free(machine_filename);
     return 2 ;
   }
   sprintf(epilogue,
@@ -224,7 +233,7 @@ int solve_lammps(diet_profile_t *pb)
   
   free(machine_filename) ;
 
-  /* Don't free path1, path2 and path_result */
+  /* Don't free path1, and path_result */
   return 0 ;
 }
 

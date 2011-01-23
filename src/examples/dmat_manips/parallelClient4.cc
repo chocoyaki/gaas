@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2011/01/23 19:20:00  bdepardo
+ * Fixed memory and resources leaks, variables scopes, unread variables
+ *
  * Revision 1.5  2008/08/13 16:49:38  bdepardo
  * Added #include <string.h> in order to compile with gcc 4.3
  *
@@ -169,6 +172,7 @@ class worker : public omni_thread
         else {
           fprintf(stderr, "Unknown problem: %s !\n", path);
           rv = -1;
+          delete [] requestID;
           return;
         }
         int rst_call = 0;
@@ -176,6 +180,7 @@ class worker : public omni_thread
         printf("request ID value = -%d- \n", rst[i]);
         if (rst[i] < 0) {
           printf("error in request value ID\n");
+          delete [] requestID;
           return;
         }
       }
@@ -255,7 +260,7 @@ class worker : public omni_thread
       //}
       MUTEX_WORKER.lock();
     }
-    delete requestID;
+    delete [] requestID;
     MUTEX_WORKER.unlock();
     return;
   }

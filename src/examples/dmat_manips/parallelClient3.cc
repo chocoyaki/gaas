@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2011/01/23 19:20:00  bdepardo
+ * Fixed memory and resources leaks, variables scopes, unread variables
+ *
  * Revision 1.10  2010/03/05 15:52:08  ycaniou
  * Ordered things in CMakelist.txt and update Display (Batch, build_version...)
  * Fix version guess of compiler (was gcc only)
@@ -187,6 +190,7 @@ class worker : public omni_thread
         else {
           fprintf(stderr, "Unknown problem: %s !\n", path);
           rv = -1;
+          delete [] requestID;
           return;
         }
         int rst_call = 0;
@@ -194,6 +198,7 @@ class worker : public omni_thread
         printf("request ID value = -%d- \n", rst[i]);
         if (rst[i] < 0) {
           printf("error in request value ID\n");
+          delete [] requestID;
           return;
         }
       }
@@ -231,8 +236,7 @@ class worker : public omni_thread
       printf("***********************************************************\n");
       IO_WRITER_LOCK.unlock();
       // test all return rst
-      int rst_call = 0;
-      if ((rst_call = diet_wait_and((diet_reqID_t*)&rst, (unsigned int)5)) != 0) printf("Error in diet_wait_and\n");
+      if (diet_wait_and((diet_reqID_t*)&rst, (unsigned int)5) != 0) printf("Error in diet_wait_and\n");
       //MUTEX_WORKER.lock();
       else {
         IO_WRITER_LOCK.lock();
@@ -265,7 +269,7 @@ class worker : public omni_thread
       }
       MUTEX_WORKER.lock();
     }
-    delete requestID;
+    delete [] requestID;
     MUTEX_WORKER.unlock();
     return;
   }

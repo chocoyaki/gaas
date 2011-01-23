@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2011/01/23 19:20:00  bdepardo
+ * Fixed memory and resources leaks, variables scopes, unread variables
+ *
  * Revision 1.1  2010/08/06 14:25:29  glemahec
  * Cmake corrections + uuid lib module + fPIC error control
  *
@@ -121,9 +124,6 @@ main(int argc, char* argv[])
 
   int   pb[NB_PB] = {0, 0, 0};
 
-  /* STATS */
-  char* STAT_FILE_NAME = NULL;
-  FILE* STAT_FILE      = NULL;
   size_t nb_of_requests;
   int pause = 0;
   
@@ -167,8 +167,6 @@ main(int argc, char* argv[])
   }
   
 
-  if ((STAT_FILE_NAME = getenv("DIET_STAT_FILE_NAME")))
-    STAT_FILE = fopen(STAT_FILE_NAME, "wc");
   nb_of_requests = 0;
 
   oA = ((double)rand()/(double)RAND_MAX <= 0.5) ? DIET_ROW_MAJOR : 

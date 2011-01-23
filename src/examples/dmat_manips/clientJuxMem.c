@@ -3,6 +3,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2011/01/23 19:20:00  bdepardo
+ * Fixed memory and resources leaks, variables scopes, unread variables
+ *
  * Revision 1.9  2010/03/05 15:52:08  ycaniou
  * Ordered things in CMakelist.txt and update Display (Batch, build_version...)
  * Fix version guess of compiler (was gcc only)
@@ -106,13 +109,13 @@ main(int argc, char* argv[])
   n_loops = atoi(argv[1]);
   pause = atoi(argv[2]);
 
-  path = (char*) malloc(sizeof(char) * 10);
-  path2 = (char*) malloc(sizeof(char) * 10);
-
   if (diet_initialize(argv[3], argc, argv)) { 
     fprintf(stderr, "DIET initialization failed !\n");
     return 1;
   }
+
+  path = (char*) malloc(sizeof(char) * 10);
+  path2 = (char*) malloc(sizeof(char) * 10);
 
   strcpy(path,"MatPROD");
   profile = diet_profile_alloc(path, 1, 1, 2);

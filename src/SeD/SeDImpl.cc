@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.126  2011/01/23 19:19:58  bdepardo
+ * Fixed memory and resources leaks, variables scopes, unread variables
+ *
  * Revision 1.125  2010/12/17 09:47:59  kcoulomb
  * * Set diet to use the new log with forwarders
  * * Fix a CoRI problem
@@ -1225,7 +1228,6 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
       ServiceTable::ServiceReference_t ref(-1);
       diet_profile_t profile;
       diet_convertor_t* cvt(NULL);
-      int solve_res(0);
       char statMsg[128];
 
       /* Record the SedImpl address */
@@ -1276,7 +1278,7 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
 	 */
 	profile.pb_name = strdup(path);
 
-	solve_res = (*(SrvT->getSolver(ref)))(&profile);    // SOLVE
+        int solve_res = (*(SrvT->getSolver(ref)))(&profile);    // SOLVE
 
 	uploadAsyncSeDData(profile,  const_cast<corba_profile_t&>(pb), cvt);
 

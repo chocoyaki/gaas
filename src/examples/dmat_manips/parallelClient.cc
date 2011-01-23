@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2011/01/23 19:20:00  bdepardo
+ * Fixed memory and resources leaks, variables scopes, unread variables
+ *
  * Revision 1.11  2009/11/26 12:05:32  ycaniou
  * Warning--
  *
@@ -182,6 +185,7 @@ class worker : public omni_thread
       else {
         fprintf(stderr, "Unknown problem: %s!\n", path);
         rv = -1;
+        delete [] requestID;
         return;
       }
       diet_reqID_t rst;
@@ -228,13 +232,14 @@ class worker : public omni_thread
       else {
         printf("error in diet_call_async ...\n");
         MUTEX_WORKER.unlock();
+        delete [] requestID;
         return;
       }
       diet_profile_free(profile);
       MUTEX_WORKER.lock();
     }
     MUTEX_WORKER.unlock();
-    delete requestID;
+    delete [] requestID;
     return;
   }
 

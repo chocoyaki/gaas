@@ -7,6 +7,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2011/01/23 19:19:59  bdepardo
+ * Fixed memory and resources leaks, variables scopes, unread variables
+ *
  * Revision 1.1  2007/01/08 13:45:35  ycaniou
  * Lammps parallel request example. Still work to do
  *
@@ -125,6 +128,7 @@ int solve_concatenation(diet_profile_t *pb)
   copying = (char*)malloc(600*sizeof(char)) ;  
   if( copying == NULL ) {
     fprintf(stderr,"Memory allocation problem.. not solving the service\n\n") ;
+    free(prologue);
     return 2 ;
   }
   sprintf(copying,
@@ -145,6 +149,8 @@ int solve_concatenation(diet_profile_t *pb)
   cmd = (char*)malloc(500*sizeof(char)) ;  
   if( cmd == NULL ) {
     fprintf(stderr,"Memory allocation problem.. not solving the service\n\n") ;
+    free(prologue);
+    free(copying);
     return 2 ;
   }
   sprintf(cmd,
@@ -163,6 +169,9 @@ int solve_concatenation(diet_profile_t *pb)
   epilogue = (char*)malloc(200*sizeof(char)) ;  
   if( epilogue == NULL ) {
     fprintf(stderr,"Memory allocation problem.. not solving the service\n\n") ;
+    free(prologue);
+    free(copying);
+    free(cmd);
     return 2 ;
   }
   sprintf(epilogue,

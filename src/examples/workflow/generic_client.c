@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2011/01/23 19:20:01  bdepardo
+ * Fixed memory and resources leaks, variables scopes, unread variables
+ *
  * Revision 1.13  2010/07/20 09:08:47  bisnard
  * Added name parameter to wf client (used by gui)
  *
@@ -85,11 +88,9 @@ main(int argc, char* argv[])
 {
   diet_wf_desc_t * profile;
   char *wfFileName, *dataFileName, *transcriptFileName, *wfName, *dagFileName;
-  int curPos = 0;
   wf_level_t wfType;
   char wfTypeName[10];
   struct timeval t1, t2;
-  float time;
 
   checkUsage(argc, argv);
 
@@ -119,7 +120,7 @@ main(int argc, char* argv[])
   if (wfType == DIET_WF_FUNCTIONAL) {
     wfFileName = argv[3];
     dataFileName = argv[4];
-    curPos = 5;
+    int curPos = 5;
     if ((argc > curPos) && (strcmp(argv[curPos], "-name"))) {
 	transcriptFileName = argv[curPos];
 	curPos++;
@@ -168,7 +169,7 @@ main(int argc, char* argv[])
   printf("Try to execute the %s\n", wfTypeName);
   if (! diet_wf_call(profile)) {
     gettimeofday(&t2, NULL);
-    time = (t2.tv_sec - t1.tv_sec) + ((float)(t2.tv_usec - t1.tv_usec))/1000000;
+    float time = (t2.tv_sec - t1.tv_sec) + ((float)(t2.tv_usec - t1.tv_usec))/1000000;
     printf("The %s submission succeed / time= %f s\n" ,wfTypeName, time);
 
     if (wfType == DIET_WF_FUNCTIONAL) {

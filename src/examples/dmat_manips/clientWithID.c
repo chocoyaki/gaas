@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2011/01/23 19:20:00  bdepardo
+ * Fixed memory and resources leaks, variables scopes, unread variables
+ *
  * Revision 1.10  2010/03/05 15:52:08  ycaniou
  * Ordered things in CMakelist.txt and update Display (Batch, build_version...)
  * Fix version guess of compiler (was gcc only)
@@ -159,11 +162,7 @@ main(int argc, char* argv[])
   int   pb[NB_PB] = {0, 0, 0, 0, 0};
   char car;
 
-  /* STATS */
-  char* STAT_FILE_NAME = NULL;
-  FILE* STAT_FILE      = NULL;
   /* struct timeval tv, tv_pause; */
-  size_t nb_of_requests;
   int pause = 0;   /* sec */
   time_t t1,t2;
   /* char *idC, *idD; */
@@ -220,10 +219,6 @@ main(int argc, char* argv[])
   /* Square matrix problems: */
   
 
-  if ((STAT_FILE_NAME = getenv("DIET_STAT_FILE_NAME")))
-    STAT_FILE = fopen(STAT_FILE_NAME, "wc");
-  nb_of_requests = 0;
-  
   oA = DIET_ROW_MAJOR ;
   oB = DIET_ROW_MAJOR ;
   oC = DIET_ROW_MAJOR ;

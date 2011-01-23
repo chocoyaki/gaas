@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2011/01/23 19:20:00  bdepardo
+ * Fixed memory and resources leaks, variables scopes, unread variables
+ *
  * Revision 1.1  2010/08/06 14:25:29  glemahec
  * Cmake corrections + uuid lib module + fPIC error control
  *
@@ -94,8 +97,10 @@ solve_T(diet_profile_t* pb)
   C = malloc(n*m*sizeof(double));
   for (i=0; i<n*m; ++i)
     C[i]=A[i];
-  if ((res = T(m, n, A, (o == DIET_ROW_MAJOR))))
+  if ((res = T(m, n, A, (o == DIET_ROW_MAJOR)))) {
+    free(C);
     return res;
+  }
   
   /* no need to set order */
   diet_matrix_set(diet_parameter(pb,1), C, DIET_VOLATILE, DIET_DOUBLE, n, m, o);

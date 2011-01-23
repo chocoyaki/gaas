@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2011/01/23 19:20:00  bdepardo
+ * Fixed memory and resources leaks, variables scopes, unread variables
+ *
  * Revision 1.2  2003/07/25 20:37:36  pcombes
  * Separate the DIET API (slightly modified) from the GridRPC API (version of
  * the draft dated to 07/21/2003)
@@ -100,6 +103,11 @@ main(int argc, char* argv[])
   oB = (rand() & 1) ? DIET_ROW_MAJOR : DIET_COL_MAJOR;
   oC = (rand() & 1) ? DIET_ROW_MAJOR : DIET_COL_MAJOR;
 
+  if (diet_initialize(argv[1], argc, argv)) {
+    fprintf(stderr, "DIET initialization failed !\n");
+    return 1;
+  } 
+
   // Fill A, B and C randomly ...
   A = calloc(m*k, sizeof(double));
   B = calloc(k*n, sizeof(double));
@@ -107,11 +115,6 @@ main(int argc, char* argv[])
   for (i = j = 0; i < m * k; i++) A[i] = (rand() / 100.0) * j++;
   for (i = 0; i < k * n; i++)     B[i] = (rand() / 100.0) * j++;
   for (i = 0; i < m * n; i++)     C[i] = (rand() / 100.0) * j++;
-
-  if (diet_initialize(argv[1], argc, argv)) {
-    fprintf(stderr, "DIET initialization failed !\n");
-    return 1;
-  } 
 
   profile = diet_profile_alloc(path, 7, 8, 8);
 

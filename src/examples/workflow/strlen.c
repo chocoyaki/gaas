@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2011/01/23 19:20:01  bdepardo
+ * Fixed memory and resources leaks, variables scopes, unread variables
+ *
  * Revision 1.6  2010/09/06 07:41:13  bdepardo
  * Fixed warnings
  *
@@ -31,7 +34,9 @@
 
 #include "DIET_server.h"
 
-char time_str[64];
+#define MAX_TIME_SIZE 64
+
+char time_str[MAX_TIME_SIZE];
 long int t = 0;
 void
 performance_Exec_Time(diet_profile_t* pb ,estVector_t perfValues )
@@ -77,7 +82,8 @@ int main(int argc, char * argv[]) {
   diet_profile_desc_t* profile = NULL;
 
   if (argc == 3) {
-    strcpy (time_str, argv[2]);
+    strncpy (time_str, argv[2], MAX_TIME_SIZE - 1);
+    time_str[MAX_TIME_SIZE - 1] = '\0';
   }
   else {
     strcpy (time_str, "10");
@@ -95,5 +101,5 @@ int main(int argc, char * argv[]) {
   diet_profile_desc_free(profile);
   diet_print_service_table();
   res = diet_SeD(argv[1], argc, argv);
-  return 0;
+  return res;
 }

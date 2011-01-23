@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2011/01/23 19:20:00  bdepardo
+ * Fixed memory and resources leaks, variables scopes, unread variables
+ *
  * Revision 1.7  2004/10/04 08:21:12  hdail
  * Removed temporary << printf ("tata\n") ; >> lines.
  *
@@ -231,5 +234,7 @@ main(int argc, char* argv[])
   }
   diet_finalize();
   printf("END of asynchronous serial client.\n");
+  delete [] requestID;
+
   return 0;
 }

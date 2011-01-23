@@ -7,6 +7,9 @@
 /****************************************************************************/
 /* $Id$ 
  * $Log$
+ * Revision 1.13  2011/01/23 19:20:02  bdepardo
+ * Fixed memory and resources leaks, variables scopes, unread variables
+ *
  * Revision 1.12  2010/12/17 09:48:01  kcoulomb
  * * Set diet to use the new log with forwarders
  * * Fix a CoRI problem
@@ -201,8 +204,6 @@ int fd_observe (fd_handle handle)
   watched_process p;
   struct timeval tv;
   char buffer[MAX_BUFFER_SIZE];
-  int nb_read;
-  int request_len;
   int sock;        /* socket for HTTP connection */
   struct sockaddr_in addr;    /* address of watched machine */
   double alpha, eta;
@@ -259,12 +260,12 @@ int fd_observe (fd_handle handle)
     char machine_name[MAX_HOSTNAME_SIZE];
     gethostname(machine_name, MAX_HOSTNAME_SIZE);
     /* send request */
-    request_len = snprintf (buffer, sizeof (buffer), "OBSERVE %s %X %X %.9f", machine_name, p->id, p->service_number, eta);
+    int request_len = snprintf (buffer, sizeof (buffer), "OBSERVE %s %X %X %.9f", machine_name, p->id, p->service_number, eta);
     write (sock, buffer, request_len+1);
     /* force system to send data now */
     shutdown (sock, SHUT_WR);
     /* read in the answer */
-    nb_read = read (sock, buffer, sizeof (buffer));
+    int nb_read = read (sock, buffer, sizeof (buffer));
     if ((nb_read == -1) || (strcmp (buffer,"OK") != 0)) {
       /* something went wrong */
       thread_mutex_lock (&watched_mutex);

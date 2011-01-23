@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2011/01/23 19:20:00  bdepardo
+ * Fixed memory and resources leaks, variables scopes, unread variables
+ *
  * Revision 1.3  2010/03/05 15:52:08  ycaniou
  * Ordered things in CMakelist.txt and update Display (Batch, build_version...)
  * Fix version guess of compiler (was gcc only)
@@ -193,7 +196,7 @@ solve_pdgemm(diet_profile_t* pb)
   double* B = NULL;
   double* C = NULL;
 
-  int contextAll, context1x1, contextWorkers, res;
+  int res;
   int IsSqMatSUM = 0;
   diet_matrix_order_t oA, oB, oC;
   
@@ -236,6 +239,7 @@ solve_pdgemm(diet_profile_t* pb)
   if ((k_ != k) || (m_ != m) || (n_ != n)) {
     fprintf(stderr, "pdgemm Error: invalid matrix dimensions: ");
     fprintf(stderr, "%zdx%zd = %zdx%zd * %zdx%zd\n", m_, n_, m, k, k_, n);
+    free(B);
     return 1;
   }
 
@@ -357,12 +361,8 @@ compute(int m, int n, int k, char tA, char tB,
   double* pB = NULL;
   double* pC = NULL;
 
-  int minusOne = -1;
-
   int msg[1];
   MPI_Status status;
-
-  int i;
 
 
 #ifdef DEBUG
@@ -545,7 +545,6 @@ sed_leaveJob(job_t* j)
   MPI_Status status;
   MPI_Comm temp;
   int* msg;
-  int m[1];
   int lLeader=-1;
 
 
@@ -619,8 +618,6 @@ sed_leaveJob(job_t* j)
 job_t*
 sed_getJob(int procs, int rows, int cols, int bs)
 {
-  int x=1;
-  int y;
   int i;
   int* msg = NULL;
   int* submapAll = NULL;

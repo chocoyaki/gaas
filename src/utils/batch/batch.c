@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2011/01/23 19:20:01  bdepardo
+ * Fixed memory and resources leaks, variables scopes, unread variables
+ *
  * Revision 1.15  2008/01/01 19:43:49  ycaniou
  * Modifications for batch management. Loadleveler is now ok.
  *
@@ -109,7 +112,6 @@ AppendIfThere(char ** toWhat,
               EscapeTypes escape) {
   char *c;
   char *escaped;
-  unsigned offset;
   if(s == NULL)
     return;
   *toWhat = StrAppend(*toWhat, prefix, NULL);
@@ -126,6 +128,7 @@ AppendIfThere(char ** toWhat,
       else if(c > escaped && *(c - 1) == '\\')
         ; /* empty */ /* Already escaped */
       else {
+        unsigned int offset;
         offset = c - escaped;
         StrReplace(&escaped, offset, 0, "\\");
         c = escaped + offset + 2;
@@ -351,7 +354,6 @@ ELBASE_ScriptForCopy(ELBASE_StorageServiceTypes sourceService,
                     const char *destServer,
                     const char *destPath) {
 
-  ELBASE_StorageServiceTypes remoteService;
   char *result;
   char *tempPath;
   char *toScript;
@@ -365,7 +367,7 @@ ELBASE_ScriptForCopy(ELBASE_StorageServiceTypes sourceService,
      (destService == sourceService &&
       (destService == ELBASE_GASS || destService == ELBASE_SCP))) {
     /* Local->remote, remote->local or supported remote->remote copy. */
-    remoteService = sourceService != ELBASE_CP ? sourceService : destService;
+    ELBASE_StorageServiceTypes remoteService = sourceService != ELBASE_CP ? sourceService : destService;
     if(remoteService == ELBASE_CP)
       result = StrAppend
         (NULL,storageCommands[ELBASE_CP]," ",sourcePath," ",destPath,NULL);
@@ -1003,7 +1005,6 @@ ELBASE_ScriptForSubmit(ELBASE_ComputeServiceTypes service,
   /*  DIET case: environment always NULL for the moment! */
   if(environment != NULL && *environment != NULL) {
     char *env = NULL;
-    unsigned i;
     if(service == ELBASE_GRAM)
       AppendListIfThere
 	(&env, "(", environment, "\")(", "\")", " \"", GRAM_ESCAPE);
@@ -1021,7 +1022,7 @@ ELBASE_ScriptForSubmit(ELBASE_ComputeServiceTypes service,
     else {
       AppendListIfThere
 	(&env, "", environment, "\"\n", "\"\n", "=\"", NO_ESCAPE);
-      for(i = 0; environment[i] != NULL; i++) {
+      for(unsigned int i = 0; environment[i] != NULL; i++) {
 	env = StrAppend(env, "export ", environment[i], "\n", NULL);
 	*strrchr(env, '=') = '\0';
       }

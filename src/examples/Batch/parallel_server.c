@@ -7,6 +7,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2011/01/23 19:19:59  bdepardo
+ * Fixed memory and resources leaks, variables scopes, unread variables
+ *
  * Revision 1.8  2006/11/28 20:40:31  ycaniou
  * Only headers
  *
@@ -123,6 +126,7 @@ int solve_concatenation(diet_profile_t *pb)
   if( makeMachineFile( & machine_file_descriptor, & machine_filename ) != 0 ) {
     fprintf(stderr,
 	    "Making machineFile problem.. not solving the service\n\n") ;
+    free(machine_filename);
     return 2 ;
   }
   
@@ -130,6 +134,7 @@ int solve_concatenation(diet_profile_t *pb)
   prologue = (char*)malloc(200*sizeof(char)) ;  
   if( prologue == NULL ) {
     fprintf(stderr,"Memory allocation problem.. not solving the service\n\n") ;
+    free(machine_filename);
     return 2 ;
   }
   sprintf(prologue,
@@ -138,6 +143,8 @@ int solve_concatenation(diet_profile_t *pb)
   copying = (char*)malloc(600*sizeof(char)) ;  
   if( copying == NULL ) {
     fprintf(stderr,"Memory allocation problem.. not solving the service\n\n") ;
+    free(prologue);
+    free(machine_filename);
     return 2 ;
   }
   sprintf(copying,
@@ -163,6 +170,9 @@ int solve_concatenation(diet_profile_t *pb)
   cmd = (char*)malloc(500*sizeof(char)) ;
   if( cmd == NULL ) {
     fprintf(stderr,"Memory allocation problem.. not solving the service\n\n") ;
+    free(prologue);
+    free(copying);
+    free(machine_filename);
     return 2 ;
   }
   sprintf(cmd,
@@ -181,6 +191,10 @@ int solve_concatenation(diet_profile_t *pb)
   epilogue = (char*)malloc(200*sizeof(char)) ;  
   if( epilogue == NULL ) {
     fprintf(stderr,"Memory allocation problem.. not solving the service\n\n") ;
+    free(prologue);
+    free(copying);
+    free(cmd);
+    free(machine_filename);
     return 2 ;
   }
   sprintf(epilogue,

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2011/01/23 19:20:00  bdepardo
+ * Fixed memory and resources leaks, variables scopes, unread variables
+ *
  * Revision 1.6  2010/11/16 01:42:28  amuresan
  *  - added proper concurrency support for cloud part
  *  - fixed small data initialization bug with cloud server example
@@ -152,7 +155,7 @@ int solve_cloud(diet_profile_t *pb)
     mat_to_str(pb, 0, strA);
     mat_to_str(pb, 1, strB);
     /*    printf("A: %s\nB: %s\n", strA, strB); */
-    sprintf(aux, "%sa=%s\nb=%s\n%s\0", script_start, strA, strB, script_end);
+    sprintf(aux, "%sa=%s\nb=%s\n%s", script_start, strA, strB, script_end);
 
   /* Call performance prediction or not, but fields are to be fullfilled */ 
   make_perf(pb) ; 
@@ -174,7 +177,11 @@ int solve_cloud(diet_profile_t *pb)
   /* Set OUT arguments */
   diet_string_set(diet_parameter(pb, 2), C, DIET_VOLATILE);
   diet_string_set(diet_parameter(pb, 3), result, DIET_VOLATILE);
-  return 0;
+
+  free(strA);
+  free(strB);
+
+  return res;
 }
 int main(int argc, char* argv[])
 {

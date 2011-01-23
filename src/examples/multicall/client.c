@@ -17,7 +17,6 @@ usage(char* cmd)
 int
 main(int argc, char* argv[])
 {
-  int i;
   int NR = 1800;
   int NS = 0;
   char c = '#';
@@ -34,7 +33,8 @@ main(int argc, char* argv[])
   }
  
   char *s = argv[2];
-  char* temp = (char*)malloc((strlen(s) + 1) * sizeof(char));
+  char *temp = (char*)malloc((strlen(s) + 1) * sizeof(char));
+  char *tempBak = temp;
   temp = strcpy(temp, s);
  
  
@@ -43,6 +43,7 @@ main(int argc, char* argv[])
     temp = NULL;
     NS++;
   }
+  free(tempBak);
   
   profile = diet_profile_alloc("CERFACS", 2, 2, 2);
   diet_scalar_set(diet_parameter(profile, 0), &NS,  DIET_VOLATILE, DIET_INT);

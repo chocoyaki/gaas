@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2011/01/23 19:19:59  bdepardo
+ * Fixed memory and resources leaks, variables scopes, unread variables
+ *
  * Revision 1.11  2010/03/31 21:15:39  bdepardo
  * Changed C headers into C++ headers
  *
@@ -267,7 +270,7 @@ Java_LA_startDIETLA(JNIEnv *env,
       WARNING("Could not initialize DietLogComponent");
       dietLogComponent = NULL; // this should not happen;
     }
-    delete(agtTypeName);
+    free(agtTypeName);
   } else {
     TRACE_TEXT(TRACE_MAIN_STEPS, "LogService disabled" << endl);
     dietLogComponent = NULL;

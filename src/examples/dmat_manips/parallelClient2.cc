@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2011/01/23 19:20:00  bdepardo
+ * Fixed memory and resources leaks, variables scopes, unread variables
+ *
  * Revision 1.11  2010/03/05 15:52:08  ycaniou
  * Ordered things in CMakelist.txt and update Display (Batch, build_version...)
  * Fix version guess of compiler (was gcc only)
@@ -182,6 +185,7 @@ class worker : public omni_thread
       else {
         fprintf(stderr, "Unknown problem: %s !\n", path);
         rv = -1;
+        delete [] requestID;
         return;
       }
       diet_reqID_t rst;
@@ -237,7 +241,7 @@ class worker : public omni_thread
       MUTEX_WORKER.lock();
     }
     MUTEX_WORKER.unlock();
-    delete requestID;
+    delete [] requestID;
     return;
   }
   // the destructor of a class that inherits from omni_thread should never be
