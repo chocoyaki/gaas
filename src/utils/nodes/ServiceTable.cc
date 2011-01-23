@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2011/01/23 19:59:59  bdepardo
+ * Common realloc mistake: "eval_functions/convertors/solvers/perfmetrics/matching_children"
+ * nulled but not freed upon failure
+ *
  * Revision 1.4  2011/01/21 00:11:05  bdepardo
  * Reduced scope of a variable
  *
@@ -303,14 +307,42 @@ ServiceTable::addService(const corba_profile_desc_t* profile,
     if (nb_s == max_nb_s) {
       max_nb_s += max_nb_s_step;
       profiles.length(max_nb_s);
-      solvers = (diet_solve_t *)
+      diet_solve_t *newSolvers = (diet_solve_t *)
         realloc(solvers, max_nb_s * sizeof(diet_solve_t));
-      eval_functions = (diet_eval_t *)
+      if (newSolvers == NULL) {
+        // What do we do??
+        //free(solvers);
+        return 1;
+      }
+      solvers = newSolvers;
+
+      diet_eval_t *newEval = (diet_eval_t *)
         realloc(eval_functions, max_nb_s * sizeof(diet_eval_t));
-      convertors = (diet_convertor_t *)
+      if (newEval == NULL) {
+        // What do we do??
+        //free(eval_functions);
+        return 1;
+      }
+      eval_functions = newEval;
+
+      diet_convertor_t * newConvertors  = (diet_convertor_t *)
         realloc(convertors, max_nb_s * sizeof(diet_convertor_t));
-      perfmetrics = (diet_perfmetric_t *)
+      if (newConvertors == NULL) {
+        // What do we do??
+        //free(convertors);
+        return 1;
+      }
+      convertors = newConvertors;
+
+      diet_perfmetric_t * newPerf = (diet_perfmetric_t *)
         realloc(perfmetrics, max_nb_s * sizeof(diet_perfmetric_t));
+      if (newPerf == NULL) {
+        // What do we do??
+        //free(perfmetrics);
+        return -1;
+      }
+      perfmetrics = newPerf;
+
       for (size_t i = nb_s; i < max_nb_s; i++) {
         profiles[i].param_desc.length(0);
         solvers[i]              = NULL;
@@ -360,8 +392,14 @@ ServiceTable::addService(const corba_profile_desc_t* profile,
     if( (nb_s != 0) && (nb_s % max_nb_s) == 0 ) {
       max_nb_s += max_nb_s_step;
       profiles.length(max_nb_s);
-      matching_children = (matching_children_t*)
+      matching_children_t *newChildren = (matching_children_t*)
         realloc(matching_children, max_nb_s * sizeof(matching_children_t));
+      if (newChildren == NULL) {
+        // What do we do??
+        return 1;
+      }
+      matching_children = newChildren;
+
       for (size_t i = nb_s ; i < max_nb_s; i++) {
         profiles[i].param_desc.length(0);
         matching_children[i].nb_children = 0;
