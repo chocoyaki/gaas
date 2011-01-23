@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2011/01/23 19:25:29  bdepardo
+ * Fixed memory leak and variable scope
+ *
  * Revision 1.13  2010/03/03 10:19:03  bdepardo
  * Changed \n into endl
  *
@@ -453,13 +456,14 @@ Java_JXTAMultiMA_submitJXTA(JNIEnv *env,
 /* return a string representing the parameter long value */
 char *ltoa (long i)
 {
-  char *s = new char [20];
   long tmp = i;
-  int cpt = 0;
   if (tmp == 0) {
     return ("0");
   }
   else {
+    int cpt = 0;
+    char *s = new char [20];
+
     while (tmp >= 1) {
 	s[cpt++] = tmp % 10 + '0';
 	tmp-=tmp % 10;
@@ -473,6 +477,7 @@ char *ltoa (long i)
       srev[irev++] = s[i];
     srev[irev] = '\0';
     
+    delete [] s;
     return (srev);
   }
 } // ltoa
