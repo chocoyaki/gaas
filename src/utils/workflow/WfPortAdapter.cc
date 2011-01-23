@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.24  2011/01/23 19:16:28  bdepardo
+ * Removed debug messages
+ *
  * Revision 1.23  2011/01/20 18:52:11  bdepardo
  * Set a pointer to NULL
  *
@@ -974,11 +977,6 @@ WfDataIDAdapter::getAndWriteData(WfDataWriter* dataWriter,
       int *value = NULL;
       int re;
       re = dagda_get_scalar(dataID.c_str(),&value,NULL);
-      TRACE_TEXT(TRACE_MAIN_STEPS, "BBB return value = " << re << endl);
-      TRACE_TEXT(TRACE_MAIN_STEPS, "BBB ID: " << dataID << endl);
-      if (value == NULL) {
-        TRACE_TEXT(TRACE_MAIN_STEPS, "BBB null value " << endl);
-      }
       dataWriter->itemValue(value, (WfCst::WfDataType) dataType);
     } else if (dataType == WfCst::TYPE_LONGINT) {
       long *value;
