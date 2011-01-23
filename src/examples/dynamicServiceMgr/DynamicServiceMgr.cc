@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2011/01/23 19:27:47  bdepardo
+ * Fixed: Throwing exception in destructor
+ *
  * Revision 1.3  2011/01/21 17:31:29  bdepardo
  * Prefer prefix ++/-- operators for non-primitive types.
  * The function 'InstanciationError::message' can be const
@@ -54,8 +57,6 @@ DynamicServiceMgr::~DynamicServiceMgr() {
   for (i_m = this->services.begin(); i_m != this->services.end(); ++ i_m) {
     if (!(i_m->second)) {
       WARNING("Problem while dealing with an \"opened\" module");
-      InstanciationError exception(dlerror());
-      throw exception;
     }
     dlerror();
 
@@ -63,8 +64,7 @@ DynamicServiceMgr::~DynamicServiceMgr() {
     rmS = (removeService*) dlsym(i_m->second, "removeService");
     error = dlerror();
     if (error) {
-      InstanciationError exception(error);
-      throw exception;
+      WARNING("Problem while searching for removeService");
     }
 
     rmS();
