@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2011/01/24 23:14:19  bdepardo
+ * Fixed memory leaks
+ *
  * Revision 1.9  2006/06/30 15:26:02  ycaniou
  * C++ commentaries -> C commentaries to remove compilation warnings
  *
@@ -109,6 +112,11 @@ main(int argc, char* argv[])
   alpha = strtod(argv[5], NULL);
   beta  = strtod(argv[6], NULL);
 
+  if (diet_initialize(argv[1], argc, argv)) {
+    fprintf(stderr, "DIET initialization failed !\n");
+    return 1;
+  } 
+
   /* Fill A, B and C randomly ... */
   A = calloc(m*k, sizeof(double));
   B = calloc(k*n, sizeof(double));
@@ -116,11 +124,6 @@ main(int argc, char* argv[])
   for (i = j = 0; i < m * k; i++) A[i] = 1.0 + j++;
   for (i = 0; i < k * n; i++)     B[i] = 1.0 + j++;
   for (i = 0; i < m * n; i++)     C[i] = 1.0 + j++;
-
-  if (diet_initialize(argv[1], argc, argv)) {
-    fprintf(stderr, "DIET initialization failed !\n");
-    return 1;
-  } 
 
   profile = diet_profile_alloc(path, 3, 4, 4);
 

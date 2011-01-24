@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2011/01/24 23:14:19  bdepardo
+ * Fixed memory leaks
+ *
  * Revision 1.14  2010/03/05 15:52:07  ycaniou
  * Ordered things in CMakelist.txt and update Display (Batch, build_version...)
  * Fix version guess of compiler (was gcc only)
@@ -107,7 +110,7 @@ solve_dgemm(diet_profile_t* pb)
 {
   char    tA, tB;
   diet_matrix_order_t oA, oB, oC;
-  size_t  i, k, k_, m, m_, n, n_;
+  size_t  k, k_, m, m_, n, n_;
   double* alpha = NULL;
   double* beta  = NULL;
   double* A = NULL;
@@ -132,6 +135,7 @@ solve_dgemm(diet_profile_t* pb)
     k_ = k;
   }
   if ((IsSqMatSUM = (A && !B))) {
+    size_t  i;
     k_ = k;
     n = n_;
     if (m != n || n != k || m != k) {
