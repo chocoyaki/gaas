@@ -7,6 +7,9 @@
 /****************************************************************************/
 /* $Id$ 
  * $Log$
+ * Revision 1.9  2011/01/24 23:27:38  bdepardo
+ * Remove unused variables
+ *
  * Revision 1.8  2010/12/17 09:48:01  kcoulomb
  * * Set diet to use the new log with forwarders
  * * Fix a CoRI problem
@@ -60,7 +63,6 @@ void* setup_udp_server (void *nothing) {
   char buffer[1+HEARTBEAT_LENGTH]; /* buffer for network communication */
   struct sockaddr_in client_addr;  /* client's address */
   socklen_t client_address_length; /* client's address length */
-  int received;      /* number of bytes received */
 
   struct timeval tv;
   double ea_lp1;
@@ -111,7 +113,7 @@ void* setup_udp_server (void *nothing) {
 
   while (1) {
     client_address_length = sizeof (struct sockaddr);
-    received = recvfrom (server_sock, &buffer, sizeof (buffer), 0,
+    recvfrom (server_sock, &buffer, sizeof (buffer), 0,
         (struct sockaddr *) &client_addr,
         &client_address_length);
 

@@ -7,6 +7,9 @@
 /****************************************************************************/
 /* $Id$ 
  * $Log$
+ * Revision 1.9  2011/01/24 23:27:38  bdepardo
+ * Remove unused variables
+ *
  * Revision 1.8  2010/10/05 03:16:40  bdepardo
  * Use hostname and buffer sizes constants.
  * Loop until an available port is found.
@@ -51,7 +54,6 @@
 void* process_tcp_query (void* psock)
 {
   int acc_sock = *((int*) psock);
-  int nbread;      /* nb of bytes read */
   char buffer[MAX_BUFFER_SIZE];    /* communication buffer */
   char machine_name[MAX_HOSTNAME_SIZE];
   struct hostent *ent;
@@ -68,7 +70,7 @@ void* process_tcp_query (void* psock)
   struct _beating_process sp;
 
   /* read the incoming data */
-  nbread = recv (acc_sock, buffer, sizeof (buffer), 0);
+  recv (acc_sock, buffer, sizeof (buffer), 0);
 
   /* process the query */
   if (sscanf (buffer, "OBSERVE %s %X %X %lf", machine_name, &cn_id, &cn_service_number, &cn_eta) == 4) {
@@ -196,7 +198,7 @@ void* setup_tcp_server (void *nothing) {
     fatal_error ("listen");
   };
 
-  while (1) {
+  while (true) {
     acc_sock = new int;
     
     /* accept a new connexion */
