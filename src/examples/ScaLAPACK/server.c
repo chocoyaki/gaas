@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2011/01/25 18:50:35  bdepardo
+ * Removed unused variables
+ *
  * Revision 1.4  2011/01/23 19:20:00  bdepardo
  * Fixed memory and resources leaks, variables scopes, unread variables
  *
@@ -629,8 +632,6 @@ sed_getJob(int procs, int rows, int cols, int bs)
   MPI_Group* group;
   MPI_Comm* tempComm;
   int remoteLeaderId=-1;
-  int myFreeId;
-  int u;
 
   STATUS4("Building grid. Processes %d Rows %d Cols %d Blocksize %d. ",
 	  procs, rows, cols, bs);
@@ -830,7 +831,6 @@ worker_leaveJob(job_t* j)
   int i;
   int localLeader=0;
   int wasWorking=0;
-  int m[1];
 
   MPI_Comm temp;
 
@@ -904,7 +904,6 @@ worker_handleMessages()
   int    jobRequest;
   int*   msg;
   job_t* j;
-  int    i;
 
   msg = malloc(wakeupMsgSize*sizeof(int));
 
@@ -962,7 +961,7 @@ worker_formJob(job_t* j)
   MPI_Comm* tempComm;
   int jobRequest=0;
   int remoteLeaderId=-1;
-  int u,i;
+  int i;
 
   // initializations
 
@@ -1058,6 +1057,7 @@ worker_formJob(job_t* j)
   // creating blacs contexts
   
   if (jobRequest) {
+    int u;
     LOG("Creating contexts");
     // all context
     j->contextAll = Csys2blacs_handle(*(j->commAll));
@@ -1140,7 +1140,6 @@ waitingLoop()
   // counters and other
   char* all= "All";
   char* empty=" ";
-  int i;
   
   E = malloc(q*w* sizeof(double));
   F = malloc(Fx*Fy*sizeof(int));
@@ -1186,7 +1185,6 @@ int
 registration(int argc, char* argv[])
 {
   diet_profile_desc_t* profile;
-  char* path;   
   diet_arg_t* arg;
   diet_convertor_t* cvt;
   size_t nbProcs =  4;
