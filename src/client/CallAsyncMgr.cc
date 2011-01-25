@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.31  2011/01/25 18:43:16  bdepardo
+ * Dangerous iterator usage. After erase the iterator is invalid so
+ * dereferencing it or comparing it with another iterator is invalid.
+ *
  * Revision 1.30  2011/01/21 16:40:41  bdepardo
  * Prefer prefix ++/-- operators for non-primitive types.
  *
@@ -453,7 +457,7 @@ int CallAsyncMgr::addWaitRule(Rule * rule)
       while ( j != rulesIDs.end()){
         j = rulesIDs.find((rule->ruleElts[k]).reqID);	
         if (j->second == rule){
-          rulesIDs.erase(j);
+          rulesIDs.erase(j++);
         }
       }
     }
