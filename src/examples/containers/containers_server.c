@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2011/01/25 18:46:11  bdepardo
+ * Reduce variables scopes.
+ *
  * Revision 1.5  2011/01/13 23:50:21  ecaron
  * Add missing header
  *
@@ -103,15 +106,18 @@ double comptime_eval(diet_profile_t* pb) {
  * the return value is in milliseconds and is a relative time (interval until finish)
  */
 double eft_eval(diet_profile_t* pb, double computationTimeEstim) {
-  double         EFT, tcomp;
+  double         EFT;
   jobVector_t    jobVect = NULL;
-  int            jobNb,i ;
+  int            jobNb;
   struct timeval currentTime;
-  double already_done;
 
   EFT = computationTimeEstim; /* init with current job's computation time */
   /* add the computation time for all other jobs on the SeD */
   if (!diet_estimate_list_jobs(&jobVect, &jobNb, pb)) {
+    double tcomp;
+    int i;
+    double already_done;
+
     /************** EFT computation VALID FOR MAXCONCJOBS=1 ONLY !! *********/
     printf("%d active job(s) in the SeD queue\n", jobNb);
     for (i=0; i<jobNb; i++) {
