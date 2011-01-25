@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.59  2011/01/25 18:58:10  bdepardo
+ * Reduce variable scope
+ *
  * Revision 1.58  2011/01/20 18:31:50  bdepardo
  * Prefer prefix ++/-- operators for non-primitive types.
  * Removed unused variable
@@ -495,7 +498,6 @@ MultiWfScheduler::run() {
         DagNode *n = execQueue->popFirstNode();
         OrderedNodeQueue * readyQ = dynamic_cast<OrderedNodeQueue *>(n->getLastQueue());
         bool ressourceFound = false;
-        int  submitReqID = 0;  // store ReqID of submit to provide it for solve
         corba_server_estimation_t* servEst;
         // Test to process node (depends on platform type)
         bool nodeSubmit = ((this->platformType == PFM_ANY)
@@ -503,6 +505,8 @@ MultiWfScheduler::run() {
             || ((this->platformType == PFM_SAME_SERVICES) && (requestCount < 1));
 
         if (nodeSubmit) {
+          int  submitReqID = 0;  // store ReqID of submit to provide it for solve
+          
           TRACE_TEXT(TRACE_MAIN_STEPS,"Submit request for node " << n->getCompleteId()
             << "(" << n->getPbName() << ") / exec prio = " << n->getPriority() << endl);
 
