@@ -5,6 +5,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.68  2011/01/28 00:00:24  bdepardo
+ * Reduce variable scope
+ *
  * Revision 1.67  2010/12/17 09:47:59  kcoulomb
  * * Set diet to use the new log with forwarders
  * * Fix a CoRI problem
@@ -638,7 +641,6 @@ AgentImpl::childRemoveService(CORBA::ULong childID, const corba_profile_desc_t& 
 corba_response_t*
 AgentImpl::findServer(Request* req, size_t max_srv)
 {
-  size_t i; //, j, k;
   corba_response_t* resp;
   const corba_request_t& creq = *(req->getRequest());
   char statMsg[128];
@@ -668,6 +670,7 @@ AgentImpl::findServer(Request* req, size_t max_srv)
     resp->servers.length(0);
   }
   else { // then the request must be forwarded
+    size_t i;
 
     int nbChildrenContacted = 0;
 #if not defined HAVE_ALT_BATCH
