@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2011/02/01 22:27:53  bdepardo
+ * Remove memleak
+ *
  * Revision 1.9  2011/01/23 19:20:01  bdepardo
  * Fixed memory and resources leaks, variables scopes, unread variables
  *
@@ -151,6 +154,7 @@ duplicate(diet_profile_t* pb)
   char* path_result1 = NULL;
   char* path_result2 = NULL;
   char cmd[1024];
+  int ret = 0;
 
   fprintf(stderr, "DUPLICATE SOLVING\n");
 
@@ -179,16 +183,16 @@ duplicate(diet_profile_t* pb)
 
   if (diet_file_desc_set(diet_parameter(pb,1), path_result1)) {
     printf("diet_file_desc_set error\n");
-    return 1;
+    ret = 1;
   }
   if (diet_file_desc_set(diet_parameter(pb,2), path_result2)) {
     printf("diet_file_desc_set error\n");
-    return 1;
+    ret = 1;
   }
 
   usleep(t*100000);
 
-  return 0;
+  return ret;
 }
 
 int main(int argc, char * argv[]) {

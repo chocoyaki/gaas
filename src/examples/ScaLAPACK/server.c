@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2011/02/01 22:24:45  bdepardo
+ * Remove memleak
+ *
  * Revision 1.5  2011/01/25 18:50:35  bdepardo
  * Removed unused variables
  *
@@ -963,9 +966,6 @@ worker_formJob(job_t* j)
   int remoteLeaderId=-1;
   int i;
 
-  // initializations
-
-  group = malloc(sizeof(MPI_Group));
 
 
   // defining Submaps
