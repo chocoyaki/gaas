@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2011/02/01 20:51:25  bdepardo
+ * changed "!defined" into "not defined".
+ *
  * Revision 1.3  2011/01/20 23:25:36  bdepardo
  * Fixed memory leaks
  *
@@ -197,7 +200,7 @@ Easy_Disk::create_file(char** path_file){
     outfile.write(buffer, BUFFSIZE);
     outfile.flush();
     i++;
-#if !defined HAVE_ALARM || !defined HAVE_SIGNAL
+#if not defined HAVE_ALARM ||  not defined HAVE_SIGNAL
 #ifdef HAVE_GETTIMEOFDAY
     gettimeofday (&tim, NULL);
     t2=tim.tv_sec+(tim.tv_usec/1000000.0);	

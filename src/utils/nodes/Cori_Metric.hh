@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2011/02/01 20:51:25  bdepardo
+ * changed "!defined" into "not defined".
+ *
  * Revision 1.1  2010/03/03 14:26:35  bdepardo
  * BEWARE!!!
  * Huge modifications to take into account CYGWIN.
@@ -43,7 +46,7 @@
 #include "Cori_Data_Easy.hh"
 #include "Cori_Fast.hh"
 
-#if !defined CLEAN_CORILIB_FROM_BATCH_STAFF and defined HAVE_ALT_BATCH
+#if not defined CLEAN_CORILIB_FROM_BATCH_STAFF and defined HAVE_ALT_BATCH
 #include "Cori_batch.hh"
 #endif
 
@@ -55,7 +58,7 @@ private:
 
   Cori_Data_Easy* cori_easy;
   Cori_Fast* cori_fast;
-#if !defined CLEAN_CORILIB_FROM_BATCH_STAFF and defined HAVE_ALT_BATCH
+#if not defined CLEAN_CORILIB_FROM_BATCH_STAFF and defined HAVE_ALT_BATCH
   Cori_batch * cori_batch ;
 #endif
 

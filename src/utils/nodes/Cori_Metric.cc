@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2011/02/01 20:51:25  bdepardo
+ * changed "!defined" into "not defined".
+ *
  * Revision 1.1  2010/03/03 14:26:35  bdepardo
  * BEWARE!!!
  * Huge modifications to take into account CYGWIN.
@@ -57,7 +60,7 @@ Cori_Metric::Cori_Metric(diet_est_collect_tag_t type,
     cori_fast=new Cori_Fast();
   }
     break;
-#if (defined HAVE_ALT_BATCH) && (!defined CLEAN_CORILIB_FROM_BATCH_STAFF)
+#if (defined HAVE_ALT_BATCH) && (not defined CLEAN_CORILIB_FROM_BATCH_STAFF)
   case EST_COLL_BATCH:
     cori_batch = new Cori_batch( (diet_profile_t*)data ) ;
     break ;
@@ -79,7 +82,7 @@ Cori_Metric::start(diet_est_collect_tag_t type)
   collector_type=type;
 
   switch(collector_type){
-#if !defined CLEAN_CORILIB_FROM_BATCH_STAFF and defined HAVE_ALT_BATCH
+#if not defined CLEAN_CORILIB_FROM_BATCH_STAFF and defined HAVE_ALT_BATCH
   case EST_COLL_BATCH:
     // do I need to 'start' some Batch things?
     // Maybe one day, a process that monitors a batch systems if needed?
@@ -109,7 +112,7 @@ Cori_Metric::call_cori_metric(int type_Info,
 {
   switch(collector_type){
 
-#if !defined CLEAN_CORILIB_FROM_BATCH_STAFF and defined HAVE_ALT_BATCH
+#if not defined CLEAN_CORILIB_FROM_BATCH_STAFF and defined HAVE_ALT_BATCH
    case EST_COLL_BATCH:
      return cori_batch->get_Information(type_Info, 
 					information,

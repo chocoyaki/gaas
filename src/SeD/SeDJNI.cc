@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2011/02/01 20:51:25  bdepardo
+ * changed "!defined" into "not defined".
+ *
  * Revision 1.10  2011/01/23 19:19:58  bdepardo
  * Fixed memory and resources leaks, variables scopes, unread variables
  *
@@ -185,7 +188,7 @@ solve_MatSUM(diet_profile_t* pb)
   
   diet_free_data(diet_parameter(pb,0));
   diet_free_data(diet_parameter(pb,1));
-#if !defined(__FAST_0_4__)
+#if not defined(__FAST_0_4__)
   diet_free_data(diet_parameter(pb,2));
   diet_free_data(diet_parameter(pb,3));
 #endif // ! __FAST_0_4__
@@ -249,7 +252,7 @@ solve_MatPROD(diet_profile_t* pb)
 
   diet_free_data(diet_parameter(pb,0));
   diet_free_data(diet_parameter(pb,1));
-#if !defined(__FAST_0_4__)
+#if not defined(__FAST_0_4__)
   diet_free_data(diet_parameter(pb,2));
   diet_free_data(diet_parameter(pb,3));
   diet_free_data(diet_parameter(pb,4));
