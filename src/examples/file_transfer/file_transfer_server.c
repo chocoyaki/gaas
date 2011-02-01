@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2011/02/01 22:49:57  bdepardo
+ * Remove memory leak
+ *
  * Revision 1.1  2010/08/06 14:25:29  glemahec
  * Cmake corrections + uuid lib module + fPIC error control
  *
@@ -88,8 +91,8 @@ solve_size(diet_profile_t* pb)
   char* path2 = NULL;
   int status = 0;
   struct stat buf;
-  size_t* s1 = calloc(1, sizeof *s1),
-        * s2 = calloc(1, sizeof *s2);
+  size_t* s1 = NULL;
+  size_t* s2 = NULL;
 
   fprintf(stderr, "Solve size ");
   
@@ -100,6 +103,7 @@ solve_size(diet_profile_t* pb)
   /* Regular file */
   if (!(buf.st_mode & S_IFREG))
     return 2;
+  s1 = calloc(1, sizeof *s1);
   *s1 = buf.st_size;
   diet_scalar_set(diet_parameter(pb,2), s1, DIET_VOLATILE, DIET_INT);
   
@@ -109,6 +113,7 @@ solve_size(diet_profile_t* pb)
     return status;
   if (!(buf.st_mode & S_IFREG))
     return 2;
+  s2 = calloc(1, sizeof *s2);
   *s2 = buf.st_size;
   diet_scalar_set(diet_parameter(pb,3), s2, DIET_VOLATILE, DIET_INT);
   
