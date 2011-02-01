@@ -172,6 +172,7 @@ int solve_lammps(diet_profile_t *pb)
     free(prologue);
     free(copying);
     free(machine_filename);
+    free(path_result);
     return 2 ;
   }
   sprintf(cmd,
@@ -195,6 +196,7 @@ int solve_lammps(diet_profile_t *pb)
     free(copying);
     free(cmd);
     free(machine_filename);
+    free(path_result);
     return 2 ;
   }
   sprintf(epilogue,
@@ -232,8 +234,9 @@ int solve_lammps(diet_profile_t *pb)
     
   
   free(machine_filename) ;
+  free(path_result);
+  diet_free_data(diet_parameter(pb,0));
 
-  /* Don't free path1, and path_result */
   return 0 ;
 }
 
