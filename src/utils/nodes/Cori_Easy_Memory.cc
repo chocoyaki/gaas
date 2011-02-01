@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2011/02/01 22:46:58  bdepardo
+ * Removed useless function: test_filename, it wasn't even part of Easy_Memory
+ * and never used throughout the entire project.
+ *
  * Revision 1.4  2011/01/21 00:00:53  bdepardo
  * Removed memory leak.
  * Removed: llocation with fopen, while doesn't release it.
@@ -140,22 +144,7 @@ Easy_Memory::get_Avail_Memory_bysysinfo(double * result)
   return 1;
 #endif
 }
-int
-test_filename(char ** filename){
-  char* testing=*filename;
-  FILE *f;
-  while ((f = fopen(testing,"r+")) != NULL){
-    fclose(f);
-    char *tmp=new char[strlen(testing)+2];
-    strcpy (tmp,testing);
-    testing=new char[strlen(testing)+2];
-    strcpy (testing,tmp);
-    delete [] tmp;
-    strcat(testing,"_");
-  }
-  filename=&testing;
-  return 0;
-}  
+
 int 
 Easy_Memory::get_Avail_Memory_byvmstat(double * result)
 { 
