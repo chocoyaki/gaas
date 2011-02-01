@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2011/02/01 16:25:56  bdepardo
+ * Replaced obsolete function bzero by memset.
+ * Replaced obsolete function bcopy by memmove.
+ *
  * Revision 1.9  2011/01/20 23:20:04  bdepardo
  * Fixed possible bug: Dangerous usage of 'hostname' (strncpy doesn't always 0-terminate it)
  *
@@ -107,7 +111,7 @@ BindService::BindService(MasterAgentImpl* ma, unsigned int port) {
   if (listenSocket < 0) {
     ERROR("opening bind service socket: " << strerror(errno) << endl, ;);
   }
-  bzero((char *) &serverAddr, sizeof(serverAddr));
+  memset((char *) &serverAddr, 0, sizeof(serverAddr)); // use memset instead of bzero
   serverAddr.sin_family = AF_INET;
   serverAddr.sin_addr.s_addr = INADDR_ANY;
   serverAddr.sin_port = htons(port);
@@ -152,11 +156,11 @@ MasterAgent_ptr BindService::lookup(const char* addr) {
   }
 
   struct sockaddr_in servAddr;
-  bzero((char *) &servAddr, sizeof(servAddr));
+  memset((char *) &servAddr, 0, sizeof(servAddr)); // use memset instead of bzero
   servAddr.sin_family = AF_INET;
-  bcopy((char *)server->h_addr, 
-	(char *)&servAddr.sin_addr.s_addr,
-	server->h_length);
+  memmove((char *)&servAddr.sin_addr.s_addr,
+          (char *)server->h_addr, 
+          server->h_length); // use memmove instead of bcopy
   servAddr.sin_port = htons(portNo);
 
   if (connect(sockfd,(const sockaddr*)&servAddr,sizeof(servAddr)) < 0)  {
@@ -164,7 +168,7 @@ MasterAgent_ptr BindService::lookup(const char* addr) {
     return MasterAgent::_nil();
   }
   char buffer[2048] ;
-  bzero(buffer,sizeof(buffer));
+  memset(buffer, 0, sizeof(buffer)); // use memset instead of bzero
   int n = read(sockfd,buffer,sizeof(buffer)-1);
   if (n < 0) {
     TRACE_TEXT(TRACE_ALL_STEPS, " reading from socket:" << strerror(errno) << endl);
