@@ -44,7 +44,7 @@ void EnvParser::parse()
     std::string key, value;
     
     for (ConfigMap::iterator it1 = config_.begin();
-    	 it1 != config_.end(); it1++) {
+	 it1 != config_.end(); ++it1) {
     	Env::iterator it2 = 
 	    std::find_if(env_.begin(), env_.end(), StartsWith(it1->second));
     	if (env_.end() != it2) {
@@ -80,7 +80,7 @@ EnvParser::operator[](const std::string& key) const
 
 
 const std::map<std::string, std::string>&
-EnvParser::getConfiguration()
+EnvParser::getConfiguration() const
 {
     return options_;
 }

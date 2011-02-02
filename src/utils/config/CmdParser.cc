@@ -90,7 +90,7 @@ void CmdParser::parse()
     }
 
     for (CmdConfig::iterator it = config_.begin();
-	 it != config_.end(); it++) {
+	 it != config_.end(); ++it) {
 	switch (it->type) {
 	case CmdParser::Switch:
 	    findSwitch(*it);
@@ -111,8 +111,8 @@ void CmdParser::enableHelp(bool showVersion)
     config_.push_back(helpEntry);
 }
 
-void CmdParser::enableVersion(const std::string version, 
-				 const std::string copyright)
+void CmdParser::enableVersion(const std::string& version,
+				 const std::string& copyright)
 {
     version_ = version;
     copyright_ = copyright;
@@ -129,7 +129,7 @@ const std::string CmdParser::help() const
     std::string spc("   ");
     
     for (CmdConfig::const_iterator it = config_.begin();
-	it != config_.end(); it++) 
+	it != config_.end(); ++it)
     {
 	switch (it->type) {
 	case Param:
@@ -237,7 +237,7 @@ CmdParser::operator[](const std::string& key) const
 
 
 const std::map<std::string, std::string>&
-CmdParser::getConfiguration()
+CmdParser::getConfiguration() const
 {
     return options_;
 }
@@ -309,7 +309,7 @@ void CmdParser::parseConfig()
     // 1. Options 2. Switchs 3. Parameters
     config_.sort();
     for (CmdConfig::const_iterator it = config_.begin();
-	 it != config_.end(); it++) {
+	 it != config_.end(); ++it) {
 	switch (it->type) {
 	case CmdParser::Switch:
 	    hasSwitchs_ = true;

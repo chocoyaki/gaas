@@ -108,8 +108,8 @@ public:
      * @param version version string
      * @param copyright copyright string (optional)
      */    
-    void enableVersion(const std::string version,
-		       const std::string copyright = nullString);
+    void enableVersion(const std::string& version,
+		       const std::string& copyright = nullString);
 
     /** 
      * @brief get command line help string
@@ -139,7 +139,7 @@ public:
      * @brief return options
      * @return configuration map (key, value)
      */
-    const std::map<std::string, std::string>& getConfiguration();
+    const std::map<std::string, std::string>& getConfiguration() const;
 
 private:
     void lint() const;

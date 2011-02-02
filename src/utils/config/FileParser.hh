@@ -53,7 +53,7 @@ public:
      * @brief return options
      * @return configuration map (key, value)
      */
-    const std::map<std::string, std::string>& getConfiguration();
+    const std::map<std::string, std::string>& getConfiguration() const;
 };
 
 #endif /* _FILE_PARSER_HH_ */

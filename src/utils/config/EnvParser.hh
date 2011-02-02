@@ -61,7 +61,7 @@ public:
      * @brief return configuration
      * @return configuration map (option name, value)
      */
-    const std::map<std::string, std::string>& getConfiguration();
+    const std::map<std::string, std::string>& getConfiguration() const;
 
 private:
     void lint() const;

@@ -72,7 +72,7 @@ public:
     Splitter(const char c);
     Splitter(const std::string& str, const char c);
     
-    bool hasNext() { return hasNext_; }
+    bool hasNext() const { return hasNext_; }
     
     void reset(const std::string& str);
     void reset(const std::string& str, const char c);

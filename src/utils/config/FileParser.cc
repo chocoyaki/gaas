@@ -98,7 +98,7 @@ FileParser::operator[](const std::string& key) const
 
 
 const std::map<std::string, std::string>&
-FileParser::getConfiguration()
+FileParser::getConfiguration() const
 {
     return options_;
 }
