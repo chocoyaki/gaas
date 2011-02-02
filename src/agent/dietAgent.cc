@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.42  2011/02/02 17:48:36  bdepardo
+ * The agent type can also be LA or MA
+ *
  * Revision 1.41  2011/02/02 13:32:28  hguemar
  * configuration parsers: environment variables, command line arguments, file configuration parser
  * moved Dagda and dietAgent (yay auto-generated help) to new configuration subsystem
@@ -235,8 +238,8 @@ int main(int argc, char* argv[], char *envp[])
 				"AgentType",
 				"agent-type",
 				"T",
-				"agent type (either DIET_MASTER_AGENT " 
-				"or DIET_LOCAL_AGENT)" };
+				"agent type (either DIET_MASTER_AGENT or MA, " 
+				"or DIET_LOCAL_AGENT or LA)" };
 
     CmdEntry agentNameEntry = { CmdParser::Option,
 				CmdParser::Optional,
@@ -289,10 +292,10 @@ int main(int argc, char* argv[], char *envp[])
     std::string& maName = CONFIG("MAName");
   
     // parentName is mandatory for LA but unneeded for MA
-    if ((agentType == "DIET_LOCAL_AGENT") && (parentName.empty())) {
+    if ((agentType == "DIET_LOCAL_AGENT" || agentType == "LA") && (parentName.empty())) {
 	ERROR("parsing " << configFile
 	      << ": no parent name specified", 1);
-    } else if((agentType != "DIET_LOCAL_AGENT") && (!parentName.empty())) {
+    } else if((agentType != "DIET_LOCAL_AGENT" && agentType != "LA") && (!parentName.empty())) {
         WARNING("parsing " << configFile << ": no need to specify "
 		<< "a parent name for an MA - ignored");
     }
