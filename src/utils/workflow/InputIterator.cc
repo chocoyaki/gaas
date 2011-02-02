@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2011/02/02 11:19:13  bdepardo
+ * Be more verbose
+ *
  * Revision 1.7  2010/08/26 07:09:37  bisnard
  * 'fixed warning'
  *
@@ -231,7 +234,7 @@ CrossIterator::incrementMatchCount(const FDataTag& leftTag) {
 
 void
 CrossIterator::begin() {
-//   TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "begin() ..." << endl);
+  TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "begin() ..." << endl);
   myLeftIter->begin();
   myRightIter->begin();
   // if right iterator does not contain one item then this is the end
@@ -249,7 +252,7 @@ CrossIterator::end() {
 
 void
 CrossIterator::next() {
-//   TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "next() ..." << endl);
+  TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "next() ..." << endl);
   if (isAtEnd()) {
     INTERNAL_ERROR(__FUNCTION__ << " : empty cross iterator",1);
   }
@@ -272,11 +275,11 @@ CrossIterator::next() {
     }
   }
   if (nextFound) {
-//     TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "next() IS "
-//         << getCurrentTag().toString() << endl);
+    TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "next() IS "
+        << getCurrentTag().toString() << endl);
   } else {
     clearTag();
-//     TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "next() ==> END" << endl);
+    TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "next() ==> END" << endl);
   }
 }
 
@@ -292,21 +295,21 @@ CrossIterator::isAtEnd() const {
 
 bool
 CrossIterator::isDone() const {
-//   TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "isDone()" << endl);
+  TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "isDone()" << endl);
   return myLeftIter->isDone();
 }
 
 void
 CrossIterator::removeItem() {
   const FDataTag& leftTag  = myLeftIter->getCurrentTag();
-//   TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "removeItem(): removing "
-//       << currTag->toString() << endl);
+  TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "removeItem(): removing "
+      << currTag->toString() << endl);
   // mark the removed item
   myFlags[*currTag] = true;
   // increment the counter of matched items for the left tag
   unsigned int matchCount = incrementMatchCount(leftTag);
-//   TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "removeItem(): match count of "
-//       << leftTag.toString() << " is " << matchCount << endl);
+  TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "removeItem(): match count of "
+      << leftTag.toString() << " is " << matchCount << endl);
   // check if right iter is completed for the current left item
   if (myRightIter->isTotalDefined() && (matchCount == myRightIter->getTotalItemNb())) {
     // if yes, then remove, go to next left item and reset right iter
