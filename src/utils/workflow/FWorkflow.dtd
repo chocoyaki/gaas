@@ -87,7 +87,7 @@
 <!ELEMENT filter (in,out)>
 <!ATTLIST filter
 	name CDATA #REQUIRED>
-<!ELEMENT loop (in+,out+,inLoop+,outLoop+,while,do)>
+<!ELEMENT loop (in+,out+,inLoop+,outLoop+,while,do,iterationstrategy?)>
 <!ATTLIST loop
 	name CDATA #REQUIRED>
 <!ELEMENT inLoop EMPTY>
