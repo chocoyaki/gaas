@@ -28,6 +28,8 @@ endif (DIET_USE_DAGDA)
 
 add_subdirectory(events)
 
+add_subdirectory(config)
+
 if (DIET_USE_FD)
   add_subdirectory(fd)
 endif (DIET_USE_FD)

@@ -10,6 +10,10 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.19  2011/02/02 13:32:28  hguemar
+ * configuration parsers: environment variables, command line arguments, file configuration parser
+ * moved Dagda and dietAgent (yay auto-generated help) to new configuration subsystem
+ *
  * Revision 1.18  2010/09/02 17:29:49  bdepardo
  * Fixed a memory corruption when linking two DIET library:
  * defaultStorageDir cannot be a static string, we need to use a static method
@@ -38,7 +42,7 @@
  ***********************************************************/
 
 #include "DagdaFactory.hh"
-#include "Parsers.hh"
+#include "configuration.hh"
 #include "debug.hh"
 #ifdef __OMNIORB4__
 #include "omniORB4/omniORB.h"
@@ -93,246 +97,271 @@ unsigned long DagdaFactory::defaultMaxMemSpace = 0;
 DagdaImpl* DagdaFactory::createDataManager(dagda_manager_type_t type) {
   AdvancedDagdaComponent* result=NULL;
 
-  char* algorithm = (char*)
-    Parsers::Results::getParamValue(Parsers::Results::CACHEALGORITHM);
-  unsigned int* shareFiles = (unsigned int*)
-    Parsers::Results::getParamValue(Parsers::Results::SHAREFILES);
+  const std::string& algorithm = CONFIG("cacheAlgorithm");
+  unsigned int shareFiles = simple_cast<unsigned int>(CONFIG("shareFiles"));
   bool share;
 
   NetworkStats* stats = new AvgNetworkStats();
 
-  if (shareFiles==NULL)
-    share = false;
-  else share = (*shareFiles==1);
-
-  if (algorithm!=NULL) {
-    if (strcmp(algorithm, "LRU")==0) {
-      result = new AdvancedDagdaComponent(type, LRU, stats, share);
-    }
-    if (strcmp(algorithm, "LFU")==0) {
-      result = new AdvancedDagdaComponent(type, LFU, stats, share);
-    }
-    if (strcmp(algorithm, "FIFO")==0) {
-      result = new AdvancedDagdaComponent(type, FIFO, stats, share);
-    }
-    if (result==NULL) {
-      WARNING("Warning: " << algorithm << " is not a valid (implemented) cache"
-	    << " management algorithm.");
-      result = new AdvancedDagdaComponent(type, stats, share);
-    }
+  if (!shareFiles) {
+      share = false;
+  } else {
+      // TODO: file sharing option is enabled only if shareFiles=1 ?
+      share = (shareFiles == 1);
+  }
+  
+  if (!algorithm.empty()) {
+      if (algorithm == "LRU") {
+	  result = new AdvancedDagdaComponent(type, LRU, stats, share);
+      }
+      if (algorithm == "LFU") {
+	  result = new AdvancedDagdaComponent(type, LFU, stats, share);
+      }
+      if (algorithm == "FIFO") {
+	  result = new AdvancedDagdaComponent(type, FIFO, stats, share);
+      }
+      if (!result) {
+	  WARNING("Warning: " << algorithm 
+		  << " is not a valid (implemented) cache"
+		  << " management algorithm.");
+	  result = new AdvancedDagdaComponent(type, stats, share);
+      }
   } else  {
-    result = new AdvancedDagdaComponent(type, stats, share);
+      result = new AdvancedDagdaComponent(type, stats, share);
   }
 
   return result;
 }
 
 std::string DagdaFactory::getDefaultStorageDir() {
-  return "/tmp";
+    return "/tmp";
 }
 
 const char* DagdaFactory::getStorageDir() {
   DIR *dp;
   struct stat tmpStat;
 
+  storageDir = CONFIG("storageDirectory");
+  // if storageDir is empty, get default instead
   if (storageDir.empty()) {
-    char* storage = (char*)
-	  Parsers::Results::getParamValue(Parsers::Results::STORAGEDIR);
-    if (storage==NULL) storageDir = DagdaFactory::getDefaultStorageDir();
-	else storageDir = storage;
+      storageDir = DagdaFactory::getDefaultStorageDir();
   }
 
   /* Test if the directory exists */
   if((dp  = opendir(storageDir.c_str())) == NULL) {
-    if (mkdir(storageDir.c_str(), 493)) // create the directory with rwxr-xr-x permissions
-      ERROR_EXIT("The DAGDA storage directory '" << storageDir << "' cannot be opened");
-  } else
-    closedir(dp);
+      // create the directory with rwxr-xr-x permissions
+      if (mkdir(storageDir.c_str(), 493)) 
+      ERROR_EXIT("The DAGDA storage directory '" 
+		 << storageDir << "' cannot be opened");
+  } else {
+      closedir(dp);
+  }
 
   /* Test if the directory has sufficient rights */
   if (!stat(storageDir.c_str(), &tmpStat)) {
-    if (!(tmpStat.st_mode & S_IRUSR) || !(tmpStat.st_mode & S_IWUSR) || !(tmpStat.st_mode & S_IXUSR)) {
-      ERROR_EXIT("The DAGDA storage directory '" << storageDir << "' does not have sufficient rights (rwx)");
-    }
+      if (!(tmpStat.st_mode & S_IRUSR) || 
+	  !(tmpStat.st_mode & S_IWUSR) || 
+	  !(tmpStat.st_mode & S_IXUSR)) {
+	  ERROR_EXIT("The DAGDA storage directory '" 
+		     << storageDir 
+		     << "' does not have sufficient rights (rwx)");
+      }
   }
 
   return storageDir.c_str();
 }
 
 unsigned long DagdaFactory::getMaxMsgSize() {
-  unsigned long* maxMsgSize = (unsigned long*)
-    Parsers::Results::getParamValue(Parsers::Results::MAXMSGSIZE);
-  if (maxMsgSize==NULL) maxMsgSize = &defaultMaxMsgSize;
-  return *maxMsgSize;
+    unsigned long maxMsgSize = 
+	simple_cast<unsigned long>(CONFIG("maxMsgSize"));
+
+    if (!maxMsgSize) {
+	maxMsgSize = defaultMaxMsgSize;
+    }
+
+    return maxMsgSize;
 }
 
 unsigned long DagdaFactory::getMaxDiskSpace() {
-  unsigned long* maxDiskSpace = (unsigned long*)
-    Parsers::Results::getParamValue(Parsers::Results::MAXDISKSPACE);
-  //defaultMaxDiskSpace = availableDiskSpace(getStorageDir());
-  if (maxDiskSpace==NULL) maxDiskSpace = &defaultMaxDiskSpace;
-  return *maxDiskSpace;
+    unsigned long maxDiskSpace = 
+	simple_cast<unsigned long>(CONFIG("maxDiskSpace"));
+
+    if (!maxDiskSpace) {
+	maxDiskSpace = defaultMaxDiskSpace;
+    }
+
+    return maxDiskSpace;
 }
 
 unsigned long DagdaFactory::getMaxMemSpace() {
-  unsigned long* maxMemSpace = (unsigned long*)
-    Parsers::Results::getParamValue(Parsers::Results::MAXMEMSPACE);
-  string storageDir(getStorageDir());
-  //defaultMaxMemSpace = availableDiskSpace(storageDir.c_str());
-  if (maxMemSpace==NULL) maxMemSpace = &defaultMaxMemSpace;
-  return *maxMemSpace;
+    unsigned long maxMemSpace = 
+	simple_cast<unsigned long>(CONFIG("maxMemSpace"));
+
+    if (!maxMemSpace) {
+	maxMemSpace = defaultMaxMemSpace;
+    }
+
+    return maxMemSpace;
 }
 
 const char* DagdaFactory::getParentName() {
-  std::string result;
-  char* prtName = (char*)
-    Parsers::Results::getParamValue(Parsers::Results::PARENTNAME);
-  if (prtName==NULL)
-    return NULL;
-  result=prtName;
-  result+="_DAGDA";
-  return CORBA::string_dup(result.c_str());
+    std::string result = CONFIG("parentName");
+
+    if (result.empty()) {
+	return 0;
+    }
+
+    result.append("_DAGDA");
+    return CORBA::string_dup(result.c_str());
 }
 
 const char* DagdaFactory::getAgentName() {
-  std::string result;
-  char* agtName = (char*)
-	  Parsers::Results::getParamValue(Parsers::Results::NAME);
-  if (agtName==NULL)
-    return NULL;
-  result=agtName;
-  result+="_DAGDA";
-  return CORBA::string_dup(result.c_str());
+    std::string result = CONFIG("name");
+
+    if (result.empty()) {
+	return 0;
+    }
+
+    result.append("_DAGDA");
+    return CORBA::string_dup(result.c_str());
 }
 
 /* Transformation function for the host name. */
 int chg(int c) {
-	if (c=='.') return '-';
-	return c;
+    if (c=='.') return '-';
+    return c;
 }
 
 const char* DagdaFactory::getClientName() {
-  std::ostringstream name;
-  char host[256];
-
-  gethostname(host, 256);
-  host[255]='\0';
+    std::ostringstream name;
+    char host[256];
+    
+    gethostname(host, 256);
+    host[255]='\0';
 	
-	std::transform(host, host+strlen(host), host, chg);
-
-  name << "DAGDA-client-" << host << "-" << getpid();
-  return CORBA::string_dup(name.str().c_str());
+    std::transform(host, host+strlen(host), host, chg);
+    
+    name << "DAGDA-client-" << host << "-" << getpid();
+    return CORBA::string_dup(name.str().c_str());
 }
 
 const char* DagdaFactory::getSeDName() {
-  std::ostringstream name;
-  char host[256];
-
-  gethostname(host, 256);
-  host[255]='\0';
-	
-	std::transform(host, host+strlen(host), host, chg);
-
-  name << "DAGDA-SeD-" << host << "-" << getpid();
-  return CORBA::string_dup(name.str().c_str());
+    std::ostringstream name;
+    char host[256];
+    
+    gethostname(host, 256);
+    host[255]='\0';
+    
+    std::transform(host, host+strlen(host), host, chg);
+    
+    name << "DAGDA-SeD-" << host << "-" << getpid();
+    return CORBA::string_dup(name.str().c_str());
 }
 
 const char* DagdaFactory::getDefaultName() {
-  std::ostringstream name;
-  char host[256];
+    std::ostringstream name;
+    char host[256];
 
-  gethostname(host, 256);
-  host[255]='\0';
-	
-	std::transform(host, host+strlen(host), host, chg);
-
-  name << "DAGDA-Agent-" << host << "-" << getpid();
-  return CORBA::string_dup(name.str().c_str());
+    gethostname(host, 256);
+    host[255]='\0';
+    
+    std::transform(host, host+strlen(host), host, chg);
+    
+    name << "DAGDA-Agent-" << host << "-" << getpid();
+    return CORBA::string_dup(name.str().c_str());
 }
 
 DagdaImpl* DagdaFactory::getClientDataManager() {
-  if (clientDataManager==NULL) {
-    clientDataManager = createDataManager(DGD_CLIENT_MNGR);
+    if (clientDataManager) {
+	clientDataManager = createDataManager(DGD_CLIENT_MNGR);
 
-    clientDataManager->init(getClientName(), NULL, getStorageDir(),
-			    getMaxMsgSize(), getMaxDiskSpace(),
-			    getMaxMemSpace());
-  }
-  localDataManager = clientDataManager;
-  return clientDataManager;
+	clientDataManager->init(getClientName(), NULL, getStorageDir(),
+				getMaxMsgSize(), getMaxDiskSpace(),
+				getMaxMemSpace());
+    }
+    localDataManager = clientDataManager;
+    return clientDataManager;
 }
 
 DagdaImpl* DagdaFactory::getSeDDataManager() {
-  char* backupFile = (char*)
-    Parsers::Results::getParamValue(Parsers::Results::DATABACKUPFILE);
-  unsigned int* restoreOnStart = (unsigned int*)
-    Parsers::Results::getParamValue(Parsers::Results::RESTOREONSTART);
-  bool restore = false;
-
-  if (restoreOnStart!=NULL)
-    restore = (*restoreOnStart==1);
-
-  if (sedDataManager == NULL) {
-    const char* parentName = getParentName();
-	if (parentName == NULL) {
-	  WARNING("SeD data manager didn't find the name of the agent in the configuration file.");
+    const std::string& backupFile = CONFIG("dataBackupFile");
+    unsigned int restoreOnStart = 
+	simple_cast<unsigned int>(CONFIG("restoreOnStart"));
+    
+    bool restore(false);
+   
+    if (!restoreOnStart) {
+	restore = (restoreOnStart == 1);
+    }
+  
+    if (!sedDataManager) {
+	const char* parentName = getParentName();
+	if (!parentName) {
+	    WARNING("SeD data manager didn't find the name of the agent "
+		    "in the configuration file.");
 	}
 
 	sedDataManager = createDataManager(DGD_SED_MNGR);
 
-	sedDataManager->init(CORBA::string_dup(getSeDName()), CORBA::string_dup(parentName),
-                       CORBA::string_dup(getStorageDir()),
+	sedDataManager->init(CORBA::string_dup(getSeDName()),
+			     CORBA::string_dup(parentName),
+			     CORBA::string_dup(getStorageDir()),
 	                     getMaxMsgSize(), getMaxDiskSpace(),
-						           getMaxMemSpace());
-  }
-  localDataManager = sedDataManager;
-
-  if (backupFile!=NULL) {
-    localDataManager->setStateFile(backupFile);
+			     getMaxMemSpace());
+    }
+    localDataManager = sedDataManager;
+    
+    if (!backupFile.empty()) {
+	localDataManager->setStateFile(backupFile);
 	if (restore)
-	  localDataManager->restoreState();
-  }
-
-  return sedDataManager;
+	    localDataManager->restoreState();
+    }
+    
+    return sedDataManager;
 }
 
 DagdaImpl* DagdaFactory::getAgentDataManager() {
-  char* backupFile = (char*)
-    Parsers::Results::getParamValue(Parsers::Results::DATABACKUPFILE);
-  unsigned int* restoreOnStart = (unsigned int*)
-    Parsers::Results::getParamValue(Parsers::Results::RESTOREONSTART);
-  bool restore = false;
-
-  if (restoreOnStart!=NULL)
-    restore = (*restoreOnStart==1);
-
-  if (agentDataManager == NULL) {
-    const char* parentName = getParentName();
-	  const char* name = getAgentName();
-	  if (name==NULL) {
-	    WARNING("Agent data manager didn't find a valid name for the agent in the configuration file.");
+    const std::string& backupFile = CONFIG("dataBackupFile");
+    unsigned int restoreOnStart = 
+	simple_cast<unsigned int>(CONFIG("restoreOnStart"));
+    
+    bool restore(false);
+   
+    if (!restoreOnStart) {
+	restore = (restoreOnStart == 1);
+    }
+    
+    if (!agentDataManager) {
+	const char* parentName = getParentName();
+	const char* name = getAgentName();
+	if (!name) {
+	    WARNING("Agent data manager didn't find a valid name "
+		    "for the agent in the configuration file.");
 	    name = getDefaultName();
-	  }
-	  //cout << "name = " << name << endl;
-	  agentDataManager = createDataManager(DGD_AGENT_MNGR);
+	}
+	agentDataManager = createDataManager(DGD_AGENT_MNGR);
+	
+	agentDataManager->init(name, parentName, getStorageDir(),
+			       getMaxMsgSize(), getMaxDiskSpace(),
+			       getMaxMemSpace());
+    }
+    localDataManager = agentDataManager;
+    
+    if (backupFile.empty()) {
+	localDataManager->setStateFile(backupFile);
+	if (restore) {
+	    localDataManager->restoreState();
+	}
+	
+    }
 
-	  agentDataManager->init(name, parentName, getStorageDir(),
-	                         getMaxMsgSize(), getMaxDiskSpace(),
-                           getMaxMemSpace());
-  }
-  localDataManager = agentDataManager;
-
-  if (backupFile!=NULL) {
-    localDataManager->setStateFile(backupFile);
-	if (restore)
-	  localDataManager->restoreState();
-  }
-
-  return agentDataManager;
+    return agentDataManager;
 }
 
 DagdaImpl* DagdaFactory::getDataManager() {
-  if (localDataManager==NULL)
-    throw "No local data manager was instanciated.";
-  return localDataManager;
+    if (!localDataManager) {
+	throw "No local data manager was instanciated.";
+    }
+    
+    return localDataManager;
 }

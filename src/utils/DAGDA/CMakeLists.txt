@@ -21,6 +21,7 @@ include_directories(
   ${DIET_BINARY_DIR}/src/CORBA/idl
   ${DIET_SOURCE_DIR}/src/agent
   ${DIET_SOURCE_DIR}/src/utils/nodes
+  ${DIET_SOURCE_DIR}/src/utils/config
 )
 
 if (DIET_TRANSFER_PROGRESSION)
@@ -55,6 +56,7 @@ endif (CYGWIN)
 
 target_link_libraries(DIET_Dagda
   ${DAGDA_Libs}
+  DietConfig
 )
 
 install(TARGETS DIET_Dagda DESTINATION ${LIB_INSTALL_DIR})

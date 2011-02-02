@@ -9,6 +9,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${DIET_SOURCE_DIR}/include
   ${DIET_SOURCE_DIR}/src/SeD	# for SeDImpl.hh from Cori_Metric
+  ${DIET_SOURCE_DIR}/src/utils/config
   )
 
 if (DIET_USE_ALT_BATCH)
@@ -53,7 +54,7 @@ endif (DIET_USE_USERSCHED)
 
 add_library(AgentCommon STATIC ${AgentCommon_SOURCES})
 target_link_libraries(AgentCommon
-  DIET_Utils
+  DIET_Utils DietConfig
 )
 
 if (DIET_USE_CORI)
@@ -109,7 +110,7 @@ if (DIET_USE_LOG)
     DietLogLibrary)
 endif (DIET_USE_LOG)
 
-target_link_libraries(dietAgent ${dietAgent_Libs})
+target_link_libraries(dietAgent ${dietAgent_Libs} DietConfig)
 
 if (DIET_USE_WORKFLOW)
   add_subdirectory(workflow)

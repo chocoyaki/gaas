@@ -5,6 +5,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.69  2011/02/02 13:32:28  hguemar
+ * configuration parsers: environment variables, command line arguments, file configuration parser
+ * moved Dagda and dietAgent (yay auto-generated help) to new configuration subsystem
+ *
  * Revision 1.68  2011/01/28 00:00:24  bdepardo
  * Reduce variable scope
  *
@@ -237,6 +241,7 @@ using namespace std;
 #endif // HAVE_DYNAMICS
 
 #include "common_types.hh"
+#include "configuration.hh"
 #include "debug.hh"
 #if !HAVE_CORI
 #include "FASTMgr.hh"
@@ -245,7 +250,6 @@ using namespace std;
 #endif //!HAVE_CORI
 #include "ms_function.hh"
 #include "ORBMgr.hh"
-#include "Parsers.hh"
 #include "statistics.hh"
 #include "est_internal.hh"
 
@@ -266,14 +270,14 @@ AgentImpl::AgentImpl()
   this->SrvT                 = new ServiceTable();
   this->reqList.clear();
 #if ! HAVE_DAGDA
-  this->locMgr               = NULL;
+  this->locMgr               = 0;
 #else
-  this->dataManager          = NULL;
+  this->dataManager          = 0;
 #endif // ! HAVE_DAGDA
-  this->myName               = NULL;
-  this->localHostName        = NULL;
+  this->myName               = 0;
+  this->localHostName        = 0;
 #ifdef USE_LOG_SERVICE
-  this->dietLogComponent     = NULL;
+  this->dietLogComponent     = 0;
 #endif
 } // AgentImpl()
 
@@ -302,6 +306,10 @@ AgentImpl::~AgentImpl()
 
   stat_finalize();
   TRACE_TEXT(TRACE_STRUCTURES, "All Done" << endl);
+
+  // WTF, nobody cleans its memory ?
+  delete[] localHostName;
+  delete[] myName;
 } // ~AgentImpl()
 
 
@@ -311,52 +319,51 @@ AgentImpl::~AgentImpl()
 int
 AgentImpl::run()
 {
-  char* name;
-
   /* Set host name */
   this->localHostName = new char[MAX_HOSTNAME_LENGTH];
-  char* host = (char*)
-    (Parsers::Results::getParamValue(Parsers::Results::DIETHOSTNAME));
-  if (host != NULL) {
-    strncpy(this->localHostName, host, MAX_HOSTNAME_LENGTH-1) ;
+  const std::string& host = CONFIG("dietHostname");
+  
+  if (!host.empty()) {
+      strncpy(this->localHostName, host.c_str(), MAX_HOSTNAME_LENGTH-1) ;
   } else {
-    if (gethostname(this->localHostName, MAX_HOSTNAME_LENGTH)) {
-      ERROR("could not get hostname", 1);
-    }
+      if (gethostname(this->localHostName, MAX_HOSTNAME_LENGTH)) {
+	  ERROR("could not get hostname", 1);
+      }
   }
+  
   this->localHostName[MAX_HOSTNAME_LENGTH-1] = '\0';
 
   /* Bind this agent to its name in the CORBA Naming Service */
-  name = (char*)Parsers::Results::getParamValue(Parsers::Results::NAME);
-  if (name == NULL)
-    return 1;
-  this->myName = new char[strlen(name)+1];
-  strcpy(this->myName, name);
-	Parsers::Results::agent_type_t agtType =
-		*((Parsers::Results::agent_type_t*)
-			Parsers::Results::getParamValue(Parsers::Results::AGENTTYPE));
-	
-	
+  const std::string& name = CONFIG("name");
+  if (name.empty()) {
+      return 1;
+  }
+  
+  this->myName = new char[name.length() + 1];
+  strcpy(this->myName, name.c_str());
+  
+  const std::string& agtType = CONFIG("agentType");
+  	
   ORBMgr::getMgr()->bind(AGENTCTXT, this->myName, _this(), true);
-	if (agtType == Parsers::Results::DIET_LOCAL_AGENT)
-		ORBMgr::getMgr()->fwdsBind(LOCALAGENT, this->myName,
-															 ORBMgr::getMgr()->getIOR(_this()));
-	else 
-		ORBMgr::getMgr()->fwdsBind(MASTERAGENT, this->myName,
-															 ORBMgr::getMgr()->getIOR(_this()));
-
-
-	
+  if (agtType == "DIET_LOCAL_AGENT") {
+      ORBMgr::getMgr()->fwdsBind(LOCALAGENT, this->myName,
+				 ORBMgr::getMgr()->getIOR(_this()));
+  } else {
+      ORBMgr::getMgr()->fwdsBind(MASTERAGENT, this->myName,
+				 ORBMgr::getMgr()->getIOR(_this()));
+  }
+  
 #if !HAVE_CORI
     // Init FAST (HAVE_FAST is managed by the FASTMgr class)
   return FASTMgr::init();
 #else
-   size_t* use =
-     (size_t*)Parsers::Results::getParamValue(Parsers::Results::FASTUSE);
-  if (use != NULL && *use > 0){
-     CORIMgr::add(EST_COLL_FAST,NULL);
-     return CORIMgr::startCollectors();}
-  else return 0;
+  size_t use = simple_cast<size_t>(CONFIG("fastUse"));
+  if (!use){
+      CORIMgr::add(EST_COLL_FAST,NULL);
+      return CORIMgr::startCollectors();
+  } else {
+      return 0;
+  }
 #endif //HAVE_CORI
 } // run()
 
