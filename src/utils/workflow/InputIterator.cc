@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2011/02/02 13:56:11  bdepardo
+ * Add missing endl in traces
+ *
  * Revision 1.8  2011/02/02 11:19:13  bdepardo
  * Be more verbose
  *
@@ -632,14 +635,14 @@ DotIterator::isMatched() {
   while (allMatched && !(inputIter == myInputs.end())) {
     InputIterator *currInput = (InputIterator*) *(inputIter++);
     if (!(currInput->find(firstTag))) {
-        allMatched = false;
-        TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "match failed for input : "
-             << currInput->getId() << endl);
+      allMatched = false;
+      TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "match failed for input : "
+                  << currInput->getId() << endl);
     }
   }
   if (allMatched) {
-		TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "Match OK");
-	}
+    TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "Match OK" << endl);
+  }
   return allMatched;
 }
 
