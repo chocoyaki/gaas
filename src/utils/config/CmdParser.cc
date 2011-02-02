@@ -107,6 +107,7 @@ void CmdParser::parse()
 
 void CmdParser::enableHelp(bool showVersion)
 {
+    hasSwitchs_ = true;
     showVersion_ = showVersion;
     config_.push_back(helpEntry);
 }
@@ -114,6 +115,7 @@ void CmdParser::enableHelp(bool showVersion)
 void CmdParser::enableVersion(const std::string& version,
 				 const std::string& copyright)
 {
+    hasSwitchs_ = true;
     version_ = version;
     copyright_ = copyright;
     config_.push_back(versionEntry);
@@ -132,7 +134,7 @@ const std::string CmdParser::help() const
 	it != config_.end(); ++it)
     {
 	switch (it->type) {
-	case Param:
+	case CmdParser::Param:
 	    helpParams << spc << it->name << "  "
 		       << it->desc
 		       << spc << "(option form: -" << it->shortName << ", "
@@ -142,7 +144,7 @@ const std::string CmdParser::help() const
 		helpParams << "\n";
 
 	    break;
-	case Switch:
+	case CmdParser::Switch:
 	    helpSwitchs << spc << "-" << it->shortName << ", "
 			<< "--" << it->longName << "   "
 			<< it->desc;
@@ -150,7 +152,7 @@ const std::string CmdParser::help() const
 		helpSwitchs << " (**Mandatory**)\n" : 
 		helpSwitchs << "\n";
 	    break;
-	case Option:
+	case CmdParser::Option:
 	    helpOptions << spc << "-" << it->shortName << " <value>, "
 			<< "--" << it->longName << "=<value>  "
 			<< it->desc;
