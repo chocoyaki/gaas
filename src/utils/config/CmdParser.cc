@@ -171,7 +171,7 @@ const std::string CmdParser::help() const
 	 << spc << exec_;
     
     if (hasSwitchs_) {
-	help << " [switchs]";
+	help << " [switches]";
     } 
     
     if (hasOptions_) {
@@ -185,7 +185,7 @@ const std::string CmdParser::help() const
     help << "\n\n";
     
     if (hasSwitchs_) {
-	help << spc << "[switchs]\n"
+	help << spc << "[switches]\n"
 	     << helpSwitchs.str()
 	     << "\n";
     }
