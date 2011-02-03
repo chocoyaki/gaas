@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2011/02/03 19:31:31  bdepardo
+ * Remove unused variables
+ *
  * Revision 1.6  2011/02/01 22:24:45  bdepardo
  * Remove memleak
  *
@@ -630,7 +633,9 @@ sed_getJob(int procs, int rows, int cols, int bs)
   int* submap1x1 = NULL;
   int* submapWorkers = NULL;
   int* submapTemp = NULL;
-  int rowCount, colCount, myRow, myCol, myR, myC;
+#ifdef DEBUG
+  int rowCount, colCount, myR, myC;
+#endif
   job_t* j = NULL;
   MPI_Group* group;
   MPI_Comm* tempComm;
@@ -963,7 +968,6 @@ worker_formJob(job_t* j)
   MPI_Group* group;
   MPI_Comm* tempComm;
   int jobRequest=0;
-  int remoteLeaderId=-1;
   int i;
 
 
@@ -1000,7 +1004,6 @@ worker_formJob(job_t* j)
   // some other initializations
   
   jobRequest = j->procs[myId];
-  remoteLeaderId = submapWorkers[0];
   group = malloc(sizeof(MPI_Group));
   
   
@@ -1118,12 +1121,6 @@ waitingLoop()
   // MPI Communication & Jobstuff
   MPI_Status status;
   
-  // Variables for wakeuppackage
-  int Fx=1;
-  int Fy=5;
-  int LDF=1;
-  int* F;
-  
    // pdgemm variables
   int m, n, k;
   double* A = NULL,* B = NULL,* C = NULL;
@@ -1142,7 +1139,6 @@ waitingLoop()
   char* empty=" ";
   
   E = malloc(q*w* sizeof(double));
-  F = malloc(Fx*Fy*sizeof(int));
   
   while (1) {
     
@@ -1159,11 +1155,7 @@ waitingLoop()
     beta  = E[4];
     
     LOG("E received");
-    
-    //printf("Process %d :  F[CONTEXTALL] %d\n", myId, F[CONTEXTALL]);
-    //printf("Process %d :  F[CONTEXT1X1] %d\n", myId, F[CONTEXT1X1]);
-    //printf("Process %d :  F[CONTEXTWORKERS] %d\n", myId, F[CONTEXTWORKERS]);
-    
+        
     LOG2I("Computing job", j->id);
     compute(m, n, k, 'N', 'N', alpha, A, B, beta, C, -1, j->contextWorkers, j->contextAll, j);
     LOG2I("Done computing job", j->id);
@@ -1176,7 +1168,6 @@ waitingLoop()
     
   }
   free(E);
-  free(F);
   
 }
 
