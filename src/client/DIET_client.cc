@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.158  2011/02/03 19:59:53  bdepardo
+ * Reduce variables scope
+ *
  * Revision 1.157  2011/01/11 00:24:32  hguemar
  * replace value by appropriate error constant
  *
@@ -555,7 +558,6 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
   int    myargc(0);
   char ** myargv(NULL);
   void*  value(NULL);
-  char*  userDefName;
 
   // MA_MUTEX initialization
   MA_MUTEX = new omni_mutex();
@@ -595,9 +597,6 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
   }
 
   /* Some more checks */
-  userDefName = (char*)
-    Parsers::Results::getParamValue(Parsers::Results::NAME);
-
   value = Parsers::Results::getParamValue(Parsers::Results::PARENTNAME);
   if (value != NULL)
     WARNING("parsing " << config_file_name << ": no need "
@@ -677,7 +676,7 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
   /* Initialize statistics module */
   stat_init();
 
-  // modif bisnard_logs_1
+#ifdef USE_LOG_SERVICE
   /* Initialize LogService */
   bool useLS = false;
   unsigned int* ULSptr;
@@ -691,7 +690,6 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
       useLS = true;
     }
   }
-#ifdef USE_LOG_SERVICE
   int outBufferSize;
   int flushTime;
   unsigned int* FTptr;
@@ -719,6 +717,9 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
     char* agtParentName;
     agtParentName = (char*)Parsers::Results::getParamValue
                           (Parsers::Results::MANAME);
+    char*  userDefName;
+    userDefName = (char*)
+      Parsers::Results::getParamValue(Parsers::Results::NAME);
 
     if (userDefName != NULL){
       dietLogComponent = new DietLogComponent(userDefName, outBufferSize, argc, argv);
