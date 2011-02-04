@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.44  2011/02/04 15:29:54  hguemar
+ * fix some GCC warnings
+ *
  * Revision 1.43  2011/02/04 15:20:48  hguemar
  * fixes to new configuration parser
  * some cleaning
@@ -294,7 +297,6 @@ int main(int argc, char* argv[], char *envp[])
     //std::string& agentName = CONFIG("name"]; // UNUSED ?
     std::string& parentName = CONFIG(diet::PARENTNAME);
     std::string& maName = CONFIG(diet::MANAME);
-    std::string& name = CONFIG(diet::NAME);
   
     // parentName is mandatory for LA but unneeded for MA
     if (((agentType == "DIET_LOCAL_AGENT") || (agentType == "LA")) &&

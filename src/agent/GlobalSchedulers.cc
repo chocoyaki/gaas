@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.24  2011/02/04 15:29:54  hguemar
+ * fix some GCC warnings
+ *
  * Revision 1.23  2011/02/04 15:20:48  hguemar
  * fixes to new configuration parser
  * some cleaning
@@ -161,7 +164,7 @@ GlobalScheduler::deserialize(const char* serializedScheduler)
     // TODO: is the isolated scope required ?
     {
 	const char *colon;
-	if (colon = strchr(serializedScheduler, ':')) {
+	if ((colon = strchr(serializedScheduler, ':'))) {
 	    nameLength = colon - serializedScheduler;
 	}
 	else {
