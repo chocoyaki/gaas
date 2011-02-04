@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.45  2011/02/04 16:02:20  hguemar
+ * fix build compilation
+ *
  * Revision 1.44  2011/02/04 15:29:54  hguemar
  * fix some GCC warnings
  *
@@ -373,6 +376,7 @@ int main(int argc, char* argv[], char *envp[])
 	TRACE_TEXT(TRACE_ALL_STEPS, "LogService enabled" << std::endl);
 	char *agtTypeName = 0;
 	char *agtParentName = strdup(parentName.c_str());
+	const std::string name = CONFIG(diet::NAME);
 	char *agtName = strdup(name.c_str());
 
 	if ((agentType == "DIET_LOCAL_AGENT") || (agentType == "LA")) {
