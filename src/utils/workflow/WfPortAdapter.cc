@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.25  2011/02/04 14:29:54  bdepardo
+ * Remove unused variables
+ *
  * Revision 1.24  2011/01/23 19:16:28  bdepardo
  * Removed debug messages
  *
@@ -975,8 +978,7 @@ WfDataIDAdapter::getAndWriteData(WfDataWriter* dataWriter,
       dataWriter->itemValue(value, (WfCst::WfDataType) dataType);
     } else if (dataType == WfCst::TYPE_INT) {
       int *value = NULL;
-      int re;
-      re = dagda_get_scalar(dataID.c_str(),&value,NULL);
+      dagda_get_scalar(dataID.c_str(),&value,NULL);
       dataWriter->itemValue(value, (WfCst::WfDataType) dataType);
     } else if (dataType == WfCst::TYPE_LONGINT) {
       long *value;

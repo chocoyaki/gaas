@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.24  2011/02/04 14:29:54  bdepardo
+ * Remove unused variables
+ *
  * Revision 1.23  2010/07/20 09:20:11  bisnard
  * integration with eclipse gui and with dietForwarder
  *
@@ -637,14 +640,12 @@ FWorkflow::instanciate(Dag * dag) {
   else if (todoProc.size() == 0) {
     TRACE_TEXT (TRACE_MAIN_STEPS, traceId() << "############ WORKFLOW INSTANCIATION END ############" << endl);
     // check if sinks are completed too
-    bool allSinksCompleted = true;
     for(map<string,FNode*>::iterator iter = myInterface.begin();
       iter != myInterface.end();
       ++iter) {
       FSinkNode* sinkNode = dynamic_cast<FSinkNode*>((FNode*) iter->second);
       if (sinkNode && !sinkNode->instanciationCompleted()) {
         WARNING(traceId() << "Sink '" << sinkNode->getId() << " is not complete (instanciation error)" << endl);
-        allSinksCompleted = false;
       }
     }
     myStatus = N_INSTANC_END;
