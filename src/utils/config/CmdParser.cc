@@ -104,8 +104,10 @@ void CmdParser::parse()
 		break;
 	    }
 	}
-    } catch(OptionNotFoundError& e) {
+    } catch(CmdParserError& e) {
 	std::cerr << e.what() << std::endl;
+	std::cerr << help();
+	exit(-1);
     }
 }
 
