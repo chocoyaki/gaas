@@ -1,4 +1,5 @@
 #include "CommonParser.hh"
+#include "constants.hh"
 
 #ifdef DEBUG
 std::ostream debug(std::cerr.rdbuf());
@@ -9,8 +10,9 @@ std::ostream debug(0);
 const std::string nullString("");
 ConfigMap *configPtr = new ConfigMap;
 
-std::string& getConfigValue(const std::string& key)
+std::string& getConfigValue(diet::param_type_t param)
 {
+    const std::string& key = (diet::params)[param].value;
     ConfigMap::iterator it = configPtr->find(key);
     if (configPtr->end() != it) {
 	return it->second;

@@ -10,6 +10,10 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.20  2011/02/04 15:20:49  hguemar
+ * fixes to new configuration parser
+ * some cleaning
+ *
  * Revision 1.19  2011/02/02 13:32:28  hguemar
  * configuration parsers: environment variables, command line arguments, file configuration parser
  * moved Dagda and dietAgent (yay auto-generated help) to new configuration subsystem
@@ -97,8 +101,8 @@ unsigned long DagdaFactory::defaultMaxMemSpace = 0;
 DagdaImpl* DagdaFactory::createDataManager(dagda_manager_type_t type) {
   AdvancedDagdaComponent* result=NULL;
 
-  const std::string& algorithm = CONFIG("cacheAlgorithm");
-  unsigned int shareFiles = simple_cast<unsigned int>(CONFIG("shareFiles"));
+  const std::string& algorithm = CONFIG(diet::CACHEALGORITHM);
+  unsigned int shareFiles = simple_cast<unsigned int>(CONFIG(diet::SHAREFILES));
   bool share;
 
   NetworkStats* stats = new AvgNetworkStats();
@@ -141,7 +145,7 @@ const char* DagdaFactory::getStorageDir() {
   DIR *dp;
   struct stat tmpStat;
 
-  storageDir = CONFIG("storageDirectory");
+  storageDir = CONFIG(diet::STORAGEDIR);
   // if storageDir is empty, get default instead
   if (storageDir.empty()) {
       storageDir = DagdaFactory::getDefaultStorageDir();
@@ -173,7 +177,7 @@ const char* DagdaFactory::getStorageDir() {
 
 unsigned long DagdaFactory::getMaxMsgSize() {
     unsigned long maxMsgSize = 
-	simple_cast<unsigned long>(CONFIG("maxMsgSize"));
+	simple_cast<unsigned long>(CONFIG(diet::MAXMSGSIZE));
 
     if (!maxMsgSize) {
 	maxMsgSize = defaultMaxMsgSize;
@@ -184,7 +188,7 @@ unsigned long DagdaFactory::getMaxMsgSize() {
 
 unsigned long DagdaFactory::getMaxDiskSpace() {
     unsigned long maxDiskSpace = 
-	simple_cast<unsigned long>(CONFIG("maxDiskSpace"));
+	simple_cast<unsigned long>(CONFIG(diet::MAXDISKSPACE));
 
     if (!maxDiskSpace) {
 	maxDiskSpace = defaultMaxDiskSpace;
@@ -195,7 +199,7 @@ unsigned long DagdaFactory::getMaxDiskSpace() {
 
 unsigned long DagdaFactory::getMaxMemSpace() {
     unsigned long maxMemSpace = 
-	simple_cast<unsigned long>(CONFIG("maxMemSpace"));
+	simple_cast<unsigned long>(CONFIG(diet::MAXMEMSPACE));
 
     if (!maxMemSpace) {
 	maxMemSpace = defaultMaxMemSpace;
@@ -205,7 +209,7 @@ unsigned long DagdaFactory::getMaxMemSpace() {
 }
 
 const char* DagdaFactory::getParentName() {
-    std::string result = CONFIG("parentName");
+    std::string result = CONFIG(diet::PARENTNAME);
 
     if (result.empty()) {
 	return 0;
@@ -216,7 +220,7 @@ const char* DagdaFactory::getParentName() {
 }
 
 const char* DagdaFactory::getAgentName() {
-    std::string result = CONFIG("name");
+    std::string result = CONFIG(diet::NAME);
 
     if (result.empty()) {
 	return 0;
@@ -284,9 +288,9 @@ DagdaImpl* DagdaFactory::getClientDataManager() {
 }
 
 DagdaImpl* DagdaFactory::getSeDDataManager() {
-    const std::string& backupFile = CONFIG("dataBackupFile");
+    const std::string& backupFile = CONFIG(diet::DATABACKUPFILE);
     unsigned int restoreOnStart = 
-	simple_cast<unsigned int>(CONFIG("restoreOnStart"));
+	simple_cast<unsigned int>(CONFIG(diet::RESTOREONSTART));
     
     bool restore(false);
    
@@ -321,9 +325,9 @@ DagdaImpl* DagdaFactory::getSeDDataManager() {
 }
 
 DagdaImpl* DagdaFactory::getAgentDataManager() {
-    const std::string& backupFile = CONFIG("dataBackupFile");
+    const std::string& backupFile = CONFIG(diet::DATABACKUPFILE);
     unsigned int restoreOnStart = 
-	simple_cast<unsigned int>(CONFIG("restoreOnStart"));
+	simple_cast<unsigned int>(CONFIG(diet::RESTOREONSTART));
     
     bool restore(false);
    

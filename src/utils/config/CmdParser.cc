@@ -89,21 +89,26 @@ void CmdParser::parse()
 	exit(EXIT_SUCCESS);
     }
 
-    for (CmdConfig::iterator it = config_.begin();
-	 it != config_.end(); ++it) {
-	switch (it->type) {
-	case CmdParser::Switch:
-	    findSwitch(*it);
-	    break;
-	case CmdParser::Option:
-	    findOption(*it);
-	    break;
-	case CmdParser::Param:
-	    findParam(*it);
-	    break;
+    try {
+	for (CmdConfig::iterator it = config_.begin();
+	     it != config_.end(); ++it) {
+	    switch (it->type) {
+	    case CmdParser::Switch:
+		findSwitch(*it);
+		break;
+	    case CmdParser::Option:
+		findOption(*it);
+		break;
+	    case CmdParser::Param:
+		findParam(*it);
+		break;
+	    }
 	}
+    } catch(OptionNotFoundError& e) {
+	std::cerr << e.what() << std::endl;
     }
 }
+
 
 void CmdParser::enableHelp(bool showVersion)
 {
@@ -171,7 +176,7 @@ const std::string CmdParser::help() const
 	 << spc << exec_;
     
     if (hasSwitchs_) {
-	help << " [switches]";
+	help << " [switchs]";
     } 
     
     if (hasOptions_) {
@@ -185,7 +190,7 @@ const std::string CmdParser::help() const
     help << "\n\n";
     
     if (hasSwitchs_) {
-	help << spc << "[switches]\n"
+	help << spc << "[switchs]\n"
 	     << helpSwitchs.str()
 	     << "\n";
     }

@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.22  2011/02/04 15:20:48  hguemar
+ * fixes to new configuration parser
+ * some cleaning
+ *
  * Revision 1.21  2011/01/21 16:37:50  bdepardo
  * Prefer prefix ++/-- operators for non-primitive types.
  *
@@ -87,12 +91,12 @@
 #include <unistd.h>  // For gethostname()
 #include "LocMgrImpl.hh"
 
+#include "configuration.hh"
 #include "Counter.hh"
 #include "DataMgr.hh"
 #include "debug.hh"
 #include "ms_function.hh"
 #include "ORBMgr.hh"
-#include "Parsers.hh"
 #include "ts_container/ts_map.hh"
 
 
@@ -104,19 +108,19 @@ extern unsigned int TRACE_LEVEL;
 
 LocMgrImpl::LocMgrImpl() 
 {
-  this->childID           = -1;
-  this->parent            = LocMgr::_nil();
-  this->localHostName     = NULL;
-  this->myName            = NULL;
-  this->childIDCounter    = 0;
-  this->nbLocMgrChildren     = 0;
-  this->nbDataMgrChildren = 0;
-  this->dataLocList.clear();
+    this->childID           = -1;
+    this->parent            = LocMgr::_nil();
+    this->localHostName     = 0;
+    this->myName            = 0;
+    this->childIDCounter    = 0;
+    this->nbLocMgrChildren  = 0;
+    this->nbDataMgrChildren = 0;
+    this->dataLocList.clear();
 }
 
 LocMgrImpl::~LocMgrImpl() 
 {
-  this->dataLocList.clear();
+    this->dataLocList.clear();
 }
 
 /**
@@ -126,51 +130,53 @@ LocMgrImpl::~LocMgrImpl()
 int 
 LocMgrImpl::run()
 {
-  char* name;
-  char* parentName;
+    const std::string& name;
+    const std::string& parentName;
 
-  /* Set host name */
-  this->localHostName = new char[MAX_HOSTNAME_LENGTH];
-  if (gethostname(this->localHostName, MAX_HOSTNAME_LENGTH)) {
-    ERROR("could not get hostname", 1);
-  }
-  this->localHostName[MAX_HOSTNAME_LENGTH-1] = '\0';
-   
-  /* Bind this LocMgr to its name in the CORBA Naming Service */
-  name = (char*)Parsers::Results::getParamValue(Parsers::Results::NAME);
-  if (name == NULL)
-    return 1;
-  this->myName = new char[strlen(name) + 4]; // 3 for "Loc" + 1 for \0
-  strcpy(this->myName, name);
-
-  // FIXME : rewrite strcat to ms_strcat
-  strcat(strcpy(this->myName, name), "Loc");
-
-  /*if (ORBMgr::bindObjToName(_this(), ORBMgr::LOCMGR, this->myName)) {
-    ERROR("LocMgr: could not declare myself as " << this->myName, 1);
-  }*/
-	ORBMgr::getMgr()->bind(LOCMGRCTXT, myName, _this());
-	ORBMgr::getMgr()->fwdsBind(LOCMGRCTXT, myName,
-														 ORBMgr::getMgr()->getIOR(_this()));
-
-  /* Get the parent reference */
-  name = (char*)
-    Parsers::Results::getParamValue(Parsers::Results::PARENTNAME);
-  if (name != NULL) {
-    parentName = new char[strlen(name) + 4]; // 3 for "Loc" + 1 for \0
-    strcpy(parentName, name);
-    strcat(parentName, "Loc");
-    parent =
-      /*LocMgr::_duplicate(LocMgr::_narrow(ORBMgr::getObjReference(ORBMgr::LOCMGR,
-								 parentName)));*/
-		ORBMgr::getMgr()->resolve<LocMgr, LocMgr_ptr>(LOCMGRCTXT, parentName);
-    if (CORBA::is_nil(parent)) {
-      ERROR("LocMgr: cannot locate my parent " << parentName, 1);
+    /* Set host name */
+    this->localHostName = new char[MAX_HOSTNAME_LENGTH];
+    if (gethostname(this->localHostName, MAX_HOSTNAME_LENGTH)) {
+	ERROR("could not get hostname", 1);
     }
-  }
-  TRACE_TEXT(TRACE_ALL_STEPS,
-	     endl << "Root LocMgr " << this->myName<< " started." << endl << endl);
-  return 0;
+    this->localHostName[MAX_HOSTNAME_LENGTH-1] = '\0';
+    
+    /* Bind this LocMgr to its name in the CORBA Naming Service */
+    name = CONFIG(diet::NAME);
+    if (name.empty())
+	return 1;
+    this->myName = new char[name.length() + 4]; // 3 for "Loc" + 1 for \0
+    strcpy(this->myName, name.c_str());
+    
+    // FIXME : rewrite strcat to ms_strcat
+    // FIXME: is it really necessary to do **TWO** strcpy ?
+    strcat(strcpy(this->myName, name.c_str()), "Loc");
+    
+    /*if (ORBMgr::bindObjToName(_this(), ORBMgr::LOCMGR, this->myName)) {
+      ERROR("LocMgr: could not declare myself as " << this->myName, 1);
+      }*/
+    ORBMgr::getMgr()->bind(LOCMGRCTXT, myName, _this());
+    ORBMgr::getMgr()->fwdsBind(LOCMGRCTXT, myName,
+			       ORBMgr::getMgr()->getIOR(_this()));
+
+    /* Get the parent reference */
+    name = CONFIG(diet::PARENTNAME);
+    if (!name.empty()) {
+	parentName = new char[strlen(name) + 4]; // 3 for "Loc" + 1 for \0
+	strcpy(parentName, name);
+	strcat(parentName, "Loc");
+	parent =
+	    /*LocMgr::_duplicate(LocMgr::_narrow(ORBMgr::getObjReference(ORBMgr::LOCMGR,
+								 parentName)));*/
+	    ORBMgr::getMgr()->resolve<LocMgr, LocMgr_ptr>(LOCMGRCTXT, parentName);
+	if (CORBA::is_nil(parent)) {
+	    ERROR("LocMgr: cannot locate my parent " << parentName, 1);
+	}
+    }
+    TRACE_TEXT(TRACE_ALL_STEPS,
+	       endl << "Root LocMgr " 
+	       << this->myName<< " started." 
+	       << endl << endl);
+    return 0;
 }
 
 
@@ -184,21 +190,23 @@ LocMgrImpl::run()
 CORBA::ULong
 LocMgrImpl::locMgrSubscribe(const char* name, const char* hostName)
 {
-	LocMgr_ptr me = ORBMgr::getMgr()->resolve<LocMgr, LocMgr_ptr>(LOCMGRCTXT,
-																																name);
-  CORBA::ULong retID = (this->childIDCounter)++; // thread safe
+    LocMgr_ptr me = ORBMgr::getMgr()->resolve<LocMgr, LocMgr_ptr>(LOCMGRCTXT,
+								  name);
+    CORBA::ULong retID = (this->childIDCounter)++; // thread safe
 
-  /* the size of the list is childIDCounter+1 (first index is 0) */
-  this->locMgrChildren.resize(this->childIDCounter);
-  this->locMgrChildren[retID] = locMgrChild(me, hostName);
-  (this->nbLocMgrChildren)++; // thread safe
-  
-  if (! CORBA::is_nil(this->parent)) { // LocMgr associated to an MA.
-    if (this->childID == (ChildID)-1)
-      this->childID = this->parent->locMgrSubscribe(myName, this->localHostName);
-  }
-  
-  return retID;
+    /* the size of the list is childIDCounter+1 (first index is 0) */
+    this->locMgrChildren.resize(this->childIDCounter);
+    this->locMgrChildren[retID] = locMgrChild(me, hostName);
+    (this->nbLocMgrChildren)++; // thread safe
+    
+    if (! CORBA::is_nil(this->parent)) { // LocMgr associated to an MA.
+	if (this->childID == (ChildID)-1)
+	    this->childID = 
+		this->parent->locMgrSubscribe(myName,
+					      this->localHostName);
+    }
+
+    return retID;
 } // locMgrSubscribe(...)
 
 
@@ -206,21 +214,23 @@ LocMgrImpl::locMgrSubscribe(const char* name, const char* hostName)
 CORBA::ULong
 LocMgrImpl::dataMgrSubscribe(const char* name, const char* hostName)
 {
-	DataMgr_ptr me = ORBMgr::getMgr()->resolve<DataMgr, DataMgr_ptr>(DATAMGRCTXT,
-																																	 name);
-  CORBA::ULong retID = (this->childIDCounter)++; // thread safe
+    DataMgr_ptr me = 
+	ORBMgr::getMgr()->resolve<DataMgr, DataMgr_ptr>(DATAMGRCTXT,
+							name);
+    CORBA::ULong retID = (this->childIDCounter)++; // thread safe
 
-  /* the size of the list is childIDCounter+1 (first index is 0) */
-  this->dataMgrChildren.resize(this->childIDCounter);
-  this->dataMgrChildren[retID] = dataMgrChild(me, hostName);
-  (this->nbDataMgrChildren)++; // thread safe
+    /* the size of the list is childIDCounter+1 (first index is 0) */
+    this->dataMgrChildren.resize(this->childIDCounter);
+    this->dataMgrChildren[retID] = dataMgrChild(me, hostName);
+    (this->nbDataMgrChildren)++; // thread safe
 
-  if (! CORBA::is_nil(this->parent)) { // LocMgr associated to an MA.
-    if (this->childID == (ChildID)-1)
-      this->childID = this->parent->locMgrSubscribe(myName, this->localHostName);
-  }
-  
-  return(retID);
+    if (! CORBA::is_nil(this->parent)) { // LocMgr associated to an MA.
+	if (this->childID == (ChildID)-1)
+	    this->childID = 
+		this->parent->locMgrSubscribe(myName, this->localHostName);
+    }
+
+    return(retID);
 } // dataMgrSubscribe(...)
 
 
@@ -234,41 +244,41 @@ LocMgrImpl::dataMgrSubscribe(const char* name, const char* hostName)
 void
 LocMgrImpl::addDataRef(const corba_data_desc_t& arg, CORBA::ULong cChildID)
 {
-  store_desc_child_t &data_to_store = dataLocList[strdup(arg.id.idNumber)];
-  data_to_store.childID_owner = cChildID;
-  data_to_store.id_handle_type = arg;
-  if (!CORBA::is_nil(this->parent)) {
-    parent->addDataRef(arg,this->childID);
-  }
+    store_desc_child_t &data_to_store = dataLocList[strdup(arg.id.idNumber)];
+    data_to_store.childID_owner = cChildID;
+    data_to_store.id_handle_type = arg;
+    if (!CORBA::is_nil(this->parent)) {
+	parent->addDataRef(arg,this->childID);
+    }
 }
 
 /** initially invoked by the MA : client wants to destroy data */
 CORBA::Long
 LocMgrImpl::rm_pdata(const char* argID)
 {
-  if ( dataLocList.size() > 0) {
-    store_desc_child_t &data_to_store = dataLocList[ms_strdup(argID)];
-    ChildID cChildID = data_to_store.childID_owner;
-    dataLocList.erase(ms_strdup(argID));
-    printList1();
-    if(cChildID < static_cast<CORBA::Long>(locMgrChildren.size())) {
-      locMgrChild theLoc = locMgrChildren[cChildID];
-      if (theLoc.defined()){
-	LocMgr_ptr locChild = theLoc.getIor();
-	return locChild->rm_pdata(argID);
-      } else return 0;
+    if ( dataLocList.size() > 0) {
+	store_desc_child_t &data_to_store = dataLocList[ms_strdup(argID)];
+	ChildID cChildID = data_to_store.childID_owner;
+	dataLocList.erase(ms_strdup(argID));
+	printList1();
+	if(cChildID < static_cast<CORBA::Long>(locMgrChildren.size())) {
+	    locMgrChild theLoc = locMgrChildren[cChildID];
+	    if (theLoc.defined()){
+		LocMgr_ptr locChild = theLoc.getIor();
+		return locChild->rm_pdata(argID);
+	    } else return 0;
+	} else {
+	    if(cChildID < static_cast<CORBA::Long>(dataMgrChildren.size())) {
+		dataMgrChild theData = dataMgrChildren[cChildID];
+		if(theData.defined()){
+	    DataMgr_ptr dataChild = theData.getIor();
+	    return dataChild->rmDataRefDataMgr(ms_strdup(argID));
+		} else return 0;
+	    } else return 0;
+	}
     } else {
-      if(cChildID < static_cast<CORBA::Long>(dataMgrChildren.size())) {
-	dataMgrChild theData = dataMgrChildren[cChildID];
-	if(theData.defined()){
-	  DataMgr_ptr dataChild = theData.getIor();
-	  return dataChild->rmDataRefDataMgr(ms_strdup(argID));
-	} else return 0;
-      } else return 0;
+	return 0; 
     }
-  } else {
-    return 0; 
-  }
 }
 
 
@@ -276,11 +286,11 @@ LocMgrImpl::rm_pdata(const char* argID)
 void
 LocMgrImpl::rmDataRefLocMgr(const char *argID, CORBA::ULong cChildID)
 {
-  dataLocList.erase(strdup(argID));
-  printList1();
-  if (this->parent != LocMgr::_nil()) {
-    parent->rmDataRefLocMgr(argID,cChildID);
-  }
+    dataLocList.erase(strdup(argID));
+    printList1();
+    if (this->parent != LocMgr::_nil()) {
+	parent->rmDataRefLocMgr(argID,cChildID);
+    }
 }
 
 /**
@@ -291,88 +301,93 @@ void
 LocMgrImpl::updateDataRef(const corba_data_desc_t& arg,
 			  CORBA::ULong cChildID, CORBA::Long upDown)
 {
-  if(upDown == 0){ // UP = replace old owner by new one
-    if ( CORBA::is_nil(this->parent)) { // Root Loc Manager
-   
-      store_desc_child_t &stored_desc= dataLocList[ms_strdup(arg.id.idNumber)];
-      
-      ChildID oldChildID = stored_desc.childID_owner;
-      stored_desc.childID_owner = cChildID;
-      
-      dataLocList[ms_strdup(arg.id.idNumber)]=stored_desc;
-      printList1();
-      
-      upDown = 1;
-      if(oldChildID < static_cast<CORBA::Long>(locMgrChildren.size())) {
-	locMgrChild theLoc = locMgrChildren[oldChildID];
-	if (theLoc.defined()){
-	  LocMgr_ptr locChild = theLoc.getIor();
-	  locChild->updateDataRef(arg,(unsigned)-1,1);
-	}
-      }
-      if(oldChildID < static_cast<CORBA::Long>(dataMgrChildren.size())) {
-	dataMgrChild theData = dataMgrChildren[oldChildID];
-	if(theData.defined()){
-	  DataMgr_ptr dataChild = theData.getIor();
-	  dataChild->rmDataRefDataMgr(ms_strdup(arg.id.idNumber));
-	}
-      }
-    } else {
-     // Not Root Loc Manager
-      if(dataLookUp(ms_strdup(arg.id.idNumber)) == 1){ // data not found - adding it
-	store_desc_child_t stored_desc ;
-	stored_desc.childID_owner = cChildID;
-	stored_desc.id_handle_type = arg;
-	dataLocList[ms_strdup(arg.id.idNumber)] = stored_desc;
-	printList1();
-	parent->updateDataRef(arg, this->childID,0); 
-      } else {
-	store_desc_child_t &stored_desc= dataLocList[ms_strdup(arg.id.idNumber)];
-	ChildID oldChildID = stored_desc.childID_owner;
-	stored_desc.childID_owner = cChildID;
-	dataLocList[ms_strdup(arg.id.idNumber)] = stored_desc;
-	
-	upDown = 1;
-	if(oldChildID < static_cast<CORBA::Long>(locMgrChildren.size())) {
-	  locMgrChild theLoc = locMgrChildren[oldChildID]; 
-	  if (theLoc.defined()){
-	    LocMgr_ptr locChild = theLoc.getIor();
-	    locChild->updateDataRef(arg,(unsigned)-1,1);
-	  }
-	}
+    if(upDown == 0){ // UP = replace old owner by new one
+	if ( CORBA::is_nil(this->parent)) { // Root Loc Manager
 
-	if(oldChildID < static_cast<CORBA::Long>(dataMgrChildren.size())) {
-	  dataMgrChild theData = dataMgrChildren[oldChildID];	  
-	  if(theData.defined()){
-	    DataMgr_ptr dataChild = theData.getIor();
-	    dataChild->rmDataRefDataMgr(ms_strdup(arg.id.idNumber));
-	  }
+	    store_desc_child_t &stored_desc = 
+		dataLocList[ms_strdup(arg.id.idNumber)];
+	    
+	    ChildID oldChildID = stored_desc.childID_owner;
+	    stored_desc.childID_owner = cChildID;
+
+	    dataLocList[ms_strdup(arg.id.idNumber)]=stored_desc;
+	    printList1();
+
+	    upDown = 1;
+	    if(oldChildID < static_cast<CORBA::Long>(locMgrChildren.size())) {
+		locMgrChild theLoc = locMgrChildren[oldChildID];
+		if (theLoc.defined()){
+		    LocMgr_ptr locChild = theLoc.getIor();
+		    locChild->updateDataRef(arg,(unsigned)-1,1);
+		}
+	    }
+	    if(oldChildID < static_cast<CORBA::Long>(dataMgrChildren.size())) {
+		dataMgrChild theData = dataMgrChildren[oldChildID];
+		if(theData.defined()){
+		    DataMgr_ptr dataChild = theData.getIor();
+		    dataChild->rmDataRefDataMgr(ms_strdup(arg.id.idNumber));
+		}
+	    }
+	} else {
+	    // Not Root Loc Manager
+	    // data not found - adding it
+	    if(dataLookUp(ms_strdup(arg.id.idNumber)) == 1) { 
+		store_desc_child_t stored_desc ;
+		stored_desc.childID_owner = cChildID;
+		stored_desc.id_handle_type = arg;
+		dataLocList[ms_strdup(arg.id.idNumber)] = stored_desc;
+		printList1();
+	parent->updateDataRef(arg, this->childID,0); 
+	    } else {
+		store_desc_child_t &stored_desc =
+		    dataLocList[ms_strdup(arg.id.idNumber)];
+		ChildID oldChildID = stored_desc.childID_owner;
+		stored_desc.childID_owner = cChildID;
+		dataLocList[ms_strdup(arg.id.idNumber)] = stored_desc;
+
+		upDown = 1;
+		if(oldChildID < static_cast<CORBA::Long>(locMgrChildren.size())) {
+		    locMgrChild theLoc = locMgrChildren[oldChildID]; 
+		    if (theLoc.defined()){
+			LocMgr_ptr locChild = theLoc.getIor();
+			locChild->updateDataRef(arg,(unsigned)-1,1);
+		    }
+		}
+		
+		if(oldChildID < 
+		       static_cast<CORBA::Long>(dataMgrChildren.size())) {
+		    dataMgrChild theData = dataMgrChildren[oldChildID];	  
+		    if(theData.defined()){
+			DataMgr_ptr dataChild = theData.getIor();
+			dataChild->rmDataRefDataMgr(ms_strdup(arg.id.idNumber));
+		    }
+		}
+	    }
 	}
-      }
-    }
-  } else { // DOWN = removing old owner
-    if (!CORBA::is_nil(this->parent)){
-      store_desc_child_t &stored_desc = dataLocList[ms_strdup(arg.id.idNumber)];
-      ChildID oldChildID = stored_desc.childID_owner;
-      stored_desc.childID_owner = cChildID;
-      dataLocList.erase(strdup(arg.id.idNumber));
-      printList1();
-      if(oldChildID < static_cast<CORBA::Long>(locMgrChildren.size())) {
-	locMgrChild theLoc = locMgrChildren[oldChildID];
-	if (theLoc.defined()){
-	  LocMgr_ptr locChild = theLoc.getIor();
-	  locChild->updateDataRef(arg,(unsigned)-1,1);
+    } else { // DOWN = removing old owner
+	if (!CORBA::is_nil(this->parent)){
+	    store_desc_child_t &stored_desc =
+		dataLocList[ms_strdup(arg.id.idNumber)];
+	    ChildID oldChildID = stored_desc.childID_owner;
+	    stored_desc.childID_owner = cChildID;
+	    dataLocList.erase(strdup(arg.id.idNumber));
+	    printList1();
+	    if(oldChildID < static_cast<CORBA::Long>(locMgrChildren.size())) {
+		locMgrChild theLoc = locMgrChildren[oldChildID];
+		if (theLoc.defined()){
+		    LocMgr_ptr locChild = theLoc.getIor();
+		    locChild->updateDataRef(arg,(unsigned)-1,1);
+		}
+	    }
+	    if(oldChildID < static_cast<CORBA::Long>(dataMgrChildren.size())) {
+		dataMgrChild theData = dataMgrChildren[oldChildID];
+		if (theData.defined()){
+		    DataMgr_ptr dataChild = theData.getIor();
+		    dataChild->rmDataRefDataMgr(arg.id.idNumber);
+		}
+	    }
 	}
-      }
-      if(oldChildID < static_cast<CORBA::Long>(dataMgrChildren.size())) {    
-	dataMgrChild theData = dataMgrChildren[oldChildID];
-	if (theData.defined()){
-	  DataMgr_ptr dataChild = theData.getIor();
-	  dataChild->rmDataRefDataMgr(arg.id.idNumber);
-	}
-      }
-    }
-  } 
+    } 
 } //updateDataRef(const corba_data_desc_t& arg, CORBA::ULong cChildID, CORBA::Long upDown)
 
 
@@ -384,16 +399,15 @@ LocMgrImpl::updateDataRef(const corba_data_desc_t& arg,
 CORBA::ULong
 LocMgrImpl::dataLookUp(const char *argID)
 {
-  dataLocList.lock();
-  dataLocList.begin();
-  if(dataLocList.find(strdup(argID)) != dataLocList.end()){
-    dataLocList.unlock();
-    return 0;
-  }
-  else {
-    dataLocList.unlock();
-    return 1;
-  }
+    dataLocList.lock();
+    dataLocList.begin();
+    if(dataLocList.find(strdup(argID)) != dataLocList.end()){
+	dataLocList.unlock();
+	return 0;
+    } else {
+	dataLocList.unlock();
+	return 1;
+    }
 } //dataLookUp(const char *argID)
 
 
@@ -401,75 +415,76 @@ LocMgrImpl::dataLookUp(const char *argID)
 corba_data_desc_t*
 LocMgrImpl::set_data_arg(const char* argID)
 {
-  corba_data_desc_t *arg_data_desc = new corba_data_desc_t;
+    corba_data_desc_t *arg_data_desc = new corba_data_desc_t;
 
-  //printList1();
-  if( dataLookUp(argID) == 1 ) {
-    arg_data_desc->id.idNumber = CORBA::string_dup("-1");
-    arg_data_desc->id.dataCopy =  DIET_ORIGINAL;
-    arg_data_desc->id.state = DIET_FREE;
-  } else {
-    store_desc_child_t stored_desc = dataLocList[ms_strdup(argID)];
-    
-    *arg_data_desc = stored_desc.id_handle_type;
-  }
-  return arg_data_desc;
-  
+    //printList1();
+    if( dataLookUp(argID) == 1 ) {
+	arg_data_desc->id.idNumber = CORBA::string_dup("-1");
+	arg_data_desc->id.dataCopy =  DIET_ORIGINAL;
+	arg_data_desc->id.state = DIET_FREE;
+    } else {
+	store_desc_child_t stored_desc = dataLocList[ms_strdup(argID)];
+	*arg_data_desc = stored_desc.id_handle_type;
+    }
+
+    return arg_data_desc;
 } // set_data_arg(const char* argID)
 
 
 /** Display the List of known data Reference */
 char *
 LocMgrImpl::setMyName(){
-  return CORBA::string_dup(this->myName);
+    return CORBA::string_dup(this->myName);
 }
 
 void
 LocMgrImpl::printList1()
 {
- 
-  char *SonName = NULL;
-  if( dataLocList.size() > 0){
-    TRACE_TEXT(TRACE_ALL_STEPS,
-    "+------------+----------------------------+" << endl <<
-    "| Data Name  | Data Manager Owner         |" << endl <<
-    "+------------+----------------------------+" << endl);
-    dataLocList.lock();
-    DataLocList_t::iterator cur = dataLocList.begin();
-    while (cur != dataLocList.end()) {
-      if(cur->second.childID_owner < static_cast<CORBA::Long>(locMgrChildren.size())) {
-	locMgrChild theLoc = locMgrChildren[cur->second.childID_owner];
-	if (theLoc.defined()) {
-	  LocMgr_ptr locChild = theLoc.getIor();
-	  SonName = locChild->setMyName();
+    char *SonName = 0;
+
+    if( dataLocList.size() > 0){
+	TRACE_TEXT(TRACE_ALL_STEPS,
+		   "+------------+----------------------------+" << std::endl <<
+		   "| Data Name  | Data Manager Owner         |" << std::endl <<
+		   "+------------+----------------------------+" << std::endl);
+	dataLocList.lock();
+	DataLocList_t::iterator cur = dataLocList.begin();
+	while (cur != dataLocList.end()) {
+	    if(cur->second.childID_owner < 
+		   static_cast<CORBA::Long>(locMgrChildren.size())) {
+		locMgrChild theLoc = locMgrChildren[cur->second.childID_owner];
+		if (theLoc.defined()) {
+		    LocMgr_ptr locChild = theLoc.getIor();
+		    SonName = locChild->setMyName();
+		}
+	    } else {
+		dataMgrChild theData = dataMgrChildren[cur->second.childID_owner];
+		if (theData.defined()) {
+		    DataMgr_ptr dataChild = theData.getIor();
+		    SonName = dataChild->setMyName();
+		}
+	    }
+	    TRACE_TEXT(TRACE_ALL_STEPS,"| " 
+		       << cur->first << " |   " << SonName  << std::endl);
+	    TRACE_TEXT(TRACE_ALL_STEPS,"+------------+" << std::endl); 
+	    ++cur;
 	}
-      } else {
-     	dataMgrChild theData = dataMgrChildren[cur->second.childID_owner];
-	if (theData.defined()) {
-	  DataMgr_ptr dataChild = theData.getIor();
-	  SonName = dataChild->setMyName();
-	  
-	}
-      }
-      TRACE_TEXT(TRACE_ALL_STEPS,"| " << cur->first << " |   " << SonName  << endl);
-      TRACE_TEXT(TRACE_ALL_STEPS,"+------------+" << endl); 
-      ++cur;
-    }
-    dataLocList.unlock();
-    TRACE_TEXT(TRACE_ALL_STEPS,"+------------+----------------------------+" << endl); 
-  } /*else {
-    cout << "+-----No Data-----+" << endl;
-  }*/
+	dataLocList.unlock();
+	TRACE_TEXT(TRACE_ALL_STEPS,
+		   "+------------+----------------------------+" << std::endl); 
+    } /*else {
+	cout << "+-----No Data-----+" << std::endl;
+	}*/
 } // printList1()
 
 
 void
 LocMgrImpl::printList()
 {
-  printList1();
-  if (this->parent != LocMgr::_nil()) {
-   this->parent->printList();
-  }
+    printList1();
+    if (this->parent != LocMgr::_nil()) {
+	this->parent->printList();
+    }
 } // printList()
 
 /**
@@ -479,70 +494,69 @@ LocMgrImpl::printList()
 char *
 LocMgrImpl::whichSeDOwner(const char* argID)
 {
-  if (this->parent == LocMgr::_nil()) {
-    dataLocList.lock();
-    dataLocList.begin();
-    if (dataLocList.find(strdup(argID)) != dataLocList.end()) { 
-      dataLocList.unlock();
-     store_desc_child_t &stored_desc = dataLocList[ms_strdup(argID)];
-      ChildID cChildID = stored_desc.childID_owner;
-    
-      if(cChildID < static_cast<CORBA::Long>(locMgrChildren.size())) {
-	locMgrChild theLoc = locMgrChildren[cChildID];
-	if (theLoc.defined()) {
-	  LocMgr_ptr locChild = theLoc.getIor();
-	  return locChild->whichSeDOwner(ms_strdup(argID)) ;
-	} else return NULL;
-      } else {
-	if(cChildID < static_cast<CORBA::Long>(dataMgrChildren.size())) {
-	  dataMgrChild theData = dataMgrChildren[cChildID];
-	  if (theData.defined()) {
-	  DataMgr_ptr dataChild = theData.getIor();
-	  return dataChild->whichSeDOwner(ms_strdup(argID)) ;
-	  } else return NULL;
+    if (this->parent == LocMgr::_nil()) {
+	dataLocList.lock();
+	dataLocList.begin();
+	if (dataLocList.find(strdup(argID)) != dataLocList.end()) { 
+	    dataLocList.unlock();
+	    store_desc_child_t &stored_desc = dataLocList[ms_strdup(argID)];
+	    ChildID cChildID = stored_desc.childID_owner;
+
+	    if(cChildID < static_cast<CORBA::Long>(locMgrChildren.size())) {
+		locMgrChild theLoc = locMgrChildren[cChildID];
+		if (theLoc.defined()) {
+		    LocMgr_ptr locChild = theLoc.getIor();
+		    return locChild->whichSeDOwner(ms_strdup(argID)) ;
+		} else return 0;
+	    } else {
+		if(cChildID < static_cast<CORBA::Long>(dataMgrChildren.size())) {
+		    dataMgrChild theData = dataMgrChildren[cChildID];
+		    if (theData.defined()) {
+			DataMgr_ptr dataChild = theData.getIor();
+			return dataChild->whichSeDOwner(ms_strdup(argID)) ;
+		    } else return 0;
+		} else {
+		    cerr << "OBJECT UNKNOWN " << std::endl;
+		    return 0;
+		}
+	    }
 	} else {
-	  cerr << "OBJECT UNKNOWN " << endl;
-	  return NULL;
+	    dataLocList.unlock();
+	    cerr << "DATA NOT IN HIERARCHY " << std::endl;
+	    return 0;
 	}
-      }
-    } else {
-      dataLocList.unlock();
-      cerr << "DATA NOT IN HIERARCHY " << endl;
-      return NULL;
-    }
-
-  } else { /** I am not root Loc Manager */ 
-    dataLocList.lock();
-    dataLocList.begin();
-    if (dataLocList.find(strdup(argID)) != dataLocList.end()) { /** Data Reference found */
-      dataLocList.unlock();
-      store_desc_child_t &stored_desc = dataLocList[ms_strdup(argID)];
-      ChildID cChildID = stored_desc.childID_owner;
-      if(cChildID < static_cast<CORBA::Long>(locMgrChildren.size())) {
-	locMgrChild theLoc = locMgrChildren[cChildID];
-	if (theLoc.defined()){
-	  LocMgr_ptr locChild = theLoc.getIor();
-	  return locChild->whichSeDOwner(ms_strdup(argID)) ;
-	  
-	} else return NULL;
-      } else {
-
-	if(cChildID < static_cast<CORBA::Long>(dataMgrChildren.size())) {
-	  dataMgrChild theData = dataMgrChildren[cChildID];
-	  if (theData.defined()){
-	    DataMgr_ptr dataChild = theData.getIor();
-	    return dataChild->whichSeDOwner(ms_strdup(argID));
-	  } else return NULL;
+	
+    } else { /** I am not root Loc Manager */ 
+	dataLocList.lock();
+	dataLocList.begin();
+	/** Data Reference found */
+	if (dataLocList.find(strdup(argID)) != dataLocList.end()) {
+	    dataLocList.unlock();
+	    store_desc_child_t &stored_desc = dataLocList[ms_strdup(argID)];
+	    ChildID cChildID = stored_desc.childID_owner;
+	    if(cChildID < static_cast<CORBA::Long>(locMgrChildren.size())) {
+		locMgrChild theLoc = locMgrChildren[cChildID];
+		if (theLoc.defined()){
+		    LocMgr_ptr locChild = theLoc.getIor();
+		    return locChild->whichSeDOwner(ms_strdup(argID)) ;
+		} else return 0;
+	    } else {
+		if(cChildID < static_cast<CORBA::Long>(dataMgrChildren.size())) {
+		    dataMgrChild theData = dataMgrChildren[cChildID];
+		    if (theData.defined()){
+			DataMgr_ptr dataChild = theData.getIor();
+			return dataChild->whichSeDOwner(ms_strdup(argID));
+		    } else return 0;
+		} else {
+		    return 0; 
+		}
+	    }
 	} else {
-	  return NULL; 
+	    /** data Reference not found - invoke my parent */
+	    dataLocList.unlock();
+	    return this->parent->whichSeDOwner(ms_strdup(argID));
 	}
-      }
-    } else {
-       dataLocList.unlock(); /** data Reference not found - invoke my parent */
-      return this->parent->whichSeDOwner(ms_strdup(argID));
     }
-  }
-
 } // whichSeDOwner(const char* argID)
 
  
@@ -552,26 +566,27 @@ LocMgrImpl::whichSeDOwner(const char* argID)
 char*
 LocMgrImpl::whereData(const char* argID)
 {
-  /** Check first if data exists locally or in subtree */
-  char* dataMgrRef = this->whereDataSubtree(argID);
+    /** Check first if data exists locally or in subtree */
+    char* dataMgrRef = this->whereDataSubtree(argID);
 
-  if (strcmp(dataMgrRef, "")==0) {
-    dataLocList.lock();
-    dataLocList.begin();
+    if (strcmp(dataMgrRef, "") == 0) {
+	dataLocList.lock();
+	dataLocList.begin();
 
-    /** Not found.  Try looking to parent if not the root node */
-    if (this->parent == LocMgr::_nil()) {
-      /** I am the root Loc Manager */
-      dataLocList.unlock();
-      WARNING("Data item " << argID << " not found in hierarchy" << endl);
-      dataMgrRef = CORBA::string_dup("");
-    } else {
-      /** I am not the root.  Try asking my parent. */
-      dataLocList.unlock();
-      dataMgrRef = this->parent->whereData(ms_strdup(argID));
+	/** Not found.  Try looking to parent if not the root node */
+	if (this->parent == LocMgr::_nil()) {
+	    /** I am the root Loc Manager */
+	    dataLocList.unlock();
+	    WARNING("Data item " 
+		    << argID << " not found in hierarchy" << std::endl);
+	    dataMgrRef = CORBA::string_dup("");
+	} else {
+	    /** I am not the root.  Try asking my parent. */
+	    dataLocList.unlock();
+	    dataMgrRef = this->parent->whereData(ms_strdup(argID));
+	}
     }
-  }
-  return dataMgrRef;
+    return dataMgrRef;
 } // whereData(const char* argID)
 
 /**
@@ -581,118 +596,126 @@ LocMgrImpl::whereData(const char* argID)
 char*
 LocMgrImpl::whereDataSubtree(const char* argID)
 {
-  dataLocList.lock();
-  dataLocList.begin();
+    dataLocList.lock();
+    dataLocList.begin();
 
-  if (dataLocList.find(strdup(argID)) != dataLocList.end()) {
-    /** Data location found */
-    dataLocList.unlock();
-    store_desc_child_t &stored_desc = dataLocList[ms_strdup(argID)];
-    ChildID cChildID = stored_desc.childID_owner;
+    if (dataLocList.find(strdup(argID)) != dataLocList.end()) {
+	/** Data location found */
+	dataLocList.unlock();
+	store_desc_child_t &stored_desc = dataLocList[ms_strdup(argID)];
+	ChildID cChildID = stored_desc.childID_owner;
 
-    if(cChildID < static_cast<CORBA::Long>(locMgrChildren.size())) {
-      /** Data available with a LocMgr */
-      locMgrChild theLoc =  locMgrChildren[cChildID];
-      if (theLoc.defined()) {
-        LocMgr_ptr locChild = theLoc.getIor();
-        return locChild->whereDataSubtree(ms_strdup(argID)) ;
-      } else {
-        return CORBA::string_dup("");
-      }
-
+	if(cChildID < static_cast<CORBA::Long>(locMgrChildren.size())) {
+	    /** Data available with a LocMgr */
+	    locMgrChild theLoc =  locMgrChildren[cChildID];
+	    if (theLoc.defined()) {
+		LocMgr_ptr locChild = theLoc.getIor();
+		return locChild->whereDataSubtree(ms_strdup(argID)) ;
+	    } else {
+		return CORBA::string_dup("");
+	    }
+	    
+	} else {
+	    /** Data available with a dataMgr */
+	    if(cChildID < static_cast<CORBA::Long>(dataMgrChildren.size())) {
+		dataMgrChild theData = dataMgrChildren[cChildID];
+		if (theData.defined()) {
+		    DataMgr_ptr dataChild = theData.getIor();
+		    return dataChild->whereData(ms_strdup(argID)) ;
+		} else {
+		    return CORBA::string_dup("");
+		}
+	    } else {
+		WARNING("Unknown object cChildID" << std::endl);
+		return CORBA::string_dup("");
+	    }
+	}
     } else {
-      /** Data available with a dataMgr */
-      if(cChildID < static_cast<CORBA::Long>(dataMgrChildren.size())) {
-        dataMgrChild theData = dataMgrChildren[cChildID];
-        if (theData.defined()) {
-          DataMgr_ptr dataChild = theData.getIor();
-          return dataChild->whereData(ms_strdup(argID)) ;
-        } else {
-          return CORBA::string_dup("");
-        }
-      } else {
-        WARNING("Unknown object cChildID" << endl);
-        return CORBA::string_dup("");
-      }
+	dataLocList.unlock();
+	TRACE_TEXT(TRACE_STRUCTURES, "Data " 
+		   << argID << " not in subhierarchy" << std::endl);
+	return CORBA::string_dup("");
     }
-  } else {
-    dataLocList.unlock();
-    TRACE_TEXT(TRACE_STRUCTURES, "Data " << argID << " not in subhierarchy" << endl);
-    return CORBA::string_dup("");
-  }
 } // whereDataSubtree(const char* argID)
 
 
 void
 LocMgrImpl::updateDataProp(const char *argID)
 {
-  if (this->parent == LocMgr::_nil()) {
-    this->parent->updateDataProp(ms_strdup(argID));
-  }
+    if (this->parent == LocMgr::_nil()) {
+	this->parent->updateDataProp(ms_strdup(argID));
+    }
 }
 
 // Forwarders part
-LocMgrFwdrImpl::LocMgrFwdrImpl(Forwarder_ptr fwdr,
-															 const char* objName)
+LocMgrFwdrImpl::LocMgrFwdrImpl(Forwarder_ptr fwdr, const char* objName)
 {
-	this->forwarder = Forwarder::_duplicate(fwdr);
-	this->objName = CORBA::string_dup(objName);
+    this->forwarder = Forwarder::_duplicate(fwdr);
+    this->objName = CORBA::string_dup(objName);
 }
 
-::CORBA::ULong LocMgrFwdrImpl::locMgrSubscribe(const char* me,
-																							 const char* hostName)
+::CORBA::ULong LocMgrFwdrImpl::locMgrSubscribe(const char* me, 
+					       const char* hostName)
 {
-	return forwarder->locMgrSubscribe(me, hostName, objName);
+    return forwarder->locMgrSubscribe(me, hostName, objName);
 }
 
 ::CORBA::ULong LocMgrFwdrImpl::dataMgrSubscribe(const char* me,
-																								const char* hostName)
+						const char* hostName)
 {
-	return forwarder->dataMgrSubscribe(me, hostName, objName);
+    return forwarder->dataMgrSubscribe(me, hostName, objName);
 }
 
 void LocMgrFwdrImpl::addDataRef(const ::corba_data_desc_t& arg,
-																::CORBA::ULong cChildID)
+				::CORBA::ULong cChildID)
 {
-	forwarder->addDataRef(arg, cChildID, objName);
+    forwarder->addDataRef(arg, cChildID, objName);
 }
 
 void LocMgrFwdrImpl::rmDataRefLocMgr(const char* argID,
-																		 ::CORBA::ULong cChildID)
+				     ::CORBA::ULong cChildID)
 {
-	forwarder->rmDataRefLocMgr(argID, cChildID, objName);
+    forwarder->rmDataRefLocMgr(argID, cChildID, objName);
 }
 
 void LocMgrFwdrImpl::updateDataRef(const ::corba_data_desc_t& arg,
-																	 ::CORBA::ULong cChildID, ::CORBA::Long upDown)
+				   ::CORBA::ULong cChildID,
+				   ::CORBA::Long upDown)
 {
-	forwarder->updateDataRef(arg, cChildID, upDown, objName);
+    forwarder->updateDataRef(arg, cChildID, upDown, objName);
 }
 
-char* LocMgrFwdrImpl::whereData(const char* argID) {
-	return forwarder->whereData(argID, objName);
+char* LocMgrFwdrImpl::whereData(const char* argID)
+{
+    return forwarder->whereData(argID, objName);
 }
 
-char* LocMgrFwdrImpl::whereDataSubtree(const char* argID) {
-	return forwarder->whereDataSubtree(argID, objName);
+char* LocMgrFwdrImpl::whereDataSubtree(const char* argID)
+{
+    return forwarder->whereDataSubtree(argID, objName);
 }
 
-void LocMgrFwdrImpl::updateDataProp(const char* argID) {
-	forwarder->updateDataProp(argID, objName);
+void LocMgrFwdrImpl::updateDataProp(const char* argID)
+{
+    forwarder->updateDataProp(argID, objName);
 }
 
-::CORBA::Long LocMgrFwdrImpl::rm_pdata(const char* argID) {
-	return forwarder->rm_pdata(argID, objName);
+::CORBA::Long LocMgrFwdrImpl::rm_pdata(const char* argID)
+{
+    return forwarder->rm_pdata(argID, objName);
 }
 
-char* LocMgrFwdrImpl::setMyName() {
-	return forwarder->setMyName(objName);
+char* LocMgrFwdrImpl::setMyName()
+{
+    return forwarder->setMyName(objName);
 }
 
-char* LocMgrFwdrImpl::whichSeDOwner(const char* argID) {
-	return forwarder->whichSeDOwner(argID, objName);
+char* LocMgrFwdrImpl::whichSeDOwner(const char* argID)
+{
+    return forwarder->whichSeDOwner(argID, objName);
 }
 
-void LocMgrFwdrImpl::printList() {
-	forwarder->printList(objName);
+void LocMgrFwdrImpl::printList()
+{
+    forwarder->printList(objName);
 }

@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.24  2011/02/04 15:20:48  hguemar
+ * fixes to new configuration parser
+ * some cleaning
+ *
  * Revision 1.23  2010/11/24 15:18:08  bdepardo
  * searchData is now available on all agents. SeDs are now able to retrieve
  * a DAGDA data from an alias specified by a client.
@@ -101,7 +105,6 @@
 #include "MasterAgent.hh"
 #include "AgentImpl.hh"
 #include "LinkedList.hh"
-#include "Parsers.hh"
 
 #if HAVE_MULTI_MA
 #include "BindService.hh"

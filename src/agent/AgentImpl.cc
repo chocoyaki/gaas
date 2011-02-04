@@ -5,6 +5,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.70  2011/02/04 15:20:48  hguemar
+ * fixes to new configuration parser
+ * some cleaning
+ *
  * Revision 1.69  2011/02/02 13:32:28  hguemar
  * configuration parsers: environment variables, command line arguments, file configuration parser
  * moved Dagda and dietAgent (yay auto-generated help) to new configuration subsystem
@@ -321,7 +325,7 @@ AgentImpl::run()
 {
   /* Set host name */
   this->localHostName = new char[MAX_HOSTNAME_LENGTH];
-  const std::string& host = CONFIG("dietHostname");
+  const std::string& host = CONFIG(diet::DIETHOSTNAME);
   
   if (!host.empty()) {
       strncpy(this->localHostName, host.c_str(), MAX_HOSTNAME_LENGTH-1) ;
@@ -334,7 +338,7 @@ AgentImpl::run()
   this->localHostName[MAX_HOSTNAME_LENGTH-1] = '\0';
 
   /* Bind this agent to its name in the CORBA Naming Service */
-  const std::string& name = CONFIG("name");
+  const std::string& name = CONFIG(diet::NAME);
   if (name.empty()) {
       return 1;
   }
@@ -342,7 +346,7 @@ AgentImpl::run()
   this->myName = new char[name.length() + 1];
   strcpy(this->myName, name.c_str());
   
-  const std::string& agtType = CONFIG("agentType");
+  const std::string& agtType = CONFIG(diet::AGENTTYPE);
   	
   ORBMgr::getMgr()->bind(AGENTCTXT, this->myName, _this(), true);
   if (agtType == "DIET_LOCAL_AGENT") {
@@ -357,7 +361,7 @@ AgentImpl::run()
     // Init FAST (HAVE_FAST is managed by the FASTMgr class)
   return FASTMgr::init();
 #else
-  size_t use = simple_cast<size_t>(CONFIG("fastUse"));
+  size_t use = simple_cast<size_t>(CONFIG(diet::FASTUSE));
   if (!use){
       CORIMgr::add(EST_COLL_FAST,NULL);
       return CORIMgr::startCollectors();

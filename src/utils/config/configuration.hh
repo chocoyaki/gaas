@@ -1,9 +1,11 @@
 #ifndef _CONFIGURATION_HH_
 #define _CONFIGURATION_HH_
 
+#include <cstring>
 #include <iostream>
 #include <sstream>
 
+#include "constants.hh"
 #include "CommonParser.hh"
 #include "CmdParser.hh"
 #include "EnvParser.hh"
@@ -17,7 +19,7 @@ extern ConfigMap *configPtr;
 // we try accessing non-existant key
 #define CONFIG(x) getConfigValue((x))
 
-std::string& getConfigValue(const std::string& key);
+std::string& getConfigValue(diet::param_type_t key);
 
 // default zero_value set to zero
 // specialize for other types
