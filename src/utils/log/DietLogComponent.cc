@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2011/02/07 18:42:31  bdepardo
+ * Removed debug messages
+ *
  * Revision 1.4  2011/01/20 17:31:10  bdepardo
  * Mismatching allocation and deallocation
  *
@@ -302,9 +305,7 @@ PingThread::run_undetached(void* params)
 DietLogComponent::DietLogComponent(const char* name,
 				   int outBufferMaxSize, int argc, char** argv) {
   try {
-    fprintf (stderr, "Before Init \n");
     LogORBMgr::init(argc, (char **)argv, true);
-    fprintf (stderr, "After Init \n");
   } catch (...) {
     fprintf (stderr, "Failed to initialize log orb manager \n");
   }
@@ -393,13 +394,12 @@ DietLogComponent::DietLogComponent(const char* name,
 int DietLogComponent::run(const char* agentType,
                           const char* parentName,
                           int outBufferTime) {
-   fprintf (stderr, "Running \n");
     // Connexion to the LCC
     myLCC = LogORBMgr::getMgr()->resolve<LogCentralComponent, LogCentralComponent_ptr>("LogServiceC", "LCC");
     if (CORBA::is_nil(myLCC)){
       fprintf (stderr, "Failed to narrow the LCC ! \n");
     }
-   fprintf (stderr, "Running after resolve LCC\n");
+
     try{
       LogORBMgr::getMgr()->bind(LOGCOMPCTXT, myName, _this(), false);
       LogORBMgr::getMgr()->fwdsBind(LOGCOMPCTXT, myName,
@@ -408,7 +408,6 @@ int DietLogComponent::run(const char* agentType,
     catch (...){
       fprintf (stderr, "Bind failed  in the LogService context\n");
     }
-   fprintf (stderr, "Running after bind\n");
 
   // Connect myself to the LogCentral
   short ret=0;
@@ -428,7 +427,6 @@ int DietLogComponent::run(const char* agentType,
   log_time_t time = getLocalTime();
   tag_list_t currentTagList;
   try {
-   fprintf (stderr, "Running b4 connect\n");
     ret = myLCC->connectComponent(
       name,
       hostName,
@@ -437,7 +435,6 @@ int DietLogComponent::run(const char* agentType,
       time,
       currentTagList
     );
-    fprintf (stderr, "Running and connected \n");
   } catch (CORBA::SystemException &e) {
     free(msg);
     free(hostName);
