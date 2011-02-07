@@ -199,6 +199,6 @@ endif (DIET_USE_JXTA)
 
 if (DIET_USE_LOG)
   include_directories(
-    ${LOG_SRC_DIR}
+    ${LOG_INCLUDE_DIR}
     ${DIET_SOURCE_DIR}/src/utils/log)
 endif (DIET_USE_LOG)

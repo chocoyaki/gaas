@@ -19,11 +19,11 @@ endif (DIET_USE_ALT_BATCH)
 
 if (DIET_USE_LOG)
 #  MESSAGE ("${LOG_LIB_DIR}")
-#  MESSAGE ("${LOG_SRC_DIR}")
+#  MESSAGE ("${LOG_INCLUDE_DIR}")
   include_directories(
-    ${LOG_SRC_DIR}
-    ${LOG_SRC_DIR}/idl
-    ${LOG_SRC_DIR}/monitor
+    ${LOG_INCLUDE_DIR}
+    ${LOG_INCLUDE_DIR}/idl
+    ${LOG_INCLUDE_DIR}/monitor
     ${DIET_SOURCE_DIR}/src/utils/log)
 endif(DIET_USE_LOG)
 

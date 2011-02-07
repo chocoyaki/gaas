@@ -64,6 +64,6 @@ install( FILES DIET_Dagda.h DESTINATION ${INCLUDE_INSTALL_DIR})
 
 if (DIET_USE_LOG)
   include_directories(
-    ${LOG_SRC_DIR}
+    ${LOG_INCLUDE_DIR}
     ${DIET_SOURCE_DIR}/src/utils/log)
 endif (DIET_USE_LOG)

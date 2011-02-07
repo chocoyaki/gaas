@@ -2,21 +2,21 @@
 # And to set some environemment variables
 #
 # Variables set :
-# LOG_LIB_DIR  : Directory containing all the lib
-# LOG_SRC_DIR  : Directory containing the files to include
+# LOG_LIB_DIR: Directory containing all the lib
+# LOG_INCLUDE_DIR: Directory containing the files to include
 
 set (libName "LogForwarderUtils")
 MARK_AS_ADVANCED (libName)
 
-find_path(LOG_SRC_DIR LogORBMgr.hh
+find_path(LOG_INCLUDE_DIR LogORBMgr.hh
   PATHS ${LOGSERVICE_DIR}/include 
-  DOC "Directory containing the log sources")
+  DOC "Directory containing the log service include files")
 find_library(LOG_LIBRARY ${libName}
   PATHS ${LOGSERVICE_DIR}/lib 
-  DOC "The log library")
+  DOC "The log service library")
 
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(LOGSERVICE DEFAULT_MSG LOG_SRC_DIR LOG_LIBRARY)
+find_package_handle_standard_args(LOGSERVICE DEFAULT_MSG LOG_INCLUDE_DIR LOG_LIBRARY)
 
 
 if (NOT LOGSERVICE_FOUND)

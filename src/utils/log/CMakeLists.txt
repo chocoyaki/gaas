@@ -11,9 +11,9 @@ include_directories(
   ${DIET_SOURCE_DIR}/include
   ${DIET_SOURCE_DIR}/src/utils
   ${DIET_BINARY_DIR}/src/CORBA/idl
-  ${LOG_SRC_DIR}
-  ${LOG_SRC_DIR}/monitor
-  ${LOG_SRC_DIR}/idl
+  ${LOG_INCLUDE_DIR}
+  ${LOG_INCLUDE_DIR}/monitor
+  ${LOG_INCLUDE_DIR}/idl
   ${OMNIORB4_INCLUDE_DIR})
 
 

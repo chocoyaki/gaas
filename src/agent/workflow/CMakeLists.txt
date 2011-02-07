@@ -33,9 +33,9 @@ endif (DIET_USE_ALT_BATCH)
 
 if (DIET_USE_LOG)
   include_directories(
-    ${LOG_SRC_DIR}
-    ${LOG_SRC_DIR}/monitor
-    ${LOG_SRC_DIR}/idl
+    ${LOG_INCLUDE_DIR}
+    ${LOG_INCLUDE_DIR}/monitor
+    ${LOG_INCLUDE_DIR}/idl
     ${DIET_SOURCE_DIR}/src/utils/log)
 
   set(Forwarder_Libs
