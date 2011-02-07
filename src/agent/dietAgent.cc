@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.46  2011/02/07 18:54:30  hguemar
+ * fix issue with LogService configuration
+ *
  * Revision 1.45  2011/02/04 16:02:20  hguemar
  * fix build compilation
  *
@@ -201,7 +204,7 @@ public:
 	it_ = 0;
     }
 };
-    
+
 template <typename C>
 class CStringInserter
 {
@@ -214,15 +217,15 @@ public:
     {
 	c_.push_back(strdup(cstr));
     }
-    
+
     void operator() (std::ostringstream& oss)
     {
 	char *cstr = strdup(oss.str().c_str());
 	c_.push_back(cstr);
     }
-    
+
 };
-    
+
 
 int main(int argc, char* argv[], char *envp[])
 {
@@ -235,20 +238,20 @@ int main(int argc, char* argv[], char *envp[])
 
     /* Parsing */
     CmdParser cmdParser(argc, argv);
-    
+
     CmdEntry configFileEntry = { CmdParser::Param,
 				 CmdParser::Mandatory,
 				 "configFile",
 				 "config-file",
 				 "c",
 				 "configuration file" };
-    
+
     CmdEntry agentTypeEntry = { CmdParser::Option,
 				CmdParser::Optional,
 				"agentType",
 				"agent-type",
 				"T",
-				"agent type (either DIET_MASTER_AGENT or MA, " 
+				"agent type (either DIET_MASTER_AGENT or MA, "
 				"or DIET_LOCAL_AGENT or LA)" };
 
     CmdEntry agentNameEntry = { CmdParser::Option,
@@ -264,7 +267,7 @@ int main(int argc, char* argv[], char *envp[])
 				  "parent-name",
 				  "p",
 				  "parent name" };
-    
+
     CmdEntry agentTraceLevelEntry = { CmdParser::Option,
 				      CmdParser::Optional,
 				      "traceLevel",
@@ -279,16 +282,16 @@ int main(int argc, char* argv[], char *envp[])
     cmdConfig.push_back(agentNameEntry);
     cmdConfig.push_back(agentParentEntry);
     cmdConfig.push_back(agentTraceLevelEntry);
-    
+
     cmdParser.setConfig(cmdConfig);
     cmdParser.enableHelp();
     cmdParser.parse();
-    
+
     // get configuration file
     std::string& configFile = cmdParser["configFile"];
-    
+
     FileParser fileParser(configFile);
-  
+
     /* now merge our maps */
     CONFIGMAP = cmdParser.getConfiguration();
     const ConfigMap& fileMap = fileParser.getConfiguration();
@@ -300,7 +303,7 @@ int main(int argc, char* argv[], char *envp[])
     //std::string& agentName = CONFIG("name"]; // UNUSED ?
     std::string& parentName = CONFIG(diet::PARENTNAME);
     std::string& maName = CONFIG(diet::MANAME);
-  
+
     // parentName is mandatory for LA but unneeded for MA
     if (((agentType == "DIET_LOCAL_AGENT") || (agentType == "LA")) &&
 	(parentName.empty())) {
@@ -350,8 +353,8 @@ int main(int argc, char* argv[], char *envp[])
     int flushTime;
 
     // size_t --> unsigned int
-    
-    if (CONFIG(diet::USELOGSERVICE).empty()) {
+    bool useLogService = simple_cast<bool>(CONFIG(diet::USELOGSERVICE));
+    if (useLogService) {
 	WARNING(" useLogService not configured. Disabled by default" << endl);
     } else {
 	useLS = true;
@@ -364,7 +367,7 @@ int main(int argc, char* argv[], char *envp[])
 	    WARNING("lsOutbuffersize not configured, using default");
 	}
     }
-    
+
     flushTime = simple_cast<int>(CONFIG(diet::LSFLUSHINTERVAL));
     if (!flushTime) {
 	flushTime = 10000;
@@ -386,7 +389,7 @@ int main(int argc, char* argv[], char *envp[])
 	}
 
 	// the agent names should be correct if we arrive here
-	dietLogComponent = new DietLogComponent(agtName, 
+	dietLogComponent = new DietLogComponent(agtName,
 						outBufferSize,
 						args.size(),
 						&args[0]);
