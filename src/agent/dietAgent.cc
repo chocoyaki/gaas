@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.47  2011/02/07 19:00:53  bdepardo
+ * Correct option parsing for logService
+ *
  * Revision 1.46  2011/02/07 18:54:30  hguemar
  * fix issue with LogService configuration
  *
@@ -354,10 +357,10 @@ int main(int argc, char* argv[], char *envp[])
 
     // size_t --> unsigned int
     bool useLogService = simple_cast<bool>(CONFIG(diet::USELOGSERVICE));
-    if (useLogService) {
-	WARNING(" useLogService not configured. Disabled by default" << endl);
+    if (!useLogService) {
+      WARNING("useLogService disabled" << endl);
     } else {
-	useLS = true;
+      useLS = true;
     }
 
     if (useLS) {
