@@ -10,6 +10,10 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.21  2011/02/08 09:44:18  bdepardo
+ * getParentName returns 0 if the agent is an MA and the parentName property
+ * is set nevertheless
+ *
  * Revision 1.20  2011/02/04 15:20:49  hguemar
  * fixes to new configuration parser
  * some cleaning
@@ -210,6 +214,14 @@ unsigned long DagdaFactory::getMaxMemSpace() {
 
 const char* DagdaFactory::getParentName() {
     std::string result = CONFIG(diet::PARENTNAME);
+    std::string agentType = CONFIG(diet::AGENTTYPE);
+
+    if (!result.empty() && !agentType.empty() && 
+        (agentType == "MA" || agentType == "DIET_MASTER_AGENT")) {
+      WARNING("Agent data manager found a parent name "
+              "for the agent, but this agent is a Master Agent");
+      return 0;
+    }
 
     if (result.empty()) {
 	return 0;
@@ -338,10 +350,11 @@ DagdaImpl* DagdaFactory::getAgentDataManager() {
     if (!agentDataManager) {
 	const char* parentName = getParentName();
 	const char* name = getAgentName();
+
 	if (!name) {
-	    WARNING("Agent data manager didn't find a valid name "
-		    "for the agent in the configuration file.");
-	    name = getDefaultName();
+          WARNING("Agent data manager didn't find a valid name "
+                  "for the agent in the configuration file.");
+          name = getDefaultName();
 	}
 	agentDataManager = createDataManager(DGD_AGENT_MNGR);
 	
