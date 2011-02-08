@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.43  2011/02/08 16:53:50  bdepardo
+ * Fixed dynamics. They didn't work anymore
+ *
  * Revision 1.42  2011/02/04 14:52:52  bdepardo
  * Removed unused variable
  *
@@ -72,14 +75,6 @@
  *
  ***********************************************************/
 
-#include "Dagda.hh"
-#include "common_types.hh"
-
-#include "ORBMgr.hh"
-#include "DIET_data.h"
-#include "DIET_data_internal.hh"
-#include "debug.hh"
-#include "marshalling.hh"
 
 #include <unistd.h>
 #include <cerrno>
@@ -91,6 +86,15 @@
 #include <fstream>
 #include <sstream>
 #include <iterator>
+
+#include "Dagda.hh"
+#include "common_types.hh"
+
+#include "ORBMgr.hh"
+#include "DIET_data.h"
+#include "DIET_data_internal.hh"
+#include "debug.hh"
+#include "marshalling.hh"
 
 #include "DagdaImpl.hh"
 #include "DagdaFactory.hh"
@@ -419,8 +423,12 @@ void SimpleDagdaImpl::subscribeParent(const char * parentID) {
     dagdaParentID += "_DAGDA";
     parentID = CORBA::string_dup(dagdaParentID.c_str());
     
-    Dagda_ptr parent = ORBMgr::getMgr()->resolve<Dagda, Dagda_ptr>(DAGDACTXT, parentID);
-    //Dagda::_duplicate(Dagda::_narrow(ORBMgr::getObjReference(ORBMgr::DATAMGR, parentID)));
+    Dagda_ptr parent;
+    try {
+      parent = ORBMgr::getMgr()->resolve<Dagda, Dagda_ptr>(DAGDACTXT, parentID);
+    } catch (...) {
+      parent = Dagda::_nil();
+    }
     
     /* We only change the parent if it exists */
     if (!CORBA::is_nil(parent)) {
@@ -501,7 +509,12 @@ int SimpleDagdaImpl::init(const char* ID, const char* parentID,
   else {
     parentID = CORBA::string_dup(parentID);
 
-    Dagda_ptr parent = ORBMgr::getMgr()->resolve<Dagda,Dagda_ptr>(DAGDACTXT, parentID);
+    Dagda_ptr parent;
+    try {
+      parent = ORBMgr::getMgr()->resolve<Dagda,Dagda_ptr>(DAGDACTXT, parentID);
+    } catch (...) {
+      parent = Dagda::_nil();
+    }
 		
     if (CORBA::is_nil(parent))
       setParent(NULL);

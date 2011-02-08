@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.127  2011/02/08 16:53:52  bdepardo
+ * Fixed dynamics. They didn't work anymore
+ *
  * Revision 1.126  2011/01/23 19:19:58  bdepardo
  * Fixed memory and resources leaks, variables scopes, unread variables
  *
@@ -504,11 +507,14 @@ SeDImpl::bindParent(const char * parentName) {
   profiles = SrvT->getProfiles();
 
   /* Does the new parent exists? */
-  Agent_var parentTmp =
-    ORBMgr::getMgr()->resolve<Agent,Agent_var>(AGENTCTXT, parentName);
+  Agent_var parentTmp;
+  try {
+    parentTmp =
+      ORBMgr::getMgr()->resolve<Agent,Agent_var>(AGENTCTXT, parentName);
+  } catch (...) {
+    parentTmp = Agent::_nil();
+  }
 	
-  /*  Agent::_duplicate(Agent::_narrow(ORBMgr::getObjReference(ORBMgr::AGENT,
-      parentName)));*/
   if (CORBA::is_nil(parentTmp)) {
     if (CORBA::is_nil(this->parent)) {
       WARNING("cannot locate agent " << parentName << ", will now wait");
@@ -526,7 +532,7 @@ SeDImpl::bindParent(const char * parentName) {
       /* Unsubscribe from parent */
       this->parent->childUnsubscribe(childID, *profiles);
       this->parent = Agent::_nil();
-
+      
       /* Unsubscribe data manager */
       this->dataManager->unsubscribeParent();
     } catch (CORBA::Exception& e) {
@@ -541,7 +547,7 @@ SeDImpl::bindParent(const char * parentName) {
 
   /* Now we try to subscribe to a new parent */
   this->parent = parentTmp;
-
+  
   try {
     childID = this->parent->serverSubscribe(myName, localHostName,
 #if HAVE_JXTA
@@ -673,10 +679,14 @@ SeDImpl::run(ServiceTable* services)
     WARNING("no parent specified, will now wait");
 #endif // HAVE_DYNAMICS
   }
-  parent =
-    ORBMgr::getMgr()->resolve<Agent, Agent_var>(AGENTCTXT, parent_name);
-  /*  Agent::_duplicate(Agent::_narrow(ORBMgr::getObjReference(ORBMgr::AGENT,
-      parent_name)));*/
+
+  try {
+    parent =
+      ORBMgr::getMgr()->resolve<Agent, Agent_var>(AGENTCTXT, parent_name);
+  } catch (...) {
+    parent = Agent::_nil();
+  }
+
   if (CORBA::is_nil(parent)) {
 #ifndef HAVE_DYNAMICS
     ERROR("cannot locate agent " << parent_name, 1);
