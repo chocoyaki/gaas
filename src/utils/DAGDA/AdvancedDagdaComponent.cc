@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2011/02/08 23:56:31  bdepardo
+ * Removed useless \ in code
+ *
  * Revision 1.9  2011/02/08 23:49:30  bdepardo
  * Removed useless \ in code
  *
@@ -78,10 +81,10 @@ char* AdvancedDagdaComponent::sendData(const char* ID, const char* destName) {
   ret = DagdaImpl::sendData(ID, destName);
   gettimeofday(&tv2, NULL);
 	
-  double elapsed = (tv2.tv_sec-tv1.tv_sec) * 1000000 + \
-	(tv2.tv_usec-tv1.tv_usec);
-  TRACE_TEXT(TRACE_ALL_STEPS, "Data " << data->desc.id.idNumber <<
-						 " transfered in " << elapsed << " microsecond(s)." << endl);
+  double elapsed = (tv2.tv_sec-tv1.tv_sec) * 1000000
+    + (tv2.tv_usec-tv1.tv_usec);
+  TRACE_TEXT(TRACE_ALL_STEPS, "Data " << data->desc.id.idNumber
+             << " transfered in " << elapsed << " microsecond(s)." << endl);
 	
 	//   if (getLogComponent())
 	//     getLogComponent()->logDataTransferTime(data->desc.id.idNumber,
