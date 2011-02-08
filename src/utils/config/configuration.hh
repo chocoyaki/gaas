@@ -11,6 +11,12 @@
 #include "EnvParser.hh"
 #include "FileParser.hh"
 
+
+#ifndef DIET_VERSION
+#define DIET_VERSION "0.0.0"
+#endif
+
+
 // TODO: not thread-safe
 extern ConfigMap *configPtr;
 // simplify code using global configuration map
@@ -24,23 +30,21 @@ std::string& getConfigValue(diet::param_type_t key);
 // default zero_value set to zero
 // specialize for other types
 template <typename T>
-class simple_cast_traits
-{
+class simple_cast_traits {
 public:
-    static const T zero_value = 0;
+  static const T zero_value = 0;
 };
 
 // poor's man lexical_cast
 // empty strings are handled by using a traits class
 template <typename T, typename S>
-T simple_cast(const S& arg)
-{
-    T output = simple_cast_traits<T>::zero_value;
-    std::stringstream buffer;
-    buffer << arg;
-    buffer >> output;
+T simple_cast(const S& arg) {
+  T output = simple_cast_traits<T>::zero_value;
+  std::stringstream buffer;
+  buffer << arg;
+  buffer >> output;
     
-    return output;
+  return output;
 }
 
 #endif /* _CONFIGURATION_HH_ */
