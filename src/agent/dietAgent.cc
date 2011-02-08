@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.49  2011/02/08 16:53:01  bdepardo
+ * Add DIET version
+ *
  * Revision 1.48  2011/02/08 09:44:43  bdepardo
  * Typo in warning message
  *
@@ -184,6 +187,7 @@ using namespace std;
 #include "DagdaFactory.hh"
 #endif /* HAVE_DAGDA */
 
+
 /** The trace level. */
 extern unsigned int TRACE_LEVEL;
 
@@ -201,46 +205,45 @@ LocMgrImpl *Loc;
 #endif /* ! HAVE_JUXMEM && ! HAVE_DAGDA */
 
 
-class CStringDeleter
-{
+class CStringDeleter {
 public:
-    void operator() (char *it_) const
-    {
-	free(it_);
-	it_ = 0;
-    }
+  void
+  operator() (char *it_) const {
+    free(it_);
+    it_ = 0;
+  }
 };
 
 template <typename C>
-class CStringInserter
-{
+class CStringInserter {
 private:
-    C& c_;
+  C& c_;
 public:
-    explicit CStringInserter(C& c) : c_(c) {}
-
-    void operator() (const char *cstr)
-    {
-	c_.push_back(strdup(cstr));
-    }
-
-    void operator() (std::ostringstream& oss)
-    {
-	char *cstr = strdup(oss.str().c_str());
-	c_.push_back(cstr);
-    }
-
+  explicit CStringInserter(C& c) : c_(c) {}
+  
+  void
+  operator() (const char *cstr) {
+    c_.push_back(strdup(cstr));
+  }
+  
+  void
+  operator() (std::ostringstream& oss) {
+    char *cstr = strdup(oss.str().c_str());
+    c_.push_back(cstr);
+  }
 };
 
 
-int main(int argc, char* argv[], char *envp[])
-{
+int main(int argc, char* argv[], char *envp[]) {
     // use std::vector instead of C array
     // C++ standard guarantees that its storage is contiguous (C++ Faq 34.3)
     std::vector<char *> args(argv, argv+argc);
     CStringInserter<std::vector<char *> > ins(args);
     // Configuration map
     int res(0);
+    
+    std::string copyright = ""; // TODO : add a copyright
+    std::string version = DIET_VERSION;
 
     /* Parsing */
     CmdParser cmdParser(argc, argv);
@@ -290,7 +293,8 @@ int main(int argc, char* argv[], char *envp[])
     cmdConfig.push_back(agentTraceLevelEntry);
 
     cmdParser.setConfig(cmdConfig);
-    cmdParser.enableHelp();
+    cmdParser.enableHelp(true);
+    cmdParser.enableVersion(version, copyright);
     cmdParser.parse();
 
     // get configuration file
