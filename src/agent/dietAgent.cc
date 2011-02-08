@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.48  2011/02/08 09:44:43  bdepardo
+ * Typo in warning message
+ *
  * Revision 1.47  2011/02/07 19:00:53  bdepardo
  * Correct option parsing for logService
  *
@@ -358,7 +361,7 @@ int main(int argc, char* argv[], char *envp[])
     // size_t --> unsigned int
     bool useLogService = simple_cast<bool>(CONFIG(diet::USELOGSERVICE));
     if (!useLogService) {
-      WARNING("useLogService disabled" << endl);
+      WARNING("useLogService disabled");
     } else {
       useLS = true;
     }
