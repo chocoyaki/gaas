@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.35  2011/02/09 17:17:10  bdepardo
+ * Use NULL instead of 0
+ *
  * Revision 1.34  2011/02/09 15:13:24  bdepardo
  * Changed cout and cerr to TRACE_TEXT
  *
@@ -54,7 +57,7 @@
 
 using namespace std;
 
-ORBMgr * ORBMgr::theMgr = 0;
+ORBMgr * ORBMgr::theMgr = NULL;
 
 /* Manager initialization. */
 void ORBMgr::init(CORBA::ORB_ptr ORB) {
