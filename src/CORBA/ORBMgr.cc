@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.34  2011/02/09 15:13:24  bdepardo
+ * Changed cout and cerr to TRACE_TEXT
+ *
  * Revision 1.33  2010/12/29 14:56:13  hguemar
  * set static ORBMgr instance to 0
  *
@@ -47,6 +50,7 @@
 
 #include "ORBMgr.hh"
 #include "Forwarder.hh"
+#include "debug.hh"
 
 using namespace std;
 
@@ -218,7 +222,7 @@ void ORBMgr::fwdsUnbind(const string& ctxt, const string& name,
     try {
       fwd->unbind(objName.c_str());
     } catch (const CORBA::TRANSIENT& err) {
-      cerr << "Unable to contact DIET forwarder " << *it << endl;
+      TRACE_TEXT(TRACE_ALL_STEPS, "Unable to contact DIET forwarder " << *it << endl);
       continue;
     }
   }
@@ -248,27 +252,27 @@ CORBA::Object_ptr ORBMgr::resolveObject(const string& context, const string& nam
     cacheMutex.unlock();
 		
     try {
-      cout << "Check if the object is still present" << endl;
+      TRACE_TEXT(TRACE_ALL_STEPS, "Check if the object is still present" << endl);
       if (ptr->_non_existent()) {
-	cout << "Remove non existing object from cache (" << ctxt
-	     << "/" << name << ")" << endl;
+	TRACE_TEXT(TRACE_ALL_STEPS, "Remove non existing object from cache (" << ctxt
+                   << "/" << name << ")" << endl);
 	removeObjectFromCache(name);
       } else {
-	cout << "Use object from cache (" << ctxt
-	     << "/" << name << ")" << endl;
+	TRACE_TEXT(TRACE_ALL_STEPS, "Use object from cache (" << ctxt
+                   << "/" << name << ")" << endl);
 	return ptr;
       }
     } catch (const CORBA::OBJECT_NOT_EXIST& err) {
-      cout << "Remove non existing object from cache (" << ctxt
-	   << "/" << name << ")" << endl;
+      TRACE_TEXT(TRACE_ALL_STEPS, "Remove non existing object from cache (" << ctxt
+                 << "/" << name << ")" << endl);
       removeObjectFromCache(name);
     } catch (const CORBA::TRANSIENT& err) {
-      cout << "Remove unreachable object from cache (" << ctxt
-	   << "/" << name << ")" << endl;
+      TRACE_TEXT(TRACE_ALL_STEPS, "Remove unreachable object from cache (" << ctxt
+                 << "/" << name << ")" << endl);
       removeObjectFromCache(name);
     } catch (const CORBA::COMM_FAILURE& err) {
-      cout << "Remove unreachable object from cache (" << ctxt
-	   << "/" << name << ")" << endl;
+      TRACE_TEXT(TRACE_ALL_STEPS, "Remove unreachable object from cache (" << ctxt
+                 << "/" << name << ")" << endl);
       removeObjectFromCache(name);
     }
   }
@@ -304,11 +308,11 @@ CORBA::Object_ptr ORBMgr::resolveObject(const string& context, const string& nam
 	string objName = ctxt+"/"+name;
 	string ior = getIOR(object);
 	string objHost = getHost(ior);
-	cout << "Ask forwarder " << *it << " for host " << objHost << endl;
+	TRACE_TEXT(TRACE_ALL_STEPS, "Ask forwarder " << *it << " for host " << objHost << endl);
 	try {
 	  if (fwd->manage(objHost.c_str())) {
-	    cout << "Object (" << ctxt << "/" << name << ")"
-		 << " is reachable through forwarder " << *it << endl;
+	    TRACE_TEXT(TRACE_ALL_STEPS, "Object (" << ctxt << "/" << name << ")"
+                       << " is reachable through forwarder " << *it << endl);
 	    if (ctxt==AGENTCTXT) {
 	      if (!localAgent)
 		object = fwd->getMasterAgent(name.c_str());
@@ -357,16 +361,16 @@ CORBA::Object_ptr ORBMgr::resolveObject(const string& context, const string& nam
 	    }
 #endif
 	  } else {
-	    cout << "Direct access to object " << ctxt << "/" << name << endl;
+	    TRACE_TEXT(TRACE_ALL_STEPS, "Direct access to object " << ctxt << "/" << name << endl);
 	  }
 	} catch (const CORBA::TRANSIENT& err) {
-	  cerr << "Unable to contact DIET forwarder \"" << *it << "\"" << endl;
+	  TRACE_TEXT(TRACE_ALL_STEPS, "Unable to contact DIET forwarder \"" << *it << "\"" << endl);
 	  continue;
 	}
       }
     }
   } catch (CosNaming::NamingContext::NotFound& err) {
-    cerr << "Error resolving " << ctxt << "/" << name << endl;
+    TRACE_TEXT(TRACE_ALL_STEPS, "Error resolving " << ctxt << "/" << name << endl);
     throw runtime_error("Error resolving "+ctxt+"/"+name);
   }
   cacheMutex.lock();
