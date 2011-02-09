@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2011/02/09 14:27:11  bdepardo
+ * Fixed default value when using a container
+ *
  * Revision 1.5  2009/08/26 10:32:11  bisnard
  * corrected  warnings
  *
@@ -99,7 +102,11 @@ WfExprVariable::setValue(const std::string& varValue) {
 
 void
 WfExprVariable::setDefaultValue() {
-  myValue =  "0";
+  if (myType != WfCst::TYPE_CONTAINER) {
+    myValue =  "0";
+  } else {
+    myValue = "<array><item value=\"0\"/></array>";
+  }
 }
 
 /*****************************************************************************/
