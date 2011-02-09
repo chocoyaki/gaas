@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.22  2011/02/09 16:31:43  bdepardo
+ * Do not check data type in initSourceData()
+ *
  * Revision 1.21  2010/12/17 09:48:02  kcoulomb
  * * Set diet to use the new log with forwarders
  * * Fix a CoRI problem
@@ -538,12 +541,12 @@ DagNodeInPort::initSourceData() throw (WfDataException) {
 
   // Check types are matching
   // FIXME this is using static type which has already been checked so unuseful ?
-  if (adapter->getSourceDataType() != getDataType()) {
-    string errorMsg = "port " + getId() + " of node " + getParent()->getId()
-                      + " got data with wrong type ("
-                      + WfCst::cvtWfToStrType(adapter->getSourceDataType()) + ")";
-    throw (WfDataException(WfDataException::eWRONGTYPE, errorMsg));
-  }
+  // if (adapter->getSourceDataType() != getDataType()) {
+  //   string errorMsg = "port " + getId() + " of node " + getParent()->getId()
+  //                     + " got data with wrong type ("
+  //                     + WfCst::cvtWfToStrType(adapter->getSourceDataType()) + ")";
+  //   throw (WfDataException(WfDataException::eWRONGTYPE, errorMsg));
+  // }
   // Store ID in profile
   if (profile()) {
     if (!myDataID.empty()) {
