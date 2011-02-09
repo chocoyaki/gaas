@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.96  2011/02/09 09:36:35  bdepardo
+ * Quick hack, for the SeD to work with the new parser
+ *
  * Revision 1.95  2011/01/20 17:36:59  bdepardo
  * Removed memory leak
  *
@@ -233,10 +236,11 @@
  ****************************************************************************/
 
 #include <iostream>
-using namespace std;
 #include <unistd.h>  // For gethostname()
 #include <cstdlib>
 #include <csignal>
+
+using namespace std;
 
 #include "DIET_server.h"
 
@@ -247,6 +251,7 @@ using namespace std;
 #include "Parsers.hh"
 #include "SeDImpl.hh"
 #include "Vector.h"
+#include "configuration.hh"
 
 #ifdef USE_LOG_SERVICE
 #include "DietLogComponent.hh"
@@ -814,6 +819,13 @@ diet_SeD(const char* config_file_name, int argc, char* argv[])
   myargv = (char**)malloc(argc * sizeof(char*));
   for (int i = 0; i < argc; i++)
     myargv[i] = argv[i];
+
+  /* FIXME: this is a hack for the new parser, so that it works with DAGDA
+   * We should remove the old parser as soon as possible
+   */
+  FileParser fileParser(config_file_name);
+  CONFIGMAP = fileParser.getConfiguration();
+
 
   /* Parsing */
   Parsers::Results::param_type_t compParam[] = {Parsers::Results::PARENTNAME};
