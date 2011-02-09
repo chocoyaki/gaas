@@ -10,6 +10,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.24  2011/02/09 15:09:55  hguemar
+ * configuration backend changed again: more CONFIG_XXX
+ *
  * Revision 1.23  2011/02/09 11:24:24  bdepardo
  * Code indentation.
  * Fixed bugs that had been created due to the new parser
@@ -87,7 +90,7 @@ size_t availableDiskSpace(const char* path) {
     disk_size = blocks * blksize;
     free = freeblks * blksize;
     used = disk_size - free;
-	return free;
+    return free;
   }
   return 0;
 }
@@ -103,38 +106,39 @@ unsigned long DagdaFactory::defaultMaxMsgSize =
 #ifdef __OMNIORB4__
   omniORB::giopMaxMsgSize() - 4096; // For data structure...
 #else
-  1073741824; // (1 GB)
+1073741824; // (1 GB)
 #endif
 
 unsigned long DagdaFactory::defaultMaxDiskSpace = 0;
 unsigned long DagdaFactory::defaultMaxMemSpace = 0;
 
 DagdaImpl* DagdaFactory::createDataManager(dagda_manager_type_t type) {
-  AdvancedDagdaComponent* result=NULL;
+  AdvancedDagdaComponent* result = NULL;
 
-  const std::string& algorithm = CONFIG(diet::CACHEALGORITHM);
-  bool share = simple_cast<bool>(CONFIG(diet::SHAREFILES));
-  
+  const std::string& algorithm =
+    CONFIG_STRING(diet::CACHEALGORITHM);
+  bool shareFiles = CONFIG_BOOL(diet::SHAREFILES);
+
   NetworkStats* stats = new AvgNetworkStats();
-  
+
   if (!algorithm.empty()) {
     if (algorithm == "LRU") {
-      result = new AdvancedDagdaComponent(type, LRU, stats, share);
+      result = new AdvancedDagdaComponent(type, LRU, stats, shareFiles);
     }
     if (algorithm == "LFU") {
-      result = new AdvancedDagdaComponent(type, LFU, stats, share);
+      result = new AdvancedDagdaComponent(type, LFU, stats, shareFiles);
     }
     if (algorithm == "FIFO") {
-      result = new AdvancedDagdaComponent(type, FIFO, stats, share);
+      result = new AdvancedDagdaComponent(type, FIFO, stats, shareFiles);
     }
     if (!result) {
-      WARNING("Warning: " << algorithm 
-              << " is not a valid (implemented) cache"
-              << " management algorithm.");
-      result = new AdvancedDagdaComponent(type, stats, share);
-      }
+      WARNING("Warning: " << algorithm
+	      << " is not a valid (implemented) cache"
+	      << " management algorithm.");
+      result = new AdvancedDagdaComponent(type, stats, shareFiles);
+    }
   } else  {
-    result = new AdvancedDagdaComponent(type, stats, share);
+    result = new AdvancedDagdaComponent(type, stats, shareFiles);
   }
 
   return result;
@@ -148,95 +152,92 @@ const char* DagdaFactory::getStorageDir() {
   DIR *dp;
   struct stat tmpStat;
 
-  storageDir = CONFIG(diet::STORAGEDIR);
+  storageDir = CONFIG_STRING(diet::STORAGEDIR);
   // if storageDir is empty, get default instead
   if (storageDir.empty()) {
-      storageDir = DagdaFactory::getDefaultStorageDir();
+    storageDir = DagdaFactory::getDefaultStorageDir();
   }
 
   /* Test if the directory exists */
   if((dp  = opendir(storageDir.c_str())) == NULL) {
     // create the directory with rwxr-xr-x permissions
-    if (mkdir(storageDir.c_str(), 493)) 
-      ERROR_EXIT("The DAGDA storage directory '" 
+    if (mkdir(storageDir.c_str(), 493))
+      ERROR_EXIT("The DAGDA storage directory '"
 		 << storageDir << "' cannot be opened");
   } else {
     closedir(dp);
   }
-  
+
   /* Test if the directory has sufficient rights */
   if (!stat(storageDir.c_str(), &tmpStat)) {
-    if (!(tmpStat.st_mode & S_IRUSR) || 
-        !(tmpStat.st_mode & S_IWUSR) || 
+    if (!(tmpStat.st_mode & S_IRUSR) ||
+        !(tmpStat.st_mode & S_IWUSR) ||
         !(tmpStat.st_mode & S_IXUSR)) {
-      ERROR_EXIT("The DAGDA storage directory '" 
-                 << storageDir 
+      ERROR_EXIT("The DAGDA storage directory '"
+                 << storageDir
                  << "' does not have sufficient rights (rwx)");
     }
   }
-  
+
   return storageDir.c_str();
 }
 
 unsigned long DagdaFactory::getMaxMsgSize() {
-  unsigned long maxMsgSize = 
-    simple_cast<unsigned long>(CONFIG(diet::MAXMSGSIZE));
-  
+  unsigned long maxMsgSize = CONFIG_ULONG(diet::MAXMSGSIZE);
+
   if (!maxMsgSize) {
     maxMsgSize = defaultMaxMsgSize;
   }
-  
+
   return maxMsgSize;
 }
 
 unsigned long DagdaFactory::getMaxDiskSpace() {
-  unsigned long maxDiskSpace = 
-    simple_cast<unsigned long>(CONFIG(diet::MAXDISKSPACE));
-  
+  unsigned long maxDiskSpace = CONFIG_ULONG(diet::MAXDISKSPACE);
+
   if (!maxDiskSpace) {
     maxDiskSpace = defaultMaxDiskSpace;
   }
-  
+
   return maxDiskSpace;
 }
 
 unsigned long DagdaFactory::getMaxMemSpace() {
-  unsigned long maxMemSpace = 
-    simple_cast<unsigned long>(CONFIG(diet::MAXMEMSPACE));
-  
+  unsigned long maxMemSpace = CONFIG_ULONG(diet::MAXMEMSPACE);
+
   if (!maxMemSpace) {
     maxMemSpace = defaultMaxMemSpace;
   }
-  
+
   return maxMemSpace;
 }
 
 const char* DagdaFactory::getParentName() {
-  std::string result = CONFIG(diet::PARENTNAME);
-  std::string agentType = CONFIG(diet::AGENTTYPE);
-  
-  if (!result.empty() && !agentType.empty() && 
+  std::string result = CONFIG_STRING(diet::PARENTNAME);
+  std::string agentType = CONFIG_AGENT(diet::AGENTTYPE);
+
+  if (!result.empty() && !agentType.empty() &&
       (agentType == "MA" || agentType == "DIET_MASTER_AGENT")) {
     WARNING("Agent data manager found a parent name "
-            "for the agent, but this agent is a Master Agent");
-    return NULL;
+	    "for the agent, but this agent is a Master Agent");
+    return 0;
   }
-  
+
   if (result.empty()) {
-    return NULL;
+    return 0;
   }
-  
+
   result.append("_DAGDA");
   return CORBA::string_dup(result.c_str());
 }
 
 const char* DagdaFactory::getAgentName() {
-  std::string result = CONFIG(diet::NAME);
-  
+  std::string result = CONFIG_STRING(diet::NAME);
+
   if (result.empty()) {
-    return NULL;
+    return 0;
   }
-  
+
   result.append("_DAGDA");
   return CORBA::string_dup(result.c_str());
 }
@@ -250,12 +251,12 @@ int chg(int c) {
 const char* DagdaFactory::getClientName() {
   std::ostringstream name;
   char host[256];
-  
+
   gethostname(host, 256);
   host[255]='\0';
-  
+
   std::transform(host, host+strlen(host), host, chg);
-  
+
   name << "DAGDA-client-" << host << "-" << getpid();
   return CORBA::string_dup(name.str().c_str());
 }
@@ -263,12 +264,12 @@ const char* DagdaFactory::getClientName() {
 const char* DagdaFactory::getSeDName() {
   std::ostringstream name;
   char host[256];
-  
+
   gethostname(host, 256);
   host[255]='\0';
-  
+
   std::transform(host, host+strlen(host), host, chg);
-  
+
   name << "DAGDA-SeD-" << host << "-" << getpid();
   return CORBA::string_dup(name.str().c_str());
 }
@@ -276,84 +277,91 @@ const char* DagdaFactory::getSeDName() {
 const char* DagdaFactory::getDefaultName() {
   std::ostringstream name;
   char host[256];
-  
+
   gethostname(host, 256);
   host[255]='\0';
-  
+
   std::transform(host, host+strlen(host), host, chg);
-  
+
   name << "DAGDA-Agent-" << host << "-" << getpid();
   return CORBA::string_dup(name.str().c_str());
 }
 
 DagdaImpl* DagdaFactory::getClientDataManager() {
-  if (!clientDataManager) {
+  if (clientDataManager) {
     clientDataManager = createDataManager(DGD_CLIENT_MNGR);
-    
+
     clientDataManager->init(getClientName(), NULL, getStorageDir(),
-                            getMaxMsgSize(), getMaxDiskSpace(),
-                            getMaxMemSpace());
+			    getMaxMsgSize(), getMaxDiskSpace(),
+			    getMaxMemSpace());
   }
   localDataManager = clientDataManager;
   return clientDataManager;
 }
 
 DagdaImpl* DagdaFactory::getSeDDataManager() {
-  const std::string& backupFile = CONFIG(diet::DATABACKUPFILE);
-   
+  const std::string& backupFile = CONFIG_STRING(diet::DATABACKUPFILE);
+  unsigned int restoreOnStart = CONFIG_BOOL(diet::RESTOREONSTART);
+
+  bool restore(false);
+
+  if (!restoreOnStart) {
+    restore = (restoreOnStart == 1);
+  }
+
   if (!sedDataManager) {
     const char* parentName = getParentName();
     if (!parentName) {
       WARNING("SeD data manager didn't find the name of the agent "
-              "in the configuration file.");
+	      "in the configuration file.");
     }
 
     sedDataManager = createDataManager(DGD_SED_MNGR);
 
     sedDataManager->init(CORBA::string_dup(getSeDName()),
-                         CORBA::string_dup(parentName),
-                         CORBA::string_dup(getStorageDir()),
-                         getMaxMsgSize(), getMaxDiskSpace(),
-                         getMaxMemSpace());
+			 CORBA::string_dup(parentName),
+			 CORBA::string_dup(getStorageDir()),
+			 getMaxMsgSize(), getMaxDiskSpace(),
+			 getMaxMemSpace());
   }
   localDataManager = sedDataManager;
-    
+
   if (!backupFile.empty()) {
     localDataManager->setStateFile(backupFile);
-    bool restore = simple_cast<bool>(CONFIG(diet::RESTOREONSTART));
     if (restore)
       localDataManager->restoreState();
   }
-    
+
   return sedDataManager;
 }
 
 DagdaImpl* DagdaFactory::getAgentDataManager() {
-  const std::string& backupFile = CONFIG(diet::DATABACKUPFILE);
-       
+  const std::string& backupFile = CONFIG_STRING(diet::DATABACKUPFILE);
+  bool restoreOnStart = CONFIG_BOOL(diet::RESTOREONSTART);
+
   if (!agentDataManager) {
     const char* parentName = getParentName();
     const char* name = getAgentName();
 
     if (!name) {
       WARNING("Agent data manager didn't find a valid name "
-              "for the agent in the configuration file.");
+	      "for the agent in the configuration file.");
       name = getDefaultName();
     }
     agentDataManager = createDataManager(DGD_AGENT_MNGR);
-	
+
     agentDataManager->init(name, parentName, getStorageDir(),
-                           getMaxMsgSize(), getMaxDiskSpace(),
-                           getMaxMemSpace());
+			   getMaxMsgSize(), getMaxDiskSpace(),
+			   getMaxMemSpace());
   }
   localDataManager = agentDataManager;
-    
-  if (!backupFile.empty()) {
+
+  if (backupFile.empty()) {
     localDataManager->setStateFile(backupFile);
-    bool restore = simple_cast<bool>(CONFIG(diet::RESTOREONSTART));
-    if (restore) {
+    if (restoreOnStart) {
       localDataManager->restoreState();
-    }	
+    }
+
   }
 
   return agentDataManager;
@@ -363,6 +371,6 @@ DagdaImpl* DagdaFactory::getDataManager() {
   if (!localDataManager) {
     throw "No local data manager was instanciated.";
   }
-  
+
   return localDataManager;
 }

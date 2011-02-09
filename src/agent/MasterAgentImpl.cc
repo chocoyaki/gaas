@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.68  2011/02/09 15:09:55  hguemar
+ * configuration backend changed again: more CONFIG_XXX
+ *
  * Revision 1.67  2011/02/04 15:20:48  hguemar
  * fixes to new configuration parser
  * some cleaning
@@ -317,8 +320,8 @@ MasterAgentImpl::run()
     if (res)
 	return res;
 
-    int tmp_val = simple_cast<int>(CONFIG(diet::INITREQUESTID));
-	
+    int tmp_val = CONFIG_INT(diet::INITREQUESTID);
+
     if (!tmp_val)
 	this->reqIDCounter = 0 ;
     else
@@ -326,7 +329,7 @@ MasterAgentImpl::run()
 
 #ifdef HAVE_MULTI_MA
     /* launch the bind service */
-    unsigned int port = simple_cast<unsigned int>(CONFIG(diet::BINDSERVICEPORT));
+    unsigned int port = CONFIG_INT(diet::BINDSERVICEPORT);
     if (port) {
 	bindSrv = new BindService(this, port) ;
 	char* bindName = ms_stralloc(strlen(localHostName) + 20);
@@ -343,7 +346,7 @@ MasterAgentImpl::run()
     TRACE_TEXT(TRACE_ALL_STEPS, "Getting MAs references ..." << std::endl);
 
     /* get the list of neighbours */
-    const std::string& neighbors = CONFIG(diet::NEIGHBOURS) ;
+    const std::string& neighbors = CONFIG_STRING(diet::NEIGHBOURS) ;
 
     // FIXME: use std::string instead
     char *neighbours = ms_strdup(neighbors.c_str()) ;
@@ -359,19 +362,19 @@ MasterAgentImpl::run()
     free(begin_copy) ;
 
     /* initialize some variables */
-    unsigned int conf = simple_cast<unsigned int>(CONFIG(diet::MINNEIGHBOURS));
+    unsigned int conf = CONFIG_INT(diet::MINNEIGHBOURS);
 
     if (conf)
 	minMAlinks = conf ;
     else
 	minMAlinks = 2;
-    conf = simple_cast<unsigned int>(CONFIG(diet::MAXNEIGHBOURS));
+    conf = CONFIG_INT(diet::MAXNEIGHBOURS);
 
     if (conf)
 	maxMAlinks = conf;
     else
 	maxMAlinks = 10;
-    conf = simple_cast<unsigned int>(CONFIG(diet::UPDATELINKPERIOD));
+    conf = CONFIG_INT(diet::UPDATELINKPERIOD);
 
     if (conf)
 	new ReferenceUpdateThread(this, conf) ;
@@ -382,7 +385,7 @@ MasterAgentImpl::run()
 
     /* num_session thread safe*/
     // NOTE: std::endl already flushes out output stream
-    TRACE_TEXT(TRACE_MAIN_STEPS, std::endl 
+    TRACE_TEXT(TRACE_MAIN_STEPS, std::endl
 	       << "Master Agent " << this->myName << " started." << std::endl);
 
 #if HAVE_DAGDA
@@ -415,7 +418,7 @@ MasterAgentImpl::get_data_id()
     uuid_t uuid;
     char ID[37];
     string id("DAGDA://id-");
-    
+
     uuid_generate(uuid);
     uuid_unparse(uuid, ID);
     id+=ID;
@@ -469,7 +472,7 @@ corba_data_desc_t*
 MasterAgentImpl::get_data_arg(const char* argID)
 {
 #if ! HAVE_DAGDA
-    /* Memory leak ??? resp is instanciated with a new 
+    /* Memory leak ??? resp is instanciated with a new
        and forgotten on the following line... */
     corba_data_desc_t* resp = new corba_data_desc_t;
     resp = locMgr->set_data_arg(argID);
@@ -499,7 +502,7 @@ MasterAgentImpl::submit(const corba_pb_desc_t& pb_profile,
 
     /* Initialize statistics module */
     stat_init();
-	
+
     try {
 	/* Initialize the corba request structure */
 	creq.reqID = reqIDCounter++; // thread safe
@@ -511,7 +514,7 @@ MasterAgentImpl::submit(const corba_pb_desc_t& pb_profile,
 	creq.clientHostname = CORBA::string_dup(clientHostname);
 	creq.clientLocationID = CORBA::string_dup(clientLocID);
 #endif /* HAVE_ALTPREDICT */
-		
+
 #ifdef USE_LOG_SERVICE
 	if (dietLogComponent) {
 	    dietLogComponent->logAskForSeD(&creq);
@@ -534,7 +537,7 @@ MasterAgentImpl::submit(const corba_pb_desc_t& pb_profile,
 	    while((decision->servers.length() == 0) &&
 		  (!floodRequest.flooded())) {
 		TRACE_TEXT(TRACE_ALL_STEPS, "multi-MAs search "
-			   << creq.pb.path 
+			   << creq.pb.path
 			   << " request (" << creq.reqID << ")" << std::endl) ;
 		int flooded = floodRequest.floodNextStep() ;
 		if (!flooded) {
@@ -545,8 +548,8 @@ MasterAgentImpl::submit(const corba_pb_desc_t& pb_profile,
 		    try {
 			floodRequestsList->get(creq.reqID) ;
 			*decision = floodRequest.getDecision() ;
-			TRACE_TEXT(TRACE_ALL_STEPS, decision->servers.length() 
-				   << " SeD have been found for request (" 
+			TRACE_TEXT(TRACE_ALL_STEPS, decision->servers.length()
+				   << " SeD have been found for request ("
 				   << creq.reqID << ")" << std::endl) ;
 		    } catch(FloodRequestNotFoundException f) {
 			WARNING("Can not found the requested decision in multi-MA search");
@@ -568,7 +571,7 @@ MasterAgentImpl::submit(const corba_pb_desc_t& pb_profile,
     } catch(...) {
 	WARNING("An exception was caught" << endl) ;
     }
-	
+
 #ifdef USE_LOG_SERVICE
     if (dietLogComponent) {
 	dietLogComponent->logSedChosen(&creq, decision);
@@ -576,7 +579,7 @@ MasterAgentImpl::submit(const corba_pb_desc_t& pb_profile,
 #endif /* USE_LOG_SERVICE */
 
     TRACE_TEXT(TRACE_MAIN_STEPS,
-	       "**************************************************" 
+	       "**************************************************"
 	       << std::endl);
     sprintf(statMsg, "stop request %ld", (unsigned long) creq.reqID);
     stat_out(this->myName,statMsg);
@@ -639,9 +642,9 @@ MasterAgentImpl::submit_local(const corba_request_t& creq)
     delete profiles;
 #endif /* ! defined HAVE_ALT_BATCH*/
     }
-	
+
     resp->myID = (ChildID) - 1;
-	
+
     // Constructor initializes sequences with length == 0
     if ((resp) && (resp->servers.length() != 0)) {
 	resp->servers.length(MIN(resp->servers.length(),
@@ -649,13 +652,13 @@ MasterAgentImpl::submit_local(const corba_request_t& creq)
 	TRACE_TEXT(TRACE_ALL_STEPS, "Decision signaled." << std::endl);
     } else {
 	TRACE_TEXT(TRACE_MAIN_STEPS,
-		   "No server found for problem " 
+		   "No server found for problem "
 		   << creq.pb.path << "." << std::endl);
     }
 
     reqList[creq.reqID] = 0;
     delete req ;
-	
+
     return resp;
 } // submit_local(const corba_request_t& req, ...)
 
@@ -700,11 +703,11 @@ void
 MasterAgentImpl::updateRefs()
 {
     //  cout << "updateRefs()" << endl ;
-	
+
     MAIds.lock() ;
     MasterAgent_var ma ;
     int loopCpt = 0 ;
-	
+
     for(StrList::iterator iter = MAIds.begin() ;
 	iter != MAIds.end() ; ++iter) {
 	if(loopCpt < maxMAlinks) {
@@ -752,8 +755,8 @@ MasterAgentImpl::updateRefs()
 CORBA::Boolean
 MasterAgentImpl::handShake(const char* maName, const char* myName)
 {
-    TRACE_TEXT(TRACE_ALL_STEPS, myName 
-	       << " is shaking my hand (" 
+    TRACE_TEXT(TRACE_ALL_STEPS, myName
+	       << " is shaking my hand ("
 	       << knownMAs.size() << "/" << maxMAlinks << ")" << std::endl) ;
     MasterAgent_ptr me =
 	ORBMgr::getMgr()->resolve<MasterAgent, MasterAgent_ptr>(AGENTCTXT,maName);
@@ -793,7 +796,7 @@ MasterAgentImpl::handShake(const char* maName, const char* myName)
 void MasterAgentImpl::searchService(const char* predecessorStr,
 				    const char* predecessorId,
 				    const corba_request_t& request) {
-	
+
     char statMsg[128];
     MasterAgent_ptr predecessor =
 	ORBMgr::getMgr()->resolve<MasterAgent, MasterAgent_ptr>(AGENTCTXT,
@@ -816,7 +819,7 @@ void MasterAgentImpl::searchService(const char* predecessorStr,
     if (! found)
 	reqIdList.insert(pos, request.reqID) ;
     reqIdList.unlock() ;
-	
+
     if (found) {
 	predecessor->alreadyContacted(request.reqID, bindName) ;
 	TRACE_TEXT(TRACE_ALL_STEPS, "already contacted for request (" <<
@@ -830,7 +833,7 @@ void MasterAgentImpl::searchService(const char* predecessorStr,
 	floodRequestsList->put(floodRequest) ;
 
 	corba_response_t* decision = submit_local(request) ;
-		
+
 	if (decision->servers.length() == 0) {
 	    predecessor->serviceNotFound(request.reqID, bindName) ;
 	    TRACE_TEXT(TRACE_ALL_STEPS, "no server for request (" <<
@@ -842,7 +845,7 @@ void MasterAgentImpl::searchService(const char* predecessorStr,
 		       request.reqID << ")" << std::endl) ;
 	}
     }
-	
+
     TRACE_TEXT(TRACE_MAIN_STEPS,
 	       "**************************************************"
 	       << std::endl);
@@ -987,7 +990,7 @@ MasterAgentImpl::logNeighbors() {
 
     str = new char[str_len];
     str[0] = 0;
-    
+
     for(MasterAgentImpl::MAList::iterator iter = knownMAs.begin();
 	iter != knownMAs.end(); ++iter) {
 	strcat(str, iter->first);
@@ -1032,13 +1035,13 @@ MasterAgentImpl::submit_pb_set(const corba_pb_desc_seq_t& seq_pb)
 	    break;
 	} else {
 	    wf_response->wfn_seq_resp.length(ix+1);
-	    wf_response->wfn_seq_resp[ix].node_id = 
+	    wf_response->wfn_seq_resp[ix].node_id =
 		CORBA::string_dup(seq_pb[ix].path);
 	    wf_response->wfn_seq_resp[ix].response = *corba_response;
 	}
 	delete corba_response;
     }
-	
+
     // Handle exception of missing service
     if (!missingService) {
 	wf_response->complete = true;
@@ -1049,7 +1052,7 @@ MasterAgentImpl::submit_pb_set(const corba_pb_desc_seq_t& seq_pb)
 	wf_response->complete = false;
 	wf_response->idxError = failureIdx;
     }
-	
+
     return wf_response;
 }
 /**
@@ -1112,7 +1115,7 @@ MasterAgentImpl::submit_pb_seq(const corba_pb_desc_seq_t& pb_seq,
 	// FIXME: update dietLogComponent with the new data structure
 	// dietLogComponent->logDagSubmit(wf_response, ptime);
     }
-#endif /* USE_LOG_SERVICE */	
+#endif /* USE_LOG_SERVICE */
     return response_seq;
 }
 #endif /* HAVE_WORKFLOW */
@@ -1137,7 +1140,7 @@ CORBA::Long MasterAgentImpl::insertData(const char* key,
 {
     attributes_t attr;
     if (catalog->exists(key)) return 1;
-    
+
     for (unsigned int i=0; i<values.length(); ++i) {
 	attr.push_back(string(values[i]));
     }

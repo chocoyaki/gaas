@@ -5,10 +5,10 @@
  * @file   CommonParser.hh
  * @author hguemar <hguemar@sysfera.com>
  * @date   Mon Jan 31 11:48:12 2011
- * 
- * @brief  
+ *
+ * @brief
  * @internal
- * 
+ *
  */
 
 #include <functional>
@@ -19,7 +19,7 @@
 
 
 extern std::ostream debug;
-extern const std::string nullString;
+extern std::string nullString;
 
 /**
  *  @typedef std::map<std::string, std::string> ConfigMap
@@ -36,7 +36,7 @@ typedef std::map<std::string, std::string> OptionMap;
 
 /**
  * @author hguemar <hguemar@sysfera.com>
- * 
+ *
  * @class StartsWith
  * @brief functor used to find short/long options
  * @internal
@@ -47,13 +47,13 @@ private:
     std::string s1;
 public:
     StartsWith(const std::string& str) : s1(str) {}
-    
+
     bool operator() (const std::string& s2) const;
 };
 
 /**
  * @author hguemar <hguemar@sysfera.com>
- * 
+ *
  * @class Splitter
  * @brief functor working as token generator
  * @internal
@@ -71,12 +71,12 @@ public:
     Splitter();
     Splitter(const char c);
     Splitter(const std::string& str, const char c);
-    
+
     bool hasNext() const { return hasNext_; }
-    
+
     void reset(const std::string& str);
     void reset(const std::string& str, const char c);
-	    
+
     std::string& operator() ();
 };
 

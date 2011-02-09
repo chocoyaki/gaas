@@ -5,6 +5,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.71  2011/02/09 15:09:55  hguemar
+ * configuration backend changed again: more CONFIG_XXX
+ *
  * Revision 1.70  2011/02/04 15:20:48  hguemar
  * fixes to new configuration parser
  * some cleaning
@@ -325,8 +328,8 @@ AgentImpl::run()
 {
   /* Set host name */
   this->localHostName = new char[MAX_HOSTNAME_LENGTH];
-  const std::string& host = CONFIG(diet::DIETHOSTNAME);
-  
+  const std::string& host = CONFIG_STRING(diet::DIETHOSTNAME);
+
   if (!host.empty()) {
       strncpy(this->localHostName, host.c_str(), MAX_HOSTNAME_LENGTH-1) ;
   } else {
@@ -334,20 +337,20 @@ AgentImpl::run()
 	  ERROR("could not get hostname", 1);
       }
   }
-  
+
   this->localHostName[MAX_HOSTNAME_LENGTH-1] = '\0';
 
   /* Bind this agent to its name in the CORBA Naming Service */
-  const std::string& name = CONFIG(diet::NAME);
+  const std::string& name = CONFIG_STRING(diet::NAME);
   if (name.empty()) {
       return 1;
   }
-  
+
   this->myName = new char[name.length() + 1];
   strcpy(this->myName, name.c_str());
-  
-  const std::string& agtType = CONFIG(diet::AGENTTYPE);
-  	
+
+  const std::string& agtType = CONFIG_AGENT(diet::AGENTTYPE);
+
   ORBMgr::getMgr()->bind(AGENTCTXT, this->myName, _this(), true);
   if (agtType == "DIET_LOCAL_AGENT") {
       ORBMgr::getMgr()->fwdsBind(LOCALAGENT, this->myName,
@@ -356,12 +359,12 @@ AgentImpl::run()
       ORBMgr::getMgr()->fwdsBind(MASTERAGENT, this->myName,
 				 ORBMgr::getMgr()->getIOR(_this()));
   }
-  
+
 #if !HAVE_CORI
     // Init FAST (HAVE_FAST is managed by the FASTMgr class)
   return FASTMgr::init();
 #else
-  size_t use = simple_cast<size_t>(CONFIG(diet::FASTUSE));
+  bool use = CONFIG_BOOL(diet::FASTUSE);
   if (!use){
       CORIMgr::add(EST_COLL_FAST,NULL);
       return CORIMgr::startCollectors();
@@ -419,12 +422,12 @@ AgentImpl::agentSubscribe(const char* name, const char* hostName,
 
   /* the size of the list is childIDCounter+1 (first index is 0) */
   this->LAChildren.resize(this->childIDCounter);
-	
+
   //LocalAgent_var meLA = LocalAgent::_narrow(me) ;
   TRACE_TEXT(TRACE_MAIN_STEPS, "Local agent name: " << name << endl);
   LocalAgent_var meLA = ORBMgr::getMgr()->resolve<LocalAgent, LocalAgent_var>(LOCALAGENT, name);
   TRACE_TEXT(TRACE_MAIN_STEPS, "Local agent IOR: " << ORBMgr::getMgr()->getIOR(meLA) << endl);
-	
+
   this->LAChildren[retID] = LAChild(meLA, hostName);
   (this->nbLAChildren)++; // thread safe Counter class
 
@@ -485,7 +488,7 @@ AgentImpl::childUnsubscribe(CORBA::ULong childID,
   this->srvTMutex.lock();
   for (size_t i = 0; i < services.length(); i++) {
     this->SrvT->rmChildService(&(services[i]), childID);
-    
+
     if (TRACE_LEVEL >= TRACE_STRUCTURES)
       this->SrvT->dump(stdout);
   }
@@ -496,7 +499,7 @@ AgentImpl::childUnsubscribe(CORBA::ULong childID,
     LAChild& childDesc = LAChildren[childID];
     if (childDesc.defined()) {
       LAChildren[childID] = LAChild();
-      --nbLAChildren;    
+      --nbLAChildren;
       childFound = true;
     }
   } else if(!childFound && childID < static_cast<CORBA::ULong>(SeDChildren.size())){

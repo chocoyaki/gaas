@@ -4,6 +4,7 @@
 #include <cstring>
 #include <iostream>
 #include <sstream>
+#include <string>
 
 #include "constants.hh"
 #include "CommonParser.hh"
@@ -21,30 +22,19 @@
 extern ConfigMap *configPtr;
 // simplify code using global configuration map
 #define CONFIGMAP (*configPtr)
-// memory saver: don't create null string each time,
-// we try accessing non-existant key
-#define CONFIG(x) getConfigValue((x))
 
-std::string& getConfigValue(diet::param_type_t key);
+bool getBoolConfigValue(diet::param_type_t key);
+int getIntConfigValue(diet::param_type_t key);
+unsigned long getULongConfigValue(diet::param_type_t key);
+std::string& getStringConfigValue(diet::param_type_t key);
+std::string& getAddressConfigValue(diet::param_type_t key);
+std::string& getAgentConfigValue(diet::param_type_t key);
 
-// default zero_value set to zero
-// specialize for other types
-template <typename T>
-class simple_cast_traits {
-public:
-  static const T zero_value = 0;
-};
-
-// poor's man lexical_cast
-// empty strings are handled by using a traits class
-template <typename T, typename S>
-T simple_cast(const S& arg) {
-  T output = simple_cast_traits<T>::zero_value;
-  std::stringstream buffer;
-  buffer << arg;
-  buffer >> output;
-    
-  return output;
-}
+#define CONFIG_BOOL(x) getBoolConfigValue((x))
+#define CONFIG_INT(x) getIntConfigValue((x))
+#define CONFIG_ULONG(x) getULongConfigValue((x))
+#define CONFIG_STRING(x) getStringConfigValue((x))
+#define CONFIG_ADDRESS(x) getAddressConfigValue((x))
+#define CONFIG_AGENT(x) getAgentConfigValue((x))
 
 #endif /* _CONFIGURATION_HH_ */

@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.50  2011/02/09 15:09:55  hguemar
+ * configuration backend changed again: more CONFIG_XXX
+ *
  * Revision 1.49  2011/02/08 16:53:01  bdepardo
  * Add DIET version
  *
@@ -309,10 +312,10 @@ int main(int argc, char* argv[], char *envp[]) {
 
 
     /* get parameters: agentType and name */
-    std::string& agentType = CONFIG(diet::AGENTTYPE);
-    //std::string& agentName = CONFIG("name"]; // UNUSED ?
-    std::string& parentName = CONFIG(diet::PARENTNAME);
-    std::string& maName = CONFIG(diet::MANAME);
+    std::string& agentType = CONFIG_AGENT(diet::AGENTTYPE);
+    //std::string& agentName = CONFIG_STRING("name"]; // UNUSED ?
+    std::string& parentName = CONFIG_STRING(diet::PARENTNAME);
+    std::string& maName = CONFIG_STRING(diet::MANAME);
 
     // parentName is mandatory for LA but unneeded for MA
     if (((agentType == "DIET_LOCAL_AGENT") || (agentType == "LA")) &&
@@ -331,12 +334,16 @@ int main(int argc, char* argv[], char *envp[]) {
     }
 
     /* Get listening port & hostname */
-    int port = simple_cast<int>(CONFIG(diet::DIETPORT));
-    const std::string& host = CONFIG(diet::DIETHOSTNAME);
+    int port = CONFIG_INT(diet::DIETPORT);
+    const std::string& host = CONFIG_STRING(diet::DIETHOSTNAME);
     if ((0 != port) || (!host.empty())) {
 	std::ostringstream endpoint;
 	ins("-ORBendPoint") ;
-	endpoint << "giop:tcp:" << host << ":" << port;
+	endpoint << "giop:tcp:" << host << ":";
+	if( -1 != port) {
+	  endpoint << port;
+	}
+
 	ins(endpoint);
     }
 
@@ -363,7 +370,7 @@ int main(int argc, char* argv[], char *envp[]) {
     int flushTime;
 
     // size_t --> unsigned int
-    bool useLogService = simple_cast<bool>(CONFIG(diet::USELOGSERVICE));
+    bool useLogService = CONFIG_BOOL(diet::USELOGSERVICE);
     if (!useLogService) {
       WARNING("useLogService disabled");
     } else {
@@ -371,14 +378,14 @@ int main(int argc, char* argv[], char *envp[]) {
     }
 
     if (useLS) {
-	outBufferSize = simple_cast<int>(CONFIG(diet::LSOUTBUFFERSIZE));
+	outBufferSize = CONFIG_INT(diet::LSOUTBUFFERSIZE);
 	// empty or non-conforming string will result in a 0 value;
 	if (0 != outBufferSize) {
 	    WARNING("lsOutbuffersize not configured, using default");
 	}
     }
 
-    flushTime = simple_cast<int>(CONFIG(diet::LSFLUSHINTERVAL));
+    flushTime = CONFIG_INT(diet::LSFLUSHINTERVAL);
     if (!flushTime) {
 	flushTime = 10000;
 	WARNING("lsFlushinterval not configured, using default");
@@ -389,7 +396,7 @@ int main(int argc, char* argv[], char *envp[]) {
 	TRACE_TEXT(TRACE_ALL_STEPS, "LogService enabled" << std::endl);
 	char *agtTypeName = 0;
 	char *agtParentName = strdup(parentName.c_str());
-	const std::string name = CONFIG(diet::NAME);
+	const std::string name = CONFIG_STRING(diet::NAME);
 	char *agtName = strdup(name.c_str());
 
 	if ((agentType == "DIET_LOCAL_AGENT") || (agentType == "LA")) {
@@ -477,7 +484,7 @@ int main(int argc, char* argv[], char *envp[]) {
 
 #ifdef HAVE_ACKFILE
     /* Touch a file to notify the end of the initialization */
-    std::string& ackFile = CONFIG(diet::ACKFILE);
+    std::string& ackFile = CONFIG_STRING(diet::ACKFILE);
     if (ackFile.empty()) {
 	WARNING("parsing " << configFile << ": no ackFile specified");
     } else {

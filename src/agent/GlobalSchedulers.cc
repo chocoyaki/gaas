@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.25  2011/02/09 15:09:55  hguemar
+ * configuration backend changed again: more CONFIG_XXX
+ *
  * Revision 1.24  2011/02/04 15:29:54  hguemar
  * fix some GCC warnings
  *
@@ -171,7 +174,7 @@ GlobalScheduler::deserialize(const char* serializedScheduler)
 	    nameLength = strlen(serializedScheduler);
 	}
     }
-   
+
     if (!strncmp(serializedScheduler, StdGS::stName, nameLength)) {
 	return StdGS::deserialize(serializedScheduler);
     }
@@ -182,7 +185,7 @@ GlobalScheduler::deserialize(const char* serializedScheduler)
       /* New : For scheduler load support. */
 #ifdef USERSCHED
 	if (!strncmp(serializedScheduler, UserScheduler::stName,nameLength)) {
-	    const std::string&  moduleName = CONFIG(diet::MODULENAME);
+	    const std::string&  moduleName = CONFIG_STRING(diet::MODULENAME);
 	    if (moduleName.empty()) {
 		WARNING("moduleName parameter is not set in the configuration file ; "
 			<< "reverting to default (StdGS)" << std::endl);
@@ -204,7 +207,7 @@ GlobalScheduler::deserialize(const char* serializedScheduler)
 	    {
 		WARNING("unable to deserialize global scheduler ; "
 			<< "reverting to default (StdGS)");
-		cout << "scheduler was \"" 
+		cout << "scheduler was \""
 		     << serializedScheduler << "\"" << std::endl;
 		return (GlobalScheduler::chooseGlobalScheduler());
 	    }
@@ -215,7 +218,7 @@ char*
 GlobalScheduler::serialize(GlobalScheduler* GS)
 {
     SCHED_TRACE_FUNCTION(GS->name);
-    
+
     if (!strncmp(GS->name, StdGS::stName, GS->nameLength)) {
 	return StdGS::serialize((StdGS*) GS);
     }
@@ -253,8 +256,8 @@ GlobalScheduler::chooseGlobalScheduler(const corba_request_t* req,
                                        const corba_profile_desc_t* profile)
 {
     corba_aggregator_desc_t agg = profile->aggregator;
-  
-/* New : For scheduler load support. */  
+
+/* New : For scheduler load support. */
 #ifdef USERSCHED
     GlobalScheduler * loaded;
 #endif
@@ -269,12 +272,12 @@ GlobalScheduler::chooseGlobalScheduler(const corba_request_t* req,
 	ps->init();
 	return (ps);
     }
-    break;	
-    /* New : For scheduler load support. */  
+    break;
+    /* New : For scheduler load support. */
 #ifdef USERSCHED
     case DIET_AGG_USER: {
-	const std::string& moduleName = CONFIG(diet::MODULENAME);
-	
+	const std::string& moduleName = CONFIG_STRING(diet::MODULENAME);
+
 	if (moduleName.empty()) {
 	    WARNING("moduleName parameter is not set in the configuration file ; "
 		    << "reverting to default (StdGS)" << std::endl);
@@ -318,27 +321,27 @@ GlobalScheduler::aggregate(corba_response_t* aggrResp, size_t max_srv,
 			   const corba_response_t* responses)
 {
     size_t total_size = 0;
-    // lock the schedulers 
+    // lock the schedulers
     SchedList::Iterator* iter = this->schedulers.getIterator();
-    
+
     //corba_response_t* aggrResp = new corba_response_t;
     int lastAggregated = -1;
     int* lastAggr = new int[nb_responses];
-    
+
     /*
     ** structure for caching estVector structures.  initially this
     ** is a vector with as many empty vectors as there are
     ** responses.  during the aggregation phase, this cache will
     ** be populated.  at the end of aggregation, this cache needs
     ** to be purged (see below).
-    */ 
+    */
     Vector_t evCache = new_Vector();
-    
+
     //   cout << "global scheduler: " << this->name << std::endl;
-    
+
     SCHED_TRACE_FUNCTION("nb_responses=" << nb_responses
 			 << ",max_srv=" << max_srv);
-    
+
     for (size_t i = 0; i < nb_responses; i++) {
       lastAggr[i]    = -1;
       total_size    += responses[i].servers.length();
@@ -347,10 +350,10 @@ GlobalScheduler::aggregate(corba_response_t* aggrResp, size_t max_srv,
     if (max_srv == 0)
 	max_srv = total_size; // keep all servers
     aggrResp->servers.length(MIN(total_size, max_srv));
-    
+
     while (iter->hasCurrent()) {
 	Scheduler* sched = iter->getCurrent();
-	
+
 	//     fprintf(stderr,
 	//             "before %s, lastAggregated=%d\n",
 	//             Scheduler::serialize(sched),
@@ -363,7 +366,7 @@ GlobalScheduler::aggregate(corba_response_t* aggrResp, size_t max_srv,
 			 evCache);
 	iter->next();
     }
-    
+
     {  /* purge the estVector cache */
 	while (! Vector_isEmpty(evCache)) {
 	    Vector_t respV = (Vector_t) Vector_removeAtPosition(evCache, 0);
@@ -374,10 +377,10 @@ GlobalScheduler::aggregate(corba_response_t* aggrResp, size_t max_srv,
 	}
 	free_Vector(evCache);
     }
-    
+
     delete iter; // unlock the schedulers list
     delete [] lastAggr;
-  
+
     return 0;
 }
 
@@ -419,7 +422,7 @@ StdGS::deserialize(const char* serializedScheduler)
     char* ser_sched = strdup(serializedScheduler);
     char* ptr = ser_sched;
     StdGS* res = new StdGS();
-  
+
     TRACE_TEXT(TRACE_ALL_STEPS,
 	       "StdGS::deserialize(" << serializedScheduler << ")" << std::endl);
     token = strsep( &ptr, ":" );
@@ -512,13 +515,13 @@ PriorityGS::deserialize(const char* serializedScheduler)
     PriorityGS* res = new PriorityGS();
 
     TRACE_TEXT(TRACE_ALL_STEPS,
-	       "PriorityGS::deserialize(" 
+	       "PriorityGS::deserialize("
 	       << serializedScheduler << ")" << std::endl);
 
     // Eliminate the first token, which is to be stName
     token = strsep( &ptr, ":" );
     assert(!strcmp(token, PriorityGS::stName));
-  
+
     // Then for each token add associated scheduler
     while (ptr) { // ptr == NULL when the last token is identified (no more ':')
 	// If the string was not duplicated in this function, we should

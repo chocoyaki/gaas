@@ -3,6 +3,8 @@ set( config_SRCS CmdParser.cc
   CommonParser.cc
   EnvParser.cc
   FileParser.cc
-  constants.cc )
+  constants.cc 
+  configuration )
+
 # static because we don't ship this
 add_library( DietConfig STATIC ${config_SRCS} )
