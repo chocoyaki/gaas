@@ -40,6 +40,7 @@ include_directories(${OMNIORB4_INCLUDE_DIR}
   ${DIET_SOURCE_DIR}/src/CORBA        # for e.g. marshalling.hh
   ${DIET_SOURCE_DIR}/include          # for DIET_data.h 
   ${DIET_BINARY_DIR}/src/CORBA/idl
+  ${DIET_SOURCE_DIR}/src/utils/config
 )
   
 if (DIET_USE_LOG)
