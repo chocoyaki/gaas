@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2011/02/09 11:27:53  bdepardo
+ * Removed endl at the end of the call to the WARNING macro
+ *
  * Revision 1.14  2011/01/23 19:25:29  bdepardo
  * Fixed memory leak and variable scope
  *
@@ -243,7 +246,7 @@ Java_JXTAMultiMA_startDIETAgent(JNIEnv *env,
               Parsers::Results::USELOGSERVICE);
   useLS = false;
   if (ULSptr == NULL) {
-    WARNING(" useLogService not configured. Disabled by default" << endl);
+    WARNING(" useLogService not configured. Disabled by default");
   } else {
     if (*ULSptr) {
       useLS = true;

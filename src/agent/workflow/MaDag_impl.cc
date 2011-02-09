@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.36  2011/02/09 11:27:53  bdepardo
+ * Removed endl at the end of the call to the WARNING macro
+ *
  * Revision 1.35  2011/02/04 15:20:48  hguemar
  * fixes to new configuration parser
  * some cleaning
@@ -553,8 +556,7 @@ MaDag_impl::setupDietLogComponent()
 	(Parsers::Results::getParamValue(Parsers::Results::USELOGSERVICE));
     useLS = false;
     if (!ULSptr) {
-	WARNING(" useLogService not configured. Disabled by default" 
-		<< std::endl);
+	WARNING(" useLogService not configured. Disabled by default");
     } else {
 	if (*ULSptr) {
 	    useLS = true;

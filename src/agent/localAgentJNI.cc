@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2011/02/09 11:27:53  bdepardo
+ * Removed endl at the end of the call to the WARNING macro
+ *
  * Revision 1.12  2011/01/23 19:19:59  bdepardo
  * Fixed memory and resources leaks, variables scopes, unread variables
  *
@@ -219,7 +222,7 @@ Java_LA_startDIETLA(JNIEnv *env,
               Parsers::Results::USELOGSERVICE);
   useLS = false;
   if (ULSptr == NULL) {
-    WARNING(" useLogService not configured. Disabled by default" << endl);
+    WARNING(" useLogService not configured. Disabled by default");
   } else {
     if (*ULSptr) {
       useLS = true;

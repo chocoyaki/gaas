@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2011/02/09 11:27:53  bdepardo
+ * Removed endl at the end of the call to the WARNING macro
+ *
  * Revision 1.11  2011/02/01 20:51:25  bdepardo
  * changed "!defined" into "not defined".
  *
@@ -568,7 +571,7 @@ JNIEXPORT jint JNICALL
               Parsers::Results::USELOGSERVICE);
   useLS = false;
   if (ULSptr == NULL) {
-    cout << "WARNING: useLogService not configured. Disabled by default" << endl;
+    WARNING("useLogService not configured. Disabled by default");
   } else {
     if (*ULSptr) {
       useLS = true;
