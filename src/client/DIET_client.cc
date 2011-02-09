@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.159  2011/02/09 11:30:07  bdepardo
+ * Quick hack, for the client to work with the new parser
+ *
  * Revision 1.158  2011/02/03 19:59:53  bdepardo
  * Reduce variables scope
  *
@@ -407,6 +410,7 @@ using namespace std;
 #include "Parsers.hh"
 #include "SeD.hh"
 #include "statistics.hh"
+#include "configuration.hh"
 
 #ifdef USE_LOG_SERVICE
 #include "DietLogComponent.hh"
@@ -573,7 +577,7 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
     return GRPC_ALREADY_INITIALIZED;
   }
   MA_MUTEX->unlock();
-
+  
   /* Set arguments for ORBMgr::init */
   if (argc) {
     myargc = argc;
@@ -581,6 +585,13 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
     for (int i = 0; i < argc; i++)
       myargv[i] = argv[i];
   }
+
+  /* FIXME: this is a hack for the new parser, so that it works with DAGDA
+   * We should remove the old parser as soon as possible
+   */
+  FileParser fileParser(config_file_name);
+  CONFIGMAP = fileParser.getConfiguration();
+
 
   /* Parsing */
   Parsers::Results::param_type_t compParam[] = {Parsers::Results::MANAME};
@@ -684,7 +695,7 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
   ULSptr = (unsigned int*)Parsers::Results::getParamValue(
               Parsers::Results::USELOGSERVICE);
   if (ULSptr == NULL) {
-// 	  WARNING(" useLogService not configured. Disabled by default");
+    WARNING("useLogService not configured. Disabled by default");
   } else {
     if (*ULSptr) {
       useLS = true;
