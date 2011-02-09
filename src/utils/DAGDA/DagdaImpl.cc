@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.44  2011/02/09 17:15:53  bdepardo
+ * Be less verbose
+ *
  * Revision 1.43  2011/02/08 16:53:50  bdepardo
  * Fixed dynamics. They didn't work anymore
  *
@@ -229,7 +232,7 @@ char* DagdaImpl::sendFile(const corba_data_t &data, const char* destName) {
     throw Dagda::ReadError(errno);
   }
 	
-  TRACE_TEXT(TRACE_MAIN_STEPS, "*** Sending file " << data.desc.specific.file().path
+  TRACE_TEXT(TRACE_ALL_STEPS, "*** Sending file " << data.desc.specific.file().path
              << " (" << data.desc.id.idNumber << ")" << endl);
 	
   unsigned long wrote = 0;
@@ -336,7 +339,7 @@ char* DagdaImpl::sendData(const char* dataId, const char* destName) {
     throw Dagda::UnavailableData(dataId);
   }
 	
-  TRACE_TEXT(TRACE_MAIN_STEPS, "*** Sending data " << dataId << endl);
+  TRACE_TEXT(TRACE_ALL_STEPS, "*** Sending data " << dataId << endl);
 	
   corba_data_t* data = getData(dataId);
   unsigned long wrote = 0;
@@ -381,7 +384,7 @@ char* DagdaImpl::sendContainer(const char* containerID, const char* destName,
     throw Dagda::UnavailableData(containerID);
   }
   dataMutex.unlock();
-  TRACE_TEXT(TRACE_MAIN_STEPS, "*** Sending container " << containerID << endl);
+  TRACE_TEXT(TRACE_ALL_STEPS, "*** Sending container " << containerID << endl);
   dest->unlockData(containerID);
   // transfer the container elements
   Container *container = new Container(containerID,_this(),containerRelationMgr);
