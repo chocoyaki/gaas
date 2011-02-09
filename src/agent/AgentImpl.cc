@@ -5,6 +5,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.72  2011/02/09 16:47:58  bdepardo
+ * Fixed a bug in run(): local agent type can be either DIET_LOCAL_AGENT or LA
+ *
  * Revision 1.71  2011/02/09 15:09:55  hguemar
  * configuration backend changed again: more CONFIG_XXX
  *
@@ -352,7 +355,7 @@ AgentImpl::run()
   const std::string& agtType = CONFIG_AGENT(diet::AGENTTYPE);
 
   ORBMgr::getMgr()->bind(AGENTCTXT, this->myName, _this(), true);
-  if (agtType == "DIET_LOCAL_AGENT") {
+  if (agtType == "DIET_LOCAL_AGENT" || agtType == "LA") {
       ORBMgr::getMgr()->fwdsBind(LOCALAGENT, this->myName,
 				 ORBMgr::getMgr()->getIOR(_this()));
   } else {
