@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.22  2011/02/09 14:26:40  bdepardo
+ * Fixed a typo
+ *
  * Revision 1.21  2011/01/14 01:30:56  bdepardo
  * Correct bug preventing two INOUT ports from being connected
  *
@@ -307,7 +310,7 @@ FNodeOutPort::writeAllDataAsXML(ostream& output) {
 void
 FNodeOutPort::writeAllDataAsList(ostream& output) {
   if (myBuffer.isCardinalDefined())
-    output << "TOTAL NB OF RESULTS : " << myBuffer.getCardinal() << endl;
+    output << "TOTAL NB OF RESULTS: " << myBuffer.getCardinal() << endl;
   else
     output << "Warning: undefined total nb of results (error during instanciation)" << endl;
   int ix = 0;
