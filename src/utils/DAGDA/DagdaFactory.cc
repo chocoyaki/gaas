@@ -10,6 +10,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.22  2011/02/09 11:04:00  bdepardo
+ * Fixed a bug in getClientDataManager
+ *
  * Revision 1.21  2011/02/08 09:44:18  bdepardo
  * getParentName returns 0 if the agent is an MA and the parentName property
  * is set nevertheless
@@ -288,12 +291,12 @@ const char* DagdaFactory::getDefaultName() {
 }
 
 DagdaImpl* DagdaFactory::getClientDataManager() {
-    if (clientDataManager) {
-	clientDataManager = createDataManager(DGD_CLIENT_MNGR);
-
-	clientDataManager->init(getClientName(), NULL, getStorageDir(),
-				getMaxMsgSize(), getMaxDiskSpace(),
-				getMaxMemSpace());
+    if (!clientDataManager) {
+      clientDataManager = createDataManager(DGD_CLIENT_MNGR);
+      
+      clientDataManager->init(getClientName(), NULL, getStorageDir(),
+                              getMaxMsgSize(), getMaxDiskSpace(),
+                              getMaxMemSpace());
     }
     localDataManager = clientDataManager;
     return clientDataManager;
