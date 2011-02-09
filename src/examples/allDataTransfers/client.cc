@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2011/02/09 17:17:59  bdepardo
+ * Test on containers now always create containers with 2 elements
+ *
  * Revision 1.7  2011/01/22 16:27:51  glemahec
  * Bug workflows/#156 correction (#155 too ?) - pointers management was bugged when reusing INOUT data.
  *
@@ -887,7 +890,7 @@ main(int argc, char* argv[]) {
 
 
   std::cout << "######################################################################" << std::endl;
-  std::cout << "#                              CONTAINER                              #" << std::endl;
+  std::cout << "#                             CONTAINER                              #" << std::endl;
   std::cout << "######################################################################" << std::endl;
 
 
@@ -923,18 +926,16 @@ main(int argc, char* argv[]) {
 
   if (!diet_call(profile)) {
     diet_container_t content1;
-    long * pl1, *pl2, *pl3;
+    long * pl1, *pl2;
     
     s1 = (profile->parameters[1]).desc.id;
     dagda_get_container(s1);
     dagda_get_container_elements(s1, &content1);
     dagda_get_scalar(content1.elt_ids[0], &pl1, NULL);
     dagda_get_scalar(content1.elt_ids[1], &pl2, NULL);
-    dagda_get_scalar(content1.elt_ids[2], &pl3, NULL);
     std::cout << "Container 2: " << std::endl
 	      << " - l1 = " << *pl1 << std::endl
-	      << " - l2 = " << *pl2 << std::endl
-	      << " - l3 = " << *pl3 << std::endl;
+	      << " - l2 = " << *pl2 << std::endl;
     free(content1.elt_ids);
 
 

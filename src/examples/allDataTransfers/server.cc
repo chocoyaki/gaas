@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2011/02/09 17:17:59  bdepardo
+ * Test on containers now always create containers with 2 elements
+ *
  * Revision 1.6  2010/10/18 08:35:43  bdepardo
  * Added includes cstdlib and cstring
  *
@@ -531,9 +534,9 @@ solve_CONTAINER(diet_profile_t* pb) {
 	    << ", l3 = " << *l3 << std::endl;
   dagda_put_scalar(l3, DIET_LONGINT, DIET_PERSISTENT, &ID_long2);
 
-  std::cout << "Put 2st element of OUTPUT container" << std::endl;
+  std::cout << "Put 2nd element of OUTPUT container" << std::endl;
   dagda_add_container_element((*diet_parameter(pb,2)).desc.id, ID_long2, 1);
-  dagda_add_container_element((*diet_parameter(pb,1)).desc.id, ID_long2, 2);
+  dagda_add_container_element((*diet_parameter(pb,1)).desc.id, ID_long2, 0);
 
   diet_free_data(diet_parameter(pb,0));
   
