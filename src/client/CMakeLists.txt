@@ -12,6 +12,7 @@ include_directories(
   ${DIET_SOURCE_DIR}/include          # for DIET_data.h
   ${DIET_BINARY_DIR}/src/CORBA/idl
   ${DIET_SOURCE_DIR}/src/agent
+  ${DIET_SOURCE_DIR}/src/utils/config
 )
 
 
