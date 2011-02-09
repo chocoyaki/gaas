@@ -10,6 +10,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.25  2011/02/09 17:16:21  bdepardo
+ * Fixed problem during CVS merge
+ *
  * Revision 1.24  2011/02/09 15:09:55  hguemar
  * configuration backend changed again: more CONFIG_XXX
  *
@@ -220,11 +223,11 @@ const char* DagdaFactory::getParentName() {
       (agentType == "MA" || agentType == "DIET_MASTER_AGENT")) {
     WARNING("Agent data manager found a parent name "
 	    "for the agent, but this agent is a Master Agent");
-    return 0;
+    return NULL;
   }
 
   if (result.empty()) {
-    return 0;
+    return NULL;
   }
 
   result.append("_DAGDA");
@@ -235,7 +238,7 @@ const char* DagdaFactory::getAgentName() {
   std::string result = CONFIG_STRING(diet::NAME);
 
   if (result.empty()) {
-    return 0;
+    return NULL;
   }
 
   result.append("_DAGDA");
@@ -288,7 +291,7 @@ const char* DagdaFactory::getDefaultName() {
 }
 
 DagdaImpl* DagdaFactory::getClientDataManager() {
-  if (clientDataManager) {
+  if (!clientDataManager) {
     clientDataManager = createDataManager(DGD_CLIENT_MNGR);
 
     clientDataManager->init(getClientName(), NULL, getStorageDir(),
@@ -301,13 +304,6 @@ DagdaImpl* DagdaFactory::getClientDataManager() {
 
 DagdaImpl* DagdaFactory::getSeDDataManager() {
   const std::string& backupFile = CONFIG_STRING(diet::DATABACKUPFILE);
-  unsigned int restoreOnStart = CONFIG_BOOL(diet::RESTOREONSTART);
-
-  bool restore(false);
-
-  if (!restoreOnStart) {
-    restore = (restoreOnStart == 1);
-  }
 
   if (!sedDataManager) {
     const char* parentName = getParentName();
@@ -328,6 +324,7 @@ DagdaImpl* DagdaFactory::getSeDDataManager() {
 
   if (!backupFile.empty()) {
     localDataManager->setStateFile(backupFile);
+    bool restore = CONFIG_BOOL(diet::RESTOREONSTART);
     if (restore)
       localDataManager->restoreState();
   }
@@ -337,7 +334,6 @@ DagdaImpl* DagdaFactory::getSeDDataManager() {
 
 DagdaImpl* DagdaFactory::getAgentDataManager() {
   const std::string& backupFile = CONFIG_STRING(diet::DATABACKUPFILE);
-  bool restoreOnStart = CONFIG_BOOL(diet::RESTOREONSTART);
 
   if (!agentDataManager) {
     const char* parentName = getParentName();
@@ -356,9 +352,10 @@ DagdaImpl* DagdaFactory::getAgentDataManager() {
   }
   localDataManager = agentDataManager;
 
-  if (backupFile.empty()) {
+  if (!backupFile.empty()) {
     localDataManager->setStateFile(backupFile);
-    if (restoreOnStart) {
+    bool restore = CONFIG_BOOL(diet::RESTOREONSTART);
+    if (restore) {
       localDataManager->restoreState();
     }
 

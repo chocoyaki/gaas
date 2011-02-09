@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.27  2011/02/09 17:16:42  bdepardo
+ * Fixed problem during CVS merge
+ *
  * Revision 1.26  2011/02/09 15:09:55  hguemar
  * configuration backend changed again: more CONFIG_XXX
  *
@@ -171,8 +174,7 @@ LocalAgentImpl::disconnect() {
 
 /* Method to dynamically change the parent of the SeD */
 CORBA::Long
-LocalAgentImpl::bindParent(const char * parentName)
-{
+LocalAgentImpl::bindParent(const char * parentName) {
     long rv = 0;
     SeqCorbaProfileDesc_t* profiles(NULL);
     profiles = SrvT->getProfiles();
@@ -184,11 +186,13 @@ LocalAgentImpl::bindParent(const char * parentName)
     }
 
     /* Does the new parent exists? */
-    Agent_var parentTmp =
-	/*  Agent::_duplicate(
-	    Agent::_narrow(ORBMgr::getObjReference(ORBMgr::AGENT,
-	    parentName)));*/
-	ORBMgr::getMgr()->resolve<Agent, Agent_var>(AGENTCTXT, parentName);
+    Agent_var parentTmp;
+    try {
+      parentTmp =
+        ORBMgr::getMgr()->resolve<Agent, Agent_var>(AGENTCTXT, parentName);
+    } catch (...) {
+      parentTmp = Agent::_nil(); 
+    }
     if (CORBA::is_nil(parentTmp)) {
 	if (CORBA::is_nil(this->parent)) {
 	    WARNING("cannot locate agent "
