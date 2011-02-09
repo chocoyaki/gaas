@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2011/02/09 14:34:57  bdepardo
+ * Use <array><item>0</item></array> instead of <array><item value="0"/></array>
+ * in default value.
+ *
  * Revision 1.6  2011/02/09 14:27:11  bdepardo
  * Fixed default value when using a container
  *
@@ -105,7 +109,7 @@ WfExprVariable::setDefaultValue() {
   if (myType != WfCst::TYPE_CONTAINER) {
     myValue =  "0";
   } else {
-    myValue = "<array><item value=\"0\"/></array>";
+    myValue = "<array><item>0</item></array>";
   }
 }
 
