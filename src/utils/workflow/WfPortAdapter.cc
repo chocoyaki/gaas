@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.26  2011/02/10 17:44:13  bdepardo
+ * Removed endl at the end of WARNING macro
+ *
  * Revision 1.25  2011/02/04 14:29:54  bdepardo
  * Remove unused variables
  *
@@ -568,7 +571,7 @@ WfMultiplePortAdapter::freeAdapterPersistentData(MasterAgent_var& MA) {
     TRACE_TEXT (TRACE_ALL_STEPS, "Deleting persistent container: " << containerID << endl);
     char *dataId = const_cast<char*>(containerID.c_str());
     if (MA->diet_free_pdata(dataId)==0) {
-      WARNING("Could not delete persistent data: " << dataId << endl);
+      WARNING("Could not delete persistent data: " << dataId);
     }
   }
 }
@@ -758,7 +761,7 @@ WfValueAdapter::freeAdapterPersistentData(MasterAgent_var& MA) {
                                  << myDataID << endl);
     char *dataId = const_cast<char*>(myDataID.c_str());
     if (MA->diet_free_pdata(dataId)==0) {
-      WARNING("Could not delete persistent data: " << dataId << endl);
+      WARNING("Could not delete persistent data: " << dataId);
     }
   }
 }

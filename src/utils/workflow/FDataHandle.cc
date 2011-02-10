@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.22  2011/02/10 17:44:13  bdepardo
+ * Removed endl at the end of WARNING macro
+ *
  * Revision 1.21  2010/12/17 09:48:02  kcoulomb
  * * Set diet to use the new log with forwarders
  * * Fix a CoRI problem
@@ -1173,7 +1176,7 @@ FDataHandle::downloadTreeData() {
       downloadDataID();
       downloadValue();
     } catch (WfDataException& e) {
-      WARNING("Data Error (" << e.ErrorMsg() << ")" << endl);
+      WARNING("Data Error (" << e.ErrorMsg() << ")");
     }
   } else {
     for (map<FDataTag,FDataHandle*>::iterator childIter = this->begin();
@@ -1184,7 +1187,7 @@ FDataHandle::downloadTreeData() {
     try {
       downloadDataID();
     } catch (WfDataException& e) {
-      WARNING("Data Error (" << e.ErrorMsg() << ")" << endl);
+      WARNING("Data Error (" << e.ErrorMsg() << ")");
     }
     downloadDataID();
   }
@@ -1230,7 +1233,7 @@ FDataHandle::freePersistentDataRec(MasterAgent_var& MA) {
     TRACE_TEXT (TRACE_ALL_STEPS, "Deleting DH persistent data: " << getDataID() << endl);
     char *dataId = const_cast<char*>(getDataID().c_str());
     if (MA->diet_free_pdata(dataId)==0) {
-      WARNING("Could not delete persistent data: " << dataId << endl);
+      WARNING("Could not delete persistent data: " << dataId);
     }
     myAdapterType = ADAPTER_DELETED;  // avoid warning in case of double call
   }
