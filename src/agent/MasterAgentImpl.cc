@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.69  2011/02/10 17:40:07  pmartinez
+ * Fix a bug on a requestID initialization
+ *
  * Revision 1.68  2011/02/09 15:09:55  hguemar
  * configuration backend changed again: more CONFIG_XXX
  *
@@ -320,12 +323,7 @@ MasterAgentImpl::run()
     if (res)
 	return res;
 
-    int tmp_val = CONFIG_INT(diet::INITREQUESTID);
-
-    if (!tmp_val)
-	this->reqIDCounter = 0 ;
-    else
-	this->reqIDCounter = tmp_val ;
+	this->reqIDCounter = CONFIG_ULONG(diet::INITREQUESTID); 
 
 #ifdef HAVE_MULTI_MA
     /* launch the bind service */
