@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.160  2011/02/10 17:43:16  bdepardo
+ * Typo
+ *
  * Revision 1.159  2011/02/09 11:30:07  bdepardo
  * Quick hack, for the client to work with the new parser
  *
@@ -673,7 +676,7 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
   /* Find Master Agent */
   MA_name = (char*)
   Parsers::Results::getParamValue(Parsers::Results::MANAME);
-  TRACE_TEXT (TRACE_MAIN_STEPS,"MA NAME PARSING = " << MA_name << endl);
+  TRACE_TEXT(TRACE_MAIN_STEPS, "MA NAME PARSING = " << MA_name << endl);
   MA_Name = CORBA::string_dup(MA_name);
   MA_MUTEX->lock();
   try {
