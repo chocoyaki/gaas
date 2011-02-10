@@ -5,6 +5,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.73  2011/02/10 23:18:58  hguemar
+ * fixes some issues detected by latest cppcheck (1.47)
+ *
  * Revision 1.72  2011/02/09 16:47:58  bdepardo
  * Fixed a bug in run(): local agent type can be either DIET_LOCAL_AGENT or LA
  *
@@ -968,7 +971,7 @@ AgentImpl::sendRequest(CORBA::ULong * children,
             LAChildren[childID] = LAChild();
             --nbLAChildren;
           } else {
-            throw e;
+            throw;
           }
         }
         childFound = true;
@@ -1020,7 +1023,7 @@ AgentImpl::sendRequest(CORBA::ULong * children,
             SeDChildren[childID] = SeDChild();
             --nbSeDChildren;
           } else {
-            throw e;
+            throw;
           }
         }
         childFound = true;

@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.161  2011/02/10 23:19:01  hguemar
+ * fixes some issues detected by latest cppcheck (1.47)
+ *
  * Revision 1.160  2011/02/10 17:43:16  bdepardo
  * Typo
  *
@@ -1346,6 +1349,9 @@ diet_wait_or(diet_reqID_t* IDs, size_t length, diet_reqID_t* IDptr)
       // using some of this reqID(AsyncCall)
       // So, careful using diet_cancel
     }
+
+    delete rule;
+    return res;
   }
   catch (const CORBA::Exception &e) {
     // Process any other User exceptions. Use the .id() method to

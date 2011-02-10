@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2011/02/10 23:19:02  hguemar
+ * fixes some issues detected by latest cppcheck (1.47)
+ *
  * Revision 1.10  2011/02/08 23:56:31  bdepardo
  * Removed useless \ in code
  *
@@ -107,7 +110,7 @@ void AdvancedDagdaComponent::lclAddData(const char* srcName, const corba_data_t&
 		setRegisterTime(data.desc.id.idNumber);
 		if (shareFiles && DGD_OBJ_TYPE(data)==DIET_FILE_OBJ)
 			shareData(data);
-  } catch (Dagda::NotEnoughSpace ex) {
+  } catch (Dagda::NotEnoughSpace& ex) {
     TRACE_TEXT(TRACE_ALL_STEPS, "Needs more space. Try to call the selected cache "
 							 << "algorithm." << endl);
     if (mngFunction!=NULL) {

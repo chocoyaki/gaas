@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.70  2011/02/10 23:18:58  hguemar
+ * fixes some issues detected by latest cppcheck (1.47)
+ *
  * Revision 1.69  2011/02/10 17:40:07  pmartinez
  * Fix a bug on a requestID initialization
  *
@@ -549,7 +552,7 @@ MasterAgentImpl::submit(const corba_pb_desc_t& pb_profile,
 			TRACE_TEXT(TRACE_ALL_STEPS, decision->servers.length()
 				   << " SeD have been found for request ("
 				   << creq.reqID << ")" << std::endl) ;
-		    } catch(FloodRequestNotFoundException f) {
+		    } catch(FloodRequestNotFoundException& f) {
 			WARNING("Can not found the requested decision in multi-MA search");
 		    }
 		}

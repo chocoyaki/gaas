@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2011/02/10 23:19:02  hguemar
+ * fixes some issues detected by latest cppcheck (1.47)
+ *
  * Revision 1.4  2011/02/01 20:51:25  bdepardo
  * changed "!defined" into "not defined".
  *
@@ -331,7 +334,7 @@ Easy_Disk::get_Write_Speed_by_gettimeofday(const char* path,
 	 outfile.flush();
 	 i++;
        }
-       catch (ofstream::failure e) {
+       catch (ofstream::failure& e) {
 	 removePath_file(&path_file);
 	 *result=0;
 	 return 1;
@@ -409,7 +412,7 @@ Easy_Disk::get_Write_Speed_by_sig_alarm(const char* path,
 	 outfile.flush();
 	 i++;
        }
-       catch (ofstream::failure e) {
+       catch (ofstream::failure& e) {
 	 removePath_file(&path_file);
 	 *result=0;
 	 return 1;
@@ -498,7 +501,7 @@ Easy_Disk::get_Read_Speed_by_gettimeofday(const char* path,
       infile.read(buffer,sizeTab);      
       i++;
     }
-    catch (ifstream::failure e) {//not so dangerous -> shi* happens
+    catch (ifstream::failure& e) {//not so dangerous -> shi* happens
     }
     gettimeofday(&tim, NULL);
     t2=tim.tv_sec+(tim.tv_usec/1000000.0);	
@@ -569,7 +572,7 @@ Easy_Disk::get_Read_Speed_by_sig_alarm(const char* path,
       infile.read(buffer,sizeTab);      
       i++;
     }
-    catch (ifstream::failure e) {//not so dangerous -> shi* happens
+    catch (ifstream::failure& e) {//not so dangerous -> shi* happens
     }
   }
   infile.close();

@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2011/02/10 23:19:02  hguemar
+ * fixes some issues detected by latest cppcheck (1.47)
+ *
  * Revision 1.15  2011/01/24 23:14:19  bdepardo
  * Fixed memory leaks
  *
@@ -151,6 +154,7 @@ solve_dgemm(diet_profile_t* pb)
   if ((k_ != k) || (m_ != m) || (n_ != n)) {
     fprintf(stderr, "dgemm Error: invalid matrix dimensions: ");
     fprintf(stderr, "%dx%d = %dx%d * %dx%d\n", (int)m_, (int)n_, (int)m, (int)k, (int)k_, (int)n);
+    free(B); // free previously allocated B
     return 1;
   }
 

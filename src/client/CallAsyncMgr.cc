@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.32  2011/02/10 23:19:01  hguemar
+ * fixes some issues detected by latest cppcheck (1.47)
+ *
  * Revision 1.31  2011/01/25 18:43:16  bdepardo
  * Dangerous iterator usage. After erase the iterator is invalid so
  * dereferencing it or comparing it with another iterator is invalid.
@@ -238,7 +241,7 @@ int CallAsyncMgr::deleteAsyncCallWithoutLock(diet_reqID_t reqID)
       fflush(stderr);
     }
   }
-  catch(exception ex){
+  catch(exception& ex){
     WARNING("exception caught in " << __FUNCTION__ << " , what=" << ex.what());
     fflush(stderr);
   }
