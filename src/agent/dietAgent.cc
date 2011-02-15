@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.51  2011/02/15 16:20:57  bdepardo
+ * Correctly handle sigint with new ORB.
+ * Fixed a bug on deletion of strings in "args" variable.
+ *
  * Revision 1.50  2011/02/09 15:09:55  hguemar
  * configuration backend changed again: more CONFIG_XXX
  *
@@ -212,8 +216,10 @@ class CStringDeleter {
 public:
   void
   operator() (char *it_) const {
-    free(it_);
-    it_ = 0;
+    if (it_ != NULL) {
+      free(it_);
+      it_ = NULL;
+    }
   }
 };
 
@@ -238,285 +244,293 @@ public:
 
 
 int main(int argc, char* argv[], char *envp[]) {
-    // use std::vector instead of C array
-    // C++ standard guarantees that its storage is contiguous (C++ Faq 34.3)
-    std::vector<char *> args(argv, argv+argc);
-    CStringInserter<std::vector<char *> > ins(args);
-    // Configuration map
-    int res(0);
+  // use std::vector instead of C array
+  // C++ standard guarantees that its storage is contiguous (C++ Faq 34.3)
+  std::vector<char *> args, argsTmp;
+  CStringInserter<std::vector<char *> > ins(args);
+  for (unsigned int i = 0; i < argc; i++) {
+    ins(argv[i]);
+  }
+  // Configuration map
+  int res(0);
     
-    std::string copyright = ""; // TODO : add a copyright
-    std::string version = DIET_VERSION;
+  std::string copyright = ""; // TODO : add a copyright
+  std::string version = DIET_VERSION;
 
-    /* Parsing */
-    CmdParser cmdParser(argc, argv);
+  /* Parsing */
+  CmdParser cmdParser(argc, argv);
 
-    CmdEntry configFileEntry = { CmdParser::Param,
-				 CmdParser::Mandatory,
-				 "configFile",
-				 "config-file",
-				 "c",
-				 "configuration file" };
+  CmdEntry configFileEntry = { CmdParser::Param,
+                               CmdParser::Mandatory,
+                               "configFile",
+                               "config-file",
+                               "c",
+                               "configuration file" };
 
-    CmdEntry agentTypeEntry = { CmdParser::Option,
-				CmdParser::Optional,
-				"agentType",
-				"agent-type",
-				"T",
-				"agent type (either DIET_MASTER_AGENT or MA, "
-				"or DIET_LOCAL_AGENT or LA)" };
+  CmdEntry agentTypeEntry = { CmdParser::Option,
+                              CmdParser::Optional,
+                              "agentType",
+                              "agent-type",
+                              "T",
+                              "agent type (either DIET_MASTER_AGENT or MA, "
+                              "or DIET_LOCAL_AGENT or LA)" };
 
-    CmdEntry agentNameEntry = { CmdParser::Option,
-				CmdParser::Optional,
-				"name",
-				"agent-name",
-				"n",
-				"agent name" };
+  CmdEntry agentNameEntry = { CmdParser::Option,
+                              CmdParser::Optional,
+                              "name",
+                              "agent-name",
+                              "n",
+                              "agent name" };
 
-    CmdEntry agentParentEntry = { CmdParser::Option,
-				  CmdParser::Optional,
-				  "parentName",
-				  "parent-name",
-				  "p",
-				  "parent name" };
+  CmdEntry agentParentEntry = { CmdParser::Option,
+                                CmdParser::Optional,
+                                "parentName",
+                                "parent-name",
+                                "p",
+                                "parent name" };
 
-    CmdEntry agentTraceLevelEntry = { CmdParser::Option,
-				      CmdParser::Optional,
-				      "traceLevel",
-				      "trace-level",
-				      "t",
-				      "trace level (integer)" };
-
-
-    CmdConfig cmdConfig;
-    cmdConfig.push_back(configFileEntry);
-    cmdConfig.push_back(agentTypeEntry);
-    cmdConfig.push_back(agentNameEntry);
-    cmdConfig.push_back(agentParentEntry);
-    cmdConfig.push_back(agentTraceLevelEntry);
-
-    cmdParser.setConfig(cmdConfig);
-    cmdParser.enableHelp(true);
-    cmdParser.enableVersion(version, copyright);
-    cmdParser.parse();
-
-    // get configuration file
-    std::string& configFile = cmdParser["configFile"];
-
-    FileParser fileParser(configFile);
-
-    /* now merge our maps */
-    CONFIGMAP = cmdParser.getConfiguration();
-    const ConfigMap& fileMap = fileParser.getConfiguration();
-    CONFIGMAP.insert(fileMap.begin(), fileMap.end());
+  CmdEntry agentTraceLevelEntry = { CmdParser::Option,
+                                    CmdParser::Optional,
+                                    "traceLevel",
+                                    "trace-level",
+                                    "t",
+                                    "trace level (integer)" };
 
 
-    /* get parameters: agentType and name */
-    std::string& agentType = CONFIG_AGENT(diet::AGENTTYPE);
-    //std::string& agentName = CONFIG_STRING("name"]; // UNUSED ?
-    std::string& parentName = CONFIG_STRING(diet::PARENTNAME);
-    std::string& maName = CONFIG_STRING(diet::MANAME);
+  CmdConfig cmdConfig;
+  cmdConfig.push_back(configFileEntry);
+  cmdConfig.push_back(agentTypeEntry);
+  cmdConfig.push_back(agentNameEntry);
+  cmdConfig.push_back(agentParentEntry);
+  cmdConfig.push_back(agentTraceLevelEntry);
 
-    // parentName is mandatory for LA but unneeded for MA
-    if (((agentType == "DIET_LOCAL_AGENT") || (agentType == "LA")) &&
-	(parentName.empty())) {
-	ERROR("parsing " << configFile
-	      << ": no parent name specified", 1);
-    } else if(((agentType != "DIET_LOCAL_AGENT") && (agentType != "LA")) &&
-	      (!parentName.empty())) {
-        WARNING("parsing " << configFile << ": no need to specify "
-		<< "a parent name for an MA - ignored");
+  cmdParser.setConfig(cmdConfig);
+  cmdParser.enableHelp(true);
+  cmdParser.enableVersion(version, copyright);
+  cmdParser.parse();
+
+  // get configuration file
+  std::string& configFile = cmdParser["configFile"];
+
+  FileParser fileParser(configFile);
+
+  /* now merge our maps */
+  CONFIGMAP = cmdParser.getConfiguration();
+  const ConfigMap& fileMap = fileParser.getConfiguration();
+  CONFIGMAP.insert(fileMap.begin(), fileMap.end());
+
+
+  /* get parameters: agentType and name */
+  std::string& agentType = CONFIG_AGENT(diet::AGENTTYPE);
+  //std::string& agentName = CONFIG_STRING("name"]; // UNUSED ?
+  std::string& parentName = CONFIG_STRING(diet::PARENTNAME);
+  std::string& maName = CONFIG_STRING(diet::MANAME);
+
+  TRACE_LEVEL = CONFIG_INT(diet::TRACELEVEL);
+
+  // parentName is mandatory for LA but unneeded for MA
+  if (((agentType == "DIET_LOCAL_AGENT") || (agentType == "LA")) &&
+      (parentName.empty())) {
+    ERROR("parsing " << configFile
+          << ": no parent name specified", 1);
+  } else if(((agentType != "DIET_LOCAL_AGENT") && (agentType != "LA")) &&
+            (!parentName.empty())) {
+    WARNING("parsing " << configFile << ": no need to specify "
+            << "a parent name for an MA - ignored");
+  }
+
+  if (!maName.empty()) {
+    WARNING("parsing " << configFile << ": no need to specify "
+            << "an MA name for an agent - ignored");
+  }
+
+  /* Get listening port & hostname */
+  int port = CONFIG_INT(diet::DIETPORT);
+  const std::string& host = CONFIG_STRING(diet::DIETHOSTNAME);
+  if ((0 != port) || (!host.empty())) {
+    std::ostringstream endpoint;
+    ins("-ORBendPoint") ;
+    endpoint << "giop:tcp:" << host << ":";
+    if( -1 != port) {
+      endpoint << port;
     }
 
-    if (!maName.empty()) {
-	WARNING("parsing " << configFile << ": no need to specify "
-		<< "an MA name for an agent - ignored");
+    ins(endpoint);
+  }
+
+  /* Get the traceLevel */
+  if (TRACE_LEVEL >= TRACE_MAX_VALUE) {
+    std::ostringstream level;
+    ins("-ORBtraceLevel");
+    level << (TRACE_LEVEL - TRACE_MAX_VALUE);
+    ins(level);
+  }
+
+  /* FIXME: Copy the arguments in a temporary vector, as it 
+   * seems to be modified by ORBMgr::init
+   */
+  argsTmp = args;
+
+  /* Initialize the ORB */
+  try {
+    // import use &args[0] and not &args.begin()
+    // the latter is not guaranteed to be a T*
+    ORBMgr::init(argsTmp.size(), &argsTmp[0]);
+  } catch (...) {
+    ERROR("ORB initialization failed", 1);
+  }
+
+  /* Create the DietLogComponent for use with LogService */
+  bool useLS(false);
+  int outBufferSize;
+  int flushTime;
+
+  // size_t --> unsigned int
+  bool useLogService = CONFIG_BOOL(diet::USELOGSERVICE);
+  if (!useLogService) {
+    WARNING("useLogService disabled");
+  } else {
+    useLS = true;
+  }
+
+  if (useLS) {
+    outBufferSize = CONFIG_INT(diet::LSOUTBUFFERSIZE);
+    // empty or non-conforming string will result in a 0 value;
+    if (0 != outBufferSize) {
+      WARNING("lsOutbuffersize not configured, using default");
     }
+  }
 
-    /* Get listening port & hostname */
-    int port = CONFIG_INT(diet::DIETPORT);
-    const std::string& host = CONFIG_STRING(diet::DIETHOSTNAME);
-    if ((0 != port) || (!host.empty())) {
-	std::ostringstream endpoint;
-	ins("-ORBendPoint") ;
-	endpoint << "giop:tcp:" << host << ":";
-	if( -1 != port) {
-	  endpoint << port;
-	}
-
-	ins(endpoint);
-    }
-
-    /* Get the traceLevel */
-    if (TRACE_LEVEL >= TRACE_MAX_VALUE) {
-	std::ostringstream level;
-	ins("-ORBtraceLevel");
-	level << (TRACE_LEVEL - TRACE_MAX_VALUE);
-	ins(level);
-    }
-
-    /* Initialize the ORB */
-    try {
-	// import use &args[0] and not &args.begin()
-	// the latter is not guaranteed to be a T*
-	ORBMgr::init(args.size(), &args[0]);
-    } catch (...) {
-	ERROR("ORB initialization failed", 1);
-    }
-
-    /* Create the DietLogComponent for use with LogService */
-    bool useLS(false);
-    int outBufferSize;
-    int flushTime;
-
-    // size_t --> unsigned int
-    bool useLogService = CONFIG_BOOL(diet::USELOGSERVICE);
-    if (!useLogService) {
-      WARNING("useLogService disabled");
-    } else {
-      useLS = true;
-    }
-
-    if (useLS) {
-	outBufferSize = CONFIG_INT(diet::LSOUTBUFFERSIZE);
-	// empty or non-conforming string will result in a 0 value;
-	if (0 != outBufferSize) {
-	    WARNING("lsOutbuffersize not configured, using default");
-	}
-    }
-
-    flushTime = CONFIG_INT(diet::LSFLUSHINTERVAL);
-    if (!flushTime) {
-	flushTime = 10000;
-	WARNING("lsFlushinterval not configured, using default");
-    }
+  flushTime = CONFIG_INT(diet::LSFLUSHINTERVAL);
+  if (!flushTime) {
+    flushTime = 10000;
+    WARNING("lsFlushinterval not configured, using default");
+  }
 
 #ifdef USE_LOG_SERVICE
-    if (useLS) {
-	TRACE_TEXT(TRACE_ALL_STEPS, "LogService enabled" << std::endl);
-	char *agtTypeName = 0;
-	char *agtParentName = strdup(parentName.c_str());
-	const std::string name = CONFIG_STRING(diet::NAME);
-	char *agtName = strdup(name.c_str());
+  if (useLS) {
+    TRACE_TEXT(TRACE_ALL_STEPS, "LogService enabled" << std::endl);
+    char *agtTypeName = 0;
+    char *agtParentName = strdup(parentName.c_str());
+    const std::string name = CONFIG_STRING(diet::NAME);
+    char *agtName = strdup(name.c_str());
 
-	if ((agentType == "DIET_LOCAL_AGENT") || (agentType == "LA")) {
-	    agtTypeName = strdup("LA");
-	} else {
-	    agtTypeName = strdup("MA");
-	}
-
-	// the agent names should be correct if we arrive here
-	dietLogComponent = new DietLogComponent(agtName,
-						outBufferSize,
-						args.size(),
-						&args[0]);
-	//    ORBMgr::getMgr()->activate(dietLogComponent);
-
-	if (dietLogComponent->run(agtTypeName, agtParentName, flushTime)) {
-	    // delete(dietLogComponent); // DLC is activated, do not delete !
-	    WARNING("Could not initialize DietLogComponent");
-	    dietLogComponent = 0; // this should not happen;
-	}
-	free(agtTypeName);
-	free(agtParentName);
-	free(agtName);
+    if ((agentType == "DIET_LOCAL_AGENT") || (agentType == "LA")) {
+      agtTypeName = strdup("LA");
     } else {
-	TRACE_TEXT(TRACE_ALL_STEPS, "LogService disabled" << endl);
-	dietLogComponent = 0;
+      agtTypeName = strdup("MA");
     }
+
+    // the agent names should be correct if we arrive here
+    dietLogComponent = new DietLogComponent(agtName,
+                                            outBufferSize,
+                                            argsTmp.size(),
+                                            &argsTmp[0]);
+    //    ORBMgr::getMgr()->activate(dietLogComponent);
+
+    if (dietLogComponent->run(agtTypeName, agtParentName, flushTime)) {
+      // delete(dietLogComponent); // DLC is activated, do not delete !
+      WARNING("Could not initialize DietLogComponent");
+      dietLogComponent = 0; // this should not happen;
+    }
+    free(agtTypeName);
+    free(agtParentName);
+    free(agtName);
+  } else {
+    TRACE_TEXT(TRACE_ALL_STEPS, "LogService disabled" << endl);
+    dietLogComponent = 0;
+  }
 #endif /* USE_LOG_SERVICE */
 
 #if ! HAVE_JUXMEM && ! HAVE_DAGDA
   /* Create the DTM Data Location Manager */
-    Loc = new LocMgrImpl();
+  Loc = new LocMgrImpl();
 #endif /* ! HAVE_JUXMEM && ! HAVE_DAGDA */
 #if HAVE_DAGDA
-    DagdaImpl* dataManager = DagdaFactory::getAgentDataManager();
+  DagdaImpl* dataManager = DagdaFactory::getAgentDataManager();
 #ifdef USE_LOG_SERVICE
-    dataManager->setLogComponent( dietLogComponent ); // modif bisnard_logs_1
+  dataManager->setLogComponent( dietLogComponent ); // modif bisnard_logs_1
 #endif /* USE_LOG_SERVICE */
 #endif /* HAVE_DAGDA */
 
   /* Create, activate, and launch the agent */
-    if ((agentType == "DIET_LOCAL_AGENT") || (agentType == "LA")) {
-	Agt = new LocalAgentImpl();
-	TRACE_TEXT(NO_TRACE,
-		   "## LA_IOR " << ORBMgr::getMgr()->getIOR(Agt->_this())
-		   << endl);
-    } else {
-	Agt = new MasterAgentImpl();
-	TRACE_TEXT(NO_TRACE,
-		   "## MA_IOR " << ORBMgr::getMgr()->getIOR(Agt->_this())
-		   << endl);
-    }
-    fsync(1);
-    fflush(0);
+  if ((agentType == "DIET_LOCAL_AGENT") || (agentType == "LA")) {
+    Agt = new LocalAgentImpl();
+    TRACE_TEXT(NO_TRACE,
+               "## LA_IOR " << ORBMgr::getMgr()->getIOR(Agt->_this())
+               << endl);
+  } else {
+    Agt = new MasterAgentImpl();
+    TRACE_TEXT(NO_TRACE,
+               "## MA_IOR " << ORBMgr::getMgr()->getIOR(Agt->_this())
+               << endl);
+  }
+  fsync(1);
+  fflush(0);
 
-    ORBMgr::getMgr()->activate(Agt);
+  ORBMgr::getMgr()->activate(Agt);
 #ifdef USE_LOG_SERVICE
-    Agt->setDietLogComponent(dietLogComponent);   /* LogService */
+  Agt->setDietLogComponent(dietLogComponent);   /* LogService */
 #endif /* USE_LOG_SERVICE */
-    res = Agt->run();
+  res = Agt->run();
 
-    /* Initialize the ExitClass static object */
-    ExitClass::init(Agt);
+  /* Initialize the ExitClass static object */
+  ExitClass::init(Agt);
 
-    /* Launch the agent */
-    if (res) {
-	ERROR("unable to launch the agent", 1);
-    }
+  /* Launch the agent */
+  if (res) {
+    ERROR("unable to launch the agent", 1);
+  }
 
 #if ! HAVE_JUXMEM
-    // Use Dagda instead of DTM.
+  // Use Dagda instead of DTM.
 #if ! HAVE_DAGDA
-    /* Launch the DTM LocMgr */
-    ORBMgr::getMgr()->activate(Loc);
-    if (Loc->run()) {
-	ERROR("unable to launch the LocMgr", 1);
-    }
-    Agt->linkToLocMgr(Loc);
+  /* Launch the DTM LocMgr */
+  ORBMgr::getMgr()->activate(Loc);
+  if (Loc->run()) {
+    ERROR("unable to launch the LocMgr", 1);
+  }
+  Agt->linkToLocMgr(Loc);
 #else
-    ORBMgr::getMgr()->activate(dataManager);
-    Agt->setDataManager(dataManager->_this());
+  ORBMgr::getMgr()->activate(dataManager);
+  Agt->setDataManager(dataManager->_this());
 #endif /* ! HAVE_DAGDA */
 #endif /* ! HAVE_JUXMEM */
 
 
 #ifdef HAVE_ACKFILE
-    /* Touch a file to notify the end of the initialization */
-    std::string& ackFile = CONFIG_STRING(diet::ACKFILE);
-    if (ackFile.empty()) {
-	WARNING("parsing " << configFile << ": no ackFile specified");
-    } else {
-	cerr << "Open OutFile: "<< ackFile <<endl;
-	ofstream out(ackFile.c_str());
-	out << "ok" << endl << endl;
-	out.close();
-    }
+  /* Touch a file to notify the end of the initialization */
+  std::string& ackFile = CONFIG_STRING(diet::ACKFILE);
+  if (ackFile.empty()) {
+    WARNING("parsing " << configFile << ": no ackFile specified");
+  } else {
+    cerr << "Open OutFile: "<< ackFile <<endl;
+    ofstream out(ackFile.c_str());
+    out << "ok" << endl << endl;
+    out.close();
+  }
 #endif /* HAVE_ACKFILE */
 
 
   /* Wait for RPCs (blocking call): */
-    try {
-	ORBMgr::getMgr()->wait();
-    } catch (...) {
-	WARNING("Error while exiting the ORBMgr::wait() function");
-    }
+  try {
+    ORBMgr::getMgr()->wait();
+  } catch (...) {
+    WARNING("Error while exiting the ORBMgr::wait() function");
+  }
 
 #ifdef HAVE_DYNAMICS
-    signal(SIGINT, SIG_IGN);
-    Agt->removeElementClean(false);
-    signal(SIGINT, SIG_DFL);
+  Agt->removeElementClean(false);
 #endif /* HAVE_DYNAMICS */
 
-    /* shutdown and destroy the ORB
-     * Servants will be deactivated and deleted automatically
-     */
-    delete ORBMgr::getMgr();
+  /* shutdown and destroy the ORB
+   * Servants will be deactivated and deleted automatically
+   */
+  delete ORBMgr::getMgr();
 
-    TRACE_TEXT(TRACE_ALL_STEPS, "Agent has exited" << std::endl);
+  std::for_each(args.begin(), args.end(), CStringDeleter());
 
-    std::for_each(args.begin(), args.end(), CStringDeleter());
+  TRACE_TEXT(TRACE_ALL_STEPS, "Agent has exited" << std::endl);
 
-    return 0;
+  return 0;
 }
