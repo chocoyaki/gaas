@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.26  2011/02/15 16:18:24  bdepardo
+ * Go back to the old signal handle with semaphores. I did not find any better
+ * idea.
+ *
  * Revision 1.25  2010/11/10 02:41:23  kcoulomb
  * Small modifications to use the log service (LogService divided in 2 separated contexts, one for components and one for tools)
  *
@@ -64,6 +68,10 @@ private:
   /* The Portable Object Adaptor. */
   PortableServer::POA_var POA;
   
+  /* Is the ORB down? */
+  bool down;
+  
+
   /* CORBA initialization. */
   void init(CORBA::ORB_ptr ORB);
 
@@ -74,6 +82,16 @@ private:
 
   /* The manager instance. */
   static ORBMgr* theMgr;
+  
+
+  static void
+  sigIntHandler(int sig);
+#ifndef __cygwin__
+  static omni_mutex waitLock;
+#else
+  static sem_t waitLock;
+#endif
+
 public:
   /* Constructors. */
   ORBMgr(int argc, char* argv[]);
@@ -134,7 +152,8 @@ public:
 
   /* Wait for the request on activated objects. */
   void wait() const;
-	
+  void shutdown(bool waitForCompletion);
+
   static void init(int argc, char* argv[]);
 	
   static ORBMgr* getMgr();

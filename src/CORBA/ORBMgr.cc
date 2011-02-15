@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.36  2011/02/15 16:18:24  bdepardo
+ * Go back to the old signal handle with semaphores. I did not find any better
+ * idea.
+ *
  * Revision 1.35  2011/02/09 17:17:10  bdepardo
  * Use NULL instead of 0
  *
@@ -59,6 +63,13 @@ using namespace std;
 
 ORBMgr * ORBMgr::theMgr = NULL;
 
+#ifndef __cygwin__
+omni_mutex ORBMgr::waitLock;
+#else
+sem_t ORBMgr::waitLock;
+#endif
+
+
 /* Manager initialization. */
 void ORBMgr::init(CORBA::ORB_ptr ORB) {
   CORBA::Object_var object;
@@ -102,9 +113,9 @@ ORBMgr::ORBMgr(CORBA::ORB_ptr ORB, PortableServer::POA_var POA) {
 }
 
 ORBMgr::~ORBMgr() {
-  ORB->shutdown(true);
+  shutdown(true);
   ORB->destroy();
-  theMgr = 0;
+  theMgr = NULL;
 }
 
 void ORBMgr::bind(const string& ctxt, const string& name,
@@ -463,9 +474,46 @@ void ORBMgr::deactivate(PortableServer::ServantBase* object) const {
   POA->deactivate_object(*id);
 }
 
+void
+ORBMgr::shutdown(bool waitForCompletion) {
+  if (!down) {
+    ORB->shutdown(waitForCompletion);
+    down = true;
+  }
+}
+
+void
+ORBMgr::sigIntHandler(int sig) {
+  /* Prevent from raising a new SIGINT handler */
+  signal(SIGINT, SIG_IGN);
+#ifndef __cygwin__  
+  ORBMgr::getMgr()->waitLock.unlock();
+#else
+  sem_post(&(ORBMgr::getMgr()->waitLock));
+#endif
+  //  ORBMgr::getMgr()->shutdown(false);
+  signal(SIGINT, SIG_DFL);
+}
 
 void ORBMgr::wait() const {
-  ORB->run();
+  /* FIXME: this is pretty ugly,
+   * but currently I do not see how to do so properly
+   */
+  signal(SIGINT, ORBMgr::sigIntHandler);
+  try {
+    std::cout << "Press CTRL+C to exit" << std::endl;
+#ifdef __cygwin__
+    sem_init(&waitLock,0,1);
+    sem_wait(&waitLock);
+    sem_wait(&waitLock);
+    sem_post(&waitLock);
+#else
+    waitLock.lock();
+    waitLock.lock();
+    waitLock.unlock();
+#endif
+  } catch (...) {
+  }
 }
 
 ORBMgr* ORBMgr::getMgr() {
