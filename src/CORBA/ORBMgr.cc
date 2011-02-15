@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.37  2011/02/15 17:38:48  bdepardo
+ * Add missing include
+ *
  * Revision 1.36  2011/02/15 16:18:24  bdepardo
  * Go back to the old signal handle with semaphores. I did not find any better
  * idea.
@@ -51,6 +54,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <iostream>
+#include <csignal>
 
 #include <omniORB4/CORBA.h>
 #include <omniORB4/omniURI.h>
