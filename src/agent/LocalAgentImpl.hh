@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2011/02/15 16:21:50  bdepardo
+ * Added a new method: removeElementClean
+ *
  * Revision 1.10  2010/12/17 09:47:59  kcoulomb
  * * Set diet to use the new log with forwarders
  * * Fix a CoRI problem
@@ -94,6 +97,9 @@ public :
    */
   virtual CORBA::Long
   removeElement(bool recursive);
+
+  virtual void
+  removeElementClean(bool recursive);
 #endif // HAVE_DYNAMICS
 
   /** Launch this agent (initialization + registration in the hierarchy). */

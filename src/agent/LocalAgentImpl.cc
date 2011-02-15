@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.28  2011/02/15 16:21:50  bdepardo
+ * Added a new method: removeElementClean
+ *
  * Revision 1.27  2011/02/09 17:16:42  bdepardo
  * Fixed problem during CVS merge
  *
@@ -274,13 +277,22 @@ LocalAgentImpl::removeElement(bool recursive) {
    */
   if (! CORBA::is_nil(this->parent)) {
     /* Unsubscribe from parent */
-    if (childID != -1)
-      this->parent->childUnsubscribe(childID, *profiles);
+    if (childID != -1) {
+      try {
+        this->parent->childUnsubscribe(childID, *profiles);
+      } catch (...) {
+        // TODO
+      }
+    }
     this->parent = Agent::_nil();
     childID = -1;
-
+    
     /* Unsubscribe data manager */
-    this->dataManager->unsubscribeParent();
+    try {
+      this->dataManager->unsubscribeParent();
+    } catch (...) {
+      // TODO
+    }
   }
 
   delete profiles;
@@ -289,6 +301,38 @@ LocalAgentImpl::removeElement(bool recursive) {
   return this->AgentImpl::removeElement(recursive);
 }
 
+void
+LocalAgentImpl::removeElementClean(bool recursive) {
+  SeqCorbaProfileDesc_t* profiles(NULL);
+  profiles = SrvT->getProfiles();
+
+  /* Do we already have a parent?
+   * If yes, we need to unsubscribe.
+   */
+  if (! CORBA::is_nil(this->parent)) {
+    /* Unsubscribe from parent */
+    if (childID != -1) {
+      try {
+        this->parent->childUnsubscribe(childID, *profiles);
+      } catch (...) {
+        // TODO
+      }
+    }
+    this->parent = Agent::_nil();
+    childID = -1;
+
+    /* Unsubscribe data manager */
+    try {
+      this->dataManager->unsubscribeParent();
+    } catch (...) {
+      // TODO
+    }
+  }
+
+  delete profiles;
+
+  return this->AgentImpl::removeElementClean(recursive);
+}
 #endif /* HAVE_DYNAMICS */
 
 
