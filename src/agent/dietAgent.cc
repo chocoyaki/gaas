@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.52  2011/02/15 18:41:41  bdepardo
+ * Removed compiler warning
+ *
  * Revision 1.51  2011/02/15 16:20:57  bdepardo
  * Correctly handle sigint with new ORB.
  * Fixed a bug on deletion of strings in "args" variable.
@@ -248,7 +251,7 @@ int main(int argc, char* argv[], char *envp[]) {
   // C++ standard guarantees that its storage is contiguous (C++ Faq 34.3)
   std::vector<char *> args, argsTmp;
   CStringInserter<std::vector<char *> > ins(args);
-  for (unsigned int i = 0; i < argc; i++) {
+  for (int i = 0; i < argc; i++) {
     ins(argv[i]);
   }
   // Configuration map
