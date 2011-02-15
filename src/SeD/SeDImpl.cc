@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.128  2011/02/15 16:19:37  bdepardo
+ * More robust disconnection from parent: catch exceptions
+ *
  * Revision 1.127  2011/02/08 16:53:52  bdepardo
  * Fixed dynamics. They didn't work anymore
  *
@@ -586,8 +589,6 @@ SeDImpl::bindParent(const char * parentName) {
 
 CORBA::Long
 SeDImpl::removeElement() {
-  // removeElementClean();
-
   /* Send signal to commit suicide */
   return raise(SIGINT);
 }
@@ -602,11 +603,19 @@ SeDImpl::removeElementClean() {
    */
   if (! CORBA::is_nil(this->parent)) {
     /* Unsubscribe from parent */
-    this->parent->childUnsubscribe(childID, *profiles);
+    try {
+      this->parent->childUnsubscribe(childID, *profiles);
+    } catch (...) {
+      // TODO
+    }
     this->parent = Agent::_nil();
 
     /* Unsubscribe data manager */
-    this->dataManager->unsubscribeParent();
+    try {
+      this->dataManager->unsubscribeParent();
+    } catch (...) {
+      // TODO
+    }
   }
 
   delete profiles;
