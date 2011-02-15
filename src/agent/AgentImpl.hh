@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.30  2011/02/15 16:21:27  bdepardo
+ * removeElementClean is now virtual
+ *
  * Revision 1.29  2010/12/17 09:47:59  kcoulomb
  * * Set diet to use the new log with forwarders
  * * Fix a CoRI problem
@@ -228,7 +231,7 @@ public:
   virtual CORBA::Long
   removeElement(bool recursive);
   void removeElementChildren(bool recursive);
-  void removeElementClean(bool recursive);
+  virtual void removeElementClean(bool recursive);
 #endif // HAVE_DYNAMICS
 	
 	
