@@ -8,6 +8,11 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.7  2011/02/16 18:09:15  bdepardo
+%* Configuration files of forwarders now use "accept = " and "reject = ".
+%* This is a syntax similar to the one used in the MA, SeD and client
+%* configuration files.
+%*
 %* Revision 1.6  2010/10/28 10:20:37  bdepardo
 %* Added missing parameters --nb-retry, --peer-ior
 %*
@@ -161,12 +166,12 @@ addresses. \textit{localhost} is a special rule that represent, the
 network interface IP addresses.\\
 
 A \diet forwarder configuration file line always starts with
-\textit{accept:} or \textit{reject:} immediately followed by a regular
+\textit{accept~=~} or \textit{reject~=~} followed by a regular
 expression.\\
 
 The rules are evaluated starting by the \textit{accept} rules. Then
-the rule \textit{accept:.*} (accept every hostname) followed by the
-rule \textit{reject:localhost} means that the forwarder manage the
+the rule \textit{accept~=~.*} (accept every hostname) followed by the
+rule \textit{reject~=~localhost} means that the forwarder manage the
 connections to every hosts except the local host.
 
 Examples of configuration files are given in section
@@ -212,15 +217,15 @@ three networks.
 In this example, the forwarders \textit{Fwd1} accepts only the
 connections to \textit{fwd.net2}.
 \begin{verbatim}
-accept:fwd.net2
+accept = fwd.net2
 \end{verbatim}
 
 \noindent\textbf{Configuration file for \textit{Fwd2}:}\\
 In this example, the forwarders \textit{Fwd2} accepts all the
 connections except those which are for the localhost.
 \begin{verbatim}
-accept:.*
-reject:localhost
+accept = .*
+reject = localhost
 \end{verbatim}
 
 Note that \textit{Fwd2} has to be launched before \textit{Fwd1}.
@@ -271,30 +276,30 @@ To connect the three domains, we need 4 forwarders (2 pairs): one on
 \textit{Fwd1} manages the communications for all the host outside
 \textit{net1}.
 \begin{verbatim}
-accept:.*
-reject:.*\.net1
+accept = .*
+reject = .*\.net1
 \end{verbatim}
 
 \noindent\textbf{Configuration file for \textit{Fwd2-1}:}\\
 \textit{Fwd2-1} manages the communication for all the hosts located on
 \textit{net1}.
 \begin{verbatim}
-accept:.*\.net1
+accept = .*\.net1
 \end{verbatim}
 
 \noindent\textbf{Configuration file for \textit{Fwd2-3}:}\\
 \textit{Fwd2-3} manages the communication for all the hosts located on
 \textit{net3}.
 \begin{verbatim}
-accept:.*\.net3
+accept = .*\.net3
 \end{verbatim}
 
 \noindent\textbf{Configuration file for \textit{Fwd3}:}\\
 \textit{Fwd1} manages the communications for all the host outside
 \textit{net3}.
 \begin{verbatim}
-accept:.*
-reject:.*\.net3
+accept = .*
+reject = .*\.net3
 \end{verbatim}
 
 Using this configuration, a communication from a host on \textit{net1}

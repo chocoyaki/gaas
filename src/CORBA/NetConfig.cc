@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2011/02/16 18:09:18  bdepardo
+ * Configuration files of forwarders now use "accept = " and "reject = ".
+ * This is a syntax similar to the one used in the MA, SeD and client
+ * configuration files.
+ *
  * Revision 1.4  2010/07/27 10:24:32  glemahec
  * Improve robustness & general performance
  *
@@ -156,7 +161,7 @@ void NetConfig::parseFile() {
 		/* Void line. */
 		if (line=="") continue;
 		/* Manage accepted networks. */
-		if ((pos = line.find("accept:"))==0) {
+		if ((pos = line.find("accept = "))==0) {
 			string network = line.substr(7);
 			if (network=="localhost") {
 				addLocalHost(accept);
@@ -164,7 +169,7 @@ void NetConfig::parseFile() {
 				addAcceptNetwork(network);
 			}
 		}
-		if ((pos = line.find("reject:"))==0) {
+		if ((pos = line.find("reject = "))==0) {
 			string network = line.substr(7);
 			if (network=="localhost") {
 				addLocalHost(reject);
