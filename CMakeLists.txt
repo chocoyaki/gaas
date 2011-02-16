@@ -6,26 +6,27 @@ cmake_minimum_required(VERSION 2.6)
 
 set(DIET_MAJOR_VERSION 2)
 set(DIET_MINOR_VERSION 6)
-set(DIET_REVISION_VERSION 0)
+set(DIET_REVISION_VERSION 1)
 
 set(DIET_VERSION ${DIET_MAJOR_VERSION}.${DIET_MINOR_VERSION})
 
 if (DIET_REVISION_VERSION)
-	set(DIET_VERSION ${DIET_VERSION}.${DIET_REVISION_VERSION})
+  set(DIET_VERSION ${DIET_VERSION}.${DIET_REVISION_VERSION})
 endif (DIET_REVISION_VERSION)
+add_definitions(-DDIET_VERSION="${DIET_VERSION}")
 
 # Get Date
 if (WIN32)
   execute_process(COMMAND "date" "+%Y/%m/%d-%H:%M:%S" 
-  			  OUTPUT_VARIABLE BUILD_DATE)
+    OUTPUT_VARIABLE BUILD_DATE)
   string(STRIP ${BUILD_DATE} BUILD_DATE) # get rid of newline
 elseif (UNIX)
   execute_process(COMMAND "date" "+%Y/%m/%d-%H:%M:%S" 
-  			  OUTPUT_VARIABLE BUILD_DATE)
+    OUTPUT_VARIABLE BUILD_DATE)
   string(STRIP ${BUILD_DATE} BUILD_DATE) # get rid of newline
 else (WIN32)
   message(SEND_ERROR "date not implemented")
-	set(${BUILD_DATE} 000000)
+  set(${BUILD_DATE} 000000)
 endif (WIN32)
 
 set(DIET_BUILD_VERSION ${BUILD_DATE})
