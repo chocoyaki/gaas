@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2011/02/16 18:54:02  bdepardo
+ * Accept both the old and the new configuration file format.
+ *
  * Revision 1.5  2011/02/16 18:09:18  bdepardo
  * Configuration files of forwarders now use "accept = " and "reject = ".
  * This is a syntax similar to the one used in the MA, SeD and client
@@ -142,42 +145,74 @@ void NetConfig::addLocalHost(std::list<string>& l) const {
 }
 
 void NetConfig::parseFile() {
-	ifstream file(filePath.c_str());
+  ifstream file(filePath.c_str());
 	
-	if (!file.is_open())
-		throw runtime_error("Unable to open "+filePath);
-	while (!file.eof()) {
-		char buffer[1024];
-		size_t pos;
-		file.getline(buffer, 1024);
-		string line(buffer);
+  if (!file.is_open())
+    throw runtime_error("Unable to open "+filePath);
+  while (!file.eof()) {
+    char buffer[1024];
+    size_t pos;
+    file.getline(buffer, 1024);
+    string line(buffer);
 		
-		/* Remove comments. */
-		if ((pos = line.find('#'))!=string::npos)
-			line = line.substr(0, pos);
-		/* Remove blank characters. */
-		while ((pos = line.find(' '))!=string::npos) line.erase(pos);
-		while ((pos = line.find('\t'))!=string::npos) line.erase(pos);
-		/* Void line. */
-		if (line=="") continue;
-		/* Manage accepted networks. */
-		if ((pos = line.find("accept = "))==0) {
-			string network = line.substr(7);
-			if (network=="localhost") {
-				addLocalHost(accept);
-			} else {
-				addAcceptNetwork(network);
-			}
-		}
-		if ((pos = line.find("reject = "))==0) {
-			string network = line.substr(7);
-			if (network=="localhost") {
-				addLocalHost(reject);
-			} else {
-				addRejectNetwork(network);
-			}
-		}
-	}
+    /* Remove comments. */
+    if ((pos = line.find('#')) != string::npos)
+      line = line.substr(0, pos);
+
+    /* Remove blank characters. */
+    if ((pos = line.find_last_not_of(' ')) != string::npos) {
+      cout << "remove space " << pos << endl;
+      line.erase(pos+1);
+    }
+    if ((pos = line.find_last_not_of('\t')) != string::npos) {
+      cout << "remove tab " << pos << endl;
+      line.erase(pos+1);
+    }
+
+    /* Void line. */
+    if (line == "") {
+      continue;
+    }
+
+    cout << "line: '" << line << "'" << endl;
+    /* Manage accepted networks. */
+    if (line.find("accept = ") == 0) {
+      string network = line.substr(10);
+      cout << "accept = ## " << network << endl;
+      if (network=="localhost") {
+        addLocalHost(accept);
+      } else {
+        addAcceptNetwork(network);
+      }
+    }
+    if (line.find("accept:") == 0) {
+      string network = line.substr(7);
+      cout << "accept:## " << network << endl;
+      if (network=="localhost") {
+        addLocalHost(accept);
+      } else {
+        addAcceptNetwork(network);
+      }
+    }
+    if (line.find("reject = ") == 0) {
+      string network = line.substr(10);
+      cout << "reject = ## " << network << endl;
+      if (network=="localhost") {
+        addLocalHost(reject);
+      } else {
+        addRejectNetwork(network);
+      }
+    }
+    if (line.find("reject:") == 0) {
+      string network = line.substr(7);
+      cout << "reject:## " << network << endl;
+      if (network=="localhost") {
+        addLocalHost(reject);
+      } else {
+        addRejectNetwork(network);
+      }
+    }
+  }
 }
 
 void NetConfig::reset() {
