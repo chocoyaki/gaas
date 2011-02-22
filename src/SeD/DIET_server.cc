@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.97  2011/02/22 23:26:36  bdepardo
+ * Reduce variable scope
+ *
  * Revision 1.96  2011/02/09 09:36:35  bdepardo
  * Quick hack, for the SeD to work with the new parser
  *
@@ -892,10 +895,10 @@ diet_SeD(const char* config_file_name, int argc, char* argv[])
   /* DietLogComponent creation for LogService usage */
   bool useLS;
   unsigned int* ULSptr;
+#ifdef USE_LOG_SERVICE
   int outBufferSize;
-  unsigned int* OBSptr;
   int flushTime;
-  unsigned int* FTptr;
+#endif
 
   ULSptr = (unsigned int*)Parsers::Results::getParamValue(Parsers::Results::USELOGSERVICE);
   useLS = false;
@@ -906,6 +909,10 @@ diet_SeD(const char* config_file_name, int argc, char* argv[])
   }
 
   if (useLS) {
+#ifdef USE_LOG_SERVICE
+    unsigned int* OBSptr;
+    unsigned int* FTptr;
+
     OBSptr = (unsigned int*)Parsers::Results::getParamValue(Parsers::Results::LSOUTBUFFERSIZE);
     if (OBSptr != NULL) {
       outBufferSize = (int)(*OBSptr);
@@ -922,6 +929,9 @@ diet_SeD(const char* config_file_name, int argc, char* argv[])
       TRACE_TEXT(TRACE_ALL_STEPS,
 		 "lsFlushinterval not configured, using default");
     }
+#else
+    WARNING("Option useLogService = 1, but DIET has not been compiled with LogService support");
+#endif
   }
 
 #if HAVE_FD
