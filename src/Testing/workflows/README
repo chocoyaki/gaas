@@ -1,0 +1,15 @@
++ bug 155
+  - data_inout_sink.xml
+  - data_loop.xml
+
++ bug 156
+  - data_loop.xml
+  - loop.xml
+
++ test d'une condition dans un while contenant une référence à un
+  objet d'un container (xs:decimal($int1_inL/array/item[1]/text()) le
+  10).
+  test de la connexion des ports de sorties du processeur directement
+  à des sink, alors que le processeur est appelé dans une boucle.
+  - data_loop_container.xml
+  - loop_container.xml

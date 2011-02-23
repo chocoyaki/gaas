@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<data>
+  <source name="int1">
+    <list>
+    <list>
+      <item value="1"/>
+      <item value="2"/>
+    </list>
+    </list>
+  </source>
+
+  <source name="int2">
+    <list>
+    <list>
+      <item value="3"/>
+      <item value="4"/>
+    </list>
+    </list>
+  </source>
+</data>

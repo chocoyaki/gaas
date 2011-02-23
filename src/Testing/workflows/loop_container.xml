@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE workflow SYSTEM "/Users/bdepardo/soft/Diet/etc/FWorkflow.dtd">
+
+<workflow>
+  <interface>
+    <!-- INPUT -->
+    <source name="int1" type="DIET_LONGINT"/> 
+    <source name="int2" type="DIET_LONGINT"/>
+
+    <!-- OUTPUT -->
+
+    <sink name="int2out"   type="DIET_LONGINT"/>
+    <sink name="int3out"   type="DIET_LONGINT"/>
+
+    <!-- CONSTANT -->
+    <!-- <constant name="init0" type="DIET_LONGINT" value="0"/> -->
+  </interface>
+
+  <processors>
+    <processor name="Run">
+      <in name="int1"    type="DIET_LONGINT" depth="1"/>
+      <inOut name="int2" type="DIET_LONGINT" depth="1"/>
+      <out name="int3"   type="DIET_LONGINT" depth="1"/>
+
+      <diet path="LCADD" estimation="constant"/>
+    </processor>
+
+
+    <loop name="myLoop">
+      <!-- /!\ REQUIRED nb of IN ports EQUALS nb of OUT ports -->
+      <in name="int1"     type="DIET_LONGINT" depth="1"/>
+      <in name="int2"     type="DIET_LONGINT" depth="1"/>
+
+      <out name="int1out" type="DIET_LONGINT" depth="1"/>
+      <out name="int2out" type="DIET_LONGINT" depth="1"/>
+
+      <inLoop name="int1_inL"   type="DIET_LONGINT"    init="int1" depth="1"/>
+      <inLoop name="int2_inL"   type="DIET_LONGINT"    init="int2" depth="1"/>
+
+      <outLoop name="int1_outL" type="DIET_LONGINT"    final="int1out" depth="1"/>
+      <outLoop name="int2_outL" type="DIET_LONGINT"    final="int2out" depth="1"/>
+
+      <while>(xs:decimal($int1_inL/array/item[1]/text()) le 10)</while>
+      <do>int1_outL=int1_inL; int2_outL=int2_inL;</do>
+    </loop>
+  </processors>
+
+
+  <links>
+    <!-- ******************************************* -->
+    <!-- From constant input parameters to processor -->
+    <!-- ******************************************* -->
+    <link from="int1"      to="myLoop:int1"/>
+    <link from="int2"      to="myLoop:int2"/>
+
+    <link from="myLoop:int1_outL"      to="Run:int1"/>
+    <link from="myLoop:int2_outL"      to="Run:int2"/>
+
+    <link from="Run:int2"      to="myLoop:int1_inL"/>
+    <link from="Run:int3"      to="myLoop:int2_inL"/>
+
+    <link from="Run:int2"      to="int2out"/>
+    <link from="Run:int3"      to="int3out"/>
+
+
+
+    <!-- <link from="Run:int3"  to="int2out"/> -->
+    <!-- <link from="Run2:int2"  to="int3"/> -->
+    <!-- <link from="Run2:int3"  to="int2out"/> -->
+  </links>
+
+</workflow>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE workflow SYSTEM "/Users/bdepardo/soft/Diet/etc/FWorkflow.dtd">
+
+<workflow>
+  <interface>
+    <!-- INPUT -->
+    <source name="int1" type="DIET_INT"/> 
+    <source name="int2"   type="DIET_INT"/>
+
+    <!-- OUTPUT -->
+
+    <sink name="int2out"   type="DIET_INT"/>
+    <sink name="int3"   type="DIET_INT"/>
+
+    <!-- CONSTANT -->
+    <!-- <constant name="init0" type="DIET_INT" value="0"/> -->
+  </interface>
+
+  <processors>
+    <processor name="Run">
+      <in name="int1" type="DIET_INT"/>
+      <inOut name="int2" type="DIET_INT"/>
+      <out name="int3" type="DIET_INT"/>
+
+      <diet path="IADD" estimation="constant"/>
+    </processor>
+
+    <!-- <processor name="Run2"> -->
+    <!--   <in name="int1" type="DIET_INT"/> -->
+    <!--   <inOut name="int2" type="DIET_INT"/> -->
+    <!--   <out name="int3" type="DIET_INT"/> -->
+
+    <!--   <diet path="IADD" estimation="constant"/> -->
+    <!-- </processor> -->
+  </processors>
+
+
+  <links>
+    <!-- ******************************************* -->
+    <!-- From constant input parameters to processor -->
+    <!-- ******************************************* -->
+    <link from="int1"      to="Run:int1"/>
+    <link from="int2"      to="Run:int2"/>
+
+    <link from="Run:int2"      to="int2out"/>
+    <link from="Run:int3"      to="int3"/>
+
+    <!-- <link from="Run:int3"  to="int2out"/> -->
+    <!-- <link from="Run2:int2"  to="int3"/> -->
+    <!-- <link from="Run2:int3"  to="int2out"/> -->
+  </links>
+
+</workflow>
