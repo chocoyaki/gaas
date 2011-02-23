@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.163  2011/02/23 15:05:18  bdepardo
+ * Catch exception when opening the configuration file.
+ *
  * Revision 1.162  2011/02/10 23:21:54  hguemar
  * fixes compilation
  *
@@ -420,6 +423,7 @@ using namespace std;
 #include "SeD.hh"
 #include "statistics.hh"
 #include "configuration.hh"
+#include "DIET_grpc.h"
 
 #ifdef USE_LOG_SERVICE
 #include "DietLogComponent.hh"
@@ -598,7 +602,12 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
   /* FIXME: this is a hack for the new parser, so that it works with DAGDA
    * We should remove the old parser as soon as possible
    */
-  FileParser fileParser(config_file_name);
+  FileParser fileParser;
+  try {
+    fileParser.parseFile(config_file_name);
+  } catch (...) {
+    ERROR("while parsing " << config_file_name, DIET_FILE_IO_ERROR);
+  }
   CONFIGMAP = fileParser.getConfiguration();
 
 

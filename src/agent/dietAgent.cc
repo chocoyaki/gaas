@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.53  2011/02/23 15:05:17  bdepardo
+ * Catch exception when opening the configuration file.
+ *
  * Revision 1.52  2011/02/15 18:41:41  bdepardo
  * Removed compiler warning
  *
@@ -183,6 +186,7 @@ using namespace std;
 #include "LocalAgentImpl.hh"
 #include "MasterAgentImpl.hh"
 #include "ORBMgr.hh"
+#include "DIET_grpc.h"
 
 #ifdef USE_LOG_SERVICE
 #include "DietLogComponent.hh"
@@ -315,7 +319,12 @@ int main(int argc, char* argv[], char *envp[]) {
   // get configuration file
   std::string& configFile = cmdParser["configFile"];
 
-  FileParser fileParser(configFile);
+  FileParser fileParser;
+  try {
+    fileParser.parseFile(configFile);
+  } catch (...) {
+    ERROR("while parsing " << configFile, DIET_FILE_IO_ERROR);
+  }
 
   /* now merge our maps */
   CONFIGMAP = cmdParser.getConfiguration();
