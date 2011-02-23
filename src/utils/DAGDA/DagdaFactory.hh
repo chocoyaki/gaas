@@ -10,6 +10,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2011/02/23 23:13:56  bdepardo
+ * Added a reset() method which sets to NULL all data managers to NULL
+ *
  * Revision 1.7  2010/09/02 17:29:49  bdepardo
  * Fixed a memory corruption when linking two DIET library:
  * defaultStorageDir cannot be a static string, we need to use a static method
@@ -39,6 +42,7 @@ private:
   static unsigned long defaultMaxDiskSpace;
   static unsigned long defaultMaxMemSpace;
   static std::string getDefaultStorageDir();
+
 public:
   static DagdaImpl* getClientDataManager();
   static DagdaImpl* getSeDDataManager();
@@ -53,6 +57,7 @@ public:
   static const char* getSeDName();
   static const char* getAgentName();
   static const char* getDefaultName();
+  static void reset();
 };
 
 #endif

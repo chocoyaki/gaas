@@ -10,6 +10,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.26  2011/02/23 23:13:56  bdepardo
+ * Added a reset() method which sets to NULL all data managers to NULL
+ *
  * Revision 1.25  2011/02/09 17:16:21  bdepardo
  * Fixed problem during CVS merge
  *
@@ -370,4 +373,17 @@ DagdaImpl* DagdaFactory::getDataManager() {
   }
 
   return localDataManager;
+}
+
+void
+DagdaFactory::reset() {
+  // Reset everything to default value
+  // TODO: Do not delete managers, otherwise we get a segfault...
+  clientDataManager = NULL;
+  sedDataManager = NULL;
+  agentDataManager = NULL;
+  localDataManager = NULL;
+  storageDir = "";
+  defaultMaxDiskSpace = 0;
+  defaultMaxMemSpace = 0;
 }
