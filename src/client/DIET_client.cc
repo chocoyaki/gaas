@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.164  2011/02/23 23:14:27  bdepardo
+ * Fixed multiple diet_initialize calls
+ *
  * Revision 1.163  2011/02/23 15:05:18  bdepardo
  * Catch exception when opening the configuration file.
  *
@@ -464,7 +467,7 @@ extern unsigned int TRACE_LEVEL;
 
 /** The Master Agent reference */
 MasterAgent_var MA = MasterAgent::_nil();
-omni_mutex*      MA_MUTEX;
+omni_mutex*     MA_MUTEX = NULL;
 
 /** Error rate for contract checking */
 #define ERROR_RATE 0.1
@@ -577,7 +580,10 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
   void*  value(NULL);
 
   // MA_MUTEX initialization
-  MA_MUTEX = new omni_mutex();
+  if (MA_MUTEX == NULL) {
+    MA_MUTEX = new omni_mutex();
+  }
+
 #ifdef HAVE_WORKFLOW
   char*  MA_DAG_name(NULL);
   char*  USE_WF_LOG_SERVICE(NULL);
@@ -653,19 +659,22 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
   }	catch (...) {
     ERROR("ORB initialization failed", 1);
   }
-  
+
   // Create sole instance of synchronized CallAsyncMgr class
   CallAsyncMgr::Instance();
+
   // Create servant callback object
   CallbackImpl* cb = new CallbackImpl();
+
   // activate servant callback
   try {
     ORBMgr::getMgr()->activate(cb);
   } catch (...) {
     return -1;
   }
+
   CORBA::Object_var obj = cb->_this();
-  
+
   // create corba client callback serveur reference
   ostringstream os;
   char host[256];
@@ -681,7 +690,9 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
   } catch (...) {
     ERROR("Connection to omniNames failed (Callback server bind)", 1);
   }
-  if (REF_CALLBACK_SERVER == NULL) return -1;
+  if (REF_CALLBACK_SERVER == NULL) {
+    return -1;
+  }
 
 
 #if HAVE_JUXMEM
@@ -690,7 +701,7 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
 
   /* Find Master Agent */
   MA_name = (char*)
-  Parsers::Results::getParamValue(Parsers::Results::MANAME);
+    Parsers::Results::getParamValue(Parsers::Results::MANAME);
   TRACE_TEXT(TRACE_MAIN_STEPS, "MA NAME PARSING = " << MA_name << endl);
   MA_Name = CORBA::string_dup(MA_name);
   MA_MUTEX->lock();
@@ -701,9 +712,10 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
     return -1;
   }
   MA_MUTEX->unlock();
-  
+
   /* Initialize statistics module */
   stat_init();
+
 
 #ifdef USE_LOG_SERVICE
   /* Initialize LogService */
@@ -744,8 +756,8 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
     TRACE_TEXT(TRACE_ALL_STEPS, "LogService enabled" << endl);
     char* agtTypeName = strdup("CLIENT");
     char* agtParentName;
-    agtParentName = (char*)Parsers::Results::getParamValue
-                          (Parsers::Results::MANAME);
+    agtParentName = (char*)
+      Parsers::Results::getParamValue(Parsers::Results::MANAME);
     char*  userDefName;
     userDefName = (char*)
       Parsers::Results::getParamValue(Parsers::Results::NAME);
@@ -847,6 +859,7 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
     TRACE_TEXT (TRACE_MAIN_STEPS,"Max number of SeD allowed = " << MAX_SERVERS << endl);
   }
 
+
   /* DAGDA needs some parameters later... */
 #if ! HAVE_DAGDA
   /* We do not need the parsing results any more */
@@ -883,6 +896,7 @@ diet_finalize() {
 #if HAVE_WORKFLOW
   // Terminate the xerces XML engine
   XMLPlatformUtils::Terminate();
+  MA_DAG = MaDag::_nil();
 #endif // HAVE_WORKFLOW
 
   stat_finalize();
@@ -890,20 +904,23 @@ diet_finalize() {
   CallAsyncMgr * caMgr = CallAsyncMgr::Instance();
   while (caMgr->areThereWaitRules() > 0) {
     omni_thread::sleep(1);
-    // must be replace by a call to waitall
-    // must be a call to diet_finalize_force ....
-    // Maybe we must split async api from sync api ...
+    // FIXME must be replace by a call to waitall
+    // FIXME must be a call to diet_finalize_force ....
+    // FIXME Maybe we must split async api from sync api ...
   }
   caMgr->release();
-
-  MA_MUTEX->lock();
-  MA = MasterAgent::_nil();
-  MA_MUTEX->unlock();
 
 #if HAVE_JUXMEM
   terminateJuxMem();
 #endif // HAVE_JUXMEM
   
+#ifdef USE_LOG_SERVICE
+  if (dietLogComponent != NULL) {
+    delete dietLogComponent;
+    dietLogComponent = NULL;
+  }
+#endif
+
 #ifdef HAVE_DAGDA
   try {
       string dagdaName = DagdaFactory::getDataManager()->getID();
@@ -911,10 +928,12 @@ diet_finalize() {
       ORBMgr::getMgr()->fwdsUnbind(DAGDACTXT, dagdaName);
   } catch( const char * str ) {
       std::cerr << "Exception caught: "
-		<< str
-		<< "\n";
+        	<< str
+        	<< "\n";
   } catch( ... ) {}
+  DagdaFactory::reset();
 #endif
+
   try {
       ORBMgr *mgr = ORBMgr::getMgr();
       mgr->unbind(CLIENTCTXT, REF_CALLBACK_SERVER);
@@ -926,9 +945,16 @@ diet_finalize() {
 		<< "\n";
   } catch( ... ) {}
   
+  
   /* end fileName */
   // *fileName='\0';
   
+  MA_MUTEX->lock();
+  MA = MasterAgent::_nil();
+  MA_MUTEX->unlock();
+  delete MA_MUTEX;
+  MA_MUTEX = NULL;
+
   return GRPC_NO_ERROR;
 }
 
