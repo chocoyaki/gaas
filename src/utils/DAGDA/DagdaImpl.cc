@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.45  2011/02/24 16:53:30  bdepardo
+ * Use TRACE_TEXT instead of cout
+ *
  * Revision 1.44  2011/02/09 17:15:53  bdepardo
  * Be less verbose
  *
@@ -939,10 +942,10 @@ corba_data_desc_t* SimpleDagdaImpl::lvlGetDataDesc(const char* dataID) {
       }
       ++itch;
     } catch (CORBA::COMM_FAILURE& e1) {
-      cout << "CORBA Comm failure!!" << endl;
+      TRACE_TEXT(TRACE_MAIN_STEPS, "CORBA Comm failure!!" << endl);
       getChildren()->erase(itch++);
     } catch (CORBA::TRANSIENT& e2) {
-      cout << "CORBA Comm failure!!" << endl;
+      TRACE_TEXT(TRACE_MAIN_STEPS, "CORBA Comm failure!!" << endl);
       getChildren()->erase(itch++);
     }
   childrenMutex.unlock();

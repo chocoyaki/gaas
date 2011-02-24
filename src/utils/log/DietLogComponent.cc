@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2011/02/24 16:52:22  bdepardo
+ * Use TRACE_TEXT instead of cout
+ *
  * Revision 1.5  2011/02/07 18:42:31  bdepardo
  * Removed debug messages
  *
@@ -438,7 +441,7 @@ int DietLogComponent::run(const char* agentType,
   } catch (CORBA::SystemException &e) {
     free(msg);
     free(hostName);
-    cout << "Error: could not connect to the LogCentral" << endl;
+    TRACE_TEXT(TRACE_MAIN_STEPS, "Error: could not connect to the LogCentral" << endl);
     DLC_ERROR("SystemException",-1);
   }
   free(hostName);  // alloc'ed with new[]
