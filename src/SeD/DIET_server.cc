@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.99  2011/02/24 17:52:11  bdepardo
+ * Fixed compilation problem when using ACK_FILE
+ *
  * Revision 1.98  2011/02/24 16:57:01  bdepardo
  * Use new parser
  *
@@ -997,7 +1000,7 @@ diet_SeD(const char* config_file_name, int argc, char* argv[])
   std::string ackFile;
   if (CONFIG_STRING(diet::ACKFILE, ackFile)) {
     cerr << "Open OutFile: "<< ackFile <<endl;
-    ofstream out (ackFile);
+    ofstream out (ackFile.c_str());
     out << "ok" << endl;
     out.close();
   }
