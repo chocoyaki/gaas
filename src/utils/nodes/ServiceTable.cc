@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2011/02/24 16:51:16  bdepardo
+ * Code cleanup: removed all #ifdef YC_DEBUG directives
+ *
  * Revision 1.5  2011/01/23 19:59:59  bdepardo
  * Common realloc mistake: "eval_functions/convertors/solvers/perfmetrics/matching_children"
  * nulled but not freed upon failure
@@ -824,68 +827,32 @@ ServiceTable::getChildren(const corba_pb_desc_t * pb_desc,
   
     /* Copy children, ordered parallel flag = 1 first */
     if( profiles[ serviceRef ].parallel_flag == 1 ) {
-#ifdef YC_DEBUG
-      cout << "Identities of the children for seq service" << endl ;
-#endif
       for( i=0; i<matching_children[ first_found ].nb_children ; i++ ) {
 	mc->children[ i ] =
 	  matching_children[ first_found ].children[ i ] ;
-#ifdef YC_DEBUG
-	cout << matching_children[ first_found ].children[ i ] ;
-#endif
       }
-#ifdef YC_DEBUG
-	cout << endl ;
-#endif
       if( second_found > 0 ) {
-#ifdef YC_DEBUG
-	cout << "Identities of the children for parallel service" << endl ;
-#endif
 	for(j=0 ; j<matching_children[ second_found ].nb_children ; i++, j++) {
 	  mc->children[ i ] =
 	    matching_children[ second_found ].children[ j ] ;
-#ifdef YC_DEBUG
-	cout << matching_children[ second_found ].children[ j ] ;
-#endif
 	}
-#ifdef YC_DEBUG
-	cout << endl ;
-#endif
       }
       /* set frontier */
       (*frontier)=matching_children[ first_found ].nb_children ;
     } else {
       if( second_found > 0 ) {
-#ifdef YC_DEBUG
-	cout << "Identities of the children for seq service" << endl ;
-#endif
 	for( i=0; i<matching_children[ second_found ].nb_children ; i++ ) {
 	  mc->children[ i ] =
 	    matching_children[ second_found ].children[ i ] ;
-#ifdef YC_DEBUG
-	  cout << matching_children[ second_found ].children[ i ] ;
-#endif
 	}
-#ifdef YC_DEBUG
-	cout << endl ;
-#endif
 	/* set frontier */
 	(*frontier)=matching_children[ second_found ].nb_children ;
       } else {
-#ifdef YC_DEBUG
-	cout << "Identities of the children for parallel service" << endl ;
-#endif 
       for( j=0, i=0 ; j<matching_children[ first_found ].nb_children ;
 	   i++, j++ ) {
 	mc->children[ i ] =
 	  matching_children[ first_found ].children[ j ] ;
-#ifdef YC_DEBUG
-	cout << matching_children[ first_found ].children[ j ] ;
-#endif
       }
-#ifdef YC_DEBUG
-	cout << endl ;
-#endif
       /* set frontier */
       (*frontier)=0 ;
       }
@@ -896,19 +863,10 @@ ServiceTable::getChildren(const corba_pb_desc_t * pb_desc,
       matching_children[ first_found ].nb_children ;
     mc->children =
       new CORBA::ULong[mc->nb_children] ;
-#ifdef YC_DEBUG
-    cout << "Identities of the children for service" << endl ;
-#endif
     for( i=0; i<matching_children[ first_found ].nb_children ; i++ ) {
       mc->children[ i ] =
 	matching_children[ first_found ].children[ i ] ;
-#ifdef YC_DEBUG
-      cout << matching_children[ first_found ].children[ i ] ;
-#endif
     }
-#ifdef YC_DEBUG
-	cout << endl ;
-#endif
     /* set frontier */
     if( profiles[ serviceRef ].parallel_flag == 1 )
       (*frontier)= matching_children[ first_found ].nb_children ;
