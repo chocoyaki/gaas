@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.71  2011/02/24 11:55:46  bdepardo
+ * Use the new CONFIG_XXX macros.
+ *
  * Revision 1.70  2011/02/10 23:18:58  hguemar
  * fixes some issues detected by latest cppcheck (1.47)
  *
@@ -322,78 +325,84 @@ MasterAgentImpl::~MasterAgentImpl()
 int
 MasterAgentImpl::run()
 {
-    int res = this->AgentImpl::run();
-    if (res)
-	return res;
+  int res = this->AgentImpl::run();
+  if (res)
+    return res;
 
-	this->reqIDCounter = CONFIG_ULONG(diet::INITREQUESTID); 
+  this->reqIDCounter = 0;
+  unsigned long tmpCounter;
+  if (CONFIG_ULONG(diet::INITREQUESTID, tmpCounter)) {
+    this->reqIDCounter = tmpCounter;
+  }
 
 #ifdef HAVE_MULTI_MA
-    /* launch the bind service */
-    unsigned int port = CONFIG_INT(diet::BINDSERVICEPORT);
-    if (port) {
-	bindSrv = new BindService(this, port) ;
-	char* bindName = ms_stralloc(strlen(localHostName) + 20);
-	sprintf(bindName, "%s:%d", localHostName, port) ;
-	this->bindName = bindName ;
-	reqIDCounter = KeyString::hash(bindName) ;
-    } else {
-	reqIDCounter = KeyString::hash(localHostName) ;
-    }
-    reqIDCounter = ((reqIDCounter & 0xFFFFF) ^ ((reqIDCounter >> 12) & 0xFFF))
-	* 1000 ;
+  /* launch the bind service */
+  unsigned long port;
+  if (CONFIG_ULONG(diet::BINDSERVICEPORT, port)) {
+    bindSrv = new BindService(this, port) ;
+    char* bindName = ms_stralloc(strlen(localHostName) + 20);
+    sprintf(bindName, "%s:%lu", localHostName, port) ;
+    this->bindName = bindName ;
+    reqIDCounter = KeyString::hash(bindName) ;
+  } else {
+    reqIDCounter = KeyString::hash(localHostName) ;
+  }
+  reqIDCounter = ((reqIDCounter & 0xFFFFF) ^ ((reqIDCounter >> 12) & 0xFFF))
+    * 1000 ;
 
-    /* FIXME: initRequestID is not managed in the .cfg yet */
-    TRACE_TEXT(TRACE_ALL_STEPS, "Getting MAs references ..." << std::endl);
+  /* FIXME: initRequestID is not managed in the .cfg yet */
+  TRACE_TEXT(TRACE_ALL_STEPS, "Getting MAs references ..." << std::endl);
 
-    /* get the list of neighbours */
-    const std::string& neighbors = CONFIG_STRING(diet::NEIGHBOURS) ;
+  /* get the list of neighbours */
+  std::string neighbors = "";
+  CONFIG_STRING(diet::NEIGHBOURS, neighbors);
 
-    // FIXME: use std::string instead
-    char *neighbours = ms_strdup(neighbors.c_str()) ;
-    char* comma, *begin_copy ;
-    begin_copy = neighbours ;
-    while((comma = strchr(neighbours, ',')) != NULL) {
-	comma[0] = '\0' ;
-	if(neighbours[0] != '\0')
-	    MAIds.insert(CORBA::string_dup(neighbours)) ;
-	neighbours = comma + 1 ;
-    }
-    MAIds.insert(CORBA::string_dup(neighbours)) ;
-    free(begin_copy) ;
+  // FIXME: use std::string instead
+  char *neighbours = ms_strdup(neighbors.c_str()) ;
+  char* comma, *begin_copy ;
+  begin_copy = neighbours ;
+  while((comma = strchr(neighbours, ',')) != NULL) {
+    comma[0] = '\0' ;
+    if(neighbours[0] != '\0')
+      MAIds.insert(CORBA::string_dup(neighbours)) ;
+    neighbours = comma + 1 ;
+  }
+  MAIds.insert(CORBA::string_dup(neighbours)) ;
+  free(begin_copy) ;
 
-    /* initialize some variables */
-    unsigned int conf = CONFIG_INT(diet::MINNEIGHBOURS);
+  /* initialize some variables */
+  unsigned long conf;
 
-    if (conf)
-	minMAlinks = conf ;
-    else
-	minMAlinks = 2;
-    conf = CONFIG_INT(diet::MAXNEIGHBOURS);
+  if (CONFIG_ULONG(diet::MINNEIGHBOURS, conf)) {
+    minMAlinks = conf;
+  } else {
+    minMAlinks = 2;
+  }
 
-    if (conf)
-	maxMAlinks = conf;
-    else
-	maxMAlinks = 10;
-    conf = CONFIG_INT(diet::UPDATELINKPERIOD);
+  if (CONFIG_ULONG(diet::MAXNEIGHBOURS, conf)) {
+    maxMAlinks = conf;
+  } else {
+    maxMAlinks = 10;
+  }
 
-    if (conf)
-	new ReferenceUpdateThread(this, conf) ;
-    else
-	new ReferenceUpdateThread(this, 300) ;
-    TRACE_TEXT(TRACE_ALL_STEPS, "Getting MAs references ... done." << std::endl);
+  if (CONFIG_ULONG(diet::UPDATELINKPERIOD, conf)) {
+    new ReferenceUpdateThread(this, conf);
+  } else {
+    new ReferenceUpdateThread(this, 300);
+  }
+  TRACE_TEXT(TRACE_ALL_STEPS, "Getting MAs references ... done." << std::endl);
 #endif /* HAVE_MULTI_MA */
 
-    /* num_session thread safe*/
-    // NOTE: std::endl already flushes out output stream
-    TRACE_TEXT(TRACE_MAIN_STEPS, std::endl
-	       << "Master Agent " << this->myName << " started." << std::endl);
+  /* num_session thread safe*/
+  // NOTE: std::endl already flushes out output stream
+  TRACE_TEXT(TRACE_MAIN_STEPS, std::endl
+             << "Master Agent " << this->myName << " started." << std::endl);
 
 #if HAVE_DAGDA
-    catalog = new MapDagdaCatalog();
+  catalog = new MapDagdaCatalog();
 #endif
 
-    return 0;
+  return 0;
 } // run(char* configFileName)
 
 

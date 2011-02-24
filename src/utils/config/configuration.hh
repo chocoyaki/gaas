@@ -23,15 +23,64 @@ extern ConfigMap *configPtr;
 // simplify code using global configuration map
 #define CONFIGMAP (*configPtr)
 
+/**
+ * @class simple_cast_trait
+ * @brief traits class used by simple cast that sets zero_value
+ * by default to 0, specialize for each type that requires.
+ */
+template <typename T>
+class simple_cast_traits {
+public:
+  static const T zero_value = 0;
+};
+
+template <>
+class simple_cast_traits<std::string> {
+public:
+  static const std::string zero_value ;
+};
+
+/**
+ * @brief poor's man lexical_cast
+ * empty strings are handled by using a traits class
+ * @param arg argument 
+ * @return properly casted argument
+ */
+template <typename T, typename S>
+T simple_cast(const S& arg) {
+  T output = simple_cast_traits<T>::zero_value;
+  std::stringstream buffer;
+  buffer << arg;
+  buffer >> output;
+
+  return output;
+}
+
+/**
+ * @param[in]  param
+ * @param[out] value result
+ * @return param has been set or not
+ */
 template<typename T>
-bool getConfigValue(diet::param_type_t, T&);
+bool
+getConfigValue(diet::param_type_t param, T& value)
+{
+  const std::string& key = (diet::params)[param].value;
+  ConfigMap::iterator it = configPtr->find(key);
+  if (configPtr->end() == it) {
+    return false;
+  } else {
+    value = simple_cast<T>(it->second);
+    return true;
+  }
+}
 
 // TODO: not handled by generic method above
-std::string& getAddressConfigValue(diet::param_type_t, bool&);
-std::string& getAgentConfigValue(diet::param_type_t, bool&);
+bool getAddressConfigValue(diet::param_type_t, std::string&);
+bool getAgentConfigValue(diet::param_type_t, std::string&);
 
 #define CONFIG_BOOL(x, y) getConfigValue<bool>((x), (y))
-#define CONFIG_INT(x, y) getIntConfigValue<int>((x), (y))
+#define CONFIG_INT(x, y) getConfigValue<int>((x), (y))
 #define CONFIG_ULONG(x, y) getConfigValue<unsigned long>((x), (y))
 #define CONFIG_STRING(x, y) getConfigValue<std::string>((x), (y))
 #define CONFIG_ADDRESS(x, y) getAddressConfigValue((x), (y))

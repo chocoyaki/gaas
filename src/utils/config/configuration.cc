@@ -3,71 +3,25 @@
 #include <regex.h>
 #include <stdexcept>
 
-/**
- * @class simple_cast_trait
- * @brief traits class used by simple cast that sets zero_value
- * by default to 0, specialize for each type that requires.
- */
-template <typename T>
-class simple_cast_traits {
-public:
-  static const T zero_value = 0;
-};
-
-
-/**
- * @brief poor's man lexical_cast
- * empty strings are handled by using a traits class
- * @param arg argument 
- * @return properly casted argument
- */
-template <typename T, typename S>
-T simple_cast(const S& arg) {
-  T output = simple_cast_traits<T>::zero_value;
-  std::stringstream buffer;
-  buffer << arg;
-  buffer >> output;
-
-  return output;
-}
 
 /**
  * @param[in]  param
  * @param[out] value result
  * @return param has been set or not
  */
-template<typename T>
+template<>
 bool
-getConfigValue(diet::param_type_t param, T& value)
+getConfigValue(diet::param_type_t param, std::string& value)
 {
   const std::string& key = (diet::params)[param].value;
   ConfigMap::iterator it = configPtr->find(key);
   if (configPtr->end() == it) {
     return false;
   } else {
-    value = simple_cast<T>(it->second);
+    value = it->second;
     return true;
   }
 }
-
-/**
- * @param[in]  param
- * @param[out] value
- * @return param has been set or not
- */
-template<>
-bool
-getConfigValue(diet::param_type_t param, std::string& value) {
-  const std::string& key = (diet::params)[param].value;
-  ConfigMap::iterator it = configPtr->find(key);
-  if (configPtr->end() == it) {
-    return false;
-  } else {
-    value = it->second;
-  }
-  return true;
-}
-
 
 /**
  * @param[in]  param

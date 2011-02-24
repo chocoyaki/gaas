@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.29  2011/02/24 11:55:46  bdepardo
+ * Use the new CONFIG_XXX macros.
+ *
  * Revision 1.28  2011/02/15 16:21:50  bdepardo
  * Added a new method: removeElementClean
  *
@@ -356,8 +359,8 @@ LocalAgentImpl::run()
     if (res)
 	return res;
 
-    std::string& parentName = CONFIG_STRING(diet::PARENTNAME);
-    if (parentName.empty())
+    std::string parentName;
+    if (!CONFIG_STRING(diet::PARENTNAME, parentName))
 #ifndef HAVE_DYNAMICS
     return 1;
 #else /* HAVE_DYNAMICS */

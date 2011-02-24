@@ -5,6 +5,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.74  2011/02/24 11:55:46  bdepardo
+ * Use the new CONFIG_XXX macros.
+ *
  * Revision 1.73  2011/02/10 23:18:58  hguemar
  * fixes some issues detected by latest cppcheck (1.47)
  *
@@ -334,9 +337,9 @@ AgentImpl::run()
 {
   /* Set host name */
   this->localHostName = new char[MAX_HOSTNAME_LENGTH];
-  const std::string& host = CONFIG_STRING(diet::DIETHOSTNAME);
+  std::string host;
 
-  if (!host.empty()) {
+  if (CONFIG_STRING(diet::DIETHOSTNAME, host)) {
       strncpy(this->localHostName, host.c_str(), MAX_HOSTNAME_LENGTH-1) ;
   } else {
       if (gethostname(this->localHostName, MAX_HOSTNAME_LENGTH)) {
@@ -347,15 +350,16 @@ AgentImpl::run()
   this->localHostName[MAX_HOSTNAME_LENGTH-1] = '\0';
 
   /* Bind this agent to its name in the CORBA Naming Service */
-  const std::string& name = CONFIG_STRING(diet::NAME);
-  if (name.empty()) {
-      return 1;
+  std::string name;
+  if (!CONFIG_STRING(diet::NAME, name)) {
+    return 1;
   }
 
   this->myName = new char[name.length() + 1];
   strcpy(this->myName, name.c_str());
 
-  const std::string& agtType = CONFIG_AGENT(diet::AGENTTYPE);
+  std::string agtType = "MA";
+  CONFIG_AGENT(diet::AGENTTYPE, agtType);
 
   ORBMgr::getMgr()->bind(AGENTCTXT, this->myName, _this(), true);
   if (agtType == "DIET_LOCAL_AGENT" || agtType == "LA") {
@@ -370,12 +374,13 @@ AgentImpl::run()
     // Init FAST (HAVE_FAST is managed by the FASTMgr class)
   return FASTMgr::init();
 #else
-  bool use = CONFIG_BOOL(diet::FASTUSE);
+  bool use = false;
+  CONFIG_BOOL(diet::FASTUSE, use);
   if (!use){
-      CORIMgr::add(EST_COLL_FAST,NULL);
-      return CORIMgr::startCollectors();
+    CORIMgr::add(EST_COLL_FAST,NULL);
+    return CORIMgr::startCollectors();
   } else {
-      return 0;
+    return 0;
   }
 #endif //HAVE_CORI
 } // run()

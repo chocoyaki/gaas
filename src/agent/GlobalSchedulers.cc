@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.26  2011/02/24 11:55:46  bdepardo
+ * Use the new CONFIG_XXX macros.
+ *
  * Revision 1.25  2011/02/09 15:09:55  hguemar
  * configuration backend changed again: more CONFIG_XXX
  *
@@ -161,56 +164,56 @@ GlobalScheduler::~GlobalScheduler()
 GlobalScheduler*
 GlobalScheduler::deserialize(const char* serializedScheduler)
 {
-    SCHED_TRACE_FUNCTION(serializedScheduler);
-    int nameLength;
+  SCHED_TRACE_FUNCTION(serializedScheduler);
+  int nameLength;
 
-    // TODO: is the isolated scope required ?
-    {
-	const char *colon;
-	if ((colon = strchr(serializedScheduler, ':'))) {
-	    nameLength = colon - serializedScheduler;
-	}
-	else {
-	    nameLength = strlen(serializedScheduler);
-	}
+  // TODO: is the isolated scope required ?
+  {
+    const char *colon;
+    if ((colon = strchr(serializedScheduler, ':'))) {
+      nameLength = colon - serializedScheduler;
     }
+    else {
+      nameLength = strlen(serializedScheduler);
+    }
+  }
 
-    if (!strncmp(serializedScheduler, StdGS::stName, nameLength)) {
-	return StdGS::deserialize(serializedScheduler);
-    }
-    else if (!strncmp(serializedScheduler, PriorityGS::stName, nameLength)) {
-	return PriorityGS::deserialize(serializedScheduler);
-    }
-    else
-      /* New : For scheduler load support. */
+  if (!strncmp(serializedScheduler, StdGS::stName, nameLength)) {
+    return StdGS::deserialize(serializedScheduler);
+  }
+  else if (!strncmp(serializedScheduler, PriorityGS::stName, nameLength)) {
+    return PriorityGS::deserialize(serializedScheduler);
+  }
+  else
+    /* New : For scheduler load support. */
 #ifdef USERSCHED
-	if (!strncmp(serializedScheduler, UserScheduler::stName,nameLength)) {
-	    const std::string&  moduleName = CONFIG_STRING(diet::MODULENAME);
-	    if (moduleName.empty()) {
-		WARNING("moduleName parameter is not set in the configuration file ; "
-			<< "reverting to default (StdGS)" << std::endl);
-		return (GlobalScheduler::chooseGlobalScheduler());
-	    }
-	    try {
-		return UserScheduler::deserialize(serializedScheduler,
-						  moduleName.c_str());
-	    }
-	    catch (InstanciationError &error) {
-		WARNING("unable to load module " << moduleName << " ; "
-			<< "reverting to default (StdGS)" << std::endl <<
-			"Message : " << error.message() << std::endl);
-		return (GlobalScheduler::chooseGlobalScheduler());
-	    }
-	} else
+    if (!strncmp(serializedScheduler, UserScheduler::stName,nameLength)) {
+      std::string moduleName;
+      if (!CONFIG_STRING(diet::MODULENAME, moduleName)) {
+        WARNING("moduleName parameter is not set in the configuration file ; "
+                << "reverting to default (StdGS)" << std::endl);
+        return (GlobalScheduler::chooseGlobalScheduler());
+      }
+      try {
+        return UserScheduler::deserialize(serializedScheduler,
+                                          moduleName.c_str());
+      }
+      catch (InstanciationError &error) {
+        WARNING("unable to load module " << moduleName << " ; "
+                << "reverting to default (StdGS)" << std::endl <<
+                "Message : " << error.message() << std::endl);
+        return (GlobalScheduler::chooseGlobalScheduler());
+      }
+    } else
 #endif
-	    /***********************************/
-	    {
-		WARNING("unable to deserialize global scheduler ; "
-			<< "reverting to default (StdGS)");
-		cout << "scheduler was \""
-		     << serializedScheduler << "\"" << std::endl;
-		return (GlobalScheduler::chooseGlobalScheduler());
-	    }
+      /***********************************/
+      {
+        WARNING("unable to deserialize global scheduler ; "
+                << "reverting to default (StdGS)");
+        cout << "scheduler was \""
+             << serializedScheduler << "\"" << std::endl;
+        return (GlobalScheduler::chooseGlobalScheduler());
+      }
 }
 
 /** Return the serialized global scheduler (a string). */
@@ -255,55 +258,55 @@ GlobalScheduler*
 GlobalScheduler::chooseGlobalScheduler(const corba_request_t* req,
                                        const corba_profile_desc_t* profile)
 {
-    corba_aggregator_desc_t agg = profile->aggregator;
+  corba_aggregator_desc_t agg = profile->aggregator;
 
-/* New : For scheduler load support. */
+  /* New : For scheduler load support. */
 #ifdef USERSCHED
-    GlobalScheduler * loaded;
+  GlobalScheduler * loaded;
 #endif
-/*************************************/
+  /*************************************/
 
-    switch (agg.agg_specific._d()) {
-    case DIET_AGG_DEFAULT:
-	return (GlobalScheduler::chooseGlobalScheduler());
-	break;
-    case DIET_AGG_PRIORITY: {
-	PriorityGS* ps = new PriorityGS(agg.agg_specific.agg_priority());
-	ps->init();
-	return (ps);
-    }
+  switch (agg.agg_specific._d()) {
+  case DIET_AGG_DEFAULT:
+    return (GlobalScheduler::chooseGlobalScheduler());
+    break;
+  case DIET_AGG_PRIORITY: {
+    PriorityGS* ps = new PriorityGS(agg.agg_specific.agg_priority());
+    ps->init();
+    return (ps);
+  }
     break;
     /* New : For scheduler load support. */
 #ifdef USERSCHED
-    case DIET_AGG_USER: {
-	const std::string& moduleName = CONFIG_STRING(diet::MODULENAME);
+  case DIET_AGG_USER: {
+    std::string moduleName;
 
-	if (moduleName.empty()) {
-	    WARNING("moduleName parameter is not set in the configuration file ; "
-		    << "reverting to default (StdGS)" << std::endl);
-	    return (GlobalScheduler::chooseGlobalScheduler());
-	}
-	try {
-	    loaded = UserScheduler::instanciate(moduleName.c_str());
-	}
-	catch (InstanciationError &error) {
-	    WARNING("unable to load module " << moduleName << " ; "
-		    << "reverting to default (StdGS)" << std::endl
-		    << "Error : " << error.message() << std::endl);
-	    return (GlobalScheduler::chooseGlobalScheduler());
-	}
-	SCHED_TRACE_FUNCTION("Module " << moduleName << " loaded.");
-	return loaded;
+    if (!CONFIG_STRING(diet::MODULENAME, moduleName)) {
+      WARNING("moduleName parameter is not set in the configuration file ; "
+              << "reverting to default (StdGS)" << std::endl);
+      return (GlobalScheduler::chooseGlobalScheduler());
     }
-	break;
-#endif
-/*************************************/
+    try {
+      loaded = UserScheduler::instanciate(moduleName.c_str());
+    }
+    catch (InstanciationError &error) {
+      WARNING("unable to load module " << moduleName << " ; "
+              << "reverting to default (StdGS)" << std::endl
+              << "Error : " << error.message() << std::endl);
+      return (GlobalScheduler::chooseGlobalScheduler());
+    }
+    SCHED_TRACE_FUNCTION("Module " << moduleName << " loaded.");
+    return loaded;
   }
-    ERROR(__FUNCTION__ <<
-	  ": unhandled aggregator (" <<
-	  agg.agg_specific._d() <<
-	  ")" << std::endl, 0);
-    return 0;
+    break;
+#endif
+    /*************************************/
+  }
+  ERROR(__FUNCTION__ <<
+        ": unhandled aggregator (" <<
+        agg.agg_specific._d() <<
+        ")" << std::endl, 0);
+  return 0;
 }
 
 
