@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.23  2011/02/24 16:50:06  bdepardo
+ * Code cleanup.
+ * Use TRACE_TEXT instead of cout
+ *
  * Revision 1.22  2011/02/09 16:31:43  bdepardo
  * Do not check data type in initSourceData()
  *
@@ -866,7 +870,6 @@ DagNodeArgPort::initContainerValueRec(char** contIDPtr,
     throw WfDataException(WfDataException::eINVALID_VALUE, errorMsg);
   }
   // init container
-//   cout << "creating container" << endl;
   dagda_create_container(contIDPtr);
   // parse values
   char* valID;
@@ -878,7 +881,6 @@ DagNodeArgPort::initContainerValueRec(char** contIDPtr,
   contStr.erase(contStr.length()-1,1);
 
   while (!(valEnd || contStr.empty())) {
-//     cout << "while loop - str = " << contStr << endl;
     string::size_type parLeft = contStr.find("(");
     string::size_type valSepRight = contStr.find(containerSeparator);
     string::size_type parRight = contStr.find(")");
@@ -893,13 +895,11 @@ DagNodeArgPort::initContainerValueRec(char** contIDPtr,
       strEnd = true;
       valSepRight = contStr.length();
     }
-//     cout << " end of current value: " << valSepRight << endl;
     if (valSepRight == 0) {
       contStr.erase(0,1);
       continue;
     }
     if ((parLeft == string::npos) || (parLeft > valSepRight)) {
-//       cout << " parsing leaf value" << endl;
       // if no left parenthesis before the separator then parse the value
       const char *valStr = contStr.substr(0, valSepRight).c_str();  // leaf value
       // store value in Dagda
@@ -912,11 +912,9 @@ DagNodeArgPort::initContainerValueRec(char** contIDPtr,
     } else {
       initContainerValueRec(&valID,contStr,depth-1);
     }
-//     cout << "adding element to container" << endl;
     dagda_add_container_element(*contIDPtr,valID,valIdx++);
     CORBA::string_free(valID);
   } // end while
-//   cout << "end of recursive call" << endl;
 }
 
 void

@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2011/02/24 16:50:06  bdepardo
+ * Code cleanup.
+ * Use TRACE_TEXT instead of cout
+ *
  * Revision 1.7  2011/01/13 23:07:20  ecaron
  * Bug fix in header
  *
@@ -384,7 +388,6 @@ FLoopNode::createRealInstance(Dag* dag,
     // Initializes the loop tag length
     if (!loopTagLength) {
       loopTagLength = firstIterTag->getLevel();
-//       cout << "LOOP TAG LENGTH initialized = " << loopTagLength << endl;
     }
 
   } else {

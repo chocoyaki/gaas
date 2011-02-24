@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2011/02/24 16:50:06  bdepardo
+ * Code cleanup.
+ * Use TRACE_TEXT instead of cout
+ *
  * Revision 1.9  2010/07/20 09:20:11  bisnard
  * integration with eclipse gui and with dietForwarder
  *
@@ -116,7 +120,7 @@ FActivityNode::createRealInstance(Dag* dag,
 	DagNodePort *DPort = dynamic_cast<DagNodePort*>(_DPort);
 
 	if (!DPort->isDataIDAvailable(dag->getExecutionAgent())) {
-	  cout << "DATA ID NOT AVAILABLE!" << endl;
+	  TRACE_TEXT(TRACE_MAIN_STEPS,  "DATA ID NOT AVAILABLE!" << endl);
 	  isOutputDataAvailable = false;
 	  break;
 	}

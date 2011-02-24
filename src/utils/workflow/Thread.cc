@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2011/02/24 16:50:06  bdepardo
+ * Code cleanup.
+ * Use TRACE_TEXT instead of cout
+ *
  * Revision 1.8  2010/03/31 21:15:41  bdepardo
  * Changed C headers into C++ headers
  *
@@ -47,7 +51,9 @@
 #include <cassert>
 #include <cstring>
 #include <cstdlib>
+
 #include "Thread.hh"
+#include "debug.hh"
 
 
 Runnable::~Runnable() {}
@@ -55,10 +61,9 @@ Runnable::~Runnable() {}
 Thread::Thread(auto_ptr<Runnable> runnable_, bool isDetached) :
   runnable(runnable_),detached(isDetached){
   if (runnable.get() == NULL) {
-    std::cout << "Thread::Thread(auto_ptr<Runnable> runnable_,"
-	      <<"bool isDetached) failed at " << ' ' << __FILE__ << ":"
-	      << __LINE__ << "- " << "runnable is NULL " << std::endl;
-    exit(-1);
+    ERROR_EXIT("Thread::Thread(auto_ptr<Runnable> runnable_,"
+               <<"bool isDetached) failed at " << ' ' << __FILE__ << ":"
+               << __LINE__ << "- " << "runnable is NULL " << std::endl);
   }
 }
 
@@ -156,6 +161,6 @@ Thread::setCompleted() {/* completion was handled by pthread_join() */}
 
 void
 Thread::PrintError(std::string msg, int status, std::string fileName, int lineNumber) {
-  std::cout << msg << ' ' << fileName << ":" << lineNumber
-	    << "- " << strerror(status) << std::endl;
+  TRACE_TEXT(TRACE_MAIN_STEPS, msg << ' ' << fileName << ":" << lineNumber
+             << "- " << strerror(status) << std::endl);
 }

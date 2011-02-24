@@ -7,6 +7,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.19  2011/02/24 16:50:06  bdepardo
+ * Code cleanup.
+ * Use TRACE_TEXT instead of cout
+ *
  * Revision 1.18  2010/07/20 09:20:11  bisnard
  * integration with eclipse gui and with dietForwarder
  *
@@ -447,15 +451,12 @@ WfCst::eval_expr(std::string& expr, int var) {
   for (unsigned int i=1; i<expr.size(); i++)
     if ( (expr[i] == '-') && (!isdigit(expr[i-1])) ) expr[i]='#';
 
-  //  cout << expr << endl;
 
   // read the expression
   while (expr.size() > 0) {
     if (isdigit(expr[0]) || isalpha(expr[0]) || (expr[0]=='#')) {
       p = expr.find_first_of("+-/*%()");
       tok = expr.substr(0, p);
-      //	cout << "token = " << tok << endl;
-      //	cout << "|" << tok << "|";
       post_fixe_exp.push_back(tok);
       if (p!= string::npos)
 	expr = expr.substr(p);
@@ -463,14 +464,12 @@ WfCst::eval_expr(std::string& expr, int var) {
 	expr = "";
     }
     else {
-      //	cout << "not a value" << endl;
       if (expr[0] == '(') {
 	tokens.push("(");
       }
       else {
 	if (expr[0] == ')') {
 	  while (tokens.top() != "(") {
-	    //	      cout << tokens.top();
 	    post_fixe_exp.push_back(tokens.top());
 	    tokens.pop();
 	  }
@@ -482,7 +481,6 @@ WfCst::eval_expr(std::string& expr, int var) {
 	  while ((!tokens.empty())&&
 		 (op_priority[tokens.top()] > op_priority[op])
 		 ) {
-	    //	      cout << tokens.top();
 	    post_fixe_exp.push_back(tokens.top());
 	    tokens.pop();
 	  } // end while
@@ -493,13 +491,11 @@ WfCst::eval_expr(std::string& expr, int var) {
     }
   } // end while
   while (!tokens.empty()) {
-    //      cout << tokens.top();
     post_fixe_exp.push_back(tokens.top());
     tokens.pop();
   }
 
   while (!post_fixe_exp.empty()) {
-    //    cout << "|" << post_fixe_exp.front() <<"|";
     tok = post_fixe_exp.front();
     post_fixe_exp.pop_front();
     if (tok == "+" || tok == "-" || tok == "*" || tok == "/" || tok == "%") {
@@ -545,8 +541,6 @@ WfCst::eval_expr(std::string& expr, int var) {
     }
   }
 
-  //  cout<< endl;
-  //  cout << "Final result " << polish.top() << endl;
   total = atoi(polish.top().c_str());
   return total;
 }

@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.23  2011/02/24 16:50:06  bdepardo
+ * Code cleanup.
+ * Use TRACE_TEXT instead of cout
+ *
  * Revision 1.22  2011/02/10 17:44:13  bdepardo
  * Removed endl at the end of WARNING macro
  *
@@ -103,7 +107,6 @@
 
 
 FDataTag::FDataTag() : mySize(0), myStr() {
-//   cout << "FDataTag default constructor" << endl;
 }
 
 void
@@ -321,7 +324,6 @@ FDataTag::toString() const {
 
 int
 operator<( const FDataTag& tag1, const FDataTag& tag2 ) {
-//    cout << "COMPARING TAGS: " << tag1.toString() << " AND " << tag2.toString() << endl;
   unsigned int ix = 0;
   while ((ix < tag1.getLevel()) && (ix < tag2.getLevel())) {
     if (tag1.myIdxs[ix] != tag2.myIdxs[ix])
@@ -856,8 +858,9 @@ FDataHandle::getChildCount(unsigned int level) {
 
 void
 FDataHandle::addProperty(const string& propKey, const string& propValue) {
-  cout << __FUNCTION__ << "DH=" << myTag.toString() << " : key=" << propKey
-       << "/value=" << propValue << endl;
+  TRACE_TEXT(TRACE_MAIN_STEPS, __FUNCTION__ << "DH=" << myTag.toString()
+             << " : key=" << propKey
+             << "/value=" << propValue << endl);
 }
 
 const string&
@@ -1254,22 +1257,26 @@ FDataHandle::display(bool goUp) {
   if (goUp && myParentHdl)
     myParentHdl->display(true);
   else {
-    if (getTag().getLevel() == 0) cout << "-------------------" << endl;
-    cout << "DATA: " << getTag().toString()
-        << " (depth=" << myDepth << ")";
-//     if (myPort)
-//       cout << " PORT=" << myPort->getParent()->getId() << "#" << myPort->getId();
-// (PORT COULD BE DESTROYED BEFORE DATAHANDLE POINTING TO IT!!)
-    if (isValueDefined())
-      cout << " VALUE=" << myValue;
-    cout << endl;
+    if (getTag().getLevel() == 0) {
+      TRACE_TEXT(TRACE_MAIN_STEPS, "-------------------" << endl);
+    }
+    TRACE_TEXT(TRACE_MAIN_STEPS, "DATA: " << getTag().toString()
+               << " (depth=" << myDepth << ")");
+
+    if (isValueDefined()) {
+      TRACE_TEXT(TRACE_MAIN_STEPS, " VALUE=" << myValue);
+    }
+    TRACE_TEXT(TRACE_MAIN_STEPS, endl);
+
     if (myDepth>0) {
       for (map<FDataTag,FDataHandle*>::iterator childIter = myData->begin();
            childIter != myData->end();
            ++childIter)
         ((FDataHandle*)childIter->second)->display(false);
       }
-    if (getTag().getLevel() == 0) cout << "-------------------" << endl;
+    if (getTag().getLevel() == 0) {
+      TRACE_TEXT(TRACE_MAIN_STEPS, "-------------------" << endl);
+    }
   }
 }
 

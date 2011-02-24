@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2011/02/24 16:50:06  bdepardo
+ * Code cleanup.
+ * Use TRACE_TEXT instead of cout
+ *
  * Revision 1.10  2009/10/02 07:43:51  bisnard
  * modified trace verbosity
  *
@@ -357,7 +361,6 @@ FFilterNode::createVoidInstance(const FDataTag& currTag,
 
 void
 FFilterNode::updateUp(FDataHandle* DH, short depth) {
-//   cout << "[FILTER] updateUp for " << DH->getTag().toString() << endl;
   filterNode_t* currTreeNode = getTreeNode(DH);
   bool voidDefChange = false;
 
@@ -430,7 +433,6 @@ FFilterNode::updateUp(FDataHandle* DH, short depth) {
 
 void
 FFilterNode::updateRight(const FDataTag& tag, int precIdx, short depth) {
-//   cout << "[FILTER] updateRight for " << tag.toString() << endl;
   FDataTag currTag = tag;
   filterNode_t* currTreeNode = getTreeNode(tag);
   while (currTreeNode->voidDef) {
@@ -460,7 +462,6 @@ FFilterNode::updateRight(const FDataTag& tag, int precIdx, short depth) {
 
 void
 FFilterNode::updateLeftNonVoid(const FDataTag& tag, short depth) {
-//   cout << "[FILTER] updateLeftNonVoid for " << tag.toString() << endl;
   FDataTag currTag = tag;
   while (currTag.getLastIndex() > 0) {
     currTag.getPredecessor();
@@ -476,7 +477,6 @@ FFilterNode::updateLeftNonVoid(const FDataTag& tag, short depth) {
 
 void
 FFilterNode::updateLeftVoid(const FDataTag& tag, short depth) {
-//   cout << "[FILTER] updateLeftVoid for " << tag.toString() << endl;
   FDataTag currTag = tag;
   while (currTag.getLastIndex() > 0) {
     currTag.getPredecessor();
@@ -509,7 +509,6 @@ FFilterNode::updateLeftVoid(const FDataTag& tag, short depth) {
 // RECURSIVE
 void
 FFilterNode::sendDown(FDataHandle* DH, short depth) {
-//   cout << "[FILTER] sendDown for " << DH->getTag().toString() << endl;
   if (!DH->isVoid()) {
     if (depth == 0) {
       // copy the data handle and send it
@@ -520,7 +519,6 @@ FFilterNode::sendDown(FDataHandle* DH, short depth) {
       myTree[DH->getTag()]->isDone = true;
 
     } else {
-//       cout << "[FILTER] sendDown: processing childs" << endl;
       for (map<FDataTag,FDataHandle*>::iterator childIter = DH->begin();
            childIter != DH->end();
            ++childIter) {
@@ -528,12 +526,10 @@ FFilterNode::sendDown(FDataHandle* DH, short depth) {
         if (isReadyAssumingParentIs(childDH->getTag())) {
           sendDown(childDH, depth-1);
         } else {
-//           cout << "[FILTER] sendDown: child " << childDH->getTag().toString() << " not ready" << endl;
         }
       }
     }
   } else {
-//     cout << "[FILTER] sendDown stop because DH is Void" << endl;
   }
 }
 
@@ -590,8 +586,6 @@ FFilterNode::getNewTag(const FDataTag& srcTag) {
   } // end while
 
   FDataTag newTag = FDataTag(idxTab, lastTab, srcTag.getLevel());
-//   cout << "[FILTER] getNewTag for " << srcTag.toString()
-//        << " ==> mapping is " << newTag.toString() << endl;
   delete [] idxTab;
   delete [] lastTab;
 

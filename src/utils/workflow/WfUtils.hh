@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2011/02/24 16:50:06  bdepardo
+ * Code cleanup.
+ * Use TRACE_TEXT instead of cout
+ *
  * Revision 1.16  2010/07/20 09:20:11  bisnard
  * integration with eclipse gui and with dietForwarder
  *
@@ -243,7 +247,7 @@ extern omni_mutex debug_log_mutex ;
  * get the matrix order by a string
  */
 diet_matrix_order_t
-getMatrixOrder(const std::string matrix_order);
+getMatrixOrder(const std::string &matrix_order);
 
 
 /**

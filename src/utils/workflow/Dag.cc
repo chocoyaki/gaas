@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.37  2011/02/24 16:50:06  bdepardo
+ * Code cleanup.
+ * Use TRACE_TEXT instead of cout
+ *
  * Revision 1.36  2011/01/21 14:18:07  bdepardo
  * Prefer prefix ++/-- operators for non-primitive types.
  *
@@ -381,17 +385,19 @@ Dag::toXML(ostream& output) const {
 void
 Dag::showDietReqID() {
   DagNode * dagNode = NULL;
-  cout << "@@@@ BEGIN Dag::" <<__FUNCTION__  << "()" << endl;
-  cout << "dag_id =" << this->myId << endl;
+  TRACE_TEXT(TRACE_MAIN_STEPS,
+             "@@@@ BEGIN Dag::" <<__FUNCTION__  << "()" << endl
+             << "dag_id =" << this->myId << endl);
   for (map<string, DagNode *>::iterator p = nodes.begin();
        p != nodes.end();
        ++p) {
     dagNode = (DagNode*)p->second;
     //if ((dagNode) && !(dagNode->isDone()))
-    cout << " dagNode->getPb() = "  << dagNode->getPbName() <<endl;
-    cout << " dagNode->getProfile()->dietReqID =" << dagNode->getProfile()->dietReqID << endl;
+    TRACE_TEXT(TRACE_MAIN_STEPS,
+               " dagNode->getPb() = "  << dagNode->getPbName() <<endl
+               << " dagNode->getProfile()->dietReqID =" << dagNode->getProfile()->dietReqID << endl);
   }
-  cout << "@@@@ END Dag::" <<__FUNCTION__  << "()" << endl;
+  TRACE_TEXT(TRACE_MAIN_STEPS, "@@@@ END Dag::" <<__FUNCTION__  << "()" << endl);
 }
 /**
  * printDietReqID the dag execution is completed
@@ -401,17 +407,14 @@ Dag::showDietReqID() {
  */
 vector<diet_reqID_t>
 Dag::getAllDietReqID() {
-	DagNode * dagNode = NULL;
-	vector<diet_reqID_t> request_ids;
-	//cout << "dag_id =" << this->myId << endl;
-	for (map<string, DagNode *>::iterator p = nodes.begin();
-		    p != nodes.end();
-		    ++p) {
-			    dagNode = (DagNode*)p->second;
-			    request_ids.push_back(dagNode->getReqID());
-			    //cout << "reqID ="<< dagNode->getReqID() << endl;
-		    }
-	return request_ids;
+  DagNode * dagNode = NULL;
+  vector<diet_reqID_t> request_ids;
+  for (map<string, DagNode *>::iterator p = nodes.begin();
+       p != nodes.end(); ++p) {
+    dagNode = (DagNode*)p->second;
+    request_ids.push_back(dagNode->getReqID());
+  }
+  return request_ids;
 }
 
 bool

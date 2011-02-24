@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.27  2011/02/24 16:50:06  bdepardo
+ * Code cleanup.
+ * Use TRACE_TEXT instead of cout
+ *
  * Revision 1.26  2011/02/10 17:44:13  bdepardo
  * Removed endl at the end of WARNING macro
  *
@@ -399,7 +403,6 @@ WfMultiplePortAdapter::WfMultiplePortAdapter(const string& strRef) {
 
 void WfMultiplePortAdapter::parse(const string& strRef,
                                   string::size_type& startPos) {
-//   cout << "parse adapter string at position " << itoa(startPos) << endl;
   while (startPos < strRef.length()) {
     string::size_type parLeft  = strRef.find(parLeftChar,startPos);
     string::size_type parRight = strRef.find(parRightChar,startPos);
@@ -428,11 +431,9 @@ void WfMultiplePortAdapter::parse(const string& strRef,
       break;
     }
   } // end while
-//   cout << "end of parse - pos = " << startPos << endl;
 }
 
 WfMultiplePortAdapter::WfMultiplePortAdapter() {
-//   cout << "creating empty multipleAdapter" << endl;
 }
 
 WfMultiplePortAdapter::WfMultiplePortAdapter(const WfMultiplePortAdapter& mpa) {

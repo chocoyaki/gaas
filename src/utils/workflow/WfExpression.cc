@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2011/02/24 16:50:06  bdepardo
+ * Code cleanup.
+ * Use TRACE_TEXT instead of cout
+ *
  * Revision 1.7  2011/02/09 14:34:57  bdepardo
  * Use <array><item>0</item></array> instead of <array><item value="0"/></array>
  * in default value.
@@ -173,7 +177,7 @@ WfExpression::getQueryString() {
 
 void
 WfExpression::initQuery() {
-  cout << "Initialize query..." << endl;
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Initialize query..." << endl);
   ostringstream queryStream;
 
   for (list<WfExprVariable*>::iterator varIter = myVariables.begin();
