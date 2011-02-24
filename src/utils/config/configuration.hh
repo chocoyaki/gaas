@@ -23,18 +23,18 @@ extern ConfigMap *configPtr;
 // simplify code using global configuration map
 #define CONFIGMAP (*configPtr)
 
-bool getBoolConfigValue(diet::param_type_t key);
-int getIntConfigValue(diet::param_type_t key);
-unsigned long getULongConfigValue(diet::param_type_t key);
-std::string& getStringConfigValue(diet::param_type_t key);
-std::string& getAddressConfigValue(diet::param_type_t key);
-std::string& getAgentConfigValue(diet::param_type_t key);
+template<typename T>
+bool getConfigValue(diet::param_type_t, T&);
 
-#define CONFIG_BOOL(x) getBoolConfigValue((x))
-#define CONFIG_INT(x) getIntConfigValue((x))
-#define CONFIG_ULONG(x) getULongConfigValue((x))
-#define CONFIG_STRING(x) getStringConfigValue((x))
-#define CONFIG_ADDRESS(x) getAddressConfigValue((x))
-#define CONFIG_AGENT(x) getAgentConfigValue((x))
+// TODO: not handled by generic method above
+std::string& getAddressConfigValue(diet::param_type_t, bool&);
+std::string& getAgentConfigValue(diet::param_type_t, bool&);
+
+#define CONFIG_BOOL(x, y) getConfigValue<bool>((x), (y))
+#define CONFIG_INT(x, y) getIntConfigValue<int>((x), (y))
+#define CONFIG_ULONG(x, y) getConfigValue<unsigned long>((x), (y))
+#define CONFIG_STRING(x, y) getConfigValue<std::string>((x), (y))
+#define CONFIG_ADDRESS(x, y) getAddressConfigValue((x), (y))
+#define CONFIG_AGENT(x, y) getAgentConfigValue((x), (y))
 
 #endif /* _CONFIGURATION_HH_ */
