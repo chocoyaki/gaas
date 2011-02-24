@@ -3,6 +3,7 @@
 #include <regex.h>
 #include <stdexcept>
 
+const std::string simple_cast_traits<std::string>::zero_value = "";
 
 /**
  * @param[in]  param
