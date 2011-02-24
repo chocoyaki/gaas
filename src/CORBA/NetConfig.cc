@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2011/02/24 16:55:41  bdepardo
+ * Code cleanup.
+ * Use TRACE_TEXT instead of cout
+ *
  * Revision 1.6  2011/02/16 18:54:02  bdepardo
  * Accept both the old and the new configuration file format.
  *
@@ -161,11 +165,9 @@ void NetConfig::parseFile() {
 
     /* Remove blank characters. */
     if ((pos = line.find_last_not_of(' ')) != string::npos) {
-      cout << "remove space " << pos << endl;
       line.erase(pos+1);
     }
     if ((pos = line.find_last_not_of('\t')) != string::npos) {
-      cout << "remove tab " << pos << endl;
       line.erase(pos+1);
     }
 
@@ -174,11 +176,9 @@ void NetConfig::parseFile() {
       continue;
     }
 
-    cout << "line: '" << line << "'" << endl;
     /* Manage accepted networks. */
     if (line.find("accept = ") == 0) {
       string network = line.substr(10);
-      cout << "accept = ## " << network << endl;
       if (network=="localhost") {
         addLocalHost(accept);
       } else {
@@ -187,7 +187,6 @@ void NetConfig::parseFile() {
     }
     if (line.find("accept:") == 0) {
       string network = line.substr(7);
-      cout << "accept:## " << network << endl;
       if (network=="localhost") {
         addLocalHost(accept);
       } else {
@@ -196,7 +195,6 @@ void NetConfig::parseFile() {
     }
     if (line.find("reject = ") == 0) {
       string network = line.substr(10);
-      cout << "reject = ## " << network << endl;
       if (network=="localhost") {
         addLocalHost(reject);
       } else {
@@ -205,7 +203,6 @@ void NetConfig::parseFile() {
     }
     if (line.find("reject:") == 0) {
       string network = line.substr(7);
-      cout << "reject:## " << network << endl;
       if (network=="localhost") {
         addLocalHost(reject);
       } else {

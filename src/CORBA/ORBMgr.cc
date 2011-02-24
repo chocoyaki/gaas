@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.38  2011/02/24 16:55:41  bdepardo
+ * Code cleanup.
+ * Use TRACE_TEXT instead of cout
+ *
  * Revision 1.37  2011/02/15 17:38:48  bdepardo
  * Add missing include
  *
@@ -505,7 +509,7 @@ void ORBMgr::wait() const {
    */
   signal(SIGINT, ORBMgr::sigIntHandler);
   try {
-    std::cout << "Press CTRL+C to exit" << std::endl;
+    TRACE_TEXT(TRACE_MAIN_STEPS, "Press CTRL+C to exit" << std::endl);
 #ifdef __cygwin__
     sem_init(&waitLock,0,1);
     sem_wait(&waitLock);
