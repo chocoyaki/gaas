@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.54  2011/02/24 12:50:32  bdepardo
+ * Use new version of CONFIG_XXX macros
+ *
  * Revision 1.53  2011/02/23 15:05:17  bdepardo
  * Catch exception when opening the configuration file.
  *
@@ -333,33 +336,39 @@ int main(int argc, char* argv[], char *envp[]) {
 
 
   /* get parameters: agentType and name */
-  std::string& agentType = CONFIG_AGENT(diet::AGENTTYPE);
+  std::string agentType = "MA";
+  CONFIG_AGENT(diet::AGENTTYPE, agentType);
   //std::string& agentName = CONFIG_STRING("name"]; // UNUSED ?
-  std::string& parentName = CONFIG_STRING(diet::PARENTNAME);
-  std::string& maName = CONFIG_STRING(diet::MANAME);
+  std::string parentName = "";
+  bool hasParentName = CONFIG_STRING(diet::PARENTNAME, parentName);
+  std::string maName;
 
-  TRACE_LEVEL = CONFIG_INT(diet::TRACELEVEL);
+  unsigned long tmpTraceLevel = TRACE_DEFAULT;
+  CONFIG_ULONG(diet::TRACELEVEL, tmpTraceLevel);
+  TRACE_LEVEL = tmpTraceLevel;
 
   // parentName is mandatory for LA but unneeded for MA
   if (((agentType == "DIET_LOCAL_AGENT") || (agentType == "LA")) &&
-      (parentName.empty())) {
+      !hasParentName) {
     ERROR("parsing " << configFile
           << ": no parent name specified", 1);
   } else if(((agentType != "DIET_LOCAL_AGENT") && (agentType != "LA")) &&
-            (!parentName.empty())) {
+            hasParentName) {
     WARNING("parsing " << configFile << ": no need to specify "
             << "a parent name for an MA - ignored");
   }
 
-  if (!maName.empty()) {
+  if (CONFIG_STRING(diet::MANAME, maName)) {
     WARNING("parsing " << configFile << ": no need to specify "
             << "an MA name for an agent - ignored");
   }
 
   /* Get listening port & hostname */
-  int port = CONFIG_INT(diet::DIETPORT);
-  const std::string& host = CONFIG_STRING(diet::DIETHOSTNAME);
-  if ((0 != port) || (!host.empty())) {
+  int port;
+  std::string host;
+  bool hasPort = CONFIG_INT(diet::DIETPORT, port);
+  bool hasHost = CONFIG_STRING(diet::DIETHOSTNAME, host);
+  if (hasPort || hasHost) {
     std::ostringstream endpoint;
     ins("-ORBendPoint") ;
     endpoint << "giop:tcp:" << host << ":";
@@ -398,7 +407,8 @@ int main(int argc, char* argv[], char *envp[]) {
   int flushTime;
 
   // size_t --> unsigned int
-  bool useLogService = CONFIG_BOOL(diet::USELOGSERVICE);
+  bool useLogService = false;
+  CONFIG_BOOL(diet::USELOGSERVICE, useLogService);
   if (!useLogService) {
     WARNING("useLogService disabled");
   } else {
@@ -406,15 +416,13 @@ int main(int argc, char* argv[], char *envp[]) {
   }
 
   if (useLS) {
-    outBufferSize = CONFIG_INT(diet::LSOUTBUFFERSIZE);
-    // empty or non-conforming string will result in a 0 value;
-    if (0 != outBufferSize) {
+    if (!CONFIG_INT(diet::LSOUTBUFFERSIZE, outBufferSize)) {
+      outBufferSize = 0;
       WARNING("lsOutbuffersize not configured, using default");
     }
   }
 
-  flushTime = CONFIG_INT(diet::LSFLUSHINTERVAL);
-  if (!flushTime) {
+  if (!CONFIG_INT(diet::LSFLUSHINTERVAL, flushTime)) {
     flushTime = 10000;
     WARNING("lsFlushinterval not configured, using default");
   }
@@ -424,7 +432,8 @@ int main(int argc, char* argv[], char *envp[]) {
     TRACE_TEXT(TRACE_ALL_STEPS, "LogService enabled" << std::endl);
     char *agtTypeName = 0;
     char *agtParentName = strdup(parentName.c_str());
-    const std::string name = CONFIG_STRING(diet::NAME);
+    std::string name = "";
+    CONFIG_STRING(diet::NAME, name);
     char *agtName = strdup(name.c_str());
 
     if ((agentType == "DIET_LOCAL_AGENT") || (agentType == "LA")) {
@@ -512,8 +521,8 @@ int main(int argc, char* argv[], char *envp[]) {
 
 #ifdef HAVE_ACKFILE
   /* Touch a file to notify the end of the initialization */
-  std::string& ackFile = CONFIG_STRING(diet::ACKFILE);
-  if (ackFile.empty()) {
+  std::string ackFile;
+  if (!CONFIG_STRING(diet::ACKFILE, ackFile)) {
     WARNING("parsing " << configFile << ": no ackFile specified");
   } else {
     cerr << "Open OutFile: "<< ackFile <<endl;
