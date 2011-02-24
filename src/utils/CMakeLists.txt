@@ -5,7 +5,6 @@ set(DIET_Utils_SOURCES
   DIET_data.cc
   KeyString.cc
   ms_function.cc
-  Parsers.cc
   statistics.cc
   AccessController.cc
   JobQueue.cc
@@ -83,7 +82,6 @@ if (DIET_USE_USERSCHED)
     LinkedList.hh
     DIET_data_internal.hh
     Vector.h
-    Parsers.hh
     ms_function.hh
     DESTINATION
     ${INCLUDE_INSTALL_DIR}/scheduler

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2011/02/24 16:52:40  bdepardo
+ * Use new parser
+ *
  * Revision 1.2  2010/03/31 19:37:55  bdepardo
  * Changed "\n" into std::endl
  *
@@ -20,11 +23,11 @@
  *
  ****************************************************************************/
 
-#include "debug.hh"
-#include "OAR2_XBatchSystem.hh"
-#include "Parsers.hh"
 #include <fcntl.h>       // for O_RDONLY
 #include <unistd.h>      // for read()
+
+#include "debug.hh"
+#include "OAR2_XBatchSystem.hh"
 
 const char * const OAR2_XBatchSystem::statusNames[] = {
   "Error",

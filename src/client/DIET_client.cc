@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.165  2011/02/24 16:57:02  bdepardo
+ * Use new parser
+ *
  * Revision 1.164  2011/02/23 23:14:27  bdepardo
  * Fixed multiple diet_initialize calls
  *
@@ -422,7 +425,6 @@ using namespace std;
 #include "marshalling.hh"
 #include "MasterAgent.hh"
 #include "ORBMgr.hh"
-#include "Parsers.hh"
 #include "SeD.hh"
 #include "statistics.hh"
 #include "configuration.hh"
@@ -573,21 +575,13 @@ BEGIN_API
 diet_error_t
 diet_initialize(const char* config_file_name, int argc, char* argv[])
 {
-  char*  MA_name;
-  int    res(0);
   int    myargc(0);
   char ** myargv(NULL);
-  void*  value(NULL);
 
   // MA_MUTEX initialization
   if (MA_MUTEX == NULL) {
     MA_MUTEX = new omni_mutex();
   }
-
-#ifdef HAVE_WORKFLOW
-  char*  MA_DAG_name(NULL);
-  char*  USE_WF_LOG_SERVICE(NULL);
-#endif // HAVE_WORKFLOW
 
   MA_MUTEX->lock();
   if (!CORBA::is_nil(MA)) {
@@ -605,9 +599,7 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
       myargv[i] = argv[i];
   }
 
-  /* FIXME: this is a hack for the new parser, so that it works with DAGDA
-   * We should remove the old parser as soon as possible
-   */
+  /* Get configuration file parameters */
   FileParser fileParser;
   try {
     fileParser.parseFile(config_file_name);
@@ -615,34 +607,27 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
     ERROR("while parsing " << config_file_name, DIET_FILE_IO_ERROR);
   }
   CONFIGMAP = fileParser.getConfiguration();
+  // FIXME: should we also parse command line arguments?
 
 
-  /* Parsing */
-  Parsers::Results::param_type_t compParam[] = {Parsers::Results::MANAME};
-
-  if ((res = Parsers::beginParsing(config_file_name))) {
-    return res;
-  }
-  res = Parsers::parseCfgFile(false,
-                              1,
-                              (Parsers::Results::param_type_t*) compParam);
-  if (res) {
-    Parsers::endParsing();
-    return res;
+  /* Check the parameters */
+  std::string tmpString;
+  if (!CONFIG_STRING(diet::MANAME, tmpString)) {
+    ERROR("No MA name found in the configuration", GRPC_CONFIGFILE_ERROR);
   }
 
-  /* Some more checks */
-  value = Parsers::Results::getParamValue(Parsers::Results::PARENTNAME);
-  if (value != NULL)
-    WARNING("parsing " << config_file_name << ": no need "
-            << "to specify a parent for a client - ignored");
-
-  value = Parsers::Results::getParamValue(Parsers::Results::AGENTTYPE);
-  if (value != NULL)
-    WARNING("parsing " << config_file_name
-            << ": agentType is useless for a client - ignored");
+  if (CONFIG_STRING(diet::PARENTNAME, tmpString)) {
+    WARNING("No need to specify a parent for a client - ignored");
+  }
+  
+  if (CONFIG_AGENT(diet::AGENTTYPE, tmpString)) {
+    WARNING("agentType is useless for a client - ignored");
+  }
 
   /* Get the traceLevel */
+  unsigned long tmpTraceLevel = TRACE_DEFAULT;
+  CONFIG_ULONG(diet::TRACELEVEL, tmpTraceLevel);
+  TRACE_LEVEL = tmpTraceLevel;
   if (TRACE_LEVEL >= TRACE_MAX_VALUE) {
     char *  level = (char *) calloc(48, sizeof(char*)) ;
     int    tmp_argc = myargc + 2;
@@ -700,13 +685,11 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
 #endif // HAVE_JUXMEM
 
   /* Find Master Agent */
-  MA_name = (char*)
-    Parsers::Results::getParamValue(Parsers::Results::MANAME);
-  TRACE_TEXT(TRACE_MAIN_STEPS, "MA NAME PARSING = " << MA_name << endl);
-  MA_Name = CORBA::string_dup(MA_name);
+  CONFIG_STRING(diet::MANAME, tmpString);
+  TRACE_TEXT(TRACE_MAIN_STEPS, "MA NAME PARSING = " << tmpString << endl);
   MA_MUTEX->lock();
   try {
-    MA = ORBMgr::getMgr()->resolve<MasterAgent, MasterAgent_var>(AGENTCTXT, MA_Name);
+    MA = ORBMgr::getMgr()->resolve<MasterAgent, MasterAgent_var>(AGENTCTXT, tmpString);
   } catch (...) {
     MA_MUTEX->unlock();
     return -1;
@@ -720,49 +703,37 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
 #ifdef USE_LOG_SERVICE
   /* Initialize LogService */
   bool useLS = false;
-  unsigned int* ULSptr;
-
-  ULSptr = (unsigned int*)Parsers::Results::getParamValue(
-              Parsers::Results::USELOGSERVICE);
-  if (ULSptr == NULL) {
-    WARNING("useLogService not configured. Disabled by default");
-  } else {
-    if (*ULSptr) {
-      useLS = true;
-    }
-  }
   int outBufferSize;
   int flushTime;
-  unsigned int* FTptr;
+  bool useLogService = false;
+
+  CONFIG_BOOL(diet::USELOGSERVICE, useLogService);
+  if (!useLogService) {
+    WARNING("useLogService disabled");
+  } else {
+    useLS = true;
+  }
 
   if (useLS) {
-    unsigned int* OBSptr;
-    OBSptr = (unsigned int*)Parsers::Results::getParamValue(
-  	       Parsers::Results::LSOUTBUFFERSIZE);
-    if (OBSptr != NULL) {
-      outBufferSize = (int)(*OBSptr);
-    } else {
+    if (!CONFIG_INT(diet::LSOUTBUFFERSIZE, outBufferSize)) {
       outBufferSize = 0;
-//       WARNING("lsOutbuffersize not configured, using default");
+      WARNING("lsOutbuffersize not configured, using default");
     }
-    FTptr = (unsigned int*)Parsers::Results::getParamValue(
-  	       Parsers::Results::LSFLUSHINTERVAL);
-    if (FTptr != NULL) {
-      flushTime = (int)(*FTptr);
-    } else {
+    
+    if (!CONFIG_INT(diet::LSFLUSHINTERVAL, flushTime)) {
       flushTime = 10000;
-//       WARNING("lsFlushinterval not configured, using default");
+      WARNING("lsFlushinterval not configured, using default");
     }
     TRACE_TEXT(TRACE_ALL_STEPS, "LogService enabled" << endl);
-    char* agtTypeName = strdup("CLIENT");
-    char* agtParentName;
-    agtParentName = (char*)
-      Parsers::Results::getParamValue(Parsers::Results::MANAME);
-    char*  userDefName;
-    userDefName = (char*)
-      Parsers::Results::getParamValue(Parsers::Results::NAME);
 
-    if (userDefName != NULL){
+    char* agtTypeName = strdup("CLIENT");
+    char* agtParentName = NULL;
+    if (CONFIG_STRING(diet::MANAME, tmpString)) {
+      agtParentName = strdup(tmpString.c_str());
+    }
+    if (CONFIG_STRING(diet::NAME, tmpString)) {
+      char*  userDefName;
+      userDefName = strdup(tmpString.c_str());
       dietLogComponent = new DietLogComponent(userDefName, outBufferSize, argc, argv);
     } else {
 #if HAVE_DAGDA
@@ -773,7 +744,7 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
 #endif // end: HAVE_DAGDA
     }
     ORBMgr::getMgr()->activate(dietLogComponent);
-
+    
     if (dietLogComponent->run(agtTypeName, agtParentName, flushTime) != 0) {
       WARNING("Could not initialize DietLogComponent");
       dietLogComponent = NULL; // this should not happen;
@@ -793,10 +764,9 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
   num_Session = MA->get_session_num();
 
 #ifdef HAVE_CCS
-  char * specific_scheduling = (char*)
-    Parsers::Results::getParamValue(Parsers::Results::USE_SPECIFIC_SCHEDULING);
-  if ((specific_scheduling != NULL) && (strlen(specific_scheduling) > 1)) {
-    SpecificClientScheduler::setSchedulingId(specific_scheduling);
+  if (CONFIG_STRING(diet::USE_SPECIFIC_SCHEDULING, tmpString)
+      && (tmpString.size() > 1)) {
+    SpecificClientScheduler::setSchedulingId(tmpString.c_str());
   }
 #endif // HAVE_CCS
 
@@ -812,16 +782,15 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
 #ifdef HAVE_WORKFLOW
   // Workflow parsing
   /* Find the MA_DAG */
-  MA_DAG_name = (char*) Parsers::Results::getParamValue(Parsers::Results::MADAGNAME);
-  if (MA_DAG_name != NULL) {
+  if (CONFIG_STRING(diet::MADAGNAME, tmpString)) {
     TRACE_TEXT(TRACE_MAIN_STEPS,
-               "MA DAG NAME PARSING = " << MA_DAG_name << endl);
-    MA_DAG_name = CORBA::string_dup(MA_DAG_name);
-    MA_DAG = ORBMgr::getMgr()->resolve<MaDag, MaDag_var>(MADAGCTXT, MA_DAG_name);
+               "MA DAG NAME PARSING = " << tmpString << endl);
+    MA_DAG = ORBMgr::getMgr()->resolve<MaDag, MaDag_var>(MADAGCTXT,
+                                                         tmpString);
+                                                         // CORBA::string_dup(tmpString.c_str()));
 		
-    //  MaDag::_narrow(ORBMgr::getObjReference(ORBMgr::MA_DAG, MA_DAG_name));
     if (CORBA::is_nil(MA_DAG)) {
-      ERROR("Cannot locate MA DAG " << MA_DAG_name, 1);
+      ERROR("Cannot locate MA DAG " << tmpString, 1);
     }
     else {
       CltWfMgr::instance()->setMaDag(MA_DAG);
@@ -829,21 +798,19 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
       CltWfMgr::instance()->setLogComponent(dietLogComponent);
 #endif
     }
-  } // end if (MA_DAG_name != NULL)
+  } // end if (CONFIG_STRING(diet::MADAGNAME, tmpString)
   
   // check if the Workflow Log Service is used
-  USE_WF_LOG_SERVICE = (char*) Parsers::Results::getParamValue(Parsers::Results::USEWFLOGSERVICE);
-  if (USE_WF_LOG_SERVICE != NULL) {
-    if (!strcmp(USE_WF_LOG_SERVICE, "1")) {
-      TRACE_TEXT(TRACE_MAIN_STEPS, "Connecting to Workflow Log Service" << endl);
-      WfLogService_var wfLogSrv =
-        ORBMgr::getMgr()->resolve<WfLogService, WfLogService_var>(WFLOGCTXT, "WfLogService");
-      if (CORBA::is_nil(wfLogSrv)) {
-	ERROR("cannot locate the Workflow Log Service ", 1);
-      }
-      else {
-        CltWfMgr::instance()->setWfLogService(wfLogSrv);
-      }
+  bool useWfLogService = false;
+  CONFIG_BOOL(diet::USEWFLOGSERVICE, useWfLogService);
+  if (useWfLogService) {
+    TRACE_TEXT(TRACE_MAIN_STEPS, "Connecting to Workflow Log Service" << endl);
+    WfLogService_var wfLogSrv =
+      ORBMgr::getMgr()->resolve<WfLogService, WfLogService_var>(WFLOGCTXT, "WfLogService");
+    if (CORBA::is_nil(wfLogSrv)) {
+      ERROR("cannot locate the Workflow Log Service ", 1);
+    } else {
+      CltWfMgr::instance()->setWfLogService(wfLogSrv);
     }
   }
 
@@ -853,19 +820,10 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
 #endif
 
   /* Has the maximum number of SeD been specified? */
-  value = Parsers::Results::getParamValue(Parsers::Results::CLIENT_MAX_NB_SED);
-  if (value != NULL) {
-    MAX_SERVERS = *(unsigned long *)(value);
+  if (CONFIG_ULONG(diet::CLIENT_MAX_NB_SED, MAX_SERVERS)) {
     TRACE_TEXT (TRACE_MAIN_STEPS,"Max number of SeD allowed = " << MAX_SERVERS << endl);
   }
-
-
-  /* DAGDA needs some parameters later... */
-#if ! HAVE_DAGDA
-  /* We do not need the parsing results any more */
-  Parsers::endParsing();
-#endif
-
+  
   /* Catch signals to try to exit cleanly. */
   signal(SIGABRT, diet_finalize_sig);
   signal(SIGTERM, diet_finalize_sig);

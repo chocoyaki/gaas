@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2011/02/24 16:56:20  bdepardo
+ * Use new parser
+ *
  * Revision 1.7  2010/12/17 09:47:59  kcoulomb
  * * Set diet to use the new log with forwarders
  * * Fix a CoRI problem
@@ -43,22 +46,22 @@
 using namespace std;
 
 ::CORBA::Long DIETForwarder::agentSubscribe(const char* agentName,
-																						const char* hostname,
-																						const ::SeqCorbaProfileDesc_t& services,
-																						const char* objName)
+                                            const char* hostname,
+                                            const ::SeqCorbaProfileDesc_t& services,
+                                            const char* objName)
 {
-	string objString(objName);
-	string name;
+  string objString(objName);
+  string name;
 	
-	if (!remoteCall(objString)) {
-		return getPeer()->agentSubscribe(agentName, hostname, services, objString.c_str());
-	}
+  if (!remoteCall(objString)) {
+    return getPeer()->agentSubscribe(agentName, hostname, services, objString.c_str());
+  }
 	
-	name = getName(objString);
+  name = getName(objString);
 
-	Agent_var agent = ORBMgr::getMgr()->resolve<Agent, Agent_var>(AGENTCTXT, name,
-																																this->name);
-	return agent->agentSubscribe(agentName, hostname, services);
+  Agent_var agent = ORBMgr::getMgr()->resolve<Agent, Agent_var>(AGENTCTXT, name,
+                                                                this->name);
+  return agent->agentSubscribe(agentName, hostname, services);
 }
 
 ::CORBA::Long DIETForwarder::serverSubscribe(const char* seDName,
@@ -72,111 +75,111 @@ using namespace std;
   string objString(objName);
   string name;
 	
-	if (!remoteCall(objString)) {
-	  return getPeer()->serverSubscribe(seDName, hostname,
+  if (!remoteCall(objString)) {
+    return getPeer()->serverSubscribe(seDName, hostname,
 #ifdef HAVE_JXTA
-					    uuid,
+                                      uuid,
 #endif
-					    services, objString.c_str());
-	}
-	name = getName(objString);
+                                      services, objString.c_str());
+  }
+  name = getName(objString);
 	
-	Agent_var agent = ORBMgr::getMgr()->resolve<Agent, Agent_var>(AGENTCTXT, name,
-																																this->name);
-	return agent->serverSubscribe(seDName, hostname,
+  Agent_var agent = ORBMgr::getMgr()->resolve<Agent, Agent_var>(AGENTCTXT, name,
+                                                                this->name);
+  return agent->serverSubscribe(seDName, hostname,
 #ifdef HAVE_JXTA
-																uuid,
+                                uuid,
 #endif
-																services);
+                                services);
 }
 
 #ifdef HAVE_DYNAMICS
 ::CORBA::Long DIETForwarder::childUnsubscribe(::CORBA::ULong childID,
-																							const ::SeqCorbaProfileDesc_t& services,
-																							const char* objName)
+                                              const ::SeqCorbaProfileDesc_t& services,
+                                              const char* objName)
 {
-	string objString(objName);
-	string name;
+  string objString(objName);
+  string name;
 	
-	if (!remoteCall(objString)) {
-		return getPeer()->childUnsubscribe(childID, services, objString.c_str());
-	}
+  if (!remoteCall(objString)) {
+    return getPeer()->childUnsubscribe(childID, services, objString.c_str());
+  }
 	
-	name = getName(objString);
+  name = getName(objString);
 		
-	Agent_var agent = ORBMgr::getMgr()->resolve<Agent, Agent_var>(AGENTCTXT, name,
-																																this->name);
-	return agent->childUnsubscribe(childID, services);
+  Agent_var agent = ORBMgr::getMgr()->resolve<Agent, Agent_var>(AGENTCTXT, name,
+                                                                this->name);
+  return agent->childUnsubscribe(childID, services);
 }
 #endif
 
 ::CORBA::Long DIETForwarder::childRemoveService(::CORBA::ULong childID,
-																								const ::corba_profile_desc_t& profile,
-																								const char* objName)
+                                                const ::corba_profile_desc_t& profile,
+                                                const char* objName)
 {
-	string objString(objName);
-	string name;
+  string objString(objName);
+  string name;
 	
-	if (!remoteCall(objString)) {
-		return getPeer()->childRemoveService(childID, profile, objString.c_str());
-	}
+  if (!remoteCall(objString)) {
+    return getPeer()->childRemoveService(childID, profile, objString.c_str());
+  }
 	
-	name = getName(objString);
+  name = getName(objString);
 		
-	Agent_var agent = ORBMgr::getMgr()->resolve<Agent, Agent_var>(AGENTCTXT, name,
-																																this->name);
-	return agent->childRemoveService(childID, profile);
+  Agent_var agent = ORBMgr::getMgr()->resolve<Agent, Agent_var>(AGENTCTXT, name,
+                                                                this->name);
+  return agent->childRemoveService(childID, profile);
 }
 
 ::CORBA::Long DIETForwarder::addServices(::CORBA::ULong myID,
-																				 const ::SeqCorbaProfileDesc_t& services,
-																				 const char* objName)
+                                         const ::SeqCorbaProfileDesc_t& services,
+                                         const char* objName)
 {
-	string objString(objName);
-	string name;
+  string objString(objName);
+  string name;
 	
-	if (!remoteCall(objString)) {
-		return getPeer()->addServices(myID, services, objString.c_str());
-	}
+  if (!remoteCall(objString)) {
+    return getPeer()->addServices(myID, services, objString.c_str());
+  }
 	
-	name = getName(objString);
+  name = getName(objString);
 		
-	Agent_var agent = ORBMgr::getMgr()->resolve<Agent, Agent_var>(AGENTCTXT, name,
-																																this->name);
-	return agent->addServices(myID, services);
+  Agent_var agent = ORBMgr::getMgr()->resolve<Agent, Agent_var>(AGENTCTXT, name,
+                                                                this->name);
+  return agent->addServices(myID, services);
 }
 
 void DIETForwarder::getResponse(const ::corba_response_t& resp,
-																const char* objName)
+                                const char* objName)
 {
-	string objString(objName);
-	string name;
+  string objString(objName);
+  string name;
 	
-	if (!remoteCall(objString)) {
-		return getPeer()->getResponse(resp, objString.c_str());
-	}
+  if (!remoteCall(objString)) {
+    return getPeer()->getResponse(resp, objString.c_str());
+  }
 	
-	name = getName(objString);
+  name = getName(objString);
 		
-	Agent_var agent = ORBMgr::getMgr()->resolve<Agent, Agent_var>(AGENTCTXT, name,
-																																this->name);
-	return agent->getResponse(resp);
+  Agent_var agent = ORBMgr::getMgr()->resolve<Agent, Agent_var>(AGENTCTXT, name,
+                                                                this->name);
+  return agent->getResponse(resp);
 }
 
 #ifdef HAVE_DAGDA
 char* DIETForwarder::getDataManager(const char* objName) {
-	string objString(objName);
-	string name;
+  string objString(objName);
+  string name;
 	
-	if (!remoteCall(objString)) {
-		return getPeer()->getDataManager(objString.c_str());
-	}
+  if (!remoteCall(objString)) {
+    return getPeer()->getDataManager(objString.c_str());
+  }
 	
-	name = getName(objString);
+  name = getName(objString);
 		
-	Agent_var agent = ORBMgr::getMgr()->resolve<Agent, Agent_var>(AGENTCTXT, name,
-																																this->name);
-	return agent->getDataManager();
+  Agent_var agent = ORBMgr::getMgr()->resolve<Agent, Agent_var>(AGENTCTXT, name,
+                                                                this->name);
+  return agent->getDataManager();
 }
 
 SeqString* DIETForwarder::searchData(const char* request,

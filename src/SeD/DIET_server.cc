@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.98  2011/02/24 16:57:01  bdepardo
+ * Use new parser
+ *
  * Revision 1.97  2011/02/22 23:26:36  bdepardo
  * Reduce variable scope
  *
@@ -246,12 +249,12 @@
 using namespace std;
 
 #include "DIET_server.h"
+#include "DIET_grpc.h"
 
 #include "debug.hh"
 #include "est_internal.hh"
 #include "marshalling.hh"
 #include "ORBMgr.hh"
-#include "Parsers.hh"
 #include "SeDImpl.hh"
 #include "Vector.h"
 #include "configuration.hh"
@@ -794,10 +797,8 @@ int
 diet_SeD(const char* config_file_name, int argc, char* argv[])
 {
   SeDImpl* SeD;
-  int    res(0);
   int    myargc;
   char** myargv;
-  char*  name;
 #ifdef USE_LOG_SERVICE
   DietLogComponent* dietLogComponent;     /* LogService */
   MonitoringThread* monitoringThread;
@@ -823,58 +824,51 @@ diet_SeD(const char* config_file_name, int argc, char* argv[])
   for (int i = 0; i < argc; i++)
     myargv[i] = argv[i];
 
-  /* FIXME: this is a hack for the new parser, so that it works with DAGDA
-   * We should remove the old parser as soon as possible
-   */
-  FileParser fileParser(config_file_name);
+  /* Get configuration file parameters */
+  FileParser fileParser;
+  try {
+    fileParser.parseFile(config_file_name);
+  } catch (...) {
+    ERROR("while parsing " << config_file_name, DIET_FILE_IO_ERROR);
+  }
   CONFIGMAP = fileParser.getConfiguration();
+  // FIXME: should we also parse command line arguments?
 
 
-  /* Parsing */
-  Parsers::Results::param_type_t compParam[] = {Parsers::Results::PARENTNAME};
-
-  if ((res = Parsers::beginParsing(config_file_name))) {
-    return res;
+  /* Check the parameters */
+  std::string tmpString;
+  if (!CONFIG_STRING(diet::PARENTNAME, tmpString)) {
+    ERROR("No parentName found in the configuration", GRPC_CONFIGFILE_ERROR);
   }
-  if ((res =
-       Parsers::parseCfgFile(true, 1,
-			     (Parsers::Results::param_type_t*)compParam))) {
-    Parsers::endParsing();
-    return res;
+  if (CONFIG_STRING(diet::MANAME, tmpString)) {
+    WARNING("No need to specify an MA name for a SeD - ignored");
   }
 
-  /* Some more checks */
-  name = (char*)
-    Parsers::Results::getParamValue(Parsers::Results::MANAME);
-  if (name != NULL)
-    WARNING("parsing " << config_file_name
-	    << ": no need to specify an MA name for a SeD - ignored");
 
   /* Get listening port & hostname */
-
-  // size_t --> unsigned int
-  unsigned int* port = (unsigned int*)
-    (Parsers::Results::getParamValue(Parsers::Results::DIETPORT));
-  char* host = (char*)
-    (Parsers::Results::getParamValue(Parsers::Results::DIETHOSTNAME));
-  if ((port != NULL)|| (host !=NULL)) {
-    char *  endPoint = (char *) calloc(48, sizeof(char*)) ;
+  int port;
+  std::string host;
+  bool hasPort = CONFIG_INT(diet::DIETPORT, port);
+  bool hasHost = CONFIG_STRING(diet::DIETHOSTNAME, host);
+  if (hasPort || hasHost) {
+    std::ostringstream endpoint;
     int    tmp_argc = myargc + 2;
     myargv = (char**)realloc(myargv, tmp_argc * sizeof(char*));
     myargv[myargc] = strdup("-ORBendPoint") ;
-    if (port == NULL) {
-      sprintf(endPoint, "giop:tcp:%s:", host);
-    } else if (host == NULL)  {
-      sprintf(endPoint, "giop:tcp::%u", *port);
-    } else {
-      sprintf(endPoint, "giop:tcp:%s:%u", host,*port);
+
+    endpoint << "giop:tcp:" << host << ":";
+    if(hasPort) {
+      endpoint << port;
     }
-    myargv[myargc + 1] = (char*)endPoint;
+
+    myargv[myargc + 1] = strdup(endpoint.str().c_str());
     myargc = tmp_argc;
   }
 
   /* Get the traceLevel */
-
+  unsigned long tmpTraceLevel = TRACE_DEFAULT;
+  CONFIG_ULONG(diet::TRACELEVEL, tmpTraceLevel);
+  TRACE_LEVEL = tmpTraceLevel;
   if (TRACE_LEVEL >= TRACE_MAX_VALUE) {
     char *  level = (char *) calloc(48, sizeof(char*)) ;
     int    tmp_argc = myargc + 2;
@@ -892,47 +886,6 @@ diet_SeD(const char* config_file_name, int argc, char* argv[])
     ERROR("ORB initialization failed", 1);
   }
 
-  /* DietLogComponent creation for LogService usage */
-  bool useLS;
-  unsigned int* ULSptr;
-#ifdef USE_LOG_SERVICE
-  int outBufferSize;
-  int flushTime;
-#endif
-
-  ULSptr = (unsigned int*)Parsers::Results::getParamValue(Parsers::Results::USELOGSERVICE);
-  useLS = false;
-  if (ULSptr != NULL) {
-    if (*ULSptr) {
-      useLS = true;
-    }
-  }
-
-  if (useLS) {
-#ifdef USE_LOG_SERVICE
-    unsigned int* OBSptr;
-    unsigned int* FTptr;
-
-    OBSptr = (unsigned int*)Parsers::Results::getParamValue(Parsers::Results::LSOUTBUFFERSIZE);
-    if (OBSptr != NULL) {
-      outBufferSize = (int)(*OBSptr);
-    } else {
-      outBufferSize = 0;
-      TRACE_TEXT(TRACE_ALL_STEPS,
-		 "lsOutbuffersize not configured, using default");
-    }
-    FTptr = (unsigned int*)Parsers::Results::getParamValue(Parsers::Results::LSFLUSHINTERVAL);
-    if (FTptr != NULL) {
-      flushTime = (int)(*FTptr);
-    } else {
-      flushTime = 10000;
-      TRACE_TEXT(TRACE_ALL_STEPS,
-		 "lsFlushinterval not configured, using default");
-    }
-#else
-    WARNING("Option useLogService = 1, but DIET has not been compiled with LogService support");
-#endif
-  }
 
 #if HAVE_FD
   /* very simple registration: SeD only is observable by FD, no details on
@@ -955,25 +908,40 @@ diet_SeD(const char* config_file_name, int argc, char* argv[])
 #endif
 
 #ifdef USE_LOG_SERVICE
-  /* Set SeD to use LogService object */
-  if (useLS) {
+  /* DietLogComponent creation for LogService usage */
+  bool useLS = false;
+  int outBufferSize;
+  int flushTime;
+
+
+  CONFIG_BOOL(diet::USELOGSERVICE, useLS);
+  if (!useLS) {
+    TRACE_TEXT(TRACE_ALL_STEPS, "LogService disabled" << endl);
+    dietLogComponent = NULL;
+  } else {
+    if (!CONFIG_INT(diet::LSOUTBUFFERSIZE, outBufferSize)) {
+      outBufferSize = 0;
+      WARNING("lsOutbuffersize not configured, using default");
+    }
+
+    if (!CONFIG_INT(diet::LSFLUSHINTERVAL, flushTime)) {
+      flushTime = 10000;
+      WARNING("lsFlushinterval not configured, using default");
+    }
+
     TRACE_TEXT(TRACE_ALL_STEPS, "* LogService: enabled" << endl);
-    char* parentName;
-    parentName = (char*)Parsers::Results::getParamValue
-      (Parsers::Results::PARENTNAME);
+    std::string parentName;
+    CONFIG_STRING(diet::PARENTNAME, parentName);
 
     dietLogComponent = new DietLogComponent(SeD->getName(), outBufferSize, myargc, (char**)myargv);
 
     ORBMgr::getMgr()->activate(dietLogComponent);
-    if (dietLogComponent->run("SeD", parentName, flushTime) != 0) {
+    if (dietLogComponent->run("SeD", parentName.c_str(), flushTime) != 0) {
       // delete(dietLogComponent); // DLC is activated, do not delete !
       WARNING("Could not initialize DietLogComponent");
       TRACE_TEXT(TRACE_ALL_STEPS, "* LogService: disabled" << endl);
       dietLogComponent = NULL; // this should never happen;
     }
-  } else {
-    TRACE_TEXT(TRACE_ALL_STEPS, "* LogService: disabled" << endl);
-    dietLogComponent = NULL;
   }
 
   // Just start the thread, as it might not be FAST-related
@@ -994,12 +962,10 @@ diet_SeD(const char* config_file_name, int argc, char* argv[])
 #else
 #if ! HAVE_DAGDA
   /* Set-up and activate Data Manager for DTM usage */
-  char* nm = (char*)
-    Parsers::Results::getParamValue(Parsers::Results::PARENTNAME);
-  if (nm==NULL) {
+  std::string dtmName;
+  if (!CONFIG_STRING(diet::PARENTNAME, dtmName)) {
     ERROR("Cannot create the local data manager. SeD needs a parent name", 1);
   }
-  string dtmName(nm);
   dtmName="DataMgr-"+dtmName;
 
   dataMgr = new DataMgrImpl(dtmName.c_str());
@@ -1028,18 +994,14 @@ diet_SeD(const char* config_file_name, int argc, char* argv[])
 
 #ifdef HAVE_ACKFILE
   /* Touch a file to notify the end of the initialization */
-  char* ackFile = (char*)
-    Parsers::Results::getParamValue(Parsers::Results::ACKFILE);
-  if (ackFile != NULL) {
+  std::string ackFile;
+  if (CONFIG_STRING(diet::ACKFILE, ackFile)) {
     cerr << "Open OutFile: "<< ackFile <<endl;
     ofstream out (ackFile);
     out << "ok" << endl;
     out.close();
   }
 #endif
-
-  /* We do not need the parsing results any more */
-  //  Parsers::endParsing();
 
 #ifdef HAVE_DAGDA
   sedImpl = SeD;

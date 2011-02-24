@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2011/02/24 16:52:40  bdepardo
+ * Use new parser
+ *
  * Revision 1.4  2010/11/16 01:42:28  amuresan
  *  - added proper concurrency support for cloud part
  *  - fixed small data initialization bug with cloud server example
@@ -35,7 +38,7 @@
 //#include <omnithread.h> /* need omni_mutex and for thread-local storage */
 
 #include "BatchSystem.hh"
-#include "Parsers.hh"
+#include "configuration.hh"
 #include "EucaLib/ec2wrapper.h"
 
 /* The type of the Virtual Machine that is to be instantiated */
@@ -186,7 +189,7 @@ private :
    * via strdup or returns NULL if the parameter is NULL.
    */
   char *
-  GetStringValueOrNull(char*tmp, Parsers::Results::param_type_t param);
+  GetStringValueOrNull(diet::param_type_t param);
 
   /************* Multi-threading helpers **************/
 
@@ -269,7 +272,7 @@ private :
   int *thread_local_id;
 
   /* Maximum number of threads */
-  int max_threads;
+  unsigned int max_threads;
 
   /********** thread local data **********/
 

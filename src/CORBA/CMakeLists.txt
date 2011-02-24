@@ -18,6 +18,7 @@ include_directories(
   ${DIET_SOURCE_DIR}/src/utils
   ${DIET_SOURCE_DIR}/include
   ${DIET_SOURCE_DIR}/src/CORBA
+  ${DIET_SOURCE_DIR}/src/utils/config
 )
 
 if (DIET_USE_DAGDA)

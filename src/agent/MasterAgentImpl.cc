@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.72  2011/02/24 16:57:02  bdepardo
+ * Use new parser
+ *
  * Revision 1.71  2011/02/24 11:55:46  bdepardo
  * Use the new CONFIG_XXX macros.
  *
@@ -712,8 +715,6 @@ char* MasterAgentImpl::getBindName()
 void
 MasterAgentImpl::updateRefs()
 {
-    //  cout << "updateRefs()" << endl ;
-
     MAIds.lock() ;
     MasterAgent_var ma ;
     int loopCpt = 0 ;
@@ -752,7 +753,6 @@ MasterAgentImpl::updateRefs()
 
     MAIds.unlock() ;
     logNeighbors();
-  //  cout << "--updateRefs()" << std::endl ;
 } // updateRefs()
 
 
@@ -1169,10 +1169,10 @@ MasterAgentFwdrImpl::MasterAgentFwdrImpl(Forwarder_ptr fwdr,
 corba_response_t* MasterAgentFwdrImpl::submit(const corba_pb_desc_t& pb_profile,
 					      CORBA::ULong maxServers)
 {
-    std::cout << __FILE__ << ": l." << __LINE__
-	      << " (" << __FUNCTION__ << ")" << std::endl;
-    std::cout << "submit(pb_profile, " << maxServers << ", "
-	      << objName << ")" << std::endl;
+  TRACE_TEXT(TRACE_MAIN_STEPS, __FILE__ << ": l." << __LINE__
+             << " (" << __FUNCTION__ << ")" << std::endl
+             << "submit(pb_profile, " << maxServers << ", "
+             << objName << ")" << std::endl);
     return forwarder->submit(pb_profile, maxServers, objName);
 }
 

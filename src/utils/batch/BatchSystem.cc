@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2011/02/24 16:52:40  bdepardo
+ * Use new parser
+ *
  * Revision 1.12  2011/01/20 19:10:47  bdepardo
  * Removed resource leaks on file descriptors
  *
@@ -74,7 +77,7 @@ using namespace std ;
 #include <fcntl.h>       // for O_RDONLY
 
 #include "debug.hh"      // ERROR
-#include "Parsers.hh"
+#include "configuration.hh"
 #include "BatchSystem.hh"
 #include "BatchCreator.hh" // LOADLVELER, OAR1.6, etc. definition
 
@@ -88,8 +91,7 @@ const char * BatchSystem::emptyString = "" ;
 
 BatchSystem::BatchSystem()
 {
-  char * tmpString = NULL ;
-  char * tmpChaine = NULL ;
+  std::string tmpString;
   
   batchJobQueue = NULL ;
     
@@ -101,40 +103,33 @@ BatchSystem::BatchSystem()
   frontalName[255] = '\0'; // If truncated, ensure null termination 
 
   /* Continue to parse the SeD configuration file */
-  //      if( this->batchID != ELBASE_SHELL ) {
   /* Search for batch queues */
-  tmpString = (char*)
-    Parsers::Results::getParamValue(Parsers::Results::BATCHQUEUE) ;
-  if( tmpString == NULL )
-    batchQueueName = emptyString ;
-  else batchQueueName = strdup(tmpString) ;
+  if (!CONFIG_STRING(diet::BATCHQUEUE, tmpString)) {
+    batchQueueName = emptyString;
+  } else {
+    batchQueueName = strdup(tmpString.c_str());
+  }
 
   /*  "__\0" -> 3 char, strlen=2 and [1] should be '\' */
-  tmpString = (char*)
-    Parsers::Results::getParamValue(Parsers::Results::PATHTONFS) ;
-  if(  tmpString == NULL )
-    pathToNFS = NULL ;
-  else if( tmpString[strlen(tmpString) - 1] == '/' )
-    pathToNFS = strdup(tmpString) ;
-  else {
-    tmpChaine = (char*)malloc((strlen(tmpString)+2) * sizeof(char)) ;
-    sprintf(tmpChaine,"%s/",tmpString) ;
-    pathToNFS = tmpChaine ;
+  if (!CONFIG_STRING(diet::PATHTONFS, tmpString)) {
+    pathToNFS = NULL;
+  } else if ( tmpString[tmpString.size() - 1] == '/' ) {
+    pathToNFS = strdup(tmpString.c_str());
+  } else {
+    tmpString += "/";
+    pathToNFS = strdup(tmpString.c_str());
   }
   errorIfPathNotValid( pathToNFS ) ;
     
-  tmpString = (char*)
-    Parsers::Results::getParamValue(Parsers::Results::PATHTOTMP) ;   
-  if( tmpString == NULL ) {
+  if (!CONFIG_STRING(diet::PATHTOTMP, tmpString)) {
     //    ERROR_EXIT("Please set a correct path to a tmp directory") ;
     WARNING("Assume /tmp/ as temporary file directory!") ;
     pathToTmp = strdup("/tmp/") ;
-  } else if( tmpString[strlen(tmpString) - 1] == '/' )
-    pathToTmp = strdup(tmpString) ;
-  else {
-    tmpChaine = (char*)malloc((strlen(tmpString)+2) * sizeof(char)) ;
-    sprintf(tmpChaine,"%s/",tmpString) ;
-    pathToTmp = tmpChaine ;
+  } else if (tmpString[tmpString.size() - 1] == '/') {
+    pathToTmp = strdup(tmpString.c_str()) ;
+  } else {
+    tmpString += "/";
+    pathToTmp = strdup(tmpString.c_str()) ;
   }
   errorIfPathNotValid( pathToTmp ) ;
 }

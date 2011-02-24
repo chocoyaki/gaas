@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.34  2011/02/24 16:53:45  bdepardo
+ * Use new parser
+ *
  * Revision 1.33  2011/01/22 16:27:52  glemahec
  * Bug workflows/#156 correction (#155 too ?) - pointers management was bugged when reusing INOUT data.
  *
@@ -69,22 +72,6 @@
  *
  *
  ************************************************************/
-#include "DIET_Dagda.hh"
-#include "DagdaFactory.hh"
-#if DAGDA_PROGRESSION
-#include "Transfers.hh"
-#include <stdexcept>
-#endif
-extern "C" {
-#include "DIET_Dagda.h"
-} // extern "C"
-#include "MasterAgent.hh"
-#include "ORBMgr.hh"
-#include "Parsers.hh"
-#include "marshalling.hh"
-#include <omniORB4/CORBA.h>
-#include "debug.hh"
-
 #include <string>
 #include <sstream>
 #include <iostream>
@@ -93,6 +80,26 @@ extern "C" {
 #if HAVE_ADVANCED_UUID
 #include <uuid/uuid.h>
 #endif
+
+#include "DIET_Dagda.hh"
+#include "DagdaFactory.hh"
+
+#if DAGDA_PROGRESSION
+#include "Transfers.hh"
+#include <stdexcept>
+#endif
+
+extern "C" {
+#include "DIET_Dagda.h"
+} // extern "C"
+
+#include "MasterAgent.hh"
+#include "ORBMgr.hh"
+#include "marshalling.hh"
+#include <omniORB4/CORBA.h>
+#include "debug.hh"
+#include "configuration.hh"
+
 
 #define BEGIN_API extern "C" {
 #define END_API   } // extern "C"
@@ -378,7 +385,7 @@ void dagda_download_data(diet_profile_t& profile, corba_profile_t& pb) {
       char* bestSource = dataManager->getBestSource(dataManager->getID(),
 						    pb.parameters[i].desc.id.idNumber);
       if (!dataManager->lclIsDataPresent(pb.parameters[i].desc.id.idNumber)) {
-        cout << "Uses the remote data " << pb.parameters[i].desc.id.idNumber << endl;
+        TRACE_TEXT(TRACE_MAIN_STEPS, "Uses the remote data " << pb.parameters[i].desc.id.idNumber << endl);
         corba_data_t data;
         Dagda_var source = ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT, bestSource);
         data.desc = *source->lclGetDataDesc(pb.parameters[i].desc.id.idNumber);
@@ -503,12 +510,16 @@ char * get_data_id()
 }
 
 MasterAgent_var getMasterAgent() {
-  if (masterAgent!=NULL) return masterAgent;
-  char* MA_name =
-    (char*) Parsers::Results::getParamValue(Parsers::Results::MANAME);
-  if (MA_name==NULL) return NULL;
+  if (masterAgent != NULL) {
+    return masterAgent;
+  }
+
+  string MA_name;
+  if (!CONFIG_STRING(diet::MANAME, MA_name)) {
+    return NULL;
+  }
 	
-  MasterAgent_var MA = //MasterAgent::_narrow(ORBMgr::getObjReference(ORBMgr::AGENT, MA_name));
+  MasterAgent_var MA = 
     ORBMgr::getMgr()->resolve<MasterAgent, MasterAgent_var>(AGENTCTXT, MA_name);
   if (CORBA::is_nil(MA)) {
     //ERROR("cannot locate Master Agent " << MA_name, 1);
@@ -519,10 +530,14 @@ MasterAgent_var getMasterAgent() {
 }
 
 Agent_var getParent() {
-  if (parentAgent!=NULL) return parentAgent;
-  char* parent_name =
-    (char*) Parsers::Results::getParamValue(Parsers::Results::PARENTNAME);
-  if (parent_name==NULL) return NULL;
+  if (parentAgent != NULL) {
+    return parentAgent;
+  }
+
+  string parent_name;
+  if (!CONFIG_STRING(diet::PARENTNAME, parent_name)) {
+    return NULL;
+  }
 	
   Agent_var Parent = 
     ORBMgr::getMgr()->resolve<Agent, Agent_var>(AGENTCTXT, parent_name);
@@ -544,10 +559,12 @@ Dagda_var getEntryPoint() {
   Dagda_var manager;
 	
   if (localManager->getType()==DGD_CLIENT_MNGR) {
-    char* MA_name =
-      (char*) Parsers::Results::getParamValue(Parsers::Results::MANAME);
-    if (MA_name==NULL) return NULL;
-    MasterAgent_var MA = //MasterAgent::_narrow(ORBMgr::getObjReference(ORBMgr::AGENT, MA_name));
+    string MA_name;
+    if (!CONFIG_STRING(diet::MANAME, MA_name)) {
+      return NULL;
+    }
+
+    MasterAgent_var MA =
       ORBMgr::getMgr()->resolve<MasterAgent, MasterAgent_var>(AGENTCTXT, MA_name);
     if (CORBA::is_nil(MA)) {
       //       ERROR("cannot locate Master Agent " << MA_name, 1);

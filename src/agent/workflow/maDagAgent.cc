@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.18  2011/02/24 16:57:02  bdepardo
+ * Use new parser
+ *
  * Revision 1.17  2011/02/04 15:20:48  hguemar
  * fixes to new configuration parser
  * some cleaning
@@ -72,11 +75,12 @@
 
 #include <iostream>
 using namespace std;
-#include "Parsers.hh"
+#include "DIET_grpc.h"
 #include "ORBMgr.hh"
 #include "MaDag_impl.hh"
 #include "MasterAgent.hh"
 #include "debug.hh"
+#include "configuration.hh"
 
 /*
 #include "DIET_client.h"
@@ -122,115 +126,133 @@ int checkUsage(int argc, char ** argv) {
 }
 
 
-int main(int argc, char * argv[]){
-    char * config_file_name = argv[1];
-    int    res(0);
-    int    myargc;
-    char** myargv;
-    bool   IRD;
-    int    IRD_value;
+int main(int argc, char * argv[]) {
+  char * config_file_name = argv[1];
+  int    myargc;
+  char** myargv;
+  bool   IRD;
+  int    IRD_value;
 
-    checkUsage(argc,argv);
+  checkUsage(argc,argv);
 
-    /* Set arguments for ORBMgr::init */
+  /* Set arguments for ORBMgr::init */
 
-    myargc = argc;
-    myargv = (char**)malloc(argc * sizeof(char*));
-    for (int i = 0; i < argc; i++)
-	myargv[i] = argv[i];
+  myargc = argc;
+  myargv = (char**)malloc(argc * sizeof(char*));
+  for (int i = 0; i < argc; i++)
+    myargv[i] = argv[i];
 
-    /* Parsing */
+  /* Parsing */
 
-    /* Init the Xerces engine */
-    XMLPlatformUtils::Initialize();
+  /* Init the Xerces engine */
+  XMLPlatformUtils::Initialize();
 
 
-    Parsers::Results::param_type_t compParam[] =
-    {Parsers::Results::AGENTTYPE, Parsers::Results::NAME};
+  /* Get configuration file parameters */
+  FileParser fileParser;
+  try {
+    fileParser.parseFile(config_file_name);
+  } catch (...) {
+    ERROR("while parsing " << config_file_name, DIET_FILE_IO_ERROR);
+  }
+  CONFIGMAP = fileParser.getConfiguration();
+  // FIXME: should we also parse command line arguments?
 
-    if ((res = Parsers::beginParsing(config_file_name)))
-	return res;
-    if ((res =
-	 Parsers::parseCfgFile(true, 2,
-			       (Parsers::Results::param_type_t*)compParam))) {
-	Parsers::endParsing();
-	return res;
-    }
+  /* Check the parameters */
+  std::string name;
+  std::string agentType;
+  if (!CONFIG_STRING(diet::NAME, name)) {
+    ERROR("No name found in the configuration", GRPC_CONFIGFILE_ERROR);
+  }
+  if (!CONFIG_STRING(diet::AGENTTYPE, agentType)) {
+    ERROR("No agentType found in the configuration", GRPC_CONFIGFILE_ERROR);
+  }
 
-    char* name = (char*)
-	Parsers::Results::getParamValue(Parsers::Results::NAME);
+  /* Get the traceLevel */
+  unsigned long tmpTraceLevel = TRACE_DEFAULT;
+  CONFIG_ULONG(diet::TRACELEVEL, tmpTraceLevel);
+  TRACE_LEVEL = tmpTraceLevel;
+  if (TRACE_LEVEL >= TRACE_MAX_VALUE) {
+    char *  level = (char *) calloc(48, sizeof(char*)) ;
+    int    tmp_argc = myargc + 2;
+    myargv = (char**)realloc(myargv, tmp_argc * sizeof(char*));
+    myargv[myargc] = strdup("-ORBtraceLevel");
+    sprintf(level, "%u", TRACE_LEVEL - TRACE_MAX_VALUE);
+    myargv[myargc + 1] = (char*)level;
+    myargc = tmp_argc;
+  }
 
-    /* Choose scheduler type */
-    MaDag_impl::MaDagSchedType schedType = MaDag_impl::BASIC;
-    if (argc >= 3) {
-	if (!strcmp(argv[2], "-fairness"))
+  /* Choose scheduler type */
+  MaDag_impl::MaDagSchedType schedType = MaDag_impl::BASIC;
+  if (argc >= 3) {
+    if (!strcmp(argv[2], "-fairness"))
       schedType = MaDag_impl::FOFT;
-	else if (!strcmp(argv[2], "-g_heft"))
-	    schedType = MaDag_impl::GHEFT;
-	else if (!strcmp(argv[2], "-g_aging_heft"))
+    else if (!strcmp(argv[2], "-g_heft"))
+      schedType = MaDag_impl::GHEFT;
+    else if (!strcmp(argv[2], "-g_aging_heft"))
       schedType = MaDag_impl::GAHEFT;
-	else if (!strcmp(argv[2], "-srpt"))
-	    schedType = MaDag_impl::SRPT;
-	else if (!strcmp(argv[2], "-fcfs"))
-	    schedType = MaDag_impl::FCFS;
-	else schedType = MaDag_impl::BASIC;
+    else if (!strcmp(argv[2], "-srpt"))
+      schedType = MaDag_impl::SRPT;
+    else if (!strcmp(argv[2], "-fcfs"))
+      schedType = MaDag_impl::FCFS;
+    else schedType = MaDag_impl::BASIC;
+  }
+
+  /* Choose interRoundDelay */
+  IRD = false;
+  if (argc >= 5) {
+    if (!strcmp(argv[4], "-IRD")) {
+      IRD = true;
+      if (!sscanf(argv[5],"%d",&IRD_value)) {
+        ERROR("Wrong IRD parameter value", 1);
+      }
     }
+  }
 
-    /* Choose interRoundDelay */
-    IRD = false;
-    if (argc >= 5) {
-	if (!strcmp(argv[4], "-IRD")) {
-	    IRD = true;
-	    if (!sscanf(argv[5],"%d",&IRD_value)) {
-		ERROR("Wrong IRD parameter value", 1);
-	    }
-	}
-    }
+  /* Get the traceLevel */
 
-    /* Get the traceLevel */
+  if (TRACE_LEVEL >= TRACE_MAX_VALUE) {
+    char *  level = (char *) calloc(48, sizeof(char*)) ;
+    int    tmp_argc = myargc + 2;
+    myargv = (char**)realloc(myargv, tmp_argc * sizeof(char*));
+    myargv[myargc] = strdup("-ORBtraceLevel") ;
+    sprintf(level, "%u", TRACE_LEVEL - TRACE_MAX_VALUE);
+    myargv[myargc + 1] = (char*)level;
+    myargc = tmp_argc;
+  }
 
-    if (TRACE_LEVEL >= TRACE_MAX_VALUE) {
-	char *  level = (char *) calloc(48, sizeof(char*)) ;
-	int    tmp_argc = myargc + 2;
-	myargv = (char**)realloc(myargv, tmp_argc * sizeof(char*));
-	myargv[myargc] = strdup("-ORBtraceLevel") ;
-	sprintf(level, "%u", TRACE_LEVEL - TRACE_MAX_VALUE);
-	myargv[myargc + 1] = (char*)level;
-	myargc = tmp_argc;
-    }
+  /* INIT ORB and CREATE MADAG CORBA OBJECT */
 
-    /* INIT ORB and CREATE MADAG CORBA OBJECT */
-
-    try {
-	ORBMgr::init(myargc, myargv);
-    } catch (...) {
-	ERROR("ORB initialization failed", 1);
-    }
+  try {
+    ORBMgr::init(myargc, myargv);
+  } catch (...) {
+    ERROR("ORB initialization failed", 1);
+  }
     
-    MaDag_impl * maDag_impl = IRD ? new MaDag_impl(name,schedType,IRD_value) :
-      new MaDag_impl(name, schedType);
-    ORBMgr::getMgr()->activate((MaDag_impl*)maDag_impl);
+  MaDag_impl * maDag_impl = IRD ? new MaDag_impl(name.c_str(), schedType, IRD_value) :
+    new MaDag_impl(name.c_str(), schedType);
+  ORBMgr::getMgr()->activate((MaDag_impl*)maDag_impl);
     
-    /* Change platform type */
-    if (argc >=4) {
-	if (!strcmp(argv[3], "-pfm_sameservices"))
-	    maDag_impl->setPlatformType(MaDag::SAME_SERVICES);
-    }
+  /* Change platform type */
+  if (argc >=4) {
+    if (!strcmp(argv[3], "-pfm_sameservices"))
+      maDag_impl->setPlatformType(MaDag::SAME_SERVICES);
+  }
 
-    /* Wait for RPCs (blocking call): */
-    try {
-	ORBMgr::getMgr()->wait();
-    } catch (...) {
-	WARNING("Error while exiting the ORBMgr::wait() function");
-    }
+  /* Wait for RPCs (blocking call): */
+  try {
+    ORBMgr::getMgr()->wait();
+  } catch (...) {
+    WARNING("Error while exiting the ORBMgr::wait() function");
+  }
 
-    /* shutdown and destroy the ORB
-     * Servants will be deactivated and deleted automatically */
-    delete ORBMgr::getMgr();
+  /* shutdown and destroy the ORB
+   * Servants will be deactivated and deleted automatically */
+  delete ORBMgr::getMgr();
     
     
-    XMLPlatformUtils::Terminate();
+  XMLPlatformUtils::Terminate();
 
-    return 0;
+  return 0;
 }
 

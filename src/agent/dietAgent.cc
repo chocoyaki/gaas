@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.55  2011/02/24 16:57:02  bdepardo
+ * Use new parser
+ *
  * Revision 1.54  2011/02/24 12:50:32  bdepardo
  * Use new version of CONFIG_XXX macros
  *
@@ -176,7 +179,6 @@
  * %u replaced by %s
  ****************************************************************************/
 
-#include "ExitClass.hh"
 #include <cstdlib>
 #include <csignal>
 #include <algorithm>
@@ -184,6 +186,7 @@
 #include <string>
 
 using namespace std;
+#include "ExitClass.hh"
 #include "configuration.hh"
 #include "debug.hh"
 #include "LocalAgentImpl.hh"
@@ -372,7 +375,7 @@ int main(int argc, char* argv[], char *envp[]) {
     std::ostringstream endpoint;
     ins("-ORBendPoint") ;
     endpoint << "giop:tcp:" << host << ":";
-    if( -1 != port) {
+    if(hasPort) {
       endpoint << port;
     }
 
@@ -401,65 +404,50 @@ int main(int argc, char* argv[], char *envp[]) {
     ERROR("ORB initialization failed", 1);
   }
 
+#ifdef USE_LOG_SERVICE
   /* Create the DietLogComponent for use with LogService */
-  bool useLS(false);
+  bool useLS = false;
   int outBufferSize;
   int flushTime;
 
-  // size_t --> unsigned int
-  bool useLogService = false;
-  CONFIG_BOOL(diet::USELOGSERVICE, useLogService);
-  if (!useLogService) {
-    WARNING("useLogService disabled");
+  CONFIG_BOOL(diet::USELOGSERVICE, useLS);
+  if (!useLS) {
+    TRACE_TEXT(TRACE_ALL_STEPS, "LogService disabled" << endl);
+    dietLogComponent = NULL;
   } else {
-    useLS = true;
-  }
-
-  if (useLS) {
     if (!CONFIG_INT(diet::LSOUTBUFFERSIZE, outBufferSize)) {
       outBufferSize = 0;
       WARNING("lsOutbuffersize not configured, using default");
     }
-  }
 
-  if (!CONFIG_INT(diet::LSFLUSHINTERVAL, flushTime)) {
-    flushTime = 10000;
-    WARNING("lsFlushinterval not configured, using default");
-  }
+    if (!CONFIG_INT(diet::LSFLUSHINTERVAL, flushTime)) {
+      flushTime = 10000;
+      WARNING("lsFlushinterval not configured, using default");
+    }
 
-#ifdef USE_LOG_SERVICE
-  if (useLS) {
     TRACE_TEXT(TRACE_ALL_STEPS, "LogService enabled" << std::endl);
-    char *agtTypeName = 0;
-    char *agtParentName = strdup(parentName.c_str());
+    std::string agtTypeName;
     std::string name = "";
     CONFIG_STRING(diet::NAME, name);
-    char *agtName = strdup(name.c_str());
 
     if ((agentType == "DIET_LOCAL_AGENT") || (agentType == "LA")) {
-      agtTypeName = strdup("LA");
+      agtTypeName = "LA";
     } else {
-      agtTypeName = strdup("MA");
+      agtTypeName = "MA";
     }
 
     // the agent names should be correct if we arrive here
-    dietLogComponent = new DietLogComponent(agtName,
+    dietLogComponent = new DietLogComponent(name.c_str(),
                                             outBufferSize,
                                             argsTmp.size(),
                                             &argsTmp[0]);
     //    ORBMgr::getMgr()->activate(dietLogComponent);
 
-    if (dietLogComponent->run(agtTypeName, agtParentName, flushTime)) {
+    if (dietLogComponent->run(agtTypeName.c_str(), parentName.c_str(), flushTime)) {
       // delete(dietLogComponent); // DLC is activated, do not delete !
       WARNING("Could not initialize DietLogComponent");
-      dietLogComponent = 0; // this should not happen;
+      dietLogComponent = NULL; // this should not happen;
     }
-    free(agtTypeName);
-    free(agtParentName);
-    free(agtName);
-  } else {
-    TRACE_TEXT(TRACE_ALL_STEPS, "LogService disabled" << endl);
-    dietLogComponent = 0;
   }
 #endif /* USE_LOG_SERVICE */
 

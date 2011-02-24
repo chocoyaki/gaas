@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.35  2011/02/24 16:57:01  bdepardo
+ * Use new parser
+ *
  * Revision 1.34  2011/01/21 18:07:00  bdepardo
  * Prefer prefix ++/-- operators for non-primitive types.
  *
@@ -114,7 +117,7 @@
 #include "LocMgr.hh"
 #include "ms_function.hh"
 #include "ORBMgr.hh"
-#include "Parsers.hh"
+#include "configuration.hh"
 #include "ts_container/ts_map.hh"
 
 /** Data Manager Constructor */
@@ -137,8 +140,7 @@ DataMgrImpl::~DataMgrImpl(){
 int
 DataMgrImpl::run()
 {
-  char* name(NULL);
-  char parentName[260];
+  std::string parentName;
 
   /* Set host name */
   this->localHostName[255] = '\0';
@@ -146,13 +148,12 @@ DataMgrImpl::run()
     ERROR("could not get hostname", 1);
   }
   
-  name = (char*)
-    Parsers::Results::getParamValue(Parsers::Results::PARENTNAME);
-  if (name == NULL)
+  if (CONFIG_STRING(diet::PARENTNAME, parentName)) {
     return 1;
-  strcat(strcpy(parentName, name), "Loc");
+  }
+  parentName += "Loc";
   parent =
-		ORBMgr::getMgr()->resolve<LocMgr, LocMgr_var>(LOCMGRCTXT, parentName);
+    ORBMgr::getMgr()->resolve<LocMgr, LocMgr_var>(LOCMGRCTXT, parentName.c_str());
 /*    LocMgr::_duplicate(LocMgr::_narrow(ORBMgr::getObjReference(ORBMgr::LOCMGR,
 							       parentName)));*/
   if (CORBA::is_nil(this->parent)) {

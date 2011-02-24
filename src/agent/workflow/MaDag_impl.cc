@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.37  2011/02/24 16:57:02  bdepardo
+ * Use new parser
+ *
  * Revision 1.36  2011/02/09 11:27:53  bdepardo
  * Removed endl at the end of the call to the WARNING macro
  *
@@ -182,7 +185,7 @@
 
 #include "ORBMgr.hh"
 #include "debug.hh"
-#include "Parsers.hh"
+#include "configuration.hh"
 #include "statistics.hh"
 
 #include "HEFTScheduler.hh"
@@ -201,76 +204,76 @@ using namespace madag;
 MaDag_impl::MaDag_impl(const char * name,
                        const MaDagSchedType schedType,
                        const int interRoundDelay) :
-myName(name), myMultiWfSched(0), wfReqIdCounter(0), dagIdCounter(0) {
-  char* MAName = (char*)
-	Parsers::Results::getParamValue(Parsers::Results::PARENTNAME);
+  myName(name), myMultiWfSched(0), wfReqIdCounter(0), dagIdCounter(0) {
+  
+  std::string MAName;
 	
   // check if the parent is NULL
-    if (MAName == NULL) {
-       ERROR_EXIT("MA name not provided");
-    }
-    CORBA::Object_var obj = 
-	ORBMgr::getMgr()->resolveObject(AGENTCTXT, MAName);
-    this->myMA = MasterAgent::_duplicate(MasterAgent::_narrow(obj));
-    if (CORBA::is_nil(this->myMA)) {
-	ERROR_EXIT("Cannot locate the master agent " << MAName);
-    }
+  if (!CONFIG_STRING(diet::PARENTNAME, MAName)) {
+    ERROR_EXIT("MA name not provided");
+  }
+  CORBA::Object_var obj = 
+    ORBMgr::getMgr()->resolveObject(AGENTCTXT, MAName);
+  this->myMA = MasterAgent::_duplicate(MasterAgent::_narrow(obj));
+  if (CORBA::is_nil(this->myMA)) {
+    ERROR_EXIT("Cannot locate the master agent " << MAName);
+  }
     
-    /* Bind the MA DAG to its name in the CORBA Naming Service */
-    try {
-	ORBMgr::getMgr()->bind(MADAGCTXT, this->myName, _this(), true);
-	ORBMgr::getMgr()->fwdsBind(MADAGCTXT, this->myName,
-				   ORBMgr::getMgr()->getIOR(_this()));
-    } catch (...) {
-	ERROR_EXIT("could not declare myself as " << this->myName);
-    }
+  /* Bind the MA DAG to its name in the CORBA Naming Service */
+  try {
+    ORBMgr::getMgr()->bind(MADAGCTXT, this->myName, _this(), true);
+    ORBMgr::getMgr()->fwdsBind(MADAGCTXT, this->myName,
+                               ORBMgr::getMgr()->getIOR(_this()));
+  } catch (...) {
+    ERROR_EXIT("could not declare myself as " << this->myName);
+  }
 	
-    TRACE_TEXT(TRACE_MAIN_STEPS, std::endl 
-	       <<  "MA DAG " << this->myName << " created." << std::endl);
-    TRACE_TEXT(NO_TRACE, "## MADAG_IOR " 
-	       << ORBMgr::getMgr()->getIOR(this->_this()) << std::endl);
+  TRACE_TEXT(TRACE_MAIN_STEPS, std::endl 
+             <<  "MA DAG " << this->myName << " created." << std::endl);
+  TRACE_TEXT(NO_TRACE, "## MADAG_IOR " 
+             << ORBMgr::getMgr()->getIOR(this->_this()) << std::endl);
 #ifdef USE_LOG_SERVICE
-    this->setupDietLogComponent();
-    if (dietLogComponent) {
-	EventManager::getEventMgr()->addObserver(new MaDagLogCentralDispatcher(dietLogComponent));
-    }
+  this->setupDietLogComponent();
+  if (dietLogComponent) {
+    EventManager::getEventMgr()->addObserver(new MaDagLogCentralDispatcher(dietLogComponent));
+  }
 #endif
   // starting the multiwfscheduler
-    switch (schedType) {
-    case BASIC:
-	this->myMultiWfSched = new MultiWfBasicScheduler(this);
-	sendEventFrom<MultiWfScheduler, MultiWfScheduler::CONSTR>(myMultiWfSched, "Created", "BASIC", EventBase::INFO); 
-	break;
-    case GHEFT:
-	this->myMultiWfSched = new MultiWfHEFT(this);
-	sendEventFrom<MultiWfScheduler, MultiWfScheduler::CONSTR>(myMultiWfSched, "Created", "GLOBAL_HEFT", EventBase::INFO); 
-	break;
-    case FOFT:
-	this->myMultiWfSched = new MultiWfFOFT(this);
-	sendEventFrom<MultiWfScheduler, MultiWfScheduler::CONSTR>(myMultiWfSched, "Created", "FOFT", EventBase::INFO); 
-	break;
-    case GAHEFT:
-	this->myMultiWfSched = new MultiWfAgingHEFT(this);
-	sendEventFrom<MultiWfScheduler, MultiWfScheduler::CONSTR>(myMultiWfSched, "Created", "GLOBAL_AGING_HEFT", EventBase::INFO); 
-      break;
-    case SRPT:
-	this->myMultiWfSched = new MultiWfSRPT(this);
-	sendEventFrom<MultiWfScheduler, MultiWfScheduler::CONSTR>(myMultiWfSched, "Created", "SRPT", EventBase::INFO); 
-	break;
-    case FCFS:
-	this->myMultiWfSched = new MultiWfFCFS(this);
-	sendEventFrom<MultiWfScheduler, MultiWfScheduler::CONSTR>(myMultiWfSched, "Created", "FCFS", EventBase::INFO); 
-	break;
-    }
+  switch (schedType) {
+  case BASIC:
+    this->myMultiWfSched = new MultiWfBasicScheduler(this);
+    sendEventFrom<MultiWfScheduler, MultiWfScheduler::CONSTR>(myMultiWfSched, "Created", "BASIC", EventBase::INFO); 
+    break;
+  case GHEFT:
+    this->myMultiWfSched = new MultiWfHEFT(this);
+    sendEventFrom<MultiWfScheduler, MultiWfScheduler::CONSTR>(myMultiWfSched, "Created", "GLOBAL_HEFT", EventBase::INFO); 
+    break;
+  case FOFT:
+    this->myMultiWfSched = new MultiWfFOFT(this);
+    sendEventFrom<MultiWfScheduler, MultiWfScheduler::CONSTR>(myMultiWfSched, "Created", "FOFT", EventBase::INFO); 
+    break;
+  case GAHEFT:
+    this->myMultiWfSched = new MultiWfAgingHEFT(this);
+    sendEventFrom<MultiWfScheduler, MultiWfScheduler::CONSTR>(myMultiWfSched, "Created", "GLOBAL_AGING_HEFT", EventBase::INFO); 
+    break;
+  case SRPT:
+    this->myMultiWfSched = new MultiWfSRPT(this);
+    sendEventFrom<MultiWfScheduler, MultiWfScheduler::CONSTR>(myMultiWfSched, "Created", "SRPT", EventBase::INFO); 
+    break;
+  case FCFS:
+    this->myMultiWfSched = new MultiWfFCFS(this);
+    sendEventFrom<MultiWfScheduler, MultiWfScheduler::CONSTR>(myMultiWfSched, "Created", "FCFS", EventBase::INFO); 
+    break;
+  }
     
-    if (interRoundDelay >= 0)
-	this->myMultiWfSched->setInterRoundDelay(interRoundDelay);
+  if (interRoundDelay >= 0)
+    this->myMultiWfSched->setInterRoundDelay(interRoundDelay);
     
-    this->myMultiWfSched->start();
-    TRACE_TEXT(TRACE_ALL_STEPS, "InterRoundDelay= " <<
-	       this->myMultiWfSched->getInterRoundDelay() << std::endl);
+  this->myMultiWfSched->start();
+  TRACE_TEXT(TRACE_ALL_STEPS, "InterRoundDelay= " <<
+             this->myMultiWfSched->getInterRoundDelay() << std::endl);
   // init the statistics module
-    stat_init();
+  stat_init();
 } // end MA DAG constructor
 
 MaDag_impl::~MaDag_impl() {
@@ -539,79 +542,60 @@ MaDag_impl::getDietLogComponent()
 void
 MaDag_impl::setupDietLogComponent()
 {
-    /* Create the DietLogComponent for use with LogService */
-    bool useLS;
-    // size_t --> unsigned int
-    unsigned int* ULSptr;
-    int outBufferSize;
-    // size_t --> unsigned int
-    unsigned int* OBSptr;
-    int flushTime;
-    // size_t --> unsigned int
-    unsigned int* FTptr;
+  /* Create the DietLogComponent for use with LogService */
+  bool useLS;
+  int outBufferSize;
+  int flushTime;
 
-    // size_t --> unsigned int
-    ULSptr =
-	static_cast<unsigned int*>
-	(Parsers::Results::getParamValue(Parsers::Results::USELOGSERVICE));
-    useLS = false;
-    if (!ULSptr) {
-	WARNING(" useLogService not configured. Disabled by default");
-    } else {
-	if (*ULSptr) {
-	    useLS = true;
-	}
-    }
+  // size_t --> unsigned int
+  bool useLogService = false;
+  CONFIG_BOOL(diet::USELOGSERVICE, useLogService);
+  if (!useLogService) {
+    WARNING("useLogService disabled");
+  } else {
+    useLS = true;
+  }
 	
-    if (useLS) {
-	// size_t --> unsigned int
-	OBSptr =
-	    static_cast<unsigned int*>
-	    (Parsers::Results::getParamValue(Parsers::Results::LSOUTBUFFERSIZE));
-	if (OBSptr) {
-	    outBufferSize = (int)(*OBSptr);
-	} else {
-	    outBufferSize = 0;
-	    WARNING("lsOutbuffersize not configured, using default");
-	}
-	// size_t --> unsigned int
-	FTptr =
-	    static_cast<unsigned int*>
-	    (Parsers::Results::getParamValue(Parsers::Results::LSFLUSHINTERVAL));
-	if (FTptr) {
-	    flushTime = (*FTptr);
-	} else {
-	    flushTime = 10000;
-	    WARNING("lsFlushinterval not configured, using default");
-	}
+  if (useLS) {
+    if (!CONFIG_INT(diet::LSOUTBUFFERSIZE, outBufferSize)) {
+      outBufferSize = 0;
+      WARNING("lsOutbuffersize not configured, using default");
     }
 
-    if (useLS) {
-	TRACE_TEXT(TRACE_ALL_STEPS, "LogService enabled" << std::endl);
-	char* agtTypeName;
-	char* agtParentName;
-	char* agtName;
-	agtParentName = static_cast<char*>(Parsers::Results::getParamValue
-					   (Parsers::Results::PARENTNAME));
-	agtName = static_cast<char*>(Parsers::Results::getParamValue
-				     (Parsers::Results::NAME));
-	
-	// the agent names should be correct if we arrive here
-	this->dietLogComponent = new DietLogComponent(agtName,
-						      outBufferSize,
-						      0, 0);
-	ORBMgr::getMgr()->activate(dietLogComponent);
-	
-	agtTypeName = strdup("MA_DAG");
-	if (dietLogComponent->run(agtTypeName, agtParentName, flushTime) != 0) {
-	    WARNING("Could not initialize DietLogComponent");
-	    dietLogComponent = 0; // this should not happen;
-	}
-	free(agtTypeName);
-    } else {
-	TRACE_TEXT(TRACE_ALL_STEPS, "LogService disabled" << endl);
-	this->dietLogComponent = 0;
+    if (!CONFIG_INT(diet::LSFLUSHINTERVAL, flushTime)) {
+      flushTime = 10000;
+    WARNING("lsFlushinterval not configured, using default");
     }
+
+    TRACE_TEXT(TRACE_ALL_STEPS, "LogService enabled" << std::endl);
+    char* agtTypeName = NULL;
+    char* agtParentName = NULL;
+    char* agtName;
+    std::string tmpString;
+    if (CONFIG_STRING(diet::PARENTNAME, tmpString)) {
+      agtParentName = strdup(tmpString.c_str());
+    }
+
+    if (CONFIG_STRING(diet::NAME, tmpString)) {
+      agtName = strdup(tmpString.c_str());
+    }
+	
+    // the agent names should be correct if we arrive here
+    this->dietLogComponent = new DietLogComponent(agtName,
+                                                  outBufferSize,
+                                                  0, 0);
+    ORBMgr::getMgr()->activate(dietLogComponent);
+	
+    agtTypeName = strdup("MA_DAG");
+    if (dietLogComponent->run(agtTypeName, agtParentName, flushTime) != 0) {
+      WARNING("Could not initialize DietLogComponent");
+      dietLogComponent = 0; // this should not happen;
+    }
+    free(agtTypeName);
+  } else {
+    TRACE_TEXT(TRACE_ALL_STEPS, "LogService disabled" << endl);
+    this->dietLogComponent = 0;
+  }
 }
 #endif
 

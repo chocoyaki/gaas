@@ -5,6 +5,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.75  2011/02/24 16:57:02  bdepardo
+ * Use new parser
+ *
  * Revision 1.74  2011/02/24 11:55:46  bdepardo
  * Use the new CONFIG_XXX macros.
  *
@@ -743,10 +746,6 @@ AgentImpl::findServer(Request* req, size_t max_srv)
     mc = SrvT->getChildren( &creq.pb, serviceRef, &frontier ) ;
 
     srvTMutex.unlock();
-
-#ifdef YC_DEBUG
-    cout << "Child ID: " << mc->children[0] << "" << endl << endl ;
-#endif
 
     nbChildrenContacted = mc->nb_children ;
     /* Perform requests */

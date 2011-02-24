@@ -4,6 +4,7 @@ if (DIET_USE_ALT_BATCH)
   include_directories(
     ${CMAKE_CURRENT_BINARY_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}
+    ${DIET_SOURCE_DIR}/src/utils/config
     )
 
   set(UtilsSeDBatch_SOURCES

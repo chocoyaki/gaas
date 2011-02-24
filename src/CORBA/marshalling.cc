@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.98  2011/02/24 16:55:56  bdepardo
+ * Use new parser
+ *
  * Revision 1.97  2010/08/06 14:25:26  glemahec
  * Cmake corrections + uuid lib module + fPIC error control
  *
@@ -299,9 +302,9 @@
 #include "debug.hh"
 #include "ms_function.hh"
 #include "DIET_data_internal.hh"     // for data_sizeof()
+#include "configuration.hh"
 
 #if defined HAVE_ALT_BATCH
-#include "Parsers.hh"
 #include "BatchSystem.hh"
 #endif
 
@@ -449,7 +452,6 @@ __mrsh_data_desc_type(corba_data_desc_t* dest,
     dest->specific.pstr(pstr);
     dest->specific.pstr().length = src->specific.pstr.length;
     dest->specific.pstr().param = CORBA::string_dup(src->specific.pstr.param);
-//     cout << "mrsh_data_desc: param is " << dest->specific.pstr().param << endl;
     break;
   }
   case DIET_FILE: {
@@ -565,9 +567,8 @@ mrsh_data(corba_data_t* dest, diet_data_t* src, int release)
     } // end if
 #endif // WITH_ENDIANNESS
     dest->value.replace(size, size, value, release); // 0 if persistent 1 elsewhere
-//     cout << "mrsh_data:: size is " << size << endl;
   }
-//    cout << "mrsh_data: value is " << dest->value.get_buffer() << endl;
+
   return 0;
 }
 
@@ -692,7 +693,6 @@ unmrsh_data_desc(diet_data_desc_t* dest, const corba_data_desc_t* const src)
                          (diet_persistence_mode_t)src->mode,
                          src->specific.pstr().length,
                          src->specific.pstr().param);
-//     cout << "unmrsh_data_desc: param is " << src->specific.pstr().param << endl;
     break;
   }
   case DIET_FILE: {
@@ -806,7 +806,6 @@ unmrsh_data(diet_data_t* dest, corba_data_t* src, int upDown)
       if(upDown==0){ /** Need to know if it is in the client -> SeD way or in the SeD-> client way */
         if (src->desc.mode != DIET_VOLATILE) {
           //               int size = data_sizeof(&(src->desc));
-          //        cout << "value of data size = " << size << endl;
           //char *p =(char *)malloc(size*sizeof(char));
           //for(int i=0; i < size; i++)
           //  p[i] = src->value[i];
@@ -869,7 +868,7 @@ unmrsh_data(diet_data_t* dest, corba_data_t* src, int upDown)
 #if ! HAVE_JUXMEM && ! HAVE_DAGDA
   }
 #endif // ! HAVE_JUXMEM && ! HAVE_DAGDA
-//   cout << "unmrsh_data: value is " << dest->value << endl;
+
   return 0;
 }
 
@@ -1174,11 +1173,10 @@ unmrsh_in_args_to_profile(diet_profile_t* dest, corba_profile_t* src,
 	else // Should be removed when all classes managed within SeD
 	  unmrsh_data(src_params[arg_idx], &(src->parameters[arg_idx]),0,
 		      "/tmp/") ; */
-	const char * dataPath =
-	  (char*) Parsers::Results::getParamValue(Parsers::Results::STORAGEDIR);
-	if (dataPath==NULL) dataPath = "/tmp/";
+        std::string dataPath = "/tmp/";
+	CONFIG_STRING(diet::STORAGEDIR, dataPath);
 	unmrsh_data(src_params[arg_idx], &(src->parameters[arg_idx]),0,
-		    dataPath);
+		    dataPath.c_str());
 #else
         unmrsh_data(src_params[arg_idx], &(src->parameters[arg_idx]),0);
 #endif
@@ -1381,11 +1379,10 @@ unmrsh_inout_args_to_profile(diet_profile_t* dpb, corba_profile_t* cpb)
     else // Should be removed when all classes managed within SeD
       unmrsh_data(&(dpb->parameters[i]), &(cpb->parameters[i]),1,
 		  "/tmp/") ;*/
-    const char * dataPath =
-      (char*) Parsers::Results::getParamValue(Parsers::Results::STORAGEDIR);
-    if (dataPath==NULL) dataPath = "/tmp/";
+    std::string dataPath = "/tmp/";
+    CONFIG_STRING(diet::STORAGEDIR, dataPath);
     unmrsh_data(&(dpb->parameters[i]), &(cpb->parameters[i]),1,
-		dataPath);
+		dataPath.c_str());
 #else
     unmrsh_data(&(dpb->parameters[i]), &(cpb->parameters[i]),1);
 #endif

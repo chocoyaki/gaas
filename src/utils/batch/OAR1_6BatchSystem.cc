@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2011/02/24 16:52:40  bdepardo
+ * Use new parser
+ *
  * Revision 1.12  2011/01/20 19:19:33  bdepardo
  * Removed resource leak on a file descriptor
  *
@@ -60,11 +63,12 @@
  *
  ****************************************************************************/
 
-#include "debug.hh"
-#include "OAR1_6BatchSystem.hh"
-#include "Parsers.hh"
 #include <fcntl.h>       // for O_RDONLY
 #include <unistd.h>      // for read()
+
+#include "debug.hh"
+#include "OAR1_6BatchSystem.hh"
+#include "configuration.hh"
 
 const char * const OAR1_6BatchSystem::statusNames[] = {
   "Error",
@@ -87,10 +91,11 @@ OAR1_6BatchSystem::OAR1_6BatchSystem(int ID, const char * batchname)
   batch_ID = ID ;
   batchName = batchname ;
   /* Dirty Trick for OAR1.6 to get information on default queue */
-  internQueueName = strdup((char*)
-    Parsers::Results::getParamValue(Parsers::Results::INTERNOARQUEUENAME)) ;
-  if( internQueueName == NULL ) {
+  std::string tmpString;
+  if(!CONFIG_STRING(diet::INTERNOARQUEUENAME, tmpString)) {
     ERROR_EXIT("We need to know the internal queue name to be able to gather information with Cori") ;
+  } else {
+    internQueueName = strdup(tmpString.c_str());
   }
 #if defined YC_DEBUG
   TRACE_TEXT(TRACE_ALL_STEPS,"Nom queue interne: " << internQueueName 

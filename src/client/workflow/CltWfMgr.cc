@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.43  2011/02/24 16:57:03  bdepardo
+ * Use new parser
+ *
  * Revision 1.42  2010/12/17 09:48:00  kcoulomb
  * * Set diet to use the new log with forwarders
  * * Fix a CoRI problem
@@ -367,7 +370,7 @@ CltWfMgr::setLogComponent(DietLogComponent* logComponent) {
 
 void
 CltWfMgr::setWfLogService(WfLogService_var logService) {
-  cout << "CltWfMgr:: log service initialized" << endl;
+  TRACE_TEXT(TRACE_MAIN_STEPS, "CltWfMgr:: log service initialized" << endl);
   this->myLS = logService;
   
   // INITIALIZE EVENT DISPATCHER FOR THE WFLOGSERVICE
@@ -701,9 +704,9 @@ CltWfMgr::wfFunctionalCall(diet_wf_desc_t * profile) {
       filestr.close();
 
       // DISPLAY DAG
+      TRACE_TEXT(TRACE_ALL_STEPS, "*** DISPLAY DAG " << currDag->getId()
+                 << "  ****" << endl << endl);
       if (TRACE_LEVEL >= TRACE_ALL_STEPS) {
-        cout << "*** DISPLAY DAG " << currDag->getId()
-                                  << "  ****" << endl << endl;
         currDag->toXML(cout);
       }
 
@@ -1159,7 +1162,7 @@ CltWfMgr::wf_free(diet_wf_desc_t * profile) {
   } else {
     WARNING("wf_free : profile not found");
   }
-//   cout << "SAVE PLATFORM!!" << endl;
+
 //   dagda_save_platform();
 }
 

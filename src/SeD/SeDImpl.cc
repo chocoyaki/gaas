@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.129  2011/02/24 16:57:01  bdepardo
+ * Use new parser
+ *
  * Revision 1.128  2011/02/15 16:19:37  bdepardo
  * More robust disconnection from parent: catch exceptions
  *
@@ -365,8 +368,8 @@ using namespace std;
 
 #include "marshalling.hh"
 #include "ORBMgr.hh"
-#include "Parsers.hh"
 #include "statistics.hh"
+#include "configuration.hh"
 
 #if defined HAVE_ALT_BATCH
 #include "BatchCreator.hh"
@@ -435,22 +438,17 @@ SeDImpl::initialize()
   }
   localHostName[255] = '\0'; // If truncated, ensure null termination
 
-  char * name;
   /* Bind this SeD to its name in the CORBA Naming Service */
-  name = (char*)Parsers::Results::getParamValue(Parsers::Results::NAME);
-  if (name == NULL) {
+  std::string name;
+  if (!CONFIG_STRING(diet::NAME, name)) {
     /* Generate a name for this SeD and print it */
     std::stringstream oss;
     pid_t pid = getpid();
     oss << localHostName << "_" << pid << "_" << rand() % 10000;
-    name = strdup(oss.str().c_str());
-    this->myName = new char[strlen(name)+1];
-    strcpy(this->myName, name);
-    free(name);
-  } else {
-    this->myName = new char[strlen(name)+1];
-    strcpy(this->myName, name);
+    name = oss.str();
   }
+  this->myName = new char[name.size()+1];
+  strcpy(this->myName, name.c_str());
 }
 
 SeDImpl::~SeDImpl()
@@ -653,13 +651,12 @@ SeDImpl::run(ServiceTable* services)
 #if defined HAVE_ALT_BATCH
   if( this->server_status == BATCH ) {
     // Read "batchName" if parallel jobs are to be submitted
-    char * batchname = (char*)
-      Parsers::Results::getParamValue(Parsers::Results::BATCHNAME) ;
-    if (batchname == NULL) {
+    std::string batchname;
+    if (!CONFIG_STRING(diet::BATCHNAME, batchname)) {
       ERROR("SeD can not launch parallel/batch jobs, no parallel/batch"
 	    " scheduler specified in the config file", 1) ;
     }
-    batch = BatchCreator::getBatchSystem(batchname) ;
+    batch = BatchCreator::getBatchSystem(batchname.c_str()) ;
     if( batch == NULL ) {
       ERROR("Parallel/batch scheduler not recognized", 1) ;
     }
@@ -679,9 +676,8 @@ SeDImpl::run(ServiceTable* services)
   }
 #endif
 
-  char* parent_name = (char*)
-    Parsers::Results::getParamValue(Parsers::Results::PARENTNAME);
-  if (parent_name == NULL) {
+  std::string parent_name;
+  if (!CONFIG_STRING(diet::PARENTNAME, parent_name)) {
 #ifndef HAVE_DYNAMICS
     return 1;
 #else
@@ -718,14 +714,14 @@ SeDImpl::run(ServiceTable* services)
   if (! CORBA::is_nil(parent)) {
 #endif // HAVE_DYNAMICS
     try {
-      cout << "parent->serverSubscribe(" << this->myName << ", " << localHostName
-	   << ", *profiles)" << endl;
+      TRACE_TEXT(TRACE_ALL_STEPS, "parent->serverSubscribe(" << this->myName
+                 << ", " << localHostName << ", *profiles)" << endl);
       childID = parent->serverSubscribe(this->myName, localHostName,
 #if HAVE_JXTA
 					uuid,
 #endif //HAVE_JXTA
 					*profiles);
-      cout << "subscribe !" << endl;
+      TRACE_TEXT(TRACE_ALL_STEPS, "subscribe !" << endl);
     } catch (CORBA::Exception& e) {
       CORBA::Any tmp;
       tmp <<= e;
@@ -742,33 +738,21 @@ SeDImpl::run(ServiceTable* services)
 #endif // HAVE_DYNAMICS
   delete profiles;
 
-  unsigned int* endPoint = (unsigned int*)
-    Parsers::Results::getParamValue(Parsers::Results::DIETPORT);
   // FIXME: How can I get the port used by the ORB ? and is it useful ?
-  if (endPoint == NULL) {
+  unsigned long endPoint;
+  if (!CONFIG_ULONG(diet::DIETPORT, endPoint)) {
     this->port = 0;
   } else {
-    this->port = *endPoint;
+    this->port = endPoint;
   }
+  
+  bool useConcJob = false;
+  CONFIG_BOOL(diet::USECONCJOBLIMIT, useConcJob);
+  this->useConcJobLimit = useConcJob;
 
-  bool* tmpBoolPtr;
-  int* tmpIntPtr;
-  tmpBoolPtr = (bool*)
-    Parsers::Results::getParamValue(Parsers::Results::USECONCJOBLIMIT);
-  if(tmpBoolPtr == NULL){
-    this->useConcJobLimit = false;
-  } else {
-    this->useConcJobLimit = *tmpBoolPtr;
-  }
-
-  tmpIntPtr = (int*)
-    Parsers::Results::getParamValue(Parsers::Results::MAXCONCJOBS);
-  if(tmpIntPtr == NULL){
-    /* If queues requested, but no limit specified, restrict to 1 */
-    this->maxConcJobs = 1;
-  } else {
-    this->maxConcJobs = *tmpIntPtr;
-  }
+  int concJobsLimit = 1;
+  CONFIG_INT(diet::MAXCONCJOBS, concJobsLimit);
+  this->maxConcJobs = concJobsLimit;
 
   if (this->useConcJobLimit){
     this->accessController = new AccessController(this->maxConcJobs);
@@ -1825,8 +1809,6 @@ SeDImpl::estimate(corba_estimation_t& estimation,
       diet_est_array_set_internal(eVals, EST_COMMTIME, i, 0.0);
     }
   }
-
-  //   cout << "AS: [" << __FUNCTION__ << "] num values = " << estimation.estValues.length() << endl;
 }
 
 inline void
