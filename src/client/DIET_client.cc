@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.166  2011/02/24 18:16:12  bdepardo
+ * Return GRPC_NOT_INITIALIZED when initialization fails
+ *
  * Revision 1.165  2011/02/24 16:57:02  bdepardo
  * Use new parser
  *
@@ -642,7 +645,7 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
   try {
     ORBMgr::init(myargc, (char**)myargv);
   }	catch (...) {
-    ERROR("ORB initialization failed", 1);
+    ERROR("ORB initialization failed", GRPC_NOT_INITIALIZED);
   }
 
   // Create sole instance of synchronized CallAsyncMgr class
