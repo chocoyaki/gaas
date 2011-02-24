@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2011/02/24 16:54:23  bdepardo
+ * Print output file size
+ *
  * Revision 1.8  2011/02/09 17:17:59  bdepardo
  * Test on containers now always create containers with 2 elements
  *
@@ -861,7 +864,7 @@ main(int argc, char* argv[]) {
   if (!diet_call(profile)) {
     diet_file_get(diet_parameter(profile, 2), NULL, &arg_size, &s3);
     std::cout << "s2 (after call): " << s2 << std::endl;
-    std::cout << "s3:" << s3 << std::endl;
+    std::cout << "s3:" << s3 << ", size=" << arg_size << std::endl;
 
     if ((status = stat(s2, &buf)) || !(buf.st_mode & S_IFREG)) {
       std::cerr << "Problem on s2 in " << PB_FILE[0] << "!" << std::endl;
