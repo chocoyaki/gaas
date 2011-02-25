@@ -20,7 +20,7 @@
 #define AGENT_CONFIG "@AGENT_CONFIG_NATIVE_PATH@"
 
 // SeD specific options
-#define SIMPLE_ADD_SED_CONFIG "@CONFIG_DIR_NATIVE_PATH@/SeD.cfg"
+#define SIMPLE_ADD_SED_CONFIG "@CONFIG_DIR_NATIVE_PATH@/SeD_testing.cfg"
 
 #endif /* _CONFIG_H_IN_ */
 

@@ -25,7 +25,7 @@ BOOST_AUTO_TEST_CASE( successive_diet_finalize_calls )
 {
     BOOST_TEST_MESSAGE( "-- Test: successive_diet_finalize_calls " );
 
-    utils::ClientArgs c("successive_diet_finalize_calls", "client.cfg");
+    utils::ClientArgs c("successive_diet_finalize_calls", "client_testing.cfg");
     
     diet_error_t error = diet_initialize(c.config(), c.argc(), c.argv());
 
@@ -61,7 +61,7 @@ BOOST_AUTO_TEST_CASE( successive_diet_initialize_calls )
 {
     BOOST_TEST_MESSAGE( "-- Test: successive_diet_initialize_calls " );
     
-    utils::ClientArgs c("successive_diet_initialize_calls", "client.cfg");
+    utils::ClientArgs c("successive_diet_initialize_calls", "client_testing.cfg");
     
     diet_error_t error = diet_initialize(c.config(), c.argc(), c.argv());
 

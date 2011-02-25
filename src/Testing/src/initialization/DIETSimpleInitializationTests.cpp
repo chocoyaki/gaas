@@ -18,7 +18,7 @@ BOOST_FIXTURE_TEST_CASE( simple_client_config_file , DietAgentFixture )
 {
     BOOST_TEST_MESSAGE( "Test : simple_client_config_file" );
 
-    utils::ClientArgs c("simple_client_config_file", "client.cfg");
+    utils::ClientArgs c("simple_client_config_file", "client_testing.cfg");
 
     diet_error_t error = diet_initialize(c.config(), c.argc(), c.argv());
     

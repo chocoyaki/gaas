@@ -27,7 +27,7 @@ BOOST_AUTO_TEST_CASE( simple_client)
 
     diet_profile_t *profile;
     
-    utils::ClientArgs c("simple_client", "client.cfg");
+    utils::ClientArgs c("simple_client", "client_testing.cfg");
 
     diet_error_t error = diet_initialize(c.config(), c.argc(), c.argv());
     BOOST_CHECK_EQUAL( GRPC_NO_ERROR, error );

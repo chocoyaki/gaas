@@ -17,7 +17,7 @@
 BOOST_AUTO_TEST_CASE( no_corba_service ) {
     BOOST_TEST_MESSAGE( "-- Test: no_corba_service" );
     
-    utils::ClientArgs c("no_corba_service", "client.cfg");
+    utils::ClientArgs c("no_corba_service", "client_testing.cfg");
     
     diet_error_t error;
     // TODO: add BOOST_CHECK_NO_THROW
