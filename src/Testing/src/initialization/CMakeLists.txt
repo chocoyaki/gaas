@@ -1,0 +1,6 @@
+diet_test( DIETNoInitializationTests )
+diet_test( DIETSimpleInitializationTests )
+diet_test( DIETNoCorbaTests )
+diet_test( DIETBadInitializationTests )
+diet_test( DIETMultipleInitializationTests )
+diet_test( DIETMultipleInitializationAndCallTests )

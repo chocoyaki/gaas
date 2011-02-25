@@ -1,0 +1,38 @@
+
+
+
+### Build the configuration file for omniORB launch
+configure_file( omniNames.launch.in
+  ${CMAKE_CURRENT_BINARY_DIR}/omniNames.launch
+  @ONLY )
+
+configure_file( omniORB4.cfg.in
+  ${CMAKE_CURRENT_BINARY_DIR}/omniORB4.cfg
+  @ONLY )
+  
+configure_file( diet-agent.launch.in
+  ${CMAKE_CURRENT_BINARY_DIR}/diet-agent.launch 
+  @ONLY )
+
+file( GLOB CFG_SRC *.cfg )
+
+# for testing in dir
+file( COPY ${CMAKE_CURRENT_BINARY_DIR}/omniNames.launch
+  DESTINATION ${CMAKE_CURRENT_BINARY_DIR}
+  FILE_PERMISSIONS OWNER_EXECUTE GROUP_EXECUTE WORLD_EXECUTE )
+
+file( COPY ${CFG_SRC} DESTINATION ${CMAKE_CURRENT_BINARY_DIR} )
+
+execute_process(COMMAND "chmod" "+x" 
+  ${CMAKE_CURRENT_BINARY_DIR}/omniNames.launch)
+
+execute_process(COMMAND "chmod" "+x" 
+  ${CMAKE_CURRENT_BINARY_DIR}/diet-agent.launch)
+
+###############################################################################
+install( PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/omniNames.launch 
+  DESTINATION cfgs )
+install( PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/diet-agent.launch
+  DESTINATION cfgs )
+install( FILES ${CMAKE_CURRENT_BINARY_DIR}/omniORB4.cfg DESTINATION cfgs )
+install( FILES ${CFG_SRC} DESTINATION cfgs )

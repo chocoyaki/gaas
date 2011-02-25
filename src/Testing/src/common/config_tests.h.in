@@ -1,0 +1,26 @@
+// config_tests.h.in
+
+#ifndef _CONFIG_H_IN_
+#define _CONFIG_H_IN_
+
+#define BIN_DIR "@BIN_DIR_NATIVE_PATH@"
+#define CONFIG_DIR "@CONFIG_DIR_NATIVE_PATH@"
+
+// Sleep time in milliseconds
+#define SLEEP_TIME 200
+
+// omniNames specific options
+#define LOCAL_TEST_PORT "@LOCAL_TEST_PORT@"
+#define OMNINAMES_LOGDIR "@OMNINAMES_LOGDIR_NATIVE_PATH@"
+#define OMNIORB_CONFIG "@OMNIORB_CONFIG_NATIVE_PATH@"
+#define ORB_INIT_REF "NameService=corbaname::127.0.0.1:@LOCAL_TEST_PORT@"
+#define OMNINAMES_ENDPOINT "giop:tcp:127.0.0.1:@LOCAL_TEST_PORT@"
+
+// dietAgent specific options
+#define AGENT_CONFIG "@AGENT_CONFIG_NATIVE_PATH@"
+
+// SeD specific options
+#define SIMPLE_ADD_SED_CONFIG "@CONFIG_DIR_NATIVE_PATH@/SeD.cfg"
+
+#endif /* _CONFIG_H_IN_ */
+

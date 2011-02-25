@@ -495,6 +495,38 @@ if (BUILD_TESTING OR DIET_USE_DART)
   else (EXECUTABLE_OUTPUT_PATH)
     set(CXX_TEST_PATH .)
   endif (EXECUTABLE_OUTPUT_PATH)
+  
+  SET( CMAKE_CXX_FLAGS_DEBUG
+    "${CMAKE_CXX_FLAGS_DEBUG} -fprofile-arcs -ftest-coverage"
+    CACHE STRING 
+    "Flags used by the C++ compiler during debug builds."
+    FORCE
+  )
+  SET( CMAKE_C_FLAGS_DEBUG
+    "${CMAKE_C_FLAGS_DEBUG} -fprofile-arcs -ftest-coverage"
+    CACHE STRING 
+    "Flags used by the C compiler during debug builds."
+    FORCE
+  )
+  SET( CMAKE_EXE_LINKER_FLAGS_DEBUG
+    "${CMAKE_EXE_LINKER_FLAGS_DEBUG} -lgcov"
+    CACHE STRING 
+    "Flags used for linking binaries during debug builds."
+    FORCE
+  )
+  SET( CMAKE_SHARED_LINKER_FLAGS_DEBUG
+    "${CMAKE_SHARED_LINKER_FLAGS_DEBUG} -lgcov"
+    CACHE STRING 
+    "Flags used by the shared libraries linker during debug builds."
+    FORCE
+  )
+  SET( CMAKE_MODULE_LINKER_FLAGS_DEBUG
+    "${CMAKE_MODULE_LINKER_FLAGS_DEBUG} -lgcov"
+    CACHE STRING 
+    "What the hack is a module anyhow (Apple notion?)..."
+    FORCE
+  )
+
 endif (BUILD_TESTING OR DIET_USE_DART)
 
 # ---------------- OPTIONAL DART2 CLIENT SUPPORT ---------------------------

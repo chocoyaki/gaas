@@ -1,0 +1,200 @@
+/*
+ * fixtures.hpp
+ *
+ * Author: hguemar
+ * 
+ */
+
+#ifndef FIXTURES_HPP_
+#define FIXTURES_HPP_
+
+#include <iostream>
+#include <sstream>
+#include <cstring>
+#include <string>
+#include <cstdlib>
+#include <stdexcept>
+
+#include <boost/assign/list_inserter.hpp>
+#include <boost/assign/list_of.hpp>
+#include <boost/assign/std/vector.hpp>
+#include <boost/filesystem.hpp>
+#include <boost/process/all.hpp>
+#include <boost/scoped_ptr.hpp>
+#include <boost/test/unit_test.hpp>
+#include <boost/thread.hpp>
+#include "config_tests.h"
+#include "utils.hpp"
+
+namespace ba = boost::assign;
+namespace bf = boost::filesystem;
+namespace bp = boost::process;
+namespace bs = boost::system;
+
+/* Diet test fixture (aka test context)
+ * basically setup omniNames before starting our test 
+ * and then cleanup after test has been executed
+ */
+class OmniNamesFixture {
+    boost::scoped_ptr<bp::child> processNamingService;
+
+    public:
+    OmniNamesFixture() : processNamingService(0) {
+        BOOST_TEST_MESSAGE( "== Test setup [BEGIN]: Launching OmniNames ==" );
+	
+	std::string exec;
+	try {
+	    exec = bp::find_executable_in_path("omniNames");
+	} catch (bs::system_error& e) {
+	    BOOST_TEST_MESSAGE( "can't find omniNames: " << e.what() );
+	    return;
+	}
+
+	BOOST_TEST_MESSAGE( "omniNames found: " << exec );
+
+	// setup omniNames environment
+	bp::context ctx;
+	ctx.process_name = "omniNames";
+	ba::insert(ctx.env)
+	    ("OMNINAMES_LOGDIR", OMNINAMES_LOGDIR)
+	    ("OMNIORB_CONFIG", OMNIORB_CONFIG)
+	    ("ORBsupportBooststrapAgent", "1")
+	    ("ORBInitRef", ORB_INIT_REF);
+	
+	// redirect output to /dev/null
+	ctx.streams[bp::stdout_id] = bp::behavior::null();
+	ctx.streams[bp::stderr_id] = bp::behavior::null();
+
+	// setup omniNames arguments
+	std::vector<std::string> args = ba::list_of("-always")
+	    ("-start")("2815")
+	    ("-ignoreport")
+	    ("-ORBendPoint")(OMNINAMES_ENDPOINT);
+	// launch Naming Service
+	bp::child c = bp::create_child(exec, args, ctx);
+	processNamingService.reset(utils::copy_child(c));
+	boost::this_thread::sleep(boost::posix_time::milliseconds(SLEEP_TIME));
+    	BOOST_TEST_MESSAGE( "== Test setup [END]:  Launching OmniNames ==" );
+    }
+
+    ~OmniNamesFixture() {
+    	BOOST_TEST_MESSAGE( "== Test teardown [BEGIN]: Stopping OmniNames ==" );
+	if (processNamingService) {
+	    processNamingService->terminate();
+	    processNamingService->wait();
+	}
+	boost::this_thread::sleep(boost::posix_time::milliseconds(SLEEP_TIME));
+    	BOOST_TEST_MESSAGE( "== Test teardown [END]: Stopping OmniNames ==" );
+    }
+};
+
+
+class DietAgentFixture : public OmniNamesFixture
+{
+    boost::scoped_ptr<bp::child> processAgent;
+
+public:
+     DietAgentFixture() {
+    	BOOST_TEST_MESSAGE( "== Test setup [BEGIN]:  Launching DIET Agent ==" );
+	
+	std::string exec;
+	try {
+	    exec = bp::find_executable_in_path("dietAgent");
+	} catch (bs::system_error& e) {
+	    BOOST_TEST_MESSAGE( "can't find dietAgent: " << e.what() );
+	    return;
+	}
+
+	BOOST_TEST_MESSAGE( "dietAgent found: " << exec );
+	
+	// setup dietAgent environment
+	bp::context ctx;
+	ctx.process_name = "dietAgent";
+	ctx.streams[bp::stdout_id] = bp::behavior::null();
+	ctx.streams[bp::stderr_id] = bp::behavior::null();
+
+	// setup dietAGent arguments
+	std::vector<std::string> args = ba::list_of(AGENT_CONFIG);
+
+	// launch diet Agent
+	const bp::child c = bp::create_child(exec, args, ctx);
+	processAgent.reset(utils::copy_child(c));
+	boost::this_thread::sleep(boost::posix_time::milliseconds(SLEEP_TIME));
+    	BOOST_TEST_MESSAGE( "== Test setup [END]: Launching DIET Agent ==" );
+    }	
+    
+    ~DietAgentFixture() {
+    	BOOST_TEST_MESSAGE( "== Test teardown [BEGIN]: Stopping DIET Agent ==" );
+	if (processAgent) {
+	    processAgent->terminate();
+	    processAgent->wait();
+	}
+	boost::this_thread::sleep(boost::posix_time::milliseconds(SLEEP_TIME));
+    	BOOST_TEST_MESSAGE( "== Test teardown [END]: Stopping DIET Agent ==" );
+    }
+};
+
+
+// generic SeD fixture
+template <const char *name, const char *config>
+class DietSeDFixture : public DietAgentFixture
+{
+    boost::scoped_ptr<bp::child> processSeD;
+
+public:
+    DietSeDFixture()
+    {
+	BOOST_TEST_MESSAGE( "== Test setup [BEGIN]: Launching "
+			    <<  name << " ==");
+
+	std::string exec;
+	try {
+	    exec = bp::find_executable_in_path(name, BIN_DIR);
+	} catch (bs::system_error& e) {
+	    BOOST_TEST_MESSAGE( "can't find " << name << ": "
+				<< e.what() );
+	    BOOST_TEST_MESSAGE( "search path: " << BIN_DIR );
+	    return;
+	}
+	
+	BOOST_TEST_MESSAGE( "SeD found: " << exec );
+	
+	// setup SeD environment
+	bp::context ctx;
+	ctx.process_name = name;
+ 	ctx.streams[bp::stdout_id] = bp::behavior::null();
+	ctx.streams[bp::stderr_id] = bp::behavior::null();
+	
+	// setup SeD arguments
+	std::vector<std::string> args = ba::list_of(std::string(config));
+
+	// launch SeD
+	const bp::child c = bp::create_child(exec, args, ctx);
+	processSeD.reset(utils::copy_child(c));
+	boost::this_thread::sleep(boost::posix_time::milliseconds(SLEEP_TIME));
+	BOOST_TEST_MESSAGE( "== Test setup [END]: launching "
+			    << name << " ==" );
+    }
+    
+
+    ~DietSeDFixture()
+    {
+	BOOST_TEST_MESSAGE( "== Test teardown [BEGIN]: Stopping "
+			    << name << " ==" );
+	if( processSeD ) {
+	    processSeD->terminate();
+	    processSeD->wait();
+	}
+	boost::this_thread::sleep(boost::posix_time::milliseconds(SLEEP_TIME));
+	BOOST_TEST_MESSAGE( "== Test teardown [BEGIN]: Stopping "
+			    << name << " ==" );
+    }
+};
+
+// must not be static 
+// should be a primitive type with an identifier name
+char SimpleAddSeD[] = "SimpleAddSeD";
+char ConfigSimpleAddSeD[] = SIMPLE_ADD_SED_CONFIG;
+typedef DietSeDFixture<SimpleAddSeD, ConfigSimpleAddSeD> SimpleAddSeDFixture;
+
+#endif /* FIXTURES_HPP_ */

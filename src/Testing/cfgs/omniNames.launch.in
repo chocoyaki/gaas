@@ -1,0 +1,11 @@
+#! /bin/bash
+export OMNINAMES_LOGDIR=@OMNINAMES_LOGDIR_PATH@
+export OMNIORB_CONFIG=@CFG_OUTPUT_PATH@/omniORB4.cfg
+export PATH=$PATH:@OMNIORB_INSTALL_DIR@/bin
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:@OMNIORB_INSTALL_DIR@/lib
+# kill all omniNames instances running
+killall -q omniNames
+nohup omniNames -always -start 2815 -ignoreport -ORBendPoint giop:tcp:127.0.0.1:@LOCAL_TEST_PORT@ &>/dev/null &
+pid=$!
+/bin/echo "echo \"stopping omniNames with pid $pid\"; kill -9 $pid ; if [ -e nohup.out ]; then rm nohup.out; fi; rm \$0" > @EXECUTABLE_OUTPUT_PATH@/omni-pidfile.sh
+chmod +x @EXECUTABLE_OUTPUT_PATH@/omni-pidfile.sh

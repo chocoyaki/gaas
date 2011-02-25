@@ -1,75 +1,54 @@
-# The following describe the tests that shall be run by ctest (cmake's
-# testing utility). For docs on ctest usage refer to:
-#      http://www.cmake.org/Wiki/CMake_Testing_With_CTest
-# Note: we made the choice of building a test driver i.e. a program that
-#       links together many small atomic tests into a single executable.
+#RE Root CMakeLists.txt file
+#
+# Project: diet-test
+# Author: H. Guémar (haikel.guemar@gmail.com)
+# Date: Dec. 2010 21
 
-IF( BUILD_TESTING )
+if( BUILD_TESTING )
 
-  # The list of the atomic test sources: this is probably the only thing
-  # you should edit when adding a new test within this directory:
-  SET( DIET_TEST_SOURCES
-    TestDummy.cxx
-    TestORBMgrInit.cxx
-  )
+  # Tests HAVE TO be built without the gcov compilation flag.
+  # Thus, we for the build type to Release, as the gcov compilation
+  # flags are set for in Debug mode.
+  SET(CMAKE_BUILD_TYPE "Release")
 
-  # TestORBMgrInit needs to be configured with cmake build flags: 
-  SET( TESTORBMGRINIT_PROPERTIES
-    "-DDIET_CTEST_FQDN_HOSTNAME='\"${DIET_CTEST_FQDN_HOSTNAME}\"'" )
-  SET( TESTORBMGRINIT_PROPERTIES 
-    "${TESTORBMGRINIT_PROPERTIES} -DDIET_CTEST_OMNIORB_NAMESERVICE_PORT='\"${DIET_CTEST_OMNIORB_NAMESERVICE_PORT}\"'" )
-  SET_SOURCE_FILES_PROPERTIES( TestORBMgrInit.cxx PROPERTIES
-          COMPILE_FLAGS "${TESTORBMGRINIT_PROPERTIES}")
-  
-  # Choose a base name for the test driver...
-  SET( DIET_TEST_BASENAME dietTestCentral )
+  find_package( Boost 1.44.0 COMPONENTS 
+    unit_test_framework
+    filesystem
+    system 
+    thread REQUIRED )
+  set( Boost_MULTITHREADED OFF )
+  #find_package( GTest REQUIRED )
+  include( tests/DietTestingMacros )
 
-  # Require cmake to generate both:
-  # - the list of sources (named GENERATED_DIET_MAIN_TEST) of the test suite
-  # - the test driver itself (which is a C++ source file mainly calling
-  #   the atomic tests (and providing command line syntactic sugar):
-  CREATE_TEST_SOURCELIST(
-    GENERATED_DIET_MAIN_TEST ${DIET_TEST_BASENAME}.cxx
-    ${DIET_TEST_SOURCES}
-  )
-  
-  # In order to drop the binary were ctest will find it:
-  SET( DIET_TEST_NAME ${CXX_TEST_PATH}/${DIET_TEST_BASENAME} )
- 
-  # Some of the test make inclusions:
-  INCLUDE_DIRECTORIES(
-    ${OMNIORB4_INCLUDE_DIR}
-    ${DIET_SOURCE_DIR}/src/CORBA
-    ${DIET_BINARY_DIR}/src/CORBA/idl
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${DIET_SOURCE_DIR}/include   # for DIET_data.h
-  )
- 
-  # And build the corresponding binary (indirectly named after the
-  # DIET_TEST_BASENAME we chose) out of the above constructed list of tests:
-  ADD_EXECUTABLE( ${DIET_TEST_NAME} ${GENERATED_DIET_MAIN_TEST} )
+  option( ENABLE_REPORTS 
+    "add a test-xml target that allow generating xml reports for analysis tools"
+    OFF )
 
+  # omniORB setup
+  set( OMNINAMES_LOGDIR ${CMAKE_CURRENT_BINARY_DIR}/log
+    CACHE PATH "PATH to the omniNames directory" )
+  set( OMNIORB_INSTALL_DIR "" CACHE PATH
+    "PATH to the omniORB installation directory" )
+  set( LOCAL_TEST_PORT "2809" CACHE STRING "Test port for the omniNames" )
+  file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/log )
 
-  # First thing to do is to start omniNames
-  ADD_TEST( startOmninames ${DIET_SOURCE_DIR}/src/Testing/RunOmniORB.sh
-    ${OMNIORB4_OMNINAMES_COMMAND}
-    ${DIET_CTEST_FQDN_HOSTNAME}
-    ${DIET_CTEST_OMNIORB_NAMESERVICE_PORT} )
- 
-  # Add each atomic test:
-  FOREACH( loop_file ${DIET_TEST_SOURCES} )
-    GET_FILENAME_COMPONENT( name ${loop_file} NAME_WE )
-    ADD_TEST( ${name} ${DIET_TEST_NAME} ${name} )
-  ENDFOREACH( loop_file ${DIET_TEST_SOURCES} )
+  # test setup 
+  # for the moment, we only support in-place testing
+  set( BIN_DIR ${PROJECT_BINARY_DIR}/bin )
+  set( CONFIG_DIR ${PROJECT_BINARY_DIR}/etc )
+  set( EXECUTABLE_OUTPUT_PATH ${BIN_DIR} )
 
-  TARGET_LINK_LIBRARIES( ${DIET_TEST_NAME}
-    CorbaCommon        # Used by TestORBMgrInit.cxx
-    DIET_CORBA
-    ${OMNIORB4_LIBRARIES}
-  )
+  IF ( DIET_USE_DAGDA )
+    SET( DIET_CLIENT_LIBRARIES DIET_client DIET_Dagda)
+    SET( DIET_SERVER_LIBRARIES DIET_SeD DIET_Dagda)
+  ELSE ( DIET_USE_DAGDA )
+    SET( DIET_CLIENT_LIBRARIES DIET_client)
+    SET( DIET_SERVER_LIBRARIES DIET_SeD)
+  ENDIF ( DIET_USE_DAGDA )
 
-  # Kill omniNames in the end
-  ADD_TEST( killOmninames ${DIET_SOURCE_DIR}/src/Testing/KillOmniORB.sh
-    ${OMNIORB4_OMNINAMES_COMMAND} )
-  
-ENDIF( BUILD_TESTING )
+  diet_test_setup()
+
+  add_subdirectory(cfgs)
+  add_subdirectory(src)
+
+endif( BUILD_TESTING )
