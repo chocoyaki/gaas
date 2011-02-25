@@ -17,6 +17,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.60  2011/02/25 12:07:24  bdepardo
+#* Update for 2.6.1
+#*
 #* Revision 1.59  2011/01/14 00:22:18  bdepardo
 #* Added missing files for logs
 #*
@@ -272,6 +275,9 @@ Cmake/TAU/TAU_preprocessor_cxx.py
 Cmake/TAU/TAU_preprocessor_f90.py
 Cmake/TAU/instrument_rules.tau
 Cmake/TAU/instrument_rules_dyn.tau
+Cmake/tests/CTestConfig.cmake
+Cmake/tests/DietTestingMacros.cmake
+Cmake/tests/runtest.cmake
 
 # Include section
 [Untemplated]
@@ -915,6 +921,27 @@ src/utils/DAGDA/NetworkStats.hh
 src/utils/DAGDA/Transfers.cc
 src/utils/DAGDA/Transfers.hh
 
+# Utils/config section
+[Untemplated]
+src/utils/config/CMakeLists.txt
+[Templated]
+src/utils/config/CmdException.hh
+src/utils/config/CmdParser.cc
+src/utils/config/CmdParser.hh
+src/utils/config/CommonParser.cc
+src/utils/config/CommonParser.hh
+src/utils/config/EnvException.hh
+src/utils/config/EnvParser.cc
+src/utils/config/EnvParser.hh
+src/utils/config/FileException.hh
+src/utils/config/FileParser.cc
+src/utils/config/FileParser.hh
+src/utils/config/configuration.cc
+src/utils/config/configuration.hh
+src/utils/config/constants.cc
+src/utils/config/constants.hh
+
+
 # lib section
 [Untemplated]
 src/lib/bcprov-jdk14.jar
@@ -951,6 +978,83 @@ src/Testing/KillOmniORB.sh
 src/Testing/RunOmniORB.sh
 src/Testing/TestDummy.cxx
 src/Testing/TestORBMgrInit.cxx
+src/Testing/CTestConfig.cmake
+src/Testing/README
+src/Testing/cfgs/CMakeLists.txt
+src/Testing/cfgs/SeD.cfg
+src/Testing/cfgs/agent.cfg
+src/Testing/cfgs/client.cfg
+src/Testing/cfgs/client_false_MA_Name.cfg
+src/Testing/cfgs/client_false_config_file_MA.cfg
+src/Testing/cfgs/client_no_MA_Name.cfg
+src/Testing/cfgs/client_parse_error_1.cfg
+src/Testing/cfgs/client_parse_error_2.cfg
+src/Testing/cfgs/diet-agent.launch.in
+src/Testing/cfgs/omniNames.launch.in
+src/Testing/cfgs/omniORB4.cfg.in
+src/Testing/src/CMakeLists.txt
+src/Testing/src/allocation/CMakeLists.txt
+src/Testing/src/allocation/DIETErrorStringTests.cpp
+src/Testing/src/allocation/DIETHandleAllocTests.cpp
+src/Testing/src/allocation/DIETProfileAllocTests.cpp
+src/Testing/src/client/CMakeLists.txt
+src/Testing/src/client/DIETSimpleAsyncClientTests.cpp
+src/Testing/src/client/DIETSimpleClientTests.cpp
+src/Testing/src/client/DIETSimpleSyncClientTests.cpp
+src/Testing/src/common/CMakeLists.txt
+src/Testing/src/common/GTestHook.hpp
+src/Testing/src/common/SimpleAddSeD.cpp
+src/Testing/src/common/TestRunner.cpp
+src/Testing/src/common/config_tests.h.in
+src/Testing/src/common/fixtures.hpp
+src/Testing/src/common/utils.cpp
+src/Testing/src/common/utils.hpp
+src/Testing/src/initialization/CMakeLists.txt
+src/Testing/src/initialization/DIETBadInitializationTests.cpp
+src/Testing/src/initialization/DIETMultipleInitializationAndCallTests.cpp
+src/Testing/src/initialization/DIETMultipleInitializationTests.cpp
+src/Testing/src/initialization/DIETNoCorbaTests.cpp
+src/Testing/src/initialization/DIETNoInitializationTests.cpp
+src/Testing/src/initialization/DIETSimpleInitializationTests.cpp
+src/Testing/src/initialization2/CMakeLists.txt
+src/Testing/src/initialization2/DIETBadInitializeTests.cpp
+src/Testing/src/initialization2/DIETNoCorbaTests.cpp
+src/Testing/src/initialization2/DIETNoInitializeTests.cpp
+src/Testing/src/initialization2/DIETSimpleInitializeTests.cpp
+src/Testing/src/sample/CMakeLists.txt
+src/Testing/src/sample/sample1.cc
+src/Testing/third-party/process/boost/process/all.hpp
+src/Testing/third-party/process/boost/process/child.hpp
+src/Testing/third-party/process/boost/process/config.hpp
+src/Testing/third-party/process/boost/process/context.hpp
+src/Testing/third-party/process/boost/process/environment.hpp
+src/Testing/third-party/process/boost/process/handle.hpp
+src/Testing/third-party/process/boost/process/operations.hpp
+src/Testing/third-party/process/boost/process/pid_type.hpp
+src/Testing/third-party/process/boost/process/pipe.hpp
+src/Testing/third-party/process/boost/process/pistream.hpp
+src/Testing/third-party/process/boost/process/postream.hpp
+src/Testing/third-party/process/boost/process/process.hpp
+src/Testing/third-party/process/boost/process/self.hpp
+src/Testing/third-party/process/boost/process/status.hpp
+src/Testing/third-party/process/boost/process/stream_behavior.hpp
+src/Testing/third-party/process/boost/process/stream_ends.hpp
+src/Testing/third-party/process/boost/process/stream_id.hpp
+src/Testing/third-party/process/boost/process/stream_type.hpp
+src/Testing/third-party/process/boost/process/detail/basic_status.hpp
+src/Testing/third-party/process/boost/process/detail/basic_status_service.hpp
+src/Testing/third-party/process/boost/process/detail/posix_helpers.hpp
+src/Testing/third-party/process/boost/process/detail/status_impl.hpp
+src/Testing/third-party/process/boost/process/detail/systembuf.hpp
+src/Testing/third-party/process/boost/process/detail/windows_helpers.hpp
+src/Testing/third-party/process/boost/
+src/Testing/workflows/README
+src/Testing/workflows/data_inout_sink.xml
+src/Testing/workflows/data_loop.xml
+src/Testing/workflows/data_loop_container.xml
+src/Testing/workflows/inout_sink.xml
+src/Testing/workflows/loop.xml
+src/Testing/workflows/loop_container.xml
 
 
 # Ici, je mets les sources des documents dans les [Devel_*] pour ne laisser que

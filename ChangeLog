@@ -1,3 +1,43 @@
++------------+
+| diet 2.6.1 |
++------------+
+
+* Features:
+
+	- dietAgent now has command line help (./dietAgent --help)
+	- You can now use ctrl+c to correctly kill the agents and the SeDs
+	- Manpages
+	
+* Source code organization:
+
+	- New methods for retrieving options have been added. It can take
+	into account options passed in the configuration file, on the
+	command line, and in environment variables
+	- Old parser is still used by agent/localAgentJNI.cc,
+	agent/masterAgentJNI.cc and utils/nodes/FASTMgr.cc. It should be
+	removed soon.
+	- We now use cppcheck to check the quality of the code. This
+	helped remove a few memleaks, and improve the code:
+	   - Prefer prefix ++/-- operators for non-primitive types.
+	   - reduce variables scopes
+	   - realloc mistake, variable nulled but not freed upon failure
+	   - free resources opened with fopen
+	- Use TRACE_TEXT instead of cout to control the verbosity.
+	- Removed a few compilation warnings
+
+* Bug fix:
+
+	- Problems with inout in workflows (bugs 154, 155 and 156)
+	- Fixed initialization of containers in wf
+	- Correct bugs with inout in Dagda
+	- Dynamic hierarchies work again
+	
+* TODO:
+
+	- add command line options in maDagAgent and dietForwarder
+	- definitively remove the old parser
+
+	
 +----------+
 | diet 2.6 |
 +----------+
