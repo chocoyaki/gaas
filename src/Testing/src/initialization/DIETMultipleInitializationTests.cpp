@@ -18,7 +18,7 @@
 #include "utils.hpp"
 
 
-BOOST_FIXTURE_TEST_SUITE( multiple_initialization_finalization, DietAgentFixture )
+BOOST_FIXTURE_TEST_SUITE( multiple_initialization_finalization, DietMasterAgentFixture )
 
 
 BOOST_AUTO_TEST_CASE( successive_diet_finalize_calls )

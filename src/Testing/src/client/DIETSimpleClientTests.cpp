@@ -26,7 +26,7 @@ BOOST_AUTO_TEST_CASE( simple_client)
     double *res = NULL;
 
     diet_profile_t *profile;
-    
+
     utils::ClientArgs c("simple_client", "client_testing.cfg");
 
     diet_error_t error = diet_initialize(c.config(), c.argc(), c.argv());

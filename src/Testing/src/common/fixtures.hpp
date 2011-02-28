@@ -14,6 +14,7 @@
 #include <string>
 #include <cstdlib>
 #include <stdexcept>
+#include <csignal>
 
 #include <boost/assign/list_inserter.hpp>
 #include <boost/assign/list_of.hpp>
@@ -55,15 +56,26 @@ class OmniNamesFixture {
 	// setup omniNames environment
 	bp::context ctx;
 	ctx.process_name = "omniNames";
-	ba::insert(ctx.env)
-	    ("OMNINAMES_LOGDIR", OMNINAMES_LOGDIR)
-	    ("OMNIORB_CONFIG", OMNIORB_CONFIG)
-	    ("ORBsupportBooststrapAgent", "1")
-	    ("ORBInitRef", ORB_INIT_REF);
+	ctx.env["OMNINAMES_LOGDIR"] = OMNINAMES_LOGDIR;
+        ctx.env["OMNIORB_CONFIG"] = OMNIORB_CONFIG;
+        ctx.env["ORBsupportBooststrapAgent"] = "1";
+        ctx.env["ORBInitRef"] = ORB_INIT_REF;
 	
 	// redirect output to /dev/null
 	ctx.streams[bp::stdout_id] = bp::behavior::null();
 	ctx.streams[bp::stderr_id] = bp::behavior::null();
+
+        // Set env for clients
+        setenv("OMNINAMES_LOGDIR", OMNINAMES_LOGDIR, 1);
+        setenv("OMNIORB_CONFIG", OMNIORB_CONFIG, 1);
+        bp::environment::iterator i_c;
+        std::string dietLibPath = std::string(ENV_LIBRARY_PATH);
+        i_c = ctx.env.find(ENV_LIBRARY_PATH_NAME);
+        if (i_c != ctx.env.end()) {
+          dietLibPath += i_c->second;
+        }
+        setenv(ENV_LIBRARY_PATH_NAME, dietLibPath.c_str(), 1);
+
 
 	// setup omniNames arguments
 	std::vector<std::string> args = ba::list_of("-always")
@@ -89,12 +101,12 @@ class OmniNamesFixture {
 };
 
 
-class DietAgentFixture : public OmniNamesFixture
+class DietMasterAgentFixture : public OmniNamesFixture
 {
     boost::scoped_ptr<bp::child> processAgent;
 
 public:
-     DietAgentFixture() {
+     DietMasterAgentFixture() {
     	BOOST_TEST_MESSAGE( "== Test setup [BEGIN]:  Launching DIET Agent ==" );
 	
 	std::string exec;
@@ -115,15 +127,18 @@ public:
         if (i_c != ctx.env.end()) {
           i_c->second = std::string(ENV_LIBRARY_PATH) + i_c->second;
         } else {
-          ba::insert(ctx.env)
-	    (ENV_LIBRARY_PATH_NAME, ENV_LIBRARY_PATH);
+          ctx.env[ENV_LIBRARY_PATH_NAME] = ENV_LIBRARY_PATH;
         }
+	ctx.env["OMNINAMES_LOGDIR"] = OMNINAMES_LOGDIR;
+        ctx.env["OMNIORB_CONFIG"] = OMNIORB_CONFIG;
+
+	// redirect output to /dev/null
 	ctx.streams[bp::stdout_id] = bp::behavior::null();
 	ctx.streams[bp::stderr_id] = bp::behavior::null();
 
 
 	// setup dietAGent arguments
-	std::vector<std::string> args = ba::list_of(AGENT_CONFIG);
+	std::vector<std::string> args = ba::list_of(MASTER_AGENT_CONFIG);
 
 	// launch diet Agent
 	const bp::child c = bp::create_child(exec, args, ctx);
@@ -132,7 +147,7 @@ public:
     	BOOST_TEST_MESSAGE( "== Test setup [END]: Launching DIET Agent ==" );
     }	
     
-    ~DietAgentFixture() {
+    ~DietMasterAgentFixture() {
     	BOOST_TEST_MESSAGE( "== Test teardown [BEGIN]: Stopping DIET Agent ==" );
 	if (processAgent) {
 	    processAgent->terminate();
@@ -146,7 +161,7 @@ public:
 
 // generic SeD fixture
 template <const char *name, const char *config>
-class DietSeDFixture : public DietAgentFixture
+class DietSeDFixture : public DietMasterAgentFixture
 {
     boost::scoped_ptr<bp::child> processSeD;
 
@@ -176,12 +191,15 @@ public:
         if (i_c != ctx.env.end()) {
           i_c->second = std::string(ENV_LIBRARY_PATH) + i_c->second;
         } else {
-          ba::insert(ctx.env)
-	    (ENV_LIBRARY_PATH_NAME, ENV_LIBRARY_PATH);
+          ctx.env[ENV_LIBRARY_PATH_NAME] = ENV_LIBRARY_PATH;
         }
+	ctx.env["OMNINAMES_LOGDIR"] = OMNINAMES_LOGDIR;
+        ctx.env["OMNIORB_CONFIG"] = OMNIORB_CONFIG;
+
+	// redirect output to /dev/null
  	ctx.streams[bp::stdout_id] = bp::behavior::null();
 	ctx.streams[bp::stderr_id] = bp::behavior::null();
-	
+  
 	// setup SeD arguments
 	std::vector<std::string> args = ba::list_of(std::string(config));
 
@@ -199,11 +217,19 @@ public:
 	BOOST_TEST_MESSAGE( "== Test teardown [BEGIN]: Stopping "
 			    << name << " ==" );
 	if( processSeD ) {
+          try {
 	    processSeD->terminate();
-	    processSeD->wait();
+            //            processSeD->wait();
+
+            // FIXME: currently processSeD->wait() crashes, we need to set the signal handler of SIGCHLD to SID_DFL
+            signal(SIGCHLD, SIG_DFL);
+          } catch (...) {
+            BOOST_TEST_MESSAGE( "== Problem while stopping "
+                                << name << " ==" );
+          }
 	}
 	boost::this_thread::sleep(boost::posix_time::milliseconds(SLEEP_TIME));
-	BOOST_TEST_MESSAGE( "== Test teardown [BEGIN]: Stopping "
+	BOOST_TEST_MESSAGE( "== Test teardown [END]: Stopping "
 			    << name << " ==" );
     }
 };

@@ -14,7 +14,7 @@
 #include "fixtures.hpp"
 #include "utils.hpp"
 
-BOOST_FIXTURE_TEST_CASE( simple_client_config_file , DietAgentFixture )
+BOOST_FIXTURE_TEST_CASE( simple_client_config_file , DietMasterAgentFixture )
 {
     BOOST_TEST_MESSAGE( "Test : simple_client_config_file" );
 

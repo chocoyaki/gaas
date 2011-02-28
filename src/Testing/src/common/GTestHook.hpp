@@ -39,7 +39,7 @@ protected:
 
     	std::stringstream omniNamesConfigurationFilePath;
     	omniNamesConfigurationFilePath << CMAKE_CURRENT_BINARY_DIR 
-				       << "/cfgs/omniORB4.cfg";
+				       << "/cfgs/omniORB4_testing.cfg";
     	setenv("OMNIORB_CONFIG", 
 	       const_cast<char*>(omniNamesConfigurationFilePath.str().c_str()),
 	       1);
