@@ -1,5 +1,7 @@
 #! /bin/bash
 
+export @TESTENV_LIBRARY_PATH@
+
 nohup dietAgent @CFG_OUTPUT_PATH@/agent_testing.cfg &>/dev/null &
 pid=$!
 /bin/echo "echo  \"stopping DIET agent with pid $pid\"; kill -9 $pid; if [ -e nohup.out ]; then rm nohup.out; fi; rm \$0" > @EXECUTABLE_OUTPUT_PATH@/agent-pidfile.sh

@@ -5,9 +5,13 @@
 
 #define BIN_DIR "@BIN_DIR_NATIVE_PATH@"
 #define CONFIG_DIR "@CONFIG_DIR_NATIVE_PATH@"
+#define DIETAGENT_DIR "@DIETAGENT_DIR_NATIVE_PATH@"
+
+#define ENV_LIBRARY_PATH_NAME "@TESTENV_LIBRARY_PATH_NAME@"
+#define ENV_LIBRARY_PATH "@TESTENV_LIBRARY_PATH@"
 
 // Sleep time in milliseconds
-#define SLEEP_TIME 200
+#define SLEEP_TIME 300
 
 // omniNames specific options
 #define LOCAL_TEST_PORT "@LOCAL_TEST_PORT@"

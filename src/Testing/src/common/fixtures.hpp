@@ -99,10 +99,10 @@ public:
 	
 	std::string exec;
 	try {
-	    exec = bp::find_executable_in_path("dietAgent");
+          exec = bp::find_executable_in_path("dietAgent", DIETAGENT_DIR);
 	} catch (bs::system_error& e) {
-	    BOOST_TEST_MESSAGE( "can't find dietAgent: " << e.what() );
-	    return;
+          BOOST_TEST_MESSAGE( "can't find dietAgent: " << e.what() );
+          return;
 	}
 
 	BOOST_TEST_MESSAGE( "dietAgent found: " << exec );
@@ -110,8 +110,17 @@ public:
 	// setup dietAgent environment
 	bp::context ctx;
 	ctx.process_name = "dietAgent";
+        bp::environment::iterator i_c;
+        i_c = ctx.env.find(ENV_LIBRARY_PATH_NAME);
+        if (i_c != ctx.env.end()) {
+          i_c->second = std::string(ENV_LIBRARY_PATH) + i_c->second;
+        } else {
+          ba::insert(ctx.env)
+	    (ENV_LIBRARY_PATH_NAME, ENV_LIBRARY_PATH);
+        }
 	ctx.streams[bp::stdout_id] = bp::behavior::null();
 	ctx.streams[bp::stderr_id] = bp::behavior::null();
+
 
 	// setup dietAGent arguments
 	std::vector<std::string> args = ba::list_of(AGENT_CONFIG);
@@ -162,6 +171,14 @@ public:
 	// setup SeD environment
 	bp::context ctx;
 	ctx.process_name = name;
+        bp::environment::iterator i_c;
+        i_c = ctx.env.find(ENV_LIBRARY_PATH_NAME);
+        if (i_c != ctx.env.end()) {
+          i_c->second = std::string(ENV_LIBRARY_PATH) + i_c->second;
+        } else {
+          ba::insert(ctx.env)
+	    (ENV_LIBRARY_PATH_NAME, ENV_LIBRARY_PATH);
+        }
  	ctx.streams[bp::stdout_id] = bp::behavior::null();
 	ctx.streams[bp::stderr_id] = bp::behavior::null();
 	
