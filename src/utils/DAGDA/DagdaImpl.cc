@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.46  2011/02/28 16:57:15  bdepardo
+ * Do not unsubscribe from parent in destructor as it raises an exception
+ *
  * Revision 1.45  2011/02/24 16:53:30  bdepardo
  * Use TRACE_TEXT instead of cout
  *
@@ -116,7 +119,6 @@
 char DagdaImpl::NoID[] = "NoID";
 
 DagdaImpl::~DagdaImpl() {
-  if (parent!=NULL) parent->unsubscribe(getID());
 }
 
 /* CORBA */
@@ -453,13 +455,14 @@ void SimpleDagdaImpl::subscribeParent(const char * parentID) {
 }
 
 void SimpleDagdaImpl::unsubscribeParent() {
-  if (this->getParent() != NULL)
+  if (!CORBA::is_nil(this->getParent())) {
     try {
       getParent()->unsubscribe(getID());
     } catch (CORBA::Exception& e) {
-      WARNING("Exception caught while unsubscribing to parent");
+      WARNING("Exception caught while unsubscribing from parent: " << e._name());
     }
-  TRACE_TEXT(TRACE_ALL_STEPS, "*** Unsubscribed from parent" << endl);
+    TRACE_TEXT(TRACE_ALL_STEPS, "*** Unsubscribed from parent" << endl);
+  }
 }
 #endif // HAVE_DYNAMICS
 
@@ -493,6 +496,7 @@ void SimpleDagdaImpl::unsubscribe(const char* myName) {
 
 SimpleDagdaImpl::~SimpleDagdaImpl() {
   //CORBA::string_free(this->ID);
+  // unsubscribeParent();
   delete containerRelationMgr;
 }
 
@@ -522,10 +526,11 @@ int SimpleDagdaImpl::init(const char* ID, const char* parentID,
       parent = Dagda::_nil();
     }
 		
-    if (CORBA::is_nil(parent))
+    if (CORBA::is_nil(parent)) {
       setParent(NULL);
-    else
+    } else {
       setParent(parent);
+    }
   }
 	
   TRACE_TEXT(TRACE_MAIN_STEPS,
