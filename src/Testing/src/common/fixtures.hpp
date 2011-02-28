@@ -32,11 +32,30 @@ namespace bf = boost::filesystem;
 namespace bp = boost::process;
 namespace bs = boost::system;
 
+class setDIETEnvFixture {
+public:
+  setDIETEnvFixture() {
+    // Set env regarding omniORB
+    setenv("OMNINAMES_LOGDIR", OMNINAMES_LOGDIR, 1);
+    setenv("OMNIORB_CONFIG", OMNIORB_CONFIG, 1);
+
+    // Set env regarding DIET compiled libraries
+    bp::environment::iterator i_c;
+    std::string dietLibPath = std::string(ENV_LIBRARY_PATH)
+      + std::string(getenv(ENV_LIBRARY_PATH_NAME));
+    setenv(ENV_LIBRARY_PATH_NAME, dietLibPath.c_str(), 1);
+  }
+
+  ~setDIETEnvFixture() {
+  }
+
+};
+
 /* Diet test fixture (aka test context)
  * basically setup omniNames before starting our test 
  * and then cleanup after test has been executed
  */
-class OmniNamesFixture {
+class OmniNamesFixture : public setDIETEnvFixture {
     boost::scoped_ptr<bp::child> processNamingService;
 
     public:
@@ -64,18 +83,6 @@ class OmniNamesFixture {
 	// redirect output to /dev/null
 	ctx.streams[bp::stdout_id] = bp::behavior::null();
 	ctx.streams[bp::stderr_id] = bp::behavior::null();
-
-        // Set env for clients
-        setenv("OMNINAMES_LOGDIR", OMNINAMES_LOGDIR, 1);
-        setenv("OMNIORB_CONFIG", OMNIORB_CONFIG, 1);
-        bp::environment::iterator i_c;
-        std::string dietLibPath = std::string(ENV_LIBRARY_PATH);
-        i_c = ctx.env.find(ENV_LIBRARY_PATH_NAME);
-        if (i_c != ctx.env.end()) {
-          dietLibPath += i_c->second;
-        }
-        setenv(ENV_LIBRARY_PATH_NAME, dietLibPath.c_str(), 1);
-
 
 	// setup omniNames arguments
 	std::vector<std::string> args = ba::list_of("-always")
@@ -199,6 +206,7 @@ public:
 	// redirect output to /dev/null
  	ctx.streams[bp::stdout_id] = bp::behavior::null();
 	ctx.streams[bp::stderr_id] = bp::behavior::null();
+
   
 	// setup SeD arguments
 	std::vector<std::string> args = ba::list_of(std::string(config));
