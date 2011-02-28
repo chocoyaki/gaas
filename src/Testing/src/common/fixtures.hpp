@@ -44,10 +44,10 @@ class OmniNamesFixture {
 	
 	std::string exec;
 	try {
-	    exec = bp::find_executable_in_path("omniNames");
+          exec = bp::find_executable_in_path(OMNINAMES_COMMAND, OMNINAMES_PATH);
 	} catch (bs::system_error& e) {
-	    BOOST_TEST_MESSAGE( "can't find omniNames: " << e.what() );
-	    return;
+          BOOST_TEST_MESSAGE( "can't find omniNames: " << e.what() );
+          return;
 	}
 
 	BOOST_TEST_MESSAGE( "omniNames found: " << exec );
