@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.167  2011/02/28 15:27:57  bdepardo
+ * Add try/catch blocks around MA_MUTEX deletion
+ *
  * Revision 1.166  2011/02/24 18:16:12  bdepardo
  * Return GRPC_NOT_INITIALIZED when initialization fails
  *
@@ -913,7 +916,10 @@ diet_finalize() {
   MA_MUTEX->lock();
   MA = MasterAgent::_nil();
   MA_MUTEX->unlock();
-  delete MA_MUTEX;
+  try {
+    delete MA_MUTEX;
+  } catch (...) {
+  }
   MA_MUTEX = NULL;
 
   return GRPC_NO_ERROR;
