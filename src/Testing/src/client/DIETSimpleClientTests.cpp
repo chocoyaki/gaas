@@ -33,7 +33,7 @@ BOOST_AUTO_TEST_CASE( simple_client)
     BOOST_CHECK_EQUAL( GRPC_NO_ERROR, error );
     
     profile = diet_profile_alloc("simple_add", 1, 1, 2);
-    // check that profile is not 0
+    BOOST_CHECK( profile != NULL );
 
     error = diet_scalar_set(diet_parameter(profile, 0), &a, DIET_VOLATILE, DIET_DOUBLE);
     BOOST_CHECK_EQUAL( 0, error );
