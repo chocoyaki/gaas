@@ -54,6 +54,22 @@ if( BUILD_TESTING )
   file( TO_NATIVE_PATH "/tmp/LA_test"     LA_DAGDA_DIR_NATIVE_PATH )
   file( TO_NATIVE_PATH "/tmp/SeD_test"    SED_DAGDA_DIR_NATIVE_PATH )
   file( TO_NATIVE_PATH "/tmp/Client_test" CLIENT_DAGDA_DIR_NATIVE_PATH )
+
+  set( TRANSFER_FILE_TEST1 "" CACHE PATH "File used for transfer tests")
+  set( TRANSFER_FILE_TEST2 "" CACHE PATH "File used for transfer tests")
+
+  string(COMPARE EQUAL "${TRANSFER_FILE_TEST1}" "" TRANSFER_FILE_TEST1_EMPTY )
+  string(COMPARE EQUAL "${TRANSFER_FILE_TEST2}" "" TRANSFER_FILE_TEST2_EMPTY )
+  if ( TRANSFER_FILE_TEST1_EMPTY )
+    message( SEND_ERROR "TRANSFER_FILE_TEST1 is not set, it is required when building tests" )
+  else  ( TRANSFER_FILE_TEST1_EMPTY )
+    file( TO_NATIVE_PATH ${TRANSFER_FILE_TEST1} TRANSFER_FILE_TEST1_NATIVE_PATH )
+  endif ( TRANSFER_FILE_TEST1_EMPTY )
+  if ( TRANSFER_FILE_TEST2_EMPTY )
+    message( SEND_ERROR "TRANSFER_FILE_TEST2 is not set, it is required when building tests" )
+  else  ( TRANSFER_FILE_TEST2_EMPTY )
+    file( TO_NATIVE_PATH ${TRANSFER_FILE_TEST2} TRANSFER_FILE_TEST2_NATIVE_PATH )
+  endif ( TRANSFER_FILE_TEST2_EMPTY )
  
 
   add_subdirectory(cfgs)

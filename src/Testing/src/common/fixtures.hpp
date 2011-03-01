@@ -80,10 +80,10 @@ public:
   ~createTmpDirsFixture() { 
     BOOST_TEST_MESSAGE( "== Test teardown [BEGIN]: deleting directories ==" );
 
-    bf::remove(MA_DAGDA_DIR);
-    bf::remove(LA_DAGDA_DIR);
-    bf::remove(SED_DAGDA_DIR);
-    bf::remove(CLIENT_DAGDA_DIR);
+    bf::remove_all(MA_DAGDA_DIR);
+    bf::remove_all(LA_DAGDA_DIR);
+    bf::remove_all(SED_DAGDA_DIR);
+    bf::remove_all(CLIENT_DAGDA_DIR);
 
     BOOST_TEST_MESSAGE( "== Test teardown [END]: deleting directories ==" );
  }
