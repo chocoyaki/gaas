@@ -64,7 +64,7 @@ public:
 };
 
 
-class createTmpDirsFixture {
+class createTmpDirsFixture : public setDIETEnvFixture {
 public:
   createTmpDirsFixture() {
     BOOST_TEST_MESSAGE( "== Test setup [BEGIN]: creating directories ==" );
