@@ -44,6 +44,10 @@ public:
     std::string dietLibPath = std::string(ENV_LIBRARY_PATH)
       + std::string(getenv(ENV_LIBRARY_PATH_NAME));
     setenv(ENV_LIBRARY_PATH_NAME, dietLibPath.c_str(), 1);
+
+    std::string dietPath = std::string(DIETAGENT_DIR)
+      + std::string(getenv("PATH"));
+    setenv("PATH", dietPath.c_str(), 1);
   }
 
   ~setDIETEnvFixture() {
@@ -90,7 +94,7 @@ class OmniNamesFixture : public setDIETEnvFixture {
 	    ("-ignoreport")
 	    ("-ORBendPoint")(OMNINAMES_ENDPOINT);
 	// launch Naming Service
-	bp::child c = bp::create_child(exec, args, ctx);
+        bp::child c = bp::create_child(exec, args, ctx);
 	processNamingService.reset(utils::copy_child(c));
 	boost::this_thread::sleep(boost::posix_time::milliseconds(SLEEP_TIME));
     	BOOST_TEST_MESSAGE( "== Test setup [END]:  Launching OmniNames ==" );
@@ -125,7 +129,7 @@ public:
           BOOST_TEST_MESSAGE( "can't find dietAgent: " << e.what() );
           return;
 	}
-
+        
 	BOOST_TEST_MESSAGE( "dietAgent found: " << exec );
 	
 	// setup dietAgent environment
@@ -150,7 +154,8 @@ public:
 	std::vector<std::string> args = ba::list_of(config);
 
 	// launch diet Agent
-	const bp::child c = bp::create_child(exec, args, ctx);
+        const bp::child c = bp::create_child(exec, args, ctx);
+
 	processAgent.reset(utils::copy_child(c));
 	boost::this_thread::sleep(boost::posix_time::milliseconds(SLEEP_TIME));
     	BOOST_TEST_MESSAGE( "== Test setup [END]: Launching DIET Agent ==" );
