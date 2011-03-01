@@ -1,2 +1,3 @@
 parentName=MA1
-storageDirectory = @SED_DAGDA_DIR_NATIVE_PATH@
+traceLevel=10
+storageDirectory=@SED_DAGDA_DIR_NATIVE_PATH@
