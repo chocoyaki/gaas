@@ -108,13 +108,15 @@ class OmniNamesFixture : public setDIETEnvFixture {
 };
 
 
-class DietMasterAgentFixture : public OmniNamesFixture
+template <const char *config,  class parentFixture>
+class DietAgentFixture : public parentFixture
 {
     boost::scoped_ptr<bp::child> processAgent;
 
 public:
-     DietMasterAgentFixture() {
-    	BOOST_TEST_MESSAGE( "== Test setup [BEGIN]:  Launching DIET Agent ==" );
+     DietAgentFixture() {
+    	BOOST_TEST_MESSAGE( "== Test setup [BEGIN]:  Launching DIET Agent (config file: "
+                            << config << ") ==" );
 	
 	std::string exec;
 	try {
@@ -145,7 +147,7 @@ public:
 
 
 	// setup dietAGent arguments
-	std::vector<std::string> args = ba::list_of(MASTER_AGENT_CONFIG);
+	std::vector<std::string> args = ba::list_of(config);
 
 	// launch diet Agent
 	const bp::child c = bp::create_child(exec, args, ctx);
@@ -154,7 +156,7 @@ public:
     	BOOST_TEST_MESSAGE( "== Test setup [END]: Launching DIET Agent ==" );
     }	
     
-    ~DietMasterAgentFixture() {
+    ~DietAgentFixture() {
     	BOOST_TEST_MESSAGE( "== Test teardown [BEGIN]: Stopping DIET Agent ==" );
 	if (processAgent) {
 	    processAgent->terminate();
@@ -167,8 +169,8 @@ public:
 
 
 // generic SeD fixture
-template <const char *name, const char *config>
-class DietSeDFixture : public DietMasterAgentFixture
+template <const char *name, const char *config, class AgentParent>
+class DietSeDFixture : public AgentParent
 {
     boost::scoped_ptr<bp::child> processSeD;
 
@@ -244,8 +246,13 @@ public:
 
 // must not be static 
 // should be a primitive type with an identifier name
+char ConfigMasterAgent[] = MASTER_AGENT_CONFIG;
+char ConfigLocalAgent[]  = LOCAL_AGENT_CONFIG;
+typedef DietAgentFixture<ConfigMasterAgent, OmniNamesFixture> DietMAFixture;
+typedef DietAgentFixture<ConfigLocalAgent, DietMAFixture> DietLAFixture;
+
 char SimpleAddSeD[] = "SimpleAddSeD";
 char ConfigSimpleAddSeD[] = SIMPLE_ADD_SED_CONFIG;
-typedef DietSeDFixture<SimpleAddSeD, ConfigSimpleAddSeD> SimpleAddSeDFixture;
+typedef DietSeDFixture <SimpleAddSeD, ConfigSimpleAddSeD, DietLAFixture>SimpleAddSeDFixture;
 
 #endif /* FIXTURES_HPP_ */

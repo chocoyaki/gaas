@@ -11,7 +11,7 @@
 #include "fixtures.hpp"
 #include "utils.hpp"
 
-BOOST_FIXTURE_TEST_CASE( no_client_config_file , DietMasterAgentFixture )
+BOOST_FIXTURE_TEST_CASE( no_client_config_file , DietMAFixture )
 {
     BOOST_TEST_MESSAGE( "Test : no_client_config_file" );
 
