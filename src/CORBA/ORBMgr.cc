@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.39  2011/03/01 13:37:51  bdepardo
+ * SIGTERM can now also be used to properly terminate DIET
+ *
  * Revision 1.38  2011/02/24 16:55:41  bdepardo
  * Code cleanup.
  * Use TRACE_TEXT instead of cout
@@ -494,6 +497,7 @@ void
 ORBMgr::sigIntHandler(int sig) {
   /* Prevent from raising a new SIGINT handler */
   signal(SIGINT, SIG_IGN);
+  signal(SIGTERM, SIG_IGN);
 #ifndef __cygwin__  
   ORBMgr::getMgr()->waitLock.unlock();
 #else
@@ -501,6 +505,7 @@ ORBMgr::sigIntHandler(int sig) {
 #endif
   //  ORBMgr::getMgr()->shutdown(false);
   signal(SIGINT, SIG_DFL);
+  signal(SIGTERM, SIG_DFL);
 }
 
 void ORBMgr::wait() const {
@@ -508,6 +513,7 @@ void ORBMgr::wait() const {
    * but currently I do not see how to do so properly
    */
   signal(SIGINT, ORBMgr::sigIntHandler);
+  signal(SIGTERM, ORBMgr::sigIntHandler);
   try {
     TRACE_TEXT(TRACE_MAIN_STEPS, "Press CTRL+C to exit" << std::endl);
 #ifdef __cygwin__

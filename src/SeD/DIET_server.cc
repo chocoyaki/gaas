@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.100  2011/03/01 13:37:51  bdepardo
+ * SIGTERM can now also be used to properly terminate DIET
+ *
  * Revision 1.99  2011/02/24 17:52:11  bdepardo
  * Fixed compilation problem when using ACK_FILE
  *
@@ -1015,8 +1018,10 @@ diet_SeD(const char* config_file_name, int argc, char* argv[])
 
 #ifdef HAVE_DYNAMICS
   signal(SIGINT, SIG_IGN);
+  signal(SIGTERM, SIG_IGN);
   SeD->removeElementClean();
   signal(SIGINT, SIG_DFL);
+  signal(SIGTERM, SIG_DFL);
 #endif // HAVE_DYNAMICS
 
   /* shutdown and destroy the ORB

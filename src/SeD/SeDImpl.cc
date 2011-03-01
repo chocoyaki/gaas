@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.130  2011/03/01 13:37:51  bdepardo
+ * SIGTERM can now also be used to properly terminate DIET
+ *
  * Revision 1.129  2011/02/24 16:57:01  bdepardo
  * Use new parser
  *
@@ -588,7 +591,7 @@ SeDImpl::bindParent(const char * parentName) {
 CORBA::Long
 SeDImpl::removeElement() {
   /* Send signal to commit suicide */
-  return raise(SIGINT);
+  return raise(SIGINT); // Or SIGTERM
 }
 
 void
