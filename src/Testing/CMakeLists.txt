@@ -48,6 +48,14 @@ if( BUILD_TESTING )
 
   diet_test_setup()
 
+
+  # temporary directories for Dagda
+  file( TO_NATIVE_PATH "/tmp/MA_test"     MA_DAGDA_DIR_NATIVE_PATH )
+  file( TO_NATIVE_PATH "/tmp/LA_test"     LA_DAGDA_DIR_NATIVE_PATH )
+  file( TO_NATIVE_PATH "/tmp/SeD_test"    SED_DAGDA_DIR_NATIVE_PATH )
+  file( TO_NATIVE_PATH "/tmp/Client_test" CLIENT_DAGDA_DIR_NATIVE_PATH )
+ 
+
   add_subdirectory(cfgs)
   add_subdirectory(src)
 

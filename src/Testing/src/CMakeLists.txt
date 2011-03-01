@@ -15,6 +15,7 @@ add_subdirectory( common )
 # each test suite should be put in its own directory
 add_subdirectory( allocation )
 add_subdirectory( client )
+add_subdirectory( data )
 add_subdirectory( initialization )
 #add_subdirectory( initialization2 )
 #add_subdirectory( sample )

@@ -30,3 +30,6 @@ MAName = MA1
 
 #dietPort = 2809
 #dietHostname = <hostname|IP>
+
+
+storageDirectory = @CLIENT_DAGDA_DIR_NATIVE_PATH@

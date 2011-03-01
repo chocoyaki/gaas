@@ -2,3 +2,4 @@ agentType = DIET_LOCAL_AGENT
 name = LA1
 parentName = MA1
 traceLevel = 1
+storageDirectory = @LA_DAGDA_DIR_NATIVE_PATH@

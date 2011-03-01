@@ -35,6 +35,8 @@ namespace bs = boost::system;
 class setDIETEnvFixture {
 public:
   setDIETEnvFixture() {
+    BOOST_TEST_MESSAGE( "== Test setup [BEGIN]: setting environment ==" );
+
     // Set env regarding omniORB
     setenv("OMNINAMES_LOGDIR", OMNINAMES_LOGDIR, 1);
     setenv("OMNIORB_CONFIG", OMNIORB_CONFIG, 1);
@@ -45,6 +47,8 @@ public:
       std::string dietLibPath = std::string(ENV_LIBRARY_PATH)
         + std::string(getenv(ENV_LIBRARY_PATH_NAME));
       setenv(ENV_LIBRARY_PATH_NAME, dietLibPath.c_str(), 1);
+
+      BOOST_TEST_MESSAGE( "== Test setup [END]: setting environment ==" );
     }
 
     // std::string dietPath = std::string(DIETAGENT_DIR)
@@ -53,15 +57,45 @@ public:
   }
 
   ~setDIETEnvFixture() {
+    BOOST_TEST_MESSAGE( "== Test teardown [BEGIN]: unsetting environment ==" );
+    BOOST_TEST_MESSAGE( "== Test teardown [END]: unsetting environment ==" );
   }
 
 };
+
+
+class createTmpDirsFixture {
+public:
+  createTmpDirsFixture() {
+    BOOST_TEST_MESSAGE( "== Test setup [BEGIN]: creating directories ==" );
+
+    bf::create_directory(MA_DAGDA_DIR);
+    bf::create_directory(LA_DAGDA_DIR);
+    bf::create_directory(SED_DAGDA_DIR);
+    bf::create_directory(CLIENT_DAGDA_DIR);
+
+    BOOST_TEST_MESSAGE( "== Test setup [END]: creating directories ==" );
+  }
+
+  ~createTmpDirsFixture() { 
+    BOOST_TEST_MESSAGE( "== Test teardown [BEGIN]: deleting directories ==" );
+
+    bf::remove(MA_DAGDA_DIR);
+    bf::remove(LA_DAGDA_DIR);
+    bf::remove(SED_DAGDA_DIR);
+    bf::remove(CLIENT_DAGDA_DIR);
+
+    BOOST_TEST_MESSAGE( "== Test teardown [END]: deleting directories ==" );
+ }
+
+};
+
 
 /* Diet test fixture (aka test context)
  * basically setup omniNames before starting our test 
  * and then cleanup after test has been executed
  */
-class OmniNamesFixture : public setDIETEnvFixture {
+class OmniNamesFixture : public createTmpDirsFixture {
   boost::scoped_ptr<bp::child> processNamingService;
 
 public:
@@ -176,7 +210,7 @@ public:
 
 
 // generic SeD fixture
-template <const char *name, const char *config, class AgentParent>
+template <const char *name, const char *binDir, const char *config, class AgentParent>
 class DietSeDFixture : public AgentParent
 {
   boost::scoped_ptr<bp::child> processSeD;
@@ -188,11 +222,11 @@ public:
 
     std::string exec;
     try {
-      exec = bp::find_executable_in_path(name, BIN_DIR);
+      exec = bp::find_executable_in_path(name, binDir);
     } catch (bs::system_error& e) {
       BOOST_TEST_MESSAGE( "can't find " << name << ": "
                           << e.what() );
-      BOOST_TEST_MESSAGE( "search path: " << BIN_DIR );
+      BOOST_TEST_MESSAGE( "search path: " << binDir );
       return;
     }
 	
@@ -259,6 +293,11 @@ typedef DietAgentFixture<ConfigLocalAgent, DietMAFixture> DietLAFixture;
 
 char SimpleAddSeD[] = "SimpleAddSeD";
 char ConfigSimpleAddSeD[] = SIMPLE_ADD_SED_CONFIG;
-typedef DietSeDFixture <SimpleAddSeD, ConfigSimpleAddSeD, DietLAFixture>SimpleAddSeDFixture;
+char SimpleAddSeDBinDir[] = BIN_DIR;
+typedef DietSeDFixture <SimpleAddSeD, SimpleAddSeDBinDir, ConfigSimpleAddSeD, DietLAFixture>SimpleAddSeDFixture;
+
+char AllDataTransferAddSeD[] = "transfers_server";
+char AllDataTransferBinDir[] = EXAMPLES_DIR "/allDataTransfers";
+typedef DietSeDFixture <AllDataTransferAddSeD, AllDataTransferBinDir, ConfigSimpleAddSeD, DietLAFixture>AllDataTransferSeDFixture;
 
 #endif /* FIXTURES_HPP_ */
