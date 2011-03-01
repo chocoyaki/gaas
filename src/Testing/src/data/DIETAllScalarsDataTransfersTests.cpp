@@ -17,35 +17,9 @@
 #include "utils.hpp"
 
 
-const unsigned int SIZE = 3;
-
 static const unsigned int NB_PB = 6;
 static const char* PB[NB_PB] =
   {"CADD", "BADD", "IADD", "LADD", "FADD", "DADD"};
-
-static const unsigned int NB_PB_VECTOR = 6;
-static const char* PB_VECTOR[NB_PB_VECTOR] =
-  {"CVADD", "BVADD", "IVADD", "LVADD", "FVADD", "DVADD"};
-
-static const unsigned int NB_PB_MATRIX = 6;
-static const char* PB_MATRIX[NB_PB_MATRIX] =
-  {"CMADD", "BMADD", "IMADD", "LMADD", "FMADD", "DMADD"};
-
-static const unsigned int NB_PB_STRING = 1;
-static const char* PB_STRING[NB_PB_STRING] =
-  {"SPRINT"};
-
-static const unsigned int NB_PB_PSTRING = 1;
-static const char* PB_PSTRING[NB_PB_PSTRING] =
-  {"PSPRINT"};
-
-static const unsigned int NB_PB_FILE = 1;
-static const char* PB_FILE[NB_PB_FILE] =
-  {"FTRANSFER"};
-
-static const unsigned int NB_PB_CONTAINER = 1;
-static const char* PB_CONTAINER[NB_PB_CONTAINER] =
-  {"LCADD"};
 
 
 BOOST_FIXTURE_TEST_SUITE( all_scalars_data_transfers, AllDataTransferSeDFixture )
