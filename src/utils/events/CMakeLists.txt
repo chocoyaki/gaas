@@ -14,3 +14,4 @@ set(UtilsEventsSource
 
 add_library(UtilsEvents STATIC ${UtilsEventsSource})
 add_dependencies(UtilsEvents DIET_CORBA)
+

@@ -25,7 +25,6 @@ if (DIET_USE_DAGDA)
   add_subdirectory(DAGDA)
 endif (DIET_USE_DAGDA)
 
-add_subdirectory(events)
 
 add_subdirectory(config)
 
@@ -62,6 +61,7 @@ if (DIET_USE_ALT_BATCH)
   target_link_libraries(DIET_Utils UtilsSeDBatch)
 endif (DIET_USE_ALT_BATCH)
 if (DIET_USE_WORKFLOW)
+  add_subdirectory(events)
   target_link_libraries(DIET_Utils UtilsEvents)
 endif (DIET_USE_WORKFLOW)
 if (DIET_USE_CORI)
