@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.35  2011/03/02 16:35:11  glemahec
+ * Bug with INOUT files correction
+ *
  * Revision 1.34  2011/02/24 16:53:45  bdepardo
  * Use new parser
  *
@@ -227,6 +230,8 @@ void dagda_download_SeD_data(diet_profile_t* profile,
   corba_data_t* inserted;
   size_t size;
   CORBA::Char* ptr;
+  char buffer[1024];
+  bool mvFileError;
   
   // Free the remote volatile data.
   for (int i=0; i<=pb->last_in; ++i) {
@@ -249,10 +254,46 @@ void dagda_download_SeD_data(diet_profile_t* profile,
     dataManager->lclAddData(remoteManagerName.c_str(), pb->parameters[i]);
 				
     // The files are transmitted separately.
-    if (pb->parameters[i].desc.specific._d() == DIET_FILE) {      
-	  size_t fileSize = inserted->desc.specific.file().size;
-      unlink(path.c_str());
-      rename(inserted->desc.specific.file().path, path.c_str());
+    if (pb->parameters[i].desc.specific._d() == DIET_FILE) {
+      mvFileError = false;
+      size_t fileSize = inserted->desc.specific.file().size;
+      if (unlink(path.c_str())==-1) {
+        WARNING("Cannot remove " << path.c_str() << " for replacing");
+        perror("INOUT file error: ");
+      }
+      
+      if (rename(inserted->desc.specific.file().path,
+                 path.c_str())==-1) {
+        ifstream input(inserted->desc.specific.file().path);
+        ofstream output(path.c_str());
+        
+        if (!input.is_open() || !output.is_open()) {
+          WARNING("Error: cannot update file " << path.c_str());
+          perror("INOUT file error: ");
+          continue;
+        }
+        while (!input.eof() && !input.bad()) {
+          input.read(buffer, 1024);
+          output.write(buffer, input.gcount());
+          if (output.fail() || output.bad()) {
+            WARNING("Error: cannot write data into " << path.c_str());
+            mvFileError=true;
+            break;
+          }
+        }
+        if (mvFileError) {
+          WARNING("Error moving file " << inserted->desc.specific.file().path);
+          WARNING("This file wont be removed");
+          continue;
+        }
+        if (unlink(inserted->desc.specific.file().path)==-1) {
+          WARNING("Error removing " << inserted->desc.specific.file().path);
+          perror("");
+        } else {
+          inserted->desc.specific.file().path=CORBA::string_dup(path.c_str());
+        }
+
+      }
       inserted->desc.specific.file().size = fileSize;
     }
     // Give back the pointer to the client.
