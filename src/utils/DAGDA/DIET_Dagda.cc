@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.36  2011/03/02 17:00:11  glemahec
+ * Bug with INOUT files correction. File name was not updated into the profile.
+ *
  * Revision 1.35  2011/03/02 16:35:11  glemahec
  * Bug with INOUT files correction
  *
@@ -293,6 +296,8 @@ void dagda_download_SeD_data(diet_profile_t* profile,
           inserted->desc.specific.file().path=CORBA::string_dup(path.c_str());
         }
 
+      } else {
+        inserted->desc.specific.file().path=CORBA::string_dup(path.c_str());
       }
       inserted->desc.specific.file().size = fileSize;
     }
