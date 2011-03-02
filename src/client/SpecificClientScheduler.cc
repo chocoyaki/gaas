@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$ 
  * $Log$
+ * Revision 1.6  2011/03/02 00:18:17  bdepardo
+ * Removed warnings: comparison is always true due to limited range of data type
+ *
  * Revision 1.5  2010/07/30 14:44:25  glemahec
  * Temporary corrections for the new compilation process. Parallel compilation is still broken and there is a big mess on the CMakeLists files...
  *
@@ -270,7 +273,7 @@ SpecificClientScheduler::isOptionEnabled(string option, vector<string>& params) 
 void
 SpecificClientScheduler::removeBlanks(string& token) {
   // remove blank
-  unsigned int blankIt;
+  size_t blankIt;
   while ( (blankIt = token.find_first_of(" ")) != token.npos) {
     token.erase(blankIt, blankIt + 1);
   }
@@ -278,7 +281,7 @@ SpecificClientScheduler::removeBlanks(string& token) {
 
 void
 SpecificClientScheduler::stringSplit(string str, string delim, vector<string>& results) {
-  unsigned int cutAt;
+  size_t cutAt;
   while( (cutAt = str.find_first_of(delim)) != str.npos ) {
     if(cutAt > 0) {
       string token = str.substr(0,cutAt);
