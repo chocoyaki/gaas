@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.71  2011/03/02 23:57:50  bdepardo
+ * Removed a FIXME and cleaned commented code
+ *
  * Revision 1.70  2010/10/17 15:38:39  bdepardo
  * More explicit message in diet_paramstring_set when a NULL pointer is passed
  * as parameter: explain that paramstrings cannot be used as OUT parameters.
@@ -1094,14 +1097,6 @@ diet_file_get_desc(diet_arg_t* arg)
   return (&((arg->desc).specific.file));
 }
 
-// diet_container_desc_t
-// diet_container_get_desc(diet_arg_t* arg)
-// {
-//   if (arg->desc.generic.type != DIET_CONTAINER) {
-//     ERROR(__FUNCTION__ << " misused (wrong type)", NULL);
-//   }
-//   return (&((arg->desc).specific.cont));
-// }
 
 /****************************************************************************/
 /* Free the amount of data pointed at by the value field of an argument.    */
@@ -1129,10 +1124,7 @@ diet_free_data(diet_arg_t* arg)
           perror(arg->desc.specific.file.path);
           return 2;
         }
-	/* FIXME: erase me if ok:
-	   this char* comes from unmrsh_data then CORBA stuff
-	   free((char*)arg->desc.specific.file.path);*/
-	   CORBA::string_free(arg->desc.specific.file.path);
+        CORBA::string_free(arg->desc.specific.file.path);
         arg->desc.specific.file.path = NULL;
       } else {
         return 1;
