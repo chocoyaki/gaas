@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.33  2011/03/02 23:48:12  bdepardo
+ * Fixed a FIXME
+ *
  * Revision 1.32  2011/02/10 23:19:01  hguemar
  * fixes some issues detected by latest cppcheck (1.47)
  *
@@ -144,12 +147,12 @@ CallAsyncMgr* CallAsyncMgr::pinstance = 0;
 CallAsyncMgr* CallAsyncMgr::Instance ()
 {
   if (pinstance == 0)  // is it the first call?
-  {  
-    WriterLockGuard r(rwLock);
-    if (pinstance == 0) {
-      CallAsyncMgr::pinstance = new CallAsyncMgr; // create sole instance
+    {  
+      WriterLockGuard r(rwLock);
+      if (pinstance == 0) {
+        CallAsyncMgr::pinstance = new CallAsyncMgr; // create sole instance
+      }
     }
-  }
   return CallAsyncMgr::pinstance; // address of sole instance
 }
 
@@ -226,13 +229,13 @@ int CallAsyncMgr::deleteAsyncCallWithoutLock(diet_reqID_t reqID)
         RulesReqIDMap::iterator j = rulesIDs.lower_bound(reqID);
         RulesConditionMap::iterator i = rulesConds.begin();
         while ((j != rulesIDs.end()) && (j != rulesIDs.upper_bound(reqID)))
-        {
-          j->second->status=STATUS_CANCEL;
-          i = rulesConds.find(j->second);
-          if (i != rulesConds.end()) i->second->post();
-          ++j;
-          k++;
-        }
+          {
+            j->second->status=STATUS_CANCEL;
+            i = rulesConds.find(j->second);
+            if (i != rulesConds.end()) i->second->post();
+            ++j;
+            k++;
+          }
       }
       caList.erase(reqID);
     }
@@ -323,62 +326,62 @@ int CallAsyncMgr::addWaitAnyRule(diet_reqID_t* IDptr)
 
     // get lock on condition/waitRule
     switch (CallAsyncMgr::Instance()->addWaitRule(rule)){
-      case STATUS_DONE:
-        {
-          ReaderLockGuard r(callAsyncListLock);
-          CallAsyncList::iterator h = caList.begin();
-          for (unsigned int k = 0; k < caList.size(); k++){
-	    TRACE_TEXT (TRACE_ALL_STEPS,"status " << h->second->st << endl); 
-            if ((h->second->st == STATUS_DONE) &&
-		(find(doneRequests.begin(),
-		      doneRequests.end(),
-		      h->first) == doneRequests.end())
-		) {
-	      TRACE_TEXT (TRACE_ALL_STEPS,"finding " << h->first << endl);
-              *IDptr = h->first;
-	      doneRequests.push_back(h->first);
-              return STATUS_DONE;
-            }
-            ++h;  
+    case STATUS_DONE:
+      {
+        ReaderLockGuard r(callAsyncListLock);
+        CallAsyncList::iterator h = caList.begin();
+        for (unsigned int k = 0; k < caList.size(); k++){
+          TRACE_TEXT (TRACE_ALL_STEPS,"status " << h->second->st << endl); 
+          if ((h->second->st == STATUS_DONE) &&
+              (find(doneRequests.begin(),
+                    doneRequests.end(),
+                    h->first) == doneRequests.end())
+              ) {
+            TRACE_TEXT (TRACE_ALL_STEPS,"finding " << h->first << endl);
+            *IDptr = h->first;
+            doneRequests.push_back(h->first);
+            return STATUS_DONE;
           }
-          return STATUS_ERROR;
-	  /*
-          ReaderLockGuard r(callAsyncListLock);
-          CallAsyncList::iterator h = caList.begin();
-          for (unsigned int k = 0; k < caList.size(); k++){
-	    cout << "Testing if " << h->first
-		 << "(" << h->second->st << ")" 
-		 << " is in ";
-	    for (unsigned int ix=0; ix<doneRequests.size(); ix++)
-	      cout << doneRequests[ix] << ", ";
-	    cout << endl;
-            if ((h->second->st == STATUS_DONE) &&
-		(find(doneRequests.begin(), 
-		      doneRequests.end(), 
-		      h->first) == doneRequests.end())
-		) {
-              *IDptr = h->first;
-	      doneRequests.push_back(h->first);
-              return STATUS_DONE;
-            }
-            ++h;  
-          }
-          return STATUS_ERROR;
-	  */
+          ++h;  
         }
-      case STATUS_CANCEL:
-        return STATUS_CANCEL;
-      case STATUS_ERROR:
         return STATUS_ERROR;
-      default:
-        {
-          WARNING(__FUNCTION__ << "unexpected error in addWaitRule return value.");
-          fflush(stderr);
-          return -1; // Unexcpected error, no value describing it (enum request_status_t)
-          // NOTES: Be carefull, there may be others rules
-          // using some of this reqID(AsyncCall)
-          // So, carefull using diet_cancel
-        }
+        /*
+          ReaderLockGuard r(callAsyncListLock);
+          CallAsyncList::iterator h = caList.begin();
+          for (unsigned int k = 0; k < caList.size(); k++){
+          cout << "Testing if " << h->first
+          << "(" << h->second->st << ")" 
+          << " is in ";
+          for (unsigned int ix=0; ix<doneRequests.size(); ix++)
+          cout << doneRequests[ix] << ", ";
+          cout << endl;
+          if ((h->second->st == STATUS_DONE) &&
+          (find(doneRequests.begin(), 
+          doneRequests.end(), 
+          h->first) == doneRequests.end())
+          ) {
+          *IDptr = h->first;
+          doneRequests.push_back(h->first);
+          return STATUS_DONE;
+          }
+          ++h;  
+          }
+          return STATUS_ERROR;
+        */
+      }
+    case STATUS_CANCEL:
+      return STATUS_CANCEL;
+    case STATUS_ERROR:
+      return STATUS_ERROR;
+    default:
+      {
+        WARNING(__FUNCTION__ << "unexpected error in addWaitRule return value.");
+        fflush(stderr);
+        return -1; // Unexcpected error, no value describing it (enum request_status_t)
+        // NOTES: Be carefull, there may be others rules
+        // using some of this reqID(AsyncCall)
+        // So, carefull using diet_cancel
+      }
     }
   }
   catch (const exception& e){
@@ -423,13 +426,13 @@ int CallAsyncMgr::addWaitRule(Rule * rule)
 	else if(h->second->st == STATUS_DONE 
 		&& rule->ruleElts[k].op != WAITOPERATOR(ALL) 
 		&& rule->ruleElts[k].op != WAITOPERATOR(AND) ){
-	tmpplenty = true; // one result is finish yet
+          tmpplenty = true; // one result is finish yet
 	}
         h->second->used++; // NOTES : what to do if an exception ...	
       }
       if (tmpplenty==true){
       	plenty=true;
-       }
+      }
       if (plenty == true){
         rule->status = STATUS_DONE;
         return STATUS_DONE;
@@ -437,7 +440,7 @@ int CallAsyncMgr::addWaitRule(Rule * rule)
       else {
         for (int i = 0; i < rule->length; i++){
           rulesIDs.insert(RulesReqIDMap::value_type(rule->ruleElts[i].reqID,
-                rule));
+                                                    rule));
         }
         condRule = new omni_semaphore(0);
         rulesConds.insert(RulesConditionMap::value_type(rule, condRule));
@@ -519,8 +522,8 @@ int CallAsyncMgr::serialise ()
 
 /**********************************************************************
   stence of async call ID and corba callback IOR
- * Not implemented
- * *******************************************************************/
+  * Not implemented
+  * *******************************************************************/
 int CallAsyncMgr::areThereWaitRules() 
 {
   ReaderLockGuard r(callAsyncListLock);
@@ -544,84 +547,85 @@ int CallAsyncMgr::notifyRst (diet_reqID_t reqID, corba_profile_t * dp)
   else {
 #endif //HAVE_MULTICALL
 
-  try {
-   TRACE_TEXT (TRACE_ALL_STEPS,"the service has computed the requestID=" 
-	       << reqID << " and notifies his answer" << endl);
-	fflush(stdout);
-    // update diet_profile datas linked to this reqId
-    CallAsyncList::iterator h = caList.find(reqID);
-    if (h == caList.end()){
-      WARNING(__FUNCTION__ << ":SeD notifies a result linked to a request ID (" 
-		      << reqID << ") which is not registered");
-      fflush(stderr);
-      return -1;
-    } // code de trace et debbug, a virer pour la version CVSise
-    else { // update state of this reqID
-      h->second->st = STATUS_DONE; 
-    }
-    if (unmrsh_out_args_to_profile(h->second->profile, dp)){
-      INTERNAL_WARNING(__FUNCTION__ << ":unmrsh_out_args_to_profile failed");
-      fflush(stderr);
-      return -1;
-    }
+    try {
+      TRACE_TEXT (TRACE_ALL_STEPS,"the service has computed the requestID=" 
+                  << reqID << " and notifies his answer" << endl);
+      fflush(stdout);
+      // update diet_profile datas linked to this reqId
+      CallAsyncList::iterator h = caList.find(reqID);
+      if (h == caList.end()){
+        WARNING(__FUNCTION__ << ":SeD notifies a result linked to a request ID (" 
+                << reqID << ") which is not registered");
+        fflush(stderr);
+        return -1;
+      } // code de trace et debbug, a virer pour la version CVSise
+      else { // update state of this reqID
+        h->second->st = STATUS_DONE; 
+      }
+      if (unmrsh_out_args_to_profile(h->second->profile, dp)){
+        INTERNAL_WARNING(__FUNCTION__ << ":unmrsh_out_args_to_profile failed");
+        fflush(stderr);
+        return -1;
+      }
 
-    if (unmrsh_inout_args_to_profile(h->second->profile, dp)){
-      INTERNAL_WARNING(__FUNCTION__ << ":unmrsh_inout_args_to_profile failed");
-      fflush(stderr);
-      return -1;
-    }
+      if (unmrsh_inout_args_to_profile(h->second->profile, dp)){
+        INTERNAL_WARNING(__FUNCTION__ << ":unmrsh_inout_args_to_profile failed");
+        fflush(stderr);
+        return -1;
+      }
 	
 #if HAVE_DAGDA
-  dagda_download_SeD_data(h->second->profile, dp);
+      dagda_download_SeD_data(h->second->profile, dp);
 #endif // HAVE_DAGDA
 
 
-    // get rules about this reqID
-    RulesReqIDMap::iterator j;
-    if ((j = rulesIDs.lower_bound(reqID)) == rulesIDs.end()) {
-      return 1; 
-    }
-    RulesConditionMap::iterator i = rulesConds.begin();
-    for(j = rulesIDs.lower_bound(reqID);
-        j != rulesIDs.upper_bound(reqID);
-        ++j)
-    {  
-      bool plenty = true;
-      for (int k = 0; k < j->second->length; k++){
-        h = caList.find(j->second->ruleElts[k].reqID);
-        if (h == caList.end()) {
-          continue; // FIXME: must be changed!!
-	}
-        else if ((h->second->st != STATUS_DONE) && 
-            ((j->second->ruleElts[k].op == WAITOPERATOR(AND)) || 
-             (j->second->ruleElts[k].op == WAITOPERATOR(SOLE)) ||
-             (j->second->ruleElts[k].op == WAITOPERATOR(ALL)))) 
-          plenty = false;
-        /**********************************************************************
-         * NOTES : rule parsing must be reimplemented ....
-         * for performance and function 
-         * *******************************************************************/
+      // get rules about this reqID
+      RulesReqIDMap::iterator j;
+      if ((j = rulesIDs.lower_bound(reqID)) == rulesIDs.end()) {
+        return 1; 
       }
-      if (plenty == true){
-        j->second->status=STATUS_DONE;
-        i = rulesConds.find(j->second);
-        if (i != rulesConds.end()){
-          i->second->post();
+      RulesConditionMap::iterator i = rulesConds.begin();
+      for(j = rulesIDs.lower_bound(reqID);
+          j != rulesIDs.upper_bound(reqID);
+          ++j) {  
+          bool plenty = true;
+          for (int k = 0; k < j->second->length; k++){
+            h = caList.find(j->second->ruleElts[k].reqID);
+            if ((h != caList.end())
+                && (h->second->st != STATUS_DONE)
+                && ((j->second->ruleElts[k].op == WAITOPERATOR(AND))
+                    || (j->second->ruleElts[k].op == WAITOPERATOR(SOLE))
+                    || (j->second->ruleElts[k].op == WAITOPERATOR(ALL))
+                    )
+                ) {
+              plenty = false;
+            }
+            /**********************************************************************
+             * FIXME : rule parsing must be reimplemented ....
+             * for performance and function 
+             * *******************************************************************/
+          }
+
+          if (plenty == true) {
+            j->second->status=STATUS_DONE;
+            i = rulesConds.find(j->second);
+            if (i != rulesConds.end()){
+              i->second->post();
+            }
+            else {
+            }
+            // broadcast for that rule
+          }
+          else {
+            // nothing. try another rule linked to this reqID
+          }
         }
-        else {
-        }
-        // broadcast for that rule
-      }
-      else {
-        // nothing. try another rule linked to this reqID
-      }
     }
-  }
-  catch (const exception& e){
-    WARNING("exception caught in " << __FUNCTION__ << " , what=" << e.what());
-    fflush(stderr);
-    return -1;
-  }
+    catch (const exception& e){
+      WARNING("exception caught in " << __FUNCTION__ << " , what=" << e.what());
+      fflush(stderr);
+      return -1;
+    }
 
 #ifdef HAVE_MULTICALL
   } // else (if the reqid nbRequests == 0)
@@ -705,23 +709,23 @@ CallAsyncMgr::setReqErrorCode(const diet_reqID_t reqID, const diet_error_t error
     ", error = " << error << endl;
   errorMap[reqID] = error;
   /*
-#define GRPC_NO_ERROR 0
-#define GRPC_NOT_INITIALIZED 1
-#define GRPC_CONFIGFILE_NOT_FOUND 2
-#define GRPC_CONFIGFILE_ERROR 3
-#define GRPC_SERVER_NOT_FOUND 4
-#define GRPC_FUNCTION_NOT_FOUND 5
-#define GRPC_INVALID_FUNCTION_HANDLE 6
-#define GRPC_INVALID_SESSION_ID 7
-#define GRPC_RPC_REFUSED 8
-#define GRPC_COMMUNICATION_FAILED 9
-#define GRPC_SESSION_FAILED 10
-#define GRPC_NOT_COMPLETED 11
-#define GRPC_NONE_COMPLETED 12
-#define GRPC_OTHER_ERROR_CODE 13
-#define GRPC_UNKNOWN_ERROR_CODE 14
-#define GRPC_ALREADY_INITIALIZED 15
-#define GRPC_LAST_ERROR_CODE 16 
+    #define GRPC_NO_ERROR 0
+    #define GRPC_NOT_INITIALIZED 1
+    #define GRPC_CONFIGFILE_NOT_FOUND 2
+    #define GRPC_CONFIGFILE_ERROR 3
+    #define GRPC_SERVER_NOT_FOUND 4
+    #define GRPC_FUNCTION_NOT_FOUND 5
+    #define GRPC_INVALID_FUNCTION_HANDLE 6
+    #define GRPC_INVALID_SESSION_ID 7
+    #define GRPC_RPC_REFUSED 8
+    #define GRPC_COMMUNICATION_FAILED 9
+    #define GRPC_SESSION_FAILED 10
+    #define GRPC_NOT_COMPLETED 11
+    #define GRPC_NONE_COMPLETED 12
+    #define GRPC_OTHER_ERROR_CODE 13
+    #define GRPC_UNKNOWN_ERROR_CODE 14
+    #define GRPC_ALREADY_INITIALIZED 15
+    #define GRPC_LAST_ERROR_CODE 16 
   */
 
   // if error represents a failed session, save the request ID in the
