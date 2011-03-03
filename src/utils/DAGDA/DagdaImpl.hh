@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.32  2011/03/03 00:23:10  bdepardo
+ * Resolved a few fix me
+ *
  * Revision 1.31  2010/12/17 09:48:01  kcoulomb
  * * Set diet to use the new log with forwarders
  * * Fix a CoRI problem
@@ -309,12 +312,22 @@ public:
   }
   void freeDiskSpace(size_t size) {
     usedDiskSpaceMutex.lock();
-    usedDiskSpace -= size; // FIXME maybe check if not going below 0
+    if (usedDiskSpace < size) {
+      WARNING("Used disk space will be negative. Setting it to 0.");
+      usedDiskSpace = 0;
+    } else {
+      usedDiskSpace -= size;
+    }
     usedDiskSpaceMutex.unlock();
   }
   void freeMemSpace(size_t size) {
     usedMemSpaceMutex.lock();
-    usedMemSpace -= size;
+    if (usedMemSpace < size) {
+      WARNING("Used memory space will be negative. Setting it to 0.");
+      usedMemSpace = 0;
+    } else {
+      usedMemSpace -= size;
+    }
     usedMemSpaceMutex.unlock();
   }
   std::map<std::string, Dagda_ptr>* getChildren() { return &children; }

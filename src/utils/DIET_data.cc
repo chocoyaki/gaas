@@ -8,8 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.72  2011/03/03 00:23:09  bdepardo
+ * Resolved a few fix me
+ *
  * Revision 1.71  2011/03/02 23:57:50  bdepardo
- * Removed a FIXME and cleaned commented code
+ * Removed a fix me and cleaned commented code
  *
  * Revision 1.70  2010/10/17 15:38:39  bdepardo
  * More explicit message in diet_paramstring_set when a NULL pointer is passed

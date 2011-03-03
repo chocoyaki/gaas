@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.73  2011/03/03 00:23:11  bdepardo
+ * Resolved a few fix me
+ *
  * Revision 1.72  2011/02/24 16:57:02  bdepardo
  * Use new parser
  *
@@ -353,7 +356,6 @@ MasterAgentImpl::run()
   reqIDCounter = ((reqIDCounter & 0xFFFFF) ^ ((reqIDCounter >> 12) & 0xFFF))
     * 1000 ;
 
-  /* FIXME: initRequestID is not managed in the .cfg yet */
   TRACE_TEXT(TRACE_ALL_STEPS, "Getting MAs references ..." << std::endl);
 
   /* get the list of neighbours */
@@ -770,7 +772,7 @@ MasterAgentImpl::handShake(const char* maName, const char* myName)
 	       << knownMAs.size() << "/" << maxMAlinks << ")" << std::endl) ;
     MasterAgent_ptr me =
 	ORBMgr::getMgr()->resolve<MasterAgent, MasterAgent_ptr>(AGENTCTXT,maName);
-    /* FIXME: There is probably a cleaner way to find if to IOR are equal */
+    /* FIXME: There is probably a cleaner way to find if two IOR are equal */
     string myior = ORBMgr::getMgr()->getIOR(_this());
     string hisior = ORBMgr::getMgr()->getIOR(me);
     if (myior==hisior) {

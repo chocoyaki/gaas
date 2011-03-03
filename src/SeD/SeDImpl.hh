@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.52  2011/03/03 00:23:11  bdepardo
+ * Resolved a few fix me
+ *
  * Revision 1.51  2010/12/17 09:47:59  kcoulomb
  * * Set diet to use the new log with forwarders
  * * Fix a CoRI problem
@@ -487,9 +490,6 @@ private:
   /** Use of FAST */
   // size_t --> unsigned int
   unsigned int fastUse;
-
-  /* Fast calls mutex, this should be used until FAST becomes reentrant */
-  omni_mutex fastMutex; //FIXME : is never in use!!
 #endif //!HAVE_CORI && HAVE_FAST
 
 #ifdef USE_LOG_SERVICE

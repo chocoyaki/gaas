@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.56  2011/03/03 00:23:11  bdepardo
+ * Resolved a few fix me
+ *
  * Revision 1.55  2011/02/24 16:57:02  bdepardo
  * Use new parser
  *
@@ -390,8 +393,8 @@ int main(int argc, char* argv[], char *envp[]) {
     ins(level);
   }
 
-  /* FIXME: Copy the arguments in a temporary vector, as it 
-   * seems to be modified by ORBMgr::init
+  /* Copy the arguments in a temporary vector, as it 
+   * is modified by ORBMgr::init
    */
   argsTmp = args;
 

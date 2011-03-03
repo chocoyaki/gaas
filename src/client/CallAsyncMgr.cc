@@ -8,8 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.34  2011/03/03 00:23:11  bdepardo
+ * Resolved a few fix me
+ *
  * Revision 1.33  2011/03/02 23:48:12  bdepardo
- * Fixed a FIXME
+ * Fixed a fix me
  *
  * Revision 1.32  2011/02/10 23:19:01  hguemar
  * fixes some issues detected by latest cppcheck (1.47)
