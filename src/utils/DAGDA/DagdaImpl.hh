@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.33  2011/03/03 00:29:46  bdepardo
+ * Add missing include
+ *
  * Revision 1.32  2011/03/03 00:23:10  bdepardo
  * Resolved a few fix me
  *
@@ -73,6 +76,7 @@
 
 #include "Forwarder.hh"
 #include "DagdaFwdr.hh"
+#include "debug.hh"
 
 #include <omnithread.h>
 
