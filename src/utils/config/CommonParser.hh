@@ -1,3 +1,19 @@
+/****************************************************************************/
+/* Parser common utilities                                                  */
+/*                                                                          */
+/*  Author(s):                                                              */
+/*    - Haikel Guemar (haikel.guemard@sysfera.com)                          */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+/* $Id$
+ * $Log$
+ * Revision 1.4  2011/03/03 11:55:52  bdepardo
+ * Add missing headers
+ *
+ ****************************************************************************/
+
+
 #ifndef _COMMON_PARSER_HH_
 #define _COMMON_PARSER_HH_
 

@@ -1,3 +1,19 @@
+/****************************************************************************/
+/* Configuration manager                                                    */
+/*                                                                          */
+/*  Author(s):                                                              */
+/*    - Haikel Guemar (haikel.guemard@sysfera.com)                          */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+/* $Id$
+ * $Log$
+ * Revision 1.7  2011/03/03 11:55:52  bdepardo
+ * Add missing headers
+ *
+ ****************************************************************************/
+
+
 #ifndef _CONFIGURATION_HH_
 #define _CONFIGURATION_HH_
 

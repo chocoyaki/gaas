@@ -1,3 +1,19 @@
+/****************************************************************************/
+/* Environment variables parser                                             */
+/*                                                                          */
+/*  Author(s):                                                              */
+/*    - Haikel Guemar (haikel.guemard@sysfera.com)                          */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+/* $Id$
+ * $Log$
+ * Revision 1.3  2011/03/03 11:55:52  bdepardo
+ * Add missing headers
+ *
+ ****************************************************************************/
+
+
 #include "EnvParser.hh"
 #include "CommonParser.hh"
 

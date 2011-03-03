@@ -1,3 +1,19 @@
+/****************************************************************************/
+/* Command line exceptions                                                  */
+/*                                                                          */
+/*  Author(s):                                                              */
+/*    - Haikel Guemar (haikel.guemard@sysfera.com)                          */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+/* $Id$
+ * $Log$
+ * Revision 1.2  2011/03/03 11:55:52  bdepardo
+ * Add missing headers
+ *
+ ****************************************************************************/
+
+
 #ifndef _CMD_EXCEPTION_HH_
 #define _CMD_EXCEPTION_HH_
 
