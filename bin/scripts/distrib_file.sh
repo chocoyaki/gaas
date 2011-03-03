@@ -9,6 +9,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.9  2011/03/03 12:02:24  bdepardo
+#* Update distribution files list and copyright
+#*
 #* Revision 1.8  2008/07/16 13:15:55  ecaron
 #* New template for the Licence
 #*
@@ -150,14 +153,16 @@ do
            ${VERSION}. >> $OUT_FILE
     cat >> $OUT_FILE << EOF
 $OPC                                                                        $CLC
-$OPC Copyright ENS Lyon, INRIA, UCBL (2000)                                 $CLC
+$OPC Copyright ENS Lyon, INRIA, UCBL, SysFera (2000)                        $CLC
 $OPC                                                                        $CLC
 $OPC - Frederic.Desprez@ens-lyon.fr (Project Manager)                       $CLC
 $OPC - Eddy.Caron@ens-lyon.fr (Technical Manager)                           $CLC
-$OPC - Yves.Caniou@ens-lyon.fr (Permanent Contributor)                      $CLC
+$OPC - Tech@sysfera.com (Maintainer and Technical Support)                  $CLC
 $OPC                                                                        $CLC
-$OPC This software is a computer program whose purpose is to [describe      $CLC
-$OPC functionalities and technical features of your software].              $CLC
+$OPC This software is a computer program whose purpose is to provide an     $CLC
+$OPC easy and transparent access to distributed and heterogeneous           $CLC
+$OPC platforms.                                                             $CLC
+$OPC                                                                        $CLC
 $OPC                                                                        $CLC
 $OPC This software is governed by the CeCILL license under French law and   $CLC
 $OPC abiding by the rules of distribution of free software.  You can  use,  $CLC

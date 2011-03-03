@@ -17,6 +17,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.62  2011/03/03 12:02:24  bdepardo
+#* Update distribution files list and copyright
+#*
 #* Revision 1.61  2011/03/03 11:13:54  bdepardo
 #* Update changelog and distribution file list
 #*
@@ -993,7 +996,7 @@ src/Testing/cfgs/client_false_config_file_MA.cfg
 src/Testing/cfgs/client_no_MA_Name.cfg
 src/Testing/cfgs/client_parse_error_1.cfg
 src/Testing/cfgs/client_parse_error_2.cfg
-src/Testing/cfgs/omniORB4.cfg.in
+src/Testing/cfgs/omniORB4_testing.cfg.in
 src/Testing/src/CMakeLists.txt
 src/Testing/src/allocation/CMakeLists.txt
 src/Testing/src/allocation/DIETErrorStringTests.cpp
@@ -1167,7 +1170,6 @@ doc/ExternalExample/Cmake/FindDiet.cmake
 [Devel_Untemplated]
 doc/ProgrammersGuide/CMakeLists.txt
 doc/ProgrammersGuide/ProgrammersGuide.pdf
-doc/ProgrammersGuide/CMakeLists.txt
 doc/ProgrammersGuide/fig/CallAsyncProbeSequenceDiagram1.png
 doc/ProgrammersGuide/fig/CallAsyncSequenceDiagram.png
 doc/ProgrammersGuide/fig/CallAsyncWaitSequenceDiagram.png
@@ -1214,8 +1216,8 @@ doc/UsersFAQ.pdf
 # doc/man section
 [Devel_untemplated]
 doc/man/CMakeLists.txt
-doc/dietAgent.rst
-doc/dietForwarder.rst
+doc/man/dietAgent.rst
+doc/man/dietForwarder.rst
 
 [Untemplated]
 doc/man/dietAgent.1
