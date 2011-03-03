@@ -5,8 +5,8 @@
 * Features:
 
 	- dietAgent now has command line help (./dietAgent --help)
-	- You can now use ctrl+c to correctly kill the agents and the SeDs
-	- Manpages
+	- SIGINT and SIGTERM can be used to properly kill the agents and
+	the SeDs
 	
 * Source code organization:
 

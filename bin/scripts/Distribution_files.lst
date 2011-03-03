@@ -17,6 +17,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.61  2011/03/03 11:13:54  bdepardo
+#* Update changelog and distribution file list
+#*
 #* Revision 1.60  2011/02/25 12:07:24  bdepardo
 #* Update for 2.6.1
 #*
@@ -971,7 +974,7 @@ src/lib/licenses/junit-license.txt
 src/lib/licenses/log4j-license.txt
 src/lib/licenses/saxpath-license.txt
 
-# Section TESTING (equivalent d'un make test donc dans release user):
+# Section TESTING (make test donc dans release user):
 [Untemplated]
 src/Testing/CMakeLists.txt
 src/Testing/KillOmniORB.sh
@@ -981,16 +984,15 @@ src/Testing/TestORBMgrInit.cxx
 src/Testing/CTestConfig.cmake
 src/Testing/README
 src/Testing/cfgs/CMakeLists.txt
-src/Testing/cfgs/SeD.cfg
-src/Testing/cfgs/agent.cfg
-src/Testing/cfgs/client.cfg
+src/Testing/cfgs/SeD_testing.cfg.in
+src/Testing/cfgs/master_agent_testing.cfg.in
+src/Testing/cfgs/local_agent_testing.cfg.in
+src/Testing/cfgs/client_testing.cfg.in
 src/Testing/cfgs/client_false_MA_Name.cfg
 src/Testing/cfgs/client_false_config_file_MA.cfg
 src/Testing/cfgs/client_no_MA_Name.cfg
 src/Testing/cfgs/client_parse_error_1.cfg
 src/Testing/cfgs/client_parse_error_2.cfg
-src/Testing/cfgs/diet-agent.launch.in
-src/Testing/cfgs/omniNames.launch.in
 src/Testing/cfgs/omniORB4.cfg.in
 src/Testing/src/CMakeLists.txt
 src/Testing/src/allocation/CMakeLists.txt
@@ -1002,13 +1004,20 @@ src/Testing/src/client/DIETSimpleAsyncClientTests.cpp
 src/Testing/src/client/DIETSimpleClientTests.cpp
 src/Testing/src/client/DIETSimpleSyncClientTests.cpp
 src/Testing/src/common/CMakeLists.txt
-src/Testing/src/common/GTestHook.hpp
 src/Testing/src/common/SimpleAddSeD.cpp
 src/Testing/src/common/TestRunner.cpp
 src/Testing/src/common/config_tests.h.in
 src/Testing/src/common/fixtures.hpp
 src/Testing/src/common/utils.cpp
 src/Testing/src/common/utils.hpp
+src/Testing/src/data/CMakeLists.txt
+src/Testing/src/data/DIETAllMatricesDataTransfersTests.cpp
+src/Testing/src/data/DIETAllScalarsDataTransfersTests.cpp
+src/Testing/src/data/DIETAllVectorsDataTransfersTests.cpp
+src/Testing/src/data/DIETContainersDataTransfersTests.cpp
+src/Testing/src/data/DIETFilesDataTransfersTests.cpp
+src/Testing/src/data/DIETParamstringsDataTransfersTests.cpp
+src/Testing/src/data/DIETStringsDataTransfersTests.cpp
 src/Testing/src/initialization/CMakeLists.txt
 src/Testing/src/initialization/DIETBadInitializationTests.cpp
 src/Testing/src/initialization/DIETMultipleInitializationAndCallTests.cpp
@@ -1016,13 +1025,7 @@ src/Testing/src/initialization/DIETMultipleInitializationTests.cpp
 src/Testing/src/initialization/DIETNoCorbaTests.cpp
 src/Testing/src/initialization/DIETNoInitializationTests.cpp
 src/Testing/src/initialization/DIETSimpleInitializationTests.cpp
-src/Testing/src/initialization2/CMakeLists.txt
-src/Testing/src/initialization2/DIETBadInitializeTests.cpp
-src/Testing/src/initialization2/DIETNoCorbaTests.cpp
-src/Testing/src/initialization2/DIETNoInitializeTests.cpp
-src/Testing/src/initialization2/DIETSimpleInitializeTests.cpp
-src/Testing/src/sample/CMakeLists.txt
-src/Testing/src/sample/sample1.cc
+src/Testing/third-party/process/boost/process.hpp
 src/Testing/third-party/process/boost/process/all.hpp
 src/Testing/third-party/process/boost/process/child.hpp
 src/Testing/third-party/process/boost/process/config.hpp
@@ -1047,7 +1050,6 @@ src/Testing/third-party/process/boost/process/detail/posix_helpers.hpp
 src/Testing/third-party/process/boost/process/detail/status_impl.hpp
 src/Testing/third-party/process/boost/process/detail/systembuf.hpp
 src/Testing/third-party/process/boost/process/detail/windows_helpers.hpp
-src/Testing/third-party/process/boost/
 src/Testing/workflows/README
 src/Testing/workflows/data_inout_sink.xml
 src/Testing/workflows/data_loop.xml
