@@ -426,7 +426,7 @@ if (DIET_USE_LOG)
   find_package (LOGSERVICE)
   if (LOGSERVICE_FOUND)
     add_definitions(-DUSE_LOG_SERVICE)
-  else(LOGSERIVCE_FOUND)
+  else(LOGSERVICE_FOUND)
   set(LOGSERVICE_DIR "" CACHE PATH "Root of log service install tree.")
   endif (LOGSERVICE_FOUND)
   
