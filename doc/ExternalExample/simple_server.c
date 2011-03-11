@@ -6,16 +6,19 @@ int service( diet_profile_t* pb )
 {
    printf( "### Entering service function.\n" );
    int res = 0;
-   long *sleepTime= NULL;
-   long outsleepTime;
+   long *sleepTime    = NULL;
+   long *outsleepTime = NULL;
    diet_scalar_get( diet_parameter( pb, 0),
                     &sleepTime,
                     NULL);
-   outsleepTime = *sleepTime;
-   printf( "Time to Sleep =%ld ms", outsleepTime );
-   usleep( outsleepTime * 1000 );
+   diet_scalar_get( diet_parameter( pb, 1),
+                    &outsleepTime,
+                    NULL);
+   *outsleepTime = *sleepTime;
+   printf( "Time to Sleep =%ld ms", *outsleepTime );
+   usleep( *outsleepTime * 1000 );
    diet_scalar_desc_set( diet_parameter( pb, 1),  
-                         &outsleepTime);
+                         outsleepTime);
    printf( "### Exiting service function.\n" );
    return res;
 }

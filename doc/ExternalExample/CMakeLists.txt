@@ -1,5 +1,7 @@
 PROJECT( DIETSIMPLEEXAMPLE )
 
+cmake_minimum_required(VERSION 2.6)
+
 # This example needs the FindDiet.cmake package detection script. We placed
 # this script in the Cmake sub-directory:
 SET( CMAKE_MODULE_PATH ${DIETSIMPLEEXAMPLE_SOURCE_DIR}/Cmake )

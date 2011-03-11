@@ -17,11 +17,11 @@
 # DIET_DIR      - The directory containing DIETConfig.cmake. This is either
 #                 the share sub-directory of the root of a build tree, or
 #                 the share sub-directory a Diet's installation directory.
-#                 Hence, DIET_DIR + "/share/DietConfig.cmake" = DIET_USE_FILE
+#                 Hence, DIET_DIR + "/share/cmake/Modules/DietConfig.cmake" = DIET_USE_FILE
 # DIET_FOUND    - Whether DIET was found. If this is true, DIET_DIR is okay.
 #
 
-SET( DIET_DIR_STRING "directory containing the file share/DietConfig.cmake. This is either the root of the build tree, or PREFIX of an installation." )
+SET( DIET_DIR_STRING "directory containing the file share/cmake/Modules/DietConfig.cmake. This is either the root of the build tree, or PREFIX of an installation." )
 SET( DIET_FOUND_STRING "Whether a Diet installation was found." )
 
 IF( NOT DIET_DIR )
@@ -37,11 +37,11 @@ IF( NOT DIET_DIR )
   ##### Construct a set of paths relative to the system search path.
   SET( DIET_DIR_SEARCH "" )
   FOREACH( dir ${DIET_DIR_SEARCH2} )
-    SET( DIET_DIR_SEARCH ${DIET_DIR_SEARCH} "${dir}/../share" )
+    SET( DIET_DIR_SEARCH ${DIET_DIR_SEARCH} "${dir}/../share/cmake/Modules/" )
   ENDFOREACH( dir )
 
   ##### Look for an installation or build tree.
-  FIND_PATH( DIET_DIR share/DietConfig.cmake
+  FIND_PATH( DIET_DIR share/cmake/Modules/DietConfig.cmake
     # Look for an environment variable DIET_DIR.
     $ENV{DIET_DIR}
 
@@ -63,16 +63,17 @@ IF( NOT DIET_DIR )
 
 ELSE( NOT DIET_DIR )
   ##### An indicative DIET_DIR was provided: check it
-  IF( EXISTS ${DIET_DIR}/share/DietConfig.cmake )
+  IF( EXISTS ${DIET_DIR}/share/cmake/Modules/DietConfig.cmake )
     SET( DIET_FOUND TRUE CACHE BOOL ${DIET_FOUND_STRING} FORCE )
-  ELSE( EXISTS ${DIET_DIR}/share/DietConfig.cmake )
+  ELSE( EXISTS ${DIET_DIR}/share/cmake/Modules/DietConfig.cmake )
     SET( DIET_FOUND FALSE CACHE BOOL ${DIET_FOUND_STRING} FORCE )
-  ENDIF( EXISTS ${DIET_DIR}/share/DietConfig.cmake )
+  ENDIF( EXISTS ${DIET_DIR}/share/cmake/Modules/DietConfig.cmake )
 ENDIF( NOT DIET_DIR )
+
 
 IF( DIET_FOUND )
   MARK_AS_ADVANCED( DIET_FOUND )
-  SET( DIET_USE_FILE ${DIET_DIR}/share/DietConfig.cmake
+  SET( DIET_USE_FILE ${DIET_DIR}/share/cmake/Modules/DietConfig.cmake
        CACHE STRING "Full (with path) filename of DietConfig.cmake."  )
   MARK_AS_ADVANCED( DIET_USE_FILE )
   # Load the file to check if everything is fine:
