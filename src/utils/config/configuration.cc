@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2011/03/11 11:25:47  bdepardo
+ * Fixed a problem in configuration parser. The agent type was not correctly
+ * parsed.
+ *
  * Revision 1.6  2011/03/07 15:34:55  hguemar
  * fix typo in mail address
  *
@@ -17,10 +21,11 @@
  ****************************************************************************/
 
 
-#include "configuration.hh"
-#include "constants.hh"
 #include <regex.h>
 #include <stdexcept>
+
+#include "configuration.hh"
+#include "constants.hh"
 
 const std::string simple_cast_traits<std::string>::zero_value = "";
 
@@ -56,16 +61,18 @@ getAddressConfigValue(diet::param_type_t param, std::string& value) {
   if (configPtr->end() == it) {
     return false;
   } else {
-    std::string& value = it->second;
+    std::string val = it->second;
     regex_t *preg = new regex_t;
     // check that our address is properly formatted host:port
     // if not return an empty string
     regcomp(preg, "^[-_.a-zA_Z0-9]+?:[0-9]+$", REG_EXTENDED | REG_NOSUB);
-    int res = regexec(preg, value.c_str(), 0, 0, 0);
+    int res = regexec(preg, val.c_str(), 0, 0, 0);
     if( res != 0 ) {
       return false;
     }
     delete preg;
+
+    value = val;
     return true;
   }
 }
@@ -84,13 +91,14 @@ getAgentConfigValue(diet::param_type_t param, std::string& value) {
   if (configPtr->end() == it) {
     return false;
   } else {
-    std::string& value = it->second;
-    if( (value == "LA") ||
-        (value == "DIET_LOCAL_AGENT") ||
-	(value == "MA") ||
-	(value == "DIET_MASTER_AGENT") ||
-	(value == "MA_DAG") ||
-	(value == "DIET_MA_DAG")) {
+    std::string& val = it->second;
+    if( (val == "LA") ||
+        (val == "DIET_LOCAL_AGENT") ||
+	(val == "MA") ||
+	(val == "DIET_MASTER_AGENT") ||
+	(val == "MA_DAG") ||
+	(val == "DIET_MA_DAG")) {
+      value = val;
     } else {
       // FIXME: unknown agent type
       // actually throw an exception but might not be an appropriate behavior

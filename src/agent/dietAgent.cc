@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.57  2011/03/11 11:25:48  bdepardo
+ * Fixed a problem in configuration parser. The agent type was not correctly
+ * parsed.
+ *
  * Revision 1.56  2011/03/03 00:23:11  bdepardo
  * Resolved a few fix me
  *
@@ -187,6 +191,7 @@
 #include <algorithm>
 #include <iostream>
 #include <string>
+#include <stdexcept>
 
 using namespace std;
 #include "ExitClass.hh"
@@ -343,7 +348,11 @@ int main(int argc, char* argv[], char *envp[]) {
 
   /* get parameters: agentType and name */
   std::string agentType = "MA";
-  CONFIG_AGENT(diet::AGENTTYPE, agentType);
+  try {
+    CONFIG_AGENT(diet::AGENTTYPE, agentType);
+  } catch (std::runtime_error &e) {
+    ERROR(e.what(), 1);
+  }
   //std::string& agentName = CONFIG_STRING("name"]; // UNUSED ?
   std::string parentName = "";
   bool hasParentName = CONFIG_STRING(diet::PARENTNAME, parentName);
