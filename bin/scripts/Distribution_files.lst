@@ -17,6 +17,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.63  2011/03/15 18:07:05  bdepardo
+#* Add missing file
+#*
 #* Revision 1.62  2011/03/03 12:02:24  bdepardo
 #* Update distribution files list and copyright
 #*
@@ -732,6 +735,7 @@ src/examples/cfgs/LA3.cfg.in
 src/examples/cfgs/MA1.cfg.in
 src/examples/cfgs/MA2.cfg.in
 src/examples/cfgs/MA3.cfg.in
+src/examples/cfgs/MA_DAG.cfg.in
 src/examples/cfgs/SeD.cfg.in
 src/examples/cfgs/SeD1.cfg.in
 src/examples/cfgs/SeD2.cfg.in
@@ -739,11 +743,8 @@ src/examples/cfgs/SeD3.cfg.in
 src/examples/cfgs/SeD_batch.cfg.in
 src/examples/cfgs/SeD_cloud.cfg
 src/examples/cfgs/base.ldif
-src/examples/cfgs/client.cfg
 src/examples/cfgs/client.cfg.in
-src/examples/cfgs/client_wf.cfg
 src/examples/cfgs/client_wf.cfg.in
-src/examples/cfgs/omniORB3.cfg
 src/examples/cfgs/omniORB4.cfg.in
 src/examples/cfgs/plus_mult_dgemm.ldif.in
 src/examples/cfgs/slapd.cfg
