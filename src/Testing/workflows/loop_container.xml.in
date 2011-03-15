@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE workflow SYSTEM "/Users/bdepardo/soft/Diet/etc/FWorkflow.dtd">
+<!DOCTYPE workflow SYSTEM "@WF_DTD_NATIVE_PATH@">
 
 <workflow>
   <interface>

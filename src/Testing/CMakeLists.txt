@@ -37,6 +37,7 @@ if( BUILD_TESTING )
   set( BIN_DIR ${PROJECT_BINARY_DIR}/bin )
   set( CONFIG_DIR ${PROJECT_BINARY_DIR}/etc )
   set( EXECUTABLE_OUTPUT_PATH ${BIN_DIR} )
+  set( WF_XML_DIR ${PROJECT_BINARY_DIR}/test_workflows )
 
   IF ( DIET_USE_DAGDA )
     SET( DIET_CLIENT_LIBRARIES DIET_client DIET_Dagda)
@@ -73,6 +74,7 @@ if( BUILD_TESTING )
  
 
   add_subdirectory(cfgs)
+  add_subdirectory(workflows)
   add_subdirectory(src)
 
 endif( BUILD_TESTING )
