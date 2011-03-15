@@ -209,6 +209,67 @@ public:
 };
 
 
+template <const char *config,  class parentFixture>
+class DietMADAGFixture : public parentFixture
+{
+  boost::scoped_ptr<bp::child> processMADAG;
+
+public:
+  DietMADAGFixture() : processMADAG(NULL) {
+    BOOST_TEST_MESSAGE( "== Test setup [BEGIN]:  Launching DIET maDagAgent (config file: "
+                        << config << ") ==" );
+	
+    std::string exec;
+    try {
+      exec = bp::find_executable_in_path("maDagAgent", DIETMADAG_DIR);
+    } catch (bs::system_error& e) {
+      BOOST_TEST_MESSAGE( "can't find maDagAgent: " << e.what() );
+      return;
+    }
+        
+    BOOST_TEST_MESSAGE( "maDagAgent found: " << exec );
+	
+    // setup maDagAgent environment
+    bp::context ctx;
+    ctx.process_name = "maDagAgent";
+    bp::environment::iterator i_c;
+    i_c = ctx.env.find(ENV_LIBRARY_PATH_NAME);
+    if (i_c != ctx.env.end()) {
+      i_c->second = std::string(ENV_LIBRARY_PATH) + i_c->second;
+    } else {
+      ctx.env[ENV_LIBRARY_PATH_NAME] = ENV_LIBRARY_PATH;
+    }
+    ctx.env["OMNINAMES_LOGDIR"] = OMNINAMES_LOGDIR;
+    ctx.env["OMNIORB_CONFIG"] = OMNIORB_CONFIG;
+
+    // redirect output to /dev/null
+    ctx.streams[bp::stdout_id] = bp::behavior::null();
+    ctx.streams[bp::stderr_id] = bp::behavior::null();
+
+
+    // setup maDagAgent arguments
+    std::vector<std::string> args = ba::list_of(config);
+
+    // launch diet maDagAgent
+    const bp::child c = bp::create_child(exec, args, ctx);
+
+    processMADAG.reset(utils::copy_child(c));
+    boost::this_thread::sleep(boost::posix_time::milliseconds(SLEEP_TIME));
+    BOOST_TEST_MESSAGE( "== Test setup [END]: Launching DIET maDagAgent ==" );
+  }	
+    
+  ~DietMADAGFixture() {
+    BOOST_TEST_MESSAGE( "== Test teardown [BEGIN]: Stopping DIET maDagAgent ==" );
+    if (processMADAG) {
+      processMADAG->terminate();
+      processMADAG->wait();
+    }
+    boost::this_thread::sleep(boost::posix_time::milliseconds(SLEEP_TIME));
+    BOOST_TEST_MESSAGE( "== Test teardown [END]: Stopping DIET maDagAgent ==" );
+  }
+};
+
+
 // generic SeD fixture
 template <const char *name, const char *binDir, const char *config, class AgentParent>
 class DietSeDFixture : public AgentParent
@@ -288,8 +349,10 @@ public:
 // should be a primitive type with an identifier name
 char ConfigMasterAgent[] = MASTER_AGENT_CONFIG;
 char ConfigLocalAgent[]  = LOCAL_AGENT_CONFIG;
+char ConfigMADAG[]  = MADAG_CONFIG;
 typedef DietAgentFixture<ConfigMasterAgent, OmniNamesFixture> DietMAFixture;
 typedef DietAgentFixture<ConfigLocalAgent, DietMAFixture> DietLAFixture;
+typedef DietMADAGFixture<ConfigMADAG, DietLAFixture> DietMADAGFixtureLA;
 
 char SimpleAddSeD[] = "SimpleAddSeD";
 char ConfigSimpleAddSeD[] = SIMPLE_ADD_SED_CONFIG;
@@ -299,5 +362,6 @@ typedef DietSeDFixture <SimpleAddSeD, SimpleAddSeDBinDir, ConfigSimpleAddSeD, Di
 char AllDataTransferAddSeD[] = "transfers_server";
 char AllDataTransferBinDir[] = EXAMPLES_DIR "/allDataTransfers";
 typedef DietSeDFixture <AllDataTransferAddSeD, AllDataTransferBinDir, ConfigSimpleAddSeD, DietLAFixture>AllDataTransferSeDFixture;
+typedef DietSeDFixture <AllDataTransferAddSeD, AllDataTransferBinDir, ConfigSimpleAddSeD, DietMADAGFixtureLA>AllDataTransferSeDFixtureWF;
 
 #endif /* FIXTURES_HPP_ */

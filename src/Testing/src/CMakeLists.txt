@@ -17,5 +17,7 @@ add_subdirectory( allocation )
 add_subdirectory( client )
 add_subdirectory( data )
 add_subdirectory( initialization )
+add_subdirectory( workflow )
+
 #add_subdirectory( initialization2 )
 #add_subdirectory( sample )
