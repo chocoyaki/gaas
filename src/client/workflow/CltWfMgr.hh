@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.24  2011/03/15 22:51:02  bdepardo
+ * Code cleanup and indentation
+ *
  * Revision 1.23  2010/12/17 09:48:00  kcoulomb
  * * Set diet to use the new log with forwarders
  * * Fix a CoRI problem
@@ -139,7 +142,7 @@ class MetaDag;
 using namespace std;
 
 class CltWfMgr : public POA_CltMan,
-public PortableServer::RefCountServantBase{
+                 public PortableServer::RefCountServantBase{
 public:
   /**
    * Executes a node on a specified Sed (CORBA method)
@@ -288,37 +291,37 @@ public:
   /**
    * Get a scalar result from a dag
    */
-	int
-	getWfOutputScalar(diet_wf_desc_t* profile,
-										const char * id,
-										void** value);
+  int
+  getWfOutputScalar(diet_wf_desc_t* profile,
+                    const char * id,
+                    void** value);
 	
   /**
    * Get a string result from a dag
    */
-	int
-	getWfOutputString(diet_wf_desc_t* profile,
-										const char * id,
-										char** value);
+  int
+  getWfOutputString(diet_wf_desc_t* profile,
+                    const char * id,
+                    char** value);
 	
   /**
    * Get a file result from a dag
    */
-	int
-	getWfOutputFile(diet_wf_desc_t* profile,
-									const char * id,
-									size_t* size, char** path);
+  int
+  getWfOutputFile(diet_wf_desc_t* profile,
+                  const char * id,
+                  size_t* size, char** path);
 	
   /**
    * Get a matrix result from a dag
    */
-	int
-	getWfOutputMatrix(diet_wf_desc_t* profile,
-										const char * id,
-										void** value,
-										size_t* nb_rows,
-										size_t *nb_cols,
-										diet_matrix_order_t* order);
+  int
+  getWfOutputMatrix(diet_wf_desc_t* profile,
+                    const char * id,
+                    void** value,
+                    size_t* nb_rows,
+                    size_t *nb_cols,
+                    diet_matrix_order_t* order);
 	
   /**
    * Get a container result from a dag
@@ -346,7 +349,7 @@ public:
   wf_free(diet_wf_desc_t * profile);
 	
 private:
-	std::string name;
+  std::string name;
   /***************************************************************************/
   /*                           PRIVATE methods                               */
   /***************************************************************************/
@@ -366,8 +369,8 @@ private:
    * Return the object IOR
    */
   /*const char *
-	 myIOR();*/
-	const string& myName() const;
+    myIOR();*/
+  const string& myName() const;
 	
 	
   /**
@@ -382,29 +385,29 @@ private:
    * Initialize status for functional workflow
    */
   void
-	initDagStatus(FWorkflow* wf);
+  initDagStatus(FWorkflow* wf);
 	
   /**
    * Set the dag status regarding dags sent for a given functional workflow
    */
   void
-	setWfSubmissionComplete(FWorkflow* wf);
+  setWfSubmissionComplete(FWorkflow* wf);
 	
   /**
    * Get the status regarding dags sent for a given functional workflow
    */
   bool
-	isWfSubmissionComplete(FWorkflow* wf);
+  isWfSubmissionComplete(FWorkflow* wf);
 	
   /**
    * Common part of node execution
    */
   CORBA::Long
-	execNodeCommon(const char * node_id,
-								 const char * dag_id,
-								 const char * sed,
-								 const CORBA::ULong reqID,
-								 corba_estimation_t& ev);
+  execNodeCommon(const char * node_id,
+                 const char * dag_id,
+                 const char * sed,
+                 const CORBA::ULong reqID,
+                 corba_estimation_t& ev);
 	
   /**
    * Common part of the dag submission
@@ -415,7 +418,7 @@ private:
    * @param release will close the wfReqId on MaDag side if set to true
    */
   diet_error_t
-	wfDagCallCommon(diet_wf_desc_t *dagProfile, Dag *dag, bool parse, bool release);
+  wfDagCallCommon(diet_wf_desc_t *dagProfile, Dag *dag, bool parse, bool release);
 	
 	
   /***************************************************************************/
@@ -481,7 +484,7 @@ private:
   int dagSentCount;
 	
   /**
-	 * Critical section
+   * Critical section
    */
   omni_mutex myLock;
 	
@@ -499,19 +502,19 @@ private:
 
 /* Forwarder part. */
 class CltWfMgrFwdr : public POA_CltManFwdr,
-	public PortableServer::RefCountServantBase
+                     public PortableServer::RefCountServantBase
 {
 private:
-	Forwarder_ptr forwarder;
-	char* objName;
+  Forwarder_ptr forwarder;
+  char* objName;
 public:
-	CltWfMgrFwdr(Forwarder_ptr fwdr, const char* objName);
+  CltWfMgrFwdr(Forwarder_ptr fwdr, const char* objName);
 	
-	virtual CORBA::Long execNodeOnSed(const char * node_id,
-																		const char * dag_id,
-																		const char * sed,
-																		const CORBA::ULong reqID,
-																		corba_estimation_t& ev);
+  virtual CORBA::Long execNodeOnSed(const char * node_id,
+                                    const char * dag_id,
+                                    const char * sed,
+                                    const CORBA::ULong reqID,
+                                    corba_estimation_t& ev);
 	
   virtual CORBA::Long execNode(const char * node_id, const char * dag_id);
 	
