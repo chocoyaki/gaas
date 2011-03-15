@@ -488,6 +488,13 @@ if (BUILD_TESTING OR DIET_USE_DART)
   # 3/ Dart2 support also requires the ENABLE_TESTING() to be present
   #    and invoked prior to the INCLUDE( CTest ) command (see below).
   enable_testing()
+
+  if ( NOT DIET_BUILD_EXAMPLES )
+    set(DIET_BUILD_EXAMPLES ON CACHE BOOL "Build DIET examples." FORCE)
+    message(WARNING "Examples building was activated.")
+  endif ( NOT DIET_BUILD_EXAMPLES )
+
+
   # For comments on the following CXX_TEST_PATH refer to
   #   http://public.kitware.com/pipermail/cmake/2002-January/002643.html
   if (EXECUTABLE_OUTPUT_PATH)
