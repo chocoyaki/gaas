@@ -58,6 +58,7 @@ public:
 
   ~setDIETEnvFixture() {
     BOOST_TEST_MESSAGE( "== Test teardown [BEGIN]: unsetting environment ==" );
+    boost::this_thread::sleep(boost::posix_time::milliseconds(SLEEP_TIME*2));
     BOOST_TEST_MESSAGE( "== Test teardown [END]: unsetting environment ==" );
   }
 
