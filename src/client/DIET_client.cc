@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.168  2011/03/16 22:20:02  bdepardo
+ * Correclty destroy the CltWfMgr
+ *
  * Revision 1.167  2011/02/28 15:27:57  bdepardo
  * Add try/catch blocks around MA_MUTEX deletion
  *
@@ -860,6 +863,8 @@ diet_finalize() {
 #if HAVE_WORKFLOW
   // Terminate the xerces XML engine
   XMLPlatformUtils::Terminate();
+  // Terminate the CltWfMgr
+  CltWfMgr::terminate();
   MA_DAG = MaDag::_nil();
 #endif // HAVE_WORKFLOW
 
