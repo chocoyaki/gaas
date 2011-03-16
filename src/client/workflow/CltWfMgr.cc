@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.45  2011/03/16 15:08:55  hguemar
+ * replace usleep by nanosleep based-implementation sleep function
+ *
  * Revision 1.44  2011/03/15 22:50:58  bdepardo
  * Code cleanup and indentation
  *
@@ -217,6 +220,15 @@ extern "C" {
 using namespace std;
 using namespace events;
 
+namespace {
+int _usleep(unsigned int useconds) {
+  struct timespec req = {0, 1000 * useconds};
+  struct timespec rem = {0, 0};
+
+  nanosleep(&req, &rem);
+}
+}
+
 
 // Initialisation of static members
 CltWfMgr * CltWfMgr::myInstance = NULL;
@@ -228,7 +240,7 @@ CltWfMgr::execNodeOnSed(const char * node_id,
                         const char * sedName,
                         const CORBA::ULong reqID,
                         corba_estimation_t& ev) {
-	
+
   return execNodeCommon(node_id, dag_id, sedName, reqID, ev);
 }
 
@@ -250,7 +262,7 @@ CltWfMgr::execNodeCommon(const char * node_id,
   } else {
     sed = ORBMgr::getMgr()->resolve<SeD, SeD_var>(SEDCTXT, sedName);
   }
-  
+
   bool isSedDefined = !(sed == SeD::_nil());
   string failureReason;
   FWorkflow* wf;
@@ -277,7 +289,7 @@ CltWfMgr::execNodeCommon(const char * node_id,
 
         if (!node->hasFailed()) {
           LOCK    /** LOCK (conflict with main instanciation thread) */
-            // notify the workflow 
+            // notify the workflow
             if ((wf = node->getWorkflow())) {
               TRACE_TEXT (TRACE_ALL_STEPS,"Checking pending nodes list");
               wf->handlerDagNodeDone(node);
@@ -320,7 +332,7 @@ CltWfMgr::CltWfMgr(const string& name) :
 #endif
   this->myLS = WfLogService::_nil();
   gettimeofday(&this->refTime, NULL); // init reference time
-  
+
   /** EVENT MGMT **/
   fstream * logfilehdl = new fstream("cltwfmgr.out", fstream::out);
   EventLogger* myLog = new EventLogger(*logfilehdl, EventBase::INFO);
@@ -332,10 +344,10 @@ CltWfMgr::instance() {
   if (myInstance == NULL) {
     ostringstream os;
     char host[256];
-		
+
     gethostname(host, 256);
     host[255]='\0';
-		
+
     os << "CltWfMgr-" << host << "-" << getpid();
     myInstance = new CltWfMgr(os.str());
     ORBMgr::getMgr()->activate(myInstance);
@@ -376,7 +388,7 @@ void
 CltWfMgr::setWfLogService(WfLogService_var logService) {
   TRACE_TEXT(TRACE_MAIN_STEPS, "CltWfMgr:: log service initialized" << endl);
   this->myLS = logService;
-  
+
   // INITIALIZE EVENT DISPATCHER FOR THE WFLOGSERVICE
   fstream * dispatchFilehdl = new fstream("cltwfmgr_dispatch.out", fstream::out);
   WfLogDispatcher* myObs = new WfLogDispatcher(*dispatchFilehdl);
@@ -455,7 +467,7 @@ CltWfMgr::wfDagCall(diet_wf_desc_t * profile) {
       if (dag->isCancelled()) {
         res = 1;
       }
-      usleep(1000); // to let the release() call terminate before end of process
+      _usleep(1000); // to let the release() call terminate before end of process
     } else {
       cerr << "DAG request cancelled!" << endl;
       res = 1;
@@ -564,7 +576,7 @@ CltWfMgr::wfDagCallCommon(diet_wf_desc_t *dagProfile, Dag *dag, bool parse, bool
     cerr << "Error on MaDag invalid dag : " << e.info << endl;
     dagID = -1;
   }
-  
+
   // MADAG CALL POSTPROCESSING (must be done before any MaDag callback)
   if (dagID != -1) {
     TRACE_TEXT (TRACE_ALL_STEPS, " done" << endl);
@@ -601,7 +613,7 @@ CltWfMgr::wfFunctionalCall(diet_wf_desc_t * profile) {
   diet_error_t res(0);
   string wfName(profile->name);
   string wfId;
-  
+
   // get a unique request id from MADAG
   TRACE_TEXT (TRACE_MAIN_STEPS, "*** Get wf request ID from MADAG ****" << endl);
   CORBA::Long wfReqId = 0;
@@ -616,9 +628,9 @@ CltWfMgr::wfFunctionalCall(diet_wf_desc_t * profile) {
   }
 
   FWorkflow *wf = new FWorkflow(wfId, wfName);
-  
+
   EventManager::getEventMgr()->sendEvent(new EventCreateObject<FWorkflow,FWorkflow>(wf, NULL));
-  
+
   // store wf profile to allow results retrieval
   myProfiles[profile] = wf;
 
@@ -627,7 +639,7 @@ CltWfMgr::wfFunctionalCall(diet_wf_desc_t * profile) {
   if (profile->dataFile) {
     dataFileName = profile->dataFile;
   }
-  
+
   wf->setDataSrcXmlFile(dataFileName);
 
   // Read transcript file (if available)
@@ -687,7 +699,7 @@ CltWfMgr::wfFunctionalCall(diet_wf_desc_t * profile) {
       wf->stopInstanciation();
     }
     UNLOCK;  /** UNLOCK */
-    
+
     if (currDag->size() == 0) {
       TRACE_TEXT (TRACE_MAIN_STEPS, "*** GENERATED DAG IS EMPTY ***" << endl);
       sendEventFrom<Dag, Dag::EMPTY>(currDag, "Generated empty dag", "", EventBase::INFO);
@@ -701,44 +713,44 @@ CltWfMgr::wfFunctionalCall(diet_wf_desc_t * profile) {
       }
     } else {
       string dagFileName = "dag_" + currDag->getId() + ".xml";
-      
+
       // STORE DAG IN FILE
       TRACE_TEXT (TRACE_MAIN_STEPS, "*** WRITE DAG IN FILE: " << dagFileName << endl);
       fstream filestr;
       filestr.open(dagFileName.c_str(), fstream::out);
       currDag->toXML(filestr);
       filestr.close();
-      
+
       // DISPLAY DAG
       TRACE_TEXT(TRACE_ALL_STEPS, "*** DISPLAY DAG " << currDag->getId()
                  << "  ****" << endl << endl);
       if (TRACE_LEVEL >= TRACE_ALL_STEPS) {
         currDag->toXML(cout);
       }
-      
+
       TRACE_TEXT (TRACE_MAIN_STEPS, "*** SUBMIT DAG " << currDag->getId()
                   << " TO MADAG ****" << endl << endl);
       diet_wf_desc_t * dagProfile = diet_wf_profile_alloc(dagFileName.c_str(),"testdag",DIET_WF_DAG);
       dagProfile->wfReqID = wfReqId;
-      
+
       try {
-        
+
         // Call the common DAG submission method
         // with PARSING option deactivated (the dag is already in memory)
         res = wfDagCallCommon(dagProfile, currDag, false, wf->instanciationCompleted());
-        
+
       } catch (...) {
         cerr << "Exception not caught in wfDagCallCommon!" << endl;
         res = 1;
       }
-      
+
       string newDagFileName = "dag_" + currDag->getId() + ".xml";
       if (rename(dagFileName.c_str(), newDagFileName.c_str())) {
         WARNING("Error while renaming dag file");
       }
-      
+
     } // end if (currDag->size() == 0)
-    
+
     if (!res) {
       // If this is the last dag of the workflow instanciation, set the flag
       if (wf->instanciationCompleted()) {
@@ -768,11 +780,11 @@ CltWfMgr::wfFunctionalCall(diet_wf_desc_t * profile) {
   } else {
     sendEventFrom<FWorkflow, FWorkflow::INSTERROR>(wf, "Instanciation error", "", EventBase::NOTICE);
   }
-  
+
   if (dagSentCount > 0) {
     TRACE_TEXT (TRACE_MAIN_STEPS,"NO MORE DAGS TO INSTANCIATE ==> WAIT" << endl);
     this->mySem.wait();
-    usleep(1000); // to avoid stopping process before end of release call
+    _usleep(1000); // to avoid stopping process before end of release call
   }
   if (!wf->instanciationCompleted()) {
     cerr << "FUNCTIONAL WORKFLOW INSTANCIATION or EXECUTION FAILED!" << endl;
@@ -1241,15 +1253,15 @@ CORBA::Long CltWfMgrFwdr::execNodeOnSed(const char * node_id,
                                         corba_estimation_t& ev) {
   return forwarder->execNodeOnSed(node_id, dag_id, sed, reqID, ev, objName);
 }
-	
+
 CORBA::Long CltWfMgrFwdr::execNode(const char * node_id, const char * dag_id) {
   return forwarder->execNode(node_id, dag_id, objName);
 }
-	
+
 char * CltWfMgrFwdr::release(const char * dag_id, bool successful) {
   return forwarder->release(dag_id, successful, objName);
 }
-	
+
 CORBA::Long CltWfMgrFwdr::ping() {
   return forwarder->ping(objName);
 }
