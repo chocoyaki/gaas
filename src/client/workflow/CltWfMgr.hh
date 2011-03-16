@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.25  2011/03/16 22:18:37  bdepardo
+ * Added a method to delete the unique reference of CltWfMgr
+ *
  * Revision 1.24  2011/03/15 22:51:02  bdepardo
  * Code cleanup and indentation
  *
@@ -186,7 +189,12 @@ public:
    */
   static CltWfMgr *
   instance();
-	
+
+  /**
+   * Deletes the unique reference of CltWfMgr
+   */
+  static void terminate();
+
   /**
    * Set the MaDag reference
    *

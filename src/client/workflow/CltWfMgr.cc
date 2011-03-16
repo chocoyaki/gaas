@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.46  2011/03/16 22:18:37  bdepardo
+ * Added a method to delete the unique reference of CltWfMgr
+ *
  * Revision 1.45  2011/03/16 15:08:55  hguemar
  * replace usleep by nanosleep based-implementation sleep function
  *
@@ -356,6 +359,17 @@ CltWfMgr::instance() {
                                ORBMgr::getMgr()->getIOR(myInstance->_this()));
   }
   return myInstance;
+}
+
+void
+CltWfMgr::terminate() {
+  if (myInstance != NULL) {
+    std::string instanceName = myInstance->name;
+    //    ORBMgr::getMgr()->deactivate(myInstance); // Should we deactivate the object?
+    ORBMgr::getMgr()->unbind(WFMGRCTXT, instanceName);
+    ORBMgr::getMgr()->fwdsUnbind(WFMGRCTXT, instanceName);
+    myInstance = NULL;
+  }
 }
 
 /**
