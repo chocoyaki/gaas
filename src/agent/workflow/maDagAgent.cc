@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.19  2011/03/16 21:37:56  bdepardo
+ * Fixed a few memleaks, and now this agent correctly exits.
+ *
  * Revision 1.18  2011/02/24 16:57:02  bdepardo
  * Use new parser
  *
@@ -74,6 +77,11 @@
  ****************************************************************************/
 
 #include <iostream>
+#include <algorithm>
+#include <stdexcept>
+#include <string>
+#include <vector>
+
 using namespace std;
 #include "DIET_grpc.h"
 #include "ORBMgr.hh"
@@ -83,64 +91,92 @@ using namespace std;
 #include "configuration.hh"
 
 /*
-#include "DIET_client.h"
-#include "HEFT_Sched.hh"
+  #include "DIET_client.h"
+  #include "HEFT_Sched.hh"
 */
 
 extern unsigned int TRACE_LEVEL;
 
+class CStringDeleter {
+public:
+  void
+  operator() (char *it_) const {
+    if (it_ != NULL) {
+      free(it_);
+      it_ = NULL;
+    }
+  }
+};
+
+template <typename C>
+class CStringInserter {
+private:
+  C& c_;
+public:
+  explicit CStringInserter(C& c) : c_(c) {}
+  
+  void
+  operator() (const char *cstr) {
+    c_.push_back(strdup(cstr));
+  }
+  
+  void
+  operator() (std::ostringstream& oss) {
+    char *cstr = strdup(oss.str().c_str());
+    c_.push_back(cstr);
+  }
+};
+
+
 void usage(char * s) {
-    std::cerr << "Usage: " << s << " <file.cfg> [sched] [pfm] [IRD]" 
-	      << std::endl;
-    std::cerr << "sched = -basic (default) | -g_heft | -g_aging_heft | -fairness | -srpt | -fcfs" << std::endl;
-    std::cerr << "pfm   = -pfm_any (default) | -pfm_sameservices" << std::endl;
-    std::cerr << "IRD   = -IRD <value>" << std::endl;
-    exit(1);
+  std::cerr << "Usage: " << s << " <file.cfg> [sched] [pfm] [IRD]" 
+            << std::endl;
+  std::cerr << "sched = -basic (default) | -g_heft | -g_aging_heft | -fairness | -srpt | -fcfs" << std::endl;
+  std::cerr << "pfm   = -pfm_any (default) | -pfm_sameservices" << std::endl;
+  std::cerr << "IRD   = -IRD <value>" << std::endl;
+  exit(1);
 }
 
 int checkUsage(int argc, char ** argv) {
-    if (argc < 2) {
-	usage(argv[0]);
+  if (argc < 2) {
+    usage(argv[0]);
+  }
+  if (argc >= 3) {
+    if (strcmp(argv[2], "-basic") &&
+        strcmp(argv[2], "-g_heft") &&
+        strcmp(argv[2], "-fairness") &&
+        strcmp(argv[2], "-g_aging_heft") &&
+        strcmp(argv[2], "-srpt") &&
+        strcmp(argv[2], "-fcfs"  )) {
+      usage(argv[0]);
     }
-    if (argc >= 3) {
-	if (strcmp(argv[2], "-basic") &&
-	    strcmp(argv[2], "-g_heft") &&
-	    strcmp(argv[2], "-fairness") &&
-	    strcmp(argv[2], "-g_aging_heft") &&
-	    strcmp(argv[2], "-srpt") &&
-	    strcmp(argv[2], "-fcfs"  )) {
-	    usage(argv[0]);
-	}
+  }
+  if (argc >=4) {
+    if (strcmp(argv[3], "-pfm_any") &&
+        strcmp(argv[3], "-pfm_sameservices" )) {
+      usage(argv[0]);
     }
-    if (argc >=4) {
-	if (strcmp(argv[3], "-pfm_any") &&
-	    strcmp(argv[3], "-pfm_sameservices" )) {
-	    usage(argv[0]);
-	}
-    }
-    if (argc >=5) {
-	if (strcmp(argv[4], "-IRD"))
-	    usage(argv[0]);
-    }
-    return 0;
+  }
+  if (argc >=5) {
+    if (strcmp(argv[4], "-IRD"))
+      usage(argv[0]);
+  }
+  return 0;
 }
 
 
 int main(int argc, char * argv[]) {
   char * config_file_name = argv[1];
-  int    myargc;
-  char** myargv;
   bool   IRD;
   int    IRD_value;
 
+  // use std::vector instead of C array
+  // C++ standard guarantees that its storage is contiguous (C++ Faq 34.3)
+  std::vector<char *> args;
+  CStringInserter<std::vector<char *> > ins(args);
+
   checkUsage(argc,argv);
 
-  /* Set arguments for ORBMgr::init */
-
-  myargc = argc;
-  myargv = (char**)malloc(argc * sizeof(char*));
-  for (int i = 0; i < argc; i++)
-    myargv[i] = argv[i];
 
   /* Parsing */
 
@@ -168,35 +204,6 @@ int main(int argc, char * argv[]) {
     ERROR("No agentType found in the configuration", GRPC_CONFIGFILE_ERROR);
   }
 
-  /* Get the traceLevel */
-  unsigned long tmpTraceLevel = TRACE_DEFAULT;
-  CONFIG_ULONG(diet::TRACELEVEL, tmpTraceLevel);
-  TRACE_LEVEL = tmpTraceLevel;
-  if (TRACE_LEVEL >= TRACE_MAX_VALUE) {
-    char *  level = (char *) calloc(48, sizeof(char*)) ;
-    int    tmp_argc = myargc + 2;
-    myargv = (char**)realloc(myargv, tmp_argc * sizeof(char*));
-    myargv[myargc] = strdup("-ORBtraceLevel");
-    sprintf(level, "%u", TRACE_LEVEL - TRACE_MAX_VALUE);
-    myargv[myargc + 1] = (char*)level;
-    myargc = tmp_argc;
-  }
-
-  /* Choose scheduler type */
-  MaDag_impl::MaDagSchedType schedType = MaDag_impl::BASIC;
-  if (argc >= 3) {
-    if (!strcmp(argv[2], "-fairness"))
-      schedType = MaDag_impl::FOFT;
-    else if (!strcmp(argv[2], "-g_heft"))
-      schedType = MaDag_impl::GHEFT;
-    else if (!strcmp(argv[2], "-g_aging_heft"))
-      schedType = MaDag_impl::GAHEFT;
-    else if (!strcmp(argv[2], "-srpt"))
-      schedType = MaDag_impl::SRPT;
-    else if (!strcmp(argv[2], "-fcfs"))
-      schedType = MaDag_impl::FCFS;
-    else schedType = MaDag_impl::BASIC;
-  }
 
   /* Choose interRoundDelay */
   IRD = false;
@@ -209,34 +216,60 @@ int main(int argc, char * argv[]) {
     }
   }
 
-  /* Get the traceLevel */
+  /* Copy input parameters into internal structure */
+  for (int i = 0; i < argc; i++) {
+    ins(argv[i]);
+  }
 
+  /* Get the traceLevel */
+  unsigned long tmpTraceLevel = TRACE_DEFAULT;
+  CONFIG_ULONG(diet::TRACELEVEL, tmpTraceLevel);
+  TRACE_LEVEL = tmpTraceLevel;
   if (TRACE_LEVEL >= TRACE_MAX_VALUE) {
-    char *  level = (char *) calloc(48, sizeof(char*)) ;
-    int    tmp_argc = myargc + 2;
-    myargv = (char**)realloc(myargv, tmp_argc * sizeof(char*));
-    myargv[myargc] = strdup("-ORBtraceLevel") ;
-    sprintf(level, "%u", TRACE_LEVEL - TRACE_MAX_VALUE);
-    myargv[myargc + 1] = (char*)level;
-    myargc = tmp_argc;
+    std::ostringstream level;
+    ins("-ORBtraceLevel");
+    level << (TRACE_LEVEL - TRACE_MAX_VALUE);
+    ins(level);
+
+  }
+
+  /* Choose scheduler type */
+  MaDag_impl::MaDagSchedType schedType = MaDag_impl::BASIC;
+  if (argc >= 3) {
+    if (!strcmp(argv[2], "-fairness")) {
+      schedType = MaDag_impl::FOFT;
+    } else if (!strcmp(argv[2], "-g_heft")) {
+      schedType = MaDag_impl::GHEFT;
+    } else if (!strcmp(argv[2], "-g_aging_heft")) {
+      schedType = MaDag_impl::GAHEFT;
+    } else if (!strcmp(argv[2], "-srpt")) {
+      schedType = MaDag_impl::SRPT;
+    } else if (!strcmp(argv[2], "-fcfs")) {
+      schedType = MaDag_impl::FCFS;
+    } else {
+      schedType = MaDag_impl::BASIC;
+    }
   }
 
   /* INIT ORB and CREATE MADAG CORBA OBJECT */
-
   try {
-    ORBMgr::init(myargc, myargv);
+    // import use &args[0] and not &args.begin()
+    // the latter is not guaranteed to be a T*
+    ORBMgr::init(args.size(), &args[0]);
   } catch (...) {
+    std::for_each(args.begin(), args.end(), CStringDeleter());
     ERROR("ORB initialization failed", 1);
   }
     
   MaDag_impl * maDag_impl = IRD ? new MaDag_impl(name.c_str(), schedType, IRD_value) :
     new MaDag_impl(name.c_str(), schedType);
-  ORBMgr::getMgr()->activate((MaDag_impl*)maDag_impl);
-    
+  ORBMgr::getMgr()->activate(maDag_impl);
+  
   /* Change platform type */
   if (argc >=4) {
-    if (!strcmp(argv[3], "-pfm_sameservices"))
+    if (!strcmp(argv[3], "-pfm_sameservices")) {
       maDag_impl->setPlatformType(MaDag::SAME_SERVICES);
+    }
   }
 
   /* Wait for RPCs (blocking call): */
@@ -246,13 +279,18 @@ int main(int argc, char * argv[]) {
     WARNING("Error while exiting the ORBMgr::wait() function");
   }
 
+
+  // Terminate the xerces XML engine
+  XMLPlatformUtils::Terminate();
+
   /* shutdown and destroy the ORB
    * Servants will be deactivated and deleted automatically */
   delete ORBMgr::getMgr();
-    
-    
-  XMLPlatformUtils::Terminate();
 
+
+  std::for_each(args.begin(), args.end(), CStringDeleter());
+  TRACE_TEXT(TRACE_ALL_STEPS, "maDagAgent has exited" << endl);
+    
   return 0;
 }
 
