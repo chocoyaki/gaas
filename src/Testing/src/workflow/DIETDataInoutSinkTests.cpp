@@ -22,11 +22,11 @@ BOOST_FIXTURE_TEST_SUITE( workflows_data_inout_sink, AllDataTransferSeDFixtureWF
 
 
 
-BOOST_AUTO_TEST_CASE( data_inout_sink ) {
-  BOOST_TEST_MESSAGE( "-- Test: workflow data inout sink" );
+BOOST_AUTO_TEST_CASE( data_inout_sink_scalars_character ) {
+  BOOST_TEST_MESSAGE( "-- Test: workflow data inout scalars sink character" );
 
-  genericSimpleWorkflowClient(WF_DIRECTORY "inout_sink.xml",
-                              "InOut Sink",
+  genericSimpleWorkflowClient(WF_DIRECTORY "inout_sink_CADD.xml",
+                              "Inout Scalars Sink character",
                               DIET_WF_FUNCTIONAL,
                               WF_DIRECTORY "data_inout_sink.xml");
 }
