@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2011/03/16 21:30:51  bdepardo
+ * Add a mean to stop the main loop of schedulers
+ *
  * Revision 1.15  2011/01/20 18:31:50  bdepardo
  * Prefer prefix ++/-- operators for non-primitive types.
  * Removed unused variable
@@ -99,7 +102,7 @@ void*
 MultiWfBasicScheduler::run() {
   TRACE_TEXT(TRACE_MAIN_STEPS,"MultiWfBasicScheduler is running" << endl);
   int nodeCount = 0;
-  while (true) {
+  while (this->keepOnRunning) {
     TRACE_TEXT(TRACE_MAIN_STEPS,"\t ** Starting MultiWfBasicScheduler" << endl);
     myLock.lock();
     // Loop over all nodeQueues and run the first ready node

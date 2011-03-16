@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.60  2011/03/16 21:30:51  bdepardo
+ * Add a mean to stop the main loop of schedulers
+ *
  * Revision 1.59  2011/01/25 18:58:10  bdepardo
  * Reduce variable scope
  *
@@ -260,15 +263,16 @@ using namespace events;
 
 MultiWfScheduler::MultiWfScheduler(MaDag_impl* maDag, nodePolicy_t nodePol)
   : nodePolicy(nodePol), platformType(PFM_ANY), mySem(0), interRoundDelay(100), 
-    myMaDag(maDag) {
+    myMaDag(maDag), keepOnRunning(true) {
   this->mySched   = new HEFTScheduler();
   this->execQueue = NULL; // must be initialized in derived class constructor
   gettimeofday(&this->refTime, NULL); // init reference time
 }
 
 MultiWfScheduler::~MultiWfScheduler() {
-  if (this->mySched != NULL)
+  if (this->mySched != NULL) {
     delete this->mySched;
+  }
 }
 
 string 
@@ -389,6 +393,19 @@ MultiWfScheduler::scheduleNewDag(Dag * newDag, MetaDag * metaDag)
 }
 
 /**
+ * Stop method
+ */
+void
+MultiWfScheduler::stop(bool wait) {
+  this->keepOnRunning = false;
+  // post to mySem to unlock main loop
+  this->mySem.post();
+  if (wait) {
+    this->join();
+  }
+}
+
+/**
  * Execution method
  */
 void*
@@ -420,7 +437,7 @@ MultiWfScheduler::run() {
   /// New rounds are started as long as some nodes can be mapped to ressources
   /// (if no more ressources then we wait until a node is finished or a new dag
   /// is submitted)
-  while (true) {
+  while (this->keepOnRunning) {
     loopCount++;
 
     int queuedNodeCount = 0;   // nb nodes put in execQueue (check for new round)
@@ -632,17 +649,16 @@ MultiWfScheduler::run() {
         TRACE_TEXT(TRACE_MAIN_STEPS,"No ressource available - sleeping" << endl);
       }
       this->mySem.wait();
-
-      // WAIT UNTIL A NEW DAG IS SUBMITTED OR A NODE IS COMPLETED
-
-      this->postWakeUp();
-      this->checkDagsRelease();
-
+      if (this->keepOnRunning) {
+        // WAIT UNTIL A NEW DAG IS SUBMITTED OR A NODE IS COMPLETED
+        this->postWakeUp();
+        this->checkDagsRelease();
+      }
     } else {
       // DELAY between rounds (to avoid interference btw submits)
       usleep(this->interRoundDelay * 1000);
     } // end if
-  } // end while (true)
+  } // end while (this->keepOnRunning)
   return NULL;
 }
 
@@ -915,17 +931,13 @@ MultiWfScheduler::postWakeUp() {
   if (myWakeUpList.size() > 0) {
     wakeUpInfo_t& info = myWakeUpList.front();
     myWakeUpLock.unlock();
-    if (info.isNewDag)
-    {
+    if (info.isNewDag) {
       TRACE_TEXT (TRACE_MAIN_STEPS,"Scheduler waking up (NEW DAG)" << endl);
-    } else
-    {
+    } else {
       TRACE_TEXT (TRACE_MAIN_STEPS,"Scheduler waking up (END OF NODE)" << endl);
-      if (info.nodeRef)
-      {
+      if (info.nodeRef) {
         info.nodeRef->terminate();
-      } else
-      {
+      } else {
         INTERNAL_ERROR(__FUNCTION__ << "Invalid terminating node reference" << endl,1);
       }
     }
@@ -942,23 +954,19 @@ void
 MultiWfScheduler::checkDagsRelease() {
   // MANAGE DAG TERMINATION
   myWakeUpLock.lock();
-  if (myDagsTermList.size() > 0)
-  {
+  if (myDagsTermList.size() > 0) {
     myDagsTermList.sort();
     myDagsTermList.unique();  // removes consecutive duplicates
     list<string>::iterator it = myDagsTermList.begin();
-    while (it != myDagsTermList.end())
-    {
+    while (it != myDagsTermList.end()) {
       Dag * currDag = getDag(*it);
       TRACE_TEXT (TRACE_ALL_STEPS,"Dag " << currDag->getId() << " : try to release" << endl);
-      if (!currDag->isRunning())
-      {
+      if (!currDag->isRunning()) {
         myWakeUpLock.unlock();
         releaseDag(currDag);
         myWakeUpLock.lock();
         it = myDagsTermList.erase(it);
-      } else
-      {
+      } else {
         TRACE_TEXT (TRACE_ALL_STEPS,"Dag " << currDag->getId() << " : cannot release now" << endl);
         ++it;
       }
