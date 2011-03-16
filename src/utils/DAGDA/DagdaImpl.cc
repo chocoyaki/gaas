@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.47  2011/03/16 22:02:34  bdepardo
+ * Unbind dagda element in destructor
+ *
  * Revision 1.46  2011/02/28 16:57:15  bdepardo
  * Do not unsubscribe from parent in destructor as it raises an exception
  *
@@ -497,6 +500,8 @@ void SimpleDagdaImpl::unsubscribe(const char* myName) {
 SimpleDagdaImpl::~SimpleDagdaImpl() {
   //CORBA::string_free(this->ID);
   // unsubscribeParent();
+  ORBMgr::getMgr()->unbind(DAGDACTXT, getID());
+  ORBMgr::getMgr()->fwdsUnbind(DAGDACTXT, getID());
   delete containerRelationMgr;
 }
 

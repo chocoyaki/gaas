@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.34  2011/03/16 22:02:34  bdepardo
+ * Unbind dagda element in destructor
+ *
  * Revision 1.33  2011/03/03 00:29:46  bdepardo
  * Add missing include
  *
@@ -208,11 +211,11 @@ public:
   virtual void pfmUpdateData(const char* src, const corba_data_t& data) = 0;
 	
   virtual void lclReplicate(const char* dataID, CORBA::Long target,
-														const char* pattern, CORBA::Boolean replace) = 0;
+                            const char* pattern, CORBA::Boolean replace) = 0;
   virtual void lvlReplicate(const char* dataID, CORBA::Long,
-														const char* pattern, CORBA::Boolean replace) = 0;
+                            const char* pattern, CORBA::Boolean replace) = 0;
   virtual void pfmReplicate(const char* dataID, CORBA::Long,
-														const char* pattern, CORBA::Boolean replace) = 0;
+                            const char* pattern, CORBA::Boolean replace) = 0;
 	
   virtual SeqCorbaDataDesc_t* lclGetDataDescList() = 0;
   virtual SeqCorbaDataDesc_t* lvlGetDataDescList() = 0;
@@ -228,7 +231,7 @@ public:
   virtual char* getBestSource(const char* dest, const char* dataID) = 0;
 	
   virtual char* writeFile(const SeqChar& data, const char* basename,
-													CORBA::Boolean replace);
+                          CORBA::Boolean replace);
   virtual char* sendFile(const corba_data_t &data, const char* dest);
 	
   /**
@@ -407,9 +410,9 @@ public:
   virtual CORBA::Boolean lvlIsDataPresent(const char* dataID);
   virtual CORBA::Boolean pfmIsDataPresent(const char* dataID);
 	
-	/*  virtual corba_data_t* lclGetData(Dagda_ptr dest, const char* dataID);
-	 virtual corba_data_t* lvlGetData(Dagda_ptr dest, const char* dataID);
-	 virtual corba_data_t* pfmGetData(Dagda_ptr dest, const char* dataID);*/
+  /*  virtual corba_data_t* lclGetData(Dagda_ptr dest, const char* dataID);
+      virtual corba_data_t* lvlGetData(Dagda_ptr dest, const char* dataID);
+      virtual corba_data_t* pfmGetData(Dagda_ptr dest, const char* dataID);*/
 	
   virtual void lclAddData(const char* src, const corba_data_t& data);
   virtual void lvlAddData(const char* src, const corba_data_t& data);
@@ -478,58 +481,58 @@ public:
 	
   /* Return the type of this data manager. */
   dagda_manager_type_t getType() {
-		return type;
+    return type;
   }
 	
   /* Initialisation. */
   virtual int init(const char* ID, const char* parentID,
-									 const char* dataPath, const unsigned long maxMsgSize,
-									 const unsigned long diskMaxSpace,
-									 const unsigned long memMaxSpace);
+                   const char* dataPath, const unsigned long maxMsgSize,
+                   const unsigned long diskMaxSpace,
+                   const unsigned long memMaxSpace);
 	
 };
 
 class DagdaFwdrImpl : public POA_DagdaFwdr,
-	public PortableServer::RefCountServantBase
+                      public PortableServer::RefCountServantBase
 {
 private:
-	Forwarder_ptr forwarder;
-	char* objName;
+  Forwarder_ptr forwarder;
+  char* objName;
 public:
-	DagdaFwdrImpl(Forwarder_ptr fwdr, const char* objName);
-	virtual void subscribe(const char* name);
+  DagdaFwdrImpl(Forwarder_ptr fwdr, const char* objName);
+  virtual void subscribe(const char* name);
   virtual void unsubscribe(const char* name);
 	
 #ifdef HAVE_DYNAMICS
   virtual  void subscribeParent(const char * parentID);
   virtual  void unsubscribeParent();
 #endif // HAVE_DYNAMICS
-	/* ------------ */
-	virtual char* writeFile(const SeqChar& data, const char* basename,
-													CORBA::Boolean replace);
+  /* ------------ */
+  virtual char* writeFile(const SeqChar& data, const char* basename,
+                          CORBA::Boolean replace);
   virtual char* sendFile(const corba_data_t &data, const char* dest);
 	
-	virtual char* recordData(const SeqChar& data, const corba_data_desc_t& dataDesc,
+  virtual char* recordData(const SeqChar& data, const corba_data_desc_t& dataDesc,
                            CORBA::Boolean replace, CORBA::Long offset);
 	
-	virtual char* sendData(const char* ID, const char* dest);
+  virtual char* sendData(const char* ID, const char* dest);
 	
   virtual char* sendContainer(const char* containerID, const char* dest,
                               CORBA::Boolean sendElements);
-	virtual void lockData(const char* dataID);
+  virtual void lockData(const char* dataID);
   virtual void unlockData(const char* dataID);
   virtual Dagda::dataStatus getDataStatus(const char* dataID);
 
-	/* ------------ */
+  /* ------------ */
 
 	
   virtual CORBA::Boolean lclIsDataPresent(const char* dataID);
   virtual CORBA::Boolean lvlIsDataPresent(const char* dataID);
   virtual CORBA::Boolean pfmIsDataPresent(const char* dataID);
 	
-	/*  virtual corba_data_t* lclGetData(Dagda_ptr dest, const char* dataID);
-	 virtual corba_data_t* lvlGetData(Dagda_ptr dest, const char* dataID);
-	 virtual corba_data_t* pfmGetData(Dagda_ptr dest, const char* dataID);*/
+  /*  virtual corba_data_t* lclGetData(Dagda_ptr dest, const char* dataID);
+      virtual corba_data_t* lvlGetData(Dagda_ptr dest, const char* dataID);
+      virtual corba_data_t* pfmGetData(Dagda_ptr dest, const char* dataID);*/
 	
   virtual void lclAddData(const char* src, const corba_data_t& data);
   virtual void lvlAddData(const char* src, const corba_data_t& data);
@@ -555,11 +558,11 @@ public:
   virtual void pfmUpdateData(const char* src, const corba_data_t& data);
 	
   virtual void lclReplicate(const char* dataID, CORBA::Long target,
-														const char* pattern, bool replace);
+                            const char* pattern, bool replace);
   virtual void lvlReplicate(const char* dataID, CORBA::Long target,
-														const char* pattern, bool replace);
+                            const char* pattern, bool replace);
   virtual void pfmReplicate(const char* dataID, CORBA::Long target,
-														const char* pattern, bool replace);
+                            const char* pattern, bool replace);
 	
   virtual SeqCorbaDataDesc_t* lclGetDataDescList();
   virtual SeqCorbaDataDesc_t* lvlGetDataDescList();
@@ -573,8 +576,8 @@ public:
   virtual SeqString* pfmGetDataManagers(const char* dataID);
 	
   virtual char* getBestSource(const char* dest, const char* dataID);
-	virtual char* getID();
-	virtual void checkpointState();
-	virtual char* getHostname();
+  virtual char* getID();
+  virtual void checkpointState();
+  virtual char* getHostname();
 };
 #endif
