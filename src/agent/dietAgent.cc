@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.58  2011/03/16 20:36:35  bdepardo
+ * Fixed a few memleaks when an error is encountered
+ *
  * Revision 1.57  2011/03/11 11:25:48  bdepardo
  * Fixed a problem in configuration parser. The agent type was not correctly
  * parsed.
@@ -192,6 +195,7 @@
 #include <iostream>
 #include <string>
 #include <stdexcept>
+#include <vector>
 
 using namespace std;
 #include "ExitClass.hh"
@@ -269,9 +273,7 @@ int main(int argc, char* argv[], char *envp[]) {
   // C++ standard guarantees that its storage is contiguous (C++ Faq 34.3)
   std::vector<char *> args, argsTmp;
   CStringInserter<std::vector<char *> > ins(args);
-  for (int i = 0; i < argc; i++) {
-    ins(argv[i]);
-  }
+
   // Configuration map
   int res(0);
     
@@ -378,6 +380,11 @@ int main(int argc, char* argv[], char *envp[]) {
             << "an MA name for an agent - ignored");
   }
 
+  /* Copy input parameters into internal structure */
+  for (int i = 0; i < argc; i++) {
+    ins(argv[i]);
+  }
+
   /* Get listening port & hostname */
   int port;
   std::string host;
@@ -413,6 +420,7 @@ int main(int argc, char* argv[], char *envp[]) {
     // the latter is not guaranteed to be a T*
     ORBMgr::init(argsTmp.size(), &argsTmp[0]);
   } catch (...) {
+    std::for_each(args.begin(), args.end(), CStringDeleter());
     ERROR("ORB initialization failed", 1);
   }
 
@@ -500,6 +508,7 @@ int main(int argc, char* argv[], char *envp[]) {
 
   /* Launch the agent */
   if (res) {
+    std::for_each(args.begin(), args.end(), CStringDeleter());
     ERROR("unable to launch the agent", 1);
   }
 
@@ -509,6 +518,7 @@ int main(int argc, char* argv[], char *envp[]) {
   /* Launch the DTM LocMgr */
   ORBMgr::getMgr()->activate(Loc);
   if (Loc->run()) {
+    std::for_each(args.begin(), args.end(), CStringDeleter());
     ERROR("unable to launch the LocMgr", 1);
   }
   Agt->linkToLocMgr(Loc);
