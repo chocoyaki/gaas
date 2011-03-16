@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.38  2011/03/16 21:36:37  bdepardo
+ * Stop scheduling thread an unbind this agent in destructor.
+ * Catch an exception when the MA cannot be found.
+ *
  * Revision 1.37  2011/02/24 16:57:02  bdepardo
  * Use new parser
  *
@@ -212,10 +216,15 @@ MaDag_impl::MaDag_impl(const char * name,
   if (!CONFIG_STRING(diet::PARENTNAME, MAName)) {
     ERROR_EXIT("MA name not provided");
   }
-  CORBA::Object_var obj = 
-    ORBMgr::getMgr()->resolveObject(AGENTCTXT, MAName);
-  this->myMA = MasterAgent::_duplicate(MasterAgent::_narrow(obj));
-  if (CORBA::is_nil(this->myMA)) {
+  
+  try {
+    CORBA::Object_var obj = 
+      ORBMgr::getMgr()->resolveObject(AGENTCTXT, MAName);
+    this->myMA = MasterAgent::_duplicate(MasterAgent::_narrow(obj));
+    if (CORBA::is_nil(this->myMA)) {
+      ERROR_EXIT("Cannot locate the master agent " << MAName);
+    }
+  } catch (...) {
     ERROR_EXIT("Cannot locate the master agent " << MAName);
   }
     
@@ -266,8 +275,9 @@ MaDag_impl::MaDag_impl(const char * name,
     break;
   }
     
-  if (interRoundDelay >= 0)
+  if (interRoundDelay >= 0) {
     this->myMultiWfSched->setInterRoundDelay(interRoundDelay);
+  }
     
   this->myMultiWfSched->start();
   TRACE_TEXT(TRACE_ALL_STEPS, "InterRoundDelay= " <<
@@ -277,9 +287,16 @@ MaDag_impl::MaDag_impl(const char * name,
 } // end MA DAG constructor
 
 MaDag_impl::~MaDag_impl() {
+  ORBMgr::getMgr()->unbind(MADAGCTXT, this->myName);
+  ORBMgr::getMgr()->fwdsUnbind(MADAGCTXT, this->myName);
+
   if (this->myMultiWfSched != NULL) {
+    /* Stop the scheduling thread
+     * This is mandatory, otherwise we get an omni_thread_fatal error
+     */
+    this->myMultiWfSched->stop();
     delete (this->myMultiWfSched);
-  }
+  }  
 } // end MA DAG destructor
 
 
