@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2011/03/16 14:54:06  hguemar
+ * remove dead code: unused class DietException in src/client/CallAsyncMgr.{hh,cc}
+ *
  * Revision 1.15  2010/07/12 16:14:11  glemahec
  * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
  *
@@ -688,7 +691,7 @@ grpc_error_t
 grpc_call_argstack(grpc_function_handle_t* handle, grpc_arg_stack_t* args)
 {
   grpc_error_t res;
-  diet_profile_t* profile;
+  diet_profile_t* profile = NULL;
   CORBA::Object_var chosenObject;
   SeD_var chosenServer;
 
