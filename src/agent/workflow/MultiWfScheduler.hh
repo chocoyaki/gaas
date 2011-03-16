@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.25  2011/03/16 21:37:06  bdepardo
+ * Add a method to stop the main scheduling thread
+ *
  * Revision 1.24  2010/07/20 08:59:36  bisnard
  * Added event generation
  *
@@ -217,6 +220,12 @@ namespace madag {
      */
     virtual void *
         run();
+
+    /**
+     * Stop the thread loop.
+     */
+    void
+    stop(bool wait = true);
 
     /**
      * Dag cancellation
@@ -455,6 +464,11 @@ namespace madag {
      * Map dag id => dag ptr (for all dags)
      */
     map<string,Dag*>  myDags;
+
+    /**
+     * Should the thread keep on running?
+     */
+    bool keepOnRunning;
 
   }; // end class MultiWfScheduler
 
