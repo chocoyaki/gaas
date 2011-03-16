@@ -1,5 +1,12 @@
 #
 # Find UUID library for DAGDA
+# If your UUID libs are not found, try to install libuuid and libuuid-devel.
+# Or try to compile libuuid with -fPIC option, use this command line:
+# $ CFLAGS="-fPIC" ./configure --prefix=<install-dir>
+#   --disable-testio-debug --disable-libblkid --disable-debugfs --disable-imager
+#   --disable-resizer --enable-libuuid --disable-nls
+#   --disable-e2initrd-helper --enable-elf-shlibs
+
 #
 
 # Standard UNIX system libraries directories
@@ -114,10 +121,3 @@ Try to recompile this library using -fPIC C flag or set UUID_PATH to a valid lib
     endif (CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64")
   endif (NOT APPLE)
 endif (UUID_FOUND)
-
-# To compile libuuid with -fPIC option, use this command line:
-# $ CFLAGS="-fPIC" ./configure --prefix=<install-dir>
-#   --disable-testio-debug --disable-libblkid --disable-debugfs --disable-imager
-#   --disable-resizer --enable-libuuid --disable-nls
-#   --disable-e2initrd-helper --enable-elf-shlibs
-
