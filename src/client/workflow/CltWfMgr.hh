@@ -8,8 +8,8 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.26  2011/03/17 09:27:36  hguemar
- * move nanobased usleep implementation to src/utils/DIET_compat.{hh,cc}
+ * Revision 1.27  2011/03/17 10:14:28  hguemar
+ * clean some stuff left behind
  *
  * Revision 1.25  2011/03/16 22:18:37  bdepardo
  * Added a method to delete the unique reference of CltWfMgr
@@ -146,10 +146,6 @@ class Dag;
 class MetaDag;
 
 using namespace std;
-
-namespace diet {
-int usleep(unsigned int useconds);
-}
 
 class CltWfMgr : public POA_CltMan,
                  public PortableServer::RefCountServantBase{
