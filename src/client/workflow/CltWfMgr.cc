@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.47  2011/03/17 09:27:36  hguemar
+ * move nanobased usleep implementation to src/utils/DIET_compat.{hh,cc}
+ *
  * Revision 1.46  2011/03/16 22:18:37  bdepardo
  * Added a method to delete the unique reference of CltWfMgr
  *
@@ -211,6 +214,7 @@ extern "C" {
 #include "events/EventTypes.hh"
 #include "events/EventLogger.hh"
 #include "WfLogDispatcher.hh"
+#include "DIET_compat.hh"
 
 #ifndef LOCK
 #define LOCK  { this->myLock.lock(); }
@@ -222,15 +226,6 @@ extern "C" {
 
 using namespace std;
 using namespace events;
-
-namespace {
-int _usleep(unsigned int useconds) {
-  struct timespec req = {0, 1000 * useconds};
-  struct timespec rem = {0, 0};
-
-  nanosleep(&req, &rem);
-}
-}
 
 
 // Initialisation of static members
@@ -481,7 +476,8 @@ CltWfMgr::wfDagCall(diet_wf_desc_t * profile) {
       if (dag->isCancelled()) {
         res = 1;
       }
-      _usleep(1000); // to let the release() call terminate before end of process
+      // to let the release() call terminate before end of process
+      diet::usleep(1000);
     } else {
       cerr << "DAG request cancelled!" << endl;
       res = 1;
@@ -798,7 +794,8 @@ CltWfMgr::wfFunctionalCall(diet_wf_desc_t * profile) {
   if (dagSentCount > 0) {
     TRACE_TEXT (TRACE_MAIN_STEPS,"NO MORE DAGS TO INSTANCIATE ==> WAIT" << endl);
     this->mySem.wait();
-    _usleep(1000); // to avoid stopping process before end of release call
+    // to avoid stopping process before end of release call
+    diet::usleep(1000);
   }
   if (!wf->instanciationCompleted()) {
     cerr << "FUNCTIONAL WORKFLOW INSTANCIATION or EXECUTION FAILED!" << endl;

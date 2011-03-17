@@ -11,6 +11,7 @@ set(DIET_Utils_SOURCES
   DIET_mutex.cc
   est_internal.cc
   Vector.c
+  DIET_compat.cc
   )
 
 if (DIET_USE_LOG)
