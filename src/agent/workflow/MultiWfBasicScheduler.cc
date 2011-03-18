@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2011/03/18 16:58:13  hguemar
+ * fixes several issues in src/agent/workflow: reduce some variables scope, use diet::usleep instead of Posix deprecated usleep
+ *
  * Revision 1.16  2011/03/16 21:30:51  bdepardo
  * Add a mean to stop the main loop of schedulers
  *
@@ -83,6 +86,7 @@
 #include "debug.hh"
 #include "marshalling.hh"
 #include "MaDag_impl.hh"
+#include "DIET_compat.hh"
 
 using namespace madag;
 
@@ -131,7 +135,7 @@ MultiWfBasicScheduler::run() {
           continue;
         }
         // DELAY between NODES (to avoid interference btw submits)
-        usleep(this->interRoundDelay * 1000);
+        diet::usleep(this->interRoundDelay * 1000);
       }
       ++qp; // go to next queue
     }

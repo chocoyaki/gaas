@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.39  2011/03/18 16:58:13  hguemar
+ * fixes several issues in src/agent/workflow: reduce some variables scope, use diet::usleep instead of Posix deprecated usleep
+ *
  * Revision 1.38  2011/03/16 21:36:37  bdepardo
  * Stop scheduling thread an unbind this agent in destructor.
  * Catch an exception when the MA cannot be found.
@@ -209,16 +212,16 @@ MaDag_impl::MaDag_impl(const char * name,
                        const MaDagSchedType schedType,
                        const int interRoundDelay) :
   myName(name), myMultiWfSched(0), wfReqIdCounter(0), dagIdCounter(0) {
-  
+
   std::string MAName;
-	
+
   // check if the parent is NULL
   if (!CONFIG_STRING(diet::PARENTNAME, MAName)) {
     ERROR_EXIT("MA name not provided");
   }
-  
+
   try {
-    CORBA::Object_var obj = 
+    CORBA::Object_var obj =
       ORBMgr::getMgr()->resolveObject(AGENTCTXT, MAName);
     this->myMA = MasterAgent::_duplicate(MasterAgent::_narrow(obj));
     if (CORBA::is_nil(this->myMA)) {
@@ -227,7 +230,7 @@ MaDag_impl::MaDag_impl(const char * name,
   } catch (...) {
     ERROR_EXIT("Cannot locate the master agent " << MAName);
   }
-    
+
   /* Bind the MA DAG to its name in the CORBA Naming Service */
   try {
     ORBMgr::getMgr()->bind(MADAGCTXT, this->myName, _this(), true);
@@ -236,10 +239,10 @@ MaDag_impl::MaDag_impl(const char * name,
   } catch (...) {
     ERROR_EXIT("could not declare myself as " << this->myName);
   }
-	
-  TRACE_TEXT(TRACE_MAIN_STEPS, std::endl 
+
+  TRACE_TEXT(TRACE_MAIN_STEPS, std::endl
              <<  "MA DAG " << this->myName << " created." << std::endl);
-  TRACE_TEXT(NO_TRACE, "## MADAG_IOR " 
+  TRACE_TEXT(NO_TRACE, "## MADAG_IOR "
              << ORBMgr::getMgr()->getIOR(this->_this()) << std::endl);
 #ifdef USE_LOG_SERVICE
   this->setupDietLogComponent();
@@ -251,34 +254,34 @@ MaDag_impl::MaDag_impl(const char * name,
   switch (schedType) {
   case BASIC:
     this->myMultiWfSched = new MultiWfBasicScheduler(this);
-    sendEventFrom<MultiWfScheduler, MultiWfScheduler::CONSTR>(myMultiWfSched, "Created", "BASIC", EventBase::INFO); 
+    sendEventFrom<MultiWfScheduler, MultiWfScheduler::CONSTR>(myMultiWfSched, "Created", "BASIC", EventBase::INFO);
     break;
   case GHEFT:
     this->myMultiWfSched = new MultiWfHEFT(this);
-    sendEventFrom<MultiWfScheduler, MultiWfScheduler::CONSTR>(myMultiWfSched, "Created", "GLOBAL_HEFT", EventBase::INFO); 
+    sendEventFrom<MultiWfScheduler, MultiWfScheduler::CONSTR>(myMultiWfSched, "Created", "GLOBAL_HEFT", EventBase::INFO);
     break;
   case FOFT:
     this->myMultiWfSched = new MultiWfFOFT(this);
-    sendEventFrom<MultiWfScheduler, MultiWfScheduler::CONSTR>(myMultiWfSched, "Created", "FOFT", EventBase::INFO); 
+    sendEventFrom<MultiWfScheduler, MultiWfScheduler::CONSTR>(myMultiWfSched, "Created", "FOFT", EventBase::INFO);
     break;
   case GAHEFT:
     this->myMultiWfSched = new MultiWfAgingHEFT(this);
-    sendEventFrom<MultiWfScheduler, MultiWfScheduler::CONSTR>(myMultiWfSched, "Created", "GLOBAL_AGING_HEFT", EventBase::INFO); 
+    sendEventFrom<MultiWfScheduler, MultiWfScheduler::CONSTR>(myMultiWfSched, "Created", "GLOBAL_AGING_HEFT", EventBase::INFO);
     break;
   case SRPT:
     this->myMultiWfSched = new MultiWfSRPT(this);
-    sendEventFrom<MultiWfScheduler, MultiWfScheduler::CONSTR>(myMultiWfSched, "Created", "SRPT", EventBase::INFO); 
+    sendEventFrom<MultiWfScheduler, MultiWfScheduler::CONSTR>(myMultiWfSched, "Created", "SRPT", EventBase::INFO);
     break;
   case FCFS:
     this->myMultiWfSched = new MultiWfFCFS(this);
-    sendEventFrom<MultiWfScheduler, MultiWfScheduler::CONSTR>(myMultiWfSched, "Created", "FCFS", EventBase::INFO); 
+    sendEventFrom<MultiWfScheduler, MultiWfScheduler::CONSTR>(myMultiWfSched, "Created", "FCFS", EventBase::INFO);
     break;
   }
-    
+
   if (interRoundDelay >= 0) {
     this->myMultiWfSched->setInterRoundDelay(interRoundDelay);
   }
-    
+
   this->myMultiWfSched->start();
   TRACE_TEXT(TRACE_ALL_STEPS, "InterRoundDelay= " <<
              this->myMultiWfSched->getInterRoundDelay() << std::endl);
@@ -296,7 +299,7 @@ MaDag_impl::~MaDag_impl() {
      */
     this->myMultiWfSched->stop();
     delete (this->myMultiWfSched);
-  }  
+  }
 } // end MA DAG destructor
 
 
@@ -374,7 +377,7 @@ MaDag_impl::processDagWfCommon(const corba_wf_desc_t& dag_desc,
     char statMsg[128];
     sprintf(statMsg,"Start workflow request %ld", static_cast<long int>(wfReqId));
     stat_in("MA_DAG",statMsg);
-    
+
     this->myMutex.lock();
 
     // Register the client workflow manager
@@ -382,7 +385,7 @@ MaDag_impl::processDagWfCommon(const corba_wf_desc_t& dag_desc,
     CltMan_ptr cltMan = CltMan::_narrow(obj);
     setCltMan(wfReqId, cltMan);
 
-    /* Process the request ie merge dag into the global workflow 
+    /* Process the request ie merge dag into the global workflow
        managed by the MaDag */
     CORBA::Long dagId = dagIdCounter++;
     setWfReq(dagId, wfReqId);
@@ -413,7 +416,7 @@ Dag *
 MaDag_impl::parseNewDag(const corba_wf_desc_t& wf_desc,
                         const string& dagId,
                         MetaDag * mDag)
-    throw (MaDag::InvalidDag) 
+    throw (MaDag::InvalidDag)
 {
     // CREATION & PARSING
     Dag *newDag = new Dag(dagId);
@@ -561,8 +564,6 @@ MaDag_impl::setupDietLogComponent()
 {
   /* Create the DietLogComponent for use with LogService */
   bool useLS;
-  int outBufferSize;
-  int flushTime;
 
   // size_t --> unsigned int
   bool useLogService = false;
@@ -572,8 +573,11 @@ MaDag_impl::setupDietLogComponent()
   } else {
     useLS = true;
   }
-	
+
   if (useLS) {
+    int outBufferSize;
+    int flushTime;
+
     if (!CONFIG_INT(diet::LSOUTBUFFERSIZE, outBufferSize)) {
       outBufferSize = 0;
       WARNING("lsOutbuffersize not configured, using default");
@@ -596,13 +600,13 @@ MaDag_impl::setupDietLogComponent()
     if (CONFIG_STRING(diet::NAME, tmpString)) {
       agtName = strdup(tmpString.c_str());
     }
-	
+
     // the agent names should be correct if we arrive here
     this->dietLogComponent = new DietLogComponent(agtName,
                                                   outBufferSize,
                                                   0, 0);
     ORBMgr::getMgr()->activate(dietLogComponent);
-	
+
     agtTypeName = strdup("MA_DAG");
     if (dietLogComponent->run(agtTypeName, agtParentName, flushTime) != 0) {
       WARNING("Could not initialize DietLogComponent");
@@ -661,7 +665,7 @@ MaDagFwdrImpl::setPlatformType(MaDag::pfmType_t pfmType)
     forwarder->setPlatformType(pfmType, objName);
 }
 
-CORBA::Long 
+CORBA::Long
 MaDagFwdrImpl::ping()
 {
     return forwarder->ping(objName);

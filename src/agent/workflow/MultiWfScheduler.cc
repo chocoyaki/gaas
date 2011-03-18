@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.61  2011/03/18 16:58:13  hguemar
+ * fixes several issues in src/agent/workflow: reduce some variables scope, use diet::usleep instead of Posix deprecated usleep
+ *
  * Revision 1.60  2011/03/16 21:30:51  bdepardo
  * Add a mean to stop the main loop of schedulers
  *
@@ -246,6 +249,7 @@
 #include "Dag.hh"
 #include "DagNode.hh"
 #include "events/EventTypes.hh"
+#include "DIET_compat.hh"
 
 using namespace madag;
 using namespace events;
@@ -262,7 +266,7 @@ using namespace events;
 /****************************************************************************/
 
 MultiWfScheduler::MultiWfScheduler(MaDag_impl* maDag, nodePolicy_t nodePol)
-  : nodePolicy(nodePol), platformType(PFM_ANY), mySem(0), interRoundDelay(100), 
+  : nodePolicy(nodePol), platformType(PFM_ANY), mySem(0), interRoundDelay(100),
     myMaDag(maDag), keepOnRunning(true) {
   this->mySched   = new HEFTScheduler();
   this->execQueue = NULL; // must be initialized in derived class constructor
@@ -275,7 +279,7 @@ MultiWfScheduler::~MultiWfScheduler() {
   }
 }
 
-string 
+string
 MultiWfScheduler::toString() const
 {
   return "MultiWfScheduler";
@@ -523,7 +527,7 @@ MultiWfScheduler::run() {
 
         if (nodeSubmit) {
           int  submitReqID = 0;  // store ReqID of submit to provide it for solve
-          
+
           TRACE_TEXT(TRACE_MAIN_STEPS,"Submit request for node " << n->getCompleteId()
             << "(" << n->getPbName() << ") / exec prio = " << n->getPriority() << endl);
 
@@ -656,7 +660,7 @@ MultiWfScheduler::run() {
       }
     } else {
       // DELAY between rounds (to avoid interference btw submits)
-      usleep(this->interRoundDelay * 1000);
+      diet::usleep(this->interRoundDelay * 1000);
     } // end if
   } // end while (this->keepOnRunning)
   return NULL;
