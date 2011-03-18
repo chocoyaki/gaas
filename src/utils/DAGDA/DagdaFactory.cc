@@ -10,6 +10,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.29  2011/03/18 17:47:01  bdepardo
+ * Fixed include file name
+ *
  * Revision 1.28  2011/03/18 17:37:45  bdepardo
  * Add dagda_reset method to reset internal variables.
  * This is used for allowing multiple consecutive diet_initialize/diet_finalize
@@ -92,7 +95,7 @@
 #include "CacheAlgorithms.hh"
 #include "NetworkStats.hh"
 
-#include "DIET_dagda.h"
+#include "DIET_Dagda.h"
 
 size_t availableDiskSpace(const char* path) {
   struct statvfs buffer;
