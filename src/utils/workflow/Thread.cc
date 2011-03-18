@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2011/03/18 16:38:03  bdepardo
+ * Fixed compilation
+ *
  * Revision 1.10  2011/03/18 16:28:33  hguemar
  * fix initialization and const-correctness issues in src/utils/workflow/Thread.{hh,cc} raised by cppchecks
  *
@@ -161,7 +164,7 @@ Thread::join() {
 }
 
 void
-Thread::setCompleted() {/* completion was handled by pthread_join() */}
+Thread::setCompleted() const { /* completion was handled by pthread_join() */ }
 
 void
 Thread::PrintError(std::string msg, int status, std::string fileName, int lineNumber) {
