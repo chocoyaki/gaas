@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.35  2011/03/18 08:43:32  hguemar
+ * fix memory leak in DagdaImpl: getID() method returns a CORBA::String which is not always deallocated (patch from Gael Le Mahec)
+ *
  * Revision 1.34  2011/03/16 22:02:34  bdepardo
  * Unbind dagda element in destructor
  *
@@ -345,8 +348,9 @@ public:
   void setParent(Dagda_ptr parent) { this->parent = parent; }
   void setID(char* ID) { this->ID = ID; }
   char* getID() { return CORBA::string_dup(this->ID); } // CORBA
+  std::string getIDstr() const { return this->ID; }
   std::string getStateFile() { return stateFile; }
-
+  
 #ifdef USE_LOG_SERVICE
   DietLogComponent* getLogComponent() { return logComponent; }
   void setLogComponent(DietLogComponent* comp) { logComponent=comp; }

@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.48  2011/03/18 08:43:32  hguemar
+ * fix memory leak in DagdaImpl: getID() method returns a CORBA::String which is not always deallocated (patch from Gael Le Mahec)
+ *
  * Revision 1.47  2011/03/16 22:02:34  bdepardo
  * Unbind dagda element in destructor
  *
@@ -500,8 +503,8 @@ void SimpleDagdaImpl::unsubscribe(const char* myName) {
 SimpleDagdaImpl::~SimpleDagdaImpl() {
   //CORBA::string_free(this->ID);
   // unsubscribeParent();
-  ORBMgr::getMgr()->unbind(DAGDACTXT, getID());
-  ORBMgr::getMgr()->fwdsUnbind(DAGDACTXT, getID());
+  ORBMgr::getMgr()->unbind(DAGDACTXT, getIDstr());
+  ORBMgr::getMgr()->fwdsUnbind(DAGDACTXT, getIDstr());
   delete containerRelationMgr;
 }
 
@@ -516,8 +519,8 @@ int SimpleDagdaImpl::init(const char* ID, const char* parentID,
   /*if (ORBMgr::bindObjToName(_this(), ORBMgr::DATAMGR, getID())) {
     ERROR("Dagda: could not declare myself as " << getID(), 1);
     }*/
-  ORBMgr::getMgr()->bind(DAGDACTXT, getID(), _this(), true);
-  ORBMgr::getMgr()->fwdsBind(DAGDACTXT, getID(),
+  ORBMgr::getMgr()->bind(DAGDACTXT, getIDstr(), _this(), true);
+  ORBMgr::getMgr()->fwdsBind(DAGDACTXT, getIDstr(),
                              ORBMgr::getMgr()->getIOR(_this()));
 	
   if (parentID==NULL) setParent(NULL);
@@ -539,7 +542,7 @@ int SimpleDagdaImpl::init(const char* ID, const char* parentID,
   }
 	
   TRACE_TEXT(TRACE_MAIN_STEPS,
-             "## Launch Dagda data manager " << getID() << endl);
+             "## Launch Dagda data manager " << getIDstr() << endl);
   TRACE_TEXT(TRACE_ALL_STEPS,
              "IOR : " << ORBMgr::getMgr()->getIOR(_this()) << endl);
 	
@@ -610,7 +613,7 @@ void SimpleDagdaImpl::lclAddData(const char* srcName, const corba_data_t& data) 
 	
   TRACE_TEXT(TRACE_ALL_STEPS, "Add the data " << data.desc.id.idNumber
              << " locally." << endl);
-  if (strcmp(src->getID(), getID()) != 0) {
+  if (getIDstr() != src->getID()) {
     if (data.desc.specific._d()==DIET_FILE) {
       if (getDiskMaxSpace()!=0 && getUsedDiskSpace()+data_sizeof(&data.desc)>getDiskMaxSpace())
         throw Dagda::NotEnoughSpace(getDiskMaxSpace()-getUsedDiskSpace());
@@ -741,7 +744,7 @@ void SimpleDagdaImpl::pfmRemData(const char* dataID) {
 /* CORBA */
 void SimpleDagdaImpl::lclUpdateData(const char* srcName, const corba_data_t& data) {
   Dagda_ptr src = ORBMgr::getMgr()->resolve<Dagda,Dagda_ptr>(DAGDACTXT, srcName);
-  if (strcmp(src->getID(), this->getID())==0) return;
+  if (getIDstr() == src->getID()) return;
   lclRemData(data.desc.id.idNumber);
   lclAddData(srcName, data);
 }
@@ -795,7 +798,7 @@ void replicate(void* paramPtr) {
   DagdaImpl* manager = DagdaFactory::getDataManager();
 	
   try {
-    srcName = manager->getBestSource(manager->getID(), dataID);
+    srcName = manager->getBestSource(manager->getIDstr().c_str(), dataID);
   } catch (Dagda::DataNotFound& ex) {
     WARNING("Trying to replicate a data that does not exist on the platform.");
     return;
@@ -837,7 +840,7 @@ void SimpleDagdaImpl::lclReplicate(const char* dataID, CORBA::Long target,
   if (target==0) // Target is the hostname.
     replic = match(getHostname(), pattern);
   else // Target is the ID
-    replic = match(getID(), pattern);
+    replic = match(getIDstr().c_str(), pattern);
 	
   if (replic) {
     if (replace)
@@ -977,7 +980,7 @@ SeqString* SimpleDagdaImpl::lvlGetDataManagers(const char* dataID) {
   SeqString* result = new SeqString();
   list<string> dtmList;
   if (lclIsDataPresent(dataID))
-    dtmList.push_back(getID());
+    dtmList.push_back(getIDstr());
 	
   childrenMutex.lock();
   for (itch=getChildren()->begin();itch!=getChildren()->end();)
@@ -1038,7 +1041,7 @@ corba_data_t* SimpleDagdaImpl::getData(const char* dataID) {
 }
 
 corba_data_t* SimpleDagdaImpl::addData(const corba_data_t& data) {
-  string dataManager = getID();
+  string dataManager = getIDstr();
   TRACE_TEXT(TRACE_ALL_STEPS, "Adding data " << data.desc.id.idNumber << " to this "
              << "data manager." << endl);
   dataMutex.lock();
@@ -1222,7 +1225,7 @@ size_t DagdaImpl::make_corba_data(corba_data_t& data, diet_data_type_t type,
   }
 	
   mrsh_data_desc(&data.desc, &diet_data.desc);
-  data.desc.dataManager = CORBA::string_dup(getID());
+  data.desc.dataManager = CORBA::string_dup(getIDstr().c_str());
   return data_sizeof(&diet_data.desc);
 }
 
