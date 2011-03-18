@@ -28,7 +28,7 @@ set( WF_PARAM_TYPE "DIET_INT" )
 set( WF_SERVICE_NAME "IADD")
 configure_file( inout_sink.xml.in ${WF_XML_DIR}/inout_sink_${WF_SERVICE_NAME}.xml @ONLY )
 
-set( WF_PARAM_TYPE "DIET_LONG" )
+set( WF_PARAM_TYPE "DIET_LONGINT" )
 set( WF_SERVICE_NAME "LADD")
 configure_file( inout_sink.xml.in ${WF_XML_DIR}/inout_sink_${WF_SERVICE_NAME}.xml @ONLY )
 
