@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.169  2011/03/18 16:32:26  bdepardo
+ * No need to unbind Dagda elements in DIET_finalize as they automatically
+ * unbind themselves during destruction
+ *
  * Revision 1.168  2011/03/16 22:20:02  bdepardo
  * Correclty destroy the CltWfMgr
  *
@@ -861,10 +865,14 @@ diet_finalize() {
   }
 
 #if HAVE_WORKFLOW
-  // Terminate the xerces XML engine
-  XMLPlatformUtils::Terminate();
-  // Terminate the CltWfMgr
-  CltWfMgr::terminate();
+  try {
+    // Terminate the xerces XML engine
+    XMLPlatformUtils::Terminate();
+    // Terminate the CltWfMgr
+    CltWfMgr::terminate();
+  } catch (...) {
+    std::cerr << "Exception caught while destroying workflows" << std::endl;
+  }
   MA_DAG = MaDag::_nil();
 #endif // HAVE_WORKFLOW
 
@@ -891,15 +899,6 @@ diet_finalize() {
 #endif
 
 #ifdef HAVE_DAGDA
-  try {
-      string dagdaName = DagdaFactory::getDataManager()->getID();
-      ORBMgr::getMgr()->unbind(DAGDACTXT, dagdaName);
-      ORBMgr::getMgr()->fwdsUnbind(DAGDACTXT, dagdaName);
-  } catch( const char * str ) {
-      std::cerr << "Exception caught: "
-        	<< str
-        	<< "\n";
-  } catch( ... ) {}
   DagdaFactory::reset();
 #endif
 
