@@ -10,6 +10,10 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.28  2011/03/18 17:37:45  bdepardo
+ * Add dagda_reset method to reset internal variables.
+ * This is used for allowing multiple consecutive diet_initialize/diet_finalize
+ *
  * Revision 1.27  2011/02/24 11:55:46  bdepardo
  * Use the new CONFIG_XXX macros.
  *
@@ -68,6 +72,14 @@
  *
  ***********************************************************/
 
+#include <sstream>
+#include <string>
+#include <algorithm>
+
+#include <dirent.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+
 #include "DagdaFactory.hh"
 #include "configuration.hh"
 #include "debug.hh"
@@ -80,13 +92,7 @@
 #include "CacheAlgorithms.hh"
 #include "NetworkStats.hh"
 
-#include <sstream>
-#include <string>
-#include <algorithm>
-
-#include <dirent.h>
-#include <sys/types.h>
-#include <sys/stat.h>
+#include "DIET_dagda.h"
 
 size_t availableDiskSpace(const char* path) {
   struct statvfs buffer;
@@ -383,6 +389,7 @@ void
 DagdaFactory::reset() {
   // Reset everything to default value
   // TODO: Do not delete managers, otherwise we get a segfault...
+  dagda_reset();
   clientDataManager = NULL;
   sedDataManager = NULL;
   agentDataManager = NULL;

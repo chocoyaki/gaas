@@ -8,6 +8,10 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.49  2011/03/18 17:37:45  bdepardo
+ * Add dagda_reset method to reset internal variables.
+ * This is used for allowing multiple consecutive diet_initialize/diet_finalize
+ *
  * Revision 1.48  2011/03/18 08:43:32  hguemar
  * fix memory leak in DagdaImpl: getID() method returns a CORBA::String which is not always deallocated (patch from Gael Le Mahec)
  *
@@ -615,8 +619,10 @@ void SimpleDagdaImpl::lclAddData(const char* srcName, const corba_data_t& data) 
              << " locally." << endl);
   if (getIDstr() != src->getID()) {
     if (data.desc.specific._d()==DIET_FILE) {
-      if (getDiskMaxSpace()!=0 && getUsedDiskSpace()+data_sizeof(&data.desc)>getDiskMaxSpace())
+      if (getDiskMaxSpace()!=0 && getUsedDiskSpace()+data_sizeof(&data.desc)>getDiskMaxSpace()) {
         throw Dagda::NotEnoughSpace(getDiskMaxSpace()-getUsedDiskSpace());
+      }
+
       char* path = downloadData(src, data);
       if (path) {
         corba_data_t newData(data);
@@ -635,8 +641,10 @@ void SimpleDagdaImpl::lclAddData(const char* srcName, const corba_data_t& data) 
       //         if (TRACE_LEVEL >= TRACE_ALL_STEPS)
       //           getContainerRelationMgr()->displayContent();
     } else {
-      if (getMemMaxSpace()!=0 && getUsedMemSpace()+data_sizeof(&data.desc)>getMemMaxSpace())
+      if (getMemMaxSpace()!=0 && getUsedMemSpace()+data_sizeof(&data.desc)>getMemMaxSpace()) {
         throw Dagda::NotEnoughSpace(getMemMaxSpace()-getUsedMemSpace());
+      }
+
       char* dataID;
       corba_data_t* inserted;
       inserted = addData(data);

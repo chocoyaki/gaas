@@ -8,6 +8,10 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.37  2011/03/18 17:37:45  bdepardo
+ * Add dagda_reset method to reset internal variables.
+ * This is used for allowing multiple consecutive diet_initialize/diet_finalize
+ *
  * Revision 1.36  2011/03/02 17:00:11  glemahec
  * Bug with INOUT files correction. File name was not updated into the profile.
  *
@@ -519,6 +523,13 @@ Dagda_var entryPoint = NULL;
 MasterAgent_var masterAgent = NULL;
 Agent_var parentAgent = NULL;
 
+void
+dagda_reset() {
+  entryPoint  = NULL;
+  masterAgent = NULL;
+  parentAgent = NULL;
+}
+
 // Returns an new ID
 // DAGDA should use the uuid library to avoid id's conflicts.
 char * get_data_id()
@@ -599,7 +610,9 @@ Agent_var getParent() {
 // The reference to the MA DAGDA component is obtained from the ORB
 // only one time.
 Dagda_var getEntryPoint() {
-  if (entryPoint!=NULL) return entryPoint;
+  if (entryPoint != NULL) {
+    return entryPoint;
+  }
 	
   SimpleDagdaImpl* localManager = (SimpleDagdaImpl*) DagdaFactory::getDataManager();
   Dagda_var manager;
@@ -946,13 +959,17 @@ int dagda_put_data(void* value, diet_data_type_t type,
   if (entryPoint!=NULL) {
     entryPoint->pfmAddData(manager->getID(), data);
     // Client side. Don't need to keep the data reference.
-    if (type==DIET_FILE) manager->setDataStatus(dataID, Dagda::notOwner);
+    if (type==DIET_FILE) {
+      manager->setDataStatus(dataID, Dagda::notOwner);
+    }
     manager->remData(dataID);
-  }	else {
+
+  } else {
     manager->pfmAddData(manager->getID(), data);
   }
-  if (ID!=NULL)
+  if (ID!=NULL) {
     *ID=CORBA::string_dup(dataID);
+  }
   return 0;
 }
 

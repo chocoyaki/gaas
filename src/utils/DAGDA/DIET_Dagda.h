@@ -8,6 +8,10 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2011/03/18 17:37:45  bdepardo
+ * Add dagda_reset method to reset internal variables.
+ * This is used for allowing multiple consecutive diet_initialize/diet_finalize
+ *
  * Revision 1.13  2010/09/03 10:09:28  bdepardo
  * Changed C++ comments into C comments to remove warnings.
  *
@@ -108,6 +112,9 @@ int dagda_get_container_elements(const char* idContainer, diet_container_t* cont
 
 double dagda_get_progress(const char* dataId);
 void dagda_rem_progress(const char* transferId);
+
+/* Used to reset internal variables (used for successive diet_initialize/diet_finalize) */
+void dagda_reset();
   
 /* Put macros */
 #define dagda_put_scalar(value, base_type, mode, ID) \
