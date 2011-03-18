@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2011/03/18 16:28:33  hguemar
+ * fix initialization and const-correctness issues in src/utils/workflow/Thread.{hh,cc} raised by cppchecks
+ *
  * Revision 1.9  2011/02/24 16:50:06  bdepardo
  * Code cleanup.
  * Use TRACE_TEXT instead of cout
@@ -59,7 +62,7 @@
 Runnable::~Runnable() {}
 
 Thread::Thread(auto_ptr<Runnable> runnable_, bool isDetached) :
-  runnable(runnable_),detached(isDetached){
+  runnable(runnable_), detached(isDetached), result(NULL) {
   if (runnable.get() == NULL) {
     ERROR_EXIT("Thread::Thread(auto_ptr<Runnable> runnable_,"
                <<"bool isDetached) failed at " << ' ' << __FILE__ << ":"
@@ -67,7 +70,8 @@ Thread::Thread(auto_ptr<Runnable> runnable_, bool isDetached) :
   }
 }
 
-Thread::Thread(bool isDetached) : runnable(NULL), detached(isDetached){ }
+Thread::Thread(bool isDetached)
+  : runnable(NULL), detached(isDetached), result(NULL) { }
 
 Thread::~Thread() { }
 
