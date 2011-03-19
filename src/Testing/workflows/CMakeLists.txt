@@ -18,27 +18,38 @@ endif (DIET_USE_WORKFLOW)
 # configuring inout_sink.xml.in with all data transfer types
 set( WF_PARAM_TYPE "DIET_CHAR" )
 set( WF_SERVICE_NAME "CADD")
+set( MAXLOOP 10)
 configure_file( inout_sink.xml.in ${WF_XML_DIR}/inout_sink_${WF_SERVICE_NAME}.xml @ONLY )
+configure_file( loop.xml.in ${WF_XML_DIR}/loop_${WF_SERVICE_NAME}.xml @ONLY )
 
 set( WF_PARAM_TYPE "DIET_SHORT" )
 set( WF_SERVICE_NAME "BADD")
+set( MAXLOOP 4)
 configure_file( inout_sink.xml.in ${WF_XML_DIR}/inout_sink_${WF_SERVICE_NAME}.xml @ONLY )
+configure_file( loop.xml.in ${WF_XML_DIR}/loop_${WF_SERVICE_NAME}.xml @ONLY )
 
 set( WF_PARAM_TYPE "DIET_INT" )
 set( WF_SERVICE_NAME "IADD")
+set( MAXLOOP 10)
 configure_file( inout_sink.xml.in ${WF_XML_DIR}/inout_sink_${WF_SERVICE_NAME}.xml @ONLY )
+configure_file( loop.xml.in ${WF_XML_DIR}/loop_${WF_SERVICE_NAME}.xml @ONLY )
 
 set( WF_PARAM_TYPE "DIET_LONGINT" )
 set( WF_SERVICE_NAME "LADD")
 configure_file( inout_sink.xml.in ${WF_XML_DIR}/inout_sink_${WF_SERVICE_NAME}.xml @ONLY )
+configure_file( loop.xml.in ${WF_XML_DIR}/loop_${WF_SERVICE_NAME}.xml @ONLY )
 
 set( WF_PARAM_TYPE "DIET_FLOAT" )
 set( WF_SERVICE_NAME "FADD")
 configure_file( inout_sink.xml.in ${WF_XML_DIR}/inout_sink_${WF_SERVICE_NAME}.xml @ONLY )
+configure_file( loop.xml.in ${WF_XML_DIR}/loop_${WF_SERVICE_NAME}.xml @ONLY )
 
 set( WF_PARAM_TYPE "DIET_DOUBLE" )
 set( WF_SERVICE_NAME "DADD")
 configure_file( inout_sink.xml.in ${WF_XML_DIR}/inout_sink_${WF_SERVICE_NAME}.xml @ONLY )
+configure_file( loop.xml.in ${WF_XML_DIR}/loop_${WF_SERVICE_NAME}.xml @ONLY )
+
+
 
 
 # configuring inout_sink_vectors.xml.in with all data transfer types

@@ -4,51 +4,39 @@
 <workflow>
   <interface>
     <!-- INPUT -->
-    <source name="int1" type="DIET_INT"/> 
-    <source name="int2"   type="DIET_INT"/>
+    <source name="int1" type="@WF_PARAM_TYPE@"/> 
+    <source name="int2" type="@WF_PARAM_TYPE@"/>
 
     <!-- OUTPUT -->
-
-    <sink name="int2out"   type="DIET_INT"/>
-    <sink name="int3out"   type="DIET_INT"/>
-
-    <!-- CONSTANT -->
-    <!-- <constant name="init0" type="DIET_INT" value="0"/> -->
+    <sink name="int2out" type="@WF_PARAM_TYPE@"/>
+    <sink name="int3out" type="@WF_PARAM_TYPE@"/>
   </interface>
 
   <processors>
     <processor name="Run">
-      <in name="int1" type="DIET_INT"/>
-      <inOut name="int2" type="DIET_INT"/>
-      <out name="int3" type="DIET_INT"/>
+      <in    name="int1" type="@WF_PARAM_TYPE@"/>
+      <inOut name="int2" type="@WF_PARAM_TYPE@"/>
+      <out   name="int3" type="@WF_PARAM_TYPE@"/>
 
-      <diet path="IADD" estimation="constant"/>
+      <diet path="@WF_SERVICE_NAME@" estimation="constant"/>
     </processor>
-
-    <!-- <processor name="Run2"> -->
-    <!--   <in name="int1" type="DIET_INT"/> -->
-    <!--   <inOut name="int2" type="DIET_INT"/> -->
-    <!--   <out name="int3" type="DIET_INT"/> -->
-
-    <!--   <diet path="IADD" estimation="constant"/> -->
-    <!-- </processor> -->
-
+    
 
     <loop name="myLoop">
       <!-- /!\ REQUIRED nb of IN ports EQUALS nb of OUT ports -->
-      <in name="int1"    type="DIET_INT"/>
-      <in name="int2"    type="DIET_INT"/>
+      <in name="int1"    type="@WF_PARAM_TYPE@"/>
+      <in name="int2"    type="@WF_PARAM_TYPE@"/>
 
-      <out name="int1out"    type="DIET_INT"/>
-      <out name="int2out"    type="DIET_INT"/>
+      <out name="int1out"    type="@WF_PARAM_TYPE@"/>
+      <out name="int2out"    type="@WF_PARAM_TYPE@"/>
 
-      <inLoop name="int1_inL"        type="DIET_INT"    init="int1"/>
-      <inLoop name="int2_inL"        type="DIET_INT"    init="int2"/>
+      <inLoop name="int1_inL"   type="@WF_PARAM_TYPE@"    init="int1"/>
+      <inLoop name="int2_inL"   type="@WF_PARAM_TYPE@"    init="int2"/>
 
-      <outLoop name="int1_outL"        type="DIET_INT"    final="int1out"/>
-      <outLoop name="int2_outL"        type="DIET_INT"    final="int2out"/>
+      <outLoop name="int1_outL"   type="@WF_PARAM_TYPE@"    final="int1out"/>
+      <outLoop name="int2_outL"   type="@WF_PARAM_TYPE@"    final="int2out"/>
 
-      <while>($int1_inL le 10)</while>
+      <while>($int1_inL le @MAXLOOP@)</while>
       <do>int1_outL=int1_inL; int2_outL=int2_inL;</do>
     </loop>
   </processors>
@@ -70,11 +58,6 @@
     <link from="Run:int2"      to="int2out"/>
     <link from="Run:int3"      to="int3out"/>
 
-
-
-    <!-- <link from="Run:int3"  to="int2out"/> -->
-    <!-- <link from="Run2:int2"  to="int3"/> -->
-    <!-- <link from="Run2:int3"  to="int2out"/> -->
   </links>
 
 </workflow>
