@@ -39,3 +39,35 @@ configure_file( inout_sink.xml.in ${WF_XML_DIR}/inout_sink_${WF_SERVICE_NAME}.xm
 set( WF_PARAM_TYPE "DIET_DOUBLE" )
 set( WF_SERVICE_NAME "DADD")
 configure_file( inout_sink.xml.in ${WF_XML_DIR}/inout_sink_${WF_SERVICE_NAME}.xml @ONLY )
+
+
+# configuring inout_sink_vectors.xml.in with all data transfer types
+set( WF_PARAM_TYPE "DIET_CHAR" )
+set( WF_SERVICE_NAME "CVADD")
+configure_file( inout_sink_vectors.xml.in ${WF_XML_DIR}/inout_sink_${WF_SERVICE_NAME}.xml @ONLY )
+
+set( WF_PARAM_TYPE "DIET_SHORT" )
+set( WF_SERVICE_NAME "BVADD")
+configure_file( inout_sink_vectors.xml.in ${WF_XML_DIR}/inout_sink_${WF_SERVICE_NAME}.xml @ONLY )
+
+set( WF_PARAM_TYPE "DIET_INT" )
+set( WF_SERVICE_NAME "IVADD")
+configure_file( inout_sink_vectors.xml.in ${WF_XML_DIR}/inout_sink_${WF_SERVICE_NAME}.xml @ONLY )
+
+set( WF_PARAM_TYPE "DIET_LONGINT" )
+set( WF_SERVICE_NAME "LVADD")
+configure_file( inout_sink_vectors.xml.in ${WF_XML_DIR}/inout_sink_${WF_SERVICE_NAME}.xml @ONLY )
+
+set( WF_PARAM_TYPE "DIET_FLOAT" )
+set( WF_SERVICE_NAME "FVADD")
+configure_file( inout_sink_vectors.xml.in ${WF_XML_DIR}/inout_sink_${WF_SERVICE_NAME}.xml @ONLY )
+
+set( WF_PARAM_TYPE "DIET_DOUBLE" )
+set( WF_SERVICE_NAME "DVADD")
+configure_file( inout_sink_vectors.xml.in ${WF_XML_DIR}/inout_sink_${WF_SERVICE_NAME}.xml @ONLY )
+
+
+# configuring inout_sink.xml.in with all data transfer types
+set( WF_PARAM_TYPE "DIET_STRING" )
+set( WF_SERVICE_NAME "SPRINT")
+configure_file( inout_sink.xml.in ${WF_XML_DIR}/inout_sink_${WF_SERVICE_NAME}.xml @ONLY )

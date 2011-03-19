@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE workflow SYSTEM "@WF_DTD_NATIVE_PATH@">
+
+<workflow>
+  <interface>
+    <!-- INPUT -->
+    <source name="int1" type="@WF_PARAM_TYPE@"/> 
+    <source name="int2" type="@WF_PARAM_TYPE@"/>
+
+    <!-- OUTPUT -->
+
+    <sink name="int2out" type="@WF_PARAM_TYPE@"/>
+    <sink name="int3"    type="@WF_PARAM_TYPE@"/>
+
+  </interface>
+
+  <processors>
+    <processor name="Run">
+      <in    name="int1" type="@WF_PARAM_TYPE@"/>
+      <inOut name="int2" type="@WF_PARAM_TYPE@"/>
+      <out   name="int3" type="@WF_PARAM_TYPE@"/>
+
+      <diet path="@WF_SERVICE_NAME@" estimation="constant"/>
+    </processor>
+  </processors>
+
+
+  <links>
+    <!-- ******************************************* -->
+    <!-- From constant input parameters to processor -->
+    <!-- ******************************************* -->
+    <link from="int1" to="Run:int1"/>
+    <link from="int2" to="Run:int2"/>
+
+    <!-- ******************************************* -->
+    <!-- From processor to sinks                     -->
+    <!-- ******************************************* -->
+    <link from="Run:int2" to="int2out"/>
+    <link from="Run:int3" to="int3"/>
+  </links>
+
+</workflow>
