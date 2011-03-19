@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<data>
+
+  <source name="int1">
+    <list>
+      <item value="@TRANSFER_FILE_TEST1@"/>
+    </list>
+  </source>
+
+  <source name="int2">
+    <list>
+      <item value="@TRANSFER_FILE_TEST2@"/>
+    </list>
+  </source>
+</data>
