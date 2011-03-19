@@ -79,3 +79,7 @@ configure_file( inout_sink_PSPRINT.xml.in ${WF_XML_DIR}/inout_sink_PSPRINT.xml @
 set( WF_PARAM_TYPE "DIET_FILE" )
 set( WF_SERVICE_NAME "FTRANSFER")
 configure_file( inout_sink.xml.in ${WF_XML_DIR}/inout_sink_${WF_SERVICE_NAME}.xml @ONLY )
+
+# configuring inout_sink.xml.in with all data transfer types
+configure_file( inout_sink_LCADD.xml.in ${WF_XML_DIR}/inout_sink_LCADD.xml @ONLY )
+
