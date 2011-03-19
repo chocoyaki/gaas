@@ -71,3 +71,6 @@ configure_file( inout_sink_vectors.xml.in ${WF_XML_DIR}/inout_sink_${WF_SERVICE_
 set( WF_PARAM_TYPE "DIET_STRING" )
 set( WF_SERVICE_NAME "SPRINT")
 configure_file( inout_sink.xml.in ${WF_XML_DIR}/inout_sink_${WF_SERVICE_NAME}.xml @ONLY )
+
+# configuring inout_sink.xml.in with all data transfer types
+configure_file( inout_sink_PSPRINT.xml.in ${WF_XML_DIR}/inout_sink_PSPRINT.xml @ONLY )
