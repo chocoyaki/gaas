@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2011/03/19 23:34:01  bdepardo
+ * Fixed a bug in variable initialization which prevented comparisons in
+ * while condition
+ *
  * Revision 1.8  2011/02/24 16:50:06  bdepardo
  * Code cleanup.
  * Use TRACE_TEXT instead of cout
@@ -95,8 +99,9 @@ WfExprVariable::getXQDeclaration(ostream& output) {
 
     string xsType = WfCst::cvtWfToXSType(myType);
     string quotes = (xsType == "xs:string") ? "'" : "";
-    output << " as " << xsType << " := " << quotes << myValue << quotes << "; " << endl;
-
+    output << " as " << xsType
+           << " := " << xsType << "(" << quotes << myValue << quotes << "); "
+           << endl;
   } else {
     // in this case the value is supposed to be XML-encoded
     output << " := document { " << myValue << " }; " << endl;
