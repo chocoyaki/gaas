@@ -37,3 +37,7 @@ name = mad
 
 parentName = MA1
 
+
+useLogService = 1
+lsOutbuffersize = 0
+lsFlushinterval = 10000

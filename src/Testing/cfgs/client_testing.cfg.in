@@ -33,3 +33,8 @@ MAName = MA1
 
 
 storageDirectory = @CLIENT_DAGDA_DIR_NATIVE_PATH@
+
+
+useLogService = 1
+lsOutbuffersize = 0
+lsFlushinterval = 10000
