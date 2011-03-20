@@ -51,6 +51,9 @@ BOOST_AUTO_TEST_CASE( simple_async_client)
     error = diet_wait(reqID) ;
     BOOST_REQUIRE_EQUAL( GRPC_NO_ERROR, error );
 
+    error = diet_probe(reqID);
+    BOOST_REQUIRE_EQUAL( GRPC_NO_ERROR, error );
+
     error = diet_get_error(reqID);
     BOOST_REQUIRE_EQUAL( GRPC_NO_ERROR, error );
 
@@ -98,6 +101,9 @@ BOOST_AUTO_TEST_CASE( simple_async_client_cancel)
     BOOST_REQUIRE_EQUAL( GRPC_NO_ERROR, error );
 
     error = diet_wait(reqID) ;
+    BOOST_REQUIRE_EQUAL( GRPC_INVALID_SESSION_ID, error );
+
+    error = diet_probe(reqID);
     BOOST_REQUIRE_EQUAL( GRPC_INVALID_SESSION_ID, error );
 
     error = diet_profile_free(profile);
@@ -153,7 +159,12 @@ BOOST_AUTO_TEST_CASE( simple_async_client_allcancel)
 
     error = diet_wait(reqID) ;
     BOOST_REQUIRE_EQUAL( GRPC_INVALID_SESSION_ID, error );
+    error = diet_probe(reqID);
+    BOOST_REQUIRE_EQUAL( GRPC_INVALID_SESSION_ID, error );
+
     error = diet_wait(reqID2) ;
+    BOOST_REQUIRE_EQUAL( GRPC_INVALID_SESSION_ID, error );
+    error = diet_probe(reqID2);
     BOOST_REQUIRE_EQUAL( GRPC_INVALID_SESSION_ID, error );
 
     error = diet_profile_free(profile);
@@ -210,6 +221,11 @@ BOOST_AUTO_TEST_CASE( simple_async_client_waitall)
     error = diet_wait_all() ;
     BOOST_REQUIRE_EQUAL( GRPC_NO_ERROR, error );
 
+    error = diet_probe(reqID[0]);
+    BOOST_REQUIRE_EQUAL( GRPC_NO_ERROR, error );
+    error = diet_probe(reqID[1]);
+    BOOST_REQUIRE_EQUAL( GRPC_NO_ERROR, error );
+
     error = diet_profile_free(profile);
     BOOST_CHECK_EQUAL( GRPC_NO_ERROR, error);
     error = diet_profile_free(profile2);
@@ -264,6 +280,10 @@ BOOST_AUTO_TEST_CASE( simple_async_client_waitand)
     BOOST_REQUIRE_EQUAL( GRPC_NO_ERROR, error );
 
     error = diet_wait_and(reqID, 2) ;
+    BOOST_REQUIRE_EQUAL( GRPC_NO_ERROR, error );
+    error = diet_probe(reqID[0]);
+    BOOST_REQUIRE_EQUAL( GRPC_NO_ERROR, error );
+    error = diet_probe(reqID[1]);
     BOOST_REQUIRE_EQUAL( GRPC_NO_ERROR, error );
 
     error = diet_profile_free(profile);
@@ -322,8 +342,14 @@ BOOST_AUTO_TEST_CASE( simple_async_client_waitor)
 
     error = diet_wait_or(reqID, 2, &orReqID) ;
     BOOST_REQUIRE_EQUAL( GRPC_NO_ERROR, error );
+    error = diet_probe(orReqID);
+    BOOST_REQUIRE_EQUAL( GRPC_NO_ERROR, error );
 
     error = diet_wait_all() ;
+    BOOST_REQUIRE_EQUAL( GRPC_NO_ERROR, error );
+    error = diet_probe(reqID[0]);
+    BOOST_REQUIRE_EQUAL( GRPC_NO_ERROR, error );
+    error = diet_probe(reqID[1]);
     BOOST_REQUIRE_EQUAL( GRPC_NO_ERROR, error );
 
     error = diet_profile_free(profile);
@@ -383,8 +409,14 @@ BOOST_AUTO_TEST_CASE( simple_async_client_any)
 
     error = diet_wait_any(&orReqID) ;
     BOOST_REQUIRE_EQUAL( GRPC_NO_ERROR, error );
+    error = diet_probe(orReqID);
+    BOOST_REQUIRE_EQUAL( GRPC_NO_ERROR, error );
 
     error = diet_wait_all() ;
+    BOOST_REQUIRE_EQUAL( GRPC_NO_ERROR, error );
+    error = diet_probe(reqID[0]);
+    BOOST_REQUIRE_EQUAL( GRPC_NO_ERROR, error );
+    error = diet_probe(reqID[1]);
     BOOST_REQUIRE_EQUAL( GRPC_NO_ERROR, error );
 
     error = diet_profile_free(profile);
