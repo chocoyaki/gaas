@@ -217,6 +217,8 @@ BOOST_AUTO_TEST_CASE( simple_async_client_waitall)
 
     error = diet_finalize();
     BOOST_CHECK_EQUAL( GRPC_NO_ERROR, error);
+
+    delete [] reqID;
 }
 
 
@@ -271,6 +273,8 @@ BOOST_AUTO_TEST_CASE( simple_async_client_waitand)
 
     error = diet_finalize();
     BOOST_CHECK_EQUAL( GRPC_NO_ERROR, error);
+
+    delete [] reqID;
 }
 
 
@@ -329,6 +333,8 @@ BOOST_AUTO_TEST_CASE( simple_async_client_waitor)
 
     error = diet_finalize();
     BOOST_CHECK_EQUAL( GRPC_NO_ERROR, error);
+
+    delete [] reqID;
 }
 
 
@@ -388,6 +394,8 @@ BOOST_AUTO_TEST_CASE( simple_async_client_any)
 
     error = diet_finalize();
     BOOST_CHECK_EQUAL( GRPC_NO_ERROR, error);
+
+    delete [] reqID;
 }
 
 
