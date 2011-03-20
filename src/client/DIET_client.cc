@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.170  2011/03/20 18:57:26  bdepardo
+ * Be more robust when logComponent initialization fails
+ *
  * Revision 1.169  2011/03/18 16:32:26  bdepardo
  * No need to unbind Dagda elements in DIET_finalize as they automatically
  * unbind themselves during destruction
@@ -756,11 +759,12 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
       dietLogComponent = new DietLogComponent("", outBufferSize, argc, argv);
 #endif // end: HAVE_DAGDA
     }
-    ORBMgr::getMgr()->activate(dietLogComponent);
+    //ORBMgr::getMgr()->activate(dietLogComponent);
     
     if (dietLogComponent->run(agtTypeName, agtParentName, flushTime) != 0) {
+      TRACE_TEXT(TRACE_ALL_STEPS, "* LogService: disabled" << endl);
       WARNING("Could not initialize DietLogComponent");
-      dietLogComponent = NULL; // this should not happen;
+      dietLogComponent = NULL;
     }
     free(agtTypeName);
 
