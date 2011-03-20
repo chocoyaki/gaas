@@ -365,4 +365,10 @@ char AllDataTransferBinDir[] = EXAMPLES_DIR "/allDataTransfers";
 typedef DietSeDFixture <AllDataTransferAddSeD, AllDataTransferBinDir, ConfigSimpleAddSeD, DietLAFixture>AllDataTransferSeDFixture;
 typedef DietSeDFixture <AllDataTransferAddSeD, AllDataTransferBinDir, ConfigSimpleAddSeD, DietMADAGFixtureLA>AllDataTransferSeDFixtureWF;
 
+
+char DynamicAddRemoveServiceAddSeD[] = "server_dyn_add_rem";
+char DynamicAddRemoveServiceBinDir[] = EXAMPLES_DIR "/dyn_add_rem";
+typedef DietSeDFixture <DynamicAddRemoveServiceAddSeD, DynamicAddRemoveServiceBinDir, ConfigSimpleAddSeD, DietLAFixture>DynamicAddRemoveServiceSeDFixture;
+
+
 #endif /* FIXTURES_HPP_ */
