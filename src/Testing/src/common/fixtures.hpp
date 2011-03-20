@@ -357,18 +357,19 @@ typedef DietMADAGFixture<ConfigMADAG, DietLAFixture> DietMADAGFixtureLA;
 
 char SimpleAddSeD[] = "SimpleAddSeD";
 char ConfigSimpleAddSeD[] = SIMPLE_ADD_SED_CONFIG;
+char ConfigSimpleAddSeDLA[] = SIMPLE_ADD_SED_CONFIG_LA;
 char SimpleAddSeDBinDir[] = BIN_DIR;
-typedef DietSeDFixture <SimpleAddSeD, SimpleAddSeDBinDir, ConfigSimpleAddSeD, DietLAFixture>SimpleAddSeDFixture;
+typedef DietSeDFixture <SimpleAddSeD, SimpleAddSeDBinDir, ConfigSimpleAddSeDLA, DietLAFixture>SimpleAddSeDFixture;
 
 char AllDataTransferAddSeD[] = "transfers_server";
 char AllDataTransferBinDir[] = EXAMPLES_DIR "/allDataTransfers";
-typedef DietSeDFixture <AllDataTransferAddSeD, AllDataTransferBinDir, ConfigSimpleAddSeD, DietLAFixture>AllDataTransferSeDFixture;
-typedef DietSeDFixture <AllDataTransferAddSeD, AllDataTransferBinDir, ConfigSimpleAddSeD, DietMADAGFixtureLA>AllDataTransferSeDFixtureWF;
+typedef DietSeDFixture <AllDataTransferAddSeD, AllDataTransferBinDir, ConfigSimpleAddSeDLA, DietLAFixture>AllDataTransferSeDFixture;
+typedef DietSeDFixture <AllDataTransferAddSeD, AllDataTransferBinDir, ConfigSimpleAddSeDLA, DietMADAGFixtureLA>AllDataTransferSeDFixtureWF;
 
 
 char DynamicAddRemoveServiceAddSeD[] = "server_dyn_add_rem";
 char DynamicAddRemoveServiceBinDir[] = EXAMPLES_DIR "/dyn_add_rem";
-typedef DietSeDFixture <DynamicAddRemoveServiceAddSeD, DynamicAddRemoveServiceBinDir, ConfigSimpleAddSeD, DietLAFixture>DynamicAddRemoveServiceSeDFixture;
+typedef DietSeDFixture <DynamicAddRemoveServiceAddSeD, DynamicAddRemoveServiceBinDir, ConfigSimpleAddSeDLA, DietLAFixture>DynamicAddRemoveServiceSeDFixture;
 
 
 #endif /* FIXTURES_HPP_ */

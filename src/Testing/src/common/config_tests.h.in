@@ -31,6 +31,7 @@
 
 // SeD specific options
 #define SIMPLE_ADD_SED_CONFIG "@CONFIG_DIR_NATIVE_PATH@/SeD_testing.cfg"
+#define SIMPLE_ADD_SED_CONFIG_LA "@CONFIG_DIR_NATIVE_PATH@/SeD_testingLA.cfg"
 #define EXAMPLES_DIR "@EXAMPLES_DIR_NATIVE_PATH@"
 
 
