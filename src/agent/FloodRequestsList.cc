@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2011/03/20 14:40:03  bdepardo
+ * move nanobased usleep implementation to src/utils/DIET_compat.{hh,cc}
+ *
  * Revision 1.5  2010/03/31 21:15:39  bdepardo
  * Changed C headers into C++ headers
  *
@@ -40,6 +43,7 @@
 #include <set>
 #include <unistd.h>
 #include "debug.hh"
+#include "DIET_compat.hh"
 
 bool FloodRequestsList::put(FloodRequest& floodRequest) {
   //TRACE_TEXT(15,"fr put lock" << endl) ;
@@ -77,7 +81,7 @@ FloodRequest & FloodRequestsList::get(const RequestID & reqID) {
       //TRACE_TEXT(15,"fr get unlock" << endl) ;
       mutex.unlock() ;
       TRACE_TEXT(20, "FloodRequestsLists sleep 10ms" << endl) ;
-      usleep(10000) ;
+      diet::usleep(10000) ;
     }
   }
   if (!find)
