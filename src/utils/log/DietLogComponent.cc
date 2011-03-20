@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2011/03/20 18:48:18  bdepardo
+ * Be more robust when logComponent initialization fails
+ *
  * Revision 1.6  2011/02/24 16:52:22  bdepardo
  * Use TRACE_TEXT instead of cout
  *
@@ -397,20 +400,24 @@ DietLogComponent::DietLogComponent(const char* name,
 int DietLogComponent::run(const char* agentType,
                           const char* parentName,
                           int outBufferTime) {
-    // Connexion to the LCC
+  // Connexion to the LCC
+  try {
     myLCC = LogORBMgr::getMgr()->resolve<LogCentralComponent, LogCentralComponent_ptr>("LogServiceC", "LCC");
     if (CORBA::is_nil(myLCC)){
       fprintf (stderr, "Failed to narrow the LCC ! \n");
     }
+  } catch (...) {
+    ERROR("Problem while resolving LogServiceC/LCC",-1);
+  }
 
-    try{
-      LogORBMgr::getMgr()->bind(LOGCOMPCTXT, myName, _this(), false);
-      LogORBMgr::getMgr()->fwdsBind(LOGCOMPCTXT, myName,
-				 LogORBMgr::getMgr()->getIOR(_this()));
-    }
-    catch (...){
-      fprintf (stderr, "Bind failed  in the LogService context\n");
-    }
+  try{
+    LogORBMgr::getMgr()->bind(LOGCOMPCTXT, myName, _this(), false);
+    LogORBMgr::getMgr()->fwdsBind(LOGCOMPCTXT, myName,
+                                  LogORBMgr::getMgr()->getIOR(_this()));
+  }
+  catch (...){
+    ERROR("Bind failed  in the LogService context",-1);
+  }
 
   // Connect myself to the LogCentral
   short ret=0;
@@ -431,18 +438,18 @@ int DietLogComponent::run(const char* agentType,
   tag_list_t currentTagList;
   try {
     ret = myLCC->connectComponent(
-      name,
-      hostName,
-      msg,
-      name,
-      time,
-      currentTagList
-    );
+                                  name,
+                                  hostName,
+                                  msg,
+                                  name,
+                                  time,
+                                  currentTagList
+                                  );
   } catch (CORBA::SystemException &e) {
     free(msg);
     free(hostName);
     TRACE_TEXT(TRACE_MAIN_STEPS, "Error: could not connect to the LogCentral" << endl);
-    DLC_ERROR("SystemException",-1);
+    ERROR("SystemException",-1);
   }
   free(hostName);  // alloc'ed with new[]
   free(msg);          // alloc'ed with strdup (e.g. malloc)

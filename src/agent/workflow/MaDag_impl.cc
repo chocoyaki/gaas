@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.40  2011/03/20 18:48:18  bdepardo
+ * Be more robust when logComponent initialization fails
+ *
  * Revision 1.39  2011/03/18 16:58:13  hguemar
  * fixes several issues in src/agent/workflow: reduce some variables scope, use diet::usleep instead of Posix deprecated usleep
  *
@@ -605,17 +608,17 @@ MaDag_impl::setupDietLogComponent()
     this->dietLogComponent = new DietLogComponent(agtName,
                                                   outBufferSize,
                                                   0, 0);
-    ORBMgr::getMgr()->activate(dietLogComponent);
-
+    
     agtTypeName = strdup("MA_DAG");
     if (dietLogComponent->run(agtTypeName, agtParentName, flushTime) != 0) {
       WARNING("Could not initialize DietLogComponent");
-      dietLogComponent = 0; // this should not happen;
+      TRACE_TEXT(TRACE_ALL_STEPS, "* LogService: disabled" << endl);
+      dietLogComponent = NULL;
     }
     free(agtTypeName);
   } else {
     TRACE_TEXT(TRACE_ALL_STEPS, "LogService disabled" << endl);
-    this->dietLogComponent = 0;
+    this->dietLogComponent = NULL;
   }
 }
 #endif

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.101  2011/03/20 18:48:17  bdepardo
+ * Be more robust when logComponent initialization fails
+ *
  * Revision 1.100  2011/03/01 13:37:51  bdepardo
  * SIGTERM can now also be used to properly terminate DIET
  *
@@ -941,12 +944,12 @@ diet_SeD(const char* config_file_name, int argc, char* argv[])
 
     dietLogComponent = new DietLogComponent(SeD->getName(), outBufferSize, myargc, (char**)myargv);
 
-    ORBMgr::getMgr()->activate(dietLogComponent);
+
     if (dietLogComponent->run("SeD", parentName.c_str(), flushTime) != 0) {
-      // delete(dietLogComponent); // DLC is activated, do not delete !
+      //      delete(dietLogComponent); // DLC is activated, do not delete !
       WARNING("Could not initialize DietLogComponent");
       TRACE_TEXT(TRACE_ALL_STEPS, "* LogService: disabled" << endl);
-      dietLogComponent = NULL; // this should never happen;
+      dietLogComponent = NULL;
     }
   }
 

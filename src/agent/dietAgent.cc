@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.59  2011/03/20 18:48:18  bdepardo
+ * Be more robust when logComponent initialization fails
+ *
  * Revision 1.58  2011/03/16 20:36:35  bdepardo
  * Fixed a few memleaks when an error is encountered
  *
@@ -466,7 +469,8 @@ int main(int argc, char* argv[], char *envp[]) {
     if (dietLogComponent->run(agtTypeName.c_str(), parentName.c_str(), flushTime)) {
       // delete(dietLogComponent); // DLC is activated, do not delete !
       WARNING("Could not initialize DietLogComponent");
-      dietLogComponent = NULL; // this should not happen;
+      TRACE_TEXT(TRACE_ALL_STEPS, "* LogService: disabled" << endl);
+      dietLogComponent = NULL;
     }
   }
 #endif /* USE_LOG_SERVICE */
