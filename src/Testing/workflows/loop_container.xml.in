@@ -4,43 +4,39 @@
 <workflow>
   <interface>
     <!-- INPUT -->
-    <source name="int1" type="DIET_LONGINT"/> 
-    <source name="int2" type="DIET_LONGINT"/>
+    <source name="int1" type="@WF_PARAM_TYPE@"/> 
+    <source name="int2" type="@WF_PARAM_TYPE@"/>
 
     <!-- OUTPUT -->
-
-    <sink name="int2out"   type="DIET_LONGINT"/>
-    <sink name="int3out"   type="DIET_LONGINT"/>
-
-    <!-- CONSTANT -->
-    <!-- <constant name="init0" type="DIET_LONGINT" value="0"/> -->
+    <sink name="int2out"   type="@WF_PARAM_TYPE@"/>
+    <sink name="int3out"   type="@WF_PARAM_TYPE@"/>
   </interface>
 
   <processors>
     <processor name="Run">
-      <in name="int1"    type="DIET_LONGINT" depth="1"/>
-      <inOut name="int2" type="DIET_LONGINT" depth="1"/>
-      <out name="int3"   type="DIET_LONGINT" depth="1"/>
+      <in    name="int1"   type="@WF_PARAM_TYPE@" depth="1"/>
+      <inOut name="int2"   type="@WF_PARAM_TYPE@" depth="1"/>
+      <out   name="int3"   type="@WF_PARAM_TYPE@" depth="1"/>
 
-      <diet path="LCADD" estimation="constant"/>
+      <diet path="@WF_SERVICE_NAME@" estimation="constant"/>
     </processor>
 
 
     <loop name="myLoop">
       <!-- /!\ REQUIRED nb of IN ports EQUALS nb of OUT ports -->
-      <in name="int1"     type="DIET_LONGINT" depth="1"/>
-      <in name="int2"     type="DIET_LONGINT" depth="1"/>
+      <in name="int1"     type="@WF_PARAM_TYPE@" depth="1"/>
+      <in name="int2"     type="@WF_PARAM_TYPE@" depth="1"/>
 
-      <out name="int1out" type="DIET_LONGINT" depth="1"/>
-      <out name="int2out" type="DIET_LONGINT" depth="1"/>
+      <out name="int1out" type="@WF_PARAM_TYPE@" depth="1"/>
+      <out name="int2out" type="@WF_PARAM_TYPE@" depth="1"/>
 
-      <inLoop name="int1_inL"   type="DIET_LONGINT"    init="int1" depth="1"/>
-      <inLoop name="int2_inL"   type="DIET_LONGINT"    init="int2" depth="1"/>
+      <inLoop name="int1_inL"   type="@WF_PARAM_TYPE@"    init="int1" depth="1"/>
+      <inLoop name="int2_inL"   type="@WF_PARAM_TYPE@"    init="int2" depth="1"/>
 
-      <outLoop name="int1_outL" type="DIET_LONGINT"    final="int1out" depth="1"/>
-      <outLoop name="int2_outL" type="DIET_LONGINT"    final="int2out" depth="1"/>
+      <outLoop name="int1_outL" type="@WF_PARAM_TYPE@"    final="int1out" depth="1"/>
+      <outLoop name="int2_outL" type="@WF_PARAM_TYPE@"    final="int2out" depth="1"/>
 
-      <while>(xs:decimal($int1_inL/array/item[1]/text()) le 10)</while>
+      <while>(xs:decimal($int1_inL/array/item[1]/text()) le @MAXLOOP@)</while>
       <do>int1_outL=int1_inL; int2_outL=int2_inL;</do>
     </loop>
   </processors>

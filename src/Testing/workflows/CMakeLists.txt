@@ -50,8 +50,6 @@ configure_file( inout_sink.xml.in ${WF_XML_DIR}/inout_sink_${WF_SERVICE_NAME}.xm
 configure_file( loop.xml.in ${WF_XML_DIR}/loop_${WF_SERVICE_NAME}.xml @ONLY )
 
 
-
-
 # configuring inout_sink_vectors.xml.in with all data transfer types
 set( WF_PARAM_TYPE "DIET_CHAR" )
 set( WF_SERVICE_NAME "CVADD")
@@ -93,4 +91,10 @@ configure_file( inout_sink.xml.in ${WF_XML_DIR}/inout_sink_${WF_SERVICE_NAME}.xm
 
 # configuring inout_sink.xml.in with all data transfer types
 configure_file( inout_sink_LCADD.xml.in ${WF_XML_DIR}/inout_sink_LCADD.xml @ONLY )
+
+# configuring loop_container.xml.in with containers
+set( WF_PARAM_TYPE "DIET_CHAR" )
+set( WF_SERVICE_NAME "LCADD")
+set( MAXLOOP 10)
+configure_file( loop_container.xml.in ${WF_XML_DIR}/loop_container_${WF_SERVICE_NAME}.xml @ONLY )
 
