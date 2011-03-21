@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.60  2011/03/21 08:27:38  bdepardo
+ * Correctly register the logcomponent into the ORB, and correclty detroy it.
+ *
  * Revision 1.59  2011/03/20 18:48:18  bdepardo
  * Be more robust when logComponent initialization fails
  *
@@ -464,7 +467,7 @@ int main(int argc, char* argv[], char *envp[]) {
                                             outBufferSize,
                                             argsTmp.size(),
                                             &argsTmp[0]);
-    //    ORBMgr::getMgr()->activate(dietLogComponent);
+    ORBMgr::getMgr()->activate(dietLogComponent);
 
     if (dietLogComponent->run(agtTypeName.c_str(), parentName.c_str(), flushTime)) {
       // delete(dietLogComponent); // DLC is activated, do not delete !

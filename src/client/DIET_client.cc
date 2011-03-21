@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.171  2011/03/21 08:27:39  bdepardo
+ * Correctly register the logcomponent into the ORB, and correclty detroy it.
+ *
  * Revision 1.170  2011/03/20 18:57:26  bdepardo
  * Be more robust when logComponent initialization fails
  *
@@ -754,12 +757,14 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
     } else {
 #if HAVE_DAGDA
       // Use DAGDA agent as component name (same ref as in data transfer logs)
-      dietLogComponent = new DietLogComponent(DagdaFactory::getClientName(), outBufferSize, argc, argv);
+      dietLogComponent = new DietLogComponent(DagdaFactory::getClientName(),
+                                              outBufferSize, argc, argv);
 #else
       dietLogComponent = new DietLogComponent("", outBufferSize, argc, argv);
 #endif // end: HAVE_DAGDA
     }
-    //ORBMgr::getMgr()->activate(dietLogComponent);
+
+    ORBMgr::getMgr()->activate(dietLogComponent);
     
     if (dietLogComponent->run(agtTypeName, agtParentName, flushTime) != 0) {
       TRACE_TEXT(TRACE_ALL_STEPS, "* LogService: disabled" << endl);
@@ -897,7 +902,7 @@ diet_finalize() {
   
 #ifdef USE_LOG_SERVICE
   if (dietLogComponent != NULL) {
-    delete dietLogComponent;
+    //delete dietLogComponent; // FIXME: this does not work
     dietLogComponent = NULL;
   }
 #endif

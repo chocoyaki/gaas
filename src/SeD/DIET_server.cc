@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.102  2011/03/21 08:27:39  bdepardo
+ * Correctly register the logcomponent into the ORB, and correclty detroy it.
+ *
  * Revision 1.101  2011/03/20 18:48:17  bdepardo
  * Be more robust when logComponent initialization fails
  *
@@ -944,6 +947,8 @@ diet_SeD(const char* config_file_name, int argc, char* argv[])
 
     dietLogComponent = new DietLogComponent(SeD->getName(), outBufferSize, myargc, (char**)myargv);
 
+
+    ORBMgr::getMgr()->activate(dietLogComponent);
 
     if (dietLogComponent->run("SeD", parentName.c_str(), flushTime) != 0) {
       //      delete(dietLogComponent); // DLC is activated, do not delete !

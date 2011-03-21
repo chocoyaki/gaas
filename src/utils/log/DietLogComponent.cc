@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2011/03/21 08:27:38  bdepardo
+ * Correctly register the logcomponent into the ORB, and correclty detroy it.
+ *
  * Revision 1.7  2011/03/20 18:48:18  bdepardo
  * Be more robust when logComponent initialization fails
  *
@@ -485,6 +488,8 @@ DietLogComponent::~DietLogComponent() {
   if (isConnected) {
     try {
       myLCC->disconnectComponent(name, "");
+      LogORBMgr::getMgr()->unbind(LOGCOMPCTXT, myName);
+      LogORBMgr::getMgr()->fwdsUnbind(LOGCOMPCTXT, myName);
     } catch (CORBA::SystemException &e) {
       isConnected = false;
       DLC_WARNING("Could not disconnect from the LogCentral");
@@ -497,7 +502,7 @@ DietLogComponent::~DietLogComponent() {
   }
   delete tagNames;
   delete tagFlags;
-  delete LogORBMgr::getMgr();
+  //delete LogORBMgr::getMgr(); // FIXME: this does not work
 }
 
 /**

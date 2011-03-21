@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.41  2011/03/21 08:27:39  bdepardo
+ * Correctly register the logcomponent into the ORB, and correclty detroy it.
+ *
  * Revision 1.40  2011/03/20 18:48:18  bdepardo
  * Be more robust when logComponent initialization fails
  *
@@ -609,6 +612,8 @@ MaDag_impl::setupDietLogComponent()
                                                   outBufferSize,
                                                   0, 0);
     
+    ORBMgr::getMgr()->activate(dietLogComponent);
+
     agtTypeName = strdup("MA_DAG");
     if (dietLogComponent->run(agtTypeName, agtParentName, flushTime) != 0) {
       WARNING("Could not initialize DietLogComponent");
