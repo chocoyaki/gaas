@@ -1,3 +1,3 @@
-diet_test( DIETSimpleClientTests )
-diet_test( DIETSimpleSyncClientTests )
-diet_test( DIETSimpleAsyncClientTests )
+generate_diet_tests( DIETSimpleClientTests SimpleAddSeDFixture )
+generate_diet_tests( DIETSimpleSyncClientTests SimpleAddSeDFixture )
+generate_diet_tests( DIETSimpleAsyncClientTests SimpleAddSeDFixture )

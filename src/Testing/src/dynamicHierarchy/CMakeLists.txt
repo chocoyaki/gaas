@@ -8,6 +8,6 @@ INCLUDE_DIRECTORIES(
   ${DIET_SOURCE_DIR}/include
 )
 
-diet_test( DIETDynamicsConnectTests )
-diet_test( DIETDynamicsDisconnectTests )
-diet_test( DIETDynamicsRemoveTests )
+generate_diet_tests( DIETDynamicsConnectTests DynamicAddRemoveServiceSeDFixture )
+generate_diet_tests( DIETDynamicsDisconnectTests DynamicAddRemoveServiceSeDFixture )
+generate_diet_tests( DIETDynamicsRemoveTests DynamicAddRemoveServiceSeDFixture )

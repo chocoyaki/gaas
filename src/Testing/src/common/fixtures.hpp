@@ -107,15 +107,15 @@ public:
     try {
       exec = bp::find_executable_in_path(OMNINAMES_COMMAND, OMNINAMES_PATH);
     } catch (bs::system_error& e) {
-      BOOST_TEST_MESSAGE( "can't find omniNames: " << e.what() );
+      BOOST_TEST_MESSAGE( "can't find " << OMNINAMES_COMMAND << ": " << e.what() );
       return;
     }
 
-    BOOST_TEST_MESSAGE( "omniNames found: " << exec );
+    BOOST_TEST_MESSAGE( OMNINAMES_COMMAND << " found: " << exec );
 
     // setup omniNames environment
     bp::context ctx;
-    ctx.process_name = "omniNames";
+    ctx.process_name = OMNINAMES_COMMAND;
     ctx.env["OMNINAMES_LOGDIR"] = OMNINAMES_LOGDIR;
     ctx.env["OMNIORB_CONFIG"] = OMNIORB_CONFIG;
     ctx.env["ORBsupportBooststrapAgent"] = "1";
@@ -346,6 +346,59 @@ public:
   }
 };
 
+#ifdef USE_LOG_SERVICE
+template <const char *config>
+class LogServiceFixture : public OmniNamesFixture {
+  boost::scoped_ptr<bp::child> process;
+
+public:
+  LogServiceFixture() : process(NULL) {
+    BOOST_TEST_MESSAGE( "== Test setup [BEGIN]: Launching LogService ==" );
+	
+    std::string exec;
+    try {
+      exec = bp::find_executable_in_path(LOGSERVICE_COMMAND, LOGSERVICE_PATH);
+    } catch (bs::system_error& e) {
+      BOOST_TEST_MESSAGE( "can't find " << LOGSERVICE_COMMAND << ": " << e.what() );
+      return;
+    }
+
+    BOOST_TEST_MESSAGE( LOGSERVICE_COMMAND << " found: " << exec );
+
+    // setup LogService environment
+    bp::context ctx;
+    ctx.process_name = LOGSERVICE_COMMAND;
+    ctx.env["OMNINAMES_LOGDIR"] = OMNINAMES_LOGDIR;
+    ctx.env["OMNIORB_CONFIG"] = OMNIORB_CONFIG;
+	
+    // redirect output to /dev/null
+    ctx.streams[bp::stdout_id] = bp::behavior::null();
+    ctx.streams[bp::stderr_id] = bp::behavior::null();
+
+    // setup LogService arguments
+    std::vector<std::string> args = ba::list_of(std::string("-config"))
+      (std::string(config));
+
+    // launch LogService
+    bp::child c = bp::create_child(exec, args, ctx);
+    process.reset(utils::copy_child(c));
+    boost::this_thread::sleep(boost::posix_time::milliseconds(SLEEP_TIME));
+    BOOST_TEST_MESSAGE( "== Test setup [END]:  Launching LogService ==" );
+  }
+
+  ~LogServiceFixture() {
+    BOOST_TEST_MESSAGE( "== Test teardown [BEGIN]: Stopping LogService ==" );
+    if (process) {
+      process->terminate();
+      process->wait();
+    }
+    boost::this_thread::sleep(boost::posix_time::milliseconds(SLEEP_TIME));
+    BOOST_TEST_MESSAGE( "== Test teardown [END]: Stopping LogService ==" );
+  }
+};
+#endif // USE_LOG_SERVICE
+
+
 // must not be static 
 // should be a primitive type with an identifier name
 char ConfigMasterAgent[] = MASTER_AGENT_CONFIG;
@@ -370,6 +423,20 @@ typedef DietSeDFixture <AllDataTransferAddSeD, AllDataTransferBinDir, ConfigSimp
 char DynamicAddRemoveServiceAddSeD[] = "server_dyn_add_rem";
 char DynamicAddRemoveServiceBinDir[] = EXAMPLES_DIR "/dyn_add_rem";
 typedef DietSeDFixture <DynamicAddRemoveServiceAddSeD, DynamicAddRemoveServiceBinDir, ConfigSimpleAddSeDLA, DietLAFixture>DynamicAddRemoveServiceSeDFixture;
+
+
+
+#ifdef USE_LOG_SERVICE
+char LogServiceConfig[] = LOGSERVICE_CONFIG;
+typedef LogServiceFixture<LogServiceConfig> LogServiceFixtureConf;
+typedef DietAgentFixture<ConfigMasterAgent, LogServiceFixtureConf> DietMAFixtureLog;
+typedef DietAgentFixture<ConfigLocalAgent, DietMAFixtureLog> DietLAFixtureLog;
+typedef DietMADAGFixture<ConfigMADAG, DietLAFixtureLog> DietMADAGFixtureLALog;
+typedef DietSeDFixture <SimpleAddSeD, SimpleAddSeDBinDir, ConfigSimpleAddSeDLA, DietLAFixtureLog>SimpleAddSeDFixtureLog;
+typedef DietSeDFixture <AllDataTransferAddSeD, AllDataTransferBinDir, ConfigSimpleAddSeDLA, DietLAFixtureLog>AllDataTransferSeDFixtureLog;
+typedef DietSeDFixture <AllDataTransferAddSeD, AllDataTransferBinDir, ConfigSimpleAddSeDLA, DietMADAGFixtureLALog>AllDataTransferSeDFixtureWFLog;
+typedef DietSeDFixture <DynamicAddRemoveServiceAddSeD, DynamicAddRemoveServiceBinDir, ConfigSimpleAddSeDLA, DietLAFixtureLog>DynamicAddRemoveServiceSeDFixtureLog;
+#endif // USE_LOG_SERVICE
 
 
 #endif /* FIXTURES_HPP_ */

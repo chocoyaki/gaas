@@ -430,5 +430,8 @@ BOOST_AUTO_TEST_CASE( simple_async_client_any)
     delete [] reqID;
 }
 
+#ifdef USE_LOG_SERVICE
+#endif // USE_LOG_SERVICE
+
 
 BOOST_AUTO_TEST_SUITE_END()

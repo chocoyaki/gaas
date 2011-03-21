@@ -1,1 +1,1 @@
-diet_test( DIETServiceAddRemoveTests )
+generate_diet_tests( DIETServiceAddRemoveTests DynamicAddRemoveServiceSeDFixture )
