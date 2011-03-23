@@ -497,11 +497,11 @@ if (BUILD_TESTING OR DIET_USE_DART)
 
   # For comments on the following CXX_TEST_PATH refer to
   #   http://public.kitware.com/pipermail/cmake/2002-January/002643.html
-  if (EXECUTABLE_OUTPUT_PATH)
-    set(CXX_TEST_PATH ${EXECUTABLE_OUTPUT_PATH})
-  else (EXECUTABLE_OUTPUT_PATH)
+  if (RUNTIME_OUTPUT_DIRECTORY)
+    set(CXX_TEST_PATH ${RUNTIME_OUTPUT_DIRECTORY})
+  else (RUNTIME_OUTPUT_DIRECTORY)
     set(CXX_TEST_PATH .)
-  endif (EXECUTABLE_OUTPUT_PATH)
+  endif (RUNTIME_OUTPUT_DIRECTORY)
   
   SET( CMAKE_CXX_FLAGS_DEBUG
     "${CMAKE_CXX_FLAGS_DEBUG} -fprofile-arcs -ftest-coverage"
