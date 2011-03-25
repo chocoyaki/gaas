@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.36  2011/03/25 17:27:49  hguemar
+ * fix a memleak in class DataMgrImpl
+ *
  * Revision 1.35  2011/02/24 16:57:01  bdepardo
  * Use new parser
  *
@@ -134,7 +137,7 @@ DataMgrImpl::DataMgrImpl(const char* id)
 
 DataMgrImpl::~DataMgrImpl(){
   this->dataDescList.clear();
-} 
+}
 
 /** Data Manager Launcher - subscribes to its Loc Manager parent */
 int
@@ -147,7 +150,7 @@ DataMgrImpl::run()
   if (gethostname(this->localHostName, 255)) {
     ERROR("could not get hostname", 1);
   }
-  
+
   if (CONFIG_STRING(diet::PARENTNAME, parentName)) {
     return 1;
   }
@@ -181,12 +184,12 @@ DataMgrImpl::setMyName() {
 	return CORBA::string_dup((const char*)(this->localHostName));
 }
 
-/************************************************************ 
+/************************************************************
  *Method that allow the copy of an arg present in the map *
- * to an element of corba_data_t type                       *  
+ * to an element of corba_data_t type                       *
  ************************************************************/
 
-void 
+void
 DataMgrImpl::cpEltListToDataT(corba_data_t* cData)
 {
 
@@ -197,10 +200,10 @@ DataMgrImpl::cpEltListToDataT(corba_data_t* cData)
     CORBA::Boolean orphan = 0;
     CORBA::Char *p;
     p = static_cast <CORBA::Char *>(the_data.value.get_buffer(orphan));
-    cData->value.replace(size,size,p,0); 
+    cData->value.replace(size,size,p,0);
     /* the map keeps control of the data */
- 
-  
+
+
   } else {
     CORBA::Char* val(NULL);
     char* path = the_data.desc.specific.file().path;
@@ -219,7 +222,7 @@ DataMgrImpl::cpEltListToDataT(corba_data_t* cData)
       val = SeqChar::allocbuf(1);
       val[0] = '\0';
     }
-    
+
      cData->value.replace(size,size,val,1);
   }
 } // cpEltListToDataT(corba_data_t* cData)
@@ -256,46 +259,46 @@ DataMgrImpl::addDataDescToList(corba_data_t* dataDesc, int inout) // FIXME : die
 {
   char *path;
   corba_data_t &the_data = dataDescList[ms_strdup(dataDesc->desc.id.idNumber)] ;
- 
-  // cout << "value of id to add" << dataDesc->desc.id.idNumber << endl;
-  the_data.desc = dataDesc->desc; 
 
- if ( (diet_data_type_t)(dataDesc->desc.specific._d()) == DIET_FILE) 
+  // cout << "value of id to add" << dataDesc->desc.id.idNumber << endl;
+  the_data.desc = dataDesc->desc;
+
+ if ( (diet_data_type_t)(dataDesc->desc.specific._d()) == DIET_FILE)
   the_data.desc.specific.file().path = ms_strdup(dataDesc->desc.specific.file().path);
 
-  the_data.desc.id.idNumber  = ms_strdup(dataDesc->desc.id.idNumber); 
+  the_data.desc.id.idNumber  = ms_strdup(dataDesc->desc.id.idNumber);
   the_data.desc.id.dataCopy  = DIET_ORIGINAL;
   the_data.desc.id.state  = DIET_FREE;
- 
+
   long unsigned int size = (long unsigned int) data_sizeof(&(dataDesc->desc));
   // value = (double *)malloc(size*sizeof(double));
   if ( (diet_data_type_t)(dataDesc->desc.specific._d()) != DIET_FILE) {
-    
-    if(inout == 0) {/* IN ARGS */
-  
 
-      CORBA::Boolean orphan = 1; 
-      CORBA::Char * p(NULL); 
-      
-      p = static_cast <CORBA::Char *>(dataDesc->value.get_buffer(orphan));          
-      dataDesc->value.replace(size,size,p,0); /* used to not loose the value */      
+    if(inout == 0) {/* IN ARGS */
+
+
+      CORBA::Boolean orphan = 1;
+      CORBA::Char * p(NULL);
+
+      p = static_cast <CORBA::Char *>(dataDesc->value.get_buffer(orphan));
+      dataDesc->value.replace(size,size,p,0); /* used to not loose the value */
       the_data.value.replace(size,size,p,1); /* map takes the control an value */
-    
-      
-    } else { // OUT ARGS 
-      
+
+
+    } else { // OUT ARGS
+
       CORBA::Boolean orphan = 0;
-      CORBA::Char * p(NULL);            
-      p = static_cast <CORBA::Char *> (dataDesc->value.get_buffer(orphan));     
-      the_data.value.replace(size,size,p,1);     
+      CORBA::Char * p(NULL);
+      p = static_cast <CORBA::Char *> (dataDesc->value.get_buffer(orphan));
+      the_data.value.replace(size,size,p,1);
       dataDesc->value.replace(size,size,p,0);
-    } 
+    }
     if(inout == 0) {
       path = CORBA::string_dup(the_data.desc.specific.file().path);
     }
-    
+
   }
- 
+
 #ifdef USE_LOG_SERVICE
   char * type_data = (char *)malloc(10*sizeof(char));
   if (dietLogComponent != NULL) {
@@ -333,8 +336,8 @@ DataMgrImpl::addDataDescToList(corba_data_t* dataDesc, int inout) // FIXME : die
 }// addDataDescToList(corba_data_t* dataDesc, int inout)
 
 
-void 
-DataMgrImpl::changePath(corba_data_t& dataDesc, char * newPath) 
+void
+DataMgrImpl::changePath(corba_data_t& dataDesc, char * newPath)
 {
   corba_data_t &the_data = dataDescList[ms_strdup(dataDesc.desc.id.idNumber)] ;
   the_data.desc.specific.file().path = ms_strdup(newPath);
@@ -342,8 +345,8 @@ DataMgrImpl::changePath(corba_data_t& dataDesc, char * newPath)
 
 
 /**
- * Remove data from map : call by Loc Manager after 
- * data was transferred from Data Manager to Data Manager. 
+ * Remove data from map : call by Loc Manager after
+ * data was transferred from Data Manager to Data Manager.
  */
 void
 DataMgrImpl::rmDataDescFromList(char* argID)
@@ -361,20 +364,20 @@ DataMgrImpl::rmDataDescFromList(char* argID)
     p1 = the_data.value.get_buffer(1);
     _CORBA_Sequence<unsigned char>::freebuf((_CORBA_Char*)p1);//(_CORBA_SeqChar) cout << "REMOVED --  DATA REFERENCE" << endl;
   } else {
-    char *path = (char *)malloc(strlen(the_data.desc.specific.file().path)+7);   
-    //char *path = (char *)malloc(sizeof(the_data.desc.specific.file().path)+7);   
+    char *path = new char[strlen(the_data.desc.specific.file().path)+7];
     sprintf(path,"rm -f %s",ms_strdup(the_data.desc.specific.file().path));
     system(path);
+    delete[] path;
   }
 
   dataDescList.erase(ms_strdup(argID));
- 
+
 }// rmDataDescFromList(char* argID)
 
 /**
  * data is "pushed" by the owner. This method takes arg and add it into the map
  */
-void 
+void
 DataMgrImpl::persistent_data_release(corba_data_t* arg){
 
   switch((diet_data_type_t)(arg->desc.specific._d())) {
@@ -418,11 +421,11 @@ DataMgrImpl::sendData(corba_data_t& arg)
 {
 
   if ( (diet_data_type_t)(arg.desc.specific._d())== DIET_FILE) {
-  
+
     if ((arg.desc.specific.file().path != NULL)
 	&& strcmp("", arg.desc.specific.file().path)) {
       char* in_path   = CORBA::string_dup(arg.desc.specific.file().path);
- 
+
       char* out_path  = new char[256];
 
       sprintf(out_path, "%s",in_path);
@@ -432,7 +435,7 @@ DataMgrImpl::sendData(corba_data_t& arg)
       }
     }
   }
- 
+
   // dataDescList.unlock();
 
   addDataDescToList(&arg,0);
@@ -440,8 +443,8 @@ DataMgrImpl::sendData(corba_data_t& arg)
     CORBA::Char *p1 (NULL);
     arg.value.replace(0,0,p1,1);
   }
-  persistent_data_release(&arg); 
- 
+  persistent_data_release(&arg);
+
   printList1();
 } // sendData(corba_data_t& arg)
 
@@ -462,14 +465,14 @@ DataMgrImpl::whichDataMgr(const char* argId)
     char *dataSrc = parent->whichSeDOwner(strdup(argId));
     if (*dataSrc == '\0')
       return NULL;
-    else 
+    else
       return dataSrc;
 }// whichDataMgr(const char* argId)
 
 
 /**
- * Invoked by the server. It is looking for a persistent data. 
- * If local just update the value if not invoke its Loc Manager Parent to get it. 
+ * Invoked by the server. It is looking for a persistent data.
+ * If local just update the value if not invoke its Loc Manager Parent to get it.
  */
 void
 DataMgrImpl::getData(corba_data_t& cData)
@@ -477,17 +480,17 @@ DataMgrImpl::getData(corba_data_t& cData)
   struct timeval t1, t2;
   if(dataLookup(cData.desc.id.idNumber)){ // if data present
     // dataDescList.unlock();
- 
+
     cpEltListToDataT(&cData);
- 
+
   } else { // data not locally present
- 
+
     DataMgr_ptr dataSrc;
 		char* dataSrcName;
-  
+
     dataSrcName = parent->whereData(strdup(cData.desc.id.idNumber));
 		dataSrc = ORBMgr::getMgr()->resolve<DataMgr, DataMgr_ptr>(DATAMGRCTXT, dataSrcName);
-    /* invoke remote Data Manager that will send Data */  
+    /* invoke remote Data Manager that will send Data */
     gettimeofday(&t1, NULL);
 
     dataSrc->putData(CORBA::string_dup(cData.desc.id.idNumber), CORBA::string_dup(id));
@@ -495,7 +498,7 @@ DataMgrImpl::getData(corba_data_t& cData)
    gettimeofday(&t2, NULL);
    cout << "MEASURED TRANSFER TIME = " << ((t2.tv_sec - t1.tv_sec) + ((float)(t2.tv_usec - t1.tv_usec))/1000000) << " seconds" << endl;
     cpEltListToDataT(&cData);
-  
+
     parent->updateDataRef(cData.desc,childID,0);
 
 //  printList1();
@@ -504,11 +507,11 @@ DataMgrImpl::getData(corba_data_t& cData)
 
 
 /**
- * print the content of the map. Doesn't print value 
+ * print the content of the map. Doesn't print value
  */
 void
 DataMgrImpl::printList1()
-{ 
+{
   if( dataDescList.size() > 0){
     TRACE_TEXT(TRACE_MAIN_STEPS,
     "+-----------------+" << endl <<
@@ -518,15 +521,15 @@ DataMgrImpl::printList1()
     dietDataDescList_t::iterator cur = dataDescList.begin();
 
     while (cur != dataDescList.end()) {
-     
+
       char *p1;
       double *value;
-    
+
       p1 = (char *) cur->second.value.get_buffer(0);
       value  = (double*) p1;
-      TRACE_TEXT(TRACE_MAIN_STEPS,"|    " 
-      << cur->first 
-      << "    |" << endl 
+      TRACE_TEXT(TRACE_MAIN_STEPS,"|    "
+      << cur->first
+      << "    |" << endl
       << "+-----------------+" << endl);
       ++cur;
     }
@@ -537,12 +540,12 @@ DataMgrImpl::printList1()
 void
 DataMgrImpl::printList()
 {
- 
+
   printList1();
- 
+
   this->parent->printList();
 } // printList()
- 
+
 
 /*******************************************************************************
  * Method invoked by Data Manager me to get data. Sends data to me DataManager *
@@ -567,10 +570,10 @@ DataMgrImpl::putData(const char* argID, const char* name)
     } else {
       dataValue = SeqChar::allocbuf(1);
       dataValue[0] = '\0';
-    } 
+    }
     dest->value.replace(dest->desc.specific.file().size,dest->desc.specific.file().size , dataValue, 1);
   }
-  
+
 #ifdef USE_LOG_SERVICE
   // FIXME: we cannot get the name of the receiving agent yet
   if (dietLogComponent != NULL) {
@@ -581,7 +584,7 @@ DataMgrImpl::putData(const char* argID, const char* name)
   gettimeofday(&t1, NULL);
   me->sendData(*dest);
   gettimeofday(&t2, NULL);
-  TRACE_TEXT(TRACE_MAIN_STEPS,"TIME TO SENDATA = " 
+  TRACE_TEXT(TRACE_MAIN_STEPS,"TIME TO SENDATA = "
   << ((t2.tv_sec - t1.tv_sec) + ((float)(t2.tv_usec - t1.tv_usec))/1000000)  << endl);
 
 #ifdef USE_LOG_SERVICE
@@ -608,10 +611,10 @@ DataMgrImpl::updateDataList(corba_data_t& src)
 
     /*  CORBA::Char *p1 (NULL);
     p1 = the_data.value.get_buffer(1);
-    
+
     _CORBA_Sequence<unsigned char>::freebuf((_CORBA_Char*)p1);
-    
-    char * p1; 
+
+    char * p1;
     double *value;
     value=(double *)malloc(size*sizeof(double));
     p1=(char *) the_data.value.get_buffer(0);
@@ -621,16 +624,16 @@ DataMgrImpl::updateDataList(corba_data_t& src)
     cout << endl;
     CORBA::Boolean orphan = 1;
     CORBA::Char * p(NULL);
-    
+
     p = static_cast <CORBA::Char *> (src.value.get_buffer(orphan));
-    
+
     the_data.value.replace(size,size,p,1);
-    
+
     src.value.replace(size,size,p,0);
-    
+
     char *p1, *p2;
     double *value, *value1;
-    
+
     value=(double *)malloc(size*sizeof(double));
     value1 = (double *)malloc(size*sizeof(double));
     p1=(char *) the_data.value.get_buffer(0);
@@ -655,8 +658,8 @@ void
 DataMgrImpl::addData(corba_data_t& dataDesc, int inout)
 {
   // FIXME :  if (inout == 0) ??
-  addDataDescToList(&dataDesc,inout);  
- 
+  addDataDescToList(&dataDesc,inout);
+
   if(dataDesc.desc.mode != DIET_STICKY) {
     // doesn't update Loc Manager references is sticky data
       parent->addDataRef(dataDesc.desc,childID);
@@ -676,7 +679,7 @@ DataMgrImpl::rmDataRefDataMgr(const char* argID)
   return 0;
 } // rmDataRef(const char* argID)
 
- 
+
 /***************************************************************
  * Invoked by Loc Manager Parent which is looking for a data.  *
  * Returns _this() if data present nil elsewhere               *
@@ -684,7 +687,7 @@ DataMgrImpl::rmDataRefDataMgr(const char* argID)
 char*
 DataMgrImpl::whereData(const char* argID)
 {
-  if(dataLookup(CORBA::string_dup(argID))){ 
+  if(dataLookup(CORBA::string_dup(argID))){
     //  dataDescList.unlock();
     return CORBA::string_dup(this->id);
   } else {
@@ -748,12 +751,12 @@ DataMgrImpl::updateDataRefOrder(corba_data_t& dataDesc)
 {
   corba_dataMgr_desc_t *dataIdDesc = new(corba_dataMgr_desc_t);
   *dataIdDesc = moveToCorbaDataDesc(dataDesc);
-  addDataDescToList(dataIdDesc); // ajout de la donnee  
+  addDataDescToList(dataIdDesc); // ajout de la donnee
 
   parent->updateDataRef(dataIdDesc->dataID.idNumber,chilID,0); // 0 = UP
 }
- 
- 
+
+
 bool
 DataMgrImpl::isInLockList(char* argID)
 {
