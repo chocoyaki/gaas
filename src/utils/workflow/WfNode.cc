@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2011/03/25 17:24:02  hguemar
+ * fix cppcheck raised issues: stlSize again
+ *
  * Revision 1.8  2011/03/25 17:15:20  hguemar
  * fix cppcheck raised issues: stlSize()
  *
@@ -371,7 +374,7 @@ WfNode::nextNodesEnd() {
  */
 bool
 WfNode::isAnInput() const {
-  return (prevNodes.size()==0);
+  return (prevNodes.empty());
 }
 
 /**

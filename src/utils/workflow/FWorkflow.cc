@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.25  2011/03/25 17:24:02  hguemar
+ * fix cppcheck raised issues: stlSize again
+ *
  * Revision 1.24  2011/02/04 14:29:54  bdepardo
  * Remove unused variables
  *
@@ -136,7 +139,7 @@ string FWorkflow::getName() const
   return myName;
 }
 
-FWorkflow* 
+FWorkflow*
 FWorkflow::getRootWorkflow() const
 {
   if (getWorkflow() == NULL) return const_cast<FWorkflow*>(this);
@@ -439,7 +442,7 @@ FWorkflow::initialize() {
       iter != myProc.end();
       ++iter) {
     FProcNode* node = (FProcNode*) iter->second;
-    if (todoProc.size() == 0) {
+    if (todoProc.empty()) {
       todoProc.push_back(node);
     } else { // insertion sort
       short insNodePrio = (*DFSInfo)[(WfNode*)node].end;
@@ -632,12 +635,12 @@ FWorkflow::instanciate(Dag * dag) {
   }
   // check if instanciation is pending on node execution
   // the first condition happens when one of the nodes (a sub-wf) is pending
-  else if (instanciationPending() || pendingNodes.size() > 0) {
+  else if (instanciationPending() || !pendingNodes.empty()) {
     TRACE_TEXT (TRACE_MAIN_STEPS, traceId() << "########## WORKFLOW INSTANCIATION PENDING ##########" << endl);
     myStatus = N_INSTANC_PENDING;
   }
   // check if instanciation is finished
-  else if (todoProc.size() == 0) {
+  else if (todoProc.empty()) {
     TRACE_TEXT (TRACE_MAIN_STEPS, traceId() << "############ WORKFLOW INSTANCIATION END ############" << endl);
     // check if sinks are completed too
     for(map<string,FNode*>::iterator iter = myInterface.begin();
@@ -820,7 +823,7 @@ FWorkflow::handlerDagNodeDone(DagNode* dagNode) {
     pendingDagNodeInfo_t info = (pendingDagNodeInfo_t) (pendingIter++)->second;
     TRACE_TEXT (TRACE_ALL_STEPS, traceId() << " ## RETRY DATA SUBMISSION FOR INSTANCE : "
                                 << dagNode->getId() << endl);
-    
+
     try {
       // update the data ID
       info.dataHdl->downloadDataID();
@@ -860,7 +863,7 @@ FWorkflow::writeAllDagsState(ostream& output) {
        dagIter != myDags.end();
        ++dagIter) {
     Dag *currDag = ((Dag*) *dagIter);
-    if (currDag->size() > 0) {
+    if (!currDag->empty()) {
       currDag->toXML(output);
     }
   }
@@ -935,7 +938,7 @@ FWorkflow::readDagsState(list<Dag*>& dagList) {
         }
       }
       // store the cleaned dag in current workflow's dag list
-      if (currDag->size() > 0)
+      if (!currDag->empty())
         myDags.push_back(currDag);
       else
         delete currDag;
