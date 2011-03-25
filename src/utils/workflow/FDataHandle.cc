@@ -1,4 +1,4 @@
-/****************************************************************************/
+empty()/****************************************************************************/
 /* The class used to represent a data produced or consumed by an instance   */
 /* of a functional workflow node                                            */
 /*                                                                          */
@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.25  2011/03/25 17:15:20  hguemar
+ * fix cppcheck raised issues: stlSize()
+ *
  * Revision 1.24  2011/03/16 22:15:07  bdepardo
  * Code layout
  *
@@ -498,7 +501,7 @@ FDataHandle::FDataHandle(const FDataTag& tag, const FDataHandle& src)
   // Copy the childs if applicable
   if (myDepth > 0) {
     myData = new map<FDataTag,FDataHandle*>();
-    if (src.myData->size() > 0) {
+    if (!src.myData->empty()) {
       for (map<FDataTag,FDataHandle*>::const_iterator srcEltIter = src.myData->begin();
            srcEltIter != src.myData->end();
            ++srcEltIter) {
@@ -533,7 +536,7 @@ FDataHandle::FDataHandle(const FDataHandle& src)
   // Copy the childs if applicable
   if (myDepth > 0) {
     myData = new map<FDataTag,FDataHandle*>();
-    if (src.myData->size() > 0) {
+    if (!src.myData->empty()) {
       for (map<FDataTag,FDataHandle*>::const_iterator srcEltIter = src.myData->begin();
            srcEltIter != src.myData->end();
            ++srcEltIter) {
@@ -646,7 +649,7 @@ FDataHandle::getParent() const {
 
 bool
 FDataHandle::isSourcePortDefined() const {
-  return (myAdapterType != ADAPTER_MULTIPLE) && 
+  return (myAdapterType != ADAPTER_MULTIPLE) &&
     ((myPort != NULL) || ((myParentHdl != NULL) && (myParentHdl->isSourcePortDefined())));
 }
 
@@ -675,7 +678,7 @@ FDataHandle::isVoid() const {
 
 bool
 FDataHandle::isEmpty() const {
-  return (myDepth > 0) ? myData->size() == 0 : true;
+  return (myDepth > 0) ? myData->empty() : true;
 }
 
 // private
@@ -775,7 +778,7 @@ FDataHandle::isLastChild() const {
  */
 void
 FDataHandle::updateAncestors() {
-  //   TRACE_TEXT(TRACE_ALL_STEPS,"Update ancestors for " << getTag().toString() << "(size=" << myData->size() 
+  //   TRACE_TEXT(TRACE_ALL_STEPS,"Update ancestors for " << getTag().toString() << "(size=" << myData->size()
   // 	      << " / cardinal=" << (isCardinalDefined() ? getCardinal() : 0) << ")" << endl);
   if (!isCardinalDefined() || (myData->size() != myCard)) {
     return;
@@ -783,7 +786,7 @@ FDataHandle::updateAncestors() {
   bool allAdaptersDefined = true;
   bool allAdaptersVoid = true;
   unsigned int minChildCompletionDepth = 999;
-  if (myData->size() == 0)  minChildCompletionDepth = myDepth-1;
+  if (myData->empty())  minChildCompletionDepth = myDepth-1;
   // LOOP for ALL childs - checking adapters, voids and completionDepth
   for (map<FDataTag,FDataHandle*>::iterator childIter = myData->begin();
        childIter != myData->end();
@@ -886,7 +889,7 @@ FDataHandle::updateTreeCardinalRec(bool isLast, bool parentTagMod) {
     myTag.getTagAsLastOfBranch();
 
   // Update cardinal and call recursively the method for all childs
-  if ((myDepth > 0) && (myData->size() > 0)) {
+  if ((myDepth > 0) && (!myData->empty())) {
 
     // get last child DH
     map<FDataTag,FDataHandle*>::reverse_iterator childRIter = myData->rbegin();
@@ -912,7 +915,7 @@ FDataHandle::updateTreeCardinalRec(bool isLast, bool parentTagMod) {
 void
 FDataHandle::uploadTreeData(MasterAgent_var& MA) throw (WfDataHandleException) {
   // check childs
-  if ((myDepth > 0) && (myData->size() > 0)) {
+  if ((myDepth > 0) && (!myData->empty())) {
     for (map<FDataTag,FDataHandle*>::iterator childIter = myData->begin();
          childIter != myData->end();
          ++childIter) {
@@ -952,7 +955,7 @@ FDataHandle::begin() throw (WfDataHandleException) {
   // if the dataID is known then the first call to begin will
   // create the childs automatically with their dataID set
   vector<string>* childIDVect = NULL;
-  if (isDataIDDefined() && (myData->size() == 0)) {
+  if (isDataIDDefined() && (myData->empty())) {
     WfDataIDAdapter* adapterID = dynamic_cast<WfDataIDAdapter*>(createPortAdapter());
     childIDVect = new vector<string>();
     // retrieve the child IDs using the ID adapter
@@ -967,7 +970,7 @@ FDataHandle::begin() throw (WfDataHandleException) {
   }
   // if the cardinal is defined then the first call to begin will
   // create the childs automatically
-  if (isCardinalDefined() && (myData->size() == 0)) {
+  if (isCardinalDefined() && (myData->empty())) {
     for (unsigned int ix=0; ix < myCard; ++ix) {
       FDataTag  childTag(getTag(),ix, (ix == myCard-1));
       // Create new data handle

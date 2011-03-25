@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.23  2011/03/25 17:15:20  hguemar
+ * fix cppcheck raised issues: stlSize()
+ *
  * Revision 1.22  2011/02/09 14:26:40  bdepardo
  * Fixed a typo
  *
@@ -215,7 +218,7 @@ void
 FNodeOutPort::sendData(FDataHandle* dataHdl) {
   // add the new dataHandle to all the connected in ports ==> inPort.addData
   // all the inPort(s) that return false must be included in the FNode pending list
-  if (myConnectedPorts.size() == 0) return;
+  if (myConnectedPorts.empty()) return;
   TRACE_TEXT (TRACE_ALL_STEPS,"   # Insert data into connected ports" << endl);
   for (list<FNodeInPort*>::iterator inPortIter = myConnectedPorts.begin();
        inPortIter != myConnectedPorts.end();

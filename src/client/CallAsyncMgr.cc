@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.35  2011/03/25 17:15:19  hguemar
+ * fix cppcheck raised issues: stlSize()
+ *
  * Revision 1.34  2011/03/03 00:23:11  bdepardo
  * Resolved a few fix me
  *
@@ -139,7 +142,7 @@
 using namespace std;
 
 // locking object
-static DietReadersWriterLock rwLock; 
+static DietReadersWriterLock rwLock;
 // initialize pointer
 CallAsyncMgr* CallAsyncMgr::pinstance = 0;
 
@@ -150,7 +153,7 @@ CallAsyncMgr* CallAsyncMgr::pinstance = 0;
 CallAsyncMgr* CallAsyncMgr::Instance ()
 {
   if (pinstance == 0)  // is it the first call?
-    {  
+    {
       WriterLockGuard r(rwLock);
       if (pinstance == 0) {
         CallAsyncMgr::pinstance = new CallAsyncMgr; // create sole instance
@@ -164,7 +167,7 @@ CallAsyncMgr* CallAsyncMgr::Instance ()
  * add into internal list a new asynchronized reference
  * Return : 0 if OK, -1 if error
  * *******************************************************************/
-int CallAsyncMgr::addAsyncCall (diet_reqID_t reqID, diet_profile_t* dpt) 
+int CallAsyncMgr::addAsyncCall (diet_reqID_t reqID, diet_profile_t* dpt)
 {
   WriterLockGuard r(callAsyncListLock);
   // NOTE : maybe we do test if there is already this reqID registered
@@ -183,10 +186,10 @@ int CallAsyncMgr::addAsyncCall (diet_reqID_t reqID, diet_profile_t* dpt)
     (caList.find(reqID))->second->nbRequests++;
   }
 #endif //HAVE_MULTICALL
-  return 0; 
+  return 0;
 }
 
-int CallAsyncMgr::deleteAsyncCall(diet_reqID_t reqID) 
+int CallAsyncMgr::deleteAsyncCall(diet_reqID_t reqID)
 {
   if (caList.find(reqID) == caList.end()) {
     return GRPC_INVALID_SESSION_ID;
@@ -196,7 +199,7 @@ int CallAsyncMgr::deleteAsyncCall(diet_reqID_t reqID)
   return deleteAsyncCallWithoutLock(reqID);
 }
 
-int CallAsyncMgr::deleteAllAsyncCall() 
+int CallAsyncMgr::deleteAllAsyncCall()
 {
   WriterLockGuard r(callAsyncListLock);
   for (CallAsyncList::iterator p = this->caList.begin();
@@ -217,7 +220,7 @@ int CallAsyncMgr::deleteAllAsyncCall()
  * NOTES : caller must be released omni_semaphore and rules  !!!
  * job for awaken thread.. a call to deleteWaitRules is necesary ...
  * ******************************************************************/
-int CallAsyncMgr::deleteAsyncCallWithoutLock(diet_reqID_t reqID) 
+int CallAsyncMgr::deleteAsyncCallWithoutLock(diet_reqID_t reqID)
 {
   int k = -1;
   try{
@@ -227,7 +230,7 @@ int CallAsyncMgr::deleteAsyncCallWithoutLock(diet_reqID_t reqID)
       CallAsyncList::iterator h = caList.find(reqID);
       if (h->second->used != 0){
         // delete h->second->profile;
-        // NOTE: must be done -> test if others waitRules yet use this reqID 
+        // NOTE: must be done -> test if others waitRules yet use this reqID
         // wait all threads locked by it get rules about this reqID.
         RulesReqIDMap::iterator j = rulesIDs.lower_bound(reqID);
         RulesConditionMap::iterator i = rulesConds.begin();
@@ -251,7 +254,7 @@ int CallAsyncMgr::deleteAsyncCallWithoutLock(diet_reqID_t reqID)
     WARNING("exception caught in " << __FUNCTION__ << " , what=" << ex.what());
     fflush(stderr);
   }
-  return k; 
+  return k;
 }
 
 /***********************************************************************
@@ -259,9 +262,9 @@ int CallAsyncMgr::deleteAsyncCallWithoutLock(diet_reqID_t reqID)
  * Create ReaderLock allowing client thread waiting on...
  * Store it in a list, map it with rule
  * Wait on semaphore
- * Release waitRule 
+ * Release waitRule
  * Return request_status_t, -1 for an unexpected error or STATUS_CANCEL
- * if a reqID is cancelled. 
+ * if a reqID is cancelled.
  * ********************************************************************/
 int CallAsyncMgr::addWaitAllRule()
 {
@@ -297,9 +300,9 @@ int CallAsyncMgr::addWaitAllRule()
  * Create ReaderLock allowing client thread waiting on...
  * Store it in a list, map it with rule
  * Wait on semaphore
- * Release waitRule 
+ * Release waitRule
  * Return request_status_t, -1 for an unexpected error or STATUS_CANCEL
- * if a reqID is cancelled. 
+ * if a reqID is cancelled.
  * ********************************************************************/
 int CallAsyncMgr::addWaitAnyRule(diet_reqID_t* IDptr)
 {
@@ -334,7 +337,7 @@ int CallAsyncMgr::addWaitAnyRule(diet_reqID_t* IDptr)
         ReaderLockGuard r(callAsyncListLock);
         CallAsyncList::iterator h = caList.begin();
         for (unsigned int k = 0; k < caList.size(); k++){
-          TRACE_TEXT (TRACE_ALL_STEPS,"status " << h->second->st << endl); 
+          TRACE_TEXT (TRACE_ALL_STEPS,"status " << h->second->st << endl);
           if ((h->second->st == STATUS_DONE) &&
               (find(doneRequests.begin(),
                     doneRequests.end(),
@@ -345,7 +348,7 @@ int CallAsyncMgr::addWaitAnyRule(diet_reqID_t* IDptr)
             doneRequests.push_back(h->first);
             return STATUS_DONE;
           }
-          ++h;  
+          ++h;
         }
         return STATUS_ERROR;
         /*
@@ -353,21 +356,21 @@ int CallAsyncMgr::addWaitAnyRule(diet_reqID_t* IDptr)
           CallAsyncList::iterator h = caList.begin();
           for (unsigned int k = 0; k < caList.size(); k++){
           cout << "Testing if " << h->first
-          << "(" << h->second->st << ")" 
+          << "(" << h->second->st << ")"
           << " is in ";
           for (unsigned int ix=0; ix<doneRequests.size(); ix++)
           cout << doneRequests[ix] << ", ";
           cout << endl;
           if ((h->second->st == STATUS_DONE) &&
-          (find(doneRequests.begin(), 
-          doneRequests.end(), 
+          (find(doneRequests.begin(),
+          doneRequests.end(),
           h->first) == doneRequests.end())
           ) {
           *IDptr = h->first;
           doneRequests.push_back(h->first);
           return STATUS_DONE;
           }
-          ++h;  
+          ++h;
           }
           return STATUS_ERROR;
         */
@@ -399,9 +402,9 @@ int CallAsyncMgr::addWaitAnyRule(diet_reqID_t* IDptr)
  * Create ReaderLock allowing client thread waiting on...
  * Store it in a list, map it with rule
  * Wait on semaphore
- * Release waitRule 
+ * Release waitRule
  * Return request_status_t, -1 for an unexpected error or STATUS_CANCEL
- * if a reqID is cancelled. 
+ * if a reqID is cancelled.
  * ********************************************************************/
 int CallAsyncMgr::addWaitRule(Rule * rule)
 {
@@ -426,12 +429,12 @@ int CallAsyncMgr::addWaitRule(Rule * rule)
         else if (h->second->st == STATUS_RESOLVING) {
           plenty = false; // one result is not yet ready, at least ...
         }
-	else if(h->second->st == STATUS_DONE 
-		&& rule->ruleElts[k].op != WAITOPERATOR(ALL) 
+	else if(h->second->st == STATUS_DONE
+		&& rule->ruleElts[k].op != WAITOPERATOR(ALL)
 		&& rule->ruleElts[k].op != WAITOPERATOR(AND) ){
           tmpplenty = true; // one result is finish yet
 	}
-        h->second->used++; // NOTES : what to do if an exception ...	
+        h->second->used++; // NOTES : what to do if an exception ...
       }
       if (tmpplenty==true){
       	plenty=true;
@@ -448,7 +451,7 @@ int CallAsyncMgr::addWaitRule(Rule * rule)
         condRule = new omni_semaphore(0);
         rulesConds.insert(RulesConditionMap::value_type(rule, condRule));
       }
-    }	
+    }
     condRule->wait();
     {
       WriterLockGuard r(callAsyncListLock);
@@ -460,11 +463,11 @@ int CallAsyncMgr::addWaitRule(Rule * rule)
     WARNING("exception caught in " << __FUNCTION__ << " , what=" << e.what());
     fflush(stderr);
     WriterLockGuard r(callAsyncListLock);
-	
+
     RulesReqIDMap::iterator j = rulesIDs.begin();
     for (int k = 0; k < rule->length; k++){
       while ( j != rulesIDs.end()){
-        j = rulesIDs.find((rule->ruleElts[k]).reqID);	
+        j = rulesIDs.find((rule->ruleElts[k]).reqID);
         if (j->second == rule){
           rulesIDs.erase(j++);
         }
@@ -518,16 +521,16 @@ int CallAsyncMgr::deleteWaitRule(Rule* rule)
  * persistence of async call ID and corba callback IOR
  * Not implemented
  **********************************************************************/
-int CallAsyncMgr::serialise () 
+int CallAsyncMgr::serialise ()
 {
-  return 0; 
+  return 0;
 }
 
 /**********************************************************************
   stence of async call ID and corba callback IOR
   * Not implemented
   * *******************************************************************/
-int CallAsyncMgr::areThereWaitRules() 
+int CallAsyncMgr::areThereWaitRules()
 {
   ReaderLockGuard r(callAsyncListLock);
   return rulesConds.size();
@@ -535,8 +538,8 @@ int CallAsyncMgr::areThereWaitRules()
 
 /**********************************************************************
  * corba callback server service API
- *********************************************************************/ 
-int CallAsyncMgr::notifyRst (diet_reqID_t reqID, corba_profile_t * dp) 
+ *********************************************************************/
+int CallAsyncMgr::notifyRst (diet_reqID_t reqID, corba_profile_t * dp)
 {
   TRACE_TEXT (TRACE_ALL_STEPS,"notifyRst " << reqID << endl);
   setReqErrorCode(reqID, GRPC_NO_ERROR);
@@ -551,19 +554,19 @@ int CallAsyncMgr::notifyRst (diet_reqID_t reqID, corba_profile_t * dp)
 #endif //HAVE_MULTICALL
 
     try {
-      TRACE_TEXT (TRACE_ALL_STEPS,"the service has computed the requestID=" 
+      TRACE_TEXT (TRACE_ALL_STEPS,"the service has computed the requestID="
                   << reqID << " and notifies his answer" << endl);
       fflush(stdout);
       // update diet_profile datas linked to this reqId
       CallAsyncList::iterator h = caList.find(reqID);
       if (h == caList.end()){
-        WARNING(__FUNCTION__ << ":SeD notifies a result linked to a request ID (" 
+        WARNING(__FUNCTION__ << ":SeD notifies a result linked to a request ID ("
                 << reqID << ") which is not registered");
         fflush(stderr);
         return -1;
       } // code de trace et debbug, a virer pour la version CVSise
       else { // update state of this reqID
-        h->second->st = STATUS_DONE; 
+        h->second->st = STATUS_DONE;
       }
       if (unmrsh_out_args_to_profile(h->second->profile, dp)){
         INTERNAL_WARNING(__FUNCTION__ << ":unmrsh_out_args_to_profile failed");
@@ -576,7 +579,7 @@ int CallAsyncMgr::notifyRst (diet_reqID_t reqID, corba_profile_t * dp)
         fflush(stderr);
         return -1;
       }
-	
+
 #if HAVE_DAGDA
       dagda_download_SeD_data(h->second->profile, dp);
 #endif // HAVE_DAGDA
@@ -585,12 +588,12 @@ int CallAsyncMgr::notifyRst (diet_reqID_t reqID, corba_profile_t * dp)
       // get rules about this reqID
       RulesReqIDMap::iterator j;
       if ((j = rulesIDs.lower_bound(reqID)) == rulesIDs.end()) {
-        return 1; 
+        return 1;
       }
       RulesConditionMap::iterator i = rulesConds.begin();
       for(j = rulesIDs.lower_bound(reqID);
           j != rulesIDs.upper_bound(reqID);
-          ++j) {  
+          ++j) {
           bool plenty = true;
           for (int k = 0; k < j->second->length; k++){
             h = caList.find(j->second->ruleElts[k].reqID);
@@ -605,7 +608,7 @@ int CallAsyncMgr::notifyRst (diet_reqID_t reqID, corba_profile_t * dp)
             }
             /**********************************************************************
              * FIXME : rule parsing must be reimplemented ....
-             * for performance and function 
+             * for performance and function
              * *******************************************************************/
           }
 
@@ -648,11 +651,11 @@ int CallAsyncMgr::getStatusReqID(diet_reqID_t reqID)
   CallAsyncList::iterator h = caList.find(reqID);
   if (h == caList.end()){
     WARNING(__FUNCTION__ << ": reqID (" << reqID << ") is not registered.");
-    fflush(stderr);  
+    fflush(stderr);
     return GRPC_INVALID_SESSION_ID;
   }
   int rst = h->second->st;
-  return rst; 
+  return rst;
 }
 
 /**********************************************************************
@@ -668,7 +671,7 @@ int CallAsyncMgr::verifyRule(Rule *rule)
 /**********************************************************************
  * initialize CallAsyncMgr
  * Not implemented
- * *******************************************************************/ 
+ * *******************************************************************/
 int CallAsyncMgr::init(int argc, char* argv[])
 {
   return 0;
@@ -679,7 +682,7 @@ int CallAsyncMgr::init(int argc, char* argv[])
  * Release datas in caList, Rules and semaphore will be released by
  * a call to deleteWaitRule. This call is performed by threads locked on
  * semaphore... deleteAsyncCall awaked it ...
- * *******************************************************************/ 
+ * *******************************************************************/
 int CallAsyncMgr::release()
 {
   WriterLockGuard r(callAsyncListLock);
@@ -697,10 +700,10 @@ int CallAsyncMgr::release()
  * Constructor
  * Private: currently do nothing
  * Not implemented
- * *******************************************************************/ 
-CallAsyncMgr::CallAsyncMgr() 
-{ 
-  //... perform necessary instance initializations 
+ * *******************************************************************/
+CallAsyncMgr::CallAsyncMgr()
+{
+  //... perform necessary instance initializations
 }
 
 /**********************************************************************
@@ -728,7 +731,7 @@ CallAsyncMgr::setReqErrorCode(const diet_reqID_t reqID, const diet_error_t error
     #define GRPC_OTHER_ERROR_CODE 13
     #define GRPC_UNKNOWN_ERROR_CODE 14
     #define GRPC_ALREADY_INITIALIZED 15
-    #define GRPC_LAST_ERROR_CODE 16 
+    #define GRPC_LAST_ERROR_CODE 16
   */
 
   // if error represents a failed session, save the request ID in the
@@ -756,13 +759,13 @@ CallAsyncMgr::getReqErrorCode(const diet_reqID_t reqID) {
 }
 
 /**********************************************************************
- * return the failed session 
+ * return the failed session
  * successive call to this method (by get_failed_session in client API)
  * return the successives failed sessions
  **********************************************************************/
 diet_error_t
 CallAsyncMgr::getFailedSession(diet_reqID_t * reqIdPtr) {
-  if (failedSessions.size() == 0) {
+  if (failedSessions.empty()) {
     *reqIdPtr = GRPC_SESSIONID_VOID;
     return GRPC_NO_ERROR;
   }
@@ -780,14 +783,14 @@ CallAsyncMgr::checkSessionID(const diet_reqID_t reqID) {
   if (caList.find(reqID) == caList.end()){
     return false;
   }
-  return true;  
+  return true;
 }
 
 /*
  * Save a handle and associate it to a session ID
  */
 void
-CallAsyncMgr::saveHandle(diet_reqID_t sessionID, 
+CallAsyncMgr::saveHandle(diet_reqID_t sessionID,
 			 grpc_function_handle_t* handle) {
   handlesMap[sessionID] = handle;
 }
@@ -803,7 +806,7 @@ CallAsyncMgr::getHandle(grpc_function_handle_t** handle,
 
   if (handlesMap.find(sessionID) == handlesMap.end()) {
     cout << "Implementation is not complete" << endl
-	 << " The sessionID " << sessionID 
+	 << " The sessionID " << sessionID
 	 << " exists in the sessions map but not in the handles one"
 	 << endl;
     return GRPC_OTHER_ERROR_CODE;

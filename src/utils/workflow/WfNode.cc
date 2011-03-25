@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2011/03/25 17:15:20  hguemar
+ * fix cppcheck raised issues: stlSize()
+ *
  * Revision 1.7  2011/01/21 18:16:16  bdepardo
  * Prefer prefix ++/-- operators for non-primitive types.
  *
@@ -377,7 +380,7 @@ WfNode::isAnInput() const {
  */
 bool
 WfNode::isAnExit() const {
-  return (nextNodes.size() == 0);
+  return (nextNodes.empty());
 }
 
 

@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.62  2011/03/25 17:15:19  hguemar
+ * fix cppcheck raised issues: stlSize()
+ *
  * Revision 1.61  2011/03/18 16:58:13  hguemar
  * fixes several issues in src/agent/workflow: reduce some variables scope, use diet::usleep instead of Posix deprecated usleep
  *
@@ -630,7 +633,7 @@ MultiWfScheduler::run() {
         }
       } // end while
       // Round-robbin on remaining queues
-      if (readyQueues.size() > 0) {
+      if (!readyQueues.empty()) {
         OrderedNodeQueue * firstReadyQueue = readyQueues.front();
         readyQueues.pop_front();
         readyQueues.push_back(firstReadyQueue);
@@ -932,7 +935,7 @@ void
 MultiWfScheduler::postWakeUp() {
   // MANAGE NODE TERMINATION (if not waking up on new dag submission)
   myWakeUpLock.lock();
-  if (myWakeUpList.size() > 0) {
+  if (!myWakeUpList.empty()) {
     wakeUpInfo_t& info = myWakeUpList.front();
     myWakeUpLock.unlock();
     if (info.isNewDag) {
@@ -958,7 +961,7 @@ void
 MultiWfScheduler::checkDagsRelease() {
   // MANAGE DAG TERMINATION
   myWakeUpLock.lock();
-  if (myDagsTermList.size() > 0) {
+  if (!myDagsTermList.empty()) {
     myDagsTermList.sort();
     myDagsTermList.unique();  // removes consecutive duplicates
     list<string>::iterator it = myDagsTermList.begin();
