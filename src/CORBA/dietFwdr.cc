@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2011/03/25 17:29:23  bdepardo
+ * More robust forwarder
+ *
  * Revision 1.5  2010/10/28 10:21:48  bdepardo
  * Set nbRetry by default to 3.
  * Code formating.
@@ -218,24 +221,12 @@ int main(int argc, char* argv[], char* envp[]) {
 
   /* Try to find the peer. */
   if (cfg.getPeerIOR()!="") {
-    string peerIOR = cfg.getPeerIOR();
-    peerIOR = ORBMgr::convertIOR(peerIOR, "localhost", tunnel.getLocalPortFrom());
-
-    Forwarder_var peer;
-		
-    peer = mgr->resolve<Forwarder, Forwarder_var>(peerIOR);
-		
-    try {
-      peer->connectPeer(ior.c_str(), tunnel.getRemoteHost().c_str(),
-			tunnel.getRemotePortFrom());
-      forwarder->setPeer(peer);
-      SeqString* bindings = peer->getBindings(AGENTCTXT);
-      for (unsigned int i=0; i<bindings->length(); ++i) {
-	cout << "************ Dist bindings ****************" << endl;
-	cout << (*bindings)[i] << endl;
+    if (connectPeer(ior, cfg.getPeerIOR(), "localhost", tunnel.getRemoteHost(),
+                    tunnel.getLocalPortFrom(), tunnel.getRemotePortFrom(), forwarder, mgr)) {
+      if (connectPeer(ior, cfg.getPeerIOR(), "127.0.0.1", tunnel.getRemoteHost(),
+                      tunnel.getLocalPortFrom(), tunnel.getRemotePortFrom(), forwarder, mgr)) {
+        cout << "Unable to contact remote peer. Waiting for connection..." << endl;
       }
-    } catch (CORBA::TRANSIENT& err) {
-      cout << "Unable to contact remote peer. Waiting for connection..." << endl;
     }
   }
 
@@ -243,6 +234,34 @@ int main(int argc, char* argv[], char* envp[]) {
 	
   return EXIT_SUCCESS;
 }
+
+int
+connectPeer(const std::string &ior, const std::string &peerIOR,
+            const std::string &newHost, const std::string &remoteHost,
+            int localPortFrom, int remotePortFrom, DIETForwarder *forwarder, ORBMgr* mgr) {
+  
+  std::string newPeerIOR = ORBMgr::convertIOR(peerIOR, newHost, localPortFrom);
+
+  Forwarder_var peer;
+		
+  peer = mgr->resolve<Forwarder, Forwarder_var>(newPeerIOR);
+		
+  try {
+    peer->connectPeer(ior.c_str(), remoteHost.c_str(),
+                      remotePortFrom);
+    forwarder->setPeer(peer);
+    SeqString* bindings = peer->getBindings(AGENTCTXT);
+    for (unsigned int i=0; i<bindings->length(); ++i) {
+      cout << "************ Dist bindings ****************" << endl;
+      cout << (*bindings)[i] << endl;
+    }
+  } catch (CORBA::TRANSIENT& err) {
+    cout << "Unable to contact remote peer using '" << newHost <<"' as a \"new remote host\"" << endl;
+    return 1;
+  }
+  return 0;
+}
+
 
 void name(const string& name, Configuration* cfg) {
   static_cast<FwrdConfig*>(cfg)->setName(name);

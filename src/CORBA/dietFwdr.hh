@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2011/03/25 17:29:23  bdepardo
+ * More robust forwarder
+ *
  * Revision 1.4  2011/01/17 18:35:17  bdepardo
  * Add missing #ifndef... #define
  *
@@ -49,6 +52,7 @@ private:
 	std::string sshKeyPath;
 	int nbRetry;
 	std::string cfgPath;
+
 public:
 	FwrdConfig(const std::string& pgName);
 	const std::string& getName() const;
@@ -85,6 +89,12 @@ public:
 	void setNbRetry(const int nb);
 	void setCfgPath(const std::string& path);
 };
+
+int
+connectPeer(const std::string &ior, const std::string &peerIOR,
+            const std::string &newHost, const std::string &remoteHost,
+            int localPortFrom, int remotePortFrom,
+            DIETForwarder *forwarder, ORBMgr* mgr);
 
 void name(const std::string& name, Configuration* cfg);
 void peer_name(const std::string& name, Configuration* cfg);

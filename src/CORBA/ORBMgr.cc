@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.40  2011/03/25 17:29:23  bdepardo
+ * More robust forwarder
+ *
  * Revision 1.39  2011/03/01 13:37:51  bdepardo
  * SIGTERM can now also be used to properly terminate DIET
  *
@@ -203,8 +206,10 @@ void ORBMgr::unbind(const string& ctxt, const string& name) {
   
   obj = rootContext->resolve(cosName);
   context = CosNaming::NamingContext::_narrow(obj);
-  if (CORBA::is_nil(context))
-    throw runtime_error(string("Error retrieving context ")+ctxt);
+  if (CORBA::is_nil(context)) {
+    throw runtime_error(string("Error retrieving context ") + ctxt);
+  }
+
   cosName[0].id = name.c_str();
   cosName[0].kind = "";
   try {
@@ -212,6 +217,8 @@ void ORBMgr::unbind(const string& ctxt, const string& name) {
     context->unbind(cosName);
   } catch (CosNaming::NamingContext::NotFound& err) {
     throw runtime_error("Object "+name+" not found in " + ctxt +" context");
+  } catch (...) {
+    WARNING("Exception caught while unbinding " << ctxt << "/" << name);
   }
 }
 
@@ -222,7 +229,9 @@ void ORBMgr::fwdsBind(const string& ctxt, const string& name,
   std::list<string>::const_iterator it;
 	
   for (it=forwarders.begin(); it!=forwarders.end(); ++it) {
-    if (fwName==*it) continue;
+    if (fwName==*it) {
+      continue;
+    }
     Forwarder_var fwd = resolve<Forwarder, Forwarder_var>(FWRDCTXT, *it);
     string objName = ctxt+"/"+name;
     try {
@@ -241,7 +250,9 @@ void ORBMgr::fwdsUnbind(const string& ctxt, const string& name,
   std::list<string>::const_iterator it;
 	
   for (it=forwarders.begin(); it!=forwarders.end(); ++it) {
-    if (fwName==*it) continue;
+    if (fwName==*it) {
+      continue;
+    }
     Forwarder_var fwd = resolve<Forwarder, Forwarder_var>(FWRDCTXT, *it);
     string objName = ctxt+"/"+name;
     try {

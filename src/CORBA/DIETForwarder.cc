@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2011/03/25 17:29:23  bdepardo
+ * More robust forwarder
+ *
  * Revision 1.12  2011/01/19 17:51:07  bdepardo
  * Variable 'pos' is assigned a value that is never used -> remove these variables
  *
@@ -840,8 +843,9 @@ void DIETForwarder::unbind(const char* objName) {
 	
   name = objString;
 	
-  if (name.find('/')==string::npos)
+  if (name.find('/')==string::npos) {
     return;
+  }
 	
   ctxt = getCtxt(objString);
   name = getName(objString);
