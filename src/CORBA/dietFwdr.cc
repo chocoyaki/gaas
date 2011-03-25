@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2011/03/25 18:03:11  bdepardo
+ * Catch exception while transfering remote IOR file
+ *
  * Revision 1.6  2011/03/25 17:29:23  bdepardo
  * More robust forwarder
  *
@@ -182,8 +185,13 @@ int main(int argc, char* argv[], char* envp[]) {
     copy.setSshPort(cfg.getSshPort());
     copy.setSshLogin(cfg.getSshLogin());
     copy.setSshKeyPath(cfg.getSshKeyPath());
-    if (copy.getFile()) {
-      cfg.setPeerIOR("/tmp/DIET-forwarder-ior-"+cfg.getPeerName()+".tmp");
+    try {
+      if (copy.getFile()) {
+        std::cout << "Got remote IOR file" << std::endl;
+        cfg.setPeerIOR("/tmp/DIET-forwarder-ior-"+cfg.getPeerName()+".tmp");
+      }
+    } catch (...) {
+      std::cout << "Got an exception while retrieving IOR file" << std::endl;
     }
   }
   if (cfg.getPeerIOR()!="" && cfg.getPeerIOR().find("IOR:")!=0) {
@@ -231,6 +239,8 @@ int main(int argc, char* argv[], char* envp[]) {
   }
 
   mgr->wait();
+
+  std::cout << "Forwarder is now terminated" << std::endl;
 	
   return EXIT_SUCCESS;
 }

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2011/03/25 18:03:11  bdepardo
+ * Catch exception while transfering remote IOR file
+ *
  * Revision 1.4  2010/10/28 06:56:13  bdepardo
  * Do not return an exception when the username cannot be determined.
  * Instead only print an error message. This is useful to run the forwarder in
@@ -440,9 +443,10 @@ bool SSHCopy::getFile() const {
     argv[i]=strdup(tokens[i].c_str());
 	
   pid = fork();
-  if (pid==-1)
+  if (pid==-1) {
     throw runtime_error("Error forking process.");
-  if (pid==0) {
+  }
+  if (pid == 0) {
     fclose(stdout);
     if (execvp(argv[0], argv)) {
       cerr << "Error executing command " << command << endl;
@@ -450,11 +454,13 @@ bool SSHCopy::getFile() const {
     }
   }
 	
-  for (unsigned int i=0; i<tokens.size(); ++i)
+  for (unsigned int i=0; i<tokens.size(); ++i) {
     free(argv[i]);
+  }
 	
-  if (waitpid(pid, &status, 0)==-1)
+  if (waitpid(pid, &status, 0)==-1) {
     throw runtime_error("Error executing scp command");
+  }
   return (WIFEXITED(status)!=0 ? (WEXITSTATUS(status)==0):false);
 }
 
