@@ -87,10 +87,10 @@ inline std::string find_executable_in_path(const std::string &file,
     {
         const char *envpath = getenv("PATH");
         if (!envpath)
-            boost::throw_exception(boost::filesystem::filesystem_error(
-                BOOST_PROCESS_SOURCE_LOCATION "file not found", file,
+          boost::throw_exception(std::runtime_error(
+                BOOST_PROCESS_SOURCE_LOCATION "file not found" + file +
                 boost::system::errc::make_error_code(
-                boost::system::errc::no_such_file_or_directory)));
+                boost::system::errc::no_such_file_or_directory).message()));
         path = envpath;
     }
     BOOST_ASSERT(!path.empty());
@@ -137,10 +137,10 @@ inline std::string find_executable_in_path(const std::string &file,
 #endif
 
     if (result.empty())
-        boost::throw_exception(boost::filesystem::filesystem_error(
-            BOOST_PROCESS_SOURCE_LOCATION "file not found", file,
+      boost::throw_exception(std::runtime_error(
+            BOOST_PROCESS_SOURCE_LOCATION "file not found" + file +
             boost::system::errc::make_error_code(
-            boost::system::errc::no_such_file_or_directory)));
+            boost::system::errc::no_such_file_or_directory).message()));
 
     return result;
 }
