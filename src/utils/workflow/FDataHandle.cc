@@ -1,4 +1,4 @@
-empty()/****************************************************************************/
+/****************************************************************************/
 /* The class used to represent a data produced or consumed by an instance   */
 /* of a functional workflow node                                            */
 /*                                                                          */
@@ -9,6 +9,9 @@ empty()/************************************************************************
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.26  2011/03/25 17:47:22  hguemar
+ * remove crufts from FDataHandle.cc
+ *
  * Revision 1.25  2011/03/25 17:15:20  hguemar
  * fix cppcheck raised issues: stlSize()
  *
