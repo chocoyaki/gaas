@@ -17,6 +17,7 @@ if( BUILD_TESTING )
     system 
     thread REQUIRED )
   set( Boost_MULTITHREADED OFF )
+  add_definitions(-DBOOST_FILESYSTEM_VERSION=3)
   #find_package( GTest REQUIRED )
   include( tests/DietTestingMacros )
 

@@ -74,7 +74,7 @@ public:
     bf::create_directory(LA_DAGDA_DIR);
     bf::create_directory(SED_DAGDA_DIR);
     bf::create_directory(CLIENT_DAGDA_DIR);
-
+    
     BOOST_TEST_MESSAGE( "== Test setup [END]: creating directories ==" );
   }
 
@@ -112,11 +112,19 @@ public:
     }
 
     BOOST_TEST_MESSAGE( OMNINAMES_COMMAND << " found: " << exec );
+    logdir = bf::unique_path(OMNINAMES_LOGDIR "%%%%-%%%%-%%%%-%%%%").native();
+    bf::create_directory(logdir);
+    BOOST_TEST_MESSAGE( "OmniNames log directory: " + logdir );
+
+
+    // Clean OMNINAME_LOGDIR
+    bf::remove_all(MA_DAGDA_DIR);
+    
 
     // setup omniNames environment
     bp::context ctx;
     ctx.process_name = OMNINAMES_COMMAND;
-    ctx.env["OMNINAMES_LOGDIR"] = OMNINAMES_LOGDIR;
+    ctx.env["OMNINAMES_LOGDIR"] = logdir;
     ctx.env["OMNIORB_CONFIG"] = OMNIORB_CONFIG;
     ctx.env["ORBsupportBooststrapAgent"] = "1";
     ctx.env["ORBInitRef"] = ORB_INIT_REF;
@@ -139,6 +147,8 @@ public:
 
   ~OmniNamesFixture() {
     BOOST_TEST_MESSAGE( "== Test teardown [BEGIN]: Stopping OmniNames ==" );
+    bf::remove_all(logdir);
+
     if (processNamingService) {
       processNamingService->terminate();
       processNamingService->wait();
@@ -146,6 +156,9 @@ public:
     boost::this_thread::sleep(boost::posix_time::milliseconds(SLEEP_TIME));
     BOOST_TEST_MESSAGE( "== Test teardown [END]: Stopping OmniNames ==" );
   }
+
+private:
+  std::string logdir;
 };
 
 
@@ -331,7 +344,7 @@ public:
     if( processSeD ) {
       try {
         processSeD->terminate();
-        //            processSeD->wait();
+        // processSeD->wait();
 
         // FIXME: currently processSeD->wait() crashes, we need to set the signal handler of SIGCHLD to SID_DFL
         signal(SIGCHLD, SIG_DFL);

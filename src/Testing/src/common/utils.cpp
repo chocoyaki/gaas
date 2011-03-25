@@ -39,7 +39,7 @@ namespace utils {
 	bf::path config_path(CONFIG_DIR);
 	config_path /= config;
 	
-	const char *tmp = config_path.file_string().c_str();
+	const char *tmp = config_path.c_str();
 	len = std::strlen(tmp);
 	configFile.reset(new char[len + 1]);
 	std::strncpy(configFile.get(), tmp, len+1);
