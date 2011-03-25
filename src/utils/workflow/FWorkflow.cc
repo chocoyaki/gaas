@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.26  2011/03/25 17:45:17  hguemar
+ * fix build in src/utils/workflow/FWorkflow.cc
+ *
  * Revision 1.25  2011/03/25 17:24:02  hguemar
  * fix cppcheck raised issues: stlSize again
  *
@@ -863,7 +866,7 @@ FWorkflow::writeAllDagsState(ostream& output) {
        dagIter != myDags.end();
        ++dagIter) {
     Dag *currDag = ((Dag*) *dagIter);
-    if (!currDag->empty()) {
+    if (!currDag->size() == 0) {
       currDag->toXML(output);
     }
   }
@@ -938,7 +941,7 @@ FWorkflow::readDagsState(list<Dag*>& dagList) {
         }
       }
       // store the cleaned dag in current workflow's dag list
-      if (!currDag->empty())
+      if (!currDag->size() == 0)
         myDags.push_back(currDag);
       else
         delete currDag;
