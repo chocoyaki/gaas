@@ -20,6 +20,7 @@ add_subdirectory( initialization )
 add_subdirectory( workflow )
 add_subdirectory( serviceTable )
 add_subdirectory( dynamicHierarchy )
+add_subdirectory( GRPC )
 
 #add_subdirectory( initialization2 )
 #add_subdirectory( sample )

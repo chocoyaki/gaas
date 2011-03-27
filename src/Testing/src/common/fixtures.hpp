@@ -437,6 +437,10 @@ char DynamicAddRemoveServiceAddSeD[] = "server_dyn_add_rem";
 char DynamicAddRemoveServiceBinDir[] = EXAMPLES_DIR "/dyn_add_rem";
 typedef DietSeDFixture <DynamicAddRemoveServiceAddSeD, DynamicAddRemoveServiceBinDir, ConfigSimpleAddSeDLA, DietLAFixture>DynamicAddRemoveServiceSeDFixture;
 
+char GRPCAddSeD[] = "gridrpc_server";
+char GRPCBinDir[] = EXAMPLES_DIR "/GridRPC";
+typedef DietSeDFixture <GRPCAddSeD, GRPCBinDir, ConfigSimpleAddSeDLA, DietLAFixture>GRPCSeDFixture;
+
 
 
 #ifdef USE_LOG_SERVICE
