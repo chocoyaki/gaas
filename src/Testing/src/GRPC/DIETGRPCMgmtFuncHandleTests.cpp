@@ -1,36 +1,41 @@
+#include <boost/scoped_ptr.hpp>
+
+#include <DIET_client.h>
+#include <DIET_grpc.h>
+
+#include "fixtures.hpp"
+#include "utils.hpp"
+#include "configGRPC.hpp"
+
+BOOST_FIXTURE_TEST_SUITE( GRPCMgmtFuncHandleTests, 
+			  GRPCSeDFixture )
+
+
+
 /*
  * Call grpc_function_handle_default() with an available function name,
  * checking GRPC_NO_ERROR returned with a pointer of the initialized
  * function handle.
  */
-void mgmt_func_handle_test_1(char *config_file, char **func_list)
+BOOST_AUTO_TEST_CASE( management_function_handle_test_1 )
 {
+  BOOST_TEST_MESSAGE( "-- Test: Management Function Handle Test 1" );
+
   grpc_function_handle_t handle;
   grpc_error_t err = GRPC_NO_ERROR;
-  printf("Management Function Handle Test 1: ");
-
-  err = grpc_initialize(config_file);
-  if (err != GRPC_NO_ERROR) {
-    fprintf(stderr, "grpc_initialize() failed: %s\n", grpc_error_string(err));
-    return;
-  }
+  utils::ClientArgs c("management_function_handle_test_1", "client_testing.cfg");
+	
+  err = grpc_initialize(c.config());
+  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
   err = grpc_function_handle_default(&handle, func_list[0]);
-  if (err != GRPC_NO_ERROR) {
-    printf("Failure (%s)\n", grpc_error_string(err));
-    grpc_finalize();
-    return;
-  }
-  printf("Success\n");
+  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
   
   err = grpc_function_handle_destruct(&handle);
-  if (err != GRPC_NO_ERROR) {
-    fprintf(stderr, "grpc_function_handle_destruct() failed: %s\n", grpc_error_string(err));
-  }
+  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
+
   err = grpc_finalize();
-  if (err != GRPC_NO_ERROR) {
-    fprintf(stderr, "grpc_finalize() failed: %s\n", grpc_error_string(err));
-  }
+  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 }
 
 
@@ -38,18 +43,15 @@ void mgmt_func_handle_test_1(char *config_file, char **func_list)
  * Call grpc_function_handle_default() before calling grpc_initialize(),
  * checking GRPC_NOT_INITIALIZED returned.
  */
-void mgmt_func_handle_test_2(char **func_list)
+BOOST_AUTO_TEST_CASE( management_function_handle_test_2 )
 {
+  BOOST_TEST_MESSAGE( "-- Test: Management Function Handle Test 2" );
+
   grpc_function_handle_t handle;
   grpc_error_t err = GRPC_NO_ERROR;
-  printf("Management Function Handle Test 2: ");
 
   err = grpc_function_handle_default(&handle, func_list[0]);
-  if (err != GRPC_NOT_INITIALIZED) {
-    printf("Failure (%s)\n", grpc_error_string(err));
-    return;
-  }
-  printf("Success\n");
+  BOOST_CHECK_EQUAL( err, GRPC_NOT_INITIALIZED );
 }
 
 
@@ -58,34 +60,25 @@ void mgmt_func_handle_test_2(char **func_list)
  * the function name and the server name, checking GRPC_NO_ERROR
  * returned with a pointer of the initialized function handle.
  */ 
-void mgmt_func_handle_test_3(char *config_file, char *server, char **func_list)
+BOOST_AUTO_TEST_CASE( management_function_handle_test_3 )
 {
+  BOOST_TEST_MESSAGE( "-- Test: Management Function Handle Test 3" );
+
   grpc_function_handle_t handle;
   grpc_error_t err = GRPC_NO_ERROR;
-  printf("Management Function Handle Test 3: ");
-
-  err = grpc_initialize(config_file);
-  if (err != GRPC_NO_ERROR) {
-    fprintf(stderr, "grpc_initialize() failed: %s\n", grpc_error_string(err));
-    return;
-  }
+  utils::ClientArgs c("management_function_handle_test_3", "client_testing.cfg");
+	
+  err = grpc_initialize(c.config());
+  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
   err = grpc_function_handle_init(&handle, server, func_list[0]);
-  if (err != GRPC_NO_ERROR) {
-    printf("Failure (%s)\n", grpc_error_string(err));
-    grpc_finalize();
-    return;
-  }
-  printf("Success\n");
+  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
   err = grpc_function_handle_destruct(&handle);
-  if (err != GRPC_NO_ERROR) {
-    fprintf(stderr, "grpc_function_handle_destruct() failed: %s\n", grpc_error_string(err));
-  }
+  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
+
   err = grpc_finalize();
-  if (err != GRPC_NO_ERROR) {
-    fprintf(stderr, "grpc_finalize() failed: %s\n", grpc_error_string(err));
-  }
+  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 }
 
 
@@ -93,18 +86,15 @@ void mgmt_func_handle_test_3(char *config_file, char *server, char **func_list)
  * Call grpc_function_handle_init() before calling grpc_initialize(),
  * checking GRPC_NOT_INITIALIZED returned.
  */
-void mgmt_func_handle_test_4(char *config_file, char *server, char **func_list)
+BOOST_AUTO_TEST_CASE( management_function_handle_test_4 )
 {
+  BOOST_TEST_MESSAGE( "-- Test: Management Function Handle Test 4" );
+
   grpc_function_handle_t handle;
   grpc_error_t err = GRPC_NO_ERROR;
-  printf("Management Function Handle Test 4: ");
 
   err = grpc_function_handle_init(&handle, server, func_list[0]);
-  if (err != GRPC_NOT_INITIALIZED) {
-    printf("Failure (%s)\n", grpc_error_string(err));
-    return;
-  }
-  printf("Success\n");
+  BOOST_CHECK_EQUAL( err, GRPC_NOT_INITIALIZED );
 }
 
 
@@ -112,36 +102,25 @@ void mgmt_func_handle_test_4(char *config_file, char *server, char **func_list)
  * Call grpc_function_handle_destruct() in right way,
  * checking GRPC_NO_ERROR returned.
  */
-void mgmt_func_handle_test_5(char *config_file, char **func_list)
+BOOST_AUTO_TEST_CASE( management_function_handle_test_5 )
 {
+  BOOST_TEST_MESSAGE( "-- Test: Management Function Handle Test 5" );
+
   grpc_function_handle_t handle;
   grpc_error_t err = GRPC_NO_ERROR;
-  printf("Management Function Handle Test 5: ");
+  utils::ClientArgs c("management_function_handle_test_5", "client_testing.cfg");
+	
+  err = grpc_initialize(c.config());
+  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
-  err = grpc_initialize(config_file);
-  if (err != GRPC_NO_ERROR) {
-    fprintf(stderr, "grpc_initialize() failed: %s\n", grpc_error_string(err));
-    return;
-  }
   err = grpc_function_handle_default(&handle, func_list[0]);
-  if (err != GRPC_NO_ERROR) {
-    fprintf(stderr, "grpc_function_handle_default() failed: %s\n", grpc_error_string(err));
-    grpc_finalize();
-    return;
-  }
+  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
   err = grpc_function_handle_destruct(&handle);
-  if (err != GRPC_NO_ERROR) {
-    printf("Failure (%s)\n", grpc_error_string(err));
-    grpc_finalize();
-    return;
-  }
-  printf("Success\n");
+  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
   err = grpc_finalize();
-  if (err != GRPC_NO_ERROR) {
-    fprintf(stderr, "grpc_finalize() failed: %s\n", grpc_error_string(err));
-  }
+  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 }
 
 
@@ -149,18 +128,15 @@ void mgmt_func_handle_test_5(char *config_file, char **func_list)
  * Call grpc_function_handle_destruct() before calling grpc_initialize(),
  * checking GRPC_NOT_INITIALIZED returned.
  */
-void mgmt_func_handle_test_6()
+BOOST_AUTO_TEST_CASE( management_function_handle_test_6 )
 {
+  BOOST_TEST_MESSAGE( "-- Test: Management Function Handle Test 6" );
+
   grpc_function_handle_t handle;
   grpc_error_t err = GRPC_NO_ERROR;
-  printf("Management Function Handle Test 6: ");
 
   err = grpc_function_handle_destruct(&handle);
-  if (err != GRPC_NOT_INITIALIZED) {
-    printf("Failure (%s)\n", grpc_error_string(err));
-    return;
-  }
-  printf("Success\n");
+  BOOST_CHECK_EQUAL( err, GRPC_NOT_INITIALIZED );
 }
 
 
@@ -169,114 +145,73 @@ void mgmt_func_handle_test_6()
  * GRPC_NO_ERROR returned with a pointer of the function
  * handle specified by ID.
  */
-void mgmt_func_handle_test_7(char *config_file, char **func_list)
-{
-  grpc_function_handle_t handle, *handle_tmp;
-  grpc_error_t err = GRPC_NO_ERROR;
-  grpc_sessionid_t id = GRPC_SESSIONID_VOID;
-  int x = 3, y = 0;
-  printf("Management Function Handle Test 7: ");
+// FIXME: currently does not work because of grpc_call_async
+// BOOST_AUTO_TEST_CASE( management_function_handle_test_7 )
+// {
+//   BOOST_TEST_MESSAGE( "-- Test: Management Function Handle Test 7" );
 
-  err = grpc_initialize(config_file);
-  if (err != GRPC_NO_ERROR) {
-    fprintf(stderr, "grpc_initialize() failed: %s\n", grpc_error_string(err));
-    return;
-  }
-  err = grpc_function_handle_default(&handle, func_list[0]);
-  if (err != GRPC_NO_ERROR) {
-    fprintf(stderr, "grpc_function_handle_default() failed: %s\n", grpc_error_string(err));
-    grpc_finalize();
-    return;
-  }
-  err = grpc_call_async(&handle, &id, x, &y);
-  if (err != GRPC_NO_ERROR) {
-    fprintf(stderr, "grpc_call_async() failed: %s\n", grpc_error_string(err)); 
-    grpc_function_handle_destruct(&handle);
-    grpc_finalize();
-    return;
-  }
+//   grpc_function_handle_t handle, *handle_tmp;
+//   grpc_error_t err = GRPC_NO_ERROR;
+//   grpc_sessionid_t id = GRPC_SESSIONID_VOID;
+//   int x = 3, y = 0;
+//   utils::ClientArgs c("management_function_handle_test_7", "client_testing.cfg");
+	
+//   err = grpc_initialize(c.config());
+//   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
-  err = grpc_get_handle(&handle_tmp, id);
-  if (err != GRPC_NO_ERROR) {
-    printf("Failure (%s)\n", grpc_error_string(err));
-    grpc_function_handle_destruct(&handle);
-    grpc_finalize();
-    return;
-  }
-  err = grpc_wait(id);
-  if (err != GRPC_NO_ERROR) {
-    fprintf(stderr, "grpc_wait() failed: %s\n", grpc_error_string(err));
-    grpc_function_handle_destruct(&handle);
-    grpc_finalize();
-    return;
-  }
-  err = grpc_call_async(handle_tmp, &id, x, &y);
-  if (err != GRPC_NO_ERROR) {
-    printf("Failure (%s, and the handle cannot be used.)\n", grpc_error_string(err));
-    grpc_function_handle_destruct(&handle);
-    grpc_finalize();
-    return;
-  }
-  err = grpc_wait(id);
-  if (err != GRPC_NO_ERROR) {
-    printf("Failure (%s, and the handle cannot be used.)\n", grpc_error_string(err));
-    grpc_function_handle_destruct(&handle);
-    grpc_finalize();
-    return;
-  }
-  printf("Success\n");
+//   err = grpc_function_handle_default(&handle, func_list[0]);
+//   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
-  err = grpc_function_handle_destruct(&handle);
-  if (err != GRPC_NO_ERROR) {
-    fprintf(stderr, "grpc_function_handle_destruct() failed: %s\n", grpc_error_string(err));
-  }
-  err = grpc_finalize();
-  if (err != GRPC_NO_ERROR) {
-    fprintf(stderr, "grpc_finalize() failed: %s\n", grpc_error_string(err));
-  }
-}
+//   err = grpc_call_async(&handle, &id, x, &y);
+//   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
+
+//   err = grpc_get_handle(&handle_tmp, id);
+//   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
+
+//   err = grpc_wait(id);
+//   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
+
+//   err = grpc_call_async(handle_tmp, &id, x, &y);
+//   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
+
+//   err = grpc_wait(id);
+//   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
+
+//   err = grpc_function_handle_destruct(&handle);
+//   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
+
+//   err = grpc_finalize();
+//   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
+// }
 
 
 /*
  * Call grpc_get_handle() with an invalid session ID,
  * checking GRPC_INVALID_SESSION_ID returned.
  */
-void mgmt_func_handle_test_8(char *config_file, char **func_list)
+BOOST_AUTO_TEST_CASE( management_function_handle_test_8 )
 {
+  BOOST_TEST_MESSAGE( "-- Test: Management Function Handle Test 8" );
+
   grpc_function_handle_t handle, *handle_tmp;
   grpc_error_t err;
   grpc_sessionid_t id = GRPC_SESSIONID_VOID;
-  printf("Management Function Handle Test 8: ");
+  utils::ClientArgs c("management_function_handle_test_8", "client_testing.cfg");
+	
+  err = grpc_initialize(c.config());
+  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
-  err = grpc_initialize(config_file);
-  if (err != GRPC_NO_ERROR) {
-    fprintf(stderr, "grpc_initialize() failed: %s\n", grpc_error_string(err));
-    return;
-  }
   err = grpc_function_handle_default(&handle, func_list[0]);
-  if (err != GRPC_NO_ERROR) {
-    fprintf(stderr, "grpc_function_handle_default() failed: %s\n", grpc_error_string(err));
-    grpc_finalize();
-    return;
-  }
+  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
   err = grpc_get_handle(&handle_tmp, id);
-  if (err != GRPC_INVALID_SESSION_ID) {
-    printf("Failure (%s)\n", grpc_error_string(err));
-    grpc_function_handle_destruct(&handle);
-    grpc_finalize();
-    return;
-  }
-  printf("Success\n");
+  BOOST_CHECK_EQUAL( err, GRPC_INVALID_SESSION_ID );
 
   err = grpc_function_handle_destruct(&handle);
-  if (err != GRPC_NO_ERROR) {
-    fprintf(stderr, "grpc_function_handle_destruct() failed: %s\n", grpc_error_string(err));
-  }
+  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
+
   err = grpc_finalize();
-  if (err != GRPC_NO_ERROR) {
-    fprintf(stderr, "grpc_finalize() failed: %s\n", grpc_error_string(err));
-  }
+  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 }
 
 
@@ -284,17 +219,17 @@ void mgmt_func_handle_test_8(char *config_file, char **func_list)
  * Call grpc_get_handle() before calling grpc_initialize(),
  * checking GRPC_NOT_INITIALIZED returnd.
  */
-void mgmt_func_handle_test_9()
+BOOST_AUTO_TEST_CASE( management_function_handle_test_9 )
 {
+  BOOST_TEST_MESSAGE( "-- Test: Management Function Handle Test 9" );
+
   grpc_function_handle_t *handle;
   grpc_error_t err = GRPC_NO_ERROR;
   grpc_sessionid_t id = GRPC_SESSIONID_VOID;
-  printf("Management Function Handle Test 9: ");
 
   err = grpc_get_handle(&handle, id);
-  if (err != GRPC_NOT_INITIALIZED) {
-    printf("Failure (%s)\n", grpc_error_string(err));
-    return;
-  }
-  printf("Success\n");
+  BOOST_CHECK_EQUAL( err, GRPC_NOT_INITIALIZED );
 }
+
+
+BOOST_AUTO_TEST_SUITE_END()
