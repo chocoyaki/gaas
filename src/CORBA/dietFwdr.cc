@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2011/03/28 10:07:19  bdepardo
+ * Use 127.0.0.1 as default remote host instead of localhost.
+ *
  * Revision 1.7  2011/03/25 18:03:11  bdepardo
  * Catch exception while transfering remote IOR file
  *
@@ -215,7 +218,7 @@ int main(int argc, char* argv[], char* envp[]) {
     if (cfg.getPeerIOR()!="")
       tunnel.setRemoteHost(ORBMgr::getHost(cfg.getPeerIOR()));
     else
-      tunnel.setRemoteHost("localhost");
+      tunnel.setRemoteHost("127.0.0.1");
   } else {
     tunnel.setRemoteHost(cfg.getRemoteHost());
   }
@@ -231,6 +234,12 @@ int main(int argc, char* argv[], char* envp[]) {
   if (cfg.getPeerIOR()!="") {
     if (connectPeer(ior, cfg.getPeerIOR(), "localhost", tunnel.getRemoteHost(),
                     tunnel.getLocalPortFrom(), tunnel.getRemotePortFrom(), forwarder, mgr)) {
+      /* In this case it seems that there is a problem with the alias 'localhost', thus we
+       * try to use 127.0.0.1
+       */
+      if (tunnel.getRemoteHost() == "localhost") {
+        tunnel.setRemoteHost("127.0.0.1");
+      }
       if (connectPeer(ior, cfg.getPeerIOR(), "127.0.0.1", tunnel.getRemoteHost(),
                       tunnel.getLocalPortFrom(), tunnel.getRemotePortFrom(), forwarder, mgr)) {
         cout << "Unable to contact remote peer. Waiting for connection..." << endl;
@@ -269,6 +278,8 @@ connectPeer(const std::string &ior, const std::string &peerIOR,
     cout << "Unable to contact remote peer using '" << newHost <<"' as a \"new remote host\"" << endl;
     return 1;
   }
+
+  cout << "Contacted remote peer using '" << newHost << "' as new remote host" << endl;
   return 0;
 }
 
