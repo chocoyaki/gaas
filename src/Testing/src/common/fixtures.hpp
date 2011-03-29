@@ -153,7 +153,7 @@ public:
       processNamingService->terminate();
       processNamingService->wait();
     }
-    boost::this_thread::sleep(boost::posix_time::milliseconds(SLEEP_TIME));
+    // boost::this_thread::sleep(boost::posix_time::milliseconds(SLEEP_TIME));
     BOOST_TEST_MESSAGE( "== Test teardown [END]: Stopping OmniNames ==" );
   }
 
@@ -217,7 +217,7 @@ public:
       processAgent->terminate();
       processAgent->wait();
     }
-    boost::this_thread::sleep(boost::posix_time::milliseconds(SLEEP_TIME));
+    // boost::this_thread::sleep(boost::posix_time::milliseconds(SLEEP_TIME));
     BOOST_TEST_MESSAGE( "== Test teardown [END]: Stopping DIET Agent ==" );
   }
 };
@@ -278,7 +278,7 @@ public:
       processMADAG->terminate();
       processMADAG->wait();
     }
-    boost::this_thread::sleep(boost::posix_time::milliseconds(SLEEP_TIME));
+    // boost::this_thread::sleep(boost::posix_time::milliseconds(SLEEP_TIME));
     BOOST_TEST_MESSAGE( "== Test teardown [END]: Stopping DIET maDagAgent ==" );
   }
 };
@@ -405,7 +405,7 @@ public:
       process->terminate();
       process->wait();
     }
-    boost::this_thread::sleep(boost::posix_time::milliseconds(SLEEP_TIME));
+    // boost::this_thread::sleep(boost::posix_time::milliseconds(SLEEP_TIME));
     BOOST_TEST_MESSAGE( "== Test teardown [END]: Stopping LogService ==" );
   }
 };
@@ -455,7 +455,7 @@ public:
       process->terminate();
       process->wait();
     }
-    boost::this_thread::sleep(boost::posix_time::milliseconds(SLEEP_TIME));
+    // boost::this_thread::sleep(boost::posix_time::milliseconds(SLEEP_TIME));
     BOOST_TEST_MESSAGE( "== Test teardown [END]: Stopping DIETLogTool ==" );
   }
 };
@@ -503,6 +503,7 @@ typedef DietSeDFixture <SimpleAddSeD, SimpleAddSeDBinDir, ConfigSimpleAddSeDLA, 
 typedef DietSeDFixture <AllDataTransferAddSeD, AllDataTransferBinDir, ConfigSimpleAddSeDLA, DietLAFixtureLog>AllDataTransferSeDFixtureLog;
 typedef DietSeDFixture <AllDataTransferAddSeD, AllDataTransferBinDir, ConfigSimpleAddSeDLA, DietMADAGFixtureLALog>AllDataTransferSeDFixtureWFLog;
 typedef DietSeDFixture <DynamicAddRemoveServiceAddSeD, DynamicAddRemoveServiceBinDir, ConfigSimpleAddSeDLA, DietLAFixtureLog>DynamicAddRemoveServiceSeDFixtureLog;
+typedef DietSeDFixture <GRPCAddSeD, GRPCBinDir, ConfigSimpleAddSeDLA, DietLAFixtureLog>GRPCSeDFixtureLog;
 #endif // USE_LOG_SERVICE
 
 
