@@ -132,7 +132,7 @@ macro( generate_diet_tests NAME FIXTURENAME )
       if( ENABLE_REPORTS )
         add_custom_target( ${TEST_NAME}-xml
 	  COMMAND ${CMAKE_COMMAND}
-	  -DTEST_PROG=${NEWNAME}
+	  -DTEST_PROG=${NAME}Log
 	  -DBIN_PATH=${BIN_DIR}
 	  -DREPORT_PATH=${REPORT_OUTPUT_PATH}
 	  -P ${PROJECT_SOURCE_DIR}/Cmake/tests/runtest.cmake )
