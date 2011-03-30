@@ -6,4 +6,6 @@ execute_process( COMMAND ${BIN_PATH}/${TEST_PROG}
   --report_format=xml 
   --report_level=detailed
   --report_sink="${REPORT_PATH}/${TEST_PROG}.xml"
+  OUTPUT_QUIET
+  ERROR_QUIET
 )
