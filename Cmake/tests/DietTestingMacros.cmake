@@ -10,8 +10,10 @@ macro (diet_test_setup )
   include(CTest)
 
   if( ENABLE_REPORTS )
-    file( MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/reports )
-    set( REPORT_OUTPUT_PATH ${PROJECT_BINARY_DIR}/reports )
+    if ( NOT DEFINED REPORT_OUTPUT_PATH )
+      set( REPORT_OUTPUT_PATH ${PROJECT_BINARY_DIR}/reports CACHE PATH "Directory where the reports will be stored" )
+    endif()
+    file( MAKE_DIRECTORY ${REPORT_OUTPUT_PATH} )
   endif()
   
 endmacro()
@@ -44,14 +46,14 @@ macro( diet_test NAME )
       ${DIET_CLIENT_LIBRARIES} 
       utils
       pthread )
-  
+    
     # test executable installation has not been tested yet -sic-
     # install( TARGETS ${NAME} DESTINATION bin )
     
     string( REGEX REPLACE "DIET(.*)" "\\1" TEST_NAME ${NAME} )
-
+    
     add_test( ${TEST_NAME} ${BIN_DIR}/${NAME} )
-
+    
     # prevent Boost.Test to catch unrelated exceptions 
     set_property( TEST ${TEST_NAME} 
       PROPERTY ENVIRONMENT "BOOST_TEST_CATCH_SYSTEM_ERRORS=no;" )
@@ -59,7 +61,8 @@ macro( diet_test NAME )
     set_property( TEST ${TEST_NAME} PROPERTY RUN_SERIAL ON )
     
     #
-    add_custom_target( ${TEST_NAME}-xml
+    if( ENABLE_REPORTS )
+      add_custom_target( ${TEST_NAME}-xml
 	COMMAND ${CMAKE_COMMAND}
 	-DTEST_PROG=${NAME}
 	-DBIN_PATH=${BIN_DIR}
@@ -67,6 +70,7 @@ macro( diet_test NAME )
 	-P ${PROJECT_SOURCE_DIR}/Cmake/tests/runtest.cmake )
       add_dependencies( test-xml ${TEST_NAME}-xml )
     endif()
+  endif()
 endmacro()
 
 ###############################################################################
@@ -125,14 +129,16 @@ macro( generate_diet_tests NAME FIXTURENAME )
       set_property( TEST ${TEST_NAME} PROPERTY RUN_SERIAL ON )
       
       #
-      add_custom_target( ${TEST_NAME}-xml
-	COMMAND ${CMAKE_COMMAND}
-	-DTEST_PROG=${NEWNAME}
-	-DBIN_PATH=${BIN_DIR}
-	-DREPORT_PATH=${REPORT_OUTPUT_PATH}
-	-P ${PROJECT_SOURCE_DIR}/Cmake/tests/runtest.cmake )
-      add_dependencies( test-xml ${TEST_NAME}-xml )
-
+      if( ENABLE_REPORTS )
+        add_custom_target( ${TEST_NAME}-xml
+	  COMMAND ${CMAKE_COMMAND}
+	  -DTEST_PROG=${NEWNAME}
+	  -DBIN_PATH=${BIN_DIR}
+	  -DREPORT_PATH=${REPORT_OUTPUT_PATH}
+	  -P ${PROJECT_SOURCE_DIR}/Cmake/tests/runtest.cmake )
+        add_dependencies( test-xml ${TEST_NAME}-xml )
+        
+      endif()
     endif()
   endif()
 endmacro()
