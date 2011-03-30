@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.16  2011/03/30 21:50:49  ecaron
+%* Update style to be compliant to latex2html
+%*
 %* Revision 1.15  2010/03/31 06:41:00  ycaniou
 %* Updates
 %*
@@ -79,14 +82,15 @@ speak about {\it jobs} rather than about {\it tasks}.
 %****************************************************************************%
 
 You must enable the batch flag in cmake arguments. Typically, if you
-build \diet from the command line, you can use the following:
+build \diet from the command line, you can use the following: \\
 
-\begin{lstlisting}[language=bash,basewidth={.5em,.4em},fontadjust]
+\verb!   ccmake $diet_src_path !\\
+     \verb!         -DDIET_USE_ALT_BATCH:BOOL=ON !
 
-   ccmake $diet_src_path                 \\
-          -DDIET_USE_ALT_BATCH:BOOL=ON
-
-\end{lstlisting}
+%\begin{lstlisting}[language=bash,basewidth={.5em,.4em},fontadjust]
+%   ccmake $$diet_src_path                 \\
+%          -DDIET_USE_ALT_BATCH:BOOL=ON
+%\end{lstlisting}
 
 %% $$$
 
