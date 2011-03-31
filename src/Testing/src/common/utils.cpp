@@ -2,6 +2,7 @@
 
 #include <map>
 #include <ostream>
+#include <iostream>
 
 #include <boost/assign/list_inserter.hpp>
 #include <boost/filesystem.hpp>
@@ -46,7 +47,9 @@ namespace utils {
 	args[1] = configFile.get();
 	args[2] = 0;
 
+        std::cout << std::endl; // hack for having clean xml outputs
 	BOOST_TEST_MESSAGE( "config file path : " << args[1] );
+        std::cout << std::endl; // hack for having clean xml outputs
     }
 
     // for debugging purpose only
