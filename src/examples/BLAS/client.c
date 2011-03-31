@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2011/03/31 17:45:27  hguemar
+ * more robust data input: add field width limits to scanf/fscanf
+ *
  * Revision 1.10  2006/04/18 13:11:16  ycaniou
  * Still C++ -> C commentaries
  *
@@ -98,7 +101,7 @@ main(int argc, char* argv[])
   diet_matrix_order_t oA, oB, oC;
 
   srand(time(NULL));
-  
+
   /*oA = (rand() & 1) ? DIET_ROW_MAJOR : DIET_COL_MAJOR;
   oB = (rand() & 1) ? DIET_ROW_MAJOR : DIET_COL_MAJOR;
   oC = (rand() & 1) ? DIET_ROW_MAJOR : DIET_COL_MAJOR;*/
@@ -124,17 +127,17 @@ main(int argc, char* argv[])
    *********************/
 
   if (!strcmp(path, PB[0])) {
-  
+
     printf("%s: C = alpha.A*B + beta.C, with A[m,k], B[k,n] and C[m,n]\n", path);
     printf("A, B, and C are generated randomly, from entered m, n and k.\n");
     printf("Please enter m: ");
-    while (((fscanf(stdin, "%d", &m) != 1) && empty_line()) || (m <= 0))
+    while (((fscanf(stdin, "%20d", &m) != 1) && empty_line()) || (m <= 0))
       printf("m is a postive integer - Please enter m: ");
     printf("Please enter n: ");
-    while (((fscanf(stdin, "%d", &n) != 1) && empty_line()) || (n <= 0))
+    while (((fscanf(stdin, "%20d", &n) != 1) && empty_line()) || (n <= 0))
       printf("n is a postive integer - Please enter n: ");
     printf("Please enter k: ");
-    while (((fscanf(stdin, "%d", &k) != 1) && empty_line()) || (k <= 0))
+    while (((fscanf(stdin, "%20d", &k) != 1) && empty_line()) || (k <= 0))
       printf("k is a postive integer - Please enter k: ");
     printf("Please enter alpha: ");
     while ((fscanf(stdin, "%lf", &alpha) != 1) && empty_line())
@@ -142,7 +145,7 @@ main(int argc, char* argv[])
     printf("Please enter beta: ");
     while ((fscanf(stdin, "%lf", &beta) != 1) && empty_line())
       printf("beta is a double - Please enter beta: ");
-  
+
     /* Fill A, B and C randomly ... */
     A = calloc(m*k, sizeof(double));
     B = calloc(k*n, sizeof(double));
@@ -172,14 +175,14 @@ main(int argc, char* argv[])
    *********************/
 
   } else if (!strcmp(path, PB[2])) {
-    
+
     printf("%s: C = A + C, with A[m,m]\n", path);
     printf("A and C are generated randomly, from entered m.\n");
     printf("Please enter m: ");
-    while (((fscanf(stdin, "%d", &m) != 1) && empty_line()) || (m <= 0))
+    while (((fscanf(stdin, "%20d", &m) != 1) && empty_line()) || (m <= 0))
       printf("m is a positive integer - Please enter m: ");
     n = m;
-    
+
     /* Fill A, B and C randomly ... */
     A = calloc(m*m, sizeof(double));
     C = calloc(m*m, sizeof(double));
@@ -191,12 +194,12 @@ main(int argc, char* argv[])
 		    A, DIET_VOLATILE, DIET_DOUBLE, m, m, oA);
     diet_matrix_set(diet_parameter(profile,1),
 		    C, DIET_VOLATILE, DIET_DOUBLE, m, m, oC);
-    
+
     print_matrix(A, m, m, (oA == DIET_ROW_MAJOR));
     print_matrix(C, m, m, (oC == DIET_ROW_MAJOR));
 
 
-    
+
   /*********************
    * SqMatSUM and MatPROD
    *********************/
@@ -211,17 +214,17 @@ main(int argc, char* argv[])
       printf("A and B are generated randomly, from entered m, n and k.\n");
     }
     printf("Please enter m: ");
-    while (((fscanf(stdin, "%d", &m) != 1) && empty_line()) || (m <= 0))
+    while (((fscanf(stdin, "%20d", &m) != 1) && empty_line()) || (m <= 0))
       printf("m is a positive integer - Please enter m: ");
     if (!strcmp(path, PB[1])) {
       k = m;
       n = m;
     } else {
       printf("Please enter n: ");
-      while (((fscanf(stdin, "%d", &n) != 1) && empty_line()) || (n <= 0))
+      while (((fscanf(stdin, "%20d", &n) != 1) && empty_line()) || (n <= 0))
 	printf("n is a positive integer - Please enter n: ");
       printf("Please enter k: ");
-      while (((fscanf(stdin, "%d", &k) != 1) && empty_line()) || (k <= 0))
+      while (((fscanf(stdin, "%20d", &k) != 1) && empty_line()) || (k <= 0))
 	printf("k is a positive integer - Please enter k: ");
     }
 
@@ -243,20 +246,20 @@ main(int argc, char* argv[])
     print_matrix(B, k, n, (oB == DIET_ROW_MAJOR));
 
 
-    
+
   /*********************
    * MatScalMult
    *********************/
 
   } else if (!strcmp(path, PB[4])) {
-  
+
     printf("%s: C = alpha.C, with C[m,n]\n", path);
     printf("C is generated randomly, from entered m and n.\n");
     printf("Please enter m: ");
-    while (((fscanf(stdin, "%d", &m) != 1) && empty_line()) || (m <= 0))
+    while (((fscanf(stdin, "%20d", &m) != 1) && empty_line()) || (m <= 0))
       printf("m is a positive integer - Please enter m: ");
     printf("Please enter n: ");
-    while (((fscanf(stdin, "%d", &n) != 1) && empty_line()) || (n <= 0))
+    while (((fscanf(stdin, "%20d", &n) != 1) && empty_line()) || (n <= 0))
       printf("n is a positive integer - Please enter n: ");
     printf("Please enter alpha: ");
     while ((fscanf(stdin, "%lf", &alpha) != 1) && empty_line())
@@ -274,7 +277,7 @@ main(int argc, char* argv[])
     print_matrix(C, m, n, (oC == DIET_ROW_MAJOR));
 
 
-    
+
   /*********************
    * Dummy pb (no server offers the correspunding service)
    *********************/
@@ -287,7 +290,7 @@ main(int argc, char* argv[])
     diet_scalar_set(diet_parameter(profile,0), &alpha,
 		    DIET_VOLATILE, DIET_DOUBLE);
   }
-  
+
 
   /*********************
    * DIET Call
@@ -308,9 +311,9 @@ main(int argc, char* argv[])
   if (A) free(A);
   if (B) free(B);
   if (C) free(C);
-  
+
   diet_profile_free(profile);
-  
+
   diet_finalize();
 
   return 0;

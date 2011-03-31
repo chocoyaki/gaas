@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2011/03/31 17:45:28  hguemar
+ * more robust data input: add field width limits to scanf/fscanf
+ *
  * Revision 1.13  2011/02/24 16:52:40  bdepardo
  * Use new parser
  *
@@ -98,10 +101,10 @@ OAR1_6BatchSystem::OAR1_6BatchSystem(int ID, const char * batchname)
     internQueueName = strdup(tmpString.c_str());
   }
 #if defined YC_DEBUG
-  TRACE_TEXT(TRACE_ALL_STEPS,"Nom queue interne: " << internQueueName 
+  TRACE_TEXT(TRACE_ALL_STEPS,"Nom queue interne: " << internQueueName
 	     << endl) ;
 #endif
-  
+
   shell = BatchSystem::emptyString ;
   prefixe = "#!/bin/sh\n" ;
   postfixe = BatchSystem::emptyString ;
@@ -112,20 +115,20 @@ OAR1_6BatchSystem::OAR1_6BatchSystem(int ID, const char * batchname)
   walltime = "\n#OAR -l walltime=" ;
   submittingQueue = "\n#OAR -q " ;
   minimumMemoryUsed = BatchSystem::emptyString ;
-  
+
   mail = BatchSystem::emptyString ;
   account = BatchSystem::emptyString ;
   setSTDOUT = BatchSystem::emptyString ;
   setSTDIN = BatchSystem::emptyString ;
   setSTDERR = BatchSystem::emptyString ;
- 
+
   /* cd, to be sure that OAR takes PWD and not /bin/pwd: for Grenoble */
   submitCommand = "cd . ; oarsub " ;
   killCommand = "oardel " ;
   wait4Command = "oarstat -j " ;
   waitFilter = "grep state | cut --delimiter== -f 2 | cut --delimiter=\" \" -f 2" ;
   exitCode = "0" ;
-  
+
   jid_extract_patterns = "grep \"IdJob =\" | cut --delimiter== -f 2" ;
 
   /* OAR behaves with SQL scripts to reserve specials nodes */
@@ -135,7 +138,7 @@ OAR1_6BatchSystem::OAR1_6BatchSystem(int ID, const char * batchname)
   /* Information for META_VARIABLES */
   batchJobID = "$OAR_JOBID" ;
   nodeFileName = "$OAR_NODEFILE" ;
-  nodeIdentities = "cat $OAR_NODEFILE" ;  
+  nodeIdentities = "cat $OAR_NODEFILE" ;
 }
 
 OAR1_6BatchSystem::~OAR1_6BatchSystem()
@@ -153,7 +156,7 @@ OAR1_6BatchSystem::askBatchJobStatus(int batchJobID)
   int i=0 ;
   int nbread ;
   batchJobState status ;
-  
+
   /* If job has completed, not ask batch system */
   status = getRecordedBatchJobStatus( batchJobID ) ;
   if( (status == TERMINATED) || (status == CANCELED) || (status == ERROR) )
@@ -165,7 +168,7 @@ OAR1_6BatchSystem::askBatchJobStatus(int batchJobID)
     ERROR("Cannot open file", UNDETERMINED ) ;
   }
 
-  /* Ask batch system the job status */      
+  /* Ask batch system the job status */
   chaine = (char*)malloc(sizeof(char)*(strlen(wait4Command)
 				       + NBDIGITS_MAX_BATCH_JOB_ID
 				       + strlen(waitFilter)
@@ -179,7 +182,7 @@ OAR1_6BatchSystem::askBatchJobStatus(int batchJobID)
   if( system(chaine) != 0 ) {
     ERROR("Cannot submit script", NB_STATUS) ;
   }
-  /* Get job status */  
+  /* Get job status */
   for( int i = 0 ; i<=NBDIGITS_MAX_BATCH_JOB_ID ; i++ )
     chaine[i] = '\0' ;
   if( (nbread=readn(file_descriptor,chaine,NBDIGITS_MAX_JOB_STATUS))
@@ -189,11 +192,11 @@ OAR1_6BatchSystem::askBatchJobStatus(int batchJobID)
   /* Adjust what have been read */
   if( chaine[nbread-1] == '\n' )
     chaine[nbread-1] = '\0' ;
-  while( (i<NB_STATUS) && 
+  while( (i<NB_STATUS) &&
 	 (strcmp(chaine,OAR1_6BatchSystem::statusNames[i])!=0) ) {
     i++ ;
   }
-  
+
   if( i==NB_STATUS ) {
     ERROR("Cannot get batch job " << batchJobID << " status: " << chaine, NB_STATUS) ;
   }
@@ -214,7 +217,7 @@ int
 OAR1_6BatchSystem::isBatchJobCompleted(int batchJobID)
 {
   batchJobState status = getRecordedBatchJobStatus(batchJobID) ;
-  
+
   if( (status == TERMINATED) || (status == CANCELED) || (status == ERROR) )
     return 1 ;
   status = askBatchJobStatus(batchJobID) ;
@@ -234,7 +237,7 @@ OAR1_6BatchSystem::getNbTotResources()
 				 "DIET_getNbResources") ;
 }
 
-/* TODO: this function should be C++ written 
+/* TODO: this function should be C++ written
    or, as OAR relies on Perl, use a Perl script which has to be
    deployed
 */
@@ -242,9 +245,9 @@ int
 OAR1_6BatchSystem::getNbResources() /* in the queue internQueueName */
 {
   char chaine[500] ;
-    
+
   if( internQueueName == NULL ) {
-    WARNING("No internal queue Name given: use total information" << endl << endl) ;    
+    WARNING("No internal queue Name given: use total information" << endl << endl) ;
     return getNbTotResources() ;
   }
 
@@ -257,7 +260,7 @@ char *
 OAR1_6BatchSystem::getResourcesName()
 {
   char chaine[500] ;
-  
+
   sprintf(chaine, "oarnodes | grep %s | cut --delimiter=\"=\" --fields=6"
 	  " | cut --delimiter=\",\" --fields=1", internQueueName) ;
   return launchCommandAndGetResultFilename(chaine,
@@ -283,7 +286,7 @@ OAR1_6BatchSystem::getMaxProcs()
 int
 OAR1_6BatchSystem::getNbTotFreeResources()
 {
-  /* Command could be 
+  /* Command could be
      "oarstat -a | grep Free | cut --delimiter=" " --fields=4" */
   return launchCommandAndGetInt( "oarnodes | grep state | grep free | wc -l",
 				 "DIET_getFreeResources") ;
@@ -297,16 +300,16 @@ OAR1_6BatchSystem::getNbFreeResources()
   FILE * file, * fileToParse ;
   int nbfree = 0 ;
   int j, k ;
-    
+
   if( internQueueName == NULL ) {
-    WARNING("No internal queue Name given: use total information" << endl << endl) ;    
+    WARNING("No internal queue Name given: use total information" << endl << endl) ;
     return getNbTotResources() ;
   }
-  
+
   filename = getResourcesName() ;
   filenameToParse = launchCommandAndGetResultFilename("oarnodes",
 						      "DIET_oarInfo") ;
-  
+
   /* For each name (each line), get information about host status */
   /* TODO: Do it the C++ way! Better, use a parser! */
   file =  fopen(filename,"r") ;
@@ -316,7 +319,7 @@ OAR1_6BatchSystem::getNbFreeResources()
   }
   fileToParse =  fopen(filenameToParse,"r") ;
   if( fileToParse == NULL ) {
-    WARNING("GetNbRsource: Cannot open file " << filenameToParse << endl 
+    WARNING("GetNbRsource: Cannot open file " << filenameToParse << endl
 	    << endl) ;
     if( fclose(file) != 0 ) {
       WARNING("Couln't close file") ;
@@ -325,28 +328,28 @@ OAR1_6BatchSystem::getNbFreeResources()
   }
 
   do { /* Read each hostname */
-    j = fscanf(file,"%s",hostname) ;
-    
+    j = fscanf(file,"%49s",hostname) ;
+
     /* Search for hostname in fileToParse */
-    do 
-      k = fscanf(fileToParse,"%s",chaine) ;
+    do
+      k = fscanf(fileToParse,"%499s",chaine) ;
     while( (k != EOF) && ( strcmp(chaine,hostname)!=0 ) ) ;
     /* TODO: should end if k==EOF because ERROR! */
     /* We have reached the line ^hostname */
     /* Search for the status */
-    do 
-      k = fscanf(fileToParse,"%s",chaine) ;
+    do
+      k = fscanf(fileToParse,"%499s",chaine) ;
     while( (k != EOF) && ( strcmp(chaine,"state")!=0 ) ) ;
-    
+
     /* Seek "=" and get status */
-    k = fscanf(fileToParse,"%s",chaine) ;
-    k = fscanf(fileToParse,"%s",chaine) ;
-    
+    k = fscanf(fileToParse,"%499s",chaine) ;
+    k = fscanf(fileToParse,"%499s",chaine) ;
+
     if( strcmp(chaine,"free") == 0 )
       nbfree++ ;
-    
+
   } while( (j != EOF) ) ;
-  
+
 #if REMOVE_BATCH_TEMPORARY_FILE
   unlink( filename ) ;
 #endif

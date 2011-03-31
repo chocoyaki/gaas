@@ -7,6 +7,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.20  2011/03/31 17:45:29  hguemar
+ * more robust data input: add field width limits to scanf/fscanf
+ *
  * Revision 1.19  2011/02/24 16:50:06  bdepardo
  * Code cleanup.
  * Use TRACE_TEXT instead of cout
@@ -349,10 +352,10 @@ WfCst::readShort(const char * fileName, short * mat, unsigned long mat_size) {
   unsigned long p = 0;
   short i;
   int res;
-  res = fscanf(myFile, "%hd", &i);
+  res = fscanf(myFile, "%5hd", &i);
   while (res && !feof(myFile) && (p<mat_size)) {
     mat[p++] = i;
-    res = fscanf(myFile, "%hd", &i);
+    res = fscanf(myFile, "%5hd", &i);
   }
   //  rewind(myFile);
   fclose(myFile);
@@ -365,10 +368,10 @@ WfCst::readInt(const char * fileName, int * mat, unsigned long mat_size) {
   unsigned long p = 0;
   int i;
   int res;
-  res = fscanf(myFile, "%d", &i);
+  res = fscanf(myFile, "%20d", &i);
   while (res && !feof(myFile) && (p<mat_size)) {
     mat[p++] = i;
-    res = fscanf(myFile, "%d", &i);
+    res = fscanf(myFile, "%20d", &i);
   }
   //  rewind(myFile);
   fclose(myFile);

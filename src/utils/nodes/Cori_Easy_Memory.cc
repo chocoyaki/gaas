@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2011/03/31 17:45:29  hguemar
+ * more robust data input: add field width limits to scanf/fscanf
+ *
  * Revision 1.5  2011/02/01 22:46:58  bdepardo
  * Removed useless function: test_filename, it wasn't even part of Easy_Memory
  * and never used throughout the entire project.
@@ -41,7 +44,7 @@
  *
  * Revision 1.2 2005/12/20 21:48:46 pfrauenk
  * CoRI defined symbols renamed - bug fixes thx to Raphael Bolze
- * 
+ *
  * Revision 1.1 2005/12/15 10:12:17 pfrauenk
  * CoRI functionality added by Peter Frauenkron
  ****************************************************************************/
@@ -53,7 +56,7 @@
 #include "Cori_Easy_Memory.hh"
 #include <cstdlib> //system()
 #include <iostream>
-#include <fstream>	
+#include <fstream>
 #include <cstring>
 //#include <string.h>//srtcmp
 #include <string>
@@ -61,7 +64,7 @@
 
 using namespace std;
 
-int 
+int
 Easy_Memory::get_Total_Memory(double * result)
 {
   double temp1,temp2,temp3;
@@ -71,7 +74,7 @@ Easy_Memory::get_Total_Memory(double * result)
     *result=temp1;
     return 0;
   }
-  else 
+  else
   if (!get_Total_Memory_bysysinfo(&temp1)
       &&(!get_Avail_Memory_byvmstat(&temp2))
       &&(!get_Avail_Memory_bysysinfo(&temp3)))
@@ -86,7 +89,7 @@ Easy_Memory::get_Total_Memory(double * result)
       return 1;
     }
 }
-int 
+int
 Easy_Memory::get_Avail_Memory(double * result)
 {
   double temp;
@@ -94,7 +97,7 @@ Easy_Memory::get_Avail_Memory(double * result)
     *result=temp;
     return 0;
   }
-  else 
+  else
   if (!get_Avail_Memory_byvmstat(&temp)){
     *result=temp;
     return 0;
@@ -109,7 +112,7 @@ Easy_Memory::get_Avail_Memory(double * result)
 /* Private methods                                                          */
 /****************************************************************************/
 
-int 
+int
 Easy_Memory::get_Total_Memory_bysysinfo(double * result)
 {
   // using  get_phys_pages ()
@@ -128,7 +131,7 @@ Easy_Memory::get_Total_Memory_bysysinfo(double * result)
 #endif
 }
 
-int 
+int
 Easy_Memory::get_Avail_Memory_bysysinfo(double * result)
 {
   // using get_avphys_pages ()
@@ -145,12 +148,12 @@ Easy_Memory::get_Avail_Memory_bysysinfo(double * result)
 #endif
 }
 
-int 
+int
 Easy_Memory::get_Avail_Memory_byvmstat(double * result)
-{ 
+{
   int returnval=1;
   FILE * myfile =popen("vmstat","r");
-   char word[256];    
+   char word[256];
     if ((myfile!=NULL)){
       if (!feof(myfile)){
 	fgets(word, 256, myfile);
@@ -158,11 +161,11 @@ Easy_Memory::get_Avail_Memory_byvmstat(double * result)
 	    fgets(word, 256, myfile);
 	    int i=0;
 	    while ((!feof(myfile))&&(i<4)){
-	      fscanf (myfile, "%s", word);
-	      i++;  
-	    }    
+	      fscanf (myfile, "%255s", word);
+	      i++;
+	    }
 	    if (i==4){
-	      *result = atof ( word )/1024;  
+	      *result = atof ( word )/1024;
 	      returnval=0;
 	    }
 	    else return 1;
@@ -176,31 +179,31 @@ Easy_Memory::get_Avail_Memory_byvmstat(double * result)
 
 /*
  cat /proc/meminfo*/
-int 
-Easy_Memory::get_Info_Memory_byProcMem(double* resultat, 
+int
+Easy_Memory::get_Info_Memory_byProcMem(double* resultat,
 				       int freemem)
 {
 #ifdef CORI_HAVE_PROCMEM
-       
+
   	char  word[256];
 	char demanded[256];
 	/* looking in the /proc/meminfo data file*/
 	ifstream file ("/proc/meminfo");
-	
-	if (freemem)
-	  strcpy (demanded,"MemFree:");	
-	else strcpy (demanded,"MemTotal:");	
 
-	 
+	if (freemem)
+	  strcpy (demanded,"MemFree:");
+	else strcpy (demanded,"MemTotal:");
+
+
 	if (file.is_open())
-	{ 	    	  	
+	{
 	  while ( ! file.eof() )  //look at the whole file
 	  {
 	    if ( strcmp (demanded , word ) == 0 )
 	    {
 		file >> word;
-		*resultat=atof(word)/1024;		
-		return 0;			
+		*resultat=atof(word)/1024;
+		return 0;
 	    }
 	    file >> word;
 	  }
@@ -210,9 +213,9 @@ Easy_Memory::get_Info_Memory_byProcMem(double* resultat,
 	  TRACE_TEXT(TRACE_MAX_VALUE,"Error on reading file");
 	  return 1;
 	}
-#endif //CORI_HAVE_PROCMEM   	
- return 1;	
-	
+#endif //CORI_HAVE_PROCMEM
+ return 1;
+
 }
 
 
@@ -223,11 +226,11 @@ Easy_Memory::get_Info_Memory_byProcMem(double* resultat,
 //   if (!mem.get_Total_Memory(&maxmem))
 //      printf("%d\n", maxmem);
 //   else printf("no info\n");
-  
+
 //   if (!mem.get_Avail_Memory(&availmem))
 //       printf("%d\n", availmem);
 //   else printf("no info\n");
-  
- 
+
+
 
 // }

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2011/03/31 17:45:29  hguemar
+ * more robust data input: add field width limits to scanf/fscanf
+ *
  * Revision 1.4  2011/01/20 23:56:12  bdepardo
  * Removed resource leak: psfile
  *
@@ -37,7 +40,7 @@
 #include <cstdlib>           // for getloadavg
 #include <iostream>
 #include <string>
-#include <fstream> 
+#include <fstream>
 #include <cmath>             // for HUGE_VAL
 #ifdef CORI_HAVE_SYS_TYPES
 #include <sys/types.h>        // for sysctl on some systems
@@ -53,31 +56,31 @@
 #include "debug.hh"
 using namespace std;
 
-int 
-Easy_CPU::get_CPU_Avg(int interval, 
+int
+Easy_CPU::get_CPU_Avg(int interval,
 		      double * resultat){
   double temp;
   if (!get_CPU_Avg_byGetloadavg(interval,&temp)){
     *resultat=temp;
     return 0;}
-  else 
+  else
     *resultat=HUGE_VAL;
   return 1;
 }
 
 
-int 
+int
 Easy_CPU::get_CPU_Frequence(vector <double> * vlist)
 {
- 
+
   vector<double> temp;
- 
+
   if (!get_CPU_Freq_From_Proc(&temp)||
       !get_CPU_Freq_for_FreeBSD(&temp)||
       !get_CPU_Freq_for_Darwin(&temp)||
       !get_CPU_Freq_for_NetBSD(&temp)
       ){
-    
+
     //found it in a manner
     *vlist=temp;
     return 0;
@@ -90,10 +93,10 @@ Easy_CPU::get_CPU_Frequence(vector <double> * vlist)
   }
 }
 
-int 
+int
 Easy_CPU::get_CPU_Cache(vector <double> * vlist){
   vector<double> temp;
-  
+
   if (!get_CPU_Cache_From_Proc(&temp)){
     //using /proc succesful
     *vlist=temp;
@@ -108,7 +111,7 @@ Easy_CPU::get_CPU_Cache(vector <double> * vlist){
 }
 
 
-int 
+int
 Easy_CPU::get_CPU_Bogomips(vector <double> * vlist){
   vector<double> temp;
 
@@ -124,8 +127,8 @@ Easy_CPU::get_CPU_Bogomips(vector <double> * vlist){
     return 1;
   }
 }
-  
-int 
+
+int
 Easy_CPU::get_CPU_Number(double * result){
   if ((!get_CPU_Number_byget_nprocs(result))||
       (!get_CPU_Number_byNum_Proc(result)))
@@ -135,7 +138,7 @@ Easy_CPU::get_CPU_Number(double * result){
 
 
 
-int 
+int
 Easy_CPU::get_CPU_ActualLoad(double * actualload){
   if (!get_CPU_ActualLoad_Byps(actualload))
     return 0;
@@ -147,18 +150,18 @@ Easy_CPU::get_CPU_ActualLoad(double * actualload){
 
 
 /***********PRIVATE****************************************/
-int 
-Easy_CPU::get_CPU_Avg_byGetloadavg(int interval, 
+int
+Easy_CPU::get_CPU_Avg_byGetloadavg(int interval,
 				   double * resultat){
-// int getloadavg (double loadavg[], int nelem) 
-// This function gets the 1, 5 and 15 minute load 
-//averages of the system. The values are placed in 
-//loadavg. getloadavg will place at most nelem 
-//elements into the array but never more than 
+// int getloadavg (double loadavg[], int nelem)
+// This function gets the 1, 5 and 15 minute load
+//averages of the system. The values are placed in
+//loadavg. getloadavg will place at most nelem
+//elements into the array but never more than
 //three elements. The return value is the number
 // of elements written to loadavg, or -1 on error.
 
-// This function is declared in stdlib.h. 
+// This function is declared in stdlib.h.
 
 #ifdef CORI_HAVE_getloadavg
   switch (interval){
@@ -168,14 +171,14 @@ Easy_CPU::get_CPU_Avg_byGetloadavg(int interval,
     *resultat =loadavg[0];
     break;
   }
-   
+
   case 10: {
     double loadavg[2];
      getloadavg (loadavg, 2);
     *resultat = loadavg[1];
     break;
-  } 
-   
+  }
+
   case 15: {
     double loadavg[3];
     getloadavg (loadavg, 3);
@@ -186,15 +189,15 @@ Easy_CPU::get_CPU_Avg_byGetloadavg(int interval,
     INTERNAL_WARNING("CoRI Easy: "<<interval<<" bad value for get_CPU_Avg(int x)!");
     return 1;
   }
-  } 
+  }
   return 0;
 
-#else 
+#else
 return 1;
 #endif
   }
 
-int 
+int
 Easy_CPU::get_CPU_Number_byget_nprocs(double * result){
 /* int get_nprocs (void) */
 /* The get_nprocs function returns the number of available processors. */
@@ -207,13 +210,13 @@ Easy_CPU::get_CPU_Number_byget_nprocs(double * result){
   *result=get_nprocs ();
   fprintf (stderr, "-> nprocs : res=%lf \n", *result);
   return 0;
-  
+
 #endif
 
  return 1;
 }
 
-int 
+int
 Easy_CPU::get_CPU_Number_byNum_Proc(double * result){
 #undef NUM_PROC
 // On each machine type the nomenclature for
@@ -290,14 +293,14 @@ Easy_CPU::get_CPU_Number_byNum_Proc(double * result){
 *result=maxproc;
  return  0;
 #else
- 
+
  return 1;
 #endif
  }
 
-int 
+int
 Easy_CPU::get_CPU_ActualLoad_Byps(double * actualload){
- 
+
   FILE * psfile;
   char buffer [256];
   psfile=popen("ps -e -o pcpu","r");
@@ -305,16 +308,16 @@ Easy_CPU::get_CPU_ActualLoad_Byps(double * actualload){
   if (psfile==NULL){
     return 1;
   }
-  else  
-    fscanf (psfile,"%s",buffer);
+  else
+    fscanf (psfile,"%255s",buffer);
   if (strcmp(buffer,"%CPU")!=0){
     pclose(psfile);
     return 1;
-  }  
+  }
   float loadCPU=0;
   float tmp=0;
   while(!feof(psfile)){
-    fscanf (psfile,"%f",&tmp);
+    fscanf (psfile,"%6.2f",&tmp);
     loadCPU+=tmp;
   }
   pclose(psfile);
@@ -325,66 +328,66 @@ Easy_CPU::get_CPU_ActualLoad_Byps(double * actualload){
 }
 
 
-int 
+int
 Easy_CPU::get_Bogomips_From_Proc(vector <double> * vlist){
   int     ret = 1;
-#ifdef CORI_HAVE_PROCCPU 
+#ifdef CORI_HAVE_PROCCPU
   FILE    *fp;
   char    buf[128];
   double  val=0;
-  
+
 
   if ((fp = fopen ("/proc/cpuinfo", "r")) != NULL)
     {
       while (fgets (buf, sizeof (buf), fp) != NULL)
         {
 	  if (sscanf (buf, "bogomips : %lf\n", &val) == 1
-              || sscanf (buf, "BogoMIPS : %lf\n", &val) == 1){        
+              || sscanf (buf, "BogoMIPS : %lf\n", &val) == 1){
               ret = 0;
 	      vlist->push_back( val );
-            }   
+            }
         }
       fclose (fp);
     }
-#else 
+#else
   ret=1;
 #endif
 return ret;
 }
-int 
+int
 Easy_CPU::get_CPU_Cache_From_Proc(vector <double> * vlist){
  int     ret = 1;
 #ifdef CORI_HAVE_PROCCPU
  FILE    *fp;
   char    buf[128];
   double  val=0;
- 
+
 
   if ((fp = fopen ("/proc/cpuinfo", "r")) != NULL)
     {
       while (fgets (buf, sizeof (buf), fp) != NULL)
         {
-	  if (sscanf (buf, "cache size : %lf\n", &val) == 1){        
+	  if (sscanf (buf, "cache size : %lf\n", &val) == 1){
               ret = 0;
 	      vlist->push_back( val );
-            }   
+            }
         }
       fclose (fp);
     }
-#else 
+#else
   ret=1;
 #endif
   return ret;
 }
- 
-int 
+
+int
 Easy_CPU::get_CPU_Freq_From_Proc(vector <double> * vlist){
  int     ret = 1;
-#ifdef CORI_HAVE_PROCCPU   
+#ifdef CORI_HAVE_PROCCPU
   FILE    *fp;
   char    buf[128];
   double  val=0;
- 
+
 
   if ((fp = fopen ("/proc/cpuinfo", "r")) != NULL)
     {
@@ -397,24 +400,24 @@ Easy_CPU::get_CPU_Freq_From_Proc(vector <double> * vlist){
             }
           if (sscanf (buf, "cpu MHz : %lf\n", &val) == 1)
             {
-	      ret = 0;    
-	      vlist->push_back( val );           
+	      ret = 0;
+	      vlist->push_back( val );
             }
           if (sscanf (buf, "clock : %lfMHz\n", &val) == 1)
-            {         
+            {
               ret = 0;
 	      vlist->push_back( val );
-            }   
+            }
         }
       fclose (fp);
     }
-#else 
+#else
   ret=1;
 #endif
   return ret;
 }
 
-int 
+int
 Easy_CPU::get_CPU_Freq_for_FreeBSD(vector <double> * vlist)
 {
 #if CORI_HAVE_sysctlbyname
@@ -425,9 +428,9 @@ Easy_CPU::get_CPU_Freq_for_FreeBSD(vector <double> * vlist)
           && size == sizeof(val)&&(val!=0)
       ||sysctlbyname ("machdep.i586_freq", &val, &size, NULL, 0) == 0
           && size == sizeof(val)&&(val!=0)
-      
+
       )
-    {    
+    {
       vlist->push_back(val/1000000 );
       return 0;
     }
@@ -440,7 +443,7 @@ Easy_CPU::get_CPU_Freq_for_FreeBSD(vector <double> * vlist)
 /* Apple powerpc Darwin 1.3 sysctl hw.cpufrequency is in hertz.  For some
    reason only seems to be available from sysctl(), not sysctlbyname().  */
 
-int 
+int
 Easy_CPU::get_CPU_Freq_for_Darwin(vector <double> * vlist)
 {
 #if CORI_HAVE_sysctl && defined (CTL_HW) && defined (HW_CPU_FREQ)
@@ -453,7 +456,7 @@ Easy_CPU::get_CPU_Freq_for_Darwin(vector <double> * vlist)
   size = sizeof(val);
   if (sysctl (mib, 2, &val, &size, NULL, 0) == 0)
     {
-      vlist->push_back( val);   
+      vlist->push_back( val);
       return 0;
     }
 #endif

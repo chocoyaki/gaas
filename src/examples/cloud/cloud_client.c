@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2011/03/31 17:45:28  hguemar
+ * more robust data input: add field width limits to scanf/fscanf
+ *
  * Revision 1.5  2011/01/23 19:20:00  bdepardo
  * Fixed memory and resources leaks, variables scopes, unread variables
  *
@@ -58,7 +61,7 @@
 char* path_to_A;
 char* path_to_B;
 
-void usage(char* me) 
+void usage(char* me)
 {
     fprintf(stderr, "Usage: %s <file.cfg> [--A-path <path-to-A-matrix> --B-path <path-to-B-matrix>]\n"
         "\t ex1: %s client_cloud.cfg\n"
@@ -99,8 +102,8 @@ char matrix_from_file(char* file_path, double** mat, int* n, int* m)
     fi = fopen(file_path, "r");
     if(fi == NULL)
         return 0;
-    fscanf(fi, "%d", n);
-    fscanf(fi, "%d", m);
+    fscanf(fi, "%20d", n);
+    fscanf(fi, "%20d", m);
     *mat = (double*)malloc(*n * *m * sizeof(double));
 
     for(i=0;i<*n * *m;i++)
@@ -152,14 +155,14 @@ int main(int argc, char **argv)
   profile = diet_profile_alloc("cloud-demo",1, 1, 3); /* last_in, last_inout, last_out */
   /* Set profile arguments */
   diet_string_set(diet_parameter(profile,3), NULL,    DIET_VOLATILE);
-  
+
   /* init matrix orders */
   diet_matrix_order_t oA, oB, oC;
-  oA = ((double)rand()/(double)RAND_MAX <= 0.5) ? DIET_ROW_MAJOR : 
+  oA = ((double)rand()/(double)RAND_MAX <= 0.5) ? DIET_ROW_MAJOR :
                                                   DIET_COL_MAJOR;
-  oB = ((double)rand()/(double)RAND_MAX <= 0.5) ? DIET_ROW_MAJOR : 
+  oB = ((double)rand()/(double)RAND_MAX <= 0.5) ? DIET_ROW_MAJOR :
                                                   DIET_COL_MAJOR;
-  oC = ((double)rand()/(double)RAND_MAX <= 0.5) ? DIET_ROW_MAJOR : 
+  oC = ((double)rand()/(double)RAND_MAX <= 0.5) ? DIET_ROW_MAJOR :
                                                   DIET_COL_MAJOR;
   C = NULL;
 
@@ -170,7 +173,7 @@ int main(int argc, char **argv)
     B, DIET_VOLATILE, DIET_DOUBLE, n, m, oB);
   print_matrix(B, n, m, (oB == DIET_ROW_MAJOR));
   diet_string_set(diet_parameter(profile,2), NULL,    DIET_VOLATILE);
-  
+
   if (!diet_parallel_call(profile)) { /* If the call has succeeded ... */
     /* Get and print time */
     diet_string_get(diet_parameter(profile,3), &result, NULL);
