@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.27  2011/03/31 16:17:34  hguemar
+ * fixes few memory leaks in BatchSystem and Workflow
+ *
  * Revision 1.26  2011/03/25 17:47:22  hguemar
  * remove crufts from FDataHandle.cc
  *
@@ -964,8 +967,10 @@ FDataHandle::begin() throw (WfDataHandleException) {
     // retrieve the child IDs using the ID adapter
     try {
       adapterID->getElements(*childIDVect);
+      delete adapterID;
     } catch(WfDataException& e) {
       delete childIDVect;
+      delete adapterID;
       throw WfDataHandleException(WfDataHandleException::eBAD_STRUCT,
 				  "Cannot retrieve element IDs : " + e.ErrorMsg());
     }
