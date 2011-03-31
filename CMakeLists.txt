@@ -53,9 +53,9 @@ if (UNIX AND NOT WIN32)
     set(SYSTEM_PROC_TYPE ${SYSTEM_PROC_TYPE} CACHE INTERNAL 
     	"processor type (i386 and x86_64)")
     if (SYSTEM_PROC_TYPE MATCHES "x86_64")
-		  # TODO: Should be done only for libraries build
+      # TODO: Should be done only for libraries build
       add_definitions(-fPIC)
-		endif(SYSTEM_PROC_TYPE MATCHES "x86_64")
+    endif(SYSTEM_PROC_TYPE MATCHES "x86_64")
   endif(CMAKE_UNAME)
 endif(UNIX AND NOT WIN32)
 
