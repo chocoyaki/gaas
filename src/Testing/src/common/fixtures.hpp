@@ -153,7 +153,7 @@ public:
       processNamingService->terminate();
       processNamingService->wait();
     }
-    // boost::this_thread::sleep(boost::posix_time::milliseconds(SLEEP_TIME));
+    boost::this_thread::sleep(boost::posix_time::milliseconds(SLEEP_TIME));
     BOOST_TEST_MESSAGE( "== Test teardown [END]: Stopping OmniNames ==" );
   }
 
@@ -217,7 +217,7 @@ public:
       processAgent->terminate();
       processAgent->wait();
     }
-    // boost::this_thread::sleep(boost::posix_time::milliseconds(SLEEP_TIME));
+    boost::this_thread::sleep(boost::posix_time::milliseconds(SLEEP_TIME));
     BOOST_TEST_MESSAGE( "== Test teardown [END]: Stopping DIET Agent ==" );
   }
 };
@@ -278,7 +278,7 @@ public:
       processMADAG->terminate();
       processMADAG->wait();
     }
-    // boost::this_thread::sleep(boost::posix_time::milliseconds(SLEEP_TIME));
+    boost::this_thread::sleep(boost::posix_time::milliseconds(SLEEP_TIME));
     BOOST_TEST_MESSAGE( "== Test teardown [END]: Stopping DIET maDagAgent ==" );
   }
 };
@@ -405,7 +405,7 @@ public:
       process->terminate();
       process->wait();
     }
-    // boost::this_thread::sleep(boost::posix_time::milliseconds(SLEEP_TIME));
+    boost::this_thread::sleep(boost::posix_time::milliseconds(SLEEP_TIME));
     BOOST_TEST_MESSAGE( "== Test teardown [END]: Stopping LogService ==" );
   }
 };
@@ -455,7 +455,7 @@ public:
       process->terminate();
       process->wait();
     }
-    // boost::this_thread::sleep(boost::posix_time::milliseconds(SLEEP_TIME));
+    boost::this_thread::sleep(boost::posix_time::milliseconds(SLEEP_TIME));
     BOOST_TEST_MESSAGE( "== Test teardown [END]: Stopping DIETLogTool ==" );
   }
 };
