@@ -20,7 +20,7 @@
 using namespace std;
 
 
-BOOST_FIXTURE_TEST_SUITE( ServiceAddRemoveTest, 
+BOOST_FIXTURE_TEST_SUITE( DynamicConnect, 
 			  DynamicAddRemoveServiceSeDFixture )
 
 

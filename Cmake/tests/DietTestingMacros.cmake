@@ -77,14 +77,15 @@ endmacro()
 # generate_diet_tests: macro that setup a test with potentially a test using
 # log central
 # @param[in] NAME  test filename stripped from extension
-# @param[in] FIXTURENAME fixture name
+# @param[in] FIXTURENAME fixture name, will be replaced by ${FIXTURENAME}Log
+# @param[in] TESTNAME test name, will be replaced by ${TESTNAME}Log
 # @param[in] DISABLED (optional) when defined, remove test from master suite
 #                     and display a message to the user.
 ###############################################################################
 
-macro( generate_diet_tests NAME FIXTURENAME )
-  if( ${ARGC} MATCHES 3 )
-    if( ${ARGV2} MATCHES "DISABLED" )
+macro( generate_diet_tests NAME FIXTURENAME TESTNAME )
+  if( ${ARGC} MATCHES 4 )
+    if( ${ARGV3} MATCHES "DISABLED" )
       message( STATUS "${ARGV0}: explicitly disabled by developer" )
       set( ${ARGV0}-DISABLED ON ) 
     endif()
@@ -98,6 +99,7 @@ macro( generate_diet_tests NAME FIXTURENAME )
       # create unit tests with log support
       file( READ "${NAME}.cpp" TEST_CODE )
       string( REPLACE "${FIXTURENAME}" "${FIXTURENAME}Log" TEST_CODE_LOG "${TEST_CODE}" )
+      string( REPLACE "${TESTNAME}" "${TESTNAME}Log" TEST_CODE_LOG "${TEST_CODE}" )
       set( NEWNAME "${GENERATED_LOG_TESTS_DIR}/${NAME}Log" )
       file( WRITE "${NEWNAME}.cpp" "${TEST_CODE_LOG}" )
 

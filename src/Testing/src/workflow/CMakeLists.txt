@@ -1,12 +1,15 @@
-INCLUDE_DIRECTORIES( ${DIET_SOURCE_DIR}/src/utils/DAGDA )
+INCLUDE_DIRECTORIES(
+  ${DIET_SOURCE_DIR}/src/utils/DAGDA
+  ${DIET_SOURCE_DIR}/src/Testing/src/workflow
+)
 
 if (DIET_USE_WORKFLOW) 
-  diet_test( DIETDataInoutSinkScalarsTests )
-#  diet_test( DIETDataInoutSinkVectorsTests )
-  diet_test( DIETDataInoutSinkStringsTests )
-#  diet_test( DIETDataInoutSinkPStringsTests )
-  diet_test( DIETDataInoutSinkFilesTests )
-  diet_test( DIETDataInoutSinkContainersTests )
-  diet_test( DIETLoopScalarsTests )
-  diet_test( DIETLoopContainersTests )
+  generate_diet_tests( DIETDataInoutSinkScalarsTests AllDataTransferSeDFixtureWF workflows_data_inout_scalars_sink )
+#  generate_diet_tests( DIETDataInoutSinkVectorsTests AllDataTransferSeDFixtureWF workflows_data_inout_vectors_sink )
+  generate_diet_tests( DIETDataInoutSinkStringsTests AllDataTransferSeDFixtureWF workflows_data_inout_strings_sink )
+#  generate_diet_tests( DIETDataInoutSinkPStringsTests AllDataTransferSeDFixtureWF workflows_data_inout_pstrings_sink )
+  generate_diet_tests( DIETDataInoutSinkFilesTests AllDataTransferSeDFixtureWF workflows_data_inout_files_sink )
+  generate_diet_tests( DIETDataInoutSinkContainersTests AllDataTransferSeDFixtureWF workflows_data_inout_containers_sink )
+  generate_diet_tests( DIETLoopScalarsTests AllDataTransferSeDFixtureWF workflows_loop_scalars_sink )
+  generate_diet_tests( DIETLoopContainersTests AllDataTransferSeDFixtureWF workflows_loop_containers_sink )
 endif (DIET_USE_WORKFLOW)
