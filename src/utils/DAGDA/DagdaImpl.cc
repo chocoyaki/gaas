@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.51  2011/04/04 13:38:02  bdepardo
+ * Close comment, and define FNM_CASEFOLD only if it is not already defined
+ *
  * Revision 1.50  2011/04/04 13:18:37  ecaron
  * New defintion of FNM_CASEFOLD for AIX compatibility (AIX 5.1 or later)
  *
@@ -129,9 +132,11 @@
 #include <uuid/uuid.h>
 #endif
 
-/**  FNM_CASEFOLD for AIX (available only in AIX 5.1 or later).
+/**  FNM_CASEFOLD for AIX (available only in AIX 5.1 or later). */
 #if __aix__
-   #define FNM_CASEFOLD FNM_IGNORECASE
+#ifndef FNM_CASEFOLD
+#define FNM_CASEFOLD FNM_IGNORECASE
+#endif // !FNM_CASEFOLD
 #endif // __aix__
 
 char DagdaImpl::NoID[] = "NoID";
