@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.50  2011/04/04 13:18:37  ecaron
+ * New defintion of FNM_CASEFOLD for AIX compatibility (AIX 5.1 or later)
+ *
  * Revision 1.49  2011/03/18 17:37:45  bdepardo
  * Add dagda_reset method to reset internal variables.
  * This is used for allowing multiple consecutive diet_initialize/diet_finalize
@@ -125,6 +128,11 @@
 #if HAVE_ADVANCED_UUID
 #include <uuid/uuid.h>
 #endif
+
+/**  FNM_CASEFOLD for AIX (available only in AIX 5.1 or later).
+#if __aix__
+   #define FNM_CASEFOLD FNM_IGNORECASE
+#endif // __aix__
 
 char DagdaImpl::NoID[] = "NoID";
 
