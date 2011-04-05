@@ -9,8 +9,8 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.20  2011/04/05 14:05:21  bdepardo
- * ERROR and WARNING macros are now subjected to tracelevel
+ * Revision 1.21  2011/04/05 14:19:08  bdepardo
+ * Reverting last commit
  *
  * Revision 1.19  2010/07/20 09:20:11  bisnard
  * integration with eclipse gui and with dietForwarder
@@ -536,18 +536,6 @@ public:
   void
   setStatus(const string& statusStr);
 
-  /**
-   * set the number of retry
-   */
-  void
-  setRetry(unsigned int retry);
-  
-  /**
-   * get the numbe rof retry
-   */
-  unsigned int
-  getRetry();
-
   /**********************************/
   /* Execution thread               */
   /**********************************/
@@ -714,11 +702,6 @@ private:
    */
   bool isTerminated;
 
-  /**
-   * Number of times this node is still allowed to be re-submitted
-   * before being marked as failed.
-   */
-  unsigned int retry;
 };
 
 #endif // _DAGNODE_HH_
