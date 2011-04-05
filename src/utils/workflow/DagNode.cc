@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.27  2011/04/05 14:05:21  bdepardo
+ * ERROR and WARNING macros are now subjected to tracelevel
+ *
  * Revision 1.26  2010/07/20 09:20:11  bisnard
  * integration with eclipse gui and with dietForwarder
  *
@@ -159,6 +162,7 @@ DagNode::DagNode(const string& id, Dag *dag, FWorkflow* wf)
   this->estCompTime = -1;
   this->estDelay = 0;
   this->submitIndex = 0;
+  this->retry = 3;
 }
 
 /**
@@ -969,8 +973,16 @@ void DagNode::prevNodeHasDone(DagScheduler* scheduler) {
  */
 void
 DagNode::setAsFailed(DagScheduler* scheduler) {
-  taskExecFailed =  true;
-  this->getDag()->setNodeFailure(this->getId(), scheduler);
+  if(this->retry > 0) {
+    this->retry--;
+    if(scheduler != NULL) {
+      std::cout << "MMM Calling node failed scheduler MMM" << std::endl;
+      scheduler->handlerNodeFailed(this);
+    }
+  } else { 
+    taskExecFailed =  true;
+    this->getDag()->setNodeFailure(this->getId(), scheduler);
+  }
 }
 
 /**
@@ -994,6 +1006,22 @@ DagNode::setStatus(const string& statusStr) {
   } else {
     INTERNAL_ERROR(__FUNCTION__ <<"Wrong status value"<<endl,1);
   }
+}
+
+/**
+ * set the number of retry
+ */
+void
+DagNode::setRetry(unsigned int retry) {
+    this->retry = retry;
+}
+
+/**
+ * get the numbe rof retry
+ */
+unsigned int
+DagNode::getRetry() {
+    return this->retry;
 }
 
 string

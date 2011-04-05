@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2011/04/05 14:05:21  bdepardo
+ * ERROR and WARNING macros are now subjected to tracelevel
+ *
  * Revision 1.2  2010/03/08 13:50:48  bisnard
  * handle node ready event (for logging)
  *
@@ -24,42 +27,51 @@ class DagNode;
 
 class DagScheduler {
 
-  public:
+public:
 
-    /**
-     * Handle DAG DONE event
-     * This event is triggered when all the nodes of the dag have been
-     * completed without any error
-     * @param dag the dag reference
-     */
-    virtual void
-        handlerDagDone(Dag *dag) = 0;
+  /**
+   * Handle DAG DONE event
+   * This event is triggered when all the nodes of the dag have been
+   * completed without any error
+   * @param dag the dag reference
+   */
+  virtual void
+  handlerDagDone(Dag *dag) = 0;
 
-    /**
-     * Handle NODE READY event
-     * This event is triggered when one dag node's dependencies (ie previous
-     * nodes) are all completed. This is also triggered if the node has no
-     * dependencies when created (input node).
-     * @param node  the dag node reference
-     */
-    virtual void
-        handlerNodeReady(DagNode *node) = 0;
+  /**
+   * Handle NODE READY event
+   * This event is triggered when one dag node's dependencies (ie previous
+   * nodes) are all completed. This is also triggered if the node has no
+   * dependencies when created (input node).
+   * @param node  the dag node reference
+   */
+  virtual void
+  handlerNodeReady(DagNode *node) = 0;
 
-    /**
-     * Handle NODE DONE event
-     * This event is triggered when one dag node has been completed
-     * without any error
-     * @param node  the dag node reference
-     */
-    virtual void
-        handlerNodeDone(DagNode *node) = 0;
+  /**
+   * Handle NODE DONE event
+   * This event is triggered when one dag node has been completed
+   * without any error
+   * @param node  the dag node reference
+   */
+  virtual void
+  handlerNodeDone(DagNode *node) = 0;
 
-    /**
-     * Get the current timestamp provided by the scheduler's clock
-     * @return double value of the timestamp
-     */
-    virtual double
-        getRelCurrTime() = 0;
+  /**
+   * Handle NODE FAILED event
+   * This event is triggered when one dag node has failed, but
+   * will be re-submitted.
+   * @param node  the dag node reference
+   */
+  virtual void
+  handlerNodeFailed(DagNode * node) = 0;
+
+  /**
+   * Get the current timestamp provided by the scheduler's clock
+   * @return double value of the timestamp
+   */
+  virtual double
+  getRelCurrTime() = 0;
 };
 
 #endif

@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.34  2011/04/05 14:05:21  bdepardo
+ * ERROR and WARNING macros are now subjected to tracelevel
+ *
  * Revision 1.33  2010/03/03 13:59:55  bdepardo
  * C++ includes instead of C includes
  *
@@ -158,52 +161,61 @@ extern omni_mutex debug_log_mutex ;
 /**
  * Error message - return with return_value.
  */
-#define ERROR(formatted_msg,return_value) {         \
-  debug_log_mutex.lock() ;                          \
-  cerr << "DIET ERROR: " << formatted_msg << "." << endl;	\
-  debug_log_mutex.unlock() ;                        \
+#define ERROR(formatted_msg,return_value) {                   \
+  if ((int)TRACE_LEVEL >= (int)NO_TRACE) {                    \
+    debug_log_mutex.lock() ;                                  \
+    cerr << "DIET ERROR: " << formatted_msg << "." << endl;   \
+    debug_log_mutex.unlock() ;                                \
+  }                                                           \
   return return_value ; }
 
-#define ERROR_EXIT(formatted_msg) {                 \
-  debug_log_mutex.lock() ;                          \
-  cerr << "DIET ERROR: " << formatted_msg << "." << endl;	\
-  debug_log_mutex.unlock() ;                        \
+#define ERROR_EXIT(formatted_msg) {                           \
+  if ((int)TRACE_LEVEL >= (int)NO_TRACE) {                    \
+    debug_log_mutex.lock() ;                                  \
+    cerr << "DIET ERROR: " << formatted_msg << "." << endl;   \
+    debug_log_mutex.unlock() ;                                \
+  }                                                           \
   exit(1) ; }
 
 #define INTERNAL_ERROR_EXIT(formatted_msg) {                 \
-  debug_log_mutex.lock() ;                          \
-  cerr << "DIET ERROR: " << formatted_msg << "." << endl;	\
-  debug_log_mutex.unlock() ;                        \
+  if ((int)TRACE_LEVEL >= (int)NO_TRACE) {                   \
+    debug_log_mutex.lock() ;                                 \
+    cerr << "DIET ERROR: " << formatted_msg << "." << endl;  \
+    debug_log_mutex.unlock() ;                               \
+  }                                                          \
   exit(1) ; }
 
 /**
  * Warning message.
  */
-#define WARNING(formatted_msg) {                     \
-  debug_log_mutex.lock() ;                           \
-  cerr << "DIET WARNING: " << formatted_msg << "." << endl;	\
+#define WARNING(formatted_msg)                               \
+  if ((int)TRACE_LEVEL >= (int)NO_TRACE) {                   \
+  debug_log_mutex.lock() ;                                   \
+  cerr << "DIET WARNING: " << formatted_msg << "." << endl;  \
   debug_log_mutex.unlock() ; }
 
 
 /**
  * Internal Error message - exit with exit_value.
  */
-#define INTERNAL_ERROR(formatted_msg,exit_value) {            \
-  debug_log_mutex.lock() ;                                    \
+#define INTERNAL_ERROR(formatted_msg,exit_value)                        \
+  if ((int)TRACE_LEVEL >= (int)NO_TRACE) {                              \
+  debug_log_mutex.lock() ;                                              \
   cerr << "DIET INTERNAL ERROR: " << formatted_msg << "." << endl <<	\
     "Please send bug report to diet-usr@ens-lyon.fr" << endl ;		\
-  debug_log_mutex.unlock() ; }                                \
-  EXIT_FUNCTION;                                              \
+  debug_log_mutex.unlock() ; }                                          \
+  EXIT_FUNCTION;                                                        \
   exit(exit_value)
 
 /**
  * Internal Warning message.
  */
-#define INTERNAL_WARNING(formatted_msg) {                     \
-  debug_log_mutex.lock() ;                                    \
+#define INTERNAL_WARNING(formatted_msg)                                 \
+  if ((int)TRACE_LEVEL >= (int)NO_TRACE) {                              \
+  debug_log_mutex.lock() ;                                              \
   cerr << "DIET INTERNAL WARNING: " << formatted_msg << "." << endl <<	\
-       "This is not a fatal bug, but please send a report "   \
-    "to diet-dev@ens-lyon.fr" << endl                           ;  \
+       "This is not a fatal bug, but please send a report "             \
+    "to diet-dev@ens-lyon.fr" << endl                           ;       \
   debug_log_mutex.unlock() ; }
 
 
@@ -219,45 +231,45 @@ extern omni_mutex debug_log_mutex ;
 
 // DEBUG trace: print "function(formatted_text)\n", following the iostream
 // format. First argument is the minimum TRACE_LEVEL for the line to be printed.
-#define TRACE_FUNCTION(level,formatted_text)               \
-  if ((int)TRACE_LEVEL >= (int)(level)) {            \
-    debug_log_mutex.lock() ;                               \
-    cout << __FUNCTION__ << '(' << formatted_text << ")" << endl;	\
+#define TRACE_FUNCTION(level,formatted_text)                       \
+  if ((int)TRACE_LEVEL >= (int)(level)) {                          \
+    debug_log_mutex.lock() ;                                       \
+    cout << __FUNCTION__ << '(' << formatted_text << ")" << endl;  \
     debug_log_mutex.unlock() ; }
 
 // DEBUG trace: print formatted_text following the iostream format (no '\n'
 // added). First argument is the minimum TRACE_LEVEL for the line to be printed.
-#define TRACE_TEXT(level,formatted_text)             \
-  if ((int)TRACE_LEVEL >= (int)(level)) {            \
-    debug_log_mutex.lock() ;                         \
-    cout << formatted_text ;                         \
+#define TRACE_TEXT(level,formatted_text)   \
+  if ((int)TRACE_LEVEL >= (int)(level)) {  \
+    debug_log_mutex.lock() ;               \
+    cout << formatted_text ;               \
     debug_log_mutex.unlock() ; }
 
 // DEBUG trace: print "file:line: formatted_text", following the iostream format
 // (no '\n' added). First argument is the minimum TRACE_LEVEL for the line to be
 // printed.
-#define TRACE_TEXT_POS(level,formatted_text)                      \
-  if ((int)TRACE_LEVEL >= (int)(level)) {                         \
-    debug_log_mutex.lock() ;                                      \
-    cout << __FILE__ << ':' << __LINE__ << ": " << formatted_text;\
+#define TRACE_TEXT_POS(level,formatted_text)                       \
+  if ((int)TRACE_LEVEL >= (int)(level)) {                          \
+    debug_log_mutex.lock() ;                                       \
+    cout << __FILE__ << ':' << __LINE__ << ": " << formatted_text; \
     debug_log_mutex.unlock() ; }
 
 // DEBUG trace: print "time: formatted_text", following the iostream format (no
 // '\n' added). First argument is the minimum TRACE_LEVEL for the line to be
 // printed.
-#define TRACE_TIME(level,formatted_text)            \
-  if ((int)TRACE_LEVEL >= (int)(level)) {           \
-    struct timeval tv;                              \
-    debug_log_mutex.lock() ;                        \
-    gettimeofday(&tv, NULL);                        \
+#define TRACE_TIME(level,formatted_text)                                          \
+  if ((int)TRACE_LEVEL >= (int)(level)) {                                         \
+    struct timeval tv;                                                            \
+    debug_log_mutex.lock() ;                                                      \
+    gettimeofday(&tv, NULL);                                                      \
     printf("%10ld.%06ld: ", (unsigned long)tv.tv_sec, (unsigned long)tv.tv_usec); \
-    cout << formatted_text;                         \
-    debug_log_mutex.unlock() ;                      \
+    cout << formatted_text;                                                       \
+    debug_log_mutex.unlock() ;                                                    \
   }
 
 // DEBUG trace: print variable name and value
-#define TRACE_VAR(var) { \
-  debug_log_mutex.lock() ;                          \
+#define TRACE_VAR(var) {                                     \
+  debug_log_mutex.lock() ;                                   \
   TRACE_TEXT_POS(NO_TRACE, #var << " = " << (var) << endl) ; \
   debug_log_mutex.unlock() ; }
 
