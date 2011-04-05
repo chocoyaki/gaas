@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.42  2011/04/05 14:03:42  bdepardo
+ * IOR is printed only when the tracelevel is at least TRACE_MAIN_STEPS
+ *
  * Revision 1.41  2011/03/21 08:27:39  bdepardo
  * Correctly register the logcomponent into the ORB, and correclty detroy it.
  *
@@ -248,7 +251,7 @@ MaDag_impl::MaDag_impl(const char * name,
 
   TRACE_TEXT(TRACE_MAIN_STEPS, std::endl
              <<  "MA DAG " << this->myName << " created." << std::endl);
-  TRACE_TEXT(NO_TRACE, "## MADAG_IOR "
+  TRACE_TEXT(TRACE_MAIN_STEPS, "## MADAG_IOR "
              << ORBMgr::getMgr()->getIOR(this->_this()) << std::endl);
 #ifdef USE_LOG_SERVICE
   this->setupDietLogComponent();

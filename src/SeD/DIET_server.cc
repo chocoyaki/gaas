@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.103  2011/04/05 14:01:06  bdepardo
+ * IOR is printed only when the tracelevel is at least TRACE_MAIN_STEPS
+ *
  * Revision 1.102  2011/03/21 08:27:39  bdepardo
  * Correctly register the logcomponent into the ORB, and correclty detroy it.
  *
@@ -908,7 +911,7 @@ diet_SeD(const char* config_file_name, int argc, char* argv[])
 
   /* SeD creation */
   SeD = new SeDImpl();
-  TRACE_TEXT(NO_TRACE,
+  TRACE_TEXT(TRACE_MAIN_STEPS,
 	     "## SED_IOR " << ORBMgr::getMgr()->getIOR(SeD->_this()) << endl);
   fsync(1);
   fflush(NULL);

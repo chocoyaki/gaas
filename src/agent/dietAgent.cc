@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.61  2011/04/05 14:02:31  bdepardo
+ * IOR is printed only when the tracelevel is at least TRACE_MAIN_STEPS
+ *
  * Revision 1.60  2011/03/21 08:27:38  bdepardo
  * Correctly register the logcomponent into the ORB, and correclty detroy it.
  *
@@ -492,12 +495,12 @@ int main(int argc, char* argv[], char *envp[]) {
   /* Create, activate, and launch the agent */
   if ((agentType == "DIET_LOCAL_AGENT") || (agentType == "LA")) {
     Agt = new LocalAgentImpl();
-    TRACE_TEXT(NO_TRACE,
+    TRACE_TEXT(TRACE_MAIN_STEPS,
                "## LA_IOR " << ORBMgr::getMgr()->getIOR(Agt->_this())
                << endl);
   } else {
     Agt = new MasterAgentImpl();
-    TRACE_TEXT(NO_TRACE,
+    TRACE_TEXT(TRACE_MAIN_STEPS,
                "## MA_IOR " << ORBMgr::getMgr()->getIOR(Agt->_this())
                << endl);
   }

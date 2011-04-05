@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.131  2011/04/05 14:01:07  bdepardo
+ * IOR is printed only when the tracelevel is at least TRACE_MAIN_STEPS
+ *
  * Revision 1.130  2011/03/01 13:37:51  bdepardo
  * SIGTERM can now also be used to properly terminate DIET
  *
@@ -391,18 +394,13 @@ using namespace std;
 /** The trace level. */
 extern unsigned int TRACE_LEVEL;
 
-#define SED_TRACE_FUNCTION(formatted_text)		\
-  TRACE_TEXT(TRACE_ALL_STEPS, "SeD::");			\
-  TRACE_FUNCTION(TRACE_ALL_STEPS,formatted_text)
 
-SeDImpl::SeDImpl()
-{
+SeDImpl::SeDImpl() {
   this->initialize();
 }
 
 #if HAVE_JXTA
-SeDImpl::SeDImpl(const char* uuid = '\0')
-{
+SeDImpl::SeDImpl(const char* uuid = '\0') {
   this->uuid = uuid;
   this->initialize();
 }
@@ -411,8 +409,7 @@ SeDImpl::SeDImpl(const char* uuid = '\0')
 /** Private method to centralize all shared variable initializations from
  * different constructors.  Call this only from a constructor. */
 void
-SeDImpl::initialize()
-{
+SeDImpl::initialize() {
   this->SrvT    = NULL;
   this->childID = -1;
   this->parent  = Agent::_nil();
@@ -454,8 +451,7 @@ SeDImpl::initialize()
   strcpy(this->myName, name.c_str());
 }
 
-SeDImpl::~SeDImpl()
-{
+SeDImpl::~SeDImpl() {
   /* FIXME: Tables should be destroyed. */
   ORBMgr::getMgr()->unbind(SEDCTXT, myName);
   ORBMgr::getMgr()->fwdsUnbind(SEDCTXT, myName);
@@ -632,8 +628,7 @@ SeDImpl::removeElementClean() {
 
 
 int
-SeDImpl::run(ServiceTable* services)
-{
+SeDImpl::run(ServiceTable* services) {
   /* initialize random seed: */
   srand(time(NULL));
 
@@ -921,14 +916,15 @@ SeDImpl::checkContract(corba_estimation_t& estimation,
 {
   ServiceTable::ServiceReference_t ref(-1);
   ref = SrvT->lookupService(&(pb));
-  if (ref == -1)
+  if (ref == -1) {
     return 1;
-  else
+  } else {
     this->estimate(estimation, pb, ref);
+  }
   return 0;
 }
 
-void persistent_data_release(corba_data_t* arg){
+void persistent_data_release(corba_data_t* arg) {
 
   switch((diet_data_type_t)(arg->desc.specific._d())) {
   case DIET_VECTOR: {
@@ -971,34 +967,36 @@ void persistent_data_release(corba_data_t* arg){
 /** Called from client immediatly after knowing which server is selected
  ** and will be called by the client, before data transfer.
 
- ** Should disappear when data management by Ga�l is fully tested, because
+ ** Should disappear when data management by Gael is fully tested, because
  ** by default, data will be managed inside the solve() function and not inside
  ** the call.
  **/
 void
-SeDImpl::updateTimeSinceLastSolve()
-{
+SeDImpl::updateTimeSinceLastSolve() {
   gettimeofday(&(this->lastSolveStart), NULL) ;
 }
 
 int
 SeDImpl::getNumJobsWaiting() {
-  if (accessController)
+  if (accessController) {
     return accessController->getNumWaiting();
+  }
   return 0;
 }
 
 int
 SeDImpl::getActiveJobVector(jobVector_t& jv) {
-  if (jobQueue)
+  if (jobQueue) {
     return jobQueue->getActiveJobTable(jv);
+  }
   return 0;
 }
 
 double
 SeDImpl::getEFT() {
-  if (this->useConcJobLimit && jobQueue)
+  if (this->useConcJobLimit && jobQueue) {
     return jobQueue->estimateEFTwithFIFOSched();
+  }
   return 0;
 }
 
@@ -1009,8 +1007,7 @@ SeDImpl::getName() {
 
 
 CORBA::Long
-SeDImpl::solve(const char* path, corba_profile_t& pb)
-{
+SeDImpl::solve(const char* path, corba_profile_t& pb) {
   ServiceTable::ServiceReference_t ref(-1);
   diet_profile_t profile;
   diet_convertor_t* cvt(NULL);
@@ -1034,8 +1031,9 @@ SeDImpl::solve(const char* path, corba_profile_t& pb)
   this->jobQueue->addJobWaiting(pb.dietReqID, estCompTime, pb.estim);
 
 #if defined HAVE_ALT_BATCH
-  if( server_status == BATCH )
+  if( server_status == BATCH ) {
     return this->parallel_solve(path, pb, ref, profile) ;
+  }
 #endif
 
   if (this->useConcJobLimit){
@@ -1108,14 +1106,12 @@ SeDImpl::solve(const char* path, corba_profile_t& pb)
 
 #if defined HAVE_ALT_BATCH
 void
-SeDImpl::setServerStatus( diet_server_status_t status )
-{
+SeDImpl::setServerStatus( diet_server_status_t status ) {
   this->server_status = status ;
 }
 
 diet_server_status_t
-SeDImpl::getServerStatus()
-{
+SeDImpl::getServerStatus() {
   return server_status ;
 }
 
