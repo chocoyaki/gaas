@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.27  2011/04/05 14:03:10  bdepardo
+ * Replaced cout by WARNING
+ *
  * Revision 1.26  2011/02/24 11:55:46  bdepardo
  * Use the new CONFIG_XXX macros.
  *
@@ -210,8 +213,8 @@ GlobalScheduler::deserialize(const char* serializedScheduler)
       {
         WARNING("unable to deserialize global scheduler ; "
                 << "reverting to default (StdGS)");
-        cout << "scheduler was \""
-             << serializedScheduler << "\"" << std::endl;
+        WARNING("scheduler was \""
+                << serializedScheduler << "\"" << std::endl);
         return (GlobalScheduler::chooseGlobalScheduler());
       }
 }
