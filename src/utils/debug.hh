@@ -9,6 +9,17 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.35  2011/04/06 10:05:10  bdepardo
+ * Added a new level for traceLevel: TRACE_ERR_AND_WARN = 1
+ * We now have the following levels:
+ * NO_TRACE = 0  DIET do not print anything, not even warning and error messages.
+ * TRACE_ERR_AND_WARN = 1  DIET only prints warnings and errors on the standard error output.
+ * TRACE_MAIN_STEPS = 2  [default] DIET prints information on the main steps of a call.
+ * TRACE_ALL_STEPS = 5  DIET prints information on all internal steps too.
+ * TRACE_MAX_VALUE = 10  DIET prints all the communication structures too.
+ * >10  (traceLevel - 10) is given to the ORB to print CORBA messages too.
+ * The default level is still the same: TRACE_DEFAULT = TRACE_MAIN_STEPS
+ *
  * Revision 1.34  2011/04/05 14:05:21  bdepardo
  * ERROR and WARNING macros are now subjected to tracelevel
  *
@@ -126,7 +137,8 @@ extern omni_mutex debug_log_mutex ;
  * Various values for the trace level
  */
 #define NO_TRACE            0
-#define TRACE_MAIN_STEPS    1
+#define TRACE_ERR_AND_WARN  1
+#define TRACE_MAIN_STEPS    2
 #define TRACE_ALL_STEPS     5
 #define TRACE_STRUCTURES   10
 #define TRACE_MAX_VALUE    TRACE_STRUCTURES
@@ -162,7 +174,7 @@ extern omni_mutex debug_log_mutex ;
  * Error message - return with return_value.
  */
 #define ERROR(formatted_msg,return_value) {                   \
-  if ((int)TRACE_LEVEL >= (int)NO_TRACE) {                    \
+  if ((int)TRACE_LEVEL >= (int)TRACE_ERR_AND_WARN) {                    \
     debug_log_mutex.lock() ;                                  \
     cerr << "DIET ERROR: " << formatted_msg << "." << endl;   \
     debug_log_mutex.unlock() ;                                \
@@ -170,7 +182,7 @@ extern omni_mutex debug_log_mutex ;
   return return_value ; }
 
 #define ERROR_EXIT(formatted_msg) {                           \
-  if ((int)TRACE_LEVEL >= (int)NO_TRACE) {                    \
+  if ((int)TRACE_LEVEL >= (int)TRACE_ERR_AND_WARN) {                    \
     debug_log_mutex.lock() ;                                  \
     cerr << "DIET ERROR: " << formatted_msg << "." << endl;   \
     debug_log_mutex.unlock() ;                                \
@@ -178,7 +190,7 @@ extern omni_mutex debug_log_mutex ;
   exit(1) ; }
 
 #define INTERNAL_ERROR_EXIT(formatted_msg) {                 \
-  if ((int)TRACE_LEVEL >= (int)NO_TRACE) {                   \
+  if ((int)TRACE_LEVEL >= (int)TRACE_ERR_AND_WARN) {                   \
     debug_log_mutex.lock() ;                                 \
     cerr << "DIET ERROR: " << formatted_msg << "." << endl;  \
     debug_log_mutex.unlock() ;                               \
@@ -189,7 +201,7 @@ extern omni_mutex debug_log_mutex ;
  * Warning message.
  */
 #define WARNING(formatted_msg)                               \
-  if ((int)TRACE_LEVEL >= (int)NO_TRACE) {                   \
+  if ((int)TRACE_LEVEL >= (int)TRACE_ERR_AND_WARN) {                   \
   debug_log_mutex.lock() ;                                   \
   cerr << "DIET WARNING: " << formatted_msg << "." << endl;  \
   debug_log_mutex.unlock() ; }
@@ -199,7 +211,7 @@ extern omni_mutex debug_log_mutex ;
  * Internal Error message - exit with exit_value.
  */
 #define INTERNAL_ERROR(formatted_msg,exit_value)                        \
-  if ((int)TRACE_LEVEL >= (int)NO_TRACE) {                              \
+  if ((int)TRACE_LEVEL >= (int)TRACE_ERR_AND_WARN) {                              \
   debug_log_mutex.lock() ;                                              \
   cerr << "DIET INTERNAL ERROR: " << formatted_msg << "." << endl <<	\
     "Please send bug report to diet-usr@ens-lyon.fr" << endl ;		\
@@ -211,7 +223,7 @@ extern omni_mutex debug_log_mutex ;
  * Internal Warning message.
  */
 #define INTERNAL_WARNING(formatted_msg)                                 \
-  if ((int)TRACE_LEVEL >= (int)NO_TRACE) {                              \
+  if ((int)TRACE_LEVEL >= (int)TRACE_ERR_AND_WARN) {                              \
   debug_log_mutex.lock() ;                                              \
   cerr << "DIET INTERNAL WARNING: " << formatted_msg << "." << endl <<	\
        "This is not a fatal bug, but please send a report "             \
