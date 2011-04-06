@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.62  2011/04/06 17:17:07  bdepardo
+ * Fixed bug #197.
+ * Exceptions are caught when the omniNames is not reachable
+ *
  * Revision 1.61  2011/04/05 14:02:31  bdepardo
  * IOR is printed only when the tracelevel is at least TRACE_MAIN_STEPS
  *
@@ -348,7 +352,7 @@ int main(int argc, char* argv[], char *envp[]) {
   try {
     fileParser.parseFile(configFile);
   } catch (...) {
-    ERROR("while parsing " << configFile, DIET_FILE_IO_ERROR);
+    ERROR("while parsing " << configFile, GRPC_CONFIGFILE_ERROR);
   }
 
   /* now merge our maps */
@@ -362,7 +366,7 @@ int main(int argc, char* argv[], char *envp[]) {
   try {
     CONFIG_AGENT(diet::AGENTTYPE, agentType);
   } catch (std::runtime_error &e) {
-    ERROR(e.what(), 1);
+    ERROR(e.what(), GRPC_CONFIGFILE_ERROR);
   }
   //std::string& agentName = CONFIG_STRING("name"]; // UNUSED ?
   std::string parentName = "";
@@ -377,7 +381,7 @@ int main(int argc, char* argv[], char *envp[]) {
   if (((agentType == "DIET_LOCAL_AGENT") || (agentType == "LA")) &&
       !hasParentName) {
     ERROR("parsing " << configFile
-          << ": no parent name specified", 1);
+          << ": no parent name specified", GRPC_CONFIGFILE_ERROR);
   } else if(((agentType != "DIET_LOCAL_AGENT") && (agentType != "LA")) &&
             hasParentName) {
     WARNING("parsing " << configFile << ": no need to specify "
@@ -486,10 +490,15 @@ int main(int argc, char* argv[], char *envp[]) {
   Loc = new LocMgrImpl();
 #endif /* ! HAVE_JUXMEM && ! HAVE_DAGDA */
 #if HAVE_DAGDA
-  DagdaImpl* dataManager = DagdaFactory::getAgentDataManager();
+  DagdaImpl* dataManager;
+  try {
+    dataManager = DagdaFactory::getAgentDataManager();
 #ifdef USE_LOG_SERVICE
-  dataManager->setLogComponent( dietLogComponent ); // modif bisnard_logs_1
+    dataManager->setLogComponent( dietLogComponent ); // modif bisnard_logs_1
 #endif /* USE_LOG_SERVICE */
+  } catch (...) {
+    ERROR("Problem while instantiating the data manager", GRPC_COMMUNICATION_FAILED);
+  }
 #endif /* HAVE_DAGDA */
 
   /* Create, activate, and launch the agent */
