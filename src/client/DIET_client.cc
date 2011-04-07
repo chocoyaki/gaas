@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.173  2011/04/07 10:04:07  bdepardo
+ * Return GRPC_OTHER_ERROR_CODE instead of 1 or -1
+ *
  * Revision 1.172  2011/04/07 08:51:55  bdepardo
  * Take into account the traceLevel sooner
  *
@@ -626,7 +629,7 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
   try {
     fileParser.parseFile(config_file_name);
   } catch (...) {
-    ERROR("while parsing " << config_file_name, DIET_FILE_IO_ERROR);
+    ERROR("while parsing " << config_file_name, GRPC_CONFIGFILE_ERROR);
   }
   CONFIGMAP = fileParser.getConfiguration();
   // FIXME: should we also parse command line arguments?
@@ -664,7 +667,7 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
   /* Initialize the ORB */
   try {
     ORBMgr::init(myargc, (char**)myargv);
-  }	catch (...) {
+  } catch (...) {
     ERROR("ORB initialization failed", GRPC_NOT_INITIALIZED);
   }
 
@@ -678,7 +681,7 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
   try {
     ORBMgr::getMgr()->activate(cb);
   } catch (...) {
-    return -1;
+    return GRPC_OTHER_ERROR_CODE;
   }
 
   CORBA::Object_var obj = cb->_this();
@@ -696,10 +699,10 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
     ORBMgr::getMgr()->fwdsBind(CLIENTCTXT, os.str(),
                                ORBMgr::getMgr()->getIOR(obj));
   } catch (...) {
-    ERROR("Connection to omniNames failed (Callback server bind)", 1);
+    ERROR("Connection to omniNames failed (Callback server bind)", GRPC_OTHER_ERROR_CODE);
   }
   if (REF_CALLBACK_SERVER == NULL) {
-    return -1;
+    return GRPC_OTHER_ERROR_CODE;
   }
 
 
@@ -715,7 +718,7 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
     MA = ORBMgr::getMgr()->resolve<MasterAgent, MasterAgent_var>(AGENTCTXT, tmpString);
   } catch (...) {
     MA_MUTEX->unlock();
-    return -1;
+    return GRPC_OTHER_ERROR_CODE;
   }
   MA_MUTEX->unlock();
 
@@ -816,7 +819,7 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
                                                          // CORBA::string_dup(tmpString.c_str()));
 		
     if (CORBA::is_nil(MA_DAG)) {
-      ERROR("Cannot locate MA DAG " << tmpString, 1);
+      ERROR("Cannot locate MA DAG " << tmpString, GRPC_OTHER_ERROR_CODE);
     }
     else {
       CltWfMgr::instance()->setMaDag(MA_DAG);
@@ -834,7 +837,7 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
     WfLogService_var wfLogSrv =
       ORBMgr::getMgr()->resolve<WfLogService, WfLogService_var>(WFLOGCTXT, "WfLogService");
     if (CORBA::is_nil(wfLogSrv)) {
-      ERROR("cannot locate the Workflow Log Service ", 1);
+      ERROR("cannot locate the Workflow Log Service ", GRPC_OTHER_ERROR_CODE);
     } else {
       CltWfMgr::instance()->setWfLogService(wfLogSrv);
     }
@@ -874,7 +877,7 @@ diet_finalize() {
   // ensure that CORBA is active before doing anything
   if (CORBA::is_nil(MA)) {
     WARNING(__FUNCTION__ << ": diet_finalize has already been called");
-    return GRPC_NO_ERROR;
+    return GRPC_NOT_INITIALIZED;
   }
 
 #if HAVE_WORKFLOW
