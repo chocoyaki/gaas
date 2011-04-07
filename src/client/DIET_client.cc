@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.174  2011/04/07 23:32:28  bdepardo
+ * Changed return values to be GRPC compatible
+ *
  * Revision 1.173  2011/04/07 10:04:07  bdepardo
  * Return GRPC_OTHER_ERROR_CODE instead of 1 or -1
  *
@@ -681,7 +684,7 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
   try {
     ORBMgr::getMgr()->activate(cb);
   } catch (...) {
-    return GRPC_OTHER_ERROR_CODE;
+    return GRPC_NOT_INITIALIZED;
   }
 
   CORBA::Object_var obj = cb->_this();
@@ -699,10 +702,10 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
     ORBMgr::getMgr()->fwdsBind(CLIENTCTXT, os.str(),
                                ORBMgr::getMgr()->getIOR(obj));
   } catch (...) {
-    ERROR("Connection to omniNames failed (Callback server bind)", GRPC_OTHER_ERROR_CODE);
+    ERROR("Connection to omniNames failed (Callback server bind)", GRPC_NOT_INITIALIZED);
   }
   if (REF_CALLBACK_SERVER == NULL) {
-    return GRPC_OTHER_ERROR_CODE;
+    return GRPC_NOT_INITIALIZED;
   }
 
 
@@ -718,7 +721,7 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
     MA = ORBMgr::getMgr()->resolve<MasterAgent, MasterAgent_var>(AGENTCTXT, tmpString);
   } catch (...) {
     MA_MUTEX->unlock();
-    return GRPC_OTHER_ERROR_CODE;
+    return GRPC_NOT_INITIALIZED;
   }
   MA_MUTEX->unlock();
 
@@ -819,7 +822,7 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
                                                          // CORBA::string_dup(tmpString.c_str()));
 		
     if (CORBA::is_nil(MA_DAG)) {
-      ERROR("Cannot locate MA DAG " << tmpString, GRPC_OTHER_ERROR_CODE);
+      ERROR("Cannot locate MA DAG " << tmpString, GRPC_NOT_INITIALIZED);
     }
     else {
       CltWfMgr::instance()->setMaDag(MA_DAG);
@@ -837,7 +840,7 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
     WfLogService_var wfLogSrv =
       ORBMgr::getMgr()->resolve<WfLogService, WfLogService_var>(WFLOGCTXT, "WfLogService");
     if (CORBA::is_nil(wfLogSrv)) {
-      ERROR("cannot locate the Workflow Log Service ", GRPC_OTHER_ERROR_CODE);
+      ERROR("cannot locate the Workflow Log Service ", GRPC_NOT_INITIALIZED);
     } else {
       CltWfMgr::instance()->setWfLogService(wfLogSrv);
     }
@@ -877,7 +880,7 @@ diet_finalize() {
   // ensure that CORBA is active before doing anything
   if (CORBA::is_nil(MA)) {
     WARNING(__FUNCTION__ << ": diet_finalize has already been called");
-    return GRPC_NOT_INITIALIZED;
+    return GRPC_NO_ERROR;
   }
 
 #if HAVE_WORKFLOW
