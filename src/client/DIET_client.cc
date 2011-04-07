@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.172  2011/04/07 08:51:55  bdepardo
+ * Take into account the traceLevel sooner
+ *
  * Revision 1.171  2011/03/21 08:27:39  bdepardo
  * Correctly register the logcomponent into the ORB, and correclty detroy it.
  *
@@ -629,20 +632,6 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
   // FIXME: should we also parse command line arguments?
 
 
-  /* Check the parameters */
-  std::string tmpString;
-  if (!CONFIG_STRING(diet::MANAME, tmpString)) {
-    ERROR("No MA name found in the configuration", GRPC_CONFIGFILE_ERROR);
-  }
-
-  if (CONFIG_STRING(diet::PARENTNAME, tmpString)) {
-    WARNING("No need to specify a parent for a client - ignored");
-  }
-  
-  if (CONFIG_AGENT(diet::AGENTTYPE, tmpString)) {
-    WARNING("agentType is useless for a client - ignored");
-  }
-
   /* Get the traceLevel */
   unsigned long tmpTraceLevel = TRACE_DEFAULT;
   CONFIG_ULONG(diet::TRACELEVEL, tmpTraceLevel);
@@ -655,6 +644,21 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
     sprintf(level, "%u", TRACE_LEVEL - TRACE_MAX_VALUE);
     myargv[myargc + 1] = (char*)level;
     myargc = tmp_argc;
+  }
+
+
+  /* Check the parameters */
+  std::string tmpString;
+  if (!CONFIG_STRING(diet::MANAME, tmpString)) {
+    ERROR("No MA name found in the configuration", GRPC_CONFIGFILE_ERROR);
+  }
+
+  if (CONFIG_STRING(diet::PARENTNAME, tmpString)) {
+    WARNING("No need to specify a parent for a client - ignored");
+  }
+  
+  if (CONFIG_AGENT(diet::AGENTTYPE, tmpString)) {
+    WARNING("agentType is useless for a client - ignored");
   }
 
   /* Initialize the ORB */

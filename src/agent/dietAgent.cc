@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.63  2011/04/07 08:51:54  bdepardo
+ * Take into account the traceLevel sooner
+ *
  * Revision 1.62  2011/04/06 17:17:07  bdepardo
  * Fixed bug #197.
  * Exceptions are caught when the omniNames is not reachable
@@ -360,6 +363,11 @@ int main(int argc, char* argv[], char *envp[]) {
   const ConfigMap& fileMap = fileParser.getConfiguration();
   CONFIGMAP.insert(fileMap.begin(), fileMap.end());
 
+  /* Get the traceLevel */
+  unsigned long tmpTraceLevel = TRACE_DEFAULT;
+  CONFIG_ULONG(diet::TRACELEVEL, tmpTraceLevel);
+  TRACE_LEVEL = tmpTraceLevel;
+
 
   /* get parameters: agentType and name */
   std::string agentType = "MA";
@@ -373,9 +381,6 @@ int main(int argc, char* argv[], char *envp[]) {
   bool hasParentName = CONFIG_STRING(diet::PARENTNAME, parentName);
   std::string maName;
 
-  unsigned long tmpTraceLevel = TRACE_DEFAULT;
-  CONFIG_ULONG(diet::TRACELEVEL, tmpTraceLevel);
-  TRACE_LEVEL = tmpTraceLevel;
 
   // parentName is mandatory for LA but unneeded for MA
   if (((agentType == "DIET_LOCAL_AGENT") || (agentType == "LA")) &&

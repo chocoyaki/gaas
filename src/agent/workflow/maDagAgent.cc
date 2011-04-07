@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.20  2011/04/07 08:51:55  bdepardo
+ * Take into account the traceLevel sooner
+ *
  * Revision 1.19  2011/03/16 21:37:56  bdepardo
  * Fixed a few memleaks, and now this agent correctly exits.
  *
@@ -194,6 +197,19 @@ int main(int argc, char * argv[]) {
   CONFIGMAP = fileParser.getConfiguration();
   // FIXME: should we also parse command line arguments?
 
+
+  /* Get the traceLevel */
+  unsigned long tmpTraceLevel = TRACE_DEFAULT;
+  CONFIG_ULONG(diet::TRACELEVEL, tmpTraceLevel);
+  TRACE_LEVEL = tmpTraceLevel;
+  if (TRACE_LEVEL >= TRACE_MAX_VALUE) {
+    std::ostringstream level;
+    ins("-ORBtraceLevel");
+    level << (TRACE_LEVEL - TRACE_MAX_VALUE);
+    ins(level);
+
+  }
+
   /* Check the parameters */
   std::string name;
   std::string agentType;
@@ -221,17 +237,6 @@ int main(int argc, char * argv[]) {
     ins(argv[i]);
   }
 
-  /* Get the traceLevel */
-  unsigned long tmpTraceLevel = TRACE_DEFAULT;
-  CONFIG_ULONG(diet::TRACELEVEL, tmpTraceLevel);
-  TRACE_LEVEL = tmpTraceLevel;
-  if (TRACE_LEVEL >= TRACE_MAX_VALUE) {
-    std::ostringstream level;
-    ins("-ORBtraceLevel");
-    level << (TRACE_LEVEL - TRACE_MAX_VALUE);
-    ins(level);
-
-  }
 
   /* Choose scheduler type */
   MaDag_impl::MaDagSchedType schedType = MaDag_impl::BASIC;
