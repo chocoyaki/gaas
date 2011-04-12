@@ -115,10 +115,6 @@ public:
     logdir = bf::unique_path(OMNINAMES_LOGDIR "%%%%-%%%%-%%%%-%%%%").native();
     bf::create_directory(logdir);
     BOOST_TEST_MESSAGE( "OmniNames log directory: " + logdir );
-
-
-    // Clean OMNINAME_LOGDIR
-    bf::remove_all(MA_DAGDA_DIR);
     
 
     // setup omniNames environment
@@ -150,8 +146,12 @@ public:
     bf::remove_all(logdir);
 
     if (processNamingService) {
-      processNamingService->terminate();
-      processNamingService->wait();
+      try {
+        processNamingService->terminate();
+        processNamingService->wait();
+      } catch (...) {
+        BOOST_TEST_MESSAGE( "== Problem while ending OmniNames ==" );        
+      }
     }
     boost::this_thread::sleep(boost::posix_time::milliseconds(SLEEP_TIME));
     BOOST_TEST_MESSAGE( "== Test teardown [END]: Stopping OmniNames ==" );
