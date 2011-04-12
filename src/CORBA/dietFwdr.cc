@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2011/04/12 10:01:00  bdepardo
+ * More robust forwarder: when communication to omniORB fails, correctly
+ * exits and kill ssh tunnel
+ *
  * Revision 1.8  2011/03/28 10:07:19  bdepardo
  * Use 127.0.0.1 as default remote host instead of localhost.
  *
@@ -231,23 +235,31 @@ int main(int argc, char* argv[], char* envp[]) {
   tunnel.open();
 
   /* Try to find the peer. */
+  bool canLaunch = true;
   if (cfg.getPeerIOR()!="") {
-    if (connectPeer(ior, cfg.getPeerIOR(), "localhost", tunnel.getRemoteHost(),
-                    tunnel.getLocalPortFrom(), tunnel.getRemotePortFrom(), forwarder, mgr)) {
-      /* In this case it seems that there is a problem with the alias 'localhost', thus we
-       * try to use 127.0.0.1
-       */
-      if (tunnel.getRemoteHost() == "localhost") {
-        tunnel.setRemoteHost("127.0.0.1");
-      }
-      if (connectPeer(ior, cfg.getPeerIOR(), "127.0.0.1", tunnel.getRemoteHost(),
+    try {
+      if (connectPeer(ior, cfg.getPeerIOR(), "localhost", tunnel.getRemoteHost(),
                       tunnel.getLocalPortFrom(), tunnel.getRemotePortFrom(), forwarder, mgr)) {
-        cout << "Unable to contact remote peer. Waiting for connection..." << endl;
+        /* In this case it seems that there is a problem with the alias 'localhost', thus we
+         * try to use 127.0.0.1
+         */
+        if (tunnel.getRemoteHost() == "localhost") {
+          tunnel.setRemoteHost("127.0.0.1");
+        }
+        if (connectPeer(ior, cfg.getPeerIOR(), "127.0.0.1", tunnel.getRemoteHost(),
+                        tunnel.getLocalPortFrom(), tunnel.getRemotePortFrom(), forwarder, mgr)) {
+          cout << "Unable to contact remote peer. Waiting for connection..." << endl;
+        }
       }
+    } catch (...) {
+      cerr << "Error while connecting to remote peer" << endl;
+      canLaunch = false;
     }
   }
 
-  mgr->wait();
+  if (canLaunch) {
+    mgr->wait();
+  }
 
   std::cout << "Forwarder is now terminated" << std::endl;
 	
