@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2011/04/12 14:50:07  bdepardo
+ * freeTCPport is now accessible outside SSHTunnel.cc
+ *
  * Revision 1.5  2011/03/25 18:03:11  bdepardo
  * Catch exception while transfering remote IOR file
  *
@@ -130,15 +133,21 @@ const std::string& SSHConnection::getSshOptions() const {
 }
 
 void SSHConnection::setSshHost(const std::string& host) {
-  if (host!="") this->sshHost = host;
+  if (host != "") {
+    this->sshHost = host;
+  }
 }
 
 void SSHConnection::setSshPath(const std::string& path) {
-  if (path!="") this->sshPath = path;
+  if (path != "") {
+    this->sshPath = path;
+  }
 }
 
 void SSHConnection::setSshPort(const std::string& port) {
-  if (port!="") this->sshPort = port;
+  if (port != "") {
+    this->sshPort = port;
+  }
 }
 
 void SSHConnection::setSshPort(const int port) {
@@ -148,11 +157,15 @@ void SSHConnection::setSshPort(const int port) {
 }
 
 void SSHConnection::setSshLogin(const std::string& login) {
-  if (login!="") this->login = login;
+  if (login != "") {
+    this->login = login;
+  }
 }
 
 void SSHConnection::setSshKeyPath(const std::string& path) {
-  if (keyPath!="") this->keyPath = path;
+  if (keyPath != "") {
+    this->keyPath = path;
+  }
 }
 
 void SSHConnection::setSshOptions(const std::string& options) {
@@ -172,7 +185,7 @@ void replace(const string& s, const string& r, string& str) {
  * the socket file descriptor used to find
  * the port.
  */
-std::string freeTCPport() {
+string freeTCPport() {
   ostringstream os;
   struct sockaddr_in sck;
 	
@@ -185,6 +198,7 @@ std::string freeTCPport() {
   getsockname(sfd, (struct sockaddr*) &sck, &len);
   os << sck.sin_port;
   close(sfd);
+
   return os.str();
 }
 
@@ -314,9 +328,12 @@ void SSHTunnel::open() {
 
 void SSHTunnel::close() {
   if (!createTo && !createFrom) return;
-  if (kill(pid, SIGTERM))
-    if (kill(pid, SIGKILL))
+  if (pid && kill(pid, SIGTERM)) {
+    if (kill(pid, SIGKILL)) {
       throw runtime_error("Unable to stop the ssh process");
+    }
+  }
+  pid = 0;
 }
 
 const string& SSHTunnel::getRemoteHost() const {
