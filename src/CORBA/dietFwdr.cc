@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2011/04/12 14:50:30  bdepardo
+ * Try to automatically determine a free remote port
+ *
  * Revision 1.9  2011/04/12 10:01:00  bdepardo
  * More robust forwarder: when communication to omniORB fails, correctly
  * exits and kill ssh tunnel
@@ -70,9 +73,10 @@ int main(int argc, char* argv[], char* envp[]) {
   /* Mandatory when creating tunnels. */
   opt.setOptCallback("--peer-name", peer_name);
   opt.setOptCallback("--ssh-host", ssh_host);
-  opt.setOptCallback("--remote-port", remote_port_from);
   /* Optionnal, set to "localhost" by default. */
   opt.setOptCallback("--remote-host", remote_host);
+  /* Optionnal, we try to determine it automatically. */
+  opt.setOptCallback("--remote-port", remote_port_from);
 
   /* Optionnal - default values are set to port 22,
    * current user login and $HOME/.ssh/id_[rsa|dsa].
@@ -108,21 +112,18 @@ int main(int argc, char* argv[], char* envp[]) {
     cerr << "Missing parameter: net-config (use --net-config <file> to fix it)" << endl;
     return EXIT_FAILURE;
   }
-	
+	  
   if (cfg.createFrom()) {
     if (cfg.getPeerName()==""       ||
-	cfg.getSshHost()==""        ||
-	cfg.getRemotePortFrom()=="")
-      {
-	cerr << "Missing parameter(s) to create tunnel.";
-	cerr << " Mandatory parameters:" << endl;
-	cerr << '\t' << "- Peer name (--peer-name <name>)" << endl;
-	cerr << '\t' << "- SSH host (--ssh-host <host>)" << endl;
-	cerr << '\t' << "- Remote port (--remote-port <port>)" << endl;
-	return EXIT_FAILURE;
-      }
+	cfg.getSshHost()=="") {
+      cerr << "Missing parameter(s) to create tunnel.";
+      cerr << " Mandatory parameters:" << endl;
+      cerr << '\t' << "- Peer name (--peer-name <name>)" << endl;
+      cerr << '\t' << "- SSH host (--ssh-host <host>)" << endl;
+      return EXIT_FAILURE;
+    }
   }
-	
+  
 	
   SSHTunnel tunnel;
   DIETForwarder* forwarder = new DIETForwarder(cfg.getName(), cfg.getCfgPath());
@@ -164,8 +165,11 @@ int main(int argc, char* argv[], char* envp[]) {
 			
       is >> port;
       of << ORBMgr::convertIOR(ior, cfg.getRemoteHost(), port);
-    }	else // Waiting for connexion.
+    }	else {// Waiting for connexion.
       of << ior;
+    }
+    of << std::endl;
+    of << freeTCPport(); // also write a free port
     of.close();
   }
   cout << "Forwarder: " << ior << endl;
@@ -173,10 +177,7 @@ int main(int argc, char* argv[], char* envp[]) {
 	
   tunnel.setSshHost(cfg.getSshHost());
   tunnel.setRemoteHost(cfg.getRemoteHost());
-	
-  tunnel.setRemotePortFrom(cfg.getRemotePortFrom());
-  //	tunnel.setLocalPortFrom(cfg.getLocalPortFrom());
-	
+		
   tunnel.setSshPath(cfg.getSshPath());
   tunnel.setSshPort(cfg.getSshPort());
   tunnel.setSshLogin(cfg.getSshLogin());
@@ -205,12 +206,17 @@ int main(int argc, char* argv[], char* envp[]) {
     /* Extract the IOR from a file. */
     ifstream file(cfg.getPeerIOR().c_str());
     string peerIOR;
+    string peerPort;
     if (!file.is_open()) {
       cerr << "Error: Invalid peer-ior parameter" << endl;
       return EXIT_FAILURE;
     }
     file >> peerIOR;
     cfg.setPeerIOR(peerIOR);
+    if (!file.eof()) {
+      file >> peerPort;
+      cfg.setRemotePortFrom(peerPort);
+    }
   }
 	
   if (cfg.getPeerIOR()!="") {
@@ -226,6 +232,18 @@ int main(int argc, char* argv[], char* envp[]) {
   } else {
     tunnel.setRemoteHost(cfg.getRemoteHost());
   }
+
+  tunnel.setRemotePortFrom(cfg.getRemotePortFrom());
+  //	tunnel.setLocalPortFrom(cfg.getLocalPortFrom());
+  if (cfg.createFrom()) {
+    if (cfg.getRemotePortFrom()=="") {
+      cerr << "Failed to automatically determine a remote free port." << endl;
+      cerr << " You need to specify the remote port:" << endl;
+      cerr << '\t' << "- Remote port (--remote-port <port>)" << endl;
+      return EXIT_FAILURE;
+    }
+  }
+
 	
   tunnel.setLocalPortTo(ORBMgr::getPort(ior));
 
