@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2011/04/12 15:14:42  bdepardo
+ * Command line option now has precedence on the automatically determined
+ * remote port.
+ *
  * Revision 1.10  2011/04/12 14:50:30  bdepardo
  * Try to automatically determine a free remote port
  *
@@ -213,19 +217,19 @@ int main(int argc, char* argv[], char* envp[]) {
     }
     file >> peerIOR;
     cfg.setPeerIOR(peerIOR);
-    if (!file.eof()) {
+    if (!file.eof() && cfg.getRemotePortFrom() == "") {
       file >> peerPort;
       cfg.setRemotePortFrom(peerPort);
     }
   }
 	
-  if (cfg.getPeerIOR()!="") {
+  if (cfg.getPeerIOR() != "") {
     tunnel.setRemotePortTo(ORBMgr::getPort(cfg.getPeerIOR()));
   } else {
     tunnel.setRemotePortTo(cfg.getRemotePortTo());
   }
-  if (cfg.getRemoteHost()=="") {
-    if (cfg.getPeerIOR()!="")
+  if (cfg.getRemoteHost() == "") {
+    if (cfg.getPeerIOR() != "")
       tunnel.setRemoteHost(ORBMgr::getHost(cfg.getPeerIOR()));
     else
       tunnel.setRemoteHost("127.0.0.1");
@@ -236,7 +240,7 @@ int main(int argc, char* argv[], char* envp[]) {
   tunnel.setRemotePortFrom(cfg.getRemotePortFrom());
   //	tunnel.setLocalPortFrom(cfg.getLocalPortFrom());
   if (cfg.createFrom()) {
-    if (cfg.getRemotePortFrom()=="") {
+    if (cfg.getRemotePortFrom() == "") {
       cerr << "Failed to automatically determine a remote free port." << endl;
       cerr << " You need to specify the remote port:" << endl;
       cerr << '\t' << "- Remote port (--remote-port <port>)" << endl;
