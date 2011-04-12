@@ -20,9 +20,9 @@ BOOST_FIXTURE_TEST_CASE( no_client_config_file , DietMAFixture )
     diet_error_t error = diet_initialize("", c.argc(), c.argv());
 
     // check if diet_initialize return correct error code
-    BOOST_REQUIRE_MESSAGE( DIET_FILE_IO_ERROR == error,
+    BOOST_REQUIRE_MESSAGE( GRPC_CONFIGFILE_ERROR == error,
 			   "diet_initialize() should return "
-			   << diet_error_string(DIET_FILE_IO_ERROR)
+			   << diet_error_string(GRPC_CONFIGFILE_ERROR)
 			   << " instead of "
 			   << diet_error_string(error)
 			   << " when not fed an actual config file" );
