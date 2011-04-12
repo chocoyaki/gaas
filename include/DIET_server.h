@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.56  2011/04/12 12:12:37  bdepardo
+ * Correct comments
+ *
  * Revision 1.55  2010/12/24 16:06:01  hguemar
  * - fix a typo in doxygen comment (DIET_server.h)
  * - replace CallAsyncMgr::deleteAllAsyncCall() return value by GRPC_NO_ERROR
@@ -384,13 +387,9 @@ whereas the client description uses full \e diet_data.
 		diet_arg_desc_t* param_desc;
 	} diet_profile_desc_t;
 	
-	diet_profile_desc_t* diet_profile_desc_alloc(const char* path,
-												 int last_in, int last_inout, int last_out);
+	diet_profile_desc_t* diet_profile_desc_alloc(const char* path, int last_in, int last_inout, int last_out);
 	int diet_profile_desc_free(diet_profile_desc_t* desc);
 	
-	diet_profile_desc_t *diet_profile_desc_alloc(int last_in, int last_inout, int last_out);
-	
-	int diet_profile_desc_free(diet_profile_desc_t *desc);
 	\endcode
 
 Each profile can be allocated with \c diet_profile_desc_alloc with the
