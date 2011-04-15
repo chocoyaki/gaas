@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2011/04/15 19:52:30  dloureir
+ * Bug correction concerning identity file management of SSHCopy
+ *
  * Revision 1.7  2011/04/15 19:07:53  bdepardo
  * Fixed a bug in setSshKeyPath()
  *
@@ -445,13 +448,14 @@ bool SSHCopy::getFile() const {
   vector<string> tokens;
   int status;
   string command = getSshPath()+" -P "+getSshPort();
+	if (getSshKeyPath()!="")
+		command += " -i "+getSshKeyPath();
+	
   command += " "+getSshLogin()+"@"+getSshHost()+":"+remoteFilename;
   command += " "+localFilename;
 	
-  if (getSshKeyPath()!="")
-    command += " -i "+getSshKeyPath();
   istringstream is(command);
-  
+	
   copy(istream_iterator<string>(is),
        istream_iterator<string>(),
        back_inserter<vector<string> >(tokens));
