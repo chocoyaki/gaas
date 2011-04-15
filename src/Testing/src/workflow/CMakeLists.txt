@@ -5,9 +5,9 @@ INCLUDE_DIRECTORIES(
 
 if (DIET_USE_WORKFLOW) 
   generate_diet_tests( DIETDataInoutSinkScalarsTests AllDataTransferSeDFixtureWF workflows_data_inout_scalars_sink )
-#  generate_diet_tests( DIETDataInoutSinkVectorsTests AllDataTransferSeDFixtureWF workflows_data_inout_vectors_sink )
+  generate_diet_tests( DIETDataInoutSinkVectorsTests AllDataTransferSeDFixtureWF workflows_data_inout_vectors_sink )
   generate_diet_tests( DIETDataInoutSinkStringsTests AllDataTransferSeDFixtureWF workflows_data_inout_strings_sink )
-#  generate_diet_tests( DIETDataInoutSinkPStringsTests AllDataTransferSeDFixtureWF workflows_data_inout_pstrings_sink )
+  generate_diet_tests( DIETDataInoutSinkPStringsTests AllDataTransferSeDFixtureWF workflows_data_inout_pstrings_sink )
   generate_diet_tests( DIETDataInoutSinkFilesTests AllDataTransferSeDFixtureWF workflows_data_inout_files_sink )
   generate_diet_tests( DIETDataInoutSinkContainersTests AllDataTransferSeDFixtureWF workflows_data_inout_containers_sink )
   generate_diet_tests( DIETLoopScalarsTests AllDataTransferSeDFixtureWF workflows_loop_scalars_sink )

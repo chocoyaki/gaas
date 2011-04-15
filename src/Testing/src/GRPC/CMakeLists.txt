@@ -7,3 +7,4 @@ generate_diet_tests( DIETGRPCMgmtFuncHandleTests GRPCSeDFixture GRPCMgmtFuncHand
 generate_diet_tests( DIETGRPCCallTests GRPCSeDFixture GRPCCallTests )
 generate_diet_tests( DIETGRPCCancelTests GRPCSeDFixture GRPCCancelTests )
 generate_diet_tests( DIETGRPCProbeTests GRPCSeDFixture GRPCProbeTests )
+#generate_diet_tests( DIETGRPCWaitTests GRPCSeDFixture GRPCProbeTests )

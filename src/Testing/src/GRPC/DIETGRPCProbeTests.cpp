@@ -16,81 +16,79 @@ BOOST_FIXTURE_TEST_SUITE( GRPCProbeTests,
  * Call grpc_probe() with a session ID which is completed,
  * checking GRPC_NO_ERROR returned.
  */
-// FIXME: currently does not work because of grpc_call_async
-// BOOST_AUTO_TEST_CASE( probe_test_1 )
-// {
-//   BOOST_TEST_MESSAGE( "-- Test: Probe Test 1" );
+BOOST_AUTO_TEST_CASE( probe_test_1 )
+{
+  BOOST_TEST_MESSAGE( "-- Test: Probe Test 1" );
 
-//   grpc_function_handle_t handle;
-//   grpc_error_t err = GRPC_NO_ERROR;
-//   grpc_sessionid_t id = GRPC_SESSIONID_VOID;
-//   int x = 3, y = 0;
-//   utils::ClientArgs c("probe_test_1", "client_testing.cfg");
+  grpc_function_handle_t handle;
+  grpc_error_t err = GRPC_NO_ERROR;
+  grpc_sessionid_t id = GRPC_SESSIONID_VOID;
+  int x = 3, y = 0;
+  utils::ClientArgs c("probe_test_1", "client_testing.cfg");
 	
-//   err = grpc_initialize(c.config());
-//   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
+  err = grpc_initialize(c.config());
+  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
-//   err = grpc_function_handle_default(&handle, func_list[0]);
-//   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
+  err = grpc_function_handle_default(&handle, func_list[0]);
+  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
-//   err = grpc_call_async(&handle, &id, x, &y);
-//   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
+  err = grpc_call_async(&handle, &id, x, &y);
+  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
-//   while (1) {
-//     err = grpc_probe(id);
-//     if (err != GRPC_NO_ERROR) {
-//       BOOST_CHECK_EQUAL( err, GRPC_NOT_COMPLETED );
-//       break;
-//     }
-//   }
+  while (1) {
+    err = grpc_probe(id);
+    if (err != GRPC_NO_ERROR) {
+      BOOST_CHECK_EQUAL( err, GRPC_NOT_COMPLETED );
+      break;
+    }
+  }
 
-//   err = grpc_wait(id);
-//   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
+  err = grpc_wait(id);
+  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
-//   err = grpc_function_handle_destruct(&handle);
-//   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
+  err = grpc_function_handle_destruct(&handle);
+  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
-//   err = grpc_finalize();
-//   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
-// }
+  err = grpc_finalize();
+  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
+}
 
 
 /*
  * Call grpc_probe() with a session ID which is not completed,
  * checking GRPC_NOT_COMPLETED returned.
  */
-// FIXME: currently does not work because of grpc_call_async
-// BOOST_AUTO_TEST_CASE( probe_test_2 )
-// {
-//   BOOST_TEST_MESSAGE( "-- Test: Probe Test 2" );
+BOOST_AUTO_TEST_CASE( probe_test_2 )
+{
+  BOOST_TEST_MESSAGE( "-- Test: Probe Test 2" );
 
-//   grpc_function_handle_t handle;
-//   grpc_error_t err = GRPC_NO_ERROR;
-//   grpc_sessionid_t id = GRPC_SESSIONID_VOID;
-//   int x = 10;
-//   utils::ClientArgs c("probe_test_2", "client_testing.cfg");
+  grpc_function_handle_t handle;
+  grpc_error_t err = GRPC_NO_ERROR;
+  grpc_sessionid_t id = GRPC_SESSIONID_VOID;
+  int x = 10;
+  utils::ClientArgs c("probe_test_2", "client_testing.cfg");
 	
-//   err = grpc_initialize(c.config());
-//   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
+  err = grpc_initialize(c.config());
+  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
-//   err = grpc_function_handle_default(&handle, func_list[1]);
-//   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
+  err = grpc_function_handle_default(&handle, func_list[1]);
+  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
-//   err = grpc_call_async(&handle, &id, x);
-//   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
+  err = grpc_call_async(&handle, &id, x);
+  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
-//   err = grpc_probe(id);
-//   BOOST_CHECK( (err == GRPC_NOT_COMPLETED) || (err == GRPC_NO_ERROR) );
+  err = grpc_probe(id);
+  BOOST_CHECK( (err == GRPC_NOT_COMPLETED) || (err == GRPC_NO_ERROR) );
 
-//   err = grpc_wait(id);
-//   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
+  err = grpc_wait(id);
+  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
-//   err = grpc_function_handle_destruct(&handle);
-//   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
+  err = grpc_function_handle_destruct(&handle);
+  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
-//   err = grpc_finalize();
-//   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
-// }
+  err = grpc_finalize();
+  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
+}
 
 
 /*
@@ -137,59 +135,58 @@ BOOST_AUTO_TEST_CASE( probe_test_4 )
  * at least one completed session, checking GRPC_NO_ERROR
  * returned with a pointer of the probed session ID.
  */
-// FIXME: currently does not work because of grpc_call_async
-// BOOST_AUTO_TEST_CASE( probe_test_5 )
-// {
-//   BOOST_TEST_MESSAGE( "-- Test: Probe Test 5" );
+BOOST_AUTO_TEST_CASE( probe_test_5 )
+{
+  BOOST_TEST_MESSAGE( "-- Test: Probe Test 5" );
 
-//   grpc_function_handle_t handle[NCALLS];
-//   grpc_error_t err = GRPC_NO_ERROR;
-//   grpc_sessionid_t id[NCALLS], ret_id = GRPC_SESSIONID_VOID;
-//   int i, j, x[NCALLS];
+  grpc_function_handle_t handle[NCALLS];
+  grpc_error_t err = GRPC_NO_ERROR;
+  grpc_sessionid_t id[NCALLS], ret_id = GRPC_SESSIONID_VOID;
+  int i, j, x[NCALLS];
 
-//   for (i=0; i<NCALLS; i++) {
-//     id[i] = GRPC_SESSIONID_VOID;
-//     if (i == 0) {
-//       x[i] = 0;
-//     } else {
-//       x[i] = 10;
-//     }
-//   }
+  for (i=0; i<NCALLS; i++) {
+    id[i] = GRPC_SESSIONID_VOID;
+    if (i == 0) {
+      x[i] = 0;
+    } else {
+      x[i] = 10;
+    }
+  }
   
-//   utils::ClientArgs c("probe_test_5", "client_testing.cfg");
+  utils::ClientArgs c("probe_test_5", "client_testing.cfg");
 	
-//   err = grpc_initialize(c.config());
-//   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
+  err = grpc_initialize(c.config());
+  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
-//   for (i=0; i<NCALLS; i++) {
-//     err = grpc_function_handle_default(&handle[i], func_list[1]);
-//     BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
-//   }
+  for (i=0; i<NCALLS; i++) {
+    err = grpc_function_handle_default(&handle[i], func_list[1]);
+    BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
+  }
 
-//   for (i=0; i<NCALLS; i++) {
-//     err = grpc_call_async(&handle[i], &id[i], x[i]);
-//     BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
-//   }
+  for (i=0; i<NCALLS; i++) {
+    err = grpc_call_async(&handle[i], &id[i], x[i]);
+    BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
+  }
 
-//   err = grpc_probe_or(id, NCALLS, &ret_id);
-//   while (1) {
-//     BOOST_CHECK( err != GRPC_NONE_COMPLETED );
-//     if (err == GRPC_NO_ERROR) {
-//       break;
-//     }
-//   }
+  err = grpc_probe_or(id, NCALLS, &ret_id);
+  while (1) {
+    BOOST_CHECK( err != GRPC_NONE_COMPLETED );
+    if (err == GRPC_NO_ERROR) {
+      break;
+    }
+  }
 
-//   err = grpc_wait_all();
-//   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
+  err = grpc_wait_all();
+  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
-//   for (i=0; i<NCALLS; i++) {
-//     err = grpc_function_handle_destruct(&handle[i]);
-//     BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
-//   }
+  for (i=0; i<NCALLS; i++) {
+    err = grpc_function_handle_destruct(&handle[i]);
+    BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
+  }
 
-//   err = grpc_finalize();
-//   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
-// }
+  err = grpc_finalize();
+  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
+}
 
 
 /*
@@ -197,51 +194,50 @@ BOOST_AUTO_TEST_CASE( probe_test_4 )
  * does not contain any of completed sessions, checking
  * GRPC_NONE_COMPLETED returned with an invalid session ID.
  */ 
-// FIXME: currently does not work because of grpc_call_async
-// BOOST_AUTO_TEST_CASE( probe_test_6 )
-// {
-//   BOOST_TEST_MESSAGE( "-- Test: Probe Test 6" );
+BOOST_AUTO_TEST_CASE( probe_test_6 )
+{
+  BOOST_TEST_MESSAGE( "-- Test: Probe Test 6" );
 
-//   grpc_function_handle_t handle[NCALLS];
-//   grpc_error_t err = GRPC_NO_ERROR;
-//   grpc_sessionid_t id[NCALLS], ret_id = GRPC_SESSIONID_VOID;
-//   int i, j, x[NCALLS];
+  grpc_function_handle_t handle[NCALLS];
+  grpc_error_t err = GRPC_NO_ERROR;
+  grpc_sessionid_t id[NCALLS], ret_id = GRPC_SESSIONID_VOID;
+  int i, j, x[NCALLS];
 
-//   for (i=0; i<NCALLS; i++) {
-//     id[i] = GRPC_SESSIONID_VOID;
-//     x[i] = 10;
-//   }
+  for (i=0; i<NCALLS; i++) {
+    id[i] = GRPC_SESSIONID_VOID;
+    x[i] = 10;
+  }
 
-//   utils::ClientArgs c("probe_test_6", "client_testing.cfg");
+  utils::ClientArgs c("probe_test_6", "client_testing.cfg");
 	
-//   err = grpc_initialize(c.config());
-//   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
+  err = grpc_initialize(c.config());
+  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
-//   for (i=0; i<NCALLS; i++) {
-//     err = grpc_function_handle_default(&handle[i], func_list[1]);
-//     BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
-//   }
+  for (i=0; i<NCALLS; i++) {
+    err = grpc_function_handle_default(&handle[i], func_list[1]);
+    BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
+  }
 
-//   for (i=0; i<NCALLS; i++) {
-//     err = grpc_call_async(&handle[i], &id[i], x[i]);
-//     BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
-//   }
+  for (i=0; i<NCALLS; i++) {
+    err = grpc_call_async(&handle[i], &id[i], x[i]);
+    BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
+  }
 
-//   err = grpc_probe_or(id, NCALLS, &ret_id);
-//   BOOST_CHECK_EQUAL(err, GRPC_NONE_COMPLETED);
-//   BOOST_CHECK_EQUAL(ret_id, GRPC_SESSIONID_VOID);
+  err = grpc_probe_or(id, NCALLS, &ret_id);
+  BOOST_CHECK_EQUAL(err, GRPC_NONE_COMPLETED);
+  BOOST_CHECK_EQUAL(ret_id, GRPC_SESSIONID_VOID);
 
-//   err = grpc_wait_all();
-//   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
+  err = grpc_wait_all();
+  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
-//   for (i=0; i<NCALLS; i++) {
-//     err = grpc_function_handle_destruct(&handle[i]);
-//     BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
-//   }
+  for (i=0; i<NCALLS; i++) {
+    err = grpc_function_handle_destruct(&handle[i]);
+    BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
+  }
 
-//   err = grpc_finalize();
-//   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
-// }
+  err = grpc_finalize();
+  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
+}
 
 
 /*
