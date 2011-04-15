@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2011/04/15 19:07:53  bdepardo
+ * Fixed a bug in setSshKeyPath()
+ *
  * Revision 1.6  2011/04/12 14:50:07  bdepardo
  * freeTCPport is now accessible outside SSHTunnel.cc
  *
@@ -163,7 +166,7 @@ void SSHConnection::setSshLogin(const std::string& login) {
 }
 
 void SSHConnection::setSshKeyPath(const std::string& path) {
-  if (keyPath != "") {
+  if (path != "") {
     this->keyPath = path;
   }
 }
