@@ -145,43 +145,43 @@ BOOST_AUTO_TEST_CASE( management_function_handle_test_6 )
  * GRPC_NO_ERROR returned with a pointer of the function
  * handle specified by ID.
  */
-BOOST_AUTO_TEST_CASE( management_function_handle_test_7 )
-{
-  BOOST_TEST_MESSAGE( "-- Test: Management Function Handle Test 7" );
+// BOOST_AUTO_TEST_CASE( management_function_handle_test_7 )
+// {
+//   BOOST_TEST_MESSAGE( "-- Test: Management Function Handle Test 7" );
 
-  grpc_function_handle_t handle, *handle_tmp;
-  grpc_error_t err = GRPC_NO_ERROR;
-  grpc_sessionid_t id = GRPC_SESSIONID_VOID;
-  int x = 3, y = 0;
-  utils::ClientArgs c("management_function_handle_test_7", "client_testing.cfg");
+//   grpc_function_handle_t handle, *handle_tmp;
+//   grpc_error_t err = GRPC_NO_ERROR;
+//   grpc_sessionid_t id = GRPC_SESSIONID_VOID;
+//   int x = 3, y = 0;
+//   utils::ClientArgs c("management_function_handle_test_7", "client_testing.cfg");
 	
-  err = grpc_initialize(c.config());
-  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
+//   err = grpc_initialize(c.config());
+//   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
-  err = grpc_function_handle_default(&handle, func_list[0]);
-  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
+//   err = grpc_function_handle_default(&handle, func_list[0]);
+//   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
-  err = grpc_call_async(&handle, &id, x, &y);
-  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
+//   err = grpc_call_async(&handle, &id, x, &y);
+//   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
-  err = grpc_get_handle(&handle_tmp, id);
-  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
+//   err = grpc_get_handle(&handle_tmp, id);
+//   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
-  err = grpc_wait(id);
-  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
+//   err = grpc_wait(id);
+//   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
-  err = grpc_call_async(handle_tmp, &id, x, &y);
-  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
+//   err = grpc_call_async(handle_tmp, &id, x, &y);
+//   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
-  err = grpc_wait(id);
-  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
+//   err = grpc_wait(id);
+//   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
-  err = grpc_function_handle_destruct(&handle);
-  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
+//   err = grpc_function_handle_destruct(&handle);
+//   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
-  err = grpc_finalize();
-  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
-}
+//   err = grpc_finalize();
+//   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
+// }
 
 
 /*

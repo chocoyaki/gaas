@@ -65,36 +65,36 @@ BOOST_AUTO_TEST_CASE( call_test_2 )
  * arguments, checking GRPC_NO_ERROR returned with a valid
  * session ID.
  */
-BOOST_AUTO_TEST_CASE( call_test_3 )
-{
-  BOOST_TEST_MESSAGE( "-- Test: Call Test 3" );
+// BOOST_AUTO_TEST_CASE( call_test_3 )
+// {
+//   BOOST_TEST_MESSAGE( "-- Test: Call Test 3" );
 
-  grpc_function_handle_t handle;
-  grpc_error_t err = GRPC_NO_ERROR;
-  grpc_sessionid_t id = GRPC_SESSIONID_VOID;
-  int x = 3, y = 0;
+//   grpc_function_handle_t handle;
+//   grpc_error_t err = GRPC_NO_ERROR;
+//   grpc_sessionid_t id = GRPC_SESSIONID_VOID;
+//   int x = 3, y = 0;
 
-  utils::ClientArgs c("call_test_3", "client_testing.cfg");
+//   utils::ClientArgs c("call_test_3", "client_testing.cfg");
 	
-  err = grpc_initialize(c.config());
-  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
+//   err = grpc_initialize(c.config());
+//   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
-  err = grpc_function_handle_default(&handle, func_list[0]);
-  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
+//   err = grpc_function_handle_default(&handle, func_list[0]);
+//   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
-  err = grpc_call_async(&handle, &id, x, &y);
-  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
+//   err = grpc_call_async(&handle, &id, x, &y);
+//   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
-  err = grpc_wait(id);
-  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
-  BOOST_CHECK_EQUAL(y, x + 1);
+//   err = grpc_wait(id);
+//   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
+//   BOOST_CHECK_EQUAL(y, x + 1);
 
-  err = grpc_function_handle_destruct(&handle);
-  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
+//   err = grpc_function_handle_destruct(&handle);
+//   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
-  err = grpc_finalize();
-  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
-}
+//   err = grpc_finalize();
+//   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
+// }
 
 
 /* 
