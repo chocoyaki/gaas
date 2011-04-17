@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2011/04/17 21:22:52  dloureir
+ * Bug correction : SSH key was not handled correctly when creating SSH tunnel
+ *
  * Revision 1.8  2011/04/15 19:52:30  dloureir
  * Bug correction concerning identity file management of SSHCopy
  *
@@ -229,6 +232,7 @@ string SSHTunnel::makeCmd() {
   }
   if (getSshKeyPath()!="") {
     result+=" ";
+	  result+= keyFormat;
     replace("%k", getSshKeyPath(), result);
   }
 	
@@ -303,7 +307,6 @@ void SSHTunnel::open() {
 	
   vector<string> tokens;
   string command = makeCmd();
-	
   istringstream is(command);
   
   copy(istream_iterator<string>(is),
