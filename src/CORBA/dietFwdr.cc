@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2011/04/20 09:00:09  bdepardo
+ * Code formating
+ *
  * Revision 1.11  2011/04/12 15:14:42  bdepardo
  * Command line option now has precedence on the automatically determined
  * remote port.
@@ -229,10 +232,11 @@ int main(int argc, char* argv[], char* envp[]) {
     tunnel.setRemotePortTo(cfg.getRemotePortTo());
   }
   if (cfg.getRemoteHost() == "") {
-    if (cfg.getPeerIOR() != "")
+    if (cfg.getPeerIOR() != "") {
       tunnel.setRemoteHost(ORBMgr::getHost(cfg.getPeerIOR()));
-    else
+    } else {
       tunnel.setRemoteHost("127.0.0.1");
+    }
   } else {
     tunnel.setRemoteHost(cfg.getRemoteHost());
   }
