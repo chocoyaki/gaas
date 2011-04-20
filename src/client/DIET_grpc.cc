@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2011/04/20 14:16:28  bdepardo
+ * Fixed a bug with inout in async calls
+ *
  * Revision 1.16  2011/03/16 14:54:06  hguemar
  * remove dead code: unused class DietException in src/client/CallAsyncMgr.{hh,cc}
  *
@@ -644,8 +647,7 @@ grpc_call_async(grpc_function_handle_t* handle,
 {
   va_list ap;
   grpc_error_t res(0);
-  CORBA::Object_var chosenObject;
-  SeD_var chosenServer;
+  SeD_var chosenServer = SeD::_nil();
 
   // check if GRPC is initialized
   if (!grpc_initialized)
@@ -663,10 +665,6 @@ grpc_call_async(grpc_function_handle_t* handle,
   }
   va_end(ap);
 
-  /*
-  chosenObject = ORBMgr::stringToObject((*handle)->server);
-  chosenServer = SeD::_narrow(chosenObject);
-  */
   res = diet_call_async_common(MA, (*handle)->pb, chosenServer, NULL,
                                MAX_SERVERS, REF_CALLBACK_SERVER);
   *sessionID = (*handle)->pb->dietReqID;

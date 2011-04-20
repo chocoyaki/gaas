@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.36  2011/04/20 14:16:28  bdepardo
+ * Fixed a bug with inout in async calls
+ *
  * Revision 1.35  2011/03/25 17:15:19  hguemar
  * fix cppcheck raised issues: stlSize()
  *
@@ -555,7 +558,7 @@ int CallAsyncMgr::notifyRst (diet_reqID_t reqID, corba_profile_t * dp)
 
     try {
       TRACE_TEXT (TRACE_ALL_STEPS,"the service has computed the requestID="
-                  << reqID << " and notifies his answer" << endl);
+                  << reqID << " and notifies its answer" << endl);
       fflush(stdout);
       // update diet_profile datas linked to this reqId
       CallAsyncList::iterator h = caList.find(reqID);
@@ -568,6 +571,7 @@ int CallAsyncMgr::notifyRst (diet_reqID_t reqID, corba_profile_t * dp)
       else { // update state of this reqID
         h->second->st = STATUS_DONE;
       }
+#ifndef HAVE_DAGDA
       if (unmrsh_out_args_to_profile(h->second->profile, dp)){
         INTERNAL_WARNING(__FUNCTION__ << ":unmrsh_out_args_to_profile failed");
         fflush(stderr);
@@ -580,10 +584,11 @@ int CallAsyncMgr::notifyRst (diet_reqID_t reqID, corba_profile_t * dp)
         return -1;
       }
 
-#if HAVE_DAGDA
+#else
       dagda_download_SeD_data(h->second->profile, dp);
 #endif // HAVE_DAGDA
 
+      TRACE_TEXT (TRACE_ALL_STEPS,"Downloaded SeD data" << endl);
 
       // get rules about this reqID
       RulesReqIDMap::iterator j;

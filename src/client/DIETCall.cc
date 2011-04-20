@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2011/04/20 14:16:28  bdepardo
+ * Fixed a bug with inout in async calls
+ *
  * Revision 1.7  2010/07/14 23:45:30  bdepardo
  * Header corrections
  *
@@ -455,6 +458,7 @@ diet_call_common(MasterAgent_var& MA,
   }
 #endif // ! HAVE_JUXMEM
 #endif // HAVE_DAGDA
+
   /* Computation */
   sprintf(statMsg, "computation %ld", (unsigned long) profile->dietReqID);
 	
@@ -531,7 +535,7 @@ diet_call_async_common(MasterAgent_var& MA,
         return res;
       }
       if (CORBA::is_nil(chosenServer)) {
-				caMgr->setReqErrorCode(profile->dietReqID, GRPC_SERVER_NOT_FOUND);
+        caMgr->setReqErrorCode(profile->dietReqID, GRPC_SERVER_NOT_FOUND);
         return GRPC_SERVER_NOT_FOUND;
       }
     }
@@ -550,74 +554,74 @@ diet_call_async_common(MasterAgent_var& MA,
 #endif //HAVE_MULTICALL
 				
 #if HAVE_JUXMEM
-				uploadClientDataJuxMem(profile);
+        uploadClientDataJuxMem(profile);
 #endif
 				
 #if HAVE_DAGDA
-				dagda_mrsh_profile(&corba_profile, profile, MA);
+        dagda_mrsh_profile(&corba_profile, profile, MA);
 #else
-				if (mrsh_profile_to_in_args(&corba_profile, profile)) {
-					caMgr->setReqErrorCode(profile->dietReqID, GRPC_INVALID_FUNCTION_HANDLE);
-					ERROR("profile is wrongly built", 1);
-				}
+        if (mrsh_profile_to_in_args(&corba_profile, profile)) {
+          caMgr->setReqErrorCode(profile->dietReqID, GRPC_INVALID_FUNCTION_HANDLE);
+          ERROR("profile is wrongly built", 1);
+        }
 				
-				int j = 0;
-				bool found = false;
-				while ((j <= corba_profile.last_out) && (found == false)) {
-					if (diet_is_persistent(corba_profile.parameters[j])) {
-						// && (MA->dataLookUp(strdup(corba_profile.parameters[i].desc.id.idNumber))))
-						found = true;
-					}
-					j++;
-				}
-				if(found == true){
-					//       create_file();
-				}
-#endif
+        int j = 0;
+        bool found = false;
+        while ((j <= corba_profile.last_out) && (found == false)) {
+          if (diet_is_persistent(corba_profile.parameters[j])) {
+            // && (MA->dataLookUp(strdup(corba_profile.parameters[i].desc.id.idNumber))))
+            found = true;
+          }
+          j++;
+        }
+        if(found == true){
+          //       create_file();
+        }
+#endif // HAVE_DAGDA
 				
 #if ! HAVE_JUXMEM
 #if ! HAVE_DAGDA
-				int i = 0;
-				/* data property base_type and type retrieval : used for scheduler */
-				for(i = 0;i <= corba_profile.last_out;i++) {
-					char* new_id = strdup(corba_profile.parameters[i].desc.id.idNumber);
-					if(strlen(new_id) != 0) {
-						corba_data_desc_t *arg_desc = new corba_data_desc_t;
-						arg_desc = MA->get_data_arg(new_id);
-						const_cast<corba_data_desc_t&>(corba_profile.parameters[i].desc) = *arg_desc;
-					}
-				}
-				/* generate new ID for data if not already existant */
-				for(i = 0;i <= corba_profile.last_out;i++) {
-					if ((corba_profile.parameters[i].desc.mode > DIET_VOLATILE ) &&
-							(corba_profile.parameters[i].desc.mode < DIET_PERSISTENCE_MODE_COUNT)
-							&& (MA->dataLookUp(strdup(corba_profile.parameters[i].desc.id.idNumber))))
-					{
-						char* new_id = MA->get_data_id();
-						corba_profile.parameters[i].desc.id.idNumber = new_id;
-					}
-				}
+        int i = 0;
+        /* data property base_type and type retrieval : used for scheduler */
+        for(i = 0;i <= corba_profile.last_out;i++) {
+          char* new_id = strdup(corba_profile.parameters[i].desc.id.idNumber);
+          if(strlen(new_id) != 0) {
+            corba_data_desc_t *arg_desc = new corba_data_desc_t;
+            arg_desc = MA->get_data_arg(new_id);
+            const_cast<corba_data_desc_t&>(corba_profile.parameters[i].desc) = *arg_desc;
+          }
+        }
+        /* generate new ID for data if not already existant */
+        for(i = 0;i <= corba_profile.last_out;i++) {
+          if ((corba_profile.parameters[i].desc.mode > DIET_VOLATILE ) &&
+              (corba_profile.parameters[i].desc.mode < DIET_PERSISTENCE_MODE_COUNT)
+              && (MA->dataLookUp(strdup(corba_profile.parameters[i].desc.id.idNumber))))
+            {
+              char* new_id = MA->get_data_id();
+              corba_profile.parameters[i].desc.id.idNumber = new_id;
+            }
+        }
 #endif // ! HAVE_DAGDA
 #endif // ! HAVE_JUXMEM
 				
-				// create corba client callback server...
-				// TODO : modify addAsyncCall function because profile has the reqID
-				if (caMgr->addAsyncCall(profile->dietReqID, profile) != 0) {
-					return 1;
-				}
+        // create corba client callback server...
+        // TODO : modify addAsyncCall function because profile has the reqID
+        if (caMgr->addAsyncCall(profile->dietReqID, profile) != 0) {
+          return 1;
+        }
 				
-				stat_in("Client","computation_async");
-				chosenServer->solveAsync(profile->pb_name, corba_profile,
-																 refCallbackServer);
+        stat_in("Client","computation_async");
+        chosenServer->solveAsync(profile->pb_name, corba_profile,
+                                 refCallbackServer);
 				
-				stat_out("Client","computation_async");
+        stat_out("Client","computation_async");
 				
-				if (unmrsh_out_args_to_profile(profile, &corba_profile)) {
-					INTERNAL_ERROR("returned profile is wrongly built", 1);
-				}
+        if (unmrsh_out_args_to_profile(profile, &corba_profile)) {
+          INTERNAL_ERROR("returned profile is wrongly built", 1);
+        }
 				
 #if HAVE_JUXMEM
-				downloadClientDataJuxMem(profile);
+        downloadClientDataJuxMem(profile);
 #endif // HAVE_JUXMEM
 				
 #ifdef HAVE_MULTICALL
