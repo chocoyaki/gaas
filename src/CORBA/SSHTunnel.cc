@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2011/04/20 08:52:30  bdepardo
+ * Allow setSshKey to set an empty key path (so as to use the system keys)
+ *
  * Revision 1.9  2011/04/17 21:22:52  dloureir
  * Bug correction : SSH key was not handled correctly when creating SSH tunnel
  *
@@ -89,13 +92,22 @@ string SSHConnection::userKey() {
   string path;
 	
   /* Try the RSA key default path. */
-  path = (home==NULL ? string(""):string(home))+"/.ssh/id_rsa";
+  path = ((home == NULL) ? string(""):string(home)) + "/.ssh/id_rsa";
   ifstream f(path.c_str());
-  if (f.is_open()) return path;
+  if (f.is_open()) {
+    f.close();
+    return path;
+  }
+
   /* Try the DSA key default path. */
-  path = (home==NULL ? string(""):string(home))+"/.ssh/id_dsa";
+  path = ((home == NULL) ? string(""):string(home)) + "/.ssh/id_dsa";
   f.open(path.c_str());
-  if (f.is_open()) return path;
+  if (f.is_open()) {
+    f.close();
+    return path;
+  }
+
+  /* None of the two default keys were found */
   return "";
 }
 
@@ -172,9 +184,7 @@ void SSHConnection::setSshLogin(const std::string& login) {
 }
 
 void SSHConnection::setSshKeyPath(const std::string& path) {
-  if (path != "") {
-    this->keyPath = path;
-  }
+  this->keyPath = path;
 }
 
 void SSHConnection::setSshOptions(const std::string& options) {
@@ -247,6 +257,9 @@ string SSHTunnel::makeCmd() {
   if (getSshOptions()!="") {
     result+=" "+getSshOptions();
   }
+
+  cout << "command: " << result << endl;
+
   return result;	
 }
 
@@ -303,7 +316,9 @@ SSHTunnel::~SSHTunnel() {
 }
 
 void SSHTunnel::open() {
-  if (!createTo && !createFrom) return;
+  if (!createTo && !createFrom) {
+    return;
+  }
 	
   vector<string> tokens;
   string command = makeCmd();
@@ -320,8 +335,9 @@ void SSHTunnel::open() {
     argv[i]=strdup(tokens[i].c_str());
 	
   pid = fork();
-  if (pid==-1)
+  if (pid==-1) {
     throw runtime_error("Error forking process.");
+  }
   if (pid==0) {
     if (execvp(argv[0], argv)) {
       cerr << "Error executing command " << command << endl;
@@ -336,7 +352,9 @@ void SSHTunnel::open() {
 }
 
 void SSHTunnel::close() {
-  if (!createTo && !createFrom) return;
+  if (!createTo && !createFrom) {
+    return;
+  }
   if (pid && kill(pid, SIGTERM)) {
     if (kill(pid, SIGKILL)) {
       throw runtime_error("Unable to stop the ssh process");
@@ -451,11 +469,14 @@ bool SSHCopy::getFile() const {
   vector<string> tokens;
   int status;
   string command = getSshPath()+" -P "+getSshPort();
-	if (getSshKeyPath()!="")
-		command += " -i "+getSshKeyPath();
+  if (getSshKeyPath()!="") {
+    command += " -i "+getSshKeyPath();
+  }
 	
   command += " "+getSshLogin()+"@"+getSshHost()+":"+remoteFilename;
   command += " "+localFilename;
+
+  cout << "ssh copy command: " << command << endl;
 	
   istringstream is(command);
 	
@@ -511,8 +532,9 @@ bool SSHCopy::putFile() const {
     argv[i]=strdup(tokens[i].c_str());
 	
   pid = fork();
-  if (pid==-1)
+  if (pid==-1) {
     throw runtime_error("Error forking process.");
+  }
   if (pid==0) {
     fclose(stdout);
     if (execvp(argv[0], argv)) {
@@ -524,7 +546,9 @@ bool SSHCopy::putFile() const {
   for (unsigned int i=0; i<tokens.size(); ++i)
     free(argv[i]);
 	
-  if (waitpid(pid, &status, 0)==-1)
+  if (waitpid(pid, &status, 0) == -1) {
     throw runtime_error("Error executing scp command");
+  }
+
   return (WIFEXITED(status)!=0 ? (WEXITSTATUS(status)==0):false);
 }
