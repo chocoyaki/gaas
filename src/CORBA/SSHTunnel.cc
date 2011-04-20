@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2011/04/20 08:59:56  bdepardo
+ * Removed debug cout
+ *
  * Revision 1.10  2011/04/20 08:52:30  bdepardo
  * Allow setSshKey to set an empty key path (so as to use the system keys)
  *
@@ -258,8 +261,6 @@ string SSHTunnel::makeCmd() {
     result+=" "+getSshOptions();
   }
 
-  cout << "command: " << result << endl;
-
   return result;	
 }
 
@@ -476,8 +477,6 @@ bool SSHCopy::getFile() const {
   command += " "+getSshLogin()+"@"+getSshHost()+":"+remoteFilename;
   command += " "+localFilename;
 
-  cout << "ssh copy command: " << command << endl;
-	
   istringstream is(command);
 	
   copy(istream_iterator<string>(is),
