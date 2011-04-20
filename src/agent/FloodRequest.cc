@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2011/04/20 14:17:31  bdepardo
+ * Removed a cout
+ *
  * Revision 1.9  2011/01/21 17:27:31  bdepardo
  * Prefer prefix ++/-- operators for non-primitive types.
  *
@@ -243,7 +246,6 @@ void FloodRequest::addResponseNotFound() {
 
 
 void FloodRequest::addResponseFloodedArea(KeyString senderId) {
-  cout << "void FloodRequest::addResponseFloodedArea(" << senderId << ")" << endl;
   NeighbouringMAs::iterator senderIter = neighbouringMAs.find(senderId) ;
   if (senderIter != neighbouringMAs.end())
     senderIter->second.state = NeighbouringMA::nmaStateFlooded ;
