@@ -7,7 +7,4 @@ generate_diet_tests( DIETGRPCMgmtFuncHandleTests GRPCSeDFixture GRPCMgmtFuncHand
 generate_diet_tests( DIETGRPCCallTests GRPCSeDFixture GRPCCallTests )
 generate_diet_tests( DIETGRPCCancelTests GRPCSeDFixture GRPCCancelTests )
 generate_diet_tests( DIETGRPCProbeTests GRPCSeDFixture GRPCProbeTests )
-#generate_diet_tests( DIETGRPCWaitTests GRPCSeDFixture GRPCProbeTests )
-
-
-# TODO: uncomment tests with calls to async_call as they currently hang indefinitively
+generate_diet_tests( DIETGRPCWaitTests GRPCSeDFixture GRPCProbeTests )
