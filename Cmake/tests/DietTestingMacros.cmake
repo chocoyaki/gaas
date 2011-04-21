@@ -99,9 +99,9 @@ macro( generate_diet_tests NAME FIXTURENAME TESTNAME )
       # create unit tests with log support
       file( READ "${NAME}.cpp" TEST_CODE )
       string( REPLACE "${FIXTURENAME}" "${FIXTURENAME}Log" TEST_CODE_LOG "${TEST_CODE}" )
-      string( REPLACE "${TESTNAME}" "${TESTNAME}Log" TEST_CODE_LOG "${TEST_CODE}" )
+      string( REPLACE "${TESTNAME}" "${TESTNAME}Log" TEST_CODE_LOG2 "${TEST_CODE_LOG}" )
       set( NEWNAME "${GENERATED_LOG_TESTS_DIR}/${NAME}Log" )
-      file( WRITE "${NEWNAME}.cpp" "${TEST_CODE_LOG}" )
+      file( WRITE "${NEWNAME}.cpp" "${TEST_CODE_LOG2}" )
 
 
       # create unit tests executable
