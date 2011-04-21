@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.132  2011/04/21 16:00:46  bdepardo
+ * Add log infos in async calls
+ *
  * Revision 1.131  2011/04/05 14:01:07  bdepardo
  * IOR is printed only when the tracelevel is at least TRACE_MAIN_STEPS
  *
@@ -1243,6 +1246,13 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
       /* Record time at which solve started (when not using queues)
        * and time at which job was enqueued (when using queues). */
       gettimeofday(&(this->lastSolveStart), NULL);
+
+      /* Add the job in the list of queued jobs with its estimation vector */
+      double estCompTime = diet_est_get_system(&pb.estim, EST_TCOMP, 10000000);
+      int reqID = pb.dietReqID;
+      corba_estimation_t estim = pb.estim;
+      this->jobQueue->addJobWaiting(reqID, estCompTime, estim);
+
 #if defined HAVE_ALT_BATCH
       /* Use parallel_flag of the proposed SeD service to know what to do */
       const corba_profile_desc_t & sed_profile = SrvT->getProfile( ref ) ;
@@ -1265,6 +1275,8 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
 	}
 #endif
 
+        this->jobQueue->setJobStarted(pb.dietReqID);
+
 	TRACE_TEXT(TRACE_MAIN_STEPS,
 		   "SeD::solveAsync invoked on pb: " << path
 		   << " (reqID " << profile.dietReqID << ")" << endl);
@@ -1274,18 +1286,28 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
 
 	downloadAsyncSeDData(profile, const_cast<corba_profile_t&>(pb), cvt);
 
+#ifdef USE_LOG_SERVICE
+        if (dietLogComponent != NULL) {
+          dietLogComponent->logEndDownload(path, &pb);
+        }
+#endif
+
 	/* Copying the name of the service in the profile...
 	 * Not sure this should be done here, but currently it isn't done
 	 * anywhere else...
 	 */
 	profile.pb_name = strdup(path);
 
+        TRACE_TEXT(TRACE_MAIN_STEPS, "Calling getSolver" << endl);
         int solve_res = (*(SrvT->getSolver(ref)))(&profile);    // SOLVE
 
 	uploadAsyncSeDData(profile,  const_cast<corba_profile_t&>(pb), cvt);
 
 	TRACE_TEXT(TRACE_MAIN_STEPS, "SeD::" << __FUNCTION__ << " complete" << endl
 		   << "**************************************************" << endl);
+
+        this->jobQueue->setJobFinished(profile.dietReqID);
+        this->jobQueue->deleteJob(profile.dietReqID);
 
 	stat_out("SeD",statMsg);
 	stat_flush();
@@ -1298,7 +1320,7 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
 
 	/* Release resource before returning the data.  Caution: this could be a
 	 * problem for applications with lots of data. */
-	if (this->useConcJobLimit){
+	if (this->useConcJobLimit) {
 	  this->accessController->releaseResource();
 	}
 
