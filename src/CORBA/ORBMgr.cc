@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.41  2011/04/21 15:59:19  bdepardo
+ * Fixed a bug in resolveObject
+ *
  * Revision 1.40  2011/03/25 17:29:23  bdepardo
  * More robust forwarder
  *
@@ -268,7 +271,8 @@ CORBA::Object_ptr ORBMgr::resolveObject(const string& IOR) const {
   return ORB->string_to_object(IOR.c_str());
 }
 
-CORBA::Object_ptr ORBMgr::resolveObject(const string& context, const string& name,
+CORBA::Object_ptr ORBMgr::resolveObject(const string& context,
+                                        const string& name,
 					const string& fwdName) const {
   string ctxt = context;
   bool localAgent = false;
@@ -283,7 +287,7 @@ CORBA::Object_ptr ORBMgr::resolveObject(const string& context, const string& nam
   }
   cacheMutex.lock();
   /* Use object cache. */
-  if (cache.find(ctxt+"/"+name)!=cache.end()) {
+  if (cache.find(ctxt+"/"+name) != cache.end()) {
     CORBA::Object_ptr ptr = cache[ctxt+"/"+name];
     cacheMutex.unlock();
 		
@@ -296,7 +300,7 @@ CORBA::Object_ptr ORBMgr::resolveObject(const string& context, const string& nam
       } else {
 	TRACE_TEXT(TRACE_ALL_STEPS, "Use object from cache (" << ctxt
                    << "/" << name << ")" << endl);
-	return ptr;
+	return CORBA::Object::_duplicate(ptr);
       }
     } catch (const CORBA::OBJECT_NOT_EXIST& err) {
       TRACE_TEXT(TRACE_ALL_STEPS, "Remove non existing object from cache (" << ctxt
@@ -307,6 +311,10 @@ CORBA::Object_ptr ORBMgr::resolveObject(const string& context, const string& nam
                  << "/" << name << ")" << endl);
       removeObjectFromCache(name);
     } catch (const CORBA::COMM_FAILURE& err) {
+      TRACE_TEXT(TRACE_ALL_STEPS, "Remove unreachable object from cache (" << ctxt
+                 << "/" << name << ")" << endl);
+      removeObjectFromCache(name);
+    } catch (...) {
       TRACE_TEXT(TRACE_ALL_STEPS, "Remove unreachable object from cache (" << ctxt
                  << "/" << name << ")" << endl);
       removeObjectFromCache(name);
@@ -742,13 +750,18 @@ void ORBMgr::cleanCache() const {
   cacheMutex.lock();
   for (it=cache.begin(); it!=cache.end(); ++it) {
     try {
-      if (it->second->_non_existent())
+      if (it->second->_non_existent()) {
 	toRemove.push_back(it->first);
+      }
     } catch (const CORBA::OBJECT_NOT_EXIST& err) {
+      toRemove.push_back(it->first);
+    } catch (...) {
       toRemove.push_back(it->first);
     }
   }
   cacheMutex.unlock();
-  for (jt=toRemove.begin(); jt!=toRemove.end(); ++jt)
+
+  for (jt = toRemove.begin(); jt != toRemove.end(); ++jt) {
     removeObjectFromCache(*jt);
+  }
 }
