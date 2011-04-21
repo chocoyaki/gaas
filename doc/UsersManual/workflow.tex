@@ -10,6 +10,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.21  2011/04/21 23:35:14  ecaron
+%* Typo and update 'input' to 'source' to be more clear
+%*
 %* Revision 1.20  2011/02/02 11:38:06  bdepardo
 %* Add a fixme in workflows
 %*
@@ -241,8 +244,8 @@ follow:
 \end{verbatim}
 
 The link between input and output ports must be described either by a
-\textit{source} value in the \textit{<in>} element, or by a \textit{sink} value
-in the \textit{<out>} element. Specifying both does not cause an error but
+\textit{source} value in the \textit{$<$in$>$} element, or by a \textit{sink} value
+in the \textit{$<$out$>$} element. Specifying both does not cause an error but
 duplicates the information.
 
 The example shown in Figure~\ref{fig:example1} can be represented by this XML
@@ -292,7 +295,7 @@ processor types are \texttt{webservice}, \texttt{diet} and
 processor with no inbound connectivity, delivering a list of externally defined
 data values), \texttt{sink} (a processor with no outbound connectivity,
 receiving some workflow output) and \texttt{constant} (a processor delivering a
-single, constant value). To improve readability, the \texttt{input},
+single, constant value). To improve readability, the \texttt{source},
 \texttt{sink} and \texttt{constant} processors are grouped in an
 \texttt{<interface>} tag within the document. Other example of processors are
 grouped in a \texttt{<processors>} tag. Web services define a \texttt{<wsdl>}
