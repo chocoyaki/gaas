@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.42  2011/04/22 14:05:40  kcoulomb
+ * Fix POA bug, now if POA already exist, use it instead of throw exception
+ *
  * Revision 1.41  2011/04/21 15:59:19  bdepardo
  * Fixed a bug in resolveObject
  *
@@ -107,7 +110,11 @@ void ORBMgr::init(CORBA::ORB_ptr ORB) {
   policy <<= BiDirPolicy::BOTH;
   policies[0] = ORB->create_policy(BiDirPolicy::BIDIRECTIONAL_POLICY_TYPE,
                                    policy);
-  POA = initPOA->create_POA("bidir", manager, policies);
+  try {
+    POA = initPOA->create_POA("bidir", manager, policies);
+  } catch (PortableServer::POA::AdapterAlreadyExists &e) {
+      POA = initPOA->find_POA("bidir", false);    
+  }
   
   manager->activate();
 }
