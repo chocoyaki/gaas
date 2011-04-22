@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.21  2011/04/22 08:32:40  bdepardo
+ * Do not delete args at the end of the execution as it produces errors
+ *
  * Revision 1.20  2011/04/07 08:51:55  bdepardo
  * Take into account the traceLevel sooner
  *
@@ -292,8 +295,9 @@ int main(int argc, char * argv[]) {
    * Servants will be deactivated and deleted automatically */
   delete ORBMgr::getMgr();
 
-
-  std::for_each(args.begin(), args.end(), CStringDeleter());
+  // FIXME: currently do not delete args as it produces a double free error
+  // This is due to ORBMgr::init which adds elements in args.
+  // std::for_each(args.begin(), args.end(), CStringDeleter());
   TRACE_TEXT(TRACE_ALL_STEPS, "maDagAgent has exited" << endl);
     
   return 0;
