@@ -8,6 +8,10 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2011/04/22 09:31:20  bdepardo
+ * Fixed a bug in dagda_get_paramstring: it now directly uses dagda_get_data
+ * instead of dagda_get_string.
+ *
  * Revision 1.14  2011/03/18 17:37:45  bdepardo
  * Add dagda_reset method to reset internal variables.
  * This is used for allowing multiple consecutive diet_initialize/diet_finalize
@@ -154,7 +158,8 @@ void dagda_reset();
 #define dagda_get_string(ID, value) \
   dagda_get_data(ID, (void**) (value), DIET_STRING, NULL, NULL, NULL, NULL, NULL)
 
-#define dagda_get_paramstring(ID, value) dagda_get_string(ID, value)
+#define dagda_get_paramstring(ID, value)  \
+  dagda_get_data(ID, (void**) (value), DIET_PARAMSTRING, NULL, NULL, NULL, NULL, NULL)
 
 #define dagda_get_file(ID, path) \
   dagda_get_data(ID, NULL, DIET_FILE, NULL, NULL, NULL, NULL, (char**) (path))
