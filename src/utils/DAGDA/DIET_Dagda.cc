@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.38  2011/04/22 10:13:25  bdepardo
+ * Fixed a bug with paramstrings
+ *
  * Revision 1.37  2011/03/18 17:37:45  bdepardo
  * Add dagda_reset method to reset internal variables.
  * This is used for allowing multiple consecutive diet_initialize/diet_finalize
@@ -670,7 +673,10 @@ size_t corba_data_init(corba_data_t& data, diet_data_type_t type,
     diet_data.desc.specific.mat.order = order;
     break;
   case DIET_STRING:
+    diet_data.desc.specific.str.length = strlen((char*) value) + 1;
+    break;
   case DIET_PARAMSTRING:
+    diet_data.desc.specific.pstr.param = (char*) value;
     diet_data.desc.specific.pstr.length = strlen((char*) value) + 1;
     break;
   case DIET_FILE:
