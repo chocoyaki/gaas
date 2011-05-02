@@ -10,6 +10,11 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.22  2011/05/02 10:01:43  bdepardo
+%* Corrected a few typos.
+%* Renamed "round-robin" scheduler into "least recently used" scheduler as this
+%* is closer to the behavior of this scheduler.
+%*
 %* Revision 1.21  2010/02/25 06:45:38  ycaniou
 %* Add local variables
 %*
@@ -92,16 +97,15 @@ A \diet server program is the link between the \diet Server Deamon
 \section{Structure of the program}
 \label{sec:sv_struct}
 
-As for the client side, the \diet SeD is a library. So the server
-developer needs to define the \texttt{main} function. Within the
-\texttt{main}, the \diet server will be launched with a call to
-\texttt{diet\_SeD} which will never return (except if some errors
-occur). The complete server side interface is described in the files
+Much like the client side, the \diet SeD is a library. So the server developer
+needs to define the \texttt{main} function. Within the \texttt{main}, the \diet
+server will be launched with a call to \texttt{diet\_SeD} which will never
+return (except if some errors occur, or if a SIGINT or SIGTERM signal is sent
+to the \sed). The complete server side interface is described in the files
 \texttt{DIET\_data.h} (see Chapter~\ref{ch:data}) and \texttt{DIET\_server.h}
-found in \texttt{$<$install\_dir$>$/include}. Do not forget to
-include the \texttt{DIET\_server.h} (\texttt{DIET\_server.h}
-includes \texttt{DIET\_data.h}) at the beginning of your server
-source code.
+found in \texttt{$<$install\_dir$>$/include}. Do not forget to include the
+\texttt{DIET\_server.h} (\texttt{DIET\_server.h} includes
+\texttt{DIET\_data.h}) at the beginning of your server source code.
 
 {\footnotesize
 \begin{verbatim}
@@ -199,7 +203,7 @@ diet_file_desc_set(diet_data_t* data, char* path);
 \subsubsection*{Defining services}
 
 First, declare the service(s) that will be offered{\footnote{It is
-possible to declare several services for one single SeD.}}.
+possible to declare several services in a single SeD.}}.
 Each service is described by a profile description called
 \texttt{diet\_profile\_desc\_t} since the service does not specify
 the sizes of the data. The \texttt{diet\_profile\_desc\_t} type is

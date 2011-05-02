@@ -17,18 +17,18 @@ from the \sed to make an optimal scheduling. This information is a performance
 prediction of the \sed. The agent will ask the \sed to fill the data structure
 defined in Chapter~\ref{ch:plugin} with the information it needs. The \sed
 returns the information and the agent can make the scheduling.\\ Performance
-prediction can be based on hardware information, the charge of the \sed (the
-charge of the CPU, of the memory,...) or an advanced performance prediction can
+prediction can be based on hardware information, the load of the \sed (the CPU
+load, the memory availability, \etc) or an advanced performance prediction can
 combine a set of basic performance predictions. It is possible to use FAST in
 the plug-in scheduler to obtain advanced performance predictions. A second
 possibility to get performance prediction, called CoRI, is now available.  The
 aim of CoRI is to simplify the access to the information. Inside of CoRI, FAST
 can be called, but it is only one source of information among other sources
 (for example Cori-Easy).\\ FAST is described in Section~\ref{sec:FAST}, CoRI is
-described in Section~\ref{sec:CORI}.\\ The default compiling is without FAST
-and without CoRI. Note that if you compile with batch enabled, then CoRI is
-also enabled.  In the table~\ref{t:depcompil} you can see which information is
-available with each compiling option.
+described in Section~\ref{sec:CORI}.\\ By default \diet is compiled without the
+support to FAST nor CoRI.. Note that if you compile with batch support enabled, then
+CoRI is also enabled.  In table~\ref{t:depcompil} you can see which
+information is available with each compilation option.
 
 \begin{table}[h]
  \tiny
@@ -283,7 +283,7 @@ files\\ \texttt{examples/dmat\_manips/server.c} and
 \label{sec:CORI}
 
 CoRI manages the access to different tools for collecting information about the
-\sed. At present, three tools, called collectors, are implemented: FAST, CoRI
+\sed. Currently, three tools, called collectors, are implemented: FAST, CoRI
 Easy and CoRI batch. The user can choose which collector will provide the
 information.
 
@@ -369,11 +369,13 @@ There is an example on how to use CoRI-Easy in the
 \verb!<diet_src>/src/examples/cori/! directory.
 
 \subsection{CoRI batch}\label{section:cori_batch}
+
 With the help of the CoRI batch collector, a \sed programmer can use some
 information obtained from the batch system. It is only available if \diet is
-compiled with the option \texttt{-DDIET\_USE\_BATCH} set to \texttt{ON}. For
-the moment, only simple information can be accessed but functionalities will be
-improved as well as the number of recognizable batch systems.
+compiled with the option \texttt{-DDIET\_USE\_BATCH} set to
+\texttt{ON}. Currently, only simple information can be accessed but
+functionalities will be improved along with the number of batch systems \diet
+is able to address.
 
 There is an example on how to use CoRI batch in
 the\\ \verb!<diet_src>/src/examples/Batch/Cori_cycle_stealing/! directory.

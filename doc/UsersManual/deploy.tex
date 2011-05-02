@@ -12,6 +12,11 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.27  2011/05/02 10:01:43  bdepardo
+%* Corrected a few typos.
+%* Renamed "round-robin" scheduler into "least recently used" scheduler as this
+%* is closer to the behavior of this scheduler.
+%*
 %* Revision 1.26  2010/09/19 10:35:46  bdepardo
 %* Added a section on how to choose the shape of the hierarchy
 %*
@@ -139,7 +144,9 @@ specify the log directory, through the environment variable
 \texttt{OMNINAMES\_LOGDIR} (or, with \textbf{omniORB 4}, at compile time,
 through the \texttt{--with-omniNames-logdir} option of the omniORB configure
 script). If there are no log files in this directory, \texttt{omniNames} needs
-to be intialized. It can be launched as follows:  {\footnotesize
+to be intialized. It can be launched as follows:
+
+{\footnotesize
 \begin{verbatim}
 ~ > omniNames -start
 
@@ -163,6 +170,7 @@ This sets an omniORB name server which listens for client connections on the
 default port 2809. If omniNames has already been launched once, \emph{ie} there
 are already some log files in the log directory, using the \texttt{-start}
 option causes an error. The port is actually read from old log files:
+
 {\footnotesize
 \begin{verbatim}
 ~ > omniNames -start
@@ -208,8 +216,7 @@ ORBInitialPort <name server port>
  \item{omniORB 4:}
 {\footnotesize
 \begin{verbatim}
-InitRef = NameService=corbaname::<name server hostname>:<name server
-port>
+InitRef = NameService=corbaname::<name server hostname>:<name server port>
 \end{verbatim}
 } 
 \end{description}
@@ -220,8 +227,9 @@ your \texttt{LD\_LIBRARY\_PATH} environment variable should now be
 :\\ \texttt{LD\_LIBRARY\_PATH$= <$omniORB\_home$>$/lib:$<$install\_dir$>$/lib}.
 
 \textbf{NB1:} In order to avoid name collision, every agent must be  assigned a
-different name in the name server; since they don't have any children, \seds do
-not need names assigned to them and they don't register with the name server.
+different name in the name server.  \seds do not necessarily need a name, it is
+optional.
+
 
 \textbf{NB2:} Each \diet hierarchy can use a different name server, or multiple
 hierarchies can share one name server (assuming all agents are assigned  unique
@@ -256,7 +264,8 @@ debugging trace output. The following levels are defined:
 \begin{center}
  \footnotesize
  \begin{tabular}{p{.1\linewidth}p{.8\linewidth}}
-  level $=$ 0  & Print only errors\\
+  level $=$ 0  & Do not print anything\\
+  level $=$ 1  & Print only errors\\
   level $<$ 5  & Print errors and messages for the main steps (such as ``Got a
   request'') - default\\
   level $<$ 10 & Print errors and messages for all steps\\
@@ -705,7 +714,7 @@ Trying to stop element OmniNames
 \caption{Example XML input file for \godiet.\label{fig:godietXml}}
 \end{figure}
 
-On of the main problems when writing a \godiet XML input file is to be compliant
+One of the main problem when writing a \godiet XML input file is to be compliant
 with the dtd. A good tool to validate a \godiet file before using \godiet is
 \textbf{xmllint}. This tool exist on most platforms and with the following
 command:

@@ -8,6 +8,11 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.3  2011/05/02 10:01:43  bdepardo
+%* Corrected a few typos.
+%* Renamed "round-robin" scheduler into "least recently used" scheduler as this
+%* is closer to the behavior of this scheduler.
+%*
 %* Revision 1.2  2010/07/13 08:22:43  amuresan
 %* Added warning that DIET Cloud was tested with gSOAP 2.7.16 only.
 %*
@@ -37,14 +42,18 @@ The current version of \diet Cloud has been built on top of the Amazon EC2 SOAP 
 version 2009-08-15 and is compatible with any cloud system that offers a front-end with
 this interface.
 
-We have used our own installation of \textsc{Eucalyptus}\footnote{\url{http://open.eucalyptus.com/}}
-for testing and development. The installation process of the cloud system will not be
-detailed as it is outside the scope of the current topic. For details on the installation and usage
-of the cloud system please refer to your Cloud provider's documentation. The rest of this chapter
-assumes the existing installation and correct functioning of a Cloud system that the user can
-access.
+We have used our own installation of
+\textsc{Eucalyptus}\footnote{\url{http://open.eucalyptus.com/}}  as
+well as
+\textsc{AmazonEC2}\footnote{\url{http://aws.amazon.com/fr/ec2/}} for
+testing and development. The installation process of the cloud system
+will not be detailed as it is outside the scope of the current
+topic. For details on the installation and usage of the cloud system
+please refer to your Cloud provider's documentation. The rest of this
+chapter assumes the existing installation and correct functioning of a
+Cloud system that the user can access.
 
-To be able to reserv virtual resources on an Amazon EC2 compatible cloud system, the Cloud user
+To be able to reserve virtual resources on an Amazon EC2 compatible cloud system, the Cloud user
 mush have knowledge of the following resources:
 \begin{itemize}
 \item \verb!The URL of the Cloud system!
@@ -90,9 +99,12 @@ For more information on compiling and installing \diet please see the section de
 
 \section{Server configuration file}
 
-Eucalyptus and Amazon EC2 supports 5 different types of Virtual Machines to instantiate. These differe
-from one-another by CPU, memory and disk characteristics. Eucalyptus allows the modification of these
-characteristics. The 5 VM types and their associated default characteristics inside \textbf{Eucalyptus} are:
+At the time this documentation has been written, Eucalyptus and Amazon
+EC2 supported 5 different types of Virtual Machines to
+instantiate. These differ from one-another by CPU, memory and disk
+characteristics. Eucalyptus allows the modification of these
+characteristics. The 5 VM types and their associated default
+characteristics inside \textbf{Eucalyptus} are:
 \begin{enumerate}
 \item{m1.small}: 1 VCPU, 128 MB RAM, 2 GB Disk
 \item{c1.medium}: 1 VCPU, 256 MB RAM, 5 GB Disk 
@@ -101,6 +113,7 @@ characteristics. The 5 VM types and their associated default characteristics ins
 \item{c1.xlarge}: 4 VCPU, 2048 MB RAM, 20 GB Disk 
 \end{enumerate}
 
+\noindent
 Configuring the server part is done by using the following options:
 \begin{itemize}
 \item \textsc{batchName}: the name of the batch system to be used. This is recognized internally by the

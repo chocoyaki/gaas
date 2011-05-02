@@ -8,6 +8,11 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.17  2011/05/02 10:01:43  bdepardo
+%* Corrected a few typos.
+%* Renamed "round-robin" scheduler into "least recently used" scheduler as this
+%* is closer to the behavior of this scheduler.
+%*
 %* Revision 1.16  2011/03/30 21:50:49  ecaron
 %* Update style to be compliant to latex2html
 %*
@@ -114,21 +119,22 @@ application.
 
 Generally, a parallel resource is managed by a batch system, and jobs are
 submitted to a site queue. The batch system is responsible for managing
-parallel jobs: it schedules each job and, it determines and allocates the
-resources needed for its execution. 
+parallel jobs: it schedules each job, and determines and allocates the
+resources needed for the execution of the job. 
 
 There are many batch system, among which
 Torque\footnote{\url{http://old.clusterresources.com/products/torque/}} (a fork
 of
-PSB\footnote{\url{http://www.clusterresources.com/pages/products/torque-resource-manager.php}}),
+PBS\footnote{\url{http://www.clusterresources.com/pages/products/torque-resource-manager.php}}),
 Loadleveler\footnote{\url{http://www-03.ibm.com/servers/eserver/clusters/software/loadleveler.html}}
-(developped by IBM), SunGrid
-Engine\footnote{\url{http://www.sun.com/software/gridware/}} (SGE, developped
-by Sun), OAR\footnote{\url{http://oar.imag.fr}} (developped at the IMAG
-lab). Each one implements its own language syntax (with its own mnemonics), as
-well as its own scheduler. Jobs can generally access the identity of the
-reserved nodes through a file during their execution, and are assured to
-exclusively possess them.
+(developped by IBM), Oracle Grid
+Engine\footnote{\url{http://www.oracle.com/technetwork/oem/grid-engine-166852.html}}
+(formerly SunGrid Engine\footnote{\url{http://www.sun.com/software/gridware/}}:
+SGE, developped by Sun), OAR\footnote{\url{http://oar.imag.fr}} (developped at
+the IMAG lab). Each one implements its own language syntax (with its own
+mnemonics), as well as its own scheduler. Jobs can generally access the
+identity of the reserved nodes through a file during their execution, and are
+assured to exclusively possess them.
 
 %****************************************************************************%
 \section{Client extended API}
@@ -227,18 +233,20 @@ void diet_profile_desc_set_sequential(diet_profile_desc_t* profile)
 
 \subsection{Server configuration file}
 
-The programmer of a batch service available in a \sed has not to worry
-to which batch system to submit except for its name, because \diet
+The programmer of a batch service available in a \sed do not have to worry
+about which batch system to submit to, except for its name, because \diet
 provides all the mechanisms to transparently submit the job to them.
 
-\diet is able to submit batch scripts to
-OAR (version 1.6 and 2.0), PBS/Torque and loadleveler.
+\diet is currently able to submit batch scripts to
+OAR (version 1.6 and 2.0), PBS/Torque, LoadLeveler, and SGE.
+%
 %among which: "condor", "dqs", "loadleveler", "lsf", "pbs", "sge" or
 %"oar".
+%
 The name of the batch scheduler managing the parallel resource where
 the \sed is running has to be incorporated with the keyword
-\verb!batchName! in the server configuration file. Only this makes the
-\sed know how to submit a job correctly.
+\verb!batchName! in the server configuration file. This is how the \sed knows
+the correct way of submitting a job.
 
 Furthermore, if there is no default queue, the \diet deployer must
 also provide the queue on which jobs have to be submitted, with the

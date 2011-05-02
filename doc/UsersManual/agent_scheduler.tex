@@ -5,7 +5,7 @@
 
 %\begin{document}
 \section{Scheduler at agents level}
-In this section we introduce a new way to define a scheduling policy in \diet.
+In this section we introduce the way to define a scheduling policy in \diet.
 Some scheduling strategies could not be developed using only the \diet {\sed}s
 plugins. The schedulers at agents level allow the developer to design every
 scheduler strategies, even the centralized ones. The first two sections
@@ -61,9 +61,9 @@ To aggregate the responses of the {\sed}s, \diet uses an aggregation method
 which is called by the agents. This method is chosen from the {\sed}s
 by defining the aggregator type (see Section \ref{sect:estTags}).
 By default, two aggregator types are proposed by \diet:
-DIET\_AGG\_DEFAULT and DIET\_AGG\_PRIORITY. In the last versions of \diet, we
-introduced a new aggregator type: DIET\_AGG\_USER. Using this
-aggregator, the user can define its own aggregation method to be used by
+DIET\_AGG\_DEFAULT and DIET\_AGG\_PRIORITY. Another aggregator type is
+also available: DIET\_AGG\_USER. Using this
+aggregator, the user can define her own aggregation method to be used by
 the agents. 
 Figure \ref{fig:DIETScheduling} presents the global schedulers classes
 organization in \diet. By choosing the DIET\_AGG\_USER aggregator, the user
@@ -79,7 +79,7 @@ The user-defined aggregation method just needs to sort the responses from the
 {\sed}s. By locating the aggregation method on the agent, we can use different
 scheduling strategies which could not be implemented at the {\sed} level. These
 schedulers can also avoid some scheduling problems while submitting asynchronous
-jobs (with Round-Robin schedulers for example).
+jobs (with ``least recently used'' scheduler for example).
 
 \subsection{The UserScheduler class}
 This section presents how the scheduling process is managed in \diet.
