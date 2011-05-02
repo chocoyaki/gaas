@@ -10,6 +10,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.23  2011/05/02 13:11:02  bdepardo
+%* A few typos
+%*
 %* Revision 1.22  2011/04/29 15:30:32  bdepardo
 %* Diet -> \diet
 %*
@@ -77,9 +80,9 @@ made dynamically when the task is ready to be executed (\ie all predecessors
 are done) depending on the service performance properties and on available
 ressources on the grid.
 
-A specific agent called the \textbf{Master Agent DAG (\madag))} provides DAG
+A specific agent called the \textbf{Master Agent DAG (\madag)} provides DAG
 workflow scheduling. This agent serves as the entry point to the \diet
-Hierarchy for a client that wants to submit a DAG workflow. The language
+Hierarchy for a client that wants to submit a workflow. The language
 supported by the \madag is based on XML and described in
 the section \ref{sec:dag_desc}.
 
@@ -89,7 +92,7 @@ more abstract way of representing a workflow that separates the data instances
 from the data flow has led to the definition of a "functional workflow
 language" called the \textit{Gwendia language}. A complex application can be
 defined using this language that provides data operators and control structures
-(if/then/else, loops, ...). To execute the application, we need to provide both
+(if/then/else, loops, \etc). To execute the application, we need to provide both
 the workflow description (see \ref{sec:wf_desc}) and a file describing the
 input data set. The \diet workflow engine will instanciate the workflow as one
 or several tasks' DAGs, sent to the \madag agent to be executed in the
@@ -114,9 +117,9 @@ The workflow supports in \diet needs the following:
 \begin{itemize}
 \item \texttt{DIET\_USE\_WORKFLOW} as follow: \texttt{-DDIET\_USE\_WORKFLOW:BOOL=ON}
 \item \texttt{XERCES\_DIR}: defines the path to Xerces installation directory.
-  (for example \texttt{-DXERCES\_DIR:PATH=/usr/local/xerces})
+  (\eg \texttt{-DXERCES\_DIR:PATH=/usr/local/xerces})
 \item \texttt{XQILLA\_DIR}: defines the path to XQilla installation directory.
-  (for example \texttt{-DXQILLA\_DIR:PATH=/usr/local/xqilla})
+  (\eg \texttt{-DXQILLA\_DIR:PATH=/usr/local/xqilla})
 \end{itemize}
 
 \begin{remarque}
@@ -212,7 +215,7 @@ may be used by another one.
 
 \section{Workflow description languages}
 
-\subsection{MaDag language}
+\subsection{\madag language}
 \label{sec:dag_desc}
 
 A DAG is described with an XML representation which is close to \diet profile
@@ -316,7 +319,7 @@ by the MaDag instead of being done for each task).
 
 \paragraph{Processor ports} 
 Processor input and output ports are named and declared. A port may be an input
-(\texttt{<in>} tag) or an output (\texttt{out} tag). For each input/output, the
+(\texttt{<in>} tag) or an output (\texttt{<out>} tag). For each input/output, the
 following attributes can be defined:
 \begin{itemize}
 \item \texttt{type} (mandatory): contains the base type of data \ie a basic
@@ -355,7 +358,7 @@ operators.  There are 4 data manipulation operators:
   the index 0\_1).
 \item \texttt{flatcross} (groups 2 ports): same as cross but with a
   different output indexation scheme. This operator does not increase
-  the depth of the output index but creates new indexes (for example:
+  the depth of the output index but creates new indexes (\eg
   if data inputs have indexes 1 and 2 with a maximum index of 3 for
   the right input, then the output has the index $6 = 4*1 + 2$). Note
   that this operator creates a synchronization constraint among all
@@ -480,7 +483,7 @@ Note that all the operators and functions defined in the XQuery standard (see
 \url{http://www.w3.org/TR/xquery-operators/}) can be used to make the boolean
 expression of the \texttt{<if>} tag. These can process both numerical and
 string variables, and can also contain XPath expressions to access elements of
-an array when the input port type is an array (for ex. the expression ``
+an array when the input port type is an array (\eg the expression ``
 \texttt{contains(\$in\/list\/item[1]\/text(), 'a')} '' tests if the 1st element
 of the array provided by the 'in' port contains the letter 'a').
 

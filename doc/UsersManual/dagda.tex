@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.9  2011/05/02 13:11:02  bdepardo
+%* A few typos
+%*
 %* Revision 1.8  2010/03/29 21:05:10  ecaron
 %* Corrections
 %*
@@ -49,31 +52,28 @@ be reused later or by another application. Each component of \diet can
 interact with \dagda and the data manipulation can be done from a
 client application, a server or an agent through a plug-in scheduler.
 
-A \dagda component is associated to each element in a \diet platform
-(client, Master Agent, Local Agent, SeD). These components are
-connected following the \diet deployment topology. Figure
-\ref{fig:DAGDAarch} shows how the \dagda and \diet classical
-components are connected. In contrary of a \diet architecture, each
-\dagda component has the same role. It can store, transfer or move a
-data. The client's \dagda component is isolated of the architecture
-and communicates only with the chosen SeDs \dagda components when
-necessary. When searching for a data, \dagda uses its hierarchical
-topology to contact the data managers. Among the data managers having
-one replicate of the data, \dagda chooses the \textit{"best"} source
-to transfer it. To make this choice \dagda uses some statistics
-collected from previous data transfers between the nodes. By not using
-dynamic information, it is unsure that \dagda really chose the "best"
-nodes for the transfers. In a future version, we will introduce some
-facilities to estimate the time needed to transfer a data and to
-improve the choice of a data stored on the grid. To do the data
-transfers, \dagda uses the pull model: It is the destination node that
-ask for the data transfer.
+A \dagda component is associated to each element in a \diet platform (client,
+Master Agent, Local Agent, SeD). These components are connected following the
+\diet deployment topology. Figure~\ref{fig:DAGDAarch} shows how the \dagda and
+\diet classical components are connected. Contrary to a \diet architecture,
+each \dagda component has the same role. It can store, transfer or move a
+data. The client's \dagda component is isolated of the architecture and
+communicates only with the chosen SeDs \dagda components when necessary. When
+searching for a data, \dagda uses its hierarchical topology to contact the data
+managers. Among the data managers having one replicate of the data, \dagda
+chooses the \textit{``best''} source to transfer it. To make this choice \dagda
+uses some statistics collected from previous data transfers between the
+nodes. By not using dynamic information, it is unsure that \dagda really chose
+the ``best'' nodes for the transfers. In a future version, we will introduce some
+facilities to estimate the time needed to transfer a data and to improve the
+choice of a data stored on the grid. To do the data transfers, \dagda uses the
+pull model: it is the destination node that ask for the data transfer.
 \begin{figure}[h]
 \centerline{\includegraphics[width=0.7\linewidth]{fig/dagdaArch}}
 \caption{\dagda architecture in \diet.\label{fig:DAGDAarch}}
 \end{figure}
 
-Figure \ref{fig:DAGDAarch} presents how \dagda manages the data when a
+Figure~\ref{fig:DAGDAarch} presents how \dagda manages the data when a
 client submit a job. In this example, the client wants to use some
 data stored on the grid and some personal data. He wants to obtain
 some results and to store some others on the grid. Some of these
@@ -101,7 +101,7 @@ updated after the job execution.
 %the storage ressources (disk or memory) of the nodes, \dagda allows to fix
 %a limit to the data size that can be stored for each \dagda component. When
 %a job needs a data, it asks \dagda for it using its unique ID and gets it
-%from the "best source". \dagda uses some statistic informations to determine
+%from the ``best source''. \dagda uses some statistic informations to determine
 %which node should be used for the transfers, but could be easily extended to
 %use some dynamic metrology parameters. \dagda also offers a way to manage
 %automatically the data by choosing a \textit{cache replacement algorithm}
@@ -240,8 +240,8 @@ macros.
 On the \sed side, \dagda and the \sed share the same data pointers, that
 means that if the pointer is a local variable reference, when \dagda
 will use the data, it will read an unallocated variable. The users
-should allways allocate the data with a \textit{"malloc"/"calloc"} or
-\textit{"new"} call on the \sed and agent sides. Because \dagda takes
+should allways allocate the data with a \textit{``malloc''/``calloc''} or
+\textit{``new''} call on the \sed and agent sides. Because \dagda takes
 the control of the data pointer, there is no risk of memory leak even
 if the service allocate a new pointer at each call. The data lifetime
 is managed by \dagda and the data will be freed according to its
@@ -262,16 +262,16 @@ All of the following functions return at the end of the transfer or
 if an error occured. They all return an integer value: 0 if the
 operation succeeds, another value if it fails.
 
-\subsubsection{\dagda \textit{put} data macros/functions.}
+\subsubsection{\dagda \textit{put} data macros/functions}
 \label{sec:syncPutFunctions}
 The following functions put a data on the \dagda hierarchy to be used
 later.  The last parameter is always a pointer to a C-string which
 will be initialized with a pointer to the ID string of the data. This
 string is allocated by \dagda and can be freed when the user does not
 need it anymore.  The first parameter is always a pointer to the
-data: For a scalar value a pointer on the data, for a vector, matrix
+data: for a scalar value a pointer on the data, for a vector, matrix
 or string, a pointer on the first element of the data. The
-\textit{"value"} argument for a file is a C-string containing the path
+\textit{``value''} argument for a file is a C-string containing the path
 of this file. The persistence mode for a data managed by \dagda should
 allways be DIET\_PERSISTENT or DIET\_STICKY.  The VOLATILE and
 *\_RETURN modes do not make sense in this data management context.
@@ -290,29 +290,29 @@ allways be DIET\_PERSISTENT or DIET\_STICKY.  The VOLATILE and
   \item[-] \verb#dagda_put_scalar(void* value, diet_base_type_t base_type,#\\
            \verb#                 diet_persistence_mode_t mode, char** ID)#:\\
            This macro adds to the platform the scalar data of type
-           \textit{"base\_type"} pointed by \textit{"value"} with the
-           persistence mode \textit{"mode"} (DIET\_PERSISTENT or DIET\_STICKY)
-           and initializes \textit{"*ID"} with the ID of the data.
+           \textit{``base\_type''} pointed by \textit{``value''} with the
+           persistence mode \textit{``mode''} (DIET\_PERSISTENT or DIET\_STICKY)
+           and initializes \textit{``*ID''} with the ID of the data.
   \item[-] \verb#dagda_put_vector(void* value, diet_base_type_t base_type,#\\
            \verb#                 diet_persistent_mode_t mode, size_t size, char** ID)#:\\
-           This macro adds to the platform the vector of \textit{"size"}
-           \textit{"base\_type"} elements pointed by \textit{"value"} with the
-           persistence mode \textit{"mode"} and stores the data ID in
-           \textit{"ID"}.
+           This macro adds to the platform the vector of \textit{``size''}
+           \textit{``base\_type''} elements pointed by \textit{``value''} with the
+           persistence mode \textit{``mode''} and stores the data ID in
+           \textit{``ID''}.
   \item[-] \verb#dagda_put_matrix(void* value, diet_base_type_t base_type,#\\
          \verb#                 diet_persistence_mode_t mode, size_t nb_rows,#\\
          \verb#                 size_t nb_cols, diet_matrix_order_t order, char** ID)#:\\
-           This macro adds to the platform the \textit{"base\_type"} matrix of
-           dimension \textit{"nb\_rows"} $\times$ \textit{"nb\_cols"} stored in
-           \textit{"order"} order. The data ID is stored on \textit{"ID"}.
+           This macro adds to the platform the \textit{``base\_type''} matrix of
+           dimension \textit{``nb\_rows''} $\times$ \textit{``nb\_cols''} stored in
+           \textit{``order''} order. The data ID is stored on \textit{``ID''}.
   \item[-] \verb#dagda_put_string(char* value, diet_persistence_mode_t mode, char** ID)#:\\
            This macro adds to the platform the string pointed by
-           \textit{"value"} with the persistence mode \textit{"mode"} and
-           stores the data ID into \textit{"ID"}.
+           \textit{``value''} with the persistence mode \textit{``mode''} and
+           stores the data ID into \textit{``ID''}.
   \item[-] \verb#dagda_put_file(char* path, diet_persistence_mode_t mode, char**ID)#:\\
-           This macro adds the file of path \textit{"path"} with the persistence
-           mode \textit{"mode"} to the platform and stores the data ID into
-           \textit{"ID"}
+           This macro adds the file of path \textit{``path''} with the persistence
+           mode \textit{``mode''} to the platform and stores the data ID into
+           \textit{``ID''}
  \end{itemize}
 
 \subsubsection{\dagda \textit{get} data macros/functions}
@@ -322,51 +322,51 @@ using its ID:
 \begin{itemize}
   \item[-] \verb#dagda_get_scalar(char* ID, void** value,#\\
            \verb#                 diet_base_type_t* base_type)#:\\
-    The scalar value using the ID \textit{"ID"} is obtained from
-    \dagda and the \textit{"value"} argument is initialized with a
-    pointer to the data.  The \textit{"base\_type"} pointer content is
+    The scalar value using the ID \textit{``ID''} is obtained from
+    \dagda and the \textit{``value''} argument is initialized with a
+    pointer to the data.  The \textit{``base\_type''} pointer content is
     set to the data base type. This last parameter is optional and
     can be set to NULL if the user does not want to get the
-    \textit{"base\_type"} value.
+    \textit{``base\_type''} value.
 
   \item[-] \verb#dagda_get_vector(char* ID, void** value,#\\
            \verb#                 diet_base_type_t* base_type, size_t* size)#:\\
-    The vector using the ID \textit{"ID"} is obtained from \dagda. The
-    \textit{"value"} argument is initialized with a pointer to the
-    first vector element. The \textit{"base\_type"} content are
+    The vector using the ID \textit{``ID''} is obtained from \dagda. The
+    \textit{``value''} argument is initialized with a pointer to the
+    first vector element. The \textit{``base\_type''} content are
     initialized with the base type and size of the vector. These two
     parameters can be set to NULL if the user does not take care about
     it.
   \item[-] \verb#dagda_get_matrix(char* ID, void** value,#\\
            \verb#                 diet_base_type_t* base_type, size_t* nb_r,#\\
            \verb#                 size_t* nb_c, diet_matrix_order_t* order)#:\\
-    The matrix using the ID \textit{"ID"} is obtained from \dagda. The
-    \textit{"value"} argument is initialized with a pointer to the
-    first matrix element. The \textit{"base\_type"}, \textit{"nb\_r"},
-    \textit{"nb\_c"} and \textit{"order"} arguments contents are
+    The matrix using the ID \textit{``ID''} is obtained from \dagda. The
+    \textit{``value''} argument is initialized with a pointer to the
+    first matrix element. The \textit{``base\_type''}, \textit{``nb\_r''},
+    \textit{``nb\_c''} and \textit{``order''} arguments contents are
     repectively set to the base type of the matrix, the number of
     rows, the number of columns and the matrix order. All of these
     parameters can be set to NULL if the user does not take care about
     it.
   \item[-] \verb#dagda_get_string(char* ID, char** value)#:\\
-    The string of ID \textit{"ID"} is obtained from \dagda and the
+    The string of ID \textit{``ID''} is obtained from \dagda and the
     \textit{value} content is set to a pointer on the first string character.
   \item[-] \verb#dagda_get_file(char* ID, char** path)#:\\
-    The file of ID \textit{"ID"} is obtained from \dagda and the
-    \textit{"path"} content is set to a pointer on the first path string
+    The file of ID \textit{``ID''} is obtained from \dagda and the
+    \textit{``path''} content is set to a pointer on the first path string
     character.
 \end{itemize}
 
-\subsection{Asynchronous data transfers.}
-With \dagda, there is two way to manage the asynchronous data
+\subsection{Asynchronous data transfers}
+With \dagda, there are two ways to manage the asynchronous data
 transfers, depending of the data usage:
 \begin{itemize}
   \item With end-of-transfer control: \dagda maintains a reference to
     the transfer thread. It only releases this reference after a call
     to the corresponding waiting function. The client developer should
     always use these functions, that's why a data ID is only returned
-    by the \textit{"dagda\_wait\_*"} and
-    \textit{"dagda\_wait\_data\_ID"} functions.
+    by the \textit{``dagda\_wait\_*''} and
+    \textit{``dagda\_wait\_data\_ID''} functions.
   \item Without end-of-transfer control: The data is loaded from/to
     the \dagda hierarchy without the possibility to wait for the end
     of the transfer.  These functions should only be called from an
@@ -387,7 +387,7 @@ The arguments to these functions are the same than for the synchronous
 ones.  See Section \ref{sec:syncPutFunctions} for more details. All of
 these functions return a reference to the data transfer which is an
 unsigned int. This value will be passed to the
-\textit{"dagda\_wait\_data\_ID"} function.
+\textit{``dagda\_wait\_data\_ID''} function.
 \begin{itemize}
 \item[-] \verb#dagda_put_scalar_async(void* value, diet_base_type_t base_type,#\\
          \verb#                       diet_persistence_mode_t mode)#
@@ -400,12 +400,12 @@ unsigned int. This value will be passed to the
 \item[-] \verb#dagda_put_file_async(char* path, diet_persistence_mode_t mode)#
 \end{itemize}
 After a call to one of these functions, the user can obtain the data ID by
-calling the \textit{"dagda\_wait\_data\_ID"} function with a transfer
+calling the \textit{``dagda\_wait\_data\_ID''} function with a transfer
 reference.
 \begin{itemize}
   \item[-] \verb#dagda_wait_data_ID(unsigned int transferRef, char** ID)#:\\
-    The \textit{"transferRef"} argument is the value returned by a
-    \textit{"dagda\_put\_*\_async"} function. The \textit{"ID"} content will
+    The \textit{``transferRef''} argument is the value returned by a
+    \textit{``dagda\_put\_*\_async''} function. The \textit{``ID''} content will
     be initialized to a pointer on the data ID.
 \end{itemize}
 
@@ -413,7 +413,7 @@ reference.
 The only argument needed for one of these functions is the data ID.
 All of these functions return a reference to the data transfer which
 is an unsigned int. This value will be passed to the corresponding
-\textit{"dagda\_wait\_*"} functions described later.
+\textit{``dagda\_wait\_*''} functions described later.
 \begin{itemize}
 \item[-] \verb#dagda_get_scalar_async(char* ID)#
 \item[-] \verb#dagda_get_vector_async(char* ID)#
@@ -423,9 +423,9 @@ is an unsigned int. This value will be passed to the corresponding
 \end{itemize}
 
 After asking for an asynchronous transfer, the user has to wait the 
-end by calling the corresponding \textit{"dagda\_wait\_*"} function.
+end by calling the corresponding \textit{``dagda\_wait\_*''} function.
  The arguments of these functions are the same than for the synchronous
- \textit{"dagda\_get\_*"} functions. 
+ \textit{``dagda\_get\_*''} functions. 
  See Section \ref{sec:syncGetFunctions} for more details.
 
 \begin{itemize}
@@ -446,8 +446,8 @@ want to wait the completion of the tranfer before returning.
 But with the previously defined functions, \dagda maintains a reference to
 the transfer thread which will be released after a call to the waiting
 function. To avoid \dagda to keep infinitely these references, the
-user should call the \textit{"dagda\_load\_*"} functions instead of
-the \textit{"dagda\_get\_*\_async"} ones.
+user should call the \textit{``dagda\_load\_*''} functions instead of
+the \textit{``dagda\_get\_*\_async''} ones.
 
 \begin{itemize}
 \item[-] \verb#dagda_load_scalar(char* ID)#
@@ -460,19 +460,19 @@ the \textit{"dagda\_get\_*\_async"} ones.
 \subsection{Data checkpointing with \dagda}
 \dagda allows the \sed administrator to choose a file where \dagda will
 store all the data it's managing. When a \sed has a configured and valid
-path name to a backup file (\textit{"dataBackupFile"} option in the
+path name to a backup file (\textit{``dataBackupFile''} option in the
 configuration file), a client can ask to the agents or \seds \dagda
 components to save the data.\\
 
 The \verb#dagda_save_platform()# function, which can only be called
 from a client, records all the data managed by the agents' or \seds'
-\dagda components that allow it.\\ Then, the \textit{"restoreOnStart"}
+\dagda components that allow it.\\ Then, the \textit{``restoreOnStart''}
 configuration file option asks to the \dagda component to restore the
-data stored on the \textit{"dataBackupFile"} file when the component
+data stored on the \textit{``dataBackupFile''} file when the component
 starts. This mechanism allows to stop the \diet platform for a while
 and restart it conserving the same data distribution.
 
-\subsection{Create data ID aliases.}
+\subsection{Create data ID aliases}
 For many applications using large sets of data shared by several
 users, to use an automatically generated ID to retrieve a data is
 difficult or even impossible. \dagda allows the user to define data
@@ -481,7 +481,7 @@ data ID. Two functions are defined to do it:
 \begin{itemize}
 \item[-]
   \verb#dagda_data_alias(const char* id, const char* alias)#:\\ Tries
-  to associate \textit{"alias"} to \textit{"id"}. If the alias is
+  to associate \textit{``alias''} to \textit{``id''}. If the alias is
   already defined, returns a non zero value. A data can have several
   aliases but an alias is always associated to only one data.
 \item[-]
@@ -501,22 +501,22 @@ C-string to define the replication rule.
 \item[-] \verb#dagda_replicate_data(const char* id, const char* rule)#
 \end{itemize}
 The replication rule is defined as follows:\\
-"$<$Pattern target$>$:$<$identification pattern$>$:$<$Capacity overflow
-behavior$>$"\\
+``$<$Pattern target$>$:$<$identification pattern$>$:$<$Capacity overflow
+behavior$>$''\\
 \begin{itemize}
-\item The \textit{pattern target} can be "ID" or "host".
+\item The \textit{pattern target} can be ``ID'' or ``host''.
 \item The \textit{identification pattern} can contain some
   \textit{wildcards} characters. (for example
-  \textit{"*.lyon.grid5000.fr"} is a valid pattern.
-\item The \textit{capacity overflow behavior} can be "replace" or
-  "noreplace".  "replace" means the cache replacement algorithm will
+  \textit{``*.lyon.grid5000.fr''} is a valid pattern.
+\item The \textit{capacity overflow behavior} can be ``replace'' or
+  ``noreplace''.  ``replace'' means the cache replacement algorithm will
   be used if available on the target node (a data could be deleted
-  from the node to leave space to store the new one). "noreplace"
+  from the node to leave space to store the new one). ``noreplace''
   means that the data will be replicated on the node if and only if
   there is enough storage capacity on it.
 \end{itemize}
 
-For example, \textit{"host:capricorne-*.lyon.*:replace"} is a valid
+For example, \textit{``host:capricorne-*.lyon.*:replace''} is a valid
 replication rule.
 
 \section{On correct usage of \dagda}
