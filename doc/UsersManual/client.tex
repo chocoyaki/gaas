@@ -10,6 +10,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.21  2011/05/02 07:35:09  bdepardo
+%* Corrected a few typos
+%*
 %* Revision 1.20  2010/04/01 10:11:50  bdepardo
 %* Changed	deprecated INSTALL_FILES and INSTALL_TARGETS to	INSTALL.
 %*
@@ -262,7 +265,7 @@ int main(int argc, char **argv)
     diet_scalar_set(diet_parameter(profile[i],2), NULL,    0, DIET_FLOAT);
   }
   
-  /* Call Diet */
+  /* Call DIET */
   int rst_call = 0;
   
   for (i = 0; i < 5; i++){
@@ -278,7 +281,7 @@ int main(int argc, char **argv)
      rst_call = 0;
   }   
 
-  /* Wait for Diet answers */
+  /* Wait for DIET answers */
   if ((rst_call = diet_wait_and((diet_reqID_t*)&rst, (unsigned int)5)) != 0)
      printf("Error in diet_wait_and\n");
   else {

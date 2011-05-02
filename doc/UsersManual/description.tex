@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.30  2011/05/02 07:35:09  bdepardo
+%* Corrected a few typos
+%*
 %* Revision 1.29  2011/04/29 15:35:26  bdepardo
 %* Diet -> \diet
 %*
@@ -171,8 +174,8 @@ following:
   and performance-related information such as the amount of available memory or
   the number of resources available. When it registers, a \sed declares the
   problems it can solve to its parent LA or MA.  A \sed can give perfomance and
-  hardware information by using the module CoRI or performance predictions for
-  some types of problems by using the module FAST.  Both modules are described
+  hardware information by using the CoRI module or performance predictions for
+  some types of problems by using the FAST module.  Both modules are described
   in Chapter~\ref{chapter:performance}.
 
 \end{description}
@@ -197,7 +200,7 @@ As recent implementations of CORBA provide communication times close
 to that of sockets, CORBA is well suited to support distributed
 applications in a large scale Grid environment. New specialized
 services can be easily published and existing services can also be
-used.  \diet is based upon \emph{OmniORB 3}~\cite{OMNIORB} or later, a
+used.  \diet is based upon \emph{OmniORB 4}~\cite{OMNIORB} or later, a
 free CORBA implementation that provides good communication
 performance.
 
@@ -247,7 +250,7 @@ platform.
 \section{Solving a problem}
 \label{sec:solvepb}
 
-Assuming that the architecture described in Section ~\ref{sec:components}
+Assuming that the architecture described in Section~\ref{sec:components}
 includes several servers able to solve the same problem, the algorithm
 presented below lets an MA select a server for the computation among those
 available. This decision is made in four steps.
@@ -264,7 +267,7 @@ available. This decision is made in four steps.
   sorts the servers and forwards the best responses to the MA through the
   hierarchy.
 \item Once the MA has collected all the responses from its direct children, it
-  chooses a pool of fast servers and sends their references to the client.
+  chooses a pool of ``better'' servers and sends their references to the client.
 \end{itemize}
 
 %====[ Extensions ]============================================================

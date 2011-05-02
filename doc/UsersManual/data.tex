@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.32  2011/05/02 07:35:09  bdepardo
+%* Corrected a few typos
+%*
 %* Revision 1.31  2010/05/25 08:04:49  bdepardo
 %* Fixmes removal
 %*
@@ -300,7 +303,7 @@ modifier and accessor functions only: no allocation function is required, since
 necessary memory for all argument \textbf{descriptions}. This avoids the
 temptation for the user to allocate the memory for these data structures twice
 (which would lead to \diet errors while reading profile arguments). Please see
-the example in Section \ref{sec:pbex} for a typical use.
+the example in Section \ref{sec:pbex} for a typical example.
 \\
 
 
@@ -501,7 +504,7 @@ diet_free_data(diet_arg_t* arg);
 \label{sec:pbdesc}
 
 For \diet to match the client problem with a service, servers and clients must
-``speak the same language'', \emph{ie} they must use the same problem
+``speak the same language'', \ie they must use the same problem
 description. A unified way to describe problems is to use a name and define its
 profile with the type \texttt{diet\_profile\_t}:
 {\footnotesize
@@ -520,18 +523,18 @@ typedef struct {
 
 
 The field \emph{parameters} consists of a \texttt{diet\_arg\_t} array of size
-$last\_out + 1$. Arguments can be
+$last\_out + 1$. Arguments can be:
 \begin{description}
 \item{IN:}    The data are sent to the server. The memory is allocated
   by the user.
 \item{INOUT:} The data are allocated by the user as for the IN
   arguments, then sent to the server and brought back into the same memory zone
   after the computation has completed, without any copy. Thus freeing this
-  memory at the client while the computation is performed on the
+  memory on the client side while the computation is performed on the
   server would result in a segmentation fault when the data are
   brought back onto the client.
 \item{OUT:} The data are created on the server and brought back into a
-  newly allocated zone on the client. This allocation is performed by
+  newly allocated memory zone on the client. This allocation is performed by
   \diet. After the call has returned, the user can find the result in
   the zone pointed at by the \emph{value} field. Of course, \diet
   cannot guess how long the user will need these data, so the
