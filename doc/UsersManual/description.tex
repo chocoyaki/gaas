@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.31  2011/05/03 12:28:10  bdepardo
+%* Added missing reference
+%*
 %* Revision 1.30  2011/05/02 07:35:09  bdepardo
 %* Corrected a few typos
 %*
@@ -118,14 +121,14 @@
 
 \chapter{A \diet platform}\label{ch:description}
 
-\diet is built upon \emph{Server Daemons}. The process of scheduling the
-requests is distributed amongst a hierarchy of \emph{Local Agents} and
-\emph{Master Agents}. The scheduler can use resource availability information
-collected from three different tools: from NWS~\cite{WSH99} sensors which are
-placed on every node of the hierarchy, from the application-centric performance
-prediction tool \textsc{FAST} \cite{Qui02}, which relies on NWS information, or
-from CoRI Easy, which is based on simple system calls and some basic
-performance tests (see
+\diet~\cite{Caron:2006gf} is built upon \emph{Server Daemons}. The process of
+scheduling the requests is distributed amongst a hierarchy of \emph{Local
+Agents} and \emph{Master Agents}. The scheduler can use resource availability
+information collected from three different tools: from NWS~\cite{WSH99} sensors
+which are placed on every node of the hierarchy, from the application-centric
+performance prediction tool \textsc{FAST} \cite{Qui02}, which relies on NWS
+information, or from CoRI Easy, which is based on simple system calls and some
+basic performance tests (see
 Chapter~\ref{chapter:performance}). Figure~\ref{fig:platform} shows the
 hierarchical organization of \diet.
 
