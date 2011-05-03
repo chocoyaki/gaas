@@ -192,7 +192,6 @@ public:
     } else {
       ctx.env[ENV_LIBRARY_PATH_NAME] = ENV_LIBRARY_PATH;
     }
-    ctx.env["OMNINAMES_LOGDIR"] = OMNINAMES_LOGDIR;
     ctx.env["OMNIORB_CONFIG"] = OMNIORB_CONFIG;
 
     // redirect output to /dev/null
@@ -253,7 +252,6 @@ public:
     } else {
       ctx.env[ENV_LIBRARY_PATH_NAME] = ENV_LIBRARY_PATH;
     }
-    ctx.env["OMNINAMES_LOGDIR"] = OMNINAMES_LOGDIR;
     ctx.env["OMNIORB_CONFIG"] = OMNIORB_CONFIG;
 
     // redirect output to /dev/null
@@ -317,7 +315,6 @@ public:
     } else {
       ctx.env[ENV_LIBRARY_PATH_NAME] = ENV_LIBRARY_PATH;
     }
-    ctx.env["OMNINAMES_LOGDIR"] = OMNINAMES_LOGDIR;
     ctx.env["OMNIORB_CONFIG"] = OMNIORB_CONFIG;
 
     // redirect output to /dev/null
@@ -381,7 +378,6 @@ public:
     // setup LogService environment
     bp::context ctx;
     ctx.process_name = LOGSERVICE_COMMAND;
-    ctx.env["OMNINAMES_LOGDIR"] = OMNINAMES_LOGDIR;
     ctx.env["OMNIORB_CONFIG"] = OMNIORB_CONFIG;
 	
     // redirect output to /dev/null
@@ -432,7 +428,6 @@ public:
     // setup LogService environment
     bp::context ctx;
     ctx.process_name = DIETLOGTOOL_COMMAND;
-    ctx.env["OMNINAMES_LOGDIR"] = OMNINAMES_LOGDIR;
     ctx.env["OMNIORB_CONFIG"] = OMNIORB_CONFIG;
 	
     // redirect output to /dev/null
