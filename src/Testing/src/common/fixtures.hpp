@@ -32,14 +32,15 @@ namespace bf = boost::filesystem;
 namespace bp = boost::process;
 namespace bs = boost::system;
 
-class setDIETEnvFixture {
+template <const char *omniORBConfig>
+class setDietEnvFixture {
 public:
-  setDIETEnvFixture() {
+  setDietEnvFixture() {
     BOOST_TEST_MESSAGE( "== Test setup [BEGIN]: setting environment ==" );
 
     // Set env regarding omniORB
     setenv("OMNINAMES_LOGDIR", OMNINAMES_LOGDIR, 1);
-    setenv("OMNIORB_CONFIG", OMNIORB_CONFIG, 1);
+    setenv("OMNIORB_CONFIG", omniORBConfig, 1);
 
     // Set env regarding DIET compiled libraries
     bp::environment::iterator i_c;
@@ -47,6 +48,9 @@ public:
       std::string dietLibPath = std::string(ENV_LIBRARY_PATH)
         + std::string(getenv(ENV_LIBRARY_PATH_NAME));
       setenv(ENV_LIBRARY_PATH_NAME, dietLibPath.c_str(), 1);
+
+      /* Create directory for client */
+      bf::create_directory(CLIENT_DAGDA_DIR);
 
       BOOST_TEST_MESSAGE( "== Test setup [END]: setting environment ==" );
     }
@@ -56,8 +60,11 @@ public:
     // setenv("PATH", dietPath.c_str(), 1);
   }
 
-  ~setDIETEnvFixture() {
+  ~setDietEnvFixture() {
     BOOST_TEST_MESSAGE( "== Test teardown [BEGIN]: unsetting environment ==" );
+    /* Delete client directory */
+    bf::remove_all(CLIENT_DAGDA_DIR);
+
     boost::this_thread::sleep(boost::posix_time::milliseconds(SLEEP_TIME*2));
     BOOST_TEST_MESSAGE( "== Test teardown [END]: unsetting environment ==" );
   }
@@ -65,38 +72,13 @@ public:
 };
 
 
-class createTmpDirsFixture : public setDIETEnvFixture {
-public:
-  createTmpDirsFixture() {
-    BOOST_TEST_MESSAGE( "== Test setup [BEGIN]: creating directories ==" );
-
-    bf::create_directory(MA_DAGDA_DIR);
-    bf::create_directory(LA_DAGDA_DIR);
-    bf::create_directory(SED_DAGDA_DIR);
-    bf::create_directory(CLIENT_DAGDA_DIR);
-    
-    BOOST_TEST_MESSAGE( "== Test setup [END]: creating directories ==" );
-  }
-
-  ~createTmpDirsFixture() { 
-    BOOST_TEST_MESSAGE( "== Test teardown [BEGIN]: deleting directories ==" );
-
-    bf::remove_all(MA_DAGDA_DIR);
-    bf::remove_all(LA_DAGDA_DIR);
-    bf::remove_all(SED_DAGDA_DIR);
-    bf::remove_all(CLIENT_DAGDA_DIR);
-
-    BOOST_TEST_MESSAGE( "== Test teardown [END]: deleting directories ==" );
- }
-
-};
-
 
 /* Diet test fixture (aka test context)
  * basically setup omniNames before starting our test 
  * and then cleanup after test has been executed
  */
-class OmniNamesFixture : public createTmpDirsFixture {
+template <const char *config>
+class OmniNamesFixture : public setDietEnvFixture<config> {
   boost::scoped_ptr<bp::child> processNamingService;
 
 public:
@@ -172,6 +154,10 @@ public:
     BOOST_TEST_MESSAGE( "== Test setup [BEGIN]:  Launching DIET Agent (config file: "
                         << config << ") ==" );
 	
+    /* Create Dagda Directory */
+    bf::create_directory(MA_DAGDA_DIR);
+    bf::create_directory(LA_DAGDA_DIR);
+
     std::string exec;
     try {
       exec = bp::find_executable_in_path("dietAgent", DIETAGENT_DIR);
@@ -216,6 +202,11 @@ public:
       processAgent->terminate();
       processAgent->wait();
     }
+
+    /* Remove Dagda directory */
+    bf::remove_all(MA_DAGDA_DIR);
+    bf::remove_all(LA_DAGDA_DIR);
+
     boost::this_thread::sleep(boost::posix_time::milliseconds(SLEEP_TIME));
     BOOST_TEST_MESSAGE( "== Test teardown [END]: Stopping DIET Agent ==" );
   }
@@ -293,6 +284,9 @@ public:
     BOOST_TEST_MESSAGE( "== Test setup [BEGIN]: Launching "
                         <<  name << " ==");
 
+    /* Create Dagda directory */
+    bf::create_directory(SED_DAGDA_DIR);
+
     std::string exec;
     try {
       exec = bp::find_executable_in_path(name, binDir);
@@ -350,6 +344,10 @@ public:
                             << name << " ==" );
       }
     }
+
+    /* Remove Dagda directory */
+    bf::remove_all(SED_DAGDA_DIR);
+
     boost::this_thread::sleep(boost::posix_time::milliseconds(SLEEP_TIME));
     BOOST_TEST_MESSAGE( "== Test teardown [END]: Stopping "
                         << name << " ==" );
@@ -357,8 +355,8 @@ public:
 };
 
 #ifdef USE_LOG_SERVICE
-template <const char *config>
-class LogServiceFixture : public OmniNamesFixture {
+template <const char *config, const char *omniORBConfig>
+class LogServiceFixture : public OmniNamesFixture<omniORBConfig> {
   boost::scoped_ptr<bp::child> process;
 
 public:
@@ -407,8 +405,8 @@ public:
 };
 
 
-template <const char *config>
-class DIETLogToolFixture : public LogServiceFixture<config> {
+template <const char *config, const char *omniORBConfig>
+class DIETLogToolFixture : public LogServiceFixture<config, omniORBConfig> {
   boost::scoped_ptr<bp::child> process;
 
 public:
@@ -459,10 +457,13 @@ public:
 
 // must not be static 
 // should be a primitive type with an identifier name
+char ConfigOmniORB[] = OMNIORB_CONFIG;
+typedef OmniNamesFixture<ConfigOmniORB> OmniNamesFixture1;
+
 char ConfigMasterAgent[] = MASTER_AGENT_CONFIG;
 char ConfigLocalAgent[]  = LOCAL_AGENT_CONFIG;
 char ConfigMADAG[]  = MADAG_CONFIG;
-typedef DietAgentFixture<ConfigMasterAgent, OmniNamesFixture> DietMAFixture;
+typedef DietAgentFixture<ConfigMasterAgent, OmniNamesFixture1> DietMAFixture;
 typedef DietAgentFixture<ConfigLocalAgent, DietMAFixture> DietLAFixture;
 typedef DietMADAGFixture<ConfigMADAG, DietLAFixture> DietMADAGFixtureLA;
 
@@ -490,7 +491,7 @@ typedef DietSeDFixture <GRPCAddSeD, GRPCBinDir, ConfigSimpleAddSeDLA, DietLAFixt
 
 #ifdef USE_LOG_SERVICE
 char LogServiceConfig[] = LOGSERVICE_CONFIG;
-typedef DIETLogToolFixture<LogServiceConfig> LogServiceFixtureConf;
+typedef DIETLogToolFixture<LogServiceConfig, ConfigOmniORB> LogServiceFixtureConf;
 typedef DietAgentFixture<ConfigMasterAgent, LogServiceFixtureConf> DietMAFixtureLog;
 typedef DietAgentFixture<ConfigLocalAgent, DietMAFixtureLog> DietLAFixtureLog;
 typedef DietMADAGFixture<ConfigMADAG, DietLAFixtureLog> DietMADAGFixtureLALog;

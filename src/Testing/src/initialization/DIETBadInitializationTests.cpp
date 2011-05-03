@@ -16,7 +16,7 @@
 #include "fixtures.hpp"
 #include "utils.hpp"
 
-BOOST_FIXTURE_TEST_SUITE( BadInitializationTests, OmniNamesFixture )
+BOOST_FIXTURE_TEST_SUITE( BadInitializationTests, OmniNamesFixture1 )
 
 /* broken comment block */
 BOOST_AUTO_TEST_CASE( config_file_parse_error_1 )
