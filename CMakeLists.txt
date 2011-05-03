@@ -131,6 +131,12 @@ option( DIET_USE_MULTICALL "Build DIET with the multiple async call (In developm
 mark_as_advanced(DIET_USE_MULTICALL)
 
 
+option(DIET_BUILD_DOC "Build DIET documentation." OFF)
+if( DIET_BUILD_DOC )
+  add_subdirectory(doc)
+endif()
+
+
 # JXTA architecture is deprecated
 #option(DIET_USE_JXTA   "Build DIET with JXTA architecture support." OFF)
 
