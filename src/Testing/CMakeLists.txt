@@ -30,7 +30,8 @@ if( BUILD_TESTING )
     CACHE PATH "PATH to the omniNames directory" )
   set( OMNIORB_INSTALL_DIR "" CACHE PATH
     "PATH to the omniORB installation directory" )
-  set( LOCAL_TEST_PORT "2809" CACHE STRING "Test port for the omniNames" )
+  set( LOCAL_TEST_PORT "2889" CACHE STRING "Test port for the omniNames" )
+  set( LOCAL_TEST_PORT2 "2890" CACHE STRING "Test port for the second omniNames" )
   file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/log )
 
   # test setup 
@@ -40,6 +41,7 @@ if( BUILD_TESTING )
   set( EXECUTABLE_OUTPUT_PATH ${BIN_DIR} )
   set( WF_XML_DIR ${PROJECT_BINARY_DIR}/test_workflows )
   set( GENERATED_LOG_TESTS_DIR ${PROJECT_BINARY_DIR}/generated_test_logs )
+  set( GENERATED_FWD_TESTS_DIR ${PROJECT_BINARY_DIR}/generated_test_forwarders )
 
   IF ( DIET_USE_DAGDA )
     SET( DIET_CLIENT_LIBRARIES DIET_client DIET_Dagda)

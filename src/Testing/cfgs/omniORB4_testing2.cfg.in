@@ -1,0 +1,2 @@
+InitRef = NameService=corbaname::127.0.0.1:@LOCAL_TEST_PORT2@
+supportBootstrapAgent = 1

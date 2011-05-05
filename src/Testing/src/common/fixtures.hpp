@@ -39,7 +39,6 @@ public:
     BOOST_TEST_MESSAGE( "== Test setup [BEGIN]: setting environment ==" );
 
     // Set env regarding omniORB
-    setenv("OMNINAMES_LOGDIR", OMNINAMES_LOGDIR, 1);
     setenv("OMNIORB_CONFIG", omniORBConfig, 1);
 
     // Set env regarding DIET compiled libraries
@@ -77,13 +76,13 @@ public:
  * basically setup omniNames before starting our test 
  * and then cleanup after test has been executed
  */
-template <const char *config>
+template <const char *config, const char *endPoint, const char *initRef>
 class OmniNamesFixture : public setDietEnvFixture<config> {
   boost::scoped_ptr<bp::child> processNamingService;
 
 public:
   OmniNamesFixture() : processNamingService(NULL) {
-    BOOST_TEST_MESSAGE( "== Test setup [BEGIN]: Launching OmniNames ==" );
+    BOOST_TEST_MESSAGE( "== Test setup [BEGIN]: Launching OmniNames (" << config << ", " << endPoint << ", " << initRef << ") ==" );
 	
     std::string exec;
     try {
@@ -103,9 +102,9 @@ public:
     bp::context ctx;
     ctx.process_name = OMNINAMES_COMMAND;
     ctx.env["OMNINAMES_LOGDIR"] = logdir;
-    ctx.env["OMNIORB_CONFIG"] = OMNIORB_CONFIG;
+    ctx.env["OMNIORB_CONFIG"] = config;
     ctx.env["ORBsupportBooststrapAgent"] = "1";
-    ctx.env["ORBInitRef"] = ORB_INIT_REF;
+    ctx.env["ORBInitRef"] = initRef;
 	
     // redirect output to /dev/null
     ctx.streams[bp::stdout_id] = bp::behavior::null();
@@ -115,7 +114,7 @@ public:
     std::vector<std::string> args = ba::list_of("-always")
       ("-start")("2815")
       ("-ignoreport")
-      ("-ORBendPoint")(OMNINAMES_ENDPOINT);
+      ("-ORBendPoint")(endPoint);
     // launch Naming Service
     bp::child c = bp::create_child(exec, args, ctx);
     processNamingService.reset(utils::copy_child(c));
@@ -144,7 +143,7 @@ private:
 };
 
 
-template <const char *config,  class parentFixture>
+template <const char *config,  const char *omniORBConfig, class parentFixture>
 class DietAgentFixture : public parentFixture
 {
   boost::scoped_ptr<bp::child> processAgent;
@@ -152,7 +151,7 @@ class DietAgentFixture : public parentFixture
 public:
   DietAgentFixture() : processAgent(NULL) {
     BOOST_TEST_MESSAGE( "== Test setup [BEGIN]:  Launching DIET Agent (config file: "
-                        << config << ") ==" );
+                        << config << ", omniORB config: " << omniORBConfig << ") ==" );
 	
     /* Create Dagda Directory */
     bf::create_directory(MA_DAGDA_DIR);
@@ -178,7 +177,7 @@ public:
     } else {
       ctx.env[ENV_LIBRARY_PATH_NAME] = ENV_LIBRARY_PATH;
     }
-    ctx.env["OMNIORB_CONFIG"] = OMNIORB_CONFIG;
+    ctx.env["OMNIORB_CONFIG"] = omniORBConfig;
 
     // redirect output to /dev/null
     ctx.streams[bp::stdout_id] = bp::behavior::null();
@@ -213,7 +212,7 @@ public:
 };
 
 
-template <const char *config,  class parentFixture>
+template <const char *config,  const char *omniORBConfig, class parentFixture>
 class DietMADAGFixture : public parentFixture
 {
   boost::scoped_ptr<bp::child> processMADAG;
@@ -243,7 +242,7 @@ public:
     } else {
       ctx.env[ENV_LIBRARY_PATH_NAME] = ENV_LIBRARY_PATH;
     }
-    ctx.env["OMNIORB_CONFIG"] = OMNIORB_CONFIG;
+    ctx.env["OMNIORB_CONFIG"] = omniORBConfig;
 
     // redirect output to /dev/null
     ctx.streams[bp::stdout_id] = bp::behavior::null();
@@ -274,7 +273,8 @@ public:
 
 
 // generic SeD fixture
-template <const char *name, const char *binDir, const char *config, class AgentParent>
+template <const char *name, const char *binDir, const char *config,
+          const char *omniORBConfig, class AgentParent>
 class DietSeDFixture : public AgentParent
 {
   boost::scoped_ptr<bp::child> processSeD;
@@ -309,7 +309,7 @@ public:
     } else {
       ctx.env[ENV_LIBRARY_PATH_NAME] = ENV_LIBRARY_PATH;
     }
-    ctx.env["OMNIORB_CONFIG"] = OMNIORB_CONFIG;
+    ctx.env["OMNIORB_CONFIG"] = omniORBConfig;
 
     // redirect output to /dev/null
     ctx.streams[bp::stdout_id] = bp::behavior::null();
@@ -354,153 +354,50 @@ public:
   }
 };
 
-#ifdef USE_LOG_SERVICE
-template <const char *config, const char *omniORBConfig>
-class LogServiceFixture : public OmniNamesFixture<omniORBConfig> {
-  boost::scoped_ptr<bp::child> process;
-
-public:
-  LogServiceFixture() : process(NULL) {
-    BOOST_TEST_MESSAGE( "== Test setup [BEGIN]: Launching LogService ==" );
-	
-    std::string exec;
-    try {
-      exec = bp::find_executable_in_path(LOGSERVICE_COMMAND, LOGSERVICE_PATH);
-    } catch (bs::system_error& e) {
-      BOOST_TEST_MESSAGE( "can't find " << LOGSERVICE_COMMAND << ": " << e.what() );
-      return;
-    }
-
-    BOOST_TEST_MESSAGE( LOGSERVICE_COMMAND << " found: " << exec );
-
-    // setup LogService environment
-    bp::context ctx;
-    ctx.process_name = LOGSERVICE_COMMAND;
-    ctx.env["OMNIORB_CONFIG"] = OMNIORB_CONFIG;
-	
-    // redirect output to /dev/null
-    ctx.streams[bp::stdout_id] = bp::behavior::null();
-    ctx.streams[bp::stderr_id] = bp::behavior::null();
-
-    // setup LogService arguments
-    std::vector<std::string> args = ba::list_of(std::string("-config"))
-      (std::string(config));
-
-    // launch LogService
-    bp::child c = bp::create_child(exec, args, ctx);
-    process.reset(utils::copy_child(c));
-    boost::this_thread::sleep(boost::posix_time::milliseconds(SLEEP_TIME));
-    BOOST_TEST_MESSAGE( "== Test setup [END]:  Launching LogService ==" );
-  }
-
-  ~LogServiceFixture() {
-    BOOST_TEST_MESSAGE( "== Test teardown [BEGIN]: Stopping LogService ==" );
-    if (process) {
-      process->terminate();
-      process->wait();
-    }
-    boost::this_thread::sleep(boost::posix_time::milliseconds(SLEEP_TIME));
-    BOOST_TEST_MESSAGE( "== Test teardown [END]: Stopping LogService ==" );
-  }
-};
-
-
-template <const char *config, const char *omniORBConfig>
-class DIETLogToolFixture : public LogServiceFixture<config, omniORBConfig> {
-  boost::scoped_ptr<bp::child> process;
-
-public:
-  DIETLogToolFixture() : process(NULL) {
-    BOOST_TEST_MESSAGE( "== Test setup [BEGIN]: Launching DIETLogTool ==" );
-	
-    std::string exec;
-    try {
-      exec = bp::find_executable_in_path(DIETLOGTOOL_COMMAND, DIETLOGTOOL_PATH);
-    } catch (bs::system_error& e) {
-      BOOST_TEST_MESSAGE( "can't find " << DIETLOGTOOL_COMMAND << ": " << e.what() );
-      return;
-    }
-
-    BOOST_TEST_MESSAGE( DIETLOGTOOL_COMMAND << " found: " << exec );
-
-    // setup LogService environment
-    bp::context ctx;
-    ctx.process_name = DIETLOGTOOL_COMMAND;
-    ctx.env["OMNIORB_CONFIG"] = OMNIORB_CONFIG;
-	
-    // redirect output to /dev/null
-    ctx.streams[bp::stdout_id] = bp::behavior::null();
-    ctx.streams[bp::stderr_id] = bp::behavior::null();
-
-    // setup LogService arguments
-    std::vector<std::string> args= ba::list_of("");
-
-    // launch DIETLogTool
-    bp::child c = bp::create_child(exec, args, ctx);
-    process.reset(utils::copy_child(c));
-    boost::this_thread::sleep(boost::posix_time::milliseconds(SLEEP_TIME));
-    BOOST_TEST_MESSAGE( "== Test setup [END]:  Launching DIETLogTool ==" );
-  }
-
-  ~DIETLogToolFixture() {
-    BOOST_TEST_MESSAGE( "== Test teardown [BEGIN]: Stopping DIETLogTool ==" );
-    if (process) {
-      process->terminate();
-      process->wait();
-    }
-    boost::this_thread::sleep(boost::posix_time::milliseconds(SLEEP_TIME));
-    BOOST_TEST_MESSAGE( "== Test teardown [END]: Stopping DIETLogTool ==" );
-  }
-};
-#endif // USE_LOG_SERVICE
-
 
 // must not be static 
 // should be a primitive type with an identifier name
 char ConfigOmniORB[] = OMNIORB_CONFIG;
-typedef OmniNamesFixture<ConfigOmniORB> OmniNamesFixture1;
+char ConfigOmniORB2[] = OMNIORB_CONFIG2; // Useful for launching two omniNames on the same machine
+char OmniORBEndPoint[] = OMNINAMES_ENDPOINT;
+char OmniORBEndPoint2[] = OMNINAMES_ENDPOINT2;
+char OmniORBInitRef[] = ORB_INIT_REF;
+char OmniORBInitRef2[] = ORB_INIT_REF2;
+typedef OmniNamesFixture<ConfigOmniORB, OmniORBEndPoint, OmniORBInitRef> omniNamesFixture;
+
 
 char ConfigMasterAgent[] = MASTER_AGENT_CONFIG;
 char ConfigLocalAgent[]  = LOCAL_AGENT_CONFIG;
 char ConfigMADAG[]  = MADAG_CONFIG;
-typedef DietAgentFixture<ConfigMasterAgent, OmniNamesFixture1> DietMAFixture;
-typedef DietAgentFixture<ConfigLocalAgent, DietMAFixture> DietLAFixture;
-typedef DietMADAGFixture<ConfigMADAG, DietLAFixture> DietMADAGFixtureLA;
+typedef DietAgentFixture<ConfigMasterAgent, ConfigOmniORB,  omniNamesFixture> DietMAFixture;
+typedef DietAgentFixture<ConfigLocalAgent, ConfigOmniORB, DietMAFixture> DietLAFixture;
+typedef DietMADAGFixture<ConfigMADAG, ConfigOmniORB, DietLAFixture> DietMADAGFixtureLA;
 
 char SimpleAddSeD[] = "SimpleAddSeD";
 char ConfigSimpleAddSeD[] = SIMPLE_ADD_SED_CONFIG;
 char ConfigSimpleAddSeDLA[] = SIMPLE_ADD_SED_CONFIG_LA;
 char SimpleAddSeDBinDir[] = BIN_DIR;
-typedef DietSeDFixture <SimpleAddSeD, SimpleAddSeDBinDir, ConfigSimpleAddSeDLA, DietLAFixture>SimpleAddSeDFixture;
+typedef DietSeDFixture <SimpleAddSeD, SimpleAddSeDBinDir, ConfigSimpleAddSeDLA, ConfigOmniORB, DietLAFixture>SimpleAddSeDFixture;
 
 char AllDataTransferAddSeD[] = "transfers_server";
 char AllDataTransferBinDir[] = EXAMPLES_DIR "/allDataTransfers";
-typedef DietSeDFixture <AllDataTransferAddSeD, AllDataTransferBinDir, ConfigSimpleAddSeDLA, DietLAFixture>AllDataTransferSeDFixture;
-typedef DietSeDFixture <AllDataTransferAddSeD, AllDataTransferBinDir, ConfigSimpleAddSeDLA, DietMADAGFixtureLA>AllDataTransferSeDFixtureWF;
+typedef DietSeDFixture <AllDataTransferAddSeD, AllDataTransferBinDir, ConfigSimpleAddSeDLA, ConfigOmniORB, DietLAFixture>AllDataTransferSeDFixture;
+typedef DietSeDFixture <AllDataTransferAddSeD, AllDataTransferBinDir, ConfigSimpleAddSeDLA, ConfigOmniORB, DietMADAGFixtureLA>AllDataTransferSeDFixtureWF;
 
 
 char DynamicAddRemoveServiceAddSeD[] = "server_dyn_add_rem";
 char DynamicAddRemoveServiceBinDir[] = EXAMPLES_DIR "/dyn_add_rem";
-typedef DietSeDFixture <DynamicAddRemoveServiceAddSeD, DynamicAddRemoveServiceBinDir, ConfigSimpleAddSeDLA, DietLAFixture>DynamicAddRemoveServiceSeDFixture;
+typedef DietSeDFixture <DynamicAddRemoveServiceAddSeD, DynamicAddRemoveServiceBinDir, ConfigSimpleAddSeDLA, ConfigOmniORB, DietLAFixture>DynamicAddRemoveServiceSeDFixture;
 
 char GRPCAddSeD[] = "gridrpc_server";
 char GRPCBinDir[] = EXAMPLES_DIR "/GridRPC";
-typedef DietSeDFixture <GRPCAddSeD, GRPCBinDir, ConfigSimpleAddSeDLA, DietLAFixture>GRPCSeDFixture;
+typedef DietSeDFixture <GRPCAddSeD, GRPCBinDir, ConfigSimpleAddSeDLA, ConfigOmniORB, DietLAFixture>GRPCSeDFixture;
 
 
 
-#ifdef USE_LOG_SERVICE
-char LogServiceConfig[] = LOGSERVICE_CONFIG;
-typedef DIETLogToolFixture<LogServiceConfig, ConfigOmniORB> LogServiceFixtureConf;
-typedef DietAgentFixture<ConfigMasterAgent, LogServiceFixtureConf> DietMAFixtureLog;
-typedef DietAgentFixture<ConfigLocalAgent, DietMAFixtureLog> DietLAFixtureLog;
-typedef DietMADAGFixture<ConfigMADAG, DietLAFixtureLog> DietMADAGFixtureLALog;
-typedef DietSeDFixture <SimpleAddSeD, SimpleAddSeDBinDir, ConfigSimpleAddSeDLA, DietLAFixtureLog>SimpleAddSeDFixtureLog;
-typedef DietSeDFixture <AllDataTransferAddSeD, AllDataTransferBinDir, ConfigSimpleAddSeDLA, DietLAFixtureLog>AllDataTransferSeDFixtureLog;
-typedef DietSeDFixture <AllDataTransferAddSeD, AllDataTransferBinDir, ConfigSimpleAddSeDLA, DietMADAGFixtureLALog>AllDataTransferSeDFixtureWFLog;
-typedef DietSeDFixture <DynamicAddRemoveServiceAddSeD, DynamicAddRemoveServiceBinDir, ConfigSimpleAddSeDLA, DietLAFixtureLog>DynamicAddRemoveServiceSeDFixtureLog;
-typedef DietSeDFixture <GRPCAddSeD, GRPCBinDir, ConfigSimpleAddSeDLA, DietLAFixtureLog>GRPCSeDFixtureLog;
-#endif // USE_LOG_SERVICE
+
+
+
 
 
 #endif /* FIXTURES_HPP_ */

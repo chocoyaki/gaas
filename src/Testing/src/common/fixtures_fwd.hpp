@@ -1,0 +1,191 @@
+#ifndef FIXTURES_FWD_HPP_
+#define FIXTURES_FWD_HPP_
+
+#include "fixtures.hpp"
+
+
+
+template <const char *config, const char *name,
+          const char *omniORBConfig, class parentFixture>
+class DietForwarderClientFixture : public parentFixture
+{
+  boost::scoped_ptr<bp::child> processFwd;
+
+public:
+  DietForwarderClientFixture() : processFwd(NULL) {
+    BOOST_TEST_MESSAGE( "== Test setup [BEGIN]:  Launching DIET forwarder (config file: "
+                        << config << ") ==" );
+	
+    std::string exec;
+    try {
+      exec = bp::find_executable_in_path("dietForwarder", DIETFWD_DIR);
+    } catch (bs::system_error& e) {
+      BOOST_TEST_MESSAGE( "can't find dietForwarder: " << e.what() );
+      return;
+    }
+        
+    BOOST_TEST_MESSAGE( "dietForwarder found: " << exec );
+	
+    // setup forwarder environment
+    bp::context ctx;
+    ctx.process_name = "dietForwarder";
+    bp::environment::iterator i_c;
+    i_c = ctx.env.find(ENV_LIBRARY_PATH_NAME);
+    if (i_c != ctx.env.end()) {
+      i_c->second = std::string(ENV_LIBRARY_PATH) + i_c->second;
+    } else {
+      ctx.env[ENV_LIBRARY_PATH_NAME] = ENV_LIBRARY_PATH;
+    }
+    ctx.env["OMNIORB_CONFIG"] = omniORBConfig;
+
+    // redirect output to /dev/null
+    ctx.streams[bp::stdout_id] = bp::behavior::null();
+    ctx.streams[bp::stderr_id] = bp::behavior::null();
+
+
+    // setup dietForwarder arguments
+    std::vector<std::string> args = ba::list_of("--net-config")(config)
+      ("--name")(name);
+
+    // launch dietForwarder
+    const bp::child c = bp::create_child(exec, args, ctx);
+
+    processFwd.reset(utils::copy_child(c));
+    boost::this_thread::sleep(boost::posix_time::milliseconds(SLEEP_TIME));
+    BOOST_TEST_MESSAGE( "== Test setup [END]: Launching dietForwarder ==" );
+  }	
+    
+  ~DietForwarderClientFixture() {
+    BOOST_TEST_MESSAGE( "== Test teardown [BEGIN]: Stopping dietForwarder ==" );
+    if (processFwd) {
+      processFwd->terminate();
+      processFwd->wait();
+    }
+    boost::this_thread::sleep(boost::posix_time::milliseconds(SLEEP_TIME));
+    BOOST_TEST_MESSAGE( "== Test teardown [END]: Stopping dietForwarder ==" );
+  }
+};
+
+template <const char *config, const char *name,
+          const char *peerName, const char *remoteHost,
+          const char *sshHost,
+          const char *omniORBConfig, class parentFixture>
+class DietForwarderServerFixture : public parentFixture
+{
+  boost::scoped_ptr<bp::child> processFwd;
+
+public:
+  DietForwarderServerFixture() : processFwd(NULL) {
+    BOOST_TEST_MESSAGE( "== Test setup [BEGIN]:  Launching DIET forwarder (config file: "
+                        << config << ") ==" );
+	
+    std::string exec;
+    try {
+      exec = bp::find_executable_in_path("dietForwarder", DIETFWD_DIR);
+    } catch (bs::system_error& e) {
+      BOOST_TEST_MESSAGE( "can't find dietForwarder: " << e.what() );
+      return;
+    }
+        
+    BOOST_TEST_MESSAGE( "dietForwarder found: " << exec );
+	
+    // setup forwarder environment
+    bp::context ctx;
+    ctx.process_name = "dietForwarder";
+    bp::environment::iterator i_c;
+    i_c = ctx.env.find(ENV_LIBRARY_PATH_NAME);
+    if (i_c != ctx.env.end()) {
+      i_c->second = std::string(ENV_LIBRARY_PATH) + i_c->second;
+    } else {
+      ctx.env[ENV_LIBRARY_PATH_NAME] = ENV_LIBRARY_PATH;
+    }
+    ctx.env["OMNIORB_CONFIG"] = omniORBConfig;
+
+    // redirect output to /dev/null
+    ctx.streams[bp::stdout_id] = bp::behavior::null();
+    ctx.streams[bp::stderr_id] = bp::behavior::null();
+
+
+    // setup dietForwarder arguments
+    std::vector<std::string> args = ba::list_of("--net-config")(config)
+      ("--name")(name)
+      ("--peer-name")(peerName)
+      ("--remote-host")(remoteHost)
+      ("--ssh-host")(sshHost)
+      ("-C");
+
+    // launch dietForwarder
+    const bp::child c = bp::create_child(exec, args, ctx);
+
+    processFwd.reset(utils::copy_child(c));
+
+    // Fowarder sleeps 10s before waking up, so we need to sleep at least 10s
+    // Let's say 12 to be sure :-)
+    boost::this_thread::sleep(boost::posix_time::milliseconds(12*1000));
+    BOOST_TEST_MESSAGE( "== Test setup [END]: Launching dietForwarder ==" );
+  }	
+    
+  ~DietForwarderServerFixture() {
+    BOOST_TEST_MESSAGE( "== Test teardown [BEGIN]: Stopping dietForwarder ==" );
+    if (processFwd) {
+      processFwd->terminate();
+      processFwd->wait();
+    }
+    boost::this_thread::sleep(boost::posix_time::milliseconds(SLEEP_TIME));
+    BOOST_TEST_MESSAGE( "== Test teardown [END]: Stopping dietForwarder ==" );
+  }
+};
+
+
+template <class parentFixture1, class parentFixture2>
+class JoinFixture : public parentFixture1, parentFixture2
+{
+public:
+  JoinFixture() {
+    BOOST_TEST_MESSAGE( "== Test setup [BEGIN]:  Launching join ==");
+    BOOST_TEST_MESSAGE( "== Test setup [END]: Launching join ==" );
+  }	
+    
+  ~JoinFixture() {
+    BOOST_TEST_MESSAGE( "== Test teardown [BEGIN]: Stopping join ==" );
+    BOOST_TEST_MESSAGE( "== Test teardown [END]: Stopping join ==" );
+  }
+};
+
+
+
+/* Define a hierarchy across two "networks"
+ * We use two omniNames on different ports to simulate two networks.
+ * Thus, we need to use two forwarders to communicate.
+ * Hierarchy is as follows:
+ * - Network 1
+ *   + MA
+ *   + [Log services]
+ *   + Clients
+ * - Network 2
+ *   + LA
+ *   + SeD
+ *   + MADAG
+ */
+char ConfigForwarder[] = FWD_CONFIG;
+char FwdClientName[] = "clientFwd";
+char FwdServerName[] = "serverFwd";
+char FwdRemoteHost[] = "localhost";
+char FwdSSHHost[] = "127.0.0.1";
+
+typedef OmniNamesFixture<ConfigOmniORB2, OmniORBEndPoint2, OmniORBInitRef2> omniNamesFixture2;
+typedef JoinFixture<omniNamesFixture, omniNamesFixture2> joinTwoOmninames;
+typedef DietForwarderClientFixture<ConfigForwarder, FwdClientName, ConfigOmniORB, joinTwoOmninames> DietFwdClientFixture;
+typedef DietForwarderServerFixture<ConfigForwarder, FwdServerName, FwdClientName,
+                                   FwdRemoteHost, FwdSSHHost, ConfigOmniORB2, DietFwdClientFixture> DietFwdServerFixture;
+typedef DietAgentFixture<ConfigMasterAgent, ConfigOmniORB, DietFwdServerFixture> DietMAFixtureFwd;
+typedef DietAgentFixture<ConfigLocalAgent, ConfigOmniORB2, DietMAFixtureFwd> DietLAFixtureFwd;
+typedef DietMADAGFixture<ConfigMADAG, ConfigOmniORB2, DietLAFixtureFwd> DietMADAGFixtureLAFwd;
+typedef DietSeDFixture <SimpleAddSeD, SimpleAddSeDBinDir, ConfigSimpleAddSeDLA, ConfigOmniORB2, DietLAFixtureFwd>SimpleAddSeDFixtureFwd;
+typedef DietSeDFixture <AllDataTransferAddSeD, AllDataTransferBinDir, ConfigSimpleAddSeDLA, ConfigOmniORB2, DietLAFixtureFwd>AllDataTransferSeDFixtureFwd;
+typedef DietSeDFixture <AllDataTransferAddSeD, AllDataTransferBinDir, ConfigSimpleAddSeDLA, ConfigOmniORB2, DietMADAGFixtureLAFwd>AllDataTransferSeDFixtureWFFwd;
+typedef DietSeDFixture <DynamicAddRemoveServiceAddSeD, DynamicAddRemoveServiceBinDir, ConfigSimpleAddSeDLA, ConfigOmniORB2, DietLAFixtureFwd>DynamicAddRemoveServiceSeDFixtureFwd;
+typedef DietSeDFixture <GRPCAddSeD, GRPCBinDir, ConfigSimpleAddSeDLA, ConfigOmniORB2, DietLAFixture>GRPCSeDFixtureFwd;
+
+
+#endif // FIXTURES_FWD_HPP_

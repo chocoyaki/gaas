@@ -92,16 +92,21 @@ macro( generate_diet_tests NAME FIXTURENAME TESTNAME )
   endif()
 
   if( NOT DEFINED ${ARGV0}-DISABLED )
-    # create unit tests
+    #####################
+    # create unit tests #
+    #####################
     diet_test( ${NAME} )
 
+    ######################
+    # Generate log tests #
+    ######################
     if( DIET_USE_LOG )
       # create unit tests with log support
       file( READ "${NAME}.cpp" TEST_CODE )
       string( REPLACE "${FIXTURENAME}" "${FIXTURENAME}Log" TEST_CODE_LOG "${TEST_CODE}" )
       string( REPLACE "${TESTNAME}" "${TESTNAME}Log" TEST_CODE_LOG2 "${TEST_CODE_LOG}" )
       set( NEWNAME "${GENERATED_LOG_TESTS_DIR}/${NAME}Log" )
-      file( WRITE "${NEWNAME}.cpp" "${TEST_CODE_LOG2}" )
+      file( WRITE "${NEWNAME}.cpp" "#include \"fixtures_log.hpp\"\n${TEST_CODE_LOG2}" )
 
 
       # create unit tests executable
@@ -141,6 +146,56 @@ macro( generate_diet_tests NAME FIXTURENAME TESTNAME )
         add_dependencies( test-xml ${TEST_NAME}-xml )
         
       endif()
+    endif()
+
+
+    ############################
+    # Generate forwarder tests #
+    ############################
+    # create unit tests with forwarders
+    file( READ "${NAME}.cpp" TEST_CODE )
+    string( REPLACE "${FIXTURENAME}" "${FIXTURENAME}Fwd" TEST_CODE_FWD "${TEST_CODE}" )
+    string( REPLACE "${TESTNAME}" "${TESTNAME}Fwd" TEST_CODE_FWD2 "${TEST_CODE_FWD}" )
+    set( NEWNAME "${GENERATED_FWD_TESTS_DIR}/${NAME}Fwd" )
+    file( WRITE "${NEWNAME}.cpp" "#include \"fixtures_fwd.hpp\"\n${TEST_CODE_FWD2}" )
+
+
+    # create unit tests executable
+    add_executable( ${NAME}Fwd
+      "${NEWNAME}.cpp"
+      #entry point
+      ../common/TestRunner.cpp )
+      
+    # link libraries
+    target_link_libraries( ${NAME}Fwd
+      ${Boost_LIBRARIES}
+      ${DIET_CLIENT_LIBRARIES} 
+      utils
+      pthread )
+    
+    # test executable installation has not been tested yet -sic-
+    # install( TARGETS ${NAME} DESTINATION bin )
+      
+    string( REGEX REPLACE "DIET(.*)" "\\1" TEST_NAME ${NAME}Fwd )
+
+    add_test( ${TEST_NAME} ${BIN_DIR}/${NAME}Fwd )
+
+    # prevent Boost.Test to catch unrelated exceptions 
+    set_property( TEST ${TEST_NAME} 
+      PROPERTY ENVIRONMENT "BOOST_TEST_CATCH_SYSTEM_ERRORS=no;" )
+    # just make sure that our test are run in a serial fashion
+    set_property( TEST ${TEST_NAME} PROPERTY RUN_SERIAL ON )
+      
+    #
+    if( ENABLE_REPORTS )
+      add_custom_target( ${TEST_NAME}-xml
+	COMMAND ${CMAKE_COMMAND}
+	-DTEST_PROG=${NAME}Fwd
+	-DBIN_PATH=${BIN_DIR}
+	-DREPORT_PATH=${REPORT_OUTPUT_PATH}
+	-P ${PROJECT_SOURCE_DIR}/Cmake/tests/runtest.cmake )
+      add_dependencies( test-xml ${TEST_NAME}-xml )
+      
     endif()
   endif()
 endmacro()
