@@ -73,6 +73,63 @@ macro( diet_test NAME )
   endif()
 endmacro()
 
+
+###############################################################################
+# generate_diet_tests: macro that setup a test with potentially a test using
+# log central
+# @param[in] NAME  test filename stripped from extension
+# @param[in] FIXTURENAME fixture name, will be replaced by ${FIXTURENAME}Log
+# @param[in] TESTNAME test name, will be replaced by ${TESTNAME}Log
+# @param[in] POSTFIX string that is postfixed at the end of the fixture name
+# @param[in] INCLUDEFILE fixture include file
+# @param[in] GENERATEDDIR directory where the generated files will be stored
+###############################################################################
+macro( generate_replace_tests NAME FIXTURENAME TESTNAME POSTFIX INCLUDEFILE GENERATEDDIR )
+    file( READ "${NAME}.cpp" TEST_CODE )
+    string( REPLACE "${FIXTURENAME}" "${FIXTURENAME}${POSTFIX}" TEST_CODE_N "${TEST_CODE}" )
+    string( REPLACE "${TESTNAME}" "${TESTNAME}${POSTFIX}" TEST_CODE_N2 "${TEST_CODE_N}" )
+    set( NEWNAME "${GENERATEDDIR}/${NAME}${POSTFIX}" )
+    file( WRITE "${NEWNAME}.cpp" "#include \"${INCLUDEFILE}\"\n${TEST_CODE_N2}" )
+
+
+    # create unit tests executable
+    add_executable( ${NAME}${POSTFIX}
+      "${NEWNAME}.cpp"
+      #entry point
+      ../common/TestRunner.cpp )
+      
+    # link libraries
+    target_link_libraries( ${NAME}${POSTFIX}
+      ${Boost_LIBRARIES}
+      ${DIET_CLIENT_LIBRARIES} 
+      utils
+      pthread )
+    
+    # test executable installation has not been tested yet -sic-
+    # install( TARGETS ${NAME} DESTINATION bin )
+      
+    string( REGEX REPLACE "DIET(.*)" "\\1" TEST_NAME ${NAME}${POSTFIX} )
+
+    add_test( ${TEST_NAME} ${BIN_DIR}/${NAME}${POSTFIX} )
+
+    # prevent Boost.Test to catch unrelated exceptions 
+    set_property( TEST ${TEST_NAME} 
+      PROPERTY ENVIRONMENT "BOOST_TEST_CATCH_SYSTEM_ERRORS=no;" )
+    # just make sure that our test are run in a serial fashion
+    set_property( TEST ${TEST_NAME} PROPERTY RUN_SERIAL ON )
+      
+    #
+    if( ENABLE_REPORTS )
+      add_custom_target( ${TEST_NAME}-xml
+	COMMAND ${CMAKE_COMMAND}
+	-DTEST_PROG=${NAME}${POSTFIX}
+	-DBIN_PATH=${BIN_DIR}
+	-DREPORT_PATH=${REPORT_OUTPUT_PATH}
+	-P ${PROJECT_SOURCE_DIR}/Cmake/tests/runtest.cmake )
+      add_dependencies( test-xml ${TEST_NAME}-xml )
+    endif()
+endmacro()
+
 ###############################################################################
 # generate_diet_tests: macro that setup a test with potentially a test using
 # log central
@@ -101,101 +158,17 @@ macro( generate_diet_tests NAME FIXTURENAME TESTNAME )
     # Generate log tests #
     ######################
     if( DIET_USE_LOG )
-      # create unit tests with log support
-      file( READ "${NAME}.cpp" TEST_CODE )
-      string( REPLACE "${FIXTURENAME}" "${FIXTURENAME}Log" TEST_CODE_LOG "${TEST_CODE}" )
-      string( REPLACE "${TESTNAME}" "${TESTNAME}Log" TEST_CODE_LOG2 "${TEST_CODE_LOG}" )
-      set( NEWNAME "${GENERATED_LOG_TESTS_DIR}/${NAME}Log" )
-      file( WRITE "${NEWNAME}.cpp" "#include \"fixtures_log.hpp\"\n${TEST_CODE_LOG2}" )
-
-
-      # create unit tests executable
-      add_executable( ${NAME}Log
-        "${NEWNAME}.cpp"
-        #entry point
-        ../common/TestRunner.cpp )
-      
-      # link libraries
-      target_link_libraries( ${NAME}Log
-        ${Boost_LIBRARIES}
-        ${DIET_CLIENT_LIBRARIES} 
-        utils
-        pthread )
-      
-      # test executable installation has not been tested yet -sic-
-      # install( TARGETS ${NAME} DESTINATION bin )
-      
-      string( REGEX REPLACE "DIET(.*)" "\\1" TEST_NAME ${NAME}Log )
-
-      add_test( ${TEST_NAME} ${BIN_DIR}/${NAME}Log )
-
-      # prevent Boost.Test to catch unrelated exceptions 
-      set_property( TEST ${TEST_NAME} 
-        PROPERTY ENVIRONMENT "BOOST_TEST_CATCH_SYSTEM_ERRORS=no;" )
-      # just make sure that our test are run in a serial fashion
-      set_property( TEST ${TEST_NAME} PROPERTY RUN_SERIAL ON )
-      
-      #
-      if( ENABLE_REPORTS )
-        add_custom_target( ${TEST_NAME}-xml
-	  COMMAND ${CMAKE_COMMAND}
-	  -DTEST_PROG=${NAME}Log
-	  -DBIN_PATH=${BIN_DIR}
-	  -DREPORT_PATH=${REPORT_OUTPUT_PATH}
-	  -P ${PROJECT_SOURCE_DIR}/Cmake/tests/runtest.cmake )
-        add_dependencies( test-xml ${TEST_NAME}-xml )
-        
-      endif()
+      generate_replace_tests( ${NAME} ${FIXTURENAME} ${TESTNAME} "Log" "fixtures_log.hpp" ${GENERATED_LOG_TESTS_DIR} )
     endif()
-
 
     ############################
     # Generate forwarder tests #
     ############################
-    # create unit tests with forwarders
-    file( READ "${NAME}.cpp" TEST_CODE )
-    string( REPLACE "${FIXTURENAME}" "${FIXTURENAME}Fwd" TEST_CODE_FWD "${TEST_CODE}" )
-    string( REPLACE "${TESTNAME}" "${TESTNAME}Fwd" TEST_CODE_FWD2 "${TEST_CODE_FWD}" )
-    set( NEWNAME "${GENERATED_FWD_TESTS_DIR}/${NAME}Fwd" )
-    file( WRITE "${NEWNAME}.cpp" "#include \"fixtures_fwd.hpp\"\n${TEST_CODE_FWD2}" )
+    generate_replace_tests( ${NAME} ${FIXTURENAME} ${TESTNAME} "Fwd" "fixtures_fwd.hpp" ${GENERATED_FWD_TESTS_DIR} )
 
-
-    # create unit tests executable
-    add_executable( ${NAME}Fwd
-      "${NEWNAME}.cpp"
-      #entry point
-      ../common/TestRunner.cpp )
-      
-    # link libraries
-    target_link_libraries( ${NAME}Fwd
-      ${Boost_LIBRARIES}
-      ${DIET_CLIENT_LIBRARIES} 
-      utils
-      pthread )
-    
-    # test executable installation has not been tested yet -sic-
-    # install( TARGETS ${NAME} DESTINATION bin )
-      
-    string( REGEX REPLACE "DIET(.*)" "\\1" TEST_NAME ${NAME}Fwd )
-
-    add_test( ${TEST_NAME} ${BIN_DIR}/${NAME}Fwd )
-
-    # prevent Boost.Test to catch unrelated exceptions 
-    set_property( TEST ${TEST_NAME} 
-      PROPERTY ENVIRONMENT "BOOST_TEST_CATCH_SYSTEM_ERRORS=no;" )
-    # just make sure that our test are run in a serial fashion
-    set_property( TEST ${TEST_NAME} PROPERTY RUN_SERIAL ON )
-      
-    #
-    if( ENABLE_REPORTS )
-      add_custom_target( ${TEST_NAME}-xml
-	COMMAND ${CMAKE_COMMAND}
-	-DTEST_PROG=${NAME}Fwd
-	-DBIN_PATH=${BIN_DIR}
-	-DREPORT_PATH=${REPORT_OUTPUT_PATH}
-	-P ${PROJECT_SOURCE_DIR}/Cmake/tests/runtest.cmake )
-      add_dependencies( test-xml ${TEST_NAME}-xml )
-      
-    endif()
+    ##################################
+    # Generate forwarder + log tests #
+    ##################################
+    # generate_replace_tests( ${NAME} ${FIXTURENAME} ${TESTNAME} "LogFwd" "fixtures_logFwd.hpp" ${GENERATED_LOGFWD_TESTS_DIR} )
   endif()
 endmacro()
