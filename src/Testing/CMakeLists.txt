@@ -57,10 +57,11 @@ if( BUILD_TESTING )
 
 
   # temporary directories for Dagda
-  file( TO_NATIVE_PATH "/tmp/MA_test"     MA_DAGDA_DIR_NATIVE_PATH )
-  file( TO_NATIVE_PATH "/tmp/LA_test"     LA_DAGDA_DIR_NATIVE_PATH )
-  file( TO_NATIVE_PATH "/tmp/SeD_test"    SED_DAGDA_DIR_NATIVE_PATH )
-  file( TO_NATIVE_PATH "/tmp/Client_test" CLIENT_DAGDA_DIR_NATIVE_PATH )
+  string(RANDOM LENGTH 32 TMPPATHUUID)
+  file( TO_NATIVE_PATH "/tmp/MA_test-${TMPPATHUUID}"     MA_DAGDA_DIR_NATIVE_PATH )
+  file( TO_NATIVE_PATH "/tmp/LA_test-${TMPPATHUUID}"     LA_DAGDA_DIR_NATIVE_PATH )
+  file( TO_NATIVE_PATH "/tmp/SeD_test-${TMPPATHUUID}"    SED_DAGDA_DIR_NATIVE_PATH )
+  file( TO_NATIVE_PATH "/tmp/Client_test-${TMPPATHUUID}" CLIENT_DAGDA_DIR_NATIVE_PATH )
 
   set( TRANSFER_FILE_TEST1 "" CACHE PATH "File used for transfer tests")
   set( TRANSFER_FILE_TEST2 "" CACHE PATH "File used for transfer tests")
