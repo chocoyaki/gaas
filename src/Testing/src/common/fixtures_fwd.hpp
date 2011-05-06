@@ -13,7 +13,7 @@ class DietForwarderClientFixture : public parentFixture
 
 public:
   DietForwarderClientFixture() : processFwd(NULL) {
-    BOOST_TEST_MESSAGE( "== Test setup [BEGIN]:  Launching DIET forwarder (config file: "
+    BOOST_TEST_MESSAGE( "== Test setup [BEGIN]:  Launching DIET client forwarder (config file: "
                         << config << ") ==" );
 	
     std::string exec;
@@ -52,18 +52,18 @@ public:
 
     processFwd.reset(utils::copy_child(c));
     boost::this_thread::sleep(boost::posix_time::milliseconds(SLEEP_TIME));
-    BOOST_TEST_MESSAGE( "== Test setup [END]: Launching dietForwarder ==" );
+    BOOST_TEST_MESSAGE( "== Test setup [END]: Launching client dietForwarder ==" );
   }	
     
   ~DietForwarderClientFixture() {
-    BOOST_TEST_MESSAGE( "== Test teardown [BEGIN]: Stopping dietForwarder ==" );
+    BOOST_TEST_MESSAGE( "== Test teardown [BEGIN]: Stopping client dietForwarder ==" );
     if (processFwd) {
       processFwd->terminate();
       processFwd->wait();
     }
     bf::remove_all("/tmp/DIET-forwarder-ior-" + std::string(name) +".tmp");
     boost::this_thread::sleep(boost::posix_time::milliseconds(SLEEP_TIME));
-    BOOST_TEST_MESSAGE( "== Test teardown [END]: Stopping dietForwarder ==" );
+    BOOST_TEST_MESSAGE( "== Test teardown [END]: Stopping client dietForwarder ==" );
   }
 };
 
@@ -78,7 +78,7 @@ class DietForwarderServerFixture : public parentFixture
 
 public:
   DietForwarderServerFixture() : processFwd(NULL), serverName(utils::genID(name)) {
-    BOOST_TEST_MESSAGE( "== Test setup [BEGIN]:  Launching DIET forwarder (config file: "
+    BOOST_TEST_MESSAGE( "== Test setup [BEGIN]:  Launching DIET server forwarder (config file: "
                         << config << ") ==" );
 	
     std::string exec;
@@ -124,18 +124,18 @@ public:
     // Fowarder sleeps 10s before waking up, so we need to sleep at least 10s
     // Let's say 12 to be sure :-)
     boost::this_thread::sleep(boost::posix_time::milliseconds(12*1000));
-    BOOST_TEST_MESSAGE( "== Test setup [END]: Launching dietForwarder ==" );
+    BOOST_TEST_MESSAGE( "== Test setup [END]: Launching server dietForwarder ==" );
   }	
     
   ~DietForwarderServerFixture() {
-    BOOST_TEST_MESSAGE( "== Test teardown [BEGIN]: Stopping dietForwarder ==" );
+    BOOST_TEST_MESSAGE( "== Test teardown [BEGIN]: Stopping server dietForwarder ==" );
     if (processFwd) {
       processFwd->terminate();
       processFwd->wait();
     }
     bf::remove_all("/tmp/DIET-forwarder-ior-" + serverName + ".tmp");
     boost::this_thread::sleep(boost::posix_time::milliseconds(SLEEP_TIME));
-    BOOST_TEST_MESSAGE( "== Test teardown [END]: Stopping dietForwarder ==" );
+    BOOST_TEST_MESSAGE( "== Test teardown [END]: Stopping server dietForwarder ==" );
   }
 };
 
