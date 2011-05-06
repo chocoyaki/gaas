@@ -46,7 +46,10 @@ namespace utils {
     };
 
     std::ostream& operator<<(std::ostream&, const ClientArgs&);
-    
+
+  /* Generate a name with a uuid: begin+uuid */
+  std::string
+  genID(const std::string& begin);    
 }
 
 

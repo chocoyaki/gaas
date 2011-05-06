@@ -2,7 +2,7 @@
 #define FIXTURES_FWD_HPP_
 
 #include "fixtures.hpp"
-
+#include "utils.hpp"
 
 
 template <const char *config, const char *name,
@@ -61,6 +61,7 @@ public:
       processFwd->terminate();
       processFwd->wait();
     }
+    bf::remove_all("/tmp/DIET-forwarder-ior-" + std::string(name) +".tmp");
     boost::this_thread::sleep(boost::posix_time::milliseconds(SLEEP_TIME));
     BOOST_TEST_MESSAGE( "== Test teardown [END]: Stopping dietForwarder ==" );
   }
@@ -73,9 +74,10 @@ template <const char *config, const char *name,
 class DietForwarderServerFixture : public parentFixture
 {
   boost::scoped_ptr<bp::child> processFwd;
+  std::string serverName;
 
 public:
-  DietForwarderServerFixture() : processFwd(NULL) {
+  DietForwarderServerFixture() : processFwd(NULL), serverName(utils::genID(name)) {
     BOOST_TEST_MESSAGE( "== Test setup [BEGIN]:  Launching DIET forwarder (config file: "
                         << config << ") ==" );
 	
@@ -108,7 +110,7 @@ public:
 
     // setup dietForwarder arguments
     std::vector<std::string> args = ba::list_of("--net-config")(config)
-      ("--name")(name)
+      ("--name")(this->serverName.c_str())
       ("--peer-name")(peerName)
       ("--remote-host")(remoteHost)
       ("--ssh-host")(sshHost)
@@ -131,6 +133,7 @@ public:
       processFwd->terminate();
       processFwd->wait();
     }
+    bf::remove_all("/tmp/DIET-forwarder-ior-" + serverName + ".tmp");
     boost::this_thread::sleep(boost::posix_time::milliseconds(SLEEP_TIME));
     BOOST_TEST_MESSAGE( "== Test teardown [END]: Stopping dietForwarder ==" );
   }
@@ -168,7 +171,8 @@ public:
  *   + MADAG
  */
 char ConfigForwarder[] = FWD_CONFIG;
-char FwdClientName[] = "clientFwd";
+
+char FwdClientName[] = FWD_CLIENT_NAME;
 char FwdServerName[] = "serverFwd";
 char FwdRemoteHost[] = "localhost";
 char FwdSSHHost[] = "127.0.0.1";

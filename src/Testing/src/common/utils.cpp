@@ -9,6 +9,8 @@
 #include <boost/format.hpp>
 #include <boost/scoped_array.hpp>
 #include <boost/test/unit_test.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
 
 #include "config_tests.h"
 
@@ -66,6 +68,15 @@ namespace utils {
 	    % c.args[1]
 	    % (c.args[2] == 0);
     }
+
+  std::string
+  genID(const std::string& begin) {
+    std::ostringstream ID;
+    boost::uuids::basic_random_generator<boost::mt19937> gen;
+    boost::uuids::uuid u = gen();
+    ID << begin << u;
+    return ID.str();
+  }
     
 
 }

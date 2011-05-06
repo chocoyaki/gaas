@@ -51,6 +51,7 @@
 
 // dietForwarder specific options
 #define FWD_CONFIG "@FWD_CONFIG_NATIVE_PATH@"
+#define FWD_CLIENT_NAME "@FWD_CLIENT_NAME@"
 
 // DAGDA working directory
 #define MA_DAGDA_DIR     "@MA_DAGDA_DIR_NATIVE_PATH@"

@@ -39,7 +39,8 @@ else (APPLE)
   SET(TESTENV_LIBRARY_PATH_NAME "LD_LIBRARY_PATH")
 endif (APPLE) 
 
-
+string(RANDOM LENGTH 36 FWDGENUUID)
+set(FWD_CLIENT_NAME "clientFwd-${FWDGENUUID}")
 
 
 configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/config_tests.h.in 
