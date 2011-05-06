@@ -51,7 +51,7 @@ public:
     const bp::child c = bp::create_child(exec, args, ctx);
 
     processFwd.reset(utils::copy_child(c));
-    boost::this_thread::sleep(boost::posix_time::milliseconds(SLEEP_TIME));
+    boost::this_thread::sleep(boost::posix_time::milliseconds(4*SLEEP_TIME));
     BOOST_TEST_MESSAGE( "== Test setup [END]: Launching client dietForwarder ==" );
   }	
     
@@ -62,7 +62,7 @@ public:
       processFwd->wait();
     }
     bf::remove_all("/tmp/DIET-forwarder-ior-" + std::string(name) +".tmp");
-    boost::this_thread::sleep(boost::posix_time::milliseconds(SLEEP_TIME));
+    boost::this_thread::sleep(boost::posix_time::milliseconds(2*SLEEP_TIME));
     BOOST_TEST_MESSAGE( "== Test teardown [END]: Stopping client dietForwarder ==" );
   }
 };
@@ -123,8 +123,8 @@ public:
     processFwd.reset(utils::copy_child(c));
 
     // Fowarder sleeps 10s before waking up, so we need to sleep at least 10s
-    // Let's say 12 to be sure :-)
-    boost::this_thread::sleep(boost::posix_time::milliseconds(12*1000));
+    // Let's say 14 to be sure :-)
+    boost::this_thread::sleep(boost::posix_time::milliseconds(14*1000));
     BOOST_TEST_MESSAGE( "== Test setup [END]: Launching server dietForwarder ==" );
   }	
     
@@ -135,7 +135,7 @@ public:
       processFwd->wait();
     }
     bf::remove_all("/tmp/DIET-forwarder-ior-" + serverName + ".tmp");
-    boost::this_thread::sleep(boost::posix_time::milliseconds(SLEEP_TIME));
+    boost::this_thread::sleep(boost::posix_time::milliseconds(2*SLEEP_TIME));
     BOOST_TEST_MESSAGE( "== Test teardown [END]: Stopping server dietForwarder ==" );
   }
 };
@@ -186,11 +186,11 @@ typedef DietForwarderServerFixture<ConfigForwarder, FwdServerName, FwdClientName
 typedef DietAgentFixture<ConfigMasterAgent, ConfigOmniORB, DietFwdServerFixture> DietMAFixtureFwd;
 typedef DietAgentFixture<ConfigLocalAgent, ConfigOmniORB2, DietMAFixtureFwd> DietLAFixtureFwd;
 typedef DietMADAGFixture<ConfigMADAG, ConfigOmniORB2, DietLAFixtureFwd> DietMADAGFixtureLAFwd;
-typedef DietSeDFixture <SimpleAddSeD, SimpleAddSeDBinDir, ConfigSimpleAddSeDLA, ConfigOmniORB2, DietLAFixtureFwd>SimpleAddSeDFixtureFwd;
-typedef DietSeDFixture <AllDataTransferAddSeD, AllDataTransferBinDir, ConfigSimpleAddSeDLA, ConfigOmniORB2, DietLAFixtureFwd>AllDataTransferSeDFixtureFwd;
-typedef DietSeDFixture <AllDataTransferAddSeD, AllDataTransferBinDir, ConfigSimpleAddSeDLA, ConfigOmniORB2, DietMADAGFixtureLAFwd>AllDataTransferSeDFixtureWFFwd;
-typedef DietSeDFixture <DynamicAddRemoveServiceAddSeD, DynamicAddRemoveServiceBinDir, ConfigSimpleAddSeDLA, ConfigOmniORB2, DietLAFixtureFwd>DynamicAddRemoveServiceSeDFixtureFwd;
-typedef DietSeDFixture <GRPCAddSeD, GRPCBinDir, ConfigSimpleAddSeDLA, ConfigOmniORB2, DietLAFixture>GRPCSeDFixtureFwd;
+typedef DietSeDFixture<SimpleAddSeD, SimpleAddSeDBinDir, ConfigSimpleAddSeDLA, ConfigOmniORB2, DietLAFixtureFwd> SimpleAddSeDFixtureFwd;
+typedef DietSeDFixture<AllDataTransferAddSeD, AllDataTransferBinDir, ConfigSimpleAddSeDLA, ConfigOmniORB2, DietLAFixtureFwd> AllDataTransferSeDFixtureFwd;
+typedef DietSeDFixture<AllDataTransferAddSeD, AllDataTransferBinDir, ConfigSimpleAddSeDLA, ConfigOmniORB2, DietMADAGFixtureLAFwd> AllDataTransferSeDFixtureWFFwd;
+typedef DietSeDFixture<DynamicAddRemoveServiceAddSeD, DynamicAddRemoveServiceBinDir, ConfigSimpleAddSeDLA, ConfigOmniORB2, DietLAFixtureFwd> DynamicAddRemoveServiceSeDFixtureFwd;
+typedef DietSeDFixture<GRPCAddSeD, GRPCBinDir, ConfigSimpleAddSeDLA, ConfigOmniORB2, DietLAFixtureFwd> GRPCSeDFixtureFwd;
 
 
 #endif // FIXTURES_FWD_HPP_

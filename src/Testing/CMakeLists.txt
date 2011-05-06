@@ -47,6 +47,7 @@ if( BUILD_TESTING )
   set( WF_XML_DIR ${PROJECT_BINARY_DIR}/test_workflows )
   set( GENERATED_LOG_TESTS_DIR ${PROJECT_BINARY_DIR}/generated_test_logs )
   set( GENERATED_FWD_TESTS_DIR ${PROJECT_BINARY_DIR}/generated_test_forwarders )
+  set( GENERATED_LOGFWD_TESTS_DIR ${PROJECT_BINARY_DIR}/generated_test_logs_forwarders )
 
   IF ( DIET_USE_DAGDA )
     SET( DIET_CLIENT_LIBRARIES DIET_client DIET_Dagda)
