@@ -62,7 +62,7 @@ public:
       processFwd->wait();
     }
     bf::remove_all("/tmp/DIET-forwarder-ior-" + std::string(name) +".tmp");
-    boost::this_thread::sleep(boost::posix_time::milliseconds(2*SLEEP_TIME));
+    boost::this_thread::sleep(boost::posix_time::milliseconds(4*SLEEP_TIME));
     BOOST_TEST_MESSAGE( "== Test teardown [END]: Stopping client dietForwarder ==" );
   }
 };
@@ -124,7 +124,7 @@ public:
 
     // Fowarder sleeps 10s before waking up, so we need to sleep at least 10s
     // Let's say 14 to be sure :-)
-    boost::this_thread::sleep(boost::posix_time::milliseconds(14*1000));
+    boost::this_thread::sleep(boost::posix_time::milliseconds(15*1000));
     BOOST_TEST_MESSAGE( "== Test setup [END]: Launching server dietForwarder ==" );
   }	
     
@@ -135,7 +135,7 @@ public:
       processFwd->wait();
     }
     bf::remove_all("/tmp/DIET-forwarder-ior-" + serverName + ".tmp");
-    boost::this_thread::sleep(boost::posix_time::milliseconds(2*SLEEP_TIME));
+    boost::this_thread::sleep(boost::posix_time::milliseconds(4*SLEEP_TIME));
     BOOST_TEST_MESSAGE( "== Test teardown [END]: Stopping server dietForwarder ==" );
   }
 };
