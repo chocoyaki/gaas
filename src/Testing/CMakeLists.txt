@@ -36,6 +36,9 @@ if( BUILD_TESTING )
   set( LOCAL_TEST_PORT2 "${PORTTMP2}" CACHE STRING "Test port for the second omniNames" )
   file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/log )
 
+  set( SSH_LOCALHOST_USER "$ENV{USER}" CACHE STRING "User allowed to do a \"ssh 127.0.0.1\"" )
+
+
   # test setup 
   # for the moment, we only support in-place testing
   set( BIN_DIR ${PROJECT_BINARY_DIR}/bin )

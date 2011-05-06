@@ -114,6 +114,7 @@ public:
       ("--peer-name")(peerName)
       ("--remote-host")(remoteHost)
       ("--ssh-host")(sshHost)
+      ("--ssh-login")(FWD_SSH_LOGIN)
       ("-C");
 
     // launch dietForwarder
