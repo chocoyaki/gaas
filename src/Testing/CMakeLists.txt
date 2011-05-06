@@ -30,8 +30,10 @@ if( BUILD_TESTING )
     CACHE PATH "PATH to the omniNames directory" )
   set( OMNIORB_INSTALL_DIR "" CACHE PATH
     "PATH to the omniORB installation directory" )
-  set( LOCAL_TEST_PORT "2889" CACHE STRING "Test port for the omniNames" )
-  set( LOCAL_TEST_PORT2 "2890" CACHE STRING "Test port for the second omniNames" )
+  string(RANDOM LENGTH 5 ALPHABET "12345" PORTTMP)
+  math(EXPR PORTTMP2 "${PORTTMP} + 1")
+  set( LOCAL_TEST_PORT "${PORTTMP}" CACHE STRING "Test port for the omniNames" )
+  set( LOCAL_TEST_PORT2 "${PORTTMP2}" CACHE STRING "Test port for the second omniNames" )
   file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/log )
 
   # test setup 
