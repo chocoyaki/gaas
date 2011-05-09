@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.105  2011/05/09 13:49:44  bdepardo
+ * Error code returned when an error occurs is now GRPC_SERVER_NOT_FOUND.
+ * Catch exceptions
+ *
  * Revision 1.104  2011/05/09 13:10:11  bdepardo
  * Added method diet_get_SeD_services to retreive the services of a SeD given
  * its name
@@ -1597,29 +1601,32 @@ diet_get_SeD_services(int *services_number,
 
   /* Find the SeD */
   if (SeDName) {
-    TRACE_TEXT(TRACE_ALL_STEPS,
-               "Searching SeD " << SeDName << endl);
-    sed = ORBMgr::getMgr()->resolve<SeD, SeD_ptr>(SEDCTXT,
-                                                  SeDName);
-		
-    if (CORBA::is_nil(sed)) {
-      ERROR("Cannot locate SeD " << SeDName, GRPC_NOT_INITIALIZED); // TODO error code
-    } 
-
-    // Now retreive the services
-    CORBA::Long length;
-    SeqCorbaProfileDesc_t* profileList = sed->getSeDProfiles(length);
-    *services_number= (int)length;
-    profiles = (diet_profile_desc_t**)calloc(length, sizeof(diet_profile_desc_t*));
-
-    for(int i = 0; i < *services_number; i++) {
-      profiles[i] = (diet_profile_desc_t*) malloc(sizeof(diet_profile_desc_t));
-      unmrsh_profile_desc(profiles[i], &((*profileList)[i]));
+    try {
+      TRACE_TEXT(TRACE_ALL_STEPS,
+                 "Searching SeD " << SeDName << endl);
+      sed = ORBMgr::getMgr()->resolve<SeD, SeD_ptr>(SEDCTXT,
+                                                    SeDName);
+      
+      if (CORBA::is_nil(sed)) {
+        ERROR("Cannot locate SeD " << SeDName, GRPC_SERVER_NOT_FOUND);
+      } 
+      
+      // Now retreive the services
+      CORBA::Long length;
+      SeqCorbaProfileDesc_t* profileList = sed->getSeDProfiles(length);
+      *services_number= (int)length;
+      profiles = (diet_profile_desc_t**)calloc(length, sizeof(diet_profile_desc_t*));
+      
+      for(int i = 0; i < *services_number; i++) {
+        profiles[i] = (diet_profile_desc_t*) malloc(sizeof(diet_profile_desc_t));
+        unmrsh_profile_desc(profiles[i], &((*profileList)[i]));
+      }
+    } catch (...) {
+      // TODO catch exceptions correctly
+      ERROR("An exception has been caught while searching for SeD " << SeDName, GRPC_SERVER_NOT_FOUND);
     }
-
-
   } else {
-    ERROR("No SeDName has been given", GRPC_NOT_INITIALIZED); // TODO error code
+    ERROR("No SeDName has been given", GRPC_SERVER_NOT_FOUND);
   }
 
 
