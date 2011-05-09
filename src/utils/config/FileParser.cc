@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2011/05/09 21:09:03  bdepardo
+ * More robust configuration file parsing: check if the path points to a
+ * directory or a file
+ *
  * Revision 1.5  2011/03/07 15:34:55  hguemar
  * fix typo in mail address
  *
@@ -23,6 +27,7 @@
 #include <algorithm>
 #include <fstream>
 #include <sstream>
+#include <dirent.h> // for opendir
 
 #include "CommonParser.hh"
 
@@ -36,6 +41,12 @@ FileParser::FileParser(const std::string& path) {
 
 void
 FileParser::parseFile(const std::string& path) {
+  DIR *dp = opendir(path.c_str());
+  if(dp != NULL) {
+    closedir(dp);
+    throw FileOpenError(path);
+  }
+
   std::ifstream file(path.c_str());
     
   unsigned int l = 0;

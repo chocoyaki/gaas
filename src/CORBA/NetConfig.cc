@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2011/05/09 21:05:40  bdepardo
+ * More robust configuration file parsing: check if the path points to a
+ * directory or a file
+ *
  * Revision 1.8  2011/04/07 17:07:25  bdepardo
  * Really add all local addresses when using "localhost" in the configuration
  * file.
@@ -60,7 +64,7 @@
 #include <arpa/inet.h>
 /* For netmask retrieving. */
 #include <netinet/in.h>
-
+#include <dirent.h> // for opendir
 
 #include <sys/ioctl.h>
 #include <netinet/in.h>
@@ -250,10 +254,17 @@ void NetConfig::addLocalHost(std::list<string>& l) const {
 }
 
 void NetConfig::parseFile() {
+  DIR *dp = opendir(filePath.c_str());
+  if(dp != NULL) {
+    closedir(dp);
+    throw runtime_error("Unable to open "+filePath+", this is a directory, not a configuration file.");
+  }
+
   ifstream file(filePath.c_str());
 	
-  if (!file.is_open())
+  if (!file.is_open()) {
     throw runtime_error("Unable to open "+filePath);
+  }
   while (!file.eof()) {
     char buffer[1024];
     size_t pos;
