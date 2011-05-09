@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.57  2011/05/09 13:10:11  bdepardo
+ * Added method diet_get_SeD_services to retreive the services of a SeD given
+ * its name
+ *
  * Revision 1.56  2011/04/12 12:12:37  bdepardo
  * Correct comments
  *
@@ -1637,14 +1641,39 @@ diet_generic_desc_set( struct diet_data_generic* desc,
 		       diet_data_type_t type,
                        diet_base_type_t base_type )
 {
-  if (!desc)
+  if (!desc) {
     return 1;
-  if (type != DIET_DATA_TYPE_COUNT)
+  }
+
+  if (type != DIET_DATA_TYPE_COUNT) {
     desc->type      = type;
-  if (base_type != DIET_BASE_TYPE_COUNT)
+  }
+
+  if (base_type != DIET_BASE_TYPE_COUNT) {
     desc->base_type = base_type;
+  }
+
   return 0;
 }
+
+
+/****************************************************************************/
+/*    get available Services on a SeD                                       */
+/****************************************************************************/
+
+/**
+Function used to get the names of the services available on a given SeD.
+
+@param services_number after the call the value contains the number of services available on the given SeD.
+@param profiles after the call the value contains the list of services' profiles available on the given SeD.
+@param SeDName the name of the SeD.
+@return error code
+*/
+int
+diet_get_SeD_services(int *services_number,
+                      diet_profile_desc_t **profiles,
+                      const char *SeDName);
+
 
 #ifdef __cplusplus
 }

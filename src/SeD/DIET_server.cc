@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.104  2011/05/09 13:10:11  bdepardo
+ * Added method diet_get_SeD_services to retreive the services of a SeD given
+ * its name
+ *
  * Revision 1.103  2011/04/05 14:01:06  bdepardo
  * IOR is printed only when the tracelevel is at least TRACE_MAIN_STEPS
  *
@@ -1581,5 +1585,47 @@ diet_wait_batch_job_completion(diet_profile_t * profile)
     wait4BatchJobCompletion(((SeDImpl*) profile->SeDPtr)->getBatch()->getBatchJobID(profile->dietReqID));
 }
 #endif
+
+
+int
+diet_get_SeD_services(int *services_number,
+                      diet_profile_desc_t **profiles,
+                      const char *SeDName) {
+  SeD_var sed = NULL;
+  *services_number = 0;
+  profiles = NULL;
+
+  /* Find the SeD */
+  if (SeDName) {
+    TRACE_TEXT(TRACE_ALL_STEPS,
+               "Searching SeD " << SeDName << endl);
+    sed = ORBMgr::getMgr()->resolve<SeD, SeD_ptr>(SEDCTXT,
+                                                  SeDName);
+		
+    if (CORBA::is_nil(sed)) {
+      ERROR("Cannot locate SeD " << SeDName, GRPC_NOT_INITIALIZED); // TODO error code
+    } 
+
+    // Now retreive the services
+    CORBA::Long length;
+    SeqCorbaProfileDesc_t* profileList = sed->getSeDProfiles(length);
+    *services_number= (int)length;
+    profiles = (diet_profile_desc_t**)calloc(length, sizeof(diet_profile_desc_t*));
+
+    for(int i = 0; i < *services_number; i++) {
+      profiles[i] = (diet_profile_desc_t*) malloc(sizeof(diet_profile_desc_t));
+      unmrsh_profile_desc(profiles[i], &((*profileList)[i]));
+    }
+
+
+  } else {
+    ERROR("No SeDName has been given", GRPC_NOT_INITIALIZED); // TODO error code
+  }
+
+
+  return 0;
+}
+
+
 
 END_API

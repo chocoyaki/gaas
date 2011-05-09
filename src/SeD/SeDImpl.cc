@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.133  2011/05/09 13:10:11  bdepardo
+ * Added method diet_get_SeD_services to retreive the services of a SeD given
+ * its name
+ *
  * Revision 1.132  2011/04/21 16:00:46  bdepardo
  * Add log infos in async calls
  *
@@ -2133,6 +2137,21 @@ SeDImpl::getDataMgrID() {
 
 #endif //HAVE_DAGDA
 
+
+
+
+/**
+ * Returns the list of Profile available
+ */
+SeqCorbaProfileDesc_t*
+SeDImpl::getSeDProfiles(CORBA::Long& length) {
+  TRACE_TEXT(TRACE_ALL_STEPS,"ask for list of services" << std::endl);
+  return SrvT->getProfiles(length);
+}
+
+
+
+
 SeDFwdrImpl::SeDFwdrImpl(Forwarder_ptr fwdr, const char* objName) {
   this->forwarder = Forwarder::_duplicate(fwdr);
   this->objName = CORBA::string_dup(objName);
@@ -2179,9 +2198,15 @@ void SeDFwdrImpl::solveAsync(const char* pb_name, const corba_profile_t& pb,
 {
   forwarder->solveAsync(pb_name, pb, volatileclientIOR, objName);
 }
+
 #ifdef HAVE_DAGDA
 char* SeDFwdrImpl::getDataMgrID() {
   return forwarder->getDataMgrID(objName);	
 }
 #endif
+
+SeqCorbaProfileDesc_t*
+SeDFwdrImpl::getSeDProfiles(CORBA::Long& length) {
+  return forwarder->getSeDProfiles(length, objName);	
+}
 

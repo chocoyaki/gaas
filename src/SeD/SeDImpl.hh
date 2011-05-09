@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.53  2011/05/09 13:10:11  bdepardo
+ * Added method diet_get_SeD_services to retreive the services of a SeD given
+ * its name
+ *
  * Revision 1.52  2011/03/03 00:23:11  bdepardo
  * Resolved a few fix me
  *
@@ -365,8 +369,8 @@ public:
 
   virtual CORBA::Long
   parallel_solve(const char* pbName, corba_profile_t& pb,
-	      ServiceTable::ServiceReference_t& ref,
-	      diet_profile_t& profile) ;
+                 ServiceTable::ServiceReference_t& ref,
+                 diet_profile_t& profile) ;
 
   void
   parallel_AsyncSolve(const char* path, const corba_profile_t& pb,
@@ -423,6 +427,9 @@ public:
   int addService(const corba_profile_desc_t& profile);
   virtual char* getDataMgrID(); // modif bisnard_logs_1
 #endif
+
+  virtual  SeqCorbaProfileDesc_t*
+  getSeDProfiles(CORBA::Long& length);
 
 private:
 #ifdef HAVE_ALT_BATCH
@@ -543,31 +550,35 @@ private:
 };
 
 class SeDFwdrImpl : public POA_SeD,
-	public PortableServer::RefCountServantBase
+                    public PortableServer::RefCountServantBase
 {
 protected:
-	Forwarder_ptr forwarder;
-	char* objName;
+  Forwarder_ptr forwarder;
+  char* objName;
+
 public:
-	SeDFwdrImpl(Forwarder_ptr fwdr, const char* objName);
-	virtual CORBA::Long ping();
+  SeDFwdrImpl(Forwarder_ptr fwdr, const char* objName);
+  virtual CORBA::Long ping();
 #ifdef HAVE_DYNAMICS
   virtual CORBA::Long bindParent(const char * parentName);
   virtual CORBA::Long disconnect();
   virtual CORBA::Long removeElement();
 #endif
-	virtual void getRequest(const corba_request_t& req);
+  virtual void getRequest(const corba_request_t& req);
   virtual CORBA::Long checkContract(corba_estimation_t& estimation,
-																		const corba_pb_desc_t& pb);
-	
+                                    const corba_pb_desc_t& pb);
+  
   virtual void updateTimeSinceLastSolve() ;
-	
+  
   virtual CORBA::Long solve(const char* pbName, corba_profile_t& pb);
-	virtual void solveAsync(const char* pb_name, const corba_profile_t& pb,
-													const char * volatileclientIOR);
+  virtual void solveAsync(const char* pb_name, const corba_profile_t& pb,
+                          const char * volatileclientIOR);
 #ifdef HAVE_DAGDA
-	virtual char* getDataMgrID();
+  virtual char* getDataMgrID();
 #endif
+
+  virtual  SeqCorbaProfileDesc_t*
+  getSeDProfiles(CORBA::Long& length);
 };
 
 #endif // _SED_IMPL_HH_

@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.18  2011/05/09 13:10:10  bdepardo
+ * Added method diet_get_SeD_services to retreive the services of a SeD given
+ * its name
+ *
  * Revision 1.17  2010/11/24 15:12:56  bdepardo
  * searchData is now available on all agents. SeDs are now able to retrieve
  * a DAGDA data from an alias specified by a client.
@@ -109,7 +113,6 @@ interface MasterAgent : Agent {
   /**
    * get the list of Profile available.
    */
-
   SeqCorbaProfileDesc_t getProfiles(out long length);
 
 #ifdef HAVE_MULTI_MA

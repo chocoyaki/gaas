@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2011/05/09 13:10:10  bdepardo
+ * Added method diet_get_SeD_services to retreive the services of a SeD given
+ * its name
+ *
  * Revision 1.3  2010/07/20 14:31:46  glemahec
  * Forwarder robustness + bug corrections
  *
@@ -30,26 +34,31 @@ interface SeDFwdr : SeD {
 
 interface SeDForwarder {
   long checkContract(inout corba_estimation_t estimation,
-										 in corba_pb_desc_t pb,
-										 in string objName)
-		raises(UnknownObject);
+                     in corba_pb_desc_t pb,
+                     in string objName)
+    raises(UnknownObject);
 
   void updateTimeSinceLastSolve(in string objName)
-		raises(UnknownObject);
+    raises(UnknownObject);
 
   long solve(in string path, inout corba_profile_t pb,
-						 in string objName)
-		raises(UnknownObject);
+             in string objName)
+    raises(UnknownObject);
 
   oneway void solveAsync(in string path, in corba_profile_t pb,
-												 in string volatileclientPtr,
-												 in string objName);
+                         in string volatileclientPtr,
+                         in string objName);
 
 
 #if HAVE_DAGDA
   string getDataMgrID(in string objName)
-		raises(UnknownObject);
+    raises(UnknownObject);
 #endif
+
+  SeqCorbaProfileDesc_t getSeDProfiles(out long length,
+                                       in string objName)
+    raises(UnknownObject);
+
 };
 
 #endif

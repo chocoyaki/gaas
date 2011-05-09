@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.33  2011/05/09 13:10:09  bdepardo
+ * Added method diet_get_SeD_services to retreive the services of a SeD given
+ * its name
+ *
  * Revision 1.32  2008/04/18 13:47:23  glemahec
  * Everything about DAGDA is now in utils/DAGDA directory.
  *
@@ -215,6 +219,11 @@ int
 mrsh_wf_desc(corba_wf_desc_t* dest,
 	     const diet_wf_desc_t* const src);
 #endif
+
+
+int unmrsh_profile_desc(diet_profile_desc_t* dest,
+                        const corba_profile_desc_t* src);
+
 
 #ifdef WITH_ENDIANNESS
 

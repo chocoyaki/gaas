@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2011/05/09 13:10:10  bdepardo
+ * Added method diet_get_SeD_services to retreive the services of a SeD given
+ * its name
+ *
  * Revision 1.3  2010/07/20 14:31:46  glemahec
  * Forwarder robustness + bug corrections
  *
@@ -31,93 +35,93 @@ interface MasterAgentFwdr : MasterAgent {
 
 interface MasterAgentForwarder : AgentForwarder {
   corba_response_t submit(in corba_pb_desc_t pb_profile,
-													in unsigned long maxServers,
-													in string objName)
-		raises(UnknownObject);
+                          in unsigned long maxServers,
+                          in string objName)
+    raises(UnknownObject);
 
   long get_session_num(in string objName)
-		raises(UnknownObject);
+    raises(UnknownObject);
 
   string get_data_id(in string objName)
-		raises(UnknownObject);
+    raises(UnknownObject);
 
   unsigned long dataLookUp(in string id,
-													 in string objName)
-		raises(UnknownObject);
+                           in string objName)
+    raises(UnknownObject);
 
 #ifdef HAVE_DAGDA
   corba_data_desc_t get_data_arg(in string argID,
-																 in string objName)
-	  raises(Dagda::DataNotFound, UnknownObject);
+                                 in string objName)
+    raises(Dagda::DataNotFound, UnknownObject);
 #else
   corba_data_desc_t get_data_arg(in string argID,
-																 in string objName)
-		raises(UnknownObject);
+                                 in string objName)
+    raises(UnknownObject);
 #endif
 
   long diet_free_pdata(in string argID, in string objName)
-		raises(UnknownObject);
+    raises(UnknownObject);
 
   SeqCorbaProfileDesc_t getProfiles(out long length,
-																		in string objName)
-		raises(UnknownObject);
+                                    in string objName)
+    raises(UnknownObject);
 
 #ifdef HAVE_MULTI_MA
   boolean handShake(in string masterAgentName, in string myName,
-										in string objName)
-		raises(UnknownObject);
+                    in string objName)
+    raises(UnknownObject);
 
   string getBindName(in string objName)
-		raises(UnknownObject);
+    raises(UnknownObject);
 
   oneway void searchService(in string masterAgentName,
 			    in string myName,
 			    in corba_request_t request,
-					in string objName);
+                            in string objName);
 
   oneway void stopFlooding(in long reqId, in string senderId,
-													 in string objName);
+                           in string objName);
 
   oneway void serviceNotFound(in long reqId, in string senderId,
-															in string objName);
+                              in string objName);
 
   oneway void newFlood(in long reqId, in string senderId,
-											 in string objName);
+                       in string objName);
 
   oneway void floodedArea(in long reqId, in string senderId,
-													in string objName);
+                          in string objName);
 
   oneway void alreadyContacted(in long reqId,
-															 in string senderId,
-															 in string objName);
+                               in string senderId,
+                               in string objName);
 
   oneway void serviceFound(in long reqId, in corba_response_t decision,
-													 in string objName);
+                           in string objName);
 
 #endif // HAVE_MULTI_MA
 
 #ifdef HAVE_WORKFLOW
   wf_response_t submit_pb_set (in corba_pb_desc_seq_t seq_pb,
-															 in string objName)
-		raises(UnknownObject);
+                               in string objName)
+    raises(UnknownObject);
 
-    response_seq_t
-    submit_pb_seq(in corba_pb_desc_seq_t pb_seq,
-                  in long reqCount,
-                  out boolean complete,
-                  out long firstReqId,
-                  out long seqReqId,
-									in string objName)
-		raises(UnknownObject);
+  response_seq_t
+  submit_pb_seq(in corba_pb_desc_seq_t pb_seq,
+                in long reqCount,
+                out boolean complete,
+                out long firstReqId,
+                out long seqReqId,
+                in string objName)
+    raises(UnknownObject);
 #endif // HAVE_WORKFLOW
 
 #ifdef HAVE_DAGDA
   SeqString searchData(in string request,
-											 in string objName)
-		raises(UnknownObject);
+                       in string objName)
+    raises(UnknownObject);
   long insertData(in string key, in SeqString values,
-									in string objName)
-		raises(UnknownObject);
+                  in string objName)
+    raises(UnknownObject);
 #endif
 };
 

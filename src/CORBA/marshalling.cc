@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.99  2011/05/09 13:10:09  bdepardo
+ * Added method diet_get_SeD_services to retreive the services of a SeD given
+ * its name
+ *
  * Revision 1.98  2011/02/24 16:55:56  bdepardo
  * Use new parser
  *
@@ -1423,3 +1427,30 @@ post_call(diet_profile_t * profile) {
 } // end post_call
 
 #endif
+
+
+// this function place is marshalling.cc file
+// to fix if necessary
+int unmrsh_profile_desc(diet_profile_desc_t* dest,
+                        const corba_profile_desc_t* src) {
+  dest->path       = strdup(src->path);
+  dest->last_in    = src->last_in;
+  dest->last_inout = src->last_inout;
+  dest->last_out   = src->last_out;
+  dest->param_desc = new diet_arg_desc_t[src->last_out + 1];
+  for (int i = 0; i <= src->last_out; i++) {
+    (dest->param_desc[i]).base_type = (diet_base_type_t)((src->param_desc[i]).base_type);
+    (dest->param_desc[i]).type      = (diet_data_type_t)(src->param_desc[i]).type;
+  }
+#if defined HAVE_ALT_BATCH
+  dest->parallel_flag = src->parallel_flag ;
+#endif
+
+  // unmarshall the aggregator field
+  // TO FIX
+  // Since this function is used only by GRPC client lib side, this is not
+  // necessary
+
+  return 0;
+}
+
