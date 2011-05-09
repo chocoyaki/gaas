@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.106  2011/05/09 15:00:25  bdepardo
+ * Fixed a bug in diet_get_SeD_services
+ *
  * Revision 1.105  2011/05/09 13:49:44  bdepardo
  * Error code returned when an error occurs is now GRPC_SERVER_NOT_FOUND.
  * Catch exceptions
@@ -1597,7 +1600,7 @@ diet_get_SeD_services(int *services_number,
                       const char *SeDName) {
   SeD_var sed = NULL;
   *services_number = 0;
-  profiles = NULL;
+  *profiles = NULL;
 
   /* Find the SeD */
   if (SeDName) {
@@ -1615,11 +1618,10 @@ diet_get_SeD_services(int *services_number,
       CORBA::Long length;
       SeqCorbaProfileDesc_t* profileList = sed->getSeDProfiles(length);
       *services_number= (int)length;
-      profiles = (diet_profile_desc_t**)calloc(length, sizeof(diet_profile_desc_t*));
+      *profiles = (diet_profile_desc_t*)calloc(length, sizeof(diet_profile_desc_t));
       
       for(int i = 0; i < *services_number; i++) {
-        profiles[i] = (diet_profile_desc_t*) malloc(sizeof(diet_profile_desc_t));
-        unmrsh_profile_desc(profiles[i], &((*profileList)[i]));
+        unmrsh_profile_desc(&((*profiles)[i]), &((*profileList)[i]));
       }
     } catch (...) {
       // TODO catch exceptions correctly
