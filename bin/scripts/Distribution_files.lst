@@ -17,6 +17,11 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.66  2011/05/10 13:17:24  bdepardo
+#* Updated distribution file.
+#* Source file of the UserManual are now in the distribution tarball, this is
+#* required for Debian packages
+#*
 #* Revision 1.65  2011/05/10 07:57:06  bdepardo
 #* Removed Parsers.{cc,hh}
 #*
@@ -297,6 +302,7 @@ Cmake/tests/runtest.cmake
 # Include section
 [Untemplated]
 include/CMakeLists.txt
+include/README
 [Templated]
 include/DIET_client.h
 include/DIET_data.h
@@ -732,6 +738,16 @@ src/examples/dynamic_hierarchy/connect.cc
 src/examples/dynamic_hierarchy/disconnect.cc
 src/examples/dynamic_hierarchy/remove.cc
 
+[Untemplated]
+src/examples/agent_scheduler/CMakeLists.txt
+[Templated]
+src/examples/agent_scheduler/HostnameRR.cc
+
+[Untemplated]
+src/examples/multicall/CMakeLists.txt
+[Templated]
+src/examples/multicall/client.c
+src/examples/multicall/server.c
 
 [Untemplated]
 src/examples/cfgs/CMakeLists.txt
@@ -790,13 +806,15 @@ src/utils/statistics.cc
 src/utils/statistics.hh
 
 # utils/batch section
+[Untemplated]
+src/utils/batch/CMakeLists.txt
 [Templated]
-src/utils/batch/Cori_batch.cc
-src/utils/batch/Cori_batch.hh
 src/utils/batch/BatchCreator.cc
 src/utils/batch/BatchCreator.hh
 src/utils/batch/BatchSystem.cc
 src/utils/batch/BatchSystem.hh
+src/utils/batch/Cori_batch.cc
+src/utils/batch/Cori_batch.hh
 src/utils/batch/Loadleveler_BatchSystem.cc
 src/utils/batch/Loadleveler_BatchSystem.hh
 src/utils/batch/OAR1_6BatchSystem.cc
@@ -811,7 +829,6 @@ src/utils/batch/SGE_BatchSystem.hh
 # Utils/Cloud section
 [Untemplated]
 src/utils/batch/EucaLib/AmazonEC2Binding.nsmap
-src/utils/batch/CMakeLists.txt
 
 [Templated]
 src/utils/batch/Eucalyptus_BatchSystem.cc
@@ -987,39 +1004,66 @@ src/lib/licenses/saxpath-license.txt
 # Section TESTING (make test donc dans release user):
 [Untemplated]
 src/Testing/CMakeLists.txt
+src/Testing/CTestConfig.cmake
 src/Testing/KillOmniORB.sh
+src/Testing/README
 src/Testing/RunOmniORB.sh
 src/Testing/TestDummy.cxx
 src/Testing/TestORBMgrInit.cxx
-src/Testing/CTestConfig.cmake
-src/Testing/README
+
 src/Testing/cfgs/CMakeLists.txt
+src/Testing/cfgs/MA_DAG_testing.cfg.in
 src/Testing/cfgs/SeD_testing.cfg.in
-src/Testing/cfgs/master_agent_testing.cfg.in
-src/Testing/cfgs/local_agent_testing.cfg.in
-src/Testing/cfgs/client_testing.cfg.in
+src/Testing/cfgs/SeD_testingLA.cfg.in
 src/Testing/cfgs/client_false_MA_Name.cfg
 src/Testing/cfgs/client_false_config_file_MA.cfg
 src/Testing/cfgs/client_no_MA_Name.cfg
 src/Testing/cfgs/client_parse_error_1.cfg
 src/Testing/cfgs/client_parse_error_2.cfg
+src/Testing/cfgs/client_testing.cfg.in
+src/Testing/cfgs/client_testing_wf.cfg.in
+src/Testing/cfgs/forwarder_testing.cfg.in
+src/Testing/cfgs/local_agent_parse_error_1.cfg
+src/Testing/cfgs/local_agent_testing.cfg.in
+src/Testing/cfgs/logservice_testing.cfg
+src/Testing/cfgs/master_agent_parse_error_1.cfg
+src/Testing/cfgs/master_agent_testing.cfg.in
 src/Testing/cfgs/omniORB4_testing.cfg.in
+src/Testing/cfgs/omniORB4_testing2.cfg.in
+
 src/Testing/src/CMakeLists.txt
+
+src/Testing/src/GRPC/CMakeLists.txt
+src/Testing/src/GRPC/DIETGRPCCallTests.cpp
+src/Testing/src/GRPC/DIETGRPCCancelTests.cpp
+src/Testing/src/GRPC/DIETGRPCErrorReportTests.cpp
+src/Testing/src/GRPC/DIETGRPCFinalizeTests.cpp
+src/Testing/src/GRPC/DIETGRPCInitializeTests.cpp
+src/Testing/src/GRPC/DIETGRPCMgmtFuncHandleTests.cpp
+src/Testing/src/GRPC/DIETGRPCProbeTests.cpp
+src/Testing/src/GRPC/DIETGRPCWaitTests.cpp
+src/Testing/src/GRPC/configGRPC.hpp
+
 src/Testing/src/allocation/CMakeLists.txt
 src/Testing/src/allocation/DIETErrorStringTests.cpp
 src/Testing/src/allocation/DIETHandleAllocTests.cpp
 src/Testing/src/allocation/DIETProfileAllocTests.cpp
+
 src/Testing/src/client/CMakeLists.txt
 src/Testing/src/client/DIETSimpleAsyncClientTests.cpp
 src/Testing/src/client/DIETSimpleClientTests.cpp
 src/Testing/src/client/DIETSimpleSyncClientTests.cpp
+
 src/Testing/src/common/CMakeLists.txt
 src/Testing/src/common/SimpleAddSeD.cpp
 src/Testing/src/common/TestRunner.cpp
 src/Testing/src/common/config_tests.h.in
 src/Testing/src/common/fixtures.hpp
+src/Testing/src/common/fixtures_fwd.hpp
+src/Testing/src/common/fixtures_log.hpp
 src/Testing/src/common/utils.cpp
 src/Testing/src/common/utils.hpp
+
 src/Testing/src/data/CMakeLists.txt
 src/Testing/src/data/DIETAllMatricesDataTransfersTests.cpp
 src/Testing/src/data/DIETAllScalarsDataTransfersTests.cpp
@@ -1028,6 +1072,13 @@ src/Testing/src/data/DIETContainersDataTransfersTests.cpp
 src/Testing/src/data/DIETFilesDataTransfersTests.cpp
 src/Testing/src/data/DIETParamstringsDataTransfersTests.cpp
 src/Testing/src/data/DIETStringsDataTransfersTests.cpp
+
+src/Testing/src/dynamicHierarchy/CMakeLists.txt
+src/Testing/src/dynamicHierarchy/DIETDynamicsConnectTests.cpp
+src/Testing/src/dynamicHierarchy/DIETDynamicsDisconnectTests.cpp
+src/Testing/src/dynamicHierarchy/DIETDynamicsRemoveTests.cpp
+src/Testing/src/dynamicHierarchy/dynamicOperations.hpp
+
 src/Testing/src/initialization/CMakeLists.txt
 src/Testing/src/initialization/DIETBadInitializationTests.cpp
 src/Testing/src/initialization/DIETMultipleInitializationAndCallTests.cpp
@@ -1035,6 +1086,21 @@ src/Testing/src/initialization/DIETMultipleInitializationTests.cpp
 src/Testing/src/initialization/DIETNoCorbaTests.cpp
 src/Testing/src/initialization/DIETNoInitializationTests.cpp
 src/Testing/src/initialization/DIETSimpleInitializationTests.cpp
+
+src/Testing/src/serviceTable/CMakeLists.txt
+src/Testing/src/serviceTable/DIETServiceAddRemoveTests.cpp
+
+src/Testing/src/workflow/CMakeLists.txt
+src/Testing/src/workflow/DIETDataInoutSinkContainersTests.cpp
+src/Testing/src/workflow/DIETDataInoutSinkFilesTests.cpp
+src/Testing/src/workflow/DIETDataInoutSinkPStringsTests.cpp
+src/Testing/src/workflow/DIETDataInoutSinkScalarsTests.cpp
+src/Testing/src/workflow/DIETDataInoutSinkStringsTests.cpp
+src/Testing/src/workflow/DIETDataInoutSinkVectorsTests.cpp
+src/Testing/src/workflow/DIETLoopContainersTests.cpp
+src/Testing/src/workflow/DIETLoopScalarsTests.cpp
+src/Testing/src/workflow/genericSimpleWfClientTest.hpp
+
 src/Testing/third-party/process/boost/process.hpp
 src/Testing/third-party/process/boost/process/all.hpp
 src/Testing/third-party/process/boost/process/child.hpp
@@ -1060,13 +1126,22 @@ src/Testing/third-party/process/boost/process/detail/posix_helpers.hpp
 src/Testing/third-party/process/boost/process/detail/status_impl.hpp
 src/Testing/third-party/process/boost/process/detail/systembuf.hpp
 src/Testing/third-party/process/boost/process/detail/windows_helpers.hpp
+
+src/Testing/workflows/CMakeLists.txt
 src/Testing/workflows/README
 src/Testing/workflows/data_inout_sink.xml
+src/Testing/workflows/data_inout_sink_containers.xml
+src/Testing/workflows/data_inout_sink_files.xml.in
+src/Testing/workflows/data_inout_sink_strings.xml
+src/Testing/workflows/data_inout_sink_vectors.xml
 src/Testing/workflows/data_loop.xml
 src/Testing/workflows/data_loop_container.xml
-src/Testing/workflows/inout_sink.xml
-src/Testing/workflows/loop.xml
-src/Testing/workflows/loop_container.xml
+src/Testing/workflows/inout_sink.xml.in
+src/Testing/workflows/inout_sink_LCADD.xml.in
+src/Testing/workflows/inout_sink_PSPRINT.xml.in
+src/Testing/workflows/inout_sink_vectors.xml.in
+src/Testing/workflows/loop.xml.in
+src/Testing/workflows/loop_container.xml.in
 
 
 # Ici, je mets les sources des documents dans les [Devel_*] pour ne laisser que
@@ -1080,16 +1155,17 @@ src/Testing/workflows/loop_container.xml
 
 
 # Doc section
-[Devel_Untemplated]
+[Untemplated]
 doc/CMakeLists.txt
-doc/Doxyfile
+doc/Doxyfile-man.in
 doc/Doxyfile.in
-
+doc/Cmake/DisplayDocSummary.cmake
+doc/Cmake/FindTransfig.cmake
+doc/Cmake/UseLATEX.cmake
 
 # Doc/UserManual section
-[Devel_Untemplated]
+[Untemplated]
 doc/UsersManual/CMakeLists.txt
-doc/UsersManual/fig/DIETScheduling.graffle/Icon
 doc/UsersManual/fig/DIETScheduling.graffle/data.plist
 doc/UsersManual/fig/DIETScheduling.graffle/image1.png
 doc/UsersManual/fig/DIETScheduling.graffle/image2.png
@@ -1134,7 +1210,7 @@ doc/UsersManual/fig/wf_archi1.fig
 doc/UsersManual/fig/wf_archi2.fig
 doc/UsersManual/fig/wf_example1.fig
 
-[Devel_Templated]
+[Templated]
 doc/UsersManual/UsersManual.bib
 doc/UsersManual/UsersManual.tex
 doc/UsersManual/agent_scheduler.tex
@@ -1206,10 +1282,10 @@ doc/ProgrammersGuide/source_tree.tex
 doc/ProgrammersGuide/start.tex
 
 # doc/UsersFAQ section
-[Devel_untemplated]
+[untemplated]
 doc/UsersFAQ/CMakeLists.txt
 
-[Devel_templated]
+[templated]
 doc/UsersFAQ/UsersFAQ.tex
 doc/UsersFAQ/fig/logo_DIET.gif
 doc/UsersFAQ/fig/logo_DIET.png
@@ -1221,7 +1297,7 @@ doc/UsersFAQ/fig/logo_DIET_big.png
 doc/UsersFAQ.pdf
 
 # doc/man section
-[Devel_untemplated]
+[untemplated]
 doc/man/CMakeLists.txt
 doc/man/dietAgent.rst
 doc/man/dietForwarder.rst
@@ -1282,3 +1358,45 @@ bin/scripts/distrib_file.sh
 bin/scripts/extract.pl
 bin/scripts/make_dist.pl
 bin/scripts/remote-compile.in
+
+# doc CodesCartography
+[Devel_Untemplated]
+doc/CodesCartography/carto_final.fig
+doc/CodesCartography/cartog_dietoutils.fig
+doc/CodesCartography/cartographie_DIET-Solve.fig
+doc/CodesCartography/cartographie_Outils.fig
+doc/CodesCartography/cartographie_clean.fig
+doc/CodesCartography/cartographie_code.fig
+doc/CodesCartography/licences/Apache-LICENSE-1.1.txt
+doc/CodesCartography/licences/Apache-LICENSE-2.0.txt
+doc/CodesCartography/licences/CDDL-License.txt
+doc/CodesCartography/licences/JAF_LICENSE.txt
+doc/CodesCartography/licences/JCraft_JSch_LICENSE.txt
+doc/CodesCartography/licences/JCraft_JZLib_LICENSE.txt
+doc/CodesCartography/licences/JDOM_1.1_License.txt
+doc/CodesCartography/licences/JavaHelp_License.html
+doc/CodesCartography/licences/JavaMail_1.4.1_License.txt
+doc/CodesCartography/licences/JavaTar_License.txt
+doc/CodesCartography/licences/Licence_CeCILL_V2-fr.txt
+doc/CodesCartography/licences/NWS-Copyright.txt
+doc/CodesCartography/licences/OpenLDAP-Copyright.txt
+doc/CodesCartography/licences/OpenLDAP-License.txt
+doc/CodesCartography/licences/bcprov-license.txt
+doc/CodesCartography/licences/berkeley-db--open-source-license.txt
+doc/CodesCartography/licences/bsd-licence.txt
+doc/CodesCartography/licences/colt-license.txt
+doc/CodesCartography/licences/cryptix-license.txt
+doc/CodesCartography/licences/gpl-2.0.txt
+doc/CodesCartography/licences/gpl-3.0.txt
+doc/CodesCartography/licences/javax-servlet-license.txt
+doc/CodesCartography/licences/jaxen-license.txt
+doc/CodesCartography/licences/jdom-licenses.txt
+doc/CodesCartography/licences/jetty-license.txt
+doc/CodesCartography/licences/junit-license.txt
+doc/CodesCartography/licences/jxta-licence.txt
+doc/CodesCartography/licences/lgpl-2.1.txt
+doc/CodesCartography/licences/lgpl-3.0.txt
+doc/CodesCartography/licences/log4j-license.txt
+doc/CodesCartography/licences/saxpath-license.txt
+doc/CodesCartography/licences/trilead-ssh-license.txt
+doc/CodesCartography/licences/uuid_licence.txt

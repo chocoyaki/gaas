@@ -12,6 +12,11 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.7  2011/05/10 13:17:24  bdepardo
+#* Updated distribution file.
+#* Source file of the UserManual are now in the distribution tarball, this is
+#* required for Debian packages
+#*
 #* Revision 1.6  2008/04/04 10:05:22  rbolze
 #* - add check function in order to help the distrubtion builder to check
 #* - if all file are correctly listed and add in the Distribution_files.lst
@@ -429,7 +434,7 @@ sub checkDistFiles(){
 	my ($src_hash_dir_files,$src_files)=&getAllFiles(\@src_dirs);	
 	my $missed=&check_missing($src_files,$dist_files);
 	print "##########################################################\n";
-	print "# this files are not in the distrib                      #\n";
+	print "# These files are not in the distrib                     #\n";
 	print "# please add them in $file_list  #\n";
 	print "# if needed                                              #\n";
 	print "##########################################################\n";
