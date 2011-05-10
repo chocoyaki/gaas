@@ -164,7 +164,7 @@ macro( generate_diet_tests NAME FIXTURENAME TESTNAME )
     ############################
     # Generate forwarder tests #
     ############################
-    # generate_replace_tests( ${NAME} ${FIXTURENAME} ${TESTNAME} "Fwd" "fixtures_fwd.hpp" ${GENERATED_FWD_TESTS_DIR} )
+    generate_replace_tests( ${NAME} ${FIXTURENAME} ${TESTNAME} "Fwd" "fixtures_fwd.hpp" ${GENERATED_FWD_TESTS_DIR} )
 
     ##################################
     # Generate forwarder + log tests #

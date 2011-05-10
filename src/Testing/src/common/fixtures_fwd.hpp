@@ -4,6 +4,40 @@
 #include "fixtures.hpp"
 #include "utils.hpp"
 
+#include <unistd.h>
+#include <boost/test/execution_monitor.hpp>
+#include <csignal>
+#include <exception>
+
+void handler(int sig) {
+  kill(0, SIGTERM);
+}
+
+template <int timeout, class parentFixture>
+class TimeoutFixture : public parentFixture {
+  boost::execution_monitor monitor;
+
+public:
+  TimeoutFixture() {
+    BOOST_TEST_MESSAGE( "== Test setup [BEGIN]:  Launching timeout ==" );
+    signal(SIGALRM, handler);
+    alarm(timeout);
+    BOOST_TEST_MESSAGE( "== Test setup [END]:  Launching timeout ==" );
+  }
+
+  ~TimeoutFixture() {
+    BOOST_TEST_MESSAGE( "== Test setup [BEGIN]:  Ending timeout ==" );
+    alarm(0);
+    BOOST_TEST_MESSAGE( "== Test setup [END]:  Ending timeout ==" );
+  }
+
+  static int wait() {
+    for(;;) {
+      sleep(1);
+    }
+  }
+
+};
 
 template <const char *config, const char *name,
           const char *omniORBConfig, class parentFixture>
@@ -39,8 +73,8 @@ public:
     ctx.env["OMNIORB_CONFIG"] = omniORBConfig;
 
     // redirect output to /dev/null
-    ctx.streams[bp::stdout_id] = bp::behavior::null();
-    ctx.streams[bp::stderr_id] = bp::behavior::null();
+    //ctx.streams[bp::stdout_id] = bp::behavior::null();
+    //ctx.streams[bp::stderr_id] = bp::behavior::null();
 
 
     // setup dietForwarder arguments
@@ -104,8 +138,8 @@ public:
     ctx.env["OMNIORB_CONFIG"] = omniORBConfig;
 
     // redirect output to /dev/null
-    ctx.streams[bp::stdout_id] = bp::behavior::null();
-    ctx.streams[bp::stderr_id] = bp::behavior::null();
+    //ctx.streams[bp::stdout_id] = bp::behavior::null();
+    //ctx.streams[bp::stderr_id] = bp::behavior::null();
 
 
     // setup dietForwarder arguments
@@ -123,8 +157,8 @@ public:
     processFwd.reset(utils::copy_child(c));
 
     // Fowarder sleeps 10s before waking up, so we need to sleep at least 10s
-    // Let's say 14 to be sure :-)
-    boost::this_thread::sleep(boost::posix_time::milliseconds(15*1000));
+    // Let's say 20 to be sure :-)
+    boost::this_thread::sleep(boost::posix_time::milliseconds(20*1000));
     BOOST_TEST_MESSAGE( "== Test setup [END]: Launching server dietForwarder ==" );
   }	
     
@@ -180,7 +214,8 @@ char FwdSSHHost[] = "127.0.0.1";
 
 typedef OmniNamesFixture<ConfigOmniORB2, OmniORBEndPoint2, OmniORBInitRef2> omniNamesFixture2;
 typedef JoinFixture<omniNamesFixture, omniNamesFixture2> joinTwoOmninames;
-typedef DietForwarderClientFixture<ConfigForwarder, FwdClientName, ConfigOmniORB, joinTwoOmninames> DietFwdClientFixture;
+typedef TimeoutFixture<300, joinTwoOmninames> timeoutOmninames; // timeout at 5min, should be enough
+typedef DietForwarderClientFixture<ConfigForwarder, FwdClientName, ConfigOmniORB, timeoutOmninames> DietFwdClientFixture;
 typedef DietForwarderServerFixture<ConfigForwarder, FwdServerName, FwdClientName,
                                    FwdRemoteHost, FwdSSHHost, ConfigOmniORB2, DietFwdClientFixture> DietFwdServerFixture;
 typedef DietAgentFixture<ConfigMasterAgent, ConfigOmniORB, DietFwdServerFixture> DietMAFixtureFwd;
