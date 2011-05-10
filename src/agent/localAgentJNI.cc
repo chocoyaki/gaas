@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2011/05/10 07:50:53  bdepardo
+ * Use new parser
+ *
  * Revision 1.13  2011/02/09 11:27:53  bdepardo
  * Removed endl at the end of the call to the WARNING macro
  *
@@ -82,7 +85,7 @@ using namespace std;
 #include "LocalAgentImpl.hh"
 #include "MasterAgentImpl.hh"
 #include "ORBMgr.hh"
-#include "Parsers.hh"
+#include "configuration.hh"
 #include "DietLogComponent.hh"
 
 #include "jni.h"
@@ -113,7 +116,7 @@ AgentImpl* Agt;
 
 JNIEXPORT jint JNICALL 
 Java_LA_startDIETLA(JNIEnv *env, 
-			    jobject obj, jstring config_file)
+                    jobject obj, jstring config_file)
 {
   char*  config_file_name;
   int res(0);
@@ -130,77 +133,83 @@ Java_LA_startDIETLA(JNIEnv *env,
   myargv[1] = config_file_name;
 
   /* Parsing */
-
-  Parsers::Results::param_type_t compParam[] =
-    {Parsers::Results::AGENTTYPE, Parsers::Results::NAME};
-  
-  if ((res = Parsers::beginParsing(config_file_name)))
-    return res;
-  if ((res =
-       Parsers::parseCfgFile(true, 2,
-			     (Parsers::Results::param_type_t*)compParam))) {
-    Parsers::endParsing();
-    return res;
+  /* Get configuration file parameters */
+  FileParser fileParser;
+  try {
+    fileParser.parseFile(config_file_name);
+  } catch (...) {
+    ERROR("while parsing " << config_file_name, DIET_FILE_IO_ERROR);
   }
+  CONFIGMAP = fileParser.getConfiguration();
+
+
+  /* Check presence of parameters */
+  string name;
+  if (!CONFIG_STRING(diet::NAME, name)) {
+    ERROR("parsing " << config_file_name
+          << ": the name of the agent has not been specified", GRPC_CONFIGFILE_ERROR);
+  }
+
+  /* Get the traceLevel */
+  unsigned long tmpTraceLevel = TRACE_DEFAULT;
+  CONFIG_ULONG(diet::TRACELEVEL, tmpTraceLevel);
+  TRACE_LEVEL = tmpTraceLevel;
+
+
+  /* get parameters: agentType and name */
+  std::string agentType;
+  try {
+    if (!CONFIG_AGENT(diet::AGENTTYPE, agentType)) {
+      ERROR("parsing " << config_file_name
+            << ": the type of the agent has not been specified", GRPC_CONFIGFILE_ERROR);
+    }
+  } catch (std::runtime_error &e) {
+    ERROR(e.what(), GRPC_CONFIGFILE_ERROR);
+  }
+  std::string parentName = "";
+  bool hasParentName = CONFIG_STRING(diet::PARENTNAME, parentName);
+  std::string maName;
 
   /* Some more checks */
-  
-  // agtType should be ! NULL, as it is a compulsory param
-  Parsers::Results::agent_type_t agtType =
-    *((Parsers::Results::agent_type_t*)
-      Parsers::Results::getParamValue(Parsers::Results::AGENTTYPE));
-  char* name = (char*)
-    Parsers::Results::getParamValue(Parsers::Results::PARENTNAME);
+  // parentName is mandatory for LA but unneeded for MA
+  if (((agentType == "DIET_LOCAL_AGENT") || (agentType == "LA")) &&
+      !hasParentName) {
+    ERROR("parsing " << configFile
+          << ": no parent name specified", GRPC_CONFIGFILE_ERROR);
+  } else if(((agentType != "DIET_LOCAL_AGENT") && (agentType != "LA")) &&
+            hasParentName) {
+    WARNING("parsing " << configFile << ": no need to specify "
+            << "a parent name for an MA - ignored");
+  }
 
-  if (agtType == Parsers::Results::DIET_LOCAL_AGENT) {
-    // For a local agent, PARENTNAME is compulsory.
-    if (name == NULL) {
-      ERROR("parsing " << config_file_name
-	    << ": no parent name specified." << endl, 1);
-    }
-  } else {
-    if (name != NULL)
-      WARNING("parsing " << config_file_name << ": no need to specify "
-	      << "a parent name for an MA - ignored");
+  if (CONFIG_STRING(diet::MANAME, maName)) {
+    WARNING("parsing " << configFile << ": no need to specify "
+            << "an MA name for an agent - ignored");
   }
   
-  name = (char*)
-    Parsers::Results::getParamValue(Parsers::Results::MANAME);
-  if (name != NULL)
-    WARNING("parsing " << config_file_name << ": no need to specify "
-	 << "an MA name for an agent - ignored");
 
-/* Get listening port & hostname */
-
-  size_t* port = (size_t*) 
-    (Parsers::Results::getParamValue(Parsers::Results::DIETPORT));
-  char* host = (char*)
-    (Parsers::Results::getParamValue(Parsers::Results::DIETHOSTNAME));
-  if ((port != NULL)|| (host !=NULL)) {
-    char *  endPoint = (char *) calloc(48, sizeof(char*)) ;
-    int    tmp_argc = myargc + 2;
-    myargv = (char**)realloc(myargv, tmp_argc * sizeof(char*));
-    myargv[myargc] = "-ORBendPoint";
-    if (port == NULL) {
-	    sprintf(endPoint, "giop:tcp:%s:", host);
-    } else if (host == NULL)  {
-	    sprintf(endPoint, "giop:tcp::%u", *port);
-    } else {
-	    sprintf(endPoint, "giop:tcp:%s:%u", host,*port);
-    }	    
-    myargv[myargc + 1] = (char*)endPoint;
+  /* Get listening port & hostname */
+  int port;
+  std::string host;
+  bool hasPort = CONFIG_INT(diet::DIETPORT, port);
+  bool hasHost = CONFIG_STRING(diet::DIETHOSTNAME, host);
+  if (hasPort || hasHost) {
+    std::ostringstream endpoint;
+    ins("-ORBendPoint") ;
+    endpoint << "giop:tcp:" << host << ":";
+    if(hasPort) {
+      endpoint << port;
+    }
+    myargv[myargc + 1] = (char*)endPoint.str().c_str();
     myargc = tmp_argc;
   }
 
   /* Get the traceLevel */
-
   if (TRACE_LEVEL >= TRACE_MAX_VALUE) {
-    char *  level = (char *) calloc(48, sizeof(char*)) ;
-    int    tmp_argc = myargc + 2;
-    myargv = (char**)realloc(myargv, tmp_argc * sizeof(char*));
-    myargv[myargc] = "-ORBtraceLevel";
-    sprintf(level, "%u", TRACE_LEVEL - TRACE_MAX_VALUE);
-    myargv[myargc + 1] = (char*)level;
+    std::ostringstream level;
+    ins("-ORBtraceLevel");
+    level << (TRACE_LEVEL - TRACE_MAX_VALUE);
+    myargv[myargc + 1] = (char*)level.str().c_str();
     myargc = tmp_argc;
   }
 
@@ -211,72 +220,49 @@ Java_LA_startDIETLA(JNIEnv *env,
   }
 
   /* Create the DietLogComponent */
-  bool useLS;
-  unsigned int* ULSptr;
+  bool useLS = false;
   int outBufferSize;
-  unsigned int* OBSptr;
   int flushTime;
-  unsigned int* FTptr;
 
-  ULSptr = (unsigned int*)Parsers::Results::getParamValue(
-              Parsers::Results::USELOGSERVICE);
-  useLS = false;
-  if (ULSptr == NULL) {
-    WARNING(" useLogService not configured. Disabled by default");
+  CONFIG_BOOL(diet::USELOGSERVICE, useLS);
+  if (!useLS) {
+    TRACE_TEXT(TRACE_ALL_STEPS, "LogService disabled" << endl);
+    dietLogComponent = NULL;
   } else {
-    if (*ULSptr) {
-      useLS = true;
-    }
-  }
-
-  if (useLS) {
-    OBSptr = (unsigned int*)Parsers::Results::getParamValue(
-  	       Parsers::Results::LSOUTBUFFERSIZE);
-    if (OBSptr != NULL) {
-      outBufferSize = (int)(*OBSptr);
-    } else {
+    if (!CONFIG_INT(diet::LSOUTBUFFERSIZE, outBufferSize)) {
       outBufferSize = 0;
       WARNING("lsOutbuffersize not configured, using default");
     }
 
-    FTptr = (unsigned int*)Parsers::Results::getParamValue(
-  	       Parsers::Results::LSFLUSHINTERVAL);
-    if (FTptr != NULL) {
-      flushTime = (int)(*FTptr);
-    } else {
+    if (!CONFIG_INT(diet::LSFLUSHINTERVAL, flushTime)) {
       flushTime = 10000;
       WARNING("lsFlushinterval not configured, using default");
     }
-  }
 
-  if (useLS) {
-    TRACE_TEXT(TRACE_MAIN_STEPS, "LogService enabled" << endl);
-    char* agtTypeName;
-    char* agtParentName;
-    char* agtName;
-    agtParentName = (char*)Parsers::Results::getParamValue
-                          (Parsers::Results::PARENTNAME);
-    agtName =       (char*)Parsers::Results::getParamValue
-                          (Parsers::Results::NAME);
-    // the agent names should be correct if we arrive here
+    TRACE_TEXT(TRACE_ALL_STEPS, "LogService enabled" << std::endl);
+    std::string agtTypeName;
+    std::string name = "";
+    CONFIG_STRING(diet::NAME, name);
 
-    dietLogComponent = new DietLogComponent(agtName, outBufferSize);
-    ORBMgr::activate(dietLogComponent);
-
-    if (agtType == Parsers::Results::DIET_LOCAL_AGENT) {
-      agtTypeName = strdup("LA");
+    if ((agentType == "DIET_LOCAL_AGENT") || (agentType == "LA")) {
+      agtTypeName = "LA";
     } else {
-      agtTypeName = strdup("MA");
+      agtTypeName = "MA";
     }
-    if (dietLogComponent->run(agtTypeName, agtParentName, flushTime) != 0) {
+
+    // the agent names should be correct if we arrive here
+    dietLogComponent = new DietLogComponent(name.c_str(),
+                                            outBufferSize,
+                                            argsTmp.size(),
+                                            &argsTmp[0]);
+    ORBMgr::getMgr()->activate(dietLogComponent);
+
+    if (dietLogComponent->run(agtTypeName.c_str(), parentName.c_str(), flushTime)) {
       // delete(dietLogComponent); // DLC is activated, do not delete !
       WARNING("Could not initialize DietLogComponent");
-      dietLogComponent = NULL; // this should not happen;
+      TRACE_TEXT(TRACE_ALL_STEPS, "* LogService: disabled" << endl);
+      dietLogComponent = NULL;
     }
-    free(agtTypeName);
-  } else {
-    TRACE_TEXT(TRACE_MAIN_STEPS, "LogService disabled" << endl);
-    dietLogComponent = NULL;
   }
 
 #if ! HAVE_JUXMEM && ! HAVE_DAGDA
@@ -289,7 +275,7 @@ Java_LA_startDIETLA(JNIEnv *env,
 
   /* Create, activate, and launch the agent */
 
-  if (agtType == Parsers::Results::DIET_LOCAL_AGENT) {
+  if ((agentType == "DIET_LOCAL_AGENT") || (agentType == "LA")) {
     Agt = new LocalAgentImpl();
     ORBMgr::activate((LocalAgentImpl*)Agt);
     Agt->setDietLogComponent(dietLogComponent); /* LogService */

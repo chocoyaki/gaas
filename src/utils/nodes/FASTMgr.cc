@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2011/05/10 07:51:10  bdepardo
+ * Use new parser
+ *
  * Revision 1.2  2010/03/31 21:15:41  bdepardo
  * Changed C headers into C++ headers
  *
@@ -94,7 +97,7 @@
 
 #include "debug.hh"
 #include "marshalling.hh"
-#include "Parsers.hh"
+#include "configuration.hh"
 
 #if HAVE_FAST
 #if defined(__FAST_0_8__)
@@ -135,37 +138,36 @@ FASTMgr::init()
   }
 
   FASTMgr::mutex.lock();
-  FASTMgr::use =
-    *((size_t*)Parsers::Results::getParamValue(Parsers::Results::FASTUSE));
+  FASTMgr::use = 0;
+  CONFIG_INT(diet::FASTUSE, FASTMgr::use);
   if (FASTMgr::use > 0) {
-    Parsers::Results::Address* tmp;
-    size_t ldapUse, ldapPort, nwsUse, nwsNSPort, nwsFcstPort;
+    std::string tmp, host, port;
+    size_t ldapUse, ldapPort, nwsUse, nwsNSPort, nwsFcstPort, pos;
     char*  ldapHost = "";
     char*  ldapMask = "";
     char*  nwsNSHost = "";
     char*  nwsFcstHost = "";
-    ldapUse = 
-      *((size_t*)Parsers::Results::getParamValue(Parsers::Results::LDAPUSE));
+    ldapUse = 0;
+    CONFIG_INT(diet::LDAPUSE, ldapUse);
     if (ldapUse) {
-      tmp = (Parsers::Results::Address*)
-	Parsers::Results::getParamValue(Parsers::Results::LDAPBASE);
-      ldapHost = tmp->host;
-      ldapPort = tmp->port;
-      ldapMask = (char*)
-	Parsers::Results::getParamValue(Parsers::Results::LDAPMASK);
+      CONFIG_ADDRESS(diet::LDAPBASE, tmp);
+      pos = tmp.find(':');
+      ldapHost = tmp.substr(0, pos);
+      ldapPort = tmp.substr(pos + 1);
+      CONFIG_STRING(diet::LDAPMASK, ldapMask);
     }
-    nwsUse =
-      *((size_t*)Parsers::Results::getParamValue(Parsers::Results::NWSUSE));
+    nwsUse = 0;
+    CONFIG_INT(diet::NWSUSE, nwsUse);
     if (nwsUse) {
-      tmp = (Parsers::Results::Address*)
-	Parsers::Results::getParamValue(Parsers::Results::NWSNAMESERVER);
-      nwsNSHost = tmp->host;
-      nwsNSPort = tmp->port;
-      tmp = (Parsers::Results::Address*)
-	Parsers::Results::getParamValue(Parsers::Results::NWSFORECASTER);
-      if (tmp) { // Check if tmp != NULL
-	nwsFcstHost = tmp->host;
-	nwsFcstPort = tmp->port;
+      CONFIG_ADDRESS(diet::NWSNAMESERVER, tmp);
+      pos = tmp.find(':');
+      nwsNSHost = tmp.substr(0, pos);
+      nwsNSPort = tmp.substr(pos + 1);
+
+      if (CONFIG_ADDRESS(diet::NWSFORECASTER, tmp)) {
+        pos = tmp.find(':');
+	nwsFcstHost = tmp.substr(0, pos);
+	nwsFcstPort = tmp.substr(pos + 1);
       }
     }
     res = fast_init("ldap_use", ldapUse,

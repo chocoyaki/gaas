@@ -9,6 +9,7 @@ include_directories(
   ${DIET_SOURCE_DIR}/src/agent	# for ChildID.hh in SeDImpl
   ${DIET_SOURCE_DIR}/src/utils/DAGDA
   ${DIET_SOURCE_DIR}/src/utils/log
+  ${DIET_SOURCE_DIR}/src/utils/config
 )
 
 if (DIET_USE_ALT_BATCH) 
