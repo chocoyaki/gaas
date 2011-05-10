@@ -17,6 +17,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.67  2011/05/10 13:47:11  bdepardo
+#* Added missing files
+#*
 #* Revision 1.66  2011/05/10 13:17:24  bdepardo
 #* Updated distribution file.
 #* Source file of the UserManual are now in the distribution tarball, this is
@@ -1282,22 +1285,22 @@ doc/ProgrammersGuide/source_tree.tex
 doc/ProgrammersGuide/start.tex
 
 # doc/UsersFAQ section
-[untemplated]
+[Untemplated]
 doc/UsersFAQ/CMakeLists.txt
-
-[templated]
-doc/UsersFAQ/UsersFAQ.tex
 doc/UsersFAQ/fig/logo_DIET.gif
 doc/UsersFAQ/fig/logo_DIET.png
 doc/UsersFAQ/fig/logo_DIET2.gif
 doc/UsersFAQ/fig/logo_DIET_big.gif
 doc/UsersFAQ/fig/logo_DIET_big.png
 
+[Templated]
+doc/UsersFAQ/UsersFAQ.tex
+
 [Untemplated]
 doc/UsersFAQ.pdf
 
 # doc/man section
-[untemplated]
+[Untemplated]
 doc/man/CMakeLists.txt
 doc/man/dietAgent.rst
 doc/man/dietForwarder.rst
