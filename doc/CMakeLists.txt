@@ -8,6 +8,9 @@ set( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/Cmake )
 set( DOC_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/share/doc/${PROJECT_NAME}"
   CACHE PATH "Directory where doc will be installed" FORCE )
 
+# set man pages install dir
+set( MAN_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/share/man"
+  CACHE PATH "Directory where man pages will be installed" FORCE )
 # create doc target if non-existant
 add_custom_target( doc ALL )
 
