@@ -2,6 +2,10 @@
 dietAgent
 =========
 
+--------------------------
+DIET grid middleware agent
+--------------------------
+
 :Author: david.loureiro@sysfera.com
 :Date:   2010-09-07
 :Copyright: DIET developers

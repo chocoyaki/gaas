@@ -2,6 +2,10 @@
 dietForwarder
 =============
 
+-------------------------------------------------------
+DIET tool to manage ssh tunnels between DIET components
+-------------------------------------------------------
+
 :Author: haikel.guemar@sysfera.com
 :Date:   2011-01-10
 :Copyright: DIET developers
