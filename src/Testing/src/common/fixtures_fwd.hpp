@@ -73,8 +73,8 @@ public:
     ctx.env["OMNIORB_CONFIG"] = omniORBConfig;
 
     // redirect output to /dev/null
-    //ctx.streams[bp::stdout_id] = bp::behavior::null();
-    //ctx.streams[bp::stderr_id] = bp::behavior::null();
+    ctx.streams[bp::stdout_id] = bp::behavior::null();
+    ctx.streams[bp::stderr_id] = bp::behavior::null();
 
 
     // setup dietForwarder arguments
@@ -138,8 +138,8 @@ public:
     ctx.env["OMNIORB_CONFIG"] = omniORBConfig;
 
     // redirect output to /dev/null
-    //ctx.streams[bp::stdout_id] = bp::behavior::null();
-    //ctx.streams[bp::stderr_id] = bp::behavior::null();
+    ctx.streams[bp::stdout_id] = bp::behavior::null();
+    ctx.streams[bp::stderr_id] = bp::behavior::null();
 
 
     // setup dietForwarder arguments
