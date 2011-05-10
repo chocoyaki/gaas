@@ -1,3 +1,18 @@
+/****************************************************************************/
+/* DIET compatibility header                                                */
+/*                                                                          */
+/*  Author(s):                                                              */
+/*   - Haikel Guemard (haikel.guemard@sysfera.com)                          */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+/* $Id$
+ * $Log$
+ * Revision 1.2  2011/05/10 13:14:58  bdepardo
+ * Added missing header
+ *
+ ****************************************************************************/
+
 #ifndef _DIET_COMPAT_HH_
 #define _DIET_COMPAT_HH_
 

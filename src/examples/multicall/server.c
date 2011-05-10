@@ -1,3 +1,18 @@
+/****************************************************************************/
+/* Multicall server                                                         */
+/*                                                                          */
+/*  Author(s):                                                              */
+/*   - Ghislain Charrier (ghislain.charrier@inria.fr)                       */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+/* $Id$
+ * $Log$
+ * Revision 1.2  2011/05/10 13:14:58  bdepardo
+ * Added missing header
+ *
+ ****************************************************************************/
+
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>

@@ -1,3 +1,18 @@
+/****************************************************************************/
+/* Multicall client                                                         */
+/*                                                                          */
+/*  Author(s):                                                              */
+/*   - Ghislain Charrier (ghislain.charrier@inria.fr)                       */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+/* $Id$
+ * $Log$
+ * Revision 1.3  2011/05/10 13:14:58  bdepardo
+ * Added missing header
+ *
+ ****************************************************************************/
+
 #include <math.h>
 #include <string.h>
 #include <stdlib.h>

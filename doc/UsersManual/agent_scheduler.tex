@@ -1,9 +1,18 @@
-%\documentclass{article}
+%****************************************************************************%
+%* DIET User's Manual: agent schedulers                                     *%
+%*                                                                          *%
+%*  Author(s):                                                              *%
+%*    - Gael Le Mahec (gael.le.mahec@u-picardie.fr)                         *%
+%*                                                                          *%
+%* $LICENSE$                                                                *%
+%****************************************************************************%
+%* $Id$
+%* $Log$
+%* Revision 1.6  2011/05/10 13:14:59  bdepardo
+%* Added missing header
+%*
+%****************************************************************************%
 
-%\usepackage{graphicx}
-%\usepackage{fullpage}
-
-%\begin{document}
 \section{Scheduler at agents level}
 In this section we introduce the way to define a scheduling policy in \diet.
 Some scheduling strategies could not be developed using only the \diet {\sed}s
@@ -659,4 +668,3 @@ int HostnameRR::aggregate(corba_response_t* aggrResp, size_t max_srv,
 
 SCHEDULER_CLASS(HostnameRR)
 \end{verbatim}
-%\end{document}
