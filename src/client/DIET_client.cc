@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.175  2011/05/10 07:52:12  bdepardo
+ * Moved unmrsh_profile_desc to marshalling.cc
+ *
  * Revision 1.174  2011/04/07 23:32:28  bdepardo
  * Changed return values to be GRPC compatible
  *
@@ -1692,30 +1695,6 @@ diet_wf_sink_get(diet_wf_desc_t * profile,
 
 END_API
 
-// this function place is marshalling.cc file
-// to fix if necessary
-int unmrsh_profile_desc( diet_profile_desc_t* dest,
-			 const corba_profile_desc_t* src) {
-  dest->path       = strdup(src->path);
-  dest->last_in    = src->last_in;
-  dest->last_inout = src->last_inout;
-  dest->last_out   = src->last_out;
-  dest->param_desc = new diet_arg_desc_t[src->last_out + 1];
-  for (int i = 0; i <= src->last_out; i++) {
-    (dest->param_desc[i]).base_type = (diet_base_type_t)((src->param_desc[i]).base_type);
-    (dest->param_desc[i]).type      = (diet_data_type_t)(src->param_desc[i]).type;
-  }
-#if defined HAVE_ALT_BATCH
-  dest->parallel_flag = src->parallel_flag ;
-#endif
-
-  // unmarshall the aggregator field
-  // TO FIX
-  // Since this function is used only by GRPC client lib side, this is not
-  // necessary
-
-  return 0;
-}
 
 /**
  * return the list of all available profiles
@@ -1728,6 +1707,7 @@ getProfiles() {
   }
   return NULL;
 }
+
 /**
  * search for a particular service
  * if the service is found, it is stored in the parameter profiles and the
