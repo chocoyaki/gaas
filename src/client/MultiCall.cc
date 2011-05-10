@@ -1,6 +1,6 @@
 /****************************************************************************/
 /* MultiCall.                                                               */
-/* It is used to devide a profile and make several calls with just one SeD. */
+/* It is used to divide a profile and make several calls with just one SeD. */
 /*                                                                          */
 /*                                                                          */
 /* Author(s):                                                               */
@@ -10,16 +10,21 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2011/05/10 14:54:20  bdepardo
+ * Fixed compilation
+ *
  * Revision 1.4  2011/01/13 23:42:40  ecaron
  * Add missing header
  *
  ****************************************************************************/
 
+#include <iostream>
+#include <cstdlib>
+#include <string>
 
 #include "MultiCall.hh"
 #include "est_internal.hh"
-#include <iostream>
-#include <cstdlib>
+#include "ORBMgr.hh"
 
 using namespace std;
 
@@ -72,7 +77,8 @@ bool MultiCall::updateCall(diet_profile_t* profile, SeD_var& chosenServer) {
   char * stemp;
   c[0] = '#';
   c[1] = '\0';
-  
+  chosenServer = SeD::_nil();
+    
 
   //some datas need to be initialized just once
   if (counter == 0) {
@@ -88,7 +94,9 @@ bool MultiCall::updateCall(diet_profile_t* profile, SeD_var& chosenServer) {
 
   //if there is at least a scenario on this SeD
   if (nb_scenarios[counter] != 0) {
-    chosenServer = corba_response->servers[counter].loc.ior;
+    string serverName = string(corba_response->servers[counter].loc.SeDName);
+    chosenServer = ORBMgr::getMgr()->resolve<SeD, SeD_var>(SEDCTXT, serverName);
+
     diet_scalar_set(diet_parameter(profile, 0), 
 		    &(nb_scenarios[counter]), 
 		    DIET_VOLATILE, DIET_INT);
