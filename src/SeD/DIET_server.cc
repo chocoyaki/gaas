@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.107  2011/05/10 14:33:52  bdepardo
+ * Fixed a bug in diet_get_SeD_services()
+ *
  * Revision 1.106  2011/05/09 15:00:25  bdepardo
  * Fixed a bug in diet_get_SeD_services
  *
@@ -550,16 +553,17 @@ diet_profile_desc_alloc(const char* path,
 int
 diet_profile_desc_free(diet_profile_desc_t* desc)
 {
-
-  if (!desc)
+  if (!desc) {
     return 1;
+  }
   free(desc->path);
+
   if ((desc->last_out > -1) && desc->param_desc) {
     delete[] desc->param_desc;
     delete desc;
-
     return 0;
   }
+
   if ((desc->last_out == -1) && desc->param_desc == NULL) {
     delete desc;
     return 0;
@@ -1596,7 +1600,7 @@ diet_wait_batch_job_completion(diet_profile_t * profile)
 
 int
 diet_get_SeD_services(int *services_number,
-                      diet_profile_desc_t **profiles,
+                      diet_profile_desc_t ***profiles,
                       const char *SeDName) {
   SeD_var sed = NULL;
   *services_number = 0;
@@ -1618,10 +1622,11 @@ diet_get_SeD_services(int *services_number,
       CORBA::Long length;
       SeqCorbaProfileDesc_t* profileList = sed->getSeDProfiles(length);
       *services_number= (int)length;
-      *profiles = (diet_profile_desc_t*)calloc(length, sizeof(diet_profile_desc_t));
+      *profiles = (diet_profile_desc_t**)calloc(length, sizeof(diet_profile_desc_t*));
       
       for(int i = 0; i < *services_number; i++) {
-        unmrsh_profile_desc(&((*profiles)[i]), &((*profileList)[i]));
+        (*profiles)[i] = new diet_profile_desc_t;
+        unmrsh_profile_desc((*profiles)[i], &((*profileList)[i]));
       }
     } catch (...) {
       // TODO catch exceptions correctly

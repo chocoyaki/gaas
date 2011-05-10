@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.100  2011/05/10 14:33:51  bdepardo
+ * Fixed a bug in diet_get_SeD_services()
+ *
  * Revision 1.99  2011/05/09 13:10:09  bdepardo
  * Added method diet_get_SeD_services to retreive the services of a SeD given
  * its name
@@ -1434,10 +1437,16 @@ post_call(diet_profile_t * profile) {
 int unmrsh_profile_desc(diet_profile_desc_t* dest,
                         const corba_profile_desc_t* src) {
   dest->path       = strdup(src->path);
+
   dest->last_in    = src->last_in;
   dest->last_inout = src->last_inout;
   dest->last_out   = src->last_out;
-  dest->param_desc = new diet_arg_desc_t[src->last_out + 1];
+  if (src->last_out > -1) {
+    dest->param_desc = new diet_arg_desc_t[src->last_out + 1];
+  } else {
+    dest->param_desc = NULL;
+  }
+
   for (int i = 0; i <= src->last_out; i++) {
     (dest->param_desc[i]).base_type = (diet_base_type_t)((src->param_desc[i]).base_type);
     (dest->param_desc[i]).type      = (diet_data_type_t)(src->param_desc[i]).type;

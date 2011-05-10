@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.58  2011/05/10 14:33:51  bdepardo
+ * Fixed a bug in diet_get_SeD_services()
+ *
  * Revision 1.57  2011/05/09 13:10:11  bdepardo
  * Added method diet_get_SeD_services to retreive the services of a SeD given
  * its name
@@ -1665,13 +1668,13 @@ diet_generic_desc_set( struct diet_data_generic* desc,
 Function used to get the names of the services available on a given SeD.
 
 @param services_number after the call the value contains the number of services available on the given SeD.
-@param profiles after the call the value contains the list of services' profiles available on the given SeD.
+@param profiles after the call the value contains the list of services' profiles available on the given SeD. Every diet_profile_desc_t* present in this array has to be deallocated using diet_profile_desc_free(), and the array profiles has to be deallocated with free().
 @param SeDName the name of the SeD.
 @return error code
 */
 int
 diet_get_SeD_services(int *services_number,
-                      diet_profile_desc_t **profiles,
+                      diet_profile_desc_t ***profiles,
                       const char *SeDName);
 
 
