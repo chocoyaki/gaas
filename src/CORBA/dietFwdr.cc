@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2011/05/10 06:47:24  bdepardo
+ * Properly handle exceptions when creating the DIETForwarder
+ *
  * Revision 1.12  2011/04/20 09:00:09  bdepardo
  * Code formating
  *
@@ -133,7 +136,13 @@ int main(int argc, char* argv[], char* envp[]) {
   
 	
   SSHTunnel tunnel;
-  DIETForwarder* forwarder = new DIETForwarder(cfg.getName(), cfg.getCfgPath());
+  DIETForwarder* forwarder;
+  try {
+    forwarder = new DIETForwarder(cfg.getName(), cfg.getCfgPath());
+  } catch (exception &e) {
+    cerr << "Error: " << e.what() << endl;
+    return EXIT_FAILURE;
+  }
   ORBMgr::init(argc, argv);
   ORBMgr* mgr = ORBMgr::getMgr();
   string ior;
