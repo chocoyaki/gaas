@@ -24,6 +24,7 @@ set_property( DIRECTORY APPEND PROPERTY
 option(DIET_BUILD_USERMANUAL "Build DIET User Manual." ON)
 option(DIET_BUILD_USERFAQ "Build DIET User FAQ." ON)
 option(DIET_BUILD_PROGRAMMERGUIDE "Build DIET Programmer Guide." OFF)
+mark_as_advanced( DIET_BUILD_PROGRAMMERGUIDE )
 option(DIET_BUILD_MANPAGE "Build DIET Manpages." ON)
 option(DIET_BUILD_DOXYGEN "Build DIET Doxygen." OFF)
 
