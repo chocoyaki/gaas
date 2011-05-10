@@ -1,3 +1,56 @@
++----------+
+| diet 2.7 |
++----------+
+* Features:
+	- A new traceLevel has appeared: TRACE_ERR_AND_WARN=1, when this
+	traceLevel is selected only error and warning messages are
+	printed. The default value is still TRACE_MAIN_STEPS, but it now
+	equals 2, thus check your configuration files (example
+	configuration files have been updated accordingly). The NO_TRACE
+	level do not print anything, not even warnings and errors.
+	NO_TRACE = 0  DIET do not print anything, not even warning and error messages.
+	TRACE_ERR_AND_WARN = 1  DIET only prints warnings and errors on the standard error output.
+	TRACE_MAIN_STEPS = 2  [default] DIET prints information on the main steps of a call.
+	TRACE_ALL_STEPS = 5  DIET prints information on all internal steps too.
+	TRACE_MAX_VALUE = 10  DIET prints all the communication structures too.
+	>10  (traceLevel - 10) is given to the ORB to print CORBA messages too.
+	- A new method has been added to DIET_server.h:
+	diet_get_SeD_services. Given the name of a SeD it returns the list
+	of services of this SeD.
+	- forwarders now find an unused port during initialization and
+	write it in the /tmp/DIET-forwarder-ior-*.tmp file which is used
+	by its peer. Thus, you do not necessarily need to specify the
+	--remote-port option anymore.
+	
+* Compilation:
+	- Documentation can now be compiled directly from the main
+	CMakeLists.txt. For this, set the DIET_BUILD_DOC to ON.
+	Documentation can though still be compiled separately from the doc
+	directory.
+	
+* Source code organization:
+	- the old parser has been definitively removed
+	- all elements of DIET apart from the dietForwarder now use macros
+	in debug.hh to print out messages instead of using cout and cerr.
+	
+* Bug fix:
+	- A few memory leaks
+	- DIET elements do not hang anymore when a directory is given as a
+	configuration file
+	- Forwarder: really add all local addresses when using the
+	"localhost" keyword in a reject or accept rule. (Tested only on
+	Linux and Mac OSX currently. Still need to test on AIX, Cygwin and
+	Windows.)
+	- During initialization, if the POA already exists, then we now
+	try to recover it instead of crashing.
+	- SSH keys were not handled properly
+	- async calls hanged when calling a profile with inout
+	parameters
+	- DAGDA: fixed bugs with paramstrings
+	- New defintion of FNM_CASEFOLD for AIX compatibility (AIX 5.1 or
+	later)
+	- DIET elements now correctly unsubscribe from omniNames
+	
 +------------+
 | diet 2.6.1 |
 +------------+
