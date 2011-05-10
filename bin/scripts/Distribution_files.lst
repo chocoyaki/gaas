@@ -17,6 +17,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.65  2011/05/10 07:57:06  bdepardo
+#* Removed Parsers.{cc,hh}
+#*
 #* Revision 1.64  2011/03/18 14:45:47  hguemar
 #* add DIET_compat.{hh,cc} to release script
 #*
@@ -774,8 +777,6 @@ src/utils/JobQueue.hh
 src/utils/KeyString.cc
 src/utils/KeyString.hh
 src/utils/LinkedList.hh
-src/utils/Parsers.cc
-src/utils/Parsers.hh
 src/utils/ReadersWriterLock.hh
 src/utils/Vector.c
 src/utils/Vector.h
