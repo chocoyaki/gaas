@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.43  2011/05/12 16:06:29  bdepardo
+ * Initialize attribute in constructor
+ *
  * Revision 1.42  2011/04/22 14:05:40  kcoulomb
  * Fix POA bug, now if POA already exist, use it instead of throw exception
  *
@@ -121,19 +124,23 @@ void ORBMgr::init(CORBA::ORB_ptr ORB) {
 
 ORBMgr::ORBMgr(int argc, char* argv[]) {
   const char* opts[][2]= {{0,0}};
-  
+
   ORB = CORBA::ORB_init(argc, argv, "omniORB4", opts);
   init(ORB);
+  down = false;
 }
 
 ORBMgr::ORBMgr(CORBA::ORB_ptr ORB) {
   this->ORB = ORB;
+
   init(ORB);
+  down = false;
 }
 
 ORBMgr::ORBMgr(CORBA::ORB_ptr ORB, PortableServer::POA_var POA) {
   this->ORB=ORB;
   this->POA=POA;
+  down = false;
 }
 
 ORBMgr::~ORBMgr() {
