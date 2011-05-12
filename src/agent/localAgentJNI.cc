@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2011/05/12 15:39:00  bdepardo
+ * Reduced variables scope
+ *
  * Revision 1.14  2011/05/10 07:50:53  bdepardo
  * Use new parser
  *
@@ -221,14 +224,15 @@ Java_LA_startDIETLA(JNIEnv *env,
 
   /* Create the DietLogComponent */
   bool useLS = false;
-  int outBufferSize;
-  int flushTime;
 
   CONFIG_BOOL(diet::USELOGSERVICE, useLS);
   if (!useLS) {
     TRACE_TEXT(TRACE_ALL_STEPS, "LogService disabled" << endl);
     dietLogComponent = NULL;
   } else {
+    int outBufferSize;
+    int flushTime;
+
     if (!CONFIG_INT(diet::LSOUTBUFFERSIZE, outBufferSize)) {
       outBufferSize = 0;
       WARNING("lsOutbuffersize not configured, using default");

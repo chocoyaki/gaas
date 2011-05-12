@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.108  2011/05/12 15:35:50  bdepardo
+ * Reduced variables scope
+ *
  * Revision 1.107  2011/05/10 14:33:52  bdepardo
  * Fixed a bug in diet_get_SeD_services()
  *
@@ -940,8 +943,6 @@ diet_SeD(const char* config_file_name, int argc, char* argv[])
 #ifdef USE_LOG_SERVICE
   /* DietLogComponent creation for LogService usage */
   bool useLS = false;
-  int outBufferSize;
-  int flushTime;
 
 
   CONFIG_BOOL(diet::USELOGSERVICE, useLS);
@@ -949,6 +950,9 @@ diet_SeD(const char* config_file_name, int argc, char* argv[])
     TRACE_TEXT(TRACE_ALL_STEPS, "LogService disabled" << endl);
     dietLogComponent = NULL;
   } else {
+    int outBufferSize;
+    int flushTime;
+
     if (!CONFIG_INT(diet::LSOUTBUFFERSIZE, outBufferSize)) {
       outBufferSize = 0;
       WARNING("lsOutbuffersize not configured, using default");
@@ -1602,13 +1606,13 @@ int
 diet_get_SeD_services(int *services_number,
                       diet_profile_desc_t ***profiles,
                       const char *SeDName) {
-  SeD_var sed = NULL;
   *services_number = 0;
   *profiles = NULL;
 
   /* Find the SeD */
   if (SeDName) {
     try {
+      SeD_var sed = NULL;
       TRACE_TEXT(TRACE_ALL_STEPS,
                  "Searching SeD " << SeDName << endl);
       sed = ORBMgr::getMgr()->resolve<SeD, SeD_ptr>(SEDCTXT,
