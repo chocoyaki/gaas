@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.176  2011/05/12 15:27:34  bdepardo
+ * Reduced variables scope
+ *
  * Revision 1.175  2011/05/10 07:52:12  bdepardo
  * Moved unmrsh_profile_desc to marshalling.cc
  *
@@ -735,8 +738,6 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
 #ifdef USE_LOG_SERVICE
   /* Initialize LogService */
   bool useLS = false;
-  int outBufferSize;
-  int flushTime;
   bool useLogService = false;
 
   CONFIG_BOOL(diet::USELOGSERVICE, useLogService);
@@ -747,6 +748,9 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
   }
 
   if (useLS) {
+    int outBufferSize;
+    int flushTime;
+  
     if (!CONFIG_INT(diet::LSOUTBUFFERSIZE, outBufferSize)) {
       outBufferSize = 0;
       WARNING("lsOutbuffersize not configured, using default");
@@ -786,9 +790,10 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
     }
     free(agtTypeName);
 
-  } else {
+  } // end: if (useLS)
+  else {
     dietLogComponent = NULL;
-  }
+  } 
 #endif // end: USE_LOG_SERVICE
   // end modif bisnard_logs_1
 
