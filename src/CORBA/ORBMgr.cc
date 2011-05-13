@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.45  2011/05/13 08:18:34  bdepardo
+ * Code layout
+ *
  * Revision 1.44  2011/05/13 06:42:22  bdepardo
  * Const methods whenever possible
  *
@@ -106,9 +109,9 @@ void ORBMgr::init(CORBA::ORB_ptr ORB) {
   CosNaming::NamingContext_var rootContext, context;
   CosNaming::Name cosName;
   
-  if (CORBA::is_nil(ORB))
+  if (CORBA::is_nil(ORB)) {
     throw runtime_error("ORB not initialized");
-  
+  }
   object = ORB->resolve_initial_references("RootPOA");
   initPOA = PortableServer::POA::_narrow(object);
   manager = initPOA->the_POAManager();
@@ -116,6 +119,7 @@ void ORBMgr::init(CORBA::ORB_ptr ORB) {
   policy <<= BiDirPolicy::BOTH;
   policies[0] = ORB->create_policy(BiDirPolicy::BIDIRECTIONAL_POLICY_TYPE,
                                    policy);
+  // If poa already exist, use the same
   try {
     POA = initPOA->create_POA("bidir", manager, policies);
   } catch (PortableServer::POA::AdapterAlreadyExists &e) {
@@ -135,7 +139,6 @@ ORBMgr::ORBMgr(int argc, char* argv[]) {
 
 ORBMgr::ORBMgr(CORBA::ORB_ptr ORB) {
   this->ORB = ORB;
-
   init(ORB);
   down = false;
 }
@@ -539,7 +542,6 @@ ORBMgr::sigIntHandler(int sig) {
 #else
   sem_post(&(ORBMgr::getMgr()->waitLock));
 #endif
-  //  ORBMgr::getMgr()->shutdown(false);
   signal(SIGINT, SIG_DFL);
   signal(SIGTERM, SIG_DFL);
 }
@@ -567,14 +569,17 @@ void ORBMgr::wait() const {
 }
 
 ORBMgr* ORBMgr::getMgr() {
-  if (theMgr==NULL)
+  if (theMgr==NULL) {
     throw runtime_error("ORB manager not initialized!");
-  else return theMgr;
+  } else {
+    return theMgr;
+  }
 }
 
 void ORBMgr::init(int argc, char* argv[]) {
-  if (theMgr)
+  if (theMgr) {
     delete theMgr;
+  }
   theMgr = new ORBMgr(argc, argv);
 }
 
@@ -765,7 +770,7 @@ void ORBMgr::cleanCache() const {
   std::list<string>::const_iterator jt;
 
   cacheMutex.lock();
-  for (it=cache.begin(); it!=cache.end(); ++it) {
+  for (it = cache.begin(); it != cache.end(); ++it) {
     try {
       if (it->second->_non_existent()) {
 	toRemove.push_back(it->first);
