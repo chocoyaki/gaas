@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2011/05/13 08:19:01  bdepardo
+ * Use new LogORBmgr
+ *
  * Revision 1.8  2011/03/21 08:27:38  bdepardo
  * Correctly register the logcomponent into the ORB, and correclty detroy it.
  *
@@ -314,7 +317,7 @@ PingThread::run_undetached(void* params)
 DietLogComponent::DietLogComponent(const char* name,
 				   int outBufferMaxSize, int argc, char** argv) {
   try {
-    LogORBMgr::init(argc, (char **)argv, true);
+    LogORBMgr::init(argc, (char **)argv);
   } catch (...) {
     fprintf (stderr, "Failed to initialize log orb manager \n");
   }
