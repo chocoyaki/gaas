@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.44  2011/05/13 06:42:22  bdepardo
+ * Const methods whenever possible
+ *
  * Revision 1.43  2011/05/12 16:06:29  bdepardo
  * Initialize attribute in constructor
  *
@@ -151,20 +154,21 @@ ORBMgr::~ORBMgr() {
 
 void ORBMgr::bind(const string& ctxt, const string& name,
                   CORBA::Object_ptr object,
-		  const bool rebind)
-{
+		  const bool rebind) const {
   CORBA::Object_var obj;
   CosNaming::NamingContext_var rootContext, context;
   CosNaming::Name cosName;
 	
   obj = ORB->resolve_initial_references("NameService");
-  if (CORBA::is_nil(obj))
+  if (CORBA::is_nil(obj)) {
     throw runtime_error("Error resolving initial references");
+  }
   
   rootContext = CosNaming::NamingContext::_narrow(obj);
   
-  if (CORBA::is_nil(rootContext))
+  if (CORBA::is_nil(rootContext)) {
     throw runtime_error("Error initializing root context");
+  }
   
   cosName.length(1);
   cosName[0].id = ctxt.c_str();
@@ -182,33 +186,34 @@ void ORBMgr::bind(const string& ctxt, const string& name,
   try {
     context->bind(cosName, object);
   } catch (CosNaming::NamingContext::AlreadyBound& err) {
-    if (rebind)
+    if (rebind) {
       context->rebind(cosName, object);
-    else
+    } else {
       throw runtime_error("Already bound!");
+    }
   }
 }
 
 void ORBMgr::bind(const string& ctxt, const string& name,
-		  const string& IOR, const bool rebind) {
+		  const string& IOR, const bool rebind) const {
   CORBA::Object_ptr object = ORB->string_to_object(IOR.c_str());
 	
   bind(ctxt, name, object, rebind);
 }
 
 void ORBMgr::rebind(const string& ctxt, const string& name,
-		    CORBA::Object_ptr object) {
+		    CORBA::Object_ptr object) const {
   bind(ctxt, name, object, true);
 }
 
 void ORBMgr::rebind(const string& ctxt, const string& name,
-                    const string& IOR) {
+                    const string& IOR) const {
   CORBA::Object_ptr object = ORB->string_to_object(IOR.c_str());
   
   rebind(ctxt, name, object);
 }
 
-void ORBMgr::unbind(const string& ctxt, const string& name) {
+void ORBMgr::unbind(const string& ctxt, const string& name) const {
   CORBA::Object_var obj;
   CosNaming::NamingContext_var rootContext, context;
   CosNaming::Name cosName;
@@ -240,8 +245,7 @@ void ORBMgr::unbind(const string& ctxt, const string& name) {
 }
 
 void ORBMgr::fwdsBind(const string& ctxt, const string& name,
-		      const string& ior, const string& fwName)
-{
+		      const string& ior, const string& fwName) const {
   std::list<string> forwarders = ORBMgr::list(FWRDCTXT);
   std::list<string>::const_iterator it;
 	
@@ -261,8 +265,7 @@ void ORBMgr::fwdsBind(const string& ctxt, const string& name,
 }
 
 void ORBMgr::fwdsUnbind(const string& ctxt, const string& name,
-			const string& fwName)
-{
+			const string& fwName) const {
   std::list<string> forwarders = ORBMgr::list(FWRDCTXT);
   std::list<string>::const_iterator it;
 	
@@ -578,8 +581,8 @@ void ORBMgr::init(int argc, char* argv[]) {
 /* Translate the string passed as first argument in bytes and
  * record them into the buffer.
  */
-void hexStringToBuffer(const char* ptr, const size_t size,
-		       cdrMemoryStream& buffer) {
+void ORBMgr::hexStringToBuffer(const char* ptr, const size_t size,
+                               cdrMemoryStream& buffer) {
   stringstream ss;
   int value;
   CORBA::Octet c;

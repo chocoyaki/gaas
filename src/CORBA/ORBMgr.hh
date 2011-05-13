@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.27  2011/05/13 06:42:22  bdepardo
+ * Const methods whenever possible
+ *
  * Revision 1.26  2011/02/15 16:18:24  bdepardo
  * Go back to the old signal handle with semaphores. I did not find any better
  * idea.
@@ -34,6 +37,7 @@
 
 #ifndef ORBMGR_HH
 #define ORBMGR_HH
+
 #include <string>
 #include <map>
 #include <list>
@@ -62,36 +66,6 @@
 
 
 class ORBMgr {
-private:
-  /* The omniORB Object Request Broker for this manager. */
-  CORBA::ORB_ptr ORB;
-  /* The Portable Object Adaptor. */
-  PortableServer::POA_var POA;
-  
-  /* Is the ORB down? */
-  bool down;
-  
-
-  /* CORBA initialization. */
-  void init(CORBA::ORB_ptr ORB);
-
-  /* Object cache to avoid to contact OmniNames too many times. */
-  mutable std::map<std::string, CORBA::Object_ptr> cache;
-  /* Cache mutex. */
-  mutable omni_mutex cacheMutex;
-
-  /* The manager instance. */
-  static ORBMgr* theMgr;
-  
-
-  static void
-  sigIntHandler(int sig);
-#ifndef __cygwin__
-  static omni_mutex waitLock;
-#else
-  static sem_t waitLock;
-#endif
-
 public:
   /* Constructors. */
   ORBMgr(int argc, char* argv[]);
@@ -103,24 +77,24 @@ public:
 
   /* Bind the object using its ctxt/name */
   void bind(const std::string& ctxt, const std::string& name,
-            CORBA::Object_ptr object, const bool rebind = false);
+            CORBA::Object_ptr object, const bool rebind = false) const;
   /* Bind an object using its IOR. */
   void bind(const std::string& ctxt, const std::string& name,
-            const std::string& IOR, const bool rebind = false);
+            const std::string& IOR, const bool rebind = false) const;
   /* Rebind objects. */
   void rebind(const std::string& ctxt, const std::string& name,
-              CORBA::Object_ptr object);
+              CORBA::Object_ptr object) const;
   void rebind(const std::string& ctxt, const std::string& name,
-              const std::string& IOR);
+              const std::string& IOR) const;
   /* Unbind an object. */
-  void unbind(const std::string& ctxt, const std::string& name);
+  void unbind(const std::string& ctxt, const std::string& name) const;
 	
   /* Forwarders binding. */
   void fwdsBind(const std::string& ctxt, const std::string& name,
-		const std::string& ior, const std::string& fwName = "");
+		const std::string& ior, const std::string& fwName = "") const;
   /* Forwarders unbinding. */
   void fwdsUnbind(const std::string& ctxt, const std::string& name,
-		  const std::string& fwName = "");
+		  const std::string& fwName = "") const;
 	
   /* Resolve an object using its IOR or ctxt/name. */
   CORBA::Object_ptr resolveObject(const std::string& IOR) const;
@@ -178,6 +152,39 @@ public:
   void removeObjectFromCache(const std::string& ctxt,
 			     const std::string& name) const;
   void cleanCache() const;
+  static void hexStringToBuffer(const char* ptr, const size_t size,
+				cdrMemoryStream& buffer);
+
+private:
+  /* The omniORB Object Request Broker for this manager. */
+  CORBA::ORB_ptr ORB;
+  /* The Portable Object Adaptor. */
+  PortableServer::POA_var POA;
+  
+  /* Is the ORB down? */
+  bool down;
+  
+
+  /* CORBA initialization. */
+  void init(CORBA::ORB_ptr ORB);
+
+  /* Object cache to avoid to contact OmniNames too many times. */
+  mutable std::map<std::string, CORBA::Object_ptr> cache;
+  /* Cache mutex. */
+  mutable omni_mutex cacheMutex;
+
+  /* The manager instance. */
+  static ORBMgr* theMgr;
+  
+
+  static void
+  sigIntHandler(int sig);
+#ifndef __cygwin__
+  static omni_mutex waitLock;
+#else
+  static sem_t waitLock;
+#endif
+
 };
 
 
