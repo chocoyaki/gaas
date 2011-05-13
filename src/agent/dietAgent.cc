@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.64  2011/05/13 09:05:10  bdepardo
+ * More explicit error message
+ *
  * Revision 1.63  2011/04/07 08:51:54  bdepardo
  * Take into account the traceLevel sooner
  *
@@ -502,7 +505,9 @@ int main(int argc, char* argv[], char *envp[]) {
     dataManager->setLogComponent( dietLogComponent ); // modif bisnard_logs_1
 #endif /* USE_LOG_SERVICE */
   } catch (...) {
-    ERROR("Problem while instantiating the data manager", GRPC_COMMUNICATION_FAILED);
+    ERROR("Problem while instantiating the data manager."
+          << "Is omniNames running and is OMNIORB_CONFIG variable correctly set?",
+          GRPC_COMMUNICATION_FAILED);
   }
 #endif /* HAVE_DAGDA */
 
