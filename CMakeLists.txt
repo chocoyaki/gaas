@@ -56,8 +56,8 @@ if (UNIX AND NOT WIN32)
       # TODO: Should be done only for libraries build
       add_definitions(-fPIC)
     endif()
-  endif(CMAKE_UNAME)
-endif(UNIX AND NOT WIN32)
+  endif()
+endif()
 
 
 # --------------------- OPTIONS OF THE PROJECT -----------------------------
