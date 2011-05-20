@@ -27,7 +27,7 @@ elseif (UNIX)
 else (WIN32)
   message(SEND_ERROR "date not implemented")
   set(${BUILD_DATE} 000000)
-endif ()
+endif (WIN32)
 
 set(DIET_BUILD_VERSION ${BUILD_DATE})
 
