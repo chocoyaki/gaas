@@ -56,7 +56,4 @@ firewall problems between the client and the server.
 
 CMAKE
 -----
-Shouldn't we switch to version 2.6?
-If so, we should make the following changes:
- - in Cmake/FindOmniORB.cmake: change IF( "${OMNIORB4_VERSION}" LESS "${OMNIORB4_MINIMUM_VERSION}" ), to IF( "${OMNIORB4_VERSION}" VERSION_LESS "${OMNIORB4_MINIMUM_VERSION}" )
 
