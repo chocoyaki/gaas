@@ -78,6 +78,7 @@ private:
   /* Tunnel configuration. */
   bool createFrom;
   bool createTo;
+  unsigned int waitingTime;
   std::string localPortTo;
   std::string localPortFrom;
   std::string remoteHost;
@@ -135,6 +136,7 @@ public:
   void setRemotePortFrom(const int port);
   void setLocalPortTo(const std::string& port);
   void setLocalPortTo(const int port);
+  void setWaitingTime(const unsigned int time);
   void createTunnelTo(const bool create);
   void createTunnelFrom(const bool create);
 

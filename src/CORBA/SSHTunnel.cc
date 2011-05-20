@@ -68,6 +68,7 @@
 
 using namespace std;
 
+const unsigned int DEFAULT_WAITING_TIME = 10;
 
 string SSHTunnel::cmdFormat  = "%p -l %u %s -p %P -N";
 string SSHTunnel::localFormat = "-L%l:%h:%R";
@@ -265,8 +266,9 @@ string SSHTunnel::makeCmd() {
 }
 
 SSHTunnel::SSHTunnel() : SSHConnection() {
-  createTo = false;
-  createFrom = false;
+  this->createTo = false;
+  this->createFrom = false;
+  this->waitingTime = DEFAULT_WAITING_TIME;
 }
 
 /* Constructor for bi-directionnal SSH tunnel. */
@@ -291,6 +293,7 @@ SSHTunnel::SSHTunnel(const string& sshHost,
   this->localPortTo = localPortTo;
   this->createTo = createTo;
   this->createFrom = createFrom;
+  this->waitingTime = DEFAULT_WAITING_TIME;
 }
 
 /* Constructor for unidirectionnal SSH tunnel. */
@@ -310,6 +313,7 @@ SSHTunnel::SSHTunnel(const string& sshHost,
   this->remotePortTo = remotePortTo;
   this->createTo = createTo;
   this->createFrom = false;
+  this->waitingTime = DEFAULT_WAITING_TIME;
 }
 
 SSHTunnel::~SSHTunnel() {
@@ -347,8 +351,8 @@ void SSHTunnel::open() {
   }
   for (unsigned int i=0; i<tokens.size(); ++i)
     free(argv[i]);
-  cout << "Sleep 10 s. waiting for tunnel" << endl;
-  sleep(10);
+  cout << "Sleep " << this->waitingTime << " s. waiting for tunnel" << endl;
+  sleep(this->waitingTime);
   cout << "Wake up!" << endl;
 }
 
@@ -446,6 +450,12 @@ void SSHTunnel::setLocalPortTo(const int port) {
   ostringstream os;
   os << port;
   this->localPortTo = os.str();
+}
+
+void SSHTunnel::setWaitingTime(const unsigned int time) {
+  if (time != 0) {
+    this->waitingTime = time;
+  }
 }
 
 void SSHTunnel::createTunnelTo(const bool create) {

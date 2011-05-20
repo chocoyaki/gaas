@@ -87,6 +87,8 @@ int main(int argc, char* argv[], char* envp[]) {
   opt.setOptCallback("--remote-host", remote_host);
   /* Optionnal, we try to determine it automatically. */
   opt.setOptCallback("--remote-port", remote_port_from);
+  /* Optionnal, set waiting time for tunnel creation */
+  opt.setOptCallback("--tunnel-wait", tunnel_wait);
 
   /* Optionnal - default values are set to port 22,
    * current user login and $HOME/.ssh/id_[rsa|dsa].
@@ -100,7 +102,9 @@ int main(int argc, char* argv[], char* envp[]) {
   opt.setOptCallback("--peer-ior", peer_ior);
   opt.setFlagCallback('C', create);
   //opt.setFlagCallback('f', create_from);
-	
+  
+  
+  /* Mandatory */
   opt.setOptCallback("--net-config", net_config);
 
   opt.processOptions();
@@ -198,6 +202,8 @@ int main(int argc, char* argv[], char* envp[]) {
   tunnel.setSshPort(cfg.getSshPort());
   tunnel.setSshLogin(cfg.getSshLogin());
   tunnel.setSshKeyPath(cfg.getSshKeyPath());
+
+  tunnel.setWaitingTime(cfg.getWaitingTime());
 	
   /* Manage the peer IOR. */
   if (cfg.getPeerIOR()=="" && cfg.createFrom()) {
@@ -383,6 +389,13 @@ void key_path(const string& path, Configuration* cfg) {
   static_cast<FwrdConfig*>(cfg)->setSshKeyPath(path);
 }
 
+void tunnel_wait(const string& time, Configuration* cfg) {
+  istringstream is(time);
+  int n;
+  is >> n;
+  static_cast<FwrdConfig*>(cfg)->setWaitingTime(n);
+}
+
 void create(const string& create, Configuration* cfg) {
   (void) create;
   static_cast<FwrdConfig*>(cfg)->createTo(true);
@@ -449,6 +462,9 @@ const string& FwrdConfig::getSshKeyPath() const {
 int  FwrdConfig::getNbRetry() const {
   return nbRetry;
 }
+unsigned int  FwrdConfig::getWaitingTime() const {
+  return waitingTime;
+}
 const string& FwrdConfig::getCfgPath() const {
   return cfgPath;
 }
@@ -498,6 +514,9 @@ void FwrdConfig::setSshKeyPath(const string& path) {
 }
 void FwrdConfig::setNbRetry(const int nb) {
   this->nbRetry = nb;
+}
+void FwrdConfig::setWaitingTime(const unsigned int time) {
+  this->waitingTime = time;
 }
 void FwrdConfig::setCfgPath(const string& path) {
   this->cfgPath = path;
