@@ -34,7 +34,7 @@ set(DIET_BUILD_VERSION ${BUILD_DATE})
 # To remove an issue with Cmake internal rpath tool
 if (NOT BUILT_SHARED_LIBS)
   set(CMAKE_NO_BUILTIN_CHRPATH 1)
-endif (NOT BUILT_SHARED_LIBS)
+endif ()
 
 # because x86_64 can't link static libraries to shared libraries
 # and from 2.5, this is what is done in DIET
