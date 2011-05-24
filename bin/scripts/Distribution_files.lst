@@ -469,6 +469,14 @@ src/agent/workflow/WfScheduler.cc
 src/agent/workflow/WfScheduler.hh
 src/agent/workflow/maDagAgent.cc
 
+# utils admin section
+[Untemplated]
+src/utils/admin/CMakeLists.txt
+[Templated]
+src/utils/admin/connect.cc
+src/utils/admin/disconnect.cc
+src/utils/admin/remove.cc
+
 # utils workflow section
 [Untemplated]
 src/utils/workflow/CMakeLists.txt
