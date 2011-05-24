@@ -16,4 +16,6 @@ add_library(DIET_admin
 
 target_link_libraries( DIET_admin DIET_CORBA DIET_SeD )
 
-INSTALL( TARGETS DIET_admin DESTINATION lib/)
+set_target_properties( DIET_admin  PROPERTIES VERSION ${DIET_VERSION} )
+
+install( TARGETS DIET_admin DESTINATION lib/)
