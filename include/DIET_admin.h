@@ -8,10 +8,13 @@
 /* $LICENSE$                                                                */
 /****************************************************************************/
 
-#define BEGIN_API extern "C" {
-#define END_API   } // extern "C"
+#ifndef _DIET_ADMIN_H_
+#define _DIET_ADMIN_H_
 
-BEGIN_API
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 //------------------------------------------------------------------------
 // Error code
@@ -77,4 +80,8 @@ int
 diet_disconnect_from_hierarchy(dynamic_type_t type, const char *name);
 
 
-END_API
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* _DIET_ADMIN_H_ */
