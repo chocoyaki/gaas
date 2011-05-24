@@ -166,38 +166,13 @@ through ssh tunnels. DIET forwarders help administrator configuring their grid w
 manually set-up ssh tunnels which arguably is neither simple nor scalable.
 DIET forwarders make it very easy configuring such topologies.
 
-LICENSE AND COPYRIGHT
-=====================
-    
-Copyright
----------    
-(C)2011, GRAAL, INRIA Rhone-Alpes, 46 allee d'Italie, 69364 Lyon
-cedex 07, France all right reserved <diet-dev@ens-lyon.fr>
+.. include:: licence_copyright.rst
 
-License
--------
-This program is free software: you can redistribute it and/or mod‐
-ify it under the terms of the GNU General Public License as pub‐
-lished by the Free Software Foundation, either version 3 of the
-License, or (at your option) any later version. This program is
-distributed in the hope that it will be useful, but WITHOUT ANY
-WARRANTY; without even the implied warranty of MERCHANTABILITY or
-FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Pub- lic Li‐
-cense for more details. You should have received a copy of the GNU
-General Public License along with this program. If not, see
-<http://www.gnu.org/licenses/>.
-
-AUTHORS
-=======
-GRAAL
-INRIA Rhone-Alpes
-46 allee d'Italie 69364 Lyon cedex 07, FRANCE
-Email: <diet-dev@ens-lyon.fr>
-WWW: http://graal.ens-lyon.fr/DIET
+.. include:: authors.rst
 
 SEE ALSO
 ========
-omniNames(1), DIETAgent(1)
+omniNames(1), dietAgent(1), maDagAgent(1)
 
 BUGS
 ====

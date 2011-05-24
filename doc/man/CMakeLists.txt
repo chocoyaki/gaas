@@ -1,8 +1,12 @@
 add_custom_target( doc-man )
 add_dependencies( doc doc-man )
 
-file( GLOB MAN_PAGES_SRCS 
-  RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "*.rst" )
+
+set( MAN_PAGES_SRCS
+  dietAgent.rst
+  maDagAgent.rst
+  dietForwarder.rst
+)
 
 # create man output directory
 file( MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/man1" )

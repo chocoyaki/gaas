@@ -1302,12 +1302,20 @@ doc/UsersFAQ.pdf
 # doc/man section
 [Untemplated]
 doc/man/CMakeLists.txt
+doc/man/authors.rst
+doc/man/config_file.rst
+doc/man/corba_usage_diet.rst
 doc/man/dietAgent.rst
 doc/man/dietForwarder.rst
+doc/man/diet_platform.rst
+doc/man/licence_copyright.rst
+doc/man/maDagAgent.rst
+doc/man/reporting_bugs.rst
 
 [Untemplated]
 doc/man/dietAgent.1
 doc/man/dietForwarder.1
+doc/man/maDagAgent.1
 
 # doc/Tutorial section
 [Devel_untemplated]
