@@ -1,11 +1,9 @@
 /****************************************************************************/
-/* Remove a diet component                                                  */
-/* Function code for dynamically killing an element and (potentially) its   */
-/* underlying hierachy.                                                     */
+/* Dynamic hierarchy management                                             */
+/* Example code for dynamically changing the parent of an element.          */
 /*                                                                          */
 /*  Author(s):                                                              */
 /*    - Benjamin DEPARDON (Benjamin.Depardon@ens-lyon.fr)                   */
-/*    - Kevin COULOMB (kevin.coulomb@-sysfera.fr)                           */
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
@@ -13,13 +11,13 @@
 
 #include "DIET_admin.h"
 #include "SeD.hh"
-#include "Agent.hh"
+#include "LocalAgent.hh"
 #include "ORBMgr.hh"
 
 
 
 int
-diet_remove_from_hierarchy(dynamic_type_t type, const char *name, int recursive) {
+diet_change_parent(dynamic_type_t type, const char *name, const char *parent_name) {
   int argc = 0;
   char **argv = NULL;
 
@@ -30,18 +28,14 @@ diet_remove_from_hierarchy(dynamic_type_t type, const char *name, int recursive)
     switch (type) {
     case SED: {
       SeD_var sed = ORBMgr::getMgr()->resolve<SeD, SeD_ptr>(SEDCTXT, name);
-      if (sed->removeElement()) {
+      if (sed->bindParent(parent_name)) {
 	return DIET_SED;
       }
       break;
     }
-    case AGENT:
-      // Intentional fall through
-    case MA:
-      // Intentional fall through
     case LA: {
-      Agent_var agent = ORBMgr::getMgr()->resolve<Agent, Agent_var>(AGENTCTXT, name);
-      if (agent->removeElement(recursive)) {
+      LocalAgent_var agent = ORBMgr::getMgr()->resolve<LocalAgent, LocalAgent_var>(AGENTCTXT, name);
+      if (agent->bindParent(parent_name)) {
 	return DIET_AGENT;
       }
       break;
@@ -68,4 +62,3 @@ diet_remove_from_hierarchy(dynamic_type_t type, const char *name, int recursive)
   }
   return DIET_SUCCESS;
 }
-

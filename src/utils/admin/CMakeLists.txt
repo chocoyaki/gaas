@@ -9,7 +9,11 @@ include_directories(
 )
 
 add_library(DIET_admin 
-  remove.cc)
+  remove.cc
+  connect.cc
+  disconnect.cc
+)
 
-INSTALL( FILES admin.hh DESTINATION include/)
+target_link_libraries( DIET_admin DIET_CORBA DIET_SeD )
+
 INSTALL( TARGETS DIET_admin DESTINATION lib/)

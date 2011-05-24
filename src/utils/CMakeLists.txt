@@ -94,3 +94,8 @@ if (DIET_USE_USERSCHED)
     )
 endif (DIET_USE_USERSCHED)
 
+
+## Admin API
+if ( DIET_ADMIN_API )
+  add_subdirectory( admin )
+endif()

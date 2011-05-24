@@ -35,10 +35,12 @@ BEGIN_API
 /**
  * \brief Enumeration to specify the type of the component to administrate
  */
-typedef enum DynamicType {
-  SED = 0, /*!< The element is a DIET SeD */
-  AGENT    /*!< The element is a DIET agent */
-}DynamicType;
+typedef enum dynamic_type_t {
+  SED = 0, /*!< The element is a SeD */
+  AGENT,   /*!< The element is an agent */
+  LA,      /*!< The element is a local agent */
+  MA       /*!< The element is a master agent */
+} dynamic_type_t;
 
 //------------------------------------------------------------------------
 // API
@@ -52,7 +54,27 @@ typedef enum DynamicType {
  * \param DIET_SUCCESS on success, an error code otherwise
  */
 int
-removeFromHierarchy(DynamicType type, char *name, int recursive);
+diet_remove_from_hierarchy(dynamic_type_t type, const char *name, int recursive);
+
+/**
+ * \brief Change the parent of a component in the hierarchy
+ * \param type: The type of the element to change the parent of
+ * \param name: The name of the component to change the parent of (as recorded in the naming service)
+ * \param parent_name: the name of the new parent in the hierarchy (as recorded in the naming service)
+ * \param DIET_SUCCESS on success, an error code otherwise
+ */
+int
+diet_change_parent(dynamic_type_t type, const char *name, const char *parent_name);
+
+
+/**
+ * \brief Disconnect an element from its parent in the hierarchy
+ * \param type: The type of the element to disconnect
+ * \param name: The name of the component to disconnect (as recorded in the naming service)
+ * \param DIET_SUCCESS on success, an error code otherwise
+ */
+int
+diet_disconnect_from_hierarchy(dynamic_type_t type, const char *name);
 
 
 END_API

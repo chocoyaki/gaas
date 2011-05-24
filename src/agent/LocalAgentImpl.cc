@@ -181,79 +181,81 @@ LocalAgentImpl::disconnect() {
 /* Method to dynamically change the parent of the SeD */
 CORBA::Long
 LocalAgentImpl::bindParent(const char * parentName) {
-    long rv = 0;
-    SeqCorbaProfileDesc_t* profiles(NULL);
-    profiles = SrvT->getProfiles();
-
-    /* Check that the parent isn't itself */
-    if (! strcmp(parentName, this->myName)) {
-	WARNING("given parent name is the same as LA name. Won't try to connect");
-	return 1;
-    }
-
-    /* Does the new parent exists? */
-    Agent_var parentTmp;
-    try {
-      parentTmp =
-        ORBMgr::getMgr()->resolve<Agent, Agent_var>(AGENTCTXT, parentName);
-    } catch (...) {
-      parentTmp = Agent::_nil(); 
-    }
-    if (CORBA::is_nil(parentTmp)) {
-	if (CORBA::is_nil(this->parent)) {
-	    WARNING("cannot locate agent "
-		    << parentName
-		    << ", will now wait");
-	} else {
-	    WARNING("cannot locate agent "
-		    << parentName
-		    << ", won't change current parent");
-	}
-	return 1;
+  long rv = 0;
+  SeqCorbaProfileDesc_t* profiles(NULL);
+  profiles = SrvT->getProfiles();
+  
+  /* Check that the parent isn't itself */
+  if (! strcmp(parentName, this->myName)) {
+    WARNING("given parent name is the same as LA name. Won't try to connect");
+    return 1;
+  }
+  
+  /* Does the new parent exists? */
+  Agent_var parentTmp;
+  try {
+    parentTmp =
+      ORBMgr::getMgr()->resolve<Agent, Agent_var>(AGENTCTXT, parentName);
+  } catch (...) {
+    parentTmp = Agent::_nil(); 
+  }
+  if (CORBA::is_nil(parentTmp)) {
+    if (CORBA::is_nil(this->parent)) {
+      WARNING("cannot locate agent "
+              << parentName
+              << ", will now wait");
+    } else {
+      WARNING("cannot locate agent "
+              << parentName
+              << ", won't change current parent");
     }
     return 1;
+  }
 
   /* Do we already have a parent?
    * If yes, we need to unsubscribe.
    */
-    if (! CORBA::is_nil(this->parent)) {
-      try {
-	/* Unsubscribe from parent */
-	if (childID != -1)
-	  this->parent->childUnsubscribe(childID, *profiles);
-	this->parent = Agent::_nil();
-	childID = -1;
-
-	/* Unsubscribe data manager */
-	this->dataManager->unsubscribeParent();
-      } catch (CORBA::Exception& e) {
-	CORBA::Any tmp;
-	tmp <<= e;
-	CORBA::TypeCode_var tc = tmp.type();
-	WARNING("exception caught (" << tc->name()
-		<< ") while unsubscribing to "
-		<< "parent: either the latter is down, "
-		<< "or there is a problem with the CORBA name server");
-      }
-    }
-
-    /* Now we try to subscribe to a new parent */
-    this->parent = parentTmp;
-
+  if (! CORBA::is_nil(this->parent)) {
     try {
-	if (profiles->length())
-	    childID = parent->agentSubscribe(myName, localHostName,
+      /* Unsubscribe from parent */
+      if (childID != -1) {
+        this->parent->childUnsubscribe(childID, *profiles);
+      }
+      this->parent = Agent::_nil();
+      childID = -1;
+      
+      /* Unsubscribe data manager */
+      this->dataManager->unsubscribeParent();
+    } catch (CORBA::Exception& e) {
+      CORBA::Any tmp;
+      tmp <<= e;
+      CORBA::TypeCode_var tc = tmp.type();
+      WARNING("exception caught (" << tc->name()
+              << ") while unsubscribing to "
+              << "parent: either the latter is down, "
+              << "or there is a problem with the CORBA name server");
+    }
+  }
+  
+  /* Now we try to subscribe to a new parent */
+  this->parent = parentTmp;
+  
+  try {
+    if (profiles->length()) {
+      childID = parent->agentSubscribe(myName, localHostName,
 					     *profiles);
-	TRACE_TEXT(TRACE_ALL_STEPS, "* Bound myself to parent: "
-		   << parentName << std::endl);
-
-	/* Data manager also needs to connect to the new parent */
-	this->dataManager->subscribeParent(parentName);
-
+    }
+    TRACE_TEXT(TRACE_ALL_STEPS, "* Bound myself to parent: "
+               << parentName << std::endl);
+    
+    /* Data manager also needs to connect to the new parent */
+    this->dataManager->subscribeParent(parentName);
+    
 #ifdef USE_LOG_SERVICE
     /* Log */
-    if (dietLogComponent)
+    if (dietLogComponent) {
       dietLogComponent->logNewParent("LA", parentName);
+    }
 #endif /* USE_LOG_SERVICE */
   } catch (CORBA::Exception& e) {
     CORBA::Any tmp;

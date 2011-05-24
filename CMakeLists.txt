@@ -130,6 +130,9 @@ mark_as_advanced(DIET_TAU_PROFILING)
 option( DIET_USE_MULTICALL "Build DIET with the multiple async call (In development)" OFF)
 mark_as_advanced(DIET_USE_MULTICALL)
 
+# admin API
+option(DIET_ADMIN_API   "Build DIET administration API." OFF)
+
 
 option(DIET_BUILD_DOC "Build DIET documentation." OFF)
 if( DIET_BUILD_DOC )

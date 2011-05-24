@@ -9,6 +9,7 @@ INSTALL( FILES
     DIET_grpc.h
     DIET_server.h
     grpc.h
+    DIET_admin.h
 
     DESTINATION
     include
