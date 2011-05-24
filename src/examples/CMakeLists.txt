@@ -11,7 +11,9 @@ ELSE ( DIET_USE_DAGDA )
 ENDIF ( DIET_USE_DAGDA )
 
 IF( DIET_USE_DYNAMICS )
-  ADD_SUBDIRECTORY( dynamic_hierarchy )
+  if ( DIET_ADMIN_API )
+    ADD_SUBDIRECTORY( dynamic_hierarchy )
+  endif ( )
 ENDIF( DIET_USE_DYNAMICS )
 
 IF( DIET_USE_ALT_BATCH )
