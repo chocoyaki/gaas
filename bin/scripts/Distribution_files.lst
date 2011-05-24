@@ -307,6 +307,7 @@ Cmake/tests/runtest.cmake
 include/CMakeLists.txt
 include/README
 [Templated]
+include/DIET_admin.h
 include/DIET_client.h
 include/DIET_data.h
 include/DIET_grpc.h
