@@ -20,15 +20,14 @@ extern "C" {
 // Error code
 //------------------------------------------------------------------------
 
-#define DIET_SUCCESS 	  0    
-#define DIET_NAMING  	  1
-#define DIET_NARROW  	  2    
-#define DIET_COMM_FAILURE 3
-#define DIET_OMNIFATAL    4
-#define DIET_UNKNOWN      5
-#define DIET_SED          6
-#define DIET_AGENT        7
-#define DIET_SYSTEM       8
+#define DIET_NO_ERROR 	      0    
+#define DIET_NAMING_ERROR     1
+#define DIET_NARROW_ERROR     2    
+#define DIET_COMM_FAILURE     3
+#define DIET_OMNIFATAL        4
+#define DIET_UNKNOWN_ERROR    5
+#define DIET_SYSTEM_ERROR     6
+#define DIET_ADMIN_CALL_ERROR 7
 
 //------------------------------------------------------------------------
 // Datatypes

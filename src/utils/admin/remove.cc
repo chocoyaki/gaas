@@ -31,7 +31,7 @@ diet_remove_from_hierarchy(dynamic_type_t type, const char *name, int recursive)
     case SED: {
       SeD_var sed = ORBMgr::getMgr()->resolve<SeD, SeD_ptr>(SEDCTXT, name);
       if (sed->removeElement()) {
-	return DIET_SED;
+	return DIET_ADMIN_CALL_ERROR;
       }
       break;
     }
@@ -42,12 +42,12 @@ diet_remove_from_hierarchy(dynamic_type_t type, const char *name, int recursive)
     case LA: {
       Agent_var agent = ORBMgr::getMgr()->resolve<Agent, Agent_var>(AGENTCTXT, name);
       if (agent->removeElement(recursive)) {
-	return DIET_AGENT;
+	return DIET_ADMIN_CALL_ERROR;
       }
       break;
     }
     default: {
-      return DIET_UNKNOWN;
+      return DIET_UNKNOWN_ERROR;
     }
     } // end: switch (type)
 
@@ -56,16 +56,16 @@ diet_remove_from_hierarchy(dynamic_type_t type, const char *name, int recursive)
     return DIET_COMM_FAILURE;
   }
   catch(CORBA::SystemException& ) {
-    return DIET_SYSTEM;
+    return DIET_SYSTEM_ERROR;
   }
   catch(CORBA::Exception& ) {
-    return DIET_SYSTEM;
+    return DIET_SYSTEM_ERROR;
   }  catch(omniORB::fatalException& fe) {
     return DIET_OMNIFATAL;
   }
   catch(...) {
-    return DIET_UNKNOWN;
+    return DIET_UNKNOWN_ERROR;
   }
-  return DIET_SUCCESS;
+  return DIET_NO_ERROR;
 }
 
