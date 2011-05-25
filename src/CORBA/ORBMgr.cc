@@ -577,10 +577,10 @@ ORBMgr* ORBMgr::getMgr() {
 }
 
 void ORBMgr::init(int argc, char* argv[]) {
-  if (theMgr) {
-    delete theMgr;
+  if (!theMgr) {
+    //    delete theMgr;
+    theMgr = new ORBMgr(argc, argv);
   }
-  theMgr = new ORBMgr(argc, argv);
 }
 
 /* Translate the string passed as first argument in bytes and
