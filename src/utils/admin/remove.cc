@@ -15,8 +15,7 @@
 #include "SeD.hh"
 #include "Agent.hh"
 #include "ORBMgr.hh"
-
-
+#include <exception>
 
 int
 diet_remove_from_hierarchy(dynamic_type_t type, const char *name, int recursive) {
@@ -62,6 +61,8 @@ diet_remove_from_hierarchy(dynamic_type_t type, const char *name, int recursive)
     return DIET_SYSTEM_ERROR;
   }  catch(omniORB::fatalException& fe) {
     return DIET_OMNIFATAL;
+  } catch (std::exception& e) {
+    return DIET_SYSTEM_ERROR;
   }
   catch(...) {
     return DIET_UNKNOWN_ERROR;

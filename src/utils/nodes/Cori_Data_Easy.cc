@@ -191,7 +191,6 @@ Cori_Data_Easy::get_Information(int type_Info,
      break;
   case EST_NBCPU:
      res=cpu->get_CPU_Number(&temp);
-     fprintf (stderr, "Trouve %lf cpu \n", temp);
      convertSimple(temp, info,type_Info);
     break;
   case EST_BOGOMIPS:

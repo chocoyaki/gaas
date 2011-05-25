@@ -63,8 +63,9 @@ Easy_CPU::get_CPU_Avg(int interval,
   if (!get_CPU_Avg_byGetloadavg(interval,&temp)){
     *resultat=temp;
     return 0;}
-  else
+  else{
     *resultat=HUGE_VAL;
+  }
   return 1;
 }
 
@@ -140,12 +141,13 @@ Easy_CPU::get_CPU_Number(double * result){
 
 int
 Easy_CPU::get_CPU_ActualLoad(double * actualload){
-  if (!get_CPU_ActualLoad_Byps(actualload))
+  if (!get_CPU_ActualLoad_Byps(actualload)) {
     return 0;
-      else {
-	*actualload=1;
-	return 1;
-	}
+  }
+  else {
+    *actualload=1;
+    return 1;
+  }
 }
 
 
@@ -204,11 +206,8 @@ Easy_CPU::get_CPU_Number_byget_nprocs(double * result){
 /* For these two pieces of information the GNU C library also provides */
 /* functions to get the information directly. The functions are        */
 /* declared in sys/sysinfo.h This function is a GNU extension.         */
-  fprintf (stderr, "TADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n");
 #ifdef CORI_HAVE_get_nprocs
-  fprintf (stderr, "Getting nprocs : res=%lf \n", *result);
   *result=get_nprocs ();
-  fprintf (stderr, "-> nprocs : res=%lf \n", *result);
   return 0;
 
 #endif
@@ -304,7 +303,6 @@ Easy_CPU::get_CPU_ActualLoad_Byps(double * actualload){
   FILE * psfile;
   char buffer [256];
   psfile=popen("ps -e -o pcpu","r");
-
   if (psfile==NULL){
     return 1;
   }
@@ -317,7 +315,7 @@ Easy_CPU::get_CPU_ActualLoad_Byps(double * actualload){
   float loadCPU=0;
   float tmp=0;
   while(!feof(psfile)){
-    fscanf (psfile,"%6.2f",&tmp);
+    fscanf (psfile,"%6f",&tmp);
     loadCPU+=tmp;
   }
   pclose(psfile);
