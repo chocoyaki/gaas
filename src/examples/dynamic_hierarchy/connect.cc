@@ -53,7 +53,7 @@ main (int argc, char** argv) {
     } else {
       cout << "LA ";
     }
-    cout << name << "." << endl;
+    cout << name << "(error code=" << res << ")." << endl;
 
     return res;
   }
