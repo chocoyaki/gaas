@@ -6,13 +6,7 @@
 
 #include <boost/scoped_ptr.hpp>
 
-#include <DIET_client.h>
-#include <DIET_grpc.h>
-#include <omniORB4/CORBA.h>
-
-#include "SeD.hh"
-#include "LocalAgent.hh"
-#include "ORBMgr.hh"
+#include <DIET_admin.h>
 
 #include "fixtures.hpp"
 #include "utils.hpp"
@@ -26,9 +20,6 @@ BOOST_FIXTURE_TEST_SUITE( DynamicRemove,
 
 
 
-#include "dynamicOperations.hpp"
-
-
 /* Remove */
 BOOST_AUTO_TEST_CASE( dynamic_hierarchy_remove1 ) {
   BOOST_TEST_MESSAGE( "-- Test: dynamic_hierarchy_remove1" );
@@ -38,18 +29,18 @@ BOOST_AUTO_TEST_CASE( dynamic_hierarchy_remove1 ) {
 
   // Remove SeD
   BOOST_TEST_MESSAGE( "-- Remove SeD" );
-  res = dynamicOperation("SED", "SeD1", REMOVE);
-  BOOST_CHECK_EQUAL( 0, res );
+  res = diet_remove_from_hierarchy(SED, "SeD1", false);
+  BOOST_CHECK_EQUAL( DIET_NO_ERROR, res );
 
   // Remove LA
   BOOST_TEST_MESSAGE( "-- Remove LA1 (not recursive)" );
-  res = dynamicOperation("AGENT", "LA1", REMOVE);
-  BOOST_CHECK_EQUAL( 0, res );
+  res = diet_remove_from_hierarchy(AGENT, "LA1", false);
+  BOOST_CHECK_EQUAL( DIET_NO_ERROR, res );
 
   // Remove MA
   BOOST_TEST_MESSAGE( "-- Remove MA1 (not recursive)" );
-  res = dynamicOperation("AGENT", "MA1", REMOVE);
-  BOOST_CHECK_EQUAL( 0, res );
+  res = diet_remove_from_hierarchy(AGENT, "MA1", false);
+  BOOST_CHECK_EQUAL( DIET_NO_ERROR, res );
 }
 
 BOOST_AUTO_TEST_CASE( dynamic_hierarchy_remove2 ) {
@@ -60,18 +51,18 @@ BOOST_AUTO_TEST_CASE( dynamic_hierarchy_remove2 ) {
 
   // Remove MA
   BOOST_TEST_MESSAGE( "-- Remove MA1 (not recursive)" );
-  res = dynamicOperation("AGENT", "MA1", REMOVE);
-  BOOST_CHECK_EQUAL( 0, res );
+  res = diet_remove_from_hierarchy(AGENT, "MA1", false);
+  BOOST_CHECK_EQUAL( DIET_NO_ERROR, res );
 
   // Remove LA
   BOOST_TEST_MESSAGE( "-- Remove LA1 (not recursive)" );
-  res = dynamicOperation("AGENT", "LA1", REMOVE);
-  BOOST_CHECK_EQUAL( 0, res );
+  res = diet_remove_from_hierarchy(AGENT, "LA1", false);
+  BOOST_CHECK_EQUAL( DIET_NO_ERROR, res );
 
   // Remove SeD
   BOOST_TEST_MESSAGE( "-- Remove SeD1" );
-  res = dynamicOperation("SED", "SeD1", REMOVE);
-  BOOST_CHECK_EQUAL( 0, res );
+  res = diet_remove_from_hierarchy(SED, "SeD1", false);
+  BOOST_CHECK_EQUAL( DIET_NO_ERROR, res );
 }
 
 BOOST_AUTO_TEST_CASE( dynamic_hierarchy_remove3 ) {
@@ -82,18 +73,18 @@ BOOST_AUTO_TEST_CASE( dynamic_hierarchy_remove3 ) {
 
   // Remove SeD
   BOOST_TEST_MESSAGE( "-- Remove SeD1" );
-  res = dynamicOperation("SED", "SeD1", REMOVE, "", true);
-  BOOST_CHECK_EQUAL( 0, res );
+  res = diet_remove_from_hierarchy(SED, "SeD1", true);
+  BOOST_CHECK_EQUAL( DIET_NO_ERROR, res );
 
   // Remove LA
   BOOST_TEST_MESSAGE( "-- Remove LA1 (recursive)" );
-  res = dynamicOperation("AGENT", "LA1", REMOVE, "", true);
-  BOOST_CHECK_EQUAL( 0, res );
+  res = diet_remove_from_hierarchy(AGENT, "LA1", true);
+  BOOST_CHECK_EQUAL( DIET_NO_ERROR, res );
 
   // Remove MA
   BOOST_TEST_MESSAGE( "-- Remove MA1 (recursive)" );
-  res = dynamicOperation("AGENT", "MA1", REMOVE, "", true);
-  BOOST_CHECK_EQUAL( 0, res );
+  res = diet_remove_from_hierarchy(AGENT, "MA1", true);
+  BOOST_CHECK_EQUAL( DIET_NO_ERROR, res );
 }
 
 BOOST_AUTO_TEST_CASE( dynamic_hierarchy_remove4 ) {
@@ -104,8 +95,8 @@ BOOST_AUTO_TEST_CASE( dynamic_hierarchy_remove4 ) {
 
   // Remove MA
   BOOST_TEST_MESSAGE( "-- Remove MA1 (recursive)" );
-  res = dynamicOperation("AGENT", "MA1", REMOVE, "", true);
-  BOOST_CHECK_EQUAL( 0, res );
+  res = diet_remove_from_hierarchy(AGENT, "MA1", true);
+  BOOST_CHECK_EQUAL( DIET_NO_ERROR, res );
 
 }
 

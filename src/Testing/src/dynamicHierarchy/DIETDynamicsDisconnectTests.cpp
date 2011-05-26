@@ -6,13 +6,7 @@
 
 #include <boost/scoped_ptr.hpp>
 
-#include <DIET_client.h>
-#include <DIET_grpc.h>
-#include <omniORB4/CORBA.h>
-
-#include "SeD.hh"
-#include "LocalAgent.hh"
-#include "ORBMgr.hh"
+#include <DIET_admin.h>
 
 #include "fixtures.hpp"
 #include "utils.hpp"
@@ -26,8 +20,6 @@ BOOST_FIXTURE_TEST_SUITE( DynamicDisconnect,
 
 
 
-#include "dynamicOperations.hpp"
-
 
 /* Disconnect */
 BOOST_AUTO_TEST_CASE( dynamic_hierarchy_disconnect1 ) {
@@ -38,13 +30,13 @@ BOOST_AUTO_TEST_CASE( dynamic_hierarchy_disconnect1 ) {
 
   // Disconnect SeD from LA
   BOOST_TEST_MESSAGE( "-- Disonnect SeD1 from LA1" );
-  res = dynamicOperation("SED", "SeD1", DISCONNECT);
-  BOOST_CHECK_EQUAL( 0, res );
+  res = diet_disconnect_from_hierarchy(SED, "SeD1");
+  BOOST_CHECK_EQUAL( DIET_NO_ERROR, res );
 
   // Disconnect LA from MA
   BOOST_TEST_MESSAGE( "-- Disonnect LA1 from MA1" );
-  res = dynamicOperation("AGENT", "LA1", DISCONNECT);
-  BOOST_CHECK_EQUAL( 0, res );
+  res = diet_disconnect_from_hierarchy(LA, "LA1");
+  BOOST_CHECK_EQUAL( DIET_NO_ERROR, res );
 }
 
 BOOST_AUTO_TEST_CASE( dynamic_hierarchy_disconnect2 ) {
@@ -55,13 +47,13 @@ BOOST_AUTO_TEST_CASE( dynamic_hierarchy_disconnect2 ) {
 
   // Disconnect LA from MA
   BOOST_TEST_MESSAGE( "-- Disonnect LA1 from MA1" );
-  res = dynamicOperation("AGENT", "LA1", DISCONNECT);
-  BOOST_CHECK_EQUAL( 0, res );
+  res = diet_disconnect_from_hierarchy(LA, "LA1");
+  BOOST_CHECK_EQUAL( DIET_NO_ERROR, res );
 
   // Disconnect SeD from LA
   BOOST_TEST_MESSAGE( "-- Disonnect SeD from LA1" );
-  res = dynamicOperation("SED", "SeD1", DISCONNECT);
-  BOOST_CHECK_EQUAL( 0, res );
+  res = diet_disconnect_from_hierarchy(SED, "SeD1");
+  BOOST_CHECK_EQUAL( DIET_NO_ERROR, res );
 }
 
 
