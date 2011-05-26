@@ -44,6 +44,7 @@ macro( diet_test NAME )
     target_link_libraries( ${NAME}
       ${Boost_LIBRARIES}
       ${DIET_CLIENT_LIBRARIES} 
+      ${DIET_ADMIN_LIBRARIES} 
       utils
       pthread )
     
@@ -102,6 +103,7 @@ macro( generate_replace_tests NAME FIXTURENAME TESTNAME POSTFIX INCLUDEFILE GENE
     target_link_libraries( ${NAME}${POSTFIX}
       ${Boost_LIBRARIES}
       ${DIET_CLIENT_LIBRARIES} 
+      ${DIET_ADMIN_LIBRARIES} 
       utils
       pthread )
     
