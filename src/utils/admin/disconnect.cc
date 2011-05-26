@@ -43,20 +43,8 @@ diet_disconnect_from_hierarchy(dynamic_type_t type, const char *name) {
     }
     } // end: switch (type)
 
-  }
-  catch(CORBA::COMM_FAILURE& ex) {
-    return DIET_COMM_FAILURE;
-  }
-  catch(CORBA::SystemException& ) {
-    return DIET_SYSTEM_ERROR;
-  }
-  catch(CORBA::Exception& ) {
-    return DIET_SYSTEM_ERROR;
-  }  catch(omniORB::fatalException& fe) {
-    return DIET_OMNIFATAL;
-  }
-  catch(...) {
-    return DIET_UNKNOWN_ERROR;
+  } catch(...) {
+    return DIET_COMM_ERROR;
   }
   return DIET_NO_ERROR;
 }

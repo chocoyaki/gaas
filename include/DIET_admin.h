@@ -21,13 +21,9 @@ extern "C" {
 //------------------------------------------------------------------------
 
 #define DIET_NO_ERROR 	      0    
-#define DIET_NAMING_ERROR     1
-#define DIET_NARROW_ERROR     2    
-#define DIET_COMM_FAILURE     3
-#define DIET_OMNIFATAL        4
-#define DIET_UNKNOWN_ERROR    5
-#define DIET_SYSTEM_ERROR     6
-#define DIET_ADMIN_CALL_ERROR 7
+#define DIET_COMM_ERROR       1
+#define DIET_UNKNOWN_ERROR    2
+#define DIET_ADMIN_CALL_ERROR 3
 
 //------------------------------------------------------------------------
 // Datatypes
