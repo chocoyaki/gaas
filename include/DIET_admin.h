@@ -37,7 +37,8 @@ typedef enum dynamic_type_t {
   SED = 0, /*!< The element is a SeD */
   AGENT,   /*!< The element is an agent */
   LA,      /*!< The element is a local agent */
-  MA       /*!< The element is a master agent */
+  MA,      /*!< The element is a master agent */
+  MADAG    /*!< The element is an MA DAG */
 } dynamic_type_t;
 
 //------------------------------------------------------------------------
