@@ -43,7 +43,6 @@ BOOST_AUTO_TEST_CASE( dyn_hier_connect_same ) {
   BOOST_TEST_MESSAGE( "-- Test: dyn_hier_connect_same" );
   int res;
 
-
   // Connect LA to MA
   BOOST_TEST_MESSAGE( "-- Connect LA1 to MA1" );
   res = diet_change_parent(LA, "LA1", "MA1");
