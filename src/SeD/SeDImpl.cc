@@ -537,8 +537,11 @@ SeDImpl::bindParent(const char * parentName) {
   if (! CORBA::is_nil(this->parent)) {
     try {
       /* Unsubscribe from parent */
-      this->parent->childUnsubscribe(childID, *profiles);
+      if (childID != -1) {
+        this->parent->childUnsubscribe(childID, *profiles);
+      }
       this->parent = Agent::_nil();
+      childID = -1;
       
       /* Unsubscribe data manager */
       this->dataManager->unsubscribeParent();
