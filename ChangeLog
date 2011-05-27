@@ -21,6 +21,17 @@
 	write it in the /tmp/DIET-forwarder-ior-*.tmp file which is used
 	by its peer. Thus, you do not necessarily need to specify the
 	--remote-port option anymore.
+	- forwarders have a new option, --tunnel-wait, to specify the time
+	a forwarder has to wait before considering that the tunnel is
+	open (default is 10s).
+	- a new API for administrating the DIET hierarchy has been
+	created. Currently three methods are available:
+	  + diet_remove_from_hierarchy: kill an element (MA, LA, SeD)
+	  + diet_change_parent: modify the parent of an LA or a SeD
+	  + diet_disconnect_from_hierarchy: remove the link between an LA
+	  or a SeD and its parent, i.e., the sub-hierarchy becomes
+	  unavailable.
+	See include/DIET_admin.h for more details.
 	
 * Compilation:
 	- Documentation can now be compiled directly from the main
@@ -32,6 +43,7 @@
 	- the old parser has been definitively removed
 	- all elements of DIET apart from the dietForwarder now use macros
 	in debug.hh to print out messages instead of using cout and cerr.
+	- a new include file has been added: DIET_admin.h
 	
 * Bug fix:
 	- A few memory leaks
