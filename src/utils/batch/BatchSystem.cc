@@ -206,7 +206,6 @@ BatchSystem::diet_submit_parallel(diet_profile_t * profile,
   char * filename_2 ;
   const char * loc_addon_prologue ;
 
-  cout << "BSsdp 1" << endl;
   /* Options, if available, are in the following order:
      nbnodes
      walltime
@@ -222,7 +221,6 @@ BatchSystem::diet_submit_parallel(diet_profile_t * profile,
     ERROR("error allocating memory when building script (options)..." << endl <<
 	  "Service not launched", -1);
   }
-  cout << "BSsdp 2" << endl;
   /* Convert the walltime in hh:mm:ss, standard for every batch */
   /* TODO:
      1) should be checked if possible, and even possible, with Cori!
@@ -256,7 +254,6 @@ BatchSystem::diet_submit_parallel(diet_profile_t * profile,
 	  "%s%s",
 	  submittingQueue, batchQueueName) ;
 
-  cout << "BSsdp 3" << endl;
 
   /* TODO: the user will be able to set the shell, mail, stdin, etc. */
   // Shell semble ne pas marcher... :?
@@ -298,7 +295,6 @@ BatchSystem::diet_submit_parallel(diet_profile_t * profile,
     ERROR("error allocating memory when building script..." << endl <<
 	  "Service not launched", -1);
   }
-  cout << "BSsdp 4" << endl;
   switch( (int)batch_ID )
     {
     case BatchCreator::LOADLEVELER:
@@ -341,7 +337,6 @@ BatchSystem::diet_submit_parallel(diet_profile_t * profile,
     default:
       ERROR("BatchSystem not managed?", -1);
     }
-  cout << "BSsdp 5" << endl;
   /* Replace DIET meta-variable in SeD programmer's command */
   sprintf(small_chaine,"%d",profile->nbprocs) ;
   replaceAllOccurencesInString(&script,"$DIET_BATCH_NBNODES",small_chaine) ;
@@ -360,7 +355,6 @@ BatchSystem::diet_submit_parallel(diet_profile_t * profile,
     ERROR("Cannot create batch file", -1) ;
   }
 
-  cout << "BSsdp 6" << endl;
 
 #if defined YC_DEBUG
   TRACE_TEXT(TRACE_MAIN_STEPS,"Nom script: " << filename << endl) ;
@@ -386,7 +380,6 @@ BatchSystem::diet_submit_parallel(diet_profile_t * profile,
   }
   close(file_descriptor_2);
 
-  cout << "BSsdp 7" << endl;
 
 #if defined YC_DEBUG
   TRACE_TEXT(TRACE_MAIN_STEPS,
@@ -408,7 +401,6 @@ BatchSystem::diet_submit_parallel(diet_profile_t * profile,
   if( system(chaine) == -1 ) {
     ERROR("Cannot submit script", -1) ;
   }
-  cout << "BSsdp 8" << endl;
   file_descriptor_2 = open(filename_2,O_RDONLY) ;
   if( file_descriptor_2 == -1 ) {
     ERROR("Cannot open batch I/O redirection file",-1) ;
@@ -421,7 +413,6 @@ BatchSystem::diet_submit_parallel(diet_profile_t * profile,
     ERROR("Error during submission or with I/O file."
 	  " Cannot read the batch ID", -1) ;
   }
-  cout << "BSsdp 9" << endl;
   /* Just in case */
   if( small_chaine[nbread-1] == '\n' )
     small_chaine[nbread-1] = '\0' ;
@@ -429,7 +420,7 @@ BatchSystem::diet_submit_parallel(diet_profile_t * profile,
   if( storeBatchJobID(atoi(small_chaine), profile->dietReqID, filename) < 0 ) {
     ERROR("Not enough memory to store new batch information",-1) ;
   }
-  cout << "BSsdp 9" << endl;
+
   /* Remove temporary files by closing them */
 #if REMOVE_BATCH_TEMPORARY_FILE
   unlink( filename_2 ) ;
@@ -446,7 +437,6 @@ BatchSystem::diet_submit_parallel(diet_profile_t * profile,
   free(script) ;
   free(chaine) ;
   free(filename_2) ;
-  cout << "BSsdp 9" << endl;
   return 0 ;
 }
 
@@ -555,27 +545,22 @@ BatchSystem::wait4BatchJobCompletion(int batchJobID)
 BatchSystem::batchJobState
 BatchSystem::getRecordedBatchJobStatus(int batchJobID)
 {
-	cout << "BSgrecord 1" << endl;
   corresID * index = this->batchJobQueue ;
 
   while( (index != NULL) && (index->batchJobID != batchJobID ) )
     index = index->nextStruct ;
-  cout << "BSgrecord 2" << endl;
   if( (index == NULL) )
     return NB_STATUS ;
-  cout << "BSgrecord 3" << endl;
   return index->status ;
 }
 
 int
 BatchSystem::updateBatchJobStatus(int batchJobID, batchJobState job_status)
 {
-	cout << "BSupdate 1" << endl;
 	corresID * index = this->batchJobQueue ;
 
   while( (index != NULL) && (index->batchJobID != batchJobID ) )
     index = index->nextStruct ;
-  cout << "BSupdate 2" << endl;
   if( (index == NULL) )
     return -1 ;
 
@@ -588,7 +573,6 @@ BatchSystem::updateBatchJobStatus(int batchJobID, batchJobState job_status)
     free( index->scriptFileName ) ;
     index->scriptFileName = NULL ;
   }
-  cout << "BSupdate 3" << endl;
   return 1 ;
 }
 

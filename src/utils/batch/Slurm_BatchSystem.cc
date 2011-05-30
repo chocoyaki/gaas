@@ -12,6 +12,7 @@
 
 #include "debug.hh"
 #include "Slurm_BatchSystem.hh"
+#include <limits.h>
 
 const char * Slurm_BatchSystem::statusNames[] = {
   "FAILED", // not OK: there is no error state in Slurm, either the job is
@@ -120,19 +121,15 @@ Slurm_BatchSystem::askBatchJobStatus(int batchJobID)
 	  wait4Command,batchJobID,waitFilter,
 	  filename,
 	  wait4Command,batchJobID,waitFilter, filename, filename) ;
-  cout << chaine << endl;
-  cout << "SBS 1" << endl;
 #if defined YC_DEBUG
   TRACE_TEXT(TRACE_ALL_STEPS,"Execute:" << endl << chaine << endl) ;
 #endif
   if( system(chaine) != 0 ) {
     ERROR("Cannot submit script", NB_STATUS) ;
   }
-  cout << "SBS 2" << endl;
   /* Get job status */  
   for( int i = 0 ; i<=NBDIGITS_MAX_BATCH_JOB_ID ; i++ )
     chaine[i] = '\0' ;
-  cout << "SBS 3" << endl;
   if( (nbread=readn(file_descriptor,chaine,NBDIGITS_MAX_JOB_STATUS)) == 0 ) {
     ERROR("Error with I/O file. Cannot read the batch status", NB_STATUS) ;
   }
@@ -148,9 +145,7 @@ Slurm_BatchSystem::askBatchJobStatus(int batchJobID)
 	   (strcmp(chaine,Slurm_BatchSystem::statusNames[i])!=0) ) {
       i++ ;
     }
-    cout << "Status du job : " << Slurm_BatchSystem::statusNames[i] << endl;
   }
-  cout << "SBS 4" << endl;
   if( i==NB_STATUS ) {
     ERROR("Cannot get batch job " << batchJobID << " status: " << chaine, NB_STATUS) ;
   }
@@ -161,16 +156,9 @@ Slurm_BatchSystem::askBatchJobStatus(int batchJobID)
   if( close(file_descriptor) != 0 ) {
     WARNING("Couln't remove I/O redirection file") ;
   }
-  cout << "SBS 5" << endl;
   updateBatchJobStatus(batchJobID,(batchJobState)i) ;
-  cout << "SBS 6" << endl;
-  cout << chaine << endl;
-  cout << filename << endl;
   free(chaine) ;
-  cout << "SBS 7" << endl;
     free(filename) ;
-    cout << "SBS 8" << endl;
-
   return (batchJobState)i ;
 }
 
@@ -205,11 +193,17 @@ Slurm_BatchSystem::getNbTotResources()
 				 "DIET_getNbResources") ;
 }
 
+/**
+ * @todo DL: should be implemented correctly. I don't know what the unit is, so... INT_MAX is returned.
+ *
+ */
 int
 Slurm_BatchSystem::getMaxWalltime()
 {
-  return launchCommandAndGetInt("qstat -Qf | grep mtime | cut --delimiter== --field=2 | cut --delimiter=\" \" --field=2",
-				 "DIET_getNbResources") ;
+	INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl) ;
+	return INT_MAX;
+//  return launchCommandAndGetInt("qstat -Qf | grep mtime | cut --delimiter== --field=2 | cut --delimiter=\" \" --field=2",
+//				 "DIET_getNbResources") ;
 }
 
 int
