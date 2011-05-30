@@ -344,7 +344,7 @@ protected :
   const char * pathToTmp ; 
   
   /************ Batch Commands ************/
-  const char * shell ; /* shell demandé pour lancer le script distant */
+  const char * shell ; /* shell demandï¿½ pour lancer le script distant */
   const char * prefixe ;
   const char * postfixe ;
 

@@ -72,6 +72,7 @@ public :
     SGE,
     PBS,
     OAR2_X,
+    SLURM,
 #ifdef HAVE_CLOUD
     EUCALYPTUS,
 #endif
