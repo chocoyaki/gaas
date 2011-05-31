@@ -54,10 +54,9 @@ main (int argc, char** argv) {
       cout << "LA ";
     }
     cout << name << " (error code=" << res << ")." << endl;
-
-    return res;
+  } else {
+    cout << "** " << name << " has been attached to " << parentName << "." << endl;
   }
 
-  cout << "** " << name << " has been attached to " << parentName << "." << endl;
   return res;
 }
