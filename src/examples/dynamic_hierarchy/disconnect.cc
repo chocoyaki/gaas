@@ -50,11 +50,11 @@ main (int argc, char** argv) {
     } else {
       cout << "LA ";
     }
-    cout << name << "(error code=" << res << ")." << endl;
+    cout << name << " (error code=" << res << ")." << endl;
 
     return res;
   }
 
   cout << "** " << name << " has been disconnected from the hierarchy." << endl;
-  return 0;
+  return res;
 }
