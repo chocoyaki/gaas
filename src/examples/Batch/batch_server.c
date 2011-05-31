@@ -52,29 +52,33 @@ int solve_random(diet_profile_t * pb)
 
   printf("Resolving batch service random!\n\n") ;
 
+  int * nbprocs = (int*)malloc(sizeof(int));
+  *nbprocs = pb->nbprocs;
   /* Set mandatory information, like walltime */
   make_perf(pb) ;
-  diet_scalar_desc_set(diet_parameter(pb,0), &(pb->nbprocs)) ;
+  diet_scalar_desc_set(diet_parameter(pb,0), nbprocs) ;
 
   /*****************************************************/
   /* Put the command to submit into a script           */
   /* Some unecessary things, only for the example      */
   /*****************************************************/
-  script = (char*)malloc(500*sizeof(char)) ;
+  script = (char*)malloc(600*sizeof(char)) ;
   if( script == NULL ) {
     fprintf(stderr,"Memory allocation problem.. not solving the service\n\n") ;
     return 2 ;
   }
   sprintf(script,
-	  "echo \"Name of the frontale station: $DIET_NAME_FRONTALE\"\n"
-	  "echo \"Number of nodes:  $DIET_BATCH_NBNODES\"\n"
-	  "\n") ;
+	"echo \"File containing nodes list: $DIET_BATCH_NODESFILE\"\n"
+	"echo \"List of nodes:  $DIET_BATCH_NODESLIST\"\n"
+	"echo \"Name of the frontale station: $DIET_NAME_FRONTALE\"\n"
+	"echo \"Number of nodes:  $DIET_BATCH_NBNODES\"\n"
+	"\n") ;
     
   /* Submission */
   result = diet_submit_parallel(pb, NULL, script) ;
 
   /* Free memory */
-  free(script) ;
+  //free(script) ;
 
   if( result == -1 )
     printf("Error when submitting the script\n") ;

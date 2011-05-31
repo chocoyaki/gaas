@@ -837,6 +837,8 @@ src/utils/batch/PBS_BatchSystem.cc
 src/utils/batch/PBS_BatchSystem.hh
 src/utils/batch/SGE_BatchSystem.cc
 src/utils/batch/SGE_BatchSystem.hh
+src/utils/batch/Slurm_BatchSystem.cc
+src/utils/batch/Slurm_BatchSystem.hh
 
 # Utils/Cloud section
 [Untemplated]

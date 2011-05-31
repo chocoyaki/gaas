@@ -15,6 +15,7 @@ if (DIET_USE_ALT_BATCH)
       Loadleveler_BatchSystem.cc
       PBS_BatchSystem.cc
       SGE_BatchSystem.cc
+      Slurm_BatchSystem.cc
       )
 
   if (DIET_USE_CLOUD)
