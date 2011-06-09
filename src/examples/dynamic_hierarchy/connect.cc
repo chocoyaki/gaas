@@ -53,11 +53,10 @@ main (int argc, char** argv) {
     } else {
       cout << "LA ";
     }
-    cout << name << "." << endl;
-
-    return res;
+    cout << name << " (error code=" << res << ")." << endl;
+  } else {
+    cout << "** " << name << " has been attached to " << parentName << "." << endl;
   }
 
-  cout << "** " << name << " has been attached to " << parentName << "." << endl;
-  return 0;
+  return res;
 }

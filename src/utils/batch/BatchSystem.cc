@@ -221,7 +221,6 @@ BatchSystem::diet_submit_parallel(diet_profile_t * profile,
     ERROR("error allocating memory when building script (options)..." << endl <<
 	  "Service not launched", -1);
   }
-
   /* Convert the walltime in hh:mm:ss, standard for every batch */
   /* TODO:
      1) should be checked if possible, and even possible, with Cori!
@@ -254,6 +253,7 @@ BatchSystem::diet_submit_parallel(diet_profile_t * profile,
   sprintf(options+strlen(options),
 	  "%s%s",
 	  submittingQueue, batchQueueName) ;
+
 
   /* TODO: the user will be able to set the shell, mail, stdin, etc. */
   // Shell semble ne pas marcher... :?
@@ -289,13 +289,12 @@ BatchSystem::diet_submit_parallel(diet_profile_t * profile,
 				       + strlen(options)
 				       + strlen(loc_addon_prologue)
 				       + strlen(postfixe)
-				       + 300
+				       + 1000
 				       + strlen(command))) ;
   if( script == NULL ) {
     ERROR("error allocating memory when building script..." << endl <<
 	  "Service not launched", -1);
   }
-
   switch( (int)batch_ID )
     {
     case BatchCreator::LOADLEVELER:
@@ -314,17 +313,18 @@ BatchSystem::diet_submit_parallel(diet_profile_t * profile,
       break ;
     case BatchCreator::OAR1_6:
     case BatchCreator::OAR2_X:
+    case BatchCreator::SLURM:
     case BatchCreator::SGE:
     case BatchCreator::PBS:
-      sprintf(script,
-	      "%s\n"
-	      "%s"
-	      "%s"
-	      "%s\n"
-	      "DIET_BATCH_NODESFILE=%s\n"
-	      "DIET_BATCH_NODESLIST=`cat %s | sort | uniq`\n"
-	      "DIET_BATCH_NBNODES=`echo $DIET_BATCH_NODESLIST | wc -l`\n"
-	      "\n%s\n"
+    	sprintf(script,
+	      "%s\n" // prefixe
+	      "%s" // options
+	      "%s" //loc_addon_prologue
+	      "%s\n" // postfixe
+	      "DIET_BATCH_NODESFILE=%s\n" // nodeFileName
+	      "DIET_BATCH_NODESLIST=$(cat %s | sort | uniq)\n" // nodeFileName
+	      "DIET_BATCH_NBNODES=$(echo $DIET_BATCH_NODESLIST | wc -l)\n"
+	      "\n%s\n" // command
 	      ,prefixe
 	      ,options
 	      ,loc_addon_prologue
@@ -337,7 +337,6 @@ BatchSystem::diet_submit_parallel(diet_profile_t * profile,
     default:
       ERROR("BatchSystem not managed?", -1);
     }
-
   /* Replace DIET meta-variable in SeD programmer's command */
   sprintf(small_chaine,"%d",profile->nbprocs) ;
   replaceAllOccurencesInString(&script,"$DIET_BATCH_NBNODES",small_chaine) ;
@@ -355,6 +354,7 @@ BatchSystem::diet_submit_parallel(diet_profile_t * profile,
   if( file_descriptor == -1 ) {
     ERROR("Cannot create batch file", -1) ;
   }
+
 
 #if defined YC_DEBUG
   TRACE_TEXT(TRACE_MAIN_STEPS,"Nom script: " << filename << endl) ;
@@ -380,6 +380,7 @@ BatchSystem::diet_submit_parallel(diet_profile_t * profile,
   }
   close(file_descriptor_2);
 
+
 #if defined YC_DEBUG
   TRACE_TEXT(TRACE_MAIN_STEPS,
 	     "Fichier pour l'ID du job batch : " << filename_2 << endl) ;
@@ -400,7 +401,6 @@ BatchSystem::diet_submit_parallel(diet_profile_t * profile,
   if( system(chaine) == -1 ) {
     ERROR("Cannot submit script", -1) ;
   }
-
   file_descriptor_2 = open(filename_2,O_RDONLY) ;
   if( file_descriptor_2 == -1 ) {
     ERROR("Cannot open batch I/O redirection file",-1) ;
@@ -437,7 +437,6 @@ BatchSystem::diet_submit_parallel(diet_profile_t * profile,
   free(script) ;
   free(chaine) ;
   free(filename_2) ;
-
   return 0 ;
 }
 
@@ -446,7 +445,7 @@ BatchSystem::diet_submit_parallel(int batchJobID, diet_profile_t * profile,
 				  const char * command)
 {
   {
-    ERROR("This funtion is not implemented yet", 1) ;
+    ERROR("This function is not implemented yet", 1) ;
   }
 }
 
@@ -550,21 +549,18 @@ BatchSystem::getRecordedBatchJobStatus(int batchJobID)
 
   while( (index != NULL) && (index->batchJobID != batchJobID ) )
     index = index->nextStruct ;
-
   if( (index == NULL) )
     return NB_STATUS ;
-
   return index->status ;
 }
 
 int
 BatchSystem::updateBatchJobStatus(int batchJobID, batchJobState job_status)
 {
-  corresID * index = this->batchJobQueue ;
+	corresID * index = this->batchJobQueue ;
 
   while( (index != NULL) && (index->batchJobID != batchJobID ) )
     index = index->nextStruct ;
-
   if( (index == NULL) )
     return -1 ;
 

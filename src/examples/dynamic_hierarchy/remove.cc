@@ -56,11 +56,10 @@ main (int argc, char** argv) {
     } else {
       cout << "agent ";
     }
-    cout << name << "." << endl;
-
-    return res;
+    cout << name << " (error code=" << res << ")." << endl;
+  } else {
+    cout << "** " << name << " has been removed." << endl;
   }
 
-  cout << "** " << name << " has been removed." << endl;
-  return 0;
+  return res;
 }

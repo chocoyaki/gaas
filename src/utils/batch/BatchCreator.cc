@@ -57,6 +57,7 @@
 #include "OAR2_XBatchSystem.hh"
 #include "Loadleveler_BatchSystem.hh"
 #include "PBS_BatchSystem.hh"
+#include "Slurm_BatchSystem.hh"
 
 #ifdef HAVE_CLOUD
 #include "Eucalyptus_BatchSystem.hh"
@@ -76,6 +77,7 @@ const char * const BatchCreator::batchNames[NUMBER_OF_SUPPORTED_BATCH] = {
   "sge",
   "pbs",
   "oar2.x",
+  "slurm",
 
 #ifdef HAVE_CLOUD
   "eucalyptus"
@@ -108,7 +110,8 @@ BatchCreator::getBatchSystem( const char * batchName )
     return new PBS_BatchSystem(batchID,batchNames[batchID]) ;
   case OAR2_X:
     return new OAR2_XBatchSystem(batchID,batchNames[batchID]) ;
-
+  case SLURM:
+      return new Slurm_BatchSystem(batchID,batchNames[batchID]) ;
 #ifdef HAVE_CLOUD
   case EUCALYPTUS:
     return new Eucalyptus_BatchSystem(batchID, batchNames[batchID]);
