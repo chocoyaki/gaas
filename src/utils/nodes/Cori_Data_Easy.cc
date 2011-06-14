@@ -238,8 +238,10 @@ Cori_Data_Easy::get_Information(int type_Info,
     convertSimple(temp, info,type_Info);
     break;
   case EST_FREECPU:
+    double nb;
+    res=cpu->get_CPU_Number(&nb);
     res=cpu->get_CPU_ActualLoad(&temp);
-    temp=1-temp;
+    temp=1-(temp/nb);
     convertSimple(temp, info,type_Info);
     break;
   default: {
