@@ -32,6 +32,7 @@
 	  or a SeD and its parent, i.e., the sub-hierarchy becomes
 	  unavailable.
 	See include/DIET_admin.h for more details.
+	- The SLURM batch scheduling system is now supported by the SeD Batch.
 	
 * Compilation:
 	- Documentation can now be compiled directly from the main
