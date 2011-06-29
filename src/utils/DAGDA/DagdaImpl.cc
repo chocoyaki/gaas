@@ -247,6 +247,17 @@ string conditional_filename(string basename) {
   return gen_filename(basename);
 }
 
+
+/* Compute file Size */
+unsigned long computeFileSize(const std::string& path) {
+  ifstream f(path.c_str());
+  
+  if (!f.is_open()) return 0;
+  
+  f.seekg(0, ios_base::end);
+  return f.tellg();
+}
+
 /* Send a file to a node. */
 /* CORBA */
 char* DagdaImpl::sendFile(const corba_data_t &data, const char* destName) {
@@ -264,7 +275,7 @@ char* DagdaImpl::sendFile(const corba_data_t &data, const char* destName) {
              << " (" << data.desc.id.idNumber << ")" << endl);
 	
   unsigned long wrote = 0;
-  unsigned long fileSize = data.desc.specific.file().size;
+  unsigned long fileSize = computeFileSize(string(data.desc.specific.file().path));
   string basename(data.desc.specific.file().path);
 	
   /* TEST pour debuggage */
