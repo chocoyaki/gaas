@@ -414,6 +414,7 @@ FwrdConfig::FwrdConfig(const string& pgName) : Configuration(pgName)
   createTunnelTo = false;
   createTunnelFrom = false;
   nbRetry = 3;
+  waitingTime = 0;
 }
 
 const string& FwrdConfig::getName() const {
@@ -425,7 +426,6 @@ const string& FwrdConfig::getPeerName() const {
 const string& FwrdConfig::getPeerIOR() const {
   return peerIOR;
 }
-
 const string& FwrdConfig::getSshHost() const {
   return sshHost;
 }
@@ -523,7 +523,9 @@ void FwrdConfig::setCfgPath(const string& path) {
 }
 
 int change(int c) {
-  if (c=='.') return '-';
+  if (c == '.') {
+    return '-';
+  }
   return c;
 }
 
