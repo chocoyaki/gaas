@@ -98,6 +98,48 @@ omni_mutex ORBMgr::waitLock;
 sem_t ORBMgr::waitLock;
 #endif
 
+/* Maximum number of retries for communication failures
+ * TODO: should be a parameter in the configuration file
+ */
+static const unsigned int maxNbRetries = 3;
+
+/* Handler for call resubmission when TRANSIENT exceptions occur */
+CORBA::Boolean transientHandler (void* cookie,
+                                 CORBA::ULong retries,
+                                 const CORBA::TRANSIENT& ex) {
+  /* We only retry if the minor code is TRANSIENT_ConnectFailed and
+   * the number of retries is lower than maxNbRetries
+   */
+  if (ex.minor() == omni::TRANSIENT_ConnectFailed && retries < maxNbRetries) {
+    TRACE_TEXT(TRACE_ALL_STEPS,
+               "Handler for transient exception called (nb retries: "
+               << retries << "/" << maxNbRetries << "). Will now retry." << endl);
+    return 1;           // retry immediately.
+  }
+  TRACE_TEXT(TRACE_ALL_STEPS, "Handler for transient exception called (nb retries: "
+             << retries << "/" << maxNbRetries << ")." << endl);
+  return 0;
+}
+
+/* Handler for call resubmission when COMM_FAILURE exceptions occur */
+CORBA::Boolean commFailureHandler (void* cookie,
+                                   CORBA::ULong retries,
+                                   const CORBA::COMM_FAILURE& ex) {
+  /* We only retry if the minor code is COMM_FAILURE_WaitingForReply and
+   * the number of retries is lower than maxNbRetries
+   */
+  if (ex.minor() == omni::COMM_FAILURE_WaitingForReply
+      && retries < maxNbRetries) {
+    TRACE_TEXT(TRACE_ALL_STEPS,
+               "Handler for communication failures exception called (nb retries: "
+               << retries << "/" << maxNbRetries << "). Will now retry." << endl);
+    return 1;           // retry immediately.
+  }
+  TRACE_TEXT(TRACE_ALL_STEPS, "Handler for communication failures exception called (nb retries: "
+             << retries << "/" << maxNbRetries << ")." << endl);
+  return 0;
+}
+
 
 /* Manager initialization. */
 void ORBMgr::init(CORBA::ORB_ptr ORB) {
@@ -127,6 +169,10 @@ void ORBMgr::init(CORBA::ORB_ptr ORB) {
   }
   
   manager->activate();
+
+  /* Install handlers for automatically handle call resubmissions */
+  omniORB::installTransientExceptionHandler(0, transientHandler);
+  omniORB::installCommFailureExceptionHandler(0, commFailureHandler);
 }
 
 ORBMgr::ORBMgr(int argc, char* argv[]) {
