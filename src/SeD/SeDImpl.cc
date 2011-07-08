@@ -726,9 +726,9 @@ SeDImpl::run(ServiceTable* services) {
                  << ", " << localHostName << ", *profiles)" << endl);
       childID = parent->serverSubscribe(this->myName, localHostName,
 #if HAVE_JXTA
-					uuid,
+                                        uuid,
 #endif //HAVE_JXTA
-					*profiles);
+                                        *profiles);
       TRACE_TEXT(TRACE_ALL_STEPS, "subscribe !" << endl);
     } catch (CORBA::Exception& e) {
       CORBA::Any tmp;
