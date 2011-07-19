@@ -107,10 +107,8 @@ static const unsigned int maxNbRetries = 3;
 CORBA::Boolean transientHandler (void* cookie,
                                  CORBA::ULong retries,
                                  const CORBA::TRANSIENT& ex) {
-  /* We only retry if the minor code is TRANSIENT_ConnectFailed and
-   * the number of retries is lower than maxNbRetries
-   */
-  if (ex.minor() == omni::TRANSIENT_ConnectFailed && retries < maxNbRetries) {
+  /* We only retry if the number of retries is lower than maxNbRetries */
+  if (retries < maxNbRetries) {
     TRACE_TEXT(TRACE_ALL_STEPS,
                "Handler for transient exception called (nb retries: "
                << retries << "/" << maxNbRetries << "). Will now retry." << endl);
@@ -125,11 +123,8 @@ CORBA::Boolean transientHandler (void* cookie,
 CORBA::Boolean commFailureHandler (void* cookie,
                                    CORBA::ULong retries,
                                    const CORBA::COMM_FAILURE& ex) {
-  /* We only retry if the minor code is COMM_FAILURE_WaitingForReply and
-   * the number of retries is lower than maxNbRetries
-   */
-  if (ex.minor() == omni::COMM_FAILURE_WaitingForReply
-      && retries < maxNbRetries) {
+  /* We only retry if the number of retries is lower than maxNbRetries */
+  if (retries < maxNbRetries) {
     TRACE_TEXT(TRACE_ALL_STEPS,
                "Handler for communication failures exception called (nb retries: "
                << retries << "/" << maxNbRetries << "). Will now retry." << endl);
