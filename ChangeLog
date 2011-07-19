@@ -7,6 +7,10 @@
 	whether or not the CORBA call should be retried (up to a given
 	maximum number of retries).
 	
+* Bug Fix:
+	- Forwarders now use macros defined in debug.hh instead of using
+	cout or cerr to print messages
+	
 +----------+
 | diet 2.7 |
 +----------+
