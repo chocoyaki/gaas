@@ -716,8 +716,8 @@ CallAsyncMgr::CallAsyncMgr()
  **********************************************************************/
 void
 CallAsyncMgr::setReqErrorCode(const diet_reqID_t reqID, const diet_error_t error) {
-  cout << "debug : setReqErrorCode; reqID =  " << reqID <<
-    ", error = " << error << endl;
+  TRACE_TEXT(TRACE_ALL_STEPS, "debug : setReqErrorCode; reqID =  " << reqID <<
+             ", error = " << error << endl);
   errorMap[reqID] = error;
   /*
     #define GRPC_NO_ERROR 0
@@ -810,10 +810,10 @@ CallAsyncMgr::getHandle(grpc_function_handle_t** handle,
     return GRPC_INVALID_SESSION_ID;
 
   if (handlesMap.find(sessionID) == handlesMap.end()) {
-    cout << "Implementation is not complete" << endl
-	 << " The sessionID " << sessionID
-	 << " exists in the sessions map but not in the handles one"
-	 << endl;
+    TRACE_TEXT(TRACE_MAIN_STEPS, "Implementation is not complete" << endl
+               << " The sessionID " << sessionID
+               << " exists in the sessions map but not in the handles one"
+               << endl);
     return GRPC_OTHER_ERROR_CODE;
   }
 

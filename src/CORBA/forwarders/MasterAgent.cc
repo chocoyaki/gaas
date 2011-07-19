@@ -28,6 +28,8 @@
 
 #include "DIETForwarder.hh"
 #include "ORBMgr.hh"
+#include "debug.hh"
+
 #include <string>
 #include <iostream>
 
@@ -37,20 +39,20 @@ corba_response_t* DIETForwarder::submit(const ::corba_pb_desc_t& pb_profile,
 					::CORBA::ULong maxServers,
 					const char* objName)
 {
-  cout << __FILE__ << ": l." << __LINE__ << " (" << __FUNCTION__ << ")" << endl;
+  TRACE_TEXT(TRACE_STRUCTURES, __FILE__ << ": l." << __LINE__ << " (" << __FUNCTION__ << ")" << endl);
   string objString(objName);
   string name;
 	
   if (!remoteCall(objString)) {
-    cout << "Forwarder remote call submit(pb_profile, " << maxServers << ", " << maxServers;
-    cout << ", " << objString << ")" << endl;
+    TRACE_TEXT(TRACE_MAIN_STEPS, "Forwarder remote call submit(pb_profile, " << maxServers << ", " << maxServers
+               << ", " << objString << ")" << endl);
     return getPeer()->submit(pb_profile, maxServers, objString.c_str());
   }
 	
   name = getName(objString);
 	
-  cout << "Forwarder local object call: " << endl;
-  cout << "\t- Resolve " << name << " from this forwarder (" << this->name << ")" << endl;
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Forwarder local object call: " << endl);
+  TRACE_TEXT(TRACE_MAIN_STEPS, "\t- Resolve " << name << " from this forwarder (" << this->name << ")" << endl);
 	
   MasterAgent_var agent = ORBMgr::getMgr()->resolve<MasterAgent, MasterAgent_var>(AGENTCTXT,
 										  name,

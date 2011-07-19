@@ -46,6 +46,8 @@
 
 #include "NetConfig.hh"
 
+#include "debug.hh"
+
 #include <string>
 #include <map>
 #include <algorithm>
@@ -155,7 +157,7 @@ void NetConfig::addLocalHost(std::list<string>& l) const {
 	sp+=2;
       }
       l.push_back(hostname);
-      cout << "## " << hostname << endl;
+      TRACE_TEXT(TRACE_ALL_STEPS, "Adding host: " << hostname << endl);
     }
     
     for (it=hp->h_addr_list; *it!=NULL; ++it) {
@@ -208,6 +210,7 @@ void NetConfig::addLocalHost(std::list<string>& l) const {
 	/* Only add addresses that are not yet in the list */
 	if (find(l.begin(), l.end(), hostname) == l.end()) {
 	  l.push_back(hostname);
+          TRACE_TEXT(TRACE_ALL_STEPS, "Adding host: " << hostname << endl);
 	}
       } // end if (sock2 >= 0)
       close(sock2);
@@ -244,6 +247,7 @@ void NetConfig::addLocalHost(std::list<string>& l) const {
         /* Only add addresses that are not yet in the list */
         if (find(l.begin(), l.end(), hostname) == l.end()) {
           l.push_back(hostname);
+          TRACE_TEXT(TRACE_ALL_STEPS, "Adding host: " << hostname << endl);
         }
       }
     }
@@ -366,13 +370,13 @@ bool match(const string& hostname, const list<string> l) {
 
 bool NetConfig::manage(const std::string& hostname) const {
   if (!match(hostname, accept)) {
-    //cout << "The hostname " << hostname << " does not match "
-    //     << "any element of the accept list" << endl;
+    TRACE_TEXT(TRACE_ALL_STEPS, "The hostname " << hostname << " does not match "
+               << "any element of the accept list" << endl);
     return false;
   }
   if (match(hostname, reject)) {
-    //cout << "The hostname " << hostname << "matches "
-    //		 << "an element of the reject list" << endl;
+    TRACE_TEXT(TRACE_ALL_STEPS, "The hostname " << hostname << "matches "
+               << "an element of the reject list" << endl);
     return false;
   }
   return true;

@@ -79,6 +79,8 @@
 #include "WfLogServiceImpl.hh"
 #endif
 
+#include "debug.hh"
+
 #include <stdexcept>
 #include <string>
 #include <cstring>
@@ -771,12 +773,12 @@ void DIETForwarder::bind(const char* objName, const char* ior) {
   string ctxt;
 
   if (!remoteCall(objString)) {
-    cout << "Forward bind to peer (" << objName << ")" << endl;
+    TRACE_TEXT(TRACE_MAIN_STEPS, "Forward bind to peer (" << objName << ")" << endl);
     return getPeer()->bind(objString.c_str(), ior);
   }
   ctxt = getCtxt(objString);
   name = getName(objString);
-  cout << "Bind locally (" << objString << ")" << endl;
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Bind locally (" << objString << ")" << endl);
   if (ctxt==LOCALAGENT) {
     ctxt = AGENTCTXT;
     /* Specific case for local agent.
@@ -803,7 +805,7 @@ void DIETForwarder::bind(const char* objName, const char* ior) {
   ORBMgr::getMgr()->bind(ctxt, name, ior, true);
   // Broadcast the binding to all forwarders.
   ORBMgr::getMgr()->fwdsBind(ctxt, name, ior, this->name);
-  cout << "Binded! (" << ctxt << "/" << name << ")" << endl;
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Binded! (" << ctxt << "/" << name << ")" << endl);
 }
 
 /* Return the local bindings. Result is a set of couple
@@ -979,7 +981,6 @@ SeqString* DIETForwarder::rejectList() {
 }
 
 ::CORBA::Boolean DIETForwarder::manage(const char* hostname) {
-  //cout << "Is this forwarder managing " << hostname << "?" << endl;
   return netCfg.manage(hostname);
 }
 

@@ -58,6 +58,8 @@
 
 #include "dietFwdr.hh"
 
+#include "debug.hh"
+
 #include <iostream>
 #include <cstdlib>
 #include <string>
@@ -118,23 +120,21 @@ int main(int argc, char* argv[], char* envp[]) {
 		
     std::transform(host, host+strlen(host), host, change);
     name << "Forwarder-" << host << "-" << getpid();
-    cerr << "Missing parameter: name (use --name to fix it)" << endl;
-    cerr << "Use default name: " << name.str() << endl;
+    WARNING("Missing parameter: name (use --name to fix it)" << endl
+            << "Use default name: " << name.str() << endl);
     cfg.setName(name.str());
   }
   if (cfg.getCfgPath()=="") {
-    cerr << "Missing parameter: net-config (use --net-config <file> to fix it)" << endl;
-    return EXIT_FAILURE;
+    ERROR("Missing parameter: net-config (use --net-config <file> to fix it)", EXIT_FAILURE);
   }
 	  
   if (cfg.createFrom()) {
-    if (cfg.getPeerName()==""       ||
-	cfg.getSshHost()=="") {
-      cerr << "Missing parameter(s) to create tunnel.";
-      cerr << " Mandatory parameters:" << endl;
-      cerr << '\t' << "- Peer name (--peer-name <name>)" << endl;
-      cerr << '\t' << "- SSH host (--ssh-host <host>)" << endl;
-      return EXIT_FAILURE;
+    if (cfg.getPeerName() == ""
+	|| cfg.getSshHost() == "") {
+      ERROR("Missing parameter(s) to create tunnel."
+            << " Mandatory parameters:" << endl
+            << '\t' << "- Peer name (--peer-name <name>)" << endl
+            << '\t' << "- SSH host (--ssh-host <host>)", EXIT_FAILURE);
     }
   }
   
@@ -144,8 +144,7 @@ int main(int argc, char* argv[], char* envp[]) {
   try {
     forwarder = new DIETForwarder(cfg.getName(), cfg.getCfgPath());
   } catch (exception &e) {
-    cerr << "Error: " << e.what() << endl;
-    return EXIT_FAILURE;
+    ERROR(e.what(), EXIT_FAILURE);
   }
   ORBMgr::init(argc, argv);
   ORBMgr* mgr = ORBMgr::getMgr();
@@ -158,7 +157,7 @@ int main(int argc, char* argv[], char* envp[]) {
       mgr->bind(FWRDCTXT, cfg.getName(), forwarder->_this(), true);
       break;
     } catch (CORBA::TRANSIENT& err) {
-      cerr << "Error when binding the forwarder " << cfg.getName() << endl;
+      TRACE_TEXT(TRACE_MAIN_STEPS, "Error when binding the forwarder " << cfg.getName() << endl);
       if (count++<cfg.getNbRetry()) {
 	sleep(5);
 	continue;
@@ -175,10 +174,10 @@ int main(int argc, char* argv[], char* envp[]) {
   ofstream of(iorFilename.c_str(), ios_base::trunc);
 	
   if (!of.is_open()) {
-    cerr << "Warning: cannot open file " << iorFilename
-	 << " to store the IOR" << endl;
+    WARNING("cannot open file " << iorFilename
+            << " to store the IOR");
   } else {	
-    cout << "Write IOR to " << iorFilename << endl;
+    TRACE_TEXT(TRACE_MAIN_STEPS, "Write IOR to " << iorFilename << endl);
     if (cfg.createFrom()) { // Creating tunnel(s)
       istringstream is(cfg.getRemotePortFrom());
       int port;
@@ -192,7 +191,7 @@ int main(int argc, char* argv[], char* envp[]) {
     of << freeTCPport(); // also write a free port
     of.close();
   }
-  cout << "Forwarder: " << ior << endl;
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Forwarder: " << ior << endl);
 	
 	
   tunnel.setSshHost(cfg.getSshHost());
@@ -217,11 +216,11 @@ int main(int argc, char* argv[], char* envp[]) {
     copy.setSshKeyPath(cfg.getSshKeyPath());
     try {
       if (copy.getFile()) {
-        std::cout << "Got remote IOR file" << std::endl;
+        TRACE_TEXT(TRACE_MAIN_STEPS, "Got remote IOR file" << std::endl);
         cfg.setPeerIOR("/tmp/DIET-forwarder-ior-"+cfg.getPeerName()+".tmp");
       }
     } catch (...) {
-      std::cout << "Got an exception while retrieving IOR file" << std::endl;
+      TRACE_TEXT(TRACE_MAIN_STEPS, "Got an exception while retrieving IOR file" << std::endl);
     }
   }
   if (cfg.getPeerIOR()!="" && cfg.getPeerIOR().find("IOR:")!=0) {
@@ -230,8 +229,7 @@ int main(int argc, char* argv[], char* envp[]) {
     string peerIOR;
     string peerPort;
     if (!file.is_open()) {
-      cerr << "Error: Invalid peer-ior parameter" << endl;
-      return EXIT_FAILURE;
+      ERROR("Error: Invalid peer-ior parameter", EXIT_FAILURE);
     }
     file >> peerIOR;
     cfg.setPeerIOR(peerIOR);
@@ -260,10 +258,9 @@ int main(int argc, char* argv[], char* envp[]) {
   //	tunnel.setLocalPortFrom(cfg.getLocalPortFrom());
   if (cfg.createFrom()) {
     if (cfg.getRemotePortFrom() == "") {
-      cerr << "Failed to automatically determine a remote free port." << endl;
-      cerr << " You need to specify the remote port:" << endl;
-      cerr << '\t' << "- Remote port (--remote-port <port>)" << endl;
-      return EXIT_FAILURE;
+      ERROR("Failed to automatically determine a remote free port." << endl
+            << " You need to specify the remote port:" << endl
+            << '\t' << "- Remote port (--remote-port <port>)", EXIT_FAILURE);
     }
   }
 
@@ -289,11 +286,11 @@ int main(int argc, char* argv[], char* envp[]) {
         }
         if (connectPeer(ior, cfg.getPeerIOR(), "127.0.0.1", tunnel.getRemoteHost(),
                         tunnel.getLocalPortFrom(), tunnel.getRemotePortFrom(), forwarder, mgr)) {
-          cout << "Unable to contact remote peer. Waiting for connection..." << endl;
+          TRACE_TEXT(TRACE_MAIN_STEPS, "Unable to contact remote peer. Waiting for connection..." << endl);
         }
       }
     } catch (...) {
-      cerr << "Error while connecting to remote peer" << endl;
+      TRACE_TEXT(TRACE_MAIN_STEPS, "Error while connecting to remote peer" << endl);
       canLaunch = false;
     }
   }
@@ -302,7 +299,7 @@ int main(int argc, char* argv[], char* envp[]) {
     mgr->wait();
   }
 
-  std::cout << "Forwarder is now terminated" << std::endl;
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Forwarder is now terminated" << std::endl);
 	
   return EXIT_SUCCESS;
 }
@@ -324,15 +321,15 @@ connectPeer(const std::string &ior, const std::string &peerIOR,
     forwarder->setPeer(peer);
     SeqString* bindings = peer->getBindings(AGENTCTXT);
     for (unsigned int i=0; i<bindings->length(); ++i) {
-      cout << "************ Dist bindings ****************" << endl;
-      cout << (*bindings)[i] << endl;
+      TRACE_TEXT(TRACE_MAIN_STEPS, "************ Dist bindings ****************" << endl
+                 << (*bindings)[i] << endl);
     }
   } catch (CORBA::TRANSIENT& err) {
-    cout << "Unable to contact remote peer using '" << newHost <<"' as a \"new remote host\"" << endl;
-    return 1;
+    ERROR("Unable to contact remote peer using '" << newHost
+          <<"' as a \"new remote host\"", 1);
   }
 
-  cout << "Contacted remote peer using '" << newHost << "' as new remote host" << endl;
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Contacted remote peer using '" << newHost << "' as new remote host" << endl);
   return 0;
 }
 

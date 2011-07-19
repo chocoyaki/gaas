@@ -46,6 +46,8 @@
 
 #include "SSHTunnel.hh"
 
+#include "debug.hh"
+
 #include <string>
 #include <cstring>
 #include <fstream>
@@ -79,9 +81,9 @@ string SSHTunnel::keyFormat = "-i %k";
 string SSHConnection::userLogin() {
   char* result = getlogin();
 	
-  if (result==NULL) {
+  if (result == NULL) {
     //throw runtime_error("Unable to determine the user login.");
-    cerr << "Unable to determine the user login." << endl;
+    TRACE_TEXT(TRACE_MAIN_STEPS, "Unable to determine the user login." << endl);
     return "";
   }
   return result;
@@ -345,15 +347,14 @@ void SSHTunnel::open() {
   }
   if (pid==0) {
     if (execvp(argv[0], argv)) {
-      cerr << "Error executing command " << command << endl;
-      exit(1);
+      ERROR_EXIT("Error executing command " << command);
     }
   }
   for (unsigned int i=0; i<tokens.size(); ++i)
     free(argv[i]);
-  cout << "Sleep " << this->waitingTime << " s. waiting for tunnel" << endl;
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Sleep " << this->waitingTime << " s. waiting for tunnel" << endl);
   sleep(this->waitingTime);
-  cout << "Wake up!" << endl;
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Wake up!" << endl);
 }
 
 void SSHTunnel::close() {
@@ -506,8 +507,7 @@ bool SSHCopy::getFile() const {
   if (pid == 0) {
     fclose(stdout);
     if (execvp(argv[0], argv)) {
-      cerr << "Error executing command " << command << endl;
-      exit(1);
+      ERROR_EXIT("Error executing command " << command);
     }
   }
 	
@@ -547,8 +547,7 @@ bool SSHCopy::putFile() const {
   if (pid==0) {
     fclose(stdout);
     if (execvp(argv[0], argv)) {
-      cerr << "Error executing command " << command << endl;
-      exit(1);
+      ERROR_EXIT("Error executing command " << command);
     }
   }
 	

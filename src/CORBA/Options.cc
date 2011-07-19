@@ -19,6 +19,7 @@
  ****************************************************************************/
 
 #include "Options.hh"
+#include "debug.hh"
 
 #include <string>
 #include <list>
@@ -140,7 +141,7 @@ void Options::processOptions() {
       callback(flag, config);
     } else {
       if (*l!='-')
-        cerr << "Warning: -" << *l << " flag unknown" << endl;
+        WARNING("-" << *l << " flag unknown");
     }
   }
   for (i=arguments.begin(); i!=arguments.end(); ++i) {
@@ -148,7 +149,7 @@ void Options::processOptions() {
       callback = optCallbacks.find(i->first)->second;
       callback(i->second, config);
     } else {
-      cerr << "Warning: " << i->first << " unknown option" << endl;
+      WARNING(i->first << " unknown option");
     }
   }
   for (j=singleArgs.begin(); j!=singleArgs.end(); ++j) {
@@ -156,7 +157,7 @@ void Options::processOptions() {
       callback = optCallbacks.find(*j)->second;
       callback("", config);
     } else {
-      cerr << "Warning: " << *j << " unknown option" << endl;
+      WARNING(*j << " unknown option");
     }
   }
   for (k=0;k<params.size();++k) {
@@ -164,7 +165,7 @@ void Options::processOptions() {
       callback = paramCallbacks[k];
       callback(params[k], config);
     } else {
-      cerr << "Warning: argument " << params[k] << " ignored" << endl; 
+      WARNING("argument " << params[k] << " ignored"); 
     }
   }
 }
@@ -194,7 +195,9 @@ void Options::processEnv() {
  * Used to extract information with istringstream.
  */
 int cut(int c) {
-  if (c == '=') return ' ';
+  if (c == '=') {
+    return ' ';
+  }
   return c;
 }
 
@@ -208,8 +211,9 @@ void ConfigFile::parseFile(const std::string& path) {
   ifstream file(path.c_str());
   unsigned int l = 0;
   
-  if (!file.is_open())
-    throw runtime_error("Can't open "+path);
+  if (!file.is_open()) {
+    throw runtime_error("Can't open " + path);
+  }
   
   while (!file.eof()) {
     char buffer[1024];
@@ -226,10 +230,12 @@ void ConfigFile::parseFile(const std::string& path) {
     line = line.substr(0, pos);
     
     /* Remove white spaces. */
-    while ((pos=line.find(' '))!=string::npos)
+    while ((pos=line.find(' '))!=string::npos) {
       line.erase(pos, 1);
-    while ((pos=line.find('\t'))!=string::npos)
+    }
+    while ((pos=line.find('\t'))!=string::npos) {
       line.erase(pos, 1);
+    }
     
     /* Empty line => continue. */
     if (line=="") continue;
@@ -239,12 +245,13 @@ void ConfigFile::parseFile(const std::string& path) {
     /* Extract key,value */
     is.str(line);
     is >> key >> value;
-    if (value=="")
-      cerr << "Warning: \"" << key << "\" has no value! (l." << l
-      << ")" << endl;
-    if (attributes.find(key)!=attributes.end())
-      cerr << "Warning: Multiple values for the attribute " << key
-      << " (l." << l << ")" << endl;
+    if (value == "") {
+      WARNING("\"" << key << "\" has no value! (l." << l << ")");
+    }
+    if (attributes.find(key) != attributes.end()) {
+      WARNING("Multiple values for the attribute " << key
+              << " (l." << l << ")");
+    }
     /* Transform to lower case. */
     transform(key.begin(), key.end(), key.begin(), ::tolower);
 
