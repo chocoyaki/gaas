@@ -294,7 +294,7 @@ void NetConfig::parseFile() {
 
     /* Manage accepted networks. */
     if (line.find("accept = ") == 0) {
-      string network = line.substr(10);
+      string network = line.substr(9);
       if (network=="localhost") {
         addLocalHost(accept);
       } else {
@@ -310,7 +310,7 @@ void NetConfig::parseFile() {
       }
     }
     if (line.find("reject = ") == 0) {
-      string network = line.substr(10);
+      string network = line.substr(9);
       if (network=="localhost") {
         addLocalHost(reject);
       } else {
