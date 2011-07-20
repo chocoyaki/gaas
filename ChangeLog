@@ -10,6 +10,8 @@
 * Bug Fix:
 	- Forwarders now use macros defined in debug.hh instead of using
 	cout or cerr to print messages
+	- fixed a bug when parsing forwarders' net-config files which use
+	the ' = ' separator
 	
 +----------+
 | diet 2.7 |
