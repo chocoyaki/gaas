@@ -131,6 +131,31 @@ NetConfig& NetConfig::operator=(const NetConfig& cfg) {
   return *this;
 }
 
+/* Add an accepted or rejected network
+ * @param key the key to search in line, everything after this key is considered to be the network
+ * @param line the line to parse
+ * @param accepted if true the network is added to the accepted networks, otherwise to the rejected networks
+ */
+void
+NetConfig::addNetwork(const string & key, const string & line, bool accepted) {
+  if (line.find(key) == 0) {
+    string network = line.substr(key.length());
+    if (network == "localhost") {
+      if (accepted) {
+        addLocalHost(accept);
+      } else {
+        addLocalHost(reject);
+      }
+    } else {
+      if (accepted) {
+        addAcceptNetwork(network);
+      } else {
+        addRejectNetwork(network);
+      }
+    }
+  }
+}
+
 void NetConfig::addLocalHost(std::list<string>& l) const {
   struct hostent* hp;
   char** it;
@@ -293,38 +318,12 @@ void NetConfig::parseFile() {
     }
 
     /* Manage accepted networks. */
-    if (line.find("accept = ") == 0) {
-      string network = line.substr(9);
-      if (network=="localhost") {
-        addLocalHost(accept);
-      } else {
-        addAcceptNetwork(network);
-      }
-    }
-    if (line.find("accept:") == 0) {
-      string network = line.substr(7);
-      if (network=="localhost") {
-        addLocalHost(accept);
-      } else {
-        addAcceptNetwork(network);
-      }
-    }
-    if (line.find("reject = ") == 0) {
-      string network = line.substr(9);
-      if (network=="localhost") {
-        addLocalHost(reject);
-      } else {
-        addRejectNetwork(network);
-      }
-    }
-    if (line.find("reject:") == 0) {
-      string network = line.substr(7);
-      if (network=="localhost") {
-        addLocalHost(reject);
-      } else {
-        addRejectNetwork(network);
-      }
-    }
+    addNetwork("accept = ", line, true);
+    addNetwork("accept:", line, true);
+
+    /* Manage rejected networks. */
+    addNetwork("reject = ", line, false);
+    addNetwork("reject:", line, false);
   }
 }
 

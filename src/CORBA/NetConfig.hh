@@ -38,6 +38,8 @@ private:
   void reset();
   std::string myHostname;
   void addLocalHost(std::list<std::string>& l) const;
+  void addNetwork(const std::string & key, const std::string & line, bool accepted);
+
 public:
   NetConfig();
   NetConfig(const std::list<std::string>& accept,
