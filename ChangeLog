@@ -1,6 +1,6 @@
-+----------+
-| diet 2.xx |
-+----------+
++------------+
+| diet 2.7.1 |
++------------+
 * Features:
 	- CORBA calls are now more robust. Whenever a COMM_FAILURE or
 	TRANSIENT exception occurs, a handler is called and decides
