@@ -218,6 +218,11 @@ int main(int argc, char* argv[], char* envp[]) {
       if (copy.getFile()) {
         TRACE_TEXT(TRACE_MAIN_STEPS, "Got remote IOR file" << std::endl);
         cfg.setPeerIOR("/tmp/DIET-forwarder-ior-"+cfg.getPeerName()+".tmp");
+      } else {
+        ERROR("Could not get remote IOR file." << endl
+              << "Please check that you can scp files between the ssh host and this host," << endl
+              << "or specify the remote IOR with the following option:" << endl
+              << "\t- Remote IOR (--peer-ior <IOR>)", EXIT_FAILURE);
       }
     } catch (...) {
       TRACE_TEXT(TRACE_MAIN_STEPS, "Got an exception while retrieving IOR file" << std::endl);
