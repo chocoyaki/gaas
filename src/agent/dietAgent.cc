@@ -208,6 +208,9 @@
  * %u replaced by %s
  ****************************************************************************/
 
+// must be included first
+#include "ExitClass.hh"
+
 #include <cstdlib>
 #include <csignal>
 #include <algorithm>
@@ -217,7 +220,6 @@
 #include <vector>
 
 using namespace std;
-#include "ExitClass.hh"
 #include "configuration.hh"
 #include "debug.hh"
 #include "LocalAgentImpl.hh"
