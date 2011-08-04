@@ -18,6 +18,7 @@
  *****************************************************************************/
 
 #include <iostream>
+#include <cstring>
 
 #include "DIET_admin.h"
 
@@ -27,7 +28,7 @@ int
 main (int argc, char** argv) {
   if (argc < 4) {
     cout << "Usage: " << argv[0] << " <SED|LA> <element name> <parent name>" << endl;
-    exit(1);
+    return 1;
   }
   
   dynamic_type_t type;

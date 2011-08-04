@@ -204,8 +204,8 @@ using namespace std;
 extern unsigned int TRACE_LEVEL;
 
 #define SRVT_ERROR(formatted_text)                \
-  INTERNAL_ERROR("ServiceTable::" << __FUNCTION__ \
-                 << ": " << formatted_text, 1)
+  INTERNAL_WARNING("ServiceTable::" << __FUNCTION__ \
+                 << ": " << formatted_text)
 
 
 ServiceTable::ServiceTable() 

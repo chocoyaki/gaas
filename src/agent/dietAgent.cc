@@ -208,6 +208,9 @@
  * %u replaced by %s
  ****************************************************************************/
 
+// must be included first
+#include "ExitClass.hh"
+
 #include <cstdlib>
 #include <csignal>
 #include <algorithm>
@@ -217,7 +220,6 @@
 #include <vector>
 
 using namespace std;
-#include "ExitClass.hh"
 #include "configuration.hh"
 #include "debug.hh"
 #include "LocalAgentImpl.hh"
@@ -273,12 +275,12 @@ private:
   C& c_;
 public:
   explicit CStringInserter(C& c) : c_(c) {}
-  
+
   void
   operator() (const char *cstr) {
     c_.push_back(strdup(cstr));
   }
-  
+
   void
   operator() (std::ostringstream& oss) {
     char *cstr = strdup(oss.str().c_str());
@@ -295,8 +297,8 @@ int main(int argc, char* argv[], char *envp[]) {
 
   // Configuration map
   int res(0);
-    
-  std::string copyright = ""; // TODO : add a copyright
+
+  std::string copyright = "";  // TODO : add a copyright
   std::string version = DIET_VERSION;
 
   /* Parsing */
@@ -379,7 +381,7 @@ int main(int argc, char* argv[], char *envp[]) {
   } catch (std::runtime_error &e) {
     ERROR(e.what(), GRPC_CONFIGFILE_ERROR);
   }
-  //std::string& agentName = CONFIG_STRING("name"]; // UNUSED ?
+  // std::string& agentName = CONFIG_STRING("name"]; // UNUSED ?
   std::string parentName = "";
   bool hasParentName = CONFIG_STRING(diet::PARENTNAME, parentName);
   std::string maName;
@@ -390,7 +392,7 @@ int main(int argc, char* argv[], char *envp[]) {
       !hasParentName) {
     ERROR("parsing " << configFile
           << ": no parent name specified", GRPC_CONFIGFILE_ERROR);
-  } else if(((agentType != "DIET_LOCAL_AGENT") && (agentType != "LA")) &&
+  } else if (((agentType != "DIET_LOCAL_AGENT") && (agentType != "LA")) &&
             hasParentName) {
     WARNING("parsing " << configFile << ": no need to specify "
             << "a parent name for an MA - ignored");
@@ -413,9 +415,9 @@ int main(int argc, char* argv[], char *envp[]) {
   bool hasHost = CONFIG_STRING(diet::DIETHOSTNAME, host);
   if (hasPort || hasHost) {
     std::ostringstream endpoint;
-    ins("-ORBendPoint") ;
+    ins("-ORBendPoint");
     endpoint << "giop:tcp:" << host << ":";
-    if(hasPort) {
+    if (hasPort) {
       endpoint << port;
     }
 
@@ -484,7 +486,9 @@ int main(int argc, char* argv[], char *envp[]) {
                                             &argsTmp[0]);
     ORBMgr::getMgr()->activate(dietLogComponent);
 
-    if (dietLogComponent->run(agtTypeName.c_str(), parentName.c_str(), flushTime)) {
+    if (dietLogComponent->run(agtTypeName.c_str(),
+                              parentName.c_str(),
+                              flushTime)) {
       // delete(dietLogComponent); // DLC is activated, do not delete !
       WARNING("Could not initialize DietLogComponent");
       TRACE_TEXT(TRACE_ALL_STEPS, "* LogService: disabled" << endl);
@@ -502,11 +506,12 @@ int main(int argc, char* argv[], char *envp[]) {
   try {
     dataManager = DagdaFactory::getAgentDataManager();
 #ifdef USE_LOG_SERVICE
-    dataManager->setLogComponent( dietLogComponent ); // modif bisnard_logs_1
+    dataManager->setLogComponent(dietLogComponent);  // modif bisnard_logs_1
 #endif /* USE_LOG_SERVICE */
   } catch (...) {
     ERROR("Problem while instantiating the data manager."
-          << "Is omniNames running and is OMNIORB_CONFIG variable correctly set?",
+          << "Is omniNames running and"
+          << " is OMNIORB_CONFIG variable correctly set?",
           GRPC_COMMUNICATION_FAILED);
   }
 #endif /* HAVE_DAGDA */

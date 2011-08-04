@@ -19,6 +19,8 @@
  *****************************************************************************/
 
 #include <iostream>
+#include <cstring>
+#include <cstdlib>
 
 #include "DIET_admin.h"
 
@@ -28,7 +30,7 @@ int
 main (int argc, char** argv) {
   if (argc < 3) {
     cout << "Usage: " << argv[0] << " <SED|AGENT> <element name> [recursive: 0|1]" << endl;
-    exit(1);
+    return 1;
   }
 
   dynamic_type_t type;
