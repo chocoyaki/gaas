@@ -114,8 +114,7 @@ bool DIETForwarder::remoteCall(string& objName) {
   return ::CORBA::Object::_nil();	
 }
 
-DIETForwarder::DIETForwarder(const string& name, const string& cfgPath) :
-  netCfg(cfgPath)
+DIETForwarder::DIETForwarder(const string& name)
 {
   this->name = name;
   // Wait for the peer init. The unlock will be done on setPeer().
@@ -802,9 +801,12 @@ void DIETForwarder::bind(const char* objName, const char* ior) {
       cachesMutex.unlock();
     }
   }
-  ORBMgr::getMgr()->bind(ctxt, name, ior, true);
+  /* NEW: Tag the object with the forwarder name. */
+  string newIOR = ORBMgr::convertIOR(ior, string("@")+getName(), 0);
+  
+  ORBMgr::getMgr()->bind(ctxt, name, newIOR, true);
   // Broadcast the binding to all forwarders.
-  ORBMgr::getMgr()->fwdsBind(ctxt, name, ior, this->name);
+  ORBMgr::getMgr()->fwdsBind(ctxt, name, newIOR, this->name);
   TRACE_TEXT(TRACE_MAIN_STEPS, "Binded! (" << ctxt << "/" << name << ")" << endl);
 }
 
@@ -981,7 +983,9 @@ SeqString* DIETForwarder::rejectList() {
 }
 
 ::CORBA::Boolean DIETForwarder::manage(const char* hostname) {
-  return netCfg.manage(hostname);
+  /* NEW: return true if hostname==@name*/
+  return string("@")+getName()==hostname;
+  //return netCfg.manage(hostname);
 }
 
 SeqString* DIETForwarder::routeTree() {

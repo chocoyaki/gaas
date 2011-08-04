@@ -85,7 +85,7 @@ private:
   /* Network configuration for this forwarder. */
   NetConfig netCfg;
 public:
-  DIETForwarder(const std::string& name, const std::string& cfgPath);
+  DIETForwarder(const std::string& name);
   /* DIET object factory methods. */
   Agent_ptr getAgent(const char* name);
   Callback_ptr getCallback(const char* name);

@@ -107,7 +107,8 @@ int main(int argc, char* argv[], char* envp[]) {
   
   
   /* Mandatory */
-  opt.setOptCallback("--net-config", net_config);
+  // NEW: Useless option
+  //opt.setOptCallback("--net-config", net_config);
 
   opt.processOptions();
 	
@@ -125,7 +126,8 @@ int main(int argc, char* argv[], char* envp[]) {
     cfg.setName(name.str());
   }
   if (cfg.getCfgPath()=="") {
-    ERROR("Missing parameter: net-config (use --net-config <file> to fix it)", EXIT_FAILURE);
+    // NEW: Useless now
+    //ERROR("Missing parameter: net-config (use --net-config <file> to fix it)", EXIT_FAILURE);
   }
 	  
   if (cfg.createFrom()) {
@@ -142,7 +144,7 @@ int main(int argc, char* argv[], char* envp[]) {
   SSHTunnel tunnel;
   DIETForwarder* forwarder;
   try {
-    forwarder = new DIETForwarder(cfg.getName(), cfg.getCfgPath());
+    forwarder = new DIETForwarder(cfg.getName());
   } catch (exception &e) {
     ERROR(e.what(), EXIT_FAILURE);
   }
