@@ -102,7 +102,6 @@ connectPeer(const std::string &ior, const std::string &peerIOR,
 void name(const std::string& name, Configuration* cfg);
 void peer_name(const std::string& name, Configuration* cfg);
 void peer_ior(const std::string& ior, Configuration* cfg);
-void net_config(const std::string& path, Configuration* cfg);
 
 void ssh_host(const std::string& host, Configuration* cfg);
 void remote_host(const std::string& host, Configuration* cfg);

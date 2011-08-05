@@ -73,6 +73,7 @@ using namespace std;
 const unsigned int DEFAULT_WAITING_TIME = 10;
 
 string SSHTunnel::cmdFormat  = "%p -l %u %s -p %P -N";
+string SSHTunnel::cmdFormatDefault = "%p %s -N";
 string SSHTunnel::localFormat = "-L%l:%h:%R";
 string SSHTunnel::remoteFormat = "-R%r:%h:%L";
 string SSHTunnel::keyFormat = "-i %k";
@@ -230,7 +231,10 @@ string freeTCPport() {
 string SSHTunnel::makeCmd() {
   string result;
 	
-  result = cmdFormat;
+  if (getSshLogin()=="" && getSshPort()=="" && getSshKeyPath()=="")
+    result = cmdFormatDefault;
+  else
+    result = cmdFormat;
   replace("%p", getSshPath(), result);
   replace("%u", getSshLogin(), result);
   replace("%P", getSshPort(), result);

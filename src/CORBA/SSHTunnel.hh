@@ -72,6 +72,7 @@ class SSHTunnel : public SSHConnection {
 private:
   /* Format strings for ssh commands. */
   static std::string cmdFormat;
+  static std::string cmdFormatDefault;
   static std::string localFormat;
   static std::string remoteFormat;
   static std::string keyFormat;

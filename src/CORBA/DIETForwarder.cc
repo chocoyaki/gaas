@@ -948,46 +948,6 @@ char* DIETForwarder::getName() {
   return CORBA::string_dup(name.c_str());
 }
 
-SeqString* DIETForwarder::acceptList() {
-  SeqString* result = new SeqString;
-  list<string>::const_iterator it;
-	
-  result->length(netCfg.getAcceptList().size());
-
-  unsigned int i=0;
-  for (it=netCfg.getAcceptList().begin();
-       it!=netCfg.getAcceptList().end();
-       ++it, ++i)
-    {
-      (*result)[i] = it->c_str();
-    }
-	
-  return result;
-}
-
-SeqString* DIETForwarder::rejectList() {
-  SeqString* result = new SeqString;
-  list<string>::const_iterator it;
-	
-  result->length(netCfg.getRejectList().size());
-	
-  unsigned int i=0;
-  for (it=netCfg.getRejectList().begin();
-       it!=netCfg.getRejectList().end();
-       ++it, ++i)
-    {
-      (*result)[i] = it->c_str();
-    }
-	
-  return result;
-}
-
-::CORBA::Boolean DIETForwarder::manage(const char* hostname) {
-  /* NEW: return true if hostname==@name*/
-  return string("@")+getName()==hostname;
-  //return netCfg.manage(hostname);
-}
-
 SeqString* DIETForwarder::routeTree() {
   SeqString* result = new SeqString();
   /*std::list<string> forwarders = ORBMgr::list(FWRDCTXT);

@@ -76,7 +76,7 @@ include_directories(
 set(Forwarder_SOURCES
   SSHTunnel.cc
   Options.cc
-  NetConfig.cc
+#  NetConfig.cc
   forwarders/Agent.cc
   forwarders/Callback.cc
   forwarders/MasterAgent.cc

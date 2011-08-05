@@ -50,8 +50,6 @@
 
 #include <omnithread.h>
 
-#include "NetConfig.hh"
-
 #include "Forwarder.hh"
 #include "common_types.hh"
 
@@ -82,8 +80,6 @@ private:
    * modify the object name.
    */
   static bool remoteCall(std::string& objName);
-  /* Network configuration for this forwarder. */
-  NetConfig netCfg;
 public:
   DIETForwarder(const std::string& name);
   /* DIET object factory methods. */
@@ -134,9 +130,6 @@ public:
   void cleanCaches();
 	
   char* getName();
-  SeqString* acceptList();
-  SeqString* rejectList();
-  ::CORBA::Boolean manage(const char* hostname);
 	
   SeqString* routeTree();
 	
