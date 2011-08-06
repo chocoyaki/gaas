@@ -64,9 +64,8 @@
 #define LOCALAGENT  "localAgent" 
 #define MASTERAGENT "masterAgent"
 
-
 class ORBMgr {
-public:
+public:  
   /* Constructors. */
   ORBMgr(int argc, char* argv[]);
   ORBMgr(CORBA::ORB_ptr ORB);
@@ -99,11 +98,14 @@ public:
   /* Resolve an object using its IOR or ctxt/name. */
   CORBA::Object_ptr resolveObject(const std::string& IOR) const;
   CORBA::Object_ptr resolveObject(const std::string& ctxt, const std::string& name,
-				  const std::string& fwdName = "") const;
+                                  const std::string& fwdName = "") const;
+  /* Resolve objects without object caching or invoking forwarders. */
+  CORBA::Object_ptr simpleResolve(const std::string& ctxt, const std::string& name) const;
 	
   /* Get the list of the objects id binded in the omniNames server for a given context. */
   std::list<std::string> list(CosNaming::NamingContext_var& ctxt) const;
   std::list<std::string> list(const std::string& ctxtName) const;
+  std::list<std::string> contextList() const;
 	
   template <typename CORBA_object, typename CORBA_ptr>
   CORBA_ptr resolve(const std::string& ctxt, const std::string& name,
@@ -113,7 +115,8 @@ public:
   template <typename CORBA_object, typename CORBA_ptr>
   CORBA_ptr resolve(const std::string& IOR) const {
     return CORBA_object::_duplicate(CORBA_object::_narrow(resolveObject(IOR)));
-  }																
+  }
+
   
   /* Return the IOR of the passed object. */
   std::string getIOR(CORBA::Object_ptr object) const;

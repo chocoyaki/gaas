@@ -472,6 +472,41 @@ CORBA::Object_ptr ORBMgr::resolveObject(const string& context,
   return CORBA::Object::_duplicate(object);
 }
 
+/* Resolve objects without invoking forwarders. */
+CORBA::Object_ptr ORBMgr::simpleResolve(const string& context, const string& name) const {
+  string ctxt = context;
+  bool localAgent = false;
+  
+  /* The object to resolve is it a local agent ?*/
+  if (ctxt == LOCALAGENT) {
+    ctxt = AGENTCTXT;
+    localAgent = true;
+  }
+  if (ctxt == MASTERAGENT) {
+    ctxt = AGENTCTXT;
+  }
+
+  CORBA::Object_ptr object = ORB->resolve_initial_references("NameService");
+  CosNaming::NamingContext_var rootContext =
+  CosNaming::NamingContext::_narrow(object);
+  CosNaming::Name cosName;
+  
+  cosName.length(2);
+  cosName[0].id   = ctxt.c_str();
+  cosName[0].kind = "";
+  cosName[1].id   = name.c_str();
+  cosName[1].kind = "";
+  
+  try {
+    object = rootContext->resolve(cosName);
+  } catch (CosNaming::NamingContext::NotFound& err) {
+    TRACE_TEXT(TRACE_ALL_STEPS, "Error resolving " << ctxt << "/" << name << endl);
+    throw runtime_error("Error resolving "+ctxt+"/"+name);
+  }
+  return CORBA::Object::_duplicate(object);
+}
+
+
 std::list<string> ORBMgr::list(CosNaming::NamingContext_var& ctxt) const {
   std::list<string> result;
   CosNaming::BindingList_var ctxtList;
@@ -533,6 +568,31 @@ std::list<string> ORBMgr::list(const std::string& ctxtName) const {
   return result;
 }
 
+list<string> ORBMgr::contextList() const {
+  std::list<string> result;
+	
+  CORBA::Object_ptr object = ORB->resolve_initial_references("NameService");
+  CosNaming::NamingContext_var rootContext =
+    CosNaming::NamingContext::_narrow(object);
+  CosNaming::BindingList_var bindingList;
+  CosNaming::BindingIterator_var it;
+	
+  rootContext->list(256, bindingList, it);
+  
+  for (unsigned int i=0; i<bindingList->length(); ++i) {
+    if (bindingList[i].binding_type==CosNaming::ncontext) {
+      string ctxt = string(bindingList[i].binding_name[0].id);
+      result.push_back(ctxt);
+    }
+  }
+  if (CORBA::is_nil(it)) return result;
+  CosNaming::Binding_var bv;
+  while (it->next_one(bv)) {
+    if (bv->binding_type==CosNaming::ncontext)
+      result.push_back(string(bv->binding_name[0].id));
+  }
+  return result;
+}
 
 string ORBMgr::getIOR(CORBA::Object_ptr object) const {
   return ORB->object_to_string(object);

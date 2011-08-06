@@ -47,6 +47,7 @@
 
 #include <string>
 #include <map>
+#include <list>
 
 #include <omnithread.h>
 
@@ -76,10 +77,6 @@ private:
 	
   std::string peerName;
   std::string name;
-  /* To determine if the call is from another forwarder and
-   * modify the object name.
-   */
-  static bool remoteCall(std::string& objName);
 public:
   DIETForwarder(const std::string& name);
   /* DIET object factory methods. */
@@ -112,6 +109,11 @@ public:
   ::CORBA::Long removeElement(::CORBA::Boolean recursive, const char* objName);
 #endif
 	
+  /* To determine if the call is from another forwarder and
+   * modify the object name.
+   */
+  static bool remoteCall(std::string& objName);
+  
   /* CORBA remote management implementation. */
   void bind(const char* objName, const char* ior);
   void unbind(const char* objName);
@@ -132,6 +134,12 @@ public:
   char* getName();
 	
   SeqString* routeTree();
+  
+  /* Utility functions. */
+  std::list<std::string> localObjects(const std::string& ctxt) const;
+  std::list<std::string> otherForwarders() const;
+  std::list<std::string> forwarderObjects(const std::string& fwdName,
+                                          const std::string& ctxt) const;
 	
   /* AgentFwdr implementation. */
   ::CORBA::Long agentSubscribe(const char* agentName,

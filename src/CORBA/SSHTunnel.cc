@@ -120,9 +120,9 @@ string SSHConnection::userKey() {
 
 SSHConnection::SSHConnection() {
   setSshPath("/usr/bin/ssh");
-  setSshPort("22");
-  setSshLogin(userLogin());
-  setSshKeyPath(userKey());
+  //setSshPort("22");
+  //setSshLogin(userLogin());
+  //setSshKeyPath(userKey());
 }
 
 SSHConnection::SSHConnection(const std::string& sshHost, const std::string& sshPort,
@@ -237,6 +237,8 @@ string SSHTunnel::makeCmd() {
     result = cmdFormat;
   replace("%p", getSshPath(), result);
   replace("%u", getSshLogin(), result);
+  if (getSshLogin()!="" && getSshPort()=="")
+    setSshPort(22);
   replace("%P", getSshPort(), result);
   replace("%s", getSshHost(), result);
 	
@@ -484,12 +486,19 @@ SSHCopy::SSHCopy(const string& sshHost,
 bool SSHCopy::getFile() const {
   vector<string> tokens;
   int status;
-  string command = getSshPath()+" -P "+getSshPort();
+  string command;
+  
+  command = getSshPath();
+  if (getSshPort()!="")
+    command += " -P "+getSshPort();
   if (getSshKeyPath()!="") {
     command += " -i "+getSshKeyPath();
   }
-	
-  command += " "+getSshLogin()+"@"+getSshHost()+":"+remoteFilename;
+	if (getSshLogin()!="")
+    command += " "+getSshLogin()+"@"+getSshHost()+":"+remoteFilename;
+  else
+    command += " "+getSshHost()+":"+remoteFilename;
+  
   command += " "+localFilename;
 
   istringstream is(command);
@@ -528,9 +537,19 @@ bool SSHCopy::getFile() const {
 bool SSHCopy::putFile() const {
   vector<string> tokens;
   int status;
-  string command = getSshPath()+" -P "+getSshPort()+" -i "+getSshKeyPath();
+  string command;
+  
+  command = getSshPath();
+  if (getSshPort()!="")
+    command += " -P "+getSshPort();
+  if (getSshKeyPath()!="")
+    command += " -i "+getSshKeyPath();
+  
   command += " "+localFilename;
-  command += getSshLogin()+"@"+getSshHost()+":"+remoteFilename;
+  if (getSshLogin()!="")
+    command += " "+getSshLogin()+"@"+getSshHost()+":"+remoteFilename;
+  else
+    command += " "+getSshHost()+":"+remoteFilename;
 	
   istringstream is(command);
   
