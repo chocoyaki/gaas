@@ -77,6 +77,7 @@ private:
 	
   std::string peerName;
   std::string name;
+  std::string host;
 public:
   DIETForwarder(const std::string& name);
   /* DIET object factory methods. */
@@ -132,7 +133,10 @@ public:
   void cleanCaches();
 	
   char* getName();
-	
+	char* getPeerName();
+  char* getHost();
+  char* getPeerHost();
+
   SeqString* routeTree();
   
   /* Utility function. */

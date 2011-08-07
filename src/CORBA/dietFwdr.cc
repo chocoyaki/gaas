@@ -311,7 +311,6 @@ int
 connectPeer(const std::string &ior, const std::string &peerIOR,
             const std::string &newHost, const std::string &remoteHost,
             int localPortFrom, int remotePortFrom, DIETForwarder *forwarder, ORBMgr* mgr) {
-  
   std::string newPeerIOR = ORBMgr::convertIOR(peerIOR, newHost, localPortFrom);
   
   Forwarder_var peer;

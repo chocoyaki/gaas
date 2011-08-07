@@ -85,6 +85,13 @@
 #include <string>
 #include <cstring>
 #include <list>
+#include <unistd.h>  // For gethostname()
+
+#ifdef MAXHOSTNAMELEN
+#define MAX_HOSTNAME_LENGTH MAXHOSTNAMELEN
+#else
+#define MAX_HOSTNAME_LENGTH  255
+#endif
 
 using namespace std;
 
@@ -116,7 +123,12 @@ bool DIETForwarder::remoteCall(string& objName) {
 
 DIETForwarder::DIETForwarder(const string& name)
 {
+  char buffer[MAX_HOSTNAME_LENGTH+1];
+  
+  gethostname(buffer, MAX_HOSTNAME_LENGTH);
   this->name = name;
+  
+  this->host = buffer;
   // Wait for the peer init. The unlock will be done on setPeer().
   peerMutex.lock(); 
 }
@@ -946,6 +958,18 @@ char* DIETForwarder::getIOR() {
 
 char* DIETForwarder::getName() {
   return CORBA::string_dup(name.c_str());
+}
+
+char* DIETForwarder::getPeerName() {
+  return CORBA::string_dup(getPeer()->getName());
+}
+
+char* DIETForwarder::getHost() {
+  return CORBA::string_dup(host.c_str());
+}
+
+char* DIETForwarder::getPeerHost() {
+  return CORBA::string_dup(getPeer()->getHost());
 }
 
 SeqString* DIETForwarder::routeTree() {

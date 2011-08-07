@@ -129,7 +129,10 @@ interface Forwarder :
 	
 	/* Obtain informations about this forwarder. */
 	string getName();
-	
+  string getPeerName();
+  string getHost();
+  string getPeerHost();
+
 	SeqString routeTree();
 	
 	/* Forwarders management. */
