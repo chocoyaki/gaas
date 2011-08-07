@@ -351,10 +351,7 @@ connectPeer(const std::string &ior, const std::string &peerIOR,
       {
         string objName = *it+"/"+*jt;
         string ior = mgr->getIOR(*it, *jt);
-        // It is a remote call
-        //DIETForwarder::remoteCall(objName);
         forwarder->bind(objName.c_str(), ior.c_str());
-        cout << "object: " << *jt << endl;
       }
       // Then, get the objects binded on the peer
       SeqString* remoteObjs = peer->getBindings(it->c_str());
@@ -363,10 +360,8 @@ connectPeer(const std::string &ior, const std::string &peerIOR,
         string name((*remoteObjs)[i]);
         string ior((*remoteObjs)[i+1]);
         if (find(objects.begin(), objects.end(), name)!=objects.end()) {
-          cout << "object " << name << " is declared locally" << endl;
           continue;
         }
-        cout << "bind " << name << " with new IOR" << endl;
         string newIOR = ORBMgr::convertIOR(ior, fwdTag, 0);
         mgr->bind(*it, name, newIOR, true);
         mgr->fwdsBind(*it, name, newIOR, fwdName);

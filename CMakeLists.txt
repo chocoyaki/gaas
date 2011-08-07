@@ -120,7 +120,7 @@ if (NOT DIET_USE_DTM)
   option(DIET_TRANSFER_PROGRESSION "Build DIET with DAGDA progression API" OFF )
 endif (NOT DIET_USE_DTM)
 option(DIET_USE_ACKFILE     "Build DIET with acknowledge file." OFF)
-option(DIET_BUILD_TOOLS	    "Build DIET tools." ON)
+option(DIET_BUILD_TOOLS	    "Build DIET tools." OFF)
 
 if (DIET_USE_DYNAMICS OR DIET_USE_WORKFLOW)
 endif (DIET_USE_DYNAMICS OR DIET_USE_WORKFLOW)
