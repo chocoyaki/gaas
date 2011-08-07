@@ -190,3 +190,7 @@ if (DIET_USE_LOG)
     DietLogLibrary)
 
 endif (DIET_USE_LOG)
+
+if (DIET_BUILD_TOOLS)
+  add_subdirectory(tools)
+endif (DIET_BUILD_TOOLS)

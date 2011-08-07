@@ -105,7 +105,12 @@ public:
   /* Get the list of the objects id binded in the omniNames server for a given context. */
   std::list<std::string> list(CosNaming::NamingContext_var& ctxt) const;
   std::list<std::string> list(const std::string& ctxtName) const;
+  /* Get the list of declared CORBA contexts. */
   std::list<std::string> contextList() const;
+  /* Return true if the object is local, false if it is reachable through a forwarder. */
+  bool isLocal(const std::string& ctxt, const std::string& name) const;
+  /* Return the name of the forwarder that manage the object. */
+  std::string forwarderName(const std::string& ctxt, const std::string& name) const;
 	
   template <typename CORBA_object, typename CORBA_ptr>
   CORBA_ptr resolve(const std::string& ctxt, const std::string& name,
@@ -134,6 +139,10 @@ public:
   static void init(int argc, char* argv[]);
 	
   static ORBMgr* getMgr();
+  
+  std::list<std::string> forwarderObjects(const std::string& fwdName,
+                                          const std::string& ctxt) const;
+  std::list<std::string> localObjects(const std::string& ctxt) const;
 	
   /* IOR management functions. */
   static void makeIOR(const std::string& strIOR, IOP::IOR& ior);

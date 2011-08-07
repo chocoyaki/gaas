@@ -122,10 +122,6 @@ int main(int argc, char* argv[], char* envp[]) {
             << "Use default name: " << name.str() << endl);
     cfg.setName(name.str());
   }
-  if (cfg.getCfgPath()=="") {
-    // NEW: Useless now
-    //ERROR("Missing parameter: net-config (use --net-config <file> to fix it)", EXIT_FAILURE);
-  }
   
   if (cfg.createFrom()) {
     if (cfg.getPeerName() == ""
@@ -340,12 +336,12 @@ connectPeer(const std::string &ior, const std::string &peerIOR,
          it!=contexts.end(); ++it)
     {
       // Get the local objects
-      list<string> objects = forwarder->localObjects(*it);
+      list<string> objects = mgr->localObjects(*it);
       // Get the object from other forwarders
       for (list<string>::const_iterator jt = fwds.begin();
            jt != fwds.end(); ++jt)
       {
-        list<string> fwdObjects = forwarder->forwarderObjects(*jt, *it);
+        list<string> fwdObjects = mgr->forwarderObjects(*jt, *it);
         objects.insert(objects.end(), fwdObjects.begin(), fwdObjects.end());
       }
       
@@ -356,8 +352,9 @@ connectPeer(const std::string &ior, const std::string &peerIOR,
         string objName = *it+"/"+*jt;
         string ior = mgr->getIOR(*it, *jt);
         // It is a remote call
-        DIETForwarder::remoteCall(objName);
-        peer->bind(objName.c_str(), ior.c_str());
+        //DIETForwarder::remoteCall(objName);
+        forwarder->bind(objName.c_str(), ior.c_str());
+        cout << "object: " << *jt << endl;
       }
       // Then, get the objects binded on the peer
       SeqString* remoteObjs = peer->getBindings(it->c_str());
@@ -365,8 +362,11 @@ connectPeer(const std::string &ior, const std::string &peerIOR,
       for (unsigned int i=0; i<remoteObjs->length(); i+=2) {
         string name((*remoteObjs)[i]);
         string ior((*remoteObjs)[i+1]);
-        if (find(objects.begin(), objects.end(), name)==objects.end())
+        if (find(objects.begin(), objects.end(), name)!=objects.end()) {
+          cout << "object " << name << " is declared locally" << endl;
           continue;
+        }
+        cout << "bind " << name << " with new IOR" << endl;
         string newIOR = ORBMgr::convertIOR(ior, fwdTag, 0);
         mgr->bind(*it, name, newIOR, true);
         mgr->fwdsBind(*it, name, newIOR, fwdName);

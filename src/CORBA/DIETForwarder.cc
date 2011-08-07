@@ -973,23 +973,6 @@ SeqString* DIETForwarder::routeTree() {
   return result;
 }
 
-list<string> DIETForwarder::localObjects(const string& ctxt) const {
-  ORBMgr* mgr = ORBMgr::getMgr();
-  list<string> result = mgr->list(ctxt);
-  list<string>::iterator it, next;
-  
-  for (it=result.begin(); it!=result.end(); it=next) {
-    string ior, iorHost;
-    next=it;
-    ++next;
-    CORBA::Object_ptr obj = mgr->simpleResolve(ctxt, *it);
-    ior = mgr->getIOR(obj);
-    iorHost = ORBMgr::getHost(ior);
-    if (iorHost.length()<1) continue;
-    if (iorHost.at(0)=='@') result.erase(it);
-  }
-  return result;
-}
 
 list<string> DIETForwarder::otherForwarders() const {
   ORBMgr* mgr = ORBMgr::getMgr();
@@ -998,28 +981,6 @@ list<string> DIETForwarder::otherForwarders() const {
   result.remove(name);
   return result;
 }
-
-list<string> DIETForwarder::forwarderObjects(const string& fwdName,
-                                             const string& ctxt) const
-{
-  ORBMgr* mgr = ORBMgr::getMgr();
-  list<string> result = mgr->list(ctxt);
-  list<string>::iterator it, next;
-  string fwdTag = '@'+fwdName;
-  
-  for (it=result.begin(); it!=result.end(); it=next) {
-    string ior, iorHost;
-    next=it;
-    ++next;
-    CORBA::Object_ptr obj = mgr->simpleResolve(ctxt, *it);
-    ior = mgr->getIOR(obj);
-    iorHost = ORBMgr::getHost(ior);
-    if (iorHost!=fwdTag) result.erase(it);
-  }
-  return result;
-}
-
-
 
 string DIETForwarder::getName(const string& namectxt) {
   size_t pos = namectxt.find('/');

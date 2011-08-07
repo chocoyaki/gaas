@@ -135,12 +135,9 @@ public:
 	
   SeqString* routeTree();
   
-  /* Utility functions. */
-  std::list<std::string> localObjects(const std::string& ctxt) const;
+  /* Utility function. */
   std::list<std::string> otherForwarders() const;
-  std::list<std::string> forwarderObjects(const std::string& fwdName,
-                                          const std::string& ctxt) const;
-	
+
   /* AgentFwdr implementation. */
   ::CORBA::Long agentSubscribe(const char* agentName,
                                const char* hostname,

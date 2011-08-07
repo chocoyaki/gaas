@@ -594,6 +594,57 @@ list<string> ORBMgr::contextList() const {
   return result;
 }
 
+bool ORBMgr::isLocal(const string& ctxt, const string& name) const {
+  CORBA::Object_ptr obj = simpleResolve(ctxt, name);
+  return getHost(getIOR(obj)).at(0)!='@';
+}
+
+string ORBMgr::forwarderName(const string& ctxt, const string& name) const {
+  CORBA::Object_ptr obj = simpleResolve(ctxt, name);
+  string host;
+  if ((host=getHost(getIOR(obj))).at(0)!='@') return "";
+  host.erase(0, 1);
+  return host;
+}
+
+
+list<string> ORBMgr::forwarderObjects(const string& fwdName,
+                                      const string& ctxt) const
+{
+  std::list<string> result = list(ctxt);
+  std::list<string>::iterator it, next;
+  string fwdTag = '@'+fwdName;
+  
+  for (it=result.begin(); it!=result.end(); it=next) {
+    string ior, iorHost;
+    next=it;
+    ++next;
+    CORBA::Object_ptr obj = simpleResolve(ctxt, *it);
+    ior = getIOR(obj);
+    iorHost = getHost(ior);
+    if (iorHost!=fwdTag) result.erase(it);
+  }
+  return result;
+}
+
+list<string> ORBMgr::localObjects(const string& ctxt) const {
+  std::list<string> result = list(ctxt);
+  std::list<string>::iterator it, next;
+  
+  for (it=result.begin(); it!=result.end(); it=next) {
+    string ior, iorHost;
+    next=it;
+    ++next;
+    CORBA::Object_ptr obj = simpleResolve(ctxt, *it);
+    ior = getIOR(obj);
+    iorHost = getHost(ior);
+    if (iorHost.length()<1) continue;
+    if (iorHost.at(0)=='@') result.erase(it);
+  }
+  return result;
+}
+
+
 string ORBMgr::getIOR(CORBA::Object_ptr object) const {
   return ORB->object_to_string(object);
 }
