@@ -6,32 +6,7 @@
 %*                                                                          *%
 %* $LICENSE$                                                                *%
 %****************************************************************************%
-%* $Id$
-%* $Log$
-%* Revision 1.7  2011/02/16 18:09:15  bdepardo
-%* Configuration files of forwarders now use "accept = " and "reject = ".
-%* This is a syntax similar to the one used in the MA, SeD and client
-%* configuration files.
-%*
-%* Revision 1.6  2010/10/28 10:20:37  bdepardo
-%* Added missing parameters --nb-retry, --peer-ior
-%*
-%* Revision 1.5  2010/10/28 10:12:35  bdepardo
-%* Added missing option --remote-host.
-%*
-%* Revision 1.4  2010/10/26 01:45:03  bdepardo
-%* Typos
-%*
-%* Revision 1.3  2010/10/25 08:30:05  bdepardo
-%* Explanation on -C option which is mandatory to create the connection.
-%*
-%* Revision 1.2  2010/09/10 13:05:29  bdepardo
-%* Typos
-%*
-%* Revision 1.1  2010/09/10 11:47:21  glemahec
-%* The missing file...
-%*
-%****************************************************************************%
+
 \chapter{\diet forwarders}
 \label{ch:forwarders}
 The \diet middleware uses CORBA as its communication layer. It is an easy
@@ -125,7 +100,6 @@ The \diet forwarder executable takes several options to be launched:
 \item \verb#--peer-ior#: if you already know the IOR of the distant
   forwarder, then you can pass it to your local forwarder. By default,
   the local forwarder retrieves the IOR of its peer.
-\item \verb#--net-config#: the path to the configuration file.
 \item \verb#--tunnel-wait#: the time is seconds that the forwarder
   will wait while opening the ssh tunnel.
 \item \verb#-C#: create the tunnel from this forwarder.
@@ -150,38 +124,10 @@ tunnel to work correctly.\\
   hierarchy.}
 
 
-\subsection{Configuration file}
-To describe to which networks a forwarder gives an access to, users pass a
-configuration file to the executable through the \verb#--net-config#
-option. This file contains several rules describing which network is
-reachable using this forwarder:
-\begin{itemize}
-\item The \verb#accept# rules: these rules describe which network can
-  be accessed using the forwarder.
-\item The \verb#reject# rules: these rules describe which network
-  cannot be accessed using the forwarder.\\
-\end{itemize}
-
-A rule is a regular expression that describes a set of hostnames or IP
-addresses. \textit{localhost} is a special rule that represent, the
-``localhost'' string, but also the 127.0.0.1 IP address and the main
-network interface IP addresses.\\
-
-A \diet forwarder configuration file line always starts with
-\textit{accept~=~} or \textit{reject~=~} followed by a regular
-expression.\\
-
-The rules are evaluated starting by the \textit{accept} rules. Then
-the rule \textit{accept~=~.*} (accept every hostname) followed by the
-rule \textit{reject~=~localhost} means that the forwarder manage the
-connections to every hosts except the local host.
-
-Examples of configuration files are given in section
-\ref{sec:ForwarderExamples}.
-
 
 \section{Configuration examples}
 \label{sec:ForwarderExamples}
+
 The first example presents the configurations of \diet forwarders to
 connect a \sed located on a network only reachable through ssh to a
 \diet hierarchy located on another network.\\
@@ -191,6 +137,7 @@ connect three networks: the first one can only reach the second one
 through ssh and the third one can also only reach the second one
 through ssh. We want to connect \diet elements distributed over the
 three networks.
+
 \subsection{Simple configuration}
 \begin{itemize}
 \item The two different domains are \textit{net1} and \textit{net2}. The forwarders will
@@ -210,25 +157,9 @@ three networks.
   \hspace*{4.2cm}{\tiny$--$}ssh-host fwd.net2 {\tiny$--$}ssh-login
   dietUser $\backslash$\\
   \hspace*{4.2cm}{\tiny$--$}ssh-key id\_rsa\_net2
-  {\tiny$--$}remote-port 50000 $\backslash$\\
-  \hspace*{4.2cm}{\tiny$--$}net-config net1.cfg {\tiny$-$}C}\\[2mm]
+  {\tiny$--$}remote-port 50000 {\tiny$-$}C}\\[2mm]
 \noindent\textbf{Command line to launch \textit{Fwd2}: }\\
-{\small \it fwd.net2\$ dietForwarder {\tiny$--$}name Fwd2
-  {\tiny$--$}net-config net2.cfg}\\[3mm]
-\noindent\textbf{Configuration file for \textit{Fwd1}:}\\
-In this example, the forwarders \textit{Fwd1} accepts only the
-connections to \textit{fwd.net2}.
-\begin{verbatim}
-accept = fwd.net2
-\end{verbatim}
-
-\noindent\textbf{Configuration file for \textit{Fwd2}:}\\
-In this example, the forwarders \textit{Fwd2} accepts all the
-connections except those which are for the localhost.
-\begin{verbatim}
-accept = .*
-reject = localhost
-\end{verbatim}
+{\small \it fwd.net2\$ dietForwarder {\tiny$--$}name Fwd2}\\[3mm]
 
 Note that \textit{Fwd2} has to be launched before \textit{Fwd1}.
 When the two forwarders are launched, the user can deploy his \diet
@@ -249,8 +180,7 @@ To connect the three domains, we need 4 forwarders (2 pairs): one on
 \end{itemize}
 
 \noindent\textbf{Command line to launch \textit{Fwd1}: }\\
-{\small \it fwd.net1\$ dietForwarder {\tiny$--$}name Fwd1
-  {\tiny$--$}net-config net1.cfg}\\[2mm]
+{\small \it fwd.net1\$ dietForwarder {\tiny$--$}name Fwd1}\\[2mm]
 
 \noindent\textbf{Command line to launch \textit{Fwd2-1}: }\\
 {\small \it fwd.net2\$ dietForwarder {\tiny$--$}name Fwd2-1
@@ -258,8 +188,7 @@ To connect the three domains, we need 4 forwarders (2 pairs): one on
   \hspace*{4.2cm}{\tiny$--$}ssh-host fwd.net1 {\tiny$--$}ssh-login
   dietUser $\backslash$\\
   \hspace*{4.2cm}{\tiny$--$}ssh-key id\_rsa\_net1
-  {\tiny$--$}remote-port 50000 $\backslash$\\
-  \hspace*{4.2cm}{\tiny$--$}net-config net2-1.cfg {\tiny$-$}C}\\[2mm]
+  {\tiny$--$}remote-port 50000 {\tiny$-$}C}\\[2mm]
 
 \noindent\textbf{Command line to launch \textit{Fwd2-3}: }\\
 {\small \it fwd.net2\$ dietForwarder {\tiny$--$}name Fwd2-3
@@ -267,42 +196,10 @@ To connect the three domains, we need 4 forwarders (2 pairs): one on
   \hspace*{4.2cm}{\tiny$--$}ssh-host fwd.net3 {\tiny$--$}ssh-login
   dietUser $\backslash$\\
   \hspace*{4.2cm}{\tiny$--$}ssh-key id\_rsa\_net3
-  {\tiny$--$}remote-port 50000 $\backslash$\\
-  \hspace*{4.2cm}{\tiny$--$}net-config net2-3.cfg {\tiny$-$}C}\\[2mm]
+  {\tiny$--$}remote-port 50000 {\tiny$-$}C}\\[2mm]
 
 \noindent\textbf{Command line to launch \textit{Fwd3}: }\\
-{\small \it fwd.net3\$ dietForwarder {\tiny$--$}name Fwd3
-  {\tiny$--$}net-config net3.cfg}\\[3mm]
-
-\noindent\textbf{Configuration file for \textit{Fwd1}:}\\
-\textit{Fwd1} manages the communications for all the host outside
-\textit{net1}.
-\begin{verbatim}
-accept = .*
-reject = .*\.net1
-\end{verbatim}
-
-\noindent\textbf{Configuration file for \textit{Fwd2-1}:}\\
-\textit{Fwd2-1} manages the communication for all the hosts located on
-\textit{net1}.
-\begin{verbatim}
-accept = .*\.net1
-\end{verbatim}
-
-\noindent\textbf{Configuration file for \textit{Fwd2-3}:}\\
-\textit{Fwd2-3} manages the communication for all the hosts located on
-\textit{net3}.
-\begin{verbatim}
-accept = .*\.net3
-\end{verbatim}
-
-\noindent\textbf{Configuration file for \textit{Fwd3}:}\\
-\textit{Fwd1} manages the communications for all the host outside
-\textit{net3}.
-\begin{verbatim}
-accept = .*
-reject = .*\.net3
-\end{verbatim}
+{\small \it fwd.net3\$ dietForwarder {\tiny$--$}name Fwd3}\\[3mm]
 
 Using this configuration, a communication from a host on \textit{net1}
 to a host on \textit{net3} is first routed from \textit{Fwd1} to
