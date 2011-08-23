@@ -254,8 +254,18 @@ int main(int argc, char* argv[], char* envp[]) {
   }
 
   if (canLaunch) {
-    mgr->wait();
+    try {
+      ORBMgr::getMgr()->wait();
+      mgr->unbind(FWRDCTXT, cfg.getName());
+    } catch (...) {
+      WARNING("Error while exiting the ORBMgr::wait() function");
+    }
   }
+
+  /* shutdown and destroy the ORB
+   * Servants will be deactivated and deleted automatically
+   */
+  delete ORBMgr::getMgr();
 
   TRACE_TEXT(TRACE_MAIN_STEPS, "Forwarder is now terminated" << endl);
 
