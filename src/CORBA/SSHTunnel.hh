@@ -12,8 +12,8 @@
 
 #include <string>
 
-#include <unistd.h>
 #include <csignal>
+#include <unistd.h>
 
 class SSHConnection {
 private:
@@ -32,7 +32,7 @@ protected:
 public:
   SSHConnection();
   SSHConnection(const std::string& sshHost, const std::string& sshPort,
-                const std::string& login,	const std::string& keyPath,
+                const std::string& login, const std::string& keyPath,
                 const std::string& sshPath);
 
   const std::string& getSshHost() const;
@@ -41,7 +41,7 @@ public:
   const std::string& getSshLogin() const;
   const std::string& getSshKeyPath() const;
   const std::string& getSshOptions() const;
-	
+
   void setSshHost(const std::string& host);
   void setSshPath(const std::string& path);
   void setSshPort(const std::string& port);
@@ -68,10 +68,10 @@ private:
   std::string remoteHost;
   std::string remotePortTo;
   std::string remotePortFrom;
-	
+
   /* Process pid. */
   pid_t pid;
-	
+
   std::string makeCmd();
 public:
   SSHTunnel();
@@ -88,7 +88,7 @@ public:
             const std::string& sshPort = "22",
             const std::string& login = userLogin(),
             const std::string& keyPath = userKey());
-	
+
   /* Constructor for unidirectionnal SSH tunnel. */
   SSHTunnel(const std::string& sshHost,
             const std::string& remoteHost,
@@ -99,18 +99,18 @@ public:
             const std::string& serverPort = "22",
             const std::string& login = userLogin(),
             const std::string& keyPath = userKey());
-	
+
   ~SSHTunnel();
-	
+
   void open();
   void close();
-		
+
   const std::string& getRemoteHost() const;
   int getLocalPortFrom() const;
   int getLocalPortTo() const;
   int getRemotePortFrom() const;
   int getRemotePortTo() const;
-	
+
   void setRemoteHost(const std::string& host);
   void setLocalPortFrom(const std::string& port);
   void setLocalPortFrom(const int port);
@@ -123,8 +123,6 @@ public:
   void setWaitingTime(const unsigned int time);
   void createTunnelTo(const bool create);
   void createTunnelFrom(const bool create);
-
-
 };
 
 /* Copy a file using scp. */
@@ -132,7 +130,7 @@ class SSHCopy : public SSHConnection {
 private:
   std::string remoteFilename;
   std::string localFilename;
-	
+
   /* Process pid. */
   mutable pid_t pid;
 public:
