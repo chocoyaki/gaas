@@ -6,50 +6,6 @@
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
-/* $Id$
- * $Log$
- * Revision 1.13  2011/05/10 06:47:24  bdepardo
- * Properly handle exceptions when creating the DIETForwarder
- *
- * Revision 1.12  2011/04/20 09:00:09  bdepardo
- * Code formating
- *
- * Revision 1.11  2011/04/12 15:14:42  bdepardo
- * Command line option now has precedence on the automatically determined
- * remote port.
- *
- * Revision 1.10  2011/04/12 14:50:30  bdepardo
- * Try to automatically determine a free remote port
- *
- * Revision 1.9  2011/04/12 10:01:00  bdepardo
- * More robust forwarder: when communication to omniORB fails, correctly
- * exits and kill ssh tunnel
- *
- * Revision 1.8  2011/03/28 10:07:19  bdepardo
- * Use 127.0.0.1 as default remote host instead of localhost.
- *
- * Revision 1.7  2011/03/25 18:03:11  bdepardo
- * Catch exception while transfering remote IOR file
- *
- * Revision 1.6  2011/03/25 17:29:23  bdepardo
- * More robust forwarder
- *
- * Revision 1.5  2010/10/28 10:21:48  bdepardo
- * Set nbRetry by default to 3.
- * Code formating.
- *
- * Revision 1.4  2010/07/27 16:16:48  glemahec
- * Forwarders robustness
- *
- * Revision 1.3  2010/07/14 23:45:30  bdepardo
- * Header corrections
- *
- * Revision 1.2  2010/07/13 15:24:13  glemahec
- * Warnings corrections and some robustness improvements
- *
- * Revision 1.1  2010/07/12 16:11:04  glemahec
- * DIET 2.5 beta 1 - New ORB manager; dietForwarder application
- ****************************************************************************/
 
 #include "DIETForwarder.hh"
 #include "ORBMgr.hh"
@@ -77,11 +33,11 @@ using namespace std;
 int main(int argc, char* argv[], char* envp[]) {
   /* Forwarder configuration. */
   FwrdConfig cfg(argv[0]);
-	
+
   Options opt(&cfg, argc, argv, envp);
   /* Mandatory parameter. */
   opt.setOptCallback("--name", name);
-	
+
   /* Mandatory when creating tunnels. */
   opt.setOptCallback("--peer-name", peer_name);
   opt.setOptCallback("--ssh-host", ssh_host);
@@ -91,38 +47,36 @@ int main(int argc, char* argv[], char* envp[]) {
   opt.setOptCallback("--remote-port", remote_port_from);
   /* Optionnal, set waiting time for tunnel creation */
   opt.setOptCallback("--tunnel-wait", tunnel_wait);
-  
-  /* Optionnal.
-   */
+
+  /* Optionnal */
   opt.setOptCallback("--ssh-port", ssh_port);
   opt.setOptCallback("--ssh-login", ssh_login);
   opt.setOptCallback("--ssh-key", key_path);
-	
+
   /* Optionnal parameters/flags. */
   opt.setOptCallback("--retry", nb_retry);
   opt.setOptCallback("--peer-ior", peer_ior);
-  //  opt.setFlagCallback('C', create);  
-  
+
   opt.processOptions();
-  if (cfg.getSshHost()!="") {
+  if (cfg.getSshHost() != "") {
     cfg.createTo(true);
     cfg.createFrom(true);
   }
-	
-  if (cfg.getName()=="") {
+
+  if (cfg.getName() == "") {
     std::ostringstream name;
     char host[256];
-		
+
     gethostname(host, 256);
     host[255]='\0';
-		
+
     std::transform(host, host+strlen(host), host, change);
     name << "Forwarder-" << host << "-" << getpid();
     WARNING("Missing parameter: name (use --name to fix it)" << endl
             << "Use default name: " << name.str() << endl);
     cfg.setName(name.str());
   }
-  
+
   if (cfg.createFrom()) {
     if (cfg.getPeerName() == ""
         || cfg.getSshHost() == "") {
@@ -132,7 +86,7 @@ int main(int argc, char* argv[], char* envp[]) {
             << '\t' << "- SSH host (--ssh-host <host>)", EXIT_FAILURE);
     }
   }
-	
+
   SSHTunnel tunnel;
   DIETForwarder* forwarder;
   try {
@@ -144,7 +98,7 @@ int main(int argc, char* argv[], char* envp[]) {
   ORBMgr* mgr = ORBMgr::getMgr();
   string ior;
   int count = 0;
-	
+
   mgr->activate(forwarder);
   do {
     try {
@@ -160,22 +114,22 @@ int main(int argc, char* argv[], char* envp[]) {
       return EXIT_FAILURE;
     }
   } while (true);
-	
+
   /* Write the IOR to a file on /tmp. */
   ior = mgr->getIOR(forwarder->_this());
   string iorFilename("/tmp/DIET-forwarder-ior-");
   iorFilename+=cfg.getName()+".tmp";
   ofstream of(iorFilename.c_str(), ios_base::trunc);
-	
+
   if (!of.is_open()) {
     WARNING("cannot open file " << iorFilename
             << " to store the IOR");
-  } else {	
+  } else {
     TRACE_TEXT(TRACE_MAIN_STEPS, "Write IOR to " << iorFilename << endl);
     if (cfg.createFrom()) { // Creating tunnel(s)
       istringstream is(cfg.getRemotePortFrom());
       int port;
-			
+
       is >> port;
       of << ORBMgr::convertIOR(ior, cfg.getRemoteHost(), port);
     }	else {// Waiting for connexion.
@@ -186,18 +140,18 @@ int main(int argc, char* argv[], char* envp[]) {
     of.close();
   }
   TRACE_TEXT(TRACE_MAIN_STEPS, "Forwarder: " << ior << endl);
-	
-	
+
+
   tunnel.setSshHost(cfg.getSshHost());
   tunnel.setRemoteHost(cfg.getRemoteHost());
-  
+
   tunnel.setSshPath(cfg.getSshPath());
   tunnel.setSshPort(cfg.getSshPort());
   tunnel.setSshLogin(cfg.getSshLogin());
   tunnel.setSshKeyPath(cfg.getSshKeyPath());
-  
+
   tunnel.setWaitingTime(cfg.getWaitingTime());
-	
+
   /* Manage the peer IOR. */
   if (cfg.getPeerIOR()=="" && cfg.createFrom()) {
     /* Try to retrieve the peer IOR. */
@@ -210,7 +164,7 @@ int main(int argc, char* argv[], char* envp[]) {
     copy.setSshKeyPath(cfg.getSshKeyPath());
     try {
       if (copy.getFile()) {
-        TRACE_TEXT(TRACE_MAIN_STEPS, "Got remote IOR file" << std::endl);
+        TRACE_TEXT(TRACE_MAIN_STEPS, "Got remote IOR file" << endl);
         cfg.setPeerIOR("/tmp/DIET-forwarder-ior-"+cfg.getPeerName()+".tmp");
       } else {
         ERROR("Could not get remote IOR file." << endl
@@ -219,7 +173,7 @@ int main(int argc, char* argv[], char* envp[]) {
               << "\t- Remote IOR (--peer-ior <IOR>)", EXIT_FAILURE);
       }
     } catch (...) {
-      TRACE_TEXT(TRACE_MAIN_STEPS, "Got an exception while retrieving IOR file" << std::endl);
+      TRACE_TEXT(TRACE_MAIN_STEPS, "Got an exception while retrieving IOR file" << endl);
     }
   }
   if (cfg.getPeerIOR()!="" && cfg.getPeerIOR().find("IOR:")!=0) {
@@ -237,7 +191,7 @@ int main(int argc, char* argv[], char* envp[]) {
       cfg.setRemotePortFrom(peerPort);
     }
   }
-	
+
   if (cfg.getPeerIOR() != "") {
     tunnel.setRemotePortTo(ORBMgr::getPort(cfg.getPeerIOR()));
   } else {
@@ -250,12 +204,13 @@ int main(int argc, char* argv[], char* envp[]) {
       tunnel.setRemoteHost("127.0.0.1");
     }
   } else {
-    if (cfg.getRemoteHost() != "")
+    if (cfg.getRemoteHost() != "") {
       tunnel.setRemoteHost(cfg.getRemoteHost());
-    else
+    } else {
       tunnel.setRemoteHost("localhost");
+    }
   }
-  
+
   tunnel.setRemotePortFrom(cfg.getRemotePortFrom());
   //	tunnel.setLocalPortFrom(cfg.getLocalPortFrom());
   if (cfg.createFrom()) {
@@ -265,16 +220,16 @@ int main(int argc, char* argv[], char* envp[]) {
             << '\t' << "- Remote port (--remote-port <port>)", EXIT_FAILURE);
     }
   }
-  
-	
+
+
   tunnel.setLocalPortTo(ORBMgr::getPort(ior));
-  
+
   if (cfg.getSshHost()!="") {
     tunnel.createTunnelTo(cfg.createTo());
     tunnel.createTunnelFrom(cfg.createFrom());
   }
   tunnel.open();
-  
+
   /* Try to find the peer. */
   bool canLaunch = true;
   if (cfg.getPeerIOR()!="") {
@@ -297,13 +252,13 @@ int main(int argc, char* argv[], char* envp[]) {
       canLaunch = false;
     }
   }
-  
+
   if (canLaunch) {
     mgr->wait();
   }
-  
-  TRACE_TEXT(TRACE_MAIN_STEPS, "Forwarder is now terminated" << std::endl);
-	
+
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Forwarder is now terminated" << endl);
+
   return EXIT_SUCCESS;
 }
 
@@ -312,53 +267,50 @@ connectPeer(const std::string &ior, const std::string &peerIOR,
             const std::string &newHost, const std::string &remoteHost,
             int localPortFrom, int remotePortFrom, DIETForwarder *forwarder, ORBMgr* mgr) {
   std::string newPeerIOR = ORBMgr::convertIOR(peerIOR, newHost, localPortFrom);
-  
+
   Forwarder_var peer;
-  
+
   peer = mgr->resolve<Forwarder, Forwarder_var>(newPeerIOR);
-  
+
   try {
     peer->connectPeer(ior.c_str(), remoteHost.c_str(),
                       remotePortFrom);
     forwarder->setPeer(peer);
-    
+
     // Get the existing contexts except the Forwarders one
     list<string> contexts = mgr->contextList();
     contexts.remove(FWRDCTXT);
     // Get the other forwarder list
     list<string> fwds = forwarder->otherForwarders();
     string fwdName = forwarder->getName();
-    string fwdTag = "@"+fwdName;
-    
+    string fwdTag = "@" + fwdName;
+
     // For each context
-    for (list<string>::const_iterator it=contexts.begin();
-         it!=contexts.end(); ++it)
-    {
+    for (list<string>::const_iterator it = contexts.begin();
+         it != contexts.end(); ++it) {
       // Get the local objects
       list<string> objects = mgr->localObjects(*it);
       // Get the object from other forwarders
       for (list<string>::const_iterator jt = fwds.begin();
-           jt != fwds.end(); ++jt)
-      {
+           jt != fwds.end(); ++jt) {
         list<string> fwdObjects = mgr->forwarderObjects(*jt, *it);
         objects.insert(objects.end(), fwdObjects.begin(), fwdObjects.end());
       }
-      
+
       // Bind them on the peer
-      for (list<string>::const_iterator jt=objects.begin();
-           jt!=objects.end(); ++jt)
-      {
-        string objName = *it+"/"+*jt;
+      for (list<string>::const_iterator jt = objects.begin();
+           jt != objects.end(); ++jt) {
+        string objName = *it +"/" + *jt;
         string ior = mgr->getIOR(*it, *jt);
         forwarder->bind(objName.c_str(), ior.c_str());
       }
       // Then, get the objects binded on the peer
       SeqString* remoteObjs = peer->getBindings(it->c_str());
       // And bind them locally and on others forwarders if they are not yet
-      for (unsigned int i=0; i<remoteObjs->length(); i+=2) {
+      for (unsigned int i = 0; i < remoteObjs->length(); i += 2) {
         string name((*remoteObjs)[i]);
         string ior((*remoteObjs)[i+1]);
-        if (find(objects.begin(), objects.end(), name)!=objects.end()) {
+        if (find(objects.begin(), objects.end(), name) != objects.end()) {
           continue;
         }
         string newIOR = ORBMgr::convertIOR(ior, fwdTag, 0);
@@ -368,9 +320,9 @@ connectPeer(const std::string &ior, const std::string &peerIOR,
     }
   } catch (CORBA::TRANSIENT& err) {
     ERROR("Unable to contact remote peer using '" << newHost
-          <<"' as a \"new remote host\"", 1);
+          << "' as a \"new remote host\"", 1);
   }
-  
+
   TRACE_TEXT(TRACE_MAIN_STEPS, "Contacted remote peer using '" << newHost << "' as new remote host" << endl);
   return 0;
 }
@@ -386,10 +338,6 @@ void peer_name(const string& name, Configuration* cfg) {
 
 void peer_ior(const string& ior, Configuration* cfg) {
   static_cast<FwrdConfig*>(cfg)->setPeerIOR(ior);
-}
-
-void net_config(const string& path, Configuration* cfg) {
-  static_cast<FwrdConfig*>(cfg)->setCfgPath(path);
 }
 
 void ssh_host(const string& host, Configuration* cfg) {
@@ -433,12 +381,6 @@ void tunnel_wait(const string& time, Configuration* cfg) {
   int n;
   is >> n;
   static_cast<FwrdConfig*>(cfg)->setWaitingTime(n);
-}
-
-void create(const string& create, Configuration* cfg) {
-  (void) create;
-  static_cast<FwrdConfig*>(cfg)->createTo(true);
-  static_cast<FwrdConfig*>(cfg)->createFrom(true);
 }
 
 void nb_retry(const string& nb, Configuration* cfg) {

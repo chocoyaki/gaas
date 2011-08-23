@@ -6,44 +6,9 @@
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
-/* $Id$
- * $Log$
- * Revision 1.10  2011/05/09 13:10:09  bdepardo
- * Added method diet_get_SeD_services to retreive the services of a SeD given
- * its name
- *
- * Revision 1.9  2010/12/17 09:47:59  kcoulomb
- * * Set diet to use the new log with forwarders
- * * Fix a CoRI problem
- * * Add library version remove DTM flag from ccmake because deprecated
- *
- * Revision 1.8  2010/08/04 09:06:18  glemahec
- * Parallel compilation
- *
- * Revision 1.7  2010/07/27 16:16:48  glemahec
- * Forwarders robustness
- *
- * Revision 1.6  2010/07/27 13:25:01  glemahec
- * Forwarders robustness improvements
- *
- * Revision 1.5  2010/07/27 10:24:31  glemahec
- * Improve robustness & general performance
- *
- * Revision 1.4  2010/07/20 08:56:22  bisnard
- * Updated WfLogService IDL
- *
- * Revision 1.3  2010/07/14 23:45:30  bdepardo
- * Header corrections
- *
- * Revision 1.2  2010/07/13 15:24:13  glemahec
- * Warnings corrections and some robustness improvements
- *
- * Revision 1.1  2010/07/12 16:11:03  glemahec
- * DIET 2.5 beta 1 - New ORB manager; dietForwarder application
- ****************************************************************************/
 
 #ifndef DIETFORWARDER_HH
-#define DIETFORWARDER_HH 
+#define DIETFORWARDER_HH
 
 #include <string>
 #include <map>
@@ -67,14 +32,14 @@ private:
   std::map<std::string, ::CORBA::Object_ptr> objectCache;
   /* We also maintain a list of activated servant objects. */
   std::map<std::string, PortableServer::ServantBase*> servants;
-	
+
   ::CORBA::Object_ptr getObjectCache(const std::string& name);
   /* The forwarder associated to this one. */
   Forwarder_var peer;
   /* Mutexes */
   omni_mutex peerMutex;   // To wait for the peer initialization
   omni_mutex cachesMutex; // Protect access to caches
-	
+
   std::string peerName;
   std::string name;
   std::string host;
@@ -99,7 +64,7 @@ public:
   MaDag_ptr getMaDag(const char* name);
   WfLogService_ptr getWfLogService(const char* name);
 #endif
-	
+
   /* Common methods implementations. */
   ::CORBA::Long ping(const char* objName);
   void getRequest(const ::corba_request_t& req, const char* objName);
@@ -109,17 +74,17 @@ public:
   ::CORBA::Long disconnect(const char* objName);
   ::CORBA::Long removeElement(::CORBA::Boolean recursive, const char* objName);
 #endif
-	
+
   /* To determine if the call is from another forwarder and
    * modify the object name.
    */
   static bool remoteCall(std::string& objName);
-  
+
   /* CORBA remote management implementation. */
   void bind(const char* objName, const char* ior);
   void unbind(const char* objName);
   SeqString* getBindings(const char* ctxt);
-	
+
   /* Connect the peer forwarder. */
   void connectPeer(const char* ior, const char* host,
                    const ::CORBA::Long port);
@@ -127,18 +92,18 @@ public:
   void setPeer(Forwarder_ptr peer);
   Forwarder_var getPeer();
   char* getIOR();
-	
+
   /* Object caches management functions. */
   void removeObjectFromCache(const std::string& name);
   void cleanCaches();
-	
+
   char* getName();
-	char* getPeerName();
+  char* getPeerName();
   char* getHost();
   char* getPeerHost();
 
   SeqString* routeTree();
-  
+
   /* Utility function. */
   std::list<std::string> otherForwarders() const;
 
@@ -209,7 +174,7 @@ public:
   void lvlAddData(const char* srcDagda,
                   const ::corba_data_t& data,
                   const char* objName);
-  void pfmAddData(const char* srcDagda, 
+  void pfmAddData(const char* srcDagda,
                   const ::corba_data_t& data,
                   const char* objName);
   void registerFile(const ::corba_data_t& data,
@@ -324,7 +289,7 @@ public:
   char* setMyName(const char* objName);
   char* whichSeDOwner(const char* argID,
                       const char* objName);
-	
+
   ::CORBA::ULong locMgrSubscribe(const char* me, const char* hostName, const char* objName);
   ::CORBA::ULong dataMgrSubscribe(const char* me, const char* hostName, const char* objName);
   void addDataRef(const ::corba_data_desc_t& arg, ::CORBA::ULong cChildID, const char* objName);
@@ -457,12 +422,12 @@ public:
   void nodeIsRunning(const char* dagNodeId, const char* wfId, const char* objName);
   void nodeIsDone(const char* dagNodeId, const char* wfId, const char* objName);
   void nodeIsFailed(const char* dagNodeId, const char* wfId, const char* objName);
-  
+
 #endif
   /* Utility fonctions to extract name & context from context/name. */
   static std::string getName(const std::string& namectxt);
   static std::string getCtxt(const std::string& namectxt);
-	
+
 };
 
 #endif

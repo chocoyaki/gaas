@@ -6,23 +6,6 @@
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
-/* $Id$
- * $Log$
- * Revision 1.5  2011/03/25 17:29:23  bdepardo
- * More robust forwarder
- *
- * Revision 1.4  2011/01/17 18:35:17  bdepardo
- * Add missing #ifndef... #define
- *
- * Revision 1.3  2010/07/14 23:45:30  bdepardo
- * Header corrections
- *
- * Revision 1.2  2010/07/13 15:24:13  glemahec
- * Warnings corrections and some robustness improvements
- *
- * Revision 1.1  2010/07/12 16:11:04  glemahec
- * DIET 2.5 beta 1 - New ORB manager; dietForwarder application
- ****************************************************************************/
 
 #ifndef _DIETFWDR_HH_
 #define _DIETFWDR_HH_
@@ -38,7 +21,7 @@ private:
   std::string peerHost;
   std::string peerPort;
   std::string peerIOR;
-	
+
   std::string sshHost;
   std::string remoteHost;
   std::string localPortFrom;
@@ -73,7 +56,7 @@ public:
   int getNbRetry() const;
   unsigned int getWaitingTime() const;
   const std::string& getCfgPath() const;
-	
+
   void setName(const std::string& name);
   void setPeerName(const std::string& name);
   void setPeerIOR(const std::string& ior);

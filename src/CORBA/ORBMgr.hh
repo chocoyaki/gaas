@@ -6,34 +6,6 @@
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
-/* $Id$
- * $Log$
- * Revision 1.27  2011/05/13 06:42:22  bdepardo
- * Const methods whenever possible
- *
- * Revision 1.26  2011/02/15 16:18:24  bdepardo
- * Go back to the old signal handle with semaphores. I did not find any better
- * idea.
- *
- * Revision 1.25  2010/11/10 02:41:23  kcoulomb
- * Small modifications to use the log service (LogService divided in 2 separated contexts, one for components and one for tools)
- *
- * Revision 1.24  2010/11/02 05:53:18  bdepardo
- * Correct a bug preventing the SeDs from connecting to an LA through the
- * forwarders: when resolving an agent we first try to resolve MA or LA
- * depending on the context, but if this fails, then we fall back to resolving
- * a general agent.
- *
- * Revision 1.23  2010/07/27 10:24:32  glemahec
- * Improve robustness & general performance
- *
- * Revision 1.22  2010/07/14 23:45:30  bdepardo
- * Header corrections
- *
- * Revision 1.21  2010/07/12 16:11:04  glemahec
- * DIET 2.5 beta 1 - New ORB manager; dietForwarder application
- *
- ****************************************************************************/
 
 #ifndef ORBMGR_HH
 #define ORBMGR_HH
@@ -51,26 +23,26 @@
 
 #define DAGDACTXT   "Dagda"
 #define LOGCOMPCTXT "LogServiceC"
-#define AGENTCTXT	  "dietAgent"
-#define SEDCTXT			"dietSeD"
+#define AGENTCTXT   "dietAgent"
+#define SEDCTXT     "dietSeD"
 #define DATAMGRCTXT "dataMgrDTM"
-#define LOCMGRCTXT	"locMgrDTM"
-#define MADAGCTXT		"dietMADag"
-#define WFMGRCTXT		"dietWfMgr"
+#define LOCMGRCTXT  "locMgrDTM"
+#define MADAGCTXT   "dietMADag"
+#define WFMGRCTXT   "dietWfMgr"
 #define CLIENTCTXT  "dietClient"
-#define WFLOGCTXT		"WfLogService"
-#define FWRDCTXT		"dietForwarder"
+#define WFLOGCTXT   "WfLogService"
+#define FWRDCTXT    "dietForwarder"
 /* LOCALAGENT & MASTERAGENT are not context strings. */
-#define LOCALAGENT  "localAgent" 
+#define LOCALAGENT  "localAgent"
 #define MASTERAGENT "masterAgent"
 
 class ORBMgr {
-public:  
+public:
   /* Constructors. */
   ORBMgr(int argc, char* argv[]);
   ORBMgr(CORBA::ORB_ptr ORB);
   ORBMgr(CORBA::ORB_ptr ORB, PortableServer::POA_var POA);
-  
+
   /* Destructor. */
   ~ORBMgr();
 
@@ -87,21 +59,21 @@ public:
               const std::string& IOR) const;
   /* Unbind an object. */
   void unbind(const std::string& ctxt, const std::string& name) const;
-	
+
   /* Forwarders binding. */
   void fwdsBind(const std::string& ctxt, const std::string& name,
 		const std::string& ior, const std::string& fwName = "") const;
   /* Forwarders unbinding. */
   void fwdsUnbind(const std::string& ctxt, const std::string& name,
 		  const std::string& fwName = "") const;
-	
+
   /* Resolve an object using its IOR or ctxt/name. */
   CORBA::Object_ptr resolveObject(const std::string& IOR) const;
   CORBA::Object_ptr resolveObject(const std::string& ctxt, const std::string& name,
                                   const std::string& fwdName = "") const;
   /* Resolve objects without object caching or invoking forwarders. */
   CORBA::Object_ptr simpleResolve(const std::string& ctxt, const std::string& name) const;
-	
+
   /* Get the list of the objects id binded in the omniNames server for a given context. */
   std::list<std::string> list(CosNaming::NamingContext_var& ctxt) const;
   std::list<std::string> list(const std::string& ctxtName) const;
@@ -111,7 +83,7 @@ public:
   bool isLocal(const std::string& ctxt, const std::string& name) const;
   /* Return the name of the forwarder that manage the object. */
   std::string forwarderName(const std::string& ctxt, const std::string& name) const;
-	
+
   template <typename CORBA_object, typename CORBA_ptr>
   CORBA_ptr resolve(const std::string& ctxt, const std::string& name,
 		    const std::string& fwdName = "") const {
@@ -122,11 +94,11 @@ public:
     return CORBA_object::_duplicate(CORBA_object::_narrow(resolveObject(IOR)));
   }
 
-  
+
   /* Return the IOR of the passed object. */
   std::string getIOR(CORBA::Object_ptr object) const;
   std::string getIOR(const std::string& ctxt, const std::string& name) const;
-	
+
   /* Activate an object. */
   void activate(PortableServer::ServantBase* object) const;
   /* Deactivate an object. */
@@ -137,13 +109,13 @@ public:
   void shutdown(bool waitForCompletion);
 
   static void init(int argc, char* argv[]);
-	
+
   static ORBMgr* getMgr();
-  
+
   std::list<std::string> forwarderObjects(const std::string& fwdName,
                                           const std::string& ctxt) const;
   std::list<std::string> localObjects(const std::string& ctxt) const;
-	
+
   /* IOR management functions. */
   static void makeIOR(const std::string& strIOR, IOP::IOR& ior);
   static void makeString(const IOP::IOR& ior, std::string& strIOR);
@@ -157,7 +129,7 @@ public:
 				const unsigned int port);
   static std::string convertIOR(const std::string& ior, const std::string& host,
 				const unsigned int port);
-	
+
   /* Object cache management functions. */
   void resetCache() const;
   void removeObjectFromCache(const std::string& name) const;
@@ -172,10 +144,10 @@ private:
   CORBA::ORB_ptr ORB;
   /* The Portable Object Adaptor. */
   PortableServer::POA_var POA;
-  
+
   /* Is the ORB down? */
   bool down;
-  
+
 
   /* CORBA initialization. */
   void init(CORBA::ORB_ptr ORB);
@@ -187,7 +159,7 @@ private:
 
   /* The manager instance. */
   static ORBMgr* theMgr;
-  
+
 
   static void
   sigIntHandler(int sig);
