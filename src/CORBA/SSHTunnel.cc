@@ -6,43 +6,6 @@
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
-/* $Id$
- * $Log$
- * Revision 1.11  2011/04/20 08:59:56  bdepardo
- * Removed debug cout
- *
- * Revision 1.10  2011/04/20 08:52:30  bdepardo
- * Allow setSshKey to set an empty key path (so as to use the system keys)
- *
- * Revision 1.9  2011/04/17 21:22:52  dloureir
- * Bug correction : SSH key was not handled correctly when creating SSH tunnel
- *
- * Revision 1.8  2011/04/15 19:52:30  dloureir
- * Bug correction concerning identity file management of SSHCopy
- *
- * Revision 1.7  2011/04/15 19:07:53  bdepardo
- * Fixed a bug in setSshKeyPath()
- *
- * Revision 1.6  2011/04/12 14:50:07  bdepardo
- * freeTCPport is now accessible outside SSHTunnel.cc
- *
- * Revision 1.5  2011/03/25 18:03:11  bdepardo
- * Catch exception while transfering remote IOR file
- *
- * Revision 1.4  2010/10/28 06:56:13  bdepardo
- * Do not return an exception when the username cannot be determined.
- * Instead only print an error message. This is useful to run the forwarder in
- * background through an ssh connection (GoDIET).
- *
- * Revision 1.3  2010/07/14 23:45:30  bdepardo
- * Header corrections
- *
- * Revision 1.2  2010/07/13 15:24:13  glemahec
- * Warnings corrections and some robustness improvements
- *
- * Revision 1.1  2010/07/12 16:11:04  glemahec
- * DIET 2.5 beta 1 - New ORB manager; dietForwarder application
- ****************************************************************************/
 
 #include "SSHTunnel.hh"
 
