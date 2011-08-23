@@ -4,6 +4,10 @@
 * Features:
 	- New forwarders: they do not need a configuration file anymore,
 	and they can be started at any time.
+* Bug Fix:
+	- Forwarders now unregister themselves from omniNames when they
+	are shut down properly.
+	- Forwarders can be launched after any DIET element
 
 +------------+
 | diet 2.7.1 |
