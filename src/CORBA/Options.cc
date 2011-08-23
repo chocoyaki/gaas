@@ -238,7 +238,9 @@ void ConfigFile::parseFile(const std::string& path) {
     }
     
     /* Empty line => continue. */
-    if (line=="") continue;
+    if (line=="") {
+      continue;
+    }
     
     /* Cut the line on '=' chararcter. */
     transform(line.begin(), line.end(), line.begin(), cut);
