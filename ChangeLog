@@ -1,3 +1,10 @@
++----------+
+| diet 2.8 |
++----------+
+* Features:
+	- New forwarders: they do not need a configuration file anymore,
+	and they can be started at any time.
+
 +------------+
 | diet 2.7.1 |
 +------------+
