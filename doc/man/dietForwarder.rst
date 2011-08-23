@@ -77,43 +77,9 @@ OPTIONS
 **--peer-ior** [IOR]
   Passes the remote forwarder's IOR. By default, the local forwarder will retrieve its peer's IOR.
 
-**--net-config** [path/to/configuration/file]
-  Path to the configuration file.
-
-**-C**
-  Creates the tunnel from this forwarder.
-
-
-CONFIGURATION FILE
-==================
-
-You can pass a configuration file to dietForwarder instead of using command-line options
-through the --net-config option. Configuration file lists several rules describing
-networks reachable using this forwarder.
-
-There are two categories of rules:
-
-**accept rules**
-  describe which networks are accessible through the forwarder.
-
-**reject rules**
-  describe which networks are not accessible through the forwarder.
-
-A rule always starts with either **accept:** or **reject:** immediately
-followed by a regular expression (Posix) describing the host concerned by the rule.
-**accept** rules are evaluated first, and then **reject** rules are.
-For instance:
-
-  accept:.*
-  reject:localhost
-
-There's an alternative ini-like format for the configuration file, for instance:
-
-  accept = .*
-  reject = localhost
-
-This fragment means that the forwarder will accept connections to every host
-but localhost.
+**--tunnel-wait** [seconds]
+  Set the number of seconds to wait before considering that the tunnel
+  has been created.
 
 
 EXAMPLE
@@ -135,34 +101,14 @@ Here is a simple configuration example:
 
   fwd.net1$ dietForwarder --name Fwd1 --peer-name Fwd2 \
     --ssh-host fwd.net2 --ssh-login dietUser \
-    --ssh-key id rsa net2 --remote-port 50000 \
-    --net-config net1.cfg -C
+    --ssh-key id rsa net2 --remote-port 50000
 
 **Command line to launch Fwd2**
 
 ::
 
-  fwd.net2$ dietForwarder --name Fwd2 --net-config net2.cfg
+  fwd.net2$ dietForwarder --name Fwd2
 
-
-**Configuration file for Fwd1**
-
-In this example, the Fwd1 forwarder only accepts the connections to fwd.net2.
-
-::
-
-  accept:fwd.net2
-
-
-**Configuration file for Fwd2**
-
-In this example, the Fwd2 forwarders accepts all connections, except those
-to localhost.
-
-::
-
-  accept:.*
-  reject:localhost
 
 
 RATIONALE

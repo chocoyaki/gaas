@@ -91,7 +91,10 @@ The \diet forwarder executable takes several options to be launched:
   connection (by default: current user login).
 \item \verb#--ssh-key#: the private key to use to establish the ssh
   connection (by default: \verb#$HOME/.ssh/id_rsa#).
-\item \verb#--remote-port#: the port to listen on the ssh host.
+\item \verb#--remote-port#: the port to listen on the ssh host (by
+  default: the remote forwarder tries to dermine an available port
+  automatically, note that if the connection fails when you do not use
+  this option, then you have to specify the remote port).
 \item \verb#--remote-host#: the host to which the connection is made
   by the tunnel (corresponds to \verb#host# in the ssh options
   \verb#-L# and \verb#-R#).
@@ -102,12 +105,13 @@ The \diet forwarder executable takes several options to be launched:
   the local forwarder retrieves the IOR of its peer.
 \item \verb#--tunnel-wait#: the time is seconds that the forwarder
   will wait while opening the ssh tunnel.
-\item \verb#-C#: create the tunnel from this forwarder.
 \end{itemize}
 The remote port can be chosen randomly among the available TCP ports
 on the remote host. Sometimes, depending on the configuration of sshd,
-you will need to set \verb#--remote-host# to \verb#localhost# for the
-tunnel to work correctly.\\
+you will need to set \verb#--remote-host# to \verb#localhost# or
+\verb#127.0.0.1# (or the address of the local loopback if it is not
+\verb#127.0.0.1#) for the tunnel to work correctly (in fact, most
+problems come from a badly configured tunnel).\\
 
 \noindent In order, to activate a \diet forwarder, users must:
 \begin{itemize}
@@ -116,8 +120,7 @@ tunnel to work correctly.\\
   and its network configuration.
 \item Launch the second peer, passing it it the first peer name, the
   ssh connection informations, the remote port to use and its network
-  configuration, and the \verb#-C# option to force it to create the
-  ssh tunnel.
+  configuration.
 \end{itemize}
 
 \noindent\textit{Rem: The forwarders must be launched before the \diet
@@ -157,7 +160,7 @@ three networks.
   \hspace*{4.2cm}{\tiny$--$}ssh-host fwd.net2 {\tiny$--$}ssh-login
   dietUser $\backslash$\\
   \hspace*{4.2cm}{\tiny$--$}ssh-key id\_rsa\_net2
-  {\tiny$--$}remote-port 50000 {\tiny$-$}C}\\[2mm]
+  {\tiny$--$}remote-port 50000}\\[2mm]
 \noindent\textbf{Command line to launch \textit{Fwd2}: }\\
 {\small \it fwd.net2\$ dietForwarder {\tiny$--$}name Fwd2}\\[3mm]
 
@@ -188,7 +191,7 @@ To connect the three domains, we need 4 forwarders (2 pairs): one on
   \hspace*{4.2cm}{\tiny$--$}ssh-host fwd.net1 {\tiny$--$}ssh-login
   dietUser $\backslash$\\
   \hspace*{4.2cm}{\tiny$--$}ssh-key id\_rsa\_net1
-  {\tiny$--$}remote-port 50000 {\tiny$-$}C}\\[2mm]
+  {\tiny$--$}remote-port 50000}\\[2mm]
 
 \noindent\textbf{Command line to launch \textit{Fwd2-3}: }\\
 {\small \it fwd.net2\$ dietForwarder {\tiny$--$}name Fwd2-3
@@ -196,7 +199,7 @@ To connect the three domains, we need 4 forwarders (2 pairs): one on
   \hspace*{4.2cm}{\tiny$--$}ssh-host fwd.net3 {\tiny$--$}ssh-login
   dietUser $\backslash$\\
   \hspace*{4.2cm}{\tiny$--$}ssh-key id\_rsa\_net3
-  {\tiny$--$}remote-port 50000 {\tiny$-$}C}\\[2mm]
+  {\tiny$--$}remote-port 50000}\\[2mm]
 
 \noindent\textbf{Command line to launch \textit{Fwd3}: }\\
 {\small \it fwd.net3\$ dietForwarder {\tiny$--$}name Fwd3}\\[3mm]
