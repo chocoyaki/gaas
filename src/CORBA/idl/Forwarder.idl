@@ -57,86 +57,86 @@
 
 interface Forwarder :
   MasterAgentForwarder
-	, CallbackForwarder
-	, SeDForwarder
+, CallbackForwarder
+  , SeDForwarder
   //	, ComponentConfiguratorForwader
 #if HAVE_WORKFLOW
   , CltManForwarder
-	, MaDagForwarder
-	, WfLogServiceForwarder
+  , MaDagForwarder
+  , WfLogServiceForwarder
 #endif
 #if HAVE_DAGDA
-	, DagdaForwarder
+  , DagdaForwarder
 #else
   , DataMgrForwarder
-	, LocMgrForwarder
+  , LocMgrForwarder
 #endif
 {	
-	/* Get objects from the Forwarder. */
-	Agent getAgent(in string name);
-	Callback getCallback(in string name);
-	LocalAgent getLocalAgent(in string name);
-	//ComponentConfigurator getComponentConfigurator(in string name);
-	//LogCentralComponent getLogCentralComponent(in string name);
+  /* Get objects from the Forwarder. */
+  Agent getAgent(in string name);
+  Callback getCallback(in string name);
+  LocalAgent getLocalAgent(in string name);
+  //ComponentConfigurator getComponentConfigurator(in string name);
+  //LogCentralComponent getLogCentralComponent(in string name);
   MasterAgent getMasterAgent(in string name);
-	SeD getSeD(in string name);
+  SeD getSeD(in string name);
 	
 #if HAVE_DAGDA
-	Dagda getDagda(in string name);
+  Dagda getDagda(in string name);
 #else
-	DataMgr getDataMgr(in string name);
-	LocMgr getLocMgr(in string name);
+  DataMgr getDataMgr(in string name);
+  LocMgr getLocMgr(in string name);
 #endif
 
 #if HAVE_WORKFLOW
   CltMan getCltMan(in string name);
-	MaDag getMaDag(in string name);
+  MaDag getMaDag(in string name);
   WfLogService getWfLogService(in string name);
 #endif
-	/* Common methods. */
-	long ping(in string objName)
-		raises(UnknownObject, BadNameException);
+  /* Common methods. */
+  long ping(in string objName)
+    raises(UnknownObject, BadNameException);
   oneway void getRequest(in corba_request_t req, in string objName);
   string getHostname(in string objName)
-		raises(UnknownObject, BadNameException);
+    raises(UnknownObject, BadNameException);
 #if HAVE_DYNAMICS
   long bindParent(in string parentName, in string objName)
-		raises(UnknownObject, BadNameException);
+    raises(UnknownObject, BadNameException);
   long disconnect(in string objName)
-		raises(UnknownObject, BadNameException);
+    raises(UnknownObject, BadNameException);
   long removeElement(in boolean recursive, in string objName)
-		raises(UnknownObject, BadNameException);
+    raises(UnknownObject, BadNameException);
 #endif
 #ifndef HAVE_DAGDA
   string whereData(in string argID, in string objName)
-		raises(UnknownObject, BadNameException);
+    raises(UnknownObject, BadNameException);
   string setMyName(in string objName)
-		raises(UnknownObject, BadNameException);
+    raises(UnknownObject, BadNameException);
   string whichSeDOwner(in string argID, in string objName)
-		raises(UnknownObject, BadNameException);
+    raises(UnknownObject, BadNameException);
   void printList(in string objName)
-		raises(UnknownObject, BadNameException);
+    raises(UnknownObject, BadNameException);
 
 #endif
-	/* CORBA remote management. */
-	void bind(in string objName, in string ior);
-	oneway void unbind(in string objName);
-	SeqString getBindings(in string ctxt);
+  /* CORBA remote management. */
+  void bind(in string objName, in string ior);
+  oneway void unbind(in string objName);
+  SeqString getBindings(in string ctxt);
 	
-	/* Peer connection. */
-	void connectPeer(in string ior, in string host, in long port);
-	string getIOR();
+  /* Peer connection. */
+  void connectPeer(in string ior, in string host, in long port);
+  string getIOR();
 	
-	/* Obtain informations about this forwarder. */
-	string getName();
+  /* Obtain informations about this forwarder. */
+  string getName();
   string getPeerName();
   string getHost();
   string getPeerHost();
 
-	SeqString routeTree();
+  SeqString routeTree();
 	
-	/* Forwarders management. */
-	/* traceRoute, ping, topology, ... */
+  /* Forwarders management. */
+  /* traceRoute, ping, topology, ... */
 };
 
 #endif
