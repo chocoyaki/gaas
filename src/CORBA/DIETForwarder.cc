@@ -954,7 +954,8 @@ SeqString* DIETForwarder::routeTree() {
 }
 
 
-list<string> DIETForwarder::otherForwarders() const {
+list<string>
+DIETForwarder::otherForwarders() const {
   ORBMgr* mgr = ORBMgr::getMgr();
   list<string> result = mgr->list(FWRDCTXT);
 
@@ -962,13 +963,15 @@ list<string> DIETForwarder::otherForwarders() const {
   return result;
 }
 
-string DIETForwarder::getName(const string& namectxt) {
+string
+DIETForwarder::getName(const string& namectxt) {
   size_t pos = namectxt.find('/');
   if (pos==string::npos) return namectxt;
   return namectxt.substr(pos+1);
 }
 
-string DIETForwarder::getCtxt(const string& namectxt) {
+string
+DIETForwarder::getCtxt(const string& namectxt) {
   size_t pos = namectxt.find('/');
   if (pos==string::npos) return "";
   return namectxt.substr(0, pos);
