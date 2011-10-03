@@ -49,7 +49,7 @@ public:
   DietForwarderClientFixture() : processFwd(NULL) {
     BOOST_TEST_MESSAGE( "== Test setup [BEGIN]:  Launching DIET client forwarder (config file: "
                         << config << ") ==" );
-	
+
     std::string exec;
     try {
       exec = bp::find_executable_in_path("dietForwarder", DIETFWD_DIR);
@@ -57,9 +57,9 @@ public:
       BOOST_TEST_MESSAGE( "can't find dietForwarder: " << e.what() );
       return;
     }
-        
+
     BOOST_TEST_MESSAGE( "dietForwarder found: " << exec );
-	
+
     // setup forwarder environment
     bp::context ctx;
     ctx.process_name = "dietForwarder";
@@ -78,8 +78,7 @@ public:
 
 
     // setup dietForwarder arguments
-    std::vector<std::string> args = ba::list_of("--net-config")(config)
-      ("--name")(name);
+    std::vector<std::string> args = ba::list_of("--name")(name);
 
     // launch dietForwarder
     const bp::child c = bp::create_child(exec, args, ctx);
@@ -87,8 +86,8 @@ public:
     processFwd.reset(utils::copy_child(c));
     boost::this_thread::sleep(boost::posix_time::milliseconds(4*SLEEP_TIME));
     BOOST_TEST_MESSAGE( "== Test setup [END]: Launching client dietForwarder ==" );
-  }	
-    
+  }
+
   ~DietForwarderClientFixture() {
     BOOST_TEST_MESSAGE( "== Test teardown [BEGIN]: Stopping client dietForwarder ==" );
     if (processFwd) {
@@ -114,7 +113,7 @@ public:
   DietForwarderServerFixture() : processFwd(NULL), serverName(utils::genID(name)) {
     BOOST_TEST_MESSAGE( "== Test setup [BEGIN]:  Launching DIET server forwarder (config file: "
                         << config << ") ==" );
-	
+
     std::string exec;
     try {
       exec = bp::find_executable_in_path("dietForwarder", DIETFWD_DIR);
@@ -122,9 +121,9 @@ public:
       BOOST_TEST_MESSAGE( "can't find dietForwarder: " << e.what() );
       return;
     }
-        
+
     BOOST_TEST_MESSAGE( "dietForwarder found: " << exec );
-	
+
     // setup forwarder environment
     bp::context ctx;
     ctx.process_name = "dietForwarder";
@@ -143,13 +142,11 @@ public:
 
 
     // setup dietForwarder arguments
-    std::vector<std::string> args = ba::list_of("--net-config")(config)
-      ("--name")(this->serverName.c_str())
+    std::vector<std::string> args = ba::list_of("--name")(this->serverName.c_str())
       ("--peer-name")(peerName)
       ("--remote-host")(remoteHost)
       ("--ssh-host")(sshHost)
-      ("--ssh-login")(FWD_SSH_LOGIN)
-      ("-C");
+      ("--ssh-login")(FWD_SSH_LOGIN);
 
     // launch dietForwarder
     const bp::child c = bp::create_child(exec, args, ctx);
@@ -160,8 +157,8 @@ public:
     // Let's say 20 to be sure :-)
     boost::this_thread::sleep(boost::posix_time::milliseconds(20*1000));
     BOOST_TEST_MESSAGE( "== Test setup [END]: Launching server dietForwarder ==" );
-  }	
-    
+  }
+
   ~DietForwarderServerFixture() {
     BOOST_TEST_MESSAGE( "== Test teardown [BEGIN]: Stopping server dietForwarder ==" );
     if (processFwd) {
@@ -182,8 +179,8 @@ public:
   JoinFixture() {
     BOOST_TEST_MESSAGE( "== Test setup [BEGIN]:  Launching join ==");
     BOOST_TEST_MESSAGE( "== Test setup [END]: Launching join ==" );
-  }	
-    
+  }
+
   ~JoinFixture() {
     BOOST_TEST_MESSAGE( "== Test teardown [BEGIN]: Stopping join ==" );
     BOOST_TEST_MESSAGE( "== Test teardown [END]: Stopping join ==" );
