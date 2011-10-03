@@ -184,20 +184,20 @@ LocalAgentImpl::bindParent(const char * parentName) {
   long rv = 0;
   SeqCorbaProfileDesc_t* profiles(NULL);
   profiles = SrvT->getProfiles();
-  
+
   /* Check that the parent isn't itself */
   if (! strcmp(parentName, this->myName)) {
     WARNING("given parent name is the same as LA name. Won't try to connect");
     return 1;
   }
-  
+
   /* Does the new parent exists? */
   Agent_var parentTmp;
   try {
     parentTmp =
       ORBMgr::getMgr()->resolve<Agent, Agent_var>(AGENTCTXT, parentName);
   } catch (...) {
-    parentTmp = Agent::_nil(); 
+    parentTmp = Agent::_nil();
   }
   if (CORBA::is_nil(parentTmp)) {
     if (CORBA::is_nil(this->parent)) {
@@ -223,7 +223,7 @@ LocalAgentImpl::bindParent(const char * parentName) {
       }
       this->parent = Agent::_nil();
       childID = -1;
-      
+
       /* Unsubscribe data manager */
       this->dataManager->unsubscribeParent();
     } catch (CORBA::Exception& e) {
@@ -236,10 +236,10 @@ LocalAgentImpl::bindParent(const char * parentName) {
               << "or there is a problem with the CORBA name server");
     }
   }
-  
+
   /* Now we try to subscribe to a new parent */
   this->parent = parentTmp;
-  
+
   try {
     if (profiles->length()) {
       childID = parent->agentSubscribe(myName, localHostName,
@@ -247,10 +247,10 @@ LocalAgentImpl::bindParent(const char * parentName) {
     }
     TRACE_TEXT(TRACE_ALL_STEPS, "* Bound myself to parent: "
                << parentName << std::endl);
-    
+
     /* Data manager also needs to connect to the new parent */
     this->dataManager->subscribeParent(parentName);
-    
+
 #ifdef USE_LOG_SERVICE
     /* Log */
     if (dietLogComponent) {
@@ -291,7 +291,7 @@ LocalAgentImpl::removeElement(bool recursive) {
     }
     this->parent = Agent::_nil();
     childID = -1;
-    
+
     /* Unsubscribe data manager */
     try {
       this->dataManager->unsubscribeParent();
@@ -546,16 +546,9 @@ LocalAgentFwdrImpl::agentSubscribe(const char* me, const char* hostName,
 
 CORBA::Long
 LocalAgentFwdrImpl::serverSubscribe(const char* me, const char* hostName,
-#if HAVE_JXTA
-				    const char* uuid,
-#endif /* HAVE_JXTA */
 				    const SeqCorbaProfileDesc_t& services)
 {
-#if HAVE_JXTA
-    return forwarder->serverSubscribe(me, hostName, uuid, services, objName);
-#else /* HAVE_JXTA */
     return forwarder->serverSubscribe(me, hostName, services, objName);
-#endif /* HAVE_JXTA */
 }
 
 #ifdef HAVE_DYNAMICS

@@ -40,7 +40,6 @@ endif(DIET_USE_LOG)
 set(UtilsNodesSource
   Counter.cc
 #  DietLogComponent.cc
-  FASTMgr.cc
   ServiceTable.cc
 )
 
@@ -84,12 +83,10 @@ if (DIET_USE_CORI)
 
   # CORI extensions are only compiled when CORI is required:
   set(UtilsCoriSource
-    FASTMgr.cc
     Cori_Data_Easy.cc
     Cori_Easy_CPU.cc
     Cori_Easy_Disk.cc
     Cori_Easy_Memory.cc
-    Cori_Fast.cc
     Cori_Metric.cc
     CORIMgr.cc
   )
@@ -105,9 +102,6 @@ if (DIET_USE_CORI)
     )
   endif(NOT DIET_USE_DAGDA)
 
-  set_source_files_properties(FASTMgr.cc PROPERTIES
-    COMPILE_FLAGS "${FAST_INCLUDE_DIR}"
-  )
 
 ########################################################################
 ### CORI related properties:

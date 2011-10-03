@@ -93,9 +93,6 @@ interface Agent {
    */
   long serverSubscribe(in string seDName,
                        in string hostname,
-#if HAVE_JXTA
-                       in string uuid,
-#endif // HAVE_JXTA
                        in SeqCorbaProfileDesc_t services);
 
 #ifdef HAVE_DYNAMICS

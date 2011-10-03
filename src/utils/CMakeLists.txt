@@ -29,10 +29,6 @@ endif (DIET_USE_DAGDA)
 
 add_subdirectory(config)
 
-if (DIET_USE_FD)
-  add_subdirectory(fd)
-endif (DIET_USE_FD)
-
 include_directories(
   ${OMNIORB4_INCLUDE_DIR}
   ${DIET_BINARY_DIR}/src/CORBA/idl

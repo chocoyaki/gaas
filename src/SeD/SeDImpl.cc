@@ -375,8 +375,6 @@ using namespace std;
 
 #if HAVE_CORI
 #include "CORIMgr.hh"
-#else
-#include "FASTMgr.hh"
 #endif //HAVE_CORI
 
 #include "marshalling.hh"
@@ -393,11 +391,6 @@ using namespace std;
 #include "DIET_Dagda.hh"
 #endif // HAVE_DAGDA
 
-/**
- * Performance measurement for bw and latency of JuxMem
- */
-#define JUXMEM_LATENCY_THROUGHPUT 0
-
 /** The trace level. */
 extern unsigned int TRACE_LEVEL;
 
@@ -405,13 +398,6 @@ extern unsigned int TRACE_LEVEL;
 SeDImpl::SeDImpl() {
   this->initialize();
 }
-
-#if HAVE_JXTA
-SeDImpl::SeDImpl(const char* uuid = '\0') {
-  this->uuid = uuid;
-  this->initialize();
-}
-#endif //HAVE_JXTA
 
 /** Private method to centralize all shared variable initializations from
  * different constructors.  Call this only from a constructor. */
@@ -426,10 +412,6 @@ SeDImpl::initialize() {
 #ifdef USE_LOG_SERVICE
   this->dietLogComponent = NULL;
 #endif
-
-#if !HAVE_CORI && HAVE_FAST
-  this->fastUse = 1;
-#endif //!HAVE_CORI && HAVE_FAST
 
 #if defined HAVE_ALT_BATCH
   this->server_status = SERIAL ;
@@ -521,7 +503,7 @@ SeDImpl::bindParent(const char * parentName) {
   } catch (...) {
     parentTmp = Agent::_nil();
   }
-	
+
   if (CORBA::is_nil(parentTmp)) {
     if (CORBA::is_nil(this->parent)) {
       WARNING("cannot locate agent " << parentName << ", will now wait");
@@ -542,7 +524,7 @@ SeDImpl::bindParent(const char * parentName) {
       }
       this->parent = Agent::_nil();
       childID = -1;
-      
+
       /* Unsubscribe data manager */
       this->dataManager->unsubscribeParent();
     } catch (CORBA::Exception& e) {
@@ -557,12 +539,9 @@ SeDImpl::bindParent(const char * parentName) {
 
   /* Now we try to subscribe to a new parent */
   this->parent = parentTmp;
-  
+
   try {
     childID = this->parent->serverSubscribe(myName, localHostName,
-#if HAVE_JXTA
-					    uuid,
-#endif //HAVE_JXTA
 					    *profiles);
 
     TRACE_TEXT(TRACE_ALL_STEPS, "* Bound myself to parent: " << parentName << std::endl);
@@ -725,9 +704,6 @@ SeDImpl::run(ServiceTable* services) {
       TRACE_TEXT(TRACE_ALL_STEPS, "parent->serverSubscribe(" << this->myName
                  << ", " << localHostName << ", *profiles)" << endl);
       childID = parent->serverSubscribe(this->myName, localHostName,
-#if HAVE_JXTA
-                                        uuid,
-#endif //HAVE_JXTA
                                         *profiles);
       TRACE_TEXT(TRACE_ALL_STEPS, "subscribe !" << endl);
     } catch (CORBA::Exception& e) {
@@ -753,7 +729,7 @@ SeDImpl::run(ServiceTable* services) {
   } else {
     this->port = endPoint;
   }
-  
+
   bool useConcJob = false;
   CONFIG_BOOL(diet::USECONCJOBLIMIT, useConcJob);
   this->useConcJobLimit = useConcJob;
@@ -783,22 +759,11 @@ SeDImpl::run(ServiceTable* services) {
 
 #if HAVE_CORI
   return CORIMgr::startCollectors();
-#else //HAVE_CORI
-  return FASTMgr::init();
 #endif //HAVE_CORI
 
 } // end: run
 
-#if HAVE_JUXMEM
-/** Set this->juxmem */
-int
-SeDImpl::linkToJuxMem(JuxMem::Wrapper* juxmem)
-{
-  this->juxmem = juxmem;
-  return 0;
-}
-#endif // HAVE_JUXMEM
-#if ! HAVE_JUXMEM && ! HAVE_DAGDA
+#if ! HAVE_DAGDA
 /** Set this->dataMgr */
 int
 SeDImpl::linkToDataMgr(DataMgrImpl* dataMgr)
@@ -806,8 +771,8 @@ SeDImpl::linkToDataMgr(DataMgrImpl* dataMgr)
   this->dataMgr = dataMgr;
   return 0;
 }
-#endif // ! HAVE_JUXMEM && ! HAVE_DAGDA
-#if ! HAVE_JUXMEM && HAVE_DAGDA
+#endif // ! HAVE_DAGDA
+#if HAVE_DAGDA
 void
 SeDImpl::setDataManager(DagdaImpl* dataManager) {
   this->dataManager=dataManager;
@@ -883,9 +848,6 @@ SeDImpl::getRequest(const corba_request_t& creq)
     resp.servers[0].loc.hostName = CORBA::string_dup(this->localHostName);
     resp.servers[0].loc.port     = this->port;
     resp.servers[0].estim.estValues.length(0);
-#if HAVE_JXTA
-    resp.servers[0].loc.uuid = CORBA::string_dup(uuid);
-#endif //HAVE_JXTA
 
 #ifdef HAVE_ALT_BATCH
     resp.servers[0].loc.serverType = server_status ;
@@ -1515,141 +1477,6 @@ SeDImpl::parallel_AsyncSolve(const char * path, const corba_profile_t & pb,
 #endif // HAVE_ALT_BATCH
 
 /******************************** Data Management ***************************/
-
-#if HAVE_JUXMEM
-inline void
-SeDImpl::uploadSeDDataJuxMem(diet_profile_t* profile)
-{
-#if JUXMEM_LATENCY_THROUGHPUT
-  float latency = 0;
-  float throughput = 0;
-  /**
-   * To store time
-   */
-  struct timeval t_begin;
-  struct timeval t_end;
-  struct timeval t_result;
-#endif
-  int i = 0;
-
-  for (i = 0; i <= profile->last_out; i++) {
-    if (profile->parameters[i].desc.mode == DIET_PERSISTENT ||
-	profile->parameters[i].desc.mode == DIET_PERSISTENT_RETURN) {
-
-      /** IN and INOUT case */
-      if (i <= profile->last_inout) {
-	TRACE_TEXT(TRACE_MAIN_STEPS, "Releasing data with ID = " << profile->parameters[i].desc.id << " from JuxMem" << endl);
-#if JUXMEM_LATENCY_THROUGHPUT
-	gettimeofday(&t_begin, NULL);
-#endif
-	this->juxmem->release(profile->parameters[i].value);
-#if JUXMEM_LATENCY_THROUGHPUT
-	gettimeofday(&t_end, NULL);
-	timersub(&t_end, &t_begin, &t_result);
-	latency = (t_result.tv_usec + (t_result.tv_sec * 1000. * 1000)) / 1000.;
-	throughput = (data_sizeof(&(profile->parameters[i].desc)) / (1024. * 1024.)) / (latency / 1000.);
-	TRACE_TEXT(TRACE_MAIN_STEPS, "INOUT " << profile->parameters[i].desc.id << " release. Latency: " << latency << ", Throughput: " << throughput << endl);
-#endif
-      } else {       /** OUT case */
-	/** The data does not exist yet */
-	if (strlen(profile->parameters[i].desc.id) == 0) {
-	  /* The local memory is attached inside JuxMem */
-	  profile->parameters[i].desc.id =
-	    this->juxmem->attach(profile->parameters[i].value,
-				 data_sizeof(&(profile->parameters[i].desc)),
-				 1, 1, EC_PROTOCOL, BASIC_SOG);
-	  TRACE_TEXT(TRACE_MAIN_STEPS, "A data space with ID = "
-		     << profile->parameters[i].desc.id
-		     << " for OUT data has been attached inside JuxMem!" << endl);
-	  /* The local memory is flush inside JuxMem */
-	  this->juxmem->msync(profile->parameters[i].value);
-	} else { /* Simply release the lock */
-	  /** FIXME: should we handle this case */
-	  this->juxmem->release(profile->parameters[i].value);
-	}
-      }
-
-      this->juxmem->unmap(profile->parameters[i].value);
-    }
-  }
-}
-#endif
-
-#if HAVE_JUXMEM
-inline void
-SeDImpl::downloadSeDDataJuxMem(diet_profile_t* profile)
-{
-#if JUXMEM_LATENCY_THROUGHPUT
-  float latency = 0;
-  float throughput = 0;
-  /**
-   * To store time
-   */
-  struct timeval t_begin;
-  struct timeval t_end;
-  struct timeval t_result;
-#endif
-  int i = 0;
-
-  for (i = 0; i <= profile->last_out; i++) {
-    if (profile->parameters[i].desc.mode == DIET_PERSISTENT ||
-	profile->parameters[i].desc.mode == DIET_PERSISTENT_RETURN) {
-
-      /* IN case -> acquire the data in read mode */
-      if (i <= profile->last_in) {
-	assert(profile->parameters[i].desc.id != NULL);
-	profile->parameters[i].value = this->juxmem->mmap(NULL, data_sizeof(&(profile->parameters[i].desc)), profile->parameters[i].desc.id, 0);
-	TRACE_TEXT(TRACE_MAIN_STEPS, "Acquiring IN data with ID = " << profile->parameters[i].desc.id << " from JuxMem" << endl);
-#if JUXMEM_LATENCY_THROUGHPUT
-	gettimeofday(&t_begin, NULL);
-#endif
-	this->juxmem->acquireRead(profile->parameters[i].value);
-#if JUXMEM_LATENCY_THROUGHPUT
-	gettimeofday(&t_end, NULL);
-	timersub(&t_end, &t_begin, &t_result);
-	latency = (t_result.tv_usec + (t_result.tv_sec * 1000. * 1000)) / 1000.;
-	throughput = (data_sizeof(&(profile->parameters[i].desc)) / (1024. * 1024.)) / (latency / 1000.);
-	TRACE_TEXT(TRACE_MAIN_STEPS, "IN " <<  profile->parameters[i].desc.id << 
-		   " acquireRead. Latency: " << latency << ", Throughput: " << throughput << endl);
-#endif
-	continue;
-      }
-      /* INOUT case -> acquire the data in write mode */
-      if (i > profile->last_in && i <= profile->last_inout) {
-	assert(profile->parameters[i].desc.id != NULL);
-	profile->parameters[i].value = this->juxmem->mmap(NULL, data_sizeof(&(profile->parameters[i].desc)), profile->parameters[i].desc.id, 0);
-	TRACE_TEXT(TRACE_MAIN_STEPS, "Acquiring INOUT data with ID = " << profile->parameters[i].desc.id << " from JuxMem ..." << endl);
-#if JUXMEM_LATENCY_THROUGHPUT
-	gettimeofday(&t_begin, NULL);
-#endif
-	this->juxmem->acquire(profile->parameters[i].value);
-#if JUXMEM_LATENCY_THROUGHPUT
-	gettimeofday(&t_end, NULL);
-	timersub(&t_end, &t_begin, &t_result);
-	latency = (t_result.tv_usec + (t_result.tv_sec * 1000. * 1000)) / 1000.;
-	throughput = (data_sizeof(&(profile->parameters[i].desc)) / (1024. * 1024.)) / (latency / 1000.);
-	TRACE_TEXT(TRACE_MAIN_STEPS, "IN/INOUT " <<  profile->parameters[i].desc.id
-		   << " acquire. Latency: " << latency << ", Throughput: " << throughput << endl);
-#endif
-	continue;
-      }
-      /* OUT case -> acquire the data in write mode if exists in JuxMem */
-      if (i > profile->last_inout) {
-	if (profile->parameters[i].desc.id == NULL || (strlen(profile->parameters[i].desc.id) == 0)) {
-	  TRACE_TEXT(TRACE_MAIN_STEPS, "New data for OUT" << endl);
-	} else {
-	  /** FIXME: not clear if we should handle such a case */
-	  assert(profile->parameters[i].desc.id != NULL);
-	  profile->parameters[i].value = this->juxmem->mmap(NULL, data_sizeof(&(profile->parameters[i].desc)), profile->parameters[i].desc.id, 0);
-	  this->juxmem->acquire(profile->parameters[i].value);
-	  TRACE_TEXT(TRACE_MAIN_STEPS, "Acquiring OUT data with ID = " << profile->parameters[i].desc.id << " from JuxMem ..." << endl);
-	}
-      }
-    }
-  }
-}
-#endif
-
 const struct timeval*
 SeDImpl::timeSinceLastSolve()
 {
@@ -1766,9 +1593,6 @@ SeDImpl::estimate(corba_estimation_t& estimation,
     diet_est_set_internal(eVals, EST_NBCPU, 1);
 #endif // HAVE_ALT_BATCH
 
-#else //HAVE_CORI
-    /***** START FAST-based metrics *****/
-    diet_estimate_fast(eVals, &profile);
 #endif  //!HAVE_CORI
 
 
@@ -1845,10 +1669,6 @@ SeDImpl::downloadAsyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
 {
   TRACE_TIME(TRACE_MAIN_STEPS, "SeD downloads client datas" << endl);
 
-#if HAVE_JUXMEM
-  unmrsh_in_args_to_profile(&profile, &(const_cast<corba_profile_t&>(pb)), cvt);
-  downloadSeDDataJuxMem(&profile);
-#else
 #if ! HAVE_DAGDA
   int i;
   for (i = 0; i <= pb.last_inout; i++) {
@@ -1867,7 +1687,6 @@ SeDImpl::downloadAsyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
 #else
   dagda_download_data(profile, pb);
 #endif // ! HAVE_DAGDA
-#endif // HAVE_JUXMEM
 }
 
 inline void
@@ -1876,10 +1695,6 @@ SeDImpl::downloadSyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
 {
   TRACE_TIME(TRACE_MAIN_STEPS, "SeD downloads client datas" << endl);
 
-#if HAVE_JUXMEM
-  unmrsh_in_args_to_profile(&profile, &pb, cvt);
-  downloadSeDDataJuxMem(&profile);
-#else
 #if ! HAVE_DAGDA
   int i ;
   // For data persistence
@@ -1906,7 +1721,6 @@ SeDImpl::downloadSyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
 #else
   dagda_download_data(profile, pb);
 #endif // ! HAVE_DAGDA
-#endif // HAVE_JUXMEM
 }
 
 inline void
@@ -1915,10 +1729,6 @@ SeDImpl::uploadAsyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
 {
   TRACE_TIME(TRACE_MAIN_STEPS, "SeD uploads client datas" << endl);
 
-#if HAVE_JUXMEM
-  uploadSeDDataJuxMem(&profile);
-  mrsh_profile_to_out_args(&(const_cast<corba_profile_t&>(pb)), &profile, cvt);
-#else
 #if ! HAVE_DAGDA
   int i ;
   for(i=0;i<=pb.last_in;i++){
@@ -1960,8 +1770,6 @@ SeDImpl::uploadAsyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
     }
 
 #endif
-  // FIXME: persistent data should not be freed but referenced in the data list.
-#endif // HAVE_JUXMEM
 }
 
 inline void
@@ -1970,10 +1778,6 @@ SeDImpl::uploadSyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
 {
   TRACE_TIME(TRACE_MAIN_STEPS, "SeD uploads client datas" << endl);
 
-#if HAVE_JUXMEM
-  uploadSeDDataJuxMem(&profile);
-  mrsh_profile_to_out_args(&pb, &profile, cvt);
-#else
 #if ! HAVE_DAGDA // DTM case
   int i ;
   for(i=0;i<=pb.last_in;i++){
@@ -1996,7 +1800,6 @@ SeDImpl::uploadSyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
 #else
   dagda_upload_data(profile, pb);
 #endif // ! HAVE_DAGDA
-#endif // HAVE_JUXMEM
 }
 
 #if defined HAVE_ALT_BATCH
@@ -2204,12 +2007,12 @@ void SeDFwdrImpl::solveAsync(const char* pb_name, const corba_profile_t& pb,
 
 #ifdef HAVE_DAGDA
 char* SeDFwdrImpl::getDataMgrID() {
-  return forwarder->getDataMgrID(objName);	
+  return forwarder->getDataMgrID(objName);
 }
 #endif
 
 SeqCorbaProfileDesc_t*
 SeDFwdrImpl::getSeDProfiles(CORBA::Long& length) {
-  return forwarder->getSeDProfiles(length, objName);	
+  return forwarder->getSeDProfiles(length, objName);
 }
 

@@ -302,20 +302,12 @@ using namespace std;
 #include "FASTMgr.hh"
 #endif //HAVE_CORI
 
-#if ! HAVE_JUXMEM
 #if ! HAVE_DAGDA
 #include "DataMgrImpl.hh"
 #else
 #include "DagdaImpl.hh"
 #include "DagdaFactory.hh"
 #endif // ! HAVE_DAGDA
-#else
-#include "JuxMem.hh"
-#endif // ! HAVE_JUXMEM
-
-#if HAVE_FD
-#include "fd/fd.h"
-#endif
 
 #define BEGIN_API extern "C" {
 #define END_API   } // extern "C"
@@ -837,15 +829,11 @@ diet_SeD(const char* config_file_name, int argc, char* argv[])
   MonitoringThread* monitoringThread;
 #endif
 
-#if HAVE_JUXMEM
-  JuxMem::Wrapper* juxmem;
-#else
 #if ! HAVE_DAGDA
   DataMgrImpl* dataMgr;
 #else
   DagdaImpl* dataManager;
 #endif // ! HAVE_DAGDA
-#endif // HAVE_JUXMEM
 
   if (SRVT == NULL) {
     ERROR(__FUNCTION__ << ": service table not yet initialized", 1);
@@ -920,13 +908,6 @@ diet_SeD(const char* config_file_name, int argc, char* argv[])
   }
 
 
-#if HAVE_FD
-  /* very simple registration: SeD only is observable by FD, no details on
-   * services hosted by this sed
-   */
-  fd_register_service(getpid(), 1);
-#endif
-
   /* SeD creation */
   SeD = new SeDImpl();
   TRACE_TEXT(TRACE_MAIN_STEPS,
@@ -991,11 +972,6 @@ diet_SeD(const char* config_file_name, int argc, char* argv[])
     ERROR("unable to launch the SeD", 1);
   }
 
-#if HAVE_JUXMEM
-  /** JuxMem creation */
-  juxmem = new JuxMem::Wrapper(SeD->getName());
-  SeD->linkToJuxMem(juxmem);
-#else
 #if ! HAVE_DAGDA
   /* Set-up and activate Data Manager for DTM usage */
   std::string dtmName;
@@ -1012,7 +988,7 @@ diet_SeD(const char* config_file_name, int argc, char* argv[])
   ORBMgr::getMgr()->bind(DATAMGRCTXT, dtmName, dataMgr->_this(), true);
   ORBMgr::getMgr()->fwdsBind(DATAMGRCTXT, dtmName,
 			     ORBMgr::getMgr()->getIOR(dataMgr->_this()));
-	
+
   if (dataMgr->run()) {
     ERROR("unable to launch the DataManager", 1);
   }
@@ -1026,18 +1002,6 @@ diet_SeD(const char* config_file_name, int argc, char* argv[])
   ORBMgr::getMgr()->activate(dataManager);
   SeD->setDataManager(dataManager);
 #endif // ! HAVE_DAGDA
-#endif // HAVE_JUXMEM
-
-#ifdef HAVE_ACKFILE
-  /* Touch a file to notify the end of the initialization */
-  std::string ackFile;
-  if (CONFIG_STRING(diet::ACKFILE, ackFile)) {
-    cerr << "Open OutFile: "<< ackFile <<endl;
-    ofstream out (ackFile.c_str());
-    out << "ok" << endl;
-    out.close();
-  }
-#endif
 
 #ifdef HAVE_DAGDA
   sedImpl = SeD;
@@ -1339,34 +1303,7 @@ diet_estimate_cori(estVector_t ev,
 		   diet_est_collect_tag_t collector_type,
 		   const void * data)
 {
-  fast_param_t fastparam={(diet_profile_t*)data,SRVT};
   switch( collector_type ) {
-  case EST_COLL_FAST:
-    //#if HAVE_FAST
-    //testing already here, because it is possible that an internal call use tag COMMTIME
-    if ((info_type==EST_TCOMP)||
-	(info_type==EST_FREECPU)||
-	(info_type==EST_FREEMEM)||
-	(info_type==EST_NBCPU)||
-	(info_type==EST_ALLINFOS))
-      CORIMgr::call_cori_mgr(&ev,info_type,collector_type,&fastparam);
-    else {
-      // FIXME: set the default values for each type
-      double value ;
-      switch( info_type ) {
-      case EST_TCOMP:
-      case EST_FREECPU:
-      case EST_FREEMEM:
-      case EST_NBCPU:
-      case EST_ALLINFOS:
-      default:
-	value = 0 ;
-      }
-      diet_est_set_internal(ev,info_type,value);
-      ERROR(__FUNCTION__ << ": info_type must be EST_TCOMP,EST_FREECPU,EST_FREEMEM, EST_NBCPU or EST_ALLINFOS!)", -1);
-    }
-    //#endif //HAVE_FAST
-    break ;
   case EST_COLL_EASY:
   case EST_COLL_BATCH:
     CORIMgr::call_cori_mgr( &ev, info_type, collector_type, data ) ;
@@ -1617,17 +1554,17 @@ diet_get_SeD_services(int *services_number,
                  "Searching SeD " << SeDName << endl);
       sed = ORBMgr::getMgr()->resolve<SeD, SeD_ptr>(SEDCTXT,
                                                     SeDName);
-      
+
       if (CORBA::is_nil(sed)) {
         ERROR("Cannot locate SeD " << SeDName, GRPC_SERVER_NOT_FOUND);
-      } 
-      
+      }
+
       // Now retreive the services
       CORBA::Long length;
       SeqCorbaProfileDesc_t* profileList = sed->getSeDProfiles(length);
       *services_number= (int)length;
       *profiles = (diet_profile_desc_t**)calloc(length, sizeof(diet_profile_desc_t*));
-      
+
       for(int i = 0; i < *services_number; i++) {
         (*profiles)[i] = new diet_profile_desc_t;
         unmrsh_profile_desc((*profiles)[i], &((*profileList)[i]));

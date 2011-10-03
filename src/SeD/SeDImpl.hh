@@ -268,15 +268,11 @@
 #include "DietLogComponent.hh"
 #endif
 
-#if ! HAVE_JUXMEM
 #if ! HAVE_DAGDA
 #include "DataMgrImpl.hh"     // DTM header file
 #else
 #include "DagdaImpl.hh"
 #endif // ! HAVE_DAGDA
-#else
-#include "JuxMem.hh"          // JuxMem header file
-#endif // ! HAVE_JUXMEM
 
 #if HAVE_ALT_BATCH
 extern "C" {
@@ -301,9 +297,6 @@ class SeDImpl : public POA_SeD,
 public:
 
   SeDImpl();
-#if HAVE_JXTA
-  SeDImpl(const char*);
-#endif // HAVE_JXTA
   ~SeDImpl();
 
 #ifdef HAVE_DYNAMICS
@@ -319,7 +312,6 @@ public:
   int
   run(ServiceTable* services);
 
-#if ! HAVE_JUXMEM
 #if ! HAVE_DAGDA
   /** Set this->dataMgr for DTM usage */
   int
@@ -328,11 +320,6 @@ public:
   void
   setDataManager(DagdaImpl* dataManager);
 #endif // ! HAVE_DAGDA
-#else
-  /** Set this->JuxMem */
-  int
-  linkToJuxMem(JuxMem::Wrapper* juxmem);
-#endif // ! HAVE_JUXMEM
 
 #ifdef USE_LOG_SERVICE
   /**
@@ -455,16 +442,12 @@ private:
   /** Service table */
   ServiceTable* SrvT;
 
-#if ! HAVE_JUXMEM
 #if ! HAVE_DAGDA
   /* Data Manager associated to this SeD */
   DataMgrImpl* dataMgr;
 #else
   DagdaImpl* dataManager;
 #endif // ! HAVE_DAGDA
-#else
-  JuxMem::Wrapper * juxmem;
-#endif // ! HAVE_JUXMEM
 
   /** Time at which last solve started (when not using queues) and when
    * last job was enqueued (when using queues) */
@@ -488,16 +471,6 @@ private:
   /* Queue: Maintains the list of running or waiting jobs
    * used for computing the estimation of earliest finish time */
   JobQueue* jobQueue;
-
-#if HAVE_JXTA
-  /* endoint of JXTA SeD*/
-  const char* uuid;
-#endif // HAVE_JXTA
-#if !HAVE_CORI && HAVE_FAST
-  /** Use of FAST */
-  // size_t --> unsigned int
-  unsigned int fastUse;
-#endif //!HAVE_CORI && HAVE_FAST
 
 #ifdef USE_LOG_SERVICE
   /**
@@ -542,11 +515,6 @@ private:
   uploadAsyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
 		    diet_convertor_t* cvt) ;
 
-  inline void
-  uploadSeDDataJuxMem(diet_profile_t* profile);
-
-  inline void
-  downloadSeDDataJuxMem(diet_profile_t* profile);
 };
 
 class SeDFwdrImpl : public POA_SeD,
@@ -567,9 +535,9 @@ public:
   virtual void getRequest(const corba_request_t& req);
   virtual CORBA::Long checkContract(corba_estimation_t& estimation,
                                     const corba_pb_desc_t& pb);
-  
+
   virtual void updateTimeSinceLastSolve() ;
-  
+
   virtual CORBA::Long solve(const char* pbName, corba_profile_t& pb);
   virtual void solveAsync(const char* pb_name, const corba_profile_t& pb,
                           const char * volatileclientIOR);

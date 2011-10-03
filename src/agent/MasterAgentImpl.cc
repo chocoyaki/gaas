@@ -1309,16 +1309,9 @@ MasterAgentFwdrImpl::agentSubscribe(const char* me, const char* hostName,
 
 CORBA::Long
 MasterAgentFwdrImpl::serverSubscribe(const char* me, const char* hostName,
-#if HAVE_JXTA
-				     const char* uuid,
-#endif /* HAVE_JXTA */
 				     const SeqCorbaProfileDesc_t& services)
 {
-#if HAVE_JXTA
-    return forwarder->serverSubscribe(me, hostName, uuid, services, objName);
-#else
     return forwarder->serverSubscribe(me, hostName, services, objName);
-#endif
 }
 
 #ifdef HAVE_DYNAMICS

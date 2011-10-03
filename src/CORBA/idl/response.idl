@@ -93,11 +93,8 @@
  */
 
 struct corba_server_t {
-	string SeDName;
-	string hostName;
-#if HAVE_JXTA
-  string uuid;
-#endif // HAVE_JXTA
+  string SeDName;
+  string hostName;
   long   port;
 #ifdef HAVE_ALT_BATCH
   // To add the following, SeDStructures.idl which contains shared structures

@@ -26,10 +26,6 @@ if (DIET_USE_WORKFLOW)
   include_directories( ${XERCES_INCLUDE_DIR} )
 endif ( DIET_USE_WORKFLOW)
 
-if (DIET_USE_JUXMEM)
-  include_directories(${JUXMEM_INCLUDE_DIR})
-endif (DIET_USE_JUXMEM)
-
 if (DIET_USE_DAGDA)
   include_directories(${DIET_SOURCE_DIR}/src/utils/DAGDA  ${UUID_PATH})
 endif (DIET_USE_DAGDA)
@@ -122,14 +118,6 @@ if (DIET_USE_WORKFLOW)
     ${XERCES_LIBRARY}
   )
 endif (DIET_USE_WORKFLOW)
-
-if (DIET_USE_JUXMEM)
-  target_link_libraries( DIET_client ${JUXMEM_LIBRARIES} )
-endif (DIET_USE_JUXMEM)
-
-if (DIET_USE_FD)
-  target_link_libraries(DIET_client fd)
-endif (DIET_USE_FD)
 
 if (NOT BUILD_SHARED_LIBS)
   target_link_libraries(DIET_client stdc++)

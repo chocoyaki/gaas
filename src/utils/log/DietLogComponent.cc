@@ -1099,99 +1099,6 @@ DietLogComponent::logDataTransferTime(const char* dataID,
 }
 // end modif bisnard_logs_1
 
-#if HAVE_JUXMEM
-void
-DietLogComponent::logJuxMemDataStore(const unsigned long reqID, const char* dataID, const long unsigned int size, const long base_type, const char * type, const float time) {
-   char * base = (char *)malloc(10*sizeof(char));
-   char* s;
-   //   s = new char[sizeof(reqID) + strlen(dataID) + sizeof(size)+ strlen(type) + (10 * sizeof(char)) + sizeof(time) + 5];
-   s = (char*)malloc((sizeof(reqID)
-   	+ strlen(dataID)
-   	+ num_Digits(size)
-   	+ strlen(type)
-   	+ (10 * sizeof(char))
-   	+ sizeof(time) + 5));
-   if (tagFlags[14]) {
-    switch (base_type) {
-    case DIET_CHAR: {
-      strcpy(base,"CHAR");
-      break;
-    }
-    case DIET_SHORT: {
-      strcpy(base,"SHORT");
-      break;
-    }
-    case DIET_INT: {
-      strcpy(base,"INTEGER");
-      break;
-    }
-    case DIET_LONGINT: {
-      strcpy(base,"LONGINT");
-      break;
-    }
-    case DIET_FLOAT: {
-      strcpy(base,"FLOAT");
-      break;
-    }
-    case DIET_DOUBLE: {
-      strcpy(base,"DOUBLE");
-      break;
-    }
-    }
-    sprintf(s,"%ld %s %ld %s %s %f", (unsigned long) reqID, (const char *)(dataID), (long unsigned int)(size), type, base, time);
-    log(tagNames[14], s);
-  }
-  free(base);
-  free(s);
-}
-
-void
-DietLogComponent::logJuxMemDataUse(const unsigned long reqID, const char* dataID, const char* access_mode, const long unsigned int size, const long base_type, const char * type, const float time) {
-   char * base = (char *)malloc(10*sizeof(char));
-   char* s;
-   s = (char*)malloc(sizeof(reqID)
-   	+ strlen(dataID)
-   	+ strlen(access_mode)
-   	+ sizeof(size)
-   	+ strlen(type)
-   	+ (sizeof(char) * 10)
-   	+ sizeof(time) + 6);
-   if (tagFlags[15]) {
-    switch (base_type) {
-    case DIET_CHAR: {
-      strcpy(base,"CHAR");
-      break;
-    }
-    case DIET_SHORT: {
-      strcpy(base,"SHORT");
-      break;
-    }
-    case DIET_INT: {
-      strcpy(base,"INTEGER");
-      break;
-    }
-    case DIET_LONGINT: {
-      strcpy(base,"LONGINT");
-      break;
-    }
-    case DIET_FLOAT: {
-      strcpy(base,"FLOAT");
-      break;
-    }
-    case DIET_DOUBLE: {
-      strcpy(base,"DOUBLE");
-      break;
-    }
-    }
-    sprintf(s,"%ld %s %s %ld %s %s %f", (unsigned long) reqID, (const char *)(dataID), (const char*) access_mode, (long unsigned int)(size), type, base, time);
-    log(tagNames[15], s);
-  }
-  free(base);
-  free(s);
-}
-
-#endif // HAVE_JUXMEM
-
 /**
  * NWS data
  */
@@ -1231,24 +1138,6 @@ DietLogComponent::logBandwidth(double bandwidth) {
   }
 
 }
-
-#if HAVE_FD
-void DietLogComponent::logFailure(const char *observed) {
-  if (tagFlags[16]) {
-    log(tagNames[16], observed);
-  }
-}
-
-void DietLogComponent::logDetectorParams(const char *observed, double Pl, double Vd, double eta, double alpha) {
-  if (tagFlags[17]) {
-    char *buf;
-    buf = (char *) malloc(strlen(observed) + 84);
-    sprintf(buf, "%s %14.4f %14.4f %14.4f %14.4f", observed, Pl, Vd, eta, alpha);
-    log(tagNames[17], buf);
-    free(buf);
-  }
-}
-#endif
 
 #ifdef HAVE_WORKFLOW
 

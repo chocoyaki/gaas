@@ -624,7 +624,7 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
     return GRPC_ALREADY_INITIALIZED;
   }
   MA_MUTEX->unlock();
-  
+
   /* Set arguments for ORBMgr::init */
   if (argc) {
     myargc = argc;
@@ -668,7 +668,7 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
   if (CONFIG_STRING(diet::PARENTNAME, tmpString)) {
     WARNING("No need to specify a parent for a client - ignored");
   }
-  
+
   if (CONFIG_AGENT(diet::AGENTTYPE, tmpString)) {
     WARNING("agentType is useless for a client - ignored");
   }
@@ -715,10 +715,6 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
   }
 
 
-#if HAVE_JUXMEM
-  initJuxMem();
-#endif // HAVE_JUXMEM
-
   /* Find Master Agent */
   CONFIG_STRING(diet::MANAME, tmpString);
   TRACE_TEXT(TRACE_MAIN_STEPS, "MA NAME PARSING = " << tmpString << endl);
@@ -750,12 +746,12 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
   if (useLS) {
     int outBufferSize;
     int flushTime;
-  
+
     if (!CONFIG_INT(diet::LSOUTBUFFERSIZE, outBufferSize)) {
       outBufferSize = 0;
       WARNING("lsOutbuffersize not configured, using default");
     }
-    
+
     if (!CONFIG_INT(diet::LSFLUSHINTERVAL, flushTime)) {
       flushTime = 10000;
       WARNING("lsFlushinterval not configured, using default");
@@ -782,7 +778,7 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
     }
 
     ORBMgr::getMgr()->activate(dietLogComponent);
-    
+
     if (dietLogComponent->run(agtTypeName, agtParentName, flushTime) != 0) {
       TRACE_TEXT(TRACE_ALL_STEPS, "* LogService: disabled" << endl);
       WARNING("Could not initialize DietLogComponent");
@@ -793,7 +789,7 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
   } // end: if (useLS)
   else {
     dietLogComponent = NULL;
-  } 
+  }
 #endif // end: USE_LOG_SERVICE
   // end modif bisnard_logs_1
 
@@ -828,7 +824,7 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
     MA_DAG = ORBMgr::getMgr()->resolve<MaDag, MaDag_var>(MADAGCTXT,
                                                          tmpString);
                                                          // CORBA::string_dup(tmpString.c_str()));
-		
+
     if (CORBA::is_nil(MA_DAG)) {
       ERROR("Cannot locate MA DAG " << tmpString, GRPC_NOT_INITIALIZED);
     }
@@ -839,7 +835,7 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
 #endif
     }
   } // end if (CONFIG_STRING(diet::MADAGNAME, tmpString)
-  
+
   // check if the Workflow Log Service is used
   bool useWfLogService = false;
   CONFIG_BOOL(diet::USEWFLOGSERVICE, useWfLogService);
@@ -863,7 +859,7 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
   if (CONFIG_ULONG(diet::CLIENT_MAX_NB_SED, MAX_SERVERS)) {
     TRACE_TEXT (TRACE_MAIN_STEPS,"Max number of SeD allowed = " << MAX_SERVERS << endl);
   }
-  
+
   /* Catch signals to try to exit cleanly. */
   signal(SIGABRT, diet_finalize_sig);
   signal(SIGTERM, diet_finalize_sig);
@@ -914,10 +910,6 @@ diet_finalize() {
   }
   caMgr->release();
 
-#if HAVE_JUXMEM
-  terminateJuxMem();
-#endif // HAVE_JUXMEM
-  
 #ifdef USE_LOG_SERVICE
   if (dietLogComponent != NULL) {
     //delete dietLogComponent; // FIXME: this does not work
@@ -939,11 +931,11 @@ diet_finalize() {
 		<< e.what()
 		<< "\n";
   } catch( ... ) {}
-  
-  
+
+
   /* end fileName */
   // *fileName='\0';
-  
+
   MA_MUTEX->lock();
   MA = MasterAgent::_nil();
   MA_MUTEX->unlock();

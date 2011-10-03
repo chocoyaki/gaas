@@ -272,10 +272,8 @@ Cmake/DisplaySummary.cmake
 Cmake/FindAppleSeeds.cmake
 Cmake/FindBLAS.cmake
 Cmake/FindDiet.cmake
-Cmake/FindFAST.cmake
 Cmake/FindGSOAP.cmake
 Cmake/FindJavaExtended.cmake
-Cmake/FindJuxmem.cmake
 Cmake/FindLOGSERVICE.cmake
 Cmake/FindOmniORB.cmake
 Cmake/FindPackageHandleStandardArgs.cmake
@@ -394,7 +392,6 @@ src/SeD/CMakeLists.txt
 src/SeD/DIET_server.cc
 src/SeD/DataMgrImpl.cc
 src/SeD/DataMgrImpl.hh
-src/SeD/JXTASeD.java
 src/SeD/SeDImpl.cc
 src/SeD/SeDImpl.hh
 src/SeD/SeDJNI.cc
@@ -417,7 +414,6 @@ src/agent/FloodRequestsList.cc
 src/agent/FloodRequestsList.hh
 src/agent/GlobalSchedulers.cc
 src/agent/GlobalSchedulers.hh
-src/agent/JXTAMultiMA.java
 src/agent/LA.java
 src/agent/LocMgrImpl.cc
 src/agent/LocMgrImpl.hh
@@ -609,17 +605,7 @@ src/examples/GridRPC/server.c
 src/examples/GridRPC/standard-test.c
 
 [Untemplated]
-src/examples/JXTA/CMakeLists.txt
-src/examples/JXTA/scripts/LA1/LA1_jxta_load.sh
-src/examples/JXTA/scripts/MMA1/MMA1_load.sh
-src/examples/JXTA/scripts/MMA2/MMA2_load.sh
-src/examples/JXTA/scripts/MMA3/MMA3_load.sh
-src/examples/JXTA/scripts/SeD1/SeD1_jxta_load.sh
-src/examples/JXTA/scripts/SeD2/SeD2_jxta_load.sh
-src/examples/JXTA/scripts/SeD3/SeD3_jxta_load.sh
-src/examples/JXTA/scripts/client/client_jxta_load.sh
 [Templated]
-src/examples/JXTA/JXTAClient.java
 src/examples/ScaLAPACK/client.c
 src/examples/ScaLAPACK/job.c
 src/examples/ScaLAPACK/job.h
@@ -646,7 +632,6 @@ src/examples/dmat_manips/CMakeLists.txt
 [Templated]
 src/examples/dmat_manips/Global_macros.hh
 src/examples/dmat_manips/dmat_manips_client.c
-src/examples/dmat_manips/clientJuxMem.c
 src/examples/dmat_manips/clientWithID.c
 src/examples/dmat_manips/parallelClient.cc
 src/examples/dmat_manips/parallelClient2.cc
@@ -871,14 +856,10 @@ src/utils/nodes/Cori_Easy_Disk.cc
 src/utils/nodes/Cori_Easy_Disk.hh
 src/utils/nodes/Cori_Easy_Memory.cc
 src/utils/nodes/Cori_Easy_Memory.hh
-src/utils/nodes/Cori_Fast.cc
-src/utils/nodes/Cori_Fast.hh
 src/utils/nodes/Cori_Metric.cc
 src/utils/nodes/Cori_Metric.hh
 src/utils/nodes/Counter.cc
 src/utils/nodes/Counter.hh
-src/utils/nodes/FASTMgr.cc
-src/utils/nodes/FASTMgr.hh
 src/utils/nodes/MonitoringThread.cc
 src/utils/nodes/MonitoringThread.hh
 src/utils/nodes/ServiceTable.cc
@@ -985,35 +966,6 @@ src/utils/config/configuration.hh
 src/utils/config/constants.cc
 src/utils/config/constants.hh
 
-
-# lib section
-[Untemplated]
-src/lib/bcprov-jdk14.jar
-src/lib/cryptix-asn1.jar
-src/lib/cryptix32.jar
-src/lib/javax.servlet.jar
-src/lib/jaxen-core.jar
-src/lib/jaxen-jdom.jar
-src/lib/jdom.jar
-src/lib/junit.jar
-src/lib/jxta.jar
-src/lib/jxtaSwing.jar
-src/lib/jxtaext.jar
-src/lib/jxtaptls.jar
-src/lib/jxtasecurity.jar
-src/lib/log4j.jar
-src/lib/org.mortbay.jetty.jar
-src/lib/saxpath.jar
-src/lib/licenses/JXTA-license.txt
-src/lib/licenses/bcprov-license.txt
-src/lib/licenses/cryptix-license.txt
-src/lib/licenses/javax-servlet-license.txt
-src/lib/licenses/jaxen-license.txt
-src/lib/licenses/jdom-licenses.txt
-src/lib/licenses/jetty-license.txt
-src/lib/licenses/junit-license.txt
-src/lib/licenses/log4j-license.txt
-src/lib/licenses/saxpath-license.txt
 
 # Section TESTING (make test donc dans release user):
 [Untemplated]

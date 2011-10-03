@@ -531,7 +531,7 @@ mrsh_data(corba_data_t* dest, diet_data_t* src, int release)
   if (mrsh_data_desc(&(dest->desc), &(src->desc)))
     return 1;
 
-#if ! HAVE_JUXMEM && ! HAVE_DAGDA
+#if ! HAVE_DAGDA
   if (src->desc.generic.type == DIET_FILE) {
     char* path = src->desc.specific.file.path;
 
@@ -550,13 +550,13 @@ mrsh_data(corba_data_t* dest, diet_data_t* src, int release)
       value[0] = '\0';
     }
   } else {
-#endif // ! HAVE_JUXMEM && ! HAVE_DAGDA
+#endif // ! HAVE_DAGDA
     if (src->value != NULL) {
       value = (CORBA::Char*)src->value;
     }
-#if ! HAVE_JUXMEM && ! HAVE_DAGDA
+#if ! HAVE_DAGDA
   }
-#endif // ! HAVE_JUXMEM && ! HAVE_DAGDA
+#endif // ! HAVE_DAGDA
   if(value == NULL)
     dest->value.length(0);
   else {
@@ -707,12 +707,12 @@ unmrsh_data_desc(diet_data_desc_t* dest, const corba_data_desc_t* const src)
     dest->mode = (diet_persistence_mode_t)src->mode;
     diet_generic_desc_set(&(dest->generic), DIET_FILE, DIET_CHAR);
     dest->specific.file.size = src->specific.file().size;
-#if HAVE_JUXMEM || HAVE_DAGDA
+#if HAVE_DAGDA
     dest->specific.file.path = CORBA::string_dup(src->specific.file().path);
 #else
     /* File name is different on SeD than on client. Here, init only */
     dest->specific.file.path = NULL;
-#endif // HAVE_JUXMEM || HAVE_DAGDA
+#endif // HAVE_DAGDA
     break;
   }
   case DIET_CONTAINER: {
@@ -734,7 +734,7 @@ int
 unmrsh_data(diet_data_t* dest, corba_data_t* src, int upDown)
 #endif
 {
-#if ! HAVE_JUXMEM && ! HAVE_DAGDA
+#if ! HAVE_DAGDA
   static int uniqDataID=0 ;
 #endif
   static omni_mutex uniqDataIDMutex ;
@@ -745,7 +745,7 @@ unmrsh_data(diet_data_t* dest, corba_data_t* src, int upDown)
   }
   if ( unmrsh_data_desc(&(dest->desc),&(src->desc)) )
     return 1;
-#if ! HAVE_JUXMEM && ! HAVE_DAGDA
+#if ! HAVE_DAGDA
   if (src->desc.specific._d() == (long) DIET_FILE) {
     dest->desc.specific.file.size = src->desc.specific.file().size;
     if ((src->desc.specific.file().path != NULL)
@@ -803,7 +803,7 @@ unmrsh_data(diet_data_t* dest, corba_data_t* src, int upDown)
       dest->desc.specific.file.path = CORBA::string_dup("");
     }
   } else {
-#endif // ! HAVE_JUXMEM && ! HAVE_DAGDA
+#endif // ! HAVE_DAGDA
     if (src->value.length() == 0) {
       // TODO: should be allocated with new x[] to match delete[] used
       // by omniORB.  But ... what is the type?
@@ -872,9 +872,9 @@ unmrsh_data(diet_data_t* dest, corba_data_t* src, int upDown)
 #endif
       }
     }
-#if ! HAVE_JUXMEM && ! HAVE_DAGDA
+#if ! HAVE_DAGDA
   }
-#endif // ! HAVE_JUXMEM && ! HAVE_DAGDA
+#endif // ! HAVE_DAGDA
 
   return 0;
 }
@@ -976,15 +976,12 @@ mrsh_pb_desc(corba_pb_desc_t* dest, const diet_profile_t* const src)
   for (int i = 0; i <= src->last_out; i++) {
     /** Hack for correctly building CORBA profile.
 	JuxMem does not require a call to the MA */
-#if HAVE_JUXMEM
-    mrsh_data_desc(&(dest->param_desc[i]), &(src->parameters[i].desc));
-#else
     if(src->parameters[i].desc.id == NULL) {
       mrsh_data_desc(&(dest->param_desc[i]), &(src->parameters[i].desc));
     } else {
       __mrsh_data_id_desc(&(dest->param_desc[i]), &(src->parameters[i].desc));
     }
-#endif // HAVE_JUXMEM
+
   }
 #if defined HAVE_ALT_BATCH
   dest->parallel_flag = src->parallel_flag ;
@@ -1020,13 +1017,7 @@ mrsh_profile_to_in_args(corba_profile_t* dest, const diet_profile_t* src)
    for (i = 0; i <= src->last_inout; i++) {
 #if ! HAVE_DAGDA
      if(src->parameters[i].desc.id) {
-#if ! HAVE_JUXMEM
        __mrsh_data_id(&(dest->parameters[i]), &(src->parameters[i]));
-#else
-       mrsh_data_desc(&(dest->parameters[i].desc), &(src->parameters[i].desc));
-       dest->parameters[i].value.replace(0, 0, NULL, 1);
-       dest->parameters[i].value.length(0);
-#endif
      } else {
        if (src->parameters[i].value == NULL &&
            !diet_is_persistent(src->parameters[i]) &&
@@ -1260,19 +1251,9 @@ mrsh_profile_to_out_args(corba_profile_t* dest, const diet_profile_t* src,
             }
           }
 
-#if HAVE_JUXMEM
-	  if (diet_is_persistent(dd)) {
-	    mrsh_data_desc(&(dest->parameters[arg_idx].desc), &(dd.desc));
-	    dest->parameters[arg_idx].value.replace(0, 0, NULL, 1);
-	    dest->parameters[arg_idx].value.length(0);
-	  } else {
-#endif
           if (mrsh_data(&(dest->parameters[arg_idx]), &dd,
                         !diet_is_persistent(dd)))
             return 1;
-#if HAVE_JUXMEM
-	  }
-#endif
         }
         args_filled[arg_idx] = 1;
       }

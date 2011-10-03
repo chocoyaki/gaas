@@ -13,9 +13,6 @@ include_directories(
   ${OMNIORB4_INCLUDE_DIR}
   ${DIET_BINARY_DIR}/src/CORBA/idl
 )
-if (DIET_USE_JUXMEM)
-  include_directories(${JUXMEM_INCLUDE_DIR})
-endif (DIET_USE_JUXMEM)
 
 # Generate the code out of the IDL source files
 
@@ -30,10 +27,6 @@ set(DIET_IDL_FLAGS "-bcxx -Wba -Wbtp")
 if (DIET_USE_ALT_BATCH)
    set(DIET_IDL_FLAGS "${DIET_IDL_FLAGS} -DHAVE_ALT_BATCH")
 endif (DIET_USE_ALT_BATCH)
-
-if (DIET_USE_JXTA)
-   set(DIET_IDL_FLAGS "${DIET_IDL_FLAGS} -DHAVE_JXTA")
-endif (DIET_USE_JXTA)
 
 if (DIET_USE_WORKFLOW)
    set(DIET_IDL_FLAGS "${DIET_IDL_FLAGS} -DHAVE_WORKFLOW")

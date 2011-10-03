@@ -268,11 +268,6 @@ using namespace std;
 #include "common_types.hh"
 #include "configuration.hh"
 #include "debug.hh"
-#if !HAVE_CORI
-#include "FASTMgr.hh"
-#else //HAVE_CORI
-#include "CORIMgr.hh"
-#endif //!HAVE_CORI
 #include "ms_function.hh"
 #include "ORBMgr.hh"
 #include "statistics.hh"
@@ -378,24 +373,11 @@ AgentImpl::run() {
                                ORBMgr::getMgr()->getIOR(_this()));
   }
 
-#if !HAVE_CORI
-  // Init FAST (HAVE_FAST is managed by the FASTMgr class)
-  return FASTMgr::init();
-#else
-  bool use = false;
-  CONFIG_BOOL(diet::FASTUSE, use);
-  if (!use){
-    CORIMgr::add(EST_COLL_FAST,NULL);
-    return CORIMgr::startCollectors();
-  } else {
-    return 0;
-  }
-#endif //HAVE_CORI
 } // run()
 
 
 
-#if ! HAVE_JUXMEM && ! HAVE_DAGDA
+#if ! HAVE_DAGDA
 /** Set this->locMgr for DTM usage */
 int
 AgentImpl::linkToLocMgr(LocMgrImpl* locMgr)
@@ -403,7 +385,7 @@ AgentImpl::linkToLocMgr(LocMgrImpl* locMgr)
   this->locMgr = locMgr;
   return 0;
 }
-#endif // ! HAVE_JUXMEM && ! HAVE_DAGDA
+#endif // ! HAVE_DAGDA
 
 #if HAVE_DAGDA
 // Accessors for dataManager.
@@ -463,9 +445,6 @@ AgentImpl::agentSubscribe(const char* name, const char* hostName,
  */
 CORBA::Long
 AgentImpl::serverSubscribe(const char* name, const char* hostName,
-#if HAVE_JXTA
-			   const char* uuid,
-#endif // HAVE_JXTA
 			   const SeqCorbaProfileDesc_t& services)
 {
   SeD_ptr me = ORBMgr::getMgr()->resolve<SeD, SeD_ptr>(SEDCTXT, name);
@@ -480,11 +459,7 @@ AgentImpl::serverSubscribe(const char* name, const char* hostName,
 
   // FIXME: resize calls default constructor + copy constructor + 1 desctructor
   this->SeDChildren.resize(childIDCounter);
-  (this->SeDChildren[retID]).set(me, hostName
-#if HAVE_JXTA
-				 , uuid
-#endif // HAVE_JXTA
-				 );
+  (this->SeDChildren[retID]).set(me, hostName);
   (this->nbSeDChildren)++; // thread safe Counter class
 
   if (this->addServices(retID, services) != 0) {
@@ -788,80 +763,6 @@ AgentImpl::findServer(Request* req, size_t max_srv)
     req->unlock();
 
     /* The thread is awakened when all responses are gathered */
-
-#if HAVE_JXTA || ! HAVE_FAST
-    /* this part seems to generate JNI problems */
-    /* but this part should be removed in the next DIET version */
-    /* that explains why we don't fix it */
-
-    /* in fact, the following code is only useful if one has
-    ** chosen to compile with fast.
-    */
-#else
-    /* Update communication times for all non-persistent parameters:
-     *  process IN and OUT args separately, which means process them according
-     *  to the way of their transfers.
-     * NB: This does not affect the order of the servers (only comm times). */
-
-    size_t nb_resp = req->getResponsesSize();
-
-    double* time = new double[nb_resp];
-
-    for (i = 0; (int)i <= creq.pb.last_out; i++) {
-
-      unsigned long
-        size = sizeof(corba_data_t) + data_sizeof(&(creq.pb.param_desc[i]));
-
-      size_t j;
-
-      for (j = 0; j < nb_resp; j++) {
-        corba_response_t* resp_j = &(req->getResponses()[j]);
-
-        time[j] = 0.0;
-
-        if ((int)i <= creq.pb.last_in) {
-          /* IN args : compute comm time if they are volatile or if their id is
-             non assigned yet (which means it is not stored in the platform) */
-          if (((creq.pb.param_desc[i].mode == DIET_VOLATILE)
-               || (*(creq.pb.param_desc[i].id.idNumber) == '\0'))) {
-            time[j] = getCommTime(resp_j->myID, size);
-          }
-        } else if ((int)i <= creq.pb.last_inout) {
-          /* INOUT args: add comm times for both directions IN (with the
-             conditions above) and OUT (with the conditions below) */
-          if ((creq.pb.param_desc[i].mode == DIET_VOLATILE)
-              || (*(creq.pb.param_desc[i].id.idNumber) == '\0')) {
-            time[j] = getCommTime(resp_j->myID, size);
-          }
-          if (creq.pb.param_desc[i].mode <= DIET_PERSISTENT_RETURN) {
-            time[j] += getCommTime(resp_j->myID, size, false);
-          }
-        } else if (creq.pb.param_desc[i].mode <= DIET_PERSISTENT_RETURN) {
-          /* OUT args : compute comm time if they are volatile or specified as
-             "return". */
-          time[j] = getCommTime(resp_j->myID, size, false);
-        }
-
-        // if no time is needed, we can skip this iteration
-        if (time[j] > 0.0) {
-
-          size_t server_iter;
-
-          /* Inject the computed comm time into all servers */
-          for (server_iter = 0 ;
-               server_iter < resp_j->servers.length() ;
-               server_iter++) {
-            //             resp_j->servers[server_iter].estim.commTimes[i] += time[j];
-            //             resp_j->servers[server_iter].estim.totalTime += time[j];
-            __addCommTime(&(resp_j->servers[server_iter].estim), i, time[j]);
-          }
-        }
-      }
-    }
-
-    delete [] time;
-#endif // HAVE_JXTA || ! HAVE_FAST
-
     resp = this->aggregate(req, max_srv);
 
     if (TRACE_LEVEL >= TRACE_STRUCTURES){
@@ -1065,23 +966,6 @@ AgentImpl::getCommTime(CORBA::Long childID, unsigned long size, bool to)
   AGT_TRACE_FUNCTION(childID <<", " << size);
   stat_in(this->myName,"getCommTime");
 
-#if !HAVE_CORI
-
-  time = FASTMgr::commTime(this->localHostName, child_name, size, to);
-
-#else //HAVE_CORI
-
-  estVector_t ev=new corba_estimation_t();
-  commTime_t commTime_param={this->localHostName,child_name,size,to};
-
-  CORIMgr::call_cori_mgr(&ev,
-			 EST_COMMTIME,
-			 EST_COLL_FAST,
-			 &commTime_param);
-  time = diet_est_get(ev, EST_COMMTIME, HUGE_VAL);
-
-#endif //HAVE_CORI
-
   ms_strfree(child_name);
 
   stat_out(this->myName,"getCommTime");
@@ -1168,16 +1052,9 @@ AgentFwdrImpl::agentSubscribe(const char* me, const char* hostName,
 
 CORBA::Long
 AgentFwdrImpl::serverSubscribe(const char* me, const char* hostName,
-#if HAVE_JXTA
-                               const char* uuid,
-#endif // HAVE_JXTA
                                const SeqCorbaProfileDesc_t& services)
 {
-#if HAVE_JXTA
-  return forwarder->serverSubscribe(me, hostName, uuid, services, objName);
-#else
   return forwarder->serverSubscribe(me, hostName, services, objName);
-#endif
 }
 
 #ifdef HAVE_DYNAMICS

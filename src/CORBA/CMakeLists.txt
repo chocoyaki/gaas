@@ -25,10 +25,6 @@ if (DIET_USE_DAGDA)
   include_directories(${DIET_SOURCE_DIR}/src/utils/DAGDA)
 endif (DIET_USE_DAGDA)
 
-if (DIET_USE_JUXMEM)
-  include_directories(${JUXMEM_INCLUDE_DIR})
-endif (DIET_USE_JUXMEM)
-
 # Compile CorbaCommon static library
 add_library(CorbaCommon STATIC
   ORBMgr.cc

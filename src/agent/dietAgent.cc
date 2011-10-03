@@ -231,9 +231,9 @@ using namespace std;
 #include "DietLogComponent.hh"
 #endif /* USE_LOG_SERVICE */
 
-#if ! HAVE_JUXMEM && ! HAVE_DAGDA
+#if ! HAVE_DAGDA
 #include "LocMgrImpl.hh"    // DTM header file
-#endif /* ! HAVE_JUXMEM && ! HAVE_DAGDA */
+#endif /* ! HAVE_DAGDA */
 
 #if HAVE_DAGDA
 #include "DagdaImpl.hh"
@@ -252,10 +252,10 @@ DietLogComponent* dietLogComponent;
 /** The Agent object. */
 AgentImpl* Agt;
 
-#if ! HAVE_JUXMEM && ! HAVE_DAGDA
+#if ! HAVE_DAGDA
 /** The DTM Data Location Manager Object  */
 LocMgrImpl *Loc;
-#endif /* ! HAVE_JUXMEM && ! HAVE_DAGDA */
+#endif /* ! HAVE_DAGDA */
 
 
 class CStringDeleter {
@@ -432,7 +432,7 @@ int main(int argc, char* argv[], char *envp[]) {
     ins(level);
   }
 
-  /* Copy the arguments in a temporary vector, as it 
+  /* Copy the arguments in a temporary vector, as it
    * is modified by ORBMgr::init
    */
   argsTmp = args;
@@ -497,10 +497,10 @@ int main(int argc, char* argv[], char *envp[]) {
   }
 #endif /* USE_LOG_SERVICE */
 
-#if ! HAVE_JUXMEM && ! HAVE_DAGDA
+#if ! HAVE_DAGDA
   /* Create the DTM Data Location Manager */
   Loc = new LocMgrImpl();
-#endif /* ! HAVE_JUXMEM && ! HAVE_DAGDA */
+#endif /* ! HAVE_DAGDA */
 #if HAVE_DAGDA
   DagdaImpl* dataManager;
   try {
@@ -546,7 +546,6 @@ int main(int argc, char* argv[], char *envp[]) {
     ERROR("unable to launch the agent", 1);
   }
 
-#if ! HAVE_JUXMEM
   // Use Dagda instead of DTM.
 #if ! HAVE_DAGDA
   /* Launch the DTM LocMgr */
@@ -560,21 +559,6 @@ int main(int argc, char* argv[], char *envp[]) {
   ORBMgr::getMgr()->activate(dataManager);
   Agt->setDataManager(dataManager->_this());
 #endif /* ! HAVE_DAGDA */
-#endif /* ! HAVE_JUXMEM */
-
-
-#ifdef HAVE_ACKFILE
-  /* Touch a file to notify the end of the initialization */
-  std::string ackFile;
-  if (!CONFIG_STRING(diet::ACKFILE, ackFile)) {
-    WARNING("parsing " << configFile << ": no ackFile specified");
-  } else {
-    cerr << "Open OutFile: "<< ackFile <<endl;
-    ofstream out(ackFile.c_str());
-    out << "ok" << endl << endl;
-    out.close();
-  }
-#endif /* HAVE_ACKFILE */
 
 
   /* Wait for RPCs (blocking call): */

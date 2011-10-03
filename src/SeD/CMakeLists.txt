@@ -21,12 +21,10 @@ if (DIET_USE_ALT_BATCH)  # in that case, put lib UtilsCoRI in lib DIET_SeD
   set(DIET_SeD_SOURCES
     ${DIET_SeD_SOURCES}
     ${DIET_SOURCE_DIR}/src/utils/batch/Cori_batch.cc
-    ${DIET_SOURCE_DIR}/src/utils/nodes/FASTMgr.cc
     ${DIET_SOURCE_DIR}/src/utils/nodes/Cori_Data_Easy.cc
     ${DIET_SOURCE_DIR}/src/utils/nodes/Cori_Easy_CPU.cc
     ${DIET_SOURCE_DIR}/src/utils/nodes/Cori_Easy_Disk.cc
     ${DIET_SOURCE_DIR}/src/utils/nodes/Cori_Easy_Memory.cc
-    ${DIET_SOURCE_DIR}/src/utils/nodes/Cori_Fast.cc
     ${DIET_SOURCE_DIR}/src/utils/nodes/Cori_Metric.cc
     ${DIET_SOURCE_DIR}/src/utils/nodes/CORIMgr.cc
   )
@@ -48,10 +46,6 @@ if (DIET_USE_LOG)
     ${LOG_INCLUDE_DIR}
     ${DIET_SOURCE_DIR}/src/utils/log)
 endif (DIET_USE_LOG)
-
-if (DIET_USE_JUXMEM)
-  include_directories(${JUXMEM_INCLUDE_DIR})
-endif (DIET_USE_JUXMEM)
 
 if (DIET_USE_DAGDA)
   include_directories(${DIET_SOURCE_DIR}/src/utils/DAGDA ${UUID_PATH})
@@ -105,25 +99,11 @@ if (NOT DIET_USE_ALT_BATCH)
   endif (DIET_USE_CORI)
 endif (NOT DIET_USE_ALT_BATCH)
 
-# Fault detection
-if (DIET_USE_FD)
-  set(DIET_SeD_Libs
-    ${DIET_SeD_Libs}
-    fd
-  )
-endif (DIET_USE_FD)
-
-
-
 target_link_libraries(DIET_SeD ${DIET_SeD_Libs})
   
 if (DIET_USE_ALT_BATCH)
   target_link_libraries(DIET_SeD UtilsSeDBatch)
 endif (DIET_USE_ALT_BATCH)
-
-if (DIET_USE_JUXMEM)
-  target_link_libraries(DIET_SeD ${JUXMEM_LIBRARIES})
-endif (DIET_USE_JUXMEM)
 
 if (NOT BUILD_SHARED_LIBS)
   target_link_libraries(DIET_SeD stdc++)
@@ -132,45 +112,3 @@ endif (NOT BUILD_SHARED_LIBS)
 
 # Install DIET_SeD library only, not the static one
 install(TARGETS DIET_SeD DESTINATION ${LIB_INSTALL_DIR})
-
-
-
-## JXTA
-if (DIET_USE_JXTA)
-  add_custom_command(
-    OUTPUT    ${CMAKE_CURRENT_BINARY_DIR}/JXTASeD.class
-    COMMAND   ${JAVA_COMPILE}
-    ARGS      -d ${CMAKE_CURRENT_BINARY_DIR}
-    -classpath ${CMAKE_CURRENT_SOURCE_DIR}:${DIET_SOURCE_DIR}/src/lib/jxta.jar
-              ${CMAKE_CURRENT_SOURCE_DIR}/JXTASeD.java
-    DEPENDS   ${CMAKE_CURRENT_SOURCE_DIR}/JXTASeD.java
-    COMMENT   "java compile SeD"
-  )
-
-  add_custom_command(
-    OUTPUT    ${CMAKE_CURRENT_BINARY_DIR}/JXTASeD.h
-    COMMAND   ${JAVA_HEADER_COMPILE}
-    ARGS      -classpath ${CMAKE_CURRENT_BINARY_DIR}
-              -d ${CMAKE_CURRENT_BINARY_DIR}
-              JXTASeD
-    DEPENDS   ${CMAKE_CURRENT_BINARY_DIR}/JXTASeD.class
-    COMMENT   "java header compile SeD"
-  )
-  set_source_files_properties( 
-    ${CMAKE_CURRENT_SOURCE_DIR}/SeDJNI.cc
-    PROPERTIES
-      OBJECT_DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/JXTASeD.h
-      COMPILE_FLAGS "-I${JAVA_INCLUDE_PATH}"
-  )
-
-  include_directories(${CMAKE_CURRENT_BINARY_DIR})
-  add_library(SeDJNI ${CMAKE_CURRENT_SOURCE_DIR}/SeDJNI.cc)
-
-  target_link_libraries(SeDJNI
-    DIET_SeD
-    ${OMNIORB4_LIBRARIES}
-  )
-
-  install(TARGETS SeDJNI DESTINATION lib)
-
-endif (DIET_USE_JXTA)

@@ -114,9 +114,6 @@ public:
                                const char* objName);
   ::CORBA::Long serverSubscribe(const char* seDName,
                                 const char* hostname,
-#ifdef HAVE_JXTA
-                                const char* uuid,
-#endif
                                 const ::SeqCorbaProfileDesc_t& services,
                                 const char* objName);
 #ifdef HAVE_DYNAMICS

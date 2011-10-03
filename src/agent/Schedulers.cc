@@ -196,10 +196,7 @@ Scheduler::serialize(Scheduler* S)
 {
   SCHED_TRACE_FUNCTION((void*)S->name);
 #if !HAVE_CORI
-  if (!strncmp(S->name, FASTScheduler::stName, S->nameLength)) {
-    return (FASTScheduler::serialize((FASTScheduler*) S));
-  }
-  else if (!strncmp(S->name, NWSScheduler::stName, S->nameLength)) {
+  if (!strncmp(S->name, NWSScheduler::stName, S->nameLength)) {
     return (NWSScheduler::serialize((NWSScheduler*) S));
   }else
 #endif //HAVE_CORI
@@ -243,12 +240,9 @@ Scheduler::deserialize(const char* serializedScheduler)
       nameLength = strlen(serializedScheduler);
     }
   }
-  
+
 #if !HAVE_CORI
-  if (!strncmp(serializedScheduler, FASTScheduler::stName, nameLength)) {
-    return (FASTScheduler::deserialize(serializedScheduler + nameLength));
-  }
-  else if (!strncmp(serializedScheduler, NWSScheduler::stName, nameLength)) {
+  if (!strncmp(serializedScheduler, NWSScheduler::stName, nameLength)) {
     return (NWSScheduler::deserialize(serializedScheduler + nameLength));
   }
   else
@@ -339,7 +333,7 @@ Scheduler::aggregate(corba_response_t& aggrResp,
   /* Left and right storage for nodes for comparisons */
   node_t* lft;
   node_t* rht;
-  
+
   /** Print the tree on standard output */
 #define TRACE_TREE(levels,pow)                                                \
   for (size_t i = 0; i <= pow; i++) {                                         \
@@ -516,13 +510,13 @@ Scheduler::aggregate(corba_response_t& aggrResp,
       leaves[root->resp_idx].resp_idx = -1; // this response is aggregated
     }
 
-   /** Update the tree, ie propogate changes for selected node up the tree. 
-    * We use root, which was the selected node, as guide for which parts of 
+   /** Update the tree, ie propogate changes for selected node up the tree.
+    * We use root, which was the selected node, as guide for which parts of
     * tree need to be updated.
     */
     size_t changed_srv_idx = root->resp_idx;
     int parent_loc;
-    
+
     for (int i = pow; i > 0; i--) {
       if ((changed_srv_idx & 1) == 0) {  /* even */
         lft = &((levels[i])[changed_srv_idx]);
@@ -603,154 +597,6 @@ Scheduler::getEstVector(int sIdx,
 
 #if !HAVE_CORI
 /****************************************************************************/
-/* FAST Scheduler                                                           */
-/****************************************************************************/
-#undef SCHED_CLASS
-#define SCHED_CLASS "FASTScheduler"
-
-const char*  FASTScheduler::stName     = "FASTScheduler";
-
-static double
-__getAggregateCommTime(estVectorConst_t ev)
-{
-  double aggCommTime = 0.0;
-  int numCommTimes = diet_est_array_size_internal(ev, EST_COMMTIME);
-
-  for (int commTimeIter = 0 ; commTimeIter < numCommTimes ; commTimeIter++) {
-    double val = diet_est_array_get_internal(ev,
-                                             EST_COMMTIME,
-                                             commTimeIter,
-                                             HUGE_VAL);
-    if (val == HUGE_VAL) {
-      return (HUGE_VAL);
-    }
-
-    aggCommTime += val;
-  }
-
-  return (aggCommTime);
-}
-
-/** This is designed to fill in FASTScheduler compare member. */
-int FASTScheduler_compare(int serverIdx1,
-                          int serverIdx2,
-                          int responseIdx1,
-                          int responseIdx2,
-                          const corba_response_t* responses,
-                          Vector_t evCache,
-                          const void* useless)
-{
-  const corba_response_t response1 = responses[responseIdx1];
-  const corba_response_t response2 = responses[responseIdx2];
-  const SeqServerEstimation_t servers1 = response1.servers;
-  const SeqServerEstimation_t servers2 = response2.servers;
-  const CORBA::Long i1 = serverIdx1;
-  const CORBA::Long i2 = serverIdx2;
-  const corba_server_estimation_t est1 = servers1[i1];
-  const corba_server_estimation_t est2 = servers2[i2];
-
-  estVectorConst_t s1est = Scheduler::getEstVector(serverIdx1,
-                                                   responseIdx1,
-                                                   responses,
-                                                   evCache);
-  estVectorConst_t s2est = Scheduler::getEstVector(serverIdx2,
-                                                   responseIdx2,
-                                                   responses,
-                                                   evCache);
-
-  double s1tt = diet_est_get_internal(s1est, EST_TOTALTIME, HUGE_VAL);
-  double s2tt = diet_est_get_internal(s2est, EST_TOTALTIME, HUGE_VAL);
-  double s1ct = __getAggregateCommTime(s1est);
-  double s2ct = __getAggregateCommTime(s2est);
-
-  if (s1tt == HUGE_VAL) {
-    if (s2tt == HUGE_VAL) {
-      return (COMPARE_UNDEFINED);
-    }
-    else {
-      return (COMPARE_SECOND_IS_BETTER);
-    }
-  }
-  else if (s2tt == HUGE_VAL) {
-    return (COMPARE_FIRST_IS_BETTER);
-  }
-  else {
-    if ((s1tt+s1ct) < (s2tt+s2ct)) {
-      return (COMPARE_FIRST_IS_BETTER);
-    }
-    else if ((s1tt+s1ct) == (s2tt+s2ct)) {
-      return (COMPARE_EQUAL);
-    }
-    else {
-      return (COMPARE_SECOND_IS_BETTER);
-    }
-  }
-}
-
-
-FASTScheduler::FASTScheduler()
-{
-  this->name    = FASTScheduler::stName;
-  this->nameLength = strlen(this->name);
-  this->epsilon = 0;
-  this->compare = FASTScheduler_compare;
-  this->cmpInfo = NULL;
-}
-
-FASTScheduler::FASTScheduler(double epsilon)
-{
-  this->name    = FASTScheduler::stName;
-  this->nameLength = strlen(this->name);
-  this->compare = FASTScheduler_compare;
-  this->cmpInfo = NULL;
-  if (epsilon < 0.0) {
-    INTERNAL_WARNING("attempt to initialize FAST Scheduler with a negative "
-                     << "epsilon: "
-                     << epsilon
-                     << "." << endl << "Set epsilon to 0.0");
-    this->epsilon = 0.0;
-  } else {
-    this->epsilon = epsilon;
-  }
-}
-
-FASTScheduler::~FASTScheduler() {}
-
-/**
- * Return the FASTScheduler deserialized from the string
- * \c serializedScheduler.
- */
-FASTScheduler*
-FASTScheduler::deserialize(const char* serializedScheduler)
-{
-  double epsilon(0.0);
-
-  SCHED_TRACE_FUNCTION(serializedScheduler);
-  // Add one for the ','
-  if (sscanf((char*)(serializedScheduler + 1), "%lg", &epsilon) != 1) {
-    INTERNAL_WARNING("invalid parameters for FAST scheduler ("
-                     << ((char *)(serializedScheduler + 1))
-                     << "), "
-                     << "reverting to default");
-  }
-  return new FASTScheduler(epsilon);
-}
-
-/**
- * Return the serialized FAST scheduler (a string)
- * NB: doubles are serialized with a precision of 10 significant decimals.
- */
-char*
-FASTScheduler::serialize(FASTScheduler* S)
-{
-  char* res = new char[S->nameLength + 20];
-
-  SCHED_TRACE_FUNCTION(S->name);
-  sprintf(res, "%s,%.10g", S->stName, S->epsilon);
-  return res;
-}
-
-/****************************************************************************/
 /* NWS Scheduler                                                            */
 /****************************************************************************/
 #undef SCHED_CLASS
@@ -764,7 +610,7 @@ FASTScheduler::serialize(FASTScheduler* S)
     (pow(diet_est_get_internal(ev, EST_FREECPU, 0.0),                          \
         (wi)->CPUPower)                                                      *\
     pow(diet_est_get_internal(ev, EST_FREEMEM, 0.0),                          \
-        (wi)->memPower))))                                                     
+        (wi)->memPower))))
 
 
 const char*  NWSScheduler::stName     = "NWSScheduler";

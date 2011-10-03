@@ -52,11 +52,11 @@ using namespace std;
 {
   string objString(objName);
   string name;
-	
+
   if (!remoteCall(objString)) {
     return getPeer()->agentSubscribe(agentName, hostname, services, objString.c_str());
   }
-	
+
   name = getName(objString);
 
   Agent_var agent = ORBMgr::getMgr()->resolve<Agent, Agent_var>(AGENTCTXT, name,
@@ -66,30 +66,21 @@ using namespace std;
 
 ::CORBA::Long DIETForwarder::serverSubscribe(const char* seDName,
 					     const char* hostname,
-#ifdef HAVE_JXTA
-					     const char* uuid,
-#endif
 					     const ::SeqCorbaProfileDesc_t& services,
 					     const char* objName)
 {
   string objString(objName);
   string name;
-	
+
   if (!remoteCall(objString)) {
     return getPeer()->serverSubscribe(seDName, hostname,
-#ifdef HAVE_JXTA
-                                      uuid,
-#endif
                                       services, objString.c_str());
   }
   name = getName(objString);
-	
+
   Agent_var agent = ORBMgr::getMgr()->resolve<Agent, Agent_var>(AGENTCTXT, name,
                                                                 this->name);
   return agent->serverSubscribe(seDName, hostname,
-#ifdef HAVE_JXTA
-                                uuid,
-#endif
                                 services);
 }
 
@@ -100,13 +91,13 @@ using namespace std;
 {
   string objString(objName);
   string name;
-	
+
   if (!remoteCall(objString)) {
     return getPeer()->childUnsubscribe(childID, services, objString.c_str());
   }
-	
+
   name = getName(objString);
-		
+
   Agent_var agent = ORBMgr::getMgr()->resolve<Agent, Agent_var>(AGENTCTXT, name,
                                                                 this->name);
   return agent->childUnsubscribe(childID, services);
@@ -119,13 +110,13 @@ using namespace std;
 {
   string objString(objName);
   string name;
-	
+
   if (!remoteCall(objString)) {
     return getPeer()->childRemoveService(childID, profile, objString.c_str());
   }
-	
+
   name = getName(objString);
-		
+
   Agent_var agent = ORBMgr::getMgr()->resolve<Agent, Agent_var>(AGENTCTXT, name,
                                                                 this->name);
   return agent->childRemoveService(childID, profile);
@@ -137,13 +128,13 @@ using namespace std;
 {
   string objString(objName);
   string name;
-	
+
   if (!remoteCall(objString)) {
     return getPeer()->addServices(myID, services, objString.c_str());
   }
-	
+
   name = getName(objString);
-		
+
   Agent_var agent = ORBMgr::getMgr()->resolve<Agent, Agent_var>(AGENTCTXT, name,
                                                                 this->name);
   return agent->addServices(myID, services);
@@ -154,13 +145,13 @@ void DIETForwarder::getResponse(const ::corba_response_t& resp,
 {
   string objString(objName);
   string name;
-	
+
   if (!remoteCall(objString)) {
     return getPeer()->getResponse(resp, objString.c_str());
   }
-	
+
   name = getName(objString);
-		
+
   Agent_var agent = ORBMgr::getMgr()->resolve<Agent, Agent_var>(AGENTCTXT, name,
                                                                 this->name);
   return agent->getResponse(resp);
@@ -170,13 +161,13 @@ void DIETForwarder::getResponse(const ::corba_response_t& resp,
 char* DIETForwarder::getDataManager(const char* objName) {
   string objString(objName);
   string name;
-	
+
   if (!remoteCall(objString)) {
     return getPeer()->getDataManager(objString.c_str());
   }
-	
+
   name = getName(objString);
-		
+
   Agent_var agent = ORBMgr::getMgr()->resolve<Agent, Agent_var>(AGENTCTXT, name,
                                                                 this->name);
   return agent->getDataManager();
@@ -187,13 +178,13 @@ SeqString* DIETForwarder::searchData(const char* request,
 {
   string objString(objName);
   string name;
-	
+
   if (!remoteCall(objString)) {
     return getPeer()->searchData(request, objString.c_str());
   }
-	
+
   name = getName(objString);
-	
+
   Agent_var agent = ORBMgr::getMgr()->resolve<Agent, Agent_var>(AGENTCTXT,
 								name,
 								this->name);

@@ -36,9 +36,6 @@ interface AgentForwarder {
 		raises(UnknownObject);
 	long serverSubscribe(in string seDName,
                        in string hostname,
-#if HAVE_JXTA
-                       in string uuid,
-#endif // HAVE_JXTA
                        in SeqCorbaProfileDesc_t services,
 											 in string objName)
 		raises(UnknownObject);

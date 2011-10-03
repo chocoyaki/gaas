@@ -245,7 +245,7 @@ private :
 #if HAVE_DAGDA
   DagdaCatalog* catalog;
 #endif
-	
+
   /** ID of next incoming request. */
   Counter reqIDCounter;
   Counter num_session;
@@ -275,36 +275,33 @@ protected:
 	char* objName;
 public:
 	MasterAgentFwdrImpl(Forwarder_ptr fwdr, const char* objName);
-	
+
 	virtual CORBA::Long
   agentSubscribe(const char* me, const char* hostName,
 								 const SeqCorbaProfileDesc_t& services);
 	virtual CORBA::Long
   serverSubscribe(const char* me, const char* hostName,
-#if HAVE_JXTA
-								  const char* uuid,
-#endif // HAVE_JXTA
-									const SeqCorbaProfileDesc_t& services);
-	
+                  const SeqCorbaProfileDesc_t& services);
+
 #ifdef HAVE_DYNAMICS
 	virtual CORBA::Long
   childUnsubscribe(CORBA::ULong childID,
 									 const SeqCorbaProfileDesc_t& services);
-	
+
   virtual CORBA::Long removeElement(bool recursive);
-	
+
   CORBA::Long bindParent(const char * parentName);
-	
+
   CORBA::Long disconnect();
 #endif // HAVE_DYNAMICS
 	virtual void getResponse(const corba_response_t& resp);
 	virtual CORBA::Long ping();
-	
+
   virtual char* getHostname();
-	
+
   virtual CORBA::Long addServices(CORBA::ULong myID,
 																	const SeqCorbaProfileDesc_t& services);
-	
+
 	corba_response_t* submit(const corba_pb_desc_t& pb_profile, CORBA::ULong maxServers);
 	virtual CORBA::Long get_session_num();
 	virtual char * get_data_id();
@@ -312,7 +309,7 @@ public:
 	virtual corba_data_desc_t* get_data_arg(const char* argID);
 	virtual CORBA::Long diet_free_pdata(const char *argID);
 	virtual  SeqCorbaProfileDesc_t* getProfiles(CORBA::Long& length);
-	
+
 #ifdef HAVE_MULTI_MA
 	virtual CORBA::Boolean handShake(const char* name, const char* myName);
   virtual char* getBindName() ;
@@ -335,13 +332,13 @@ public:
 #endif
 #ifdef HAVE_WORKFLOW
 	virtual wf_response_t * submit_pb_set (const corba_pb_desc_seq_t& seq_pb);
-	
+
 	virtual response_seq_t* submit_pb_seq(const corba_pb_desc_seq_t& pb_seq,
 																				CORBA::Long reqCount,
 																				CORBA::Boolean& complete,
 																				CORBA::Long& firstReqId,
 																				CORBA::Long& seqReqId);
-	
+
 #endif
 	virtual CORBA::Long
   childRemoveService(CORBA::ULong childID, const corba_profile_desc_t& profile);

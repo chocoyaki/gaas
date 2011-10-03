@@ -56,14 +56,6 @@ MonitoringThread::run_undetached(void* params) {
      */
 
     if (dietLogComponent != NULL) {
-#if HAVE_FAST
-      // check if FAST is available
-      // gather data here
-      // dietLogComponent->logMem(mem);
-      // dietLogComponent->logLoad(load);
-      // dietLogComponent->logBandwidth(bw);
-      // dietLogComponent->logLatency(latency);
-#endif
     }
 
     sleep(1,0);

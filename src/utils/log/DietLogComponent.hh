@@ -349,14 +349,6 @@ public:
                            const char* destAgent,
                            const unsigned long elapsedTime);  // modif bisnard_logs_1
 
-#if HAVE_JUXMEM
-  /**
-   * Track the use of JuxMem inside DIET
-   */
-  void logJuxMemDataStore(const unsigned long reqID, const char* dataID, const long unsigned int size, const long base_type, const char * type, const float time);
-  void logJuxMemDataUse(const unsigned long reqID, const char* dataID, const char* access_mode, const long unsigned int size, const long base_type, const char * type, const float time);
-#endif // HAVE_JUXMEM
-
   /**
    * NWS values
    */
@@ -365,13 +357,6 @@ public:
   void logLatency(double latency);
   void logBandwidth(double bandwidth);
 
-
-#if HAVE_FD
-  /** log failure detections */
-  void logFailure(const char *observed);
-  /** log failure detectors reconfigurations (and detected network conditions) */
-  void logDetectorParams(const char *observed, double Pl, double Vd, double eta, double alpha);
-#endif
 
   /**
    * No-User functions
