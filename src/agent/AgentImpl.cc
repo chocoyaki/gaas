@@ -373,6 +373,7 @@ AgentImpl::run() {
                                ORBMgr::getMgr()->getIOR(_this()));
   }
 
+  return 0;
 } // run()
 
 
