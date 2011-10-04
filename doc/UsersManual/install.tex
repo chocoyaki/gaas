@@ -292,8 +292,7 @@ free to follow your conventions):
   \verb+ccmake ..+ to enter the GUI
   \begin{itemize}
   \item press \verb+c+ (equivalent of bootstrap.sh of the autotools)
-  \item toggle the desired options \eg \verb+DIET_BUILD_EXAMPLES+ or
-    \verb+DIET_USE_JXTA+. 
+  \item toggle the desired options \eg \verb+DIET_BUILD_EXAMPLES+. 
   \item specify the \verb+CMAKE_INSTALL_PREFIX+ parameter (if you wish to
     install in a directory different from \verb+/usr/local+)
   \item press \verb+c+ again, for checking required dependencies
@@ -373,8 +372,8 @@ obtain the compilation of the desired extensions.
   basic set of probing resources which are heavily dependent on the
   system calls available for the considered platform.  When this
   option is activated (disabled by default), the user can either
-  define new collectors or use existing collectors (like FAST, see the
-  \verb+DIET_USE_FAST+ option) through CoRI's interface. CoRI thus
+  define new collectors or use existing collectors through CoRI's interface. 
+  CoRI thus
   provides a possible tactical approach for tuning the performance of
   your favorite plug-in scheduler.  Chapter~\ref{chapter:performance}
   describes in more details CoRI and its possible usage within \diet.
@@ -389,39 +388,7 @@ obtain the compilation of the desired extensions.
   details about the option and how it works.
 
 \item
-  \verb+DIET_USE_FAST+ activates \diet support of FAST (refer to
-  \url{http://www.loria.fr/~quinson/fast.html} a grid aware dynamic
-  forecasting library. Although the detection of FAST should be
-  correctly handled by cmake (since detection is based on the FAST
-  provided \verb+fast-config+ utility) the installation of FAST can be
-  a lengthy process (and, depending on your platform, potentially
-  quite difficult). This is due to the dependency of FAST towards
-  numerous sub-libraries on which it relies (GSL, BDB, NWS, LDAP).
-  Thus, the activation of this option can only be recommended for
-  advanced users$\ldots$ As already mentioned, on activation of the
-  \verb+DIET_USE_FAST+ option cmake will search among the well known
-  system path for the \verb+fast-config+ command and set the
-  \verb+FAST_CONFIG_EXECUTABLE+ with the result. Upon failure, it is
-  up to the user to manually set the full path name to this command
-  (\eg with [c]cmake command line argument\\ 
-  \verb+-DFAST_CONFIG_EXECUTABLE:PATH=$HOME/local/bin/fast-config+.
-
-\item
   \verb+DIET_USE_FD+ for activating Fault Detector.
-
-\item 
-  \verb+DIET_USE_JUXMEM+ activates \diet support of JuxMem which allows the
-  user to manage persistent data. When this option is activated (disabled by
-  default), a \sed can store data blocks within JuxMem. Chapter~\ref{ch:juxmem}
-  describes in more details JuxMem and its use inside \diet.
-
-\item
-  \verb+DIET_USE_JXTA+ activates the so called MULTI-Master-Agent
-  support. This option is which is based on the JXTA layer (refer to
-  \url{http://www.jxta.org/}) allows the user to deploy DIET\_JXTA
-  architectures. Note that this is to be opposed with
-  \verb+DIET_WITH_MULTI_MA+ (see \ref{sec:multimainstall} below) which
-  offers similar functionalities but based on CORBA.
 
 \item
   \verb+DIET_USE_WORKFLOW+ enables the support of workflow. For the support
@@ -440,9 +407,6 @@ obtain the compilation of the desired extensions.
   as bounded.
   When this option is activated, such a bounded MA is allowed to search
   for a \sed into the MA hierarchies it is connected to.
-  Note that MULTI-Master-Agent support is based on the CORBA layer
-  which is to be opposed with \verb+DIET_USE_JXTA+ which offers similar
-  functionalities but based on JXTA.
 
 \item
   \verb+DIET_WITH_STATISTICS+ enables the generation of statistics logs
@@ -466,13 +430,6 @@ compilation or some developers extensions:
   static (on Mac system this option is automatically set to \verb!ON!,
   as static compilation of binaries seems to be forbidden on these
   systems)
-
-\item
-  \verb+DIET_USE_DART+ enables DART reporting system (refer to
-  \url{http://public.kitware.com/Dart}) which is used for constructing \diet's
-  dashboard (see \url{http://graal.ens-lyon.fr/DietDashboard}).  Note that
-  setting the \verb+DIET_USE_DART+ will force the option
-  \linebreak\verb+BUILD_TESTING+ to be set.
 
 % \fixme{Sûrement à remplacer par l'équivalent pour CDash ou à enlever non ?}
 \item
@@ -526,9 +483,6 @@ looking the little summary proposed by cmake.  This summary should look like
 %%      -- Appleseeds includes:  [...]appleseeds-2.2.1/include/appleseeds
 %%      -- Appleseeds library:   [...]appleseeds-2.2.1/lib/libappleseeds.a
 %%    * CORI: ON
-%%    * Dart: ON
-%%    * JXTA: ON
-%%    * JuxMem: ON
 
 \begin{verbatim}
 ~/DIET > ./cmake ..
@@ -556,8 +510,6 @@ looking the little summary proposed by cmake.  This summary should look like
 -- XXX - Options set:
 -- XXX   * Batch: ON
 -- XXX   * CORI: ON
--- XXX   * JXTA: ON
--- XXX   * JuxMem: ON
 -- XXX   * Statistics: ON
 -- XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 [...]

@@ -14,8 +14,6 @@ add_latex_document(UsersManual.tex
   deploy.tex
   dashboard.tex
   multima.tex
-  jxta.tex
-  juxmem.tex
   workflow.tex
   xml_example.tex
   agent_scheduler.tex
@@ -26,13 +24,10 @@ add_latex_document(UsersManual.tex
   BIBFILES UsersManual.bib
   IMAGE_DIRS fig
   IMAGES fig/DIET_arch_request-2.pdf
-  fig/FAST.fig
-  fig/JXTAConfig.ps
   fig/VizDIET.pdf
   fig/VizDIET_screenshot_2.png
   fig/data.fig
   fig/global_platform.fig
-  fig/global_platform_jxta.fig
   fig/init.fig
   fig/logo_DIET_big.png
   fig/multima.fig
