@@ -77,17 +77,17 @@ public:
    * @enum Type
    */
   typedef enum {
-    Param,			/**< parameter */
-    Switch,			/**< switch (option without any parameter) */
-    Option			/**< option (option with parameter) */
+    Param,                      /**< parameter */
+    Switch,                     /**< switch (option without any parameter) */
+    Option                      /**< option (option with parameter) */
   } Type;
 
   /**
    * @enum Flags
    */
   typedef enum {
-    Optional = 0,		/**< optional argument */
-    Mandatory		/**< mandatory argument */
+    Optional = 0,               /**< optional argument */
+    Mandatory           /**< mandatory argument */
   } Flags;
 
   /**
@@ -103,7 +103,7 @@ public:
    * @param oc  CmdParser configuration
    */
   CmdParser(int argc, char *argv[],
-	    CmdConfig& oc);
+            CmdConfig& oc);
 
   /**
    * @brief sets command line configuration object
@@ -132,7 +132,7 @@ public:
    */
   void
   enableVersion(const std::string& version,
-		const std::string& copyright = nullString);
+                const std::string& copyright = nullString);
 
   /**
    * @brief get command line help string
@@ -197,12 +197,12 @@ private:
  */
 struct CmdEntry
 {
-  CmdParser::Type type;	/**< command-line argument type */
-  CmdParser::Flags flags;	/**< command-line argument flag */
-  std::string name;		/**< option name */
-  std::string longName;	/**< command-line argument long name */
-  std::string shortName;	/**< command-line argument short name */
-  std::string desc;		/**< command-line argument description */
+  CmdParser::Type type; /**< command-line argument type */
+  CmdParser::Flags flags;       /**< command-line argument flag */
+  std::string name;             /**< option name */
+  std::string longName; /**< command-line argument long name */
+  std::string shortName;        /**< command-line argument short name */
+  std::string desc;             /**< command-line argument description */
 
   // required for sorting entries
   bool
@@ -210,13 +210,13 @@ struct CmdEntry
 };
 
 const CmdEntry helpEntry = {CmdParser::Switch,
-			    CmdParser::Optional,
-			    "help", "help",
-			    "h", "Display this help and exit"};
+                            CmdParser::Optional,
+                            "help", "help",
+                            "h", "Display this help and exit"};
 
 const CmdEntry versionEntry = {CmdParser::Switch,
-			       CmdParser::Optional,
-			       "version", "version", "V",
-			       "Display version and exit"};
+                               CmdParser::Optional,
+                               "version", "version", "V",
+                               "Display version and exit"};
 
 #endif /* _CMD_PARSER_HH_ */

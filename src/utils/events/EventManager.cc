@@ -22,10 +22,10 @@ using namespace events;
 EventManager* EventManager::_instance = NULL;
 
 EventManager* EventManager::getEventMgr() {
- if (_instance == NULL) {
-   _instance = new EventManager();
- }
- return _instance;
+  if (_instance == NULL) {
+    _instance = new EventManager();
+  }
+  return _instance;
 }
 
 void
@@ -38,11 +38,11 @@ EventManager::sendEvent(EventBase* event) {
   // send notification to all observers
   for (unsigned int i=0; i<_observers.size(); i++) {
     if (_observers[i]->isObserver(event)) {
-	try {
-	  _observers[i]->handleEvent(event);
-	} catch (std::ios_base::failure& e) {
-	  cerr << "Sending event failed: ios failure caught: " << e.what() << endl;
-	}
+      try {
+	_observers[i]->handleEvent(event);
+      } catch (std::ios_base::failure& e) {
+	cerr << "Sending event failed: ios failure caught: " << e.what() << endl;
+      }
     }
   }
 }

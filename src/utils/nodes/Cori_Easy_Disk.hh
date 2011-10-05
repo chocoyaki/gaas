@@ -23,7 +23,7 @@
 #define _CORI_EASY_DISK_HH_
 
 #include <iostream>
-#include <fstream>	
+#include <fstream>      
 #include <cstdlib>
 using namespace std;
 #define FILESIZE_MB 10 //MB
@@ -38,16 +38,16 @@ class Easy_Disk{
 public:
   int 
   get_Read_Speed(const char* path, 
-		 double * result);
+                 double * result);
   int 
   get_Write_Speed(const char* path, 
-		  double * result);
+                  double * result);
   int 
   get_Available_DiskSpace(const char* path, 
-			  double * result);
+                          double * result);
   int 
   get_Total_DiskSpace(const char* path, 
-		      double * result);
+                      double * result);
   
 private:
   // int sigalarm;
@@ -56,31 +56,31 @@ private:
   create_file(char** path_file);
   int 
   gatherSizeDisks(int typeOfInfo,
-		  double * result, 
-		  const char* path);
+                  double * result, 
+                  const char* path);
 
   int 
   get_Write_Speed_by_gettimeofday(const char* path, 
-				  double * result);
+                                  double * result);
 
   int 
   get_Write_Speed_by_sig_alarm(const char* path, 
-			       double * result);
+                               double * result);
   int 
   get_Read_Speed_by_gettimeofday(const char* path, 
-				 double * result);
+                                 double * result);
 
   int 
   get_Read_Speed_by_sig_alarm(const char* path, 
-			      double * result);
+                              double * result);
 
- int 
+  int 
   openfile(char ** path,
-	   ofstream* outfile);
+           ofstream* outfile);
  
-double 
+  double 
   search_for_percent(FILE * file,
-		     int typeOfInfo);
+                     int typeOfInfo);
 
 };
 

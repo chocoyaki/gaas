@@ -23,28 +23,28 @@
 
 class EventBase
 {
-  public:
+public:
     
-    enum Severity {
-      TRACE,
-      DEBUG,
-      INFO,	// default severity (application-level events)
-      NOTICE,
-      WARNING,
-      ERROR,
-      CRITICAL,
-      FATAL
-    };
+  enum Severity {
+    TRACE,
+    DEBUG,
+    INFO,     // default severity (application-level events)
+    NOTICE,
+    WARNING,
+    ERROR,
+    CRITICAL,
+    FATAL
+  };
     
-    EventBase() : mySeverity(INFO) {}
-    EventBase(Severity severity) : mySeverity(severity) {}
+  EventBase() : mySeverity(INFO) {}
+  EventBase(Severity severity) : mySeverity(severity) {}
     
-    short getSeverity() const { return mySeverity; }
-    virtual std::string toString() const;
+  short getSeverity() const { return mySeverity; }
+  virtual std::string toString() const;
     
-  protected:
-    virtual ~EventBase() {};
-    Severity	mySeverity;
+protected:
+  virtual ~EventBase() {};
+  Severity    mySeverity;
 };
 
 std::ostream& operator<<(std::ostream& out, const EventBase& e);

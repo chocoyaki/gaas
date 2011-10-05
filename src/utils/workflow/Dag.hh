@@ -150,14 +150,14 @@ public:
 
   /**
    * Dag constructor WITHOUT DAG execution agent
-   * @param id	required non-empty identifier
+   * @param id  required non-empty identifier
    */
   Dag(string id);
 
   /**
    * Dag constructor WITH DAG execution agent (DIET MasterAgent)
    * @param id  required non-empty identifier
-   * @param MA	master agent (DIET platform MA used for dag execution)
+   * @param MA  master agent (DIET platform MA used for dag execution)
    */
   Dag(string id, MasterAgent_var& MA);
 
@@ -344,7 +344,7 @@ public:
    */
   int
   get_file_output (const char * id,
-		   size_t* size, char** path);
+                   size_t* size, char** path);
 
   /**
    * Get a matrix result of the workflow
@@ -357,8 +357,8 @@ public:
    */
   int
   get_matrix_output (const char * id, void** value,
-		     size_t* nb_rows, size_t *nb_cols,
-		     diet_matrix_order_t* order);
+                     size_t* nb_rows, size_t *nb_cols,
+                     diet_matrix_order_t* order);
 
   /**
    * Get a container result of the workflow
@@ -407,8 +407,8 @@ public:
    * get the estimated makespan of the DAG
    * @deprecated
    */
-//   double
-//   getEstMakespan();
+  //   double
+  //   getEstMakespan();
 
   /**
    * get the estimated earliest finish time of the DAG
@@ -547,7 +547,7 @@ private:
   bool cancelled;
 
   /**
-    * Critical section of the dag
+   * Critical section of the dag
    */
   omni_mutex myLock;
 

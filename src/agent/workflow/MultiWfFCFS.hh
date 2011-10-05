@@ -43,19 +43,19 @@ namespace madag {
      * Updates scheduler when a node has been executed
      */
     virtual void
-        handlerNodeDone(DagNode * node);
+    handlerNodeDone(DagNode * node);
 
     /**
      * set node priority before inserting into execution queue
      */
     virtual void
-        setExecPriority(DagNode * node);
+    setExecPriority(DagNode * node);
 
     /**
      * set node priority before inserting back in the ready queue
      */
     virtual void
-        setWaitingPriority(DagNode * node);
+    setWaitingPriority(DagNode * node);
   };
 
 }

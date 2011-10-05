@@ -176,7 +176,7 @@ displayResponse(FILE* os, const corba_response_t* resp)
 
   fprintf(os, "\n----------------------------------------\n");
   fprintf(os, " Response structure for request %lu :\n\n",
-	  (long unsigned int)resp->reqID);
+          (long unsigned int)resp->reqID);
   if (TRACE_LEVEL >= TRACE_ALL_STEPS) {
     fprintf(os, " I'm son nb %lu\n", (long unsigned int)resp->myID);
   }
@@ -214,17 +214,17 @@ displayResponse(FILE* os, const corba_response_t* resp)
       fprintf(os,
               "  %ldth %s server can solve the %s problem in %g seconds\n",
               (long) i,
-	      serverType,
-	      jobSpec,
+              serverType,
+              jobSpec,
               diet_est_get_internal(ev, EST_TCOMP, HUGE_VAL));
     }
     else {
       fprintf(os,
               "  %ldth %s server can solve the %s problem and "
-	      "has %g free CPU and %g free memory\n",
+              "has %g free CPU and %g free memory\n",
               (long) i,
-	      serverType,
-	      jobSpec,
+              serverType,
+              jobSpec,
               diet_est_get_internal(ev, EST_FREECPU, HUGE_VAL),
               diet_est_get_internal(ev, EST_FREEMEM, HUGE_VAL));
     }
@@ -239,7 +239,7 @@ displayResponse(FILE* os, const corba_response_t* resp)
     else {
       fprintf(os,
               "  %ldth server can solve the problem and "
-	      "has %g free CPU and %g free memory\n",
+              "has %g free CPU and %g free memory\n",
               (long) i,
               diet_est_get_internal(ev, EST_FREECPU, HUGE_VAL),
               diet_est_get_internal(ev, EST_FREEMEM, HUGE_VAL));
@@ -255,9 +255,9 @@ displayResponse(FILE* os, const corba_response_t* resp)
         fprintf(os,
                 " %g |",
                 diet_est_array_get_internal(ev,
-                                          EST_COMMTIME,
-                                          commTimeIter,
-                                          HUGE_VAL));
+					    EST_COMMTIME,
+					    commTimeIter,
+					    HUGE_VAL));
       } // end for each comm time parameter
     }   // end check if comm times exist in est vector
   }     // end for each server
@@ -275,29 +275,29 @@ displayResponseShort(FILE* os, const corba_response_t* resp)
 #endif
 
   fprintf(os, "\n---------- Responses for request %lu ----------\n",
-	  (unsigned long)resp->reqID);
+          (unsigned long)resp->reqID);
 
   for (size_t i = 0; i < resp->servers.length(); i++){
     estVectorConst_t ev = &(resp->servers[i].estim);
 
 #ifdef HAVE_ALT_BATCH
-  /* TODO: Should be called from somewhere in DIET_server.cc */
-  if( resp->servers[i].loc.serverType == BATCH )
-    serverType = "Batch" ;
-  else if( resp->servers[i].loc.serverType == SERIAL )
-    serverType = "serial" ;
-  else {
-    WARNING("Type of server is not well defined!" << endl);
-    serverType = "" ;
-  }
-  if( resp->servers[i].loc.parallel_flag == 1 )
-    jobSpec = "sequential" ;
-  else if( resp->servers[i].loc.parallel_flag == 2 )
-    jobSpec = "parallel" ;
-  else {
-    WARNING("Type of job is not well defined!" << endl);
-    jobSpec = "" ;
-  }
+    /* TODO: Should be called from somewhere in DIET_server.cc */
+    if( resp->servers[i].loc.serverType == BATCH )
+      serverType = "Batch" ;
+    else if( resp->servers[i].loc.serverType == SERIAL )
+      serverType = "serial" ;
+    else {
+      WARNING("Type of server is not well defined!" << endl);
+      serverType = "" ;
+    }
+    if( resp->servers[i].loc.parallel_flag == 1 )
+      jobSpec = "sequential" ;
+    else if( resp->servers[i].loc.parallel_flag == 2 )
+      jobSpec = "parallel" ;
+    else {
+      WARNING("Type of job is not well defined!" << endl);
+      jobSpec = "" ;
+    }
 #endif
 
     fprintf(stdout,
@@ -306,7 +306,7 @@ displayResponseShort(FILE* os, const corba_response_t* resp)
             (long int)i,
             (const char *)(resp->servers[i].loc.hostName),
             (long int)resp->servers[i].loc.port,
-	    serverType, jobSpec,
+            serverType, jobSpec,
 #else
             "    %ld: %s:%ld: tComp %g fCpu %g fMem %g\n",
             (long int)i,
@@ -363,7 +363,7 @@ displayArg(FILE* f, const corba_data_desc_t* arg)
   case DIET_STRING: fprintf(f, "string (%ld)",
                             (long)arg->specific.str().length); break;
   case DIET_PARAMSTRING: fprintf(f, "paramstring (%ld)",
-                            (long)arg->specific.pstr().length); break;
+				 (long)arg->specific.pstr().length); break;
   case DIET_FILE:   fprintf(f, "file (%ld)",
                             (long)arg->specific.file().size);  break;
   case DIET_CONTAINER:  fprintf(f, "container");  break;
@@ -400,7 +400,7 @@ displayArg(FILE* f, const diet_data_desc_t* arg)
   case DIET_STRING: fprintf(f, "string (%ld)",
                             (long)arg->specific.str.length); break;
   case DIET_PARAMSTRING: fprintf(f, "paramstring (%ld)",
-                            (long)arg->specific.pstr.length); break;
+				 (long)arg->specific.pstr.length); break;
   case DIET_FILE:   fprintf(f, "file (%ld)",
                             (long)arg->specific.file.size);  break;
   case DIET_CONTAINER:  fprintf(f, "container");  break;
@@ -458,26 +458,26 @@ displayProfileDesc(const diet_profile_desc_t* desc, const char* path)
   fprintf(f, "\n");
 
   switch((desc->aggregator).agg_method) {
-    case DIET_AGG_DEFAULT:
-      fprintf(f,"   Aggregator: Default\n");
-      break;
-    case DIET_AGG_PRIORITY:
-      fprintf(f,"   Aggregator: Priority (");
-      {
-        diet_aggregator_priority_t prior =
-          (desc->aggregator).agg_specific.agg_specific_priority;
-        if (prior.p_numPValues == 0) {
-          fprintf(f," No priorities assigned");
-        } else {
-          for (int i = 0; i < prior.p_numPValues; i++) {
-            fprintf(f," %d", prior.p_pValues[i]);
-          }
-        }
+  case DIET_AGG_DEFAULT:
+    fprintf(f,"   Aggregator: Default\n");
+    break;
+  case DIET_AGG_PRIORITY:
+    fprintf(f,"   Aggregator: Priority (");
+    {
+      diet_aggregator_priority_t prior =
+	(desc->aggregator).agg_specific.agg_specific_priority;
+      if (prior.p_numPValues == 0) {
+	fprintf(f," No priorities assigned");
+      } else {
+	for (int i = 0; i < prior.p_numPValues; i++) {
+	  fprintf(f," %d", prior.p_pValues[i]);
+	}
       }
-      fprintf(f, " )\n");
-      break;
-    default:
-      fprintf(f,"   Aggregator: ERROR\n");
+    }
+    fprintf(f, " )\n");
+    break;
+  default:
+    fprintf(f,"   Aggregator: ERROR\n");
   }
 }
 
@@ -514,16 +514,16 @@ displayProfileDesc(const corba_profile_desc_t* desc)
   fprintf(f, "\n");
 
   switch((desc->aggregator).agg_specific._d()) {
-    case DIET_AGG_DEFAULT:
+  case DIET_AGG_DEFAULT:
     {
       fprintf(f,"   Aggregator: Default\n");
       break;
     }
-    case DIET_AGG_PRIORITY:
+  case DIET_AGG_PRIORITY:
     {
       fprintf(f,"   Aggregator: Priority (");
       corba_agg_priority_t prior =
-          (desc->aggregator).agg_specific.agg_priority();
+	(desc->aggregator).agg_specific.agg_priority();
       if (prior.priorityList.length() == 0) {
         fprintf(f," No priorities assigned");
       } else {
@@ -534,8 +534,8 @@ displayProfileDesc(const corba_profile_desc_t* desc)
       fprintf(f, " )\n");
       break;
     }
-    default:
-      fprintf(f,"   Aggregator: ERROR\n");
+  default:
+    fprintf(f,"   Aggregator: ERROR\n");
   }
 }
 

@@ -77,7 +77,7 @@ SeDDescrParser::parseXml(bool checkValid)
     XMLCh* xmlFileName = CTOX(myXmlFileName.c_str());
     LocalFileInputSource * fileBufIS = new LocalFileInputSource(xmlFileName);
     wrapper = new Wrapper4InputSource(fileBufIS);
-//     XREL(xmlFileName);
+    //     XREL(xmlFileName);
 
   } else {
     throw XMLParsingException(XMLParsingException::eUNKNOWN,"Empty XML filename");
@@ -98,8 +98,8 @@ SeDDescrParser::parseXml(bool checkValid)
   // Check if DTD was provided
   if (checkValid && !document->getDoctype()) {
     cerr << errorMsgPfx << "XML is not validated (no DTD provided)" << endl
-             << "Use <!DOCTYPE workflow SYSTEM \"[DIET_INSTALL_DIR]/etc/FWorkflow.dtd\">"
-             << " instruction to provide it";
+	 << "Use <!DOCTYPE workflow SYSTEM \"[DIET_INSTALL_DIR]/etc/FWorkflow.dtd\">"
+	 << " instruction to provide it";
   }
 
   DOMNode * root = (DOMNode*)(document->getDocumentElement());
@@ -127,7 +127,7 @@ SeDDescrParser::getServices()
 
 GASWParser::GASWParser(const string& fileName)
   : SeDDescrParser(fileName) {
-  }
+}
 
 
 string
@@ -170,9 +170,9 @@ GASWParser::parseRoot(DOMNode* root)
         parseExecutable(child_elt);
 
       }
-//       } else
-// 	throw XMLParsingException(XMLParsingException::eUNKNOWN_TAG,
-//                "Invalid tag within description element");
+      //       } else
+      //      throw XMLParsingException(XMLParsingException::eUNKNOWN_TAG,
+      //                "Invalid tag within description element");
 
     }
     child = child->getNextSibling();
@@ -209,9 +209,9 @@ GASWParser::parseExecutable(const DOMElement * element)
         parseDependency(child_elt, service);
 
       }
-//       } else
-//         throw XMLParsingException(XMLParsingException::eUNKNOWN_TAG,
-//                "Invalid tag within executable element");
+      //       } else
+      //         throw XMLParsingException(XMLParsingException::eUNKNOWN_TAG,
+      //                "Invalid tag within executable element");
     }
     child = child->getNextSibling();
   } // end while
@@ -223,7 +223,7 @@ GASWParser::parseInput(const DOMElement * element, SeDService * service)
   string name    = DagWfParser::getAttributeValue("name", element);
   string option  = DagWfParser::getAttributeValue("option", element);
   string type    = DagWfParser::getAttributeValue("type", element);
-//   if (type.empty()) throw XMLParsingException(XMLParsingException::eEMPTY_ATTR,"type");
+  //   if (type.empty()) throw XMLParsingException(XMLParsingException::eEMPTY_ATTR,"type");
   SeDArgument *in = service->addInput(name,option,type);
 }
 
@@ -233,7 +233,7 @@ GASWParser::parseOutput(const DOMElement * element, SeDService * service)
   string name    = DagWfParser::getAttributeValue("name", element);
   string option  = DagWfParser::getAttributeValue("option", element);
   string type    = DagWfParser::getAttributeValue("type", element);
-//   if (type.empty()) throw XMLParsingException(XMLParsingException::eEMPTY_ATTR,"type");
+  //   if (type.empty()) throw XMLParsingException(XMLParsingException::eEMPTY_ATTR,"type");
   SeDArgument *out = service->addOutput(name,option,type);
 
   const DOMNode * child = element->getFirstChild();
@@ -292,55 +292,55 @@ GASWParser::evalTemplate(SeDArgument *arg, string& value) {
   for (list<SeDArgument*>::const_iterator argIter = args.begin();
        argIter != args.end();
        ++argIter)
-  {
-    SeDArgument *currArg = (SeDArgument *) *argIter;
-    if (currArg->getIo() == SeDArgument::IN)
     {
-      const string& refValue = currArg->getValue();
-      string dirRef;
-      string naRef;
+      SeDArgument *currArg = (SeDArgument *) *argIter;
+      if (currArg->getIo() == SeDArgument::IN)
+	{
+	  const string& refValue = currArg->getValue();
+	  string dirRef;
+	  string naRef;
 
-      if (currArg->getType() == SeDArgument::URI) {
-        // Get the directory and base name of the file
-        char * pathC1 = strdup(refValue.c_str());
-        char * pathC2 = strdup(refValue.c_str());
-        dirRef = dirname(pathC1);
-        naRef = basename(pathC2);
-        free(pathC1);
-        free(pathC2);
-      } else if (currArg->getType() == SeDArgument::DIR) {
-        char * pathC1 = strdup(refValue.c_str());
-        dirRef = refValue;
-        naRef = basename(pathC1);
-      } else {  // argument is scalar
-        dirRef = "";
-        naRef = refValue;
-      }
-      // Set templates for directory and base name
-      string dirTempl = "$dir" + itoa(argIndex);
-      string naTempl = "$na" + itoa(argIndex);
-      // Replace $dirX (once)
-      if ((dirPos = value.find(dirTempl)) != string::npos) {
-        value = value.substr(0, dirPos)
-                  + dirRef
-                  + value.substr(dirPos + dirTempl.length(), value.length()-dirPos-dirTempl.length());
-      }
-      // Replace $naX (once)
-      if ((naPos = value.find(naTempl)) != string::npos) {
-        value = value.substr(0, naPos)
-                  + naRef
-                  + value.substr(naPos + naTempl.length(), value.length()-naPos-naTempl.length());
-      }
+	  if (currArg->getType() == SeDArgument::URI) {
+	    // Get the directory and base name of the file
+	    char * pathC1 = strdup(refValue.c_str());
+	    char * pathC2 = strdup(refValue.c_str());
+	    dirRef = dirname(pathC1);
+	    naRef = basename(pathC2);
+	    free(pathC1);
+	    free(pathC2);
+	  } else if (currArg->getType() == SeDArgument::DIR) {
+	    char * pathC1 = strdup(refValue.c_str());
+	    dirRef = refValue;
+	    naRef = basename(pathC1);
+	  } else {  // argument is scalar
+	    dirRef = "";
+	    naRef = refValue;
+	  }
+	  // Set templates for directory and base name
+	  string dirTempl = "$dir" + itoa(argIndex);
+	  string naTempl = "$na" + itoa(argIndex);
+	  // Replace $dirX (once)
+	  if ((dirPos = value.find(dirTempl)) != string::npos) {
+	    value = value.substr(0, dirPos)
+	      + dirRef
+	      + value.substr(dirPos + dirTempl.length(), value.length()-dirPos-dirTempl.length());
+	  }
+	  // Replace $naX (once)
+	  if ((naPos = value.find(naTempl)) != string::npos) {
+	    value = value.substr(0, naPos)
+	      + naRef
+	      + value.substr(naPos + naTempl.length(), value.length()-naPos-naTempl.length());
+	  }
+	}
+      ++argIndex;
     }
-    ++argIndex;
-  }
 
   // Replace %s by unique id provided by SeDService
   string::size_type idPos = 0;
   if ((idPos = value.find("%s")) != string::npos) {
     value = value.substr(0,idPos)
-              + arg->getService()->getReqId()
-              + value.substr(idPos + 2, value.length()-idPos-2);
+      + arg->getService()->getReqId()
+      + value.substr(idPos + 2, value.length()-idPos-2);
   }
 
 }

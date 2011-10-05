@@ -113,42 +113,42 @@ public:
    * @return workflow ptr or NULL if no parent wf
    */
   FWorkflow *
-      getWorkflow() const;
+  getWorkflow() const;
       
   /**
    * Get the root workflow (ie not a subwf) the node belongs to
    * @return workflow ptr or NULL if no parent wf
    */
   virtual FWorkflow*
-      getRootWorkflow() const;
+  getRootWorkflow() const;
 
   /**
    * Create a new port
    */
   virtual WfPort *
-      newPort(string portId,
-              unsigned int ind,
-              WfPort::WfPortType portType,
-              WfCst::WfDataType dataType,
-              unsigned int depth) throw (WfStructException);
+  newPort(string portId,
+	  unsigned int ind,
+	  WfPort::WfPortType portType,
+	  WfCst::WfDataType dataType,
+	  unsigned int depth) throw (WfStructException);
 
   /**
    * Get the name of the default port (only for interface nodes)
    */
   virtual const string&
-      getDefaultPortName() const;
+  getDefaultPortName() const;
 
   /**
    * Node interconnections (and type check)
    */
   virtual void
-      connectNodePorts() throw (WfStructException);
+  connectNodePorts() throw (WfStructException);
 
   /**
    * Node connections to workflow external ports (used for sub-workflows)
    */
   virtual void
-      connectToWfPort(FNodePort* port);
+  connectToWfPort(FNodePort* port);
 
   /**
    * Initialization
@@ -158,7 +158,7 @@ public:
    * - WfStructException (proc / sink)
    */
   virtual void
-      initialize();
+  initialize();
 
   /**
    * Instanciation = run the instanciation loop for all available input data items
@@ -167,14 +167,14 @@ public:
    */
 
   virtual void
-      instanciate(Dag* dag) = 0;
+  instanciate(Dag* dag) = 0;
 
- /**
+  /**
    * Finalize - called once after instanciation is completed
    *  - check if output ports have 0 items and updates connected ports if yes
    */
   virtual void
-      finalize();
+  finalize();
 
   /**
    * Instanciation status: ready to process data
@@ -224,13 +224,13 @@ public:
    * Remove data created by the node on the platform
    */
   virtual void
-      freeNodePersistentData(MasterAgent_var& MA);
+  freeNodePersistentData(MasterAgent_var& MA);
       
   /**
    * Write a text description of the node
    */
   virtual string
-      toString() const;
+  toString() const;
 
 protected:
   /**
@@ -276,56 +276,56 @@ protected:
 
 class FConstantNode : public FNode {
 
-  public:
-    FConstantNode(FWorkflow* wf,
-                  const string& id,
-                  WfCst::WfDataType type);
-    virtual ~FConstantNode();
+public:
+  FConstantNode(FWorkflow* wf,
+		const string& id,
+		WfCst::WfDataType type);
+  virtual ~FConstantNode();
 
-    /**
-     * Get the name of the default port
-     */
-    virtual const string&
-      getDefaultPortName() const;
+  /**
+   * Get the name of the default port
+   */
+  virtual const string&
+  getDefaultPortName() const;
 
-    /**
-     * Set the value of the constant
-     */
-    void
-        setValue(const string& strVal);
+  /**
+   * Set the value of the constant
+   */
+  void
+  setValue(const string& strVal);
 
-    /**
-     * Set the data ID of the constant
-     */
-    void
-        setDataID(const string& dataID);
+  /**
+   * Set the data ID of the constant
+   */
+  void
+  setDataID(const string& dataID);
 
-    /**
-     * Initialization of the constant node
-     */
-    virtual void
-        initialize();
+  /**
+   * Initialization of the constant node
+   */
+  virtual void
+  initialize();
 
-    /**
-     * Instanciate a constant node (does nothing)
-     * @param dag should be NULL
-     */
-    virtual void
-        instanciate(Dag* dag);
+  /**
+   * Instanciate a constant node (does nothing)
+   * @param dag should be NULL
+   */
+  virtual void
+  instanciate(Dag* dag);
 
-  private:
+private:
 
-    /**
-     * The default name of the output port
-     * (a default port is automatically created to allow connections from
-     *  other nodes input ports)
-     */
-    static string outPortName;
-    FNodeOutPort* myOutPort;
+  /**
+   * The default name of the output port
+   * (a default port is automatically created to allow connections from
+   *  other nodes input ports)
+   */
+  static string outPortName;
+  FNodeOutPort* myOutPort;
 
-    string myValue;
-    string myDataID;
-    FDataHandle* myDH;
+  string myValue;
+  string myDataID;
+  FDataHandle* myDH;
 
 
 }; // end class FConstantNode
@@ -348,117 +348,117 @@ class FSourceNode : public FNode {
   // provides access to protected method (no use of attributes)
   friend class DataSourceHandler;
 
-  public:
-    FSourceNode(FWorkflow* wf,
-                const string& id,
-                WfCst::WfDataType type);
-    virtual ~FSourceNode();
+public:
+  FSourceNode(FWorkflow* wf,
+	      const string& id,
+	      WfCst::WfDataType type);
+  virtual ~FSourceNode();
     
-    /***************************************************/
-    /* event message types                             */
-    /***************************************************/
+  /***************************************************/
+  /* event message types                             */
+  /***************************************************/
   
-    enum eventMsg_e {
-      DATATREE
-    };
+  enum eventMsg_e {
+    DATATREE
+  };
 
-    const string&
-        getDefaultPortName() const;
+  const string&
+  getDefaultPortName() const;
 
-    WfCst::WfDataType
-        getDataType() const;
+  WfCst::WfDataType
+  getDataType() const;
 
-    unsigned int
-        getDepth() const;
+  unsigned int
+  getDepth() const;
 
-    void
-        connectToWfPort(FNodePort* port); // used for sub-workflows
+  void
+  connectToWfPort(FNodePort* port); // used for sub-workflows
 
-    bool
-        isConnectedToWfPort();
+  bool
+  isConnectedToWfPort();
 
-    /**
-     * One-shot instanciate using workflow's data file (XML)
-     * Creates all data items and send them to connected ports
-     * @param dag the current dag (assumed not NULL)
-     */
-    virtual void
-        instanciate(Dag* dag);
+  /**
+   * One-shot instanciate using workflow's data file (XML)
+   * Creates all data items and send them to connected ports
+   * @param dag the current dag (assumed not NULL)
+   */
+  virtual void
+  instanciate(Dag* dag);
 
-    /**
-     * Create one data item for this source (used for SUB-WORKFLOWS)
-     * Uses the connected port index to choose data within data line
-     * @param currTag	tag of current DH
-     * @param currDataLine 	the data line provided by the workflow
-     */
-    virtual void
-        createInstance(const FDataTag& currTag,
-                       vector<FDataHandle*>& currDataLine);
+  /**
+   * Create one data item for this source (used for SUB-WORKFLOWS)
+   * Uses the connected port index to choose data within data line
+   * @param currTag   tag of current DH
+   * @param currDataLine      the data line provided by the workflow
+   */
+  virtual void
+  createInstance(const FDataTag& currTag,
+		 vector<FDataHandle*>& currDataLine);
 
-    /**
-     * Write the XML description of the source
-     * with data IDs (if available)
-     */
-    virtual void
-	toXML(ostream& output);
+  /**
+   * Write the XML description of the source
+   * with data IDs (if available)
+   */
+  virtual void
+  toXML(ostream& output);
 
-  protected:
-    /**
-     * Instanciate a new data for the source (used by parser)
-     * @param tag the data tag
-     * @return ref on the data
-     */
-    FDataHandle *
-        createData( const FDataTag& tag );
+protected:
+  /**
+   * Instanciate a new data for the source (used by parser)
+   * @param tag the data tag
+   * @return ref on the data
+   */
+  FDataHandle *
+  createData( const FDataTag& tag );
 
-    /**
-     * Instanciate a new list for the source (used by parser)
-     * @param tag the data tag
-     * @return ref on the data
-     */
-    FDataHandle *
-        createList( const FDataTag& tag );
+  /**
+   * Instanciate a new list for the source (used by parser)
+   * @param tag the data tag
+   * @return ref on the data
+   */
+  FDataHandle *
+  createList( const FDataTag& tag );
 
-    /**
-     * Set the value of the data
-     * @param DH ref on the data
-     * @param value string containing the value
-     */
-    void
-        setDataValue( FDataHandle* DH, const string& value);
+  /**
+   * Set the value of the data
+   * @param DH ref on the data
+   * @param value string containing the value
+   */
+  void
+  setDataValue( FDataHandle* DH, const string& value);
 
-    /**
-     * Set the data ID of the data
-     * @param DH ref on the data
-     * @param dataID  string containing the data ID
-     */
-    void
-        setDataID( FDataHandle* DH, const string& dataID);
+  /**
+   * Set the data ID of the data
+   * @param DH ref on the data
+   * @param dataID  string containing the data ID
+   */
+  void
+  setDataID( FDataHandle* DH, const string& dataID);
 
-    /**
-     * Set a property of the data
-     * @param DH ref on the data
-     * @param propKey key of the property
-     * @param propValue value of the property
-     */
-    void
-        setDataProperty( FDataHandle* DH,
-                         const string& propKey,
-                         const string& propValue );
-    /**
-     * Store the new data for the source (used by parser)
-     * @param newDH the ref to the data (created by createData)
-     */
-    void
-        insertData( FDataHandle* newDH );
+  /**
+   * Set a property of the data
+   * @param DH ref on the data
+   * @param propKey key of the property
+   * @param propValue value of the property
+   */
+  void
+  setDataProperty( FDataHandle* DH,
+		   const string& propKey,
+		   const string& propValue );
+  /**
+   * Store the new data for the source (used by parser)
+   * @param newDH the ref to the data (created by createData)
+   */
+  void
+  insertData( FDataHandle* newDH );
 
-  private:
-    DataSourceParser * myParser;
-    static string outPortName;
-    FNodeOutPort* myOutPort;
+private:
+  DataSourceParser * myParser;
+  static string outPortName;
+  FNodeOutPort* myOutPort;
 
-    FNodeInPort* myConnectedPort; // used for sub-workflows
-    bool  isConnected;
+  FNodeInPort* myConnectedPort; // used for sub-workflows
+  bool  isConnected;
 
 }; // end class FSourceNode
 
@@ -468,73 +468,73 @@ class FSourceNode : public FNode {
 
 class FSinkNode : public FNode {
 
-   public:
-     FSinkNode(FWorkflow* wf,
-               const string& id,
-               WfCst::WfDataType type,
-               unsigned int depth);
-     virtual ~FSinkNode();
+public:
+  FSinkNode(FWorkflow* wf,
+	    const string& id,
+	    WfCst::WfDataType type,
+	    unsigned int depth);
+  virtual ~FSinkNode();
      
-     /***************************************************/
-     /* event message types                             */
-     /***************************************************/
+  /***************************************************/
+  /* event message types                             */
+  /***************************************************/
   
-     enum eventMsg_e {
-       DATAID
-     };
+  enum eventMsg_e {
+    DATAID
+  };
 
-     virtual const string&
-         getDefaultPortName() const;
+  virtual const string&
+  getDefaultPortName() const;
 
-     virtual void
-         connectToWfPort(FNodePort* port); // used for sub-workflows
+  virtual void
+  connectToWfPort(FNodePort* port); // used for sub-workflows
 
-     bool
-        isConnectedToWfPort();
+  bool
+  isConnectedToWfPort();
 
-     virtual void
-         instanciate(Dag* dag); // used for sub-workflows
+  virtual void
+  instanciate(Dag* dag); // used for sub-workflows
 
-     virtual void
-         finalize();  // does nothing
+  virtual void
+  finalize();  // does nothing
 
-     /**
-      * Method called once after instanciation is completed
-      * Will download data IDs and values
-      */
-     virtual void
-         downloadResults();
+  /**
+   * Method called once after instanciation is completed
+   * Will download data IDs and values
+   */
+  virtual void
+  downloadResults();
 
-     /**
-      * Write sink data in a readable way
-      */
-     virtual void
-         displayResults(ostream& output);
+  /**
+   * Write sink data in a readable way
+   */
+  virtual void
+  displayResults(ostream& output);
 
-     /**
-      * Write the XML description of sink data
-      * with data IDs
-      */
-     virtual void
-         toXML(ostream& output);
+  /**
+   * Write the XML description of sink data
+   * with data IDs
+   */
+  virtual void
+  toXML(ostream& output);
 
-     /**
-      * Get the data ID of a container that contains all sink data
-      * @param  containerID string that will contain the dataID
-      */
-     virtual void
-         getResultsInContainer(string& containerID);
+  /**
+   * Get the data ID of a container that contains all sink data
+   * @param  containerID string that will contain the dataID
+   */
+  virtual void
+  getResultsInContainer(string& containerID);
 
-  private:
+private:
 
-    static string inPortName;
-    FNodeInPort* myInPort;
-    FNodeOutPort* myOutPort;  // used as a buffer only
+  static string inPortName;
+  FNodeInPort* myInPort;
+  FNodeOutPort* myOutPort;  // used as a buffer only
 
-    // used for sub-workflows
-    FNodeOutPort* myConnectedPort;
-    bool  isConnected;
-    PortInputIterator*  myIterator;
+  // used for sub-workflows
+  FNodeOutPort* myConnectedPort;
+  bool  isConnected;
+  PortInputIterator*  myIterator;
 
 }; // end class FSinkNode
 
@@ -544,200 +544,200 @@ class FSinkNode : public FNode {
 
 class FProcNode : public FNode {
 
-  public:
-    FProcNode(FWorkflow* wf,
-              const string& id);
-    virtual ~FProcNode();
+public:
+  FProcNode(FWorkflow* wf,
+	    const string& id);
+  virtual ~FProcNode();
 
-    // ******************** INPUT DATA OPERATORS *********************
+  // ******************** INPUT DATA OPERATORS *********************
 
-    /**
-     * Iteration strategies
-     *  OPER_MATCH: match operator => match tags of all inputs
-     *  OPER_CROSS: cross operator => cartesian product of two inputs
-     */
-    enum inputOperator_t {
-      OPER_DOT,
-      OPER_MATCH,
-      OPER_CROSS,
-      OPER_FLATCROSS };
+  /**
+   * Iteration strategies
+   *  OPER_MATCH: match operator => match tags of all inputs
+   *  OPER_CROSS: cross operator => cartesian product of two inputs
+   */
+  enum inputOperator_t {
+    OPER_DOT,
+    OPER_MATCH,
+    OPER_CROSS,
+    OPER_FLATCROSS };
 
-    /**
-     * Create the iteration strategy tree nodes
-     * @param opType  the type of operator
-     * @param inputIds  the ids of the inputs of the operator
-     * @return the id of the operator created
-     */
-    const string&
-        createInputOperator(inputOperator_t opType, const vector<string>& inputIds);
+  /**
+   * Create the iteration strategy tree nodes
+   * @param opType  the type of operator
+   * @param inputIds  the ids of the inputs of the operator
+   * @return the id of the operator created
+   */
+  const string&
+  createInputOperator(inputOperator_t opType, const vector<string>& inputIds);
 
-    /**
-     * Set the root element of the iteration strategy tree
-     * @param opId  the id of the root operator (must already be registered)
-     */
-    void
-        setRootInputOperator(const string& opId);
+  /**
+   * Set the root element of the iteration strategy tree
+   * @param opId  the id of the root operator (must already be registered)
+   */
+  void
+  setRootInputOperator(const string& opId);
 
-    /**
-     * Set the root element of the iteration strategy tree
-     * @param newOper  the ref of the root operator (not registered yet)
-     */
-    void
-        setRootInputOperator(InputIterator * newOper);
+  /**
+   * Set the root element of the iteration strategy tree
+   * @param newOper  the ref of the root operator (not registered yet)
+   */
+  void
+  setRootInputOperator(InputIterator * newOper);
 
-    /**
-     * Set one port of the node (identified by its index) as a constant
-     * @param idxPort the index of the port
-     * @param dataHdl the ref to the data provided as constant
-     */
-    void
-        setConstantInput(int idxPort, FDataHandle* dataHdl);
+  /**
+   * Set one port of the node (identified by its index) as a constant
+   * @param idxPort the index of the port
+   * @param dataHdl the ref to the data provided as constant
+   */
+  void
+  setConstantInput(int idxPort, FDataHandle* dataHdl);
 
-    /**
-     * Checks if a given port index corresponds to a constant
-     * @param idxPort the index of the port
-     * @return true if the port has been set as constant
-     */
-    bool
-        isConstantInput(int idxPort);
+  /**
+   * Checks if a given port index corresponds to a constant
+   * @param idxPort the index of the port
+   * @return true if the port has been set as constant
+   */
+  bool
+  isConstantInput(int idxPort);
 
-    // ******************** DYNAMIC PARAMETERS *********************
+  // ******************** DYNAMIC PARAMETERS *********************
 
-    /**
-     * Setup a dynamic parameter for the node
-     * @param paramName string containing the name of the parameter
-     * @param paramValue string containing the value of the parameter
-     */
-    void
-        checkDynamicParam(const string& paramName, const string& paramValue);
+  /**
+   * Setup a dynamic parameter for the node
+   * @param paramName string containing the name of the parameter
+   * @param paramValue string containing the value of the parameter
+   */
+  void
+  checkDynamicParam(const string& paramName, const string& paramValue);
 
 
-    // *********************** INSTANCIATION *************************
+  // *********************** INSTANCIATION *************************
 
-    /**
-     * Initialization - called once before all instanciation calls
-     *  - connection to other nodes
-     *  - input iterators setup
-     */
-    virtual void
-        initialize();
+  /**
+   * Initialization - called once before all instanciation calls
+   *  - connection to other nodes
+   *  - input iterators setup
+   */
+  virtual void
+  initialize();
 
-    /**
-     * Instanciation initialization - called for each instanciation call
-     */
-    virtual void
-        initInstanciation();
+  /**
+   * Instanciation initialization - called for each instanciation call
+   */
+  virtual void
+  initInstanciation();
 
-    virtual bool
-        instLimitReached();
+  virtual bool
+  instLimitReached();
 
-    virtual void
-        createRealInstance(Dag* dag,
-                           const FDataTag& currTag,
-                           vector<FDataHandle*>& currDataLine) = 0;
+  virtual void
+  createRealInstance(Dag* dag,
+		     const FDataTag& currTag,
+		     vector<FDataHandle*>& currDataLine) = 0;
 
-    virtual void
-        createVoidInstance(const FDataTag& currTag,
-                           vector<FDataHandle*>& currDataLine);
+  virtual void
+  createVoidInstance(const FDataTag& currTag,
+		     vector<FDataHandle*>& currDataLine);
 
-    virtual void
-        updateInstanciationStatus();
+  virtual void
+  updateInstanciationStatus();
 
-    /**
-     * Instanciation of the processor (TEMPLATE METHOD)
-     * @param dag ref to the dag that will contain the generated DagNodes
-     */
-    virtual void
-        instanciate(Dag* dag);
+  /**
+   * Instanciation of the processor (TEMPLATE METHOD)
+   * @param dag ref to the dag that will contain the generated DagNodes
+   */
+  virtual void
+  instanciate(Dag* dag);
 
-    virtual bool
-        hasDataToProcess();
+  virtual bool
+  hasDataToProcess();
 
-  protected:
+protected:
 
-    // ******************** DYNAMIC PARAMETERS *********************
+  // ******************** DYNAMIC PARAMETERS *********************
 
-    /**
-     * Create a dynamic parameter
-     * @param paramName    name of the parameter
-     * @param paramVarName name of the variable
-     */
-    void
-        setDynamicParam(const string& paramName,
-                        const string& paramVarName);
+  /**
+   * Create a dynamic parameter
+   * @param paramName    name of the parameter
+   * @param paramVarName name of the variable
+   */
+  void
+  setDynamicParam(const string& paramName,
+		  const string& paramVarName);
 
-    /**
-     * Set the value of a dynamic parameter
-     * @param paramVarName  name of the variable to set
-     * @param paramValue    value of the variable
-     */
-    void
-        setDynamicParamValue(const string& paramVarName,
-                             const string& paramValue);
+  /**
+   * Set the value of a dynamic parameter
+   * @param paramVarName  name of the variable to set
+   * @param paramValue    value of the variable
+   */
+  void
+  setDynamicParamValue(const string& paramVarName,
+		       const string& paramValue);
 
-    bool
-        isDynamicParam(const string& paramName);
+  bool
+  isDynamicParam(const string& paramName);
 
-    const string&
-        getDynamicParamValue(const string& paramName);
+  const string&
+  getDynamicParamValue(const string& paramName);
 
-    // ****************** INTERNAL PORT MAPPING  *********************
-    /**
-     * Check a port name and returns the appropriate pointer
-     * @param portName  name of the port
-     * @return the correct port ref (cannot return NULL)
-     */
-    template<class PortType>
-    PortType*
-        checkAssignPort(const string& portName)
-        throw (WfStructException) {
-      WfPort* port = getPort(portName); // throws exception
-      PortType* FPort = dynamic_cast<PortType*>(port);
-      if (!FPort) {
-        string errorMsg = string("Invalid port in port assignment ")
-                      + "(node=" + getId() + "/port=" + portName + ")";
-        throw WfStructException(WfStructException::eOTHER, errorMsg);
-      }
-      return FPort;
+  // ****************** INTERNAL PORT MAPPING  *********************
+  /**
+   * Check a port name and returns the appropriate pointer
+   * @param portName  name of the port
+   * @return the correct port ref (cannot return NULL)
+   */
+  template<class PortType>
+  PortType*
+  checkAssignPort(const string& portName)
+    throw (WfStructException) {
+    WfPort* port = getPort(portName); // throws exception
+    PortType* FPort = dynamic_cast<PortType*>(port);
+    if (!FPort) {
+      string errorMsg = string("Invalid port in port assignment ")
+	+ "(node=" + getId() + "/port=" + portName + ")";
+      throw WfStructException(WfStructException::eOTHER, errorMsg);
     }
+    return FPort;
+  }
 
-    // ******************** INPUT DATA OPERATORS *********************
+  // ******************** INPUT DATA OPERATORS *********************
 
-    PortInputIterator *
-        createPortInputIterator(const string& portId);
+  PortInputIterator *
+  createPortInputIterator(const string& portId);
 
-    bool
-        isIteratorDefined(const string& portId);
+  bool
+  isIteratorDefined(const string& portId);
 
-    void initDataLine();
+  void initDataLine();
 
-    /**
-     * The map of all input operators
-     */
-    map<string,InputIterator*> myIterators;
+  /**
+   * The map of all input operators
+   */
+  map<string,InputIterator*> myIterators;
 
-    /**
-     * The root operator
-     */
-    InputIterator*  myRootIterator;
+  /**
+   * The root operator
+   */
+  InputIterator*  myRootIterator;
 
-    /**
-     * The template data line used for each instance
-     * Contains the constant port values and is copied for each new instance
-     */
-    vector<FDataHandle*>* cstDataLine;
+  /**
+   * The template data line used for each instance
+   * Contains the constant port values and is copied for each new instance
+   */
+  vector<FDataHandle*>* cstDataLine;
 
-    /**
-     * The dynamic parameters map
-     * contains param_Name => param_Variable_Name
-     */
-    map<string,string> dynParMap;
+  /**
+   * The dynamic parameters map
+   * contains param_Name => param_Variable_Name
+   */
+  map<string,string> dynParMap;
 
-    /**
-     * The variables map
-     * contains param_Variable_Name => param_Value
-     */
-    map<string,string> varMap;
+  /**
+   * The variables map
+   * contains param_Variable_Name => param_Value
+   */
+  map<string,string> varMap;
 
 }; // end class FProcNode
 

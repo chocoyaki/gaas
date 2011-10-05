@@ -83,8 +83,8 @@ gen_stat(int type, const char * myname, const char * message) {
 
     if (gettimeofday(&tv, &tz) == 0) {
       fprintf(STAT_FILE, "%10ld.%06ld|%s|[%s] %s\n",
-	      (long int)tv.tv_sec, (long int)tv.tv_usec,
-	      STAT_TYPE_STRING[type], myname, message);
+              (long int)tv.tv_sec, (long int)tv.tv_usec,
+              STAT_TYPE_STRING[type], myname, message);
 
       /* Examples of generated trace :
        * 123456.340569|IN  |[Name of DIET component] submission.start

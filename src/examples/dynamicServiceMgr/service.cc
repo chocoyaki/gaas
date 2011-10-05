@@ -65,9 +65,9 @@ service(diet_profile_t* pb)
   diet_string_get(diet_parameter(pb,0), &str, NULL);
 
   std::cout << "*****************************************************" << std::endl
-	    << service_name << std::endl
-	    << " Message: '" << str << "'" << std::endl
-	    << "*****************************************************" << std::endl;
+            << service_name << std::endl
+            << " Message: '" << str << "'" << std::endl
+            << "*****************************************************" << std::endl;
 
   return 0;
 }

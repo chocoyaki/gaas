@@ -54,7 +54,7 @@
 
 
 template <class Key, class CMP = std::less<Key>,
-  class A = std::allocator<Key> >
+	  class A = std::allocator<Key> >
 class ts_set : private std::set<Key, CMP, A> {
 
 private :
@@ -162,10 +162,10 @@ public :
    */
   inline void lock() const {
     locker.lock() ;
-    #ifndef NDEBUG // only used by the assert
+#ifndef NDEBUG // only used by the assert
     assert(!accessLocked) ;
     accessLocked = true ;
-    #endif // NDEBUG
+#endif // NDEBUG
   }
 
   /**
@@ -173,19 +173,19 @@ public :
    */
   inline void unlock() const {
     locker.unlock() ;
-    #ifndef NDEBUG // only used by the assert
+#ifndef NDEBUG // only used by the assert
     assert(accessLocked) ;
     accessLocked = false ;
-    #endif // NDEBUG
+#endif // NDEBUG
   }
 
   /**
    * Returns an iterator pointing to the beginning of the set.
    */
   inline iterator begin() const {
-    #ifndef NDEBUG // only used by the assert
+#ifndef NDEBUG // only used by the assert
     assert(accessLocked) ;
-    #endif // NDEBUG
+#endif // NDEBUG
     return SetType::begin() ;
   }
 
@@ -193,9 +193,9 @@ public :
    * Returns an iterator pointing to the end of the set.
    */
   inline iterator end() const {
-    #ifndef NDEBUG // only used by the assert
+#ifndef NDEBUG // only used by the assert
     assert(accessLocked) ;
-    #endif // NDEBUG
+#endif // NDEBUG
     return SetType::end() ;
   }
 
@@ -203,9 +203,9 @@ public :
    * returns an iterator pointing onto the x elements.
    */
   inline iterator find(const Key & x) {
-    #ifndef NDEBUG // only used by the assert
+#ifndef NDEBUG // only used by the assert
     assert(accessLocked) ;
-    #endif // NDEBUG
+#endif // NDEBUG
     return SetType::find(x) ;
   }
 
@@ -214,9 +214,9 @@ public :
    * inserted. The set must be lock to use it.
    */
   inline iterator insert(iterator pos, const Key & x) {
-    #ifndef NDEBUG // only used by the assert
+#ifndef NDEBUG // only used by the assert
     assert(accessLocked) ;
-    #endif // NDEBUG
+#endif // NDEBUG
     return SetType::insert(pos, x) ;
   }
 

@@ -64,9 +64,9 @@ using namespace std;
 
 namespace madag {
 
-/****************************************************************************/
-/*                              Multi-HEFT                                  */
-/****************************************************************************/
+  /****************************************************************************/
+  /*                              Multi-HEFT                                  */
+  /****************************************************************************/
 
   class MultiWfHEFT : public MultiWfScheduler {
 
@@ -80,17 +80,17 @@ namespace madag {
      * Updates scheduler when a node has been executed
      */
     virtual void
-        handlerNodeDone(DagNode * node);
+    handlerNodeDone(DagNode * node);
 
   }; // end class MultiWfHEFT
 
-/****************************************************************************/
-/*                              Aging HEFT                                  */
-/****************************************************************************/
+  /****************************************************************************/
+  /*                              Aging HEFT                                  */
+  /****************************************************************************/
 
   class MultiWfAgingHEFT : public MultiWfScheduler {
 
-      public:
+  public:
 
     MultiWfAgingHEFT(MaDag_impl* maDag);
     virtual ~MultiWfAgingHEFT();
@@ -101,14 +101,14 @@ namespace madag {
      * internal dag scheduling
      */
     virtual void
-        intraDagSchedule(Dag * dag, MasterAgent_var MA)
-        throw (MaDag::ServiceNotFound, MaDag::CommProblem);
+    intraDagSchedule(Dag * dag, MasterAgent_var MA)
+      throw (MaDag::ServiceNotFound, MaDag::CommProblem);
 
     /**
      * Updates scheduler when a node has been executed
      */
     virtual void
-        handlerNodeDone(DagNode * node);
+    handlerNodeDone(DagNode * node);
 
     /**
      * set node priority before inserting into execution queue
@@ -116,13 +116,13 @@ namespace madag {
      * @param node   the node to insert
      */
     virtual void
-        setExecPriority(DagNode * node);
+    setExecPriority(DagNode * node);
 
     /**
      * set node priority before inserting back in the ready queue
      */
     virtual void
-        setWaitingPriority(DagNode * node);
+    setWaitingPriority(DagNode * node);
 
     /**
      * Save the state of dags

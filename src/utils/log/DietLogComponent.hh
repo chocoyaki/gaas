@@ -260,7 +260,7 @@ private:
  * check for the flag with the index that corresponds to their tag.
  */
 class DietLogComponent:  public POA_ComponentConfigurator,
-        public PortableServer::RefCountServantBase
+			 public PortableServer::RefCountServantBase
 {
 public:
 
@@ -271,7 +271,7 @@ public:
    * messages will not be cached but sent immediately.
    */
   DietLogComponent(const char* name,
-		   int outBufferMaxSize, int argc, char** argv);
+                   int outBufferMaxSize, int argc, char** argv);
 
   /**
    * Release the memory allocated by this class;
@@ -342,9 +342,9 @@ public:
   void logDataRelease(const char* dataID);
   // invoked by Sender:
   void logDataBeginTransfer(const char* dataID,
-			    const char* destAgent);
+                            const char* destAgent);
   void logDataEndTransfer(const char* dataID,
-			    const char* destAgent);
+			  const char* destAgent);
   void logDataTransferTime(const char* dataID,
                            const char* destAgent,
                            const unsigned long elapsedTime);  // modif bisnard_logs_1
@@ -450,7 +450,7 @@ public:
    *
    */
   void
-	logDag(const char * msg);
+  logDag(const char * msg);
   /**
    * Send msg : madag schedulerType
    *
@@ -458,7 +458,7 @@ public:
    *
    */
   void
-	maDagSchedulerType(const char * msg);
+  maDagSchedulerType(const char * msg);
 #endif // HAVE_WORKFLOW
 
 private:
@@ -556,11 +556,11 @@ private:
 };
 
 class DietLogComponentFwdr:  public POA_ComponentConfigurator,
-  public PortableServer::RefCountServantBase
+			     public PortableServer::RefCountServantBase
 {
 protected:
-	CorbaLogForwarder_ptr forwarder;
-	char* objName;
+  CorbaLogForwarder_ptr forwarder;
+  char* objName;
 public:
   DietLogComponentFwdr(CorbaLogForwarder_ptr fwdr, const char* objName);
   void setTagFilter(const tag_list_t& tagList);

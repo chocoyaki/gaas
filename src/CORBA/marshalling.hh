@@ -178,7 +178,7 @@ mrsh_profile_to_in_args(corba_profile_t* dest, const diet_profile_t* src);
 // To convert client data profile to service profile
 int
 unmrsh_in_args_to_profile(diet_profile_t* dest, corba_profile_t* src,
-			  const diet_convertor_t* cvt);
+                          const diet_convertor_t* cvt);
 /* Needed by DAGDA. */
 int
 mrsh_data_desc(corba_data_desc_t* dest, diet_data_desc_t* src);
@@ -186,7 +186,7 @@ mrsh_data_desc(corba_data_desc_t* dest, diet_data_desc_t* src);
 // To reconvert service output data to client data profile
 int
 mrsh_profile_to_out_args(corba_profile_t* dest, const diet_profile_t* src,
-			 const diet_convertor_t* cvt);
+                         const diet_convertor_t* cvt);
 
 // To receive output data on the client
 int
@@ -215,7 +215,7 @@ int unmrsh_data_desc(diet_data_desc_t* dest,
 // Workflow structure marshaling
 int
 mrsh_wf_desc(corba_wf_desc_t* dest,
-	     const diet_wf_desc_t* const src);
+             const diet_wf_desc_t* const src);
 #endif
 
 

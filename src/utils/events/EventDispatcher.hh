@@ -27,20 +27,20 @@
 
 namespace events {
 
-class HandlerFunctionBase
-{
+  class HandlerFunctionBase
+  {
   public:
     virtual ~HandlerFunctionBase() {};
     void exec(const EventBase* event) {call(event);}
     
   private:
     virtual void call(const EventBase*) = 0;
-};
+  };
 
 
-template <class T, class EventT>
-class MemberFunctionHandler : public HandlerFunctionBase
-{
+  template <class T, class EventT>
+  class MemberFunctionHandler : public HandlerFunctionBase
+  {
   public:
     
     typedef void (T::*MemberFunc)(EventT*);
@@ -52,13 +52,13 @@ class MemberFunctionHandler : public HandlerFunctionBase
     }
     
   private:
-    T* 		_instance;
-    MemberFunc 	_function;
-};
+    T*          _instance;
+    MemberFunc  _function;
+  };
 
 
-class EventDispatcher : public EventObserver
-{
+  class EventDispatcher : public EventObserver
+  {
   public:
     ~EventDispatcher();
     virtual void handleEvent(const EventBase*);
@@ -70,14 +70,14 @@ class EventDispatcher : public EventObserver
   private:
     typedef std::map<TypeInfo, HandlerFunctionBase*> Handlers;
     Handlers _handlers;
-};
+  };
 
 
-template <class T, class EventT>
-void EventDispatcher::registerEventFunc(T* obj, void (T::*memFn)(EventT*))
-{
-  _handlers[TypeInfo(typeid(EventT))]= new MemberFunctionHandler<T, EventT>(obj, memFn);
-}
+  template <class T, class EventT>
+  void EventDispatcher::registerEventFunc(T* obj, void (T::*memFn)(EventT*))
+  {
+    _handlers[TypeInfo(typeid(EventT))]= new MemberFunctionHandler<T, EventT>(obj, memFn);
+  }
 
 }
 

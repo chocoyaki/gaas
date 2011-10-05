@@ -203,9 +203,9 @@ using namespace std;
 /** The trace level. */
 extern unsigned int TRACE_LEVEL;
 
-#define SRVT_ERROR(formatted_text)                \
-  INTERNAL_WARNING("ServiceTable::" << __FUNCTION__ \
-                 << ": " << formatted_text)
+#define SRVT_ERROR(formatted_text)			\
+  INTERNAL_WARNING("ServiceTable::" << __FUNCTION__	\
+		   << ": " << formatted_text)
 
 
 ServiceTable::ServiceTable()
@@ -259,9 +259,9 @@ ServiceTable::lookupService(const corba_profile_desc_t* sv_profile)
 {
   /* Called from ServiceTable::addService(), rmService(), getSolver(),
      getEvalf(), getConvertor(), getPerfMetric(), getChildren()
-  ** DIET_server::diet_service_table_lookup_by_profile()
-  ** Cori_Fast::diet_service_table_lookup_by_profile()
-  */
+     ** DIET_server::diet_service_table_lookup_by_profile()
+     ** Cori_Fast::diet_service_table_lookup_by_profile()
+     */
   size_t i(0);
   for (; (i < nb_s) && (!profile_desc_match(&(profiles[i]), sv_profile)); i++) ;
   return (ServiceReference_t) ((i == nb_s) ? -1 : (int)i);
@@ -424,10 +424,10 @@ ServiceTable::addService(const corba_profile_desc_t* profile,
         ERROR(__FUNCTION__ << ": aggregator type mismatch" << endl, -2);
       }
       switch (a1->agg_specific._d()) {
-/* New : The user aggregator case.                           */
-/*       It doesn't need more than the default aggregator... */
+	/* New : The user aggregator case.                           */
+	/*       It doesn't need more than the default aggregator... */
 #ifdef USERSCHED
-	  case DIET_AGG_USER:
+      case DIET_AGG_USER:
 #endif
       case DIET_AGG_DEFAULT:
         break;
@@ -455,7 +455,7 @@ ServiceTable::addService(const corba_profile_desc_t* profile,
                     " != " <<
                     p2->priorityList[pvIter] <<
                     ")" << endl <<
-		    "TIPS : check diet_aggregator_priority_ function in all SeD", -2);
+                    "TIPS : check diet_aggregator_priority_ function in all SeD", -2);
             }
           }
         }
@@ -564,8 +564,8 @@ ServiceTable::rmChildService(const corba_profile_desc_t* profile, CORBA::ULong c
   } else {
     /* We need to verify that this child exists for this service */
     for (i = (size_t) 0;
-	 i < matching_children[ref].nb_children && matching_children[ref].children[i] != childID;
-	 i ++) ;
+         i < matching_children[ref].nb_children && matching_children[ref].children[i] != childID;
+         i ++) ;
 
     /* if we didn't found it return -1 */
     if (i == matching_children[ref].nb_children) {
@@ -774,8 +774,8 @@ ServiceTable::getPerfMetric(const ServiceReference_t ref)
 #if defined HAVE_ALT_BATCH
 ServiceTable::matching_children_t *
 ServiceTable::getChildren(const corba_pb_desc_t * pb_desc,
-			  ServiceTable::ServiceReference_t serviceRef,
-			  CORBA::ULong * frontier)
+                          ServiceTable::ServiceReference_t serviceRef,
+                          CORBA::ULong * frontier)
 {
   if (solvers) {
     SRVT_ERROR("attempting to get children" << endl
@@ -803,7 +803,7 @@ ServiceTable::getChildren(const corba_pb_desc_t * pb_desc,
   }
 
   if( pb_desc->parallel_flag == 0 ) { /* Test if there is same profile with
-					 different parallel flag */
+                                         different parallel flag */
     int second_found = -1;
     i++ ;
     /* Search for 2nd occurence of service in table */
@@ -811,12 +811,12 @@ ServiceTable::getChildren(const corba_pb_desc_t * pb_desc,
       i++ ;
     if( i== nb_s ) /* No new occurence */
       mc->nb_children =
-	matching_children[ first_found ].nb_children ;
+        matching_children[ first_found ].nb_children ;
     else {
       second_found = i ;
       mc->nb_children =
-	matching_children[ first_found ].nb_children
-	+ matching_children[ second_found ].nb_children ;
+        matching_children[ first_found ].nb_children
+        + matching_children[ second_found ].nb_children ;
     }
     /* Reserve memory for all children */
     mc->children =
@@ -825,44 +825,44 @@ ServiceTable::getChildren(const corba_pb_desc_t * pb_desc,
     /* Copy children, ordered parallel flag = 1 first */
     if( profiles[ serviceRef ].parallel_flag == 1 ) {
       for( i=0; i<matching_children[ first_found ].nb_children ; i++ ) {
-	mc->children[ i ] =
-	  matching_children[ first_found ].children[ i ] ;
+        mc->children[ i ] =
+          matching_children[ first_found ].children[ i ] ;
       }
       if( second_found > 0 ) {
-	for(j=0 ; j<matching_children[ second_found ].nb_children ; i++, j++) {
-	  mc->children[ i ] =
-	    matching_children[ second_found ].children[ j ] ;
-	}
+        for(j=0 ; j<matching_children[ second_found ].nb_children ; i++, j++) {
+          mc->children[ i ] =
+            matching_children[ second_found ].children[ j ] ;
+        }
       }
       /* set frontier */
       (*frontier)=matching_children[ first_found ].nb_children ;
     } else {
       if( second_found > 0 ) {
-	for( i=0; i<matching_children[ second_found ].nb_children ; i++ ) {
+        for( i=0; i<matching_children[ second_found ].nb_children ; i++ ) {
+          mc->children[ i ] =
+            matching_children[ second_found ].children[ i ] ;
+        }
+        /* set frontier */
+        (*frontier)=matching_children[ second_found ].nb_children ;
+      } else {
+	for( j=0, i=0 ; j<matching_children[ first_found ].nb_children ;
+	     i++, j++ ) {
 	  mc->children[ i ] =
-	    matching_children[ second_found ].children[ i ] ;
+	    matching_children[ first_found ].children[ j ] ;
 	}
 	/* set frontier */
-	(*frontier)=matching_children[ second_found ].nb_children ;
-      } else {
-      for( j=0, i=0 ; j<matching_children[ first_found ].nb_children ;
-	   i++, j++ ) {
-	mc->children[ i ] =
-	  matching_children[ first_found ].children[ j ] ;
-      }
-      /* set frontier */
-      (*frontier)=0 ;
+	(*frontier)=0 ;
       }
     }
   } else { /* Only interested by a given profile ( seq ORexclusive // )
-	      then first match is unique match */
+              then first match is unique match */
     mc->nb_children =
       matching_children[ first_found ].nb_children ;
     mc->children =
       new CORBA::ULong[mc->nb_children] ;
     for( i=0; i<matching_children[ first_found ].nb_children ; i++ ) {
       mc->children[ i ] =
-	matching_children[ first_found ].children[ i ] ;
+        matching_children[ first_found ].children[ i ] ;
     }
     /* set frontier */
     if( profiles[ serviceRef ].parallel_flag == 1 )
@@ -918,17 +918,17 @@ ServiceTable::dump(FILE* f)
       else {
         if (matching_children[i].nb_children == 1)
           fprintf(f, "child %lu",
-		  (long unsigned int)matching_children[i].children[0]);
+                  (long unsigned int)matching_children[i].children[0]);
         else {
           size_t j;
           fprintf(f, "children %lu",
-		  (long unsigned int)matching_children[i].children[0]);
+                  (long unsigned int)matching_children[i].children[0]);
           for (j = 1; j < (matching_children[i].nb_children - 1); j++)
             fprintf(f, ", %lu",
-		    (long unsigned int)matching_children[i].children[j]);
+                    (long unsigned int)matching_children[i].children[j]);
           // Re-use j to shorten next line
           fprintf(f, " and %lu.",
-		  (long unsigned int)matching_children[i].children[j]);
+                  (long unsigned int)matching_children[i].children[j]);
         }
       }
     }
@@ -972,13 +972,13 @@ ServiceTable::ServiceTableInit(CORBA::ULong max_nb_services,
     }
   } else {
     solvers        = (diet_solve_t *)
-        malloc(max_nb_s * sizeof(diet_solve_t));
+      malloc(max_nb_s * sizeof(diet_solve_t));
     eval_functions = (diet_eval_t *)
-        malloc(max_nb_s * sizeof(diet_eval_t));
+      malloc(max_nb_s * sizeof(diet_eval_t));
     convertors     = (diet_convertor_t *)
-        malloc(max_nb_s * sizeof(diet_convertor_t));
+      malloc(max_nb_s * sizeof(diet_convertor_t));
     perfmetrics    = (diet_perfmetric_t *)
-        malloc(max_nb_s * sizeof(diet_perfmetric_t));
+      malloc(max_nb_s * sizeof(diet_perfmetric_t));
     for (size_t i = 0; i < max_nb_s; i++) {
       profiles[i].param_desc.length(0);
       solvers[i]              = NULL;

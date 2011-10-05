@@ -43,14 +43,14 @@
 
 /* The type of the Virtual Machine that is to be instantiated */
 typedef enum 
-{
-	M1_SMALL,
-	C1_MEDIUM,
-	M1_LARGE,
-	M1_XLARGE,
-	C1_XLARGE,
+  {
+    M1_SMALL,
+    C1_MEDIUM,
+    M1_LARGE,
+    M1_XLARGE,
+    C1_XLARGE,
     T1_MICRO
-}VMTYPE;
+  }VMTYPE;
 
 class Eucalyptus_BatchSystem : public BatchSystem
 {
@@ -80,8 +80,8 @@ public :
   /** Override for diet_submit_parallel */
   int
   diet_submit_parallel(diet_profile_t * profile,
-        const char * addon_prologue,
-        const char * command) ;
+		       const char * addon_prologue,
+		       const char * command) ;
 
   /********** Batch static information accessing Functions **********/
   /* These should soon change for they assume a default queue and we
@@ -125,17 +125,17 @@ private :
     char **vmNames;
 
     /* This holds the public IP addresses of the VM instances given depending on
-    * the Cloud system's networking configuration i.e. for Eucalyptus this
-    * can be: managed, system (an external dhcp) or static.
-    */
+     * the Cloud system's networking configuration i.e. for Eucalyptus this
+     * can be: managed, system (an external dhcp) or static.
+     */
     char **vmIPs;
 
     /* Same as above, but this holds the private IP addresses. Note that they might be the same. */
     char **vmPrivIPs;
 
     /* When isueing a reservation to an Amazon-like cloud an identifier is received for that reservation.
-    * This string holds that value
-    */
+     * This string holds that value
+     */
     char *reservationId;
   
     /* Actual number of VMs to instantiated and is read from the SeD .cfg file. */

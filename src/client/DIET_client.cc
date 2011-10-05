@@ -524,11 +524,11 @@ DietLogComponent* dietLogComponent;
 /* Manage MA name and Session Number for data persistency issue             */
 /****************************************************************************/
 
-  char* MA_Name;
+char* MA_Name;
 
-  int num_Session;
+int num_Session;
 
-  char file_Name[256];
+char file_Name[256];
 
 /*
  * String representation of error code
@@ -570,9 +570,9 @@ const char * const ErrorCodeStr[] = {
 diet_error_t
 status_to_grpc_code(int err) {
   switch (err) {
-    case STATUS_DONE:
-      err = GRPC_NO_ERROR;
-      break;
+  case STATUS_DONE:
+    err = GRPC_NO_ERROR;
+    break;
   case STATUS_WAITING:
     err = GRPC_NOT_COMPLETED;
     break;
@@ -595,8 +595,8 @@ status_to_grpc_code(int err) {
 /****************************************************************************/
 /* Transformation function for the host name. */
 int chgName(int c) {
-	if (c=='.') return '-';
-	return c;
+  if (c=='.') return '-';
+  return c;
 }
 
 BEGIN_API
@@ -812,7 +812,7 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
                "MA DAG NAME PARSING = " << tmpString << endl);
     MA_DAG = ORBMgr::getMgr()->resolve<MaDag, MaDag_var>(MADAGCTXT,
                                                          tmpString);
-                                                         // CORBA::string_dup(tmpString.c_str()));
+    // CORBA::string_dup(tmpString.c_str()));
 
     if (CORBA::is_nil(MA_DAG)) {
       ERROR("Cannot locate MA DAG " << tmpString, GRPC_NOT_INITIALIZED);
@@ -858,9 +858,9 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
 
 /* DIET finalize call through signal catch function. */
 void diet_finalize_sig(int dummy) {
-	(void) dummy;
-	int status = static_cast<int>(diet_finalize());
-	exit(status);
+  (void) dummy;
+  int status = static_cast<int>(diet_finalize());
+  exit(status);
 }
 
 diet_error_t
@@ -909,14 +909,14 @@ diet_finalize() {
   DagdaFactory::reset();
 
   try {
-      ORBMgr *mgr = ORBMgr::getMgr();
-      mgr->unbind(CLIENTCTXT, REF_CALLBACK_SERVER);
-      mgr->fwdsUnbind(CLIENTCTXT, REF_CALLBACK_SERVER);
-      delete mgr;
+    ORBMgr *mgr = ORBMgr::getMgr();
+    mgr->unbind(CLIENTCTXT, REF_CALLBACK_SERVER);
+    mgr->fwdsUnbind(CLIENTCTXT, REF_CALLBACK_SERVER);
+    delete mgr;
   } catch( std::runtime_error& e ) {
-      std::cerr << "Exception caugh: "
-		<< e.what()
-		<< "\n";
+    std::cerr << "Exception caugh: "
+	      << e.what()
+	      << "\n";
   } catch( ... ) {}
 
 
@@ -988,15 +988,15 @@ get_diet_services(int *services_number){
  *   creation of the file that stores identifiers               *
  ***************************************************************/
 /*
-void create_file()
-{
+  void create_file()
+  {
   sprintf(file_Name,"/tmp/ID_FILE.%s.%d",MA_Name,num_Session);
   create_header();
 
-}
+  }
 
-void create_header()
-{
+  void create_header()
+  {
   const char * header_id = "Data Handle   ";
   const char * header_msg = "Description \n";
 
@@ -1004,12 +1004,12 @@ void create_header()
   int cpt = strlen(header_id);
   f.write(header_id,cpt);
   for(int i = 0; i < 10; i++) {
-    f.put(' ');
+  f.put(' ');
   }
   cpt = strlen(header_msg);
   f.write(header_msg,cpt);
   f.close();
-}
+  }
 */
 /****************************************************************
  *   Add handler id with message msg in the file                *
@@ -1017,20 +1017,20 @@ void create_header()
 
 void store_id(char* argID, char* msg)
 {
-/*
-  size_t cpt;
+  /*
+    size_t cpt;
 
-  char* msg1 = new char[strlen(msg)+2];
-  cpt=strlen(argID);
-  ofstream f(file_Name,ios_base::app|ios_base::ate);
-  f.write(argID,cpt);
-  for(int i = 0; i < 10; i++) {
+    char* msg1 = new char[strlen(msg)+2];
+    cpt=strlen(argID);
+    ofstream f(file_Name,ios_base::app|ios_base::ate);
+    f.write(argID,cpt);
+    for(int i = 0; i < 10; i++) {
     f.put(' ');
-  }
-  sprintf(msg1,"%s\n",msg);
-  cpt = strlen(msg1);
-  f.write(msg1,cpt);
-  f.close();
+    }
+    sprintf(msg1,"%s\n",msg);
+    cpt = strlen(msg1);
+    f.write(msg1,cpt);
+    f.close();
   */
 }
 
@@ -1080,7 +1080,7 @@ diet_call(diet_profile_t* profile)
   diet_error_t err = diet_call_common(MA, profile, chosenServer, NULL, MAX_SERVERS);
 
 #ifdef HAVE_CCS
- if (SpecificClientScheduler::isEnabled()) {
+  if (SpecificClientScheduler::isEnabled()) {
     SpecificClientScheduler::post_diet_call();
   }
 #endif // HAVE_CCS
@@ -1161,16 +1161,16 @@ diet_probe(diet_reqID_t reqID)
   /**
    * transform the request status as defined by the CallAsyncMgr to its
    * equivalent in GridRPC standard
-  STATUS_DONE = 0, // Result is available in local memory
-  STATUS_WAITING,       // End of solving on Server, result comes
-  STATUS_RESOLVING,          // Request is currently solving on Server
-  STATUS_CANCEL,	// Cancel is called on a reqID.
-  STATUS_ERROR		// Error caught
-   */
+   STATUS_DONE = 0, // Result is available in local memory
+   STATUS_WAITING,       // End of solving on Server, result comes
+   STATUS_RESOLVING,          // Request is currently solving on Server
+   STATUS_CANCEL,        // Cancel is called on a reqID.
+   STATUS_ERROR          // Error caught
+  */
   switch (err) {
-    case STATUS_DONE:
-      err = GRPC_NO_ERROR;
-      break;
+  case STATUS_DONE:
+    err = GRPC_NO_ERROR;
+    break;
   case STATUS_WAITING:
     err = GRPC_NOT_COMPLETED;
     break;
@@ -1218,7 +1218,7 @@ diet_wait(diet_reqID_t reqID)
     return GRPC_INVALID_SESSION_ID;
 
   try {
-      // Create ruleElements table ...
+    // Create ruleElements table ...
     ruleElement * simpleWait = new ruleElement[1];
     simpleWait[0].reqID = reqID;
     simpleWait[0].op = WAITOPERATOR(SOLE);
@@ -1431,8 +1431,8 @@ diet_get_failed_session(diet_reqID_t* reqIdPtr) {
  ***************************************************************************/
 diet_error_t
 diet_probe_or(diet_reqID_t* reqIdArray,
-	      size_t length,
-	      diet_reqID_t* reqIdPtr) {
+              size_t length,
+              diet_reqID_t* reqIdPtr) {
   unsigned int ix;
   int reqStatus;
   // check if all request IDs are valid
@@ -1456,7 +1456,7 @@ diet_probe_or(diet_reqID_t* reqIdArray,
  ***************************************************************************/
 diet_error_t
 diet_get_handle(grpc_function_handle_t** handle,
-		diet_reqID_t sessionID) {
+                diet_reqID_t sessionID) {
 
   return CallAsyncMgr::Instance()->getHandle(handle, sessionID);
 }
@@ -1465,7 +1465,7 @@ diet_get_handle(grpc_function_handle_t** handle,
  ***************************************************************************/
 void
 diet_save_handle(diet_reqID_t sessionID,
-		 grpc_function_handle_t* handle) {
+                 grpc_function_handle_t* handle) {
   CallAsyncMgr::Instance()->saveHandle(sessionID, handle);
 }
 
@@ -1474,7 +1474,7 @@ diet_save_handle(diet_reqID_t sessionID,
  ***************************************************************************/
 void
 set_req_error(diet_reqID_t sessionID,
-	      diet_error_t error) {
+              diet_error_t error) {
   CallAsyncMgr::Instance()->setReqErrorCode(sessionID, error);
 }
 
@@ -1486,14 +1486,14 @@ set_req_error(diet_reqID_t sessionID,
 diet_error_t
 diet_wf_call(diet_wf_desc_t* profile) {
   if (CORBA::is_nil(MA_DAG)) {
-      ERROR("No MA DAG defined", 1);
+    ERROR("No MA DAG defined", 1);
   }
   CltWfMgr::instance()->setMA(MA);
   switch(profile->level) {
-    case DIET_WF_DAG:
-      return CltWfMgr::instance()->wfDagCall(profile);
-    case DIET_WF_FUNCTIONAL:
-      return CltWfMgr::instance()->wfFunctionalCall(profile);
+  case DIET_WF_DAG:
+    return CltWfMgr::instance()->wfDagCall(profile);
+  case DIET_WF_FUNCTIONAL:
+    return CltWfMgr::instance()->wfFunctionalCall(profile);
   }
   return 1;
 }
@@ -1504,7 +1504,7 @@ diet_wf_call(diet_wf_desc_t* profile) {
 diet_error_t
 diet_wf_cancel_dag(const char* dagId) {
   if (CORBA::is_nil(MA_DAG)) {
-      ERROR("No MA DAG defined", 1);
+    ERROR("No MA DAG defined", 1);
   }
   return CltWfMgr::instance()->cancelDag(dagId);
 }
@@ -1515,7 +1515,7 @@ diet_wf_cancel_dag(const char* dagId) {
 int
 diet_wf_get_reqID() {
   if (CORBA::is_nil(MA_DAG)) {
-      ERROR("No MA DAG defined", 1);
+    ERROR("No MA DAG defined", 1);
   }
   return (int) CltWfMgr::instance()->getNewWfReqID();
 }
@@ -1574,7 +1574,7 @@ diet_wf_save_transcript_file(diet_wf_desc_t * profile,
   if (!transcript_file_name)
     return 1;
   return CltWfMgr::instance()->saveWorkflowExecutionTranscript(profile,
-                                                transcript_file_name);
+							       transcript_file_name);
 }
 
 /**
@@ -1593,7 +1593,7 @@ diet_wf_free(diet_wf_desc_t * profile) {
 int
 _diet_wf_scalar_get(diet_wf_desc_t * profile,
                     const char * id,
-		    void** value) {
+                    void** value) {
   if (wf_check_profile_level(profile, DIET_WF_DAG))
     return 1;
   return CltWfMgr::instance()->getWfOutputScalar(profile, id, value);
@@ -1602,7 +1602,7 @@ _diet_wf_scalar_get(diet_wf_desc_t * profile,
 int
 _diet_wf_string_get(diet_wf_desc_t * profile,
                     const char * id,
-		    char** value) {
+                    char** value) {
   if (wf_check_profile_level(profile, DIET_WF_DAG))
     return 1;
   return CltWfMgr::instance()->getWfOutputString(profile, id, value);
@@ -1612,7 +1612,7 @@ _diet_wf_string_get(diet_wf_desc_t * profile,
 int
 _diet_wf_file_get(diet_wf_desc_t * profile,
                   const char * id,
-		  size_t* size, char** path) {
+                  size_t* size, char** path) {
   if (wf_check_profile_level(profile, DIET_WF_DAG))
     return 1;
   return CltWfMgr::instance()->getWfOutputFile(profile, id, size, path);
@@ -1621,8 +1621,8 @@ _diet_wf_file_get(diet_wf_desc_t * profile,
 int
 _diet_wf_matrix_get(diet_wf_desc_t * profile,
                     const char * id, void** value,
-		    size_t* nb_rows, size_t *nb_cols,
-		    diet_matrix_order_t* order) {
+                    size_t* nb_rows, size_t *nb_cols,
+                    diet_matrix_order_t* order) {
   if (wf_check_profile_level(profile, DIET_WF_DAG))
     return 1;
   return CltWfMgr::instance()->getWfOutputMatrix(profile, id, value, nb_rows, nb_cols, order);
@@ -1648,10 +1648,10 @@ get_all_results(diet_wf_desc_t * profile) {
 int
 diet_wf_print_results(diet_wf_desc_t * profile) {
   switch(profile->level) {
-    case DIET_WF_DAG:
-      return CltWfMgr::instance()->printAllDagResults(profile);
-    case DIET_WF_FUNCTIONAL:
-      return CltWfMgr::instance()->printAllFunctionalWfResults(profile);
+  case DIET_WF_DAG:
+    return CltWfMgr::instance()->printAllDagResults(profile);
+  case DIET_WF_FUNCTIONAL:
+    return CltWfMgr::instance()->printAllFunctionalWfResults(profile);
   }
   return 1;
 }
@@ -1698,14 +1698,14 @@ getProfileDesc(const char * srvName, diet_profile_desc_t& profile) {
   if (allProfiles) {
     for (unsigned int ix=0; ix < allProfiles->length(); ix++) {
       if (!strcmp ( (*allProfiles)[ix].path,
-		    srvName)) {
-	// The service is found
+                    srvName)) {
+        // The service is found
         TRACE_TEXT (TRACE_MAIN_STEPS,"The service " << srvName << " is found " << endl);
-	// this function place is marshalling.cc file
-	// to fix is necessary
-	unmrsh_profile_desc( &profile,
-			     &((*allProfiles)[ix]));
-	return true;
+        // this function place is marshalling.cc file
+        // to fix is necessary
+        unmrsh_profile_desc( &profile,
+                             &((*allProfiles)[ix]));
+        return true;
       }
     }
   }

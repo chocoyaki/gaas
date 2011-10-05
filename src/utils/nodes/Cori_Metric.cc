@@ -45,7 +45,7 @@
 using namespace std;
 
 Cori_Metric::Cori_Metric(diet_est_collect_tag_t type,
-			 const void *data)
+                         const void *data)
 {
 
   collector_type=type;
@@ -93,28 +93,28 @@ Cori_Metric::start(diet_est_collect_tag_t type)
     INTERNAL_WARNING("Collector called "<<collector_type <<" doesn't exist");
     return 0; //this warnig should not stop the start up of the SeD
   }
-     break;
+    break;
   }
 }
 
 int
 Cori_Metric::call_cori_metric(int type_Info,
-			      estVector_t *information,
-			      const void *data)
+                              estVector_t *information,
+                              const void *data)
 {
   switch(collector_type){
 
 #if not defined CLEAN_CORILIB_FROM_BATCH_STAFF and defined HAVE_ALT_BATCH
-   case EST_COLL_BATCH:
-     return cori_batch->get_Information(type_Info,
-					information,
-					data) ;
-     break ;
+  case EST_COLL_BATCH:
+    return cori_batch->get_Information(type_Info,
+				       information,
+				       data) ;
+    break ;
 #endif
   case EST_COLL_EASY:{
     return cori_easy->get_Information(type_Info,
-				      information,
-				      data);
+                                      information,
+                                      data);
   }
     break;
   default:{
@@ -122,7 +122,7 @@ Cori_Metric::call_cori_metric(int type_Info,
     ERROR("CoRI: Collector " <<collector_type <<" doesn't exist!",1);
     //fixme : add the default value to every type_info
   }
-     break;
+    break;
   }
   return 1;
 }

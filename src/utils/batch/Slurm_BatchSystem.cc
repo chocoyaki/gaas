@@ -23,7 +23,7 @@ const char * Slurm_BatchSystem::statusNames[] = {
   "PENDING", // Job is Queued, eligible to run or be routed
   "SUSPENDED", // ?? Job is Suspended
   "TIMEOUT"  // ?? Job is waiting for its requested execution time to be reached
-       //   or job specified a stage-in request which failed for some reason
+  //   or job specified a stage-in request which failed for some reason
 } ;
 
 Slurm_BatchSystem::Slurm_BatchSystem(int ID, const char * batchname)
@@ -53,11 +53,11 @@ Slurm_BatchSystem::Slurm_BatchSystem(int ID, const char * batchname)
   
   /* TODO: When we use some ID for DIET client, change there! */
   //mail      = "#Slurm -m a\n#Slurm -M " ; // -m, send mail when:
-                                      // a: job is aborted by batch system
-                                      // b: job begins execution
-                                      // e: job ends execution
-                                      // n: do not send mail
-                                      // -M, recipient list
+  // a: job is aborted by batch system
+  // b: job begins execution
+  // e: job ends execution
+  // n: do not send mail
+  // -M, recipient list
   mail      = "\n#SBATCH --mail-type=ALL --mail-user=";//BatchSystem::emptyString ;
   account   = "\n#SBATCH -A ";//BatchSystem::emptyString ;
   setSTDOUT = "\n#SBATCH -o " ;
@@ -110,17 +110,17 @@ Slurm_BatchSystem::askBatchJobStatus(int batchJobID)
 
   /*** Ask batch system the job status ***/      
   chaine = (char*)malloc(sizeof(char)*(strlen(wait4Command) * 2
-				       + NBDIGITS_MAX_BATCH_JOB_ID * 2
-				       + strlen(waitFilter) * 2
-				       + strlen(filename) * 3
-				       + 200 + 1) ) ;
+                                       + NBDIGITS_MAX_BATCH_JOB_ID * 2
+                                       + strlen(waitFilter) * 2
+                                       + strlen(filename) * 3
+                                       + 200 + 1) ) ;
   //cout << "First chaine : " << chaine << endl;
   /* See EOF to get an example of what we parse */
   // ugly trick to use a Slurm which does not keep the status of the batch once finished
   sprintf(chaine,"TMP_VAL=`%s %d 2>/dev/null | %s`;if [ \"$TMP_VAL\" == \"\" ];then echo FAILED > %s;else %s %d | %s > %s;fi",
-	  wait4Command,batchJobID,waitFilter,
-	  filename,
-	  wait4Command,batchJobID,waitFilter, filename, filename) ;
+          wait4Command,batchJobID,waitFilter,
+          filename,
+          wait4Command,batchJobID,waitFilter, filename, filename) ;
 #if defined YC_DEBUG
   TRACE_TEXT(TRACE_ALL_STEPS,"Execute:" << endl << chaine << endl) ;
 #endif
@@ -142,7 +142,7 @@ Slurm_BatchSystem::askBatchJobStatus(int batchJobID)
     if( chaine[nbread-1] == '\n' )
       chaine[nbread-1] = '\0' ;
     while( (i<NB_STATUS) && 
-	   (strcmp(chaine,Slurm_BatchSystem::statusNames[i])!=0) ) {
+           (strcmp(chaine,Slurm_BatchSystem::statusNames[i])!=0) ) {
       i++ ;
     }
   }
@@ -158,7 +158,7 @@ Slurm_BatchSystem::askBatchJobStatus(int batchJobID)
   }
   updateBatchJobStatus(batchJobID,(batchJobState)i) ;
   free(chaine) ;
-    free(filename) ;
+  free(filename) ;
   return (batchJobState)i ;
 }
 
@@ -190,7 +190,7 @@ int
 Slurm_BatchSystem::getNbTotResources()
 {
   return launchCommandAndGetInt( "sinfo -h -o \"%20F\" | cut -d\"/\" -f 4",
-				 "DIET_getNbResources") ;
+                                 "DIET_getNbResources") ;
 }
 
 /**
@@ -200,10 +200,10 @@ Slurm_BatchSystem::getNbTotResources()
 int
 Slurm_BatchSystem::getMaxWalltime()
 {
-	INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl) ;
-	return INT_MAX;
-//  return launchCommandAndGetInt("qstat -Qf | grep mtime | cut --delimiter== --field=2 | cut --delimiter=\" \" --field=2",
-//				 "DIET_getNbResources") ;
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl) ;
+  return INT_MAX;
+  //  return launchCommandAndGetInt("qstat -Qf | grep mtime | cut --delimiter== --field=2 | cut --delimiter=\" \" --field=2",
+  //                               "DIET_getNbResources") ;
 }
 
 int
@@ -218,10 +218,10 @@ Slurm_BatchSystem::getMaxProcs()
 int
 Slurm_BatchSystem::getNbTotFreeResources()
 {
-//  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl) ;
-//  return getNbResources() ;
-	  return launchCommandAndGetInt( "sinfo -h -o \"%20F\" | cut -d\"/\" -f 2",
-					 "DIET_getNbResources") ;
+  //  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl) ;
+  //  return getNbResources() ;
+  return launchCommandAndGetInt( "sinfo -h -o \"%20F\" | cut -d\"/\" -f 2",
+				 "DIET_getNbResources") ;
 }
 
 int
@@ -236,35 +236,35 @@ Slurm_BatchSystem::getNbFreeResources()
 
 /************************* Examples of commands ****************************/
 /*
-[eddy@breeze ~]$ qstat -f 70.breeze.ics.hawaii.edu
-Job Id: 70.breeze.ics.hawaii.edu
-    Job_Name = Anacle_8
-    Job_Owner = davidls@breeze.ics.hawaii.edu
-    resources_used.cput = 43:38:36
-    resources_used.mem = 54412kb
-    resources_used.vmem = 152520kb
-    resources_used.walltime = 24:06:40
-    job_state = R
-    queue = default
-    server = breeze.ics.hawaii.edu
-    Checkpoint = u
-    ctime = Fri Aug 15 17:26:21 2008
-    Error_Path = breeze.ics.hawaii.edu:/home/davidls/anacle/scripts/Anacle_8.e
-	70
-    exec_host = compute-0-0.local/1+compute-0-0.local/0
-    Hold_Types = n
-    Join_Path = n
-    Keep_Files = n
-    Mail_Points = a
-    mtime = Fri Aug 15 17:26:22 2008
-    Output_Path = breeze.ics.hawaii.edu:/home/davidls/anacle/scripts/Anacle_8.
-	o70
-    Priority = 0
-    qtime = Fri Aug 15 17:26:21 2008
-    Rerunable = True
-    Resource_List.nodect = 1
-    Resource_List.nodes = 1:ppn=2
-    session_id = 19620
-    etime = Fri Aug 15 17:26:21 2008
+  [eddy@breeze ~]$ qstat -f 70.breeze.ics.hawaii.edu
+  Job Id: 70.breeze.ics.hawaii.edu
+  Job_Name = Anacle_8
+  Job_Owner = davidls@breeze.ics.hawaii.edu
+  resources_used.cput = 43:38:36
+  resources_used.mem = 54412kb
+  resources_used.vmem = 152520kb
+  resources_used.walltime = 24:06:40
+  job_state = R
+  queue = default
+  server = breeze.ics.hawaii.edu
+  Checkpoint = u
+  ctime = Fri Aug 15 17:26:21 2008
+  Error_Path = breeze.ics.hawaii.edu:/home/davidls/anacle/scripts/Anacle_8.e
+  70
+  exec_host = compute-0-0.local/1+compute-0-0.local/0
+  Hold_Types = n
+  Join_Path = n
+  Keep_Files = n
+  Mail_Points = a
+  mtime = Fri Aug 15 17:26:22 2008
+  Output_Path = breeze.ics.hawaii.edu:/home/davidls/anacle/scripts/Anacle_8.
+  o70
+  Priority = 0
+  qtime = Fri Aug 15 17:26:21 2008
+  Rerunable = True
+  Resource_List.nodect = 1
+  Resource_List.nodes = 1:ppn=2
+  session_id = 19620
+  etime = Fri Aug 15 17:26:21 2008
 
 */

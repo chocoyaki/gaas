@@ -68,42 +68,42 @@ class DagNode;
 
 class NodeQueue {
 
-  public:
-    NodeQueue();
-    NodeQueue(string name);
-    virtual ~NodeQueue();
+public:
+  NodeQueue();
+  NodeQueue(string name);
+  virtual ~NodeQueue();
 
-    string
-        getName(); // returns the name of the queue
+  string
+  getName(); // returns the name of the queue
 
-    virtual void
-        pushNode(DagNode * node); // adds a node into the queue
+  virtual void
+  pushNode(DagNode * node); // adds a node into the queue
 
-    virtual void
-        pushNodes(vector<DagNode *> nodes); // adds a vector of nodes into the queue
+  virtual void
+  pushNodes(vector<DagNode *> nodes); // adds a vector of nodes into the queue
 
-    virtual void
-        removeNode(DagNode * node); // removes a node from the queue
+  virtual void
+  removeNode(DagNode * node); // removes a node from the queue
 
-    virtual bool
-        notifyStateChange(DagNode * node) = 0; // notify the queue that a node's state changed
+  virtual bool
+  notifyStateChange(DagNode * node) = 0; // notify the queue that a node's state changed
 
-    virtual int
-        size(); // returns the nb of nodes in the queue
+  virtual int
+  size(); // returns the nb of nodes in the queue
 
-    bool
-        isEmpty();
+  bool
+  isEmpty();
 
-  protected:
+protected:
 
-    // counter of nodes inserted in the queue (for queue destruction)
-    int nodeCounter;
+  // counter of nodes inserted in the queue (for queue destruction)
+  int nodeCounter;
 
 
-  private:
+private:
 
-    // queue name
-    string myName;
+  // queue name
+  string myName;
 
 }; // end class NodeQueue
 
@@ -116,16 +116,16 @@ class NodeQueue {
 
 class ChainedNodeQueue : public NodeQueue {
 
-  public:
-    ChainedNodeQueue(NodeQueue * outputQ);
-    ChainedNodeQueue(string name, NodeQueue * outputQ);
-    virtual ~ChainedNodeQueue();
+public:
+  ChainedNodeQueue(NodeQueue * outputQ);
+  ChainedNodeQueue(string name, NodeQueue * outputQ);
+  virtual ~ChainedNodeQueue();
 
-    bool
-    notifyStateChange(DagNode * node); // moves the node to the output queue
+  bool
+  notifyStateChange(DagNode * node); // moves the node to the output queue
 
-  protected:
-    NodeQueue * outputQ;  // pointer to the next queue
+protected:
+  NodeQueue * outputQ;  // pointer to the next queue
 
 }; // end class ChainedNodeQueue
 
@@ -137,40 +137,40 @@ class ChainedNodeQueue : public NodeQueue {
 
 class OrderedNodeQueue : public NodeQueue {
 
-  public:
-    OrderedNodeQueue();
-    OrderedNodeQueue(string name);
-    virtual ~OrderedNodeQueue();
+public:
+  OrderedNodeQueue();
+  OrderedNodeQueue(string name);
+  virtual ~OrderedNodeQueue();
 
-    void
-        pushNode(DagNode * node); // adds a node into the queue
+  void
+  pushNode(DagNode * node); // adds a node into the queue
 
-    bool
-        notifyStateChange(DagNode * node); // do nothing
+  bool
+  notifyStateChange(DagNode * node); // do nothing
 
-/*    virtual DagNode *
+  /*    virtual DagNode *
         getFirstNode(); // returns a ref to the first node in the queue (or NULL)
- */
-    virtual void
-        removeNode(DagNode * node); // removes a node from the queue
+  */
+  virtual void
+  removeNode(DagNode * node); // removes a node from the queue
 
-    virtual DagNode *
-        popFirstNode(); // pop out the first node from the nodes queue
+  virtual DagNode *
+  popFirstNode(); // pop out the first node from the nodes queue
 
-    virtual void
-        removeLastNodes(int nbNodesToKeep); // Remove queue's tail keeping only a maximum nb of nodes
+  virtual void
+  removeLastNodes(int nbNodesToKeep); // Remove queue's tail keeping only a maximum nb of nodes
 
-    list<DagNode *>::iterator
-        begin();        // get an iterator on the list of nodes
+  list<DagNode *>::iterator
+  begin();        // get an iterator on the list of nodes
 
-    list<DagNode *>::iterator
-        end();
+  list<DagNode *>::iterator
+  end();
 
-  protected:
-    /**
-     * The queue is implemented as a list
-     */
-    list<DagNode *> orderedNodes;
+protected:
+  /**
+   * The queue is implemented as a list
+   */
+  list<DagNode *> orderedNodes;
 
 }; // end class OrderedNodeQueue
 
@@ -186,16 +186,16 @@ class OrderedNodeQueue : public NodeQueue {
 
 class PriorityNodeQueue : public OrderedNodeQueue {
 
-  public:
-    PriorityNodeQueue();
-    PriorityNodeQueue(string name);
-    virtual ~PriorityNodeQueue();
+public:
+  PriorityNodeQueue();
+  PriorityNodeQueue(string name);
+  virtual ~PriorityNodeQueue();
 
-    /**
-     * Insert the node in the queue according to its priority
-     */
-    void
-        pushNode(DagNode * node);
+  /**
+   * Insert the node in the queue according to its priority
+   */
+  void
+  pushNode(DagNode * node);
 
 }; // end class PriorityNodeQueue
 

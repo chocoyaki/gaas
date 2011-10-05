@@ -53,7 +53,7 @@ CltDagNodeLauncher::CltDagNodeLauncher(DagNode * parent)
 string 
 CltDagNodeLauncher::toString() const
 {
-    return "Client " + DagNodeLauncher::toString();
+  return "Client " + DagNodeLauncher::toString();
 }
 
 
@@ -69,16 +69,16 @@ CltDagNodeLauncher::execNode()
   if (isSeDDefinedFlag) {
     myNode->getProfile()->dietReqID = (int) myReqID;
     TRACE_TEXT(TRACE_ALL_STEPS, traceHeader << "setting reqID in profile to #"
-      << myReqID << endl);
+	       << myReqID << endl);
   }
 
   // diet call
   try {
-		SeD_var sed;
-		if (myChosenServer == NULL)
-			sed = SeD::_nil();
-		else 
-			sed = ORBMgr::getMgr()->resolve<SeD, SeD_var>(SEDCTXT, myChosenServer);
+    SeD_var sed;
+    if (myChosenServer == NULL)
+      sed = SeD::_nil();
+    else 
+      sed = ORBMgr::getMgr()->resolve<SeD, SeD_var>(SEDCTXT, myChosenServer);
 
     if (!diet_call_common(myNode->getDag()->getExecutionAgent(),
                           myNode->getProfile(),
@@ -91,8 +91,8 @@ CltDagNodeLauncher::execNode()
       myNode->storeProfileData();
     }
     else {
-        WARNING(traceHeader << "diet call FAILED" << endl);
-	isSuccessfulFlag = false;
+      WARNING(traceHeader << "diet call FAILED" << endl);
+      isSuccessfulFlag = false;
     }
   } catch(Dagda::DataNotFound& e) {
     WARNING(traceHeader << "Data not found (ID=" << e.dataID << ")");
@@ -114,7 +114,7 @@ CltDagNodeLauncher::execNode()
     isSuccessfulFlag = false;
   } catch(CORBA::SystemException& e) {
     WARNING(traceHeader << "Got a CORBA " << e._name() << " exception ("
-                        << e.NP_minorString() << ")") ;
+	    << e.NP_minorString() << ")") ;
     isSuccessfulFlag = false;
   }
 }

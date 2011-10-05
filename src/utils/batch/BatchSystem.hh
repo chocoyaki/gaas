@@ -43,7 +43,7 @@
  * Revision 1.4  2008/04/07 13:11:44  ycaniou
  * Correct "deprecated conversion from string constant to 'char*'" warnings
  * First attempt to code functions to dynamicaly get batch information
- * 	(e.g.,  getNbMaxResources(), etc.)
+ *      (e.g.,  getNbMaxResources(), etc.)
  *
  * Revision 1.3  2008/01/01 19:43:49  ycaniou
  * Modifications for batch management. Loadleveler is now ok.
@@ -140,15 +140,15 @@ public :
   */
   virtual int
   diet_submit_parallel(diet_profile_t * profile,
-		       const char * addon_prologue,
-		       const char * command) ;
+                       const char * addon_prologue,
+                       const char * command) ;
 
   /** Submit a job partially defined in a file 
       TODO
   */
   int
   diet_submit_parallel(diet_profile_t * profile,
-		       const FILE * fileName) ;
+                       const FILE * fileName) ;
 
   /** Submit a job on a reservation or in concurrent with an already
       submitted job 
@@ -156,7 +156,7 @@ public :
   */
   int
   diet_submit_parallel(int batchJobID, diet_profile_t * profile,
-		       const char * command) ;
+                       const char * command) ;
 
   /** Submits a job on a reservation or in concurrent with an already
       submitted job.
@@ -164,7 +164,7 @@ public :
   */
   int
   diet_submit_parallel(int batchJobID, diet_profile_t * profile,
-		       const FILE * fileName) ;
+                       const FILE * fileName) ;
 
   /*********************** Job Managing ******************************/    
   /** Returns -1 on error, 0 otherwise */
@@ -255,7 +255,7 @@ public :
   */
   int
   getSimulatedProcAndWalltime(int * nbprocPtr, int * walltimePtr,
-			      diet_profile_t * profilePtr) ;
+                              diet_profile_t * profilePtr) ;
 
 protected :
 
@@ -268,8 +268,8 @@ protected :
   */
   int
   replaceAllOccurencesInString(char ** input, 
-			       const char * occurence,
-			       const char * by) ;
+                               const char * occurence,
+                               const char * by) ;
   
   /**
      Write @param n bytes of string @param buffer to the file 
@@ -320,15 +320,15 @@ protected :
       this value. */
   int
   launchCommandAndGetInt(const char * submitCommand,
-			 const char * pattern) ;
+                         const char * pattern) ;
   
-    /** Exec a command (with system() system call) and get the result of
+  /** Exec a command (with system() system call) and get the result of
       the output in a unique temporary file made from \c pattern
       (maintly for debugging purpose). Returns the name of the file for
       further parsing. The user MUST unlink the file by his own. */ 
   char *
   launchCommandAndGetResultFilename(const char * submitCommand,
-				 const char * pattern) ;
+				    const char * pattern) ;
   
   /************ Batch Configuration ************/
   /* (Fully qualified) frontal host name */

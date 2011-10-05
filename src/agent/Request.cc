@@ -70,7 +70,7 @@ Request::Request(const corba_request_t* request)
   responsesSize = 0 ;
   if (*(request->serialized_scheduler.in()) == '\0') {
     INTERNAL_WARNING("request " << request->reqID
-		     << " has no scheduler associated");
+                     << " has no scheduler associated");
     this->GS = GlobalScheduler::chooseGlobalScheduler();
   } else {
     this->GS = GlobalScheduler::deserialize(this->request->serialized_scheduler);
@@ -97,8 +97,8 @@ Request::Request(const corba_request_t* request, GlobalScheduler* GS)
 
 Request::~Request() {
   freeResponses() ;
-/* New : For scheduler load support. */
-/* A loaded scheduler is not deleted in the same way than a normal scheduler.*/
+  /* New : For scheduler load support. */
+  /* A loaded scheduler is not deleted in the same way than a normal scheduler.*/
 #ifdef USERSCHED
   char * serializedScheduler = GlobalScheduler::serialize(this->GS);
 
@@ -107,9 +107,9 @@ Request::~Request() {
     (dynamic_cast<UserScheduler*> (this->GS))->destroy(this->GS);
   } else
 #else
-  delete this->GS;
+    delete this->GS;
 #endif
-/*************************************/
+  /*************************************/
   delete gatheringEnded ;
 } // ~Request()
 

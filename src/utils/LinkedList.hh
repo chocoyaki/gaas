@@ -136,12 +136,12 @@ public :
       newNode->element = new T(*listNode->element) ;
 
       while(listNode->next) {
-	listNode = listNode->next ;
-	Node* nextNode = new Node ;
-	nextNode->previous = newNode ;
-	newNode->next = nextNode ;
-	newNode = nextNode ;
-	newNode->element = new T(*listNode->element) ;
+        listNode = listNode->next ;
+        Node* nextNode = new Node ;
+        nextNode->previous = newNode ;
+        newNode->next = nextNode ;
+        newNode = nextNode ;
+        newNode->element = new T(*listNode->element) ;
       }
 
       newNode->next = NULL ;
@@ -389,13 +389,13 @@ public :
       Node* currentNodeBuf = currentNode ;
       currentNode = currentNodeBuf->next ;
       if(currentNodeBuf->previous)
-	currentNodeBuf->previous->next = currentNodeBuf->next ;
+        currentNodeBuf->previous->next = currentNodeBuf->next ;
       else
-	linkedList->first = currentNodeBuf->next ;
+        linkedList->first = currentNodeBuf->next ;
       if(currentNodeBuf->next)
-	currentNodeBuf->next->previous = currentNodeBuf->previous ;
+        currentNodeBuf->next->previous = currentNodeBuf->previous ;
       else
-	linkedList->last = currentNodeBuf->previous ;
+        linkedList->last = currentNodeBuf->previous ;
       delete currentNodeBuf ;
     }
 

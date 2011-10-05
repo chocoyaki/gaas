@@ -27,14 +27,14 @@ diet_change_parent(dynamic_type_t type, const char *name, const char *parent_nam
     case SED: {
       SeD_var sed = ORBMgr::getMgr()->resolve<SeD, SeD_ptr>(SEDCTXT, name);
       if (sed->bindParent(parent_name)) {
-	return DIET_ADMIN_CALL_ERROR;
+        return DIET_ADMIN_CALL_ERROR;
       }
       break;
     }
     case LA: {
       LocalAgent_var agent = ORBMgr::getMgr()->resolve<LocalAgent, LocalAgent_var>(AGENTCTXT, name);
       if (agent->bindParent(parent_name)) {
-	return DIET_ADMIN_CALL_ERROR;
+        return DIET_ADMIN_CALL_ERROR;
       }
       break;
     }

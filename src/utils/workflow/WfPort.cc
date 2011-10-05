@@ -97,8 +97,8 @@
 WfPort::WfPort(WfNode * parent, const string& _id, WfPortType _portType,
                WfCst::WfDataType _type, unsigned int _depth, unsigned int _ind)
   : id(_id), portType(_portType), type(_type), depth(_depth), card(NULL),
-  index(_ind), nb_r(0), nb_c(0), adapter(NULL), myParent(parent),
-  connected(false)  {
+    index(_ind), nb_r(0), nb_c(0), adapter(NULL), myParent(parent),
+    connected(false)  {
   if (!parent) {
     INTERNAL_ERROR("Missing parent for port creation",0);
   }
@@ -117,8 +117,8 @@ WfPort::~WfPort() {
 
 void
 WfPort::setMatParams(long nbr, long nbc,
-		    WfCst::WfMatrixOrder o,
-		    WfCst::WfDataType bt) {
+		     WfCst::WfMatrixOrder o,
+		     WfCst::WfDataType bt) {
   this->nb_r = nbr;
   this->nb_c = nbc;
   this->order = o;
@@ -151,42 +151,42 @@ WfPort::isOutput() const {
 
 bool
 WfPort::isInput() const {
-	return ((portType == PORT_IN)
-					|| (portType == PORT_IN_LOOP)
-					|| (portType == PORT_INOUT));
+  return ((portType == PORT_IN)
+	  || (portType == PORT_IN_LOOP)
+	  || (portType == PORT_INOUT));
 }
 
 string
 WfPort::getPortDescr() const {
   string portDescr;
   switch(portType) {
-    case PORT_PARAM:
-      portDescr = "param ";
-      break;
-    case PORT_IN:
-      portDescr = "in ";
-      break;
-    case PORT_ARG:
-      portDescr = "arg ";
-      break;
-    case PORT_INOUT:
-      portDescr = "inout ";
-      break;
-    case PORT_OUT:
-      portDescr = "out ";
-      break;
-    case PORT_OUT_THEN:
-      portDescr = "outThen ";
-      break;
-    case PORT_OUT_ELSE:
-      portDescr = "outElse ";
-      break;
-    case PORT_IN_LOOP:
-      portDescr = "inLoop ";
-      break;
-    case PORT_OUT_LOOP:
-      portDescr = "outLoop ";
-      break;
+  case PORT_PARAM:
+    portDescr = "param ";
+    break;
+  case PORT_IN:
+    portDescr = "in ";
+    break;
+  case PORT_ARG:
+    portDescr = "arg ";
+    break;
+  case PORT_INOUT:
+    portDescr = "inout ";
+    break;
+  case PORT_OUT:
+    portDescr = "out ";
+    break;
+  case PORT_OUT_THEN:
+    portDescr = "outThen ";
+    break;
+  case PORT_OUT_ELSE:
+    portDescr = "outElse ";
+    break;
+  case PORT_IN_LOOP:
+    portDescr = "inLoop ";
+    break;
+  case PORT_OUT_LOOP:
+    portDescr = "outLoop ";
+    break;
   }
   portDescr += WfCst::cvtWfToStrType(getDataType());
   return portDescr;

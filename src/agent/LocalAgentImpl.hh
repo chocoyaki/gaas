@@ -120,7 +120,7 @@ public :
 #ifdef HAVE_DYNAMICS
   virtual CORBA::Long
   childUnsubscribe(CORBA::ULong childID,
-		   const SeqCorbaProfileDesc_t& services);
+                   const SeqCorbaProfileDesc_t& services);
 #endif // HAVE_DYNAMICS
 
   /** Remove services into the service table for a given child */
@@ -139,7 +139,7 @@ private:
 }; // LocalAgentImpl
 
 class LocalAgentFwdrImpl : public POA_LocalAgentFwdr,
-			   public PortableServer::RefCountServantBase
+                           public PortableServer::RefCountServantBase
 {
 private:
   Forwarder_ptr forwarder;
@@ -149,15 +149,15 @@ public:
 
   virtual CORBA::Long
   agentSubscribe(const char* me, const char* hostName,
-		 const SeqCorbaProfileDesc_t& services);
+                 const SeqCorbaProfileDesc_t& services);
   virtual CORBA::Long
   serverSubscribe(const char* me, const char* hostName,
-		  const SeqCorbaProfileDesc_t& services);
+                  const SeqCorbaProfileDesc_t& services);
 
 #ifdef HAVE_DYNAMICS
   virtual CORBA::Long
   childUnsubscribe(CORBA::ULong childID,
-		   const SeqCorbaProfileDesc_t& services);
+                   const SeqCorbaProfileDesc_t& services);
 
   virtual CORBA::Long removeElement(bool recursive);
 
@@ -174,7 +174,7 @@ public:
   virtual char* getHostname();
 
   virtual CORBA::Long addServices(CORBA::ULong myID,
-				  const SeqCorbaProfileDesc_t& services);
+                                  const SeqCorbaProfileDesc_t& services);
 
   virtual CORBA::Long
   childRemoveService(CORBA::ULong childID, const corba_profile_desc_t& profile);

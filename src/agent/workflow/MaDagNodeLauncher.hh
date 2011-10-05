@@ -29,21 +29,21 @@ namespace madag {
   class MaDagNodeLauncher : public DagNodeLauncher
   {
 
-    public:
-      MaDagNodeLauncher( DagNode * parent,
-                         MultiWfScheduler *  scheduler,
-                         CltMan_ptr clientMgr);
+  public:
+    MaDagNodeLauncher( DagNode * parent,
+		       MultiWfScheduler *  scheduler,
+		       CltMan_ptr clientMgr);
 
-      virtual void
-          execNode();
+    virtual void
+    execNode();
 
-      virtual void
-          finishNode();
+    virtual void
+    finishNode();
 
-    protected:
+  protected:
 
-      MultiWfScheduler *  myScheduler;
-      CltMan_ptr          myCltMgr;
+    MultiWfScheduler *  myScheduler;
+    CltMan_ptr          myCltMgr;
       
   };
 

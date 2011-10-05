@@ -39,17 +39,17 @@ static int MUTEXCOUNT  = 0;
 static int INITIALIZED = 0;
 
 
-#define MUTEX_ERROR(formatted_text)              \
+#define MUTEX_ERROR(formatted_text)			\
   ERROR(__FUNCTION__ << ": " << formatted_text, )
 
-#define MUTEX_CHECK_INIT()                                     \
-  if (!INITIALIZED) {                                          \
-    MUTEX_ERROR("diet_mutex_initialize has not been called");\
+#define MUTEX_CHECK_INIT()					\
+  if (!INITIALIZED) {						\
+    MUTEX_ERROR("diet_mutex_initialize has not been called");	\
   }
 
-#define MUTEX_CHECK_VALIDITY(i)         \
-  if ((i) >= MUTEXCOUNT) {              \
-    MUTEX_ERROR("invalid mutex");\
+#define MUTEX_CHECK_VALIDITY(i)			\
+  if ((i) >= MUTEXCOUNT) {			\
+    MUTEX_ERROR("invalid mutex");		\
   }    
 
 
@@ -115,7 +115,7 @@ void
 diet_mutex_lock(int i)
 {
   MUTEX_CHECK_INIT()
-  MUTEX_CHECK_VALIDITY(i);  
+    MUTEX_CHECK_VALIDITY(i);  
 
   MUTEX_FIELD[i]->lock();
 }
@@ -124,7 +124,7 @@ void
 diet_mutex_unlock(int i)
 {
   MUTEX_CHECK_INIT()
-  MUTEX_CHECK_VALIDITY(i);  
+    MUTEX_CHECK_VALIDITY(i);  
 
   MUTEX_FIELD[i]->unlock();
 }
@@ -134,7 +134,7 @@ diet_mutex_finalize()
 {
   MUTEX_CHECK_INIT()
 
-  free(MUTEX_FIELD);
+    free(MUTEX_FIELD);
   INITIALIZED=0;
 }
 

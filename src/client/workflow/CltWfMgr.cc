@@ -554,7 +554,7 @@ CltWfMgr::wfDagCallCommon(diet_wf_desc_t *dagProfile, Dag *dag, bool parse, bool
   mrsh_wf_desc(corba_profile, dagProfile);
 
   TRACE_TEXT (TRACE_ALL_STEPS,
-	      "Try to send the workflow description to the MA_DAG ..." << endl);
+              "Try to send the workflow description to the MA_DAG ..." << endl);
   CORBA::Long dagID;
 
   dag->setStartTime(this->getCurrTime());
@@ -769,7 +769,7 @@ CltWfMgr::wfFunctionalCall(diet_wf_desc_t * profile) {
         TRACE_TEXT (TRACE_MAIN_STEPS,"INSTANCIATION PENDING ON NODE EXECUTION ==> WAIT" << endl);
         this->instanciationPending = true;
         this->mySem.wait();
-	this->instanciationPending = false;
+        this->instanciationPending = false;
 
         // WAIT UNTIL A NODE HAS TERMINATED and UPDATED THE INSTANCIATOR
 
@@ -958,7 +958,7 @@ CltWfMgr::readWorkflowExecutionTranscript(diet_wf_desc_t * profile) {
     if (wf != NULL) {
       try {
         MultiDagParser dagsParser(string(profile->transcriptFile));
-	dagsParser.setWorkflow(wf);
+        dagsParser.setWorkflow(wf);
         dagsParser.parseXml(false);
         wf->readDagsState(dagsParser.getDags());
       } catch (XMLParsingException& e) {

@@ -130,8 +130,8 @@
  * use this function when the maDag start to display this value.
  * display the dag_id when compute the ageFactor in AgingHEFT
  * add some stats info :
- * 	queuedNodeCount
- * 	change MA DAG to MA_DAG
+ *      queuedNodeCount
+ *      change MA DAG to MA_DAG
  *
  * Revision 1.26  2008/07/11 07:56:05  bisnard
  * provide list of failed nodes in case of cancelled dag
@@ -352,13 +352,13 @@ MultiWfScheduler::getMetaDag(Dag * dag) {
  */
 void
 MultiWfScheduler::scheduleNewDag(Dag * newDag, MetaDag * metaDag)
-    throw (MaDag::ServiceNotFound, MaDag::CommProblem)
+  throw (MaDag::ServiceNotFound, MaDag::CommProblem)
 {
   // Beginning of exclusion block
   // TODO move exclusion lock later (need to make HEFTScheduler thread-safe)
 
   TRACE_TEXT(TRACE_MAIN_STEPS,"\t ** New DAG to schedule (" << newDag->getId()
-              << ") time=" << this->getRelCurrTime() << endl);
+	     << ") time=" << this->getRelCurrTime() << endl);
 
   // Dag internal scheduling
   TRACE_TEXT (TRACE_ALL_STEPS, "Making intra-dag schedule" << endl);
@@ -456,7 +456,7 @@ MultiWfScheduler::run() {
     int nodeTodoCount = 0;     // the nb of nodes still to be executed (statistics)
 
     TRACE_TEXT(TRACE_MAIN_STEPS,"\t ** Starting Multi-Workflow scheduler ("
-        << loopCount << ") time=" << this->getRelCurrTime() << endl);
+	       << loopCount << ") time=" << this->getRelCurrTime() << endl);
 
     myLock.lock();
     // Loop over all nodeQueues and run the first ready node
@@ -487,35 +487,35 @@ MultiWfScheduler::run() {
     }
     //only write stats when there is something to stats.
     if(dagCount>0){
-	sprintf(statMsg, "dagCount %d", dagCount);
-	stat_info("MA_DAG",statMsg);
-	sprintf(statMsg, "nodeReadyCount %d", nodeReadyCount);
-	stat_info("MA_DAG",statMsg);
-	sprintf(statMsg, "queuedNodeCount %d", queuedNodeCount);
-        stat_info("MA_DAG",statMsg);
-        sprintf(statMsg, "nodeTodoCount %d", nodeTodoCount);
-	stat_info("MA_DAG",statMsg);
+      sprintf(statMsg, "dagCount %d", dagCount);
+      stat_info("MA_DAG",statMsg);
+      sprintf(statMsg, "nodeReadyCount %d", nodeReadyCount);
+      stat_info("MA_DAG",statMsg);
+      sprintf(statMsg, "queuedNodeCount %d", queuedNodeCount);
+      stat_info("MA_DAG",statMsg);
+      sprintf(statMsg, "nodeTodoCount %d", nodeTodoCount);
+      stat_info("MA_DAG",statMsg);
     }
     if (queuedNodeCount > 0) {
       TRACE_TEXT(TRACE_ALL_STEPS,"Phase 2: Check ressources for nodes in exec queue ("
-          << queuedNodeCount << " nodes)" << endl);
+		 << queuedNodeCount << " nodes)" << endl);
       int requestCount = 0;
 
       switch(this->platformType) {
-        case PFM_ANY:
-          // Initialize service availability matrix
-          for (list<DagNode *>::iterator nodeIter = execQueue->begin();
-               nodeIter != execQueue->end();
-               ++nodeIter) {
-            servAvail[(*nodeIter)->getPbName()] = true;
-            servAvailCount = servAvail.size();
-          }
-          TRACE_TEXT(TRACE_ALL_STEPS, "Nb of distinct services in queue: "
-              << servAvailCount << endl);
-          break;
-        case PFM_SAME_SERVICES:
-          TRACE_TEXT(TRACE_ALL_STEPS,
-            "Limiting check to one ressource (same services on all ress.)" << endl);
+      case PFM_ANY:
+	// Initialize service availability matrix
+	for (list<DagNode *>::iterator nodeIter = execQueue->begin();
+	     nodeIter != execQueue->end();
+	     ++nodeIter) {
+	  servAvail[(*nodeIter)->getPbName()] = true;
+	  servAvailCount = servAvail.size();
+	}
+	TRACE_TEXT(TRACE_ALL_STEPS, "Nb of distinct services in queue: "
+		   << servAvailCount << endl);
+	break;
+      case PFM_SAME_SERVICES:
+	TRACE_TEXT(TRACE_ALL_STEPS,
+		   "Limiting check to one ressource (same services on all ress.)" << endl);
       }
 
       while (!execQueue->isEmpty()) {
@@ -525,14 +525,14 @@ MultiWfScheduler::run() {
         corba_server_estimation_t* servEst;
         // Test to process node (depends on platform type)
         bool nodeSubmit = ((this->platformType == PFM_ANY)
-                            && (servAvailCount) && (servAvail[n->getPbName()]))
-            || ((this->platformType == PFM_SAME_SERVICES) && (requestCount < 1));
+			   && (servAvailCount) && (servAvail[n->getPbName()]))
+	  || ((this->platformType == PFM_SAME_SERVICES) && (requestCount < 1));
 
         if (nodeSubmit) {
           int  submitReqID = 0;  // store ReqID of submit to provide it for solve
 
           TRACE_TEXT(TRACE_MAIN_STEPS,"Submit request for node " << n->getCompleteId()
-            << "(" << n->getPbName() << ") / exec prio = " << n->getPriority() << endl);
+		     << "(" << n->getPbName() << ") / exec prio = " << n->getPriority() << endl);
 
           // SEND REQUEST TO PLATFORM (FOR CURRENT NODE)
           wf_response_t *  wf_response = NULL;
@@ -557,7 +557,7 @@ MultiWfScheduler::run() {
             }
 
             string sedName = string(servEst->loc.SeDName);
-	    SeD_ptr curSeDPtr = ORBMgr::getMgr()->resolve<SeD, SeD_ptr>(SEDCTXT, sedName);
+            SeD_ptr curSeDPtr = ORBMgr::getMgr()->resolve<SeD, SeD_ptr>(SEDCTXT, sedName);
             string hostname(CORBA::string_dup(servEst->loc.hostName));
             TRACE_TEXT(TRACE_ALL_STEPS,"  server " << hostname << ": compTime="
                        << compTime << ": EFT=" << EFT << endl);
@@ -585,12 +585,12 @@ MultiWfScheduler::run() {
 
           // EXECUTE NODE (NEW THREAD)
           if (ressourceFound) {
-	    TRACE_TEXT(TRACE_MAIN_STEPS,"  $$$$ Exec node on " << servEst->loc.hostName
-              << " : " << n->getCompleteId() << endl);
+            TRACE_TEXT(TRACE_MAIN_STEPS,"  $$$$ Exec node on " << servEst->loc.hostName
+		       << " : " << n->getCompleteId() << endl);
             mappedNodeCount++;
             // create a node launcher
             DagNodeLauncher *launcher = new MaDagNodeLauncher( n, this,
-                                              myMaDag->getCltMan(n->getDag()->getId()));
+							       myMaDag->getCltMan(n->getDag()->getId()));
             // record chosen SeD information
             launcher->setSeD(servEst->loc.SeDName, submitReqID, servEst->estim);
             // start node execution
@@ -646,10 +646,10 @@ MultiWfScheduler::run() {
     // hypothesis that all ressources are identical (in terms of provided services) for
     // a given dag then there may be available ressources only if all nodes in the
     // execQueue were assigned a ressource.
-//     if ((queuedNodeCount == 0) || (queuedNodeCount > mappedNodeCount)) {
+    //     if ((queuedNodeCount == 0) || (queuedNodeCount > mappedNodeCount)) {
     if ((queuedNodeCount == 0)
-         || ((this->platformType == PFM_ANY) && (servAvailCount == 0))
-         || ((this->platformType == PFM_SAME_SERVICES) && (mappedNodeCount == 0))) {
+	|| ((this->platformType == PFM_ANY) && (servAvailCount == 0))
+	|| ((this->platformType == PFM_SAME_SERVICES) && (mappedNodeCount == 0))) {
       if (queuedNodeCount == 0) {
         TRACE_TEXT(TRACE_MAIN_STEPS,"No ready nodes - sleeping" << endl);
       } else {
@@ -680,7 +680,7 @@ MultiWfScheduler::run() {
  */
 wf_response_t *
 MultiWfScheduler::getProblemEstimates(Dag *dag, MasterAgent_var MA)
-    throw (MaDag::ServiceNotFound, MaDag::CommProblem) {
+  throw (MaDag::ServiceNotFound, MaDag::CommProblem) {
   // Check that all services are available and get the estimations (with MA)
   TRACE_TEXT (TRACE_ALL_STEPS,"MultiWfScheduler: Marshalling the profiles" << endl);
   corba_pb_desc_seq_t* pbs_seq = new corba_pb_desc_seq_t();
@@ -711,7 +711,7 @@ MultiWfScheduler::getProblemEstimates(Dag *dag, MasterAgent_var MA)
         submitIdx = (int) estimClassIter->second;
         submit = false;
         TRACE_TEXT (TRACE_ALL_STEPS,"Node " << dagNode->getId()
-                     << " using submit index=" << submitIdx << endl);
+		    << " using submit index=" << submitIdx << endl);
       } else {
         submitIdx = ix++;
         estimClassMap.insert(make_pair(nodeEstimClass,submitIdx));
@@ -727,7 +727,7 @@ MultiWfScheduler::getProblemEstimates(Dag *dag, MasterAgent_var MA)
   }
   TRACE_TEXT (TRACE_ALL_STEPS,
               "MultiWfScheduler: send " << ix << " profile(s) to the MA  ... "
-                  << endl);
+	      << endl);
   // resize the sequence to the final length
   pbs_seq->length(ix);
 
@@ -737,7 +737,7 @@ MultiWfScheduler::getProblemEstimates(Dag *dag, MasterAgent_var MA)
     wf_response = MA->submit_pb_set(*pbs_seq);
   } catch(CORBA::SystemException& e) {
     failureMsg = " MultiWfScheduler: Got a CORBA " + string(e._name()) + " exception ("
-                 + string(e.NP_minorString()) + ")";
+      + string(e.NP_minorString()) + ")";
     failed = true;
     WARNING(failureMsg << endl);
   }
@@ -775,21 +775,21 @@ MultiWfScheduler::getProblemEstimates(Dag *dag, MasterAgent_var MA)
  */
 wf_response_t *
 MultiWfScheduler::getProblemEstimates(DagNode *node, MasterAgent_var MA)
-    throw (MaDag::ServiceNotFound, MaDag::CommProblem) {
+  throw (MaDag::ServiceNotFound, MaDag::CommProblem) {
   corba_pb_desc_seq_t* pbs_seq = new corba_pb_desc_seq_t();
   wf_response_t * wf_response = NULL;
   pbs_seq->length(1);
   node->setSubmitIndex(0);
   mrsh_pb_desc(&(*pbs_seq)[0], node->getProfile());
   TRACE_TEXT (TRACE_ALL_STEPS, "MultiWfScheduler: send 1 profile to the MA  ... "
-                  << endl);
+	      << endl);
   bool failed = false;
   string failureMsg;
   try {
     wf_response = MA->submit_pb_set(*pbs_seq);
   } catch(CORBA::SystemException& e) {
     failureMsg = " MultiWfScheduler: Got a CORBA " + string(e._name()) + " exception ("
-                 + string(e.NP_minorString()) + ")";
+      + string(e.NP_minorString()) + ")";
     WARNING(failureMsg << endl) ;
     failed = true;
   }
@@ -809,7 +809,7 @@ MultiWfScheduler::getProblemEstimates(DagNode *node, MasterAgent_var MA)
  */
 void
 MultiWfScheduler::intraDagSchedule(Dag * dag, MasterAgent_var MA)
-    throw (MaDag::ServiceNotFound, MaDag::CommProblem) {
+  throw (MaDag::ServiceNotFound, MaDag::CommProblem) {
   // Call the MA to get estimations for all services
   wf_response_t * wf_response = this->getProblemEstimates(dag, MA);
   // Prioritize the nodes (with intra-dag scheduler)
@@ -883,7 +883,7 @@ MultiWfScheduler::getRelCurrTime() {
   struct timeval current_time;
   gettimeofday(&current_time, NULL);
   return (double) ((current_time.tv_sec - refTime.tv_sec)*1000
-      + (current_time.tv_usec - refTime.tv_usec)/1000);
+		   + (current_time.tv_usec - refTime.tv_usec)/1000);
 }
 
 /**
@@ -908,11 +908,11 @@ MultiWfScheduler::wakeUp(bool newDag, DagNode *node) {
  */
 void
 MultiWfScheduler::handlerNodeReady(DagNode *node) {
-//   DietLogComponent* LC = myMaDag->getDietLogComponent();
-//   if (LC) {
-//     LC->logWfNodeReady(node->getDag()->getId().c_str(),
-//                        node->getId().c_str());
-//   }
+  //   DietLogComponent* LC = myMaDag->getDietLogComponent();
+  //   if (LC) {
+  //     LC->logWfNodeReady(node->getDag()->getId().c_str(),
+  //                        node->getId().c_str());
+  //   }
   sendEventFrom<DagNode, DagNode::READY>(node, "Node ready", "" , EventBase::INFO);
 }
 
@@ -997,32 +997,32 @@ MultiWfScheduler::releaseDag(Dag * dag) {
   TRACE_TEXT(TRACE_MAIN_STEPS, "[Dag " << dagId << "] : calling client for release" << endl);
   CltMan_ptr cltMan = myMaDag->getCltMan(dag->getId());
   try {
-      message = cltMan->release(dagId.c_str(), !dag->isCancelled());
-      TRACE_TEXT (TRACE_ALL_STEPS," Release message : " << message << endl);
-       // INFORM LOGMANAGER
+    message = cltMan->release(dagId.c_str(), !dag->isCancelled());
+    TRACE_TEXT (TRACE_ALL_STEPS," Release message : " << message << endl);
+    // INFORM LOGMANAGER
 #ifdef USE_LOG_SERIVCE
-      if (myMaDag->dietLogComponent != NULL) {
-        myMaDag->dietLogComponent->logDag(message);
-      }
+    if (myMaDag->dietLogComponent != NULL) {
+      myMaDag->dietLogComponent->logDag(message);
+    }
 #endif
-      stat_flush();
-      delete message;
+    stat_flush();
+    delete message;
   } catch(CORBA::SystemException& e) {
-      cout << "Caught a CORBA " << e._name() << " exception ("
-           << e.NP_minorString() << ")" << endl ;
-      WARNING("Connection problems with Client occured - Release cancelled");
-      dag->setAsCancelled(NULL);
-      if (metaDag)
-        metaDag->setReleaseFlag(true);  // allow MaDag to destroy the metadag
+    cout << "Caught a CORBA " << e._name() << " exception ("
+	 << e.NP_minorString() << ")" << endl ;
+    WARNING("Connection problems with Client occured - Release cancelled");
+    dag->setAsCancelled(NULL);
+    if (metaDag)
+      metaDag->setReleaseFlag(true);  // allow MaDag to destroy the metadag
   }
 
   // DISPLAY DEBUG INFO
   if (!dag->isCancelled()) {
     TRACE_TEXT (TRACE_MAIN_STEPS,"############### DAG "
-                                  << dagId << " IS DONE #########" << endl);
+		<< dagId << " IS DONE #########" << endl);
   } else {
     TRACE_TEXT (TRACE_MAIN_STEPS,"############### DAG "
-                                  << dagId << " IS CANCELLED #########" << endl);
+		<< dagId << " IS CANCELLED #########" << endl);
     // Display list of failed nodes
     const std::list<string>& failedNodes = dag->getNodeFailureList();
     for (std::list<string>::const_iterator iter = failedNodes.begin();
@@ -1047,7 +1047,7 @@ MultiWfScheduler::releaseDag(Dag * dag) {
     myMetaDags.erase(dag->getId());
     if (metaDag->isDone()) {
       TRACE_TEXT (TRACE_ALL_STEPS,"######## META-DAG "
-                                << metaDag->getId() << " IS COMPLETED #########" << endl);
+		  << metaDag->getId() << " IS COMPLETED #########" << endl);
       delete metaDag;
     }
   } else {
@@ -1062,7 +1062,7 @@ MultiWfScheduler::releaseDag(Dag * dag) {
 void
 MultiWfScheduler::cancelDag(const string& dagId) {
   TRACE_TEXT (TRACE_ALL_STEPS,"######## RECEIVED DAG CANCELLATION FOR DAG '"
-                                << dagId << "' #########" << endl);
+	      << dagId << "' #########" << endl);
   myLock.lock();
   try {
     getDag(dagId)->setAsCancelled(this);

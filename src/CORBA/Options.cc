@@ -69,7 +69,7 @@ Options::Options(Configuration* config, int argc, char* argv[], char* envp[]) {
           flags.push_back(*it++);
         }
       } else {
-          params[params.size()]=curArg;
+	params[params.size()]=curArg;
       }
     }
   }  

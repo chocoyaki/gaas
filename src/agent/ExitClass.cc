@@ -44,24 +44,24 @@ AgentImpl* ExitClass::agent = 0;
 void
 ExitClass::init(AgentImpl* agent)
 {
-    ExitClass::agent = agent;
+  ExitClass::agent = agent;
 }
 
 void
 ExitClass::exitFunction()
 {
-    TRACE_TEXT(TRACE_MAIN_STEPS, "______________________________" << std::endl);
-    TRACE_TEXT(TRACE_MAIN_STEPS, "Stopping the Agent..." << std::endl);
-    // Deactivate and destroy the agent
-    try {
-	if (ExitClass::agent) {
-	    delete ExitClass::agent;
-	}
-	delete ORBMgr::getMgr();
-    } catch (...) {}
-    TRACE_TEXT(TRACE_MAIN_STEPS, "Agent stopped !" << std::endl);
+  TRACE_TEXT(TRACE_MAIN_STEPS, "______________________________" << std::endl);
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Stopping the Agent..." << std::endl);
+  // Deactivate and destroy the agent
+  try {
+    if (ExitClass::agent) {
+      delete ExitClass::agent;
+    }
+    delete ORBMgr::getMgr();
+  } catch (...) {}
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Agent stopped !" << std::endl);
     
-    /* We do not need the parsing results any more */
-    delete configPtr;
+  /* We do not need the parsing results any more */
+  delete configPtr;
 }
 

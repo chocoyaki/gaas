@@ -91,7 +91,7 @@ diet_est_defined_internal(estVectorConst_t ev, int tag)
     ERROR(__FUNCTION__ << ": tag must be non-negative (" << tag << ")" << endl, -1);
   }
 
-//   cout << "AS: [" << __FUNCTION__ << "] num values = " << EV_LEN(ev) << endl;
+  //   cout << "AS: [" << __FUNCTION__ << "] num values = " << EV_LEN(ev) << endl;
 
   for (unsigned int valIter = 0 ; valIter < EV_LEN(ev) ; valIter++) {
     if (tag == (EV_ELT(ev, valIter)).v_tag &&

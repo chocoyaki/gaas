@@ -60,10 +60,10 @@ public:
 
   /* Forwarders binding. */
   void fwdsBind(const std::string& ctxt, const std::string& name,
-		const std::string& ior, const std::string& fwName = "") const;
+                const std::string& ior, const std::string& fwName = "") const;
   /* Forwarders unbinding. */
   void fwdsUnbind(const std::string& ctxt, const std::string& name,
-		  const std::string& fwName = "") const;
+                  const std::string& fwName = "") const;
 
   /* Resolve an object using its IOR or ctxt/name. */
   CORBA::Object_ptr resolveObject(const std::string& IOR) const;
@@ -84,7 +84,7 @@ public:
 
   template <typename CORBA_object, typename CORBA_ptr>
   CORBA_ptr resolve(const std::string& ctxt, const std::string& name,
-		    const std::string& fwdName = "") const {
+                    const std::string& fwdName = "") const {
     return CORBA_object::_duplicate(CORBA_object::_narrow(resolveObject(ctxt, name, fwdName)));
   }
   template <typename CORBA_object, typename CORBA_ptr>
@@ -124,18 +124,18 @@ public:
   static std::string getTypeID(IOP::IOR& ior);
   static std::string getTypeID(const std::string& strIOR);
   static std::string convertIOR(IOP::IOR& ior, const std::string& host,
-				const unsigned int port);
+                                const unsigned int port);
   static std::string convertIOR(const std::string& ior, const std::string& host,
-				const unsigned int port);
+                                const unsigned int port);
 
   /* Object cache management functions. */
   void resetCache() const;
   void removeObjectFromCache(const std::string& name) const;
   void removeObjectFromCache(const std::string& ctxt,
-			     const std::string& name) const;
+                             const std::string& name) const;
   void cleanCache() const;
   static void hexStringToBuffer(const char* ptr, const size_t size,
-				cdrMemoryStream& buffer);
+                                cdrMemoryStream& buffer);
 
 private:
   /* The omniORB Object Request Broker for this manager. */

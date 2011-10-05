@@ -79,7 +79,7 @@ Thread::Thread(bool isDetached)
 Thread::~Thread() { }
 
 // long unsigned int
-// Thread::getId() {	return PthreadThreadID; }
+// Thread::getId() {    return PthreadThreadID; }
 
 void*
 Thread::startThreadRunnable(void* pVoid){
@@ -106,52 +106,52 @@ void Thread::start() {
   int status = pthread_attr_init(&threadAttribute); // initialize attribute object
   if (status != 0) {
     PrintError("pthread_attr_init failed at", status, __FILE__,
-	       __LINE__); exit(status);
+               __LINE__); exit(status);
   }
   status = pthread_attr_setscope(&threadAttribute,
-				 PTHREAD_SCOPE_SYSTEM);
+                                 PTHREAD_SCOPE_SYSTEM);
   if (status != 0) {
     PrintError("pthread_attr_setscope failed at",
-	       status, __FILE__, __LINE__); exit(status);
+               status, __FILE__, __LINE__); exit(status);
   }
   if (!detached) {
     if (runnable.get() == NULL) {
       int status = pthread_create(&PthreadThreadID,&threadAttribute,
-				  Thread::startThread,(void*) this);
+                                  Thread::startThread,(void*) this);
       if (status != 0) { PrintError("pthread_create failed at",
-				    status, __FILE__, __LINE__); exit(status);}
+                                    status, __FILE__, __LINE__); exit(status);}
     }
     else {
       int status = pthread_create(&PthreadThreadID,&threadAttribute,
-				  Thread::startThreadRunnable, (void*)this);
+                                  Thread::startThreadRunnable, (void*)this);
       if (status != 0) {PrintError("pthread_create failed at",
-				   status, __FILE__, __LINE__); exit(status);}
+                                   status, __FILE__, __LINE__); exit(status);}
     }
   }
   else {
     // set the detachstate attribute to detached
     status = pthread_attr_setdetachstate(&threadAttribute,
-					 PTHREAD_CREATE_DETACHED);
+                                         PTHREAD_CREATE_DETACHED);
     if (status != 0){
       PrintError("pthread_attr_setdetachstate failed at",
                  status,__FILE__,__LINE__);exit(status);
     }
     if (runnable.get() == NULL) {
       status = pthread_create(&PthreadThreadID,&threadAttribute,
-			      Thread::startThread, (void*) this);
+                              Thread::startThread, (void*) this);
       if (status != 0) {PrintError("pthread_create failed at",
-				   status, __FILE__, __LINE__);exit(status);}
+                                   status, __FILE__, __LINE__);exit(status);}
     }
     else {
       status = pthread_create(&PthreadThreadID,&threadAttribute,
-			      Thread::startThreadRunnable, (void*) this);
+                              Thread::startThreadRunnable, (void*) this);
       if (status != 0) {PrintError("pthread_create failed at",
-				   status, __FILE__, __LINE__); exit(status);}
+                                   status, __FILE__, __LINE__); exit(status);}
     }
   }
   status = pthread_attr_destroy(&threadAttribute);
   if (status != 0) { PrintError("pthread_attr_destroy failed at",
-				status, __FILE__, __LINE__); exit(status);}
+                                status, __FILE__, __LINE__); exit(status);}
 }
 
 void*
@@ -159,7 +159,7 @@ Thread::join() {
   int status = pthread_join(PthreadThreadID,NULL);
   // result was already saved by thread start functions
   if (status != 0) { PrintError("pthread_join failed at",
-				status, __FILE__, __LINE__); exit(status);}
+                                status, __FILE__, __LINE__); exit(status);}
   return result;
 }
 

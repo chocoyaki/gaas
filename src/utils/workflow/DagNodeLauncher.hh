@@ -32,65 +32,65 @@ class DagNode;
 class DagNodeLauncher : public Thread
 {
 
-  public:
+public:
 
-    DagNodeLauncher(DagNode * parent,
-                    DagScheduler * scheduler = NULL);
+  DagNodeLauncher(DagNode * parent,
+		  DagScheduler * scheduler = NULL);
     
-    DagNode* getNode() const { return myNode; }
+  DagNode* getNode() const { return myNode; }
 
-    /**
-     * Set the SeD reference on which the node should be executed
-     * @param sed the SeD reference
-     * @param reqID the request ID (of previous submit request)
-     * @param ev  the Estimation vector for this SeD (required to call diet_call_common)
-     */
-    void setSeD(const char* sed, const unsigned long reqID, corba_estimation_t& ev);
-	
-    /**
-     * Returns true if sed is defined
-     */
-    bool isSeDDefined() const { return isSeDDefinedFlag; }
+  /**
+   * Set the SeD reference on which the node should be executed
+   * @param sed the SeD reference
+   * @param reqID the request ID (of previous submit request)
+   * @param ev  the Estimation vector for this SeD (required to call diet_call_common)
+   */
+  void setSeD(const char* sed, const unsigned long reqID, corba_estimation_t& ev);
+        
+  /**
+   * Returns true if sed is defined
+   */
+  bool isSeDDefined() const { return isSeDDefinedFlag; }
     
-    /**
-     * Returns the sed host name
-     */
-    string getSeDName() const;
+  /**
+   * Returns the sed host name
+   */
+  string getSeDName() const;
     
-    /**
-     * Returns the request id
-     */
-    unsigned long getReqId() const { return myReqID; }
+  /**
+   * Returns the request id
+   */
+  unsigned long getReqId() const { return myReqID; }
     
-    /**
-     * Returns a description of this object (for events)
-     */
-    virtual string toString() const;
+  /**
+   * Returns a description of this object (for events)
+   */
+  virtual string toString() const;
 
-    /**
-      * Run method
-      */
-    virtual void * run();
+  /**
+   * Run method
+   */
+  virtual void * run();
 
-    /**
-     * Node execution method (VIRTUAL)
-     */
-    virtual void
-        execNode() = 0;
+  /**
+   * Node execution method (VIRTUAL)
+   */
+  virtual void
+  execNode() = 0;
 
-    virtual void
-        finishNode();
+  virtual void
+  finishNode();
 
 
-  protected:
+protected:
 
-    DagNode*      	myNode;
-    DagScheduler *  	myDagScheduler;
-    bool          	isSeDDefinedFlag;
-    char*       	myChosenServer;
-    corba_estimation_t 	myEstimVect;
-    unsigned long 	myReqID;
-    bool	  	isSuccessfulFlag;
+  DagNode*            myNode;
+  DagScheduler *      myDagScheduler;
+  bool                isSeDDefinedFlag;
+  char*               myChosenServer;
+  corba_estimation_t  myEstimVect;
+  unsigned long       myReqID;
+  bool                isSuccessfulFlag;
 
 };
 

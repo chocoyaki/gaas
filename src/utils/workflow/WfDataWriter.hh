@@ -30,82 +30,82 @@
 
 class WfDataWriter {
 
-  public:
+public:
 
-    WfDataWriter(std::ostream& output);
+  WfDataWriter(std::ostream& output);
 
-    virtual ~WfDataWriter();
+  virtual ~WfDataWriter();
 
-    virtual void  startContainer() = 0;
-    virtual void  endContainer() = 0;
-    virtual void  itemValue(const std::string& valueStr) = 0;
-    virtual void  itemValue(void * valuePtr,
-                            WfCst::WfDataType valueType = WfCst::TYPE_UNKNOWN) = 0;
-    virtual void  matrix(void * valuePtr,
-                         WfCst::WfDataType valueType,
-                         unsigned int nbRows,
-                         unsigned int nbColumns,
-                         diet_matrix_order_t order) = 0;
-    virtual void  voidElement() = 0;
-    virtual void  error() = 0;
+  virtual void  startContainer() = 0;
+  virtual void  endContainer() = 0;
+  virtual void  itemValue(const std::string& valueStr) = 0;
+  virtual void  itemValue(void * valuePtr,
+			  WfCst::WfDataType valueType = WfCst::TYPE_UNKNOWN) = 0;
+  virtual void  matrix(void * valuePtr,
+		       WfCst::WfDataType valueType,
+		       unsigned int nbRows,
+		       unsigned int nbColumns,
+		       diet_matrix_order_t order) = 0;
+  virtual void  voidElement() = 0;
+  virtual void  error() = 0;
 
-  protected:
-    void  rawValue(const std::string& valueStr);
-    void  rawValue(void * valuePtr,
-                   WfCst::WfDataType valueType);
+protected:
+  void  rawValue(const std::string& valueStr);
+  void  rawValue(void * valuePtr,
+		 WfCst::WfDataType valueType);
 
-    std::ostream& myOutput;
+  std::ostream& myOutput;
 
 };
 
 class WfXMLDataWriter : public WfDataWriter  {
 
-  public:
+public:
 
-    WfXMLDataWriter(std::ostream& output);
+  WfXMLDataWriter(std::ostream& output);
 
-    virtual void  startContainer();
-    virtual void  endContainer();
-    virtual void  itemValue(const std::string& valueStr);
-    virtual void  itemValue(void * valuePtr,
-                            WfCst::WfDataType valueType = WfCst::TYPE_UNKNOWN);
-    virtual void  matrix(void * valuePtr,
-                         WfCst::WfDataType valueType,
-                         unsigned int nbRows,
-                         unsigned int nbColumns,
-                         diet_matrix_order_t order);
-    virtual void  voidElement();
-    virtual void  error();
+  virtual void  startContainer();
+  virtual void  endContainer();
+  virtual void  itemValue(const std::string& valueStr);
+  virtual void  itemValue(void * valuePtr,
+			  WfCst::WfDataType valueType = WfCst::TYPE_UNKNOWN);
+  virtual void  matrix(void * valuePtr,
+		       WfCst::WfDataType valueType,
+		       unsigned int nbRows,
+		       unsigned int nbColumns,
+		       diet_matrix_order_t order);
+  virtual void  voidElement();
+  virtual void  error();
     
-    // additional methods to include dataId attribute in tags
-    void startContainer( const std::string& dataID );
-    void itemValue( const std::string& valueStr,
-		    const std::string& dataID);
-    void itemValue( void * valuePtr,
-                    WfCst::WfDataType valueType,
-		    const std::string& dataID );
+  // additional methods to include dataId attribute in tags
+  void startContainer( const std::string& dataID );
+  void itemValue( const std::string& valueStr,
+		  const std::string& dataID);
+  void itemValue( void * valuePtr,
+		  WfCst::WfDataType valueType,
+		  const std::string& dataID );
 };
 
 class WfListDataWriter : public WfDataWriter  {
 
-  public:
-    WfListDataWriter(std::ostream& output);
+public:
+  WfListDataWriter(std::ostream& output);
 
-    virtual void  startContainer();
-    virtual void  endContainer();
-    virtual void  itemValue(const std::string& valueStr);
-    virtual void  itemValue(void * valuePtr,
-                            WfCst::WfDataType valueType = WfCst::TYPE_UNKNOWN);
-    virtual void  matrix(void * valuePtr,
-                         WfCst::WfDataType valueType,
-                         unsigned int nbRows,
-                         unsigned int nbColumns,
-                         diet_matrix_order_t order);
-    virtual void  voidElement();
-    virtual void  error();
+  virtual void  startContainer();
+  virtual void  endContainer();
+  virtual void  itemValue(const std::string& valueStr);
+  virtual void  itemValue(void * valuePtr,
+			  WfCst::WfDataType valueType = WfCst::TYPE_UNKNOWN);
+  virtual void  matrix(void * valuePtr,
+		       WfCst::WfDataType valueType,
+		       unsigned int nbRows,
+		       unsigned int nbColumns,
+		       diet_matrix_order_t order);
+  virtual void  voidElement();
+  virtual void  error();
 
-  protected:
-    bool  firstElt;
+protected:
+  bool  firstElt;
 };
 
 

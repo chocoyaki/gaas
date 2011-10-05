@@ -380,7 +380,7 @@ int main(int argc, char* argv[], char *envp[]) {
     ERROR("parsing " << configFile
           << ": no parent name specified", GRPC_CONFIGFILE_ERROR);
   } else if (((agentType != "DIET_LOCAL_AGENT") && (agentType != "LA")) &&
-            hasParentName) {
+	     hasParentName) {
     WARNING("parsing " << configFile << ": no need to specify "
             << "a parent name for an MA - ignored");
   }

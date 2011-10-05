@@ -165,7 +165,7 @@ protected:
    * Returns the persistence mode for this port
    */
   virtual diet_persistence_mode_t
-      getPersistenceMode() = 0;
+  getPersistenceMode() = 0;
 
   /**
    * Initializes the profile when no value is provided
@@ -236,8 +236,8 @@ public:
    * @param dataID  the ID of the data container
    * @return  the size of the container
    */
-//   unsigned int
-//   getDataIDCardinal(const string& dataID) throw (WfDataException);
+  //   unsigned int
+  //   getDataIDCardinal(const string& dataID) throw (WfDataException);
 
   /**
    * Get the ID of an element of the output data (when it's a container)
@@ -264,7 +264,7 @@ public:
    */
   void
   writeDataElement(WfDataWriter* dataWriter, const list<unsigned int>& idxList)
-      throw (WfDataException);
+    throw (WfDataException);
 
 
 protected:
@@ -288,7 +288,7 @@ protected:
    * Returns the persistence mode for this port
    */
   diet_persistence_mode_t
-      getPersistenceMode();
+  getPersistenceMode();
 
 };
 
@@ -375,7 +375,7 @@ protected:
 /*****************************************************************************/
 
 class DagNodeInOutPort : virtual public DagNodeInPort,
-                           virtual public DagNodeOutPort {
+			 virtual public DagNodeOutPort {
 public:
   DagNodeInOutPort(DagNode * parent,
                    string _id,
@@ -411,7 +411,7 @@ protected:
    * Returns the persistence mode for this port
    */
   diet_persistence_mode_t
-      getPersistenceMode();
+  getPersistenceMode();
 
 }; // end DagNodeInOutPort
 

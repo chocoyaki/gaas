@@ -107,10 +107,10 @@ public :
 
 
   friend bool operator< (const KeyString & a,
-			 const KeyString & b) ;
+                         const KeyString & b) ;
 
   friend bool operator== (const KeyString & a,
-			  const KeyString & b) ;
+                          const KeyString & b) ;
 
   friend std::ostream& operator<<(std::ostream& output, const KeyString & id) ;
 } ; // KeyString
@@ -139,7 +139,7 @@ bool operator== (const KeyString & a, const KeyString & b) ;
  * Writes an ascii description of an id.
  */
 inline std::ostream& operator<<(std::ostream& output,
-				const KeyString & key) {
+                                const KeyString & key) {
   return output << key.str ;
 }
 

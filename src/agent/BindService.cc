@@ -80,15 +80,15 @@ void BindService::run(void* ptr) {
     struct sockaddr_in clientAddr;
     socklen_t clientLen = static_cast<socklen_t>(sizeof(clientAddr));
     int newSockFd = accept(listenSocket, (struct sockaddr *) &clientAddr, 
-			   &clientLen);
+                           &clientLen);
     if (newSockFd < 0) {
       if (errno == EBADF) {
-	doNotStop = false ;
-	TRACE_TEXT(TRACE_ALL_STEPS, "bind service closed") ;
-	continue ;
+        doNotStop = false ;
+        TRACE_TEXT(TRACE_ALL_STEPS, "bind service closed") ;
+        continue ;
       } else {
-	WARNING("error on accept (bind service): " << strerror(errno));
-	continue ;
+        WARNING("error on accept (bind service): " << strerror(errno));
+        continue ;
       }
     }
     int n = write(newSockFd, ior, strlen(ior));
@@ -116,7 +116,7 @@ BindService::BindService(MasterAgentImpl* ma, unsigned int port) {
   serverAddr.sin_addr.s_addr = INADDR_ANY;
   serverAddr.sin_port = htons(port);
   if (bind(listenSocket, (struct sockaddr *) &serverAddr,
-	   sizeof(serverAddr)) < 0)  {
+           sizeof(serverAddr)) < 0)  {
     ERROR("in binding the bind service socket: " << strerror(errno) << endl, ;);
   }
   listen(listenSocket,5);

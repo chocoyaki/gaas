@@ -42,20 +42,20 @@ class FLoopInPort : public FNodeInPort {
 
   friend class FLoopNode;
 
-  public:
+public:
 
-    FLoopInPort(WfNode * parent, const string& _id, WfPort::WfPortType _portType,
+  FLoopInPort(WfNode * parent, const string& _id, WfPort::WfPortType _portType,
               WfCst::WfDataType _type, unsigned int _depth, unsigned int _ind)
-      : FNodePort(parent,_id,_portType,_type,_depth,_ind),
-	FNodeInPort(parent,_id,_portType,_type,_depth,_ind),
-        setPrecedence(false) {
-    }
+    : FNodePort(parent,_id,_portType,_type,_depth,_ind),
+      FNodeInPort(parent,_id,_portType,_type,_depth,_ind),
+      setPrecedence(false) {
+  }
 
-    virtual void
-        setNodePrecedence(NodeSet * contextNodeSet) throw (WfStructException);
+  virtual void
+  setNodePrecedence(NodeSet * contextNodeSet) throw (WfStructException);
 
-  private:
-    bool setPrecedence;
+private:
+  bool setPrecedence;
 
 };
 
@@ -63,12 +63,12 @@ class FLoopInPort : public FNodeInPort {
 
 class FLoopOutPort : public FNodeOutPort {
 
-  public:
-    FLoopOutPort(WfNode * parent, const string& _id, WfPort::WfPortType _portType,
+public:
+  FLoopOutPort(WfNode * parent, const string& _id, WfPort::WfPortType _portType,
                WfCst::WfDataType _type, unsigned int _depth, unsigned int _ind)
-      : FNodePort(parent,_id,_portType,_type,_depth,_ind),
-	FNodeOutPort(parent,_id,_portType,_type,_depth,_ind) {
-    }
+    : FNodePort(parent,_id,_portType,_type,_depth,_ind),
+      FNodeOutPort(parent,_id,_portType,_type,_depth,_ind) {
+  }
 
 };
 
@@ -97,31 +97,31 @@ FLoopNode::newPort(string portId,
 
   WfPort * p = NULL;
   switch (portType) {
-    case WfPort::PORT_PARAM:
-      p = new FNodeParamPort(this, portId, dataType, ind);
-      addPort(portId, p);
-      break;
-    case WfPort::PORT_IN:
-      p = new FNodeInPort(this, portId, portType, dataType, depth, ind);
-      addPort(portId, p);
-      break;
-    case WfPort::PORT_INOUT:
-      throw WfStructException("Inout port is not valid within conditional node");
-      break;
-    case WfPort::PORT_OUT:
-      p = new FNodeOutPort(this, portId, portType, dataType, depth, ind);
-      addPort(portId, p);
-      break;
-    case WfPort::PORT_IN_LOOP:
-      p = new FLoopInPort(this, portId, portType, dataType, depth, ind);
-      addPort(portId, p);
-      break;
-    case WfPort::PORT_OUT_LOOP:
-      p = new FLoopOutPort(this, portId, portType, dataType, depth, ind);
-      addPort(portId, p);
-      break;
-    default:
-      throw WfStructException("Invalid port type in conditional node");
+  case WfPort::PORT_PARAM:
+    p = new FNodeParamPort(this, portId, dataType, ind);
+    addPort(portId, p);
+    break;
+  case WfPort::PORT_IN:
+    p = new FNodeInPort(this, portId, portType, dataType, depth, ind);
+    addPort(portId, p);
+    break;
+  case WfPort::PORT_INOUT:
+    throw WfStructException("Inout port is not valid within conditional node");
+    break;
+  case WfPort::PORT_OUT:
+    p = new FNodeOutPort(this, portId, portType, dataType, depth, ind);
+    addPort(portId, p);
+    break;
+  case WfPort::PORT_IN_LOOP:
+    p = new FLoopInPort(this, portId, portType, dataType, depth, ind);
+    addPort(portId, p);
+    break;
+  case WfPort::PORT_OUT_LOOP:
+    p = new FLoopOutPort(this, portId, portType, dataType, depth, ind);
+    addPort(portId, p);
+    break;
+  default:
+    throw WfStructException("Invalid port type in conditional node");
   }
   return p;
 }
@@ -173,7 +173,7 @@ FLoopNode::setDoMap(const string& leftPortName,
 
 void
 FLoopNode::setWhileCondition(const string& conditionStr)
-    throw (WfStructException) {
+  throw (WfStructException) {
   myCondition->setExpression(conditionStr);
   checkCondition();
 }
@@ -189,7 +189,7 @@ FLoopNode::checkCondition() throw (WfStructException) {
        ++portIter) {
     WfPort *port = (WfPort*) portIter->second;
     if (((port->getPortType() == WfPort::PORT_IN) || (port->getPortType() == WfPort::PORT_IN_LOOP))
-         && myCondition->isVariableUsed(port->getId())) {
+	&& myCondition->isVariableUsed(port->getId())) {
       // each port involved in the condition must be modified to accept only
       // DH with a real value
       FNodeInPort* inPort = dynamic_cast<FNodeInPort*>(port);
@@ -264,7 +264,7 @@ FLoopNode::testCondition(const vector<FDataHandle*>& currDataLine) {
 
       } else {
         throw WfDataHandleException(WfDataHandleException::eVALUE_UNDEF,
-                "Condition variable '" + (*myConditionVars)[ix]->getName());
+				    "Condition variable '" + (*myConditionVars)[ix]->getName());
       }
     }
   }
@@ -294,9 +294,9 @@ FLoopNode::instanciate(Dag* dag) {
     myLoopIterator->removeItem();
 
     // CHECK if tag length matches loop tag length
-    if (loopTagLength) {	// must have been set before
+    if (loopTagLength) {        // must have been set before
       if (currTag.getLevel() != loopTagLength) {
-	INTERNAL_ERROR(__FUNCTION__ << "Loop contains workflow with different in/out tag level",1);
+        INTERNAL_ERROR(__FUNCTION__ << "Loop contains workflow with different in/out tag level",1);
       }
     }
 
@@ -371,7 +371,7 @@ FLoopNode::createRealInstance(Dag* dag,
                               const FDataTag& currTag,
                               vector<FDataHandle*>& currDataLine) {
   TRACE_TEXT (TRACE_ALL_STEPS,"  ## NEW LOOP INSTANCE : " << getId()
-                              << currTag.toString() << endl);
+	      << currTag.toString() << endl);
 
   initLoopInPorts(currDataLine);
 
@@ -409,7 +409,7 @@ void
 FLoopNode::createVoidInstance(const FDataTag& currTag,
                               vector<FDataHandle*>& currDataLine) {
   TRACE_TEXT (TRACE_ALL_STEPS,"  ## NEW LOOP VOID INSTANCE : " << getId()
-                              << currTag.toString() << endl);
+	      << currTag.toString() << endl);
 
   initLoopInPorts(currDataLine);
   FDataTag* loopTag = new FDataTag(currTag,0,true);

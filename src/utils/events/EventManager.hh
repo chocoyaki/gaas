@@ -29,11 +29,11 @@
 
 namespace events {
 
-// Singleton class for the global event manager
-// Implements the Mediator pattern to reduce coupling btw event producers and
-// event observers
+  // Singleton class for the global event manager
+  // Implements the Mediator pattern to reduce coupling btw event producers and
+  // event observers
 
-class EventManager {
+  class EventManager {
   
   public:
     
@@ -52,7 +52,7 @@ class EventManager {
     
     /**
      * Add a new observer with a basic filter on severity
-     * @param observer	the observer
+     * @param observer  the observer
      */
     void addObserver(EventObserver* observer);
     
@@ -63,9 +63,9 @@ class EventManager {
     
   private:
     
-    static EventManager* 	_instance;
-    std::vector<EventObserver*>	_observers;
-};
+    static EventManager*        _instance;
+    std::vector<EventObserver*> _observers;
+  };
 
 }
 

@@ -1,6 +1,6 @@
 /****************************************************************************/
-/* Asynchronized calls singleton Mgr 					    */
-/*                                  					    */
+/* Asynchronized calls singleton Mgr                                        */
+/*                                                                          */
 /*  Author(s):                                                              */
 /*    - Christophe PERA (christophe.pera@ens-lyon.fr)                       */
 /*                                                                          */
@@ -318,12 +318,12 @@ int CallAsyncMgr::addWaitAnyRule(diet_reqID_t* IDptr)
       ruleElement * simpleWait = new ruleElement[size-doneReqCount];
       int ix=0;
       for (int k = 0; k < size; k++){
-	if (find(doneRequests.begin(),
-		 doneRequests.end(),
-		 h->first) == doneRequests.end()) {
-	  simpleWait[ix].reqID = h->first;
-	  simpleWait[ix++].op = WAITOPERATOR(ANY);
-	}
+        if (find(doneRequests.begin(),
+                 doneRequests.end(),
+                 h->first) == doneRequests.end()) {
+          simpleWait[ix].reqID = h->first;
+          simpleWait[ix++].op = WAITOPERATOR(ANY);
+        }
         ++h;
       }
       rule->length = size - doneReqCount;
@@ -430,15 +430,15 @@ int CallAsyncMgr::addWaitRule(Rule * rule)
         else if (h->second->st == STATUS_RESOLVING) {
           plenty = false; // one result is not yet ready, at least ...
         }
-	else if(h->second->st == STATUS_DONE
-		&& rule->ruleElts[k].op != WAITOPERATOR(ALL)
-		&& rule->ruleElts[k].op != WAITOPERATOR(AND) ){
+        else if(h->second->st == STATUS_DONE
+                && rule->ruleElts[k].op != WAITOPERATOR(ALL)
+                && rule->ruleElts[k].op != WAITOPERATOR(AND) ){
           tmpplenty = true; // one result is finish yet
-	}
+        }
         h->second->used++; // NOTES : what to do if an exception ...
       }
       if (tmpplenty==true){
-      	plenty=true;
+        plenty=true;
       }
       if (plenty == true){
         rule->status = STATUS_DONE;
@@ -495,7 +495,7 @@ int CallAsyncMgr::deleteWaitRule(Rule* rule)
     //WriterLockGuard r(callAsyncListLock);
     if (rule == 0) return -1;
     RulesConditionMap::iterator i = rulesConds.find(rule);
-    if (i != rulesConds.end()) delete i->second; 	// deleting semaphore
+    if (i != rulesConds.end()) delete i->second;        // deleting semaphore
     RulesReqIDMap::iterator j;
     // delete all elements in RulesReqIDMap about this rule/condition
     for (int k = 0; k < rule->length; k++){
@@ -505,9 +505,9 @@ int CallAsyncMgr::deleteWaitRule(Rule* rule)
         }
       }
     }
-    rulesConds.erase(rule); 	// deleting Rule/Semaphore map elts
-    delete[] rule->ruleElts;	// deleting RuleElement data table
-    delete rule;		// deleting Rule
+    rulesConds.erase(rule);     // deleting Rule/Semaphore map elts
+    delete[] rule->ruleElts;    // deleting RuleElement data table
+    delete rule;                // deleting Rule
   }
   // ERREUR DE GESTION MEMOIRE. A CORRIGER ???????
   catch (const exception& e){
@@ -583,38 +583,38 @@ int CallAsyncMgr::notifyRst (diet_reqID_t reqID, corba_profile_t * dp)
       for(j = rulesIDs.lower_bound(reqID);
           j != rulesIDs.upper_bound(reqID);
           ++j) {
-          bool plenty = true;
-          for (int k = 0; k < j->second->length; k++){
-            h = caList.find(j->second->ruleElts[k].reqID);
-            if ((h != caList.end())
-                && (h->second->st != STATUS_DONE)
-                && ((j->second->ruleElts[k].op == WAITOPERATOR(AND))
-                    || (j->second->ruleElts[k].op == WAITOPERATOR(SOLE))
-                    || (j->second->ruleElts[k].op == WAITOPERATOR(ALL))
-                    )
-                ) {
-              plenty = false;
-            }
-            /**********************************************************************
-             * FIXME : rule parsing must be reimplemented ....
-             * for performance and function
-             * *******************************************************************/
-          }
+	bool plenty = true;
+	for (int k = 0; k < j->second->length; k++){
+	  h = caList.find(j->second->ruleElts[k].reqID);
+	  if ((h != caList.end())
+	      && (h->second->st != STATUS_DONE)
+	      && ((j->second->ruleElts[k].op == WAITOPERATOR(AND))
+		  || (j->second->ruleElts[k].op == WAITOPERATOR(SOLE))
+		  || (j->second->ruleElts[k].op == WAITOPERATOR(ALL))
+		  )
+	      ) {
+	    plenty = false;
+	  }
+	  /**********************************************************************
+	   * FIXME : rule parsing must be reimplemented ....
+	   * for performance and function
+	   * *******************************************************************/
+	}
 
-          if (plenty == true) {
-            j->second->status=STATUS_DONE;
-            i = rulesConds.find(j->second);
-            if (i != rulesConds.end()){
-              i->second->post();
-            }
-            else {
-            }
-            // broadcast for that rule
-          }
-          else {
-            // nothing. try another rule linked to this reqID
-          }
-        }
+	if (plenty == true) {
+	  j->second->status=STATUS_DONE;
+	  i = rulesConds.find(j->second);
+	  if (i != rulesConds.end()){
+	    i->second->post();
+	  }
+	  else {
+	  }
+	  // broadcast for that rule
+	}
+	else {
+	  // nothing. try another rule linked to this reqID
+	}
+      }
     }
     catch (const exception& e){
       WARNING("exception caught in " << __FUNCTION__ << " , what=" << e.what());
@@ -780,7 +780,7 @@ CallAsyncMgr::checkSessionID(const diet_reqID_t reqID) {
  */
 void
 CallAsyncMgr::saveHandle(diet_reqID_t sessionID,
-			 grpc_function_handle_t* handle) {
+                         grpc_function_handle_t* handle) {
   handlesMap[sessionID] = handle;
 }
 
@@ -789,7 +789,7 @@ CallAsyncMgr::saveHandle(diet_reqID_t sessionID,
  */
 diet_error_t
 CallAsyncMgr::getHandle(grpc_function_handle_t** handle,
-			diet_reqID_t sessionID) {
+                        diet_reqID_t sessionID) {
   if (!checkSessionID(sessionID))
     return GRPC_INVALID_SESSION_ID;
 

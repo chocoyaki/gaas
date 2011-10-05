@@ -43,28 +43,28 @@ MaDagNodeLauncher::execNode()
   CORBA::Long res;
 
   try
-  {
-    if (isSeDDefinedFlag)
     {
-      TRACE_TEXT (TRACE_ALL_STEPS, nodePx << "call client (sed defined) - request #"
-          << this->myReqID << endl);
-      res = myCltMgr->execNodeOnSed(nodeId.c_str(),
-                                    dagId.c_str(),
-                                    myChosenServer,
-                                    (CORBA::ULong) myReqID,
-                                    myEstimVect);
-    } else {
-      TRACE_TEXT (TRACE_ALL_STEPS, nodePx << "call client (sed not defined)" << endl);
-      res = myCltMgr->execNode(nodeId.c_str(),
-                                dagId.c_str());
-    }
-    TRACE_TEXT (TRACE_MAIN_STEPS, nodePx << "call client DONE" << endl);
-  } catch (CORBA::COMM_FAILURE& e) {
+      if (isSeDDefinedFlag)
+	{
+	  TRACE_TEXT (TRACE_ALL_STEPS, nodePx << "call client (sed defined) - request #"
+		      << this->myReqID << endl);
+	  res = myCltMgr->execNodeOnSed(nodeId.c_str(),
+					dagId.c_str(),
+					myChosenServer,
+					(CORBA::ULong) myReqID,
+					myEstimVect);
+	} else {
+	TRACE_TEXT (TRACE_ALL_STEPS, nodePx << "call client (sed not defined)" << endl);
+	res = myCltMgr->execNode(nodeId.c_str(),
+				 dagId.c_str());
+      }
+      TRACE_TEXT (TRACE_MAIN_STEPS, nodePx << "call client DONE" << endl);
+    } catch (CORBA::COMM_FAILURE& e) {
     WARNING(nodePx << "Client call had connection problems" << endl);
     clientFailure = true;
   } catch (CORBA::SystemException& e) {
     WARNING(nodePx << "Client call got a CORBA " << e._name() << " exception ("
-        << e.NP_minorString() << ")" << endl);
+	    << e.NP_minorString() << ")" << endl);
     clientFailure = true;
   } catch (...) {
     WARNING(nodePx << "Client call got unknown exception!" << endl);

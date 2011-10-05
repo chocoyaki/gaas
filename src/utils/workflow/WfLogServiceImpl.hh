@@ -29,7 +29,7 @@
 #include "WfLogServiceFwdr.hh"
 
 class WfLogServiceFwdrImpl : public POA_WfLogServiceFwdr,
-	public PortableServer::RefCountServantBase
+			     public PortableServer::RefCountServantBase
 {
 protected:
   Forwarder_ptr forwarder;
@@ -55,7 +55,7 @@ public:
 
   virtual void
   createDagNodePort(const char* dagNodePortId, const char* portDirection,
-		    const char* dagNodeId, const char* wfId);
+                    const char* dagNodeId, const char* wfId);
 
   virtual void
   setInPortDependencies(const char* dagNodePortId, const char* dagNodeId, const char* wfId,
@@ -63,11 +63,11 @@ public:
   
   virtual void
   createDagNodeLink(const char* srcNodeId, const char* srcWfId,
-		    const char* destNodeId, const char* destWfId);
-		    
+                    const char* destNodeId, const char* destWfId);
+                    
   virtual void
   createDagNodeData(const char* dagNodeId, const char* wfId,
-		    const char* dagNodePortId, const char* dataId);
+                    const char* dagNodePortId, const char* dataId);
 
   virtual void
   createDataElements(const char* dataId, const char* elementIdList);
@@ -83,7 +83,7 @@ public:
 
   virtual void
   nodeIsStarting(const char* dagNodeId, const char* wfId, const char* pbName, const char* hostname);
-		    
+                    
   virtual void
   nodeIsRunning(const char* dagNodeId, const char* wfId);
 

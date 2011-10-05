@@ -34,7 +34,7 @@ static const pair<short,string> severity2str_init[] = {
 };
 
 static map<short,string> severity2str(severity2str_init, severity2str_init
-    + sizeof(severity2str_init)/sizeof(severity2str_init[0]));
+				      + sizeof(severity2str_init)/sizeof(severity2str_init[0]));
     
 string 
 EventBase::toString() const {

@@ -117,8 +117,8 @@ public:
   virtual int
   aggregate(corba_response_t& aggrResp,
             int* lastAggregated,
-	    const size_t nb_responses,
-	    const corba_response_t* responses,
+            const size_t nb_responses,
+            const corba_response_t* responses,
             int* lastAggr,
             Vector_t evCache);
 
@@ -241,7 +241,7 @@ public:
   NWSScheduler();
   NWSScheduler(double CPUPower, double memPower, double commPower);
   NWSScheduler(double epsilon,
-	       double CPUPower, double memPower, double commPower);
+               double CPUPower, double memPower, double commPower);
   virtual
   ~NWSScheduler();
 

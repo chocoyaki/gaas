@@ -48,9 +48,9 @@ static unsigned int NB = 1;
 template <typename T>
 std::string toString( T t )
 {
-    std::ostringstream oss;
-    oss << t;
-    return oss.str();
+  std::ostringstream oss;
+  oss << t;
+  return oss.str();
 }
 
 
@@ -128,7 +128,7 @@ add_service(const char* service_name)
   profile = diet_profile_desc_alloc(strdup(service_name),0,0,0);
 
   /* setup scheduler */
-//   set_up_scheduler(profile);
+  //   set_up_scheduler(profile);
 
   diet_generic_desc_set(diet_param_desc(profile,pos++),DIET_SCALAR, DIET_INT);
 

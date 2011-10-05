@@ -106,14 +106,14 @@ public:
 
   /**
    * Constructor of toplevel workflow (no parent)
-   * @param id	  workflow identifier
+   * @param id    workflow identifier
    * @param name  name of the workflow (only descriptive)
    */
   FWorkflow(string id, string name);
   
   /**
    * Constructor of sub-workflow (child of another workflow)
-   * @param id	      a unique identifier (among all parent wf processors)
+   * @param id        a unique identifier (among all parent wf processors)
    * @param parentWf  ref to the parent wf
    */
   FWorkflow(string id, string name, FWorkflow* parentWf);
@@ -151,28 +151,28 @@ public:
   /***************************************************/
 
   virtual void
-      initialize();
+  initialize();
 
   virtual void
-      instanciate(Dag* dag);
+  instanciate(Dag* dag);
 
   virtual void
-      freeNodePersistentData(MasterAgent_var& MA);
+  freeNodePersistentData(MasterAgent_var& MA);
 
   /***************************************************/
   /*             FProcNode methods                   */
   /***************************************************/
   virtual void
-      createRealInstance(Dag* dag,
-                         const FDataTag& currTag,
-                         vector<FDataHandle*>& currDataLine);
+  createRealInstance(Dag* dag,
+		     const FDataTag& currTag,
+		     vector<FDataHandle*>& currDataLine);
 
   virtual void
-      createVoidInstance(const FDataTag& currTag,
-                         vector<FDataHandle*>& currDataLine);
+  createVoidInstance(const FDataTag& currTag,
+		     vector<FDataHandle*>& currDataLine);
 
   virtual void
-      updateInstanciationStatus();
+  updateInstanciationStatus();
 
   /***************************************************/
   /*               public methods                    */
@@ -223,7 +223,7 @@ public:
 
   FSinkNode*
   createSink(const string& id, WfCst::WfDataType type, unsigned int depth)
-      throw (WfStructException);
+  throw (WfStructException);
 
   /**
    * Get methods for workflow nodes
@@ -291,13 +291,13 @@ public:
 
   /**
    * Check workflow execution transcript for a given dag node id
-   * @param dagNodeId	id of the node (must match)
-   * @param dagNodePtr	returns a ptr to the dagNode if found
-   * @param isDone	returns true if dagNode is done
+   * @param dagNodeId   id of the node (must match)
+   * @param dagNodePtr  returns a ptr to the dagNode if found
+   * @param isDone      returns true if dagNode is done
    */
   void findDagNodeTranscript( const string& dagNodeId,
-			      DagNode* & dagNodePtr,
-			      bool& isDone );
+                              DagNode* & dagNodePtr,
+                              bool& isDone );
 
   /**
    * results
@@ -399,7 +399,7 @@ private:
    * The execution transcript of the workflow
    * It contains all dagNodes that have been executed (status isDone)
    */
-  map<string, DagNode*>	transcriptNodes;
+  map<string, DagNode*> transcriptNodes;
 
   /**
    * Critical section

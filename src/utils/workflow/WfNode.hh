@@ -337,7 +337,7 @@ protected:
    */
   WfPort *
   addPort(const string& portId, WfPort* port)
-      throw (WfStructException);
+    throw (WfStructException);
 
   /**
    * ports map<id, reference> *

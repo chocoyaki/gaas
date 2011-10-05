@@ -170,12 +170,12 @@ public:
   short
   getPortType() const;
 
-	/**
+  /**
    * Returns true if the port is an input
    */
   bool
   isInput() const;
-	
+        
   /**
    * Returns true if the port is an output
    */

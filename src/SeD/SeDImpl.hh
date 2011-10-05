@@ -287,7 +287,7 @@ extern "C" {
 /* SeD class                                                                */
 /****************************************************************************/
 class SeDImpl : public POA_SeD,
-		public PortableServer::RefCountServantBase
+                public PortableServer::RefCountServantBase
 {
 
 public:
@@ -326,7 +326,7 @@ public:
 
   virtual CORBA::Long
   checkContract(corba_estimation_t& estimation,
-		const corba_pb_desc_t& pb);
+                const corba_pb_desc_t& pb);
 
   virtual void
   updateTimeSinceLastSolve() ;
@@ -351,9 +351,9 @@ public:
 
   void
   parallel_AsyncSolve(const char* path, const corba_profile_t& pb,
-		      ServiceTable::ServiceReference_t ref,
-		      CORBA::Object_var & cb,
-		      diet_profile_t& profile) ;
+                      ServiceTable::ServiceReference_t ref,
+                      CORBA::Object_var & cb,
+                      diet_profile_t& profile) ;
 
   char* getLocalHostName() ;
 #endif
@@ -361,18 +361,18 @@ public:
   BatchSystem * // should be const
   getBatch() ;
 
-//   int
-//   diet_submit_parallel(diet_profile_t * profile, const char * command) ;
+  //   int
+  //   diet_submit_parallel(diet_profile_t * profile, const char * command) ;
 
-//   int
-//   diet_concurrent_submit_parallel(int batchJobID, diet_profile_t * profile,
-// 			             const char * command) ;
+  //   int
+  //   diet_concurrent_submit_parallel(int batchJobID, diet_profile_t * profile,
+  //                                   const char * command) ;
 #endif
 
 
   virtual void
   solveAsync(const char* pb_name, const corba_profile_t& pb,
-	     const char * volatileclientIOR);
+             const char * volatileclientIOR);
 
   virtual CORBA::Long
   ping();
@@ -474,8 +474,8 @@ private:
 
   inline void
   estimate(corba_estimation_t& estimation,
-	   const corba_pb_desc_t& pb,
-	   const ServiceTable::ServiceReference_t ref);
+           const corba_pb_desc_t& pb,
+           const ServiceTable::ServiceReference_t ref);
 
   /**
    * TODO: if possible merge async and sync function. Currently, the DTM code
@@ -484,19 +484,19 @@ private:
 
   inline void
   downloadSyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
-		      diet_convertor_t* cvt) ;
+                      diet_convertor_t* cvt) ;
 
   inline void
   uploadSyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
-		    diet_convertor_t* cvt) ;
+                    diet_convertor_t* cvt) ;
 
   inline void
   downloadAsyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
-		      diet_convertor_t* cvt) ;
+		       diet_convertor_t* cvt) ;
 
   inline void
   uploadAsyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
-		    diet_convertor_t* cvt) ;
+		     diet_convertor_t* cvt) ;
 
 };
 

@@ -89,26 +89,26 @@ namespace madag {
      * Updates scheduler when a node has been executed
      */
     virtual void
-        handlerNodeDone(DagNode * node);
+    handlerNodeDone(DagNode * node);
 
     /**
      * internal dag scheduling
      */
     virtual void
-        intraDagSchedule(Dag * dag, MasterAgent_var MA)
-        throw (MaDag::ServiceNotFound, MaDag::CommProblem);
+    intraDagSchedule(Dag * dag, MasterAgent_var MA)
+      throw (MaDag::ServiceNotFound, MaDag::CommProblem);
 
     /**
      * set node priority before inserting into execution queue
      */
     virtual void
-        setExecPriority(DagNode * node);
+    setExecPriority(DagNode * node);
 
     /**
      * set node priority before inserting back in the ready queue
      */
     virtual void
-        setWaitingPriority(DagNode * node);
+    setWaitingPriority(DagNode * node);
 
     /**
      * updates the delay for a given node and change the current dag
@@ -117,7 +117,7 @@ namespace madag {
      * @param delay delay in ms
      */
     virtual void
-        updateNodeDelay(DagNode * node, double delay);
+    updateNodeDelay(DagNode * node, double delay);
 
   private:
 

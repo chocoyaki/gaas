@@ -34,7 +34,7 @@ public:
   static HostnameRR* deserialize(const char* serializedScheduler);
   /* Overriden aggregate method to schedule jobs with the SRA policy. */
   int aggregate(corba_response_t* aggrResp, size_t max_srv,
-		const size_t nb_responses, const corba_response_t* responses);
+                const size_t nb_responses, const corba_response_t* responses);
 };
 
 using namespace std;
@@ -51,8 +51,8 @@ HostnameRR::HostnameRR() {
 }
 
 int HostnameRR::aggregate(corba_response_t* aggrResp, size_t max_srv,
-			    const size_t nb_responses,
-			    const corba_response_t* responses)
+			  const size_t nb_responses,
+			  const corba_response_t* responses)
 {
   ServerList::iterator itSeD;
   unsigned int nbUsage=0;
@@ -65,7 +65,7 @@ int HostnameRR::aggregate(corba_response_t* aggrResp, size_t max_srv,
   for (itSeD=candidates.begin(); itSeD!=candidates.end(); ++itSeD)
     // We select the SeD by its host usage.
     if (hostCounter[HOSTNAME(*itSeD)]<=nbUsage)
-	  selected=*itSeD;
+      selected=*itSeD;
 
   aggrResp->servers.length(1);
   aggrResp->servers[0]=selected;

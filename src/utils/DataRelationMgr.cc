@@ -69,7 +69,7 @@ DataRelationMgr::remAllRelation(const string& dataID, bool reverse) {
   int count = myMap.erase(dataID);
   myLock.unlock();
   TRACE_TEXT(TRACE_ALL_STEPS, "Removed " << count << " relations for key "
-      << dataID << endl);
+	     << dataID << endl);
   // Delete links TO the item
   if (reverse) {
     // TODO delete all links TO the item

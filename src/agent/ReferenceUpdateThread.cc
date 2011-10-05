@@ -38,7 +38,7 @@
 #include <cstdio>
 
 ReferenceUpdateThread::ReferenceUpdateThread(MasterAgentImpl* owner,
-					     unsigned int period) 
+                                             unsigned int period) 
   : owner(owner), period(period) {
   start() ;
 } // ReferenceUpdateThread(MasterAgent_impl*)

@@ -137,8 +137,8 @@ extern unsigned int TRACE_LEVEL;
 
 // Use SCHED_CLASS for the name of the class
 // (this->name cannot be used in static member functions)
-#define SCHED_TRACE_FUNCTION(formatted_text)      \
-  TRACE_TEXT(TRACE_ALL_STEPS, SCHED_CLASS << "::");\
+#define SCHED_TRACE_FUNCTION(formatted_text)		\
+  TRACE_TEXT(TRACE_ALL_STEPS, SCHED_CLASS << "::");	\
   TRACE_FUNCTION(TRACE_ALL_STEPS,formatted_text)
 
 
@@ -150,13 +150,13 @@ extern unsigned int TRACE_LEVEL;
 
 GlobalScheduler::GlobalScheduler()
 {
-   this->name = "GlobalScheduler";
+  this->name = "GlobalScheduler";
 }
 
 /** Destroy the schedulers list */
 GlobalScheduler::~GlobalScheduler()
 {
-   this->schedulers.emptyIt();
+  this->schedulers.emptyIt();
 }
 
 
@@ -223,33 +223,33 @@ GlobalScheduler::deserialize(const char* serializedScheduler)
 char*
 GlobalScheduler::serialize(GlobalScheduler* GS)
 {
-    SCHED_TRACE_FUNCTION(GS->name);
+  SCHED_TRACE_FUNCTION(GS->name);
 
-    if (!strncmp(GS->name, StdGS::stName, GS->nameLength)) {
-	return StdGS::serialize((StdGS*) GS);
-    }
-    else if (!strncmp(GS->name, PriorityGS::stName, GS->nameLength)) {
-	return PriorityGS::serialize((PriorityGS*) GS);
-    }
-/* New : For scheduler load support. */
+  if (!strncmp(GS->name, StdGS::stName, GS->nameLength)) {
+    return StdGS::serialize((StdGS*) GS);
+  }
+  else if (!strncmp(GS->name, PriorityGS::stName, GS->nameLength)) {
+    return PriorityGS::serialize((PriorityGS*) GS);
+  }
+  /* New : For scheduler load support. */
 #ifdef USERSCHED
-    else if (!strncmp(GS->name, UserScheduler::stName, GS->nameLength)) {
-	return UserScheduler::serialize(GS);
-    }
+  else if (!strncmp(GS->name, UserScheduler::stName, GS->nameLength)) {
+    return UserScheduler::serialize(GS);
+  }
 #endif
-    /*************************************/
-    else {
-	ERROR("unable to serialize global scheduler named " << GS->name, NULL);
-    }
+  /*************************************/
+  else {
+    ERROR("unable to serialize global scheduler named " << GS->name, NULL);
+  }
 }
 
 /** Returns a global scheduler adapted to the request. */
 GlobalScheduler*
 GlobalScheduler::chooseGlobalScheduler()
 {
-    StdGS* res = new StdGS();
-    res->init();
-    return res;
+  StdGS* res = new StdGS();
+  res->init();
+  return res;
 }
 
 /* Let the corba_request be a parameter in order to have the possibility
@@ -323,71 +323,71 @@ GlobalScheduler::chooseGlobalScheduler(const corba_request_t* req,
  */
 int
 GlobalScheduler::aggregate(corba_response_t* aggrResp, size_t max_srv,
-			   const size_t nb_responses,
-			   const corba_response_t* responses)
+                           const size_t nb_responses,
+                           const corba_response_t* responses)
 {
-    size_t total_size = 0;
-    // lock the schedulers
-    SchedList::Iterator* iter = this->schedulers.getIterator();
+  size_t total_size = 0;
+  // lock the schedulers
+  SchedList::Iterator* iter = this->schedulers.getIterator();
 
-    //corba_response_t* aggrResp = new corba_response_t;
-    int lastAggregated = -1;
-    int* lastAggr = new int[nb_responses];
+  //corba_response_t* aggrResp = new corba_response_t;
+  int lastAggregated = -1;
+  int* lastAggr = new int[nb_responses];
 
-    /*
-    ** structure for caching estVector structures.  initially this
-    ** is a vector with as many empty vectors as there are
-    ** responses.  during the aggregation phase, this cache will
-    ** be populated.  at the end of aggregation, this cache needs
-    ** to be purged (see below).
-    */
-    Vector_t evCache = new_Vector();
+  /*
+  ** structure for caching estVector structures.  initially this
+  ** is a vector with as many empty vectors as there are
+  ** responses.  during the aggregation phase, this cache will
+  ** be populated.  at the end of aggregation, this cache needs
+  ** to be purged (see below).
+  */
+  Vector_t evCache = new_Vector();
 
-    //   cout << "global scheduler: " << this->name << std::endl;
+  //   cout << "global scheduler: " << this->name << std::endl;
 
-    SCHED_TRACE_FUNCTION("nb_responses=" << nb_responses
-			 << ",max_srv=" << max_srv);
+  SCHED_TRACE_FUNCTION("nb_responses=" << nb_responses
+		       << ",max_srv=" << max_srv);
 
-    for (size_t i = 0; i < nb_responses; i++) {
-      lastAggr[i]    = -1;
-      total_size    += responses[i].servers.length();
-      Vector_add(evCache, new_Vector());
+  for (size_t i = 0; i < nb_responses; i++) {
+    lastAggr[i]    = -1;
+    total_size    += responses[i].servers.length();
+    Vector_add(evCache, new_Vector());
+  }
+  if (max_srv == 0)
+    max_srv = total_size; // keep all servers
+  aggrResp->servers.length(MIN(total_size, max_srv));
+
+  while (iter->hasCurrent()) {
+    Scheduler* sched = iter->getCurrent();
+
+    //     fprintf(stderr,
+    //             "before %s, lastAggregated=%d\n",
+    //             Scheduler::serialize(sched),
+    //             lastAggregated);
+    sched->aggregate(*aggrResp,
+		     &lastAggregated,
+		     nb_responses,
+		     responses,
+		     lastAggr,
+		     evCache);
+    iter->next();
+  }
+
+  {  /* purge the estVector cache */
+    while (! Vector_isEmpty(evCache)) {
+      Vector_t respV = (Vector_t) Vector_removeAtPosition(evCache, 0);
+      while (! Vector_isEmpty(respV)) {
+	Vector_removeAtPosition(respV, 0);
+      }
+      free_Vector(respV);
     }
-    if (max_srv == 0)
-	max_srv = total_size; // keep all servers
-    aggrResp->servers.length(MIN(total_size, max_srv));
+    free_Vector(evCache);
+  }
 
-    while (iter->hasCurrent()) {
-	Scheduler* sched = iter->getCurrent();
+  delete iter; // unlock the schedulers list
+  delete [] lastAggr;
 
-	//     fprintf(stderr,
-	//             "before %s, lastAggregated=%d\n",
-	//             Scheduler::serialize(sched),
-	//             lastAggregated);
-	sched->aggregate(*aggrResp,
-			 &lastAggregated,
-			 nb_responses,
-			 responses,
-			 lastAggr,
-			 evCache);
-	iter->next();
-    }
-
-    {  /* purge the estVector cache */
-	while (! Vector_isEmpty(evCache)) {
-	    Vector_t respV = (Vector_t) Vector_removeAtPosition(evCache, 0);
-	    while (! Vector_isEmpty(respV)) {
-		Vector_removeAtPosition(respV, 0);
-	    }
-	    free_Vector(respV);
-	}
-	free_Vector(evCache);
-    }
-
-    delete iter; // unlock the schedulers list
-    delete [] lastAggr;
-
-    return 0;
+  return 0;
 }
 
 
@@ -401,77 +401,77 @@ const char*  StdGS::stName     = "StdGS";
 
 StdGS::StdGS()
 {
-    this->name = this->stName;
-    this->nameLength = strlen(this->name);
+  this->name = this->stName;
+  this->nameLength = strlen(this->name);
 }
 
 StdGS::~StdGS() {};
 
-  /** Initialize this global scheduler (build its list of schedulers). */
+/** Initialize this global scheduler (build its list of schedulers). */
 void
 StdGS::init()
 {
-    // schedulers has already been contructed by implicit call to parent class
-    // constructor.
+  // schedulers has already been contructed by implicit call to parent class
+  // constructor.
 #if !HAVE_CORI
-    this->schedulers.addElement(new NWSScheduler(3.0, 2.0, 1.0));
+  this->schedulers.addElement(new NWSScheduler(3.0, 2.0, 1.0));
 #endif// !HAVE_CORI
-    this->schedulers.addElement(new RRScheduler());
-    this->schedulers.addElement(new RandScheduler());
+  this->schedulers.addElement(new RRScheduler());
+  this->schedulers.addElement(new RandScheduler());
 }
 
 StdGS*
 StdGS::deserialize(const char* serializedScheduler)
 {
-    char* token(0);
-    char* ser_sched = strdup(serializedScheduler);
-    char* ptr = ser_sched;
-    StdGS* res = new StdGS();
+  char* token(0);
+  char* ser_sched = strdup(serializedScheduler);
+  char* ptr = ser_sched;
+  StdGS* res = new StdGS();
 
-    TRACE_TEXT(TRACE_ALL_STEPS,
-	       "StdGS::deserialize(" << serializedScheduler << ")" << std::endl);
+  TRACE_TEXT(TRACE_ALL_STEPS,
+	     "StdGS::deserialize(" << serializedScheduler << ")" << std::endl);
+  token = strsep( &ptr, ":" );
+  assert(!strcmp(token, StdGS::stName));
+  while (ptr) { // ptr == NULL when the last token is identified (no more ':')
+    // If the string was not duplicated in this function, we should
+    // reset the delimiter with
+    // ptr[-1] = ':';
     token = strsep( &ptr, ":" );
-    assert(!strcmp(token, StdGS::stName));
-    while (ptr) { // ptr == NULL when the last token is identified (no more ':')
-       // If the string was not duplicated in this function, we should
-       // reset the delimiter with
-	// ptr[-1] = ':';
-	token = strsep( &ptr, ":" );
-	res->schedulers.addElement(Scheduler::deserialize(token));
-    }
-    free(ser_sched);
-    return res;
+    res->schedulers.addElement(Scheduler::deserialize(token));
+  }
+  free(ser_sched);
+  return res;
 }
 
 char*
 StdGS::serialize(StdGS* GS)
 {
-    size_t maxLength = 128;
-    char* res = new char[maxLength];
-    SchedList::Iterator* iter = GS->schedulers.getIterator();
-    size_t length = GS->nameLength;
+  size_t maxLength = 128;
+  char* res = new char[maxLength];
+  SchedList::Iterator* iter = GS->schedulers.getIterator();
+  size_t length = GS->nameLength;
 
-    SCHED_TRACE_FUNCTION(GS->name);
-    sprintf(res, "%s", GS->name);
-    while (iter->hasCurrent()) {
-	Scheduler* sched = iter->getCurrent();
-	char* tmp = Scheduler::serialize(sched);
-	size_t tmp_length = strlen(tmp) + 1; // Add 1 for the ':'
-	if ((length + tmp_length) >= maxLength) {
-	    maxLength += 128;
-	    char* new_res = new char[maxLength];
-	    sprintf(new_res, "%s:%s", res, tmp);
-	    delete [] res;
-	    res = new_res;
-	} else {
-	    sprintf((char*)(res+length), ":%s", tmp);
-	}
-	length += tmp_length;
-	delete [] tmp;
-	iter->next();
+  SCHED_TRACE_FUNCTION(GS->name);
+  sprintf(res, "%s", GS->name);
+  while (iter->hasCurrent()) {
+    Scheduler* sched = iter->getCurrent();
+    char* tmp = Scheduler::serialize(sched);
+    size_t tmp_length = strlen(tmp) + 1; // Add 1 for the ':'
+    if ((length + tmp_length) >= maxLength) {
+      maxLength += 128;
+      char* new_res = new char[maxLength];
+      sprintf(new_res, "%s:%s", res, tmp);
+      delete [] res;
+      res = new_res;
+    } else {
+      sprintf((char*)(res+length), ":%s", tmp);
     }
-    delete iter;
-    return res;
+    length += tmp_length;
+    delete [] tmp;
+    iter->next();
+  }
+  delete iter;
+  return res;
 }
 
 
@@ -486,88 +486,88 @@ const char*  PriorityGS::stName     = "PriorityGS";
 
 PriorityGS::PriorityGS()
 {
-    this->name = this->stName;
-    this->nameLength = strlen(this->name);
+  this->name = this->stName;
+  this->nameLength = strlen(this->name);
 }
 PriorityGS::PriorityGS(corba_agg_priority_t priority)
 {
-    this->name = this->stName;
-    this->nameLength = strlen(this->name);
-    this->numPValues = priority.priorityList.length();
-    this->pValues = new int[this->numPValues];
-    for (int pvIter = 0 ; pvIter < this->numPValues ; pvIter++) {
-	this->pValues[pvIter] = priority.priorityList[pvIter];
-    }
+  this->name = this->stName;
+  this->nameLength = strlen(this->name);
+  this->numPValues = priority.priorityList.length();
+  this->pValues = new int[this->numPValues];
+  for (int pvIter = 0 ; pvIter < this->numPValues ; pvIter++) {
+    this->pValues[pvIter] = priority.priorityList[pvIter];
+  }
 }
 
 PriorityGS::~PriorityGS() {};
 
-  /** Initialize this global scheduler (build its list of schedulers). */
+/** Initialize this global scheduler (build its list of schedulers). */
 void
 PriorityGS::init()
 {
-    this->schedulers.addElement(new PriorityScheduler(this->numPValues,
-						      this->pValues));
+  this->schedulers.addElement(new PriorityScheduler(this->numPValues,
+						    this->pValues));
 }
 
 PriorityGS*
 PriorityGS::deserialize(const char* serializedScheduler)
 {
-    char* token;
-    // duplicate the string because of CONST specifier in argument
-    char* ser_sched = strdup(serializedScheduler);
-    char* ptr = ser_sched;
-    PriorityGS* res = new PriorityGS();
+  char* token;
+  // duplicate the string because of CONST specifier in argument
+  char* ser_sched = strdup(serializedScheduler);
+  char* ptr = ser_sched;
+  PriorityGS* res = new PriorityGS();
 
-    TRACE_TEXT(TRACE_ALL_STEPS,
-	       "PriorityGS::deserialize("
-	       << serializedScheduler << ")" << std::endl);
+  TRACE_TEXT(TRACE_ALL_STEPS,
+	     "PriorityGS::deserialize("
+	     << serializedScheduler << ")" << std::endl);
 
-    // Eliminate the first token, which is to be stName
+  // Eliminate the first token, which is to be stName
+  token = strsep( &ptr, ":" );
+  assert(!strcmp(token, PriorityGS::stName));
+
+  // Then for each token add associated scheduler
+  while (ptr) { // ptr == NULL when the last token is identified (no more ':')
+    // If the string was not duplicated in this function, we should
+    // reset the delimiter with
+    // ptr[-1] = ':';
     token = strsep( &ptr, ":" );
-    assert(!strcmp(token, PriorityGS::stName));
-
-    // Then for each token add associated scheduler
-    while (ptr) { // ptr == NULL when the last token is identified (no more ':')
-	// If the string was not duplicated in this function, we should
-	// reset the delimiter with
-	// ptr[-1] = ':';
-	token = strsep( &ptr, ":" );
-	res->schedulers.addElement(Scheduler::deserialize(token));
-    }
-    free(ser_sched);
-    return res;
+    res->schedulers.addElement(Scheduler::deserialize(token));
+  }
+  free(ser_sched);
+  return res;
 }
 
 char*
 PriorityGS::serialize(PriorityGS* GS)
 {
-    size_t maxLength = 128;
-    char* res = new char[maxLength];
-    SchedList::Iterator* iter = GS->schedulers.getIterator();
-    size_t length = GS->nameLength;
+  size_t maxLength = 128;
+  char* res = new char[maxLength];
+  SchedList::Iterator* iter = GS->schedulers.getIterator();
+  size_t length = GS->nameLength;
 
-    SCHED_TRACE_FUNCTION(GS->name);
-    sprintf(res, "%s", GS->name);
-    //   cout << "res is " << res << std::endl;
-    while (iter->hasCurrent()) {
-	Scheduler* sched = iter->getCurrent();
-	char* tmp = Scheduler::serialize(sched);
-	size_t tmp_length = strlen(tmp) + 1; // Add 1 for the ':'
-	if ((length + tmp_length) >= maxLength) {
-	    maxLength += 128;
-	    char* new_res = new char[maxLength];
-	    sprintf(new_res, "%s:%s", res, tmp);
-	    delete [] res;
-	    res = new_res;
-	} else {
-	    sprintf((char*)(res+length), ":%s", tmp);
-	}
-	//     cout << "  res is " << res << std::endl;
-	length += tmp_length;
-	delete [] tmp;
-	iter->next();
+  SCHED_TRACE_FUNCTION(GS->name);
+  sprintf(res, "%s", GS->name);
+  //   cout << "res is " << res << std::endl;
+  while (iter->hasCurrent()) {
+    Scheduler* sched = iter->getCurrent();
+    char* tmp = Scheduler::serialize(sched);
+    size_t tmp_length = strlen(tmp) + 1; // Add 1 for the ':'
+    if ((length + tmp_length) >= maxLength) {
+      maxLength += 128;
+      char* new_res = new char[maxLength];
+      sprintf(new_res, "%s:%s", res, tmp);
+      delete [] res;
+      res = new_res;
+    } else {
+      sprintf((char*)(res+length), ":%s", tmp);
     }
-    delete iter;
-    return res;
+    //     cout << "  res is " << res << std::endl;
+    length += tmp_length;
+    delete [] tmp;
+    iter->next();
+  }
+  delete iter;
+  return res;
 }

@@ -27,13 +27,13 @@
 
 namespace events {
   
-class EventHandler
-{
+  class EventHandler
+  {
   public:
 
     virtual void handleEvent(const EventBase*) = 0;
     
-};
+  };
 
 }
 

@@ -86,7 +86,7 @@ MultiWfSRPT::setExecPriority(DagNode * node) {
   } // end loop (dag nodes)
   if (RPT > 0) {
     TRACE_TEXT(TRACE_ALL_STEPS,"[SRPT] Dag " << dag->getId()
-        << " RPT = " << RPT << endl);
+	       << " RPT = " << RPT << endl);
     node->setPriority(1 / RPT);
   }
 }

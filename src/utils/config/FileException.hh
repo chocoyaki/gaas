@@ -40,20 +40,20 @@ class FileParserError : public std::exception {};
 class FileOpenError : public FileParserError
 {
 private:
-    std::string diagnostic;
+  std::string diagnostic;
 public:
-    FileOpenError(const std::string& filename)
-	: diagnostic("Can't open configuration file :")
-	{
-	    diagnostic.append(filename);
-	}
+  FileOpenError(const std::string& filename)
+    : diagnostic("Can't open configuration file :")
+  {
+    diagnostic.append(filename);
+  }
     
-    virtual ~FileOpenError() throw() {}
+  virtual ~FileOpenError() throw() {}
     
-    virtual const char *what() const throw()
-    {
-	return diagnostic.c_str();
-    }
+  virtual const char *what() const throw()
+  {
+    return diagnostic.c_str();
+  }
 };
     
 

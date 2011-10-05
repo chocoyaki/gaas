@@ -39,6 +39,6 @@ private:
   get_Total_Memory_bysysinfo(double * result);
   int 
   get_Info_Memory_byProcMem(double* resultat,
-			    int freemem);
+                            int freemem);
 };
 #endif //_CORI_EASY_MEMORY_HH_

@@ -29,12 +29,12 @@
 #include "DIET_server.h"
 
 /** Utility macro to simplify the user source code. */
-#define DYNAMICSERVICEMGR_CLASS(T) \
-  extern "C" DynamicServiceMgr* constructor() { \
-    return new (T)(); \
-  } \
-  extern "C" void destructor(DynamicServiceMgr* ds) { \
-    delete ds; \
+#define DYNAMICSERVICEMGR_CLASS(T)			\
+  extern "C" DynamicServiceMgr* constructor() {		\
+    return new (T)();					\
+  }							\
+  extern "C" void destructor(DynamicServiceMgr* ds) {	\
+    delete ds;						\
   }
 
 

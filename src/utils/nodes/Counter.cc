@@ -78,35 +78,35 @@ Counter::operator CORBA::ULong() const {
 }
 
 Counter & Counter::operator--() {
-	assert(value > 0) ;
-	valueMutex.lock() ;
-	value-- ;
-	valueMutex.unlock() ;
-	return *this ;
+  assert(value > 0) ;
+  valueMutex.lock() ;
+  value-- ;
+  valueMutex.unlock() ;
+  return *this ;
 }
 
 Counter & Counter::operator++() {
-	assert(value < value + 1) ;
-	valueMutex.lock() ;
-	value++ ;
-	valueMutex.unlock() ;
-	return *this ;
+  assert(value < value + 1) ;
+  valueMutex.lock() ;
+  value++ ;
+  valueMutex.unlock() ;
+  return *this ;
 }
 
 Counter & Counter::operator-=(const Counter & aCounter) {
-	assert(value > 0) ;
-	valueMutex.lock() ;
-	value = value - static_cast<CORBA::ULong>(aCounter) ;
-	valueMutex.unlock() ;
-	return *this ;
+  assert(value > 0) ;
+  valueMutex.lock() ;
+  value = value - static_cast<CORBA::ULong>(aCounter) ;
+  valueMutex.unlock() ;
+  return *this ;
 }
 
 Counter & Counter::operator+=(const Counter & aCounter) {
-	assert(value < value + 1) ;
-	valueMutex.lock() ;
-	value = value + static_cast<CORBA::ULong>(aCounter) ;
-	valueMutex.unlock() ;
-	return *this ;
+  assert(value < value + 1) ;
+  valueMutex.lock() ;
+  value = value + static_cast<CORBA::ULong>(aCounter) ;
+  valueMutex.unlock() ;
+  return *this ;
 }
 
 

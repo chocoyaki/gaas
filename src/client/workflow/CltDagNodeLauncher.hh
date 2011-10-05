@@ -23,17 +23,17 @@
 
 class CltDagNodeLauncher : public DagNodeLauncher {
 
-  public:
-    CltDagNodeLauncher(DagNode * parent);
+public:
+  CltDagNodeLauncher(DagNode * parent);
     
-    virtual string
-	toString() const;
+  virtual string
+  toString() const;
 
-    virtual void
-        execNode();
-	
-    virtual void
-	finishNode();
+  virtual void
+  execNode();
+        
+  virtual void
+  finishNode();
 
 };
 

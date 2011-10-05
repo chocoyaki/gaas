@@ -40,9 +40,9 @@ static DynamicServiceMgr *mgr = NULL;
 template <typename T>
 std::string toString( T t )
 {
-    std::ostringstream oss;
-    oss << t;
-    return oss.str();
+  std::ostringstream oss;
+  oss << t;
+  return oss.str();
 }
 
 
@@ -79,8 +79,8 @@ serviceAdd(diet_profile_t* pb)
   /* Print service table */
   diet_print_service_table();
 
-//   /* Unlink file */
-//   diet_free_data(diet_parameter(pb,0));
+  //   /* Unlink file */
+  //   diet_free_data(diet_parameter(pb,0));
 
   return 0;
 }
@@ -105,7 +105,7 @@ serviceRem(diet_profile_t* pb)
   /* Print service table */
   diet_print_service_table();
 
-//   diet_free_data(diet_parameter(pb,0));
+  //   diet_free_data(diet_parameter(pb,0));
 
   return 0;
 }

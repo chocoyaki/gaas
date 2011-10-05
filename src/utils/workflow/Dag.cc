@@ -205,9 +205,9 @@ Dag::Dag(string id, MasterAgent_var& MA)
 Dag::~Dag() {
   if (! this->tmpDag) {
     while (! nodes.empty() ) {
-       DagNode * p = begin()->second ;
-       nodes.erase( begin() ) ;
-       delete p ;
+      DagNode * p = begin()->second ;
+      nodes.erase( begin() ) ;
+      delete p ;
     }
     nodes.clear();
   }
@@ -269,7 +269,7 @@ Dag::createDagNode(const string& id, FWorkflow* wf) throw (WfStructException) {
   DagNode* newDagNode = new DagNode(id, this, wf);
   this->nodes[id] = newDagNode;
   EventManager::getEventMgr()->sendEvent(
-    new EventCreateObject<DagNode,Dag>(newDagNode, this) );
+					 new EventCreateObject<DagNode,Dag>(newDagNode, this) );
   return newDagNode;
 }
 
@@ -354,7 +354,7 @@ Dag::begin() {
  */
 map <string, DagNode *>::iterator
 Dag::end() {
- return nodes.end();
+  return nodes.end();
 }
 
 string
@@ -651,7 +651,7 @@ Dag::setInputNodesReady(DagScheduler* scheduler) {
 //        ++p) {
 //     n = (WfNode*)(p->second);
 //     if ( (n != NULL) &&
-// 	 (n->getEstCompTime() > makespan) )
+//       (n->getEstCompTime() > makespan) )
 //       makespan = n->getEstCompTime();
 //   }
 //   return makespan;
@@ -669,7 +669,7 @@ Dag::getEFT() {
        ++p) {
     n = (DagNode*)(p->second);
     if ( (n != NULL) &&
-	 (n->getEstCompTime() > EFT) )
+         (n->getEstCompTime() > EFT) )
       EFT = n->getEstCompTime();
   }
   return EFT;
@@ -724,7 +724,7 @@ void
 Dag::setEstDelay(double delay) {
   this->estDelay = delay;
   TRACE_TEXT (TRACE_ALL_STEPS, "Updated est. delay on DAG "
-        << this->getId() << " : delay = " << delay << endl);
+	      << this->getId() << " : delay = " << delay << endl);
 }
 
 bool
@@ -756,9 +756,9 @@ Dag::_updateDelayRec(DagNode * node, double newDelay) {
   }
   else {
     TRACE_TEXT (TRACE_ALL_STEPS, "Delay estimate for node "
-        << node->getCompleteId() << " unchanged (newDelay = "
-        << newDelay << " / previous delay = " << node->getEstDelay()
-        << ")" << endl);
+		<< node->getCompleteId() << " unchanged (newDelay = "
+		<< newDelay << " / previous delay = " << node->getEstDelay()
+		<< ")" << endl);
   }
   return res;
 }
@@ -778,7 +778,7 @@ Dag::setNodeDone(DagNode* node, DagScheduler* scheduler) {
       for (list<WfNode*>::iterator nextIter = node->nextNodesBegin();
            nextIter != node->nextNodesEnd();
            ++nextIter) {
-          (dynamic_cast<DagNode*>(*nextIter))->prevNodeHasDone(scheduler);
+	(dynamic_cast<DagNode*>(*nextIter))->prevNodeHasDone(scheduler);
       }
     }
     // manage dag termination when the current node is the last
@@ -819,7 +819,7 @@ Dag::setAsCancelled(DagScheduler* scheduler) {
   if (scheduler) {
     // remove all nodes from their queues
     TRACE_TEXT (TRACE_ALL_STEPS, "Dag " << getId()
-                 << " : removing all nodes from nodeQueues" << endl);
+		<< " : removing all nodes from nodeQueues" << endl);
     for (map<string, DagNode*>::iterator p = this->nodes.begin();
          p != this->nodes.end();
          ++p) {

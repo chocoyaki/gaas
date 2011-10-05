@@ -18,7 +18,7 @@
  * Revision 1.2  2008/04/07 13:11:44  ycaniou
  * Correct "deprecated conversion from string constant to 'char*'" warnings
  * First attempt to code functions to dynamicaly get batch information
- * 	(e.g.,  getNbMaxResources(), etc.)
+ *      (e.g.,  getNbMaxResources(), etc.)
  *
  * Revision 1.1  2008/01/01 19:43:49  ycaniou
  * Modifications for batch management. Loadleveler is now ok.
@@ -32,8 +32,8 @@
 #include "BatchSystem.hh"
 
 /* Strategy :
-- If mail is given, Diet submits a script which demands the client to
-  alway be notified by mail. Maybe we can improve.
+   - If mail is given, Diet submits a script which demands the client to
+   alway be notified by mail. Maybe we can improve.
 */
 
 class Loadleveler_BatchSystem : public BatchSystem

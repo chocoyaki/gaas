@@ -92,7 +92,7 @@ using namespace madag;
 
 MultiWfBasicScheduler::MultiWfBasicScheduler(MaDag_impl* maDag)
   : MultiWfScheduler(maDag, MultiWfScheduler::MULTIWF_NO_METRIC) {
-   TRACE_TEXT(TRACE_MAIN_STEPS,"Using BASIC multi-workflow scheduler" << endl);
+  TRACE_TEXT(TRACE_MAIN_STEPS,"Using BASIC multi-workflow scheduler" << endl);
 }
 
 MultiWfBasicScheduler::~MultiWfBasicScheduler() {
@@ -119,17 +119,17 @@ MultiWfBasicScheduler::run() {
       DagNode * n = readyQ->popFirstNode();
       if (n != NULL) {
         TRACE_TEXT(TRACE_ALL_STEPS,"  #### Ready node : " << n->getCompleteId()
-            << " => execute" << endl);
+		   << " => execute" << endl);
         // EXECUTE NODE (NEW THREAD)
         // create a node launcher
         DagNodeLauncher *launcher = new MaDagNodeLauncher( n, this,
-                                           myMaDag->getCltMan(n->getDag()->getId()));
+							   myMaDag->getCltMan(n->getDag()->getId()));
         n->start(launcher);
         nodeCount++;
         // Destroy queues if both are empty
         ChainedNodeQueue * waitQ = waitingQueues[readyQ];
         if (waitQ->isEmpty() && readyQ->isEmpty()) {
-	  TRACE_TEXT(TRACE_ALL_STEPS,"Node Queues are empty: remove & destroy" << endl);
+          TRACE_TEXT(TRACE_ALL_STEPS,"Node Queues are empty: remove & destroy" << endl);
           qp = readyQueues.erase(qp);      // removes from the list
           this->deleteNodeQueue(readyQ);  // deletes both queues
           continue;

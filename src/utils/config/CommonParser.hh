@@ -63,11 +63,11 @@ typedef std::map<std::string, std::string> OptionMap;
 class StartsWith : public std::unary_function<std::string, bool>
 {
 private:
-    std::string s1;
+  std::string s1;
 public:
-    StartsWith(const std::string& str) : s1(str) {}
+  StartsWith(const std::string& str) : s1(str) {}
 
-    bool operator() (const std::string& s2) const;
+  bool operator() (const std::string& s2) const;
 };
 
 /**
@@ -80,23 +80,23 @@ public:
 class Splitter
 {
 private:
-    char delim_;
-    bool hasNext_;
-    std::string::size_type previous_;
-    std::string::size_type current_;
-    std::string token_;
-    std::string str_;
+  char delim_;
+  bool hasNext_;
+  std::string::size_type previous_;
+  std::string::size_type current_;
+  std::string token_;
+  std::string str_;
 public:
-    Splitter();
-    Splitter(const char c);
-    Splitter(const std::string& str, const char c);
+  Splitter();
+  Splitter(const char c);
+  Splitter(const std::string& str, const char c);
 
-    bool hasNext() const { return hasNext_; }
+  bool hasNext() const { return hasNext_; }
 
-    void reset(const std::string& str);
-    void reset(const std::string& str, const char c);
+  void reset(const std::string& str);
+  void reset(const std::string& str, const char c);
 
-    std::string& operator() ();
+  std::string& operator() ();
 };
 
 #endif /* _COMMON_PARSER_HH_ */

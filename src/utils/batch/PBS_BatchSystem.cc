@@ -84,11 +84,11 @@ PBS_BatchSystem::PBS_BatchSystem(int ID, const char * batchname)
   
   /* TODO: When we use some ID for DIET client, change there! */
   //mail      = "#PBS -m a\n#PBS -M " ; // -m, send mail when:
-                                      // a: job is aborted by batch system
-                                      // b: job begins execution
-                                      // e: job ends execution
-                                      // n: do not send mail
-                                      // -M, recipient list
+  // a: job is aborted by batch system
+  // b: job begins execution
+  // e: job ends execution
+  // n: do not send mail
+  // -M, recipient list
   mail      = BatchSystem::emptyString ;
   account   = BatchSystem::emptyString ;
   setSTDOUT = "\n#PBS -o " ;
@@ -140,16 +140,16 @@ PBS_BatchSystem::askBatchJobStatus(int batchJobID)
 
   /*** Ask batch system the job status ***/      
   chaine = (char*)malloc(sizeof(char)*(strlen(wait4Command) * 2
-				       + NBDIGITS_MAX_BATCH_JOB_ID * 2
-				       + strlen(waitFilter) * 2
-				       + strlen(filename) * 2
-				       + 85 + 1) ) ;
+                                       + NBDIGITS_MAX_BATCH_JOB_ID * 2
+                                       + strlen(waitFilter) * 2
+                                       + strlen(filename) * 2
+                                       + 85 + 1) ) ;
   /* See EOF to get an example of what we parse */
   // ugly trick to use a PBS which does not keep the status of the batch once finished
   sprintf(chaine,"TMP_VAL=`%s %d 2>/dev/null | %s`;if [ \"$TMP_VAL\" == \"\" ];then echo E > %s;else %s %d | %s > %s;fi",
-	  wait4Command,batchJobID,waitFilter,
-	  filename,
-	  wait4Command,batchJobID,waitFilter, filename) ;
+          wait4Command,batchJobID,waitFilter,
+          filename,
+          wait4Command,batchJobID,waitFilter, filename) ;
 #if defined YC_DEBUG
   TRACE_TEXT(TRACE_ALL_STEPS,"Execute:" << endl << chaine << endl) ;
 #endif
@@ -173,7 +173,7 @@ PBS_BatchSystem::askBatchJobStatus(int batchJobID)
     if( chaine[nbread-1] == '\n' )
       chaine[nbread-1] = '\0' ;
     while( (i<NB_STATUS) && 
-	   (strcmp(chaine,PBS_BatchSystem::statusNames[i])!=0) ) {
+           (strcmp(chaine,PBS_BatchSystem::statusNames[i])!=0) ) {
       i++ ;
     }
   }
@@ -222,14 +222,14 @@ int
 PBS_BatchSystem::getNbTotResources()
 {
   return launchCommandAndGetInt( "qstat -Bf | grep resources_assigned.nodect | cut --delimiter== --field=2 | cut --delimiter=\" \" --field=2",
-				 "DIET_getNbResources") ;
+                                 "DIET_getNbResources") ;
 }
 
 int
 PBS_BatchSystem::getMaxWalltime()
 {
   return launchCommandAndGetInt("qstat -Qf | grep mtime | cut --delimiter== --field=2 | cut --delimiter=\" \" --field=2",
-				 "DIET_getNbResources") ;
+				"DIET_getNbResources") ;
 }
 
 int
@@ -260,35 +260,35 @@ PBS_BatchSystem::getNbFreeResources()
 
 /************************* Examples of commands ****************************/
 /*
-[eddy@breeze ~]$ qstat -f 70.breeze.ics.hawaii.edu
-Job Id: 70.breeze.ics.hawaii.edu
-    Job_Name = Anacle_8
-    Job_Owner = davidls@breeze.ics.hawaii.edu
-    resources_used.cput = 43:38:36
-    resources_used.mem = 54412kb
-    resources_used.vmem = 152520kb
-    resources_used.walltime = 24:06:40
-    job_state = R
-    queue = default
-    server = breeze.ics.hawaii.edu
-    Checkpoint = u
-    ctime = Fri Aug 15 17:26:21 2008
-    Error_Path = breeze.ics.hawaii.edu:/home/davidls/anacle/scripts/Anacle_8.e
-	70
-    exec_host = compute-0-0.local/1+compute-0-0.local/0
-    Hold_Types = n
-    Join_Path = n
-    Keep_Files = n
-    Mail_Points = a
-    mtime = Fri Aug 15 17:26:22 2008
-    Output_Path = breeze.ics.hawaii.edu:/home/davidls/anacle/scripts/Anacle_8.
-	o70
-    Priority = 0
-    qtime = Fri Aug 15 17:26:21 2008
-    Rerunable = True
-    Resource_List.nodect = 1
-    Resource_List.nodes = 1:ppn=2
-    session_id = 19620
-    etime = Fri Aug 15 17:26:21 2008
+  [eddy@breeze ~]$ qstat -f 70.breeze.ics.hawaii.edu
+  Job Id: 70.breeze.ics.hawaii.edu
+  Job_Name = Anacle_8
+  Job_Owner = davidls@breeze.ics.hawaii.edu
+  resources_used.cput = 43:38:36
+  resources_used.mem = 54412kb
+  resources_used.vmem = 152520kb
+  resources_used.walltime = 24:06:40
+  job_state = R
+  queue = default
+  server = breeze.ics.hawaii.edu
+  Checkpoint = u
+  ctime = Fri Aug 15 17:26:21 2008
+  Error_Path = breeze.ics.hawaii.edu:/home/davidls/anacle/scripts/Anacle_8.e
+  70
+  exec_host = compute-0-0.local/1+compute-0-0.local/0
+  Hold_Types = n
+  Join_Path = n
+  Keep_Files = n
+  Mail_Points = a
+  mtime = Fri Aug 15 17:26:22 2008
+  Output_Path = breeze.ics.hawaii.edu:/home/davidls/anacle/scripts/Anacle_8.
+  o70
+  Priority = 0
+  qtime = Fri Aug 15 17:26:21 2008
+  Rerunable = True
+  Resource_List.nodect = 1
+  Resource_List.nodes = 1:ppn=2
+  session_id = 19620
+  etime = Fri Aug 15 17:26:21 2008
 
 */

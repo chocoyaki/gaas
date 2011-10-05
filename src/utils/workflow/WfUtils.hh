@@ -96,27 +96,27 @@
 /*****************************************************************************/
 
 class WfStructException {
-  public:
-    enum WfStructErrorType { eUNKNOWN_DAG,
-                             eUNKNOWN_NODE,
-                             eUNKNOWN_PORT,
-                             eDUPLICATE_NODE,
-                             eDUPLICATE_PORT,
-                             eTYPE_MISMATCH,
-                             eDEPTH_MISMATCH,
-                             eINVALID_EXPR,
-			     eWF_UNDEF,
-                             eOTHER };
-    WfStructException(WfStructErrorType t, const std::string& info)
-      { this->why = t; this->info = info; }
-    WfStructException(const std::string& info)
-      { this->why = eOTHER; this->info = info; }
-    WfStructErrorType Type() const { return this->why; }
-    const std::string& Info() const { return this->info; }
-    std::string ErrorMsg() const;
-  private:
-    WfStructErrorType why;
-    std::string info;
+public:
+  enum WfStructErrorType { eUNKNOWN_DAG,
+			   eUNKNOWN_NODE,
+			   eUNKNOWN_PORT,
+			   eDUPLICATE_NODE,
+			   eDUPLICATE_PORT,
+			   eTYPE_MISMATCH,
+			   eDEPTH_MISMATCH,
+			   eINVALID_EXPR,
+			   eWF_UNDEF,
+			   eOTHER };
+  WfStructException(WfStructErrorType t, const std::string& info)
+  { this->why = t; this->info = info; }
+  WfStructException(const std::string& info)
+  { this->why = eOTHER; this->info = info; }
+  WfStructErrorType Type() const { return this->why; }
+  const std::string& Info() const { return this->info; }
+  std::string ErrorMsg() const;
+private:
+  WfStructErrorType why;
+  std::string info;
 };
 
 /*****************************************************************************/
@@ -134,20 +134,20 @@ public:
   /************************************************************/
 
   enum WfDataType {
-   TYPE_CHAR,
-   TYPE_SHORT,
-   TYPE_INT,
-   TYPE_LONGINT,
-   TYPE_FLOAT,
-   TYPE_DOUBLE,
+    TYPE_CHAR,
+    TYPE_SHORT,
+    TYPE_INT,
+    TYPE_LONGINT,
+    TYPE_FLOAT,
+    TYPE_DOUBLE,
 
-   TYPE_MATRIX,
-   TYPE_STRING,
-   TYPE_PARAMSTRING,
-   TYPE_FILE,
-   TYPE_CONTAINER,
+    TYPE_MATRIX,
+    TYPE_STRING,
+    TYPE_PARAMSTRING,
+    TYPE_FILE,
+    TYPE_CONTAINER,
 
-   TYPE_UNKNOWN
+    TYPE_UNKNOWN
   };
 
   static short
@@ -232,10 +232,10 @@ private:
 extern omni_mutex debug_log_mutex ;
 
 #ifdef DEBUG_WF
-#define debug_wf(formatted_text)             \
-    debug_log_mutex.lock();                  \
-    cout << formatted_text << endl;          \
-    debug_log_mutex.unlock();
+#define debug_wf(formatted_text)		\
+  debug_log_mutex.lock();			\
+  cout << formatted_text << endl;		\
+  debug_log_mutex.unlock();
 #else
 #define debug_wf(formatted_text)
 #endif // DEBUG_WF

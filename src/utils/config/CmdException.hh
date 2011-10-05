@@ -41,17 +41,17 @@ class CmdParserError : public std::exception {};
 class CmdConfigError : public CmdParserError
 {
 private:
-    std::string diagnostic;
+  std::string diagnostic;
 public:
-    CmdConfigError(const std::string& msg)
-	: diagnostic("Bad Options configuration") {}
+  CmdConfigError(const std::string& msg)
+    : diagnostic("Bad Options configuration") {}
     
-    virtual ~CmdConfigError() throw() {}
+  virtual ~CmdConfigError() throw() {}
 
-    virtual const char *what() const throw()
-    {
-	return diagnostic.c_str();
-    }
+  virtual const char *what() const throw()
+  {
+    return diagnostic.c_str();
+  }
 };
 
     
@@ -64,20 +64,20 @@ public:
 class OptionNotFoundError : public CmdParserError
 { 
 private:
-    std::string diagnostic;
+  std::string diagnostic;
 public:
-    OptionNotFoundError(const std::string& msg) 
-	: diagnostic("Option not found: ") 
-    {
-	diagnostic.append(msg);
-    }
+  OptionNotFoundError(const std::string& msg) 
+    : diagnostic("Option not found: ") 
+  {
+    diagnostic.append(msg);
+  }
     
-    virtual ~OptionNotFoundError() throw() {}
+  virtual ~OptionNotFoundError() throw() {}
     
-    virtual const char *what() const throw()
-    {
-	return diagnostic.c_str();
-    }
+  virtual const char *what() const throw()
+  {
+    return diagnostic.c_str();
+  }
 };
 
 /**
@@ -88,20 +88,20 @@ public:
  */
 class OptionNoArgumentsError : public CmdParserError
 { 
-    std::string diagnostic;
+  std::string diagnostic;
 public:
-    OptionNoArgumentsError(const std::string& name)
-    {
-	std::ostringstream ss(diagnostic);
-	ss << "Option " << name << "has no argument.";
-    }
+  OptionNoArgumentsError(const std::string& name)
+  {
+    std::ostringstream ss(diagnostic);
+    ss << "Option " << name << "has no argument.";
+  }
     
-    virtual ~OptionNoArgumentsError() throw() {};
+  virtual ~OptionNoArgumentsError() throw() {};
     
-    virtual const char *what() const throw()
-    {
-	return diagnostic.c_str();
-    }
+  virtual const char *what() const throw()
+  {
+    return diagnostic.c_str();
+  }
 };
 
 
@@ -113,20 +113,20 @@ public:
  */
 class ParameterNotFoundError : public CmdParserError
 { 
-    std::string diagnostic;
+  std::string diagnostic;
 public:
-    ParameterNotFoundError(const std::string& msg) 
-	: diagnostic("Missing parameter: ")
-    {
-	diagnostic.append(msg);
-    }
+  ParameterNotFoundError(const std::string& msg) 
+    : diagnostic("Missing parameter: ")
+  {
+    diagnostic.append(msg);
+  }
     
-    virtual ~ParameterNotFoundError() throw() {};
+  virtual ~ParameterNotFoundError() throw() {};
     
-    virtual const char *what() const throw()
-    {
-	return diagnostic.c_str();
-    }
+  virtual const char *what() const throw()
+  {
+    return diagnostic.c_str();
+  }
 };
 
 #endif /* _OPTION_EXCEPTION_HH_ */

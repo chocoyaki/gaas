@@ -97,23 +97,23 @@ using namespace std;
 /*****************************************************************************/
 
 class WfDataException {
-  public:
-    enum WfDataErrorType { eNOTFOUND,
-			   eNOTAVAIL,
-                           eWRONGTYPE,
-                           eINVALID_CONTAINER,
-                           eID_UNDEF,
-                           eVOID_DATA,
-                           eREADFILERROR,
-                           eINVALID_VALUE };
-    WfDataException(WfDataErrorType t, const string& info)
-      { this->why = t; this->info = info; }
-    WfDataErrorType Type() const { return this->why; }
-    const string& Info() const { return this->info; }
-    string ErrorMsg() const;
-  private:
-    WfDataErrorType why;
-    string info;
+public:
+  enum WfDataErrorType { eNOTFOUND,
+			 eNOTAVAIL,
+			 eWRONGTYPE,
+			 eINVALID_CONTAINER,
+			 eID_UNDEF,
+			 eVOID_DATA,
+			 eREADFILERROR,
+			 eINVALID_VALUE };
+  WfDataException(WfDataErrorType t, const string& info)
+  { this->why = t; this->info = info; }
+  WfDataErrorType Type() const { return this->why; }
+  const string& Info() const { return this->info; }
+  string ErrorMsg() const;
+private:
+  WfDataErrorType why;
+  string info;
 };
 
 /****************************************************************************/
@@ -531,7 +531,7 @@ public:
 
   /**
    * Set the status of the node given a string value of the status
-   * @param statusStr	status value as provided by getStateAsString()
+   * @param statusStr   status value as provided by getStateAsString()
    */
   void
   setStatus(const string& statusStr);
@@ -645,10 +645,10 @@ private:
    */
   double priority;
 
-    /**
+  /**
    * node running status *
    */
-//   bool node_running;
+  //   bool node_running;
 
   /**
    * number of immediate next nodes that have end their execution *

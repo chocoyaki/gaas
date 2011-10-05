@@ -238,9 +238,9 @@ solve_VADD(diet_profile_t* pb) {
     C = calloc(nC, sizeof((double *) &C));
     res = VecSUM(nA, (double *)B, (double *)A, (double *)C);
     diet_vector_set(diet_parameter(pb, 1), (double *) B, DIET_VOLATILE,
-		    DIET_DOUBLE, nB);
+                    DIET_DOUBLE, nB);
     diet_vector_set(diet_parameter(pb, 2), (double *) C, DIET_VOLATILE,
-		    DIET_DOUBLE, nC);
+                    DIET_DOUBLE, nC);
     break;
   }
   case DIET_FLOAT: {
@@ -248,9 +248,9 @@ solve_VADD(diet_profile_t* pb) {
     C = calloc(nC, sizeof((float *) &C));
     res = VecSUM(nA, (float *)B, (float *)A, (float *)C);
     diet_vector_set(diet_parameter(pb, 1), (float *) B, DIET_VOLATILE,
-		    DIET_FLOAT, nB);
+                    DIET_FLOAT, nB);
     diet_vector_set(diet_parameter(pb, 2), (float *) C, DIET_VOLATILE,
-		    DIET_FLOAT, nC);
+                    DIET_FLOAT, nC);
     break;
   }
   default:
@@ -258,11 +258,11 @@ solve_VADD(diet_profile_t* pb) {
     C = calloc(nC, sizeof((long *) &C));
     res = VecSUM(nA, (long *)B, (long *)A, (long *)C);
     diet_vector_set(diet_parameter(pb, 1), (long *) B, DIET_VOLATILE,
-		    (diet_base_type_t)(diet_parameter(pb,1))->desc.generic.base_type,
-		    nB);
+                    (diet_base_type_t)(diet_parameter(pb,1))->desc.generic.base_type,
+                    nB);
     diet_vector_set(diet_parameter(pb, 2), (long *) C, DIET_VOLATILE,
-		    (diet_base_type_t)(diet_parameter(pb,1))->desc.generic.base_type,
-		    nC);
+                    (diet_base_type_t)(diet_parameter(pb,1))->desc.generic.base_type,
+                    nC);
   }
 
   diet_free_data(diet_parameter(pb,0));
@@ -308,7 +308,7 @@ solve_MADD(diet_profile_t* pb) {
   tB = (oB == DIET_ROW_MAJOR) ? 'T' : 'N';
   if ((mA != mB) || (nA != nB)) {
     std::cerr << "MatSUM error: mA=" << mA << ", nA=" << nA << "; mB="
-	      << mB << ", nB=" << nB << std::endl;
+              << mB << ", nB=" << nB << std::endl;
     return 1;
   }
   
@@ -324,9 +324,9 @@ solve_MADD(diet_profile_t* pb) {
       res = MatSUM(tA, tB, mA, nA, (double *)A, (double *)B, (double *)C);
     }
     diet_matrix_set(diet_parameter(pb, 1), (double *) B, DIET_VOLATILE,
-		    DIET_DOUBLE, mB, nB, oB);
+                    DIET_DOUBLE, mB, nB, oB);
     diet_matrix_set(diet_parameter(pb, 2), (double *) C, DIET_VOLATILE,
-		    DIET_DOUBLE, mC, nC, oC);
+                    DIET_DOUBLE, mC, nC, oC);
     break;
   }
   case DIET_FLOAT: {
@@ -340,9 +340,9 @@ solve_MADD(diet_profile_t* pb) {
       res = MatSUM(tA, tB, mA, nA, (float *)A, (float *)B, (float *)C);
     }
     diet_matrix_set(diet_parameter(pb, 1), (float *) B, DIET_VOLATILE,
-		    DIET_FLOAT, mB, nB, oB);
+                    DIET_FLOAT, mB, nB, oB);
     diet_matrix_set(diet_parameter(pb, 2), (float *) C, DIET_VOLATILE,
-		    DIET_FLOAT, mC, nC, oC);
+                    DIET_FLOAT, mC, nC, oC);
     break;
   }
   default:
@@ -356,11 +356,11 @@ solve_MADD(diet_profile_t* pb) {
       res = MatSUM(tA, tB, mA, nA, (long *)A, (long *)B, (long *)C);
     }
     diet_matrix_set(diet_parameter(pb, 1), (long *) B, DIET_VOLATILE,
-		    (diet_base_type_t)(diet_parameter(pb,1))->desc.generic.base_type,
-		    mB, nB, oB);
+                    (diet_base_type_t)(diet_parameter(pb,1))->desc.generic.base_type,
+                    mB, nB, oB);
     diet_matrix_set(diet_parameter(pb, 2), (long *) C, DIET_VOLATILE,
-		    (diet_base_type_t)(diet_parameter(pb,1))->desc.generic.base_type,
-		    mC, nC, oC);
+                    (diet_base_type_t)(diet_parameter(pb,1))->desc.generic.base_type,
+                    mC, nC, oC);
   }
 
   diet_free_data(diet_parameter(pb,0));
@@ -518,7 +518,7 @@ solve_CONTAINER(diet_profile_t* pb) {
   l3 = new long;
   *l3 = *l1 + *l2;
   std::cout << "l1 = " << *l1 << ", l2 = " << *l2
-	    << ", l3 = " << *l3 << std::endl;
+            << ", l3 = " << *l3 << std::endl;
   dagda_put_scalar(l3, DIET_LONGINT, DIET_PERSISTENT, &ID_long1);
 
   std::cout << "Put 1st element of OUTPUT container" << std::endl;
@@ -531,7 +531,7 @@ solve_CONTAINER(diet_profile_t* pb) {
   l3 = new long;
   *l3 = *l1 + *l2;
   std::cout << "l1 = " << *l1 << ", l2 = " << *l2
-	    << ", l3 = " << *l3 << std::endl;
+            << ", l3 = " << *l3 << std::endl;
   dagda_put_scalar(l3, DIET_LONGINT, DIET_PERSISTENT, &ID_long2);
 
   std::cout << "Put 2nd element of OUTPUT container" << std::endl;
@@ -569,7 +569,7 @@ main(int argc, char* argv[]) {
     return usage(argv[0]);
   }
   diet_service_table_init(NB_SRV_SCALAR
-			  + NB_SRV_VECTOR);
+                          + NB_SRV_VECTOR);
 
 
   /**
@@ -578,11 +578,11 @@ main(int argc, char* argv[]) {
   for (i = 0; i < NB_SRV_SCALAR; i++) {
     profile = diet_profile_desc_alloc(SRV_SCALAR[i], 0, 1, 2);
     diet_generic_desc_set(diet_param_desc(profile,0),
-			  DIET_SCALAR, (diet_base_type_t)i);
+                          DIET_SCALAR, (diet_base_type_t)i);
     diet_generic_desc_set(diet_param_desc(profile,1),
-			  DIET_SCALAR, (diet_base_type_t)i);
+                          DIET_SCALAR, (diet_base_type_t)i);
     diet_generic_desc_set(diet_param_desc(profile,2),
-			  DIET_SCALAR, (diet_base_type_t)i);
+                          DIET_SCALAR, (diet_base_type_t)i);
 
     if (diet_service_table_add(profile, NULL, solve_ADD))
       return 1;
@@ -595,11 +595,11 @@ main(int argc, char* argv[]) {
   for (i = 0; i < NB_SRV_VECTOR; i++) {
     profile = diet_profile_desc_alloc(SRV_VECTOR[i], 0, 1, 2);
     diet_generic_desc_set(diet_param_desc(profile,0),
-			  DIET_VECTOR, (diet_base_type_t)i);
+                          DIET_VECTOR, (diet_base_type_t)i);
     diet_generic_desc_set(diet_param_desc(profile,1), 
-			  DIET_VECTOR, (diet_base_type_t)i);
+                          DIET_VECTOR, (diet_base_type_t)i);
     diet_generic_desc_set(diet_param_desc(profile,2), 
-			  DIET_VECTOR, (diet_base_type_t)i);
+                          DIET_VECTOR, (diet_base_type_t)i);
  
     if (diet_service_table_add(profile, NULL, solve_VADD))
       return 1;
@@ -614,11 +614,11 @@ main(int argc, char* argv[]) {
   for (i = 0; i < NB_SRV_MATRIX; i++) {
     profile = diet_profile_desc_alloc(SRV_MATRIX[i], 0, 1, 2);
     diet_generic_desc_set(diet_param_desc(profile,0),
-			  DIET_MATRIX, (diet_base_type_t)i);
+                          DIET_MATRIX, (diet_base_type_t)i);
     diet_generic_desc_set(diet_param_desc(profile,1), 
-			  DIET_MATRIX, (diet_base_type_t)i);
+                          DIET_MATRIX, (diet_base_type_t)i);
     diet_generic_desc_set(diet_param_desc(profile,2), 
-			  DIET_MATRIX, (diet_base_type_t)i);
+                          DIET_MATRIX, (diet_base_type_t)i);
  
     if (diet_service_table_add(profile, NULL, solve_MADD))
       return 1;
@@ -632,11 +632,11 @@ main(int argc, char* argv[]) {
   for (i = 0; i < NB_SRV_STRING; i++) {
     profile = diet_profile_desc_alloc(SRV_STRING[i], 0, 1, 2);
     diet_generic_desc_set(diet_param_desc(profile,0),
-			  DIET_STRING, DIET_CHAR);
+                          DIET_STRING, DIET_CHAR);
     diet_generic_desc_set(diet_param_desc(profile,1), 
-			  DIET_STRING, DIET_CHAR);
+                          DIET_STRING, DIET_CHAR);
     diet_generic_desc_set(diet_param_desc(profile,2), 
-			  DIET_STRING, DIET_CHAR);
+                          DIET_STRING, DIET_CHAR);
  
     if (diet_service_table_add(profile, NULL, solve_SPRINT))
       return 1;
@@ -650,9 +650,9 @@ main(int argc, char* argv[]) {
   for (i = 0; i < NB_SRV_PSTRING; i++) {
     profile = diet_profile_desc_alloc(SRV_PSTRING[i], 0, 1, 1);
     diet_generic_desc_set(diet_param_desc(profile,0),
-			  DIET_PARAMSTRING, DIET_CHAR);
+                          DIET_PARAMSTRING, DIET_CHAR);
     diet_generic_desc_set(diet_param_desc(profile,1), 
-			  DIET_PARAMSTRING, DIET_CHAR);
+                          DIET_PARAMSTRING, DIET_CHAR);
  
     if (diet_service_table_add(profile, NULL, solve_PSPRINT))
       return 1;
@@ -666,11 +666,11 @@ main(int argc, char* argv[]) {
   for (i = 0; i < NB_SRV_FILE; i++) {
     profile = diet_profile_desc_alloc(SRV_FILE[i], 0, 1, 2);
     diet_generic_desc_set(diet_param_desc(profile,0),
-			  DIET_FILE, DIET_CHAR);
+                          DIET_FILE, DIET_CHAR);
     diet_generic_desc_set(diet_param_desc(profile,1), 
-    			  DIET_FILE, DIET_CHAR);
-     diet_generic_desc_set(diet_param_desc(profile,2), 
-			  DIET_FILE, DIET_CHAR);
+                          DIET_FILE, DIET_CHAR);
+    diet_generic_desc_set(diet_param_desc(profile,2), 
+                          DIET_FILE, DIET_CHAR);
  
     if (diet_service_table_add(profile, NULL, solve_FTRANSFER))
       return 1;
@@ -685,11 +685,11 @@ main(int argc, char* argv[]) {
   for (i = 0; i < NB_SRV_CONTAINER; i++) {
     profile = diet_profile_desc_alloc(SRV_CONTAINER[i], 0, 1, 2);
     diet_generic_desc_set(diet_param_desc(profile,0),
-			  DIET_CONTAINER, DIET_CHAR);
+                          DIET_CONTAINER, DIET_CHAR);
     diet_generic_desc_set(diet_param_desc(profile,1), 
-    			  DIET_CONTAINER, DIET_CHAR);
-     diet_generic_desc_set(diet_param_desc(profile,2), 
-			  DIET_CONTAINER, DIET_CHAR);
+                          DIET_CONTAINER, DIET_CHAR);
+    diet_generic_desc_set(diet_param_desc(profile,2), 
+                          DIET_CONTAINER, DIET_CHAR);
  
     if (diet_service_table_add(profile, NULL, solve_CONTAINER))
       return 1;

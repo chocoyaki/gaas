@@ -51,15 +51,15 @@ protected:
   attributes_t getAttributes(std::string key) {
     attributes_t ret;
     if (!exists(key)) return ret;
-	dbMutex.lock();
+    dbMutex.lock();
     ret = database[key];
-	dbMutex.unlock();
-	return ret;
+    dbMutex.unlock();
+    return ret;
   }
   void setAttributes(std::string key, attributes_t values) {
     dbMutex.lock();
     database[key] = values;
-	dbMutex.unlock();
+    dbMutex.unlock();
   }
 };
 

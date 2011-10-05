@@ -32,13 +32,13 @@
 
 #include <iostream>
 /*
-* When compiling the example on cygwin the variable RTLD_LOCAL
-* was not declared and thus it is now setted to 0
-*
-* Perhaps the test would better be on the cygwin flag but
-* this problem could also appear on other platforms
-*
-*/
+ * When compiling the example on cygwin the variable RTLD_LOCAL
+ * was not declared and thus it is now setted to 0
+ *
+ * Perhaps the test would better be on the cygwin flag but
+ * this problem could also appear on other platforms
+ *
+ */
 #ifndef RTLD_LOCAL
 #define RTLD_LOCAL 0
 #endif

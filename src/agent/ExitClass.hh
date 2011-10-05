@@ -14,7 +14,7 @@
  ****************************************************************************/
 
 /*
- !! YOU MUST INCLUDE THIS HEADER PRIOR TO THE OTHERS !!
+  !! YOU MUST INCLUDE THIS HEADER PRIOR TO THE OTHERS !!
 */
 
 #ifndef _EXITCLASS_HH_

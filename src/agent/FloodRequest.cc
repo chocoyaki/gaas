@@ -88,9 +88,9 @@ FloodRequest::FloodRequest(const FloodRequest & request) {
 
 
 FloodRequest::FloodRequest(const MasterAgentImpl::MADescription& predecessor,
-			   const MasterAgentImpl::MADescription& owner,
-			   const corba_request_t& request,
-			   MasterAgentImpl::MAList& knownMAs) :
+                           const MasterAgentImpl::MADescription& owner,
+                           const corba_request_t& request,
+                           MasterAgentImpl::MAList& knownMAs) :
   predecessor(predecessor), owner(owner), request(request) {
   hop = 0 ;
   nbOfWaitingResponse = 0 ;
@@ -102,7 +102,7 @@ FloodRequest::FloodRequest(const MasterAgentImpl::MADescription& predecessor,
     NeighbouringMA& newNeighbouringMA = neighbouringMAs[iter->first] ;
     newNeighbouringMA.maDescription = iter->second ;
     if (predecessor.defined() && (iter->first ==
-	KeyString(predecessor->getBindName())))
+				  KeyString(predecessor->getBindName())))
       newNeighbouringMA.state = NeighbouringMA::nmaStateAlreadyContacted ;
     else
       newNeighbouringMA.state = NeighbouringMA::nmaStateNotContacted ;
@@ -140,9 +140,9 @@ bool FloodRequest::flooded() {
     return true ;
   for(NeighbouringMAs::iterator iter = neighbouringMAs.begin() ;
       result && iter != neighbouringMAs.end() ; /* stop if the result
-						    is found or if
-						    there is no other
-						    MA. */
+						   is found or if
+						   there is no other
+						   MA. */
       ++iter) {
     if (iter->second.state != NeighbouringMA::nmaStateFlooded)
       result = false ;
@@ -165,21 +165,21 @@ bool FloodRequest::floodNextStep() {
     case NeighbouringMA::nmaStateNotContacted :
       // first contact with the MA
       try {
-				MA->searchService(ownerId, ownerId, request) ;
-				iter->second.state = NeighbouringMA::nmaStateFlooding ;
-				completelyFlooded = false ;
-				nbOfWaitingResponse++ ;
+	MA->searchService(ownerId, ownerId, request) ;
+	iter->second.state = NeighbouringMA::nmaStateFlooding ;
+	completelyFlooded = false ;
+	nbOfWaitingResponse++ ;
       } catch(CORBA::SystemException& ex) {
-				iter->second.state = NeighbouringMA::nmaStateFlooded ;
+	iter->second.state = NeighbouringMA::nmaStateFlooded ;
       }
       break ;
     case NeighbouringMA::nmaStateFlooding :
       // the MA was already contacted, ask to continue the search
       try {
-	MA->newFlood(request.reqID, ownerId) ;
-	nbOfWaitingResponse++ ;
+        MA->newFlood(request.reqID, ownerId) ;
+        nbOfWaitingResponse++ ;
       } catch(CORBA::SystemException& ex) {
-	iter->second.state = NeighbouringMA::nmaStateFlooded ;
+        iter->second.state = NeighbouringMA::nmaStateFlooded ;
       }
       completelyFlooded = false ;
       break ;
@@ -195,12 +195,12 @@ bool FloodRequest::floodNextStep() {
 
 
 void FloodRequest::waitResponses() {
-      // wait a maximum of 5 seconds
-      unsigned long s, n ;
-      locker.lock() ;
-      omni_thread::get_time(&s, &n, 5, 0) ;
-      disp(allResponseReceived->timedwait(s, n)) ;
-      locker.unlock() ;
+  // wait a maximum of 5 seconds
+  unsigned long s, n ;
+  locker.lock() ;
+  omni_thread::get_time(&s, &n, 5, 0) ;
+  disp(allResponseReceived->timedwait(s, n)) ;
+  locker.unlock() ;
 }
 
 
@@ -222,10 +222,10 @@ void FloodRequest::stopFlooding() {
     if(iter->second.state != NeighbouringMA::nmaStateNotContacted &&
        iter->second.state != NeighbouringMA::nmaStateAlreadyContacted) {
       try {
-	iter->second.maDescription->stopFlooding(request.reqID,
-						 owner->getBindName()) ;
+        iter->second.maDescription->stopFlooding(request.reqID,
+                                                 owner->getBindName()) ;
       } catch (CORBA::SystemException& ex) { 
-	/* does nothing */
+        /* does nothing */
       }
     }
   }

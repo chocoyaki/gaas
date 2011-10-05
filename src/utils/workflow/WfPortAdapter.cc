@@ -841,7 +841,7 @@ WfValueAdapter::newDouble() {
 
 string WfDataIDAdapter::IDStartTag = string("#IDDEB#");
 string WfDataIDAdapter::IDFinishTag = string("#IDFIN#");
-map<string, vector<string> >	WfDataIDAdapter::myCache;
+map<string, vector<string> >    WfDataIDAdapter::myCache;
 
 WfDataIDAdapter::WfDataIDAdapter(WfCst::WfDataType dataType,
                                  unsigned int dataDepth,
@@ -919,10 +919,10 @@ WfDataIDAdapter::getElements(vector< string >& vectID)
     string eltIdsMsg = "";
     for (unsigned int i = 0; i<content->size; ++i) {
       if (content->elt_ids[i] != NULL) {
-	vectID[i] = content->elt_ids[i];
-	eltIdsMsg += vectID[i];
+        vectID[i] = content->elt_ids[i];
+        eltIdsMsg += vectID[i];
       } else {
-	eltIdsMsg += WfVoidAdapter::voidRef;
+        eltIdsMsg += WfVoidAdapter::voidRef;
       }
       if (i != content->size-1) eltIdsMsg += ";";
     }
@@ -973,16 +973,16 @@ WfDataIDAdapter::getAndWriteData(WfDataWriter* dataWriter,
   try {
     if (dataDepth > 0) {
       dataWriter->startContainer();
-      WfDataIDAdapter	adapter(dataID);
-      vector<string> 	vectID;
+      WfDataIDAdapter   adapter(dataID);
+      vector<string>    vectID;
       adapter.getElements(vectID);
       
       for (vector<string>::iterator eltIter = vectID.begin();
-	   eltIter != vectID.end();
-	   ++eltIter) {
+           eltIter != vectID.end();
+           ++eltIter) {
         if ((*eltIter).empty())
           dataWriter->voidElement();
-	else
+        else
           getAndWriteData(dataWriter, *eltIter, dataType, dataDepth-1);
       } // end for
 

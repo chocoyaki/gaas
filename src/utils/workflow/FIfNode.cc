@@ -74,34 +74,34 @@ FIfNode::newPort(string portId,
 
   WfPort * p = NULL;
   switch (portType) {
-    case WfPort::PORT_PARAM:
-      p = new FNodeParamPort(this, portId, dataType, ind);
-      addPort(portId, p);
-      break;
-    case WfPort::PORT_IN:
-      p = new FNodeInPort(this, portId, portType, dataType, depth, ind);
-      addPort(portId, p);
-      break;
-    case WfPort::PORT_INOUT:
-      throw WfStructException("Inout port is not valid within conditional node");
-      break;
-    case WfPort::PORT_OUT:
-      throw WfStructException("Out port is not valid within conditional node (Use outThen or outElse tag)");
-      break;
-    case WfPort::PORT_OUT_THEN:
-      p = new FNodeOutPort(this, portId, portType, dataType, depth, ind);
-      addPort(portId, p);
-      setThenMap(portId,"VOID");  // default mapping (to be overriden by explicit mapping)
-      setElseMap(portId,"VOID");  // opposite case mapping
-      break;
-    case WfPort::PORT_OUT_ELSE:
-      p = new FNodeOutPort(this, portId, portType, dataType, depth, ind);
-      addPort(portId, p);
-      setElseMap(portId,"VOID");  // default mapping (to be overriden by explicit mapping)
-      setThenMap(portId,"VOID");  // opposite case mapping
-      break;
-    default:
-      throw WfStructException("Invalid port type in conditional node");
+  case WfPort::PORT_PARAM:
+    p = new FNodeParamPort(this, portId, dataType, ind);
+    addPort(portId, p);
+    break;
+  case WfPort::PORT_IN:
+    p = new FNodeInPort(this, portId, portType, dataType, depth, ind);
+    addPort(portId, p);
+    break;
+  case WfPort::PORT_INOUT:
+    throw WfStructException("Inout port is not valid within conditional node");
+    break;
+  case WfPort::PORT_OUT:
+    throw WfStructException("Out port is not valid within conditional node (Use outThen or outElse tag)");
+    break;
+  case WfPort::PORT_OUT_THEN:
+    p = new FNodeOutPort(this, portId, portType, dataType, depth, ind);
+    addPort(portId, p);
+    setThenMap(portId,"VOID");  // default mapping (to be overriden by explicit mapping)
+    setElseMap(portId,"VOID");  // opposite case mapping
+    break;
+  case WfPort::PORT_OUT_ELSE:
+    p = new FNodeOutPort(this, portId, portType, dataType, depth, ind);
+    addPort(portId, p);
+    setElseMap(portId,"VOID");  // default mapping (to be overriden by explicit mapping)
+    setThenMap(portId,"VOID");  // opposite case mapping
+    break;
+  default:
+    throw WfStructException("Invalid port type in conditional node");
   }
   return p;
 }
@@ -124,7 +124,7 @@ FIfNode::checkCondition() throw (WfStructException) {
        ++portIter) {
     WfPort *port = (WfPort*) portIter->second;
     if ((port->getPortType() == WfPort::PORT_IN)
-         && myCondition->isVariableUsed(port->getId())) {
+	&& myCondition->isVariableUsed(port->getId())) {
       // each port involved in the condition must be modified to accept only
       // DH with a real value
       FNodeInPort* inPort = dynamic_cast<FNodeInPort*>(port);
@@ -145,7 +145,7 @@ FIfNode::checkCondition() throw (WfStructException) {
     throw WfStructException(WfStructException::eINVALID_EXPR,
                             myCondition->getExpression());
   }
-//   myCondition->reset();
+  //   myCondition->reset();
 }
 
 void
@@ -175,7 +175,7 @@ FIfNode::createRealInstance(Dag* dag,
                             const FDataTag& currTag,
                             vector<FDataHandle*>& currDataLine) {
   TRACE_TEXT (TRACE_MAIN_STEPS,"  ## NEW IF INSTANCE : " << getId()
-                              << currTag.toString() << endl);
+	      << currTag.toString() << endl);
   FNodePortMap* mapToApply;
   // Loop for all inputs
   for (unsigned int ix = 0; ix < currDataLine.size(); ++ix) {
@@ -214,9 +214,9 @@ FIfNode::createRealInstance(Dag* dag,
   }
   // Apply the chosen map accordingly
   mapToApply->applyMap(currTag, currDataLine);
-//   myCondition->reset();
+  //   myCondition->reset();
   TRACE_TEXT (TRACE_ALL_STEPS,"  ## END IF INSTANCE : "
-                              << getId() << currTag.toString() << endl);
+	      << getId() << currTag.toString() << endl);
 }
 
 /*****************************************************************************/
@@ -237,19 +237,19 @@ FMergeNode::newPort(string portId,
                     unsigned int depth) throw (WfStructException) {
   WfPort * p = NULL;
   switch (portType) {
-    case WfPort::PORT_IN:
-      if (getPortNb(WfPort::PORT_IN) > 1)
-        throw WfStructException("Merge node can have only 2 input ports");
-      p = new FNodeInPort(this, portId, portType, dataType, depth, ind);
-      break;
-    case WfPort::PORT_OUT:
-      if (getPortNb(WfPort::PORT_OUT) > 0)
-        throw WfStructException("Merge node can have only 1 output port");
-      myOutPort = new FNodeOutPort(this, portId, portType, dataType, depth, ind);
-      p = (WfPort *) myOutPort;
-      break;
-    default:
-      throw WfStructException("Invalid port type in merge node");
+  case WfPort::PORT_IN:
+    if (getPortNb(WfPort::PORT_IN) > 1)
+      throw WfStructException("Merge node can have only 2 input ports");
+    p = new FNodeInPort(this, portId, portType, dataType, depth, ind);
+    break;
+  case WfPort::PORT_OUT:
+    if (getPortNb(WfPort::PORT_OUT) > 0)
+      throw WfStructException("Merge node can have only 1 output port");
+    myOutPort = new FNodeOutPort(this, portId, portType, dataType, depth, ind);
+    p = (WfPort *) myOutPort;
+    break;
+  default:
+    throw WfStructException("Invalid port type in merge node");
   }
   return addPort(portId, p);
 }
@@ -258,7 +258,7 @@ void
 FMergeNode::createMergeInstance(const FDataTag& currTag,
                                 vector<FDataHandle*>& currDataLine) {
   TRACE_TEXT (TRACE_MAIN_STEPS,"  ## NEW MERGE INSTANCE : " << getId()
-                              << currTag.toString() << endl);
+	      << currTag.toString() << endl);
   FDataHandle* srcData = NULL;
   FDataHandle *outData = NULL;
   vector<FDataHandle*>::const_iterator DLIter = currDataLine.begin();
@@ -311,25 +311,25 @@ FFilterNode::~FFilterNode() {
 
 WfPort *
 FFilterNode::newPort(string portId,
-                    unsigned int ind,
-                    WfPort::WfPortType portType,
-                    WfCst::WfDataType dataType,
-                    unsigned int depth) throw (WfStructException) {
+		     unsigned int ind,
+		     WfPort::WfPortType portType,
+		     WfCst::WfDataType dataType,
+		     unsigned int depth) throw (WfStructException) {
   WfPort * p = NULL;
   switch (portType) {
-    case WfPort::PORT_IN:
-      if (getPortNb(WfPort::PORT_IN) > 0)
-        throw WfStructException("Filter node can have only 1 input port");
-      p = new FNodeInPort(this, portId, portType, dataType, depth, 0);
-      break;
-    case WfPort::PORT_OUT:
-      if (getPortNb(WfPort::PORT_OUT) > 0)
-        throw WfStructException("Filter node can have only 1 output port");
-      myOutPort = new FNodeOutPort(this, portId, portType, dataType, depth, 1);
-      p = (WfPort *) myOutPort;
-      break;
-    default:
-       throw WfStructException("Invalid port type in filter node");
+  case WfPort::PORT_IN:
+    if (getPortNb(WfPort::PORT_IN) > 0)
+      throw WfStructException("Filter node can have only 1 input port");
+    p = new FNodeInPort(this, portId, portType, dataType, depth, 0);
+    break;
+  case WfPort::PORT_OUT:
+    if (getPortNb(WfPort::PORT_OUT) > 0)
+      throw WfStructException("Filter node can have only 1 output port");
+    myOutPort = new FNodeOutPort(this, portId, portType, dataType, depth, 1);
+    p = (WfPort *) myOutPort;
+    break;
+  default:
+    throw WfStructException("Invalid port type in filter node");
   }
   return addPort(portId, p);
 }
@@ -339,7 +339,7 @@ FFilterNode::createRealInstance(Dag* dag,
                                 const FDataTag& currTag,
                                 vector<FDataHandle*>& currDataLine) {
   TRACE_TEXT (TRACE_MAIN_STEPS,"  ## FILTER PROCESSES NON-VOID ITEM : "
-                               << currTag.toString() << endl);
+	      << currTag.toString() << endl);
   FDataHandle* srcData = currDataLine[0];
   if (!srcData) {
     INTERNAL_ERROR("Invalid (NULL) data to process in filter node",1);
@@ -351,7 +351,7 @@ void
 FFilterNode::createVoidInstance(const FDataTag& currTag,
                                 vector<FDataHandle*>& currDataLine) {
   TRACE_TEXT (TRACE_MAIN_STEPS,"  ## FILTER PROCESSES VOID ITEM : "
-                               << currTag.toString() << endl);
+	      << currTag.toString() << endl);
   FDataHandle* srcData = currDataLine[0];
   if (!srcData) {
     INTERNAL_ERROR("Invalid (NULL) data to process in filter node",1);

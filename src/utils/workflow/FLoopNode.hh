@@ -34,82 +34,82 @@
 
 class FLoopNode : public FProcNode {
 
-  public:
+public:
 
-    FLoopNode(FWorkflow* wf,
-              const string& id);
-    virtual ~FLoopNode();
+  FLoopNode(FWorkflow* wf,
+	    const string& id);
+  virtual ~FLoopNode();
 
-    // ******************** NODE SETUP *********************
+  // ******************** NODE SETUP *********************
 
-    virtual WfPort *
-        newPort(string portId,
-                unsigned int ind,
-                WfPort::WfPortType portType,
-                WfCst::WfDataType dataType,
-                unsigned int depth) throw (WfStructException);
+  virtual WfPort *
+  newPort(string portId,
+	  unsigned int ind,
+	  WfPort::WfPortType portType,
+	  WfCst::WfDataType dataType,
+	  unsigned int depth) throw (WfStructException);
 
-    virtual void
-        connectNodePorts() throw (WfStructException);
+  virtual void
+  connectNodePorts() throw (WfStructException);
 
-    void
-        setDoMap(const string& leftPortName,
-                 const string& rightPortName)
-        throw (WfStructException);
+  void
+  setDoMap(const string& leftPortName,
+	   const string& rightPortName)
+    throw (WfStructException);
 
-    void
-        setWhileCondition(const string& conditionStr)
-        throw (WfStructException);
+  void
+  setWhileCondition(const string& conditionStr)
+    throw (WfStructException);
 
-    // ******************** INSTANCIATION *********************
+  // ******************** INSTANCIATION *********************
 
-    virtual void
-        initialize();
+  virtual void
+  initialize();
 
-    virtual void
-        instanciate(Dag* dag);
+  virtual void
+  instanciate(Dag* dag);
 
-    virtual void
-        createRealInstance(Dag* dag,
-                           const FDataTag& currTag,
-                           vector<FDataHandle*>& currDataLine);
+  virtual void
+  createRealInstance(Dag* dag,
+		     const FDataTag& currTag,
+		     vector<FDataHandle*>& currDataLine);
 
-    virtual void
-        createVoidInstance(const FDataTag& currTag,
-                           vector<FDataHandle*>& currDataLine);
+  virtual void
+  createVoidInstance(const FDataTag& currTag,
+		     vector<FDataHandle*>& currDataLine);
 
-    virtual void
-        updateInstanciationStatus();
+  virtual void
+  updateInstanciationStatus();
 
-  protected:
+protected:
 
-    virtual void
-        checkCondition() throw (WfStructException);
+  virtual void
+  checkCondition() throw (WfStructException);
 
-    bool
-        testCondition(const vector<FDataHandle*>& currDataLine);
-    void
-        initLoopInPorts(vector<FDataHandle*>& currDataLine);
+  bool
+  testCondition(const vector<FDataHandle*>& currDataLine);
+  void
+  initLoopInPorts(vector<FDataHandle*>& currDataLine);
 
-    vector<WfExprVariable*>*  myConditionVars;
-    WfBooleanExpression*      myCondition;
-    FNodePortMap  myDoMap;        // used for IN LOOP => OUT LOOP
-    FNodePortMap  myFinalOutMap;  // used for IN LOOP => OUT
-    FNodePortMap  myFinalLoopMap; // used for VOID => OUT LOOP
-    FNodePortMap  myFinalVoidOutMap;  // used for VOID => OUT
-    FNodePortMap  myDirectInOutMap;   // used for IN => OUT (no loop iteration)
-    InputIterator*  myLoopIterator;
+  vector<WfExprVariable*>*  myConditionVars;
+  WfBooleanExpression*      myCondition;
+  FNodePortMap  myDoMap;        // used for IN LOOP => OUT LOOP
+  FNodePortMap  myFinalOutMap;  // used for IN LOOP => OUT
+  FNodePortMap  myFinalLoopMap; // used for VOID => OUT LOOP
+  FNodePortMap  myFinalVoidOutMap;  // used for VOID => OUT
+  FNodePortMap  myDirectInOutMap;   // used for IN => OUT (no loop iteration)
+  InputIterator*  myLoopIterator;
 
-  private:
-    /**
-     * Total nb of running loop instances
-     */
-    int activeInstanceNb;
+private:
+  /**
+   * Total nb of running loop instances
+   */
+  int activeInstanceNb;
 
-    /**
-     * Length of loop tags
-     */
-    unsigned int loopTagLength;
+  /**
+   * Length of loop tags
+   */
+  unsigned int loopTagLength;
 
 };
 

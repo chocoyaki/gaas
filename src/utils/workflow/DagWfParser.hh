@@ -151,23 +151,23 @@ using namespace std;
 /*****************************************************************************/
 
 class XMLParsingException {
-  public:
-    enum XMLParsingErrorType { eUNKNOWN,
-                               eUNKNOWN_TAG,
-                               eUNKNOWN_ATTR,
-                               eEMPTY_ATTR,
-                               eBAD_STRUCT,
-                               eINVALID_REF,
-                               eINVALID_DATA,
-                               eFILENOTFOUND };
-    XMLParsingException(XMLParsingErrorType t, const string& info)
-      { this->why = t; this->info = info; }
-    XMLParsingErrorType Type() { return this->why; }
-    const string& Info() { return this->info; }
-    string ErrorMsg();
-  private:
-    XMLParsingErrorType why;
-    string info;
+public:
+  enum XMLParsingErrorType { eUNKNOWN,
+			     eUNKNOWN_TAG,
+			     eUNKNOWN_ATTR,
+			     eEMPTY_ATTR,
+			     eBAD_STRUCT,
+			     eINVALID_REF,
+			     eINVALID_DATA,
+			     eFILENOTFOUND };
+  XMLParsingException(XMLParsingErrorType t, const string& info)
+  { this->why = t; this->info = info; }
+  XMLParsingErrorType Type() { return this->why; }
+  const string& Info() { return this->info; }
+  string ErrorMsg();
+private:
+  XMLParsingErrorType why;
+  string info;
 };
 
 /*****************************************************************************/
@@ -207,21 +207,21 @@ public:
    * @param elt      the DOM element
    */
   static string
-      getAttributeValue(const char * attr_name, const DOMElement * elt);
+  getAttributeValue(const char * attr_name, const DOMElement * elt);
 
   /**
    * utility method to check that the attribute is non-empty
    */
   static void
-      checkMandatoryAttr(const string& tagName,
-                         const string& attrName,
-                         const string& attrValue);
+  checkMandatoryAttr(const string& tagName,
+		     const string& attrName,
+		     const string& attrValue);
 
   /**
    * utility method to check that an element does not contain any child
    */
   static void
-      checkLeafElement(const DOMElement * element, const string& tagName);
+  checkLeafElement(const DOMElement * element, const string& tagName);
 
   /**
    * Utility method to get the text content of a DOM element
@@ -229,20 +229,20 @@ public:
    * @param buffer  the string that will contain the value
    */
   static void
-      getTextContent(const DOMElement * element, string& buffer);
+  getTextContent(const DOMElement * element, string& buffer);
 
   /**
    * Utility method to trim spaces from strings
    */
   static string&
-      stringTrim(string& str);
+  stringTrim(string& str);
 
   /**
    * Utility method to parse multiple assignmnent data
    */
   static void
-      getPortMap(const string& thenMapStr,
-                 map<string,string>& thenMap) throw (XMLParsingException);
+  getPortMap(const string& thenMapStr,
+	     map<string,string>& thenMap) throw (XMLParsingException);
 
 
 protected:
@@ -288,7 +288,7 @@ protected:
    * @param element     the DOM element
    * @param elementName the element tag name (ie 'node' or 'processor' ...)
    * @return a pointer to the newly created node
-  */
+   */
   virtual WfNode *
   createNode(const DOMElement * element, const string& elementName) = 0;
 
@@ -302,7 +302,7 @@ protected:
   virtual WfPort *
   parseArg(const DOMElement * element,
            const unsigned int lastArg,
- 	   WfNode * node);
+           WfNode * node);
 
   /**
    * Parse an input port element
@@ -314,7 +314,7 @@ protected:
   virtual WfPort *
   parseIn(const DOMElement * element,
           const unsigned int lastArg,
- 	  WfNode * node);
+          WfNode * node);
 
   /**
    * Parse an inout port element
@@ -326,7 +326,7 @@ protected:
   virtual WfPort *
   parseInOut(const DOMElement * element,
              const unsigned int lastArg,
- 	     WfNode * node);
+             WfNode * node);
 
   /**
    * Parse an output port element
@@ -338,7 +338,7 @@ protected:
   virtual WfPort *
   parseOut(const DOMElement * element,
            const unsigned int lastArg,
- 	   WfNode * node);
+           WfNode * node);
 
   /**
    * Parse other sub-elements (not common) - called by parseNode
@@ -368,21 +368,21 @@ protected:
    */
   WfPort *
   createPort( const WfPort::WfPortType param_type,
-	      const string& name,
-	      const string& type,
-	      const string& depth,
-	      unsigned int lastArg,
-	      WfNode * node );
+              const string& name,
+              const string& type,
+              const string& depth,
+              unsigned int lastArg,
+              WfNode * node );
 
   /**
    * create a node port of type matrix
    */
   WfPort *
   createMatrixPort( const DOMElement * element,
-		    const WfPort::WfPortType param_type,
-		    const string& name,
-		    unsigned int lastArg,
-		    WfNode * node );
+                    const WfPort::WfPortType param_type,
+                    const string& name,
+                    unsigned int lastArg,
+                    WfNode * node );
 
 }; // end class DagWfParser
 
@@ -423,9 +423,9 @@ protected:
    */
   virtual void
   parseOtherNodeSubElt( const DOMElement * element,
-			const string& elementName,
-			unsigned int& portIndex,
-			WfNode * node );
+                        const string& elementName,
+                        unsigned int& portIndex,
+                        WfNode * node );
   /**
    * Parse a prec element
    * @param element   port DOM element reference
@@ -443,14 +443,14 @@ protected:
 
 class SingleDagParser : public DagParser {
 
-  public:
+public:
 
-    SingleDagParser(Dag& dag, const char * content);
-    virtual ~SingleDagParser();
+  SingleDagParser(Dag& dag, const char * content);
+  virtual ~SingleDagParser();
 
-  protected:
+protected:
 
-    virtual void parseRoot(DOMNode* root);
+  virtual void parseRoot(DOMNode* root);
 
 }; // end class SingleDagParser
 
@@ -461,35 +461,35 @@ class SingleDagParser : public DagParser {
 
 class MultiDagParser : public DagParser {
 
-  public:
+public:
 
-    MultiDagParser ();
-    MultiDagParser ( const string& xmlFileName );
+  MultiDagParser ();
+  MultiDagParser ( const string& xmlFileName );
 
-    virtual ~MultiDagParser();
+  virtual ~MultiDagParser();
     
-    /**
-     * Set the default workflow that contains the dags
-     */
-    void setWorkflow(FWorkflow* wf);
+  /**
+   * Set the default workflow that contains the dags
+   */
+  void setWorkflow(FWorkflow* wf);
 
-    /**
-     * Parse a <dags> DOM element
-     * @param root	the DOM node corresponding to <dags>
-     */
-    virtual void parseRoot(DOMNode* root);
+  /**
+   * Parse a <dags> DOM element
+   * @param root      the DOM node corresponding to <dags>
+   */
+  virtual void parseRoot(DOMNode* root);
 
-    /**
-     * Get the list of dags created during parsing
-     * IMPORTANT: - created dags have no execution agent defined
-     * 		  - parser does not deallocate dags at destruction
-     */
-    list<Dag*>& getDags();
+  /**
+   * Get the list of dags created during parsing
+   * IMPORTANT: - created dags have no execution agent defined
+   *            - parser does not deallocate dags at destruction
+   */
+  list<Dag*>& getDags();
 
-  protected:
+protected:
 
-    list<Dag*>	myDags;
-    FWorkflow*	myWorkflow;
+  list<Dag*>  myDags;
+  FWorkflow*  myWorkflow;
 
 }; // end class MultiDagParser
 
@@ -531,15 +531,15 @@ protected:
              const unsigned int lastArg,
              WfNode * node);
 
-//   virtual void
-//   parseOutThen(const DOMElement * element,
-//                const unsigned int portIndex,
-//                WfNode * node);
-//
-//   virtual void
-//   parseOutElse(const DOMElement * element,
-//                const unsigned int portIndex,
-//                WfNode * node);
+  //   virtual void
+  //   parseOutThen(const DOMElement * element,
+  //                const unsigned int portIndex,
+  //                WfNode * node);
+  //
+  //   virtual void
+  //   parseOutElse(const DOMElement * element,
+  //                const unsigned int portIndex,
+  //                WfNode * node);
 
   virtual WfPort *
   parseParamPort(const DOMElement * element,
@@ -622,23 +622,23 @@ private:
 
 class DataSourceParser {
 
-  public:
+public:
 
-    DataSourceParser(FSourceNode* node);
-    ~DataSourceParser();
+  DataSourceParser(FSourceNode* node);
+  ~DataSourceParser();
 
-    /**
-     * Initialize the parser
-     * Note: after this call the next available value can be retrieved
-     * with getValue() if end() is not true
-     * @param dataFileName  path of the file containing data description
-     */
-    void parseXml(const string& dataFileName) throw (XMLParsingException);
+  /**
+   * Initialize the parser
+   * Note: after this call the next available value can be retrieved
+   * with getValue() if end() is not true
+   * @param dataFileName  path of the file containing data description
+   */
+  void parseXml(const string& dataFileName) throw (XMLParsingException);
 
 
-  private:
+private:
 
-    FSourceNode* myNode;
+  FSourceNode* myNode;
 };
 
 
@@ -648,48 +648,48 @@ class DataSourceParser {
 
 class DataSourceHandler : public DefaultHandler {
 
-  public:
+public:
 
-    DataSourceHandler(FSourceNode* node);
+  DataSourceHandler(FSourceNode* node);
 
-    void startElement(
-        const   XMLCh* const    uri,
-        const   XMLCh* const    localname,
-        const   XMLCh* const    qname,
-        const   Attributes&     attrs
-    );
+  void startElement(
+		    const   XMLCh* const    uri,
+		    const   XMLCh* const    localname,
+		    const   XMLCh* const    qname,
+		    const   Attributes&     attrs
+		    );
 
-    void endElement(const   XMLCh* const    uri,
-                    const   XMLCh* const    localname,
-                    const   XMLCh* const    qname);
+  void endElement(const   XMLCh* const    uri,
+		  const   XMLCh* const    localname,
+		  const   XMLCh* const    qname);
 
-    void characters (const  XMLCh* const     chars,
-                     const  XMLSize_t        length);
+  void characters (const  XMLCh* const     chars,
+		   const  XMLSize_t        length);
 
-    void fatalError(const SAXParseException& e);
-    void warning(const SAXParseException& e);
+  void fatalError(const SAXParseException& e);
+  void warning(const SAXParseException& e);
 
-  private:
-    void startSource(const   Attributes&     attrs);
-    void startList(const   Attributes&     attrs);
-    void startItem(const   Attributes&     attrs);
-    void startTag(const   Attributes&     attrs);
+private:
+  void startSource(const   Attributes&     attrs);
+  void startList(const   Attributes&     attrs);
+  void startItem(const   Attributes&     attrs);
+  void startTag(const   Attributes&     attrs);
 
-    void endSource();
-    void endList();
-    void endItem();
-    void endTag();
+  void endSource();
+  void endList();
+  void endItem();
+  void endTag();
 
-    FSourceNode*  myNode;
-    FDataTag*     myCurrTag;
-    FDataHandle*  myCurrListDH;
-    string        myCurrItemValue;
-    string        myCurrItemDataID;
-    FDataHandle*  myCurrItemDH;
+  FSourceNode*  myNode;
+  FDataTag*     myCurrTag;
+  FDataHandle*  myCurrListDH;
+  string        myCurrItemValue;
+  string        myCurrItemDataID;
+  FDataHandle*  myCurrItemDH;
 
-    bool          isSourceFound;
-    bool          isListFound;
-    bool          isItemFound;
+  bool          isSourceFound;
+  bool          isListFound;
+  bool          isItemFound;
 
 
 };
@@ -701,7 +701,7 @@ class DataSourceHandler : public DefaultHandler {
 class MyDOMErrorHandler : public DOMErrorHandler {
 
   virtual bool
-      handleError (const DOMError &domError);
+  handleError (const DOMError &domError);
 
 };
 

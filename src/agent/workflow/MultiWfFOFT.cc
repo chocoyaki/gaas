@@ -122,7 +122,7 @@ MultiWfFOFT::~MultiWfFOFT() {
  */
 void
 MultiWfFOFT::intraDagSchedule(Dag * dag, MasterAgent_var MA)
-    throw (MaDag::ServiceNotFound, MaDag::CommProblem) {
+  throw (MaDag::ServiceNotFound, MaDag::CommProblem) {
   // Call the MA to get estimations for all services
   wf_response_t * wf_response = this->getProblemEstimates(dag, MA);
 
@@ -147,8 +147,8 @@ MultiWfFOFT::intraDagSchedule(Dag * dag, MasterAgent_var MA)
   this->dagsState[dag].EFT       = dag->getEFT();
   this->dagsState[dag].makespan  = this->dagsState[dag].EFT - startTime;
   TRACE_TEXT(TRACE_ALL_STEPS, "[FOFT] Init (Dag " << dag->getId() << ") EFT = "
-      << this->dagsState[dag].EFT << " / makespan = "
-      << this->dagsState[dag].makespan << endl);
+	     << this->dagsState[dag].EFT << " / makespan = "
+	     << this->dagsState[dag].makespan << endl);
 
   // Cleanup
   delete wf_response;
@@ -174,12 +174,12 @@ MultiWfFOFT::setExecPriority(DagNode * node) {
     if (currDelay > 0) {
       this->updateNodeDelay(node, currDelay);
       TRACE_TEXT(TRACE_MAIN_STEPS, "[FOFT] Waiting node "
-              << node->getCompleteId() << " delay updated (duration="
-              << node->getEstDuration() << "/EFT=" << node->getEstCompTime()
-              << "/delay=" << currDelay << ")" << endl);
+		 << node->getCompleteId() << " delay updated (duration="
+		 << node->getEstDuration() << "/EFT=" << node->getEstCompTime()
+		 << "/delay=" << currDelay << ")" << endl);
     } else {
       TRACE_TEXT(TRACE_MAIN_STEPS, "[FOFT] Waiting node " << node->getCompleteId()
-          << " is on schedule" << endl);
+		 << " is on schedule" << endl);
     }
   }
   node->setPriority(this->dagsState[node->getDag()].slowdown);
@@ -189,7 +189,7 @@ MultiWfFOFT::setExecPriority(DagNode * node) {
  * Set priority before inserting back in the ready queue
  * Set a flag to trigger slowdown calculation the next time this node's
  * priority is set.
-*/
+ */
 void
 MultiWfFOFT::setWaitingPriority(DagNode * node) {
   node->setPriority(this->nodesHEFTPrio[node]);
@@ -215,6 +215,6 @@ MultiWfFOFT::updateNodeDelay(DagNode * node, double delay) {
     // slowdown is the percentage of delay relatively to initial makespan
     curDagState.slowdown = (double) 100 * dagNewEstDelay / curDagState.makespan;
     TRACE_TEXT(TRACE_MAIN_STEPS, "[FOFT] Updated slowdown for dag "
-        << node->getDag()->getId() << " = " << curDagState.slowdown << endl);
+	       << node->getDag()->getId() << " = " << curDagState.slowdown << endl);
   }
 }

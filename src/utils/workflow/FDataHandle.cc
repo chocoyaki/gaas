@@ -460,10 +460,10 @@ FDataHandle::FDataHandle(const FDataTag& tag,
 }
 
 FDataHandle::FDataHandle(const FDataTag&   tag,
-			 WfCst::WfDataType dataType,
-			 unsigned int      dataDepth,
-			 const string&	   dataId,
-			 bool 		   isOwner)
+                         WfCst::WfDataType dataType,
+                         unsigned int      dataDepth,
+                         const string&     dataId,
+                         bool              isOwner)
   : myTag(tag), myParentHdl(NULL), myPort(NULL), myPortElementIndexes(NULL),
     myAdapterType(ADAPTER_DATAID), myValue(), myValueType(dataType),
     myDataID(dataId), myDepth(dataDepth),  myCard(0), myCardList(NULL),
@@ -785,7 +785,7 @@ FDataHandle::isLastChild() const {
 void
 FDataHandle::updateAncestors() {
   //   TRACE_TEXT(TRACE_ALL_STEPS,"Update ancestors for " << getTag().toString() << "(size=" << myData->size()
-  // 	      << " / cardinal=" << (isCardinalDefined() ? getCardinal() : 0) << ")" << endl);
+  //          << " / cardinal=" << (isCardinalDefined() ? getCardinal() : 0) << ")" << endl);
   if (!isCardinalDefined() || (myData->size() != myCard)) {
     return;
   }
@@ -936,11 +936,11 @@ FDataHandle::uploadTreeData(MasterAgent_var& MA) throw (WfDataHandleException) {
 
     if (! dataManager->pfmIsDataPresent(myDataID.c_str())) {
       if (isValueDefined()) {
-	// data ID is obsolete so try to recreate one using value
+        // data ID is obsolete so try to recreate one using value
         myAdapterType = ADAPTER_VALUE;
         downloadDataID();
       } else {
-	string errorMsg = "Missing value and invalid data ID (tag=" + getTag().toString() + ")";
+        string errorMsg = "Missing value and invalid data ID (tag=" + getTag().toString() + ")";
         throw WfDataHandleException(WfDataHandleException::eVALUE_UNDEF, errorMsg);
       }
     }
@@ -972,7 +972,7 @@ FDataHandle::begin() throw (WfDataHandleException) {
       delete childIDVect;
       delete adapterID;
       throw WfDataHandleException(WfDataHandleException::eBAD_STRUCT,
-				  "Cannot retrieve element IDs : " + e.ErrorMsg());
+                                  "Cannot retrieve element IDs : " + e.ErrorMsg());
     }
     if (!isCardinalDefined()) setCardinal(childIDVect->size());
   }
@@ -984,9 +984,9 @@ FDataHandle::begin() throw (WfDataHandleException) {
       // Create new data handle
       FDataHandle* childHdl;
       if (childIDVect)
-	childHdl = new FDataHandle(childTag, myValueType, myDepth-1, (*childIDVect)[ix], true);
+        childHdl = new FDataHandle(childTag, myValueType, myDepth-1, (*childIDVect)[ix], true);
       else
-	childHdl = new FDataHandle(childTag, myDepth-1, this);
+        childHdl = new FDataHandle(childTag, myDepth-1, this);
       // Insert the data handle as child of this one
       this->addChild(childHdl);
       // set the cardinal list (static cardinal info) for childs
@@ -1068,7 +1068,7 @@ FDataHandle::isValueDefined() const {
 
 void
 FDataHandle::setValue( WfCst::WfDataType valueType,
-		       const string&     value) {
+                       const string&     value) {
   myValueType = valueType;
   myValue = value;
   valueDef = true;
@@ -1156,7 +1156,7 @@ FDataHandle::downloadValue() throw (WfDataHandleException) {
   } catch (...) {
     WARNING("Uncaught exception in FDataHandle::downloadValue()");
   }
-  myValue = valStr.str();	//FIXME use setValue
+  myValue = valStr.str();       //FIXME use setValue
   valueDef = true;
   delete dataWriter;
   TRACE_TEXT (TRACE_ALL_STEPS,"==> Value is : " << myValue << endl);
@@ -1176,7 +1176,7 @@ FDataHandle::downloadDataID() throw (WfDataHandleException, WfDataException) {
       if (e.Type() == WfDataException::eVOID_DATA) {
         setAsVoid();
       } else {
-	delete adapter;
+        delete adapter;
         throw;
       }
     } catch (...) {

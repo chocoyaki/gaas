@@ -48,13 +48,13 @@ private :
 
   int 
   convertArray(vector <double> vect,
-	       estVector_t * estvect,
-	       int typeOfInfo );
+               estVector_t * estvect,
+               int typeOfInfo );
 
   int 
   convertSimple(double value,
-		estVector_t * estvect,
-		int typeOfInfo );
+                estVector_t * estvect,
+                int typeOfInfo );
 public :
   Cori_batch( diet_profile_t* );
 
@@ -67,8 +67,8 @@ public :
      This place in the vector the information! */
   int
   get_Information(int type_Info,       
-		  estVector_t * info,
-		  const void * data);
+                  estVector_t * info,
+                  const void * data);
  
 };
 #endif //CORI_BATCH_HH

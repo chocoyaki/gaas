@@ -275,9 +275,9 @@ WfNode::setNodePrecedence(NodeSet* nodeSet) throw (WfStructException) {
   // Add the predecessors defined by data links
   TRACE_TEXT (TRACE_ALL_STEPS, "Processing ports of node : " << myId << endl);
   for (map<string, WfPort*>::iterator p = ports.begin();
-	 p != ports.end();
-	 ++p) {
-      ((WfPort*)p->second)->setNodePrecedence(nodeSet);
+       p != ports.end();
+       ++p) {
+    ((WfPort*)p->second)->setNodePrecedence(nodeSet);
   }
   // convert the predecessors defined by ID in prevNodeIds to
   // direct object references stored in prevNodes
@@ -307,8 +307,8 @@ WfNode::addNodePredecessor(WfNode * node, const string& fullNodeId) {
  */
 void
 WfNode::setPrev(int index, WfNode * node) {
-    prevNodes[index] = node;
-    node->addNext(this);
+  prevNodes[index] = node;
+  node->addNext(this);
 }
 
 /**
@@ -397,7 +397,7 @@ WfNode::isAnExit() const {
 void
 WfNode::connectNodePorts() throw (WfStructException) {
   TRACE_TEXT (TRACE_ALL_STEPS,
- 	      "connectNodePorts : processing node " << getId() << endl);
+              "connectNodePorts : processing node " << getId() << endl);
   for (map<string, WfPort*>::iterator p = ports.begin();
        p != ports.end();
        ++p) {

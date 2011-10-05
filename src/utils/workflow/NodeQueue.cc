@@ -131,8 +131,8 @@ OrderedNodeQueue::~OrderedNodeQueue() { }
 // of the ready nodes list without doing any re-ordering
 void
 OrderedNodeQueue::pushNode(DagNode * node) {
-//   TRACE_TEXT (TRACE_ALL_STEPS,
-//       "Node " << node->getCompleteId() << " inserted at end of queue" << endl);
+  //   TRACE_TEXT (TRACE_ALL_STEPS,
+  //       "Node " << node->getCompleteId() << " inserted at end of queue" << endl);
   orderedNodes.push_back(node);
   node->setNodeQueue(this);
   this->nodeCounter++;
@@ -223,23 +223,23 @@ PriorityNodeQueue::pushNode(DagNode * insNode) {
   list<DagNode*>::iterator  nodeIter = orderedNodes.begin();
   DagNode *                      curNode   = NULL;
   while ((nodeIter != orderedNodes.end())
-          && (curNode = (DagNode *) *nodeIter)
-          && (curNode->getPriority() >= insNodePrio)) {
+	 && (curNode = (DagNode *) *nodeIter)
+	 && (curNode->getPriority() >= insNodePrio)) {
     ++nodeIter;
   }
   orderedNodes.insert(nodeIter, insNode);
   insNode->setNodeQueue(this);
   this->nodeCounter++;
 
-//   if (nodeIter != orderedNodes.end()) {
-//     TRACE_TEXT (TRACE_ALL_STEPS,
-//       "Node " << insNode->getCompleteId() << " inserted before "
-//           << curNode->getCompleteId() << " in queue" << endl);
-//   } else if (curNode != NULL) {
-//     TRACE_TEXT (TRACE_ALL_STEPS,
-//       "Node " << insNode->getCompleteId() << " inserted last in queue" << endl);
-//   } else {
-//     TRACE_TEXT (TRACE_ALL_STEPS,
-//       "Node " << insNode->getCompleteId() << " inserted first in queue" << endl);
-//   }
+  //   if (nodeIter != orderedNodes.end()) {
+  //     TRACE_TEXT (TRACE_ALL_STEPS,
+  //       "Node " << insNode->getCompleteId() << " inserted before "
+  //           << curNode->getCompleteId() << " in queue" << endl);
+  //   } else if (curNode != NULL) {
+  //     TRACE_TEXT (TRACE_ALL_STEPS,
+  //       "Node " << insNode->getCompleteId() << " inserted last in queue" << endl);
+  //   } else {
+  //     TRACE_TEXT (TRACE_ALL_STEPS,
+  //       "Node " << insNode->getCompleteId() << " inserted first in queue" << endl);
+  //   }
 }

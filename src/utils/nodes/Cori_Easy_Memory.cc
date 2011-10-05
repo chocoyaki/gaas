@@ -73,15 +73,15 @@ Easy_Memory::get_Total_Memory(double * result)
     return 0;
   }
   else
-  if (!get_Total_Memory_bysysinfo(&temp1)
-      &&(!get_Avail_Memory_byvmstat(&temp2))
-      &&(!get_Avail_Memory_bysysinfo(&temp3)))
-  {
-    double pagesize= temp2/temp3;
-    *result=temp1*pagesize;
-    return 0;
-  }
-  else{
+    if (!get_Total_Memory_bysysinfo(&temp1)
+	&&(!get_Avail_Memory_byvmstat(&temp2))
+	&&(!get_Avail_Memory_bysysinfo(&temp3)))
+      {
+	double pagesize= temp2/temp3;
+	*result=temp1*pagesize;
+	return 0;
+      }
+    else{
       *result=0;
       return 1;
     }
@@ -90,16 +90,16 @@ int
 Easy_Memory::get_Avail_Memory(double * result)
 {
   double temp;
-   if (!get_Info_Memory_byProcMem(&temp,1)){
+  if (!get_Info_Memory_byProcMem(&temp,1)){
     *result=temp;
     return 0;
   }
   else
-  if (!get_Avail_Memory_byvmstat(&temp)){
-    *result=temp;
-    return 0;
-  }
-  else{
+    if (!get_Avail_Memory_byvmstat(&temp)){
+      *result=temp;
+      return 0;
+    }
+    else{
       *result=0;
       return 1;
     }
@@ -121,8 +121,8 @@ Easy_Memory::get_Total_Memory_bysysinfo(double * result)
   *result=(get_phys_pages ()/1024)*(getpagesize()/1024);
   return 0;
 #else
-    //chercher autre solutions
-    return 1;
+  //chercher autre solutions
+  return 1;
 #endif
 }
 
@@ -148,68 +148,68 @@ Easy_Memory::get_Avail_Memory_byvmstat(double * result)
 {
   int returnval=1;
   FILE * myfile =popen("vmstat","r");
-   char word[256];
-    if ((myfile!=NULL)){
+  char word[256];
+  if ((myfile!=NULL)){
+    if (!feof(myfile)){
+      fgets(word, 256, myfile);
       if (!feof(myfile)){
 	fgets(word, 256, myfile);
-	  if (!feof(myfile)){
-	    fgets(word, 256, myfile);
-	    int i=0;
-	    while ((!feof(myfile))&&(i<4)){
-	      fscanf (myfile, "%255s", word);
-	      i++;
-	    }
-	    if (i==4){
-	      *result = atof ( word )/1024;
-	      returnval=0;
-	    }
-	    else return 1;
-	  }
+	int i=0;
+	while ((!feof(myfile))&&(i<4)){
+	  fscanf (myfile, "%255s", word);
+	  i++;
+	}
+	if (i==4){
+	  *result = atof ( word )/1024;
+	  returnval=0;
+	}
+	else return 1;
       }
-      pclose(myfile);
+    }
+    pclose(myfile);
   }
   return returnval;
 }
 
 
 /*
- cat /proc/meminfo*/
+  cat /proc/meminfo*/
 int
 Easy_Memory::get_Info_Memory_byProcMem(double* resultat,
-				       int freemem)
+                                       int freemem)
 {
 #ifdef CORI_HAVE_PROCMEM
 
-  	char  word[256];
-	char demanded[256];
-	/* looking in the /proc/meminfo data file*/
-	ifstream file ("/proc/meminfo");
+  char  word[256];
+  char demanded[256];
+  /* looking in the /proc/meminfo data file*/
+  ifstream file ("/proc/meminfo");
 
-	if (freemem)
-	  strcpy (demanded,"MemFree:");
-	else strcpy (demanded,"MemTotal:");
+  if (freemem)
+    strcpy (demanded,"MemFree:");
+  else strcpy (demanded,"MemTotal:");
 
 
-	if (file.is_open())
+  if (file.is_open())
+    {
+      while ( ! file.eof() )  //look at the whole file
 	{
-	  while ( ! file.eof() )  //look at the whole file
-	  {
-	    if ( strcmp (demanded , word ) == 0 )
-	    {
-		file >> word;
-		*resultat=atof(word)/1024;
-		return 0;
-	    }
-	    file >> word;
-	  }
-	  file.close();
+	  if ( strcmp (demanded , word ) == 0 )
+            {
+	      file >> word;
+	      *resultat=atof(word)/1024;
+	      return 0;
+            }
+	  file >> word;
 	}
-  	else{
-	  TRACE_TEXT(TRACE_MAX_VALUE,"Error on reading file");
-	  return 1;
-	}
+      file.close();
+    }
+  else{
+    TRACE_TEXT(TRACE_MAX_VALUE,"Error on reading file");
+    return 1;
+  }
 #endif //CORI_HAVE_PROCMEM
- return 1;
+  return 1;
 
 }
 

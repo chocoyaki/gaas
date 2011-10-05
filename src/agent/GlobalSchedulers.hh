@@ -72,11 +72,11 @@ public:
    * @param nb_responses number of responses to aggregate.
    * @param responses    array of the responses to aggregate.
    */
-/* New : For scheduler load support. Allows to overload the aggregate method.*/
+  /* New : For scheduler load support. Allows to overload the aggregate method.*/
 #ifdef USERSCHED
   virtual
 #endif
-/*************************************/
+  /*************************************/
   int
   aggregate(corba_response_t* aggrResp,
             size_t max_srv,

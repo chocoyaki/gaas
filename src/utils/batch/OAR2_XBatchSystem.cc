@@ -47,12 +47,12 @@ OAR2_XBatchSystem::OAR2_XBatchSystem(int ID, const char * batchname)
   TRACE_TEXT(TRACE_ALL_STEPS,"Nom NFS: " << getNFSPath() << endl) ;
 #endif
 
-//   if( pathToTmp == NULL ) {
-//     ERROR_EXIT("OAR needs a path to a tmp directory to store its script") ;
-//   }
-// #if defined YC_DEBUG
-//   TRACE_TEXT(TRACE_ALL_STEPS,"Nom Tmp: " << getTmpPath() << endl) ;
-// #endif
+  //   if( pathToTmp == NULL ) {
+  //     ERROR_EXIT("OAR needs a path to a tmp directory to store its script") ;
+  //   }
+  // #if defined YC_DEBUG
+  //   TRACE_TEXT(TRACE_ALL_STEPS,"Nom Tmp: " << getTmpPath() << endl) ;
+  // #endif
 
   batch_ID = ID ;
   batchName = batchname ;
@@ -118,12 +118,12 @@ OAR2_XBatchSystem::askBatchJobStatus(int batchJobID)
 
   /* Ask batch system the job status */      
   chaine = (char*)malloc(sizeof(char)*(strlen(wait4Command)
-				       + NBDIGITS_MAX_BATCH_JOB_ID
-				       + strlen(waitFilter)
-				       + strlen(filename)
-				       + 7 + 1) ) ;
+                                       + NBDIGITS_MAX_BATCH_JOB_ID
+                                       + strlen(waitFilter)
+                                       + strlen(filename)
+                                       + 7 + 1) ) ;
   sprintf(chaine,"%s %d | %s > %s",
-	  wait4Command,batchJobID,waitFilter,filename) ;
+          wait4Command,batchJobID,waitFilter,filename) ;
 #if defined YC_DEBUG
   TRACE_TEXT(TRACE_ALL_STEPS,"Execute:" << endl << chaine << endl) ;
 #endif
@@ -141,7 +141,7 @@ OAR2_XBatchSystem::askBatchJobStatus(int batchJobID)
   if( chaine[nbread-1] == '\n' )
     chaine[nbread-1] = '\0' ;
   while( (i<NB_STATUS) && 
-	 (strcmp(chaine,OAR2_XBatchSystem::statusNames[i])!=0) ) {
+         (strcmp(chaine,OAR2_XBatchSystem::statusNames[i])!=0) ) {
     i++ ;
   }
   
@@ -182,7 +182,7 @@ int
 OAR2_XBatchSystem::getNbTotResources()
 {
   return launchCommandAndGetInt( "oarnodes -s | grep \":\" | wc -l",
-				 "DIET_getNbResources") ;
+                                 "DIET_getNbResources") ;
 }
 
 /* TODO: this function should be C++ written 

@@ -192,9 +192,9 @@ public:
 
   // All data structures are duplicated in add methods
   /*
-  int
-  addService(const corba_profile_desc_t* profile, diet_convertor_t* cvt,
-	     diet_solve_t solver, diet_eval_t evalf);
+    int
+    addService(const corba_profile_desc_t* profile, diet_convertor_t* cvt,
+    diet_solve_t solver, diet_eval_t evalf);
   */
   int
   addService(const corba_profile_desc_t* profile,
@@ -239,8 +239,8 @@ public:
   diet_perfmetric_t
   getPerfMetric(const ServiceReference_t ref);
   /* Unused!
-  matching_children_t*
-    getChildren(const corba_profile_desc_t* profile);
+     matching_children_t*
+     getChildren(const corba_profile_desc_t* profile);
   */
 #if defined HAVE_ALT_BATCH
   /* Returns the list of children that can solve parallel and/or sequential
@@ -256,8 +256,8 @@ public:
 
   ServiceTable::matching_children_t *
   getChildren(const corba_pb_desc_t * pb_desc,
-	      ServiceTable::ServiceReference_t serviceRef,
-	      CORBA::ULong * frontier);
+              ServiceTable::ServiceReference_t serviceRef,
+              CORBA::ULong * frontier);
 #else
   const matching_children_t*
   getChildren(const ServiceReference_t ref);

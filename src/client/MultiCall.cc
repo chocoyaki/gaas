@@ -59,8 +59,8 @@ vector<int> MultiCall::cerfacsSchedule() {
     for (i = 0; i < nbClusters; i++) {
       temp = diet_est_get_internal((&(corba_response->servers[i]).estim), EST_USERDEFINED + (nbDags[i]), 0);
       if (MSmin == -1 || temp < MSmin) {
-	MSmin = temp;
-	clusterMin = i;
+        MSmin = temp;
+        clusterMin = i;
       }
     }
     nbDags[clusterMin]++;
@@ -98,14 +98,14 @@ bool MultiCall::updateCall(diet_profile_t* profile, SeD_var& chosenServer) {
     chosenServer = ORBMgr::getMgr()->resolve<SeD, SeD_var>(SEDCTXT, serverName);
 
     diet_scalar_set(diet_parameter(profile, 0), 
-		    &(nb_scenarios[counter]), 
-		    DIET_VOLATILE, DIET_INT);
+                    &(nb_scenarios[counter]), 
+                    DIET_VOLATILE, DIET_INT);
     //splits the mnemonics
     char* tmp;
     tmp = strtok(save, c); 
     for (int counter2 = 0; counter2 < nb_scenarios[counter]; counter2++) {
       if (counter2 != 0) { 
-	stemp = strcat(stemp, c);
+        stemp = strcat(stemp, c);
       }
       stemp = strcat(stemp, tmp);
       tmp = strtok(NULL, c);
@@ -115,7 +115,7 @@ bool MultiCall::updateCall(diet_profile_t* profile, SeD_var& chosenServer) {
     s[0] = '\0';
     while (tmp != NULL) {
       if (counter2 > 0) {
-	s = strcat(s, c);
+        s = strcat(s, c);
       }
       s = strcat(s, tmp);
       tmp = strtok(NULL, c);

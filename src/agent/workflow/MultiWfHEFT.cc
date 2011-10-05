@@ -34,8 +34,8 @@
  * use this function when the maDag start to display this value.
  * display the dag_id when compute the ageFactor in AgingHEFT
  * add some stats info :
- * 	queuedNodeCount
- * 	change MA DAG to MA_DAG
+ *      queuedNodeCount
+ *      change MA DAG to MA_DAG
  *
  * Revision 1.6  2008/07/10 11:42:20  bisnard
  * Fix bug 68 memory loss during workflow execution
@@ -119,7 +119,7 @@ MultiWfHEFT::handlerNodeDone(DagNode * node) {
  */
 void
 MultiWfAgingHEFT::intraDagSchedule(Dag * dag, MasterAgent_var MA)
-    throw (MaDag::ServiceNotFound, MaDag::CommProblem) {
+  throw (MaDag::ServiceNotFound, MaDag::CommProblem) {
   // Call the MA to get estimations for all services
   wf_response_t * wf_response = this->getProblemEstimates(dag, MA);
 
@@ -143,8 +143,8 @@ MultiWfAgingHEFT::intraDagSchedule(Dag * dag, MasterAgent_var MA)
   this->dagsState[dag].EFT       = dag->getEFT();
   this->dagsState[dag].makespan  = this->dagsState[dag].EFT - startTime;
   TRACE_TEXT(TRACE_ALL_STEPS, "[AHEFT] Init (Dag " << dag->getId() << ") EFT = "
-      << this->dagsState[dag].EFT << " / makespan = "
-      << this->dagsState[dag].makespan << endl);
+	     << this->dagsState[dag].EFT << " / makespan = "
+	     << this->dagsState[dag].makespan << endl);
 
   // Cleanup
   delete wf_response;
@@ -166,9 +166,9 @@ MultiWfAgingHEFT::setExecPriority(DagNode * node) {
   float  ageFactor  = (float) (dagAge / this->dagsState[node->getDag()].makespan) + 1;
   node->setPriority((double) (this->nodesHEFTPrio[node] * ageFactor));
   TRACE_TEXT(TRACE_ALL_STEPS,"[AHEFT] Node priority set to " << node->getPriority()
-      << " (dag" << node->getDag()->getId()
-      << " age = " << dagAge
-      << "/factor = " << ageFactor << ")" << endl);
+	     << " (dag" << node->getDag()->getId()
+	     << " age = " << dagAge
+	     << "/factor = " << ageFactor << ")" << endl);
 }
 
 /**

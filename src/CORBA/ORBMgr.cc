@@ -461,7 +461,7 @@ std::list<string> ORBMgr::list(const std::string& ctxtName) const {
 
   CORBA::Object_ptr object = ORB->resolve_initial_references("NameService");
   CosNaming::NamingContext_var rootContext =
-  CosNaming::NamingContext::_narrow(object);
+    CosNaming::NamingContext::_narrow(object);
   CosNaming::BindingList_var bindingList;
   CosNaming::BindingIterator_var it;
 
@@ -473,7 +473,7 @@ std::list<string> ORBMgr::list(const std::string& ctxtName) const {
         std::list<string> tmpRes;
         CORBA::Object_ptr ctxtObj = rootContext->resolve(bindingList[i].binding_name);
         CosNaming::NamingContext_var ctxt =
-        CosNaming::NamingContext::_narrow(ctxtObj);
+	  CosNaming::NamingContext::_narrow(ctxtObj);
 
         tmpRes = list(ctxt);
         result.insert(result.end(), tmpRes.begin(), tmpRes.end());
@@ -487,7 +487,7 @@ std::list<string> ORBMgr::list(const std::string& ctxtName) const {
         std::list<string> tmpRes;
         CORBA::Object_ptr ctxtObj = rootContext->resolve(bv->binding_name);
         CosNaming::NamingContext_var ctxt =
-        CosNaming::NamingContext::_narrow(ctxtObj);
+	  CosNaming::NamingContext::_narrow(ctxtObj);
 
         tmpRes = list(ctxt);
         result.insert(result.end(), tmpRes.begin(), tmpRes.end());
@@ -831,7 +831,7 @@ void ORBMgr::resetCache() const {
 void ORBMgr::removeObjectFromCache(const string& name) const {
   map<string, CORBA::Object_ptr>::iterator it;
   cacheMutex.lock();
-  if ((it=cache.find(name))!=cache.end())	cache.erase(it);
+  if ((it=cache.find(name))!=cache.end())       cache.erase(it);
   cacheMutex.unlock();
 }
 

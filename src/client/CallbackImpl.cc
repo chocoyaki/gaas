@@ -63,8 +63,8 @@ CORBA::Long CallbackImpl::ping() {
 }
 
 CORBA::Long CallbackImpl::notifyResults(const char * path,
-					const corba_profile_t& pb,
-					CORBA::Long reqID) {
+                                        const corba_profile_t& pb,
+                                        CORBA::Long reqID) {
   /*
     if (solve_res != GRPC_NO_ERROR)
     CallAsyncMgr::Instance()->setReqErrorCode(reqID, solve_res);
@@ -74,9 +74,9 @@ CORBA::Long CallbackImpl::notifyResults(const char * path,
 
 CORBA::Long
 CallbackImpl::solveResults(const char * path, 
-			   const corba_profile_t& pb,
-			   CORBA::Long reqID,
-			   CORBA::Long solve_res) {
+                           const corba_profile_t& pb,
+                           CORBA::Long reqID,
+                           CORBA::Long solve_res) {
   // notify solve result availability
   int err = CallAsyncMgr::Instance()->notifyRst(int(reqID), &(const_cast<corba_profile_t&>(pb)));
   if (solve_res != GRPC_NO_ERROR)

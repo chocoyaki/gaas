@@ -378,29 +378,29 @@ WfLogService_ptr DIETForwarder::getWfLogService(const char* name)
 
   if (ctxt==string(AGENTCTXT)) {
     Agent_var agent = ORBMgr::getMgr()->resolve<Agent, Agent_var>(AGENTCTXT, name,
-								  this->name);
+                                                                  this->name);
     return agent->ping();
   }
   if (ctxt==string(CLIENTCTXT)) {
     Callback_var cb = ORBMgr::getMgr()->resolve<Callback, Callback_var>(CLIENTCTXT, name,
-									this->name);
+                                                                        this->name);
     return cb->ping();
   }
 #ifdef HAVE_WORKFLOW
   if (ctxt==string(WFMGRCTXT)) {
     CltMan_var clt = ORBMgr::getMgr()->resolve<CltMan, CltMan_var>(WFMGRCTXT, name,
-								   this->name);
+                                                                   this->name);
     return clt->ping();
   }
   if (ctxt==string(MADAGCTXT)) {
     MaDag_var madag = ORBMgr::getMgr()->resolve<MaDag, MaDag_var>(MADAGCTXT, name,
-								  this->name);
+                                                                  this->name);
     return madag->ping();
   }
 #endif
   if (ctxt==string(SEDCTXT)) {
     SeD_var sed = ORBMgr::getMgr()->resolve<SeD, SeD_var>(SEDCTXT, name,
-							  this->name);
+                                                          this->name);
     return sed->ping();
   }
   throw BadNameException(objString.c_str(), __FUNCTION__, getName());
@@ -421,12 +421,12 @@ void DIETForwarder::getRequest(const ::corba_request_t& req, const char* objName
 
   if (ctxt==string(AGENTCTXT)) {
     LocalAgent_var agent = ORBMgr::getMgr()->resolve<LocalAgent, LocalAgent_var>(ctxt, name,
-										 this->name);
+                                                                                 this->name);
     return agent->getRequest(req);
   }
   if (ctxt==string(SEDCTXT)) {
     SeD_var sed = ORBMgr::getMgr()->resolve<SeD, SeD_var>(ctxt, name,
-							  this->name);
+                                                          this->name);
     return sed->getRequest(req);
   }
   /* oneway CORBA function. Can't throw anything. */
@@ -453,13 +453,13 @@ char* DIETForwarder::getHostname(const char* objName)
 
   if (ctxt==string(AGENTCTXT)) {
     Agent_var agent = ORBMgr::getMgr()->resolve<Agent, Agent_var>(ctxt, name,
-								  this->name);
+                                                                  this->name);
     return agent->getHostname();
   }
 
   if (ctxt==string(DAGDACTXT)) {
     Dagda_var dagda = ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(ctxt, name,
-								  this->name);
+                                                                  this->name);
     return dagda->getHostname();
   }
 
@@ -487,12 +487,12 @@ char* DIETForwarder::getHostname(const char* objName)
 
   if (ctxt==string(AGENTCTXT)) {
     LocalAgent_var agent = ORBMgr::getMgr()->resolve<LocalAgent, LocalAgent_var>(ctxt, name,
-										 this->name);
+                                                                                 this->name);
     return agent->bindParent(parentName);
   }
   if (ctxt==string(SEDCTXT)) {
     SeD_var sed = ORBMgr::getMgr()->resolve<SeD, SeD_var>(ctxt, name,
-							  this->name);
+                                                          this->name);
     return sed->bindParent(parentName);
   }
   throw BadNameException(objString.c_str(), __FUNCTION__, getName());
@@ -518,12 +518,12 @@ char* DIETForwarder::getHostname(const char* objName)
 
   if (ctxt==string(AGENTCTXT)) {
     LocalAgent_var agent = ORBMgr::getMgr()->resolve<LocalAgent, LocalAgent_var>(ctxt, name,
-										 this->name);
+                                                                                 this->name);
     return agent->disconnect();
   }
   if (ctxt==string(SEDCTXT)) {
     SeD_var sed = ORBMgr::getMgr()->resolve<SeD, SeD_var>(ctxt, name,
-							  this->name);
+                                                          this->name);
     return sed->disconnect();
   }
   throw BadNameException(objString.c_str(), __FUNCTION__, getName());
@@ -549,12 +549,12 @@ char* DIETForwarder::getHostname(const char* objName)
 
   if (ctxt==string(AGENTCTXT)) {
     Agent_var agent = ORBMgr::getMgr()->resolve<Agent, Agent_var>(ctxt, name,
-								  this->name);
+                                                                  this->name);
     return agent->removeElement(recursive);
   }
   if (ctxt==string(SEDCTXT)) {
     SeD_var sed = ORBMgr::getMgr()->resolve<SeD, SeD_var>(ctxt, name,
-							  this->name);
+                                                          this->name);
     return sed->removeElement();
   }
   throw BadNameException(objString.c_str(), __FUNCTION__, getName());
@@ -593,8 +593,8 @@ void DIETForwarder::bind(const char* objName, const char* ior) {
     if (ctxt==MASTERAGENT) {
       ctxt = AGENTCTXT;
       /* Specific case for master agent.
-       It is added into the cache to avoid resolution
-       problems later.
+	 It is added into the cache to avoid resolution
+	 problems later.
       */
       MasterAgent_ptr agent = getMasterAgent(name.c_str());
       cachesMutex.lock();
@@ -626,7 +626,7 @@ SeqString* DIETForwarder::getBindings(const char* ctxt) {
   for (it=objects.begin(); it!=objects.end(); ++it) {
     try {
       CORBA::Object_ptr obj = ORBMgr::getMgr()->resolveObject(ctxt, it->c_str(),
-							      "no-Forwarder");
+                                                              "no-Forwarder");
       (*result)[cmpt++]=it->c_str();
       (*result)[cmpt++]=ORBMgr::getMgr()->getIOR(obj).c_str();
     } catch (const runtime_error& err) {
@@ -706,7 +706,7 @@ void DIETForwarder::cleanCaches() {
 }
 
 void DIETForwarder::connectPeer(const char* ior, const char* host,
-				const ::CORBA::Long port) {
+                                const ::CORBA::Long port) {
   string converted = ORBMgr::convertIOR(ior, host, port);
   setPeer(ORBMgr::getMgr()->resolve<Forwarder, Forwarder_ptr>(converted));
 }

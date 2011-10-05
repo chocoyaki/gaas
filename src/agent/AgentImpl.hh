@@ -155,7 +155,7 @@
 #include "AgentFwdr.hh"
 
 class AgentImpl : public POA_Agent,
-		  public PortableServer::RefCountServantBase
+                  public PortableServer::RefCountServantBase
 {
 public:
 
@@ -194,18 +194,18 @@ public:
   /** Subscribe an agent as a LA child. Remotely called by an LA. */
   virtual CORBA::Long
   agentSubscribe(const char* me, const char* hostName,
-		 const SeqCorbaProfileDesc_t& services);
+                 const SeqCorbaProfileDesc_t& services);
 
   /** Subscribe a server as a SeD child. Remotely called by an SeD. */
   virtual CORBA::Long
   serverSubscribe(const char* me, const char* hostName,
-		  const SeqCorbaProfileDesc_t& services);
+                  const SeqCorbaProfileDesc_t& services);
 
 #ifdef HAVE_DYNAMICS
   /** Unsubscribe a child. Remotely called by an SeD. */
   virtual CORBA::Long
   childUnsubscribe(CORBA::ULong childID,
-		   const SeqCorbaProfileDesc_t& services);
+                   const SeqCorbaProfileDesc_t& services);
 
   /** Sends a request to the agent to commit suicide.
    * If "recursive" is true, then the agent forwards the request
@@ -302,10 +302,10 @@ protected:
    */
   void
   sendRequest(CORBA::ULong * childID,
-	      size_t numero_child,
-	      const corba_request_t * req,
-	      int * nb_children_contacted,
-	      CORBA::ULong frontier) ;
+              size_t numero_child,
+              const corba_request_t * req,
+              int * nb_children_contacted,
+              CORBA::ULong frontier) ;
 #endif
 
   /**
@@ -340,7 +340,7 @@ protected:
 };
 
 class AgentFwdrImpl : public POA_AgentFwdr,
-		      public PortableServer::RefCountServantBase
+                      public PortableServer::RefCountServantBase
 {
 protected:
   Forwarder_ptr forwarder;
@@ -350,14 +350,14 @@ public:
 
   virtual CORBA::Long
   agentSubscribe(const char* me, const char* hostName,
-		 const SeqCorbaProfileDesc_t& services);
+                 const SeqCorbaProfileDesc_t& services);
   virtual CORBA::Long
   serverSubscribe(const char* me, const char* hostName,
-		  const SeqCorbaProfileDesc_t& services);
+                  const SeqCorbaProfileDesc_t& services);
 #ifdef HAVE_DYNAMICS
   virtual CORBA::Long
   childUnsubscribe(CORBA::ULong childID,
-		   const SeqCorbaProfileDesc_t& services);
+                   const SeqCorbaProfileDesc_t& services);
 
   virtual CORBA::Long removeElement(bool recursive);
 #endif // HAVE_DYNAMICS

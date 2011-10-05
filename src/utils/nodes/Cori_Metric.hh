@@ -61,7 +61,7 @@ private:
 #endif
 
 public:
-   /**
+  /**
    * Initialize the CoRI Metric of this SeD
    * @param type_collector is the program where you get the information from
    *                for exemple EASY,GANGLIA,NAGIOS
@@ -72,7 +72,7 @@ public:
    */
 
   Cori_Metric(diet_est_collect_tag_t type_collector,
-	      const void *data);
+              const void *data);
 
   /**
    * type_Info is the type of the information you want collecting
@@ -82,9 +82,9 @@ public:
    */
   int
   call_cori_metric(int type_Info,
-		   estVector_t *information,
-		   const void* data
-		   );
+                   estVector_t *information,
+                   const void* data
+                   );
 
   diet_est_collect_tag_t
   get_Collector_type();

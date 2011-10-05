@@ -53,14 +53,14 @@ namespace madag {
      * Execution method
      */
     virtual void *
-        run();
+    run();
 
     /**
      * Updates scheduler when a node has been executed
      * (does nothing)
      */
     virtual void
-        handlerNodeDone(DagNode * node);
+    handlerNodeDone(DagNode * node);
 
   protected:
 
@@ -69,13 +69,13 @@ namespace madag {
      * (does not use priority of nodes)
      */
     virtual OrderedNodeQueue *
-        createNodeQueue(Dag * dag);
+    createNodeQueue(Dag * dag);
 
     /**
      * delete the node queue created in createNodeQueue
      */
     virtual void
-        deleteNodeQueue(OrderedNodeQueue * nodeQ);
+    deleteNodeQueue(OrderedNodeQueue * nodeQ);
   };
 
 }

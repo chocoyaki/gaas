@@ -99,26 +99,26 @@ string
 WfStructException::ErrorMsg() const {
   string errorMsg;
   switch(Type()) {
-    case eUNKNOWN_DAG:
-      errorMsg = "Unknown dag (" + Info() + ")"; break;
-    case eUNKNOWN_NODE:
-      errorMsg = "Unknown node (" + Info() + ")"; break;
-    case eUNKNOWN_PORT:
-      errorMsg = "Unknown port (" + Info() + ")"; break;
-    case eDUPLICATE_NODE:
-      errorMsg = "Duplicate node (" + Info() + ")"; break;
-    case eDUPLICATE_PORT:
-      errorMsg = "Duplicate port (" + Info() + ")"; break;
-    case eTYPE_MISMATCH:
-      errorMsg = "Type mismatch (" + Info() + ")"; break;
-    case eDEPTH_MISMATCH:
-      errorMsg = "Depth mismatch (" + Info() + ")"; break;
-    case eINVALID_EXPR:
-      errorMsg = "Invalid expression (" + Info() + ")"; break;
-    case eWF_UNDEF:
-      errorMsg = "Workflow not defined (" + Info() + ")"; break;
-    case eOTHER:
-      errorMsg = Info(); break;
+  case eUNKNOWN_DAG:
+    errorMsg = "Unknown dag (" + Info() + ")"; break;
+  case eUNKNOWN_NODE:
+    errorMsg = "Unknown node (" + Info() + ")"; break;
+  case eUNKNOWN_PORT:
+    errorMsg = "Unknown port (" + Info() + ")"; break;
+  case eDUPLICATE_NODE:
+    errorMsg = "Duplicate node (" + Info() + ")"; break;
+  case eDUPLICATE_PORT:
+    errorMsg = "Duplicate port (" + Info() + ")"; break;
+  case eTYPE_MISMATCH:
+    errorMsg = "Type mismatch (" + Info() + ")"; break;
+  case eDEPTH_MISMATCH:
+    errorMsg = "Depth mismatch (" + Info() + ")"; break;
+  case eINVALID_EXPR:
+    errorMsg = "Invalid expression (" + Info() + ")"; break;
+  case eWF_UNDEF:
+    errorMsg = "Workflow not defined (" + Info() + ")"; break;
+  case eOTHER:
+    errorMsg = Info(); break;
   }
   return errorMsg;
 }
@@ -216,17 +216,17 @@ static const pair<const string, const string> gw2dietTypes[] = {
 };
 
 static map<short,short> WfTypesToDietTypes(wf2DietTypes, wf2DietTypes
-    + sizeof(wf2DietTypes)/sizeof(wf2DietTypes[0]));
+					   + sizeof(wf2DietTypes)/sizeof(wf2DietTypes[0]));
 static map<short,short> DietTypesToWfTypes(diet2WfTypes, diet2WfTypes
-    + sizeof(diet2WfTypes)/sizeof(diet2WfTypes[0]));
+					   + sizeof(diet2WfTypes)/sizeof(diet2WfTypes[0]));
 static map<string,short> StrTypesToWfTypes(wfTypes, wfTypes
-    + sizeof(wfTypes)/sizeof(wfTypes[0]));
+					   + sizeof(wfTypes)/sizeof(wfTypes[0]));
 static map<short, const string> WfTypesToStrTypes(strTypes, strTypes
-    + sizeof(strTypes)/sizeof(strTypes[0]));
+						  + sizeof(strTypes)/sizeof(strTypes[0]));
 static map<short, const string> WfTypesToXSTypes(XSTypes, XSTypes
-    + sizeof(XSTypes)/sizeof(XSTypes[0]));
+						 + sizeof(XSTypes)/sizeof(XSTypes[0]));
 static map<const string, const string> GwendiaToDietTypes(gw2dietTypes,
-    gw2dietTypes + sizeof(gw2dietTypes)/sizeof(gw2dietTypes[0]));
+							  gw2dietTypes + sizeof(gw2dietTypes)/sizeof(gw2dietTypes[0]));
 
 short
 WfCst::cvtWfToDietType(WfDataType wfType) {
@@ -293,11 +293,11 @@ static const pair<short, const string> strMatrixOrders[] = {
 };
 
 static map<short,short> WfToDietMatrixOrders(dietMatrixOrders, dietMatrixOrders
-    + sizeof(dietMatrixOrders)/sizeof(dietMatrixOrders[0]));
+					     + sizeof(dietMatrixOrders)/sizeof(dietMatrixOrders[0]));
 static map<string,short> StrToWfMatrixOrders(wfMatrixOrders, wfMatrixOrders
-    + sizeof(wfMatrixOrders)/sizeof(wfMatrixOrders[0]));
+					     + sizeof(wfMatrixOrders)/sizeof(wfMatrixOrders[0]));
 static map<short,const string> WfToStrMatrixOrders(strMatrixOrders, strMatrixOrders
-    + sizeof(strMatrixOrders)/sizeof(strMatrixOrders[0]));
+						   + sizeof(strMatrixOrders)/sizeof(strMatrixOrders[0]));
 
 short
 WfCst::cvtWfToDietMatrixOrder(WfMatrixOrder wfMatrixOrder) {
@@ -462,33 +462,33 @@ WfCst::eval_expr(std::string& expr, int var) {
       tok = expr.substr(0, p);
       post_fixe_exp.push_back(tok);
       if (p!= string::npos)
-	expr = expr.substr(p);
+        expr = expr.substr(p);
       else
-	expr = "";
+        expr = "";
     }
     else {
       if (expr[0] == '(') {
-	tokens.push("(");
+        tokens.push("(");
       }
       else {
-	if (expr[0] == ')') {
-	  while (tokens.top() != "(") {
-	    post_fixe_exp.push_back(tokens.top());
-	    tokens.pop();
-	  }
-	  tokens.pop();
-	} // if '('
-	else {
-	  // it is an op
-	  op = expr.substr(0,1);
-	  while ((!tokens.empty())&&
-		 (op_priority[tokens.top()] > op_priority[op])
-		 ) {
-	    post_fixe_exp.push_back(tokens.top());
-	    tokens.pop();
-	  } // end while
-	  tokens.push(op);
-	}
+        if (expr[0] == ')') {
+          while (tokens.top() != "(") {
+            post_fixe_exp.push_back(tokens.top());
+            tokens.pop();
+          }
+          tokens.pop();
+        } // if '('
+        else {
+          // it is an op
+          op = expr.substr(0,1);
+          while ((!tokens.empty())&&
+                 (op_priority[tokens.top()] > op_priority[op])
+                 ) {
+            post_fixe_exp.push_back(tokens.top());
+            tokens.pop();
+          } // end while
+          tokens.push(op);
+        }
       }
       expr = expr.substr(1);
     }
@@ -506,8 +506,8 @@ WfCst::eval_expr(std::string& expr, int var) {
       string v1s = polish.top().c_str();
       long v1 = 1;
       if (v1s[0] == '#') {
-	v1 = -1;
-	v1s = v1s.substr(1);
+        v1 = -1;
+        v1s = v1s.substr(1);
       }
       v1 = v1*atoi(v1s.c_str());
       polish.pop();
@@ -515,27 +515,27 @@ WfCst::eval_expr(std::string& expr, int var) {
       string v2s = polish.top().c_str();
       long v2 = 1;
       if (v2s[0] == '#') {
-	v2 = -1;
-	v2s = v2s.substr(1);
+        v2 = -1;
+        v2s = v2s.substr(1);
       }
       v2 = v2*atoi(v2s.c_str());
       polish.pop();
       //***
       stringstream ss;
       if (tok == "+") {
-	ss << (v1+v2);
+        ss << (v1+v2);
       }
       if (tok == "-") {
-	ss << (v1-v2);
+        ss << (v1-v2);
       }
       if (tok == "*") {
-	ss << (v1*v2);
+        ss << (v1*v2);
       }
       if (tok == "/") {
-	ss << (v2/v1);
+        ss << (v2/v1);
       }
       if (tok == "%") {
-	ss << (v2%v1);
+        ss << (v2%v1);
       }
       polish.push(ss.str());
     }
@@ -581,9 +581,9 @@ string
 itoa(long l) {
   // stringstream seems to be not thread safe !!!
   /*
-  stringstream ss;
-  ss << l;
-  return ss.str();
+    stringstream ss;
+    ss << l;
+    return ss.str();
   */
   char str[128];
   sprintf(str, "%ld", l);

@@ -163,8 +163,8 @@ extern unsigned int TRACE_LEVEL;
 
 // Use SCHED_CLASS for the name of the classSCHED_TRACE_FUNCTION
 // (this->name cannot be used in static member functions)
-#define SCHED_TRACE_FUNCTION(formatted_text)      \
-  TRACE_TEXT(TRACE_ALL_STEPS, SCHED_CLASS << "::");\
+#define SCHED_TRACE_FUNCTION(formatted_text)		\
+  TRACE_TEXT(TRACE_ALL_STEPS, SCHED_CLASS << "::");	\
   TRACE_FUNCTION(TRACE_ALL_STEPS,formatted_text)
 
 
@@ -200,26 +200,26 @@ Scheduler::serialize(Scheduler* S)
     return (NWSScheduler::serialize((NWSScheduler*) S));
   }else
 #endif //HAVE_CORI
-  if (!strncmp(S->name, RandScheduler::stName, S->nameLength)) {
-    return (RandScheduler::serialize((RandScheduler*) S));
-  }
-  else if (!strncmp(S->name, MinScheduler::stName, S->nameLength)) {
-    return (MinScheduler::serialize((MinScheduler*) S));
-  }
-  else if (!strncmp(S->name, MaxScheduler::stName, S->nameLength)) {
-    return (MaxScheduler::serialize((MaxScheduler*) S));
-  }
-  else if (!strncmp(S->name, PriorityScheduler::stName, S->nameLength)) {
-    return (PriorityScheduler::serialize((PriorityScheduler*) S));
-  }
-  else if (!strncmp(S->name, RRScheduler::stName, S->nameLength)) {
-    return (RRScheduler::serialize((RRScheduler*) S));
-  }
-  else {
-    INTERNAL_ERROR("unable to serialize scheduler named " << S->name, 1);
-    /* this line never executes, but exists to avoid  warning */
-    return NULL ;
-  }
+    if (!strncmp(S->name, RandScheduler::stName, S->nameLength)) {
+      return (RandScheduler::serialize((RandScheduler*) S));
+    }
+    else if (!strncmp(S->name, MinScheduler::stName, S->nameLength)) {
+      return (MinScheduler::serialize((MinScheduler*) S));
+    }
+    else if (!strncmp(S->name, MaxScheduler::stName, S->nameLength)) {
+      return (MaxScheduler::serialize((MaxScheduler*) S));
+    }
+    else if (!strncmp(S->name, PriorityScheduler::stName, S->nameLength)) {
+      return (PriorityScheduler::serialize((PriorityScheduler*) S));
+    }
+    else if (!strncmp(S->name, RRScheduler::stName, S->nameLength)) {
+      return (RRScheduler::serialize((RRScheduler*) S));
+    }
+    else {
+      INTERNAL_ERROR("unable to serialize scheduler named " << S->name, 1);
+      /* this line never executes, but exists to avoid  warning */
+      return NULL ;
+    }
 }
 
 /**
@@ -228,7 +228,7 @@ Scheduler::serialize(Scheduler* S)
 Scheduler*
 Scheduler::deserialize(const char* serializedScheduler)
 {
-//  SCHED_TRACE_FUNCTION(serializedScheduler);
+  //  SCHED_TRACE_FUNCTION(serializedScheduler);
   int nameLength;
 
   {
@@ -248,29 +248,29 @@ Scheduler::deserialize(const char* serializedScheduler)
   else
 #endif //HAVE_CORI
     if (!strncmp(serializedScheduler, RandScheduler::stName, nameLength)) {
-    return (RandScheduler::deserialize(serializedScheduler + nameLength));
-  }
-  else if (!strncmp(serializedScheduler, MinScheduler::stName, nameLength)) {
-    return (MinScheduler::deserialize(serializedScheduler + nameLength));
-  }
-  else if (!strncmp(serializedScheduler, MaxScheduler::stName, nameLength)) {
-    return (MaxScheduler::deserialize(serializedScheduler + nameLength));
-  }
-  else if (!strncmp(serializedScheduler,
-                    PriorityScheduler::stName,
-                    nameLength)) {
-    return (PriorityScheduler::deserialize(serializedScheduler + nameLength));
-  }
-  else if (!strncmp(serializedScheduler, RRScheduler::stName, nameLength)) {
-    return (RRScheduler::deserialize(serializedScheduler + nameLength));
-  }
-  else {
-    INTERNAL_WARNING("unable to deserialize scheduler \""
-                     << serializedScheduler
-                     << "\" ; "
-                     << "reverting to default (random)");
-    return (new RandScheduler());
-  }
+      return (RandScheduler::deserialize(serializedScheduler + nameLength));
+    }
+    else if (!strncmp(serializedScheduler, MinScheduler::stName, nameLength)) {
+      return (MinScheduler::deserialize(serializedScheduler + nameLength));
+    }
+    else if (!strncmp(serializedScheduler, MaxScheduler::stName, nameLength)) {
+      return (MaxScheduler::deserialize(serializedScheduler + nameLength));
+    }
+    else if (!strncmp(serializedScheduler,
+		      PriorityScheduler::stName,
+		      nameLength)) {
+      return (PriorityScheduler::deserialize(serializedScheduler + nameLength));
+    }
+    else if (!strncmp(serializedScheduler, RRScheduler::stName, nameLength)) {
+      return (RRScheduler::deserialize(serializedScheduler + nameLength));
+    }
+    else {
+      INTERNAL_WARNING("unable to deserialize scheduler \""
+		       << serializedScheduler
+		       << "\" ; "
+		       << "reverting to default (random)");
+      return (new RandScheduler());
+    }
 }
 
 /* agregate is non-static: use this->name for the SCHED_TRACE_FUNCTION */
@@ -335,115 +335,115 @@ Scheduler::aggregate(corba_response_t& aggrResp,
   node_t* rht;
 
   /** Print the tree on standard output */
-#define TRACE_TREE(levels,pow)                                                \
-  for (size_t i = 0; i <= pow; i++) {                                         \
-    cout << ' ';                                                              \
-    for (int j = 0; j < (1 << i); j++) {                                      \
-      cout << ' ' << (levels[i])[j].resp_idx << ',' << (levels[i])[j].srv_idx;\
-    }                                                                         \
-    cout << endl;                                                             \
+#define TRACE_TREE(levels,pow)						\
+  for (size_t i = 0; i <= pow; i++) {					\
+    cout << ' ';							\
+    for (int j = 0; j < (1 << i); j++) {				\
+      cout << ' ' << (levels[i])[j].resp_idx << ',' << (levels[i])[j].srv_idx; \
+    }									\
+    cout << endl;							\
   }
 
   /** Compare 2 nodes */
 #if 0
-#define COMPARE_NODES(levels,pow,responses,fst,snd,parent)                    \
-  if (fst->resp_idx == -1)                                                    \
-    parent = *snd;                                                            \
-  else if (snd->resp_idx == -1)                                               \
-    parent = *fst;                                                            \
-  else {                                                                      \
-    int cmp =                                                                 \
-      (*compare)(fst->srv_idx,                                                \
-                 snd->srv_idx,                                                \
-                 fst->resp_idx,                                               \
-                 snd->resp_idx,                                               \
-                 responses,                                                   \
-                 evCache,                                                     \
-                 this->cmpInfo);                                              \
-    switch (cmp) {                                                            \
-    case COMPARE_SECOND_IS_BETTER:                                            \
-      parent = *snd;        break;                                            \
-    case COMPARE_FIRST_IS_BETTER:                                             \
-    case COMPARE_EQUAL:             /* choose the first when equal */         \
-      parent = *fst;        break;                                            \
-    case COMPARE_UNDEFINED:                                                   \
-      parent.resp_idx = -1; break;                                            \
-    default:                                                                  \
-      INTERNAL_WARNING("compare returned wrong value: " << cmp);              \
-      parent.resp_idx = -1;                                                   \
-    }                                                                         \
+#define COMPARE_NODES(levels,pow,responses,fst,snd,parent)		\
+  if (fst->resp_idx == -1)						\
+    parent = *snd;							\
+  else if (snd->resp_idx == -1)						\
+    parent = *fst;							\
+  else {								\
+    int cmp =								\
+      (*compare)(fst->srv_idx,						\
+                 snd->srv_idx,						\
+                 fst->resp_idx,						\
+                 snd->resp_idx,						\
+                 responses,						\
+                 evCache,						\
+                 this->cmpInfo);					\
+    switch (cmp) {							\
+    case COMPARE_SECOND_IS_BETTER:					\
+      parent = *snd;        break;					\
+    case COMPARE_FIRST_IS_BETTER:					\
+    case COMPARE_EQUAL:             /* choose the first when equal */	\
+      parent = *fst;        break;					\
+    case COMPARE_UNDEFINED:						\
+      parent.resp_idx = -1; break;					\
+    default:								\
+      INTERNAL_WARNING("compare returned wrong value: " << cmp);	\
+      parent.resp_idx = -1;						\
+    }									\
   }
 #endif
-#define COMPARE_NODES(levels,pow,responses,fst,snd,parent)                    \
-  if (fst->resp_idx == -1) {                                                  \
-    if (snd->resp_idx == -1 ||                                                \
-        (*compare)(snd->srv_idx,                                              \
-                   snd->srv_idx,                                              \
-                   snd->resp_idx,                                             \
-                   snd->resp_idx,                                             \
-                   responses,                                                 \
-                   evCache,                                                   \
-                   this->cmpInfo) == COMPARE_UNDEFINED) {                     \
-      /* both tree nodes are null                               */            \
-      /*          -- OR --                                      */            \
-      /* the first is null and the second node cannot be        */            \
-      /* treated with this aggregator's compare function        */            \
-      /*          -- SO --                                      */            \
-      /* promote the first, which is a null node                */            \
-      parent = *fst;                                                          \
-    }                                                                         \
-    else {                                                                    \
-      /* first tree node null, second has valid metric          */            \
-      /*          -- SO --                                      */            \
-      /* promote the second, which is a real node               */            \
-      parent = *snd;                                                          \
-    }                                                                         \
-  }                                                                           \
-  else if (snd->resp_idx == -1) {                                             \
-    if ((*compare)(fst->srv_idx,                                              \
-                   fst->srv_idx,                                              \
-                   fst->resp_idx,                                             \
-                   fst->resp_idx,                                             \
-                   responses,                                                 \
-                   evCache,                                                   \
-                   this->cmpInfo) == COMPARE_UNDEFINED) {                     \
-      /* the second node is null and the first cannot be        */            \
-      /* evaluated with this aggregator's compare function      */            \
-      /*          -- SO --                                      */            \
-      /* promote the second, which is a null node               */            \
-      parent = *snd;                                                          \
-    }                                                                         \
-    else {                                                                    \
-      /* second tree node null, first has valid metric          */            \
-      /*          -- SO --                                      */            \
-      /* promote the first, which is a real node                */            \
-      parent = *fst;                                                          \
-    }                                                                         \
-  }                                                                           \
-  else {                                                                      \
-    /* both tree nodes are real nodes, so let's do            */              \
-    /* full comparison                                        */              \
-    int cmp =                                                                 \
-      (*compare)(fst->srv_idx,                                                \
-                 snd->srv_idx,                                                \
-                 fst->resp_idx,                                               \
-                 snd->resp_idx,                                               \
-                 responses,                                                   \
-                 evCache,                                                     \
-                 this->cmpInfo);                                              \
-    switch (cmp) {                                                            \
-    case COMPARE_SECOND_IS_BETTER:                                            \
-      parent = *snd;        break;                                            \
-    case COMPARE_FIRST_IS_BETTER:                                             \
-    case COMPARE_EQUAL:             /* choose the first when equal */         \
-      parent = *fst;        break;                                            \
-    case COMPARE_UNDEFINED:                                                   \
-      INTERNAL_WARNING("compare returned undefined value: " << cmp);          \
-      parent.resp_idx = -1; break;                                            \
-    default:                                                                  \
-      INTERNAL_WARNING("compare returned wrong value: " << cmp);              \
-      parent.resp_idx = -1;                                                   \
-    }                                                                         \
+#define COMPARE_NODES(levels,pow,responses,fst,snd,parent)		\
+  if (fst->resp_idx == -1) {						\
+    if (snd->resp_idx == -1 ||						\
+        (*compare)(snd->srv_idx,					\
+                   snd->srv_idx,					\
+                   snd->resp_idx,					\
+                   snd->resp_idx,					\
+                   responses,						\
+                   evCache,						\
+                   this->cmpInfo) == COMPARE_UNDEFINED) {		\
+      /* both tree nodes are null                               */	\
+      /*          -- OR --                                      */	\
+      /* the first is null and the second node cannot be        */	\
+      /* treated with this aggregator's compare function        */	\
+      /*          -- SO --                                      */	\
+      /* promote the first, which is a null node                */	\
+      parent = *fst;							\
+    }									\
+    else {								\
+      /* first tree node null, second has valid metric          */	\
+      /*          -- SO --                                      */	\
+      /* promote the second, which is a real node               */	\
+      parent = *snd;							\
+    }									\
+  }									\
+  else if (snd->resp_idx == -1) {					\
+    if ((*compare)(fst->srv_idx,					\
+                   fst->srv_idx,					\
+                   fst->resp_idx,					\
+                   fst->resp_idx,					\
+                   responses,						\
+                   evCache,						\
+                   this->cmpInfo) == COMPARE_UNDEFINED) {		\
+      /* the second node is null and the first cannot be        */	\
+      /* evaluated with this aggregator's compare function      */	\
+      /*          -- SO --                                      */	\
+      /* promote the second, which is a null node               */	\
+      parent = *snd;							\
+    }									\
+    else {								\
+      /* second tree node null, first has valid metric          */	\
+      /*          -- SO --                                      */	\
+      /* promote the first, which is a real node                */	\
+      parent = *fst;							\
+    }									\
+  }									\
+  else {								\
+    /* both tree nodes are real nodes, so let's do            */	\
+    /* full comparison                                        */	\
+    int cmp =								\
+      (*compare)(fst->srv_idx,						\
+                 snd->srv_idx,						\
+                 fst->resp_idx,						\
+                 snd->resp_idx,						\
+                 responses,						\
+                 evCache,						\
+                 this->cmpInfo);					\
+    switch (cmp) {							\
+    case COMPARE_SECOND_IS_BETTER:					\
+      parent = *snd;        break;					\
+    case COMPARE_FIRST_IS_BETTER:					\
+    case COMPARE_EQUAL:             /* choose the first when equal */	\
+      parent = *fst;        break;					\
+    case COMPARE_UNDEFINED:						\
+      INTERNAL_WARNING("compare returned undefined value: " << cmp);	\
+      parent.resp_idx = -1; break;					\
+    default:								\
+      INTERNAL_WARNING("compare returned wrong value: " << cmp);	\
+      parent.resp_idx = -1;						\
+    }									\
   }
 
   SCHED_TRACE_FUNCTION("nb_responses=" << nb_responses);
@@ -510,10 +510,10 @@ Scheduler::aggregate(corba_response_t& aggrResp,
       leaves[root->resp_idx].resp_idx = -1; // this response is aggregated
     }
 
-   /** Update the tree, ie propogate changes for selected node up the tree.
-    * We use root, which was the selected node, as guide for which parts of
-    * tree need to be updated.
-    */
+    /** Update the tree, ie propogate changes for selected node up the tree.
+     * We use root, which was the selected node, as guide for which parts of
+     * tree need to be updated.
+     */
     size_t changed_srv_idx = root->resp_idx;
     int parent_loc;
 
@@ -546,7 +546,7 @@ Scheduler::aggregate(corba_response_t& aggrResp,
   return 0;
 
 #undef COMPARE_NODES
-//#undef UPDATE_TREE
+  //#undef UPDATE_TREE
 #undef TRACE_TREE
 
 }
@@ -584,13 +584,13 @@ Scheduler::getEstVector(int sIdx,
 
   if (sIdx < Vector_size(sv) &&
       (ev = (estVector_t) Vector_elementAt(sv, sIdx)) != NULL) {
-//     fprintf(stderr, "CACHE(%d,%d) = %d*\n", rIdx, sIdx, (int) ev);
+    //     fprintf(stderr, "CACHE(%d,%d) = %d*\n", rIdx, sIdx, (int) ev);
     return (ev);
   }
 
   ev = Scheduler::getEstVector(sIdx, rIdx, responses);
   Vector_set(sv, ev, sIdx);
-//   fprintf(stderr, "CACHE(%d,%d) = %d\n", rIdx, sIdx, (int) ev);
+  //   fprintf(stderr, "CACHE(%d,%d) = %d\n", rIdx, sIdx, (int) ev);
   return (ev);
 }
 
@@ -602,15 +602,15 @@ Scheduler::getEstVector(int sIdx,
 #undef SCHED_CLASS
 #define SCHED_CLASS "NWSScheduler"
 
-#define WEIGHT(ev, wi)                                                        \
-  (((diet_est_get_internal(ev, EST_FREECPU, 0.0) == 0.0) ||                   \
-    (diet_est_get_internal(ev, EST_FREEMEM, 0.0) == 0.0)) ?                   \
-   HUGE_VAL                                                                  :\
-    ( 1.0                                                                    /\
-    (pow(diet_est_get_internal(ev, EST_FREECPU, 0.0),                          \
-        (wi)->CPUPower)                                                      *\
-    pow(diet_est_get_internal(ev, EST_FREEMEM, 0.0),                          \
-        (wi)->memPower))))
+#define WEIGHT(ev, wi)							\
+  (((diet_est_get_internal(ev, EST_FREECPU, 0.0) == 0.0) ||		\
+    (diet_est_get_internal(ev, EST_FREEMEM, 0.0) == 0.0)) ?		\
+   HUGE_VAL                                                                  : \
+   ( 1.0                                                                    / \
+     (pow(diet_est_get_internal(ev, EST_FREECPU, 0.0),			\
+	  (wi)->CPUPower)                                                      * \
+      pow(diet_est_get_internal(ev, EST_FREEMEM, 0.0),			\
+	  (wi)->memPower))))
 
 
 const char*  NWSScheduler::stName     = "NWSScheduler";
@@ -726,23 +726,23 @@ NWSScheduler*
 NWSScheduler::deserialize(const char* serializedScheduler)
 {
   const char* ptr(NULL);
-//   char* token(NULL);
+  //   char* token(NULL);
   double members[nb_mb];
-//   int i(0);
-//   NWSScheduler* res;
+  //   int i(0);
+  //   NWSScheduler* res;
 
   SCHED_TRACE_FUNCTION(serializedScheduler);
 
-//   token = strtok_r(serializedScheduler, ",", &ptr);
-//   if (*ptr != '\0')
-//     ptr[-1] = ',';
-//   while (i < nb_mb && ((token = strtok_r(NULL, ",", &ptr)) != NULL)) {
-//     if (sscanf(token, "%lg", &(members[i])) != 1)
-//       break;
-//     if (*ptr != '\0')
-//       ptr[-1] = ',';
-//     i++;
-//   }
+  //   token = strtok_r(serializedScheduler, ",", &ptr);
+  //   if (*ptr != '\0')
+  //     ptr[-1] = ',';
+  //   while (i < nb_mb && ((token = strtok_r(NULL, ",", &ptr)) != NULL)) {
+  //     if (sscanf(token, "%lg", &(members[i])) != 1)
+  //       break;
+  //     if (*ptr != '\0')
+  //       ptr[-1] = ',';
+  //     i++;
+  //   }
 
   /*
   ** serializedScheduler should start with the comma
@@ -1044,7 +1044,7 @@ int MinScheduler_compare(int serverIdx1,
     return (COMPARE_FIRST_IS_BETTER);
   }
   else {
-//     fprintf(stderr, "min metric comparing %.4f %.4f\n", mval_s1, mval_s2);
+    //     fprintf(stderr, "min metric comparing %.4f %.4f\n", mval_s1, mval_s2);
     if (mval_s1 > mval_s2) {
       return (COMPARE_SECOND_IS_BETTER);
     }
@@ -1144,7 +1144,7 @@ int MaxScheduler_compare(int serverIdx1,
     return (COMPARE_FIRST_IS_BETTER);
   }
   else {
-//     fprintf(stderr, "max metric comparing %.4f %.4f\n", mval_s1, mval_s2);
+    //     fprintf(stderr, "max metric comparing %.4f %.4f\n", mval_s1, mval_s2);
     if (mval_s1 < mval_s2) {
       return (COMPARE_SECOND_IS_BETTER);
     }
@@ -1323,10 +1323,10 @@ PriorityScheduler::serialize(PriorityScheduler* S)
 PriorityScheduler*
 PriorityScheduler::deserialize(const char* serializedScheduler)
 {
-	int numValues;
-	const char *strPtr = serializedScheduler+1;
+  int numValues;
+  const char *strPtr = serializedScheduler+1;
 
-	SCHED_TRACE_FUNCTION(serializedScheduler);
+  SCHED_TRACE_FUNCTION(serializedScheduler);
 
   if (sscanf(strPtr, "%d", &numValues) != 1) {
     INTERNAL_ERROR("error reading numValues for Priority scheduler", -1);

@@ -26,7 +26,7 @@
 DagNodeLauncher::DagNodeLauncher(DagNode * parent,
                                  DagScheduler * scheduler)
   : myNode(parent), myDagScheduler(scheduler), isSeDDefinedFlag(false), myReqID(0),
-  isSuccessfulFlag(false)
+    isSuccessfulFlag(false)
 {
   myChosenServer = NULL;
 }

@@ -266,12 +266,12 @@ public:
   void unsubscribeParent(const char* objName);
 #endif
   /* LogComponentFwdr implementation. */
-  //	void setTagFilter(const ::tag_list_t& tagList,
-  //										const char* objName);
+  //    void setTagFilter(const ::tag_list_t& tagList,
+  //                                                                            const char* objName);
   //  void addTagFilter(const ::tag_list_t& tagList,
-  //										const char* objName);
+  //                                                                            const char* objName);
   //  void removeTagFilter(const ::tag_list_t& tagList,
-  //											 const char* objName);
+  //                                                                                     const char* objName);
   void test(const char* objName);
 #ifdef HAVE_WORKFLOW
   /* MaDagFwdr implementation. */

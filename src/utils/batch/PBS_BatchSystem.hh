@@ -21,8 +21,8 @@
 #include "BatchSystem.hh"
 
 /* Strategy :
-- If mail is given, Diet submits a script which demands the client to
-  alway be notified by mail. Maybe we can improve.
+   - If mail is given, Diet submits a script which demands the client to
+   alway be notified by mail. Maybe we can improve.
 */
 
 class PBS_BatchSystem : public BatchSystem

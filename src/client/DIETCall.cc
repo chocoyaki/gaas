@@ -119,7 +119,7 @@ request_submission(MasterAgent_var& MA,
 
       /* set the req ID here before checking the errors */
       if (response != NULL) {
-				reqID = response->reqID;
+	reqID = response->reqID;
       }
 
       /* Check response */
@@ -158,12 +158,12 @@ request_submission(MasterAgent_var& MA,
     if (server_OK == -1) {
       delete response;
       ERROR("unable to find a server after " << nb_tries << " tries."
-						<< "The platform might be overloaded, try again later please", GRPC_SERVER_NOT_FOUND);
+	    << "The platform might be overloaded, try again later please", GRPC_SERVER_NOT_FOUND);
     }
 
     if (server_OK >= 0) {
       string serverName = string(response->servers[server_OK].loc.SeDName);
-			chosenServer = ORBMgr::getMgr()->resolve<SeD, SeD_var>(SEDCTXT, serverName);
+      chosenServer = ORBMgr::getMgr()->resolve<SeD, SeD_var>(SEDCTXT, serverName);
 
       /* The estimation vector of the chosen SeD is copied into the profile.
        * This is done because:
@@ -179,9 +179,9 @@ request_submission(MasterAgent_var& MA,
 
 #ifdef HAVE_CCS
       if (SpecificClientScheduler::isEnabled()) {
-				SCHED_MUTEX.lock();
-				SpecificClientScheduler::start(chosenServer, response);
-				SCHED_MUTEX.unlock();
+	SCHED_MUTEX.lock();
+	SpecificClientScheduler::start(chosenServer, response);
+	SCHED_MUTEX.unlock();
       }
 #endif // HAVE CCS
 

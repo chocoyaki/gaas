@@ -402,7 +402,7 @@ AgentImpl::agentSubscribe(const char* name, const char* hostName,
   CORBA::ULong retID = (this->childIDCounter)++; // thread safe Counter class
 
   TRACE_TEXT(TRACE_MAIN_STEPS, "An agent has registered from << " << hostName
-	     << ", with " << services.length() << " services." << endl);
+             << ", with " << services.length() << " services." << endl);
 
   /* the size of the list is childIDCounter+1 (first index is 0) */
   this->LAChildren.resize(this->childIDCounter);
@@ -428,13 +428,13 @@ AgentImpl::agentSubscribe(const char* name, const char* hostName,
  */
 CORBA::Long
 AgentImpl::serverSubscribe(const char* name, const char* hostName,
-			   const SeqCorbaProfileDesc_t& services)
+                           const SeqCorbaProfileDesc_t& services)
 {
   SeD_ptr me = ORBMgr::getMgr()->resolve<SeD, SeD_ptr>(SEDCTXT, name);
   CORBA::ULong retID;
 
   TRACE_TEXT(TRACE_MAIN_STEPS, "A server has registered from " << hostName
-	     << ", with " << services.length() << " services." << endl);
+             << ", with " << services.length() << " services." << endl);
   TRACE_TEXT(TRACE_MAIN_STEPS, "subscribed SeD IOR: " << ORBMgr::getMgr()->getIOR(me) << endl);
 
   assert (hostName != NULL);
@@ -459,7 +459,7 @@ AgentImpl::serverSubscribe(const char* name, const char* hostName,
  */
 CORBA::Long
 AgentImpl::childUnsubscribe(CORBA::ULong childID,
-			    const SeqCorbaProfileDesc_t& services) {
+                            const SeqCorbaProfileDesc_t& services) {
   bool childFound = false;
   TRACE_TEXT(TRACE_ALL_STEPS, "Unsubscription request from child " << childID << endl);
   this->srvTMutex.lock();
@@ -508,13 +508,13 @@ AgentImpl::removeElementChildren(bool recursive) {
     for (childID = 0; childID < LAChildren.size(); ++ childID) {
       LAChild& childDesc = LAChildren[childID];
       if (childDesc.defined()) {
-	try {
-	  childDesc->removeElement(recursive);
-	} catch (CORBA::COMM_FAILURE& ex) {
-	  WARNING("COMM_FAILURE when contacting LAChild " << childID);
-	} catch (CORBA::TRANSIENT& e) {
-	  WARNING("TRANSIENT when contacting LAChild " << childID);
-	}
+        try {
+          childDesc->removeElement(recursive);
+        } catch (CORBA::COMM_FAILURE& ex) {
+          WARNING("COMM_FAILURE when contacting LAChild " << childID);
+        } catch (CORBA::TRANSIENT& e) {
+          WARNING("TRANSIENT when contacting LAChild " << childID);
+        }
       }
     }
     LAChildren.clear();
@@ -523,13 +523,13 @@ AgentImpl::removeElementChildren(bool recursive) {
     for (childID = 0; childID < SeDChildren.size(); ++ childID) {
       SeDChild& childDesc = SeDChildren[childID];
       if (childDesc.defined()) {
-	try {
-	  childDesc->removeElement();
-	} catch (CORBA::COMM_FAILURE& ex) {
-	  WARNING("COMM_FAILURE when contacting SeDChild " << childID);
-	} catch (CORBA::TRANSIENT& e) {
-	  WARNING("TRANSIENT when contacting SeDChild " << childID);
-	}
+        try {
+          childDesc->removeElement();
+        } catch (CORBA::COMM_FAILURE& ex) {
+          WARNING("COMM_FAILURE when contacting SeDChild " << childID);
+        } catch (CORBA::TRANSIENT& e) {
+          WARNING("TRANSIENT when contacting SeDChild " << childID);
+        }
       }
     }
     SeDChildren.clear();
@@ -573,11 +573,11 @@ AgentImpl::addServices(CORBA::ULong myID,
     result = this->SrvT->addService(&(services[i]), myID);
     if(result == 0){
       TRACE_TEXT(TRACE_STRUCTURES, "Service " << i
-		 << " added for child " << myID << "." << endl);
+                 << " added for child " << myID << "." << endl);
     }
     else if (result == -1) {
       TRACE_TEXT(TRACE_STRUCTURES, "Service " << i
-		 << " is a duplicate for child " << myID << ". Not added." << endl);
+                 << " is a duplicate for child " << myID << ". Not added." << endl);
     }
     else if (result == -2) {
       this->SrvT->rmChild(myID);
@@ -635,9 +635,9 @@ AgentImpl::findServer(Request* req, size_t max_srv)
   const corba_request_t& creq = *(req->getRequest());
   char statMsg[128];
   TRACE_TEXT(TRACE_MAIN_STEPS,
-	     endl << "**************************************************" << endl
-	     << "Got request " << creq.reqID
-	     << " on problem " << creq.pb.path << endl);
+             endl << "**************************************************" << endl
+             << "Got request " << creq.reqID
+             << " on problem " << creq.pb.path << endl);
   sprintf(statMsg, "findServer %ld", (unsigned long) creq.reqID);
   stat_in(this->myName,statMsg);
 
@@ -723,7 +723,7 @@ AgentImpl::findServer(Request* req, size_t max_srv)
     if (!nbChildrenContacted) {
       WARNING("no service found for request " << creq.reqID);
       TRACE_TEXT(TRACE_MAIN_STEPS,
-		 "**************************************************" << endl);
+                 "**************************************************" << endl);
       req->unlock();
       //delete req; // do not delete since getRequest does not perform a copy
 
@@ -739,7 +739,7 @@ AgentImpl::findServer(Request* req, size_t max_srv)
     /* Everything is ready, we can now wait for the responses */
     /* (This call implicitly unlocks the responses mutex)     */
     TRACE_TEXT(TRACE_ALL_STEPS, "Waiting for " << nbChildrenContacted
-	       << " responses to request " << creq.reqID <<  "..." << endl);
+               << " responses to request " << creq.reqID <<  "..." << endl);
     req->waitResponses(nbChildrenContacted);
     req->unlock();
 
@@ -854,7 +854,7 @@ AgentImpl::sendRequest(CORBA::ULong childID, const corba_request_t* req)
             srvTMutex.lock();
             SrvT->rmChild(childID);
 #if defined HAVE_ALT_BATCH
-	    (*nb_children_contacted)-- ;
+            (*nb_children_contacted)-- ;
 #endif
             if (TRACE_LEVEL >= TRACE_STRUCTURES) {
               SrvT->dump(stdout);
@@ -878,19 +878,19 @@ AgentImpl::sendRequest(CORBA::ULong childID, const corba_request_t* req)
             /* checks if the child is alive with a ping */
             childDesc->ping();
 #if defined HAVE_ALT_BATCH
-	    /* When requesting to a SeD, the request must be set
-	       to the flag of the registered profile.
-	       Hence, if the profile wants // or seq services,
-	       there will be two requests, so two answers with
-	       the corresponding good flag from SeDs
-	    */
-	    corba_request_t * req_copy = new corba_request_t(*req) ;
-	    if( numero_child < frontier )
-	      req_copy->pb.parallel_flag = 1 ; /* Seq job */
-	    else
-	      req_copy->pb.parallel_flag = 2 ; /* // job */
-	    childDesc->getRequest(*req_copy);
-	    delete req_copy ;
+            /* When requesting to a SeD, the request must be set
+               to the flag of the registered profile.
+               Hence, if the profile wants // or seq services,
+               there will be two requests, so two answers with
+               the corresponding good flag from SeDs
+            */
+            corba_request_t * req_copy = new corba_request_t(*req) ;
+            if( numero_child < frontier )
+              req_copy->pb.parallel_flag = 1 ; /* Seq job */
+            else
+              req_copy->pb.parallel_flag = 2 ; /* // job */
+            childDesc->getRequest(*req_copy);
+            delete req_copy ;
 #else
             childDesc->getRequest(*req);
 #endif
@@ -906,7 +906,7 @@ AgentImpl::sendRequest(CORBA::ULong childID, const corba_request_t* req)
             srvTMutex.lock();
             SrvT->rmChild(childID);
 #if defined HAVE_ALT_BATCH
-	    (*nb_children_contacted)-- ;
+            (*nb_children_contacted)-- ;
 #endif
             if (TRACE_LEVEL >= TRACE_STRUCTURES) {
               SrvT->dump(stdout);

@@ -85,7 +85,7 @@ FloodRequest & FloodRequestsList::get(const RequestID & reqID) {
     }
   }
   if (!find)
-      throw FloodRequestNotFoundException(reqID) ;
+    throw FloodRequestNotFoundException(reqID) ;
   return *result ;
 }
 

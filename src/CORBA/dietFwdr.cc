@@ -26,7 +26,7 @@
 
 #include <omniORB4/CORBA.h>
 
-#include <unistd.h>	// For sleep function
+#include <unistd.h>     // For sleep function
 
 using namespace std;
 
@@ -132,7 +132,7 @@ int main(int argc, char* argv[], char* envp[]) {
 
       is >> port;
       of << ORBMgr::convertIOR(ior, cfg.getRemoteHost(), port);
-    }	else {// Waiting for connexion.
+    }   else {// Waiting for connexion.
       of << ior;
     }
     of << std::endl;
@@ -212,7 +212,7 @@ int main(int argc, char* argv[], char* envp[]) {
   }
 
   tunnel.setRemotePortFrom(cfg.getRemotePortFrom());
-  //	tunnel.setLocalPortFrom(cfg.getLocalPortFrom());
+  //    tunnel.setLocalPortFrom(cfg.getLocalPortFrom());
   if (cfg.createFrom()) {
     if (cfg.getRemotePortFrom() == "") {
       ERROR("Failed to automatically determine a remote free port." << endl

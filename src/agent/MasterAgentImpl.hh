@@ -155,8 +155,8 @@ public :
   get_data_id();
 
   /** returns the List of Profile available */
-/*  virtual  SeqCorbaProfileDesc_t*
-  getProfiles();*/
+  /*  virtual  SeqCorbaProfileDesc_t*
+      getProfiles();*/
 
   virtual  SeqCorbaProfileDesc_t*
   getProfiles(CORBA::Long& length);
@@ -166,8 +166,8 @@ public :
   dataLookUp(const char* argID);
 
   /** return the descriptor the the data */
-   corba_data_desc_t*
-   get_data_arg(const char* argID);
+  corba_data_desc_t*
+  get_data_arg(const char* argID);
 
   /** removes data from the list */
   virtual CORBA::Long
@@ -185,20 +185,20 @@ public :
   void
   updateRefs();
   virtual void searchService(const char* predecessor,
-			     const char* predecessorId,
-			     const corba_request_t& request);
+                             const char* predecessorId,
+                             const corba_request_t& request);
   virtual void stopFlooding(CORBA::Long reqId,
-			    const char* senderId);
+                            const char* senderId);
   virtual void serviceNotFound(CORBA::Long reqId,
-			       const char* senderId);
+                               const char* senderId);
   virtual void newFlood(CORBA::Long reqId,
-			const char* senderId);
+                        const char* senderId);
   virtual void floodedArea(CORBA::Long reqId,
-			   const char* senderId);
+                           const char* senderId);
   virtual void alreadyContacted(CORBA::Long reqId,
-				const char* senderId);
+                                const char* senderId);
   virtual void serviceFound(CORBA::Long reqId,
-			    const corba_response_t& decision);
+                            const corba_response_t& decision);
   typedef NodeDescription<MasterAgent, MasterAgent_ptr> MADescription;
   typedef ts_map<KeyString, MADescription> MAList;
 #endif // HAVE_MULTI_MA
@@ -207,7 +207,7 @@ public :
   /**
    * Workflow submission function. *
    * called by the MA_DAG or a client to submit a set of problems
-   * @param  seq_pb	list of pb descriptions
+   * @param  seq_pb     list of pb descriptions
    */
   virtual wf_response_t *
   submit_pb_set (const corba_pb_desc_seq_t& seq_pb);
@@ -227,10 +227,10 @@ public :
    */
   virtual response_seq_t*
   submit_pb_seq(const corba_pb_desc_seq_t& pb_seq,
-          CORBA::Long reqCount,
-          CORBA::Boolean& complete,
-          CORBA::Long& firstReqId,
-          CORBA::Long& seqReqId);
+		CORBA::Long reqCount,
+		CORBA::Boolean& complete,
+		CORBA::Long& firstReqId,
+		CORBA::Long& seqReqId);
 
 #endif // HAVE_WORKFLOW
   virtual SeqString* searchData(const char* request);
@@ -261,25 +261,25 @@ private :
 }; // MasterAgentImpl
 
 class MasterAgentFwdrImpl : public POA_MasterAgentFwdr,
-	public PortableServer::RefCountServantBase
+			    public PortableServer::RefCountServantBase
 {
 protected:
-	Forwarder_ptr forwarder;
-	char* objName;
+  Forwarder_ptr forwarder;
+  char* objName;
 public:
-	MasterAgentFwdrImpl(Forwarder_ptr fwdr, const char* objName);
+  MasterAgentFwdrImpl(Forwarder_ptr fwdr, const char* objName);
 
-	virtual CORBA::Long
+  virtual CORBA::Long
   agentSubscribe(const char* me, const char* hostName,
-								 const SeqCorbaProfileDesc_t& services);
-	virtual CORBA::Long
+		 const SeqCorbaProfileDesc_t& services);
+  virtual CORBA::Long
   serverSubscribe(const char* me, const char* hostName,
                   const SeqCorbaProfileDesc_t& services);
 
 #ifdef HAVE_DYNAMICS
-	virtual CORBA::Long
+  virtual CORBA::Long
   childUnsubscribe(CORBA::ULong childID,
-									 const SeqCorbaProfileDesc_t& services);
+		   const SeqCorbaProfileDesc_t& services);
 
   virtual CORBA::Long removeElement(bool recursive);
 
@@ -287,53 +287,53 @@ public:
 
   CORBA::Long disconnect();
 #endif // HAVE_DYNAMICS
-	virtual void getResponse(const corba_response_t& resp);
-	virtual CORBA::Long ping();
+  virtual void getResponse(const corba_response_t& resp);
+  virtual CORBA::Long ping();
 
   virtual char* getHostname();
 
   virtual CORBA::Long addServices(CORBA::ULong myID,
-																	const SeqCorbaProfileDesc_t& services);
+				  const SeqCorbaProfileDesc_t& services);
 
-	corba_response_t* submit(const corba_pb_desc_t& pb_profile, CORBA::ULong maxServers);
-	virtual CORBA::Long get_session_num();
-	virtual char * get_data_id();
-	virtual CORBA::ULong dataLookUp(const char* argID);
-	virtual corba_data_desc_t* get_data_arg(const char* argID);
-	virtual CORBA::Long diet_free_pdata(const char *argID);
-	virtual  SeqCorbaProfileDesc_t* getProfiles(CORBA::Long& length);
+  corba_response_t* submit(const corba_pb_desc_t& pb_profile, CORBA::ULong maxServers);
+  virtual CORBA::Long get_session_num();
+  virtual char * get_data_id();
+  virtual CORBA::ULong dataLookUp(const char* argID);
+  virtual corba_data_desc_t* get_data_arg(const char* argID);
+  virtual CORBA::Long diet_free_pdata(const char *argID);
+  virtual  SeqCorbaProfileDesc_t* getProfiles(CORBA::Long& length);
 
 #ifdef HAVE_MULTI_MA
-	virtual CORBA::Boolean handShake(const char* name, const char* myName);
+  virtual CORBA::Boolean handShake(const char* name, const char* myName);
   virtual char* getBindName() ;
   //void updateRefs();
   virtual void searchService(const char* predecessor,
-														 const char* predecessorId,
-														 const corba_request_t& request);
+			     const char* predecessorId,
+			     const corba_request_t& request);
   virtual void stopFlooding(CORBA::Long reqId,
-														const char* senderId);
+			    const char* senderId);
   virtual void serviceNotFound(CORBA::Long reqId,
-															 const char* senderId);
+			       const char* senderId);
   virtual void newFlood(CORBA::Long reqId,
-												const char* senderId);
+			const char* senderId);
   virtual void floodedArea(CORBA::Long reqId,
-													 const char* senderId);
+			   const char* senderId);
   virtual void alreadyContacted(CORBA::Long reqId,
-																const char* senderId);
+				const char* senderId);
   virtual void serviceFound(CORBA::Long reqId,
-														const corba_response_t& decision);
+			    const corba_response_t& decision);
 #endif
 #ifdef HAVE_WORKFLOW
-	virtual wf_response_t * submit_pb_set (const corba_pb_desc_seq_t& seq_pb);
+  virtual wf_response_t * submit_pb_set (const corba_pb_desc_seq_t& seq_pb);
 
-	virtual response_seq_t* submit_pb_seq(const corba_pb_desc_seq_t& pb_seq,
-																				CORBA::Long reqCount,
-																				CORBA::Boolean& complete,
-																				CORBA::Long& firstReqId,
-																				CORBA::Long& seqReqId);
+  virtual response_seq_t* submit_pb_seq(const corba_pb_desc_seq_t& pb_seq,
+					CORBA::Long reqCount,
+					CORBA::Boolean& complete,
+					CORBA::Long& firstReqId,
+					CORBA::Long& seqReqId);
 
 #endif
-	virtual CORBA::Long
+  virtual CORBA::Long
   childRemoveService(CORBA::ULong childID, const corba_profile_desc_t& profile);
   virtual SeqString* searchData(const char* request);
   virtual CORBA::Long insertData(const char* key, const SeqString& values);

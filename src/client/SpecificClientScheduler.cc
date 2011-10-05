@@ -105,7 +105,7 @@ SpecificClientScheduler::setScheduler(SpecificClientScheduler * scheduler) {
  */
 void
 SpecificClientScheduler::burstRequest(SeD_var& chosenServer,
-                                corba_response_t * response) {
+				      corba_response_t * response) {
   static vector<string> availableSeDs;
   static vector<int> use;
   static int min = 0;
@@ -166,9 +166,9 @@ SpecificClientScheduler::burstRequest(SeD_var& chosenServer,
     }
   } // end for
   TRACE_FUNCTION(TRACE_ALL_STEPS, "Burst scheduler chooses a SeD used " << 
-		 min << " times before." <<
-		 " The SeDs vector contains " << availableSeDs.size() <<
-		 " references");
+                 min << " times before." <<
+                 " The SeDs vector contains " << availableSeDs.size() <<
+                 " references");
   (*i_ur) += 1;
   chosenServer = ORBMgr::getMgr()->resolve<SeD, SeD_var>(SEDCTXT, *i_r);
 }

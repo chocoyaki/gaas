@@ -37,6 +37,6 @@ void
 MaDagLogCentralDispatcher::onDagNodeReady(const events::EventFrom< DagNode, events::EventStandardMsg< DagNode, DagNode::READY > >* event)
 {
   myLC->logWfNodeReady(event->getSource()->getDag()->getId().c_str(),
-		       event->getSource()->getId().c_str());
+                       event->getSource()->getId().c_str());
 }
 #endif

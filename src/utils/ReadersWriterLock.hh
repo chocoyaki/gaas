@@ -1,8 +1,8 @@
 /****************************************************************************/
-/* ReadersWriter guard		 					    */
-/* 	algorithm from comp.programming.threads and c.schmidt scope  	    */
-/* 	guard paper							    */
-/*                                  					    */
+/* ReadersWriter guard                                                      */
+/*      algorithm from comp.programming.threads and c.schmidt scope         */
+/*      guard paper                                                         */
+/*                                                                          */
 /*  Author(s):                                                              */
 /*    - Christophe PERA (christophe.pera@ens-lyon.fr)                       */
 /*                                                                          */
@@ -41,7 +41,7 @@ class DietReadersWriterLock {
   omni_condition c;
   int writer_count, readers_waiting, reader_count, is_write_lock;
 
-  public:
+public:
 
   DietReadersWriterLock() : c(&m), writer_count(0), readers_waiting(0), reader_count(0), is_write_lock(0){}
 
@@ -76,7 +76,7 @@ class DietReadersWriterLock {
 class ReaderLockGuard {
   DietReadersWriterLock& lock;
   bool state;
-  public:
+public:
   ReaderLockGuard(DietReadersWriterLock& l) : lock(l), state(false) {
     acquire();
   }
@@ -101,7 +101,7 @@ class ReaderLockGuard {
 class WriterLockGuard {
   DietReadersWriterLock& lock;
   bool state;
-  public:
+public:
   WriterLockGuard(DietReadersWriterLock& l) : lock(l), state(false) {
     acquire();
   }

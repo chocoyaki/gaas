@@ -130,7 +130,7 @@ public :
    * Destructor of the NodeDescription.
    */
   ~NodeDescription() {
-      freeMemory();
+    freeMemory();
   }
 
   /**

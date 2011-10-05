@@ -40,7 +40,7 @@ void
 usage(char* cmd)
 {
   fprintf(stderr, "Usage: %s <file.cfg> <fibonacci number> <nb threads>\n",
-	  cmd);
+          cmd);
   exit(1);
 }
 
@@ -64,12 +64,12 @@ call(void* par) {
     diet_scalar_set(diet_parameter(profile,1), NULL, DIET_VOLATILE, DIET_LONGINT);
     
     if (!diet_call(profile)) {
-	diet_scalar_get(diet_parameter(profile,1), &pl2, NULL);
-	
-	printf("After the call (%u): fibo=%ld\n", id, (long)*pl2);
-      } else {
-	printf("Pb !!!\n");
-      }
+      diet_scalar_get(diet_parameter(profile,1), &pl2, NULL);
+        
+      printf("After the call (%u): fibo=%ld\n", id, (long)*pl2);
+    } else {
+      printf("Pb !!!\n");
+    }
     
     diet_free_data(diet_parameter(profile,1));
     diet_profile_free(profile);
@@ -105,7 +105,7 @@ main(int argc, char* argv[])
   pthread_t * thread = (pthread_t*) malloc(nbThreads * sizeof(pthread_t));
   for (i = 0; i < nbThreads; ++ i) {
     pthread_create(&thread[i], NULL, call, (void *) &l1);
-//     omni_thread::create(call, (void *) &l1, omni_thread::PRIORITY_NORMAL);
+    //     omni_thread::create(call, (void *) &l1, omni_thread::PRIORITY_NORMAL);
   }
 
   for (i = 0; i < nbThreads; ++ i)

@@ -144,7 +144,7 @@
  * Revision 1.72  2008/04/07 13:11:44  ycaniou
  * Correct "deprecated conversion from string constant to 'char*'" warnings
  * First attempt to code functions to dynamicaly get batch information
- * 	(e.g.,  getNbMaxResources(), etc.)
+ *      (e.g.,  getNbMaxResources(), etc.)
  *
  * Revision 1.71  2008/01/14 11:16:33  glemahec
  * The servers can now use DAGDA as data manager.
@@ -363,19 +363,19 @@ diet_service_table_add(const diet_profile_desc_t* const profile,
     /* Check the convertor */
     if (diet_convertor_check(cvt, profile)) {
       ERROR("the convertor for profile " << profile->path
-	    << " is not valid. Please correct above errors first", 1);
+            << " is not valid. Please correct above errors first", 1);
     }
     actual_cvt = cvt;
   } else {
     actual_cvt = diet_convertor_alloc(profile->path, profile->last_in,
-				      profile->last_inout, profile->last_out);
+                                      profile->last_inout, profile->last_out);
 #if defined HAVE_ALT_BATCH
     // TODO: Must I add something about convertors ??
 #endif
 
     for (int i = 0; i <= profile->last_out; i++)
       diet_arg_cvt_set(&(actual_cvt->arg_convs[i]),
-		       DIET_CVT_IDENTITY, i, NULL, i);
+                       DIET_CVT_IDENTITY, i, NULL, i);
   }
   res = SRVT->addService(&corba_profile,
                          actual_cvt,
@@ -477,7 +477,7 @@ diet_print_service_table()
 
 diet_profile_desc_t*
 diet_profile_desc_alloc(const char* path,
-			int last_in, int last_inout, int last_out)
+                        int last_in, int last_inout, int last_out)
 {
   diet_profile_desc_t* desc(NULL);
   diet_arg_desc_t*     param_desc(NULL);
@@ -689,7 +689,7 @@ diet_aggregator_priority_minuser(diet_aggregator_desc_t* agg, int val)
 
 int
 diet_arg_cvt_set(diet_arg_convertor_t* arg_cvt, diet_convertor_function_t f,
-		 int in_arg_idx, diet_arg_t* arg, int out_arg_idx)
+                 int in_arg_idx, diet_arg_t* arg, int out_arg_idx)
 {
   if (!arg_cvt)
     return 1;
@@ -702,7 +702,7 @@ diet_arg_cvt_set(diet_arg_convertor_t* arg_cvt, diet_convertor_function_t f,
 
 diet_convertor_t*
 diet_convertor_alloc(const char* path,
-		     int last_in, int last_inout, int last_out)
+                     int last_in, int last_inout, int last_out)
 {
   diet_convertor_t* res = new diet_convertor_t;
   res->path       = strdup(path);
@@ -731,7 +731,7 @@ diet_convertor_free(diet_convertor_t* cvt)
 #if 0
     for (int i = 0; i < cvt->last_out; i++) {
       if (cvt->arg_convs[i].arg)
-	free(cvt->arg_convs[i].arg);
+        free(cvt->arg_convs[i].arg);
     }
 #endif
     delete [] cvt->arg_convs;
@@ -746,11 +746,11 @@ diet_convertor_check(const diet_convertor_t* const cvt,
 {
   int res = 0;
 
-#define CHECK_ERROR(formatted_text)					\
-  if (res == 0)								\
-    cerr << "DIET ERROR while checking the convertor from "		\
-	 << profile->path << " to " << cvt->path << ":" << endl;	\
-  cerr << formatted_text << "." << endl;				\
+#define CHECK_ERROR(formatted_text)                                     \
+  if (res == 0)                                                         \
+    cerr << "DIET ERROR while checking the convertor from "             \
+         << profile->path << " to " << cvt->path << ":" << endl;        \
+  cerr << formatted_text << "." << endl;                                \
   res = 1;
 
 
@@ -758,23 +758,23 @@ diet_convertor_check(const diet_convertor_t* const cvt,
     int in, out;
 
     if ((((int)cvt->arg_convs[i].f) < 0)
-	|| (cvt->arg_convs[i].f >= DIET_CVT_COUNT)) {
+        || (cvt->arg_convs[i].f >= DIET_CVT_COUNT)) {
       CHECK_ERROR("- the argument convertor " << i << " has got a wrong "
-		  << "convertor function (" << cvt->arg_convs[i].f << ")");
+                  << "convertor function (" << cvt->arg_convs[i].f << ")");
     }
     in  = cvt->arg_convs[i].in_arg_idx;
     out = cvt->arg_convs[i].out_arg_idx;
     if ((in < 0) || (in > profile->last_out) ||
-	(out < 0) || (out > profile->last_out)) {
+        (out < 0) || (out > profile->last_out)) {
       if (cvt->arg_convs[i].arg == NULL) {
-	CHECK_ERROR("- the argument convertor " << i << " references no "
-		    << "argument ;" << endl << " it should reference either an index of "
-		    << "the profile, or a constant argument");
+        CHECK_ERROR("- the argument convertor " << i << " references no "
+                    << "argument ;" << endl << " it should reference either an index of "
+                    << "the profile, or a constant argument");
       }
     } else if (cvt->arg_convs[i].arg != NULL) {
       CHECK_ERROR("- the argument convertor " << i << " references too many "
-		  << "arguments ;" << endl << " it should reference either an index of "
-		  << "the profile, or a constant argument");
+                  << "arguments ;" << endl << " it should reference either an index of "
+                  << "the profile, or a constant argument");
     }
   }
   return res;
@@ -873,7 +873,7 @@ diet_SeD(const char* config_file_name, int argc, char* argv[])
   /* SeD creation */
   SeD = new SeDImpl();
   TRACE_TEXT(TRACE_MAIN_STEPS,
-	     "## SED_IOR " << ORBMgr::getMgr()->getIOR(SeD->_this()) << endl);
+             "## SED_IOR " << ORBMgr::getMgr()->getIOR(SeD->_this()) << endl);
   fsync(1);
   fflush(NULL);
 
@@ -1236,9 +1236,9 @@ diet_destroy_estVect( estVector_t perfVect )
 
 int
 diet_estimate_cori(estVector_t ev,
-		   int info_type,
-		   diet_est_collect_tag_t collector_type,
-		   const void * data)
+                   int info_type,
+                   diet_est_collect_tag_t collector_type,
+                   const void * data)
 {
   switch( collector_type ) {
   case EST_COLL_EASY:
@@ -1255,7 +1255,7 @@ diet_estimate_cori(estVector_t ev,
 
 int
 diet_estimate_cori_add_collector(diet_est_collect_tag_t collector_type,
-				 void * data){
+                                 void * data){
   return CORIMgr::add(collector_type, data);
 }
 
@@ -1347,7 +1347,7 @@ int diet_estimate_comptime(estVector_t ev, double value) {
 /* Get the number of waiting jobs in the queue. */
 /* TODO : Add to the documentation. */
 int diet_estimate_waiting_jobs(estVector_t ev,
-			       const diet_profile_t* const profilePtr)
+                               const diet_profile_t* const profilePtr)
 {
   const SeDImpl* refSeD = (SeDImpl*) profilePtr->SeDPtr;
 
@@ -1357,7 +1357,7 @@ int diet_estimate_waiting_jobs(estVector_t ev,
     ** method doesn't change the SeD
     */
     diet_est_set_internal(ev, EST_NUMWAITINGJOBS,
-			  ((SeDImpl*) refSeD)->getNumJobsWaiting());
+                          ((SeDImpl*) refSeD)->getNumJobsWaiting());
     return 0;
   } else
     INTERNAL_ERROR(__FUNCTION__ <<": ref on SeD not initialized?", 1) ;
@@ -1424,11 +1424,11 @@ diet_set_server_status( diet_server_status_t status )
 #ifdef HAVE_ALT_BATCH
 int
 diet_submit_parallel(diet_profile_t * profile,
-		     const char * addon_prologue,
-		     const char * command)
+                     const char * addon_prologue,
+                     const char * command)
 {
   return ((((SeDImpl*)profile->SeDPtr)->getBatch())->
-	  diet_submit_parallel(profile, addon_prologue, command)) ;
+          diet_submit_parallel(profile, addon_prologue, command)) ;
 }
 
 /* This is to be used later: a SeD can manage a reservation as he wants. It
@@ -1436,7 +1436,7 @@ diet_submit_parallel(diet_profile_t * profile,
    tasks overlapping or not */
 int
 diet_concurrent_submit_parallel(int batchJobID, diet_profile_t * profile,
-				const char * command)
+                                const char * command)
 {
   return (((SeDImpl*)profile->SeDPtr)->getBatch())->
     diet_submit_parallel(batchJobID,profile,command) ;

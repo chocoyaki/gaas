@@ -59,7 +59,7 @@
  * Revision 1.3  2008/04/07 13:11:44  ycaniou
  * Correct "deprecated conversion from string constant to 'char*'" warnings
  * First attempt to code functions to dynamicaly get batch information
- * 	(e.g.,  getNbMaxResources(), etc.)
+ *      (e.g.,  getNbMaxResources(), etc.)
  *
  * Revision 1.2  2008/01/01 19:43:49  ycaniou
  * Modifications for batch management. Loadleveler is now ok.
@@ -192,8 +192,8 @@ BatchSystem::checkIfDietJobCompleted(diet_profile_t * profile)
 
 int
 BatchSystem::diet_submit_parallel(diet_profile_t * profile,
-				  const char * addon_prologue,
-				  const char * command)
+                                  const char * addon_prologue,
+                                  const char * command)
 {
   int nbread ;
   char * script = NULL ;
@@ -219,7 +219,7 @@ BatchSystem::diet_submit_parallel(diet_profile_t * profile,
   options = (char*)calloc(9000,sizeof(char)) ; /* FIXME: Reduce size */
   if( options == NULL )  {
     ERROR("error allocating memory when building script (options)..." << endl <<
-	  "Service not launched", -1);
+          "Service not launched", -1);
   }
   /* Convert the walltime in hh:mm:ss, standard for every batch */
   /* TODO:
@@ -227,53 +227,53 @@ BatchSystem::diet_submit_parallel(diet_profile_t * profile,
      2) for LSF, hh:mm only
   */
   sprintf(small_chaine,"%02d:%02d:%02d",
-	  (int)(profile->walltime/3600),
-	  (int)(profile->walltime%3600)/60,
-	  (int)(profile->walltime%3600)%60) ;
+          (int)(profile->walltime/3600),
+          (int)(profile->walltime%3600)/60,
+          (int)(profile->walltime%3600)%60) ;
 
   if( profile->parallel_flag == 1 )
     sprintf(options,
-	    "%s%s%s",
-	    this->serial,
-	    this->walltime, small_chaine) ;
+            "%s%s%s",
+            this->serial,
+            this->walltime, small_chaine) ;
   else
     switch( (int)batch_ID ) {
     case BatchCreator::SGE:
       sprintf(options,
-	      "%s $NSLOTS %s%s",
-	      this->nodesNumber,
-	      this->walltime, small_chaine) ;
+              "%s $NSLOTS %s%s",
+              this->nodesNumber,
+              this->walltime, small_chaine) ;
       break ;
     default:
       sprintf(options,
-	      "%s%d%s%s",
-	      this->nodesNumber, profile->nbprocs,
-	      this->walltime, small_chaine) ;
+              "%s%d%s%s",
+              this->nodesNumber, profile->nbprocs,
+              this->walltime, small_chaine) ;
     }
   sprintf(options+strlen(options),
-	  "%s%s",
-	  submittingQueue, batchQueueName) ;
+          "%s%s",
+          submittingQueue, batchQueueName) ;
 
 
   /* TODO: the user will be able to set the shell, mail, stdin, etc. */
   // Shell semble ne pas marcher... :?
   //  if( shell != emptyString ) /* & if user hasnt specified one or set to user */
   //  sprintf(options+strlen(options),
-  //	    "%s bash\n",
-  //	    shell ) ;
+  //        "%s bash\n",
+  //        shell ) ;
 
-//   if( setSTDERR != emptyString ) /* FIXME: only for LL.. */
-//     sprintf(options+strlen(options),
-// 	    "%s$(job_name).err\n",
-// 	    setSTDERR ) ;
-//   if( setSTDOUT != emptyString ) /* FIXME: only for LL.. */
-//     sprintf(options+strlen(options),
-// 	    "%s$(job_name).out\n",
-// 	    setSTDOUT ) ;
+  //   if( setSTDERR != emptyString ) /* FIXME: only for LL.. */
+  //     sprintf(options+strlen(options),
+  //          "%s$(job_name).err\n",
+  //          setSTDERR ) ;
+  //   if( setSTDOUT != emptyString ) /* FIXME: only for LL.. */
+  //     sprintf(options+strlen(options),
+  //          "%s$(job_name).out\n",
+  //          setSTDOUT ) ;
   /*
-  if( setSTDIN != emptyString ) ** & if user has set one entry
-  sprintf(options+strlen(options),
-  "%s %s
+    if( setSTDIN != emptyString ) ** & if user has set one entry
+    sprintf(options+strlen(options),
+    "%s %s
   */
 
   /* Define addon_prologue for strlen */
@@ -285,54 +285,54 @@ BatchSystem::diet_submit_parallel(diet_profile_t * profile,
   // Build Script, copy it on the NFS path and launch in a system()
   // and record the pid of the batch job
   script = (char*)malloc(sizeof(char)*(100
-				       + strlen(prefixe)
-				       + strlen(options)
-				       + strlen(loc_addon_prologue)
-				       + strlen(postfixe)
-				       + 1000
-				       + strlen(command))) ;
+                                       + strlen(prefixe)
+                                       + strlen(options)
+                                       + strlen(loc_addon_prologue)
+                                       + strlen(postfixe)
+                                       + 1000
+                                       + strlen(command))) ;
   if( script == NULL ) {
     ERROR("error allocating memory when building script..." << endl <<
-	  "Service not launched", -1);
+          "Service not launched", -1);
   }
   switch( (int)batch_ID )
     {
     case BatchCreator::LOADLEVELER:
       sprintf(script,
-	      "%s\n"
-	      "%s"
-	      "%s"
-	      "%s\n"
-	      "\n%s\n"
-	      ,prefixe
-	      ,options
-	      ,loc_addon_prologue
-	      ,postfixe
-	      ,command
-	      ) ;
+              "%s\n"
+              "%s"
+              "%s"
+              "%s\n"
+              "\n%s\n"
+              ,prefixe
+              ,options
+              ,loc_addon_prologue
+              ,postfixe
+              ,command
+              ) ;
       break ;
     case BatchCreator::OAR1_6:
     case BatchCreator::OAR2_X:
     case BatchCreator::SLURM:
     case BatchCreator::SGE:
     case BatchCreator::PBS:
-    	sprintf(script,
-	      "%s\n" // prefixe
-	      "%s" // options
-	      "%s" //loc_addon_prologue
-	      "%s\n" // postfixe
-	      "DIET_BATCH_NODESFILE=%s\n" // nodeFileName
-	      "DIET_BATCH_NODESLIST=$(cat %s | sort | uniq)\n" // nodeFileName
-	      "DIET_BATCH_NBNODES=$(echo $DIET_BATCH_NODESLIST | wc -l)\n"
-	      "\n%s\n" // command
-	      ,prefixe
-	      ,options
-	      ,loc_addon_prologue
-	      ,postfixe
-	      ,nodeFileName
-	      ,nodeFileName
-	      ,command
-	      ) ;
+      sprintf(script,
+              "%s\n" // prefixe
+              "%s" // options
+              "%s" //loc_addon_prologue
+              "%s\n" // postfixe
+              "DIET_BATCH_NODESFILE=%s\n" // nodeFileName
+              "DIET_BATCH_NODESLIST=$(cat %s | sort | uniq)\n" // nodeFileName
+              "DIET_BATCH_NBNODES=$(echo $DIET_BATCH_NODESLIST | wc -l)\n"
+              "\n%s\n" // command
+              ,prefixe
+              ,options
+              ,loc_addon_prologue
+              ,postfixe
+              ,nodeFileName
+              ,nodeFileName
+              ,command
+              ) ;
       break ;
     default:
       ERROR("BatchSystem not managed?", -1);
@@ -366,7 +366,7 @@ BatchSystem::diet_submit_parallel(diet_profile_t * profile,
   /* Make the script runnable (OAR) */
   if( chmod(filename,S_IRUSR | S_IWUSR | S_IXUSR) != 0 ) {
     WARNING("Execution rights have not been set on the batch script."
-	    " This can lead to an error") ;
+            " This can lead to an error") ;
   }
 
   /***************** Submit script and store the batchID ********************/
@@ -376,26 +376,26 @@ BatchSystem::diet_submit_parallel(diet_profile_t * profile,
   file_descriptor_2 = mkstemp( filename_2 ) ;
   if( file_descriptor_2 == -1 ) {
     ERROR("Cannot create batch I/O redirection file."
-	  " Verify that tmp path is ok",-1) ;
+          " Verify that tmp path is ok",-1) ;
   }
   close(file_descriptor_2);
 
 
 #if defined YC_DEBUG
   TRACE_TEXT(TRACE_MAIN_STEPS,
-	     "Fichier pour l'ID du job batch : " << filename_2 << endl) ;
+             "Fichier pour l'ID du job batch : " << filename_2 << endl) ;
 #endif
   /* Submit and grep the jobID */
   chaine = (char*)malloc(sizeof(char)*(strlen(submitCommand)
-				       + strlen(filename)
-				       + strlen(jid_extract_patterns)
-				       + strlen(filename_2)
-				       + 7 + 1 ) ) ;
+                                       + strlen(filename)
+                                       + strlen(jid_extract_patterns)
+                                       + strlen(filename_2)
+                                       + 7 + 1 ) ) ;
   sprintf(chaine,"%s %s | %s > %s",
-	  submitCommand,filename,jid_extract_patterns,filename_2) ;
+          submitCommand,filename,jid_extract_patterns,filename_2) ;
 #if defined YC_DEBUG
   TRACE_TEXT(TRACE_MAIN_STEPS,
-	     "Submit avec la ligne :" << endl << chaine << endl << endl) ;
+             "Submit avec la ligne :" << endl << chaine << endl << endl) ;
 #endif
 
   if( system(chaine) == -1 ) {
@@ -411,7 +411,7 @@ BatchSystem::diet_submit_parallel(diet_profile_t * profile,
   if( (nbread=readn(file_descriptor_2,small_chaine,NBDIGITS_MAX_BATCH_JOB_ID))
       == 0 ) {
     ERROR("Error during submission or with I/O file."
-	  " Cannot read the batch ID", -1) ;
+          " Cannot read the batch ID", -1) ;
   }
   /* Just in case */
   if( small_chaine[nbread-1] == '\n' )
@@ -442,7 +442,7 @@ BatchSystem::diet_submit_parallel(diet_profile_t * profile,
 
 int
 BatchSystem::diet_submit_parallel(int batchJobID, diet_profile_t * profile,
-				  const char * command)
+                                  const char * command)
 {
   {
     ERROR("This function is not implemented yet", 1) ;
@@ -452,7 +452,7 @@ BatchSystem::diet_submit_parallel(int batchJobID, diet_profile_t * profile,
 /*********************** Job Managing ******************************/
 int
 BatchSystem::storeBatchJobID(int batchJobID, int dietReqID,
-			     char * filename)
+                             char * filename)
 {
   corresID * tmp ;
 
@@ -484,31 +484,31 @@ BatchSystem::removeBatchJobID(int dietReqID)
   if( index_1 != NULL )
     {
       if( index_1->dietReqID != dietReqID ) {
-	index_2 = index_1->nextStruct ;
+        index_2 = index_1->nextStruct ;
 
-	while( (index_2 != NULL) && (index_2->dietReqID != dietReqID) ) {
-	  index_1 = index_2 ;
-	  index_2 = index_2->nextStruct ;
-	}
-	if( index_2 == NULL )
-	  return -1 ;
-	index_1 = index_2->nextStruct ;
-	if( index_2->scriptFileName != NULL ) {
-	  unlink( index_2->scriptFileName ) ;
-	  free(index_2->scriptFileName) ;
-	  index_2->scriptFileName = NULL ;
-	}
-	free(index_2) ;
-	return 1 ;
+        while( (index_2 != NULL) && (index_2->dietReqID != dietReqID) ) {
+          index_1 = index_2 ;
+          index_2 = index_2->nextStruct ;
+        }
+        if( index_2 == NULL )
+          return -1 ;
+        index_1 = index_2->nextStruct ;
+        if( index_2->scriptFileName != NULL ) {
+          unlink( index_2->scriptFileName ) ;
+          free(index_2->scriptFileName) ;
+          index_2->scriptFileName = NULL ;
+        }
+        free(index_2) ;
+        return 1 ;
       } else {
-	this->batchJobQueue = this->batchJobQueue->nextStruct ;
-	if( index_1->scriptFileName != NULL ) {
-	  unlink( index_1->scriptFileName ) ;
-	  free(index_1->scriptFileName) ;
-	  index_1->scriptFileName = NULL ;
-	}
-	free( index_1 ) ;
-	return 1 ;
+        this->batchJobQueue = this->batchJobQueue->nextStruct ;
+        if( index_1->scriptFileName != NULL ) {
+          unlink( index_1->scriptFileName ) ;
+          free(index_1->scriptFileName) ;
+          index_1->scriptFileName = NULL ;
+        }
+        free( index_1 ) ;
+        return 1 ;
       }
     }
   return -1 ;
@@ -557,7 +557,7 @@ BatchSystem::getRecordedBatchJobStatus(int batchJobID)
 int
 BatchSystem::updateBatchJobStatus(int batchJobID, batchJobState job_status)
 {
-	corresID * index = this->batchJobQueue ;
+  corresID * index = this->batchJobQueue ;
 
   while( (index != NULL) && (index->batchJobID != batchJobID ) )
     index = index->nextStruct ;
@@ -580,7 +580,7 @@ BatchSystem::updateBatchJobStatus(int batchJobID, batchJobState job_status)
 
 int
 BatchSystem::getSimulatedProcAndWalltime(int * nbprocPtr, int * walltimePtr,
-					 diet_profile_t * profilePtr)
+                                         diet_profile_t * profilePtr)
 {
   {
     ERROR("This function is not implemented yet", 1) ;
@@ -590,8 +590,8 @@ BatchSystem::getSimulatedProcAndWalltime(int * nbprocPtr, int * walltimePtr,
 /****************** Utility function ********************/
 int
 BatchSystem::replaceAllOccurencesInString(char ** input,
-					 const char * occurence,
-					 const char * by)
+					  const char * occurence,
+					  const char * by)
 {
   int found = 0 ;
   int lengthBy = strlen(by) ;
@@ -607,7 +607,7 @@ BatchSystem::replaceAllOccurencesInString(char ** input,
 #if defined YC_DEBUG_
   int passa = 0 ;
   TRACE_TEXT(TRACE_MAIN_STEPS, "Replace " << occurence << " by "
-	     << by << endl) ;
+             << by << endl) ;
   cout << "Script:" << strlen(*input)
        << "--------------------------------------" << endl << *input
        << endl << "--------------------------------------------" << endl ;
@@ -623,27 +623,27 @@ BatchSystem::replaceAllOccurencesInString(char ** input,
       /********* copy all before occurence in resultString ***********/
       /* check if string is long enough */
       if( (tmpLength + (int)(indexEnd-indexBegin) + lengthBy + 1)
-	  > lengthResult ) {
+          > lengthResult ) {
 #if defined YC_DEBUG_
-	passa++ ;
-	TRACE_TEXT(TRACE_MAIN_STEPS, "Pass " << passa
-		   << "Reallocate memory:"
-		   << tmpLength + (int)(indexEnd-indexBegin) + lengthBy + 1
-		   << " > " << lengthResult << endl) ;
+        passa++ ;
+        TRACE_TEXT(TRACE_MAIN_STEPS, "Pass " << passa
+                   << "Reallocate memory:"
+                   << tmpLength + (int)(indexEnd-indexBegin) + lengthBy + 1
+                   << " > " << lengthResult << endl) ;
 #endif
-	tmpString = (char*)realloc(resultingString,
-				   tmpLength
-				   + (int)(indexEnd-indexBegin)
-				   + lengthBy
-				   + 1                          // \0 char
-				   ) ;
-	if( tmpString == NULL ) {
-	  free(resultingString) ;
-	  return -1 ;
-	}
-	lengthResult = tmpLength + (int)(indexEnd-indexBegin) + lengthBy ;
-	resultingString = tmpString ;       // address may have changed
-	tmpString += tmpLength ;            // points on next writable char
+        tmpString = (char*)realloc(resultingString,
+                                   tmpLength
+                                   + (int)(indexEnd-indexBegin)
+                                   + lengthBy
+                                   + 1                          // \0 char
+                                   ) ;
+        if( tmpString == NULL ) {
+          free(resultingString) ;
+          return -1 ;
+        }
+        lengthResult = tmpLength + (int)(indexEnd-indexBegin) + lengthBy ;
+        resultingString = tmpString ;       // address may have changed
+        tmpString += tmpLength ;            // points on next writable char
       }
       /* Copy */
 #if defined YC_DEBUG_
@@ -664,12 +664,12 @@ BatchSystem::replaceAllOccurencesInString(char ** input,
     int lastchar = (int)((*input+lengthInput)-indexBegin) + 1 ;
     if( tmpLength + lastchar > lengthResult ) {   // or use strlen(indexBegin)
       tmpString = (char*)realloc(resultingString,
-				 tmpLength
-				 + lastchar  // takes into account the \0
-				 ) ;
+                                 tmpLength
+                                 + lastchar  // takes into account the \0
+                                 ) ;
       if( tmpString == NULL ) {
-	free(resultingString) ;
-	return -1 ;
+        free(resultingString) ;
+        return -1 ;
       }
       lengthResult = tmpLength + lastchar ;
       resultingString = tmpString ;       // address may have changed
@@ -700,9 +700,9 @@ BatchSystem::writen(int fd, const char * buffer, size_t n)
   while( nleft > 0 ) {
     if( (nwritten = write(fd, ptr, nleft)) <= 0 ) {
       if( errno == EINTR )
-	nwritten = 0 ;	/* and call write() again */
+        nwritten = 0 ;  /* and call write() again */
       else
-	return( 0 ) ;	/* error */
+        return( 0 ) ;   /* error */
     }
     nleft -= nwritten ;
     ptr   += nwritten ;
@@ -727,20 +727,20 @@ BatchSystem::readn(int fd, char * buffer, int n)
     if( (nread = read(fd, ptr, nleft)) < 0 ) {
       if( nread < 0 )       // ERROR
 #if defined YC_DEBUG_
-	switch(errno) {
-	case EBADF:
-	  ERROR("Descripteur de fichiers invalide ou pas ouvert en lecture",0) ;
-	case EFAULT:
-	  ERROR("Buffer pointe en dehors de l'espace d'adressage",0) ;
-	case EINVAL:
-	  ERROR("EINVAL",0) ;
-	case EIO:
-	  ERROR("EIO",0) ;
-	default:
-	  ERROR("Undefined",0) ;
-	}
+        switch(errno) {
+        case EBADF:
+          ERROR("Descripteur de fichiers invalide ou pas ouvert en lecture",0) ;
+        case EFAULT:
+          ERROR("Buffer pointe en dehors de l'espace d'adressage",0) ;
+        case EINVAL:
+          ERROR("EINVAL",0) ;
+        case EIO:
+          ERROR("EIO",0) ;
+        default:
+          ERROR("Undefined",0) ;
+        }
 #endif
-	return( 0 ) ;
+      return( 0 ) ;
     } else if( nread == 0 ) /*EOF*/
       break ;
     nleft -= nread;
@@ -769,7 +769,7 @@ BatchSystem::errorIfPathNotValid( const char * path)
     return ;
 
   snprintf(chaine, 99, "file %s is not a directory", //, or rights problems",
-	   path) ;
+           path) ;
   ERROR_EXIT(chaine) ;
 }
 
@@ -784,11 +784,11 @@ BatchSystem::createUniqueTemporaryTmpFile(const char * pattern)
   file_descriptor = mkstemp( filename ) ;
   if( file_descriptor == -1 ) {
     ERROR("Cannot create batch I/O redirection file."
-	  " Verify that tmp path is ok and that there is space left", 0) ;
+          " Verify that tmp path is ok and that there is space left", 0) ;
   }
 #if defined YC_DEBUG
   TRACE_TEXT(TRACE_MAIN_STEPS,
-	     "Fichier pour stocker info batch : " << filename << endl) ;
+             "Fichier pour stocker info batch : " << filename << endl) ;
 #endif
   close(file_descriptor);
   return filename ;
@@ -805,11 +805,11 @@ BatchSystem::createUniqueTemporaryNFSFile(const char * pattern)
   file_descriptor = mkstemp( filename ) ;
   if( file_descriptor == -1 ) {
     ERROR("Cannot create batch I/O redirection file."
-	  " Verify that tmp path is ok and that there is space left", 0) ;
+          " Verify that tmp path is ok and that there is space left", 0) ;
   }
 #if defined YC_DEBUG
   TRACE_TEXT(TRACE_MAIN_STEPS,
-	     "Fichier pour stocker info batch : " << filename << endl) ;
+             "Fichier pour stocker info batch : " << filename << endl) ;
 #endif
 
   close(file_descriptor);
@@ -833,7 +833,7 @@ BatchSystem::readNumberInFile(const char * filename)
   if( (nbread=readn(file_descriptor,small_chaine,NBDIGITS_MAX_RESOURCES))
       == 0 ) {
     ERROR("Error during submission or with I/O file."
-	  " Cannot read the batch ID", 0) ;
+          " Cannot read the batch ID", 0) ;
   }
 
   /* Just in case */
@@ -849,7 +849,7 @@ BatchSystem::readNumberInFile(const char * filename)
 
 int
 BatchSystem::launchCommandAndGetInt(const char * submitCommand,
-				    const char * pattern)
+                                    const char * pattern)
 {
   char * filename, * chaine ;
   int nbread ;
@@ -857,12 +857,12 @@ BatchSystem::launchCommandAndGetInt(const char * submitCommand,
   filename = createUniqueTemporaryTmpFile( pattern ) ;
 
   chaine = (char*)malloc(sizeof(char)*(strlen(submitCommand)
-				       + strlen(filename)
-				       + 4 ) ) ;
+                                       + strlen(filename)
+                                       + 4 ) ) ;
   sprintf(chaine,"%s > %s", submitCommand,filename) ;
 #if defined YC_DEBUG
   TRACE_TEXT(TRACE_MAIN_STEPS, "Submit avec la ligne :" << endl << chaine
-	     << endl << endl) ;
+             << endl << endl) ;
 #endif
 
   if( system(chaine) == -1 ) {
@@ -884,19 +884,19 @@ BatchSystem::launchCommandAndGetInt(const char * submitCommand,
 
 char *
 BatchSystem::launchCommandAndGetResultFilename(const char * submitCommand,
-					       const char * pattern)
+                                               const char * pattern)
 {
   char * filename, * chaine ;
 
   filename = createUniqueTemporaryTmpFile( pattern ) ;
 
   chaine = (char*)malloc(sizeof(char)*(strlen(submitCommand)
-				       + strlen(filename)
-				       + 4 ) ) ;
+                                       + strlen(filename)
+                                       + 4 ) ) ;
   sprintf(chaine,"%s > %s", submitCommand,filename) ;
 #if defined YC_DEBUG
   TRACE_TEXT(TRACE_MAIN_STEPS, "Submit avec la ligne :" << endl
-	     << chaine << endl << endl) ;
+             << chaine << endl << endl) ;
 #endif
 
   if( system(chaine) == -1 ) {

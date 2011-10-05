@@ -78,7 +78,7 @@
 
 #include "debug.hh"
 #include <iostream>
-#include <fstream>	/*file reading*/
+#include <fstream>      /*file reading*/
 #include <cstdlib>
 #include <string>
 #include <cmath>
@@ -90,10 +90,10 @@ void
 print_Metric(estVector_t vector_v,int type_Info){
 
   double errorCode=0;
- switch (type_Info){
+  switch (type_Info){
   
   case EST_ALLINFOS:
-     break;
+    break;
   case EST_CPUSPEED: 
     for (int i=0; i<diet_est_array_size_internal(vector_v,EST_CPUSPEED);i++)
       cout << "CPU "<<i<<" frequence : "<< diet_est_array_get_internal(vector_v,EST_CPUSPEED,i,errorCode)<<" Mhz"<< endl;
@@ -101,7 +101,7 @@ print_Metric(estVector_t vector_v,int type_Info){
   case EST_CACHECPU:
     for (int i=0; i<diet_est_array_size_internal(vector_v,EST_CACHECPU);i++)
       cout << "CPU "<<i<<" cache : "<< diet_est_array_get_internal(vector_v,EST_CACHECPU,i,errorCode)<<" Kb"<< endl;
-    break;	
+    break;      
   case EST_BOGOMIPS:
     for (int i=0; i<diet_est_array_size_internal(vector_v,EST_BOGOMIPS);i++)
       cout << "CPU "<<i<<" Bogomips : "<< diet_est_array_get_internal(vector_v,EST_BOGOMIPS,i,errorCode)<< endl;
@@ -111,18 +111,18 @@ print_Metric(estVector_t vector_v,int type_Info){
     break;
   case EST_NBCPU:
     cout << "number of processors : " << diet_est_get_internal(vector_v,EST_NBCPU,errorCode)<< endl;     
-   break;
- case EST_DISKACCESREAD:
+    break;
+  case EST_DISKACCESREAD:
     cout << "diskspeed in reading : "<<diet_est_get_internal(vector_v,EST_DISKACCESREAD,errorCode)<<" Mbyte/s"<<endl;
     break;
- case EST_DISKACCESWRITE:
+  case EST_DISKACCESWRITE:
     cout << "diskspeed in writing : "<<diet_est_get_internal(vector_v,EST_DISKACCESWRITE,errorCode)<<" Mbyte/s"<<endl;
     break;
   case EST_TOTALSIZEDISK: 
     cout << "total disk size : " << diet_est_get_internal(vector_v,EST_TOTALSIZEDISK,errorCode)<<" Mb" << endl;
     break;
   case EST_FREESIZEDISK:
-    cout <<	"available disk size  :"<<diet_est_get_internal(vector_v,EST_FREESIZEDISK,errorCode)<<" Mb"<<endl;
+    cout <<     "available disk size  :"<<diet_est_get_internal(vector_v,EST_FREESIZEDISK,errorCode)<<" Mb"<<endl;
     break;
   case EST_TOTALMEM: 
     cout << "total memory : "<< diet_est_get_internal(vector_v,EST_TOTALMEM,errorCode)<<" Mb" << endl;
@@ -131,23 +131,23 @@ print_Metric(estVector_t vector_v,int type_Info){
     cout << "available memory : "<<diet_est_get_internal(vector_v,EST_FREEMEM, errorCode)<<" Mb" <<endl;
     break;
   case EST_FREECPU: 
-     cout << "free cpu: "<<diet_est_get_internal(vector_v,EST_FREECPU, errorCode)<<endl;
+    cout << "free cpu: "<<diet_est_get_internal(vector_v,EST_FREECPU, errorCode)<<endl;
     break;
   default: {
     INTERNAL_WARNING( "CoRI: Tag " <<type_Info <<" for printing info");
-  }	
- }
+  }     
+  }
 }
 Cori_Data_Easy::Cori_Data_Easy(){
-   // cpu=new Cori_Easy_CPU();
-//    memory=new Cori_Easy_Memory();
-//    disk=new Cori_Easy_Disk();
+  // cpu=new Cori_Easy_CPU();
+  //    memory=new Cori_Easy_Memory();
+  //    disk=new Cori_Easy_Disk();
 }
 
 int 
 Cori_Data_Easy::get_Information(int type_Info,       
-				estVector_t* info,
-				const void * data){
+                                estVector_t* info,
+                                const void * data){
   const char * path;
   vector<double> vect;
   int res=0;
@@ -186,30 +186,30 @@ Cori_Data_Easy::get_Information(int type_Info,
     convertSimple(temp,info,type_Info);
     break;
   case EST_CACHECPU:
-     res=cpu->get_CPU_Cache(&vect);
-     convertArray(vect,info,type_Info);
-     break;
+    res=cpu->get_CPU_Cache(&vect);
+    convertArray(vect,info,type_Info);
+    break;
   case EST_NBCPU:
-     res=cpu->get_CPU_Number(&temp);
-     convertSimple(temp, info,type_Info);
+    res=cpu->get_CPU_Number(&temp);
+    convertSimple(temp, info,type_Info);
     break;
   case EST_BOGOMIPS:
-     res=cpu->get_CPU_Bogomips(&vect);
-     convertArray(vect,info,type_Info);
+    res=cpu->get_CPU_Bogomips(&vect);
+    convertArray(vect,info,type_Info);
     break;
   case EST_DISKACCESREAD: 
     if (data==NULL)
       path="./";
     else
       path= (char *) data;        
-     res=disk->get_Read_Speed(path, &temp);
-     convertSimple(temp, info,type_Info);
+    res=disk->get_Read_Speed(path, &temp);
+    convertSimple(temp, info,type_Info);
     break;
   case EST_DISKACCESWRITE:
     if (data==NULL)
       path="./";
     else
-     path=(char *) data;       
+      path=(char *) data;       
     res=disk->get_Write_Speed(path, &temp);
     convertSimple(temp, info,type_Info);
     break;
@@ -217,7 +217,7 @@ Cori_Data_Easy::get_Information(int type_Info,
     if (data==NULL)
       path="./";
     else
-     path= (char *) data;        
+      path= (char *) data;        
     res=disk->get_Total_DiskSpace(path,&temp);
     convertSimple(temp, info,type_Info);
     break;
@@ -259,10 +259,10 @@ Cori_Data_Easy::get_Information(int type_Info,
 /****************************************************************************/
 
 
- int  
+int  
 Cori_Data_Easy::convertArray(vector <double> vect,
-			     estVector_t * estvect,
-			     int typeOfInfo ){
+                             estVector_t * estvect,
+                             int typeOfInfo ){
   vector<double>::iterator iter1;
   iter1 = vect.begin();
   int i=0;
@@ -276,8 +276,8 @@ Cori_Data_Easy::convertArray(vector <double> vect,
 
 int  
 Cori_Data_Easy::convertSimple(double value,
-			      estVector_t * estvect,
-			      int typeOfInfo ){
+                              estVector_t * estvect,
+                              int typeOfInfo ){
   diet_est_set_internal(*estvect,typeOfInfo,value);
   return 0;
 }

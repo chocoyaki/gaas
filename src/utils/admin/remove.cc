@@ -29,7 +29,7 @@ diet_remove_from_hierarchy(dynamic_type_t type, const char *name, int recursive)
     case SED: {
       SeD_var sed = ORBMgr::getMgr()->resolve<SeD, SeD_ptr>(SEDCTXT, name);
       if (sed->removeElement()) {
-	return DIET_ADMIN_CALL_ERROR;
+        return DIET_ADMIN_CALL_ERROR;
       }
       break;
     }
@@ -40,7 +40,7 @@ diet_remove_from_hierarchy(dynamic_type_t type, const char *name, int recursive)
     case LA: {
       Agent_var agent = ORBMgr::getMgr()->resolve<Agent, Agent_var>(AGENTCTXT, name);
       if (agent->removeElement(recursive)) {
-	return DIET_ADMIN_CALL_ERROR;
+        return DIET_ADMIN_CALL_ERROR;
       }
       break;
     }

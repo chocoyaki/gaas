@@ -18,7 +18,7 @@
  * Revision 1.3  2008/04/07 13:11:44  ycaniou
  * Correct "deprecated conversion from string constant to 'char*'" warnings
  * First attempt to code functions to dynamicaly get batch information
- * 	(e.g.,  getNbMaxResources(), etc.)
+ *      (e.g.,  getNbMaxResources(), etc.)
  *
  * Revision 1.2  2007/04/17 13:34:54  ycaniou
  * Error in debug.tex header

@@ -178,9 +178,9 @@ public :
    * @param knownMAs a list of all neighboring MAs.
    */
   FloodRequest(const MasterAgentImpl::MADescription & predecessor,
-	       const MasterAgentImpl::MADescription & owner,
-	       const corba_request_t& request,
-	       MasterAgentImpl::MAList& knownMAs) ;
+               const MasterAgentImpl::MADescription & owner,
+               const corba_request_t& request,
+               MasterAgentImpl::MAList& knownMAs) ;
 
   /**
    * destroys the current flood request. (thread safe)

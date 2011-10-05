@@ -49,8 +49,8 @@
  * use this function when the maDag start to display this value.
  * display the dag_id when compute the ageFactor in AgingHEFT
  * add some stats info :
- * 	queuedNodeCount
- * 	change MA DAG to MA_DAG
+ *      queuedNodeCount
+ *      change MA DAG to MA_DAG
  *
  * Revision 1.14  2008/07/08 15:52:03  bisnard
  * Set interRoundDelay as parameter of workflow scheduler
@@ -138,8 +138,8 @@ namespace madag {
 
   class MultiWfScheduler : public Thread, public DagScheduler {
 
-  friend class MultiWfBasicScheduler;
-  friend class MaDagNodeLauncher;
+    friend class MultiWfBasicScheduler;
+    friend class MaDagNodeLauncher;
 
   public:
     /**
@@ -174,21 +174,21 @@ namespace madag {
      * Get the MaDag object ref
      */
     const MaDag_impl*
-        getMaDag() const;
+    getMaDag() const;
 
     /**
      * set the intra-dag scheduler used by the MA DAG (by default it is HEFT)
      * @param sched the base scheduler to be used
      */
     virtual void
-        setSched(WfScheduler * sched);
+    setSched(WfScheduler * sched);
 
     /**
      * set the platform type
      * @param pfmType the type of platform (grid) used
      */
     virtual void
-        setPlatformType(pfmType_t pfmType);
+    setPlatformType(pfmType_t pfmType);
 
     /**
      * set the inter-round delay in milliseconds
@@ -196,7 +196,7 @@ namespace madag {
      * that result in mapping several jobs to same SeD
      */
     virtual void
-        setInterRoundDelay(int IRD_value);
+    setInterRoundDelay(int IRD_value);
 
     /**
      * get the inter-round delay in milliseconds
@@ -204,7 +204,7 @@ namespace madag {
      * that result in mapping several jobs to same SeD
      */
     virtual const int
-        getInterRoundDelay() const;
+    getInterRoundDelay() const;
 
     /**
      * schedules a new DAG workflow
@@ -212,14 +212,14 @@ namespace madag {
      * @param metaDag ref to a metadag containing the dag (optional)
      */
     virtual void
-        scheduleNewDag(Dag * newDag, MetaDag * metaDag = NULL)
-        throw (MaDag::ServiceNotFound, MaDag::CommProblem);
+    scheduleNewDag(Dag * newDag, MetaDag * metaDag = NULL)
+      throw (MaDag::ServiceNotFound, MaDag::CommProblem);
 
     /**
      * Execution method
      */
     virtual void *
-        run();
+    run();
 
     /**
      * Stop the thread loop.
@@ -231,13 +231,13 @@ namespace madag {
      * Dag cancellation
      */
     virtual void
-        cancelDag(const string& dagId);
-	
+    cancelDag(const string& dagId);
+        
     /**
      * Returns a description
      */
     virtual string
-	toString() const;
+    toString() const;
 
   protected:
 
@@ -246,27 +246,27 @@ namespace madag {
      * (will not find a completed dag except if part of a non-completed metaDag)
      */
     Dag *
-        getDag(const string& dagId) throw (MaDag::InvalidDag);
+    getDag(const string& dagId) throw (MaDag::InvalidDag);
 
     /**
      * Get the MetaDag of a given dag
      */
     MetaDag *
-        getMetaDag(Dag * dag);
+    getMetaDag(Dag * dag);
 
     /**
      * Call MA to get server estimations for all services
      */
     wf_response_t *
-        getProblemEstimates(Dag * dag, MasterAgent_var MA)
-        throw (MaDag::ServiceNotFound, MaDag::CommProblem);
+    getProblemEstimates(Dag * dag, MasterAgent_var MA)
+      throw (MaDag::ServiceNotFound, MaDag::CommProblem);
 
     /**
      * Call MA to get server estimations for one node
      */
     wf_response_t *
-        getProblemEstimates(DagNode * node, MasterAgent_var MA)
-        throw (MaDag::ServiceNotFound, MaDag::CommProblem);
+    getProblemEstimates(DagNode * node, MasterAgent_var MA)
+      throw (MaDag::ServiceNotFound, MaDag::CommProblem);
 
     /**
      * internal dag scheduling
@@ -277,8 +277,8 @@ namespace madag {
      * @param MA      ref to the master agent
      */
     virtual void
-        intraDagSchedule(Dag * dag, MasterAgent_var MA)
-        throw (MaDag::ServiceNotFound, MaDag::CommProblem);
+    intraDagSchedule(Dag * dag, MasterAgent_var MA)
+      throw (MaDag::ServiceNotFound, MaDag::CommProblem);
 
     /**
      * create a new node queue based on a dag
@@ -288,7 +288,7 @@ namespace madag {
      * @return pointer to a nodequeue structure (to be destroyed by the caller)
      */
     virtual OrderedNodeQueue *
-        createNodeQueue(Dag * dag);
+    createNodeQueue(Dag * dag);
 
     /**
      * delete the node queue created in createNodeQueue
@@ -296,14 +296,14 @@ namespace madag {
      * @param nodeQ   pointer to the node queue created in createdNodeQueue
      */
     virtual void
-        deleteNodeQueue(OrderedNodeQueue * nodeQ);
+    deleteNodeQueue(OrderedNodeQueue * nodeQ);
 
     /**
      * insert a new node queue into the pool of queues managed by the sched
      * @param nodeQ   a node queue
      */
     virtual void
-        insertNodeQueue(OrderedNodeQueue * nodeQ);
+    insertNodeQueue(OrderedNodeQueue * nodeQ);
 
     /**
      * set node priority before inserting into execution queue
@@ -311,20 +311,20 @@ namespace madag {
      * @param node   the node to insert
      */
     virtual void
-        setExecPriority(DagNode * node);
+    setExecPriority(DagNode * node);
 
     /**
      * set node priority before inserting back in the ready queue
      */
     virtual void
-        setWaitingPriority(DagNode * node);
+    setWaitingPriority(DagNode * node);
 
     /**
      * Get the current time from scheduler reference clock
      * @return  current time in milliseconds (from scheduler start)
      */
     virtual double
-        getRelCurrTime();
+    getRelCurrTime();
 
     /**
      * Execute a post operation on synchronisation semaphore
@@ -332,43 +332,43 @@ namespace madag {
      * @param node    must contain the node ref if calling post for end of node
      */
     virtual void
-        wakeUp(bool newDag, DagNode * node = NULL);
+    wakeUp(bool newDag, DagNode * node = NULL);
 
     /**
      * Updates scheduler when a node has no (more) dependencies
      */
     virtual void
-        handlerNodeReady(DagNode *node);
+    handlerNodeReady(DagNode *node);
 
     /**
      * Updates scheduler when a node has been completed successfully
      */
     virtual void
-        handlerNodeDone(DagNode * node) = 0;
+    handlerNodeDone(DagNode * node) = 0;
 
     /**
      * Updates scheduler when a dag has been executed
      */
     virtual void
-        handlerDagDone(Dag * dag);
+    handlerDagDone(Dag * dag);
 
     /**
      * Handles the node threads termination
      */
     virtual void
-        postWakeUp();
+    postWakeUp();
 
     /**
      * Handles the dag termination
      */
     virtual void
-        checkDagsRelease();
+    checkDagsRelease();
 
     /**
      * Release a dag on the client
      */
     virtual void
-        releaseDag(Dag * dag);
+    releaseDag(Dag * dag);
 
     /**
      * The Wf meta-scheduler scheduler
@@ -446,8 +446,8 @@ namespace madag {
   private:
 
     /**
-      * MaDag reference
-      */
+     * MaDag reference
+     */
     MaDag_impl * myMaDag;
 
     /**
@@ -473,14 +473,14 @@ namespace madag {
   }; // end class MultiWfScheduler
 
 
-/****************************************************************************/
-/*                            CLASS DagState                                */
-/****************************************************************************/
-/**
- * This class is used by some derived classes of MultiWfScheduler to store
- * information about the status of the DAG. The Dag structure itself is not
- * used as this information is managed by the scheduler.
- */
+  /****************************************************************************/
+  /*                            CLASS DagState                                */
+  /****************************************************************************/
+  /**
+   * This class is used by some derived classes of MultiWfScheduler to store
+   * information about the status of the DAG. The Dag structure itself is not
+   * used as this information is managed by the scheduler.
+   */
 
   class DagState {
   public:

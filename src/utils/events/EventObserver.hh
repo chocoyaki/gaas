@@ -24,13 +24,13 @@
 
 namespace events {
 
-class EventObserver : public EventHandler {
+  class EventObserver : public EventHandler {
   
   public:
     
     virtual bool isObserver(const EventBase* event) const = 0;
 
-};
+  };
 
 }
 

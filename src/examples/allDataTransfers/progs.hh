@@ -42,9 +42,9 @@ printMatrix(T *mat, size_t m, size_t n, bool rm) {
   for (i = 0; i < (m); i++) {            
     for (j = 0; j < (n); j++) {          
       if (rm)                            
-	std::cout << mat[j + i*(n)] << " ";
+        std::cout << mat[j + i*(n)] << " ";
       else                               
-	std::cout << mat[i + j*(m)] << " ";
+        std::cout << mat[i + j*(m)] << " ";
     }                                    
     std::cout << std::endl;
   }                                      
@@ -78,22 +78,22 @@ MatSUM(char tA, char tB, size_t m, size_t n, T* A, T* B, T* C) {
   if (tA == 'T') {
     if (tB == 'T') {
       for (i = 0; i < m; i++)
-	for (j = 0; j < n; j++)
-	  C[j*m + i] = A[i*n + j] + B[i*n + j];
+        for (j = 0; j < n; j++)
+          C[j*m + i] = A[i*n + j] + B[i*n + j];
     } else {
       for (i = 0; i < m; i++)
-	for (j = 0; j < n; j++)
-	  C[j*m + i] = A[i*n + j] + B[j*m + i];
+        for (j = 0; j < n; j++)
+          C[j*m + i] = A[i*n + j] + B[j*m + i];
     }
   } else {
     if (tB == 'T') {
       for (i = 0; i < m; i++)
-	for (j = 0; j < n; j++)
-	  C[j*m + i] = A[j*m + i] + B[i*n + j];
+        for (j = 0; j < n; j++)
+          C[j*m + i] = A[j*m + i] + B[i*n + j];
     } else {
       for (i = 0; i < m; i++)
-	for (j = 0; j < n; j++)
-	  C[j*m + i] = A[j*m + i] + B[j*m + i];
+        for (j = 0; j < n; j++)
+          C[j*m + i] = A[j*m + i] + B[j*m + i];
     }
   }
   

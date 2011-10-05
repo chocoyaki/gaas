@@ -71,14 +71,14 @@ FileParser::parseFile(const std::string& path) {
     if (std::string::npos != pos) {
       line = line.substr(0, pos);
     }
-	
+        
     /* Remove white spaces. 
        use remove then erase idiom 
        use ::isspace so we don't get the std::locale plagued C++ variant*/
     line.erase( 
                std::remove_if(line.begin(), line.end(), ::isspace),
                line.end());
-	
+        
     /* Empty line => continue. */
     if (line.empty()) {
       continue;
@@ -86,10 +86,10 @@ FileParser::parseFile(const std::string& path) {
 
     /* Cut the line on '=' character. */
     split.reset(line);
-	
+        
     std::string& token = split();
     key.swap(token);
-	
+        
     if (!split.hasNext()) {
       debug << "Warning : " << key
             << " has no value! (line " << l << ")\n";
@@ -97,7 +97,7 @@ FileParser::parseFile(const std::string& path) {
 
     token = split();
     value.swap(token);
-	
+        
     if (split.hasNext()) {
       debug << "Warning : " << key
             << " has multiple values! "

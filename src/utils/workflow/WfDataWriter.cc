@@ -50,27 +50,27 @@ WfDataWriter::rawValue(void * valuePtr,
                        WfCst::WfDataType valueType) {
   switch(valueType) {
 
-    case WfCst::TYPE_DOUBLE:
-      myOutput << *((double *) valuePtr); break;
-    case WfCst::TYPE_INT:
-      myOutput << *((int *) valuePtr); break;
-    case WfCst::TYPE_LONGINT:
-      myOutput << *((long *) valuePtr); break;
-    case WfCst::TYPE_FLOAT:
-      myOutput << *((float *) valuePtr); break;
-    case WfCst::TYPE_SHORT:
-      myOutput << *((short *) valuePtr); break;
+  case WfCst::TYPE_DOUBLE:
+    myOutput << *((double *) valuePtr); break;
+  case WfCst::TYPE_INT:
+    myOutput << *((int *) valuePtr); break;
+  case WfCst::TYPE_LONGINT:
+    myOutput << *((long *) valuePtr); break;
+  case WfCst::TYPE_FLOAT:
+    myOutput << *((float *) valuePtr); break;
+  case WfCst::TYPE_SHORT:
+    myOutput << *((short *) valuePtr); break;
 
-    case WfCst::TYPE_CHAR:
-    case WfCst::TYPE_PARAMSTRING:
-    case WfCst::TYPE_STRING:
-    case WfCst::TYPE_FILE:
-      myOutput << (char *) valuePtr; break;
+  case WfCst::TYPE_CHAR:
+  case WfCst::TYPE_PARAMSTRING:
+  case WfCst::TYPE_STRING:
+  case WfCst::TYPE_FILE:
+    myOutput << (char *) valuePtr; break;
 
-    case WfCst::TYPE_MATRIX:
-    case WfCst::TYPE_CONTAINER:
-    case WfCst::TYPE_UNKNOWN:
-      myOutput << "#ERROR DATA RAW VALUE WRITER#";
+  case WfCst::TYPE_MATRIX:
+  case WfCst::TYPE_CONTAINER:
+  case WfCst::TYPE_UNKNOWN:
+    myOutput << "#ERROR DATA RAW VALUE WRITER#";
   }
 }
 
@@ -106,7 +106,7 @@ WfXMLDataWriter::itemValue(const string& valueStr) {
 
 void
 WfXMLDataWriter::itemValue(const string& valueStr,
-			   const string& dataID) {
+                           const string& dataID) {
   myOutput << "<item dataId=\"" << dataID << "\">";
   rawValue(valueStr);
   myOutput << "</item>" << endl;
@@ -123,7 +123,7 @@ WfXMLDataWriter::itemValue(void * valuePtr,
 void
 WfXMLDataWriter::itemValue(void * valuePtr,
                            WfCst::WfDataType valueType,
-			   const string& dataID) {
+                           const string& dataID) {
   myOutput << "<item dataId=\"" << dataID << "\">";
   rawValue(valuePtr, valueType);
   myOutput << "</item>" << endl;
@@ -178,16 +178,16 @@ WfListDataWriter::itemValue(const string& valueStr) {
 
 void
 WfListDataWriter::itemValue(void * valuePtr,
-                           WfCst::WfDataType valueType) {
+			    WfCst::WfDataType valueType) {
   rawValue(valuePtr, valueType);
 }
 
 void
 WfListDataWriter::matrix(void * valuePtr,
-                        WfCst::WfDataType valueType,
-                        unsigned int nbRows,
-                        unsigned int nbColumns,
-                        diet_matrix_order_t order) {
+			 WfCst::WfDataType valueType,
+			 unsigned int nbRows,
+			 unsigned int nbColumns,
+			 diet_matrix_order_t order) {
   // TODO
 }
 

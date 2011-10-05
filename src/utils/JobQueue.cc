@@ -66,7 +66,7 @@ JobQueue::addJobWaiting(int dietReqID, double jobEstCompTime,
   this->nbActiveJobs++;
   this->myLock.unlock();      /** UNLOCK */
   TRACE_TEXT (TRACE_ALL_STEPS,"JobQueue: adding job " << dietReqID << " in status WAITING"
-                              << " (duration est.=" << jobEstCompTime << " ms)" << endl);
+	      << " (duration est.=" << jobEstCompTime << " ms)" << endl);
 }
 
 bool
@@ -104,20 +104,20 @@ JobQueue::deleteJob(int dietReqID) {
     if (job.status != DIET_JOB_FINISHED) {
       this->nbActiveJobs--;
       WARNING("JobQueue::deleteJob: job deleted still active ("
-          << dietReqID << ")" << endl);
+	      << dietReqID << ")" << endl);
     }
     if (job.estVector != NULL)
       delete job.estVector;
     else
       WARNING("JobQueue::deleteJob: null estimation vector for job "
-          << dietReqID << endl);
+	      << dietReqID << endl);
     myJobs.erase(p);
 
     TRACE_TEXT (TRACE_ALL_STEPS,"job " << dietReqID << " deleted / new map size=" << myJobs.size() << endl);
     for (map<int, diet_job_t>::iterator q = myJobs.begin(); q != myJobs.end(); ++ q) {
-	    TRACE_TEXT (TRACE_ALL_STEPS," Queue contains job " <<
-			  q->first << " in status " <<
-			  (q->second).status << endl);
+      TRACE_TEXT (TRACE_ALL_STEPS," Queue contains job " <<
+		  q->first << " in status " <<
+		  (q->second).status << endl);
     }
     this->myLock.unlock();      /** UNLOCK */
     return true;
@@ -145,8 +145,8 @@ JobQueue::getActiveJobTable(jobVector_t& jobVector) {
   }
   if (nbJobs < this->nbActiveJobs) {
     WARNING("getActiveJobTable [WARNING]: mismatch btw counter and map"
-        << "nbActiveJobs=" << this->nbActiveJobs << " / nbJobs="
-        << nbJobs << endl);
+	    << "nbActiveJobs=" << this->nbActiveJobs << " / nbJobs="
+	    << nbJobs << endl);
   }
   this->myLock.unlock();      /** UNLOCK */
   return nbJobs;
@@ -209,7 +209,7 @@ JobQueue::estimateEFTwithFIFOSched() {
 
 
   TRACE_TEXT (TRACE_ALL_STEPS,"Computing EFT: " << nbJobsRunning << " jobs running / "
-                              << myWaitingQueue.size() << " jobs waiting" << endl);
+	      << myWaitingQueue.size() << " jobs waiting" << endl);
   // Take the lowest EFT value
   return procMap.begin()->first;
 }

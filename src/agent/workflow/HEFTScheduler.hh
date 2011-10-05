@@ -95,8 +95,8 @@ namespace madag {
      */
     double
     getNodeDurationEst(const wf_response_t * wf_response,
-                   unsigned int pbIndex,
-                   unsigned int srvIndex);
+		       unsigned int pbIndex,
+		       unsigned int srvIndex);
 
     /**
      * Computes the average value of node workload across the Seds

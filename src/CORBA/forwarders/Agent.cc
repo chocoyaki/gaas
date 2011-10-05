@@ -65,9 +65,9 @@ using namespace std;
 }
 
 ::CORBA::Long DIETForwarder::serverSubscribe(const char* seDName,
-					     const char* hostname,
-					     const ::SeqCorbaProfileDesc_t& services,
-					     const char* objName)
+                                             const char* hostname,
+                                             const ::SeqCorbaProfileDesc_t& services,
+                                             const char* objName)
 {
   string objString(objName);
   string name;
@@ -173,7 +173,7 @@ char* DIETForwarder::getDataManager(const char* objName) {
 }
 
 SeqString* DIETForwarder::searchData(const char* request,
-				     const char* objName)
+                                     const char* objName)
 {
   string objString(objName);
   string name;
@@ -185,7 +185,7 @@ SeqString* DIETForwarder::searchData(const char* request,
   name = getName(objString);
 
   Agent_var agent = ORBMgr::getMgr()->resolve<Agent, Agent_var>(AGENTCTXT,
-								name,
-								this->name);
+                                                                name,
+                                                                this->name);
   return agent->searchData(request);
 }

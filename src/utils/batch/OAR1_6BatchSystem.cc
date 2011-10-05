@@ -55,7 +55,7 @@
  * Revision 1.3  2008/04/07 13:11:44  ycaniou
  * Correct "deprecated conversion from string constant to 'char*'" warnings
  * First attempt to code functions to dynamicaly get batch information
- * 	(e.g.,  getNbMaxResources(), etc.)
+ *      (e.g.,  getNbMaxResources(), etc.)
  *
  * Revision 1.2  2008/01/01 19:43:49  ycaniou
  * Modifications for batch management. Loadleveler is now ok.
@@ -102,7 +102,7 @@ OAR1_6BatchSystem::OAR1_6BatchSystem(int ID, const char * batchname)
   }
 #if defined YC_DEBUG
   TRACE_TEXT(TRACE_ALL_STEPS,"Nom queue interne: " << internQueueName
-	     << endl) ;
+             << endl) ;
 #endif
 
   shell = BatchSystem::emptyString ;
@@ -170,12 +170,12 @@ OAR1_6BatchSystem::askBatchJobStatus(int batchJobID)
 
   /* Ask batch system the job status */
   chaine = (char*)malloc(sizeof(char)*(strlen(wait4Command)
-				       + NBDIGITS_MAX_BATCH_JOB_ID
-				       + strlen(waitFilter)
-				       + strlen(filename)
-				       + 7 + 1) ) ;
+                                       + NBDIGITS_MAX_BATCH_JOB_ID
+                                       + strlen(waitFilter)
+                                       + strlen(filename)
+                                       + 7 + 1) ) ;
   sprintf(chaine,"%s %d | %s > %s",
-	  wait4Command,batchJobID,waitFilter,filename) ;
+          wait4Command,batchJobID,waitFilter,filename) ;
 #if defined YC_DEBUG
   TRACE_TEXT(TRACE_ALL_STEPS,"Execute:" << endl << chaine << endl) ;
 #endif
@@ -193,7 +193,7 @@ OAR1_6BatchSystem::askBatchJobStatus(int batchJobID)
   if( chaine[nbread-1] == '\n' )
     chaine[nbread-1] = '\0' ;
   while( (i<NB_STATUS) &&
-	 (strcmp(chaine,OAR1_6BatchSystem::statusNames[i])!=0) ) {
+         (strcmp(chaine,OAR1_6BatchSystem::statusNames[i])!=0) ) {
     i++ ;
   }
 
@@ -234,7 +234,7 @@ int
 OAR1_6BatchSystem::getNbTotResources()
 {
   return launchCommandAndGetInt( "oarnodes | grep state | wc -l",
-				 "DIET_getNbResources") ;
+                                 "DIET_getNbResources") ;
 }
 
 /* TODO: this function should be C++ written
@@ -253,7 +253,7 @@ OAR1_6BatchSystem::getNbResources() /* in the queue internQueueName */
 
   sprintf(chaine, "oarnodes | grep %s | wc -l", internQueueName) ;
   return launchCommandAndGetInt(chaine,
-				"DIET_getNameResources") ;
+                                "DIET_getNameResources") ;
 }
 
 char *
@@ -262,9 +262,9 @@ OAR1_6BatchSystem::getResourcesName()
   char chaine[500] ;
 
   sprintf(chaine, "oarnodes | grep %s | cut --delimiter=\"=\" --fields=6"
-	  " | cut --delimiter=\",\" --fields=1", internQueueName) ;
+          " | cut --delimiter=\",\" --fields=1", internQueueName) ;
   return launchCommandAndGetResultFilename(chaine,
-					   "DIET_getNameResources") ;
+                                           "DIET_getNameResources") ;
 }
 
 int
@@ -289,7 +289,7 @@ OAR1_6BatchSystem::getNbTotFreeResources()
   /* Command could be
      "oarstat -a | grep Free | cut --delimiter=" " --fields=4" */
   return launchCommandAndGetInt( "oarnodes | grep state | grep free | wc -l",
-				 "DIET_getFreeResources") ;
+                                 "DIET_getFreeResources") ;
 }
 
 int
@@ -308,7 +308,7 @@ OAR1_6BatchSystem::getNbFreeResources()
 
   filename = getResourcesName() ;
   filenameToParse = launchCommandAndGetResultFilename("oarnodes",
-						      "DIET_oarInfo") ;
+                                                      "DIET_oarInfo") ;
 
   /* For each name (each line), get information about host status */
   /* TODO: Do it the C++ way! Better, use a parser! */
@@ -320,7 +320,7 @@ OAR1_6BatchSystem::getNbFreeResources()
   fileToParse =  fopen(filenameToParse,"r") ;
   if( fileToParse == NULL ) {
     WARNING("GetNbRsource: Cannot open file " << filenameToParse << endl
-	    << endl) ;
+            << endl) ;
     if( fclose(file) != 0 ) {
       WARNING("Couln't close file") ;
     }
