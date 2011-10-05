@@ -58,14 +58,14 @@ public :
   CORBA::Long reqId ;
 
   friend std::ostream& operator<<(std::ostream& output,
-				  const FloodRequestNotFoundException & e);
+                                  const FloodRequestNotFoundException & e);
 } ;
 
 /**
  * Writes an ascii description of a exception.
  */
 inline std::ostream& operator<<(std::ostream& output,
-				const FloodRequestNotFoundException & e) {
+                                const FloodRequestNotFoundException & e) {
   return output << "FloodRequestNotFoundException: " << e.reqId ;
 }
 

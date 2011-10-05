@@ -38,22 +38,22 @@ using namespace std;
 #define traceLine 1
 #define traceFunction 1
 
-#define FILE_OUTPUT()				\
+#define FILE_OUTPUT()                           \
   cout << "file=" << __FILE__ << "|";
-#define LINE_OUTPUT()				\
+#define LINE_OUTPUT()                           \
   cout << "line=" << __LINE__ << "|";
-#define FUNCTION_OUTPUT()			\
+#define FUNCTION_OUTPUT()                       \
   cout << "function=" << __FUNCTION__ << "|";
-#define OMNITHREADID_OUTPUT()			\
-  int id = omni_thread::self()->id();		\
+#define OMNITHREADID_OUTPUT()                   \
+  int id = omni_thread::self()->id();           \
   cout << "ThreaID=" << id << "|";
-#define TIMER_OUTPUT()							\
-  timeval tval;								\
-  gettimeofday(&tval, NULL);						\
+#define TIMER_OUTPUT()                                                  \
+  timeval tval;                                                         \
+  gettimeofday(&tval, NULL);                                            \
   cout << "timer=" << tval.tv_sec << "," << tval.tv_usec << "|";
-#define VARIABLE_OUTPUT(X)			\
+#define VARIABLE_OUTPUT(X)                      \
   cout << #X << "=" << X;
-#define TEXT_OUTPUT(X)				\
+#define TEXT_OUTPUT(X)                          \
   printf X;
 # if defined (DIET_NDEBUG)
 #   define DIET_DEBUG(X)
@@ -61,17 +61,17 @@ using namespace std;
 #   define DIET_DEBUG(X) DIET_TRACE_IMPL(X)
 # endif
 
-# define DIET_TRACE_IMPL(X)				\
-  do {							\
-    if (traceTimer == 1) { TIMER_OUTPUT() }		\
-    if (traceThreadId == 1){ OMNITHREADID_OUTPUT() }	\
-    if (traceFile == 1) { FILE_OUTPUT() }		\
-    if (traceLine == 1) { LINE_OUTPUT() }		\
-    if (traceFunction == 1) { FUNCTION_OUTPUT() }	\
-    X							\
-      cout << endl;					\
-    fflush(stdout);					\
-    fflush(stderr);					\
+# define DIET_TRACE_IMPL(X)                             \
+  do {                                                  \
+    if (traceTimer == 1) { TIMER_OUTPUT() }             \
+    if (traceThreadId == 1){ OMNITHREADID_OUTPUT() }    \
+    if (traceFile == 1) { FILE_OUTPUT() }               \
+    if (traceLine == 1) { LINE_OUTPUT() }               \
+    if (traceFunction == 1) { FUNCTION_OUTPUT() }       \
+    X                                                   \
+      cout << endl;                                     \
+    fflush(stdout);                                     \
+    fflush(stderr);                                     \
   } while(0);
 
 #endif /* _GLOBAL_MACROS_H_ */

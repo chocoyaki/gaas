@@ -99,13 +99,13 @@ using namespace std;
 class WfDataException {
 public:
   enum WfDataErrorType { eNOTFOUND,
-			 eNOTAVAIL,
-			 eWRONGTYPE,
-			 eINVALID_CONTAINER,
-			 eID_UNDEF,
-			 eVOID_DATA,
-			 eREADFILERROR,
-			 eINVALID_VALUE };
+                         eNOTAVAIL,
+                         eWRONGTYPE,
+                         eINVALID_CONTAINER,
+                         eID_UNDEF,
+                         eVOID_DATA,
+                         eREADFILERROR,
+                         eINVALID_VALUE };
   WfDataException(WfDataErrorType t, const string& info)
   { this->why = t; this->info = info; }
   WfDataErrorType Type() const { return this->why; }
@@ -137,7 +137,7 @@ public:
    * @param wf         the workflow that generated this dag node (optional)
    */
   DagNode(const string& id, Dag *dag = NULL, FWorkflow* wf = NULL);
-  
+
   /**
    * Dag Node event message types
    */
@@ -206,7 +206,7 @@ public:
    */
   virtual void
   addNodePredecessor(WfNode * node, const string& fullNodeId);
-  
+
   /**
    * Returns a string description of the node
    */

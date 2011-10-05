@@ -98,8 +98,8 @@ SeDDescrParser::parseXml(bool checkValid)
   // Check if DTD was provided
   if (checkValid && !document->getDoctype()) {
     cerr << errorMsgPfx << "XML is not validated (no DTD provided)" << endl
-	 << "Use <!DOCTYPE workflow SYSTEM \"[DIET_INSTALL_DIR]/etc/FWorkflow.dtd\">"
-	 << " instruction to provide it";
+         << "Use <!DOCTYPE workflow SYSTEM \"[DIET_INSTALL_DIR]/etc/FWorkflow.dtd\">"
+         << " instruction to provide it";
   }
 
   DOMNode * root = (DOMNode*)(document->getDocumentElement());
@@ -292,48 +292,48 @@ GASWParser::evalTemplate(SeDArgument *arg, string& value) {
   for (list<SeDArgument*>::const_iterator argIter = args.begin();
        argIter != args.end();
        ++argIter)
+  {
+    SeDArgument *currArg = (SeDArgument *) *argIter;
+    if (currArg->getIo() == SeDArgument::IN)
     {
-      SeDArgument *currArg = (SeDArgument *) *argIter;
-      if (currArg->getIo() == SeDArgument::IN)
-	{
-	  const string& refValue = currArg->getValue();
-	  string dirRef;
-	  string naRef;
+      const string& refValue = currArg->getValue();
+      string dirRef;
+      string naRef;
 
-	  if (currArg->getType() == SeDArgument::URI) {
-	    // Get the directory and base name of the file
-	    char * pathC1 = strdup(refValue.c_str());
-	    char * pathC2 = strdup(refValue.c_str());
-	    dirRef = dirname(pathC1);
-	    naRef = basename(pathC2);
-	    free(pathC1);
-	    free(pathC2);
-	  } else if (currArg->getType() == SeDArgument::DIR) {
-	    char * pathC1 = strdup(refValue.c_str());
-	    dirRef = refValue;
-	    naRef = basename(pathC1);
-	  } else {  // argument is scalar
-	    dirRef = "";
-	    naRef = refValue;
-	  }
-	  // Set templates for directory and base name
-	  string dirTempl = "$dir" + itoa(argIndex);
-	  string naTempl = "$na" + itoa(argIndex);
-	  // Replace $dirX (once)
-	  if ((dirPos = value.find(dirTempl)) != string::npos) {
-	    value = value.substr(0, dirPos)
-	      + dirRef
-	      + value.substr(dirPos + dirTempl.length(), value.length()-dirPos-dirTempl.length());
-	  }
-	  // Replace $naX (once)
-	  if ((naPos = value.find(naTempl)) != string::npos) {
-	    value = value.substr(0, naPos)
-	      + naRef
-	      + value.substr(naPos + naTempl.length(), value.length()-naPos-naTempl.length());
-	  }
-	}
-      ++argIndex;
+      if (currArg->getType() == SeDArgument::URI) {
+        // Get the directory and base name of the file
+        char * pathC1 = strdup(refValue.c_str());
+        char * pathC2 = strdup(refValue.c_str());
+        dirRef = dirname(pathC1);
+        naRef = basename(pathC2);
+        free(pathC1);
+        free(pathC2);
+      } else if (currArg->getType() == SeDArgument::DIR) {
+        char * pathC1 = strdup(refValue.c_str());
+        dirRef = refValue;
+        naRef = basename(pathC1);
+      } else {  // argument is scalar
+        dirRef = "";
+        naRef = refValue;
+      }
+      // Set templates for directory and base name
+      string dirTempl = "$dir" + itoa(argIndex);
+      string naTempl = "$na" + itoa(argIndex);
+      // Replace $dirX (once)
+      if ((dirPos = value.find(dirTempl)) != string::npos) {
+        value = value.substr(0, dirPos)
+          + dirRef
+          + value.substr(dirPos + dirTempl.length(), value.length()-dirPos-dirTempl.length());
+      }
+      // Replace $naX (once)
+      if ((naPos = value.find(naTempl)) != string::npos) {
+        value = value.substr(0, naPos)
+          + naRef
+          + value.substr(naPos + naTempl.length(), value.length()-naPos-naTempl.length());
+      }
     }
+    ++argIndex;
+  }
 
   // Replace %s by unique id provided by SeDService
   string::size_type idPos = 0;

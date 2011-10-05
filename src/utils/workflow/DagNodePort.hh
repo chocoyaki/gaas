@@ -78,19 +78,19 @@ using namespace std;
 class DagNodePort : public WfPort {
 
 public:
-  
+
   /**
    * Separator used for initializing or displaying container elements
    */
   static string containerSeparator;
-  
+
   /**
    * Event Message types
    */
   enum eventMsg_e {
     DATAID
   };
-  
+
   /***************************************************/
   /* constructors/destructor                         */
   /***************************************************/
@@ -101,7 +101,7 @@ public:
               WfCst::WfDataType _type,
               unsigned int _depth,
               unsigned int _ind) ;
-  
+
   /***************************************************/
   /*               public methods                    */
   /***************************************************/
@@ -117,7 +117,7 @@ public:
    */
   virtual void
   initProfileExec() throw (WfDataException) = 0;
-  
+
   /**
    * Return the object description as a string
    */
@@ -136,7 +136,7 @@ public:
    */
   diet_profile_t *
   profile();
-  
+
   /**
    * Set the data ID of the data received/produced by the port
    */
@@ -149,7 +149,7 @@ public:
    */
   const string&
   getDataID() throw (WfDataException);
-  
+
   bool
   isDataIDAvailable(MasterAgent_var& MA);
 
@@ -205,7 +205,7 @@ public:
    */
   virtual void
   initProfileExec() throw (WfDataException);
-  
+
   /**
    * Store the data IDs from the profile
    */
@@ -217,7 +217,7 @@ public:
    */
   void
   freePersistentData(MasterAgent_var& MA);
-  
+
   /**
    * Return the object description as a string
    */
@@ -304,14 +304,14 @@ public:
                 WfCst::WfDataType _type,
                 unsigned int _depth,
                 unsigned int _ind);
-  
+
   /**
    * Event Message types
    */
   enum eventMsg_e {
     DEPEND
   };
-  
+
   /**
    * Set the source of the input port (when dag built by parsing XML)
    * @param strRef The source port (output port) reference
@@ -325,13 +325,13 @@ public:
    */
   virtual void
   setPortAdapter(WfPortAdapter* adapter);
-  
+
   /**
    * Initialize the profile before node execution
    */
   virtual void
   initProfileExec() throw (WfDataException);
-  
+
   /**
    * Return the object description as a string
    */
@@ -375,7 +375,7 @@ protected:
 /*****************************************************************************/
 
 class DagNodeInOutPort : virtual public DagNodeInPort,
-			 virtual public DagNodeOutPort {
+                         virtual public DagNodeOutPort {
 public:
   DagNodeInOutPort(DagNode * parent,
                    string _id,
@@ -387,7 +387,7 @@ public:
    */
   virtual void
   initProfileExec() throw (WfDataException);
-  
+
   /**
    * Return the object description as a string
    */
@@ -445,7 +445,7 @@ public:
    */
   virtual void
   initProfileExec() throw (WfDataException);
-  
+
   /**
    * Return the object description as a string
    */

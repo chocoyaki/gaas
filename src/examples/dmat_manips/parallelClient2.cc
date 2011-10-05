@@ -67,27 +67,27 @@ using namespace std;
 #include "DIET_client.h"
 
 
-#define print_matrix(string, reqID, mat, m, n, rm)			\
-  {									\
-    IO_WRITER_LOCK.lock();						\
-    printf("---------------------------------------------------\n");	\
-    printf(string);							\
+#define print_matrix(string, reqID, mat, m, n, rm)                      \
+  {                                                                     \
+    IO_WRITER_LOCK.lock();                                              \
+    printf("---------------------------------------------------\n");    \
+    printf(string);                                                     \
     printf("Matrix linked to Thread -%d- and requestID -%s-:\n",omni_thread::self()->id(), reqID); \
-    size_t i, j;							\
-    printf("%s (%s-major) = \n", #mat,					\
-	   (rm) ? "row" : "column");					\
-    for (i = 0; i < (m); i++) {						\
-      for (j = 0; j < (n); j++) {					\
-        if (rm)								\
-          printf("%3f ", (mat)[j + i*(n)]);				\
-        else								\
-          printf("%3f ", (mat)[i + j*(m)]);				\
-      }									\
-      printf("\n");							\
-    }									\
-    printf("---------------------------------------------------\n");	\
-    printf("\n");							\
-    IO_WRITER_LOCK.unlock();						\
+    size_t i, j;                                                        \
+    printf("%s (%s-major) = \n", #mat,                                  \
+           (rm) ? "row" : "column");                                    \
+    for (i = 0; i < (m); i++) {                                         \
+      for (j = 0; j < (n); j++) {                                       \
+        if (rm)                                                         \
+          printf("%3f ", (mat)[j + i*(n)]);                             \
+        else                                                            \
+          printf("%3f ", (mat)[i + j*(m)]);                             \
+      }                                                                 \
+      printf("\n");                                                     \
+    }                                                                   \
+    printf("---------------------------------------------------\n");    \
+    printf("\n");                                                       \
+    IO_WRITER_LOCK.unlock();                                            \
   }
 
 static omni_mutex IO_WRITER_LOCK;
@@ -99,7 +99,7 @@ static size_t thread_counter = 0;
 
 #define NB_PB 5
 static const char* PB[NB_PB] =
-  {"T", "MatPROD", "MatSUM", "SqMatSUM", "SqMatSUM_opt"};
+{"T", "MatPROD", "MatSUM", "SqMatSUM", "SqMatSUM_opt"};
 
 static size_t n_loops = 5;
 static size_t n_threads = 5;
@@ -114,7 +114,7 @@ void
 usage(char* cmd)
 {
   fprintf(stderr, "Usage: %s [--poolThreadNbr <n>] [--repeat <n>] <file.cfg> [%s|%s|%s|%s|%s]\n",
-	  cmd, PB[0], PB[1], PB[2], PB[3], PB[4]);
+          cmd, PB[0], PB[1], PB[2], PB[3], PB[4]);
   fprintf(stderr, "    ex: %s client.cfg T\n", cmd);
   fprintf(stderr, "        %s --poolThreadNbr 10 --repeat 1000 client.cfg MatSUM\n", cmd);
   exit(1);
@@ -155,31 +155,31 @@ class worker : public omni_thread
       if (IS_PB[0]) {
         profile = diet_profile_alloc(path, -1, 0, 0);
         diet_matrix_set(diet_parameter(profile,0),
-			A, DIET_VOLATILE, DIET_DOUBLE, m, n, oA);
+                        A, DIET_VOLATILE, DIET_DOUBLE, m, n, oA);
       }
       else if (IS_PB[1] || IS_PB[2] || IS_PB[3]) {
         profile = diet_profile_alloc(path, 1, 1, 2);
         diet_matrix_set(diet_parameter(profile,0),
-			A, DIET_VOLATILE, DIET_DOUBLE, m, n, oA);
+                        A, DIET_VOLATILE, DIET_DOUBLE, m, n, oA);
         if (IS_PB[1]) {
           diet_matrix_set(diet_parameter(profile,1),
-			  B, DIET_VOLATILE, DIET_DOUBLE, n, m, oB);
+                          B, DIET_VOLATILE, DIET_DOUBLE, n, m, oB);
           diet_matrix_set(diet_parameter(profile,2),
-			  NULL, DIET_VOLATILE, DIET_DOUBLE, m, m, oC);
+                          NULL, DIET_VOLATILE, DIET_DOUBLE, m, m, oC);
         }
         else {
           diet_matrix_set(diet_parameter(profile,1),
-			  B, DIET_VOLATILE, DIET_DOUBLE, m, n, oB);
+                          B, DIET_VOLATILE, DIET_DOUBLE, m, n, oB);
           diet_matrix_set(diet_parameter(profile,2),
-			  NULL, DIET_VOLATILE, DIET_DOUBLE, m, n, oC);
+                          NULL, DIET_VOLATILE, DIET_DOUBLE, m, n, oC);
         }
       }
       else if (IS_PB[4]) {
         profile = diet_profile_alloc(path, 0, 1, 1);
         diet_matrix_set(diet_parameter(profile,0),
-			A, DIET_VOLATILE, DIET_DOUBLE, m, m, oA);
+                        A, DIET_VOLATILE, DIET_DOUBLE, m, m, oA);
         diet_matrix_set(diet_parameter(profile,1),
-			B, DIET_VOLATILE, DIET_DOUBLE, m, m, oB);
+                        B, DIET_VOLATILE, DIET_DOUBLE, m, m, oB);
 
       }
       else {
@@ -197,16 +197,16 @@ class worker : public omni_thread
         sprintf(requestID, "%d", rst);
         if (IS_PB[0]) {
           print_matrix("-Input data-\n",requestID, A, m, n, (oA == DIET_ROW_MAJOR));
-        } 
-        else if (IS_PB[1] || IS_PB[2] || IS_PB[3]) {  
+        }
+        else if (IS_PB[1] || IS_PB[2] || IS_PB[3]) {
           print_matrix("-Input data-\n",requestID, A, m, n, (oA == DIET_ROW_MAJOR));
           if (IS_PB[1]) {
             print_matrix("-Input data-\n",requestID, B, n, m, (oB == DIET_ROW_MAJOR));
-          } 
+          }
           else {
             print_matrix("-Input data-\n",requestID, B, m, n, (oB == DIET_ROW_MAJOR));
           }
-        } 
+        }
         else if (IS_PB[4]) {
           print_matrix("-Input data-\n",requestID, A, m, m, (oA == DIET_ROW_MAJOR));
           print_matrix("-Input data-\n",requestID,B, m, m, (oB == DIET_ROW_MAJOR));

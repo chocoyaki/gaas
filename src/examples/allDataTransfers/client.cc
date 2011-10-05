@@ -56,31 +56,31 @@ const unsigned int SIZE = 3;
 
 static const unsigned int NB_PB = 6;
 static const char* PB[NB_PB] =
-  {"CADD", "BADD", "IADD", "LADD", "FADD", "DADD"};
+{"CADD", "BADD", "IADD", "LADD", "FADD", "DADD"};
 
 static const unsigned int NB_PB_VECTOR = 6;
 static const char* PB_VECTOR[NB_PB_VECTOR] =
-  {"CVADD", "BVADD", "IVADD", "LVADD", "FVADD", "DVADD"};
+{"CVADD", "BVADD", "IVADD", "LVADD", "FVADD", "DVADD"};
 
 static const unsigned int NB_PB_MATRIX = 6;
 static const char* PB_MATRIX[NB_PB_MATRIX] =
-  {"CMADD", "BMADD", "IMADD", "LMADD", "FMADD", "DMADD"};
+{"CMADD", "BMADD", "IMADD", "LMADD", "FMADD", "DMADD"};
 
 static const unsigned int NB_PB_STRING = 1;
 static const char* PB_STRING[NB_PB_STRING] =
-  {"SPRINT"};
+{"SPRINT"};
 
 static const unsigned int NB_PB_PSTRING = 1;
 static const char* PB_PSTRING[NB_PB_PSTRING] =
-  {"PSPRINT"};
+{"PSPRINT"};
 
 static const unsigned int NB_PB_FILE = 1;
 static const char* PB_FILE[NB_PB_FILE] =
-  {"FTRANSFER"};
+{"FTRANSFER"};
 
 static const unsigned int NB_PB_CONTAINER = 1;
 static const char* PB_CONTAINER[NB_PB_CONTAINER] =
-  {"LCADD"};
+{"LCADD"};
 
 /* argv[1]: client config file path */
 
@@ -235,7 +235,7 @@ main(int argc, char* argv[]) {
   profile = diet_profile_alloc(PB[5], 0, 1, 2);
   diet_scalar_set(diet_parameter(profile,0), &d1,  DIET_VOLATILE, DIET_DOUBLE);
   diet_scalar_set(diet_parameter(profile,1), &d2,  DIET_VOLATILE, DIET_DOUBLE);
-  diet_scalar_set(diet_parameter(profile,2), NULL, DIET_VOLATILE, DIET_DOUBLE);    
+  diet_scalar_set(diet_parameter(profile,2), NULL, DIET_VOLATILE, DIET_DOUBLE);
   if (!diet_call(profile)) {
     diet_scalar_get(diet_parameter(profile,2), &pd3, NULL);
     std::cout << "After the call: d1=" << (float) d1 << ", l2=" << (double)d2
@@ -249,7 +249,7 @@ main(int argc, char* argv[]) {
   std::cout << "######################################################################" << std::endl;
   std::cout << "#                            \\SCALARS                                #" << std::endl;
   std::cout << "######################################################################" << std::endl;
-  
+
 
 
 
@@ -930,7 +930,7 @@ main(int argc, char* argv[]) {
   if (!diet_call(profile)) {
     diet_container_t content1;
     long * pl1, *pl2;
-    
+
     s1 = (profile->parameters[1]).desc.id;
     dagda_get_container(s1);
     dagda_get_container_elements(s1, &content1);

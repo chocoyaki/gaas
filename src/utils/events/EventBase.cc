@@ -34,14 +34,14 @@ static const pair<short,string> severity2str_init[] = {
 };
 
 static map<short,string> severity2str(severity2str_init, severity2str_init
-				      + sizeof(severity2str_init)/sizeof(severity2str_init[0]));
-    
-string 
+                                      + sizeof(severity2str_init)/sizeof(severity2str_init[0]));
+
+string
 EventBase::toString() const {
   return severity2str[(short) mySeverity];
 }
 
-ostream& 
+ostream&
 operator << (ostream& out, const EventBase& e) {
   return out << e.toString();
 }

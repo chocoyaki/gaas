@@ -252,12 +252,12 @@ private:
 class WfDataHandleException {
 public:
   enum WfDataHandleErrorType { eBAD_STRUCT,
-			       eINVALID_ADAPT,
-			       eCARD_UNDEF,
-			       eVALUE_UNDEF,
-			       eADAPT_UNDEF };
+                               eINVALID_ADAPT,
+                               eCARD_UNDEF,
+                               eVALUE_UNDEF,
+                               eADAPT_UNDEF };
   WfDataHandleException(WfDataHandleErrorType t,
-			const string& _info)
+                        const string& _info)
   { this->why = t; this->info = _info; }
   WfDataHandleErrorType Type() { return this->why; }
   const string& Info()       { return this->info; }
@@ -289,9 +289,9 @@ public:
    * @param port the port that produces the data (NULL if void data)
    */
   FDataHandle(const FDataTag& tag,
-	      unsigned int depth,
-	      bool isVoid = false,
-	      DagNodeOutPort* port = NULL);
+              unsigned int depth,
+              bool isVoid = false,
+              DagNodeOutPort* port = NULL);
 
   /**
    * Constructor of a constant data handle (depth = 0: scalar value)
@@ -300,9 +300,9 @@ public:
    * @param value the value of the data
    */
   FDataHandle(const FDataTag&   tag,
-	      WfCst::WfDataType valueType,
-	      const string&     value);
-                
+              WfCst::WfDataType valueType,
+              const string&     value);
+
   /**
    * Constructor of a data handle referencing a data ID (from data manager)
    * @param tag       the data tag attached to this handle
@@ -312,10 +312,10 @@ public:
    * @param isOwner   if true, DH is allowed to free the data (remove from platform)
    */
   FDataHandle(const FDataTag&   tag,
-	      WfCst::WfDataType dataType,
-	      unsigned int      dataDepth,
-	      const string&     dataId,
-	      bool              isOwner = false);
+              WfCst::WfDataType dataType,
+              unsigned int      dataDepth,
+              const string&     dataId,
+              bool              isOwner = false);
 
   /**
    * Constructor of a data handle (used for buffer or data with dataID)
@@ -324,8 +324,8 @@ public:
    * @param dataDepth data depth
    */
   FDataHandle(const FDataTag&   tag,
-	      WfCst::WfDataType dataType,
-	      unsigned int      dataDepth);
+              WfCst::WfDataType dataType,
+              unsigned int      dataDepth);
 
   /**
    * Special copy constructor (used for port mappings in control structures)
@@ -364,7 +364,7 @@ public:
    */
   const FDataTag&
   getTag() const;
-        
+
   /**
    * Get a string description of the handle
    */
@@ -397,7 +397,7 @@ public:
   setCardinalList(const list<string>& cardList);
   void
   setCardinalList(list<string>::const_iterator& start,
-		  list<string>::const_iterator& end);
+                  list<string>::const_iterator& end);
   /**
    * Get the cardinal
    * (does not match the nb of childs if not complete)
@@ -424,7 +424,7 @@ public:
    */
   FDataHandle*
   getParent() const;
-        
+
   /**
    * Returns true if the data depends from a unique source port
    * (false for data aggregating several elements from different ports
@@ -516,7 +516,7 @@ public:
    */
   void
   setValue( WfCst::WfDataType valueType,
-	    const string&     value);
+            const string&     value);
 
   /**
    * Returns value
@@ -667,8 +667,8 @@ private:
    * @param parentHdl the parent handle
    */
   FDataHandle(const FDataTag& tag,
-	      unsigned int depth,
-	      FDataHandle* parentHdl);
+              unsigned int depth,
+              FDataHandle* parentHdl);
 
   void
   addChild(FDataHandle* dataHdl);

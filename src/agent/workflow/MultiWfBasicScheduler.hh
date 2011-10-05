@@ -42,41 +42,41 @@
 
 namespace madag {
 
-  class MultiWfBasicScheduler : public MultiWfScheduler {
+class MultiWfBasicScheduler : public MultiWfScheduler {
 
-  public:
+public:
 
-    MultiWfBasicScheduler(MaDag_impl* maDag);
-    virtual ~MultiWfBasicScheduler();
+  MultiWfBasicScheduler(MaDag_impl* maDag);
+  virtual ~MultiWfBasicScheduler();
 
-    /**
-     * Execution method
-     */
-    virtual void *
-    run();
+  /**
+   * Execution method
+   */
+  virtual void *
+  run();
 
-    /**
-     * Updates scheduler when a node has been executed
-     * (does nothing)
-     */
-    virtual void
-    handlerNodeDone(DagNode * node);
+  /**
+   * Updates scheduler when a node has been executed
+   * (does nothing)
+   */
+  virtual void
+  handlerNodeDone(DagNode * node);
 
-  protected:
+protected:
 
-    /**
-     * create simple ordered NodeQueue for ready nodes
-     * (does not use priority of nodes)
-     */
-    virtual OrderedNodeQueue *
-    createNodeQueue(Dag * dag);
+  /**
+   * create simple ordered NodeQueue for ready nodes
+   * (does not use priority of nodes)
+   */
+  virtual OrderedNodeQueue *
+  createNodeQueue(Dag * dag);
 
-    /**
-     * delete the node queue created in createNodeQueue
-     */
-    virtual void
-    deleteNodeQueue(OrderedNodeQueue * nodeQ);
-  };
+  /**
+   * delete the node queue created in createNodeQueue
+   */
+  virtual void
+  deleteNodeQueue(OrderedNodeQueue * nodeQ);
+};
 
 }
 

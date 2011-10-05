@@ -196,16 +196,16 @@ using namespace std;
 /**
  * Error message - exit with exit_value.
  */
-#define DLC_ERROR(formatted_msg,exit_value)			\
-  cerr << "DIET ERROR: " << formatted_msg << "." << endl	\
-  << "cannot proceed." << endl;					\
+#define DLC_ERROR(formatted_msg,exit_value)                     \
+  cerr << "DIET ERROR: " << formatted_msg << "." << endl        \
+  << "cannot proceed." << endl;                                 \
   exit(exit_value)
 
 /**
  * Warning message.
  */
-#define DLC_WARNING(formatted_msg)					\
-  cerr << "DIET WARNING: " << formatted_msg << "." << endl		\
+#define DLC_WARNING(formatted_msg)                                      \
+  cerr << "DIET WARNING: " << formatted_msg << "." << endl              \
   << "DIET can proceed, but you may encounter unexpected behaviour." << endl
 
 /**
@@ -444,13 +444,13 @@ int DietLogComponent::run(const char* agentType,
   tag_list_t currentTagList;
   try {
     ret = myLCC->connectComponent(
-                                  name,
-                                  hostName,
-                                  msg,
-                                  name,
-                                  time,
-                                  currentTagList
-                                  );
+      name,
+      hostName,
+      msg,
+      name,
+      time,
+      currentTagList
+      );
   } catch (CORBA::SystemException &e) {
     free(msg);
     free(hostName);
@@ -941,7 +941,7 @@ DietLogComponent::logSedChosen(const corba_request_t* request,
               ,(unsigned long)(request->reqID)
               ,(unsigned long)(response->servers.length())
               ,(const char *)(estim_string.c_str())
-              );
+        );
     } else {
       s = (char*)malloc((strlen(request->pb.path)
                          +num_Digits(request->reqID)
@@ -1064,7 +1064,7 @@ DietLogComponent::logDataStore(const char* dataID, const long unsigned int size,
 
 void
 DietLogComponent::logDataBeginTransfer(const char* dataID,
-				       const char* destAgent) {
+                                       const char* destAgent) {
   if (tagFlags[7]) {
     char* s;
     s = (char*)malloc((strlen(dataID)+strlen(destAgent)+2)*sizeof(char));
@@ -1076,7 +1076,7 @@ DietLogComponent::logDataBeginTransfer(const char* dataID,
 
 void
 DietLogComponent::logDataEndTransfer(const char* dataID,
-				     const char* destAgent) {
+                                     const char* destAgent) {
   if (tagFlags[8]) {
     char* s;
     s = (char*)malloc((strlen(dataID)+strlen(destAgent)+2)*sizeof(char));
@@ -1089,7 +1089,7 @@ DietLogComponent::logDataEndTransfer(const char* dataID,
 // modif bisnard_logs_1
 void
 DietLogComponent::logDataTransferTime(const char* dataID,
-				      const char* destAgent, const unsigned long elapsedTime) {
+                                      const char* destAgent, const unsigned long elapsedTime) {
   if (tagFlags[23]) {
     char* s;
     s = (char*)malloc((strlen(dataID)+strlen(destAgent)+num_Digits(elapsedTime)+3)*sizeof(char));
@@ -1228,7 +1228,7 @@ DietLogComponent::logDag(const char* msg) {
 #endif // HAVE_WORKFLOW
 
 DietLogComponentFwdr::DietLogComponentFwdr(CorbaLogForwarder_ptr fwdr,
-					   const char* objName)
+                                           const char* objName)
 {
   this->forwarder = CorbaLogForwarder::_duplicate(fwdr);
   this->objName = CORBA::string_dup(objName);

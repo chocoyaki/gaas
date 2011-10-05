@@ -176,7 +176,7 @@ public:
 
   virtual CORBA::Long
   processDagWf(const corba_wf_desc_t& dag_desc, const char* cltMgrRef,
-	       CORBA::Long wfReqId);
+               CORBA::Long wfReqId);
   /**
    * Multi DAG Workflow processing
    * Manages the scheduling and orchestration of the submitted DAG
@@ -193,7 +193,7 @@ public:
 
   virtual CORBA::Long
   processMultiDagWf(const corba_wf_desc_t& dag_desc, const char* cltMgrRef,
-		    CORBA::Long wfReqId, CORBA::Boolean release);
+                    CORBA::Long wfReqId, CORBA::Boolean release);
 
   /**
    * Multi DAG release
@@ -350,7 +350,7 @@ private:
 };
 
 class MaDagFwdrImpl : public POA_MaDag,
-		      public PortableServer::RefCountServantBase {
+                      public PortableServer::RefCountServantBase {
 protected:
   Forwarder_ptr forwarder;
   char* objName;
@@ -358,10 +358,10 @@ public:
   MaDagFwdrImpl(Forwarder_ptr fwdr, const char* objName);
   virtual CORBA::Long
   processDagWf(const corba_wf_desc_t& dag_desc, const char* cltMgrRef,
-	       CORBA::Long wfReqId);
+               CORBA::Long wfReqId);
   virtual CORBA::Long
   processMultiDagWf(const corba_wf_desc_t& dag_desc, const char* cltMgrRef,
-		    CORBA::Long wfReqId, CORBA::Boolean release);
+                    CORBA::Long wfReqId, CORBA::Boolean release);
   virtual CORBA::Long getWfReqId();
   virtual void releaseMultiDag(CORBA::Long wfReqId);
   virtual void cancelDag(CORBA::Long dagId);

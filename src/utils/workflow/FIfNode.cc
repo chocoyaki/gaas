@@ -124,7 +124,7 @@ FIfNode::checkCondition() throw (WfStructException) {
        ++portIter) {
     WfPort *port = (WfPort*) portIter->second;
     if ((port->getPortType() == WfPort::PORT_IN)
-	&& myCondition->isVariableUsed(port->getId())) {
+        && myCondition->isVariableUsed(port->getId())) {
       // each port involved in the condition must be modified to accept only
       // DH with a real value
       FNodeInPort* inPort = dynamic_cast<FNodeInPort*>(port);
@@ -175,7 +175,7 @@ FIfNode::createRealInstance(Dag* dag,
                             const FDataTag& currTag,
                             vector<FDataHandle*>& currDataLine) {
   TRACE_TEXT (TRACE_MAIN_STEPS,"  ## NEW IF INSTANCE : " << getId()
-	      << currTag.toString() << endl);
+              << currTag.toString() << endl);
   FNodePortMap* mapToApply;
   // Loop for all inputs
   for (unsigned int ix = 0; ix < currDataLine.size(); ++ix) {
@@ -216,7 +216,7 @@ FIfNode::createRealInstance(Dag* dag,
   mapToApply->applyMap(currTag, currDataLine);
   //   myCondition->reset();
   TRACE_TEXT (TRACE_ALL_STEPS,"  ## END IF INSTANCE : "
-	      << getId() << currTag.toString() << endl);
+              << getId() << currTag.toString() << endl);
 }
 
 /*****************************************************************************/
@@ -258,7 +258,7 @@ void
 FMergeNode::createMergeInstance(const FDataTag& currTag,
                                 vector<FDataHandle*>& currDataLine) {
   TRACE_TEXT (TRACE_MAIN_STEPS,"  ## NEW MERGE INSTANCE : " << getId()
-	      << currTag.toString() << endl);
+              << currTag.toString() << endl);
   FDataHandle* srcData = NULL;
   FDataHandle *outData = NULL;
   vector<FDataHandle*>::const_iterator DLIter = currDataLine.begin();
@@ -311,10 +311,10 @@ FFilterNode::~FFilterNode() {
 
 WfPort *
 FFilterNode::newPort(string portId,
-		     unsigned int ind,
-		     WfPort::WfPortType portType,
-		     WfCst::WfDataType dataType,
-		     unsigned int depth) throw (WfStructException) {
+                     unsigned int ind,
+                     WfPort::WfPortType portType,
+                     WfCst::WfDataType dataType,
+                     unsigned int depth) throw (WfStructException) {
   WfPort * p = NULL;
   switch (portType) {
   case WfPort::PORT_IN:
@@ -339,7 +339,7 @@ FFilterNode::createRealInstance(Dag* dag,
                                 const FDataTag& currTag,
                                 vector<FDataHandle*>& currDataLine) {
   TRACE_TEXT (TRACE_MAIN_STEPS,"  ## FILTER PROCESSES NON-VOID ITEM : "
-	      << currTag.toString() << endl);
+              << currTag.toString() << endl);
   FDataHandle* srcData = currDataLine[0];
   if (!srcData) {
     INTERNAL_ERROR("Invalid (NULL) data to process in filter node",1);
@@ -351,7 +351,7 @@ void
 FFilterNode::createVoidInstance(const FDataTag& currTag,
                                 vector<FDataHandle*>& currDataLine) {
   TRACE_TEXT (TRACE_MAIN_STEPS,"  ## FILTER PROCESSES VOID ITEM : "
-	      << currTag.toString() << endl);
+              << currTag.toString() << endl);
   FDataHandle* srcData = currDataLine[0];
   if (!srcData) {
     INTERNAL_ERROR("Invalid (NULL) data to process in filter node",1);

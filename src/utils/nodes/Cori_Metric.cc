@@ -107,8 +107,8 @@ Cori_Metric::call_cori_metric(int type_Info,
 #if not defined CLEAN_CORILIB_FROM_BATCH_STAFF and defined HAVE_ALT_BATCH
   case EST_COLL_BATCH:
     return cori_batch->get_Information(type_Info,
-				       information,
-				       data) ;
+                                       information,
+                                       data) ;
     break ;
 #endif
   case EST_COLL_EASY:{

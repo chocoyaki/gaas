@@ -133,9 +133,9 @@ Container::send(const char* destName, bool sendData) {
   this->getAllElements(*dataIDSeq, *flagSeq, true);
 
   TRACE_TEXT(TRACE_ALL_STEPS, "Sending container " << myID << " ("
-	     << dataIDSeq->length() << " elements / sendData="
-	     << sendData << ")" << endl);
-        
+             << dataIDSeq->length() << " elements / sendData="
+             << sendData << ")" << endl);
+
   for (unsigned int ix = 0; ix < dataIDSeq->length(); ++ix) {
     if ((*dataIDSeq)[ix] != NULL) {
       const char* eltID = (*dataIDSeq)[ix];
@@ -149,9 +149,9 @@ Container::send(const char* destName, bool sendData) {
         }
         corba_data_t eltData;
         eltData.desc = *eltDesc;
-	//        Dagda_var srcMgr = Dagda::_narrow(ORBMgr::stringToObject(eltDesc->dataManager));
-	Dagda_ptr srcMgr = ORBMgr::getMgr()->resolve<Dagda, Dagda_ptr>(string(eltDesc->dataManager));
-	string srcName = srcMgr->getID();
+        //        Dagda_var srcMgr = Dagda::_narrow(ORBMgr::stringToObject(eltDesc->dataManager));
+        Dagda_ptr srcMgr = ORBMgr::getMgr()->resolve<Dagda, Dagda_ptr>(string(eltDesc->dataManager));
+        string srcName = srcMgr->getID();
         dest->lclAddData(srcName.c_str(), eltData);
       }
       // add relationship container-data to destination mgr

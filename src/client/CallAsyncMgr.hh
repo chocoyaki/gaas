@@ -205,13 +205,13 @@ public:
    */
   void
   saveHandle(diet_reqID_t sessionID,
-	     grpc_function_handle_t* handle);
+             grpc_function_handle_t* handle);
   /*
    * get the handle associated to the provided sessionID
    */
   diet_error_t
   getHandle(grpc_function_handle_t** handle,
-	    diet_reqID_t sessionID);
+            diet_reqID_t sessionID);
 
   /*
    * get all the session IDs

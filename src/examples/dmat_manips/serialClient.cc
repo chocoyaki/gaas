@@ -47,32 +47,32 @@
 #include "DIET_client.h"
 #include "omnithread.h"
 static omni_mutex IOWriterLock;
-#define print_matrix(string, reqID, mat, m, n, rm)			\
-  {									\
-    IOWriterLock.lock();						\
-    printf("---------------------------------------------------\n");	\
-    printf(string);							\
+#define print_matrix(string, reqID, mat, m, n, rm)                      \
+  {                                                                     \
+    IOWriterLock.lock();                                                \
+    printf("---------------------------------------------------\n");    \
+    printf(string);                                                     \
     printf("Matrix linked to Thread -%d- and requestID -%s-:\n",omni_thread::self()->id(), reqID); \
-    size_t i, j;							\
-    printf("%s (%s-major) = \n", #mat,					\
-	   (rm) ? "row" : "column");					\
-    for (i = 0; i < (m); i++) {						\
-      for (j = 0; j < (n); j++) {					\
-        if (rm)								\
-          printf("%3f ", (mat)[j + i*(n)]);				\
-        else								\
-          printf("%3f ", (mat)[i + j*(m)]);				\
-      }									\
-      printf("\n");							\
-    }									\
-    printf("---------------------------------------------------\n");	\
-    printf("\n");							\
-    IOWriterLock.unlock();						\
+    size_t i, j;                                                        \
+    printf("%s (%s-major) = \n", #mat,                                  \
+           (rm) ? "row" : "column");                                    \
+    for (i = 0; i < (m); i++) {                                         \
+      for (j = 0; j < (n); j++) {                                       \
+        if (rm)                                                         \
+          printf("%3f ", (mat)[j + i*(n)]);                             \
+        else                                                            \
+          printf("%3f ", (mat)[i + j*(m)]);                             \
+      }                                                                 \
+      printf("\n");                                                     \
+    }                                                                   \
+    printf("---------------------------------------------------\n");    \
+    printf("\n");                                                       \
+    IOWriterLock.unlock();                                              \
   }
 
 #define NB_PB 5
 static const char* PB[NB_PB] =
-  {"T", "MatPROD", "MatSUM", "SqMatSUM", "SqMatSUM_opt"};
+{"T", "MatPROD", "MatSUM", "SqMatSUM", "SqMatSUM_opt"};
 
 
 /* argv[1]: client config file path
@@ -81,7 +81,7 @@ void
 usage(char* cmd)
 {
   fprintf(stderr, "Usage: %s [--repeat <n>] <file.cfg> [%s|%s|%s|%s|%s]\n",
-	  cmd, PB[0], PB[1], PB[2], PB[3], PB[4]);
+          cmd, PB[0], PB[1], PB[2], PB[3], PB[4]);
   fprintf(stderr, "    ex: %s client.cfg T\n", cmd);
   fprintf(stderr, "        %s --repeat 1000 client.cfg MatSUM\n", cmd);
   exit(1);
@@ -156,33 +156,33 @@ main(int argc, char* argv[])
     if (pb[0]) {
       profile = diet_profile_alloc(path, -1, 0, 0);
       diet_matrix_set(diet_parameter(profile,0),
-		      A, DIET_VOLATILE, DIET_DOUBLE, m, n, oA);
-    } 
-    else if (pb[1] || pb[2] || pb[3]) {  
+                      A, DIET_VOLATILE, DIET_DOUBLE, m, n, oA);
+    }
+    else if (pb[1] || pb[2] || pb[3]) {
       profile = diet_profile_alloc(path, 1, 1, 2);
       diet_matrix_set(diet_parameter(profile,0),
-		      A, DIET_VOLATILE, DIET_DOUBLE, m, n, oA);
+                      A, DIET_VOLATILE, DIET_DOUBLE, m, n, oA);
       if (pb[1]) {
         diet_matrix_set(diet_parameter(profile,1),
-			B, DIET_VOLATILE, DIET_DOUBLE, n, m, oB);
+                        B, DIET_VOLATILE, DIET_DOUBLE, n, m, oB);
         diet_matrix_set(diet_parameter(profile,2),
-			NULL, DIET_VOLATILE, DIET_DOUBLE, m, m, oC);
-      } 
+                        NULL, DIET_VOLATILE, DIET_DOUBLE, m, m, oC);
+      }
       else {
         diet_matrix_set(diet_parameter(profile,1),
-			B, DIET_VOLATILE, DIET_DOUBLE, m, n, oB);
+                        B, DIET_VOLATILE, DIET_DOUBLE, m, n, oB);
         diet_matrix_set(diet_parameter(profile,2),
-			NULL, DIET_VOLATILE, DIET_DOUBLE, m, n, oC);
+                        NULL, DIET_VOLATILE, DIET_DOUBLE, m, n, oC);
       }
-    } 
+    }
     else if (pb[4]) {
       profile = diet_profile_alloc(path, 0, 1, 1);
       diet_matrix_set(diet_parameter(profile,0),
-		      A, DIET_VOLATILE, DIET_DOUBLE, m, m, oA);
+                      A, DIET_VOLATILE, DIET_DOUBLE, m, m, oA);
       diet_matrix_set(diet_parameter(profile,1),
-		      B, DIET_VOLATILE, DIET_DOUBLE, m, m, oB);
+                      B, DIET_VOLATILE, DIET_DOUBLE, m, m, oB);
 
-    } 
+    }
     else {
       fprintf(stderr, "Unknown problem: %s !\n", path);
       return 1;
@@ -196,16 +196,16 @@ main(int argc, char* argv[])
       sprintf(requestID, "%d", rst);
       if (pb[0]) {
         print_matrix("-Input data-\n",requestID, A, m, n, (oA == DIET_ROW_MAJOR));
-      } 
-      else if (pb[1] || pb[2] || pb[3]) {  
+      }
+      else if (pb[1] || pb[2] || pb[3]) {
         print_matrix("-Input data-\n",requestID, A, m, n, (oA == DIET_ROW_MAJOR));
         if (pb[1]) {
           print_matrix("-Input data-\n",requestID, B, n, m, (oB == DIET_ROW_MAJOR));
-        } 
+        }
         else {
           print_matrix("-Input data-\n",requestID, B, m, n, (oB == DIET_ROW_MAJOR));
         }
-      } 
+      }
       else if (pb[4]) {
         print_matrix("-Input data-\n",requestID, A, m, m, (oA == DIET_ROW_MAJOR));
         print_matrix("-Input data-\n",requestID,B, m, m, (oB == DIET_ROW_MAJOR));
@@ -216,11 +216,11 @@ main(int argc, char* argv[])
       if (pb[0]) {
         diet_matrix_get(diet_parameter(profile,0), NULL, NULL, &m, &n, &oA);
         print_matrix("-result-\n", requestID, A, m, n, (oA == DIET_ROW_MAJOR));
-      } 
+      }
       else if (pb[4]) {
         diet_matrix_get(diet_parameter(profile,0), NULL, NULL, &m, &n, &oB);
         print_matrix("-result-\n", requestID, B, m, n, (oB == DIET_ROW_MAJOR));
-      } 
+      }
       else {
         diet_matrix_get(diet_parameter(profile,2), &C, NULL, &m, &n, &oC);
         print_matrix("-result-\n", requestID, C, m, n, (oC == DIET_ROW_MAJOR));

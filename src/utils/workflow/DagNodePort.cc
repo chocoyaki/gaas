@@ -122,28 +122,28 @@ DagNodePort::setProfileWithoutValue() {
   switch (getDataType()) {
   case WfCst::TYPE_PARAMSTRING :
     diet_paramstring_set(diet_parameter(profile, index),
-			 myParent->newString(), mode);
+                         myParent->newString(), mode);
     break;
   case WfCst::TYPE_STRING :
     diet_string_set(diet_parameter(profile, index),
-		    NULL, mode);
+                    NULL, mode);
     break;
   case WfCst::TYPE_FILE :
     diet_file_set(diet_parameter(profile, index), mode,
-		  NULL);
+                  NULL);
     break;
   case WfCst::TYPE_MATRIX :
     diet_matrix_set(diet_parameter(profile,index), NULL, mode,
-		    (diet_base_type_t) WfCst::cvtWfToDietType(eltType),
-		    nb_r, nb_c,
-		    (diet_matrix_order_t) WfCst::cvtWfToDietMatrixOrder(order));
+                    (diet_base_type_t) WfCst::cvtWfToDietType(eltType),
+                    nb_r, nb_c,
+                    (diet_matrix_order_t) WfCst::cvtWfToDietMatrixOrder(order));
     break;
   case WfCst::TYPE_CONTAINER :
     diet_container_set(diet_parameter(profile, index), DIET_PERSISTENT);
     break;
   default:  // all scalar types
     diet_scalar_set(diet_parameter(profile, index),
-		    NULL, mode, (diet_base_type_t) WfCst::cvtWfToDietType(type));
+                    NULL, mode, (diet_base_type_t) WfCst::cvtWfToDietType(type));
   }
 }
 
@@ -192,9 +192,9 @@ DagNodePort::toXML(ostream& output) const {
   }
   if (type == WfCst::TYPE_MATRIX) {
     output << "base_type=\"" << WfCst::cvtWfToStrType(eltType) << "\" "
-	   << "nb_rows=\"" << nb_r << "\" "
-	   << "nb_cols=\"" << nb_c << "\" "
-	   << "matrix_order=\"" << WfCst::cvtWfToStrMatrixOrder(order) << "\" ";
+           << "nb_rows=\"" << nb_r << "\" "
+           << "nb_cols=\"" << nb_c << "\" "
+           << "matrix_order=\"" << WfCst::cvtWfToStrMatrixOrder(order) << "\" ";
   }
 }
 
@@ -290,7 +290,7 @@ DagNodeOutPort::getElementDataID(const list<unsigned int>& eltIdx)
         throw (WfDataException(WfDataException::eVOID_DATA, baseErrorMsg));
     } else {
       string errorMsg = "Container size smaller than element index (container ID="
-	+ eltID + "/" + baseErrorMsg + ")";
+        + eltID + "/" + baseErrorMsg + ")";
       throw (WfDataException(WfDataException::eINVALID_CONTAINER, errorMsg));
     }
   }
@@ -306,11 +306,11 @@ DagNodeOutPort::writeData(WfDataWriter* dataWriter) throw (WfDataException) {
   short dataType = getDataType();
   if (!profile()) {
     throw WfDataException(WfDataException::eNOTFOUND, "No profile available for node "
-			  + getCompleteId());
+                          + getCompleteId());
   }
   if (!myParent->isDone()) {
     throw WfDataException(WfDataException::eNOTAVAIL, "Node execution not complete "
-			  + getCompleteId());
+                          + getCompleteId());
   }
   diet_arg_t* dietParam = diet_parameter(profile(),getIndex());
 
@@ -336,9 +336,9 @@ DagNodeOutPort::writeData(WfDataWriter* dataWriter) throw (WfDataException) {
     dataWriter->itemValue(value, (WfCst::WfDataType) dataType);
   }
   else if ( (dataType == WfCst::TYPE_CHAR) ||
-	    (dataType == WfCst::TYPE_SHORT) ||
-	    (dataType == WfCst::TYPE_INT) ||
-	    (dataType == WfCst::TYPE_LONGINT)) {
+            (dataType == WfCst::TYPE_SHORT) ||
+            (dataType == WfCst::TYPE_INT) ||
+            (dataType == WfCst::TYPE_LONGINT)) {
     long * value = NULL;
     diet_scalar_get(dietParam,&value, NULL);
     dataWriter->itemValue(value, (WfCst::WfDataType) dataType);
@@ -540,7 +540,7 @@ DagNodeInPort::initProfileExec() throw (WfDataException) {
 
 void
 DagNodeInPort::initSourceData() throw (WfDataException) {
-  
+
   setDataID( adapter->getSourceDataID() );
 
   // Check types are matching
@@ -691,46 +691,46 @@ DagNodeArgPort::setProfileWithValue() {
   switch(type) {
   case WfCst::TYPE_CHAR :
     diet_scalar_set(diet_parameter(profile, index),
-		    myParent->newChar(value), mode, DIET_CHAR);
+                    myParent->newChar(value), mode, DIET_CHAR);
     break;
   case WfCst::TYPE_SHORT :
     diet_scalar_set(diet_parameter(profile, index),
-		    myParent->newShort(value), mode, DIET_SHORT);
+                    myParent->newShort(value), mode, DIET_SHORT);
     break;
   case WfCst::TYPE_INT :
     diet_scalar_set(diet_parameter(profile, index),
-		    myParent->newInt(value), mode, DIET_INT);
+                    myParent->newInt(value), mode, DIET_INT);
     break;
   case WfCst::TYPE_LONGINT :
     diet_scalar_set(diet_parameter(profile, index),
-		    myParent->newLong(value), mode, DIET_LONGINT);
+                    myParent->newLong(value), mode, DIET_LONGINT);
     break;
   case WfCst::TYPE_FLOAT :
     diet_scalar_set(diet_parameter(profile, index),
-		    myParent->newFloat(value), mode, DIET_FLOAT);
+                    myParent->newFloat(value), mode, DIET_FLOAT);
     break;
   case WfCst::TYPE_DOUBLE :
     diet_scalar_set(diet_parameter(profile, index),
-		    myParent->newDouble(value), mode, DIET_DOUBLE);
+                    myParent->newDouble(value), mode, DIET_DOUBLE);
     break;
   case WfCst::TYPE_PARAMSTRING :
     diet_paramstring_set(diet_parameter(profile, index),
-			 myParent->newString(value), mode);
+                         myParent->newString(value), mode);
     break;
   case WfCst::TYPE_STRING :
     diet_string_set(diet_parameter(profile, index),
-		    myParent->newString(value), mode);
+                    myParent->newString(value), mode);
     break;
   case WfCst::TYPE_FILE :
     diet_file_set(diet_parameter(profile, index), mode,
-		  myParent->newFile(value));
+                  myParent->newFile(value));
     break;
   case WfCst::TYPE_MATRIX :
     initMatrixValue(&mat);
     diet_matrix_set(diet_parameter(profile,index), mat, mode,
-		    (diet_base_type_t) WfCst::cvtWfToDietType(eltType),
-		    nb_r, nb_c,
-		    (diet_matrix_order_t) WfCst::cvtWfToDietMatrixOrder(order));
+                    (diet_base_type_t) WfCst::cvtWfToDietType(eltType),
+                    nb_r, nb_c,
+                    (diet_matrix_order_t) WfCst::cvtWfToDietMatrixOrder(order));
     break;
   case WfCst::TYPE_CONTAINER :
     initContainerValue();
@@ -738,7 +738,7 @@ DagNodeArgPort::setProfileWithValue() {
     break;
   case WfCst::TYPE_UNKNOWN:
     throw WfDataException(WfDataException::eWRONGTYPE, string(__FUNCTION__)
-			  + string(": type not defined"));
+                          + string(": type not defined"));
   }
 }
 
@@ -812,32 +812,32 @@ DagNodeArgPort::initMatrixValue(void **buffer) {
     case WfCst::TYPE_CHAR:
       ptr1 = (char*)(*buffer);
       for (unsigned int ix = 0; ix<len; ix++)
-	ptr1[ix] = v[ix][0];
+        ptr1[ix] = v[ix][0];
       break;
     case WfCst::TYPE_SHORT:
       ptr2 = (short*)(*buffer);
       for (unsigned int ix = 0; ix<len; ix++)
-	ptr2[ix] = atoi(v[ix].c_str());
+        ptr2[ix] = atoi(v[ix].c_str());
       break;
     case WfCst::TYPE_INT:
       ptr3 = (int*)(*buffer);
       for (unsigned int ix = 0; ix<len; ix++)
-	ptr3[ix] = atoi(v[ix].c_str());
+        ptr3[ix] = atoi(v[ix].c_str());
       break;
     case WfCst::TYPE_LONGINT:
       ptr4 = (long*)(*buffer);
       for (unsigned int ix = 0; ix<len; ix++)
-	ptr4[ix] = atoi(v[ix].c_str());
+        ptr4[ix] = atoi(v[ix].c_str());
       break;
     case WfCst::TYPE_FLOAT:
       ptr5 = (float*)(*buffer);
       for (unsigned int ix = 0; ix<len; ix++)
-	ptr5[ix] = atof(v[ix].c_str());
+        ptr5[ix] = atof(v[ix].c_str());
       break;
     case WfCst::TYPE_DOUBLE:
       ptr6 = (double*)(*buffer);
       for (unsigned int ix = 0; ix<len; ix++)
-	ptr6[ix] = atof(v[ix].c_str());
+        ptr6[ix] = atof(v[ix].c_str());
       break;
     default:
       break;
@@ -863,8 +863,8 @@ DagNodeArgPort::initContainerValue() {
  */
 void
 DagNodeArgPort::initContainerValueRec(char** contIDPtr,
-				      string& contStr,
-				      unsigned int contDepth) {
+                                      string& contStr,
+                                      unsigned int contDepth) {
   if (contDepth < 1)  {
     string errorMsg = "Too many parenthesis in '" + contStr + "'";
     throw WfDataException(WfDataException::eINVALID_VALUE, errorMsg);

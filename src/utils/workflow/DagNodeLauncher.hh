@@ -35,8 +35,8 @@ class DagNodeLauncher : public Thread
 public:
 
   DagNodeLauncher(DagNode * parent,
-		  DagScheduler * scheduler = NULL);
-    
+                  DagScheduler * scheduler = NULL);
+
   DagNode* getNode() const { return myNode; }
 
   /**
@@ -46,22 +46,22 @@ public:
    * @param ev  the Estimation vector for this SeD (required to call diet_call_common)
    */
   void setSeD(const char* sed, const unsigned long reqID, corba_estimation_t& ev);
-        
+
   /**
    * Returns true if sed is defined
    */
   bool isSeDDefined() const { return isSeDDefinedFlag; }
-    
+
   /**
    * Returns the sed host name
    */
   string getSeDName() const;
-    
+
   /**
    * Returns the request id
    */
   unsigned long getReqId() const { return myReqID; }
-    
+
   /**
    * Returns a description of this object (for events)
    */

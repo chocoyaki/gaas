@@ -6,7 +6,7 @@
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
-/* $Id$ 
+/* $Id$
  * $Log$
  * Revision 1.6  2011/03/02 00:18:17  bdepardo
  * Removed warnings: comparison is always true due to limited range of data type
@@ -101,11 +101,11 @@ SpecificClientScheduler::setScheduler(SpecificClientScheduler * scheduler) {
 
 /**
  * Round Robbin sur les SeDs ou sur les services?
- * 
+ *
  */
 void
 SpecificClientScheduler::burstRequest(SeD_var& chosenServer,
-				      corba_response_t * response) {
+                                      corba_response_t * response) {
   static vector<string> availableSeDs;
   static vector<int> use;
   static int min = 0;
@@ -113,7 +113,7 @@ SpecificClientScheduler::burstRequest(SeD_var& chosenServer,
   bool found;
   vector<string>::iterator i_s, i_r;
   vector<int>::iterator i_us, i_ur;
-  
+
   // Remove obsolete SeDs
   for (i_s = availableSeDs.begin(), i_us = use.begin();
        i_s != availableSeDs.end() && i_us != use.end(); ++ i_s, ++ i_us) {
@@ -165,7 +165,7 @@ SpecificClientScheduler::burstRequest(SeD_var& chosenServer,
       i_r = i_s;
     }
   } // end for
-  TRACE_FUNCTION(TRACE_ALL_STEPS, "Burst scheduler chooses a SeD used " << 
+  TRACE_FUNCTION(TRACE_ALL_STEPS, "Burst scheduler chooses a SeD used " <<
                  min << " times before." <<
                  " The SeDs vector contains " << availableSeDs.size() <<
                  " references");
@@ -175,7 +175,7 @@ SpecificClientScheduler::burstRequest(SeD_var& chosenServer,
 
 /**
  * Round Robbin sur les SeDs ou sur les services?
- * 
+ *
  */
 void
 SpecificClientScheduler::burstLimitRequest(SeD_var& chosenServer,
@@ -211,7 +211,7 @@ SpecificClientScheduler::burstLimitRequest(SeD_var& chosenServer,
       min = use[ix];
     }
   } // end for
-  cout << "Burst scheduler chooses a SeD used " << 
+  cout << "Burst scheduler chooses a SeD used " <<
     use[idx] << "(" << min << ") times before." <<
     " The SeDs vector contains " << availableSeDs.size() <<
     " references" << endl;

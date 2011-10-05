@@ -160,9 +160,9 @@ MetaDag::isDone() {
   bool isDone = false;
   lock();
   if (releaseFlag)
-    {
-      isDone = (dagTodoCount == 0);
-    }
+  {
+    isDone = (dagTodoCount == 0);
+  }
   unlock();
   return isDone;
 }
@@ -175,13 +175,13 @@ MetaDag::cancelAllDags(DagScheduler * scheduler) {
   for (map<string,Dag*>::iterator dagIter = myDags.begin();
        dagIter != myDags.end();
        ++dagIter)
-    {
-      Dag * currDag = (Dag*) dagIter->second;
-      if (!currDag->isDone()) {
-	TRACE_TEXT (TRACE_ALL_STEPS,"Cancelling dag " << currDag->getId() << endl);
-	currDag->setAsCancelled(scheduler);
-      }
+  {
+    Dag * currDag = (Dag*) dagIter->second;
+    if (!currDag->isDone()) {
+      TRACE_TEXT (TRACE_ALL_STEPS,"Cancelling dag " << currDag->getId() << endl);
+      currDag->setAsCancelled(scheduler);
     }
+  }
   cancelFlag = true;
   unlock();
 }

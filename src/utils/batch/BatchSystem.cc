@@ -296,47 +296,47 @@ BatchSystem::diet_submit_parallel(diet_profile_t * profile,
           "Service not launched", -1);
   }
   switch( (int)batch_ID )
-    {
-    case BatchCreator::LOADLEVELER:
-      sprintf(script,
-              "%s\n"
-              "%s"
-              "%s"
-              "%s\n"
-              "\n%s\n"
-              ,prefixe
-              ,options
-              ,loc_addon_prologue
-              ,postfixe
-              ,command
-              ) ;
-      break ;
-    case BatchCreator::OAR1_6:
-    case BatchCreator::OAR2_X:
-    case BatchCreator::SLURM:
-    case BatchCreator::SGE:
-    case BatchCreator::PBS:
-      sprintf(script,
-              "%s\n" // prefixe
-              "%s" // options
-              "%s" //loc_addon_prologue
-              "%s\n" // postfixe
-              "DIET_BATCH_NODESFILE=%s\n" // nodeFileName
-              "DIET_BATCH_NODESLIST=$(cat %s | sort | uniq)\n" // nodeFileName
-              "DIET_BATCH_NBNODES=$(echo $DIET_BATCH_NODESLIST | wc -l)\n"
-              "\n%s\n" // command
-              ,prefixe
-              ,options
-              ,loc_addon_prologue
-              ,postfixe
-              ,nodeFileName
-              ,nodeFileName
-              ,command
-              ) ;
-      break ;
-    default:
-      ERROR("BatchSystem not managed?", -1);
-    }
+  {
+  case BatchCreator::LOADLEVELER:
+    sprintf(script,
+            "%s\n"
+            "%s"
+            "%s"
+            "%s\n"
+            "\n%s\n"
+            ,prefixe
+            ,options
+            ,loc_addon_prologue
+            ,postfixe
+            ,command
+      ) ;
+    break ;
+  case BatchCreator::OAR1_6:
+  case BatchCreator::OAR2_X:
+  case BatchCreator::SLURM:
+  case BatchCreator::SGE:
+  case BatchCreator::PBS:
+    sprintf(script,
+            "%s\n" // prefixe
+            "%s" // options
+            "%s" //loc_addon_prologue
+            "%s\n" // postfixe
+            "DIET_BATCH_NODESFILE=%s\n" // nodeFileName
+            "DIET_BATCH_NODESLIST=$(cat %s | sort | uniq)\n" // nodeFileName
+            "DIET_BATCH_NBNODES=$(echo $DIET_BATCH_NODESLIST | wc -l)\n"
+            "\n%s\n" // command
+            ,prefixe
+            ,options
+            ,loc_addon_prologue
+            ,postfixe
+            ,nodeFileName
+            ,nodeFileName
+            ,command
+      ) ;
+    break ;
+  default:
+    ERROR("BatchSystem not managed?", -1);
+  }
   /* Replace DIET meta-variable in SeD programmer's command */
   sprintf(small_chaine,"%d",profile->nbprocs) ;
   replaceAllOccurencesInString(&script,"$DIET_BATCH_NBNODES",small_chaine) ;
@@ -482,35 +482,35 @@ BatchSystem::removeBatchJobID(int dietReqID)
   corresID * index_2 ;
 
   if( index_1 != NULL )
-    {
-      if( index_1->dietReqID != dietReqID ) {
-        index_2 = index_1->nextStruct ;
+  {
+    if( index_1->dietReqID != dietReqID ) {
+      index_2 = index_1->nextStruct ;
 
-        while( (index_2 != NULL) && (index_2->dietReqID != dietReqID) ) {
-          index_1 = index_2 ;
-          index_2 = index_2->nextStruct ;
-        }
-        if( index_2 == NULL )
-          return -1 ;
-        index_1 = index_2->nextStruct ;
-        if( index_2->scriptFileName != NULL ) {
-          unlink( index_2->scriptFileName ) ;
-          free(index_2->scriptFileName) ;
-          index_2->scriptFileName = NULL ;
-        }
-        free(index_2) ;
-        return 1 ;
-      } else {
-        this->batchJobQueue = this->batchJobQueue->nextStruct ;
-        if( index_1->scriptFileName != NULL ) {
-          unlink( index_1->scriptFileName ) ;
-          free(index_1->scriptFileName) ;
-          index_1->scriptFileName = NULL ;
-        }
-        free( index_1 ) ;
-        return 1 ;
+      while( (index_2 != NULL) && (index_2->dietReqID != dietReqID) ) {
+        index_1 = index_2 ;
+        index_2 = index_2->nextStruct ;
       }
+      if( index_2 == NULL )
+        return -1 ;
+      index_1 = index_2->nextStruct ;
+      if( index_2->scriptFileName != NULL ) {
+        unlink( index_2->scriptFileName ) ;
+        free(index_2->scriptFileName) ;
+        index_2->scriptFileName = NULL ;
+      }
+      free(index_2) ;
+      return 1 ;
+    } else {
+      this->batchJobQueue = this->batchJobQueue->nextStruct ;
+      if( index_1->scriptFileName != NULL ) {
+        unlink( index_1->scriptFileName ) ;
+        free(index_1->scriptFileName) ;
+        index_1->scriptFileName = NULL ;
+      }
+      free( index_1 ) ;
+      return 1 ;
     }
+  }
   return -1 ;
 }
 
@@ -590,8 +590,8 @@ BatchSystem::getSimulatedProcAndWalltime(int * nbprocPtr, int * walltimePtr,
 /****************** Utility function ********************/
 int
 BatchSystem::replaceAllOccurencesInString(char ** input,
-					  const char * occurence,
-					  const char * by)
+                                          const char * occurence,
+                                          const char * by)
 {
   int found = 0 ;
   int lengthBy = strlen(by) ;
@@ -636,7 +636,7 @@ BatchSystem::replaceAllOccurencesInString(char ** input,
                                    + (int)(indexEnd-indexBegin)
                                    + lengthBy
                                    + 1                          // \0 char
-                                   ) ;
+          ) ;
         if( tmpString == NULL ) {
           free(resultingString) ;
           return -1 ;
@@ -666,7 +666,7 @@ BatchSystem::replaceAllOccurencesInString(char ** input,
       tmpString = (char*)realloc(resultingString,
                                  tmpLength
                                  + lastchar  // takes into account the \0
-                                 ) ;
+        ) ;
       if( tmpString == NULL ) {
         free(resultingString) ;
         return -1 ;
@@ -765,7 +765,7 @@ BatchSystem::errorIfPathNotValid( const char * path)
   //       and if not, rights on the directory are ok
   if( ( S_ISDIR(buf.st_mode) == 1 ) /* directory */
       //      && ( (buf.st_mode & S_IRWXU) == 1 ) /* can enter, read and write it */
-      )
+    )
     return ;
 
   snprintf(chaine, 99, "file %s is not a directory", //, or rights problems",

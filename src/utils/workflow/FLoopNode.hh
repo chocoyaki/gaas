@@ -37,24 +37,24 @@ class FLoopNode : public FProcNode {
 public:
 
   FLoopNode(FWorkflow* wf,
-	    const string& id);
+            const string& id);
   virtual ~FLoopNode();
 
   // ******************** NODE SETUP *********************
 
   virtual WfPort *
   newPort(string portId,
-	  unsigned int ind,
-	  WfPort::WfPortType portType,
-	  WfCst::WfDataType dataType,
-	  unsigned int depth) throw (WfStructException);
+          unsigned int ind,
+          WfPort::WfPortType portType,
+          WfCst::WfDataType dataType,
+          unsigned int depth) throw (WfStructException);
 
   virtual void
   connectNodePorts() throw (WfStructException);
 
   void
   setDoMap(const string& leftPortName,
-	   const string& rightPortName)
+           const string& rightPortName)
     throw (WfStructException);
 
   void
@@ -71,12 +71,12 @@ public:
 
   virtual void
   createRealInstance(Dag* dag,
-		     const FDataTag& currTag,
-		     vector<FDataHandle*>& currDataLine);
+                     const FDataTag& currTag,
+                     vector<FDataHandle*>& currDataLine);
 
   virtual void
   createVoidInstance(const FDataTag& currTag,
-		     vector<FDataHandle*>& currDataLine);
+                     vector<FDataHandle*>& currDataLine);
 
   virtual void
   updateInstanciationStatus();

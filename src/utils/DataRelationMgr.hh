@@ -58,9 +58,9 @@ public:
    * @param flag    specific info about linked item
    */
   void addRelation(const string& dataID1,
-		   const string& dataID2,
-		   long index,
-		   long flag = 0);
+                   const string& dataID2,
+                   long index,
+                   long flag = 0);
 
   /**
    * Remove the relationship given parent data id and index
@@ -68,7 +68,7 @@ public:
    * @param index   index of the link
    */
   void remRelation(const string& dataID1,
-		   long index);
+                   long index);
 
   /**
    * Remove all relationships for a given item
@@ -106,9 +106,9 @@ public:
    * @param ordered     if false, will not use the index field to sort
    */
   void getRelationList(const string& dataID,
-		       SeqString& dataIDList,
-		       SeqLong& flagList,
-		       bool ordered = true);
+                       SeqString& dataIDList,
+                       SeqLong& flagList,
+                       bool ordered = true);
 
   /**
    * Display all relationships (for debug)

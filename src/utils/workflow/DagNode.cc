@@ -365,7 +365,7 @@ DagNode::newPort(string portId, unsigned int ind,
   }
   this->ports[portId] = p;
   EventManager::getEventMgr()->sendEvent(
-					 new EventCreateObject<DagNodePort,DagNode>(p, this) );
+    new EventCreateObject<DagNodePort,DagNode>(p, this) );
   return (WfPort*) p;
 }
 
@@ -477,11 +477,11 @@ DagNode::createProfile() {
   int last_inout = last_in + nbInOut;
   int last_out   = last_inout + nbOut;
   TRACE_TEXT(TRACE_ALL_STEPS,"Creating DIET profile: pb=" << myPb
-	     << " / last_in=" << last_in
-	     << " / last_inout=" << last_inout
-	     << " / last_out=" << last_out << endl);
+             << " / last_in=" << last_in
+             << " / last_inout=" << last_inout
+             << " / last_out=" << last_out << endl);
   this->profile =  diet_profile_alloc((char*)(myPb.c_str()),
-				      last_in, last_inout, last_out);
+                                      last_in, last_inout, last_out);
 
 }
 

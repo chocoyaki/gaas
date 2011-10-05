@@ -85,9 +85,9 @@ const char * const BatchCreator::batchNames[NUMBER_OF_SUPPORTED_BATCH] = {
 } ;
 
 // "shellscript",
-//"condor","dqs","loadleveler","lsf","pbs","sge", 
+//"condor","dqs","loadleveler","lsf","pbs","sge",
 //      "oar1.6"
-  
+
 BatchCreator::BatchCreator()
 {
 }
@@ -96,7 +96,7 @@ BatchSystem *
 BatchCreator::getBatchSystem( const char * batchName )
 {
   batchID_t batchID ;
-  
+
   if( !(existBatchScheduler(batchName,&batchID) ) ) {
     return NULL ;
   }
@@ -122,12 +122,12 @@ BatchCreator::getBatchSystem( const char * batchName )
   }
 }
 
-int 
+int
 BatchCreator::existBatchScheduler(const char * batchName,
                                   batchID_t * batchID)
 {
   int id_tmp = 0 ;
-    
+
   while( (id_tmp < NUMBER_OF_SUPPORTED_BATCH)
          && (strncmp(batchName,batchNames[id_tmp],4)!=0) )
     /* for the moment, only a check on the 4 first chars is needed */
@@ -135,20 +135,20 @@ BatchCreator::existBatchScheduler(const char * batchName,
 
 #ifdef YC_DEBUG
   TRACE_TEXT(TRACE_MAIN_STEPS, "YC_DEBUG: "
-	     << "NUMBER_OF_SUPPORTED_BATCH: " << NUMBER_OF_SUPPORTED_BATCH
-	     << endl) ;
+             << "NUMBER_OF_SUPPORTED_BATCH: " << NUMBER_OF_SUPPORTED_BATCH
+             << endl) ;
   TRACE_TEXT(TRACE_MAIN_STEPS, "YC_DEBUG: "
-	     << " ; BatchID: " << id_tmp
-	     << " ; batchName: " << batchName
-	     << endl) ;
+             << " ; BatchID: " << id_tmp
+             << " ; batchName: " << batchName
+             << endl) ;
   TRACE_TEXT(TRACE_MAIN_STEPS, "YC_DEBUG: "
-	     << " ; batchNames[batchID]: " << batchNames[id_tmp]
-	     << " ; cmp(): " << strncmp(batchName,batchNames[id_tmp],4)
-	     << endl << endl << endl) ;
+             << " ; batchNames[batchID]: " << batchNames[id_tmp]
+             << " ; cmp(): " << strncmp(batchName,batchNames[id_tmp],4)
+             << endl << endl << endl) ;
 #endif
 
   *batchID = (batchID_t)id_tmp ;
-    
+
   if( id_tmp == NUMBER_OF_SUPPORTED_BATCH ) return 0 ;
-  return 1 ; 
+  return 1 ;
 }

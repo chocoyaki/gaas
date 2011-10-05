@@ -59,7 +59,7 @@ static const char *STRING_TEST = "abcdefghijklmnopqrstuvwxyz";
 /*   - DADD = sum of two doubles                                     */
 static const unsigned int NB_SRV_SCALAR = 6;
 static const char* SRV_SCALAR[NB_SRV_SCALAR] =
-  {"CADD", "BADD", "IADD", "LADD", "FADD", "DADD"};
+{"CADD", "BADD", "IADD", "LADD", "FADD", "DADD"};
 
 /* This server offers all additions of two vectors of scalars:       */
 /*   - CVADD = sum of two chars                                      */
@@ -70,7 +70,7 @@ static const char* SRV_SCALAR[NB_SRV_SCALAR] =
 /*   - DVADD = sum of two doubles                                    */
 static const unsigned int NB_SRV_VECTOR = 6;
 static const char* SRV_VECTOR[NB_SRV_VECTOR] =
-  {"CVADD", "BVADD", "IVADD", "LVADD", "FVADD", "DVADD"};
+{"CVADD", "BVADD", "IVADD", "LVADD", "FVADD", "DVADD"};
 
 /* This server offers all additions of two matrices of scalars:      */
 /*   - CMADD = sum of two chars                                      */
@@ -81,18 +81,18 @@ static const char* SRV_VECTOR[NB_SRV_VECTOR] =
 /*   - DMADD = sum of two doubles                                    */
 static const unsigned int NB_SRV_MATRIX = 6;
 static const char* SRV_MATRIX[NB_SRV_MATRIX] =
-  {"CMADD", "BMADD", "IMADD", "LMADD", "FMADD", "DMADD"};
+{"CMADD", "BMADD", "IMADD", "LMADD", "FMADD", "DMADD"};
 
 
 /* This server offers a service to print strings */
 static const unsigned int NB_SRV_STRING = 1;
 static const char* SRV_STRING[NB_SRV_STRING] =
-  {"SPRINT"};
+{"SPRINT"};
 
 /* This server offers a service to print paramstrings */
 static const unsigned int NB_SRV_PSTRING = 1;
 static const char* SRV_PSTRING[NB_SRV_PSTRING] =
-  {"PSPRINT"};
+{"PSPRINT"};
 
 
 /* This server offers a service to transfer files:
@@ -100,13 +100,13 @@ static const char* SRV_PSTRING[NB_SRV_PSTRING] =
  */
 static const unsigned int NB_SRV_FILE = 1;
 static const char* SRV_FILE[NB_SRV_FILE] =
-  {"FTRANSFER"};
+{"FTRANSFER"};
 
 /* This server offers addition of 2 longs stored in a container: */
 /*   - LCADD = sum of two longs                                           */
 static const unsigned int NB_SRV_CONTAINER = 1;
 static const char* SRV_CONTAINER[NB_SRV_CONTAINER] =
-  {"LCADD"};
+{"LCADD"};
 
 
 /*
@@ -154,7 +154,7 @@ solve_ADD(diet_profile_t* pb) {
       res = 1;
     }
   } else {
-    /* For integers, we can use the longest type to store values 
+    /* For integers, we can use the longest type to store values
        of smaller types. */
     long* l1 = NULL;
     long* l2 = NULL;
@@ -223,7 +223,7 @@ solve_VADD(diet_profile_t* pb) {
   }
   case DIET_DOUBLE: {
     diet_vector_get(diet_parameter(pb, 0), (double *)&A, NULL, &nA);
-    diet_vector_get(diet_parameter(pb, 1), (double *)&B, NULL, &nB);      
+    diet_vector_get(diet_parameter(pb, 1), (double *)&B, NULL, &nB);
     break;
   }
   default:
@@ -270,7 +270,7 @@ solve_VADD(diet_profile_t* pb) {
   std::cout << "Solve VADD ... done" << std::endl;
   return res;
 }
- 
+
 
 
 /*
@@ -296,7 +296,7 @@ solve_MADD(diet_profile_t* pb) {
   }
   case DIET_DOUBLE: {
     diet_matrix_get(diet_parameter(pb, 0), (double *)&A, NULL, &mA, &nA, &oA);
-    diet_matrix_get(diet_parameter(pb, 1), (double *)&B, NULL, &mB, &nB, &oB);      
+    diet_matrix_get(diet_parameter(pb, 1), (double *)&B, NULL, &mB, &nB, &oB);
     break;
   }
   default:
@@ -311,7 +311,7 @@ solve_MADD(diet_profile_t* pb) {
               << mB << ", nB=" << nB << std::endl;
     return 1;
   }
-  
+
   switch((diet_base_type_t)(diet_parameter(pb,1))->desc.generic.base_type) {
   case DIET_DOUBLE: {
     diet_matrix_get(diet_parameter(pb, 2), (double *)&C, NULL, &mC, &nC, &oC);
@@ -459,7 +459,7 @@ solve_FTRANSFER(diet_profile_t* pb) {
   /* Regular file */
   if (!(buf.st_mode & S_IFREG))
     return 2;
-  
+
   /*  INOUT file */
   diet_file_get(diet_parameter(pb, 1), NULL, &arg_size, &path2);
   std::cout << " and on " << path2 << " (" << arg_size << ")" << std::endl;
@@ -471,7 +471,7 @@ solve_FTRANSFER(diet_profile_t* pb) {
     std::cerr << "diet_file_desc_set error on INOUT file" << std::endl;
     return 1;
   }
-  
+
   /* Send IN file as OUT file */
   path3 = strdup(path1);
   if (diet_file_set(diet_parameter(pb,2), DIET_VOLATILE, path3)) {
@@ -483,7 +483,7 @@ solve_FTRANSFER(diet_profile_t* pb) {
 
 
   diet_free_data(diet_parameter(pb,0));
-  
+
   return 0;
 }
 
@@ -539,7 +539,7 @@ solve_CONTAINER(diet_profile_t* pb) {
   dagda_add_container_element((*diet_parameter(pb,1)).desc.id, ID_long2, 0);
 
   diet_free_data(diet_parameter(pb,0));
-  
+
   free(content1.elt_ids);
   free(content2.elt_ids);
   return res;
@@ -596,11 +596,11 @@ main(int argc, char* argv[]) {
     profile = diet_profile_desc_alloc(SRV_VECTOR[i], 0, 1, 2);
     diet_generic_desc_set(diet_param_desc(profile,0),
                           DIET_VECTOR, (diet_base_type_t)i);
-    diet_generic_desc_set(diet_param_desc(profile,1), 
+    diet_generic_desc_set(diet_param_desc(profile,1),
                           DIET_VECTOR, (diet_base_type_t)i);
-    diet_generic_desc_set(diet_param_desc(profile,2), 
+    diet_generic_desc_set(diet_param_desc(profile,2),
                           DIET_VECTOR, (diet_base_type_t)i);
- 
+
     if (diet_service_table_add(profile, NULL, solve_VADD))
       return 1;
     diet_profile_desc_free(profile);
@@ -615,11 +615,11 @@ main(int argc, char* argv[]) {
     profile = diet_profile_desc_alloc(SRV_MATRIX[i], 0, 1, 2);
     diet_generic_desc_set(diet_param_desc(profile,0),
                           DIET_MATRIX, (diet_base_type_t)i);
-    diet_generic_desc_set(diet_param_desc(profile,1), 
+    diet_generic_desc_set(diet_param_desc(profile,1),
                           DIET_MATRIX, (diet_base_type_t)i);
-    diet_generic_desc_set(diet_param_desc(profile,2), 
+    diet_generic_desc_set(diet_param_desc(profile,2),
                           DIET_MATRIX, (diet_base_type_t)i);
- 
+
     if (diet_service_table_add(profile, NULL, solve_MADD))
       return 1;
     diet_profile_desc_free(profile);
@@ -633,11 +633,11 @@ main(int argc, char* argv[]) {
     profile = diet_profile_desc_alloc(SRV_STRING[i], 0, 1, 2);
     diet_generic_desc_set(diet_param_desc(profile,0),
                           DIET_STRING, DIET_CHAR);
-    diet_generic_desc_set(diet_param_desc(profile,1), 
+    diet_generic_desc_set(diet_param_desc(profile,1),
                           DIET_STRING, DIET_CHAR);
-    diet_generic_desc_set(diet_param_desc(profile,2), 
+    diet_generic_desc_set(diet_param_desc(profile,2),
                           DIET_STRING, DIET_CHAR);
- 
+
     if (diet_service_table_add(profile, NULL, solve_SPRINT))
       return 1;
     diet_profile_desc_free(profile);
@@ -651,9 +651,9 @@ main(int argc, char* argv[]) {
     profile = diet_profile_desc_alloc(SRV_PSTRING[i], 0, 1, 1);
     diet_generic_desc_set(diet_param_desc(profile,0),
                           DIET_PARAMSTRING, DIET_CHAR);
-    diet_generic_desc_set(diet_param_desc(profile,1), 
+    diet_generic_desc_set(diet_param_desc(profile,1),
                           DIET_PARAMSTRING, DIET_CHAR);
- 
+
     if (diet_service_table_add(profile, NULL, solve_PSPRINT))
       return 1;
     diet_profile_desc_free(profile);
@@ -667,11 +667,11 @@ main(int argc, char* argv[]) {
     profile = diet_profile_desc_alloc(SRV_FILE[i], 0, 1, 2);
     diet_generic_desc_set(diet_param_desc(profile,0),
                           DIET_FILE, DIET_CHAR);
-    diet_generic_desc_set(diet_param_desc(profile,1), 
+    diet_generic_desc_set(diet_param_desc(profile,1),
                           DIET_FILE, DIET_CHAR);
-    diet_generic_desc_set(diet_param_desc(profile,2), 
+    diet_generic_desc_set(diet_param_desc(profile,2),
                           DIET_FILE, DIET_CHAR);
- 
+
     if (diet_service_table_add(profile, NULL, solve_FTRANSFER))
       return 1;
     diet_profile_desc_free(profile);
@@ -686,16 +686,16 @@ main(int argc, char* argv[]) {
     profile = diet_profile_desc_alloc(SRV_CONTAINER[i], 0, 1, 2);
     diet_generic_desc_set(diet_param_desc(profile,0),
                           DIET_CONTAINER, DIET_CHAR);
-    diet_generic_desc_set(diet_param_desc(profile,1), 
+    diet_generic_desc_set(diet_param_desc(profile,1),
                           DIET_CONTAINER, DIET_CHAR);
-    diet_generic_desc_set(diet_param_desc(profile,2), 
+    diet_generic_desc_set(diet_param_desc(profile,2),
                           DIET_CONTAINER, DIET_CHAR);
- 
+
     if (diet_service_table_add(profile, NULL, solve_CONTAINER))
       return 1;
     diet_profile_desc_free(profile);
   }
- 
+
 
   diet_print_service_table();
   res = diet_SeD(argv[1], argc, argv);

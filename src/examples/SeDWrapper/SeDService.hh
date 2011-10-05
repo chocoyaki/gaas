@@ -133,14 +133,14 @@ public:
 
   // Elements builders (order of creation = order of the params)
   SeDArgument* addInput(const string& name,
-			const string& option,
-			const string& type);
+                        const string& option,
+                        const string& type);
 
   SeDArgument* addOutput(const string& name,
-			 const string& option,
-			 const string& type);
+                         const string& option,
+                         const string& type);
   void  addDependency(const string& name,
-		      const string& localPath);
+                      const string& localPath);
 
   // Elements access
   unsigned int getArgumentNb() const;  // total nb of args (in + out)
@@ -182,9 +182,9 @@ protected:
    * @return 0 on success, 1 on failure
    */
   int cpyFileToWorkingDir( SeDArgument *arg,
-			   const string& srcFile,
-			   const string& dstDir,
-			   string& dstFile );
+                           const string& srcFile,
+                           const string& dstDir,
+                           string& dstFile );
   /**
    * Make a copy of files contained in a DAGDA container
    * Assumes the container is containing only files (depth=1)
@@ -194,8 +194,8 @@ protected:
    * @param createdDir returns the directory path containing the files
    */
   int cpyContainerToDir( SeDArgument *arg,
-			 const string& containerID,
-			 string& createdDir);
+                         const string& containerID,
+                         string& createdDir);
 
   /**
    * Make a copy of files into a DAGDA container
@@ -208,8 +208,8 @@ protected:
    * @param dirPath the directory path
    */
   void cpyDirToContainer( SeDArgument *arg,
-			  const string& containerID,
-			  const string& dirPath);
+                          const string& containerID,
+                          const string& dirPath);
 
   /**
    * Service name (identifier)

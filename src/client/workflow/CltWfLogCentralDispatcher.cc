@@ -37,11 +37,11 @@ CltWfLogCentralDispatcher::onDagNodeStart(const events::EventFrom< DagNodeLaunch
                          event->getSource()->getSeDName().c_str(),
                          event->getSource()->getNode()->getPbName().c_str(),
                          event->getSource()->getReqId()
-                         );
+      );
   } else {
     myLC->logWfNodeStart(event->getSource()->getNode()->getDag()->getId().c_str(),
                          event->getSource()->getNode()->getId().c_str()
-                         );
+      );
   }
 }
 
@@ -50,15 +50,15 @@ CltWfLogCentralDispatcher::onDagNodeFinish(const events::EventFrom< DagNodeLaunc
 {
   myLC->logWfNodeFinish(event->getSource()->getNode()->getDag()->getId().c_str(),
                         event->getSource()->getNode()->getId().c_str()
-                        );
+    );
 }
 
-void 
+void
 CltWfLogCentralDispatcher::onDagNodeFailed(const events::EventFrom< DagNodeLauncher, events::EventStandardMsg< DagNodeLauncher, DagNode::FAILED > >* event)
 {
   myLC->logWfNodeFailed(event->getSource()->getNode()->getDag()->getId().c_str(),
                         event->getSource()->getNode()->getId().c_str()
-                        );
+    );
 }
 
 #endif

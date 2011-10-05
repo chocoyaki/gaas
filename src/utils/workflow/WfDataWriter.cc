@@ -178,16 +178,16 @@ WfListDataWriter::itemValue(const string& valueStr) {
 
 void
 WfListDataWriter::itemValue(void * valuePtr,
-			    WfCst::WfDataType valueType) {
+                            WfCst::WfDataType valueType) {
   rawValue(valuePtr, valueType);
 }
 
 void
 WfListDataWriter::matrix(void * valuePtr,
-			 WfCst::WfDataType valueType,
-			 unsigned int nbRows,
-			 unsigned int nbColumns,
-			 diet_matrix_order_t order) {
+                         WfCst::WfDataType valueType,
+                         unsigned int nbRows,
+                         unsigned int nbColumns,
+                         diet_matrix_order_t order) {
   // TODO
 }
 

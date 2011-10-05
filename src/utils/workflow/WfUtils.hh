@@ -98,15 +98,15 @@
 class WfStructException {
 public:
   enum WfStructErrorType { eUNKNOWN_DAG,
-			   eUNKNOWN_NODE,
-			   eUNKNOWN_PORT,
-			   eDUPLICATE_NODE,
-			   eDUPLICATE_PORT,
-			   eTYPE_MISMATCH,
-			   eDEPTH_MISMATCH,
-			   eINVALID_EXPR,
-			   eWF_UNDEF,
-			   eOTHER };
+                           eUNKNOWN_NODE,
+                           eUNKNOWN_PORT,
+                           eDUPLICATE_NODE,
+                           eDUPLICATE_PORT,
+                           eTYPE_MISMATCH,
+                           eDEPTH_MISMATCH,
+                           eINVALID_EXPR,
+                           eWF_UNDEF,
+                           eOTHER };
   WfStructException(WfStructErrorType t, const std::string& info)
   { this->why = t; this->info = info; }
   WfStructException(const std::string& info)
@@ -232,9 +232,9 @@ private:
 extern omni_mutex debug_log_mutex ;
 
 #ifdef DEBUG_WF
-#define debug_wf(formatted_text)		\
-  debug_log_mutex.lock();			\
-  cout << formatted_text << endl;		\
+#define debug_wf(formatted_text)                \
+  debug_log_mutex.lock();                       \
+  cout << formatted_text << endl;               \
   debug_log_mutex.unlock();
 #else
 #define debug_wf(formatted_text)

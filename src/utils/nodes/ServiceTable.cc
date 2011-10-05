@@ -203,9 +203,9 @@ using namespace std;
 /** The trace level. */
 extern unsigned int TRACE_LEVEL;
 
-#define SRVT_ERROR(formatted_text)			\
-  INTERNAL_WARNING("ServiceTable::" << __FUNCTION__	\
-		   << ": " << formatted_text)
+#define SRVT_ERROR(formatted_text)                      \
+  INTERNAL_WARNING("ServiceTable::" << __FUNCTION__     \
+                   << ": " << formatted_text)
 
 
 ServiceTable::ServiceTable()
@@ -424,42 +424,42 @@ ServiceTable::addService(const corba_profile_desc_t* profile,
         ERROR(__FUNCTION__ << ": aggregator type mismatch" << endl, -2);
       }
       switch (a1->agg_specific._d()) {
-	/* New : The user aggregator case.                           */
-	/*       It doesn't need more than the default aggregator... */
+        /* New : The user aggregator case.                           */
+        /*       It doesn't need more than the default aggregator... */
 #ifdef USERSCHED
       case DIET_AGG_USER:
 #endif
       case DIET_AGG_DEFAULT:
         break;
       case DIET_AGG_PRIORITY:
-        {
-          const corba_agg_priority_t *p1 = &(a1->agg_specific.agg_priority());
-          const corba_agg_priority_t *p2 = &(a2->agg_specific.agg_priority());
-          if (p1->priorityList.length() != p2->priorityList.length()) {
+      {
+        const corba_agg_priority_t *p1 = &(a1->agg_specific.agg_priority());
+        const corba_agg_priority_t *p2 = &(a2->agg_specific.agg_priority());
+        if (p1->priorityList.length() != p2->priorityList.length()) {
+          ERROR(__FUNCTION__ <<
+                ": priority list length mismatch (" <<
+                p1->priorityList.length() <<
+                " != " <<
+                p2->priorityList.length() <<
+                ")" << endl, -2);
+        }
+        for (unsigned int pvIter = 0 ;
+             pvIter < p1->priorityList.length() ;
+             pvIter++) {
+          if (p1->priorityList[pvIter] != p2->priorityList[pvIter]) {
             ERROR(__FUNCTION__ <<
-                  ": priority list length mismatch (" <<
-                  p1->priorityList.length() <<
+                  ": priority list value mismatch, index " <<
+                  pvIter <<
+                  " (" <<
+                  p1->priorityList[pvIter] <<
                   " != " <<
-                  p2->priorityList.length() <<
-                  ")" << endl, -2);
-          }
-          for (unsigned int pvIter = 0 ;
-               pvIter < p1->priorityList.length() ;
-               pvIter++) {
-            if (p1->priorityList[pvIter] != p2->priorityList[pvIter]) {
-              ERROR(__FUNCTION__ <<
-                    ": priority list value mismatch, index " <<
-                    pvIter <<
-                    " (" <<
-                    p1->priorityList[pvIter] <<
-                    " != " <<
-                    p2->priorityList[pvIter] <<
-                    ")" << endl <<
-                    "TIPS : check diet_aggregator_priority_ function in all SeD", -2);
-            }
+                  p2->priorityList[pvIter] <<
+                  ")" << endl <<
+                  "TIPS : check diet_aggregator_priority_ function in all SeD", -2);
           }
         }
-        break;
+      }
+      break;
       default:
         ERROR(__FUNCTION__ <<
               ": unexpected aggregator type (" <<
@@ -845,13 +845,13 @@ ServiceTable::getChildren(const corba_pb_desc_t * pb_desc,
         /* set frontier */
         (*frontier)=matching_children[ second_found ].nb_children ;
       } else {
-	for( j=0, i=0 ; j<matching_children[ first_found ].nb_children ;
-	     i++, j++ ) {
-	  mc->children[ i ] =
-	    matching_children[ first_found ].children[ j ] ;
-	}
-	/* set frontier */
-	(*frontier)=0 ;
+        for( j=0, i=0 ; j<matching_children[ first_found ].nb_children ;
+             i++, j++ ) {
+          mc->children[ i ] =
+            matching_children[ first_found ].children[ j ] ;
+        }
+        /* set frontier */
+        (*frontier)=0 ;
       }
     }
   } else { /* Only interested by a given profile ( seq ORexclusive // )

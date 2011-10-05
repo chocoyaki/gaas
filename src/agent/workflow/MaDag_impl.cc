@@ -320,8 +320,8 @@ MaDag_impl::processDagWf(const corba_wf_desc_t& dag_desc,
                          const char* cltMgrRef,
                          CORBA::Long wfReqId) {
   TRACE_TEXT(TRACE_ALL_STEPS,
-	     "%%%%% MADAG receives a SINGLE DAG request (wfReqId = "
-	     << wfReqId << ")" << std::endl);
+             "%%%%% MADAG receives a SINGLE DAG request (wfReqId = "
+             << wfReqId << ")" << std::endl);
   return processDagWfCommon(dag_desc, cltMgrRef, wfReqId);
 }
 
@@ -334,8 +334,8 @@ MaDag_impl::processMultiDagWf(const corba_wf_desc_t& dag_desc,
                               CORBA::Long wfReqId, CORBA::Boolean release)
 {
   TRACE_TEXT(TRACE_ALL_STEPS,
-	     "%%%%% MADAG receives a MULTIPLE DAG request (wfReqId = "
-	     << wfReqId << " / release=" << release << ")" << std::endl);
+             "%%%%% MADAG receives a MULTIPLE DAG request (wfReqId = "
+             << wfReqId << " / release=" << release << ")" << std::endl);
   // Check if a MetaDag already exists for this wf request (or create one)
   MetaDag* mDag = 0;
   map<CORBA::Long, MetaDag*>::iterator mDagIter = myMetaDags.find(wfReqId);
@@ -358,8 +358,8 @@ void
 MaDag_impl::releaseMultiDag(CORBA::Long wfReqId)
 {
   TRACE_TEXT(TRACE_ALL_STEPS,
-	     "%%%%% MADAG receives a RELEASE request (wfReqId = "
-	     << wfReqId << ")" << std::endl);
+             "%%%%% MADAG receives a RELEASE request (wfReqId = "
+             << wfReqId << ")" << std::endl);
   MetaDag* mDag = 0;
   map<CORBA::Long, MetaDag*>::iterator mDagIter = myMetaDags.find(wfReqId);
   if (mDagIter != myMetaDags.end()) {
@@ -403,10 +403,10 @@ MaDag_impl::processDagWfCommon(const corba_wf_desc_t& dag_desc,
     this->myMultiWfSched->scheduleNewDag(newDag, mDag);
   } catch (...) {
     sprintf(statMsg,
-	    "Dag request (%ld) aborted", static_cast<long int>(dagId));
+            "Dag request (%ld) aborted", static_cast<long int>(dagId));
     stat_out("MA_DAG",statMsg);
     TRACE_TEXT(TRACE_ALL_STEPS, "MADAG cancelled DAG request (wfReqId = "
-	       << wfReqId << ")" << std::endl);
+               << wfReqId << ")" << std::endl);
     this->myMutex.unlock();
     throw;
   }
@@ -614,7 +614,7 @@ MaDag_impl::setupDietLogComponent()
     this->dietLogComponent = new DietLogComponent(agtName,
                                                   outBufferSize,
                                                   0, 0);
-    
+
     ORBMgr::getMgr()->activate(dietLogComponent);
 
     agtTypeName = strdup("MA_DAG");

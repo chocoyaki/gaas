@@ -317,7 +317,7 @@
 
 extern unsigned int TRACE_LEVEL;
 
-#define MRSH_ERROR(formatted_msg,return_value)				\
+#define MRSH_ERROR(formatted_msg,return_value)                          \
   INTERNAL_ERROR(__FUNCTION__ << ": " << formatted_msg, return_value)
 
 
@@ -431,9 +431,9 @@ __mrsh_data_desc_type(corba_data_desc_t* dest,
       // Compute the file size.
       ifstream file(dest->specific.file().path);
       if (file.is_open()) {
-	file.seekg(0, ios::end);
-	dest->specific.file().size = file.tellg();
-	file.close();
+        file.seekg(0, ios::end);
+        dest->specific.file().size = file.tellg();
+        file.close();
       } else dest->specific.file().size = 0;
     } else {
 
@@ -658,15 +658,15 @@ unmrsh_data(diet_data_t* dest, corba_data_t* src, int upDown,
   } else {
     if(upDown==0){ /** Need to know if it is in the client -> SeD way or in the SeD-> client way */
       if (src->desc.mode != DIET_VOLATILE) {
-	//               int size = data_sizeof(&(src->desc));
-	//char *p =(char *)malloc(size*sizeof(char));
-	//for(int i=0; i < size; i++)
-	//  p[i] = src->value[i];
-	//  dest->value = p; //memcopy
-	dest->value = (char*)src->value.get_buffer(0);
+        //               int size = data_sizeof(&(src->desc));
+        //char *p =(char *)malloc(size*sizeof(char));
+        //for(int i=0; i < size; i++)
+        //  p[i] = src->value[i];
+        //  dest->value = p; //memcopy
+        dest->value = (char*)src->value.get_buffer(0);
       } else {
-	CORBA::Boolean orphan = (src->desc.mode == DIET_VOLATILE);
-	dest->value = (char*)src->value.get_buffer(orphan);
+        CORBA::Boolean orphan = (src->desc.mode == DIET_VOLATILE);
+        dest->value = (char*)src->value.get_buffer(orphan);
       }
     } else { // for out args when send to client
       dest->value = (char*)src->value.get_buffer(1);
@@ -686,42 +686,42 @@ int mrsh_aggregator_desc(corba_aggregator_desc_t* dest,
 {
   switch (src->agg_method) {
   case DIET_AGG_DEFAULT:
-    {
-      corba_agg_default_t d;
+  {
+    corba_agg_default_t d;
 
-      d.dummy = 0; /* init value to avoid warning */
-      dest->agg_specific.agg_default(d);
-      break;
-    }
+    d.dummy = 0; /* init value to avoid warning */
+    dest->agg_specific.agg_default(d);
+    break;
+  }
   case DIET_AGG_PRIORITY:
-    {
-      /* set the type-specific structure */
-      corba_agg_priority_t p;
-      dest->agg_specific.agg_priority(p);
+  {
+    /* set the type-specific structure */
+    corba_agg_priority_t p;
+    dest->agg_specific.agg_priority(p);
 
-      /* set the lenth dynamic array */
-      int numPValues = src->agg_specific.agg_specific_priority.p_numPValues;
-      dest->agg_specific.agg_priority().priorityList.length(numPValues);
+    /* set the lenth dynamic array */
+    int numPValues = src->agg_specific.agg_specific_priority.p_numPValues;
+    dest->agg_specific.agg_priority().priorityList.length(numPValues);
 
-      /* fill in the values */
-      for (int pIter = 0 ; pIter < numPValues ; pIter++) {
-        dest->agg_specific.agg_priority().priorityList[pIter] =
-          src->agg_specific.agg_specific_priority.p_pValues[pIter];
-      }
-      break;
+    /* fill in the values */
+    for (int pIter = 0 ; pIter < numPValues ; pIter++) {
+      dest->agg_specific.agg_priority().priorityList[pIter] =
+        src->agg_specific.agg_specific_priority.p_pValues[pIter];
     }
-    /* New : For scheduler load support. */
+    break;
+  }
+  /* New : For scheduler load support. */
 #ifdef USERSCHED
   case DIET_AGG_USER:
-    {
-      corba_agg_user_t d;
-      d.dummy = 0;
-      dest->agg_specific.agg_user(d);
-      break;
-    }
+  {
+    corba_agg_user_t d;
+    d.dummy = 0;
+    dest->agg_specific.agg_user(d);
+    break;
+  }
 
 #endif
-    /*************************************/
+  /*************************************/
   default:
     INTERNAL_WARNING(__FUNCTION__ <<
                      ": unrecognized aggregation method (" <<
@@ -929,13 +929,13 @@ unmrsh_in_args_to_profile(diet_profile_t* dest, corba_profile_t* src,
         src_params[arg_idx] = new diet_data_t;
 
 #if defined HAVE_ALT_BATCH
-	// -- GLM : Bug correction --
-	/*      if( ((SeDImpl*)dest->SeDPtr)->getBatch() != NULL )
-		unmrsh_data(src_params[arg_idx], &(src->parameters[arg_idx]),0,
-		((SeDImpl*)dest->SeDPtr)->getBatch()->getTmpPath()) ;
-		else // Should be removed when all classes managed within SeD
-		unmrsh_data(src_params[arg_idx], &(src->parameters[arg_idx]),0,
-		"/tmp/") ; */
+        // -- GLM : Bug correction --
+        /*      if( ((SeDImpl*)dest->SeDPtr)->getBatch() != NULL )
+                unmrsh_data(src_params[arg_idx], &(src->parameters[arg_idx]),0,
+                ((SeDImpl*)dest->SeDPtr)->getBatch()->getTmpPath()) ;
+                else // Should be removed when all classes managed within SeD
+                unmrsh_data(src_params[arg_idx], &(src->parameters[arg_idx]),0,
+                "/tmp/") ; */
         std::string dataPath = "/tmp/";
         CONFIG_STRING(diet::STORAGEDIR, dataPath);
         unmrsh_data(src_params[arg_idx], &(src->parameters[arg_idx]),0,
@@ -1055,7 +1055,7 @@ unmrsh_out_args_to_profile(diet_profile_t* dpb, corba_profile_t* cpb)
   if (   (dpb->last_in       != cpb->last_in)
          || (dpb->last_inout != cpb->last_inout)
          || (dpb->last_out   != cpb->last_out)
-         )
+    )
     return 1;
 
 #if defined HAVE_ALT_BATCH
@@ -1117,7 +1117,7 @@ unmrsh_inout_args_to_profile(diet_profile_t* dpb, corba_profile_t* cpb)
   if (   (dpb->last_in       != cpb->last_in)
          || (dpb->last_inout != cpb->last_inout)
          || (dpb->last_out   != cpb->last_out)
-         )
+    )
     return 1;
 
   // Unmarshal INOUT parameters
@@ -1125,11 +1125,11 @@ unmrsh_inout_args_to_profile(diet_profile_t* dpb, corba_profile_t* cpb)
 #if defined HAVE_ALT_BATCH
     // -- GLM : bug correction --
     /*  if( ((SeDImpl*)dpb->SeDPtr)->getBatch() != NULL)
-	unmrsh_data(&(dpb->parameters[i]), &(cpb->parameters[i]),1,
-	((SeDImpl*)dpb->SeDPtr)->getBatch()->getTmpPath());
-	else // Should be removed when all classes managed within SeD
-	unmrsh_data(&(dpb->parameters[i]), &(cpb->parameters[i]),1,
-	"/tmp/") ;*/
+        unmrsh_data(&(dpb->parameters[i]), &(cpb->parameters[i]),1,
+        ((SeDImpl*)dpb->SeDPtr)->getBatch()->getTmpPath());
+        else // Should be removed when all classes managed within SeD
+        unmrsh_data(&(dpb->parameters[i]), &(cpb->parameters[i]),1,
+        "/tmp/") ;*/
     std::string dataPath = "/tmp/";
     CONFIG_STRING(diet::STORAGEDIR, dataPath);
     unmrsh_data(&(dpb->parameters[i]), &(cpb->parameters[i]),1,

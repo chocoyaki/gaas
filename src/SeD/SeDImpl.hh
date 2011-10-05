@@ -492,11 +492,11 @@ private:
 
   inline void
   downloadAsyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
-		       diet_convertor_t* cvt) ;
+                       diet_convertor_t* cvt) ;
 
   inline void
   uploadAsyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
-		     diet_convertor_t* cvt) ;
+                     diet_convertor_t* cvt) ;
 
 };
 

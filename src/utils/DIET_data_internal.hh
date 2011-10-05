@@ -127,7 +127,7 @@ file_set_desc(diet_data_desc_t* desc, char* const id,
  */
 int
 container_set_desc(diet_data_desc_t* desc, char* const id,
-		   const diet_persistence_mode_t mode, const size_t size);
+                   const diet_persistence_mode_t mode, const size_t size);
 
 
 /****************************************************************************/

@@ -55,34 +55,34 @@ class Dag;
 class DagNode;
 
 namespace madag {
-  class WfScheduler {
-  public:
-    /**
-     * WfScheduler constructor
-     */
-    WfScheduler();
+class WfScheduler {
+public:
+  /**
+   * WfScheduler constructor
+   */
+  WfScheduler();
 
-    /**
-     * WfScheduler destructor
-     */
-    virtual ~WfScheduler();
+  /**
+   * WfScheduler destructor
+   */
+  virtual ~WfScheduler();
 
-    /**
-     * Order the nodes using scheduling algorithm
-     */
-    virtual void
-    setNodesPriority(const wf_response_t * wf_response, Dag * dag) = 0;
+  /**
+   * Order the nodes using scheduling algorithm
+   */
+  virtual void
+  setNodesPriority(const wf_response_t * wf_response, Dag * dag) = 0;
 
-    /**
-     * Computes the schedule using HEFT algorithm and updates node
-     */
-    virtual void
-    setNodesEFT(std::vector<DagNode *>& orderedNodes,
-                const wf_response_t * wf_response,
-                Dag * dag,
-                double initTime) = 0;
+  /**
+   * Computes the schedule using HEFT algorithm and updates node
+   */
+  virtual void
+  setNodesEFT(std::vector<DagNode *>& orderedNodes,
+              const wf_response_t * wf_response,
+              Dag * dag,
+              double initTime) = 0;
 
-  };
+};
 
 }
 

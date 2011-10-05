@@ -35,7 +35,7 @@ class AdvancedDagdaComponent;
 
 typedef enum { DIET_MEM_OBJ, DIET_FILE_OBJ } dagda_object_type_t;
 typedef int (*managementFunc)(AdvancedDagdaComponent* manager, size_t needed,
-			      dagda_object_type_t type);
+                              dagda_object_type_t type);
 class AdvancedDagdaComponent : public SimpleDagdaImpl {
 private:
   managementFunc mngFunction;
@@ -51,16 +51,16 @@ public:
   AdvancedDagdaComponent(dagda_manager_type_t t) :
     SimpleDagdaImpl(t), mngFunction(NULL), /*lastUsageTime(),*/
     /*registerTime(), nbUsage(),*/ stats(NULL), shareFiles(false) {}
-        
+
   AdvancedDagdaComponent(dagda_manager_type_t t, managementFunc function) :
     SimpleDagdaImpl(t), mngFunction(function), /*lastUsageTime(),*/
     /*registerTime(), nbUsage(),*/ stats(NULL), shareFiles(false) {}
-        
+
   AdvancedDagdaComponent(dagda_manager_type_t t, managementFunc function,
-			 NetworkStats* stats) :
+                         NetworkStats* stats) :
     SimpleDagdaImpl(t), mngFunction(function), /*lastUsageTime(),*/
     /*registerTime(), nbUsage(),*/ stats(stats), shareFiles(false) {}
-        
+
   AdvancedDagdaComponent(dagda_manager_type_t t, NetworkStats* stats) :
     SimpleDagdaImpl(t), mngFunction(NULL), /*lastUsageTime(),*/
     /*registerTime(), nbUsage(),*/ stats(stats), shareFiles(false) {}
@@ -69,16 +69,16 @@ public:
   AdvancedDagdaComponent(dagda_manager_type_t t, bool shareFiles) :
     SimpleDagdaImpl(t), mngFunction(NULL), /*lastUsageTime(),*/
     /*registerTime(), nbUsage(),*/ stats(NULL), shareFiles(shareFiles) {}
-        
+
   AdvancedDagdaComponent(dagda_manager_type_t t, managementFunc function, bool shareFiles) :
     SimpleDagdaImpl(t), mngFunction(function), /*lastUsageTime(),*/
     /*registerTime(), nbUsage(),*/ stats(NULL), shareFiles(shareFiles) {}
-        
+
   AdvancedDagdaComponent(dagda_manager_type_t t, managementFunc function,
-			 NetworkStats* stats, bool shareFiles) :
+                         NetworkStats* stats, bool shareFiles) :
     SimpleDagdaImpl(t), mngFunction(function), /*lastUsageTime(),*/
     /*registerTime(), nbUsage(),*/ stats(stats), shareFiles(shareFiles) {}
-        
+
   AdvancedDagdaComponent(dagda_manager_type_t t, NetworkStats* stats, bool shareFiles) :
     SimpleDagdaImpl(t), mngFunction(NULL), /*lastUsageTime(),*/
     /*registerTime(), nbUsage(),*/ stats(stats), shareFiles(shareFiles) {}
@@ -93,11 +93,11 @@ public:
   virtual corba_data_t* getData(const char* dataID);
 
   virtual char* getBestSource(const char* dest, const char* dataID);
-  
+
   virtual clock_t getRegisterTime(const char* dataID);
   virtual clock_t getLastUsageTime(const char* dataID);
   virtual unsigned long getNbUsage(const char* dataID);
-  
+
   virtual void setRegisterTime(const char* dataID, clock_t time);
   virtual void setRegisterTime(const char* dataID);
   virtual void setUsageTime(std::string id, clock_t time);

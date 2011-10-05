@@ -24,7 +24,7 @@
  * @file   EnvParser.hh
  * @author hguemar <hguemar@sysfera.com>
  * @date   Mon Jan 31 09:17:06 2011
- * 
+ *
  * @brief  Environment variables parser
  */
 
@@ -51,32 +51,32 @@ private:
   ConfigMap config_; // parser configuration
   mutable OptionMap options_; // our options
 public:
-  /** 
+  /**
    * @brief constructor
    * @param envp environment variables array
-   * @param config parser configuration 
-   */    
+   * @param config parser configuration
+   */
   EnvParser(char *envp[],
-	    ConfigMap& config);
-  /** 
+            ConfigMap& config);
+  /**
    * @brief do the parsing
    */
   void parse();
 
-  /** 
+  /**
    * @brief subscript operator returning option value
    * @param key option name
-   * @return  option value (switchs return "true") or empty string 
-   */    
+   * @return  option value (switchs return "true") or empty string
+   */
   std::string& operator[](const std::string& key); // setter
-  /** 
+  /**
    * @brief const subscript operator returning option value
    * @param key option name
-   * @return  option value (switchs return "true") or empty string 
-   */    
+   * @return  option value (switchs return "true") or empty string
+   */
   const std::string& operator[](const std::string& key) const; //getter
 
-  /** 
+  /**
    * @brief return configuration
    * @return configuration map (option name, value)
    */

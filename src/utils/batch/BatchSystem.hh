@@ -107,19 +107,19 @@ public :
   //  batchType
   int
   getBatchID() ;
-  
+
   const char *
   getBatchName() ;
-  
+
   const char *
   getBatchQueueName() ;
 
   const char *
   getNFSPath() ;
-  
+
   const char *
   getTmpPath() ;
-  
+
   /************************ Submitting Funtions *******************/
 
   /** Waits for the completion of the Diet Job defined by profile
@@ -127,10 +127,10 @@ public :
   */
   int
   wait4DietJobCompletion(diet_profile_t * profile) ;
-  
+
   int
   checkIfDietJobCompleted(diet_profile_t * profile) ;
-  
+
   /** Submit a job corresponding to given @param profile problem with a
       partially defined script contained in the string @param command .
       @param addon_prologue can be used for batch-dedicated (non inter-batch
@@ -143,7 +143,7 @@ public :
                        const char * addon_prologue,
                        const char * command) ;
 
-  /** Submit a job partially defined in a file 
+  /** Submit a job partially defined in a file
       TODO
   */
   int
@@ -151,7 +151,7 @@ public :
                        const FILE * fileName) ;
 
   /** Submit a job on a reservation or in concurrent with an already
-      submitted job 
+      submitted job
       TODO
   */
   int
@@ -166,7 +166,7 @@ public :
   diet_submit_parallel(int batchJobID, diet_profile_t * profile,
                        const FILE * fileName) ;
 
-  /*********************** Job Managing ******************************/    
+  /*********************** Job Managing ******************************/
   /** Returns -1 on error, 0 otherwise */
   int
   storeBatchJobID(int batchJobID, int dietReqID, char * filename) ;
@@ -184,27 +184,27 @@ public :
   */
   int
   getBatchJobID(int dietReqID) ;
-  
+
   /** Waits for the completion of batch Job corresponding to Diet Request
       @param dietReqID . Checks all WAITING_BATCH_JOB_COMPLETION seconds.
   */
   int
   wait4BatchJobCompletion(int dietReqID) ;
 
-  /** Reads the internal structure and give the state of batch job 
+  /** Reads the internal structure and give the state of batch job
       @param batchJobID .
       Returns NB_STATUS on error.
   */
   batchJobState
   getRecordedBatchJobStatus(int batchJobID) ;
 
-  /** Updates internal structure for the batch job whose ID is 
+  /** Updates internal structure for the batch job whose ID is
       @param batchJobID with the state @param job_status .
       Returns -1 if job has not been found.
   */
   int
   updateBatchJobStatus(int batchJobID, batchJobState job_status) ;
-    
+
   /** If job not terminated, ask the batch system for the status of job
       whose ID is @param batchJobID .
       Updates the internal structure (status and unlink script file).
@@ -212,7 +212,7 @@ public :
   */
   virtual batchJobState
   askBatchJobStatus(int batchJobID) = 0 ;
-  
+
   /** If job whose id is @param batchJobID is:
       - not finished, returns 0
       - terminated, returns 1
@@ -236,7 +236,7 @@ public :
 
   virtual int
   getMaxProcs() = 0 ;
-  
+
   /********** Batch dynamic information accessing Functions *********/
   /* These should soon change for they assume a default queue and we
      want to be able to manage all queues of a system! */
@@ -246,7 +246,7 @@ public :
 
   virtual int
   getNbFreeResources() = 0 ;
-      
+
   /****************** Performance Prediction Functions ***************/
 
   /** Get the number of processors and the walltime for a Diet request
@@ -267,20 +267,20 @@ protected :
       Returns 1 if some replacement has been done, 0 if not, -1 on error.
   */
   int
-  replaceAllOccurencesInString(char ** input, 
+  replaceAllOccurencesInString(char ** input,
                                const char * occurence,
                                const char * by) ;
-  
+
   /**
-     Write @param n bytes of string @param buffer to the file 
+     Write @param n bytes of string @param buffer to the file
      descriptor @param fd .
      Returns 0 if error or the number of bytes writen (which can be 0).
   */
 
   size_t
   writen(int fd, const char * buffer, size_t n) ;
-  
-  /** 
+
+  /**
       Read at most @param n bytes from descriptor file @param fd to store
       them in @param buffer .
       Returns the number of bytes read (0 if error or no byte read).
@@ -295,54 +295,54 @@ protected :
   /* Creates a unique temporary file in the tmp path declared previously.
      \c pattern is used for information purpose. Returns a filename that
      the user must free when finished. */
-  
+
   char *
   createUniqueTemporaryTmpFile(const char * pattern) ;
 
   /* Creates a unique temporary file in the NFS path declared previously.
      \c pattern is used for information purpose. Returns a filename that
      the user must free when finished. */
-  
+
   char *
   createUniqueTemporaryNFSFile(const char * pattern) ;
-  
+
   /** Read a number in the file \c filename. Only NBDIGITS_MAX_RESOURCES
-      digits are read, thus the number of digits is assumed not to exceed 
+      digits are read, thus the number of digits is assumed not to exceed
       this value. */
   int
   readNumberInFile(const char * filename) ;
-  
+
   /** Exec a command (with system() system call) and get the result of
       the output in a unique temporary file made from \c pattern
       (maintly for debugging purpose). Assume the result in the file is an
       integer, read and return this value. Only NBDIGITS_MAX_RESOURCES
-      digits are read, thus the number of digits is assumed not to exceed 
+      digits are read, thus the number of digits is assumed not to exceed
       this value. */
   int
   launchCommandAndGetInt(const char * submitCommand,
                          const char * pattern) ;
-  
+
   /** Exec a command (with system() system call) and get the result of
       the output in a unique temporary file made from \c pattern
       (maintly for debugging purpose). Returns the name of the file for
-      further parsing. The user MUST unlink the file by his own. */ 
+      further parsing. The user MUST unlink the file by his own. */
   char *
   launchCommandAndGetResultFilename(const char * submitCommand,
-				    const char * pattern) ;
-  
+                                    const char * pattern) ;
+
   /************ Batch Configuration ************/
   /* (Fully qualified) frontal host name */
   char frontalName[256];
-    
+
   int batch_ID ;
   const char * batchName ; // The name of the batch system
-    
+
   const char * batchQueueName ; // Only one queue managed
-  
+
   /* The following must end with a '/' */
   const char * pathToNFS ; /* Some batch need this */
-  const char * pathToTmp ; 
-  
+  const char * pathToTmp ;
+
   /************ Batch Commands ************/
   const char * shell ; /* shell demand� pour lancer le script distant */
   const char * prefixe ;
@@ -357,7 +357,7 @@ protected :
   const char * walltime ;
   const char * submittingQueue ;
   const char * minimumMemoryUsed ; // not managed for the moment
-  
+
   const char * mail ;
   const char * account ; // not used until so implements accounting in DIET
 
@@ -370,15 +370,15 @@ protected :
   const char * wait4Command ; /* Command to have info about a given jobID */
   const char * waitFilter ;   /* Filter to access jobs status */
   const char * exitCode ;
-  
+
   const char * jid_extract_patterns ;
 
   /************ Batch META-VARIABLES ************/
-  const char * batchJobID ; // The script variable containing job ID 
+  const char * batchJobID ; // The script variable containing job ID
   const char * nodeFileName ;
   const char * nodeIdentities ; // given by a string separated by a blank
-  
-  /* Correspondance between Diet reqIDs and Batch Job IDs stored as 
+
+  /* Correspondance between Diet reqIDs and Batch Job IDs stored as
      a chained list */
 
   typedef struct corresID_def {

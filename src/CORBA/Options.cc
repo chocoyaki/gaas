@@ -47,9 +47,9 @@ void Configuration::setConfigFile(const string& configFile) {
  * the command line arguments. */
 Options::Options(Configuration* config, int argc, char* argv[], char* envp[]) {
   unsigned int j = 0;
-  
+
   this->config = config;
-  
+
   for (int i=1; i<argc; ++i) {
     string curArg(argv[i]);
     if (curArg.find("--")==0) {
@@ -69,10 +69,10 @@ Options::Options(Configuration* config, int argc, char* argv[], char* envp[]) {
           flags.push_back(*it++);
         }
       } else {
-	params[params.size()]=curArg;
+        params[params.size()]=curArg;
       }
     }
-  }  
+  }
   if (envp==NULL) return;
   while (envp[j]!=NULL) {
     string curEnv(envp[j++]);
@@ -120,7 +120,7 @@ void Options::processOptions() {
   unsigned int k;
   list<char>::const_iterator l;
   optCallback callback;
-  
+
   for (l=flags.begin(); l!=flags.end(); ++l) {
     if (flagCallbacks.find(*l)!=flagCallbacks.end()) {
       string flag;
@@ -153,7 +153,7 @@ void Options::processOptions() {
       callback = paramCallbacks[k];
       callback(params[k], config);
     } else {
-      WARNING("argument " << params[k] << " ignored"); 
+      WARNING("argument " << params[k] << " ignored");
     }
   }
 }
@@ -163,7 +163,7 @@ void Options::processEnv() {
   map<string, string>::const_iterator i;
   list<string>::const_iterator j;
   optCallback callback;
-  
+
   for (i=environment.begin(); i!=environment.end(); ++i) {
     if (envCallbacks.find(i->first)!=envCallbacks.end()) {
       callback = envCallbacks.find(i->first)->second;
@@ -198,25 +198,25 @@ ConfigFile::ConfigFile(const string& path) {
 void ConfigFile::parseFile(const std::string& path) {
   ifstream file(path.c_str());
   unsigned int l = 0;
-  
+
   if (!file.is_open()) {
     throw runtime_error("Can't open " + path);
   }
-  
+
   while (!file.eof()) {
     char buffer[1024];
     string line, key, value;
     string::iterator it;
     istringstream is;
     size_t pos;
-    
+
     l++;
     file.getline(buffer, 1024);
     line = buffer;
     /* Remove comments. */
     pos = line.find('#');
     line = line.substr(0, pos);
-    
+
     /* Remove white spaces. */
     while ((pos=line.find(' '))!=string::npos) {
       line.erase(pos, 1);
@@ -224,12 +224,12 @@ void ConfigFile::parseFile(const std::string& path) {
     while ((pos=line.find('\t'))!=string::npos) {
       line.erase(pos, 1);
     }
-    
+
     /* Empty line => continue. */
     if (line=="") {
       continue;
     }
-    
+
     /* Cut the line on '=' chararcter. */
     transform(line.begin(), line.end(), line.begin(), cut);
     /* Extract key,value */
@@ -245,7 +245,7 @@ void ConfigFile::parseFile(const std::string& path) {
     /* Transform to lower case. */
     transform(key.begin(), key.end(), key.begin(), ::tolower);
 
-    attributes[key]=value;    
+    attributes[key]=value;
   }
 }
 const string& ConfigFile::getAttr(const string& key) {

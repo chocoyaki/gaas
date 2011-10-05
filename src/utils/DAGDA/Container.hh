@@ -47,22 +47,22 @@ private:
    * The DAGDA ID of the container
    */
   std::string  myID;
-        
+
   /**
    * The Data Mgr that contains the container
    */
   Dagda_ptr myMgr;
-        
+
   /**
    * The data relation Mgr that manages the container-elements relationship
    */
   DataRelationMgr*  myRelMgr;
-        
+
   /**
    * Not found flag
    */
   bool notFound;
-        
+
   /**
    * Nb of elements in the container
    */
@@ -75,8 +75,8 @@ public:
    * Access an existing container on the local Data Mgr
    */
   Container(const char* dataID,
-	    Dagda_ptr dataMgr,
-	    DataRelationMgr* relMgr);
+            Dagda_ptr dataMgr,
+            DataRelationMgr* relMgr);
 
   /**
    * Destructor

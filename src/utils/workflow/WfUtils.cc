@@ -216,17 +216,17 @@ static const pair<const string, const string> gw2dietTypes[] = {
 };
 
 static map<short,short> WfTypesToDietTypes(wf2DietTypes, wf2DietTypes
-					   + sizeof(wf2DietTypes)/sizeof(wf2DietTypes[0]));
+                                           + sizeof(wf2DietTypes)/sizeof(wf2DietTypes[0]));
 static map<short,short> DietTypesToWfTypes(diet2WfTypes, diet2WfTypes
-					   + sizeof(diet2WfTypes)/sizeof(diet2WfTypes[0]));
+                                           + sizeof(diet2WfTypes)/sizeof(diet2WfTypes[0]));
 static map<string,short> StrTypesToWfTypes(wfTypes, wfTypes
-					   + sizeof(wfTypes)/sizeof(wfTypes[0]));
+                                           + sizeof(wfTypes)/sizeof(wfTypes[0]));
 static map<short, const string> WfTypesToStrTypes(strTypes, strTypes
-						  + sizeof(strTypes)/sizeof(strTypes[0]));
+                                                  + sizeof(strTypes)/sizeof(strTypes[0]));
 static map<short, const string> WfTypesToXSTypes(XSTypes, XSTypes
-						 + sizeof(XSTypes)/sizeof(XSTypes[0]));
+                                                 + sizeof(XSTypes)/sizeof(XSTypes[0]));
 static map<const string, const string> GwendiaToDietTypes(gw2dietTypes,
-							  gw2dietTypes + sizeof(gw2dietTypes)/sizeof(gw2dietTypes[0]));
+                                                          gw2dietTypes + sizeof(gw2dietTypes)/sizeof(gw2dietTypes[0]));
 
 short
 WfCst::cvtWfToDietType(WfDataType wfType) {
@@ -293,11 +293,11 @@ static const pair<short, const string> strMatrixOrders[] = {
 };
 
 static map<short,short> WfToDietMatrixOrders(dietMatrixOrders, dietMatrixOrders
-					     + sizeof(dietMatrixOrders)/sizeof(dietMatrixOrders[0]));
+                                             + sizeof(dietMatrixOrders)/sizeof(dietMatrixOrders[0]));
 static map<string,short> StrToWfMatrixOrders(wfMatrixOrders, wfMatrixOrders
-					     + sizeof(wfMatrixOrders)/sizeof(wfMatrixOrders[0]));
+                                             + sizeof(wfMatrixOrders)/sizeof(wfMatrixOrders[0]));
 static map<short,const string> WfToStrMatrixOrders(strMatrixOrders, strMatrixOrders
-						   + sizeof(strMatrixOrders)/sizeof(strMatrixOrders[0]));
+                                                   + sizeof(strMatrixOrders)/sizeof(strMatrixOrders[0]));
 
 short
 WfCst::cvtWfToDietMatrixOrder(WfMatrixOrder wfMatrixOrder) {
@@ -483,7 +483,7 @@ WfCst::eval_expr(std::string& expr, int var) {
           op = expr.substr(0,1);
           while ((!tokens.empty())&&
                  (op_priority[tokens.top()] > op_priority[op])
-                 ) {
+            ) {
             post_fixe_exp.push_back(tokens.top());
             tokens.pop();
           } // end while

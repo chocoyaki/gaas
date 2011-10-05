@@ -64,11 +64,11 @@ PortInputIterator::PortInputIterator(FNodeInPort * inPort)
 void
 PortInputIterator::begin() {
   TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "begin() : "
-	      << myInPort->myQueue.size() << " items in the queue" << endl);
+              << myInPort->myQueue.size() << " items in the queue" << endl);
   myQueueIter = myInPort->myQueue.begin();
   if (!isAtEnd()) {
     TRACE_TEXT (TRACE_ALL_STEPS,"  and first item is "
-		<< ((FDataHandle*) myQueueIter->second)->getTag().toString() << endl);
+                << ((FDataHandle*) myQueueIter->second)->getTag().toString() << endl);
   }
 }
 
@@ -111,7 +111,7 @@ bool
 PortInputIterator::isDone() const {
   string total = isTotalDefined() ? itoa(getTotalItemNb()) : "undef";
   TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "isDone(): total=" << total
-	      << " / removed=" << removedItemsCount << endl);
+              << " / removed=" << removedItemsCount << endl);
   return (isTotalDefined() && (getTotalItemNb() == removedItemsCount));
 }
 
@@ -279,7 +279,7 @@ CrossIterator::next() {
   }
   if (nextFound) {
     TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "next() IS "
-		<< getCurrentTag().toString() << endl);
+                << getCurrentTag().toString() << endl);
   } else {
     clearTag();
     TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "next() ==> END" << endl);
@@ -306,13 +306,13 @@ void
 CrossIterator::removeItem() {
   const FDataTag& leftTag  = myLeftIter->getCurrentTag();
   TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "removeItem(): removing "
-	      << currTag->toString() << endl);
+              << currTag->toString() << endl);
   // mark the removed item
   myFlags[*currTag] = true;
   // increment the counter of matched items for the left tag
   unsigned int matchCount = incrementMatchCount(leftTag);
   TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "removeItem(): match count of "
-	      << leftTag.toString() << " is " << matchCount << endl);
+              << leftTag.toString() << " is " << matchCount << endl);
   // check if right iter is completed for the current left item
   if (myRightIter->isTotalDefined() && (matchCount == myRightIter->getTotalItemNb())) {
     // if yes, then remove, go to next left item and reset right iter

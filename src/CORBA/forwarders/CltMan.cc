@@ -29,59 +29,59 @@ using namespace std;
 
 
 ::CORBA::Long DIETForwarder::execNodeOnSed(const char* node_id,
-					   const char* dag_id,
-					   const char* seDName,
-					   ::CORBA::ULong reqID,
-					   ::corba_estimation_t& ev,
-					   const char* objName)
+                                           const char* dag_id,
+                                           const char* seDName,
+                                           ::CORBA::ULong reqID,
+                                           ::corba_estimation_t& ev,
+                                           const char* objName)
 {
   string objString(objName);
   string name;
-        
+
   if (!remoteCall(objString)) {
     return getPeer()->execNodeOnSed(node_id, dag_id, seDName,
-				    reqID, ev, objString.c_str());
+                                    reqID, ev, objString.c_str());
   }
-        
+
   name = getName(objString);
-                
+
   CltMan_var clt = ORBMgr::getMgr()->resolve<CltMan, CltMan_var>(WFMGRCTXT, name,
-								 this->name);
+                                                                 this->name);
   return clt->execNodeOnSed(node_id, dag_id, seDName, reqID, ev);
 }
 
 ::CORBA::Long DIETForwarder::execNode(const char* node_id,
-				      const char* dag_id,
-				      const char* objName)
+                                      const char* dag_id,
+                                      const char* objName)
 {
   string objString(objName);
   string name;
-        
+
   if (!remoteCall(objString)) {
     return getPeer()->execNode(node_id, dag_id, objString.c_str());
   }
-        
+
   name = getName(objString);
-        
+
   CltMan_var clt = ORBMgr::getMgr()->resolve<CltMan, CltMan_var>(WFMGRCTXT, name,
-								 this->name);
+                                                                 this->name);
   return clt->execNode(node_id, dag_id);
 }
 
 char* DIETForwarder::release(const char* dag_id,
-			     ::CORBA::Boolean successful,
-			     const char* objName)
+                             ::CORBA::Boolean successful,
+                             const char* objName)
 {
   string objString(objName);
   string name;
-        
+
   if (!remoteCall(objString)) {
     return getPeer()->release(dag_id, successful, objString.c_str());
   }
-        
+
   name = getName(objString);
-                
+
   CltMan_var clt = ORBMgr::getMgr()->resolve<CltMan, CltMan_var>(WFMGRCTXT, name,
-								 this->name);
+                                                                 this->name);
   return clt->release(dag_id, successful);
 }

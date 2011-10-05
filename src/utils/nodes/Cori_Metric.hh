@@ -84,7 +84,7 @@ public:
   call_cori_metric(int type_Info,
                    estVector_t *information,
                    const void* data
-                   );
+    );
 
   diet_est_collect_tag_t
   get_Collector_type();

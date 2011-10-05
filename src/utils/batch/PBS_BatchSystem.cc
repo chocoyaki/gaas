@@ -67,7 +67,7 @@ PBS_BatchSystem::PBS_BatchSystem(int ID, const char * batchname)
 
   batch_ID = ID ;
   batchName = batchname ;
-  
+
   shell    = BatchSystem::emptyString ;
   prefixe  = "#!/bin/sh" ;
   // the -V option declares that all environment variables in the qsub
@@ -81,7 +81,7 @@ PBS_BatchSystem::PBS_BatchSystem(int ID, const char * batchname)
   walltime          = "\n#PBS -l walltime=" ;
   submittingQueue   = "\n#PBS -q " ;
   minimumMemoryUsed = "\n#PBS -l mem=" ;
-  
+
   /* TODO: When we use some ID for DIET client, change there! */
   //mail      = "#PBS -m a\n#PBS -M " ; // -m, send mail when:
   // a: job is aborted by batch system
@@ -100,7 +100,7 @@ PBS_BatchSystem::PBS_BatchSystem(int ID, const char * batchname)
   wait4Command  = "qstat -f " ;
   waitFilter    = "grep job_state | cut --delimiter== --field=2 | cut --delimiter=\" \" --field=2" ;
   exitCode      = "0" ;
-  
+
   // nothing to do to retrieve the ID of the submission...
   // but we need to add something, let's say 'uniq' :-)
   jid_extract_patterns = "uniq"; //"cut --delimiter=\\\" -f 2 | cut --delimiter=. -f 2" ;
@@ -108,7 +108,7 @@ PBS_BatchSystem::PBS_BatchSystem(int ID, const char * batchname)
   /* Information for META_VARIABLES */
   batchJobID     = "$PBS_JOBID" ;
   nodeFileName   = "$PBS_NODEFILE" ;
-  nodeIdentities = "cat $PBS_NODEFILE" ;  
+  nodeIdentities = "cat $PBS_NODEFILE" ;
 }
 
 PBS_BatchSystem::~PBS_BatchSystem()
@@ -126,7 +126,7 @@ PBS_BatchSystem::askBatchJobStatus(int batchJobID)
   int i=0 ;
   int nbread ;
   batchJobState status ;
-  
+
   /* If job has completed, not ask batch system */
   status = getRecordedBatchJobStatus( batchJobID ) ;
   if( (status == TERMINATED) || (status == CANCELED) || (status == ERROR) )
@@ -138,7 +138,7 @@ PBS_BatchSystem::askBatchJobStatus(int batchJobID)
     ERROR("Cannot open file", UNDETERMINED ) ;
   }
 
-  /*** Ask batch system the job status ***/      
+  /*** Ask batch system the job status ***/
   chaine = (char*)malloc(sizeof(char)*(strlen(wait4Command) * 2
                                        + NBDIGITS_MAX_BATCH_JOB_ID * 2
                                        + strlen(waitFilter) * 2
@@ -157,7 +157,7 @@ PBS_BatchSystem::askBatchJobStatus(int batchJobID)
     ERROR("Cannot submit script", NB_STATUS) ;
   }
 
-  /* Get job status */  
+  /* Get job status */
   for( int i = 0 ; i<=NBDIGITS_MAX_BATCH_JOB_ID ; i++ )
     chaine[i] = '\0' ;
 
@@ -172,12 +172,12 @@ PBS_BatchSystem::askBatchJobStatus(int batchJobID)
     /* Adjust what have been read */
     if( chaine[nbread-1] == '\n' )
       chaine[nbread-1] = '\0' ;
-    while( (i<NB_STATUS) && 
+    while( (i<NB_STATUS) &&
            (strcmp(chaine,PBS_BatchSystem::statusNames[i])!=0) ) {
       i++ ;
     }
   }
-    
+
   if( i==NB_STATUS ) {
     ERROR("Cannot get batch job " << batchJobID << " status: " << chaine, NB_STATUS) ;
   }
@@ -198,7 +198,7 @@ int
 PBS_BatchSystem::isBatchJobCompleted(int batchJobID)
 {
   int status = getRecordedBatchJobStatus(batchJobID) ;
-  
+
   if( (status == TERMINATED) || (status == CANCELED) || (status == ERROR) )
     return 1 ;
   status = askBatchJobStatus(batchJobID) ;
@@ -229,7 +229,7 @@ int
 PBS_BatchSystem::getMaxWalltime()
 {
   return launchCommandAndGetInt("qstat -Qf | grep mtime | cut --delimiter== --field=2 | cut --delimiter=\" \" --field=2",
-				"DIET_getNbResources") ;
+                                "DIET_getNbResources") ;
 }
 
 int

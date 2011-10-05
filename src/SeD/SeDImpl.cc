@@ -1373,9 +1373,9 @@ SeDImpl::parallel_AsyncSolve(const char * path, const corba_profile_t & pb,
                  batch->getBatchJobID(profile.dietReqID)
                  << endl) ;
       if(
-         batch->wait4BatchJobCompletion(batch->getBatchJobID(profile.dietReqID)
-                                        )
-         < 0 ) {
+        batch->wait4BatchJobCompletion(batch->getBatchJobID(profile.dietReqID)
+          )
+        < 0 ) {
         ERROR_EXIT("An error occured during the execution of the parallel job") ;
       }
       batch->removeBatchJobID(profile.dietReqID) ;

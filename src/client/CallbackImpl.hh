@@ -37,7 +37,7 @@
 #include "CallbackFwdr.hh"
 
 class CallbackImpl : public POA_Callback,
-		     public PortableServer::RefCountServantBase
+                     public PortableServer::RefCountServantBase
 {
 public:
   CallbackImpl();
@@ -46,14 +46,14 @@ public:
   virtual CORBA::Long notifyResults(const char * path,
                                     const corba_profile_t& pb,
                                     CORBA::Long reqID);
-  virtual CORBA::Long solveResults(const char * path, 
+  virtual CORBA::Long solveResults(const char * path,
                                    const corba_profile_t& pb,
                                    CORBA::Long reqID,
                                    CORBA::Long solve_res);
 };
 
 class CallbackFwdrImpl : public POA_CallbackFwdr,
-			 public PortableServer::RefCountServantBase
+                         public PortableServer::RefCountServantBase
 {
 private:
   Forwarder_ptr forwarder;
@@ -62,11 +62,11 @@ public:
   CallbackFwdrImpl(Forwarder_ptr fwdr, const char* objName);
   virtual CORBA::Long ping();
   virtual CORBA::Long notifyResults(const char * path,
-				    const corba_profile_t& pb,
-				    CORBA::Long reqID);
-  virtual CORBA::Long solveResults(const char * path, 
-				   const corba_profile_t& pb,
-				   CORBA::Long reqID,
-				   CORBA::Long solve_res);
+                                    const corba_profile_t& pb,
+                                    CORBA::Long reqID);
+  virtual CORBA::Long solveResults(const char * path,
+                                   const corba_profile_t& pb,
+                                   CORBA::Long reqID,
+                                   CORBA::Long solve_res);
 };
 #endif

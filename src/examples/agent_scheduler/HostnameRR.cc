@@ -51,13 +51,13 @@ HostnameRR::HostnameRR() {
 }
 
 int HostnameRR::aggregate(corba_response_t* aggrResp, size_t max_srv,
-			  const size_t nb_responses,
-			  const corba_response_t* responses)
+                          const size_t nb_responses,
+                          const corba_response_t* responses)
 {
   ServerList::iterator itSeD;
   unsigned int nbUsage=0;
   corba_server_estimation_t selected;
-  
+
 
   cout << "******************** HostnameRR ********************" << endl;
   ServerList candidates = CORBA_to_STL(responses, nb_responses);

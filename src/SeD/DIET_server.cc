@@ -561,7 +561,7 @@ diet_aggregator_set_type(diet_aggregator_desc_t* agg,
       && atype != DIET_AGG_USER
 #endif
       /*************************************/
-      ) {
+    ) {
     ERROR(__FUNCTION__ << ": unknown aggregation type (" << atype << ")", 0);
   }
   if (agg->agg_method != DIET_AGG_DEFAULT) {

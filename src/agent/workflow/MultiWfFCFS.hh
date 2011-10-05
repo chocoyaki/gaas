@@ -32,31 +32,31 @@ using namespace std;
 
 namespace madag {
 
-  class MultiWfFCFS : public MultiWfScheduler {
-  public:
-    MultiWfFCFS(MaDag_impl* maDag);
-    virtual ~MultiWfFCFS();
+class MultiWfFCFS : public MultiWfScheduler {
+public:
+  MultiWfFCFS(MaDag_impl* maDag);
+  virtual ~MultiWfFCFS();
 
-  protected:
+protected:
 
-    /**
-     * Updates scheduler when a node has been executed
-     */
-    virtual void
-    handlerNodeDone(DagNode * node);
+  /**
+   * Updates scheduler when a node has been executed
+   */
+  virtual void
+  handlerNodeDone(DagNode * node);
 
-    /**
-     * set node priority before inserting into execution queue
-     */
-    virtual void
-    setExecPriority(DagNode * node);
+  /**
+   * set node priority before inserting into execution queue
+   */
+  virtual void
+  setExecPriority(DagNode * node);
 
-    /**
-     * set node priority before inserting back in the ready queue
-     */
-    virtual void
-    setWaitingPriority(DagNode * node);
-  };
+  /**
+   * set node priority before inserting back in the ready queue
+   */
+  virtual void
+  setWaitingPriority(DagNode * node);
+};
 
 }
 

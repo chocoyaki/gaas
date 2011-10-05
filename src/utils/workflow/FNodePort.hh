@@ -92,9 +92,9 @@ class FNodePort : public WfPort {
 
 public:
   FNodePort(WfNode * parent, const string& _id, WfPort::WfPortType _portType,
-	    WfCst::WfDataType _type, unsigned int _depth, unsigned int _ind);
+            WfCst::WfDataType _type, unsigned int _depth, unsigned int _ind);
   virtual ~FNodePort();
-    
+
   /**
    * Get a description of the node
    */
@@ -128,7 +128,7 @@ class FNodeOutPort : public virtual FNodePort {
 public:
 
   FNodeOutPort(WfNode * parent, const string& _id, WfPort::WfPortType _portType,
-	       WfCst::WfDataType _type, unsigned int _depth, unsigned int _ind);
+               WfCst::WfDataType _type, unsigned int _depth, unsigned int _ind);
   virtual ~FNodeOutPort();
 
   /**
@@ -253,7 +253,7 @@ protected:
 
   void
   setPendingDataTransfer(FDataHandle* dataHdl,
-			 FNodeInPort* inPort) throw (WfDataHandleException);
+                         FNodeInPort* inPort) throw (WfDataHandleException);
 
   void
   checkTotalDataNb(FNodeInPort *inPort);
@@ -281,7 +281,7 @@ public:
   friend class PortInputIterator;
 
   FNodeInPort(WfNode * parent, const string& _id, WfPort::WfPortType _portType,
-	      WfCst::WfDataType _type, unsigned int _depth, unsigned int _ind);
+              WfCst::WfDataType _type, unsigned int _depth, unsigned int _ind);
   virtual ~FNodeInPort();
 
   /**
@@ -367,13 +367,13 @@ protected:
 /*****************************************************************************/
 
 class FNodeInOutPort : public FNodeInPort, public FNodeOutPort {
-  
+
 public:
-    
+
   FNodeInOutPort(WfNode* parent, const std::string& _id,
-		 WfCst::WfDataType _type, unsigned int _depth, 
-		 unsigned int _ind);
-                      
+                 WfCst::WfDataType _type, unsigned int _depth,
+                 unsigned int _ind);
+
   /**
    * Method to setup ports connection on each side
    * endOfLink is here to disambiguate cases where an inout port could be
@@ -383,7 +383,7 @@ public:
    */
   virtual void
   connectToPort(WfPort* remPort, bool endOfLink);
-                   
+
   /**
    * Instanciate the port as a real input/output port
    * @param dag       the dag being instanciated
@@ -393,7 +393,7 @@ public:
    */
   FDataHandle*
   createRealInstance(Dag* dag, DagNode* nodeInst, const FDataTag& tag,
-		     FDataHandle* dataHdl);
+                     FDataHandle* dataHdl);
 
 };
 
@@ -409,7 +409,7 @@ class FNodeParamPort : public FNodeInPort {
 public:
 
   FNodeParamPort(WfNode * parent, const string& _id,
-		 WfCst::WfDataType _type, unsigned int _ind);
+                 WfCst::WfDataType _type, unsigned int _ind);
   virtual ~FNodeParamPort();
 
 };

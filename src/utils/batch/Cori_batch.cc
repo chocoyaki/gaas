@@ -52,7 +52,7 @@ void
 className::printMetric( estVector_t vector_v, int type_Info )
 {
   switch( type_Info ){
-  
+
   case EST_SERVER_TYPE: /* Value appears only once */
     cout << "In construction: EST_SERVER_TYPE" << endl << endl ;
     break;
@@ -63,7 +63,7 @@ className::printMetric( estVector_t vector_v, int type_Info )
     cout << "In construction: EST_PARAL_NBTOT_FREE_RESOURCES" << endl << endl ;
     break;
   case EST_PARAL_NB_FREE_RESOURCES_IN_DEFAULT_QUEUE:
-    cout << 
+    cout <<
       "CoRI: EST_PARAL_NB_FREE_RESOURCES_IN_DEFAULT_QUEUE... " <<
       (int)diet_est_get_system(vector_v,
                                EST_PARAL_NB_FREE_RESOURCES_IN_DEFAULT_QUEUE, 0)
@@ -71,7 +71,7 @@ className::printMetric( estVector_t vector_v, int type_Info )
     break;
   default: {
     INTERNAL_WARNING( "CoRI: Tag " << type_Info <<" for printing info");
-  }     
+  }
   }
 }
 
@@ -86,7 +86,7 @@ Cori_batch::Cori_batch( diet_profile_t * profile )
 }
 
 int
-Cori_batch::get_Information(int type_Info,       
+Cori_batch::get_Information(int type_Info,
                             estVector_t * estvect,
                             const void * data)
 {
@@ -136,15 +136,15 @@ Cori_batch::get_Information(int type_Info,
     /*                     this->batch->getMaxProcs() ) ; */
     break ;
   default:
-    {
-      
-      WARNING("CoRI Batch: Tag " << type_Info << 
-	      " unknown for collecting info") ;
-    }
+  {
+
+    WARNING("CoRI Batch: Tag " << type_Info <<
+            " unknown for collecting info") ;
   }
-  
+  }
+
   if (TRACE_LEVEL>=TRACE_ALL_STEPS)
-    printMetric( *estvect, type_Info ) ; 
+    printMetric( *estvect, type_Info ) ;
   return 0 ;
 }
 
@@ -152,17 +152,17 @@ Cori_batch::get_Information(int type_Info,
 /* Private methods                                                          */
 /****************************************************************************/
 
-int  
+int
 Cori_batch::convertArray(vector <double> vect,
-			 estVector_t * estvect,
-			 int typeOfInfo )
+                         estVector_t * estvect,
+                         int typeOfInfo )
 {
   /*  vector<double>::iterator iter1;
       iter1 = vect.begin();
       int i=0;
       while( iter1 != vect.end()) {
       diet_est_array_set_internal(*estvect,typeOfInfo,i,*iter1);
-      i++; 
+      i++;
       iter1++;
       }
       return 0;
@@ -170,10 +170,10 @@ Cori_batch::convertArray(vector <double> vect,
   return 0 ;
 }
 
-int  
+int
 Cori_batch::convertSimple(double value,
-			  estVector_t * estvect,
-			  int typeOfInfo ){
+                          estVector_t * estvect,
+                          int typeOfInfo ){
   diet_est_set_internal(*estvect,typeOfInfo,value);
   return 0;
 }

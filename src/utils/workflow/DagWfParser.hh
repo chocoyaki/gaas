@@ -153,13 +153,13 @@ using namespace std;
 class XMLParsingException {
 public:
   enum XMLParsingErrorType { eUNKNOWN,
-			     eUNKNOWN_TAG,
-			     eUNKNOWN_ATTR,
-			     eEMPTY_ATTR,
-			     eBAD_STRUCT,
-			     eINVALID_REF,
-			     eINVALID_DATA,
-			     eFILENOTFOUND };
+                             eUNKNOWN_TAG,
+                             eUNKNOWN_ATTR,
+                             eEMPTY_ATTR,
+                             eBAD_STRUCT,
+                             eINVALID_REF,
+                             eINVALID_DATA,
+                             eFILENOTFOUND };
   XMLParsingException(XMLParsingErrorType t, const string& info)
   { this->why = t; this->info = info; }
   XMLParsingErrorType Type() { return this->why; }
@@ -214,8 +214,8 @@ public:
    */
   static void
   checkMandatoryAttr(const string& tagName,
-		     const string& attrName,
-		     const string& attrValue);
+                     const string& attrName,
+                     const string& attrValue);
 
   /**
    * utility method to check that an element does not contain any child
@@ -242,7 +242,7 @@ public:
    */
   static void
   getPortMap(const string& thenMapStr,
-	     map<string,string>& thenMap) throw (XMLParsingException);
+             map<string,string>& thenMap) throw (XMLParsingException);
 
 
 protected:
@@ -467,7 +467,7 @@ public:
   MultiDagParser ( const string& xmlFileName );
 
   virtual ~MultiDagParser();
-    
+
   /**
    * Set the default workflow that contains the dags
    */
@@ -653,18 +653,18 @@ public:
   DataSourceHandler(FSourceNode* node);
 
   void startElement(
-		    const   XMLCh* const    uri,
-		    const   XMLCh* const    localname,
-		    const   XMLCh* const    qname,
-		    const   Attributes&     attrs
-		    );
+    const   XMLCh* const    uri,
+    const   XMLCh* const    localname,
+    const   XMLCh* const    qname,
+    const   Attributes&     attrs
+    );
 
   void endElement(const   XMLCh* const    uri,
-		  const   XMLCh* const    localname,
-		  const   XMLCh* const    qname);
+                  const   XMLCh* const    localname,
+                  const   XMLCh* const    qname);
 
   void characters (const  XMLCh* const     chars,
-		   const  XMLSize_t        length);
+                   const  XMLSize_t        length);
 
   void fatalError(const SAXParseException& e);
   void warning(const SAXParseException& e);

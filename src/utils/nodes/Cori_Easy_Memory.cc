@@ -74,13 +74,13 @@ Easy_Memory::get_Total_Memory(double * result)
   }
   else
     if (!get_Total_Memory_bysysinfo(&temp1)
-	&&(!get_Avail_Memory_byvmstat(&temp2))
-	&&(!get_Avail_Memory_bysysinfo(&temp3)))
-      {
-	double pagesize= temp2/temp3;
-	*result=temp1*pagesize;
-	return 0;
-      }
+        &&(!get_Avail_Memory_byvmstat(&temp2))
+        &&(!get_Avail_Memory_bysysinfo(&temp3)))
+    {
+      double pagesize= temp2/temp3;
+      *result=temp1*pagesize;
+      return 0;
+    }
     else{
       *result=0;
       return 1;
@@ -153,17 +153,17 @@ Easy_Memory::get_Avail_Memory_byvmstat(double * result)
     if (!feof(myfile)){
       fgets(word, 256, myfile);
       if (!feof(myfile)){
-	fgets(word, 256, myfile);
-	int i=0;
-	while ((!feof(myfile))&&(i<4)){
-	  fscanf (myfile, "%255s", word);
-	  i++;
-	}
-	if (i==4){
-	  *result = atof ( word )/1024;
-	  returnval=0;
-	}
-	else return 1;
+        fgets(word, 256, myfile);
+        int i=0;
+        while ((!feof(myfile))&&(i<4)){
+          fscanf (myfile, "%255s", word);
+          i++;
+        }
+        if (i==4){
+          *result = atof ( word )/1024;
+          returnval=0;
+        }
+        else return 1;
       }
     }
     pclose(myfile);
@@ -191,19 +191,19 @@ Easy_Memory::get_Info_Memory_byProcMem(double* resultat,
 
 
   if (file.is_open())
+  {
+    while ( ! file.eof() )  //look at the whole file
     {
-      while ( ! file.eof() )  //look at the whole file
-	{
-	  if ( strcmp (demanded , word ) == 0 )
-            {
-	      file >> word;
-	      *resultat=atof(word)/1024;
-	      return 0;
-            }
-	  file >> word;
-	}
-      file.close();
+      if ( strcmp (demanded , word ) == 0 )
+      {
+        file >> word;
+        *resultat=atof(word)/1024;
+        return 0;
+      }
+      file >> word;
     }
+    file.close();
+  }
   else{
     TRACE_TEXT(TRACE_MAX_VALUE,"Error on reading file");
     return 1;

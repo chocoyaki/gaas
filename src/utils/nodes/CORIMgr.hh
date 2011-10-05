@@ -45,9 +45,9 @@ public:
 
   static int
   call_cori_mgr(estVector_t* ev,
-		int info_type,
-		diet_est_collect_tag_t collector_type,       
-		const void * data);
+                int info_type,
+                diet_est_collect_tag_t collector_type,
+                const void * data);
   static int
   startCollectors();
 

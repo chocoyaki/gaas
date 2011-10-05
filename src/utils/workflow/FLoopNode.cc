@@ -189,7 +189,7 @@ FLoopNode::checkCondition() throw (WfStructException) {
        ++portIter) {
     WfPort *port = (WfPort*) portIter->second;
     if (((port->getPortType() == WfPort::PORT_IN) || (port->getPortType() == WfPort::PORT_IN_LOOP))
-	&& myCondition->isVariableUsed(port->getId())) {
+        && myCondition->isVariableUsed(port->getId())) {
       // each port involved in the condition must be modified to accept only
       // DH with a real value
       FNodeInPort* inPort = dynamic_cast<FNodeInPort*>(port);
@@ -264,7 +264,7 @@ FLoopNode::testCondition(const vector<FDataHandle*>& currDataLine) {
 
       } else {
         throw WfDataHandleException(WfDataHandleException::eVALUE_UNDEF,
-				    "Condition variable '" + (*myConditionVars)[ix]->getName());
+                                    "Condition variable '" + (*myConditionVars)[ix]->getName());
       }
     }
   }
@@ -371,7 +371,7 @@ FLoopNode::createRealInstance(Dag* dag,
                               const FDataTag& currTag,
                               vector<FDataHandle*>& currDataLine) {
   TRACE_TEXT (TRACE_ALL_STEPS,"  ## NEW LOOP INSTANCE : " << getId()
-	      << currTag.toString() << endl);
+              << currTag.toString() << endl);
 
   initLoopInPorts(currDataLine);
 
@@ -409,7 +409,7 @@ void
 FLoopNode::createVoidInstance(const FDataTag& currTag,
                               vector<FDataHandle*>& currDataLine) {
   TRACE_TEXT (TRACE_ALL_STEPS,"  ## NEW LOOP VOID INSTANCE : " << getId()
-	      << currTag.toString() << endl);
+              << currTag.toString() << endl);
 
   initLoopInPorts(currDataLine);
   FDataTag* loopTag = new FDataTag(currTag,0,true);

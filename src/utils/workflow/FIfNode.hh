@@ -57,10 +57,10 @@ public:
 
   virtual WfPort *
   newPort(string portId,
-	  unsigned int ind,
-	  WfPort::WfPortType portType,
-	  WfCst::WfDataType dataType,
-	  unsigned int depth) throw (WfStructException);
+          unsigned int ind,
+          WfPort::WfPortType portType,
+          WfCst::WfDataType dataType,
+          unsigned int depth) throw (WfStructException);
 
   void
   setCondition(const string& conditionStr)
@@ -68,12 +68,12 @@ public:
 
   void
   setThenMap(const string& leftPortName,
-	     const string& rightPortName)
+             const string& rightPortName)
     throw (WfStructException);
 
   void
   setElseMap(const string& leftPortName,
-	     const string& rightPortName)
+             const string& rightPortName)
     throw (WfStructException);
 
   // ******************** INSTANCIATION *********************
@@ -86,8 +86,8 @@ public:
    */
   virtual void
   createRealInstance(Dag* dag,
-		     const FDataTag& currTag,
-		     vector<FDataHandle*>& currDataLine);
+                     const FDataTag& currTag,
+                     vector<FDataHandle*>& currDataLine);
 
 protected:
 
@@ -118,26 +118,26 @@ public:
    */
   virtual WfPort *
   newPort(string portId,
-	  unsigned int ind,
-	  WfPort::WfPortType portType,
-	  WfCst::WfDataType dataType,
-	  unsigned int depth) throw (WfStructException);
+          unsigned int ind,
+          WfPort::WfPortType portType,
+          WfCst::WfDataType dataType,
+          unsigned int depth) throw (WfStructException);
 
   virtual void
   createRealInstance(Dag* dag,
-		     const FDataTag& currTag,
-		     vector<FDataHandle*>& currDataLine);
+                     const FDataTag& currTag,
+                     vector<FDataHandle*>& currDataLine);
 
   virtual void
   createVoidInstance(const FDataTag& currTag,
-		     vector<FDataHandle*>& currDataLine);
+                     vector<FDataHandle*>& currDataLine);
 
 
 private:
 
   void
   createMergeInstance(const FDataTag& currTag,
-		      vector<FDataHandle*>& currDataLine);
+                      vector<FDataHandle*>& currDataLine);
 
   FNodeOutPort* myOutPort;
 
@@ -156,19 +156,19 @@ public:
 
   virtual WfPort *
   newPort(string portId,
-	  unsigned int ind,
-	  WfPort::WfPortType portType,
-	  WfCst::WfDataType dataType,
-	  unsigned int depth) throw (WfStructException);
+          unsigned int ind,
+          WfPort::WfPortType portType,
+          WfCst::WfDataType dataType,
+          unsigned int depth) throw (WfStructException);
 
   virtual void
   createRealInstance(Dag* dag,
-		     const FDataTag& currTag,
-		     vector<FDataHandle*>& currDataLine);
+                     const FDataTag& currTag,
+                     vector<FDataHandle*>& currDataLine);
 
   virtual void
   createVoidInstance(const FDataTag& currTag,
-		     vector<FDataHandle*>& currDataLine);
+                     vector<FDataHandle*>& currDataLine);
 
 private:
 

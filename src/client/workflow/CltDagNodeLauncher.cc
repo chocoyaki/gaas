@@ -50,7 +50,7 @@ CltDagNodeLauncher::CltDagNodeLauncher(DagNode * parent)
 {
 }
 
-string 
+string
 CltDagNodeLauncher::toString() const
 {
   return "Client " + DagNodeLauncher::toString();
@@ -62,14 +62,14 @@ CltDagNodeLauncher::execNode()
 {
   string traceHeader = "[" + myNode->getId() + "] Client Launcher : ";
   TRACE_TEXT (TRACE_ALL_STEPS, traceHeader << "starting... " << endl);
-  
+
   sendEventFrom<DagNodeLauncher, DagNode::START>(this, "Start client launcher", "", EventBase::INFO);
 
   // set the reqId in the profile
   if (isSeDDefinedFlag) {
     myNode->getProfile()->dietReqID = (int) myReqID;
     TRACE_TEXT(TRACE_ALL_STEPS, traceHeader << "setting reqID in profile to #"
-	       << myReqID << endl);
+               << myReqID << endl);
   }
 
   // diet call
@@ -77,7 +77,7 @@ CltDagNodeLauncher::execNode()
     SeD_var sed;
     if (myChosenServer == NULL)
       sed = SeD::_nil();
-    else 
+    else
       sed = ORBMgr::getMgr()->resolve<SeD, SeD_var>(SEDCTXT, myChosenServer);
 
     if (!diet_call_common(myNode->getDag()->getExecutionAgent(),
@@ -114,12 +114,12 @@ CltDagNodeLauncher::execNode()
     isSuccessfulFlag = false;
   } catch(CORBA::SystemException& e) {
     WARNING(traceHeader << "Got a CORBA " << e._name() << " exception ("
-	    << e.NP_minorString() << ")") ;
+            << e.NP_minorString() << ")") ;
     isSuccessfulFlag = false;
   }
 }
 
-void 
+void
 CltDagNodeLauncher::finishNode()
 {
   if (isSuccessfulFlag) {

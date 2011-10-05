@@ -188,8 +188,8 @@ public:
    *                    (for external links => adds a prefix to the ref)
    */
   WfSimplePortAdapter(WfPort* port,
-		      const list<unsigned int>& indexes,
-		      const string& portDagName = "");
+                      const list<unsigned int>& indexes,
+                      const string& portDagName = "");
 
 
   // virtual base methods
@@ -306,7 +306,7 @@ protected:
   WfMultiplePortAdapter(const WfMultiplePortAdapter& mpa);
 
   void parse(const string& strRef,
-	     string::size_type& startPos);
+             string::size_type& startPos);
 
 private:
   string      strRef;
@@ -372,7 +372,7 @@ public:
    * @param value the stringified value of the data (e.g. path for a file)
    */
   WfValueAdapter(WfCst::WfDataType valueType,
-		 const string& value);
+                 const string& value);
 
   ~WfValueAdapter();
 
@@ -457,9 +457,9 @@ public:
    * @param dataID  the dataID provided by the dataMgr
    */
   WfDataIDAdapter(WfCst::WfDataType dataType,
-		  unsigned int      dataDepth,
-		  const string&     dataID);
-    
+                  unsigned int      dataDepth,
+                  const string&     dataID);
+
   /**
    * Basic constructor with dataID only
    * Note: cannot be used for writing data value (requires depth)
@@ -469,14 +469,14 @@ public:
   WfDataIDAdapter(const string& dataID);
 
   ~WfDataIDAdapter();
-    
+
   /**
    * Event Message types
    */
   enum eventMsg_e {
     ELTIDLIST
   };
-    
+
   /**
    * Tags used to delimitate the reference within the 'source' attribute
    * inside a DAG node. As a value adapter may be an element of a multiple
@@ -507,12 +507,12 @@ public:
   writeDataValue(WfDataWriter* dataWriter);
   void
   freeAdapterPersistentData(MasterAgent_var& MA);
-        
+
   // specific dataID adapter methods
 
   void
   getElements(vector<string>& vectID);
-        
+
   string
   getDataID() const;
 
@@ -523,14 +523,14 @@ protected:
 
   static void
   getAndWriteData(WfDataWriter* dataWriter,
-		  const string& dataID,
-		  WfCst::WfDataType  dataType,
-		  unsigned int dataDepth);
+                  const string& dataID,
+                  WfCst::WfDataType  dataType,
+                  unsigned int dataDepth);
 
   string myDataID; //FIXME move to parent class
   WfCst::WfDataType myDataType;
   unsigned int myDepth;
-    
+
   /**
    * Cache containing the elements of container data
    * Used to avoid requesting the dataMgr for the same vectors of elts

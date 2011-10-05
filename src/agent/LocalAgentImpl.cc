@@ -126,7 +126,7 @@ using namespace std;
 extern unsigned int TRACE_LEVEL;
 
 #define LA_TRACE_FUNCTION(formatted_text)               \
-  TRACE_TEXT(TRACE_ALL_STEPS, "LA::");			\
+  TRACE_TEXT(TRACE_ALL_STEPS, "LA::");                  \
   TRACE_FUNCTION(TRACE_ALL_STEPS,formatted_text)
 
 LocalAgentImpl::LocalAgentImpl()
@@ -243,7 +243,7 @@ LocalAgentImpl::bindParent(const char * parentName) {
   try {
     if (profiles->length()) {
       childID = parent->agentSubscribe(myName, localHostName,
-				       *profiles);
+                                       *profiles);
     }
     TRACE_TEXT(TRACE_ALL_STEPS, "* Bound myself to parent: "
                << parentName << std::endl);
@@ -410,11 +410,11 @@ LocalAgentImpl::addServices(CORBA::ULong myID,
 #endif /* HAVE_DYNAMICS */
       tmp = this->SrvT->getProfiles();
       this->childID =
-	this->parent->agentSubscribe(myName,
-				     this->localHostName,
-				     *tmp);
+        this->parent->agentSubscribe(myName,
+                                     this->localHostName,
+                                     *tmp);
       if (this->childID < 0) {
-	return (-1);
+        return (-1);
       }
       delete tmp;
 #ifdef HAVE_DYNAMICS
@@ -447,7 +447,7 @@ LocalAgentImpl::childUnsubscribe(CORBA::ULong childID,
   if (! CORBA::is_nil(this->parent))
     for (size_t i = 0; i < services.length(); i++) {
       if (this->SrvT->lookupService(&(services[i])) == -1)
-	this->parent->childRemoveService(this->childID, services[i]);
+        this->parent->childRemoveService(this->childID, services[i]);
     }
 
   return 0;

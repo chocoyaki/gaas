@@ -223,8 +223,8 @@ PriorityNodeQueue::pushNode(DagNode * insNode) {
   list<DagNode*>::iterator  nodeIter = orderedNodes.begin();
   DagNode *                      curNode   = NULL;
   while ((nodeIter != orderedNodes.end())
-	 && (curNode = (DagNode *) *nodeIter)
-	 && (curNode->getPriority() >= insNodePrio)) {
+         && (curNode = (DagNode *) *nodeIter)
+         && (curNode->getPriority() >= insNodePrio)) {
     ++nodeIter;
   }
   orderedNodes.insert(nodeIter, insNode);

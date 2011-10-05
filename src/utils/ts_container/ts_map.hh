@@ -66,7 +66,7 @@ class ts_map : private std::map<Key, T, CMP> {
   ** not work in older versions of GCC!
   */
   template <class Key, class T, class CMP = std::less<Key>,
-	    class A = std::allocator<std::pair<const Key, T> > >
+            class A = std::allocator<std::pair<const Key, T> > >
   class ts_map : private std::map<Key, T, CMP, A> {
 #endif /* LIMIT_MAP_TEMPLATE */
 
@@ -158,7 +158,7 @@ class ts_map : private std::map<Key, T, CMP> {
       MapType::clear() ;
       locker.unlock() ;
     }
-  
+
     /***<iterator>**************************************************************/
 
     /**
@@ -182,14 +182,14 @@ class ts_map : private std::map<Key, T, CMP> {
       locker.unlock() ;
     }
 
-    inline iterator find(const Key& x) { 
+    inline iterator find(const Key& x) {
       assert(accessLocked) ;
-      return MapType::find(x) ; 
+      return MapType::find(x) ;
     }
 
-    inline void erase(iterator pos) { 
+    inline void erase(iterator pos) {
       assert(accessLocked) ;
-      MapType::erase(pos) ; 
+      MapType::erase(pos) ;
     }
 
     inline iterator insert(iterator pos, const value_type& x) {

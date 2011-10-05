@@ -119,11 +119,11 @@ MultiWfBasicScheduler::run() {
       DagNode * n = readyQ->popFirstNode();
       if (n != NULL) {
         TRACE_TEXT(TRACE_ALL_STEPS,"  #### Ready node : " << n->getCompleteId()
-		   << " => execute" << endl);
+                   << " => execute" << endl);
         // EXECUTE NODE (NEW THREAD)
         // create a node launcher
         DagNodeLauncher *launcher = new MaDagNodeLauncher( n, this,
-							   myMaDag->getCltMan(n->getDag()->getId()));
+                                                           myMaDag->getCltMan(n->getDag()->getId()));
         n->start(launcher);
         nodeCount++;
         // Destroy queues if both are empty

@@ -28,107 +28,107 @@
 using namespace std;
 
 ::CORBA::Long DIETForwarder::processDagWf(const ::corba_wf_desc_t& dag_desc,
-					  const char* cltMgrRef,
-					  ::CORBA::Long wfReqId,
-					  const char* objName)
+                                          const char* cltMgrRef,
+                                          ::CORBA::Long wfReqId,
+                                          const char* objName)
 {
   string objString(objName);
   string name;
-        
+
   if (!remoteCall(objString)) {
     return getPeer()->processDagWf(dag_desc, cltMgrRef, wfReqId, objString.c_str());
   }
-        
+
   name = getName(objString);
-                
+
   MaDag_var agent = ORBMgr::getMgr()->resolve<MaDag, MaDag_var>(MADAGCTXT, name,
-								this->name);
+                                                                this->name);
   return agent->processDagWf(dag_desc, cltMgrRef, wfReqId);
 }
 
 ::CORBA::Long DIETForwarder::processMultiDagWf(const ::corba_wf_desc_t& dag_desc,
-					       const char* cltMgrRef,
-					       ::CORBA::Long wfReqId,
-					       ::CORBA::Boolean release,
-					       const char* objName)
+                                               const char* cltMgrRef,
+                                               ::CORBA::Long wfReqId,
+                                               ::CORBA::Boolean release,
+                                               const char* objName)
 {
   string objString(objName);
   string name;
-        
+
   if (!remoteCall(objString)) {
     return getPeer()->processMultiDagWf(dag_desc, cltMgrRef, wfReqId, release,
-					objString.c_str());
+                                        objString.c_str());
   }
-        
+
   name = getName(objString);
-                
+
   MaDag_var agent = ORBMgr::getMgr()->resolve<MaDag, MaDag_var>(MADAGCTXT, name,
-								this->name);
-  return agent->processMultiDagWf(dag_desc, cltMgrRef, wfReqId, release); 
+                                                                this->name);
+  return agent->processMultiDagWf(dag_desc, cltMgrRef, wfReqId, release);
 }
 
 ::CORBA::Long DIETForwarder::getWfReqId(const char* objName) {
   string objString(objName);
   string name;
-        
+
   if (!remoteCall(objString)) {
     return getPeer()->getWfReqId(objString.c_str());
   }
-        
+
   name = getName(objString);
-        
+
   MaDag_var agent = ORBMgr::getMgr()->resolve<MaDag, MaDag_var>(MADAGCTXT, name,
-								this->name);
-  return agent->getWfReqId();     
+                                                                this->name);
+  return agent->getWfReqId();
 }
 
 void DIETForwarder::releaseMultiDag(::CORBA::Long wfReqId,
-				    const char* objName)
+                                    const char* objName)
 {
   string objString(objName);
   string name;
-        
+
   if (!remoteCall(objString)) {
     return getPeer()->releaseMultiDag(wfReqId, objString.c_str());
   }
-        
+
   name = getName(objString);
-                
+
   MaDag_var agent = ORBMgr::getMgr()->resolve<MaDag, MaDag_var>(MADAGCTXT, name,
-								this->name);
-  return agent->releaseMultiDag(wfReqId); 
+                                                                this->name);
+  return agent->releaseMultiDag(wfReqId);
 }
 
 void DIETForwarder::cancelDag(::CORBA::Long dagId,
-			      const char* objName)
+                              const char* objName)
 {
   string objString(objName);
   string name;
-        
+
   if (!remoteCall(objString)) {
     return getPeer()->cancelDag(dagId, objString.c_str());
   }
-        
+
   name = getName(objString);
-                
+
   MaDag_var agent = ORBMgr::getMgr()->resolve<MaDag, MaDag_var>(MADAGCTXT, name,
-								this->name);
-  return agent->cancelDag(dagId); 
+                                                                this->name);
+  return agent->cancelDag(dagId);
 }
 
 void DIETForwarder::setPlatformType(::MaDag::pfmType_t pfmType,
-				    const char* objName)
+                                    const char* objName)
 {
   string objString(objName);
   string name;
-        
+
   if (!remoteCall(objString)) {
     return getPeer()->setPlatformType(pfmType, objString.c_str());
   }
-        
+
   name = getName(objString);
-                
+
   MaDag_var agent = ORBMgr::getMgr()->resolve<MaDag, MaDag_var>(MADAGCTXT, name,
-								this->name);
-  return agent->setPlatformType(pfmType); 
+                                                                this->name);
+  return agent->setPlatformType(pfmType);
 }

@@ -117,8 +117,8 @@ WfPort::~WfPort() {
 
 void
 WfPort::setMatParams(long nbr, long nbc,
-		     WfCst::WfMatrixOrder o,
-		     WfCst::WfDataType bt) {
+                     WfCst::WfMatrixOrder o,
+                     WfCst::WfDataType bt) {
   this->nb_r = nbr;
   this->nb_c = nbc;
   this->order = o;
@@ -152,8 +152,8 @@ WfPort::isOutput() const {
 bool
 WfPort::isInput() const {
   return ((portType == PORT_IN)
-	  || (portType == PORT_IN_LOOP)
-	  || (portType == PORT_INOUT));
+          || (portType == PORT_IN_LOOP)
+          || (portType == PORT_INOUT));
 }
 
 string

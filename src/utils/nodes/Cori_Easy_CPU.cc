@@ -80,7 +80,7 @@ Easy_CPU::get_CPU_Frequence(vector <double> * vlist)
       !get_CPU_Freq_for_FreeBSD(&temp)||
       !get_CPU_Freq_for_Darwin(&temp)||
       !get_CPU_Freq_for_NetBSD(&temp)
-      ){
+    ){
 
     //found it in a manner
     *vlist=temp;
@@ -336,17 +336,17 @@ Easy_CPU::get_Bogomips_From_Proc(vector <double> * vlist){
 
 
   if ((fp = fopen ("/proc/cpuinfo", "r")) != NULL)
+  {
+    while (fgets (buf, sizeof (buf), fp) != NULL)
     {
-      while (fgets (buf, sizeof (buf), fp) != NULL)
-        {
-          if (sscanf (buf, "bogomips : %lf\n", &val) == 1
-              || sscanf (buf, "BogoMIPS : %lf\n", &val) == 1){
-	    ret = 0;
-	    vlist->push_back( val );
-	  }
-        }
-      fclose (fp);
+      if (sscanf (buf, "bogomips : %lf\n", &val) == 1
+          || sscanf (buf, "BogoMIPS : %lf\n", &val) == 1){
+        ret = 0;
+        vlist->push_back( val );
+      }
     }
+    fclose (fp);
+  }
 #else
   ret=1;
 #endif
@@ -362,16 +362,16 @@ Easy_CPU::get_CPU_Cache_From_Proc(vector <double> * vlist){
 
 
   if ((fp = fopen ("/proc/cpuinfo", "r")) != NULL)
+  {
+    while (fgets (buf, sizeof (buf), fp) != NULL)
     {
-      while (fgets (buf, sizeof (buf), fp) != NULL)
-        {
-          if (sscanf (buf, "cache size : %lf\n", &val) == 1){
-	    ret = 0;
-	    vlist->push_back( val );
-	  }
-        }
-      fclose (fp);
+      if (sscanf (buf, "cache size : %lf\n", &val) == 1){
+        ret = 0;
+        vlist->push_back( val );
+      }
     }
+    fclose (fp);
+  }
 #else
   ret=1;
 #endif
@@ -388,27 +388,27 @@ Easy_CPU::get_CPU_Freq_From_Proc(vector <double> * vlist){
 
 
   if ((fp = fopen ("/proc/cpuinfo", "r")) != NULL)
+  {
+    while (fgets (buf, sizeof (buf), fp) != NULL)
     {
-      while (fgets (buf, sizeof (buf), fp) != NULL)
-        {
-          if (sscanf (buf, "cycle frequency [Hz]    : %lf", &val) == 1)
-            {
-	      ret = 0;
-	      vlist->push_back( (val)/1000000 );
-            }
-          if (sscanf (buf, "cpu MHz : %lf\n", &val) == 1)
-            {
-              ret = 0;
-              vlist->push_back( val );
-            }
-          if (sscanf (buf, "clock : %lfMHz\n", &val) == 1)
-            {
-              ret = 0;
-              vlist->push_back( val );
-            }
-        }
-      fclose (fp);
+      if (sscanf (buf, "cycle frequency [Hz]    : %lf", &val) == 1)
+      {
+        ret = 0;
+        vlist->push_back( (val)/1000000 );
+      }
+      if (sscanf (buf, "cpu MHz : %lf\n", &val) == 1)
+      {
+        ret = 0;
+        vlist->push_back( val );
+      }
+      if (sscanf (buf, "clock : %lfMHz\n", &val) == 1)
+      {
+        ret = 0;
+        vlist->push_back( val );
+      }
     }
+    fclose (fp);
+  }
 #else
   ret=1;
 #endif
@@ -427,11 +427,11 @@ Easy_CPU::get_CPU_Freq_for_FreeBSD(vector <double> * vlist)
       ||sysctlbyname ("machdep.i586_freq", &val, &size, NULL, 0) == 0
       && size == sizeof(val)&&(val!=0)
 
-      )
-    {
-      vlist->push_back(val/1000000 );
-      return 0;
-    }
+    )
+  {
+    vlist->push_back(val/1000000 );
+    return 0;
+  }
 #endif
   return 1;
 }
@@ -453,10 +453,10 @@ Easy_CPU::get_CPU_Freq_for_Darwin(vector <double> * vlist)
   mib[1] = HW_CPU_FREQ;
   size = sizeof(val);
   if (sysctl (mib, 2, &val, &size, NULL, 0) == 0)
-    {
-      vlist->push_back( val);
-      return 0;
-    }
+  {
+    vlist->push_back( val);
+    return 0;
+  }
 #endif
   return 1;
 }
@@ -481,27 +481,27 @@ Easy_CPU::get_CPU_Freq_for_NetBSD(vector <double> * vlist)
   mib[1] = HW_MODEL;
   size = sizeof(str);
   if (sysctl (mib, 2, str, &size, NULL, 0) == 0)
+  {
+    /* find the second last space */
+    p = &str[size-1];
+    for (i = 0; i < 2; i++)
     {
-      /* find the second last space */
-      p = &str[size-1];
-      for (i = 0; i < 2; i++)
-        {
-          for (;;)
-            {
-              if (p <= str)
-                return 0;
-              p--;
-              if (*p == ' ')
-                break;
-            }
-        }
-
-      if (sscanf (p, "%u MHz", &val) != 1)
-        return 1;
-
-      vlist->push_back(val);
-      return 0;
+      for (;;)
+      {
+        if (p <= str)
+          return 0;
+        p--;
+        if (*p == ' ')
+          break;
+      }
     }
+
+    if (sscanf (p, "%u MHz", &val) != 1)
+      return 1;
+
+    vlist->push_back(val);
+    return 0;
+  }
 #endif
   return 1;
 }

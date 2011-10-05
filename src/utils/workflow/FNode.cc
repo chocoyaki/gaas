@@ -117,7 +117,7 @@ FNode::getWorkflow() const {
   return wf;
 }
 
-FWorkflow* 
+FWorkflow*
 FNode::getRootWorkflow() const
 {
   if (wf == NULL) return NULL;
@@ -318,12 +318,12 @@ FConstantNode::initialize() {
   // use data ID if available (value is not used)
   if (!myDataID.empty()) {
     TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "Initialize constant (ID=/"
-		<< myDataID << "/)" << endl);
+                << myDataID << "/)" << endl);
     myDH = new FDataHandle(singleTag, myOutPort->getBaseDataType(), 0, myDataID);
 
   } else {
     TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "Initialize constant (value=/"
-		<< myValue << "/)" << endl);
+                << myValue << "/)" << endl);
     myDH = new FDataHandle(singleTag, myOutPort->getBaseDataType(), myValue);
     myDH->downloadDataID();  // add data to the platform dataMgr
   }
@@ -596,12 +596,12 @@ FProcNode::createPortInputIterator(const string& portId) {
     wfPort = getPort(portId);
   } catch (WfStructException& e) {
     throw WfStructException(WfStructException::eOTHER,
-			    "unknown input for operator creation :" + e.Info());
+                            "unknown input for operator creation :" + e.Info());
   }
   FNodeInPort *inPort = dynamic_cast<FNodeInPort*>(wfPort);
   if (inPort == NULL)
     throw WfStructException(WfStructException::eOTHER,
-			    "input operator applied to an output port");
+                            "input operator applied to an output port");
   PortInputIterator *newPortIter = new PortInputIterator(inPort);
   myIterators[inPort->getId()] = (InputIterator*) newPortIter;
   return newPortIter;
@@ -619,12 +619,12 @@ FProcNode::createInputOperator(inputOperator_t opType, const vector<string>& inp
   // convert N-cross to 2-cross using recursive call
   if (((opType == OPER_CROSS) || (opType == OPER_FLATCROSS))
       && (inputIds.size() > 2))
-    {
-      vector<string>  rightInputIds(++inputIds.begin(), inputIds.end());
-      _inputIds.resize(2);
-      _inputIds[0] = inputIds[0];
-      _inputIds[1] = createInputOperator(opType, rightInputIds);
-    }
+  {
+    vector<string>  rightInputIds(++inputIds.begin(), inputIds.end());
+    _inputIds.resize(2);
+    _inputIds[0] = inputIds[0];
+    _inputIds[1] = createInputOperator(opType, rightInputIds);
+  }
   // convert inputIds to a table of iterator ref
   vector<InputIterator*> *inputIterTab = new vector<InputIterator*>(_inputIds.size());
   int inputIterIdx = 0;
@@ -671,7 +671,7 @@ FProcNode::setRootInputOperator(const string& opId) {
     myRootIterator = (InputIterator*) iterFind->second;
   } else
     throw WfStructException(WfStructException::eOTHER,
-			    "Root input operator '"+opId+"' not found");
+                            "Root input operator '"+opId+"' not found");
 }
 
 void
@@ -679,7 +679,7 @@ FProcNode::setRootInputOperator(InputIterator * newOper) {
   map<string,InputIterator*>::iterator iterFind = myIterators.find(newOper->getId());
   if (iterFind != myIterators.end()) {
     throw WfStructException(WfStructException::eOTHER,
-			    "Root input operator '"+newOper->getId()+"' already defined");
+                            "Root input operator '"+newOper->getId()+"' already defined");
   } else {
     myIterators[newOper->getId()] = newOper;
     myRootIterator = newOper;
@@ -731,7 +731,7 @@ FProcNode::setDynamicParamValue(const string& paramVarName,
                                 const string& paramValue) {
   varMap[paramVarName] = paramValue;
   TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "Set parameter variable: " << paramVarName
-	      << "(value = " << paramValue << ")" << endl);
+              << "(value = " << paramValue << ")" << endl);
 }
 
 const string&
@@ -760,10 +760,10 @@ FProcNode::initialize() {
     string portId = port->getId();
     // check if current port is an input and is not constant
     if (((port->getPortType() == WfPort::PORT_IN)
-	 || (port->getPortType() == WfPort::PORT_INOUT)
-	 || (port->getPortType() == WfPort::PORT_PARAM))
-	&& !isConstantInput(ix)
-	&& !isIteratorDefined(portId)) {
+         || (port->getPortType() == WfPort::PORT_INOUT)
+         || (port->getPortType() == WfPort::PORT_PARAM))
+        && !isConstantInput(ix)
+        && !isIteratorDefined(portId)) {
       // create an iterator for the current port
       createPortInputIterator(portId);
       (*iterCreatedMap)[iterCreatedNb++] = portId;
@@ -797,7 +797,7 @@ void
 FProcNode::createVoidInstance(const FDataTag& currTag,
                               vector<FDataHandle*>& currDataLine) {
   TRACE_TEXT (TRACE_MAIN_STEPS,"  ## NEW VOID INSTANCE : " << getId()
-	      << currTag.toString() << endl);
+              << currTag.toString() << endl);
   // LOOP for each out port
   for (map<string,WfPort*>::iterator portIter = ports.begin();
        portIter != ports.end();
@@ -856,8 +856,8 @@ FProcNode::instanciate(Dag* dag) {
         // SET DYNAMIC PARAMETERS
         varMap.clear();
         for (map<string,WfPort*>::iterator portIter = ports.begin();
-	     portIter != ports.end();
-	     ++portIter) {
+             portIter != ports.end();
+             ++portIter) {
           WfPort* port = (WfPort*) portIter->second;
           if (port->getPortType() == WfPort::PORT_PARAM) {
             FNodeParamPort* paramPort = dynamic_cast<FNodeParamPort*>(port);

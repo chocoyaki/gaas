@@ -154,12 +154,12 @@ CallAsyncMgr* CallAsyncMgr::pinstance = 0;
 CallAsyncMgr* CallAsyncMgr::Instance ()
 {
   if (pinstance == 0)  // is it the first call?
-    {
-      WriterLockGuard r(rwLock);
-      if (pinstance == 0) {
-        CallAsyncMgr::pinstance = new CallAsyncMgr; // create sole instance
-      }
+  {
+    WriterLockGuard r(rwLock);
+    if (pinstance == 0) {
+      CallAsyncMgr::pinstance = new CallAsyncMgr; // create sole instance
     }
+  }
   return CallAsyncMgr::pinstance; // address of sole instance
 }
 
@@ -236,13 +236,13 @@ int CallAsyncMgr::deleteAsyncCallWithoutLock(diet_reqID_t reqID)
         RulesReqIDMap::iterator j = rulesIDs.lower_bound(reqID);
         RulesConditionMap::iterator i = rulesConds.begin();
         while ((j != rulesIDs.end()) && (j != rulesIDs.upper_bound(reqID)))
-          {
-            j->second->status=STATUS_CANCEL;
-            i = rulesConds.find(j->second);
-            if (i != rulesConds.end()) i->second->post();
-            ++j;
-            k++;
-          }
+        {
+          j->second->status=STATUS_CANCEL;
+          i = rulesConds.find(j->second);
+          if (i != rulesConds.end()) i->second->post();
+          ++j;
+          k++;
+        }
       }
       caList.erase(reqID);
     }
@@ -334,61 +334,61 @@ int CallAsyncMgr::addWaitAnyRule(diet_reqID_t* IDptr)
     // get lock on condition/waitRule
     switch (CallAsyncMgr::Instance()->addWaitRule(rule)){
     case STATUS_DONE:
-      {
-        ReaderLockGuard r(callAsyncListLock);
-        CallAsyncList::iterator h = caList.begin();
-        for (unsigned int k = 0; k < caList.size(); k++){
-          TRACE_TEXT (TRACE_ALL_STEPS,"status " << h->second->st << endl);
-          if ((h->second->st == STATUS_DONE) &&
-              (find(doneRequests.begin(),
-                    doneRequests.end(),
-                    h->first) == doneRequests.end())
-              ) {
-            TRACE_TEXT (TRACE_ALL_STEPS,"finding " << h->first << endl);
-            *IDptr = h->first;
-            doneRequests.push_back(h->first);
-            return STATUS_DONE;
-          }
-          ++h;
-        }
-        return STATUS_ERROR;
-        /*
-          ReaderLockGuard r(callAsyncListLock);
-          CallAsyncList::iterator h = caList.begin();
-          for (unsigned int k = 0; k < caList.size(); k++){
-          cout << "Testing if " << h->first
-          << "(" << h->second->st << ")"
-          << " is in ";
-          for (unsigned int ix=0; ix<doneRequests.size(); ix++)
-          cout << doneRequests[ix] << ", ";
-          cout << endl;
-          if ((h->second->st == STATUS_DONE) &&
-          (find(doneRequests.begin(),
-          doneRequests.end(),
-          h->first) == doneRequests.end())
+    {
+      ReaderLockGuard r(callAsyncListLock);
+      CallAsyncList::iterator h = caList.begin();
+      for (unsigned int k = 0; k < caList.size(); k++){
+        TRACE_TEXT (TRACE_ALL_STEPS,"status " << h->second->st << endl);
+        if ((h->second->st == STATUS_DONE) &&
+            (find(doneRequests.begin(),
+                  doneRequests.end(),
+                  h->first) == doneRequests.end())
           ) {
+          TRACE_TEXT (TRACE_ALL_STEPS,"finding " << h->first << endl);
           *IDptr = h->first;
           doneRequests.push_back(h->first);
           return STATUS_DONE;
-          }
-          ++h;
-          }
-          return STATUS_ERROR;
-        */
+        }
+        ++h;
       }
+      return STATUS_ERROR;
+      /*
+        ReaderLockGuard r(callAsyncListLock);
+        CallAsyncList::iterator h = caList.begin();
+        for (unsigned int k = 0; k < caList.size(); k++){
+        cout << "Testing if " << h->first
+        << "(" << h->second->st << ")"
+        << " is in ";
+        for (unsigned int ix=0; ix<doneRequests.size(); ix++)
+        cout << doneRequests[ix] << ", ";
+        cout << endl;
+        if ((h->second->st == STATUS_DONE) &&
+        (find(doneRequests.begin(),
+        doneRequests.end(),
+        h->first) == doneRequests.end())
+        ) {
+        *IDptr = h->first;
+        doneRequests.push_back(h->first);
+        return STATUS_DONE;
+        }
+        ++h;
+        }
+        return STATUS_ERROR;
+      */
+    }
     case STATUS_CANCEL:
       return STATUS_CANCEL;
     case STATUS_ERROR:
       return STATUS_ERROR;
     default:
-      {
-        WARNING(__FUNCTION__ << "unexpected error in addWaitRule return value.");
-        fflush(stderr);
-        return -1; // Unexcpected error, no value describing it (enum request_status_t)
-        // NOTES: Be carefull, there may be others rules
-        // using some of this reqID(AsyncCall)
-        // So, carefull using diet_cancel
-      }
+    {
+      WARNING(__FUNCTION__ << "unexpected error in addWaitRule return value.");
+      fflush(stderr);
+      return -1; // Unexcpected error, no value describing it (enum request_status_t)
+      // NOTES: Be carefull, there may be others rules
+      // using some of this reqID(AsyncCall)
+      // So, carefull using diet_cancel
+    }
     }
   }
   catch (const exception& e){
@@ -583,37 +583,37 @@ int CallAsyncMgr::notifyRst (diet_reqID_t reqID, corba_profile_t * dp)
       for(j = rulesIDs.lower_bound(reqID);
           j != rulesIDs.upper_bound(reqID);
           ++j) {
-	bool plenty = true;
-	for (int k = 0; k < j->second->length; k++){
-	  h = caList.find(j->second->ruleElts[k].reqID);
-	  if ((h != caList.end())
-	      && (h->second->st != STATUS_DONE)
-	      && ((j->second->ruleElts[k].op == WAITOPERATOR(AND))
-		  || (j->second->ruleElts[k].op == WAITOPERATOR(SOLE))
-		  || (j->second->ruleElts[k].op == WAITOPERATOR(ALL))
-		  )
-	      ) {
-	    plenty = false;
-	  }
-	  /**********************************************************************
-	   * FIXME : rule parsing must be reimplemented ....
-	   * for performance and function
-	   * *******************************************************************/
-	}
+        bool plenty = true;
+        for (int k = 0; k < j->second->length; k++){
+          h = caList.find(j->second->ruleElts[k].reqID);
+          if ((h != caList.end())
+              && (h->second->st != STATUS_DONE)
+              && ((j->second->ruleElts[k].op == WAITOPERATOR(AND))
+                  || (j->second->ruleElts[k].op == WAITOPERATOR(SOLE))
+                  || (j->second->ruleElts[k].op == WAITOPERATOR(ALL))
+                )
+            ) {
+            plenty = false;
+          }
+          /**********************************************************************
+           * FIXME : rule parsing must be reimplemented ....
+           * for performance and function
+           * *******************************************************************/
+        }
 
-	if (plenty == true) {
-	  j->second->status=STATUS_DONE;
-	  i = rulesConds.find(j->second);
-	  if (i != rulesConds.end()){
-	    i->second->post();
-	  }
-	  else {
-	  }
-	  // broadcast for that rule
-	}
-	else {
-	  // nothing. try another rule linked to this reqID
-	}
+        if (plenty == true) {
+          j->second->status=STATUS_DONE;
+          i = rulesConds.find(j->second);
+          if (i != rulesConds.end()){
+            i->second->post();
+          }
+          else {
+          }
+          // broadcast for that rule
+        }
+        else {
+          // nothing. try another rule linked to this reqID
+        }
       }
     }
     catch (const exception& e){

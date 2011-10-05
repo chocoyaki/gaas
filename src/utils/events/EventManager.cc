@@ -39,9 +39,9 @@ EventManager::sendEvent(EventBase* event) {
   for (unsigned int i=0; i<_observers.size(); i++) {
     if (_observers[i]->isObserver(event)) {
       try {
-	_observers[i]->handleEvent(event);
+        _observers[i]->handleEvent(event);
       } catch (std::ios_base::failure& e) {
-	cerr << "Sending event failed: ios failure caught: " << e.what() << endl;
+        cerr << "Sending event failed: ios failure caught: " << e.what() << endl;
       }
     }
   }

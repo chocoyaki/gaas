@@ -160,36 +160,36 @@ const std::string CmdParser::help() const
 
   for (CmdConfig::const_iterator it = config_.begin();
        it != config_.end(); ++it)
-    {
-      switch (it->type) {
-      case CmdParser::Param:
-	helpParams << spc << it->name << "  "
-		   << it->desc
-		   << spc << "(option form: -" << it->shortName << ", "
-		   << "--" << it->longName << ")";
-	(CmdParser::Mandatory == it->flags) ?
-	  helpParams << " (**Mandatory**)" << endl :
-	  helpParams << endl;
+  {
+    switch (it->type) {
+    case CmdParser::Param:
+      helpParams << spc << it->name << "  "
+                 << it->desc
+                 << spc << "(option form: -" << it->shortName << ", "
+                 << "--" << it->longName << ")";
+      (CmdParser::Mandatory == it->flags) ?
+        helpParams << " (**Mandatory**)" << endl :
+        helpParams << endl;
 
-	break;
-      case CmdParser::Switch:
-	helpSwitchs << spc << "-" << it->shortName << ", "
-		    << "--" << it->longName << "   "
-		    << it->desc;
-	(CmdParser::Mandatory == it->flags) ?
-	  helpSwitchs << " (**Mandatory**)" << endl :
-	  helpSwitchs << endl;
-	break;
-      case CmdParser::Option:
-	helpOptions << spc << "-" << it->shortName << " <value>, "
-		    << "--" << it->longName << "=<value>  "
-		    << it->desc;
-	(CmdParser::Mandatory == it->flags) ?
-	  helpOptions << " (**Mandatory**)" << endl :
-	  helpOptions << endl;
-	break;
-      }
+      break;
+    case CmdParser::Switch:
+      helpSwitchs << spc << "-" << it->shortName << ", "
+                  << "--" << it->longName << "   "
+                  << it->desc;
+      (CmdParser::Mandatory == it->flags) ?
+        helpSwitchs << " (**Mandatory**)" << endl :
+        helpSwitchs << endl;
+      break;
+    case CmdParser::Option:
+      helpOptions << spc << "-" << it->shortName << " <value>, "
+                  << "--" << it->longName << "=<value>  "
+                  << it->desc;
+      (CmdParser::Mandatory == it->flags) ?
+        helpOptions << " (**Mandatory**)" << endl :
+        helpOptions << endl;
+      break;
     }
+  }
 
   if (showVersion_ && !version_.empty()) {
     help << version();

@@ -137,12 +137,12 @@ createPath(char **path_file,const char* path)
   strcat(*path_file,namefile);
 
   while ( is_readable( *path_file ) )
-    {
-      nombre = (int)((double)rand() / ((double)RAND_MAX + 1) * 9999);
-      sprintf(namefile, "%i",  nombre);
-      strcpy(*path_file,path);
-      strcat(*path_file,namefile);
-    }
+  {
+    nombre = (int)((double)rand() / ((double)RAND_MAX + 1) * 9999);
+    sprintf(namefile, "%i",  nombre);
+    strcpy(*path_file,path);
+    strcat(*path_file,namefile);
+  }
   delete [] namefile;
 }
 
@@ -269,13 +269,13 @@ Easy_Disk::gatherSizeDisks(int typeOfInfo,double *result,
     if (!feof(myfile)){
       fgets(word, 256, myfile);
       if (!feof(myfile)){
-	//look for the '%' and save the isstatic th element before this
-	number= search_for_percent(myfile,typeOfInfo);
-	if (number!=-1){ //found the percent
-	  *result=number/1024;
-	  number=-1;
-	  //   if (file!=NULL)
-	}
+        //look for the '%' and save the isstatic th element before this
+        number= search_for_percent(myfile,typeOfInfo);
+        if (number!=-1){ //found the percent
+          *result=number/1024;
+          number=-1;
+          //   if (file!=NULL)
+        }
       }
     }
     pclose(myfile);
@@ -327,11 +327,11 @@ Easy_Disk::get_Write_Speed_by_gettimeofday(const char* path,
         &&(i<rounds)) {
     try{
       if (!outfile.is_open()){
-	TRACE_TEXT(TRACE_MAX_VALUE,
-		   "error: can not create a test file for writing");
-	removePath_file(&path_file);
-	*result=0;
-	return 1;
+        TRACE_TEXT(TRACE_MAX_VALUE,
+                   "error: can not create a test file for writing");
+        removePath_file(&path_file);
+        *result=0;
+        return 1;
       }
       outfile.write(buffer,sizeTab);
       outfile.flush();
@@ -405,11 +405,11 @@ Easy_Disk::get_Write_Speed_by_sig_alarm(const char* path,
         &&(i<rounds)) {
     try{
       if (!outfile.is_open()){
-	TRACE_TEXT(TRACE_MAX_VALUE,
-		   "Can not create a test file for partition perf test");
-	removePath_file(&path_file);
-	*result=0;
-	return 1;
+        TRACE_TEXT(TRACE_MAX_VALUE,
+                   "Can not create a test file for partition perf test");
+        removePath_file(&path_file);
+        *result=0;
+        return 1;
       }
       outfile.write(buffer,sizeTab);
       outfile.flush();
@@ -453,7 +453,7 @@ Easy_Disk::get_Write_Speed_by_sig_alarm(const char* path,
 
 int
 Easy_Disk::get_Read_Speed_by_gettimeofday(const char* path,
-					  double * result){
+                                          double * result){
 #ifndef HAVE_GETTIMEOFDAY
   return 1;
 #endif
@@ -528,7 +528,7 @@ Easy_Disk::get_Read_Speed_by_gettimeofday(const char* path,
 
 int
 Easy_Disk::get_Read_Speed_by_sig_alarm(const char* path,
-				       double * result)
+                                       double * result)
 {
 #if !(defined HAVE_SIGNAL) || !(defined HAVE_ALARM)
   return 1;

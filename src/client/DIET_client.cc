@@ -915,8 +915,8 @@ diet_finalize() {
     delete mgr;
   } catch( std::runtime_error& e ) {
     std::cerr << "Exception caugh: "
-	      << e.what()
-	      << "\n";
+              << e.what()
+              << "\n";
   } catch( ... ) {}
 
 
@@ -1574,7 +1574,7 @@ diet_wf_save_transcript_file(diet_wf_desc_t * profile,
   if (!transcript_file_name)
     return 1;
   return CltWfMgr::instance()->saveWorkflowExecutionTranscript(profile,
-							       transcript_file_name);
+                                                               transcript_file_name);
 }
 
 /**

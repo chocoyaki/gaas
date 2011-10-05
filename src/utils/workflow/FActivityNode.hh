@@ -91,8 +91,8 @@ public:
    */
   virtual void
   createRealInstance(Dag* dag,
-		     const FDataTag& currTag,
-		     vector<FDataHandle*>& currDataLine);
+                     const FDataTag& currTag,
+                     vector<FDataHandle*>& currDataLine);
 
   /**
    * Update the FNode instanciation status after data processing loop

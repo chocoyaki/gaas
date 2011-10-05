@@ -29,43 +29,43 @@
 
 namespace events {
 
-  // Singleton class for the global event manager
-  // Implements the Mediator pattern to reduce coupling btw event producers and
-  // event observers
+// Singleton class for the global event manager
+// Implements the Mediator pattern to reduce coupling btw event producers and
+// event observers
 
-  class EventManager {
-  
-  public:
-    
-    /**
-     * Get the instance of the singleton
-     * @return ref to the instance
-     */
-    static EventManager* getEventMgr();
-    
-    /**
-     * Generic event generation method
-     * To be used when no static method provided 
-     * @param event
-     */
-    virtual void sendEvent(EventBase* event);
-    
-    /**
-     * Add a new observer with a basic filter on severity
-     * @param observer  the observer
-     */
-    void addObserver(EventObserver* observer);
-    
-  protected:
-    
-    EventManager() : _parent(NULL) {}
-    EventManager* _parent;
-    
-  private:
-    
-    static EventManager*        _instance;
-    std::vector<EventObserver*> _observers;
-  };
+class EventManager {
+
+public:
+
+  /**
+   * Get the instance of the singleton
+   * @return ref to the instance
+   */
+  static EventManager* getEventMgr();
+
+  /**
+   * Generic event generation method
+   * To be used when no static method provided
+   * @param event
+   */
+  virtual void sendEvent(EventBase* event);
+
+  /**
+   * Add a new observer with a basic filter on severity
+   * @param observer  the observer
+   */
+  void addObserver(EventObserver* observer);
+
+protected:
+
+  EventManager() : _parent(NULL) {}
+  EventManager* _parent;
+
+private:
+
+  static EventManager*        _instance;
+  std::vector<EventObserver*> _observers;
+};
 
 }
 

@@ -42,15 +42,15 @@
 #include "EucaLib/ec2wrapper.h"
 
 /* The type of the Virtual Machine that is to be instantiated */
-typedef enum 
-  {
-    M1_SMALL,
-    C1_MEDIUM,
-    M1_LARGE,
-    M1_XLARGE,
-    C1_XLARGE,
-    T1_MICRO
-  }VMTYPE;
+typedef enum
+{
+  M1_SMALL,
+  C1_MEDIUM,
+  M1_LARGE,
+  M1_XLARGE,
+  C1_XLARGE,
+  T1_MICRO
+}VMTYPE;
 
 class Eucalyptus_BatchSystem : public BatchSystem
 {
@@ -80,8 +80,8 @@ public :
   /** Override for diet_submit_parallel */
   int
   diet_submit_parallel(diet_profile_t * profile,
-		       const char * addon_prologue,
-		       const char * command) ;
+                       const char * addon_prologue,
+                       const char * command) ;
 
   /********** Batch static information accessing Functions **********/
   /* These should soon change for they assume a default queue and we
@@ -137,16 +137,16 @@ private :
      * This string holds that value
      */
     char *reservationId;
-  
+
     /* Actual number of VMs to instantiated and is read from the SeD .cfg file. */
     int actualCount;
   } request_data_t;
-  
+
   int VM_Buff_count;
 
   int
   init(char*pathToPrivateKey, char*pathToCert);
- 
+
   void
   doWait(int count, char* addresses);
 
@@ -161,7 +161,7 @@ private :
    */
   int
   makeEucalyptusReservation(request_data_t * state, int minVMCount, int maxVMCount);
-  
+
   /* Calls 'DescribeInstances' for the resources in the current reservation and updates the
    * VM instance names and IP addresses.
    * This is used internally for polling until the VMs have IP addresses associated to them.
@@ -211,10 +211,10 @@ private :
 
   /* Minimum number of VMs to instantiate and is read from the SeD .cfg file. */
   int vmMinCount;
-  
+
   /* Maximum number of VMs to instantiate and is read from the SeD .cfg file. */
   int vmMaxCount;
-  
+
   /* Path to the ssh key used for authentication on the VMs */
   char * pathToSSHKey;
 
@@ -228,7 +228,7 @@ private :
 
   /* This holds the X509 certificate of the Cloud system and its path is read from the SeD .cfg file. */
   X509 *cert;
-  
+
   /* This holds the URL of the Cloud system and is read from the SeD .cfg file. */
   char * eucaURL;
 

@@ -593,8 +593,8 @@ void DIETForwarder::bind(const char* objName, const char* ior) {
     if (ctxt==MASTERAGENT) {
       ctxt = AGENTCTXT;
       /* Specific case for master agent.
-	 It is added into the cache to avoid resolution
-	 problems later.
+         It is added into the cache to avoid resolution
+         problems later.
       */
       MasterAgent_ptr agent = getMasterAgent(name.c_str());
       cachesMutex.lock();

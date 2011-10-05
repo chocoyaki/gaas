@@ -54,7 +54,7 @@
 
 
 template <class Key, class CMP = std::less<Key>,
-	  class A = std::allocator<Key> >
+          class A = std::allocator<Key> >
 class ts_set : private std::set<Key, CMP, A> {
 
 private :
@@ -135,7 +135,7 @@ public :
     SetType::clear() ;
     locker.unlock() ;
   }
-  
+
   /**
    * Inserts x into the set. Inserts x into the set if and only if the
    * set does not already contain an element whose key is the same as
@@ -154,7 +154,7 @@ public :
     locker.unlock() ;
     return result ;
   }
-  
+
   /***<iterator>**************************************************************/
 
   /**

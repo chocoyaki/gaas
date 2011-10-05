@@ -39,18 +39,18 @@ static int MUTEXCOUNT  = 0;
 static int INITIALIZED = 0;
 
 
-#define MUTEX_ERROR(formatted_text)			\
+#define MUTEX_ERROR(formatted_text)                     \
   ERROR(__FUNCTION__ << ": " << formatted_text, )
 
-#define MUTEX_CHECK_INIT()					\
-  if (!INITIALIZED) {						\
-    MUTEX_ERROR("diet_mutex_initialize has not been called");	\
+#define MUTEX_CHECK_INIT()                                      \
+  if (!INITIALIZED) {                                           \
+    MUTEX_ERROR("diet_mutex_initialize has not been called");   \
   }
 
-#define MUTEX_CHECK_VALIDITY(i)			\
-  if ((i) >= MUTEXCOUNT) {			\
-    MUTEX_ERROR("invalid mutex");		\
-  }    
+#define MUTEX_CHECK_VALIDITY(i)                 \
+  if ((i) >= MUTEXCOUNT) {                      \
+    MUTEX_ERROR("invalid mutex");               \
+  }
 
 
 
@@ -71,7 +71,7 @@ diet_mutex_create(int* ret)
 {
   int i;
   omni_mutex **temp;
-  
+
   MUTEX_CHECK_INIT();
 
   for(i=0; i<MUTEXCOUNT; i++){
@@ -81,7 +81,7 @@ diet_mutex_create(int* ret)
       return;
     }
   }
-  
+
   //printf("adding space %d \n", MUTEXCOUNT);
   temp = (omni_mutex**)malloc((10+MUTEXCOUNT)*sizeof(omni_mutex));
   for(i=0; i<MUTEXCOUNT; i++){
@@ -92,18 +92,18 @@ diet_mutex_create(int* ret)
   }
   free(MUTEX_FIELD);
   MUTEX_FIELD=temp;
-  
+
   MUTEX_FIELD[MUTEXCOUNT]=new omni_mutex();
   *ret = MUTEXCOUNT;
-  
+
   MUTEXCOUNT+=10;
 }
-  
+
 void
 diet_mutex_free(int* i)
 {
   MUTEX_CHECK_INIT();
-  MUTEX_CHECK_VALIDITY(*i);  
+  MUTEX_CHECK_VALIDITY(*i);
 
   delete(MUTEX_FIELD[*i]);
 
@@ -115,7 +115,7 @@ void
 diet_mutex_lock(int i)
 {
   MUTEX_CHECK_INIT()
-    MUTEX_CHECK_VALIDITY(i);  
+    MUTEX_CHECK_VALIDITY(i);
 
   MUTEX_FIELD[i]->lock();
 }
@@ -124,7 +124,7 @@ void
 diet_mutex_unlock(int i)
 {
   MUTEX_CHECK_INIT()
-    MUTEX_CHECK_VALIDITY(i);  
+    MUTEX_CHECK_VALIDITY(i);
 
   MUTEX_FIELD[i]->unlock();
 }

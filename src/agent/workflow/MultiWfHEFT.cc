@@ -143,8 +143,8 @@ MultiWfAgingHEFT::intraDagSchedule(Dag * dag, MasterAgent_var MA)
   this->dagsState[dag].EFT       = dag->getEFT();
   this->dagsState[dag].makespan  = this->dagsState[dag].EFT - startTime;
   TRACE_TEXT(TRACE_ALL_STEPS, "[AHEFT] Init (Dag " << dag->getId() << ") EFT = "
-	     << this->dagsState[dag].EFT << " / makespan = "
-	     << this->dagsState[dag].makespan << endl);
+             << this->dagsState[dag].EFT << " / makespan = "
+             << this->dagsState[dag].makespan << endl);
 
   // Cleanup
   delete wf_response;
@@ -166,9 +166,9 @@ MultiWfAgingHEFT::setExecPriority(DagNode * node) {
   float  ageFactor  = (float) (dagAge / this->dagsState[node->getDag()].makespan) + 1;
   node->setPriority((double) (this->nodesHEFTPrio[node] * ageFactor));
   TRACE_TEXT(TRACE_ALL_STEPS,"[AHEFT] Node priority set to " << node->getPriority()
-	     << " (dag" << node->getDag()->getId()
-	     << " age = " << dagAge
-	     << "/factor = " << ageFactor << ")" << endl);
+             << " (dag" << node->getDag()->getId()
+             << " age = " << dagAge
+             << "/factor = " << ageFactor << ")" << endl);
 }
 
 /**

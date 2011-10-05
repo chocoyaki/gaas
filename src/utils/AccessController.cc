@@ -49,8 +49,8 @@ using namespace std;
 /** The trace level. */
 extern unsigned int TRACE_LEVEL;
 
-#define ACCESS_TRACE_FUNCTION(formatted_text)		\
-  TRACE_TEXT(TRACE_ALL_STEPS, "AccessControl::");	\
+#define ACCESS_TRACE_FUNCTION(formatted_text)           \
+  TRACE_TEXT(TRACE_ALL_STEPS, "AccessControl::");       \
   TRACE_FUNCTION(TRACE_ALL_STEPS,formatted_text)
 
 AccessController::AccessController(int initialResources) {
@@ -59,9 +59,9 @@ AccessController::AccessController(int initialResources) {
   } else {
     this->resourcesInitial = 0;
     fprintf(stderr, "AccessController:: invalid initialResources of %d.\n",
-	    initialResources);
+            initialResources);
     fprintf(stderr, "AccessController:: setting initialResources to 0.\n");
-  } 
+  }
 
   resourceSemaphore = new omni_semaphore(this->resourcesInitial);
   numFreeSlots = this->resourcesInitial;
@@ -74,16 +74,16 @@ AccessController::AccessController(int initialResources) {
 void
 AccessController::waitForResource(){
   int myReqID = -1;
-    
+
   this->globalLock.lock();      /** LOCK */
   myReqID = this->reqCounter++;
   this->numWaiting++;
   this->globalLock.unlock();    /** UNLOCK */
 
   TRACE_TEXT(TRACE_ALL_STEPS, "Thread " <<  (omni_thread::self())->id()
-	     << " / Request " << myReqID << " enqueued ("
-	     << this->numWaiting << " waiting, "
-	     << this->numFreeSlots << " slots free)" << endl);
+             << " / Request " << myReqID << " enqueued ("
+             << this->numWaiting << " waiting, "
+             << this->numFreeSlots << " slots free)" << endl);
 
   this->resourceSemaphore->wait();
 
@@ -95,16 +95,16 @@ AccessController::waitForResource(){
   // another solution must be found to guarantee FIFO.
   if( myReqID != (this->maxIDReleased + 1) ) {
     WARNING("Thread " << (omni_thread::self())->id()
-	    << " / Request " << myReqID << " exiting queue out-of-order.");
+            << " / Request " << myReqID << " exiting queue out-of-order.");
   }
 
   if(this->numFreeSlots <= 0){
-    fprintf(stderr, 
+    fprintf(stderr,
             "AccessController:: confusion between "
             "semaphore and numFreeSlots ...");
   }
   if(this->numWaiting <= 0){
-    fprintf(stderr, 
+    fprintf(stderr,
             "AccessController:: Unexplained problem "
             "counting waiting threads.");
   }
@@ -118,21 +118,21 @@ AccessController::waitForResource(){
   this->globalLock.unlock();    /** UNLOCK */
 
   TRACE_TEXT(TRACE_ALL_STEPS, "Thread " <<  (omni_thread::self())->id()
-	     << " / Request " << myReqID << " got resource ("
-	     << this->numWaiting << " waiting, "
-	     << this->numFreeSlots << " slots free)" << endl);
+             << " / Request " << myReqID << " got resource ("
+             << this->numWaiting << " waiting, "
+             << this->numFreeSlots << " slots free)" << endl);
 }
 
 void
 AccessController::releaseResource(){
   this->globalLock.lock();      /** LOCK */
   this->numFreeSlots++;
-  this->globalLock.unlock();    /** UNLOCK */  
+  this->globalLock.unlock();    /** UNLOCK */
 
   TRACE_TEXT(TRACE_ALL_STEPS, "Thread " <<  (omni_thread::self())->id()
-	     << " released resource ("
-	     << this->numWaiting << " waiting, "
-	     << this->numFreeSlots << " slots free)" << endl);
+             << " released resource ("
+             << this->numWaiting << " waiting, "
+             << this->numFreeSlots << " slots free)" << endl);
 
   this->resourceSemaphore->post();
 }

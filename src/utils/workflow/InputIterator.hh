@@ -171,7 +171,7 @@ class CrossIterator : public InputIterator {
 
 public:
   CrossIterator(InputIterator* leftIter,
-		InputIterator* rightIter);
+                InputIterator* rightIter);
   ~CrossIterator();
   virtual void begin();
   virtual void end();
@@ -188,14 +188,14 @@ public:
 
 protected:
   virtual string createId(InputIterator* leftIter,
-			  InputIterator* rightIter);
+                          InputIterator* rightIter);
   virtual bool isFlagged();
   int  incrementMatchCount(const FDataTag& leftTag);
   bool checkItemAvailable();
   virtual bool setTag();
   void clearTag();
   virtual bool splitTag(const FDataTag& tag,
-			FDataTag*& leftTagPtr, FDataTag*& rightTagPtr);
+                        FDataTag*& leftTagPtr, FDataTag*& rightTagPtr);
 
   InputIterator* myLeftIter;
   InputIterator* myRightIter;
@@ -213,16 +213,16 @@ class FlatCrossIterator : public CrossIterator {
 
 public:
   FlatCrossIterator(InputIterator* leftIter,
-		    InputIterator* rightIter);
+                    InputIterator* rightIter);
   ~FlatCrossIterator();
 
 protected:
   virtual string createId(InputIterator* leftIter,
-			  InputIterator* rightIter);
+                          InputIterator* rightIter);
   virtual bool isFlagged();
   virtual bool setTag();
   virtual bool splitTag(const FDataTag& tag,
-			FDataTag*& leftTagPtr, FDataTag*& rightTagPtr);
+                        FDataTag*& leftTagPtr, FDataTag*& rightTagPtr);
 
 private:
   bool isIndexReady();
@@ -232,7 +232,7 @@ class MatchIterator : public CrossIterator {
 
 public:
   MatchIterator(InputIterator* leftIter,
-		InputIterator* rightIter);
+                InputIterator* rightIter);
   ~MatchIterator();
 
   virtual void removeItem();
@@ -242,11 +242,11 @@ public:
 
 protected:
   virtual string createId(InputIterator* leftIter,
-			  InputIterator* rightIter);
+                          InputIterator* rightIter);
   virtual bool isFlagged();
   virtual bool setTag();
   virtual bool splitTag(const FDataTag& tag,
-			FDataTag*& leftTagPtr, FDataTag*& rightTagPtr);
+                        FDataTag*& leftTagPtr, FDataTag*& rightTagPtr);
 private:
   bool isMatched();
 

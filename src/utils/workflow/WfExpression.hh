@@ -91,7 +91,7 @@ public:
    * @param varType type of the variable
    */
   WfExprVariable(const std::string& varName,
-		 const WfCst::WfDataType varType);
+                 const WfCst::WfDataType varType);
 
   /**
    * Get name

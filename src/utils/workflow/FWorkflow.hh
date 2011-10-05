@@ -110,7 +110,7 @@ public:
    * @param name  name of the workflow (only descriptive)
    */
   FWorkflow(string id, string name);
-  
+
   /**
    * Constructor of sub-workflow (child of another workflow)
    * @param id        a unique identifier (among all parent wf processors)
@@ -123,11 +123,11 @@ public:
    * Note: it does not delete the instantiated dags (use deleteAllDags)
    */
   virtual ~FWorkflow();
-  
+
   /***************************************************/
   /* event message types                             */
   /***************************************************/
-  
+
   enum eventMsg_e {
     INST,
     INSTDONE,
@@ -164,12 +164,12 @@ public:
   /***************************************************/
   virtual void
   createRealInstance(Dag* dag,
-		     const FDataTag& currTag,
-		     vector<FDataHandle*>& currDataLine);
+                     const FDataTag& currTag,
+                     vector<FDataHandle*>& currDataLine);
 
   virtual void
   createVoidInstance(const FDataTag& currTag,
-		     vector<FDataHandle*>& currDataLine);
+                     vector<FDataHandle*>& currDataLine);
 
   virtual void
   updateInstanciationStatus();
@@ -179,10 +179,10 @@ public:
   /***************************************************/
   string
   getName() const;
-  
+
   virtual string
   toString() const;
-  
+
   virtual FWorkflow*
   getRootWorkflow() const;
 
@@ -346,7 +346,7 @@ public:
 
 
 private:
-  
+
   /**
    * Workflow Name
    * (descriptive)

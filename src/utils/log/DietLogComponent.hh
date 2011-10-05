@@ -260,7 +260,7 @@ private:
  * check for the flag with the index that corresponds to their tag.
  */
 class DietLogComponent:  public POA_ComponentConfigurator,
-			 public PortableServer::RefCountServantBase
+                         public PortableServer::RefCountServantBase
 {
 public:
 
@@ -344,7 +344,7 @@ public:
   void logDataBeginTransfer(const char* dataID,
                             const char* destAgent);
   void logDataEndTransfer(const char* dataID,
-			  const char* destAgent);
+                          const char* destAgent);
   void logDataTransferTime(const char* dataID,
                            const char* destAgent,
                            const unsigned long elapsedTime);  // modif bisnard_logs_1
@@ -556,7 +556,7 @@ private:
 };
 
 class DietLogComponentFwdr:  public POA_ComponentConfigurator,
-			     public PortableServer::RefCountServantBase
+                             public PortableServer::RefCountServantBase
 {
 protected:
   CorbaLogForwarder_ptr forwarder;

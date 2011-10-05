@@ -80,9 +80,9 @@ UserScheduler::serialize(GlobalScheduler* GS) {
 /** Should never been called. Overridden in the user scheduler class. */
 int
 UserScheduler::aggregate(corba_response_t* aggrResp,
-			 size_t max_srv,
-			 const size_t nb_responses,
-			 const corba_response_t* responses) {
+                         size_t max_srv,
+                         const size_t nb_responses,
+                         const corba_response_t* responses) {
   return GlobalScheduler::aggregate(aggrResp, max_srv, nb_responses, responses);
 }
 

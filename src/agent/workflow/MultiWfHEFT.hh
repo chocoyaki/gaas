@@ -64,72 +64,72 @@ using namespace std;
 
 namespace madag {
 
-  /****************************************************************************/
-  /*                              Multi-HEFT                                  */
-  /****************************************************************************/
+/****************************************************************************/
+/*                              Multi-HEFT                                  */
+/****************************************************************************/
 
-  class MultiWfHEFT : public MultiWfScheduler {
+class MultiWfHEFT : public MultiWfScheduler {
 
-  public:
+public:
 
-    MultiWfHEFT(MaDag_impl* maDag);
-    virtual ~MultiWfHEFT();
+  MultiWfHEFT(MaDag_impl* maDag);
+  virtual ~MultiWfHEFT();
 
-  protected:
-    /**
-     * Updates scheduler when a node has been executed
-     */
-    virtual void
-    handlerNodeDone(DagNode * node);
+protected:
+  /**
+   * Updates scheduler when a node has been executed
+   */
+  virtual void
+  handlerNodeDone(DagNode * node);
 
-  }; // end class MultiWfHEFT
+}; // end class MultiWfHEFT
 
-  /****************************************************************************/
-  /*                              Aging HEFT                                  */
-  /****************************************************************************/
+/****************************************************************************/
+/*                              Aging HEFT                                  */
+/****************************************************************************/
 
-  class MultiWfAgingHEFT : public MultiWfScheduler {
+class MultiWfAgingHEFT : public MultiWfScheduler {
 
-  public:
+public:
 
-    MultiWfAgingHEFT(MaDag_impl* maDag);
-    virtual ~MultiWfAgingHEFT();
+  MultiWfAgingHEFT(MaDag_impl* maDag);
+  virtual ~MultiWfAgingHEFT();
 
-  protected:
+protected:
 
-    /**
-     * internal dag scheduling
-     */
-    virtual void
-    intraDagSchedule(Dag * dag, MasterAgent_var MA)
-      throw (MaDag::ServiceNotFound, MaDag::CommProblem);
+  /**
+   * internal dag scheduling
+   */
+  virtual void
+  intraDagSchedule(Dag * dag, MasterAgent_var MA)
+    throw (MaDag::ServiceNotFound, MaDag::CommProblem);
 
-    /**
-     * Updates scheduler when a node has been executed
-     */
-    virtual void
-    handlerNodeDone(DagNode * node);
+  /**
+   * Updates scheduler when a node has been executed
+   */
+  virtual void
+  handlerNodeDone(DagNode * node);
 
-    /**
-     * set node priority before inserting into execution queue
-     * (called by run method)
-     * @param node   the node to insert
-     */
-    virtual void
-    setExecPriority(DagNode * node);
+  /**
+   * set node priority before inserting into execution queue
+   * (called by run method)
+   * @param node   the node to insert
+   */
+  virtual void
+  setExecPriority(DagNode * node);
 
-    /**
-     * set node priority before inserting back in the ready queue
-     */
-    virtual void
-    setWaitingPriority(DagNode * node);
+  /**
+   * set node priority before inserting back in the ready queue
+   */
+  virtual void
+  setWaitingPriority(DagNode * node);
 
-    /**
-     * Save the state of dags
-     */
-    map<Dag*, DagState> dagsState;
+  /**
+   * Save the state of dags
+   */
+  map<Dag*, DagState> dagsState;
 
-  }; // end class MultiWfAgingHEFT
+}; // end class MultiWfAgingHEFT
 
 } // end namespace madag
 

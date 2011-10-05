@@ -114,7 +114,7 @@ public:
    */
   FWorkflow *
   getWorkflow() const;
-      
+
   /**
    * Get the root workflow (ie not a subwf) the node belongs to
    * @return workflow ptr or NULL if no parent wf
@@ -127,10 +127,10 @@ public:
    */
   virtual WfPort *
   newPort(string portId,
-	  unsigned int ind,
-	  WfPort::WfPortType portType,
-	  WfCst::WfDataType dataType,
-	  unsigned int depth) throw (WfStructException);
+          unsigned int ind,
+          WfPort::WfPortType portType,
+          WfCst::WfDataType dataType,
+          unsigned int depth) throw (WfStructException);
 
   /**
    * Get the name of the default port (only for interface nodes)
@@ -225,7 +225,7 @@ public:
    */
   virtual void
   freeNodePersistentData(MasterAgent_var& MA);
-      
+
   /**
    * Write a text description of the node
    */
@@ -278,8 +278,8 @@ class FConstantNode : public FNode {
 
 public:
   FConstantNode(FWorkflow* wf,
-		const string& id,
-		WfCst::WfDataType type);
+                const string& id,
+                WfCst::WfDataType type);
   virtual ~FConstantNode();
 
   /**
@@ -350,14 +350,14 @@ class FSourceNode : public FNode {
 
 public:
   FSourceNode(FWorkflow* wf,
-	      const string& id,
-	      WfCst::WfDataType type);
+              const string& id,
+              WfCst::WfDataType type);
   virtual ~FSourceNode();
-    
+
   /***************************************************/
   /* event message types                             */
   /***************************************************/
-  
+
   enum eventMsg_e {
     DATATREE
   };
@@ -393,7 +393,7 @@ public:
    */
   virtual void
   createInstance(const FDataTag& currTag,
-		 vector<FDataHandle*>& currDataLine);
+                 vector<FDataHandle*>& currDataLine);
 
   /**
    * Write the XML description of the source
@@ -443,8 +443,8 @@ protected:
    */
   void
   setDataProperty( FDataHandle* DH,
-		   const string& propKey,
-		   const string& propValue );
+                   const string& propKey,
+                   const string& propValue );
   /**
    * Store the new data for the source (used by parser)
    * @param newDH the ref to the data (created by createData)
@@ -470,15 +470,15 @@ class FSinkNode : public FNode {
 
 public:
   FSinkNode(FWorkflow* wf,
-	    const string& id,
-	    WfCst::WfDataType type,
-	    unsigned int depth);
+            const string& id,
+            WfCst::WfDataType type,
+            unsigned int depth);
   virtual ~FSinkNode();
-     
+
   /***************************************************/
   /* event message types                             */
   /***************************************************/
-  
+
   enum eventMsg_e {
     DATAID
   };
@@ -546,7 +546,7 @@ class FProcNode : public FNode {
 
 public:
   FProcNode(FWorkflow* wf,
-	    const string& id);
+            const string& id);
   virtual ~FProcNode();
 
   // ******************** INPUT DATA OPERATORS *********************
@@ -633,12 +633,12 @@ public:
 
   virtual void
   createRealInstance(Dag* dag,
-		     const FDataTag& currTag,
-		     vector<FDataHandle*>& currDataLine) = 0;
+                     const FDataTag& currTag,
+                     vector<FDataHandle*>& currDataLine) = 0;
 
   virtual void
   createVoidInstance(const FDataTag& currTag,
-		     vector<FDataHandle*>& currDataLine);
+                     vector<FDataHandle*>& currDataLine);
 
   virtual void
   updateInstanciationStatus();
@@ -664,7 +664,7 @@ protected:
    */
   void
   setDynamicParam(const string& paramName,
-		  const string& paramVarName);
+                  const string& paramVarName);
 
   /**
    * Set the value of a dynamic parameter
@@ -673,7 +673,7 @@ protected:
    */
   void
   setDynamicParamValue(const string& paramVarName,
-		       const string& paramValue);
+                       const string& paramValue);
 
   bool
   isDynamicParam(const string& paramName);
@@ -695,7 +695,7 @@ protected:
     PortType* FPort = dynamic_cast<PortType*>(port);
     if (!FPort) {
       string errorMsg = string("Invalid port in port assignment ")
-	+ "(node=" + getId() + "/port=" + portName + ")";
+        + "(node=" + getId() + "/port=" + portName + ")";
       throw WfStructException(WfStructException::eOTHER, errorMsg);
     }
     return FPort;

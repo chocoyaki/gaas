@@ -137,8 +137,8 @@ extern unsigned int TRACE_LEVEL;
 
 // Use SCHED_CLASS for the name of the class
 // (this->name cannot be used in static member functions)
-#define SCHED_TRACE_FUNCTION(formatted_text)		\
-  TRACE_TEXT(TRACE_ALL_STEPS, SCHED_CLASS << "::");	\
+#define SCHED_TRACE_FUNCTION(formatted_text)            \
+  TRACE_TEXT(TRACE_ALL_STEPS, SCHED_CLASS << "::");     \
   TRACE_FUNCTION(TRACE_ALL_STEPS,formatted_text)
 
 
@@ -210,13 +210,13 @@ GlobalScheduler::deserialize(const char* serializedScheduler)
     } else
 #endif
       /***********************************/
-      {
-        WARNING("unable to deserialize global scheduler ; "
-                << "reverting to default (StdGS)");
-        WARNING("scheduler was \""
-                << serializedScheduler << "\"" << std::endl);
-        return (GlobalScheduler::chooseGlobalScheduler());
-      }
+    {
+      WARNING("unable to deserialize global scheduler ; "
+              << "reverting to default (StdGS)");
+      WARNING("scheduler was \""
+              << serializedScheduler << "\"" << std::endl);
+      return (GlobalScheduler::chooseGlobalScheduler());
+    }
 }
 
 /** Return the serialized global scheduler (a string). */
@@ -346,7 +346,7 @@ GlobalScheduler::aggregate(corba_response_t* aggrResp, size_t max_srv,
   //   cout << "global scheduler: " << this->name << std::endl;
 
   SCHED_TRACE_FUNCTION("nb_responses=" << nb_responses
-		       << ",max_srv=" << max_srv);
+                       << ",max_srv=" << max_srv);
 
   for (size_t i = 0; i < nb_responses; i++) {
     lastAggr[i]    = -1;
@@ -365,11 +365,11 @@ GlobalScheduler::aggregate(corba_response_t* aggrResp, size_t max_srv,
     //             Scheduler::serialize(sched),
     //             lastAggregated);
     sched->aggregate(*aggrResp,
-		     &lastAggregated,
-		     nb_responses,
-		     responses,
-		     lastAggr,
-		     evCache);
+                     &lastAggregated,
+                     nb_responses,
+                     responses,
+                     lastAggr,
+                     evCache);
     iter->next();
   }
 
@@ -377,7 +377,7 @@ GlobalScheduler::aggregate(corba_response_t* aggrResp, size_t max_srv,
     while (! Vector_isEmpty(evCache)) {
       Vector_t respV = (Vector_t) Vector_removeAtPosition(evCache, 0);
       while (! Vector_isEmpty(respV)) {
-	Vector_removeAtPosition(respV, 0);
+        Vector_removeAtPosition(respV, 0);
       }
       free_Vector(respV);
     }
@@ -429,7 +429,7 @@ StdGS::deserialize(const char* serializedScheduler)
   StdGS* res = new StdGS();
 
   TRACE_TEXT(TRACE_ALL_STEPS,
-	     "StdGS::deserialize(" << serializedScheduler << ")" << std::endl);
+             "StdGS::deserialize(" << serializedScheduler << ")" << std::endl);
   token = strsep( &ptr, ":" );
   assert(!strcmp(token, StdGS::stName));
   while (ptr) { // ptr == NULL when the last token is identified (no more ':')
@@ -507,7 +507,7 @@ void
 PriorityGS::init()
 {
   this->schedulers.addElement(new PriorityScheduler(this->numPValues,
-						    this->pValues));
+                                                    this->pValues));
 }
 
 PriorityGS*
@@ -520,8 +520,8 @@ PriorityGS::deserialize(const char* serializedScheduler)
   PriorityGS* res = new PriorityGS();
 
   TRACE_TEXT(TRACE_ALL_STEPS,
-	     "PriorityGS::deserialize("
-	     << serializedScheduler << ")" << std::endl);
+             "PriorityGS::deserialize("
+             << serializedScheduler << ")" << std::endl);
 
   // Eliminate the first token, which is to be stName
   token = strsep( &ptr, ":" );

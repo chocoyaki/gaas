@@ -37,7 +37,7 @@ Slurm_BatchSystem::Slurm_BatchSystem(int ID, const char * batchname)
 
   batch_ID = ID ;
   batchName = batchname ;
-  
+
   shell    = BatchSystem::emptyString ;
   prefixe  = "#!/bin/sh";
   // the -V option declares that all environment variables in the qsub
@@ -50,7 +50,7 @@ Slurm_BatchSystem::Slurm_BatchSystem(int ID, const char * batchname)
   walltime          = "\n#SBATCH --time=" ;
   submittingQueue   = "\n#SBATCH -p " ;
   minimumMemoryUsed = "\n#SBATCH --mem=" ;
-  
+
   /* TODO: When we use some ID for DIET client, change there! */
   //mail      = "#Slurm -m a\n#Slurm -M " ; // -m, send mail when:
   // a: job is aborted by batch system
@@ -70,7 +70,7 @@ Slurm_BatchSystem::Slurm_BatchSystem(int ID, const char * batchname)
   waitFilter    = "grep JobState | cut -d\"=\" -f2 | cut -d\" \" -f1" ; // commande pour r�cup�rer l'�tat  du job dont l'info sort de wait4Command.
   // Qui doit �tre l'un des statusNames
   exitCode      = "0" ;
-  
+
   // nothing to do to retrieve the ID of the submission...
   // but we need to add something, let's say 'uniq' :-)
   jid_extract_patterns = "cut -d\" \" -f4";//"uniq"; //"cut --delimiter=\\\" -f 2 | cut --delimiter=. -f 2" ;
@@ -96,7 +96,7 @@ Slurm_BatchSystem::askBatchJobStatus(int batchJobID)
   int i=0 ;
   int nbread ;
   batchJobState status ;
-  
+
   /* If job has completed, not ask batch system */
   status = getRecordedBatchJobStatus( batchJobID ) ;
   if( (status == TERMINATED) || (status == CANCELED) || (status == ERROR) )
@@ -108,7 +108,7 @@ Slurm_BatchSystem::askBatchJobStatus(int batchJobID)
     ERROR("Cannot open file", UNDETERMINED ) ;
   }
 
-  /*** Ask batch system the job status ***/      
+  /*** Ask batch system the job status ***/
   chaine = (char*)malloc(sizeof(char)*(strlen(wait4Command) * 2
                                        + NBDIGITS_MAX_BATCH_JOB_ID * 2
                                        + strlen(waitFilter) * 2
@@ -127,7 +127,7 @@ Slurm_BatchSystem::askBatchJobStatus(int batchJobID)
   if( system(chaine) != 0 ) {
     ERROR("Cannot submit script", NB_STATUS) ;
   }
-  /* Get job status */  
+  /* Get job status */
   for( int i = 0 ; i<=NBDIGITS_MAX_BATCH_JOB_ID ; i++ )
     chaine[i] = '\0' ;
   if( (nbread=readn(file_descriptor,chaine,NBDIGITS_MAX_JOB_STATUS)) == 0 ) {
@@ -141,7 +141,7 @@ Slurm_BatchSystem::askBatchJobStatus(int batchJobID)
     /* Adjust what have been read */
     if( chaine[nbread-1] == '\n' )
       chaine[nbread-1] = '\0' ;
-    while( (i<NB_STATUS) && 
+    while( (i<NB_STATUS) &&
            (strcmp(chaine,Slurm_BatchSystem::statusNames[i])!=0) ) {
       i++ ;
     }
@@ -166,7 +166,7 @@ int
 Slurm_BatchSystem::isBatchJobCompleted(int batchJobID)
 {
   int status = getRecordedBatchJobStatus(batchJobID) ;
-  
+
   if( (status == TERMINATED) || (status == CANCELED) || (status == ERROR) )
     return 1 ;
   status = askBatchJobStatus(batchJobID) ;
@@ -221,7 +221,7 @@ Slurm_BatchSystem::getNbTotFreeResources()
   //  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl) ;
   //  return getNbResources() ;
   return launchCommandAndGetInt( "sinfo -h -o \"%20F\" | cut -d\"/\" -f 2",
-				 "DIET_getNbResources") ;
+                                 "DIET_getNbResources") ;
 }
 
 int

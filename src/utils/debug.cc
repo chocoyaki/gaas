@@ -255,9 +255,9 @@ displayResponse(FILE* os, const corba_response_t* resp)
         fprintf(os,
                 " %g |",
                 diet_est_array_get_internal(ev,
-					    EST_COMMTIME,
-					    commTimeIter,
-					    HUGE_VAL));
+                                            EST_COMMTIME,
+                                            commTimeIter,
+                                            HUGE_VAL));
       } // end for each comm time parameter
     }   // end check if comm times exist in est vector
   }     // end for each server
@@ -363,7 +363,7 @@ displayArg(FILE* f, const corba_data_desc_t* arg)
   case DIET_STRING: fprintf(f, "string (%ld)",
                             (long)arg->specific.str().length); break;
   case DIET_PARAMSTRING: fprintf(f, "paramstring (%ld)",
-				 (long)arg->specific.pstr().length); break;
+                                 (long)arg->specific.pstr().length); break;
   case DIET_FILE:   fprintf(f, "file (%ld)",
                             (long)arg->specific.file().size);  break;
   case DIET_CONTAINER:  fprintf(f, "container");  break;
@@ -400,7 +400,7 @@ displayArg(FILE* f, const diet_data_desc_t* arg)
   case DIET_STRING: fprintf(f, "string (%ld)",
                             (long)arg->specific.str.length); break;
   case DIET_PARAMSTRING: fprintf(f, "paramstring (%ld)",
-				 (long)arg->specific.pstr.length); break;
+                                 (long)arg->specific.pstr.length); break;
   case DIET_FILE:   fprintf(f, "file (%ld)",
                             (long)arg->specific.file.size);  break;
   case DIET_CONTAINER:  fprintf(f, "container");  break;
@@ -465,13 +465,13 @@ displayProfileDesc(const diet_profile_desc_t* desc, const char* path)
     fprintf(f,"   Aggregator: Priority (");
     {
       diet_aggregator_priority_t prior =
-	(desc->aggregator).agg_specific.agg_specific_priority;
+        (desc->aggregator).agg_specific.agg_specific_priority;
       if (prior.p_numPValues == 0) {
-	fprintf(f," No priorities assigned");
+        fprintf(f," No priorities assigned");
       } else {
-	for (int i = 0; i < prior.p_numPValues; i++) {
-	  fprintf(f," %d", prior.p_pValues[i]);
-	}
+        for (int i = 0; i < prior.p_numPValues; i++) {
+          fprintf(f," %d", prior.p_pValues[i]);
+        }
       }
     }
     fprintf(f, " )\n");
@@ -515,25 +515,25 @@ displayProfileDesc(const corba_profile_desc_t* desc)
 
   switch((desc->aggregator).agg_specific._d()) {
   case DIET_AGG_DEFAULT:
-    {
-      fprintf(f,"   Aggregator: Default\n");
-      break;
-    }
+  {
+    fprintf(f,"   Aggregator: Default\n");
+    break;
+  }
   case DIET_AGG_PRIORITY:
-    {
-      fprintf(f,"   Aggregator: Priority (");
-      corba_agg_priority_t prior =
-	(desc->aggregator).agg_specific.agg_priority();
-      if (prior.priorityList.length() == 0) {
-        fprintf(f," No priorities assigned");
-      } else {
-        for (unsigned int i = 0; i < prior.priorityList.length(); i++) {
-          fprintf(f," %ld", (long int)prior.priorityList[i]);
-        }
+  {
+    fprintf(f,"   Aggregator: Priority (");
+    corba_agg_priority_t prior =
+      (desc->aggregator).agg_specific.agg_priority();
+    if (prior.priorityList.length() == 0) {
+      fprintf(f," No priorities assigned");
+    } else {
+      for (unsigned int i = 0; i < prior.priorityList.length(); i++) {
+        fprintf(f," %ld", (long int)prior.priorityList[i]);
       }
-      fprintf(f, " )\n");
-      break;
     }
+    fprintf(f, " )\n");
+    break;
+  }
   default:
     fprintf(f,"   Aggregator: ERROR\n");
   }
