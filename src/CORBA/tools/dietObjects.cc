@@ -31,10 +31,15 @@
 using namespace std;
 
 /* Sorted DIET contexts list. */
-static const char* DIET_CTXTS[] = {DAGDACTXT, LOGCOMPCTXT, WFLOGCTXT,
-                                   DATAMGRCTXT, AGENTCTXT, CLIENTCTXT,
-                                   MADAGCTXT, SEDCTXT, WFMGRCTXT,
-                                   LOCMGRCTXT, NULL};
+static const char* DIET_CTXTS[] = {DAGDACTXT,
+                                   LOGCOMPCTXT,
+                                   WFLOGCTXT,
+                                   AGENTCTXT,
+                                   CLIENTCTXT,
+                                   MADAGCTXT,
+                                   SEDCTXT,
+                                   WFMGRCTXT,
+                                   NULL};
 
 /* Specific class to manage arguments of dietObjects. */
 /* TODO: Use a more generic class. */
@@ -51,7 +56,7 @@ public:
     advance(beg, 2);
     return std::list<string>(beg, argv.end());
   }
-  
+
   bool list() const { return getArg(1)=="list" && argc==2; }
   bool objList() const { return getArg(1)=="list" && argc>2; }
   bool forwarder() const { return getArg(1)=="forwarder" && argc==2; }
@@ -81,28 +86,28 @@ int main(int argc, char* argv[]) {
   list<string>::iterator it;
 
   Args args(argc, argv);
-  
+
   if (args.list()) { // Display DIET CORBA contexts
     list<string> allCtxts = mgr->contextList();
     allCtxts.sort();
-  
+
     list<string> dietCtxts;
-  
+
     set_intersection(DIET_CTXTS, DIET_CTXTS+10, allCtxts.begin(),
                      allCtxts.end(), insert_iterator<list<string> >(dietCtxts, dietCtxts.begin()));
 
     for (it=dietCtxts.begin(); it!=dietCtxts.end(); ++it)
       cout << *it << endl;
   }
-  
+
   if (args.objList()) { // Display DIET objects on a given contexts
     list<string> contexts = args.values();
     contexts.sort();
     list<string> dietCtxts;
-    
+
     set_intersection(DIET_CTXTS, DIET_CTXTS+10, contexts.begin(),
                      contexts.end(), insert_iterator<list<string> >(dietCtxts, dietCtxts.begin()));
-    
+
     for (it=dietCtxts.begin(); it!=dietCtxts.end(); ++it) {
       list<string> objects;
       list<string>::const_iterator jt;
@@ -121,24 +126,24 @@ int main(int argc, char* argv[]) {
       }
     }
   }
-  
+
   if (args.forwarder() || args.objForwarder()) { // Display the Forwarders
     list<string> forwarders;
     if (args.objForwarder())
       forwarders = args.values();
     else
       forwarders = mgr->list(FWRDCTXT);
-    
+
     for (it=forwarders.begin(); it!=forwarders.end(); ++it) {
       Forwarder_var fwd;
       list<string> objects;
-      
+
       for (const char** jt=DIET_CTXTS; *jt!=NULL; ++jt) {
         list<string> obj = mgr->list(*jt);
         for (list<string>::const_iterator kt=obj.begin(); kt!=obj.end(); ++kt) {
           CORBA::Object_ptr object = mgr->simpleResolve(*jt, *kt);
           string ior = mgr->getIOR(object);
-          
+
           if (mgr->getHost(ior)=="@"+*it)
             objects.push_back(string(*jt)+"/"+*kt);
         }
@@ -150,7 +155,7 @@ int main(int argc, char* argv[]) {
         cerr << "Unknown forwarder: " << *it << endl;
         continue;
       }
-      
+
       cout << "  " << fwd->getName() << " (" << fwd->getHost() << ")";
       cout << " <=> " << fwd->getPeerName() << " (" << fwd->getPeerHost() << ")" << endl;
       cout << "  Managing: " << endl;
@@ -158,16 +163,16 @@ int main(int argc, char* argv[]) {
         cout << "    - " << *jt << endl;
     }
   }
-  
+
   if (args.resolve()) {
     list<string> objects = args.values();
-    
+
     for (it=objects.begin(); it!=objects.end(); ++it) {
       string ctxt = getCtxt(*it);
       string name = getName(*it);
       CORBA::Object_ptr localObject;
       CORBA::Object_ptr proxyObject;
-      
+
       if (ctxt=="" || name=="") {
         cerr << "Error parsing " << *it << ". Use <context>/<name> syntax." << endl;
         continue;
@@ -182,7 +187,7 @@ int main(int argc, char* argv[]) {
       }
       if (mgr->isLocal(ctxt, name)) {
         string ior = mgr->getIOR(localObject);
-        
+
         cout << *it << " is a local object" << endl;
         cout << ior << endl;
       } else {

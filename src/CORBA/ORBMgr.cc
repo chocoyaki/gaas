@@ -368,18 +368,10 @@ CORBA::Object_ptr ORBMgr::resolveObject(const string& context,
           if (ctxt==SEDCTXT) {
             object = fwd->getSeD(name.c_str());
           }
-#ifdef HAVE_DAGDA
+
           if (ctxt==DAGDACTXT) {
             object = fwd->getDagda(name.c_str());
           }
-#else
-          if (ctxt==DATAMGRCTXT) {
-            object = fwd->getDataMgr(name.c_str());
-          }
-          if (ctxt==LOCMGRCTXT) {
-            object = fwd->getLocMgr(name.c_str());
-          }
-#endif
 #ifdef HAVE_WORKFLOW
           if (ctxt==WFMGRCTXT) {
             object = fwd->getCltMan(name.c_str());

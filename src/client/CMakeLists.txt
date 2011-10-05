@@ -13,6 +13,8 @@ include_directories(
   ${DIET_BINARY_DIR}/src/CORBA/idl
   ${DIET_SOURCE_DIR}/src/agent
   ${DIET_SOURCE_DIR}/src/utils/config
+  ${DIET_SOURCE_DIR}/src/utils/DAGDA
+  ${UUID_PATH}
 )
 
 
@@ -25,10 +27,6 @@ endif (DIET_USE_LOG)
 if (DIET_USE_WORKFLOW)
   include_directories( ${XERCES_INCLUDE_DIR} )
 endif ( DIET_USE_WORKFLOW)
-
-if (DIET_USE_DAGDA)
-  include_directories(${DIET_SOURCE_DIR}/src/utils/DAGDA  ${UUID_PATH})
-endif (DIET_USE_DAGDA)
 
 set(DIET_client_SOURCES
   DIET_client.cc
@@ -63,13 +61,11 @@ add_dependencies(DIET_client CORBAFiles)
 
 # /!\ DIET_Dagda has to be included first (before any other DIET
 # library), otherwise it won't work on APPLE.
-if (DIET_USE_DAGDA)
   set(DIET_client_Libs
     ${DIET_client_Libs}
     ${UUID_LIB}
     DIET_Dagda
   )
-endif( DIET_USE_DAGDA )
 
 set(DIET_client_Libs
   ${DIET_client_Libs}
@@ -95,13 +91,11 @@ if (DIET_USE_WORKFLOW)
   )
 endif ( DIET_USE_WORKFLOW )
 
-if (DIET_USE_DAGDA)
-  set(DIET_client_Libs
-    ${DIET_client_Libs}
-    ${UUID_LIB}
-    DIET_Dagda
+set(DIET_client_Libs
+  ${DIET_client_Libs}
+  ${UUID_LIB}
+  DIET_Dagda
   )
-endif( DIET_USE_DAGDA )
 
 
 target_link_libraries( DIET_client

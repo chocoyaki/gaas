@@ -468,10 +468,8 @@ using namespace std;
 #include "DietLogComponent.hh"
 #endif
 
-#if HAVE_DAGDA
 #include "DIET_Dagda.hh"
 #include "DagdaFactory.hh"
-#endif // HAVE_DAGDA
 
 #include "DIETCall.hh"
 #include "CallAsyncMgr.hh"
@@ -491,9 +489,6 @@ using namespace std;
 #define BEGIN_API extern "C" {
 #define END_API   } // extern "C"
 
-#ifdef WITH_ENDIANNESS
-extern bool little_endian;
-#endif // WITH_ENDIANNESS
 /****************************************************************************/
 /* Global variables                                                         */
 /****************************************************************************/
@@ -768,13 +763,9 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
       userDefName = strdup(tmpString.c_str());
       dietLogComponent = new DietLogComponent(userDefName, outBufferSize, argc, argv);
     } else {
-#if HAVE_DAGDA
       // Use DAGDA agent as component name (same ref as in data transfer logs)
       dietLogComponent = new DietLogComponent(DagdaFactory::getClientName(),
                                               outBufferSize, argc, argv);
-#else
-      dietLogComponent = new DietLogComponent("", outBufferSize, argc, argv);
-#endif // end: HAVE_DAGDA
     }
 
     ORBMgr::getMgr()->activate(dietLogComponent);
@@ -806,14 +797,12 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
   }
 #endif // HAVE_CCS
 
-#if HAVE_DAGDA
   // Dagda component activation.
   DagdaImpl* tmpDataManager = DagdaFactory::getClientDataManager();
 #ifdef USE_LOG_SERVICE
   tmpDataManager->setLogComponent( dietLogComponent ); // modif bisnard_logs_1
 #endif
   ORBMgr::getMgr()->activate(tmpDataManager);
-#endif // HAVE_DAGDA
 
 #ifdef HAVE_WORKFLOW
   // Workflow parsing
@@ -917,9 +906,7 @@ diet_finalize() {
   }
 #endif
 
-#ifdef HAVE_DAGDA
   DagdaFactory::reset();
-#endif
 
   try {
       ORBMgr *mgr = ORBMgr::getMgr();
@@ -1098,12 +1085,6 @@ diet_call(diet_profile_t* profile)
   }
 #endif // HAVE_CCS
 
-#ifdef WITH_ENDIANNESS
-  // reswap  in and inout parameter
-  if (!little_endian) {
-    post_call(profile);
-  }
-#endif // WITH_ENDIANNESS
   return err;
 }
 

@@ -137,10 +137,8 @@
 #include "debug.hh"
 #include <algorithm>
 
-#if HAVE_DAGDA
 #include "DagdaFactory.hh"
 #include "DIET_Dagda.hh"
-#endif // HAVE_DAGDA
 
 using namespace std;
 
@@ -571,22 +569,8 @@ int CallAsyncMgr::notifyRst (diet_reqID_t reqID, corba_profile_t * dp)
       else { // update state of this reqID
         h->second->st = STATUS_DONE;
       }
-#ifndef HAVE_DAGDA
-      if (unmrsh_out_args_to_profile(h->second->profile, dp)){
-        INTERNAL_WARNING(__FUNCTION__ << ":unmrsh_out_args_to_profile failed");
-        fflush(stderr);
-        return -1;
-      }
 
-      if (unmrsh_inout_args_to_profile(h->second->profile, dp)){
-        INTERNAL_WARNING(__FUNCTION__ << ":unmrsh_inout_args_to_profile failed");
-        fflush(stderr);
-        return -1;
-      }
-
-#else
       dagda_download_SeD_data(h->second->profile, dp);
-#endif // HAVE_DAGDA
 
       TRACE_TEXT (TRACE_ALL_STEPS,"Downloaded SeD data" << endl);
 

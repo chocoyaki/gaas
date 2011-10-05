@@ -25,8 +25,6 @@
 #define LOGCOMPCTXT "LogServiceC"
 #define AGENTCTXT   "dietAgent"
 #define SEDCTXT     "dietSeD"
-#define DATAMGRCTXT "dataMgrDTM"
-#define LOCMGRCTXT  "locMgrDTM"
 #define MADAGCTXT   "dietMADag"
 #define WFMGRCTXT   "dietWfMgr"
 #define CLIENTCTXT  "dietClient"

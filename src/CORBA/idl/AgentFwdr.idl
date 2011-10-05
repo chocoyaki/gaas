@@ -59,10 +59,8 @@ interface AgentForwarder {
   oneway void getResponse(in corba_response_t resp,
 													in string objName);
 
-#if HAVE_DAGDA
   string getDataManager(in string objName)
 		raises(UnknownObject);
-#endif
 };
 
 

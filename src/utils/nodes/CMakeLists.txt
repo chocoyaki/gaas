@@ -53,12 +53,6 @@ add_library(UtilsNodes STATIC ${UtilsNodesSource})
 add_dependencies(UtilsNodes DIET_CORBA)
 
 
-if (NOT DIET_USE_DAGDA)
-  target_link_libraries(UtilsNodes
-    DIET_Utils
-  )
-endif (NOT DIET_USE_DAGDA)
-
 ########################################################################
 ### Cori library:          ***      for the SeD       ***
 # Note: lib only built when HAVE_ALT_BATCH not set,
@@ -95,12 +89,6 @@ if (DIET_USE_CORI)
   add_dependencies(UtilsCori DIET_CORBA)
 
   install (TARGETS UtilsCori DESTINATION lib)
-
-  if (NOT DIET_USE_DAGDA)
-    target_link_libraries(UtilsCori
-      CorbaCommon
-    )
-  endif(NOT DIET_USE_DAGDA)
 
 
 ########################################################################

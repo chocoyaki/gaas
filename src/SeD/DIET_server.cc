@@ -302,12 +302,8 @@ using namespace std;
 #include "FASTMgr.hh"
 #endif //HAVE_CORI
 
-#if ! HAVE_DAGDA
-#include "DataMgrImpl.hh"
-#else
 #include "DagdaImpl.hh"
 #include "DagdaFactory.hh"
-#endif // ! HAVE_DAGDA
 
 #define BEGIN_API extern "C" {
 #define END_API   } // extern "C"
@@ -321,12 +317,12 @@ BEGIN_API
 /****************************************************************************/
 
 static ServiceTable* SRVT;
-#ifdef HAVE_DAGDA
+
 /* We need to keep a pointer to the SeD Impl in order to be able to dynamically
  * add/remove services
  */
 static SeDImpl * sedImpl = NULL;
-#endif
+
 #ifdef HAVE_ALT_BATCH
 static diet_server_status_t st=SERIAL ;
 #endif
@@ -390,13 +386,11 @@ diet_service_table_add(const diet_profile_desc_t* const profile,
                          current_perfmetric_fn);
 
 
-#ifdef HAVE_DAGDA
   /** if the SeD is already running, we need to inform our parent
    * that we added a new service.
    */
   if (sedImpl)
     sedImpl->addService(corba_profile);
-#endif
 
   if (!cvt) {
     /*
@@ -411,7 +405,6 @@ diet_service_table_add(const diet_profile_desc_t* const profile,
 }
 
 
-#ifdef HAVE_DAGDA
 int
 diet_service_table_remove(const diet_profile_t* const profile)
 {
@@ -423,31 +416,6 @@ diet_service_table_remove_desc(const diet_profile_desc_t* const profile)
 {
   return sedImpl->removeServiceDesc(profile);
 }
-#endif
-
-
-/* Unused !!!
-   int
-   diet_service_table_lookup(const diet_profile_desc_t* const profile)
-   {
-   int refNum;
-   corba_profile_desc_t corbaProfile;
-
-   if (profile == NULL) {
-   ERROR(__FUNCTION__ << ": NULL profile", -1);
-   }
-
-   if (SRVT == NULL) {
-   ERROR(__FUNCTION__ << ": service table not yet initialized", -1);
-   }
-
-   mrsh_profile_desc(&corbaProfile, profile);
-   refNum = SRVT->lookupService(&corbaProfile);
-
-   return (refNum);
-   }
-*/
-
 
 int
 diet_service_table_lookup_by_profile(const diet_profile_t* const profile)
@@ -829,11 +797,7 @@ diet_SeD(const char* config_file_name, int argc, char* argv[])
   MonitoringThread* monitoringThread;
 #endif
 
-#if ! HAVE_DAGDA
-  DataMgrImpl* dataMgr;
-#else
   DagdaImpl* dataManager;
-#endif // ! HAVE_DAGDA
 
   if (SRVT == NULL) {
     ERROR(__FUNCTION__ << ": service table not yet initialized", 1);
@@ -972,28 +936,6 @@ diet_SeD(const char* config_file_name, int argc, char* argv[])
     ERROR("unable to launch the SeD", 1);
   }
 
-#if ! HAVE_DAGDA
-  /* Set-up and activate Data Manager for DTM usage */
-  std::string dtmName;
-  if (!CONFIG_STRING(diet::PARENTNAME, dtmName)) {
-    ERROR("Cannot create the local data manager. SeD needs a parent name", 1);
-  }
-  dtmName="DataMgr-"+dtmName;
-
-  dataMgr = new DataMgrImpl(dtmName.c_str());
-#ifdef USE_LOG_SERVICE
-  dataMgr->setDietLogComponent(dietLogComponent);
-#endif
-  ORBMgr::getMgr()->activate(dataMgr);
-  ORBMgr::getMgr()->bind(DATAMGRCTXT, dtmName, dataMgr->_this(), true);
-  ORBMgr::getMgr()->fwdsBind(DATAMGRCTXT, dtmName,
-			     ORBMgr::getMgr()->getIOR(dataMgr->_this()));
-
-  if (dataMgr->run()) {
-    ERROR("unable to launch the DataManager", 1);
-  }
-  SeD->linkToDataMgr(dataMgr);
-#else
   dataManager = DagdaFactory::getSeDDataManager();
 #ifdef USE_LOG_SERVICE
   dataManager->setLogComponent( dietLogComponent ); // modif bisnard_logs_1
@@ -1001,11 +943,8 @@ diet_SeD(const char* config_file_name, int argc, char* argv[])
 
   ORBMgr::getMgr()->activate(dataManager);
   SeD->setDataManager(dataManager);
-#endif // ! HAVE_DAGDA
 
-#ifdef HAVE_DAGDA
   sedImpl = SeD;
-#endif
 
   /* Wait for RPCs : */
   ORBMgr::getMgr()->wait();

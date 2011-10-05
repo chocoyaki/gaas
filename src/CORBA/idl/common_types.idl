@@ -229,62 +229,36 @@ struct corba_scalar_specific_t {
 
 /** Mapping for struct diet_vector_specific */
 struct corba_vector_specific_t {
-#if HAVE_DAGDA
   unsigned long long size;
-#else
-  long size;
-#endif
 };
 
 /** Mapping fo structr diet_matrix_specific */
 struct corba_matrix_specific_t {
-#if HAVE_DAGDA
   unsigned long long nb_r;
   unsigned long long nb_c;
   unsigned long order;
-#else
-  long nb_r;
-  long nb_c;
-  long order;
-#endif
 };
 
 /** Mapping for struct diet_string_specific */
 struct corba_string_specific_t {
-#if HAVE_DAGDA
   unsigned long length;
-#else
-  long length;
-#endif
 };
 
 /** Mapping for struct diet_paramstring_specific */
 struct corba_paramstring_specific_t {
-#if HAVE_DAGDA
   unsigned long length;
-#else
-  long length;
-#endif
   string param;
 };
 
 /** Mapping for struct diet_file_specific */
 struct corba_file_specific_t {
-#if HAVE_DAGDA
   unsigned long long size;
-#else
-  long size;
-#endif
   string path;
 };
 
 /** Mapping for struct diet_container_specific */
 struct corba_container_specific_t {
-#if HAVE_DAGDA
   unsigned long long size;
-#else
-  long size;
-#endif
 };
 
 /**
@@ -313,9 +287,7 @@ struct corba_data_desc_t {
   long mode;
   long base_type;
   type specific;
-#if HAVE_DAGDA
   string dataManager; // This data Dagda data manager name.
-#endif
 };
 typedef sequence<corba_data_desc_t> SeqCorbaDataDesc_t;
 
@@ -478,9 +450,7 @@ struct corba_profile_t {
   long   nbprocess ;
   long   walltime ;
 #endif
-#if HAVE_DAGDA
   string clientName;
-#endif
 };
 
 #endif // _COMMON_TYPES_IDL_

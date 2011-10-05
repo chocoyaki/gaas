@@ -78,10 +78,7 @@
 #define _MASTER_AGENT_IDL_
 
 #include "Agent.idl"
-
-#ifdef HAVE_DAGDA
 #include "Dagda.idl"
-#endif
 
 interface MasterAgent : Agent {
 
@@ -99,11 +96,7 @@ interface MasterAgent : Agent {
   unsigned long dataLookUp(in string id);
 
   /** get data descriptor */
-#ifdef HAVE_DAGDA
   corba_data_desc_t get_data_arg(in string argID) raises(Dagda::DataNotFound);
-#else
-  corba_data_desc_t get_data_arg(in string argID);
-#endif
 
   /**
    * invoked by client : removal from the platform of the data identified by argID
@@ -181,9 +174,7 @@ interface MasterAgent : Agent {
                   out long seqReqId);
 #endif // HAVE_WORKFLOW
 
-#ifdef HAVE_DAGDA
   long insertData(in string key, in SeqString values);
-#endif
 };
 
 #endif // _MASTER_AGENT_IDL_

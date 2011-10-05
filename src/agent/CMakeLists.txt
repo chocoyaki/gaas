@@ -10,6 +10,8 @@ include_directories(
   ${DIET_SOURCE_DIR}/include
   ${DIET_SOURCE_DIR}/src/SeD	# for SeDImpl.hh from Cori_Metric
   ${DIET_SOURCE_DIR}/src/utils/config
+  ${DIET_SOURCE_DIR}/src/utils/DAGDA
+  ${UUID_PATH}
   )
 
 if (DIET_USE_ALT_BATCH)
@@ -36,17 +38,6 @@ set(AgentCommon_SOURCES
     Request.cc
     Schedulers.cc
 )
-if (NOT DIET_USE_DAGDA)
-  set(AgentCommon_SOURCES
-      ${AgentCommon_SOURCES}
-      LocMgrImpl.cc
-  )
-endif (NOT DIET_USE_DAGDA)
-
-# To use Dagda instead of DTM.
-if (DIET_USE_DAGDA)
-  include_directories(${DIET_SOURCE_DIR}/src/utils/DAGDA ${UUID_PATH})
-endif (DIET_USE_DAGDA)
 
 if (DIET_USE_USERSCHED)
   set (AgentCommon_SOURCES ${AgentCommon_SOURCES} UserScheduler.cc)
@@ -75,14 +66,11 @@ corba_headers(IDL_HDRS
 add_dependencies(dietAgent CORBAFiles)
 add_dependencies(AgentCommon CORBAFiles)
 
-	
-if (DIET_USE_DAGDA)
-  set(dietAgent_Libs
-    ${dietAgent_Libs}
-    ${UUID_LIB}
-    DIET_Dagda
+set(dietAgent_Libs
+  ${dietAgent_Libs}
+  ${UUID_LIB}
+  DIET_Dagda
   )
-endif(DIET_USE_DAGDA)
 	
 set(dietAgent_Libs
   ${dietAgent_Libs}

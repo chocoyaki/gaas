@@ -18,14 +18,11 @@ if (DIET_USE_LOG)
   add_subdirectory (log)
 endif (DIET_USE_LOG)
 
-if (DIET_USE_DAGDA)
-  set(DIET_Utils_SOURCES
-    ${DIET_Utils_SOURCES}
-    DataRelationMgr.cc
-    )
-  add_subdirectory(DAGDA)
-endif (DIET_USE_DAGDA)
-
+set(DIET_Utils_SOURCES
+  ${DIET_Utils_SOURCES}
+  DataRelationMgr.cc
+  )
+add_subdirectory(DAGDA)
 
 add_subdirectory(config)
 

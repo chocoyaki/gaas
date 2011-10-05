@@ -9,13 +9,6 @@ set(DIET_SeD_SOURCES
 )
 
 
-if (NOT DIET_USE_DAGDA)
-  set(DIET_SeD_SOURCES
-      ${DIET_SeD_SOURCES}
-      DataMgrImpl.cc
-  )
-endif(NOT DIET_USE_DAGDA)
-
 if (DIET_USE_ALT_BATCH)  # in that case, put lib UtilsCoRI in lib DIET_SeD
   include_directories(${DIET_SOURCE_DIR}/src/utils/batch)
   set(DIET_SeD_SOURCES
@@ -47,9 +40,7 @@ if (DIET_USE_LOG)
     ${DIET_SOURCE_DIR}/src/utils/log)
 endif (DIET_USE_LOG)
 
-if (DIET_USE_DAGDA)
-  include_directories(${DIET_SOURCE_DIR}/src/utils/DAGDA ${UUID_PATH})
-endif (DIET_USE_DAGDA)
+include_directories(${DIET_SOURCE_DIR}/src/utils/DAGDA ${UUID_PATH})
 
 
 add_library(DIET_SeD ${DIET_SeD_SOURCES})
@@ -60,16 +51,13 @@ add_dependencies(DIET_SeD CORBAFiles)
 
 
 ## Dependencies towards other libraries  
-# To use Dagda instead of DTM.
-if (DIET_USE_DAGDA)
-  # /!\ DIET_Dagda has to be included first (before any other DIET
-  # library), otherwise it won't work on APPLE.
-  set(DIET_SeD_Libs
-    ${DIET_SeD_Libs}
-    ${UUID_LIB}
-    DIET_Dagda
+# /!\ DIET_Dagda has to be included first (before any other DIET
+# library), otherwise it won't work on APPLE.
+set(DIET_SeD_Libs
+  ${DIET_SeD_Libs}
+  ${UUID_LIB}
+  DIET_Dagda
   )
-endif (DIET_USE_DAGDA)
 
 # Link with log only if log enabled
 if (DIET_USE_LOG)

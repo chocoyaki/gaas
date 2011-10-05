@@ -23,12 +23,7 @@
 #include "DietLogComponent.hh"
 #endif
 
-#ifndef HAVE_DAGDA
-#include "DataMgrImpl.hh"
-#include "LocMgrImpl.hh"
-#else
 #include "DagdaImpl.hh"
-#endif
 
 #ifdef HAVE_WORKFLOW
 #include "CltWfMgr.hh"
@@ -257,7 +252,6 @@ SeD_ptr DIETForwarder::getSeD(const char* name)
   return SeD::_duplicate(sed->_this());
 }
 
-#ifdef HAVE_DAGDA
 Dagda_ptr DIETForwarder::getDagda(const char* name)
 {
   string nm(name);
@@ -284,62 +278,6 @@ Dagda_ptr DIETForwarder::getDagda(const char* name)
   return Dagda::_duplicate(dagda->_this());
 }
 
-#else
-DataMgr_ptr DIETForwarder::getDataMgr(const char* name)
-{
-  string nm(name);
-  ::CORBA::Object_ptr object;
-
-  if (nm.find('/')==string::npos) {
-    nm = string(DATAMGRCTXT)+"/"+nm;
-  }
-  object = getObjectCache(nm);
-  if (!CORBA::is_nil(object)) {
-    if (object->_non_existent()) {
-      removeObjectFromCache(name);
-    } else
-      return DataMgr::_duplicate(DataMgr::_narrow(object));
-  }
-
-  DataMgrFwdrImpl * dtm = new DataMgrFwdrImpl(this->_this(), nm.c_str());
-  ORBMgr::getMgr()->activate(dtm);
-
-  cachesMutex.lock();
-  servants[nm] = dtm;
-  objectCache[nm] = CORBA::Object::_duplicate(dtm->_this());
-  cachesMutex.unlock();
-
-  return DataMgr::_duplicate(dtm->_this());
-}
-
-LocMgr_ptr DIETForwarder::getLocMgr(const char* name)
-{
-  string nm(name);
-  ::CORBA::Object_ptr object;
-
-  if (nm.find('/')==string::npos) {
-    nm = string(LOCMGRCTXT)+"/"+nm;
-  }
-  object = getObjectCache(nm);
-  if (!CORBA::is_nil(object)) {
-    if (object->_non_existent()) {
-      removeObjectFromCache(name);
-    } else
-      return LocMgr::_duplicate(LocMgr::_narrow(object));
-  }
-
-  LocMgrFwdrImpl * dtm = new LocMgrFwdrImpl(this->_this(), nm.c_str());
-  ORBMgr::getMgr()->activate(dtm);
-
-  cachesMutex.lock();
-  servants[nm] = dtm;
-  objectCache[nm] = CORBA::Object::_duplicate(dtm->_this());
-  cachesMutex.unlock();
-
-  return LocMgr::_duplicate(dtm->_this());
-}
-
-#endif
 #ifdef HAVE_WORKFLOW
 CltMan_ptr DIETForwarder::getCltMan(const char* name)
 {
@@ -518,13 +456,13 @@ char* DIETForwarder::getHostname(const char* objName)
 								  this->name);
     return agent->getHostname();
   }
-#ifdef HAVE_DAGDA
+
   if (ctxt==string(DAGDACTXT)) {
     Dagda_var dagda = ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(ctxt, name,
 								  this->name);
     return dagda->getHostname();
   }
-#endif
+
   throw BadNameException(objString.c_str(), __FUNCTION__, getName());
 }
 
@@ -623,111 +561,6 @@ char* DIETForwarder::getHostname(const char* objName)
 }
 #endif
 
-#ifndef HAVE_DAGDA
-char* DIETForwarder::whereData(const char* argID,
-			       const char* objName)
-{
-  string objString(objName);
-  string name;
-  string ctxt;
-
-  if (!remoteCall(objString)) {
-    return getPeer()->whereData(argID, objString.c_str());
-  }
-
-  ctxt = getCtxt(objString);
-  name = getName(objString);
-
-  if (ctxt==LOCMGRCTXT) {
-    LocMgr_var mgr = ORBMgr::getMgr()->resolve<LocMgr, LocMgr_var>(LOCMGRCTXT, name,
-								   this->name);
-    return mgr->whereData(argID);
-  }
-  if (ctxt==DATAMGRCTXT) {
-    DataMgr_var mgr = ORBMgr::getMgr()->resolve<DataMgr, DataMgr_var>(DATAMGRCTXT, name,
-								      this->name);
-    return mgr->whereData(argID);
-  }
-  throw BadNameException(objString.c_str(), __FUNCTION__, getName());
-}
-
-char* DIETForwarder::setMyName(const char* objName) {
-  string objString(objName);
-  string name;
-  string ctxt;
-
-  if (!remoteCall(objString)) {
-    return getPeer()->setMyName(objString.c_str());
-  }
-
-  ctxt = getCtxt(objString);
-  name = getName(objString);
-
-  if (ctxt==LOCMGRCTXT) {
-    LocMgr_var mgr = ORBMgr::getMgr()->resolve<LocMgr, LocMgr_var>(LOCMGRCTXT, name,
-								   this->name);
-    return mgr->setMyName();
-  }
-  if (ctxt==DATAMGRCTXT) {
-    DataMgr_var mgr = ORBMgr::getMgr()->resolve<DataMgr, DataMgr_var>(DATAMGRCTXT, name,
-								      this->name);
-    return mgr->setMyName();
-  }
-  throw BadNameException(objString.c_str(), __FUNCTION__, getName());
-}
-
-char* DIETForwarder::whichSeDOwner(const char* argID,
-				   const char* objName)
-{
-  string objString(objName);
-  string name;
-  string ctxt;
-
-  if (!remoteCall(objString)) {
-    return getPeer()->whichSeDOwner(argID, objString.c_str());
-  }
-
-  ctxt = getCtxt(objString);
-  name = getName(objString);
-
-  if (ctxt==LOCMGRCTXT) {
-    LocMgr_var mgr = ORBMgr::getMgr()->resolve<LocMgr, LocMgr_var>(LOCMGRCTXT, name,
-								   this->name);
-    return mgr->whichSeDOwner(argID);
-  }
-  if (ctxt==DATAMGRCTXT) {
-    DataMgr_var mgr = ORBMgr::getMgr()->resolve<DataMgr, DataMgr_var>(DATAMGRCTXT, name,
-								      this->name);
-    return mgr->whichSeDOwner(argID);
-  }
-  throw BadNameException(objString.c_str(), __FUNCTION__, getName());
-}
-
-void DIETForwarder::printList(const char* objName) {
-  string objString(objName);
-  string name;
-  string ctxt;
-
-  if (!remoteCall(objString)) {
-    return getPeer()->printList(objString.c_str());
-  }
-
-  ctxt = getCtxt(objString);
-  name = getName(objString);
-
-  if (ctxt==LOCMGRCTXT) {
-    LocMgr_var mgr = ORBMgr::getMgr()->resolve<LocMgr, LocMgr_var>(LOCMGRCTXT, name,
-								   this->name);
-    return mgr->printList();
-  }
-  if (ctxt==DATAMGRCTXT) {
-    DataMgr_var mgr = ORBMgr::getMgr()->resolve<DataMgr, DataMgr_var>(DATAMGRCTXT, name,
-								      this->name);
-    return mgr->printList();
-  }
-  throw BadNameException(objString.c_str(), __FUNCTION__, getName());
-}
-#endif
 
 void DIETForwarder::bind(const char* objName, const char* ior) {
   /* To avoid crashes when the peer forwarder is not ready: */

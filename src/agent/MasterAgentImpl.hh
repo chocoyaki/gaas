@@ -113,10 +113,7 @@
 class FloodRequestsList ;
 #endif
 
-#if HAVE_DAGDA
 #include "DagdaCatalog.hh"
-#endif
-
 
 #include "Forwarder.hh"
 #include "MasterAgentFwdr.hh"
@@ -236,15 +233,11 @@ public :
           CORBA::Long& seqReqId);
 
 #endif // HAVE_WORKFLOW
-#if HAVE_DAGDA
   virtual SeqString* searchData(const char* request);
   virtual CORBA::Long insertData(const char* key, const SeqString& values);
-#endif
 
 private :
-#if HAVE_DAGDA
   DagdaCatalog* catalog;
-#endif
 
   /** ID of next incoming request. */
   Counter reqIDCounter;
@@ -342,10 +335,8 @@ public:
 #endif
 	virtual CORBA::Long
   childRemoveService(CORBA::ULong childID, const corba_profile_desc_t& profile);
-#ifdef HAVE_DAGDA
   virtual SeqString* searchData(const char* request);
   virtual CORBA::Long insertData(const char* key, const SeqString& values);
   virtual char* getDataManager();
-#endif
 };
 #endif // _MASTERAGENTIMPL_HH_

@@ -56,9 +56,6 @@ endif()
 # Options dependencies:
 #    - DIET_BUILD_BLAS_EXAMPLES => DIET_BUILD_EXAMPLES
 #    - DIET_USE_ALT_BATCH => DIET_USE_CORI
-#    - DIET_USE_DYNAMICS => DIET_USE_DAGDA (!DIET_USE_DTM)
-#    - DIET_WORKFLOW => DIET_USE_DAGDA (!DIET_USE_DTM)
-#    - DIET_TRANSFER_PROGRESSION => DIET_USE_DAGDA
 #    - DIET_USE_CLOUD => DIET_USE_ALT_BATCH
 
 option(DIET_BUILD_BLAS_EXAMPLES "Build BLAS based DIET examples." OFF)
@@ -101,12 +98,7 @@ option(DIET_USE_WORKFLOW    "Build DIET with workflow support..." OFF)
 option(DIET_WITH_STATISTICS "Build DIET with generation of statistics." OFF)
 option(DIET_WITH_MULTI_MA   "Build DIET with MULTI-Master-Agent support." OFF)
 option(DIET_USE_USERSCHED   "Build DIET with user scheduler support (Experimental)." OFF)
-option(DIET_USE_ENDIANNESS  "Build DIET with endianness management  (Experimental)." OFF)
 option(DIET_USE_CCS         "Build DIET with client custom scheduling  (Experimental)." OFF)
-set (DIET_USE_DAGDA CACHE INTERNAL ON FORCE)
-if (NOT DIET_USE_DTM)
-  option(DIET_TRANSFER_PROGRESSION "Build DIET with DAGDA progression API" OFF )
-endif (NOT DIET_USE_DTM)
 option(DIET_BUILD_TOOLS	    "Build DIET tools." OFF)
 
 if (DIET_USE_DYNAMICS OR DIET_USE_WORKFLOW)
@@ -329,27 +321,16 @@ if (DIET_USE_USERSCHED)
   add_definitions(-DUSERSCHED)
 endif(DIET_USE_USERSCHED)
 
-# Now Dagda is the default DIET data manager.
-if (DIET_USE_DTM)
-  set(DIET_USE_DAGDA OFF CACHE INTERNAL "Use Dagda as data manager" FORCE)
-else (DIET_USE_DTM)
-  set(DIET_USE_DAGDA ON CACHE INTERNAL "Use Dagda as data manager" FORCE)
-endif (DIET_USE_DTM)
-
 # --------------- Dagda as data manager support ---------------
-if (DIET_USE_DAGDA)
-  find_package(UUID)
-	if (NOT UUID_FOUND)
-	  message(WARNING "UUID lib was not found. DIET will use unsafe data names. Please provide a valid path to uuid installation and/or install e2fstools")
-	endif (NOT UUID_FOUND)
-  add_definitions(-DHAVE_DAGDA)
-  if (DIET_TRANSFER_PROGRESSION)
-    add_definitions(-DDAGDA_PROGRESSION)
-  endif (DIET_TRANSFER_PROGRESSION)
-else (DIET_USE_DAGDA)
-  set (DIET_USE_DYNAMICS OFF)
-endif (DIET_USE_DAGDA)
+find_package(UUID)
+if (NOT UUID_FOUND)
+  message(WARNING "UUID lib was not found. DIET will use unsafe data names. Please provide a valid path to uuid installation and/or install e2fstools")
+endif (NOT UUID_FOUND)
+if (DIET_TRANSFER_PROGRESSION)
+  add_definitions(-DDAGDA_PROGRESSION)
+endif (DIET_TRANSFER_PROGRESSION)
 
+set (DIET_USE_DYNAMICS ON)
 
 #-------------------- DIET log service use -------------------
 option(DIET_USE_LOG "Allow Diet to send log message to log service " OFF)
@@ -363,11 +344,6 @@ if (DIET_USE_LOG)
   endif (LOGSERVICE_FOUND)
   
 endif (DIET_USE_LOG)
-# --------------- DIET Endianness support  ------------------
-if (DIET_USE_ENDIANNESS)
-  add_definitions(-DWITH_ENDIANNESS)
-endif (DIET_USE_ENDIANNESS)
-
 # --------------- DIET custom client scheduling support  ------------------
 if (DIET_USE_CCS)
   add_definitions(-DHAVE_CCS)

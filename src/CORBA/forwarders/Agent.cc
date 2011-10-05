@@ -157,7 +157,6 @@ void DIETForwarder::getResponse(const ::corba_response_t& resp,
   return agent->getResponse(resp);
 }
 
-#ifdef HAVE_DAGDA
 char* DIETForwarder::getDataManager(const char* objName) {
   string objString(objName);
   string name;
@@ -190,5 +189,3 @@ SeqString* DIETForwarder::searchData(const char* request,
 								this->name);
   return agent->searchData(request);
 }
-
-#endif

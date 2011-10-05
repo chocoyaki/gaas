@@ -49,11 +49,8 @@ interface SeDForwarder {
                          in string volatileclientPtr,
                          in string objName);
 
-
-#if HAVE_DAGDA
   string getDataMgrID(in string objName)
     raises(UnknownObject);
-#endif
 
   SeqCorbaProfileDesc_t getSeDProfiles(out long length,
                                        in string objName)

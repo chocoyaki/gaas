@@ -161,7 +161,7 @@
 
 class ServiceTable
 {
-  
+
 public:
   typedef int ServiceReference_t;
   typedef struct {
@@ -171,7 +171,7 @@ public:
 
   // Equivalent to ServiceTable(MAX_NB_SERVICES, MAX_NB_CHILDREN)
   ServiceTable();
-  // Equivalent to ServiceTable(max_nb_services, 0)  
+  // Equivalent to ServiceTable(max_nb_services, 0)
   ServiceTable(CORBA::ULong max_nb_services);
   // Allocate memory with given inital numbers, but:
   //  - the solvers part of the table is nil if max_nb_children > 0
@@ -179,10 +179,10 @@ public:
   ServiceTable(CORBA::ULong max_nb_services, CORBA::ULong max_nb_children);
   virtual
   ~ServiceTable();
-  
+
   CORBA::ULong
   maxSize();
-  
+
   ServiceReference_t
   lookupService(const corba_profile_desc_t* sv_profile);
   ServiceReference_t
@@ -209,10 +209,8 @@ public:
   rmService(const corba_profile_desc_t* profile);
   int
   rmService(const ServiceReference_t ref);
-//#ifdef HAVE_DAGDA
   int
   rmChildService(const corba_profile_desc_t* profile, CORBA::ULong childID);
-//#endif
   int
   rmChild(const CORBA::ULong child);
 
@@ -247,7 +245,7 @@ public:
 #if defined HAVE_ALT_BATCH
   /* Returns the list of children that can solve parallel and/or sequential
      task, depending on parallel flag of profile
-     => Caller must desallocate the resulting memory! 
+     => Caller must desallocate the resulting memory!
 
      Returns the concatanation of the
      matching children corresponding to requested service depending on
@@ -270,22 +268,22 @@ public:
   CORBA::ULong max_nb_children;
 
 #if HAVE_ALT_BATCH
-  int 
+  int
   testIfAllParallelServices() ;
 #endif
 
 private:
-  
+
   // number of couples {service,profile} in the table
   CORBA::ULong nb_s, max_nb_s, max_nb_s_step;
   // max number of capable children for one service
   // array of name and generic data description (a profile description)
   SeqCorbaProfileDesc_t profiles;
-  // array of solving functions 
+  // array of solving functions
   diet_solve_t* solvers;
-  // array of evaluation functions 
+  // array of evaluation functions
   diet_eval_t* eval_functions;
-  // array of convertors (from a client pb profile to a "solved" pb profile) 
+  // array of convertors (from a client pb profile to a "solved" pb profile)
   diet_convertor_t* convertors;
   // array of performance metric functions
   diet_perfmetric_t* perfmetrics;

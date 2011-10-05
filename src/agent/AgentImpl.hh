@@ -136,11 +136,7 @@
 #include "Counter.hh"
 #include "ChildID.hh"
 #include "DIET_data_internal.hh"
-#if ! HAVE_DAGDA
-#include "LocMgrImpl.hh"
-#else
 #include "DagdaImpl.hh"
-#endif
 #include "NodeDescription.hh"
 #include "RequestID.hh"
 #include "Request.hh"
@@ -177,24 +173,14 @@ public:
   virtual int
   run();
 
-  // Dagda doesn't use the DTM Location Manager.
-#if ! HAVE_DAGDA
-  /** Set this->locMgr */
-  int
-  linkToLocMgr(LocMgrImpl* locMgr);
-#else
   void
   setDataManager(Dagda_ptr dataManager);
 
   /*DagdaImpl* */
   char* getDataManager();
-#endif // ! HAVE_DAGDA
 
-
-#if HAVE_DAGDA
   virtual SeqString*
   searchData(const char* request) = 0;
-#endif
 
   /**
    * Set the DietLogManager. If the dietLogManager is NULL, no
@@ -237,12 +223,9 @@ public:
   virtual CORBA::Long
   addServices(CORBA::ULong myID, const SeqCorbaProfileDesc_t& services);
 
-  //#ifdef HAVE_DAGDA
   /** Remove services into the service table for a given child */
   virtual CORBA::Long
   childRemoveService(CORBA::ULong childID, const corba_profile_desc_t& profile);
-  //#endif
-
 
   /** Get the response of a child */
   virtual void
@@ -293,13 +276,7 @@ protected:
   /** All requests beeing processed */
   ts_map<RequestID, Request*> reqList;
 
-  /** Data Location Manager associated to this agent */
-  // Dagda doesn't require this.
-#if ! HAVE_DAGDA
-  LocMgrImpl* locMgr;
-#else
   Dagda_ptr dataManager;
-#endif // ! HAVE_DAGDA
 
   /**************************************************************************/
   /* Private methods                                                        */
@@ -386,11 +363,11 @@ public:
 #endif // HAVE_DYNAMICS
   virtual CORBA::Long
   childRemoveService(CORBA::ULong childID, const corba_profile_desc_t& profile);
-#ifdef HAVE_DAGDA
+
   virtual char* getDataManager();
   SeqString*
   searchData(const char* request);
-#endif
+
   virtual CORBA::Long
   addServices(CORBA::ULong myID, const SeqCorbaProfileDesc_t& services);
 

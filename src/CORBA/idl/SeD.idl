@@ -128,10 +128,8 @@ interface SeD {
                       in string volatileclientPtr);
 
 // modif bisnard_logs_1
-#if HAVE_DAGDA
   /** get the DataMgr ID **/
   string getDataMgrID();
-#endif
 // end modif bisnard_logs_1
 
 

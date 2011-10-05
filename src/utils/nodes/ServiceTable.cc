@@ -208,12 +208,12 @@ extern unsigned int TRACE_LEVEL;
                  << ": " << formatted_text)
 
 
-ServiceTable::ServiceTable() 
+ServiceTable::ServiceTable()
 {
   ServiceTableInit(MAX_NB_SERVICES, MAX_NB_CHILDREN);
 }
 
-ServiceTable::ServiceTable(CORBA::ULong max_nb_services) 
+ServiceTable::ServiceTable(CORBA::ULong max_nb_services)
 {
   ServiceTableInit(max_nb_services, 0);
 }
@@ -260,7 +260,7 @@ ServiceTable::lookupService(const corba_profile_desc_t* sv_profile)
   /* Called from ServiceTable::addService(), rmService(), getSolver(),
      getEvalf(), getConvertor(), getPerfMetric(), getChildren()
   ** DIET_server::diet_service_table_lookup_by_profile()
-  ** Cori_Fast::diet_service_table_lookup_by_profile() 
+  ** Cori_Fast::diet_service_table_lookup_by_profile()
   */
   size_t i(0);
   for (; (i < nb_s) && (!profile_desc_match(&(profiles[i]), sv_profile)); i++) ;
@@ -384,7 +384,7 @@ ServiceTable::addService(const corba_profile_desc_t* profile,
                          CORBA::ULong child)
 {
   ServiceReference_t service_idx(-1);
-  
+
   if (solvers) {
     SRVT_ERROR("attempting to add a service with" << endl
                << "  child in a table initialized with solvers");
@@ -413,7 +413,7 @@ ServiceTable::addService(const corba_profile_desc_t* profile,
     matching_children[nb_s].children[matching_children[nb_s].nb_children++]
       = child;
     nb_s++;
-  
+
   } else {
 
     { /* verify that the aggregators are equivalent */
@@ -470,7 +470,7 @@ ServiceTable::addService(const corba_profile_desc_t* profile,
     CORBA::ULong nb_children =
       matching_children[(size_t)service_idx].nb_children;
     CORBA::ULong* children   = matching_children[(size_t)service_idx].children;
-    
+
     for (size_t i = 0; i < nb_children; i++)
       if (children[i] == child)
         return -1; // service already associated to child
@@ -494,7 +494,7 @@ int
 ServiceTable::rmService(const corba_profile_desc_t* profile)
 {
   ServiceReference_t ref(-1);
-  
+
   if ((ref = lookupService(profile)) == -1) {
     SRVT_ERROR("attempting to rm a service that is not in table");
   }
@@ -510,7 +510,7 @@ ServiceTable::rmService(const ServiceReference_t ref)
   if (((int) ref < 0) || ((size_t) ref >= nb_s)) {
     SRVT_ERROR("wrong service reference");
   }
-  
+
   if (solvers) {
     profiles[ref].param_desc.length(0);
     for (i = (size_t) ref; i < (nb_s - 1); i++) {
@@ -537,20 +537,19 @@ ServiceTable::rmService(const ServiceReference_t ref)
     matching_children[i].children = new CORBA::ULong[max_nb_children];
 
   }
-  
+
   nb_s--;
   return 0;
 }
 
 
-//#ifdef HAVE_DAGDA
 /** removes a service on a given child */
 int
 ServiceTable::rmChildService(const corba_profile_desc_t* profile, CORBA::ULong childID)
 {
   ServiceReference_t ref(-1);
   size_t i(0), j(0);
-  
+
   if ((ref = lookupService(profile)) == -1) {
     SRVT_ERROR("attempting to rm a service that is not in table");
   }
@@ -558,7 +557,7 @@ ServiceTable::rmChildService(const corba_profile_desc_t* profile, CORBA::ULong c
   if (((int) ref < 0) || ((size_t) ref >= nb_s)) {
     SRVT_ERROR("wrong service reference");
   }
-  
+
   if (solvers) {
     /* Nothing to do
      * Should we even be able to call this?? */
@@ -586,14 +585,12 @@ ServiceTable::rmChildService(const corba_profile_desc_t* profile, CORBA::ULong c
 
   return 0;
 }
-//#endif // HAVE_DAGDA
-
 
 int
 ServiceTable::rmChild(const CORBA::ULong child)
 {
   ServiceReference_t ref(-1);
-  
+
   if (solvers) {
     SRVT_ERROR("attempting to remove a child from" << endl
                << "  a table initialized with solvers");
@@ -658,7 +655,7 @@ diet_solve_t
 ServiceTable::getSolver(const corba_profile_desc_t* profile)
 {
   ServiceReference_t ref(-1);
-  
+
   if ((ref = lookupService(profile)) == -1) {
     SRVT_ERROR("attempting to get solver" << endl
                << "  of a service that is not in table");
@@ -685,7 +682,7 @@ diet_eval_t
 ServiceTable::getEvalf(const corba_profile_desc_t* profile)
 {
   ServiceReference_t ref;
-  
+
   if ((ref = lookupService(profile)) == -1) {
     SRVT_ERROR("attempting to get eval function" << endl
                << "  of a service that is not in table");
@@ -708,11 +705,11 @@ ServiceTable::getEvalf(const ServiceReference_t ref)
 }
 
 
-diet_convertor_t* 
+diet_convertor_t*
 ServiceTable::getConvertor(const corba_profile_desc_t* profile)
 {
   ServiceReference_t ref(-1);
-  
+
   if ((ref = lookupService(profile)) == -1) {
     SRVT_ERROR("attempting to get convertor" << endl
                << "  of a service that is not in table");
@@ -739,7 +736,7 @@ diet_perfmetric_t
 ServiceTable::getPerfMetric(const corba_profile_desc_t* profile)
 {
   ServiceReference_t ref(-1);
-  
+
   if ((ref = lookupService(profile)) == -1) {
     SRVT_ERROR("attempting to get performance metric" << endl
                << "  of a service that is not in table");
@@ -766,7 +763,7 @@ ServiceTable::getPerfMetric(const ServiceReference_t ref)
    ServiceTable::getChildren(const corba_profile_desc_t* profile)
    {
    ServiceReference_t ref(-1);
-   
+
    if ((ref = lookupService(profile)) == -1) {
    SRVT_ERROR("attempting to get children" << endl
    << "  of a service that is not in table");
@@ -787,12 +784,12 @@ ServiceTable::getChildren(const corba_pb_desc_t * pb_desc,
   if (((int) serviceRef < 0) || ((size_t) serviceRef >= nb_s)) {
     SRVT_ERROR("wrong service reference");
   }
-  
+
   int first_found = -1; // at most, two indices: // and seq
   size_t i(0), j(0) ;
   ServiceTable::matching_children_t * mc = NULL ;
-  
-  /* Search for 1rst occurence of service in table */  
+
+  /* Search for 1rst occurence of service in table */
   while( (i < nb_s) && (!profile_match(&(profiles[i]), pb_desc)) )
     i++ ;
   if( i == nb_s ) {
@@ -809,22 +806,22 @@ ServiceTable::getChildren(const corba_pb_desc_t * pb_desc,
 					 different parallel flag */
     int second_found = -1;
     i++ ;
-    /* Search for 2nd occurence of service in table */  
+    /* Search for 2nd occurence of service in table */
     while( (i < nb_s) && (!profile_match(&(profiles[i]), pb_desc)) )
       i++ ;
     if( i== nb_s ) /* No new occurence */
-      mc->nb_children = 
+      mc->nb_children =
 	matching_children[ first_found ].nb_children ;
     else {
       second_found = i ;
-      mc->nb_children = 
-	matching_children[ first_found ].nb_children 
+      mc->nb_children =
+	matching_children[ first_found ].nb_children
 	+ matching_children[ second_found ].nb_children ;
     }
     /* Reserve memory for all children */
     mc->children =
       new CORBA::ULong[mc->nb_children] ;
-  
+
     /* Copy children, ordered parallel flag = 1 first */
     if( profiles[ serviceRef ].parallel_flag == 1 ) {
       for( i=0; i<matching_children[ first_found ].nb_children ; i++ ) {
@@ -859,7 +856,7 @@ ServiceTable::getChildren(const corba_pb_desc_t * pb_desc,
     }
   } else { /* Only interested by a given profile ( seq ORexclusive // )
 	      then first match is unique match */
-    mc->nb_children = 
+    mc->nb_children =
       matching_children[ first_found ].nb_children ;
     mc->children =
       new CORBA::ULong[mc->nb_children] ;
@@ -895,7 +892,7 @@ void
 ServiceTable::dump(FILE* f)
 {
   char path[257];
-  
+
   // FIXME: stat the FILE to check if write OK (take care that this method can
   // be called on stdout !
 
@@ -974,13 +971,13 @@ ServiceTable::ServiceTableInit(CORBA::ULong max_nb_services,
       matching_children[i].children    = new CORBA::ULong[max_nb_children];
     }
   } else {
-    solvers        = (diet_solve_t *) 
+    solvers        = (diet_solve_t *)
         malloc(max_nb_s * sizeof(diet_solve_t));
-    eval_functions = (diet_eval_t *) 
+    eval_functions = (diet_eval_t *)
         malloc(max_nb_s * sizeof(diet_eval_t));
-    convertors     = (diet_convertor_t *) 
+    convertors     = (diet_convertor_t *)
         malloc(max_nb_s * sizeof(diet_convertor_t));
-    perfmetrics    = (diet_perfmetric_t *) 
+    perfmetrics    = (diet_perfmetric_t *)
         malloc(max_nb_s * sizeof(diet_perfmetric_t));
     for (size_t i = 0; i < max_nb_s; i++) {
       profiles[i].param_desc.length(0);

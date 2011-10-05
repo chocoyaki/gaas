@@ -199,11 +199,9 @@
 #include "statistics.hh"
 #include "ORBMgr.hh"
 /* DAGDA */
-#if HAVE_DAGDA
 extern "C" {
 #include "DIET_Dagda.h"
 }
-#endif
 /* WORKFLOW UTILS */
 #include "DagWfParser.hh"
 #include "Dag.hh"

@@ -43,10 +43,8 @@
 #include "CallAsyncMgr.hh"
 #include "ORBMgr.hh"
 
-#if HAVE_DAGDA
 #include "DIET_Dagda.hh"
 #include "DagdaFactory.hh"
-#endif // HAVE_DAGDA
 
 #ifdef HAVE_MULTICALL
 #include "MultiCall.hh"
@@ -99,37 +97,11 @@ request_submission(MasterAgent_var& MA,
   subm_count = 0;
   do {
     response = NULL;
-#if ! HAVE_DAGDA
-    /* data property base_type and type retrieval : used for scheduler */
-    int i = 0;
-
-    for (i = 0, data_OK = 0 ;
-         (i <= corba_pb.last_out && data_OK == 0) ;
-         i++) {
-      char* new_id = strdup(corba_pb.param_desc[i].id.idNumber);
-
-      if(strlen(new_id) != 0) {
-				/* then data is known. Check that it's still in plaform */
-        corba_data_desc_t *arg_desc = new corba_data_desc_t;
-        arg_desc = MA->get_data_arg(new_id);
-        const char * tmp="-1";
-        if( strcmp(CORBA::string_dup(arg_desc->id.idNumber),tmp) == 0 ) {
-          bad_id = new_id;
-          data_OK = 1;
-        } else {
-          const_cast<corba_data_desc_t&>(corba_pb.param_desc[i]) = *arg_desc;
-        }
-      }
-    }
-#endif // ! HAVE_DAGDA
-
-#if HAVE_DAGDA
     {
       diet_error_t ret;
       if ((ret = dagda_get_data_desc(corba_pb, MA)))
         return ret;
     }
-#endif // HAVE_DAGDA
 
     if(data_OK == 0) {
       /* Submit to the agent. */
@@ -275,47 +247,7 @@ diet_call_common(MasterAgent_var& MA,
   // Server is chosen, update its timeSinceLastSolve
   chosenServer->updateTimeSinceLastSolve() ;
 
-#if HAVE_DAGDA
   dagda_mrsh_profile(&corba_profile, profile, MA);
-#else
-  /* Convert profile (with data) in corba_profile (with data) */
-  if (mrsh_profile_to_in_args(&corba_profile, profile)) {
-    ERROR("profile is wrongly built", 1);
-  }
-
-  int j = 0;
-  bool found = false;
-  while ((j <= corba_profile.last_out) && (found == false)) {
-    if (diet_is_persistent(corba_profile.parameters[j])) {
-			// && (MA->dataLookUp(strdup(corba_profile.parameters[i].desc.id.idNumber))))
-			found = true;
-    }
-    j++;
-  }
-  if(found == true){
-		//     create_file();
-  }
-  /* data property base_type and type retrieval: used for scheduler */
-  for(int i = 0 ; i <= corba_profile.last_out ; i++) {
-    char* new_id = strdup(corba_profile.parameters[i].desc.id.idNumber);
-    if(strlen(new_id) != 0) {
-      corba_data_desc_t* arg_desc = new corba_data_desc_t;
-      arg_desc = MA->get_data_arg(new_id);
-      const_cast<corba_data_desc_t&>(corba_profile.parameters[i].desc) = *arg_desc;
-    }
-  }
-
-  /* generate new ID for data if not already existant */
-  for(int i = 0 ; i <= corba_profile.last_out ; i++) {
-    if((corba_profile.parameters[i].desc.mode > DIET_VOLATILE ) &&
-       (corba_profile.parameters[i].desc.mode < DIET_PERSISTENCE_MODE_COUNT) &&
-       (MA->dataLookUp(strdup(corba_profile.parameters[i].desc.id.idNumber))))
-		{
-			char* new_id = MA->get_data_id();
-			corba_profile.parameters[i].desc.id.idNumber = new_id;
-		}
-  }
-#endif // HAVE_DAGDA
 
   /* Computation */
   sprintf(statMsg, "computation %ld", (unsigned long) profile->dietReqID);
@@ -327,21 +259,7 @@ diet_call_common(MasterAgent_var& MA,
 
   stat_out("Client",statMsg);
 
-#if ! HAVE_DAGDA
-  /* reaffect identifier */
-  for(int i = 0;i <= profile->last_out;i++) {
-    if ((corba_profile.parameters[i].desc.mode > DIET_VOLATILE ) &&
-        (corba_profile.parameters[i].desc.mode < DIET_PERSISTENCE_MODE_COUNT)) {
-      profile->parameters[i].desc.id = strdup(corba_profile.parameters[i].desc.id.idNumber);
-    }
-  }
-
-  if (unmrsh_out_args_to_profile(profile, &corba_profile)) {
-    INTERNAL_ERROR("returned profile is wrongly built", 1);
-  }
-#else
   dagda_download_SeD_data(profile, &corba_profile);
-#endif // ! HAVE_DAGDA
 
   sprintf(statMsg, "diet_call %ld", (unsigned long) profile->dietReqID);
   stat_out("Client",statMsg);
@@ -404,50 +322,7 @@ diet_call_async_common(MasterAgent_var& MA,
       if (MultiCall::updateCall(profile, chosenServer)) {
 #endif //HAVE_MULTICALL
 
-#if HAVE_DAGDA
         dagda_mrsh_profile(&corba_profile, profile, MA);
-#else
-        if (mrsh_profile_to_in_args(&corba_profile, profile)) {
-          caMgr->setReqErrorCode(profile->dietReqID, GRPC_INVALID_FUNCTION_HANDLE);
-          ERROR("profile is wrongly built", 1);
-        }
-
-        int j = 0;
-        bool found = false;
-        while ((j <= corba_profile.last_out) && (found == false)) {
-          if (diet_is_persistent(corba_profile.parameters[j])) {
-            // && (MA->dataLookUp(strdup(corba_profile.parameters[i].desc.id.idNumber))))
-            found = true;
-          }
-          j++;
-        }
-        if(found == true){
-          //       create_file();
-        }
-#endif // HAVE_DAGDA
-
-#if ! HAVE_DAGDA
-        int i = 0;
-        /* data property base_type and type retrieval : used for scheduler */
-        for(i = 0;i <= corba_profile.last_out;i++) {
-          char* new_id = strdup(corba_profile.parameters[i].desc.id.idNumber);
-          if(strlen(new_id) != 0) {
-            corba_data_desc_t *arg_desc = new corba_data_desc_t;
-            arg_desc = MA->get_data_arg(new_id);
-            const_cast<corba_data_desc_t&>(corba_profile.parameters[i].desc) = *arg_desc;
-          }
-        }
-        /* generate new ID for data if not already existant */
-        for(i = 0;i <= corba_profile.last_out;i++) {
-          if ((corba_profile.parameters[i].desc.mode > DIET_VOLATILE ) &&
-              (corba_profile.parameters[i].desc.mode < DIET_PERSISTENCE_MODE_COUNT)
-              && (MA->dataLookUp(strdup(corba_profile.parameters[i].desc.id.idNumber))))
-            {
-              char* new_id = MA->get_data_id();
-              corba_profile.parameters[i].desc.id.idNumber = new_id;
-            }
-        }
-#endif // ! HAVE_DAGDA
 
         // create corba client callback server...
         // TODO : modify addAsyncCall function because profile has the reqID

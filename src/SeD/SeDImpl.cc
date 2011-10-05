@@ -386,10 +386,8 @@ using namespace std;
 #include "BatchCreator.hh"
 #endif
 
-#if HAVE_DAGDA
 #include "DagdaFactory.hh"
 #include "DIET_Dagda.hh"
-#endif // HAVE_DAGDA
 
 /** The trace level. */
 extern unsigned int TRACE_LEVEL;
@@ -763,21 +761,10 @@ SeDImpl::run(ServiceTable* services) {
 
 } // end: run
 
-#if ! HAVE_DAGDA
-/** Set this->dataMgr */
-int
-SeDImpl::linkToDataMgr(DataMgrImpl* dataMgr)
-{
-  this->dataMgr = dataMgr;
-  return 0;
-}
-#endif // ! HAVE_DAGDA
-#if HAVE_DAGDA
 void
 SeDImpl::setDataManager(DagdaImpl* dataManager) {
   this->dataManager=dataManager;
 }
-#endif
 
 #ifdef USE_LOG_SERVICE
 void
@@ -1050,11 +1037,6 @@ SeDImpl::solve(const char* path, corba_profile_t& pb) {
 
   TRACE_TEXT(TRACE_MAIN_STEPS,"SeD::solve complete" << endl
 	     << "************************************************************"<< endl);
-#if ! HAVE_DAGDA
-  for (int i = 0; i <= cvt->last_in; i++) {
-    diet_free_data(&(profile.parameters[i]));
-  }
-#endif // ! HAVE_DAGDA
   delete [] profile.parameters; // allocated by unmrsh_in_args_to_profile
 
   this->jobQueue->setJobFinished(profile.dietReqID);
@@ -1158,11 +1140,6 @@ SeDImpl::parallel_solve(const char* path, corba_profile_t& pb,
 
   TRACE_TEXT(TRACE_MAIN_STEPS,"SeD::parallel_solve() completed" << endl
 	     << "************************************************************" << endl);
-#if ! HAVE_DAGDA
-  for (int i = 0; i <= cvt->last_in; i++) {
-    diet_free_data(&(profile.parameters[i]));
-  }
-#endif
   delete [] profile.parameters; // allocated by unmrsh_in_args_to_profile
 
   stat_out("SeD",statMsg);
@@ -1496,7 +1473,7 @@ SeDImpl::ping()
 /****************************************************************************/
 
 /**
- * Estimate a request, with FAST if available.
+ * Estimate a request.
  * Gather info about SeD by CoRI
  */
 inline void
@@ -1669,24 +1646,7 @@ SeDImpl::downloadAsyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
 {
   TRACE_TIME(TRACE_MAIN_STEPS, "SeD downloads client datas" << endl);
 
-#if ! HAVE_DAGDA
-  int i;
-  for (i = 0; i <= pb.last_inout; i++) {
-    if(pb.parameters[i].value.length() == 0){
-      this->dataMgr->getData(const_cast<corba_data_t&>(pb.parameters[i]));
-    } else {
-      if( diet_is_persistent(pb.parameters[i]) ) {
-	this->dataMgr->addData(const_cast<corba_data_t&>(pb.parameters[i]),
-			       0);
-      }
-    }
-  }
-  unmrsh_in_args_to_profile(&profile, &(const_cast<corba_profile_t&>(pb)),
-			    cvt);
-  //      displayProfile(&profile, path);
-#else
   dagda_download_data(profile, pb);
-#endif // ! HAVE_DAGDA
 }
 
 inline void
@@ -1695,32 +1655,7 @@ SeDImpl::downloadSyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
 {
   TRACE_TIME(TRACE_MAIN_STEPS, "SeD downloads client datas" << endl);
 
-#if ! HAVE_DAGDA
-  int i ;
-  // For data persistence
-
-  for (i=0 ; i <= pb.last_inout ; i++) {
-    if(pb.parameters[i].value.length() == 0) {
-      /* In argument with NULL value : data is present */
-      this->dataMgr->getData(pb.parameters[i]);
-    } else { /* data is not yet present but is persistent */
-      if(diet_is_persistent(pb.parameters[i])) {
-        this->dataMgr->addData(pb.parameters[i],0);
-      }
-    }
-  }
-  unmrsh_in_args_to_profile(&profile, &pb, cvt);
-  for (i=0 ; i <= pb.last_inout ; i++) {
-    if( diet_is_persistent(pb.parameters[i]) &&
-        (pb.parameters[i].desc.specific._d() == DIET_FILE)) {
-      char* in_path =
-	CORBA::string_dup(profile.parameters[i].desc.specific.file.path);
-      this->dataMgr->changePath(pb.parameters[i], in_path);
-    }
-  }
-#else
   dagda_download_data(profile, pb);
-#endif // ! HAVE_DAGDA
 }
 
 inline void
@@ -1729,35 +1664,7 @@ SeDImpl::uploadAsyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
 {
   TRACE_TIME(TRACE_MAIN_STEPS, "SeD uploads client datas" << endl);
 
-#if ! HAVE_DAGDA
-  int i ;
-  for(i=0;i<=pb.last_in;i++){
-    if(diet_is_persistent(pb.parameters[i])) {
-      if (pb.parameters[i].desc.specific._d() != DIET_FILE) {
-	CORBA::Char *p1 (NULL);
-	const_cast<SeqChar&>(pb.parameters[i].value).replace(0,0,p1,1);
-      }
-      persistent_data_release(
-			      const_cast<corba_data_t*>(&(pb.parameters[i])));
-    }
-  }
-
-  mrsh_profile_to_out_args(&(const_cast<corba_profile_t&>(pb)), &profile, cvt);
-  /*      for (i = profile.last_in + 1 ; i <= profile.last_inout; i++) {
-	  if ( diet_is_persistent(profile.parameters[i])) {
-          this->dataMgr->updateDataList(const_cast<corba_data_t&>(pb.parameters[i]));
-	  }
-	  }*/
-
-  for (i = pb.last_inout + 1 ; i <= pb.last_out; i++) {
-    if ( diet_is_persistent(pb.parameters[i])) {
-      this->dataMgr->addData(const_cast<corba_data_t&>(pb.parameters[i]),
-			     1);
-    }
-  }
-#else // ! HAVE_DAGDA
   dagda_upload_data(profile, pb);
-#endif // ! HAVE_DAGDA
 
   /* Free data */
 #if 0
@@ -1778,28 +1685,7 @@ SeDImpl::uploadSyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
 {
   TRACE_TIME(TRACE_MAIN_STEPS, "SeD uploads client datas" << endl);
 
-#if ! HAVE_DAGDA // DTM case
-  int i ;
-  for(i=0;i<=pb.last_in;i++){
-    if(diet_is_persistent(pb.parameters[i])) {
-      if (pb.parameters[i].desc.specific._d() != DIET_FILE) {
-        CORBA::Char *p1 (NULL);
-        pb.parameters[i].value.replace(0,0,p1,1);
-      }
-      persistent_data_release(&(pb.parameters[i]));
-    }
-  }
-  mrsh_profile_to_out_args(&pb, &profile, cvt);
-
-  for (i = pb.last_inout + 1 ; i <= pb.last_out; i++) {
-    if ( diet_is_persistent(pb.parameters[i])) {
-      this->dataMgr->addData(pb.parameters[i],1);
-    }
-  }
-  this->dataMgr->printList();
-#else
   dagda_upload_data(profile, pb);
-#endif // ! HAVE_DAGDA
 }
 
 #if defined HAVE_ALT_BATCH
@@ -1824,8 +1710,6 @@ SeDImpl::getBatch()
 #endif
 
 
-
-#ifdef HAVE_DAGDA
 int
 SeDImpl::removeService(const diet_profile_t* const profile)
 {
@@ -1941,10 +1825,6 @@ SeDImpl::getDataMgrID() {
 }
 // end modif bisnard_logs_1
 
-#endif //HAVE_DAGDA
-
-
-
 
 /**
  * Returns the list of Profile available
@@ -2005,11 +1885,9 @@ void SeDFwdrImpl::solveAsync(const char* pb_name, const corba_profile_t& pb,
   forwarder->solveAsync(pb_name, pb, volatileclientIOR, objName);
 }
 
-#ifdef HAVE_DAGDA
 char* SeDFwdrImpl::getDataMgrID() {
   return forwarder->getDataMgrID(objName);
 }
-#endif
 
 SeqCorbaProfileDesc_t*
 SeDFwdrImpl::getSeDProfiles(CORBA::Long& length) {

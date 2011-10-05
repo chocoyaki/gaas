@@ -231,15 +231,8 @@ using namespace std;
 #include "DietLogComponent.hh"
 #endif /* USE_LOG_SERVICE */
 
-#if ! HAVE_DAGDA
-#include "LocMgrImpl.hh"    // DTM header file
-#endif /* ! HAVE_DAGDA */
-
-#if HAVE_DAGDA
 #include "DagdaImpl.hh"
 #include "DagdaFactory.hh"
-#endif /* HAVE_DAGDA */
-
 
 /** The trace level. */
 extern unsigned int TRACE_LEVEL;
@@ -251,12 +244,6 @@ DietLogComponent* dietLogComponent;
 
 /** The Agent object. */
 AgentImpl* Agt;
-
-#if ! HAVE_DAGDA
-/** The DTM Data Location Manager Object  */
-LocMgrImpl *Loc;
-#endif /* ! HAVE_DAGDA */
-
 
 class CStringDeleter {
 public:
@@ -497,11 +484,6 @@ int main(int argc, char* argv[], char *envp[]) {
   }
 #endif /* USE_LOG_SERVICE */
 
-#if ! HAVE_DAGDA
-  /* Create the DTM Data Location Manager */
-  Loc = new LocMgrImpl();
-#endif /* ! HAVE_DAGDA */
-#if HAVE_DAGDA
   DagdaImpl* dataManager;
   try {
     dataManager = DagdaFactory::getAgentDataManager();
@@ -514,7 +496,6 @@ int main(int argc, char* argv[], char *envp[]) {
           << " is OMNIORB_CONFIG variable correctly set?",
           GRPC_COMMUNICATION_FAILED);
   }
-#endif /* HAVE_DAGDA */
 
   /* Create, activate, and launch the agent */
   if ((agentType == "DIET_LOCAL_AGENT") || (agentType == "LA")) {
@@ -546,20 +527,8 @@ int main(int argc, char* argv[], char *envp[]) {
     ERROR("unable to launch the agent", 1);
   }
 
-  // Use Dagda instead of DTM.
-#if ! HAVE_DAGDA
-  /* Launch the DTM LocMgr */
-  ORBMgr::getMgr()->activate(Loc);
-  if (Loc->run()) {
-    std::for_each(args.begin(), args.end(), CStringDeleter());
-    ERROR("unable to launch the LocMgr", 1);
-  }
-  Agt->linkToLocMgr(Loc);
-#else
   ORBMgr::getMgr()->activate(dataManager);
   Agt->setDataManager(dataManager->_this());
-#endif /* ! HAVE_DAGDA */
-
 
   /* Wait for RPCs (blocking call): */
   try {

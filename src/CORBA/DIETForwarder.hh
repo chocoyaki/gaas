@@ -53,12 +53,7 @@ public:
     LogCentralComponent_ptr getLogCentralComponent(const char* name);*/
   MasterAgent_ptr getMasterAgent(const char* name);
   SeD_ptr getSeD(const char* name);
-#ifdef HAVE_DAGDA
   Dagda_ptr getDagda(const char* name);
-#else
-  DataMgr_ptr getDataMgr(const char* name);
-  LocMgr_ptr getLocMgr(const char* name);
-#endif
 #ifdef HAVE_WORKFLOW
   CltMan_ptr getCltMan(const char* name);
   MaDag_ptr getMaDag(const char* name);
@@ -129,9 +124,9 @@ public:
                             const char* objName);
   void getResponse(const ::corba_response_t& resp,
                    const char* objName);
-#ifdef HAVE_DAGDA
+
   char* getDataManager(const char* objName);
-#endif
+
   /* CallbackFwdr implementation. */
   ::CORBA::Long notifyResults(const char* path,
                               const ::corba_profile_t& pb,
@@ -157,7 +152,7 @@ public:
                 ::CORBA::Boolean successful,
                 const char* objName);
 #endif
-#ifdef HAVE_DAGDA
+
   /* Dagda implementation. */
   ::CORBA::Boolean lclIsDataPresent(const char* dataID,
                                     const char* objName);
@@ -270,32 +265,6 @@ public:
                        const char* objName);
   void unsubscribeParent(const char* objName);
 #endif
-#else
-  /* DataMgr && LocMgr */
-  void putData(const char* argID,
-               const char* me,
-               const char* objName);
-  ::CORBA::Long rmDataRefDataMgr(const char* argID,
-                                 const char* objName);
-
-  char* whereData(const char* argID,
-                  const char* objName);
-  void sendData(::corba_data_t& arg,
-                const char* objName);
-  void printList(const char* objName);
-  char* setMyName(const char* objName);
-  char* whichSeDOwner(const char* argID,
-                      const char* objName);
-
-  ::CORBA::ULong locMgrSubscribe(const char* me, const char* hostName, const char* objName);
-  ::CORBA::ULong dataMgrSubscribe(const char* me, const char* hostName, const char* objName);
-  void addDataRef(const ::corba_data_desc_t& arg, ::CORBA::ULong cChildID, const char* objName);
-  void rmDataRefLocMgr(const char* argID, ::CORBA::ULong cChildID, const char* objName);
-  void updateDataRef(const ::corba_data_desc_t& arg, ::CORBA::ULong cChildID, ::CORBA::Long upDown, const char* objName);
-  char* whereDataSubtree(const char* argID, const char* objName);
-  void updateDataProp(const char* argID, const char* objName);
-  ::CORBA::Long rm_pdata(const char* argID, const char* objName);
-#endif // HAVE_DAGDA
   /* LogComponentFwdr implementation. */
   //	void setTagFilter(const ::tag_list_t& tagList,
   //										const char* objName);
@@ -347,13 +316,11 @@ public:
                                 ::CORBA::Long& seqReqId,
                                 const char* objName);
 #endif
-#ifdef HAVE_DAGDA
   SeqString* searchData(const char* request,
                         const char* objName);
   ::CORBA::Long insertData(const char* key,
                            const ::SeqString& values,
                            const char* objName);
-#endif
 #ifdef HAVE_MULTI_MA
   ::CORBA::Boolean handShake(const char* masterAgentName,
                              const char* myName,
@@ -394,9 +361,7 @@ public:
                   const ::corba_profile_t& pb,
                   const char* volatileclientPtr,
                   const char* objName);
-#ifdef HAVE_DAGDA
   char* getDataMgrID(const char* objName);
-#endif
   SeqCorbaProfileDesc_t* getSeDProfiles(::CORBA::Long& length,
                                         const char* objName);
 

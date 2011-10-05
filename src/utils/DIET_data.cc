@@ -804,9 +804,8 @@ diet_file_set(diet_arg_t* arg, diet_persistence_mode_t mode, const char* path)
 int
 diet_scalar_desc_set(diet_data_t* data, void* value)
 {
-#if HAVE_DAGDA
   return diet_scalar_set(data, value, data->desc.mode, data->desc.generic.base_type);
-#endif
+
   if (data->desc.generic.type != DIET_SCALAR) {
     ERROR(__FUNCTION__ << " misused (wrong type)", 1);
   }
@@ -1114,43 +1113,6 @@ diet_file_get_desc(diet_arg_t* arg)
 int
 diet_free_data(diet_arg_t* arg)
 {
-#ifndef HAVE_DAGDA
-  if (diet_is_persistent(*arg)) {
-    TRACE_TEXT(TRACE_ALL_STEPS, " attempt to use " << __FUNCTION__
-            << " on persistent data - IGNORED");
-    return 3;
-  }
-  switch(arg->desc.generic.type) {
-    case DIET_FILE:
-      if (arg->desc.specific.file.path) {
-        if (unlink(arg->desc.specific.file.path)) {
-          perror(arg->desc.specific.file.path);
-          return 2;
-        }
-        CORBA::string_free(arg->desc.specific.file.path);
-        arg->desc.specific.file.path = NULL;
-      } else {
-        return 1;
-      }
-      break;
-    case DIET_SCALAR:
-      arg->desc.specific.scal.value = NULL;
-      if (arg->value != NULL) {
-        delete ((char *) arg->value);
-        arg->value = NULL;
-        break;
-      } else {
-        return 1;
-      }
-    default:
-      if (arg->value != NULL) {
-        delete[] ((char *) arg->value);
-        arg->value = NULL;
-      } else {
-        return 1;
-      }
-  }
-#endif
   return 0;
 }
 

@@ -42,12 +42,7 @@
 #include "MasterAgentFwdr.idl"
 #include "SeDFwdr.idl"
 
-#if HAVE_DAGDA
 #include "DagdaFwdr.idl"
-#else
-#include "DataMgrFwdr.idl"
-#include "LocMgrFwdr.idl"
-#endif
 
 #if HAVE_WORKFLOW
 #include "CltManFwdr.idl"
@@ -65,12 +60,7 @@ interface Forwarder :
   , MaDagForwarder
   , WfLogServiceForwarder
 #endif
-#if HAVE_DAGDA
   , DagdaForwarder
-#else
-  , DataMgrForwarder
-  , LocMgrForwarder
-#endif
 {	
   /* Get objects from the Forwarder. */
   Agent getAgent(in string name);
@@ -81,12 +71,7 @@ interface Forwarder :
   MasterAgent getMasterAgent(in string name);
   SeD getSeD(in string name);
 	
-#if HAVE_DAGDA
   Dagda getDagda(in string name);
-#else
-  DataMgr getDataMgr(in string name);
-  LocMgr getLocMgr(in string name);
-#endif
 
 #if HAVE_WORKFLOW
   CltMan getCltMan(in string name);
@@ -106,17 +91,6 @@ interface Forwarder :
     raises(UnknownObject, BadNameException);
   long removeElement(in boolean recursive, in string objName)
     raises(UnknownObject, BadNameException);
-#endif
-#ifndef HAVE_DAGDA
-  string whereData(in string argID, in string objName)
-    raises(UnknownObject, BadNameException);
-  string setMyName(in string objName)
-    raises(UnknownObject, BadNameException);
-  string whichSeDOwner(in string argID, in string objName)
-    raises(UnknownObject, BadNameException);
-  void printList(in string objName)
-    raises(UnknownObject, BadNameException);
-
 #endif
   /* CORBA remote management. */
   void bind(in string objName, in string ior);

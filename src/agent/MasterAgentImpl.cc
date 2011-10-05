@@ -273,7 +273,7 @@
 #include <iostream>
 #include <cstdio>
 
-#if HAVE_DAGDA && HAVE_ADVANCED_UUID
+#if HAVE_ADVANCED_UUID
 #include <uuid/uuid.h>
 #endif
 
@@ -403,9 +403,7 @@ MasterAgentImpl::run()
   TRACE_TEXT(TRACE_MAIN_STEPS, std::endl
              << "Master Agent " << this->myName << " started." << std::endl);
 
-#if HAVE_DAGDA
   catalog = new MapDagdaCatalog();
-#endif
 
   return 0;
 } // run(char* configFileName)
@@ -418,12 +416,6 @@ MasterAgentImpl::run()
 char *
 MasterAgentImpl::get_data_id()
 {
-#if ! HAVE_DAGDA
-    char* id = new char[100];
-    (this->num_data)++;
-    sprintf(id,"id.%s.%d.%d",myName,(int)(num_session), (int)(num_data));
-    return CORBA::string_dup(id);
-#else /* ! HAVE_DAGDA */
 #if ! HAVE_ADVANCED_UUID
     char id[100];
     (this->num_data)++;
@@ -441,7 +433,6 @@ MasterAgentImpl::get_data_id()
     id+=myName;
     return CORBA::string_dup(id.c_str());
 #endif /* ! HAVE_ADVANCED_UUID */
-#endif /* ! HAVE_DAGDA */
 } // get_data_id()
 
 /****************************************************************************/
@@ -469,14 +460,7 @@ MasterAgentImpl::getProfiles(CORBA::Long& length)
  */
 CORBA::ULong
 MasterAgentImpl::dataLookUp(const char* argID){
-#if ! HAVE_DAGDA
-    if(locMgr->dataLookUp(strdup(argID))==0)
-	return 0;
-    else
-	return 1;
-#else /* ! HAVE_DAGDA */
-    return dataManager->pfmIsDataPresent(argID);
-#endif /* ! HAVE_DAGDA */
+  return dataManager->pfmIsDataPresent(argID);
 } // dataLookUp(const char* argID)
 
 /**
@@ -486,15 +470,7 @@ MasterAgentImpl::dataLookUp(const char* argID){
 corba_data_desc_t*
 MasterAgentImpl::get_data_arg(const char* argID)
 {
-#if ! HAVE_DAGDA
-    /* Memory leak ??? resp is instanciated with a new
-       and forgotten on the following line... */
-    corba_data_desc_t* resp = new corba_data_desc_t;
-    resp = locMgr->set_data_arg(argID);
-    return resp;
-#else /* ! HAVE_DAGDA */
-    return dataManager->pfmGetDataDesc(argID);
-#endif /* ! HAVE_DAGDA */
+  return dataManager->pfmGetDataDesc(argID);
 }
 
 /** Problem submission : remotely called by client. */
@@ -691,18 +667,10 @@ MasterAgentImpl::get_session_num()
 CORBA::Long
 MasterAgentImpl::diet_free_pdata(const char* argID)
 {
-#if ! HAVE_DAGDA
-    if(this->dataLookUp(ms_strdup(argID)) == 0) {
-	locMgr->rm_pdata(ms_strdup(argID));
-	return 1;
-    } else
-	return 0;
-#else /* ! HAVE_DAGDA */
-    if (!dataManager->pfmIsDataPresent(argID))
-	return 0;
-    dataManager->pfmRemData(argID);
-    return 1;
-#endif /* ! HAVE_DAGDA */
+  if (!dataManager->pfmIsDataPresent(argID))
+    return 0;
+  dataManager->pfmRemData(argID);
+  return 1;
 } //diet_free_pdata(const char* argID)
 
 
@@ -1132,7 +1100,6 @@ MasterAgentImpl::submit_pb_seq(const corba_pb_desc_seq_t& pb_seq,
 }
 #endif /* HAVE_WORKFLOW */
 
-#if HAVE_DAGDA
 SeqString* MasterAgentImpl::searchData(const char* request)
 {
     SeqString* ret = new SeqString();
@@ -1159,7 +1126,6 @@ CORBA::Long MasterAgentImpl::insertData(const char* key,
     catalog->insert(key, attr);
     return 0;
 }
-#endif /* HAVE_DAGDA */
 
 MasterAgentFwdrImpl::MasterAgentFwdrImpl(Forwarder_ptr fwdr,
 					 const char* objName)
@@ -1286,7 +1252,7 @@ response_seq_t*
 				    firstReqId, seqReqId, objName);
 }
 #endif /* HAVE_WORKFLOW */
-#ifdef HAVE_DAGDA
+
 SeqString* MasterAgentFwdrImpl::searchData(const char* request)
 {
     return forwarder->searchData(request, objName);
@@ -1297,8 +1263,6 @@ CORBA::Long MasterAgentFwdrImpl::insertData(const char* key,
 {
     return forwarder->insertData(key, values, objName);
 }
-#endif /* HAVE_DAGDA */
-
 
 CORBA::Long
 MasterAgentFwdrImpl::agentSubscribe(const char* me, const char* hostName,
@@ -1352,11 +1316,9 @@ MasterAgentFwdrImpl::childRemoveService(CORBA::ULong childID,
     return forwarder->childRemoveService(childID, profile, objName);
 }
 
-#ifdef HAVE_DAGDA
 char* MasterAgentFwdrImpl::getDataManager() {
     return forwarder->getDataManager(objName);
 }
-#endif /* HAVE_DAGDA */
 
 void MasterAgentFwdrImpl::getResponse(const corba_response_t& resp)
 {

@@ -42,18 +42,18 @@ corba_response_t* DIETForwarder::submit(const ::corba_pb_desc_t& pb_profile,
   TRACE_TEXT(TRACE_STRUCTURES, __FILE__ << ": l." << __LINE__ << " (" << __FUNCTION__ << ")" << endl);
   string objString(objName);
   string name;
-	
+
   if (!remoteCall(objString)) {
     TRACE_TEXT(TRACE_MAIN_STEPS, "Forwarder remote call submit(pb_profile, " << maxServers << ", " << maxServers
                << ", " << objString << ")" << endl);
     return getPeer()->submit(pb_profile, maxServers, objString.c_str());
   }
-	
+
   name = getName(objString);
-	
+
   TRACE_TEXT(TRACE_MAIN_STEPS, "Forwarder local object call: " << endl);
   TRACE_TEXT(TRACE_MAIN_STEPS, "\t- Resolve " << name << " from this forwarder (" << this->name << ")" << endl);
-	
+
   MasterAgent_var agent = ORBMgr::getMgr()->resolve<MasterAgent, MasterAgent_var>(AGENTCTXT,
 										  name,
 										  this->name);
@@ -63,13 +63,13 @@ corba_response_t* DIETForwarder::submit(const ::corba_pb_desc_t& pb_profile,
 ::CORBA::Long DIETForwarder::get_session_num(const char* objName) {
   string objString(objName);
   string name;
-	
+
   if (!remoteCall(objString)) {
     return getPeer()->get_session_num(objString.c_str());
   }
-	
+
   name = getName(objString);
-		
+
   MasterAgent_var agent = ORBMgr::getMgr()->resolve<MasterAgent, MasterAgent_var>(AGENTCTXT,
 										  name,
 										  this->name);
@@ -79,13 +79,13 @@ corba_response_t* DIETForwarder::submit(const ::corba_pb_desc_t& pb_profile,
 char* DIETForwarder::get_data_id(const char* objName) {
   string objString(objName);
   string name;
-	
+
   if (!remoteCall(objString)) {
     return getPeer()->get_data_id(objString.c_str());
   }
-	
+
   name = getName(objString);
-		
+
   MasterAgent_var agent = ORBMgr::getMgr()->resolve<MasterAgent, MasterAgent_var>(AGENTCTXT,
 										  name,
 										  this->name);
@@ -97,13 +97,13 @@ char* DIETForwarder::get_data_id(const char* objName) {
 {
   string objString(objName);
   string name;
-	
+
   if (!remoteCall(objString)) {
     return getPeer()->dataLookUp(id, objString.c_str());
   }
-	
+
   name = getName(objString);
-	
+
   MasterAgent_var agent = ORBMgr::getMgr()->resolve<MasterAgent, MasterAgent_var>(AGENTCTXT,
 										  name,
 										  this->name);
@@ -115,13 +115,13 @@ corba_data_desc_t* DIETForwarder::get_data_arg(const char* argID,
 {
   string objString(objName);
   string name;
-	
+
   if (!remoteCall(objString)) {
     return getPeer()->get_data_arg(argID, objString.c_str());
   }
-	
+
   name = getName(objString);
-	
+
   MasterAgent_var agent = ORBMgr::getMgr()->resolve<MasterAgent, MasterAgent_var>(AGENTCTXT,
 										  name,
 										  this->name);
@@ -133,13 +133,13 @@ corba_data_desc_t* DIETForwarder::get_data_arg(const char* argID,
 {
   string objString(objName);
   string name;
-	
+
   if (!remoteCall(objString)) {
     return getPeer()->diet_free_pdata(argID, objString.c_str());
   }
-	
+
   name = getName(objString);
-	
+
   MasterAgent_var agent = ORBMgr::getMgr()->resolve<MasterAgent, MasterAgent_var>(AGENTCTXT,
 										  name,
 										  this->name);
@@ -151,13 +151,13 @@ SeqCorbaProfileDesc_t* DIETForwarder::getProfiles(::CORBA::Long& length,
 {
   string objString(objName);
   string name;
-	
+
   if (!remoteCall(objString)) {
     return getPeer()->getProfiles(length, objString.c_str());
   }
-	
+
   name = getName(objString);
-	
+
   MasterAgent_var agent = ORBMgr::getMgr()->resolve<MasterAgent, MasterAgent_var>(AGENTCTXT,
 										  name,
 										  this->name);
@@ -170,13 +170,13 @@ wf_response_t* DIETForwarder::submit_pb_set(const ::corba_pb_desc_seq_t& seq_pb,
 {
   string objString(objName);
   string name;
-	
+
   if (!remoteCall(objString)) {
     return getPeer()->submit_pb_set(seq_pb, objString.c_str());
   }
-	
+
   name = getName(objString);
-	
+
   MasterAgent_var agent = ORBMgr::getMgr()->resolve<MasterAgent, MasterAgent_var>(AGENTCTXT,
 										  name,
 										  this->name);
@@ -191,40 +191,40 @@ response_seq_t* DIETForwarder::submit_pb_seq(const ::corba_pb_desc_seq_t& pb_seq
 {
   string objString(objName);
   string name;
-	
+
   if (!remoteCall(objString)) {
     return getPeer()->submit_pb_seq(pb_seq, reqCount, complete, firstReqId,
 				    seqReqId, objString.c_str());
   }
-	
+
   name = getName(objString);
-	
+
   MasterAgent_var agent = ORBMgr::getMgr()->resolve<MasterAgent, MasterAgent_var>(AGENTCTXT,
 										  name,
 										  this->name);
   return agent->submit_pb_seq(pb_seq, reqCount, complete, firstReqId, seqReqId);
 }
 #endif
-#ifdef HAVE_DAGDA
+
 ::CORBA::Long DIETForwarder::insertData(const char* key,
 					const ::SeqString& values,
 					const char* objName)
 {
   string objString(objName);
   string name;
-	
+
   if (!remoteCall(objString)) {
     return getPeer()->insertData(key, values, objString.c_str());
   }
-	
+
   name = getName(objString);
-	
+
   MasterAgent_var agent = ORBMgr::getMgr()->resolve<MasterAgent, MasterAgent_var>(AGENTCTXT,
 										  name,
 										  this->name);
   return agent->insertData(key, values);
 }
-#endif
+
 #ifdef HAVE_MULTI_MA
 ::CORBA::Boolean DIETForwarder::handShake(const char* masterAgentName,
 					  const char* myName,
@@ -232,13 +232,13 @@ response_seq_t* DIETForwarder::submit_pb_seq(const ::corba_pb_desc_seq_t& pb_seq
 {
   string objString(objName);
   string name;
-	
+
   if (!remoteCall(objString)) {
     return getPeer()->handShake(masterAgentName, myName, objString.c_str());
   }
-	
+
   name = getName(objString);
-	
+
   MasterAgent_var agent = ORBMgr::getMgr()->resolve<MasterAgent, MasterAgent_var>(AGENTCTXT,
 										  name,
 										  this->name);
@@ -248,13 +248,13 @@ response_seq_t* DIETForwarder::submit_pb_seq(const ::corba_pb_desc_seq_t& pb_seq
 char* DIETForwarder::getBindName(const char* objName) {
   string objString(objName);
   string name;
-	
+
   if (!remoteCall(objString)) {
     return getPeer()->getBindName(objString.c_str());
   }
-	
+
   name = getName(objString);
-	
+
   MasterAgent_var agent = ORBMgr::getMgr()->resolve<MasterAgent, MasterAgent_var>(AGENTCTXT,
 										  name,
 										  this->name);
@@ -268,14 +268,14 @@ void DIETForwarder::searchService(const char* masterAgentName,
 {
   string objString(objName);
   string name;
-	
+
   if (!remoteCall(objString)) {
     return getPeer()->searchService(masterAgentName, myName, request,
 				    objString.c_str());
   }
-	
+
   name = getName(objString);
-	
+
   MasterAgent_var agent = ORBMgr::getMgr()->resolve<MasterAgent, MasterAgent_var>(AGENTCTXT,
 										  name,
 										  this->name);
@@ -288,13 +288,13 @@ void DIETForwarder::stopFlooding(::CORBA::Long reqId,
 {
   string objString(objName);
   string name;
-	
+
   if (!remoteCall(objString)) {
     return getPeer()->stopFlooding(reqId, senderId, objString.c_str());
   }
-	
+
   name = getName(objString);
-	
+
   MasterAgent_var agent = ORBMgr::getMgr()->resolve<MasterAgent, MasterAgent_var>(AGENTCTXT,
 										  name,
 										  this->name);
@@ -307,13 +307,13 @@ void DIETForwarder::serviceNotFound(::CORBA::Long reqId,
 {
   string objString(objName);
   string name;
-	
+
   if (!remoteCall(objString)) {
     return getPeer()->serviceNotFound(reqId, senderId, objString.c_str());
   }
-	
+
   name = getName(objString);
-	
+
   MasterAgent_var agent = ORBMgr::getMgr()->resolve<MasterAgent, MasterAgent_var>(AGENTCTXT,
 										  name,
 										  this->name);
@@ -326,13 +326,13 @@ void DIETForwarder::newFlood(::CORBA::Long reqId,
 {
   string objString(objName);
   string name;
-	
+
   if (!remoteCall(objString)) {
     return getPeer()->newFlood(reqId, senderId, objString.c_str());
   }
-	
+
   name = getName(objString);
-	
+
   MasterAgent_var agent = ORBMgr::getMgr()->resolve<MasterAgent, MasterAgent_var>(AGENTCTXT,
 										  name,
 										  this->name);
@@ -345,13 +345,13 @@ void DIETForwarder::floodedArea(::CORBA::Long reqId,
 {
   string objString(objName);
   string name;
-	
+
   if (!remoteCall(objString)) {
     return getPeer()->floodedArea(reqId, senderId, objString.c_str());
   }
-	
+
   name = getName(objString);
-	
+
   MasterAgent_var agent = ORBMgr::getMgr()->resolve<MasterAgent, MasterAgent_var>(AGENTCTXT,
 										  name,
 										  this->name);
@@ -364,13 +364,13 @@ void DIETForwarder::alreadyContacted(::CORBA::Long reqId,
 {
   string objString(objName);
   string name;
-	
+
   if (!remoteCall(objString)) {
     return getPeer()->alreadyContacted(reqId, senderId, objString.c_str());
   }
-	
+
   name = getName(objString);
-	
+
   MasterAgent_var agent = ORBMgr::getMgr()->resolve<MasterAgent, MasterAgent_var>(AGENTCTXT,
 										  name,
 										  this->name);
@@ -383,13 +383,13 @@ void DIETForwarder::serviceFound(::CORBA::Long reqId,
 {
   string objString(objName);
   string name;
-	
+
   if (!remoteCall(objString)) {
     return getPeer()->serviceFound(reqId, decision, objString.c_str());
   }
-	
+
   name = getName(objString);
-	
+
   MasterAgent_var agent = ORBMgr::getMgr()->resolve<MasterAgent, MasterAgent_var>(AGENTCTXT,
 										  name,
 										  this->name);

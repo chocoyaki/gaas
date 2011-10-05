@@ -341,14 +341,11 @@ LocalAgentImpl::removeElementClean(bool recursive) {
 #endif /* HAVE_DYNAMICS */
 
 
-#if HAVE_DAGDA
 SeqString*
 LocalAgentImpl::searchData(const char* request)
 {
     return this->parent->searchData(request);
 }
-#endif /* HAVE_DAGDA */
-
 
 /**
  * Launch this agent (initialization + registration in the hierarchy).
@@ -458,7 +455,6 @@ LocalAgentImpl::childUnsubscribe(CORBA::ULong childID,
 #endif /* HAVE_DYNAMICS */
 
 
-#ifdef HAVE_DAGDA
 /**
  * Remove \c services from the service table, and inform upper hierarchy.
  */
@@ -480,7 +476,6 @@ LocalAgentImpl::childRemoveService(CORBA::ULong childID,
 	    return this->parent->childRemoveService(this->childID, profile);
     return 0;
 } // childRemoveService(...)
-#endif /* HAVE_DAGDA */
 
 
 /** Get a request from the parent */
@@ -575,13 +570,11 @@ CORBA::Long LocalAgentFwdrImpl::removeElement(bool recursive)
 }
 #endif /* HAVE_DYNAMICS */
 
-#if HAVE_DAGDA
 SeqString*
 LocalAgentFwdrImpl::searchData(const char* request)
 {
     return forwarder->searchData(request, objName);
 }
-#endif
 
 void LocalAgentFwdrImpl::getRequest(const corba_request_t& req)
 {
@@ -602,11 +595,9 @@ LocalAgentFwdrImpl::childRemoveService(CORBA::ULong childID,
     return forwarder->childRemoveService(childID, profile, objName);
 }
 
-#ifdef HAVE_DAGDA
 char* LocalAgentFwdrImpl::getDataManager() {
     return forwarder->getDataManager(objName);
 }
-#endif /* HAVE_DAGDA */
 
 void LocalAgentFwdrImpl::getResponse(const corba_response_t& resp)
 {

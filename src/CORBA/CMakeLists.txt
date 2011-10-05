@@ -19,11 +19,7 @@ include_directories(
   ${DIET_SOURCE_DIR}/include
   ${DIET_SOURCE_DIR}/src/CORBA
   ${DIET_SOURCE_DIR}/src/utils/config
-)
-
-if (DIET_USE_DAGDA)
-  include_directories(${DIET_SOURCE_DIR}/src/utils/DAGDA)
-endif (DIET_USE_DAGDA)
+  ${DIET_SOURCE_DIR}/src/utils/DAGDA)
 
 # Compile CorbaCommon static library
 add_library(CorbaCommon STATIC
@@ -44,13 +40,6 @@ endif (DIET_USE_ALT_BATCH)
 target_link_libraries(CorbaCommon
   DIET_CORBA
 )
-
-# DTM requires to be linked against DIET_Utils
-if (NOT DIET_USE_DAGDA)
-  target_link_libraries(CorbaCommon
-    DIET_Utils
-    )
-endif (NOT DIET_USE_DAGDA)
 
 
 if (DIET_USE_ALT_BATCH)
@@ -80,18 +69,11 @@ set(Forwarder_SOURCES
 #  forwarders/LogComponent.cc
 )
 
-if (DIET_USE_DAGDA)
-  set(Forwarder_SOURCES
-    ${Forwarder_SOURCES}
-    forwarders/Dagda.cc
+
+set(Forwarder_SOURCES
+  ${Forwarder_SOURCES}
+  forwarders/Dagda.cc
   )
-else (DIET_USE_DAGDA)
-  set(Forwarder_SOURCES
-    ${Forwarder_SOURCES}
-    forwarders/DataMgr.cc
-    forwarders/LocMgr.cc
-  )
-endif (DIET_USE_DAGDA)
 if (DIET_USE_WORKFLOW)
   set(Forwarder_SOURCES
     ${Forwarder_SOURCES}
@@ -120,13 +102,11 @@ add_executable(dietForwarder
 add_dependencies(dietForwarder CORBAFiles)
 add_dependencies(LibForwarder CORBAFiles)
 
-if (DIET_USE_DAGDA)
-  set(Forwarder_Libs
-    ${Forwarder_Libs}
-    ${UUID_LIB}
-    DIET_Dagda
+set(Forwarder_Libs
+  ${Forwarder_Libs}
+  ${UUID_LIB}
+  DIET_Dagda
   )
-endif (DIET_USE_DAGDA)
 
 set(Forwarder_Libs
   DIET_Utils

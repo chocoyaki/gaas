@@ -123,13 +123,10 @@ public :
 		   const SeqCorbaProfileDesc_t& services);
 #endif // HAVE_DYNAMICS
 
-#ifdef HAVE_DAGDA
   /** Remove services into the service table for a given child */
   virtual CORBA::Long
   childRemoveService(CORBA::ULong childID, const corba_profile_desc_t& profile);
   virtual SeqString* searchData(const char* request);
-#endif
-
 
 private:
 
@@ -181,10 +178,8 @@ public:
 
   virtual CORBA::Long
   childRemoveService(CORBA::ULong childID, const corba_profile_desc_t& profile);
-#ifdef HAVE_DAGDA
   virtual char* getDataManager();
   virtual SeqString* searchData(const char* request);
-#endif
 };
 
 #endif // _LOCALAGENTIMPL_HH_

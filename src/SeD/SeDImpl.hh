@@ -268,11 +268,7 @@
 #include "DietLogComponent.hh"
 #endif
 
-#if ! HAVE_DAGDA
-#include "DataMgrImpl.hh"     // DTM header file
-#else
 #include "DagdaImpl.hh"
-#endif // ! HAVE_DAGDA
 
 #if HAVE_ALT_BATCH
 extern "C" {
@@ -312,14 +308,8 @@ public:
   int
   run(ServiceTable* services);
 
-#if ! HAVE_DAGDA
-  /** Set this->dataMgr for DTM usage */
-  int
-  linkToDataMgr(DataMgrImpl* dataMgr);
-#else
   void
   setDataManager(DagdaImpl* dataManager);
-#endif // ! HAVE_DAGDA
 
 #ifdef USE_LOG_SERVICE
   /**
@@ -408,12 +398,10 @@ public:
   double getEFT();
 
 
-#ifdef HAVE_DAGDA
   int removeService(const diet_profile_t* const profile);
   int removeServiceDesc(const diet_profile_desc_t* profile);
   int addService(const corba_profile_desc_t& profile);
   virtual char* getDataMgrID(); // modif bisnard_logs_1
-#endif
 
   virtual  SeqCorbaProfileDesc_t*
   getSeDProfiles(CORBA::Long& length);
@@ -442,12 +430,7 @@ private:
   /** Service table */
   ServiceTable* SrvT;
 
-#if ! HAVE_DAGDA
-  /* Data Manager associated to this SeD */
-  DataMgrImpl* dataMgr;
-#else
   DagdaImpl* dataManager;
-#endif // ! HAVE_DAGDA
 
   /** Time at which last solve started (when not using queues) and when
    * last job was enqueued (when using queues) */
@@ -541,9 +524,7 @@ public:
   virtual CORBA::Long solve(const char* pbName, corba_profile_t& pb);
   virtual void solveAsync(const char* pb_name, const corba_profile_t& pb,
                           const char * volatileclientIOR);
-#ifdef HAVE_DAGDA
   virtual char* getDataMgrID();
-#endif
 
   virtual  SeqCorbaProfileDesc_t*
   getSeDProfiles(CORBA::Long& length);

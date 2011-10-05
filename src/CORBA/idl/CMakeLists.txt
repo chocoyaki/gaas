@@ -36,10 +36,6 @@ if (DIET_WITH_MULTI_MA)
    set(DIET_IDL_FLAGS "${DIET_IDL_FLAGS} -DHAVE_MULTI_MA")
 endif (DIET_WITH_MULTI_MA)
 
-if (DIET_USE_DAGDA)
-  set(DIET_IDL_FLAGS "${DIET_IDL_FLAGS} -DHAVE_DAGDA")
-endif (DIET_USE_DAGDA)
-
 if (DIET_USE_DYNAMICS)
   set(DIET_IDL_FLAGS "${DIET_IDL_FLAGS} -DHAVE_DYNAMICS")
 endif (DIET_USE_DYNAMICS)
@@ -92,21 +88,11 @@ if (DIET_USE_WORKFLOW)
   )
 endif (DIET_USE_WORKFLOW)
 #    - Data manager's IDL
-if (DIET_USE_DAGDA)
-  set(IDL_SOURCES
-    Dagda
-    DagdaFwdr
-    ${IDL_SOURCES}
+set(IDL_SOURCES
+  Dagda
+  DagdaFwdr
+  ${IDL_SOURCES}
   )
-else (DIET_USE_DAGDA)
-  set(IDL_SOURCES
-    DataMgr
-    LocMgr
-    DataMgrFwdr
-    LocMgrFwdr
-    ${IDL_SOURCES}
-  )
-endif (DIET_USE_DAGDA)
 
 # A clean way to call omniidl
 #   Output:        Skeletons, dynamic skeletons and headers files

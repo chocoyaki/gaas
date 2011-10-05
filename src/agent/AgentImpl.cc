@@ -289,11 +289,7 @@ AgentImpl::AgentImpl()
   this->nbSeDChildren        = 0;
   this->SrvT                 = new ServiceTable();
   this->reqList.clear();
-#if ! HAVE_DAGDA
-  this->locMgr               = 0;
-#else
   this->dataManager          = 0;
-#endif // ! HAVE_DAGDA
   this->myName               = 0;
   this->localHostName        = 0;
 #ifdef USE_LOG_SERVICE
@@ -376,19 +372,6 @@ AgentImpl::run() {
   return 0;
 } // run()
 
-
-
-#if ! HAVE_DAGDA
-/** Set this->locMgr for DTM usage */
-int
-AgentImpl::linkToLocMgr(LocMgrImpl* locMgr)
-{
-  this->locMgr = locMgr;
-  return 0;
-}
-#endif // ! HAVE_DAGDA
-
-#if HAVE_DAGDA
 // Accessors for dataManager.
 void AgentImpl::setDataManager(Dagda_ptr dataManager) {
   this->dataManager=dataManager;
@@ -397,7 +380,6 @@ void AgentImpl::setDataManager(Dagda_ptr dataManager) {
 char* AgentImpl::getDataManager() {
   return CORBA::string_dup(dataManager->getID());
 }
-#endif // HAVE_DAGDA
 
 #ifdef USE_LOG_SERVICE
 void
@@ -617,7 +599,6 @@ AgentImpl::addServices(CORBA::ULong myID,
 } // addServices(CORBA::ULong myID, const SeqCorbaProfileDesc_t& services)
 
 
-//#ifdef HAVE_DAGDA
 CORBA::Long
 AgentImpl::childRemoveService(CORBA::ULong childID, const corba_profile_desc_t& profile)
 {
@@ -635,7 +616,6 @@ AgentImpl::childRemoveService(CORBA::ULong childID, const corba_profile_desc_t& 
 
   return (result);
 }
-//#endif // HAVE_DAGDA
 
 
 /****************************************************************************/
@@ -1079,7 +1059,6 @@ AgentFwdrImpl::childRemoveService(CORBA::ULong childID,
   return forwarder->childRemoveService(childID, profile, objName);
 }
 
-#ifdef HAVE_DAGDA
 char* AgentFwdrImpl::getDataManager() {
   return forwarder->getDataManager(objName);
 }
@@ -1088,8 +1067,6 @@ SeqString*
 AgentFwdrImpl::searchData(const char* request) {
   return forwarder->searchData(request, objName);
 }
-
-#endif
 
 CORBA::Long
 AgentFwdrImpl::addServices(CORBA::ULong myID,
