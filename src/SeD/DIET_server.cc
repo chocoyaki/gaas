@@ -298,8 +298,6 @@ using namespace std;
 
 #if HAVE_CORI
 #include "CORIMgr.hh"
-#else
-#include "FASTMgr.hh"
 #endif //HAVE_CORI
 
 #include "DagdaImpl.hh"
@@ -1312,30 +1310,6 @@ diet_estimate_coriEasy_print(){
   TRACE_LEVEL=tmp_int;
 
   /* FIXME (YC->ANY): release vec ? */
-}
-
-#else //HAVE_CORI
-
-int
-diet_estimate_fast(estVector_t ev,
-                   const diet_profile_t* const profilePtr)
-//                    int stRef)
-{
-  char hostnameBuf[256]; //was HOSTNAME_BUFLEN initially
-  int stRef;
-
-  if (gethostname(hostnameBuf, 255)) {
-    ERROR("error getting hostname", 0);
-  }
-
-  stRef = diet_service_table_lookup_by_profile(profilePtr);
-  FASTMgr::estimate(hostnameBuf,
-                    profilePtr,
-                    SRVT,
-                    (ServiceTable::ServiceReference_t) stRef,
-                    ev);
-
-  return (1);
 }
 
 #endif //HAVE_CORI
