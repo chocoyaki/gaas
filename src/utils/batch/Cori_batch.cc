@@ -67,7 +67,7 @@ className::printMetric( estVector_t vector_v, int type_Info )
       "CoRI: EST_PARAL_NB_FREE_RESOURCES_IN_DEFAULT_QUEUE... " <<
       (int)diet_est_get_system(vector_v,
                                EST_PARAL_NB_FREE_RESOURCES_IN_DEFAULT_QUEUE, 0)
-         << endl << endl ;
+                                                               << endl << endl ;
     break;
   default: {
     INTERNAL_WARNING( "CoRI: Tag " << type_Info <<" for printing info");

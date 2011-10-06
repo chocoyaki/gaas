@@ -281,9 +281,9 @@ protected :
   writen(int fd, const char * buffer, size_t n) ;
 
   /**
-      Read at most @param n bytes from descriptor file @param fd to store
-      them in @param buffer .
-      Returns the number of bytes read (0 if error or no byte read).
+     Read at most @param n bytes from descriptor file @param fd to store
+     them in @param buffer .
+     Returns the number of bytes read (0 if error or no byte read).
   */
   int
   readn(int fd, char * buffer, int n) ;
