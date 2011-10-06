@@ -79,15 +79,12 @@
 #ifndef _WFUTILS_HH_
 #define _WFUTILS_HH_
 
-//#include "DIET_data.h"
 #include <cstdio>
-
+#include <map>
+#include <string>
+#include <vector>
 #include <omniconfig.h>
 #include <omnithread.h>
-#include <string>
-#include <map>
-#include <vector>
-
 #include "DIET_data.h"
 
 
@@ -107,13 +104,24 @@ public:
                            eINVALID_EXPR,
                            eWF_UNDEF,
                            eOTHER };
-  WfStructException(WfStructErrorType t, const std::string& info)
-  { this->why = t; this->info = info; }
-  WfStructException(const std::string& info)
-  { this->why = eOTHER; this->info = info; }
-  WfStructErrorType Type() const { return this->why; }
-  const std::string& Info() const { return this->info; }
-  std::string ErrorMsg() const;
+  WfStructException(WfStructErrorType t, const std::string& info) {
+    this->why = t;
+    this->info = info;
+  }
+
+  WfStructException(const std::string& info) {
+    this->why = eOTHER;
+    this->info = info;
+  }
+
+  WfStructErrorType
+  Type() const { return this->why; }
+
+  const std::string&
+  Info() const { return this->info; }
+
+  std::string
+  ErrorMsg() const;
 private:
   WfStructErrorType why;
   std::string info;
@@ -229,7 +237,7 @@ private:
  * in debug.hh  but use the macro DEBUG_WF (to replace TRACE_LEVEL) *
  */
 
-extern omni_mutex debug_log_mutex ;
+extern omni_mutex debug_log_mutex;
 
 #ifdef DEBUG_WF
 #define debug_wf(formatted_text)                \
@@ -238,7 +246,7 @@ extern omni_mutex debug_log_mutex ;
   debug_log_mutex.unlock();
 #else
 #define debug_wf(formatted_text)
-#endif // DEBUG_WF
+#endif  // DEBUG_WF
 
 /***************************************************************/
 

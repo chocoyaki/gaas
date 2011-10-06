@@ -33,14 +33,13 @@
 
 class NodeSet {
 public:
-
   /**
    * Get a node from the nodeset
    * @param nodeId  the identifier (string) of the node
    * @return pointer to node (does not return NULL)
    */
   virtual WfNode*
-  getNode(const string& nodeId) throw (WfStructException) = 0;
+  getNode(const std::string& nodeId) throw(WfStructException) = 0;
 
   /**
    * Check that the relationships between nodes are correct
@@ -48,8 +47,7 @@ public:
    * current nodeSet (can be the current nodeSet itself)
    */
   virtual void
-  checkPrec(NodeSet* contextNodeSet) throw (WfStructException) = 0;
-
+  checkPrec(NodeSet* contextNodeSet) throw(WfStructException) = 0;
 };
 
 #endif // _NODESET_

@@ -94,25 +94,23 @@
 #include "WfNode.hh"
 #include "debug.hh"
 
-WfPort::WfPort(WfNode * parent, const string& _id, WfPortType _portType,
+WfPort::WfPort(WfNode * parent, const std::string& _id, WfPortType _portType,
                WfCst::WfDataType _type, unsigned int _depth, unsigned int _ind)
   : id(_id), portType(_portType), type(_type), depth(_depth), card(NULL),
     index(_ind), nb_r(0), nb_c(0), adapter(NULL), myParent(parent),
     connected(false)  {
   if (!parent) {
-    INTERNAL_ERROR("Missing parent for port creation",0);
+    INTERNAL_ERROR("Missing parent for port creation", 0);
   }
   if (_depth > 0) {
-    eltType = _type; // store the elements type
+    eltType = _type;  // store the elements type
     type = WfCst::TYPE_CONTAINER;
   }
 }
 
 WfPort::~WfPort() {
-  if (adapter != NULL)
-    delete adapter;
-  if (card != NULL)
-    delete card;
+  delete adapter;
+  delete card;
 }
 
 void
@@ -125,7 +123,7 @@ WfPort::setMatParams(long nbr, long nbc,
   this->eltType = bt;
 }
 
-const string&
+const std::string&
 WfPort::getId() const {
   return this->id;
 }
@@ -158,8 +156,8 @@ WfPort::isInput() const {
 
 string
 WfPort::getPortDescr() const {
-  string portDescr;
-  switch(portType) {
+  std::string portDescr;
+  switch (portType) {
   case PORT_PARAM:
     portDescr = "param ";
     break;
@@ -214,17 +212,21 @@ WfPort::getDataType() const {
 
 WfCst::WfDataType
 WfPort::getDataType(unsigned int eltDepth) const {
-  if (eltDepth == this->depth) return getBaseDataType();
-  else if (eltDepth < this->depth) return WfCst::TYPE_CONTAINER;
-  else {
-    INTERNAL_ERROR("Wrong eltDepth in getDataType (greater than port depth)",1);
+  if (eltDepth == this->depth) {
+    return getBaseDataType();
+  } else if (eltDepth < this->depth) {
+    return WfCst::TYPE_CONTAINER;
+  } else {
+    INTERNAL_ERROR(
+      "Wrong eltDepth in getDataType (greater than port depth)", 1);
   }
 }
 
 WfCst::WfDataType
 WfPort::getEltDataType() const {
   if (!WfCst::isMatrixType(type)) {
-    INTERNAL_ERROR("getEltDataType() should not be used for types other than matrix",1);
+    INTERNAL_ERROR(
+      "getEltDataType() should not be used for types other than matrix", 1);
   }
   return this->eltType;
 }
@@ -235,15 +237,16 @@ WfPort::getBaseDataType() const {
 }
 
 void
-WfPort::setCardinal(const list<string>& cardList) {
-  if (card == NULL)
-    card = new list<string>(cardList);
-  else
+WfPort::setCardinal(const std::list<std::string>& cardList) {
+  if (! card) {
+    card = new std::list<std::string>(cardList);
+  } else {
     *card = cardList;
+  }
 }
 
 void
-WfPort::setConnectionRef(const string& strRef) {
+WfPort::setConnectionRef(const std::string& strRef) {
   // create the appropriate adapter (simple or split) depending on ref parsing
   this->adapter = WfPortAdapter::createAdapter(strRef);
 }
@@ -254,14 +257,14 @@ WfPort::setPortAdapter(WfPortAdapter* adapter) {
 }
 
 void
-WfPort::setNodePrecedence(NodeSet* contextNodeSet) throw (WfStructException) {
+WfPort::setNodePrecedence(NodeSet* contextNodeSet) throw(WfStructException) {
   if (adapter) { // in case this method is called on an argument port
     adapter->setNodePrecedence(getParent(), contextNodeSet);
   }
 }
 
 void
-WfPort::connectPorts() throw (WfStructException) {
+WfPort::connectPorts() throw(WfStructException) {
   if (adapter) {
     adapter->connectPorts(this, 0);
   }
@@ -273,11 +276,11 @@ WfPort::isConnected() const {
 }
 
 void
-WfPort::setInterfaceRef(const string& strInterface) {
+WfPort::setInterfaceRef(const std::string& strInterface) {
   myInterfaceRef = strInterface;
 }
 
-const string&
+const std::string&
 WfPort::getInterfaceRef() {
   return myInterfaceRef;
 }

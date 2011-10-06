@@ -238,13 +238,13 @@ protected:
   getElementIndexes();
 
 private:
-  string      portName;
-  string      nodeName;
-  string      dagName;
-  string      dataID;
-  list<unsigned int>  eltIdxList;
-  WfNode *      nodePtr;
-  WfPort *    portPtr;
+  string portName;
+  string nodeName;
+  string dagName;
+  string dataID;
+  list<unsigned int> eltIdxList;
+  WfNode *nodePtr;
+  WfPort *portPtr;
 
 }; // end class WfSimplePortAdapter
 
@@ -431,12 +431,12 @@ protected:
   WfCst::WfDataType myDataType;
 
   char *cx;
-  short * sx;
-  int * ix;
-  long * lx;
-  float * fx;
-  double * dx;
-  char * str;
+  short *sx;
+  int *ix;
+  long *lx;
+  float *fx;
+  double *dx;
+  char *str;
 };
 
 /*****************************************************************************/

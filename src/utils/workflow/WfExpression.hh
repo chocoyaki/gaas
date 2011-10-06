@@ -30,8 +30,8 @@
 #ifndef _WFEXPRESSION_HH_
 #define _WFEXPRESSION_HH_
 
-#include <string>
 #include <list>
+#include <string>
 #include <xqilla/xqilla-simple.hpp>
 #include "WfUtils.hh"
 
@@ -41,9 +41,7 @@
 /*****************************************************************************/
 
 class WfExpressionParser {
-
 public:
-
   /**
    * Parse a string containing a XQuery and returns the XQilla query
    * object (query is not executed yet)
@@ -83,7 +81,6 @@ private:
 /*****************************************************************************/
 
 class WfExprVariable {
-
 public:
   /**
    * Initialize a variable
@@ -120,11 +117,9 @@ public:
   setDefaultValue();
 
 protected:
-
   std::string myName;
   WfCst::WfDataType myType;
   std::string myValue;
-
 };
 
 /*****************************************************************************/
@@ -132,9 +127,7 @@ protected:
 /*****************************************************************************/
 
 class WfExpression {
-
 public:
-
   WfExpression();
   virtual ~WfExpression();
 
@@ -142,48 +135,54 @@ public:
    * Set the conditional expression
    * @param exprStr XQuery containing variables with syntax $var
    */
-  virtual void setExpression(const std::string& exprStr);
+  virtual void
+  setExpression(const std::string& exprStr);
 
   /**
    * Add a variable to the expression
    * @param var ref to a WfExprVariable
    */
-  virtual void addVariable(WfExprVariable*  var);
+  virtual void
+  addVariable(WfExprVariable*  var);
 
   /**
    * Get the expression
    */
-  const std::string& getExpression();
+  const std::string&
+  getExpression();
 
   /**
    * Get the full query (used for exceptions)
    */
-  const std::string& getQueryString();
+  const std::string&
+  getQueryString();
 
   /**
    * Check if a variable name is used in the expression
    */
   static std::string XQVarSeparators;  // characters that can happen after a variable
-  bool isVariableUsed(const std::string& varName);
+  bool
+  isVariableUsed(const std::string& varName);
 
   /**
    * Evaluate the expression
    */
-  virtual void evaluate();
-
+  virtual void
+  evaluate();
 
 protected:
-
   /**
    * Method to initialize the XQuery before parsing
    * (uses both the expression and the variables)
    */
-  void initQuery();
+  void
+  initQuery();
 
   /**
    * Method to parse an expression containing variables
    */
-  void parseQuery();
+  void
+  parseQuery();
 
   /**
    * Original expression
@@ -214,7 +213,6 @@ protected:
    * The query object
    */
   XQQuery* myQuery;
-
 };
 
 
@@ -223,9 +221,7 @@ protected:
 /*****************************************************************************/
 
 class WfBooleanExpression : public WfExpression {
-
 public:
-
   /**
    * Evaluate the expression
    * @return true if the expression evaluates to 'true', else false

@@ -2,14 +2,12 @@ cmake_minimum_required(VERSION 2.6)
 project(DIET)
 
 set(DIET_MAJOR_VERSION 2)
-set(DIET_MINOR_VERSION 8)
+set(DIET_MINOR_VERSION 90)
 set(DIET_REVISION_VERSION 0)
 
-set(DIET_VERSION ${DIET_MAJOR_VERSION}.${DIET_MINOR_VERSION})
+set(DIET_VERSION
+  "${DIET_MAJOR_VERSION}.${DIET_MINOR_VERSION}.${DIET_REVISION_VERSION}")
 
-if (DIET_REVISION_VERSION)
-  set(DIET_VERSION ${DIET_VERSION}.${DIET_REVISION_VERSION})
-endif ()
 add_definitions(-DDIET_VERSION="${DIET_VERSION}")
 
 # Get Date
@@ -217,6 +215,9 @@ endif (CYGWIN)
 # Path to additional modules (i.e. used by FIND_PACKAGE commands making
 # reference to non CMake defined "standard" modules):
 set(CMAKE_MODULE_PATH ${DIET_SOURCE_DIR}/Cmake)
+
+# Boost is mandatory
+find_package(Boost 1.46.1 REQUIRED)
 
 # OmniORB is mandatory:
 find_package(OmniORB)

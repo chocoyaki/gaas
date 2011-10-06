@@ -96,12 +96,9 @@
 #ifndef _WFPORT_HH_
 #define _WFPORT_HH_
 
-#include <string>
 #include <list>
-
+#include <string>
 #include "WfUtils.hh"
-
-using namespace std;
 
 class WfNode;
 class NodeSet;
@@ -109,13 +106,12 @@ class WfSimplePortAdapter;
 class WfPortAdapter;
 
 class WfPort {
-
   // single adapter is friend as it manages the connection btw two ports
   friend class WfSimplePortAdapter;
 
 public:
 
-  enum WfPortType{
+  enum WfPortType {
     PORT_IN,
     PORT_ARG,
     PORT_INOUT,
@@ -136,7 +132,7 @@ public:
    * @param _depth The depth of the list structure (0 if no list)
    * @param _ind   The index of the parameter in the diet profile
    */
-  WfPort(WfNode * parent, const string& _id, WfPortType _portType,
+  WfPort(WfNode * parent, const std::string& _id, WfPortType _portType,
          WfCst::WfDataType _type, unsigned int _depth, unsigned int _ind);
 
   virtual ~WfPort();
@@ -148,20 +144,22 @@ public:
    * @param o    Matrix order
    * @param bt   Data type of matrix elements
    */
-  void setMatParams(long nbr, long nbc,
-                    WfCst::WfMatrixOrder o,
-                    WfCst::WfDataType bt);
+  void
+  setMatParams(long nbr,
+               long nbc,
+               WfCst::WfMatrixOrder o,
+               WfCst::WfDataType bt);
 
   /**
    * Return the port id
    */
-  const string&
+  const std::string&
   getId() const;
 
   /**
    * Return the complete ID (nodeid#portid)
    */
-  virtual string
+  virtual std::string
   getCompleteId() const;
 
   /**
@@ -175,7 +173,7 @@ public:
    */
   bool
   isInput() const;
-        
+
   /**
    * Returns true if the port is an output
    */
@@ -185,7 +183,7 @@ public:
   /**
    * Return a description of the port
    */
-  string
+  std::string
   getPortDescr() const;
 
   /**
@@ -237,7 +235,7 @@ public:
    * @param cardList  a list of values
    */
   void
-  setCardinal(const list<string>& cardList);
+  setCardinal(const std::list<std::string>& cardList);
 
   /******************************/
   /* Links with other ports     */
@@ -248,7 +246,7 @@ public:
    * @param strRef The source port (output port) reference
    */
   virtual void
-  setConnectionRef(const string& strRef);
+  setConnectionRef(const std::string& strRef);
 
   /**
    * Set the port adapter
@@ -261,13 +259,13 @@ public:
    * @param contextNodeSet  the node set used to find references to nodes
    */
   virtual void
-  setNodePrecedence(NodeSet * contextNodeSet) throw (WfStructException);
+  setNodePrecedence(NodeSet * contextNodeSet) throw(WfStructException);
 
   /**
    * Ports linking (used for node execution)
    */
   virtual void
-  connectPorts() throw (WfStructException);
+  connectPorts() throw(WfStructException);
 
   /**
    * Return true if the port is connected to another port
@@ -281,13 +279,13 @@ public:
   /****************************************************/
 
   virtual void
-  setInterfaceRef(const string& strInterface);
+  setInterfaceRef(const std::string& strInterface);
 
-  virtual const string&
+  virtual const std::string&
   getInterfaceRef();
 
 protected:
-  
+
   /**
    * Ports linking on one side only
    * @param remPort  remote port
@@ -299,7 +297,7 @@ protected:
    * The id of the port
    * (must be unique vithin a given node)
    */
-  string id;
+  std::string id;
 
   /**
    * The port type (in, out, inout)
@@ -329,7 +327,7 @@ protected:
    *  - an unsigned integer (as a string) if the cardinal is known
    *  - an 'x' if the cardinal is not known
    */
-  list<string> * card;
+  std::list<std::string> * card;
 
   /**
    * The index of the port
@@ -359,7 +357,7 @@ protected:
   /**
    * The name of interface port to connect to
    */
-  string myInterfaceRef;
+  std::string myInterfaceRef;
 
 private:
 
