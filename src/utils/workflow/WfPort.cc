@@ -238,7 +238,7 @@ WfPort::getBaseDataType() const {
 
 void
 WfPort::setCardinal(const std::list<std::string>& cardList) {
-  if (! card) {
+  if (!card) {
     card = new std::list<std::string>(cardList);
   } else {
     *card = cardList;
@@ -258,7 +258,7 @@ WfPort::setPortAdapter(WfPortAdapter* adapter) {
 
 void
 WfPort::setNodePrecedence(NodeSet* contextNodeSet) throw(WfStructException) {
-  if (adapter) { // in case this method is called on an argument port
+  if (adapter) {  // in case this method is called on an argument port
     adapter->setNodePrecedence(getParent(), contextNodeSet);
   }
 }

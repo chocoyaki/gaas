@@ -33,29 +33,27 @@
  *
  */
 
-#include <string>
 #include <map>
+#include <string>
 #include "debug.hh"
 #include "MetaDag.hh"
 #include "Dag.hh"
 
-using namespace std;
-
-MetaDag::MetaDag(const string& id)
+MetaDag::MetaDag(const std::string& id)
   : myId(id),  currDag(NULL), dagTodoCount(0), releaseFlag(true),
     cancelFlag(false) {
 }
 
 MetaDag::~MetaDag() {
   // delete the dags map
-  while (! myDags.empty() ) {
+  while (!myDags.empty()) {
     Dag * p = myDags.begin()->second;
-    myDags.erase( myDags.begin() );
+    myDags.erase(myDags.begin());
     delete p;
   }
 }
 
-const string&
+const std::string&
 MetaDag::getId() {
   return myId;
 }
@@ -69,28 +67,30 @@ MetaDag::addDag(Dag * dag) {
 }
 
 Dag *
-MetaDag::getDag(const string& dagId) throw (WfStructException) {
+MetaDag::getDag(const std::string& dagId) throw(WfStructException) {
   lock();
-  map<string,Dag*>::iterator dagIter = myDags.find(dagId);
+  std::map<std::string, Dag*>::iterator dagIter = myDags.find(dagId);
   unlock();
   if (dagIter != myDags.end()) {
     return (Dag*) dagIter->second;
   } else {
-    string errorMsg = "cannot find dag in metadag (dag id = " + dagId + ")";
+    std::string errorMsg =
+      "cannot find dag in metadag (dag id = " + dagId + ")";
     throw WfStructException(WfStructException::eUNKNOWN_DAG, errorMsg);
   }
 }
 
 void
-MetaDag::removeDag(const string& dagId) throw (WfStructException) {
+MetaDag::removeDag(const std::string& dagId) throw(WfStructException) {
   lock();
-  map<string,Dag*>::iterator dagIter = myDags.find(dagId);
+  std::map<std::string, Dag*>::iterator dagIter = myDags.find(dagId);
   if (dagIter != myDags.end()) {
     myDags.erase(dagIter);
     unlock();
   } else {
     unlock();
-    string errorMsg = "cannot find dag in metadag (dag id = " + dagId + ")";
+    std::string errorMsg =
+      "cannot find dag in metadag (dag id = " + dagId + ")";
     throw WfStructException(WfStructException::eUNKNOWN_DAG, errorMsg);
   }
 }
@@ -103,7 +103,7 @@ MetaDag::getDagNb() {
 void
 MetaDag::setCurrentDag(Dag * dag) {
   if ((dag != NULL) && (currDag != NULL)) {
-    INTERNAL_ERROR("Conflict for access to MetaDag",0);
+    INTERNAL_ERROR("Conflict for access to MetaDag", 0);
   }
   lock();
   this->currDag = dag;
@@ -126,16 +126,16 @@ MetaDag::setReleaseFlag(bool release, bool& isDone) {
 }
 
 WfNode*
-MetaDag::getNode(const string& nodeId) throw (WfStructException) {
+MetaDag::getNode(const std::string& nodeId) throw(WfStructException) {
   Dag * dag = NULL;
-  string baseNodeId;
-  string::size_type dagSep  = nodeId.find(":");
-  if (dagSep != string::npos) {
-    dag = getDag(nodeId.substr(0,dagSep));
+  std::string baseNodeId;
+  std::string::size_type dagSep  = nodeId.find(":");
+  if (dagSep != std::string::npos) {
+    dag = getDag(nodeId.substr(0, dagSep));
     baseNodeId = nodeId.substr(dagSep+1, nodeId.length()-dagSep);
   } else {
     if (currDag == NULL) {
-      INTERNAL_ERROR("Error: no default dag defined in metadag",1);
+      INTERNAL_ERROR("Error: no default dag defined in metadag", 1);
     }
     dag = currDag;
     baseNodeId = nodeId;
@@ -144,8 +144,8 @@ MetaDag::getNode(const string& nodeId) throw (WfStructException) {
 }
 
 void
-MetaDag::checkPrec(NodeSet* contextNodeSet) throw (WfStructException) {
-  INTERNAL_ERROR("MetaDag::checkPrec NOT IMPLEMENTED",0);
+MetaDag::checkPrec(NodeSet* contextNodeSet) throw(WfStructException) {
+  INTERNAL_ERROR("MetaDag::checkPrec NOT IMPLEMENTED", 0);
 }
 
 void
@@ -159,8 +159,7 @@ bool
 MetaDag::isDone() {
   bool isDone = false;
   lock();
-  if (releaseFlag)
-  {
+  if (releaseFlag) {
     isDone = (dagTodoCount == 0);
   }
   unlock();
@@ -169,16 +168,19 @@ MetaDag::isDone() {
 
 void
 MetaDag::cancelAllDags(DagScheduler * scheduler) {
-  if (cancelFlag) return;
+  if (cancelFlag) {
+    return;
+  }
   lock();
-  TRACE_TEXT (TRACE_ALL_STEPS,"Cancelling all dags of Metadag " << myId << endl);
-  for (map<string,Dag*>::iterator dagIter = myDags.begin();
+  TRACE_TEXT(TRACE_ALL_STEPS, "Cancelling all dags of Metadag "
+             << myId << endl);
+  for (std::map<std::string, Dag*>::iterator dagIter = myDags.begin();
        dagIter != myDags.end();
-       ++dagIter)
-  {
-    Dag * currDag = (Dag*) dagIter->second;
+       ++dagIter) {
+    Dag *currDag = (Dag*) dagIter->second;
     if (!currDag->isDone()) {
-      TRACE_TEXT (TRACE_ALL_STEPS,"Cancelling dag " << currDag->getId() << endl);
+      TRACE_TEXT(TRACE_ALL_STEPS, "Cancelling dag "
+                 << currDag->getId() << endl);
       currDag->setAsCancelled(scheduler);
     }
   }
