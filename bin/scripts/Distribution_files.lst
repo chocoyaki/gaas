@@ -288,14 +288,6 @@ Cmake/xercesv.cc.in
 Cmake/Ctest/CMakeLists.txt
 Cmake/Ctest/CTestCustom.ctest.in
 Cmake/Ctest/OmniDaemon.bash.in
-Cmake/TAU/Makefile_C
-Cmake/TAU/Makefile_CXX
-Cmake/TAU/TAU_Profiling.cmake
-Cmake/TAU/TAU_preprocessor_c.py
-Cmake/TAU/TAU_preprocessor_cxx.py
-Cmake/TAU/TAU_preprocessor_f90.py
-Cmake/TAU/instrument_rules.tau
-Cmake/TAU/instrument_rules_dyn.tau
 Cmake/tests/CTestConfig.cmake
 Cmake/tests/DietTestingMacros.cmake
 Cmake/tests/runtest.cmake

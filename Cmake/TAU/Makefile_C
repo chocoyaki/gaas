@@ -1,6 +1,0 @@
-include @TAU_MAKEFILE@
-
-CC		= "$(TAU_COMPILER) $(TAU_CC)"
-
-all:
-	@echo $(CC)
