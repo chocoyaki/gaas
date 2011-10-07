@@ -18,8 +18,6 @@
 #include <stdexcept>
 #include <algorithm>
 
-using namespace std;
-
 /* Default constructor. */
 Configuration::Configuration() {
   pgName = "unknown";
@@ -31,15 +29,18 @@ Configuration::Configuration(const std::string& pgName) {
 }
 
 /* Generic program configuration accessors. */
-const string& Configuration::getConfigFile() const {
+const std::string&
+Configuration::getConfigFile() const {
   return configFile;
 }
 
-const std::string& Configuration::getPgName() const {
+const std::string&
+Configuration::getPgName() const {
   return pgName;
 }
 
-void Configuration::setConfigFile(const string& configFile) {
+void
+Configuration::setConfigFile(const std::string& configFile) {
   this->configFile = configFile;
 }
 
@@ -50,39 +51,44 @@ Options::Options(Configuration* config, int argc, char* argv[], char* envp[]) {
 
   this->config = config;
 
-  for (int i=1; i<argc; ++i) {
+  for (int i = 1; i < argc; ++i) {
     string curArg(argv[i]);
-    if (curArg.find("--")==0) {
-      if (i==argc-1) singleArgs.push_back(curArg);
-      else {
+    if (curArg.find("--") == 0) {
+      if (i == (argc - 1)) {
+        singleArgs.push_back(curArg);
+      } else {
         string nextArg(argv[i+1]);
-        if (nextArg.find('-')==0) singleArgs.push_back(curArg);
-        else {
-          arguments[curArg]=nextArg;
+        if (nextArg.find('-') == 0) {
+          singleArgs.push_back(curArg);
+        } else {
+          arguments[curArg] = nextArg;
           ++i;
         }
       }
     } else {
-      if (curArg.find('-')==0) {
+      if (curArg.find('-') == 0) {
         string::iterator it = curArg.begin();
-        while (it!=curArg.end()) {
+        while (it != curArg.end()) {
           flags.push_back(*it++);
         }
       } else {
-        params[params.size()]=curArg;
+        params[params.size()] = curArg;
       }
     }
   }
-  if (envp==NULL) return;
-  while (envp[j]!=NULL) {
-    string curEnv(envp[j++]);
+  if (envp == NULL) {
+    return;
+  }
+
+  while (envp[j] != NULL) {
+    std::string curEnv(envp[j++]);
     size_t pos = curEnv.find('=');
-    if (pos==string::npos)
+    if (pos == string::npos) {
       singleEnvs.push_back(curEnv);
-    else {
-      string key=curEnv.substr(0, pos);
-      string value=curEnv.substr(pos+1);
-      environment[key]=value;
+    } else {
+      std::string key = curEnv.substr(0, pos);
+      std::string value = curEnv.substr(pos+1);
+      environment[key] = value;
     }
   }
 }
@@ -91,65 +97,70 @@ Options::Options(Configuration* config, int argc, char* argv[], char* envp[]) {
 /* Define the callback function for a parameter that need an argument.
  * These parameters must start with "--".
  */
-void Options::setOptCallback(const string& arg, optCallback callBack) {
-  optCallbacks[arg]=callBack;
+void
+Options::setOptCallback(const std::string& arg, optCallback callBack) {
+  optCallbacks[arg] = callBack;
 }
 
 /* Define the callback function for an environment variable. */
-void Options::setEnvCallback(const string& arg, optCallback callBack) {
-  envCallbacks[arg]=callBack;
+void
+Options::setEnvCallback(const std::string& arg, optCallback callBack) {
+  envCallbacks[arg] = callBack;
 }
 
 /* Define the callback function for "lonely" parameters (not preceded by
  * a "--" argument. */
-void Options::setParamCallback(unsigned int idx, optCallback callBack) {
-  paramCallbacks[idx]=callBack;
+void
+Options::setParamCallback(unsigned int idx, optCallback callBack) {
+  paramCallbacks[idx] = callBack;
 }
 
 /* Define the callback function for a parameter that don't take argument.
  * These parameters must start with a single '-'.
  */
 void Options::setFlagCallback(const char flag, optCallback callBack) {
-  flagCallbacks[flag]=callBack;
+  flagCallbacks[flag] = callBack;
 }
 
 /* Process the options using the callback functions. */
-void Options::processOptions() {
-  map<string,string>::const_iterator i;
-  list<string>::const_iterator j;
+void
+Options::processOptions() {
+  std::map<std::string, std::string>::const_iterator i;
+  std::list<std::string>::const_iterator j;
   unsigned int k;
-  list<char>::const_iterator l;
+  std::list<char>::const_iterator l;
   optCallback callback;
 
-  for (l=flags.begin(); l!=flags.end(); ++l) {
+  for (l = flags.begin(); l != flags.end(); ++l) {
     if (flagCallbacks.find(*l)!=flagCallbacks.end()) {
-      string flag;
-      flag+=*l;
+      std::string flag;
+      flag += *l;
       callback = flagCallbacks.find(*l)->second;
       callback(flag, config);
     } else {
-      if (*l!='-')
+      if (*l != '-') {
         WARNING("-" << *l << " flag unknown");
+      }
     }
   }
-  for (i=arguments.begin(); i!=arguments.end(); ++i) {
-    if (optCallbacks.find(i->first)!=optCallbacks.end()) {
+  for (i = arguments.begin(); i != arguments.end(); ++i) {
+    if (optCallbacks.find(i->first) != optCallbacks.end()) {
       callback = optCallbacks.find(i->first)->second;
       callback(i->second, config);
     } else {
       WARNING(i->first << " unknown option");
     }
   }
-  for (j=singleArgs.begin(); j!=singleArgs.end(); ++j) {
-    if (optCallbacks.find(*j)!=optCallbacks.end()) {
+  for (j = singleArgs.begin(); j != singleArgs.end(); ++j) {
+    if (optCallbacks.find(*j) != optCallbacks.end()) {
       callback = optCallbacks.find(*j)->second;
       callback("", config);
     } else {
       WARNING(*j << " unknown option");
     }
   }
-  for (k=0;k<params.size();++k) {
-    if (paramCallbacks.find(k)!=paramCallbacks.end()) {
+  for (k = 0; k < params.size(); ++k) {
+    if (paramCallbacks.find(k) != paramCallbacks.end()) {
       callback = paramCallbacks[k];
       callback(params[k], config);
     } else {
@@ -159,19 +170,20 @@ void Options::processOptions() {
 }
 
 /* Process the environment variables using the defined callback functions. */
-void Options::processEnv() {
-  map<string, string>::const_iterator i;
-  list<string>::const_iterator j;
+void
+Options::processEnv() {
+  std::map<std::string, std::string>::const_iterator i;
+  std::list<std::string>::const_iterator j;
   optCallback callback;
 
-  for (i=environment.begin(); i!=environment.end(); ++i) {
-    if (envCallbacks.find(i->first)!=envCallbacks.end()) {
+  for (i = environment.begin(); i != environment.end(); ++i) {
+    if (envCallbacks.find(i->first) != envCallbacks.end()) {
       callback = envCallbacks.find(i->first)->second;
       callback(i->second, config);
     }
   }
-  for (j=singleEnvs.begin(); j!=singleEnvs.end(); ++j) {
-    if (envCallbacks.find(*j)!=envCallbacks.end()) {
+  for (j = singleEnvs.begin(); j != singleEnvs.end(); ++j) {
+    if (envCallbacks.find(*j) != envCallbacks.end()) {
       callback = envCallbacks.find(*j)->second;
       callback(*j, config);
     }
@@ -182,7 +194,8 @@ void Options::processEnv() {
  * Replace the '=' character with a white space.
  * Used to extract information with istringstream.
  */
-int cut(int c) {
+int
+cut(int c) {
   if (c == '=') {
     return ' ';
   }
@@ -191,23 +204,24 @@ int cut(int c) {
 
 ConfigFile::ConfigFile() {}
 
-ConfigFile::ConfigFile(const string& path) {
+ConfigFile::ConfigFile(const std::string& path) {
   parseFile(path);
 }
 
-void ConfigFile::parseFile(const std::string& path) {
-  ifstream file(path.c_str());
+void
+ConfigFile::parseFile(const std::string& path) {
+  std::ifstream file(path.c_str());
   unsigned int l = 0;
 
   if (!file.is_open()) {
-    throw runtime_error("Can't open " + path);
+    throw std::runtime_error("Can't open " + path);
   }
 
   while (!file.eof()) {
     char buffer[1024];
-    string line, key, value;
-    string::iterator it;
-    istringstream is;
+    std::string line, key, value;
+    std::string::iterator it;
+    std::istringstream is;
     size_t pos;
 
     l++;
@@ -218,15 +232,15 @@ void ConfigFile::parseFile(const std::string& path) {
     line = line.substr(0, pos);
 
     /* Remove white spaces. */
-    while ((pos=line.find(' '))!=string::npos) {
+    while ((pos = line.find(' ')) != std::string::npos) {
       line.erase(pos, 1);
     }
-    while ((pos=line.find('\t'))!=string::npos) {
+    while ((pos = line.find('\t')) != std::string::npos) {
       line.erase(pos, 1);
     }
 
     /* Empty line => continue. */
-    if (line=="") {
+    if (line.empty()) {
       continue;
     }
 
@@ -235,7 +249,7 @@ void ConfigFile::parseFile(const std::string& path) {
     /* Extract key,value */
     is.str(line);
     is >> key >> value;
-    if (value == "") {
+    if (value.empty()) {
       WARNING("\"" << key << "\" has no value! (l." << l << ")");
     }
     if (attributes.find(key) != attributes.end()) {
@@ -248,6 +262,7 @@ void ConfigFile::parseFile(const std::string& path) {
     attributes[key]=value;
   }
 }
-const string& ConfigFile::getAttr(const string& key) {
+const string&
+ConfigFile::getAttr(const string& key) {
   return attributes[key];
 }

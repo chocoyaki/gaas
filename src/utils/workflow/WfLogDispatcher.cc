@@ -73,8 +73,8 @@ WfLogDispatcher::onEventCreateWorkflow(
 void
 WfLogDispatcher::onWorkflowInstanciate(
   const EventFrom<FWorkflow,
-                          EventStandardMsg<FWorkflow,
-                                                   FWorkflow::INST > >* event) {
+  EventStandardMsg<FWorkflow,
+  FWorkflow::INST > >* event) {
   myOutput << *event << "\n";
   if (isOnline()) {
     myWfLogSrv->updateWorkflow(event->getSource()->getId().c_str(),
@@ -85,8 +85,8 @@ WfLogDispatcher::onWorkflowInstanciate(
 void
 WfLogDispatcher::onWorkflowInstDone(
   const EventFrom<FWorkflow,
-                          EventStandardMsg<FWorkflow,
-                                                   FWorkflow::INSTDONE > >*
+  EventStandardMsg<FWorkflow,
+  FWorkflow::INSTDONE > >*
   event) {
   myOutput << *event << "\n";
   if (isOnline()) {
@@ -98,8 +98,8 @@ WfLogDispatcher::onWorkflowInstDone(
 void
 WfLogDispatcher::onWorkflowInstError(
   const EventFrom<FWorkflow,
-                          EventStandardMsg<FWorkflow,
-                                                   FWorkflow::INSTERROR > >*
+  EventStandardMsg<FWorkflow,
+  FWorkflow::INSTERROR > >*
   event) {
   myOutput << *event << "\n";
   if (isOnline()) {
@@ -111,7 +111,7 @@ WfLogDispatcher::onWorkflowInstError(
 void
 WfLogDispatcher::onWorkflowCancelled(
   const EventFrom<FWorkflow,
-                  EventStandardMsg<FWorkflow, FWorkflow::CANCELLED > >* event) {
+  EventStandardMsg<FWorkflow, FWorkflow::CANCELLED > >* event) {
   myOutput << *event << "\n";
   if (isOnline()) {
     myWfLogSrv->updateWorkflow(event->getSource()->getId().c_str(),
@@ -122,7 +122,7 @@ WfLogDispatcher::onWorkflowCancelled(
 void
 WfLogDispatcher::onWorkflowCompleted(
   const EventFrom<FWorkflow,
-                  EventStandardMsg<FWorkflow, FWorkflow::COMPLETED > >* event) {
+  EventStandardMsg<FWorkflow, FWorkflow::COMPLETED > >* event) {
   myOutput << *event << "\n";
   if (isOnline()) {
     myWfLogSrv->updateWorkflow(event->getSource()->getId().c_str(),
@@ -143,8 +143,8 @@ WfLogDispatcher::onEventCreateWfDag(
 void
 WfLogDispatcher::onSourceDataTree(
   const EventFrom<FSourceNode,
-                  EventStandardMsg<FSourceNode,
-                                   FSourceNode::DATATREE > >* event) {
+  EventStandardMsg<FSourceNode,
+  FSourceNode::DATATREE > >* event) {
   myOutput << "SOURCE DATA TREE: " << *event << "\n";
   if (isOnline()) {
     myWfLogSrv->createSourceDataTree(event->getSource()->getId().c_str(),
@@ -157,7 +157,7 @@ WfLogDispatcher::onSourceDataTree(
 void
 WfLogDispatcher::onSinkData(
   const EventFrom<FSinkNode,
-                  EventStandardMsg<FSinkNode, FSinkNode::DATAID > >* event) {
+  EventStandardMsg<FSinkNode, FSinkNode::DATAID > >* event) {
   myOutput << "SINK DATA : " << *event << "\n";
   if (isOnline()) {
     myWfLogSrv->createSinkData(event->getSource()->getId().c_str(),
@@ -245,8 +245,8 @@ WfLogDispatcher::onEventCreateDagNodePort(
 void
 WfLogDispatcher::onInPortDepend(
   const EventFrom<DagNodeInPort,
-                  EventStandardMsg<DagNodeInPort,
-                                   DagNodeInPort::DEPEND > >* event) {
+  EventStandardMsg<DagNodeInPort,
+  DagNodeInPort::DEPEND > >* event) {
   myOutput << "INPORT DEPEND: " << *event << "\n";
   if (isOnline()) {
     DagNode* srcNode = dynamic_cast<DagNode*>(event->getSource()->getParent());
@@ -261,8 +261,8 @@ WfLogDispatcher::onInPortDepend(
 void
 WfLogDispatcher::onDataElements(
   const EventFrom<WfDataIDAdapter,
-                  EventStandardMsg<WfDataIDAdapter,
-                                   WfDataIDAdapter::ELTIDLIST > >* event) {
+  EventStandardMsg<WfDataIDAdapter,
+  WfDataIDAdapter::ELTIDLIST > >* event) {
   myOutput << "DATA ELEMENTS: " << *event << "\n";
   if (isOnline()) {
     myWfLogSrv->createDataElements(event->getSource()->getDataID().c_str(),
@@ -273,8 +273,8 @@ WfLogDispatcher::onDataElements(
 void
 WfLogDispatcher::onDagNodeSetDataID(
   const EventFrom<DagNodePort,
-                  EventStandardMsg<DagNodePort,
-                                   DagNodePort::DATAID > >* event) {
+  EventStandardMsg<DagNodePort,
+  DagNodePort::DATAID > >* event) {
   myOutput << "SET DATAID: " << *event << "\n";
   if (isOnline()) {
     const DagNodePort *srcPort = event->getSource();
@@ -304,8 +304,8 @@ WfLogDispatcher::onEventCreateDagNodeLink(
 void
 WfLogDispatcher::onDagNodeReady(
   const EventFrom<DagNode,
-                  EventStandardMsg<DagNode,
-                                   DagNode::READY > >* event) {
+  EventStandardMsg<DagNode,
+  DagNode::READY > >* event) {
   myOutput << *event << "\n";
   if (isOnline()) {
     myWfLogSrv->nodeIsReady(event->getSource()->getId().c_str(),
@@ -317,8 +317,8 @@ WfLogDispatcher::onDagNodeReady(
 void
 WfLogDispatcher::onDagNodeStart(
   const EventFrom<DagNodeLauncher,
-                  EventStandardMsg<DagNodeLauncher,
-                                   DagNode::START > >* event) {
+  EventStandardMsg<DagNodeLauncher,
+  DagNode::START > >* event) {
   myOutput << *event << "\n";
   if (isOnline()) {
     myWfLogSrv->nodeIsStarting(event->getSource()->getNode()->getId().c_str(),
@@ -333,8 +333,8 @@ WfLogDispatcher::onDagNodeStart(
 void
 WfLogDispatcher::onDagNodeFinish(
   const EventFrom<DagNodeLauncher,
-                  EventStandardMsg<DagNodeLauncher,
-                                   DagNode::FINISH > >* event) {
+  EventStandardMsg<DagNodeLauncher,
+  DagNode::FINISH > >* event) {
   myOutput << *event << "\n";
   if (isOnline()) {
     myWfLogSrv->nodeIsDone(event->getSource()->getNode()->getId().c_str(),
@@ -346,8 +346,8 @@ WfLogDispatcher::onDagNodeFinish(
 void
 WfLogDispatcher::onDagNodeFailed(
   const EventFrom<DagNodeLauncher,
-                  EventStandardMsg<DagNodeLauncher,
-                                   DagNode::FAILED > >* event) {
+  EventStandardMsg<DagNodeLauncher,
+  DagNode::FAILED > >* event) {
   myOutput << *event << "\n";
   if (isOnline()) {
     myWfLogSrv->nodeIsFailed(event->getSource()->getNode()->getId().c_str(),

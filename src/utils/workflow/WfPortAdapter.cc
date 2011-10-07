@@ -431,7 +431,7 @@ void WfMultiplePortAdapter::parse(const string& strRef,
     // if followed by a ; => skip it and continue parsing
     if (sepRight < parRight) {
       startPos = sepRight + 1;
-    // in other cases i.e. ) or nothing, this is the end of the current adapter
+      // in other cases i.e. ) or nothing, this is the end of the current adapter
     } else {
       startPos = (parRight == string::npos) ? strRef.length()-1 : parRight + 1;
       break;
@@ -569,7 +569,7 @@ WfMultiplePortAdapter::freeAdapterPersistentData(MasterAgent_var& MA) {
   if (!containerID.empty()) {
     // This class of adapter is always the owner of its dataID
     TRACE_TEXT(TRACE_ALL_STEPS, "Deleting persistent container: "
-                << containerID << endl);
+               << containerID << endl);
     char *dataId = const_cast<char*>(containerID.c_str());
     if (MA->diet_free_pdata(dataId) == 0) {
       WARNING("Could not delete persistent data: " << dataId);
@@ -749,7 +749,7 @@ WfValueAdapter::freeAdapterPersistentData(MasterAgent_var& MA) {
   // the dataID can be provided in the constructor
   if (isDataIDCreator()) {
     TRACE_TEXT(TRACE_ALL_STEPS, "Deleting persistent data (value adapter): "
-                << myDataID << endl);
+               << myDataID << endl);
     char *dataId = const_cast<char*>(myDataID.c_str());
     if (MA->diet_free_pdata(dataId)==0) {
       WARNING("Could not delete persistent data: " << dataId);
@@ -901,10 +901,10 @@ WfDataIDAdapter::getElements(vector< string >& vectID)
       if (i != content->size-1) eltIdsMsg += ";";
     }
     events::sendEventFrom<WfDataIDAdapter,
-                  WfDataIDAdapter::ELTIDLIST>(this,
-                                              "Container elements",
-                                              eltIdsMsg,
-                                              EventBase::INFO);
+      WfDataIDAdapter::ELTIDLIST>(this,
+                                  "Container elements",
+                                  eltIdsMsg,
+                                  EventBase::INFO);
     free(content->elt_ids);
 
     // update cache

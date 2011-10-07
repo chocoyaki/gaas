@@ -25,18 +25,15 @@
 #include "ORBMgr.hh"
 #include <string>
 
-using namespace std;
-
-
-::CORBA::Long DIETForwarder::execNodeOnSed(const char* node_id,
-                                           const char* dag_id,
-                                           const char* seDName,
-                                           ::CORBA::ULong reqID,
-                                           ::corba_estimation_t& ev,
-                                           const char* objName)
-{
-  string objString(objName);
-  string name;
+::CORBA::Long
+DIETForwarder::execNodeOnSed(const char* node_id,
+                             const char* dag_id,
+                             const char* seDName,
+                             ::CORBA::ULong reqID,
+                             ::corba_estimation_t& ev,
+                             const char* objName) {
+  std::string objString(objName);
+  std::string name;
 
   if (!remoteCall(objString)) {
     return getPeer()->execNodeOnSed(node_id, dag_id, seDName,
@@ -45,17 +42,17 @@ using namespace std;
 
   name = getName(objString);
 
-  CltMan_var clt = ORBMgr::getMgr()->resolve<CltMan, CltMan_var>(WFMGRCTXT, name,
-                                                                 this->name);
+  CltMan_var clt =
+    ORBMgr::getMgr()->resolve<CltMan, CltMan_var>(WFMGRCTXT, name, this->name);
   return clt->execNodeOnSed(node_id, dag_id, seDName, reqID, ev);
 }
 
-::CORBA::Long DIETForwarder::execNode(const char* node_id,
-                                      const char* dag_id,
-                                      const char* objName)
-{
-  string objString(objName);
-  string name;
+::CORBA::Long
+DIETForwarder::execNode(const char* node_id,
+                        const char* dag_id,
+                        const char* objName) {
+  std::string objString(objName);
+  std::string name;
 
   if (!remoteCall(objString)) {
     return getPeer()->execNode(node_id, dag_id, objString.c_str());
@@ -63,17 +60,17 @@ using namespace std;
 
   name = getName(objString);
 
-  CltMan_var clt = ORBMgr::getMgr()->resolve<CltMan, CltMan_var>(WFMGRCTXT, name,
-                                                                 this->name);
+  CltMan_var clt =
+    ORBMgr::getMgr()->resolve<CltMan, CltMan_var>(WFMGRCTXT, name, this->name);
   return clt->execNode(node_id, dag_id);
 }
 
-char* DIETForwarder::release(const char* dag_id,
-                             ::CORBA::Boolean successful,
-                             const char* objName)
-{
-  string objString(objName);
-  string name;
+char*
+DIETForwarder::release(const char* dag_id,
+                       ::CORBA::Boolean successful,
+                       const char* objName) {
+  std::string objString(objName);
+  std::string name;
 
   if (!remoteCall(objString)) {
     return getPeer()->release(dag_id, successful, objString.c_str());
@@ -81,7 +78,7 @@ char* DIETForwarder::release(const char* dag_id,
 
   name = getName(objString);
 
-  CltMan_var clt = ORBMgr::getMgr()->resolve<CltMan, CltMan_var>(WFMGRCTXT, name,
-                                                                 this->name);
+  CltMan_var clt =
+    ORBMgr::getMgr()->resolve<CltMan, CltMan_var>(WFMGRCTXT, name, this->name);
   return clt->release(dag_id, successful);
 }

@@ -25,51 +25,52 @@
 #include "ORBMgr.hh"
 #include <string>
 
-using namespace std;
-
-::CORBA::Long DIETForwarder::processDagWf(const ::corba_wf_desc_t& dag_desc,
-                                          const char* cltMgrRef,
-                                          ::CORBA::Long wfReqId,
-                                          const char* objName)
-{
-  string objString(objName);
-  string name;
+::CORBA::Long
+DIETForwarder::processDagWf(const ::corba_wf_desc_t& dag_desc,
+                            const char* cltMgrRef,
+                            ::CORBA::Long wfReqId,
+                            const char* objName) {
+  std::string objString(objName);
+  std::string name;
 
   if (!remoteCall(objString)) {
-    return getPeer()->processDagWf(dag_desc, cltMgrRef, wfReqId, objString.c_str());
+    return getPeer()->processDagWf(dag_desc, cltMgrRef,
+                                   wfReqId, objString.c_str());
   }
 
   name = getName(objString);
 
-  MaDag_var agent = ORBMgr::getMgr()->resolve<MaDag, MaDag_var>(MADAGCTXT, name,
-                                                                this->name);
+  MaDag_var agent =
+    ORBMgr::getMgr()->resolve<MaDag, MaDag_var>(MADAGCTXT, name, this->name);
   return agent->processDagWf(dag_desc, cltMgrRef, wfReqId);
 }
 
-::CORBA::Long DIETForwarder::processMultiDagWf(const ::corba_wf_desc_t& dag_desc,
-                                               const char* cltMgrRef,
-                                               ::CORBA::Long wfReqId,
-                                               ::CORBA::Boolean release,
-                                               const char* objName)
-{
-  string objString(objName);
-  string name;
+::CORBA::Long
+DIETForwarder::processMultiDagWf(const ::corba_wf_desc_t& dag_desc,
+                                 const char* cltMgrRef,
+                                 ::CORBA::Long wfReqId,
+                                 ::CORBA::Boolean release,
+                                 const char* objName) {
+  std::string objString(objName);
+  std::string name;
 
   if (!remoteCall(objString)) {
-    return getPeer()->processMultiDagWf(dag_desc, cltMgrRef, wfReqId, release,
+    return getPeer()->processMultiDagWf(dag_desc, cltMgrRef,
+                                        wfReqId, release,
                                         objString.c_str());
   }
 
   name = getName(objString);
 
-  MaDag_var agent = ORBMgr::getMgr()->resolve<MaDag, MaDag_var>(MADAGCTXT, name,
-                                                                this->name);
+  MaDag_var agent =
+    ORBMgr::getMgr()->resolve<MaDag, MaDag_var>(MADAGCTXT, name,this->name);
   return agent->processMultiDagWf(dag_desc, cltMgrRef, wfReqId, release);
 }
 
-::CORBA::Long DIETForwarder::getWfReqId(const char* objName) {
-  string objString(objName);
-  string name;
+::CORBA::Long
+DIETForwarder::getWfReqId(const char* objName) {
+  std::string objString(objName);
+  std::string name;
 
   if (!remoteCall(objString)) {
     return getPeer()->getWfReqId(objString.c_str());
@@ -77,16 +78,15 @@ using namespace std;
 
   name = getName(objString);
 
-  MaDag_var agent = ORBMgr::getMgr()->resolve<MaDag, MaDag_var>(MADAGCTXT, name,
-                                                                this->name);
+  MaDag_var agent =
+    ORBMgr::getMgr()->resolve<MaDag, MaDag_var>(MADAGCTXT, name, this->name);
   return agent->getWfReqId();
 }
 
-void DIETForwarder::releaseMultiDag(::CORBA::Long wfReqId,
-                                    const char* objName)
-{
-  string objString(objName);
-  string name;
+void
+DIETForwarder::releaseMultiDag(::CORBA::Long wfReqId, const char* objName) {
+  std::string objString(objName);
+  std::string name;
 
   if (!remoteCall(objString)) {
     return getPeer()->releaseMultiDag(wfReqId, objString.c_str());
@@ -94,16 +94,15 @@ void DIETForwarder::releaseMultiDag(::CORBA::Long wfReqId,
 
   name = getName(objString);
 
-  MaDag_var agent = ORBMgr::getMgr()->resolve<MaDag, MaDag_var>(MADAGCTXT, name,
-                                                                this->name);
+  MaDag_var agent =
+    ORBMgr::getMgr()->resolve<MaDag, MaDag_var>(MADAGCTXT, name, this->name);
   return agent->releaseMultiDag(wfReqId);
 }
 
-void DIETForwarder::cancelDag(::CORBA::Long dagId,
-                              const char* objName)
-{
-  string objString(objName);
-  string name;
+void
+DIETForwarder::cancelDag(::CORBA::Long dagId, const char* objName) {
+  std::string objString(objName);
+  std::string name;
 
   if (!remoteCall(objString)) {
     return getPeer()->cancelDag(dagId, objString.c_str());
@@ -111,16 +110,16 @@ void DIETForwarder::cancelDag(::CORBA::Long dagId,
 
   name = getName(objString);
 
-  MaDag_var agent = ORBMgr::getMgr()->resolve<MaDag, MaDag_var>(MADAGCTXT, name,
-                                                                this->name);
+  MaDag_var agent =
+    ORBMgr::getMgr()->resolve<MaDag, MaDag_var>(MADAGCTXT, name, this->name);
   return agent->cancelDag(dagId);
 }
 
-void DIETForwarder::setPlatformType(::MaDag::pfmType_t pfmType,
-                                    const char* objName)
-{
-  string objString(objName);
-  string name;
+void
+DIETForwarder::setPlatformType(::MaDag::pfmType_t pfmType,
+                               const char* objName) {
+  std::string objString(objName);
+  std::string name;
 
   if (!remoteCall(objString)) {
     return getPeer()->setPlatformType(pfmType, objString.c_str());
@@ -128,7 +127,7 @@ void DIETForwarder::setPlatformType(::MaDag::pfmType_t pfmType,
 
   name = getName(objString);
 
-  MaDag_var agent = ORBMgr::getMgr()->resolve<MaDag, MaDag_var>(MADAGCTXT, name,
-                                                                this->name);
+  MaDag_var agent =
+    ORBMgr::getMgr()->resolve<MaDag, MaDag_var>(MADAGCTXT, name, this->name);
   return agent->setPlatformType(pfmType);
 }

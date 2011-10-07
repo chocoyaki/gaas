@@ -29,14 +29,12 @@
 #include "ORBMgr.hh"
 #include <string>
 
-using namespace std;
-
-::CORBA::Long DIETForwarder::checkContract(::corba_estimation_t& estimation,
-                                           const ::corba_pb_desc_t& pb,
-                                           const char* objName)
-{
-  string objString(objName);
-  string name;
+::CORBA::Long
+ DIETForwarder::checkContract(::corba_estimation_t& estimation,
+                              const ::corba_pb_desc_t& pb,
+                              const char* objName) {
+  std::string objString(objName);
+  std::string name;
 
   if (!remoteCall(objString)) {
     return getPeer()->checkContract(estimation, pb, objString.c_str());
@@ -44,14 +42,15 @@ using namespace std;
 
   name = getName(objString);
 
-  SeD_var sed = ORBMgr::getMgr()->resolve<SeD, SeD_var>(SEDCTXT, name,
-                                                        this->name);
+  SeD_var sed =
+    ORBMgr::getMgr()->resolve<SeD, SeD_var>(SEDCTXT, name, this->name);
   return sed->checkContract(estimation, pb);
 }
 
-void DIETForwarder::updateTimeSinceLastSolve(const char* objName) {
-  string objString(objName);
-  string name;
+void
+DIETForwarder::updateTimeSinceLastSolve(const char* objName) {
+  std::string objString(objName);
+  std::string name;
 
   if (!remoteCall(objString)) {
     return getPeer()->updateTimeSinceLastSolve(objString.c_str());
@@ -59,18 +58,18 @@ void DIETForwarder::updateTimeSinceLastSolve(const char* objName) {
 
   name = getName(objString);
 
-  SeD_var sed = ORBMgr::getMgr()->resolve<SeD, SeD_var>(SEDCTXT, name,
-                                                        this->name);
+  SeD_var sed =
+    ORBMgr::getMgr()->resolve<SeD, SeD_var>(SEDCTXT, name, this->name);
   return sed->updateTimeSinceLastSolve();
 
 }
 
-::CORBA::Long DIETForwarder::solve(const char* path,
-                                   ::corba_profile_t& pb,
-                                   const char* objName)
-{
-  string objString(objName);
-  string name;
+::CORBA::Long
+DIETForwarder::solve(const char* path,
+                     ::corba_profile_t& pb,
+                     const char* objName) {
+  std::string objString(objName);
+  std::string name;
 
   if (!remoteCall(objString)) {
     return getPeer()->solve(path, pb, objString.c_str());
@@ -78,18 +77,18 @@ void DIETForwarder::updateTimeSinceLastSolve(const char* objName) {
 
   name = getName(objString);
 
-  SeD_var sed = ORBMgr::getMgr()->resolve<SeD, SeD_var>(SEDCTXT, name,
-                                                        this->name);
+  SeD_var sed =
+    ORBMgr::getMgr()->resolve<SeD, SeD_var>(SEDCTXT, name, this->name);
   return sed->solve(path, pb);
 }
 
-void DIETForwarder::solveAsync(const char* path,
-                               const ::corba_profile_t& pb,
-                               const char* volatileclientPtr,
-                               const char* objName)
-{
-  string objString(objName);
-  string name;
+void
+DIETForwarder::solveAsync(const char* path,
+                          const ::corba_profile_t& pb,
+                          const char* volatileclientPtr,
+                          const char* objName) {
+  std::string objString(objName);
+  std::string name;
 
   if (!remoteCall(objString)) {
     return getPeer()->solveAsync(path, pb, volatileclientPtr, objString.c_str());
@@ -97,14 +96,15 @@ void DIETForwarder::solveAsync(const char* path,
 
   name = getName(objString);
 
-  SeD_var sed = ORBMgr::getMgr()->resolve<SeD, SeD_var>(SEDCTXT, name,
-                                                        this->name);
+  SeD_var sed =
+    ORBMgr::getMgr()->resolve<SeD, SeD_var>(SEDCTXT, name, this->name);
   return sed->solveAsync(path, pb, volatileclientPtr);
 }
 
-char* DIETForwarder::getDataMgrID(const char* objName) {
-  string objString(objName);
-  string name;
+char*
+DIETForwarder::getDataMgrID(const char* objName) {
+  std::string objString(objName);
+  std::string name;
 
   if (!remoteCall(objString)) {
     return getPeer()->getDataMgrID(objString.c_str());
@@ -112,16 +112,16 @@ char* DIETForwarder::getDataMgrID(const char* objName) {
 
   name = getName(objString);
 
-  SeD_var sed = ORBMgr::getMgr()->resolve<SeD, SeD_var>(SEDCTXT, name,
-                                                        this->name);
+  SeD_var sed =
+    ORBMgr::getMgr()->resolve<SeD, SeD_var>(SEDCTXT, name, this->name);
   return sed->getDataMgrID();
 }
 
 SeqCorbaProfileDesc_t*
 DIETForwarder::getSeDProfiles(::CORBA::Long& length,
                               const char* objName) {
-  string objString(objName);
-  string name;
+  std::string objString(objName);
+  std::string name;
 
   if (!remoteCall(objString)) {
     return getPeer()->getSeDProfiles(length, objString.c_str());
@@ -129,8 +129,7 @@ DIETForwarder::getSeDProfiles(::CORBA::Long& length,
 
   name = getName(objString);
 
-  SeD_var sed = ORBMgr::getMgr()->resolve<SeD, SeD_var>(SEDCTXT,
-                                                        name,
-                                                        this->name);
+  SeD_var sed =
+    ORBMgr::getMgr()->resolve<SeD, SeD_var>(SEDCTXT, name, this->name);
   return sed->getSeDProfiles(length);
 }
