@@ -95,7 +95,7 @@ protected:
   WfBooleanExpression*      myCondition;
   FNodePortMap  myDoMap;        // used for IN LOOP => OUT LOOP
   FNodePortMap  myFinalOutMap;  // used for IN LOOP => OUT
-  FNodePortMap  myFinalLoopMap; // used for VOID => OUT LOOP
+  FNodePortMap  myFinalLoopMap;  // used for VOID => OUT LOOP
   FNodePortMap  myFinalVoidOutMap;  // used for VOID => OUT
   FNodePortMap  myDirectInOutMap;   // used for IN => OUT (no loop iteration)
   InputIterator*  myLoopIterator;

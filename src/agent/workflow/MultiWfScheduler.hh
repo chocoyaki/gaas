@@ -470,7 +470,7 @@ private:
    */
   bool keepOnRunning;
 
-}; // end class MultiWfScheduler
+};  // end class MultiWfScheduler
 
 
 /****************************************************************************/
@@ -510,7 +510,7 @@ public:
    */
   double slowdown;
 
-}; // end class DagState
+};  // end class DagState
 
 } // end namespace madag
 

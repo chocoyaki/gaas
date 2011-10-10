@@ -38,7 +38,7 @@ DagNodeLauncher::setSeD(const char* sed,
 {
   myChosenServer = CORBA::string_dup(sed);
   myReqID = reqID;
-  myEstimVect = ev; // COPY of estimation vector (required)
+  myEstimVect = ev;  // COPY of estimation vector (required)
   isSeDDefinedFlag = true;
 }
 

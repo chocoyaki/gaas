@@ -354,7 +354,7 @@ GlobalScheduler::aggregate(corba_response_t* aggrResp, size_t max_srv,
     Vector_add(evCache, new_Vector());
   }
   if (max_srv == 0)
-    max_srv = total_size; // keep all servers
+    max_srv = total_size;  // keep all servers
   aggrResp->servers.length(MIN(total_size, max_srv));
 
   while (iter->hasCurrent()) {
@@ -384,7 +384,7 @@ GlobalScheduler::aggregate(corba_response_t* aggrResp, size_t max_srv,
     free_Vector(evCache);
   }
 
-  delete iter; // unlock the schedulers list
+  delete iter;  // unlock the schedulers list
   delete [] lastAggr;
 
   return 0;
@@ -456,7 +456,7 @@ StdGS::serialize(StdGS* GS)
   while (iter->hasCurrent()) {
     Scheduler* sched = iter->getCurrent();
     char* tmp = Scheduler::serialize(sched);
-    size_t tmp_length = strlen(tmp) + 1; // Add 1 for the ':'
+    size_t tmp_length = strlen(tmp) + 1;  // Add 1 for the ':'
     if ((length + tmp_length) >= maxLength) {
       maxLength += 128;
       char* new_res = new char[maxLength];
@@ -553,7 +553,7 @@ PriorityGS::serialize(PriorityGS* GS)
   while (iter->hasCurrent()) {
     Scheduler* sched = iter->getCurrent();
     char* tmp = Scheduler::serialize(sched);
-    size_t tmp_length = strlen(tmp) + 1; // Add 1 for the ':'
+    size_t tmp_length = strlen(tmp) + 1;  // Add 1 for the ':'
     if ((length + tmp_length) >= maxLength) {
       maxLength += 128;
       char* new_res = new char[maxLength];

@@ -103,7 +103,7 @@ BatchSystem::BatchSystem()
   if (gethostname(frontalName, 256)) {
     ERROR_EXIT("could not get hostname");
   }
-  frontalName[255] = '\0'; // If truncated, ensure null termination
+  frontalName[255] = '\0';  // If truncated, ensure null termination
 
   /* Continue to parse the SeD configuration file */
   /* Search for batch queues */
@@ -819,7 +819,7 @@ BatchSystem::createUniqueTemporaryNFSFile(const char * pattern)
 int
 BatchSystem::readNumberInFile(const char * filename)
 {
-  char small_chaine[10]; // This must be gt NBDIGITS_MAX_RESOURCES
+  char small_chaine[10];  // This must be gt NBDIGITS_MAX_RESOURCES
   int file_descriptor;
   int nbread;
 

@@ -265,7 +265,7 @@ CltWfMgr::execNodeCommon(const char * node_id,
   TRACE_TEXT (TRACE_MAIN_STEPS,"CltWfMgr: execute node " << node_id <<
               " of dag " << dag_id << " (SED " << (isSedDefined ? "" : "NOT")
               << "DEFINED)" << endl);
-  Dag * dag = this->getDag(dag_id); // includes lock for critical section
+  Dag * dag = this->getDag(dag_id);  // includes lock for critical section
   if (dag != NULL) {
     // DAG-LEVEL TRY BLOCK
     try {
@@ -327,7 +327,7 @@ CltWfMgr::CltWfMgr(const string& name) :
   this->myLC = NULL;
 #endif
   this->myLS = WfLogService::_nil();
-  gettimeofday(&this->refTime, NULL); // init reference time
+  gettimeofday(&this->refTime, NULL);  // init reference time
 
   /** EVENT MGMT **/
   fstream * logfilehdl = new fstream("cltwfmgr.out", fstream::out);
@@ -358,7 +358,7 @@ void
 CltWfMgr::terminate() {
   if (myInstance != NULL) {
     std::string instanceName = myInstance->name;
-    //    ORBMgr::getMgr()->deactivate(myInstance); // Should we deactivate the object?
+    //    ORBMgr::getMgr()->deactivate(myInstance);  // Should we deactivate the object?
     ORBMgr::getMgr()->unbind(WFMGRCTXT, instanceName);
     ORBMgr::getMgr()->fwdsUnbind(WFMGRCTXT, instanceName);
     myInstance = NULL;
@@ -507,7 +507,7 @@ CltWfMgr::wfDagCallCommon(diet_wf_desc_t *dagProfile, Dag *dag, bool parse, bool
   } // end if (parse)
 
   // check the dag structure (ie each node is connected to identified nodes)
-  NodeSet *nodeSet = NULL; // set of nodes used to check precedence
+  NodeSet *nodeSet = NULL;  // set of nodes used to check precedence
   MetaDag *currMetaDag = NULL;
   CORBA::Long wfReqID  = dagProfile->wfReqID;
   if (wfReqID == -1) {
@@ -835,7 +835,7 @@ CltWfMgr::release(const char * dag_id, bool successful) {
     dag->setAsCancelled();
     if (wf) {
       LOCK;    /** LOCK */
-      wf->stopInstanciation(); // stop instanciation
+      wf->stopInstanciation();  // stop instanciation
       UNLOCK;  /** UNLOCK */
     }
   }
@@ -1233,7 +1233,7 @@ CltWfMgr::getDag(string dag_id) {
     for (map<diet_wf_desc_t *, NodeSet *>::iterator p = this->myProfiles.begin();
          p != this->myProfiles.end();
          ++p) {
-      dag = dynamic_cast<Dag*>(p->second); // myProfiles contains Dags AND FWorkflows
+      dag = dynamic_cast<Dag*>(p->second);  // myProfiles contains Dags AND FWorkflows
       if ( (dag != NULL) &&
            (dag->getId() == dag_id) ) {
         break;

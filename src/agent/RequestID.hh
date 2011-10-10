@@ -82,7 +82,7 @@ public :
 
   friend bool operator== (const RequestID & a, const RequestID & b);
 
-}; // RequestID
+};  // RequestID
 
 /**
  * returns true if the representation of \c a is lesser than the

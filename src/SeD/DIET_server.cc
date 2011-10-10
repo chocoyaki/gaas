@@ -900,7 +900,7 @@ diet_SeD(const char* config_file_name, int argc, char* argv[]) {
     ORBMgr::getMgr()->activate(dietLogComponent);
 
     if (dietLogComponent->run("SeD", parentName.c_str(), flushTime) != 0) {
-      //      delete(dietLogComponent); // DLC is activated, do not delete !
+      //      delete(dietLogComponent);  // DLC is activated, do not delete !
       WARNING("Could not initialize DietLogComponent");
       TRACE_TEXT(TRACE_ALL_STEPS, "* LogService: disabled" << endl);
       dietLogComponent = NULL;
@@ -920,7 +920,7 @@ diet_SeD(const char* config_file_name, int argc, char* argv[]) {
 
   dataManager = DagdaFactory::getSeDDataManager();
 #ifdef USE_LOG_SERVICE
-  dataManager->setLogComponent( dietLogComponent ); // modif bisnard_logs_1
+  dataManager->setLogComponent( dietLogComponent );  // modif bisnard_logs_1
 #endif
 
   ORBMgr::getMgr()->activate(dataManager);

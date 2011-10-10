@@ -137,7 +137,7 @@ MultiWfBasicScheduler::run() {
         // DELAY between NODES (to avoid interference btw submits)
         diet::usleep(this->interRoundDelay * 1000);
       }
-      ++qp; // go to next queue
+      ++qp;  // go to next queue
     }
     myLock.unlock();
 
@@ -178,7 +178,7 @@ MultiWfBasicScheduler::createNodeQueue(Dag * dag)  {
        ++nodeIt) {
     waitQ->pushNode(&(*nodeIt->second));
   }
-  this->waitingQueues[readyQ] = waitQ; // used to destroy waiting queue
+  this->waitingQueues[readyQ] = waitQ;  // used to destroy waiting queue
   return readyQ;
 }
 

@@ -360,7 +360,7 @@ ORBMgr::resolveObject(const string& context, const string& name,
       std::string objHost = getHost(ior);
       try {
         if (objHost.size()>0 && objHost.at(0)=='@') {
-          objHost.erase(0,1); // Remove '@' before the forwarder name
+          objHost.erase(0,1);  // Remove '@' before the forwarder name
           Forwarder_var fwd =
             resolve<Forwarder, Forwarder_var>(FWRDCTXT, objHost);
 

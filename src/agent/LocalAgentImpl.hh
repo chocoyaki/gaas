@@ -136,7 +136,7 @@ private:
   ChildID childID;
 
 
-}; // LocalAgentImpl
+};  // LocalAgentImpl
 
 class LocalAgentFwdrImpl : public POA_LocalAgentFwdr,
                            public PortableServer::RefCountServantBase

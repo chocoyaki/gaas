@@ -121,6 +121,6 @@ public:
    */
   char* send(const char* destName, bool sendData = true);
 
-}; // end class Container
+};  // end class Container
 
 #endif

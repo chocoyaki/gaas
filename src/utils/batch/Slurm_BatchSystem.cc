@@ -52,7 +52,7 @@ Slurm_BatchSystem::Slurm_BatchSystem(int ID, const char * batchname)
   minimumMemoryUsed = "\n#SBATCH --mem=";
 
   /* TODO: When we use some ID for DIET client, change there! */
-  //mail      = "#Slurm -m a\n#Slurm -M "; // -m, send mail when:
+  //mail      = "#Slurm -m a\n#Slurm -M ";  // -m, send mail when:
   // a: job is aborted by batch system
   // b: job begins execution
   // e: job ends execution
@@ -66,14 +66,14 @@ Slurm_BatchSystem::Slurm_BatchSystem(int ID, const char * batchname)
 
   submitCommand = "sbatch ";
   killCommand   = "scancel ";
-  wait4Command  = "scontrol show job "; // nom de la commande qui va prendre l'id du job pour en r�cup�rer les informations
-  waitFilter    = "grep JobState | cut -d\"=\" -f2 | cut -d\" \" -f1"; // commande pour r�cup�rer l'�tat  du job dont l'info sort de wait4Command.
+  wait4Command  = "scontrol show job ";  // nom de la commande qui va prendre l'id du job pour en r�cup�rer les informations
+  waitFilter    = "grep JobState | cut -d\"=\" -f2 | cut -d\" \" -f1";  // commande pour r�cup�rer l'�tat  du job dont l'info sort de wait4Command.
   // Qui doit �tre l'un des statusNames
   exitCode      = "0";
 
   // nothing to do to retrieve the ID of the submission...
   // but we need to add something, let's say 'uniq' :-)
-  jid_extract_patterns = "cut -d\" \" -f4";//"uniq"; //"cut --delimiter=\\\" -f 2 | cut --delimiter=. -f 2";
+  jid_extract_patterns = "cut -d\" \" -f4";//"uniq";  //"cut --delimiter=\\\" -f 2 | cut --delimiter=. -f 2";
 
   /* Information for META_VARIABLES */
   batchJobID     = "$SLURM_JOB_ID";

@@ -172,6 +172,6 @@ private :
    */
   void freeResponses();
 
-}; // Request
+};  // Request
 
 #endif // _REQUEST_HH_

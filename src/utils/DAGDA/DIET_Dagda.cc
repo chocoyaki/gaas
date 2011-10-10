@@ -957,7 +957,7 @@ int dagda_put_data(void* value, diet_data_type_t type,
 
   if (value!=NULL) {
     inserted->value.replace(size, size, (CORBA::Char*) value, false);
-    manager->useMemSpace(inserted->value.length()); // FIX for mem usage (bi)
+    manager->useMemSpace(inserted->value.length());  // FIX for mem usage (bi)
   }
 
   manager->unlockData(dataID);
@@ -1286,7 +1286,7 @@ int dagda_get_container_elements(const char* idContainer, diet_container_t* cont
   if (content != NULL) {
     content->size = eltIDSeq.length();
     content->id   = CORBA::string_dup(idContainer);
-    content->elt_ids = (char**) malloc(sizeof(char*) * content->size); // FIXME not deallocated
+    content->elt_ids = (char**) malloc(sizeof(char*) * content->size);  // FIXME not deallocated
     for (unsigned int ix=0; ix<eltIDSeq.length(); ++ix) {
       if (!eltFlagSeq[ix])  // test if this is not a null element
         content->elt_ids[ix] = CORBA::string_dup(eltIDSeq[ix]);

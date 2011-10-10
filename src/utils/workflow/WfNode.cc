@@ -247,7 +247,7 @@ WfNode::addPrevId(const string& nodeId) {
   if (nodeId.empty()) {
     INTERNAL_ERROR("WfNode::addPrevId Fatal Error: Empty node id", 1);
   }
-  prevNodeIds.insert(nodeId); // set insertion
+  prevNodeIds.insert(nodeId);  // set insertion
 }
 
 /**
@@ -259,7 +259,7 @@ WfNode::remPrevId(const string& nodeId) {
   if (nodeId.empty()) {
     INTERNAL_ERROR("WfNode::remPrevId Fatal Error: Empty node id", 1);
   }
-  prevNodeIds.erase(nodeId); // set removal
+  prevNodeIds.erase(nodeId);  // set removal
 }
 
 /**

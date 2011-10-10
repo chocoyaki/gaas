@@ -84,7 +84,7 @@ extern unsigned int TRACE_LEVEL;
   TRACE_FUNCTION(TRACE_ALL_STEPS,formatted_text)
 
 
-static char* STAT_FILE_NAME; // We don't need it to be global
+static char* STAT_FILE_NAME;  // We don't need it to be global
 FILE* STAT_FILE = NULL;
 static int USING_STATS = 1;
 

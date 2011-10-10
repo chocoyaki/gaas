@@ -111,7 +111,7 @@ BindService::BindService(MasterAgentImpl* ma, unsigned int port) {
   if (listenSocket < 0) {
     ERROR("opening bind service socket: " << strerror(errno) << endl,;);
   }
-  memset((char *) &serverAddr, 0, sizeof(serverAddr)); // use memset instead of bzero
+  memset((char *) &serverAddr, 0, sizeof(serverAddr));  // use memset instead of bzero
   serverAddr.sin_family = AF_INET;
   serverAddr.sin_addr.s_addr = INADDR_ANY;
   serverAddr.sin_port = htons(port);
@@ -156,11 +156,11 @@ MasterAgent_ptr BindService::lookup(const char* addr) {
   }
 
   struct sockaddr_in servAddr;
-  memset((char *) &servAddr, 0, sizeof(servAddr)); // use memset instead of bzero
+  memset((char *) &servAddr, 0, sizeof(servAddr));  // use memset instead of bzero
   servAddr.sin_family = AF_INET;
   memmove((char *)&servAddr.sin_addr.s_addr,
           (char *)server->h_addr, 
-          server->h_length); // use memmove instead of bcopy
+          server->h_length);  // use memmove instead of bcopy
   servAddr.sin_port = htons(portNo);
 
   if (connect(sockfd,(const sockaddr*)&servAddr,sizeof(servAddr)) < 0)  {
@@ -168,7 +168,7 @@ MasterAgent_ptr BindService::lookup(const char* addr) {
     return MasterAgent::_nil();
   }
   char buffer[2048];
-  memset(buffer, 0, sizeof(buffer)); // use memset instead of bzero
+  memset(buffer, 0, sizeof(buffer));  // use memset instead of bzero
   int n = read(sockfd,buffer,sizeof(buffer)-1);
   if (n < 0) {
     TRACE_TEXT(TRACE_ALL_STEPS, " reading from socket:" << strerror(errno) << endl);

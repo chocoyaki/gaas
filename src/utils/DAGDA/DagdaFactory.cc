@@ -122,9 +122,9 @@ std::string DagdaFactory::storageDir = "";
 /* If somebody wants to use another ORB than omniORB... */
 unsigned long DagdaFactory::defaultMaxMsgSize =
 #ifdef __OMNIORB4__
-  omniORB::giopMaxMsgSize() - 4096; // For data structure...
+  omniORB::giopMaxMsgSize() - 4096;  // For data structure...
 #else
-1073741824; // (1 GB)
+1073741824;  // (1 GB)
 #endif
 
 unsigned long DagdaFactory::defaultMaxDiskSpace = 0;

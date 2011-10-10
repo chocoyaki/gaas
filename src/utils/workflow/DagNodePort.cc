@@ -504,7 +504,7 @@ DagNodeOutPort::writeDataElement(WfDataWriter* dataWriter,
 
 diet_persistence_mode_t
 DagNodeOutPort::getPersistenceMode() {
-  if (!isConnected()) return DIET_PERSISTENT_RETURN; // WARNING not applied to containers!!
+  if (!isConnected()) return DIET_PERSISTENT_RETURN;  // WARNING not applied to containers!!
   else return DIET_PERSISTENT;
 }
 

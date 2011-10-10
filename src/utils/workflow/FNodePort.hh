@@ -117,7 +117,7 @@ protected:
   FProcNode*
   getParentProcNode();
 
-}; // end class FNodePort
+};  // end class FNodePort
 
 /*****************************************************************************/
 /*                           FNodeOutPort                                    */
@@ -268,7 +268,7 @@ protected:
    */
   FDataHandle myBuffer;
 
-}; // end class FNodeOutPort
+};  // end class FNodeOutPort
 
 /*****************************************************************************/
 /*                            FNodeInPort                                    */
@@ -359,7 +359,7 @@ protected:
    */
   bool valueRequired;
 
-}; // end class FNodeInPort
+};  // end class FNodeInPort
 
 
 /*****************************************************************************/

@@ -368,7 +368,7 @@ int main(int argc, char* argv[], char *envp[]) {
   } catch (std::runtime_error &e) {
     ERROR(e.what(), GRPC_CONFIGFILE_ERROR);
   }
-  // std::string& agentName = CONFIG_STRING("name"]; // UNUSED ?
+  // std::string& agentName = CONFIG_STRING("name"];  // UNUSED ?
   std::string parentName = "";
   bool hasParentName = CONFIG_STRING(diet::PARENTNAME, parentName);
   std::string maName;
@@ -476,7 +476,7 @@ int main(int argc, char* argv[], char *envp[]) {
     if (dietLogComponent->run(agtTypeName.c_str(),
                               parentName.c_str(),
                               flushTime)) {
-      // delete(dietLogComponent); // DLC is activated, do not delete !
+      // delete(dietLogComponent);  // DLC is activated, do not delete !
       WARNING("Could not initialize DietLogComponent");
       TRACE_TEXT(TRACE_ALL_STEPS, "* LogService: disabled" << endl);
       dietLogComponent = NULL;

@@ -272,8 +272,8 @@ MultiWfScheduler::MultiWfScheduler(MaDag_impl* maDag, nodePolicy_t nodePol)
   : nodePolicy(nodePol), platformType(PFM_ANY), mySem(0), interRoundDelay(100),
     myMaDag(maDag), keepOnRunning(true) {
   this->mySched   = new HEFTScheduler();
-  this->execQueue = NULL; // must be initialized in derived class constructor
-  gettimeofday(&this->refTime, NULL); // init reference time
+  this->execQueue = NULL;  // must be initialized in derived class constructor
+  gettimeofday(&this->refTime, NULL);  // init reference time
 }
 
 MultiWfScheduler::~MultiWfScheduler() {
@@ -449,7 +449,7 @@ MultiWfScheduler::run() {
 
     int queuedNodeCount = 0;   // nb nodes put in execQueue (check for new round)
     int mappedNodeCount = 0;   // nb nodes mapped to a ressource (check for new round)
-    int servAvailCount = 0; // nb available services (check for new round)
+    int servAvailCount = 0;  // nb available services (check for new round)
 
     int nodeReadyCount = 0;    // the nb of nodes ready (statistics)
     int dagCount = 0;          // the nb of dag (statistics)
@@ -472,7 +472,7 @@ MultiWfScheduler::run() {
       nodeReadyCount+=(int)readyQ->size();
       dagCount++;
       ChainedNodeQueue * waitQ = this->waitingQueues[readyQ];
-      nodeTodoCount+= (int)readyQ->size() + (int)waitQ->size(); // for stats only
+      nodeTodoCount+= (int)readyQ->size() + (int)waitQ->size();  // for stats only
       while ((npc) && (n = readyQ->popFirstNode())) {
         // save the address of the readyQ for this node (used if node pushed back)
         n->setLastQueue(readyQ);
@@ -483,7 +483,7 @@ MultiWfScheduler::run() {
         queuedNodeCount++;
         npc--;
       }
-      ++qp; // go to next queue
+      ++qp;  // go to next queue
     }
     //only write stats when there is something to stats.
     if(dagCount>0){
@@ -595,7 +595,7 @@ MultiWfScheduler::run() {
             launcher->setSeD(servEst->loc.SeDName, submitReqID, servEst->estim);
             // start node execution
             n->setRealStartTime(this->getRelCurrTime());
-            n->start(launcher); // non-blocking
+            n->start(launcher);  // non-blocking
           } else {
             if (this->platformType == PFM_ANY) {
               servAvail[n->getPbName()] = false;
@@ -835,7 +835,7 @@ MultiWfScheduler::createNodeQueue(Dag * dag)  {
        ++nodeIt) {
     waitQ->pushNode(&(*nodeIt->second));
   }
-  this->waitingQueues[readyQ] = waitQ; // used to destroy waiting queue
+  this->waitingQueues[readyQ] = waitQ;  // used to destroy waiting queue
   return readyQ;
 }
 

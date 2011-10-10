@@ -116,7 +116,7 @@ FActivityNode::createRealInstance(Dag* dag,
       WfPort* FPort = (WfPort*) portIter->second;
       if (FPort->getPortType() == WfPort::PORT_OUT) {
 
-        WfPort *_DPort = dagNode->getPort( FPort->getId() ); //TODO manage exceptions
+        WfPort *_DPort = dagNode->getPort( FPort->getId() );  //TODO manage exceptions
         DagNodePort *DPort = dynamic_cast<DagNodePort*>(_DPort);
 
         if (!DPort->isDataIDAvailable(dag->getExecutionAgent())) {
@@ -137,7 +137,7 @@ FActivityNode::createRealInstance(Dag* dag,
       WfPort* FPort = (WfPort*) portIter->second;
       if (FPort->getPortType() == WfPort::PORT_OUT) {
 
-        WfPort *_DPort = dagNode->getPort( FPort->getId() ); //TODO manage exceptions
+        WfPort *_DPort = dagNode->getPort( FPort->getId() );  //TODO manage exceptions
         DagNodePort *DPort = dynamic_cast<DagNodePort*>(_DPort);
 
         FDataHandle* dataHdl = new FDataHandle( currTag,

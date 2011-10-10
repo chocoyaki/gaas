@@ -115,7 +115,7 @@ public :
    */
   FloodRequest & get(const RequestID & reqID);
 
-}; // FloodRequestsList
+};  // FloodRequestsList
 
 #endif // HAVE_MULTI_MA
 

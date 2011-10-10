@@ -310,7 +310,7 @@ Dag::checkPrec(NodeSet* contextNodeSet) throw (WfStructException) {
        p != nodes.end( );
        ++p ) {
     DagNode *node = (DagNode*) p->second;
-    node->setNodePrecedence(contextNodeSet); // throw WfStructException
+    node->setNodePrecedence(contextNodeSet);  // throw WfStructException
   }
   // TODO use DFS to check there is no cycle
   TRACE_TEXT(TRACE_ALL_STEPS, "CHECKING DAG STRUCTURE END" << endl);

@@ -258,7 +258,7 @@ private :
 #endif // HAVE_MULTI_MA
   void
   cp_arg_to_pb(corba_data_desc_t& pb, corba_data_desc_t arg_desc);
-}; // MasterAgentImpl
+};  // MasterAgentImpl
 
 class MasterAgentFwdrImpl : public POA_MasterAgentFwdr,
                             public PortableServer::RefCountServantBase

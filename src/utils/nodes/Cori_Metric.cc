@@ -91,7 +91,7 @@ Cori_Metric::start(diet_est_collect_tag_t type)
     break;
   default:{
     INTERNAL_WARNING("Collector called "<<collector_type <<" doesn't exist");
-    return 0; //this warnig should not stop the start up of the SeD
+    return 0;  //this warnig should not stop the start up of the SeD
   }
     break;
   }

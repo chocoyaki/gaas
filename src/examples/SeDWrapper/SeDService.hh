@@ -147,7 +147,7 @@ public:
   unsigned int getInputNb() const;
   unsigned int getOutputNb() const;
   const list<SeDArgument*>&  getArgs() const { return myArgs; }
-  SeDArgument *getArg(unsigned int idx) const; // idx starts at 0
+  SeDArgument *getArg(unsigned int idx) const;  // idx starts at 0
 
   /* DECLARATION */
 

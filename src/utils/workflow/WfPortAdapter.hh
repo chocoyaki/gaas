@@ -246,7 +246,7 @@ private:
   WfNode *nodePtr;
   WfPort *portPtr;
 
-}; // end class WfSimplePortAdapter
+};  // end class WfSimplePortAdapter
 
 
 /*****************************************************************************/
@@ -315,7 +315,7 @@ private:
 
   static string errorID;
 
-}; // end class WfMultiplePortAdapter
+};  // end class WfMultiplePortAdapter
 
 
 /*****************************************************************************/
@@ -344,7 +344,7 @@ public:
   const string&
   getSourceDataID();  // throws exception WfDataException::eVOID_DATA
   WfCst::WfDataType
-  getSourceDataType(); // throws exception WfDataException::eVOID_DATA
+  getSourceDataType();  // throws exception WfDataException::eVOID_DATA
   bool
   isDataIDCreator();
   void
@@ -405,7 +405,7 @@ public:
   void
   writeDataValue(WfDataWriter* dataWriter);
   void
-  freeAdapterPersistentData(MasterAgent_var& MA); //FIXME move to parent class
+  freeAdapterPersistentData(MasterAgent_var& MA);  //FIXME move to parent class
 
 protected:
 
@@ -527,7 +527,7 @@ protected:
                   WfCst::WfDataType  dataType,
                   unsigned int dataDepth);
 
-  string myDataID; //FIXME move to parent class
+  string myDataID;  //FIXME move to parent class
   WfCst::WfDataType myDataType;
   unsigned int myDepth;
 

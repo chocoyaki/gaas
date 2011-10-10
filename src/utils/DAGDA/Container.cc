@@ -145,7 +145,7 @@ Container::send(const char* destName, bool sendData) {
           eltDesc = myMgr->pfmGetDataDesc(eltID);
         } catch (Dagda::DataNotFound& ex) {
           WARNING("Missing element " << eltID << " in container " << myID << endl);
-          continue; // skip this element
+          continue;  // skip this element
         }
         corba_data_t eltData;
         eltData.desc = *eltDesc;

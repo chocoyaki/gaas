@@ -332,7 +332,7 @@ public:
    * (No ID here, ID exists only in async and is client-specific)
    */
   void logBeginSolve(const char* path, const corba_profile_t* problem);
-  void logEndDownload(const char* path, const corba_profile_t* problem); // modif bisnard_logs_1
+  void logEndDownload(const char* path, const corba_profile_t* problem);  // modif bisnard_logs_1
   void logEndSolve(const char* path, const corba_profile_t* problem);
 
   /**

@@ -66,7 +66,7 @@ MultiWfSRPT::handlerNodeDone(DagNode * node) {
 void
 MultiWfSRPT::setExecPriority(DagNode * node) {
   Dag * dag = node->getDag();
-  double  RPT = 0; // remaining processing time
+  double  RPT = 0;  // remaining processing time
   // loop over all dag nodes and add their computation time if not yet executed
   for (std::map<std::string,DagNode*>::iterator np = dag->begin();
        np != dag->end(); ++np) {
@@ -79,7 +79,7 @@ MultiWfSRPT::setExecPriority(DagNode * node) {
           WARNING("Error in MultiWfSRPT::setExecPriority (missing node start time)");
           RPT -= curNode->getEstDuration();
         } else {
-          RPT -= this->getRelCurrTime() - nodeStartTime; // remove already done
+          RPT -= this->getRelCurrTime() - nodeStartTime;  // remove already done
         }
       }
     }

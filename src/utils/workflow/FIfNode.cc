@@ -501,7 +501,7 @@ FFilterNode::updateLeftVoid(const FDataTag& tag, short depth) {
         updateLeftNonVoid(currTag, depth);
       }
 
-    } else break; // an undefined item is found ==> stop update
+    } else break;  // an undefined item is found ==> stop update
 
   } // end while
 }

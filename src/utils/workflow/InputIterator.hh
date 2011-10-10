@@ -182,7 +182,7 @@ public:
   virtual void removeItem();
   virtual const FDataTag& getCurrentItem(vector<FDataHandle*>& dataLine);
   virtual const FDataTag& getCurrentTag();
-  virtual bool find(const FDataTag& tag); // modifies the left iterator
+  virtual bool find(const FDataTag& tag);  // modifies the left iterator
   virtual bool isTotalDefined() const;
   virtual unsigned int getTotalItemNb() const;
 
@@ -204,8 +204,8 @@ protected:
   // and use the length of the tag of left.current
 
   // TODO following maps could use a hash code from the tag to be faster
-  map<FDataTag,bool> myFlags; // keys are the complete tags (left+right)
-  map<FDataTag,int> myCounters; // keys are the left tags
+  map<FDataTag,bool> myFlags;  // keys are the complete tags (left+right)
+  map<FDataTag,int> myCounters;  // keys are the left tags
 };
 
 

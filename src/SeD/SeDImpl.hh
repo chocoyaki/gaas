@@ -401,7 +401,7 @@ public:
   int removeService(const diet_profile_t* const profile);
   int removeServiceDesc(const diet_profile_desc_t* profile);
   int addService(const corba_profile_desc_t& profile);
-  virtual char* getDataMgrID(); // modif bisnard_logs_1
+  virtual char* getDataMgrID();  // modif bisnard_logs_1
 
   virtual  SeqCorbaProfileDesc_t*
   getSeDProfiles(CORBA::Long& length);

@@ -335,9 +335,9 @@ protected :
   char frontalName[256];
 
   int batch_ID;
-  const char * batchName; // The name of the batch system
+  const char * batchName;  // The name of the batch system
 
-  const char * batchQueueName; // Only one queue managed
+  const char * batchQueueName;  // Only one queue managed
 
   /* The following must end with a '/' */
   const char * pathToNFS; /* Some batch need this */
@@ -351,19 +351,19 @@ protected :
   /* The 2 following lines are LL tricks, for MPI or non-MPI jobs:
      LL needs to know if job is serial or //, but // can mean MPI with 1 proc.
   */
-  const char * nodesNumber; // If more than 1 proc
+  const char * nodesNumber;  // If more than 1 proc
   const char * serial;      // If serial, proc == 1, DONT use nodesNumber!
-  const char * coresNumber; // for 0AR2.. not used
+  const char * coresNumber;  // for 0AR2.. not used
   const char * walltime;
   const char * submittingQueue;
-  const char * minimumMemoryUsed; // not managed for the moment
+  const char * minimumMemoryUsed;  // not managed for the moment
 
   const char * mail;
-  const char * account; // not used until so implements accounting in DIET
+  const char * account;  // not used until so implements accounting in DIET
 
-  const char * setSTDOUT; // These are in place but not used
+  const char * setSTDOUT;  // These are in place but not used
   const char * setSTDIN;  // -> I must define a DIET META VARIABLE which
-  const char * setSTDERR; // must be informed to take place after this line
+  const char * setSTDERR;  // must be informed to take place after this line
 
   const char * submitCommand;
   const char * killCommand;
@@ -374,9 +374,9 @@ protected :
   const char * jid_extract_patterns;
 
   /************ Batch META-VARIABLES ************/
-  const char * batchJobID; // The script variable containing job ID
+  const char * batchJobID;  // The script variable containing job ID
   const char * nodeFileName;
-  const char * nodeIdentities; // given by a string separated by a blank
+  const char * nodeIdentities;  // given by a string separated by a blank
 
   /* Correspondance between Diet reqIDs and Batch Job IDs stored as
      a chained list */
@@ -384,8 +384,8 @@ protected :
   typedef struct corresID_def {
     int dietReqID;
     int batchJobID;
-    batchJobState status; // Mostly used to log if ERROR/CANCELED | TERMINATED
-    char * scriptFileName; // To unlink the file when job is finished
+    batchJobState status;  // Mostly used to log if ERROR/CANCELED | TERMINATED
+    char * scriptFileName;  // To unlink the file when job is finished
     struct corresID_def *nextStruct;
   } corresID;
   corresID * batchJobQueue;

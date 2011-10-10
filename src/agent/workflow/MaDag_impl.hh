@@ -157,7 +157,7 @@ public:
 
   MaDag_impl(const char * name,
              const MaDagSchedType schedType = BASIC,
-             const int interRoundDelay = -1); // use default
+             const int interRoundDelay = -1);  // use default
 
   virtual ~MaDag_impl();
 

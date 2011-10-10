@@ -801,7 +801,7 @@ FWfParser::parseRoot(DOMNode* root) {
         }
       } else if (nodeName == "interface") {
         // Parse the interface
-        DOMNode * child2 = child->getFirstChild(); // sub-element of <interface>
+        DOMNode * child2 = child->getFirstChild();  // sub-element of <interface>
         while ((child2 != NULL)) {
           if (child2->getNodeType() == DOMNode::ELEMENT_NODE) {
             DOMElement * child_elt2 = (DOMElement*)child2;
@@ -816,7 +816,7 @@ FWfParser::parseRoot(DOMNode* root) {
         } // end while
       } else if (nodeName == "processors") {
         // Parse the processors
-        DOMNode * child2 = child->getFirstChild(); // sub-element of <processors>
+        DOMNode * child2 = child->getFirstChild();  // sub-element of <processors>
         while ((child2 != NULL)) {
           if (child2->getNodeType() == DOMNode::ELEMENT_NODE) {
             DOMElement * child_elt2 = (DOMElement*)child2;
@@ -831,7 +831,7 @@ FWfParser::parseRoot(DOMNode* root) {
         } // end while
       } else if (nodeName == "links") {
         // Parse the links
-        DOMNode * child2 = child->getFirstChild(); // sub-element of <links>
+        DOMNode * child2 = child->getFirstChild();  // sub-element of <links>
         while ((child2 != NULL)) {
           if (child2->getNodeType() == DOMNode::ELEMENT_NODE) {
             DOMElement * child_elt2 = (DOMElement*)child2;
@@ -1160,7 +1160,7 @@ FWfParser::parseOtherNodeSubElt(const DOMElement * element,
       aNode->setDIETEstimationOption(estimAttr);
     }
   } else if ((elementName == "beanshell") || (elementName == "gasw")) {
-   ; // tags used by other workflow engines
+   ;  // tags used by other workflow engines
     // VALUE of constants (may be replaced by a 'value' attribute within
     //  the <constant> tag)
   } else if (elementName == "value") {
@@ -1376,7 +1376,7 @@ DataSourceHandler::endElement(const   XMLCh* const    uri,
 
   if (strcmp("source",eltName) == 0) endSource();
   if (strcmp("array",eltName) == 0)  endList();
-  if (strcmp("list",eltName) == 0)   endList(); // obsolete
+  if (strcmp("list",eltName) == 0)   endList();  // obsolete
   if (strcmp("item",eltName) == 0)   endItem();
   if (strcmp("tag",eltName) == 0)    endTag();
 

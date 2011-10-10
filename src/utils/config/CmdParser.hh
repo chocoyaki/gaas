@@ -153,14 +153,14 @@ public:
    * @return option value
    */
   std::string&
-  operator[](const std::string& key); // setter
+  operator[](const std::string& key);  // setter
   /** y
    * @brief subscript operator
    * @param key option name
    * @return option value
    */
   const std::string&
-  operator[](const std::string& key) const; //getter
+  operator[](const std::string& key) const;  //getter
 
   /**
    * @brief return options

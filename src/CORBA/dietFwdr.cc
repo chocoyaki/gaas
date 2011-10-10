@@ -137,7 +137,7 @@ main(int argc, char* argv[], char* envp[]) {
       of << ior;
     }
     of << std::endl;
-    of << freeTCPport(); // also write a free port
+    of << freeTCPport();  // also write a free port
     of.close();
   }
   TRACE_TEXT(TRACE_MAIN_STEPS, "Forwarder: " << ior << std::endl);

@@ -328,7 +328,7 @@ DietLogComponent::DietLogComponent(const char* name,
   isConnected = false;
 
   pingThread=NULL;
-  flushBufferThread=NULL; // modif bisnard_logs_1
+  flushBufferThread=NULL;  // modif bisnard_logs_1
 
   // define tags
   tagCount = 29;  // modif bisnard_logs_1
@@ -505,7 +505,7 @@ DietLogComponent::~DietLogComponent() {
   }
   delete tagNames;
   delete tagFlags;
-  //delete LogORBMgr::getMgr(); // FIXME: this does not work
+  //delete LogORBMgr::getMgr();  // FIXME: this does not work
 }
 
 /**
@@ -682,7 +682,7 @@ DietLogComponent::getEstimationTags(const int v_tag){
        with DIET specific batch system (numerous IDs depending on the
        scheduling strategy implemented in the SeD), oar, LL, etc.) */
   case(EST_SERVER_TYPE):
-    ret=strdup("EST_SERVER_TYPE"); // 22
+    ret=strdup("EST_SERVER_TYPE");  // 22
     break;
     /* Parallel resources information. Assumed a default queue */
   case(EST_PARAL_NBTOT_RESOURCES): // 23

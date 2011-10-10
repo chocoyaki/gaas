@@ -774,6 +774,6 @@ private:
    */
   bool dataIDOwner;
 
-}; // end class FDataHandle
+};  // end class FDataHandle
 
 #endif // _FDATAHANDLE_HH_

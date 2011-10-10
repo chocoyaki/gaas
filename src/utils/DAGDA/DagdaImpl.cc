@@ -283,7 +283,7 @@ char* DagdaImpl::sendFile(const corba_data_t &data, const char* destName) {
   //unsigned long int idx = basename.find_last_of('/');
   //if (idx!=string::npos)
   //  name=basename.substr(idx);
-  //string name = gen_filename(basename); // <= Version originale.
+  //string name = gen_filename(basename);  // <= Version originale.
   string name = conditional_filename(basename);
   /***********************/
         
@@ -652,14 +652,14 @@ void SimpleDagdaImpl::lclAddData(const char* srcName, const corba_data_t& data) 
         corba_data_t newData(data);
         newData.desc.specific.file().path=path;
         addData(newData);
-        unlockData(data.desc.id.idNumber); //
+        unlockData(data.desc.id.idNumber);  //
         useDiskSpace(data.desc.specific.file().size);
       }
     } else if (data.desc.specific._d()==DIET_CONTAINER) {
       char* dataID;
       corba_data_t* inserted;
       inserted = addData(data);
-      dataID = downloadData(src, data); // non-recursive (downloads only the id list)
+      dataID = downloadData(src, data);  // non-recursive (downloads only the id list)
       unlockData(dataID);
       useMemSpace(inserted->value.length());
       //         if (TRACE_LEVEL >= TRACE_ALL_STEPS)

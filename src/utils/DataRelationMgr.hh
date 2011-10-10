@@ -130,6 +130,6 @@ protected:
    */
   omni_mutex myLock;
 
-}; // end class DataRelationMgr
+};  // end class DataRelationMgr
 
 #endif

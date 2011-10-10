@@ -99,7 +99,7 @@ public :
    */
   MasterAgent_ptr lookup(const char* addr);
 
-}; // ReferenceUpdateThread
+};  // ReferenceUpdateThread
 
 #endif // HAVE_MULTI_MA
 

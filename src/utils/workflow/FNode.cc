@@ -841,7 +841,7 @@ FProcNode::instanciate(Dag* dag) {
 
       // GET DATALINE
       FDataTag currTag = myRootIterator->getCurrentItem(*currDataLine);
-      myRootIterator->removeItem(); // goes to next item at the same time
+      myRootIterator->removeItem();  // goes to next item at the same time
 
       // CHECK IF VOID
       bool dataIsVoid = false;

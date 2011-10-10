@@ -45,7 +45,7 @@
  *
  * \code
  *
- * typedef LinkedList<char> list; // definition of a new list type.
+ * typedef LinkedList<char> list;  // definition of a new list type.
  *
  * list l;                        // l = <>
  * char* a = new char; *a = 'a';
@@ -54,7 +54,7 @@
  * l.addElement(a);               // l = <a>
  * l.addElement(b);               // l = <a, b>
  * l.addElement(c);               // l = <a, b, c>
- * list::Iterator* i = l.getIterator(); // all the access to the list is now
+ * list::Iterator* i = l.getIterator();  // all the access to the list is now
  *                                       // booked to the iterator i.
  * i->hasCurrent();
  * char* c1 = i->getCurrent();    // c1 = a

@@ -114,6 +114,6 @@ private:
   /// Number of processors
   int nbProc;
   
-}; // class JobQueue
+};  // class JobQueue
 
 #endif // _JOBQUEUE_HH_

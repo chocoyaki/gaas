@@ -526,7 +526,7 @@ FWorkflow::instanciate(Dag * dag) {
               << "' INSTANCIATION START ##########" << endl);
 
   if (getPortNb() > 0) {  // used for sub-workflows
-    FProcNode::instanciate(dag); // run the iterator and call createReal/VoidInstance
+    FProcNode::instanciate(dag);  // run the iterator and call createReal/VoidInstance
   }
   TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "###### Instanciate sources/constants ..." << endl);
   // instanciate the INTERFACE (this will create the input data items if source is XML)

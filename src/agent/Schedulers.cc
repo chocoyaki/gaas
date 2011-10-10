@@ -507,7 +507,7 @@ Scheduler::aggregate(corba_response_t& aggrResp,
 
     new_srv_idx = ++leaves[root->resp_idx].srv_idx;
     if (new_srv_idx >= responses[root->resp_idx].servers.length()){
-      leaves[root->resp_idx].resp_idx = -1; // this response is aggregated
+      leaves[root->resp_idx].resp_idx = -1;  // this response is aggregated
     }
 
     /** Update the tree, ie propogate changes for selected node up the tree.

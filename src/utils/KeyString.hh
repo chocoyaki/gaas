@@ -113,7 +113,7 @@ public :
                           const KeyString & b);
 
   friend std::ostream& operator<<(std::ostream& output, const KeyString & id);
-}; // KeyString
+};  // KeyString
 
 
 /**

@@ -60,13 +60,13 @@ public:
    * @param key option name
    * @return option value
    */
-  std::string& operator[](const std::string& key); // setter
+  std::string& operator[](const std::string& key);  // setter
   /** 
    * @brief subscript operator
    * @param key option name
    * @return option value
    */
-  const std::string& operator[](const std::string& key) const; //getter
+  const std::string& operator[](const std::string& key) const;  //getter
     
   /** 
    * @brief return options

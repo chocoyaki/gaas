@@ -38,7 +38,7 @@ private:
   Forwarder_var peer;
   /* Mutexes */
   omni_mutex peerMutex;   // To wait for the peer initialization
-  omni_mutex cachesMutex; // Protect access to caches
+  omni_mutex cachesMutex;  // Protect access to caches
 
   std::string peerName;
   std::string name;

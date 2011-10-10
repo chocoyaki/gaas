@@ -268,7 +268,7 @@ protected:
    */
   string traceId();
 
-}; // end class FNode
+};  // end class FNode
 
 /*****************************************************************************/
 /*                           FConstantNode                                   */
@@ -328,13 +328,13 @@ private:
   FDataHandle* myDH;
 
 
-}; // end class FConstantNode
+};  // end class FConstantNode
 
 /*****************************************************************************/
 /*                            FSourceNode                                    */
 /*****************************************************************************/
 
-class DataSourceParser; // used to parse the data source XML file
+class DataSourceParser;  // used to parse the data source XML file
 
 /**
  * Class FSourceNode
@@ -372,7 +372,7 @@ public:
   getDepth() const;
 
   void
-  connectToWfPort(FNodePort* port); // used for sub-workflows
+  connectToWfPort(FNodePort* port);  // used for sub-workflows
 
   bool
   isConnectedToWfPort();
@@ -457,10 +457,10 @@ private:
   static string outPortName;
   FNodeOutPort* myOutPort;
 
-  FNodeInPort* myConnectedPort; // used for sub-workflows
+  FNodeInPort* myConnectedPort;  // used for sub-workflows
   bool  isConnected;
 
-}; // end class FSourceNode
+};  // end class FSourceNode
 
 /*****************************************************************************/
 /*                             FSinkNode                                     */
@@ -487,13 +487,13 @@ public:
   getDefaultPortName() const;
 
   virtual void
-  connectToWfPort(FNodePort* port); // used for sub-workflows
+  connectToWfPort(FNodePort* port);  // used for sub-workflows
 
   bool
   isConnectedToWfPort();
 
   virtual void
-  instanciate(Dag* dag); // used for sub-workflows
+  instanciate(Dag* dag);  // used for sub-workflows
 
   virtual void
   finalize();  // does nothing
@@ -536,7 +536,7 @@ private:
   bool  isConnected;
   PortInputIterator*  myIterator;
 
-}; // end class FSinkNode
+};  // end class FSinkNode
 
 /*****************************************************************************/
 /*                             FProcNode                                     */
@@ -691,7 +691,7 @@ protected:
   PortType*
   checkAssignPort(const string& portName)
     throw (WfStructException) {
-    WfPort* port = getPort(portName); // throws exception
+    WfPort* port = getPort(portName);  // throws exception
     PortType* FPort = dynamic_cast<PortType*>(port);
     if (!FPort) {
       string errorMsg = string("Invalid port in port assignment ")
@@ -739,6 +739,6 @@ protected:
    */
   map<string,string> varMap;
 
-}; // end class FProcNode
+};  // end class FProcNode
 
 #endif // _FNODE_HH_

@@ -46,7 +46,7 @@ public:
   DietReadersWriterLock() : c(&m), writer_count(0), readers_waiting(0), reader_count(0), is_write_lock(0){}
 
   void readLock(void) { 
-    m.lock(); // if there is at least one writer using the lock or waiting for it, 
+    m.lock();  // if there is at least one writer using the lock or waiting for it, 
     // we need to wait for access 
     while(writer_count > 0) c.wait(); 
     reader_count++; 
@@ -55,19 +55,19 @@ public:
 
   void writeLock(void) { 
     m.lock(); 
-    while (is_write_lock == 1 || reader_count > 0) c.wait(); // wait until the access lock is available 
-    is_write_lock = 1; // lock is a write lock 
+    while (is_write_lock == 1 || reader_count > 0) c.wait();  // wait until the access lock is available 
+    is_write_lock = 1;  // lock is a write lock 
     m.unlock(); 
-    c.broadcast(); // give readers something to wait for 
+    c.broadcast();  // give readers something to wait for 
   } 
 
   void unlock(void) { 
     m.lock(); 
     if (is_write_lock) { // if this is a write lock 
-      is_write_lock = 0; // let it go 
-      c.broadcast(); // now let someone else have a chance 
+      is_write_lock = 0;  // let it go 
+      c.broadcast();  // now let someone else have a chance 
     } else if (--reader_count == 0) // if we're the last reader 
-      c.broadcast(); // release the access lock 
+      c.broadcast();  // release the access lock 
     m.unlock(); 
   }
 };

@@ -386,7 +386,7 @@ private:
   DietLogComponent* logComponent;
 #endif
 protected:
-  DataRelationMgr* containerRelationMgr; // container-elements relationships
+  DataRelationMgr* containerRelationMgr;  // container-elements relationships
   omni_mutex dataMutex;
   omni_mutex dataStatusMutex;
   omni_mutex childrenMutex;

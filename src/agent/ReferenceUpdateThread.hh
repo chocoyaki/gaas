@@ -83,7 +83,7 @@ public :
    */
   ~ReferenceUpdateThread();
 
-}; // ReferenceUpdateThread
+};  // ReferenceUpdateThread
 
 #endif // HAVE_MULTI_MA
 

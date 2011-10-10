@@ -800,7 +800,7 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
   // Dagda component activation.
   DagdaImpl* tmpDataManager = DagdaFactory::getClientDataManager();
 #ifdef USE_LOG_SERVICE
-  tmpDataManager->setLogComponent( dietLogComponent ); // modif bisnard_logs_1
+  tmpDataManager->setLogComponent( dietLogComponent );  // modif bisnard_logs_1
 #endif
   ORBMgr::getMgr()->activate(tmpDataManager);
 
@@ -901,7 +901,7 @@ diet_finalize() {
 
 #ifdef USE_LOG_SERVICE
   if (dietLogComponent != NULL) {
-    //delete dietLogComponent; // FIXME: this does not work
+    //delete dietLogComponent;  // FIXME: this does not work
     dietLogComponent = NULL;
   }
 #endif
@@ -1353,7 +1353,7 @@ diet_wait_or(diet_reqID_t* IDs, size_t length, diet_reqID_t* IDptr)
     case STATUS_ERROR:
       return STATUS_ERROR;
     default:
-      return -1; // Unexpected error, no value describing it
+      return -1;  // Unexpected error, no value describing it
       // NOTES: Be careful, there may be others rules
       // using some of this reqID(AsyncCall)
       // So, careful using diet_cancel

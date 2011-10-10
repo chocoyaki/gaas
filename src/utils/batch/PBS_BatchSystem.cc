@@ -83,7 +83,7 @@ PBS_BatchSystem::PBS_BatchSystem(int ID, const char * batchname)
   minimumMemoryUsed = "\n#PBS -l mem=";
 
   /* TODO: When we use some ID for DIET client, change there! */
-  //mail      = "#PBS -m a\n#PBS -M "; // -m, send mail when:
+  //mail      = "#PBS -m a\n#PBS -M ";  // -m, send mail when:
   // a: job is aborted by batch system
   // b: job begins execution
   // e: job ends execution
@@ -103,7 +103,7 @@ PBS_BatchSystem::PBS_BatchSystem(int ID, const char * batchname)
 
   // nothing to do to retrieve the ID of the submission...
   // but we need to add something, let's say 'uniq' :-)
-  jid_extract_patterns = "uniq"; //"cut --delimiter=\\\" -f 2 | cut --delimiter=. -f 2";
+  jid_extract_patterns = "uniq";  //"cut --delimiter=\\\" -f 2 | cut --delimiter=. -f 2";
 
   /* Information for META_VARIABLES */
   batchJobID     = "$PBS_JOBID";

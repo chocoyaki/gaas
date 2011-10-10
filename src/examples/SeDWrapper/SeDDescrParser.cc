@@ -184,7 +184,7 @@ GASWParser::parseExecutable(const DOMElement * element)
 {
   string name  = DagWfParser::getAttributeValue("name", element);
   SeDService*  service = new SeDService(this, name);
-  service->setExecutableName(name); // use this by default for script name
+  service->setExecutableName(name);  // use this by default for script name
   myServiceList.push_back(service);
 
   const DOMNode * child = element->getFirstChild();

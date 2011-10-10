@@ -67,7 +67,7 @@ Loadleveler_BatchSystem::Loadleveler_BatchSystem(int ID, const char * batchname)
   batchName = batchname;
   
   shell = "#@ shell=";
-  prefixe = "#@ environment = COPY_ALL;"; // "#!/bin/sh\n\n"
+  prefixe = "#@ environment = COPY_ALL;";  // "#!/bin/sh\n\n"
 
   /* first line is mandatory to end LL batch directives, 
      second is to get a file containing the nodes ID. Hope it is unique

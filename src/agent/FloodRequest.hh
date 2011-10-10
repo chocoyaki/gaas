@@ -276,7 +276,7 @@ public :
    */
   void addResponseServiceFound(const corba_response_t& decision);
 
-}; // FloodRequest
+};  // FloodRequest
 
 #endif // HAVE_MULTI_MA
 

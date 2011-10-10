@@ -118,7 +118,7 @@ struct Data{
   request_status_t st;          // Info about reqID state
   int used;                     // Rules number using this profile/ReqID
 #ifdef HAVE_MULTICALL
-  int nbRequests; //saves the number of requests to wait
+  int nbRequests;  //saves the number of requests to wait
 #endif //HAVE_MULTICALL
 };
 

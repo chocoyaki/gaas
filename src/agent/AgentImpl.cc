@@ -399,7 +399,7 @@ CORBA::Long
 AgentImpl::agentSubscribe(const char* name, const char* hostName,
                           const SeqCorbaProfileDesc_t& services)
 {
-  CORBA::ULong retID = (this->childIDCounter)++; // thread safe Counter class
+  CORBA::ULong retID = (this->childIDCounter)++;  // thread safe Counter class
 
   TRACE_TEXT(TRACE_MAIN_STEPS, "An agent has registered from << " << hostName
              << ", with " << services.length() << " services." << endl);
@@ -413,7 +413,7 @@ AgentImpl::agentSubscribe(const char* name, const char* hostName,
   TRACE_TEXT(TRACE_MAIN_STEPS, "Local agent IOR: " << ORBMgr::getMgr()->getIOR(meLA) << endl);
 
   this->LAChildren[retID] = LAChild(meLA, hostName);
-  (this->nbLAChildren)++; // thread safe Counter class
+  (this->nbLAChildren)++;  // thread safe Counter class
 
   if (this->addServices(retID, services) != 0) {
     return (-1);
@@ -438,12 +438,12 @@ AgentImpl::serverSubscribe(const char* name, const char* hostName,
   TRACE_TEXT(TRACE_MAIN_STEPS, "subscribed SeD IOR: " << ORBMgr::getMgr()->getIOR(me) << endl);
 
   assert (hostName != NULL);
-  retID = (this->childIDCounter)++; // thread safe
+  retID = (this->childIDCounter)++;  // thread safe
 
   // FIXME: resize calls default constructor + copy constructor + 1 desctructor
   this->SeDChildren.resize(childIDCounter);
   (this->SeDChildren[retID]).set(me, hostName);
-  (this->nbSeDChildren)++; // thread safe Counter class
+  (this->nbSeDChildren)++;  // thread safe Counter class
 
   if (this->addServices(retID, services) != 0) {
     return (-1);
@@ -496,7 +496,7 @@ AgentImpl::removeElement(bool recursive) {
   removeElementChildren(recursive);
 
   /* Send signal to commit suicide */
-  return raise(SIGINT); // Or SIGTERM
+  return raise(SIGINT);  // Or SIGTERM
 }
 
 void
@@ -725,7 +725,7 @@ AgentImpl::findServer(Request* req, size_t max_srv)
       TRACE_TEXT(TRACE_MAIN_STEPS,
                  "**************************************************" << endl);
       req->unlock();
-      //delete req; // do not delete since getRequest does not perform a copy
+      //delete req;  // do not delete since getRequest does not perform a copy
 
       resp = new corba_response_t;
       resp->reqID = creq.reqID;

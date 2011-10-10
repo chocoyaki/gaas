@@ -144,12 +144,12 @@ HEFTScheduler::setNodesEFT(std::vector<DagNode *>& orderedNodes,
        p != orderedNodes.end();
        ++p) {
     DagNode *        n = (DagNode *) *p;
-    unsigned int  pb_index = 0; // index of the service (problem) in the wf_response
-    SeD_ptr       chosenSeDPtr; // ref to the chosen SeD
+    unsigned int  pb_index = 0;  // index of the service (problem) in the wf_response
+    SeD_ptr       chosenSeDPtr;  // ref to the chosen SeD
     double        EFT = 0;      // earliest finish time for current node
 
     // find the problem index
-    pb_index = n->getSubmitIndex(); // this index was stored before submitting to MA
+    pb_index = n->getSubmitIndex();  // this index was stored before submitting to MA
 
     /* LOOP-2 FOR ONE NODE => CHOOSES THE BEST SERVER & COMPUTES AFT */
     /* Remark: this loop can be very costly: <nb servers> * <nb predecessors> !! */
@@ -162,7 +162,7 @@ HEFTScheduler::setNodesEFT(std::vector<DagNode *>& orderedNodes,
 
       // get availability of current server (loop to check SeD ref equivalence - this is used to
       // avoid conflicts if two SeDs share the same hostname)
-      double EST = initTime; // earliest start time among all SeDs for this service
+      double EST = initTime;  // earliest start time among all SeDs for this service
       for (map<SeD_ptr, double>::iterator availIter=avail.begin();
            availIter!=avail.end();
            ++availIter) {
@@ -221,13 +221,13 @@ HEFTScheduler::computeNodeWeights(const wf_response_t * wf_response,
                                   Dag * dag) {
   TRACE_TEXT (TRACE_ALL_STEPS, "HEFT : start computing weights (mean of estimates)" << endl);
   DagNode * n = NULL;
-  int ix = 0; // index of the node response in wf_response
+  int ix = 0;  // index of the node response in wf_response
   for (std::map <std::string, DagNode *>::iterator p = dag->begin();
        p != dag->end();
        ++p) {
     n = (DagNode *)(p->second);
     n->setEstDuration(0);
-    ix = n->getSubmitIndex(); // the index was stored before submitting to MA
+    ix = n->getSubmitIndex();  // the index was stored before submitting to MA
     double w = 0;
     unsigned int    nbServers = wf_response->wfn_seq_resp[ix].response.servers.length();
     for (unsigned int jx=0; jx < nbServers; jx++) {

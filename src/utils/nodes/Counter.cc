@@ -45,7 +45,7 @@ Counter::Counter(const Counter& aCounter) {
 
 Counter Counter::operator++(int) {
   valueMutex.lock();
-  assert(value < value + 1); // check for overflow
+  assert(value < value + 1);  // check for overflow
   Counter oldValue;
   oldValue.value = value;
   value++;

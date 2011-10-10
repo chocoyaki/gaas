@@ -47,9 +47,9 @@ class EnvParser
 private:
   // option name, environment name
   typedef std::vector<std::string> Env;
-  Env env_; // *raw* environments
-  ConfigMap config_; // parser configuration
-  mutable OptionMap options_; // our options
+  Env env_;  // *raw* environments
+  ConfigMap config_;  // parser configuration
+  mutable OptionMap options_;  // our options
 public:
   /**
    * @brief constructor
@@ -68,13 +68,13 @@ public:
    * @param key option name
    * @return  option value (switchs return "true") or empty string
    */
-  std::string& operator[](const std::string& key); // setter
+  std::string& operator[](const std::string& key);  // setter
   /**
    * @brief const subscript operator returning option value
    * @param key option name
    * @return  option value (switchs return "true") or empty string
    */
-  const std::string& operator[](const std::string& key) const; //getter
+  const std::string& operator[](const std::string& key) const;  //getter
 
   /**
    * @brief return configuration

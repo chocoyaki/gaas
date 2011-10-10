@@ -82,7 +82,7 @@ protected:
   virtual void
   handlerNodeDone(DagNode * node);
 
-}; // end class MultiWfHEFT
+};  // end class MultiWfHEFT
 
 /****************************************************************************/
 /*                              Aging HEFT                                  */
@@ -129,7 +129,7 @@ protected:
    */
   map<Dag*, DagState> dagsState;
 
-}; // end class MultiWfAgingHEFT
+};  // end class MultiWfAgingHEFT
 
 } // end namespace madag
 

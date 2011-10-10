@@ -493,7 +493,7 @@ mrsh_data(corba_data_t* dest, diet_data_t* src, int release)
   if(value == NULL)
     dest->value.length(0);
   else {
-    dest->value.replace(size, size, value, release); // 0 if persistent 1 elsewhere
+    dest->value.replace(size, size, value, release);  // 0 if persistent 1 elsewhere
   }
 
   return 0;
@@ -646,7 +646,7 @@ unmrsh_data(diet_data_t* dest, corba_data_t* src, int upDown,
 
   if( (src->desc.mode == DIET_VOLATILE) && (upDown == 1) ){
     char *tmp=NULL;
-    src->desc.id.idNumber=CORBA::string_dup(tmp); // CORBA frees old mem
+    src->desc.id.idNumber=CORBA::string_dup(tmp);  // CORBA frees old mem
   }
   if ( unmrsh_data_desc(&(dest->desc),&(src->desc)) )
     return 1;
@@ -662,7 +662,7 @@ unmrsh_data(diet_data_t* dest, corba_data_t* src, int upDown,
         //char *p =(char *)malloc(size*sizeof(char));
         //for(int i=0; i < size; i++)
         //  p[i] = src->value[i];
-        //  dest->value = p; //memcopy
+        //  dest->value = p;  //memcopy
         dest->value = (char*)src->value.get_buffer(0);
       } else {
         CORBA::Boolean orphan = (src->desc.mode == DIET_VOLATILE);
@@ -739,7 +739,7 @@ int mrsh_aggregator_desc(corba_aggregator_desc_t* dest,
 int
 mrsh_profile_desc(corba_profile_desc_t* dest, const diet_profile_desc_t* src)
 {
-  dest->path       = CORBA::string_dup(src->path); // deallocates old dest->path
+  dest->path       = CORBA::string_dup(src->path);  // deallocates old dest->path
   dest->last_in    = src->last_in;
   dest->last_inout = src->last_inout;
   dest->last_out   = src->last_out;
@@ -765,7 +765,7 @@ mrsh_profile_desc(corba_profile_desc_t* dest, const diet_profile_desc_t* src)
 int
 mrsh_pb_desc(corba_pb_desc_t* dest, const diet_profile_t* const src)
 {
-  dest->path       = CORBA::string_dup(src->pb_name); // frees old dest->path
+  dest->path       = CORBA::string_dup(src->pb_name);  // frees old dest->path
   dest->last_in    = src->last_in;
   dest->last_inout = src->last_inout;
   dest->last_out   = src->last_out;

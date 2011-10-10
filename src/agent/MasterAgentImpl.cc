@@ -496,7 +496,7 @@ MasterAgentImpl::submit(const corba_pb_desc_t& pb_profile,
 
   try {
     /* Initialize the corba request structure */
-    creq.reqID = reqIDCounter++; // thread safe
+    creq.reqID = reqIDCounter++;  // thread safe
     sprintf(statMsg, "start request %ld", (unsigned long) creq.reqID);
     stat_in(this->myName,statMsg);
     creq.pb = pb_profile;

@@ -384,7 +384,7 @@ protected:
                     unsigned int lastArg,
                     WfNode * node );
 
-}; // end class DagWfParser
+};  // end class DagWfParser
 
 /*****************************************************************************/
 /*                         CLASS DagParser  *** ABSTRACT ***                 */
@@ -435,7 +435,7 @@ protected:
   parsePrec( const DOMElement * element,
              WfNode * node );
 
-}; // end class DagParser
+};  // end class DagParser
 
 /*****************************************************************************/
 /*                         CLASS SingleDagParser                             */
@@ -452,7 +452,7 @@ protected:
 
   virtual void parseRoot(DOMNode* root);
 
-}; // end class SingleDagParser
+};  // end class SingleDagParser
 
 
 /*****************************************************************************/
@@ -491,7 +491,7 @@ protected:
   list<Dag*>  myDags;
   FWorkflow*  myWorkflow;
 
-}; // end class MultiDagParser
+};  // end class MultiDagParser
 
 /*****************************************************************************/
 /*                         CLASS FWfParser                                   */
@@ -614,7 +614,7 @@ private:
    */
   FWorkflow&  workflow;
 
-}; // end class FWfParser
+};  // end class FWfParser
 
 /*****************************************************************************/
 /*                    CLASS DataSourceParser                                 */

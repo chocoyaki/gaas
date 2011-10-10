@@ -423,7 +423,7 @@ SeDImpl::initialize() {
   if (gethostname(localHostName, 256)) {
     WARNING("could not get hostname");
   }
-  localHostName[255] = '\0'; // If truncated, ensure null termination
+  localHostName[255] = '\0';  // If truncated, ensure null termination
 
   /* Bind this SeD to its name in the CORBA Naming Service */
   std::string name;
@@ -574,7 +574,7 @@ SeDImpl::bindParent(const char * parentName) {
 CORBA::Long
 SeDImpl::removeElement() {
   /* Send signal to commit suicide */
-  return raise(SIGINT); // Or SIGTERM
+  return raise(SIGINT);  // Or SIGTERM
 }
 
 void
@@ -1037,7 +1037,7 @@ SeDImpl::solve(const char* path, corba_profile_t& pb) {
 
   TRACE_TEXT(TRACE_MAIN_STEPS,"SeD::solve complete" << endl
              << "************************************************************"<< endl);
-  delete [] profile.parameters; // allocated by unmrsh_in_args_to_profile
+  delete [] profile.parameters;  // allocated by unmrsh_in_args_to_profile
 
   this->jobQueue->setJobFinished(profile.dietReqID);
   this->jobQueue->deleteJob(profile.dietReqID);
@@ -1140,7 +1140,7 @@ SeDImpl::parallel_solve(const char* path, corba_profile_t& pb,
 
   TRACE_TEXT(TRACE_MAIN_STEPS,"SeD::parallel_solve() completed" << endl
              << "************************************************************" << endl);
-  delete [] profile.parameters; // allocated by unmrsh_in_args_to_profile
+  delete [] profile.parameters;  // allocated by unmrsh_in_args_to_profile
 
   stat_out("SeD",statMsg);
   stat_flush();
@@ -1281,7 +1281,7 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
 
         /* FIXME: do we need to use diet_free_data on profile parameters as
          * we do in the solve(...) method? */
-        delete [] profile.parameters; // allocated by unmrsh_in_args_to_profile
+        delete [] profile.parameters;  // allocated by unmrsh_in_args_to_profile
 #if defined HAVE_ALT_BATCH
       }
 #endif
@@ -1429,7 +1429,7 @@ SeDImpl::parallel_AsyncSolve(const char * path, const corba_profile_t & pb,
       cb_var->solveResults(path, pb, pb.dietReqID, solve_res);
       /* FIXME: do we need to use diet_free_data on profile parameters as
        * we do in the solve(...) method? */
-      delete [] profile.parameters; // allocated by unmrsh_in_args_to_profile
+      delete [] profile.parameters;  // allocated by unmrsh_in_args_to_profile
     }
   } catch (const CORBA::Exception &e) {
 

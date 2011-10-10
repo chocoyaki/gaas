@@ -157,10 +157,10 @@ CallAsyncMgr* CallAsyncMgr::Instance ()
   {
     WriterLockGuard r(rwLock);
     if (pinstance == 0) {
-      CallAsyncMgr::pinstance = new CallAsyncMgr; // create sole instance
+      CallAsyncMgr::pinstance = new CallAsyncMgr;  // create sole instance
     }
   }
-  return CallAsyncMgr::pinstance; // address of sole instance
+  return CallAsyncMgr::pinstance;  // address of sole instance
 }
 
 /**********************************************************************
@@ -384,7 +384,7 @@ int CallAsyncMgr::addWaitAnyRule(diet_reqID_t* IDptr)
     {
       WARNING(__FUNCTION__ << "unexpected error in addWaitRule return value.");
       fflush(stderr);
-      return -1; // Unexcpected error, no value describing it (enum request_status_t)
+      return -1;  // Unexcpected error, no value describing it (enum request_status_t)
       // NOTES: Be carefull, there may be others rules
       // using some of this reqID(AsyncCall)
       // So, carefull using diet_cancel
@@ -428,14 +428,14 @@ int CallAsyncMgr::addWaitRule(Rule * rule)
           return STATUS_ERROR;
         }
         else if (h->second->st == STATUS_RESOLVING) {
-          plenty = false; // one result is not yet ready, at least ...
+          plenty = false;  // one result is not yet ready, at least ...
         }
         else if(h->second->st == STATUS_DONE
                 && rule->ruleElts[k].op != WAITOPERATOR(ALL)
                 && rule->ruleElts[k].op != WAITOPERATOR(AND) ){
-          tmpplenty = true; // one result is finish yet
+          tmpplenty = true;  // one result is finish yet
         }
-        h->second->used++; // NOTES : what to do if an exception ...
+        h->second->used++;  // NOTES : what to do if an exception ...
       }
       if (tmpplenty==true){
         plenty=true;
@@ -478,9 +478,9 @@ int CallAsyncMgr::addWaitRule(Rule * rule)
     rulesConds.erase(rule);
     delete[] rule->ruleElts;
     delete rule;
-    return STATUS_ERROR; // unexpected error
+    return STATUS_ERROR;  // unexpected error
   }
-  return status; // Maybe OK, or a reqID should be deleted
+  return status;  // Maybe OK, or a reqID should be deleted
   // or maybe an error in callback or Sed server ...
 }
 

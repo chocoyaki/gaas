@@ -355,7 +355,7 @@ ServiceTable::addService(const corba_profile_desc_t* profile,
       }
     }
 
-    profiles[nb_s]             = *profile; // deep copy
+    profiles[nb_s]             = *profile;  // deep copy
     solvers[nb_s]              = solver;
     eval_functions[nb_s]       = evalf;
     // duplicate path and arg_convs, since the user should deallocate them with
@@ -409,7 +409,7 @@ ServiceTable::addService(const corba_profile_desc_t* profile,
         matching_children[i].children    = new CORBA::ULong[max_nb_children];
       }
     }
-    profiles[nb_s] = *profile; // deep copy
+    profiles[nb_s] = *profile;  // deep copy
     matching_children[nb_s].children[matching_children[nb_s].nb_children++]
       = child;
     nb_s++;
@@ -473,7 +473,7 @@ ServiceTable::addService(const corba_profile_desc_t* profile,
 
     for (size_t i = 0; i < nb_children; i++)
       if (children[i] == child)
-        return -1; // service already associated to child
+        return -1;  // service already associated to child
     // Here, we must add the child in matching_children[service_idx].children
     if ((nb_children % max_nb_children) == 0) {
       // Then realloc children array
@@ -785,7 +785,7 @@ ServiceTable::getChildren(const corba_pb_desc_t * pb_desc,
     SRVT_ERROR("wrong service reference");
   }
 
-  int first_found = -1; // at most, two indices: // and seq
+  int first_found = -1;  // at most, two indices: // and seq
   size_t i(0), j(0);
   ServiceTable::matching_children_t * mc = NULL;
 

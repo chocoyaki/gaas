@@ -183,7 +183,7 @@ protected:
    */
   DagNode * myParent;
 
-}; // end DagNodePort
+};  // end DagNodePort
 
 
 /*****************************************************************************/
@@ -367,7 +367,7 @@ protected:
   diet_persistence_mode_t
   getPersistenceMode();
 
-}; // end DagNodeInPort
+};  // end DagNodeInPort
 
 
 /*****************************************************************************/
@@ -413,7 +413,7 @@ protected:
   diet_persistence_mode_t
   getPersistenceMode();
 
-}; // end DagNodeInOutPort
+};  // end DagNodeInOutPort
 
 
 /*****************************************************************************/
@@ -514,7 +514,7 @@ protected:
    */
   string value;
 
-}; // end DagNodeArgPort
+};  // end DagNodeArgPort
 
 
 #endif // _DAGNODEPORT_HH_

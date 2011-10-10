@@ -150,7 +150,7 @@ DagNode *
 OrderedNodeQueue::popFirstNode() {
   if (!orderedNodes.empty()) {
     DagNode * nodePtr = orderedNodes.front();  // get the ref to the first node
-    orderedNodes.pop_front(); // removes the node from the queue
+    orderedNodes.pop_front();  // removes the node from the queue
     nodePtr->setNodeQueue(NULL);
     this->nodeCounter--;
     return nodePtr;

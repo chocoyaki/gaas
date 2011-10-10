@@ -398,7 +398,7 @@ FDataHandle::FDataHandle(const FDataTag& tag,
     //     TRACE_TEXT (TRACE_ALL_STEPS, " / adapter = VOID" << endl);
     myAdapterType = ADAPTER_VOID;
     if (depth > 0)
-      setCardinal(1); // by default a VOID container DH has 1 element
+      setCardinal(1);  // by default a VOID container DH has 1 element
   }
   else {
     INTERNAL_ERROR("Error in DH constructor: NULL port and not void",1);
@@ -438,7 +438,7 @@ FDataHandle::FDataHandle(const FDataTag& tag,
       // TRACE_TEXT (TRACE_ALL_STEPS, " / adapter = VOID" << endl);
       myAdapterType = ADAPTER_VOID;
       if (depth > 0)
-        setCardinal(1); // by default a VOID container DH has 1 element
+        setCardinal(1);  // by default a VOID container DH has 1 element
 
     } else if (parentHdl->myAdapterType == ADAPTER_DATAID) {
       INTERNAL_ERROR(__FUNCTION__ << "invalid DH constructor params: child of DATAID DH",1);
@@ -860,7 +860,7 @@ FDataHandle::getChildCount(unsigned int level) {
        childIter != myData->end();
        ++childIter) {
     if (isParentLevel)
-      count += 1; // recursion stops at level-1
+      count += 1;  // recursion stops at level-1
     else
       count += ((FDataHandle*) childIter->second)->getChildCount(level);
   }
@@ -1138,9 +1138,9 @@ FDataHandle::downloadValue() throw (WfDataHandleException) {
   ostringstream  valStr;
   WfDataWriter  *dataWriter;
   if (myDepth > 0)
-    dataWriter = new WfXMLDataWriter(valStr); // for containers
+    dataWriter = new WfXMLDataWriter(valStr);  // for containers
   else
-    dataWriter = new WfListDataWriter(valStr); // for scalar values
+    dataWriter = new WfListDataWriter(valStr);  // for scalar values
   try {
 
     writeValue(dataWriter);

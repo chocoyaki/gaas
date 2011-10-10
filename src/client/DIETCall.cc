@@ -227,8 +227,8 @@ diet_call_common(MasterAgent_var& MA,
 
   if (CORBA::is_nil(chosenServer)) {
     if (!(res = request_submission(MA, profile, chosenServer, estimVect, maxServers))) {
-      corba_profile.estim = *estimVect; // copy estimation vector
-      delete estimVect; // vector was allocated in request_submission
+      corba_profile.estim = *estimVect;  // copy estimation vector
+      delete estimVect;  // vector was allocated in request_submission
     } else { // error in request_submission
       return res;
     }
@@ -297,8 +297,8 @@ diet_call_async_common(MasterAgent_var& MA,
 
     if (CORBA::is_nil(chosenServer)) {
       if (!(res = request_submission(MA, profile, chosenServer, estimVect, maxServers))) {
-        corba_profile.estim = *estimVect; // copy estimation vector
-        delete estimVect; // vector was allocated in request_submission
+        corba_profile.estim = *estimVect;  // copy estimation vector
+        delete estimVect;  // vector was allocated in request_submission
       } else { // error in request_submission
         caMgr->setReqErrorCode(profile->dietReqID, res);
         return res;

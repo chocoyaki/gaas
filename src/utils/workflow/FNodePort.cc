@@ -424,7 +424,7 @@ FNodeInPort::addData(FDataHandle* dataHdl) {
     // check if value is required
     TRACE_TEXT(TRACE_ALL_STEPS,"Checking value: " << (valueRequired ? "yes" : "no") << endl);
     if ((valueRequired) && (!dataHdl->isValueDefined())) {
-      dataHdl->downloadValue(); // may throw VALUE_UNDEF exception
+      dataHdl->downloadValue();  // may throw VALUE_UNDEF exception
     }
     TRACE_TEXT (TRACE_ALL_STEPS,"Adding data in input port queue (tag="
                 << dataTag.toString() << ")" << endl);
