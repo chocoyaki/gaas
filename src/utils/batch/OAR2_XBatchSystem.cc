@@ -36,57 +36,57 @@ const char * const OAR2_XBatchSystem::statusNames[] = {
   "Running",
   "Waiting",
   "Launching",
-} ;
+};
 
 OAR2_XBatchSystem::OAR2_XBatchSystem(int ID, const char * batchname)
 {
   if( pathToNFS == NULL ) {
-    ERROR_EXIT("OAR2.X needs a path to a NFS directory to store its script") ;
+    ERROR_EXIT("OAR2.X needs a path to a NFS directory to store its script");
   }
 #if defined YC_DEBUG
-  TRACE_TEXT(TRACE_ALL_STEPS,"Nom NFS: " << getNFSPath() << endl) ;
+  TRACE_TEXT(TRACE_ALL_STEPS,"Nom NFS: " << getNFSPath() << endl);
 #endif
 
   //   if( pathToTmp == NULL ) {
-  //     ERROR_EXIT("OAR needs a path to a tmp directory to store its script") ;
+  //     ERROR_EXIT("OAR needs a path to a tmp directory to store its script");
   //   }
   // #if defined YC_DEBUG
-  //   TRACE_TEXT(TRACE_ALL_STEPS,"Nom Tmp: " << getTmpPath() << endl) ;
+  //   TRACE_TEXT(TRACE_ALL_STEPS,"Nom Tmp: " << getTmpPath() << endl);
   // #endif
 
-  batch_ID = ID ;
-  batchName = batchname ;
+  batch_ID = ID;
+  batchName = batchname;
   
-  shell = BatchSystem::emptyString ;
-  prefixe = "#!/bin/sh" ;
-  postfixe = BatchSystem::emptyString ;
+  shell = BatchSystem::emptyString;
+  prefixe = "#!/bin/sh";
+  postfixe = BatchSystem::emptyString;
 
-  nodesNumber = "#OAR -l /nodes=" ;
-  serial = "#OAR -l /nodes=1" ;
-  coresNumber = "/cores=" ;
-  walltime = ",walltime=" ;
-  submittingQueue = "\n#OAR -q " ;
-  minimumMemoryUsed = BatchSystem::emptyString ;
+  nodesNumber = "#OAR -l /nodes=";
+  serial = "#OAR -l /nodes=1";
+  coresNumber = "/cores=";
+  walltime = ",walltime=";
+  submittingQueue = "\n#OAR -q ";
+  minimumMemoryUsed = BatchSystem::emptyString;
   
-  mail = " --notify mail:" ;
-  account = BatchSystem::emptyString ;
-  setSTDOUT = " --stdout=" ;
-  setSTDIN = BatchSystem::emptyString ;
-  setSTDERR = " --stderr=" ;
+  mail = " --notify mail:";
+  account = BatchSystem::emptyString;
+  setSTDOUT = " --stdout=";
+  setSTDIN = BatchSystem::emptyString;
+  setSTDERR = " --stderr=";
  
   /* cd, to be sure that OAR takes PWD and not /bin/pwd: for Grenoble */
-  submitCommand = "oarsub -S " ;
-  killCommand = "oardel " ;
-  wait4Command = "oarstat -X -j" ;
-  waitFilter = "grep state | cut -d \"<\" -f 2 | cut -d \">\" -f 2" ;
-  exitCode = "0" ;
+  submitCommand = "oarsub -S ";
+  killCommand = "oardel ";
+  wait4Command = "oarstat -X -j";
+  waitFilter = "grep state | cut -d \"<\" -f 2 | cut -d \">\" -f 2";
+  exitCode = "0";
   
-  jid_extract_patterns = "grep \"OAR_JOB_ID=\" | cut -d \"=\" -f 2" ;
+  jid_extract_patterns = "grep \"OAR_JOB_ID=\" | cut -d \"=\" -f 2";
 
   /* Information for META_VARIABLES */
-  batchJobID = "$OAR_JOBID" ;
-  nodeFileName = "$OAR_NODEFILE" ;
-  nodeIdentities = "cat $OAR_NODEFILE" ;  
+  batchJobID = "$OAR_JOBID";
+  nodeFileName = "$OAR_NODEFILE";
+  nodeIdentities = "cat $OAR_NODEFILE";  
 }
 
 OAR2_XBatchSystem::~OAR2_XBatchSystem()
@@ -98,22 +98,22 @@ OAR2_XBatchSystem::~OAR2_XBatchSystem()
 BatchSystem::batchJobState
 OAR2_XBatchSystem::askBatchJobStatus(int batchJobID)
 {
-  char * filename ;
-  int file_descriptor ;
-  char * chaine ;
-  int i=0 ;
-  int nbread ;
-  batchJobState status ;
+  char * filename;
+  int file_descriptor;
+  char * chaine;
+  int i=0;
+  int nbread;
+  batchJobState status;
   
   /* If job has completed, not ask batch system */
-  status = getRecordedBatchJobStatus( batchJobID ) ;
+  status = getRecordedBatchJobStatus( batchJobID );
   if( (status == TERMINATED) || (status == CANCELED) || (status == ERROR) )
-    return status ;
+    return status;
   /* create a temporary file to get results and batch job ID */
-  filename = createUniqueTemporaryTmpFile("DIET_batch_finish") ;
-  file_descriptor = open(filename,O_RDONLY) ;
+  filename = createUniqueTemporaryTmpFile("DIET_batch_finish");
+  file_descriptor = open(filename,O_RDONLY);
   if( file_descriptor == -1 ) {
-    ERROR("Cannot open file", UNDETERMINED ) ;
+    ERROR("Cannot open file", UNDETERMINED );
   }
 
   /* Ask batch system the job status */      
@@ -121,59 +121,59 @@ OAR2_XBatchSystem::askBatchJobStatus(int batchJobID)
                                        + NBDIGITS_MAX_BATCH_JOB_ID
                                        + strlen(waitFilter)
                                        + strlen(filename)
-                                       + 7 + 1) ) ;
+                                       + 7 + 1) );
   sprintf(chaine,"%s %d | %s > %s",
-          wait4Command,batchJobID,waitFilter,filename) ;
+          wait4Command,batchJobID,waitFilter,filename);
 #if defined YC_DEBUG
-  TRACE_TEXT(TRACE_ALL_STEPS,"Execute:" << endl << chaine << endl) ;
+  TRACE_TEXT(TRACE_ALL_STEPS,"Execute:" << endl << chaine << endl);
 #endif
   if( system(chaine) != 0 ) {
-    ERROR("Cannot submit script", NB_STATUS) ;
+    ERROR("Cannot submit script", NB_STATUS);
   }
   /* Get job status */  
-  for( int i = 0 ; i<=NBDIGITS_MAX_BATCH_JOB_ID ; i++ )
-    chaine[i] = '\0' ;
+  for( int i = 0; i<=NBDIGITS_MAX_BATCH_JOB_ID; i++ )
+    chaine[i] = '\0';
   if( (nbread=readn(file_descriptor,chaine,NBDIGITS_MAX_JOB_STATUS))
       == 0 ) {
-    ERROR("Error with I/O file. Cannot read the batch status", NB_STATUS) ;
+    ERROR("Error with I/O file. Cannot read the batch status", NB_STATUS);
   }
   /* Adjust what have been read */
   if( chaine[nbread-1] == '\n' )
-    chaine[nbread-1] = '\0' ;
+    chaine[nbread-1] = '\0';
   while( (i<NB_STATUS) && 
          (strcmp(chaine,OAR2_XBatchSystem::statusNames[i])!=0) ) {
-    i++ ;
+    i++;
   }
   
   if( i==NB_STATUS ) {
-    ERROR("Cannot get batch job " << batchJobID << " status: " << chaine, NB_STATUS) ;
+    ERROR("Cannot get batch job " << batchJobID << " status: " << chaine, NB_STATUS);
   }
   /* Remove temporary file by closing it */
 #if REMOVE_BATCH_TEMPORARY_FILE
-  unlink( filename ) ;
+  unlink( filename );
 #endif
   if( close(file_descriptor) != 0 ) {
-    WARNING("Couln't remove I/O redirection file") ;
+    WARNING("Couln't remove I/O redirection file");
   }
-  updateBatchJobStatus(batchJobID,(batchJobState)i) ;
-  free(chaine) ;
-  free(filename) ;
-  return (batchJobState)i ;
+  updateBatchJobStatus(batchJobID,(batchJobState)i);
+  free(chaine);
+  free(filename);
+  return (batchJobState)i;
 }
 
 int
 OAR2_XBatchSystem::isBatchJobCompleted(int batchJobID)
 {
-  batchJobState status = getRecordedBatchJobStatus(batchJobID) ;
+  batchJobState status = getRecordedBatchJobStatus(batchJobID);
   
   if( (status == TERMINATED) || (status == CANCELED) || (status == ERROR) )
-    return 1 ;
-  status = askBatchJobStatus(batchJobID) ;
+    return 1;
+  status = askBatchJobStatus(batchJobID);
   if( (status == TERMINATED) || (status == CANCELED) || (status == ERROR) )
-    return 1 ;
+    return 1;
   else if( status == NB_STATUS )
-    return -1 ;
-  return 0 ;
+    return -1;
+  return 0;
 }
 
 /********** Batch static information accessing Functions **********/
@@ -182,7 +182,7 @@ int
 OAR2_XBatchSystem::getNbTotResources()
 {
   return launchCommandAndGetInt( "oarnodes -s | grep \":\" | wc -l",
-                                 "DIET_getNbResources") ;
+                                 "DIET_getNbResources");
 }
 
 /* TODO: this function should be C++ written 
@@ -192,29 +192,29 @@ OAR2_XBatchSystem::getNbTotResources()
 int
 OAR2_XBatchSystem::getNbResources() /* in the queue interQueueName */
 {
-  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl) ;
-  return 500 ;
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl);
+  return 500;
 }
 
 char *
 OAR2_XBatchSystem::getResourcesName()
 {
-  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl) ;
-  return NULL ;
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl);
+  return NULL;
 }
 
 int
 OAR2_XBatchSystem::getMaxWalltime()
 {
-  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl) ;
-  return 500 ;
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl);
+  return 500;
 }
 
 int
 OAR2_XBatchSystem::getMaxProcs()
 {
-  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl) ;
-  return getNbResources() ;
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl);
+  return getNbResources();
 }
 
 /********** Batch dynamic information accessing Functions *********/
@@ -222,13 +222,13 @@ OAR2_XBatchSystem::getMaxProcs()
 int
 OAR2_XBatchSystem::getNbTotFreeResources()
 {
-  INTERNAL_WARNING(__FUNCTION__ << " not  implemented" << endl << endl) ;
-  return getNbResources() ;
+  INTERNAL_WARNING(__FUNCTION__ << " not  implemented" << endl << endl);
+  return getNbResources();
 }
 
 int
 OAR2_XBatchSystem::getNbFreeResources()
 {
-  INTERNAL_WARNING(__FUNCTION__ << " not  implemented" << endl << endl) ;
-  return getNbResources() ;
+  INTERNAL_WARNING(__FUNCTION__ << " not  implemented" << endl << endl);
+  return getNbResources();
 }

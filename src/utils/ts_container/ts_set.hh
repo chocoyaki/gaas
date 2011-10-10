@@ -64,31 +64,31 @@ private :
    * used bye the assertion to check if the \c lock() methods is
    * called before the not thread safe methods are called.
    */
-  mutable bool accessLocked ;
+  mutable bool accessLocked;
 #endif // NDEBUG
 
   /**
    * This is the mutex that lock the access to the set to avoid that
    * to thread access to the set in the same time.
    */
-  mutable omni_mutex locker ;
+  mutable omni_mutex locker;
 
   /**
    * A type to avoid to type set<Key, T, CMP, A> each time.
    */
-  typedef std::set<Key, CMP, A> SetType ;
+  typedef std::set<Key, CMP, A> SetType;
 
 public :
 
   /**
    * the size_type type is the same as the set::size_type
    */
-  typedef typename SetType::size_type size_type ;
+  typedef typename SetType::size_type size_type;
 
   /**
    * the iterator type
    */
-  typedef typename SetType::iterator iterator ;
+  typedef typename SetType::iterator iterator;
 
 public :
 
@@ -107,10 +107,10 @@ public :
    * return the size (number of elements) of the set. (thread safe)
    */
   inline size_type size() const {
-    locker.lock() ;
-    size_type result = SetType::size() ;
-    locker.unlock() ;
-    return result ;
+    locker.lock();
+    size_type result = SetType::size();
+    locker.unlock();
+    return result;
   }
 
   /**
@@ -119,10 +119,10 @@ public :
    * @return 1 if the element \c k was found and erased, 0 if not.
    */
   inline size_type erase(const Key& k) {
-    locker.lock() ;
-    size_type result = SetType::erase(k) ;
-    locker.unlock() ;
-    return result ;
+    locker.lock();
+    size_type result = SetType::erase(k);
+    locker.unlock();
+    return result;
   }
 
   /**
@@ -131,9 +131,9 @@ public :
    * destructor of the object. (thread safe)
    */
   inline void clear() {
-    locker.lock() ;
-    SetType::clear() ;
-    locker.unlock() ;
+    locker.lock();
+    SetType::clear();
+    locker.unlock();
   }
 
   /**
@@ -149,10 +149,10 @@ public :
    * @param x the key added into the set
    */
   std::pair<iterator, bool> insert(const Key & x) {
-    locker.lock() ;
-    std::pair<iterator, bool> result = SetType::insert(x) ;
-    locker.unlock() ;
-    return result ;
+    locker.lock();
+    std::pair<iterator, bool> result = SetType::insert(x);
+    locker.unlock();
+    return result;
   }
 
   /***<iterator>**************************************************************/
@@ -161,10 +161,10 @@ public :
    * locks the access to the container
    */
   inline void lock() const {
-    locker.lock() ;
+    locker.lock();
 #ifndef NDEBUG // only used by the assert
-    assert(!accessLocked) ;
-    accessLocked = true ;
+    assert(!accessLocked);
+    accessLocked = true;
 #endif // NDEBUG
   }
 
@@ -172,10 +172,10 @@ public :
    * unlocks the access to the container
    */
   inline void unlock() const {
-    locker.unlock() ;
+    locker.unlock();
 #ifndef NDEBUG // only used by the assert
-    assert(accessLocked) ;
-    accessLocked = false ;
+    assert(accessLocked);
+    accessLocked = false;
 #endif // NDEBUG
   }
 
@@ -184,9 +184,9 @@ public :
    */
   inline iterator begin() const {
 #ifndef NDEBUG // only used by the assert
-    assert(accessLocked) ;
+    assert(accessLocked);
 #endif // NDEBUG
-    return SetType::begin() ;
+    return SetType::begin();
   }
 
   /**
@@ -194,9 +194,9 @@ public :
    */
   inline iterator end() const {
 #ifndef NDEBUG // only used by the assert
-    assert(accessLocked) ;
+    assert(accessLocked);
 #endif // NDEBUG
-    return SetType::end() ;
+    return SetType::end();
   }
 
   /**
@@ -204,9 +204,9 @@ public :
    */
   inline iterator find(const Key & x) {
 #ifndef NDEBUG // only used by the assert
-    assert(accessLocked) ;
+    assert(accessLocked);
 #endif // NDEBUG
-    return SetType::find(x) ;
+    return SetType::find(x);
   }
 
   /**
@@ -215,13 +215,13 @@ public :
    */
   inline iterator insert(iterator pos, const Key & x) {
 #ifndef NDEBUG // only used by the assert
-    assert(accessLocked) ;
+    assert(accessLocked);
 #endif // NDEBUG
-    return SetType::insert(pos, x) ;
+    return SetType::insert(pos, x);
   }
 
   /**************************************************************************/
 
-} ;
+};
 
 #endif // _TS_SET_HH_

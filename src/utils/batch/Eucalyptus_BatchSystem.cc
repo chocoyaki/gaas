@@ -284,10 +284,10 @@ int
 Eucalyptus_BatchSystem::isBatchJobCompleted(int batchJobID)
 {
   if( (state == TERMINATED) || (state == CANCELED) || (state == ERROR) )
-    return 1 ;
+    return 1;
   else if( state == NB_STATUS )
     return -1;
-  return 0 ;
+  return 0;
 }
 
 /********** Batch static information accessing Functions **********/
@@ -295,7 +295,7 @@ Eucalyptus_BatchSystem::isBatchJobCompleted(int batchJobID)
 int
 Eucalyptus_BatchSystem::getNbTotResources()
 {
-  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented\n\n") ;
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented\n\n");
   return INFTY;
 }
 
@@ -306,29 +306,29 @@ Eucalyptus_BatchSystem::getNbTotResources()
 int
 Eucalyptus_BatchSystem::getNbResources() /* in the queue interQueueName */
 {
-  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented\n\n") ;
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented\n\n");
   return INFTY;
 }
 
 char *
 Eucalyptus_BatchSystem::getResourcesName()
 {
-  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented\n\n") ;
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented\n\n");
   return "Cloud VM nodes";
 }
 
 int
 Eucalyptus_BatchSystem::getMaxWalltime()
 {
-  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented\n\n") ;
-  return INFTY ;
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented\n\n");
+  return INFTY;
 }
 
 int
 Eucalyptus_BatchSystem::getMaxProcs()
 {
-  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented\n\n") ;
-  return INFTY ;
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented\n\n");
+  return INFTY;
 }
 
 /********** Batch dynamic information accessing Functions *********/
@@ -336,14 +336,14 @@ Eucalyptus_BatchSystem::getMaxProcs()
 int
 Eucalyptus_BatchSystem::getNbTotFreeResources()
 {
-  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented\n\n") ;
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented\n\n");
   return INFTY;
 }
 
 int
 Eucalyptus_BatchSystem::getNbFreeResources()
 {
-  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented\n\n") ;
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented\n\n");
   return INFTY;
 }
 
@@ -359,7 +359,7 @@ void Eucalyptus_BatchSystem::doWait(int count, char*addresses)
     "#!/bin/bash\n\n"
     "for h in $DIET_CLOUD_VMS\n"
     "do\n"
-    "ssh $USERNAME@$h -i $PATH_TO_SSH_KEY -o StrictHostKeyChecking=no 'hostname ; uname -a'\n"
+    "ssh $USERNAME@$h -i $PATH_TO_SSH_KEY -o StrictHostKeyChecking=no 'hostname; uname -a'\n"
     "done";
   char*script = (char*)malloc(1000);
   sprintf(script, "%s", s);

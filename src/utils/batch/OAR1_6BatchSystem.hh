@@ -40,9 +40,9 @@ class OAR1_6BatchSystem : public BatchSystem
   
 public :
 
-  OAR1_6BatchSystem(int batchID, const char * batchName) ;
+  OAR1_6BatchSystem(int batchID, const char * batchName);
 
-  ~OAR1_6BatchSystem() ;
+  ~OAR1_6BatchSystem();
 
   /** If job not terminated, ask the batch system for the status of job
       whose ID is @param batchJobID .
@@ -50,7 +50,7 @@ public :
       Returns NB_STATUS on error, the status otherwise.
   */
   batchJobState
-  askBatchJobStatus(int batchJobID) ;
+  askBatchJobStatus(int batchJobID);
   
   /** If job whose id is @param batchJobID is:
       - not finished, returns 0
@@ -58,46 +58,46 @@ public :
       - not found, -1
   */
   int
-  isBatchJobCompleted(int batchJobID) ;
+  isBatchJobCompleted(int batchJobID);
 
   /********** Batch static information accessing Functions **********/
   /* These should soon change for they assume a default queue and we
      want to be able to manage all queues of a system! */
 
   int
-  getNbTotResources() ;
+  getNbTotResources();
 
   int
-  getNbResources() ;
+  getNbResources();
 
   char *
-  getResourcesName() ;
+  getResourcesName();
   
   int
-  getMaxWalltime() ;
+  getMaxWalltime();
 
   int
-  getMaxProcs() ;
+  getMaxProcs();
   
   /********** Batch dynamic information accessing Functions *********/
   /* These should soon change for they assume a default queue and we
      want to be able to manage all queues of a system! */
 
   int
-  getNbTotFreeResources() ;
+  getNbTotFreeResources();
 
   int
-  getNbFreeResources() ;
+  getNbFreeResources();
 
   /****************** Performance Prediction Functions ***************/
 
 private :
   /* Dirty Trick for OAR1.6 to get information on default queue */
-  const char * internQueueName ;
+  const char * internQueueName;
 
   /* Strings used to filter batch job status if possible */
-  static const char * const statusNames[] ;
+  static const char * const statusNames[];
 
-} ;
+};
 
 #endif // OAR_BATCH_SYSTEM

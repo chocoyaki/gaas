@@ -52,28 +52,28 @@ const char * Loadleveler_BatchSystem::statusNames[] = {
   "waiting",
   "pending",
   "preempted"
-} ;
+};
 
 Loadleveler_BatchSystem::Loadleveler_BatchSystem(int ID, const char * batchname)
 {
   if( pathToNFS == NULL ) {
-    ERROR_EXIT("LL needs a path to a NFS directory to store its script") ;
+    ERROR_EXIT("LL needs a path to a NFS directory to store its script");
   }
 #if defined YC_DEBUG
-  TRACE_TEXT(TRACE_ALL_STEPS,"Nom NFS: " << getNFSPath() << endl) ;
+  TRACE_TEXT(TRACE_ALL_STEPS,"Nom NFS: " << getNFSPath() << endl);
 #endif
 
-  batch_ID = ID ;
-  batchName = batchname ;
+  batch_ID = ID;
+  batchName = batchname;
   
-  shell = "#@ shell=" ;
-  prefixe = "#@ environment = COPY_ALL;" ; // "#!/bin/sh\n\n"
+  shell = "#@ shell=";
+  prefixe = "#@ environment = COPY_ALL;"; // "#!/bin/sh\n\n"
 
   /* first line is mandatory to end LL batch directives, 
      second is to get a file containing the nodes ID. Hope it is unique
   */
   postfixe = "#@ queue";
-  /* "export MP_SAVEHOSTFILE=$LOADL_STEP_INITDIR/machine_$LOADL_STEP_ID" ; */
+  /* "export MP_SAVEHOSTFILE=$LOADL_STEP_INITDIR/machine_$LOADL_STEP_ID"; */
 
   /* #@ network.MPI  indicates which switch adapter is used, whether
      or not the adapter is shared, and which communications library is
@@ -86,37 +86,37 @@ Loadleveler_BatchSystem::Loadleveler_BatchSystem(int ID, const char * batchname)
   /* FIXME: fix this part!
 
      unsigned int * LL_switched = (unsigned int *) 
-     Parsers::Results::getParamValue(Parsers::Results::SWITCH) ;
+     Parsers::Results::getParamValue(Parsers::Results::SWITCH);
      if( *LL_switched == 1 )
-     nodesNumber = "#@ network.MPI = css0,not_shared,US\n#@ job_type=parallel\n#@ node=" ;
+     nodesNumber = "#@ network.MPI = css0,not_shared,US\n#@ job_type=parallel\n#@ node=";
      else
   */
-  nodesNumber = "#@ job_type = parallel\n#@ node =" ;
-  serial = "#@ job_type = serial" ;
-  coresNumber = BatchSystem::emptyString ;
-  walltime = "\n#@ wall_clock_limit =" ;
-  submittingQueue = "\n#@ Class = " ;
-  minimumMemoryUsed = BatchSystem::emptyString ;
+  nodesNumber = "#@ job_type = parallel\n#@ node =";
+  serial = "#@ job_type = serial";
+  coresNumber = BatchSystem::emptyString;
+  walltime = "\n#@ wall_clock_limit =";
+  submittingQueue = "\n#@ Class = ";
+  minimumMemoryUsed = BatchSystem::emptyString;
   
   /* TODO: When we use some ID for DIET client, change there! */
-  mail = "\n#@ notification = never\n#@ notify_user =" ;
-  account = "\n#@ account_no =" ;
-  setSTDOUT = "\n#@ output =" ;
-  setSTDIN = "\n#@ input =" ; /* Not used for the moment */
-  setSTDERR = "\n#@ error =" ;
+  mail = "\n#@ notification = never\n#@ notify_user =";
+  account = "\n#@ account_no =";
+  setSTDOUT = "\n#@ output =";
+  setSTDIN = "\n#@ input ="; /* Not used for the moment */
+  setSTDERR = "\n#@ error =";
 
-  submitCommand = "llsubmit " ;
-  killCommand = "llcancel " ;
-  wait4Command = "llq -j " ;
-  waitFilter = "grep step | cut --delimiter=1 --field=3 | cut --delimiter=\",\" --field=1" ;
-  exitCode = "0" ;
+  submitCommand = "llsubmit ";
+  killCommand = "llcancel ";
+  wait4Command = "llq -j ";
+  waitFilter = "grep step | cut --delimiter=1 --field=3 | cut --delimiter=\",\" --field=1";
+  exitCode = "0";
   
-  jid_extract_patterns = "cut --delimiter=\\\" -f 2 | cut --delimiter=. -f 2" ;
+  jid_extract_patterns = "cut --delimiter=\\\" -f 2 | cut --delimiter=. -f 2";
 
   /* Information for META_VARIABLES */
-  batchJobID = "$LOADL_STEP_ID" ;
-  nodeFileName = "$MP_SAVEHOSTFILE" ;
-  //  nodeIdentities = "cat $MP_SAVEHOSTFILE" ;  
+  batchJobID = "$LOADL_STEP_ID";
+  nodeFileName = "$MP_SAVEHOSTFILE";
+  //  nodeIdentities = "cat $MP_SAVEHOSTFILE";  
 }
 
 Loadleveler_BatchSystem::~Loadleveler_BatchSystem()
@@ -128,22 +128,22 @@ Loadleveler_BatchSystem::~Loadleveler_BatchSystem()
 BatchSystem::batchJobState
 Loadleveler_BatchSystem::askBatchJobStatus(int batchJobID)
 {
-  char * filename ;
-  int file_descriptor ;
-  char * chaine ;
-  int i=0 ;
-  int nbread ;
-  batchJobState status ;
+  char * filename;
+  int file_descriptor;
+  char * chaine;
+  int i=0;
+  int nbread;
+  batchJobState status;
   
   /* If job has completed, not ask batch system */
-  status = getRecordedBatchJobStatus( batchJobID ) ;
+  status = getRecordedBatchJobStatus( batchJobID );
   if( (status == TERMINATED) || (status == CANCELED) || (status == ERROR) )
-    return status ;
+    return status;
   /* create a temporary file to get results and batch job ID */
-  filename = createUniqueTemporaryTmpFile("DIET_batch_finish") ;
-  file_descriptor = open(filename,O_RDONLY) ;
+  filename = createUniqueTemporaryTmpFile("DIET_batch_finish");
+  file_descriptor = open(filename,O_RDONLY);
   if( file_descriptor == -1 ) {
-    ERROR("Cannot open file", UNDETERMINED ) ;
+    ERROR("Cannot open file", UNDETERMINED );
   }
 
   /*** Ask batch system the job status ***/      
@@ -151,22 +151,22 @@ Loadleveler_BatchSystem::askBatchJobStatus(int batchJobID)
                                        + NBDIGITS_MAX_BATCH_JOB_ID
                                        + strlen(waitFilter)
                                        + strlen(filename)
-                                       + 7 + 1) ) ;
+                                       + 7 + 1) );
   /* See EOF to get an example of what we parse */
   sprintf(chaine,"%s %d | %s > %s",
-          wait4Command,batchJobID,waitFilter,filename) ;
+          wait4Command,batchJobID,waitFilter,filename);
 #if defined YC_DEBUG
-  TRACE_TEXT(TRACE_ALL_STEPS,"Execute: " << endl << chaine << endl) ;
+  TRACE_TEXT(TRACE_ALL_STEPS,"Execute: " << endl << chaine << endl);
 #endif
   if( system(chaine) != 0 ) {
-    ERROR("Cannot submit script", NB_STATUS) ;
+    ERROR("Cannot submit script", NB_STATUS);
   }
 
   /* Get job status */  
-  for( int i = 0 ; i<=NBDIGITS_MAX_BATCH_JOB_ID ; i++ )
-    chaine[i] = '\0' ;
+  for( int i = 0; i<=NBDIGITS_MAX_BATCH_JOB_ID; i++ )
+    chaine[i] = '\0';
 
-  nbread=readn(file_descriptor,chaine,NBDIGITS_MAX_JOB_STATUS) ;
+  nbread=readn(file_descriptor,chaine,NBDIGITS_MAX_JOB_STATUS);
   /* When job is finished, no information is reported by Loadleveler
      -> nbread=0
      TODO: if error?
@@ -174,47 +174,47 @@ Loadleveler_BatchSystem::askBatchJobStatus(int batchJobID)
 
   if( nbread == 0 )
     /* we consider that like OK */
-    i=TERMINATED ;
+    i=TERMINATED;
   else {
     /* Adjust what have been read */
     if( chaine[nbread-1] == '\n' )
-      chaine[nbread-1] = '\0' ;
+      chaine[nbread-1] = '\0';
     /* Compare to chaine+1 because of a space as a first char */
     while( (i<NB_STATUS) && 
            (strcmp(chaine+1,Loadleveler_BatchSystem::statusNames[i])!=0) ) {
-      i++ ;
+      i++;
     }
   }
     
   if( i==NB_STATUS ) {
-    ERROR("Cannot get batch job " << batchJobID << " status: " << chaine, NB_STATUS) ;
+    ERROR("Cannot get batch job " << batchJobID << " status: " << chaine, NB_STATUS);
   }
   /* Remove temporary file by closing it */
 #if REMOVE_BATCH_TEMPORARY_FILE
-  unlink( filename ) ;
+  unlink( filename );
 #endif
   if( close(file_descriptor) != 0 ) {
-    WARNING("Couln't remove I/O redirection file") ;
+    WARNING("Couln't remove I/O redirection file");
   }
-  updateBatchJobStatus(batchJobID,(batchJobState)i) ;
-  free(chaine) ;
-  free(filename) ;
-  return (batchJobState)i ;
+  updateBatchJobStatus(batchJobID,(batchJobState)i);
+  free(chaine);
+  free(filename);
+  return (batchJobState)i;
 }
 
 int
 Loadleveler_BatchSystem::isBatchJobCompleted(int batchJobID)
 {
-  int status = getRecordedBatchJobStatus(batchJobID) ;
+  int status = getRecordedBatchJobStatus(batchJobID);
   
   if( (status == TERMINATED) || (status == CANCELED) || (status == ERROR) )
-    return 1 ;
-  status = askBatchJobStatus(batchJobID) ;
+    return 1;
+  status = askBatchJobStatus(batchJobID);
   if( (status == TERMINATED) || (status == CANCELED) || (status == ERROR) )
-    return 1 ;
+    return 1;
   else if( status == NB_STATUS )
-    return -1 ;
-  return 0 ;
+    return -1;
+  return 0;
 }
 
 /********** Batch static information accessing Functions **********/
@@ -222,29 +222,29 @@ Loadleveler_BatchSystem::isBatchJobCompleted(int batchJobID)
 int
 Loadleveler_BatchSystem::getNbResources()
 {
-  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl) ;
-  return 16 ;
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl);
+  return 16;
 }
 
 int
 Loadleveler_BatchSystem::getNbTotResources()
 {
-  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl) ;
-  return 16 ;
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl);
+  return 16;
 }
 
 int
 Loadleveler_BatchSystem::getMaxWalltime()
 {
-  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl) ;
-  return 500 ;
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl);
+  return 500;
 }
 
 int
 Loadleveler_BatchSystem::getMaxProcs()
 {
-  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl) ;
-  return getNbResources() ;
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl);
+  return getNbResources();
 }
 
 /********** Batch dynamic information accessing Functions *********/
@@ -252,8 +252,8 @@ Loadleveler_BatchSystem::getMaxProcs()
 int
 Loadleveler_BatchSystem::getNbTotFreeResources()
 {
-  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl) ;
-  return getNbResources() ;
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl);
+  return getNbResources();
 }
 
 int
@@ -333,8 +333,8 @@ Loadleveler_BatchSystem::getNbFreeResources()
   // }
   // print "$nb_host\n";
 
-  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl) ;
-  return getNbResources() ;
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl);
+  return getNbResources();
 }
 
 /*************************** Performance Prediction *************************/

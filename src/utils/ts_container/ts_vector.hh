@@ -60,19 +60,19 @@ private :
    * This is the mutex that lock the access to the vector to avoid that
    * to thread access to the vector in the same time.
    */
-  mutable omni_mutex locker ;
+  mutable omni_mutex locker;
 
   /**
    * A type to avoid to type vector<T, A> each time.
    */
-  typedef std::vector<T, A> VectorType ;
+  typedef std::vector<T, A> VectorType;
 
 public :
 
   /**
    * the size_type type is the same as the vector::size_type
    */
-  typedef typename VectorType::size_type size_type ;
+  typedef typename VectorType::size_type size_type;
 
 public :
 
@@ -86,11 +86,11 @@ public :
    * the size of the vector.
    */
   inline T& operator[] (size_type k) {
-    assert(k < size()) ;
-    locker.lock() ;
-    T& result = VectorType::operator[](k) ;
-    locker.unlock() ;
-    return result ;
+    assert(k < size());
+    locker.lock();
+    T& result = VectorType::operator[](k);
+    locker.unlock();
+    return result;
   }
 
   /**
@@ -102,19 +102,19 @@ public :
    * @param t is the value of the new created element.
    */
   inline void resize(size_type n, const T& t = T()) {
-    locker.lock() ;
-    VectorType::resize(n, t) ;
-    locker.unlock() ;
+    locker.lock();
+    VectorType::resize(n, t);
+    locker.unlock();
   }
 
   /**
    * return the size (number of elements) of the vector.
    */
   inline size_type size() const {
-    locker.lock() ;
-    size_type result = VectorType::size() ;
-    locker.unlock() ;
-    return result ;
+    locker.lock();
+    size_type result = VectorType::size();
+    locker.unlock();
+    return result;
   }
 
   /**
@@ -123,11 +123,11 @@ public :
    * destructor of the object.
    */
   inline void clear() {
-    locker.lock() ;
-    VectorType::clear() ;
-    locker.unlock() ;
+    locker.lock();
+    VectorType::clear();
+    locker.unlock();
   }
   
-} ;
+};
 
 #endif // _TS_VECTOR_HH_

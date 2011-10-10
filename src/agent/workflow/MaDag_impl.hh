@@ -335,7 +335,7 @@ private:
   /**
    * Lock to prevent concurrent access
    */
-  omni_mutex myMutex ;
+  omni_mutex myMutex;
 
   /**
    * Dag identifier counter

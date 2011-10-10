@@ -57,33 +57,33 @@
 #include <cassert>
 
 //#include <stdio.h>
-//#define disp(act)  printf("-> %s %s\n", __ASSERT_FUNCTION, #act) ; act ; printf("-< %s %s\n", __ASSERT_FUNCTION, #act) ;
-#define disp(act) act ;
+//#define disp(act)  printf("-> %s %s\n", __ASSERT_FUNCTION, #act); act; printf("-< %s %s\n", __ASSERT_FUNCTION, #act);
+#define disp(act) act;
 
 void FloodRequest::addNewResponse() {
-  nbOfWaitingResponse-- ;
+  nbOfWaitingResponse--;
   if(nbOfWaitingResponse == 0) {
-    disp(allResponseReceived->signal()) ;
+    disp(allResponseReceived->signal());
   }
 }
 
 
 FloodRequest::FloodRequest() {
-  hop = 0 ;
-  nbOfWaitingResponse = 0 ;
-  allResponseReceived = new omni_condition(&locker) ;
+  hop = 0;
+  nbOfWaitingResponse = 0;
+  allResponseReceived = new omni_condition(&locker);
 }
 
 
 FloodRequest::FloodRequest(const FloodRequest & request) {
-  predecessor = request.predecessor ;
-  hop = 0 ;
-  nbOfWaitingResponse = 0 ;
-  owner = request.owner ;
-  neighbouringMAs = request.neighbouringMAs ;
-  this->request = request.request ;
-  decisions = request.decisions ;
-  allResponseReceived = new omni_condition(&locker) ;
+  predecessor = request.predecessor;
+  hop = 0;
+  nbOfWaitingResponse = 0;
+  owner = request.owner;
+  neighbouringMAs = request.neighbouringMAs;
+  this->request = request.request;
+  decisions = request.decisions;
+  allResponseReceived = new omni_condition(&locker);
 }
 
 
@@ -92,138 +92,138 @@ FloodRequest::FloodRequest(const MasterAgentImpl::MADescription& predecessor,
                            const corba_request_t& request,
                            MasterAgentImpl::MAList& knownMAs) :
   predecessor(predecessor), owner(owner), request(request) {
-  hop = 0 ;
-  nbOfWaitingResponse = 0 ;
-  knownMAs.lock() ;
+  hop = 0;
+  nbOfWaitingResponse = 0;
+  knownMAs.lock();
   // copy the list of the neighboring MAs but without the MA that had
   // send this request.
-  for(MasterAgentImpl::MAList::iterator iter = knownMAs.begin() ;
-      iter != knownMAs.end() ; ++iter) {
-    NeighbouringMA& newNeighbouringMA = neighbouringMAs[iter->first] ;
-    newNeighbouringMA.maDescription = iter->second ;
+  for(MasterAgentImpl::MAList::iterator iter = knownMAs.begin();
+      iter != knownMAs.end(); ++iter) {
+    NeighbouringMA& newNeighbouringMA = neighbouringMAs[iter->first];
+    newNeighbouringMA.maDescription = iter->second;
     if (predecessor.defined() && (iter->first ==
                                   KeyString(predecessor->getBindName())))
-      newNeighbouringMA.state = NeighbouringMA::nmaStateAlreadyContacted ;
+      newNeighbouringMA.state = NeighbouringMA::nmaStateAlreadyContacted;
     else
-      newNeighbouringMA.state = NeighbouringMA::nmaStateNotContacted ;
+      newNeighbouringMA.state = NeighbouringMA::nmaStateNotContacted;
   }
-  knownMAs.unlock() ;
-  allResponseReceived = new omni_condition(&locker) ;
+  knownMAs.unlock();
+  allResponseReceived = new omni_condition(&locker);
 } // FloodRequest(...)
 
 
 FloodRequest::~FloodRequest() {
-  //printf("FloodRequest::~FloodRequest()\n") ;
-  delete allResponseReceived ;
+  //printf("FloodRequest::~FloodRequest()\n");
+  delete allResponseReceived;
 }
 
 
 FloodRequest & FloodRequest::operator=(const FloodRequest & request) {
-  predecessor = request.predecessor ;
-  owner = request.owner ;
-  neighbouringMAs = request.neighbouringMAs ;
-  this->request = request.request ;
-  decisions = request.decisions ;
-  return *this ;
+  predecessor = request.predecessor;
+  owner = request.owner;
+  neighbouringMAs = request.neighbouringMAs;
+  this->request = request.request;
+  decisions = request.decisions;
+  return *this;
 } // operator=(const FloodRequest&)
 
 
 RequestID FloodRequest::getId(){
-  return request.reqID ;
+  return request.reqID;
 } // getId()
 
 
 bool FloodRequest::flooded() {
-  //printf("bool FloodRequest::flooded()\n") ;
-  bool result = true ;
+  //printf("bool FloodRequest::flooded()\n");
+  bool result = true;
   if (hop >= 8)
-    return true ;
-  for(NeighbouringMAs::iterator iter = neighbouringMAs.begin() ;
-      result && iter != neighbouringMAs.end() ; /* stop if the result
+    return true;
+  for(NeighbouringMAs::iterator iter = neighbouringMAs.begin();
+      result && iter != neighbouringMAs.end(); /* stop if the result
                                                    is found or if
                                                    there is no other
                                                    MA. */
       ++iter) {
     if (iter->second.state != NeighbouringMA::nmaStateFlooded)
-      result = false ;
+      result = false;
   }
-  return result ;
+  return result;
 } // flooded()
 
 
 bool FloodRequest::floodNextStep() {
-  //printf("void FloodRequest::floodNextStep()\n") ;
-  KeyString ownerId = KeyString(owner->getBindName()) ;
-  hop = hop+1 ;
-  nbOfWaitingResponse = 0 ;
-  bool completelyFlooded = true ;
+  //printf("void FloodRequest::floodNextStep()\n");
+  KeyString ownerId = KeyString(owner->getBindName());
+  hop = hop+1;
+  nbOfWaitingResponse = 0;
+  bool completelyFlooded = true;
 
-  for(NeighbouringMAs::iterator iter = neighbouringMAs.begin() ;
-      iter != neighbouringMAs.end() ; ++iter) {
-    MasterAgentImpl::MADescription& MA = iter->second.maDescription ;
+  for(NeighbouringMAs::iterator iter = neighbouringMAs.begin();
+      iter != neighbouringMAs.end(); ++iter) {
+    MasterAgentImpl::MADescription& MA = iter->second.maDescription;
     switch(iter->second.state) {
     case NeighbouringMA::nmaStateNotContacted :
       // first contact with the MA
       try {
-        MA->searchService(ownerId, ownerId, request) ;
-        iter->second.state = NeighbouringMA::nmaStateFlooding ;
-        completelyFlooded = false ;
-        nbOfWaitingResponse++ ;
+        MA->searchService(ownerId, ownerId, request);
+        iter->second.state = NeighbouringMA::nmaStateFlooding;
+        completelyFlooded = false;
+        nbOfWaitingResponse++;
       } catch(CORBA::SystemException& ex) {
-        iter->second.state = NeighbouringMA::nmaStateFlooded ;
+        iter->second.state = NeighbouringMA::nmaStateFlooded;
       }
-      break ;
+      break;
     case NeighbouringMA::nmaStateFlooding :
       // the MA was already contacted, ask to continue the search
       try {
-        MA->newFlood(request.reqID, ownerId) ;
-        nbOfWaitingResponse++ ;
+        MA->newFlood(request.reqID, ownerId);
+        nbOfWaitingResponse++;
       } catch(CORBA::SystemException& ex) {
-        iter->second.state = NeighbouringMA::nmaStateFlooded ;
+        iter->second.state = NeighbouringMA::nmaStateFlooded;
       }
-      completelyFlooded = false ;
-      break ;
+      completelyFlooded = false;
+      break;
     case NeighbouringMA::nmaStateFlooded :
     case NeighbouringMA::nmaStateAlreadyContacted :
       // this area is already completely flooded
-      break ;
+      break;
     }
   }
-  return completelyFlooded ;
-  //printf("--void FloodRequest::floodNextStep()\n") ;
+  return completelyFlooded;
+  //printf("--void FloodRequest::floodNextStep()\n");
 }
 
 
 void FloodRequest::waitResponses() {
   // wait a maximum of 5 seconds
-  unsigned long s, n ;
-  locker.lock() ;
-  omni_thread::get_time(&s, &n, 5, 0) ;
-  disp(allResponseReceived->timedwait(s, n)) ;
-  locker.unlock() ;
+  unsigned long s, n;
+  locker.lock();
+  omni_thread::get_time(&s, &n, 5, 0);
+  disp(allResponseReceived->timedwait(s, n));
+  locker.unlock();
 }
 
 
 corba_response_t FloodRequest::getDecision() {
-  corba_response_t result ;
-  result = decisions ;
-  decisions.servers.length(0) ;
-  return result ;
+  corba_response_t result;
+  result = decisions;
+  decisions.servers.length(0);
+  return result;
 } // getDecision()
 
 
 void FloodRequest::stopFlooding() {
-  //printf("void FloodRequest::stopFlooding()\n") ;
+  //printf("void FloodRequest::stopFlooding()\n");
 
   /* tell to all the contacted MA that the service is found and the
      flooding must stop. */
-  for(NeighbouringMAs::iterator iter = neighbouringMAs.begin() ;
-      iter != neighbouringMAs.end() ; ++iter) {
+  for(NeighbouringMAs::iterator iter = neighbouringMAs.begin();
+      iter != neighbouringMAs.end(); ++iter) {
     if(iter->second.state != NeighbouringMA::nmaStateNotContacted &&
        iter->second.state != NeighbouringMA::nmaStateAlreadyContacted) {
       try {
         iter->second.maDescription->stopFlooding(request.reqID,
-                                                 owner->getBindName()) ;
+                                                 owner->getBindName());
       } catch (CORBA::SystemException& ex) {
         /* does nothing */
       }
@@ -232,58 +232,58 @@ void FloodRequest::stopFlooding() {
 
   // if the floodNextStep is waiting some response, awaik it.
   if (nbOfWaitingResponse != 0) {
-    nbOfWaitingResponse = 0 ;
-    allResponseReceived->signal() ;
+    nbOfWaitingResponse = 0;
+    allResponseReceived->signal();
   }
 
 } // stopFlooding
 
 
 void FloodRequest::addResponseNotFound() {
-  //printf("void FloodRequest::addResponseNotFound()\n") ;
-  addNewResponse() ;
+  //printf("void FloodRequest::addResponseNotFound()\n");
+  addNewResponse();
 }
 
 
 void FloodRequest::addResponseFloodedArea(KeyString senderId) {
-  NeighbouringMAs::iterator senderIter = neighbouringMAs.find(senderId) ;
+  NeighbouringMAs::iterator senderIter = neighbouringMAs.find(senderId);
   if (senderIter != neighbouringMAs.end())
-    senderIter->second.state = NeighbouringMA::nmaStateFlooded ;
+    senderIter->second.state = NeighbouringMA::nmaStateFlooded;
   else
-    WARNING("sender " << senderId << " is unknown from neighbours list") ;
-  addNewResponse() ;
+    WARNING("sender " << senderId << " is unknown from neighbours list");
+  addNewResponse();
 }
 
 
 void FloodRequest::addResponseAlreadyContacted(KeyString senderId) {
   //printf("void FloodRequest::addResponseAlreadyContacted(KeyString senderId)\n");
-  NeighbouringMAs::iterator senderIter = neighbouringMAs.find(senderId) ;
+  NeighbouringMAs::iterator senderIter = neighbouringMAs.find(senderId);
   if (senderIter != neighbouringMAs.end())
-    senderIter->second.state = NeighbouringMA::nmaStateAlreadyContacted ;
+    senderIter->second.state = NeighbouringMA::nmaStateAlreadyContacted;
   else
-    WARNING("sender " << senderId << " is unknown from neighbours list") ;
-  addNewResponse() ;
+    WARNING("sender " << senderId << " is unknown from neighbours list");
+  addNewResponse();
 }
 
 
 void
 FloodRequest::addResponseServiceFound(const corba_response_t& decision) {
-  //printf("FloodRequest::addResponseServiceFound(const corba_response_t& decision)\n") ;
+  //printf("FloodRequest::addResponseServiceFound(const corba_response_t& decision)\n");
 
-  CORBA::ULong decisionsLength = decisions.servers.length() ;
+  CORBA::ULong decisionsLength = decisions.servers.length();
   CORBA::ULong newDecisionsLength =
-    decisionsLength + decision.servers.length() ;
-  decisions.servers.length(newDecisionsLength) ;
+    decisionsLength + decision.servers.length();
+  decisions.servers.length(newDecisionsLength);
 
-  for (CORBA::ULong decisionsIdx = decisionsLength ;
-       decisionsIdx < newDecisionsLength ;
+  for (CORBA::ULong decisionsIdx = decisionsLength;
+       decisionsIdx < newDecisionsLength;
        decisionsIdx++) {
     decisions.servers[decisionsIdx] =
-      decision.servers[decisionsIdx - decisionsLength] ;
+      decision.servers[decisionsIdx - decisionsLength];
   }
 
-  addNewResponse() ;
-  //printf("sortie de addResponseServiceFound\n") ;
+  addNewResponse();
+  //printf("sortie de addResponseServiceFound\n");
 }
 
 #endif // HAVE_MULTI_MA

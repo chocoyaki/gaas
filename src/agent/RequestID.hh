@@ -41,7 +41,7 @@ private :
   /**
    * the value of RequestID
    */
-  CORBA::Long value ;
+  CORBA::Long value;
 
 public :
 
@@ -58,7 +58,7 @@ public :
    * @param reqID the RequestID to clone.
    */
   inline RequestID(const RequestID & reqID) {
-    value = reqID.value ;
+    value = reqID.value;
   }
 
   /**
@@ -67,22 +67,22 @@ public :
    * @param reqID The RequestID where the value is taken.
    */
   inline RequestID & operator=(const RequestID & reqID) {
-    value = reqID.value ;
-    return *this ;
+    value = reqID.value;
+    return *this;
   }
 
   /**
    * Converts the RequestID to a \c CORBA::Long value.
    */
   inline operator CORBA::Long() const {
-    return value ;
+    return value;
   }
 
-  friend bool operator< (const RequestID & a, const RequestID & b) ;
+  friend bool operator< (const RequestID & a, const RequestID & b);
 
-  friend bool operator== (const RequestID & a, const RequestID & b) ;
+  friend bool operator== (const RequestID & a, const RequestID & b);
 
-} ; // RequestID
+}; // RequestID
 
 /**
  * returns true if the representation of \c a is lesser than the
@@ -93,7 +93,7 @@ public :
  * @param b a RequestID
  */
 inline bool operator< (const RequestID & a, const RequestID & b) {
-  return a.value < b.value ;
+  return a.value < b.value;
 }
 
 /**
@@ -104,7 +104,7 @@ inline bool operator< (const RequestID & a, const RequestID & b) {
  * @param b a RequestID
  */
 inline bool operator== (const RequestID & a, const RequestID & b) {
-  return a.value == b.value ;
+  return a.value == b.value;
 }
 
 #endif // _REQUEST_ID_

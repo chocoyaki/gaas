@@ -40,7 +40,7 @@
 ReferenceUpdateThread::ReferenceUpdateThread(MasterAgentImpl* owner,
                                              unsigned int period) 
   : owner(owner), period(period) {
-  start() ;
+  start();
 } // ReferenceUpdateThread(MasterAgent_impl*)
 
 
@@ -48,10 +48,10 @@ ReferenceUpdateThread::~ReferenceUpdateThread() { }
 
 
 void ReferenceUpdateThread::run(void* ptr) {
-  set_priority(omni_thread::PRIORITY_LOW) ;
+  set_priority(omni_thread::PRIORITY_LOW);
   while(true) {
-    owner->updateRefs() ;
-    sleep(period) ;
+    owner->updateRefs();
+    sleep(period);
   }
 } // run(void*)
 

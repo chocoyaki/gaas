@@ -215,7 +215,7 @@
  * Changed the prototype of solve_batch: reqID is in the profile when batch mode
  *   is enabled.
  *
- * Batch management for sync. calls is now fully operationnal (at least for oar ;)
+ * Batch management for sync. calls is now fully operationnal (at least for oar;)
  *
  * Revision 1.56  2006/07/11 08:59:09  ycaniou
  * .Batch queue is now read in the serveur config file (only one queue
@@ -320,7 +320,7 @@ static ServiceTable* SRVT;
 static SeDImpl * sedImpl = NULL;
 
 #ifdef HAVE_ALT_BATCH
-static diet_server_status_t st=SERIAL ;
+static diet_server_status_t st=SERIAL;
 #endif
 
 int
@@ -429,12 +429,12 @@ diet_service_table_lookup_by_profile(const diet_profile_t* const profile) {
     profileDesc.last_inout = profile->last_inout;
     profileDesc.last_out = profile->last_out;
 #if defined HAVE_ALT_BATCH
-    profileDesc.parallel_flag = profile->parallel_flag ;
+    profileDesc.parallel_flag = profile->parallel_flag;
 #endif
     int numArgs = profile->last_out + 1;
     profileDesc.param_desc =
       (diet_arg_desc_t*) calloc (numArgs, sizeof (diet_arg_desc_t));
-    for (int argIter = 0 ; argIter < numArgs ; argIter++) {
+    for (int argIter = 0; argIter < numArgs; argIter++) {
       profileDesc.param_desc[argIter] =
         (profile->parameters[argIter]).desc.generic;
     }
@@ -498,8 +498,8 @@ diet_profile_desc_alloc(const char* path, int last_in,
   desc->param_desc = param_desc;
 #if defined HAVE_ALT_BATCH
   // By default, the profile is registered in the server as sequential
-  diet_profile_desc_set_sequential( desc ) ;
-  desc->parallel_environment = NULL ;
+  diet_profile_desc_set_sequential( desc );
+  desc->parallel_environment = NULL;
 #endif
   return desc;
 }
@@ -751,13 +751,13 @@ diet_convertor_check(const diet_convertor_t* const cvt,
         (out < 0) || (out > profile->last_out)) {
       if (cvt->arg_convs[i].arg == NULL) {
         CHECK_ERROR("- the argument convertor " << i
-                    << " references no argument ;\n"
+                    << " references no argument;\n"
                     << " it should reference either an index of "
                     << "the profile, or a constant argument");
       }
     } else if (cvt->arg_convs[i].arg != NULL) {
       CHECK_ERROR("- the argument convertor " << i
-                  << " references too many arguments ;\n"
+                  << " references too many arguments;\n"
                   << " it should reference either an index of "
                   << "the profile, or a constant argument");
     }
@@ -821,7 +821,7 @@ diet_SeD(const char* config_file_name, int argc, char* argv[]) {
     std::ostringstream endpoint;
     int    tmp_argc = myargc + 2;
     myargv = (char**)realloc(myargv, tmp_argc * sizeof(char*));
-    myargv[myargc] = strdup("-ORBendPoint") ;
+    myargv[myargc] = strdup("-ORBendPoint");
 
     endpoint << "giop:tcp:" << host << ":";
     if(hasPort) {
@@ -837,10 +837,10 @@ diet_SeD(const char* config_file_name, int argc, char* argv[]) {
   CONFIG_ULONG(diet::TRACELEVEL, tmpTraceLevel);
   TRACE_LEVEL = tmpTraceLevel;
   if (TRACE_LEVEL >= TRACE_MAX_VALUE) {
-    char *  level = (char *) calloc(48, sizeof(char*)) ;
+    char *  level = (char *) calloc(48, sizeof(char*));
     int    tmp_argc = myargc + 2;
     myargv = (char**)realloc(myargv, tmp_argc * sizeof(char*));
-    myargv[myargc] = strdup("-ORBtraceLevel") ;
+    myargv[myargc] = strdup("-ORBtraceLevel");
     sprintf(level, "%u", TRACE_LEVEL - TRACE_MAX_VALUE);
     myargv[myargc + 1] = (char*)level;
     myargc = tmp_argc;
@@ -863,7 +863,7 @@ diet_SeD(const char* config_file_name, int argc, char* argv[]) {
 
 #ifdef HAVE_ALT_BATCH
   /* Define the role of the SeD: batch, serial, etc. */
-  SeD->setServerStatus( st ) ;
+  SeD->setServerStatus( st );
   TRACE_TEXT(TRACE_MAIN_STEPS, "setServerStatus " << (int)st << endl);
 #endif
 
@@ -1198,12 +1198,12 @@ diet_est_array_defined_system(estVectorConst_t ev, int systemTag, int idx) {
  */
 estVector_t
 diet_new_estVect() {
-  return new corba_estimation_t() ;
+  return new corba_estimation_t();
 }
 
 void
 diet_destroy_estVect( estVector_t perfVect ) {
-  delete perfVect ;
+  delete perfVect;
 }
 #endif // HAVE_ALT_BATCH
 
@@ -1215,14 +1215,14 @@ diet_estimate_cori(estVector_t ev,
   switch( collector_type ) {
   case EST_COLL_EASY:
   case EST_COLL_BATCH:
-    CORIMgr::call_cori_mgr( &ev, info_type, collector_type, data ) ;
-    break ;
+    CORIMgr::call_cori_mgr( &ev, info_type, collector_type, data );
+    break;
   case EST_COLL_GANGLIA:
   case EST_COLL_NAGIOS:
   default:
-    ERROR("Requested collector not implemented", -1) ;
+    ERROR("Requested collector not implemented", -1);
   }
-  return 0 ;
+  return 0;
 }
 
 int
@@ -1325,7 +1325,7 @@ diet_estimate_lastexec(estVector_t ev,
 int
 diet_estimate_comptime(estVector_t ev, double value) {
   diet_est_set_internal(ev, EST_TCOMP, value);
-  return 0 ;
+  return 0;
 }
 
 /* Get the number of waiting jobs in the queue. */
@@ -1389,14 +1389,14 @@ diet_estimate_eft(estVector_t ev,
 void
 diet_set_server_status( diet_server_status_t status ) {
   if( (status > -1) && (status<NB_SERVER_STATUS) ) {
-    st = status ;
+    st = status;
     switch((int)st) {
     case BATCH:
       TRACE_TEXT(TRACE_MAIN_STEPS,"SeD is batch\n");
-      break ;
+      break;
     case SERIAL:
       TRACE_TEXT(TRACE_MAIN_STEPS,"SeD is sequential\n");
-      break ;
+      break;
     default:
       TRACE_TEXT(TRACE_MAIN_STEPS,"Server status list to update\n");
     }
@@ -1410,7 +1410,7 @@ diet_submit_parallel(diet_profile_t * profile,
                      const char * addon_prologue,
                      const char * command) {
   return ((((SeDImpl*)profile->SeDPtr)->getBatch())->
-          diet_submit_parallel(profile, addon_prologue, command)) ;
+          diet_submit_parallel(profile, addon_prologue, command));
 }
 
 /* This is to be used later: a SeD can manage a reservation as he wants. It
@@ -1420,7 +1420,7 @@ int
 diet_concurrent_submit_parallel(int batchJobID, diet_profile_t * profile,
                                 const char * command) {
   return (((SeDImpl*)profile->SeDPtr)->getBatch())->
-    diet_submit_parallel(batchJobID,profile,command) ;
+    diet_submit_parallel(batchJobID,profile,command);
 }
 
 /* Used to explicitely wait for the completion of a batch job */

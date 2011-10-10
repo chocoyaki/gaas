@@ -54,61 +54,61 @@ const char * PBS_BatchSystem::statusNames[] = {
   "S", // ?? Job is Suspended
   "H"  // ?? Job is waiting for its requested execution time to be reached
        //   or job specified a stage-in request which failed for some reason
-} ;
+};
 
 PBS_BatchSystem::PBS_BatchSystem(int ID, const char * batchname)
 {
   if( pathToNFS == NULL ) {
-    ERROR_EXIT("PBS needs a path to a NFS directory to store its script") ;
+    ERROR_EXIT("PBS needs a path to a NFS directory to store its script");
   }
 #if defined YC_DEBUG
-  TRACE_TEXT(TRACE_ALL_STEPS,"Nom NFS: " << getNFSPath() << endl) ;
+  TRACE_TEXT(TRACE_ALL_STEPS,"Nom NFS: " << getNFSPath() << endl);
 #endif
 
-  batch_ID = ID ;
-  batchName = batchname ;
+  batch_ID = ID;
+  batchName = batchname;
 
-  shell    = BatchSystem::emptyString ;
-  prefixe  = "#!/bin/sh" ;
+  shell    = BatchSystem::emptyString;
+  prefixe  = "#!/bin/sh";
   // the -V option declares that all environment variables in the qsub
   // command's environment are to be exported to the batch job
   // the -N option is to set the name of the job (usefull to debug)
-  postfixe = "#PBS -V\n#PBS -N DIET_SeD" ;
+  postfixe = "#PBS -V\n#PBS -N DIET_SeD";
 
-  nodesNumber       = "#PBS -l nodes=" ;
-  serial            = "#PBS -l nodes=1" ;
-  coresNumber = BatchSystem::emptyString ;
-  walltime          = "\n#PBS -l walltime=" ;
-  submittingQueue   = "\n#PBS -q " ;
-  minimumMemoryUsed = "\n#PBS -l mem=" ;
+  nodesNumber       = "#PBS -l nodes=";
+  serial            = "#PBS -l nodes=1";
+  coresNumber = BatchSystem::emptyString;
+  walltime          = "\n#PBS -l walltime=";
+  submittingQueue   = "\n#PBS -q ";
+  minimumMemoryUsed = "\n#PBS -l mem=";
 
   /* TODO: When we use some ID for DIET client, change there! */
-  //mail      = "#PBS -m a\n#PBS -M " ; // -m, send mail when:
+  //mail      = "#PBS -m a\n#PBS -M "; // -m, send mail when:
   // a: job is aborted by batch system
   // b: job begins execution
   // e: job ends execution
   // n: do not send mail
   // -M, recipient list
-  mail      = BatchSystem::emptyString ;
-  account   = BatchSystem::emptyString ;
-  setSTDOUT = "\n#PBS -o " ;
-  setSTDIN  = BatchSystem::emptyString ;
-  setSTDERR = "\n#PBS -e " ;
+  mail      = BatchSystem::emptyString;
+  account   = BatchSystem::emptyString;
+  setSTDOUT = "\n#PBS -o ";
+  setSTDIN  = BatchSystem::emptyString;
+  setSTDERR = "\n#PBS -e ";
 
-  submitCommand = "qsub " ;
-  killCommand   = "qdel " ;
-  wait4Command  = "qstat -f " ;
-  waitFilter    = "grep job_state | cut --delimiter== --field=2 | cut --delimiter=\" \" --field=2" ;
-  exitCode      = "0" ;
+  submitCommand = "qsub ";
+  killCommand   = "qdel ";
+  wait4Command  = "qstat -f ";
+  waitFilter    = "grep job_state | cut --delimiter== --field=2 | cut --delimiter=\" \" --field=2";
+  exitCode      = "0";
 
   // nothing to do to retrieve the ID of the submission...
   // but we need to add something, let's say 'uniq' :-)
-  jid_extract_patterns = "uniq"; //"cut --delimiter=\\\" -f 2 | cut --delimiter=. -f 2" ;
+  jid_extract_patterns = "uniq"; //"cut --delimiter=\\\" -f 2 | cut --delimiter=. -f 2";
 
   /* Information for META_VARIABLES */
-  batchJobID     = "$PBS_JOBID" ;
-  nodeFileName   = "$PBS_NODEFILE" ;
-  nodeIdentities = "cat $PBS_NODEFILE" ;
+  batchJobID     = "$PBS_JOBID";
+  nodeFileName   = "$PBS_NODEFILE";
+  nodeIdentities = "cat $PBS_NODEFILE";
 }
 
 PBS_BatchSystem::~PBS_BatchSystem()
@@ -120,22 +120,22 @@ PBS_BatchSystem::~PBS_BatchSystem()
 BatchSystem::batchJobState
 PBS_BatchSystem::askBatchJobStatus(int batchJobID)
 {
-  char * filename ;
-  int file_descriptor ;
-  char * chaine ;
-  int i=0 ;
-  int nbread ;
-  batchJobState status ;
+  char * filename;
+  int file_descriptor;
+  char * chaine;
+  int i=0;
+  int nbread;
+  batchJobState status;
 
   /* If job has completed, not ask batch system */
-  status = getRecordedBatchJobStatus( batchJobID ) ;
+  status = getRecordedBatchJobStatus( batchJobID );
   if( (status == TERMINATED) || (status == CANCELED) || (status == ERROR) )
-    return status ;
+    return status;
   /* create a temporary file to get results and batch job ID */
-  filename = createUniqueTemporaryTmpFile("DIET_batch_finish") ;
-  file_descriptor = open(filename,O_RDONLY) ;
+  filename = createUniqueTemporaryTmpFile("DIET_batch_finish");
+  file_descriptor = open(filename,O_RDONLY);
   if( file_descriptor == -1 ) {
-    ERROR("Cannot open file", UNDETERMINED ) ;
+    ERROR("Cannot open file", UNDETERMINED );
   }
 
   /*** Ask batch system the job status ***/
@@ -143,70 +143,70 @@ PBS_BatchSystem::askBatchJobStatus(int batchJobID)
                                        + NBDIGITS_MAX_BATCH_JOB_ID * 2
                                        + strlen(waitFilter) * 2
                                        + strlen(filename) * 2
-                                       + 85 + 1) ) ;
+                                       + 85 + 1) );
   /* See EOF to get an example of what we parse */
   // ugly trick to use a PBS which does not keep the status of the batch once finished
   sprintf(chaine,"TMP_VAL=`%s %d 2>/dev/null | %s`;if [ \"$TMP_VAL\" == \"\" ];then echo E > %s;else %s %d | %s > %s;fi",
           wait4Command,batchJobID,waitFilter,
           filename,
-          wait4Command,batchJobID,waitFilter, filename) ;
+          wait4Command,batchJobID,waitFilter, filename);
 #if defined YC_DEBUG
-  TRACE_TEXT(TRACE_ALL_STEPS,"Execute:" << endl << chaine << endl) ;
+  TRACE_TEXT(TRACE_ALL_STEPS,"Execute:" << endl << chaine << endl);
 #endif
   if( system(chaine) != 0 ) {
-    ERROR("Cannot submit script", NB_STATUS) ;
+    ERROR("Cannot submit script", NB_STATUS);
   }
 
   /* Get job status */
-  for( int i = 0 ; i<=NBDIGITS_MAX_BATCH_JOB_ID ; i++ )
-    chaine[i] = '\0' ;
+  for( int i = 0; i<=NBDIGITS_MAX_BATCH_JOB_ID; i++ )
+    chaine[i] = '\0';
 
   if( (nbread=readn(file_descriptor,chaine,NBDIGITS_MAX_JOB_STATUS)) == 0 ) {
-    ERROR("Error with I/O file. Cannot read the batch status", NB_STATUS) ;
+    ERROR("Error with I/O file. Cannot read the batch status", NB_STATUS);
   }
 
   if( nbread == 0 )
     /* we consider that like OK */
-    i=TERMINATED ;
+    i=TERMINATED;
   else {
     /* Adjust what have been read */
     if( chaine[nbread-1] == '\n' )
-      chaine[nbread-1] = '\0' ;
+      chaine[nbread-1] = '\0';
     while( (i<NB_STATUS) &&
            (strcmp(chaine,PBS_BatchSystem::statusNames[i])!=0) ) {
-      i++ ;
+      i++;
     }
   }
 
   if( i==NB_STATUS ) {
-    ERROR("Cannot get batch job " << batchJobID << " status: " << chaine, NB_STATUS) ;
+    ERROR("Cannot get batch job " << batchJobID << " status: " << chaine, NB_STATUS);
   }
   /* Remove temporary file by closing it */
 #if REMOVE_BATCH_TEMPORARY_FILE
-  unlink( filename ) ;
+  unlink( filename );
 #endif
   if( close(file_descriptor) != 0 ) {
-    WARNING("Couln't remove I/O redirection file") ;
+    WARNING("Couln't remove I/O redirection file");
   }
-  updateBatchJobStatus(batchJobID,(batchJobState)i) ;
-  free(chaine) ;
-  free(filename) ;
-  return (batchJobState)i ;
+  updateBatchJobStatus(batchJobID,(batchJobState)i);
+  free(chaine);
+  free(filename);
+  return (batchJobState)i;
 }
 
 int
 PBS_BatchSystem::isBatchJobCompleted(int batchJobID)
 {
-  int status = getRecordedBatchJobStatus(batchJobID) ;
+  int status = getRecordedBatchJobStatus(batchJobID);
 
   if( (status == TERMINATED) || (status == CANCELED) || (status == ERROR) )
-    return 1 ;
-  status = askBatchJobStatus(batchJobID) ;
+    return 1;
+  status = askBatchJobStatus(batchJobID);
   if( (status == TERMINATED) || (status == CANCELED) || (status == ERROR) )
-    return 1 ;
+    return 1;
   else if( status == NB_STATUS )
-    return -1 ;
-  return 0 ;
+    return -1;
+  return 0;
 }
 
 /********** Batch static information accessing Functions **********/
@@ -214,29 +214,29 @@ PBS_BatchSystem::isBatchJobCompleted(int batchJobID)
 int
 PBS_BatchSystem::getNbResources()
 {
-  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl) ;
-  return getNbTotResources() ;
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl);
+  return getNbTotResources();
 }
 
 int
 PBS_BatchSystem::getNbTotResources()
 {
   return launchCommandAndGetInt( "qstat -Bf | grep resources_assigned.nodect | cut --delimiter== --field=2 | cut --delimiter=\" \" --field=2",
-                                 "DIET_getNbResources") ;
+                                 "DIET_getNbResources");
 }
 
 int
 PBS_BatchSystem::getMaxWalltime()
 {
   return launchCommandAndGetInt("qstat -Qf | grep mtime | cut --delimiter== --field=2 | cut --delimiter=\" \" --field=2",
-                                "DIET_getNbResources") ;
+                                "DIET_getNbResources");
 }
 
 int
 PBS_BatchSystem::getMaxProcs()
 {
-  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl) ;
-  return getNbResources() ;
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl);
+  return getNbResources();
 }
 
 /********** Batch dynamic information accessing Functions *********/
@@ -244,15 +244,15 @@ PBS_BatchSystem::getMaxProcs()
 int
 PBS_BatchSystem::getNbTotFreeResources()
 {
-  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl) ;
-  return getNbResources() ;
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl);
+  return getNbResources();
 }
 
 int
 PBS_BatchSystem::getNbFreeResources()
 {
-  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl) ;
-  return getNbResources() ;
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl);
+  return getNbResources();
 }
 
 /*************************** Performance Prediction *************************/

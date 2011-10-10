@@ -110,7 +110,7 @@
 #include "BindService.hh"
 #include "KeyString.hh"
 #include "ts_container/ts_set.hh"
-class FloodRequestsList ;
+class FloodRequestsList;
 #endif
 
 #include "DagdaCatalog.hh"
@@ -179,7 +179,7 @@ public :
   handShake(const char* name, const char* myName);
   /** returns the address of the bind service of the Master Agent */
   virtual char*
-  getBindName() ;
+  getBindName();
   /** Updates all the references to the other Master Agent. It also
       connect to some new Master Agent if there is not enough links. */
   void
@@ -245,16 +245,16 @@ private :
   Counter num_data;
 #ifdef HAVE_MULTI_MA
   typedef ts_set<KeyString> StrList;
-  StrList MAIds ;
-  MAList knownMAs ;
-  int minMAlinks ;
-  int maxMAlinks ;
-  BindService* bindSrv ;
-  CORBA::String_var bindName ;
-  FloodRequestsList* floodRequestsList ;
-  typedef ts_set<CORBA::Long> ReqIdList ;
-  ReqIdList reqIdList ;
-  void logNeighbors() ;
+  StrList MAIds;
+  MAList knownMAs;
+  int minMAlinks;
+  int maxMAlinks;
+  BindService* bindSrv;
+  CORBA::String_var bindName;
+  FloodRequestsList* floodRequestsList;
+  typedef ts_set<CORBA::Long> ReqIdList;
+  ReqIdList reqIdList;
+  void logNeighbors();
 #endif // HAVE_MULTI_MA
   void
   cp_arg_to_pb(corba_data_desc_t& pb, corba_data_desc_t arg_desc);
@@ -305,7 +305,7 @@ public:
 
 #ifdef HAVE_MULTI_MA
   virtual CORBA::Boolean handShake(const char* name, const char* myName);
-  virtual char* getBindName() ;
+  virtual char* getBindName();
   //void updateRefs();
   virtual void searchService(const char* predecessor,
                              const char* predecessorId,

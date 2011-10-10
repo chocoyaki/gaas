@@ -46,47 +46,47 @@
 #include "DIET_compat.hh"
 
 bool FloodRequestsList::put(FloodRequest& floodRequest) {
-  //TRACE_TEXT(15,"fr put lock" << endl) ;
-  mutex.lock() ;
-  //TRACE_TEXT(15,"fr put --lock" << endl) ;
-  RequestID reqId = floodRequest.getId() ;
-  iterator iter = requestsList.find(reqId) ;
-  bool result = (iter == requestsList.end()) ;
+  //TRACE_TEXT(15,"fr put lock" << endl);
+  mutex.lock();
+  //TRACE_TEXT(15,"fr put --lock" << endl);
+  RequestID reqId = floodRequest.getId();
+  iterator iter = requestsList.find(reqId);
+  bool result = (iter == requestsList.end());
   if(result) {
-    requestsList[reqId] = &floodRequest ;
+    requestsList[reqId] = &floodRequest;
   }
-  //TRACE_TEXT(15,"fr put unlock" << endl) ;
-  mutex.unlock() ;
-  return result ;
+  //TRACE_TEXT(15,"fr put unlock" << endl);
+  mutex.unlock();
+  return result;
 }
 
 FloodRequest & FloodRequestsList::get(const RequestID & reqID) {
-  int lp = 0 ;
+  int lp = 0;
   FloodRequest* result = NULL;
-  bool find = false ;
+  bool find = false;
   while (!find && lp < 100) { // waits a maximum of one second
-    //TRACE_TEXT(15,"fr get lock" << endl) ;
-    mutex.lock() ;
-    //TRACE_TEXT(15,"fr get --lock" << endl) ;
-    iterator iter = requestsList.find(reqID) ;
-    find = (iter != requestsList.end()) ;
+    //TRACE_TEXT(15,"fr get lock" << endl);
+    mutex.lock();
+    //TRACE_TEXT(15,"fr get --lock" << endl);
+    iterator iter = requestsList.find(reqID);
+    find = (iter != requestsList.end());
     if (find) {
-      result = &(*iter->second) ;
-      requestsList.erase(iter) ;
-      //TRACE_TEXT(15,"fr get unlock" << endl) ;
-      mutex.unlock() ;
+      result = &(*iter->second);
+      requestsList.erase(iter);
+      //TRACE_TEXT(15,"fr get unlock" << endl);
+      mutex.unlock();
     } else {
       // if the request is not found, wait 10 ms that a thread free
       // the resource access
-      //TRACE_TEXT(15,"fr get unlock" << endl) ;
-      mutex.unlock() ;
-      TRACE_TEXT(20, "FloodRequestsLists sleep 10ms" << endl) ;
-      diet::usleep(10000) ;
+      //TRACE_TEXT(15,"fr get unlock" << endl);
+      mutex.unlock();
+      TRACE_TEXT(20, "FloodRequestsLists sleep 10ms" << endl);
+      diet::usleep(10000);
     }
   }
   if (!find)
-    throw FloodRequestNotFoundException(reqID) ;
-  return *result ;
+    throw FloodRequestNotFoundException(reqID);
+  return *result;
 }
 
 #endif // HAVE_MULTI_MA

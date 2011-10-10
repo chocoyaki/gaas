@@ -31,7 +31,7 @@ typedef enum {
   STRING_PARAMETER,
   ADDRESS_PARAMETER,
   AGENT_PARAMETER, // like int
-} c_type_t ;
+} c_type_t;
 
 typedef enum {
   CONFIGFILE=0,

@@ -100,7 +100,7 @@ public:
               WfPort::WfPortType _portType,
               WfCst::WfDataType _type,
               unsigned int _depth,
-              unsigned int _ind) ;
+              unsigned int _ind);
 
   /***************************************************/
   /*               public methods                    */
@@ -359,7 +359,7 @@ protected:
    * @return false if source data cannot be found
    */
   virtual void
-  initSourceData() throw (WfDataException) ;
+  initSourceData() throw (WfDataException);
 
   /**
    * Returns the persistence mode for this port

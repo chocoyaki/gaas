@@ -77,22 +77,22 @@ class ts_map : private std::map<Key, T, CMP> {
      * used bye the assertion to check if the \c lock() methods is
      * called before the not thread safe methods are called.
      */
-    mutable bool accessLocked ;
+    mutable bool accessLocked;
 #endif // NDEBUG
 
     /**
      * This is the mutex that lock the access to the map to avoid that
      * to thread access to the map in the same time.
      */
-    mutable omni_mutex locker ;
+    mutable omni_mutex locker;
 
     /**
      * A type to avoid to type map<Key, T, CMP, A> each time.
      */
 #ifdef LIMIT_MAP_TEMPLATE
-    typedef std::map<Key, T, CMP> MapType ;
+    typedef std::map<Key, T, CMP> MapType;
 #else
-    typedef std::map<Key, T, CMP, A> MapType ;
+    typedef std::map<Key, T, CMP, A> MapType;
 #endif /* LIMIT_MAP_TEMPLATE */
 
   public :
@@ -100,14 +100,14 @@ class ts_map : private std::map<Key, T, CMP> {
     /**
      * the size_type type is the same as the map::size_type
      */
-    typedef typename MapType::size_type size_type ;
+    typedef typename MapType::size_type size_type;
 
     /**
      * the iterator type
      */
-    typedef typename MapType::iterator iterator ;
+    typedef typename MapType::iterator iterator;
 
-    typedef typename MapType::value_type value_type ;
+    typedef typename MapType::value_type value_type;
 
   public :
 
@@ -120,20 +120,20 @@ class ts_map : private std::map<Key, T, CMP> {
      * mapped type is inserted into the map.
      */
     inline T& operator[] (const Key& k) {
-      locker.lock() ;
-      T& result = MapType::operator[](k) ;
-      locker.unlock() ;
-      return result ;
+      locker.lock();
+      T& result = MapType::operator[](k);
+      locker.unlock();
+      return result;
     }
 
     /**
      * return the size (number of elements) of the map.
      */
     inline size_type size() const {
-      locker.lock() ;
-      size_type result = MapType::size() ;
-      locker.unlock() ;
-      return result ;
+      locker.lock();
+      size_type result = MapType::size();
+      locker.unlock();
+      return result;
     }
 
     /**
@@ -142,10 +142,10 @@ class ts_map : private std::map<Key, T, CMP> {
      * @return 1 if the element \c k was found and erased, 0 if not.
      */
     inline size_type erase(const Key& k) {
-      locker.lock() ;
-      size_type result = MapType::erase(k) ;
-      locker.unlock() ;
-      return result ;
+      locker.lock();
+      size_type result = MapType::erase(k);
+      locker.unlock();
+      return result;
     }
 
     /**
@@ -154,9 +154,9 @@ class ts_map : private std::map<Key, T, CMP> {
      * destructor of the object.
      */
     inline void clear() {
-      locker.lock() ;
-      MapType::clear() ;
-      locker.unlock() ;
+      locker.lock();
+      MapType::clear();
+      locker.unlock();
     }
 
     /***<iterator>**************************************************************/
@@ -165,9 +165,9 @@ class ts_map : private std::map<Key, T, CMP> {
      * locks the access to the container
      */
     inline void lock() const {
-      locker.lock() ;
+      locker.lock();
 #ifndef NDEBUG // only used by the assert
-      accessLocked = true ;
+      accessLocked = true;
 #endif // NDEBUG
     }
 
@@ -175,46 +175,46 @@ class ts_map : private std::map<Key, T, CMP> {
      * unlocks the access to the container
      */
     inline void unlock() const {
-      assert(accessLocked) ;
+      assert(accessLocked);
 #ifndef NDEBUG //only used by the assert
-      accessLocked = false ;
+      accessLocked = false;
 #endif // NDEBUG
-      locker.unlock() ;
+      locker.unlock();
     }
 
     inline iterator find(const Key& x) {
-      assert(accessLocked) ;
-      return MapType::find(x) ;
+      assert(accessLocked);
+      return MapType::find(x);
     }
 
     inline void erase(iterator pos) {
-      assert(accessLocked) ;
-      MapType::erase(pos) ;
+      assert(accessLocked);
+      MapType::erase(pos);
     }
 
     inline iterator insert(iterator pos, const value_type& x) {
-      assert(accessLocked) ;
-      return MapType::insert(pos, x) ;
+      assert(accessLocked);
+      return MapType::insert(pos, x);
     }
 
     /**
      * Returns an iterator pointing to the beginning of the map.
      */
     inline iterator begin() {
-      assert(accessLocked) ;
-      return MapType::begin() ;
+      assert(accessLocked);
+      return MapType::begin();
     }
 
     /**
      * Returns an iterator pointing to the end of the map.
      */
     inline iterator end() {
-      assert(accessLocked) ;
-      return MapType::end() ;
+      assert(accessLocked);
+      return MapType::end();
     }
 
     /**************************************************************************/
 
-  } ;
+  };
 
 #endif // _TS_MAP_HH_

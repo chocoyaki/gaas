@@ -46,7 +46,7 @@
 
 #define className Cori_batch
 
-using namespace std ;
+using namespace std;
 
 void
 className::printMetric( estVector_t vector_v, int type_Info )
@@ -54,20 +54,20 @@ className::printMetric( estVector_t vector_v, int type_Info )
   switch( type_Info ){
 
   case EST_SERVER_TYPE: /* Value appears only once */
-    cout << "In construction: EST_SERVER_TYPE" << endl << endl ;
+    cout << "In construction: EST_SERVER_TYPE" << endl << endl;
     break;
   case EST_PARAL_NBTOT_RESOURCES:
-    cout << "In construction: EST_PARAL_NBTOT_RESOURCES" << endl << endl ;
+    cout << "In construction: EST_PARAL_NBTOT_RESOURCES" << endl << endl;
     break;
   case EST_PARAL_NBTOT_FREE_RESOURCES:
-    cout << "In construction: EST_PARAL_NBTOT_FREE_RESOURCES" << endl << endl ;
+    cout << "In construction: EST_PARAL_NBTOT_FREE_RESOURCES" << endl << endl;
     break;
   case EST_PARAL_NB_FREE_RESOURCES_IN_DEFAULT_QUEUE:
     cout <<
       "CoRI: EST_PARAL_NB_FREE_RESOURCES_IN_DEFAULT_QUEUE... " <<
       (int)diet_est_get_system(vector_v,
                                EST_PARAL_NB_FREE_RESOURCES_IN_DEFAULT_QUEUE, 0)
-                                                               << endl << endl ;
+                                                               << endl << endl;
     break;
   default: {
     INTERNAL_WARNING( "CoRI: Tag " << type_Info <<" for printing info");
@@ -81,8 +81,8 @@ Cori_batch::Cori_batch( diet_profile_t * profile )
      that */
   /* TODO: make a diet_initialize() or something before diet_SeD()! */
 
-  /* this->SeD = (SeDImpl*)(profile->SeDPtr) ;
-     this->batch = ((SeDImpl*)(profile->SeDPtr))->getBatch() ; */
+  /* this->SeD = (SeDImpl*)(profile->SeDPtr);
+     this->batch = ((SeDImpl*)(profile->SeDPtr))->getBatch(); */
 }
 
 int
@@ -94,58 +94,58 @@ Cori_batch::get_Information(int type_Info,
     /* The following one should be replaced, when SeDseq, SeDpar will be
        implemented, by est_PARAL_ID */
   case EST_SERVER_TYPE:
-    /*    diet_est_set_internal( *estvect, type_Info, this->SeD->getServerStatus()) ; */
+    /*    diet_est_set_internal( *estvect, type_Info, this->SeD->getServerStatus()); */
     diet_est_set_internal( *estvect, type_Info,
-                           (( SeDImpl*)(((diet_profile_t*)data)->SeDPtr))->getServerStatus()) ;
-    break ;
+                           (( SeDImpl*)(((diet_profile_t*)data)->SeDPtr))->getServerStatus());
+    break;
   case EST_PARAL_NBTOT_RESOURCES:
     diet_est_set_internal( *estvect, type_Info,
                            ((( SeDImpl*)(((diet_profile_t*)data)->SeDPtr))
-                            ->getBatch())->getNbTotResources() ) ;
-    /*                     this->batch->getNbTotResources() ) ; */
-    break ;
+                            ->getBatch())->getNbTotResources() );
+    /*                     this->batch->getNbTotResources() ); */
+    break;
   case EST_PARAL_NBTOT_FREE_RESOURCES:
     diet_est_set_internal( *estvect, type_Info,
                            ((( SeDImpl*)(((diet_profile_t*)data)->SeDPtr))
-                            ->getBatch())->getNbTotFreeResources() ) ;
-    /*                     this->batch->getNbTotFreeResources() ) ; */
-    break ;
+                            ->getBatch())->getNbTotFreeResources() );
+    /*                     this->batch->getNbTotFreeResources() ); */
+    break;
     /* Information concerning the default queue now */
   case EST_PARAL_NB_RESOURCES_IN_DEFAULT_QUEUE:
     diet_est_set_internal( *estvect, type_Info,
                            ((( SeDImpl*)(((diet_profile_t*)data)->SeDPtr))
-                            ->getBatch())->getNbResources() ) ;
-    /*                     this->batch->getNbResources() ) ; */
-    break ;
+                            ->getBatch())->getNbResources() );
+    /*                     this->batch->getNbResources() ); */
+    break;
   case EST_PARAL_NB_FREE_RESOURCES_IN_DEFAULT_QUEUE:
     diet_est_set_internal( *estvect, type_Info,
                            ((( SeDImpl*)(((diet_profile_t*)data)->SeDPtr))
-                            ->getBatch())->getNbFreeResources() ) ;
-    /*                     this->batch->getNbFreeResources() ) ; */
-    break ;
+                            ->getBatch())->getNbFreeResources() );
+    /*                     this->batch->getNbFreeResources() ); */
+    break;
   case EST_PARAL_MAX_WALLTIME:
     diet_est_set_internal( *estvect, type_Info,
                            ((( SeDImpl*)(((diet_profile_t*)data)->SeDPtr))
-                            ->getBatch())->getMaxWalltime() ) ;
-    /*                     this->batch->getMaxWalltime() ) ; */
-    break ;
+                            ->getBatch())->getMaxWalltime() );
+    /*                     this->batch->getMaxWalltime() ); */
+    break;
   case EST_PARAL_MAX_PROCS:
     diet_est_set_internal( *estvect, type_Info,
                            ((( SeDImpl*)(((diet_profile_t*)data)->SeDPtr))
-                            ->getBatch())->getMaxProcs() ) ;
-    /*                     this->batch->getMaxProcs() ) ; */
-    break ;
+                            ->getBatch())->getMaxProcs() );
+    /*                     this->batch->getMaxProcs() ); */
+    break;
   default:
   {
 
     WARNING("CoRI Batch: Tag " << type_Info <<
-            " unknown for collecting info") ;
+            " unknown for collecting info");
   }
   }
 
   if (TRACE_LEVEL>=TRACE_ALL_STEPS)
-    printMetric( *estvect, type_Info ) ;
-  return 0 ;
+    printMetric( *estvect, type_Info );
+  return 0;
 }
 
 /****************************************************************************/
@@ -167,7 +167,7 @@ Cori_batch::convertArray(vector <double> vect,
       }
       return 0;
   */
-  return 0 ;
+  return 0;
 }
 
 int

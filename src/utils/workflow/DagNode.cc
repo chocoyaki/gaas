@@ -558,7 +558,7 @@ DagNode::freeProfileAndData(MasterAgent_var& MA) {
  */
 char *
 DagNode::newChar(const string value) {
-  //   TRACE_TEXT (TRACE_ALL_STEPS, "new char ; value | " << value <<  " |" << endl);
+  //   TRACE_TEXT (TRACE_ALL_STEPS, "new char; value | " << value <<  " |" << endl);
   if (value != "") {
     char * cx = new char;
     *cx = value.c_str()[0];
@@ -576,7 +576,7 @@ DagNode::newChar(const string value) {
  */
 short *
 DagNode::newShort(const string value) {
-  //   TRACE_TEXT (TRACE_ALL_STEPS, "new short ; value | " << value <<  " |" << endl);
+  //   TRACE_TEXT (TRACE_ALL_STEPS, "new short; value | " << value <<  " |" << endl);
   if (value != "") {
     short * sx = new short;
     *sx = atoi(value.c_str());
@@ -595,7 +595,7 @@ DagNode::newShort(const string value) {
 int *
 DagNode::newInt(const string value) {
   //   TRACE_TEXT (TRACE_ALL_STEPS,
-  //            "new int ; value | " << value <<  " |" << endl);
+  //            "new int; value | " << value <<  " |" << endl);
   if (value != "") {
     int * ix = new int;
     *ix = atoi(value.c_str());
@@ -615,7 +615,7 @@ DagNode::newInt(const string value) {
 long *
 DagNode::newLong(const string value) {
   //    TRACE_TEXT (TRACE_ALL_STEPS,
-  //            "new long ; value | " << value <<  " |" << endl);
+  //            "new long; value | " << value <<  " |" << endl);
   if (value != "") {
     long * lx = new long;
     *lx = atoi(value.c_str());

@@ -34,7 +34,7 @@
 
 #include "omnithread.h"
 
-class MasterAgentImpl ;
+class MasterAgentImpl;
 
 /**
  * This is an thead object that take a MasterAgent_impl in
@@ -52,18 +52,18 @@ private :
    * A pointer on the master agent that own this thread. This is this
    * agent which are updated each 5 minutes.
    */
-  MasterAgentImpl* owner ;
+  MasterAgentImpl* owner;
 
   /**
    * amount of time that it wait between two references updates.
    */
-  unsigned int period ;
+  unsigned int period;
 
   /**
    * Updates the references of the owner, waits 5 minutes and do it
    * again.
    */
-  void run(void* ptr) ;
+  void run(void* ptr);
 
 public :
   /**
@@ -76,14 +76,14 @@ public :
    * @param period amount of time that it wait between two references
    * updates.
    */
-  ReferenceUpdateThread(MasterAgentImpl* owner, unsigned int period) ;
+  ReferenceUpdateThread(MasterAgentImpl* owner, unsigned int period);
 
   /**
    * destroys the thread.
    */
-  ~ReferenceUpdateThread() ;
+  ~ReferenceUpdateThread();
 
-} ; // ReferenceUpdateThread
+}; // ReferenceUpdateThread
 
 #endif // HAVE_MULTI_MA
 

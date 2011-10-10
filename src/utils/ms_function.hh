@@ -57,7 +57,7 @@
  *
  * @return a clone of \c str.
  */
-char* ms_strdup(const char* str) ;
+char* ms_strdup(const char* str);
 
 /**
  * Create an new string of length \c length with the \c
@@ -68,7 +68,7 @@ char* ms_strdup(const char* str) ;
  *
  * @return an undefined string of length \c length.
  */
-char* ms_stralloc(int length) ;
+char* ms_stralloc(int length);
 
 /**
  * Frees the memory of the string given in argument with the function

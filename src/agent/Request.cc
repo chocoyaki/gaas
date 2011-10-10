@@ -56,18 +56,18 @@ using namespace std;
 
 void Request::freeResponses() {
   if (responses != NULL) {
-    delete [] responses ;
-    responses = NULL ;
-    responsesSize = 0 ;
+    delete [] responses;
+    responses = NULL;
+    responsesSize = 0;
   }
 }
 
 Request::Request(const corba_request_t* request)
 {
-  this->request = request ;
-  gatheringEnded = new omni_condition(&respMutex) ;
-  responses = NULL ;
-  responsesSize = 0 ;
+  this->request = request;
+  gatheringEnded = new omni_condition(&respMutex);
+  responses = NULL;
+  responsesSize = 0;
   if (*(request->serialized_scheduler.in()) == '\0') {
     INTERNAL_WARNING("request " << request->reqID
                      << " has no scheduler associated");
@@ -79,10 +79,10 @@ Request::Request(const corba_request_t* request)
 
 Request::Request(const corba_request_t* request, GlobalScheduler* GS)
 {
-  this->request = request ;
-  gatheringEnded = new omni_condition(&respMutex) ;
-  responses = NULL ;
-  responsesSize = 0 ;
+  this->request = request;
+  gatheringEnded = new omni_condition(&respMutex);
+  responses = NULL;
+  responsesSize = 0;
 
   this->GS = GS;
   if (GS && *(request->serialized_scheduler.in()) == '\0') {
@@ -96,7 +96,7 @@ Request::Request(const corba_request_t* request, GlobalScheduler* GS)
 
 
 Request::~Request() {
-  freeResponses() ;
+  freeResponses();
   /* New : For scheduler load support. */
   /* A loaded scheduler is not deleted in the same way than a normal scheduler.*/
 #ifdef USERSCHED
@@ -110,53 +110,53 @@ Request::~Request() {
     delete this->GS;
 #endif
   /*************************************/
-  delete gatheringEnded ;
+  delete gatheringEnded;
 } // ~Request()
 
 
 void Request::lock() {
-  respMutex.lock() ;
+  respMutex.lock();
 } // lock()
 
 
 void Request::unlock() {
-  respMutex.unlock() ;
+  respMutex.unlock();
 } // unlock()
 
 void Request::waitResponses(int numberOfResponses) {
-  assert(numberOfResponses > 0) ;
-  freeResponses() ;
-  responses = new corba_response_t[numberOfResponses] ;
-  responsesSize = numberOfResponses ;
-  nbWaitedSonsResponse = numberOfResponses ;
-  gatheringEnded->wait() ;
+  assert(numberOfResponses > 0);
+  freeResponses();
+  responses = new corba_response_t[numberOfResponses];
+  responsesSize = numberOfResponses;
+  nbWaitedSonsResponse = numberOfResponses;
+  gatheringEnded->wait();
 } // waitResponses(int numverOfResponses)
 
 
 void Request::addResponse(const corba_response_t* response) {
-  assert(nbWaitedSonsResponse > 0) ;
-  responses[--nbWaitedSonsResponse] = *response ;
+  assert(nbWaitedSonsResponse > 0);
+  responses[--nbWaitedSonsResponse] = *response;
   if(nbWaitedSonsResponse == 0)
-    gatheringEnded->signal() ;
+    gatheringEnded->signal();
 } // addResponse(const corba_response_t* response)
 
 
 corba_response_t* Request::getResponses() const {
-  return responses ;
+  return responses;
 } // getResponses()
 
 
 size_t Request::getResponsesSize() const {
-  return responsesSize ;
+  return responsesSize;
 } // getResponsesSize()
 
 
 CORBA::Long Request::getNumberOfParameters() const {
-  return request->pb.last_inout + 1 ;
+  return request->pb.last_inout + 1;
 } // getNumberOfParameters()
 
 const corba_request_t* Request::getRequest() const {
-  return request ;
+  return request;
 } // getRequest()
 
 

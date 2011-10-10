@@ -192,7 +192,7 @@ request_submission(MasterAgent_var& MA,
     }
     sprintf(statMsg, "request_submission %ld", (unsigned long) reqID);
     stat_out("Client",statMsg);
-    profile->dietReqID = reqID ;
+    profile->dietReqID = reqID;
   }
 
   return 0;
@@ -245,7 +245,7 @@ diet_call_common(MasterAgent_var& MA,
   }
 
   // Server is chosen, update its timeSinceLastSolve
-  chosenServer->updateTimeSinceLastSolve() ;
+  chosenServer->updateTimeSinceLastSolve();
 
   dagda_mrsh_profile(&corba_profile, profile, MA);
 

@@ -45,28 +45,28 @@
  *
  * \code
  *
- * typedef LinkedList<char> list ; // definition of a new list type.
+ * typedef LinkedList<char> list; // definition of a new list type.
  *
- * list l ;                        // l = <>
- * char* a = new char ; *a = 'a' ;
- * char* b = new char ; *b = 'b' ;
- * char* c = new char ; *c = 'c' ;
- * l.addElement(a) ;               // l = <a>
- * l.addElement(b) ;               // l = <a, b>
- * l.addElement(c) ;               // l = <a, b, c>
- * list::Iterator* i = l.getIterator() ; // all the access to the list is now
+ * list l;                        // l = <>
+ * char* a = new char; *a = 'a';
+ * char* b = new char; *b = 'b';
+ * char* c = new char; *c = 'c';
+ * l.addElement(a);               // l = <a>
+ * l.addElement(b);               // l = <a, b>
+ * l.addElement(c);               // l = <a, b, c>
+ * list::Iterator* i = l.getIterator(); // all the access to the list is now
  *                                       // booked to the iterator i.
- * i->hasCurrent() ;
- * char* c1 = i->getCurrent() ;    // c1 = a
- * i->next() ;
- * delete i->getCurrent() ;
- * i->removeCurrent() ;            // l = <a, c>
- * char* c2 = i->getCurrent() ;    // c2 = c
- * i->setCurrent(c1) ;             // l = <a, a>
- * i->reset() ;
- * i->setCurrent(c2) ;             // l = <c, a>
- * delete(i) ;                     // free the access to the linked list
- * l.emptyIt() ;                   // l = <>
+ * i->hasCurrent();
+ * char* c1 = i->getCurrent();    // c1 = a
+ * i->next();
+ * delete i->getCurrent();
+ * i->removeCurrent();            // l = <a, c>
+ * char* c2 = i->getCurrent();    // c2 = c
+ * i->setCurrent(c1);             // l = <a, a>
+ * i->reset();
+ * i->setCurrent(c2);             // l = <c, a>
+ * delete(i);                     // free the access to the linked list
+ * l.emptyIt();                   // l = <>
  * \endcode
  *
  * @author Sylvain DAHAN, LIFC Besançon (France)
@@ -80,34 +80,34 @@ private :
    */
   struct Node {
     /// next node or \c NULL if it's the last one.
-    Node* next ;
+    Node* next;
     /// previous node or \c NULL if it's the first one.
-    Node* previous ;
+    Node* previous;
     /// a pointer on the element.
-    T* element ;
-  }  ;
+    T* element;
+  } ;
 
 
   /**
    * indicates the number of element in the list.
    */
-  long counter ;
+  long counter;
 
   /**
    * mutex that gives acces to the critical zone of the list.
    */
-  mutable omni_mutex linkedListMutex ;
+  mutable omni_mutex linkedListMutex;
 
   /**
    * the first element of the list or \c NULL if the list is empty.
    */
-  Node* first ;
+  Node* first;
 
   /**
    * the last element of the list or it is not defined if the list is
    * empty.
    */
-  Node* last ;
+  Node* last;
 
 public :
   /**
@@ -122,36 +122,36 @@ public :
    * a copy of the element itself which are use to clone the list.
    */
   LinkedList(const LinkedList& list) {
-    list.linkedListMutex.lock() ;
+    list.linkedListMutex.lock();
 
-    counter = list.counter ;
+    counter = list.counter;
 
     if(list.first) { // if list is not empty
 
-      Node* listNode = list.first ; 
-      Node* newNode ;
-      newNode = new Node ;
-      first = newNode ;
-      newNode->previous = NULL ;
-      newNode->element = new T(*listNode->element) ;
+      Node* listNode = list.first; 
+      Node* newNode;
+      newNode = new Node;
+      first = newNode;
+      newNode->previous = NULL;
+      newNode->element = new T(*listNode->element);
 
       while(listNode->next) {
-        listNode = listNode->next ;
-        Node* nextNode = new Node ;
-        nextNode->previous = newNode ;
-        newNode->next = nextNode ;
-        newNode = nextNode ;
-        newNode->element = new T(*listNode->element) ;
+        listNode = listNode->next;
+        Node* nextNode = new Node;
+        nextNode->previous = newNode;
+        newNode->next = nextNode;
+        newNode = nextNode;
+        newNode->element = new T(*listNode->element);
       }
 
-      newNode->next = NULL ;
-      last = newNode ;      
+      newNode->next = NULL;
+      last = newNode;      
 
     } else {
-      first = NULL ;
+      first = NULL;
     }
 
-    list.linkedListMutex.unlock() ;
+    list.linkedListMutex.unlock();
   }
 
 
@@ -159,8 +159,8 @@ public :
    * destroyes the list. The list must be empty.
    */
   ~LinkedList() {
-    assert(first == NULL) ;
-    assert(counter == 0) ;
+    assert(first == NULL);
+    assert(counter == 0);
   }
 
 
@@ -169,15 +169,15 @@ public :
    * list.
    */
   void emptyIt() {
-    linkedListMutex.lock() ;
-    counter = 0 ;
-    Node* nodeBuf ;
+    linkedListMutex.lock();
+    counter = 0;
+    Node* nodeBuf;
     while((nodeBuf = first) != NULL) {
-      first = nodeBuf->next ;
-      delete nodeBuf->element ;
-      delete nodeBuf ;
+      first = nodeBuf->next;
+      delete nodeBuf->element;
+      delete nodeBuf;
     }
-    linkedListMutex.unlock() ;
+    linkedListMutex.unlock();
   }
 
 
@@ -189,24 +189,24 @@ public :
    * must be not \c NULL.
    */
   void addElement(T* element) {
-    assert(element != NULL) ;
+    assert(element != NULL);
 
-    Node* newNode = new Node() ;
-    newNode->next = NULL ;
-    newNode->element = element ;
+    Node* newNode = new Node();
+    newNode->next = NULL;
+    newNode->element = element;
 
-    linkedListMutex.lock() ;
-    ++counter ;
+    linkedListMutex.lock();
+    ++counter;
     if (first) { // if (first != NULL)
-      newNode->previous = last ;
-      last->next = newNode ;
-      last = newNode ;
+      newNode->previous = last;
+      last->next = newNode;
+      last = newNode;
     } else {
-      newNode->previous = NULL ;
-      first = newNode ;
+      newNode->previous = NULL;
+      first = newNode;
       last = newNode;
     }
-    linkedListMutex.unlock() ;
+    linkedListMutex.unlock();
   }
 
 
@@ -215,17 +215,17 @@ public :
    * list. If the list is empty, return a \c NULL pointer.
    */
   T* pop() {
-    linkedListMutex.lock() ;
-    T* elementBuf = NULL ;
+    linkedListMutex.lock();
+    T* elementBuf = NULL;
     if (first) {
-      --counter ;
-      Node* nodeBuf = first ;
-      first = nodeBuf->next ;
-      elementBuf = nodeBuf->element ;
-      delete nodeBuf ;
+      --counter;
+      Node* nodeBuf = first;
+      first = nodeBuf->next;
+      elementBuf = nodeBuf->element;
+      delete nodeBuf;
     }
-    linkedListMutex.unlock() ;
-    return elementBuf ;
+    linkedListMutex.unlock();
+    return elementBuf;
   }
 
 
@@ -233,10 +233,10 @@ public :
    * returnes the length (number of element) of the list.
    */
   long length() const {
-    linkedListMutex.lock() ;
-    long size = counter ;
-    linkedListMutex.unlock() ;
-    return size ;
+    linkedListMutex.lock();
+    long size = counter;
+    linkedListMutex.unlock();
+    return size;
   }
 
 
@@ -248,19 +248,19 @@ public :
    * list. At the end of the call, list is an empty list.
    */
   void append(LinkedList* list) {
-    linkedListMutex.lock() ;
-    list->linkedListMutex.lock() ;
+    linkedListMutex.lock();
+    list->linkedListMutex.lock();
 
     if(list->first) { // if list is not empty
-      last->next = list->first ;
-      list->first->previous = last ;
-      last = list->last ;
-      list->first = NULL ;
-      list->counter = 0 ;
+      last->next = list->first;
+      list->first->previous = last;
+      last = list->last;
+      list->first = NULL;
+      list->counter = 0;
     }
 
-    list->linkedListMutex.unlock() ;
-    linkedListMutex.unlock() ;
+    list->linkedListMutex.unlock();
+    linkedListMutex.unlock();
   }
 
 
@@ -268,7 +268,7 @@ public :
 
 public :
   
-  friend class Iterator ;
+  friend class Iterator;
 
   /**
    * it the linked list iterator. It is created by the linked list and
@@ -277,18 +277,18 @@ public :
    */
   class Iterator {
 
-    friend class LinkedList ;
+    friend class LinkedList;
 
   private :
     /**
      * pointer on the linkedList which is controled by the iterator.
      */
-    LinkedList* linkedList ;
+    LinkedList* linkedList;
 
     /**
      * pointer on the current node of the linked list.
      */
-    Node* currentNode ;
+    Node* currentNode;
 
     /**
      * creates a new iterator for the linked list \c controledList.
@@ -297,8 +297,8 @@ public :
      * the iterator.
      */
     Iterator(LinkedList* controledList) {
-      linkedList = controledList ;
-      currentNode = linkedList->first ;
+      linkedList = controledList;
+      currentNode = linkedList->first;
     }
 
   public :
@@ -307,7 +307,7 @@ public :
      * destroy the iterator and free the access to the linked list.
      */
     ~Iterator() {
-      linkedList->linkedListMutex.unlock() ;
+      linkedList->linkedListMutex.unlock();
     }
 
     /**
@@ -315,7 +315,7 @@ public :
      * become the current element.
      */
     inline void reset() {
-      currentNode = linkedList->first ;
+      currentNode = linkedList->first;
     }
 
     /**
@@ -345,7 +345,7 @@ public :
      */
     inline void next() {
       assert(currentNode != NULL);
-      currentNode = currentNode->next ;
+      currentNode = currentNode->next;
     }
 
     /**
@@ -355,15 +355,15 @@ public :
      */
     inline void previous() {
       assert(currentNode != NULL);
-      currentNode = currentNode->previous ;
+      currentNode = currentNode->previous;
     }
 
     /**
      * gets the current element. The current element must exist.
      */
     inline T* getCurrent() {
-      assert(hasCurrent()) ;
-      return currentNode->element ;
+      assert(hasCurrent());
+      return currentNode->element;
     }
 
     /**
@@ -373,9 +373,9 @@ public :
      * @param aElement it's the new current element. It must be not \c NULL.
      */
     inline void setCurrent(T* aElement) {
-      assert(aElement != NULL) ;
-      assert(hasCurrent()) ;
-      currentNode->element = aElement ;
+      assert(aElement != NULL);
+      assert(hasCurrent());
+      currentNode->element = aElement;
     }
 
     /**
@@ -384,33 +384,33 @@ public :
      * removed from the list. The current element must exist.
      */
     void removeCurrent() {
-      assert(hasCurrent()) ;
-      --(linkedList->counter) ;
-      Node* currentNodeBuf = currentNode ;
-      currentNode = currentNodeBuf->next ;
+      assert(hasCurrent());
+      --(linkedList->counter);
+      Node* currentNodeBuf = currentNode;
+      currentNode = currentNodeBuf->next;
       if(currentNodeBuf->previous)
-        currentNodeBuf->previous->next = currentNodeBuf->next ;
+        currentNodeBuf->previous->next = currentNodeBuf->next;
       else
-        linkedList->first = currentNodeBuf->next ;
+        linkedList->first = currentNodeBuf->next;
       if(currentNodeBuf->next)
-        currentNodeBuf->next->previous = currentNodeBuf->previous ;
+        currentNodeBuf->next->previous = currentNodeBuf->previous;
       else
-        linkedList->last = currentNodeBuf->previous ;
-      delete currentNodeBuf ;
+        linkedList->last = currentNodeBuf->previous;
+      delete currentNodeBuf;
     }
 
-  } ;
+  };
 
   /**
    * Creates an iterator which control the linked list. All the access
    * on the list is blocked until the iterator is destroyed.
    */
   Iterator* getIterator() {
-    linkedListMutex.lock() ;
-    Iterator* iteratorBuf = new Iterator(this) ;
-    return iteratorBuf ;
+    linkedListMutex.lock();
+    Iterator* iteratorBuf = new Iterator(this);
+    return iteratorBuf;
   }
 
-} ;
+};
 
 #endif // _LINKEDLIST_HH_

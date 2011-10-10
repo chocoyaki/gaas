@@ -294,7 +294,7 @@
   Workflow utilities header
 */
 
-omni_mutex reqCount_mutex ;
+omni_mutex reqCount_mutex;
 
 #endif /* HAVE_WORKFLOW */
 
@@ -311,7 +311,7 @@ MasterAgentImpl::MasterAgentImpl() : AgentImpl()
   this->num_session = 0;
   this->num_data = 0;
 #ifdef HAVE_MULTI_MA
-  this->floodRequestsList = new FloodRequestsList() ;
+  this->floodRequestsList = new FloodRequestsList();
 #endif /* HAVE_MULTI_MA */
 } // MasterAgentImpl
 
@@ -319,7 +319,7 @@ MasterAgentImpl::MasterAgentImpl() : AgentImpl()
 MasterAgentImpl::~MasterAgentImpl()
 {
 #ifdef HAVE_MULTI_MA
-  delete floodRequestsList ;
+  delete floodRequestsList;
   //  MAList.emptyIt();
 #endif /* HAVE_MULTI_MA */
 } // MasterAgentImpl::~MasterAgentImpl()
@@ -345,16 +345,16 @@ MasterAgentImpl::run()
   /* launch the bind service */
   unsigned long port;
   if (CONFIG_ULONG(diet::BINDSERVICEPORT, port)) {
-    bindSrv = new BindService(this, port) ;
+    bindSrv = new BindService(this, port);
     char* bindName = ms_stralloc(strlen(localHostName) + 20);
-    sprintf(bindName, "%s:%lu", localHostName, port) ;
-    this->bindName = bindName ;
-    reqIDCounter = KeyString::hash(bindName) ;
+    sprintf(bindName, "%s:%lu", localHostName, port);
+    this->bindName = bindName;
+    reqIDCounter = KeyString::hash(bindName);
   } else {
-    reqIDCounter = KeyString::hash(localHostName) ;
+    reqIDCounter = KeyString::hash(localHostName);
   }
   reqIDCounter = ((reqIDCounter & 0xFFFFF) ^ ((reqIDCounter >> 12) & 0xFFF))
-    * 1000 ;
+    * 1000;
 
   TRACE_TEXT(TRACE_ALL_STEPS, "Getting MAs references ..." << std::endl);
 
@@ -363,17 +363,17 @@ MasterAgentImpl::run()
   CONFIG_STRING(diet::NEIGHBOURS, neighbors);
 
   // FIXME: use std::string instead
-  char *neighbours = ms_strdup(neighbors.c_str()) ;
-  char* comma, *begin_copy ;
-  begin_copy = neighbours ;
+  char *neighbours = ms_strdup(neighbors.c_str());
+  char* comma, *begin_copy;
+  begin_copy = neighbours;
   while((comma = strchr(neighbours, ',')) != NULL) {
-    comma[0] = '\0' ;
+    comma[0] = '\0';
     if(neighbours[0] != '\0')
-      MAIds.insert(CORBA::string_dup(neighbours)) ;
-    neighbours = comma + 1 ;
+      MAIds.insert(CORBA::string_dup(neighbours));
+    neighbours = comma + 1;
   }
-  MAIds.insert(CORBA::string_dup(neighbours)) ;
-  free(begin_copy) ;
+  MAIds.insert(CORBA::string_dup(neighbours));
+  free(begin_copy);
 
   /* initialize some variables */
   unsigned long conf;
@@ -500,7 +500,7 @@ MasterAgentImpl::submit(const corba_pb_desc_t& pb_profile,
     sprintf(statMsg, "start request %ld", (unsigned long) creq.reqID);
     stat_in(this->myName,statMsg);
     creq.pb = pb_profile;
-    creq.max_srv = maxServers ;
+    creq.max_srv = maxServers;
 #if HAVE_ALTPREDICT
     creq.clientHostname = CORBA::string_dup(clientHostname);
     creq.clientLocationID = CORBA::string_dup(clientLocID);
@@ -512,7 +512,7 @@ MasterAgentImpl::submit(const corba_pb_desc_t& pb_profile,
     }
 #endif /* USE_LOG_SERVICE */
 
-    decision = submit_local(creq) ;
+    decision = submit_local(creq);
 
 #ifdef HAVE_MULTI_MA
     if (decision->servers.length() == 0) {
@@ -523,36 +523,36 @@ MasterAgentImpl::submit(const corba_pb_desc_t& pb_profile,
       FloodRequest& floodRequest =
         *(new FloodRequest(MADescription(),
                            MADescription(_this(), myName),
-                           creq, knownMAs)) ;
+                           creq, knownMAs));
 
       while((decision->servers.length() == 0) &&
             (!floodRequest.flooded())) {
         TRACE_TEXT(TRACE_ALL_STEPS, "multi-MAs search "
                    << creq.pb.path
-                   << " request (" << creq.reqID << ")" << std::endl) ;
-        int flooded = floodRequest.floodNextStep() ;
+                   << " request (" << creq.reqID << ")" << std::endl);
+        int flooded = floodRequest.floodNextStep();
         if (!flooded) {
           bool requestAdded =
-            floodRequestsList->put(floodRequest) ;
-          assert(requestAdded) ;
-          floodRequest.waitResponses() ;
+            floodRequestsList->put(floodRequest);
+          assert(requestAdded);
+          floodRequest.waitResponses();
           try {
-            floodRequestsList->get(creq.reqID) ;
-            *decision = floodRequest.getDecision() ;
+            floodRequestsList->get(creq.reqID);
+            *decision = floodRequest.getDecision();
             TRACE_TEXT(TRACE_ALL_STEPS, decision->servers.length()
                        << " SeD have been found for request ("
-                       << creq.reqID << ")" << std::endl) ;
+                       << creq.reqID << ")" << std::endl);
           } catch(FloodRequestNotFoundException& f) {
             WARNING("Can not found the requested decision in multi-MA search");
           }
         }
       }
       try {
-        floodRequest.stopFlooding() ;
+        floodRequest.stopFlooding();
       } catch (FloodRequestNotFoundException& e) {
-        WARNING(e) ;
+        WARNING(e);
       }
-      delete &floodRequest ;
+      delete &floodRequest;
 
       sprintf(statMsg, "stop floodRequest %ld",
               (unsigned long) creq.reqID);
@@ -560,7 +560,7 @@ MasterAgentImpl::submit(const corba_pb_desc_t& pb_profile,
     }
 #endif /* HAVE_MULTI_MA */
   } catch(...) {
-    WARNING("An exception was caught" << endl) ;
+    WARNING("An exception was caught" << endl);
   }
 
 #ifdef USE_LOG_SERVICE
@@ -618,10 +618,10 @@ MasterAgentImpl::submit_local(const corba_request_t& creq)
 
        TODO: we can only manipulate reference here... look if we can change
        chooseGlobalScheduler() prototype */
-    corba_profile_desc_t profile = this->SrvT->getProfile( sref ) ;
+    corba_profile_desc_t profile = this->SrvT->getProfile( sref );
     /* Copy parallel flag of the client profile (reason why not const
        anymore) */
-    profile.parallel_flag = creq.pb.parallel_flag ;
+    profile.parallel_flag = creq.pb.parallel_flag;
 #endif /* ! defined HAVE_ALT_BATCH */
     srvTMutex.unlock();
     req = new Request(&creq,
@@ -648,7 +648,7 @@ MasterAgentImpl::submit_local(const corba_request_t& creq)
   }
 
   reqList[creq.reqID] = 0;
-  delete req ;
+  delete req;
 
   return resp;
 } // submit_local(const corba_request_t& req, ...)
@@ -677,7 +677,7 @@ MasterAgentImpl::diet_free_pdata(const char* argID)
 #ifdef HAVE_MULTI_MA
 char* MasterAgentImpl::getBindName()
 {
-  return CORBA::string_dup(bindName) ;
+  return CORBA::string_dup(bindName);
 }
 
 
@@ -685,43 +685,43 @@ char* MasterAgentImpl::getBindName()
 void
 MasterAgentImpl::updateRefs()
 {
-  MAIds.lock() ;
-  MasterAgent_var ma ;
-  int loopCpt = 0 ;
+  MAIds.lock();
+  MasterAgent_var ma;
+  int loopCpt = 0;
 
-  for(StrList::iterator iter = MAIds.begin() ;
-      iter != MAIds.end() ; ++iter) {
+  for(StrList::iterator iter = MAIds.begin();
+      iter != MAIds.end(); ++iter) {
     if(loopCpt < maxMAlinks) {
       TRACE_TEXT(TRACE_ALL_STEPS, "Resolving " << *iter << "...");
-      ma = bindSrv->lookup(*iter) ;
+      ma = bindSrv->lookup(*iter);
       if(CORBA::is_nil(ma)) {
-        TRACE_TEXT(TRACE_ALL_STEPS, "not found" << std::endl) ;
+        TRACE_TEXT(TRACE_ALL_STEPS, "not found" << std::endl);
       } else {
-        TRACE_TEXT(TRACE_ALL_STEPS, "found" << std::endl) ;
+        TRACE_TEXT(TRACE_ALL_STEPS, "found" << std::endl);
         try {
-          bool result = ma->handShake(myName, bindName) ;
+          bool result = ma->handShake(myName, bindName);
           if (result) {
             TRACE_TEXT(TRACE_ALL_STEPS,
-                       "connection accepted" << std::endl) ;
-            knownMAs[*iter] = MADescription(ma, ma->getHostname()) ;
-            loopCpt++ ;
+                       "connection accepted" << std::endl);
+            knownMAs[*iter] = MADescription(ma, ma->getHostname());
+            loopCpt++;
           } else {
             TRACE_TEXT(TRACE_ALL_STEPS,
-                       "connection refused" << std::endl) ;
-            knownMAs.erase(*iter) ;
+                       "connection refused" << std::endl);
+            knownMAs.erase(*iter);
           }
         } catch(CORBA::SystemException& ex) {
           TRACE_TEXT(TRACE_ALL_STEPS,
-                     "obsolete reference" << std::endl) ;
-          knownMAs.erase(*iter) ;
+                     "obsolete reference" << std::endl);
+          knownMAs.erase(*iter);
         }
       }
     } else {
-      knownMAs.erase(*iter) ;
+      knownMAs.erase(*iter);
     }
   }
 
-  MAIds.unlock() ;
+  MAIds.unlock();
   logNeighbors();
 } // updateRefs()
 
@@ -737,7 +737,7 @@ MasterAgentImpl::handShake(const char* maName, const char* myName)
 {
   TRACE_TEXT(TRACE_ALL_STEPS, myName
              << " is shaking my hand ("
-             << knownMAs.size() << "/" << maxMAlinks << ")" << std::endl) ;
+             << knownMAs.size() << "/" << maxMAlinks << ")" << std::endl);
   MasterAgent_ptr me =
     ORBMgr::getMgr()->resolve<MasterAgent, MasterAgent_ptr>(AGENTCTXT,maName);
   /* FIXME: There is probably a cleaner way to find if two IOR are equal */
@@ -745,28 +745,28 @@ MasterAgentImpl::handShake(const char* maName, const char* myName)
   string hisior = ORBMgr::getMgr()->getIOR(me);
   if (myior==hisior) {
     TRACE_TEXT(TRACE_ALL_STEPS,
-               "I refuse to handshake with myself" << std::endl) ;
+               "I refuse to handshake with myself" << std::endl);
     /* we need to return now, because the knownMA locker is already
        taken by the updateRefs function which call the handshake
        one. */
-    /*    free(myior) ;
-          free(hisior) ;*/
-    return false ;
+    /*    free(myior);
+          free(hisior);*/
+    return false;
   }
 
-  /*  free(myior) ;
-      free(hisior) ;*/
-  knownMAs.erase(myName) ;
+  /*  free(myior);
+      free(hisior);*/
+  knownMAs.erase(myName);
 
   // there is to much links to accept a new one.
   if (knownMAs.size() >= static_cast<size_t>(maxMAlinks))
-    return false ;
+    return false;
 
-  MAIds.insert(myName) ;
-  knownMAs[myName] = MADescription(me, me->getHostname()) ;
+  MAIds.insert(myName);
+  knownMAs[myName] = MADescription(me, me->getHostname());
 
   logNeighbors();
-  return true ;
+  return true;
 } // handShake(MasterAgent_ptr me, const char* myName)
 
 /****************************************************************************/
@@ -781,11 +781,11 @@ void MasterAgentImpl::searchService(const char* predecessorStr,
   MasterAgent_ptr predecessor =
     ORBMgr::getMgr()->resolve<MasterAgent, MasterAgent_ptr>(AGENTCTXT,
                                                             predecessorStr);
-  //printTime() ;
-  //fprintf(stderr, ">>>>>searchService from %s, %d, %s\n", predecessorId,  (int)request.reqID, (const char*)myName) ;
+  //printTime();
+  //fprintf(stderr, ">>>>>searchService from %s, %d, %s\n", predecessorId,  (int)request.reqID, (const char*)myName);
   TRACE_TEXT(TRACE_ALL_STEPS, predecessorId << " search "
              << request.pb.path << " request (" << request.reqID << ")"
-             << std::endl) ;
+             << std::endl);
 
   /* Initialize statistics module */
   stat_init();
@@ -793,36 +793,36 @@ void MasterAgentImpl::searchService(const char* predecessorStr,
   sprintf(statMsg, "start searchService %ld", (unsigned long) request.reqID);
   stat_in(this->myName,statMsg);
 
-  reqIdList.lock() ;
-  ReqIdList::iterator pos = reqIdList.find(request.reqID) ;
-  bool found = (pos != reqIdList.end()) ;
+  reqIdList.lock();
+  ReqIdList::iterator pos = reqIdList.find(request.reqID);
+  bool found = (pos != reqIdList.end());
   if (! found)
-    reqIdList.insert(pos, request.reqID) ;
-  reqIdList.unlock() ;
+    reqIdList.insert(pos, request.reqID);
+  reqIdList.unlock();
 
   if (found) {
-    predecessor->alreadyContacted(request.reqID, bindName) ;
+    predecessor->alreadyContacted(request.reqID, bindName);
     TRACE_TEXT(TRACE_ALL_STEPS, "already contacted for request (" <<
-               request.reqID << ")" << std::endl) ;
+               request.reqID << ")" << std::endl);
   } else {
     FloodRequest& floodRequest =
       *(new FloodRequest(MADescription(predecessor, predecessorId),
                          MADescription(_this(), bindName),
-                         request, knownMAs)) ;
+                         request, knownMAs));
 
-    floodRequestsList->put(floodRequest) ;
+    floodRequestsList->put(floodRequest);
 
-    corba_response_t* decision = submit_local(request) ;
+    corba_response_t* decision = submit_local(request);
 
     if (decision->servers.length() == 0) {
-      predecessor->serviceNotFound(request.reqID, bindName) ;
+      predecessor->serviceNotFound(request.reqID, bindName);
       TRACE_TEXT(TRACE_ALL_STEPS, "no server for request (" <<
-                 request.reqID << ")" << std::endl) ;
+                 request.reqID << ")" << std::endl);
     } else {
-      predecessor->serviceFound(request.reqID, *decision) ;
+      predecessor->serviceFound(request.reqID, *decision);
       TRACE_TEXT(TRACE_ALL_STEPS, decision->servers.length()
                  << " server(s) found for request (" <<
-                 request.reqID << ")" << std::endl) ;
+                 request.reqID << ")" << std::endl);
     }
   }
 
@@ -832,22 +832,22 @@ void MasterAgentImpl::searchService(const char* predecessorStr,
   sprintf(statMsg, "stop searchService %ld", (unsigned long) request.reqID);
   stat_out(this->myName,statMsg);
   stat_flush();
-  //printf("<<<<<search service from %s\n", predecessorId) ;
+  //printf("<<<<<search service from %s\n", predecessorId);
 } // searchService(...)
 
 
 void MasterAgentImpl::stopFlooding(CORBA::Long reqId,
                                    const char* senderId)
 {
-  //fprintf(stderr, "stopFlooding from %s, %s:%d, %s\n", senderId, (const char*)reqId.maId, (int)reqId.idNumber, (const char*)myName) ;
+  //fprintf(stderr, "stopFlooding from %s, %s:%d, %s\n", senderId, (const char*)reqId.maId, (int)reqId.idNumber, (const char*)myName);
   try {
     FloodRequest& floodRequest =
-      floodRequestsList->get(reqId) ;
-    floodRequest.stopFlooding() ;
-    delete &floodRequest ;
-    reqIdList.erase(reqId) ;
+      floodRequestsList->get(reqId);
+    floodRequest.stopFlooding();
+    delete &floodRequest;
+    reqIdList.erase(reqId);
   } catch (FloodRequestNotFoundException& e) {
-    WARNING(e) ;
+    WARNING(e);
   }
 }
 
@@ -855,16 +855,16 @@ void MasterAgentImpl::stopFlooding(CORBA::Long reqId,
 void MasterAgentImpl::serviceNotFound(CORBA::Long reqId,
                                       const char* senderId)
 {
-  //fprintf(stderr, "serviceNotFound from %s, %s:%d, %s\n", senderId, (const char*)reqId.maId, (int)reqId.idNumber, (const char*)myName) ;
+  //fprintf(stderr, "serviceNotFound from %s, %s:%d, %s\n", senderId, (const char*)reqId.maId, (int)reqId.idNumber, (const char*)myName);
   try {
     TRACE_TEXT(TRACE_ALL_STEPS, "service not found by " << senderId
-               << " for request (" << reqId << ")" << std::endl) ;
+               << " for request (" << reqId << ")" << std::endl);
     FloodRequest& floodRequest =
-      floodRequestsList->get(reqId) ;
-    floodRequest.addResponseNotFound() ;
-    floodRequestsList->put(floodRequest) ;
+      floodRequestsList->get(reqId);
+    floodRequest.addResponseNotFound();
+    floodRequestsList->put(floodRequest);
   } catch (FloodRequestNotFoundException& e) {
-    WARNING(e) ;
+    WARNING(e);
   }
 }
 
@@ -872,9 +872,9 @@ void MasterAgentImpl::serviceNotFound(CORBA::Long reqId,
 void MasterAgentImpl::newFlood(CORBA::Long reqId,
                                const char* senderId)
 {
-  //fprintf(stderr, "newFlood from %s, %s:%d, %s\n", senderId, (const char*)reqId.maId, (int)reqId.idNumber, (const char*)myName) ;
+  //fprintf(stderr, "newFlood from %s, %s:%d, %s\n", senderId, (const char*)reqId.maId, (int)reqId.idNumber, (const char*)myName);
   TRACE_TEXT(TRACE_ALL_STEPS, senderId << " continue the search for "
-             << " request (" << reqId << ")" << std::endl) ;
+             << " request (" << reqId << ")" << std::endl);
   try {
     FloodRequest& floodRequest =
       floodRequestsList->get(reqId);

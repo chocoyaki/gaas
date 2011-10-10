@@ -339,7 +339,7 @@ AgentImpl::run() {
   std::string host;
 
   if (CONFIG_STRING(diet::DIETHOSTNAME, host)) {
-    strncpy(this->localHostName, host.c_str(), MAX_HOSTNAME_LENGTH-1) ;
+    strncpy(this->localHostName, host.c_str(), MAX_HOSTNAME_LENGTH-1);
   } else {
     if (gethostname(this->localHostName, MAX_HOSTNAME_LENGTH)) {
       ERROR("could not get hostname", 1);
@@ -407,7 +407,7 @@ AgentImpl::agentSubscribe(const char* name, const char* hostName,
   /* the size of the list is childIDCounter+1 (first index is 0) */
   this->LAChildren.resize(this->childIDCounter);
 
-  //LocalAgent_var meLA = LocalAgent::_narrow(me) ;
+  //LocalAgent_var meLA = LocalAgent::_narrow(me);
   TRACE_TEXT(TRACE_MAIN_STEPS, "Local agent name: " << name << endl);
   LocalAgent_var meLA = ORBMgr::getMgr()->resolve<LocalAgent, LocalAgent_var>(LOCALAGENT, name);
   TRACE_TEXT(TRACE_MAIN_STEPS, "Local agent IOR: " << ORBMgr::getMgr()->getIOR(meLA) << endl);
@@ -665,7 +665,7 @@ AgentImpl::findServer(Request* req, size_t max_srv)
     int nbChildrenContacted = 0;
 #if not defined HAVE_ALT_BATCH
     const ServiceTable::matching_children_t * SrvTmc;
-    ServiceTable::matching_children_t * mc ;
+    ServiceTable::matching_children_t * mc;
 
     SrvTmc = SrvT->getChildren(serviceRef);
 
@@ -701,18 +701,18 @@ AgentImpl::findServer(Request* req, size_t max_srv)
 
     /* Contact the children. The responses array will not be ready until all
        children are contacted. Thus lock the responses mutex now. */
-    ServiceTable::matching_children_t * mc = NULL ;
-    CORBA::ULong frontier ;
+    ServiceTable::matching_children_t * mc = NULL;
+    CORBA::ULong frontier;
 
     req->lock();
-    mc = SrvT->getChildren( &creq.pb, serviceRef, &frontier ) ;
+    mc = SrvT->getChildren( &creq.pb, serviceRef, &frontier );
 
     srvTMutex.unlock();
 
-    nbChildrenContacted = mc->nb_children ;
+    nbChildrenContacted = mc->nb_children;
     /* Perform requests */
     for (i = 0; i < (size_t)mc->nb_children; i++) {
-      sendRequest( mc->children, i, &creq, &nbChildrenContacted, frontier ) ;
+      sendRequest( mc->children, i, &creq, &nbChildrenContacted, frontier );
     }
 
     delete[] mc->children;
@@ -797,7 +797,7 @@ AgentImpl::ping()
 char*
 AgentImpl::getHostname()
 {
-  return CORBA::string_dup(localHostName) ;
+  return CORBA::string_dup(localHostName);
 }
 
 #if not defined HAVE_ALT_BATCH
@@ -825,7 +825,7 @@ AgentImpl::sendRequest(CORBA::ULong childID, const corba_request_t* req)
   typedef size_t comm_failure_t;
 #ifdef HAVE_ALT_BATCH
 
-  CORBA::ULong childID = children[numero_child] ;
+  CORBA::ULong childID = children[numero_child];
 #endif
   char statMsg[128];
   sprintf(statMsg, "sendRequest %ld %ld", (unsigned long) req->reqID,(unsigned long)childID);
@@ -854,7 +854,7 @@ AgentImpl::sendRequest(CORBA::ULong childID, const corba_request_t* req)
             srvTMutex.lock();
             SrvT->rmChild(childID);
 #if defined HAVE_ALT_BATCH
-            (*nb_children_contacted)-- ;
+            (*nb_children_contacted)--;
 #endif
             if (TRACE_LEVEL >= TRACE_STRUCTURES) {
               SrvT->dump(stdout);
@@ -884,13 +884,13 @@ AgentImpl::sendRequest(CORBA::ULong childID, const corba_request_t* req)
                there will be two requests, so two answers with
                the corresponding good flag from SeDs
             */
-            corba_request_t * req_copy = new corba_request_t(*req) ;
+            corba_request_t * req_copy = new corba_request_t(*req);
             if( numero_child < frontier )
-              req_copy->pb.parallel_flag = 1 ; /* Seq job */
+              req_copy->pb.parallel_flag = 1; /* Seq job */
             else
-              req_copy->pb.parallel_flag = 2 ; /* // job */
+              req_copy->pb.parallel_flag = 2; /* // job */
             childDesc->getRequest(*req_copy);
-            delete req_copy ;
+            delete req_copy;
 #else
             childDesc->getRequest(*req);
 #endif
@@ -906,7 +906,7 @@ AgentImpl::sendRequest(CORBA::ULong childID, const corba_request_t* req)
             srvTMutex.lock();
             SrvT->rmChild(childID);
 #if defined HAVE_ALT_BATCH
-            (*nb_children_contacted)-- ;
+            (*nb_children_contacted)--;
 #endif
             if (TRACE_LEVEL >= TRACE_STRUCTURES) {
               SrvT->dump(stdout);

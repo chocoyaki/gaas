@@ -41,9 +41,9 @@ class SGE_BatchSystem : public BatchSystem
   
 public :
 
-  SGE_BatchSystem(int batchID, const char * batchName) ;
+  SGE_BatchSystem(int batchID, const char * batchName);
 
-  ~SGE_BatchSystem() ;
+  ~SGE_BatchSystem();
 
   /** If job not terminated, ask the batch system for the status of job
       whose ID is @param batchJobID .
@@ -51,7 +51,7 @@ public :
       Returns NB_STATUS on error, the status otherwise.
   */
   batchJobState
-  askBatchJobStatus(int batchJobID) ;
+  askBatchJobStatus(int batchJobID);
   
   /** If job whose id is @param batchJobID is:
       - not finished, returns 0
@@ -59,44 +59,44 @@ public :
       - not found, -1
   */
   int
-  isBatchJobCompleted(int batchJobID) ;
+  isBatchJobCompleted(int batchJobID);
 
   /********** Batch static information accessing Functions **********/
   /* These should soon change for they assume a default queue and we
      want to be able to manage all queues of a system! */
 
   int
-  getNbTotResources() ;
+  getNbTotResources();
 
   int
-  getNbResources() ;
+  getNbResources();
 
   const char *
-  getResourcesName() ;
+  getResourcesName();
   
   int
-  getMaxWalltime() ;
+  getMaxWalltime();
 
   int
-  getMaxProcs() ;
+  getMaxProcs();
   
   /********** Batch dynamic information accessing Functions *********/
   /* These should soon change for they assume a default queue and we
      want to be able to manage all queues of a system! */
 
   int
-  getNbTotFreeResources() ;
+  getNbTotFreeResources();
 
   int
-  getNbFreeResources() ;
+  getNbFreeResources();
 
   /****************** Performance Prediction Functions ***************/
 
 private :
 
   /* Strings used to filter batch job status if possible */
-  static const char * const statusNames[] ;
+  static const char * const statusNames[];
 
-} ;
+};
 
 #endif // SGE_BATCH_SYSTEM

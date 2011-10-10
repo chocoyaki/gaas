@@ -205,9 +205,9 @@ Dag::Dag(string id, MasterAgent_var& MA)
 Dag::~Dag() {
   if (! this->tmpDag) {
     while (! nodes.empty() ) {
-      DagNode * p = begin()->second ;
-      nodes.erase( begin() ) ;
-      delete p ;
+      DagNode * p = begin()->second;
+      nodes.erase( begin() );
+      delete p;
     }
     nodes.clear();
   }

@@ -428,7 +428,7 @@ void WfMultiplePortAdapter::parse(const string& strRef,
         createAdapter(strRef.substr(startPos, refEnd-startPos+1));
       addSubAdapter(adapt);
     }
-    // if followed by a ; => skip it and continue parsing
+    // if followed by a; => skip it and continue parsing
     if (sepRight < parRight) {
       startPos = sepRight + 1;
       // in other cases i.e. ) or nothing, this is the end of the current adapter

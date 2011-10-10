@@ -263,7 +263,7 @@ ServiceTable::lookupService(const corba_profile_desc_t* sv_profile)
      ** Cori_Fast::diet_service_table_lookup_by_profile()
      */
   size_t i(0);
-  for (; (i < nb_s) && (!profile_desc_match(&(profiles[i]), sv_profile)); i++) ;
+  for (; (i < nb_s) && (!profile_desc_match(&(profiles[i]), sv_profile)); i++);
   return (ServiceReference_t) ((i == nb_s) ? -1 : (int)i);
 }
 
@@ -277,7 +277,7 @@ ServiceTable::lookupService(const corba_pb_desc_t* pb_desc)
   **  - if nothing specified, both // and non-// must be considered
   */
   size_t i(0);
-  for (; (i < nb_s) && (!profile_match(&(profiles[i]), pb_desc)); i++) ;
+  for (; (i < nb_s) && (!profile_match(&(profiles[i]), pb_desc)); i++);
   return (ServiceReference_t) ((i == nb_s) ? -1 : (int)i);
 }
 
@@ -286,7 +286,7 @@ ServiceTable::lookupService(const char* path, const corba_profile_t* pb)
 {
   /* Called from SeDImpl::solve() and solveAsync() */
   size_t i(0);
-  for (; (i < nb_s) && (!profile_match(&(profiles[i]), path, pb)); i++) ;
+  for (; (i < nb_s) && (!profile_match(&(profiles[i]), path, pb)); i++);
   return (ServiceReference_t) ((i == nb_s) ? -1 : (int)i);
 }
 
@@ -403,7 +403,7 @@ ServiceTable::addService(const corba_profile_desc_t* profile,
       }
       matching_children = newChildren;
 
-      for (size_t i = nb_s ; i < max_nb_s; i++) {
+      for (size_t i = nb_s; i < max_nb_s; i++) {
         profiles[i].param_desc.length(0);
         matching_children[i].nb_children = 0;
         matching_children[i].children    = new CORBA::ULong[max_nb_children];
@@ -443,8 +443,8 @@ ServiceTable::addService(const corba_profile_desc_t* profile,
                 p2->priorityList.length() <<
                 ")" << endl, -2);
         }
-        for (unsigned int pvIter = 0 ;
-             pvIter < p1->priorityList.length() ;
+        for (unsigned int pvIter = 0;
+             pvIter < p1->priorityList.length();
              pvIter++) {
           if (p1->priorityList[pvIter] != p2->priorityList[pvIter]) {
             ERROR(__FUNCTION__ <<
@@ -565,7 +565,7 @@ ServiceTable::rmChildService(const corba_profile_desc_t* profile, CORBA::ULong c
     /* We need to verify that this child exists for this service */
     for (i = (size_t) 0;
          i < matching_children[ref].nb_children && matching_children[ref].children[i] != childID;
-         i ++) ;
+         i ++);
 
     /* if we didn't found it return -1 */
     if (i == matching_children[ref].nb_children) {
@@ -597,10 +597,10 @@ ServiceTable::rmChild(const CORBA::ULong child)
   }
   for (ref = 0; (size_t)ref < nb_s; ref++) {
     size_t i;
-    for (i = 0 ;
+    for (i = 0;
          ((i < matching_children[ref].nb_children) &&
-          (matching_children[(size_t)ref].children[i] != child)) ;
-         i++) ;
+          (matching_children[(size_t)ref].children[i] != child));
+         i++);
     if (i < matching_children[ref].nb_children) {
       for (size_t j = i; j < matching_children[ref].nb_children; j++) {
         matching_children[ref].children[j]
@@ -622,7 +622,7 @@ ServiceTable::rmChild(const CORBA::ULong child)
 const corba_profile_desc_t &
 ServiceTable::getProfile( const ServiceReference_t index )
 {
-  return profiles[ index ] ;
+  return profiles[ index ];
 }
 //#endif
 
@@ -786,92 +786,92 @@ ServiceTable::getChildren(const corba_pb_desc_t * pb_desc,
   }
 
   int first_found = -1; // at most, two indices: // and seq
-  size_t i(0), j(0) ;
-  ServiceTable::matching_children_t * mc = NULL ;
+  size_t i(0), j(0);
+  ServiceTable::matching_children_t * mc = NULL;
 
   /* Search for 1rst occurence of service in table */
   while( (i < nb_s) && (!profile_match(&(profiles[i]), pb_desc)) )
-    i++ ;
+    i++;
   if( i == nb_s ) {
     SRVT_ERROR("attempting to get children" << endl
                << "  of a service that is not in table");
   }
-  first_found = i ;
-  mc = new ServiceTable::matching_children_t() ;
+  first_found = i;
+  mc = new ServiceTable::matching_children_t();
   if( mc == NULL ) {
-    SRVT_ERROR("Not enough memory") ;
+    SRVT_ERROR("Not enough memory");
   }
 
   if( pb_desc->parallel_flag == 0 ) { /* Test if there is same profile with
                                          different parallel flag */
     int second_found = -1;
-    i++ ;
+    i++;
     /* Search for 2nd occurence of service in table */
     while( (i < nb_s) && (!profile_match(&(profiles[i]), pb_desc)) )
-      i++ ;
+      i++;
     if( i== nb_s ) /* No new occurence */
       mc->nb_children =
-        matching_children[ first_found ].nb_children ;
+        matching_children[ first_found ].nb_children;
     else {
-      second_found = i ;
+      second_found = i;
       mc->nb_children =
         matching_children[ first_found ].nb_children
-        + matching_children[ second_found ].nb_children ;
+        + matching_children[ second_found ].nb_children;
     }
     /* Reserve memory for all children */
     mc->children =
-      new CORBA::ULong[mc->nb_children] ;
+      new CORBA::ULong[mc->nb_children];
 
     /* Copy children, ordered parallel flag = 1 first */
     if( profiles[ serviceRef ].parallel_flag == 1 ) {
-      for( i=0; i<matching_children[ first_found ].nb_children ; i++ ) {
+      for( i=0; i<matching_children[ first_found ].nb_children; i++ ) {
         mc->children[ i ] =
-          matching_children[ first_found ].children[ i ] ;
+          matching_children[ first_found ].children[ i ];
       }
       if( second_found > 0 ) {
-        for(j=0 ; j<matching_children[ second_found ].nb_children ; i++, j++) {
+        for(j=0; j<matching_children[ second_found ].nb_children; i++, j++) {
           mc->children[ i ] =
-            matching_children[ second_found ].children[ j ] ;
+            matching_children[ second_found ].children[ j ];
         }
       }
       /* set frontier */
-      (*frontier)=matching_children[ first_found ].nb_children ;
+      (*frontier)=matching_children[ first_found ].nb_children;
     } else {
       if( second_found > 0 ) {
-        for( i=0; i<matching_children[ second_found ].nb_children ; i++ ) {
+        for( i=0; i<matching_children[ second_found ].nb_children; i++ ) {
           mc->children[ i ] =
-            matching_children[ second_found ].children[ i ] ;
+            matching_children[ second_found ].children[ i ];
         }
         /* set frontier */
-        (*frontier)=matching_children[ second_found ].nb_children ;
+        (*frontier)=matching_children[ second_found ].nb_children;
       } else {
-        for( j=0, i=0 ; j<matching_children[ first_found ].nb_children ;
+        for( j=0, i=0; j<matching_children[ first_found ].nb_children;
              i++, j++ ) {
           mc->children[ i ] =
-            matching_children[ first_found ].children[ j ] ;
+            matching_children[ first_found ].children[ j ];
         }
         /* set frontier */
-        (*frontier)=0 ;
+        (*frontier)=0;
       }
     }
   } else { /* Only interested by a given profile ( seq ORexclusive // )
               then first match is unique match */
     mc->nb_children =
-      matching_children[ first_found ].nb_children ;
+      matching_children[ first_found ].nb_children;
     mc->children =
-      new CORBA::ULong[mc->nb_children] ;
-    for( i=0; i<matching_children[ first_found ].nb_children ; i++ ) {
+      new CORBA::ULong[mc->nb_children];
+    for( i=0; i<matching_children[ first_found ].nb_children; i++ ) {
       mc->children[ i ] =
-        matching_children[ first_found ].children[ i ] ;
+        matching_children[ first_found ].children[ i ];
     }
     /* set frontier */
     if( profiles[ serviceRef ].parallel_flag == 1 )
-      (*frontier)= matching_children[ first_found ].nb_children ;
+      (*frontier)= matching_children[ first_found ].nb_children;
     else
-      (*frontier)= 0 ;
+      (*frontier)= 0;
   }
 
-  return mc ;
+  return mc;
 }
 #else
 const ServiceTable::matching_children_t*
@@ -905,10 +905,10 @@ ServiceTable::dump(FILE* f)
     fprintf(f, "- Service %s", path);
 #if defined HAVE_ALT_BATCH
     if( profiles[i].parallel_flag == 2 )
-      fprintf(f," (parallel service) ") ;
+      fprintf(f," (parallel service) ");
     else if ( profiles[i].parallel_flag == 1 )
-      fprintf(f," (sequential service) ") ;
-    else fprintf(f," Error? ") ;
+      fprintf(f," (sequential service) ");
+    else fprintf(f," Error? ");
 #endif
 
     if (matching_children) {
@@ -995,13 +995,13 @@ ServiceTable::ServiceTableInit(CORBA::ULong max_nb_services,
 int
 ServiceTable::testIfAllParallelServices()
 {
-  size_t i=1 ;
+  size_t i=1;
 
   while( (i<nb_s) && (profiles[0].parallel_flag == profiles[i].parallel_flag) )
-    i++ ;
+    i++;
   if( i==nb_s )
-    return ( profiles[0].parallel_flag == 2 ) ;
+    return ( profiles[0].parallel_flag == 2 );
   else
-    return -1 ;
+    return -1;
 }
 #endif

@@ -571,7 +571,7 @@ CltWfMgr::wfDagCallCommon(diet_wf_desc_t *dagProfile, Dag *dag, bool parse, bool
     }
   } catch (CORBA::SystemException& e) {
     cerr << "Caught a CORBA " << e._name() << " exception ("
-         << e.NP_minorString() << ")" << endl ;
+         << e.NP_minorString() << ")" << endl;
     dagID = -1;
   } catch (MaDag::ServiceNotFound& e) {
     cerr << "Error on MaDag missing service: " << e.pbName << "(" << e.pbParams

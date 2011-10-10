@@ -144,15 +144,15 @@ void dagda_mrsh_profile(corba_profile_t* corba_profile, diet_profile_t* profile,
   corba_profile->parameters.length(profile->last_out+1);
 
 #if defined HAVE_ALT_BATCH
-  corba_profile->parallel_flag = profile->parallel_flag ;
-  corba_profile->nbprocs    = profile->nbprocs ;
-  corba_profile->nbprocess  = profile->nbprocess ;
-  corba_profile->walltime   = profile->walltime ;
+  corba_profile->parallel_flag = profile->parallel_flag;
+  corba_profile->nbprocs    = profile->nbprocs;
+  corba_profile->nbprocess  = profile->nbprocess;
+  corba_profile->walltime   = profile->walltime;
 #endif
   corba_profile->last_in    = profile->last_in;
   corba_profile->last_inout = profile->last_inout;
   corba_profile->last_out   = profile->last_out;
-  corba_profile->dietReqID  = profile->dietReqID ;
+  corba_profile->dietReqID  = profile->dietReqID;
 
   corba_profile->clientName = CORBA::string_dup(dataManagerName.c_str());
 
@@ -387,10 +387,10 @@ void dagda_download_data(diet_profile_t& profile, corba_profile_t& pb) {
   profile.last_out = pb.last_out;
   profile.dietReqID = pb.dietReqID;
 #if defined HAVE_ALT_BATCH
-  profile.parallel_flag = pb.parallel_flag ;
-  profile.nbprocs    = pb.nbprocs ;
-  profile.nbprocess  = pb.nbprocess ;
-  profile.walltime   = pb.walltime ;
+  profile.parallel_flag = pb.parallel_flag;
+  profile.nbprocs    = pb.nbprocs;
+  profile.nbprocess  = pb.nbprocess;
+  profile.walltime   = pb.walltime;
 #endif
   for (int i=0; i<= pb.last_inout; ++i) {
     if (!dataManager->pfmIsDataPresent(pb.parameters[i].desc.id.idNumber)) {
@@ -996,7 +996,7 @@ int dagda_get_data(const char* dataID, void** value, diet_data_type_t type,
         data.desc = *entryPoint->pfmGetDataDesc(dataID);
       } catch (CORBA::SystemException& e) {
         cerr << "dagda_get_data/pfmGetDataDesc: Caught a CORBA " << e._name() << " exception ("
-             << e.NP_minorString() << ")" << endl ;
+             << e.NP_minorString() << ")" << endl;
         throw;
       } catch (...) {
         cerr << "dagda_get_data/pfmGetDataDesc: Caught exception" << endl;
@@ -1015,7 +1015,7 @@ int dagda_get_data(const char* dataID, void** value, diet_data_type_t type,
         return 1;
       } catch (CORBA::SystemException& e) {
         cerr << "dagda_get_data: Caught a CORBA " << e._name() << " exception ("
-             << e.NP_minorString() << ")" << endl ;
+             << e.NP_minorString() << ")" << endl;
         return 1;
       }
     } else {
@@ -1276,7 +1276,7 @@ int dagda_get_container_elements(const char* idContainer, diet_container_t* cont
     manager->lclGetContainerElts(idContainer,eltIDSeq,eltFlagSeq,true);
   } catch (CORBA::SystemException& e) {
     cerr << "dagda_get_container_elements: Caught a CORBA " << e._name() << " exception ("
-         << e.NP_minorString() << ")" << endl ;
+         << e.NP_minorString() << ")" << endl;
     return 1;
   } catch (...) {
     cerr << "dagda_get_container_elements exception!" << endl;

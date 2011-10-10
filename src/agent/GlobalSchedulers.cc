@@ -193,7 +193,7 @@ GlobalScheduler::deserialize(const char* serializedScheduler)
     if (!strncmp(serializedScheduler, UserScheduler::stName,nameLength)) {
       std::string moduleName;
       if (!CONFIG_STRING(diet::MODULENAME, moduleName)) {
-        WARNING("moduleName parameter is not set in the configuration file ; "
+        WARNING("moduleName parameter is not set in the configuration file; "
                 << "reverting to default (StdGS)" << std::endl);
         return (GlobalScheduler::chooseGlobalScheduler());
       }
@@ -202,7 +202,7 @@ GlobalScheduler::deserialize(const char* serializedScheduler)
                                           moduleName.c_str());
       }
       catch (InstanciationError &error) {
-        WARNING("unable to load module " << moduleName << " ; "
+        WARNING("unable to load module " << moduleName << "; "
                 << "reverting to default (StdGS)" << std::endl <<
                 "Message : " << error.message() << std::endl);
         return (GlobalScheduler::chooseGlobalScheduler());
@@ -211,7 +211,7 @@ GlobalScheduler::deserialize(const char* serializedScheduler)
 #endif
       /***********************************/
     {
-      WARNING("unable to deserialize global scheduler ; "
+      WARNING("unable to deserialize global scheduler; "
               << "reverting to default (StdGS)");
       WARNING("scheduler was \""
               << serializedScheduler << "\"" << std::endl);
@@ -285,7 +285,7 @@ GlobalScheduler::chooseGlobalScheduler(const corba_request_t* req,
     std::string moduleName;
 
     if (!CONFIG_STRING(diet::MODULENAME, moduleName)) {
-      WARNING("moduleName parameter is not set in the configuration file ; "
+      WARNING("moduleName parameter is not set in the configuration file; "
               << "reverting to default (StdGS)" << std::endl);
       return (GlobalScheduler::chooseGlobalScheduler());
     }
@@ -293,7 +293,7 @@ GlobalScheduler::chooseGlobalScheduler(const corba_request_t* req,
       loaded = UserScheduler::instanciate(moduleName.c_str());
     }
     catch (InstanciationError &error) {
-      WARNING("unable to load module " << moduleName << " ; "
+      WARNING("unable to load module " << moduleName << "; "
               << "reverting to default (StdGS)" << std::endl
               << "Error : " << error.message() << std::endl);
       return (GlobalScheduler::chooseGlobalScheduler());
@@ -495,7 +495,7 @@ PriorityGS::PriorityGS(corba_agg_priority_t priority)
   this->nameLength = strlen(this->name);
   this->numPValues = priority.priorityList.length();
   this->pValues = new int[this->numPValues];
-  for (int pvIter = 0 ; pvIter < this->numPValues ; pvIter++) {
+  for (int pvIter = 0; pvIter < this->numPValues; pvIter++) {
     this->pValues[pvIter] = priority.priorityList[pvIter];
   }
 }

@@ -57,7 +57,7 @@ private:
 
   Cori_Data_Easy* cori_easy;
 #if not defined CLEAN_CORILIB_FROM_BATCH_STAFF and defined HAVE_ALT_BATCH
-  Cori_batch * cori_batch ;
+  Cori_batch * cori_batch;
 #endif
 
 public:

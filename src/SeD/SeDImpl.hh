@@ -131,7 +131,7 @@
  * Changed the prototype of solve_batch: reqID is in the profile when batch mode
  *   is enabled.
  *
- * Batch management for sync. calls is now fully operationnal (at least for oar ;)
+ * Batch management for sync. calls is now fully operationnal (at least for oar;)
  *
  * Revision 1.27  2006/07/11 08:59:09  ycaniou
  * .Batch queue is now read in the serveur config file (only one queue
@@ -329,7 +329,7 @@ public:
                 const corba_pb_desc_t& pb);
 
   virtual void
-  updateTimeSinceLastSolve() ;
+  updateTimeSinceLastSolve();
 
   virtual CORBA::Long
   solve(const char* pbName, corba_profile_t& pb);
@@ -339,34 +339,34 @@ public:
 #if defined HAVE_ALT_BATCH
   /* Set if server is SERIAL, BATCH,.. */
   void
-  setServerStatus( diet_server_status_t status ) ;
+  setServerStatus( diet_server_status_t status );
 
   diet_server_status_t
-  getServerStatus() ;
+  getServerStatus();
 
   virtual CORBA::Long
   parallel_solve(const char* pbName, corba_profile_t& pb,
                  ServiceTable::ServiceReference_t& ref,
-                 diet_profile_t& profile) ;
+                 diet_profile_t& profile);
 
   void
   parallel_AsyncSolve(const char* path, const corba_profile_t& pb,
                       ServiceTable::ServiceReference_t ref,
                       CORBA::Object_var & cb,
-                      diet_profile_t& profile) ;
+                      diet_profile_t& profile);
 
-  char* getLocalHostName() ;
+  char* getLocalHostName();
 #endif
 #if HAVE_ALT_BATCH
   BatchSystem * // should be const
-  getBatch() ;
+  getBatch();
 
   //   int
-  //   diet_submit_parallel(diet_profile_t * profile, const char * command) ;
+  //   diet_submit_parallel(diet_profile_t * profile, const char * command);
 
   //   int
   //   diet_concurrent_submit_parallel(int batchJobID, diet_profile_t * profile,
-  //                                   const char * command) ;
+  //                                   const char * command);
 #endif
 
 
@@ -409,7 +409,7 @@ public:
 private:
 #ifdef HAVE_ALT_BATCH
   /* Status of SeD: Batch, Serial, other? */
-  diet_server_status_t server_status ;
+  diet_server_status_t server_status;
 #endif
 
   /** Reference of the parent */
@@ -437,11 +437,11 @@ private:
   struct timeval lastSolveStart;
 
 #if HAVE_ALT_BATCH
-  BatchSystem * batch ;
+  BatchSystem * batch;
 #endif
 
 #if HAVE_SEDSCHEDULER
-  SeDScheduler * sched ;
+  SeDScheduler * sched;
 #endif
 
   /* Queue: should SeD restrict the number of concurrent solves? */
@@ -484,19 +484,19 @@ private:
 
   inline void
   downloadSyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
-                      diet_convertor_t* cvt) ;
+                      diet_convertor_t* cvt);
 
   inline void
   uploadSyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
-                    diet_convertor_t* cvt) ;
+                    diet_convertor_t* cvt);
 
   inline void
   downloadAsyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
-                       diet_convertor_t* cvt) ;
+                       diet_convertor_t* cvt);
 
   inline void
   uploadAsyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
-                     diet_convertor_t* cvt) ;
+                     diet_convertor_t* cvt);
 
 };
 
@@ -519,7 +519,7 @@ public:
   virtual CORBA::Long checkContract(corba_estimation_t& estimation,
                                     const corba_pb_desc_t& pb);
 
-  virtual void updateTimeSinceLastSolve() ;
+  virtual void updateTimeSinceLastSolve();
 
   virtual CORBA::Long solve(const char* pbName, corba_profile_t& pb);
   virtual void solveAsync(const char* pb_name, const corba_profile_t& pb,

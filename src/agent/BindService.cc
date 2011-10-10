@@ -73,9 +73,9 @@
 extern unsigned int TRACE_LEVEL;
 
 void BindService::run(void* ptr) {
-  bool doNotStop = true ;
-  char* ior = this->ior ;
-  this->ior = NULL ;
+  bool doNotStop = true;
+  char* ior = this->ior;
+  this->ior = NULL;
   while(doNotStop) { 
     struct sockaddr_in clientAddr;
     socklen_t clientLen = static_cast<socklen_t>(sizeof(clientAddr));
@@ -83,22 +83,22 @@ void BindService::run(void* ptr) {
                            &clientLen);
     if (newSockFd < 0) {
       if (errno == EBADF) {
-        doNotStop = false ;
-        TRACE_TEXT(TRACE_ALL_STEPS, "bind service closed") ;
-        continue ;
+        doNotStop = false;
+        TRACE_TEXT(TRACE_ALL_STEPS, "bind service closed");
+        continue;
       } else {
         WARNING("error on accept (bind service): " << strerror(errno));
-        continue ;
+        continue;
       }
     }
     int n = write(newSockFd, ior, strlen(ior));
     if (n < 0) 
       WARNING("error when writing to socket (bind service): " << strerror(errno));
-    n = close(newSockFd) ;
+    n = close(newSockFd);
     if (n < 0) 
       WARNING("error when writing to socket (bind service): " << strerror(errno));
   }
-  free(ior) ;
+  free(ior);
 } // run(void*)
 
 BindService::~BindService() {}
@@ -109,7 +109,7 @@ BindService::BindService(MasterAgentImpl* ma, unsigned int port) {
   struct sockaddr_in serverAddr;
   listenSocket = socket(AF_INET, SOCK_STREAM, 0);
   if (listenSocket < 0) {
-    ERROR("opening bind service socket: " << strerror(errno) << endl, ;);
+    ERROR("opening bind service socket: " << strerror(errno) << endl,;);
   }
   memset((char *) &serverAddr, 0, sizeof(serverAddr)); // use memset instead of bzero
   serverAddr.sin_family = AF_INET;
@@ -117,29 +117,29 @@ BindService::BindService(MasterAgentImpl* ma, unsigned int port) {
   serverAddr.sin_port = htons(port);
   if (bind(listenSocket, (struct sockaddr *) &serverAddr,
            sizeof(serverAddr)) < 0)  {
-    ERROR("in binding the bind service socket: " << strerror(errno) << endl, ;);
+    ERROR("in binding the bind service socket: " << strerror(errno) << endl,;);
   }
   listen(listenSocket,5);
 
-  TRACE_TEXT(TRACE_ALL_STEPS, "bind service open" << endl) ;
-  start() ;
+  TRACE_TEXT(TRACE_ALL_STEPS, "bind service open" << endl);
+  start();
 }
 
 
 MasterAgent_ptr BindService::lookup(const char* addr) {
-  assert(addr != NULL) ;
-  char hostname[256] ;
-  strncpy(hostname, addr, sizeof(hostname) - 1) ;
+  assert(addr != NULL);
+  char hostname[256];
+  strncpy(hostname, addr, sizeof(hostname) - 1);
   hostname[sizeof(hostname) - 1] = '\0';
-  char* idx = strchr(hostname, ':') ;
+  char* idx = strchr(hostname, ':');
   int portNo = 0;
   if (idx != NULL) {
-    idx[0] = '\0' ;
-    portNo = atoi(idx+1) ;
+    idx[0] = '\0';
+    portNo = atoi(idx+1);
     
   }
   if(portNo == 0) {
-    TRACE_TEXT(TRACE_ALL_STEPS, addr << " is not a valid address" << endl) ;
+    TRACE_TEXT(TRACE_ALL_STEPS, addr << " is not a valid address" << endl);
     return MasterAgent::_nil();
   }
 
@@ -167,16 +167,16 @@ MasterAgent_ptr BindService::lookup(const char* addr) {
     TRACE_TEXT(TRACE_ALL_STEPS, " not connecting:" << strerror(errno) << endl);
     return MasterAgent::_nil();
   }
-  char buffer[2048] ;
+  char buffer[2048];
   memset(buffer, 0, sizeof(buffer)); // use memset instead of bzero
   int n = read(sockfd,buffer,sizeof(buffer)-1);
   if (n < 0) {
     TRACE_TEXT(TRACE_ALL_STEPS, " reading from socket:" << strerror(errno) << endl);
-    close(sockfd) ;
+    close(sockfd);
     return MasterAgent::_nil();
   }
-  close(sockfd) ;
-  CORBA::Object_var obj = ORBMgr::getMgr()->resolveObject(buffer) ;
+  close(sockfd);
+  CORBA::Object_var obj = ORBMgr::getMgr()->resolveObject(buffer);
   if (CORBA::is_nil(obj)) {
     TRACE_TEXT(TRACE_ALL_STEPS, "is nil: " << buffer << endl);
     return MasterAgent::_nil();

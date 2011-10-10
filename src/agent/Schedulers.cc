@@ -218,7 +218,7 @@ Scheduler::serialize(Scheduler* S)
     else {
       INTERNAL_ERROR("unable to serialize scheduler named " << S->name, 1);
       /* this line never executes, but exists to avoid  warning */
-      return NULL ;
+      return NULL;
     }
 }
 
@@ -267,7 +267,7 @@ Scheduler::deserialize(const char* serializedScheduler)
     else {
       INTERNAL_WARNING("unable to deserialize scheduler \""
                        << serializedScheduler
-                       << "\" ; "
+                       << "\"; "
                        << "reverting to default (random)");
       return (new RandScheduler());
     }
@@ -753,7 +753,7 @@ NWSScheduler::deserialize(const char* serializedScheduler)
   /* position the pointer after the leading comma */
   ptr = serializedScheduler + 1;
 
-  for (int paramIter = 0 ; paramIter < nb_mb ; paramIter++) {
+  for (int paramIter = 0; paramIter < nb_mb; paramIter++) {
     if (paramIter == nb_mb-1) {
       /* check that this is the last param */
       if (strchr(ptr, ',') != NULL) {
@@ -1230,7 +1230,7 @@ int PriorityScheduler_compare(int serverIdx1,
 
   const PriorityScheduler::priorityList *pl =
     (PriorityScheduler::priorityList *) pListPtr;
-  for (int pvalIter = 0 ; pvalIter < pl->pl_numValues ; pvalIter++) {
+  for (int pvalIter = 0; pvalIter < pl->pl_numValues; pvalIter++) {
     int minimize = 0;
     int _tag = pl->pl_values[pvalIter];
 
@@ -1291,7 +1291,7 @@ PriorityScheduler::PriorityScheduler(int numValues, int *values)
   this->compare = PriorityScheduler_compare;
   this->pl.pl_numValues = numValues;
   this->pl.pl_values = new int[numValues];
-  for (int valIter = 0 ; valIter < numValues ; valIter++) {
+  for (int valIter = 0; valIter < numValues; valIter++) {
     this->pl.pl_values[valIter] = values[valIter];
   }
   this->cmpInfo = &(this->pl);
@@ -1310,7 +1310,7 @@ PriorityScheduler::serialize(PriorityScheduler* S)
 
   SCHED_TRACE_FUNCTION(S->name);
   sprintf(res, "%s,%d", S->stName, S->pl.pl_numValues);
-  for (int valIter = 0 ; valIter < S->pl.pl_numValues ; valIter++) {
+  for (int valIter = 0; valIter < S->pl.pl_numValues; valIter++) {
     sprintf(res + strlen(res), ",%d", S->pl.pl_values[valIter]);
   }
   return res;
@@ -1345,7 +1345,7 @@ PriorityScheduler::deserialize(const char* serializedScheduler)
   strPtr = strchr(strPtr, ',') + 1;
 
   int* values = new int[numValues];
-  for (int valIter = 0 ; valIter < numValues ; valIter++) {
+  for (int valIter = 0; valIter < numValues; valIter++) {
     int curVal;
     if (sscanf(strPtr, "%d", &curVal) != 1) {
       delete[] values;

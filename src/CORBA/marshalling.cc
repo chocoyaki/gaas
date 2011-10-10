@@ -139,7 +139,7 @@
  * Changed the name of the file received by a SeD: DIET_pid.uniqID.random.ficName
  * Indeed, when a client receives a file from a SeD, it keeps the SeD ficName.
  * Hence, if two SeD have the same pid, and use the same uniqID, we hope that the
- * seed will do it ;)
+ * seed will do it;)
  *
  * Revision 1.67  2006/11/27 13:27:53  aamar
  * Force the unmarshalling of inout parameters for the asynchronous mode.
@@ -532,7 +532,7 @@ unmrsh_scalar_desc(diet_data_desc_t* dest, const corba_data_desc_t* src)
     value = (void*) new short;
     src->specific.scal().value >>= *((CORBA::Short*)(value));
     scalar_set_desc(dest, id, (diet_persistence_mode_t)src->mode, bt, value);
-    //    delete((short*)value) ;
+    //    delete((short*)value);
     break;
   }
   case DIET_INT: {
@@ -642,7 +642,7 @@ unmrsh_data(diet_data_t* dest, corba_data_t* src, int upDown,
   unmrsh_data(diet_data_t* dest, corba_data_t* src, int upDown)
 #endif
 {
-  static omni_mutex uniqDataIDMutex ;
+  static omni_mutex uniqDataIDMutex;
 
   if( (src->desc.mode == DIET_VOLATILE) && (upDown == 1) ){
     char *tmp=NULL;
@@ -704,7 +704,7 @@ int mrsh_aggregator_desc(corba_aggregator_desc_t* dest,
     dest->agg_specific.agg_priority().priorityList.length(numPValues);
 
     /* fill in the values */
-    for (int pIter = 0 ; pIter < numPValues ; pIter++) {
+    for (int pIter = 0; pIter < numPValues; pIter++) {
       dest->agg_specific.agg_priority().priorityList[pIter] =
         src->agg_specific.agg_specific_priority.p_pValues[pIter];
     }
@@ -749,7 +749,7 @@ mrsh_profile_desc(corba_profile_desc_t* dest, const diet_profile_desc_t* src)
     (dest->param_desc[i]).type      = (src->param_desc[i]).type;
   }
 #if defined HAVE_ALT_BATCH
-  dest->parallel_flag = src->parallel_flag ;
+  dest->parallel_flag = src->parallel_flag;
 #endif
 
   mrsh_aggregator_desc(&(dest->aggregator), &(src->aggregator));
@@ -781,9 +781,9 @@ mrsh_pb_desc(corba_pb_desc_t* dest, const diet_profile_t* const src)
 
   }
 #if defined HAVE_ALT_BATCH
-  dest->parallel_flag = src->parallel_flag ;
-  dest->nbprocs    = src->nbprocs ;
-  dest->nbprocess  = src->nbprocess ;
+  dest->parallel_flag = src->parallel_flag;
+  dest->nbprocs    = src->nbprocs;
+  dest->nbprocess  = src->nbprocess;
   // No walltime, user has no idea about it
 #endif
   return 0;
@@ -800,16 +800,16 @@ mrsh_profile_to_in_args(corba_profile_t* dest, const diet_profile_t* src)
   int i;
 
 #if defined HAVE_ALT_BATCH
-  dest->parallel_flag = src->parallel_flag ;
-  dest->nbprocs    = src->nbprocs ;
-  dest->nbprocess  = src->nbprocess ;
-  dest->walltime   = src->walltime ;
+  dest->parallel_flag = src->parallel_flag;
+  dest->nbprocs    = src->nbprocs;
+  dest->nbprocess  = src->nbprocess;
+  dest->walltime   = src->walltime;
 #endif
   dest->last_in    = src->last_in;
   dest->last_inout = src->last_inout;
   dest->last_out   = src->last_out;
   dest->parameters.length(src->last_out + 1);
-  dest->dietReqID  = src->dietReqID ;
+  dest->dietReqID  = src->dietReqID;
 
   for (i = 0; i <= src->last_inout; i++) {
     // With Dagda, only the descriptions are sent to the server.
@@ -905,17 +905,17 @@ unmrsh_in_args_to_profile(diet_profile_t* dest, corba_profile_t* src,
   }
 
 #if defined HAVE_ALT_BATCH
-  dest->parallel_flag = src->parallel_flag ;
-  dest->nbprocs    = src->nbprocs ;
-  dest->nbprocess  = src->nbprocess ;
-  dest->walltime   = src->walltime ;
+  dest->parallel_flag = src->parallel_flag;
+  dest->nbprocs    = src->nbprocs;
+  dest->nbprocess  = src->nbprocess;
+  dest->walltime   = src->walltime;
 #endif
   dest->pb_name    = cvt->path;
   dest->last_in    = cvt->last_in;
   dest->last_inout = cvt->last_inout;
   dest->last_out   = cvt->last_out;
   dest->parameters = new diet_data_t[cvt->last_out + 1];
-  dest->dietReqID  = src->dietReqID ;
+  dest->dietReqID  = src->dietReqID;
 
   for (int i = 0; i <= cvt->last_out; i++) {
     diet_data_t* dd_tmp(NULL);
@@ -932,10 +932,10 @@ unmrsh_in_args_to_profile(diet_profile_t* dest, corba_profile_t* src,
         // -- GLM : Bug correction --
         /*      if( ((SeDImpl*)dest->SeDPtr)->getBatch() != NULL )
                 unmrsh_data(src_params[arg_idx], &(src->parameters[arg_idx]),0,
-                ((SeDImpl*)dest->SeDPtr)->getBatch()->getTmpPath()) ;
+                ((SeDImpl*)dest->SeDPtr)->getBatch()->getTmpPath());
                 else // Should be removed when all classes managed within SeD
                 unmrsh_data(src_params[arg_idx], &(src->parameters[arg_idx]),0,
-                "/tmp/") ; */
+                "/tmp/"); */
         std::string dataPath = "/tmp/";
         CONFIG_STRING(diet::STORAGEDIR, dataPath);
         unmrsh_data(src_params[arg_idx], &(src->parameters[arg_idx]),0,
@@ -1061,11 +1061,11 @@ unmrsh_out_args_to_profile(diet_profile_t* dpb, corba_profile_t* cpb)
 #if defined HAVE_ALT_BATCH
   // In case client wants to know how many procs and process have been used
   // but other info like walltime is useless
-  dpb->nbprocs = cpb->nbprocs ;
-  dpb->nbprocess = cpb->nbprocess ;
+  dpb->nbprocs = cpb->nbprocs;
+  dpb->nbprocess = cpb->nbprocess;
 #endif
 
-  // Unmarshal INOUT parameters descriptions only ; indeed, the ORB has filled
+  // Unmarshal INOUT parameters descriptions only; indeed, the ORB has filled
   // in the memory zone pointed at by the diet_data value field, since the
   // marshalling was performed with replace method.
   for (i = dpb->last_in + 1; i <= dpb->last_inout; i++) {
@@ -1129,7 +1129,7 @@ unmrsh_inout_args_to_profile(diet_profile_t* dpb, corba_profile_t* cpb)
         ((SeDImpl*)dpb->SeDPtr)->getBatch()->getTmpPath());
         else // Should be removed when all classes managed within SeD
         unmrsh_data(&(dpb->parameters[i]), &(cpb->parameters[i]),1,
-        "/tmp/") ;*/
+        "/tmp/");*/
     std::string dataPath = "/tmp/";
     CONFIG_STRING(diet::STORAGEDIR, dataPath);
     unmrsh_data(&(dpb->parameters[i]), &(cpb->parameters[i]),1,
@@ -1176,7 +1176,7 @@ int unmrsh_profile_desc(diet_profile_desc_t* dest,
     (dest->param_desc[i]).type      = (diet_data_type_t)(src->param_desc[i]).type;
   }
 #if defined HAVE_ALT_BATCH
-  dest->parallel_flag = src->parallel_flag ;
+  dest->parallel_flag = src->parallel_flag;
 #endif
 
   // unmarshall the aggregator field

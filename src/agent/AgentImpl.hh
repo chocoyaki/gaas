@@ -149,14 +149,12 @@
 #endif
 
 
-
 // Forwarder part
 #include "Forwarder.hh"
 #include "AgentFwdr.hh"
 
 class AgentImpl : public POA_Agent,
-                  public PortableServer::RefCountServantBase
-{
+                  public PortableServer::RefCountServantBase {
 public:
 
   /**************************************************************************/
@@ -177,7 +175,8 @@ public:
   setDataManager(Dagda_ptr dataManager);
 
   /*DagdaImpl* */
-  char* getDataManager();
+  char*
+  getDataManager();
 
   virtual SeqString*
   searchData(const char* request) = 0;
@@ -213,11 +212,11 @@ public:
    */
   virtual CORBA::Long
   removeElement(bool recursive);
-  void removeElementChildren(bool recursive);
-  virtual void removeElementClean(bool recursive);
+  void
+  removeElementChildren(bool recursive);
+  virtual void
+  removeElementClean(bool recursive);
 #endif // HAVE_DYNAMICS
-
-
 
   /** Add services into the service table, and attach them to child me.*/
   virtual CORBA::Long
@@ -225,12 +224,12 @@ public:
 
   /** Remove services into the service table for a given child */
   virtual CORBA::Long
-  childRemoveService(CORBA::ULong childID, const corba_profile_desc_t& profile);
+  childRemoveService(CORBA::ULong childID,
+                     const corba_profile_desc_t& profile);
 
   /** Get the response of a child */
   virtual void
   getResponse(const corba_response_t& resp);
-
 
   /** Used to test if this agent is alive. */
   virtual CORBA::Long
@@ -238,15 +237,9 @@ public:
 
   /** returns the hostname of the agent */
   virtual char*
-  getHostname() ;
-
+  getHostname();
 
 protected:
-
-  /**************************************************************************/
-  /* Private fields                                                         */
-  /**************************************************************************/
-
   /** Local host name */
   char* localHostName;
 
@@ -305,14 +298,14 @@ protected:
               size_t numero_child,
               const corba_request_t * req,
               int * nb_children_contacted,
-              CORBA::ULong frontier) ;
+              CORBA::ULong frontier);
 #endif
 
   /**
-   * Get communication time between this agent and the child \c childID for a data
-   * amount of size \c size. The way of the data transfer can be specified with
-   * \c to : if (to), from this agent to the child, else from the child to this
-   * agent.
+   * Get communication time between this agent and the child \c childID
+   * for a data amount of size \c size. The way of the data transfer can be
+   * specified with \c to : if (to), from this agent to the child, else from
+   * the child to this agent.
    */
   inline double
   getCommTime(CORBA::Long childID, unsigned long size, bool to = true);
@@ -340,17 +333,14 @@ protected:
 };
 
 class AgentFwdrImpl : public POA_AgentFwdr,
-                      public PortableServer::RefCountServantBase
-{
-protected:
-  Forwarder_ptr forwarder;
-  char* objName;
+                      public PortableServer::RefCountServantBase {
 public:
   AgentFwdrImpl(Forwarder_ptr fwdr, const char* objName);
 
   virtual CORBA::Long
   agentSubscribe(const char* me, const char* hostName,
                  const SeqCorbaProfileDesc_t& services);
+
   virtual CORBA::Long
   serverSubscribe(const char* me, const char* hostName,
                   const SeqCorbaProfileDesc_t& services);
@@ -362,19 +352,29 @@ public:
   virtual CORBA::Long removeElement(bool recursive);
 #endif // HAVE_DYNAMICS
   virtual CORBA::Long
-  childRemoveService(CORBA::ULong childID, const corba_profile_desc_t& profile);
+  childRemoveService(CORBA::ULong childID,
+                     const corba_profile_desc_t& profile);
 
-  virtual char* getDataManager();
+  virtual char*
+  getDataManager();
+
   SeqString*
   searchData(const char* request);
 
   virtual CORBA::Long
   addServices(CORBA::ULong myID, const SeqCorbaProfileDesc_t& services);
 
-  virtual void getResponse(const corba_response_t& resp);
-  virtual CORBA::Long ping();
+  virtual void
+  getResponse(const corba_response_t& resp);
 
-  virtual char* getHostname();
+  virtual CORBA::Long
+  ping();
 
+  virtual char*
+  getHostname();
+
+protected:
+  Forwarder_ptr forwarder;
+  char* objName;
 };
 #endif // _AGENTIMPL_HH_

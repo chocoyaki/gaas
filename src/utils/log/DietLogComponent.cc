@@ -682,27 +682,27 @@ DietLogComponent::getEstimationTags(const int v_tag){
        with DIET specific batch system (numerous IDs depending on the
        scheduling strategy implemented in the SeD), oar, LL, etc.) */
   case(EST_SERVER_TYPE):
-    ret=strdup("EST_SERVER_TYPE") ; // 22
-    break ;
+    ret=strdup("EST_SERVER_TYPE"); // 22
+    break;
     /* Parallel resources information. Assumed a default queue */
   case(EST_PARAL_NBTOT_RESOURCES): // 23
-    ret=strdup("EST_PARAL_NB_RESOURCES") ;
-    break ;
+    ret=strdup("EST_PARAL_NB_RESOURCES");
+    break;
   case(EST_PARAL_NBTOT_FREE_RESOURCES): // 24
-    ret=strdup("EST_PARAL_NB_FREE_RESOURCES") ;
-    break ;
+    ret=strdup("EST_PARAL_NB_FREE_RESOURCES");
+    break;
   case(EST_PARAL_NB_RESOURCES_IN_DEFAULT_QUEUE): // 25
-    ret=strdup("EST_PARAL_NB_RESOURCES_IN_DEFAULT_QUEUE") ;
-    break ;
+    ret=strdup("EST_PARAL_NB_RESOURCES_IN_DEFAULT_QUEUE");
+    break;
   case(EST_PARAL_NB_FREE_RESOURCES_IN_DEFAULT_QUEUE): // 26
-    ret=strdup("EST_PARAL_NB_FREE_RESOURCES_IN_DEFAULT_QUEUE") ;
-    break ;
+    ret=strdup("EST_PARAL_NB_FREE_RESOURCES_IN_DEFAULT_QUEUE");
+    break;
   case(EST_PARAL_MAX_WALLTIME): // 27
-    ret=strdup("EST_PARAL_MAX_WALLTIME") ;
-    break ;
+    ret=strdup("EST_PARAL_MAX_WALLTIME");
+    break;
   case(EST_PARAL_MAX_PROCS): // 28
-    ret=strdup("EST_PARAL_MAX_PROCS") ;
-    break ;
+    ret=strdup("EST_PARAL_MAX_PROCS");
+    break;
     /* !HAVE_ALT_BATCH */
   default:
     ret = strdup("UNKNOWN");
@@ -916,10 +916,10 @@ DietLogComponent::logSedChosen(const corba_request_t* request,
     if (response->servers.length()>0){
       unsigned int i,j;
       string estim_string = "";
-      for ( i=0 ; i < response->servers.length();i++){
+      for ( i=0; i < response->servers.length();i++){
         estim_string.append(" ");
         estim_string.append(response->servers[i].loc.hostName);
-        for (j=0 ; j < response->servers[i].estim.estValues.length() ; j++){
+        for (j=0; j < response->servers[i].estim.estValues.length(); j++){
           int valTagInt = response->servers[i].estim.estValues[j].v_tag;
           estim_string.append(";");
           estim_string.append(getEstimationTags(valTagInt));

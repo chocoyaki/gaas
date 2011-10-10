@@ -286,7 +286,7 @@ Easy_CPU::get_CPU_Number_byNum_Proc(double * result){
   size_t len;
 
   mib[0] = CTL_HW;
-  mib[1] = HW_AVAILCPU ;
+  mib[1] = HW_AVAILCPU;
   len = sizeof(maxproc);
   sysctl(mib, 2, &maxproc, &len, NULL, 0);
   *result=maxproc;

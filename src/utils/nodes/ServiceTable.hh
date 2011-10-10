@@ -215,7 +215,7 @@ public:
   rmChild(const CORBA::ULong child);
 
   const corba_profile_desc_t &
-  getProfile( const ServiceReference_t index ) ;
+  getProfile( const ServiceReference_t index );
   // Return a pointer to a copy of all profiles.
   // Caller is responsible for freeing the result.
   SeqCorbaProfileDesc_t*
@@ -269,7 +269,7 @@ public:
 
 #if HAVE_ALT_BATCH
   int
-  testIfAllParallelServices() ;
+  testIfAllParallelServices();
 #endif
 
 private:

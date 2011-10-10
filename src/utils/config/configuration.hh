@@ -56,7 +56,7 @@ public:
 template <>
 class simple_cast_traits<std::string> {
 public:
-  static const std::string zero_value ;
+  static const std::string zero_value;
 };
 
 /**

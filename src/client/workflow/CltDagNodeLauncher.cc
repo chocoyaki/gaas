@@ -114,7 +114,7 @@ CltDagNodeLauncher::execNode()
     isSuccessfulFlag = false;
   } catch(CORBA::SystemException& e) {
     WARNING(traceHeader << "Got a CORBA " << e._name() << " exception ("
-            << e.NP_minorString() << ")") ;
+            << e.NP_minorString() << ")");
     isSuccessfulFlag = false;
   }
 }

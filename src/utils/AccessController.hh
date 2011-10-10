@@ -97,6 +97,6 @@ private :
 
   /// Largest ID of request that has been given resource
   int maxIDReleased;
-} ;
+};
 
 #endif // _ACCESSCONTROLLER_HH_

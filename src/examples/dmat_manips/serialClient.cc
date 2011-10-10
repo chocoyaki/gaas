@@ -14,7 +14,7 @@
  * Fixed memory and resources leaks, variables scopes, unread variables
  *
  * Revision 1.7  2004/10/04 08:21:12  hdail
- * Removed temporary << printf ("tata\n") ; >> lines.
+ * Removed temporary << printf ("tata\n"); >> lines.
  *
  * Revision 1.6  2004/09/29 13:35:32  sdahan
  * Add the Multi-MAs feature.

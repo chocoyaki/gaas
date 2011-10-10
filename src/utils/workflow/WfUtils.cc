@@ -554,7 +554,7 @@ WfCst::eval_expr(std::string& expr, int var) {
  */
 vector<string>
 getStringToken(string str) {
-  vector<string> v ;
+  vector<string> v;
   string str2(str);
   bool b = true;
   while (b) {

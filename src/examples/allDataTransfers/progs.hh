@@ -111,7 +111,7 @@ int
 VecSUM(size_t n, T* A, T* B, T* C) {
   size_t i;
   
-  for (i = 0; i < n ; i++)
+  for (i = 0; i < n; i++)
     C[i] = A[i] + B[i];
   
   return 0;

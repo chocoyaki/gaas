@@ -468,7 +468,7 @@ file_set_desc(diet_data_desc_t* desc, const char* id,
   } else {
     desc->specific.file.path = (char*) "";
     // Should be NULL. Needs some verifications...
-    desc->specific.file.size = 0 ;
+    desc->specific.file.size = 0;
   }
 
   return status;
@@ -506,7 +506,7 @@ profile_desc_match(const corba_profile_desc_t* p1,
        || (p1->parallel_flag          != p2->parallel_flag)
 #endif
     )
-    return 0 ;
+    return 0;
   for (size_t i = 0; i < p1->param_desc.length(); i++) {
     if (   (p1->param_desc[i].type      != p2->param_desc[i].type)
            || (p1->param_desc[i].base_type != p2->param_desc[i].base_type))
@@ -538,7 +538,7 @@ profile_match(const corba_profile_desc_t* sv_profile,
   */
   if( (pb_desc->parallel_flag != 0) &&
       (sv_profile->parallel_flag != pb_desc->parallel_flag) )
-    return 0 ;
+    return 0;
 #endif
   for (size_t i = 0; i < sv_profile->param_desc.length(); i++) {
     if ((   (sv_profile->param_desc[i].type
@@ -570,7 +570,7 @@ profile_match(const corba_profile_desc_t* sv_profile,
 #if defined HAVE_ALT_BATCH
   /*  if( (sv_profile->parallel_flag == 1)
       && (sv_profile->parallel_flag != pb->parallel_flag) )
-      return 0 ;*/
+      return 0;*/
   /* As the client request this server, and until here, then SeD propose
      the service. We assume that SeD that was seq or // is still seq or //
   */
@@ -612,13 +612,13 @@ extern "C" {
     res->parameters = new diet_arg_t[last_out + 1];
     for (int i = 0; i <= last_out; i++)
       res->parameters[i].desc.id = NULL;
-    res->dietReqID = 0 ;
+    res->dietReqID = 0;
 #if defined HAVE_ALT_BATCH
     /* By default, ask for sequential and parallel task (cf DIET_data.h ) */
-    res->parallel_flag = 0 ;
-    res->nbprocs   = 0 ;
-    res->nbprocess = 0 ;
-    res->walltime  = 0 ;
+    res->parallel_flag = 0;
+    res->nbprocs   = 0;
+    res->nbprocess = 0;
+    res->walltime  = 0;
 #endif
     return res;
   }
@@ -637,35 +637,35 @@ extern "C" {
   int
   diet_profile_set_parallel(diet_profile_t* profile)
   {
-    profile->parallel_flag = 2 ;
-    return 0 ;
+    profile->parallel_flag = 2;
+    return 0;
   }
   int
   diet_profile_set_sequential(diet_profile_t* profile)
   {
-    profile->parallel_flag = 1 ;
-    return 0 ;
+    profile->parallel_flag = 1;
+    return 0;
   }
   int
   diet_profile_set_nbprocs(diet_profile_t* profile, int nbprocs)
   {
     if( nbprocs <= 0 )
       ERROR("the Number of procs must be greater than 0", 1);
-    profile->nbprocs = nbprocs ;
-    return 0 ;
+    profile->nbprocs = nbprocs;
+    return 0;
   }
   /* Functions for server profile registration */
   int
   diet_profile_desc_set_sequential(diet_profile_desc_t* profile)
   {
-    profile->parallel_flag = 1 ;
-    return 0 ;
+    profile->parallel_flag = 1;
+    return 0;
   }
   int
   diet_profile_desc_set_parallel(diet_profile_desc_t* profile)
   {
-    profile->parallel_flag = 2 ;
-    return 0 ;
+    profile->parallel_flag = 2;
+    return 0;
   }
 #endif
 
@@ -866,7 +866,7 @@ extern "C" {
          and released with free((char*)data->desc.specific.file.path);
          Now, it is CORBA stuff
       */
-      CORBA::string_free(data->desc.specific.file.path) ;
+      CORBA::string_free(data->desc.specific.file.path);
     data->desc.specific.file.path = path;
     return 0;
   }

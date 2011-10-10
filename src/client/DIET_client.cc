@@ -644,7 +644,7 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
   CONFIG_ULONG(diet::TRACELEVEL, tmpTraceLevel);
   TRACE_LEVEL = tmpTraceLevel;
   if (TRACE_LEVEL >= TRACE_MAX_VALUE) {
-    char *  level = (char *) calloc(48, sizeof(char*)) ;
+    char *  level = (char *) calloc(48, sizeof(char*));
     int    tmp_argc = myargc + 2;
     myargv = (char**)realloc(myargv, tmp_argc * sizeof(char*));
     myargv[myargc] = strdup("-ORBtraceLevel");
@@ -1092,14 +1092,14 @@ diet_call(diet_profile_t* profile)
 diet_error_t
 diet_parallel_call(diet_profile_t* profile)
 {
-  diet_profile_set_parallel(profile) ;
-  return diet_call(profile) ;
+  diet_profile_set_parallel(profile);
+  return diet_call(profile);
 }
 diet_error_t
 diet_sequential_call(diet_profile_t* profile)
 {
-  diet_profile_set_sequential(profile) ;
-  return diet_call(profile) ;
+  diet_profile_set_sequential(profile);
+  return diet_call(profile);
 }
 #endif
 
@@ -1129,14 +1129,14 @@ diet_call_async(diet_profile_t* profile, diet_reqID_t* reqID)
 diet_error_t
 diet_parallel_call_async(diet_profile_t* profile, diet_reqID_t* reqID)
 {
-  diet_profile_set_parallel(profile) ;
-  return diet_call_async(profile, reqID) ;
+  diet_profile_set_parallel(profile);
+  return diet_call_async(profile, reqID);
 }
 diet_error_t
 diet_sequential_call_async(diet_profile_t* profile, diet_reqID_t* reqID)
 {
-  diet_profile_set_sequential(profile) ;
-  return diet_call_async(profile, reqID) ;
+  diet_profile_set_sequential(profile);
+  return diet_call_async(profile, reqID);
 }
 #endif
 

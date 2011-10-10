@@ -58,8 +58,8 @@ Cori_Metric::Cori_Metric(diet_est_collect_tag_t type,
     break;
 #if (defined HAVE_ALT_BATCH) && (not defined CLEAN_CORILIB_FROM_BATCH_STAFF)
   case EST_COLL_BATCH:
-    cori_batch = new Cori_batch( (diet_profile_t*)data ) ;
-    break ;
+    cori_batch = new Cori_batch( (diet_profile_t*)data );
+    break;
 #endif
   default:{
     INTERNAL_WARNING("Collector called "<<collector_type <<" doesn't exist");
@@ -82,7 +82,7 @@ Cori_Metric::start(diet_est_collect_tag_t type)
   case EST_COLL_BATCH:
     // do I need to 'start' some Batch things?
     // Maybe one day, a process that monitors a batch systems if needed?
-    return 0 ;
+    return 0;
 #endif
   case EST_COLL_EASY:{
     //no need to start - very dynamic functions
@@ -108,8 +108,8 @@ Cori_Metric::call_cori_metric(int type_Info,
   case EST_COLL_BATCH:
     return cori_batch->get_Information(type_Info,
                                        information,
-                                       data) ;
-    break ;
+                                       data);
+    break;
 #endif
   case EST_COLL_EASY:{
     return cori_easy->get_Information(type_Info,

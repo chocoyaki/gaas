@@ -1160,7 +1160,7 @@ FWfParser::parseOtherNodeSubElt(const DOMElement * element,
       aNode->setDIETEstimationOption(estimAttr);
     }
   } else if ((elementName == "beanshell") || (elementName == "gasw")) {
-    ; // tags used by other workflow engines
+   ; // tags used by other workflow engines
     // VALUE of constants (may be replaced by a 'value' attribute within
     //  the <constant> tag)
   } else if (elementName == "value") {
@@ -1311,7 +1311,7 @@ DataSourceParser::parseXml(const string& dataFileName) throw (XMLParsingExceptio
     throw XMLParsingException(XMLParsingException::eINVALID_DATA,
                               "Empty XML File name");
 
-  struct stat buffer ;
+  struct stat buffer;
   if ( stat( dataFileName.c_str(), &buffer ) )
     throw XMLParsingException(XMLParsingException::eFILENOTFOUND,
                               "XML File '" + dataFileName + "' does not exist");

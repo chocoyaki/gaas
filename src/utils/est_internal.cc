@@ -41,7 +41,7 @@ diet_est_set_internal(estVector_t ev, int tag, double value)
     ERROR(__FUNCTION__ << ": tag must be non-negative (" << tag << ")" << endl, -1);
   }
 
-  for (unsigned int valIter = 0 ; valIter < EV_LEN(ev) ; valIter++) {
+  for (unsigned int valIter = 0; valIter < EV_LEN(ev); valIter++) {
     if (tag == (EV_ELT(ev, valIter)).v_tag &&
         (EV_ELT(ev, valIter)).v_idx < 0) {
       (EV_ELT(ev, valIter)).v_value = value;
@@ -71,7 +71,7 @@ diet_est_get_internal(estVectorConst_t ev, int tag, double errVal)
           errVal);
   }
 
-  for (unsigned int valIter = 0 ; valIter < EV_LEN(ev) ; valIter++) {
+  for (unsigned int valIter = 0; valIter < EV_LEN(ev); valIter++) {
     if (tag == (EV_ELT(ev, valIter)).v_tag &&
         (EV_ELT(ev, valIter)).v_idx < 0) {
       return ((EV_ELT(ev, valIter)).v_value);
@@ -93,7 +93,7 @@ diet_est_defined_internal(estVectorConst_t ev, int tag)
 
   //   cout << "AS: [" << __FUNCTION__ << "] num values = " << EV_LEN(ev) << endl;
 
-  for (unsigned int valIter = 0 ; valIter < EV_LEN(ev) ; valIter++) {
+  for (unsigned int valIter = 0; valIter < EV_LEN(ev); valIter++) {
     if (tag == (EV_ELT(ev, valIter)).v_tag &&
         (EV_ELT(ev, valIter)).v_idx < 0) {
       return (1);
@@ -114,7 +114,7 @@ diet_est_array_size_internal(estVectorConst_t ev, int tag)
   }
 
   int maxIdx = -1;
-  for (unsigned int valIter = 0 ; valIter < EV_LEN(ev) ; valIter++) {
+  for (unsigned int valIter = 0; valIter < EV_LEN(ev); valIter++) {
     if (tag == (EV_ELT(ev, valIter)).v_tag &&
         maxIdx < (EV_ELT(ev, valIter)).v_idx) {
       maxIdx = (EV_ELT(ev, valIter)).v_idx;
@@ -137,7 +137,7 @@ diet_est_array_set_internal(estVector_t ev, int tag, int idx, double value)
     ERROR(__FUNCTION__ << ": idx must be non-negative (" << idx << ")" << endl, -1);
   }
 
-  for (unsigned int valIter = 0 ; valIter < EV_LEN(ev) ; valIter++) {
+  for (unsigned int valIter = 0; valIter < EV_LEN(ev); valIter++) {
     if (tag == (EV_ELT(ev, valIter)).v_tag &&
         (EV_ELT(ev, valIter)).v_idx == idx) {
       (EV_ELT(ev, valIter)).v_value = value;
@@ -177,7 +177,7 @@ diet_est_array_get_internal(estVectorConst_t ev,
           errVal);
   }
 
-  for (unsigned int valIter = 0 ; valIter < EV_LEN(ev) ; valIter++) {
+  for (unsigned int valIter = 0; valIter < EV_LEN(ev); valIter++) {
     if (tag == (EV_ELT(ev, valIter)).v_tag &&
         (EV_ELT(ev, valIter)).v_idx == idx) {
       return ((EV_ELT(ev, valIter)).v_value);
@@ -200,7 +200,7 @@ diet_est_array_defined_internal(estVectorConst_t ev, int tag, int idx)
     ERROR(__FUNCTION__ << ": idx must be non-negative (" << idx << ")" << endl, -1);
   }
 
-  for (unsigned int valIter = 0 ; valIter < EV_LEN(ev) ; valIter++) {
+  for (unsigned int valIter = 0; valIter < EV_LEN(ev); valIter++) {
     if (tag == (EV_ELT(ev, valIter)).v_tag &&
         (EV_ELT(ev, valIter)).v_idx == idx) {
       return (1);

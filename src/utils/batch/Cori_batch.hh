@@ -35,16 +35,16 @@ using namespace std;
 #include "est_internal.hh"
 #include "SeDImpl.hh"
 
-class SeDImpl ;
-class BatchSystem ;
+class SeDImpl;
+class BatchSystem;
 
 class Cori_batch 
 {
 
 private :
 
-  SeDImpl     * SeD ;
-  BatchSystem * batch ;
+  SeDImpl     * SeD;
+  BatchSystem * batch;
 
   int 
   convertArray(vector <double> vect,
@@ -61,7 +61,7 @@ public :
   /** Print the values defined for the metric \c type_Info stored in the
       estimation vector \c vector_v */
   void
-  printMetric( estVector_t vector_v, int type_Info ) ;
+  printMetric( estVector_t vector_v, int type_Info );
   
   /* TODO: Change the name of this prototype! We don't get anything!
      This place in the vector the information! */

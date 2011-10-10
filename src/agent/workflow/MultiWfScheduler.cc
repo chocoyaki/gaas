@@ -790,7 +790,7 @@ MultiWfScheduler::getProblemEstimates(DagNode *node, MasterAgent_var MA)
   } catch(CORBA::SystemException& e) {
     failureMsg = " MultiWfScheduler: Got a CORBA " + string(e._name()) + " exception ("
       + string(e.NP_minorString()) + ")";
-    WARNING(failureMsg << endl) ;
+    WARNING(failureMsg << endl);
     failed = true;
   }
   delete pbs_seq;
@@ -1009,7 +1009,7 @@ MultiWfScheduler::releaseDag(Dag * dag) {
     delete message;
   } catch(CORBA::SystemException& e) {
     cout << "Caught a CORBA " << e._name() << " exception ("
-         << e.NP_minorString() << ")" << endl ;
+         << e.NP_minorString() << ")" << endl;
     WARNING("Connection problems with Client occured - Release cancelled");
     dag->setAsCancelled(NULL);
     if (metaDag)

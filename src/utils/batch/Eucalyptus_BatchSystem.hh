@@ -57,9 +57,9 @@ class Eucalyptus_BatchSystem : public BatchSystem
 
 public :
 
-  Eucalyptus_BatchSystem(int batchID, const char * batchName) ;
+  Eucalyptus_BatchSystem(int batchID, const char * batchName);
 
-  ~Eucalyptus_BatchSystem() ;
+  ~Eucalyptus_BatchSystem();
 
   /** If job not terminated, ask the batch system for the status of job
       whose ID is @param batchJobID .
@@ -67,7 +67,7 @@ public :
       Returns NB_STATUS on error, the status otherwise.
   */
   batchJobState
-  askBatchJobStatus(int batchJobID) ;
+  askBatchJobStatus(int batchJobID);
 
   /** If job whose id is @param batchJobID is:
       - not finished, returns 0
@@ -75,42 +75,42 @@ public :
       - not found, -1
   */
   int
-  isBatchJobCompleted(int batchJobID) ;
+  isBatchJobCompleted(int batchJobID);
 
   /** Override for diet_submit_parallel */
   int
   diet_submit_parallel(diet_profile_t * profile,
                        const char * addon_prologue,
-                       const char * command) ;
+                       const char * command);
 
   /********** Batch static information accessing Functions **********/
   /* These should soon change for they assume a default queue and we
      want to be able to manage all queues of a system! */
 
   int
-  getNbTotResources() ;
+  getNbTotResources();
 
   int
-  getNbResources() ;
+  getNbResources();
 
   char *
-  getResourcesName() ;
+  getResourcesName();
 
   int
-  getMaxWalltime() ;
+  getMaxWalltime();
 
   int
-  getMaxProcs() ;
+  getMaxProcs();
 
   /********** Batch dynamic information accessing Functions *********/
   /* These should soon change for they assume a default queue and we
      want to be able to manage all queues of a system! */
 
   int
-  getNbTotFreeResources() ;
+  getNbTotFreeResources();
 
   int
-  getNbFreeResources() ;
+  getNbFreeResources();
 
   /****************** Performance Prediction Functions ***************/
 

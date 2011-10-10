@@ -55,18 +55,18 @@ public :
   { /* does nothing */ }
 
   /** the id of the request which throw the exception */
-  CORBA::Long reqId ;
+  CORBA::Long reqId;
 
   friend std::ostream& operator<<(std::ostream& output,
                                   const FloodRequestNotFoundException & e);
-} ;
+};
 
 /**
  * Writes an ascii description of a exception.
  */
 inline std::ostream& operator<<(std::ostream& output,
                                 const FloodRequestNotFoundException & e) {
-  return output << "FloodRequestNotFoundException: " << e.reqId ;
+  return output << "FloodRequestNotFoundException: " << e.reqId;
 }
 
 
@@ -78,16 +78,16 @@ class FloodRequestsList {
 
 private :
   /** The lock which control the access to the list */
-  omni_mutex mutex ;
+  omni_mutex mutex;
 
   /** a map to store the FloodRequest. */
-  typedef map<RequestID, FloodRequest*> RequestsList ;
+  typedef map<RequestID, FloodRequest*> RequestsList;
 
   /** the iterator of RequestsList */
-  typedef RequestsList::iterator iterator ;
+  typedef RequestsList::iterator iterator;
 
   /** the list of all the request */
-  RequestsList requestsList ;
+  RequestsList requestsList;
 
 public :
   /**
@@ -99,7 +99,7 @@ public :
    * @return true if the floodRequest is added to the list. false if
    * another request with the same id was added.
    */
-  bool put(FloodRequest& floodRequest) ;
+  bool put(FloodRequest& floodRequest);
 
   /**
    * get and remove from the list the flood request with the ID
@@ -113,9 +113,9 @@ public :
    *
    * @return a reference on the flood request.
    */
-  FloodRequest & get(const RequestID & reqID) ;
+  FloodRequest & get(const RequestID & reqID);
 
-} ; // FloodRequestsList
+}; // FloodRequestsList
 
 #endif // HAVE_MULTI_MA
 

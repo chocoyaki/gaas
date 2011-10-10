@@ -57,7 +57,7 @@
 #ifndef _BATCH_CREATOR_HH_
 #define _BATCH_CREATOR_HH_
 
-class BatchSystem ;
+class BatchSystem;
 
 class BatchCreator
 {
@@ -77,23 +77,23 @@ public :
     EUCALYPTUS,
 #endif
     NUMBER_OF_SUPPORTED_BATCH
-  } batchID_t ;
+  } batchID_t;
 
-  static const char * const batchNames[NUMBER_OF_SUPPORTED_BATCH] ;
+  static const char * const batchNames[NUMBER_OF_SUPPORTED_BATCH];
 
-  BatchCreator() ;
+  BatchCreator();
 
   /** Returns a new inherited instance of the class BatchSystem corresponding
       to the name @param batchName .
       Returns NULL if batch system is not managed.
   */
   static BatchSystem *
-  getBatchSystem( const char * batchName ) ;
+  getBatchSystem( const char * batchName );
 
   /** Returns 1 if the batch system is managed by DIET, 0 otherwise */
   static int
-  existBatchScheduler(const char * batchName, batchID_t * batchID) ;
+  existBatchScheduler(const char * batchName, batchID_t * batchID);
       
-} ;
+};
 
 #endif

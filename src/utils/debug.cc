@@ -164,14 +164,14 @@
 unsigned int TRACE_LEVEL = TRACE_DEFAULT;
 
 // see debug.hh
-omni_mutex debug_log_mutex ;
+omni_mutex debug_log_mutex;
 
 void
 displayResponse(FILE* os, const corba_response_t* resp)
 {
 #ifdef HAVE_ALT_BATCH
-  const char * serverType ;
-  const char * jobSpec ;
+  const char * serverType;
+  const char * jobSpec;
 #endif
 
   fprintf(os, "\n----------------------------------------\n");
@@ -190,20 +190,20 @@ displayResponse(FILE* os, const corba_response_t* resp)
 #ifdef HAVE_ALT_BATCH
     /* TODO: Should be called from somewhere in DIET_server.cc */
     if( resp->servers[i].loc.serverType == BATCH )
-      serverType = "Batch" ;
+      serverType = "Batch";
     else if( resp->servers[i].loc.serverType == SERIAL )
-      serverType = "serial" ;
+      serverType = "serial";
     else {
       WARNING("Type of server is not well defined!" << endl);
-      serverType = "" ;
+      serverType = "";
     }
     if( resp->servers[i].loc.parallel_flag == 1 )
-      jobSpec = "sequential" ;
+      jobSpec = "sequential";
     else if( resp->servers[i].loc.parallel_flag == 2 )
-      jobSpec = "parallel" ;
+      jobSpec = "parallel";
     else {
       WARNING("Type of job is not well defined!" << endl);
-      jobSpec = "" ;
+      jobSpec = "";
     }
 
 
@@ -249,8 +249,8 @@ displayResponse(FILE* os, const corba_response_t* resp)
     int numComms = diet_est_array_size_internal(ev, EST_COMMTIME);
     if (numComms > 0) {
       fprintf(os, "       Parameter transfer times (sec): ");
-      for (int commTimeIter = 0 ;
-           commTimeIter < numComms ;
+      for (int commTimeIter = 0;
+           commTimeIter < numComms;
            commTimeIter++) {
         fprintf(os,
                 " %g |",
@@ -270,8 +270,8 @@ displayResponseShort(FILE* os, const corba_response_t* resp)
 {
 #ifdef HAVE_ALT_BATCH
 
-  const char * serverType ;
-  const char * jobSpec ;
+  const char * serverType;
+  const char * jobSpec;
 #endif
 
   fprintf(os, "\n---------- Responses for request %lu ----------\n",
@@ -283,20 +283,20 @@ displayResponseShort(FILE* os, const corba_response_t* resp)
 #ifdef HAVE_ALT_BATCH
     /* TODO: Should be called from somewhere in DIET_server.cc */
     if( resp->servers[i].loc.serverType == BATCH )
-      serverType = "Batch" ;
+      serverType = "Batch";
     else if( resp->servers[i].loc.serverType == SERIAL )
-      serverType = "serial" ;
+      serverType = "serial";
     else {
       WARNING("Type of server is not well defined!" << endl);
-      serverType = "" ;
+      serverType = "";
     }
     if( resp->servers[i].loc.parallel_flag == 1 )
-      jobSpec = "sequential" ;
+      jobSpec = "sequential";
     else if( resp->servers[i].loc.parallel_flag == 2 )
-      jobSpec = "parallel" ;
+      jobSpec = "parallel";
     else {
       WARNING("Type of job is not well defined!" << endl);
-      jobSpec = "" ;
+      jobSpec = "";
     }
 #endif
 
@@ -429,16 +429,16 @@ void
 displayProfileDesc(const diet_profile_desc_t* desc, const char* path)
 {
 #ifdef HAVE_ALT_BATCH
-  const char * jobSpec ;
+  const char * jobSpec;
 
   /* TODO: Should be called from somewhere in DIET_server.cc */
   if( desc->parallel_flag == 1 )
-    jobSpec = "sequential" ;
+    jobSpec = "sequential";
   else if( desc->parallel_flag == 2 )
-    jobSpec = "parallel" ;
+    jobSpec = "parallel";
   else {
     WARNING("Type of job is not well defined!" << endl);
-    jobSpec = "" ;
+    jobSpec = "";
   }
 #endif
 
@@ -487,16 +487,16 @@ displayProfileDesc(const corba_profile_desc_t* desc)
   FILE* f = stdout;
   char* path = CORBA::string_dup(desc->path);
 #ifdef HAVE_ALT_BATCH
-  const char * jobSpec ;
+  const char * jobSpec;
 
   /* TODO: Should be called from somewhere in DIET_server.cc */
   if( desc->parallel_flag == 1 )
-    jobSpec = "sequential" ;
+    jobSpec = "sequential";
   else if( desc->parallel_flag == 2 )
-    jobSpec = "parallel" ;
+    jobSpec = "parallel";
   else {
     WARNING("Type of job is not well defined!" << endl);
-    jobSpec = "" ;
+    jobSpec = "";
   }
   fprintf(f, " - Service %s (%s)", path, jobSpec);
 #else
@@ -545,16 +545,16 @@ displayProfile(const diet_profile_t* profile, const char* path)
   FILE* f = stdout;
 
 #ifdef HAVE_ALT_BATCH
-  const char * jobSpec ;
+  const char * jobSpec;
 
   /* TODO: Should be called from somewhere in DIET_server.cc */
   if( profile->parallel_flag == 1 )
-    jobSpec = "sequential" ;
+    jobSpec = "sequential";
   else if( profile->parallel_flag == 2 )
-    jobSpec = "parallel" ;
+    jobSpec = "parallel";
   else {
     WARNING("Type of job is not well defined!" << endl);
-    jobSpec = "" ;
+    jobSpec = "";
   }
   fprintf(f, " - Service %s (%s)", path, jobSpec);
 #else
@@ -577,16 +577,16 @@ displayProfile(const corba_profile_t* profile, const char* path)
   FILE* f = stdout;
 
 #ifdef HAVE_ALT_BATCH
-  const char * jobSpec ;
+  const char * jobSpec;
 
   /* TODO: Should be called from somewhere in DIET_server.cc */
   if( profile->parallel_flag == 1 )
-    jobSpec = "sequential" ;
+    jobSpec = "sequential";
   else if( profile->parallel_flag == 2 )
-    jobSpec = "parallel" ;
+    jobSpec = "parallel";
   else {
     WARNING("Type of job is not well defined!" << endl);
-    jobSpec = "" ;
+    jobSpec = "";
   }
   fprintf(f, " - Service %s (%s)", path, jobSpec);
 #else
@@ -610,16 +610,16 @@ displayPbDesc(const corba_pb_desc_t* profile)
   char* path = CORBA::string_dup(profile->path);
 
 #ifdef HAVE_ALT_BATCH
-  const char * jobSpec ;
+  const char * jobSpec;
 
   /* TODO: Should be called from somewhere in DIET_server.cc */
   if( profile->parallel_flag == 1 )
-    jobSpec = "sequential" ;
+    jobSpec = "sequential";
   else if( profile->parallel_flag == 2 )
-    jobSpec = "parallel" ;
+    jobSpec = "parallel";
   else {
     WARNING("Type of job is not well defined!" << endl);
-    jobSpec = "" ;
+    jobSpec = "";
   }
   fprintf(f, " - Service %s (%s)", path, jobSpec);
 #else

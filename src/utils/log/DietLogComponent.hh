@@ -324,7 +324,7 @@ public:
   /**
    * Notifies the list of neighbors MA in multi-MA environment.
    */
-  void logNeighbors(const char* list) ;
+  void logNeighbors(const char* list);
 #endif // HAVE_MULTI_MA
 
   /**

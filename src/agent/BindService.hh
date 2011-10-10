@@ -41,7 +41,7 @@
 #include <omniORB4/CORBA.h>
 #include "MasterAgent.hh"
 
-class MasterAgentImpl ;
+class MasterAgentImpl;
 
 /**
  * When this service is loaded, it listen to a given port and send to
@@ -59,18 +59,18 @@ private :
   /**
    * The IOR of the MA  in the string format
    */
-  char* ior ;
+  char* ior;
 
   /**
    * the file descriptor of the socket
    */
-  int listenSocket ;
+  int listenSocket;
 
   /**
    * listen to the port and send the ior of the MA to the socket
    * client until the listenSocket is closed.
    */
-  void run(void* ptr) ;
+  void run(void* ptr);
 
 public :
 
@@ -81,12 +81,12 @@ public :
    * 
    * @param port the listen port of the service
    */
-  BindService(MasterAgentImpl* ma, unsigned int port) ;
+  BindService(MasterAgentImpl* ma, unsigned int port);
 
   /**
    * destroys the thread.
    */
-  ~BindService() ;
+  ~BindService();
 
   /**
    * return the MasterAgent_ptr binded at the given address. The
@@ -97,9 +97,9 @@ public :
    *
    * @return a pointer on the Master Agent or nil if an error append
    */
-  MasterAgent_ptr lookup(const char* addr) ;
+  MasterAgent_ptr lookup(const char* addr);
 
-} ; // ReferenceUpdateThread
+}; // ReferenceUpdateThread
 
 #endif // HAVE_MULTI_MA
 

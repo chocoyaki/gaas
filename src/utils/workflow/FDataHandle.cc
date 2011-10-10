@@ -136,7 +136,7 @@ FDataTag::FDataTag(const FDataTag& tag) {
   if (mySize>0) {
     myIdxs = new unsigned int[mySize];
     myLastFlags = new bool[mySize];
-    for (unsigned int ix=0; ix<mySize ; ++ix) {
+    for (unsigned int ix=0; ix<mySize; ++ix) {
       myIdxs[ix] = tag.myIdxs[ix];
       myLastFlags[ix] = tag.myLastFlags[ix];
     }
@@ -157,7 +157,7 @@ FDataTag::FDataTag(const FDataTag& parentTag, unsigned int index, bool isLast) {
   mySize = parentTag.mySize + 1;
   myIdxs = new unsigned int[mySize];
   myLastFlags = new bool[mySize];
-  for (unsigned int ix=0; ix<mySize-1 ; ++ix) {
+  for (unsigned int ix=0; ix<mySize-1; ++ix) {
     myIdxs[ix] = parentTag.myIdxs[ix];
     myLastFlags[ix] = parentTag.myLastFlags[ix];
   }
@@ -170,11 +170,11 @@ FDataTag::FDataTag(const FDataTag& parentTag, const FDataTag& childTag) {
   mySize = parentTag.mySize + childTag.mySize;
   myIdxs = new unsigned int[mySize];
   myLastFlags = new bool[mySize];
-  for (unsigned int ix=0; ix<parentTag.mySize ; ++ix) {
+  for (unsigned int ix=0; ix<parentTag.mySize; ++ix) {
     myIdxs[ix] = parentTag.myIdxs[ix];
     myLastFlags[ix] = parentTag.myLastFlags[ix];
   }
-  for (unsigned int ix=0; ix<childTag.mySize ; ++ix) {
+  for (unsigned int ix=0; ix<childTag.mySize; ++ix) {
     myIdxs[parentTag.mySize + ix] = childTag.myIdxs[ix];
     myLastFlags[parentTag.mySize + ix] = childTag.myLastFlags[ix];
   }
