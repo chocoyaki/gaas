@@ -722,7 +722,6 @@ DIETForwarder::checkpointState(const char* objName) {
   return dagda->checkpointState();
 }
 
-#ifdef HAVE_DYNAMICS
 void
 DIETForwarder::subscribeParent(const char* parentID, const char* objName) {
   std::string objString(objName);
@@ -755,4 +754,3 @@ DIETForwarder::unsubscribeParent(const char* objName) {
   return dagda->unsubscribeParent();
 }
 
-#endif

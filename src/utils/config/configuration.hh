@@ -62,7 +62,7 @@ public:
 /**
  * @brief poor's man lexical_cast
  * empty strings are handled by using a traits class
- * @param arg argument 
+ * @param arg argument
  * @return properly casted argument
  */
 template <typename T, typename S>
@@ -82,8 +82,7 @@ T simple_cast(const S& arg) {
  */
 template<typename T>
 bool
-getConfigValue(diet::param_type_t param, T& value)
-{
+getConfigValue(diet::param_type_t param, T& value) {
   const std::string& key = (diet::params)[param].value;
   ConfigMap::iterator it = configPtr->find(key);
   if (configPtr->end() == it) {
@@ -95,8 +94,11 @@ getConfigValue(diet::param_type_t param, T& value)
 }
 
 // TODO: not handled by generic method above
-bool getAddressConfigValue(diet::param_type_t, std::string&);
-bool getAgentConfigValue(diet::param_type_t, std::string&);
+bool
+getAddressConfigValue(diet::param_type_t, std::string&);
+
+bool
+getAgentConfigValue(diet::param_type_t, std::string&);
 
 #define CONFIG_BOOL(x, y) getConfigValue<bool>((x), (y))
 #define CONFIG_INT(x, y) getConfigValue<int>((x), (y))

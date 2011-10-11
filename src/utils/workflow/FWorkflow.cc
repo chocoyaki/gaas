@@ -150,7 +150,7 @@ FWorkflow::getRootWorkflow() const
 }
 
 WfNode *
-FWorkflow::getNode(const string& nodeId) throw (WfStructException) {
+FWorkflow::getNode(const string& nodeId) throw(WfStructException) {
   WfNode * node;
   try {
     node = (WfNode *) getProcNode(nodeId);
@@ -161,7 +161,7 @@ FWorkflow::getNode(const string& nodeId) throw (WfStructException) {
 }
 
 FProcNode *
-FWorkflow::getProcNode(const string& id) throw (WfStructException) {
+FWorkflow::getProcNode(const string& id) throw(WfStructException) {
   FProcNode *node = NULL;
   myLock.lock();    /** LOCK */
   map<string, FProcNode*>::iterator p = this->myProc.find(id);
@@ -174,7 +174,7 @@ FWorkflow::getProcNode(const string& id) throw (WfStructException) {
 }
 
 FNode *
-FWorkflow::getInterfaceNode(const string& id) throw (WfStructException) {
+FWorkflow::getInterfaceNode(const string& id) throw(WfStructException) {
   FNode *node = NULL;
   myLock.lock();    /** LOCK */
   map<string, FNode*>::iterator p = this->myInterface.find(id);
@@ -187,7 +187,7 @@ FWorkflow::getInterfaceNode(const string& id) throw (WfStructException) {
 }
 
 void
-FWorkflow::checkPrec(NodeSet* contextNodeSet) throw (WfStructException) {
+FWorkflow::checkPrec(NodeSet* contextNodeSet) throw(WfStructException) {
   TRACE_TEXT(TRACE_ALL_STEPS, traceId() << "CHECKING WF PRECEDENCE START" << endl);
   // processor nodes
   for (map<string, FProcNode * >::iterator p = myProc.begin();
@@ -225,7 +225,7 @@ FWorkflow::checkPrec(NodeSet* contextNodeSet) throw (WfStructException) {
 }
 
 FActivityNode*
-FWorkflow::createActivity(const string& id) throw (WfStructException)
+FWorkflow::createActivity(const string& id) throw(WfStructException)
 {
   // check if node does not already exist
   try {
@@ -240,7 +240,7 @@ FWorkflow::createActivity(const string& id) throw (WfStructException)
 }
 
 FIfNode*
-FWorkflow::createIf(const string& id) throw (WfStructException)
+FWorkflow::createIf(const string& id) throw(WfStructException)
 {
   // check if node does not already exist
   try {
@@ -255,7 +255,7 @@ FWorkflow::createIf(const string& id) throw (WfStructException)
 }
 
 FMergeNode*
-FWorkflow::createMerge(const string& id) throw (WfStructException)
+FWorkflow::createMerge(const string& id) throw(WfStructException)
 {
   // check if node does not already exist
   try {
@@ -270,7 +270,7 @@ FWorkflow::createMerge(const string& id) throw (WfStructException)
 }
 
 FFilterNode*
-FWorkflow::createFilter(const string& id) throw (WfStructException)
+FWorkflow::createFilter(const string& id) throw(WfStructException)
 {
   // check if node does not already exist
   try {
@@ -285,7 +285,7 @@ FWorkflow::createFilter(const string& id) throw (WfStructException)
 }
 
 FLoopNode*
-FWorkflow::createLoop(const string& id) throw (WfStructException)
+FWorkflow::createLoop(const string& id) throw(WfStructException)
 {
   // check if node does not already exist
   try {
@@ -300,7 +300,7 @@ FWorkflow::createLoop(const string& id) throw (WfStructException)
 }
 
 FWorkflow*
-FWorkflow::createSubWorkflow(const string& id, const string& name) throw (WfStructException)
+FWorkflow::createSubWorkflow(const string& id, const string& name) throw(WfStructException)
 {
   try {
     getProcNode(id);
@@ -317,7 +317,7 @@ FWorkflow::createSubWorkflow(const string& id, const string& name) throw (WfStru
 
 FSourceNode*
 FWorkflow::createSource(const string& id, WfCst::WfDataType type)
-  throw (WfStructException)
+  throw(WfStructException)
 {
   try {
     getInterfaceNode(id);
@@ -332,7 +332,7 @@ FWorkflow::createSource(const string& id, WfCst::WfDataType type)
 
 FConstantNode*
 FWorkflow::createConstant(const string& id, WfCst::WfDataType type)
-  throw (WfStructException)
+  throw(WfStructException)
 {
   try {
     getInterfaceNode(id);
@@ -347,7 +347,7 @@ FWorkflow::createConstant(const string& id, WfCst::WfDataType type)
 
 FSinkNode*
 FWorkflow::createSink(const string& id, WfCst::WfDataType type, unsigned int depth)
-  throw (WfStructException)
+  throw(WfStructException)
 {
   try {
     getInterfaceNode(id);

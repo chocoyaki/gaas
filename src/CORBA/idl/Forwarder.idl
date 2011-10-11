@@ -84,14 +84,14 @@ interface Forwarder :
   oneway void getRequest(in corba_request_t req, in string objName);
   string getHostname(in string objName)
     raises(UnknownObject, BadNameException);
-#if HAVE_DYNAMICS
+
   long bindParent(in string parentName, in string objName)
     raises(UnknownObject, BadNameException);
   long disconnect(in string objName)
     raises(UnknownObject, BadNameException);
   long removeElement(in boolean recursive, in string objName)
     raises(UnknownObject, BadNameException);
-#endif
+
   /* CORBA remote management. */
   void bind(in string objName, in string ior);
   oneway void unbind(in string objName);

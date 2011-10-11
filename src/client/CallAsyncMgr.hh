@@ -94,7 +94,7 @@
  ****************************************************************************/
 
 
-typedef enum WAITOPERATOR{
+typedef enum WAITOPERATOR {
   SOLE = 0,     // Wait rule is about a unique request
   OR,           // Wait rule is released if one of the OR element is avalaible
   AND,          // Wait rule is satisfied when all AND element are avalaible
@@ -104,25 +104,25 @@ typedef enum WAITOPERATOR{
 }WAITOPERATOR;
 
 typedef enum {
-  STATUS_DONE = 0, // Result is available in local memory
-  STATUS_WAITING,       // End of solving on Server, result comes
-  STATUS_RESOLVING,          // Request is currently solving on Server
-  STATUS_CANCEL,        // Cancel is called on a reqID.
-  STATUS_ERROR          // Error caught
+  STATUS_DONE = 0,   // Result is available in local memory
+  STATUS_WAITING,    // End of solving on Server, result comes
+  STATUS_RESOLVING,  // Request is currently solving on Server
+  STATUS_CANCEL,     // Cancel is called on a reqID.
+  STATUS_ERROR       // Error caught
 } request_status_t;
 
 
 // Don't forget a data is link to a sole reqID
-struct Data{
+struct Data {
   diet_profile_t *profile;      // Ref on profile linked to a reqID
   request_status_t st;          // Info about reqID state
   int used;                     // Rules number using this profile/ReqID
 #ifdef HAVE_MULTICALL
-  int nbRequests;  //saves the number of requests to wait
-#endif //HAVE_MULTICALL
+  int nbRequests;  // saves the number of requests to wait
+#endif  // HAVE_MULTICALL
 };
 
-struct ruleElement{
+struct ruleElement {
   int32_t reqID;
   WAITOPERATOR op;
 };
@@ -134,44 +134,72 @@ struct Rule {
 };
 
 // manage link between reqID and request datas
-typedef std::map<int32_t ,Data *> CallAsyncList;
+typedef std::map<int32_t, Data *> CallAsyncList;
 // manage link between reqID and waitRules about it.
-typedef std::multimap<int32_t ,Rule *> RulesReqIDMap;
+typedef std::multimap<int32_t, Rule *> RulesReqIDMap;
 // Manage link between one rule and one omni semaphore
 typedef std::map<Rule *, omni_semaphore *> RulesConditionMap;
 // manage link between reqID and request datas
-typedef std::map<int32_t ,request_status_t> ReqIDStateMap;
+typedef std::map<int32_t, request_status_t> ReqIDStateMap;
 
-class CallAsyncMgr
-{
+class CallAsyncMgr {
 public:
   // give a unique instance of CallAsyncMgr
-  static CallAsyncMgr* Instance();
+  static CallAsyncMgr*
+  Instance();
+
   // client service API
   // add into internal list a new asynchronized reference
-  int addAsyncCall(diet_reqID_t reqID, diet_profile_t* dpt);
-  int deleteAsyncCall(diet_reqID_t reqID);
+  int
+  addAsyncCall(diet_reqID_t reqID, diet_profile_t* dpt);
+
+  int
+  deleteAsyncCall(diet_reqID_t reqID);
+
   // used by gridRPC function cancel_all
-  int deleteAllAsyncCall();
+  int
+  deleteAllAsyncCall();
+
   // add a new wait rule
-  int addWaitRule(Rule *);
-  int addWaitAnyRule(diet_reqID_t* IDptr);
-  int addWaitAllRule();
-  int deleteWaitRule(Rule* rule);
+  int
+  addWaitRule(Rule *rule);
+
+  int
+  addWaitAnyRule(diet_reqID_t* IDptr);
+
+  int
+  addWaitAllRule();
+
+  int
+  deleteWaitRule(Rule* rule);
+
   // persistence of async call ID and corba callback IOR
   // Not implemented
-  int serialise();
-  int areThereWaitRules();
+  int
+  serialise();
+
+  int
+  areThereWaitRules();
+
   // corba callback server service API
-  int notifyRst(diet_reqID_t reqID, corba_profile_t *dp);
-  int getStatusReqID(diet_reqID_t reqID);
-  int verifyRule(Rule *rule);
+  int
+  notifyRst(diet_reqID_t reqID, corba_profile_t *dp);
+
+  int
+  getStatusReqID(diet_reqID_t reqID);
+
+  int
+  verifyRule(Rule *rule);
+
   // initialise all necessary corba services
   // call by the first add of asynchronized call
-  int init(int argc, char* argv[]);
+  int
+  init(int argc, char* argv[]);
+
   // uninitialise all. end of corba servers ...
   // call when there is
-  int release();
+  int
+  release();
 
   /*
    * set the error code of a given request (session)
@@ -204,22 +232,23 @@ public:
    * Save a handle and associate it to a session ID
    */
   void
-  saveHandle(diet_reqID_t sessionID,
-             grpc_function_handle_t* handle);
+  saveHandle(diet_reqID_t sessionID, grpc_function_handle_t* handle);
   /*
    * get the handle associated to the provided sessionID
    */
   diet_error_t
-  getHandle(grpc_function_handle_t** handle,
-            diet_reqID_t sessionID);
+  getHandle(grpc_function_handle_t** handle, diet_reqID_t sessionID);
 
   /*
    * get all the session IDs
    */
   diet_reqID_t*
   getAllSessionIDs(int& len);
+
 protected:
-  int deleteAsyncCallWithoutLock(diet_reqID_t reqID);
+  int
+  deleteAsyncCallWithoutLock(diet_reqID_t reqID);
+
   // constructors
   CallAsyncMgr();
 
@@ -252,4 +281,5 @@ private:
    */
   std::vector<diet_reqID_t> doneRequests;
 };
-#endif //CALLASYNCMGR
+
+#endif  // CALLASYNCMGR

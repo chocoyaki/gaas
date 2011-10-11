@@ -54,7 +54,7 @@
 template <class T, class A = std::allocator<T> >
 class ts_vector : private std::vector<T, A> {
 
-private :
+private:
 
   /**
    * This is the mutex that lock the access to the vector to avoid that
@@ -67,14 +67,14 @@ private :
    */
   typedef std::vector<T, A> VectorType;
 
-public :
+public:
 
   /**
    * the size_type type is the same as the vector::size_type
    */
   typedef typename VectorType::size_type size_type;
 
-public :
+public:
 
   /**
    * The subscript operator performs a lookup on the key given as an
@@ -130,4 +130,4 @@ public :
   
 };
 
-#endif // _TS_VECTOR_HH_
+#endif  // _TS_VECTOR_HH_

@@ -230,7 +230,7 @@ class worker : public omni_thread
         printf("***********************************************************\n");
         printf("Result data for requestID %d", resultReqID);
         printf(" and omnithreadID %d \n", omni_thread::self()->id());
-        for (int w=0; w < 5; w++){
+        for (int w = 0; w < 5; w++){
           if (resultReqID == rst[w]){
             if (IS_PB[0]) {
               diet_matrix_get(diet_parameter(profile[w],0), NULL, NULL, (size_t*)&m, (size_t*)&n, &oA);
@@ -251,7 +251,7 @@ class worker : public omni_thread
           //  diet_cancel(rst[w]);
           //  diet_profile_free(profile[w]);
         }
-        for (int w=0; w < 5; w++){
+        for (int w = 0; w < 5; w++){
           diet_cancel(rst[w]);
           diet_profile_free(profile[w]);
         }

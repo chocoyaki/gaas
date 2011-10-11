@@ -116,4 +116,4 @@ private:
   
 };  // class JobQueue
 
-#endif // _JOBQUEUE_HH_
+#endif  // _JOBQUEUE_HH_

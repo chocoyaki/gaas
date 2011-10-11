@@ -22,14 +22,13 @@
 #ifndef _GLOBAL_MACROS_HH_
 #define _GLOBAL_MACROS_HH_
 
+#include <ctime>
+#include <iostream>
 #include <sys/time.h>
 #include <unistd.h>
-#include <time.h>
-#include <iostream>
 #include <omniconfig.h>
 #include <omnithread.h>
 
-using namespace std;
 // Others debug Traces
 
 #define traceTimer 1
@@ -69,7 +68,7 @@ using namespace std;
     if (traceLine == 1) { LINE_OUTPUT() }               \
     if (traceFunction == 1) { FUNCTION_OUTPUT() }       \
     X                                                   \
-      cout << endl;                                     \
+      std::cout << "\n";                                \
     fflush(stdout);                                     \
     fflush(stderr);                                     \
   } while(0);

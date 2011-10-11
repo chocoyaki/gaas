@@ -124,7 +124,7 @@ FDataTag::FDataTag() : mySize(0), myStr() {
 void
 FDataTag::initStr() {
   ostringstream ss;
-  for (unsigned int ix=0; ix < mySize; ++ix) {
+  for (unsigned int ix = 0; ix < mySize; ++ix) {
     ss << "_" << myIdxs[ix];
     if (myLastFlags[ix]) ss << "L";
   }
@@ -136,7 +136,7 @@ FDataTag::FDataTag(const FDataTag& tag) {
   if (mySize>0) {
     myIdxs = new unsigned int[mySize];
     myLastFlags = new bool[mySize];
-    for (unsigned int ix=0; ix<mySize; ++ix) {
+    for (unsigned int ix = 0; ix<mySize; ++ix) {
       myIdxs[ix] = tag.myIdxs[ix];
       myLastFlags[ix] = tag.myLastFlags[ix];
     }
@@ -157,7 +157,7 @@ FDataTag::FDataTag(const FDataTag& parentTag, unsigned int index, bool isLast) {
   mySize = parentTag.mySize + 1;
   myIdxs = new unsigned int[mySize];
   myLastFlags = new bool[mySize];
-  for (unsigned int ix=0; ix<mySize-1; ++ix) {
+  for (unsigned int ix = 0; ix<mySize-1; ++ix) {
     myIdxs[ix] = parentTag.myIdxs[ix];
     myLastFlags[ix] = parentTag.myLastFlags[ix];
   }
@@ -170,11 +170,11 @@ FDataTag::FDataTag(const FDataTag& parentTag, const FDataTag& childTag) {
   mySize = parentTag.mySize + childTag.mySize;
   myIdxs = new unsigned int[mySize];
   myLastFlags = new bool[mySize];
-  for (unsigned int ix=0; ix<parentTag.mySize; ++ix) {
+  for (unsigned int ix = 0; ix<parentTag.mySize; ++ix) {
     myIdxs[ix] = parentTag.myIdxs[ix];
     myLastFlags[ix] = parentTag.myLastFlags[ix];
   }
-  for (unsigned int ix=0; ix<childTag.mySize; ++ix) {
+  for (unsigned int ix = 0; ix<childTag.mySize; ++ix) {
     myIdxs[parentTag.mySize + ix] = childTag.myIdxs[ix];
     myLastFlags[parentTag.mySize + ix] = childTag.myLastFlags[ix];
   }
@@ -190,7 +190,7 @@ FDataTag::FDataTag(unsigned int * idxTab, bool * lastTab, unsigned int level)
   if (mySize > 0) {
     myIdxs = new unsigned int[mySize];
     myLastFlags = new bool[mySize];
-    for (unsigned int ix=0; ix<mySize; ++ix) {
+    for (unsigned int ix = 0; ix<mySize; ++ix) {
       myIdxs[ix]      = idxTab[ix];
       myLastFlags[ix] = lastTab[ix];
     }
@@ -255,7 +255,7 @@ FDataTag::getLastIndex() const {
 unsigned int
 FDataTag::getFlatIndex() const {
   int res = 1;
-  for (unsigned int ix=0; ix < mySize; ++ix) {
+  for (unsigned int ix = 0; ix < mySize; ++ix) {
     res *= (myIdxs[ix] + 1);
   }
   return res-1;
@@ -320,7 +320,7 @@ FDataTag::getTagAsLastOfBranch() {
 
 void
 FDataTag::updateLastFlags(const FDataTag& parentTag) {
-  for (unsigned int ix=0; ix<parentTag.getLevel(); ++ix)
+  for (unsigned int ix = 0; ix<parentTag.getLevel(); ++ix)
     myLastFlags[ix] = parentTag.myLastFlags[ix];
 }
 
@@ -629,7 +629,7 @@ FDataHandle::setCardinalList(list<string>::const_iterator& start,
 }
 
 unsigned int
-FDataHandle::getCardinal() const throw (WfDataHandleException) {
+FDataHandle::getCardinal() const throw(WfDataHandleException) {
   if (isCardinalDefined())
     return myCard;
   else
@@ -660,7 +660,7 @@ FDataHandle::isSourcePortDefined() const {
 }
 
 DagNodeOutPort*
-FDataHandle::getSourcePort() const throw (WfDataHandleException) {
+FDataHandle::getSourcePort() const throw(WfDataHandleException) {
   if (myPort != NULL)
     return myPort;
   //   else if ((myParentHdl != NULL) && (myParentHdl->isSourcePortDefined()))
@@ -707,13 +707,13 @@ FDataHandle::isAdapterDefined() const {
  */
 void
 FDataHandle::insertInTree(FDataHandle* dataHdl)
-  throw (WfDataHandleException) {
+  throw(WfDataHandleException) {
   if (!dataHdl) {
     INTERNAL_ERROR("FDataHandle::insertInTree : NULL input data handle",1);
   }
   if (myDepth == 0)
     throw WfDataHandleException(WfDataHandleException::eBAD_STRUCT,
-                                "Cannot insert into non-container data handle (depth=0)");
+                                "Cannot insert into non-container data handle (depth = 0)");
   const FDataTag& dataTag = dataHdl->getTag();
   unsigned int dataLevel = dataTag.getLevel();
   unsigned int myLevel = myTag.getLevel();
@@ -876,7 +876,7 @@ FDataHandle::addProperty(const string& propKey, const string& propValue) {
 }
 
 const string&
-FDataHandle::getProperty(const string& propKey) throw (WfDataHandleException) {
+FDataHandle::getProperty(const string& propKey) throw(WfDataHandleException) {
   return propKey;
 }
 
@@ -919,7 +919,7 @@ FDataHandle::updateTreeCardinalRec(bool isLast, bool parentTagMod) {
 
 /** RECURSIVE **/
 void
-FDataHandle::uploadTreeData(MasterAgent_var& MA) throw (WfDataHandleException) {
+FDataHandle::uploadTreeData(MasterAgent_var& MA) throw(WfDataHandleException) {
   // check childs
   if ((myDepth > 0) && (!myData->empty())) {
     for (map<FDataTag,FDataHandle*>::iterator childIter = myData->begin();
@@ -952,7 +952,7 @@ FDataHandle::uploadTreeData(MasterAgent_var& MA) throw (WfDataHandleException) {
 }
 
 map<FDataTag,FDataHandle*>::iterator
-FDataHandle::begin() throw (WfDataHandleException) {
+FDataHandle::begin() throw(WfDataHandleException) {
   // check that data handle is a container
   if (myDepth < 1) {
     throw WfDataHandleException(WfDataHandleException::eBAD_STRUCT,
@@ -979,7 +979,7 @@ FDataHandle::begin() throw (WfDataHandleException) {
   // if the cardinal is defined then the first call to begin will
   // create the childs automatically
   if (isCardinalDefined() && (myData->empty())) {
-    for (unsigned int ix=0; ix < myCard; ++ix) {
+    for (unsigned int ix = 0; ix < myCard; ++ix) {
       FDataTag  childTag(getTag(),ix, (ix == myCard-1));
       // Create new data handle
       FDataHandle* childHdl;
@@ -1132,7 +1132,7 @@ FDataHandle::writeValue(WfDataWriter *dataWriter) {
  * Get the value (in XML format) and store it in myValue
  */
 void
-FDataHandle::downloadValue() throw (WfDataHandleException) {
+FDataHandle::downloadValue() throw(WfDataHandleException) {
   if (isValueDefined()) return;
   //   TRACE_TEXT (TRACE_ALL_STEPS,"Retrieving value of data..." << endl);
   ostringstream  valStr;
@@ -1163,7 +1163,7 @@ FDataHandle::downloadValue() throw (WfDataHandleException) {
 }
 
 void
-FDataHandle::downloadDataID() throw (WfDataHandleException, WfDataException) {
+FDataHandle::downloadDataID() throw(WfDataHandleException, WfDataException) {
   if (!isDataIDDefined() && isAdapterDefined()) {
     // Create an adapter
     WfPortAdapter *adapter = createPortAdapter();

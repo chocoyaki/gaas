@@ -369,7 +369,7 @@ mrsh_scalar_desc(corba_data_desc_t* dest,
 #if HAVE_COMPLEX
     case DIET_SCOMPLEX:
     case DIET_DCOMPLEX:
-#endif // HAVE_COMPLEX
+#endif  // HAVE_COMPLEX
     default:
       MRSH_ERROR("base type " << src->generic.base_type
                  << " not implemented", 1);
@@ -429,9 +429,9 @@ __mrsh_data_desc_type(corba_data_desc_t* dest,
 
       dest->specific.file().path = CORBA::string_dup(src->specific.file.path);
       // Compute the file size.
-      ifstream file(dest->specific.file().path);
+      std::ifstream file(dest->specific.file().path);
       if (file.is_open()) {
-        file.seekg(0, ios::end);
+        file.seekg(0, std::ios::end);
         dest->specific.file().size = file.tellg();
         file.close();
       } else dest->specific.file().size = 0;
@@ -570,7 +570,7 @@ unmrsh_scalar_desc(diet_data_desc_t* dest, const corba_data_desc_t* src)
 #if HAVE_COMPLEX
   case DIET_SCOMPLEX:
   case DIET_DCOMPLEX:
-#endif // HAVE_COMPLEX
+#endif  // HAVE_COMPLEX
   default:
     MRSH_ERROR("base type " << bt << " not implemented", 1);
   }
@@ -645,8 +645,8 @@ unmrsh_data(diet_data_t* dest, corba_data_t* src, int upDown,
   static omni_mutex uniqDataIDMutex;
 
   if( (src->desc.mode == DIET_VOLATILE) && (upDown == 1) ){
-    char *tmp=NULL;
-    src->desc.id.idNumber=CORBA::string_dup(tmp);  // CORBA frees old mem
+    char *tmp = NULL;
+    src->desc.id.idNumber = CORBA::string_dup(tmp);  // CORBA frees old mem
   }
   if ( unmrsh_data_desc(&(dest->desc),&(src->desc)) )
     return 1;
@@ -656,11 +656,11 @@ unmrsh_data(diet_data_t* dest, corba_data_t* src, int upDown,
     dest->value = malloc(data_sizeof(&(dest->desc)));
 
   } else {
-    if(upDown==0){ /** Need to know if it is in the client -> SeD way or in the SeD-> client way */
+    if(upDown == 0){ /** Need to know if it is in the client -> SeD way or in the SeD-> client way */
       if (src->desc.mode != DIET_VOLATILE) {
         //               int size = data_sizeof(&(src->desc));
         //char *p =(char *)malloc(size*sizeof(char));
-        //for(int i=0; i < size; i++)
+        //for(int i = 0; i < size; i++)
         //  p[i] = src->value[i];
         //  dest->value = p;  //memcopy
         dest->value = (char*)src->value.get_buffer(0);
@@ -1047,7 +1047,7 @@ mrsh_profile_to_out_args(corba_profile_t* dest, const diet_profile_t* src,
 int
 unmrsh_out_args_to_profile(diet_profile_t* dpb, corba_profile_t* cpb)
 {
-  for (int i=cpb->last_in+1; i<=cpb->last_out;++i)
+  for (int i = cpb->last_in+1; i<=cpb->last_out;++i)
     unmrsh_data_desc(&(dpb->parameters[i].desc), &(cpb->parameters[i].desc));
   return 0;
   int i;
@@ -1076,15 +1076,15 @@ unmrsh_out_args_to_profile(diet_profile_t* dpb, corba_profile_t* cpb)
       char* inout_path = dpb->parameters[i].desc.specific.file.path;
 
       int   size = cdd->specific.file().size;
-      ofstream inoutfile(inout_path);
+      std::ofstream inoutfile(inout_path);
       dpb->parameters[i].desc.specific.file.size = size;
       for (int j = 0; j < size; j++) {
         inoutfile.put(cpb->parameters[i].value[j]);
       }
     } else {
       if(cpb->parameters[i].desc.mode == DIET_VOLATILE){
-        char *tmp=NULL;
-        cdd->id.idNumber=CORBA::string_dup(tmp);
+        char *tmp = NULL;
+        cdd->id.idNumber = CORBA::string_dup(tmp);
       }
 
       unmrsh_data_desc(&(dpb->parameters[i].desc), cdd);

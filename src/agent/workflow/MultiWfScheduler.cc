@@ -327,12 +327,12 @@ MultiWfScheduler::getMaDag() const {
 }
 
 Dag *
-MultiWfScheduler::getDag(const string& dagId) throw (MaDag::InvalidDag) {
+MultiWfScheduler::getDag(const string& dagId) throw(MaDag::InvalidDag) {
   map<string,Dag*>::iterator iter = myDags.find(dagId);
   if (iter != myDags.end())
     return ((Dag*)iter->second);
   else
-    throw (MaDag::InvalidDag(dagId.c_str()));
+    throw(MaDag::InvalidDag(dagId.c_str()));
 }
 
 /**
@@ -352,7 +352,7 @@ MultiWfScheduler::getMetaDag(Dag * dag) {
  */
 void
 MultiWfScheduler::scheduleNewDag(Dag * newDag, MetaDag * metaDag)
-  throw (MaDag::ServiceNotFound, MaDag::CommProblem)
+  throw(MaDag::ServiceNotFound, MaDag::CommProblem)
 {
   // Beginning of exclusion block
   // TODO move exclusion lock later (need to make HEFTScheduler thread-safe)
@@ -545,7 +545,7 @@ MultiWfScheduler::run() {
           }
           ++requestCount;
           // CHECK RESSOURCE AVAILABILITY
-          for (unsigned int jx=0;
+          for (unsigned int jx = 0;
                jx < wf_response->wfn_seq_resp[0].response.servers.length();
                jx++) { // loop over servers
             servEst = &wf_response->wfn_seq_resp[0].response.servers[jx];
@@ -564,8 +564,8 @@ MultiWfScheduler::run() {
             if (EFT - compTime <= 0) {  // test if available right now
               // test if the server has not been already chosen for another node
               bool ressAvailable = true;
-              for (map<SeD_ptr, bool>::iterator ressAvailIter=ressAvail.begin();
-                   ressAvailIter!=ressAvail.end();
+              for (map<SeD_ptr, bool>::iterator ressAvailIter = ressAvail.begin();
+                   ressAvailIter != ressAvail.end();
                    ++ressAvailIter) {
                 if (curSeDPtr->_is_equivalent(ressAvailIter->first)) {
                   ressAvailable = false;
@@ -680,7 +680,7 @@ MultiWfScheduler::run() {
  */
 wf_response_t *
 MultiWfScheduler::getProblemEstimates(Dag *dag, MasterAgent_var MA)
-  throw (MaDag::ServiceNotFound, MaDag::CommProblem) {
+  throw(MaDag::ServiceNotFound, MaDag::CommProblem) {
   // Check that all services are available and get the estimations (with MA)
   TRACE_TEXT (TRACE_ALL_STEPS,"MultiWfScheduler: Marshalling the profiles" << endl);
   corba_pb_desc_seq_t* pbs_seq = new corba_pb_desc_seq_t();
@@ -744,7 +744,7 @@ MultiWfScheduler::getProblemEstimates(Dag *dag, MasterAgent_var MA)
   TRACE_TEXT (TRACE_ALL_STEPS, "... done" << endl);
   delete pbs_seq;
   if (failed) {
-    throw (MaDag::CommProblem(failureMsg.c_str()));
+    throw(MaDag::CommProblem(failureMsg.c_str()));
   }
   if (!wf_response->complete) {
     // get the faulty node using the submission index
@@ -760,11 +760,11 @@ MultiWfScheduler::getProblemEstimates(Dag *dag, MasterAgent_var MA)
     }
     // throw corba exception with node details
     if (failedDagNode)
-      throw (MaDag::ServiceNotFound(failedDagNode->getId().c_str(),
+      throw(MaDag::ServiceNotFound(failedDagNode->getId().c_str(),
                                     failedDagNode->getPbName().c_str(),
                                     failedDagNode->getPortsDescr().c_str()));
     else
-      throw (MaDag::ServiceNotFound(NULL,NULL,NULL));
+      throw(MaDag::ServiceNotFound(NULL,NULL,NULL));
   }
   return wf_response;
 }
@@ -775,7 +775,7 @@ MultiWfScheduler::getProblemEstimates(Dag *dag, MasterAgent_var MA)
  */
 wf_response_t *
 MultiWfScheduler::getProblemEstimates(DagNode *node, MasterAgent_var MA)
-  throw (MaDag::ServiceNotFound, MaDag::CommProblem) {
+  throw(MaDag::ServiceNotFound, MaDag::CommProblem) {
   corba_pb_desc_seq_t* pbs_seq = new corba_pb_desc_seq_t();
   wf_response_t * wf_response = NULL;
   pbs_seq->length(1);
@@ -796,9 +796,9 @@ MultiWfScheduler::getProblemEstimates(DagNode *node, MasterAgent_var MA)
   delete pbs_seq;
   TRACE_TEXT (TRACE_ALL_STEPS, "... done" << endl);
   if (failed)
-    throw (MaDag::CommProblem(failureMsg.c_str()));
+    throw(MaDag::CommProblem(failureMsg.c_str()));
   if (!wf_response->complete)
-    throw (MaDag::ServiceNotFound(node->getId().c_str(),
+    throw(MaDag::ServiceNotFound(node->getId().c_str(),
                                   node->getPbName().c_str(),
                                   node->getPortsDescr().c_str()));
   return wf_response;
@@ -809,7 +809,7 @@ MultiWfScheduler::getProblemEstimates(DagNode *node, MasterAgent_var MA)
  */
 void
 MultiWfScheduler::intraDagSchedule(Dag * dag, MasterAgent_var MA)
-  throw (MaDag::ServiceNotFound, MaDag::CommProblem) {
+  throw(MaDag::ServiceNotFound, MaDag::CommProblem) {
   // Call the MA to get estimations for all services
   wf_response_t * wf_response = this->getProblemEstimates(dag, MA);
   // Prioritize the nodes (with intra-dag scheduler)

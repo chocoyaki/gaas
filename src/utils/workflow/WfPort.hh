@@ -213,7 +213,7 @@ public:
   /**
    * Returns the data type at a given depth
    * (returns container if eltDepth lower than port depth,
-   *  returns base data type if eltDepth=port depth)
+   *  returns base data type if eltDepth = port depth)
    */
   WfCst::WfDataType
   getDataType(unsigned int eltDepth) const;

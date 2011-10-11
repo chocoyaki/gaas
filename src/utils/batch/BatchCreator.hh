@@ -59,15 +59,10 @@
 
 class BatchSystem;
 
-class BatchCreator
-{
-
-public :
-
+class BatchCreator {
+public:
   typedef enum {
-    // SHELL, 
-    //CONDOR, DQS, LOADLEVELER, LSF, PBS, SGE, 
-    OAR1_6, 
+    OAR1_6,
     LOADLEVELER,
     SGE,
     PBS,
@@ -88,12 +83,11 @@ public :
       Returns NULL if batch system is not managed.
   */
   static BatchSystem *
-  getBatchSystem( const char * batchName );
+  getBatchSystem(const char * batchName);
 
   /** Returns 1 if the batch system is managed by DIET, 0 otherwise */
   static int
   existBatchScheduler(const char * batchName, batchID_t * batchID);
-      
 };
 
 #endif

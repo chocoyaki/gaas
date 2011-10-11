@@ -50,4 +50,4 @@ public:
   checkPrec(NodeSet* contextNodeSet) throw(WfStructException) = 0;
 };
 
-#endif // _NODESET_
+#endif  // _NODESET_

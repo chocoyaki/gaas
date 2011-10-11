@@ -17,8 +17,8 @@
 #define _SEDDESCRPARSER_HH_
 
 // Standard library headers
-#include <string>
 #include <list>
+#include <string>
 
 // Xerces headers
 #include <xercesc/util/PlatformUtils.hpp>
@@ -41,7 +41,6 @@
 #include "SeDService.hh"
 
 XERCES_CPP_NAMESPACE_USE
-using namespace std;
 
 
 /*****************************************************************************/
@@ -50,13 +49,13 @@ using namespace std;
 
 
 class SeDDescrParser {
-
 public:
+  explicit SeDDescrParser(const std::string& fileName);
 
-  SeDDescrParser(const string& fileName);
   virtual ~SeDDescrParser();
 
-  void parseXml(bool checkValid = false);
+  void
+  parseXml(bool checkValid = false);
 
   virtual void
   evalTemplate(SeDArgument *arg, string& value) = 0;
@@ -65,13 +64,13 @@ public:
   getServices();
 
 protected:
-
-  virtual void parseRoot(DOMNode* root) = 0;
+  virtual void
+  parseRoot(DOMNode* root) = 0;
 
   /**
    * XML File name
    */
-  string myXmlFileName;
+  std::string myXmlFileName;
 
   /**
    * Xml document
@@ -81,7 +80,7 @@ protected:
   /**
    * Generated objects storage
    */
-  list<SeDService*>  myServiceList;
+  std::list<SeDService*>  myServiceList;
 };
 
 
@@ -90,22 +89,30 @@ protected:
 /*****************************************************************************/
 
 class GASWParser : public SeDDescrParser {
-
 public:
+  explicit GASWParser(const std::string& fileName);
 
-  GASWParser(const string& fileName);
-
-  virtual void evalTemplate(SeDArgument *arg, string& value);
+  virtual void
+  evalTemplate(SeDArgument *arg, std::string& value);
 
 protected:
+  virtual std::string
+  parseValueURI(const DOMElement *element);
 
-  virtual string parseValueURI(const DOMElement *element);
-  virtual void parseRoot(DOMNode* root);
-  virtual void parseExecutable(const DOMElement * element);
-  virtual void parseInput(const DOMElement * element, SeDService * service);
-  virtual void parseOutput(const DOMElement * element, SeDService * service);
-  virtual void parseDependency(const DOMElement * element, SeDService * service);
+  virtual void
+  parseRoot(DOMNode* root);
 
+  virtual void
+  parseExecutable(const DOMElement * element);
+
+  virtual void
+  parseInput(const DOMElement * element, SeDService * service);
+
+  virtual void
+  parseOutput(const DOMElement * element, SeDService * service);
+
+  virtual void
+  parseDependency(const DOMElement * element, SeDService * service);
 };
 
 #endif

@@ -54,24 +54,7 @@ typedef std::list<std::string> Args;
  * switches/options must have short and long names
  * params always come last, switches/options can be mixed
  */
-class CmdParser
-{
-private:
-  CmdConfig config_;
-  mutable OptionMap options_;
-  Args args_;
-
-  std::string version_;
-  std::string copyright_;
-  std::string exec_;
-
-  bool hasSwitchs_;
-  bool hasOptions_;
-  bool hasParams_;
-  bool enabledHelp_;
-  bool enabledVersion_;
-  bool showVersion_;
-
+class CmdParser {
 public:
   /**
    * @enum Type
@@ -123,7 +106,7 @@ public:
    * @param showVersion display version string as preamble (false by default)
    */
   void
-  enableHelp(bool showVersion=false);
+  enableHelp(bool showVersion = false);
 
   /**
    * @brief enable generated version switch
@@ -160,7 +143,7 @@ public:
    * @return option value
    */
   const std::string&
-  operator[](const std::string& key) const;  //getter
+  operator[](const std::string& key) const;  // getter
 
   /**
    * @brief return options
@@ -185,6 +168,21 @@ private:
   // used by both findOption and findParam
   const std::string
   findOption_(const CmdEntry& entry);
+
+  CmdConfig config_;
+  mutable OptionMap options_;
+  Args args_;
+
+  std::string version_;
+  std::string copyright_;
+  std::string exec_;
+
+  bool hasSwitchs_;
+  bool hasOptions_;
+  bool hasParams_;
+  bool enabledHelp_;
+  bool enabledVersion_;
+  bool showVersion_;
 };
 
 /**
@@ -195,14 +193,13 @@ private:
  *
  * store command line option configuration
  */
-struct CmdEntry
-{
-  CmdParser::Type type; /**< command-line argument type */
-  CmdParser::Flags flags;       /**< command-line argument flag */
-  std::string name;             /**< option name */
-  std::string longName; /**< command-line argument long name */
-  std::string shortName;        /**< command-line argument short name */
-  std::string desc;             /**< command-line argument description */
+struct CmdEntry {
+  CmdParser::Type type;    /**< command-line argument type */
+  CmdParser::Flags flags;  /**< command-line argument flag */
+  std::string name;        /**< option name */
+  std::string longName;    /**< command-line argument long name */
+  std::string shortName;   /**< command-line argument short name */
+  std::string desc;        /**< command-line argument description */
 
   // required for sorting entries
   bool

@@ -286,4 +286,4 @@ FloodRequest::addResponseServiceFound(const corba_response_t& decision) {
   //printf("sortie de addResponseServiceFound\n");
 }
 
-#endif // HAVE_MULTI_MA
+#endif  // HAVE_MULTI_MA

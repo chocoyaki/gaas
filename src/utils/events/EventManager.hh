@@ -69,5 +69,5 @@ private:
 
 }
 
-#endif // EVENTMANAGER_HH_
+#endif  // EVENTMANAGER_HH_
 

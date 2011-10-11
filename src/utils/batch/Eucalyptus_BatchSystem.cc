@@ -233,7 +233,7 @@ int Eucalyptus_BatchSystem::diet_submit_parallel(diet_profile_t * profile,
   }
 #ifdef CLOUD_DEBUG
   fprintf(stdout, "INFO: Created instances with the following IP address mapping:\n");
-  for(index=0;index<req_state->actualCount;index++)
+  for(index = 0;index<req_state->actualCount;index++)
     fprintf(stdout, "\t%s -> %s\n", req_state->vmNames[index], req_state->vmIPs[index]);
 #endif
   /* prepare the script for running, replace the meta-variables inside the script */
@@ -359,7 +359,7 @@ void Eucalyptus_BatchSystem::doWait(int count, char*addresses)
     "#!/bin/bash\n\n"
     "for h in $DIET_CLOUD_VMS\n"
     "do\n"
-    "ssh $USERNAME@$h -i $PATH_TO_SSH_KEY -o StrictHostKeyChecking=no 'hostname; uname -a'\n"
+    "ssh $USERNAME@$h -i $PATH_TO_SSH_KEY -o StrictHostKeyChecking = no 'hostname; uname -a'\n"
     "done";
   char*script = (char*)malloc(1000);
   sprintf(script, "%s", s);
@@ -456,7 +456,7 @@ int Eucalyptus_BatchSystem::makeEucalyptusReservation(request_data_t * req_state
 #endif
       req_state->reservationId = strdup(rirespp->reservationId);
       allocVmNames(req_state);
-      for(index=0; index < req_state->actualCount; index++)
+      for(index = 0; index < req_state->actualCount; index++)
       {
         item = &rirespp->instancesSet->item[index];
         req_state->vmStates[index] = strdup(item->instanceState->name);
@@ -510,7 +510,7 @@ int Eucalyptus_BatchSystem::terminateEucalyptusInstance(request_data_t * req_sta
     {
 #ifdef CLOUD_DEBUG
       fprintf(stdout, "INFO: Called 'TerminateInstances'\n");
-      for(index=0;index<tirtp->instancesSet->__sizeitem;index++)
+      for(index = 0;index<tirtp->instancesSet->__sizeitem;index++)
         fprintf(stdout, "\nnew state is: %s\n", tirtp->instancesSet->item[index].shutdownState->name);
 #endif
     }
@@ -567,7 +567,7 @@ int Eucalyptus_BatchSystem::describeInstances(request_data_t * req_state)
 #endif
     int r;
     req_state->actualCount = 0;
-    for(r=0;r<respp->reservationSet->__sizeitem;r++)
+    for(r = 0;r<respp->reservationSet->__sizeitem;r++)
     {
 
       if(req_state->reservationId == NULL || instantiateVMs == 0)
@@ -577,7 +577,7 @@ int Eucalyptus_BatchSystem::describeInstances(request_data_t * req_state)
       {
         reservation = &respp->reservationSet->item[r];
         /* Update the number of instances in case the service uses existing VMs */
-        for(index=0;index<reservation->instancesSet->__sizeitem;index++)
+        for(index = 0;index<reservation->instancesSet->__sizeitem;index++)
         {
           printf("in reservation\n");
           if(req_state->vmNames == NULL)

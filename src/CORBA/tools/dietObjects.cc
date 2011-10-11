@@ -64,7 +64,7 @@ public:
 
   bool
   list() const {
-    return getArg(1)=="list" && argc==2;
+    return getArg(1)=="list" && argc == 2;
   }
 
   bool
@@ -150,7 +150,7 @@ main(int argc, char* argv[]) {
       std::list<std::string> objects;
       std::list<std::string>::const_iterator jt;
       std::cout << "Object type: " << *it << " (";
-      objects=mgr->list(*it);
+      objects = mgr->list(*it);
       std::cout << objects.size() << " object"
                 << (objects.size()>1 ? "s)":")") << "\n";
       for (jt = objects.begin(); jt != objects.end(); ++jt) {
@@ -205,7 +205,7 @@ main(int argc, char* argv[]) {
                 << " (" << fwd->getPeerHost() << ")\n";
       std::cout << "  Managing: \n";
       for (std::list<std::string>::const_iterator jt = objects.begin();
-           jt!=objects.end();
+           jt != objects.end();
            ++jt)
         std::cout << "    - " << *jt << "\n";
     }

@@ -207,19 +207,18 @@ unmrsh_data(diet_data_t* dest, corba_data_t* src, int);
 
 // unmarshall only the data description (needed for custom
 // performance metrics)
-int unmrsh_data_desc(diet_data_desc_t* dest,
-                     const corba_data_desc_t* const src);
+int
+unmrsh_data_desc(diet_data_desc_t* dest, const corba_data_desc_t* const src);
 
 
 #ifdef HAVE_WORKFLOW
 // Workflow structure marshaling
 int
-mrsh_wf_desc(corba_wf_desc_t* dest,
-             const diet_wf_desc_t* const src);
+mrsh_wf_desc(corba_wf_desc_t* dest, const diet_wf_desc_t* const src);
 #endif
 
+int
+unmrsh_profile_desc(diet_profile_desc_t* dest,
+                    const corba_profile_desc_t* src);
 
-int unmrsh_profile_desc(diet_profile_desc_t* dest,
-                        const corba_profile_desc_t* src);
-
-#endif // _MARSHALLING_HH_
+#endif  // _MARSHALLING_HH_

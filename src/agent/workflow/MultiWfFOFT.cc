@@ -122,7 +122,7 @@ MultiWfFOFT::~MultiWfFOFT() {
  */
 void
 MultiWfFOFT::intraDagSchedule(Dag * dag, MasterAgent_var MA)
-  throw (MaDag::ServiceNotFound, MaDag::CommProblem) {
+  throw(MaDag::ServiceNotFound, MaDag::CommProblem) {
   // Call the MA to get estimations for all services
   wf_response_t * wf_response = this->getProblemEstimates(dag, MA);
 

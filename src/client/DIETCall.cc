@@ -49,11 +49,11 @@
 #ifdef HAVE_MULTICALL
 #include "MultiCall.hh"
 #include <vector>
-#endif // MULTICALL
+#endif  // MULTICALL
 
 #ifdef HAVE_CCS
 #include "SpecificClientScheduler.hh"
-#endif // HAVE_CCS
+#endif  // HAVE_CCS
 
 /****************************************************************************/
 /* Global variables                                                         */
@@ -183,11 +183,11 @@ request_submission(MasterAgent_var& MA,
         SpecificClientScheduler::start(chosenServer, response);
         SCHED_MUTEX.unlock();
       }
-#endif // HAVE CCS
+#endif  // HAVE CCS
 
 #ifdef HAVE_MULTICALL
       MultiCall::set_response(response);
-#endif //HAVE_MULTICALL
+#endif  //HAVE_MULTICALL
 
     }
     sprintf(statMsg, "request_submission %ld", (unsigned long) reqID);
@@ -320,7 +320,7 @@ diet_call_async_common(MasterAgent_var& MA,
     int max = MultiCall::get_response()->servers.length();
     for (int counter = 0; counter < max; counter++) {
       if (MultiCall::updateCall(profile, chosenServer)) {
-#endif //HAVE_MULTICALL
+#endif  //HAVE_MULTICALL
 
         dagda_mrsh_profile(&corba_profile, profile, MA);
 

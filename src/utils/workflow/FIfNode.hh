@@ -60,21 +60,21 @@ public:
           unsigned int ind,
           WfPort::WfPortType portType,
           WfCst::WfDataType dataType,
-          unsigned int depth) throw (WfStructException);
+          unsigned int depth) throw(WfStructException);
 
   void
   setCondition(const string& conditionStr)
-    throw (WfStructException);
+    throw(WfStructException);
 
   void
   setThenMap(const string& leftPortName,
              const string& rightPortName)
-    throw (WfStructException);
+    throw(WfStructException);
 
   void
   setElseMap(const string& leftPortName,
              const string& rightPortName)
-    throw (WfStructException);
+    throw(WfStructException);
 
   // ******************** INSTANCIATION *********************
 
@@ -92,7 +92,7 @@ public:
 protected:
 
   virtual void
-  checkCondition() throw (WfStructException);
+  checkCondition() throw(WfStructException);
 
   FNodePortMap  myThenMap;
   FNodePortMap  myElseMap;
@@ -121,7 +121,7 @@ public:
           unsigned int ind,
           WfPort::WfPortType portType,
           WfCst::WfDataType dataType,
-          unsigned int depth) throw (WfStructException);
+          unsigned int depth) throw(WfStructException);
 
   virtual void
   createRealInstance(Dag* dag,
@@ -159,7 +159,7 @@ public:
           unsigned int ind,
           WfPort::WfPortType portType,
           WfCst::WfDataType dataType,
-          unsigned int depth) throw (WfStructException);
+          unsigned int depth) throw(WfStructException);
 
   virtual void
   createRealInstance(Dag* dag,
@@ -202,4 +202,4 @@ private:
 };
 
 
-#endif // _FIFNODE_HH_
+#endif  // _FIFNODE_HH_

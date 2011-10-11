@@ -118,7 +118,7 @@ set_req_error(diet_reqID_t sessionID,
  * check if the handle is initialized
  ***************************************************************************/
 bool isInitialized(const grpc_function_handle_t handle) {
-  for (unsigned int ix=0; ix < handles.size(); ix++) {
+  for (unsigned int ix = 0; ix < handles.size(); ix++) {
     if (handles[ix] == handle)
       return true;
   }
@@ -238,7 +238,7 @@ grpc_function_handle_init(grpc_function_handle_t* handle,
   (*handle)->server = ORBMgr::stringToObject(host_portToIOR(server_host_port));
 #else  // IT_IS_DONE
   (*handle)->server = DIET_DEFAULT_SERVER;
-#endif // IT_IS_DONE
+#endif  // IT_IS_DONE
 
   // Search for the service
   if (!getProfileDesc( (*handle)->func_name,
@@ -414,7 +414,7 @@ grpc_build_profile(grpc_function_handle_t* handle, diet_profile_t*& profile,
   (*handle)->args_refs = new void*[(*handle)->profile.last_out+1];
 
   diet_arg_t* args[(*handle)->profile.last_out+1];
-  for (int ix=0; ix<= (*handle)->profile.last_out; ix++)
+  for (int ix = 0; ix<= (*handle)->profile.last_out; ix++)
     args[ix] = (diet_arg_t*)calloc(1, sizeof(diet_arg_t));
 
   profile =
@@ -424,7 +424,7 @@ grpc_build_profile(grpc_function_handle_t* handle, diet_profile_t*& profile,
                        (*handle)->profile.last_out);
 
 
-  for (int ix=0;
+  for (int ix = 0;
        ix <= (*handle)->profile.last_in;
        ix++) {
     switch ((*handle)->profile.param_desc[ix].type) {
@@ -845,7 +845,7 @@ grpc_wait_and(diet_reqID_t* IDs, size_t length) {
   grpc_error_t err = diet_wait_and(IDs, length);
 
   if (err == GRPC_NO_ERROR) {
-    for (unsigned int ix=0; ix<length; ix++) {
+    for (unsigned int ix = 0; ix<length; ix++) {
       grpc_get_results(IDs[ix]);
     }
   }
@@ -872,7 +872,7 @@ grpc_wait_all() {
   if (err == GRPC_NO_ERROR) {
     int len;
     diet_reqID_t * sessions = get_all_session_ids(len);
-    for (int ix=0; ix<len; ix++) {
+    for (int ix = 0; ix<len; ix++) {
       grpc_get_results(sessions[ix]);
     }
     if (sessions != NULL)

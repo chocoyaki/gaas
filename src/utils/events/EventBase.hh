@@ -49,5 +49,5 @@ protected:
 
 std::ostream& operator<<(std::ostream& out, const EventBase& e);
 
-#endif // EVENTBASE_HH_
+#endif  // EVENTBASE_HH_
 

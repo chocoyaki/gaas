@@ -58,9 +58,7 @@ if (DIET_USE_WORKFLOW)
   add_subdirectory(events)
   target_link_libraries(DIET_Utils UtilsEvents)
 endif (DIET_USE_WORKFLOW)
-if (DIET_USE_CORI)
-  target_link_libraries(DIET_Utils UtilsCori)
-endif (DIET_USE_CORI)
+target_link_libraries(DIET_Utils UtilsCori)
 
 if (DIET_USE_USERSCHED)
   install(TARGETS DIET_Utils DESTINATION ${LIB_INSTALL_DIR})
@@ -87,8 +85,5 @@ if (DIET_USE_USERSCHED)
     )
 endif (DIET_USE_USERSCHED)
 
-
 ## Admin API
-if ( DIET_ADMIN_API )
-  add_subdirectory( admin )
-endif()
+add_subdirectory( admin )

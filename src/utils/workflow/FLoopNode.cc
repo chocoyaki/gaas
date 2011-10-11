@@ -52,7 +52,7 @@ public:
   }
 
   virtual void
-  setNodePrecedence(NodeSet * contextNodeSet) throw (WfStructException);
+  setNodePrecedence(NodeSet * contextNodeSet) throw(WfStructException);
 
 private:
   bool setPrecedence;
@@ -73,7 +73,7 @@ public:
 };
 
 void
-FLoopInPort::setNodePrecedence(NodeSet * contextNodeSet) throw (WfStructException) {
+FLoopInPort::setNodePrecedence(NodeSet * contextNodeSet) throw(WfStructException) {
   if (setPrecedence)
     WfPort::setNodePrecedence(contextNodeSet);
 }
@@ -93,7 +93,7 @@ FLoopNode::newPort(string portId,
                    unsigned int ind,
                    WfPort::WfPortType portType,
                    WfCst::WfDataType dataType,
-                   unsigned int depth) throw (WfStructException) {
+                   unsigned int depth) throw(WfStructException) {
 
   WfPort * p = NULL;
   switch (portType) {
@@ -127,7 +127,7 @@ FLoopNode::newPort(string portId,
 }
 
 void
-FLoopNode::connectNodePorts() throw (WfStructException) {
+FLoopNode::connectNodePorts() throw(WfStructException) {
 
   // Reset the loop IN connections
   for (map<string, WfPort*>::iterator portIter = ports.begin();
@@ -146,7 +146,7 @@ FLoopNode::connectNodePorts() throw (WfStructException) {
 
 void
 FLoopNode::setDoMap(const string& leftPortName,
-                    const string& rightPortName) throw (WfStructException) {
+                    const string& rightPortName) throw(WfStructException) {
   FLoopOutPort* loopOutPort = checkAssignPort<FLoopOutPort>(leftPortName);
   FLoopInPort* loopInPort = checkAssignPort<FLoopInPort>(rightPortName);
   myDoMap.mapPorts(loopOutPort, loopInPort);
@@ -173,13 +173,13 @@ FLoopNode::setDoMap(const string& leftPortName,
 
 void
 FLoopNode::setWhileCondition(const string& conditionStr)
-  throw (WfStructException) {
+  throw(WfStructException) {
   myCondition->setExpression(conditionStr);
   checkCondition();
 }
 
 void
-FLoopNode::checkCondition() throw (WfStructException) {
+FLoopNode::checkCondition() throw(WfStructException) {
   // init variables table
   if (myConditionVars != NULL)  delete myConditionVars;
   myConditionVars = new vector<WfExprVariable*>(getPortNb(), NULL);
@@ -309,7 +309,7 @@ FLoopNode::instanciate(Dag* dag) {
     // CHECK IF VOID // FIXME duplicated code with FProcNode::instanciate
     bool dataIsVoid = false;
     vector<FDataHandle*>::const_iterator DLIter = loopDataLine->begin();
-    while ((!dataIsVoid) && (DLIter!=loopDataLine->end())) {
+    while ((!dataIsVoid) && (DLIter != loopDataLine->end())) {
       FDataHandle* currDataHdl = *(DLIter++);
       dataIsVoid = currDataHdl ? currDataHdl->isVoid() : dataIsVoid;
     }

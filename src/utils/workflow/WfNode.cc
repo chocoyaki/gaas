@@ -269,7 +269,7 @@ WfNode::remPrevId(const string& nodeId) {
  * data dependencies (ports links)
  */
 void
-WfNode::setNodePrecedence(NodeSet* nodeSet) throw (WfStructException) {
+WfNode::setNodePrecedence(NodeSet* nodeSet) throw(WfStructException) {
   // The predecessors defined by control links (<prec> tag) were
   // already added by the dag parser.
   // Add the predecessors defined by data links
@@ -395,7 +395,7 @@ WfNode::isAnExit() const {
  * link the ports by references
  */
 void
-WfNode::connectNodePorts() throw (WfStructException) {
+WfNode::connectNodePorts() throw(WfStructException) {
   TRACE_TEXT (TRACE_ALL_STEPS,
               "connectNodePorts : processing node " << getId() << endl);
   for (map<string, WfPort*>::iterator p = ports.begin();
@@ -418,7 +418,7 @@ WfNode::isPortDefined(const string& id) {
  * Add a new port to the ports map
  */
 WfPort *
-WfNode::addPort(const string& portId, WfPort* port) throw (WfStructException) {
+WfNode::addPort(const string& portId, WfPort* port) throw(WfStructException) {
   if (isPortDefined(portId)) {
     delete port;
     throw WfStructException(WfStructException::eDUPLICATE_PORT,"port id="+portId);
@@ -431,7 +431,7 @@ WfNode::addPort(const string& portId, WfPort* port) throw (WfStructException) {
  * Get the input port references by id *
  */
 WfPort *
-WfNode::getPort(const string& id) throw (WfStructException) {
+WfNode::getPort(const string& id) throw(WfStructException) {
   map<string, WfPort*>::iterator p = ports.find(id);
   if (p != ports.end())
     return ((WfPort*)(p->second));
@@ -485,7 +485,7 @@ WfNode::getPortByIndex(unsigned int portIdx) const {
 string
 WfNode::getPortsDescr() const {
   string descrStr;
-  for (unsigned int ix=0; ix<getPortNb(); ++ix) {
+  for (unsigned int ix = 0; ix<getPortNb(); ++ix) {
     const WfPort* port = getPortByIndex(ix);
     descrStr += port->getPortDescr();
     if (ix < getPortNb()-1)

@@ -52,12 +52,12 @@ Options::Options(Configuration* config, int argc, char* argv[], char* envp[]) {
   this->config = config;
 
   for (int i = 1; i < argc; ++i) {
-    string curArg(argv[i]);
+    std::string curArg(argv[i]);
     if (curArg.find("--") == 0) {
       if (i == (argc - 1)) {
         singleArgs.push_back(curArg);
       } else {
-        string nextArg(argv[i+1]);
+        std::string nextArg(argv[i+1]);
         if (nextArg.find('-') == 0) {
           singleArgs.push_back(curArg);
         } else {
@@ -67,7 +67,7 @@ Options::Options(Configuration* config, int argc, char* argv[], char* envp[]) {
       }
     } else {
       if (curArg.find('-') == 0) {
-        string::iterator it = curArg.begin();
+        std::string::iterator it = curArg.begin();
         while (it != curArg.end()) {
           flags.push_back(*it++);
         }
@@ -83,7 +83,7 @@ Options::Options(Configuration* config, int argc, char* argv[], char* envp[]) {
   while (envp[j] != NULL) {
     std::string curEnv(envp[j++]);
     size_t pos = curEnv.find('=');
-    if (pos == string::npos) {
+    if (pos == std::string::npos) {
       singleEnvs.push_back(curEnv);
     } else {
       std::string key = curEnv.substr(0, pos);
@@ -262,7 +262,8 @@ ConfigFile::parseFile(const std::string& path) {
     attributes[key]=value;
   }
 }
-const string&
-ConfigFile::getAttr(const string& key) {
+
+const std::string&
+ConfigFile::getAttr(const std::string& key) {
   return attributes[key];
 }

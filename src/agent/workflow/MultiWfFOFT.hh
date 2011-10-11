@@ -73,18 +73,14 @@
 
 #include "MultiWfScheduler.hh"
 
-using namespace std;
-
-
 namespace madag {
 
 class MultiWfFOFT : public MultiWfScheduler {
 public:
-  MultiWfFOFT(MaDag_impl* maDag);
+  explicit MultiWfFOFT(MaDag_impl* maDag);
   virtual ~MultiWfFOFT();
 
 protected:
-
   /**
    * Updates scheduler when a node has been executed
    */
@@ -96,7 +92,7 @@ protected:
    */
   virtual void
   intraDagSchedule(Dag * dag, MasterAgent_var MA)
-    throw (MaDag::ServiceNotFound, MaDag::CommProblem);
+    throw(MaDag::ServiceNotFound, MaDag::CommProblem);
 
   /**
    * set node priority before inserting into execution queue
@@ -120,19 +116,16 @@ protected:
   updateNodeDelay(DagNode * node, double delay);
 
 private:
-
   /**
    * Save the state of dags
    */
-  map<Dag*, DagState> dagsState;
+  std::map<Dag*, DagState> dagsState;
 
   /**
    * Mark the nodes which priority must be re-calculated
    */
-  map<DagNode*,bool> nodesFlag;
-
+  std::map<DagNode*, bool> nodesFlag;
 };
-
 }
 
 #endif   /* not defined _MULTIWFFAIRNESS_SCHED_HH */

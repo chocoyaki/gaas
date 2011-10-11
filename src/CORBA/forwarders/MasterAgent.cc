@@ -55,7 +55,7 @@ DIETForwarder::submit(const ::corba_pb_desc_t& pb_profile,
   TRACE_TEXT(TRACE_MAIN_STEPS, "Forwarder local object call: \n");
   TRACE_TEXT(TRACE_MAIN_STEPS,
              "\t- Resolve " << name << " from this forwarder ("
-             << this->name << ")" << endl);
+             << this->name << ")\n");
 
   MasterAgent_var agent =
     ORBMgr::getMgr()->resolve<MasterAgent, MasterAgent_var>(AGENTCTXT,

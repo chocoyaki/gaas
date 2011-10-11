@@ -64,4 +64,4 @@ private:
   get_CPU_ActualLoad_Byps(double * actualload);
 };
  
-#endif //_CORI_EASY_CPU_HH_ 
+#endif  //_CORI_EASY_CPU_HH_ 

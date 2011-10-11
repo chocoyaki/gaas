@@ -35,7 +35,7 @@ bool AvgNetworkStats::cmpStats(double s1, double s2) {
 }
 
 void AvgNetworkStats::addStat(std::string src, std::string dest, double value) {
-  double currentStat=getStat(src, dest);
+  double currentStat = getStat(src, dest);
   if (currentStat==-1)
     (values[src])[dest]=value;
   else

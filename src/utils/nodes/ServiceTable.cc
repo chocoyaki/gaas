@@ -824,12 +824,12 @@ ServiceTable::getChildren(const corba_pb_desc_t * pb_desc,
 
     /* Copy children, ordered parallel flag = 1 first */
     if( profiles[ serviceRef ].parallel_flag == 1 ) {
-      for( i=0; i<matching_children[ first_found ].nb_children; i++ ) {
+      for( i = 0; i<matching_children[ first_found ].nb_children; i++ ) {
         mc->children[ i ] =
           matching_children[ first_found ].children[ i ];
       }
       if( second_found > 0 ) {
-        for(j=0; j<matching_children[ second_found ].nb_children; i++, j++) {
+        for(j = 0; j<matching_children[ second_found ].nb_children; i++, j++) {
           mc->children[ i ] =
             matching_children[ second_found ].children[ j ];
         }
@@ -838,14 +838,14 @@ ServiceTable::getChildren(const corba_pb_desc_t * pb_desc,
       (*frontier)=matching_children[ first_found ].nb_children;
     } else {
       if( second_found > 0 ) {
-        for( i=0; i<matching_children[ second_found ].nb_children; i++ ) {
+        for( i = 0; i<matching_children[ second_found ].nb_children; i++ ) {
           mc->children[ i ] =
             matching_children[ second_found ].children[ i ];
         }
         /* set frontier */
         (*frontier)=matching_children[ second_found ].nb_children;
       } else {
-        for( j=0, i=0; j<matching_children[ first_found ].nb_children;
+        for( j = 0, i = 0; j<matching_children[ first_found ].nb_children;
              i++, j++ ) {
           mc->children[ i ] =
             matching_children[ first_found ].children[ j ];
@@ -860,7 +860,7 @@ ServiceTable::getChildren(const corba_pb_desc_t * pb_desc,
       matching_children[ first_found ].nb_children;
     mc->children =
       new CORBA::ULong[mc->nb_children];
-    for( i=0; i<matching_children[ first_found ].nb_children; i++ ) {
+    for( i = 0; i<matching_children[ first_found ].nb_children; i++ ) {
       mc->children[ i ] =
         matching_children[ first_found ].children[ i ];
     }
@@ -995,11 +995,11 @@ ServiceTable::ServiceTableInit(CORBA::ULong max_nb_services,
 int
 ServiceTable::testIfAllParallelServices()
 {
-  size_t i=1;
+  size_t i = 1;
 
   while( (i<nb_s) && (profiles[0].parallel_flag == profiles[i].parallel_flag) )
     i++;
-  if( i==nb_s )
+  if( i == nb_s )
     return ( profiles[0].parallel_flag == 2 );
   else
     return -1;

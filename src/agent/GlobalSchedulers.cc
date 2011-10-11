@@ -413,9 +413,6 @@ StdGS::init()
 {
   // schedulers has already been contructed by implicit call to parent class
   // constructor.
-#if !HAVE_CORI
-  this->schedulers.addElement(new NWSScheduler(3.0, 2.0, 1.0));
-#endif// !HAVE_CORI
   this->schedulers.addElement(new RRScheduler());
   this->schedulers.addElement(new RandScheduler());
 }

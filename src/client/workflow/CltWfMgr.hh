@@ -145,10 +145,8 @@ class FWorkflow;
 class Dag;
 class MetaDag;
 
-using namespace std;
-
 class CltWfMgr : public POA_CltMan,
-                 public PortableServer::RefCountServantBase{
+                 public PortableServer::RefCountServantBase {
 public:
   /**
    * Executes a node on a specified Sed (CORBA method)
@@ -185,7 +183,8 @@ public:
   /**
    * Debug function
    */
-  virtual CORBA::Long ping();
+  virtual CORBA::Long
+  ping();
 
   /**
    * Give access to unique reference of CltWfMgr
@@ -196,7 +195,8 @@ public:
   /**
    * Deletes the unique reference of CltWfMgr
    */
-  static void terminate();
+  static void
+  terminate();
 
   /**
    * Set the MaDag reference
@@ -368,7 +368,7 @@ private:
   /**
    * Private constructor
    */
-  CltWfMgr(const string& name);
+  explicit CltWfMgr(const std::string& name);
 
   /**
    * Get current time (in milliseconds)
@@ -381,7 +381,8 @@ private:
    */
   /*const char *
     myIOR();*/
-  const string& myName() const;
+  const std::string&
+  myName() const;
 
 
   /**
@@ -429,7 +430,8 @@ private:
    * @param release will close the wfReqId on MaDag side if set to true
    */
   diet_error_t
-  wfDagCallCommon(diet_wf_desc_t *dagProfile, Dag *dag, bool parse, bool release);
+  wfDagCallCommon(diet_wf_desc_t *dagProfile, Dag *dag,
+                  bool parse, bool release);
 
 
   /***************************************************************************/
@@ -444,7 +446,7 @@ private:
   /**
    * Default data file name
    */
-  static string defaultDataFileName;
+  static std::string defaultDataFileName;
 
   /**
    * MaDag CORBA object reference
@@ -487,7 +489,7 @@ private:
   /**
    * Dags status for functional workflows
    */
-  std::map<FWorkflow*,bool> allDagsSent;
+  std::map<FWorkflow*, bool> allDagsSent;
 
   /**
    * Dag sent counter
@@ -513,25 +515,27 @@ private:
 
 /* Forwarder part. */
 class CltWfMgrFwdr : public POA_CltManFwdr,
-                     public PortableServer::RefCountServantBase
-{
-private:
-  Forwarder_ptr forwarder;
-  char* objName;
+                     public PortableServer::RefCountServantBase {
 public:
   CltWfMgrFwdr(Forwarder_ptr fwdr, const char* objName);
 
-  virtual CORBA::Long execNodeOnSed(const char * node_id,
-                                    const char * dag_id,
-                                    const char * sed,
-                                    const CORBA::ULong reqID,
-                                    corba_estimation_t& ev);
+  virtual CORBA::Long
+  execNodeOnSed(const char * node_id, const char * dag_id,
+                const char * sed, const CORBA::ULong reqID,
+                corba_estimation_t& ev);
 
-  virtual CORBA::Long execNode(const char * node_id, const char * dag_id);
+  virtual CORBA::Long
+  execNode(const char * node_id, const char * dag_id);
 
-  virtual char * release(const char * dag_id, bool successful);
+  virtual char *
+  release(const char * dag_id, bool successful);
 
-  virtual CORBA::Long ping();
+  virtual CORBA::Long
+  ping();
+
+private:
+  Forwarder_ptr forwarder;
+  char* objName;
 };
 
 

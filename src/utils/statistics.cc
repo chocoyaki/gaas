@@ -93,7 +93,7 @@ do_stat_init()
 {
   if (STAT_FILE != NULL) {
     TRACE_TEXT(TRACE_STRUCTURES,
-               "do_stat_init() - Stats module already initialized." << endl);
+               "do_stat_init() - Stats module already initialized.\n");
   } else {
     STAT_FILE_NAME = getenv("DIET_STAT_FILE_NAME");
 
@@ -102,17 +102,17 @@ do_stat_init()
       if (STAT_FILE == NULL) {
         TRACE_TEXT(TRACE_MAIN_STEPS,
                    "Warning: do_stat_init() - Unable to open file " << STAT_FILE_NAME
-                   << "." << endl);
+                   << ".\n");
         ERROR("do_stat_init() - Check DIET_STAT_FILE_NAME env variable?",);
       } else {
         TRACE_TEXT(TRACE_ALL_STEPS,"* Statistics collection: enabled "
-                   << "(file" << STAT_FILE_NAME << ")" << endl);
+                   << "(file" << STAT_FILE_NAME << ")\n");
         USING_STATS = 1;
       }
     } else if (USING_STATS) {
-      TRACE_TEXT(TRACE_ALL_STEPS, "* Statistics collection: disabled" << endl);
+      TRACE_TEXT(TRACE_ALL_STEPS, "* Statistics collection: disabled\n");
       TRACE_TEXT(TRACE_ALL_STEPS,
-                 "\tTo collect statistics, set env variable DIET_STAT_FILE_NAME." << endl);
+                 "\tTo collect statistics, set env variable DIET_STAT_FILE_NAME.\n");
       USING_STATS = 0;
     }
   }
@@ -124,7 +124,7 @@ do_stat_flush()
   if (USING_STATS) {
     if (STAT_FILE == NULL) {
       TRACE_TEXT(TRACE_MAIN_STEPS,
-                 "Warning (do_stat_finalize): stats module is NOT initialized!" << endl);
+                 "Warning (do_stat_finalize): stats module is NOT initialized!\n");
     } else {
       if (fflush(STAT_FILE) != 0) {
         ERROR("do_stat_flush() - Unable to flush stat file.",);
@@ -139,7 +139,7 @@ do_stat_finalize()
   if (USING_STATS) {
     if (STAT_FILE == NULL) {
       TRACE_TEXT(TRACE_MAIN_STEPS,
-                 "Warning (do_stat_finalize): stats module is NOT initialized!" << endl);
+                 "Warning (do_stat_finalize): stats module is NOT initialized!\n");
     } else {
       if (fclose(STAT_FILE) < 0) {
         ERROR("do_stat_finalize() - Unable to close stat file.",);
@@ -149,4 +149,4 @@ do_stat_finalize()
   }
 }
 
-#endif // HAVE_STATISTICS
+#endif  // HAVE_STATISTICS

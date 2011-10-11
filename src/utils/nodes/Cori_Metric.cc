@@ -48,12 +48,12 @@ Cori_Metric::Cori_Metric(diet_est_collect_tag_t type,
                          const void *data)
 {
 
-  collector_type=type;
+  collector_type = type;
 
   switch(collector_type){
 
   case EST_COLL_EASY:{
-    cori_easy=new Cori_Data_Easy();
+    cori_easy = new Cori_Data_Easy();
   }
     break;
 #if (defined HAVE_ALT_BATCH) && (not defined CLEAN_CORILIB_FROM_BATCH_STAFF)
@@ -75,7 +75,7 @@ Cori_Metric::get_Collector_type(){
 int
 Cori_Metric::start(diet_est_collect_tag_t type)
 {
-  collector_type=type;
+  collector_type = type;
 
   switch(collector_type){
 #if not defined CLEAN_CORILIB_FROM_BATCH_STAFF and defined HAVE_ALT_BATCH

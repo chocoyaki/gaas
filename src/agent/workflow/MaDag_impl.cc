@@ -366,7 +366,7 @@ MaDag_impl::releaseMultiDag(CORBA::Long wfReqId)
     mDag = (MetaDag*) mDagIter->second;
   } else {
     string errorMsg = "Request ID '" + itoa(wfReqId) + "' not found";
-    throw (MaDag::InvalidRequest(errorMsg.c_str()));
+    throw(MaDag::InvalidRequest(errorMsg.c_str()));
   }
   // Set the release flag
   bool isDone = false;
@@ -425,7 +425,7 @@ Dag *
 MaDag_impl::parseNewDag(const corba_wf_desc_t& wf_desc,
                         const string& dagId,
                         MetaDag * mDag)
-  throw (MaDag::InvalidDag)
+  throw(MaDag::InvalidDag)
 {
   // CREATION & PARSING
   Dag *newDag = new Dag(dagId);
@@ -434,7 +434,7 @@ MaDag_impl::parseNewDag(const corba_wf_desc_t& wf_desc,
   try {
     reader->parseXml();
   } catch (XMLParsingException& e) {
-    throw (MaDag::InvalidDag(e.ErrorMsg().c_str()));
+    throw(MaDag::InvalidDag(e.ErrorMsg().c_str()));
   }
 
   delete reader;
@@ -452,7 +452,7 @@ MaDag_impl::parseNewDag(const corba_wf_desc_t& wf_desc,
   } catch (WfStructException& e) {
     if (mDag)
       mDag->setCurrentDag(0);
-    throw (MaDag::InvalidDag(e.ErrorMsg().c_str()));
+    throw(MaDag::InvalidDag(e.ErrorMsg().c_str()));
   }
 
   if (mDag) {

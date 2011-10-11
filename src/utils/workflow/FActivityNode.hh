@@ -126,7 +126,7 @@ private:
 
 };
 
-#endif // _FACTIVITYNODE_HH_
+#endif  // _FACTIVITYNODE_HH_
 
 
 

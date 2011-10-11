@@ -62,31 +62,27 @@
 #define _BATCH_SYSTEM_HH_
 
 #include <iostream>
-#include <omnithread.h>       // For omni_mutex
-#include "DIET_data.h"
-
 /* File checking */
 #include <fcntl.h>       /* for O_RDONLY */
 #include <sys/stat.h>
+#include <omnithread.h>  // For omni_mutex
+#include "DIET_data.h"
 
 
-#define NBDIGITS_MAX_RESOURCES 4 // #char to code the # of computing resources
-#define NBDIGITS_MAX_BATCH_JOB_ID 10 // #char to code the job ID, at least 8!
+
+#define NBDIGITS_MAX_RESOURCES 4  // #char to code the # of computing resources
+#define NBDIGITS_MAX_BATCH_JOB_ID 10  // #char to code the job ID, at least 8!
 #define NBDIGITS_MAX_JOB_STATUS 15
 
-//#define YC_DEBUG
+// #define YC_DEBUG
 #if defined YC_DEBUG
 #define REMOVE_BATCH_TEMPORARY_FILE 0
 #else
 #define REMOVE_BATCH_TEMPORARY_FILE 1
 #endif
-//#define YC_DEBUG_
 
-class BatchSystem
-{
-
-public :
-
+class BatchSystem {
+public:
   typedef enum {
     ERROR,
     CANCELED,
@@ -94,14 +90,15 @@ public :
     RUNNING,
     WAITING,
     SUBMITTED,
-    PREEMPTED, // Is this useful?
-    UNDETERMINED, // If error when trying to read the status. Begin again.
+    PREEMPTED,  // Is this useful?
+    UNDETERMINED,  // If error when trying to read the status. Begin again.
     NB_STATUS
   } batchJobState;
 
   static const char * emptyString;
 
   BatchSystem();
+
   virtual ~BatchSystem();
 
   //  batchType
@@ -257,8 +254,7 @@ public :
   getSimulatedProcAndWalltime(int * nbprocPtr, int * walltimePtr,
                               diet_profile_t * profilePtr);
 
-protected :
-
+protected:
   /****************** Utility functions ********************/
   /********** These should go in another class *************/
 
@@ -290,7 +286,7 @@ protected :
 
   /** Check if @path is a writable directory. Quit the program if not. */
   void
-  errorIfPathNotValid( const char * path);
+  errorIfPathNotValid(const char * path);
 
   /* Creates a unique temporary file in the tmp path declared previously.
      \c pattern is used for information purpose. Returns a filename that
@@ -344,7 +340,7 @@ protected :
   const char * pathToTmp;
 
   /************ Batch Commands ************/
-  const char * shell; /* shell demand� pour lancer le script distant */
+  const char * shell; /* shell demandé pour lancer le script distant */
   const char * prefixe;
   const char * postfixe;
 
@@ -391,7 +387,6 @@ protected :
   corresID * batchJobQueue;
 
   omni_mutex corresBatchReqID_mutex;
-
 };
 
-#endif // BATCH_SYSTEM
+#endif  // BATCH_SYSTEM

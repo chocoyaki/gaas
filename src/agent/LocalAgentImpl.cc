@@ -135,7 +135,6 @@ LocalAgentImpl::LocalAgentImpl()
   this->parent = Agent::_nil();
 }
 
-#ifdef HAVE_DYNAMICS
 /* Method to disconnect from the parent */
 CORBA::Long
 LocalAgentImpl::disconnect() {
@@ -338,7 +337,6 @@ LocalAgentImpl::removeElementClean(bool recursive) {
 
   return this->AgentImpl::removeElementClean(recursive);
 }
-#endif /* HAVE_DYNAMICS */
 
 
 SeqString*
@@ -360,11 +358,7 @@ LocalAgentImpl::run()
 
   std::string parentName;
   if (!CONFIG_STRING(diet::PARENTNAME, parentName))
-#ifndef HAVE_DYNAMICS
-    return 1;
-#else /* HAVE_DYNAMICS */
   WARNING("no parent specified, will now wait");
-#endif /* HAVE_DYNAMICS */
 
   try {
     this->parent =
@@ -373,11 +367,7 @@ LocalAgentImpl::run()
     parent = Agent::_nil();
   }
   if (CORBA::is_nil(this->parent)) {
-#ifndef HAVE_DYNAMICS
-    ERROR("cannot locate agent " << parentName, 1);
-#else /* HAVE_DYNAMICS */
     WARNING("cannot locate agent " << parentName << ", will now wait");
-#endif /* HAVE_DYNAMICS */
   }
 
   TRACE_TEXT(TRACE_MAIN_STEPS,
@@ -405,9 +395,8 @@ LocalAgentImpl::addServices(CORBA::ULong myID,
       return (-1);
     }
     /* Then propagate the complete service table to the parent */
-#ifdef HAVE_DYNAMICS
+
     if (! CORBA::is_nil(this->parent)) {
-#endif /* HAVE_DYNAMICS */
       tmp = this->SrvT->getProfiles();
       this->childID =
         this->parent->agentSubscribe(myName,
@@ -417,9 +406,8 @@ LocalAgentImpl::addServices(CORBA::ULong myID,
         return (-1);
       }
       delete tmp;
-#ifdef HAVE_DYNAMICS
     }
-#endif /* HAVE_DYNAMICS */
+
   } else {
     /* First, propagate asynchronously the new services to parent */
     this->parent->addServices(this->childID, services);
@@ -433,14 +421,12 @@ LocalAgentImpl::addServices(CORBA::ULong myID,
 } // addServices((CORBA::ULong myID, ...)
 
 
-#ifdef HAVE_DYNAMICS
 /**
  * Unsubscribe a child. Remotely called by a SeD or another LA.
  */
 CORBA::Long
 LocalAgentImpl::childUnsubscribe(CORBA::ULong childID,
-                                 const SeqCorbaProfileDesc_t& services)
-{
+                                 const SeqCorbaProfileDesc_t& services) {
   if (this->AgentImpl::childUnsubscribe(childID, services) != 0) {
     return (-1);
   }
@@ -452,7 +438,6 @@ LocalAgentImpl::childUnsubscribe(CORBA::ULong childID,
 
   return 0;
 }
-#endif /* HAVE_DYNAMICS */
 
 
 /**
@@ -469,9 +454,7 @@ LocalAgentImpl::childRemoveService(CORBA::ULong childID,
     return (-1);
   }
   /* Then propagate the complete service table to the parent */
-#ifdef HAVE_DYNAMICS
   if (! CORBA::is_nil(this->parent))
-#endif /* HAVE_DYNAMICS */
     if (this->SrvT->lookupService(&profile) == -1)
       return this->parent->childRemoveService(this->childID, profile);
   return 0;
@@ -482,9 +465,7 @@ LocalAgentImpl::childRemoveService(CORBA::ULong childID,
 void
 LocalAgentImpl::getRequest(const corba_request_t& req)
 {
-#ifdef HAVE_DYNAMICS
   Agent_var parentTmp = this->parent;
-#endif /* HAVE_DYNAMICS */
   char statMsg[128];
 
 #ifdef USE_LOG_SERVICE
@@ -512,11 +493,7 @@ LocalAgentImpl::getRequest(const corba_request_t& req)
 #endif /* USE_LOG_SERVICE */
 
   /* The agent is an LA, the response must be sent to the parent */
-#ifndef HAVE_DYNAMICS
-  this->parent->getResponse(resp);
-#else /* HAVE_DYNAMICS */
   parentTmp->getResponse(resp);
-#endif /* HAVE_DYNAMICS */
 
   this->reqList[req.reqID] = 0;
   delete currRequest;
@@ -526,90 +503,81 @@ LocalAgentImpl::getRequest(const corba_request_t& req)
   stat_flush();
 } // getRequest(const corba_request_t& req)
 
-LocalAgentFwdrImpl::LocalAgentFwdrImpl(Forwarder_ptr fwdr, const char* objName)
-{
+LocalAgentFwdrImpl::LocalAgentFwdrImpl(Forwarder_ptr fwdr,
+                                       const char* objName) {
   this->forwarder = Forwarder::_duplicate(fwdr);
   this->objName = CORBA::string_dup(objName);
 }
 
 CORBA::Long
 LocalAgentFwdrImpl::agentSubscribe(const char* me, const char* hostName,
-                                   const SeqCorbaProfileDesc_t& services)
-{
+                                   const SeqCorbaProfileDesc_t& services) {
   return forwarder->agentSubscribe(me, hostName, services, objName);
 }
 
 CORBA::Long
 LocalAgentFwdrImpl::serverSubscribe(const char* me, const char* hostName,
-                                    const SeqCorbaProfileDesc_t& services)
-{
+                                    const SeqCorbaProfileDesc_t& services) {
   return forwarder->serverSubscribe(me, hostName, services, objName);
 }
 
-#ifdef HAVE_DYNAMICS
 CORBA::Long
 LocalAgentFwdrImpl::childUnsubscribe(CORBA::ULong childID,
-                                     const SeqCorbaProfileDesc_t& services)
-{
+                                     const SeqCorbaProfileDesc_t& services) {
   return forwarder->childUnsubscribe(childID, services, objName);
 }
 
-CORBA::Long LocalAgentFwdrImpl::bindParent(const char * parentName)
-{
+CORBA::Long
+LocalAgentFwdrImpl::bindParent(const char * parentName) {
   return forwarder->bindParent(parentName, objName);
 }
 
-CORBA::Long LocalAgentFwdrImpl::disconnect()
-{
+CORBA::Long LocalAgentFwdrImpl::disconnect() {
   return forwarder->disconnect(objName);
 }
 
-CORBA::Long LocalAgentFwdrImpl::removeElement(bool recursive)
-{
+CORBA::Long LocalAgentFwdrImpl::removeElement(bool recursive) {
   return forwarder->removeElement(recursive, objName);
 }
-#endif /* HAVE_DYNAMICS */
 
 SeqString*
-LocalAgentFwdrImpl::searchData(const char* request)
-{
+LocalAgentFwdrImpl::searchData(const char* request) {
   return forwarder->searchData(request, objName);
 }
 
-void LocalAgentFwdrImpl::getRequest(const corba_request_t& req)
-{
+void
+LocalAgentFwdrImpl::getRequest(const corba_request_t& req) {
   forwarder->getRequest(req, objName);
 }
 
 CORBA::Long
 LocalAgentFwdrImpl::addServices(CORBA::ULong myID,
-                                const SeqCorbaProfileDesc_t& services)
-{
+                                const SeqCorbaProfileDesc_t& services) {
   return forwarder->addServices(myID, services, objName);
 }
 
 CORBA::Long
 LocalAgentFwdrImpl::childRemoveService(CORBA::ULong childID,
-                                       const corba_profile_desc_t& profile)
-{
+                                       const corba_profile_desc_t& profile) {
   return forwarder->childRemoveService(childID, profile, objName);
 }
 
-char* LocalAgentFwdrImpl::getDataManager() {
+char*
+LocalAgentFwdrImpl::getDataManager() {
   return forwarder->getDataManager(objName);
 }
 
-void LocalAgentFwdrImpl::getResponse(const corba_response_t& resp)
-{
+void
+LocalAgentFwdrImpl::getResponse(const corba_response_t& resp) {
   forwarder->getResponse(resp, objName);
 }
 
-CORBA::Long LocalAgentFwdrImpl::ping()
-{
+CORBA::Long
+LocalAgentFwdrImpl::ping() {
   return forwarder->ping(objName);
 }
 
-char* LocalAgentFwdrImpl::getHostname()
-{
+char*
+LocalAgentFwdrImpl::getHostname() {
   return forwarder->getHostname(objName);
 }

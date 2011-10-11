@@ -19,16 +19,23 @@ class Options;
  * processing.
  */
 class Configuration {
+public:
+  Configuration();
+
+  explicit Configuration(const std::string& pgName);
+
+  const std::string&
+  getPgName() const;
+
+  const std::string&
+  getConfigFile() const;
+
+  void
+  setConfigFile(const std::string& configFile);
+
 private:
   std::string pgName;
   std::string configFile;
-public:
-  Configuration();
-  Configuration(const std::string& pgName);
-  const std::string& getPgName() const;
-  const std::string& getConfigFile() const;
-  
-  void setConfigFile(const std::string& configFile);
 };
 
 /* Callback function type definition. */
@@ -38,6 +45,27 @@ typedef void (*optCallback)(const std::string&, Configuration*);
 /* This class is a generic command line parameters processing tool.
  */
 class Options {
+public:
+  Options(Configuration* config, int argc, char* argv[], char* envp[]=NULL);
+
+  void
+  setOptCallback(const std::string& arg, optCallback callBack);
+
+  void
+  setEnvCallback(const std::string& arg, optCallback callBack);
+
+  void
+  setParamCallback(unsigned int idx, optCallback callBack);
+
+  void
+  setFlagCallback(const char flag, optCallback callBack);
+
+  void
+  processOptions();
+
+  void
+  processEnv();
+
 private:
   Configuration* config;
   std::map<std::string, std::string> arguments;
@@ -50,14 +78,6 @@ private:
   std::map<std::string, optCallback> envCallbacks;
   std::map<unsigned int, optCallback> paramCallbacks;
   std::map<char, optCallback> flagCallbacks;
-public:
-  Options(Configuration* config, int argc, char* argv[], char* envp[]=NULL);
-  void setOptCallback(const std::string& arg, optCallback callBack);
-  void setEnvCallback(const std::string& arg, optCallback callBack);
-  void setParamCallback(unsigned int idx, optCallback callBack);
-  void setFlagCallback(const char flag, optCallback callBack);
-  void processOptions();
-  void processEnv();
 };
 
 /* A simple configuration file class.
@@ -65,13 +85,17 @@ public:
  * <attribute> = <value>
  */
 class ConfigFile {
-private:
-  std::map<std::string,std::string> attributes;
 public:
   ConfigFile();
   explicit ConfigFile(const std::string& path);
-  
-  void parseFile(const std::string& path);
-  const std::string& getAttr(const std::string& key);
+
+  void
+  parseFile(const std::string& path);
+
+  const std::string&
+  getAttr(const std::string& key);
+
+private:
+  std::map<std::string, std::string> attributes;
 };
 #endif

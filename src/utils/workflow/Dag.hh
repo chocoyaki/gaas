@@ -177,7 +177,7 @@ public:
    * @return pointer to node (does not return NULL)
    */
   virtual WfNode *
-  getNode(const string& nodeId) throw (WfStructException);
+  getNode(const string& nodeId) throw(WfStructException);
 
   /**
    * check the precedence between node
@@ -185,7 +185,7 @@ public:
    * link the ports
    */
   virtual void
-  checkPrec(NodeSet* contextNodeSet) throw (WfStructException);
+  checkPrec(NodeSet* contextNodeSet) throw(WfStructException);
   
   /***************************************************/
   /* event message types                             */
@@ -223,7 +223,7 @@ public:
    * Get the functional wf
    */
   FWorkflow *
-  getWorkflow() const throw (WfStructException);
+  getWorkflow() const throw(WfStructException);
 
   /**
    * Set the execution agent
@@ -245,20 +245,20 @@ public:
    * @return pointer to the node (does not return NULL)
    */
   DagNode*
-  createDagNode(const string& id, FWorkflow* wf = NULL) throw (WfStructException);
+  createDagNode(const string& id, FWorkflow* wf = NULL) throw(WfStructException);
 
   /**
    * return a dag's node
    * @return pointer to the node (does not return NULL)
    */
   DagNode *
-  getDagNode(const string& nodeId) throw (WfStructException);
+  getDagNode(const string& nodeId) throw(WfStructException);
 
   /**
    * remove a node from the dag
    */
   void
-  removeNode(const string& nodeId) throw (WfStructException);
+  removeNode(const string& nodeId) throw(WfStructException);
 
   /**
    * return the size of the Dag (the nodes number and not the dag length)
@@ -296,7 +296,7 @@ public:
    * link all ports of the dag
    */
   void
-  linkAllPorts() throw (WfStructException);
+  linkAllPorts() throw(WfStructException);
 
   /**
    * check if the dag execution is ongoing
@@ -562,7 +562,7 @@ private:
    * (used for getting results for client API)
    */
   DagNodeOutPort *
-  getOutputPort(const char* id) throw (WfStructException);
+  getOutputPort(const char* id) throw(WfStructException);
 };
 
 #endif   /* not defined _DAG_HH. */

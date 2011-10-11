@@ -387,7 +387,7 @@ public:
    * @exception WfDataHandleException(eVALUE_UNDEF) if no value and dataID invalid
    */
   void
-  uploadTreeData(MasterAgent_var& MA) throw (WfDataHandleException);
+  uploadTreeData(MasterAgent_var& MA) throw(WfDataHandleException);
 
   /**
    * Set the predefined cardinal (statically provided before execution)
@@ -404,7 +404,7 @@ public:
    * @exception WfDataHandleException(eCARD_UNDEF)
    */
   unsigned int
-  getCardinal() const throw (WfDataHandleException);
+  getCardinal() const throw(WfDataHandleException);
 
   /**
    * Returns true if the cardinal is known
@@ -439,7 +439,7 @@ public:
    * @exception WfDataHandleException(eINVALID_ADAPT)
    */
   DagNodeOutPort*
-  getSourcePort() const throw (WfDataHandleException);
+  getSourcePort() const throw(WfDataHandleException);
 
   /**
    * Returns true if the data is VOID
@@ -471,7 +471,7 @@ public:
    */
   void
   insertInTree(FDataHandle* dataHdl)
-    throw (WfDataHandleException);
+    throw(WfDataHandleException);
 
   /**
    * Get an iterator on the childs of the data Handle
@@ -481,7 +481,7 @@ public:
    */
   map<FDataTag,FDataHandle*>::iterator
   begin()
-    throw (WfDataHandleException);
+    throw(WfDataHandleException);
 
   map<FDataTag,FDataHandle*>::iterator
   end();
@@ -572,7 +572,7 @@ public:
    * @exception WfDataHandleException(eVALUE_UNDEF)
    */
   void
-  downloadValue() throw (WfDataHandleException);
+  downloadValue() throw(WfDataHandleException);
 
   /**
    * Get the dataID from the dag node (after execution)
@@ -581,7 +581,7 @@ public:
    * @exception WfDataException(eID_UNDEF)
    */
   void
-  downloadDataID() throw (WfDataHandleException, WfDataException);
+  downloadDataID() throw(WfDataHandleException, WfDataException);
 
   /**
    * Get the dataIDs of all tree and values of the leaves (after execution)
@@ -624,7 +624,7 @@ public:
    * @exception FDataHandleException  if property is not defined
    */
   const string&
-  getProperty(const string& propKey) throw (WfDataHandleException);
+  getProperty(const string& propKey) throw(WfDataHandleException);
 
   /**
    * Write all the data tree in XML format
@@ -776,4 +776,4 @@ private:
 
 };  // end class FDataHandle
 
-#endif // _FDATAHANDLE_HH_
+#endif  // _FDATAHANDLE_HH_

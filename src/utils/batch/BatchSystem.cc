@@ -113,7 +113,7 @@ BatchSystem::BatchSystem()
     batchQueueName = strdup(tmpString.c_str());
   }
 
-  /*  "__\0" -> 3 char, strlen=2 and [1] should be '\' */
+  /*  "__\0" -> 3 char, strlen = 2 and [1] should be '\' */
   if (!CONFIG_STRING(diet::PATHTONFS, tmpString)) {
     pathToNFS = NULL;
   } else if ( tmpString[tmpString.size() - 1] == '/' ) {
@@ -408,7 +408,7 @@ BatchSystem::diet_submit_parallel(diet_profile_t * profile,
   /* Get batch Job ID */
   for( int i = 0; i<=NBDIGITS_MAX_BATCH_JOB_ID; i++ )
     small_chaine[i] = '\0';
-  if( (nbread=readn(file_descriptor_2,small_chaine,NBDIGITS_MAX_BATCH_JOB_ID))
+  if( (nbread = readn(file_descriptor_2,small_chaine,NBDIGITS_MAX_BATCH_JOB_ID))
       == 0 ) {
     ERROR("Error during submission or with I/O file."
           " Cannot read the batch ID", -1);
@@ -830,7 +830,7 @@ BatchSystem::readNumberInFile(const char * filename)
 
   for( int i = 0; i<=NBDIGITS_MAX_RESOURCES; i++ )
     small_chaine[i] = '\0';
-  if( (nbread=readn(file_descriptor,small_chaine,NBDIGITS_MAX_RESOURCES))
+  if( (nbread = readn(file_descriptor,small_chaine,NBDIGITS_MAX_RESOURCES))
       == 0 ) {
     ERROR("Error during submission or with I/O file."
           " Cannot read the batch ID", 0);

@@ -40,12 +40,12 @@
  ****************************************************************************/
 #if CORI_HAVE_SYS_TIME
 #include <sys/time.h>
-#endif //CORI_HAVE_SYS_TIME
+#endif  //CORI_HAVE_SYS_TIME
 #include <cstring>
 #include <csignal>
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>//alarm
-#endif //HAVE_UNISTD_H
+#endif  //HAVE_UNISTD_H
 #include "Cori_Easy_Disk.hh"
 #include <cmath> //rand
 #include <cstdlib>//popen - pclose
@@ -63,7 +63,7 @@ Easy_Disk::get_Write_Speed(const char* path,
       ||(!get_Write_Speed_by_sig_alarm(path,result)))
     return 0;
   else {
-    *result=0;
+    *result = 0;
     return 1;
   }
 }
@@ -77,7 +77,7 @@ Easy_Disk::get_Read_Speed(const char* path,
       ||(!get_Read_Speed_by_sig_alarm(path,result)))
     return 0;
   else {
-    *result=0;
+    *result = 0;
     return 1;
   }
 }
@@ -88,7 +88,7 @@ Easy_Disk::get_Available_DiskSpace(const char* path,
   if (!gatherSizeDisks(0,result , path))
     return 0;
   else {
-    *result=0;
+    *result = 0;
     return 1;
   }
 }
@@ -99,7 +99,7 @@ Easy_Disk::get_Total_DiskSpace(const char* path,
   if (!gatherSizeDisks(1,result , path))
     return 0;
   else {
-    *result=0;
+    *result = 0;
     return 1;
   }
 }
@@ -132,7 +132,7 @@ createPath(char **path_file,const char* path)
 
   sprintf(namefile, "%i", nombre);
 
-  *path_file=new char[strlen(path)+strlen(namefile)];
+  *path_file = new char[strlen(path)+strlen(namefile)];
   strcpy(*path_file,path);
   strcat(*path_file,namefile);
 
@@ -159,8 +159,8 @@ Easy_Disk::search_for_percent(FILE * file,
   while (!feof(file)){
     //looking for the last character of the word
     if (strstr(last,"%\0")!=NULL){
-      if (typeOfInfo==1)returnnumb=atof(bbblast);
-      else if (typeOfInfo==0)returnnumb=atof(beforelast);
+      if (typeOfInfo == 1)returnnumb = atof(bbblast);
+      else if (typeOfInfo == 0)returnnumb = atof(beforelast);
       break;
     }
     strcpy(bbblast,beforebeforelast);
@@ -173,12 +173,12 @@ Easy_Disk::search_for_percent(FILE * file,
 
 int
 Easy_Disk::create_file(char** path_file){
-  int seconds=2*FILESIZE_MB;
+  int seconds = 2*FILESIZE_MB;
   ofstream outfile;
-  int sizeofchar=sizeof(char);
+  int sizeofchar = sizeof(char);
 
-  int sizeTab=BUFFSIZE/sizeofchar;
-  long rounds=FILESIZE/sizeTab;
+  int sizeTab = BUFFSIZE/sizeofchar;
+  long rounds = FILESIZE/sizeTab;
 
   if (openfile(path_file,&outfile))
     return 1;
@@ -186,7 +186,7 @@ Easy_Disk::create_file(char** path_file){
   sigalarm = 0; /* reset alarm flag */
 
   char *buffer = new char [sizeTab];
-  for (long j=0; j<sizeTab;j++)
+  for (long j = 0; j<sizeTab;j++)
     buffer[j]=rand()%26+'a';
 #if defined HAVE_ALARM && defined HAVE_SIGNAL
   alarm(seconds);
@@ -195,12 +195,12 @@ Easy_Disk::create_file(char** path_file){
 #ifdef HAVE_GETTIMEOFDAY
   timeval tim;
   gettimeofday(&tim, NULL);
-  double t1=tim.tv_sec+(tim.tv_usec/1000000.0);
-  double t2=0;
-  double elapsed_time=0;
-#endif // HAVE_GETTIMEOFDAY
-#endif // HAVE_ALARM
-  int i=0;
+  double t1 = tim.tv_sec+(tim.tv_usec/1000000.0);
+  double t2 = 0;
+  double elapsed_time = 0;
+#endif  // HAVE_GETTIMEOFDAY
+#endif  // HAVE_ALARM
+  int i = 0;
 
   while((!sigalarm)&&(i<rounds)) {
     outfile.write(buffer, BUFFSIZE);
@@ -209,12 +209,12 @@ Easy_Disk::create_file(char** path_file){
 #if not defined HAVE_ALARM ||  not defined HAVE_SIGNAL
 #ifdef HAVE_GETTIMEOFDAY
     gettimeofday (&tim, NULL);
-    t2=tim.tv_sec+(tim.tv_usec/1000000.0);
+    t2 = tim.tv_sec+(tim.tv_usec/1000000.0);
     elapsed_time= t2-t1;
     if (elapsed_time>seconds)
-      sigalarm=1;
-#endif // HAVE_GETTIMEOFDAY
-#endif // HAVE_ALARM HAVE_SIGNAL
+      sigalarm = 1;
+#endif  // HAVE_GETTIMEOFDAY
+#endif  // HAVE_ALARM HAVE_SIGNAL
   }
   outfile.close();
   delete []buffer;
@@ -244,8 +244,8 @@ Easy_Disk::openfile(char ** path_file,ofstream* outfile){
  * returns 1 if problem
  * arrayDisk = array of integer,
  * pre: path must be accessible- it must be possible to create a file in this path
- * post: arrayDisk[i] is the size of partition i in GBytes if static==1
- *                       the size of available place in partition if static==0
+ * post: arrayDisk[i] is the size of partition i in GBytes if static == 1
+ *                       the size of available place in partition if static == 0
  */
 
 int
@@ -253,18 +253,18 @@ Easy_Disk::gatherSizeDisks(int typeOfInfo,double *result,
                            const char* path){
   // information is collected from POSIX standard 'df $path -k'
   typedef char mystring_t[256];
-  int retval=0;
+  int retval = 0;
   char *str;
-  str=new char[(strlen(path)*2)+20];
+  str = new char[(strlen(path)*2)+20];
   strcpy (str,"df ");
   strcat(str,path);
   strcat(str, " -k");
   FILE * myfile =popen(str,"r");
 
   mystring_t word;
-  double number=0;
+  double number = 0;
 
-  if (myfile!=NULL){
+  if (myfile != NULL){
     /* read the first line*/
     if (!feof(myfile)){
       fgets(word, 256, myfile);
@@ -272,18 +272,18 @@ Easy_Disk::gatherSizeDisks(int typeOfInfo,double *result,
         //look for the '%' and save the isstatic th element before this
         number= search_for_percent(myfile,typeOfInfo);
         if (number!=-1){ //found the percent
-          *result=number/1024;
+          *result = number/1024;
           number=-1;
-          //   if (file!=NULL)
+          //   if (file != NULL)
         }
       }
     }
     pclose(myfile);
   }
-  if (number==0){
+  if (number == 0){
     TRACE_TEXT(TRACE_MAX_VALUE,
                "Error in file structure for partition info!");
-    retval=1;
+    retval = 1;
   }
   delete[]str;
   return retval;
@@ -304,24 +304,24 @@ Easy_Disk::get_Write_Speed_by_gettimeofday(const char* path,
     return 1;
   }
   int seconds =FILESIZE_MB*2;
-  double writespeed=0;
-  int sizeofchar=sizeof(char);
-  int sizeTab=BUFFSIZE/sizeofchar;
-  long  rounds=FILESIZE/sizeTab;
+  double writespeed = 0;
+  int sizeofchar = sizeof(char);
+  int sizeTab = BUFFSIZE/sizeofchar;
+  long  rounds = FILESIZE/sizeTab;
 
   char *buffer = new char [sizeTab];
-  for (long j=0; j<sizeTab;j++)
+  for (long j = 0; j<sizeTab;j++)
     buffer[j]='o';
-  int i=0;
+  int i = 0;
 
   timeval tim;
   gettimeofday(&tim, NULL);
-  double t1=tim.tv_sec+(tim.tv_usec/1000000.0);
+  double t1 = tim.tv_sec+(tim.tv_usec/1000000.0);
 
   /*start clock*/
   gettimeofday(&tim, NULL);
-  double t2=0;
-  double elapsed_time=0;
+  double t2 = 0;
+  double elapsed_time = 0;
 
   while((elapsed_time<seconds)
         &&(i<rounds)) {
@@ -330,7 +330,7 @@ Easy_Disk::get_Write_Speed_by_gettimeofday(const char* path,
         TRACE_TEXT(TRACE_MAX_VALUE,
                    "error: can not create a test file for writing");
         removePath_file(&path_file);
-        *result=0;
+        *result = 0;
         return 1;
       }
       outfile.write(buffer,sizeTab);
@@ -339,22 +339,22 @@ Easy_Disk::get_Write_Speed_by_gettimeofday(const char* path,
     }
     catch (ofstream::failure& e) {
       removePath_file(&path_file);
-      *result=0;
+      *result = 0;
       return 1;
     }
     gettimeofday (&tim, NULL);
-    t2=tim.tv_sec+(tim.tv_usec/1000000.0);
+    t2 = tim.tv_sec+(tim.tv_usec/1000000.0);
     elapsed_time= t2-t1;
   }
   // To avoid std::ios_base::failure from libstdc++ after a remove function close seems not required.
   // outfile.close();
   double Mpersec;
-  if(elapsed_time==0)
+  if(elapsed_time == 0)
     return 1;
-  Mpersec=sizeTab*sizeofchar*i/(elapsed_time*MEGABYTE);
-  writespeed=Mpersec/COUNTPERBUFFER;
+  Mpersec = sizeTab*sizeofchar*i/(elapsed_time*MEGABYTE);
+  writespeed = Mpersec/COUNTPERBUFFER;
   removePath_file(&path_file);
-  *result=writespeed;
+  *result = writespeed;
 
   delete [] buffer;
   return 0;
@@ -365,11 +365,11 @@ Easy_Disk::get_Write_Speed_by_sig_alarm(const char* path,
                                         double * result){
 #if !(defined HAVE_SIGNAL) && !(defined HAVE_ALARM)
   //no possibility to take the time->exit
-  *result=0;
+  *result = 0;
   return 1;
 #endif
 
-  *result=0;
+  *result = 0;
   char* path_file;
   createPath(&path_file,path);
   ofstream outfile;
@@ -379,25 +379,25 @@ Easy_Disk::get_Write_Speed_by_sig_alarm(const char* path,
   }
   int seconds =FILESIZE_MB*2;
 
-  double writespeed=0;
-  int sizeofchar=sizeof(char);
-  int sizeTab=BUFFSIZE/sizeofchar;
-  long  rounds=FILESIZE/sizeTab;
+  double writespeed = 0;
+  int sizeofchar = sizeof(char);
+  int sizeTab = BUFFSIZE/sizeofchar;
+  long  rounds = FILESIZE/sizeTab;
 
   signal(SIGALRM,stop_count);
   sigalarm = 0; /* reset alarm flag */
 
   char *buffer = new char [sizeTab];
-  for (long j=0; j<sizeTab;j++)
+  for (long j = 0; j<sizeTab;j++)
     buffer[j]='o';
-  int i=0;
+  int i = 0;
   alarm(seconds);
 
 #ifdef HAVE_GETTIMEOFDAY
   timeval tim;
   gettimeofday(&tim, NULL);
-  double t1=tim.tv_sec+(tim.tv_usec/1000000.0);
-#endif //HAVE_GETTIMEOFDAY
+  double t1 = tim.tv_sec+(tim.tv_usec/1000000.0);
+#endif  //HAVE_GETTIMEOFDAY
 
   /*start clock*/
 
@@ -408,7 +408,7 @@ Easy_Disk::get_Write_Speed_by_sig_alarm(const char* path,
         TRACE_TEXT(TRACE_MAX_VALUE,
                    "Can not create a test file for partition perf test");
         removePath_file(&path_file);
-        *result=0;
+        *result = 0;
         return 1;
       }
       outfile.write(buffer,sizeTab);
@@ -417,35 +417,35 @@ Easy_Disk::get_Write_Speed_by_sig_alarm(const char* path,
     }
     catch (ofstream::failure& e) {
       removePath_file(&path_file);
-      *result=0;
+      *result = 0;
       return 1;
     }
   }
 #ifdef HAVE_GETTIMEOFDAY
-  double t2=tim.tv_sec+(tim.tv_usec/1000000.0);
+  double t2 = tim.tv_sec+(tim.tv_usec/1000000.0);
   double elapsed_time= t2-t1;
-#endif //HAVE_GETTIMEOFDAY
+#endif  //HAVE_GETTIMEOFDAY
   outfile.close();
 
   /* stop clock */
-  int alarm=sigalarm;
+  int alarm = sigalarm;
 
   double Mpersec;
   if (!alarm)
-    Mpersec=FILESIZE/(seconds*MEGABYTE);
+    Mpersec = FILESIZE/(seconds*MEGABYTE);
   else{
 #if HAVE_GETTIMEOFDAY
     gettimeofday(&tim, NULL);
-    t2=tim.tv_sec+(tim.tv_usec/1000000.0);
+    t2 = tim.tv_sec+(tim.tv_usec/1000000.0);
     elapsed_time= t2-t1;
-    Mpersec=sizeTab*sizeofchar*i/(elapsed_time*MEGABYTE);
+    Mpersec = sizeTab*sizeofchar*i/(elapsed_time*MEGABYTE);
 #else
-    Mpersec=sizeTab*sizeofchar*i/(seconds*MEGABYTE);
-#endif // HAVE_GETTIMEOFDAY
+    Mpersec = sizeTab*sizeofchar*i/(seconds*MEGABYTE);
+#endif  // HAVE_GETTIMEOFDAY
   }
-  writespeed=Mpersec/COUNTPERBUFFER;
+  writespeed = Mpersec/COUNTPERBUFFER;
   removePath_file(&path_file);
-  *result=writespeed;
+  *result = writespeed;
 
   delete [] buffer;
   return 0;
@@ -459,46 +459,46 @@ Easy_Disk::get_Read_Speed_by_gettimeofday(const char* path,
 #endif
   char* path_file;
   createPath(&path_file,path);
-  *result=0;
-  int seconds=3;
-  int sizeofchar=sizeof(char);
-  int sizeTab=BUFFSIZE/sizeofchar;
+  *result = 0;
+  int seconds = 3;
+  int sizeofchar = sizeof(char);
+  int sizeTab = BUFFSIZE/sizeofchar;
 
   if (create_file(&path_file)){
-    *result=0;
+    *result = 0;
     return 1;
   }
 
   ifstream infile;
   infile.exceptions ( ifstream::eofbit | ifstream::failbit | ifstream::badbit );
-  double readspeed=0;
+  double readspeed = 0;
 
   char *buffer = new char [sizeTab];
-  double j=0;
-  double i=0;
+  double j = 0;
+  double i = 0;
 
   timeval tim;
   gettimeofday(&tim, NULL);
-  double t1=tim.tv_sec+(tim.tv_usec/1000000.0);
+  double t1 = tim.tv_sec+(tim.tv_usec/1000000.0);
   /*start clock*/
   infile.open (path_file, ifstream::in);
   if ((!infile.is_open())||(infile.eof())){
     removePath_file(&path_file);
     delete [] buffer;
-    *result=0;
+    *result = 0;
     return 1;
   }
 
   gettimeofday(&tim, NULL);
   double elapsed_time= 0;
-  double t2=0;
+  double t2 = 0;
   while((elapsed_time<seconds)
         &&(infile.is_open())) {
     if (infile.eof()){
       infile.close();
       infile.open (path_file,ifstream::in);
       j++;
-      i=0;
+      i = 0;
     }
     try{
       infile.read(buffer,sizeTab);
@@ -507,22 +507,22 @@ Easy_Disk::get_Read_Speed_by_gettimeofday(const char* path,
     catch (ifstream::failure& e) {//not so dangerous -> shi* happens
     }
     gettimeofday(&tim, NULL);
-    t2=tim.tv_sec+(tim.tv_usec/1000000.0);
+    t2 = tim.tv_sec+(tim.tv_usec/1000000.0);
     elapsed_time= t2-t1;
   }
   infile.close();
   /*STOP clock*/
   double Mbytepersecond;
-  if (elapsed_time==0) {
+  if (elapsed_time == 0) {
     delete [] buffer;
     return 1;
   }
-  Mbytepersecond=j*FILESIZE_MB/elapsed_time;
-  readspeed=Mbytepersecond/COUNTPERBUFFER;
+  Mbytepersecond = j*FILESIZE_MB/elapsed_time;
+  readspeed = Mbytepersecond/COUNTPERBUFFER;
 
   delete [] buffer;
   removePath_file(&path_file);
-  *result=readspeed;
+  *result = readspeed;
   return 0;
 }
 
@@ -536,31 +536,31 @@ Easy_Disk::get_Read_Speed_by_sig_alarm(const char* path,
 
   char* path_file;
   createPath(&path_file,path);
-  *result=0;
+  *result = 0;
 
-  int seconds=3;
-  int sizeofchar=sizeof(char);
-  int sizeTab=BUFFSIZE/sizeofchar;
+  int seconds = 3;
+  int sizeofchar = sizeof(char);
+  int sizeTab = BUFFSIZE/sizeofchar;
 
   if (create_file(&path_file)){
-    *result=0;
+    *result = 0;
     return 1;
   }
   ifstream infile;
   infile.exceptions ( ifstream::eofbit | ifstream::failbit | ifstream::badbit );
-  double readspeed=0;
+  double readspeed = 0;
   signal(SIGALRM,stop_count);
   sigalarm = 0; /* reset alarm flag */
   char *buffer = new char [sizeTab];
-  double j=0;
-  double i=0;
+  double j = 0;
+  double i = 0;
   alarm(seconds);
   /*start clock*/
   infile.open (path_file, ifstream::in);
   if ((!infile.is_open())||(infile.eof())){
     removePath_file(&path_file);
     delete [] buffer;
-    *result=0;
+    *result = 0;
     return 1;
   }
   while((!sigalarm)
@@ -569,7 +569,7 @@ Easy_Disk::get_Read_Speed_by_sig_alarm(const char* path,
       infile.close();
       infile.open (path_file,ifstream::in);
       j++;
-      i=0;
+      i = 0;
     }
     try{
       infile.read(buffer,sizeTab);
@@ -581,11 +581,11 @@ Easy_Disk::get_Read_Speed_by_sig_alarm(const char* path,
   infile.close();
   /*STOP clock*/
   double Mbytepersecond;
-  Mbytepersecond=j*FILESIZE_MB/seconds;
-  readspeed=Mbytepersecond/COUNTPERBUFFER;
+  Mbytepersecond = j*FILESIZE_MB/seconds;
+  readspeed = Mbytepersecond/COUNTPERBUFFER;
 
   delete []buffer;
   removePath_file(&path_file);
-  *result=readspeed;
+  *result = readspeed;
   return 0;
 }

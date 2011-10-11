@@ -74,7 +74,7 @@
 
 template<class T>class LinkedList {
 
-private :
+private:
   /**
    * This structure define each node of the list.
    */
@@ -109,7 +109,7 @@ private :
    */
   Node* last;
 
-public :
+public:
   /**
    * creates an new empty list.
    */
@@ -266,7 +266,7 @@ public :
 
   /***** Iteration section ***************************************************/
 
-public :
+public:
   
   friend class Iterator;
 
@@ -279,7 +279,7 @@ public :
 
     friend class LinkedList;
 
-  private :
+  private:
     /**
      * pointer on the linkedList which is controled by the iterator.
      */
@@ -301,7 +301,7 @@ public :
       currentNode = linkedList->first;
     }
 
-  public :
+  public:
 
     /**
      * destroy the iterator and free the access to the linked list.
@@ -413,4 +413,4 @@ public :
 
 };
 
-#endif // _LINKEDLIST_HH_
+#endif  // _LINKEDLIST_HH_

@@ -97,4 +97,4 @@ private:
 };
 
 
-#endif // _CORI_METRIC_HH_
+#endif  // _CORI_METRIC_HH_

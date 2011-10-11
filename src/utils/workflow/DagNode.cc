@@ -343,7 +343,7 @@ DagNode::setPrev(int index, WfNode * node) {
 WfPort *
 DagNode::newPort(string portId, unsigned int ind,
                  WfPort::WfPortType portType, WfCst::WfDataType dataType,
-                 unsigned int depth) throw (WfStructException) {
+                 unsigned int depth) throw(WfStructException) {
   if (isPortDefined(portId))
     throw WfStructException(WfStructException::eDUPLICATE_PORT,"port id="+portId);
   DagNodePort * p = NULL;
@@ -505,7 +505,7 @@ DagNode::initProfileSubmit() {
  * Creates the profile before execution of the node (CLIENT SIDE)
  */
 void
-DagNode::initProfileExec() throw (WfDataException) {
+DagNode::initProfileExec() throw(WfDataException) {
   TRACE_TEXT(TRACE_ALL_STEPS,"Creating profile for Execution" << endl);
   createProfile();
   for (map<string, WfPort*>::iterator p = ports.begin();

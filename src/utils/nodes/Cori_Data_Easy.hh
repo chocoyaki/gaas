@@ -38,7 +38,7 @@ using namespace std;
 
 class Cori_Data_Easy{
 
-private :
+private:
   Easy_CPU*  cpu;
   Easy_Disk* disk;
   Easy_Memory* memory;
@@ -52,7 +52,7 @@ private :
   convertSimple(double value,
                 estVector_t * estvect,
                 int typeOfInfo );
-public :
+public:
   Cori_Data_Easy();
   int 
   get_Information(int type_Info,       
@@ -60,4 +60,4 @@ public :
                   const void * data);
  
 };
-#endif //CORI_DATA_EASY_HH
+#endif  //CORI_DATA_EASY_HH

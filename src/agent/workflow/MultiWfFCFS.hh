@@ -28,17 +28,15 @@
 
 #include "MultiWfScheduler.hh"
 
-using namespace std;
-
 namespace madag {
 
 class MultiWfFCFS : public MultiWfScheduler {
 public:
-  MultiWfFCFS(MaDag_impl* maDag);
+  explicit MultiWfFCFS(MaDag_impl* maDag);
+
   virtual ~MultiWfFCFS();
 
 protected:
-
   /**
    * Updates scheduler when a node has been executed
    */
@@ -57,7 +55,6 @@ protected:
   virtual void
   setWaitingPriority(DagNode * node);
 };
-
 }
 
 #endif   /* not defined _MULTIWFFCFS_HH */

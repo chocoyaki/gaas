@@ -62,7 +62,7 @@ PBS_BatchSystem::PBS_BatchSystem(int ID, const char * batchname)
     ERROR_EXIT("PBS needs a path to a NFS directory to store its script");
   }
 #if defined YC_DEBUG
-  TRACE_TEXT(TRACE_ALL_STEPS,"Nom NFS: " << getNFSPath() << endl);
+  TRACE_TEXT(TRACE_ALL_STEPS,"Nom NFS: " << getNFSPath() << "\n");
 #endif
 
   batch_ID = ID;
@@ -76,7 +76,7 @@ PBS_BatchSystem::PBS_BatchSystem(int ID, const char * batchname)
   postfixe = "#PBS -V\n#PBS -N DIET_SeD";
 
   nodesNumber       = "#PBS -l nodes=";
-  serial            = "#PBS -l nodes=1";
+  serial            = "#PBS -l nodes = 1";
   coresNumber = BatchSystem::emptyString;
   walltime          = "\n#PBS -l walltime=";
   submittingQueue   = "\n#PBS -q ";
@@ -98,7 +98,7 @@ PBS_BatchSystem::PBS_BatchSystem(int ID, const char * batchname)
   submitCommand = "qsub ";
   killCommand   = "qdel ";
   wait4Command  = "qstat -f ";
-  waitFilter    = "grep job_state | cut --delimiter== --field=2 | cut --delimiter=\" \" --field=2";
+  waitFilter    = "grep job_state | cut --delimiter== --field = 2 | cut --delimiter=\" \" --field = 2";
   exitCode      = "0";
 
   // nothing to do to retrieve the ID of the submission...
@@ -123,7 +123,7 @@ PBS_BatchSystem::askBatchJobStatus(int batchJobID)
   char * filename;
   int file_descriptor;
   char * chaine;
-  int i=0;
+  int i = 0;
   int nbread;
   batchJobState status;
 
@@ -151,7 +151,7 @@ PBS_BatchSystem::askBatchJobStatus(int batchJobID)
           filename,
           wait4Command,batchJobID,waitFilter, filename);
 #if defined YC_DEBUG
-  TRACE_TEXT(TRACE_ALL_STEPS,"Execute:" << endl << chaine << endl);
+  TRACE_TEXT(TRACE_ALL_STEPS,"Execute:\n" << chaine << "\n");
 #endif
   if( system(chaine) != 0 ) {
     ERROR("Cannot submit script", NB_STATUS);
@@ -161,13 +161,13 @@ PBS_BatchSystem::askBatchJobStatus(int batchJobID)
   for( int i = 0; i<=NBDIGITS_MAX_BATCH_JOB_ID; i++ )
     chaine[i] = '\0';
 
-  if( (nbread=readn(file_descriptor,chaine,NBDIGITS_MAX_JOB_STATUS)) == 0 ) {
+  if( (nbread = readn(file_descriptor,chaine,NBDIGITS_MAX_JOB_STATUS)) == 0 ) {
     ERROR("Error with I/O file. Cannot read the batch status", NB_STATUS);
   }
 
   if( nbread == 0 )
     /* we consider that like OK */
-    i=TERMINATED;
+    i = TERMINATED;
   else {
     /* Adjust what have been read */
     if( chaine[nbread-1] == '\n' )
@@ -178,7 +178,7 @@ PBS_BatchSystem::askBatchJobStatus(int batchJobID)
     }
   }
 
-  if( i==NB_STATUS ) {
+  if( i == NB_STATUS ) {
     ERROR("Cannot get batch job " << batchJobID << " status: " << chaine, NB_STATUS);
   }
   /* Remove temporary file by closing it */
@@ -214,28 +214,28 @@ PBS_BatchSystem::isBatchJobCompleted(int batchJobID)
 int
 PBS_BatchSystem::getNbResources()
 {
-  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl);
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented\n");
   return getNbTotResources();
 }
 
 int
 PBS_BatchSystem::getNbTotResources()
 {
-  return launchCommandAndGetInt( "qstat -Bf | grep resources_assigned.nodect | cut --delimiter== --field=2 | cut --delimiter=\" \" --field=2",
+  return launchCommandAndGetInt( "qstat -Bf | grep resources_assigned.nodect | cut --delimiter== --field = 2 | cut --delimiter=\" \" --field = 2",
                                  "DIET_getNbResources");
 }
 
 int
 PBS_BatchSystem::getMaxWalltime()
 {
-  return launchCommandAndGetInt("qstat -Qf | grep mtime | cut --delimiter== --field=2 | cut --delimiter=\" \" --field=2",
+  return launchCommandAndGetInt("qstat -Qf | grep mtime | cut --delimiter== --field = 2 | cut --delimiter=\" \" --field = 2",
                                 "DIET_getNbResources");
 }
 
 int
 PBS_BatchSystem::getMaxProcs()
 {
-  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl);
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented\n");
   return getNbResources();
 }
 
@@ -244,14 +244,14 @@ PBS_BatchSystem::getMaxProcs()
 int
 PBS_BatchSystem::getNbTotFreeResources()
 {
-  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl);
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented\n");
   return getNbResources();
 }
 
 int
 PBS_BatchSystem::getNbFreeResources()
 {
-  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl);
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented\n");
   return getNbResources();
 }
 
@@ -287,7 +287,7 @@ PBS_BatchSystem::getNbFreeResources()
   qtime = Fri Aug 15 17:26:21 2008
   Rerunable = True
   Resource_List.nodect = 1
-  Resource_List.nodes = 1:ppn=2
+  Resource_List.nodes = 1:ppn = 2
   session_id = 19620
   etime = Fri Aug 15 17:26:21 2008
 

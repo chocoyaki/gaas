@@ -70,7 +70,7 @@ class ts_map : private std::map<Key, T, CMP> {
   class ts_map : private std::map<Key, T, CMP, A> {
 #endif /* LIMIT_MAP_TEMPLATE */
 
-  private :
+  private:
 
 #ifndef NDEBUG
     /**
@@ -78,7 +78,7 @@ class ts_map : private std::map<Key, T, CMP> {
      * called before the not thread safe methods are called.
      */
     mutable bool accessLocked;
-#endif // NDEBUG
+#endif  // NDEBUG
 
     /**
      * This is the mutex that lock the access to the map to avoid that
@@ -95,7 +95,7 @@ class ts_map : private std::map<Key, T, CMP> {
     typedef std::map<Key, T, CMP, A> MapType;
 #endif /* LIMIT_MAP_TEMPLATE */
 
-  public :
+  public:
 
     /**
      * the size_type type is the same as the map::size_type
@@ -109,7 +109,7 @@ class ts_map : private std::map<Key, T, CMP> {
 
     typedef typename MapType::value_type value_type;
 
-  public :
+  public:
 
     /***<direct access>*********************************************************/
 
@@ -168,7 +168,7 @@ class ts_map : private std::map<Key, T, CMP> {
       locker.lock();
 #ifndef NDEBUG // only used by the assert
       accessLocked = true;
-#endif // NDEBUG
+#endif  // NDEBUG
     }
 
     /**
@@ -178,7 +178,7 @@ class ts_map : private std::map<Key, T, CMP> {
       assert(accessLocked);
 #ifndef NDEBUG //only used by the assert
       accessLocked = false;
-#endif // NDEBUG
+#endif  // NDEBUG
       locker.unlock();
     }
 
@@ -217,4 +217,4 @@ class ts_map : private std::map<Key, T, CMP> {
 
   };
 
-#endif // _TS_MAP_HH_
+#endif  // _TS_MAP_HH_

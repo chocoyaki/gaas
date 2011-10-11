@@ -51,7 +51,7 @@ public:
   static int
   startCollectors();
 
-private :
+private:
   static vector <Cori_Metric>* collector_v;
 };
-#endif //_CORIMGR_HH__
+#endif  //_CORIMGR_HH__

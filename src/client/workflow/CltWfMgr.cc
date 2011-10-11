@@ -466,7 +466,7 @@ CltWfMgr::wfDagCall(diet_wf_desc_t * profile) {
   diet_error_t res(0);
   Dag * dag = new Dag(profile->name, myMA);
   if (this->myMaDag != MaDag::_nil()) {
-    // Call the common dag submission with parsing=ON and release=FALSE
+    // Call the common dag submission with parsing = ON and release = FALSE
     if (!wfDagCallCommon(profile, dag, true, false)) {
       TRACE_TEXT (TRACE_ALL_STEPS,"Waiting for release ==> WAIT" << endl);
       this->mySem.wait();
@@ -847,7 +847,7 @@ CltWfMgr::release(const char * dag_id, bool successful) {
   stringstream message;
   message << dag_id;
   // Add request IDs to message
-  for (unsigned int ix=0; ix<diet_request_ids.size(); ix++) {
+  for (unsigned int ix = 0; ix<diet_request_ids.size(); ix++) {
     message << ";" << diet_request_ids[ix];
   }
   // Add makespan to message

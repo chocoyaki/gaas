@@ -57,7 +57,7 @@ template <class Key, class CMP = std::less<Key>,
           class A = std::allocator<Key> >
 class ts_set : private std::set<Key, CMP, A> {
 
-private :
+private:
 
 #ifndef NDEBUG
   /**
@@ -65,7 +65,7 @@ private :
    * called before the not thread safe methods are called.
    */
   mutable bool accessLocked;
-#endif // NDEBUG
+#endif  // NDEBUG
 
   /**
    * This is the mutex that lock the access to the set to avoid that
@@ -78,7 +78,7 @@ private :
    */
   typedef std::set<Key, CMP, A> SetType;
 
-public :
+public:
 
   /**
    * the size_type type is the same as the set::size_type
@@ -90,7 +90,7 @@ public :
    */
   typedef typename SetType::iterator iterator;
 
-public :
+public:
 
   /***<direct access>*********************************************************/
 
@@ -165,7 +165,7 @@ public :
 #ifndef NDEBUG // only used by the assert
     assert(!accessLocked);
     accessLocked = true;
-#endif // NDEBUG
+#endif  // NDEBUG
   }
 
   /**
@@ -176,7 +176,7 @@ public :
 #ifndef NDEBUG // only used by the assert
     assert(accessLocked);
     accessLocked = false;
-#endif // NDEBUG
+#endif  // NDEBUG
   }
 
   /**
@@ -185,7 +185,7 @@ public :
   inline iterator begin() const {
 #ifndef NDEBUG // only used by the assert
     assert(accessLocked);
-#endif // NDEBUG
+#endif  // NDEBUG
     return SetType::begin();
   }
 
@@ -195,7 +195,7 @@ public :
   inline iterator end() const {
 #ifndef NDEBUG // only used by the assert
     assert(accessLocked);
-#endif // NDEBUG
+#endif  // NDEBUG
     return SetType::end();
   }
 
@@ -205,7 +205,7 @@ public :
   inline iterator find(const Key & x) {
 #ifndef NDEBUG // only used by the assert
     assert(accessLocked);
-#endif // NDEBUG
+#endif  // NDEBUG
     return SetType::find(x);
   }
 
@@ -216,7 +216,7 @@ public :
   inline iterator insert(iterator pos, const Key & x) {
 #ifndef NDEBUG // only used by the assert
     assert(accessLocked);
-#endif // NDEBUG
+#endif  // NDEBUG
     return SetType::insert(pos, x);
   }
 
@@ -224,4 +224,4 @@ public :
 
 };
 
-#endif // _TS_SET_HH_
+#endif  // _TS_SET_HH_

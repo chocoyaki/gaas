@@ -20,8 +20,13 @@
 
 #include "AdvancedDagdaComponent.hh"
 
-int LRU(AdvancedDagdaComponent* manager, size_t size, dagda_object_type_t type);
-int LFU(AdvancedDagdaComponent* manager, size_t size, dagda_object_type_t type);
-int FIFO(AdvancedDagdaComponent* manager, size_t size, dagda_object_type_t type);
+int
+LRU(AdvancedDagdaComponent* manager, size_t size, dagda_object_type_t type);
+
+int
+LFU(AdvancedDagdaComponent* manager, size_t size, dagda_object_type_t type);
+
+int
+FIFO(AdvancedDagdaComponent* manager, size_t size, dagda_object_type_t type);
 
 #endif

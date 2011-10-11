@@ -156,4 +156,4 @@ int
 profile_match(const corba_profile_desc_t* sv_profile,
               const char* path, const corba_profile_t* pb);
 
-#endif // _DIET_DATA_INTERNAL_HH_
+#endif  // _DIET_DATA_INTERNAL_HH_

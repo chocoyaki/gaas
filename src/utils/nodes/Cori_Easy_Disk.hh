@@ -84,4 +84,4 @@ private:
 
 };
 
-#endif //_CORI_EASY_DISK_HH_
+#endif  //_CORI_EASY_DISK_HH_

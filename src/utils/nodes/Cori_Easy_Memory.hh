@@ -41,4 +41,4 @@ private:
   get_Info_Memory_byProcMem(double* resultat,
                             int freemem);
 };
-#endif //_CORI_EASY_MEMORY_HH_
+#endif  //_CORI_EASY_MEMORY_HH_

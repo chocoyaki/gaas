@@ -53,41 +53,19 @@ class MasterAgentImpl;
 
 
 class BindService : public omni_thread {
-
-private :
-
-  /**
-   * The IOR of the MA  in the string format
-   */
-  char* ior;
-
-  /**
-   * the file descriptor of the socket
-   */
-  int listenSocket;
-
-  /**
-   * listen to the port and send the ior of the MA to the socket
-   * client until the listenSocket is closed.
-   */
-  void run(void* ptr);
-
-public :
-
+public:
   /**
    * Creates the service and set the port of the service and the MasterAgent
    *
    * @param ma the local Master Agent
-   * 
+   *
    * @param port the listen port of the service
    */
   BindService(MasterAgentImpl* ma, unsigned int port);
-
   /**
    * destroys the thread.
    */
   ~BindService();
-
   /**
    * return the MasterAgent_ptr binded at the given address. The
    * format of the address is "host:port"
@@ -97,10 +75,26 @@ public :
    *
    * @return a pointer on the Master Agent or nil if an error append
    */
-  MasterAgent_ptr lookup(const char* addr);
+  MasterAgent_ptr
+  lookup(const char* addr);
 
+private:
+  /**
+   * listen to the port and send the ior of the MA to the socket
+   * client until the listenSocket is closed.
+   */
+  void
+  run(void* ptr);
+  /**
+   * The IOR of the MA  in the string format
+   */
+  char* ior;
+  /**
+   * the file descriptor of the socket
+   */
+  int listenSocket;
 };  // ReferenceUpdateThread
 
-#endif // HAVE_MULTI_MA
+#endif  // HAVE_MULTI_MA
 
-#endif // _BIND_SERVICE_HH_
+#endif  // _BIND_SERVICE_HH_

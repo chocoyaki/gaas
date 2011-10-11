@@ -60,16 +60,16 @@ Loadleveler_BatchSystem::Loadleveler_BatchSystem(int ID, const char * batchname)
     ERROR_EXIT("LL needs a path to a NFS directory to store its script");
   }
 #if defined YC_DEBUG
-  TRACE_TEXT(TRACE_ALL_STEPS,"Nom NFS: " << getNFSPath() << endl);
+  TRACE_TEXT(TRACE_ALL_STEPS,"Nom NFS: " << getNFSPath() << "\n");
 #endif
 
   batch_ID = ID;
   batchName = batchname;
-  
+
   shell = "#@ shell=";
   prefixe = "#@ environment = COPY_ALL;";  // "#!/bin/sh\n\n"
 
-  /* first line is mandatory to end LL batch directives, 
+  /* first line is mandatory to end LL batch directives,
      second is to get a file containing the nodes ID. Hope it is unique
   */
   postfixe = "#@ queue";
@@ -80,15 +80,15 @@ Loadleveler_BatchSystem::Loadleveler_BatchSystem(int ID, const char * batchname)
      used. It is standard to use the switch adapter (css0), in a
      dedicated mode (not_shared) and with the User Space library (US).
      That kinf of info must rely in the SeD.cfg, because not all LL
-     environment possess a switch!  
+     environment possess a switch!
      #@ network.MPI = css0,not_shared,US\n
   */
   /* FIXME: fix this part!
 
-     unsigned int * LL_switched = (unsigned int *) 
+     unsigned int * LL_switched = (unsigned int *)
      Parsers::Results::getParamValue(Parsers::Results::SWITCH);
      if( *LL_switched == 1 )
-     nodesNumber = "#@ network.MPI = css0,not_shared,US\n#@ job_type=parallel\n#@ node=";
+     nodesNumber = "#@ network.MPI = css0,not_shared,US\n#@ job_type = parallel\n#@ node=";
      else
   */
   nodesNumber = "#@ job_type = parallel\n#@ node =";
@@ -97,7 +97,7 @@ Loadleveler_BatchSystem::Loadleveler_BatchSystem(int ID, const char * batchname)
   walltime = "\n#@ wall_clock_limit =";
   submittingQueue = "\n#@ Class = ";
   minimumMemoryUsed = BatchSystem::emptyString;
-  
+
   /* TODO: When we use some ID for DIET client, change there! */
   mail = "\n#@ notification = never\n#@ notify_user =";
   account = "\n#@ account_no =";
@@ -108,15 +108,15 @@ Loadleveler_BatchSystem::Loadleveler_BatchSystem(int ID, const char * batchname)
   submitCommand = "llsubmit ";
   killCommand = "llcancel ";
   wait4Command = "llq -j ";
-  waitFilter = "grep step | cut --delimiter=1 --field=3 | cut --delimiter=\",\" --field=1";
+  waitFilter = "grep step | cut --delimiter = 1 --field = 3 | cut --delimiter=\",\" --field = 1";
   exitCode = "0";
-  
+
   jid_extract_patterns = "cut --delimiter=\\\" -f 2 | cut --delimiter=. -f 2";
 
   /* Information for META_VARIABLES */
   batchJobID = "$LOADL_STEP_ID";
   nodeFileName = "$MP_SAVEHOSTFILE";
-  //  nodeIdentities = "cat $MP_SAVEHOSTFILE";  
+  //  nodeIdentities = "cat $MP_SAVEHOSTFILE";
 }
 
 Loadleveler_BatchSystem::~Loadleveler_BatchSystem()
@@ -131,10 +131,10 @@ Loadleveler_BatchSystem::askBatchJobStatus(int batchJobID)
   char * filename;
   int file_descriptor;
   char * chaine;
-  int i=0;
+  int i = 0;
   int nbread;
   batchJobState status;
-  
+
   /* If job has completed, not ask batch system */
   status = getRecordedBatchJobStatus( batchJobID );
   if( (status == TERMINATED) || (status == CANCELED) || (status == ERROR) )
@@ -146,7 +146,7 @@ Loadleveler_BatchSystem::askBatchJobStatus(int batchJobID)
     ERROR("Cannot open file", UNDETERMINED );
   }
 
-  /*** Ask batch system the job status ***/      
+  /*** Ask batch system the job status ***/
   chaine = (char*)malloc(sizeof(char)*(strlen(wait4Command)
                                        + NBDIGITS_MAX_BATCH_JOB_ID
                                        + strlen(waitFilter)
@@ -156,37 +156,37 @@ Loadleveler_BatchSystem::askBatchJobStatus(int batchJobID)
   sprintf(chaine,"%s %d | %s > %s",
           wait4Command,batchJobID,waitFilter,filename);
 #if defined YC_DEBUG
-  TRACE_TEXT(TRACE_ALL_STEPS,"Execute: " << endl << chaine << endl);
+  TRACE_TEXT(TRACE_ALL_STEPS,"Execute: \n" << chaine << "\n");
 #endif
   if( system(chaine) != 0 ) {
     ERROR("Cannot submit script", NB_STATUS);
   }
 
-  /* Get job status */  
+  /* Get job status */
   for( int i = 0; i<=NBDIGITS_MAX_BATCH_JOB_ID; i++ )
     chaine[i] = '\0';
 
-  nbread=readn(file_descriptor,chaine,NBDIGITS_MAX_JOB_STATUS);
+  nbread = readn(file_descriptor,chaine,NBDIGITS_MAX_JOB_STATUS);
   /* When job is finished, no information is reported by Loadleveler
-     -> nbread=0
+     -> nbread = 0
      TODO: if error?
   */
 
   if( nbread == 0 )
     /* we consider that like OK */
-    i=TERMINATED;
+    i = TERMINATED;
   else {
     /* Adjust what have been read */
     if( chaine[nbread-1] == '\n' )
       chaine[nbread-1] = '\0';
     /* Compare to chaine+1 because of a space as a first char */
-    while( (i<NB_STATUS) && 
+    while( (i<NB_STATUS) &&
            (strcmp(chaine+1,Loadleveler_BatchSystem::statusNames[i])!=0) ) {
       i++;
     }
   }
-    
-  if( i==NB_STATUS ) {
+
+  if( i == NB_STATUS ) {
     ERROR("Cannot get batch job " << batchJobID << " status: " << chaine, NB_STATUS);
   }
   /* Remove temporary file by closing it */
@@ -206,7 +206,7 @@ int
 Loadleveler_BatchSystem::isBatchJobCompleted(int batchJobID)
 {
   int status = getRecordedBatchJobStatus(batchJobID);
-  
+
   if( (status == TERMINATED) || (status == CANCELED) || (status == ERROR) )
     return 1;
   status = askBatchJobStatus(batchJobID);
@@ -222,28 +222,28 @@ Loadleveler_BatchSystem::isBatchJobCompleted(int batchJobID)
 int
 Loadleveler_BatchSystem::getNbResources()
 {
-  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl);
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented\n");
   return 16;
 }
 
 int
 Loadleveler_BatchSystem::getNbTotResources()
 {
-  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl);
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented\n");
   return 16;
 }
 
 int
 Loadleveler_BatchSystem::getMaxWalltime()
 {
-  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl);
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented\n");
   return 500;
 }
 
 int
 Loadleveler_BatchSystem::getMaxProcs()
 {
-  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl);
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented\n");
   return getNbResources();
 }
 
@@ -252,7 +252,7 @@ Loadleveler_BatchSystem::getMaxProcs()
 int
 Loadleveler_BatchSystem::getNbTotFreeResources()
 {
-  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl);
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented\n");
   return getNbResources();
 }
 
@@ -282,28 +282,28 @@ Loadleveler_BatchSystem::getNbFreeResources()
   // $query = ll_query(JOBS);
 
   // # Ask for all data on all jobs
-  // $return=ll_set_request($query,QUERY_ALL,undef,ALL_DATA);
+  // $return = ll_set_request($query,QUERY_ALL,undef,ALL_DATA);
   // if ($return != 0 ){
   //         print STDERR "ll_set_request failed Return = $return\n";
   // }
   // # Query the scheduler for information
   // # $number will contain the number of objects returned
-  // $job=ll_get_objs($query,LL_CM,NULL,$number,$err);
-  // $nb_running_job=0;
+  // $job = ll_get_objs($query,LL_CM,NULL,$number,$err);
+  // $nb_running_job = 0;
   // while ( $job){
 
   //         # Loop through all steps for this job
-  //         my $step=ll_get_data($job,LL_JobGetFirstStep);
+  //         my $step = ll_get_data($job,LL_JobGetFirstStep);
   //         while ($step)
   //         {
-  //                 my $state=ll_get_data($step,LL_StepState);
-  //                 my $class=ll_get_data($step,LL_StepJobClass);
+  //                 my $state = ll_get_data($step,LL_StepState);
+  //                 my $class = ll_get_data($step,LL_StepJobClass);
   //                 if ( $class eq $class_name && $state == STATE_RUNNING){
   //                         $nb_running_job++;
   //                 }
-  //                 $step=ll_get_data($job,LL_JobGetNextStep);
+  //                 $step = ll_get_data($job,LL_JobGetNextStep);
   //         }
-  //         $job=ll_next_obj($query);
+  //         $job = ll_next_obj($query);
   // }
   // # Free up space allocated by LoadLeveler
   // ll_free_objs($query);
@@ -313,12 +313,12 @@ Loadleveler_BatchSystem::getNbFreeResources()
   // while (defined($line = <OUTPUT>)) {
   //         $_=$line;
   //         if (/Free_slots/){
-  //                 @val=split(/\s+/,$line);
+  //                 @val = split(/\s+/,$line);
   //                 $free_slots=$val[2];
   // #               print "Free_slots = ".$free_slots."\n";
   //         }
   //         if (/Maxjobs/){
-  //                 @val=split(/\s+/,$line);
+  //                 @val = split(/\s+/,$line);
   //                 $maxjobs=$val[2];
   // #               print "Maxjobs = ".$maxjobs."\n";
   //         }
@@ -333,7 +333,7 @@ Loadleveler_BatchSystem::getNbFreeResources()
   // }
   // print "$nb_host\n";
 
-  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl);
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented\n");
   return getNbResources();
 }
 

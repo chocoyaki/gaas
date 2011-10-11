@@ -242,7 +242,7 @@ public:
    */
   static void
   getPortMap(const string& thenMapStr,
-             map<string,string>& thenMap) throw (XMLParsingException);
+             map<string,string>& thenMap) throw(XMLParsingException);
 
 
 protected:
@@ -633,7 +633,7 @@ public:
    * with getValue() if end() is not true
    * @param dataFileName  path of the file containing data description
    */
-  void parseXml(const string& dataFileName) throw (XMLParsingException);
+  void parseXml(const string& dataFileName) throw(XMLParsingException);
 
 
 private:

@@ -47,19 +47,19 @@ public:
           unsigned int ind,
           WfPort::WfPortType portType,
           WfCst::WfDataType dataType,
-          unsigned int depth) throw (WfStructException);
+          unsigned int depth) throw(WfStructException);
 
   virtual void
-  connectNodePorts() throw (WfStructException);
+  connectNodePorts() throw(WfStructException);
 
   void
   setDoMap(const string& leftPortName,
            const string& rightPortName)
-    throw (WfStructException);
+    throw(WfStructException);
 
   void
   setWhileCondition(const string& conditionStr)
-    throw (WfStructException);
+    throw(WfStructException);
 
   // ******************** INSTANCIATION *********************
 
@@ -84,7 +84,7 @@ public:
 protected:
 
   virtual void
-  checkCondition() throw (WfStructException);
+  checkCondition() throw(WfStructException);
 
   bool
   testCondition(const vector<FDataHandle*>& currDataLine);
@@ -113,4 +113,4 @@ private:
 
 };
 
-#endif // _FLOOPNODE_HH_
+#endif  // _FLOOPNODE_HH_

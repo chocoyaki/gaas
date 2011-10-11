@@ -299,14 +299,13 @@ omni_mutex reqCount_mutex;
 #endif /* HAVE_WORKFLOW */
 
 //#define aff_val(x)
-#define aff_val(x) cout << #x << " = " << x << endl;
+#define aff_val(x) cout << #x << " = " << x << "\n";
 
 #define MA_TRACE_FUNCTION(formatted_text)               \
   TRACE_TEXT(TRACE_ALL_STEPS, "MA::");                  \
   TRACE_FUNCTION(TRACE_ALL_STEPS,formatted_text)
 
-MasterAgentImpl::MasterAgentImpl() : AgentImpl()
-{
+MasterAgentImpl::MasterAgentImpl() : AgentImpl() {
   this->reqIDCounter = 0;
   this->num_session = 0;
   this->num_data = 0;
@@ -316,8 +315,7 @@ MasterAgentImpl::MasterAgentImpl() : AgentImpl()
 } // MasterAgentImpl
 
 
-MasterAgentImpl::~MasterAgentImpl()
-{
+MasterAgentImpl::~MasterAgentImpl() {
 #ifdef HAVE_MULTI_MA
   delete floodRequestsList;
   //  MAList.emptyIt();
@@ -329,8 +327,7 @@ MasterAgentImpl::~MasterAgentImpl()
  * Launch this agent (initialization + registration in the hierarchy).
  */
 int
-MasterAgentImpl::run()
-{
+MasterAgentImpl::run() {
   int res = this->AgentImpl::run();
   if (res)
     return res;
@@ -414,8 +411,7 @@ MasterAgentImpl::run()
  * Returns the identifier of a data by agreggation of numsession and numdata
  */
 char *
-MasterAgentImpl::get_data_id()
-{
+MasterAgentImpl::get_data_id() {
 #if ! HAVE_ADVANCED_UUID
   char id[100];
   (this->num_data)++;
@@ -424,13 +420,13 @@ MasterAgentImpl::get_data_id()
 #else /* ! HAVE_ADVANCED_UUID */
   uuid_t uuid;
   char ID[37];
-  string id("DAGDA://id-");
+  std::string id("DAGDA://id-");
 
   uuid_generate(uuid);
   uuid_unparse(uuid, ID);
-  id+=ID;
-  id+="-";
-  id+=myName;
+  id += ID;
+  id += "-";
+  id += myName;
   return CORBA::string_dup(id.c_str());
 #endif /* ! HAVE_ADVANCED_UUID */
 } // get_data_id()
@@ -443,9 +439,8 @@ MasterAgentImpl::get_data_id()
  * Returns the list of Profile available
  */
 SeqCorbaProfileDesc_t*
-MasterAgentImpl::getProfiles(CORBA::Long& length)
-{
-  TRACE_TEXT(TRACE_ALL_STEPS,"ask for list of services" << std::endl);
+MasterAgentImpl::getProfiles(CORBA::Long& length) {
+  TRACE_TEXT(TRACE_ALL_STEPS,"ask for list of services\n");
   return this->AgentImpl::SrvT->getProfiles(length);
 }
 
@@ -459,7 +454,7 @@ MasterAgentImpl::getProfiles(CORBA::Long& length)
  * When using DAGDA instead of DTM, uses the search of data on the platform.
  */
 CORBA::ULong
-MasterAgentImpl::dataLookUp(const char* argID){
+MasterAgentImpl::dataLookUp(const char* argID) {
   return dataManager->pfmIsDataPresent(argID);
 } // dataLookUp(const char* argID)
 
@@ -468,8 +463,7 @@ MasterAgentImpl::dataLookUp(const char* argID){
  * When using DAGDA, the description is obtained from DAGDA instead of DTM.
  */
 corba_data_desc_t*
-MasterAgentImpl::get_data_arg(const char* argID)
-{
+MasterAgentImpl::get_data_arg(const char* argID) {
   return dataManager->pfmGetDataDesc(argID);
 }
 
@@ -560,7 +554,7 @@ MasterAgentImpl::submit(const corba_pb_desc_t& pb_profile,
     }
 #endif /* HAVE_MULTI_MA */
   } catch(...) {
-    WARNING("An exception was caught" << endl);
+    WARNING("An exception was caught\n");
   }
 
 #ifdef USE_LOG_SERVICE
@@ -583,8 +577,7 @@ MasterAgentImpl::submit(const corba_pb_desc_t& pb_profile,
 /** Problem submission. Looking for SeDs that can resolve the
     problem in the local domain. */
 corba_response_t*
-MasterAgentImpl::submit_local(const corba_request_t& creq)
-{
+MasterAgentImpl::submit_local(const corba_request_t& creq) {
   corba_response_t* resp(0);
   Request* req(0);
 
@@ -655,8 +648,7 @@ MasterAgentImpl::submit_local(const corba_request_t& creq)
 
 
 CORBA::Long
-MasterAgentImpl::get_session_num()
-{
+MasterAgentImpl::get_session_num() {
   (this->num_session)++;
   return num_session;
 }//get_session_num()
@@ -665,8 +657,7 @@ MasterAgentImpl::get_session_num()
    invoked by client : frees persistent data identified by argID, if not exists return NULL
 */
 CORBA::Long
-MasterAgentImpl::diet_free_pdata(const char* argID)
-{
+MasterAgentImpl::diet_free_pdata(const char* argID) {
   if (!dataManager->pfmIsDataPresent(argID))
     return 0;
   dataManager->pfmRemData(argID);
@@ -675,16 +666,15 @@ MasterAgentImpl::diet_free_pdata(const char* argID)
 
 
 #ifdef HAVE_MULTI_MA
-char* MasterAgentImpl::getBindName()
-{
+char*
+MasterAgentImpl::getBindName() {
   return CORBA::string_dup(bindName);
 }
 
 
 /* Update MAs references */
 void
-MasterAgentImpl::updateRefs()
-{
+MasterAgentImpl::updateRefs() {
   MAIds.lock();
   MasterAgent_var ma;
   int loopCpt = 0;
@@ -733,19 +723,18 @@ MasterAgentImpl::updateRefs()
 /****************************************************************************/
 
 CORBA::Boolean
-MasterAgentImpl::handShake(const char* maName, const char* myName)
-{
+MasterAgentImpl::handShake(const char* maName, const char* myName) {
   TRACE_TEXT(TRACE_ALL_STEPS, myName
              << " is shaking my hand ("
              << knownMAs.size() << "/" << maxMAlinks << ")" << std::endl);
   MasterAgent_ptr me =
     ORBMgr::getMgr()->resolve<MasterAgent, MasterAgent_ptr>(AGENTCTXT,maName);
   /* FIXME: There is probably a cleaner way to find if two IOR are equal */
-  string myior = ORBMgr::getMgr()->getIOR(_this());
-  string hisior = ORBMgr::getMgr()->getIOR(me);
-  if (myior==hisior) {
+  std::string myior = ORBMgr::getMgr()->getIOR(_this());
+  std::string hisior = ORBMgr::getMgr()->getIOR(me);
+  if (myior == hisior) {
     TRACE_TEXT(TRACE_ALL_STEPS,
-               "I refuse to handshake with myself" << std::endl);
+               "I refuse to handshake with myself\n");
     /* we need to return now, because the knownMA locker is already
        taken by the updateRefs function which call the handshake
        one. */
@@ -773,16 +762,14 @@ MasterAgentImpl::handShake(const char* maName, const char* myName)
 /*                           Flooding Algorithm                             */
 /****************************************************************************/
 
-void MasterAgentImpl::searchService(const char* predecessorStr,
-                                    const char* predecessorId,
-                                    const corba_request_t& request) {
-
+void
+MasterAgentImpl::searchService(const char* predecessorStr,
+                               const char* predecessorId,
+                               const corba_request_t& request) {
   char statMsg[128];
   MasterAgent_ptr predecessor =
     ORBMgr::getMgr()->resolve<MasterAgent, MasterAgent_ptr>(AGENTCTXT,
                                                             predecessorStr);
-  //printTime();
-  //fprintf(stderr, ">>>>>searchService from %s, %d, %s\n", predecessorId,  (int)request.reqID, (const char*)myName);
   TRACE_TEXT(TRACE_ALL_STEPS, predecessorId << " search "
              << request.pb.path << " request (" << request.reqID << ")"
              << std::endl);
@@ -827,19 +814,15 @@ void MasterAgentImpl::searchService(const char* predecessorStr,
   }
 
   TRACE_TEXT(TRACE_MAIN_STEPS,
-             "**************************************************"
-             << std::endl);
+             "**************************************************\n");
   sprintf(statMsg, "stop searchService %ld", (unsigned long) request.reqID);
   stat_out(this->myName,statMsg);
   stat_flush();
-  //printf("<<<<<search service from %s\n", predecessorId);
 } // searchService(...)
 
 
-void MasterAgentImpl::stopFlooding(CORBA::Long reqId,
-                                   const char* senderId)
-{
-  //fprintf(stderr, "stopFlooding from %s, %s:%d, %s\n", senderId, (const char*)reqId.maId, (int)reqId.idNumber, (const char*)myName);
+void
+MasterAgentImpl::stopFlooding(CORBA::Long reqId, const char* senderId) {
   try {
     FloodRequest& floodRequest =
       floodRequestsList->get(reqId);
@@ -852,9 +835,8 @@ void MasterAgentImpl::stopFlooding(CORBA::Long reqId,
 }
 
 
-void MasterAgentImpl::serviceNotFound(CORBA::Long reqId,
-                                      const char* senderId)
-{
+void
+MasterAgentImpl::serviceNotFound(CORBA::Long reqId, const char* senderId) {
   //fprintf(stderr, "serviceNotFound from %s, %s:%d, %s\n", senderId, (const char*)reqId.maId, (int)reqId.idNumber, (const char*)myName);
   try {
     TRACE_TEXT(TRACE_ALL_STEPS, "service not found by " << senderId
@@ -869,9 +851,8 @@ void MasterAgentImpl::serviceNotFound(CORBA::Long reqId,
 }
 
 
-void MasterAgentImpl::newFlood(CORBA::Long reqId,
-                               const char* senderId)
-{
+void
+MasterAgentImpl::newFlood(CORBA::Long reqId, const char* senderId) {
   //fprintf(stderr, "newFlood from %s, %s:%d, %s\n", senderId, (const char*)reqId.maId, (int)reqId.idNumber, (const char*)myName);
   TRACE_TEXT(TRACE_ALL_STEPS, senderId << " continue the search for "
              << " request (" << reqId << ")" << std::endl);
@@ -911,8 +892,9 @@ void MasterAgentImpl::newFlood(CORBA::Long reqId,
   }
 }
 
-void MasterAgentImpl::floodedArea(CORBA::Long reqId,
-                                  const char* senderId) {
+void
+MasterAgentImpl::floodedArea(CORBA::Long reqId,
+                             const char* senderId) {
   //fprintf(stderr, "floodedArea from %s, %s:%d, %s\n", senderId, (const char*)reqId.maId, (int)reqId.idNumber, (const char*)myName);
   TRACE_TEXT(TRACE_ALL_STEPS, "stop the flood of " << senderId
              << " for request (" << reqId << ")" << std::endl);
@@ -927,8 +909,9 @@ void MasterAgentImpl::floodedArea(CORBA::Long reqId,
 }
 
 
-void MasterAgentImpl::alreadyContacted(CORBA::Long reqId,
-                                       const char* senderId) {
+void
+MasterAgentImpl::alreadyContacted(CORBA::Long reqId,
+                                  const char* senderId) {
   //fprintf(stderr, "alreadyContacted from %s, %s:%d, %s\n", senderId, (const char*)reqId.maId, (int)reqId.idNumber, (const char*)myName);
   TRACE_TEXT(TRACE_ALL_STEPS, "already contacted for request ("
              << reqId << ")");
@@ -943,8 +926,9 @@ void MasterAgentImpl::alreadyContacted(CORBA::Long reqId,
 }
 
 
-void MasterAgentImpl::serviceFound(CORBA::Long reqId,
-                                   const corba_response_t& decision) {
+void
+MasterAgentImpl::serviceFound(CORBA::Long reqId,
+                              const corba_response_t& decision) {
   //printTime();
   //fprintf(stderr, "%d serviceFound, %s:%d, %s\n", (int)decision.length(), (const char*)reqId.maId, (int)reqId.idNumber, (const char*)myName);
   try {
@@ -994,8 +978,7 @@ MasterAgentImpl::logNeighbors() {
  * Workflow submission function.
  */
 wf_response_t *
-MasterAgentImpl::submit_pb_set(const corba_pb_desc_seq_t& seq_pb)
-{
+MasterAgentImpl::submit_pb_set(const corba_pb_desc_seq_t& seq_pb) {
   wf_response_t *wf_response = new wf_response_t;
   unsigned int len = seq_pb.length();
   unsigned int failureIdx;
@@ -1007,7 +990,7 @@ MasterAgentImpl::submit_pb_set(const corba_pb_desc_seq_t& seq_pb)
              "The MasterAgent receives a set of "
              << len << " problems" << std::endl);
   // LOOP for MA submissions (keeps the order of problems sequence)
-  for (unsigned int ix=0; ix<len; ix++) {
+  for (unsigned int ix = 0; ix<len; ix++) {
     corba_response = this->submit(seq_pb[ix], 1024);
     if ((!corba_response) || (corba_response->servers.length() == 0)) {
       missingService = true;
@@ -1053,8 +1036,7 @@ MasterAgentImpl::submit_pb_seq(const corba_pb_desc_seq_t& pb_seq,
                                CORBA::Long reqCount,
                                CORBA::Boolean& complete,
                                CORBA::Long& firstReqId,
-                               CORBA::Long& seqReqId)
-{
+                               CORBA::Long& seqReqId) {
   struct timeval start, end;
   gettimeofday(&start, 0);
   static CORBA::Long mySeqReqId = 0;
@@ -1062,7 +1044,7 @@ MasterAgentImpl::submit_pb_seq(const corba_pb_desc_seq_t& pb_seq,
   corba_response_t *corba_response = 0;
   complete = false;
 
-  for (unsigned int ix=0; ix<pb_seq.length(); ix++) {
+  for (unsigned int ix = 0; ix<pb_seq.length(); ix++) {
     corba_response = this->submit(pb_seq[ix], reqCount);
     if ((!corba_response) || (corba_response->servers.length() == 0)) {
       TRACE_TEXT (TRACE_MAIN_STEPS,
@@ -1100,43 +1082,42 @@ MasterAgentImpl::submit_pb_seq(const corba_pb_desc_seq_t& pb_seq,
 }
 #endif /* HAVE_WORKFLOW */
 
-SeqString* MasterAgentImpl::searchData(const char* request)
-{
+SeqString*
+MasterAgentImpl::searchData(const char* request) {
   SeqString* ret = new SeqString();
   attributes_t attr = catalog->request(request);
   attributes_t::iterator it;
-  int i=0;
+  int i = 0;
 
   ret->length(attr.size());
-  for (it=attr.begin(); it!=attr.end(); ++it)
+  for (it = attr.begin(); it != attr.end(); ++it)
     (*ret)[i++]=CORBA::string_dup(it->c_str());
 
   return ret;
 }
 
-CORBA::Long MasterAgentImpl::insertData(const char* key,
-                                        const SeqString& values)
-{
+CORBA::Long
+MasterAgentImpl::insertData(const char* key,
+                            const SeqString& values) {
   attributes_t attr;
   if (catalog->exists(key)) return 1;
 
-  for (unsigned int i=0; i<values.length(); ++i) {
-    attr.push_back(string(values[i]));
+  for (unsigned int i = 0; i<values.length(); ++i) {
+    attr.push_back(std::string(values[i]));
   }
   catalog->insert(key, attr);
   return 0;
 }
 
 MasterAgentFwdrImpl::MasterAgentFwdrImpl(Forwarder_ptr fwdr,
-                                         const char* objName)
-{
+                                         const char* objName) {
   this->forwarder = Forwarder::_duplicate(fwdr);
   this->objName = CORBA::string_dup(objName);
 }
 
-corba_response_t* MasterAgentFwdrImpl::submit(const corba_pb_desc_t& pb_profile,
-                                              CORBA::ULong maxServers)
-{
+corba_response_t*
+MasterAgentFwdrImpl::submit(const corba_pb_desc_t& pb_profile,
+                            CORBA::ULong maxServers) {
   TRACE_TEXT(TRACE_MAIN_STEPS, __FILE__ << ": l." << __LINE__
              << " (" << __FUNCTION__ << ")" << std::endl
              << "submit(pb_profile, " << maxServers << ", "
@@ -1144,100 +1125,94 @@ corba_response_t* MasterAgentFwdrImpl::submit(const corba_pb_desc_t& pb_profile,
   return forwarder->submit(pb_profile, maxServers, objName);
 }
 
-CORBA::Long MasterAgentFwdrImpl::get_session_num()
-{
+CORBA::Long
+MasterAgentFwdrImpl::get_session_num() {
   return forwarder->get_session_num(objName);
 }
 
-char* MasterAgentFwdrImpl::get_data_id()
-{
+char*
+MasterAgentFwdrImpl::get_data_id() {
   return forwarder->get_data_id(objName);
 }
 
-CORBA::ULong MasterAgentFwdrImpl::dataLookUp(const char* argID)
-{
+CORBA::ULong
+MasterAgentFwdrImpl::dataLookUp(const char* argID) {
   return forwarder->dataLookUp(argID, objName);
 }
 
-corba_data_desc_t* MasterAgentFwdrImpl::get_data_arg(const char* argID)
-{
+corba_data_desc_t*
+MasterAgentFwdrImpl::get_data_arg(const char* argID) {
   return forwarder->get_data_arg(argID, objName);
 }
 
-CORBA::Long MasterAgentFwdrImpl::diet_free_pdata(const char *argID)
-{
+CORBA::Long
+MasterAgentFwdrImpl::diet_free_pdata(const char *argID) {
   return forwarder->diet_free_pdata(argID, objName);
 }
 
-SeqCorbaProfileDesc_t* MasterAgentFwdrImpl::getProfiles(CORBA::Long& length)
-{
+SeqCorbaProfileDesc_t*
+MasterAgentFwdrImpl::getProfiles(CORBA::Long& length) {
   return forwarder->getProfiles(length, objName);
 }
 
 #ifdef HAVE_MULTI_MA
-CORBA::Boolean MasterAgentFwdrImpl::handShake(const char* name,
-                                              const char* myName)
-{
+CORBA::Boolean
+MasterAgentFwdrImpl::handShake(const char* name,
+                               const char* myName) {
   return forwarder->handShake(name, myName, objName);
 }
 
-char* MasterAgentFwdrImpl::getBindName()
-{
+char*
+MasterAgentFwdrImpl::getBindName() {
   return forwarder->getBindName(objName);
 }
 
-/*void MasterAgentFwdrImpl::updateRefs()
-  {
-  forwarder->updateRefs(objName);
-  }*/
-
-void MasterAgentFwdrImpl::searchService(const char* predecessor,
-                                        const char* predecessorId,
-                                        const corba_request_t& request)
-{
+void
+MasterAgentFwdrImpl::searchService(const char* predecessor,
+                                   const char* predecessorId,
+                                   const corba_request_t& request) {
   forwarder->searchService(predecessor, predecessorId, request, objName);
 }
 
-void MasterAgentFwdrImpl::stopFlooding(CORBA::Long reqId,
-                                       const char* senderId)
-{
+void
+MasterAgentFwdrImpl::stopFlooding(CORBA::Long reqId,
+                                  const char* senderId) {
   forwarder->stopFlooding(reqId, senderId, objName);
 }
 
-void MasterAgentFwdrImpl::serviceNotFound(CORBA::Long reqId,
-                                          const char* senderId)
-{
+void
+MasterAgentFwdrImpl::serviceNotFound(CORBA::Long reqId,
+                                          const char* senderId) {
   forwarder->serviceNotFound(reqId, senderId, objName);
 }
 
-void MasterAgentFwdrImpl::newFlood(CORBA::Long reqId,
-                                   const char* senderId)
-{
+void
+MasterAgentFwdrImpl::newFlood(CORBA::Long reqId,
+                                   const char* senderId) {
   forwarder->newFlood(reqId, senderId, objName);
 }
 
-void MasterAgentFwdrImpl::floodedArea(CORBA::Long reqId,
-                                      const char* senderId)
-{
+void
+MasterAgentFwdrImpl::floodedArea(CORBA::Long reqId,
+                                      const char* senderId) {
   forwarder->floodedArea(reqId, senderId, objName);
 }
 
-void MasterAgentFwdrImpl::alreadyContacted(CORBA::Long reqId,
-                                           const char* senderId)
-{
+void
+MasterAgentFwdrImpl::alreadyContacted(CORBA::Long reqId,
+                                           const char* senderId) {
   forwarder->alreadyContacted(reqId, senderId, objName);
 }
 
-void MasterAgentFwdrImpl::serviceFound(CORBA::Long reqId,
-                                       const corba_response_t& decision)
-{
+void
+MasterAgentFwdrImpl::serviceFound(CORBA::Long reqId,
+                                       const corba_response_t& decision) {
   forwarder->serviceFound(reqId, decision, objName);
 }
 #endif /* HAVE_MULTI_MA */
 #ifdef HAVE_WORKFLOW
 wf_response_t*
-MasterAgentFwdrImpl::submit_pb_set(const corba_pb_desc_seq_t& seq_pb)
-{
+MasterAgentFwdrImpl::submit_pb_set(const corba_pb_desc_seq_t& seq_pb) {
   return forwarder->submit_pb_set(seq_pb, objName);
 }
 
@@ -1246,92 +1221,83 @@ MasterAgentFwdrImpl::submit_pb_seq(const corba_pb_desc_seq_t& pb_seq,
                                    CORBA::Long reqCount,
                                    CORBA::Boolean& complete,
                                    CORBA::Long& firstReqId,
-                                   CORBA::Long& seqReqId)
-{
+                                   CORBA::Long& seqReqId) {
   return forwarder->submit_pb_seq(pb_seq, reqCount, complete,
                                   firstReqId, seqReqId, objName);
 }
 #endif /* HAVE_WORKFLOW */
 
-SeqString* MasterAgentFwdrImpl::searchData(const char* request)
-{
+SeqString* MasterAgentFwdrImpl::searchData(const char* request) {
   return forwarder->searchData(request, objName);
 }
 
 CORBA::Long MasterAgentFwdrImpl::insertData(const char* key,
-                                            const SeqString& values)
-{
+                                            const SeqString& values) {
   return forwarder->insertData(key, values, objName);
 }
 
 CORBA::Long
 MasterAgentFwdrImpl::agentSubscribe(const char* me, const char* hostName,
-                                    const SeqCorbaProfileDesc_t& services)
-{
+                                    const SeqCorbaProfileDesc_t& services) {
   return forwarder->agentSubscribe(me, hostName, services, objName);
 }
 
 CORBA::Long
 MasterAgentFwdrImpl::serverSubscribe(const char* me, const char* hostName,
-                                     const SeqCorbaProfileDesc_t& services)
-{
+                                     const SeqCorbaProfileDesc_t& services) {
   return forwarder->serverSubscribe(me, hostName, services, objName);
 }
 
-#ifdef HAVE_DYNAMICS
 CORBA::Long
 MasterAgentFwdrImpl::childUnsubscribe(CORBA::ULong childID,
-                                      const SeqCorbaProfileDesc_t& services)
-{
+                                      const SeqCorbaProfileDesc_t& services) {
   return forwarder->childUnsubscribe(childID, services, objName);
 }
 
-CORBA::Long MasterAgentFwdrImpl::bindParent(const char * parentName)
-{
+CORBA::Long
+MasterAgentFwdrImpl::bindParent(const char * parentName) {
   return forwarder->bindParent(parentName, objName);
 }
 
-CORBA::Long MasterAgentFwdrImpl::disconnect()
-{
+CORBA::Long
+MasterAgentFwdrImpl::disconnect() {
   return forwarder->disconnect(objName);
 }
 
-CORBA::Long MasterAgentFwdrImpl::removeElement(bool recursive)
-{
+CORBA::Long
+MasterAgentFwdrImpl::removeElement(bool recursive) {
   return forwarder->removeElement(recursive, objName);
 }
-#endif /* HAVE_DYNAMICS */
 
 CORBA::Long
 MasterAgentFwdrImpl::addServices(CORBA::ULong myID,
-                                 const SeqCorbaProfileDesc_t& services)
-{
+                                 const SeqCorbaProfileDesc_t& services) {
   return forwarder->addServices(myID, services, objName);
 }
 
 CORBA::Long
 MasterAgentFwdrImpl::childRemoveService(CORBA::ULong childID,
-                                        const corba_profile_desc_t& profile)
-{
+                                        const corba_profile_desc_t& profile) {
   return forwarder->childRemoveService(childID, profile, objName);
 }
 
-char* MasterAgentFwdrImpl::getDataManager() {
+char*
+MasterAgentFwdrImpl::getDataManager() {
   return forwarder->getDataManager(objName);
 }
 
-void MasterAgentFwdrImpl::getResponse(const corba_response_t& resp)
-{
+void
+MasterAgentFwdrImpl::getResponse(const corba_response_t& resp) {
   forwarder->getResponse(resp, objName);
 }
 
-CORBA::Long MasterAgentFwdrImpl::ping()
-{
+CORBA::Long
+MasterAgentFwdrImpl::ping() {
   return forwarder->ping(objName);
 }
 
-char* MasterAgentFwdrImpl::getHostname()
-{
+char*
+MasterAgentFwdrImpl::getHostname() {
   return forwarder->getHostname(objName);
 }
 

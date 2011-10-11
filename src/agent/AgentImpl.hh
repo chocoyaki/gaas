@@ -200,7 +200,6 @@ public:
   serverSubscribe(const char* me, const char* hostName,
                   const SeqCorbaProfileDesc_t& services);
 
-#ifdef HAVE_DYNAMICS
   /** Unsubscribe a child. Remotely called by an SeD. */
   virtual CORBA::Long
   childUnsubscribe(CORBA::ULong childID,
@@ -216,7 +215,6 @@ public:
   removeElementChildren(bool recursive);
   virtual void
   removeElementClean(bool recursive);
-#endif // HAVE_DYNAMICS
 
   /** Add services into the service table, and attach them to child me.*/
   virtual CORBA::Long
@@ -344,13 +342,13 @@ public:
   virtual CORBA::Long
   serverSubscribe(const char* me, const char* hostName,
                   const SeqCorbaProfileDesc_t& services);
-#ifdef HAVE_DYNAMICS
   virtual CORBA::Long
   childUnsubscribe(CORBA::ULong childID,
                    const SeqCorbaProfileDesc_t& services);
 
-  virtual CORBA::Long removeElement(bool recursive);
-#endif // HAVE_DYNAMICS
+  virtual CORBA::Long
+  removeElement(bool recursive);
+
   virtual CORBA::Long
   childRemoveService(CORBA::ULong childID,
                      const corba_profile_desc_t& profile);
@@ -377,4 +375,4 @@ protected:
   Forwarder_ptr forwarder;
   char* objName;
 };
-#endif // _AGENTIMPL_HH_
+#endif  // _AGENTIMPL_HH_

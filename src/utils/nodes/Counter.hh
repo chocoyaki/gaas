@@ -67,7 +67,7 @@
 
 class Counter {
 
-private :
+private:
   
   /**
    * The counter value.
@@ -79,7 +79,7 @@ private :
    */
   mutable omni_mutex    valueMutex;
 
-public :
+public:
   
   /**
    * Creates a new Counter initialized with the value \c n. If no
@@ -89,7 +89,7 @@ public :
    * @param n the initial value of the counter. It must be positive or
    * null.
    */
-  Counter(CORBA::ULong n=0)  : value(n) {}
+  Counter(CORBA::ULong n = 0)  : value(n) {}
 
   /**
    * Creates a copy of the counter given in arguments.
@@ -154,4 +154,4 @@ public :
 
 };
 
-#endif // _COUNTER_HH_
+#endif  // _COUNTER_HH_

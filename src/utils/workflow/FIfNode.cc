@@ -70,7 +70,7 @@ FIfNode::newPort(string portId,
                  unsigned int ind,
                  WfPort::WfPortType portType,
                  WfCst::WfDataType dataType,
-                 unsigned int depth) throw (WfStructException) {
+                 unsigned int depth) throw(WfStructException) {
 
   WfPort * p = NULL;
   switch (portType) {
@@ -108,13 +108,13 @@ FIfNode::newPort(string portId,
 
 void
 FIfNode::setCondition(const string& conditionStr)
-  throw (WfStructException) {
+  throw(WfStructException) {
   myCondition->setExpression(conditionStr);
   checkCondition();
 }
 
 void
-FIfNode::checkCondition() throw (WfStructException) {
+FIfNode::checkCondition() throw(WfStructException) {
   // init variables table
   if (myConditionVars != NULL)  delete myConditionVars;
   myConditionVars = new vector<WfExprVariable*>(getPortNb(), NULL);
@@ -150,7 +150,7 @@ FIfNode::checkCondition() throw (WfStructException) {
 
 void
 FIfNode::setThenMap(const string& leftPortName,
-                    const string& rightPortName) throw (WfStructException) {
+                    const string& rightPortName) throw(WfStructException) {
   FNodeOutPort* outPort = checkAssignPort<FNodeOutPort>(leftPortName);
   if (rightPortName != "VOID") {
     myThenMap.mapPorts(outPort, checkAssignPort<FNodeInPort>(rightPortName));
@@ -161,7 +161,7 @@ FIfNode::setThenMap(const string& leftPortName,
 
 void
 FIfNode::setElseMap(const string& leftPortName,
-                    const string& rightPortName) throw (WfStructException) {
+                    const string& rightPortName) throw(WfStructException) {
   FNodeOutPort* outPort = checkAssignPort<FNodeOutPort>(leftPortName);
   if (rightPortName != "VOID") {
     myElseMap.mapPorts(outPort, checkAssignPort<FNodeInPort>(rightPortName));
@@ -234,7 +234,7 @@ FMergeNode::newPort(string portId,
                     unsigned int ind,
                     WfPort::WfPortType portType,
                     WfCst::WfDataType dataType,
-                    unsigned int depth) throw (WfStructException) {
+                    unsigned int depth) throw(WfStructException) {
   WfPort * p = NULL;
   switch (portType) {
   case WfPort::PORT_IN:
@@ -314,7 +314,7 @@ FFilterNode::newPort(string portId,
                      unsigned int ind,
                      WfPort::WfPortType portType,
                      WfCst::WfDataType dataType,
-                     unsigned int depth) throw (WfStructException) {
+                     unsigned int depth) throw(WfStructException) {
   WfPort * p = NULL;
   switch (portType) {
   case WfPort::PORT_IN:

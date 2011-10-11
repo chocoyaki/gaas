@@ -90,7 +90,7 @@ main(int argc, char* argv[], char* envp[]) {
   DIETForwarder* forwarder;
   try {
     forwarder = new DIETForwarder(cfg.getName());
-  } catch (exception &e) {
+  } catch (std::exception &e) {
     ERROR(e.what(), EXIT_FAILURE);
   }
   ORBMgr::init(argc, argv);

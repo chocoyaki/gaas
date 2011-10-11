@@ -134,7 +134,7 @@ JobQueue::getActiveJobTable(jobVector_t& jobVector) {
   this->myLock.lock();        /** LOCK */
   jobVector = (diet_job_t *) malloc(sizeof(diet_job_t) * this->nbActiveJobs);
   map<int, diet_job_t>::iterator p = myJobs.begin();
-  int nbJobs=0;
+  int nbJobs = 0;
   while (nbJobs < this->nbActiveJobs && p != myJobs.end()) {
     diet_job_t job = p->second;
     // add job in the output vector only if active (ie waiting or running)
@@ -157,7 +157,7 @@ JobQueue::estimateEFTwithFIFOSched() {
 
   // initialize EFT=>processor map
   multimap<double, int> procMap;
-  for (int i=0; i<nbProc; ++i)
+  for (int i = 0; i<nbProc; ++i)
     procMap.insert(make_pair(0,0));
 
   // initialize current time

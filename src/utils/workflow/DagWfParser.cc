@@ -1302,7 +1302,7 @@ DataSourceParser::~DataSourceParser() {
 }
 
 void
-DataSourceParser::parseXml(const string& dataFileName) throw (XMLParsingException) {
+DataSourceParser::parseXml(const string& dataFileName) throw(XMLParsingException) {
   //   const XMLCh gLS[] = { chLatin_L, chLatin_S, chNull };
 
   TRACE_TEXT(TRACE_ALL_STEPS, "PARSING XML START" << endl);
@@ -1648,11 +1648,11 @@ DagWfParser::stringTrim(string& str) {
 }
 
 /**
- * Parse an assignment string (eg 'portA=portB; portC=VOID;')
+ * Parse an assignment string (eg 'portA = portB; portC = VOID;')
  */
 void
 DagWfParser::getPortMap(const string& thenMapStr,
-                        map<string,string>& thenMap) throw (XMLParsingException) {
+                        map<string,string>& thenMap) throw(XMLParsingException) {
   string::size_type startPos = 0;
   string mapStr = thenMapStr;
   stringTrim(mapStr);

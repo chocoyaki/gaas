@@ -95,7 +95,6 @@ interface Agent {
                        in string hostname,
                        in SeqCorbaProfileDesc_t services);
 
-#ifdef HAVE_DYNAMICS
   /** Sends a request to the agent to commit suicide.
    * If "recursive" is true, then the agent forwards the request
    * to its children.
@@ -109,7 +108,6 @@ interface Agent {
    */
   long childUnsubscribe(in unsigned long childID,
 			in SeqCorbaProfileDesc_t services);
-#endif // HAVE_DYNAMICS
 
   /**
    * Invoked by SeDImpl::removeService(...) after removing a service

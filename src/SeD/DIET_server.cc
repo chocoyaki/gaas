@@ -294,9 +294,7 @@
 #include "MonitoringThread.hh"
 #endif
 
-#if HAVE_CORI
 #include "CORIMgr.hh"
-#endif //HAVE_CORI
 
 #include "DagdaImpl.hh"
 #include "DagdaFactory.hh"
@@ -320,7 +318,7 @@ static ServiceTable* SRVT;
 static SeDImpl * sedImpl = NULL;
 
 #ifdef HAVE_ALT_BATCH
-static diet_server_status_t st=SERIAL;
+static diet_server_status_t st = SERIAL;
 #endif
 
 int
@@ -931,13 +929,11 @@ diet_SeD(const char* config_file_name, int argc, char* argv[]) {
   /* Wait for RPCs : */
   ORBMgr::getMgr()->wait();
 
-#ifdef HAVE_DYNAMICS
   signal(SIGINT, SIG_IGN);
   signal(SIGTERM, SIG_IGN);
   SeD->removeElementClean();
   signal(SIGINT, SIG_DFL);
   signal(SIGTERM, SIG_DFL);
-#endif // HAVE_DYNAMICS
 
   /* shutdown and destroy the ORB
    * Servants will be deactivated and deleted automatically */
@@ -1191,7 +1187,6 @@ diet_est_array_defined_system(estVectorConst_t ev, int systemTag, int idx) {
                                          idx);
 }
 
-#if HAVE_CORI
 #ifdef HAVE_ALT_BATCH
 /* These two functions shall be removed and a better mechanism found
  * for example vhen and if CoRI is rewritten.
@@ -1205,7 +1200,7 @@ void
 diet_destroy_estVect( estVector_t perfVect ) {
   delete perfVect;
 }
-#endif // HAVE_ALT_BATCH
+#endif  // HAVE_ALT_BATCH
 
 int
 diet_estimate_cori(estVector_t ev,
@@ -1296,7 +1291,6 @@ diet_estimate_coriEasy_print() {
   /* FIXME (YC->ANY): release vec ? */
 }
 
-#endif //HAVE_CORI
 
 int
 diet_estimate_lastexec(estVector_t ev,

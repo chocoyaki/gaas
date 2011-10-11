@@ -80,7 +80,7 @@ FloodRequest & FloodRequestsList::get(const RequestID & reqID) {
       // the resource access
       //TRACE_TEXT(15,"fr get unlock" << endl);
       mutex.unlock();
-      TRACE_TEXT(20, "FloodRequestsLists sleep 10ms" << endl);
+      TRACE_TEXT(20, "FloodRequestsLists sleep 10ms\n");
       diet::usleep(10000);
     }
   }
@@ -89,4 +89,4 @@ FloodRequest & FloodRequestsList::get(const RequestID & reqID) {
   return *result;
 }
 
-#endif // HAVE_MULTI_MA
+#endif  // HAVE_MULTI_MA

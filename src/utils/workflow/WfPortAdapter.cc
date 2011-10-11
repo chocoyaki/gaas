@@ -514,7 +514,7 @@ WfMultiplePortAdapter::getSourceDataID() {
   char* idCont;
   TRACE_TEXT(TRACE_ALL_STEPS,"## Creating container to merge ports" << endl);
   dagda_create_container(&idCont);
-  int ix=0;
+  int ix = 0;
   for (list<WfPortAdapter*>::iterator iter = adapters.begin();
        iter != adapters.end();
        ++iter) {

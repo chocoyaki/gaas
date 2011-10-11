@@ -64,7 +64,7 @@ char* AdvancedDagdaComponent::sendFile(const corba_data_t &data, const char* des
   //                                            dest->getID(),
   //                                            (unsigned long) elapsed);
 
-  if (stats!=NULL && elapsed!=0) {
+  if (stats != NULL && elapsed != 0) {
     stats->addStat(string(getID()), destName,
                    ((double) data_sizeof(&data.desc))/elapsed);
     stats->addStat(string(destName), string(getID()),
@@ -94,7 +94,7 @@ char* AdvancedDagdaComponent::sendData(const char* ID, const char* destName) {
   //                                            dest->getID(),
   //                                            (unsigned long) elapsed);
 
-  if (stats!=NULL && elapsed!=0) {
+  if (stats != NULL && elapsed != 0) {
     stats->addStat(string(getID()), destName,
                    ((double) dataSize)/elapsed);
     stats->addStat(destName, string(getID()),
@@ -113,7 +113,7 @@ void AdvancedDagdaComponent::lclAddData(const char* srcName, const corba_data_t&
   } catch (Dagda::NotEnoughSpace& ex) {
     TRACE_TEXT(TRACE_ALL_STEPS, "Needs more space. Try to call the selected cache "
                << "algorithm." << endl);
-    if (mngFunction!=NULL) {
+    if (mngFunction != NULL) {
       size_t needed = data_sizeof(&data.desc);
       size_t max;
       size_t used;
@@ -164,13 +164,13 @@ char* AdvancedDagdaComponent::getBestSource(const char* dest, const char* dataID
   if (managers->length()==0)
     throw Dagda::DataNotFound(dataID);
 
-  if (stats!=NULL) {
+  if (stats != NULL) {
     TRACE_TEXT(TRACE_ALL_STEPS, "Data " << dataID << " has " <<
                managers->length() << " replica(s) on the platform." << endl);
-    double maxStat=0;
+    double maxStat = 0;
     string found = string((*managers)[0]);
 
-    for (unsigned int i=0; i<managers->length(); ++i) {
+    for (unsigned int i = 0; i<managers->length(); ++i) {
       string curMngr = string((*managers)[i]);
       double curStat = stats->getStat(string(getID()), curMngr);
       if (stats->cmpStats(curStat, maxStat)) {
@@ -242,7 +242,7 @@ void AdvancedDagdaComponent::shareData(const corba_data_t& data) {
   std::map<string,Dagda_ptr>::iterator itch;
 
   childrenMutex.lock();
-  for (itch=getChildren()->begin();itch!=getChildren()->end();)
+  for (itch = getChildren()->begin();itch != getChildren()->end();)
     try {
       (*itch).second->registerFile(data);
       ++itch;

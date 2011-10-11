@@ -30,14 +30,11 @@ interface LocalAgentFwdr : LocalAgent {
 };
 
 interface LocalAgentForwarder : AgentForwarder {
-#ifdef HAVE_DYNAMICS
   long bindParent(in string parentName,
-									in string objName)
-		raises(UnknownObject);
+                  in string objName)
+    raises(UnknownObject);
   long disconnect(in string objName)
-		raises(UnknownObject);
-#endif // HAVE_DYNAMICS
-
+    raises(UnknownObject);
 };
 
 #endif

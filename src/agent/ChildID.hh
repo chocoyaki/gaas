@@ -28,25 +28,21 @@
  */
 
 class ChildID {
-
-public :
+public:
 
   /**
    * Creates a new default ChildID with the value of -1.
    *
    * @param n the initial value of the ChildID.
    */
-  inline
-  ChildID(CORBA::Long n=-1) : value(n) {}
+  explicit ChildID(CORBA::Long n = -1) : value(n) {}
 
   /**
    * Clones a ChildID.
    *
    * @param childID the ChildID to clone
    */
-  inline
-  ChildID(const ChildID& childID)
-  {
+  ChildID(const ChildID& childID) {
     value = childID.value;
   }
 
@@ -56,15 +52,13 @@ public :
    * @param aChildID The ChildID where the value is taken.
    */
   inline ChildID&
-  operator=(const ChildID& aChildID)
-  {
+  operator=(const ChildID& aChildID) {
     value = aChildID.value;
     return *this;
   }
 
   inline ChildID&
-  operator=(const CORBA::Long& val)
-  {
+  operator=(const CORBA::Long& val) {
     value = val;
     return *this;
   }
@@ -76,14 +70,11 @@ public :
     return value;
   }
 
-
-private :
+private:
   /**
    * the value of the ChildID
    */
   CORBA::Long value;
-
-
 };
 
-#endif // _CHILD_ID_
+#endif  // _CHILD_ID_

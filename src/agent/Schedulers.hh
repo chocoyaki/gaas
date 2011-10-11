@@ -92,13 +92,12 @@ typedef int (*comp_fun_t)(int serverIdx1,
  * schedulers. It is a virtual class, since its sort method is pure virtual.
  */
 
-class Scheduler
-{
+class Scheduler {
 public:
   Scheduler();
-  virtual
-  ~Scheduler();
-  
+
+  virtual ~Scheduler();
+
   /**
    * Aggregate all servers that this scheduler can process and that are stored
    * in the \c nb_responses \c responses above the \c lastAggr indexes. The
@@ -138,19 +137,16 @@ public:
   /**
    * Return an estVector for the indicated server estimation
    */
-  static estVectorConst_t getEstVector(int sIdx,
-                                       int rIdx,
-                                       const corba_response_t* responses);
+  static estVectorConst_t
+  getEstVector(int sIdx, int rIdx, const corba_response_t* responses);
 
   /**
    * Return an estVector for the indicated server estimation, using
    * the cached value, if available
    */
-  static estVectorConst_t getEstVector(int sIdx,
-                                       int rIdx,
-                                       const corba_response_t* responses,
-                                       Vector_t evCache);
-  
+  static estVectorConst_t
+  getEstVector(int sIdx, int rIdx,
+               const corba_response_t* responses, Vector_t evCache);
 
 protected:
   const char* name;
@@ -165,119 +161,21 @@ protected:
    * @see    comp_return_t and comp_fun_t types in AggregatedServers.hh
    */
   comp_fun_t compare;
-  
+
   /** Additional information for comparison. */
   void* cmpInfo;
 };
 
-#if !HAVE_CORI 
-// scheduler FAST and NWS will be used in the next DIET version 
-// like all other schedulers: in the scheduler-plugin
-
-/**
- * This scheduler sorts servers that have performed FAST estimations, according
- * to the total needed time (comp + comm).  All servers whose total needed time
- * differ one from another of less than espilon are supposed to be equal : thus,
- * they are sorted randomly.
- * The test for "server has performed FAST estimations" is tComp < HUGE_VAL ...
- *
- * NB: if epsilon is 0 (default), then the random sorting is performed on
- * servers that have estimated exactly the same needed time, which should be
- * very rare.
- */
-
-class FASTScheduler : public Scheduler
-{
-public:
-  static const char*  stName;
-
-  FASTScheduler();
-  FASTScheduler(double epsilon);
-  virtual
-  ~FASTScheduler();
-
-  /**
-   * Return the serialized FAST scheduler (a string)
-   * NB: doubles are serialized with a precision of 10 significant decimals.
-   */
-  static char*
-  serialize(FASTScheduler* S);
-  
-  /**
-   * Return the FASTScheduler deserialized from the string
-   * \c serializedScheduler.
-   */
-  static FASTScheduler*
-  deserialize(const char* serializedScheduler);
-
-private:
-  double epsilon;
-};
-
-
-/**
- * This scheduler sorts servers that have performed NWS estimations, according
- * to a polynomial expression of available CPU, available memory and
- * communication time :
- *    (comm time)^commPower / ((av. CPU)^CPUPower * (av. mem)^memPower)
- * The test for "server has performed NWS estimation" is freeCPU >= 0 ...
- *
- * NB: if epsilon is 0 (default), then the random sorting is performed on
- * servers that have estimated exactly the same needed time, which should be
- * very rare.
- */
-
-class NWSScheduler : public Scheduler
-{
-public:
-  static const char*  stName;
-
-  typedef struct {
-    double CPUPower;
-    double memPower;
-    double commPower;
-  } weight_info_t;
-
-  NWSScheduler();
-  NWSScheduler(double CPUPower, double memPower, double commPower);
-  NWSScheduler(double epsilon,
-               double CPUPower, double memPower, double commPower);
-  virtual
-  ~NWSScheduler();
-
-  /**
-   * Return the serialized NWS scheduler (a string)
-   * NB: doubles are serialized with a precision of 10 significant decimals.
-   */
-  static char*
-  serialize(NWSScheduler* S);
-  
-  /**
-   * Return the NWSScheduler deserialized from the string
-   * \c serializedScheduler.
-   */
-  static NWSScheduler*
-  deserialize(const char* serializedScheduler);
-
-private:
-  double epsilon;
-  weight_info_t wi;
-};
-#endif //!HAVE_CORI
-
 /**
  * This scheduler randomly sorts all servers that have no information filled in.
  */
-
-class RandScheduler : public Scheduler
-{
+class RandScheduler : public Scheduler {
 public:
-  static const char*  stName;
-
   RandScheduler();
-  RandScheduler(unsigned int seed);
-  virtual
-  ~RandScheduler();
+
+  explicit RandScheduler(unsigned int seed);
+
+  virtual ~RandScheduler();
 
   /**
    * Return the serialized Rand scheduler (a string)
@@ -285,7 +183,7 @@ public:
    */
   static char*
   serialize(RandScheduler* S);
-  
+
   /**
    * Return the RandScheduler deserialized from the string
    * \c serializedScheduler.
@@ -293,20 +191,20 @@ public:
   static RandScheduler*
   deserialize(const char* serializedScheduler);
 
+  static const char*  stName;
+
 private:
   unsigned int seed;
 };
 
 
-class RRScheduler : public Scheduler
-{
+class RRScheduler : public Scheduler {
 public:
-  static const char*  stName;
-
   RRScheduler();
-  RRScheduler(unsigned int seed);
-  virtual
-  ~RRScheduler();
+
+  explicit RRScheduler(unsigned int seed);
+
+  virtual ~RRScheduler();
 
   /**
    * Return the serialized RR scheduler (a string)
@@ -314,7 +212,7 @@ public:
    */
   static char*
   serialize(RRScheduler* S);
-  
+
   /**
    * Return the RRScheduler deserialized from the string
    * \c serializedScheduler.
@@ -322,18 +220,17 @@ public:
   static RRScheduler*
   deserialize(const char* serializedScheduler);
 
+  static const char*  stName;
+
 private:
   unsigned int seed;
 };
 
-class MinScheduler : public Scheduler
-{
+class MinScheduler : public Scheduler {
 public:
-  static const char*  stName;
+  explicit MinScheduler(int tagval);
 
-  MinScheduler(int tagval);
-  virtual
-  ~MinScheduler();
+  virtual ~MinScheduler();
 
   /**
    * Return the serialized Min scheduler (a string)
@@ -341,7 +238,7 @@ public:
    */
   static char*
   serialize(MinScheduler* S);
-  
+
   /**
    * Return the MinScheduler deserialized from the string
    * \c serializedScheduler.
@@ -349,18 +246,17 @@ public:
   static MinScheduler*
   deserialize(const char* serializedScheduler);
 
+  static const char* stName;
+
 private:
   int tagval;
 };
 
-class MaxScheduler : public Scheduler
-{
+class MaxScheduler : public Scheduler {
 public:
-  static const char*  stName;
+  explicit MaxScheduler(int tagval);
 
-  MaxScheduler(int tagval);
-  virtual
-  ~MaxScheduler();
+  virtual ~MaxScheduler();
 
   /**
    * Return the serialized Max scheduler (a string)
@@ -368,7 +264,7 @@ public:
    */
   static char*
   serialize(MaxScheduler* S);
-  
+
   /**
    * Return the MaxScheduler deserialized from the string
    * \c serializedScheduler.
@@ -376,12 +272,13 @@ public:
   static MaxScheduler*
   deserialize(const char* serializedScheduler);
 
+  static const char* stName;
+
 private:
   int tagval;
 };
 
-class PriorityScheduler : public Scheduler
-{
+class PriorityScheduler : public Scheduler {
 public:
   class priorityList {
   public:
@@ -392,8 +289,8 @@ public:
   static const char*  stName;
 
   PriorityScheduler(int numValues, int *values);
-  virtual
-  ~PriorityScheduler();
+
+  virtual ~PriorityScheduler();
 
   /**
    * Return the serialized Max scheduler (a string)
@@ -401,7 +298,7 @@ public:
    */
   static char*
   serialize(PriorityScheduler* S);
-  
+
   /**
    * Return the PriorityScheduler deserialized from the string
    * \c serializedScheduler.
@@ -413,4 +310,4 @@ private:
   PriorityScheduler::priorityList pl;
 };
 
-#endif // _SCHEDULERS_HH_
+#endif  // _SCHEDULERS_HH_

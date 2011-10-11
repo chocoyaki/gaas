@@ -46,4 +46,4 @@ private:
   static AgentImpl* agent;
 };
 
-#endif // _EXITCLASS_HH_
+#endif  // _EXITCLASS_HH_

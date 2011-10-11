@@ -65,7 +65,7 @@ DIETForwarder::getObjectCache(const std::string& name) {
   std::map<std::string, ::CORBA::Object_ptr>::iterator it;
 
   cachesMutex.lock();
-  if ((it=objectCache.find(name))!=objectCache.end()) {
+  if ((it = objectCache.find(name))!=objectCache.end()) {
     cachesMutex.unlock();
     return CORBA::Object::_duplicate(it->second);
   }
@@ -442,7 +442,6 @@ DIETForwarder::getHostname(const char* objName) {
   throw BadNameException(objString.c_str(), __FUNCTION__, getName());
 }
 
-#ifdef HAVE_DYNAMICS
 ::CORBA::Long
 DIETForwarder::bindParent(const char* parentName, const char* objName) {
   std::string objString(objName);
@@ -538,7 +537,6 @@ DIETForwarder::removeElement(::CORBA::Boolean recursive, const char* objName) {
   }
   throw BadNameException(objString.c_str(), __FUNCTION__, getName());
 }
-#endif
 
 
 void
@@ -652,7 +650,7 @@ DIETForwarder::removeObjectFromCache(const std::string& name) {
   std::map<std::string, PortableServer::ServantBase*>::iterator jt;
   /* If the object is in the servant cache. */
   cachesMutex.lock();
-  if ((jt=servants.find(name))!=servants.end()) {
+  if ((jt = servants.find(name))!=servants.end()) {
     /* - Deactivate object. */
     try {
       ORBMgr::getMgr()->deactivate(jt->second);
@@ -665,7 +663,7 @@ DIETForwarder::removeObjectFromCache(const std::string& name) {
     servants.erase(jt);
   }
   /* Remove the object from the cache. */
-  if ((it=objectCache.find(name))!=objectCache.end())
+  if ((it = objectCache.find(name))!=objectCache.end())
     objectCache.erase(it);
   cachesMutex.unlock();
 }
@@ -678,7 +676,7 @@ DIETForwarder::cleanCaches() {
   std::list<std::string>::const_iterator jt;
 
   cachesMutex.lock();
-  for (it=objectCache.begin(); it!=objectCache.end(); ++it) {
+  for (it = objectCache.begin(); it != objectCache.end(); ++it) {
     try {
       Forwarder_var object = Forwarder::_narrow(it->second);
       object->getName();
@@ -687,7 +685,7 @@ DIETForwarder::cleanCaches() {
     }
   }
   cachesMutex.unlock();
-  for (jt=invalidObjects.begin(); jt!=invalidObjects.end(); ++jt)
+  for (jt = invalidObjects.begin(); jt != invalidObjects.end(); ++jt)
     removeObjectFromCache(*jt);
 }
 

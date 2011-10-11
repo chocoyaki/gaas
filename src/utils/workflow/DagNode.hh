@@ -196,7 +196,7 @@ public:
   WfPort *
   newPort(string portId, unsigned int ind,
           WfPort::WfPortType portType, WfCst::WfDataType dataType,
-          unsigned int depth) throw (WfStructException);
+          unsigned int depth) throw(WfStructException);
 
   /**
    * Add a new predecessor
@@ -279,7 +279,7 @@ public:
    * create the diet profile associated to the node (CLIENT) *
    */
   void
-  initProfileExec() throw (WfDataException);
+  initProfileExec() throw(WfDataException);
 
   /**
    * Store the persistent data IDs from profile to node
@@ -704,4 +704,4 @@ private:
 
 };
 
-#endif // _DAGNODE_HH_
+#endif  // _DAGNODE_HH_

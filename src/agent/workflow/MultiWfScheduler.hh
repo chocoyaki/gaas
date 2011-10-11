@@ -116,8 +116,9 @@
 #ifndef _MULTIWFSCHEDULER_HH_
 #define _MULTIWFSCHEDULER_HH_
 
+#include <list>
 #include <map>
-
+#include <string>
 #include "WfScheduler.hh"
 #include "CltMan.hh"
 #include "MasterAgent.hh"
@@ -137,10 +138,6 @@ class NodeRun;
 class DagState;
 
 class MultiWfScheduler : public Thread, public DagScheduler {
-
-  friend class MultiWfBasicScheduler;
-  friend class MaDagNodeLauncher;
-
 public:
   /**
    * Selector for node priority policy:
@@ -213,7 +210,7 @@ public:
    */
   virtual void
   scheduleNewDag(Dag * newDag, MetaDag * metaDag = NULL)
-    throw (MaDag::ServiceNotFound, MaDag::CommProblem);
+    throw(MaDag::ServiceNotFound, MaDag::CommProblem);
 
   /**
    * Execution method
@@ -246,7 +243,7 @@ protected:
    * (will not find a completed dag except if part of a non-completed metaDag)
    */
   Dag *
-  getDag(const string& dagId) throw (MaDag::InvalidDag);
+  getDag(const string& dagId) throw(MaDag::InvalidDag);
 
   /**
    * Get the MetaDag of a given dag
@@ -259,14 +256,14 @@ protected:
    */
   wf_response_t *
   getProblemEstimates(Dag * dag, MasterAgent_var MA)
-    throw (MaDag::ServiceNotFound, MaDag::CommProblem);
+    throw(MaDag::ServiceNotFound, MaDag::CommProblem);
 
   /**
    * Call MA to get server estimations for one node
    */
   wf_response_t *
   getProblemEstimates(DagNode * node, MasterAgent_var MA)
-    throw (MaDag::ServiceNotFound, MaDag::CommProblem);
+    throw(MaDag::ServiceNotFound, MaDag::CommProblem);
 
   /**
    * internal dag scheduling
@@ -278,7 +275,7 @@ protected:
    */
   virtual void
   intraDagSchedule(Dag * dag, MasterAgent_var MA)
-    throw (MaDag::ServiceNotFound, MaDag::CommProblem);
+    throw(MaDag::ServiceNotFound, MaDag::CommProblem);
 
   /**
    * create a new node queue based on a dag
@@ -379,12 +376,12 @@ protected:
    * DagNode queues for waiting nodes
    * (key = ref of ready queue)
    */
-  map<NodeQueue *,ChainedNodeQueue *> waitingQueues;
+  std::map<NodeQueue *, ChainedNodeQueue *> waitingQueues;
 
   /**
    * DagNode queues for ready nodes
    */
-  list<OrderedNodeQueue *> readyQueues;
+  std::list<OrderedNodeQueue *> readyQueues;
 
   /**
    * DagNode queue for nodes to be executed
@@ -394,7 +391,7 @@ protected:
   /**
    * Store the nodes HEFT priority
    */
-  map<DagNode*,double> nodesHEFTPrio;
+  std::map<DagNode*, double> nodesHEFTPrio;
 
   /**
    * Selector for node priority policy
@@ -421,21 +418,21 @@ protected:
    * FIFO list for semaphore post information
    */
   typedef struct {
-    bool      isNewDag;
-    DagNode * nodeRef;
+    bool isNewDag;
+    DagNode *nodeRef;
   } wakeUpInfo_t;
 
-  list<wakeUpInfo_t>  myWakeUpList;
+  std::list<wakeUpInfo_t>  myWakeUpList;
 
   /**
    * Semaphore for access to WakeUpList and DagsTermList
    */
-  omni_mutex  myWakeUpLock;
+  omni_mutex myWakeUpLock;
 
   /**
    * MAP for dag termination
    */
-  list<string> myDagsTermList;
+  std::list<std::string> myDagsTermList;
 
   /**
    * Inter-round delay (used to separate DIET submits)
@@ -444,6 +441,8 @@ protected:
   int interRoundDelay;
 
 private:
+  friend class MultiWfBasicScheduler;
+  friend class MaDagNodeLauncher;
 
   /**
    * MaDag reference
@@ -458,18 +457,17 @@ private:
   /**
    * Map dag id => metadag ref (only if dag belongs to metadag)
    */
-  map<string,MetaDag*>  myMetaDags;
+  std::map<std::string, MetaDag*>  myMetaDags;
 
   /**
    * Map dag id => dag ptr (for all dags)
    */
-  map<string,Dag*>  myDags;
+  std::map<std::string, Dag*>  myDags;
 
   /**
    * Should the thread keep on running?
    */
   bool keepOnRunning;
-
 };  // end class MultiWfScheduler
 
 
@@ -509,10 +507,8 @@ public:
    * Used by FOFT
    */
   double slowdown;
-
 };  // end class DagState
-
-} // end namespace madag
+}  // end namespace madag
 
 #endif   /* not defined _ABSWFMETASCHED_HH */
 

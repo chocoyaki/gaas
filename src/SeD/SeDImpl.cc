@@ -333,22 +333,16 @@
  * manipulation calls to the new interface
  ****************************************************************************/
 
-#include <iostream>
-using namespace std;
 #include <cmath>
+#include <csignal>
 #include <cstring>
 #include <cstdlib>
+#include <iostream>
+#include <sstream>
 #include <unistd.h>   // For gethostname()
 #include <ctime>
 #include <sys/types.h>
 
-
-#include <sstream>
-
-
-#ifdef HAVE_DYNAMICS
-#include <csignal>
-#endif // HAVE_DYNAMICS
 
 /* CLEAN ME: this was a hilarious pun except that slimfast_api.h is nowhere
    to be found. The Changelog file of package fast-0.8.7 simply mentions:
@@ -364,7 +358,7 @@ using namespace std;
    be simply removed ? Anyone knows better ?   --- Injay2461
    #if HAVE_FAST
    #include "slimfast_api.h"
-   #endif // HAVE_FAST
+   #endif  // HAVE_FAST
 */
 
 #include "SeDImpl.hh"
@@ -373,9 +367,7 @@ using namespace std;
 #include "debug.hh"
 #include "est_internal.hh"
 
-#if HAVE_CORI
 #include "CORIMgr.hh"
-#endif //HAVE_CORI
 
 #include "marshalling.hh"
 #include "ORBMgr.hh"
@@ -445,8 +437,6 @@ SeDImpl::~SeDImpl() {
   stat_finalize();
 }
 
-
-#ifdef HAVE_DYNAMICS
 /* Method to disconnect from the parent */
 CORBA::Long
 SeDImpl::disconnect() {
@@ -611,8 +601,6 @@ SeDImpl::removeElementClean() {
 #endif
 }
 
-#endif // HAVE_DYNAMICS
-
 
 int
 SeDImpl::run(ServiceTable* services) {
@@ -663,11 +651,7 @@ SeDImpl::run(ServiceTable* services) {
 
   std::string parent_name;
   if (!CONFIG_STRING(diet::PARENTNAME, parent_name)) {
-#ifndef HAVE_DYNAMICS
     return 1;
-#else
-    WARNING("no parent specified, will now wait");
-#endif // HAVE_DYNAMICS
   }
 
   try {
@@ -678,26 +662,20 @@ SeDImpl::run(ServiceTable* services) {
   }
 
   if (CORBA::is_nil(parent)) {
-#ifndef HAVE_DYNAMICS
-    ERROR("cannot locate agent " << parent_name, 1);
-#else
     WARNING("cannot locate agent " << parent_name << ", will now wait");
-#endif // HAVE_DYNAMICS
   }
 
   profiles = SrvT->getProfiles();
 
 #ifdef USE_LOG_SERVICE
   if (dietLogComponent != NULL) {
-    for (CORBA::ULong i=0; i<profiles->length(); i++) {
+    for (CORBA::ULong i = 0; i<profiles->length(); i++) {
       dietLogComponent->logAddService(&((*profiles)[i]));
     }
   }
-#endif // USE_LOG_SERVICE
+#endif  // USE_LOG_SERVICE
 
-#ifdef HAVE_DYNAMICS
   if (! CORBA::is_nil(parent)) {
-#endif // HAVE_DYNAMICS
     try {
       TRACE_TEXT(TRACE_ALL_STEPS, "parent->serverSubscribe(" << this->myName
                  << ", " << localHostName << ", *profiles)" << endl);
@@ -715,9 +693,8 @@ SeDImpl::run(ServiceTable* services) {
     if (childID < 0) {
       ERROR(__FUNCTION__ << ": error subscribing server", 1);
     }
-#ifdef HAVE_DYNAMICS
   } // end: if (! CORBA::is_nil(parent))
-#endif // HAVE_DYNAMICS
+
   delete profiles;
 
   // FIXME: How can I get the port used by the ORB ? and is it useful ?
@@ -755,15 +732,12 @@ SeDImpl::run(ServiceTable* services) {
     SrvT->dump(stdout);
   }
 
-#if HAVE_CORI
   return CORIMgr::startCollectors();
-#endif //HAVE_CORI
-
 } // end: run
 
 void
 SeDImpl::setDataManager(DagdaImpl* dataManager) {
-  this->dataManager=dataManager;
+  this->dataManager = dataManager;
 }
 
 #ifdef USE_LOG_SERVICE
@@ -781,9 +755,7 @@ SeDImpl::getRequest(const corba_request_t& creq)
 {
   corba_response_t resp;
   char statMsg[128];
-#ifdef HAVE_DYNAMICS
   Agent_var parentTmp = this->parent;
-#endif // HAVE_DYNAMICS
 
 #ifdef HAVE_ALT_BATCH
   const char * jobSpec;
@@ -862,11 +834,7 @@ SeDImpl::getRequest(const corba_request_t& creq)
   */
   stat_out("SeD",statMsg);
 
-#ifndef HAVE_DYNAMICS
-  parent->getResponse(resp);
-#else
   parentTmp->getResponse(resp);
-#endif
 }
 
 CORBA::Long
@@ -905,7 +873,7 @@ void persistent_data_release(corba_data_t* arg) {
   case DIET_STRING: {
     corba_string_specific_t str;
 
-    str.length=0;
+    str.length = 0;
     arg->desc.specific.str(str);
     arg->desc.specific.str().length = 0;
     break;
@@ -1160,7 +1128,7 @@ SeDImpl::parallel_solve(const char* path, corba_profile_t& pb,
 
   return solve_res;
 }
-#endif //HAVE_ALT_BATCH
+#endif  //HAVE_ALT_BATCH
 
 void
 SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
@@ -1399,7 +1367,7 @@ SeDImpl::parallel_AsyncSolve(const char * path, const corba_profile_t & pb,
         }
       }
       removeBatchID(pb.dietReqID);
-#endif // HAVE_ALT_BATCH
+#endif  // HAVE_ALT_BATCH
 
       uploadAsyncSeDData(profile,  const_cast<corba_profile_t&>(pb), cvt);
 
@@ -1451,7 +1419,7 @@ SeDImpl::parallel_AsyncSolve(const char * path, const corba_profile_t & pb,
     //     ERROR("unknown exception caught",);
   }
 }
-#endif // HAVE_ALT_BATCH
+#endif  // HAVE_ALT_BATCH
 
 /******************************** Data Management ***************************/
 const struct timeval*
@@ -1516,8 +1484,6 @@ SeDImpl::estimate(corba_estimation_t& estimation,
         the moment when Cori is installed*/
 
     /***** START CoRI-based metrics *****/
-#if HAVE_CORI //dummy values
-
 #ifdef HAVE_ALT_BATCH
     /* TODO:
        - If Batch, we have to make a RR that is more robust than
@@ -1568,10 +1534,7 @@ SeDImpl::estimate(corba_estimation_t& estimation,
     diet_est_set_internal(eVals, EST_FREECPU, 0);
     diet_est_set_internal(eVals, EST_FREEMEM, 0);
     diet_est_set_internal(eVals, EST_NBCPU, 1);
-#endif // HAVE_ALT_BATCH
-
-#endif  //!HAVE_CORI
-
+#endif  // HAVE_ALT_BATCH
 
     diet_est_set_internal(eVals,
                           EST_TOTALTIME,
@@ -1668,7 +1631,7 @@ SeDImpl::uploadAsyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
 
   /* Free data */
 #if 0
-  for(i=0;i<pb.last_out;i++)
+  for(i = 0;i<pb.last_out;i++)
     if(!diet_is_persistent(profile.parameters[i])) {
       // FIXME : adding file test
       CORBA::Char *p1 (NULL);
@@ -1681,8 +1644,7 @@ SeDImpl::uploadAsyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
 
 inline void
 SeDImpl::uploadSyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
-                           diet_convertor_t* cvt)
-{
+                           diet_convertor_t* cvt) {
   TRACE_TIME(TRACE_MAIN_STEPS, "SeD uploads client datas" << endl);
 
   dagda_upload_data(profile, pb);
@@ -1694,31 +1656,15 @@ SeDImpl::getBatch()
 {
   return batch;
 }
-
-// int
-// diet_submit_parallel(diet_profile_t * profile, const char * command)
-// {
-//   return batch->diet_submit_parallel(profile, command);
-// }
-// int
-// diet_concurrent_submit_parallel(int batchJobID, diet_profile_t * profile,
-//                      const char * command)
-// {
-//   return batch->diet_submit_parallel(batchJobID, profile,
-//                                   command);
-// }
 #endif
 
 
 int
-SeDImpl::removeService(const diet_profile_t* const profile)
-{
+SeDImpl::removeService(const diet_profile_t* const profile) {
   int res = 0;
   corba_profile_desc_t corba_profile;
   diet_profile_desc_t profileDesc;
-#ifdef HAVE_DYNAMICS
   Agent_var parentTmp = this->parent;
-#endif // HAVE_DYNAMICS
 
   if (profile == NULL) {
     ERROR(__FUNCTION__ << ": NULL profile", -1);
@@ -1755,25 +1701,17 @@ SeDImpl::removeService(const diet_profile_t* const profile)
   if ((res = this->SrvT->rmService(&corba_profile)) != 0)
     return res;
 
-#ifndef HAVE_DYNAMICS
-  res = parent->childRemoveService(this->childID, corba_profile);
-#else
   res = parentTmp->childRemoveService(this->childID, corba_profile);
-#endif // HAVE_DYNAMICS
 
   return res;
 }
 
 
 int
-SeDImpl::removeServiceDesc(const diet_profile_desc_t* profile)
-{
+SeDImpl::removeServiceDesc(const diet_profile_desc_t* profile) {
   int res = 0;
   corba_profile_desc_t corba_profile;
-#ifdef HAVE_DYNAMICS
   Agent_var parentTmp = this->parent;
-#endif // HAVE_DYNAMICS
-
 
   if (profile == NULL) {
     ERROR(__FUNCTION__ << ": NULL profile", -1);
@@ -1791,19 +1729,14 @@ SeDImpl::removeServiceDesc(const diet_profile_desc_t* profile)
   if ((res = this->SrvT->rmService(&corba_profile)) != 0)
     return res;
 
-#ifndef HAVE_DYNAMICS
-  res = parent->childRemoveService(this->childID, corba_profile);
-#else
   res = parentTmp->childRemoveService(this->childID, corba_profile);
-#endif // HAVE_DYNAMICS
 
   return res;
 }
 
 
 int
-SeDImpl::addService(const corba_profile_desc_t& profile)
-{
+SeDImpl::addService(const corba_profile_desc_t& profile) {
   SeqCorbaProfileDesc_t profiles;
   ServiceTable::ServiceReference_t sref = this->SrvT->lookupService(&profile);
   profiles.length(1);
@@ -1847,7 +1780,6 @@ CORBA::Long SeDFwdrImpl::ping() {
   return forwarder->ping(objName);
 }
 
-#ifdef HAVE_DYNAMICS
 CORBA::Long SeDFwdrImpl::bindParent(const char * parentName) {
   return forwarder->bindParent(parentName, objName);
 }
@@ -1860,14 +1792,12 @@ CORBA::Long SeDFwdrImpl::removeElement() {
   return forwarder->removeElement(false, objName);
 }
 
-#endif
 void SeDFwdrImpl::getRequest(const corba_request_t& req) {
   return forwarder->getRequest(req, objName);
 }
 
 CORBA::Long SeDFwdrImpl::checkContract(corba_estimation_t& estimation,
-                                       const corba_pb_desc_t& pb)
-{
+                                       const corba_pb_desc_t& pb) {
   return forwarder->checkContract(estimation, pb, objName);
 }
 
@@ -1880,8 +1810,7 @@ CORBA::Long SeDFwdrImpl::solve(const char* pbName, corba_profile_t& pb) {
 }
 
 void SeDFwdrImpl::solveAsync(const char* pb_name, const corba_profile_t& pb,
-                             const char * volatileclientIOR)
-{
+                             const char * volatileclientIOR) {
   forwarder->solveAsync(pb_name, pb, volatileclientIOR, objName);
 }
 

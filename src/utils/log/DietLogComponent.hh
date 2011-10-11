@@ -260,8 +260,7 @@ private:
  * check for the flag with the index that corresponds to their tag.
  */
 class DietLogComponent:  public POA_ComponentConfigurator,
-                         public PortableServer::RefCountServantBase
-{
+                         public PortableServer::RefCountServantBase {
 public:
 
   /**
@@ -270,8 +269,8 @@ public:
    * @param outBufferMaxSize the size of the outBuffer. If the size is 0,
    * messages will not be cached but sent immediately.
    */
-  DietLogComponent(const char* name,
-                   int outBufferMaxSize, int argc, char** argv);
+  DietLogComponent(const char* name, int outBufferMaxSize,
+                   int argc, char** argv);
 
   /**
    * Release the memory allocated by this class;
@@ -288,9 +287,7 @@ public:
    * outBuffer. After this time, the FlushBufferThread sends them.
    * The value specified nanoseconds.
    */
-  int run(const char* agentType,
-          const char* parentName,
-          int outBufferTime);
+  int run(const char* agentType, const char* parentName, int outBufferTime);
 
   /**
    * Client functions (for DIET)
@@ -305,57 +302,84 @@ public:
    * This can only declare one service at a time, so each service
    * has to be declared in a single message.
    */
-  void logAddService(const corba_profile_desc_t* serviceProfile);
+  void
+  logAddService(const corba_profile_desc_t* serviceProfile);
 
-#ifdef HAVE_DYNAMICS
-  void logNewParent(const char* type, const char* parent);
-  void logDisconnect();
-  void logRemoveElement();
-#endif // HAVE_DYNAMICS
+  void
+  logNewParent(const char* type, const char* parent);
+
+  void
+  logDisconnect();
+
+  void
+  logRemoveElement();
 
   /**
    * Request best SeD for problem
    */
-  void logAskForSeD(const corba_request_t* request);
-  void logSedChosen(const corba_request_t* request,
-                    const corba_response_t* response);
+  void
+  logAskForSeD(const corba_request_t* request);
+
+  void
+  logSedChosen(const corba_request_t* request,
+               const corba_response_t* response);
 
 #ifdef HAVE_MULTI_MA
   /**
    * Notifies the list of neighbors MA in multi-MA environment.
    */
-  void logNeighbors(const char* list);
-#endif // HAVE_MULTI_MA
+  void
+  logNeighbors(const char* list);
+#endif  // HAVE_MULTI_MA
 
   /**
    * Solve a problem
    * (No ID here, ID exists only in async and is client-specific)
    */
-  void logBeginSolve(const char* path, const corba_profile_t* problem);
-  void logEndDownload(const char* path, const corba_profile_t* problem);  // modif bisnard_logs_1
-  void logEndSolve(const char* path, const corba_profile_t* problem);
+  void
+  logBeginSolve(const char* path, const corba_profile_t* problem);
+
+  void
+  logEndDownload(const char* path, const corba_profile_t* problem);  // modif bisnard_logs_1
+
+  void
+  logEndSolve(const char* path, const corba_profile_t* problem);
 
   /**
    * Track data movements
    */
-  void logDataStore(const char* dataID, const long unsigned int size,const long base_type, const char * type );    // data profile ?
-  void logDataRelease(const char* dataID);
+  void
+  logDataStore(const char* dataID, const long unsigned int size,
+               const long base_type, const char * type );    // data profile ?
+
+  void
+  logDataRelease(const char* dataID);
+
   // invoked by Sender:
-  void logDataBeginTransfer(const char* dataID,
-                            const char* destAgent);
-  void logDataEndTransfer(const char* dataID,
-                          const char* destAgent);
-  void logDataTransferTime(const char* dataID,
-                           const char* destAgent,
-                           const unsigned long elapsedTime);  // modif bisnard_logs_1
+  void
+  logDataBeginTransfer(const char* dataID, const char* destAgent);
+
+  void
+  logDataEndTransfer(const char* dataID, const char* destAgent);
+
+  void
+  logDataTransferTime(const char* dataID, const char* destAgent,
+                      const unsigned long elapsedTime);  // modif bisnard_logs_1
 
   /**
    * NWS values
    */
-  void logMem(double mem);
-  void logLoad(double load);
-  void logLatency(double latency);
-  void logBandwidth(double bandwidth);
+  void
+  logMem(double mem);
+
+  void
+  logLoad(double load);
+
+  void
+  logLatency(double latency);
+
+  void
+  logBandwidth(double bandwidth);
 
 
   /**
@@ -366,38 +390,45 @@ public:
    * Synchronise with the LogCentral.
    * Not to be called by the user.
    */
-  void synchronize();
+  void
+  synchronize();
 
   /**
    * Ping the LogCentral. Not to be called by the user.
    */
-  void ping();
+  void
+  ping();
 
   /**
    * Flushes the outBuffer. All stored messages are sent.
    * Should not be called by the user.
    */
-  void sendOutBuffer();
+  void
+  sendOutBuffer();
 
   /**
    * create a logmessage and store it in the outBuffer.
    * Send the buffer if it is full. Not to be called by
    * the user.
    */
-  void log(const char* tag, const char* msg);
+  void
+  log(const char* tag, const char* msg);
 
   /**
    * Implements the ComponentConfigurator class in LogComponent.idl
    */
-  void setTagFilter(const tag_list_t& tagList);
+  void
+  setTagFilter(const tag_list_t& tagList);
   /**
    * Implements the ComponentConfigurator class in LogComponent.idl
    */
-  void addTagFilter(const tag_list_t& tagList);
+  void
+  addTagFilter(const tag_list_t& tagList);
   /**
    * Implements the ComponentConfigurator class in LogComponent.idl
    */
-  void removeTagFilter(const tag_list_t& tagList);
+  void
+  removeTagFilter(const tag_list_t& tagList);
   /**
    * Implements the ComponentConfigurator class in LogComponent.idl
    */
@@ -408,7 +439,8 @@ public:
   /**
    * get a string representation of the v_tag value
    */
-  char* getEstimationTags(const int v_tag);
+  char*
+  getEstimationTags(const int v_tag);
 
 #ifdef HAVE_WORKFLOW
 
@@ -416,31 +448,31 @@ public:
   /**
    * Send msg : workflow node queued (ie ready for execution)
    */
-  void logWfNodeReady(const char *dagName,
-                      const char *nodeName);
+  void
+  logWfNodeReady(const char *dagName, const char *nodeName);
 
   /**
    * Send msg : workflow node execution start
    */
-  void logWfNodeStart(const char *dagName,
-                      const char *nodeName,
-                      const char *sedName,
-                      const char *pbName,
-                      const unsigned long reqID);
-  void logWfNodeStart(const char *dagName,
-                      const char *nodeName);
+  void
+  logWfNodeStart(const char *dagName, const char *nodeName,
+                 const char *sedName, const char *pbName,
+                 const unsigned long reqID);
+
+  void
+  logWfNodeStart(const char *dagName, const char *nodeName);
 
   /**
    * Send msg : workflow node execution finish
    */
-  void logWfNodeFinish(const char *dagName,
-                       const char *nodeName);
+  void
+  logWfNodeFinish(const char *dagName, const char *nodeName);
 
   /**
    * Send msg : workflow node failure
    */
-  void logWfNodeFailed(const char *dagName,
-                       const char *nodeName);
+  void
+  logWfNodeFailed(const char *dagName, const char *nodeName);
   // end modif bisnard_logs_1
   /**
    * Send msg and workflow processing time
@@ -459,38 +491,43 @@ public:
    */
   void
   maDagSchedulerType(const char * msg);
-#endif // HAVE_WORKFLOW
+#endif  // HAVE_WORKFLOW
 
 private:
   /**
    * Helper function - allocates an array of bools which are
    * set to false.
    */
-  bool* createBoolArrayFalse(int size);
+  bool*
+  createBoolArrayFalse(int size);
 
   /**
    * Checks if a given tag_list_t contains a '*'
    */
-  bool containsStar(const tag_list_t* tagList);
+  bool
+  containsStar(const tag_list_t* tagList);
 
   /**
    * Checks if a given tag is stored in the list of available tags
    * on this component and returns its index in the internal array.
    * Returns -1 if the tag is not known to this component.
    */
-  int getTagIndex(const char* tag);
+  int
+  getTagIndex(const char* tag);
 
   /**
    * Takes all necessary actions if a remove procedure call fails
    * due to a lost connection. It either shuts the whole agent down
    * or deactivates all communication with the LogCentral.
    */
-  void handleDisconnect(CORBA::SystemException &e);
+  void
+  handleDisconnect(CORBA::SystemException &e);
 
   /**
    * return the local time (including milliseconds)
    */
-  log_time_t getLocalTime();
+  log_time_t
+  getLocalTime();
 
 
   /**
@@ -556,17 +593,25 @@ private:
 };
 
 class DietLogComponentFwdr:  public POA_ComponentConfigurator,
-                             public PortableServer::RefCountServantBase
-{
+                             public PortableServer::RefCountServantBase {
+public:
+  DietLogComponentFwdr(CorbaLogForwarder_ptr fwdr, const char* objName);
+
+  void
+  setTagFilter(const tag_list_t& tagList);
+
+  void
+  addTagFilter(const tag_list_t& tagList);
+
+  void
+  removeTagFilter(const tag_list_t& tagList);
+
+  void
+  test();
+
 protected:
   CorbaLogForwarder_ptr forwarder;
   char* objName;
-public:
-  DietLogComponentFwdr(CorbaLogForwarder_ptr fwdr, const char* objName);
-  void setTagFilter(const tag_list_t& tagList);
-  void addTagFilter(const tag_list_t& tagList);
-  void removeTagFilter(const tag_list_t& tagList);
-  void test();
 };
 
 #endif

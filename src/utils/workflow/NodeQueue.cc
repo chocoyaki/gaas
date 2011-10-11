@@ -179,7 +179,7 @@ void
 OrderedNodeQueue::removeLastNodes(int nbNodesToKeep) {
   list<DagNode*>::iterator  nodeIter = this->begin();
   // Go to the first item to delete
-  int ix=0;
+  int ix = 0;
   while ((nodeIter != this->end()) && (ix++ < nbNodesToKeep)) {
     ++nodeIter;
   }

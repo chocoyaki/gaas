@@ -159,7 +159,7 @@ Cori_batch::convertArray(vector <double> vect,
 {
   /*  vector<double>::iterator iter1;
       iter1 = vect.begin();
-      int i=0;
+      int i = 0;
       while( iter1 != vect.end()) {
       diet_est_array_set_internal(*estvect,typeOfInfo,i,*iter1);
       i++;

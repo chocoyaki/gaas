@@ -55,14 +55,14 @@ int HostnameRR::aggregate(corba_response_t* aggrResp, size_t max_srv,
                           const corba_response_t* responses)
 {
   ServerList::iterator itSeD;
-  unsigned int nbUsage=0;
+  unsigned int nbUsage = 0;
   corba_server_estimation_t selected;
 
 
   cout << "******************** HostnameRR ********************" << endl;
   ServerList candidates = CORBA_to_STL(responses, nb_responses);
 
-  for (itSeD=candidates.begin(); itSeD!=candidates.end(); ++itSeD)
+  for (itSeD = candidates.begin(); itSeD != candidates.end(); ++itSeD)
     // We select the SeD by its host usage.
     if (hostCounter[HOSTNAME(*itSeD)]<=nbUsage)
       selected=*itSeD;

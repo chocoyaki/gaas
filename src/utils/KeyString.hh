@@ -48,7 +48,7 @@
 
 class KeyString {
 
-private :
+private:
   /**
    * value of the key.
    */
@@ -59,7 +59,7 @@ private :
    */
   u_int32_t hashValue;
 
-public :
+public:
 
   /**
    * calculate the hash value of the key
@@ -144,4 +144,4 @@ inline std::ostream& operator<<(std::ostream& output,
 }
 
 
-#endif // _KEY_STRING_HH_
+#endif  // _KEY_STRING_HH_

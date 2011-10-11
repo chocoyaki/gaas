@@ -100,7 +100,7 @@
  * make change in addWaitRule function to manage the case
  *  where a server has answered before the addWaitRule is done.
  * Correct a bug of Async. call.
- * to have more details see bugzilla (bug id=3)
+ * to have more details see bugzilla (bug id = 3)
  *
  * Revision 1.13  2003/09/25 10:00:52  cpera
  * Fix bugs on deleteAsyncCall function and add new WARNING messages.
@@ -179,14 +179,14 @@ int CallAsyncMgr::addAsyncCall (diet_reqID_t reqID, diet_profile_t* dpt)
     data->used = 0;
 #ifdef HAVE_MULTICALL
     data->nbRequests = 0;
-#endif //HAVE_MULTICALL
+#endif  //HAVE_MULTICALL
     caList.insert(CallAsyncList::value_type(reqID,data));
   }
 #ifdef HAVE_MULTICALL
   else {
     (caList.find(reqID))->second->nbRequests++;
   }
-#endif //HAVE_MULTICALL
+#endif  //HAVE_MULTICALL
   return 0;
 }
 
@@ -237,7 +237,7 @@ int CallAsyncMgr::deleteAsyncCallWithoutLock(diet_reqID_t reqID)
         RulesConditionMap::iterator i = rulesConds.begin();
         while ((j != rulesIDs.end()) && (j != rulesIDs.upper_bound(reqID)))
         {
-          j->second->status=STATUS_CANCEL;
+          j->second->status = STATUS_CANCEL;
           i = rulesConds.find(j->second);
           if (i != rulesConds.end()) i->second->post();
           ++j;
@@ -316,7 +316,7 @@ int CallAsyncMgr::addWaitAnyRule(diet_reqID_t* IDptr)
       // Create ruleElements table ...
       int doneReqCount = doneRequests.size();
       ruleElement * simpleWait = new ruleElement[size-doneReqCount];
-      int ix=0;
+      int ix = 0;
       for (int k = 0; k < size; k++){
         if (find(doneRequests.begin(),
                  doneRequests.end(),
@@ -359,7 +359,7 @@ int CallAsyncMgr::addWaitAnyRule(diet_reqID_t* IDptr)
         cout << "Testing if " << h->first
         << "(" << h->second->st << ")"
         << " is in ";
-        for (unsigned int ix=0; ix<doneRequests.size(); ix++)
+        for (unsigned int ix = 0; ix<doneRequests.size(); ix++)
         cout << doneRequests[ix] << ", ";
         cout << endl;
         if ((h->second->st == STATUS_DONE) &&
@@ -437,8 +437,8 @@ int CallAsyncMgr::addWaitRule(Rule * rule)
         }
         h->second->used++;  // NOTES : what to do if an exception ...
       }
-      if (tmpplenty==true){
-        plenty=true;
+      if (tmpplenty == true){
+        plenty = true;
       }
       if (plenty == true){
         rule->status = STATUS_DONE;
@@ -552,7 +552,7 @@ int CallAsyncMgr::notifyRst (diet_reqID_t reqID, corba_profile_t * dp)
     caList.find(reqID)->second->nbRequests--;
   }
   else {
-#endif //HAVE_MULTICALL
+#endif  //HAVE_MULTICALL
 
     try {
       TRACE_TEXT (TRACE_ALL_STEPS,"the service has computed the requestID="
@@ -602,7 +602,7 @@ int CallAsyncMgr::notifyRst (diet_reqID_t reqID, corba_profile_t * dp)
         }
 
         if (plenty == true) {
-          j->second->status=STATUS_DONE;
+          j->second->status = STATUS_DONE;
           i = rulesConds.find(j->second);
           if (i != rulesConds.end()){
             i->second->post();
@@ -624,7 +624,7 @@ int CallAsyncMgr::notifyRst (diet_reqID_t reqID, corba_profile_t * dp)
 
 #ifdef HAVE_MULTICALL
   } // else (if the reqid nbRequests == 0)
-#endif //HAVE_MULTICALL
+#endif  //HAVE_MULTICALL
 
   return 0;
 }
@@ -813,7 +813,7 @@ diet_reqID_t*
 CallAsyncMgr::getAllSessionIDs(int& len) {
   diet_reqID_t * sessions = new diet_reqID_t[caList.size()];
   len = caList.size();
-  int ix=0;
+  int ix = 0;
   for (CallAsyncList::iterator p = caList.begin();
        p != caList.end();
        ++p) {

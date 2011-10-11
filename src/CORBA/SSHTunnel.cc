@@ -11,16 +11,16 @@
 
 #include "debug.hh"
 
-#include <string>
-#include <cstring>
-#include <fstream>
-#include <stdexcept>
-#include <iostream>
-#include <vector>
-#include <sstream>
-#include <iterator>
-#include <algorithm>
 #include <cstdio>
+#include <cstring>
+#include <algorithm>
+#include <string>
+#include <fstream>
+#include <iterator>
+#include <iostream>
+#include <sstream>
+#include <stdexcept>
+#include <vector>
 
 #include <unistd.h>    // For sleep & fork functions
 #include <sys/wait.h>  // For waitpid function
@@ -46,7 +46,7 @@ SSHConnection::userLogin() {
 
   if (result == NULL) {
     TRACE_TEXT(TRACE_MAIN_STEPS,
-               "Unable to determine the user login." << std::endl);
+               "Unable to determine the user login.\n");
     return "";
   }
   return result;
@@ -152,7 +152,7 @@ SSHConnection::setSshPort(const std::string& port) {
 
 void
 SSHConnection::setSshPort(const int port) {
-  ostringstream os;
+  std::ostringstream os;
   os << port;
   this->sshPort = os.str();
 }
@@ -341,9 +341,9 @@ SSHTunnel::open() {
 
   TRACE_TEXT(TRACE_MAIN_STEPS,
              "Sleep " << this->waitingTime
-             << " s. waiting for tunnel" << std::endl);
+             << " s. waiting for tunnel\n");
   sleep(this->waitingTime);
-  TRACE_TEXT(TRACE_MAIN_STEPS, "Wake up!" << std::endl);
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Wake up!\n");
 }
 
 void
@@ -359,7 +359,7 @@ SSHTunnel::close() {
   pid = 0;
 }
 
-const string&
+const std::string&
 SSHTunnel::getRemoteHost() const {
   return remoteHost;
 }
@@ -490,8 +490,9 @@ SSHCopy::getFile() const {
   std::string command;
 
   command = getSshPath();
-  if (getSshPort() != "")
+  if (getSshPort() != "") {
     command += " -P " + getSshPort();
+  }
   if (getSshKeyPath() != "") {
     command += " -i " + getSshKeyPath();
   }
@@ -512,9 +513,9 @@ SSHCopy::getFile() const {
   char* argv[tokens.size() + 1];
   argv[tokens.size()] = NULL;
 
-  for (unsigned int i = 0; i < tokens.size(); ++i)
+  for (unsigned int i = 0; i < tokens.size(); ++i) {
     argv[i] = strdup(tokens[i].c_str());
-
+  }
   pid = fork();
   if (pid == -1) {
     throw std::runtime_error("Error forking process.");
@@ -567,8 +568,9 @@ SSHCopy::putFile() const {
   char* argv[tokens.size() + 1];
   argv[tokens.size()] = NULL;
 
-  for (unsigned int i = 0; i < tokens.size(); ++i)
+  for (unsigned int i = 0; i < tokens.size(); ++i) {
     argv[i] = strdup(tokens[i].c_str());
+  }
 
   pid = fork();
   if (pid == -1) {

@@ -231,7 +231,7 @@ Dag::setWorkflow(FWorkflow * wf) {
 }
 
 FWorkflow *
-Dag::getWorkflow() const throw (WfStructException) {
+Dag::getWorkflow() const throw(WfStructException) {
   if (myWf != NULL)
     return myWf;
   throw WfStructException(WfStructException::eWF_UNDEF, "dag_id=" + getId());
@@ -254,7 +254,7 @@ Dag::setExecutionAgent(MasterAgent_var& MA) {
  * Get the node with given identifier (only node id, not the complete id)
  */
 WfNode *
-Dag::getNode(const string& nodeId) throw (WfStructException) {
+Dag::getNode(const string& nodeId) throw(WfStructException) {
   return getDagNode(nodeId);
 }
 
@@ -262,7 +262,7 @@ Dag::getNode(const string& nodeId) throw (WfStructException) {
  * Allocates a new node and add it to the dag
  */
 DagNode*
-Dag::createDagNode(const string& id, FWorkflow* wf) throw (WfStructException) {
+Dag::createDagNode(const string& id, FWorkflow* wf) throw(WfStructException) {
   map<string, DagNode*>::iterator p = this->nodes.find(id);
   if (p != this->nodes.end())
     throw WfStructException(WfStructException::eDUPLICATE_NODE,"node id="+id);
@@ -277,7 +277,7 @@ Dag::createDagNode(const string& id, FWorkflow* wf) throw (WfStructException) {
  * Get the dag node with given identifier (only node id, not the complete id)
  */
 DagNode *
-Dag::getDagNode(const string& nodeId) throw (WfStructException) {
+Dag::getDagNode(const string& nodeId) throw(WfStructException) {
   map<string, DagNode*>::iterator p = this->nodes.find(nodeId);
   if ( p != this->nodes.end())
     return p->second;
@@ -286,7 +286,7 @@ Dag::getDagNode(const string& nodeId) throw (WfStructException) {
 }
 
 void
-Dag::removeNode(const string& nodeId) throw (WfStructException) {
+Dag::removeNode(const string& nodeId) throw(WfStructException) {
   map<string, DagNode*>::iterator p = this->nodes.find(nodeId);
   if ( p != this->nodes.end()) {
     // remove node from the list of nodes
@@ -304,7 +304,7 @@ Dag::removeNode(const string& nodeId) throw (WfStructException) {
  * link the WfPorts but it creates the list of predecessors of each node *
  */
 void
-Dag::checkPrec(NodeSet* contextNodeSet) throw (WfStructException) {
+Dag::checkPrec(NodeSet* contextNodeSet) throw(WfStructException) {
   TRACE_TEXT(TRACE_ALL_STEPS, "CHECKING DAG STRUCTURE START" << endl);
   for (map<string, DagNode * >::iterator p = nodes.begin( );
        p != nodes.end( );
@@ -320,7 +320,7 @@ Dag::checkPrec(NodeSet* contextNodeSet) throw (WfStructException) {
  * link all ports of the dag *
  */
 void
-Dag::linkAllPorts() throw (WfStructException) {
+Dag::linkAllPorts() throw(WfStructException) {
   TRACE_TEXT(TRACE_ALL_STEPS, "LINKING NODES START" << endl);
   for (map<string, DagNode*>::iterator p = nodes.begin();
        p != nodes.end();
@@ -470,7 +470,7 @@ Dag::isCancelled() {
  */
 
 DagNodeOutPort *
-Dag::getOutputPort(const char* id) throw (WfStructException) {
+Dag::getOutputPort(const char* id) throw(WfStructException) {
   string strId(id);
   string::size_type portSep = strId.find("#");
   string nodeId = strId.substr(0, portSep);

@@ -230,4 +230,4 @@ public:
   testIfTrue();
 };
 
-#endif // _WFEXPRESSION_HH_
+#endif  // _WFEXPRESSION_HH_

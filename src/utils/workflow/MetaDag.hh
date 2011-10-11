@@ -46,15 +46,14 @@ class DagScheduler;
 
 class MetaDag : public NodeSet {
 public:
-
-  MetaDag(const string& id);
+  MetaDag(const std::string& id);
 
   virtual ~MetaDag();
 
   /**
    * Get the Id
    */
-  const string&
+  const std::string&
   getId();
 
   /**
@@ -67,17 +66,17 @@ public:
 
   /**
    * Get a dag by ID
-   * @param dagId the dag identifier (string)
+   * @param dagId the dag identifier (std::string)
    */
   Dag *
-  getDag(const string& dagId) throw (WfStructException);
+  getDag(const std::string& dagId) throw(WfStructException);
 
   /**
    * Remove a dag from the metaDag
-   * @param dagId the dag identifier (string)
+   * @param dagId the dag identifier (std::string)
    */
   void
-  removeDag(const string& dagId) throw (WfStructException);
+  removeDag(const std::string& dagId) throw(WfStructException);
 
   /**
    * Nb of dags
@@ -109,7 +108,7 @@ public:
    * @return pointer to node (does not return NULL)
    */
   virtual WfNode*
-  getNode(const string& nodeId) throw (WfStructException);
+  getNode(const std::string& nodeId) throw(WfStructException);
 
   /**
    * Manages dag termination
@@ -137,12 +136,12 @@ protected:
   /**
    * Metadag ID
    */
-  string myId;
+  std::string myId;
 
   /**
    * Map containing all the dag refs
    */
-  map<string,Dag*> myDags;
+  std::map<std::string, Dag*> myDags;
 
   /**
    * Pointer to the current dag (default dag used when parsing refs to nodes)
@@ -175,7 +174,7 @@ protected:
    * Not applicable to this class
    */
   virtual void
-  checkPrec(NodeSet* contextNodeSet) throw (WfStructException);
+  checkPrec(NodeSet* contextNodeSet) throw(WfStructException);
 
 };
 

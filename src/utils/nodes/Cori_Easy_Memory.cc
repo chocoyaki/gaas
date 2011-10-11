@@ -69,7 +69,7 @@ Easy_Memory::get_Total_Memory(double * result)
 {
   double temp1,temp2,temp3;
   if (!get_Info_Memory_byProcMem(&temp1,0)){
-    *result=temp1;
+    *result = temp1;
     return 0;
   }
   else
@@ -78,11 +78,11 @@ Easy_Memory::get_Total_Memory(double * result)
         &&(!get_Avail_Memory_bysysinfo(&temp3)))
     {
       double pagesize= temp2/temp3;
-      *result=temp1*pagesize;
+      *result = temp1*pagesize;
       return 0;
     }
     else{
-      *result=0;
+      *result = 0;
       return 1;
     }
 }
@@ -91,16 +91,16 @@ Easy_Memory::get_Avail_Memory(double * result)
 {
   double temp;
   if (!get_Info_Memory_byProcMem(&temp,1)){
-    *result=temp;
+    *result = temp;
     return 0;
   }
   else
     if (!get_Avail_Memory_byvmstat(&temp)){
-      *result=temp;
+      *result = temp;
       return 0;
     }
     else{
-      *result=0;
+      *result = 0;
       return 1;
     }
 }
@@ -135,7 +135,7 @@ Easy_Memory::get_Avail_Memory_bysysinfo(double * result)
   // int getpagesize (void)
   // Inquire about the virtual memory page size of the machine.
 #if defined CORI_HAVE_get_avphys_pages && defined (CORI_HAVE_getpagesize)
-  *result=get_avphys_pages ()*getpagesize()/(1024*1024);
+  *result = get_avphys_pages ()*getpagesize()/(1024*1024);
   return  0;
 #else
   //chercher autres sol
@@ -146,22 +146,22 @@ Easy_Memory::get_Avail_Memory_bysysinfo(double * result)
 int
 Easy_Memory::get_Avail_Memory_byvmstat(double * result)
 {
-  int returnval=1;
+  int returnval = 1;
   FILE * myfile =popen("vmstat","r");
   char word[256];
-  if ((myfile!=NULL)){
+  if ((myfile != NULL)){
     if (!feof(myfile)){
       fgets(word, 256, myfile);
       if (!feof(myfile)){
         fgets(word, 256, myfile);
-        int i=0;
+        int i = 0;
         while ((!feof(myfile))&&(i<4)){
           fscanf (myfile, "%255s", word);
           i++;
         }
-        if (i==4){
+        if (i == 4){
           *result = atof ( word )/1024;
-          returnval=0;
+          returnval = 0;
         }
         else return 1;
       }
@@ -197,7 +197,7 @@ Easy_Memory::get_Info_Memory_byProcMem(double* resultat,
       if ( strcmp (demanded , word ) == 0 )
       {
         file >> word;
-        *resultat=atof(word)/1024;
+        *resultat = atof(word)/1024;
         return 0;
       }
       file >> word;
@@ -208,7 +208,7 @@ Easy_Memory::get_Info_Memory_byProcMem(double* resultat,
     TRACE_TEXT(TRACE_MAX_VALUE,"Error on reading file");
     return 1;
   }
-#endif //CORI_HAVE_PROCMEM
+#endif  //CORI_HAVE_PROCMEM
   return 1;
 
 }

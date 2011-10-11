@@ -118,7 +118,7 @@ SpecificClientScheduler::burstRequest(SeD_var& chosenServer,
   for (i_s = availableSeDs.begin(), i_us = use.begin();
        i_s != availableSeDs.end() && i_us != use.end(); ++ i_s, ++ i_us) {
     found = false;
-    for (ix=0; ix < response->servers.length(); ++ ix) {
+    for (ix = 0; ix < response->servers.length(); ++ ix) {
       if (*i_s == static_cast<char*>(response->servers[ix].loc.SeDName)) {
         found = true;
         break;
@@ -137,7 +137,7 @@ SpecificClientScheduler::burstRequest(SeD_var& chosenServer,
   }
 
   // Add news SeDs
-  for (ix=0; ix < response->servers.length(); ix++) {
+  for (ix = 0; ix < response->servers.length(); ix++) {
     found = false;
     for (i_s = availableSeDs.begin(); i_s != availableSeDs.end(); ++ i_s) {
       if (*i_s == static_cast<char*>(response->servers[ix].loc.SeDName)) {
@@ -184,9 +184,9 @@ SpecificClientScheduler::burstLimitRequest(SeD_var& chosenServer,
   static vector<int> use;
 
   // Add news SeDs
-  for (unsigned int ix=0; ix < response->servers.length(); ix++) {
+  for (unsigned int ix = 0; ix < response->servers.length(); ix++) {
     bool found = false;
-    for (unsigned int jx=0; jx < availableSeDs.size(); jx++) {
+    for (unsigned int jx = 0; jx < availableSeDs.size(); jx++) {
       if (availableSeDs[jx]==static_cast<char*>(response->servers[ix].loc.SeDName)) {
         found = true;
         break;
@@ -203,7 +203,7 @@ SpecificClientScheduler::burstLimitRequest(SeD_var& chosenServer,
   // Search the SeD with the minimum value => Less used
   int min = use[0];
   int idx = 0;
-  for (unsigned int ix=0;
+  for (unsigned int ix = 0;
        ix < availableSeDs.size();
        ix++) {
     if (use[ix] < min) {
@@ -263,7 +263,7 @@ SpecificClientScheduler::isEnabled() {
 
 bool
 SpecificClientScheduler::isOptionEnabled(string option, vector<string>& params) {
-  for (unsigned int ix=0; ix<params.size(); ix++)
+  for (unsigned int ix = 0; ix<params.size(); ix++)
     if (params[ix] == option) {
       return true;
     }

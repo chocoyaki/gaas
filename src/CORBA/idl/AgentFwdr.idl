@@ -30,38 +30,35 @@ interface AgentFwdr : Agent {
 };
 
 interface AgentForwarder {
-	long agentSubscribe(in string agentName, in string hostname,
-											in SeqCorbaProfileDesc_t services,
-											in string objName)
-		raises(UnknownObject);
-	long serverSubscribe(in string seDName,
+  long agentSubscribe(in string agentName, in string hostname,
+                      in SeqCorbaProfileDesc_t services,
+                      in string objName)
+    raises(UnknownObject);
+  long serverSubscribe(in string seDName,
                        in string hostname,
                        in SeqCorbaProfileDesc_t services,
-											 in string objName)
-		raises(UnknownObject);
+                       in string objName)
+    raises(UnknownObject);
 
-#ifdef HAVE_DYNAMICS
   long childUnsubscribe(in unsigned long childID,
-												in SeqCorbaProfileDesc_t services,
-												in string objName)
-		raises(UnknownObject);
-#endif // HAVE_DYNAMICS
+                        in SeqCorbaProfileDesc_t services,
+                        in string objName)
+    raises(UnknownObject);
 
   long childRemoveService(in unsigned long childID,
-													in corba_profile_desc_t profile,
-													in string objName)
-		raises(UnknownObject);
+                          in corba_profile_desc_t profile,
+                          in string objName)
+    raises(UnknownObject);
   long addServices(in unsigned long myID,
                    in SeqCorbaProfileDesc_t services,
-									 in string objName)
-		raises(UnknownObject);
+                   in string objName)
+    raises(UnknownObject);
 
   oneway void getResponse(in corba_response_t resp,
-													in string objName);
+                          in string objName);
 
   string getDataManager(in string objName)
-		raises(UnknownObject);
+    raises(UnknownObject);
 };
-
 
 #endif

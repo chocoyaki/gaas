@@ -537,9 +537,7 @@ int main(int argc, char* argv[], char *envp[]) {
     WARNING("Error while exiting the ORBMgr::wait() function");
   }
 
-#ifdef HAVE_DYNAMICS
   Agt->removeElementClean(false);
-#endif /* HAVE_DYNAMICS */
 
   /* shutdown and destroy the ORB
    * Servants will be deactivated and deleted automatically

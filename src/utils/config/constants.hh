@@ -30,11 +30,11 @@ typedef enum {
   ULONG_PARAMETER,
   STRING_PARAMETER,
   ADDRESS_PARAMETER,
-  AGENT_PARAMETER, // like int
+  AGENT_PARAMETER,  // like int
 } c_type_t;
 
 typedef enum {
-  CONFIGFILE=0,
+  CONFIGFILE = 0,
   TRACELEVEL,
   MANAME,             // MA for client to attach to
   AGENTTYPE,          // Is this agent an LA or MA
@@ -90,8 +90,7 @@ typedef enum {
   NB_PARAM_TYPE
 } param_type_t;
 
-struct param_t
-{
+struct param_t {
   param_type_t key;
   const std::string value;
   // TODO: unused today but may help get rid of "simple_cast"

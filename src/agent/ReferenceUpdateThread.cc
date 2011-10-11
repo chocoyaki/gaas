@@ -55,4 +55,4 @@ void ReferenceUpdateThread::run(void* ptr) {
   }
 } // run(void*)
 
-#endif // HAVE_MULTI_MA
+#endif  // HAVE_MULTI_MA

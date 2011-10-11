@@ -78,4 +78,4 @@ char* ms_stralloc(int length);
  */
 #define ms_strfree(str) CORBA::string_free(str)
 
-#endif // _MS_FUNCTION_HH_
+#endif  // _MS_FUNCTION_HH_

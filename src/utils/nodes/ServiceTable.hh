@@ -296,7 +296,7 @@ private:
   ServiceTableInit(CORBA::ULong max_nb_services, CORBA::ULong max_nb_children);
 };
 
-#endif // _SERVICETABLE_HH_
+#endif  // _SERVICETABLE_HH_
 
 
 

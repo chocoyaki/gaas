@@ -39,13 +39,19 @@
 
 
 /** A simple exception when a module failed to be loaded. */
-class InstanciationError
-{
+class InstanciationError {
 public:
-  InstanciationError(const char* error):errorCode(error) {}
-  InstanciationError(const InstanciationError &error) :
-    errorCode(error.errorCode) {};
-  const char* message() const { return errorCode; }
+  explicit InstanciationError(const char* error)
+    : errorCode(error) {}
+
+  InstanciationError(const InstanciationError &error)
+    : errorCode(error.errorCode) {}
+
+  const char*
+  message() const {
+    return errorCode;
+  }
+
 private:
   const char* errorCode;
 };
@@ -54,23 +60,26 @@ private:
 typedef std::map<std::string, void*> map_string_void_t;
 
 /** The DynamicServiceMgr class declaration. */
-class DynamicServiceMgr
-{
+class DynamicServiceMgr {
+public:
+  DynamicServiceMgr();
+
+  ~DynamicServiceMgr();
+
+  int
+  addServiceMgr(const std::string & lib);
+
+  int
+  removeServiceMgr(const std::string & name);
+
+private:
   typedef int service(diet_profile_t*);
   typedef int addService();
   typedef int removeService();
   typedef const char * const serviceName();
 
-public:
-  DynamicServiceMgr();
-  ~DynamicServiceMgr();
-
-  int addServiceMgr(const std::string & lib);
-  int removeServiceMgr(const std::string & name);
-
-private:
   /** These two methods are obtained from the loaded module. */
   map_string_void_t services;
 };
 
-#endif // _DYNAMICSED_HH_
+#endif  // _DYNAMICSED_HH_

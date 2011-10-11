@@ -254,16 +254,13 @@
 
 #include "AgentImpl.hh"
 #include <iostream>
-using namespace std;
 #include <cmath>
 #include <cstring>
 #include <cstdio>
 #include <cstdlib>
 #include <unistd.h>  // For gethostname()
 
-#ifdef HAVE_DYNAMICS
 #include <csignal>
-#endif // HAVE_DYNAMICS
 
 #include "common_types.hh"
 #include "configuration.hh"
@@ -302,26 +299,26 @@ AgentImpl::~AgentImpl()
   TRACE_TEXT(TRACE_STRUCTURES, "Remove the Local Agents references...");
   this->LAChildren.clear();
   this->nbLAChildren = 0;
-  TRACE_TEXT(TRACE_STRUCTURES, "Done" << endl);
+  TRACE_TEXT(TRACE_STRUCTURES, "Done\n");
   TRACE_TEXT(TRACE_STRUCTURES, "Remove the SeD references...");
   this->SeDChildren.clear();
   this->nbSeDChildren = 0;
-  TRACE_TEXT(TRACE_STRUCTURES, "Done" << endl);
+  TRACE_TEXT(TRACE_STRUCTURES, "Done\n");
 
   this->childIDCounter = 0;
 
   TRACE_TEXT(TRACE_STRUCTURES, "Remove the Services references...");
   /* FIXME : Pb at the destruction of SrvT */
   //delete this->SrvT;
-  TRACE_TEXT(TRACE_STRUCTURES, "Done" << endl);
+  TRACE_TEXT(TRACE_STRUCTURES, "Done\n");
   TRACE_TEXT(TRACE_STRUCTURES, "Remove the Request list...");
   this->reqList.clear();
-  TRACE_TEXT(TRACE_STRUCTURES, "Done" << endl);
+  TRACE_TEXT(TRACE_STRUCTURES, "Done\n");
   ORBMgr::getMgr()->unbind(AGENTCTXT, this->myName);
   ORBMgr::getMgr()->fwdsUnbind(AGENTCTXT, this->myName);
 
   stat_finalize();
-  TRACE_TEXT(TRACE_STRUCTURES, "All Done" << endl);
+  TRACE_TEXT(TRACE_STRUCTURES, "All Done\n");
 
   // WTF, nobody cleans its memory ?
   delete[] localHostName;
@@ -374,7 +371,7 @@ AgentImpl::run() {
 
 // Accessors for dataManager.
 void AgentImpl::setDataManager(Dagda_ptr dataManager) {
-  this->dataManager=dataManager;
+  this->dataManager = dataManager;
 }
 
 char* AgentImpl::getDataManager() {
@@ -402,15 +399,15 @@ AgentImpl::agentSubscribe(const char* name, const char* hostName,
   CORBA::ULong retID = (this->childIDCounter)++;  // thread safe Counter class
 
   TRACE_TEXT(TRACE_MAIN_STEPS, "An agent has registered from << " << hostName
-             << ", with " << services.length() << " services." << endl);
+             << ", with " << services.length() << " services.\n");
 
   /* the size of the list is childIDCounter+1 (first index is 0) */
   this->LAChildren.resize(this->childIDCounter);
 
   //LocalAgent_var meLA = LocalAgent::_narrow(me);
-  TRACE_TEXT(TRACE_MAIN_STEPS, "Local agent name: " << name << endl);
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Local agent name: " << name << "\n");
   LocalAgent_var meLA = ORBMgr::getMgr()->resolve<LocalAgent, LocalAgent_var>(LOCALAGENT, name);
-  TRACE_TEXT(TRACE_MAIN_STEPS, "Local agent IOR: " << ORBMgr::getMgr()->getIOR(meLA) << endl);
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Local agent IOR: " << ORBMgr::getMgr()->getIOR(meLA) << "\n");
 
   this->LAChildren[retID] = LAChild(meLA, hostName);
   (this->nbLAChildren)++;  // thread safe Counter class
@@ -434,8 +431,8 @@ AgentImpl::serverSubscribe(const char* name, const char* hostName,
   CORBA::ULong retID;
 
   TRACE_TEXT(TRACE_MAIN_STEPS, "A server has registered from " << hostName
-             << ", with " << services.length() << " services." << endl);
-  TRACE_TEXT(TRACE_MAIN_STEPS, "subscribed SeD IOR: " << ORBMgr::getMgr()->getIOR(me) << endl);
+             << ", with " << services.length() << " services.\n");
+  TRACE_TEXT(TRACE_MAIN_STEPS, "subscribed SeD IOR: " << ORBMgr::getMgr()->getIOR(me) << "\n");
 
   assert (hostName != NULL);
   retID = (this->childIDCounter)++;  // thread safe
@@ -453,7 +450,6 @@ AgentImpl::serverSubscribe(const char* name, const char* hostName,
 } // serverSubscribe(SeD_ptr me, const char* hostName, ...)
 
 
-#ifdef HAVE_DYNAMICS
 /**
  * Unsubscribe a child. Remotely called by a SeD or an LA.
  */
@@ -461,7 +457,7 @@ CORBA::Long
 AgentImpl::childUnsubscribe(CORBA::ULong childID,
                             const SeqCorbaProfileDesc_t& services) {
   bool childFound = false;
-  TRACE_TEXT(TRACE_ALL_STEPS, "Unsubscription request from child " << childID << endl);
+  TRACE_TEXT(TRACE_ALL_STEPS, "Unsubscription request from child " << childID << "\n");
   this->srvTMutex.lock();
   for (size_t i = 0; i < services.length(); i++) {
     this->SrvT->rmChildService(&(services[i]), childID);
@@ -479,7 +475,8 @@ AgentImpl::childUnsubscribe(CORBA::ULong childID,
       --nbLAChildren;
       childFound = true;
     }
-  } else if(!childFound && childID < static_cast<CORBA::ULong>(SeDChildren.size())){
+  } else if(!childFound &&
+            (childID < static_cast<CORBA::ULong>(SeDChildren.size()))){
     /* Then it must be a server */
     SeDChild& childDesc = SeDChildren[childID];
     if (childDesc.defined()) {
@@ -546,7 +543,6 @@ AgentImpl::removeElementClean(bool recursive) {
   }
 #endif
 }
-#endif // HAVE_DYNAMICS
 
 
 /**
@@ -554,30 +550,21 @@ AgentImpl::removeElementClean(bool recursive) {
  */
 CORBA::Long
 AgentImpl::addServices(CORBA::ULong myID,
-                       const SeqCorbaProfileDesc_t& services)
-{
+                       const SeqCorbaProfileDesc_t& services) {
   int result;
   AGT_TRACE_FUNCTION(myID <<", " << services.length() << " services");
-
-  /* Commented to reduce overhead of un-needed log messages.  Enable if you
-   * want to track service information at the agent-level.
-   for (CORBA::ULong i=0; i<services.length(); i++) {
-   if (dietLogComponent != NULL) {
-   dietLogComponent->logAddService(&(services[i]));
-   }
-   }
-  */
 
   this->srvTMutex.lock();
   for (size_t i = 0; i < services.length(); i++) {
     result = this->SrvT->addService(&(services[i]), myID);
     if(result == 0){
       TRACE_TEXT(TRACE_STRUCTURES, "Service " << i
-                 << " added for child " << myID << "." << endl);
+                 << " added for child " << myID << ".\n");
     }
     else if (result == -1) {
       TRACE_TEXT(TRACE_STRUCTURES, "Service " << i
-                 << " is a duplicate for child " << myID << ". Not added." << endl);
+                 << " is a duplicate for child "
+                 << myID << ". Not added.\n");
     }
     else if (result == -2) {
       this->SrvT->rmChild(myID);
@@ -596,15 +583,17 @@ AgentImpl::addServices(CORBA::ULong myID,
   this->srvTMutex.unlock();
 
   return (0);
-} // addServices(CORBA::ULong myID, const SeqCorbaProfileDesc_t& services)
+}
 
 
 CORBA::Long
-AgentImpl::childRemoveService(CORBA::ULong childID, const corba_profile_desc_t& profile)
-{
+AgentImpl::childRemoveService(CORBA::ULong childID,
+                              const corba_profile_desc_t& profile) {
   int result;
 
-  TRACE_TEXT(TRACE_MAIN_STEPS, "A server is removing a service from its service table, " << childID << std::endl);
+  TRACE_TEXT(TRACE_MAIN_STEPS,
+             "A server is removing a service from its service table, "
+             << childID << "\n");
 
   this->srvTMutex.lock();
 
@@ -629,15 +618,14 @@ AgentImpl::childRemoveService(CORBA::ULong childID, const corba_profile_desc_t& 
  * @return non NULL pointer to a response
  */
 corba_response_t*
-AgentImpl::findServer(Request* req, size_t max_srv)
-{
+AgentImpl::findServer(Request* req, size_t max_srv) {
   corba_response_t* resp;
   const corba_request_t& creq = *(req->getRequest());
   char statMsg[128];
   TRACE_TEXT(TRACE_MAIN_STEPS,
-             endl << "**************************************************" << endl
+             "\n**************************************************\n"
              << "Got request " << creq.reqID
-             << " on problem " << creq.pb.path << endl);
+             << " on problem " << creq.pb.path << "\n");
   sprintf(statMsg, "findServer %ld", (unsigned long) creq.reqID);
   stat_in(this->myName,statMsg);
 
@@ -723,7 +711,7 @@ AgentImpl::findServer(Request* req, size_t max_srv)
     if (!nbChildrenContacted) {
       WARNING("no service found for request " << creq.reqID);
       TRACE_TEXT(TRACE_MAIN_STEPS,
-                 "**************************************************" << endl);
+                 "**************************************************\n");
       req->unlock();
       //delete req;  // do not delete since getRequest does not perform a copy
 
@@ -739,7 +727,7 @@ AgentImpl::findServer(Request* req, size_t max_srv)
     /* Everything is ready, we can now wait for the responses */
     /* (This call implicitly unlocks the responses mutex)     */
     TRACE_TEXT(TRACE_ALL_STEPS, "Waiting for " << nbChildrenContacted
-               << " responses to request " << creq.reqID <<  "..." << endl);
+               << " responses to request " << creq.reqID <<  "...\n");
     req->waitResponses(nbChildrenContacted);
     req->unlock();
 
@@ -766,7 +754,7 @@ void
 AgentImpl::getResponse(const corba_response_t& resp)
 {
   TRACE_TEXT(TRACE_MAIN_STEPS, "Got a response from " << resp.myID
-             <<"th child" << " to request " << resp.reqID << endl);
+             <<"th child" << " to request " << resp.reqID << "\n");
   char statMsg[128];
   sprintf(statMsg, "getResponse %ld %ld", (unsigned long) resp.reqID,(long) resp.myID);
   stat_in(this->myName,statMsg);
@@ -789,7 +777,7 @@ AgentImpl::getResponse(const corba_response_t& resp)
 CORBA::Long
 AgentImpl::ping()
 {
-  TRACE_TEXT(TRACE_ALL_STEPS, "ping()" << endl);
+  TRACE_TEXT(TRACE_ALL_STEPS, "ping()\n");
   fflush(stdout);
   return getpid();
 } // ping()
@@ -843,9 +831,9 @@ AgentImpl::sendRequest(CORBA::ULong childID, const corba_request_t* req)
             childDesc->ping();
             childDesc->getRequest(*req);
           } catch (CORBA::COMM_FAILURE& ex) {
-            throw (comm_failure_t)0;
+            throw(comm_failure_t)0;
           } catch (CORBA::TRANSIENT& e) {
-            throw (comm_failure_t)1;
+            throw(comm_failure_t)1;
           }
         } catch (comm_failure_t& e) {
           if (e == 0 || e == 1) {
@@ -895,9 +883,9 @@ AgentImpl::sendRequest(CORBA::ULong childID, const corba_request_t* req)
             childDesc->getRequest(*req);
 #endif
           } catch (CORBA::COMM_FAILURE& ex) {
-            throw (comm_failure_t)0;
+            throw(comm_failure_t)0;
           } catch (CORBA::TRANSIENT& e) {
-            throw (comm_failure_t)1;
+            throw(comm_failure_t)1;
           }
         } catch (comm_failure_t& e) {
           if (e == 0 || e == 1) {
@@ -1026,23 +1014,19 @@ AgentFwdrImpl::AgentFwdrImpl(Forwarder_ptr fwdr, const char* objName) {
 
 CORBA::Long
 AgentFwdrImpl::agentSubscribe(const char* me, const char* hostName,
-                              const SeqCorbaProfileDesc_t& services)
-{
+                              const SeqCorbaProfileDesc_t& services) {
   return forwarder->agentSubscribe(me, hostName, services, objName);
 }
 
 CORBA::Long
 AgentFwdrImpl::serverSubscribe(const char* me, const char* hostName,
-                               const SeqCorbaProfileDesc_t& services)
-{
+                               const SeqCorbaProfileDesc_t& services) {
   return forwarder->serverSubscribe(me, hostName, services, objName);
 }
 
-#ifdef HAVE_DYNAMICS
 CORBA::Long
 AgentFwdrImpl::childUnsubscribe(CORBA::ULong childID,
-                                const SeqCorbaProfileDesc_t& services)
-{
+                                const SeqCorbaProfileDesc_t& services) {
   return forwarder->childUnsubscribe(childID, services, objName);
 }
 
@@ -1050,12 +1034,9 @@ CORBA::Long AgentFwdrImpl::removeElement(bool recursive) {
   return forwarder->removeElement(recursive, objName);
 }
 
-#endif // HAVE_DYNAMICS
-
 CORBA::Long
 AgentFwdrImpl::childRemoveService(CORBA::ULong childID,
-                                  const corba_profile_desc_t& profile)
-{
+                                  const corba_profile_desc_t& profile) {
   return forwarder->childRemoveService(childID, profile, objName);
 }
 
@@ -1070,8 +1051,7 @@ AgentFwdrImpl::searchData(const char* request) {
 
 CORBA::Long
 AgentFwdrImpl::addServices(CORBA::ULong myID,
-                           const SeqCorbaProfileDesc_t& services)
-{
+                           const SeqCorbaProfileDesc_t& services) {
   return forwarder->addServices(myID, services, objName);
 }
 

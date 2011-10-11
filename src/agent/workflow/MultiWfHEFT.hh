@@ -54,25 +54,21 @@
 #define _MULTIWFHEFT_HH_
 
 #include <cmath>
-
+#include <map>
 #include "debug.hh"
-
 #include "MultiWfScheduler.hh"
 
 
-using namespace std;
 
 namespace madag {
-
 /****************************************************************************/
 /*                              Multi-HEFT                                  */
 /****************************************************************************/
 
 class MultiWfHEFT : public MultiWfScheduler {
-
 public:
+  explicit MultiWfHEFT(MaDag_impl* maDag);
 
-  MultiWfHEFT(MaDag_impl* maDag);
   virtual ~MultiWfHEFT();
 
 protected:
@@ -81,7 +77,6 @@ protected:
    */
   virtual void
   handlerNodeDone(DagNode * node);
-
 };  // end class MultiWfHEFT
 
 /****************************************************************************/
@@ -89,20 +84,17 @@ protected:
 /****************************************************************************/
 
 class MultiWfAgingHEFT : public MultiWfScheduler {
-
 public:
-
-  MultiWfAgingHEFT(MaDag_impl* maDag);
+  explicit MultiWfAgingHEFT(MaDag_impl* maDag);
   virtual ~MultiWfAgingHEFT();
 
 protected:
-
   /**
    * internal dag scheduling
    */
   virtual void
   intraDagSchedule(Dag * dag, MasterAgent_var MA)
-    throw (MaDag::ServiceNotFound, MaDag::CommProblem);
+    throw(MaDag::ServiceNotFound, MaDag::CommProblem);
 
   /**
    * Updates scheduler when a node has been executed
@@ -127,10 +119,8 @@ protected:
   /**
    * Save the state of dags
    */
-  map<Dag*, DagState> dagsState;
-
+  std::map<Dag*, DagState> dagsState;
 };  // end class MultiWfAgingHEFT
+}  // end namespace madag
 
-} // end namespace madag
-
-#endif // _MULTIWFHEFT_HH_
+#endif  // _MULTIWFHEFT_HH_

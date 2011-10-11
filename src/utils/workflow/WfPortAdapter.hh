@@ -97,7 +97,7 @@ public:
    */
   virtual void
   setNodePrecedence(WfNode* node, NodeSet* nodeSet)
-    throw (WfStructException) = 0;
+    throw(WfStructException) = 0;
 
   /**
    * Node linking (used for node execution - step 1)
@@ -108,7 +108,7 @@ public:
    */
   virtual void
   connectPorts(WfPort* port, unsigned int adapterLevel)
-    throw (WfStructException) = 0;
+    throw(WfStructException) = 0;
 
   /**
    * Returns the string reference (used for generating xml)
@@ -196,10 +196,10 @@ public:
 
   void
   setNodePrecedence(WfNode* node, NodeSet* nodeSet)
-    throw (WfStructException);
+    throw(WfStructException);
   void
   connectPorts(WfPort* port, unsigned int adapterLevel)
-    throw (WfStructException);
+    throw(WfStructException);
   string
   getSourceRef() const;
 
@@ -280,10 +280,10 @@ public:
   addSubAdapter(WfPortAdapter* subAdapter);
   void
   setNodePrecedence(WfNode* node, NodeSet* nodeSet)
-    throw (WfStructException);
+    throw(WfStructException);
   void
   connectPorts(WfPort* port, unsigned int adapterLevel)
-    throw (WfStructException);
+    throw(WfStructException);
   string
   getSourceRef() const;
   const string&
@@ -335,10 +335,10 @@ public:
 
   void
   setNodePrecedence(WfNode* node, NodeSet* nodeSet)
-    throw (WfStructException);
+    throw(WfStructException);
   void
   connectPorts(WfPort* port, unsigned int adapterLevel)
-    throw (WfStructException);
+    throw(WfStructException);
   string
   getSourceRef() const;
   const string&
@@ -390,10 +390,10 @@ public:
 
   void
   setNodePrecedence(WfNode* node, NodeSet* nodeSet)
-    throw (WfStructException);
+    throw(WfStructException);
   void
   connectPorts(WfPort* port, unsigned int adapterLevel)
-    throw (WfStructException);
+    throw(WfStructException);
   string
   getSourceRef() const;
   const string&
@@ -491,10 +491,10 @@ public:
 
   void
   setNodePrecedence(WfNode* node, NodeSet* nodeSet)
-    throw (WfStructException);
+    throw(WfStructException);
   void
   connectPorts(WfPort* port, unsigned int adapterLevel)
-    throw (WfStructException);
+    throw(WfStructException);
   string
   getSourceRef() const;
   const string&

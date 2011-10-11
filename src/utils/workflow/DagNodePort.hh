@@ -116,7 +116,7 @@ public:
    * Initialize the profile before node execution
    */
   virtual void
-  initProfileExec() throw (WfDataException) = 0;
+  initProfileExec() throw(WfDataException) = 0;
 
   /**
    * Return the object description as a string
@@ -148,7 +148,7 @@ public:
    * @exception WfDataException(eID_UNDEF) if the data ID is not defined
    */
   const string&
-  getDataID() throw (WfDataException);
+  getDataID() throw(WfDataException);
 
   bool
   isDataIDAvailable(MasterAgent_var& MA);
@@ -204,7 +204,7 @@ public:
    * Initialize the profile before node execution
    */
   virtual void
-  initProfileExec() throw (WfDataException);
+  initProfileExec() throw(WfDataException);
 
   /**
    * Store the data IDs from the profile
@@ -237,7 +237,7 @@ public:
    * @return  the size of the container
    */
   //   unsigned int
-  //   getDataIDCardinal(const string& dataID) throw (WfDataException);
+  //   getDataIDCardinal(const string& dataID) throw(WfDataException);
 
   /**
    * Get the ID of an element of the output data (when it's a container)
@@ -246,7 +246,7 @@ public:
    * @exception WfDataException(eID_UNDEF) if the data ID is not defined
    */
   string
-  getElementDataID(const list<unsigned int>& eltIdx) throw (WfDataException);
+  getElementDataID(const list<unsigned int>& eltIdx) throw(WfDataException);
 
   /**
    * Write the output data in a stream
@@ -255,7 +255,7 @@ public:
    * @param dataWriter  the data output formatter
    */
   void
-  writeData(WfDataWriter* dataWriter) throw (WfDataException);
+  writeData(WfDataWriter* dataWriter) throw(WfDataException);
 
   /**
    * Write an element of the output data (when it's a container)
@@ -264,7 +264,7 @@ public:
    */
   void
   writeDataElement(WfDataWriter* dataWriter, const list<unsigned int>& idxList)
-    throw (WfDataException);
+    throw(WfDataException);
 
 
 protected:
@@ -276,7 +276,7 @@ protected:
   void
   writeContainer(WfDataWriter* dataWriter,
                  const string& containerID,
-                 unsigned int depth) throw (WfDataException);
+                 unsigned int depth) throw(WfDataException);
   /**
    * Display method used for container elements (dagda API)
    */
@@ -330,7 +330,7 @@ public:
    * Initialize the profile before node execution
    */
   virtual void
-  initProfileExec() throw (WfDataException);
+  initProfileExec() throw(WfDataException);
 
   /**
    * Return the object description as a string
@@ -359,7 +359,7 @@ protected:
    * @return false if source data cannot be found
    */
   virtual void
-  initSourceData() throw (WfDataException);
+  initSourceData() throw(WfDataException);
 
   /**
    * Returns the persistence mode for this port
@@ -386,7 +386,7 @@ public:
    * Initialize the profile before node execution
    */
   virtual void
-  initProfileExec() throw (WfDataException);
+  initProfileExec() throw(WfDataException);
 
   /**
    * Return the object description as a string
@@ -444,7 +444,7 @@ public:
    * Initialize the profile before node execution
    */
   virtual void
-  initProfileExec() throw (WfDataException);
+  initProfileExec() throw(WfDataException);
 
   /**
    * Return the object description as a string
@@ -517,4 +517,4 @@ protected:
 };  // end DagNodeArgPort
 
 
-#endif // _DAGNODEPORT_HH_
+#endif  // _DAGNODEPORT_HH_

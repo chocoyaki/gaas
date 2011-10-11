@@ -31,12 +31,12 @@ int LRU(AdvancedDagdaComponent* manager, size_t size, dagda_object_type_t type) 
   clock_t leastRecent = 0;
   std::string found;
 
-  for (it=manager->getData()->begin(); it!=manager->getData()->end(); ++it)
-    if (it->second.desc.mode!=DIET_STICKY && DGD_OBJ_TYPE(it->second)==type) {
-      if ((leastRecent==0 || leastRecent > manager->getLastUsageTime(it->first.c_str()))
+  for (it = manager->getData()->begin(); it != manager->getData()->end(); ++it)
+    if (it->second.desc.mode != DIET_STICKY && DGD_OBJ_TYPE(it->second)==type) {
+      if ((leastRecent == 0 || leastRecent > manager->getLastUsageTime(it->first.c_str()))
           && data_sizeof(&it->second.desc)>=size) {
-        leastRecent=manager->getLastUsageTime(it->first.c_str());
-        found=it->first;
+        leastRecent = manager->getLastUsageTime(it->first.c_str());
+        found = it->first;
       }
     }
   if (found!="") {
@@ -53,12 +53,12 @@ int LFU(AdvancedDagdaComponent* manager, size_t size, dagda_object_type_t type) 
   unsigned long usageMin = 0;
   std::string found;
 
-  for (it=manager->getData()->begin(); it!=manager->getData()->end(); ++it)
-    if (it->second.desc.mode!=DIET_STICKY && DGD_OBJ_TYPE(it->second)==type) {
-      if ((usageMin==0 || usageMin > manager->getNbUsage(it->first.c_str()))
+  for (it = manager->getData()->begin(); it != manager->getData()->end(); ++it)
+    if (it->second.desc.mode != DIET_STICKY && DGD_OBJ_TYPE(it->second)==type) {
+      if ((usageMin == 0 || usageMin > manager->getNbUsage(it->first.c_str()))
           && data_sizeof(&it->second.desc)>=size) {
-        usageMin=manager->getNbUsage(it->first.c_str());
-        found=it->first;
+        usageMin = manager->getNbUsage(it->first.c_str());
+        found = it->first;
       }
     }
   if (found!="") {
@@ -75,12 +75,12 @@ int FIFO(AdvancedDagdaComponent* manager, size_t size, dagda_object_type_t type)
   clock_t registerTime = 0;
   std::string found;
 
-  for (it=manager->getData()->begin(); it!=manager->getData()->end(); ++it)
-    if (it->second.desc.mode!=DIET_STICKY && DGD_OBJ_TYPE(it->second)==type) {
-      if ((registerTime==0 || registerTime > manager->getRegisterTime(it->first.c_str()))
+  for (it = manager->getData()->begin(); it != manager->getData()->end(); ++it)
+    if (it->second.desc.mode != DIET_STICKY && DGD_OBJ_TYPE(it->second)==type) {
+      if ((registerTime == 0 || registerTime > manager->getRegisterTime(it->first.c_str()))
           && data_sizeof(&it->second.desc)>=size) {
-        registerTime=manager->getRegisterTime(it->first.c_str());
-        found=it->first;
+        registerTime = manager->getRegisterTime(it->first.c_str());
+        found = it->first;
       }
     }
   if (found!="") {

@@ -51,14 +51,9 @@ if( BUILD_TESTING )
 
   set( DIET_CLIENT_LIBRARIES DIET_client DIET_Dagda)
   set( DIET_SERVER_LIBRARIES DIET_SeD DIET_Dagda)
-
-  if( DIET_ADMIN_API )
-    SET( DIET_ADMIN_LIBRARIES DIET_admin)
-  endif()
-
+  set( DIET_ADMIN_LIBRARIES DIET_admin)
 
   diet_test_setup()
-
 
   # temporary directories for Dagda
   string(RANDOM LENGTH 32 TMPPATHUUID)

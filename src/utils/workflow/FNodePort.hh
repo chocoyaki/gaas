@@ -253,7 +253,7 @@ protected:
 
   void
   setPendingDataTransfer(FDataHandle* dataHdl,
-                         FNodeInPort* inPort) throw (WfDataHandleException);
+                         FNodeInPort* inPort) throw(WfDataHandleException);
 
   void
   checkTotalDataNb(FNodeInPort *inPort);
@@ -451,4 +451,4 @@ private:
 };
 
 
-#endif // _FNODEPORT_HH_
+#endif  // _FNODEPORT_HH_

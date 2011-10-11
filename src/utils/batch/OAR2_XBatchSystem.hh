@@ -22,11 +22,8 @@
 
 #include "BatchSystem.hh"
 
-class OAR2_XBatchSystem : public BatchSystem
-{
-  
-public :
-
+class OAR2_XBatchSystem : public BatchSystem {
+public:
   OAR2_XBatchSystem(int batchID, const char * batchName);
 
   ~OAR2_XBatchSystem();
@@ -38,7 +35,7 @@ public :
   */
   batchJobState
   askBatchJobStatus(int batchJobID);
-  
+
   /** If job whose id is @param batchJobID is:
       - not finished, returns 0
       - terminated, returns 1
@@ -59,13 +56,13 @@ public :
 
   char *
   getResourcesName();
-  
+
   int
   getMaxWalltime();
 
   int
   getMaxProcs();
-  
+
   /********** Batch dynamic information accessing Functions *********/
   /* These should soon change for they assume a default queue and we
      want to be able to manage all queues of a system! */
@@ -76,11 +73,9 @@ public :
   int
   getNbFreeResources();
 
-private :
-
+private:
   /* Strings used to filter batch job status if possible */
   static const char * const statusNames[];
-
 };
 
-#endif // OAR_BATCH_SYSTEM
+#endif  // OAR_BATCH_SYSTEM

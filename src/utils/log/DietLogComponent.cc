@@ -327,8 +327,8 @@ DietLogComponent::DietLogComponent(const char* name,
   this->outBufferMaxSize = outBufferMaxSize;
   isConnected = false;
 
-  pingThread=NULL;
-  flushBufferThread=NULL;  // modif bisnard_logs_1
+  pingThread = NULL;
+  flushBufferThread = NULL;  // modif bisnard_logs_1
 
   // define tags
   tagCount = 29;  // modif bisnard_logs_1
@@ -426,7 +426,7 @@ int DietLogComponent::run(const char* agentType,
   }
 
   // Connect myself to the LogCentral
-  short ret=0;
+  short ret = 0;
   char* hostName = (char*) malloc(256 * sizeof(char));
   if(gethostname(hostName,255) != 0) {
     free(hostName);
@@ -500,7 +500,7 @@ DietLogComponent::~DietLogComponent() {
     }
   }
 
-  for (int i=0; i<tagCount; i++) {
+  for (int i = 0; i<tagCount; i++) {
     free(tagNames[i]);
   }
   delete tagNames;
@@ -519,13 +519,13 @@ DietLogComponent::setTagFilter(const tag_list_t& tagList) {
 
   // check for '*'
   if (containsStar(&tagList)) {
-    for (int i=0; i < tagCount; i++) {
+    for (int i = 0; i < tagCount; i++) {
       newList[i]=true;
     }
   } else {
     // change config configuration
     int idx;
-    for (int i=0; i < (int)tagList.length(); i++) {
+    for (int i = 0; i < (int)tagList.length(); i++) {
       idx = getTagIndex(tagList[i]);
       if (idx != -1) {
         newList[idx]=true;
@@ -547,14 +547,14 @@ DietLogComponent::addTagFilter(const tag_list_t& tagList) {
   dlcMutex.lock();
   // check for '*'
   if (containsStar(&tagList)) {
-    for (int i=0; i < tagCount; i++) {
+    for (int i = 0; i < tagCount; i++) {
       tagFlags[i]=true;
     }
   } else {
     // create new configuration
     int idx;
 
-    for (int i=0; i < (int)tagList.length(); i++) {
+    for (int i = 0; i < (int)tagList.length(); i++) {
       idx = getTagIndex(tagList[i]);
       if (idx != -1) {
         tagFlags[idx]=true;
@@ -570,13 +570,13 @@ DietLogComponent::removeTagFilter(const tag_list_t& tagList) {
   dlcMutex.lock();
   // check for '*'
   if (containsStar(&tagList)) {
-    for (int i=0; i < tagCount; i++) {
+    for (int i = 0; i < tagCount; i++) {
       tagFlags[i]=false;
     }
   } else {
     int idx;
     // change configuration
-    for (int i=0; i < (int)tagList.length(); i++) {
+    for (int i = 0; i < (int)tagList.length(); i++) {
       idx = getTagIndex(tagList[i]);
       if (idx != -1) {
         tagFlags[idx]=false;
@@ -682,26 +682,26 @@ DietLogComponent::getEstimationTags(const int v_tag){
        with DIET specific batch system (numerous IDs depending on the
        scheduling strategy implemented in the SeD), oar, LL, etc.) */
   case(EST_SERVER_TYPE):
-    ret=strdup("EST_SERVER_TYPE");  // 22
+    ret = strdup("EST_SERVER_TYPE");  // 22
     break;
     /* Parallel resources information. Assumed a default queue */
   case(EST_PARAL_NBTOT_RESOURCES): // 23
-    ret=strdup("EST_PARAL_NB_RESOURCES");
+    ret = strdup("EST_PARAL_NB_RESOURCES");
     break;
   case(EST_PARAL_NBTOT_FREE_RESOURCES): // 24
-    ret=strdup("EST_PARAL_NB_FREE_RESOURCES");
+    ret = strdup("EST_PARAL_NB_FREE_RESOURCES");
     break;
   case(EST_PARAL_NB_RESOURCES_IN_DEFAULT_QUEUE): // 25
-    ret=strdup("EST_PARAL_NB_RESOURCES_IN_DEFAULT_QUEUE");
+    ret = strdup("EST_PARAL_NB_RESOURCES_IN_DEFAULT_QUEUE");
     break;
   case(EST_PARAL_NB_FREE_RESOURCES_IN_DEFAULT_QUEUE): // 26
-    ret=strdup("EST_PARAL_NB_FREE_RESOURCES_IN_DEFAULT_QUEUE");
+    ret = strdup("EST_PARAL_NB_FREE_RESOURCES_IN_DEFAULT_QUEUE");
     break;
   case(EST_PARAL_MAX_WALLTIME): // 27
-    ret=strdup("EST_PARAL_MAX_WALLTIME");
+    ret = strdup("EST_PARAL_MAX_WALLTIME");
     break;
   case(EST_PARAL_MAX_PROCS): // 28
-    ret=strdup("EST_PARAL_MAX_PROCS");
+    ret = strdup("EST_PARAL_MAX_PROCS");
     break;
     /* !HAVE_ALT_BATCH */
   default:
@@ -711,7 +711,7 @@ DietLogComponent::getEstimationTags(const int v_tag){
 }
 
 int DietLogComponent::getTagIndex(const char* tag) {
-  for (int i=0; i < tagCount; i++) {
+  for (int i = 0; i < tagCount; i++) {
     if (strcmp(tag, tagNames[i]) == 0) {
       return i;
     }
@@ -720,7 +720,7 @@ int DietLogComponent::getTagIndex(const char* tag) {
 }
 
 bool DietLogComponent::containsStar(const tag_list_t* tagList) {
-  for (int i=0; i < (int)tagList->length(); i++) {
+  for (int i = 0; i < (int)tagList->length(); i++) {
     if (strcmp((*tagList)[i],"*") == 0) {
       return true;
     }
@@ -732,7 +732,7 @@ bool*
 DietLogComponent::createBoolArrayFalse(int size) {
   bool* ba;
   ba = new bool[size];
-  for (int i=0; i<size; i++) {
+  for (int i = 0; i<size; i++) {
     ba[i] = false;
   }
   return ba;
@@ -852,7 +852,6 @@ DietLogComponent::logAddService(const
   }
 }
 
-#ifdef HAVE_DYNAMICS
 /**
  * Change parent
  */
@@ -891,7 +890,6 @@ DietLogComponent::logRemoveElement() {
     delete [] str;
   }
 }
-#endif // HAVE_DYNAMICS
 
 /**
  * Find SeD and solve problem
@@ -916,10 +914,10 @@ DietLogComponent::logSedChosen(const corba_request_t* request,
     if (response->servers.length()>0){
       unsigned int i,j;
       string estim_string = "";
-      for ( i=0; i < response->servers.length();i++){
+      for ( i = 0; i < response->servers.length();i++){
         estim_string.append(" ");
         estim_string.append(response->servers[i].loc.hostName);
-        for (j=0; j < response->servers[i].estim.estValues.length(); j++){
+        for (j = 0; j < response->servers[i].estim.estValues.length(); j++){
           int valTagInt = response->servers[i].estim.estValues[j].v_tag;
           estim_string.append(";");
           estim_string.append(getEstimationTags(valTagInt));
@@ -963,7 +961,7 @@ void
 DietLogComponent::logNeighbors(const char* list) {
   log(tagNames[13], list);
 }
-#endif // HAVE_MULTI_MA
+#endif  // HAVE_MULTI_MA
 
 void
 DietLogComponent::logBeginSolve(const char* path,
@@ -1225,7 +1223,7 @@ DietLogComponent::logDag(const char* msg) {
 }
 
 
-#endif // HAVE_WORKFLOW
+#endif  // HAVE_WORKFLOW
 
 DietLogComponentFwdr::DietLogComponentFwdr(CorbaLogForwarder_ptr fwdr,
                                            const char* objName)

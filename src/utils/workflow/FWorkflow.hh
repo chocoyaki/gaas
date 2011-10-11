@@ -141,10 +141,10 @@ public:
   /***************************************************/
 
   virtual WfNode *
-  getNode(const string& nodeId) throw (WfStructException);
+  getNode(const string& nodeId) throw(WfStructException);
 
   virtual void
-  checkPrec(NodeSet* contextNodeSet) throw (WfStructException);
+  checkPrec(NodeSet* contextNodeSet) throw(WfStructException);
 
   /***************************************************/
   /*               FNode methods                     */
@@ -198,32 +198,32 @@ public:
    */
 
   FActivityNode*
-  createActivity(const string& id) throw (WfStructException);
+  createActivity(const string& id) throw(WfStructException);
 
   FIfNode*
-  createIf(const string& id) throw (WfStructException);
+  createIf(const string& id) throw(WfStructException);
 
   FMergeNode*
-  createMerge(const string& id) throw (WfStructException);
+  createMerge(const string& id) throw(WfStructException);
 
   FFilterNode*
-  createFilter(const string& id) throw (WfStructException);
+  createFilter(const string& id) throw(WfStructException);
 
   FLoopNode*
-  createLoop(const string& id) throw (WfStructException);
+  createLoop(const string& id) throw(WfStructException);
 
   FWorkflow*
-  createSubWorkflow(const string& id, const string& name) throw (WfStructException);
+  createSubWorkflow(const string& id, const string& name) throw(WfStructException);
 
   FSourceNode*
-  createSource(const string& id, WfCst::WfDataType type) throw (WfStructException);
+  createSource(const string& id, WfCst::WfDataType type) throw(WfStructException);
 
   FConstantNode*
-  createConstant(const string& id, WfCst::WfDataType type) throw (WfStructException);
+  createConstant(const string& id, WfCst::WfDataType type) throw(WfStructException);
 
   FSinkNode*
   createSink(const string& id, WfCst::WfDataType type, unsigned int depth)
-  throw (WfStructException);
+  throw(WfStructException);
 
   /**
    * Get methods for workflow nodes
@@ -231,10 +231,10 @@ public:
    */
 
   FProcNode *
-  getProcNode(const string& id) throw (WfStructException);
+  getProcNode(const string& id) throw(WfStructException);
 
   FNode *
-  getInterfaceNode(const string& id) throw (WfStructException);
+  getInterfaceNode(const string& id) throw(WfStructException);
 
 
   /**
@@ -416,7 +416,7 @@ private:
 };
 
 
-#endif // _FWORKFLOW_HH_
+#endif  // _FWORKFLOW_HH_
 
 
 

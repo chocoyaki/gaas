@@ -478,7 +478,7 @@ using namespace std;
 #ifdef HAVE_CCS
 /** Custom client scheduling */
 #include "SpecificClientScheduler.hh"
-#endif // HAVE_CCS
+#endif  // HAVE_CCS
 
 #ifdef HAVE_WORKFLOW
 #include "WfLogService.hh"
@@ -781,7 +781,7 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
   else {
     dietLogComponent = NULL;
   }
-#endif // end: USE_LOG_SERVICE
+#endif  // end: USE_LOG_SERVICE
   // end modif bisnard_logs_1
 
   //create_file();
@@ -795,7 +795,7 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
       && (tmpString.size() > 1)) {
     SpecificClientScheduler::setSchedulingId(tmpString.c_str());
   }
-#endif // HAVE_CCS
+#endif  // HAVE_CCS
 
   // Dagda component activation.
   DagdaImpl* tmpDataManager = DagdaFactory::getClientDataManager();
@@ -886,7 +886,7 @@ diet_finalize() {
     std::cerr << "Exception caught while destroying workflows" << std::endl;
   }
   MA_DAG = MaDag::_nil();
-#endif // HAVE_WORKFLOW
+#endif  // HAVE_WORKFLOW
 
   stat_finalize();
 
@@ -977,7 +977,7 @@ get_diet_services(int *services_number){
   *services_number= (int)length;
   char** services_list = (char**)calloc(length+1,sizeof(char*));
   fflush(stdout);
-  for(int i=0;i<*services_number;i++){
+  for(int i = 0;i<*services_number;i++){
     services_list[i]= CORBA::string_dup((*profileList)[i].path);
   }
   return services_list;
@@ -1021,7 +1021,7 @@ void store_id(char* argID, char* msg)
     size_t cpt;
 
     char* msg1 = new char[strlen(msg)+2];
-    cpt=strlen(argID);
+    cpt = strlen(argID);
     ofstream f(file_Name,ios_base::app|ios_base::ate);
     f.write(argID,cpt);
     for(int i = 0; i < 10; i++) {
@@ -1075,7 +1075,7 @@ diet_call(diet_profile_t* profile)
   if (SpecificClientScheduler::isEnabled()) {
     SpecificClientScheduler::pre_diet_call();
   }
-#endif // HAVE_CCS
+#endif  // HAVE_CCS
 
   diet_error_t err = diet_call_common(MA, profile, chosenServer, NULL, MAX_SERVERS);
 
@@ -1083,7 +1083,7 @@ diet_call(diet_profile_t* profile)
   if (SpecificClientScheduler::isEnabled()) {
     SpecificClientScheduler::post_diet_call();
   }
-#endif // HAVE_CCS
+#endif  // HAVE_CCS
 
   return err;
 }
@@ -1265,7 +1265,7 @@ int
 diet_wait_and(diet_reqID_t* IDs, size_t length)
 {
   // check if all the session IDs in the array are valid
-  for (unsigned int ix=0; ix<length; ix++) {
+  for (unsigned int ix = 0; ix<length; ix++) {
     if (!CallAsyncMgr::Instance()->checkSessionID(IDs[ix]))
       return GRPC_INVALID_SESSION_ID;
   }
@@ -1321,7 +1321,7 @@ diet_wait_or(diet_reqID_t* IDs, size_t length, diet_reqID_t* IDptr)
   request_status_t rst = STATUS_ERROR;
 
   // check if all the session IDs in the array are valid
-  for (unsigned int ix=0; ix<length; ix++) {
+  for (unsigned int ix = 0; ix<length; ix++) {
     if (!CallAsyncMgr::Instance()->checkSessionID(IDs[ix]))
       return GRPC_INVALID_SESSION_ID;
   }
@@ -1436,11 +1436,11 @@ diet_probe_or(diet_reqID_t* reqIdArray,
   unsigned int ix;
   int reqStatus;
   // check if all request IDs are valid
-  for (ix=0; ix< length; ix++) {
+  for (ix = 0; ix< length; ix++) {
     if (!CallAsyncMgr::Instance()->checkSessionID(reqIdArray[ix]))
       return GRPC_INVALID_SESSION_ID;
   }
-  for (ix=0; ix< length; ix++) {
+  for (ix = 0; ix< length; ix++) {
     reqStatus = CallAsyncMgr::Instance()->getStatusReqID(reqIdArray[ix]);
     if  (reqStatus == STATUS_DONE) {
       *reqIdPtr = reqIdArray[ix];
@@ -1669,7 +1669,7 @@ diet_wf_sink_get(diet_wf_desc_t * profile,
   return CltWfMgr::instance()->getWfSinkContainer(profile, id, dataID);
 }
 
-#endif // HAVE_WORKFLOW
+#endif  // HAVE_WORKFLOW
 
 END_API
 
@@ -1696,7 +1696,7 @@ bool
 getProfileDesc(const char * srvName, diet_profile_desc_t& profile) {
   SeqCorbaProfileDesc_t * allProfiles = getProfiles();
   if (allProfiles) {
-    for (unsigned int ix=0; ix < allProfiles->length(); ix++) {
+    for (unsigned int ix = 0; ix < allProfiles->length(); ix++) {
       if (!strcmp ( (*allProfiles)[ix].path,
                     srvName)) {
         // The service is found

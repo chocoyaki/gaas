@@ -90,14 +90,12 @@ interface SeD {
   /** Let check if this server is alive. */
   long ping();
 
-#ifdef HAVE_DYNAMICS
   /** Send an order for the SeD to connect to a new parent */
   long bindParent(in string parentName);
   /** Send an order for the SeD to disconnect from its parent */
   long disconnect();
   /** Send an order for the SeD to kill itself */
   long removeElement();
-#endif // HAVE_DYNAMICS
 
   /** Message posting function: the request is proceeded immediately. */
   oneway void getRequest(in corba_request_t req);

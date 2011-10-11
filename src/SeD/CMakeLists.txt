@@ -78,14 +78,10 @@ set(DIET_SeD_Libs
 
 
 # CORI
-if (NOT DIET_USE_ALT_BATCH)
-  if (DIET_USE_CORI)      # Then the lib is compiled independantly
-    set(DIET_SeD_Libs
-      ${DIET_SeD_Libs}
-      UtilsCori
-    )
-  endif (DIET_USE_CORI)
-endif (NOT DIET_USE_ALT_BATCH)
+set(DIET_SeD_Libs
+  ${DIET_SeD_Libs}
+  UtilsCori
+  )
 
 target_link_libraries(DIET_SeD ${DIET_SeD_Libs})
   

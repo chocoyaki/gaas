@@ -123,6 +123,6 @@ do_stat_finalize();
 #  define stat_finalize()
 #  define stat_flush()
 
-#endif // HAVE_STATISTICS
+#endif  // HAVE_STATISTICS
 
-#endif // _STATISTICS_HH_
+#endif  // _STATISTICS_HH_

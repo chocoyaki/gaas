@@ -82,7 +82,7 @@ CmdParser::CmdParser(int argc, char *argv[])
 }
 
 CmdParser::CmdParser(int argc, char *argv[],
-                     CmdConfig& oc=nullConfig)
+                     CmdConfig& oc = nullConfig)
   : config_(oc), exec_(argv[0]),
     hasSwitchs_(false), hasOptions_(false), hasParams_(false),
     enabledHelp_(false), enabledVersion_(false), showVersion_(false)

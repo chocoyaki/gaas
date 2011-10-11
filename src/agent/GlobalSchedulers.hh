@@ -57,12 +57,10 @@ typedef LinkedList<Scheduler> SchedList;
  * pure virtual.
  */
 
-class GlobalScheduler
-{
+class GlobalScheduler {
 public:
   GlobalScheduler();
-  virtual
-  ~GlobalScheduler();
+  virtual  ~GlobalScheduler();
 
   /**
    * Aggregate and sort all servers of the \c responses. This method provides a
@@ -72,7 +70,8 @@ public:
    * @param nb_responses number of responses to aggregate.
    * @param responses    array of the responses to aggregate.
    */
-  /* New : For scheduler load support. Allows to overload the aggregate method.*/
+  /* New : For scheduler load support.
+     Allows to overload the aggregate method.*/
 #ifdef USERSCHED
   virtual
 #endif
@@ -95,7 +94,9 @@ public:
   deserialize(const char* serializedScheduler);
 
   /** Returns a global scheduler adapted to the request. */
-  static GlobalScheduler* chooseGlobalScheduler();
+  static GlobalScheduler*
+  chooseGlobalScheduler();
+
   static GlobalScheduler*
   chooseGlobalScheduler(const corba_request_t* req,
                         const corba_profile_desc_t* profile);
@@ -112,15 +113,14 @@ protected:
 /**
  * This global scheduler gives priority to the servers that gave most
  * information.
- * if HAVE_CORI: round robin scheduling and if the information is not 
+ * if HAVE_CORI: round robin scheduling and if the information is not
  * available then random scheduling
  * else :Thus the ones which have performed FAST estimations are placed
  * first, then the ones that have performed NWS estimations, and finally the
  * ones that gave no information at all ordered randomly.
  */
 
-class StdGS : public GlobalScheduler
-{
+class StdGS : public GlobalScheduler {
 public:
   /** Name of this global scheduler */
   static const char* stName;
@@ -128,7 +128,7 @@ public:
   StdGS();
   virtual
   ~StdGS();
-  
+
   /** Initialize this global scheduler (build its list of schedulers). */
   void
   init();
@@ -144,8 +144,7 @@ public:
 
 
 
-class PriorityGS : public GlobalScheduler
-{
+class PriorityGS : public GlobalScheduler {
 public:
   /** Name of this global scheduler */
   static const char* stName;
@@ -154,10 +153,12 @@ public:
   int *pValues;
 
   PriorityGS();
-  PriorityGS(corba_agg_priority_t priority);
+
+  explicit PriorityGS(corba_agg_priority_t priority);
+
   virtual
   ~PriorityGS();
-  
+
   /** Initialize this global scheduler (build its list of schedulers). */
   void
   init();
@@ -166,10 +167,11 @@ public:
   static char*
   serialize(PriorityGS* GS);
 
-  /** Return the PriorityGS deserialized from the string \c serializedScheduler. */
+  /** Return the PriorityGS deserialized from the string \c
+      serializedScheduler. */
   static PriorityGS*
   deserialize(const char* serializedScheduler);
 };
 
 
-#endif // _GLOBAL_SCHEDULERS_HH_
+#endif  // _GLOBAL_SCHEDULERS_HH_

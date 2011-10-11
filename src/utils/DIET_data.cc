@@ -779,7 +779,7 @@ extern "C" {
   diet_use_data(diet_arg_t* arg, const char* id){
 
     arg->value = NULL;
-    arg->desc.id=CORBA::string_dup(id);
+    arg->desc.id = CORBA::string_dup(id);
   }
 
   /* Computes the file size (stocked in a field of arg) */
@@ -824,7 +824,7 @@ extern "C" {
       *((complex*)data->value)        = *((complex*)value);        break;
     case DIET_DCOMPLEX:
       *((double complex*)data->value) = *((double complex*)value); break;
-#endif // HAVE_COMPLEX
+#endif  // HAVE_COMPLEX
     default: {
       ERROR(__FUNCTION__ << " misused (wrong base type)", 1);
     }
@@ -900,7 +900,7 @@ extern "C" {
       //       *((complex**)value)        = (complex*)data->value;        break;
       //     case DIET_DCOMPLEX:
       //       *((double complex**)value) = (double complex*)data->value; break;
-      // #endif // HAVE_COMPLEX
+      // #endif  // HAVE_COMPLEX
       //     default:
       //       return 1;
       //     }
@@ -1193,7 +1193,7 @@ extern "C" {
       free(profile->transcriptFile);
     free(profile);
   }
-#endif // endif HAVE_WORKFLOW
+#endif  // endif HAVE_WORKFLOW
 
 } // extern "C"
 

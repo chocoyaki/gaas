@@ -82,7 +82,6 @@ DIETForwarder::serverSubscribe(const char* seDName, const char* hostname,
   return agent->serverSubscribe(seDName, hostname, services);
 }
 
-#ifdef HAVE_DYNAMICS
 ::CORBA::Long
 DIETForwarder::childUnsubscribe(::CORBA::ULong childID,
                                 const ::SeqCorbaProfileDesc_t& services,
@@ -100,7 +99,6 @@ DIETForwarder::childUnsubscribe(::CORBA::ULong childID,
     ORBMgr::getMgr()->resolve<Agent, Agent_var>(AGENTCTXT, name, this->name);
   return agent->childUnsubscribe(childID, services);
 }
-#endif
 
 ::CORBA::Long
 DIETForwarder::childRemoveService(::CORBA::ULong childID,

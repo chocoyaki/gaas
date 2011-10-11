@@ -7,11 +7,11 @@
 /* $LICENSE$                                                                */
 /****************************************************************************/
 
-#include <string>
 #include <list>
 #include <map>
 #include <sstream>
 #include <stdexcept>
+#include <string>
 #include <iostream>
 #include <csignal>
 
@@ -44,12 +44,12 @@ transientHandler (void* cookie, CORBA::ULong retries,
     TRACE_TEXT(TRACE_ALL_STEPS,
                "Handler for transient exception called (nb retries: "
                << retries << "/"
-               << maxNbRetries << "). Will now retry." << endl);
+               << maxNbRetries << "). Will now retry.\n");
     return 1;           // retry immediately.
   }
   TRACE_TEXT(TRACE_ALL_STEPS,
              "Handler for transient exception called (nb retries: "
-             << retries << "/" << maxNbRetries << ")." << endl);
+             << retries << "/" << maxNbRetries << ").\n");
   return 0;
 }
 
@@ -62,12 +62,12 @@ commFailureHandler (void* cookie, CORBA::ULong retries,
     TRACE_TEXT(
       TRACE_ALL_STEPS,
       "Handler for communication failures exception called (nb retries: "
-      << retries << "/" << maxNbRetries << "). Will now retry." << endl);
+      << retries << "/" << maxNbRetries << "). Will now retry.\n");
     return 1;           // retry immediately.
   }
   TRACE_TEXT(TRACE_ALL_STEPS,
              "Handler for communication failures exception called (nb retries: "
-             << retries << "/" << maxNbRetries << ")." << endl);
+             << retries << "/" << maxNbRetries << ").\n");
   return 0;
 }
 
@@ -83,7 +83,7 @@ void ORBMgr::init(CORBA::ORB_ptr ORB) {
   CosNaming::Name cosName;
 
   if (CORBA::is_nil(ORB)) {
-    throw runtime_error("ORB not initialized");
+    throw std::runtime_error("ORB not initialized");
   }
   object = ORB->resolve_initial_references("RootPOA");
   initPOA = PortableServer::POA::_narrow(object);
@@ -122,8 +122,8 @@ ORBMgr::ORBMgr(CORBA::ORB_ptr ORB) {
 }
 
 ORBMgr::ORBMgr(CORBA::ORB_ptr ORB, PortableServer::POA_var POA) {
-  this->ORB=ORB;
-  this->POA=POA;
+  this->ORB = ORB;
+  this->POA = POA;
   down = false;
 }
 
@@ -134,21 +134,21 @@ ORBMgr::~ORBMgr() {
 }
 
 void
-ORBMgr::bind(const string& ctxt, const string& name, CORBA::Object_ptr object,
-             const bool rebind) const {
+ORBMgr::bind(const std::string& ctxt, const std::string& name,
+             CORBA::Object_ptr object, const bool rebind) const {
   CORBA::Object_var obj;
   CosNaming::NamingContext_var rootContext, context;
   CosNaming::Name cosName;
 
   obj = ORB->resolve_initial_references("NameService");
   if (CORBA::is_nil(obj)) {
-    throw runtime_error("Error resolving initial references");
+    throw std::runtime_error("Error resolving initial references");
   }
 
   rootContext = CosNaming::NamingContext::_narrow(obj);
 
   if (CORBA::is_nil(rootContext)) {
-    throw runtime_error("Error initializing root context");
+    throw std::runtime_error("Error initializing root context");
   }
 
   cosName.length(1);
@@ -160,7 +160,7 @@ ORBMgr::bind(const string& ctxt, const string& name, CORBA::Object_ptr object,
     obj = rootContext->resolve(cosName);
     context = CosNaming::NamingContext::_narrow(obj);
     if (CORBA::is_nil(context)) {
-      throw runtime_error(string("Error creating context ")+ctxt);
+      throw std::runtime_error(std::string("Error creating context ") + ctxt);
     }
   }
   cosName[0].id = name.c_str();
@@ -171,35 +171,35 @@ ORBMgr::bind(const string& ctxt, const string& name, CORBA::Object_ptr object,
     if (rebind) {
       context->rebind(cosName, object);
     } else {
-      throw runtime_error("Already bound!");
+      throw std::runtime_error("Already bound!");
     }
   }
 }
 
 void
-ORBMgr::bind(const string& ctxt, const string& name,
-             const string& IOR, const bool rebind) const {
+ORBMgr::bind(const std::string& ctxt, const std::string& name,
+             const std::string& IOR, const bool rebind) const {
   CORBA::Object_ptr object = ORB->string_to_object(IOR.c_str());
 
   bind(ctxt, name, object, rebind);
 }
 
 void
-ORBMgr::rebind(const string& ctxt, const string& name,
+ORBMgr::rebind(const std::string& ctxt, const std::string& name,
                CORBA::Object_ptr object) const {
   bind(ctxt, name, object, true);
 }
 
 void
-ORBMgr::rebind(const string& ctxt, const string& name,
-               const string& IOR) const {
+ORBMgr::rebind(const std::string& ctxt, const std::string& name,
+               const std::string& IOR) const {
   CORBA::Object_ptr object = ORB->string_to_object(IOR.c_str());
 
   rebind(ctxt, name, object);
 }
 
 void
-ORBMgr::unbind(const string& ctxt, const string& name) const {
+ORBMgr::unbind(const std::string& ctxt, const std::string& name) const {
   CORBA::Object_var obj;
   CosNaming::NamingContext_var rootContext, context;
   CosNaming::Name cosName;
@@ -215,7 +215,7 @@ ORBMgr::unbind(const string& ctxt, const string& name) const {
   obj = rootContext->resolve(cosName);
   context = CosNaming::NamingContext::_narrow(obj);
   if (CORBA::is_nil(context)) {
-    throw runtime_error(string("Error retrieving context ") + ctxt);
+    throw std::runtime_error(std::string("Error retrieving context ") + ctxt);
   }
 
   cosName[0].id = name.c_str();
@@ -224,19 +224,19 @@ ORBMgr::unbind(const string& ctxt, const string& name) const {
     removeObjectFromCache(ctxt, name);
     context->unbind(cosName);
   } catch (CosNaming::NamingContext::NotFound& err) {
-    throw runtime_error("Object "+name+" not found in " + ctxt +" context");
+    throw std::runtime_error("Object "+name+" not found in " + ctxt +" context");
   } catch (...) {
     WARNING("Exception caught while unbinding " << ctxt << "/" << name);
   }
 }
 
 void
-ORBMgr::fwdsBind(const string& ctxt, const string& name,
-                 const string& ior, const string& fwName) const {
+ORBMgr::fwdsBind(const std::string& ctxt, const std::string& name,
+                 const std::string& ior, const std::string& fwName) const {
   std::list<std::string> forwarders = ORBMgr::list(FWRDCTXT);
   std::list<std::string>::const_iterator it;
 
-  for (it=forwarders.begin(); it != forwarders.end(); ++it) {
+  for (it = forwarders.begin(); it != forwarders.end(); ++it) {
     if (fwName == *it) {
       continue;
     }
@@ -252,8 +252,8 @@ ORBMgr::fwdsBind(const string& ctxt, const string& name,
 }
 
 void
-ORBMgr::fwdsUnbind(const string& ctxt, const string& name,
-                   const string& fwName) const {
+ORBMgr::fwdsUnbind(const std::string& ctxt, const std::string& name,
+                   const std::string& fwName) const {
   std::list<std::string> forwarders = ORBMgr::list(FWRDCTXT);
   std::list<std::string>::const_iterator it;
 
@@ -267,20 +267,20 @@ ORBMgr::fwdsUnbind(const string& ctxt, const string& name,
       fwd->unbind(objName.c_str());
     } catch (const CORBA::TRANSIENT& err) {
       TRACE_TEXT(TRACE_ALL_STEPS,
-                 "Unable to contact DIET forwarder " << *it << endl);
+                 "Unable to contact DIET forwarder " << *it << "\n");
       continue;
     }
   }
 }
 
 CORBA::Object_ptr
-ORBMgr::resolveObject(const string& IOR) const {
+ORBMgr::resolveObject(const std::string& IOR) const {
   return ORB->string_to_object(IOR.c_str());
 }
 
 CORBA::Object_ptr
-ORBMgr::resolveObject(const string& context, const string& name,
-                      const string& fwdName) const {
+ORBMgr::resolveObject(const std::string& context, const std::string& name,
+                      const std::string& fwdName) const {
   std::string ctxt = context;
   bool localAgent = false;
 
@@ -300,36 +300,36 @@ ORBMgr::resolveObject(const string& context, const string& name,
 
     try {
       TRACE_TEXT(TRACE_ALL_STEPS,
-                 "Check if the object is still present" << endl);
+                 "Check if the object is still present\n");
       if (ptr->_non_existent()) {
         TRACE_TEXT(TRACE_ALL_STEPS,
                    "Remove non existing object from cache (" << ctxt
-                   << "/" << name << ")" << endl);
+                   << "/" << name << ")\n");
         removeObjectFromCache(name);
       } else {
         TRACE_TEXT(TRACE_ALL_STEPS, "Use object from cache (" << ctxt
-                   << "/" << name << ")" << endl);
+                   << "/" << name << ")\n");
         return CORBA::Object::_duplicate(ptr);
       }
     } catch (const CORBA::OBJECT_NOT_EXIST& err) {
       TRACE_TEXT(TRACE_ALL_STEPS,
                  "Remove non existing object from cache (" << ctxt
-                 << "/" << name << ")" << endl);
+                 << "/" << name << ")\n");
       removeObjectFromCache(name);
     } catch (const CORBA::TRANSIENT& err) {
       TRACE_TEXT(TRACE_ALL_STEPS,
                  "Remove unreachable object from cache (" << ctxt
-                 << "/" << name << ")" << endl);
+                 << "/" << name << ")\n");
       removeObjectFromCache(name);
     } catch (const CORBA::COMM_FAILURE& err) {
       TRACE_TEXT(TRACE_ALL_STEPS,
                  "Remove unreachable object from cache (" << ctxt
-                 << "/" << name << ")" << endl);
+                 << "/" << name << ")\n");
       removeObjectFromCache(name);
     } catch (...) {
       TRACE_TEXT(TRACE_ALL_STEPS,
                  "Remove unreachable object from cache (" << ctxt
-                 << "/" << name << ")" << endl);
+                 << "/" << name << ")\n");
       removeObjectFromCache(name);
     }
   }
@@ -351,7 +351,7 @@ ORBMgr::resolveObject(const string& context, const string& name,
     /* If the object is not a forwarder object, then
      * search if we need to use a forwarder to reach it.
      */
-    if (ctxt!=FWRDCTXT && fwdName!="no-Forwarder") {
+    if (ctxt != FWRDCTXT && fwdName!="no-Forwarder") {
       std::string objIOR = getIOR(object);
       IOP::IOR ior;
       makeIOR(objIOR, ior);
@@ -365,7 +365,7 @@ ORBMgr::resolveObject(const string& context, const string& name,
             resolve<Forwarder, Forwarder_var>(FWRDCTXT, objHost);
 
           TRACE_TEXT(TRACE_ALL_STEPS, "Object (" << ctxt << "/" << name << ")"
-                     << " is reachable through forwarder " << objHost << endl);
+                     << " is reachable through forwarder " << objHost << "\n");
           if (ctxt == AGENTCTXT) {
             if (!localAgent) {
               object = fwd->getMasterAgent(name.c_str());
@@ -380,38 +380,38 @@ ORBMgr::resolveObject(const string& context, const string& name,
               object = fwd->getAgent(name.c_str());
             }
           }
-          if (ctxt==CLIENTCTXT) {
+          if (ctxt == CLIENTCTXT) {
             object = fwd->getCallback(name.c_str());
           }
-          if (ctxt==SEDCTXT) {
+          if (ctxt == SEDCTXT) {
             object = fwd->getSeD(name.c_str());
           }
 
-          if (ctxt==DAGDACTXT) {
+          if (ctxt == DAGDACTXT) {
             object = fwd->getDagda(name.c_str());
           }
 #ifdef HAVE_WORKFLOW
-          if (ctxt==WFMGRCTXT) {
+          if (ctxt == WFMGRCTXT) {
             object = fwd->getCltMan(name.c_str());
           }
-          if (ctxt==MADAGCTXT) {
+          if (ctxt == MADAGCTXT) {
             object = fwd->getMaDag(name.c_str());
           }
 #endif
         } else {
           TRACE_TEXT(TRACE_ALL_STEPS,
-                     "Direct access to object " << ctxt << "/" << name << endl);
+                     "Direct access to object " << ctxt << "/" << name << "\n");
         }
       } catch (const CORBA::TRANSIENT& err) {
         TRACE_TEXT(TRACE_ALL_STEPS,
                    "Unable to contact DIET forwarder \""
-                   << objHost << "\"" << endl);
+                   << objHost << "\"\n");
       }
     }
   } catch (CosNaming::NamingContext::NotFound& err) {
     TRACE_TEXT(TRACE_ALL_STEPS,
-               "Error resolving " << ctxt << "/" << name << endl);
-    throw runtime_error("Error resolving " + ctxt + "/" + name);
+               "Error resolving " << ctxt << "/" << name << "\n");
+    throw std::runtime_error("Error resolving " + ctxt + "/" + name);
   }
   cacheMutex.lock();
   cache[ctxt + "/" + name] = CORBA::Object::_duplicate(object);
@@ -451,8 +451,8 @@ ORBMgr::simpleResolve(const std::string& context,
     object = rootContext->resolve(cosName);
   } catch (CosNaming::NamingContext::NotFound& err) {
     TRACE_TEXT(TRACE_ALL_STEPS,
-               "Error resolving " << ctxt << "/" << name << endl);
-    throw runtime_error("Error resolving " + ctxt + "/" + name);
+               "Error resolving " << ctxt << "/" << name << "\n");
+    throw std::runtime_error("Error resolving " + ctxt + "/" + name);
   }
   return CORBA::Object::_duplicate(object);
 }
@@ -469,7 +469,7 @@ ORBMgr::list(CosNaming::NamingContext_var& ctxt) const {
   for (unsigned int i = 0; i < ctxtList->length(); ++i)
     if (ctxtList[i].binding_type == CosNaming::nobject) {
       for (unsigned int j = 0; j < ctxtList[i].binding_name.length(); ++j) {
-        result.push_back(string(ctxtList[i].binding_name[j].id));
+        result.push_back(std::string(ctxtList[i].binding_name[j].id));
       }
     }
   if (CORBA::is_nil(it)) {
@@ -478,7 +478,7 @@ ORBMgr::list(CosNaming::NamingContext_var& ctxt) const {
   while (it->next_one(bv)) {
     if (bv->binding_type == CosNaming::nobject) {
       for (unsigned int j = 0; j < bv->binding_name.length(); ++j) {
-        result.push_back(string(bv->binding_name[j].id));
+        result.push_back(std::string(bv->binding_name[j].id));
       }
     }
   }
@@ -499,7 +499,7 @@ ORBMgr::list(const std::string& ctxtName) const {
 
   for (unsigned int i = 0; i < bindingList->length(); ++i) {
     if (bindingList[i].binding_type == CosNaming::ncontext) {
-      if (string(bindingList[i].binding_name[0].id) == ctxtName) {
+      if (std::string(bindingList[i].binding_name[0].id) == ctxtName) {
         std::list<std::string> tmpRes;
         CORBA::Object_ptr ctxtObj =
           rootContext->resolve(bindingList[i].binding_name);
@@ -518,7 +518,7 @@ ORBMgr::list(const std::string& ctxtName) const {
   CosNaming::Binding_var bv;
   while (it->next_one(bv)) {
     if (bv->binding_type == CosNaming::ncontext) {
-      if (string(bv->binding_name[0].id) == ctxtName) {
+      if (std::string(bv->binding_name[0].id) == ctxtName) {
         std::list<std::string> tmpRes;
         CORBA::Object_ptr ctxtObj = rootContext->resolve(bv->binding_name);
         CosNaming::NamingContext_var ctxt =
@@ -546,7 +546,7 @@ ORBMgr::contextList() const {
 
   for (unsigned int i = 0; i < bindingList->length(); ++i) {
     if (bindingList[i].binding_type == CosNaming::ncontext) {
-      string ctxt = string(bindingList[i].binding_name[0].id);
+      std::string ctxt = std::string(bindingList[i].binding_name[0].id);
       result.push_back(ctxt);
     }
   }
@@ -557,7 +557,7 @@ ORBMgr::contextList() const {
   CosNaming::Binding_var bv;
   while (it->next_one(bv)) {
     if (bv->binding_type == CosNaming::ncontext) {
-      result.push_back(string(bv->binding_name[0].id));
+      result.push_back(std::string(bv->binding_name[0].id));
     }
   }
   return result;
@@ -610,7 +610,7 @@ ORBMgr::localObjects(const std::string& ctxt) const {
 
   for (it = result.begin(); it != result.end(); it = next) {
     std::string ior, iorHost;
-    next=it;
+    next = it;
     ++next;
     CORBA::Object_ptr obj = simpleResolve(ctxt, *it);
     ior = getIOR(obj);
@@ -677,7 +677,7 @@ ORBMgr::wait() const {
   signal(SIGINT, ORBMgr::sigIntHandler);
   signal(SIGTERM, ORBMgr::sigIntHandler);
   try {
-    TRACE_TEXT(TRACE_MAIN_STEPS, "Press CTRL+C to exit" << std::endl);
+    TRACE_TEXT(TRACE_MAIN_STEPS, "Press CTRL+C to exit\n");
 #ifdef __cygwin__
     sem_init(&waitLock,0,1);
     sem_wait(&waitLock);
@@ -720,7 +720,7 @@ ORBMgr::hexStringToBuffer(const char* ptr, const size_t size,
 
   for (unsigned int i = 0; i < size; i += 2) {
     ss << ptr[i] << ptr[i+1];
-    ss >> hex >> value;
+    ss >> std::hex >> value;
     c = value;
     buffer.marshalOctet(c);
     ss.flush();
@@ -777,7 +777,7 @@ ORBMgr::makeString(const IOP::IOR& ior, std::string& strIOR) {
     }
 
     ss << (unsigned short) c;
-    ss >> hex >> str;
+    ss >> std::hex >> str;
     ss.flush();
     ss.clear();
     strIOR += str;
@@ -794,7 +794,7 @@ ORBMgr::getHost(IOP::IOR& ior) {
   }
 
   IIOP::unmarshalProfile(ior.profiles[0], body);
-  return string(body.address.host);
+  return std::string(body.address.host);
 }
 
 /* Get the hostname of the first profile in IOR passed
@@ -859,7 +859,7 @@ ORBMgr::convertIOR(IOP::IOR& ior, const std::string& host,
   }
 
   for (unsigned int i = 0; i < ior.profiles.length(); ++i) {
-    if (ior.profiles[i].tag==IOP::TAG_INTERNET_IOP) {
+    if (ior.profiles[i].tag == IOP::TAG_INTERNET_IOP) {
       IIOP::unmarshalProfile(ior.profiles[i], body);
 
       body.address.host = host.c_str();

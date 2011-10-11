@@ -1392,8 +1392,6 @@ int diet_est_array_defined(estVectorConst_t ev, int userTag, int idx);
 	 */
 int diet_est_array_defined_system(estVectorConst_t ev, int systemTag, int idx);
 
-#ifdef HAVE_CORI
-
 #ifdef HAVE_ALT_BATCH
 /* These two functions shall be removed and a better mechanism found
    for example when and if CoRI is rewritten. Or clients using CoRI must
@@ -1475,28 +1473,6 @@ int diet_estimate_cori_add_collector(diet_est_collect_tag_t collector_type,
  */
 
 void diet_estimate_coriEasy_print();
-
-#else /* HAVE_CORI */
-
-/**
- Function used to put values from FAST in the estimation vector
-
- @param ev estimation vector
- @param profilePtr pointer to the profile
-
- @return error code telling whether the operation was successful or not:
- \arg 0 if the hostname could not be retrieved
- \arg 1 if we attempt to estimate a request without having initalized FAST first
-
- @todo error codes defined in DIET_grpc.h should better be used. This needs to defined new error codes
- @sa DIET_grpc.h for error codes
-
- @warning why is this function not inside #ifdef for FAST???
- */
-
-int diet_estimate_fast(estVector_t ev, const diet_profile_t* const profilePtr);
-
-#endif /* HAVE_CORI */
 
 /**
  Function used to set the time since last solve in the estimation vector

@@ -34,5 +34,5 @@ public:
 
 }
 
-#endif // EVENTOBSERVER_HH_
+#endif  // EVENTOBSERVER_HH_
 

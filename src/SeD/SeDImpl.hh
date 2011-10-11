@@ -287,23 +287,23 @@ extern "C" {
 /* SeD class                                                                */
 /****************************************************************************/
 class SeDImpl : public POA_SeD,
-                public PortableServer::RefCountServantBase
-{
-
+                public PortableServer::RefCountServantBase {
 public:
-
   SeDImpl();
+
   ~SeDImpl();
 
-#ifdef HAVE_DYNAMICS
   virtual CORBA::Long
   bindParent(const char * parentName);
+
   virtual CORBA::Long
   disconnect();
+
   virtual CORBA::Long
   removeElement();
-  void removeElementClean();
-#endif // HAVE_DYNAMICS
+
+  void
+  removeElementClean();
 
   int
   run(ServiceTable* services);
@@ -334,12 +334,13 @@ public:
   virtual CORBA::Long
   solve(const char* pbName, corba_profile_t& pb);
 
-  char* getName();
+  char*
+  getName();
 
 #if defined HAVE_ALT_BATCH
   /* Set if server is SERIAL, BATCH,.. */
   void
-  setServerStatus( diet_server_status_t status );
+  setServerStatus(diet_server_status_t status);
 
   diet_server_status_t
   getServerStatus();
@@ -355,20 +356,13 @@ public:
                       CORBA::Object_var & cb,
                       diet_profile_t& profile);
 
-  char* getLocalHostName();
+  char*
+  getLocalHostName();
 #endif
 #if HAVE_ALT_BATCH
-  BatchSystem * // should be const
-  getBatch();
-
-  //   int
-  //   diet_submit_parallel(diet_profile_t * profile, const char * command);
-
-  //   int
-  //   diet_concurrent_submit_parallel(int batchJobID, diet_profile_t * profile,
-  //                                   const char * command);
+  BatchSystem *
+  getBatch();  // should be const
 #endif
-
 
   virtual void
   solveAsync(const char* pb_name, const corba_profile_t& pb,
@@ -377,17 +371,20 @@ public:
   virtual CORBA::Long
   ping();
 
-  const struct timeval* timeSinceLastSolve();
+  const struct timeval*
+  timeSinceLastSolve();
 
   /* Access to the queue size in the AccessController object. */
-  int getNumJobsWaiting();
+  int
+  getNumJobsWaiting();
 
   /**
    * Retrieve the list of all jobs currently waiting or running
    * @param jv  a table of diet_job_t (caller resp. for freeing this table)
    * @return number of jobs in the table (0 if failure)
    */
-  int getActiveJobVector(jobVector_t& jv);
+  int
+  getActiveJobVector(jobVector_t& jv);
 
   /**
    * Get the Earliest Finish Time of the SeD ie time until it's available
@@ -395,13 +392,21 @@ public:
    * running or waiting) and SeD's concurrency constraint (nb of procs).
    * @return  the estimated EFT in ms from now
    */
-  double getEFT();
+  double
+  getEFT();
 
 
-  int removeService(const diet_profile_t* const profile);
-  int removeServiceDesc(const diet_profile_desc_t* profile);
-  int addService(const corba_profile_desc_t& profile);
-  virtual char* getDataMgrID();  // modif bisnard_logs_1
+  int
+  removeService(const diet_profile_t* const profile);
+
+  int
+  removeServiceDesc(const diet_profile_desc_t* profile);
+
+  int
+  addService(const corba_profile_desc_t& profile);
+
+  virtual char*
+  getDataMgrID();  // modif bisnard_logs_1
 
   virtual  SeqCorbaProfileDesc_t*
   getSeDProfiles(CORBA::Long& length);
@@ -470,7 +475,8 @@ private:
 
   /** Private method to centralize all shared variable initializations
    * in various constructors. */
-  virtual void initialize();
+  virtual void
+  initialize();
 
   inline void
   estimate(corba_estimation_t& estimation,
@@ -481,7 +487,6 @@ private:
    * TODO: if possible merge async and sync function. Currently, the DTM code
    * if different
    */
-
   inline void
   downloadSyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
                       diet_convertor_t* cvt);
@@ -497,37 +502,51 @@ private:
   inline void
   uploadAsyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
                      diet_convertor_t* cvt);
-
 };
 
 class SeDFwdrImpl : public POA_SeD,
-                    public PortableServer::RefCountServantBase
-{
+                    public PortableServer::RefCountServantBase {
+public:
+  SeDFwdrImpl(Forwarder_ptr fwdr, const char* objName);
+
+  virtual CORBA::Long
+  ping();
+
+  virtual CORBA::Long
+  bindParent(const char * parentName);
+
+  virtual CORBA::Long
+  disconnect();
+
+  virtual CORBA::Long
+  removeElement();
+
+  virtual void
+  getRequest(const corba_request_t& req);
+
+  virtual CORBA::Long
+  checkContract(corba_estimation_t& estimation,
+                const corba_pb_desc_t& pb);
+
+  virtual void
+  updateTimeSinceLastSolve();
+
+  virtual CORBA::Long
+  solve(const char* pbName, corba_profile_t& pb);
+
+  virtual void
+  solveAsync(const char* pb_name, const corba_profile_t& pb,
+             const char * volatileclientIOR);
+
+  virtual char*
+  getDataMgrID();
+
+  virtual SeqCorbaProfileDesc_t*
+  getSeDProfiles(CORBA::Long& length);
+
 protected:
   Forwarder_ptr forwarder;
   char* objName;
-
-public:
-  SeDFwdrImpl(Forwarder_ptr fwdr, const char* objName);
-  virtual CORBA::Long ping();
-#ifdef HAVE_DYNAMICS
-  virtual CORBA::Long bindParent(const char * parentName);
-  virtual CORBA::Long disconnect();
-  virtual CORBA::Long removeElement();
-#endif
-  virtual void getRequest(const corba_request_t& req);
-  virtual CORBA::Long checkContract(corba_estimation_t& estimation,
-                                    const corba_pb_desc_t& pb);
-
-  virtual void updateTimeSinceLastSolve();
-
-  virtual CORBA::Long solve(const char* pbName, corba_profile_t& pb);
-  virtual void solveAsync(const char* pb_name, const corba_profile_t& pb,
-                          const char * volatileclientIOR);
-  virtual char* getDataMgrID();
-
-  virtual  SeqCorbaProfileDesc_t*
-  getSeDProfiles(CORBA::Long& length);
 };
 
-#endif // _SED_IMPL_HH_
+#endif  // _SED_IMPL_HH_

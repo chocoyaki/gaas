@@ -81,9 +81,7 @@ public:
               const wf_response_t * wf_response,
               Dag * dag,
               double initTime) = 0;
-
 };
-
 }
 
-#endif // _WFMETASCHED_HH_
+#endif  // _WFMETASCHED_HH_

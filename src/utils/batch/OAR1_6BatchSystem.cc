@@ -88,7 +88,7 @@ OAR1_6BatchSystem::OAR1_6BatchSystem(int ID, const char * batchname)
     ERROR_EXIT("OAR1.6 needs a path to a NFS directory to store its script");
   }
 #if defined YC_DEBUG
-  TRACE_TEXT(TRACE_ALL_STEPS,"Nom NFS: " << getNFSPath() << endl);
+  TRACE_TEXT(TRACE_ALL_STEPS,"Nom NFS: " << getNFSPath() << "\n");
 #endif
 
   batch_ID = ID;
@@ -102,7 +102,7 @@ OAR1_6BatchSystem::OAR1_6BatchSystem(int ID, const char * batchname)
   }
 #if defined YC_DEBUG
   TRACE_TEXT(TRACE_ALL_STEPS,"Nom queue interne: " << internQueueName
-             << endl);
+             << "\n");
 #endif
 
   shell = BatchSystem::emptyString;
@@ -110,7 +110,7 @@ OAR1_6BatchSystem::OAR1_6BatchSystem(int ID, const char * batchname)
   postfixe = BatchSystem::emptyString;
 
   nodesNumber = "#OAR -l nodes=";
-  serial = "#OAR -l nodes=1";
+  serial = "#OAR -l nodes = 1";
   coresNumber = BatchSystem::emptyString;
   walltime = "\n#OAR -l walltime=";
   submittingQueue = "\n#OAR -q ";
@@ -153,7 +153,7 @@ OAR1_6BatchSystem::askBatchJobStatus(int batchJobID)
   char * filename;
   int file_descriptor;
   char * chaine;
-  int i=0;
+  int i = 0;
   int nbread;
   batchJobState status;
 
@@ -177,7 +177,7 @@ OAR1_6BatchSystem::askBatchJobStatus(int batchJobID)
   sprintf(chaine,"%s %d | %s > %s",
           wait4Command,batchJobID,waitFilter,filename);
 #if defined YC_DEBUG
-  TRACE_TEXT(TRACE_ALL_STEPS,"Execute:" << endl << chaine << endl);
+  TRACE_TEXT(TRACE_ALL_STEPS,"Execute:" << "\n" << chaine << "\n");
 #endif
   if( system(chaine) != 0 ) {
     ERROR("Cannot submit script", NB_STATUS);
@@ -185,7 +185,7 @@ OAR1_6BatchSystem::askBatchJobStatus(int batchJobID)
   /* Get job status */
   for( int i = 0; i<=NBDIGITS_MAX_BATCH_JOB_ID; i++ )
     chaine[i] = '\0';
-  if( (nbread=readn(file_descriptor,chaine,NBDIGITS_MAX_JOB_STATUS))
+  if( (nbread = readn(file_descriptor,chaine,NBDIGITS_MAX_JOB_STATUS))
       == 0 ) {
     ERROR("Error with I/O file. Cannot read the batch status", NB_STATUS);
   }
@@ -197,7 +197,7 @@ OAR1_6BatchSystem::askBatchJobStatus(int batchJobID)
     i++;
   }
 
-  if( i==NB_STATUS ) {
+  if( i == NB_STATUS ) {
     ERROR("Cannot get batch job " << batchJobID << " status: " << chaine, NB_STATUS);
   }
   /* Remove temporary file by closing it */
@@ -247,7 +247,7 @@ OAR1_6BatchSystem::getNbResources() /* in the queue internQueueName */
   char chaine[500];
 
   if( internQueueName == NULL ) {
-    WARNING("No internal queue Name given: use total information" << endl << endl);
+    WARNING("No internal queue Name given: use total information" << "\n\n");
     return getNbTotResources();
   }
 
@@ -261,8 +261,8 @@ OAR1_6BatchSystem::getResourcesName()
 {
   char chaine[500];
 
-  sprintf(chaine, "oarnodes | grep %s | cut --delimiter=\"=\" --fields=6"
-          " | cut --delimiter=\",\" --fields=1", internQueueName);
+  sprintf(chaine, "oarnodes | grep %s | cut --delimiter=\"=\" --fields = 6"
+          " | cut --delimiter=\",\" --fields = 1", internQueueName);
   return launchCommandAndGetResultFilename(chaine,
                                            "DIET_getNameResources");
 }
@@ -270,14 +270,14 @@ OAR1_6BatchSystem::getResourcesName()
 int
 OAR1_6BatchSystem::getMaxWalltime()
 {
-  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl);
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << "\n\n");
   return 500;
 }
 
 int
 OAR1_6BatchSystem::getMaxProcs()
 {
-  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << endl << endl);
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented" << "\n\n");
   return getNbResources();
 }
 
@@ -287,7 +287,7 @@ int
 OAR1_6BatchSystem::getNbTotFreeResources()
 {
   /* Command could be
-     "oarstat -a | grep Free | cut --delimiter=" " --fields=4" */
+     "oarstat -a | grep Free | cut --delimiter=" " --fields = 4" */
   return launchCommandAndGetInt( "oarnodes | grep state | grep free | wc -l",
                                  "DIET_getFreeResources");
 }
@@ -302,7 +302,7 @@ OAR1_6BatchSystem::getNbFreeResources()
   int j, k;
 
   if( internQueueName == NULL ) {
-    WARNING("No internal queue Name given: use total information" << endl << endl);
+    WARNING("No internal queue Name given: use total information" << "\n\n");
     return getNbTotResources();
   }
 
@@ -314,13 +314,12 @@ OAR1_6BatchSystem::getNbFreeResources()
   /* TODO: Do it the C++ way! Better, use a parser! */
   file =  fopen(filename,"r");
   if( file == NULL ) {
-    WARNING("GetNbRsource: Cannot open file " << filename << endl << endl);
+    WARNING("GetNbRsource: Cannot open file " << filename << "\n\n");
     return getNbTotResources();
   }
   fileToParse =  fopen(filenameToParse,"r");
   if( fileToParse == NULL ) {
-    WARNING("GetNbRsource: Cannot open file " << filenameToParse << endl
-            << endl);
+    WARNING("GetNbRsource: Cannot open file " << filenameToParse << "\n");
     if( fclose(file) != 0 ) {
       WARNING("Couln't close file");
     }
@@ -334,7 +333,7 @@ OAR1_6BatchSystem::getNbFreeResources()
     do
       k = fscanf(fileToParse,"%499s",chaine);
     while( (k != EOF) && ( strcmp(chaine,hostname)!=0 ) );
-    /* TODO: should end if k==EOF because ERROR! */
+    /* TODO: should end if k == EOF because ERROR! */
     /* We have reached the line ^hostname */
     /* Search for the status */
     do

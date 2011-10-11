@@ -36,28 +36,22 @@
  */
 
 class RequestID {
-
-private :
-  /**
-   * the value of RequestID
-   */
-  CORBA::Long value;
-
-public :
-
+public:
+  // FIXME: should be explicit but breaks build
+  // src/agent/Agen
   /**
    * Creates a new RequestID.
    *
    * @param reqID the value of the RequestID.
    */
-  inline RequestID(CORBA::Long reqID) : value(reqID) {}
+  RequestID(CORBA::Long reqID) : value(reqID) {}
 
   /**
    * Clones a RequestID.
    *
    * @param reqID the RequestID to clone.
    */
-  inline RequestID(const RequestID & reqID) {
+  RequestID(const RequestID & reqID) {
     value = reqID.value;
   }
 
@@ -66,7 +60,8 @@ public :
    *
    * @param reqID The RequestID where the value is taken.
    */
-  inline RequestID & operator=(const RequestID & reqID) {
+  inline RequestID &
+  operator=(const RequestID & reqID) {
     value = reqID.value;
     return *this;
   }
@@ -78,11 +73,18 @@ public :
     return value;
   }
 
-  friend bool operator< (const RequestID & a, const RequestID & b);
+  friend bool
+  operator< (const RequestID & a, const RequestID & b);
 
-  friend bool operator== (const RequestID & a, const RequestID & b);
+  friend bool
+  operator== (const RequestID & a, const RequestID & b);
 
-};  // RequestID
+private:
+  /**
+   * the value of RequestID
+   */
+  CORBA::Long value;
+};
 
 /**
  * returns true if the representation of \c a is lesser than the
@@ -107,4 +109,4 @@ inline bool operator== (const RequestID & a, const RequestID & b) {
   return a.value == b.value;
 }
 
-#endif // _REQUEST_ID_
+#endif  // _REQUEST_ID_

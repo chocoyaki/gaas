@@ -36,7 +36,7 @@ EventManager::addObserver(EventObserver* observer) {
 void
 EventManager::sendEvent(EventBase* event) {
   // send notification to all observers
-  for (unsigned int i=0; i<_observers.size(); i++) {
+  for (unsigned int i = 0; i<_observers.size(); i++) {
     if (_observers[i]->isObserver(event)) {
       try {
         _observers[i]->handleEvent(event);

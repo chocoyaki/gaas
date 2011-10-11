@@ -184,7 +184,7 @@ FNode::newPort(string portId,
                unsigned int ind,
                WfPort::WfPortType portType,
                WfCst::WfDataType dataType,
-               unsigned int depth) throw (WfStructException) {
+               unsigned int depth) throw(WfStructException) {
   WfPort * p = NULL;
   switch (portType) {
   case WfPort::PORT_PARAM:
@@ -206,7 +206,7 @@ FNode::newPort(string portId,
 }
 
 void
-FNode::connectNodePorts() throw (WfStructException) {
+FNode::connectNodePorts() throw(WfStructException) {
   TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "Connecting ports" << endl);
   for (map<string, WfPort*>::iterator p = ports.begin();
        p != ports.end();
@@ -846,7 +846,7 @@ FProcNode::instanciate(Dag* dag) {
       // CHECK IF VOID
       bool dataIsVoid = false;
       vector<FDataHandle*>::const_iterator DLIter = currDataLine->begin();
-      while ((!dataIsVoid) && (DLIter!=currDataLine->end())) {
+      while ((!dataIsVoid) && (DLIter != currDataLine->end())) {
         FDataHandle* currDataHdl = *(DLIter++);
         dataIsVoid = currDataHdl ? currDataHdl->isVoid() : dataIsVoid;
       }

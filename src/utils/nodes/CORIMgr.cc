@@ -46,7 +46,7 @@
 using namespace std;
 
 
-vector <Cori_Metric>* CORIMgr::collector_v=new vector <Cori_Metric>();
+vector <Cori_Metric>* CORIMgr::collector_v = new vector <Cori_Metric>();
 
 int
 CORIMgr::add(diet_est_collect_tag_t collectorName,
@@ -60,11 +60,11 @@ CORIMgr::add(diet_est_collect_tag_t collectorName,
 int
 CORIMgr::startCollectors()
 {
-  int res=0;
+  int res = 0;
   vector <Cori_Metric>::iterator iter1;
   iter1 = collector_v->begin();
   while( iter1 != collector_v->end()) {
-    res=iter1->start(iter1->get_Collector_type())||res;
+    res = iter1->start(iter1->get_Collector_type())||res;
     ++iter1;
   }
   return res;
@@ -80,7 +80,7 @@ CORIMgr::call_cori_mgr(estVector_t *ev,
   iter1 = collector_v->begin();
   while( iter1 != collector_v->end()) {
 
-    if (name==iter1->get_Collector_type())
+    if (name == iter1->get_Collector_type())
       return iter1->call_cori_metric(info_type,ev,datav);
 
     ++iter1;

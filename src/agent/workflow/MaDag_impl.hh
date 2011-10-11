@@ -133,6 +133,7 @@
 #ifndef _MADAG_IMPL_HH_
 #define _MADAG_IMPL_HH_
 
+#include <map>
 #include <string>
 
 #include "MaDag.hh"
@@ -140,7 +141,6 @@
 #include "WfScheduler.hh"
 #include "MultiWfScheduler.hh"
 #include "CltMan.hh"
-#include "MaDag.hh"
 #ifdef USE_LOG_SERVICE
 #include "DietLogComponent.hh"
 #endif
@@ -291,7 +291,7 @@ protected:
   parseNewDag(const corba_wf_desc_t& wf_desc,
               const string& dagId,
               MetaDag * mDag = NULL)
-  throw (MaDag::InvalidDag);
+  throw(MaDag::InvalidDag);
 
 #ifdef USE_LOG_SERVICE
   /**
@@ -346,27 +346,39 @@ private:
    * Dag counter
    */
   CORBA::Long dagIdCounter;
-
 };
 
 class MaDagFwdrImpl : public POA_MaDag,
                       public PortableServer::RefCountServantBase {
-protected:
-  Forwarder_ptr forwarder;
-  char* objName;
 public:
   MaDagFwdrImpl(Forwarder_ptr fwdr, const char* objName);
+
   virtual CORBA::Long
   processDagWf(const corba_wf_desc_t& dag_desc, const char* cltMgrRef,
                CORBA::Long wfReqId);
+
   virtual CORBA::Long
   processMultiDagWf(const corba_wf_desc_t& dag_desc, const char* cltMgrRef,
                     CORBA::Long wfReqId, CORBA::Boolean release);
-  virtual CORBA::Long getWfReqId();
-  virtual void releaseMultiDag(CORBA::Long wfReqId);
-  virtual void cancelDag(CORBA::Long dagId);
-  virtual void setPlatformType(MaDag::pfmType_t pfmType);
-  virtual CORBA::Long     ping();
+
+  virtual CORBA::Long
+  getWfReqId();
+
+  virtual void
+  releaseMultiDag(CORBA::Long wfReqId);
+
+  virtual void
+  cancelDag(CORBA::Long dagId);
+
+  virtual void
+  setPlatformType(MaDag::pfmType_t pfmType);
+
+  virtual CORBA::Long
+  ping();
+
+protected:
+  Forwarder_ptr forwarder;
+  char* objName;
 };
 
 #endif   /* not defined _MADAG_IMPL_HH */

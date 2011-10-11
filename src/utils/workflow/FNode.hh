@@ -130,7 +130,7 @@ public:
           unsigned int ind,
           WfPort::WfPortType portType,
           WfCst::WfDataType dataType,
-          unsigned int depth) throw (WfStructException);
+          unsigned int depth) throw(WfStructException);
 
   /**
    * Get the name of the default port (only for interface nodes)
@@ -142,7 +142,7 @@ public:
    * Node interconnections (and type check)
    */
   virtual void
-  connectNodePorts() throw (WfStructException);
+  connectNodePorts() throw(WfStructException);
 
   /**
    * Node connections to workflow external ports (used for sub-workflows)
@@ -690,7 +690,7 @@ protected:
   template<class PortType>
   PortType*
   checkAssignPort(const string& portName)
-    throw (WfStructException) {
+    throw(WfStructException) {
     WfPort* port = getPort(portName);  // throws exception
     PortType* FPort = dynamic_cast<PortType*>(port);
     if (!FPort) {
@@ -741,4 +741,4 @@ protected:
 
 };  // end class FProcNode
 
-#endif // _FNODE_HH_
+#endif  // _FNODE_HH_

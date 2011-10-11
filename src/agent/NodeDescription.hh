@@ -54,43 +54,7 @@
  */
 
 template<class T, class T_ptr> class NodeDescription {
-private :
-  /** the IOR of the node */
-  T_ptr ior;
-
-  /**
-   * the hostname of the node. It is \c NULL if the description is not
-   * defined
-   */
-  char* hostName;
-
-  /**
-   * free the memory of the node description
-   */
-  inline void
-  freeMemory() {
-    if(defined()) {
-      ms_strfree(hostName);
-      hostName = NULL;
-      CORBA::release(ior);
-    }
-  }
-
-  /**
-   * copy the argument into the attribut of the node
-   */
-  inline void
-  copyMemory(T_ptr ior, const char* hostName) {
-    if (hostName != NULL) {
-      this->ior = T::_duplicate(ior);
-      this->hostName = ms_strdup(hostName);
-    } else {
-      this->ior = T::_nil();
-      this->hostName = NULL;
-    }
-  }
-
-public :
+public:
   /** return true if the node is define, false if not. */
   inline bool
   defined() const { return hostName; }
@@ -189,6 +153,41 @@ public :
   operator->() const {
     return ior;
   }
+private:
+  /** the IOR of the node */
+  T_ptr ior;
+
+  /**
+   * the hostname of the node. It is \c NULL if the description is not
+   * defined
+   */
+  char* hostName;
+
+  /**
+   * free the memory of the node description
+   */
+  inline void
+  freeMemory() {
+    if (defined()) {
+      ms_strfree(hostName);
+      hostName = NULL;
+      CORBA::release(ior);
+    }
+  }
+
+  /**
+   * copy the argument into the attribut of the node
+   */
+  inline void
+  copyMemory(T_ptr ior, const char* hostName) {
+    if (hostName != NULL) {
+      this->ior = T::_duplicate(ior);
+      this->hostName = ms_strdup(hostName);
+    } else {
+      this->ior = T::_nil();
+      this->hostName = NULL;
+    }
+  }
 };
 
-#endif // _NODE_DESCRIPTION_HH_
+#endif  // _NODE_DESCRIPTION_HH_

@@ -37,8 +37,8 @@
 DataRelationMgr::DataRelationMgr() { }
 
 void
-DataRelationMgr::addRelation(const string& dataID1,
-                             const string& dataID2,
+DataRelationMgr::addRelation(const std::string& dataID1,
+                             const std::string& dataID2,
                              long index,
                              long flag) {
   dataRelationValue_t value = { dataID2, index, flag};
@@ -48,10 +48,10 @@ DataRelationMgr::addRelation(const string& dataID1,
 }
 
 void
-DataRelationMgr::remRelation(const string& dataID1,
+DataRelationMgr::remRelation(const std::string& dataID1,
                              long index) {
   myLock.lock(); /** LOCK */
-  for (multimap<std::string, dataRelationValue_t>::iterator iter = myMap.lower_bound(dataID1);
+  for (std::multimap<std::string, dataRelationValue_t>::iterator iter = myMap.lower_bound(dataID1);
        iter != myMap.upper_bound(dataID1);
        ++iter) {
     if (iter->second.index == index) {
@@ -63,13 +63,13 @@ DataRelationMgr::remRelation(const string& dataID1,
 }
 
 void
-DataRelationMgr::remAllRelation(const string& dataID, bool reverse) {
+DataRelationMgr::remAllRelation(const std::string& dataID, bool reverse) {
   // Delete links FROM the item
   myLock.lock();
   int count = myMap.erase(dataID);
   myLock.unlock();
   TRACE_TEXT(TRACE_ALL_STEPS, "Removed " << count << " relations for key "
-             << dataID << endl);
+             << dataID << "\n");
   // Delete links TO the item
   if (reverse) {
     // TODO delete all links TO the item
@@ -81,14 +81,14 @@ DataRelationMgr::remAllRelation(const string& dataID, bool reverse) {
  * Note: the SeqString and SeqLong must be pre-allocated by the caller
  */
 void
-DataRelationMgr::getRelationList(const string& dataID,
+DataRelationMgr::getRelationList(const std::string& dataID,
                                  SeqString& dataIDList,
                                  SeqLong& flagList,
                                  bool ordered) {
   int ix = 0;
   int listSize = dataIDList.length();
   myLock.lock();
-  for (multimap<std::string, dataRelationValue_t>::iterator iter = myMap.lower_bound(dataID);
+  for (std::multimap<std::string, dataRelationValue_t>::iterator iter = myMap.lower_bound(dataID);
        iter != myMap.upper_bound(dataID);
        ++iter) {
     int jx = ordered ? iter->second.index : ix++;
@@ -102,10 +102,10 @@ DataRelationMgr::getRelationList(const string& dataID,
 }
 
 unsigned int
-DataRelationMgr::getRelationNb(const string& dataID) {
+DataRelationMgr::getRelationNb(const std::string& dataID) {
   unsigned int ix = 0;
   myLock.lock();
-  for (multimap<std::string, dataRelationValue_t>::iterator iter = myMap.lower_bound(dataID);
+  for (std::multimap<std::string, dataRelationValue_t>::iterator iter = myMap.lower_bound(dataID);
        iter != myMap.upper_bound(dataID);
        ++iter) { ++ix; }
   myLock.unlock();
@@ -113,10 +113,10 @@ DataRelationMgr::getRelationNb(const string& dataID) {
 }
 
 unsigned int
-DataRelationMgr::getRelationMaxIndex(const string& dataID) {
+DataRelationMgr::getRelationMaxIndex(const std::string& dataID) {
   int max = 0;
   myLock.lock();
-  for (multimap<std::string, dataRelationValue_t>::iterator iter = myMap.lower_bound(dataID);
+  for (std::multimap<std::string, dataRelationValue_t>::iterator iter = myMap.lower_bound(dataID);
        iter != myMap.upper_bound(dataID);
        ++iter) {
     if (iter->second.index > max)
@@ -132,13 +132,15 @@ DataRelationMgr::getRelationMaxIndex(const string& dataID) {
 void
 DataRelationMgr::displayContent() {
   if (TRACE_LEVEL >= TRACE_ALL_STEPS) {
-    cout << "Content of relationship DB: " << endl;
+    std::cout << "Content of relationship DB: \n";
     myLock.lock();
-    for (multimap<string, dataRelationValue_t>::iterator iter = myMap.begin();
-         iter != myMap.end();
-         ++iter) {
-      cout << " | " << iter->first << " | " << iter->second.ID
-           << " | " << iter->second.index << " | " << iter->second.flag << endl;
+    std::multimap<std::string, dataRelationValue_t>::iterator iter =
+      myMap.begin();
+    for (; iter != myMap.end(); ++iter) {
+      std::cout << " | " << iter->first
+                << " | " << iter->second.ID
+                << " | " << iter->second.index
+                << " | " << iter->second.flag << "\n";
     }
     myLock.unlock();
   }

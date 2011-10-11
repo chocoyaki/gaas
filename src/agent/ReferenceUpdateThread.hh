@@ -45,27 +45,7 @@ class MasterAgentImpl;
  */
 
 class ReferenceUpdateThread : public omni_thread {
-
-private :
-
-  /**
-   * A pointer on the master agent that own this thread. This is this
-   * agent which are updated each 5 minutes.
-   */
-  MasterAgentImpl* owner;
-
-  /**
-   * amount of time that it wait between two references updates.
-   */
-  unsigned int period;
-
-  /**
-   * Updates the references of the owner, waits 5 minutes and do it
-   * again.
-   */
-  void run(void* ptr);
-
-public :
+public:
   /**
    * Creates and launch a new thread which update the reference of
    * owner each 5 minutes.
@@ -83,8 +63,26 @@ public :
    */
   ~ReferenceUpdateThread();
 
-};  // ReferenceUpdateThread
+private:
+  /**
+   * Updates the references of the owner, waits 5 minutes and do it
+   * again.
+   */
+  void
+  run(void* ptr);
 
-#endif // HAVE_MULTI_MA
+  /**
+   * A pointer on the master agent that own this thread. This is this
+   * agent which are updated each 5 minutes.
+   */
+  MasterAgentImpl* owner;
 
-#endif // _REFERENCE_UPDATE_THREAD_HH_
+  /**
+   * amount of time that it wait between two references updates.
+   */
+  unsigned int period;
+};
+
+#endif  // HAVE_MULTI_MA
+
+#endif  // _REFERENCE_UPDATE_THREAD_HH_

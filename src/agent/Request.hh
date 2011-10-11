@@ -37,7 +37,7 @@
  */
 
 class Request {
-public :
+public:
   /**
    * Creates a new Request. Uses GlobalScheduler::chooseGlobalScheduler to set
    * GS member.
@@ -46,7 +46,7 @@ public :
    * of it and the variable used to initiate the Request must not be
    * modified or release before the Request is destroyed.
    */
-  Request(const corba_request_t* request);
+  explicit Request(const corba_request_t* request);
 
   /**
    * Creates a new Request.
@@ -68,12 +68,14 @@ public :
   /**
    * locks the Request mutex.
    */
-  void lock();
+  void
+  lock();
 
   /**
    * unlock the Request mutex.
    */
-  void unlock();
+  void
+  unlock();
 
   /**
    * Waits that \c numberOfReponses sons send a reponses to it. The
@@ -84,7 +86,8 @@ public :
    * @param numberOfReponses is the number of reponses waited. It must
    * be positive and not null.
    */
-  void waitResponses(int numberOfReponses);
+  void
+  waitResponses(int numberOfReponses);
 
   /**
    * Add the \c response to the responses list. If this is the last
@@ -96,7 +99,8 @@ public :
    * @param response the response added to the responses list of the
    * \c Request.
    */
-  void addResponse(const corba_response_t* response);
+  void
+  addResponse(const corba_response_t* response);
 
 
   /**
@@ -104,23 +108,27 @@ public :
    * own by the \c Request and free at the same time as the \c
    * Request.
    */
-  corba_response_t* getResponses() const;
+  corba_response_t*
+  getResponses() const;
 
 
   /**
    * returns the number of reponses.
    */
-  size_t getResponsesSize() const;
+  size_t
+  getResponsesSize() const;
 
   /**
    * Returns the number of parameters of the request.
    */
-  CORBA::Long getNumberOfParameters() const;
+  CORBA::Long
+  getNumberOfParameters() const;
 
   /**
    * returns the request used to creates the Request.
    */
-  const corba_request_t* getRequest() const;
+  const corba_request_t*
+  getRequest() const;
 
   /**
    * Returns the scheduler associated to this request.
@@ -128,8 +136,13 @@ public :
   GlobalScheduler*
   getScheduler();
 
+private:
+  /**
+   * frees the memory of responses and does responses = NULL;
+   */
+  void
+  freeResponses();
 
-private :
   /**
    * This is the request which are processed. This is not a clone of
    * the \c corba_request_t used to creats the Request but the
@@ -166,12 +179,6 @@ private :
    * the scheduler to use for this request
    */
   GlobalScheduler* GS;
+};
 
-  /**
-   * frees the memory of responses and does responses = NULL;
-   */
-  void freeResponses();
-
-};  // Request
-
-#endif // _REQUEST_HH_
+#endif  // _REQUEST_HH_

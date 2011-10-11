@@ -36,10 +36,6 @@ if (DIET_WITH_MULTI_MA)
    set(DIET_IDL_FLAGS "${DIET_IDL_FLAGS} -DHAVE_MULTI_MA")
 endif (DIET_WITH_MULTI_MA)
 
-if (DIET_USE_DYNAMICS)
-  set(DIET_IDL_FLAGS "${DIET_IDL_FLAGS} -DHAVE_DYNAMICS")
-endif (DIET_USE_DYNAMICS)
-
 if (DIET_USE_USERSCHED)
   set(DIET_IDL_FLAGS "${DIET_IDL_FLAGS} -DUSERSCHED")
   # Install the files needed for scheduler development.

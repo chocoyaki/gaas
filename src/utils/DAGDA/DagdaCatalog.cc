@@ -35,7 +35,7 @@ int MapDagdaCatalog::insert(string key, attributes_t values) {
 }
 
 bool MapDagdaCatalog::exists(std::string key) {
-  bool ret=false;
+  bool ret = false;
   std::map<std::string, attributes_t>::const_iterator it;
 
   dbMutex.lock();

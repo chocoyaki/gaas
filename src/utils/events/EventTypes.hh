@@ -156,5 +156,5 @@ std::string EventCreateDirectedLink<SRC_TYPE,DEST_TYPE>::toString() const {
 }
 
 }
-#endif // _WFEVENT_HH_
+#endif  // _WFEVENT_HH_
 

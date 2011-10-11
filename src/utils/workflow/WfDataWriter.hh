@@ -109,4 +109,4 @@ protected:
 };
 
 
-#endif // _WFDATAWRITER_HH_
+#endif  // _WFDATAWRITER_HH_

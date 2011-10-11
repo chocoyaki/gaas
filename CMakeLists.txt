@@ -53,7 +53,6 @@ endif()
 # --------------------- OPTIONS OF THE PROJECT -----------------------------
 # Options dependencies:
 #    - DIET_BUILD_BLAS_EXAMPLES => DIET_BUILD_EXAMPLES
-#    - DIET_USE_ALT_BATCH => DIET_USE_CORI
 #    - DIET_USE_CLOUD => DIET_USE_ALT_BATCH
 
 option(DIET_BUILD_BLAS_EXAMPLES "Build BLAS based DIET examples." OFF)
@@ -80,18 +79,6 @@ else (DIET_USE_CLOUD)
 	option(DIET_USE_ALT_BATCH  "Build DIET with Batch support." OFF)
 endif (DIET_USE_CLOUD)
 
-if (DIET_USE_ALT_BATCH)
-  if (NOT DIET_USE_CORI)
-    set(DIET_USE_CORI ON CACHE BOOL "Cori support" FORCE)
-    message(WARNING "CORI was activated for batch support.")
-  endif (NOT DIET_USE_CORI)
-  option(DIET_USE_CORI "Build DIET with CORI support (Mandatory for the batch support)." ON)
-else (DIET_USE_ALT_BATCH)
-  option(DIET_USE_CORI   "Build DIET with CORI support." OFF)
-endif (DIET_USE_ALT_BATCH)
-
-option(DIET_USE_DYNAMICS   "Build DIET with dynamic hierarchy modifications features." ON)
-mark_as_advanced(DIET_USE_DYNAMICS)
 option(DIET_USE_WORKFLOW    "Build DIET with workflow support..." OFF)
 option(DIET_WITH_STATISTICS "Build DIET with generation of statistics." OFF)
 option(DIET_WITH_MULTI_MA   "Build DIET with MULTI-Master-Agent support." OFF)
@@ -99,15 +86,8 @@ option(DIET_USE_USERSCHED   "Build DIET with user scheduler support (Experimenta
 option(DIET_USE_CCS         "Build DIET with client custom scheduling  (Experimental)." OFF)
 option(DIET_BUILD_TOOLS	    "Build DIET tools." OFF)
 
-if (DIET_USE_DYNAMICS OR DIET_USE_WORKFLOW)
-endif (DIET_USE_DYNAMICS OR DIET_USE_WORKFLOW)
-
 option( DIET_USE_MULTICALL "Build DIET with the multiple async call (In development)" OFF)
 mark_as_advanced(DIET_USE_MULTICALL)
-
-# admin API
-option(DIET_ADMIN_API   "Build DIET administration API." OFF)
-
 
 option(DIET_BUILD_DOC "Build DIET documentation." OFF)
 if( DIET_BUILD_DOC )
@@ -257,10 +237,7 @@ endif (DIET_USE_CLOUD)
 # --------------------------- CORI support ------------------------
 # CORI (COllector of Resource Information) is heavily dependant on
 # system calls for probing ressources:
-if (DIET_USE_CORI)
-  add_definitions(-DHAVE_CORI)
-  include(${DIET_SOURCE_DIR}/Cmake/ConfigureCORI.cmake)
-endif (DIET_USE_CORI)
+include(${DIET_SOURCE_DIR}/Cmake/ConfigureCORI.cmake)
 
 # --------------------------- Multi MA support ------------------------
 # So called MULTI-Master-Agent
@@ -330,8 +307,6 @@ endif (NOT UUID_FOUND)
 if (DIET_TRANSFER_PROGRESSION)
   add_definitions(-DDAGDA_PROGRESSION)
 endif (DIET_TRANSFER_PROGRESSION)
-
-set (DIET_USE_DYNAMICS ON)
 
 #-------------------- DIET log service use -------------------
 option(DIET_USE_LOG "Allow Diet to send log message to log service " OFF)
@@ -444,11 +419,6 @@ if (BUILD_TESTING)
   )
 
 endif (BUILD_TESTING)
-
-# ---------------- DYNAMIC HIERARCHY MODIFICATION FEATURES ----------------
-if (DIET_USE_DYNAMICS)
-  add_definitions(-DHAVE_DYNAMICS)
-endif (DIET_USE_DYNAMICS)
 
 # ---------------- STATIC LINKING FIXES ------------------------------------
 # When BUILD_SHARED_LIBS is NOT set, we assume that we not only expect

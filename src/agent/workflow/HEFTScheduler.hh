@@ -53,9 +53,10 @@
 #define _HEFTSCHEDULER_HH_
 
 #include <map>
-
-#include "WfScheduler.hh"
+#include <string>
+#include <vector>
 #include "Dag.hh"
+#include "WfScheduler.hh"
 
 namespace madag {
 class HEFTScheduler : public WfScheduler {
@@ -114,10 +115,8 @@ private:
   /**
    * Stores all the nodes earliest finish times
    */
-  map<string, double> AFT;
-
+  std::map<std::string, double> AFT;
 };
-
 }
 
 #endif   /* not defined _HEFTSCHEDULER_HH */

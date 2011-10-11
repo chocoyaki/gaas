@@ -59,10 +59,10 @@ diet_mutex_initialize()
 {
   int i;
   MUTEX_FIELD=(omni_mutex**)malloc(10*sizeof(omni_mutex));
-  for(i=0; i<10; i++){
+  for(i = 0; i<10; i++){
     MUTEX_FIELD[i]=NULL;
   }
-  MUTEXCOUNT=10;
+  MUTEXCOUNT = 10;
   INITIALIZED = 1;
 }
 
@@ -74,7 +74,7 @@ diet_mutex_create(int* ret)
 
   MUTEX_CHECK_INIT();
 
-  for(i=0; i<MUTEXCOUNT; i++){
+  for(i = 0; i<MUTEXCOUNT; i++){
     if(MUTEX_FIELD[i]==NULL){
       MUTEX_FIELD[i]=new omni_mutex();
       *ret = i;
@@ -84,14 +84,14 @@ diet_mutex_create(int* ret)
 
   //printf("adding space %d \n", MUTEXCOUNT);
   temp = (omni_mutex**)malloc((10+MUTEXCOUNT)*sizeof(omni_mutex));
-  for(i=0; i<MUTEXCOUNT; i++){
+  for(i = 0; i<MUTEXCOUNT; i++){
     temp[i]=MUTEX_FIELD[i];
   }
-  for(i=0; i<10; i++){
+  for(i = 0; i<10; i++){
     temp[i+MUTEXCOUNT]=NULL;
   }
   free(MUTEX_FIELD);
-  MUTEX_FIELD=temp;
+  MUTEX_FIELD = temp;
 
   MUTEX_FIELD[MUTEXCOUNT]=new omni_mutex();
   *ret = MUTEXCOUNT;
@@ -108,7 +108,7 @@ diet_mutex_free(int* i)
   delete(MUTEX_FIELD[*i]);
 
   MUTEX_FIELD[*i]=NULL;
-  *i=0;
+  *i = 0;
 }
 
 void
@@ -135,7 +135,7 @@ diet_mutex_finalize()
   MUTEX_CHECK_INIT()
 
     free(MUTEX_FIELD);
-  INITIALIZED=0;
+  INITIALIZED = 0;
 }
 
 void

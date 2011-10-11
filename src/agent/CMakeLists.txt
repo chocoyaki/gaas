@@ -48,9 +48,7 @@ target_link_libraries(AgentCommon
   DIET_Utils DietConfig
 )
 
-if (DIET_USE_CORI)
-  set(CORI_LIBRARIES UtilsCori)
-endif (DIET_USE_CORI)
+set(CORI_LIBRARIES UtilsCori)
   
 add_executable(dietAgent ${AgentCommon_SOURCES} dietAgent.cc)
 

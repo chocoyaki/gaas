@@ -451,7 +451,7 @@ WfCst::eval_expr(std::string& expr, int var) {
     expr.erase(expr.find(" "), 1);
   // replace the unary - by a #
   if (expr[0] == '-') expr[0]='#';
-  for (unsigned int i=1; i<expr.size(); i++)
+  for (unsigned int i = 1; i<expr.size(); i++)
     if ( (expr[i] == '-') && (!isdigit(expr[i-1])) ) expr[i]='#';
 
 

@@ -245,7 +245,7 @@ FNodeOutPort::sendData(FDataHandle* dataHdl) {
 
 void
 FNodeOutPort::setPendingDataTransfer(FDataHandle* dataHdl,
-                                     FNodeInPort* inPort) throw (WfDataHandleException) {
+                                     FNodeInPort* inPort) throw(WfDataHandleException) {
   DagNodeOutPort* dagOutPort = dynamic_cast<DagNodeOutPort*>(dataHdl->getSourcePort());
   DagNode*        dagNode = dynamic_cast<DagNode*>(dagOutPort->getParent());
   FWorkflow*      wf = dagNode->getWorkflow();

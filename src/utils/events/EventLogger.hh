@@ -47,5 +47,5 @@ private:
 
 }
 
-#endif // EVENTLOGGER_HH_
+#endif  // EVENTLOGGER_HH_
 

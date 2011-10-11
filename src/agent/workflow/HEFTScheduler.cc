@@ -153,7 +153,7 @@ HEFTScheduler::setNodesEFT(std::vector<DagNode *>& orderedNodes,
 
     /* LOOP-2 FOR ONE NODE => CHOOSES THE BEST SERVER & COMPUTES AFT */
     /* Remark: this loop can be very costly: <nb servers> * <nb predecessors> !! */
-    for (unsigned int ix=0;
+    for (unsigned int ix = 0;
          ix<wf_response->wfn_seq_resp[pb_index].response.servers.length();
          ix++) {
       string ss(CORBA::string_dup(wf_response->wfn_seq_resp[pb_index].response.servers[ix].loc.hostName));
@@ -163,8 +163,8 @@ HEFTScheduler::setNodesEFT(std::vector<DagNode *>& orderedNodes,
       // get availability of current server (loop to check SeD ref equivalence - this is used to
       // avoid conflicts if two SeDs share the same hostname)
       double EST = initTime;  // earliest start time among all SeDs for this service
-      for (map<SeD_ptr, double>::iterator availIter=avail.begin();
-           availIter!=avail.end();
+      for (map<SeD_ptr, double>::iterator availIter = avail.begin();
+           availIter != avail.end();
            ++availIter) {
         if (curSeDPtr->_is_equivalent(availIter->first)) {
           EST = availIter->second;
@@ -230,7 +230,7 @@ HEFTScheduler::computeNodeWeights(const wf_response_t * wf_response,
     ix = n->getSubmitIndex();  // the index was stored before submitting to MA
     double w = 0;
     unsigned int    nbServers = wf_response->wfn_seq_resp[ix].response.servers.length();
-    for (unsigned int jx=0; jx < nbServers; jx++) {
+    for (unsigned int jx = 0; jx < nbServers; jx++) {
       w += this->getNodeDurationEst(wf_response, ix, jx);
     } // end for jx
     if (nbServers > 0) n->setEstDuration( w / nbServers);

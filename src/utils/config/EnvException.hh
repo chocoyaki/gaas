@@ -37,20 +37,19 @@ class EnvParserError : public std::exception {};
  * @class EnvConfigError
  * @brief EnvParser ill-formed configuration
  */
-class EnvConfigError : public EnvParserError 
-{
-private:
-  std::string diagnostic;
+class EnvConfigError : public EnvParserError {
 public:
-  EnvConfigError(const std::string& msg)
+  explicit EnvConfigError(const std::string& msg)
     : diagnostic("Bad Environment configuration") {}
 
   virtual ~EnvConfigError() throw() {}
-    
-  virtual const char *what() const throw()
-  {
+
+  virtual const char *
+  what() const throw()   {
     return diagnostic.c_str();
   }
+private:
+  std::string diagnostic;
 };
 
 

@@ -161,10 +161,10 @@ DagNodePort::profile() {
 }
 
 const string&
-DagNodePort::getDataID() throw (WfDataException) {
+DagNodePort::getDataID() throw(WfDataException) {
   if (myDataID.empty()) {
     string baseErrorMsg = "PORT=" + getParent()->getId() + "#" + getId();
-    throw (WfDataException(WfDataException::eID_UNDEF, baseErrorMsg));
+    throw(WfDataException(WfDataException::eID_UNDEF, baseErrorMsg));
   }
   return myDataID;
 }
@@ -219,7 +219,7 @@ DagNodeOutPort::~DagNodeOutPort() {
 }
 
 void
-DagNodeOutPort::initProfileExec() throw (WfDataException) {
+DagNodeOutPort::initProfileExec() throw(WfDataException) {
   setProfileWithoutValue();
 }
 
@@ -255,7 +255,7 @@ DagNodeOutPort::toXML(ostream& output) const {
 }
 
 // unsigned int
-// DagNodeOutPort::getDataIDCardinal(const string& dataID) throw (WfDataException) {
+// DagNodeOutPort::getDataIDCardinal(const string& dataID) throw(WfDataException) {
 //   WfDataIDAdapter    adapterID(dataID);
 //   vector<string>     vectID;
 //   adapterID.getElements(vectID);
@@ -265,21 +265,21 @@ DagNodeOutPort::toXML(ostream& output) const {
 
 string
 DagNodeOutPort::getElementDataID(const list<unsigned int>& eltIdx)
-  throw (WfDataException)
+  throw(WfDataException)
 {
   string eltID = "";
   string baseErrorMsg = "PORT=" + getParent()->getId() + "#" + getId();
   // initialize with port's data ID (ie container root)
   eltID = getDataID();
   if (eltID.empty())
-    throw (WfDataException(WfDataException::eID_UNDEF, baseErrorMsg));
+    throw(WfDataException(WfDataException::eID_UNDEF, baseErrorMsg));
   // loop until the last container level
   for (list<unsigned int>::const_iterator idxIter = eltIdx.begin();
        idxIter != eltIdx.end();
        ++idxIter) {
     baseErrorMsg += "[" + itoa(*idxIter) + "]";
     if (eltID.empty())
-      throw (WfDataException(WfDataException::eID_UNDEF, baseErrorMsg));
+      throw(WfDataException(WfDataException::eID_UNDEF, baseErrorMsg));
     WfDataIDAdapter     adapterID(eltID);
     vector<string>      vectID;
     adapterID.getElements(vectID);
@@ -287,11 +287,11 @@ DagNodeOutPort::getElementDataID(const list<unsigned int>& eltIdx)
       if (!vectID[*idxIter].empty())
         eltID = vectID[*idxIter];
       else
-        throw (WfDataException(WfDataException::eVOID_DATA, baseErrorMsg));
+        throw(WfDataException(WfDataException::eVOID_DATA, baseErrorMsg));
     } else {
       string errorMsg = "Container size smaller than element index (container ID="
         + eltID + "/" + baseErrorMsg + ")";
-      throw (WfDataException(WfDataException::eINVALID_CONTAINER, errorMsg));
+      throw(WfDataException(WfDataException::eINVALID_CONTAINER, errorMsg));
     }
   }
   return eltID;
@@ -302,7 +302,7 @@ DagNodeOutPort::getElementDataID(const list<unsigned int>& eltIdx)
  * (uses DIET API except for containers)
  */
 void
-DagNodeOutPort::writeData(WfDataWriter* dataWriter) throw (WfDataException) {
+DagNodeOutPort::writeData(WfDataWriter* dataWriter) throw(WfDataException) {
   short dataType = getDataType();
   if (!profile()) {
     throw WfDataException(WfDataException::eNOTFOUND, "No profile available for node "
@@ -409,7 +409,7 @@ DagNodeOutPort::writeData(WfDataWriter* dataWriter) throw (WfDataException) {
 void
 DagNodeOutPort::writeContainer(WfDataWriter* dataWriter,
                                const string& containerID,
-                               unsigned int depth) throw (WfDataException) {
+                               unsigned int depth) throw(WfDataException) {
   dataWriter->startContainer();
   WfDataIDAdapter       adapterID(containerID);
   vector<string>        vectID;
@@ -490,7 +490,7 @@ DagNodeOutPort::writeContainerData(WfDataWriter* dataWriter,
 void
 DagNodeOutPort::writeDataElement(WfDataWriter* dataWriter,
                                  const list<unsigned int>& idxList)
-  throw (WfDataException) {
+  throw(WfDataException) {
   string eltID = getElementDataID(idxList);
   if (!eltID.empty()) {
     if (idxList.size() == getDepth())
@@ -534,12 +534,12 @@ DagNodeInPort::setPortAdapter(WfPortAdapter* adapter) {
 }
 
 void
-DagNodeInPort::initProfileExec() throw (WfDataException) {
+DagNodeInPort::initProfileExec() throw(WfDataException) {
   initSourceData();
 }
 
 void
-DagNodeInPort::initSourceData() throw (WfDataException) {
+DagNodeInPort::initSourceData() throw(WfDataException) {
 
   setDataID( adapter->getSourceDataID() );
 
@@ -549,14 +549,14 @@ DagNodeInPort::initSourceData() throw (WfDataException) {
   //   string errorMsg = "port " + getId() + " of node " + getParent()->getId()
   //                     + " got data with wrong type ("
   //                     + WfCst::cvtWfToStrType(adapter->getSourceDataType()) + ")";
-  //   throw (WfDataException(WfDataException::eWRONGTYPE, errorMsg));
+  //   throw(WfDataException(WfDataException::eWRONGTYPE, errorMsg));
   // }
   // Store ID in profile
   if (profile()) {
     if (!myDataID.empty()) {
       diet_use_data(diet_parameter(this->profile(), index), myParent->newString(myDataID));
     } else {
-      throw (WfDataException(WfDataException::eNOTFOUND,""));
+      throw(WfDataException(WfDataException::eNOTFOUND,""));
     }
   }
 }
@@ -599,7 +599,7 @@ DagNodeInOutPort::DagNodeInOutPort(DagNode * parent,
 
 
 void
-DagNodeInOutPort::initProfileExec() throw (WfDataException) {
+DagNodeInOutPort::initProfileExec() throw(WfDataException) {
   DagNodeInPort::initProfileExec();
 }
 
@@ -661,7 +661,7 @@ DagNodeArgPort::initProfileSubmit() {
 }
 
 void
-DagNodeArgPort::initProfileExec() throw (WfDataException) {
+DagNodeArgPort::initProfileExec() throw(WfDataException) {
   setProfileWithValue();
 }
 
