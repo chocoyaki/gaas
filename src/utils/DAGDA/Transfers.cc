@@ -75,7 +75,7 @@ double Transfers::getProgress(const std::string& id) {
 }
 
 void Transfers::remTransfer(const std::string& id) {
-  map<string, struct transfer_t>::iterator it;
+  std::map<std::string, struct transfer_t>::iterator it;
 
   if ((it = progress.find(id))!=progress.end())
     progress.erase(it);
