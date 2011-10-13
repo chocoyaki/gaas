@@ -80,7 +80,7 @@ DIETForwarder::serverSubscribe(const char* seDName, const char* hostname,
   Agent_var agent =
     ORBMgr::getMgr()->resolve<Agent, Agent_var>(AGENTCTXT, name, this->name);
   return agent->serverSubscribe(seDName, hostname, services);
-}
+  }
 
 ::CORBA::Long
 DIETForwarder::childUnsubscribe(::CORBA::ULong childID,
@@ -98,7 +98,7 @@ DIETForwarder::childUnsubscribe(::CORBA::ULong childID,
   Agent_var agent =
     ORBMgr::getMgr()->resolve<Agent, Agent_var>(AGENTCTXT, name, this->name);
   return agent->childUnsubscribe(childID, services);
-}
+  }
 
 ::CORBA::Long
 DIETForwarder::childRemoveService(::CORBA::ULong childID,
@@ -116,7 +116,7 @@ DIETForwarder::childRemoveService(::CORBA::ULong childID,
   Agent_var agent =
     ORBMgr::getMgr()->resolve<Agent, Agent_var>(AGENTCTXT, name, this->name);
   return agent->childRemoveService(childID, profile);
-}
+  }
 
 ::CORBA::Long
 DIETForwarder::addServices(::CORBA::ULong myID,
@@ -134,11 +134,11 @@ DIETForwarder::addServices(::CORBA::ULong myID,
   Agent_var agent =
     ORBMgr::getMgr()->resolve<Agent, Agent_var>(AGENTCTXT, name, this->name);
   return agent->addServices(myID, services);
-}
+  }
 
 void
 DIETForwarder::getResponse(const ::corba_response_t& resp,
- const char* objName) {
+                           const char* objName) {
   std::string objString(objName);
   std::string name;
 
@@ -171,7 +171,7 @@ DIETForwarder::getDataManager(const char* objName) {
 
 SeqString*
 DIETForwarder::searchData(const char* request,
-                                     const char* objName)
+                          const char* objName)
 {
   std::string objString(objName);
   std::string name;

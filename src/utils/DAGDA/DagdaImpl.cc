@@ -751,7 +751,7 @@ SimpleDagdaImpl::lclGetContainerElts(const char* containerID,
     container->getAllElements(dataIDSeq,flagSeq,ordered);
   } catch (CORBA::SystemException& e) {
     std::cerr << "lclGetContainerElts Caught a CORBA " << e._name() << " exception ("
-         << e.NP_minorString() << ")\n";
+              << e.NP_minorString() << ")\n";
   } catch (...) {
     std::cerr << "UNMANAGED exception in lclGetContainerElts\n";
     throw;

@@ -1160,7 +1160,7 @@ FWfParser::parseOtherNodeSubElt(const DOMElement * element,
       aNode->setDIETEstimationOption(estimAttr);
     }
   } else if ((elementName == "beanshell") || (elementName == "gasw")) {
-   ;  // tags used by other workflow engines
+    ;  // tags used by other workflow engines
     // VALUE of constants (may be replaced by a 'value' attribute within
     //  the <constant> tag)
   } else if (elementName == "value") {

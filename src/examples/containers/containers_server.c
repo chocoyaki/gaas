@@ -43,9 +43,9 @@ void performance_eval(diet_profile_t* pb,estVector_t perfValues);
 int
 usage(char* cmd)
 {
-	printf("Usage : %s <file.cfg> <ratio> <service_name>\n", cmd);
-	printf("\texample: %s SeD.cfg 1 s1 s2\n", cmd);
-	return -1;
+  printf("Usage : %s <file.cfg> <ratio> <service_name>\n", cmd);
+  printf("\texample: %s SeD.cfg 1 s1 s2\n", cmd);
+  return -1;
 }
 /*
  * add_service function :
@@ -67,7 +67,7 @@ add_service(char* service_name)
   if (diet_service_table_add(profile, NULL, service )) return 1;
   /* Free the profile, since it was deep copied */
   diet_profile_desc_free(profile);
-	return 0;
+  return 0;
 }
 /*
  * set_up_scheduler :
@@ -168,57 +168,57 @@ performance_eval(diet_profile_t* pb, estVector_t perfValues)
 int
 service(diet_profile_t* pb)
 {
-	int res = 0;
-        char * ID1;
-        char * ID2;
-        char * ID4;
-        char * path1 = NULL;
-	long* outsleepTime = (long*) malloc(sizeof(long));
-        diet_container_t content1, content2;
-	printf("###############\n");
-       /* no need to call dagda_get_container for root container as it is
-        * downloaded automatically by DIET */
-        printf("Get PARENT container element list\n");
-        dagda_get_container_elements((*diet_parameter(pb,1)).desc.id, &content1);
-        if (content1.size != 1) {
-          printf("Container does not contain expected nb of elements\n");
-          printf("It contains %d elements\n",(int)content1.size);
-        } else {
-          printf("Retrieve CHILD container (not downloaded by DIET)\n");
-          dagda_get_container(content1.elt_ids[0]);
-          printf("Get CHILD container element list\n");
-          dagda_get_container_elements(content1.elt_ids[0], &content2);
-          if (content2.size !=2) {
-            printf("Container does not contain expected nb of elements\n");
-            printf("It contains %d elements\n",(int)content2.size);
-          } else {
-            long *sleepTime1 = NULL;
-            printf("Get elements\n");
-            dagda_get_scalar(content2.elt_ids[0],&sleepTime1, NULL);
-            dagda_get_file(content2.elt_ids[1],&path1);
-            printf("Container contains: %ld, %s\n", *sleepTime1, path1);
-            *outsleepTime = *sleepTime1*ratio;
-          }
-        }
-	printf("Time to Sleep =%ld ms\n",*outsleepTime);
-	usleep(*outsleepTime*1000);
-        printf("INIT PARENT OUTPUT container\n");
-        dagda_init_container(diet_parameter(pb,2));
-        printf("CREATE CHILD OUTPUT container\n");
-        dagda_create_container(&ID4);
-        printf("PUT CHILD container as 1st element of OUTPUT container\n");
-        dagda_add_container_element((*diet_parameter(pb,2)).desc.id, ID4, 0);
-        printf("PUT first OUT element on platform (SCALAR)\n");
-        dagda_put_scalar(outsleepTime, DIET_LONGINT, DIET_PERSISTENT, &ID1);
-        printf("PUT second OUT element on platform (FILE)\n");
-        dagda_put_file(path1, DIET_PERSISTENT, &ID2);
-        printf("Add CHILD container elements\n");
-        dagda_add_container_element(ID4, ID1, 2);
-        dagda_add_container_element(ID4, ID2, 3);
-        printf("###############\n");
-        free(content1.elt_ids);
-        free(content2.elt_ids);
-	return res;
+  int res = 0;
+  char * ID1;
+  char * ID2;
+  char * ID4;
+  char * path1 = NULL;
+  long* outsleepTime = (long*) malloc(sizeof(long));
+  diet_container_t content1, content2;
+  printf("###############\n");
+  /* no need to call dagda_get_container for root container as it is
+   * downloaded automatically by DIET */
+  printf("Get PARENT container element list\n");
+  dagda_get_container_elements((*diet_parameter(pb,1)).desc.id, &content1);
+  if (content1.size != 1) {
+    printf("Container does not contain expected nb of elements\n");
+    printf("It contains %d elements\n",(int)content1.size);
+  } else {
+    printf("Retrieve CHILD container (not downloaded by DIET)\n");
+    dagda_get_container(content1.elt_ids[0]);
+    printf("Get CHILD container element list\n");
+    dagda_get_container_elements(content1.elt_ids[0], &content2);
+    if (content2.size !=2) {
+      printf("Container does not contain expected nb of elements\n");
+      printf("It contains %d elements\n",(int)content2.size);
+    } else {
+      long *sleepTime1 = NULL;
+      printf("Get elements\n");
+      dagda_get_scalar(content2.elt_ids[0],&sleepTime1, NULL);
+      dagda_get_file(content2.elt_ids[1],&path1);
+      printf("Container contains: %ld, %s\n", *sleepTime1, path1);
+      *outsleepTime = *sleepTime1*ratio;
+    }
+  }
+  printf("Time to Sleep =%ld ms\n",*outsleepTime);
+  usleep(*outsleepTime*1000);
+  printf("INIT PARENT OUTPUT container\n");
+  dagda_init_container(diet_parameter(pb,2));
+  printf("CREATE CHILD OUTPUT container\n");
+  dagda_create_container(&ID4);
+  printf("PUT CHILD container as 1st element of OUTPUT container\n");
+  dagda_add_container_element((*diet_parameter(pb,2)).desc.id, ID4, 0);
+  printf("PUT first OUT element on platform (SCALAR)\n");
+  dagda_put_scalar(outsleepTime, DIET_LONGINT, DIET_PERSISTENT, &ID1);
+  printf("PUT second OUT element on platform (FILE)\n");
+  dagda_put_file(path1, DIET_PERSISTENT, &ID2);
+  printf("Add CHILD container elements\n");
+  dagda_add_container_element(ID4, ID1, 2);
+  dagda_add_container_element(ID4, ID2, 3);
+  printf("###############\n");
+  free(content1.elt_ids);
+  free(content2.elt_ids);
+  return res;
 }
 
 /*
@@ -227,19 +227,19 @@ service(diet_profile_t* pb)
 int
 main( int argc, char* argv[])
 {
-	int res,i;
-	 if (argc <4) {
-	    return usage(argv[0]);
-	 }
-	diet_service_table_init(argc-3);
-	ratio=atof(argv[2]);
-	 for(i =0;i< argc-3;i++){
-		 char* service_name = NULL;
-		 service_name = argv[3+i];
-		 add_service(service_name);
-	 }
-	diet_print_service_table();
-	res = diet_SeD(argv[1],argc,argv);
-	return res;
+  int res,i;
+  if (argc <4) {
+    return usage(argv[0]);
+  }
+  diet_service_table_init(argc-3);
+  ratio=atof(argv[2]);
+  for(i =0;i< argc-3;i++){
+    char* service_name = NULL;
+    service_name = argv[3+i];
+    add_service(service_name);
+  }
+  diet_print_service_table();
+  res = diet_SeD(argv[1],argc,argv);
+  return res;
 }
 

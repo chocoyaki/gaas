@@ -71,8 +71,8 @@ main(int argc, char* argv[])
   if (! diet_wf_call(profile)) {
     printf("The workflow submission succeed\n");
     /**
-     * 	diet_matrix_get(diet_parameter(profile,0), NULL, NULL, &m, &n, &oA);
-	print_matrix(A, m, n, (oA == DIET_ROW_MAJOR));
+     *  diet_matrix_get(diet_parameter(profile,0), NULL, NULL, &m, &n, &oA);
+     print_matrix(A, m, n, (oA == DIET_ROW_MAJOR));
     */
     /*
       diet_wf_matrix_get(id, value, nb_rows, nb_cols, order)

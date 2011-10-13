@@ -140,9 +140,9 @@ bool FloodRequest::flooded() {
     return true;
   for(NeighbouringMAs::iterator iter = neighbouringMAs.begin();
       result && iter != neighbouringMAs.end(); /* stop if the result
-                                                   is found or if
-                                                   there is no other
-                                                   MA. */
+                                                  is found or if
+                                                  there is no other
+                                                  MA. */
       ++iter) {
     if (iter->second.state != NeighbouringMA::nmaStateFlooded)
       result = false;

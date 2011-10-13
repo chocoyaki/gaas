@@ -30,9 +30,9 @@
 #include <string>
 
 ::CORBA::Long
- DIETForwarder::checkContract(::corba_estimation_t& estimation,
-                              const ::corba_pb_desc_t& pb,
-                              const char* objName) {
+DIETForwarder::checkContract(::corba_estimation_t& estimation,
+                             const ::corba_pb_desc_t& pb,
+                             const char* objName) {
   std::string objString(objName);
   std::string name;
 
@@ -45,7 +45,7 @@
   SeD_var sed =
     ORBMgr::getMgr()->resolve<SeD, SeD_var>(SEDCTXT, name, this->name);
   return sed->checkContract(estimation, pb);
-}
+  }
 
 void
 DIETForwarder::updateTimeSinceLastSolve(const char* objName) {

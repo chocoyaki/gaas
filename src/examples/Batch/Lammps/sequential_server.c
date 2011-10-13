@@ -69,11 +69,11 @@ int solve_lammps(diet_profile_t *pb)
     path_result = strdup("/tmp/lammps.txt") ; /*MUST NOT BE A CONSTANT STRING*/
   }
   if( diet_file_desc_set(diet_parameter(pb,1), path_result) ) {
-      printf("diet_file_desc_set() error\n");
-      return 1;
-    }
+    printf("diet_file_desc_set() error\n");
+    return 1;
+  }
   printf("Name of result file: %s\n",path_result) ;
-	    
+            
   /* Call lammps */
   if( (pid=fork()) == 0 ) { /* son */
     options = (char**)malloc(3*sizeof(char*)) ;

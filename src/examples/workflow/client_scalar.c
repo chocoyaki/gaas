@@ -71,7 +71,7 @@ main(int argc, char* argv[])
     printf("The workflow submission succeed\n");
     diet_wf_scalar_get(profile, "n5#out", &result);
     if (result) {
-    	printf("The results is %f\n", *result);
+      printf("The results is %f\n", *result);
     }
   }
   else {

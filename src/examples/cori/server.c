@@ -72,9 +72,9 @@ add_new_value(double valToAdd, int size);
 long fibonacci( long n )
 {
   if ( n == 0 || n == 1 )
-          return n;
-     else 
-          return fibonacci( n - 1 ) + fibonacci( n - 2 );
+    return n;
+  else 
+    return fibonacci( n - 1 ) + fibonacci( n - 2 );
 }
 
 long fibonacci_linear( long n )
@@ -152,7 +152,7 @@ main(int argc, char* argv[])
     } else
       printf("## Algorithm: recursive\n");
   } else
-      printf("## Algorithm: recursive\n");
+    printf("## Algorithm: recursive\n");
 
 
   profile = diet_profile_desc_alloc(SRV[0], 0, 0, 1);
@@ -162,7 +162,7 @@ main(int argc, char* argv[])
   set_up_scheduler(scheduler_name,profile );
 
   if (diet_service_table_add(profile, NULL, solve_fib))
-      return 1;
+    return 1;
   diet_profile_desc_free(profile);
 
   diet_print_service_table();
@@ -190,34 +190,34 @@ set_up_scheduler(char * schedulertype, diet_profile_desc_t* profile)
   agg = diet_profile_desc_aggregator(profile);
   
   if (strcmp(schedulertype, "LOADAVG")==0)
-  {  
-    /* initialize your collector: cori_easy */
-    diet_estimate_cori_add_collector(EST_COLL_EASY,NULL);
-    diet_service_use_perfmetric(performance_Load_Avg);
-    diet_aggregator_set_type(agg, DIET_AGG_PRIORITY); 
-    diet_aggregator_priority_min(agg,EST_AVGFREECPU);
-  } else
-  if (strcmp(schedulertype,"FASTCPU")==0)
-  {
-    /* initialize your collector: cori_fast */
-    diet_estimate_cori_add_collector(EST_COLL_FAST,NULL);
-    diet_service_use_perfmetric(performance_FAST_freecpu);
-    diet_aggregator_set_type(agg, DIET_AGG_PRIORITY);
-    diet_aggregator_priority_max(agg,EST_FREECPU);
-  } else
-  if (strcmp(schedulertype,"RRNBPROC")==0)
-  {
-    /* initialize your collector: cori_easy */
-    diet_estimate_cori_add_collector(EST_COLL_EASY,NULL);
-    list_lastexec.actual_size = 0;
-    list_lastexec.array       = NULL;
-    diet_service_use_perfmetric(performance_RRNBPROC);
-    diet_aggregator_set_type(agg, DIET_AGG_PRIORITY);
-    diet_aggregator_priority_maxuser(agg,0);
-  }
-  else{
-    usage("programName");
-  }
+    {  
+      /* initialize your collector: cori_easy */
+      diet_estimate_cori_add_collector(EST_COLL_EASY,NULL);
+      diet_service_use_perfmetric(performance_Load_Avg);
+      diet_aggregator_set_type(agg, DIET_AGG_PRIORITY); 
+      diet_aggregator_priority_min(agg,EST_AVGFREECPU);
+    } else
+    if (strcmp(schedulertype,"FASTCPU")==0)
+      {
+        /* initialize your collector: cori_fast */
+        diet_estimate_cori_add_collector(EST_COLL_FAST,NULL);
+        diet_service_use_perfmetric(performance_FAST_freecpu);
+        diet_aggregator_set_type(agg, DIET_AGG_PRIORITY);
+        diet_aggregator_priority_max(agg,EST_FREECPU);
+      } else
+      if (strcmp(schedulertype,"RRNBPROC")==0)
+        {
+          /* initialize your collector: cori_easy */
+          diet_estimate_cori_add_collector(EST_COLL_EASY,NULL);
+          list_lastexec.actual_size = 0;
+          list_lastexec.array       = NULL;
+          diet_service_use_perfmetric(performance_RRNBPROC);
+          diet_aggregator_set_type(agg, DIET_AGG_PRIORITY);
+          diet_aggregator_priority_maxuser(agg,0);
+        }
+      else{
+        usage("programName");
+      }
 }
 
 void
@@ -245,8 +245,8 @@ performance_RRNBPROC(diet_profile_t* pb,estVector_t perfValues)
 
   /* stock the value in list_lastexec (the most recent is on index 0) */
   add_new_value(diet_est_get_system(perfValues,
-                EST_TIMESINCELASTSOLVE,
-                HUGE_VAL),
+                                    EST_TIMESINCELASTSOLVE,
+                                    HUGE_VAL),
                 nbcpu);
  
   /* if the stocked number of executions is less then the number of CPUs, then
@@ -254,12 +254,12 @@ performance_RRNBPROC(diet_profile_t* pb,estVector_t perfValues)
    * this is to prevent that an low number-CPU-SeD receive too fast a new task
    */
   if (list_lastexec.actual_size<nbcpu)
-{
-    diet_est_set(perfValues,0,nbcpu*100000);
-  }
+    {
+      diet_est_set(perfValues,0,nbcpu*100000);
+    }
   else{
     /* stock the last element of vector_values in the scalar of perfValues */
-  diet_est_set(perfValues,0,list_lastexec.array[list_lastexec.actual_size-1]);
+    diet_est_set(perfValues,0,list_lastexec.array[list_lastexec.actual_size-1]);
   }
 }
 
@@ -273,17 +273,17 @@ add_new_value(double valToAdd, int size){
   }
   else
     if (list_lastexec.maxsize == list_lastexec.actual_size)
-    { /* the maximal size is reached */
-      int i;
-      for (i=list_lastexec.maxsize-1;i<0;i--)
-      list_lastexec.array[i] = list_lastexec.array[i-1];
-    }
+      { /* the maximal size is reached */
+        int i;
+        for (i=list_lastexec.maxsize-1;i<0;i--)
+          list_lastexec.array[i] = list_lastexec.array[i-1];
+      }
     else
-    {
-      int i;
-      list_lastexec.actual_size++;
-      for (i=list_lastexec.actual_size;i<0;i--)
-         list_lastexec.array[i] = list_lastexec.array[i-1];
-    }
-      list_lastexec.array[0] = valToAdd;   
+      {
+        int i;
+        list_lastexec.actual_size++;
+        for (i=list_lastexec.actual_size;i<0;i--)
+          list_lastexec.array[i] = list_lastexec.array[i-1];
+      }
+  list_lastexec.array[0] = valToAdd;   
 }

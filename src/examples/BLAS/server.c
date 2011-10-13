@@ -75,21 +75,21 @@ dgemm_(char*   tA,    char* tB,  size_t* m,   size_t* n,    size_t* k,
        double* beta,  double* C, size_t* ldc);
 
 
-#define print_matrix(mat, m, n, rm)        \
-  {                                        \
-    size_t i, j;                           \
-    printf("%s (%s-major) = \n", #mat,     \
-           (rm) ? "row" : "column");       \
-    for (i = 0; i < (m); i++) {            \
-      for (j = 0; j < (n); j++) {          \
-        if (rm)                            \
-	  printf("%3f ", (mat)[j + i*(n)]);\
-        else                               \
-	  printf("%3f ", (mat)[i + j*(m)]);\
-      }                                    \
-      printf("\n");                        \
-    }                                      \
-    printf("\n");                          \
+#define print_matrix(mat, m, n, rm)             \
+  {                                             \
+    size_t i, j;                                \
+    printf("%s (%s-major) = \n", #mat,          \
+           (rm) ? "row" : "column");            \
+    for (i = 0; i < (m); i++) {                 \
+      for (j = 0; j < (n); j++) {               \
+        if (rm)                                 \
+          printf("%3f ", (mat)[j + i*(n)]);     \
+        else                                    \
+          printf("%3f ", (mat)[i + j*(m)]);     \
+      }                                         \
+      printf("\n");                             \
+    }                                           \
+    printf("\n");                               \
   }
 
 
@@ -165,20 +165,20 @@ solve_dgemm(diet_profile_t* pb)
     tA = (tA == 'T') ? 'N' : 'T';
     tB = (tB == 'T') ? 'N' : 'T';
     fprintf(stderr,
-	    "dgemm args : m=%zd, n=%zd, k=%zd, alpha=%f, beta=%f, tA=%c, tB=%c\n",
-	    n, m, k, *alpha, *beta, tB, tA);
+            "dgemm args : m=%zd, n=%zd, k=%zd, alpha=%f, beta=%f, tA=%c, tB=%c\n",
+            n, m, k, *alpha, *beta, tB, tA);
     dgemm_(&tB, &tA, &n, &m, &k, alpha,
-	   B, (tB == 'T') ? &k : &n,
-	   A, (tA == 'T') ? &m : &k,
-	   beta, C, &n);  
+           B, (tB == 'T') ? &k : &n,
+           A, (tA == 'T') ? &m : &k,
+           beta, C, &n);  
   } else {
     fprintf(stderr,
-	    "dgemm args : m=%zd, n=%zd, k=%zd, alpha=%f, beta=%f, tA=%c, tB=%c\n",
-	    m, n, k, *alpha, *beta, tA, tB);
+            "dgemm args : m=%zd, n=%zd, k=%zd, alpha=%f, beta=%f, tA=%c, tB=%c\n",
+            m, n, k, *alpha, *beta, tA, tB);
     dgemm_(&tA, &tB, &m, &n, &k, alpha,
-	   A, (tA == 'T') ? &k : &m,
-	   B, (tB == 'T') ? &n : &k,
-	   beta, C, &m);
+           A, (tA == 'T') ? &k : &m,
+           B, (tB == 'T') ? &n : &k,
+           beta, C, &m);
   }
   printf(" done.\n");
 
@@ -222,15 +222,15 @@ main(int argc, char* argv[])
   /* Set profile */
   profile = diet_profile_desc_alloc(SRV[0], 3, 4, 4);
   diet_generic_desc_set(diet_param_desc(profile,0),
-			DIET_SCALAR, DIET_DOUBLE); /* alpha */
+                        DIET_SCALAR, DIET_DOUBLE); /* alpha */
   diet_generic_desc_set(diet_param_desc(profile,1),
-			DIET_MATRIX, DIET_DOUBLE); /* A */
+                        DIET_MATRIX, DIET_DOUBLE); /* A */
   diet_generic_desc_set(diet_param_desc(profile,2),
-			DIET_MATRIX, DIET_DOUBLE); /* B */
+                        DIET_MATRIX, DIET_DOUBLE); /* B */
   diet_generic_desc_set(diet_param_desc(profile,3),
-			DIET_SCALAR, DIET_DOUBLE); /* beta */
+                        DIET_SCALAR, DIET_DOUBLE); /* beta */
   diet_generic_desc_set(diet_param_desc(profile,4),
-			DIET_MATRIX, DIET_DOUBLE); /* C */
+                        DIET_MATRIX, DIET_DOUBLE); /* C */
   /* Set convertor */
   diet_arg_cvt_short_set(diet_arg_conv(cvt,0), 1, NULL);
   diet_arg_cvt_short_set(diet_arg_conv(cvt,1), 2, NULL);
@@ -281,12 +281,12 @@ main(int argc, char* argv[])
   diet_generic_desc_set(diet_param_desc(profile,2), DIET_MATRIX, DIET_DOUBLE);
   /* Set convertor
      NB: the difficulty here is that the INOUT parameter of the dgemm
-         corresponds to the second IN AND the OUT parameter of the profile. */
+     corresponds to the second IN AND the OUT parameter of the profile. */
   diet_arg_cvt_short_set(diet_arg_conv(cvt,0), 0, NULL);
   {
     arg = (diet_arg_t*) calloc(1, sizeof(diet_arg_t));
     diet_matrix_set(arg, NULL, DIET_VOLATILE,
-		    DIET_DOUBLE, 0, 0, DIET_COL_MAJOR);
+                    DIET_DOUBLE, 0, 0, DIET_COL_MAJOR);
   }
   diet_arg_cvt_short_set(diet_arg_conv(cvt,1), -1, arg);
   {
@@ -318,7 +318,7 @@ main(int argc, char* argv[])
   {
     arg = (diet_arg_t*) calloc(1, sizeof(diet_arg_t));
     diet_matrix_set(arg, NULL, DIET_VOLATILE,
-		    DIET_DOUBLE, 0, 0, DIET_COL_MAJOR);
+                    DIET_DOUBLE, 0, 0, DIET_COL_MAJOR);
   }
   diet_arg_cvt_short_set(diet_arg_conv(cvt,1), -1, arg);
   {

@@ -23,7 +23,7 @@
 #include <sys/time.h> /* For gettimeofday() */
 #include <string.h> /* For strlen */
 
-ssize_t	writen(int fd, const void *vptr, size_t n) ;
+ssize_t writen(int fd, const void *vptr, size_t n) ;
 
 int
 makeMachineFile( int * file_descriptor_ptr, char ** filename_ptr )
@@ -106,9 +106,9 @@ int solve_lammps(diet_profile_t *pb)
     /*MUST NOT BE A CONSTANT STRING*/
   }
   if( diet_file_desc_set(diet_parameter(pb,1), local_output_filename) ) {
-      printf("diet_file_desc_set() error\n");
-      return 1;
-    }
+    printf("diet_file_desc_set() error\n");
+    return 1;
+  }
   printf("Name of result file: %s\n",local_output_filename) ;
 
   /*******************************************/
@@ -123,7 +123,7 @@ int solve_lammps(diet_profile_t *pb)
   sprintf( machine_filename, "/tmp/DIET_machineFile_XXXXXX" ) ;
   if( makeMachineFile( & machine_file_descriptor, & machine_filename ) != 0 ) {
     fprintf(stderr,
-	    "Making machineFile problem.. not solving the service\n\n") ;
+            "Making machineFile problem.. not solving the service\n\n") ;
     free(machine_filename);
     return 2 ;
   }
@@ -136,7 +136,7 @@ int solve_lammps(diet_profile_t *pb)
     return 2 ;
   }
   sprintf(prologue,
-	  "echo \"Name of the frontale station: $DIET_NAME_FRONTALE\"\n\n") ;
+          "echo \"Name of the frontale station: $DIET_NAME_FRONTALE\"\n\n") ;
 
   copying = (char*)malloc(600*sizeof(char)) ;
   if( copying == NULL ) {
@@ -146,15 +146,15 @@ int solve_lammps(diet_profile_t *pb)
     return 2 ;
   }
   sprintf(copying,
-	  "WORKING_DIRECTORY=/home/ycaniou/JobMPI/ \n"
-	  "######################################### \n"
-	  "user_machinefile=%s \n"
-	  "######################################### \n"
-	  "# Use NFS, and suppose we 'cd' to WORKING_DIRECTORY after.. \n"
-	  "ssh $DIET_NAME_FRONTALE \"cp %s $WORKING_DIRECTORY/\"\n"
-	  "input_file=%s\n\n",
-	  machine_filename,
-	  path1,basename(path1)) ;
+          "WORKING_DIRECTORY=/home/ycaniou/JobMPI/ \n"
+          "######################################### \n"
+          "user_machinefile=%s \n"
+          "######################################### \n"
+          "# Use NFS, and suppose we 'cd' to WORKING_DIRECTORY after.. \n"
+          "ssh $DIET_NAME_FRONTALE \"cp %s $WORKING_DIRECTORY/\"\n"
+          "input_file=%s\n\n",
+          machine_filename,
+          path1,basename(path1)) ;
 
   /* The MPI command itself */
   if( gettimeofday( &uur70, NULL ) == 0 ) {
@@ -176,15 +176,15 @@ int solve_lammps(diet_profile_t *pb)
     return 2 ;
   }
   sprintf(cmd,
-	  "# Execution\n"
-	  "cd $WORKING_DIRECTORY \n"
-	  "local_output_filename=%s \n"
-	  "mpirun.mpich_1_2 -np $DIET_USER_NBPROCS "
-	  "-machinefile $user_machinefile "
-	  "%s -in $input_file1 -screen "
-	  "$local_output_filename \n"
-	  "\n",
-	  local_output_filename) ;
+          "# Execution\n"
+          "cd $WORKING_DIRECTORY \n"
+          "local_output_filename=%s \n"
+          "mpirun.mpich_1_2 -np $DIET_USER_NBPROCS "
+          "-machinefile $user_machinefile "
+          "%s -in $input_file1 -screen "
+          "$local_output_filename \n"
+          "\n",
+          local_output_filename) ;
 
   /* Put the Output file in the right place */
   /* Note: if output on NFS, with "ln -s" (see batch_server_2)
@@ -200,16 +200,16 @@ int solve_lammps(diet_profile_t *pb)
     return 2 ;
   }
   sprintf(epilogue,
-	  "# Get the result file\n"
-	  "scp $local_output_filename $DIET_NAME_FRONTALE:%s\n"
-	  ,path_result) ;
+          "# Get the result file\n"
+          "scp $local_output_filename $DIET_NAME_FRONTALE:%s\n"
+          ,path_result) ;
 
   /* Make Diet submit */
   script = (char*)malloc( (strlen(prologue)
-			   + strlen(copying)
-			   + strlen(cmd)
-			   + strlen(epilogue)
-			   + 1 ) * sizeof(char) ) ;
+                           + strlen(copying)
+                           + strlen(cmd)
+                           + strlen(epilogue)
+                           + 1 ) * sizeof(char) ) ;
   sprintf(script,"%s%s%s%s",prologue,copying,cmd,epilogue) ;
 
 
@@ -290,21 +290,21 @@ main(int argc, char* argv[])
 /****************************************************************************
  * Utilities: do not change!
  ****************************************************************************/
-ssize_t	/*Write "n" bytes to a descriptor. */
+ssize_t /*Write "n" bytes to a descriptor. */
 writen(int fd, const void *vptr, size_t n)
 {
-  size_t	nleft;
-  ssize_t	nwritten;
-  const char	*ptr;
+  size_t        nleft;
+  ssize_t       nwritten;
+  const char    *ptr;
 
   ptr = vptr;
   nleft = n;
   while (nleft > 0) {
     if ( (nwritten = write(fd, ptr, nleft)) <= 0) {
       if (errno == EINTR)
-	nwritten = 0;	/* and call write() again */
+        nwritten = 0;   /* and call write() again */
       else
-	return(-1);	/* error */
+        return(-1);     /* error */
     }
     nleft -= nwritten;
     ptr   += nwritten;

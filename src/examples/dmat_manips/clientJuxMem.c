@@ -38,22 +38,22 @@
 
 
 #define print_condition 1
-#define print_matrix(mat, m, n, rm)        \
-  if (print_condition) {                   \
-    size_t i, j;                           \
-    printf("%s (%s-major) = \n", #mat,     \
-           (rm) ? "row" : "column");       \
-    printf(" %zd %zd \n",m,n);		   \
-    for (i = 0; i < (m); i++) {            \
-      for (j = 0; j < (n); j++) {          \
-        if (rm)                            \
-	  printf("%3f ", (mat)[j + i*(n)]);\
-        else                               \
-	  printf("%3f ", (mat)[i + j*(m)]);\
-      }                                    \
-      printf("\n");                        \
-    }                                      \
-    printf("\n");                          \
+#define print_matrix(mat, m, n, rm)             \
+  if (print_condition) {                        \
+    size_t i, j;                                \
+    printf("%s (%s-major) = \n", #mat,          \
+           (rm) ? "row" : "column");            \
+    printf(" %zd %zd \n",m,n);                  \
+    for (i = 0; i < (m); i++) {                 \
+      for (j = 0; j < (n); j++) {               \
+        if (rm)                                 \
+          printf("%3f ", (mat)[j + i*(n)]);     \
+        else                                    \
+          printf("%3f ", (mat)[i + j*(m)]);     \
+      }                                         \
+      printf("\n");                             \
+    }                                           \
+    printf("\n");                               \
   }
 
 void
@@ -120,24 +120,24 @@ main(int argc, char* argv[])
   strcpy(path,"MatPROD");
   profile = diet_profile_alloc(path, 1, 1, 2);
   diet_matrix_set(diet_parameter(profile,0),
-		  A, DIET_PERSISTENT, DIET_DOUBLE, mA, nA, oA);
+                  A, DIET_PERSISTENT, DIET_DOUBLE, mA, nA, oA);
   print_matrix(A, mA, nA, (oA == DIET_ROW_MAJOR));
   diet_matrix_set(diet_parameter(profile,1),
-		  B, DIET_PERSISTENT, DIET_DOUBLE, mB, nB, oB);
+                  B, DIET_PERSISTENT, DIET_DOUBLE, mB, nB, oB);
   print_matrix(B, mB, nB, (oB == DIET_ROW_MAJOR));
   diet_matrix_set(diet_parameter(profile,2),
-		  NULL, DIET_PERSISTENT_RETURN, DIET_DOUBLE, mA, nB, oC);
+                  NULL, DIET_PERSISTENT_RETURN, DIET_DOUBLE, mA, nB, oC);
 
   strcpy(path2,"MatSUM");
   profile2 = diet_profile_alloc(path2, 1, 1, 2);
   diet_matrix_set(diet_parameter(profile2,0),
-		  NULL, DIET_PERSISTENT, DIET_DOUBLE, mA, nB, oC);
+                  NULL, DIET_PERSISTENT, DIET_DOUBLE, mA, nB, oC);
   
   diet_matrix_set(diet_parameter(profile2,1),
-		  E, DIET_PERSISTENT, DIET_DOUBLE, mA, nB, oE);
+                  E, DIET_PERSISTENT, DIET_DOUBLE, mA, nB, oE);
   print_matrix(E, mA, nB, (oE == DIET_ROW_MAJOR));
   diet_matrix_set(diet_parameter(profile2,2),
-		  NULL, DIET_PERSISTENT_RETURN, DIET_DOUBLE, mA, nB, oD);
+                  NULL, DIET_PERSISTENT_RETURN, DIET_DOUBLE, mA, nB, oD);
   
   for (i = 0; i < n_loops; i++) {
     if (!diet_call(profile)) {

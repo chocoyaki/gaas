@@ -35,28 +35,28 @@ public:
   void
   onDagNodeReady(
     const events::EventFrom<DagNode,
-                            events::EventStandardMsg<DagNode, DagNode::READY> >*
+    events::EventStandardMsg<DagNode, DagNode::READY> >*
     event);
 
   void
   onDagNodeStart(
     const events::EventFrom<DagNodeLauncher,
-                            events::EventStandardMsg<DagNodeLauncher,
-                                                     DagNode::START> >*
+    events::EventStandardMsg<DagNodeLauncher,
+    DagNode::START> >*
     event);
 
   void
   onDagNodeFinish(
     const events::EventFrom<DagNodeLauncher,
-                            events::EventStandardMsg<DagNodeLauncher,
-                                                     DagNode::FINISH> >*
+    events::EventStandardMsg<DagNodeLauncher,
+    DagNode::FINISH> >*
     event);
 
   void
   onDagNodeFailed(
     const events::EventFrom<DagNodeLauncher,
-                            events::EventStandardMsg<DagNodeLauncher,
-                                                     DagNode::FAILED> >*
+    events::EventStandardMsg<DagNodeLauncher,
+    DagNode::FAILED> >*
     event);
 
 private:

@@ -56,7 +56,7 @@ public:
    */
   void
   addRelation(const std::string& dataID1, const std::string& dataID2,
-                   long index, long flag = 0);
+              long index, long flag = 0);
 
   /**
    * Remove the relationship given parent data id and index

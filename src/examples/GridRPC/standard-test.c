@@ -83,7 +83,7 @@ int main(int argc, char **argv)
   if( argc != 7 ){
     fprintf(stderr,
             "Usage: %s <config> <server> <add_func> <sleep_func> <exit_func> <loop_func>\n",
-	    argv[0]);
+            argv[0]);
     exit(-1);
   } 
 
@@ -989,9 +989,9 @@ void wait_test_7(char *config_file, char **func_list)
     for (j=0; j<i; j++) {
       if (ret_id == id[j]) {
         id[j] = id[i-1];
-	id[i-1] = ret_id;
-	found = 1;
-	break;
+        id[i-1] = ret_id;
+        found = 1;
+        break;
       }
     }
     if (found == 0) {
@@ -1092,9 +1092,9 @@ void wait_test_10(char *config_file, char **func_list)
   for (i=0; i<NCALLS; i++) {
     err = grpc_function_handle_default(&handle[i], func_list[0]);
     if (err != GRPC_NO_ERROR) {
-    fprintf(stderr, "grpc_function_handle_default() failed: %s\n", grpc_error_string(err));
-    grpc_finalize();
-    return;
+      fprintf(stderr, "grpc_function_handle_default() failed: %s\n", grpc_error_string(err));
+      grpc_finalize();
+      return;
     }
   }
   for (i=0; i<NCALLS; i++) {
@@ -1271,10 +1271,10 @@ void probe_test_1(char *config_file, char **func_list)
   }
   err = grpc_call_async(&handle, &id, x, &y);
   if (err != GRPC_NO_ERROR) {
-     printf("Failure (%s)\n", grpc_error_string(err));
-     grpc_function_handle_destruct(&handle);
-     grpc_finalize();
-     return;
+    printf("Failure (%s)\n", grpc_error_string(err));
+    grpc_function_handle_destruct(&handle);
+    grpc_finalize();
+    return;
   }
 
   while (1) {
@@ -1686,7 +1686,7 @@ void cancel_test_2(char *config_file)
   if (err != GRPC_NO_ERROR) {
     fprintf(stderr, "grpc_initialize() failed: %s\n", grpc_error_string(err));
     return;
-  }	   
+  }        
 
   err = grpc_cancel(id);
   if (err != GRPC_INVALID_SESSION_ID) {
@@ -1811,13 +1811,13 @@ void error_report_test_1(char *config_file)
 {
   grpc_error_t err = GRPC_NO_ERROR;
   printf("Error Reporting Test 1:\n");
-	
+        
   err = grpc_initialize(config_file);
   if (err != GRPC_NO_ERROR) {
     fprintf(stderr, "grpc_initialize() failed: %s\n", grpc_error_string(err));
     return;
   }
-	
+        
   printf("  GRPC_NO_ERROR: %s\n", grpc_error_string(GRPC_NO_ERROR));
   printf("  GRPC_NOT_INITIALIZED: %s\n", grpc_error_string(GRPC_NOT_INITIALIZED)); 
   printf("  GRPC_ALREADY_INITIALIZED: %s\n", grpc_error_string(GRPC_ALREADY_INITIALIZED));
@@ -2148,7 +2148,7 @@ void error_report_test_7(char *config_file, char **func_list)
     } else {
       if (ret_id == GRPC_SESSIONID_VOID){
         if (counter == 3) printf("Success\n");
-	else printf("Failure (Only %d errors was returned.)\n", counter);
+        else printf("Failure (Only %d errors was returned.)\n", counter);
         break;
       } else {
         counter++;

@@ -129,7 +129,7 @@ solve_MatSUM(diet_profile_t* pb)
   tB = (oB == DIET_ROW_MAJOR) ? 'T' : 'N';
   if ((mA != mB) || (nA != nB)) {
     fprintf(stderr, "MatSUM error: mA=%zd, nA=%zd ; mB=%zd, nB=%zd\n",
-	    mA, nA, mB, nB);
+            mA, nA, mB, nB);
     return 1;
   }
   
@@ -171,7 +171,7 @@ solve_MatPROD(diet_profile_t* pb)
   tB = (oB == DIET_ROW_MAJOR) ? 'T' : 'N';
   if (nA != mB) {
     fprintf(stderr, "MatPROD error: mA=%ld, nA=%ld ; mB=%ld, nB=%ld\n",
-    (long)mA, (long)nA, (long)mB, (long)nB);
+            (long)mA, (long)nA, (long)mB, (long)nB);
     return 1;
   }
   diet_matrix_get(diet_parameter(pb, 2), &C, NULL, &mC, &nC, &oC);
@@ -195,7 +195,7 @@ int
 usage(char* cmd)
 {
   fprintf(stderr, "Usage: %s <file.cfg> [all | [%s][%s][%s] ]\n",
-	  cmd, SRV[0], SRV[1], SRV[2]);
+          cmd, SRV[0], SRV[1], SRV[2]);
   return 1;
 }
 
@@ -225,11 +225,11 @@ main(int argc, char* argv[])
       for (j = 0; j < NB_SRV; j++) {
         if (!strcmp(SRV[j], path)) {
           services[j] = 1;
-        break;
+          break;
+        }
       }
-    }
-    if (j == NB_SRV)
-      exit(usage(argv[0]));
+      if (j == NB_SRV)
+        exit(usage(argv[0]));
     }
   }
   

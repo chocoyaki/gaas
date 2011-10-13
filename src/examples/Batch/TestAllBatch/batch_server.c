@@ -175,13 +175,13 @@ int solve_concatenation_seq(diet_profile_t *pb)
 
   /* FIXME: Dirty trick for Loadlever: put files in current rep */
   outputName_1 = (char*)calloc(sizeof(char),
-			       (strlen(current_directory)+strlen(path1))) ;
+                               (strlen(current_directory)+strlen(path1))) ;
   if( outputName_1 == NULL )
     perror("malloc outputName_1") ;
   sprintf(outputName_1,"%s/%s", current_directory,basename(path1)) ;
   copyFile(path1,outputName_1) ;
   outputName_2 = (char*)calloc(sizeof(char),
-			       (strlen(current_directory)+strlen(path2))) ;
+                               (strlen(current_directory)+strlen(path2))) ;
   if( outputName_2 == NULL )
     perror("malloc outputName_2") ;
   sprintf(outputName_2,"%s/%s", current_directory,basename(path2)) ;
@@ -197,18 +197,18 @@ int solve_concatenation_seq(diet_profile_t *pb)
     return 2 ;
   }
   sprintf(prologue,
-	  "batchID=$DIET_BATCHNAME\n"
-	  "echo \"Name of the frontale station: $DIET_NAME_FRONTALE\"\n"
-	  "case \"$batchID\" in\n"
-	  "  loadleveler) echo DIET_BATCH_NODESLIST, DIET_BATCH_NODESFILE \
-	                  cannot be used in this case ;;\n"
-	  "  *) echo \"Number of nodes:  $DIET_BATCH_NBNODES\"\n"
-	  "     echo \"Reserved Nodes are:\"\n"
-	  "     echo $DIET_BATCH_NODESLIST\n"
-	  "     echo Name of the batch file containing their identity: \
-	        $DIET_BATCH_NODESFILE;;\n"
-	  "esac\n"
-	  "\n") ;
+          "batchID=$DIET_BATCHNAME\n"
+          "echo \"Name of the frontale station: $DIET_NAME_FRONTALE\"\n"
+          "case \"$batchID\" in\n"
+          "  loadleveler) echo DIET_BATCH_NODESLIST, DIET_BATCH_NODESFILE \
+                          cannot be used in this case ;;\n"
+          "  *) echo \"Number of nodes:  $DIET_BATCH_NBNODES\"\n"
+          "     echo \"Reserved Nodes are:\"\n"
+          "     echo $DIET_BATCH_NODESLIST\n"
+          "     echo Name of the batch file containing their identity: \
+                $DIET_BATCH_NODESFILE;;\n"
+          "esac\n"
+          "\n") ;
 
   /* Data management: scp for file1, NFS for file2 */
   /* Note for advanced usage:  
@@ -228,33 +228,33 @@ int solve_concatenation_seq(diet_profile_t *pb)
     return 2 ;
   }
   sprintf(copying,
-	  "case $batchID in\n"
-	  "  oar1.6) echo Execute on OAR1.6\n"
-	  "          WORKING_DIRECTORY=/home/ycaniou/JobMPI/\n"
-	  "          # Copy the file on reserved nodes\n"
-	  "          for i in $DIET_BATCH_NODESLIST ; do\n"
-	  "            scp $DIET_NAME_FRONTALE:%s $i:/tmp/%s_local\n"
-	  "          done\n"
-	  "          input_file1=/tmp/%s_local\n\n"
-	  "          # Use NFS (we are not on the frontale anymore!)\n"
-	  "          ssh $DIET_NAME_FRONTALE \"cp %s $WORKING_DIRECTORY/\"\n"
-	  "          input_file2=$WORKING_DIRECTORY/%s ;;\n",
-	  path1,basename(path1),basename(path1),path2,basename(path2)) ;
+          "case $batchID in\n"
+          "  oar1.6) echo Execute on OAR1.6\n"
+          "          WORKING_DIRECTORY=/home/ycaniou/JobMPI/\n"
+          "          # Copy the file on reserved nodes\n"
+          "          for i in $DIET_BATCH_NODESLIST ; do\n"
+          "            scp $DIET_NAME_FRONTALE:%s $i:/tmp/%s_local\n"
+          "          done\n"
+          "          input_file1=/tmp/%s_local\n\n"
+          "          # Use NFS (we are not on the frontale anymore!)\n"
+          "          ssh $DIET_NAME_FRONTALE \"cp %s $WORKING_DIRECTORY/\"\n"
+          "          input_file2=$WORKING_DIRECTORY/%s ;;\n",
+          path1,basename(path1),basename(path1),path2,basename(path2)) ;
   sprintf(copying+strlen(copying),
-	  "  loadleveler) echo Execute on Loadleveler\n"
-	  "               # Machine //, all files accessible from all nodes\n"
-	  "               # we can use mcp..\n"
-	  "               WORKING_DIRECTORY=/users/cri/diet/YC/JobMPI/\n"
-	  "               input_file1=%s\n"
-	  "               input_file2=%s ;;\n"
-	  "  *) echo NOT TESTED! ;;\n"
-	  "esac\n",
-	  outputName_1, outputName_2) ;
-  	  /*	  path1,path2) ;  */
+          "  loadleveler) echo Execute on Loadleveler\n"
+          "               # Machine //, all files accessible from all nodes\n"
+          "               # we can use mcp..\n"
+          "               WORKING_DIRECTORY=/users/cri/diet/YC/JobMPI/\n"
+          "               input_file1=%s\n"
+          "               input_file2=%s ;;\n"
+          "  *) echo NOT TESTED! ;;\n"
+          "esac\n",
+          outputName_1, outputName_2) ;
+  /*      path1,path2) ;  */
   
   /* The proceeding of the command */
   local_output_filename = (char*)malloc(sizeof(char*)*
-					(strlen(path_result)+10)) ;
+                                        (strlen(path_result)+10)) ;
   sprintf(local_output_filename,"%s_local",path_result) ; /*"/tmp/result_local.txt" ;*/
   cmd = (char*)calloc(5000,sizeof(char)) ;  /* TODO: Reduce size */
   if( cmd == NULL ) {
@@ -265,33 +265,33 @@ int solve_concatenation_seq(diet_profile_t *pb)
     return 2 ;
   }
   sprintf(cmd,
-	  "# Execution\n"
-	  "case $batchID in\n"
-	  "  oar1.6) cd $WORKING_DIRECTORY\n"
-	  "          local_output_filename=%s\n"
-	  "          mpirun.mpich_1_2 -np $DIET_USER_NBPROCS \
-	             -machinefile $DIET_BATCH_NODESFILE \
-	             concatenation $input_file1 %.2f \
-	             $input_file2 $local_output_filename ;;\n",
-	  local_output_filename, *ptr_nbreel) ;
+          "# Execution\n"
+          "case $batchID in\n"
+          "  oar1.6) cd $WORKING_DIRECTORY\n"
+          "          local_output_filename=%s\n"
+          "          mpirun.mpich_1_2 -np $DIET_USER_NBPROCS \
+                     -machinefile $DIET_BATCH_NODESFILE \
+                     concatenation $input_file1 %.2f \
+                     $input_file2 $local_output_filename ;;\n",
+          local_output_filename, *ptr_nbreel) ;
   sprintf(cmd+strlen(cmd),
-	  "  loadleveler) cd $WORKING_DIRECTORY\n"
-	  "          local_output_filename=%s\n"
-	  "          # Test if job is serial or parallel (usage of poe)\n"
-	  "          #if [ %d -eq 1 ] ; then\n"
-	  "            ./concatenation.sh $input_file1 %.2f \
-	               $input_file2 $local_output_filename\n"
-	  "          #else\n"
-	  "          #  poe -np $DIET_USER_NBPROCS \
-	               -machinefile $DIET_BATCH_NODESFILE \
-	               concatenation $input_file1 %.2f \
-	               $input_file2 $local_output_filename\n"
-	  "          #fi\n"
-	  "esac\n"
-	  "\n",
-	  local_output_filename, 1, *ptr_nbreel,
-	  *ptr_nbreel
-	  ) ;
+          "  loadleveler) cd $WORKING_DIRECTORY\n"
+          "          local_output_filename=%s\n"
+          "          # Test if job is serial or parallel (usage of poe)\n"
+          "          #if [ %d -eq 1 ] ; then\n"
+          "            ./concatenation.sh $input_file1 %.2f \
+                       $input_file2 $local_output_filename\n"
+          "          #else\n"
+          "          #  poe -np $DIET_USER_NBPROCS \
+                       -machinefile $DIET_BATCH_NODESFILE \
+                       concatenation $input_file1 %.2f \
+                       $input_file2 $local_output_filename\n"
+          "          #fi\n"
+          "esac\n"
+          "\n",
+          local_output_filename, 1, *ptr_nbreel,
+          *ptr_nbreel
+          ) ;
   
   /* Put the Output file in the right place */
   /* Note: if output on NFS, with "ln -s" (see batch_server_2) 
@@ -306,20 +306,20 @@ int solve_concatenation_seq(diet_profile_t *pb)
     return 2 ;
   }
   sprintf(epilogue,
-	  "# Get the result file\n"
-	  "case $batchID in\n"
-	  "  oar1.6) scp $local_output_filename $DIET_NAME_FRONTALE:%s ;;\n"
-	  "  loadleveler) cp $local_output_filename %s ;;\n"
-	  "esac\n",
-	  path_result,
-	  path_result) ;
+          "# Get the result file\n"
+          "case $batchID in\n"
+          "  oar1.6) scp $local_output_filename $DIET_NAME_FRONTALE:%s ;;\n"
+          "  loadleveler) cp $local_output_filename %s ;;\n"
+          "esac\n",
+          path_result,
+          path_result) ;
   
   /* Make Diet submit */
   script = (char*)malloc( (strlen(prologue)  
-			   + strlen(copying)  
-			   + strlen(cmd) 
-			   + strlen(epilogue)
-			   + 1 ) * sizeof(char) ) ;
+                           + strlen(copying)  
+                           + strlen(cmd) 
+                           + strlen(epilogue)
+                           + 1 ) * sizeof(char) ) ;
   if( script == NULL ) {
     fprintf(stderr,"Memory allocation problem.. not solving the service\n\n") ;
     free(prologue);
@@ -412,13 +412,13 @@ int solve_concatenation_parallel(diet_profile_t *pb)
 
   /* FIXME: Dirty trick for Loadlever: put files in current rep */
   outputName_1 = (char*)calloc(sizeof(char),
-			       (strlen(current_directory)+strlen(path1))) ;
+                               (strlen(current_directory)+strlen(path1))) ;
   if( outputName_1 == NULL )
     perror("malloc outputName_1") ;
   sprintf(outputName_1,"%s/%s", current_directory,basename(path1)) ;
   copyFile(path1,outputName_1) ;
   outputName_2 = (char*)calloc(sizeof(char),
-			       (strlen(current_directory)+strlen(path2))) ;
+                               (strlen(current_directory)+strlen(path2))) ;
   if( outputName_2 == NULL )
     perror("malloc outputName_2") ;
   sprintf(outputName_2,"%s/%s", current_directory,basename(path2)) ;
@@ -434,18 +434,18 @@ int solve_concatenation_parallel(diet_profile_t *pb)
     return 2 ;
   }
   sprintf(prologue,
-	  "batchID=$DIET_BATCHNAME\n"
-	  "echo \"Name of the frontale station: $DIET_NAME_FRONTALE\"\n"
-	  "case \"$batchID\" in\n"
-	  "  loadleveler) echo DIET_BATCH_NODESLIST, DIET_BATCH_NODESFILE \
-	                  cannot be used in this case ;;\n"
-	  "  *) echo \"Number of nodes:  $DIET_BATCH_NBNODES\"\n"
-	  "     echo \"Reserved Nodes are:\"\n"
-	  "     echo $DIET_BATCH_NODESLIST\n"
-	  "     echo Name of the batch file containing their identity: \
-	        $DIET_BATCH_NODESFILE;;\n"
-	  "esac\n"
-	  "\n") ;
+          "batchID=$DIET_BATCHNAME\n"
+          "echo \"Name of the frontale station: $DIET_NAME_FRONTALE\"\n"
+          "case \"$batchID\" in\n"
+          "  loadleveler) echo DIET_BATCH_NODESLIST, DIET_BATCH_NODESFILE \
+                          cannot be used in this case ;;\n"
+          "  *) echo \"Number of nodes:  $DIET_BATCH_NBNODES\"\n"
+          "     echo \"Reserved Nodes are:\"\n"
+          "     echo $DIET_BATCH_NODESLIST\n"
+          "     echo Name of the batch file containing their identity: \
+                $DIET_BATCH_NODESFILE;;\n"
+          "esac\n"
+          "\n") ;
 
   /* Data management: scp for file1, NFS for file2 */
   /* Note for advanced usage:  
@@ -465,33 +465,33 @@ int solve_concatenation_parallel(diet_profile_t *pb)
     return 2 ;
   }
   sprintf(copying,
-	  "case $batchID in\n"
-	  "  oar1.6) echo Execute on OAR1.6\n"
-	  "          WORKING_DIRECTORY=/home/ycaniou/JobMPI/\n"
-	  "          # Copy the file on reserved nodes\n"
-	  "          for i in $DIET_BATCH_NODESLIST ; do\n"
-	  "            scp $DIET_NAME_FRONTALE:%s $i:/tmp/%s_local\n"
-	  "          done\n"
-	  "          input_file1=/tmp/%s_local\n\n"
-	  "          # Use NFS (we are not on the frontale anymore!)\n"
-	  "          ssh $DIET_NAME_FRONTALE \"cp %s $WORKING_DIRECTORY/\"\n"
-	  "          input_file2=$WORKING_DIRECTORY/%s ;;\n",
-	  path1,basename(path1),basename(path1),path2,basename(path2)) ;
+          "case $batchID in\n"
+          "  oar1.6) echo Execute on OAR1.6\n"
+          "          WORKING_DIRECTORY=/home/ycaniou/JobMPI/\n"
+          "          # Copy the file on reserved nodes\n"
+          "          for i in $DIET_BATCH_NODESLIST ; do\n"
+          "            scp $DIET_NAME_FRONTALE:%s $i:/tmp/%s_local\n"
+          "          done\n"
+          "          input_file1=/tmp/%s_local\n\n"
+          "          # Use NFS (we are not on the frontale anymore!)\n"
+          "          ssh $DIET_NAME_FRONTALE \"cp %s $WORKING_DIRECTORY/\"\n"
+          "          input_file2=$WORKING_DIRECTORY/%s ;;\n",
+          path1,basename(path1),basename(path1),path2,basename(path2)) ;
   sprintf(copying+strlen(copying),
-	  "  loadleveler) echo Execute on Loadleveler\n"
-	  "               # Machine //, all files accessible from all nodes\n"
-	  "               # we can use mcp..\n"
-	  "               WORKING_DIRECTORY=/users/cri/diet/YC/JobMPI/\n"
-	  "               input_file1=%s\n"
-	  "               input_file2=%s ;;\n"
-	  "  *) echo NOT TESTED! ;;\n"
-	  "esac\n",
-	  outputName_1, outputName_2) ;
-  	  /*	  path1,path2) ;  */
+          "  loadleveler) echo Execute on Loadleveler\n"
+          "               # Machine //, all files accessible from all nodes\n"
+          "               # we can use mcp..\n"
+          "               WORKING_DIRECTORY=/users/cri/diet/YC/JobMPI/\n"
+          "               input_file1=%s\n"
+          "               input_file2=%s ;;\n"
+          "  *) echo NOT TESTED! ;;\n"
+          "esac\n",
+          outputName_1, outputName_2) ;
+  /*      path1,path2) ;  */
   
   /* The proceeding of the command */
   local_output_filename = (char*)malloc(sizeof(char*)*
-					(strlen(path_result)+10)) ;
+                                        (strlen(path_result)+10)) ;
   sprintf(local_output_filename,"%s_local",path_result) ; /*"/tmp/result_local.txt" ;*/
   cmd = (char*)calloc(5000,sizeof(char)) ;  /* TODO: Reduce size */
   if( cmd == NULL ) {
@@ -502,33 +502,33 @@ int solve_concatenation_parallel(diet_profile_t *pb)
     return 2 ;
   }
   sprintf(cmd,
-	  "# Execution\n"
-	  "case $batchID in\n"
-	  "  oar1.6) cd $WORKING_DIRECTORY\n"
-	  "          local_output_filename=%s\n"
-	  "          mpirun.mpich_1_2 -np $DIET_USER_NBPROCS \
-	             -machinefile $DIET_BATCH_NODESFILE \
-	             concatenation $input_file1 %.2f \
-	             $input_file2 $local_output_filename ;;\n",
-	  local_output_filename, *ptr_nbreel) ;
+          "# Execution\n"
+          "case $batchID in\n"
+          "  oar1.6) cd $WORKING_DIRECTORY\n"
+          "          local_output_filename=%s\n"
+          "          mpirun.mpich_1_2 -np $DIET_USER_NBPROCS \
+                     -machinefile $DIET_BATCH_NODESFILE \
+                     concatenation $input_file1 %.2f \
+                     $input_file2 $local_output_filename ;;\n",
+          local_output_filename, *ptr_nbreel) ;
   sprintf(cmd+strlen(cmd),
-	  "  loadleveler) cd $WORKING_DIRECTORY\n"
-	  "          local_output_filename=%s\n"
-	  "          # Test if job is serial or parallel (usage of poe)\n"
-	  "          #if [ %d -eq 1 ] ; then\n"
-	  "            ./concatenation.sh $input_file1 %.2f \
-	               $input_file2 $local_output_filename\n"
-	  "          #else\n"
-	  "          #  poe -np $DIET_USER_NBPROCS \
-	               -machinefile $DIET_BATCH_NODESFILE \
-	               concatenation $input_file1 %.2f \
-	               $input_file2 $local_output_filename\n"
-	  "          #fi\n"
-	  "esac\n"
-	  "\n",
-	  local_output_filename, 1, *ptr_nbreel,
-	  *ptr_nbreel
-	  ) ;
+          "  loadleveler) cd $WORKING_DIRECTORY\n"
+          "          local_output_filename=%s\n"
+          "          # Test if job is serial or parallel (usage of poe)\n"
+          "          #if [ %d -eq 1 ] ; then\n"
+          "            ./concatenation.sh $input_file1 %.2f \
+                       $input_file2 $local_output_filename\n"
+          "          #else\n"
+          "          #  poe -np $DIET_USER_NBPROCS \
+                       -machinefile $DIET_BATCH_NODESFILE \
+                       concatenation $input_file1 %.2f \
+                       $input_file2 $local_output_filename\n"
+          "          #fi\n"
+          "esac\n"
+          "\n",
+          local_output_filename, 1, *ptr_nbreel,
+          *ptr_nbreel
+          ) ;
   
   /* Put the Output file in the right place */
   /* Note: if output on NFS, with "ln -s" (see batch_server_2) 
@@ -543,20 +543,20 @@ int solve_concatenation_parallel(diet_profile_t *pb)
     return 2 ;
   }
   sprintf(epilogue,
-	  "# Get the result file\n"
-	  "case $batchID in\n"
-	  "  oar1.6) scp $local_output_filename $DIET_NAME_FRONTALE:%s ;;\n"
-	  "  loadleveler) cp $local_output_filename %s ;;\n"
-	  "esac\n",
-	  path_result,
-	  path_result) ;
+          "# Get the result file\n"
+          "case $batchID in\n"
+          "  oar1.6) scp $local_output_filename $DIET_NAME_FRONTALE:%s ;;\n"
+          "  loadleveler) cp $local_output_filename %s ;;\n"
+          "esac\n",
+          path_result,
+          path_result) ;
   
   /* Make Diet submit */
   script = (char*)malloc( (strlen(prologue)  
-			   + strlen(copying)  
-			   + strlen(cmd) 
-			   + strlen(epilogue)
-			   + 1 ) * sizeof(char) ) ;
+                           + strlen(copying)  
+                           + strlen(cmd) 
+                           + strlen(epilogue)
+                           + 1 ) * sizeof(char) ) ;
   if( script == NULL ) {
     fprintf(stderr,"Memory allocation problem.. not solving the service\n\n") ;
     free(cmd);
@@ -629,29 +629,29 @@ main(int argc, char* argv[])
   diet_profile_desc_set_parallel(profile_fct1_parallel) ;
     
   diet_generic_desc_set(diet_param_desc(profile_fct1_seq,0), DIET_FILE,
-			DIET_CHAR);
+                        DIET_CHAR);
   diet_generic_desc_set(diet_param_desc(profile_fct1_seq,1), DIET_SCALAR,
-			DIET_DOUBLE);
+                        DIET_DOUBLE);
   diet_generic_desc_set(diet_param_desc(profile_fct1_seq,2), DIET_FILE,
-			DIET_CHAR);
+                        DIET_CHAR);
   diet_generic_desc_set(diet_param_desc(profile_fct1_seq,3), DIET_FILE,
-			DIET_CHAR);
+                        DIET_CHAR);
 
   diet_generic_desc_set(diet_param_desc(profile_fct1_parallel,0), DIET_FILE,
-			DIET_CHAR);
+                        DIET_CHAR);
   diet_generic_desc_set(diet_param_desc(profile_fct1_parallel,1), DIET_SCALAR,
-			DIET_DOUBLE);
+                        DIET_DOUBLE);
   diet_generic_desc_set(diet_param_desc(profile_fct1_parallel,2), DIET_FILE,
-			DIET_CHAR);
+                        DIET_CHAR);
   diet_generic_desc_set(diet_param_desc(profile_fct1_parallel,3), DIET_FILE,
-			DIET_CHAR);
+                        DIET_CHAR);
   /* All done */
 
   /* Add service to the service table */
   if( diet_service_table_add(profile_fct1_seq, NULL, solve_concatenation_seq)) 
     return 1 ;
   if( diet_service_table_add(profile_fct1_parallel, NULL,
-			     solve_concatenation_parallel) )
+                             solve_concatenation_parallel) )
     return 1 ;
   
   /* Free the profile, since it was deep copied */

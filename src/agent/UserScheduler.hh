@@ -114,8 +114,8 @@ private:
                                                 EST_COMMTIME, 0))
 #define TCOMP(server) (diet_est_get_internal(&(server).estim,   \
                                              EST_TCOMP, 0))
-#define TIMESINCELASTSOLVE(server) \
-  (diet_est_get_internal(&(server).estim,                               \
+#define TIMESINCELASTSOLVE(server)                      \
+  (diet_est_get_internal(&(server).estim,               \
                          EST_TIMESINCELASTSOLVE, 0))
 #define COMMPROXIMITY(server) (diet_est_get_internal(&(server).estim,   \
                                                      EST_COMMPROXIMITY, 0))
@@ -153,40 +153,40 @@ private:
 
 /* Sorts in descending order (list[0] >= list[1] >= ...)
    Used to sort a single-value metric. */
-#define SORTFUN(name, metric)                           \
-  bool                                                  \
-  name(const corba_server_estimation_t &r1,             \
-            const corba_server_estimation_t &r2) {      \
-    return metric(r2) < metric(r1);                     \
+#define SORTFUN(name, metric)                   \
+  bool                                          \
+  name(const corba_server_estimation_t &r1,     \
+       const corba_server_estimation_t &r2) {   \
+    return metric(r2) < metric(r1);             \
   }
 
 /* Sorts in descending order (list[0] >= list[1] >= ...)
    Used to sort a multi-value metric. nb is the index of the value on which
    the sort have to be made. */
-#define SORTFUN_NB(name, metric, nb)                    \
-  bool                                                  \
-  name(const corba_server_estimation_t &r1,             \
-            const corba_server_estimation_t &r2) {      \
-    return metric(r2, nb) < metric(r1, nb);             \
+#define SORTFUN_NB(name, metric, nb)            \
+  bool                                          \
+  name(const corba_server_estimation_t &r1,     \
+       const corba_server_estimation_t &r2) {   \
+    return metric(r2, nb) < metric(r1, nb);     \
   }
 
 /* Sorts in ascending order (list[0] < list[1] < ...)
    Used to sort a single-value metric. */
-#define REV_SORTFUN(name, metric)                       \
-  bool                                                  \
-  name(const corba_server_estimation_t &r1,             \
-            const corba_server_estimation_t &r2) {      \
-    return metric(r1) < metric(r2);                     \
+#define REV_SORTFUN(name, metric)               \
+  bool                                          \
+  name(const corba_server_estimation_t &r1,     \
+       const corba_server_estimation_t &r2) {   \
+    return metric(r1) < metric(r2);             \
   }
 
 /* Sorts in ascending order (list[0] < list[1] < ...)
    Used to sort a multi-value metric. nb is the index of the value on which
    the sort have to be made. */
-#define REV_SORTFUN_NB(name, metric, nb)                \
-  bool                                                  \
-  name(const corba_server_estimation_t &r1,             \
-            const corba_server_estimation_t &r2) {      \
-    return metric(r1, nb) < metric(r2, nb);             \
+#define REV_SORTFUN_NB(name, metric, nb)        \
+  bool                                          \
+  name(const corba_server_estimation_t &r1,     \
+       const corba_server_estimation_t &r2) {   \
+    return metric(r1, nb) < metric(r2, nb);     \
   }
 
 /* Sorts the list using the comparison function "fun". */

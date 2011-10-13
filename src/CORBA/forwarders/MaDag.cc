@@ -43,7 +43,7 @@ DIETForwarder::processDagWf(const ::corba_wf_desc_t& dag_desc,
   MaDag_var agent =
     ORBMgr::getMgr()->resolve<MaDag, MaDag_var>(MADAGCTXT, name, this->name);
   return agent->processDagWf(dag_desc, cltMgrRef, wfReqId);
-}
+  }
 
 ::CORBA::Long
 DIETForwarder::processMultiDagWf(const ::corba_wf_desc_t& dag_desc,
@@ -65,7 +65,7 @@ DIETForwarder::processMultiDagWf(const ::corba_wf_desc_t& dag_desc,
   MaDag_var agent =
     ORBMgr::getMgr()->resolve<MaDag, MaDag_var>(MADAGCTXT, name,this->name);
   return agent->processMultiDagWf(dag_desc, cltMgrRef, wfReqId, release);
-}
+  }
 
 ::CORBA::Long
 DIETForwarder::getWfReqId(const char* objName) {
@@ -81,7 +81,7 @@ DIETForwarder::getWfReqId(const char* objName) {
   MaDag_var agent =
     ORBMgr::getMgr()->resolve<MaDag, MaDag_var>(MADAGCTXT, name, this->name);
   return agent->getWfReqId();
-}
+  }
 
 void
 DIETForwarder::releaseMultiDag(::CORBA::Long wfReqId, const char* objName) {

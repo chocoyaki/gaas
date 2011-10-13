@@ -130,7 +130,7 @@ main(int argc, char* argv[]) {
     set_intersection(DIET_CTXTS, DIET_CTXTS+10,
                      allCtxts.begin(), allCtxts.end(),
                      std::insert_iterator<std::list<
-                       std::string> >(dietCtxts, dietCtxts.begin()));
+                     std::string> >(dietCtxts, dietCtxts.begin()));
 
     for (it = dietCtxts.begin(); it != dietCtxts.end(); ++it)
       std::cout << *it << "\n";
@@ -144,7 +144,7 @@ main(int argc, char* argv[]) {
     set_intersection(DIET_CTXTS, DIET_CTXTS+10,
                      contexts.begin(), contexts.end(),
                      std::insert_iterator<std::list<
-                       std::string> >(dietCtxts, dietCtxts.begin()));
+                     std::string> >(dietCtxts, dietCtxts.begin()));
 
     for (it = dietCtxts.begin(); it != dietCtxts.end(); ++it) {
       std::list<std::string> objects;

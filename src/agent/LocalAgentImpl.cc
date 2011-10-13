@@ -358,7 +358,7 @@ LocalAgentImpl::run()
 
   std::string parentName;
   if (!CONFIG_STRING(diet::PARENTNAME, parentName))
-  WARNING("no parent specified, will now wait");
+    WARNING("no parent specified, will now wait");
 
   try {
     this->parent =

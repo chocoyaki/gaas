@@ -68,11 +68,11 @@ int solve_random(diet_profile_t * pb)
     return 2 ;
   }
   sprintf(script,
-	"echo \"File containing nodes list: $DIET_BATCH_NODESFILE\"\n"
-	"echo \"List of nodes:  $DIET_BATCH_NODESLIST\"\n"
-	"echo \"Name of the frontale station: $DIET_NAME_FRONTALE\"\n"
-	"echo \"Number of nodes:  $DIET_BATCH_NBNODES\"\n"
-	"\n") ;
+          "echo \"File containing nodes list: $DIET_BATCH_NODESFILE\"\n"
+          "echo \"List of nodes:  $DIET_BATCH_NODESLIST\"\n"
+          "echo \"Name of the frontale station: $DIET_NAME_FRONTALE\"\n"
+          "echo \"Number of nodes:  $DIET_BATCH_NBNODES\"\n"
+          "\n") ;
     
   /* Submission */
   result = diet_submit_parallel(pb, NULL, script) ;

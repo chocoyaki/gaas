@@ -41,7 +41,7 @@ DIETForwarder::notifyResults(const char* path, const ::corba_profile_t& pb,
     ORBMgr::getMgr()->resolve<Callback, Callback_var>(CLIENTCTXT, name,
                                                       this->name);
   return cb->notifyResults(path, pb, reqID);
-}
+  }
 
 ::CORBA::Long
 DIETForwarder::solveResults(const char* path,
@@ -62,4 +62,4 @@ DIETForwarder::solveResults(const char* path,
     ORBMgr::getMgr()->resolve<Callback, Callback_var>(CLIENTCTXT, name,
                                                       this->name);
   return cb->solveResults(path, pb, reqID, result);
-}
+  }

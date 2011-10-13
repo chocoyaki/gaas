@@ -38,13 +38,13 @@ public:
   void
   onMultiWfSchedulerCreation(
     const EventFrom<MultiWfScheduler,
-                    EventStandardMsg<MultiWfScheduler,
-                                     MultiWfScheduler::CONSTR> >* event);
+    EventStandardMsg<MultiWfScheduler,
+    MultiWfScheduler::CONSTR> >* event);
 
   void
   onDagNodeReady(
     const EventFrom<DagNode,
-                    EventStandardMsg<DagNode, DagNode::READY> >* event);
+    EventStandardMsg<DagNode, DagNode::READY> >* event);
 
 private:
   DietLogComponent* myLC;

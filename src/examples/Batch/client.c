@@ -38,7 +38,7 @@ main(int argc, char* argv[])
       
   if (argc != 2) {
     fprintf(stderr, "Usage: %s <file.cfg>\n",
-	    argv[0]);
+            argv[0]);
     return 1;
   }
 

@@ -157,7 +157,7 @@ int container_string_length(const char* contID, short depth, char getContainer) 
     unsigned int i;
     for (i=0; i<content.size; i++) {
       if (content.elt_ids[i] == NULL)
-          length += 6;
+        length += 6;
       else if (depth == 1) {
         if (!dagda_get_string(content.elt_ids[i], &eltStr))
           length += strlen(eltStr);
@@ -289,7 +289,7 @@ processor(diet_profile_t* pb)
    argv[4]: nb of IN ports
    argv[5]: nb of OUT ports (must be <10)
    argv[6+n]: depth of n-th port (default is 0)
- */
+*/
 
 void usage(char * s) {
   fprintf(stderr, "Usage: %s <file.cfg> <name> <comptime> <nb_in> <nb_out> [depth_p0] ... [depth_pN]\n", s);

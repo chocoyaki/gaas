@@ -27,7 +27,7 @@
 #include "DagdaImpl.hh"
 #include "NetworkStats.hh"
 
-#define DGD_OBJ_TYPE(obj) ((obj).desc.specific._d() == DIET_FILE ? \
+#define DGD_OBJ_TYPE(obj) ((obj).desc.specific._d() == DIET_FILE ?      \
                            DIET_FILE_OBJ:DIET_MEM_OBJ)
 
 class AdvancedDagdaComponent;

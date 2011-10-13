@@ -36,21 +36,21 @@
 #include "DIET_client.h"
 
 
-#define print_matrix(mat, m, n, rm)        \
-  {                                        \
-    size_t i, j;                           \
-    printf("%s (%s-major) = \n", #mat,     \
-           (rm) ? "row" : "column");       \
-    for (i = 0; i < (m); i++) {            \
-      for (j = 0; j < (n); j++) {          \
-        if (rm)                            \
-	  printf("%3f ", (mat)[j + i*(n)]);\
-        else                               \
-	  printf("%3f ", (mat)[i + j*(m)]);\
-      }                                    \
-      printf("\n");                        \
-    }                                      \
-    printf("\n");                          \
+#define print_matrix(mat, m, n, rm)             \
+  {                                             \
+    size_t i, j;                                \
+    printf("%s (%s-major) = \n", #mat,          \
+           (rm) ? "row" : "column");            \
+    for (i = 0; i < (m); i++) {                 \
+      for (j = 0; j < (n); j++) {               \
+        if (rm)                                 \
+          printf("%3f ", (mat)[j + i*(n)]);     \
+        else                                    \
+          printf("%3f ", (mat)[i + j*(m)]);     \
+      }                                         \
+      printf("\n");                             \
+    }                                           \
+    printf("\n");                               \
   }
 
 
@@ -88,8 +88,8 @@ main(int argc, char* argv[])
 
   if (argc != 3) {
     fprintf(stderr,
-	    "Usage: %s <file.cfg> [pdgemm|dgemm|SqMatSUM|MatPROD|MatScalMult]\n",
-	    argv[0]);
+            "Usage: %s <file.cfg> [pdgemm|dgemm|SqMatSUM|MatPROD|MatScalMult]\n",
+            argv[0]);
     return 1;
   }
   path = argv[2];
@@ -142,23 +142,23 @@ main(int argc, char* argv[])
 
     profile = diet_profile_alloc(path, 3, 4, 4);
     diet_scalar_set(diet_parameter(profile,0), &nbProcs,
-		    DIET_VOLATILE, DIET_INT);
+                    DIET_VOLATILE, DIET_INT);
     diet_scalar_set(diet_parameter(profile,1), &nbRows,
-		    DIET_VOLATILE, DIET_INT);
+                    DIET_VOLATILE, DIET_INT);
     diet_scalar_set(diet_parameter(profile,2), &nbCols,
-		    DIET_VOLATILE, DIET_INT);
+                    DIET_VOLATILE, DIET_INT);
     diet_scalar_set(diet_parameter(profile,3), &blSize,
-		    DIET_VOLATILE, DIET_INT);
+                    DIET_VOLATILE, DIET_INT);
     diet_scalar_set(diet_parameter(profile,4), &alpha,
-		    DIET_VOLATILE, DIET_DOUBLE);
+                    DIET_VOLATILE, DIET_DOUBLE);
     diet_matrix_set(diet_parameter(profile,5), A,
-		    DIET_VOLATILE, DIET_DOUBLE, m, k, oA);
+                    DIET_VOLATILE, DIET_DOUBLE, m, k, oA);
     diet_matrix_set(diet_parameter(profile,6), B,
-		    DIET_VOLATILE, DIET_DOUBLE, k, n, oB);
+                    DIET_VOLATILE, DIET_DOUBLE, k, n, oB);
     diet_scalar_set(diet_parameter(profile,7), &beta,
-		    DIET_VOLATILE, DIET_DOUBLE);
+                    DIET_VOLATILE, DIET_DOUBLE);
     diet_matrix_set(diet_parameter(profile,8), C,
-		    DIET_VOLATILE, DIET_DOUBLE, m, n, oC);
+                    DIET_VOLATILE, DIET_DOUBLE, m, n, oC);
   
     print_matrix(A, m, k, (oA == DIET_ROW_MAJOR));
     print_matrix(B, k, n, (oB == DIET_ROW_MAJOR));
@@ -166,9 +166,9 @@ main(int argc, char* argv[])
 
 
 
-  /*********************
-   * dgemm
-   *********************/
+    /*********************
+     * dgemm
+     *********************/
 
   } else if (!strcmp(path, PB[1])) {
   
@@ -200,15 +200,15 @@ main(int argc, char* argv[])
 
     profile = diet_profile_alloc(path, 3, 4, 4);
     diet_scalar_set(diet_parameter(profile,0), &alpha,
-		    DIET_VOLATILE, DIET_DOUBLE);
+                    DIET_VOLATILE, DIET_DOUBLE);
     diet_matrix_set(diet_parameter(profile,1), A,
-		    DIET_VOLATILE, DIET_DOUBLE, m, k, oA);
+                    DIET_VOLATILE, DIET_DOUBLE, m, k, oA);
     diet_matrix_set(diet_parameter(profile,2), B,
-		    DIET_VOLATILE, DIET_DOUBLE, k, n, oB);
+                    DIET_VOLATILE, DIET_DOUBLE, k, n, oB);
     diet_scalar_set(diet_parameter(profile,3), &beta,
-		    DIET_VOLATILE, DIET_DOUBLE);
+                    DIET_VOLATILE, DIET_DOUBLE);
     diet_matrix_set(diet_parameter(profile,4), C,
-		    DIET_VOLATILE, DIET_DOUBLE, m, n, oC);
+                    DIET_VOLATILE, DIET_DOUBLE, m, n, oC);
   
     print_matrix(A, m, k, (oA == DIET_ROW_MAJOR));
     print_matrix(B, k, n, (oB == DIET_ROW_MAJOR));
@@ -216,9 +216,9 @@ main(int argc, char* argv[])
 
 
 
-  /*********************
-   * MatSUM
-   *********************/
+    /*********************
+     * MatSUM
+     *********************/
 
   } else if (!strcmp(path, PB[2])) {
     
@@ -238,18 +238,18 @@ main(int argc, char* argv[])
 
     profile = diet_profile_alloc(path, 0, 1, 1);
     diet_matrix_set(diet_parameter(profile,0), A,
-		    DIET_VOLATILE, DIET_DOUBLE, m, m, oA);
+                    DIET_VOLATILE, DIET_DOUBLE, m, m, oA);
     diet_matrix_set(diet_parameter(profile,1), C,
-		    DIET_VOLATILE, DIET_DOUBLE, m, m, oB);
+                    DIET_VOLATILE, DIET_DOUBLE, m, m, oB);
     
     print_matrix(A, m, k, (oA == DIET_ROW_MAJOR));
     print_matrix(C, m, n, (oC == DIET_ROW_MAJOR));
 
 
 
-  /*********************
-   * MatPROD
-   *********************/
+    /*********************
+     * MatPROD
+     *********************/
 
   } else if (!strcmp(path, PB[3])) {
 
@@ -273,11 +273,11 @@ main(int argc, char* argv[])
 
     profile = diet_profile_alloc(path, 1, 1, 2);
     diet_matrix_set(diet_parameter(profile,0), A,
-		    DIET_VOLATILE, DIET_DOUBLE, m, k, oA);
+                    DIET_VOLATILE, DIET_DOUBLE, m, k, oA);
     diet_matrix_set(diet_parameter(profile,1), B,
-		    DIET_VOLATILE, DIET_DOUBLE, k, n, oB);
+                    DIET_VOLATILE, DIET_DOUBLE, k, n, oB);
     diet_matrix_set(diet_parameter(profile,2), NULL,
-		    DIET_VOLATILE, DIET_DOUBLE, m, n, oC);
+                    DIET_VOLATILE, DIET_DOUBLE, m, n, oC);
 
     print_matrix(A, m, k, (oA == DIET_ROW_MAJOR));
     print_matrix(B, k, n, (oB == DIET_ROW_MAJOR));
@@ -285,9 +285,9 @@ main(int argc, char* argv[])
 
 
     
-  /*********************
-   * MatScalMult
-   *********************/
+    /*********************
+     * MatScalMult
+     *********************/
 
   } else if (!strcmp(path, PB[4])) {
   
@@ -309,17 +309,17 @@ main(int argc, char* argv[])
 
     profile = diet_profile_alloc(path, 0, 1, 1);
     diet_scalar_set(diet_parameter(profile,0), &alpha,
-		    DIET_VOLATILE, DIET_DOUBLE);
+                    DIET_VOLATILE, DIET_DOUBLE);
     diet_matrix_set(diet_parameter(profile,1), C,
-		    DIET_VOLATILE, DIET_DOUBLE, m, n, oC);
+                    DIET_VOLATILE, DIET_DOUBLE, m, n, oC);
 
     print_matrix(C, m, n, (oC == DIET_ROW_MAJOR));
 
 
     
-  /*********************
-   * Dummy pb (no server offers the correspunding service)
-   *********************/
+    /*********************
+     * Dummy pb (no server offers the correspunding service)
+     *********************/
 
   } else {
 
@@ -327,7 +327,7 @@ main(int argc, char* argv[])
     m = n = 0;
     profile = diet_profile_alloc(path, -1, 0, 0);
     diet_scalar_set(diet_parameter(profile,0), &alpha,
-		    DIET_VOLATILE, DIET_DOUBLE);
+                    DIET_VOLATILE, DIET_DOUBLE);
 
   }
   

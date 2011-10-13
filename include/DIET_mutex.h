@@ -25,27 +25,27 @@
 extern "C" {
 #endif // __cplusplus
   
-typedef int diet_mutex_t;
+  typedef int diet_mutex_t;
 
-void
-diet_mutex_initialize();
-void
-diet_mutex_create(int*);
-void
-diet_mutex_lock(int);
-void
-diet_mutex_unlock(int);
-void
-diet_mutex_free(int*);
-void
-diet_mutex_finalize();
+  void
+  diet_mutex_initialize();
+  void
+  diet_mutex_create(int*);
+  void
+  diet_mutex_lock(int);
+  void
+  diet_mutex_unlock(int);
+  void
+  diet_mutex_free(int*);
+  void
+  diet_mutex_finalize();
 
-void
-diet_thread_sleep(int, int);
-void
-diet_thread_yield();
-int
-diet_thread_id();
+  void
+  diet_thread_sleep(int, int);
+  void
+  diet_thread_yield();
+  int
+  diet_thread_id();
 
 #ifdef __cplusplus
 }

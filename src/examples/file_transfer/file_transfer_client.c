@@ -119,7 +119,7 @@ main(int argc, char* argv[])
     diet_file_get(diet_parameter(profile,4), NULL, &out_size, &path);
     if (path && (*path != '\0')) {
       printf("Location of returned file is %s, its size is %zd.\n",
-	     path, out_size);
+             path, out_size);
       /* If uncommented, next line unlink file */
       /* diet_free_data(diet_parameter(profile,4)); */
     }

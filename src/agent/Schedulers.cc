@@ -195,26 +195,26 @@ char*
 Scheduler::serialize(Scheduler* S)
 {
   SCHED_TRACE_FUNCTION((void*)S->name);
-    if (!strncmp(S->name, RandScheduler::stName, S->nameLength)) {
-      return (RandScheduler::serialize((RandScheduler*) S));
-    }
-    else if (!strncmp(S->name, MinScheduler::stName, S->nameLength)) {
-      return (MinScheduler::serialize((MinScheduler*) S));
-    }
-    else if (!strncmp(S->name, MaxScheduler::stName, S->nameLength)) {
-      return (MaxScheduler::serialize((MaxScheduler*) S));
-    }
-    else if (!strncmp(S->name, PriorityScheduler::stName, S->nameLength)) {
-      return (PriorityScheduler::serialize((PriorityScheduler*) S));
-    }
-    else if (!strncmp(S->name, RRScheduler::stName, S->nameLength)) {
-      return (RRScheduler::serialize((RRScheduler*) S));
-    }
-    else {
-      INTERNAL_ERROR("unable to serialize scheduler named " << S->name, 1);
-      /* this line never executes, but exists to avoid  warning */
-      return NULL;
-    }
+  if (!strncmp(S->name, RandScheduler::stName, S->nameLength)) {
+    return (RandScheduler::serialize((RandScheduler*) S));
+  }
+  else if (!strncmp(S->name, MinScheduler::stName, S->nameLength)) {
+    return (MinScheduler::serialize((MinScheduler*) S));
+  }
+  else if (!strncmp(S->name, MaxScheduler::stName, S->nameLength)) {
+    return (MaxScheduler::serialize((MaxScheduler*) S));
+  }
+  else if (!strncmp(S->name, PriorityScheduler::stName, S->nameLength)) {
+    return (PriorityScheduler::serialize((PriorityScheduler*) S));
+  }
+  else if (!strncmp(S->name, RRScheduler::stName, S->nameLength)) {
+    return (RRScheduler::serialize((RRScheduler*) S));
+  }
+  else {
+    INTERNAL_ERROR("unable to serialize scheduler named " << S->name, 1);
+    /* this line never executes, but exists to avoid  warning */
+    return NULL;
+  }
 }
 
 /**
@@ -236,30 +236,30 @@ Scheduler::deserialize(const char* serializedScheduler)
     }
   }
 
-    if (!strncmp(serializedScheduler, RandScheduler::stName, nameLength)) {
-      return (RandScheduler::deserialize(serializedScheduler + nameLength));
-    }
-    else if (!strncmp(serializedScheduler, MinScheduler::stName, nameLength)) {
-      return (MinScheduler::deserialize(serializedScheduler + nameLength));
-    }
-    else if (!strncmp(serializedScheduler, MaxScheduler::stName, nameLength)) {
-      return (MaxScheduler::deserialize(serializedScheduler + nameLength));
-    }
-    else if (!strncmp(serializedScheduler,
-                      PriorityScheduler::stName,
-                      nameLength)) {
-      return (PriorityScheduler::deserialize(serializedScheduler + nameLength));
-    }
-    else if (!strncmp(serializedScheduler, RRScheduler::stName, nameLength)) {
-      return (RRScheduler::deserialize(serializedScheduler + nameLength));
-    }
-    else {
-      INTERNAL_WARNING("unable to deserialize scheduler \""
-                       << serializedScheduler
-                       << "\"; "
-                       << "reverting to default (random)");
-      return (new RandScheduler());
-    }
+  if (!strncmp(serializedScheduler, RandScheduler::stName, nameLength)) {
+    return (RandScheduler::deserialize(serializedScheduler + nameLength));
+  }
+  else if (!strncmp(serializedScheduler, MinScheduler::stName, nameLength)) {
+    return (MinScheduler::deserialize(serializedScheduler + nameLength));
+  }
+  else if (!strncmp(serializedScheduler, MaxScheduler::stName, nameLength)) {
+    return (MaxScheduler::deserialize(serializedScheduler + nameLength));
+  }
+  else if (!strncmp(serializedScheduler,
+                    PriorityScheduler::stName,
+                    nameLength)) {
+    return (PriorityScheduler::deserialize(serializedScheduler + nameLength));
+  }
+  else if (!strncmp(serializedScheduler, RRScheduler::stName, nameLength)) {
+    return (RRScheduler::deserialize(serializedScheduler + nameLength));
+  }
+  else {
+    INTERNAL_WARNING("unable to deserialize scheduler \""
+                     << serializedScheduler
+                     << "\"; "
+                     << "reverting to default (random)");
+    return (new RandScheduler());
+  }
 }
 
 /* agregate is non-static: use this->name for the SCHED_TRACE_FUNCTION */

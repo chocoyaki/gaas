@@ -107,13 +107,13 @@ int solve_concatenation(diet_profile_t *pb)
     return 2 ;
   }
   sprintf(prologue,
-	  "echo \"Name of the frontale station: $DIET_NAME_FRONTALE\"\n"
-	  "echo \"Reserved Nodes are:\"\n"
-	  "echo $DIET_BATCH_NODESLIST\n"
-	  "echo \"Number of nodes:  $DIET_BATCH_NBNODES\"\n"
-	  "echo \"Name of the batch file containing their identity:"
-	  " $DIET_BATCH_NODESFILE\"\n"
-	  "\n") ;
+          "echo \"Name of the frontale station: $DIET_NAME_FRONTALE\"\n"
+          "echo \"Reserved Nodes are:\"\n"
+          "echo $DIET_BATCH_NODESLIST\n"
+          "echo \"Number of nodes:  $DIET_BATCH_NBNODES\"\n"
+          "echo \"Name of the batch file containing their identity:"
+          " $DIET_BATCH_NODESFILE\"\n"
+          "\n") ;
   
   /* Data management: scp for file1, NFS for file2 */
   /* Note: one can do the NFS cp in a C thread (see batch_server_2) */
@@ -132,17 +132,17 @@ int solve_concatenation(diet_profile_t *pb)
     return 2 ;
   }
   sprintf(copying,
-	  "WORKING_DIRECTORY=/home/ycaniou/JobMPI/\n"
-	  "# Copy the file on reserved nodes\n"
-	  "for i in $DIET_BATCH_NODESLIST ; do\n"
-	  "  scp $DIET_NAME_FRONTALE:%s $i:/tmp/%s_local\n"
-	  "done\n"
-	  "input_file1=/tmp/%s_local\n"
-	  "\n"
-	  "# Use NFS (we are not on the frontale anymore!)\n"
-	  "ssh $DIET_NAME_FRONTALE \"cp %s $WORKING_DIRECTORY/\"\n"
-	  "input_file2=%s\n\n",
-	  path1,basename(path1),basename(path1),path2,basename(path2)) ; 
+          "WORKING_DIRECTORY=/home/ycaniou/JobMPI/\n"
+          "# Copy the file on reserved nodes\n"
+          "for i in $DIET_BATCH_NODESLIST ; do\n"
+          "  scp $DIET_NAME_FRONTALE:%s $i:/tmp/%s_local\n"
+          "done\n"
+          "input_file1=/tmp/%s_local\n"
+          "\n"
+          "# Use NFS (we are not on the frontale anymore!)\n"
+          "ssh $DIET_NAME_FRONTALE \"cp %s $WORKING_DIRECTORY/\"\n"
+          "input_file2=%s\n\n",
+          path1,basename(path1),basename(path1),path2,basename(path2)) ; 
   
   /* The MPI command itself */
   local_output_filename = "/tmp/result_local.txt" ;
@@ -154,14 +154,14 @@ int solve_concatenation(diet_profile_t *pb)
     return 2 ;
   }
   sprintf(cmd,
-	  "# Execution\n"
-	  "cd $WORKING_DIRECTORY\n"
-	  "local_output_filename=%s\n"
-	  "mpirun.mpich_1_2 -np $DIET_USER_NBPROCS "
-	  "-machinefile $DIET_BATCH_NODESFILE "
-	  "concatenation $input_file1 %.2f "
-	  "$input_file2 $local_output_filename\n"
-	  "\n",local_output_filename, *ptr_nbreel) ;
+          "# Execution\n"
+          "cd $WORKING_DIRECTORY\n"
+          "local_output_filename=%s\n"
+          "mpirun.mpich_1_2 -np $DIET_USER_NBPROCS "
+          "-machinefile $DIET_BATCH_NODESFILE "
+          "concatenation $input_file1 %.2f "
+          "$input_file2 $local_output_filename\n"
+          "\n",local_output_filename, *ptr_nbreel) ;
   
   /* Put the Output file in the right place */
   /* Note: if output on NFS, with "ln -s" (see batch_server_2) 
@@ -175,16 +175,16 @@ int solve_concatenation(diet_profile_t *pb)
     return 2 ;
   }
   sprintf(epilogue,
-	  "# Get the result file\n"
-	  "scp $local_output_filename $DIET_NAME_FRONTALE:%s\n"
-	  ,path_result) ;
+          "# Get the result file\n"
+          "scp $local_output_filename $DIET_NAME_FRONTALE:%s\n"
+          ,path_result) ;
   
   /* Make Diet submit */
   script = (char*)malloc( (strlen(prologue)  
-			   + strlen(copying)  
-			   + strlen(cmd) 
-			   + strlen(epilogue)
-			   + 1 ) * sizeof(char) ) ;
+                           + strlen(copying)  
+                           + strlen(cmd) 
+                           + strlen(epilogue)
+                           + 1 ) * sizeof(char) ) ;
   sprintf(script,"%s%s%s%s",prologue,copying,cmd,epilogue) ;
 
 

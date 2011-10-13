@@ -285,7 +285,7 @@ public:
 
   virtual char*
   writeFile(const SeqChar& data, const char* basename,
-                          CORBA::Boolean replace);
+            CORBA::Boolean replace);
 
   virtual char*
   sendFile(const corba_data_t &data, const char* dest);

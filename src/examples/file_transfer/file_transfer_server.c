@@ -129,7 +129,7 @@ solve_size(diet_profile_t* pb)
 
   /* **************
      Don't free the string names since they are not replicated from CORBA obj
-  ************** */
+     ************** */
   
   return 0;
 }

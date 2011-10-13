@@ -45,7 +45,7 @@ DIETForwarder::execNodeOnSed(const char* node_id,
   CltMan_var clt =
     ORBMgr::getMgr()->resolve<CltMan, CltMan_var>(WFMGRCTXT, name, this->name);
   return clt->execNodeOnSed(node_id, dag_id, seDName, reqID, ev);
-}
+  }
 
 ::CORBA::Long
 DIETForwarder::execNode(const char* node_id,
@@ -63,7 +63,7 @@ DIETForwarder::execNode(const char* node_id,
   CltMan_var clt =
     ORBMgr::getMgr()->resolve<CltMan, CltMan_var>(WFMGRCTXT, name, this->name);
   return clt->execNode(node_id, dag_id);
-}
+  }
 
 char*
 DIETForwarder::release(const char* dag_id,

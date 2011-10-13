@@ -122,19 +122,19 @@ main(int argc, char* argv[])
     dataFileName = argv[4];
     int curPos = 5;
     if ((argc > curPos) && (strcmp(argv[curPos], "-name"))) {
-	transcriptFileName = argv[curPos];
-	curPos++;
+      transcriptFileName = argv[curPos];
+      curPos++;
     }
     if ((argc > curPos) && (!strcmp(argv[curPos], "-name"))) {
       curPos++;
       if (argc > curPos)
-	wfName = argv[curPos];
+        wfName = argv[curPos];
       else
-	wfName = "";
+        wfName = "";
     } else {
       wfName = basename(wfFileName);
     }
-  } else {	/* DIET_WF_DAG */
+  } else {      /* DIET_WF_DAG */
     dagFileName = argv[3];
   }
 
@@ -148,18 +148,18 @@ main(int argc, char* argv[])
      */
     profile = diet_wf_profile_alloc(wfFileName, wfName, wfType);
     /*
-    * For functional workflows ONLY
-    * Defines which file is used to provide the data to instanciate the wf
-    */
+     * For functional workflows ONLY
+     * Defines which file is used to provide the data to instanciate the wf
+     */
     diet_wf_set_data_file(profile,dataFileName);
 
     /*
-    * For workflow restart
-    * Defines which file is used to store the execution transcriptFileName
-    * (file will be overwritten if existing)
-    */
+     * For workflow restart
+     * Defines which file is used to store the execution transcriptFileName
+     * (file will be overwritten if existing)
+     */
     diet_wf_set_transcript_file(profile, transcriptFileName);
-  } else {	/* DIET_WF_DAG */
+  } else {      /* DIET_WF_DAG */
     /*
      * Allocate the dag profile
      */

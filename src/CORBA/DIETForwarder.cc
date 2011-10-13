@@ -200,7 +200,7 @@ DIETForwarder::getSeD(const char* name) {
   ::CORBA::Object_ptr object;
 
   if (nm.find('/') ==
-std::string::npos) {
+      std::string::npos) {
     nm = std::string(SEDCTXT)+"/"+nm;
   }
   object = getObjectCache(nm);

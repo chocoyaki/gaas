@@ -1158,8 +1158,8 @@ diet_est_array_defined(estVectorConst_t ev, int userTag, int idx) {
   }
 
   return diet_est_array_defined_internal(ev,
-                                          userTag + EST_USERDEFINED,
-                                          idx);
+                                         userTag + EST_USERDEFINED,
+                                         idx);
 }
 
 int

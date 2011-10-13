@@ -63,7 +63,7 @@ typedef std::map<std::string, std::string> OptionMap;
 class StartsWith : public std::unary_function<std::string, bool> {
 public:
   explicit StartsWith(const std::string& str) : s1(str) {
-}
+  }
 
   bool
   operator() (const std::string& s2) const;

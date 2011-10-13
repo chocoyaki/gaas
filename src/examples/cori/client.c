@@ -39,7 +39,7 @@ void
 usage(char* cmd)
 {
   fprintf(stderr, "Usage: %s <file.cfg> [%s] <fibonacci number> \n",
-	  cmd, PB[0]);
+          cmd, PB[0]);
   exit(1);
 }
 
@@ -65,8 +65,8 @@ main(int argc, char* argv[])
   
   l1 = atol( argv[3]);
   if (l1>46) {
-     printf("too big number! %ld\n", (long)l1);
-     exit(1);
+    printf("too big number! %ld\n", (long)l1);
+    exit(1);
   }
 
   printf("Before the call: fibo=%ld\n", (long)l1);
@@ -75,9 +75,9 @@ main(int argc, char* argv[])
  
   if (!diet_call(profile)) {
    
-      diet_scalar_get(diet_parameter(profile,1), &pl2, NULL);
+    diet_scalar_get(diet_parameter(profile,1), &pl2, NULL);
      
-      printf("After the call: fibo=%ld\n",(long)*pl2);
+    printf("After the call: fibo=%ld\n",(long)*pl2);
 
   } else {
     fprintf(stderr, "diet_call has returned with an error code !!!\n");

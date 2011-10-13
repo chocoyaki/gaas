@@ -61,9 +61,9 @@ dgemm_(char*, char*,  int*, int*, int*, double*, double*, int*, double*, int*,
 
 extern void
 pdgemm_(char*, char*, int*, int*, int*, double*,
-	double*, int*, int*, int*,
-	double*, int*, int*, int*, double*,
-	double*, int*, int*, int*);
+        double*, int*, int*, int*,
+        double*, int*, int*, int*, double*,
+        double*, int*, int*, int*);
 
 
 
@@ -103,21 +103,21 @@ int MSGTYPE_JOB   = 1000;
 int MSGTYPE_FREE  = 1001;
 
 
-#define print_matrix(mat, m, n, rm)        \
-  {                                        \
-    size_t i, j;                           \
-    printf("%s (%s-major) = \n", #mat,     \
-           (rm) ? "row" : "column");       \
-    for (i = 0; i < (m); i++) {            \
-      for (j = 0; j < (n); j++) {          \
-        if (rm)                            \
-	  printf("%3f ", (mat)[j + i*(n)]);\
-        else                               \
-	  printf("%3f ", (mat)[i + j*(m)]);\
-      }                                    \
-      printf("\n");                        \
-    }                                      \
-    printf("\n");                          \
+#define print_matrix(mat, m, n, rm)             \
+  {                                             \
+    size_t i, j;                                \
+    printf("%s (%s-major) = \n", #mat,          \
+           (rm) ? "row" : "column");            \
+    for (i = 0; i < (m); i++) {                 \
+      for (j = 0; j < (n); j++) {               \
+        if (rm)                                 \
+          printf("%3f ", (mat)[j + i*(n)]);     \
+        else                                    \
+          printf("%3f ", (mat)[i + j*(m)]);     \
+      }                                         \
+      printf("\n");                             \
+    }                                           \
+    printf("\n");                               \
   }
 
 #ifdef DEBUG
@@ -136,29 +136,29 @@ getJobId()
 }
 
 
-#define STATUS(n)                                               \
-  {                                                             \
-    if(getJobId() != -1)                                        \
-      printf("Process %d - Job %d : %s\n", myId, getJobId(), n);\
-    else			 	                        \
-      printf("Process %d : %s\n", myId, n);                     \
-}
+#define STATUS(n)                                                       \
+  {                                                                     \
+    if(getJobId() != -1)                                                \
+      printf("Process %d - Job %d : %s\n", myId, getJobId(), n);        \
+    else                                                                \
+      printf("Process %d : %s\n", myId, n);                             \
+  }
 
 #define STATUSL(n)                                              \
   {                                                             \
     if (getJobId() != -1)                                       \
       printf("Process %d - Job %d : %s", myId, getJobId(), n);  \
-    else			 	                        \
+    else                                                        \
       printf("Process %d : %s", myId, n);                       \
-}
+  }
 
-#define STATUS2I(n, m)                                                 \
-  {                                                                    \
-    if (getJobId() != -1)                                              \
-      printf("Process %d - Job %d : %s %d\n", myId, getJobId(), n, m); \
-    else			 	                               \
-      printf("Process %d : %s %d \n", myId, n, m);                     \
-}
+#define STATUS2I(n, m)                                                  \
+  {                                                                     \
+    if (getJobId() != -1)                                               \
+      printf("Process %d - Job %d : %s %d\n", myId, getJobId(), n, m);  \
+    else                                                                \
+      printf("Process %d : %s %d \n", myId, n, m);                      \
+  }
 
 #define STATUS4(n, m, o, p, q)                                  \
   {                                                             \
@@ -166,12 +166,12 @@ getJobId()
       printf("Process %d - Job %d : ", myId, getJobId());       \
       printf(n, m, o, p, q);                                    \
       printf("\n");                                             \
-    } else {			 	                        \
+    } else {                                                    \
       printf("Process %d : ", myId);                            \
       printf(n, m, o, p, q);                                    \
       printf("\n");                                             \
-    }				 	                        \
-}
+    }                                                           \
+  }
 
 
 
@@ -182,8 +182,8 @@ getJobId()
 
 void
 compute(int m, int n, int k, char tA, char tB,
-	double alpha, double* A, double* B, double beta, double* C,
-	int fromctxt, int toctxt, int allctxt, job_t* j);
+        double alpha, double* A, double* B, double beta, double* C,
+        int fromctxt, int toctxt, int allctxt, job_t* j);
 
 job_t*
 sed_getJob(int, int, int ,int );
@@ -259,18 +259,18 @@ solve_pdgemm(diet_profile_t* pb)
       tA = (tA == 'T') ? 'N' : 'T';
       tB = (tB == 'T') ? 'N' : 'T';
       printf("dgemm args : m=%d, n=%d, k=%d, alpha=%f, beta=%f, tA=%c, tB=%c\n",
-	     n, m, k, *alpha, *beta, tB, tA);
+             n, m, k, *alpha, *beta, tB, tA);
       dgemm_(&tB, &tA, &n, &m, &k, alpha,
-	     B, (tB == 'T') ? &k : &n,
-	     A, (tA == 'T') ? &m : &k,
-	     beta, C, &n);  
+             B, (tB == 'T') ? &k : &n,
+             A, (tA == 'T') ? &m : &k,
+             beta, C, &n);  
     } else {
       printf("dgemm args : m=%zd, n=%zd, k=%zd, alpha=%f, beta=%f, tA=%c, tB=%c\n",
-	     m, n, k, *alpha, *beta, tA, tB);
+             m, n, k, *alpha, *beta, tA, tB);
       dgemm_(&tA, &tB, &m, &n, &k, alpha,
-	     A, (tA == 'T') ? &k : &m,
-	     B, (tB == 'T') ? &n : &k,
-	     beta, C, &m);
+             A, (tA == 'T') ? &k : &m,
+             B, (tB == 'T') ? &n : &k,
+             beta, C, &m);
     }
 
   } else {
@@ -314,10 +314,10 @@ solve_pdgemm(diet_profile_t* pb)
       tA = (tA == 'T') ? 'N' : 'T';
       tB = (tB == 'T') ? 'N' : 'T';
       compute(n, m, k, tB, tA, *alpha, B, A, *beta, C,
-	      j->context1x1, -1, j->contextAll, j);
+              j->context1x1, -1, j->contextAll, j);
     } else {
       compute(m, n, k, tA, tB, *alpha, A, B, *beta, C,
-	      j->context1x1, -1, j->contextAll, j);
+              j->context1x1, -1, j->contextAll, j);
     }
     //print_matrix(C, m, n, (oC == DIET_ROW_MAJOR));
 
@@ -353,8 +353,8 @@ solve_pdgemm(diet_profile_t* pb)
 
 void
 compute(int m, int n, int k, char tA, char tB,
-	double alpha, double* A, double* B, double beta, double* C,
-	int fromctxt, int toctxt, int allctxt, job_t* j)
+        double alpha, double* A, double* B, double beta, double* C,
+        int fromctxt, int toctxt, int allctxt, job_t* j)
 {
   int descPA[9];
   int descPB[9];
@@ -376,17 +376,17 @@ compute(int m, int n, int k, char tA, char tB,
 
 #ifdef DEBUG
   printf("Process %d : compute myRow=%d myCol=%d rowcount=%d colcount=%d\n",
-	 myId, j->row, j->col, j->rowCount, j->colCount);
+         myId, j->row, j->col, j->rowCount, j->colCount);
   printf("                     fromctxt=%d toctxt=%d ",fromctxt, toctxt);
   printf("allctxt=%d blocksize=%d\n", allctxt, j->blocksize);
 #endif // DEBUG
 
   descset_(&descA, &m, &k, &(j->blocksize), &(j->blocksize),
-	   &zero, &zero, &fromctxt, &m);
+           &zero, &zero, &fromctxt, &m);
   descset_(&descB, &k, &n, &(j->blocksize), &(j->blocksize),
-	   &zero, &zero, &fromctxt, &k);
+           &zero, &zero, &fromctxt, &k);
   descset_(&descC, &m, &n, &(j->blocksize), &(j->blocksize),
-	   &zero, &zero, &fromctxt, &m);
+           &zero, &zero, &fromctxt, &m);
 
   LOCpA = numroc_(&m, &(j->blocksize),&(j->row),&zero,&(j->rowCount));
   LOCqA = numroc_(&k, &(j->blocksize),&(j->col),&zero,&(j->colCount));
@@ -395,19 +395,19 @@ compute(int m, int n, int k, char tA, char tB,
 
   pA = (double*)malloc(LOCpA*LOCqA*sizeof(double));
   descset_(&descPA, &m, &k, &(j->blocksize), &(j->blocksize),
-	   &zero, &zero, &toctxt, &LOCpA);  
+           &zero, &zero, &toctxt, &LOCpA);  
   
   LOCpB = numroc_(&k, &(j->blocksize),&(j->row),&zero,&(j->rowCount));
   LOCqB = numroc_(&n, &(j->blocksize),&(j->col),&zero,&(j->colCount));
   pB = (double*)malloc(LOCpB*LOCqB*sizeof(double));    
   descset_(&descPB, &k, &n, &(j->blocksize), &(j->blocksize),
-	   &zero, &zero, &toctxt, &LOCpB);  
+           &zero, &zero, &toctxt, &LOCpB);  
   
   LOCpC = numroc_(&m, &(j->blocksize),&(j->row),&zero,&(j->rowCount));
   LOCqC = numroc_(&n, &(j->blocksize),&(j->col),&zero,&(j->colCount));
   pC = (double*)malloc(LOCpC*LOCqC*sizeof(double));    
   descset_(&descPC, &m, &n, &(j->blocksize), &(j->blocksize),
-	   &zero, &zero, &toctxt, &LOCpC);  
+           &zero, &zero, &toctxt, &LOCpC);  
 
   LOG("Ready for redistribution");
 
@@ -431,9 +431,9 @@ compute(int m, int n, int k, char tA, char tB,
   if (myId!=j->sedId) {
     LOG("Starting pdgemm");
     pdgemm_(&tA, &tB, &m, &n, &k, &alpha, 
-	    pA, &first, &first, descPA, 
-	    pB, &first, &first, descPB, &beta,
-	    pC, &first, &first, descPC);
+            pA, &first, &first, descPA, 
+            pB, &first, &first, descPB, &beta,
+            pC, &first, &first, descPC);
   }
 
   LOG("Ready to collect C");
@@ -442,7 +442,7 @@ compute(int m, int n, int k, char tA, char tB,
     MPI_Recv(msg, 1, MPI_INT, localLeader(j), j->id, MPI_COMM_WORLD, &status);
     STATUS("Waiting for result");
     if (delay) diet_thread_sleep(10,0);
-  } else {	     
+  } else {           
     if (myId==localLeader(j)) {
       MPI_Send(msg, 1, MPI_INT, 0, j->id, MPI_COMM_WORLD);
     }
@@ -642,7 +642,7 @@ sed_getJob(int procs, int rows, int cols, int bs)
   int remoteLeaderId=-1;
 
   STATUS4("Building grid. Processes %d Rows %d Cols %d Blocksize %d. ",
-	  procs, rows, cols, bs);
+          procs, rows, cols, bs);
 
   // creating job
 
@@ -672,10 +672,10 @@ sed_getJob(int procs, int rows, int cols, int bs)
     STATUSL("Choosing Processes ... ");
     for (i=0; i<nbProcs && j->procCount < procs; i++) {
       if (!usedProcesses[i]) {
-	if (remoteLeaderId==-1) remoteLeaderId=i;
-	printf("%d ", i);
-	j->procCount++;
-	j->procs[i]=1;
+        if (remoteLeaderId==-1) remoteLeaderId=i;
+        printf("%d ", i);
+        j->procCount++;
+        j->procs[i]=1;
       }
     }
     printf("\n");
@@ -716,13 +716,13 @@ sed_getJob(int procs, int rows, int cols, int bs)
   submapWorkers = malloc(j->procCount*sizeof(int));
   fillSubmap(j->procs, submapTemp);
   MPI_Group_translate_ranks(worldGroup, j->procCount, submapTemp,
-			    freeGroup, submapWorkers);
+                            freeGroup, submapWorkers);
   // submapAll
   submapAll = malloc((j->procCount+1)*sizeof(int));
   submapTemp[0] = j->sedId;
   fillSubmap(j->procs, &(submapTemp[1]));
   MPI_Group_translate_ranks(worldGroup, j->procCount+1, submapTemp,
-			    freeGroup, submapAll);
+                            freeGroup, submapAll);
   // submap1x1
   submap1x1 = malloc(sizeof(int));
   submap1x1[0] = submapAll[0];
@@ -866,12 +866,12 @@ worker_leaveJob(job_t* j)
   if (wasWorking) {
     LOG("I was working");
     MPI_Intercomm_create(*(j->commWorkers), 0, MPI_COMM_WORLD,
-			 j->sedId, 1, j->intercomm);    
+                         j->sedId, 1, j->intercomm);    
     MPI_Intercomm_merge(*(j->intercomm), 1, &freeComm);
   } else {
     LOG("I have done nothing");
     MPI_Intercomm_create(freeComm, 0, MPI_COMM_WORLD,
-			 localLeader, 1, j->intercomm );
+                         localLeader, 1, j->intercomm );
     LOG("Merging");
     MPI_Intercomm_merge(*(j->intercomm), 0, &freeComm);
   }
@@ -1077,18 +1077,18 @@ worker_formJob(job_t* j)
     
     
     Cblacs_gridmap(&(j->contextWorkers), submapWorkers,
-		   j->rowCount, j->rowCount, j->colCount);
+                   j->rowCount, j->rowCount, j->colCount);
     Cblacs_gridinfo(j->contextWorkers, &rowCount, &colCount, &myR,&myC);
     j->row = myR;
     j->col = myC;
 
 #ifdef DEBUG
     printf("Process %d: Created WorkerGrid R=%d, C=%d, myRow=%d myCol=%d\n",
-	   myId, rowCount, colCount, myR, myC);
+           myId, rowCount, colCount, myR, myC);
 
     Cblacs_gridinfo(j->contextAll, &rowCount, &colCount, &myR,&myC);
     printf("Process %d: Created  AllGrid   R=%d, C=%d, myRow=%d myCol=%d\n", 
-	   myId, rowCount, colCount, myR, myC);    
+           myId, rowCount, colCount, myR, myC);    
 #endif // DEBUG
 
 
@@ -1121,12 +1121,12 @@ waitingLoop()
   // MPI Communication & Jobstuff
   MPI_Status status;
   
-   // pdgemm variables
+  // pdgemm variables
   int m, n, k;
   double* A = NULL,* B = NULL,* C = NULL;
   double alpha, beta;
   
-   // transmission of pre calculation variables
+  // transmission of pre calculation variables
   int q=1;
   int w=5;
   int LDA=1;
@@ -1162,7 +1162,7 @@ waitingLoop()
     // waiting for all processes to be ready to leave ... 
     
     LOG2I("Ready to leave Job", j->id);
-      //MPI_Barrier(*(myJob->commAll));
+    //MPI_Barrier(*(myJob->commAll));
     
     worker_leaveJob(j);
     

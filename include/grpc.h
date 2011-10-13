@@ -2,7 +2,7 @@
 /* GridRPC compliancy for the client interface of DIET                      */
 /*                                                                          */
 /*  Author(s):                                                              */
-/*    - Eddy CARON (Eddy.Caron@ens-lyon.fr)				    */
+/*    - Eddy CARON (Eddy.Caron@ens-lyon.fr)                                 */
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/

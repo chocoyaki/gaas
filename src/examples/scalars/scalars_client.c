@@ -56,7 +56,7 @@ void
 usage(char* cmd)
 {
   fprintf(stderr, "Usage: %s <file.cfg> [%s|%s|%s|%s|%s|%s]\n",
-	  cmd, PB[0], PB[1], PB[2], PB[3], PB[4], PB[5]);
+          cmd, PB[0], PB[1], PB[2], PB[3], PB[4], PB[5]);
   exit(1);
 }
 
@@ -152,29 +152,29 @@ main(int argc, char* argv[])
       diet_scalar_get(diet_parameter(profile,2), &pl3, NULL);
 #if PRETTY_PRINT
       if (pb[0])
-	printf("After the call: l1=0x%hhX, l2=0x%hhX, l3=0x%hhX\n",
-	       (char)l1, (char)l2, (char)(*pl3));
+        printf("After the call: l1=0x%hhX, l2=0x%hhX, l3=0x%hhX\n",
+               (char)l1, (char)l2, (char)(*pl3));
       else if (pb[1])
-	printf("After the call: l1=0x%hX, l2=0x%hX, l3=0x%hX\n",
-	       (short)l1, (short)l2, (short)*pl3);
+        printf("After the call: l1=0x%hX, l2=0x%hX, l3=0x%hX\n",
+               (short)l1, (short)l2, (short)*pl3);
       else if (pb[2])
-	printf("After the call: l1=0x%X, l2=0x%X, l3=0x%X\n",
-	       (int)l1, (int)l2, (int)*pl3);
+        printf("After the call: l1=0x%X, l2=0x%X, l3=0x%X\n",
+               (int)l1, (int)l2, (int)*pl3);
       else if (pb[3])
 #endif /* PRETTY_PRINT */
-      /* When PRETTY_PRINT is 0, we print all results as longs, which lets the
-	 user see how the types are managed. */
-	printf("After the call: l1=0x%lX, l2=0x%lX, l3=0x%lX\n",
-	       (long)l1, (long)l2, (long)*pl3);
+        /* When PRETTY_PRINT is 0, we print all results as longs, which lets the
+           user see how the types are managed. */
+        printf("After the call: l1=0x%lX, l2=0x%lX, l3=0x%lX\n",
+               (long)l1, (long)l2, (long)*pl3);
 
     } else if (pb[4]) {
       diet_scalar_get(diet_parameter(profile,2), &pf3, NULL);
       printf("After the call: f1=%g, f2=%g, f3=%g\n",
-	     (float)f1, (float)f2, (float)*pf3);
+             (float)f1, (float)f2, (float)*pf3);
     } else if (pb[5]) {
       diet_scalar_get(diet_parameter(profile,2), &pd3, NULL);
       printf("After the call: d1=%lg, d2=%lg, d3=%lg\n",
-	     (double)d1, (double)d2, (double)*pd3);
+             (double)d1, (double)d2, (double)*pd3);
     }
   } else {
     fprintf(stderr, "diet_call has returned with an error code !!!\n");

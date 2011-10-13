@@ -131,7 +131,7 @@ solve_ADD(diet_profile_t* pb)
     diet_scalar_desc_set(diet_parameter(pb,2), l3);
   }
 
- // diet_free_data(diet_parameter(pb,0));
+  // diet_free_data(diet_parameter(pb,0));
 
   printf("Solve ADD ... done\n");
   return res;
@@ -164,7 +164,7 @@ main(int argc, char* argv[])
 
   profile = diet_profile_desc_alloc("CADD", 0, 1, 2);
   diet_generic_desc_set(diet_param_desc(profile,1),
-			DIET_SCALAR, DIET_CHAR);
+                        DIET_SCALAR, DIET_CHAR);
   diet_profile_desc_free(profile);
 
   printf("GLOP\n");
@@ -172,11 +172,11 @@ main(int argc, char* argv[])
   for (i = 0; i < NB_SRV; i++) {
     profile = diet_profile_desc_alloc(SRV[i], 0, 1, 2);
     diet_generic_desc_set(diet_param_desc(profile,0),
-			  DIET_SCALAR, (diet_base_type_t)i);
+                          DIET_SCALAR, (diet_base_type_t)i);
     diet_generic_desc_set(diet_param_desc(profile,1),
-			  DIET_SCALAR, (diet_base_type_t)i);
+                          DIET_SCALAR, (diet_base_type_t)i);
     diet_generic_desc_set(diet_param_desc(profile,2),
-			  DIET_SCALAR, (diet_base_type_t)i);
+                          DIET_SCALAR, (diet_base_type_t)i);
 
     if (diet_service_table_add(profile, NULL, solve_ADD))
       return 1;

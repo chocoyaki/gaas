@@ -88,11 +88,11 @@ greyscale(diet_profile_t* pb)
 
   path_result = (char*)malloc(strlen(path1) + 10);
 
-   strcpy(path_result, path1);
-   strcat(path_result, "-gray.jpg");
+  strcpy(path_result, path1);
+  strcat(path_result, "-gray.jpg");
 
   sprintf(cmd, "jpegtran -grayscale -outfile %s-gray.jpg %s",
-	  path1, path1);
+          path1, path1);
 
   printf("%s\n", cmd);
 
@@ -126,7 +126,7 @@ flip(diet_profile_t* pb)
   path_result = (char*)malloc(strlen(path1) + 10);
 
   sprintf(cmd, "jpegtran -flip horizontal -outfile %s-flip.jpg %s",
-	  path1, path1);
+          path1, path1);
 
   strcpy(path_result, path1);
   strcat(path_result, "-flip.jpg");
@@ -172,12 +172,12 @@ duplicate(diet_profile_t* pb)
   strcat(path_result2, "-2.jpg");
 
   sprintf(cmd, "cp %s %s-1.jpg",
-	  path1, path1);
+          path1, path1);
 
   printf("duplicate %d\n", system(cmd));
 
   sprintf(cmd, "cp %s %s-2.jpg",
-	  path1, path1);
+          path1, path1);
 
   printf("duplicate %d\n", system(cmd));
 

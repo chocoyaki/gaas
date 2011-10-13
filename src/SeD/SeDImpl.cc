@@ -406,10 +406,10 @@ SeDImpl::initialize() {
 #if defined HAVE_ALT_BATCH
   this->server_status = SERIAL;
   this->batch = NULL; /* This has to be removed when all SeD will instanciate
-                          a class corresponding to what it is read in the .cfg
-                          file: FIFO, batch, etc
-                          For the moment, NULL is like FIFO
-                       */
+                         a class corresponding to what it is read in the .cfg
+                         file: FIFO, batch, etc
+                         For the moment, NULL is like FIFO
+                      */
 #endif
 
   if (gethostname(localHostName, 256)) {

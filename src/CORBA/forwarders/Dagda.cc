@@ -41,7 +41,7 @@ DIETForwarder::lclIsDataPresent(const char* dataID, const char* objName) {
   Dagda_var dagda =
     ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT, name, this->name);
   return dagda->lclIsDataPresent(dataID);
-}
+  }
 
 ::CORBA::Boolean
 DIETForwarder::lvlIsDataPresent(const char* dataID, const char* objName) {
@@ -57,7 +57,7 @@ DIETForwarder::lvlIsDataPresent(const char* dataID, const char* objName) {
   Dagda_var dagda =
     ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT, name, this->name);
   return dagda->lvlIsDataPresent(dataID);
-}
+  }
 
 ::CORBA::Boolean
 DIETForwarder::pfmIsDataPresent(const char* dataID, const char* objName) {
@@ -73,7 +73,7 @@ DIETForwarder::pfmIsDataPresent(const char* dataID, const char* objName) {
   Dagda_var dagda =
     ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT, name, this->name);
   return dagda->pfmIsDataPresent(dataID);
-}
+  }
 
 void DIETForwarder::lclAddData(const char* srcDagda,
                                const ::corba_data_t& data,
@@ -387,7 +387,7 @@ DIETForwarder::lvlGetDataDesc(const char* dataID, const char* objName) {
 }
 
 corba_data_desc_t*
- DIETForwarder::pfmGetDataDesc(const char* dataID, const char* objName) {
+DIETForwarder::pfmGetDataDesc(const char* dataID, const char* objName) {
   std::string objString(objName);
   std::string name;
 

@@ -54,7 +54,7 @@ main(int argc, char* argv[])
       
   if (argc != 5) {
     fprintf(stderr, "Usage: %s <file.cfg> <file1> <double> <file2>\n",
-	    argv[0]);
+            argv[0]);
     return 1;
   }
 
@@ -71,7 +71,7 @@ main(int argc, char* argv[])
   }
   nbreel = strtod(argv[3],NULL) ;
   diet_scalar_set(diet_parameter(profile,1), &nbreel, DIET_VOLATILE,
-		  DIET_DOUBLE);
+                  DIET_DOUBLE);
   if (diet_file_set(diet_parameter(profile,2), DIET_VOLATILE, argv[4])) {
     printf("file2: diet_file_set error\n");
     return 1;
@@ -97,8 +97,8 @@ main(int argc, char* argv[])
       server_found = 1 ;
       diet_file_get(diet_parameter(profile,3), NULL, &file_size, &path);
       if (path && (*path != '\0')) {
-	printf("Location of returned file is %s, its size is %zd.\n",
-	       path, file_size);
+        printf("Location of returned file is %s, its size is %zd.\n",
+               path, file_size);
       }
     } else printf("Error in diet_parallel_call()\n") ;
   } else if ( SUBMISSION_TYPE == 0 ) {
@@ -108,8 +108,8 @@ main(int argc, char* argv[])
       server_found = 1 ;
       diet_file_get(diet_parameter(profile,3), NULL, &file_size, &path);
       if (path && (*path != '\0')) {
-	printf("Location of returned file is %s, its size is %zd.\n",
-	       path, file_size);
+        printf("Location of returned file is %s, its size is %zd.\n",
+               path, file_size);
       }
     } else printf("Error in diet_call()\n") ;
   } else { /* only sequential servers are considered */
@@ -119,8 +119,8 @@ main(int argc, char* argv[])
       server_found = 1 ;
       diet_file_get(diet_parameter(profile,3), NULL, &file_size, &path);
       if (path && (*path != '\0')) {
-	printf("Location of returned file is %s, its size is %zd.\n",
-	       path, file_size);
+        printf("Location of returned file is %s, its size is %zd.\n",
+               path, file_size);
       }
     } else printf("Error in diet_sequential_call()\n") ;
   }

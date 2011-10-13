@@ -761,8 +761,8 @@ MultiWfScheduler::getProblemEstimates(Dag *dag, MasterAgent_var MA)
     // throw corba exception with node details
     if (failedDagNode)
       throw(MaDag::ServiceNotFound(failedDagNode->getId().c_str(),
-                                    failedDagNode->getPbName().c_str(),
-                                    failedDagNode->getPortsDescr().c_str()));
+                                   failedDagNode->getPbName().c_str(),
+                                   failedDagNode->getPortsDescr().c_str()));
     else
       throw(MaDag::ServiceNotFound(NULL,NULL,NULL));
   }
@@ -799,8 +799,8 @@ MultiWfScheduler::getProblemEstimates(DagNode *node, MasterAgent_var MA)
     throw(MaDag::CommProblem(failureMsg.c_str()));
   if (!wf_response->complete)
     throw(MaDag::ServiceNotFound(node->getId().c_str(),
-                                  node->getPbName().c_str(),
-                                  node->getPortsDescr().c_str()));
+                                 node->getPbName().c_str(),
+                                 node->getPortsDescr().c_str()));
   return wf_response;
 }
 

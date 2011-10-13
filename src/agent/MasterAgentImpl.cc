@@ -1182,31 +1182,31 @@ MasterAgentFwdrImpl::stopFlooding(CORBA::Long reqId,
 
 void
 MasterAgentFwdrImpl::serviceNotFound(CORBA::Long reqId,
-                                          const char* senderId) {
+                                     const char* senderId) {
   forwarder->serviceNotFound(reqId, senderId, objName);
 }
 
 void
 MasterAgentFwdrImpl::newFlood(CORBA::Long reqId,
-                                   const char* senderId) {
+                              const char* senderId) {
   forwarder->newFlood(reqId, senderId, objName);
 }
 
 void
 MasterAgentFwdrImpl::floodedArea(CORBA::Long reqId,
-                                      const char* senderId) {
+                                 const char* senderId) {
   forwarder->floodedArea(reqId, senderId, objName);
 }
 
 void
 MasterAgentFwdrImpl::alreadyContacted(CORBA::Long reqId,
-                                           const char* senderId) {
+                                      const char* senderId) {
   forwarder->alreadyContacted(reqId, senderId, objName);
 }
 
 void
 MasterAgentFwdrImpl::serviceFound(CORBA::Long reqId,
-                                       const corba_response_t& decision) {
+                                  const corba_response_t& decision) {
   forwarder->serviceFound(reqId, decision, objName);
 }
 #endif /* HAVE_MULTI_MA */
