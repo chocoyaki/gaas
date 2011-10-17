@@ -80,7 +80,7 @@ Easy_CPU::get_CPU_Frequence(vector <double> * vlist)
       !get_CPU_Freq_for_FreeBSD(&temp)||
       !get_CPU_Freq_for_Darwin(&temp)||
       !get_CPU_Freq_for_NetBSD(&temp)
-    ){
+){
 
     //found it in a manner
     *vlist = temp;
@@ -88,7 +88,7 @@ Easy_CPU::get_CPU_Frequence(vector <double> * vlist)
   }
   else{
     //rechercher autres solutions...
-    temp.push_back( 0 );
+    temp.push_back(0);
     *vlist = temp;
     return 1;
   }
@@ -105,7 +105,7 @@ Easy_CPU::get_CPU_Cache(vector <double> * vlist){
   }
   else{
     //rechercher autres solutions...
-    temp.push_back( 0 );
+    temp.push_back(0);
     *vlist = temp;
     return 1;
   }
@@ -123,7 +123,7 @@ Easy_CPU::get_CPU_Bogomips(vector <double> * vlist){
   }
   else{
     //rechercher autres solutions...
-    temp.push_back( 0 );
+    temp.push_back(0);
     *vlist = temp;
     return 1;
   }
@@ -302,20 +302,20 @@ Easy_CPU::get_CPU_ActualLoad_Byps(double * actualload){
 
   FILE * psfile;
   char buffer [256];
-  psfile = popen("ps -e -o pcpu","r");
+  psfile = popen("ps -e -o pcpu", "r");
   if (psfile == NULL){
     return 1;
   }
   else
-    fscanf (psfile,"%255s",buffer);
-  if (strcmp(buffer,"%CPU")!=0){
+    fscanf (psfile, "%255s", buffer);
+  if (strcmp(buffer, "%CPU")!=0){
     pclose(psfile);
     return 1;
   }
   float loadCPU = 0;
   float tmp = 0;
   while(!feof(psfile)){
-    fscanf (psfile,"%6f",&tmp);
+    fscanf (psfile, "%6f",&tmp);
     loadCPU+=tmp;
   }
   pclose(psfile);
@@ -342,7 +342,7 @@ Easy_CPU::get_Bogomips_From_Proc(vector <double> * vlist){
       if (sscanf (buf, "bogomips : %lf\n", &val) == 1
           || sscanf (buf, "BogoMIPS : %lf\n", &val) == 1){
         ret = 0;
-        vlist->push_back( val );
+        vlist->push_back(val);
       }
     }
     fclose (fp);
@@ -367,7 +367,7 @@ Easy_CPU::get_CPU_Cache_From_Proc(vector <double> * vlist){
     {
       if (sscanf (buf, "cache size : %lf\n", &val) == 1){
         ret = 0;
-        vlist->push_back( val );
+        vlist->push_back(val);
       }
     }
     fclose (fp);
@@ -394,17 +394,17 @@ Easy_CPU::get_CPU_Freq_From_Proc(vector <double> * vlist){
       if (sscanf (buf, "cycle frequency [Hz]    : %lf", &val) == 1)
       {
         ret = 0;
-        vlist->push_back( (val)/1000000 );
+        vlist->push_back((val)/1000000);
       }
       if (sscanf (buf, "cpu MHz : %lf\n", &val) == 1)
       {
         ret = 0;
-        vlist->push_back( val );
+        vlist->push_back(val);
       }
       if (sscanf (buf, "clock : %lfMHz\n", &val) == 1)
       {
         ret = 0;
-        vlist->push_back( val );
+        vlist->push_back(val);
       }
     }
     fclose (fp);
@@ -427,9 +427,9 @@ Easy_CPU::get_CPU_Freq_for_FreeBSD(vector <double> * vlist)
       ||sysctlbyname ("machdep.i586_freq", &val, &size, NULL, 0) == 0
       && size == sizeof(val)&&(val != 0)
 
-    )
+)
   {
-    vlist->push_back(val/1000000 );
+    vlist->push_back(val/1000000);
     return 0;
   }
 #endif
@@ -454,7 +454,7 @@ Easy_CPU::get_CPU_Freq_for_Darwin(vector <double> * vlist)
   size = sizeof(val);
   if (sysctl (mib, 2, &val, &size, NULL, 0) == 0)
   {
-    vlist->push_back( val);
+    vlist->push_back(val);
     return 0;
   }
 #endif

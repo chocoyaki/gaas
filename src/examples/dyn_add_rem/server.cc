@@ -46,7 +46,7 @@ int add_service(const char* service_name);
 static unsigned int NB = 1;
 
 template <typename T>
-std::string toString( T t )
+std::string toString(T t)
 {
   std::ostringstream oss;
   oss << t;
@@ -70,7 +70,7 @@ service(diet_profile_t* pb)
   }
     
 
-  diet_scalar_get(diet_parameter(pb,0), &nb, NULL);
+  diet_scalar_get(diet_parameter(pb, 0), &nb, NULL);
   std::cout << "## Will create " << *nb << " services." << std::endl;
 
 
@@ -125,15 +125,15 @@ add_service(const char* service_name)
 
 
   /* Set profile parameters: */
-  profile = diet_profile_desc_alloc(strdup(service_name),0,0,0);
+  profile = diet_profile_desc_alloc(strdup(service_name), 0, 0, 0);
 
   /* setup scheduler */
   //   set_up_scheduler(profile);
 
-  diet_generic_desc_set(diet_param_desc(profile,pos++),DIET_SCALAR, DIET_INT);
+  diet_generic_desc_set(diet_param_desc(profile, pos++), DIET_SCALAR, DIET_INT);
 
   /* Add service to the service table */
-  if (diet_service_table_add(profile, NULL, service )) return 1;
+  if (diet_service_table_add(profile, NULL, service)) return 1;
 
   /* Free the profile, since it was deep copied */
   diet_profile_desc_free(profile);
@@ -156,7 +156,7 @@ int checkUsage(int argc, char ** argv) {
  * MAIN
  */
 int
-main( int argc, char* argv[]) 
+main(int argc, char* argv[]) 
 {
   int res;
   std::string service_name = "dyn_add_rem_0";
@@ -169,7 +169,7 @@ main( int argc, char* argv[])
 
   /* Print service table and launch daemon */
   diet_print_service_table();
-  res = diet_SeD(argv[1],argc,argv);
+  res = diet_SeD(argv[1], argc, argv);
   return res;
 }
 

@@ -384,8 +384,8 @@ MaDag_impl::processDagWfCommon(const corba_wf_desc_t& dag_desc,
                                CORBA::Long wfReqId,
                                MetaDag* mDag) {
   char statMsg[128];
-  sprintf(statMsg,"Start workflow request %ld", static_cast<long int>(wfReqId));
-  stat_in("MA_DAG",statMsg);
+  sprintf(statMsg, "Start workflow request %ld", static_cast<long int>(wfReqId));
+  stat_in("MA_DAG", statMsg);
 
   this->myMutex.lock();
 
@@ -404,7 +404,7 @@ MaDag_impl::processDagWfCommon(const corba_wf_desc_t& dag_desc,
   } catch (...) {
     sprintf(statMsg,
             "Dag request (%ld) aborted", static_cast<long int>(dagId));
-    stat_out("MA_DAG",statMsg);
+    stat_out("MA_DAG", statMsg);
     TRACE_TEXT(TRACE_ALL_STEPS, "MADAG cancelled DAG request (wfReqId = "
                << wfReqId << ")" << std::endl);
     this->myMutex.unlock();
@@ -412,8 +412,8 @@ MaDag_impl::processDagWfCommon(const corba_wf_desc_t& dag_desc,
   }
 
   this->myMutex.unlock();
-  sprintf(statMsg,"End Dag request %ld", static_cast<long int>(dagId));
-  stat_out("MA_DAG",statMsg);
+  sprintf(statMsg, "End Dag request %ld", static_cast<long int>(dagId));
+  stat_out("MA_DAG", statMsg);
   stat_flush();
   return dagId;
 }
@@ -510,9 +510,9 @@ MaDag_impl::getMA() const
 CltMan_ptr
 MaDag_impl::getCltMan(const string& dagId)
 {
-  map<string,CORBA::Long>::iterator wfReqIter = wfReqs.find(dagId);
+  map<string, CORBA::Long>::iterator wfReqIter = wfReqs.find(dagId);
   if (wfReqIter != wfReqs.end()) {
-    map<CORBA::Long,CltMan_ptr>::iterator cltManIter = cltMans.find(wfReqIter->second);
+    map<CORBA::Long, CltMan_ptr>::iterator cltManIter = cltMans.find(wfReqIter->second);
     if (cltManIter != cltMans.end())
       return cltManIter->second;
   }
@@ -543,7 +543,7 @@ MaDag_impl::setWfReq(CORBA::Long dagId, CORBA::Long wfReqId)
 void
 MaDag_impl::setPlatformType(MaDag::pfmType_t pfmType)
 {
-  switch(pfmType) {
+  switch (pfmType) {
   case (MaDag::DISTINCT_SERVICES):
     this->myMultiWfSched->setPlatformType(MultiWfScheduler::PFM_ANY);
     break;
@@ -645,7 +645,7 @@ MaDagFwdrImpl::processDagWf(const corba_wf_desc_t& dag_desc,
 }
 
 CORBA::Long
-MaDagFwdrImpl::processMultiDagWf(const corba_wf_desc_t& dag_desc,const char* cltMgrRef,
+MaDagFwdrImpl::processMultiDagWf(const corba_wf_desc_t& dag_desc, const char* cltMgrRef,
                                  CORBA::Long wfReqId,
                                  CORBA::Boolean release)
 {

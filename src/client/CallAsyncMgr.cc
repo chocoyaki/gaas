@@ -132,15 +132,15 @@
  * Beta version of asynchronize DIET API.
  ****************************************************************************/
 
-#include "marshalling.hh"
 #include "CallAsyncMgr.hh"
-#include "debug.hh"
+
 #include <algorithm>
+#include <boost/scoped_ptr.hpp>
 
 #include "DagdaFactory.hh"
 #include "DIET_Dagda.hh"
-
-using namespace std;
+#include "debug.hh"
+#include "marshalling.hh"
 
 // locking object
 static DietReadersWriterLock rwLock;
@@ -151,10 +151,9 @@ CallAsyncMgr* CallAsyncMgr::pinstance = 0;
  * static methode managing singleton object
  * Return static sole instance of CallAsyncMgr
  * ********************************************************************/
-CallAsyncMgr* CallAsyncMgr::Instance ()
-{
-  if (pinstance == 0)  // is it the first call?
-  {
+CallAsyncMgr*
+CallAsyncMgr::Instance () {
+  if (pinstance == 0) {
     WriterLockGuard r(rwLock);
     if (pinstance == 0) {
       CallAsyncMgr::pinstance = new CallAsyncMgr;  // create sole instance
@@ -168,8 +167,8 @@ CallAsyncMgr* CallAsyncMgr::Instance ()
  * add into internal list a new asynchronized reference
  * Return : 0 if OK, -1 if error
  * *******************************************************************/
-int CallAsyncMgr::addAsyncCall (diet_reqID_t reqID, diet_profile_t* dpt)
-{
+int
+CallAsyncMgr::addAsyncCall (diet_reqID_t reqID, diet_profile_t* dpt) {
   WriterLockGuard r(callAsyncListLock);
   // NOTE : maybe we do test if there is already this reqID registered
   if (caList.find(reqID) == caList.end()){
@@ -180,7 +179,7 @@ int CallAsyncMgr::addAsyncCall (diet_reqID_t reqID, diet_profile_t* dpt)
 #ifdef HAVE_MULTICALL
     data->nbRequests = 0;
 #endif  //HAVE_MULTICALL
-    caList.insert(CallAsyncList::value_type(reqID,data));
+    caList.insert(CallAsyncList::value_type(reqID, data));
   }
 #ifdef HAVE_MULTICALL
   else {
@@ -190,8 +189,8 @@ int CallAsyncMgr::addAsyncCall (diet_reqID_t reqID, diet_profile_t* dpt)
   return 0;
 }
 
-int CallAsyncMgr::deleteAsyncCall(diet_reqID_t reqID)
-{
+int
+CallAsyncMgr::deleteAsyncCall(diet_reqID_t reqID) {
   if (caList.find(reqID) == caList.end()) {
     return GRPC_INVALID_SESSION_ID;
   }
@@ -200,8 +199,8 @@ int CallAsyncMgr::deleteAsyncCall(diet_reqID_t reqID)
   return deleteAsyncCallWithoutLock(reqID);
 }
 
-int CallAsyncMgr::deleteAllAsyncCall()
-{
+int
+CallAsyncMgr::deleteAllAsyncCall() {
   WriterLockGuard r(callAsyncListLock);
   for (CallAsyncList::iterator p = this->caList.begin();
        p != caList.end();
@@ -215,28 +214,27 @@ int CallAsyncMgr::deleteAllAsyncCall()
  * Notes : don't manage diet_profile_t free memory ...
  * When a reqID is canceled, all concerned rules are treated ...
  * Client must manage data memory if some clients wait for this
- * data reqID and others (not yet arrived ) .....
+ * data reqID and others (not yet arrived) .....
  * Return 0 if OK, -1 if error, n if there were n rules about this
  * reqID
  * NOTES : caller must be released omni_semaphore and rules  !!!
  * job for awaken thread.. a call to deleteWaitRules is necesary ...
  * ******************************************************************/
-int CallAsyncMgr::deleteAsyncCallWithoutLock(diet_reqID_t reqID)
-{
+int
+CallAsyncMgr::deleteAsyncCallWithoutLock(diet_reqID_t reqID) {
   int k = -1;
-  try{
-    if (caList.find(reqID) != caList.end()){
+  try {
+    if (caList.find(reqID) != caList.end()) {
       k = 0;
       // delete reqID
       CallAsyncList::iterator h = caList.find(reqID);
-      if (h->second->used != 0){
+      if (h->second->used != 0) {
         // delete h->second->profile;
         // NOTE: must be done -> test if others waitRules yet use this reqID
         // wait all threads locked by it get rules about this reqID.
         RulesReqIDMap::iterator j = rulesIDs.lower_bound(reqID);
         RulesConditionMap::iterator i = rulesConds.begin();
-        while ((j != rulesIDs.end()) && (j != rulesIDs.upper_bound(reqID)))
-        {
+        while ((j != rulesIDs.end()) && (j != rulesIDs.upper_bound(reqID))) {
           j->second->status = STATUS_CANCEL;
           i = rulesConds.find(j->second);
           if (i != rulesConds.end()) i->second->post();
@@ -245,13 +243,12 @@ int CallAsyncMgr::deleteAsyncCallWithoutLock(diet_reqID_t reqID)
         }
       }
       caList.erase(reqID);
-    }
-    else {
-      WARNING(__FUNCTION__ << ":There is no request ID (" << reqID << " registered");
+    } else {
+      WARNING(__FUNCTION__ << ":There is no request ID ("
+              << reqID << " registered");
       fflush(stderr);
     }
-  }
-  catch(exception& ex){
+  } catch (exception& ex){
     WARNING("exception caught in " << __FUNCTION__ << " , what=" << ex.what());
     fflush(stderr);
   }
@@ -267,8 +264,8 @@ int CallAsyncMgr::deleteAsyncCallWithoutLock(diet_reqID_t reqID)
  * Return request_status_t, -1 for an unexpected error or STATUS_CANCEL
  * if a reqID is cancelled.
  * ********************************************************************/
-int CallAsyncMgr::addWaitAllRule()
-{
+int
+CallAsyncMgr::addWaitAllRule() {
   try {
     Rule * rule = new Rule;
     {
@@ -288,8 +285,7 @@ int CallAsyncMgr::addWaitAllRule()
 
     // get lock on condition/waitRule
     return CallAsyncMgr::Instance()->addWaitRule(rule);
-  }
-  catch (const exception& e){
+  } catch (const exception& e){
     WARNING("exception caught in " << __FUNCTION__ << " , what=" << e.what());
     fflush(stderr);
     return -1;
@@ -305,10 +301,10 @@ int CallAsyncMgr::addWaitAllRule()
  * Return request_status_t, -1 for an unexpected error or STATUS_CANCEL
  * if a reqID is cancelled.
  * ********************************************************************/
-int CallAsyncMgr::addWaitAnyRule(diet_reqID_t* IDptr)
-{
+int
+CallAsyncMgr::addWaitAnyRule(diet_reqID_t* IDptr) {
   try {
-    Rule * rule = new Rule;
+    boost::scoped_ptr<Rule> rule(new Rule);
     { //managing Reader lock
       ReaderLockGuard r(callAsyncListLock);
       CallAsyncList::iterator h = caList.begin();
@@ -332,19 +328,19 @@ int CallAsyncMgr::addWaitAnyRule(diet_reqID_t* IDptr)
     }
 
     // get lock on condition/waitRule
-    switch (CallAsyncMgr::Instance()->addWaitRule(rule)){
+    switch (CallAsyncMgr::Instance()->addWaitRule(rule.get())){
     case STATUS_DONE:
     {
       ReaderLockGuard r(callAsyncListLock);
       CallAsyncList::iterator h = caList.begin();
       for (unsigned int k = 0; k < caList.size(); k++){
-        TRACE_TEXT (TRACE_ALL_STEPS,"status " << h->second->st << endl);
+        TRACE_TEXT(TRACE_ALL_STEPS, "status " << h->second->st << endl);
         if ((h->second->st == STATUS_DONE) &&
             (find(doneRequests.begin(),
                   doneRequests.end(),
                   h->first) == doneRequests.end())
-          ) {
-          TRACE_TEXT (TRACE_ALL_STEPS,"finding " << h->first << endl);
+) {
+          TRACE_TEXT(TRACE_ALL_STEPS, "finding " << h->first << endl);
           *IDptr = h->first;
           doneRequests.push_back(h->first);
           return STATUS_DONE;
@@ -366,7 +362,7 @@ int CallAsyncMgr::addWaitAnyRule(diet_reqID_t* IDptr)
         (find(doneRequests.begin(),
         doneRequests.end(),
         h->first) == doneRequests.end())
-        ) {
+) {
         *IDptr = h->first;
         doneRequests.push_back(h->first);
         return STATUS_DONE;
@@ -381,17 +377,15 @@ int CallAsyncMgr::addWaitAnyRule(diet_reqID_t* IDptr)
     case STATUS_ERROR:
       return STATUS_ERROR;
     default:
-    {
       WARNING(__FUNCTION__ << "unexpected error in addWaitRule return value.");
       fflush(stderr);
-      return -1;  // Unexcpected error, no value describing it (enum request_status_t)
+      // Unexpected error, no value describing it (enum request_status_t)
+      return -1;
       // NOTES: Be carefull, there may be others rules
       // using some of this reqID(AsyncCall)
       // So, carefull using diet_cancel
     }
-    }
-  }
-  catch (const exception& e){
+  } catch (const exception& e){
     WARNING("exception caught in " << __FUNCTION__ << " , what=" << e.what());
     fflush(stderr);
   }
@@ -407,8 +401,8 @@ int CallAsyncMgr::addWaitAnyRule(diet_reqID_t* IDptr)
  * Return request_status_t, -1 for an unexpected error or STATUS_CANCEL
  * if a reqID is cancelled.
  * ********************************************************************/
-int CallAsyncMgr::addWaitRule(Rule * rule)
-{
+int
+CallAsyncMgr::addWaitRule(Rule * rule) {
   omni_semaphore * condRule = NULL;
   request_status_t status = STATUS_ERROR;
   try {
@@ -420,31 +414,29 @@ int CallAsyncMgr::addWaitRule(Rule * rule)
       bool plenty = true;
       bool tmpplenty = false;
       CallAsyncList::iterator h;
-      for (int k = 0; k < rule->length; k++){
+      for (int k = 0; k < rule->length; k++) {
         h = caList.find(rule->ruleElts[k].reqID);
         if (h == caList.end()){
-          WARNING(__FUNCTION__ << ": request ID (" << rule->ruleElts[k].reqID << ") is not registered.");
+          WARNING(__FUNCTION__ << ": request ID ("
+                  << rule->ruleElts[k].reqID << ") is not registered.");
           fflush(stderr);
           return STATUS_ERROR;
-        }
-        else if (h->second->st == STATUS_RESOLVING) {
+        } else if (h->second->st == STATUS_RESOLVING) {
           plenty = false;  // one result is not yet ready, at least ...
-        }
-        else if(h->second->st == STATUS_DONE
+        } else if (h->second->st == STATUS_DONE
                 && rule->ruleElts[k].op != WAITOPERATOR(ALL)
-                && rule->ruleElts[k].op != WAITOPERATOR(AND) ){
+                && rule->ruleElts[k].op != WAITOPERATOR(AND)){
           tmpplenty = true;  // one result is finish yet
         }
         h->second->used++;  // NOTES : what to do if an exception ...
       }
-      if (tmpplenty == true){
+      if (tmpplenty) {
         plenty = true;
       }
-      if (plenty == true){
+      if (plenty) {
         rule->status = STATUS_DONE;
         return STATUS_DONE;
-      }
-      else {
+      } else {
         for (int i = 0; i < rule->length; i++){
           rulesIDs.insert(RulesReqIDMap::value_type(rule->ruleElts[i].reqID,
                                                     rule));
@@ -459,15 +451,14 @@ int CallAsyncMgr::addWaitRule(Rule * rule)
       status = rule->status;
       CallAsyncMgr::Instance()->deleteWaitRule(rule);
     }
-  }
-  catch (const exception& e){
+  } catch (const exception& e){
     WARNING("exception caught in " << __FUNCTION__ << " , what=" << e.what());
     fflush(stderr);
     WriterLockGuard r(callAsyncListLock);
 
     RulesReqIDMap::iterator j = rulesIDs.begin();
-    for (int k = 0; k < rule->length; k++){
-      while ( j != rulesIDs.end()){
+    for (int k = 0; k < rule->length; k++) {
+      while (j != rulesIDs.end()) {
         j = rulesIDs.find((rule->ruleElts[k]).reqID);
         if (j->second == rule){
           rulesIDs.erase(j++);
@@ -489,17 +480,21 @@ int CallAsyncMgr::addWaitRule(Rule * rule)
  * Be carefull : you must be sure there is no wait on
  * the rule and its condition before delete it ...
  **********************************************************************/
-int CallAsyncMgr::deleteWaitRule(Rule* rule)
-{
+int
+CallAsyncMgr::deleteWaitRule(Rule* rule) {
   try {
     //WriterLockGuard r(callAsyncListLock);
-    if (rule == 0) return -1;
+    if (rule == 0) {
+      return -1;
+    }
+
     RulesConditionMap::iterator i = rulesConds.find(rule);
     if (i != rulesConds.end()) delete i->second;        // deleting semaphore
     RulesReqIDMap::iterator j;
     // delete all elements in RulesReqIDMap about this rule/condition
     for (int k = 0; k < rule->length; k++){
-      while ((j = rulesIDs.find((i->first->ruleElts[k]).reqID)) != rulesIDs.end()){
+      while (
+        (j = rulesIDs.find((i->first->ruleElts[k]).reqID)) != rulesIDs.end()) {
         if (j->second == rule){
           rulesIDs.erase(j);
         }
@@ -508,9 +503,8 @@ int CallAsyncMgr::deleteWaitRule(Rule* rule)
     rulesConds.erase(rule);     // deleting Rule/Semaphore map elts
     delete[] rule->ruleElts;    // deleting RuleElement data table
     delete rule;                // deleting Rule
-  }
+  } catch (const exception& e){
   // ERREUR DE GESTION MEMOIRE. A CORRIGER ???????
-  catch (const exception& e){
     WARNING("exception caught in " << __FUNCTION__ << " , what=" << e.what());
     fflush(stderr);
     return STATUS_ERROR;
@@ -522,8 +516,8 @@ int CallAsyncMgr::deleteWaitRule(Rule* rule)
  * persistence of async call ID and corba callback IOR
  * Not implemented
  **********************************************************************/
-int CallAsyncMgr::serialise ()
-{
+int
+CallAsyncMgr::serialise () {
   return 0;
 }
 
@@ -531,8 +525,8 @@ int CallAsyncMgr::serialise ()
   stence of async call ID and corba callback IOR
   * Not implemented
   * *******************************************************************/
-int CallAsyncMgr::areThereWaitRules()
-{
+int
+CallAsyncMgr::areThereWaitRules() {
   ReaderLockGuard r(callAsyncListLock);
   return rulesConds.size();
 }
@@ -540,9 +534,9 @@ int CallAsyncMgr::areThereWaitRules()
 /**********************************************************************
  * corba callback server service API
  *********************************************************************/
-int CallAsyncMgr::notifyRst (diet_reqID_t reqID, corba_profile_t * dp)
-{
-  TRACE_TEXT (TRACE_ALL_STEPS,"notifyRst " << reqID << endl);
+int
+CallAsyncMgr::notifyRst (diet_reqID_t reqID, corba_profile_t * dp) {
+  TRACE_TEXT(TRACE_ALL_STEPS, "notifyRst " << reqID << "\n");
   setReqErrorCode(reqID, GRPC_NO_ERROR);
   WriterLockGuard r(callAsyncListLock);
 
@@ -550,29 +544,28 @@ int CallAsyncMgr::notifyRst (diet_reqID_t reqID, corba_profile_t * dp)
   //Should just make one find, not two
   if (caList.find(reqID)->second->nbRequests != 0) {
     caList.find(reqID)->second->nbRequests--;
-  }
-  else {
+  } else {
 #endif  //HAVE_MULTICALL
 
     try {
-      TRACE_TEXT (TRACE_ALL_STEPS,"the service has computed the requestID="
+      TRACE_TEXT(TRACE_ALL_STEPS, "the service has computed the requestID="
                   << reqID << " and notifies its answer" << endl);
       fflush(stdout);
       // update diet_profile datas linked to this reqId
       CallAsyncList::iterator h = caList.find(reqID);
       if (h == caList.end()){
-        WARNING(__FUNCTION__ << ":SeD notifies a result linked to a request ID ("
+        WARNING(__FUNCTION__
+                << ":SeD notifies a result linked to a request ID ("
                 << reqID << ") which is not registered");
         fflush(stderr);
         return -1;
-      } // code de trace et debbug, a virer pour la version CVSise
-      else { // update state of this reqID
+      } else { // update state of this reqID
         h->second->st = STATUS_DONE;
       }
 
       dagda_download_SeD_data(h->second->profile, dp);
 
-      TRACE_TEXT (TRACE_ALL_STEPS,"Downloaded SeD data" << endl);
+      TRACE_TEXT(TRACE_ALL_STEPS, "Downloaded SeD data\n");
 
       // get rules about this reqID
       RulesReqIDMap::iterator j;
@@ -580,19 +573,19 @@ int CallAsyncMgr::notifyRst (diet_reqID_t reqID, corba_profile_t * dp)
         return 1;
       }
       RulesConditionMap::iterator i = rulesConds.begin();
-      for(j = rulesIDs.lower_bound(reqID);
+      for (j = rulesIDs.lower_bound(reqID);
           j != rulesIDs.upper_bound(reqID);
           ++j) {
         bool plenty = true;
-        for (int k = 0; k < j->second->length; k++){
+        for (int k = 0; k < j->second->length; k++) {
           h = caList.find(j->second->ruleElts[k].reqID);
           if ((h != caList.end())
               && (h->second->st != STATUS_DONE)
               && ((j->second->ruleElts[k].op == WAITOPERATOR(AND))
                   || (j->second->ruleElts[k].op == WAITOPERATOR(SOLE))
                   || (j->second->ruleElts[k].op == WAITOPERATOR(ALL))
-                )
-            ) {
+)
+) {
             plenty = false;
           }
           /**********************************************************************
@@ -601,22 +594,19 @@ int CallAsyncMgr::notifyRst (diet_reqID_t reqID, corba_profile_t * dp)
            * *******************************************************************/
         }
 
-        if (plenty == true) {
+        if (plenty) {
           j->second->status = STATUS_DONE;
           i = rulesConds.find(j->second);
-          if (i != rulesConds.end()){
+          if (i != rulesConds.end()) {
             i->second->post();
-          }
-          else {
+          } else {
           }
           // broadcast for that rule
-        }
-        else {
+        } else {
           // nothing. try another rule linked to this reqID
         }
       }
-    }
-    catch (const exception& e){
+    } catch (const exception& e){
       WARNING("exception caught in " << __FUNCTION__ << " , what=" << e.what());
       fflush(stderr);
       return -1;
@@ -634,11 +624,11 @@ int CallAsyncMgr::notifyRst (diet_reqID_t reqID, corba_profile_t * dp)
  * CallAsyncMgr.hh
  * Return : enum STATUS
  * ********************************************************************/
-int CallAsyncMgr::getStatusReqID(diet_reqID_t reqID)
-{
+int
+CallAsyncMgr::getStatusReqID(diet_reqID_t reqID) {
   ReaderLockGuard r(callAsyncListLock);
   CallAsyncList::iterator h = caList.find(reqID);
-  if (h == caList.end()){
+  if (h == caList.end()) {
     WARNING(__FUNCTION__ << ": reqID (" << reqID << ") is not registered.");
     fflush(stderr);
     return GRPC_INVALID_SESSION_ID;
@@ -651,8 +641,8 @@ int CallAsyncMgr::getStatusReqID(diet_reqID_t reqID)
  * Verify a rule, same as probe for a single reqID
  * Not implemented...
  * *******************************************************************/
-int CallAsyncMgr::verifyRule(Rule *rule)
-{
+int
+CallAsyncMgr::verifyRule(Rule *rule) {
   ReaderLockGuard r(callAsyncListLock);
   return 0;
 }
@@ -661,8 +651,8 @@ int CallAsyncMgr::verifyRule(Rule *rule)
  * initialize CallAsyncMgr
  * Not implemented
  * *******************************************************************/
-int CallAsyncMgr::init(int argc, char* argv[])
-{
+int
+CallAsyncMgr::init(int argc, char* argv[]) {
   return 0;
 }
 
@@ -672,14 +662,16 @@ int CallAsyncMgr::init(int argc, char* argv[])
  * a call to deleteWaitRule. This call is performed by threads locked on
  * semaphore... deleteAsyncCall awaked it ...
  * *******************************************************************/
-int CallAsyncMgr::release()
-{
+int
+CallAsyncMgr::release() {
   WriterLockGuard r(callAsyncListLock);
   // all list/map will be clean...
   CallAsyncList::iterator h = caList.begin();
   int rst = 0, tmp_rst = 0;
-  while(h != caList.end()){
-    if ((tmp_rst = deleteAsyncCallWithoutLock(h->first)) < 0) rst = tmp_rst;
+  while(h != caList.end()) {
+    if ((tmp_rst = deleteAsyncCallWithoutLock(h->first)) < 0) {
+      rst = tmp_rst;
+    }
     ++h;
   }
   return rst;
@@ -690,8 +682,7 @@ int CallAsyncMgr::release()
  * Private: currently do nothing
  * Not implemented
  * *******************************************************************/
-CallAsyncMgr::CallAsyncMgr()
-{
+CallAsyncMgr::CallAsyncMgr() {
   //... perform necessary instance initializations
 }
 
@@ -699,7 +690,8 @@ CallAsyncMgr::CallAsyncMgr()
  * set the error code of a given request (session)
  **********************************************************************/
 void
-CallAsyncMgr::setReqErrorCode(const diet_reqID_t reqID, const diet_error_t error) {
+CallAsyncMgr::setReqErrorCode(const diet_reqID_t reqID,
+                              const diet_error_t error) {
   TRACE_TEXT(TRACE_ALL_STEPS, "debug : setReqErrorCode; reqID =  " << reqID <<
              ", error = " << error << endl);
   errorMap[reqID] = error;
@@ -725,7 +717,7 @@ CallAsyncMgr::setReqErrorCode(const diet_reqID_t reqID, const diet_error_t error
 
   // if error represents a failed session, save the request ID in the
   // failed session vector
-  if (error != GRPC_NO_ERROR ) {
+  if (error != GRPC_NO_ERROR) {
     failedSessions.push_back(reqID);
   }
 }

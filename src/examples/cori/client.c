@@ -63,19 +63,19 @@ main(int argc, char* argv[])
 
   profile = diet_profile_alloc(path, 0, 0, 1);
   
-  l1 = atol( argv[3]);
+  l1 = atol(argv[3]);
   if (l1>46) {
     printf("too big number! %ld\n", (long)l1);
     exit(1);
   }
 
   printf("Before the call: fibo=%ld\n", (long)l1);
-  diet_scalar_set(diet_parameter(profile,0), &l1,  DIET_VOLATILE, DIET_LONGINT);
-  diet_scalar_set(diet_parameter(profile,1), NULL, DIET_VOLATILE, DIET_LONGINT);
+  diet_scalar_set(diet_parameter(profile, 0), &l1,  DIET_VOLATILE, DIET_LONGINT);
+  diet_scalar_set(diet_parameter(profile, 1), NULL, DIET_VOLATILE, DIET_LONGINT);
  
   if (!diet_call(profile)) {
    
-    diet_scalar_get(diet_parameter(profile,1), &pl2, NULL);
+    diet_scalar_get(diet_parameter(profile, 1), &pl2, NULL);
      
     printf("After the call: fibo=%ld\n",(long)*pl2);
 
@@ -84,7 +84,7 @@ main(int argc, char* argv[])
     return 1;
   }
   
-  diet_free_data(diet_parameter(profile,1));
+  diet_free_data(diet_parameter(profile, 1));
   diet_profile_free(profile);
   diet_finalize();
 

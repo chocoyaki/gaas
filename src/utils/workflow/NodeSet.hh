@@ -16,6 +16,7 @@
 #ifndef _NODESET_
 #define _NODESET_
 
+#include <string>
 #include "WfUtils.hh"
 #include "WfNode.hh"
 

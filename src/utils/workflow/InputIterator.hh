@@ -25,8 +25,9 @@
 #ifndef _INPUTITERATOR_HH_
 #define _INPUTITERATOR_HH_
 
-#include <vector>
 #include <map>
+#include <string>
+#include <vector>
 
 #include "FNodePort.hh"
 #include "FDataHandle.hh"
@@ -204,8 +205,8 @@ protected:
   // and use the length of the tag of left.current
 
   // TODO following maps could use a hash code from the tag to be faster
-  map<FDataTag,bool> myFlags;  // keys are the complete tags (left+right)
-  map<FDataTag,int> myCounters;  // keys are the left tags
+  map<FDataTag, bool> myFlags;  // keys are the complete tags (left+right)
+  map<FDataTag, int> myCounters;  // keys are the left tags
 };
 
 

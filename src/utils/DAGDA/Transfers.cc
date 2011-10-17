@@ -38,7 +38,7 @@ void Transfers::newTransfer(const std::string& id,
 
 
 void Transfers::incProgress(const std::string& id) {
-  std::map<std::string,struct transfer_t>::iterator it;
+  std::map<std::string, struct transfer_t>::iterator it;
 
   if ((it = progress.find(id))!=progress.end()) {
     it->second.transfered+=msgSize;
@@ -62,7 +62,7 @@ unsigned long long Transfers::totalSize(const std::string& id) const {
 }
 
 unsigned long long Transfers::getTransfered(const std::string& id) const {
-  std::map<std::string,struct transfer_t>::const_iterator it;
+  std::map<std::string, struct transfer_t>::const_iterator it;
 
   if ((it = progress.find(id))!=progress.end()) {
     return it->second.transfered;

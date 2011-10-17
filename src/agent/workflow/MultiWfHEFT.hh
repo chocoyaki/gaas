@@ -21,7 +21,7 @@
  * improved exception management
  *
  * Revision 1.7  2008/10/14 13:24:49  bisnard
- * use new class structure for dags (DagNode,DagNodePort)
+ * use new class structure for dags (DagNode, DagNodePort)
  *
  * Revision 1.6  2008/07/24 21:08:11  rbolze
  * New multi-wf heuristic FCFS (First Come First Serve)

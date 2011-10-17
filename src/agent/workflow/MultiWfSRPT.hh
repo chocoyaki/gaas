@@ -14,7 +14,7 @@
  * improved exception management
  *
  * Revision 1.2  2008/10/14 13:24:49  bisnard
- * use new class structure for dags (DagNode,DagNodePort)
+ * use new class structure for dags (DagNode, DagNodePort)
  *
  * Revision 1.1  2008/07/17 13:33:09  bisnard
  * New multi-wf heuristic SRPT

@@ -103,7 +103,7 @@ Request::~Request() {
   char * serializedScheduler = GlobalScheduler::serialize(this->GS);
 
   int nameLength = strlen(serializedScheduler);
-  if (!strncmp(serializedScheduler, UserScheduler::stName,nameLength)) {
+  if (!strncmp(serializedScheduler, UserScheduler::stName, nameLength)) {
     (dynamic_cast<UserScheduler*> (this->GS))->destroy(this->GS);
   } else
 #else
@@ -136,7 +136,7 @@ void Request::waitResponses(int numberOfResponses) {
 void Request::addResponse(const corba_response_t* response) {
   assert(nbWaitedSonsResponse > 0);
   responses[--nbWaitedSonsResponse] = *response;
-  if(nbWaitedSonsResponse == 0)
+  if (nbWaitedSonsResponse == 0)
     gatheringEnded->signal();
 } // addResponse(const corba_response_t* response)
 

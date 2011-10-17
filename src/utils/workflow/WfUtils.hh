@@ -109,7 +109,7 @@ public:
     this->info = info;
   }
 
-  WfStructException(const std::string& info) {
+  explicit WfStructException(const std::string& info) {
     this->why = eOTHER;
     this->info = info;
   }

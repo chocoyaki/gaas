@@ -176,7 +176,7 @@ const char* DagdaFactory::getStorageDir() {
   }
 
   /* Test if the directory exists */
-  if((dp  = opendir(storageDir.c_str())) == NULL) {
+  if ((dp  = opendir(storageDir.c_str())) == NULL) {
     // create the directory with rwxr-xr-x permissions
     if (mkdir(storageDir.c_str(), 493))
       ERROR_EXIT("The DAGDA storage directory '"

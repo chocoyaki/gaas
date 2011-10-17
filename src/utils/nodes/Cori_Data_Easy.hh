@@ -46,12 +46,12 @@ private:
   int 
   convertArray(vector <double> vect,
                estVector_t * estvect,
-               int typeOfInfo );
+               int typeOfInfo);
 
   int 
   convertSimple(double value,
                 estVector_t * estvect,
-                int typeOfInfo );
+                int typeOfInfo);
 public:
   Cori_Data_Easy();
   int 

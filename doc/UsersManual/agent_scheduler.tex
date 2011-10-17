@@ -250,12 +250,6 @@ double diet_est_array_get_internal(estVectorConst_t ev, int tag,
 
 \noindent The \textit{tag} argument may be assigned one of the following values:
 \begin{itemize}
-  % \item EST_TOTALTIME: The total time to execute the request evaluated
-  %   by FAST. (FAST must be activated at the compilation time)
-  % \item EST_COMMTIME: The communication time evaluated by FAST.
-  %   (FAST must be activated at the compilation time)
-  \item[-] EST\_TCOMP: The computation time evaluated by FAST
-    (FAST must be activated at the compilation time).
   \item[-] EST\_TIMESINCELASTSOLVE: The time elapsed since this {\sed} solved
     a request. This value is used by the default Round-Robin scheduler when
     available.
@@ -272,8 +266,6 @@ double diet_est_array_get_internal(estVectorConst_t ev, int tag,
   \item[-] EST\_AVGFREECPU: The average free CPU computation power on the node.
   \item[-] EST\_BOGOMIPS\footnotemark[\value{footnote}]: The computation power
     of the nodes CPUs given in bogomips.
-  \item[-] EST\_TOTALTIME: The total time to execute the request evaluated
-    by FAST. (FAST must be activated at the compilation time)
   \item[-] EST\_TOTALSIZEDISK: The total disk size on the node.
   \item[-] EST\_FREESIZEDISK: The available disk space on the node.
   \item[-] EST\_DISKACCESREAD: An evaluation of the disk read access performance.

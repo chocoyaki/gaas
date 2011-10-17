@@ -52,7 +52,7 @@ int
 CORIMgr::add(diet_est_collect_tag_t collectorName,
              const void * datav)
 {
-  Cori_Metric tmp ( collectorName, datav );
+  Cori_Metric tmp (collectorName, datav);
   collector_v->push_back(tmp);
   return 0;
 }
@@ -63,7 +63,7 @@ CORIMgr::startCollectors()
   int res = 0;
   vector <Cori_Metric>::iterator iter1;
   iter1 = collector_v->begin();
-  while( iter1 != collector_v->end()) {
+  while(iter1 != collector_v->end()) {
     res = iter1->start(iter1->get_Collector_type())||res;
     ++iter1;
   }
@@ -78,10 +78,10 @@ CORIMgr::call_cori_mgr(estVector_t *ev,
 {
   vector <Cori_Metric>::iterator iter1;
   iter1 = collector_v->begin();
-  while( iter1 != collector_v->end()) {
+  while(iter1 != collector_v->end()) {
 
     if (name == iter1->get_Collector_type())
-      return iter1->call_cori_metric(info_type,ev,datav);
+      return iter1->call_cori_metric(info_type, ev, datav);
 
     ++iter1;
   }

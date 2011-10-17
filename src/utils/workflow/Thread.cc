@@ -12,7 +12,7 @@
  * Fixed compilation
  *
  * Revision 1.10  2011/03/18 16:28:33  hguemar
- * fix initialization and const-correctness issues in src/utils/workflow/Thread.{hh,cc} raised by cppchecks
+ * fix initialization and const-correctness issues in src/utils/workflow/Thread.{hh, cc} raised by cppchecks
  *
  * Revision 1.9  2011/02/24 16:50:06  bdepardo
  * Code cleanup.
@@ -68,7 +68,7 @@ Runnable::~Runnable() {
 Thread::Thread(std::auto_ptr<Runnable> runnable_, bool isDetached)
   : runnable(runnable_), detached(isDetached), result(NULL) {
   if (runnable.get() == NULL) {
-    ERROR_EXIT("Thread::Thread(auto_ptr<Runnable> runnable_,"
+    ERROR_EXIT("Thread::Thread(auto_ptr<Runnable> runnable_, "
                <<"bool isDetached) failed at " << ' ' << __FILE__ << ":"
                << __LINE__ << "- " << "runnable is NULL " << std::endl);
   }
@@ -82,7 +82,7 @@ Thread::~Thread() {
 }
 
 void*
-Thread::startThreadRunnable(void* pVoid){
+Thread::startThreadRunnable(void* pVoid) {
   // thread start function when a Runnable is involved
   Thread* runnableThread = static_cast<Thread*> (pVoid);
   assert(runnableThread);

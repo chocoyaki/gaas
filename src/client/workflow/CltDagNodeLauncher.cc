@@ -61,7 +61,7 @@ void
 CltDagNodeLauncher::execNode()
 {
   string traceHeader = "[" + myNode->getId() + "] Client Launcher : ";
-  TRACE_TEXT (TRACE_ALL_STEPS, traceHeader << "starting... " << endl);
+  TRACE_TEXT(TRACE_ALL_STEPS, traceHeader << "starting... " << endl);
 
   sendEventFrom<DagNodeLauncher, DagNode::START>(this, "Start client launcher", "", EventBase::INFO);
 
@@ -86,7 +86,7 @@ CltDagNodeLauncher::execNode()
                           &myEstimVect,
                           MAX_EXEC_SERVERS)) {
       isSuccessfulFlag = true;
-      TRACE_TEXT (TRACE_MAIN_STEPS, traceHeader << "diet call DONE reqID=" <<
+      TRACE_TEXT(TRACE_MAIN_STEPS, traceHeader << "diet call DONE reqID=" <<
                   myNode->getProfile()->dietReqID << endl);
       myNode->storeProfileData();
     }
@@ -94,25 +94,25 @@ CltDagNodeLauncher::execNode()
       WARNING(traceHeader << "diet call FAILED" << endl);
       isSuccessfulFlag = false;
     }
-  } catch(Dagda::DataNotFound& e) {
+  } catch (Dagda::DataNotFound& e) {
     WARNING(traceHeader << "Data not found (ID=" << e.dataID << ")");
     isSuccessfulFlag = false;
-  } catch(Dagda::ReadError& e) {
+  } catch (Dagda::ReadError& e) {
     WARNING(traceHeader << "Data read error");
     isSuccessfulFlag = false;
-  } catch(Dagda::InvalidPathName& e) {
+  } catch (Dagda::InvalidPathName& e) {
     WARNING(traceHeader << "Invalid path name");
     isSuccessfulFlag = false;
-  } catch(Dagda::UnreachableFile& e) {
+  } catch (Dagda::UnreachableFile& e) {
     WARNING(traceHeader << "Unreachable file");
     isSuccessfulFlag = false;
-  } catch(Dagda::PermissionDenied& e) {
+  } catch (Dagda::PermissionDenied& e) {
     WARNING(traceHeader << "Permission denied");
     isSuccessfulFlag = false;
-  } catch(Dagda::UnavailableData& e) {
+  } catch (Dagda::UnavailableData& e) {
     WARNING(traceHeader << "Unavailable data");
     isSuccessfulFlag = false;
-  } catch(CORBA::SystemException& e) {
+  } catch (CORBA::SystemException& e) {
     WARNING(traceHeader << "Got a CORBA " << e._name() << " exception ("
             << e.NP_minorString() << ")");
     isSuccessfulFlag = false;

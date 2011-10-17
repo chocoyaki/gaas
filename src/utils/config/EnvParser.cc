@@ -65,7 +65,7 @@ void EnvParser::parse()
   for (ConfigMap::iterator it1 = config_.begin();
        it1 != config_.end(); ++it1) {
     Env::iterator it2 =
-      std::find_if(env_.begin(), env_.end(), StartsWith(it1->second));
+      std::find_if (env_.begin(), env_.end(), StartsWith(it1->second));
     if (env_.end() != it2) {
       split.reset(*it2);
 
@@ -111,7 +111,7 @@ void EnvParser::lint() const
        it1 != config_.end();) {
     ConfigMap::const_iterator it = it1++;
     ConfigMap::const_iterator it2 =
-      std::find_if(it1, config_.end(), CheckEnvEntry(*it));
+      std::find_if (it1, config_.end(), CheckEnvEntry(*it));
 
     if (config_.end() != it2) {
       throw EnvConfigError("");

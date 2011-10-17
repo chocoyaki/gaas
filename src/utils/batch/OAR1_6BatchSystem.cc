@@ -84,24 +84,24 @@ const char * const OAR1_6BatchSystem::statusNames[] = {
 
 OAR1_6BatchSystem::OAR1_6BatchSystem(int ID, const char * batchname)
 {
-  if( pathToNFS == NULL ) {
+  if (pathToNFS == NULL) {
     ERROR_EXIT("OAR1.6 needs a path to a NFS directory to store its script");
   }
 #if defined YC_DEBUG
-  TRACE_TEXT(TRACE_ALL_STEPS,"Nom NFS: " << getNFSPath() << "\n");
+  TRACE_TEXT(TRACE_ALL_STEPS, "Nom NFS: " << getNFSPath() << "\n");
 #endif
 
   batch_ID = ID;
   batchName = batchname;
   /* Dirty Trick for OAR1.6 to get information on default queue */
   std::string tmpString;
-  if(!CONFIG_STRING(diet::INTERNOARQUEUENAME, tmpString)) {
+  if (!CONFIG_STRING(diet::INTERNOARQUEUENAME, tmpString)) {
     ERROR_EXIT("We need to know the internal queue name to be able to gather information with Cori");
   } else {
     internQueueName = strdup(tmpString.c_str());
   }
 #if defined YC_DEBUG
-  TRACE_TEXT(TRACE_ALL_STEPS,"Nom queue interne: " << internQueueName
+  TRACE_TEXT(TRACE_ALL_STEPS, "Nom queue interne: " << internQueueName
              << "\n");
 #endif
 
@@ -133,7 +133,7 @@ OAR1_6BatchSystem::OAR1_6BatchSystem(int ID, const char * batchname)
 
   /* OAR behaves with SQL scripts to reserve specials nodes */
   /* but the following line is not good enough: too less nodes */
-  /*    ELBASE_NODETYPE,"#OAR -p \"hostname='%s'\"", */
+  /*    ELBASE_NODETYPE, "#OAR -p \"hostname='%s'\"", */
 
   /* Information for META_VARIABLES */
   batchJobID = "$OAR_JOBID";
@@ -158,14 +158,14 @@ OAR1_6BatchSystem::askBatchJobStatus(int batchJobID)
   batchJobState status;
 
   /* If job has completed, not ask batch system */
-  status = getRecordedBatchJobStatus( batchJobID );
-  if( (status == TERMINATED) || (status == CANCELED) || (status == ERROR) )
+  status = getRecordedBatchJobStatus(batchJobID);
+  if ((status == TERMINATED) || (status == CANCELED) || (status == ERROR))
     return status;
   /* create a temporary file to get results and batch job ID */
   filename = createUniqueTemporaryTmpFile("DIET_batch_finish");
-  file_descriptor = open(filename,O_RDONLY);
-  if( file_descriptor == -1 ) {
-    ERROR("Cannot open file", UNDETERMINED );
+  file_descriptor = open(filename, O_RDONLY);
+  if (file_descriptor == -1) {
+    ERROR("Cannot open file", UNDETERMINED);
   }
 
   /* Ask batch system the job status */
@@ -173,38 +173,38 @@ OAR1_6BatchSystem::askBatchJobStatus(int batchJobID)
                                        + NBDIGITS_MAX_BATCH_JOB_ID
                                        + strlen(waitFilter)
                                        + strlen(filename)
-                                       + 7 + 1) );
-  sprintf(chaine,"%s %d | %s > %s",
-          wait4Command,batchJobID,waitFilter,filename);
+                                       + 7 + 1));
+  sprintf(chaine, "%s %d | %s > %s",
+          wait4Command, batchJobID, waitFilter, filename);
 #if defined YC_DEBUG
-  TRACE_TEXT(TRACE_ALL_STEPS,"Execute:" << "\n" << chaine << "\n");
+  TRACE_TEXT(TRACE_ALL_STEPS, "Execute:" << "\n" << chaine << "\n");
 #endif
-  if( system(chaine) != 0 ) {
+  if (system(chaine) != 0) {
     ERROR("Cannot submit script", NB_STATUS);
   }
   /* Get job status */
-  for( int i = 0; i<=NBDIGITS_MAX_BATCH_JOB_ID; i++ )
+  for (int i = 0; i <= NBDIGITS_MAX_BATCH_JOB_ID; i++)
     chaine[i] = '\0';
-  if( (nbread = readn(file_descriptor,chaine,NBDIGITS_MAX_JOB_STATUS))
-      == 0 ) {
+  if ((nbread = readn(file_descriptor, chaine, NBDIGITS_MAX_JOB_STATUS))
+      == 0) {
     ERROR("Error with I/O file. Cannot read the batch status", NB_STATUS);
   }
   /* Adjust what have been read */
-  if( chaine[nbread-1] == '\n' )
+  if (chaine[nbread-1] == '\n')
     chaine[nbread-1] = '\0';
-  while( (i<NB_STATUS) &&
-         (strcmp(chaine,OAR1_6BatchSystem::statusNames[i])!=0) ) {
+  while((i<NB_STATUS) &&
+         (strcmp(chaine, OAR1_6BatchSystem::statusNames[i])!=0)) {
     i++;
   }
 
-  if( i == NB_STATUS ) {
+  if (i == NB_STATUS) {
     ERROR("Cannot get batch job " << batchJobID << " status: " << chaine, NB_STATUS);
   }
   /* Remove temporary file by closing it */
 #if REMOVE_BATCH_TEMPORARY_FILE
-  unlink( filename );
+  unlink(filename);
 #endif
-  if( close(file_descriptor) != 0 ) {
+  if (close(file_descriptor) != 0) {
     WARNING("Couln't remove I/O redirection file");
   }
   updateBatchJobStatus(batchJobID,(batchJobState)i);
@@ -218,12 +218,12 @@ OAR1_6BatchSystem::isBatchJobCompleted(int batchJobID)
 {
   batchJobState status = getRecordedBatchJobStatus(batchJobID);
 
-  if( (status == TERMINATED) || (status == CANCELED) || (status == ERROR) )
+  if ((status == TERMINATED) || (status == CANCELED) || (status == ERROR))
     return 1;
   status = askBatchJobStatus(batchJobID);
-  if( (status == TERMINATED) || (status == CANCELED) || (status == ERROR) )
+  if ((status == TERMINATED) || (status == CANCELED) || (status == ERROR))
     return 1;
-  else if( status == NB_STATUS )
+  else if (status == NB_STATUS)
     return -1;
   return 0;
 }
@@ -233,7 +233,7 @@ OAR1_6BatchSystem::isBatchJobCompleted(int batchJobID)
 int
 OAR1_6BatchSystem::getNbTotResources()
 {
-  return launchCommandAndGetInt( "oarnodes | grep state | wc -l",
+  return launchCommandAndGetInt("oarnodes | grep state | wc -l",
                                  "DIET_getNbResources");
 }
 
@@ -246,7 +246,7 @@ OAR1_6BatchSystem::getNbResources() /* in the queue internQueueName */
 {
   char chaine[500];
 
-  if( internQueueName == NULL ) {
+  if (internQueueName == NULL) {
     WARNING("No internal queue Name given: use total information" << "\n\n");
     return getNbTotResources();
   }
@@ -288,7 +288,7 @@ OAR1_6BatchSystem::getNbTotFreeResources()
 {
   /* Command could be
      "oarstat -a | grep Free | cut --delimiter=" " --fields = 4" */
-  return launchCommandAndGetInt( "oarnodes | grep state | grep free | wc -l",
+  return launchCommandAndGetInt("oarnodes | grep state | grep free | wc -l",
                                  "DIET_getFreeResources");
 }
 
@@ -301,7 +301,7 @@ OAR1_6BatchSystem::getNbFreeResources()
   int nbfree = 0;
   int j, k;
 
-  if( internQueueName == NULL ) {
+  if (internQueueName == NULL) {
     WARNING("No internal queue Name given: use total information" << "\n\n");
     return getNbTotResources();
   }
@@ -312,51 +312,51 @@ OAR1_6BatchSystem::getNbFreeResources()
 
   /* For each name (each line), get information about host status */
   /* TODO: Do it the C++ way! Better, use a parser! */
-  file =  fopen(filename,"r");
-  if( file == NULL ) {
+  file =  fopen(filename, "r");
+  if (file == NULL) {
     WARNING("GetNbRsource: Cannot open file " << filename << "\n\n");
     return getNbTotResources();
   }
-  fileToParse =  fopen(filenameToParse,"r");
-  if( fileToParse == NULL ) {
+  fileToParse =  fopen(filenameToParse, "r");
+  if (fileToParse == NULL) {
     WARNING("GetNbRsource: Cannot open file " << filenameToParse << "\n");
-    if( fclose(file) != 0 ) {
+    if (fclose(file) != 0) {
       WARNING("Couln't close file");
     }
     return getNbTotResources();
   }
 
   do { /* Read each hostname */
-    j = fscanf(file,"%49s",hostname);
+    j = fscanf(file, "%49s", hostname);
 
     /* Search for hostname in fileToParse */
     do
-      k = fscanf(fileToParse,"%499s",chaine);
-    while( (k != EOF) && ( strcmp(chaine,hostname)!=0 ) );
+      k = fscanf(fileToParse, "%499s", chaine);
+    while((k != EOF) && (strcmp(chaine, hostname)!=0));
     /* TODO: should end if k == EOF because ERROR! */
     /* We have reached the line ^hostname */
     /* Search for the status */
     do
-      k = fscanf(fileToParse,"%499s",chaine);
-    while( (k != EOF) && ( strcmp(chaine,"state")!=0 ) );
+      k = fscanf(fileToParse, "%499s", chaine);
+    while((k != EOF) && (strcmp(chaine, "state")!=0));
 
     /* Seek "=" and get status */
-    k = fscanf(fileToParse,"%499s",chaine);
-    k = fscanf(fileToParse,"%499s",chaine);
+    k = fscanf(fileToParse, "%499s", chaine);
+    k = fscanf(fileToParse, "%499s", chaine);
 
-    if( strcmp(chaine,"free") == 0 )
+    if (strcmp(chaine, "free") == 0)
       nbfree++;
 
-  } while( (j != EOF) );
+  } while((j != EOF));
 
 #if REMOVE_BATCH_TEMPORARY_FILE
-  unlink( filename );
+  unlink(filename);
 #endif
 
-  if( fclose(file) != 0 ) {
+  if (fclose(file) != 0) {
     WARNING("Couln't close file");
   }
-  if( fclose(fileToParse) != 0 ) {
+  if (fclose(fileToParse) != 0) {
     WARNING("Couln't close file");
   }
 

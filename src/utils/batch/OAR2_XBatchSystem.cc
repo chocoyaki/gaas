@@ -40,11 +40,11 @@ const char * const OAR2_XBatchSystem::statusNames[] = {
 
 OAR2_XBatchSystem::OAR2_XBatchSystem(int ID, const char * batchname)
 {
-  if( pathToNFS == NULL ) {
+  if (pathToNFS == NULL) {
     ERROR_EXIT("OAR2.X needs a path to a NFS directory to store its script");
   }
 #if defined YC_DEBUG
-  TRACE_TEXT(TRACE_ALL_STEPS,"Nom NFS: " << getNFSPath() << "\n");
+  TRACE_TEXT(TRACE_ALL_STEPS, "Nom NFS: " << getNFSPath() << "\n");
 #endif
 
   batch_ID = ID;
@@ -57,7 +57,7 @@ OAR2_XBatchSystem::OAR2_XBatchSystem(int ID, const char * batchname)
   nodesNumber = "#OAR -l /nodes=";
   serial = "#OAR -l /nodes = 1";
   coresNumber = "/cores=";
-  walltime = ",walltime=";
+  walltime = ", walltime=";
   submittingQueue = "\n#OAR -q ";
   minimumMemoryUsed = BatchSystem::emptyString;
 
@@ -99,14 +99,14 @@ OAR2_XBatchSystem::askBatchJobStatus(int batchJobID)
   batchJobState status;
 
   /* If job has completed, not ask batch system */
-  status = getRecordedBatchJobStatus( batchJobID );
-  if( (status == TERMINATED) || (status == CANCELED) || (status == ERROR) )
+  status = getRecordedBatchJobStatus(batchJobID);
+  if ((status == TERMINATED) || (status == CANCELED) || (status == ERROR))
     return status;
   /* create a temporary file to get results and batch job ID */
   filename = createUniqueTemporaryTmpFile("DIET_batch_finish");
-  file_descriptor = open(filename,O_RDONLY);
-  if( file_descriptor == -1 ) {
-    ERROR("Cannot open file", UNDETERMINED );
+  file_descriptor = open(filename, O_RDONLY);
+  if (file_descriptor == -1) {
+    ERROR("Cannot open file", UNDETERMINED);
   }
 
   /* Ask batch system the job status */
@@ -114,38 +114,38 @@ OAR2_XBatchSystem::askBatchJobStatus(int batchJobID)
                                        + NBDIGITS_MAX_BATCH_JOB_ID
                                        + strlen(waitFilter)
                                        + strlen(filename)
-                                       + 7 + 1) );
-  sprintf(chaine,"%s %d | %s > %s",
-          wait4Command,batchJobID,waitFilter,filename);
+                                       + 7 + 1));
+  sprintf(chaine, "%s %d | %s > %s",
+          wait4Command, batchJobID, waitFilter, filename);
 #if defined YC_DEBUG
-  TRACE_TEXT(TRACE_ALL_STEPS,"Execute:\n" << chaine << "\n");
+  TRACE_TEXT(TRACE_ALL_STEPS, "Execute:\n" << chaine << "\n");
 #endif
-  if( system(chaine) != 0 ) {
+  if (system(chaine) != 0) {
     ERROR("Cannot submit script", NB_STATUS);
   }
   /* Get job status */
-  for( int i = 0; i<=NBDIGITS_MAX_BATCH_JOB_ID; i++ )
+  for (int i = 0; i <= NBDIGITS_MAX_BATCH_JOB_ID; i++)
     chaine[i] = '\0';
-  if( (nbread = readn(file_descriptor,chaine,NBDIGITS_MAX_JOB_STATUS))
-      == 0 ) {
+  if ((nbread = readn(file_descriptor, chaine, NBDIGITS_MAX_JOB_STATUS))
+      == 0) {
     ERROR("Error with I/O file. Cannot read the batch status", NB_STATUS);
   }
   /* Adjust what have been read */
-  if( chaine[nbread-1] == '\n' )
+  if (chaine[nbread-1] == '\n')
     chaine[nbread-1] = '\0';
-  while( (i<NB_STATUS) &&
-         (strcmp(chaine,OAR2_XBatchSystem::statusNames[i])!=0) ) {
+  while((i<NB_STATUS) &&
+         (strcmp(chaine, OAR2_XBatchSystem::statusNames[i])!=0)) {
     i++;
   }
 
-  if( i == NB_STATUS ) {
+  if (i == NB_STATUS) {
     ERROR("Cannot get batch job " << batchJobID << " status: " << chaine, NB_STATUS);
   }
   /* Remove temporary file by closing it */
 #if REMOVE_BATCH_TEMPORARY_FILE
-  unlink( filename );
+  unlink(filename);
 #endif
-  if( close(file_descriptor) != 0 ) {
+  if (close(file_descriptor) != 0) {
     WARNING("Couln't remove I/O redirection file");
   }
   updateBatchJobStatus(batchJobID,(batchJobState)i);
@@ -159,12 +159,12 @@ OAR2_XBatchSystem::isBatchJobCompleted(int batchJobID)
 {
   batchJobState status = getRecordedBatchJobStatus(batchJobID);
 
-  if( (status == TERMINATED) || (status == CANCELED) || (status == ERROR) )
+  if ((status == TERMINATED) || (status == CANCELED) || (status == ERROR))
     return 1;
   status = askBatchJobStatus(batchJobID);
-  if( (status == TERMINATED) || (status == CANCELED) || (status == ERROR) )
+  if ((status == TERMINATED) || (status == CANCELED) || (status == ERROR))
     return 1;
-  else if( status == NB_STATUS )
+  else if (status == NB_STATUS)
     return -1;
   return 0;
 }
@@ -174,7 +174,7 @@ OAR2_XBatchSystem::isBatchJobCompleted(int batchJobID)
 int
 OAR2_XBatchSystem::getNbTotResources()
 {
-  return launchCommandAndGetInt( "oarnodes -s | grep \":\" | wc -l",
+  return launchCommandAndGetInt("oarnodes -s | grep \":\" | wc -l",
                                  "DIET_getNbResources");
 }
 

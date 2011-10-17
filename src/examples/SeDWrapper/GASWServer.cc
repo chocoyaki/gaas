@@ -61,7 +61,7 @@ getService(const string& serviceName) {
 
 /* MUST BE REENTRANT */
 void
-performance_Exec_Time(diet_profile_t* pb ,estVector_t perfValues )
+performance_Exec_Time(diet_profile_t* pb , estVector_t perfValues)
 {
   SeDService *serv = getService(string(pb->pb_name));
   double tcomp = serv->getAvgComputationTime();

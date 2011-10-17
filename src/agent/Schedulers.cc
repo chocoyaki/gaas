@@ -91,7 +91,7 @@
  * Revision 1.7.2.4  2004/11/06 16:32:39  alsu
  * - changes for new parameter-based default values for estVector access
  *   functions
- * - when comparing an existing response (resp_idx>=0) to a "null"
+ * - when comparing an existing response (resp_idx >= 0) to a "null"
  *   response (resp_idx==-1), the behavior of COMPARE_NODES macro is
  *   changed to return COMPARE_UNDEFINED if the response would not be
  *   able to be compared in a standard comparison.  previously, a
@@ -165,7 +165,7 @@ extern unsigned int TRACE_LEVEL;
 // (this->name cannot be used in static member functions)
 #define SCHED_TRACE_FUNCTION(formatted_text)            \
   TRACE_TEXT(TRACE_ALL_STEPS, SCHED_CLASS << "::");     \
-  TRACE_FUNCTION(TRACE_ALL_STEPS,formatted_text)
+  TRACE_FUNCTION(TRACE_ALL_STEPS, formatted_text)
 
 
 /*
@@ -324,7 +324,7 @@ Scheduler::aggregate(corba_response_t& aggrResp,
   node_t* rht;
 
   /** Print the tree on standard output */
-#define TRACE_TREE(levels,pow)                                          \
+#define TRACE_TREE(levels, pow)                                          \
   for (size_t i = 0; i <= pow; i++) {                                   \
     cout << ' ';                                                        \
     for (int j = 0; j < (1 << i); j++) {                                \
@@ -335,7 +335,7 @@ Scheduler::aggregate(corba_response_t& aggrResp,
 
   /** Compare 2 nodes */
 #if 0
-#define COMPARE_NODES(levels,pow,responses,fst,snd,parent)              \
+#define COMPARE_NODES(levels, pow, responses, fst, snd, parent)              \
   if (fst->resp_idx == -1)                                              \
     parent = *snd;                                                      \
   else if (snd->resp_idx == -1)                                         \
@@ -363,7 +363,7 @@ Scheduler::aggregate(corba_response_t& aggrResp,
     }                                                                   \
   }
 #endif
-#define COMPARE_NODES(levels,pow,responses,fst,snd,parent)              \
+#define COMPARE_NODES(levels, pow, responses, fst, snd, parent)              \
   if (fst->resp_idx == -1) {                                            \
     if (snd->resp_idx == -1 ||                                          \
         (*compare)(snd->srv_idx,                                        \
@@ -477,13 +477,13 @@ Scheduler::aggregate(corba_response_t& aggrResp,
     for (int j = 0; j < (1 << i); j++) {
       lft = &((levels[i + 1])[2*j]);
       rht = &((levels[i + 1])[2*j + 1]);
-      COMPARE_NODES(levels,pow,responses,lft,rht,(levels[i])[j]);
+      COMPARE_NODES(levels, pow, responses, lft, rht,(levels[i])[j]);
     }
   }
 
   if (TRACE_LEVEL >= TRACE_ALL_STEPS) {
     cout << "Initial tree:" << leaves;
-    TRACE_TREE(levels,pow);
+    TRACE_TREE(levels, pow);
   }
 
   /* Perform the aggregation itself. */
@@ -515,14 +515,14 @@ Scheduler::aggregate(corba_response_t& aggrResp,
         rht = &((levels[i])[changed_srv_idx]);
       }
       parent_loc = changed_srv_idx >> 1; /* parent location in bin tree */
-      COMPARE_NODES(levels,pow,responses,lft,rht,(levels[i-1])[parent_loc]);
+      COMPARE_NODES(levels, pow, responses, lft, rht,(levels[i-1])[parent_loc]);
 
       /* Find parent srv_idx in binary tree */
       changed_srv_idx = parent_loc;
     }
 
     if (TRACE_LEVEL >= TRACE_ALL_STEPS){
-      TRACE_TREE(levels,pow);
+      TRACE_TREE(levels, pow);
     }
   }
 

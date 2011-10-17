@@ -46,12 +46,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_byte(struct soap*, const char*, int, const char *, const char*);
   SOAP_FMAC3 char * SOAP_FMAC4 soap_in_byte(struct soap*, const char*, char *, const char*);
 
-#define soap_write_byte(soap, data) ( soap_begin_send(soap) || soap_put_byte(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_byte(soap, data) (soap_begin_send(soap) || soap_put_byte(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_byte(struct soap*, const char *, const char*, const char*);
 
-#define soap_read_byte(soap, data) ( soap_begin_recv(soap) || !soap_get_byte(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_byte(soap, data) (soap_begin_recv(soap) || !soap_get_byte(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 char * SOAP_FMAC4 soap_get_byte(struct soap*, char *, const char*, const char*);
 
@@ -62,12 +62,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_int(struct soap*, const char*, int, const int *, const char*);
   SOAP_FMAC3 int * SOAP_FMAC4 soap_in_int(struct soap*, const char*, int *, const char*);
 
-#define soap_write_int(soap, data) ( soap_begin_send(soap) || soap_put_int(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_int(soap, data) (soap_begin_send(soap) || soap_put_int(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_int(struct soap*, const int *, const char*, const char*);
 
-#define soap_read_int(soap, data) ( soap_begin_recv(soap) || !soap_get_int(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_int(soap, data) (soap_begin_recv(soap) || !soap_get_int(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 int * SOAP_FMAC4 soap_get_int(struct soap*, int *, const char*, const char*);
 
@@ -78,12 +78,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_time(struct soap*, const char*, int, const time_t *, const char*);
   SOAP_FMAC3 time_t * SOAP_FMAC4 soap_in_time(struct soap*, const char*, time_t *, const char*);
 
-#define soap_write_time(soap, data) ( soap_begin_send(soap) || soap_put_time(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_time(soap, data) (soap_begin_send(soap) || soap_put_time(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_time(struct soap*, const time_t *, const char*, const char*);
 
-#define soap_read_time(soap, data) ( soap_begin_recv(soap) || !soap_get_time(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_time(soap, data) (soap_begin_recv(soap) || !soap_get_time(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 time_t * SOAP_FMAC4 soap_get_time(struct soap*, time_t *, const char*, const char*);
 
@@ -98,12 +98,12 @@ extern "C" {
 
   SOAP_FMAC3S int SOAP_FMAC4S soap_s2xsd__boolean_(struct soap*, const char*, enum xsd__boolean_ *);
 
-#define soap_write_xsd__boolean_(soap, data) ( soap_begin_send(soap) || soap_put_xsd__boolean_(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_xsd__boolean_(soap, data) (soap_begin_send(soap) || soap_put_xsd__boolean_(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_xsd__boolean_(struct soap*, const enum xsd__boolean_ *, const char*, const char*);
 
-#define soap_read_xsd__boolean_(soap, data) ( soap_begin_recv(soap) || !soap_get_xsd__boolean_(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_xsd__boolean_(soap, data) (soap_begin_recv(soap) || !soap_get_xsd__boolean_(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 enum xsd__boolean_ * SOAP_FMAC4 soap_get_xsd__boolean_(struct soap*, enum xsd__boolean_ *, const char*, const char*);
 
@@ -118,12 +118,12 @@ extern "C" {
 
   SOAP_FMAC3S int SOAP_FMAC4S soap_s2wsse__FaultcodeEnum(struct soap*, const char*, enum wsse__FaultcodeEnum *);
 
-#define soap_write_wsse__FaultcodeEnum(soap, data) ( soap_begin_send(soap) || soap_put_wsse__FaultcodeEnum(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_wsse__FaultcodeEnum(soap, data) (soap_begin_send(soap) || soap_put_wsse__FaultcodeEnum(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_wsse__FaultcodeEnum(struct soap*, const enum wsse__FaultcodeEnum *, const char*, const char*);
 
-#define soap_read_wsse__FaultcodeEnum(soap, data) ( soap_begin_recv(soap) || !soap_get_wsse__FaultcodeEnum(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_wsse__FaultcodeEnum(soap, data) (soap_begin_recv(soap) || !soap_get_wsse__FaultcodeEnum(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 enum wsse__FaultcodeEnum * SOAP_FMAC4 soap_get_wsse__FaultcodeEnum(struct soap*, enum wsse__FaultcodeEnum *, const char*, const char*);
 
@@ -138,12 +138,12 @@ extern "C" {
 
   SOAP_FMAC3S int SOAP_FMAC4S soap_s2wsu__tTimestampFault(struct soap*, const char*, enum wsu__tTimestampFault *);
 
-#define soap_write_wsu__tTimestampFault(soap, data) ( soap_begin_send(soap) || soap_put_wsu__tTimestampFault(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_wsu__tTimestampFault(soap, data) (soap_begin_send(soap) || soap_put_wsu__tTimestampFault(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_wsu__tTimestampFault(struct soap*, const enum wsu__tTimestampFault *, const char*, const char*);
 
-#define soap_read_wsu__tTimestampFault(soap, data) ( soap_begin_recv(soap) || !soap_get_wsu__tTimestampFault(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_wsu__tTimestampFault(soap, data) (soap_begin_recv(soap) || !soap_get_wsu__tTimestampFault(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 enum wsu__tTimestampFault * SOAP_FMAC4 soap_get_wsu__tTimestampFault(struct soap*, enum wsu__tTimestampFault *, const char*, const char*);
 
@@ -157,12 +157,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_SOAP_ENV__Fault(struct soap*, const char*, int, const struct SOAP_ENV__Fault *, const char*);
   SOAP_FMAC3 struct SOAP_ENV__Fault * SOAP_FMAC4 soap_in_SOAP_ENV__Fault(struct soap*, const char*, struct SOAP_ENV__Fault *, const char*);
 
-#define soap_write_SOAP_ENV__Fault(soap, data) ( soap_begin_send(soap) || (soap_serialize_SOAP_ENV__Fault(soap, data), 0) || soap_put_SOAP_ENV__Fault(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_SOAP_ENV__Fault(soap, data) (soap_begin_send(soap) || (soap_serialize_SOAP_ENV__Fault(soap, data), 0) || soap_put_SOAP_ENV__Fault(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_SOAP_ENV__Fault(struct soap*, const struct SOAP_ENV__Fault *, const char*, const char*);
 
-#define soap_read_SOAP_ENV__Fault(soap, data) ( soap_begin_recv(soap) || !soap_get_SOAP_ENV__Fault(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_SOAP_ENV__Fault(soap, data) (soap_begin_recv(soap) || !soap_get_SOAP_ENV__Fault(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct SOAP_ENV__Fault * SOAP_FMAC4 soap_get_SOAP_ENV__Fault(struct soap*, struct SOAP_ENV__Fault *, const char*, const char*);
 
@@ -178,12 +178,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_SOAP_ENV__Reason(struct soap*, const char*, int, const struct SOAP_ENV__Reason *, const char*);
   SOAP_FMAC3 struct SOAP_ENV__Reason * SOAP_FMAC4 soap_in_SOAP_ENV__Reason(struct soap*, const char*, struct SOAP_ENV__Reason *, const char*);
 
-#define soap_write_SOAP_ENV__Reason(soap, data) ( soap_begin_send(soap) || (soap_serialize_SOAP_ENV__Reason(soap, data), 0) || soap_put_SOAP_ENV__Reason(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_SOAP_ENV__Reason(soap, data) (soap_begin_send(soap) || (soap_serialize_SOAP_ENV__Reason(soap, data), 0) || soap_put_SOAP_ENV__Reason(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_SOAP_ENV__Reason(struct soap*, const struct SOAP_ENV__Reason *, const char*, const char*);
 
-#define soap_read_SOAP_ENV__Reason(soap, data) ( soap_begin_recv(soap) || !soap_get_SOAP_ENV__Reason(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_SOAP_ENV__Reason(soap, data) (soap_begin_recv(soap) || !soap_get_SOAP_ENV__Reason(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct SOAP_ENV__Reason * SOAP_FMAC4 soap_get_SOAP_ENV__Reason(struct soap*, struct SOAP_ENV__Reason *, const char*, const char*);
 
@@ -199,12 +199,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_SOAP_ENV__Detail(struct soap*, const char*, int, const struct SOAP_ENV__Detail *, const char*);
   SOAP_FMAC3 struct SOAP_ENV__Detail * SOAP_FMAC4 soap_in_SOAP_ENV__Detail(struct soap*, const char*, struct SOAP_ENV__Detail *, const char*);
 
-#define soap_write_SOAP_ENV__Detail(soap, data) ( soap_begin_send(soap) || (soap_serialize_SOAP_ENV__Detail(soap, data), 0) || soap_put_SOAP_ENV__Detail(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_SOAP_ENV__Detail(soap, data) (soap_begin_send(soap) || (soap_serialize_SOAP_ENV__Detail(soap, data), 0) || soap_put_SOAP_ENV__Detail(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_SOAP_ENV__Detail(struct soap*, const struct SOAP_ENV__Detail *, const char*, const char*);
 
-#define soap_read_SOAP_ENV__Detail(soap, data) ( soap_begin_recv(soap) || !soap_get_SOAP_ENV__Detail(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_SOAP_ENV__Detail(soap, data) (soap_begin_recv(soap) || !soap_get_SOAP_ENV__Detail(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct SOAP_ENV__Detail * SOAP_FMAC4 soap_get_SOAP_ENV__Detail(struct soap*, struct SOAP_ENV__Detail *, const char*, const char*);
 
@@ -220,12 +220,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_SOAP_ENV__Code(struct soap*, const char*, int, const struct SOAP_ENV__Code *, const char*);
   SOAP_FMAC3 struct SOAP_ENV__Code * SOAP_FMAC4 soap_in_SOAP_ENV__Code(struct soap*, const char*, struct SOAP_ENV__Code *, const char*);
 
-#define soap_write_SOAP_ENV__Code(soap, data) ( soap_begin_send(soap) || (soap_serialize_SOAP_ENV__Code(soap, data), 0) || soap_put_SOAP_ENV__Code(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_SOAP_ENV__Code(soap, data) (soap_begin_send(soap) || (soap_serialize_SOAP_ENV__Code(soap, data), 0) || soap_put_SOAP_ENV__Code(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_SOAP_ENV__Code(struct soap*, const struct SOAP_ENV__Code *, const char*, const char*);
 
-#define soap_read_SOAP_ENV__Code(soap, data) ( soap_begin_recv(soap) || !soap_get_SOAP_ENV__Code(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_SOAP_ENV__Code(soap, data) (soap_begin_recv(soap) || !soap_get_SOAP_ENV__Code(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct SOAP_ENV__Code * SOAP_FMAC4 soap_get_SOAP_ENV__Code(struct soap*, struct SOAP_ENV__Code *, const char*, const char*);
 
@@ -239,12 +239,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out___ec2__DescribeRegions(struct soap*, const char*, int, const struct __ec2__DescribeRegions *, const char*);
   SOAP_FMAC3 struct __ec2__DescribeRegions * SOAP_FMAC4 soap_in___ec2__DescribeRegions(struct soap*, const char*, struct __ec2__DescribeRegions *, const char*);
 
-#define soap_write___ec2__DescribeRegions(soap, data) ( soap_begin_send(soap) || (soap_serialize___ec2__DescribeRegions(soap, data), 0) || soap_put___ec2__DescribeRegions(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write___ec2__DescribeRegions(soap, data) (soap_begin_send(soap) || (soap_serialize___ec2__DescribeRegions(soap, data), 0) || soap_put___ec2__DescribeRegions(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put___ec2__DescribeRegions(struct soap*, const struct __ec2__DescribeRegions *, const char*, const char*);
 
-#define soap_read___ec2__DescribeRegions(soap, data) ( soap_begin_recv(soap) || !soap_get___ec2__DescribeRegions(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read___ec2__DescribeRegions(soap, data) (soap_begin_recv(soap) || !soap_get___ec2__DescribeRegions(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct __ec2__DescribeRegions * SOAP_FMAC4 soap_get___ec2__DescribeRegions(struct soap*, struct __ec2__DescribeRegions *, const char*, const char*);
 
@@ -256,12 +256,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out___ec2__CancelBundleTask(struct soap*, const char*, int, const struct __ec2__CancelBundleTask *, const char*);
   SOAP_FMAC3 struct __ec2__CancelBundleTask * SOAP_FMAC4 soap_in___ec2__CancelBundleTask(struct soap*, const char*, struct __ec2__CancelBundleTask *, const char*);
 
-#define soap_write___ec2__CancelBundleTask(soap, data) ( soap_begin_send(soap) || (soap_serialize___ec2__CancelBundleTask(soap, data), 0) || soap_put___ec2__CancelBundleTask(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write___ec2__CancelBundleTask(soap, data) (soap_begin_send(soap) || (soap_serialize___ec2__CancelBundleTask(soap, data), 0) || soap_put___ec2__CancelBundleTask(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put___ec2__CancelBundleTask(struct soap*, const struct __ec2__CancelBundleTask *, const char*, const char*);
 
-#define soap_read___ec2__CancelBundleTask(soap, data) ( soap_begin_recv(soap) || !soap_get___ec2__CancelBundleTask(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read___ec2__CancelBundleTask(soap, data) (soap_begin_recv(soap) || !soap_get___ec2__CancelBundleTask(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct __ec2__CancelBundleTask * SOAP_FMAC4 soap_get___ec2__CancelBundleTask(struct soap*, struct __ec2__CancelBundleTask *, const char*, const char*);
 
@@ -273,12 +273,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out___ec2__DescribeBundleTasks(struct soap*, const char*, int, const struct __ec2__DescribeBundleTasks *, const char*);
   SOAP_FMAC3 struct __ec2__DescribeBundleTasks * SOAP_FMAC4 soap_in___ec2__DescribeBundleTasks(struct soap*, const char*, struct __ec2__DescribeBundleTasks *, const char*);
 
-#define soap_write___ec2__DescribeBundleTasks(soap, data) ( soap_begin_send(soap) || (soap_serialize___ec2__DescribeBundleTasks(soap, data), 0) || soap_put___ec2__DescribeBundleTasks(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write___ec2__DescribeBundleTasks(soap, data) (soap_begin_send(soap) || (soap_serialize___ec2__DescribeBundleTasks(soap, data), 0) || soap_put___ec2__DescribeBundleTasks(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put___ec2__DescribeBundleTasks(struct soap*, const struct __ec2__DescribeBundleTasks *, const char*, const char*);
 
-#define soap_read___ec2__DescribeBundleTasks(soap, data) ( soap_begin_recv(soap) || !soap_get___ec2__DescribeBundleTasks(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read___ec2__DescribeBundleTasks(soap, data) (soap_begin_recv(soap) || !soap_get___ec2__DescribeBundleTasks(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct __ec2__DescribeBundleTasks * SOAP_FMAC4 soap_get___ec2__DescribeBundleTasks(struct soap*, struct __ec2__DescribeBundleTasks *, const char*, const char*);
 
@@ -290,12 +290,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out___ec2__BundleInstance(struct soap*, const char*, int, const struct __ec2__BundleInstance *, const char*);
   SOAP_FMAC3 struct __ec2__BundleInstance * SOAP_FMAC4 soap_in___ec2__BundleInstance(struct soap*, const char*, struct __ec2__BundleInstance *, const char*);
 
-#define soap_write___ec2__BundleInstance(soap, data) ( soap_begin_send(soap) || (soap_serialize___ec2__BundleInstance(soap, data), 0) || soap_put___ec2__BundleInstance(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write___ec2__BundleInstance(soap, data) (soap_begin_send(soap) || (soap_serialize___ec2__BundleInstance(soap, data), 0) || soap_put___ec2__BundleInstance(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put___ec2__BundleInstance(struct soap*, const struct __ec2__BundleInstance *, const char*, const char*);
 
-#define soap_read___ec2__BundleInstance(soap, data) ( soap_begin_recv(soap) || !soap_get___ec2__BundleInstance(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read___ec2__BundleInstance(soap, data) (soap_begin_recv(soap) || !soap_get___ec2__BundleInstance(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct __ec2__BundleInstance * SOAP_FMAC4 soap_get___ec2__BundleInstance(struct soap*, struct __ec2__BundleInstance *, const char*, const char*);
 
@@ -307,12 +307,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out___ec2__DescribeSnapshots(struct soap*, const char*, int, const struct __ec2__DescribeSnapshots *, const char*);
   SOAP_FMAC3 struct __ec2__DescribeSnapshots * SOAP_FMAC4 soap_in___ec2__DescribeSnapshots(struct soap*, const char*, struct __ec2__DescribeSnapshots *, const char*);
 
-#define soap_write___ec2__DescribeSnapshots(soap, data) ( soap_begin_send(soap) || (soap_serialize___ec2__DescribeSnapshots(soap, data), 0) || soap_put___ec2__DescribeSnapshots(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write___ec2__DescribeSnapshots(soap, data) (soap_begin_send(soap) || (soap_serialize___ec2__DescribeSnapshots(soap, data), 0) || soap_put___ec2__DescribeSnapshots(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put___ec2__DescribeSnapshots(struct soap*, const struct __ec2__DescribeSnapshots *, const char*, const char*);
 
-#define soap_read___ec2__DescribeSnapshots(soap, data) ( soap_begin_recv(soap) || !soap_get___ec2__DescribeSnapshots(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read___ec2__DescribeSnapshots(soap, data) (soap_begin_recv(soap) || !soap_get___ec2__DescribeSnapshots(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct __ec2__DescribeSnapshots * SOAP_FMAC4 soap_get___ec2__DescribeSnapshots(struct soap*, struct __ec2__DescribeSnapshots *, const char*, const char*);
 
@@ -324,12 +324,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out___ec2__DeleteSnapshot(struct soap*, const char*, int, const struct __ec2__DeleteSnapshot *, const char*);
   SOAP_FMAC3 struct __ec2__DeleteSnapshot * SOAP_FMAC4 soap_in___ec2__DeleteSnapshot(struct soap*, const char*, struct __ec2__DeleteSnapshot *, const char*);
 
-#define soap_write___ec2__DeleteSnapshot(soap, data) ( soap_begin_send(soap) || (soap_serialize___ec2__DeleteSnapshot(soap, data), 0) || soap_put___ec2__DeleteSnapshot(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write___ec2__DeleteSnapshot(soap, data) (soap_begin_send(soap) || (soap_serialize___ec2__DeleteSnapshot(soap, data), 0) || soap_put___ec2__DeleteSnapshot(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put___ec2__DeleteSnapshot(struct soap*, const struct __ec2__DeleteSnapshot *, const char*, const char*);
 
-#define soap_read___ec2__DeleteSnapshot(soap, data) ( soap_begin_recv(soap) || !soap_get___ec2__DeleteSnapshot(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read___ec2__DeleteSnapshot(soap, data) (soap_begin_recv(soap) || !soap_get___ec2__DeleteSnapshot(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct __ec2__DeleteSnapshot * SOAP_FMAC4 soap_get___ec2__DeleteSnapshot(struct soap*, struct __ec2__DeleteSnapshot *, const char*, const char*);
 
@@ -341,12 +341,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out___ec2__CreateSnapshot(struct soap*, const char*, int, const struct __ec2__CreateSnapshot *, const char*);
   SOAP_FMAC3 struct __ec2__CreateSnapshot * SOAP_FMAC4 soap_in___ec2__CreateSnapshot(struct soap*, const char*, struct __ec2__CreateSnapshot *, const char*);
 
-#define soap_write___ec2__CreateSnapshot(soap, data) ( soap_begin_send(soap) || (soap_serialize___ec2__CreateSnapshot(soap, data), 0) || soap_put___ec2__CreateSnapshot(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write___ec2__CreateSnapshot(soap, data) (soap_begin_send(soap) || (soap_serialize___ec2__CreateSnapshot(soap, data), 0) || soap_put___ec2__CreateSnapshot(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put___ec2__CreateSnapshot(struct soap*, const struct __ec2__CreateSnapshot *, const char*, const char*);
 
-#define soap_read___ec2__CreateSnapshot(soap, data) ( soap_begin_recv(soap) || !soap_get___ec2__CreateSnapshot(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read___ec2__CreateSnapshot(soap, data) (soap_begin_recv(soap) || !soap_get___ec2__CreateSnapshot(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct __ec2__CreateSnapshot * SOAP_FMAC4 soap_get___ec2__CreateSnapshot(struct soap*, struct __ec2__CreateSnapshot *, const char*, const char*);
 
@@ -358,12 +358,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out___ec2__DetachVolume(struct soap*, const char*, int, const struct __ec2__DetachVolume *, const char*);
   SOAP_FMAC3 struct __ec2__DetachVolume * SOAP_FMAC4 soap_in___ec2__DetachVolume(struct soap*, const char*, struct __ec2__DetachVolume *, const char*);
 
-#define soap_write___ec2__DetachVolume(soap, data) ( soap_begin_send(soap) || (soap_serialize___ec2__DetachVolume(soap, data), 0) || soap_put___ec2__DetachVolume(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write___ec2__DetachVolume(soap, data) (soap_begin_send(soap) || (soap_serialize___ec2__DetachVolume(soap, data), 0) || soap_put___ec2__DetachVolume(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put___ec2__DetachVolume(struct soap*, const struct __ec2__DetachVolume *, const char*, const char*);
 
-#define soap_read___ec2__DetachVolume(soap, data) ( soap_begin_recv(soap) || !soap_get___ec2__DetachVolume(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read___ec2__DetachVolume(soap, data) (soap_begin_recv(soap) || !soap_get___ec2__DetachVolume(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct __ec2__DetachVolume * SOAP_FMAC4 soap_get___ec2__DetachVolume(struct soap*, struct __ec2__DetachVolume *, const char*, const char*);
 
@@ -375,12 +375,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out___ec2__AttachVolume(struct soap*, const char*, int, const struct __ec2__AttachVolume *, const char*);
   SOAP_FMAC3 struct __ec2__AttachVolume * SOAP_FMAC4 soap_in___ec2__AttachVolume(struct soap*, const char*, struct __ec2__AttachVolume *, const char*);
 
-#define soap_write___ec2__AttachVolume(soap, data) ( soap_begin_send(soap) || (soap_serialize___ec2__AttachVolume(soap, data), 0) || soap_put___ec2__AttachVolume(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write___ec2__AttachVolume(soap, data) (soap_begin_send(soap) || (soap_serialize___ec2__AttachVolume(soap, data), 0) || soap_put___ec2__AttachVolume(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put___ec2__AttachVolume(struct soap*, const struct __ec2__AttachVolume *, const char*, const char*);
 
-#define soap_read___ec2__AttachVolume(soap, data) ( soap_begin_recv(soap) || !soap_get___ec2__AttachVolume(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read___ec2__AttachVolume(soap, data) (soap_begin_recv(soap) || !soap_get___ec2__AttachVolume(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct __ec2__AttachVolume * SOAP_FMAC4 soap_get___ec2__AttachVolume(struct soap*, struct __ec2__AttachVolume *, const char*, const char*);
 
@@ -392,12 +392,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out___ec2__DescribeVolumes(struct soap*, const char*, int, const struct __ec2__DescribeVolumes *, const char*);
   SOAP_FMAC3 struct __ec2__DescribeVolumes * SOAP_FMAC4 soap_in___ec2__DescribeVolumes(struct soap*, const char*, struct __ec2__DescribeVolumes *, const char*);
 
-#define soap_write___ec2__DescribeVolumes(soap, data) ( soap_begin_send(soap) || (soap_serialize___ec2__DescribeVolumes(soap, data), 0) || soap_put___ec2__DescribeVolumes(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write___ec2__DescribeVolumes(soap, data) (soap_begin_send(soap) || (soap_serialize___ec2__DescribeVolumes(soap, data), 0) || soap_put___ec2__DescribeVolumes(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put___ec2__DescribeVolumes(struct soap*, const struct __ec2__DescribeVolumes *, const char*, const char*);
 
-#define soap_read___ec2__DescribeVolumes(soap, data) ( soap_begin_recv(soap) || !soap_get___ec2__DescribeVolumes(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read___ec2__DescribeVolumes(soap, data) (soap_begin_recv(soap) || !soap_get___ec2__DescribeVolumes(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct __ec2__DescribeVolumes * SOAP_FMAC4 soap_get___ec2__DescribeVolumes(struct soap*, struct __ec2__DescribeVolumes *, const char*, const char*);
 
@@ -409,12 +409,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out___ec2__DeleteVolume(struct soap*, const char*, int, const struct __ec2__DeleteVolume *, const char*);
   SOAP_FMAC3 struct __ec2__DeleteVolume * SOAP_FMAC4 soap_in___ec2__DeleteVolume(struct soap*, const char*, struct __ec2__DeleteVolume *, const char*);
 
-#define soap_write___ec2__DeleteVolume(soap, data) ( soap_begin_send(soap) || (soap_serialize___ec2__DeleteVolume(soap, data), 0) || soap_put___ec2__DeleteVolume(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write___ec2__DeleteVolume(soap, data) (soap_begin_send(soap) || (soap_serialize___ec2__DeleteVolume(soap, data), 0) || soap_put___ec2__DeleteVolume(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put___ec2__DeleteVolume(struct soap*, const struct __ec2__DeleteVolume *, const char*, const char*);
 
-#define soap_read___ec2__DeleteVolume(soap, data) ( soap_begin_recv(soap) || !soap_get___ec2__DeleteVolume(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read___ec2__DeleteVolume(soap, data) (soap_begin_recv(soap) || !soap_get___ec2__DeleteVolume(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct __ec2__DeleteVolume * SOAP_FMAC4 soap_get___ec2__DeleteVolume(struct soap*, struct __ec2__DeleteVolume *, const char*, const char*);
 
@@ -426,12 +426,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out___ec2__CreateVolume(struct soap*, const char*, int, const struct __ec2__CreateVolume *, const char*);
   SOAP_FMAC3 struct __ec2__CreateVolume * SOAP_FMAC4 soap_in___ec2__CreateVolume(struct soap*, const char*, struct __ec2__CreateVolume *, const char*);
 
-#define soap_write___ec2__CreateVolume(soap, data) ( soap_begin_send(soap) || (soap_serialize___ec2__CreateVolume(soap, data), 0) || soap_put___ec2__CreateVolume(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write___ec2__CreateVolume(soap, data) (soap_begin_send(soap) || (soap_serialize___ec2__CreateVolume(soap, data), 0) || soap_put___ec2__CreateVolume(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put___ec2__CreateVolume(struct soap*, const struct __ec2__CreateVolume *, const char*, const char*);
 
-#define soap_read___ec2__CreateVolume(soap, data) ( soap_begin_recv(soap) || !soap_get___ec2__CreateVolume(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read___ec2__CreateVolume(soap, data) (soap_begin_recv(soap) || !soap_get___ec2__CreateVolume(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct __ec2__CreateVolume * SOAP_FMAC4 soap_get___ec2__CreateVolume(struct soap*, struct __ec2__CreateVolume *, const char*, const char*);
 
@@ -443,12 +443,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out___ec2__DisassociateAddress(struct soap*, const char*, int, const struct __ec2__DisassociateAddress *, const char*);
   SOAP_FMAC3 struct __ec2__DisassociateAddress * SOAP_FMAC4 soap_in___ec2__DisassociateAddress(struct soap*, const char*, struct __ec2__DisassociateAddress *, const char*);
 
-#define soap_write___ec2__DisassociateAddress(soap, data) ( soap_begin_send(soap) || (soap_serialize___ec2__DisassociateAddress(soap, data), 0) || soap_put___ec2__DisassociateAddress(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write___ec2__DisassociateAddress(soap, data) (soap_begin_send(soap) || (soap_serialize___ec2__DisassociateAddress(soap, data), 0) || soap_put___ec2__DisassociateAddress(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put___ec2__DisassociateAddress(struct soap*, const struct __ec2__DisassociateAddress *, const char*, const char*);
 
-#define soap_read___ec2__DisassociateAddress(soap, data) ( soap_begin_recv(soap) || !soap_get___ec2__DisassociateAddress(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read___ec2__DisassociateAddress(soap, data) (soap_begin_recv(soap) || !soap_get___ec2__DisassociateAddress(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct __ec2__DisassociateAddress * SOAP_FMAC4 soap_get___ec2__DisassociateAddress(struct soap*, struct __ec2__DisassociateAddress *, const char*, const char*);
 
@@ -460,12 +460,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out___ec2__AssociateAddress(struct soap*, const char*, int, const struct __ec2__AssociateAddress *, const char*);
   SOAP_FMAC3 struct __ec2__AssociateAddress * SOAP_FMAC4 soap_in___ec2__AssociateAddress(struct soap*, const char*, struct __ec2__AssociateAddress *, const char*);
 
-#define soap_write___ec2__AssociateAddress(soap, data) ( soap_begin_send(soap) || (soap_serialize___ec2__AssociateAddress(soap, data), 0) || soap_put___ec2__AssociateAddress(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write___ec2__AssociateAddress(soap, data) (soap_begin_send(soap) || (soap_serialize___ec2__AssociateAddress(soap, data), 0) || soap_put___ec2__AssociateAddress(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put___ec2__AssociateAddress(struct soap*, const struct __ec2__AssociateAddress *, const char*, const char*);
 
-#define soap_read___ec2__AssociateAddress(soap, data) ( soap_begin_recv(soap) || !soap_get___ec2__AssociateAddress(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read___ec2__AssociateAddress(soap, data) (soap_begin_recv(soap) || !soap_get___ec2__AssociateAddress(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct __ec2__AssociateAddress * SOAP_FMAC4 soap_get___ec2__AssociateAddress(struct soap*, struct __ec2__AssociateAddress *, const char*, const char*);
 
@@ -477,12 +477,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out___ec2__DescribeAddresses(struct soap*, const char*, int, const struct __ec2__DescribeAddresses *, const char*);
   SOAP_FMAC3 struct __ec2__DescribeAddresses * SOAP_FMAC4 soap_in___ec2__DescribeAddresses(struct soap*, const char*, struct __ec2__DescribeAddresses *, const char*);
 
-#define soap_write___ec2__DescribeAddresses(soap, data) ( soap_begin_send(soap) || (soap_serialize___ec2__DescribeAddresses(soap, data), 0) || soap_put___ec2__DescribeAddresses(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write___ec2__DescribeAddresses(soap, data) (soap_begin_send(soap) || (soap_serialize___ec2__DescribeAddresses(soap, data), 0) || soap_put___ec2__DescribeAddresses(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put___ec2__DescribeAddresses(struct soap*, const struct __ec2__DescribeAddresses *, const char*, const char*);
 
-#define soap_read___ec2__DescribeAddresses(soap, data) ( soap_begin_recv(soap) || !soap_get___ec2__DescribeAddresses(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read___ec2__DescribeAddresses(soap, data) (soap_begin_recv(soap) || !soap_get___ec2__DescribeAddresses(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct __ec2__DescribeAddresses * SOAP_FMAC4 soap_get___ec2__DescribeAddresses(struct soap*, struct __ec2__DescribeAddresses *, const char*, const char*);
 
@@ -494,12 +494,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out___ec2__ReleaseAddress(struct soap*, const char*, int, const struct __ec2__ReleaseAddress *, const char*);
   SOAP_FMAC3 struct __ec2__ReleaseAddress * SOAP_FMAC4 soap_in___ec2__ReleaseAddress(struct soap*, const char*, struct __ec2__ReleaseAddress *, const char*);
 
-#define soap_write___ec2__ReleaseAddress(soap, data) ( soap_begin_send(soap) || (soap_serialize___ec2__ReleaseAddress(soap, data), 0) || soap_put___ec2__ReleaseAddress(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write___ec2__ReleaseAddress(soap, data) (soap_begin_send(soap) || (soap_serialize___ec2__ReleaseAddress(soap, data), 0) || soap_put___ec2__ReleaseAddress(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put___ec2__ReleaseAddress(struct soap*, const struct __ec2__ReleaseAddress *, const char*, const char*);
 
-#define soap_read___ec2__ReleaseAddress(soap, data) ( soap_begin_recv(soap) || !soap_get___ec2__ReleaseAddress(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read___ec2__ReleaseAddress(soap, data) (soap_begin_recv(soap) || !soap_get___ec2__ReleaseAddress(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct __ec2__ReleaseAddress * SOAP_FMAC4 soap_get___ec2__ReleaseAddress(struct soap*, struct __ec2__ReleaseAddress *, const char*, const char*);
 
@@ -511,12 +511,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out___ec2__AllocateAddress(struct soap*, const char*, int, const struct __ec2__AllocateAddress *, const char*);
   SOAP_FMAC3 struct __ec2__AllocateAddress * SOAP_FMAC4 soap_in___ec2__AllocateAddress(struct soap*, const char*, struct __ec2__AllocateAddress *, const char*);
 
-#define soap_write___ec2__AllocateAddress(soap, data) ( soap_begin_send(soap) || (soap_serialize___ec2__AllocateAddress(soap, data), 0) || soap_put___ec2__AllocateAddress(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write___ec2__AllocateAddress(soap, data) (soap_begin_send(soap) || (soap_serialize___ec2__AllocateAddress(soap, data), 0) || soap_put___ec2__AllocateAddress(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put___ec2__AllocateAddress(struct soap*, const struct __ec2__AllocateAddress *, const char*, const char*);
 
-#define soap_read___ec2__AllocateAddress(soap, data) ( soap_begin_recv(soap) || !soap_get___ec2__AllocateAddress(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read___ec2__AllocateAddress(soap, data) (soap_begin_recv(soap) || !soap_get___ec2__AllocateAddress(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct __ec2__AllocateAddress * SOAP_FMAC4 soap_get___ec2__AllocateAddress(struct soap*, struct __ec2__AllocateAddress *, const char*, const char*);
 
@@ -528,12 +528,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out___ec2__DescribeAvailabilityZones(struct soap*, const char*, int, const struct __ec2__DescribeAvailabilityZones *, const char*);
   SOAP_FMAC3 struct __ec2__DescribeAvailabilityZones * SOAP_FMAC4 soap_in___ec2__DescribeAvailabilityZones(struct soap*, const char*, struct __ec2__DescribeAvailabilityZones *, const char*);
 
-#define soap_write___ec2__DescribeAvailabilityZones(soap, data) ( soap_begin_send(soap) || (soap_serialize___ec2__DescribeAvailabilityZones(soap, data), 0) || soap_put___ec2__DescribeAvailabilityZones(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write___ec2__DescribeAvailabilityZones(soap, data) (soap_begin_send(soap) || (soap_serialize___ec2__DescribeAvailabilityZones(soap, data), 0) || soap_put___ec2__DescribeAvailabilityZones(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put___ec2__DescribeAvailabilityZones(struct soap*, const struct __ec2__DescribeAvailabilityZones *, const char*, const char*);
 
-#define soap_read___ec2__DescribeAvailabilityZones(soap, data) ( soap_begin_recv(soap) || !soap_get___ec2__DescribeAvailabilityZones(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read___ec2__DescribeAvailabilityZones(soap, data) (soap_begin_recv(soap) || !soap_get___ec2__DescribeAvailabilityZones(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct __ec2__DescribeAvailabilityZones * SOAP_FMAC4 soap_get___ec2__DescribeAvailabilityZones(struct soap*, struct __ec2__DescribeAvailabilityZones *, const char*, const char*);
 
@@ -545,12 +545,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out___ec2__ConfirmProductInstance(struct soap*, const char*, int, const struct __ec2__ConfirmProductInstance *, const char*);
   SOAP_FMAC3 struct __ec2__ConfirmProductInstance * SOAP_FMAC4 soap_in___ec2__ConfirmProductInstance(struct soap*, const char*, struct __ec2__ConfirmProductInstance *, const char*);
 
-#define soap_write___ec2__ConfirmProductInstance(soap, data) ( soap_begin_send(soap) || (soap_serialize___ec2__ConfirmProductInstance(soap, data), 0) || soap_put___ec2__ConfirmProductInstance(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write___ec2__ConfirmProductInstance(soap, data) (soap_begin_send(soap) || (soap_serialize___ec2__ConfirmProductInstance(soap, data), 0) || soap_put___ec2__ConfirmProductInstance(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put___ec2__ConfirmProductInstance(struct soap*, const struct __ec2__ConfirmProductInstance *, const char*, const char*);
 
-#define soap_read___ec2__ConfirmProductInstance(soap, data) ( soap_begin_recv(soap) || !soap_get___ec2__ConfirmProductInstance(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read___ec2__ConfirmProductInstance(soap, data) (soap_begin_recv(soap) || !soap_get___ec2__ConfirmProductInstance(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct __ec2__ConfirmProductInstance * SOAP_FMAC4 soap_get___ec2__ConfirmProductInstance(struct soap*, struct __ec2__ConfirmProductInstance *, const char*, const char*);
 
@@ -562,12 +562,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out___ec2__DescribeImageAttribute(struct soap*, const char*, int, const struct __ec2__DescribeImageAttribute *, const char*);
   SOAP_FMAC3 struct __ec2__DescribeImageAttribute * SOAP_FMAC4 soap_in___ec2__DescribeImageAttribute(struct soap*, const char*, struct __ec2__DescribeImageAttribute *, const char*);
 
-#define soap_write___ec2__DescribeImageAttribute(soap, data) ( soap_begin_send(soap) || (soap_serialize___ec2__DescribeImageAttribute(soap, data), 0) || soap_put___ec2__DescribeImageAttribute(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write___ec2__DescribeImageAttribute(soap, data) (soap_begin_send(soap) || (soap_serialize___ec2__DescribeImageAttribute(soap, data), 0) || soap_put___ec2__DescribeImageAttribute(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put___ec2__DescribeImageAttribute(struct soap*, const struct __ec2__DescribeImageAttribute *, const char*, const char*);
 
-#define soap_read___ec2__DescribeImageAttribute(soap, data) ( soap_begin_recv(soap) || !soap_get___ec2__DescribeImageAttribute(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read___ec2__DescribeImageAttribute(soap, data) (soap_begin_recv(soap) || !soap_get___ec2__DescribeImageAttribute(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct __ec2__DescribeImageAttribute * SOAP_FMAC4 soap_get___ec2__DescribeImageAttribute(struct soap*, struct __ec2__DescribeImageAttribute *, const char*, const char*);
 
@@ -579,12 +579,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out___ec2__ResetImageAttribute(struct soap*, const char*, int, const struct __ec2__ResetImageAttribute *, const char*);
   SOAP_FMAC3 struct __ec2__ResetImageAttribute * SOAP_FMAC4 soap_in___ec2__ResetImageAttribute(struct soap*, const char*, struct __ec2__ResetImageAttribute *, const char*);
 
-#define soap_write___ec2__ResetImageAttribute(soap, data) ( soap_begin_send(soap) || (soap_serialize___ec2__ResetImageAttribute(soap, data), 0) || soap_put___ec2__ResetImageAttribute(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write___ec2__ResetImageAttribute(soap, data) (soap_begin_send(soap) || (soap_serialize___ec2__ResetImageAttribute(soap, data), 0) || soap_put___ec2__ResetImageAttribute(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put___ec2__ResetImageAttribute(struct soap*, const struct __ec2__ResetImageAttribute *, const char*, const char*);
 
-#define soap_read___ec2__ResetImageAttribute(soap, data) ( soap_begin_recv(soap) || !soap_get___ec2__ResetImageAttribute(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read___ec2__ResetImageAttribute(soap, data) (soap_begin_recv(soap) || !soap_get___ec2__ResetImageAttribute(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct __ec2__ResetImageAttribute * SOAP_FMAC4 soap_get___ec2__ResetImageAttribute(struct soap*, struct __ec2__ResetImageAttribute *, const char*, const char*);
 
@@ -596,12 +596,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out___ec2__ModifyImageAttribute(struct soap*, const char*, int, const struct __ec2__ModifyImageAttribute *, const char*);
   SOAP_FMAC3 struct __ec2__ModifyImageAttribute * SOAP_FMAC4 soap_in___ec2__ModifyImageAttribute(struct soap*, const char*, struct __ec2__ModifyImageAttribute *, const char*);
 
-#define soap_write___ec2__ModifyImageAttribute(soap, data) ( soap_begin_send(soap) || (soap_serialize___ec2__ModifyImageAttribute(soap, data), 0) || soap_put___ec2__ModifyImageAttribute(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write___ec2__ModifyImageAttribute(soap, data) (soap_begin_send(soap) || (soap_serialize___ec2__ModifyImageAttribute(soap, data), 0) || soap_put___ec2__ModifyImageAttribute(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put___ec2__ModifyImageAttribute(struct soap*, const struct __ec2__ModifyImageAttribute *, const char*, const char*);
 
-#define soap_read___ec2__ModifyImageAttribute(soap, data) ( soap_begin_recv(soap) || !soap_get___ec2__ModifyImageAttribute(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read___ec2__ModifyImageAttribute(soap, data) (soap_begin_recv(soap) || !soap_get___ec2__ModifyImageAttribute(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct __ec2__ModifyImageAttribute * SOAP_FMAC4 soap_get___ec2__ModifyImageAttribute(struct soap*, struct __ec2__ModifyImageAttribute *, const char*, const char*);
 
@@ -613,12 +613,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out___ec2__RevokeSecurityGroupIngress(struct soap*, const char*, int, const struct __ec2__RevokeSecurityGroupIngress *, const char*);
   SOAP_FMAC3 struct __ec2__RevokeSecurityGroupIngress * SOAP_FMAC4 soap_in___ec2__RevokeSecurityGroupIngress(struct soap*, const char*, struct __ec2__RevokeSecurityGroupIngress *, const char*);
 
-#define soap_write___ec2__RevokeSecurityGroupIngress(soap, data) ( soap_begin_send(soap) || (soap_serialize___ec2__RevokeSecurityGroupIngress(soap, data), 0) || soap_put___ec2__RevokeSecurityGroupIngress(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write___ec2__RevokeSecurityGroupIngress(soap, data) (soap_begin_send(soap) || (soap_serialize___ec2__RevokeSecurityGroupIngress(soap, data), 0) || soap_put___ec2__RevokeSecurityGroupIngress(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put___ec2__RevokeSecurityGroupIngress(struct soap*, const struct __ec2__RevokeSecurityGroupIngress *, const char*, const char*);
 
-#define soap_read___ec2__RevokeSecurityGroupIngress(soap, data) ( soap_begin_recv(soap) || !soap_get___ec2__RevokeSecurityGroupIngress(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read___ec2__RevokeSecurityGroupIngress(soap, data) (soap_begin_recv(soap) || !soap_get___ec2__RevokeSecurityGroupIngress(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct __ec2__RevokeSecurityGroupIngress * SOAP_FMAC4 soap_get___ec2__RevokeSecurityGroupIngress(struct soap*, struct __ec2__RevokeSecurityGroupIngress *, const char*, const char*);
 
@@ -630,12 +630,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out___ec2__AuthorizeSecurityGroupIngress(struct soap*, const char*, int, const struct __ec2__AuthorizeSecurityGroupIngress *, const char*);
   SOAP_FMAC3 struct __ec2__AuthorizeSecurityGroupIngress * SOAP_FMAC4 soap_in___ec2__AuthorizeSecurityGroupIngress(struct soap*, const char*, struct __ec2__AuthorizeSecurityGroupIngress *, const char*);
 
-#define soap_write___ec2__AuthorizeSecurityGroupIngress(soap, data) ( soap_begin_send(soap) || (soap_serialize___ec2__AuthorizeSecurityGroupIngress(soap, data), 0) || soap_put___ec2__AuthorizeSecurityGroupIngress(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write___ec2__AuthorizeSecurityGroupIngress(soap, data) (soap_begin_send(soap) || (soap_serialize___ec2__AuthorizeSecurityGroupIngress(soap, data), 0) || soap_put___ec2__AuthorizeSecurityGroupIngress(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put___ec2__AuthorizeSecurityGroupIngress(struct soap*, const struct __ec2__AuthorizeSecurityGroupIngress *, const char*, const char*);
 
-#define soap_read___ec2__AuthorizeSecurityGroupIngress(soap, data) ( soap_begin_recv(soap) || !soap_get___ec2__AuthorizeSecurityGroupIngress(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read___ec2__AuthorizeSecurityGroupIngress(soap, data) (soap_begin_recv(soap) || !soap_get___ec2__AuthorizeSecurityGroupIngress(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct __ec2__AuthorizeSecurityGroupIngress * SOAP_FMAC4 soap_get___ec2__AuthorizeSecurityGroupIngress(struct soap*, struct __ec2__AuthorizeSecurityGroupIngress *, const char*, const char*);
 
@@ -647,12 +647,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out___ec2__DescribeSecurityGroups(struct soap*, const char*, int, const struct __ec2__DescribeSecurityGroups *, const char*);
   SOAP_FMAC3 struct __ec2__DescribeSecurityGroups * SOAP_FMAC4 soap_in___ec2__DescribeSecurityGroups(struct soap*, const char*, struct __ec2__DescribeSecurityGroups *, const char*);
 
-#define soap_write___ec2__DescribeSecurityGroups(soap, data) ( soap_begin_send(soap) || (soap_serialize___ec2__DescribeSecurityGroups(soap, data), 0) || soap_put___ec2__DescribeSecurityGroups(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write___ec2__DescribeSecurityGroups(soap, data) (soap_begin_send(soap) || (soap_serialize___ec2__DescribeSecurityGroups(soap, data), 0) || soap_put___ec2__DescribeSecurityGroups(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put___ec2__DescribeSecurityGroups(struct soap*, const struct __ec2__DescribeSecurityGroups *, const char*, const char*);
 
-#define soap_read___ec2__DescribeSecurityGroups(soap, data) ( soap_begin_recv(soap) || !soap_get___ec2__DescribeSecurityGroups(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read___ec2__DescribeSecurityGroups(soap, data) (soap_begin_recv(soap) || !soap_get___ec2__DescribeSecurityGroups(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct __ec2__DescribeSecurityGroups * SOAP_FMAC4 soap_get___ec2__DescribeSecurityGroups(struct soap*, struct __ec2__DescribeSecurityGroups *, const char*, const char*);
 
@@ -664,12 +664,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out___ec2__DeleteSecurityGroup(struct soap*, const char*, int, const struct __ec2__DeleteSecurityGroup *, const char*);
   SOAP_FMAC3 struct __ec2__DeleteSecurityGroup * SOAP_FMAC4 soap_in___ec2__DeleteSecurityGroup(struct soap*, const char*, struct __ec2__DeleteSecurityGroup *, const char*);
 
-#define soap_write___ec2__DeleteSecurityGroup(soap, data) ( soap_begin_send(soap) || (soap_serialize___ec2__DeleteSecurityGroup(soap, data), 0) || soap_put___ec2__DeleteSecurityGroup(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write___ec2__DeleteSecurityGroup(soap, data) (soap_begin_send(soap) || (soap_serialize___ec2__DeleteSecurityGroup(soap, data), 0) || soap_put___ec2__DeleteSecurityGroup(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put___ec2__DeleteSecurityGroup(struct soap*, const struct __ec2__DeleteSecurityGroup *, const char*, const char*);
 
-#define soap_read___ec2__DeleteSecurityGroup(soap, data) ( soap_begin_recv(soap) || !soap_get___ec2__DeleteSecurityGroup(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read___ec2__DeleteSecurityGroup(soap, data) (soap_begin_recv(soap) || !soap_get___ec2__DeleteSecurityGroup(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct __ec2__DeleteSecurityGroup * SOAP_FMAC4 soap_get___ec2__DeleteSecurityGroup(struct soap*, struct __ec2__DeleteSecurityGroup *, const char*, const char*);
 
@@ -681,12 +681,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out___ec2__CreateSecurityGroup(struct soap*, const char*, int, const struct __ec2__CreateSecurityGroup *, const char*);
   SOAP_FMAC3 struct __ec2__CreateSecurityGroup * SOAP_FMAC4 soap_in___ec2__CreateSecurityGroup(struct soap*, const char*, struct __ec2__CreateSecurityGroup *, const char*);
 
-#define soap_write___ec2__CreateSecurityGroup(soap, data) ( soap_begin_send(soap) || (soap_serialize___ec2__CreateSecurityGroup(soap, data), 0) || soap_put___ec2__CreateSecurityGroup(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write___ec2__CreateSecurityGroup(soap, data) (soap_begin_send(soap) || (soap_serialize___ec2__CreateSecurityGroup(soap, data), 0) || soap_put___ec2__CreateSecurityGroup(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put___ec2__CreateSecurityGroup(struct soap*, const struct __ec2__CreateSecurityGroup *, const char*, const char*);
 
-#define soap_read___ec2__CreateSecurityGroup(soap, data) ( soap_begin_recv(soap) || !soap_get___ec2__CreateSecurityGroup(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read___ec2__CreateSecurityGroup(soap, data) (soap_begin_recv(soap) || !soap_get___ec2__CreateSecurityGroup(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct __ec2__CreateSecurityGroup * SOAP_FMAC4 soap_get___ec2__CreateSecurityGroup(struct soap*, struct __ec2__CreateSecurityGroup *, const char*, const char*);
 
@@ -698,12 +698,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out___ec2__DescribeImages(struct soap*, const char*, int, const struct __ec2__DescribeImages *, const char*);
   SOAP_FMAC3 struct __ec2__DescribeImages * SOAP_FMAC4 soap_in___ec2__DescribeImages(struct soap*, const char*, struct __ec2__DescribeImages *, const char*);
 
-#define soap_write___ec2__DescribeImages(soap, data) ( soap_begin_send(soap) || (soap_serialize___ec2__DescribeImages(soap, data), 0) || soap_put___ec2__DescribeImages(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write___ec2__DescribeImages(soap, data) (soap_begin_send(soap) || (soap_serialize___ec2__DescribeImages(soap, data), 0) || soap_put___ec2__DescribeImages(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put___ec2__DescribeImages(struct soap*, const struct __ec2__DescribeImages *, const char*, const char*);
 
-#define soap_read___ec2__DescribeImages(soap, data) ( soap_begin_recv(soap) || !soap_get___ec2__DescribeImages(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read___ec2__DescribeImages(soap, data) (soap_begin_recv(soap) || !soap_get___ec2__DescribeImages(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct __ec2__DescribeImages * SOAP_FMAC4 soap_get___ec2__DescribeImages(struct soap*, struct __ec2__DescribeImages *, const char*, const char*);
 
@@ -715,12 +715,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out___ec2__DescribeInstances(struct soap*, const char*, int, const struct __ec2__DescribeInstances *, const char*);
   SOAP_FMAC3 struct __ec2__DescribeInstances * SOAP_FMAC4 soap_in___ec2__DescribeInstances(struct soap*, const char*, struct __ec2__DescribeInstances *, const char*);
 
-#define soap_write___ec2__DescribeInstances(soap, data) ( soap_begin_send(soap) || (soap_serialize___ec2__DescribeInstances(soap, data), 0) || soap_put___ec2__DescribeInstances(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write___ec2__DescribeInstances(soap, data) (soap_begin_send(soap) || (soap_serialize___ec2__DescribeInstances(soap, data), 0) || soap_put___ec2__DescribeInstances(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put___ec2__DescribeInstances(struct soap*, const struct __ec2__DescribeInstances *, const char*, const char*);
 
-#define soap_read___ec2__DescribeInstances(soap, data) ( soap_begin_recv(soap) || !soap_get___ec2__DescribeInstances(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read___ec2__DescribeInstances(soap, data) (soap_begin_recv(soap) || !soap_get___ec2__DescribeInstances(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct __ec2__DescribeInstances * SOAP_FMAC4 soap_get___ec2__DescribeInstances(struct soap*, struct __ec2__DescribeInstances *, const char*, const char*);
 
@@ -732,12 +732,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out___ec2__RebootInstances(struct soap*, const char*, int, const struct __ec2__RebootInstances *, const char*);
   SOAP_FMAC3 struct __ec2__RebootInstances * SOAP_FMAC4 soap_in___ec2__RebootInstances(struct soap*, const char*, struct __ec2__RebootInstances *, const char*);
 
-#define soap_write___ec2__RebootInstances(soap, data) ( soap_begin_send(soap) || (soap_serialize___ec2__RebootInstances(soap, data), 0) || soap_put___ec2__RebootInstances(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write___ec2__RebootInstances(soap, data) (soap_begin_send(soap) || (soap_serialize___ec2__RebootInstances(soap, data), 0) || soap_put___ec2__RebootInstances(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put___ec2__RebootInstances(struct soap*, const struct __ec2__RebootInstances *, const char*, const char*);
 
-#define soap_read___ec2__RebootInstances(soap, data) ( soap_begin_recv(soap) || !soap_get___ec2__RebootInstances(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read___ec2__RebootInstances(soap, data) (soap_begin_recv(soap) || !soap_get___ec2__RebootInstances(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct __ec2__RebootInstances * SOAP_FMAC4 soap_get___ec2__RebootInstances(struct soap*, struct __ec2__RebootInstances *, const char*, const char*);
 
@@ -749,12 +749,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out___ec2__TerminateInstances(struct soap*, const char*, int, const struct __ec2__TerminateInstances *, const char*);
   SOAP_FMAC3 struct __ec2__TerminateInstances * SOAP_FMAC4 soap_in___ec2__TerminateInstances(struct soap*, const char*, struct __ec2__TerminateInstances *, const char*);
 
-#define soap_write___ec2__TerminateInstances(soap, data) ( soap_begin_send(soap) || (soap_serialize___ec2__TerminateInstances(soap, data), 0) || soap_put___ec2__TerminateInstances(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write___ec2__TerminateInstances(soap, data) (soap_begin_send(soap) || (soap_serialize___ec2__TerminateInstances(soap, data), 0) || soap_put___ec2__TerminateInstances(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put___ec2__TerminateInstances(struct soap*, const struct __ec2__TerminateInstances *, const char*, const char*);
 
-#define soap_read___ec2__TerminateInstances(soap, data) ( soap_begin_recv(soap) || !soap_get___ec2__TerminateInstances(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read___ec2__TerminateInstances(soap, data) (soap_begin_recv(soap) || !soap_get___ec2__TerminateInstances(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct __ec2__TerminateInstances * SOAP_FMAC4 soap_get___ec2__TerminateInstances(struct soap*, struct __ec2__TerminateInstances *, const char*, const char*);
 
@@ -766,12 +766,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out___ec2__GetConsoleOutput(struct soap*, const char*, int, const struct __ec2__GetConsoleOutput *, const char*);
   SOAP_FMAC3 struct __ec2__GetConsoleOutput * SOAP_FMAC4 soap_in___ec2__GetConsoleOutput(struct soap*, const char*, struct __ec2__GetConsoleOutput *, const char*);
 
-#define soap_write___ec2__GetConsoleOutput(soap, data) ( soap_begin_send(soap) || (soap_serialize___ec2__GetConsoleOutput(soap, data), 0) || soap_put___ec2__GetConsoleOutput(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write___ec2__GetConsoleOutput(soap, data) (soap_begin_send(soap) || (soap_serialize___ec2__GetConsoleOutput(soap, data), 0) || soap_put___ec2__GetConsoleOutput(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put___ec2__GetConsoleOutput(struct soap*, const struct __ec2__GetConsoleOutput *, const char*, const char*);
 
-#define soap_read___ec2__GetConsoleOutput(soap, data) ( soap_begin_recv(soap) || !soap_get___ec2__GetConsoleOutput(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read___ec2__GetConsoleOutput(soap, data) (soap_begin_recv(soap) || !soap_get___ec2__GetConsoleOutput(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct __ec2__GetConsoleOutput * SOAP_FMAC4 soap_get___ec2__GetConsoleOutput(struct soap*, struct __ec2__GetConsoleOutput *, const char*, const char*);
 
@@ -783,12 +783,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out___ec2__RunInstances(struct soap*, const char*, int, const struct __ec2__RunInstances *, const char*);
   SOAP_FMAC3 struct __ec2__RunInstances * SOAP_FMAC4 soap_in___ec2__RunInstances(struct soap*, const char*, struct __ec2__RunInstances *, const char*);
 
-#define soap_write___ec2__RunInstances(soap, data) ( soap_begin_send(soap) || (soap_serialize___ec2__RunInstances(soap, data), 0) || soap_put___ec2__RunInstances(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write___ec2__RunInstances(soap, data) (soap_begin_send(soap) || (soap_serialize___ec2__RunInstances(soap, data), 0) || soap_put___ec2__RunInstances(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put___ec2__RunInstances(struct soap*, const struct __ec2__RunInstances *, const char*, const char*);
 
-#define soap_read___ec2__RunInstances(soap, data) ( soap_begin_recv(soap) || !soap_get___ec2__RunInstances(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read___ec2__RunInstances(soap, data) (soap_begin_recv(soap) || !soap_get___ec2__RunInstances(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct __ec2__RunInstances * SOAP_FMAC4 soap_get___ec2__RunInstances(struct soap*, struct __ec2__RunInstances *, const char*, const char*);
 
@@ -800,12 +800,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out___ec2__DeleteKeyPair(struct soap*, const char*, int, const struct __ec2__DeleteKeyPair *, const char*);
   SOAP_FMAC3 struct __ec2__DeleteKeyPair * SOAP_FMAC4 soap_in___ec2__DeleteKeyPair(struct soap*, const char*, struct __ec2__DeleteKeyPair *, const char*);
 
-#define soap_write___ec2__DeleteKeyPair(soap, data) ( soap_begin_send(soap) || (soap_serialize___ec2__DeleteKeyPair(soap, data), 0) || soap_put___ec2__DeleteKeyPair(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write___ec2__DeleteKeyPair(soap, data) (soap_begin_send(soap) || (soap_serialize___ec2__DeleteKeyPair(soap, data), 0) || soap_put___ec2__DeleteKeyPair(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put___ec2__DeleteKeyPair(struct soap*, const struct __ec2__DeleteKeyPair *, const char*, const char*);
 
-#define soap_read___ec2__DeleteKeyPair(soap, data) ( soap_begin_recv(soap) || !soap_get___ec2__DeleteKeyPair(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read___ec2__DeleteKeyPair(soap, data) (soap_begin_recv(soap) || !soap_get___ec2__DeleteKeyPair(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct __ec2__DeleteKeyPair * SOAP_FMAC4 soap_get___ec2__DeleteKeyPair(struct soap*, struct __ec2__DeleteKeyPair *, const char*, const char*);
 
@@ -817,12 +817,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out___ec2__DescribeKeyPairs(struct soap*, const char*, int, const struct __ec2__DescribeKeyPairs *, const char*);
   SOAP_FMAC3 struct __ec2__DescribeKeyPairs * SOAP_FMAC4 soap_in___ec2__DescribeKeyPairs(struct soap*, const char*, struct __ec2__DescribeKeyPairs *, const char*);
 
-#define soap_write___ec2__DescribeKeyPairs(soap, data) ( soap_begin_send(soap) || (soap_serialize___ec2__DescribeKeyPairs(soap, data), 0) || soap_put___ec2__DescribeKeyPairs(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write___ec2__DescribeKeyPairs(soap, data) (soap_begin_send(soap) || (soap_serialize___ec2__DescribeKeyPairs(soap, data), 0) || soap_put___ec2__DescribeKeyPairs(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put___ec2__DescribeKeyPairs(struct soap*, const struct __ec2__DescribeKeyPairs *, const char*, const char*);
 
-#define soap_read___ec2__DescribeKeyPairs(soap, data) ( soap_begin_recv(soap) || !soap_get___ec2__DescribeKeyPairs(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read___ec2__DescribeKeyPairs(soap, data) (soap_begin_recv(soap) || !soap_get___ec2__DescribeKeyPairs(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct __ec2__DescribeKeyPairs * SOAP_FMAC4 soap_get___ec2__DescribeKeyPairs(struct soap*, struct __ec2__DescribeKeyPairs *, const char*, const char*);
 
@@ -834,12 +834,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out___ec2__CreateKeyPair(struct soap*, const char*, int, const struct __ec2__CreateKeyPair *, const char*);
   SOAP_FMAC3 struct __ec2__CreateKeyPair * SOAP_FMAC4 soap_in___ec2__CreateKeyPair(struct soap*, const char*, struct __ec2__CreateKeyPair *, const char*);
 
-#define soap_write___ec2__CreateKeyPair(soap, data) ( soap_begin_send(soap) || (soap_serialize___ec2__CreateKeyPair(soap, data), 0) || soap_put___ec2__CreateKeyPair(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write___ec2__CreateKeyPair(soap, data) (soap_begin_send(soap) || (soap_serialize___ec2__CreateKeyPair(soap, data), 0) || soap_put___ec2__CreateKeyPair(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put___ec2__CreateKeyPair(struct soap*, const struct __ec2__CreateKeyPair *, const char*, const char*);
 
-#define soap_read___ec2__CreateKeyPair(soap, data) ( soap_begin_recv(soap) || !soap_get___ec2__CreateKeyPair(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read___ec2__CreateKeyPair(soap, data) (soap_begin_recv(soap) || !soap_get___ec2__CreateKeyPair(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct __ec2__CreateKeyPair * SOAP_FMAC4 soap_get___ec2__CreateKeyPair(struct soap*, struct __ec2__CreateKeyPair *, const char*, const char*);
 
@@ -851,12 +851,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out___ec2__DeregisterImage(struct soap*, const char*, int, const struct __ec2__DeregisterImage *, const char*);
   SOAP_FMAC3 struct __ec2__DeregisterImage * SOAP_FMAC4 soap_in___ec2__DeregisterImage(struct soap*, const char*, struct __ec2__DeregisterImage *, const char*);
 
-#define soap_write___ec2__DeregisterImage(soap, data) ( soap_begin_send(soap) || (soap_serialize___ec2__DeregisterImage(soap, data), 0) || soap_put___ec2__DeregisterImage(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write___ec2__DeregisterImage(soap, data) (soap_begin_send(soap) || (soap_serialize___ec2__DeregisterImage(soap, data), 0) || soap_put___ec2__DeregisterImage(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put___ec2__DeregisterImage(struct soap*, const struct __ec2__DeregisterImage *, const char*, const char*);
 
-#define soap_read___ec2__DeregisterImage(soap, data) ( soap_begin_recv(soap) || !soap_get___ec2__DeregisterImage(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read___ec2__DeregisterImage(soap, data) (soap_begin_recv(soap) || !soap_get___ec2__DeregisterImage(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct __ec2__DeregisterImage * SOAP_FMAC4 soap_get___ec2__DeregisterImage(struct soap*, struct __ec2__DeregisterImage *, const char*, const char*);
 
@@ -868,12 +868,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out___ec2__RegisterImage(struct soap*, const char*, int, const struct __ec2__RegisterImage *, const char*);
   SOAP_FMAC3 struct __ec2__RegisterImage * SOAP_FMAC4 soap_in___ec2__RegisterImage(struct soap*, const char*, struct __ec2__RegisterImage *, const char*);
 
-#define soap_write___ec2__RegisterImage(soap, data) ( soap_begin_send(soap) || (soap_serialize___ec2__RegisterImage(soap, data), 0) || soap_put___ec2__RegisterImage(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write___ec2__RegisterImage(soap, data) (soap_begin_send(soap) || (soap_serialize___ec2__RegisterImage(soap, data), 0) || soap_put___ec2__RegisterImage(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put___ec2__RegisterImage(struct soap*, const struct __ec2__RegisterImage *, const char*, const char*);
 
-#define soap_read___ec2__RegisterImage(soap, data) ( soap_begin_recv(soap) || !soap_get___ec2__RegisterImage(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read___ec2__RegisterImage(soap, data) (soap_begin_recv(soap) || !soap_get___ec2__RegisterImage(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct __ec2__RegisterImage * SOAP_FMAC4 soap_get___ec2__RegisterImage(struct soap*, struct __ec2__RegisterImage *, const char*, const char*);
 
@@ -885,12 +885,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__RegionItemType(struct soap*, const char*, int, const struct ec2__RegionItemType *, const char*);
   SOAP_FMAC3 struct ec2__RegionItemType * SOAP_FMAC4 soap_in_ec2__RegionItemType(struct soap*, const char*, struct ec2__RegionItemType *, const char*);
 
-#define soap_write_ec2__RegionItemType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__RegionItemType(soap, data), 0) || soap_put_ec2__RegionItemType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__RegionItemType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__RegionItemType(soap, data), 0) || soap_put_ec2__RegionItemType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__RegionItemType(struct soap*, const struct ec2__RegionItemType *, const char*, const char*);
 
-#define soap_read_ec2__RegionItemType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__RegionItemType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__RegionItemType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__RegionItemType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__RegionItemType * SOAP_FMAC4 soap_get_ec2__RegionItemType(struct soap*, struct ec2__RegionItemType *, const char*, const char*);
 
@@ -902,12 +902,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__RegionSetType(struct soap*, const char*, int, const struct ec2__RegionSetType *, const char*);
   SOAP_FMAC3 struct ec2__RegionSetType * SOAP_FMAC4 soap_in_ec2__RegionSetType(struct soap*, const char*, struct ec2__RegionSetType *, const char*);
 
-#define soap_write_ec2__RegionSetType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__RegionSetType(soap, data), 0) || soap_put_ec2__RegionSetType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__RegionSetType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__RegionSetType(soap, data), 0) || soap_put_ec2__RegionSetType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__RegionSetType(struct soap*, const struct ec2__RegionSetType *, const char*, const char*);
 
-#define soap_read_ec2__RegionSetType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__RegionSetType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__RegionSetType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__RegionSetType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__RegionSetType * SOAP_FMAC4 soap_get_ec2__RegionSetType(struct soap*, struct ec2__RegionSetType *, const char*, const char*);
 
@@ -919,12 +919,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DescribeRegionsResponseType(struct soap*, const char*, int, const struct ec2__DescribeRegionsResponseType *, const char*);
   SOAP_FMAC3 struct ec2__DescribeRegionsResponseType * SOAP_FMAC4 soap_in_ec2__DescribeRegionsResponseType(struct soap*, const char*, struct ec2__DescribeRegionsResponseType *, const char*);
 
-#define soap_write_ec2__DescribeRegionsResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DescribeRegionsResponseType(soap, data), 0) || soap_put_ec2__DescribeRegionsResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DescribeRegionsResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DescribeRegionsResponseType(soap, data), 0) || soap_put_ec2__DescribeRegionsResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DescribeRegionsResponseType(struct soap*, const struct ec2__DescribeRegionsResponseType *, const char*, const char*);
 
-#define soap_read_ec2__DescribeRegionsResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DescribeRegionsResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DescribeRegionsResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DescribeRegionsResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeRegionsResponseType * SOAP_FMAC4 soap_get_ec2__DescribeRegionsResponseType(struct soap*, struct ec2__DescribeRegionsResponseType *, const char*, const char*);
 
@@ -936,12 +936,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DescribeRegionsSetItemType(struct soap*, const char*, int, const struct ec2__DescribeRegionsSetItemType *, const char*);
   SOAP_FMAC3 struct ec2__DescribeRegionsSetItemType * SOAP_FMAC4 soap_in_ec2__DescribeRegionsSetItemType(struct soap*, const char*, struct ec2__DescribeRegionsSetItemType *, const char*);
 
-#define soap_write_ec2__DescribeRegionsSetItemType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DescribeRegionsSetItemType(soap, data), 0) || soap_put_ec2__DescribeRegionsSetItemType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DescribeRegionsSetItemType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DescribeRegionsSetItemType(soap, data), 0) || soap_put_ec2__DescribeRegionsSetItemType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DescribeRegionsSetItemType(struct soap*, const struct ec2__DescribeRegionsSetItemType *, const char*, const char*);
 
-#define soap_read_ec2__DescribeRegionsSetItemType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DescribeRegionsSetItemType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DescribeRegionsSetItemType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DescribeRegionsSetItemType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeRegionsSetItemType * SOAP_FMAC4 soap_get_ec2__DescribeRegionsSetItemType(struct soap*, struct ec2__DescribeRegionsSetItemType *, const char*, const char*);
 
@@ -953,12 +953,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DescribeRegionsSetType(struct soap*, const char*, int, const struct ec2__DescribeRegionsSetType *, const char*);
   SOAP_FMAC3 struct ec2__DescribeRegionsSetType * SOAP_FMAC4 soap_in_ec2__DescribeRegionsSetType(struct soap*, const char*, struct ec2__DescribeRegionsSetType *, const char*);
 
-#define soap_write_ec2__DescribeRegionsSetType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DescribeRegionsSetType(soap, data), 0) || soap_put_ec2__DescribeRegionsSetType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DescribeRegionsSetType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DescribeRegionsSetType(soap, data), 0) || soap_put_ec2__DescribeRegionsSetType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DescribeRegionsSetType(struct soap*, const struct ec2__DescribeRegionsSetType *, const char*, const char*);
 
-#define soap_read_ec2__DescribeRegionsSetType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DescribeRegionsSetType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DescribeRegionsSetType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DescribeRegionsSetType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeRegionsSetType * SOAP_FMAC4 soap_get_ec2__DescribeRegionsSetType(struct soap*, struct ec2__DescribeRegionsSetType *, const char*, const char*);
 
@@ -970,12 +970,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DescribeRegionsType(struct soap*, const char*, int, const struct ec2__DescribeRegionsType *, const char*);
   SOAP_FMAC3 struct ec2__DescribeRegionsType * SOAP_FMAC4 soap_in_ec2__DescribeRegionsType(struct soap*, const char*, struct ec2__DescribeRegionsType *, const char*);
 
-#define soap_write_ec2__DescribeRegionsType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DescribeRegionsType(soap, data), 0) || soap_put_ec2__DescribeRegionsType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DescribeRegionsType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DescribeRegionsType(soap, data), 0) || soap_put_ec2__DescribeRegionsType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DescribeRegionsType(struct soap*, const struct ec2__DescribeRegionsType *, const char*, const char*);
 
-#define soap_read_ec2__DescribeRegionsType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DescribeRegionsType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DescribeRegionsType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DescribeRegionsType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeRegionsType * SOAP_FMAC4 soap_get_ec2__DescribeRegionsType(struct soap*, struct ec2__DescribeRegionsType *, const char*, const char*);
 
@@ -987,12 +987,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__CancelBundleTaskResponseType(struct soap*, const char*, int, const struct ec2__CancelBundleTaskResponseType *, const char*);
   SOAP_FMAC3 struct ec2__CancelBundleTaskResponseType * SOAP_FMAC4 soap_in_ec2__CancelBundleTaskResponseType(struct soap*, const char*, struct ec2__CancelBundleTaskResponseType *, const char*);
 
-#define soap_write_ec2__CancelBundleTaskResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__CancelBundleTaskResponseType(soap, data), 0) || soap_put_ec2__CancelBundleTaskResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__CancelBundleTaskResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__CancelBundleTaskResponseType(soap, data), 0) || soap_put_ec2__CancelBundleTaskResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__CancelBundleTaskResponseType(struct soap*, const struct ec2__CancelBundleTaskResponseType *, const char*, const char*);
 
-#define soap_read_ec2__CancelBundleTaskResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__CancelBundleTaskResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__CancelBundleTaskResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__CancelBundleTaskResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__CancelBundleTaskResponseType * SOAP_FMAC4 soap_get_ec2__CancelBundleTaskResponseType(struct soap*, struct ec2__CancelBundleTaskResponseType *, const char*, const char*);
 
@@ -1004,12 +1004,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__CancelBundleTaskType(struct soap*, const char*, int, const struct ec2__CancelBundleTaskType *, const char*);
   SOAP_FMAC3 struct ec2__CancelBundleTaskType * SOAP_FMAC4 soap_in_ec2__CancelBundleTaskType(struct soap*, const char*, struct ec2__CancelBundleTaskType *, const char*);
 
-#define soap_write_ec2__CancelBundleTaskType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__CancelBundleTaskType(soap, data), 0) || soap_put_ec2__CancelBundleTaskType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__CancelBundleTaskType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__CancelBundleTaskType(soap, data), 0) || soap_put_ec2__CancelBundleTaskType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__CancelBundleTaskType(struct soap*, const struct ec2__CancelBundleTaskType *, const char*, const char*);
 
-#define soap_read_ec2__CancelBundleTaskType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__CancelBundleTaskType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__CancelBundleTaskType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__CancelBundleTaskType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__CancelBundleTaskType * SOAP_FMAC4 soap_get_ec2__CancelBundleTaskType(struct soap*, struct ec2__CancelBundleTaskType *, const char*, const char*);
 
@@ -1021,12 +1021,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__BundleInstanceTasksSetType(struct soap*, const char*, int, const struct ec2__BundleInstanceTasksSetType *, const char*);
   SOAP_FMAC3 struct ec2__BundleInstanceTasksSetType * SOAP_FMAC4 soap_in_ec2__BundleInstanceTasksSetType(struct soap*, const char*, struct ec2__BundleInstanceTasksSetType *, const char*);
 
-#define soap_write_ec2__BundleInstanceTasksSetType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__BundleInstanceTasksSetType(soap, data), 0) || soap_put_ec2__BundleInstanceTasksSetType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__BundleInstanceTasksSetType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__BundleInstanceTasksSetType(soap, data), 0) || soap_put_ec2__BundleInstanceTasksSetType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__BundleInstanceTasksSetType(struct soap*, const struct ec2__BundleInstanceTasksSetType *, const char*, const char*);
 
-#define soap_read_ec2__BundleInstanceTasksSetType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__BundleInstanceTasksSetType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__BundleInstanceTasksSetType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__BundleInstanceTasksSetType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__BundleInstanceTasksSetType * SOAP_FMAC4 soap_get_ec2__BundleInstanceTasksSetType(struct soap*, struct ec2__BundleInstanceTasksSetType *, const char*, const char*);
 
@@ -1038,12 +1038,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DescribeBundleTasksResponseType(struct soap*, const char*, int, const struct ec2__DescribeBundleTasksResponseType *, const char*);
   SOAP_FMAC3 struct ec2__DescribeBundleTasksResponseType * SOAP_FMAC4 soap_in_ec2__DescribeBundleTasksResponseType(struct soap*, const char*, struct ec2__DescribeBundleTasksResponseType *, const char*);
 
-#define soap_write_ec2__DescribeBundleTasksResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DescribeBundleTasksResponseType(soap, data), 0) || soap_put_ec2__DescribeBundleTasksResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DescribeBundleTasksResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DescribeBundleTasksResponseType(soap, data), 0) || soap_put_ec2__DescribeBundleTasksResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DescribeBundleTasksResponseType(struct soap*, const struct ec2__DescribeBundleTasksResponseType *, const char*, const char*);
 
-#define soap_read_ec2__DescribeBundleTasksResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DescribeBundleTasksResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DescribeBundleTasksResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DescribeBundleTasksResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeBundleTasksResponseType * SOAP_FMAC4 soap_get_ec2__DescribeBundleTasksResponseType(struct soap*, struct ec2__DescribeBundleTasksResponseType *, const char*, const char*);
 
@@ -1055,12 +1055,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DescribeBundleTasksItemType(struct soap*, const char*, int, const struct ec2__DescribeBundleTasksItemType *, const char*);
   SOAP_FMAC3 struct ec2__DescribeBundleTasksItemType * SOAP_FMAC4 soap_in_ec2__DescribeBundleTasksItemType(struct soap*, const char*, struct ec2__DescribeBundleTasksItemType *, const char*);
 
-#define soap_write_ec2__DescribeBundleTasksItemType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DescribeBundleTasksItemType(soap, data), 0) || soap_put_ec2__DescribeBundleTasksItemType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DescribeBundleTasksItemType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DescribeBundleTasksItemType(soap, data), 0) || soap_put_ec2__DescribeBundleTasksItemType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DescribeBundleTasksItemType(struct soap*, const struct ec2__DescribeBundleTasksItemType *, const char*, const char*);
 
-#define soap_read_ec2__DescribeBundleTasksItemType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DescribeBundleTasksItemType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DescribeBundleTasksItemType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DescribeBundleTasksItemType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeBundleTasksItemType * SOAP_FMAC4 soap_get_ec2__DescribeBundleTasksItemType(struct soap*, struct ec2__DescribeBundleTasksItemType *, const char*, const char*);
 
@@ -1072,12 +1072,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DescribeBundleTasksInfoType(struct soap*, const char*, int, const struct ec2__DescribeBundleTasksInfoType *, const char*);
   SOAP_FMAC3 struct ec2__DescribeBundleTasksInfoType * SOAP_FMAC4 soap_in_ec2__DescribeBundleTasksInfoType(struct soap*, const char*, struct ec2__DescribeBundleTasksInfoType *, const char*);
 
-#define soap_write_ec2__DescribeBundleTasksInfoType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DescribeBundleTasksInfoType(soap, data), 0) || soap_put_ec2__DescribeBundleTasksInfoType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DescribeBundleTasksInfoType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DescribeBundleTasksInfoType(soap, data), 0) || soap_put_ec2__DescribeBundleTasksInfoType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DescribeBundleTasksInfoType(struct soap*, const struct ec2__DescribeBundleTasksInfoType *, const char*, const char*);
 
-#define soap_read_ec2__DescribeBundleTasksInfoType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DescribeBundleTasksInfoType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DescribeBundleTasksInfoType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DescribeBundleTasksInfoType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeBundleTasksInfoType * SOAP_FMAC4 soap_get_ec2__DescribeBundleTasksInfoType(struct soap*, struct ec2__DescribeBundleTasksInfoType *, const char*, const char*);
 
@@ -1089,12 +1089,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DescribeBundleTasksType(struct soap*, const char*, int, const struct ec2__DescribeBundleTasksType *, const char*);
   SOAP_FMAC3 struct ec2__DescribeBundleTasksType * SOAP_FMAC4 soap_in_ec2__DescribeBundleTasksType(struct soap*, const char*, struct ec2__DescribeBundleTasksType *, const char*);
 
-#define soap_write_ec2__DescribeBundleTasksType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DescribeBundleTasksType(soap, data), 0) || soap_put_ec2__DescribeBundleTasksType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DescribeBundleTasksType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DescribeBundleTasksType(soap, data), 0) || soap_put_ec2__DescribeBundleTasksType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DescribeBundleTasksType(struct soap*, const struct ec2__DescribeBundleTasksType *, const char*, const char*);
 
-#define soap_read_ec2__DescribeBundleTasksType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DescribeBundleTasksType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DescribeBundleTasksType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DescribeBundleTasksType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeBundleTasksType * SOAP_FMAC4 soap_get_ec2__DescribeBundleTasksType(struct soap*, struct ec2__DescribeBundleTasksType *, const char*, const char*);
 
@@ -1106,12 +1106,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__BundleInstanceTaskErrorType(struct soap*, const char*, int, const struct ec2__BundleInstanceTaskErrorType *, const char*);
   SOAP_FMAC3 struct ec2__BundleInstanceTaskErrorType * SOAP_FMAC4 soap_in_ec2__BundleInstanceTaskErrorType(struct soap*, const char*, struct ec2__BundleInstanceTaskErrorType *, const char*);
 
-#define soap_write_ec2__BundleInstanceTaskErrorType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__BundleInstanceTaskErrorType(soap, data), 0) || soap_put_ec2__BundleInstanceTaskErrorType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__BundleInstanceTaskErrorType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__BundleInstanceTaskErrorType(soap, data), 0) || soap_put_ec2__BundleInstanceTaskErrorType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__BundleInstanceTaskErrorType(struct soap*, const struct ec2__BundleInstanceTaskErrorType *, const char*, const char*);
 
-#define soap_read_ec2__BundleInstanceTaskErrorType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__BundleInstanceTaskErrorType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__BundleInstanceTaskErrorType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__BundleInstanceTaskErrorType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__BundleInstanceTaskErrorType * SOAP_FMAC4 soap_get_ec2__BundleInstanceTaskErrorType(struct soap*, struct ec2__BundleInstanceTaskErrorType *, const char*, const char*);
 
@@ -1123,12 +1123,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__BundleInstanceTaskType(struct soap*, const char*, int, const struct ec2__BundleInstanceTaskType *, const char*);
   SOAP_FMAC3 struct ec2__BundleInstanceTaskType * SOAP_FMAC4 soap_in_ec2__BundleInstanceTaskType(struct soap*, const char*, struct ec2__BundleInstanceTaskType *, const char*);
 
-#define soap_write_ec2__BundleInstanceTaskType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__BundleInstanceTaskType(soap, data), 0) || soap_put_ec2__BundleInstanceTaskType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__BundleInstanceTaskType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__BundleInstanceTaskType(soap, data), 0) || soap_put_ec2__BundleInstanceTaskType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__BundleInstanceTaskType(struct soap*, const struct ec2__BundleInstanceTaskType *, const char*, const char*);
 
-#define soap_read_ec2__BundleInstanceTaskType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__BundleInstanceTaskType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__BundleInstanceTaskType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__BundleInstanceTaskType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__BundleInstanceTaskType * SOAP_FMAC4 soap_get_ec2__BundleInstanceTaskType(struct soap*, struct ec2__BundleInstanceTaskType *, const char*, const char*);
 
@@ -1140,12 +1140,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__BundleInstanceResponseType(struct soap*, const char*, int, const struct ec2__BundleInstanceResponseType *, const char*);
   SOAP_FMAC3 struct ec2__BundleInstanceResponseType * SOAP_FMAC4 soap_in_ec2__BundleInstanceResponseType(struct soap*, const char*, struct ec2__BundleInstanceResponseType *, const char*);
 
-#define soap_write_ec2__BundleInstanceResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__BundleInstanceResponseType(soap, data), 0) || soap_put_ec2__BundleInstanceResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__BundleInstanceResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__BundleInstanceResponseType(soap, data), 0) || soap_put_ec2__BundleInstanceResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__BundleInstanceResponseType(struct soap*, const struct ec2__BundleInstanceResponseType *, const char*, const char*);
 
-#define soap_read_ec2__BundleInstanceResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__BundleInstanceResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__BundleInstanceResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__BundleInstanceResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__BundleInstanceResponseType * SOAP_FMAC4 soap_get_ec2__BundleInstanceResponseType(struct soap*, struct ec2__BundleInstanceResponseType *, const char*, const char*);
 
@@ -1157,12 +1157,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__BundleInstanceS3StorageType(struct soap*, const char*, int, const struct ec2__BundleInstanceS3StorageType *, const char*);
   SOAP_FMAC3 struct ec2__BundleInstanceS3StorageType * SOAP_FMAC4 soap_in_ec2__BundleInstanceS3StorageType(struct soap*, const char*, struct ec2__BundleInstanceS3StorageType *, const char*);
 
-#define soap_write_ec2__BundleInstanceS3StorageType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__BundleInstanceS3StorageType(soap, data), 0) || soap_put_ec2__BundleInstanceS3StorageType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__BundleInstanceS3StorageType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__BundleInstanceS3StorageType(soap, data), 0) || soap_put_ec2__BundleInstanceS3StorageType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__BundleInstanceS3StorageType(struct soap*, const struct ec2__BundleInstanceS3StorageType *, const char*, const char*);
 
-#define soap_read_ec2__BundleInstanceS3StorageType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__BundleInstanceS3StorageType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__BundleInstanceS3StorageType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__BundleInstanceS3StorageType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__BundleInstanceS3StorageType * SOAP_FMAC4 soap_get_ec2__BundleInstanceS3StorageType(struct soap*, struct ec2__BundleInstanceS3StorageType *, const char*, const char*);
 
@@ -1174,12 +1174,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__BundleInstanceTaskStorageType(struct soap*, const char*, int, const struct ec2__BundleInstanceTaskStorageType *, const char*);
   SOAP_FMAC3 struct ec2__BundleInstanceTaskStorageType * SOAP_FMAC4 soap_in_ec2__BundleInstanceTaskStorageType(struct soap*, const char*, struct ec2__BundleInstanceTaskStorageType *, const char*);
 
-#define soap_write_ec2__BundleInstanceTaskStorageType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__BundleInstanceTaskStorageType(soap, data), 0) || soap_put_ec2__BundleInstanceTaskStorageType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__BundleInstanceTaskStorageType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__BundleInstanceTaskStorageType(soap, data), 0) || soap_put_ec2__BundleInstanceTaskStorageType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__BundleInstanceTaskStorageType(struct soap*, const struct ec2__BundleInstanceTaskStorageType *, const char*, const char*);
 
-#define soap_read_ec2__BundleInstanceTaskStorageType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__BundleInstanceTaskStorageType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__BundleInstanceTaskStorageType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__BundleInstanceTaskStorageType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__BundleInstanceTaskStorageType * SOAP_FMAC4 soap_get_ec2__BundleInstanceTaskStorageType(struct soap*, struct ec2__BundleInstanceTaskStorageType *, const char*, const char*);
 
@@ -1191,12 +1191,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__BundleInstanceType(struct soap*, const char*, int, const struct ec2__BundleInstanceType *, const char*);
   SOAP_FMAC3 struct ec2__BundleInstanceType * SOAP_FMAC4 soap_in_ec2__BundleInstanceType(struct soap*, const char*, struct ec2__BundleInstanceType *, const char*);
 
-#define soap_write_ec2__BundleInstanceType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__BundleInstanceType(soap, data), 0) || soap_put_ec2__BundleInstanceType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__BundleInstanceType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__BundleInstanceType(soap, data), 0) || soap_put_ec2__BundleInstanceType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__BundleInstanceType(struct soap*, const struct ec2__BundleInstanceType *, const char*, const char*);
 
-#define soap_read_ec2__BundleInstanceType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__BundleInstanceType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__BundleInstanceType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__BundleInstanceType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__BundleInstanceType * SOAP_FMAC4 soap_get_ec2__BundleInstanceType(struct soap*, struct ec2__BundleInstanceType *, const char*, const char*);
 
@@ -1208,12 +1208,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DescribeSnapshotsSetItemResponseType(struct soap*, const char*, int, const struct ec2__DescribeSnapshotsSetItemResponseType *, const char*);
   SOAP_FMAC3 struct ec2__DescribeSnapshotsSetItemResponseType * SOAP_FMAC4 soap_in_ec2__DescribeSnapshotsSetItemResponseType(struct soap*, const char*, struct ec2__DescribeSnapshotsSetItemResponseType *, const char*);
 
-#define soap_write_ec2__DescribeSnapshotsSetItemResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DescribeSnapshotsSetItemResponseType(soap, data), 0) || soap_put_ec2__DescribeSnapshotsSetItemResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DescribeSnapshotsSetItemResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DescribeSnapshotsSetItemResponseType(soap, data), 0) || soap_put_ec2__DescribeSnapshotsSetItemResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DescribeSnapshotsSetItemResponseType(struct soap*, const struct ec2__DescribeSnapshotsSetItemResponseType *, const char*, const char*);
 
-#define soap_read_ec2__DescribeSnapshotsSetItemResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DescribeSnapshotsSetItemResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DescribeSnapshotsSetItemResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DescribeSnapshotsSetItemResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeSnapshotsSetItemResponseType * SOAP_FMAC4 soap_get_ec2__DescribeSnapshotsSetItemResponseType(struct soap*, struct ec2__DescribeSnapshotsSetItemResponseType *, const char*, const char*);
 
@@ -1225,12 +1225,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DescribeSnapshotsSetResponseType(struct soap*, const char*, int, const struct ec2__DescribeSnapshotsSetResponseType *, const char*);
   SOAP_FMAC3 struct ec2__DescribeSnapshotsSetResponseType * SOAP_FMAC4 soap_in_ec2__DescribeSnapshotsSetResponseType(struct soap*, const char*, struct ec2__DescribeSnapshotsSetResponseType *, const char*);
 
-#define soap_write_ec2__DescribeSnapshotsSetResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DescribeSnapshotsSetResponseType(soap, data), 0) || soap_put_ec2__DescribeSnapshotsSetResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DescribeSnapshotsSetResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DescribeSnapshotsSetResponseType(soap, data), 0) || soap_put_ec2__DescribeSnapshotsSetResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DescribeSnapshotsSetResponseType(struct soap*, const struct ec2__DescribeSnapshotsSetResponseType *, const char*, const char*);
 
-#define soap_read_ec2__DescribeSnapshotsSetResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DescribeSnapshotsSetResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DescribeSnapshotsSetResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DescribeSnapshotsSetResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeSnapshotsSetResponseType * SOAP_FMAC4 soap_get_ec2__DescribeSnapshotsSetResponseType(struct soap*, struct ec2__DescribeSnapshotsSetResponseType *, const char*, const char*);
 
@@ -1242,12 +1242,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DescribeSnapshotsResponseType(struct soap*, const char*, int, const struct ec2__DescribeSnapshotsResponseType *, const char*);
   SOAP_FMAC3 struct ec2__DescribeSnapshotsResponseType * SOAP_FMAC4 soap_in_ec2__DescribeSnapshotsResponseType(struct soap*, const char*, struct ec2__DescribeSnapshotsResponseType *, const char*);
 
-#define soap_write_ec2__DescribeSnapshotsResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DescribeSnapshotsResponseType(soap, data), 0) || soap_put_ec2__DescribeSnapshotsResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DescribeSnapshotsResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DescribeSnapshotsResponseType(soap, data), 0) || soap_put_ec2__DescribeSnapshotsResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DescribeSnapshotsResponseType(struct soap*, const struct ec2__DescribeSnapshotsResponseType *, const char*, const char*);
 
-#define soap_read_ec2__DescribeSnapshotsResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DescribeSnapshotsResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DescribeSnapshotsResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DescribeSnapshotsResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeSnapshotsResponseType * SOAP_FMAC4 soap_get_ec2__DescribeSnapshotsResponseType(struct soap*, struct ec2__DescribeSnapshotsResponseType *, const char*, const char*);
 
@@ -1259,12 +1259,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DescribeSnapshotsSetItemType(struct soap*, const char*, int, const struct ec2__DescribeSnapshotsSetItemType *, const char*);
   SOAP_FMAC3 struct ec2__DescribeSnapshotsSetItemType * SOAP_FMAC4 soap_in_ec2__DescribeSnapshotsSetItemType(struct soap*, const char*, struct ec2__DescribeSnapshotsSetItemType *, const char*);
 
-#define soap_write_ec2__DescribeSnapshotsSetItemType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DescribeSnapshotsSetItemType(soap, data), 0) || soap_put_ec2__DescribeSnapshotsSetItemType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DescribeSnapshotsSetItemType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DescribeSnapshotsSetItemType(soap, data), 0) || soap_put_ec2__DescribeSnapshotsSetItemType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DescribeSnapshotsSetItemType(struct soap*, const struct ec2__DescribeSnapshotsSetItemType *, const char*, const char*);
 
-#define soap_read_ec2__DescribeSnapshotsSetItemType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DescribeSnapshotsSetItemType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DescribeSnapshotsSetItemType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DescribeSnapshotsSetItemType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeSnapshotsSetItemType * SOAP_FMAC4 soap_get_ec2__DescribeSnapshotsSetItemType(struct soap*, struct ec2__DescribeSnapshotsSetItemType *, const char*, const char*);
 
@@ -1276,12 +1276,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DescribeSnapshotsSetType(struct soap*, const char*, int, const struct ec2__DescribeSnapshotsSetType *, const char*);
   SOAP_FMAC3 struct ec2__DescribeSnapshotsSetType * SOAP_FMAC4 soap_in_ec2__DescribeSnapshotsSetType(struct soap*, const char*, struct ec2__DescribeSnapshotsSetType *, const char*);
 
-#define soap_write_ec2__DescribeSnapshotsSetType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DescribeSnapshotsSetType(soap, data), 0) || soap_put_ec2__DescribeSnapshotsSetType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DescribeSnapshotsSetType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DescribeSnapshotsSetType(soap, data), 0) || soap_put_ec2__DescribeSnapshotsSetType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DescribeSnapshotsSetType(struct soap*, const struct ec2__DescribeSnapshotsSetType *, const char*, const char*);
 
-#define soap_read_ec2__DescribeSnapshotsSetType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DescribeSnapshotsSetType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DescribeSnapshotsSetType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DescribeSnapshotsSetType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeSnapshotsSetType * SOAP_FMAC4 soap_get_ec2__DescribeSnapshotsSetType(struct soap*, struct ec2__DescribeSnapshotsSetType *, const char*, const char*);
 
@@ -1293,12 +1293,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DescribeSnapshotsType(struct soap*, const char*, int, const struct ec2__DescribeSnapshotsType *, const char*);
   SOAP_FMAC3 struct ec2__DescribeSnapshotsType * SOAP_FMAC4 soap_in_ec2__DescribeSnapshotsType(struct soap*, const char*, struct ec2__DescribeSnapshotsType *, const char*);
 
-#define soap_write_ec2__DescribeSnapshotsType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DescribeSnapshotsType(soap, data), 0) || soap_put_ec2__DescribeSnapshotsType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DescribeSnapshotsType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DescribeSnapshotsType(soap, data), 0) || soap_put_ec2__DescribeSnapshotsType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DescribeSnapshotsType(struct soap*, const struct ec2__DescribeSnapshotsType *, const char*, const char*);
 
-#define soap_read_ec2__DescribeSnapshotsType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DescribeSnapshotsType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DescribeSnapshotsType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DescribeSnapshotsType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeSnapshotsType * SOAP_FMAC4 soap_get_ec2__DescribeSnapshotsType(struct soap*, struct ec2__DescribeSnapshotsType *, const char*, const char*);
 
@@ -1310,12 +1310,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DeleteSnapshotResponseType(struct soap*, const char*, int, const struct ec2__DeleteSnapshotResponseType *, const char*);
   SOAP_FMAC3 struct ec2__DeleteSnapshotResponseType * SOAP_FMAC4 soap_in_ec2__DeleteSnapshotResponseType(struct soap*, const char*, struct ec2__DeleteSnapshotResponseType *, const char*);
 
-#define soap_write_ec2__DeleteSnapshotResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DeleteSnapshotResponseType(soap, data), 0) || soap_put_ec2__DeleteSnapshotResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DeleteSnapshotResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DeleteSnapshotResponseType(soap, data), 0) || soap_put_ec2__DeleteSnapshotResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DeleteSnapshotResponseType(struct soap*, const struct ec2__DeleteSnapshotResponseType *, const char*, const char*);
 
-#define soap_read_ec2__DeleteSnapshotResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DeleteSnapshotResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DeleteSnapshotResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DeleteSnapshotResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DeleteSnapshotResponseType * SOAP_FMAC4 soap_get_ec2__DeleteSnapshotResponseType(struct soap*, struct ec2__DeleteSnapshotResponseType *, const char*, const char*);
 
@@ -1327,12 +1327,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DeleteSnapshotType(struct soap*, const char*, int, const struct ec2__DeleteSnapshotType *, const char*);
   SOAP_FMAC3 struct ec2__DeleteSnapshotType * SOAP_FMAC4 soap_in_ec2__DeleteSnapshotType(struct soap*, const char*, struct ec2__DeleteSnapshotType *, const char*);
 
-#define soap_write_ec2__DeleteSnapshotType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DeleteSnapshotType(soap, data), 0) || soap_put_ec2__DeleteSnapshotType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DeleteSnapshotType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DeleteSnapshotType(soap, data), 0) || soap_put_ec2__DeleteSnapshotType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DeleteSnapshotType(struct soap*, const struct ec2__DeleteSnapshotType *, const char*, const char*);
 
-#define soap_read_ec2__DeleteSnapshotType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DeleteSnapshotType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DeleteSnapshotType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DeleteSnapshotType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DeleteSnapshotType * SOAP_FMAC4 soap_get_ec2__DeleteSnapshotType(struct soap*, struct ec2__DeleteSnapshotType *, const char*, const char*);
 
@@ -1344,12 +1344,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__CreateSnapshotResponseType(struct soap*, const char*, int, const struct ec2__CreateSnapshotResponseType *, const char*);
   SOAP_FMAC3 struct ec2__CreateSnapshotResponseType * SOAP_FMAC4 soap_in_ec2__CreateSnapshotResponseType(struct soap*, const char*, struct ec2__CreateSnapshotResponseType *, const char*);
 
-#define soap_write_ec2__CreateSnapshotResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__CreateSnapshotResponseType(soap, data), 0) || soap_put_ec2__CreateSnapshotResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__CreateSnapshotResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__CreateSnapshotResponseType(soap, data), 0) || soap_put_ec2__CreateSnapshotResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__CreateSnapshotResponseType(struct soap*, const struct ec2__CreateSnapshotResponseType *, const char*, const char*);
 
-#define soap_read_ec2__CreateSnapshotResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__CreateSnapshotResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__CreateSnapshotResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__CreateSnapshotResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__CreateSnapshotResponseType * SOAP_FMAC4 soap_get_ec2__CreateSnapshotResponseType(struct soap*, struct ec2__CreateSnapshotResponseType *, const char*, const char*);
 
@@ -1361,12 +1361,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__CreateSnapshotType(struct soap*, const char*, int, const struct ec2__CreateSnapshotType *, const char*);
   SOAP_FMAC3 struct ec2__CreateSnapshotType * SOAP_FMAC4 soap_in_ec2__CreateSnapshotType(struct soap*, const char*, struct ec2__CreateSnapshotType *, const char*);
 
-#define soap_write_ec2__CreateSnapshotType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__CreateSnapshotType(soap, data), 0) || soap_put_ec2__CreateSnapshotType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__CreateSnapshotType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__CreateSnapshotType(soap, data), 0) || soap_put_ec2__CreateSnapshotType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__CreateSnapshotType(struct soap*, const struct ec2__CreateSnapshotType *, const char*, const char*);
 
-#define soap_read_ec2__CreateSnapshotType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__CreateSnapshotType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__CreateSnapshotType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__CreateSnapshotType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__CreateSnapshotType * SOAP_FMAC4 soap_get_ec2__CreateSnapshotType(struct soap*, struct ec2__CreateSnapshotType *, const char*, const char*);
 
@@ -1378,12 +1378,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DetachVolumeResponseType(struct soap*, const char*, int, const struct ec2__DetachVolumeResponseType *, const char*);
   SOAP_FMAC3 struct ec2__DetachVolumeResponseType * SOAP_FMAC4 soap_in_ec2__DetachVolumeResponseType(struct soap*, const char*, struct ec2__DetachVolumeResponseType *, const char*);
 
-#define soap_write_ec2__DetachVolumeResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DetachVolumeResponseType(soap, data), 0) || soap_put_ec2__DetachVolumeResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DetachVolumeResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DetachVolumeResponseType(soap, data), 0) || soap_put_ec2__DetachVolumeResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DetachVolumeResponseType(struct soap*, const struct ec2__DetachVolumeResponseType *, const char*, const char*);
 
-#define soap_read_ec2__DetachVolumeResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DetachVolumeResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DetachVolumeResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DetachVolumeResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DetachVolumeResponseType * SOAP_FMAC4 soap_get_ec2__DetachVolumeResponseType(struct soap*, struct ec2__DetachVolumeResponseType *, const char*, const char*);
 
@@ -1395,12 +1395,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DetachVolumeType(struct soap*, const char*, int, const struct ec2__DetachVolumeType *, const char*);
   SOAP_FMAC3 struct ec2__DetachVolumeType * SOAP_FMAC4 soap_in_ec2__DetachVolumeType(struct soap*, const char*, struct ec2__DetachVolumeType *, const char*);
 
-#define soap_write_ec2__DetachVolumeType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DetachVolumeType(soap, data), 0) || soap_put_ec2__DetachVolumeType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DetachVolumeType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DetachVolumeType(soap, data), 0) || soap_put_ec2__DetachVolumeType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DetachVolumeType(struct soap*, const struct ec2__DetachVolumeType *, const char*, const char*);
 
-#define soap_read_ec2__DetachVolumeType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DetachVolumeType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DetachVolumeType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DetachVolumeType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DetachVolumeType * SOAP_FMAC4 soap_get_ec2__DetachVolumeType(struct soap*, struct ec2__DetachVolumeType *, const char*, const char*);
 
@@ -1412,12 +1412,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__AttachVolumeResponseType(struct soap*, const char*, int, const struct ec2__AttachVolumeResponseType *, const char*);
   SOAP_FMAC3 struct ec2__AttachVolumeResponseType * SOAP_FMAC4 soap_in_ec2__AttachVolumeResponseType(struct soap*, const char*, struct ec2__AttachVolumeResponseType *, const char*);
 
-#define soap_write_ec2__AttachVolumeResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__AttachVolumeResponseType(soap, data), 0) || soap_put_ec2__AttachVolumeResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__AttachVolumeResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__AttachVolumeResponseType(soap, data), 0) || soap_put_ec2__AttachVolumeResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__AttachVolumeResponseType(struct soap*, const struct ec2__AttachVolumeResponseType *, const char*, const char*);
 
-#define soap_read_ec2__AttachVolumeResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__AttachVolumeResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__AttachVolumeResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__AttachVolumeResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__AttachVolumeResponseType * SOAP_FMAC4 soap_get_ec2__AttachVolumeResponseType(struct soap*, struct ec2__AttachVolumeResponseType *, const char*, const char*);
 
@@ -1429,12 +1429,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__AttachVolumeType(struct soap*, const char*, int, const struct ec2__AttachVolumeType *, const char*);
   SOAP_FMAC3 struct ec2__AttachVolumeType * SOAP_FMAC4 soap_in_ec2__AttachVolumeType(struct soap*, const char*, struct ec2__AttachVolumeType *, const char*);
 
-#define soap_write_ec2__AttachVolumeType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__AttachVolumeType(soap, data), 0) || soap_put_ec2__AttachVolumeType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__AttachVolumeType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__AttachVolumeType(soap, data), 0) || soap_put_ec2__AttachVolumeType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__AttachVolumeType(struct soap*, const struct ec2__AttachVolumeType *, const char*, const char*);
 
-#define soap_read_ec2__AttachVolumeType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__AttachVolumeType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__AttachVolumeType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__AttachVolumeType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__AttachVolumeType * SOAP_FMAC4 soap_get_ec2__AttachVolumeType(struct soap*, struct ec2__AttachVolumeType *, const char*, const char*);
 
@@ -1446,12 +1446,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__AttachmentSetItemResponseType(struct soap*, const char*, int, const struct ec2__AttachmentSetItemResponseType *, const char*);
   SOAP_FMAC3 struct ec2__AttachmentSetItemResponseType * SOAP_FMAC4 soap_in_ec2__AttachmentSetItemResponseType(struct soap*, const char*, struct ec2__AttachmentSetItemResponseType *, const char*);
 
-#define soap_write_ec2__AttachmentSetItemResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__AttachmentSetItemResponseType(soap, data), 0) || soap_put_ec2__AttachmentSetItemResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__AttachmentSetItemResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__AttachmentSetItemResponseType(soap, data), 0) || soap_put_ec2__AttachmentSetItemResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__AttachmentSetItemResponseType(struct soap*, const struct ec2__AttachmentSetItemResponseType *, const char*, const char*);
 
-#define soap_read_ec2__AttachmentSetItemResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__AttachmentSetItemResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__AttachmentSetItemResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__AttachmentSetItemResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__AttachmentSetItemResponseType * SOAP_FMAC4 soap_get_ec2__AttachmentSetItemResponseType(struct soap*, struct ec2__AttachmentSetItemResponseType *, const char*, const char*);
 
@@ -1463,12 +1463,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__AttachmentSetResponseType(struct soap*, const char*, int, const struct ec2__AttachmentSetResponseType *, const char*);
   SOAP_FMAC3 struct ec2__AttachmentSetResponseType * SOAP_FMAC4 soap_in_ec2__AttachmentSetResponseType(struct soap*, const char*, struct ec2__AttachmentSetResponseType *, const char*);
 
-#define soap_write_ec2__AttachmentSetResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__AttachmentSetResponseType(soap, data), 0) || soap_put_ec2__AttachmentSetResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__AttachmentSetResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__AttachmentSetResponseType(soap, data), 0) || soap_put_ec2__AttachmentSetResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__AttachmentSetResponseType(struct soap*, const struct ec2__AttachmentSetResponseType *, const char*, const char*);
 
-#define soap_read_ec2__AttachmentSetResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__AttachmentSetResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__AttachmentSetResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__AttachmentSetResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__AttachmentSetResponseType * SOAP_FMAC4 soap_get_ec2__AttachmentSetResponseType(struct soap*, struct ec2__AttachmentSetResponseType *, const char*, const char*);
 
@@ -1480,12 +1480,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DescribeVolumesSetItemResponseType(struct soap*, const char*, int, const struct ec2__DescribeVolumesSetItemResponseType *, const char*);
   SOAP_FMAC3 struct ec2__DescribeVolumesSetItemResponseType * SOAP_FMAC4 soap_in_ec2__DescribeVolumesSetItemResponseType(struct soap*, const char*, struct ec2__DescribeVolumesSetItemResponseType *, const char*);
 
-#define soap_write_ec2__DescribeVolumesSetItemResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DescribeVolumesSetItemResponseType(soap, data), 0) || soap_put_ec2__DescribeVolumesSetItemResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DescribeVolumesSetItemResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DescribeVolumesSetItemResponseType(soap, data), 0) || soap_put_ec2__DescribeVolumesSetItemResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DescribeVolumesSetItemResponseType(struct soap*, const struct ec2__DescribeVolumesSetItemResponseType *, const char*, const char*);
 
-#define soap_read_ec2__DescribeVolumesSetItemResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DescribeVolumesSetItemResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DescribeVolumesSetItemResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DescribeVolumesSetItemResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeVolumesSetItemResponseType * SOAP_FMAC4 soap_get_ec2__DescribeVolumesSetItemResponseType(struct soap*, struct ec2__DescribeVolumesSetItemResponseType *, const char*, const char*);
 
@@ -1497,12 +1497,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DescribeVolumesSetResponseType(struct soap*, const char*, int, const struct ec2__DescribeVolumesSetResponseType *, const char*);
   SOAP_FMAC3 struct ec2__DescribeVolumesSetResponseType * SOAP_FMAC4 soap_in_ec2__DescribeVolumesSetResponseType(struct soap*, const char*, struct ec2__DescribeVolumesSetResponseType *, const char*);
 
-#define soap_write_ec2__DescribeVolumesSetResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DescribeVolumesSetResponseType(soap, data), 0) || soap_put_ec2__DescribeVolumesSetResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DescribeVolumesSetResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DescribeVolumesSetResponseType(soap, data), 0) || soap_put_ec2__DescribeVolumesSetResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DescribeVolumesSetResponseType(struct soap*, const struct ec2__DescribeVolumesSetResponseType *, const char*, const char*);
 
-#define soap_read_ec2__DescribeVolumesSetResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DescribeVolumesSetResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DescribeVolumesSetResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DescribeVolumesSetResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeVolumesSetResponseType * SOAP_FMAC4 soap_get_ec2__DescribeVolumesSetResponseType(struct soap*, struct ec2__DescribeVolumesSetResponseType *, const char*, const char*);
 
@@ -1514,12 +1514,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DescribeVolumesResponseType(struct soap*, const char*, int, const struct ec2__DescribeVolumesResponseType *, const char*);
   SOAP_FMAC3 struct ec2__DescribeVolumesResponseType * SOAP_FMAC4 soap_in_ec2__DescribeVolumesResponseType(struct soap*, const char*, struct ec2__DescribeVolumesResponseType *, const char*);
 
-#define soap_write_ec2__DescribeVolumesResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DescribeVolumesResponseType(soap, data), 0) || soap_put_ec2__DescribeVolumesResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DescribeVolumesResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DescribeVolumesResponseType(soap, data), 0) || soap_put_ec2__DescribeVolumesResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DescribeVolumesResponseType(struct soap*, const struct ec2__DescribeVolumesResponseType *, const char*, const char*);
 
-#define soap_read_ec2__DescribeVolumesResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DescribeVolumesResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DescribeVolumesResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DescribeVolumesResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeVolumesResponseType * SOAP_FMAC4 soap_get_ec2__DescribeVolumesResponseType(struct soap*, struct ec2__DescribeVolumesResponseType *, const char*, const char*);
 
@@ -1531,12 +1531,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DescribeVolumesSetItemType(struct soap*, const char*, int, const struct ec2__DescribeVolumesSetItemType *, const char*);
   SOAP_FMAC3 struct ec2__DescribeVolumesSetItemType * SOAP_FMAC4 soap_in_ec2__DescribeVolumesSetItemType(struct soap*, const char*, struct ec2__DescribeVolumesSetItemType *, const char*);
 
-#define soap_write_ec2__DescribeVolumesSetItemType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DescribeVolumesSetItemType(soap, data), 0) || soap_put_ec2__DescribeVolumesSetItemType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DescribeVolumesSetItemType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DescribeVolumesSetItemType(soap, data), 0) || soap_put_ec2__DescribeVolumesSetItemType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DescribeVolumesSetItemType(struct soap*, const struct ec2__DescribeVolumesSetItemType *, const char*, const char*);
 
-#define soap_read_ec2__DescribeVolumesSetItemType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DescribeVolumesSetItemType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DescribeVolumesSetItemType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DescribeVolumesSetItemType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeVolumesSetItemType * SOAP_FMAC4 soap_get_ec2__DescribeVolumesSetItemType(struct soap*, struct ec2__DescribeVolumesSetItemType *, const char*, const char*);
 
@@ -1548,12 +1548,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DescribeVolumesSetType(struct soap*, const char*, int, const struct ec2__DescribeVolumesSetType *, const char*);
   SOAP_FMAC3 struct ec2__DescribeVolumesSetType * SOAP_FMAC4 soap_in_ec2__DescribeVolumesSetType(struct soap*, const char*, struct ec2__DescribeVolumesSetType *, const char*);
 
-#define soap_write_ec2__DescribeVolumesSetType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DescribeVolumesSetType(soap, data), 0) || soap_put_ec2__DescribeVolumesSetType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DescribeVolumesSetType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DescribeVolumesSetType(soap, data), 0) || soap_put_ec2__DescribeVolumesSetType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DescribeVolumesSetType(struct soap*, const struct ec2__DescribeVolumesSetType *, const char*, const char*);
 
-#define soap_read_ec2__DescribeVolumesSetType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DescribeVolumesSetType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DescribeVolumesSetType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DescribeVolumesSetType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeVolumesSetType * SOAP_FMAC4 soap_get_ec2__DescribeVolumesSetType(struct soap*, struct ec2__DescribeVolumesSetType *, const char*, const char*);
 
@@ -1565,12 +1565,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DescribeVolumesType(struct soap*, const char*, int, const struct ec2__DescribeVolumesType *, const char*);
   SOAP_FMAC3 struct ec2__DescribeVolumesType * SOAP_FMAC4 soap_in_ec2__DescribeVolumesType(struct soap*, const char*, struct ec2__DescribeVolumesType *, const char*);
 
-#define soap_write_ec2__DescribeVolumesType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DescribeVolumesType(soap, data), 0) || soap_put_ec2__DescribeVolumesType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DescribeVolumesType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DescribeVolumesType(soap, data), 0) || soap_put_ec2__DescribeVolumesType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DescribeVolumesType(struct soap*, const struct ec2__DescribeVolumesType *, const char*, const char*);
 
-#define soap_read_ec2__DescribeVolumesType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DescribeVolumesType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DescribeVolumesType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DescribeVolumesType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeVolumesType * SOAP_FMAC4 soap_get_ec2__DescribeVolumesType(struct soap*, struct ec2__DescribeVolumesType *, const char*, const char*);
 
@@ -1582,12 +1582,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DeleteVolumeResponseType(struct soap*, const char*, int, const struct ec2__DeleteVolumeResponseType *, const char*);
   SOAP_FMAC3 struct ec2__DeleteVolumeResponseType * SOAP_FMAC4 soap_in_ec2__DeleteVolumeResponseType(struct soap*, const char*, struct ec2__DeleteVolumeResponseType *, const char*);
 
-#define soap_write_ec2__DeleteVolumeResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DeleteVolumeResponseType(soap, data), 0) || soap_put_ec2__DeleteVolumeResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DeleteVolumeResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DeleteVolumeResponseType(soap, data), 0) || soap_put_ec2__DeleteVolumeResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DeleteVolumeResponseType(struct soap*, const struct ec2__DeleteVolumeResponseType *, const char*, const char*);
 
-#define soap_read_ec2__DeleteVolumeResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DeleteVolumeResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DeleteVolumeResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DeleteVolumeResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DeleteVolumeResponseType * SOAP_FMAC4 soap_get_ec2__DeleteVolumeResponseType(struct soap*, struct ec2__DeleteVolumeResponseType *, const char*, const char*);
 
@@ -1599,12 +1599,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DeleteVolumeType(struct soap*, const char*, int, const struct ec2__DeleteVolumeType *, const char*);
   SOAP_FMAC3 struct ec2__DeleteVolumeType * SOAP_FMAC4 soap_in_ec2__DeleteVolumeType(struct soap*, const char*, struct ec2__DeleteVolumeType *, const char*);
 
-#define soap_write_ec2__DeleteVolumeType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DeleteVolumeType(soap, data), 0) || soap_put_ec2__DeleteVolumeType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DeleteVolumeType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DeleteVolumeType(soap, data), 0) || soap_put_ec2__DeleteVolumeType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DeleteVolumeType(struct soap*, const struct ec2__DeleteVolumeType *, const char*, const char*);
 
-#define soap_read_ec2__DeleteVolumeType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DeleteVolumeType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DeleteVolumeType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DeleteVolumeType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DeleteVolumeType * SOAP_FMAC4 soap_get_ec2__DeleteVolumeType(struct soap*, struct ec2__DeleteVolumeType *, const char*, const char*);
 
@@ -1616,12 +1616,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__CreateVolumeResponseType(struct soap*, const char*, int, const struct ec2__CreateVolumeResponseType *, const char*);
   SOAP_FMAC3 struct ec2__CreateVolumeResponseType * SOAP_FMAC4 soap_in_ec2__CreateVolumeResponseType(struct soap*, const char*, struct ec2__CreateVolumeResponseType *, const char*);
 
-#define soap_write_ec2__CreateVolumeResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__CreateVolumeResponseType(soap, data), 0) || soap_put_ec2__CreateVolumeResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__CreateVolumeResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__CreateVolumeResponseType(soap, data), 0) || soap_put_ec2__CreateVolumeResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__CreateVolumeResponseType(struct soap*, const struct ec2__CreateVolumeResponseType *, const char*, const char*);
 
-#define soap_read_ec2__CreateVolumeResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__CreateVolumeResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__CreateVolumeResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__CreateVolumeResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__CreateVolumeResponseType * SOAP_FMAC4 soap_get_ec2__CreateVolumeResponseType(struct soap*, struct ec2__CreateVolumeResponseType *, const char*, const char*);
 
@@ -1633,12 +1633,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__CreateVolumeType(struct soap*, const char*, int, const struct ec2__CreateVolumeType *, const char*);
   SOAP_FMAC3 struct ec2__CreateVolumeType * SOAP_FMAC4 soap_in_ec2__CreateVolumeType(struct soap*, const char*, struct ec2__CreateVolumeType *, const char*);
 
-#define soap_write_ec2__CreateVolumeType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__CreateVolumeType(soap, data), 0) || soap_put_ec2__CreateVolumeType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__CreateVolumeType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__CreateVolumeType(soap, data), 0) || soap_put_ec2__CreateVolumeType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__CreateVolumeType(struct soap*, const struct ec2__CreateVolumeType *, const char*, const char*);
 
-#define soap_read_ec2__CreateVolumeType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__CreateVolumeType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__CreateVolumeType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__CreateVolumeType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__CreateVolumeType * SOAP_FMAC4 soap_get_ec2__CreateVolumeType(struct soap*, struct ec2__CreateVolumeType *, const char*, const char*);
 
@@ -1650,12 +1650,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DisassociateAddressResponseType(struct soap*, const char*, int, const struct ec2__DisassociateAddressResponseType *, const char*);
   SOAP_FMAC3 struct ec2__DisassociateAddressResponseType * SOAP_FMAC4 soap_in_ec2__DisassociateAddressResponseType(struct soap*, const char*, struct ec2__DisassociateAddressResponseType *, const char*);
 
-#define soap_write_ec2__DisassociateAddressResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DisassociateAddressResponseType(soap, data), 0) || soap_put_ec2__DisassociateAddressResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DisassociateAddressResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DisassociateAddressResponseType(soap, data), 0) || soap_put_ec2__DisassociateAddressResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DisassociateAddressResponseType(struct soap*, const struct ec2__DisassociateAddressResponseType *, const char*, const char*);
 
-#define soap_read_ec2__DisassociateAddressResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DisassociateAddressResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DisassociateAddressResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DisassociateAddressResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DisassociateAddressResponseType * SOAP_FMAC4 soap_get_ec2__DisassociateAddressResponseType(struct soap*, struct ec2__DisassociateAddressResponseType *, const char*, const char*);
 
@@ -1667,12 +1667,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DisassociateAddressType(struct soap*, const char*, int, const struct ec2__DisassociateAddressType *, const char*);
   SOAP_FMAC3 struct ec2__DisassociateAddressType * SOAP_FMAC4 soap_in_ec2__DisassociateAddressType(struct soap*, const char*, struct ec2__DisassociateAddressType *, const char*);
 
-#define soap_write_ec2__DisassociateAddressType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DisassociateAddressType(soap, data), 0) || soap_put_ec2__DisassociateAddressType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DisassociateAddressType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DisassociateAddressType(soap, data), 0) || soap_put_ec2__DisassociateAddressType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DisassociateAddressType(struct soap*, const struct ec2__DisassociateAddressType *, const char*, const char*);
 
-#define soap_read_ec2__DisassociateAddressType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DisassociateAddressType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DisassociateAddressType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DisassociateAddressType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DisassociateAddressType * SOAP_FMAC4 soap_get_ec2__DisassociateAddressType(struct soap*, struct ec2__DisassociateAddressType *, const char*, const char*);
 
@@ -1684,12 +1684,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__AssociateAddressResponseType(struct soap*, const char*, int, const struct ec2__AssociateAddressResponseType *, const char*);
   SOAP_FMAC3 struct ec2__AssociateAddressResponseType * SOAP_FMAC4 soap_in_ec2__AssociateAddressResponseType(struct soap*, const char*, struct ec2__AssociateAddressResponseType *, const char*);
 
-#define soap_write_ec2__AssociateAddressResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__AssociateAddressResponseType(soap, data), 0) || soap_put_ec2__AssociateAddressResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__AssociateAddressResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__AssociateAddressResponseType(soap, data), 0) || soap_put_ec2__AssociateAddressResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__AssociateAddressResponseType(struct soap*, const struct ec2__AssociateAddressResponseType *, const char*, const char*);
 
-#define soap_read_ec2__AssociateAddressResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__AssociateAddressResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__AssociateAddressResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__AssociateAddressResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__AssociateAddressResponseType * SOAP_FMAC4 soap_get_ec2__AssociateAddressResponseType(struct soap*, struct ec2__AssociateAddressResponseType *, const char*, const char*);
 
@@ -1701,12 +1701,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__AssociateAddressType(struct soap*, const char*, int, const struct ec2__AssociateAddressType *, const char*);
   SOAP_FMAC3 struct ec2__AssociateAddressType * SOAP_FMAC4 soap_in_ec2__AssociateAddressType(struct soap*, const char*, struct ec2__AssociateAddressType *, const char*);
 
-#define soap_write_ec2__AssociateAddressType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__AssociateAddressType(soap, data), 0) || soap_put_ec2__AssociateAddressType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__AssociateAddressType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__AssociateAddressType(soap, data), 0) || soap_put_ec2__AssociateAddressType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__AssociateAddressType(struct soap*, const struct ec2__AssociateAddressType *, const char*, const char*);
 
-#define soap_read_ec2__AssociateAddressType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__AssociateAddressType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__AssociateAddressType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__AssociateAddressType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__AssociateAddressType * SOAP_FMAC4 soap_get_ec2__AssociateAddressType(struct soap*, struct ec2__AssociateAddressType *, const char*, const char*);
 
@@ -1718,12 +1718,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DescribeAddressesResponseItemType(struct soap*, const char*, int, const struct ec2__DescribeAddressesResponseItemType *, const char*);
   SOAP_FMAC3 struct ec2__DescribeAddressesResponseItemType * SOAP_FMAC4 soap_in_ec2__DescribeAddressesResponseItemType(struct soap*, const char*, struct ec2__DescribeAddressesResponseItemType *, const char*);
 
-#define soap_write_ec2__DescribeAddressesResponseItemType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DescribeAddressesResponseItemType(soap, data), 0) || soap_put_ec2__DescribeAddressesResponseItemType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DescribeAddressesResponseItemType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DescribeAddressesResponseItemType(soap, data), 0) || soap_put_ec2__DescribeAddressesResponseItemType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DescribeAddressesResponseItemType(struct soap*, const struct ec2__DescribeAddressesResponseItemType *, const char*, const char*);
 
-#define soap_read_ec2__DescribeAddressesResponseItemType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DescribeAddressesResponseItemType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DescribeAddressesResponseItemType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DescribeAddressesResponseItemType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeAddressesResponseItemType * SOAP_FMAC4 soap_get_ec2__DescribeAddressesResponseItemType(struct soap*, struct ec2__DescribeAddressesResponseItemType *, const char*, const char*);
 
@@ -1735,12 +1735,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DescribeAddressesResponseInfoType(struct soap*, const char*, int, const struct ec2__DescribeAddressesResponseInfoType *, const char*);
   SOAP_FMAC3 struct ec2__DescribeAddressesResponseInfoType * SOAP_FMAC4 soap_in_ec2__DescribeAddressesResponseInfoType(struct soap*, const char*, struct ec2__DescribeAddressesResponseInfoType *, const char*);
 
-#define soap_write_ec2__DescribeAddressesResponseInfoType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DescribeAddressesResponseInfoType(soap, data), 0) || soap_put_ec2__DescribeAddressesResponseInfoType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DescribeAddressesResponseInfoType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DescribeAddressesResponseInfoType(soap, data), 0) || soap_put_ec2__DescribeAddressesResponseInfoType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DescribeAddressesResponseInfoType(struct soap*, const struct ec2__DescribeAddressesResponseInfoType *, const char*, const char*);
 
-#define soap_read_ec2__DescribeAddressesResponseInfoType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DescribeAddressesResponseInfoType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DescribeAddressesResponseInfoType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DescribeAddressesResponseInfoType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeAddressesResponseInfoType * SOAP_FMAC4 soap_get_ec2__DescribeAddressesResponseInfoType(struct soap*, struct ec2__DescribeAddressesResponseInfoType *, const char*, const char*);
 
@@ -1752,12 +1752,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DescribeAddressesResponseType(struct soap*, const char*, int, const struct ec2__DescribeAddressesResponseType *, const char*);
   SOAP_FMAC3 struct ec2__DescribeAddressesResponseType * SOAP_FMAC4 soap_in_ec2__DescribeAddressesResponseType(struct soap*, const char*, struct ec2__DescribeAddressesResponseType *, const char*);
 
-#define soap_write_ec2__DescribeAddressesResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DescribeAddressesResponseType(soap, data), 0) || soap_put_ec2__DescribeAddressesResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DescribeAddressesResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DescribeAddressesResponseType(soap, data), 0) || soap_put_ec2__DescribeAddressesResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DescribeAddressesResponseType(struct soap*, const struct ec2__DescribeAddressesResponseType *, const char*, const char*);
 
-#define soap_read_ec2__DescribeAddressesResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DescribeAddressesResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DescribeAddressesResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DescribeAddressesResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeAddressesResponseType * SOAP_FMAC4 soap_get_ec2__DescribeAddressesResponseType(struct soap*, struct ec2__DescribeAddressesResponseType *, const char*, const char*);
 
@@ -1769,12 +1769,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DescribeAddressesItemType(struct soap*, const char*, int, const struct ec2__DescribeAddressesItemType *, const char*);
   SOAP_FMAC3 struct ec2__DescribeAddressesItemType * SOAP_FMAC4 soap_in_ec2__DescribeAddressesItemType(struct soap*, const char*, struct ec2__DescribeAddressesItemType *, const char*);
 
-#define soap_write_ec2__DescribeAddressesItemType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DescribeAddressesItemType(soap, data), 0) || soap_put_ec2__DescribeAddressesItemType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DescribeAddressesItemType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DescribeAddressesItemType(soap, data), 0) || soap_put_ec2__DescribeAddressesItemType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DescribeAddressesItemType(struct soap*, const struct ec2__DescribeAddressesItemType *, const char*, const char*);
 
-#define soap_read_ec2__DescribeAddressesItemType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DescribeAddressesItemType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DescribeAddressesItemType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DescribeAddressesItemType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeAddressesItemType * SOAP_FMAC4 soap_get_ec2__DescribeAddressesItemType(struct soap*, struct ec2__DescribeAddressesItemType *, const char*, const char*);
 
@@ -1786,12 +1786,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DescribeAddressesInfoType(struct soap*, const char*, int, const struct ec2__DescribeAddressesInfoType *, const char*);
   SOAP_FMAC3 struct ec2__DescribeAddressesInfoType * SOAP_FMAC4 soap_in_ec2__DescribeAddressesInfoType(struct soap*, const char*, struct ec2__DescribeAddressesInfoType *, const char*);
 
-#define soap_write_ec2__DescribeAddressesInfoType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DescribeAddressesInfoType(soap, data), 0) || soap_put_ec2__DescribeAddressesInfoType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DescribeAddressesInfoType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DescribeAddressesInfoType(soap, data), 0) || soap_put_ec2__DescribeAddressesInfoType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DescribeAddressesInfoType(struct soap*, const struct ec2__DescribeAddressesInfoType *, const char*, const char*);
 
-#define soap_read_ec2__DescribeAddressesInfoType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DescribeAddressesInfoType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DescribeAddressesInfoType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DescribeAddressesInfoType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeAddressesInfoType * SOAP_FMAC4 soap_get_ec2__DescribeAddressesInfoType(struct soap*, struct ec2__DescribeAddressesInfoType *, const char*, const char*);
 
@@ -1803,12 +1803,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DescribeAddressesType(struct soap*, const char*, int, const struct ec2__DescribeAddressesType *, const char*);
   SOAP_FMAC3 struct ec2__DescribeAddressesType * SOAP_FMAC4 soap_in_ec2__DescribeAddressesType(struct soap*, const char*, struct ec2__DescribeAddressesType *, const char*);
 
-#define soap_write_ec2__DescribeAddressesType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DescribeAddressesType(soap, data), 0) || soap_put_ec2__DescribeAddressesType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DescribeAddressesType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DescribeAddressesType(soap, data), 0) || soap_put_ec2__DescribeAddressesType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DescribeAddressesType(struct soap*, const struct ec2__DescribeAddressesType *, const char*, const char*);
 
-#define soap_read_ec2__DescribeAddressesType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DescribeAddressesType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DescribeAddressesType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DescribeAddressesType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeAddressesType * SOAP_FMAC4 soap_get_ec2__DescribeAddressesType(struct soap*, struct ec2__DescribeAddressesType *, const char*, const char*);
 
@@ -1820,12 +1820,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__ReleaseAddressResponseType(struct soap*, const char*, int, const struct ec2__ReleaseAddressResponseType *, const char*);
   SOAP_FMAC3 struct ec2__ReleaseAddressResponseType * SOAP_FMAC4 soap_in_ec2__ReleaseAddressResponseType(struct soap*, const char*, struct ec2__ReleaseAddressResponseType *, const char*);
 
-#define soap_write_ec2__ReleaseAddressResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__ReleaseAddressResponseType(soap, data), 0) || soap_put_ec2__ReleaseAddressResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__ReleaseAddressResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__ReleaseAddressResponseType(soap, data), 0) || soap_put_ec2__ReleaseAddressResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__ReleaseAddressResponseType(struct soap*, const struct ec2__ReleaseAddressResponseType *, const char*, const char*);
 
-#define soap_read_ec2__ReleaseAddressResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__ReleaseAddressResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__ReleaseAddressResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__ReleaseAddressResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__ReleaseAddressResponseType * SOAP_FMAC4 soap_get_ec2__ReleaseAddressResponseType(struct soap*, struct ec2__ReleaseAddressResponseType *, const char*, const char*);
 
@@ -1837,12 +1837,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__ReleaseAddressType(struct soap*, const char*, int, const struct ec2__ReleaseAddressType *, const char*);
   SOAP_FMAC3 struct ec2__ReleaseAddressType * SOAP_FMAC4 soap_in_ec2__ReleaseAddressType(struct soap*, const char*, struct ec2__ReleaseAddressType *, const char*);
 
-#define soap_write_ec2__ReleaseAddressType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__ReleaseAddressType(soap, data), 0) || soap_put_ec2__ReleaseAddressType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__ReleaseAddressType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__ReleaseAddressType(soap, data), 0) || soap_put_ec2__ReleaseAddressType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__ReleaseAddressType(struct soap*, const struct ec2__ReleaseAddressType *, const char*, const char*);
 
-#define soap_read_ec2__ReleaseAddressType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__ReleaseAddressType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__ReleaseAddressType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__ReleaseAddressType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__ReleaseAddressType * SOAP_FMAC4 soap_get_ec2__ReleaseAddressType(struct soap*, struct ec2__ReleaseAddressType *, const char*, const char*);
 
@@ -1854,12 +1854,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__AllocateAddressResponseType(struct soap*, const char*, int, const struct ec2__AllocateAddressResponseType *, const char*);
   SOAP_FMAC3 struct ec2__AllocateAddressResponseType * SOAP_FMAC4 soap_in_ec2__AllocateAddressResponseType(struct soap*, const char*, struct ec2__AllocateAddressResponseType *, const char*);
 
-#define soap_write_ec2__AllocateAddressResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__AllocateAddressResponseType(soap, data), 0) || soap_put_ec2__AllocateAddressResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__AllocateAddressResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__AllocateAddressResponseType(soap, data), 0) || soap_put_ec2__AllocateAddressResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__AllocateAddressResponseType(struct soap*, const struct ec2__AllocateAddressResponseType *, const char*, const char*);
 
-#define soap_read_ec2__AllocateAddressResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__AllocateAddressResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__AllocateAddressResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__AllocateAddressResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__AllocateAddressResponseType * SOAP_FMAC4 soap_get_ec2__AllocateAddressResponseType(struct soap*, struct ec2__AllocateAddressResponseType *, const char*, const char*);
 
@@ -1871,12 +1871,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__AllocateAddressType(struct soap*, const char*, int, const struct ec2__AllocateAddressType *, const char*);
   SOAP_FMAC3 struct ec2__AllocateAddressType * SOAP_FMAC4 soap_in_ec2__AllocateAddressType(struct soap*, const char*, struct ec2__AllocateAddressType *, const char*);
 
-#define soap_write_ec2__AllocateAddressType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__AllocateAddressType(soap, data), 0) || soap_put_ec2__AllocateAddressType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__AllocateAddressType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__AllocateAddressType(soap, data), 0) || soap_put_ec2__AllocateAddressType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__AllocateAddressType(struct soap*, const struct ec2__AllocateAddressType *, const char*, const char*);
 
-#define soap_read_ec2__AllocateAddressType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__AllocateAddressType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__AllocateAddressType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__AllocateAddressType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__AllocateAddressType * SOAP_FMAC4 soap_get_ec2__AllocateAddressType(struct soap*, struct ec2__AllocateAddressType *, const char*, const char*);
 
@@ -1888,12 +1888,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__AvailabilityZoneItemType(struct soap*, const char*, int, const struct ec2__AvailabilityZoneItemType *, const char*);
   SOAP_FMAC3 struct ec2__AvailabilityZoneItemType * SOAP_FMAC4 soap_in_ec2__AvailabilityZoneItemType(struct soap*, const char*, struct ec2__AvailabilityZoneItemType *, const char*);
 
-#define soap_write_ec2__AvailabilityZoneItemType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__AvailabilityZoneItemType(soap, data), 0) || soap_put_ec2__AvailabilityZoneItemType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__AvailabilityZoneItemType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__AvailabilityZoneItemType(soap, data), 0) || soap_put_ec2__AvailabilityZoneItemType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__AvailabilityZoneItemType(struct soap*, const struct ec2__AvailabilityZoneItemType *, const char*, const char*);
 
-#define soap_read_ec2__AvailabilityZoneItemType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__AvailabilityZoneItemType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__AvailabilityZoneItemType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__AvailabilityZoneItemType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__AvailabilityZoneItemType * SOAP_FMAC4 soap_get_ec2__AvailabilityZoneItemType(struct soap*, struct ec2__AvailabilityZoneItemType *, const char*, const char*);
 
@@ -1905,12 +1905,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__AvailabilityZoneSetType(struct soap*, const char*, int, const struct ec2__AvailabilityZoneSetType *, const char*);
   SOAP_FMAC3 struct ec2__AvailabilityZoneSetType * SOAP_FMAC4 soap_in_ec2__AvailabilityZoneSetType(struct soap*, const char*, struct ec2__AvailabilityZoneSetType *, const char*);
 
-#define soap_write_ec2__AvailabilityZoneSetType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__AvailabilityZoneSetType(soap, data), 0) || soap_put_ec2__AvailabilityZoneSetType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__AvailabilityZoneSetType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__AvailabilityZoneSetType(soap, data), 0) || soap_put_ec2__AvailabilityZoneSetType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__AvailabilityZoneSetType(struct soap*, const struct ec2__AvailabilityZoneSetType *, const char*, const char*);
 
-#define soap_read_ec2__AvailabilityZoneSetType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__AvailabilityZoneSetType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__AvailabilityZoneSetType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__AvailabilityZoneSetType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__AvailabilityZoneSetType * SOAP_FMAC4 soap_get_ec2__AvailabilityZoneSetType(struct soap*, struct ec2__AvailabilityZoneSetType *, const char*, const char*);
 
@@ -1922,12 +1922,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DescribeAvailabilityZonesResponseType(struct soap*, const char*, int, const struct ec2__DescribeAvailabilityZonesResponseType *, const char*);
   SOAP_FMAC3 struct ec2__DescribeAvailabilityZonesResponseType * SOAP_FMAC4 soap_in_ec2__DescribeAvailabilityZonesResponseType(struct soap*, const char*, struct ec2__DescribeAvailabilityZonesResponseType *, const char*);
 
-#define soap_write_ec2__DescribeAvailabilityZonesResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DescribeAvailabilityZonesResponseType(soap, data), 0) || soap_put_ec2__DescribeAvailabilityZonesResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DescribeAvailabilityZonesResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DescribeAvailabilityZonesResponseType(soap, data), 0) || soap_put_ec2__DescribeAvailabilityZonesResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DescribeAvailabilityZonesResponseType(struct soap*, const struct ec2__DescribeAvailabilityZonesResponseType *, const char*, const char*);
 
-#define soap_read_ec2__DescribeAvailabilityZonesResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DescribeAvailabilityZonesResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DescribeAvailabilityZonesResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DescribeAvailabilityZonesResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeAvailabilityZonesResponseType * SOAP_FMAC4 soap_get_ec2__DescribeAvailabilityZonesResponseType(struct soap*, struct ec2__DescribeAvailabilityZonesResponseType *, const char*, const char*);
 
@@ -1939,12 +1939,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DescribeAvailabilityZonesSetItemType(struct soap*, const char*, int, const struct ec2__DescribeAvailabilityZonesSetItemType *, const char*);
   SOAP_FMAC3 struct ec2__DescribeAvailabilityZonesSetItemType * SOAP_FMAC4 soap_in_ec2__DescribeAvailabilityZonesSetItemType(struct soap*, const char*, struct ec2__DescribeAvailabilityZonesSetItemType *, const char*);
 
-#define soap_write_ec2__DescribeAvailabilityZonesSetItemType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DescribeAvailabilityZonesSetItemType(soap, data), 0) || soap_put_ec2__DescribeAvailabilityZonesSetItemType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DescribeAvailabilityZonesSetItemType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DescribeAvailabilityZonesSetItemType(soap, data), 0) || soap_put_ec2__DescribeAvailabilityZonesSetItemType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DescribeAvailabilityZonesSetItemType(struct soap*, const struct ec2__DescribeAvailabilityZonesSetItemType *, const char*, const char*);
 
-#define soap_read_ec2__DescribeAvailabilityZonesSetItemType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DescribeAvailabilityZonesSetItemType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DescribeAvailabilityZonesSetItemType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DescribeAvailabilityZonesSetItemType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeAvailabilityZonesSetItemType * SOAP_FMAC4 soap_get_ec2__DescribeAvailabilityZonesSetItemType(struct soap*, struct ec2__DescribeAvailabilityZonesSetItemType *, const char*, const char*);
 
@@ -1956,12 +1956,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DescribeAvailabilityZonesSetType(struct soap*, const char*, int, const struct ec2__DescribeAvailabilityZonesSetType *, const char*);
   SOAP_FMAC3 struct ec2__DescribeAvailabilityZonesSetType * SOAP_FMAC4 soap_in_ec2__DescribeAvailabilityZonesSetType(struct soap*, const char*, struct ec2__DescribeAvailabilityZonesSetType *, const char*);
 
-#define soap_write_ec2__DescribeAvailabilityZonesSetType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DescribeAvailabilityZonesSetType(soap, data), 0) || soap_put_ec2__DescribeAvailabilityZonesSetType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DescribeAvailabilityZonesSetType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DescribeAvailabilityZonesSetType(soap, data), 0) || soap_put_ec2__DescribeAvailabilityZonesSetType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DescribeAvailabilityZonesSetType(struct soap*, const struct ec2__DescribeAvailabilityZonesSetType *, const char*, const char*);
 
-#define soap_read_ec2__DescribeAvailabilityZonesSetType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DescribeAvailabilityZonesSetType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DescribeAvailabilityZonesSetType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DescribeAvailabilityZonesSetType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeAvailabilityZonesSetType * SOAP_FMAC4 soap_get_ec2__DescribeAvailabilityZonesSetType(struct soap*, struct ec2__DescribeAvailabilityZonesSetType *, const char*, const char*);
 
@@ -1973,12 +1973,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DescribeAvailabilityZonesType(struct soap*, const char*, int, const struct ec2__DescribeAvailabilityZonesType *, const char*);
   SOAP_FMAC3 struct ec2__DescribeAvailabilityZonesType * SOAP_FMAC4 soap_in_ec2__DescribeAvailabilityZonesType(struct soap*, const char*, struct ec2__DescribeAvailabilityZonesType *, const char*);
 
-#define soap_write_ec2__DescribeAvailabilityZonesType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DescribeAvailabilityZonesType(soap, data), 0) || soap_put_ec2__DescribeAvailabilityZonesType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DescribeAvailabilityZonesType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DescribeAvailabilityZonesType(soap, data), 0) || soap_put_ec2__DescribeAvailabilityZonesType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DescribeAvailabilityZonesType(struct soap*, const struct ec2__DescribeAvailabilityZonesType *, const char*, const char*);
 
-#define soap_read_ec2__DescribeAvailabilityZonesType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DescribeAvailabilityZonesType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DescribeAvailabilityZonesType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DescribeAvailabilityZonesType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeAvailabilityZonesType * SOAP_FMAC4 soap_get_ec2__DescribeAvailabilityZonesType(struct soap*, struct ec2__DescribeAvailabilityZonesType *, const char*, const char*);
 
@@ -1990,12 +1990,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__ConfirmProductInstanceResponseType(struct soap*, const char*, int, const struct ec2__ConfirmProductInstanceResponseType *, const char*);
   SOAP_FMAC3 struct ec2__ConfirmProductInstanceResponseType * SOAP_FMAC4 soap_in_ec2__ConfirmProductInstanceResponseType(struct soap*, const char*, struct ec2__ConfirmProductInstanceResponseType *, const char*);
 
-#define soap_write_ec2__ConfirmProductInstanceResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__ConfirmProductInstanceResponseType(soap, data), 0) || soap_put_ec2__ConfirmProductInstanceResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__ConfirmProductInstanceResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__ConfirmProductInstanceResponseType(soap, data), 0) || soap_put_ec2__ConfirmProductInstanceResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__ConfirmProductInstanceResponseType(struct soap*, const struct ec2__ConfirmProductInstanceResponseType *, const char*, const char*);
 
-#define soap_read_ec2__ConfirmProductInstanceResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__ConfirmProductInstanceResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__ConfirmProductInstanceResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__ConfirmProductInstanceResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__ConfirmProductInstanceResponseType * SOAP_FMAC4 soap_get_ec2__ConfirmProductInstanceResponseType(struct soap*, struct ec2__ConfirmProductInstanceResponseType *, const char*, const char*);
 
@@ -2007,12 +2007,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__ProductCodesSetItemType(struct soap*, const char*, int, const struct ec2__ProductCodesSetItemType *, const char*);
   SOAP_FMAC3 struct ec2__ProductCodesSetItemType * SOAP_FMAC4 soap_in_ec2__ProductCodesSetItemType(struct soap*, const char*, struct ec2__ProductCodesSetItemType *, const char*);
 
-#define soap_write_ec2__ProductCodesSetItemType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__ProductCodesSetItemType(soap, data), 0) || soap_put_ec2__ProductCodesSetItemType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__ProductCodesSetItemType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__ProductCodesSetItemType(soap, data), 0) || soap_put_ec2__ProductCodesSetItemType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__ProductCodesSetItemType(struct soap*, const struct ec2__ProductCodesSetItemType *, const char*, const char*);
 
-#define soap_read_ec2__ProductCodesSetItemType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__ProductCodesSetItemType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__ProductCodesSetItemType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__ProductCodesSetItemType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__ProductCodesSetItemType * SOAP_FMAC4 soap_get_ec2__ProductCodesSetItemType(struct soap*, struct ec2__ProductCodesSetItemType *, const char*, const char*);
 
@@ -2024,12 +2024,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__ConfirmProductInstanceType(struct soap*, const char*, int, const struct ec2__ConfirmProductInstanceType *, const char*);
   SOAP_FMAC3 struct ec2__ConfirmProductInstanceType * SOAP_FMAC4 soap_in_ec2__ConfirmProductInstanceType(struct soap*, const char*, struct ec2__ConfirmProductInstanceType *, const char*);
 
-#define soap_write_ec2__ConfirmProductInstanceType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__ConfirmProductInstanceType(soap, data), 0) || soap_put_ec2__ConfirmProductInstanceType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__ConfirmProductInstanceType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__ConfirmProductInstanceType(soap, data), 0) || soap_put_ec2__ConfirmProductInstanceType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__ConfirmProductInstanceType(struct soap*, const struct ec2__ConfirmProductInstanceType *, const char*, const char*);
 
-#define soap_read_ec2__ConfirmProductInstanceType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__ConfirmProductInstanceType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__ConfirmProductInstanceType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__ConfirmProductInstanceType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__ConfirmProductInstanceType * SOAP_FMAC4 soap_get_ec2__ConfirmProductInstanceType(struct soap*, struct ec2__ConfirmProductInstanceType *, const char*, const char*);
 
@@ -2041,12 +2041,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__AttributeValueType(struct soap*, const char*, int, const struct ec2__AttributeValueType *, const char*);
   SOAP_FMAC3 struct ec2__AttributeValueType * SOAP_FMAC4 soap_in_ec2__AttributeValueType(struct soap*, const char*, struct ec2__AttributeValueType *, const char*);
 
-#define soap_write_ec2__AttributeValueType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__AttributeValueType(soap, data), 0) || soap_put_ec2__AttributeValueType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__AttributeValueType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__AttributeValueType(soap, data), 0) || soap_put_ec2__AttributeValueType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__AttributeValueType(struct soap*, const struct ec2__AttributeValueType *, const char*, const char*);
 
-#define soap_read_ec2__AttributeValueType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__AttributeValueType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__AttributeValueType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__AttributeValueType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__AttributeValueType * SOAP_FMAC4 soap_get_ec2__AttributeValueType(struct soap*, struct ec2__AttributeValueType *, const char*, const char*);
 
@@ -2058,12 +2058,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__NullableAttributeValueType(struct soap*, const char*, int, const struct ec2__NullableAttributeValueType *, const char*);
   SOAP_FMAC3 struct ec2__NullableAttributeValueType * SOAP_FMAC4 soap_in_ec2__NullableAttributeValueType(struct soap*, const char*, struct ec2__NullableAttributeValueType *, const char*);
 
-#define soap_write_ec2__NullableAttributeValueType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__NullableAttributeValueType(soap, data), 0) || soap_put_ec2__NullableAttributeValueType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__NullableAttributeValueType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__NullableAttributeValueType(soap, data), 0) || soap_put_ec2__NullableAttributeValueType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__NullableAttributeValueType(struct soap*, const struct ec2__NullableAttributeValueType *, const char*, const char*);
 
-#define soap_read_ec2__NullableAttributeValueType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__NullableAttributeValueType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__NullableAttributeValueType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__NullableAttributeValueType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__NullableAttributeValueType * SOAP_FMAC4 soap_get_ec2__NullableAttributeValueType(struct soap*, struct ec2__NullableAttributeValueType *, const char*, const char*);
 
@@ -2075,12 +2075,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DescribeImageAttributeResponseType(struct soap*, const char*, int, const struct ec2__DescribeImageAttributeResponseType *, const char*);
   SOAP_FMAC3 struct ec2__DescribeImageAttributeResponseType * SOAP_FMAC4 soap_in_ec2__DescribeImageAttributeResponseType(struct soap*, const char*, struct ec2__DescribeImageAttributeResponseType *, const char*);
 
-#define soap_write_ec2__DescribeImageAttributeResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DescribeImageAttributeResponseType(soap, data), 0) || soap_put_ec2__DescribeImageAttributeResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DescribeImageAttributeResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DescribeImageAttributeResponseType(soap, data), 0) || soap_put_ec2__DescribeImageAttributeResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DescribeImageAttributeResponseType(struct soap*, const struct ec2__DescribeImageAttributeResponseType *, const char*, const char*);
 
-#define soap_read_ec2__DescribeImageAttributeResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DescribeImageAttributeResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DescribeImageAttributeResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DescribeImageAttributeResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeImageAttributeResponseType * SOAP_FMAC4 soap_get_ec2__DescribeImageAttributeResponseType(struct soap*, struct ec2__DescribeImageAttributeResponseType *, const char*, const char*);
 
@@ -2092,12 +2092,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DescribeImageAttributeType(struct soap*, const char*, int, const struct ec2__DescribeImageAttributeType *, const char*);
   SOAP_FMAC3 struct ec2__DescribeImageAttributeType * SOAP_FMAC4 soap_in_ec2__DescribeImageAttributeType(struct soap*, const char*, struct ec2__DescribeImageAttributeType *, const char*);
 
-#define soap_write_ec2__DescribeImageAttributeType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DescribeImageAttributeType(soap, data), 0) || soap_put_ec2__DescribeImageAttributeType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DescribeImageAttributeType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DescribeImageAttributeType(soap, data), 0) || soap_put_ec2__DescribeImageAttributeType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DescribeImageAttributeType(struct soap*, const struct ec2__DescribeImageAttributeType *, const char*, const char*);
 
-#define soap_read_ec2__DescribeImageAttributeType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DescribeImageAttributeType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DescribeImageAttributeType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DescribeImageAttributeType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeImageAttributeType * SOAP_FMAC4 soap_get_ec2__DescribeImageAttributeType(struct soap*, struct ec2__DescribeImageAttributeType *, const char*, const char*);
 
@@ -2109,12 +2109,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__ResetImageAttributeResponseType(struct soap*, const char*, int, const struct ec2__ResetImageAttributeResponseType *, const char*);
   SOAP_FMAC3 struct ec2__ResetImageAttributeResponseType * SOAP_FMAC4 soap_in_ec2__ResetImageAttributeResponseType(struct soap*, const char*, struct ec2__ResetImageAttributeResponseType *, const char*);
 
-#define soap_write_ec2__ResetImageAttributeResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__ResetImageAttributeResponseType(soap, data), 0) || soap_put_ec2__ResetImageAttributeResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__ResetImageAttributeResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__ResetImageAttributeResponseType(soap, data), 0) || soap_put_ec2__ResetImageAttributeResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__ResetImageAttributeResponseType(struct soap*, const struct ec2__ResetImageAttributeResponseType *, const char*, const char*);
 
-#define soap_read_ec2__ResetImageAttributeResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__ResetImageAttributeResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__ResetImageAttributeResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__ResetImageAttributeResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__ResetImageAttributeResponseType * SOAP_FMAC4 soap_get_ec2__ResetImageAttributeResponseType(struct soap*, struct ec2__ResetImageAttributeResponseType *, const char*, const char*);
 
@@ -2126,12 +2126,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__EmptyElementType(struct soap*, const char*, int, const struct ec2__EmptyElementType *, const char*);
   SOAP_FMAC3 struct ec2__EmptyElementType * SOAP_FMAC4 soap_in_ec2__EmptyElementType(struct soap*, const char*, struct ec2__EmptyElementType *, const char*);
 
-#define soap_write_ec2__EmptyElementType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__EmptyElementType(soap, data), 0) || soap_put_ec2__EmptyElementType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__EmptyElementType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__EmptyElementType(soap, data), 0) || soap_put_ec2__EmptyElementType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__EmptyElementType(struct soap*, const struct ec2__EmptyElementType *, const char*, const char*);
 
-#define soap_read_ec2__EmptyElementType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__EmptyElementType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__EmptyElementType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__EmptyElementType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__EmptyElementType * SOAP_FMAC4 soap_get_ec2__EmptyElementType(struct soap*, struct ec2__EmptyElementType *, const char*, const char*);
 
@@ -2143,12 +2143,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__ResetImageAttributeType(struct soap*, const char*, int, const struct ec2__ResetImageAttributeType *, const char*);
   SOAP_FMAC3 struct ec2__ResetImageAttributeType * SOAP_FMAC4 soap_in_ec2__ResetImageAttributeType(struct soap*, const char*, struct ec2__ResetImageAttributeType *, const char*);
 
-#define soap_write_ec2__ResetImageAttributeType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__ResetImageAttributeType(soap, data), 0) || soap_put_ec2__ResetImageAttributeType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__ResetImageAttributeType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__ResetImageAttributeType(soap, data), 0) || soap_put_ec2__ResetImageAttributeType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__ResetImageAttributeType(struct soap*, const struct ec2__ResetImageAttributeType *, const char*, const char*);
 
-#define soap_read_ec2__ResetImageAttributeType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__ResetImageAttributeType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__ResetImageAttributeType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__ResetImageAttributeType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__ResetImageAttributeType * SOAP_FMAC4 soap_get_ec2__ResetImageAttributeType(struct soap*, struct ec2__ResetImageAttributeType *, const char*, const char*);
 
@@ -2160,12 +2160,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__ModifyImageAttributeResponseType(struct soap*, const char*, int, const struct ec2__ModifyImageAttributeResponseType *, const char*);
   SOAP_FMAC3 struct ec2__ModifyImageAttributeResponseType * SOAP_FMAC4 soap_in_ec2__ModifyImageAttributeResponseType(struct soap*, const char*, struct ec2__ModifyImageAttributeResponseType *, const char*);
 
-#define soap_write_ec2__ModifyImageAttributeResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__ModifyImageAttributeResponseType(soap, data), 0) || soap_put_ec2__ModifyImageAttributeResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__ModifyImageAttributeResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__ModifyImageAttributeResponseType(soap, data), 0) || soap_put_ec2__ModifyImageAttributeResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__ModifyImageAttributeResponseType(struct soap*, const struct ec2__ModifyImageAttributeResponseType *, const char*, const char*);
 
-#define soap_read_ec2__ModifyImageAttributeResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__ModifyImageAttributeResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__ModifyImageAttributeResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__ModifyImageAttributeResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__ModifyImageAttributeResponseType * SOAP_FMAC4 soap_get_ec2__ModifyImageAttributeResponseType(struct soap*, struct ec2__ModifyImageAttributeResponseType *, const char*, const char*);
 
@@ -2177,12 +2177,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__ProductCodeItemType(struct soap*, const char*, int, const struct ec2__ProductCodeItemType *, const char*);
   SOAP_FMAC3 struct ec2__ProductCodeItemType * SOAP_FMAC4 soap_in_ec2__ProductCodeItemType(struct soap*, const char*, struct ec2__ProductCodeItemType *, const char*);
 
-#define soap_write_ec2__ProductCodeItemType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__ProductCodeItemType(soap, data), 0) || soap_put_ec2__ProductCodeItemType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__ProductCodeItemType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__ProductCodeItemType(soap, data), 0) || soap_put_ec2__ProductCodeItemType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__ProductCodeItemType(struct soap*, const struct ec2__ProductCodeItemType *, const char*, const char*);
 
-#define soap_read_ec2__ProductCodeItemType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__ProductCodeItemType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__ProductCodeItemType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__ProductCodeItemType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__ProductCodeItemType * SOAP_FMAC4 soap_get_ec2__ProductCodeItemType(struct soap*, struct ec2__ProductCodeItemType *, const char*, const char*);
 
@@ -2194,12 +2194,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__LaunchPermissionItemType(struct soap*, const char*, int, const struct ec2__LaunchPermissionItemType *, const char*);
   SOAP_FMAC3 struct ec2__LaunchPermissionItemType * SOAP_FMAC4 soap_in_ec2__LaunchPermissionItemType(struct soap*, const char*, struct ec2__LaunchPermissionItemType *, const char*);
 
-#define soap_write_ec2__LaunchPermissionItemType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__LaunchPermissionItemType(soap, data), 0) || soap_put_ec2__LaunchPermissionItemType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__LaunchPermissionItemType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__LaunchPermissionItemType(soap, data), 0) || soap_put_ec2__LaunchPermissionItemType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__LaunchPermissionItemType(struct soap*, const struct ec2__LaunchPermissionItemType *, const char*, const char*);
 
-#define soap_read_ec2__LaunchPermissionItemType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__LaunchPermissionItemType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__LaunchPermissionItemType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__LaunchPermissionItemType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__LaunchPermissionItemType * SOAP_FMAC4 soap_get_ec2__LaunchPermissionItemType(struct soap*, struct ec2__LaunchPermissionItemType *, const char*, const char*);
 
@@ -2211,12 +2211,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__LaunchPermissionListType(struct soap*, const char*, int, const struct ec2__LaunchPermissionListType *, const char*);
   SOAP_FMAC3 struct ec2__LaunchPermissionListType * SOAP_FMAC4 soap_in_ec2__LaunchPermissionListType(struct soap*, const char*, struct ec2__LaunchPermissionListType *, const char*);
 
-#define soap_write_ec2__LaunchPermissionListType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__LaunchPermissionListType(soap, data), 0) || soap_put_ec2__LaunchPermissionListType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__LaunchPermissionListType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__LaunchPermissionListType(soap, data), 0) || soap_put_ec2__LaunchPermissionListType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__LaunchPermissionListType(struct soap*, const struct ec2__LaunchPermissionListType *, const char*, const char*);
 
-#define soap_read_ec2__LaunchPermissionListType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__LaunchPermissionListType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__LaunchPermissionListType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__LaunchPermissionListType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__LaunchPermissionListType * SOAP_FMAC4 soap_get_ec2__LaunchPermissionListType(struct soap*, struct ec2__LaunchPermissionListType *, const char*, const char*);
 
@@ -2228,12 +2228,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__ProductCodeListType(struct soap*, const char*, int, const struct ec2__ProductCodeListType *, const char*);
   SOAP_FMAC3 struct ec2__ProductCodeListType * SOAP_FMAC4 soap_in_ec2__ProductCodeListType(struct soap*, const char*, struct ec2__ProductCodeListType *, const char*);
 
-#define soap_write_ec2__ProductCodeListType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__ProductCodeListType(soap, data), 0) || soap_put_ec2__ProductCodeListType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__ProductCodeListType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__ProductCodeListType(soap, data), 0) || soap_put_ec2__ProductCodeListType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__ProductCodeListType(struct soap*, const struct ec2__ProductCodeListType *, const char*, const char*);
 
-#define soap_read_ec2__ProductCodeListType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__ProductCodeListType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__ProductCodeListType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__ProductCodeListType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__ProductCodeListType * SOAP_FMAC4 soap_get_ec2__ProductCodeListType(struct soap*, struct ec2__ProductCodeListType *, const char*, const char*);
 
@@ -2245,12 +2245,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__LaunchPermissionOperationType(struct soap*, const char*, int, const struct ec2__LaunchPermissionOperationType *, const char*);
   SOAP_FMAC3 struct ec2__LaunchPermissionOperationType * SOAP_FMAC4 soap_in_ec2__LaunchPermissionOperationType(struct soap*, const char*, struct ec2__LaunchPermissionOperationType *, const char*);
 
-#define soap_write_ec2__LaunchPermissionOperationType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__LaunchPermissionOperationType(soap, data), 0) || soap_put_ec2__LaunchPermissionOperationType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__LaunchPermissionOperationType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__LaunchPermissionOperationType(soap, data), 0) || soap_put_ec2__LaunchPermissionOperationType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__LaunchPermissionOperationType(struct soap*, const struct ec2__LaunchPermissionOperationType *, const char*, const char*);
 
-#define soap_read_ec2__LaunchPermissionOperationType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__LaunchPermissionOperationType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__LaunchPermissionOperationType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__LaunchPermissionOperationType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__LaunchPermissionOperationType * SOAP_FMAC4 soap_get_ec2__LaunchPermissionOperationType(struct soap*, struct ec2__LaunchPermissionOperationType *, const char*, const char*);
 
@@ -2262,12 +2262,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__ModifyImageAttributeType(struct soap*, const char*, int, const struct ec2__ModifyImageAttributeType *, const char*);
   SOAP_FMAC3 struct ec2__ModifyImageAttributeType * SOAP_FMAC4 soap_in_ec2__ModifyImageAttributeType(struct soap*, const char*, struct ec2__ModifyImageAttributeType *, const char*);
 
-#define soap_write_ec2__ModifyImageAttributeType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__ModifyImageAttributeType(soap, data), 0) || soap_put_ec2__ModifyImageAttributeType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__ModifyImageAttributeType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__ModifyImageAttributeType(soap, data), 0) || soap_put_ec2__ModifyImageAttributeType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__ModifyImageAttributeType(struct soap*, const struct ec2__ModifyImageAttributeType *, const char*, const char*);
 
-#define soap_read_ec2__ModifyImageAttributeType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__ModifyImageAttributeType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__ModifyImageAttributeType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__ModifyImageAttributeType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__ModifyImageAttributeType * SOAP_FMAC4 soap_get_ec2__ModifyImageAttributeType(struct soap*, struct ec2__ModifyImageAttributeType *, const char*, const char*);
 
@@ -2279,12 +2279,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__RevokeSecurityGroupIngressResponseType(struct soap*, const char*, int, const struct ec2__RevokeSecurityGroupIngressResponseType *, const char*);
   SOAP_FMAC3 struct ec2__RevokeSecurityGroupIngressResponseType * SOAP_FMAC4 soap_in_ec2__RevokeSecurityGroupIngressResponseType(struct soap*, const char*, struct ec2__RevokeSecurityGroupIngressResponseType *, const char*);
 
-#define soap_write_ec2__RevokeSecurityGroupIngressResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__RevokeSecurityGroupIngressResponseType(soap, data), 0) || soap_put_ec2__RevokeSecurityGroupIngressResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__RevokeSecurityGroupIngressResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__RevokeSecurityGroupIngressResponseType(soap, data), 0) || soap_put_ec2__RevokeSecurityGroupIngressResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__RevokeSecurityGroupIngressResponseType(struct soap*, const struct ec2__RevokeSecurityGroupIngressResponseType *, const char*, const char*);
 
-#define soap_read_ec2__RevokeSecurityGroupIngressResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__RevokeSecurityGroupIngressResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__RevokeSecurityGroupIngressResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__RevokeSecurityGroupIngressResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__RevokeSecurityGroupIngressResponseType * SOAP_FMAC4 soap_get_ec2__RevokeSecurityGroupIngressResponseType(struct soap*, struct ec2__RevokeSecurityGroupIngressResponseType *, const char*, const char*);
 
@@ -2296,12 +2296,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__RevokeSecurityGroupIngressType(struct soap*, const char*, int, const struct ec2__RevokeSecurityGroupIngressType *, const char*);
   SOAP_FMAC3 struct ec2__RevokeSecurityGroupIngressType * SOAP_FMAC4 soap_in_ec2__RevokeSecurityGroupIngressType(struct soap*, const char*, struct ec2__RevokeSecurityGroupIngressType *, const char*);
 
-#define soap_write_ec2__RevokeSecurityGroupIngressType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__RevokeSecurityGroupIngressType(soap, data), 0) || soap_put_ec2__RevokeSecurityGroupIngressType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__RevokeSecurityGroupIngressType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__RevokeSecurityGroupIngressType(soap, data), 0) || soap_put_ec2__RevokeSecurityGroupIngressType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__RevokeSecurityGroupIngressType(struct soap*, const struct ec2__RevokeSecurityGroupIngressType *, const char*, const char*);
 
-#define soap_read_ec2__RevokeSecurityGroupIngressType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__RevokeSecurityGroupIngressType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__RevokeSecurityGroupIngressType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__RevokeSecurityGroupIngressType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__RevokeSecurityGroupIngressType * SOAP_FMAC4 soap_get_ec2__RevokeSecurityGroupIngressType(struct soap*, struct ec2__RevokeSecurityGroupIngressType *, const char*, const char*);
 
@@ -2313,12 +2313,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__AuthorizeSecurityGroupIngressResponseType(struct soap*, const char*, int, const struct ec2__AuthorizeSecurityGroupIngressResponseType *, const char*);
   SOAP_FMAC3 struct ec2__AuthorizeSecurityGroupIngressResponseType * SOAP_FMAC4 soap_in_ec2__AuthorizeSecurityGroupIngressResponseType(struct soap*, const char*, struct ec2__AuthorizeSecurityGroupIngressResponseType *, const char*);
 
-#define soap_write_ec2__AuthorizeSecurityGroupIngressResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__AuthorizeSecurityGroupIngressResponseType(soap, data), 0) || soap_put_ec2__AuthorizeSecurityGroupIngressResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__AuthorizeSecurityGroupIngressResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__AuthorizeSecurityGroupIngressResponseType(soap, data), 0) || soap_put_ec2__AuthorizeSecurityGroupIngressResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__AuthorizeSecurityGroupIngressResponseType(struct soap*, const struct ec2__AuthorizeSecurityGroupIngressResponseType *, const char*, const char*);
 
-#define soap_read_ec2__AuthorizeSecurityGroupIngressResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__AuthorizeSecurityGroupIngressResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__AuthorizeSecurityGroupIngressResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__AuthorizeSecurityGroupIngressResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__AuthorizeSecurityGroupIngressResponseType * SOAP_FMAC4 soap_get_ec2__AuthorizeSecurityGroupIngressResponseType(struct soap*, struct ec2__AuthorizeSecurityGroupIngressResponseType *, const char*, const char*);
 
@@ -2330,12 +2330,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__AuthorizeSecurityGroupIngressType(struct soap*, const char*, int, const struct ec2__AuthorizeSecurityGroupIngressType *, const char*);
   SOAP_FMAC3 struct ec2__AuthorizeSecurityGroupIngressType * SOAP_FMAC4 soap_in_ec2__AuthorizeSecurityGroupIngressType(struct soap*, const char*, struct ec2__AuthorizeSecurityGroupIngressType *, const char*);
 
-#define soap_write_ec2__AuthorizeSecurityGroupIngressType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__AuthorizeSecurityGroupIngressType(soap, data), 0) || soap_put_ec2__AuthorizeSecurityGroupIngressType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__AuthorizeSecurityGroupIngressType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__AuthorizeSecurityGroupIngressType(soap, data), 0) || soap_put_ec2__AuthorizeSecurityGroupIngressType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__AuthorizeSecurityGroupIngressType(struct soap*, const struct ec2__AuthorizeSecurityGroupIngressType *, const char*, const char*);
 
-#define soap_read_ec2__AuthorizeSecurityGroupIngressType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__AuthorizeSecurityGroupIngressType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__AuthorizeSecurityGroupIngressType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__AuthorizeSecurityGroupIngressType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__AuthorizeSecurityGroupIngressType * SOAP_FMAC4 soap_get_ec2__AuthorizeSecurityGroupIngressType(struct soap*, struct ec2__AuthorizeSecurityGroupIngressType *, const char*, const char*);
 
@@ -2347,12 +2347,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__SecurityGroupItemType(struct soap*, const char*, int, const struct ec2__SecurityGroupItemType *, const char*);
   SOAP_FMAC3 struct ec2__SecurityGroupItemType * SOAP_FMAC4 soap_in_ec2__SecurityGroupItemType(struct soap*, const char*, struct ec2__SecurityGroupItemType *, const char*);
 
-#define soap_write_ec2__SecurityGroupItemType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__SecurityGroupItemType(soap, data), 0) || soap_put_ec2__SecurityGroupItemType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__SecurityGroupItemType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__SecurityGroupItemType(soap, data), 0) || soap_put_ec2__SecurityGroupItemType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__SecurityGroupItemType(struct soap*, const struct ec2__SecurityGroupItemType *, const char*, const char*);
 
-#define soap_read_ec2__SecurityGroupItemType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__SecurityGroupItemType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__SecurityGroupItemType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__SecurityGroupItemType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__SecurityGroupItemType * SOAP_FMAC4 soap_get_ec2__SecurityGroupItemType(struct soap*, struct ec2__SecurityGroupItemType *, const char*, const char*);
 
@@ -2364,12 +2364,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__UserIdGroupPairType(struct soap*, const char*, int, const struct ec2__UserIdGroupPairType *, const char*);
   SOAP_FMAC3 struct ec2__UserIdGroupPairType * SOAP_FMAC4 soap_in_ec2__UserIdGroupPairType(struct soap*, const char*, struct ec2__UserIdGroupPairType *, const char*);
 
-#define soap_write_ec2__UserIdGroupPairType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__UserIdGroupPairType(soap, data), 0) || soap_put_ec2__UserIdGroupPairType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__UserIdGroupPairType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__UserIdGroupPairType(soap, data), 0) || soap_put_ec2__UserIdGroupPairType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__UserIdGroupPairType(struct soap*, const struct ec2__UserIdGroupPairType *, const char*, const char*);
 
-#define soap_read_ec2__UserIdGroupPairType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__UserIdGroupPairType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__UserIdGroupPairType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__UserIdGroupPairType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__UserIdGroupPairType * SOAP_FMAC4 soap_get_ec2__UserIdGroupPairType(struct soap*, struct ec2__UserIdGroupPairType *, const char*, const char*);
 
@@ -2381,12 +2381,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__IpRangeItemType(struct soap*, const char*, int, const struct ec2__IpRangeItemType *, const char*);
   SOAP_FMAC3 struct ec2__IpRangeItemType * SOAP_FMAC4 soap_in_ec2__IpRangeItemType(struct soap*, const char*, struct ec2__IpRangeItemType *, const char*);
 
-#define soap_write_ec2__IpRangeItemType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__IpRangeItemType(soap, data), 0) || soap_put_ec2__IpRangeItemType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__IpRangeItemType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__IpRangeItemType(soap, data), 0) || soap_put_ec2__IpRangeItemType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__IpRangeItemType(struct soap*, const struct ec2__IpRangeItemType *, const char*, const char*);
 
-#define soap_read_ec2__IpRangeItemType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__IpRangeItemType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__IpRangeItemType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__IpRangeItemType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__IpRangeItemType * SOAP_FMAC4 soap_get_ec2__IpRangeItemType(struct soap*, struct ec2__IpRangeItemType *, const char*, const char*);
 
@@ -2398,12 +2398,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__IpRangeSetType(struct soap*, const char*, int, const struct ec2__IpRangeSetType *, const char*);
   SOAP_FMAC3 struct ec2__IpRangeSetType * SOAP_FMAC4 soap_in_ec2__IpRangeSetType(struct soap*, const char*, struct ec2__IpRangeSetType *, const char*);
 
-#define soap_write_ec2__IpRangeSetType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__IpRangeSetType(soap, data), 0) || soap_put_ec2__IpRangeSetType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__IpRangeSetType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__IpRangeSetType(soap, data), 0) || soap_put_ec2__IpRangeSetType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__IpRangeSetType(struct soap*, const struct ec2__IpRangeSetType *, const char*, const char*);
 
-#define soap_read_ec2__IpRangeSetType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__IpRangeSetType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__IpRangeSetType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__IpRangeSetType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__IpRangeSetType * SOAP_FMAC4 soap_get_ec2__IpRangeSetType(struct soap*, struct ec2__IpRangeSetType *, const char*, const char*);
 
@@ -2415,12 +2415,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__UserIdGroupPairSetType(struct soap*, const char*, int, const struct ec2__UserIdGroupPairSetType *, const char*);
   SOAP_FMAC3 struct ec2__UserIdGroupPairSetType * SOAP_FMAC4 soap_in_ec2__UserIdGroupPairSetType(struct soap*, const char*, struct ec2__UserIdGroupPairSetType *, const char*);
 
-#define soap_write_ec2__UserIdGroupPairSetType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__UserIdGroupPairSetType(soap, data), 0) || soap_put_ec2__UserIdGroupPairSetType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__UserIdGroupPairSetType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__UserIdGroupPairSetType(soap, data), 0) || soap_put_ec2__UserIdGroupPairSetType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__UserIdGroupPairSetType(struct soap*, const struct ec2__UserIdGroupPairSetType *, const char*, const char*);
 
-#define soap_read_ec2__UserIdGroupPairSetType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__UserIdGroupPairSetType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__UserIdGroupPairSetType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__UserIdGroupPairSetType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__UserIdGroupPairSetType * SOAP_FMAC4 soap_get_ec2__UserIdGroupPairSetType(struct soap*, struct ec2__UserIdGroupPairSetType *, const char*, const char*);
 
@@ -2432,12 +2432,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__IpPermissionType(struct soap*, const char*, int, const struct ec2__IpPermissionType *, const char*);
   SOAP_FMAC3 struct ec2__IpPermissionType * SOAP_FMAC4 soap_in_ec2__IpPermissionType(struct soap*, const char*, struct ec2__IpPermissionType *, const char*);
 
-#define soap_write_ec2__IpPermissionType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__IpPermissionType(soap, data), 0) || soap_put_ec2__IpPermissionType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__IpPermissionType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__IpPermissionType(soap, data), 0) || soap_put_ec2__IpPermissionType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__IpPermissionType(struct soap*, const struct ec2__IpPermissionType *, const char*, const char*);
 
-#define soap_read_ec2__IpPermissionType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__IpPermissionType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__IpPermissionType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__IpPermissionType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__IpPermissionType * SOAP_FMAC4 soap_get_ec2__IpPermissionType(struct soap*, struct ec2__IpPermissionType *, const char*, const char*);
 
@@ -2449,12 +2449,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__IpPermissionSetType(struct soap*, const char*, int, const struct ec2__IpPermissionSetType *, const char*);
   SOAP_FMAC3 struct ec2__IpPermissionSetType * SOAP_FMAC4 soap_in_ec2__IpPermissionSetType(struct soap*, const char*, struct ec2__IpPermissionSetType *, const char*);
 
-#define soap_write_ec2__IpPermissionSetType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__IpPermissionSetType(soap, data), 0) || soap_put_ec2__IpPermissionSetType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__IpPermissionSetType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__IpPermissionSetType(soap, data), 0) || soap_put_ec2__IpPermissionSetType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__IpPermissionSetType(struct soap*, const struct ec2__IpPermissionSetType *, const char*, const char*);
 
-#define soap_read_ec2__IpPermissionSetType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__IpPermissionSetType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__IpPermissionSetType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__IpPermissionSetType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__IpPermissionSetType * SOAP_FMAC4 soap_get_ec2__IpPermissionSetType(struct soap*, struct ec2__IpPermissionSetType *, const char*, const char*);
 
@@ -2466,12 +2466,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__SecurityGroupSetType(struct soap*, const char*, int, const struct ec2__SecurityGroupSetType *, const char*);
   SOAP_FMAC3 struct ec2__SecurityGroupSetType * SOAP_FMAC4 soap_in_ec2__SecurityGroupSetType(struct soap*, const char*, struct ec2__SecurityGroupSetType *, const char*);
 
-#define soap_write_ec2__SecurityGroupSetType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__SecurityGroupSetType(soap, data), 0) || soap_put_ec2__SecurityGroupSetType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__SecurityGroupSetType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__SecurityGroupSetType(soap, data), 0) || soap_put_ec2__SecurityGroupSetType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__SecurityGroupSetType(struct soap*, const struct ec2__SecurityGroupSetType *, const char*, const char*);
 
-#define soap_read_ec2__SecurityGroupSetType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__SecurityGroupSetType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__SecurityGroupSetType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__SecurityGroupSetType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__SecurityGroupSetType * SOAP_FMAC4 soap_get_ec2__SecurityGroupSetType(struct soap*, struct ec2__SecurityGroupSetType *, const char*, const char*);
 
@@ -2483,12 +2483,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DescribeSecurityGroupsResponseType(struct soap*, const char*, int, const struct ec2__DescribeSecurityGroupsResponseType *, const char*);
   SOAP_FMAC3 struct ec2__DescribeSecurityGroupsResponseType * SOAP_FMAC4 soap_in_ec2__DescribeSecurityGroupsResponseType(struct soap*, const char*, struct ec2__DescribeSecurityGroupsResponseType *, const char*);
 
-#define soap_write_ec2__DescribeSecurityGroupsResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DescribeSecurityGroupsResponseType(soap, data), 0) || soap_put_ec2__DescribeSecurityGroupsResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DescribeSecurityGroupsResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DescribeSecurityGroupsResponseType(soap, data), 0) || soap_put_ec2__DescribeSecurityGroupsResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DescribeSecurityGroupsResponseType(struct soap*, const struct ec2__DescribeSecurityGroupsResponseType *, const char*, const char*);
 
-#define soap_read_ec2__DescribeSecurityGroupsResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DescribeSecurityGroupsResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DescribeSecurityGroupsResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DescribeSecurityGroupsResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeSecurityGroupsResponseType * SOAP_FMAC4 soap_get_ec2__DescribeSecurityGroupsResponseType(struct soap*, struct ec2__DescribeSecurityGroupsResponseType *, const char*, const char*);
 
@@ -2500,12 +2500,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DescribeSecurityGroupsSetItemType(struct soap*, const char*, int, const struct ec2__DescribeSecurityGroupsSetItemType *, const char*);
   SOAP_FMAC3 struct ec2__DescribeSecurityGroupsSetItemType * SOAP_FMAC4 soap_in_ec2__DescribeSecurityGroupsSetItemType(struct soap*, const char*, struct ec2__DescribeSecurityGroupsSetItemType *, const char*);
 
-#define soap_write_ec2__DescribeSecurityGroupsSetItemType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DescribeSecurityGroupsSetItemType(soap, data), 0) || soap_put_ec2__DescribeSecurityGroupsSetItemType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DescribeSecurityGroupsSetItemType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DescribeSecurityGroupsSetItemType(soap, data), 0) || soap_put_ec2__DescribeSecurityGroupsSetItemType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DescribeSecurityGroupsSetItemType(struct soap*, const struct ec2__DescribeSecurityGroupsSetItemType *, const char*, const char*);
 
-#define soap_read_ec2__DescribeSecurityGroupsSetItemType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DescribeSecurityGroupsSetItemType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DescribeSecurityGroupsSetItemType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DescribeSecurityGroupsSetItemType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeSecurityGroupsSetItemType * SOAP_FMAC4 soap_get_ec2__DescribeSecurityGroupsSetItemType(struct soap*, struct ec2__DescribeSecurityGroupsSetItemType *, const char*, const char*);
 
@@ -2517,12 +2517,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DescribeSecurityGroupsSetType(struct soap*, const char*, int, const struct ec2__DescribeSecurityGroupsSetType *, const char*);
   SOAP_FMAC3 struct ec2__DescribeSecurityGroupsSetType * SOAP_FMAC4 soap_in_ec2__DescribeSecurityGroupsSetType(struct soap*, const char*, struct ec2__DescribeSecurityGroupsSetType *, const char*);
 
-#define soap_write_ec2__DescribeSecurityGroupsSetType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DescribeSecurityGroupsSetType(soap, data), 0) || soap_put_ec2__DescribeSecurityGroupsSetType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DescribeSecurityGroupsSetType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DescribeSecurityGroupsSetType(soap, data), 0) || soap_put_ec2__DescribeSecurityGroupsSetType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DescribeSecurityGroupsSetType(struct soap*, const struct ec2__DescribeSecurityGroupsSetType *, const char*, const char*);
 
-#define soap_read_ec2__DescribeSecurityGroupsSetType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DescribeSecurityGroupsSetType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DescribeSecurityGroupsSetType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DescribeSecurityGroupsSetType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeSecurityGroupsSetType * SOAP_FMAC4 soap_get_ec2__DescribeSecurityGroupsSetType(struct soap*, struct ec2__DescribeSecurityGroupsSetType *, const char*, const char*);
 
@@ -2534,12 +2534,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DescribeSecurityGroupsType(struct soap*, const char*, int, const struct ec2__DescribeSecurityGroupsType *, const char*);
   SOAP_FMAC3 struct ec2__DescribeSecurityGroupsType * SOAP_FMAC4 soap_in_ec2__DescribeSecurityGroupsType(struct soap*, const char*, struct ec2__DescribeSecurityGroupsType *, const char*);
 
-#define soap_write_ec2__DescribeSecurityGroupsType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DescribeSecurityGroupsType(soap, data), 0) || soap_put_ec2__DescribeSecurityGroupsType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DescribeSecurityGroupsType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DescribeSecurityGroupsType(soap, data), 0) || soap_put_ec2__DescribeSecurityGroupsType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DescribeSecurityGroupsType(struct soap*, const struct ec2__DescribeSecurityGroupsType *, const char*, const char*);
 
-#define soap_read_ec2__DescribeSecurityGroupsType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DescribeSecurityGroupsType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DescribeSecurityGroupsType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DescribeSecurityGroupsType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeSecurityGroupsType * SOAP_FMAC4 soap_get_ec2__DescribeSecurityGroupsType(struct soap*, struct ec2__DescribeSecurityGroupsType *, const char*, const char*);
 
@@ -2551,12 +2551,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DeleteSecurityGroupResponseType(struct soap*, const char*, int, const struct ec2__DeleteSecurityGroupResponseType *, const char*);
   SOAP_FMAC3 struct ec2__DeleteSecurityGroupResponseType * SOAP_FMAC4 soap_in_ec2__DeleteSecurityGroupResponseType(struct soap*, const char*, struct ec2__DeleteSecurityGroupResponseType *, const char*);
 
-#define soap_write_ec2__DeleteSecurityGroupResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DeleteSecurityGroupResponseType(soap, data), 0) || soap_put_ec2__DeleteSecurityGroupResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DeleteSecurityGroupResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DeleteSecurityGroupResponseType(soap, data), 0) || soap_put_ec2__DeleteSecurityGroupResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DeleteSecurityGroupResponseType(struct soap*, const struct ec2__DeleteSecurityGroupResponseType *, const char*, const char*);
 
-#define soap_read_ec2__DeleteSecurityGroupResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DeleteSecurityGroupResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DeleteSecurityGroupResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DeleteSecurityGroupResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DeleteSecurityGroupResponseType * SOAP_FMAC4 soap_get_ec2__DeleteSecurityGroupResponseType(struct soap*, struct ec2__DeleteSecurityGroupResponseType *, const char*, const char*);
 
@@ -2568,12 +2568,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DeleteSecurityGroupType(struct soap*, const char*, int, const struct ec2__DeleteSecurityGroupType *, const char*);
   SOAP_FMAC3 struct ec2__DeleteSecurityGroupType * SOAP_FMAC4 soap_in_ec2__DeleteSecurityGroupType(struct soap*, const char*, struct ec2__DeleteSecurityGroupType *, const char*);
 
-#define soap_write_ec2__DeleteSecurityGroupType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DeleteSecurityGroupType(soap, data), 0) || soap_put_ec2__DeleteSecurityGroupType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DeleteSecurityGroupType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DeleteSecurityGroupType(soap, data), 0) || soap_put_ec2__DeleteSecurityGroupType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DeleteSecurityGroupType(struct soap*, const struct ec2__DeleteSecurityGroupType *, const char*, const char*);
 
-#define soap_read_ec2__DeleteSecurityGroupType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DeleteSecurityGroupType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DeleteSecurityGroupType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DeleteSecurityGroupType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DeleteSecurityGroupType * SOAP_FMAC4 soap_get_ec2__DeleteSecurityGroupType(struct soap*, struct ec2__DeleteSecurityGroupType *, const char*, const char*);
 
@@ -2585,12 +2585,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__CreateSecurityGroupResponseType(struct soap*, const char*, int, const struct ec2__CreateSecurityGroupResponseType *, const char*);
   SOAP_FMAC3 struct ec2__CreateSecurityGroupResponseType * SOAP_FMAC4 soap_in_ec2__CreateSecurityGroupResponseType(struct soap*, const char*, struct ec2__CreateSecurityGroupResponseType *, const char*);
 
-#define soap_write_ec2__CreateSecurityGroupResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__CreateSecurityGroupResponseType(soap, data), 0) || soap_put_ec2__CreateSecurityGroupResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__CreateSecurityGroupResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__CreateSecurityGroupResponseType(soap, data), 0) || soap_put_ec2__CreateSecurityGroupResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__CreateSecurityGroupResponseType(struct soap*, const struct ec2__CreateSecurityGroupResponseType *, const char*, const char*);
 
-#define soap_read_ec2__CreateSecurityGroupResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__CreateSecurityGroupResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__CreateSecurityGroupResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__CreateSecurityGroupResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__CreateSecurityGroupResponseType * SOAP_FMAC4 soap_get_ec2__CreateSecurityGroupResponseType(struct soap*, struct ec2__CreateSecurityGroupResponseType *, const char*, const char*);
 
@@ -2602,12 +2602,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__CreateSecurityGroupType(struct soap*, const char*, int, const struct ec2__CreateSecurityGroupType *, const char*);
   SOAP_FMAC3 struct ec2__CreateSecurityGroupType * SOAP_FMAC4 soap_in_ec2__CreateSecurityGroupType(struct soap*, const char*, struct ec2__CreateSecurityGroupType *, const char*);
 
-#define soap_write_ec2__CreateSecurityGroupType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__CreateSecurityGroupType(soap, data), 0) || soap_put_ec2__CreateSecurityGroupType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__CreateSecurityGroupType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__CreateSecurityGroupType(soap, data), 0) || soap_put_ec2__CreateSecurityGroupType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__CreateSecurityGroupType(struct soap*, const struct ec2__CreateSecurityGroupType *, const char*, const char*);
 
-#define soap_read_ec2__CreateSecurityGroupType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__CreateSecurityGroupType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__CreateSecurityGroupType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__CreateSecurityGroupType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__CreateSecurityGroupType * SOAP_FMAC4 soap_get_ec2__CreateSecurityGroupType(struct soap*, struct ec2__CreateSecurityGroupType *, const char*, const char*);
 
@@ -2619,12 +2619,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DescribeImagesResponseItemType(struct soap*, const char*, int, const struct ec2__DescribeImagesResponseItemType *, const char*);
   SOAP_FMAC3 struct ec2__DescribeImagesResponseItemType * SOAP_FMAC4 soap_in_ec2__DescribeImagesResponseItemType(struct soap*, const char*, struct ec2__DescribeImagesResponseItemType *, const char*);
 
-#define soap_write_ec2__DescribeImagesResponseItemType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DescribeImagesResponseItemType(soap, data), 0) || soap_put_ec2__DescribeImagesResponseItemType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DescribeImagesResponseItemType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DescribeImagesResponseItemType(soap, data), 0) || soap_put_ec2__DescribeImagesResponseItemType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DescribeImagesResponseItemType(struct soap*, const struct ec2__DescribeImagesResponseItemType *, const char*, const char*);
 
-#define soap_read_ec2__DescribeImagesResponseItemType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DescribeImagesResponseItemType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DescribeImagesResponseItemType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DescribeImagesResponseItemType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeImagesResponseItemType * SOAP_FMAC4 soap_get_ec2__DescribeImagesResponseItemType(struct soap*, struct ec2__DescribeImagesResponseItemType *, const char*, const char*);
 
@@ -2636,12 +2636,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DescribeImagesResponseInfoType(struct soap*, const char*, int, const struct ec2__DescribeImagesResponseInfoType *, const char*);
   SOAP_FMAC3 struct ec2__DescribeImagesResponseInfoType * SOAP_FMAC4 soap_in_ec2__DescribeImagesResponseInfoType(struct soap*, const char*, struct ec2__DescribeImagesResponseInfoType *, const char*);
 
-#define soap_write_ec2__DescribeImagesResponseInfoType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DescribeImagesResponseInfoType(soap, data), 0) || soap_put_ec2__DescribeImagesResponseInfoType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DescribeImagesResponseInfoType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DescribeImagesResponseInfoType(soap, data), 0) || soap_put_ec2__DescribeImagesResponseInfoType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DescribeImagesResponseInfoType(struct soap*, const struct ec2__DescribeImagesResponseInfoType *, const char*, const char*);
 
-#define soap_read_ec2__DescribeImagesResponseInfoType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DescribeImagesResponseInfoType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DescribeImagesResponseInfoType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DescribeImagesResponseInfoType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeImagesResponseInfoType * SOAP_FMAC4 soap_get_ec2__DescribeImagesResponseInfoType(struct soap*, struct ec2__DescribeImagesResponseInfoType *, const char*, const char*);
 
@@ -2653,12 +2653,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DescribeImagesResponseType(struct soap*, const char*, int, const struct ec2__DescribeImagesResponseType *, const char*);
   SOAP_FMAC3 struct ec2__DescribeImagesResponseType * SOAP_FMAC4 soap_in_ec2__DescribeImagesResponseType(struct soap*, const char*, struct ec2__DescribeImagesResponseType *, const char*);
 
-#define soap_write_ec2__DescribeImagesResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DescribeImagesResponseType(soap, data), 0) || soap_put_ec2__DescribeImagesResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DescribeImagesResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DescribeImagesResponseType(soap, data), 0) || soap_put_ec2__DescribeImagesResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DescribeImagesResponseType(struct soap*, const struct ec2__DescribeImagesResponseType *, const char*, const char*);
 
-#define soap_read_ec2__DescribeImagesResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DescribeImagesResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DescribeImagesResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DescribeImagesResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeImagesResponseType * SOAP_FMAC4 soap_get_ec2__DescribeImagesResponseType(struct soap*, struct ec2__DescribeImagesResponseType *, const char*, const char*);
 
@@ -2670,12 +2670,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DescribeImagesExecutableByType(struct soap*, const char*, int, const struct ec2__DescribeImagesExecutableByType *, const char*);
   SOAP_FMAC3 struct ec2__DescribeImagesExecutableByType * SOAP_FMAC4 soap_in_ec2__DescribeImagesExecutableByType(struct soap*, const char*, struct ec2__DescribeImagesExecutableByType *, const char*);
 
-#define soap_write_ec2__DescribeImagesExecutableByType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DescribeImagesExecutableByType(soap, data), 0) || soap_put_ec2__DescribeImagesExecutableByType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DescribeImagesExecutableByType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DescribeImagesExecutableByType(soap, data), 0) || soap_put_ec2__DescribeImagesExecutableByType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DescribeImagesExecutableByType(struct soap*, const struct ec2__DescribeImagesExecutableByType *, const char*, const char*);
 
-#define soap_read_ec2__DescribeImagesExecutableByType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DescribeImagesExecutableByType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DescribeImagesExecutableByType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DescribeImagesExecutableByType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeImagesExecutableByType * SOAP_FMAC4 soap_get_ec2__DescribeImagesExecutableByType(struct soap*, struct ec2__DescribeImagesExecutableByType *, const char*, const char*);
 
@@ -2687,12 +2687,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DescribeImagesOwnerType(struct soap*, const char*, int, const struct ec2__DescribeImagesOwnerType *, const char*);
   SOAP_FMAC3 struct ec2__DescribeImagesOwnerType * SOAP_FMAC4 soap_in_ec2__DescribeImagesOwnerType(struct soap*, const char*, struct ec2__DescribeImagesOwnerType *, const char*);
 
-#define soap_write_ec2__DescribeImagesOwnerType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DescribeImagesOwnerType(soap, data), 0) || soap_put_ec2__DescribeImagesOwnerType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DescribeImagesOwnerType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DescribeImagesOwnerType(soap, data), 0) || soap_put_ec2__DescribeImagesOwnerType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DescribeImagesOwnerType(struct soap*, const struct ec2__DescribeImagesOwnerType *, const char*, const char*);
 
-#define soap_read_ec2__DescribeImagesOwnerType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DescribeImagesOwnerType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DescribeImagesOwnerType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DescribeImagesOwnerType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeImagesOwnerType * SOAP_FMAC4 soap_get_ec2__DescribeImagesOwnerType(struct soap*, struct ec2__DescribeImagesOwnerType *, const char*, const char*);
 
@@ -2704,12 +2704,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DescribeImagesItemType(struct soap*, const char*, int, const struct ec2__DescribeImagesItemType *, const char*);
   SOAP_FMAC3 struct ec2__DescribeImagesItemType * SOAP_FMAC4 soap_in_ec2__DescribeImagesItemType(struct soap*, const char*, struct ec2__DescribeImagesItemType *, const char*);
 
-#define soap_write_ec2__DescribeImagesItemType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DescribeImagesItemType(soap, data), 0) || soap_put_ec2__DescribeImagesItemType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DescribeImagesItemType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DescribeImagesItemType(soap, data), 0) || soap_put_ec2__DescribeImagesItemType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DescribeImagesItemType(struct soap*, const struct ec2__DescribeImagesItemType *, const char*, const char*);
 
-#define soap_read_ec2__DescribeImagesItemType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DescribeImagesItemType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DescribeImagesItemType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DescribeImagesItemType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeImagesItemType * SOAP_FMAC4 soap_get_ec2__DescribeImagesItemType(struct soap*, struct ec2__DescribeImagesItemType *, const char*, const char*);
 
@@ -2721,12 +2721,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DescribeImagesOwnersType(struct soap*, const char*, int, const struct ec2__DescribeImagesOwnersType *, const char*);
   SOAP_FMAC3 struct ec2__DescribeImagesOwnersType * SOAP_FMAC4 soap_in_ec2__DescribeImagesOwnersType(struct soap*, const char*, struct ec2__DescribeImagesOwnersType *, const char*);
 
-#define soap_write_ec2__DescribeImagesOwnersType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DescribeImagesOwnersType(soap, data), 0) || soap_put_ec2__DescribeImagesOwnersType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DescribeImagesOwnersType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DescribeImagesOwnersType(soap, data), 0) || soap_put_ec2__DescribeImagesOwnersType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DescribeImagesOwnersType(struct soap*, const struct ec2__DescribeImagesOwnersType *, const char*, const char*);
 
-#define soap_read_ec2__DescribeImagesOwnersType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DescribeImagesOwnersType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DescribeImagesOwnersType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DescribeImagesOwnersType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeImagesOwnersType * SOAP_FMAC4 soap_get_ec2__DescribeImagesOwnersType(struct soap*, struct ec2__DescribeImagesOwnersType *, const char*, const char*);
 
@@ -2738,12 +2738,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DescribeImagesInfoType(struct soap*, const char*, int, const struct ec2__DescribeImagesInfoType *, const char*);
   SOAP_FMAC3 struct ec2__DescribeImagesInfoType * SOAP_FMAC4 soap_in_ec2__DescribeImagesInfoType(struct soap*, const char*, struct ec2__DescribeImagesInfoType *, const char*);
 
-#define soap_write_ec2__DescribeImagesInfoType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DescribeImagesInfoType(soap, data), 0) || soap_put_ec2__DescribeImagesInfoType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DescribeImagesInfoType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DescribeImagesInfoType(soap, data), 0) || soap_put_ec2__DescribeImagesInfoType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DescribeImagesInfoType(struct soap*, const struct ec2__DescribeImagesInfoType *, const char*, const char*);
 
-#define soap_read_ec2__DescribeImagesInfoType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DescribeImagesInfoType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DescribeImagesInfoType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DescribeImagesInfoType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeImagesInfoType * SOAP_FMAC4 soap_get_ec2__DescribeImagesInfoType(struct soap*, struct ec2__DescribeImagesInfoType *, const char*, const char*);
 
@@ -2755,12 +2755,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DescribeImagesExecutableBySetType(struct soap*, const char*, int, const struct ec2__DescribeImagesExecutableBySetType *, const char*);
   SOAP_FMAC3 struct ec2__DescribeImagesExecutableBySetType * SOAP_FMAC4 soap_in_ec2__DescribeImagesExecutableBySetType(struct soap*, const char*, struct ec2__DescribeImagesExecutableBySetType *, const char*);
 
-#define soap_write_ec2__DescribeImagesExecutableBySetType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DescribeImagesExecutableBySetType(soap, data), 0) || soap_put_ec2__DescribeImagesExecutableBySetType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DescribeImagesExecutableBySetType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DescribeImagesExecutableBySetType(soap, data), 0) || soap_put_ec2__DescribeImagesExecutableBySetType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DescribeImagesExecutableBySetType(struct soap*, const struct ec2__DescribeImagesExecutableBySetType *, const char*, const char*);
 
-#define soap_read_ec2__DescribeImagesExecutableBySetType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DescribeImagesExecutableBySetType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DescribeImagesExecutableBySetType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DescribeImagesExecutableBySetType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeImagesExecutableBySetType * SOAP_FMAC4 soap_get_ec2__DescribeImagesExecutableBySetType(struct soap*, struct ec2__DescribeImagesExecutableBySetType *, const char*, const char*);
 
@@ -2772,12 +2772,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DescribeImagesType(struct soap*, const char*, int, const struct ec2__DescribeImagesType *, const char*);
   SOAP_FMAC3 struct ec2__DescribeImagesType * SOAP_FMAC4 soap_in_ec2__DescribeImagesType(struct soap*, const char*, struct ec2__DescribeImagesType *, const char*);
 
-#define soap_write_ec2__DescribeImagesType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DescribeImagesType(soap, data), 0) || soap_put_ec2__DescribeImagesType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DescribeImagesType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DescribeImagesType(soap, data), 0) || soap_put_ec2__DescribeImagesType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DescribeImagesType(struct soap*, const struct ec2__DescribeImagesType *, const char*, const char*);
 
-#define soap_read_ec2__DescribeImagesType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DescribeImagesType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DescribeImagesType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DescribeImagesType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeImagesType * SOAP_FMAC4 soap_get_ec2__DescribeImagesType(struct soap*, struct ec2__DescribeImagesType *, const char*, const char*);
 
@@ -2789,12 +2789,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__ReservationSetType(struct soap*, const char*, int, const struct ec2__ReservationSetType *, const char*);
   SOAP_FMAC3 struct ec2__ReservationSetType * SOAP_FMAC4 soap_in_ec2__ReservationSetType(struct soap*, const char*, struct ec2__ReservationSetType *, const char*);
 
-#define soap_write_ec2__ReservationSetType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__ReservationSetType(soap, data), 0) || soap_put_ec2__ReservationSetType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__ReservationSetType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__ReservationSetType(soap, data), 0) || soap_put_ec2__ReservationSetType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__ReservationSetType(struct soap*, const struct ec2__ReservationSetType *, const char*, const char*);
 
-#define soap_read_ec2__ReservationSetType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__ReservationSetType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__ReservationSetType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__ReservationSetType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__ReservationSetType * SOAP_FMAC4 soap_get_ec2__ReservationSetType(struct soap*, struct ec2__ReservationSetType *, const char*, const char*);
 
@@ -2806,12 +2806,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DescribeInstancesResponseType(struct soap*, const char*, int, const struct ec2__DescribeInstancesResponseType *, const char*);
   SOAP_FMAC3 struct ec2__DescribeInstancesResponseType * SOAP_FMAC4 soap_in_ec2__DescribeInstancesResponseType(struct soap*, const char*, struct ec2__DescribeInstancesResponseType *, const char*);
 
-#define soap_write_ec2__DescribeInstancesResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DescribeInstancesResponseType(soap, data), 0) || soap_put_ec2__DescribeInstancesResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DescribeInstancesResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DescribeInstancesResponseType(soap, data), 0) || soap_put_ec2__DescribeInstancesResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DescribeInstancesResponseType(struct soap*, const struct ec2__DescribeInstancesResponseType *, const char*, const char*);
 
-#define soap_read_ec2__DescribeInstancesResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DescribeInstancesResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DescribeInstancesResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DescribeInstancesResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeInstancesResponseType * SOAP_FMAC4 soap_get_ec2__DescribeInstancesResponseType(struct soap*, struct ec2__DescribeInstancesResponseType *, const char*, const char*);
 
@@ -2823,12 +2823,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DescribeInstancesItemType(struct soap*, const char*, int, const struct ec2__DescribeInstancesItemType *, const char*);
   SOAP_FMAC3 struct ec2__DescribeInstancesItemType * SOAP_FMAC4 soap_in_ec2__DescribeInstancesItemType(struct soap*, const char*, struct ec2__DescribeInstancesItemType *, const char*);
 
-#define soap_write_ec2__DescribeInstancesItemType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DescribeInstancesItemType(soap, data), 0) || soap_put_ec2__DescribeInstancesItemType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DescribeInstancesItemType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DescribeInstancesItemType(soap, data), 0) || soap_put_ec2__DescribeInstancesItemType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DescribeInstancesItemType(struct soap*, const struct ec2__DescribeInstancesItemType *, const char*, const char*);
 
-#define soap_read_ec2__DescribeInstancesItemType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DescribeInstancesItemType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DescribeInstancesItemType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DescribeInstancesItemType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeInstancesItemType * SOAP_FMAC4 soap_get_ec2__DescribeInstancesItemType(struct soap*, struct ec2__DescribeInstancesItemType *, const char*, const char*);
 
@@ -2840,12 +2840,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DescribeInstancesInfoType(struct soap*, const char*, int, const struct ec2__DescribeInstancesInfoType *, const char*);
   SOAP_FMAC3 struct ec2__DescribeInstancesInfoType * SOAP_FMAC4 soap_in_ec2__DescribeInstancesInfoType(struct soap*, const char*, struct ec2__DescribeInstancesInfoType *, const char*);
 
-#define soap_write_ec2__DescribeInstancesInfoType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DescribeInstancesInfoType(soap, data), 0) || soap_put_ec2__DescribeInstancesInfoType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DescribeInstancesInfoType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DescribeInstancesInfoType(soap, data), 0) || soap_put_ec2__DescribeInstancesInfoType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DescribeInstancesInfoType(struct soap*, const struct ec2__DescribeInstancesInfoType *, const char*, const char*);
 
-#define soap_read_ec2__DescribeInstancesInfoType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DescribeInstancesInfoType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DescribeInstancesInfoType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DescribeInstancesInfoType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeInstancesInfoType * SOAP_FMAC4 soap_get_ec2__DescribeInstancesInfoType(struct soap*, struct ec2__DescribeInstancesInfoType *, const char*, const char*);
 
@@ -2857,12 +2857,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DescribeInstancesType(struct soap*, const char*, int, const struct ec2__DescribeInstancesType *, const char*);
   SOAP_FMAC3 struct ec2__DescribeInstancesType * SOAP_FMAC4 soap_in_ec2__DescribeInstancesType(struct soap*, const char*, struct ec2__DescribeInstancesType *, const char*);
 
-#define soap_write_ec2__DescribeInstancesType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DescribeInstancesType(soap, data), 0) || soap_put_ec2__DescribeInstancesType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DescribeInstancesType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DescribeInstancesType(soap, data), 0) || soap_put_ec2__DescribeInstancesType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DescribeInstancesType(struct soap*, const struct ec2__DescribeInstancesType *, const char*, const char*);
 
-#define soap_read_ec2__DescribeInstancesType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DescribeInstancesType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DescribeInstancesType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DescribeInstancesType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeInstancesType * SOAP_FMAC4 soap_get_ec2__DescribeInstancesType(struct soap*, struct ec2__DescribeInstancesType *, const char*, const char*);
 
@@ -2874,12 +2874,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__RebootInstancesResponseType(struct soap*, const char*, int, const struct ec2__RebootInstancesResponseType *, const char*);
   SOAP_FMAC3 struct ec2__RebootInstancesResponseType * SOAP_FMAC4 soap_in_ec2__RebootInstancesResponseType(struct soap*, const char*, struct ec2__RebootInstancesResponseType *, const char*);
 
-#define soap_write_ec2__RebootInstancesResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__RebootInstancesResponseType(soap, data), 0) || soap_put_ec2__RebootInstancesResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__RebootInstancesResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__RebootInstancesResponseType(soap, data), 0) || soap_put_ec2__RebootInstancesResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__RebootInstancesResponseType(struct soap*, const struct ec2__RebootInstancesResponseType *, const char*, const char*);
 
-#define soap_read_ec2__RebootInstancesResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__RebootInstancesResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__RebootInstancesResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__RebootInstancesResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__RebootInstancesResponseType * SOAP_FMAC4 soap_get_ec2__RebootInstancesResponseType(struct soap*, struct ec2__RebootInstancesResponseType *, const char*, const char*);
 
@@ -2891,12 +2891,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__RebootInstancesItemType(struct soap*, const char*, int, const struct ec2__RebootInstancesItemType *, const char*);
   SOAP_FMAC3 struct ec2__RebootInstancesItemType * SOAP_FMAC4 soap_in_ec2__RebootInstancesItemType(struct soap*, const char*, struct ec2__RebootInstancesItemType *, const char*);
 
-#define soap_write_ec2__RebootInstancesItemType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__RebootInstancesItemType(soap, data), 0) || soap_put_ec2__RebootInstancesItemType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__RebootInstancesItemType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__RebootInstancesItemType(soap, data), 0) || soap_put_ec2__RebootInstancesItemType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__RebootInstancesItemType(struct soap*, const struct ec2__RebootInstancesItemType *, const char*, const char*);
 
-#define soap_read_ec2__RebootInstancesItemType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__RebootInstancesItemType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__RebootInstancesItemType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__RebootInstancesItemType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__RebootInstancesItemType * SOAP_FMAC4 soap_get_ec2__RebootInstancesItemType(struct soap*, struct ec2__RebootInstancesItemType *, const char*, const char*);
 
@@ -2908,12 +2908,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__RebootInstancesInfoType(struct soap*, const char*, int, const struct ec2__RebootInstancesInfoType *, const char*);
   SOAP_FMAC3 struct ec2__RebootInstancesInfoType * SOAP_FMAC4 soap_in_ec2__RebootInstancesInfoType(struct soap*, const char*, struct ec2__RebootInstancesInfoType *, const char*);
 
-#define soap_write_ec2__RebootInstancesInfoType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__RebootInstancesInfoType(soap, data), 0) || soap_put_ec2__RebootInstancesInfoType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__RebootInstancesInfoType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__RebootInstancesInfoType(soap, data), 0) || soap_put_ec2__RebootInstancesInfoType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__RebootInstancesInfoType(struct soap*, const struct ec2__RebootInstancesInfoType *, const char*, const char*);
 
-#define soap_read_ec2__RebootInstancesInfoType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__RebootInstancesInfoType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__RebootInstancesInfoType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__RebootInstancesInfoType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__RebootInstancesInfoType * SOAP_FMAC4 soap_get_ec2__RebootInstancesInfoType(struct soap*, struct ec2__RebootInstancesInfoType *, const char*, const char*);
 
@@ -2925,12 +2925,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__RebootInstancesType(struct soap*, const char*, int, const struct ec2__RebootInstancesType *, const char*);
   SOAP_FMAC3 struct ec2__RebootInstancesType * SOAP_FMAC4 soap_in_ec2__RebootInstancesType(struct soap*, const char*, struct ec2__RebootInstancesType *, const char*);
 
-#define soap_write_ec2__RebootInstancesType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__RebootInstancesType(soap, data), 0) || soap_put_ec2__RebootInstancesType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__RebootInstancesType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__RebootInstancesType(soap, data), 0) || soap_put_ec2__RebootInstancesType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__RebootInstancesType(struct soap*, const struct ec2__RebootInstancesType *, const char*, const char*);
 
-#define soap_read_ec2__RebootInstancesType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__RebootInstancesType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__RebootInstancesType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__RebootInstancesType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__RebootInstancesType * SOAP_FMAC4 soap_get_ec2__RebootInstancesType(struct soap*, struct ec2__RebootInstancesType *, const char*, const char*);
 
@@ -2942,12 +2942,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__TerminateInstancesResponseItemType(struct soap*, const char*, int, const struct ec2__TerminateInstancesResponseItemType *, const char*);
   SOAP_FMAC3 struct ec2__TerminateInstancesResponseItemType * SOAP_FMAC4 soap_in_ec2__TerminateInstancesResponseItemType(struct soap*, const char*, struct ec2__TerminateInstancesResponseItemType *, const char*);
 
-#define soap_write_ec2__TerminateInstancesResponseItemType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__TerminateInstancesResponseItemType(soap, data), 0) || soap_put_ec2__TerminateInstancesResponseItemType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__TerminateInstancesResponseItemType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__TerminateInstancesResponseItemType(soap, data), 0) || soap_put_ec2__TerminateInstancesResponseItemType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__TerminateInstancesResponseItemType(struct soap*, const struct ec2__TerminateInstancesResponseItemType *, const char*, const char*);
 
-#define soap_read_ec2__TerminateInstancesResponseItemType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__TerminateInstancesResponseItemType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__TerminateInstancesResponseItemType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__TerminateInstancesResponseItemType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__TerminateInstancesResponseItemType * SOAP_FMAC4 soap_get_ec2__TerminateInstancesResponseItemType(struct soap*, struct ec2__TerminateInstancesResponseItemType *, const char*, const char*);
 
@@ -2959,12 +2959,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__TerminateInstancesResponseInfoType(struct soap*, const char*, int, const struct ec2__TerminateInstancesResponseInfoType *, const char*);
   SOAP_FMAC3 struct ec2__TerminateInstancesResponseInfoType * SOAP_FMAC4 soap_in_ec2__TerminateInstancesResponseInfoType(struct soap*, const char*, struct ec2__TerminateInstancesResponseInfoType *, const char*);
 
-#define soap_write_ec2__TerminateInstancesResponseInfoType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__TerminateInstancesResponseInfoType(soap, data), 0) || soap_put_ec2__TerminateInstancesResponseInfoType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__TerminateInstancesResponseInfoType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__TerminateInstancesResponseInfoType(soap, data), 0) || soap_put_ec2__TerminateInstancesResponseInfoType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__TerminateInstancesResponseInfoType(struct soap*, const struct ec2__TerminateInstancesResponseInfoType *, const char*, const char*);
 
-#define soap_read_ec2__TerminateInstancesResponseInfoType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__TerminateInstancesResponseInfoType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__TerminateInstancesResponseInfoType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__TerminateInstancesResponseInfoType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__TerminateInstancesResponseInfoType * SOAP_FMAC4 soap_get_ec2__TerminateInstancesResponseInfoType(struct soap*, struct ec2__TerminateInstancesResponseInfoType *, const char*, const char*);
 
@@ -2976,12 +2976,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__TerminateInstancesResponseType(struct soap*, const char*, int, const struct ec2__TerminateInstancesResponseType *, const char*);
   SOAP_FMAC3 struct ec2__TerminateInstancesResponseType * SOAP_FMAC4 soap_in_ec2__TerminateInstancesResponseType(struct soap*, const char*, struct ec2__TerminateInstancesResponseType *, const char*);
 
-#define soap_write_ec2__TerminateInstancesResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__TerminateInstancesResponseType(soap, data), 0) || soap_put_ec2__TerminateInstancesResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__TerminateInstancesResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__TerminateInstancesResponseType(soap, data), 0) || soap_put_ec2__TerminateInstancesResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__TerminateInstancesResponseType(struct soap*, const struct ec2__TerminateInstancesResponseType *, const char*, const char*);
 
-#define soap_read_ec2__TerminateInstancesResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__TerminateInstancesResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__TerminateInstancesResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__TerminateInstancesResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__TerminateInstancesResponseType * SOAP_FMAC4 soap_get_ec2__TerminateInstancesResponseType(struct soap*, struct ec2__TerminateInstancesResponseType *, const char*, const char*);
 
@@ -2993,12 +2993,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__TerminateInstancesItemType(struct soap*, const char*, int, const struct ec2__TerminateInstancesItemType *, const char*);
   SOAP_FMAC3 struct ec2__TerminateInstancesItemType * SOAP_FMAC4 soap_in_ec2__TerminateInstancesItemType(struct soap*, const char*, struct ec2__TerminateInstancesItemType *, const char*);
 
-#define soap_write_ec2__TerminateInstancesItemType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__TerminateInstancesItemType(soap, data), 0) || soap_put_ec2__TerminateInstancesItemType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__TerminateInstancesItemType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__TerminateInstancesItemType(soap, data), 0) || soap_put_ec2__TerminateInstancesItemType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__TerminateInstancesItemType(struct soap*, const struct ec2__TerminateInstancesItemType *, const char*, const char*);
 
-#define soap_read_ec2__TerminateInstancesItemType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__TerminateInstancesItemType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__TerminateInstancesItemType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__TerminateInstancesItemType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__TerminateInstancesItemType * SOAP_FMAC4 soap_get_ec2__TerminateInstancesItemType(struct soap*, struct ec2__TerminateInstancesItemType *, const char*, const char*);
 
@@ -3010,12 +3010,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__TerminateInstancesInfoType(struct soap*, const char*, int, const struct ec2__TerminateInstancesInfoType *, const char*);
   SOAP_FMAC3 struct ec2__TerminateInstancesInfoType * SOAP_FMAC4 soap_in_ec2__TerminateInstancesInfoType(struct soap*, const char*, struct ec2__TerminateInstancesInfoType *, const char*);
 
-#define soap_write_ec2__TerminateInstancesInfoType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__TerminateInstancesInfoType(soap, data), 0) || soap_put_ec2__TerminateInstancesInfoType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__TerminateInstancesInfoType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__TerminateInstancesInfoType(soap, data), 0) || soap_put_ec2__TerminateInstancesInfoType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__TerminateInstancesInfoType(struct soap*, const struct ec2__TerminateInstancesInfoType *, const char*, const char*);
 
-#define soap_read_ec2__TerminateInstancesInfoType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__TerminateInstancesInfoType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__TerminateInstancesInfoType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__TerminateInstancesInfoType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__TerminateInstancesInfoType * SOAP_FMAC4 soap_get_ec2__TerminateInstancesInfoType(struct soap*, struct ec2__TerminateInstancesInfoType *, const char*, const char*);
 
@@ -3027,12 +3027,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__TerminateInstancesType(struct soap*, const char*, int, const struct ec2__TerminateInstancesType *, const char*);
   SOAP_FMAC3 struct ec2__TerminateInstancesType * SOAP_FMAC4 soap_in_ec2__TerminateInstancesType(struct soap*, const char*, struct ec2__TerminateInstancesType *, const char*);
 
-#define soap_write_ec2__TerminateInstancesType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__TerminateInstancesType(soap, data), 0) || soap_put_ec2__TerminateInstancesType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__TerminateInstancesType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__TerminateInstancesType(soap, data), 0) || soap_put_ec2__TerminateInstancesType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__TerminateInstancesType(struct soap*, const struct ec2__TerminateInstancesType *, const char*, const char*);
 
-#define soap_read_ec2__TerminateInstancesType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__TerminateInstancesType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__TerminateInstancesType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__TerminateInstancesType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__TerminateInstancesType * SOAP_FMAC4 soap_get_ec2__TerminateInstancesType(struct soap*, struct ec2__TerminateInstancesType *, const char*, const char*);
 
@@ -3044,12 +3044,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__GetConsoleOutputResponseType(struct soap*, const char*, int, const struct ec2__GetConsoleOutputResponseType *, const char*);
   SOAP_FMAC3 struct ec2__GetConsoleOutputResponseType * SOAP_FMAC4 soap_in_ec2__GetConsoleOutputResponseType(struct soap*, const char*, struct ec2__GetConsoleOutputResponseType *, const char*);
 
-#define soap_write_ec2__GetConsoleOutputResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__GetConsoleOutputResponseType(soap, data), 0) || soap_put_ec2__GetConsoleOutputResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__GetConsoleOutputResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__GetConsoleOutputResponseType(soap, data), 0) || soap_put_ec2__GetConsoleOutputResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__GetConsoleOutputResponseType(struct soap*, const struct ec2__GetConsoleOutputResponseType *, const char*, const char*);
 
-#define soap_read_ec2__GetConsoleOutputResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__GetConsoleOutputResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__GetConsoleOutputResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__GetConsoleOutputResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__GetConsoleOutputResponseType * SOAP_FMAC4 soap_get_ec2__GetConsoleOutputResponseType(struct soap*, struct ec2__GetConsoleOutputResponseType *, const char*, const char*);
 
@@ -3061,12 +3061,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__GetConsoleOutputType(struct soap*, const char*, int, const struct ec2__GetConsoleOutputType *, const char*);
   SOAP_FMAC3 struct ec2__GetConsoleOutputType * SOAP_FMAC4 soap_in_ec2__GetConsoleOutputType(struct soap*, const char*, struct ec2__GetConsoleOutputType *, const char*);
 
-#define soap_write_ec2__GetConsoleOutputType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__GetConsoleOutputType(soap, data), 0) || soap_put_ec2__GetConsoleOutputType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__GetConsoleOutputType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__GetConsoleOutputType(soap, data), 0) || soap_put_ec2__GetConsoleOutputType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__GetConsoleOutputType(struct soap*, const struct ec2__GetConsoleOutputType *, const char*, const char*);
 
-#define soap_read_ec2__GetConsoleOutputType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__GetConsoleOutputType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__GetConsoleOutputType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__GetConsoleOutputType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__GetConsoleOutputType * SOAP_FMAC4 soap_get_ec2__GetConsoleOutputType(struct soap*, struct ec2__GetConsoleOutputType *, const char*, const char*);
 
@@ -3078,12 +3078,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__PlacementResponseType(struct soap*, const char*, int, const struct ec2__PlacementResponseType *, const char*);
   SOAP_FMAC3 struct ec2__PlacementResponseType * SOAP_FMAC4 soap_in_ec2__PlacementResponseType(struct soap*, const char*, struct ec2__PlacementResponseType *, const char*);
 
-#define soap_write_ec2__PlacementResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__PlacementResponseType(soap, data), 0) || soap_put_ec2__PlacementResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__PlacementResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__PlacementResponseType(soap, data), 0) || soap_put_ec2__PlacementResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__PlacementResponseType(struct soap*, const struct ec2__PlacementResponseType *, const char*, const char*);
 
-#define soap_read_ec2__PlacementResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__PlacementResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__PlacementResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__PlacementResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__PlacementResponseType * SOAP_FMAC4 soap_get_ec2__PlacementResponseType(struct soap*, struct ec2__PlacementResponseType *, const char*, const char*);
 
@@ -3095,12 +3095,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__ProductCodesSetType(struct soap*, const char*, int, const struct ec2__ProductCodesSetType *, const char*);
   SOAP_FMAC3 struct ec2__ProductCodesSetType * SOAP_FMAC4 soap_in_ec2__ProductCodesSetType(struct soap*, const char*, struct ec2__ProductCodesSetType *, const char*);
 
-#define soap_write_ec2__ProductCodesSetType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__ProductCodesSetType(soap, data), 0) || soap_put_ec2__ProductCodesSetType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__ProductCodesSetType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__ProductCodesSetType(soap, data), 0) || soap_put_ec2__ProductCodesSetType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__ProductCodesSetType(struct soap*, const struct ec2__ProductCodesSetType *, const char*, const char*);
 
-#define soap_read_ec2__ProductCodesSetType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__ProductCodesSetType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__ProductCodesSetType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__ProductCodesSetType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__ProductCodesSetType * SOAP_FMAC4 soap_get_ec2__ProductCodesSetType(struct soap*, struct ec2__ProductCodesSetType *, const char*, const char*);
 
@@ -3112,12 +3112,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__InstanceStateType(struct soap*, const char*, int, const struct ec2__InstanceStateType *, const char*);
   SOAP_FMAC3 struct ec2__InstanceStateType * SOAP_FMAC4 soap_in_ec2__InstanceStateType(struct soap*, const char*, struct ec2__InstanceStateType *, const char*);
 
-#define soap_write_ec2__InstanceStateType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__InstanceStateType(soap, data), 0) || soap_put_ec2__InstanceStateType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__InstanceStateType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__InstanceStateType(soap, data), 0) || soap_put_ec2__InstanceStateType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__InstanceStateType(struct soap*, const struct ec2__InstanceStateType *, const char*, const char*);
 
-#define soap_read_ec2__InstanceStateType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__InstanceStateType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__InstanceStateType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__InstanceStateType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__InstanceStateType * SOAP_FMAC4 soap_get_ec2__InstanceStateType(struct soap*, struct ec2__InstanceStateType *, const char*, const char*);
 
@@ -3129,12 +3129,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__RunningInstancesItemType(struct soap*, const char*, int, const struct ec2__RunningInstancesItemType *, const char*);
   SOAP_FMAC3 struct ec2__RunningInstancesItemType * SOAP_FMAC4 soap_in_ec2__RunningInstancesItemType(struct soap*, const char*, struct ec2__RunningInstancesItemType *, const char*);
 
-#define soap_write_ec2__RunningInstancesItemType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__RunningInstancesItemType(soap, data), 0) || soap_put_ec2__RunningInstancesItemType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__RunningInstancesItemType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__RunningInstancesItemType(soap, data), 0) || soap_put_ec2__RunningInstancesItemType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__RunningInstancesItemType(struct soap*, const struct ec2__RunningInstancesItemType *, const char*, const char*);
 
-#define soap_read_ec2__RunningInstancesItemType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__RunningInstancesItemType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__RunningInstancesItemType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__RunningInstancesItemType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__RunningInstancesItemType * SOAP_FMAC4 soap_get_ec2__RunningInstancesItemType(struct soap*, struct ec2__RunningInstancesItemType *, const char*, const char*);
 
@@ -3146,12 +3146,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__ReservationInfoType(struct soap*, const char*, int, const struct ec2__ReservationInfoType *, const char*);
   SOAP_FMAC3 struct ec2__ReservationInfoType * SOAP_FMAC4 soap_in_ec2__ReservationInfoType(struct soap*, const char*, struct ec2__ReservationInfoType *, const char*);
 
-#define soap_write_ec2__ReservationInfoType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__ReservationInfoType(soap, data), 0) || soap_put_ec2__ReservationInfoType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__ReservationInfoType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__ReservationInfoType(soap, data), 0) || soap_put_ec2__ReservationInfoType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__ReservationInfoType(struct soap*, const struct ec2__ReservationInfoType *, const char*, const char*);
 
-#define soap_read_ec2__ReservationInfoType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__ReservationInfoType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__ReservationInfoType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__ReservationInfoType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__ReservationInfoType * SOAP_FMAC4 soap_get_ec2__ReservationInfoType(struct soap*, struct ec2__ReservationInfoType *, const char*, const char*);
 
@@ -3163,12 +3163,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__RunningInstancesSetType(struct soap*, const char*, int, const struct ec2__RunningInstancesSetType *, const char*);
   SOAP_FMAC3 struct ec2__RunningInstancesSetType * SOAP_FMAC4 soap_in_ec2__RunningInstancesSetType(struct soap*, const char*, struct ec2__RunningInstancesSetType *, const char*);
 
-#define soap_write_ec2__RunningInstancesSetType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__RunningInstancesSetType(soap, data), 0) || soap_put_ec2__RunningInstancesSetType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__RunningInstancesSetType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__RunningInstancesSetType(soap, data), 0) || soap_put_ec2__RunningInstancesSetType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__RunningInstancesSetType(struct soap*, const struct ec2__RunningInstancesSetType *, const char*, const char*);
 
-#define soap_read_ec2__RunningInstancesSetType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__RunningInstancesSetType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__RunningInstancesSetType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__RunningInstancesSetType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__RunningInstancesSetType * SOAP_FMAC4 soap_get_ec2__RunningInstancesSetType(struct soap*, struct ec2__RunningInstancesSetType *, const char*, const char*);
 
@@ -3180,12 +3180,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__RunInstancesResponseType(struct soap*, const char*, int, const struct ec2__RunInstancesResponseType *, const char*);
   SOAP_FMAC3 struct ec2__RunInstancesResponseType * SOAP_FMAC4 soap_in_ec2__RunInstancesResponseType(struct soap*, const char*, struct ec2__RunInstancesResponseType *, const char*);
 
-#define soap_write_ec2__RunInstancesResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__RunInstancesResponseType(soap, data), 0) || soap_put_ec2__RunInstancesResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__RunInstancesResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__RunInstancesResponseType(soap, data), 0) || soap_put_ec2__RunInstancesResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__RunInstancesResponseType(struct soap*, const struct ec2__RunInstancesResponseType *, const char*, const char*);
 
-#define soap_read_ec2__RunInstancesResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__RunInstancesResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__RunInstancesResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__RunInstancesResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__RunInstancesResponseType * SOAP_FMAC4 soap_get_ec2__RunInstancesResponseType(struct soap*, struct ec2__RunInstancesResponseType *, const char*, const char*);
 
@@ -3197,12 +3197,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__BlockDeviceMappingItemType(struct soap*, const char*, int, const struct ec2__BlockDeviceMappingItemType *, const char*);
   SOAP_FMAC3 struct ec2__BlockDeviceMappingItemType * SOAP_FMAC4 soap_in_ec2__BlockDeviceMappingItemType(struct soap*, const char*, struct ec2__BlockDeviceMappingItemType *, const char*);
 
-#define soap_write_ec2__BlockDeviceMappingItemType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__BlockDeviceMappingItemType(soap, data), 0) || soap_put_ec2__BlockDeviceMappingItemType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__BlockDeviceMappingItemType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__BlockDeviceMappingItemType(soap, data), 0) || soap_put_ec2__BlockDeviceMappingItemType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__BlockDeviceMappingItemType(struct soap*, const struct ec2__BlockDeviceMappingItemType *, const char*, const char*);
 
-#define soap_read_ec2__BlockDeviceMappingItemType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__BlockDeviceMappingItemType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__BlockDeviceMappingItemType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__BlockDeviceMappingItemType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__BlockDeviceMappingItemType * SOAP_FMAC4 soap_get_ec2__BlockDeviceMappingItemType(struct soap*, struct ec2__BlockDeviceMappingItemType *, const char*, const char*);
 
@@ -3214,12 +3214,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__GroupItemType(struct soap*, const char*, int, const struct ec2__GroupItemType *, const char*);
   SOAP_FMAC3 struct ec2__GroupItemType * SOAP_FMAC4 soap_in_ec2__GroupItemType(struct soap*, const char*, struct ec2__GroupItemType *, const char*);
 
-#define soap_write_ec2__GroupItemType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__GroupItemType(soap, data), 0) || soap_put_ec2__GroupItemType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__GroupItemType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__GroupItemType(soap, data), 0) || soap_put_ec2__GroupItemType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__GroupItemType(struct soap*, const struct ec2__GroupItemType *, const char*, const char*);
 
-#define soap_read_ec2__GroupItemType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__GroupItemType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__GroupItemType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__GroupItemType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__GroupItemType * SOAP_FMAC4 soap_get_ec2__GroupItemType(struct soap*, struct ec2__GroupItemType *, const char*, const char*);
 
@@ -3231,12 +3231,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__BlockDeviceMappingType(struct soap*, const char*, int, const struct ec2__BlockDeviceMappingType *, const char*);
   SOAP_FMAC3 struct ec2__BlockDeviceMappingType * SOAP_FMAC4 soap_in_ec2__BlockDeviceMappingType(struct soap*, const char*, struct ec2__BlockDeviceMappingType *, const char*);
 
-#define soap_write_ec2__BlockDeviceMappingType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__BlockDeviceMappingType(soap, data), 0) || soap_put_ec2__BlockDeviceMappingType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__BlockDeviceMappingType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__BlockDeviceMappingType(soap, data), 0) || soap_put_ec2__BlockDeviceMappingType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__BlockDeviceMappingType(struct soap*, const struct ec2__BlockDeviceMappingType *, const char*, const char*);
 
-#define soap_read_ec2__BlockDeviceMappingType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__BlockDeviceMappingType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__BlockDeviceMappingType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__BlockDeviceMappingType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__BlockDeviceMappingType * SOAP_FMAC4 soap_get_ec2__BlockDeviceMappingType(struct soap*, struct ec2__BlockDeviceMappingType *, const char*, const char*);
 
@@ -3248,12 +3248,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__PlacementRequestType(struct soap*, const char*, int, const struct ec2__PlacementRequestType *, const char*);
   SOAP_FMAC3 struct ec2__PlacementRequestType * SOAP_FMAC4 soap_in_ec2__PlacementRequestType(struct soap*, const char*, struct ec2__PlacementRequestType *, const char*);
 
-#define soap_write_ec2__PlacementRequestType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__PlacementRequestType(soap, data), 0) || soap_put_ec2__PlacementRequestType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__PlacementRequestType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__PlacementRequestType(soap, data), 0) || soap_put_ec2__PlacementRequestType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__PlacementRequestType(struct soap*, const struct ec2__PlacementRequestType *, const char*, const char*);
 
-#define soap_read_ec2__PlacementRequestType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__PlacementRequestType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__PlacementRequestType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__PlacementRequestType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__PlacementRequestType * SOAP_FMAC4 soap_get_ec2__PlacementRequestType(struct soap*, struct ec2__PlacementRequestType *, const char*, const char*);
 
@@ -3265,12 +3265,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__UserDataType(struct soap*, const char*, int, const struct ec2__UserDataType *, const char*);
   SOAP_FMAC3 struct ec2__UserDataType * SOAP_FMAC4 soap_in_ec2__UserDataType(struct soap*, const char*, struct ec2__UserDataType *, const char*);
 
-#define soap_write_ec2__UserDataType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__UserDataType(soap, data), 0) || soap_put_ec2__UserDataType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__UserDataType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__UserDataType(soap, data), 0) || soap_put_ec2__UserDataType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__UserDataType(struct soap*, const struct ec2__UserDataType *, const char*, const char*);
 
-#define soap_read_ec2__UserDataType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__UserDataType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__UserDataType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__UserDataType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__UserDataType * SOAP_FMAC4 soap_get_ec2__UserDataType(struct soap*, struct ec2__UserDataType *, const char*, const char*);
 
@@ -3282,12 +3282,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__GroupSetType(struct soap*, const char*, int, const struct ec2__GroupSetType *, const char*);
   SOAP_FMAC3 struct ec2__GroupSetType * SOAP_FMAC4 soap_in_ec2__GroupSetType(struct soap*, const char*, struct ec2__GroupSetType *, const char*);
 
-#define soap_write_ec2__GroupSetType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__GroupSetType(soap, data), 0) || soap_put_ec2__GroupSetType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__GroupSetType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__GroupSetType(soap, data), 0) || soap_put_ec2__GroupSetType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__GroupSetType(struct soap*, const struct ec2__GroupSetType *, const char*, const char*);
 
-#define soap_read_ec2__GroupSetType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__GroupSetType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__GroupSetType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__GroupSetType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__GroupSetType * SOAP_FMAC4 soap_get_ec2__GroupSetType(struct soap*, struct ec2__GroupSetType *, const char*, const char*);
 
@@ -3299,12 +3299,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__RunInstancesType(struct soap*, const char*, int, const struct ec2__RunInstancesType *, const char*);
   SOAP_FMAC3 struct ec2__RunInstancesType * SOAP_FMAC4 soap_in_ec2__RunInstancesType(struct soap*, const char*, struct ec2__RunInstancesType *, const char*);
 
-#define soap_write_ec2__RunInstancesType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__RunInstancesType(soap, data), 0) || soap_put_ec2__RunInstancesType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__RunInstancesType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__RunInstancesType(soap, data), 0) || soap_put_ec2__RunInstancesType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__RunInstancesType(struct soap*, const struct ec2__RunInstancesType *, const char*, const char*);
 
-#define soap_read_ec2__RunInstancesType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__RunInstancesType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__RunInstancesType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__RunInstancesType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__RunInstancesType * SOAP_FMAC4 soap_get_ec2__RunInstancesType(struct soap*, struct ec2__RunInstancesType *, const char*, const char*);
 
@@ -3316,12 +3316,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DescribeKeyPairsResponseItemType(struct soap*, const char*, int, const struct ec2__DescribeKeyPairsResponseItemType *, const char*);
   SOAP_FMAC3 struct ec2__DescribeKeyPairsResponseItemType * SOAP_FMAC4 soap_in_ec2__DescribeKeyPairsResponseItemType(struct soap*, const char*, struct ec2__DescribeKeyPairsResponseItemType *, const char*);
 
-#define soap_write_ec2__DescribeKeyPairsResponseItemType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DescribeKeyPairsResponseItemType(soap, data), 0) || soap_put_ec2__DescribeKeyPairsResponseItemType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DescribeKeyPairsResponseItemType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DescribeKeyPairsResponseItemType(soap, data), 0) || soap_put_ec2__DescribeKeyPairsResponseItemType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DescribeKeyPairsResponseItemType(struct soap*, const struct ec2__DescribeKeyPairsResponseItemType *, const char*, const char*);
 
-#define soap_read_ec2__DescribeKeyPairsResponseItemType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DescribeKeyPairsResponseItemType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DescribeKeyPairsResponseItemType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DescribeKeyPairsResponseItemType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeKeyPairsResponseItemType * SOAP_FMAC4 soap_get_ec2__DescribeKeyPairsResponseItemType(struct soap*, struct ec2__DescribeKeyPairsResponseItemType *, const char*, const char*);
 
@@ -3333,12 +3333,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DescribeKeyPairsResponseInfoType(struct soap*, const char*, int, const struct ec2__DescribeKeyPairsResponseInfoType *, const char*);
   SOAP_FMAC3 struct ec2__DescribeKeyPairsResponseInfoType * SOAP_FMAC4 soap_in_ec2__DescribeKeyPairsResponseInfoType(struct soap*, const char*, struct ec2__DescribeKeyPairsResponseInfoType *, const char*);
 
-#define soap_write_ec2__DescribeKeyPairsResponseInfoType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DescribeKeyPairsResponseInfoType(soap, data), 0) || soap_put_ec2__DescribeKeyPairsResponseInfoType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DescribeKeyPairsResponseInfoType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DescribeKeyPairsResponseInfoType(soap, data), 0) || soap_put_ec2__DescribeKeyPairsResponseInfoType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DescribeKeyPairsResponseInfoType(struct soap*, const struct ec2__DescribeKeyPairsResponseInfoType *, const char*, const char*);
 
-#define soap_read_ec2__DescribeKeyPairsResponseInfoType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DescribeKeyPairsResponseInfoType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DescribeKeyPairsResponseInfoType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DescribeKeyPairsResponseInfoType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeKeyPairsResponseInfoType * SOAP_FMAC4 soap_get_ec2__DescribeKeyPairsResponseInfoType(struct soap*, struct ec2__DescribeKeyPairsResponseInfoType *, const char*, const char*);
 
@@ -3350,12 +3350,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DescribeKeyPairsResponseType(struct soap*, const char*, int, const struct ec2__DescribeKeyPairsResponseType *, const char*);
   SOAP_FMAC3 struct ec2__DescribeKeyPairsResponseType * SOAP_FMAC4 soap_in_ec2__DescribeKeyPairsResponseType(struct soap*, const char*, struct ec2__DescribeKeyPairsResponseType *, const char*);
 
-#define soap_write_ec2__DescribeKeyPairsResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DescribeKeyPairsResponseType(soap, data), 0) || soap_put_ec2__DescribeKeyPairsResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DescribeKeyPairsResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DescribeKeyPairsResponseType(soap, data), 0) || soap_put_ec2__DescribeKeyPairsResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DescribeKeyPairsResponseType(struct soap*, const struct ec2__DescribeKeyPairsResponseType *, const char*, const char*);
 
-#define soap_read_ec2__DescribeKeyPairsResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DescribeKeyPairsResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DescribeKeyPairsResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DescribeKeyPairsResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeKeyPairsResponseType * SOAP_FMAC4 soap_get_ec2__DescribeKeyPairsResponseType(struct soap*, struct ec2__DescribeKeyPairsResponseType *, const char*, const char*);
 
@@ -3367,12 +3367,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DescribeKeyPairsItemType(struct soap*, const char*, int, const struct ec2__DescribeKeyPairsItemType *, const char*);
   SOAP_FMAC3 struct ec2__DescribeKeyPairsItemType * SOAP_FMAC4 soap_in_ec2__DescribeKeyPairsItemType(struct soap*, const char*, struct ec2__DescribeKeyPairsItemType *, const char*);
 
-#define soap_write_ec2__DescribeKeyPairsItemType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DescribeKeyPairsItemType(soap, data), 0) || soap_put_ec2__DescribeKeyPairsItemType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DescribeKeyPairsItemType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DescribeKeyPairsItemType(soap, data), 0) || soap_put_ec2__DescribeKeyPairsItemType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DescribeKeyPairsItemType(struct soap*, const struct ec2__DescribeKeyPairsItemType *, const char*, const char*);
 
-#define soap_read_ec2__DescribeKeyPairsItemType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DescribeKeyPairsItemType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DescribeKeyPairsItemType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DescribeKeyPairsItemType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeKeyPairsItemType * SOAP_FMAC4 soap_get_ec2__DescribeKeyPairsItemType(struct soap*, struct ec2__DescribeKeyPairsItemType *, const char*, const char*);
 
@@ -3384,12 +3384,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DescribeKeyPairsInfoType(struct soap*, const char*, int, const struct ec2__DescribeKeyPairsInfoType *, const char*);
   SOAP_FMAC3 struct ec2__DescribeKeyPairsInfoType * SOAP_FMAC4 soap_in_ec2__DescribeKeyPairsInfoType(struct soap*, const char*, struct ec2__DescribeKeyPairsInfoType *, const char*);
 
-#define soap_write_ec2__DescribeKeyPairsInfoType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DescribeKeyPairsInfoType(soap, data), 0) || soap_put_ec2__DescribeKeyPairsInfoType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DescribeKeyPairsInfoType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DescribeKeyPairsInfoType(soap, data), 0) || soap_put_ec2__DescribeKeyPairsInfoType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DescribeKeyPairsInfoType(struct soap*, const struct ec2__DescribeKeyPairsInfoType *, const char*, const char*);
 
-#define soap_read_ec2__DescribeKeyPairsInfoType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DescribeKeyPairsInfoType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DescribeKeyPairsInfoType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DescribeKeyPairsInfoType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeKeyPairsInfoType * SOAP_FMAC4 soap_get_ec2__DescribeKeyPairsInfoType(struct soap*, struct ec2__DescribeKeyPairsInfoType *, const char*, const char*);
 
@@ -3401,12 +3401,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DescribeKeyPairsType(struct soap*, const char*, int, const struct ec2__DescribeKeyPairsType *, const char*);
   SOAP_FMAC3 struct ec2__DescribeKeyPairsType * SOAP_FMAC4 soap_in_ec2__DescribeKeyPairsType(struct soap*, const char*, struct ec2__DescribeKeyPairsType *, const char*);
 
-#define soap_write_ec2__DescribeKeyPairsType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DescribeKeyPairsType(soap, data), 0) || soap_put_ec2__DescribeKeyPairsType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DescribeKeyPairsType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DescribeKeyPairsType(soap, data), 0) || soap_put_ec2__DescribeKeyPairsType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DescribeKeyPairsType(struct soap*, const struct ec2__DescribeKeyPairsType *, const char*, const char*);
 
-#define soap_read_ec2__DescribeKeyPairsType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DescribeKeyPairsType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DescribeKeyPairsType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DescribeKeyPairsType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeKeyPairsType * SOAP_FMAC4 soap_get_ec2__DescribeKeyPairsType(struct soap*, struct ec2__DescribeKeyPairsType *, const char*, const char*);
 
@@ -3418,12 +3418,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DeleteKeyPairResponseType(struct soap*, const char*, int, const struct ec2__DeleteKeyPairResponseType *, const char*);
   SOAP_FMAC3 struct ec2__DeleteKeyPairResponseType * SOAP_FMAC4 soap_in_ec2__DeleteKeyPairResponseType(struct soap*, const char*, struct ec2__DeleteKeyPairResponseType *, const char*);
 
-#define soap_write_ec2__DeleteKeyPairResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DeleteKeyPairResponseType(soap, data), 0) || soap_put_ec2__DeleteKeyPairResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DeleteKeyPairResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DeleteKeyPairResponseType(soap, data), 0) || soap_put_ec2__DeleteKeyPairResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DeleteKeyPairResponseType(struct soap*, const struct ec2__DeleteKeyPairResponseType *, const char*, const char*);
 
-#define soap_read_ec2__DeleteKeyPairResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DeleteKeyPairResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DeleteKeyPairResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DeleteKeyPairResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DeleteKeyPairResponseType * SOAP_FMAC4 soap_get_ec2__DeleteKeyPairResponseType(struct soap*, struct ec2__DeleteKeyPairResponseType *, const char*, const char*);
 
@@ -3435,12 +3435,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DeleteKeyPairType(struct soap*, const char*, int, const struct ec2__DeleteKeyPairType *, const char*);
   SOAP_FMAC3 struct ec2__DeleteKeyPairType * SOAP_FMAC4 soap_in_ec2__DeleteKeyPairType(struct soap*, const char*, struct ec2__DeleteKeyPairType *, const char*);
 
-#define soap_write_ec2__DeleteKeyPairType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DeleteKeyPairType(soap, data), 0) || soap_put_ec2__DeleteKeyPairType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DeleteKeyPairType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DeleteKeyPairType(soap, data), 0) || soap_put_ec2__DeleteKeyPairType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DeleteKeyPairType(struct soap*, const struct ec2__DeleteKeyPairType *, const char*, const char*);
 
-#define soap_read_ec2__DeleteKeyPairType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DeleteKeyPairType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DeleteKeyPairType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DeleteKeyPairType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DeleteKeyPairType * SOAP_FMAC4 soap_get_ec2__DeleteKeyPairType(struct soap*, struct ec2__DeleteKeyPairType *, const char*, const char*);
 
@@ -3452,12 +3452,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__CreateKeyPairResponseType(struct soap*, const char*, int, const struct ec2__CreateKeyPairResponseType *, const char*);
   SOAP_FMAC3 struct ec2__CreateKeyPairResponseType * SOAP_FMAC4 soap_in_ec2__CreateKeyPairResponseType(struct soap*, const char*, struct ec2__CreateKeyPairResponseType *, const char*);
 
-#define soap_write_ec2__CreateKeyPairResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__CreateKeyPairResponseType(soap, data), 0) || soap_put_ec2__CreateKeyPairResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__CreateKeyPairResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__CreateKeyPairResponseType(soap, data), 0) || soap_put_ec2__CreateKeyPairResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__CreateKeyPairResponseType(struct soap*, const struct ec2__CreateKeyPairResponseType *, const char*, const char*);
 
-#define soap_read_ec2__CreateKeyPairResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__CreateKeyPairResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__CreateKeyPairResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__CreateKeyPairResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__CreateKeyPairResponseType * SOAP_FMAC4 soap_get_ec2__CreateKeyPairResponseType(struct soap*, struct ec2__CreateKeyPairResponseType *, const char*, const char*);
 
@@ -3469,12 +3469,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__CreateKeyPairType(struct soap*, const char*, int, const struct ec2__CreateKeyPairType *, const char*);
   SOAP_FMAC3 struct ec2__CreateKeyPairType * SOAP_FMAC4 soap_in_ec2__CreateKeyPairType(struct soap*, const char*, struct ec2__CreateKeyPairType *, const char*);
 
-#define soap_write_ec2__CreateKeyPairType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__CreateKeyPairType(soap, data), 0) || soap_put_ec2__CreateKeyPairType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__CreateKeyPairType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__CreateKeyPairType(soap, data), 0) || soap_put_ec2__CreateKeyPairType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__CreateKeyPairType(struct soap*, const struct ec2__CreateKeyPairType *, const char*, const char*);
 
-#define soap_read_ec2__CreateKeyPairType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__CreateKeyPairType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__CreateKeyPairType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__CreateKeyPairType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__CreateKeyPairType * SOAP_FMAC4 soap_get_ec2__CreateKeyPairType(struct soap*, struct ec2__CreateKeyPairType *, const char*, const char*);
 
@@ -3486,12 +3486,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DeregisterImageResponseType(struct soap*, const char*, int, const struct ec2__DeregisterImageResponseType *, const char*);
   SOAP_FMAC3 struct ec2__DeregisterImageResponseType * SOAP_FMAC4 soap_in_ec2__DeregisterImageResponseType(struct soap*, const char*, struct ec2__DeregisterImageResponseType *, const char*);
 
-#define soap_write_ec2__DeregisterImageResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DeregisterImageResponseType(soap, data), 0) || soap_put_ec2__DeregisterImageResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DeregisterImageResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DeregisterImageResponseType(soap, data), 0) || soap_put_ec2__DeregisterImageResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DeregisterImageResponseType(struct soap*, const struct ec2__DeregisterImageResponseType *, const char*, const char*);
 
-#define soap_read_ec2__DeregisterImageResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DeregisterImageResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DeregisterImageResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DeregisterImageResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DeregisterImageResponseType * SOAP_FMAC4 soap_get_ec2__DeregisterImageResponseType(struct soap*, struct ec2__DeregisterImageResponseType *, const char*, const char*);
 
@@ -3503,12 +3503,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__DeregisterImageType(struct soap*, const char*, int, const struct ec2__DeregisterImageType *, const char*);
   SOAP_FMAC3 struct ec2__DeregisterImageType * SOAP_FMAC4 soap_in_ec2__DeregisterImageType(struct soap*, const char*, struct ec2__DeregisterImageType *, const char*);
 
-#define soap_write_ec2__DeregisterImageType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__DeregisterImageType(soap, data), 0) || soap_put_ec2__DeregisterImageType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__DeregisterImageType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__DeregisterImageType(soap, data), 0) || soap_put_ec2__DeregisterImageType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__DeregisterImageType(struct soap*, const struct ec2__DeregisterImageType *, const char*, const char*);
 
-#define soap_read_ec2__DeregisterImageType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__DeregisterImageType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__DeregisterImageType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__DeregisterImageType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DeregisterImageType * SOAP_FMAC4 soap_get_ec2__DeregisterImageType(struct soap*, struct ec2__DeregisterImageType *, const char*, const char*);
 
@@ -3520,12 +3520,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__RegisterImageResponseType(struct soap*, const char*, int, const struct ec2__RegisterImageResponseType *, const char*);
   SOAP_FMAC3 struct ec2__RegisterImageResponseType * SOAP_FMAC4 soap_in_ec2__RegisterImageResponseType(struct soap*, const char*, struct ec2__RegisterImageResponseType *, const char*);
 
-#define soap_write_ec2__RegisterImageResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__RegisterImageResponseType(soap, data), 0) || soap_put_ec2__RegisterImageResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__RegisterImageResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__RegisterImageResponseType(soap, data), 0) || soap_put_ec2__RegisterImageResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__RegisterImageResponseType(struct soap*, const struct ec2__RegisterImageResponseType *, const char*, const char*);
 
-#define soap_read_ec2__RegisterImageResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__RegisterImageResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__RegisterImageResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__RegisterImageResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__RegisterImageResponseType * SOAP_FMAC4 soap_get_ec2__RegisterImageResponseType(struct soap*, struct ec2__RegisterImageResponseType *, const char*, const char*);
 
@@ -3537,12 +3537,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ec2__RegisterImageType(struct soap*, const char*, int, const struct ec2__RegisterImageType *, const char*);
   SOAP_FMAC3 struct ec2__RegisterImageType * SOAP_FMAC4 soap_in_ec2__RegisterImageType(struct soap*, const char*, struct ec2__RegisterImageType *, const char*);
 
-#define soap_write_ec2__RegisterImageType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ec2__RegisterImageType(soap, data), 0) || soap_put_ec2__RegisterImageType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ec2__RegisterImageType(soap, data) (soap_begin_send(soap) || (soap_serialize_ec2__RegisterImageType(soap, data), 0) || soap_put_ec2__RegisterImageType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ec2__RegisterImageType(struct soap*, const struct ec2__RegisterImageType *, const char*, const char*);
 
-#define soap_read_ec2__RegisterImageType(soap, data) ( soap_begin_recv(soap) || !soap_get_ec2__RegisterImageType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ec2__RegisterImageType(soap, data) (soap_begin_recv(soap) || !soap_get_ec2__RegisterImageType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__RegisterImageType * SOAP_FMAC4 soap_get_ec2__RegisterImageType(struct soap*, struct ec2__RegisterImageType *, const char*, const char*);
 
@@ -3556,12 +3556,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_SOAP_ENV__Header(struct soap*, const char*, int, const struct SOAP_ENV__Header *, const char*);
   SOAP_FMAC3 struct SOAP_ENV__Header * SOAP_FMAC4 soap_in_SOAP_ENV__Header(struct soap*, const char*, struct SOAP_ENV__Header *, const char*);
 
-#define soap_write_SOAP_ENV__Header(soap, data) ( soap_begin_send(soap) || (soap_serialize_SOAP_ENV__Header(soap, data), 0) || soap_put_SOAP_ENV__Header(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_SOAP_ENV__Header(soap, data) (soap_begin_send(soap) || (soap_serialize_SOAP_ENV__Header(soap, data), 0) || soap_put_SOAP_ENV__Header(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_SOAP_ENV__Header(struct soap*, const struct SOAP_ENV__Header *, const char*, const char*);
 
-#define soap_read_SOAP_ENV__Header(soap, data) ( soap_begin_recv(soap) || !soap_get_SOAP_ENV__Header(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_SOAP_ENV__Header(soap, data) (soap_begin_recv(soap) || !soap_get_SOAP_ENV__Header(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct SOAP_ENV__Header * SOAP_FMAC4 soap_get_SOAP_ENV__Header(struct soap*, struct SOAP_ENV__Header *, const char*, const char*);
 
@@ -3575,12 +3575,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out__wsse__Security(struct soap*, const char*, int, const struct _wsse__Security *, const char*);
   SOAP_FMAC3 struct _wsse__Security * SOAP_FMAC4 soap_in__wsse__Security(struct soap*, const char*, struct _wsse__Security *, const char*);
 
-#define soap_write__wsse__Security(soap, data) ( soap_begin_send(soap) || (soap_serialize__wsse__Security(soap, data), 0) || soap_put__wsse__Security(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write__wsse__Security(soap, data) (soap_begin_send(soap) || (soap_serialize__wsse__Security(soap, data), 0) || soap_put__wsse__Security(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put__wsse__Security(struct soap*, const struct _wsse__Security *, const char*, const char*);
 
-#define soap_read__wsse__Security(soap, data) ( soap_begin_recv(soap) || !soap_get__wsse__Security(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read__wsse__Security(soap, data) (soap_begin_recv(soap) || !soap_get__wsse__Security(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct _wsse__Security * SOAP_FMAC4 soap_get__wsse__Security(struct soap*, struct _wsse__Security *, const char*, const char*);
 
@@ -3592,12 +3592,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ds__RSAKeyValueType(struct soap*, const char*, int, const struct ds__RSAKeyValueType *, const char*);
   SOAP_FMAC3 struct ds__RSAKeyValueType * SOAP_FMAC4 soap_in_ds__RSAKeyValueType(struct soap*, const char*, struct ds__RSAKeyValueType *, const char*);
 
-#define soap_write_ds__RSAKeyValueType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ds__RSAKeyValueType(soap, data), 0) || soap_put_ds__RSAKeyValueType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ds__RSAKeyValueType(soap, data) (soap_begin_send(soap) || (soap_serialize_ds__RSAKeyValueType(soap, data), 0) || soap_put_ds__RSAKeyValueType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ds__RSAKeyValueType(struct soap*, const struct ds__RSAKeyValueType *, const char*, const char*);
 
-#define soap_read_ds__RSAKeyValueType(soap, data) ( soap_begin_recv(soap) || !soap_get_ds__RSAKeyValueType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ds__RSAKeyValueType(soap, data) (soap_begin_recv(soap) || !soap_get_ds__RSAKeyValueType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ds__RSAKeyValueType * SOAP_FMAC4 soap_get_ds__RSAKeyValueType(struct soap*, struct ds__RSAKeyValueType *, const char*, const char*);
 
@@ -3609,12 +3609,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ds__DSAKeyValueType(struct soap*, const char*, int, const struct ds__DSAKeyValueType *, const char*);
   SOAP_FMAC3 struct ds__DSAKeyValueType * SOAP_FMAC4 soap_in_ds__DSAKeyValueType(struct soap*, const char*, struct ds__DSAKeyValueType *, const char*);
 
-#define soap_write_ds__DSAKeyValueType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ds__DSAKeyValueType(soap, data), 0) || soap_put_ds__DSAKeyValueType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ds__DSAKeyValueType(soap, data) (soap_begin_send(soap) || (soap_serialize_ds__DSAKeyValueType(soap, data), 0) || soap_put_ds__DSAKeyValueType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ds__DSAKeyValueType(struct soap*, const struct ds__DSAKeyValueType *, const char*, const char*);
 
-#define soap_read_ds__DSAKeyValueType(soap, data) ( soap_begin_recv(soap) || !soap_get_ds__DSAKeyValueType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ds__DSAKeyValueType(soap, data) (soap_begin_recv(soap) || !soap_get_ds__DSAKeyValueType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ds__DSAKeyValueType * SOAP_FMAC4 soap_get_ds__DSAKeyValueType(struct soap*, struct ds__DSAKeyValueType *, const char*, const char*);
 
@@ -3626,12 +3626,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ds__X509IssuerSerialType(struct soap*, const char*, int, const struct ds__X509IssuerSerialType *, const char*);
   SOAP_FMAC3 struct ds__X509IssuerSerialType * SOAP_FMAC4 soap_in_ds__X509IssuerSerialType(struct soap*, const char*, struct ds__X509IssuerSerialType *, const char*);
 
-#define soap_write_ds__X509IssuerSerialType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ds__X509IssuerSerialType(soap, data), 0) || soap_put_ds__X509IssuerSerialType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ds__X509IssuerSerialType(soap, data) (soap_begin_send(soap) || (soap_serialize_ds__X509IssuerSerialType(soap, data), 0) || soap_put_ds__X509IssuerSerialType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ds__X509IssuerSerialType(struct soap*, const struct ds__X509IssuerSerialType *, const char*, const char*);
 
-#define soap_read_ds__X509IssuerSerialType(soap, data) ( soap_begin_recv(soap) || !soap_get_ds__X509IssuerSerialType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ds__X509IssuerSerialType(soap, data) (soap_begin_recv(soap) || !soap_get_ds__X509IssuerSerialType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ds__X509IssuerSerialType * SOAP_FMAC4 soap_get_ds__X509IssuerSerialType(struct soap*, struct ds__X509IssuerSerialType *, const char*, const char*);
 
@@ -3643,12 +3643,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ds__X509DataType(struct soap*, const char*, int, const struct ds__X509DataType *, const char*);
   SOAP_FMAC3 struct ds__X509DataType * SOAP_FMAC4 soap_in_ds__X509DataType(struct soap*, const char*, struct ds__X509DataType *, const char*);
 
-#define soap_write_ds__X509DataType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ds__X509DataType(soap, data), 0) || soap_put_ds__X509DataType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ds__X509DataType(soap, data) (soap_begin_send(soap) || (soap_serialize_ds__X509DataType(soap, data), 0) || soap_put_ds__X509DataType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ds__X509DataType(struct soap*, const struct ds__X509DataType *, const char*, const char*);
 
-#define soap_read_ds__X509DataType(soap, data) ( soap_begin_recv(soap) || !soap_get_ds__X509DataType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ds__X509DataType(soap, data) (soap_begin_recv(soap) || !soap_get_ds__X509DataType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ds__X509DataType * SOAP_FMAC4 soap_get_ds__X509DataType(struct soap*, struct ds__X509DataType *, const char*, const char*);
 
@@ -3660,12 +3660,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ds__RetrievalMethodType(struct soap*, const char*, int, const struct ds__RetrievalMethodType *, const char*);
   SOAP_FMAC3 struct ds__RetrievalMethodType * SOAP_FMAC4 soap_in_ds__RetrievalMethodType(struct soap*, const char*, struct ds__RetrievalMethodType *, const char*);
 
-#define soap_write_ds__RetrievalMethodType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ds__RetrievalMethodType(soap, data), 0) || soap_put_ds__RetrievalMethodType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ds__RetrievalMethodType(soap, data) (soap_begin_send(soap) || (soap_serialize_ds__RetrievalMethodType(soap, data), 0) || soap_put_ds__RetrievalMethodType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ds__RetrievalMethodType(struct soap*, const struct ds__RetrievalMethodType *, const char*, const char*);
 
-#define soap_read_ds__RetrievalMethodType(soap, data) ( soap_begin_recv(soap) || !soap_get_ds__RetrievalMethodType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ds__RetrievalMethodType(soap, data) (soap_begin_recv(soap) || !soap_get_ds__RetrievalMethodType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ds__RetrievalMethodType * SOAP_FMAC4 soap_get_ds__RetrievalMethodType(struct soap*, struct ds__RetrievalMethodType *, const char*, const char*);
 
@@ -3677,12 +3677,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ds__KeyValueType(struct soap*, const char*, int, const struct ds__KeyValueType *, const char*);
   SOAP_FMAC3 struct ds__KeyValueType * SOAP_FMAC4 soap_in_ds__KeyValueType(struct soap*, const char*, struct ds__KeyValueType *, const char*);
 
-#define soap_write_ds__KeyValueType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ds__KeyValueType(soap, data), 0) || soap_put_ds__KeyValueType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ds__KeyValueType(soap, data) (soap_begin_send(soap) || (soap_serialize_ds__KeyValueType(soap, data), 0) || soap_put_ds__KeyValueType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ds__KeyValueType(struct soap*, const struct ds__KeyValueType *, const char*, const char*);
 
-#define soap_read_ds__KeyValueType(soap, data) ( soap_begin_recv(soap) || !soap_get_ds__KeyValueType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ds__KeyValueType(soap, data) (soap_begin_recv(soap) || !soap_get_ds__KeyValueType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ds__KeyValueType * SOAP_FMAC4 soap_get_ds__KeyValueType(struct soap*, struct ds__KeyValueType *, const char*, const char*);
 
@@ -3694,12 +3694,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ds__DigestMethodType(struct soap*, const char*, int, const struct ds__DigestMethodType *, const char*);
   SOAP_FMAC3 struct ds__DigestMethodType * SOAP_FMAC4 soap_in_ds__DigestMethodType(struct soap*, const char*, struct ds__DigestMethodType *, const char*);
 
-#define soap_write_ds__DigestMethodType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ds__DigestMethodType(soap, data), 0) || soap_put_ds__DigestMethodType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ds__DigestMethodType(soap, data) (soap_begin_send(soap) || (soap_serialize_ds__DigestMethodType(soap, data), 0) || soap_put_ds__DigestMethodType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ds__DigestMethodType(struct soap*, const struct ds__DigestMethodType *, const char*, const char*);
 
-#define soap_read_ds__DigestMethodType(soap, data) ( soap_begin_recv(soap) || !soap_get_ds__DigestMethodType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ds__DigestMethodType(soap, data) (soap_begin_recv(soap) || !soap_get_ds__DigestMethodType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ds__DigestMethodType * SOAP_FMAC4 soap_get_ds__DigestMethodType(struct soap*, struct ds__DigestMethodType *, const char*, const char*);
 
@@ -3711,12 +3711,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ds__TransformType(struct soap*, const char*, int, const struct ds__TransformType *, const char*);
   SOAP_FMAC3 struct ds__TransformType * SOAP_FMAC4 soap_in_ds__TransformType(struct soap*, const char*, struct ds__TransformType *, const char*);
 
-#define soap_write_ds__TransformType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ds__TransformType(soap, data), 0) || soap_put_ds__TransformType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ds__TransformType(soap, data) (soap_begin_send(soap) || (soap_serialize_ds__TransformType(soap, data), 0) || soap_put_ds__TransformType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ds__TransformType(struct soap*, const struct ds__TransformType *, const char*, const char*);
 
-#define soap_read_ds__TransformType(soap, data) ( soap_begin_recv(soap) || !soap_get_ds__TransformType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ds__TransformType(soap, data) (soap_begin_recv(soap) || !soap_get_ds__TransformType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ds__TransformType * SOAP_FMAC4 soap_get_ds__TransformType(struct soap*, struct ds__TransformType *, const char*, const char*);
 
@@ -3728,12 +3728,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out__c14n__InclusiveNamespaces(struct soap*, const char*, int, const struct _c14n__InclusiveNamespaces *, const char*);
   SOAP_FMAC3 struct _c14n__InclusiveNamespaces * SOAP_FMAC4 soap_in__c14n__InclusiveNamespaces(struct soap*, const char*, struct _c14n__InclusiveNamespaces *, const char*);
 
-#define soap_write__c14n__InclusiveNamespaces(soap, data) ( soap_begin_send(soap) || (soap_serialize__c14n__InclusiveNamespaces(soap, data), 0) || soap_put__c14n__InclusiveNamespaces(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write__c14n__InclusiveNamespaces(soap, data) (soap_begin_send(soap) || (soap_serialize__c14n__InclusiveNamespaces(soap, data), 0) || soap_put__c14n__InclusiveNamespaces(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put__c14n__InclusiveNamespaces(struct soap*, const struct _c14n__InclusiveNamespaces *, const char*, const char*);
 
-#define soap_read__c14n__InclusiveNamespaces(soap, data) ( soap_begin_recv(soap) || !soap_get__c14n__InclusiveNamespaces(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read__c14n__InclusiveNamespaces(soap, data) (soap_begin_recv(soap) || !soap_get__c14n__InclusiveNamespaces(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct _c14n__InclusiveNamespaces * SOAP_FMAC4 soap_get__c14n__InclusiveNamespaces(struct soap*, struct _c14n__InclusiveNamespaces *, const char*, const char*);
 
@@ -3745,12 +3745,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ds__TransformsType(struct soap*, const char*, int, const struct ds__TransformsType *, const char*);
   SOAP_FMAC3 struct ds__TransformsType * SOAP_FMAC4 soap_in_ds__TransformsType(struct soap*, const char*, struct ds__TransformsType *, const char*);
 
-#define soap_write_ds__TransformsType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ds__TransformsType(soap, data), 0) || soap_put_ds__TransformsType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ds__TransformsType(soap, data) (soap_begin_send(soap) || (soap_serialize_ds__TransformsType(soap, data), 0) || soap_put_ds__TransformsType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ds__TransformsType(struct soap*, const struct ds__TransformsType *, const char*, const char*);
 
-#define soap_read_ds__TransformsType(soap, data) ( soap_begin_recv(soap) || !soap_get_ds__TransformsType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ds__TransformsType(soap, data) (soap_begin_recv(soap) || !soap_get_ds__TransformsType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ds__TransformsType * SOAP_FMAC4 soap_get_ds__TransformsType(struct soap*, struct ds__TransformsType *, const char*, const char*);
 
@@ -3762,12 +3762,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ds__ReferenceType(struct soap*, const char*, int, const struct ds__ReferenceType *, const char*);
   SOAP_FMAC3 struct ds__ReferenceType * SOAP_FMAC4 soap_in_ds__ReferenceType(struct soap*, const char*, struct ds__ReferenceType *, const char*);
 
-#define soap_write_ds__ReferenceType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ds__ReferenceType(soap, data), 0) || soap_put_ds__ReferenceType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ds__ReferenceType(soap, data) (soap_begin_send(soap) || (soap_serialize_ds__ReferenceType(soap, data), 0) || soap_put_ds__ReferenceType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ds__ReferenceType(struct soap*, const struct ds__ReferenceType *, const char*, const char*);
 
-#define soap_read_ds__ReferenceType(soap, data) ( soap_begin_recv(soap) || !soap_get_ds__ReferenceType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ds__ReferenceType(soap, data) (soap_begin_recv(soap) || !soap_get_ds__ReferenceType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ds__ReferenceType * SOAP_FMAC4 soap_get_ds__ReferenceType(struct soap*, struct ds__ReferenceType *, const char*, const char*);
 
@@ -3779,12 +3779,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ds__SignatureMethodType(struct soap*, const char*, int, const struct ds__SignatureMethodType *, const char*);
   SOAP_FMAC3 struct ds__SignatureMethodType * SOAP_FMAC4 soap_in_ds__SignatureMethodType(struct soap*, const char*, struct ds__SignatureMethodType *, const char*);
 
-#define soap_write_ds__SignatureMethodType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ds__SignatureMethodType(soap, data), 0) || soap_put_ds__SignatureMethodType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ds__SignatureMethodType(soap, data) (soap_begin_send(soap) || (soap_serialize_ds__SignatureMethodType(soap, data), 0) || soap_put_ds__SignatureMethodType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ds__SignatureMethodType(struct soap*, const struct ds__SignatureMethodType *, const char*, const char*);
 
-#define soap_read_ds__SignatureMethodType(soap, data) ( soap_begin_recv(soap) || !soap_get_ds__SignatureMethodType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ds__SignatureMethodType(soap, data) (soap_begin_recv(soap) || !soap_get_ds__SignatureMethodType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ds__SignatureMethodType * SOAP_FMAC4 soap_get_ds__SignatureMethodType(struct soap*, struct ds__SignatureMethodType *, const char*, const char*);
 
@@ -3796,12 +3796,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ds__CanonicalizationMethodType(struct soap*, const char*, int, const struct ds__CanonicalizationMethodType *, const char*);
   SOAP_FMAC3 struct ds__CanonicalizationMethodType * SOAP_FMAC4 soap_in_ds__CanonicalizationMethodType(struct soap*, const char*, struct ds__CanonicalizationMethodType *, const char*);
 
-#define soap_write_ds__CanonicalizationMethodType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ds__CanonicalizationMethodType(soap, data), 0) || soap_put_ds__CanonicalizationMethodType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ds__CanonicalizationMethodType(soap, data) (soap_begin_send(soap) || (soap_serialize_ds__CanonicalizationMethodType(soap, data), 0) || soap_put_ds__CanonicalizationMethodType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ds__CanonicalizationMethodType(struct soap*, const struct ds__CanonicalizationMethodType *, const char*, const char*);
 
-#define soap_read_ds__CanonicalizationMethodType(soap, data) ( soap_begin_recv(soap) || !soap_get_ds__CanonicalizationMethodType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ds__CanonicalizationMethodType(soap, data) (soap_begin_recv(soap) || !soap_get_ds__CanonicalizationMethodType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ds__CanonicalizationMethodType * SOAP_FMAC4 soap_get_ds__CanonicalizationMethodType(struct soap*, struct ds__CanonicalizationMethodType *, const char*, const char*);
 
@@ -3813,12 +3813,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ds__KeyInfoType(struct soap*, const char*, int, const struct ds__KeyInfoType *, const char*);
   SOAP_FMAC3 struct ds__KeyInfoType * SOAP_FMAC4 soap_in_ds__KeyInfoType(struct soap*, const char*, struct ds__KeyInfoType *, const char*);
 
-#define soap_write_ds__KeyInfoType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ds__KeyInfoType(soap, data), 0) || soap_put_ds__KeyInfoType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ds__KeyInfoType(soap, data) (soap_begin_send(soap) || (soap_serialize_ds__KeyInfoType(soap, data), 0) || soap_put_ds__KeyInfoType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ds__KeyInfoType(struct soap*, const struct ds__KeyInfoType *, const char*, const char*);
 
-#define soap_read_ds__KeyInfoType(soap, data) ( soap_begin_recv(soap) || !soap_get_ds__KeyInfoType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ds__KeyInfoType(soap, data) (soap_begin_recv(soap) || !soap_get_ds__KeyInfoType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ds__KeyInfoType * SOAP_FMAC4 soap_get_ds__KeyInfoType(struct soap*, struct ds__KeyInfoType *, const char*, const char*);
 
@@ -3830,12 +3830,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ds__SignedInfoType(struct soap*, const char*, int, const struct ds__SignedInfoType *, const char*);
   SOAP_FMAC3 struct ds__SignedInfoType * SOAP_FMAC4 soap_in_ds__SignedInfoType(struct soap*, const char*, struct ds__SignedInfoType *, const char*);
 
-#define soap_write_ds__SignedInfoType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ds__SignedInfoType(soap, data), 0) || soap_put_ds__SignedInfoType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ds__SignedInfoType(soap, data) (soap_begin_send(soap) || (soap_serialize_ds__SignedInfoType(soap, data), 0) || soap_put_ds__SignedInfoType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ds__SignedInfoType(struct soap*, const struct ds__SignedInfoType *, const char*, const char*);
 
-#define soap_read_ds__SignedInfoType(soap, data) ( soap_begin_recv(soap) || !soap_get_ds__SignedInfoType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ds__SignedInfoType(soap, data) (soap_begin_recv(soap) || !soap_get_ds__SignedInfoType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ds__SignedInfoType * SOAP_FMAC4 soap_get_ds__SignedInfoType(struct soap*, struct ds__SignedInfoType *, const char*, const char*);
 
@@ -3847,12 +3847,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_ds__SignatureType(struct soap*, const char*, int, const struct ds__SignatureType *, const char*);
   SOAP_FMAC3 struct ds__SignatureType * SOAP_FMAC4 soap_in_ds__SignatureType(struct soap*, const char*, struct ds__SignatureType *, const char*);
 
-#define soap_write_ds__SignatureType(soap, data) ( soap_begin_send(soap) || (soap_serialize_ds__SignatureType(soap, data), 0) || soap_put_ds__SignatureType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_ds__SignatureType(soap, data) (soap_begin_send(soap) || (soap_serialize_ds__SignatureType(soap, data), 0) || soap_put_ds__SignatureType(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_ds__SignatureType(struct soap*, const struct ds__SignatureType *, const char*, const char*);
 
-#define soap_read_ds__SignatureType(soap, data) ( soap_begin_recv(soap) || !soap_get_ds__SignatureType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_ds__SignatureType(soap, data) (soap_begin_recv(soap) || !soap_get_ds__SignatureType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ds__SignatureType * SOAP_FMAC4 soap_get_ds__SignatureType(struct soap*, struct ds__SignatureType *, const char*, const char*);
 
@@ -3864,12 +3864,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out__wsse__SecurityTokenReference(struct soap*, const char*, int, const struct _wsse__SecurityTokenReference *, const char*);
   SOAP_FMAC3 struct _wsse__SecurityTokenReference * SOAP_FMAC4 soap_in__wsse__SecurityTokenReference(struct soap*, const char*, struct _wsse__SecurityTokenReference *, const char*);
 
-#define soap_write__wsse__SecurityTokenReference(soap, data) ( soap_begin_send(soap) || (soap_serialize__wsse__SecurityTokenReference(soap, data), 0) || soap_put__wsse__SecurityTokenReference(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write__wsse__SecurityTokenReference(soap, data) (soap_begin_send(soap) || (soap_serialize__wsse__SecurityTokenReference(soap, data), 0) || soap_put__wsse__SecurityTokenReference(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put__wsse__SecurityTokenReference(struct soap*, const struct _wsse__SecurityTokenReference *, const char*, const char*);
 
-#define soap_read__wsse__SecurityTokenReference(soap, data) ( soap_begin_recv(soap) || !soap_get__wsse__SecurityTokenReference(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read__wsse__SecurityTokenReference(soap, data) (soap_begin_recv(soap) || !soap_get__wsse__SecurityTokenReference(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct _wsse__SecurityTokenReference * SOAP_FMAC4 soap_get__wsse__SecurityTokenReference(struct soap*, struct _wsse__SecurityTokenReference *, const char*, const char*);
 
@@ -3881,12 +3881,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out__wsse__KeyIdentifier(struct soap*, const char*, int, const struct _wsse__KeyIdentifier *, const char*);
   SOAP_FMAC3 struct _wsse__KeyIdentifier * SOAP_FMAC4 soap_in__wsse__KeyIdentifier(struct soap*, const char*, struct _wsse__KeyIdentifier *, const char*);
 
-#define soap_write__wsse__KeyIdentifier(soap, data) ( soap_begin_send(soap) || (soap_serialize__wsse__KeyIdentifier(soap, data), 0) || soap_put__wsse__KeyIdentifier(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write__wsse__KeyIdentifier(soap, data) (soap_begin_send(soap) || (soap_serialize__wsse__KeyIdentifier(soap, data), 0) || soap_put__wsse__KeyIdentifier(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put__wsse__KeyIdentifier(struct soap*, const struct _wsse__KeyIdentifier *, const char*, const char*);
 
-#define soap_read__wsse__KeyIdentifier(soap, data) ( soap_begin_recv(soap) || !soap_get__wsse__KeyIdentifier(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read__wsse__KeyIdentifier(soap, data) (soap_begin_recv(soap) || !soap_get__wsse__KeyIdentifier(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct _wsse__KeyIdentifier * SOAP_FMAC4 soap_get__wsse__KeyIdentifier(struct soap*, struct _wsse__KeyIdentifier *, const char*, const char*);
 
@@ -3898,12 +3898,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out__wsse__Embedded(struct soap*, const char*, int, const struct _wsse__Embedded *, const char*);
   SOAP_FMAC3 struct _wsse__Embedded * SOAP_FMAC4 soap_in__wsse__Embedded(struct soap*, const char*, struct _wsse__Embedded *, const char*);
 
-#define soap_write__wsse__Embedded(soap, data) ( soap_begin_send(soap) || (soap_serialize__wsse__Embedded(soap, data), 0) || soap_put__wsse__Embedded(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write__wsse__Embedded(soap, data) (soap_begin_send(soap) || (soap_serialize__wsse__Embedded(soap, data), 0) || soap_put__wsse__Embedded(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put__wsse__Embedded(struct soap*, const struct _wsse__Embedded *, const char*, const char*);
 
-#define soap_read__wsse__Embedded(soap, data) ( soap_begin_recv(soap) || !soap_get__wsse__Embedded(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read__wsse__Embedded(soap, data) (soap_begin_recv(soap) || !soap_get__wsse__Embedded(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct _wsse__Embedded * SOAP_FMAC4 soap_get__wsse__Embedded(struct soap*, struct _wsse__Embedded *, const char*, const char*);
 
@@ -3915,12 +3915,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out__wsse__Reference(struct soap*, const char*, int, const struct _wsse__Reference *, const char*);
   SOAP_FMAC3 struct _wsse__Reference * SOAP_FMAC4 soap_in__wsse__Reference(struct soap*, const char*, struct _wsse__Reference *, const char*);
 
-#define soap_write__wsse__Reference(soap, data) ( soap_begin_send(soap) || (soap_serialize__wsse__Reference(soap, data), 0) || soap_put__wsse__Reference(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write__wsse__Reference(soap, data) (soap_begin_send(soap) || (soap_serialize__wsse__Reference(soap, data), 0) || soap_put__wsse__Reference(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put__wsse__Reference(struct soap*, const struct _wsse__Reference *, const char*, const char*);
 
-#define soap_read__wsse__Reference(soap, data) ( soap_begin_recv(soap) || !soap_get__wsse__Reference(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read__wsse__Reference(soap, data) (soap_begin_recv(soap) || !soap_get__wsse__Reference(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct _wsse__Reference * SOAP_FMAC4 soap_get__wsse__Reference(struct soap*, struct _wsse__Reference *, const char*, const char*);
 
@@ -3932,12 +3932,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out__wsse__BinarySecurityToken(struct soap*, const char*, int, const struct _wsse__BinarySecurityToken *, const char*);
   SOAP_FMAC3 struct _wsse__BinarySecurityToken * SOAP_FMAC4 soap_in__wsse__BinarySecurityToken(struct soap*, const char*, struct _wsse__BinarySecurityToken *, const char*);
 
-#define soap_write__wsse__BinarySecurityToken(soap, data) ( soap_begin_send(soap) || (soap_serialize__wsse__BinarySecurityToken(soap, data), 0) || soap_put__wsse__BinarySecurityToken(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write__wsse__BinarySecurityToken(soap, data) (soap_begin_send(soap) || (soap_serialize__wsse__BinarySecurityToken(soap, data), 0) || soap_put__wsse__BinarySecurityToken(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put__wsse__BinarySecurityToken(struct soap*, const struct _wsse__BinarySecurityToken *, const char*, const char*);
 
-#define soap_read__wsse__BinarySecurityToken(soap, data) ( soap_begin_recv(soap) || !soap_get__wsse__BinarySecurityToken(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read__wsse__BinarySecurityToken(soap, data) (soap_begin_recv(soap) || !soap_get__wsse__BinarySecurityToken(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct _wsse__BinarySecurityToken * SOAP_FMAC4 soap_get__wsse__BinarySecurityToken(struct soap*, struct _wsse__BinarySecurityToken *, const char*, const char*);
 
@@ -3949,12 +3949,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out__wsse__Password(struct soap*, const char*, int, const struct _wsse__Password *, const char*);
   SOAP_FMAC3 struct _wsse__Password * SOAP_FMAC4 soap_in__wsse__Password(struct soap*, const char*, struct _wsse__Password *, const char*);
 
-#define soap_write__wsse__Password(soap, data) ( soap_begin_send(soap) || (soap_serialize__wsse__Password(soap, data), 0) || soap_put__wsse__Password(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write__wsse__Password(soap, data) (soap_begin_send(soap) || (soap_serialize__wsse__Password(soap, data), 0) || soap_put__wsse__Password(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put__wsse__Password(struct soap*, const struct _wsse__Password *, const char*, const char*);
 
-#define soap_read__wsse__Password(soap, data) ( soap_begin_recv(soap) || !soap_get__wsse__Password(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read__wsse__Password(soap, data) (soap_begin_recv(soap) || !soap_get__wsse__Password(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct _wsse__Password * SOAP_FMAC4 soap_get__wsse__Password(struct soap*, struct _wsse__Password *, const char*, const char*);
 
@@ -3966,12 +3966,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out__wsse__UsernameToken(struct soap*, const char*, int, const struct _wsse__UsernameToken *, const char*);
   SOAP_FMAC3 struct _wsse__UsernameToken * SOAP_FMAC4 soap_in__wsse__UsernameToken(struct soap*, const char*, struct _wsse__UsernameToken *, const char*);
 
-#define soap_write__wsse__UsernameToken(soap, data) ( soap_begin_send(soap) || (soap_serialize__wsse__UsernameToken(soap, data), 0) || soap_put__wsse__UsernameToken(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write__wsse__UsernameToken(soap, data) (soap_begin_send(soap) || (soap_serialize__wsse__UsernameToken(soap, data), 0) || soap_put__wsse__UsernameToken(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put__wsse__UsernameToken(struct soap*, const struct _wsse__UsernameToken *, const char*, const char*);
 
-#define soap_read__wsse__UsernameToken(soap, data) ( soap_begin_recv(soap) || !soap_get__wsse__UsernameToken(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read__wsse__UsernameToken(soap, data) (soap_begin_recv(soap) || !soap_get__wsse__UsernameToken(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct _wsse__UsernameToken * SOAP_FMAC4 soap_get__wsse__UsernameToken(struct soap*, struct _wsse__UsernameToken *, const char*, const char*);
 
@@ -3983,12 +3983,12 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out__wsu__Timestamp(struct soap*, const char*, int, const struct _wsu__Timestamp *, const char*);
   SOAP_FMAC3 struct _wsu__Timestamp * SOAP_FMAC4 soap_in__wsu__Timestamp(struct soap*, const char*, struct _wsu__Timestamp *, const char*);
 
-#define soap_write__wsu__Timestamp(soap, data) ( soap_begin_send(soap) || (soap_serialize__wsu__Timestamp(soap, data), 0) || soap_put__wsu__Timestamp(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write__wsu__Timestamp(soap, data) (soap_begin_send(soap) || (soap_serialize__wsu__Timestamp(soap, data), 0) || soap_put__wsu__Timestamp(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put__wsu__Timestamp(struct soap*, const struct _wsu__Timestamp *, const char*, const char*);
 
-#define soap_read__wsu__Timestamp(soap, data) ( soap_begin_recv(soap) || !soap_get__wsu__Timestamp(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read__wsu__Timestamp(soap, data) (soap_begin_recv(soap) || !soap_get__wsu__Timestamp(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct _wsu__Timestamp * SOAP_FMAC4 soap_get__wsu__Timestamp(struct soap*, struct _wsu__Timestamp *, const char*, const char*);
 
@@ -4050,11 +4050,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToSOAP_ENV__Reason(struct soap*, const char *, int, struct SOAP_ENV__Reason *const*, const char *);
   SOAP_FMAC3 struct SOAP_ENV__Reason ** SOAP_FMAC4 soap_in_PointerToSOAP_ENV__Reason(struct soap*, const char*, struct SOAP_ENV__Reason **, const char*);
 
-#define soap_write_PointerToSOAP_ENV__Reason(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToSOAP_ENV__Reason(soap, data), 0) || soap_put_PointerToSOAP_ENV__Reason(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToSOAP_ENV__Reason(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToSOAP_ENV__Reason(soap, data), 0) || soap_put_PointerToSOAP_ENV__Reason(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToSOAP_ENV__Reason(struct soap*, struct SOAP_ENV__Reason *const*, const char*, const char*);
 
-#define soap_read_PointerToSOAP_ENV__Reason(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToSOAP_ENV__Reason(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToSOAP_ENV__Reason(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToSOAP_ENV__Reason(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct SOAP_ENV__Reason ** SOAP_FMAC4 soap_get_PointerToSOAP_ENV__Reason(struct soap*, struct SOAP_ENV__Reason **, const char*, const char*);
 
@@ -4069,11 +4069,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToSOAP_ENV__Detail(struct soap*, const char *, int, struct SOAP_ENV__Detail *const*, const char *);
   SOAP_FMAC3 struct SOAP_ENV__Detail ** SOAP_FMAC4 soap_in_PointerToSOAP_ENV__Detail(struct soap*, const char*, struct SOAP_ENV__Detail **, const char*);
 
-#define soap_write_PointerToSOAP_ENV__Detail(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToSOAP_ENV__Detail(soap, data), 0) || soap_put_PointerToSOAP_ENV__Detail(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToSOAP_ENV__Detail(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToSOAP_ENV__Detail(soap, data), 0) || soap_put_PointerToSOAP_ENV__Detail(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToSOAP_ENV__Detail(struct soap*, struct SOAP_ENV__Detail *const*, const char*, const char*);
 
-#define soap_read_PointerToSOAP_ENV__Detail(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToSOAP_ENV__Detail(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToSOAP_ENV__Detail(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToSOAP_ENV__Detail(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct SOAP_ENV__Detail ** SOAP_FMAC4 soap_get_PointerToSOAP_ENV__Detail(struct soap*, struct SOAP_ENV__Detail **, const char*, const char*);
 
@@ -4088,11 +4088,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToSOAP_ENV__Code(struct soap*, const char *, int, struct SOAP_ENV__Code *const*, const char *);
   SOAP_FMAC3 struct SOAP_ENV__Code ** SOAP_FMAC4 soap_in_PointerToSOAP_ENV__Code(struct soap*, const char*, struct SOAP_ENV__Code **, const char*);
 
-#define soap_write_PointerToSOAP_ENV__Code(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToSOAP_ENV__Code(soap, data), 0) || soap_put_PointerToSOAP_ENV__Code(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToSOAP_ENV__Code(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToSOAP_ENV__Code(soap, data), 0) || soap_put_PointerToSOAP_ENV__Code(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToSOAP_ENV__Code(struct soap*, struct SOAP_ENV__Code *const*, const char*, const char*);
 
-#define soap_read_PointerToSOAP_ENV__Code(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToSOAP_ENV__Code(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToSOAP_ENV__Code(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToSOAP_ENV__Code(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct SOAP_ENV__Code ** SOAP_FMAC4 soap_get_PointerToSOAP_ENV__Code(struct soap*, struct SOAP_ENV__Code **, const char*, const char*);
 
@@ -4105,11 +4105,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DescribeRegionsResponseType(struct soap*, const char *, int, struct ec2__DescribeRegionsResponseType *const*, const char *);
   SOAP_FMAC3 struct ec2__DescribeRegionsResponseType ** SOAP_FMAC4 soap_in_PointerToec2__DescribeRegionsResponseType(struct soap*, const char*, struct ec2__DescribeRegionsResponseType **, const char*);
 
-#define soap_write_PointerToec2__DescribeRegionsResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeRegionsResponseType(soap, data), 0) || soap_put_PointerToec2__DescribeRegionsResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DescribeRegionsResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeRegionsResponseType(soap, data), 0) || soap_put_PointerToec2__DescribeRegionsResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DescribeRegionsResponseType(struct soap*, struct ec2__DescribeRegionsResponseType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DescribeRegionsResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeRegionsResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DescribeRegionsResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeRegionsResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeRegionsResponseType ** SOAP_FMAC4 soap_get_PointerToec2__DescribeRegionsResponseType(struct soap*, struct ec2__DescribeRegionsResponseType **, const char*, const char*);
 
@@ -4120,11 +4120,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DescribeRegionsType(struct soap*, const char *, int, struct ec2__DescribeRegionsType *const*, const char *);
   SOAP_FMAC3 struct ec2__DescribeRegionsType ** SOAP_FMAC4 soap_in_PointerToec2__DescribeRegionsType(struct soap*, const char*, struct ec2__DescribeRegionsType **, const char*);
 
-#define soap_write_PointerToec2__DescribeRegionsType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeRegionsType(soap, data), 0) || soap_put_PointerToec2__DescribeRegionsType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DescribeRegionsType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeRegionsType(soap, data), 0) || soap_put_PointerToec2__DescribeRegionsType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DescribeRegionsType(struct soap*, struct ec2__DescribeRegionsType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DescribeRegionsType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeRegionsType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DescribeRegionsType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeRegionsType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeRegionsType ** SOAP_FMAC4 soap_get_PointerToec2__DescribeRegionsType(struct soap*, struct ec2__DescribeRegionsType **, const char*, const char*);
 
@@ -4135,11 +4135,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__CancelBundleTaskResponseType(struct soap*, const char *, int, struct ec2__CancelBundleTaskResponseType *const*, const char *);
   SOAP_FMAC3 struct ec2__CancelBundleTaskResponseType ** SOAP_FMAC4 soap_in_PointerToec2__CancelBundleTaskResponseType(struct soap*, const char*, struct ec2__CancelBundleTaskResponseType **, const char*);
 
-#define soap_write_PointerToec2__CancelBundleTaskResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__CancelBundleTaskResponseType(soap, data), 0) || soap_put_PointerToec2__CancelBundleTaskResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__CancelBundleTaskResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__CancelBundleTaskResponseType(soap, data), 0) || soap_put_PointerToec2__CancelBundleTaskResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__CancelBundleTaskResponseType(struct soap*, struct ec2__CancelBundleTaskResponseType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__CancelBundleTaskResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__CancelBundleTaskResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__CancelBundleTaskResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__CancelBundleTaskResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__CancelBundleTaskResponseType ** SOAP_FMAC4 soap_get_PointerToec2__CancelBundleTaskResponseType(struct soap*, struct ec2__CancelBundleTaskResponseType **, const char*, const char*);
 
@@ -4150,11 +4150,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__CancelBundleTaskType(struct soap*, const char *, int, struct ec2__CancelBundleTaskType *const*, const char *);
   SOAP_FMAC3 struct ec2__CancelBundleTaskType ** SOAP_FMAC4 soap_in_PointerToec2__CancelBundleTaskType(struct soap*, const char*, struct ec2__CancelBundleTaskType **, const char*);
 
-#define soap_write_PointerToec2__CancelBundleTaskType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__CancelBundleTaskType(soap, data), 0) || soap_put_PointerToec2__CancelBundleTaskType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__CancelBundleTaskType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__CancelBundleTaskType(soap, data), 0) || soap_put_PointerToec2__CancelBundleTaskType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__CancelBundleTaskType(struct soap*, struct ec2__CancelBundleTaskType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__CancelBundleTaskType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__CancelBundleTaskType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__CancelBundleTaskType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__CancelBundleTaskType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__CancelBundleTaskType ** SOAP_FMAC4 soap_get_PointerToec2__CancelBundleTaskType(struct soap*, struct ec2__CancelBundleTaskType **, const char*, const char*);
 
@@ -4165,11 +4165,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DescribeBundleTasksResponseType(struct soap*, const char *, int, struct ec2__DescribeBundleTasksResponseType *const*, const char *);
   SOAP_FMAC3 struct ec2__DescribeBundleTasksResponseType ** SOAP_FMAC4 soap_in_PointerToec2__DescribeBundleTasksResponseType(struct soap*, const char*, struct ec2__DescribeBundleTasksResponseType **, const char*);
 
-#define soap_write_PointerToec2__DescribeBundleTasksResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeBundleTasksResponseType(soap, data), 0) || soap_put_PointerToec2__DescribeBundleTasksResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DescribeBundleTasksResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeBundleTasksResponseType(soap, data), 0) || soap_put_PointerToec2__DescribeBundleTasksResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DescribeBundleTasksResponseType(struct soap*, struct ec2__DescribeBundleTasksResponseType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DescribeBundleTasksResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeBundleTasksResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DescribeBundleTasksResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeBundleTasksResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeBundleTasksResponseType ** SOAP_FMAC4 soap_get_PointerToec2__DescribeBundleTasksResponseType(struct soap*, struct ec2__DescribeBundleTasksResponseType **, const char*, const char*);
 
@@ -4180,11 +4180,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DescribeBundleTasksType(struct soap*, const char *, int, struct ec2__DescribeBundleTasksType *const*, const char *);
   SOAP_FMAC3 struct ec2__DescribeBundleTasksType ** SOAP_FMAC4 soap_in_PointerToec2__DescribeBundleTasksType(struct soap*, const char*, struct ec2__DescribeBundleTasksType **, const char*);
 
-#define soap_write_PointerToec2__DescribeBundleTasksType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeBundleTasksType(soap, data), 0) || soap_put_PointerToec2__DescribeBundleTasksType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DescribeBundleTasksType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeBundleTasksType(soap, data), 0) || soap_put_PointerToec2__DescribeBundleTasksType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DescribeBundleTasksType(struct soap*, struct ec2__DescribeBundleTasksType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DescribeBundleTasksType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeBundleTasksType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DescribeBundleTasksType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeBundleTasksType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeBundleTasksType ** SOAP_FMAC4 soap_get_PointerToec2__DescribeBundleTasksType(struct soap*, struct ec2__DescribeBundleTasksType **, const char*, const char*);
 
@@ -4195,11 +4195,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__BundleInstanceResponseType(struct soap*, const char *, int, struct ec2__BundleInstanceResponseType *const*, const char *);
   SOAP_FMAC3 struct ec2__BundleInstanceResponseType ** SOAP_FMAC4 soap_in_PointerToec2__BundleInstanceResponseType(struct soap*, const char*, struct ec2__BundleInstanceResponseType **, const char*);
 
-#define soap_write_PointerToec2__BundleInstanceResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__BundleInstanceResponseType(soap, data), 0) || soap_put_PointerToec2__BundleInstanceResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__BundleInstanceResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__BundleInstanceResponseType(soap, data), 0) || soap_put_PointerToec2__BundleInstanceResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__BundleInstanceResponseType(struct soap*, struct ec2__BundleInstanceResponseType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__BundleInstanceResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__BundleInstanceResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__BundleInstanceResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__BundleInstanceResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__BundleInstanceResponseType ** SOAP_FMAC4 soap_get_PointerToec2__BundleInstanceResponseType(struct soap*, struct ec2__BundleInstanceResponseType **, const char*, const char*);
 
@@ -4210,11 +4210,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__BundleInstanceType(struct soap*, const char *, int, struct ec2__BundleInstanceType *const*, const char *);
   SOAP_FMAC3 struct ec2__BundleInstanceType ** SOAP_FMAC4 soap_in_PointerToec2__BundleInstanceType(struct soap*, const char*, struct ec2__BundleInstanceType **, const char*);
 
-#define soap_write_PointerToec2__BundleInstanceType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__BundleInstanceType(soap, data), 0) || soap_put_PointerToec2__BundleInstanceType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__BundleInstanceType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__BundleInstanceType(soap, data), 0) || soap_put_PointerToec2__BundleInstanceType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__BundleInstanceType(struct soap*, struct ec2__BundleInstanceType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__BundleInstanceType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__BundleInstanceType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__BundleInstanceType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__BundleInstanceType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__BundleInstanceType ** SOAP_FMAC4 soap_get_PointerToec2__BundleInstanceType(struct soap*, struct ec2__BundleInstanceType **, const char*, const char*);
 
@@ -4225,11 +4225,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DescribeSnapshotsResponseType(struct soap*, const char *, int, struct ec2__DescribeSnapshotsResponseType *const*, const char *);
   SOAP_FMAC3 struct ec2__DescribeSnapshotsResponseType ** SOAP_FMAC4 soap_in_PointerToec2__DescribeSnapshotsResponseType(struct soap*, const char*, struct ec2__DescribeSnapshotsResponseType **, const char*);
 
-#define soap_write_PointerToec2__DescribeSnapshotsResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeSnapshotsResponseType(soap, data), 0) || soap_put_PointerToec2__DescribeSnapshotsResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DescribeSnapshotsResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeSnapshotsResponseType(soap, data), 0) || soap_put_PointerToec2__DescribeSnapshotsResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DescribeSnapshotsResponseType(struct soap*, struct ec2__DescribeSnapshotsResponseType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DescribeSnapshotsResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeSnapshotsResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DescribeSnapshotsResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeSnapshotsResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeSnapshotsResponseType ** SOAP_FMAC4 soap_get_PointerToec2__DescribeSnapshotsResponseType(struct soap*, struct ec2__DescribeSnapshotsResponseType **, const char*, const char*);
 
@@ -4240,11 +4240,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DescribeSnapshotsType(struct soap*, const char *, int, struct ec2__DescribeSnapshotsType *const*, const char *);
   SOAP_FMAC3 struct ec2__DescribeSnapshotsType ** SOAP_FMAC4 soap_in_PointerToec2__DescribeSnapshotsType(struct soap*, const char*, struct ec2__DescribeSnapshotsType **, const char*);
 
-#define soap_write_PointerToec2__DescribeSnapshotsType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeSnapshotsType(soap, data), 0) || soap_put_PointerToec2__DescribeSnapshotsType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DescribeSnapshotsType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeSnapshotsType(soap, data), 0) || soap_put_PointerToec2__DescribeSnapshotsType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DescribeSnapshotsType(struct soap*, struct ec2__DescribeSnapshotsType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DescribeSnapshotsType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeSnapshotsType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DescribeSnapshotsType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeSnapshotsType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeSnapshotsType ** SOAP_FMAC4 soap_get_PointerToec2__DescribeSnapshotsType(struct soap*, struct ec2__DescribeSnapshotsType **, const char*, const char*);
 
@@ -4255,11 +4255,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DeleteSnapshotResponseType(struct soap*, const char *, int, struct ec2__DeleteSnapshotResponseType *const*, const char *);
   SOAP_FMAC3 struct ec2__DeleteSnapshotResponseType ** SOAP_FMAC4 soap_in_PointerToec2__DeleteSnapshotResponseType(struct soap*, const char*, struct ec2__DeleteSnapshotResponseType **, const char*);
 
-#define soap_write_PointerToec2__DeleteSnapshotResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DeleteSnapshotResponseType(soap, data), 0) || soap_put_PointerToec2__DeleteSnapshotResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DeleteSnapshotResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DeleteSnapshotResponseType(soap, data), 0) || soap_put_PointerToec2__DeleteSnapshotResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DeleteSnapshotResponseType(struct soap*, struct ec2__DeleteSnapshotResponseType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DeleteSnapshotResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DeleteSnapshotResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DeleteSnapshotResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DeleteSnapshotResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DeleteSnapshotResponseType ** SOAP_FMAC4 soap_get_PointerToec2__DeleteSnapshotResponseType(struct soap*, struct ec2__DeleteSnapshotResponseType **, const char*, const char*);
 
@@ -4270,11 +4270,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DeleteSnapshotType(struct soap*, const char *, int, struct ec2__DeleteSnapshotType *const*, const char *);
   SOAP_FMAC3 struct ec2__DeleteSnapshotType ** SOAP_FMAC4 soap_in_PointerToec2__DeleteSnapshotType(struct soap*, const char*, struct ec2__DeleteSnapshotType **, const char*);
 
-#define soap_write_PointerToec2__DeleteSnapshotType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DeleteSnapshotType(soap, data), 0) || soap_put_PointerToec2__DeleteSnapshotType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DeleteSnapshotType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DeleteSnapshotType(soap, data), 0) || soap_put_PointerToec2__DeleteSnapshotType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DeleteSnapshotType(struct soap*, struct ec2__DeleteSnapshotType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DeleteSnapshotType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DeleteSnapshotType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DeleteSnapshotType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DeleteSnapshotType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DeleteSnapshotType ** SOAP_FMAC4 soap_get_PointerToec2__DeleteSnapshotType(struct soap*, struct ec2__DeleteSnapshotType **, const char*, const char*);
 
@@ -4285,11 +4285,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__CreateSnapshotResponseType(struct soap*, const char *, int, struct ec2__CreateSnapshotResponseType *const*, const char *);
   SOAP_FMAC3 struct ec2__CreateSnapshotResponseType ** SOAP_FMAC4 soap_in_PointerToec2__CreateSnapshotResponseType(struct soap*, const char*, struct ec2__CreateSnapshotResponseType **, const char*);
 
-#define soap_write_PointerToec2__CreateSnapshotResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__CreateSnapshotResponseType(soap, data), 0) || soap_put_PointerToec2__CreateSnapshotResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__CreateSnapshotResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__CreateSnapshotResponseType(soap, data), 0) || soap_put_PointerToec2__CreateSnapshotResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__CreateSnapshotResponseType(struct soap*, struct ec2__CreateSnapshotResponseType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__CreateSnapshotResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__CreateSnapshotResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__CreateSnapshotResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__CreateSnapshotResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__CreateSnapshotResponseType ** SOAP_FMAC4 soap_get_PointerToec2__CreateSnapshotResponseType(struct soap*, struct ec2__CreateSnapshotResponseType **, const char*, const char*);
 
@@ -4300,11 +4300,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__CreateSnapshotType(struct soap*, const char *, int, struct ec2__CreateSnapshotType *const*, const char *);
   SOAP_FMAC3 struct ec2__CreateSnapshotType ** SOAP_FMAC4 soap_in_PointerToec2__CreateSnapshotType(struct soap*, const char*, struct ec2__CreateSnapshotType **, const char*);
 
-#define soap_write_PointerToec2__CreateSnapshotType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__CreateSnapshotType(soap, data), 0) || soap_put_PointerToec2__CreateSnapshotType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__CreateSnapshotType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__CreateSnapshotType(soap, data), 0) || soap_put_PointerToec2__CreateSnapshotType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__CreateSnapshotType(struct soap*, struct ec2__CreateSnapshotType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__CreateSnapshotType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__CreateSnapshotType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__CreateSnapshotType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__CreateSnapshotType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__CreateSnapshotType ** SOAP_FMAC4 soap_get_PointerToec2__CreateSnapshotType(struct soap*, struct ec2__CreateSnapshotType **, const char*, const char*);
 
@@ -4315,11 +4315,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DetachVolumeResponseType(struct soap*, const char *, int, struct ec2__DetachVolumeResponseType *const*, const char *);
   SOAP_FMAC3 struct ec2__DetachVolumeResponseType ** SOAP_FMAC4 soap_in_PointerToec2__DetachVolumeResponseType(struct soap*, const char*, struct ec2__DetachVolumeResponseType **, const char*);
 
-#define soap_write_PointerToec2__DetachVolumeResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DetachVolumeResponseType(soap, data), 0) || soap_put_PointerToec2__DetachVolumeResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DetachVolumeResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DetachVolumeResponseType(soap, data), 0) || soap_put_PointerToec2__DetachVolumeResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DetachVolumeResponseType(struct soap*, struct ec2__DetachVolumeResponseType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DetachVolumeResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DetachVolumeResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DetachVolumeResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DetachVolumeResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DetachVolumeResponseType ** SOAP_FMAC4 soap_get_PointerToec2__DetachVolumeResponseType(struct soap*, struct ec2__DetachVolumeResponseType **, const char*, const char*);
 
@@ -4330,11 +4330,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DetachVolumeType(struct soap*, const char *, int, struct ec2__DetachVolumeType *const*, const char *);
   SOAP_FMAC3 struct ec2__DetachVolumeType ** SOAP_FMAC4 soap_in_PointerToec2__DetachVolumeType(struct soap*, const char*, struct ec2__DetachVolumeType **, const char*);
 
-#define soap_write_PointerToec2__DetachVolumeType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DetachVolumeType(soap, data), 0) || soap_put_PointerToec2__DetachVolumeType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DetachVolumeType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DetachVolumeType(soap, data), 0) || soap_put_PointerToec2__DetachVolumeType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DetachVolumeType(struct soap*, struct ec2__DetachVolumeType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DetachVolumeType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DetachVolumeType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DetachVolumeType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DetachVolumeType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DetachVolumeType ** SOAP_FMAC4 soap_get_PointerToec2__DetachVolumeType(struct soap*, struct ec2__DetachVolumeType **, const char*, const char*);
 
@@ -4345,11 +4345,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__AttachVolumeResponseType(struct soap*, const char *, int, struct ec2__AttachVolumeResponseType *const*, const char *);
   SOAP_FMAC3 struct ec2__AttachVolumeResponseType ** SOAP_FMAC4 soap_in_PointerToec2__AttachVolumeResponseType(struct soap*, const char*, struct ec2__AttachVolumeResponseType **, const char*);
 
-#define soap_write_PointerToec2__AttachVolumeResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__AttachVolumeResponseType(soap, data), 0) || soap_put_PointerToec2__AttachVolumeResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__AttachVolumeResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__AttachVolumeResponseType(soap, data), 0) || soap_put_PointerToec2__AttachVolumeResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__AttachVolumeResponseType(struct soap*, struct ec2__AttachVolumeResponseType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__AttachVolumeResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__AttachVolumeResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__AttachVolumeResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__AttachVolumeResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__AttachVolumeResponseType ** SOAP_FMAC4 soap_get_PointerToec2__AttachVolumeResponseType(struct soap*, struct ec2__AttachVolumeResponseType **, const char*, const char*);
 
@@ -4360,11 +4360,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__AttachVolumeType(struct soap*, const char *, int, struct ec2__AttachVolumeType *const*, const char *);
   SOAP_FMAC3 struct ec2__AttachVolumeType ** SOAP_FMAC4 soap_in_PointerToec2__AttachVolumeType(struct soap*, const char*, struct ec2__AttachVolumeType **, const char*);
 
-#define soap_write_PointerToec2__AttachVolumeType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__AttachVolumeType(soap, data), 0) || soap_put_PointerToec2__AttachVolumeType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__AttachVolumeType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__AttachVolumeType(soap, data), 0) || soap_put_PointerToec2__AttachVolumeType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__AttachVolumeType(struct soap*, struct ec2__AttachVolumeType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__AttachVolumeType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__AttachVolumeType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__AttachVolumeType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__AttachVolumeType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__AttachVolumeType ** SOAP_FMAC4 soap_get_PointerToec2__AttachVolumeType(struct soap*, struct ec2__AttachVolumeType **, const char*, const char*);
 
@@ -4375,11 +4375,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DescribeVolumesResponseType(struct soap*, const char *, int, struct ec2__DescribeVolumesResponseType *const*, const char *);
   SOAP_FMAC3 struct ec2__DescribeVolumesResponseType ** SOAP_FMAC4 soap_in_PointerToec2__DescribeVolumesResponseType(struct soap*, const char*, struct ec2__DescribeVolumesResponseType **, const char*);
 
-#define soap_write_PointerToec2__DescribeVolumesResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeVolumesResponseType(soap, data), 0) || soap_put_PointerToec2__DescribeVolumesResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DescribeVolumesResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeVolumesResponseType(soap, data), 0) || soap_put_PointerToec2__DescribeVolumesResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DescribeVolumesResponseType(struct soap*, struct ec2__DescribeVolumesResponseType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DescribeVolumesResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeVolumesResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DescribeVolumesResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeVolumesResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeVolumesResponseType ** SOAP_FMAC4 soap_get_PointerToec2__DescribeVolumesResponseType(struct soap*, struct ec2__DescribeVolumesResponseType **, const char*, const char*);
 
@@ -4390,11 +4390,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DescribeVolumesType(struct soap*, const char *, int, struct ec2__DescribeVolumesType *const*, const char *);
   SOAP_FMAC3 struct ec2__DescribeVolumesType ** SOAP_FMAC4 soap_in_PointerToec2__DescribeVolumesType(struct soap*, const char*, struct ec2__DescribeVolumesType **, const char*);
 
-#define soap_write_PointerToec2__DescribeVolumesType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeVolumesType(soap, data), 0) || soap_put_PointerToec2__DescribeVolumesType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DescribeVolumesType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeVolumesType(soap, data), 0) || soap_put_PointerToec2__DescribeVolumesType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DescribeVolumesType(struct soap*, struct ec2__DescribeVolumesType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DescribeVolumesType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeVolumesType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DescribeVolumesType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeVolumesType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeVolumesType ** SOAP_FMAC4 soap_get_PointerToec2__DescribeVolumesType(struct soap*, struct ec2__DescribeVolumesType **, const char*, const char*);
 
@@ -4405,11 +4405,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DeleteVolumeResponseType(struct soap*, const char *, int, struct ec2__DeleteVolumeResponseType *const*, const char *);
   SOAP_FMAC3 struct ec2__DeleteVolumeResponseType ** SOAP_FMAC4 soap_in_PointerToec2__DeleteVolumeResponseType(struct soap*, const char*, struct ec2__DeleteVolumeResponseType **, const char*);
 
-#define soap_write_PointerToec2__DeleteVolumeResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DeleteVolumeResponseType(soap, data), 0) || soap_put_PointerToec2__DeleteVolumeResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DeleteVolumeResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DeleteVolumeResponseType(soap, data), 0) || soap_put_PointerToec2__DeleteVolumeResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DeleteVolumeResponseType(struct soap*, struct ec2__DeleteVolumeResponseType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DeleteVolumeResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DeleteVolumeResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DeleteVolumeResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DeleteVolumeResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DeleteVolumeResponseType ** SOAP_FMAC4 soap_get_PointerToec2__DeleteVolumeResponseType(struct soap*, struct ec2__DeleteVolumeResponseType **, const char*, const char*);
 
@@ -4420,11 +4420,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DeleteVolumeType(struct soap*, const char *, int, struct ec2__DeleteVolumeType *const*, const char *);
   SOAP_FMAC3 struct ec2__DeleteVolumeType ** SOAP_FMAC4 soap_in_PointerToec2__DeleteVolumeType(struct soap*, const char*, struct ec2__DeleteVolumeType **, const char*);
 
-#define soap_write_PointerToec2__DeleteVolumeType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DeleteVolumeType(soap, data), 0) || soap_put_PointerToec2__DeleteVolumeType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DeleteVolumeType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DeleteVolumeType(soap, data), 0) || soap_put_PointerToec2__DeleteVolumeType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DeleteVolumeType(struct soap*, struct ec2__DeleteVolumeType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DeleteVolumeType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DeleteVolumeType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DeleteVolumeType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DeleteVolumeType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DeleteVolumeType ** SOAP_FMAC4 soap_get_PointerToec2__DeleteVolumeType(struct soap*, struct ec2__DeleteVolumeType **, const char*, const char*);
 
@@ -4435,11 +4435,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__CreateVolumeResponseType(struct soap*, const char *, int, struct ec2__CreateVolumeResponseType *const*, const char *);
   SOAP_FMAC3 struct ec2__CreateVolumeResponseType ** SOAP_FMAC4 soap_in_PointerToec2__CreateVolumeResponseType(struct soap*, const char*, struct ec2__CreateVolumeResponseType **, const char*);
 
-#define soap_write_PointerToec2__CreateVolumeResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__CreateVolumeResponseType(soap, data), 0) || soap_put_PointerToec2__CreateVolumeResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__CreateVolumeResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__CreateVolumeResponseType(soap, data), 0) || soap_put_PointerToec2__CreateVolumeResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__CreateVolumeResponseType(struct soap*, struct ec2__CreateVolumeResponseType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__CreateVolumeResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__CreateVolumeResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__CreateVolumeResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__CreateVolumeResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__CreateVolumeResponseType ** SOAP_FMAC4 soap_get_PointerToec2__CreateVolumeResponseType(struct soap*, struct ec2__CreateVolumeResponseType **, const char*, const char*);
 
@@ -4450,11 +4450,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__CreateVolumeType(struct soap*, const char *, int, struct ec2__CreateVolumeType *const*, const char *);
   SOAP_FMAC3 struct ec2__CreateVolumeType ** SOAP_FMAC4 soap_in_PointerToec2__CreateVolumeType(struct soap*, const char*, struct ec2__CreateVolumeType **, const char*);
 
-#define soap_write_PointerToec2__CreateVolumeType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__CreateVolumeType(soap, data), 0) || soap_put_PointerToec2__CreateVolumeType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__CreateVolumeType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__CreateVolumeType(soap, data), 0) || soap_put_PointerToec2__CreateVolumeType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__CreateVolumeType(struct soap*, struct ec2__CreateVolumeType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__CreateVolumeType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__CreateVolumeType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__CreateVolumeType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__CreateVolumeType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__CreateVolumeType ** SOAP_FMAC4 soap_get_PointerToec2__CreateVolumeType(struct soap*, struct ec2__CreateVolumeType **, const char*, const char*);
 
@@ -4465,11 +4465,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DisassociateAddressResponseType(struct soap*, const char *, int, struct ec2__DisassociateAddressResponseType *const*, const char *);
   SOAP_FMAC3 struct ec2__DisassociateAddressResponseType ** SOAP_FMAC4 soap_in_PointerToec2__DisassociateAddressResponseType(struct soap*, const char*, struct ec2__DisassociateAddressResponseType **, const char*);
 
-#define soap_write_PointerToec2__DisassociateAddressResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DisassociateAddressResponseType(soap, data), 0) || soap_put_PointerToec2__DisassociateAddressResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DisassociateAddressResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DisassociateAddressResponseType(soap, data), 0) || soap_put_PointerToec2__DisassociateAddressResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DisassociateAddressResponseType(struct soap*, struct ec2__DisassociateAddressResponseType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DisassociateAddressResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DisassociateAddressResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DisassociateAddressResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DisassociateAddressResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DisassociateAddressResponseType ** SOAP_FMAC4 soap_get_PointerToec2__DisassociateAddressResponseType(struct soap*, struct ec2__DisassociateAddressResponseType **, const char*, const char*);
 
@@ -4480,11 +4480,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DisassociateAddressType(struct soap*, const char *, int, struct ec2__DisassociateAddressType *const*, const char *);
   SOAP_FMAC3 struct ec2__DisassociateAddressType ** SOAP_FMAC4 soap_in_PointerToec2__DisassociateAddressType(struct soap*, const char*, struct ec2__DisassociateAddressType **, const char*);
 
-#define soap_write_PointerToec2__DisassociateAddressType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DisassociateAddressType(soap, data), 0) || soap_put_PointerToec2__DisassociateAddressType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DisassociateAddressType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DisassociateAddressType(soap, data), 0) || soap_put_PointerToec2__DisassociateAddressType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DisassociateAddressType(struct soap*, struct ec2__DisassociateAddressType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DisassociateAddressType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DisassociateAddressType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DisassociateAddressType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DisassociateAddressType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DisassociateAddressType ** SOAP_FMAC4 soap_get_PointerToec2__DisassociateAddressType(struct soap*, struct ec2__DisassociateAddressType **, const char*, const char*);
 
@@ -4495,11 +4495,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__AssociateAddressResponseType(struct soap*, const char *, int, struct ec2__AssociateAddressResponseType *const*, const char *);
   SOAP_FMAC3 struct ec2__AssociateAddressResponseType ** SOAP_FMAC4 soap_in_PointerToec2__AssociateAddressResponseType(struct soap*, const char*, struct ec2__AssociateAddressResponseType **, const char*);
 
-#define soap_write_PointerToec2__AssociateAddressResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__AssociateAddressResponseType(soap, data), 0) || soap_put_PointerToec2__AssociateAddressResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__AssociateAddressResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__AssociateAddressResponseType(soap, data), 0) || soap_put_PointerToec2__AssociateAddressResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__AssociateAddressResponseType(struct soap*, struct ec2__AssociateAddressResponseType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__AssociateAddressResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__AssociateAddressResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__AssociateAddressResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__AssociateAddressResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__AssociateAddressResponseType ** SOAP_FMAC4 soap_get_PointerToec2__AssociateAddressResponseType(struct soap*, struct ec2__AssociateAddressResponseType **, const char*, const char*);
 
@@ -4510,11 +4510,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__AssociateAddressType(struct soap*, const char *, int, struct ec2__AssociateAddressType *const*, const char *);
   SOAP_FMAC3 struct ec2__AssociateAddressType ** SOAP_FMAC4 soap_in_PointerToec2__AssociateAddressType(struct soap*, const char*, struct ec2__AssociateAddressType **, const char*);
 
-#define soap_write_PointerToec2__AssociateAddressType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__AssociateAddressType(soap, data), 0) || soap_put_PointerToec2__AssociateAddressType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__AssociateAddressType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__AssociateAddressType(soap, data), 0) || soap_put_PointerToec2__AssociateAddressType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__AssociateAddressType(struct soap*, struct ec2__AssociateAddressType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__AssociateAddressType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__AssociateAddressType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__AssociateAddressType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__AssociateAddressType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__AssociateAddressType ** SOAP_FMAC4 soap_get_PointerToec2__AssociateAddressType(struct soap*, struct ec2__AssociateAddressType **, const char*, const char*);
 
@@ -4525,11 +4525,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DescribeAddressesResponseType(struct soap*, const char *, int, struct ec2__DescribeAddressesResponseType *const*, const char *);
   SOAP_FMAC3 struct ec2__DescribeAddressesResponseType ** SOAP_FMAC4 soap_in_PointerToec2__DescribeAddressesResponseType(struct soap*, const char*, struct ec2__DescribeAddressesResponseType **, const char*);
 
-#define soap_write_PointerToec2__DescribeAddressesResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeAddressesResponseType(soap, data), 0) || soap_put_PointerToec2__DescribeAddressesResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DescribeAddressesResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeAddressesResponseType(soap, data), 0) || soap_put_PointerToec2__DescribeAddressesResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DescribeAddressesResponseType(struct soap*, struct ec2__DescribeAddressesResponseType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DescribeAddressesResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeAddressesResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DescribeAddressesResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeAddressesResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeAddressesResponseType ** SOAP_FMAC4 soap_get_PointerToec2__DescribeAddressesResponseType(struct soap*, struct ec2__DescribeAddressesResponseType **, const char*, const char*);
 
@@ -4540,11 +4540,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DescribeAddressesType(struct soap*, const char *, int, struct ec2__DescribeAddressesType *const*, const char *);
   SOAP_FMAC3 struct ec2__DescribeAddressesType ** SOAP_FMAC4 soap_in_PointerToec2__DescribeAddressesType(struct soap*, const char*, struct ec2__DescribeAddressesType **, const char*);
 
-#define soap_write_PointerToec2__DescribeAddressesType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeAddressesType(soap, data), 0) || soap_put_PointerToec2__DescribeAddressesType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DescribeAddressesType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeAddressesType(soap, data), 0) || soap_put_PointerToec2__DescribeAddressesType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DescribeAddressesType(struct soap*, struct ec2__DescribeAddressesType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DescribeAddressesType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeAddressesType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DescribeAddressesType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeAddressesType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeAddressesType ** SOAP_FMAC4 soap_get_PointerToec2__DescribeAddressesType(struct soap*, struct ec2__DescribeAddressesType **, const char*, const char*);
 
@@ -4555,11 +4555,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__ReleaseAddressResponseType(struct soap*, const char *, int, struct ec2__ReleaseAddressResponseType *const*, const char *);
   SOAP_FMAC3 struct ec2__ReleaseAddressResponseType ** SOAP_FMAC4 soap_in_PointerToec2__ReleaseAddressResponseType(struct soap*, const char*, struct ec2__ReleaseAddressResponseType **, const char*);
 
-#define soap_write_PointerToec2__ReleaseAddressResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__ReleaseAddressResponseType(soap, data), 0) || soap_put_PointerToec2__ReleaseAddressResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__ReleaseAddressResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__ReleaseAddressResponseType(soap, data), 0) || soap_put_PointerToec2__ReleaseAddressResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__ReleaseAddressResponseType(struct soap*, struct ec2__ReleaseAddressResponseType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__ReleaseAddressResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__ReleaseAddressResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__ReleaseAddressResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__ReleaseAddressResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__ReleaseAddressResponseType ** SOAP_FMAC4 soap_get_PointerToec2__ReleaseAddressResponseType(struct soap*, struct ec2__ReleaseAddressResponseType **, const char*, const char*);
 
@@ -4570,11 +4570,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__ReleaseAddressType(struct soap*, const char *, int, struct ec2__ReleaseAddressType *const*, const char *);
   SOAP_FMAC3 struct ec2__ReleaseAddressType ** SOAP_FMAC4 soap_in_PointerToec2__ReleaseAddressType(struct soap*, const char*, struct ec2__ReleaseAddressType **, const char*);
 
-#define soap_write_PointerToec2__ReleaseAddressType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__ReleaseAddressType(soap, data), 0) || soap_put_PointerToec2__ReleaseAddressType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__ReleaseAddressType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__ReleaseAddressType(soap, data), 0) || soap_put_PointerToec2__ReleaseAddressType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__ReleaseAddressType(struct soap*, struct ec2__ReleaseAddressType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__ReleaseAddressType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__ReleaseAddressType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__ReleaseAddressType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__ReleaseAddressType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__ReleaseAddressType ** SOAP_FMAC4 soap_get_PointerToec2__ReleaseAddressType(struct soap*, struct ec2__ReleaseAddressType **, const char*, const char*);
 
@@ -4585,11 +4585,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__AllocateAddressResponseType(struct soap*, const char *, int, struct ec2__AllocateAddressResponseType *const*, const char *);
   SOAP_FMAC3 struct ec2__AllocateAddressResponseType ** SOAP_FMAC4 soap_in_PointerToec2__AllocateAddressResponseType(struct soap*, const char*, struct ec2__AllocateAddressResponseType **, const char*);
 
-#define soap_write_PointerToec2__AllocateAddressResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__AllocateAddressResponseType(soap, data), 0) || soap_put_PointerToec2__AllocateAddressResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__AllocateAddressResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__AllocateAddressResponseType(soap, data), 0) || soap_put_PointerToec2__AllocateAddressResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__AllocateAddressResponseType(struct soap*, struct ec2__AllocateAddressResponseType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__AllocateAddressResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__AllocateAddressResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__AllocateAddressResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__AllocateAddressResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__AllocateAddressResponseType ** SOAP_FMAC4 soap_get_PointerToec2__AllocateAddressResponseType(struct soap*, struct ec2__AllocateAddressResponseType **, const char*, const char*);
 
@@ -4600,11 +4600,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__AllocateAddressType(struct soap*, const char *, int, struct ec2__AllocateAddressType *const*, const char *);
   SOAP_FMAC3 struct ec2__AllocateAddressType ** SOAP_FMAC4 soap_in_PointerToec2__AllocateAddressType(struct soap*, const char*, struct ec2__AllocateAddressType **, const char*);
 
-#define soap_write_PointerToec2__AllocateAddressType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__AllocateAddressType(soap, data), 0) || soap_put_PointerToec2__AllocateAddressType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__AllocateAddressType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__AllocateAddressType(soap, data), 0) || soap_put_PointerToec2__AllocateAddressType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__AllocateAddressType(struct soap*, struct ec2__AllocateAddressType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__AllocateAddressType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__AllocateAddressType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__AllocateAddressType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__AllocateAddressType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__AllocateAddressType ** SOAP_FMAC4 soap_get_PointerToec2__AllocateAddressType(struct soap*, struct ec2__AllocateAddressType **, const char*, const char*);
 
@@ -4615,11 +4615,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DescribeAvailabilityZonesResponseType(struct soap*, const char *, int, struct ec2__DescribeAvailabilityZonesResponseType *const*, const char *);
   SOAP_FMAC3 struct ec2__DescribeAvailabilityZonesResponseType ** SOAP_FMAC4 soap_in_PointerToec2__DescribeAvailabilityZonesResponseType(struct soap*, const char*, struct ec2__DescribeAvailabilityZonesResponseType **, const char*);
 
-#define soap_write_PointerToec2__DescribeAvailabilityZonesResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeAvailabilityZonesResponseType(soap, data), 0) || soap_put_PointerToec2__DescribeAvailabilityZonesResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DescribeAvailabilityZonesResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeAvailabilityZonesResponseType(soap, data), 0) || soap_put_PointerToec2__DescribeAvailabilityZonesResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DescribeAvailabilityZonesResponseType(struct soap*, struct ec2__DescribeAvailabilityZonesResponseType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DescribeAvailabilityZonesResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeAvailabilityZonesResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DescribeAvailabilityZonesResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeAvailabilityZonesResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeAvailabilityZonesResponseType ** SOAP_FMAC4 soap_get_PointerToec2__DescribeAvailabilityZonesResponseType(struct soap*, struct ec2__DescribeAvailabilityZonesResponseType **, const char*, const char*);
 
@@ -4630,11 +4630,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DescribeAvailabilityZonesType(struct soap*, const char *, int, struct ec2__DescribeAvailabilityZonesType *const*, const char *);
   SOAP_FMAC3 struct ec2__DescribeAvailabilityZonesType ** SOAP_FMAC4 soap_in_PointerToec2__DescribeAvailabilityZonesType(struct soap*, const char*, struct ec2__DescribeAvailabilityZonesType **, const char*);
 
-#define soap_write_PointerToec2__DescribeAvailabilityZonesType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeAvailabilityZonesType(soap, data), 0) || soap_put_PointerToec2__DescribeAvailabilityZonesType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DescribeAvailabilityZonesType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeAvailabilityZonesType(soap, data), 0) || soap_put_PointerToec2__DescribeAvailabilityZonesType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DescribeAvailabilityZonesType(struct soap*, struct ec2__DescribeAvailabilityZonesType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DescribeAvailabilityZonesType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeAvailabilityZonesType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DescribeAvailabilityZonesType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeAvailabilityZonesType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeAvailabilityZonesType ** SOAP_FMAC4 soap_get_PointerToec2__DescribeAvailabilityZonesType(struct soap*, struct ec2__DescribeAvailabilityZonesType **, const char*, const char*);
 
@@ -4645,11 +4645,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__ConfirmProductInstanceResponseType(struct soap*, const char *, int, struct ec2__ConfirmProductInstanceResponseType *const*, const char *);
   SOAP_FMAC3 struct ec2__ConfirmProductInstanceResponseType ** SOAP_FMAC4 soap_in_PointerToec2__ConfirmProductInstanceResponseType(struct soap*, const char*, struct ec2__ConfirmProductInstanceResponseType **, const char*);
 
-#define soap_write_PointerToec2__ConfirmProductInstanceResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__ConfirmProductInstanceResponseType(soap, data), 0) || soap_put_PointerToec2__ConfirmProductInstanceResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__ConfirmProductInstanceResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__ConfirmProductInstanceResponseType(soap, data), 0) || soap_put_PointerToec2__ConfirmProductInstanceResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__ConfirmProductInstanceResponseType(struct soap*, struct ec2__ConfirmProductInstanceResponseType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__ConfirmProductInstanceResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__ConfirmProductInstanceResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__ConfirmProductInstanceResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__ConfirmProductInstanceResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__ConfirmProductInstanceResponseType ** SOAP_FMAC4 soap_get_PointerToec2__ConfirmProductInstanceResponseType(struct soap*, struct ec2__ConfirmProductInstanceResponseType **, const char*, const char*);
 
@@ -4660,11 +4660,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__ConfirmProductInstanceType(struct soap*, const char *, int, struct ec2__ConfirmProductInstanceType *const*, const char *);
   SOAP_FMAC3 struct ec2__ConfirmProductInstanceType ** SOAP_FMAC4 soap_in_PointerToec2__ConfirmProductInstanceType(struct soap*, const char*, struct ec2__ConfirmProductInstanceType **, const char*);
 
-#define soap_write_PointerToec2__ConfirmProductInstanceType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__ConfirmProductInstanceType(soap, data), 0) || soap_put_PointerToec2__ConfirmProductInstanceType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__ConfirmProductInstanceType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__ConfirmProductInstanceType(soap, data), 0) || soap_put_PointerToec2__ConfirmProductInstanceType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__ConfirmProductInstanceType(struct soap*, struct ec2__ConfirmProductInstanceType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__ConfirmProductInstanceType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__ConfirmProductInstanceType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__ConfirmProductInstanceType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__ConfirmProductInstanceType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__ConfirmProductInstanceType ** SOAP_FMAC4 soap_get_PointerToec2__ConfirmProductInstanceType(struct soap*, struct ec2__ConfirmProductInstanceType **, const char*, const char*);
 
@@ -4675,11 +4675,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DescribeImageAttributeResponseType(struct soap*, const char *, int, struct ec2__DescribeImageAttributeResponseType *const*, const char *);
   SOAP_FMAC3 struct ec2__DescribeImageAttributeResponseType ** SOAP_FMAC4 soap_in_PointerToec2__DescribeImageAttributeResponseType(struct soap*, const char*, struct ec2__DescribeImageAttributeResponseType **, const char*);
 
-#define soap_write_PointerToec2__DescribeImageAttributeResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeImageAttributeResponseType(soap, data), 0) || soap_put_PointerToec2__DescribeImageAttributeResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DescribeImageAttributeResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeImageAttributeResponseType(soap, data), 0) || soap_put_PointerToec2__DescribeImageAttributeResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DescribeImageAttributeResponseType(struct soap*, struct ec2__DescribeImageAttributeResponseType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DescribeImageAttributeResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeImageAttributeResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DescribeImageAttributeResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeImageAttributeResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeImageAttributeResponseType ** SOAP_FMAC4 soap_get_PointerToec2__DescribeImageAttributeResponseType(struct soap*, struct ec2__DescribeImageAttributeResponseType **, const char*, const char*);
 
@@ -4690,11 +4690,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DescribeImageAttributeType(struct soap*, const char *, int, struct ec2__DescribeImageAttributeType *const*, const char *);
   SOAP_FMAC3 struct ec2__DescribeImageAttributeType ** SOAP_FMAC4 soap_in_PointerToec2__DescribeImageAttributeType(struct soap*, const char*, struct ec2__DescribeImageAttributeType **, const char*);
 
-#define soap_write_PointerToec2__DescribeImageAttributeType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeImageAttributeType(soap, data), 0) || soap_put_PointerToec2__DescribeImageAttributeType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DescribeImageAttributeType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeImageAttributeType(soap, data), 0) || soap_put_PointerToec2__DescribeImageAttributeType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DescribeImageAttributeType(struct soap*, struct ec2__DescribeImageAttributeType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DescribeImageAttributeType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeImageAttributeType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DescribeImageAttributeType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeImageAttributeType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeImageAttributeType ** SOAP_FMAC4 soap_get_PointerToec2__DescribeImageAttributeType(struct soap*, struct ec2__DescribeImageAttributeType **, const char*, const char*);
 
@@ -4705,11 +4705,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__ResetImageAttributeResponseType(struct soap*, const char *, int, struct ec2__ResetImageAttributeResponseType *const*, const char *);
   SOAP_FMAC3 struct ec2__ResetImageAttributeResponseType ** SOAP_FMAC4 soap_in_PointerToec2__ResetImageAttributeResponseType(struct soap*, const char*, struct ec2__ResetImageAttributeResponseType **, const char*);
 
-#define soap_write_PointerToec2__ResetImageAttributeResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__ResetImageAttributeResponseType(soap, data), 0) || soap_put_PointerToec2__ResetImageAttributeResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__ResetImageAttributeResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__ResetImageAttributeResponseType(soap, data), 0) || soap_put_PointerToec2__ResetImageAttributeResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__ResetImageAttributeResponseType(struct soap*, struct ec2__ResetImageAttributeResponseType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__ResetImageAttributeResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__ResetImageAttributeResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__ResetImageAttributeResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__ResetImageAttributeResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__ResetImageAttributeResponseType ** SOAP_FMAC4 soap_get_PointerToec2__ResetImageAttributeResponseType(struct soap*, struct ec2__ResetImageAttributeResponseType **, const char*, const char*);
 
@@ -4720,11 +4720,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__ResetImageAttributeType(struct soap*, const char *, int, struct ec2__ResetImageAttributeType *const*, const char *);
   SOAP_FMAC3 struct ec2__ResetImageAttributeType ** SOAP_FMAC4 soap_in_PointerToec2__ResetImageAttributeType(struct soap*, const char*, struct ec2__ResetImageAttributeType **, const char*);
 
-#define soap_write_PointerToec2__ResetImageAttributeType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__ResetImageAttributeType(soap, data), 0) || soap_put_PointerToec2__ResetImageAttributeType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__ResetImageAttributeType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__ResetImageAttributeType(soap, data), 0) || soap_put_PointerToec2__ResetImageAttributeType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__ResetImageAttributeType(struct soap*, struct ec2__ResetImageAttributeType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__ResetImageAttributeType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__ResetImageAttributeType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__ResetImageAttributeType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__ResetImageAttributeType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__ResetImageAttributeType ** SOAP_FMAC4 soap_get_PointerToec2__ResetImageAttributeType(struct soap*, struct ec2__ResetImageAttributeType **, const char*, const char*);
 
@@ -4735,11 +4735,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__ModifyImageAttributeResponseType(struct soap*, const char *, int, struct ec2__ModifyImageAttributeResponseType *const*, const char *);
   SOAP_FMAC3 struct ec2__ModifyImageAttributeResponseType ** SOAP_FMAC4 soap_in_PointerToec2__ModifyImageAttributeResponseType(struct soap*, const char*, struct ec2__ModifyImageAttributeResponseType **, const char*);
 
-#define soap_write_PointerToec2__ModifyImageAttributeResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__ModifyImageAttributeResponseType(soap, data), 0) || soap_put_PointerToec2__ModifyImageAttributeResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__ModifyImageAttributeResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__ModifyImageAttributeResponseType(soap, data), 0) || soap_put_PointerToec2__ModifyImageAttributeResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__ModifyImageAttributeResponseType(struct soap*, struct ec2__ModifyImageAttributeResponseType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__ModifyImageAttributeResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__ModifyImageAttributeResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__ModifyImageAttributeResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__ModifyImageAttributeResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__ModifyImageAttributeResponseType ** SOAP_FMAC4 soap_get_PointerToec2__ModifyImageAttributeResponseType(struct soap*, struct ec2__ModifyImageAttributeResponseType **, const char*, const char*);
 
@@ -4750,11 +4750,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__ModifyImageAttributeType(struct soap*, const char *, int, struct ec2__ModifyImageAttributeType *const*, const char *);
   SOAP_FMAC3 struct ec2__ModifyImageAttributeType ** SOAP_FMAC4 soap_in_PointerToec2__ModifyImageAttributeType(struct soap*, const char*, struct ec2__ModifyImageAttributeType **, const char*);
 
-#define soap_write_PointerToec2__ModifyImageAttributeType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__ModifyImageAttributeType(soap, data), 0) || soap_put_PointerToec2__ModifyImageAttributeType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__ModifyImageAttributeType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__ModifyImageAttributeType(soap, data), 0) || soap_put_PointerToec2__ModifyImageAttributeType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__ModifyImageAttributeType(struct soap*, struct ec2__ModifyImageAttributeType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__ModifyImageAttributeType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__ModifyImageAttributeType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__ModifyImageAttributeType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__ModifyImageAttributeType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__ModifyImageAttributeType ** SOAP_FMAC4 soap_get_PointerToec2__ModifyImageAttributeType(struct soap*, struct ec2__ModifyImageAttributeType **, const char*, const char*);
 
@@ -4765,11 +4765,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__RevokeSecurityGroupIngressResponseType(struct soap*, const char *, int, struct ec2__RevokeSecurityGroupIngressResponseType *const*, const char *);
   SOAP_FMAC3 struct ec2__RevokeSecurityGroupIngressResponseType ** SOAP_FMAC4 soap_in_PointerToec2__RevokeSecurityGroupIngressResponseType(struct soap*, const char*, struct ec2__RevokeSecurityGroupIngressResponseType **, const char*);
 
-#define soap_write_PointerToec2__RevokeSecurityGroupIngressResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__RevokeSecurityGroupIngressResponseType(soap, data), 0) || soap_put_PointerToec2__RevokeSecurityGroupIngressResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__RevokeSecurityGroupIngressResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__RevokeSecurityGroupIngressResponseType(soap, data), 0) || soap_put_PointerToec2__RevokeSecurityGroupIngressResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__RevokeSecurityGroupIngressResponseType(struct soap*, struct ec2__RevokeSecurityGroupIngressResponseType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__RevokeSecurityGroupIngressResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__RevokeSecurityGroupIngressResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__RevokeSecurityGroupIngressResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__RevokeSecurityGroupIngressResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__RevokeSecurityGroupIngressResponseType ** SOAP_FMAC4 soap_get_PointerToec2__RevokeSecurityGroupIngressResponseType(struct soap*, struct ec2__RevokeSecurityGroupIngressResponseType **, const char*, const char*);
 
@@ -4780,11 +4780,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__RevokeSecurityGroupIngressType(struct soap*, const char *, int, struct ec2__RevokeSecurityGroupIngressType *const*, const char *);
   SOAP_FMAC3 struct ec2__RevokeSecurityGroupIngressType ** SOAP_FMAC4 soap_in_PointerToec2__RevokeSecurityGroupIngressType(struct soap*, const char*, struct ec2__RevokeSecurityGroupIngressType **, const char*);
 
-#define soap_write_PointerToec2__RevokeSecurityGroupIngressType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__RevokeSecurityGroupIngressType(soap, data), 0) || soap_put_PointerToec2__RevokeSecurityGroupIngressType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__RevokeSecurityGroupIngressType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__RevokeSecurityGroupIngressType(soap, data), 0) || soap_put_PointerToec2__RevokeSecurityGroupIngressType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__RevokeSecurityGroupIngressType(struct soap*, struct ec2__RevokeSecurityGroupIngressType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__RevokeSecurityGroupIngressType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__RevokeSecurityGroupIngressType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__RevokeSecurityGroupIngressType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__RevokeSecurityGroupIngressType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__RevokeSecurityGroupIngressType ** SOAP_FMAC4 soap_get_PointerToec2__RevokeSecurityGroupIngressType(struct soap*, struct ec2__RevokeSecurityGroupIngressType **, const char*, const char*);
 
@@ -4795,11 +4795,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__AuthorizeSecurityGroupIngressResponseType(struct soap*, const char *, int, struct ec2__AuthorizeSecurityGroupIngressResponseType *const*, const char *);
   SOAP_FMAC3 struct ec2__AuthorizeSecurityGroupIngressResponseType ** SOAP_FMAC4 soap_in_PointerToec2__AuthorizeSecurityGroupIngressResponseType(struct soap*, const char*, struct ec2__AuthorizeSecurityGroupIngressResponseType **, const char*);
 
-#define soap_write_PointerToec2__AuthorizeSecurityGroupIngressResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__AuthorizeSecurityGroupIngressResponseType(soap, data), 0) || soap_put_PointerToec2__AuthorizeSecurityGroupIngressResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__AuthorizeSecurityGroupIngressResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__AuthorizeSecurityGroupIngressResponseType(soap, data), 0) || soap_put_PointerToec2__AuthorizeSecurityGroupIngressResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__AuthorizeSecurityGroupIngressResponseType(struct soap*, struct ec2__AuthorizeSecurityGroupIngressResponseType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__AuthorizeSecurityGroupIngressResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__AuthorizeSecurityGroupIngressResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__AuthorizeSecurityGroupIngressResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__AuthorizeSecurityGroupIngressResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__AuthorizeSecurityGroupIngressResponseType ** SOAP_FMAC4 soap_get_PointerToec2__AuthorizeSecurityGroupIngressResponseType(struct soap*, struct ec2__AuthorizeSecurityGroupIngressResponseType **, const char*, const char*);
 
@@ -4810,11 +4810,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__AuthorizeSecurityGroupIngressType(struct soap*, const char *, int, struct ec2__AuthorizeSecurityGroupIngressType *const*, const char *);
   SOAP_FMAC3 struct ec2__AuthorizeSecurityGroupIngressType ** SOAP_FMAC4 soap_in_PointerToec2__AuthorizeSecurityGroupIngressType(struct soap*, const char*, struct ec2__AuthorizeSecurityGroupIngressType **, const char*);
 
-#define soap_write_PointerToec2__AuthorizeSecurityGroupIngressType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__AuthorizeSecurityGroupIngressType(soap, data), 0) || soap_put_PointerToec2__AuthorizeSecurityGroupIngressType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__AuthorizeSecurityGroupIngressType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__AuthorizeSecurityGroupIngressType(soap, data), 0) || soap_put_PointerToec2__AuthorizeSecurityGroupIngressType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__AuthorizeSecurityGroupIngressType(struct soap*, struct ec2__AuthorizeSecurityGroupIngressType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__AuthorizeSecurityGroupIngressType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__AuthorizeSecurityGroupIngressType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__AuthorizeSecurityGroupIngressType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__AuthorizeSecurityGroupIngressType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__AuthorizeSecurityGroupIngressType ** SOAP_FMAC4 soap_get_PointerToec2__AuthorizeSecurityGroupIngressType(struct soap*, struct ec2__AuthorizeSecurityGroupIngressType **, const char*, const char*);
 
@@ -4825,11 +4825,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DescribeSecurityGroupsResponseType(struct soap*, const char *, int, struct ec2__DescribeSecurityGroupsResponseType *const*, const char *);
   SOAP_FMAC3 struct ec2__DescribeSecurityGroupsResponseType ** SOAP_FMAC4 soap_in_PointerToec2__DescribeSecurityGroupsResponseType(struct soap*, const char*, struct ec2__DescribeSecurityGroupsResponseType **, const char*);
 
-#define soap_write_PointerToec2__DescribeSecurityGroupsResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeSecurityGroupsResponseType(soap, data), 0) || soap_put_PointerToec2__DescribeSecurityGroupsResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DescribeSecurityGroupsResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeSecurityGroupsResponseType(soap, data), 0) || soap_put_PointerToec2__DescribeSecurityGroupsResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DescribeSecurityGroupsResponseType(struct soap*, struct ec2__DescribeSecurityGroupsResponseType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DescribeSecurityGroupsResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeSecurityGroupsResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DescribeSecurityGroupsResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeSecurityGroupsResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeSecurityGroupsResponseType ** SOAP_FMAC4 soap_get_PointerToec2__DescribeSecurityGroupsResponseType(struct soap*, struct ec2__DescribeSecurityGroupsResponseType **, const char*, const char*);
 
@@ -4840,11 +4840,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DescribeSecurityGroupsType(struct soap*, const char *, int, struct ec2__DescribeSecurityGroupsType *const*, const char *);
   SOAP_FMAC3 struct ec2__DescribeSecurityGroupsType ** SOAP_FMAC4 soap_in_PointerToec2__DescribeSecurityGroupsType(struct soap*, const char*, struct ec2__DescribeSecurityGroupsType **, const char*);
 
-#define soap_write_PointerToec2__DescribeSecurityGroupsType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeSecurityGroupsType(soap, data), 0) || soap_put_PointerToec2__DescribeSecurityGroupsType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DescribeSecurityGroupsType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeSecurityGroupsType(soap, data), 0) || soap_put_PointerToec2__DescribeSecurityGroupsType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DescribeSecurityGroupsType(struct soap*, struct ec2__DescribeSecurityGroupsType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DescribeSecurityGroupsType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeSecurityGroupsType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DescribeSecurityGroupsType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeSecurityGroupsType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeSecurityGroupsType ** SOAP_FMAC4 soap_get_PointerToec2__DescribeSecurityGroupsType(struct soap*, struct ec2__DescribeSecurityGroupsType **, const char*, const char*);
 
@@ -4855,11 +4855,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DeleteSecurityGroupResponseType(struct soap*, const char *, int, struct ec2__DeleteSecurityGroupResponseType *const*, const char *);
   SOAP_FMAC3 struct ec2__DeleteSecurityGroupResponseType ** SOAP_FMAC4 soap_in_PointerToec2__DeleteSecurityGroupResponseType(struct soap*, const char*, struct ec2__DeleteSecurityGroupResponseType **, const char*);
 
-#define soap_write_PointerToec2__DeleteSecurityGroupResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DeleteSecurityGroupResponseType(soap, data), 0) || soap_put_PointerToec2__DeleteSecurityGroupResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DeleteSecurityGroupResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DeleteSecurityGroupResponseType(soap, data), 0) || soap_put_PointerToec2__DeleteSecurityGroupResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DeleteSecurityGroupResponseType(struct soap*, struct ec2__DeleteSecurityGroupResponseType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DeleteSecurityGroupResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DeleteSecurityGroupResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DeleteSecurityGroupResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DeleteSecurityGroupResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DeleteSecurityGroupResponseType ** SOAP_FMAC4 soap_get_PointerToec2__DeleteSecurityGroupResponseType(struct soap*, struct ec2__DeleteSecurityGroupResponseType **, const char*, const char*);
 
@@ -4870,11 +4870,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DeleteSecurityGroupType(struct soap*, const char *, int, struct ec2__DeleteSecurityGroupType *const*, const char *);
   SOAP_FMAC3 struct ec2__DeleteSecurityGroupType ** SOAP_FMAC4 soap_in_PointerToec2__DeleteSecurityGroupType(struct soap*, const char*, struct ec2__DeleteSecurityGroupType **, const char*);
 
-#define soap_write_PointerToec2__DeleteSecurityGroupType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DeleteSecurityGroupType(soap, data), 0) || soap_put_PointerToec2__DeleteSecurityGroupType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DeleteSecurityGroupType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DeleteSecurityGroupType(soap, data), 0) || soap_put_PointerToec2__DeleteSecurityGroupType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DeleteSecurityGroupType(struct soap*, struct ec2__DeleteSecurityGroupType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DeleteSecurityGroupType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DeleteSecurityGroupType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DeleteSecurityGroupType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DeleteSecurityGroupType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DeleteSecurityGroupType ** SOAP_FMAC4 soap_get_PointerToec2__DeleteSecurityGroupType(struct soap*, struct ec2__DeleteSecurityGroupType **, const char*, const char*);
 
@@ -4885,11 +4885,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__CreateSecurityGroupResponseType(struct soap*, const char *, int, struct ec2__CreateSecurityGroupResponseType *const*, const char *);
   SOAP_FMAC3 struct ec2__CreateSecurityGroupResponseType ** SOAP_FMAC4 soap_in_PointerToec2__CreateSecurityGroupResponseType(struct soap*, const char*, struct ec2__CreateSecurityGroupResponseType **, const char*);
 
-#define soap_write_PointerToec2__CreateSecurityGroupResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__CreateSecurityGroupResponseType(soap, data), 0) || soap_put_PointerToec2__CreateSecurityGroupResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__CreateSecurityGroupResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__CreateSecurityGroupResponseType(soap, data), 0) || soap_put_PointerToec2__CreateSecurityGroupResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__CreateSecurityGroupResponseType(struct soap*, struct ec2__CreateSecurityGroupResponseType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__CreateSecurityGroupResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__CreateSecurityGroupResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__CreateSecurityGroupResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__CreateSecurityGroupResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__CreateSecurityGroupResponseType ** SOAP_FMAC4 soap_get_PointerToec2__CreateSecurityGroupResponseType(struct soap*, struct ec2__CreateSecurityGroupResponseType **, const char*, const char*);
 
@@ -4900,11 +4900,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__CreateSecurityGroupType(struct soap*, const char *, int, struct ec2__CreateSecurityGroupType *const*, const char *);
   SOAP_FMAC3 struct ec2__CreateSecurityGroupType ** SOAP_FMAC4 soap_in_PointerToec2__CreateSecurityGroupType(struct soap*, const char*, struct ec2__CreateSecurityGroupType **, const char*);
 
-#define soap_write_PointerToec2__CreateSecurityGroupType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__CreateSecurityGroupType(soap, data), 0) || soap_put_PointerToec2__CreateSecurityGroupType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__CreateSecurityGroupType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__CreateSecurityGroupType(soap, data), 0) || soap_put_PointerToec2__CreateSecurityGroupType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__CreateSecurityGroupType(struct soap*, struct ec2__CreateSecurityGroupType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__CreateSecurityGroupType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__CreateSecurityGroupType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__CreateSecurityGroupType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__CreateSecurityGroupType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__CreateSecurityGroupType ** SOAP_FMAC4 soap_get_PointerToec2__CreateSecurityGroupType(struct soap*, struct ec2__CreateSecurityGroupType **, const char*, const char*);
 
@@ -4915,11 +4915,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DescribeImagesResponseType(struct soap*, const char *, int, struct ec2__DescribeImagesResponseType *const*, const char *);
   SOAP_FMAC3 struct ec2__DescribeImagesResponseType ** SOAP_FMAC4 soap_in_PointerToec2__DescribeImagesResponseType(struct soap*, const char*, struct ec2__DescribeImagesResponseType **, const char*);
 
-#define soap_write_PointerToec2__DescribeImagesResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeImagesResponseType(soap, data), 0) || soap_put_PointerToec2__DescribeImagesResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DescribeImagesResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeImagesResponseType(soap, data), 0) || soap_put_PointerToec2__DescribeImagesResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DescribeImagesResponseType(struct soap*, struct ec2__DescribeImagesResponseType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DescribeImagesResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeImagesResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DescribeImagesResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeImagesResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeImagesResponseType ** SOAP_FMAC4 soap_get_PointerToec2__DescribeImagesResponseType(struct soap*, struct ec2__DescribeImagesResponseType **, const char*, const char*);
 
@@ -4930,11 +4930,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DescribeImagesType(struct soap*, const char *, int, struct ec2__DescribeImagesType *const*, const char *);
   SOAP_FMAC3 struct ec2__DescribeImagesType ** SOAP_FMAC4 soap_in_PointerToec2__DescribeImagesType(struct soap*, const char*, struct ec2__DescribeImagesType **, const char*);
 
-#define soap_write_PointerToec2__DescribeImagesType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeImagesType(soap, data), 0) || soap_put_PointerToec2__DescribeImagesType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DescribeImagesType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeImagesType(soap, data), 0) || soap_put_PointerToec2__DescribeImagesType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DescribeImagesType(struct soap*, struct ec2__DescribeImagesType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DescribeImagesType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeImagesType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DescribeImagesType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeImagesType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeImagesType ** SOAP_FMAC4 soap_get_PointerToec2__DescribeImagesType(struct soap*, struct ec2__DescribeImagesType **, const char*, const char*);
 
@@ -4945,11 +4945,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DescribeInstancesResponseType(struct soap*, const char *, int, struct ec2__DescribeInstancesResponseType *const*, const char *);
   SOAP_FMAC3 struct ec2__DescribeInstancesResponseType ** SOAP_FMAC4 soap_in_PointerToec2__DescribeInstancesResponseType(struct soap*, const char*, struct ec2__DescribeInstancesResponseType **, const char*);
 
-#define soap_write_PointerToec2__DescribeInstancesResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeInstancesResponseType(soap, data), 0) || soap_put_PointerToec2__DescribeInstancesResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DescribeInstancesResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeInstancesResponseType(soap, data), 0) || soap_put_PointerToec2__DescribeInstancesResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DescribeInstancesResponseType(struct soap*, struct ec2__DescribeInstancesResponseType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DescribeInstancesResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeInstancesResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DescribeInstancesResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeInstancesResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeInstancesResponseType ** SOAP_FMAC4 soap_get_PointerToec2__DescribeInstancesResponseType(struct soap*, struct ec2__DescribeInstancesResponseType **, const char*, const char*);
 
@@ -4960,11 +4960,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DescribeInstancesType(struct soap*, const char *, int, struct ec2__DescribeInstancesType *const*, const char *);
   SOAP_FMAC3 struct ec2__DescribeInstancesType ** SOAP_FMAC4 soap_in_PointerToec2__DescribeInstancesType(struct soap*, const char*, struct ec2__DescribeInstancesType **, const char*);
 
-#define soap_write_PointerToec2__DescribeInstancesType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeInstancesType(soap, data), 0) || soap_put_PointerToec2__DescribeInstancesType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DescribeInstancesType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeInstancesType(soap, data), 0) || soap_put_PointerToec2__DescribeInstancesType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DescribeInstancesType(struct soap*, struct ec2__DescribeInstancesType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DescribeInstancesType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeInstancesType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DescribeInstancesType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeInstancesType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeInstancesType ** SOAP_FMAC4 soap_get_PointerToec2__DescribeInstancesType(struct soap*, struct ec2__DescribeInstancesType **, const char*, const char*);
 
@@ -4975,11 +4975,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__RebootInstancesResponseType(struct soap*, const char *, int, struct ec2__RebootInstancesResponseType *const*, const char *);
   SOAP_FMAC3 struct ec2__RebootInstancesResponseType ** SOAP_FMAC4 soap_in_PointerToec2__RebootInstancesResponseType(struct soap*, const char*, struct ec2__RebootInstancesResponseType **, const char*);
 
-#define soap_write_PointerToec2__RebootInstancesResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__RebootInstancesResponseType(soap, data), 0) || soap_put_PointerToec2__RebootInstancesResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__RebootInstancesResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__RebootInstancesResponseType(soap, data), 0) || soap_put_PointerToec2__RebootInstancesResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__RebootInstancesResponseType(struct soap*, struct ec2__RebootInstancesResponseType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__RebootInstancesResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__RebootInstancesResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__RebootInstancesResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__RebootInstancesResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__RebootInstancesResponseType ** SOAP_FMAC4 soap_get_PointerToec2__RebootInstancesResponseType(struct soap*, struct ec2__RebootInstancesResponseType **, const char*, const char*);
 
@@ -4990,11 +4990,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__RebootInstancesType(struct soap*, const char *, int, struct ec2__RebootInstancesType *const*, const char *);
   SOAP_FMAC3 struct ec2__RebootInstancesType ** SOAP_FMAC4 soap_in_PointerToec2__RebootInstancesType(struct soap*, const char*, struct ec2__RebootInstancesType **, const char*);
 
-#define soap_write_PointerToec2__RebootInstancesType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__RebootInstancesType(soap, data), 0) || soap_put_PointerToec2__RebootInstancesType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__RebootInstancesType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__RebootInstancesType(soap, data), 0) || soap_put_PointerToec2__RebootInstancesType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__RebootInstancesType(struct soap*, struct ec2__RebootInstancesType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__RebootInstancesType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__RebootInstancesType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__RebootInstancesType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__RebootInstancesType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__RebootInstancesType ** SOAP_FMAC4 soap_get_PointerToec2__RebootInstancesType(struct soap*, struct ec2__RebootInstancesType **, const char*, const char*);
 
@@ -5005,11 +5005,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__TerminateInstancesResponseType(struct soap*, const char *, int, struct ec2__TerminateInstancesResponseType *const*, const char *);
   SOAP_FMAC3 struct ec2__TerminateInstancesResponseType ** SOAP_FMAC4 soap_in_PointerToec2__TerminateInstancesResponseType(struct soap*, const char*, struct ec2__TerminateInstancesResponseType **, const char*);
 
-#define soap_write_PointerToec2__TerminateInstancesResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__TerminateInstancesResponseType(soap, data), 0) || soap_put_PointerToec2__TerminateInstancesResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__TerminateInstancesResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__TerminateInstancesResponseType(soap, data), 0) || soap_put_PointerToec2__TerminateInstancesResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__TerminateInstancesResponseType(struct soap*, struct ec2__TerminateInstancesResponseType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__TerminateInstancesResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__TerminateInstancesResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__TerminateInstancesResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__TerminateInstancesResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__TerminateInstancesResponseType ** SOAP_FMAC4 soap_get_PointerToec2__TerminateInstancesResponseType(struct soap*, struct ec2__TerminateInstancesResponseType **, const char*, const char*);
 
@@ -5020,11 +5020,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__TerminateInstancesType(struct soap*, const char *, int, struct ec2__TerminateInstancesType *const*, const char *);
   SOAP_FMAC3 struct ec2__TerminateInstancesType ** SOAP_FMAC4 soap_in_PointerToec2__TerminateInstancesType(struct soap*, const char*, struct ec2__TerminateInstancesType **, const char*);
 
-#define soap_write_PointerToec2__TerminateInstancesType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__TerminateInstancesType(soap, data), 0) || soap_put_PointerToec2__TerminateInstancesType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__TerminateInstancesType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__TerminateInstancesType(soap, data), 0) || soap_put_PointerToec2__TerminateInstancesType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__TerminateInstancesType(struct soap*, struct ec2__TerminateInstancesType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__TerminateInstancesType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__TerminateInstancesType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__TerminateInstancesType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__TerminateInstancesType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__TerminateInstancesType ** SOAP_FMAC4 soap_get_PointerToec2__TerminateInstancesType(struct soap*, struct ec2__TerminateInstancesType **, const char*, const char*);
 
@@ -5035,11 +5035,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__GetConsoleOutputResponseType(struct soap*, const char *, int, struct ec2__GetConsoleOutputResponseType *const*, const char *);
   SOAP_FMAC3 struct ec2__GetConsoleOutputResponseType ** SOAP_FMAC4 soap_in_PointerToec2__GetConsoleOutputResponseType(struct soap*, const char*, struct ec2__GetConsoleOutputResponseType **, const char*);
 
-#define soap_write_PointerToec2__GetConsoleOutputResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__GetConsoleOutputResponseType(soap, data), 0) || soap_put_PointerToec2__GetConsoleOutputResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__GetConsoleOutputResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__GetConsoleOutputResponseType(soap, data), 0) || soap_put_PointerToec2__GetConsoleOutputResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__GetConsoleOutputResponseType(struct soap*, struct ec2__GetConsoleOutputResponseType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__GetConsoleOutputResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__GetConsoleOutputResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__GetConsoleOutputResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__GetConsoleOutputResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__GetConsoleOutputResponseType ** SOAP_FMAC4 soap_get_PointerToec2__GetConsoleOutputResponseType(struct soap*, struct ec2__GetConsoleOutputResponseType **, const char*, const char*);
 
@@ -5050,11 +5050,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__GetConsoleOutputType(struct soap*, const char *, int, struct ec2__GetConsoleOutputType *const*, const char *);
   SOAP_FMAC3 struct ec2__GetConsoleOutputType ** SOAP_FMAC4 soap_in_PointerToec2__GetConsoleOutputType(struct soap*, const char*, struct ec2__GetConsoleOutputType **, const char*);
 
-#define soap_write_PointerToec2__GetConsoleOutputType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__GetConsoleOutputType(soap, data), 0) || soap_put_PointerToec2__GetConsoleOutputType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__GetConsoleOutputType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__GetConsoleOutputType(soap, data), 0) || soap_put_PointerToec2__GetConsoleOutputType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__GetConsoleOutputType(struct soap*, struct ec2__GetConsoleOutputType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__GetConsoleOutputType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__GetConsoleOutputType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__GetConsoleOutputType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__GetConsoleOutputType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__GetConsoleOutputType ** SOAP_FMAC4 soap_get_PointerToec2__GetConsoleOutputType(struct soap*, struct ec2__GetConsoleOutputType **, const char*, const char*);
 
@@ -5065,11 +5065,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__RunInstancesResponseType(struct soap*, const char *, int, struct ec2__RunInstancesResponseType *const*, const char *);
   SOAP_FMAC3 struct ec2__RunInstancesResponseType ** SOAP_FMAC4 soap_in_PointerToec2__RunInstancesResponseType(struct soap*, const char*, struct ec2__RunInstancesResponseType **, const char*);
 
-#define soap_write_PointerToec2__RunInstancesResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__RunInstancesResponseType(soap, data), 0) || soap_put_PointerToec2__RunInstancesResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__RunInstancesResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__RunInstancesResponseType(soap, data), 0) || soap_put_PointerToec2__RunInstancesResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__RunInstancesResponseType(struct soap*, struct ec2__RunInstancesResponseType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__RunInstancesResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__RunInstancesResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__RunInstancesResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__RunInstancesResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__RunInstancesResponseType ** SOAP_FMAC4 soap_get_PointerToec2__RunInstancesResponseType(struct soap*, struct ec2__RunInstancesResponseType **, const char*, const char*);
 
@@ -5080,11 +5080,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__RunInstancesType(struct soap*, const char *, int, struct ec2__RunInstancesType *const*, const char *);
   SOAP_FMAC3 struct ec2__RunInstancesType ** SOAP_FMAC4 soap_in_PointerToec2__RunInstancesType(struct soap*, const char*, struct ec2__RunInstancesType **, const char*);
 
-#define soap_write_PointerToec2__RunInstancesType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__RunInstancesType(soap, data), 0) || soap_put_PointerToec2__RunInstancesType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__RunInstancesType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__RunInstancesType(soap, data), 0) || soap_put_PointerToec2__RunInstancesType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__RunInstancesType(struct soap*, struct ec2__RunInstancesType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__RunInstancesType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__RunInstancesType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__RunInstancesType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__RunInstancesType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__RunInstancesType ** SOAP_FMAC4 soap_get_PointerToec2__RunInstancesType(struct soap*, struct ec2__RunInstancesType **, const char*, const char*);
 
@@ -5095,11 +5095,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DeleteKeyPairResponseType(struct soap*, const char *, int, struct ec2__DeleteKeyPairResponseType *const*, const char *);
   SOAP_FMAC3 struct ec2__DeleteKeyPairResponseType ** SOAP_FMAC4 soap_in_PointerToec2__DeleteKeyPairResponseType(struct soap*, const char*, struct ec2__DeleteKeyPairResponseType **, const char*);
 
-#define soap_write_PointerToec2__DeleteKeyPairResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DeleteKeyPairResponseType(soap, data), 0) || soap_put_PointerToec2__DeleteKeyPairResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DeleteKeyPairResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DeleteKeyPairResponseType(soap, data), 0) || soap_put_PointerToec2__DeleteKeyPairResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DeleteKeyPairResponseType(struct soap*, struct ec2__DeleteKeyPairResponseType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DeleteKeyPairResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DeleteKeyPairResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DeleteKeyPairResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DeleteKeyPairResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DeleteKeyPairResponseType ** SOAP_FMAC4 soap_get_PointerToec2__DeleteKeyPairResponseType(struct soap*, struct ec2__DeleteKeyPairResponseType **, const char*, const char*);
 
@@ -5110,11 +5110,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DeleteKeyPairType(struct soap*, const char *, int, struct ec2__DeleteKeyPairType *const*, const char *);
   SOAP_FMAC3 struct ec2__DeleteKeyPairType ** SOAP_FMAC4 soap_in_PointerToec2__DeleteKeyPairType(struct soap*, const char*, struct ec2__DeleteKeyPairType **, const char*);
 
-#define soap_write_PointerToec2__DeleteKeyPairType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DeleteKeyPairType(soap, data), 0) || soap_put_PointerToec2__DeleteKeyPairType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DeleteKeyPairType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DeleteKeyPairType(soap, data), 0) || soap_put_PointerToec2__DeleteKeyPairType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DeleteKeyPairType(struct soap*, struct ec2__DeleteKeyPairType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DeleteKeyPairType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DeleteKeyPairType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DeleteKeyPairType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DeleteKeyPairType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DeleteKeyPairType ** SOAP_FMAC4 soap_get_PointerToec2__DeleteKeyPairType(struct soap*, struct ec2__DeleteKeyPairType **, const char*, const char*);
 
@@ -5125,11 +5125,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DescribeKeyPairsResponseType(struct soap*, const char *, int, struct ec2__DescribeKeyPairsResponseType *const*, const char *);
   SOAP_FMAC3 struct ec2__DescribeKeyPairsResponseType ** SOAP_FMAC4 soap_in_PointerToec2__DescribeKeyPairsResponseType(struct soap*, const char*, struct ec2__DescribeKeyPairsResponseType **, const char*);
 
-#define soap_write_PointerToec2__DescribeKeyPairsResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeKeyPairsResponseType(soap, data), 0) || soap_put_PointerToec2__DescribeKeyPairsResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DescribeKeyPairsResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeKeyPairsResponseType(soap, data), 0) || soap_put_PointerToec2__DescribeKeyPairsResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DescribeKeyPairsResponseType(struct soap*, struct ec2__DescribeKeyPairsResponseType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DescribeKeyPairsResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeKeyPairsResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DescribeKeyPairsResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeKeyPairsResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeKeyPairsResponseType ** SOAP_FMAC4 soap_get_PointerToec2__DescribeKeyPairsResponseType(struct soap*, struct ec2__DescribeKeyPairsResponseType **, const char*, const char*);
 
@@ -5140,11 +5140,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DescribeKeyPairsType(struct soap*, const char *, int, struct ec2__DescribeKeyPairsType *const*, const char *);
   SOAP_FMAC3 struct ec2__DescribeKeyPairsType ** SOAP_FMAC4 soap_in_PointerToec2__DescribeKeyPairsType(struct soap*, const char*, struct ec2__DescribeKeyPairsType **, const char*);
 
-#define soap_write_PointerToec2__DescribeKeyPairsType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeKeyPairsType(soap, data), 0) || soap_put_PointerToec2__DescribeKeyPairsType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DescribeKeyPairsType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeKeyPairsType(soap, data), 0) || soap_put_PointerToec2__DescribeKeyPairsType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DescribeKeyPairsType(struct soap*, struct ec2__DescribeKeyPairsType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DescribeKeyPairsType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeKeyPairsType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DescribeKeyPairsType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeKeyPairsType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeKeyPairsType ** SOAP_FMAC4 soap_get_PointerToec2__DescribeKeyPairsType(struct soap*, struct ec2__DescribeKeyPairsType **, const char*, const char*);
 
@@ -5155,11 +5155,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__CreateKeyPairResponseType(struct soap*, const char *, int, struct ec2__CreateKeyPairResponseType *const*, const char *);
   SOAP_FMAC3 struct ec2__CreateKeyPairResponseType ** SOAP_FMAC4 soap_in_PointerToec2__CreateKeyPairResponseType(struct soap*, const char*, struct ec2__CreateKeyPairResponseType **, const char*);
 
-#define soap_write_PointerToec2__CreateKeyPairResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__CreateKeyPairResponseType(soap, data), 0) || soap_put_PointerToec2__CreateKeyPairResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__CreateKeyPairResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__CreateKeyPairResponseType(soap, data), 0) || soap_put_PointerToec2__CreateKeyPairResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__CreateKeyPairResponseType(struct soap*, struct ec2__CreateKeyPairResponseType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__CreateKeyPairResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__CreateKeyPairResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__CreateKeyPairResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__CreateKeyPairResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__CreateKeyPairResponseType ** SOAP_FMAC4 soap_get_PointerToec2__CreateKeyPairResponseType(struct soap*, struct ec2__CreateKeyPairResponseType **, const char*, const char*);
 
@@ -5170,11 +5170,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__CreateKeyPairType(struct soap*, const char *, int, struct ec2__CreateKeyPairType *const*, const char *);
   SOAP_FMAC3 struct ec2__CreateKeyPairType ** SOAP_FMAC4 soap_in_PointerToec2__CreateKeyPairType(struct soap*, const char*, struct ec2__CreateKeyPairType **, const char*);
 
-#define soap_write_PointerToec2__CreateKeyPairType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__CreateKeyPairType(soap, data), 0) || soap_put_PointerToec2__CreateKeyPairType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__CreateKeyPairType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__CreateKeyPairType(soap, data), 0) || soap_put_PointerToec2__CreateKeyPairType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__CreateKeyPairType(struct soap*, struct ec2__CreateKeyPairType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__CreateKeyPairType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__CreateKeyPairType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__CreateKeyPairType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__CreateKeyPairType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__CreateKeyPairType ** SOAP_FMAC4 soap_get_PointerToec2__CreateKeyPairType(struct soap*, struct ec2__CreateKeyPairType **, const char*, const char*);
 
@@ -5185,11 +5185,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DeregisterImageResponseType(struct soap*, const char *, int, struct ec2__DeregisterImageResponseType *const*, const char *);
   SOAP_FMAC3 struct ec2__DeregisterImageResponseType ** SOAP_FMAC4 soap_in_PointerToec2__DeregisterImageResponseType(struct soap*, const char*, struct ec2__DeregisterImageResponseType **, const char*);
 
-#define soap_write_PointerToec2__DeregisterImageResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DeregisterImageResponseType(soap, data), 0) || soap_put_PointerToec2__DeregisterImageResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DeregisterImageResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DeregisterImageResponseType(soap, data), 0) || soap_put_PointerToec2__DeregisterImageResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DeregisterImageResponseType(struct soap*, struct ec2__DeregisterImageResponseType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DeregisterImageResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DeregisterImageResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DeregisterImageResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DeregisterImageResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DeregisterImageResponseType ** SOAP_FMAC4 soap_get_PointerToec2__DeregisterImageResponseType(struct soap*, struct ec2__DeregisterImageResponseType **, const char*, const char*);
 
@@ -5200,11 +5200,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DeregisterImageType(struct soap*, const char *, int, struct ec2__DeregisterImageType *const*, const char *);
   SOAP_FMAC3 struct ec2__DeregisterImageType ** SOAP_FMAC4 soap_in_PointerToec2__DeregisterImageType(struct soap*, const char*, struct ec2__DeregisterImageType **, const char*);
 
-#define soap_write_PointerToec2__DeregisterImageType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DeregisterImageType(soap, data), 0) || soap_put_PointerToec2__DeregisterImageType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DeregisterImageType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DeregisterImageType(soap, data), 0) || soap_put_PointerToec2__DeregisterImageType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DeregisterImageType(struct soap*, struct ec2__DeregisterImageType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DeregisterImageType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DeregisterImageType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DeregisterImageType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DeregisterImageType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DeregisterImageType ** SOAP_FMAC4 soap_get_PointerToec2__DeregisterImageType(struct soap*, struct ec2__DeregisterImageType **, const char*, const char*);
 
@@ -5215,11 +5215,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__RegisterImageResponseType(struct soap*, const char *, int, struct ec2__RegisterImageResponseType *const*, const char *);
   SOAP_FMAC3 struct ec2__RegisterImageResponseType ** SOAP_FMAC4 soap_in_PointerToec2__RegisterImageResponseType(struct soap*, const char*, struct ec2__RegisterImageResponseType **, const char*);
 
-#define soap_write_PointerToec2__RegisterImageResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__RegisterImageResponseType(soap, data), 0) || soap_put_PointerToec2__RegisterImageResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__RegisterImageResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__RegisterImageResponseType(soap, data), 0) || soap_put_PointerToec2__RegisterImageResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__RegisterImageResponseType(struct soap*, struct ec2__RegisterImageResponseType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__RegisterImageResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__RegisterImageResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__RegisterImageResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__RegisterImageResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__RegisterImageResponseType ** SOAP_FMAC4 soap_get_PointerToec2__RegisterImageResponseType(struct soap*, struct ec2__RegisterImageResponseType **, const char*, const char*);
 
@@ -5230,11 +5230,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__RegisterImageType(struct soap*, const char *, int, struct ec2__RegisterImageType *const*, const char *);
   SOAP_FMAC3 struct ec2__RegisterImageType ** SOAP_FMAC4 soap_in_PointerToec2__RegisterImageType(struct soap*, const char*, struct ec2__RegisterImageType **, const char*);
 
-#define soap_write_PointerToec2__RegisterImageType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__RegisterImageType(soap, data), 0) || soap_put_PointerToec2__RegisterImageType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__RegisterImageType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__RegisterImageType(soap, data), 0) || soap_put_PointerToec2__RegisterImageType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__RegisterImageType(struct soap*, struct ec2__RegisterImageType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__RegisterImageType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__RegisterImageType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__RegisterImageType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__RegisterImageType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__RegisterImageType ** SOAP_FMAC4 soap_get_PointerToec2__RegisterImageType(struct soap*, struct ec2__RegisterImageType **, const char*, const char*);
 
@@ -5245,11 +5245,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__RegionItemType(struct soap*, const char *, int, struct ec2__RegionItemType *const*, const char *);
   SOAP_FMAC3 struct ec2__RegionItemType ** SOAP_FMAC4 soap_in_PointerToec2__RegionItemType(struct soap*, const char*, struct ec2__RegionItemType **, const char*);
 
-#define soap_write_PointerToec2__RegionItemType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__RegionItemType(soap, data), 0) || soap_put_PointerToec2__RegionItemType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__RegionItemType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__RegionItemType(soap, data), 0) || soap_put_PointerToec2__RegionItemType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__RegionItemType(struct soap*, struct ec2__RegionItemType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__RegionItemType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__RegionItemType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__RegionItemType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__RegionItemType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__RegionItemType ** SOAP_FMAC4 soap_get_PointerToec2__RegionItemType(struct soap*, struct ec2__RegionItemType **, const char*, const char*);
 
@@ -5260,11 +5260,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__RegionSetType(struct soap*, const char *, int, struct ec2__RegionSetType *const*, const char *);
   SOAP_FMAC3 struct ec2__RegionSetType ** SOAP_FMAC4 soap_in_PointerToec2__RegionSetType(struct soap*, const char*, struct ec2__RegionSetType **, const char*);
 
-#define soap_write_PointerToec2__RegionSetType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__RegionSetType(soap, data), 0) || soap_put_PointerToec2__RegionSetType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__RegionSetType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__RegionSetType(soap, data), 0) || soap_put_PointerToec2__RegionSetType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__RegionSetType(struct soap*, struct ec2__RegionSetType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__RegionSetType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__RegionSetType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__RegionSetType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__RegionSetType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__RegionSetType ** SOAP_FMAC4 soap_get_PointerToec2__RegionSetType(struct soap*, struct ec2__RegionSetType **, const char*, const char*);
 
@@ -5275,11 +5275,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DescribeRegionsSetItemType(struct soap*, const char *, int, struct ec2__DescribeRegionsSetItemType *const*, const char *);
   SOAP_FMAC3 struct ec2__DescribeRegionsSetItemType ** SOAP_FMAC4 soap_in_PointerToec2__DescribeRegionsSetItemType(struct soap*, const char*, struct ec2__DescribeRegionsSetItemType **, const char*);
 
-#define soap_write_PointerToec2__DescribeRegionsSetItemType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeRegionsSetItemType(soap, data), 0) || soap_put_PointerToec2__DescribeRegionsSetItemType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DescribeRegionsSetItemType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeRegionsSetItemType(soap, data), 0) || soap_put_PointerToec2__DescribeRegionsSetItemType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DescribeRegionsSetItemType(struct soap*, struct ec2__DescribeRegionsSetItemType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DescribeRegionsSetItemType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeRegionsSetItemType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DescribeRegionsSetItemType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeRegionsSetItemType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeRegionsSetItemType ** SOAP_FMAC4 soap_get_PointerToec2__DescribeRegionsSetItemType(struct soap*, struct ec2__DescribeRegionsSetItemType **, const char*, const char*);
 
@@ -5290,11 +5290,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DescribeRegionsSetType(struct soap*, const char *, int, struct ec2__DescribeRegionsSetType *const*, const char *);
   SOAP_FMAC3 struct ec2__DescribeRegionsSetType ** SOAP_FMAC4 soap_in_PointerToec2__DescribeRegionsSetType(struct soap*, const char*, struct ec2__DescribeRegionsSetType **, const char*);
 
-#define soap_write_PointerToec2__DescribeRegionsSetType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeRegionsSetType(soap, data), 0) || soap_put_PointerToec2__DescribeRegionsSetType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DescribeRegionsSetType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeRegionsSetType(soap, data), 0) || soap_put_PointerToec2__DescribeRegionsSetType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DescribeRegionsSetType(struct soap*, struct ec2__DescribeRegionsSetType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DescribeRegionsSetType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeRegionsSetType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DescribeRegionsSetType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeRegionsSetType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeRegionsSetType ** SOAP_FMAC4 soap_get_PointerToec2__DescribeRegionsSetType(struct soap*, struct ec2__DescribeRegionsSetType **, const char*, const char*);
 
@@ -5305,11 +5305,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__BundleInstanceTasksSetType(struct soap*, const char *, int, struct ec2__BundleInstanceTasksSetType *const*, const char *);
   SOAP_FMAC3 struct ec2__BundleInstanceTasksSetType ** SOAP_FMAC4 soap_in_PointerToec2__BundleInstanceTasksSetType(struct soap*, const char*, struct ec2__BundleInstanceTasksSetType **, const char*);
 
-#define soap_write_PointerToec2__BundleInstanceTasksSetType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__BundleInstanceTasksSetType(soap, data), 0) || soap_put_PointerToec2__BundleInstanceTasksSetType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__BundleInstanceTasksSetType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__BundleInstanceTasksSetType(soap, data), 0) || soap_put_PointerToec2__BundleInstanceTasksSetType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__BundleInstanceTasksSetType(struct soap*, struct ec2__BundleInstanceTasksSetType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__BundleInstanceTasksSetType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__BundleInstanceTasksSetType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__BundleInstanceTasksSetType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__BundleInstanceTasksSetType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__BundleInstanceTasksSetType ** SOAP_FMAC4 soap_get_PointerToec2__BundleInstanceTasksSetType(struct soap*, struct ec2__BundleInstanceTasksSetType **, const char*, const char*);
 
@@ -5320,11 +5320,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DescribeBundleTasksItemType(struct soap*, const char *, int, struct ec2__DescribeBundleTasksItemType *const*, const char *);
   SOAP_FMAC3 struct ec2__DescribeBundleTasksItemType ** SOAP_FMAC4 soap_in_PointerToec2__DescribeBundleTasksItemType(struct soap*, const char*, struct ec2__DescribeBundleTasksItemType **, const char*);
 
-#define soap_write_PointerToec2__DescribeBundleTasksItemType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeBundleTasksItemType(soap, data), 0) || soap_put_PointerToec2__DescribeBundleTasksItemType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DescribeBundleTasksItemType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeBundleTasksItemType(soap, data), 0) || soap_put_PointerToec2__DescribeBundleTasksItemType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DescribeBundleTasksItemType(struct soap*, struct ec2__DescribeBundleTasksItemType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DescribeBundleTasksItemType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeBundleTasksItemType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DescribeBundleTasksItemType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeBundleTasksItemType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeBundleTasksItemType ** SOAP_FMAC4 soap_get_PointerToec2__DescribeBundleTasksItemType(struct soap*, struct ec2__DescribeBundleTasksItemType **, const char*, const char*);
 
@@ -5335,11 +5335,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DescribeBundleTasksInfoType(struct soap*, const char *, int, struct ec2__DescribeBundleTasksInfoType *const*, const char *);
   SOAP_FMAC3 struct ec2__DescribeBundleTasksInfoType ** SOAP_FMAC4 soap_in_PointerToec2__DescribeBundleTasksInfoType(struct soap*, const char*, struct ec2__DescribeBundleTasksInfoType **, const char*);
 
-#define soap_write_PointerToec2__DescribeBundleTasksInfoType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeBundleTasksInfoType(soap, data), 0) || soap_put_PointerToec2__DescribeBundleTasksInfoType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DescribeBundleTasksInfoType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeBundleTasksInfoType(soap, data), 0) || soap_put_PointerToec2__DescribeBundleTasksInfoType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DescribeBundleTasksInfoType(struct soap*, struct ec2__DescribeBundleTasksInfoType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DescribeBundleTasksInfoType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeBundleTasksInfoType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DescribeBundleTasksInfoType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeBundleTasksInfoType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeBundleTasksInfoType ** SOAP_FMAC4 soap_get_PointerToec2__DescribeBundleTasksInfoType(struct soap*, struct ec2__DescribeBundleTasksInfoType **, const char*, const char*);
 
@@ -5350,11 +5350,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__BundleInstanceTaskErrorType(struct soap*, const char *, int, struct ec2__BundleInstanceTaskErrorType *const*, const char *);
   SOAP_FMAC3 struct ec2__BundleInstanceTaskErrorType ** SOAP_FMAC4 soap_in_PointerToec2__BundleInstanceTaskErrorType(struct soap*, const char*, struct ec2__BundleInstanceTaskErrorType **, const char*);
 
-#define soap_write_PointerToec2__BundleInstanceTaskErrorType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__BundleInstanceTaskErrorType(soap, data), 0) || soap_put_PointerToec2__BundleInstanceTaskErrorType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__BundleInstanceTaskErrorType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__BundleInstanceTaskErrorType(soap, data), 0) || soap_put_PointerToec2__BundleInstanceTaskErrorType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__BundleInstanceTaskErrorType(struct soap*, struct ec2__BundleInstanceTaskErrorType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__BundleInstanceTaskErrorType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__BundleInstanceTaskErrorType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__BundleInstanceTaskErrorType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__BundleInstanceTaskErrorType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__BundleInstanceTaskErrorType ** SOAP_FMAC4 soap_get_PointerToec2__BundleInstanceTaskErrorType(struct soap*, struct ec2__BundleInstanceTaskErrorType **, const char*, const char*);
 
@@ -5365,11 +5365,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__BundleInstanceTaskType(struct soap*, const char *, int, struct ec2__BundleInstanceTaskType *const*, const char *);
   SOAP_FMAC3 struct ec2__BundleInstanceTaskType ** SOAP_FMAC4 soap_in_PointerToec2__BundleInstanceTaskType(struct soap*, const char*, struct ec2__BundleInstanceTaskType **, const char*);
 
-#define soap_write_PointerToec2__BundleInstanceTaskType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__BundleInstanceTaskType(soap, data), 0) || soap_put_PointerToec2__BundleInstanceTaskType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__BundleInstanceTaskType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__BundleInstanceTaskType(soap, data), 0) || soap_put_PointerToec2__BundleInstanceTaskType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__BundleInstanceTaskType(struct soap*, struct ec2__BundleInstanceTaskType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__BundleInstanceTaskType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__BundleInstanceTaskType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__BundleInstanceTaskType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__BundleInstanceTaskType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__BundleInstanceTaskType ** SOAP_FMAC4 soap_get_PointerToec2__BundleInstanceTaskType(struct soap*, struct ec2__BundleInstanceTaskType **, const char*, const char*);
 
@@ -5380,11 +5380,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__BundleInstanceS3StorageType(struct soap*, const char *, int, struct ec2__BundleInstanceS3StorageType *const*, const char *);
   SOAP_FMAC3 struct ec2__BundleInstanceS3StorageType ** SOAP_FMAC4 soap_in_PointerToec2__BundleInstanceS3StorageType(struct soap*, const char*, struct ec2__BundleInstanceS3StorageType **, const char*);
 
-#define soap_write_PointerToec2__BundleInstanceS3StorageType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__BundleInstanceS3StorageType(soap, data), 0) || soap_put_PointerToec2__BundleInstanceS3StorageType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__BundleInstanceS3StorageType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__BundleInstanceS3StorageType(soap, data), 0) || soap_put_PointerToec2__BundleInstanceS3StorageType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__BundleInstanceS3StorageType(struct soap*, struct ec2__BundleInstanceS3StorageType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__BundleInstanceS3StorageType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__BundleInstanceS3StorageType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__BundleInstanceS3StorageType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__BundleInstanceS3StorageType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__BundleInstanceS3StorageType ** SOAP_FMAC4 soap_get_PointerToec2__BundleInstanceS3StorageType(struct soap*, struct ec2__BundleInstanceS3StorageType **, const char*, const char*);
 
@@ -5395,11 +5395,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__BundleInstanceTaskStorageType(struct soap*, const char *, int, struct ec2__BundleInstanceTaskStorageType *const*, const char *);
   SOAP_FMAC3 struct ec2__BundleInstanceTaskStorageType ** SOAP_FMAC4 soap_in_PointerToec2__BundleInstanceTaskStorageType(struct soap*, const char*, struct ec2__BundleInstanceTaskStorageType **, const char*);
 
-#define soap_write_PointerToec2__BundleInstanceTaskStorageType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__BundleInstanceTaskStorageType(soap, data), 0) || soap_put_PointerToec2__BundleInstanceTaskStorageType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__BundleInstanceTaskStorageType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__BundleInstanceTaskStorageType(soap, data), 0) || soap_put_PointerToec2__BundleInstanceTaskStorageType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__BundleInstanceTaskStorageType(struct soap*, struct ec2__BundleInstanceTaskStorageType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__BundleInstanceTaskStorageType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__BundleInstanceTaskStorageType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__BundleInstanceTaskStorageType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__BundleInstanceTaskStorageType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__BundleInstanceTaskStorageType ** SOAP_FMAC4 soap_get_PointerToec2__BundleInstanceTaskStorageType(struct soap*, struct ec2__BundleInstanceTaskStorageType **, const char*, const char*);
 
@@ -5410,11 +5410,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DescribeSnapshotsSetItemResponseType(struct soap*, const char *, int, struct ec2__DescribeSnapshotsSetItemResponseType *const*, const char *);
   SOAP_FMAC3 struct ec2__DescribeSnapshotsSetItemResponseType ** SOAP_FMAC4 soap_in_PointerToec2__DescribeSnapshotsSetItemResponseType(struct soap*, const char*, struct ec2__DescribeSnapshotsSetItemResponseType **, const char*);
 
-#define soap_write_PointerToec2__DescribeSnapshotsSetItemResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeSnapshotsSetItemResponseType(soap, data), 0) || soap_put_PointerToec2__DescribeSnapshotsSetItemResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DescribeSnapshotsSetItemResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeSnapshotsSetItemResponseType(soap, data), 0) || soap_put_PointerToec2__DescribeSnapshotsSetItemResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DescribeSnapshotsSetItemResponseType(struct soap*, struct ec2__DescribeSnapshotsSetItemResponseType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DescribeSnapshotsSetItemResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeSnapshotsSetItemResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DescribeSnapshotsSetItemResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeSnapshotsSetItemResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeSnapshotsSetItemResponseType ** SOAP_FMAC4 soap_get_PointerToec2__DescribeSnapshotsSetItemResponseType(struct soap*, struct ec2__DescribeSnapshotsSetItemResponseType **, const char*, const char*);
 
@@ -5425,11 +5425,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DescribeSnapshotsSetResponseType(struct soap*, const char *, int, struct ec2__DescribeSnapshotsSetResponseType *const*, const char *);
   SOAP_FMAC3 struct ec2__DescribeSnapshotsSetResponseType ** SOAP_FMAC4 soap_in_PointerToec2__DescribeSnapshotsSetResponseType(struct soap*, const char*, struct ec2__DescribeSnapshotsSetResponseType **, const char*);
 
-#define soap_write_PointerToec2__DescribeSnapshotsSetResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeSnapshotsSetResponseType(soap, data), 0) || soap_put_PointerToec2__DescribeSnapshotsSetResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DescribeSnapshotsSetResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeSnapshotsSetResponseType(soap, data), 0) || soap_put_PointerToec2__DescribeSnapshotsSetResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DescribeSnapshotsSetResponseType(struct soap*, struct ec2__DescribeSnapshotsSetResponseType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DescribeSnapshotsSetResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeSnapshotsSetResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DescribeSnapshotsSetResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeSnapshotsSetResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeSnapshotsSetResponseType ** SOAP_FMAC4 soap_get_PointerToec2__DescribeSnapshotsSetResponseType(struct soap*, struct ec2__DescribeSnapshotsSetResponseType **, const char*, const char*);
 
@@ -5440,11 +5440,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DescribeSnapshotsSetItemType(struct soap*, const char *, int, struct ec2__DescribeSnapshotsSetItemType *const*, const char *);
   SOAP_FMAC3 struct ec2__DescribeSnapshotsSetItemType ** SOAP_FMAC4 soap_in_PointerToec2__DescribeSnapshotsSetItemType(struct soap*, const char*, struct ec2__DescribeSnapshotsSetItemType **, const char*);
 
-#define soap_write_PointerToec2__DescribeSnapshotsSetItemType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeSnapshotsSetItemType(soap, data), 0) || soap_put_PointerToec2__DescribeSnapshotsSetItemType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DescribeSnapshotsSetItemType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeSnapshotsSetItemType(soap, data), 0) || soap_put_PointerToec2__DescribeSnapshotsSetItemType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DescribeSnapshotsSetItemType(struct soap*, struct ec2__DescribeSnapshotsSetItemType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DescribeSnapshotsSetItemType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeSnapshotsSetItemType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DescribeSnapshotsSetItemType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeSnapshotsSetItemType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeSnapshotsSetItemType ** SOAP_FMAC4 soap_get_PointerToec2__DescribeSnapshotsSetItemType(struct soap*, struct ec2__DescribeSnapshotsSetItemType **, const char*, const char*);
 
@@ -5455,11 +5455,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DescribeSnapshotsSetType(struct soap*, const char *, int, struct ec2__DescribeSnapshotsSetType *const*, const char *);
   SOAP_FMAC3 struct ec2__DescribeSnapshotsSetType ** SOAP_FMAC4 soap_in_PointerToec2__DescribeSnapshotsSetType(struct soap*, const char*, struct ec2__DescribeSnapshotsSetType **, const char*);
 
-#define soap_write_PointerToec2__DescribeSnapshotsSetType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeSnapshotsSetType(soap, data), 0) || soap_put_PointerToec2__DescribeSnapshotsSetType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DescribeSnapshotsSetType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeSnapshotsSetType(soap, data), 0) || soap_put_PointerToec2__DescribeSnapshotsSetType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DescribeSnapshotsSetType(struct soap*, struct ec2__DescribeSnapshotsSetType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DescribeSnapshotsSetType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeSnapshotsSetType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DescribeSnapshotsSetType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeSnapshotsSetType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeSnapshotsSetType ** SOAP_FMAC4 soap_get_PointerToec2__DescribeSnapshotsSetType(struct soap*, struct ec2__DescribeSnapshotsSetType **, const char*, const char*);
 
@@ -5470,11 +5470,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToxsd__boolean_(struct soap*, const char *, int, enum xsd__boolean_ *const*, const char *);
   SOAP_FMAC3 enum xsd__boolean_ ** SOAP_FMAC4 soap_in_PointerToxsd__boolean_(struct soap*, const char*, enum xsd__boolean_ **, const char*);
 
-#define soap_write_PointerToxsd__boolean_(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToxsd__boolean_(soap, data), 0) || soap_put_PointerToxsd__boolean_(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToxsd__boolean_(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToxsd__boolean_(soap, data), 0) || soap_put_PointerToxsd__boolean_(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToxsd__boolean_(struct soap*, enum xsd__boolean_ *const*, const char*, const char*);
 
-#define soap_read_PointerToxsd__boolean_(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToxsd__boolean_(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToxsd__boolean_(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToxsd__boolean_(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 enum xsd__boolean_ ** SOAP_FMAC4 soap_get_PointerToxsd__boolean_(struct soap*, enum xsd__boolean_ **, const char*, const char*);
 
@@ -5485,11 +5485,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__AttachmentSetItemResponseType(struct soap*, const char *, int, struct ec2__AttachmentSetItemResponseType *const*, const char *);
   SOAP_FMAC3 struct ec2__AttachmentSetItemResponseType ** SOAP_FMAC4 soap_in_PointerToec2__AttachmentSetItemResponseType(struct soap*, const char*, struct ec2__AttachmentSetItemResponseType **, const char*);
 
-#define soap_write_PointerToec2__AttachmentSetItemResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__AttachmentSetItemResponseType(soap, data), 0) || soap_put_PointerToec2__AttachmentSetItemResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__AttachmentSetItemResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__AttachmentSetItemResponseType(soap, data), 0) || soap_put_PointerToec2__AttachmentSetItemResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__AttachmentSetItemResponseType(struct soap*, struct ec2__AttachmentSetItemResponseType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__AttachmentSetItemResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__AttachmentSetItemResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__AttachmentSetItemResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__AttachmentSetItemResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__AttachmentSetItemResponseType ** SOAP_FMAC4 soap_get_PointerToec2__AttachmentSetItemResponseType(struct soap*, struct ec2__AttachmentSetItemResponseType **, const char*, const char*);
 
@@ -5500,11 +5500,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__AttachmentSetResponseType(struct soap*, const char *, int, struct ec2__AttachmentSetResponseType *const*, const char *);
   SOAP_FMAC3 struct ec2__AttachmentSetResponseType ** SOAP_FMAC4 soap_in_PointerToec2__AttachmentSetResponseType(struct soap*, const char*, struct ec2__AttachmentSetResponseType **, const char*);
 
-#define soap_write_PointerToec2__AttachmentSetResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__AttachmentSetResponseType(soap, data), 0) || soap_put_PointerToec2__AttachmentSetResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__AttachmentSetResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__AttachmentSetResponseType(soap, data), 0) || soap_put_PointerToec2__AttachmentSetResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__AttachmentSetResponseType(struct soap*, struct ec2__AttachmentSetResponseType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__AttachmentSetResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__AttachmentSetResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__AttachmentSetResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__AttachmentSetResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__AttachmentSetResponseType ** SOAP_FMAC4 soap_get_PointerToec2__AttachmentSetResponseType(struct soap*, struct ec2__AttachmentSetResponseType **, const char*, const char*);
 
@@ -5515,11 +5515,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DescribeVolumesSetItemResponseType(struct soap*, const char *, int, struct ec2__DescribeVolumesSetItemResponseType *const*, const char *);
   SOAP_FMAC3 struct ec2__DescribeVolumesSetItemResponseType ** SOAP_FMAC4 soap_in_PointerToec2__DescribeVolumesSetItemResponseType(struct soap*, const char*, struct ec2__DescribeVolumesSetItemResponseType **, const char*);
 
-#define soap_write_PointerToec2__DescribeVolumesSetItemResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeVolumesSetItemResponseType(soap, data), 0) || soap_put_PointerToec2__DescribeVolumesSetItemResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DescribeVolumesSetItemResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeVolumesSetItemResponseType(soap, data), 0) || soap_put_PointerToec2__DescribeVolumesSetItemResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DescribeVolumesSetItemResponseType(struct soap*, struct ec2__DescribeVolumesSetItemResponseType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DescribeVolumesSetItemResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeVolumesSetItemResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DescribeVolumesSetItemResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeVolumesSetItemResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeVolumesSetItemResponseType ** SOAP_FMAC4 soap_get_PointerToec2__DescribeVolumesSetItemResponseType(struct soap*, struct ec2__DescribeVolumesSetItemResponseType **, const char*, const char*);
 
@@ -5530,11 +5530,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DescribeVolumesSetResponseType(struct soap*, const char *, int, struct ec2__DescribeVolumesSetResponseType *const*, const char *);
   SOAP_FMAC3 struct ec2__DescribeVolumesSetResponseType ** SOAP_FMAC4 soap_in_PointerToec2__DescribeVolumesSetResponseType(struct soap*, const char*, struct ec2__DescribeVolumesSetResponseType **, const char*);
 
-#define soap_write_PointerToec2__DescribeVolumesSetResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeVolumesSetResponseType(soap, data), 0) || soap_put_PointerToec2__DescribeVolumesSetResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DescribeVolumesSetResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeVolumesSetResponseType(soap, data), 0) || soap_put_PointerToec2__DescribeVolumesSetResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DescribeVolumesSetResponseType(struct soap*, struct ec2__DescribeVolumesSetResponseType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DescribeVolumesSetResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeVolumesSetResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DescribeVolumesSetResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeVolumesSetResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeVolumesSetResponseType ** SOAP_FMAC4 soap_get_PointerToec2__DescribeVolumesSetResponseType(struct soap*, struct ec2__DescribeVolumesSetResponseType **, const char*, const char*);
 
@@ -5545,11 +5545,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DescribeVolumesSetItemType(struct soap*, const char *, int, struct ec2__DescribeVolumesSetItemType *const*, const char *);
   SOAP_FMAC3 struct ec2__DescribeVolumesSetItemType ** SOAP_FMAC4 soap_in_PointerToec2__DescribeVolumesSetItemType(struct soap*, const char*, struct ec2__DescribeVolumesSetItemType **, const char*);
 
-#define soap_write_PointerToec2__DescribeVolumesSetItemType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeVolumesSetItemType(soap, data), 0) || soap_put_PointerToec2__DescribeVolumesSetItemType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DescribeVolumesSetItemType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeVolumesSetItemType(soap, data), 0) || soap_put_PointerToec2__DescribeVolumesSetItemType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DescribeVolumesSetItemType(struct soap*, struct ec2__DescribeVolumesSetItemType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DescribeVolumesSetItemType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeVolumesSetItemType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DescribeVolumesSetItemType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeVolumesSetItemType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeVolumesSetItemType ** SOAP_FMAC4 soap_get_PointerToec2__DescribeVolumesSetItemType(struct soap*, struct ec2__DescribeVolumesSetItemType **, const char*, const char*);
 
@@ -5560,11 +5560,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DescribeVolumesSetType(struct soap*, const char *, int, struct ec2__DescribeVolumesSetType *const*, const char *);
   SOAP_FMAC3 struct ec2__DescribeVolumesSetType ** SOAP_FMAC4 soap_in_PointerToec2__DescribeVolumesSetType(struct soap*, const char*, struct ec2__DescribeVolumesSetType **, const char*);
 
-#define soap_write_PointerToec2__DescribeVolumesSetType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeVolumesSetType(soap, data), 0) || soap_put_PointerToec2__DescribeVolumesSetType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DescribeVolumesSetType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeVolumesSetType(soap, data), 0) || soap_put_PointerToec2__DescribeVolumesSetType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DescribeVolumesSetType(struct soap*, struct ec2__DescribeVolumesSetType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DescribeVolumesSetType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeVolumesSetType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DescribeVolumesSetType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeVolumesSetType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeVolumesSetType ** SOAP_FMAC4 soap_get_PointerToec2__DescribeVolumesSetType(struct soap*, struct ec2__DescribeVolumesSetType **, const char*, const char*);
 
@@ -5575,11 +5575,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DescribeAddressesResponseItemType(struct soap*, const char *, int, struct ec2__DescribeAddressesResponseItemType *const*, const char *);
   SOAP_FMAC3 struct ec2__DescribeAddressesResponseItemType ** SOAP_FMAC4 soap_in_PointerToec2__DescribeAddressesResponseItemType(struct soap*, const char*, struct ec2__DescribeAddressesResponseItemType **, const char*);
 
-#define soap_write_PointerToec2__DescribeAddressesResponseItemType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeAddressesResponseItemType(soap, data), 0) || soap_put_PointerToec2__DescribeAddressesResponseItemType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DescribeAddressesResponseItemType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeAddressesResponseItemType(soap, data), 0) || soap_put_PointerToec2__DescribeAddressesResponseItemType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DescribeAddressesResponseItemType(struct soap*, struct ec2__DescribeAddressesResponseItemType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DescribeAddressesResponseItemType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeAddressesResponseItemType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DescribeAddressesResponseItemType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeAddressesResponseItemType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeAddressesResponseItemType ** SOAP_FMAC4 soap_get_PointerToec2__DescribeAddressesResponseItemType(struct soap*, struct ec2__DescribeAddressesResponseItemType **, const char*, const char*);
 
@@ -5590,11 +5590,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DescribeAddressesResponseInfoType(struct soap*, const char *, int, struct ec2__DescribeAddressesResponseInfoType *const*, const char *);
   SOAP_FMAC3 struct ec2__DescribeAddressesResponseInfoType ** SOAP_FMAC4 soap_in_PointerToec2__DescribeAddressesResponseInfoType(struct soap*, const char*, struct ec2__DescribeAddressesResponseInfoType **, const char*);
 
-#define soap_write_PointerToec2__DescribeAddressesResponseInfoType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeAddressesResponseInfoType(soap, data), 0) || soap_put_PointerToec2__DescribeAddressesResponseInfoType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DescribeAddressesResponseInfoType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeAddressesResponseInfoType(soap, data), 0) || soap_put_PointerToec2__DescribeAddressesResponseInfoType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DescribeAddressesResponseInfoType(struct soap*, struct ec2__DescribeAddressesResponseInfoType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DescribeAddressesResponseInfoType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeAddressesResponseInfoType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DescribeAddressesResponseInfoType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeAddressesResponseInfoType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeAddressesResponseInfoType ** SOAP_FMAC4 soap_get_PointerToec2__DescribeAddressesResponseInfoType(struct soap*, struct ec2__DescribeAddressesResponseInfoType **, const char*, const char*);
 
@@ -5605,11 +5605,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DescribeAddressesItemType(struct soap*, const char *, int, struct ec2__DescribeAddressesItemType *const*, const char *);
   SOAP_FMAC3 struct ec2__DescribeAddressesItemType ** SOAP_FMAC4 soap_in_PointerToec2__DescribeAddressesItemType(struct soap*, const char*, struct ec2__DescribeAddressesItemType **, const char*);
 
-#define soap_write_PointerToec2__DescribeAddressesItemType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeAddressesItemType(soap, data), 0) || soap_put_PointerToec2__DescribeAddressesItemType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DescribeAddressesItemType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeAddressesItemType(soap, data), 0) || soap_put_PointerToec2__DescribeAddressesItemType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DescribeAddressesItemType(struct soap*, struct ec2__DescribeAddressesItemType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DescribeAddressesItemType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeAddressesItemType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DescribeAddressesItemType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeAddressesItemType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeAddressesItemType ** SOAP_FMAC4 soap_get_PointerToec2__DescribeAddressesItemType(struct soap*, struct ec2__DescribeAddressesItemType **, const char*, const char*);
 
@@ -5620,11 +5620,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DescribeAddressesInfoType(struct soap*, const char *, int, struct ec2__DescribeAddressesInfoType *const*, const char *);
   SOAP_FMAC3 struct ec2__DescribeAddressesInfoType ** SOAP_FMAC4 soap_in_PointerToec2__DescribeAddressesInfoType(struct soap*, const char*, struct ec2__DescribeAddressesInfoType **, const char*);
 
-#define soap_write_PointerToec2__DescribeAddressesInfoType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeAddressesInfoType(soap, data), 0) || soap_put_PointerToec2__DescribeAddressesInfoType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DescribeAddressesInfoType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeAddressesInfoType(soap, data), 0) || soap_put_PointerToec2__DescribeAddressesInfoType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DescribeAddressesInfoType(struct soap*, struct ec2__DescribeAddressesInfoType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DescribeAddressesInfoType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeAddressesInfoType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DescribeAddressesInfoType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeAddressesInfoType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeAddressesInfoType ** SOAP_FMAC4 soap_get_PointerToec2__DescribeAddressesInfoType(struct soap*, struct ec2__DescribeAddressesInfoType **, const char*, const char*);
 
@@ -5635,11 +5635,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__AvailabilityZoneItemType(struct soap*, const char *, int, struct ec2__AvailabilityZoneItemType *const*, const char *);
   SOAP_FMAC3 struct ec2__AvailabilityZoneItemType ** SOAP_FMAC4 soap_in_PointerToec2__AvailabilityZoneItemType(struct soap*, const char*, struct ec2__AvailabilityZoneItemType **, const char*);
 
-#define soap_write_PointerToec2__AvailabilityZoneItemType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__AvailabilityZoneItemType(soap, data), 0) || soap_put_PointerToec2__AvailabilityZoneItemType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__AvailabilityZoneItemType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__AvailabilityZoneItemType(soap, data), 0) || soap_put_PointerToec2__AvailabilityZoneItemType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__AvailabilityZoneItemType(struct soap*, struct ec2__AvailabilityZoneItemType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__AvailabilityZoneItemType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__AvailabilityZoneItemType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__AvailabilityZoneItemType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__AvailabilityZoneItemType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__AvailabilityZoneItemType ** SOAP_FMAC4 soap_get_PointerToec2__AvailabilityZoneItemType(struct soap*, struct ec2__AvailabilityZoneItemType **, const char*, const char*);
 
@@ -5650,11 +5650,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__AvailabilityZoneSetType(struct soap*, const char *, int, struct ec2__AvailabilityZoneSetType *const*, const char *);
   SOAP_FMAC3 struct ec2__AvailabilityZoneSetType ** SOAP_FMAC4 soap_in_PointerToec2__AvailabilityZoneSetType(struct soap*, const char*, struct ec2__AvailabilityZoneSetType **, const char*);
 
-#define soap_write_PointerToec2__AvailabilityZoneSetType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__AvailabilityZoneSetType(soap, data), 0) || soap_put_PointerToec2__AvailabilityZoneSetType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__AvailabilityZoneSetType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__AvailabilityZoneSetType(soap, data), 0) || soap_put_PointerToec2__AvailabilityZoneSetType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__AvailabilityZoneSetType(struct soap*, struct ec2__AvailabilityZoneSetType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__AvailabilityZoneSetType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__AvailabilityZoneSetType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__AvailabilityZoneSetType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__AvailabilityZoneSetType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__AvailabilityZoneSetType ** SOAP_FMAC4 soap_get_PointerToec2__AvailabilityZoneSetType(struct soap*, struct ec2__AvailabilityZoneSetType **, const char*, const char*);
 
@@ -5665,11 +5665,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DescribeAvailabilityZonesSetItemType(struct soap*, const char *, int, struct ec2__DescribeAvailabilityZonesSetItemType *const*, const char *);
   SOAP_FMAC3 struct ec2__DescribeAvailabilityZonesSetItemType ** SOAP_FMAC4 soap_in_PointerToec2__DescribeAvailabilityZonesSetItemType(struct soap*, const char*, struct ec2__DescribeAvailabilityZonesSetItemType **, const char*);
 
-#define soap_write_PointerToec2__DescribeAvailabilityZonesSetItemType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeAvailabilityZonesSetItemType(soap, data), 0) || soap_put_PointerToec2__DescribeAvailabilityZonesSetItemType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DescribeAvailabilityZonesSetItemType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeAvailabilityZonesSetItemType(soap, data), 0) || soap_put_PointerToec2__DescribeAvailabilityZonesSetItemType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DescribeAvailabilityZonesSetItemType(struct soap*, struct ec2__DescribeAvailabilityZonesSetItemType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DescribeAvailabilityZonesSetItemType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeAvailabilityZonesSetItemType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DescribeAvailabilityZonesSetItemType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeAvailabilityZonesSetItemType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeAvailabilityZonesSetItemType ** SOAP_FMAC4 soap_get_PointerToec2__DescribeAvailabilityZonesSetItemType(struct soap*, struct ec2__DescribeAvailabilityZonesSetItemType **, const char*, const char*);
 
@@ -5680,11 +5680,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DescribeAvailabilityZonesSetType(struct soap*, const char *, int, struct ec2__DescribeAvailabilityZonesSetType *const*, const char *);
   SOAP_FMAC3 struct ec2__DescribeAvailabilityZonesSetType ** SOAP_FMAC4 soap_in_PointerToec2__DescribeAvailabilityZonesSetType(struct soap*, const char*, struct ec2__DescribeAvailabilityZonesSetType **, const char*);
 
-#define soap_write_PointerToec2__DescribeAvailabilityZonesSetType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeAvailabilityZonesSetType(soap, data), 0) || soap_put_PointerToec2__DescribeAvailabilityZonesSetType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DescribeAvailabilityZonesSetType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeAvailabilityZonesSetType(soap, data), 0) || soap_put_PointerToec2__DescribeAvailabilityZonesSetType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DescribeAvailabilityZonesSetType(struct soap*, struct ec2__DescribeAvailabilityZonesSetType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DescribeAvailabilityZonesSetType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeAvailabilityZonesSetType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DescribeAvailabilityZonesSetType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeAvailabilityZonesSetType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeAvailabilityZonesSetType ** SOAP_FMAC4 soap_get_PointerToec2__DescribeAvailabilityZonesSetType(struct soap*, struct ec2__DescribeAvailabilityZonesSetType **, const char*, const char*);
 
@@ -5695,11 +5695,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__ProductCodesSetItemType(struct soap*, const char *, int, struct ec2__ProductCodesSetItemType *const*, const char *);
   SOAP_FMAC3 struct ec2__ProductCodesSetItemType ** SOAP_FMAC4 soap_in_PointerToec2__ProductCodesSetItemType(struct soap*, const char*, struct ec2__ProductCodesSetItemType **, const char*);
 
-#define soap_write_PointerToec2__ProductCodesSetItemType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__ProductCodesSetItemType(soap, data), 0) || soap_put_PointerToec2__ProductCodesSetItemType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__ProductCodesSetItemType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__ProductCodesSetItemType(soap, data), 0) || soap_put_PointerToec2__ProductCodesSetItemType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__ProductCodesSetItemType(struct soap*, struct ec2__ProductCodesSetItemType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__ProductCodesSetItemType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__ProductCodesSetItemType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__ProductCodesSetItemType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__ProductCodesSetItemType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__ProductCodesSetItemType ** SOAP_FMAC4 soap_get_PointerToec2__ProductCodesSetItemType(struct soap*, struct ec2__ProductCodesSetItemType **, const char*, const char*);
 
@@ -5710,11 +5710,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__NullableAttributeValueType(struct soap*, const char *, int, struct ec2__NullableAttributeValueType *const*, const char *);
   SOAP_FMAC3 struct ec2__NullableAttributeValueType ** SOAP_FMAC4 soap_in_PointerToec2__NullableAttributeValueType(struct soap*, const char*, struct ec2__NullableAttributeValueType **, const char*);
 
-#define soap_write_PointerToec2__NullableAttributeValueType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__NullableAttributeValueType(soap, data), 0) || soap_put_PointerToec2__NullableAttributeValueType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__NullableAttributeValueType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__NullableAttributeValueType(soap, data), 0) || soap_put_PointerToec2__NullableAttributeValueType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__NullableAttributeValueType(struct soap*, struct ec2__NullableAttributeValueType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__NullableAttributeValueType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__NullableAttributeValueType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__NullableAttributeValueType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__NullableAttributeValueType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__NullableAttributeValueType ** SOAP_FMAC4 soap_get_PointerToec2__NullableAttributeValueType(struct soap*, struct ec2__NullableAttributeValueType **, const char*, const char*);
 
@@ -5725,11 +5725,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__EmptyElementType(struct soap*, const char *, int, struct ec2__EmptyElementType *const*, const char *);
   SOAP_FMAC3 struct ec2__EmptyElementType ** SOAP_FMAC4 soap_in_PointerToec2__EmptyElementType(struct soap*, const char*, struct ec2__EmptyElementType **, const char*);
 
-#define soap_write_PointerToec2__EmptyElementType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__EmptyElementType(soap, data), 0) || soap_put_PointerToec2__EmptyElementType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__EmptyElementType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__EmptyElementType(soap, data), 0) || soap_put_PointerToec2__EmptyElementType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__EmptyElementType(struct soap*, struct ec2__EmptyElementType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__EmptyElementType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__EmptyElementType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__EmptyElementType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__EmptyElementType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__EmptyElementType ** SOAP_FMAC4 soap_get_PointerToec2__EmptyElementType(struct soap*, struct ec2__EmptyElementType **, const char*, const char*);
 
@@ -5740,11 +5740,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__ProductCodeItemType(struct soap*, const char *, int, struct ec2__ProductCodeItemType *const*, const char *);
   SOAP_FMAC3 struct ec2__ProductCodeItemType ** SOAP_FMAC4 soap_in_PointerToec2__ProductCodeItemType(struct soap*, const char*, struct ec2__ProductCodeItemType **, const char*);
 
-#define soap_write_PointerToec2__ProductCodeItemType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__ProductCodeItemType(soap, data), 0) || soap_put_PointerToec2__ProductCodeItemType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__ProductCodeItemType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__ProductCodeItemType(soap, data), 0) || soap_put_PointerToec2__ProductCodeItemType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__ProductCodeItemType(struct soap*, struct ec2__ProductCodeItemType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__ProductCodeItemType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__ProductCodeItemType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__ProductCodeItemType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__ProductCodeItemType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__ProductCodeItemType ** SOAP_FMAC4 soap_get_PointerToec2__ProductCodeItemType(struct soap*, struct ec2__ProductCodeItemType **, const char*, const char*);
 
@@ -5755,11 +5755,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__LaunchPermissionItemType(struct soap*, const char *, int, struct ec2__LaunchPermissionItemType *const*, const char *);
   SOAP_FMAC3 struct ec2__LaunchPermissionItemType ** SOAP_FMAC4 soap_in_PointerToec2__LaunchPermissionItemType(struct soap*, const char*, struct ec2__LaunchPermissionItemType **, const char*);
 
-#define soap_write_PointerToec2__LaunchPermissionItemType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__LaunchPermissionItemType(soap, data), 0) || soap_put_PointerToec2__LaunchPermissionItemType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__LaunchPermissionItemType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__LaunchPermissionItemType(soap, data), 0) || soap_put_PointerToec2__LaunchPermissionItemType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__LaunchPermissionItemType(struct soap*, struct ec2__LaunchPermissionItemType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__LaunchPermissionItemType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__LaunchPermissionItemType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__LaunchPermissionItemType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__LaunchPermissionItemType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__LaunchPermissionItemType ** SOAP_FMAC4 soap_get_PointerToec2__LaunchPermissionItemType(struct soap*, struct ec2__LaunchPermissionItemType **, const char*, const char*);
 
@@ -5770,11 +5770,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__LaunchPermissionListType(struct soap*, const char *, int, struct ec2__LaunchPermissionListType *const*, const char *);
   SOAP_FMAC3 struct ec2__LaunchPermissionListType ** SOAP_FMAC4 soap_in_PointerToec2__LaunchPermissionListType(struct soap*, const char*, struct ec2__LaunchPermissionListType **, const char*);
 
-#define soap_write_PointerToec2__LaunchPermissionListType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__LaunchPermissionListType(soap, data), 0) || soap_put_PointerToec2__LaunchPermissionListType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__LaunchPermissionListType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__LaunchPermissionListType(soap, data), 0) || soap_put_PointerToec2__LaunchPermissionListType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__LaunchPermissionListType(struct soap*, struct ec2__LaunchPermissionListType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__LaunchPermissionListType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__LaunchPermissionListType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__LaunchPermissionListType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__LaunchPermissionListType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__LaunchPermissionListType ** SOAP_FMAC4 soap_get_PointerToec2__LaunchPermissionListType(struct soap*, struct ec2__LaunchPermissionListType **, const char*, const char*);
 
@@ -5785,11 +5785,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__ProductCodeListType(struct soap*, const char *, int, struct ec2__ProductCodeListType *const*, const char *);
   SOAP_FMAC3 struct ec2__ProductCodeListType ** SOAP_FMAC4 soap_in_PointerToec2__ProductCodeListType(struct soap*, const char*, struct ec2__ProductCodeListType **, const char*);
 
-#define soap_write_PointerToec2__ProductCodeListType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__ProductCodeListType(soap, data), 0) || soap_put_PointerToec2__ProductCodeListType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__ProductCodeListType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__ProductCodeListType(soap, data), 0) || soap_put_PointerToec2__ProductCodeListType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__ProductCodeListType(struct soap*, struct ec2__ProductCodeListType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__ProductCodeListType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__ProductCodeListType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__ProductCodeListType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__ProductCodeListType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__ProductCodeListType ** SOAP_FMAC4 soap_get_PointerToec2__ProductCodeListType(struct soap*, struct ec2__ProductCodeListType **, const char*, const char*);
 
@@ -5800,11 +5800,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__LaunchPermissionOperationType(struct soap*, const char *, int, struct ec2__LaunchPermissionOperationType *const*, const char *);
   SOAP_FMAC3 struct ec2__LaunchPermissionOperationType ** SOAP_FMAC4 soap_in_PointerToec2__LaunchPermissionOperationType(struct soap*, const char*, struct ec2__LaunchPermissionOperationType **, const char*);
 
-#define soap_write_PointerToec2__LaunchPermissionOperationType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__LaunchPermissionOperationType(soap, data), 0) || soap_put_PointerToec2__LaunchPermissionOperationType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__LaunchPermissionOperationType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__LaunchPermissionOperationType(soap, data), 0) || soap_put_PointerToec2__LaunchPermissionOperationType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__LaunchPermissionOperationType(struct soap*, struct ec2__LaunchPermissionOperationType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__LaunchPermissionOperationType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__LaunchPermissionOperationType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__LaunchPermissionOperationType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__LaunchPermissionOperationType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__LaunchPermissionOperationType ** SOAP_FMAC4 soap_get_PointerToec2__LaunchPermissionOperationType(struct soap*, struct ec2__LaunchPermissionOperationType **, const char*, const char*);
 
@@ -5815,11 +5815,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__IpPermissionSetType(struct soap*, const char *, int, struct ec2__IpPermissionSetType *const*, const char *);
   SOAP_FMAC3 struct ec2__IpPermissionSetType ** SOAP_FMAC4 soap_in_PointerToec2__IpPermissionSetType(struct soap*, const char*, struct ec2__IpPermissionSetType **, const char*);
 
-#define soap_write_PointerToec2__IpPermissionSetType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__IpPermissionSetType(soap, data), 0) || soap_put_PointerToec2__IpPermissionSetType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__IpPermissionSetType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__IpPermissionSetType(soap, data), 0) || soap_put_PointerToec2__IpPermissionSetType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__IpPermissionSetType(struct soap*, struct ec2__IpPermissionSetType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__IpPermissionSetType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__IpPermissionSetType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__IpPermissionSetType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__IpPermissionSetType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__IpPermissionSetType ** SOAP_FMAC4 soap_get_PointerToec2__IpPermissionSetType(struct soap*, struct ec2__IpPermissionSetType **, const char*, const char*);
 
@@ -5830,11 +5830,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__SecurityGroupItemType(struct soap*, const char *, int, struct ec2__SecurityGroupItemType *const*, const char *);
   SOAP_FMAC3 struct ec2__SecurityGroupItemType ** SOAP_FMAC4 soap_in_PointerToec2__SecurityGroupItemType(struct soap*, const char*, struct ec2__SecurityGroupItemType **, const char*);
 
-#define soap_write_PointerToec2__SecurityGroupItemType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__SecurityGroupItemType(soap, data), 0) || soap_put_PointerToec2__SecurityGroupItemType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__SecurityGroupItemType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__SecurityGroupItemType(soap, data), 0) || soap_put_PointerToec2__SecurityGroupItemType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__SecurityGroupItemType(struct soap*, struct ec2__SecurityGroupItemType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__SecurityGroupItemType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__SecurityGroupItemType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__SecurityGroupItemType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__SecurityGroupItemType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__SecurityGroupItemType ** SOAP_FMAC4 soap_get_PointerToec2__SecurityGroupItemType(struct soap*, struct ec2__SecurityGroupItemType **, const char*, const char*);
 
@@ -5845,11 +5845,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__UserIdGroupPairType(struct soap*, const char *, int, struct ec2__UserIdGroupPairType *const*, const char *);
   SOAP_FMAC3 struct ec2__UserIdGroupPairType ** SOAP_FMAC4 soap_in_PointerToec2__UserIdGroupPairType(struct soap*, const char*, struct ec2__UserIdGroupPairType **, const char*);
 
-#define soap_write_PointerToec2__UserIdGroupPairType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__UserIdGroupPairType(soap, data), 0) || soap_put_PointerToec2__UserIdGroupPairType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__UserIdGroupPairType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__UserIdGroupPairType(soap, data), 0) || soap_put_PointerToec2__UserIdGroupPairType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__UserIdGroupPairType(struct soap*, struct ec2__UserIdGroupPairType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__UserIdGroupPairType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__UserIdGroupPairType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__UserIdGroupPairType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__UserIdGroupPairType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__UserIdGroupPairType ** SOAP_FMAC4 soap_get_PointerToec2__UserIdGroupPairType(struct soap*, struct ec2__UserIdGroupPairType **, const char*, const char*);
 
@@ -5860,11 +5860,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__IpRangeItemType(struct soap*, const char *, int, struct ec2__IpRangeItemType *const*, const char *);
   SOAP_FMAC3 struct ec2__IpRangeItemType ** SOAP_FMAC4 soap_in_PointerToec2__IpRangeItemType(struct soap*, const char*, struct ec2__IpRangeItemType **, const char*);
 
-#define soap_write_PointerToec2__IpRangeItemType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__IpRangeItemType(soap, data), 0) || soap_put_PointerToec2__IpRangeItemType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__IpRangeItemType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__IpRangeItemType(soap, data), 0) || soap_put_PointerToec2__IpRangeItemType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__IpRangeItemType(struct soap*, struct ec2__IpRangeItemType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__IpRangeItemType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__IpRangeItemType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__IpRangeItemType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__IpRangeItemType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__IpRangeItemType ** SOAP_FMAC4 soap_get_PointerToec2__IpRangeItemType(struct soap*, struct ec2__IpRangeItemType **, const char*, const char*);
 
@@ -5875,11 +5875,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__IpRangeSetType(struct soap*, const char *, int, struct ec2__IpRangeSetType *const*, const char *);
   SOAP_FMAC3 struct ec2__IpRangeSetType ** SOAP_FMAC4 soap_in_PointerToec2__IpRangeSetType(struct soap*, const char*, struct ec2__IpRangeSetType **, const char*);
 
-#define soap_write_PointerToec2__IpRangeSetType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__IpRangeSetType(soap, data), 0) || soap_put_PointerToec2__IpRangeSetType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__IpRangeSetType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__IpRangeSetType(soap, data), 0) || soap_put_PointerToec2__IpRangeSetType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__IpRangeSetType(struct soap*, struct ec2__IpRangeSetType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__IpRangeSetType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__IpRangeSetType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__IpRangeSetType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__IpRangeSetType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__IpRangeSetType ** SOAP_FMAC4 soap_get_PointerToec2__IpRangeSetType(struct soap*, struct ec2__IpRangeSetType **, const char*, const char*);
 
@@ -5890,11 +5890,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__UserIdGroupPairSetType(struct soap*, const char *, int, struct ec2__UserIdGroupPairSetType *const*, const char *);
   SOAP_FMAC3 struct ec2__UserIdGroupPairSetType ** SOAP_FMAC4 soap_in_PointerToec2__UserIdGroupPairSetType(struct soap*, const char*, struct ec2__UserIdGroupPairSetType **, const char*);
 
-#define soap_write_PointerToec2__UserIdGroupPairSetType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__UserIdGroupPairSetType(soap, data), 0) || soap_put_PointerToec2__UserIdGroupPairSetType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__UserIdGroupPairSetType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__UserIdGroupPairSetType(soap, data), 0) || soap_put_PointerToec2__UserIdGroupPairSetType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__UserIdGroupPairSetType(struct soap*, struct ec2__UserIdGroupPairSetType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__UserIdGroupPairSetType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__UserIdGroupPairSetType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__UserIdGroupPairSetType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__UserIdGroupPairSetType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__UserIdGroupPairSetType ** SOAP_FMAC4 soap_get_PointerToec2__UserIdGroupPairSetType(struct soap*, struct ec2__UserIdGroupPairSetType **, const char*, const char*);
 
@@ -5905,11 +5905,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__IpPermissionType(struct soap*, const char *, int, struct ec2__IpPermissionType *const*, const char *);
   SOAP_FMAC3 struct ec2__IpPermissionType ** SOAP_FMAC4 soap_in_PointerToec2__IpPermissionType(struct soap*, const char*, struct ec2__IpPermissionType **, const char*);
 
-#define soap_write_PointerToec2__IpPermissionType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__IpPermissionType(soap, data), 0) || soap_put_PointerToec2__IpPermissionType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__IpPermissionType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__IpPermissionType(soap, data), 0) || soap_put_PointerToec2__IpPermissionType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__IpPermissionType(struct soap*, struct ec2__IpPermissionType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__IpPermissionType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__IpPermissionType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__IpPermissionType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__IpPermissionType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__IpPermissionType ** SOAP_FMAC4 soap_get_PointerToec2__IpPermissionType(struct soap*, struct ec2__IpPermissionType **, const char*, const char*);
 
@@ -5920,11 +5920,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__SecurityGroupSetType(struct soap*, const char *, int, struct ec2__SecurityGroupSetType *const*, const char *);
   SOAP_FMAC3 struct ec2__SecurityGroupSetType ** SOAP_FMAC4 soap_in_PointerToec2__SecurityGroupSetType(struct soap*, const char*, struct ec2__SecurityGroupSetType **, const char*);
 
-#define soap_write_PointerToec2__SecurityGroupSetType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__SecurityGroupSetType(soap, data), 0) || soap_put_PointerToec2__SecurityGroupSetType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__SecurityGroupSetType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__SecurityGroupSetType(soap, data), 0) || soap_put_PointerToec2__SecurityGroupSetType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__SecurityGroupSetType(struct soap*, struct ec2__SecurityGroupSetType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__SecurityGroupSetType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__SecurityGroupSetType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__SecurityGroupSetType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__SecurityGroupSetType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__SecurityGroupSetType ** SOAP_FMAC4 soap_get_PointerToec2__SecurityGroupSetType(struct soap*, struct ec2__SecurityGroupSetType **, const char*, const char*);
 
@@ -5935,11 +5935,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DescribeSecurityGroupsSetItemType(struct soap*, const char *, int, struct ec2__DescribeSecurityGroupsSetItemType *const*, const char *);
   SOAP_FMAC3 struct ec2__DescribeSecurityGroupsSetItemType ** SOAP_FMAC4 soap_in_PointerToec2__DescribeSecurityGroupsSetItemType(struct soap*, const char*, struct ec2__DescribeSecurityGroupsSetItemType **, const char*);
 
-#define soap_write_PointerToec2__DescribeSecurityGroupsSetItemType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeSecurityGroupsSetItemType(soap, data), 0) || soap_put_PointerToec2__DescribeSecurityGroupsSetItemType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DescribeSecurityGroupsSetItemType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeSecurityGroupsSetItemType(soap, data), 0) || soap_put_PointerToec2__DescribeSecurityGroupsSetItemType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DescribeSecurityGroupsSetItemType(struct soap*, struct ec2__DescribeSecurityGroupsSetItemType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DescribeSecurityGroupsSetItemType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeSecurityGroupsSetItemType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DescribeSecurityGroupsSetItemType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeSecurityGroupsSetItemType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeSecurityGroupsSetItemType ** SOAP_FMAC4 soap_get_PointerToec2__DescribeSecurityGroupsSetItemType(struct soap*, struct ec2__DescribeSecurityGroupsSetItemType **, const char*, const char*);
 
@@ -5950,11 +5950,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DescribeSecurityGroupsSetType(struct soap*, const char *, int, struct ec2__DescribeSecurityGroupsSetType *const*, const char *);
   SOAP_FMAC3 struct ec2__DescribeSecurityGroupsSetType ** SOAP_FMAC4 soap_in_PointerToec2__DescribeSecurityGroupsSetType(struct soap*, const char*, struct ec2__DescribeSecurityGroupsSetType **, const char*);
 
-#define soap_write_PointerToec2__DescribeSecurityGroupsSetType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeSecurityGroupsSetType(soap, data), 0) || soap_put_PointerToec2__DescribeSecurityGroupsSetType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DescribeSecurityGroupsSetType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeSecurityGroupsSetType(soap, data), 0) || soap_put_PointerToec2__DescribeSecurityGroupsSetType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DescribeSecurityGroupsSetType(struct soap*, struct ec2__DescribeSecurityGroupsSetType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DescribeSecurityGroupsSetType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeSecurityGroupsSetType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DescribeSecurityGroupsSetType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeSecurityGroupsSetType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeSecurityGroupsSetType ** SOAP_FMAC4 soap_get_PointerToec2__DescribeSecurityGroupsSetType(struct soap*, struct ec2__DescribeSecurityGroupsSetType **, const char*, const char*);
 
@@ -5965,11 +5965,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DescribeImagesResponseItemType(struct soap*, const char *, int, struct ec2__DescribeImagesResponseItemType *const*, const char *);
   SOAP_FMAC3 struct ec2__DescribeImagesResponseItemType ** SOAP_FMAC4 soap_in_PointerToec2__DescribeImagesResponseItemType(struct soap*, const char*, struct ec2__DescribeImagesResponseItemType **, const char*);
 
-#define soap_write_PointerToec2__DescribeImagesResponseItemType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeImagesResponseItemType(soap, data), 0) || soap_put_PointerToec2__DescribeImagesResponseItemType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DescribeImagesResponseItemType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeImagesResponseItemType(soap, data), 0) || soap_put_PointerToec2__DescribeImagesResponseItemType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DescribeImagesResponseItemType(struct soap*, struct ec2__DescribeImagesResponseItemType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DescribeImagesResponseItemType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeImagesResponseItemType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DescribeImagesResponseItemType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeImagesResponseItemType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeImagesResponseItemType ** SOAP_FMAC4 soap_get_PointerToec2__DescribeImagesResponseItemType(struct soap*, struct ec2__DescribeImagesResponseItemType **, const char*, const char*);
 
@@ -5980,11 +5980,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DescribeImagesResponseInfoType(struct soap*, const char *, int, struct ec2__DescribeImagesResponseInfoType *const*, const char *);
   SOAP_FMAC3 struct ec2__DescribeImagesResponseInfoType ** SOAP_FMAC4 soap_in_PointerToec2__DescribeImagesResponseInfoType(struct soap*, const char*, struct ec2__DescribeImagesResponseInfoType **, const char*);
 
-#define soap_write_PointerToec2__DescribeImagesResponseInfoType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeImagesResponseInfoType(soap, data), 0) || soap_put_PointerToec2__DescribeImagesResponseInfoType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DescribeImagesResponseInfoType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeImagesResponseInfoType(soap, data), 0) || soap_put_PointerToec2__DescribeImagesResponseInfoType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DescribeImagesResponseInfoType(struct soap*, struct ec2__DescribeImagesResponseInfoType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DescribeImagesResponseInfoType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeImagesResponseInfoType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DescribeImagesResponseInfoType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeImagesResponseInfoType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeImagesResponseInfoType ** SOAP_FMAC4 soap_get_PointerToec2__DescribeImagesResponseInfoType(struct soap*, struct ec2__DescribeImagesResponseInfoType **, const char*, const char*);
 
@@ -5995,11 +5995,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DescribeImagesExecutableByType(struct soap*, const char *, int, struct ec2__DescribeImagesExecutableByType *const*, const char *);
   SOAP_FMAC3 struct ec2__DescribeImagesExecutableByType ** SOAP_FMAC4 soap_in_PointerToec2__DescribeImagesExecutableByType(struct soap*, const char*, struct ec2__DescribeImagesExecutableByType **, const char*);
 
-#define soap_write_PointerToec2__DescribeImagesExecutableByType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeImagesExecutableByType(soap, data), 0) || soap_put_PointerToec2__DescribeImagesExecutableByType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DescribeImagesExecutableByType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeImagesExecutableByType(soap, data), 0) || soap_put_PointerToec2__DescribeImagesExecutableByType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DescribeImagesExecutableByType(struct soap*, struct ec2__DescribeImagesExecutableByType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DescribeImagesExecutableByType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeImagesExecutableByType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DescribeImagesExecutableByType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeImagesExecutableByType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeImagesExecutableByType ** SOAP_FMAC4 soap_get_PointerToec2__DescribeImagesExecutableByType(struct soap*, struct ec2__DescribeImagesExecutableByType **, const char*, const char*);
 
@@ -6010,11 +6010,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DescribeImagesOwnerType(struct soap*, const char *, int, struct ec2__DescribeImagesOwnerType *const*, const char *);
   SOAP_FMAC3 struct ec2__DescribeImagesOwnerType ** SOAP_FMAC4 soap_in_PointerToec2__DescribeImagesOwnerType(struct soap*, const char*, struct ec2__DescribeImagesOwnerType **, const char*);
 
-#define soap_write_PointerToec2__DescribeImagesOwnerType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeImagesOwnerType(soap, data), 0) || soap_put_PointerToec2__DescribeImagesOwnerType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DescribeImagesOwnerType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeImagesOwnerType(soap, data), 0) || soap_put_PointerToec2__DescribeImagesOwnerType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DescribeImagesOwnerType(struct soap*, struct ec2__DescribeImagesOwnerType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DescribeImagesOwnerType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeImagesOwnerType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DescribeImagesOwnerType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeImagesOwnerType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeImagesOwnerType ** SOAP_FMAC4 soap_get_PointerToec2__DescribeImagesOwnerType(struct soap*, struct ec2__DescribeImagesOwnerType **, const char*, const char*);
 
@@ -6025,11 +6025,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DescribeImagesItemType(struct soap*, const char *, int, struct ec2__DescribeImagesItemType *const*, const char *);
   SOAP_FMAC3 struct ec2__DescribeImagesItemType ** SOAP_FMAC4 soap_in_PointerToec2__DescribeImagesItemType(struct soap*, const char*, struct ec2__DescribeImagesItemType **, const char*);
 
-#define soap_write_PointerToec2__DescribeImagesItemType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeImagesItemType(soap, data), 0) || soap_put_PointerToec2__DescribeImagesItemType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DescribeImagesItemType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeImagesItemType(soap, data), 0) || soap_put_PointerToec2__DescribeImagesItemType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DescribeImagesItemType(struct soap*, struct ec2__DescribeImagesItemType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DescribeImagesItemType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeImagesItemType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DescribeImagesItemType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeImagesItemType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeImagesItemType ** SOAP_FMAC4 soap_get_PointerToec2__DescribeImagesItemType(struct soap*, struct ec2__DescribeImagesItemType **, const char*, const char*);
 
@@ -6040,11 +6040,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DescribeImagesOwnersType(struct soap*, const char *, int, struct ec2__DescribeImagesOwnersType *const*, const char *);
   SOAP_FMAC3 struct ec2__DescribeImagesOwnersType ** SOAP_FMAC4 soap_in_PointerToec2__DescribeImagesOwnersType(struct soap*, const char*, struct ec2__DescribeImagesOwnersType **, const char*);
 
-#define soap_write_PointerToec2__DescribeImagesOwnersType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeImagesOwnersType(soap, data), 0) || soap_put_PointerToec2__DescribeImagesOwnersType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DescribeImagesOwnersType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeImagesOwnersType(soap, data), 0) || soap_put_PointerToec2__DescribeImagesOwnersType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DescribeImagesOwnersType(struct soap*, struct ec2__DescribeImagesOwnersType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DescribeImagesOwnersType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeImagesOwnersType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DescribeImagesOwnersType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeImagesOwnersType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeImagesOwnersType ** SOAP_FMAC4 soap_get_PointerToec2__DescribeImagesOwnersType(struct soap*, struct ec2__DescribeImagesOwnersType **, const char*, const char*);
 
@@ -6055,11 +6055,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DescribeImagesInfoType(struct soap*, const char *, int, struct ec2__DescribeImagesInfoType *const*, const char *);
   SOAP_FMAC3 struct ec2__DescribeImagesInfoType ** SOAP_FMAC4 soap_in_PointerToec2__DescribeImagesInfoType(struct soap*, const char*, struct ec2__DescribeImagesInfoType **, const char*);
 
-#define soap_write_PointerToec2__DescribeImagesInfoType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeImagesInfoType(soap, data), 0) || soap_put_PointerToec2__DescribeImagesInfoType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DescribeImagesInfoType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeImagesInfoType(soap, data), 0) || soap_put_PointerToec2__DescribeImagesInfoType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DescribeImagesInfoType(struct soap*, struct ec2__DescribeImagesInfoType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DescribeImagesInfoType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeImagesInfoType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DescribeImagesInfoType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeImagesInfoType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeImagesInfoType ** SOAP_FMAC4 soap_get_PointerToec2__DescribeImagesInfoType(struct soap*, struct ec2__DescribeImagesInfoType **, const char*, const char*);
 
@@ -6070,11 +6070,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DescribeImagesExecutableBySetType(struct soap*, const char *, int, struct ec2__DescribeImagesExecutableBySetType *const*, const char *);
   SOAP_FMAC3 struct ec2__DescribeImagesExecutableBySetType ** SOAP_FMAC4 soap_in_PointerToec2__DescribeImagesExecutableBySetType(struct soap*, const char*, struct ec2__DescribeImagesExecutableBySetType **, const char*);
 
-#define soap_write_PointerToec2__DescribeImagesExecutableBySetType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeImagesExecutableBySetType(soap, data), 0) || soap_put_PointerToec2__DescribeImagesExecutableBySetType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DescribeImagesExecutableBySetType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeImagesExecutableBySetType(soap, data), 0) || soap_put_PointerToec2__DescribeImagesExecutableBySetType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DescribeImagesExecutableBySetType(struct soap*, struct ec2__DescribeImagesExecutableBySetType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DescribeImagesExecutableBySetType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeImagesExecutableBySetType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DescribeImagesExecutableBySetType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeImagesExecutableBySetType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeImagesExecutableBySetType ** SOAP_FMAC4 soap_get_PointerToec2__DescribeImagesExecutableBySetType(struct soap*, struct ec2__DescribeImagesExecutableBySetType **, const char*, const char*);
 
@@ -6085,11 +6085,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__ReservationInfoType(struct soap*, const char *, int, struct ec2__ReservationInfoType *const*, const char *);
   SOAP_FMAC3 struct ec2__ReservationInfoType ** SOAP_FMAC4 soap_in_PointerToec2__ReservationInfoType(struct soap*, const char*, struct ec2__ReservationInfoType **, const char*);
 
-#define soap_write_PointerToec2__ReservationInfoType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__ReservationInfoType(soap, data), 0) || soap_put_PointerToec2__ReservationInfoType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__ReservationInfoType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__ReservationInfoType(soap, data), 0) || soap_put_PointerToec2__ReservationInfoType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__ReservationInfoType(struct soap*, struct ec2__ReservationInfoType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__ReservationInfoType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__ReservationInfoType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__ReservationInfoType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__ReservationInfoType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__ReservationInfoType ** SOAP_FMAC4 soap_get_PointerToec2__ReservationInfoType(struct soap*, struct ec2__ReservationInfoType **, const char*, const char*);
 
@@ -6100,11 +6100,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__ReservationSetType(struct soap*, const char *, int, struct ec2__ReservationSetType *const*, const char *);
   SOAP_FMAC3 struct ec2__ReservationSetType ** SOAP_FMAC4 soap_in_PointerToec2__ReservationSetType(struct soap*, const char*, struct ec2__ReservationSetType **, const char*);
 
-#define soap_write_PointerToec2__ReservationSetType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__ReservationSetType(soap, data), 0) || soap_put_PointerToec2__ReservationSetType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__ReservationSetType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__ReservationSetType(soap, data), 0) || soap_put_PointerToec2__ReservationSetType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__ReservationSetType(struct soap*, struct ec2__ReservationSetType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__ReservationSetType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__ReservationSetType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__ReservationSetType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__ReservationSetType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__ReservationSetType ** SOAP_FMAC4 soap_get_PointerToec2__ReservationSetType(struct soap*, struct ec2__ReservationSetType **, const char*, const char*);
 
@@ -6115,11 +6115,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DescribeInstancesItemType(struct soap*, const char *, int, struct ec2__DescribeInstancesItemType *const*, const char *);
   SOAP_FMAC3 struct ec2__DescribeInstancesItemType ** SOAP_FMAC4 soap_in_PointerToec2__DescribeInstancesItemType(struct soap*, const char*, struct ec2__DescribeInstancesItemType **, const char*);
 
-#define soap_write_PointerToec2__DescribeInstancesItemType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeInstancesItemType(soap, data), 0) || soap_put_PointerToec2__DescribeInstancesItemType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DescribeInstancesItemType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeInstancesItemType(soap, data), 0) || soap_put_PointerToec2__DescribeInstancesItemType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DescribeInstancesItemType(struct soap*, struct ec2__DescribeInstancesItemType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DescribeInstancesItemType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeInstancesItemType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DescribeInstancesItemType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeInstancesItemType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeInstancesItemType ** SOAP_FMAC4 soap_get_PointerToec2__DescribeInstancesItemType(struct soap*, struct ec2__DescribeInstancesItemType **, const char*, const char*);
 
@@ -6130,11 +6130,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DescribeInstancesInfoType(struct soap*, const char *, int, struct ec2__DescribeInstancesInfoType *const*, const char *);
   SOAP_FMAC3 struct ec2__DescribeInstancesInfoType ** SOAP_FMAC4 soap_in_PointerToec2__DescribeInstancesInfoType(struct soap*, const char*, struct ec2__DescribeInstancesInfoType **, const char*);
 
-#define soap_write_PointerToec2__DescribeInstancesInfoType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeInstancesInfoType(soap, data), 0) || soap_put_PointerToec2__DescribeInstancesInfoType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DescribeInstancesInfoType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeInstancesInfoType(soap, data), 0) || soap_put_PointerToec2__DescribeInstancesInfoType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DescribeInstancesInfoType(struct soap*, struct ec2__DescribeInstancesInfoType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DescribeInstancesInfoType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeInstancesInfoType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DescribeInstancesInfoType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeInstancesInfoType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeInstancesInfoType ** SOAP_FMAC4 soap_get_PointerToec2__DescribeInstancesInfoType(struct soap*, struct ec2__DescribeInstancesInfoType **, const char*, const char*);
 
@@ -6145,11 +6145,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__RebootInstancesItemType(struct soap*, const char *, int, struct ec2__RebootInstancesItemType *const*, const char *);
   SOAP_FMAC3 struct ec2__RebootInstancesItemType ** SOAP_FMAC4 soap_in_PointerToec2__RebootInstancesItemType(struct soap*, const char*, struct ec2__RebootInstancesItemType **, const char*);
 
-#define soap_write_PointerToec2__RebootInstancesItemType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__RebootInstancesItemType(soap, data), 0) || soap_put_PointerToec2__RebootInstancesItemType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__RebootInstancesItemType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__RebootInstancesItemType(soap, data), 0) || soap_put_PointerToec2__RebootInstancesItemType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__RebootInstancesItemType(struct soap*, struct ec2__RebootInstancesItemType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__RebootInstancesItemType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__RebootInstancesItemType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__RebootInstancesItemType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__RebootInstancesItemType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__RebootInstancesItemType ** SOAP_FMAC4 soap_get_PointerToec2__RebootInstancesItemType(struct soap*, struct ec2__RebootInstancesItemType **, const char*, const char*);
 
@@ -6160,11 +6160,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__RebootInstancesInfoType(struct soap*, const char *, int, struct ec2__RebootInstancesInfoType *const*, const char *);
   SOAP_FMAC3 struct ec2__RebootInstancesInfoType ** SOAP_FMAC4 soap_in_PointerToec2__RebootInstancesInfoType(struct soap*, const char*, struct ec2__RebootInstancesInfoType **, const char*);
 
-#define soap_write_PointerToec2__RebootInstancesInfoType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__RebootInstancesInfoType(soap, data), 0) || soap_put_PointerToec2__RebootInstancesInfoType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__RebootInstancesInfoType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__RebootInstancesInfoType(soap, data), 0) || soap_put_PointerToec2__RebootInstancesInfoType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__RebootInstancesInfoType(struct soap*, struct ec2__RebootInstancesInfoType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__RebootInstancesInfoType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__RebootInstancesInfoType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__RebootInstancesInfoType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__RebootInstancesInfoType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__RebootInstancesInfoType ** SOAP_FMAC4 soap_get_PointerToec2__RebootInstancesInfoType(struct soap*, struct ec2__RebootInstancesInfoType **, const char*, const char*);
 
@@ -6175,11 +6175,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__TerminateInstancesResponseItemType(struct soap*, const char *, int, struct ec2__TerminateInstancesResponseItemType *const*, const char *);
   SOAP_FMAC3 struct ec2__TerminateInstancesResponseItemType ** SOAP_FMAC4 soap_in_PointerToec2__TerminateInstancesResponseItemType(struct soap*, const char*, struct ec2__TerminateInstancesResponseItemType **, const char*);
 
-#define soap_write_PointerToec2__TerminateInstancesResponseItemType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__TerminateInstancesResponseItemType(soap, data), 0) || soap_put_PointerToec2__TerminateInstancesResponseItemType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__TerminateInstancesResponseItemType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__TerminateInstancesResponseItemType(soap, data), 0) || soap_put_PointerToec2__TerminateInstancesResponseItemType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__TerminateInstancesResponseItemType(struct soap*, struct ec2__TerminateInstancesResponseItemType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__TerminateInstancesResponseItemType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__TerminateInstancesResponseItemType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__TerminateInstancesResponseItemType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__TerminateInstancesResponseItemType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__TerminateInstancesResponseItemType ** SOAP_FMAC4 soap_get_PointerToec2__TerminateInstancesResponseItemType(struct soap*, struct ec2__TerminateInstancesResponseItemType **, const char*, const char*);
 
@@ -6190,11 +6190,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__TerminateInstancesResponseInfoType(struct soap*, const char *, int, struct ec2__TerminateInstancesResponseInfoType *const*, const char *);
   SOAP_FMAC3 struct ec2__TerminateInstancesResponseInfoType ** SOAP_FMAC4 soap_in_PointerToec2__TerminateInstancesResponseInfoType(struct soap*, const char*, struct ec2__TerminateInstancesResponseInfoType **, const char*);
 
-#define soap_write_PointerToec2__TerminateInstancesResponseInfoType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__TerminateInstancesResponseInfoType(soap, data), 0) || soap_put_PointerToec2__TerminateInstancesResponseInfoType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__TerminateInstancesResponseInfoType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__TerminateInstancesResponseInfoType(soap, data), 0) || soap_put_PointerToec2__TerminateInstancesResponseInfoType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__TerminateInstancesResponseInfoType(struct soap*, struct ec2__TerminateInstancesResponseInfoType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__TerminateInstancesResponseInfoType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__TerminateInstancesResponseInfoType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__TerminateInstancesResponseInfoType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__TerminateInstancesResponseInfoType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__TerminateInstancesResponseInfoType ** SOAP_FMAC4 soap_get_PointerToec2__TerminateInstancesResponseInfoType(struct soap*, struct ec2__TerminateInstancesResponseInfoType **, const char*, const char*);
 
@@ -6205,11 +6205,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__TerminateInstancesItemType(struct soap*, const char *, int, struct ec2__TerminateInstancesItemType *const*, const char *);
   SOAP_FMAC3 struct ec2__TerminateInstancesItemType ** SOAP_FMAC4 soap_in_PointerToec2__TerminateInstancesItemType(struct soap*, const char*, struct ec2__TerminateInstancesItemType **, const char*);
 
-#define soap_write_PointerToec2__TerminateInstancesItemType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__TerminateInstancesItemType(soap, data), 0) || soap_put_PointerToec2__TerminateInstancesItemType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__TerminateInstancesItemType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__TerminateInstancesItemType(soap, data), 0) || soap_put_PointerToec2__TerminateInstancesItemType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__TerminateInstancesItemType(struct soap*, struct ec2__TerminateInstancesItemType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__TerminateInstancesItemType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__TerminateInstancesItemType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__TerminateInstancesItemType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__TerminateInstancesItemType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__TerminateInstancesItemType ** SOAP_FMAC4 soap_get_PointerToec2__TerminateInstancesItemType(struct soap*, struct ec2__TerminateInstancesItemType **, const char*, const char*);
 
@@ -6220,11 +6220,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__TerminateInstancesInfoType(struct soap*, const char *, int, struct ec2__TerminateInstancesInfoType *const*, const char *);
   SOAP_FMAC3 struct ec2__TerminateInstancesInfoType ** SOAP_FMAC4 soap_in_PointerToec2__TerminateInstancesInfoType(struct soap*, const char*, struct ec2__TerminateInstancesInfoType **, const char*);
 
-#define soap_write_PointerToec2__TerminateInstancesInfoType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__TerminateInstancesInfoType(soap, data), 0) || soap_put_PointerToec2__TerminateInstancesInfoType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__TerminateInstancesInfoType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__TerminateInstancesInfoType(soap, data), 0) || soap_put_PointerToec2__TerminateInstancesInfoType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__TerminateInstancesInfoType(struct soap*, struct ec2__TerminateInstancesInfoType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__TerminateInstancesInfoType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__TerminateInstancesInfoType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__TerminateInstancesInfoType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__TerminateInstancesInfoType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__TerminateInstancesInfoType ** SOAP_FMAC4 soap_get_PointerToec2__TerminateInstancesInfoType(struct soap*, struct ec2__TerminateInstancesInfoType **, const char*, const char*);
 
@@ -6235,11 +6235,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__PlacementResponseType(struct soap*, const char *, int, struct ec2__PlacementResponseType *const*, const char *);
   SOAP_FMAC3 struct ec2__PlacementResponseType ** SOAP_FMAC4 soap_in_PointerToec2__PlacementResponseType(struct soap*, const char*, struct ec2__PlacementResponseType **, const char*);
 
-#define soap_write_PointerToec2__PlacementResponseType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__PlacementResponseType(soap, data), 0) || soap_put_PointerToec2__PlacementResponseType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__PlacementResponseType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__PlacementResponseType(soap, data), 0) || soap_put_PointerToec2__PlacementResponseType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__PlacementResponseType(struct soap*, struct ec2__PlacementResponseType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__PlacementResponseType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__PlacementResponseType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__PlacementResponseType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__PlacementResponseType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__PlacementResponseType ** SOAP_FMAC4 soap_get_PointerToec2__PlacementResponseType(struct soap*, struct ec2__PlacementResponseType **, const char*, const char*);
 
@@ -6250,11 +6250,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__ProductCodesSetType(struct soap*, const char *, int, struct ec2__ProductCodesSetType *const*, const char *);
   SOAP_FMAC3 struct ec2__ProductCodesSetType ** SOAP_FMAC4 soap_in_PointerToec2__ProductCodesSetType(struct soap*, const char*, struct ec2__ProductCodesSetType **, const char*);
 
-#define soap_write_PointerToec2__ProductCodesSetType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__ProductCodesSetType(soap, data), 0) || soap_put_PointerToec2__ProductCodesSetType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__ProductCodesSetType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__ProductCodesSetType(soap, data), 0) || soap_put_PointerToec2__ProductCodesSetType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__ProductCodesSetType(struct soap*, struct ec2__ProductCodesSetType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__ProductCodesSetType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__ProductCodesSetType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__ProductCodesSetType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__ProductCodesSetType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__ProductCodesSetType ** SOAP_FMAC4 soap_get_PointerToec2__ProductCodesSetType(struct soap*, struct ec2__ProductCodesSetType **, const char*, const char*);
 
@@ -6265,11 +6265,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__InstanceStateType(struct soap*, const char *, int, struct ec2__InstanceStateType *const*, const char *);
   SOAP_FMAC3 struct ec2__InstanceStateType ** SOAP_FMAC4 soap_in_PointerToec2__InstanceStateType(struct soap*, const char*, struct ec2__InstanceStateType **, const char*);
 
-#define soap_write_PointerToec2__InstanceStateType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__InstanceStateType(soap, data), 0) || soap_put_PointerToec2__InstanceStateType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__InstanceStateType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__InstanceStateType(soap, data), 0) || soap_put_PointerToec2__InstanceStateType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__InstanceStateType(struct soap*, struct ec2__InstanceStateType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__InstanceStateType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__InstanceStateType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__InstanceStateType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__InstanceStateType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__InstanceStateType ** SOAP_FMAC4 soap_get_PointerToec2__InstanceStateType(struct soap*, struct ec2__InstanceStateType **, const char*, const char*);
 
@@ -6280,11 +6280,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__RunningInstancesItemType(struct soap*, const char *, int, struct ec2__RunningInstancesItemType *const*, const char *);
   SOAP_FMAC3 struct ec2__RunningInstancesItemType ** SOAP_FMAC4 soap_in_PointerToec2__RunningInstancesItemType(struct soap*, const char*, struct ec2__RunningInstancesItemType **, const char*);
 
-#define soap_write_PointerToec2__RunningInstancesItemType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__RunningInstancesItemType(soap, data), 0) || soap_put_PointerToec2__RunningInstancesItemType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__RunningInstancesItemType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__RunningInstancesItemType(soap, data), 0) || soap_put_PointerToec2__RunningInstancesItemType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__RunningInstancesItemType(struct soap*, struct ec2__RunningInstancesItemType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__RunningInstancesItemType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__RunningInstancesItemType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__RunningInstancesItemType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__RunningInstancesItemType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__RunningInstancesItemType ** SOAP_FMAC4 soap_get_PointerToec2__RunningInstancesItemType(struct soap*, struct ec2__RunningInstancesItemType **, const char*, const char*);
 
@@ -6295,11 +6295,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__RunningInstancesSetType(struct soap*, const char *, int, struct ec2__RunningInstancesSetType *const*, const char *);
   SOAP_FMAC3 struct ec2__RunningInstancesSetType ** SOAP_FMAC4 soap_in_PointerToec2__RunningInstancesSetType(struct soap*, const char*, struct ec2__RunningInstancesSetType **, const char*);
 
-#define soap_write_PointerToec2__RunningInstancesSetType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__RunningInstancesSetType(soap, data), 0) || soap_put_PointerToec2__RunningInstancesSetType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__RunningInstancesSetType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__RunningInstancesSetType(soap, data), 0) || soap_put_PointerToec2__RunningInstancesSetType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__RunningInstancesSetType(struct soap*, struct ec2__RunningInstancesSetType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__RunningInstancesSetType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__RunningInstancesSetType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__RunningInstancesSetType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__RunningInstancesSetType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__RunningInstancesSetType ** SOAP_FMAC4 soap_get_PointerToec2__RunningInstancesSetType(struct soap*, struct ec2__RunningInstancesSetType **, const char*, const char*);
 
@@ -6310,11 +6310,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__BlockDeviceMappingItemType(struct soap*, const char *, int, struct ec2__BlockDeviceMappingItemType *const*, const char *);
   SOAP_FMAC3 struct ec2__BlockDeviceMappingItemType ** SOAP_FMAC4 soap_in_PointerToec2__BlockDeviceMappingItemType(struct soap*, const char*, struct ec2__BlockDeviceMappingItemType **, const char*);
 
-#define soap_write_PointerToec2__BlockDeviceMappingItemType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__BlockDeviceMappingItemType(soap, data), 0) || soap_put_PointerToec2__BlockDeviceMappingItemType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__BlockDeviceMappingItemType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__BlockDeviceMappingItemType(soap, data), 0) || soap_put_PointerToec2__BlockDeviceMappingItemType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__BlockDeviceMappingItemType(struct soap*, struct ec2__BlockDeviceMappingItemType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__BlockDeviceMappingItemType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__BlockDeviceMappingItemType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__BlockDeviceMappingItemType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__BlockDeviceMappingItemType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__BlockDeviceMappingItemType ** SOAP_FMAC4 soap_get_PointerToec2__BlockDeviceMappingItemType(struct soap*, struct ec2__BlockDeviceMappingItemType **, const char*, const char*);
 
@@ -6325,11 +6325,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__GroupItemType(struct soap*, const char *, int, struct ec2__GroupItemType *const*, const char *);
   SOAP_FMAC3 struct ec2__GroupItemType ** SOAP_FMAC4 soap_in_PointerToec2__GroupItemType(struct soap*, const char*, struct ec2__GroupItemType **, const char*);
 
-#define soap_write_PointerToec2__GroupItemType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__GroupItemType(soap, data), 0) || soap_put_PointerToec2__GroupItemType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__GroupItemType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__GroupItemType(soap, data), 0) || soap_put_PointerToec2__GroupItemType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__GroupItemType(struct soap*, struct ec2__GroupItemType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__GroupItemType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__GroupItemType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__GroupItemType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__GroupItemType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__GroupItemType ** SOAP_FMAC4 soap_get_PointerToec2__GroupItemType(struct soap*, struct ec2__GroupItemType **, const char*, const char*);
 
@@ -6340,11 +6340,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__BlockDeviceMappingType(struct soap*, const char *, int, struct ec2__BlockDeviceMappingType *const*, const char *);
   SOAP_FMAC3 struct ec2__BlockDeviceMappingType ** SOAP_FMAC4 soap_in_PointerToec2__BlockDeviceMappingType(struct soap*, const char*, struct ec2__BlockDeviceMappingType **, const char*);
 
-#define soap_write_PointerToec2__BlockDeviceMappingType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__BlockDeviceMappingType(soap, data), 0) || soap_put_PointerToec2__BlockDeviceMappingType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__BlockDeviceMappingType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__BlockDeviceMappingType(soap, data), 0) || soap_put_PointerToec2__BlockDeviceMappingType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__BlockDeviceMappingType(struct soap*, struct ec2__BlockDeviceMappingType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__BlockDeviceMappingType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__BlockDeviceMappingType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__BlockDeviceMappingType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__BlockDeviceMappingType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__BlockDeviceMappingType ** SOAP_FMAC4 soap_get_PointerToec2__BlockDeviceMappingType(struct soap*, struct ec2__BlockDeviceMappingType **, const char*, const char*);
 
@@ -6355,11 +6355,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__PlacementRequestType(struct soap*, const char *, int, struct ec2__PlacementRequestType *const*, const char *);
   SOAP_FMAC3 struct ec2__PlacementRequestType ** SOAP_FMAC4 soap_in_PointerToec2__PlacementRequestType(struct soap*, const char*, struct ec2__PlacementRequestType **, const char*);
 
-#define soap_write_PointerToec2__PlacementRequestType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__PlacementRequestType(soap, data), 0) || soap_put_PointerToec2__PlacementRequestType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__PlacementRequestType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__PlacementRequestType(soap, data), 0) || soap_put_PointerToec2__PlacementRequestType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__PlacementRequestType(struct soap*, struct ec2__PlacementRequestType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__PlacementRequestType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__PlacementRequestType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__PlacementRequestType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__PlacementRequestType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__PlacementRequestType ** SOAP_FMAC4 soap_get_PointerToec2__PlacementRequestType(struct soap*, struct ec2__PlacementRequestType **, const char*, const char*);
 
@@ -6370,11 +6370,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__UserDataType(struct soap*, const char *, int, struct ec2__UserDataType *const*, const char *);
   SOAP_FMAC3 struct ec2__UserDataType ** SOAP_FMAC4 soap_in_PointerToec2__UserDataType(struct soap*, const char*, struct ec2__UserDataType **, const char*);
 
-#define soap_write_PointerToec2__UserDataType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__UserDataType(soap, data), 0) || soap_put_PointerToec2__UserDataType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__UserDataType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__UserDataType(soap, data), 0) || soap_put_PointerToec2__UserDataType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__UserDataType(struct soap*, struct ec2__UserDataType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__UserDataType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__UserDataType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__UserDataType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__UserDataType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__UserDataType ** SOAP_FMAC4 soap_get_PointerToec2__UserDataType(struct soap*, struct ec2__UserDataType **, const char*, const char*);
 
@@ -6385,11 +6385,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__GroupSetType(struct soap*, const char *, int, struct ec2__GroupSetType *const*, const char *);
   SOAP_FMAC3 struct ec2__GroupSetType ** SOAP_FMAC4 soap_in_PointerToec2__GroupSetType(struct soap*, const char*, struct ec2__GroupSetType **, const char*);
 
-#define soap_write_PointerToec2__GroupSetType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__GroupSetType(soap, data), 0) || soap_put_PointerToec2__GroupSetType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__GroupSetType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__GroupSetType(soap, data), 0) || soap_put_PointerToec2__GroupSetType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__GroupSetType(struct soap*, struct ec2__GroupSetType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__GroupSetType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__GroupSetType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__GroupSetType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__GroupSetType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__GroupSetType ** SOAP_FMAC4 soap_get_PointerToec2__GroupSetType(struct soap*, struct ec2__GroupSetType **, const char*, const char*);
 
@@ -6400,11 +6400,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DescribeKeyPairsResponseItemType(struct soap*, const char *, int, struct ec2__DescribeKeyPairsResponseItemType *const*, const char *);
   SOAP_FMAC3 struct ec2__DescribeKeyPairsResponseItemType ** SOAP_FMAC4 soap_in_PointerToec2__DescribeKeyPairsResponseItemType(struct soap*, const char*, struct ec2__DescribeKeyPairsResponseItemType **, const char*);
 
-#define soap_write_PointerToec2__DescribeKeyPairsResponseItemType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeKeyPairsResponseItemType(soap, data), 0) || soap_put_PointerToec2__DescribeKeyPairsResponseItemType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DescribeKeyPairsResponseItemType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeKeyPairsResponseItemType(soap, data), 0) || soap_put_PointerToec2__DescribeKeyPairsResponseItemType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DescribeKeyPairsResponseItemType(struct soap*, struct ec2__DescribeKeyPairsResponseItemType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DescribeKeyPairsResponseItemType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeKeyPairsResponseItemType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DescribeKeyPairsResponseItemType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeKeyPairsResponseItemType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeKeyPairsResponseItemType ** SOAP_FMAC4 soap_get_PointerToec2__DescribeKeyPairsResponseItemType(struct soap*, struct ec2__DescribeKeyPairsResponseItemType **, const char*, const char*);
 
@@ -6415,11 +6415,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DescribeKeyPairsResponseInfoType(struct soap*, const char *, int, struct ec2__DescribeKeyPairsResponseInfoType *const*, const char *);
   SOAP_FMAC3 struct ec2__DescribeKeyPairsResponseInfoType ** SOAP_FMAC4 soap_in_PointerToec2__DescribeKeyPairsResponseInfoType(struct soap*, const char*, struct ec2__DescribeKeyPairsResponseInfoType **, const char*);
 
-#define soap_write_PointerToec2__DescribeKeyPairsResponseInfoType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeKeyPairsResponseInfoType(soap, data), 0) || soap_put_PointerToec2__DescribeKeyPairsResponseInfoType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DescribeKeyPairsResponseInfoType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeKeyPairsResponseInfoType(soap, data), 0) || soap_put_PointerToec2__DescribeKeyPairsResponseInfoType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DescribeKeyPairsResponseInfoType(struct soap*, struct ec2__DescribeKeyPairsResponseInfoType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DescribeKeyPairsResponseInfoType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeKeyPairsResponseInfoType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DescribeKeyPairsResponseInfoType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeKeyPairsResponseInfoType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeKeyPairsResponseInfoType ** SOAP_FMAC4 soap_get_PointerToec2__DescribeKeyPairsResponseInfoType(struct soap*, struct ec2__DescribeKeyPairsResponseInfoType **, const char*, const char*);
 
@@ -6430,11 +6430,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DescribeKeyPairsItemType(struct soap*, const char *, int, struct ec2__DescribeKeyPairsItemType *const*, const char *);
   SOAP_FMAC3 struct ec2__DescribeKeyPairsItemType ** SOAP_FMAC4 soap_in_PointerToec2__DescribeKeyPairsItemType(struct soap*, const char*, struct ec2__DescribeKeyPairsItemType **, const char*);
 
-#define soap_write_PointerToec2__DescribeKeyPairsItemType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeKeyPairsItemType(soap, data), 0) || soap_put_PointerToec2__DescribeKeyPairsItemType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DescribeKeyPairsItemType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeKeyPairsItemType(soap, data), 0) || soap_put_PointerToec2__DescribeKeyPairsItemType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DescribeKeyPairsItemType(struct soap*, struct ec2__DescribeKeyPairsItemType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DescribeKeyPairsItemType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeKeyPairsItemType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DescribeKeyPairsItemType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeKeyPairsItemType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeKeyPairsItemType ** SOAP_FMAC4 soap_get_PointerToec2__DescribeKeyPairsItemType(struct soap*, struct ec2__DescribeKeyPairsItemType **, const char*, const char*);
 
@@ -6445,11 +6445,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToec2__DescribeKeyPairsInfoType(struct soap*, const char *, int, struct ec2__DescribeKeyPairsInfoType *const*, const char *);
   SOAP_FMAC3 struct ec2__DescribeKeyPairsInfoType ** SOAP_FMAC4 soap_in_PointerToec2__DescribeKeyPairsInfoType(struct soap*, const char*, struct ec2__DescribeKeyPairsInfoType **, const char*);
 
-#define soap_write_PointerToec2__DescribeKeyPairsInfoType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeKeyPairsInfoType(soap, data), 0) || soap_put_PointerToec2__DescribeKeyPairsInfoType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToec2__DescribeKeyPairsInfoType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToec2__DescribeKeyPairsInfoType(soap, data), 0) || soap_put_PointerToec2__DescribeKeyPairsInfoType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToec2__DescribeKeyPairsInfoType(struct soap*, struct ec2__DescribeKeyPairsInfoType *const*, const char*, const char*);
 
-#define soap_read_PointerToec2__DescribeKeyPairsInfoType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeKeyPairsInfoType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToec2__DescribeKeyPairsInfoType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToec2__DescribeKeyPairsInfoType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ec2__DescribeKeyPairsInfoType ** SOAP_FMAC4 soap_get_PointerToec2__DescribeKeyPairsInfoType(struct soap*, struct ec2__DescribeKeyPairsInfoType **, const char*, const char*);
 
@@ -6460,11 +6460,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerTo_wsse__Security(struct soap*, const char *, int, struct _wsse__Security *const*, const char *);
   SOAP_FMAC3 struct _wsse__Security ** SOAP_FMAC4 soap_in_PointerTo_wsse__Security(struct soap*, const char*, struct _wsse__Security **, const char*);
 
-#define soap_write_PointerTo_wsse__Security(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerTo_wsse__Security(soap, data), 0) || soap_put_PointerTo_wsse__Security(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerTo_wsse__Security(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerTo_wsse__Security(soap, data), 0) || soap_put_PointerTo_wsse__Security(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerTo_wsse__Security(struct soap*, struct _wsse__Security *const*, const char*, const char*);
 
-#define soap_read_PointerTo_wsse__Security(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerTo_wsse__Security(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerTo_wsse__Security(soap, data) (soap_begin_recv(soap) || !soap_get_PointerTo_wsse__Security(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct _wsse__Security ** SOAP_FMAC4 soap_get_PointerTo_wsse__Security(struct soap*, struct _wsse__Security **, const char*, const char*);
 
@@ -6475,11 +6475,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerTods__SignatureType(struct soap*, const char *, int, struct ds__SignatureType *const*, const char *);
   SOAP_FMAC3 struct ds__SignatureType ** SOAP_FMAC4 soap_in_PointerTods__SignatureType(struct soap*, const char*, struct ds__SignatureType **, const char*);
 
-#define soap_write_PointerTods__SignatureType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerTods__SignatureType(soap, data), 0) || soap_put_PointerTods__SignatureType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerTods__SignatureType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerTods__SignatureType(soap, data), 0) || soap_put_PointerTods__SignatureType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerTods__SignatureType(struct soap*, struct ds__SignatureType *const*, const char*, const char*);
 
-#define soap_read_PointerTods__SignatureType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerTods__SignatureType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerTods__SignatureType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerTods__SignatureType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ds__SignatureType ** SOAP_FMAC4 soap_get_PointerTods__SignatureType(struct soap*, struct ds__SignatureType **, const char*, const char*);
 
@@ -6490,11 +6490,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerTo_wsse__BinarySecurityToken(struct soap*, const char *, int, struct _wsse__BinarySecurityToken *const*, const char *);
   SOAP_FMAC3 struct _wsse__BinarySecurityToken ** SOAP_FMAC4 soap_in_PointerTo_wsse__BinarySecurityToken(struct soap*, const char*, struct _wsse__BinarySecurityToken **, const char*);
 
-#define soap_write_PointerTo_wsse__BinarySecurityToken(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerTo_wsse__BinarySecurityToken(soap, data), 0) || soap_put_PointerTo_wsse__BinarySecurityToken(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerTo_wsse__BinarySecurityToken(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerTo_wsse__BinarySecurityToken(soap, data), 0) || soap_put_PointerTo_wsse__BinarySecurityToken(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerTo_wsse__BinarySecurityToken(struct soap*, struct _wsse__BinarySecurityToken *const*, const char*, const char*);
 
-#define soap_read_PointerTo_wsse__BinarySecurityToken(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerTo_wsse__BinarySecurityToken(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerTo_wsse__BinarySecurityToken(soap, data) (soap_begin_recv(soap) || !soap_get_PointerTo_wsse__BinarySecurityToken(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct _wsse__BinarySecurityToken ** SOAP_FMAC4 soap_get_PointerTo_wsse__BinarySecurityToken(struct soap*, struct _wsse__BinarySecurityToken **, const char*, const char*);
 
@@ -6505,11 +6505,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerTo_wsse__UsernameToken(struct soap*, const char *, int, struct _wsse__UsernameToken *const*, const char *);
   SOAP_FMAC3 struct _wsse__UsernameToken ** SOAP_FMAC4 soap_in_PointerTo_wsse__UsernameToken(struct soap*, const char*, struct _wsse__UsernameToken **, const char*);
 
-#define soap_write_PointerTo_wsse__UsernameToken(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerTo_wsse__UsernameToken(soap, data), 0) || soap_put_PointerTo_wsse__UsernameToken(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerTo_wsse__UsernameToken(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerTo_wsse__UsernameToken(soap, data), 0) || soap_put_PointerTo_wsse__UsernameToken(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerTo_wsse__UsernameToken(struct soap*, struct _wsse__UsernameToken *const*, const char*, const char*);
 
-#define soap_read_PointerTo_wsse__UsernameToken(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerTo_wsse__UsernameToken(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerTo_wsse__UsernameToken(soap, data) (soap_begin_recv(soap) || !soap_get_PointerTo_wsse__UsernameToken(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct _wsse__UsernameToken ** SOAP_FMAC4 soap_get_PointerTo_wsse__UsernameToken(struct soap*, struct _wsse__UsernameToken **, const char*, const char*);
 
@@ -6520,11 +6520,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerTo_wsu__Timestamp(struct soap*, const char *, int, struct _wsu__Timestamp *const*, const char *);
   SOAP_FMAC3 struct _wsu__Timestamp ** SOAP_FMAC4 soap_in_PointerTo_wsu__Timestamp(struct soap*, const char*, struct _wsu__Timestamp **, const char*);
 
-#define soap_write_PointerTo_wsu__Timestamp(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerTo_wsu__Timestamp(soap, data), 0) || soap_put_PointerTo_wsu__Timestamp(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerTo_wsu__Timestamp(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerTo_wsu__Timestamp(soap, data), 0) || soap_put_PointerTo_wsu__Timestamp(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerTo_wsu__Timestamp(struct soap*, struct _wsu__Timestamp *const*, const char*, const char*);
 
-#define soap_read_PointerTo_wsu__Timestamp(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerTo_wsu__Timestamp(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerTo_wsu__Timestamp(soap, data) (soap_begin_recv(soap) || !soap_get_PointerTo_wsu__Timestamp(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct _wsu__Timestamp ** SOAP_FMAC4 soap_get_PointerTo_wsu__Timestamp(struct soap*, struct _wsu__Timestamp **, const char*, const char*);
 
@@ -6535,11 +6535,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerTods__X509IssuerSerialType(struct soap*, const char *, int, struct ds__X509IssuerSerialType *const*, const char *);
   SOAP_FMAC3 struct ds__X509IssuerSerialType ** SOAP_FMAC4 soap_in_PointerTods__X509IssuerSerialType(struct soap*, const char*, struct ds__X509IssuerSerialType **, const char*);
 
-#define soap_write_PointerTods__X509IssuerSerialType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerTods__X509IssuerSerialType(soap, data), 0) || soap_put_PointerTods__X509IssuerSerialType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerTods__X509IssuerSerialType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerTods__X509IssuerSerialType(soap, data), 0) || soap_put_PointerTods__X509IssuerSerialType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerTods__X509IssuerSerialType(struct soap*, struct ds__X509IssuerSerialType *const*, const char*, const char*);
 
-#define soap_read_PointerTods__X509IssuerSerialType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerTods__X509IssuerSerialType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerTods__X509IssuerSerialType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerTods__X509IssuerSerialType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ds__X509IssuerSerialType ** SOAP_FMAC4 soap_get_PointerTods__X509IssuerSerialType(struct soap*, struct ds__X509IssuerSerialType **, const char*, const char*);
 
@@ -6550,11 +6550,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerTods__RSAKeyValueType(struct soap*, const char *, int, struct ds__RSAKeyValueType *const*, const char *);
   SOAP_FMAC3 struct ds__RSAKeyValueType ** SOAP_FMAC4 soap_in_PointerTods__RSAKeyValueType(struct soap*, const char*, struct ds__RSAKeyValueType **, const char*);
 
-#define soap_write_PointerTods__RSAKeyValueType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerTods__RSAKeyValueType(soap, data), 0) || soap_put_PointerTods__RSAKeyValueType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerTods__RSAKeyValueType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerTods__RSAKeyValueType(soap, data), 0) || soap_put_PointerTods__RSAKeyValueType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerTods__RSAKeyValueType(struct soap*, struct ds__RSAKeyValueType *const*, const char*, const char*);
 
-#define soap_read_PointerTods__RSAKeyValueType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerTods__RSAKeyValueType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerTods__RSAKeyValueType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerTods__RSAKeyValueType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ds__RSAKeyValueType ** SOAP_FMAC4 soap_get_PointerTods__RSAKeyValueType(struct soap*, struct ds__RSAKeyValueType **, const char*, const char*);
 
@@ -6565,11 +6565,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerTods__DSAKeyValueType(struct soap*, const char *, int, struct ds__DSAKeyValueType *const*, const char *);
   SOAP_FMAC3 struct ds__DSAKeyValueType ** SOAP_FMAC4 soap_in_PointerTods__DSAKeyValueType(struct soap*, const char*, struct ds__DSAKeyValueType **, const char*);
 
-#define soap_write_PointerTods__DSAKeyValueType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerTods__DSAKeyValueType(soap, data), 0) || soap_put_PointerTods__DSAKeyValueType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerTods__DSAKeyValueType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerTods__DSAKeyValueType(soap, data), 0) || soap_put_PointerTods__DSAKeyValueType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerTods__DSAKeyValueType(struct soap*, struct ds__DSAKeyValueType *const*, const char*, const char*);
 
-#define soap_read_PointerTods__DSAKeyValueType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerTods__DSAKeyValueType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerTods__DSAKeyValueType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerTods__DSAKeyValueType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ds__DSAKeyValueType ** SOAP_FMAC4 soap_get_PointerTods__DSAKeyValueType(struct soap*, struct ds__DSAKeyValueType **, const char*, const char*);
 
@@ -6580,11 +6580,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerTods__TransformType(struct soap*, const char *, int, struct ds__TransformType *const*, const char *);
   SOAP_FMAC3 struct ds__TransformType ** SOAP_FMAC4 soap_in_PointerTods__TransformType(struct soap*, const char*, struct ds__TransformType **, const char*);
 
-#define soap_write_PointerTods__TransformType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerTods__TransformType(soap, data), 0) || soap_put_PointerTods__TransformType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerTods__TransformType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerTods__TransformType(soap, data), 0) || soap_put_PointerTods__TransformType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerTods__TransformType(struct soap*, struct ds__TransformType *const*, const char*, const char*);
 
-#define soap_read_PointerTods__TransformType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerTods__TransformType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerTods__TransformType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerTods__TransformType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ds__TransformType ** SOAP_FMAC4 soap_get_PointerTods__TransformType(struct soap*, struct ds__TransformType **, const char*, const char*);
 
@@ -6595,11 +6595,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerTods__DigestMethodType(struct soap*, const char *, int, struct ds__DigestMethodType *const*, const char *);
   SOAP_FMAC3 struct ds__DigestMethodType ** SOAP_FMAC4 soap_in_PointerTods__DigestMethodType(struct soap*, const char*, struct ds__DigestMethodType **, const char*);
 
-#define soap_write_PointerTods__DigestMethodType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerTods__DigestMethodType(soap, data), 0) || soap_put_PointerTods__DigestMethodType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerTods__DigestMethodType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerTods__DigestMethodType(soap, data), 0) || soap_put_PointerTods__DigestMethodType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerTods__DigestMethodType(struct soap*, struct ds__DigestMethodType *const*, const char*, const char*);
 
-#define soap_read_PointerTods__DigestMethodType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerTods__DigestMethodType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerTods__DigestMethodType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerTods__DigestMethodType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ds__DigestMethodType ** SOAP_FMAC4 soap_get_PointerTods__DigestMethodType(struct soap*, struct ds__DigestMethodType **, const char*, const char*);
 
@@ -6610,11 +6610,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerTods__TransformsType(struct soap*, const char *, int, struct ds__TransformsType *const*, const char *);
   SOAP_FMAC3 struct ds__TransformsType ** SOAP_FMAC4 soap_in_PointerTods__TransformsType(struct soap*, const char*, struct ds__TransformsType **, const char*);
 
-#define soap_write_PointerTods__TransformsType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerTods__TransformsType(soap, data), 0) || soap_put_PointerTods__TransformsType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerTods__TransformsType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerTods__TransformsType(soap, data), 0) || soap_put_PointerTods__TransformsType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerTods__TransformsType(struct soap*, struct ds__TransformsType *const*, const char*, const char*);
 
-#define soap_read_PointerTods__TransformsType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerTods__TransformsType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerTods__TransformsType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerTods__TransformsType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ds__TransformsType ** SOAP_FMAC4 soap_get_PointerTods__TransformsType(struct soap*, struct ds__TransformsType **, const char*, const char*);
 
@@ -6625,11 +6625,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToint(struct soap*, const char *, int, int *const*, const char *);
   SOAP_FMAC3 int ** SOAP_FMAC4 soap_in_PointerToint(struct soap*, const char*, int **, const char*);
 
-#define soap_write_PointerToint(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToint(soap, data), 0) || soap_put_PointerToint(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToint(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToint(soap, data), 0) || soap_put_PointerToint(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToint(struct soap*, int *const*, const char*, const char*);
 
-#define soap_read_PointerToint(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToint(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToint(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToint(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 int ** SOAP_FMAC4 soap_get_PointerToint(struct soap*, int **, const char*, const char*);
 
@@ -6640,11 +6640,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerToPointerTods__ReferenceType(struct soap*, const char *, int, struct ds__ReferenceType **const*, const char *);
   SOAP_FMAC3 struct ds__ReferenceType *** SOAP_FMAC4 soap_in_PointerToPointerTods__ReferenceType(struct soap*, const char*, struct ds__ReferenceType ***, const char*);
 
-#define soap_write_PointerToPointerTods__ReferenceType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerToPointerTods__ReferenceType(soap, data), 0) || soap_put_PointerToPointerTods__ReferenceType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerToPointerTods__ReferenceType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerToPointerTods__ReferenceType(soap, data), 0) || soap_put_PointerToPointerTods__ReferenceType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerToPointerTods__ReferenceType(struct soap*, struct ds__ReferenceType **const*, const char*, const char*);
 
-#define soap_read_PointerToPointerTods__ReferenceType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerToPointerTods__ReferenceType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerToPointerTods__ReferenceType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerToPointerTods__ReferenceType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ds__ReferenceType *** SOAP_FMAC4 soap_get_PointerToPointerTods__ReferenceType(struct soap*, struct ds__ReferenceType ***, const char*, const char*);
 
@@ -6655,11 +6655,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerTods__ReferenceType(struct soap*, const char *, int, struct ds__ReferenceType *const*, const char *);
   SOAP_FMAC3 struct ds__ReferenceType ** SOAP_FMAC4 soap_in_PointerTods__ReferenceType(struct soap*, const char*, struct ds__ReferenceType **, const char*);
 
-#define soap_write_PointerTods__ReferenceType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerTods__ReferenceType(soap, data), 0) || soap_put_PointerTods__ReferenceType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerTods__ReferenceType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerTods__ReferenceType(soap, data), 0) || soap_put_PointerTods__ReferenceType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerTods__ReferenceType(struct soap*, struct ds__ReferenceType *const*, const char*, const char*);
 
-#define soap_read_PointerTods__ReferenceType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerTods__ReferenceType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerTods__ReferenceType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerTods__ReferenceType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ds__ReferenceType ** SOAP_FMAC4 soap_get_PointerTods__ReferenceType(struct soap*, struct ds__ReferenceType **, const char*, const char*);
 
@@ -6670,11 +6670,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerTods__SignatureMethodType(struct soap*, const char *, int, struct ds__SignatureMethodType *const*, const char *);
   SOAP_FMAC3 struct ds__SignatureMethodType ** SOAP_FMAC4 soap_in_PointerTods__SignatureMethodType(struct soap*, const char*, struct ds__SignatureMethodType **, const char*);
 
-#define soap_write_PointerTods__SignatureMethodType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerTods__SignatureMethodType(soap, data), 0) || soap_put_PointerTods__SignatureMethodType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerTods__SignatureMethodType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerTods__SignatureMethodType(soap, data), 0) || soap_put_PointerTods__SignatureMethodType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerTods__SignatureMethodType(struct soap*, struct ds__SignatureMethodType *const*, const char*, const char*);
 
-#define soap_read_PointerTods__SignatureMethodType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerTods__SignatureMethodType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerTods__SignatureMethodType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerTods__SignatureMethodType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ds__SignatureMethodType ** SOAP_FMAC4 soap_get_PointerTods__SignatureMethodType(struct soap*, struct ds__SignatureMethodType **, const char*, const char*);
 
@@ -6685,11 +6685,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerTods__CanonicalizationMethodType(struct soap*, const char *, int, struct ds__CanonicalizationMethodType *const*, const char *);
   SOAP_FMAC3 struct ds__CanonicalizationMethodType ** SOAP_FMAC4 soap_in_PointerTods__CanonicalizationMethodType(struct soap*, const char*, struct ds__CanonicalizationMethodType **, const char*);
 
-#define soap_write_PointerTods__CanonicalizationMethodType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerTods__CanonicalizationMethodType(soap, data), 0) || soap_put_PointerTods__CanonicalizationMethodType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerTods__CanonicalizationMethodType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerTods__CanonicalizationMethodType(soap, data), 0) || soap_put_PointerTods__CanonicalizationMethodType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerTods__CanonicalizationMethodType(struct soap*, struct ds__CanonicalizationMethodType *const*, const char*, const char*);
 
-#define soap_read_PointerTods__CanonicalizationMethodType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerTods__CanonicalizationMethodType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerTods__CanonicalizationMethodType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerTods__CanonicalizationMethodType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ds__CanonicalizationMethodType ** SOAP_FMAC4 soap_get_PointerTods__CanonicalizationMethodType(struct soap*, struct ds__CanonicalizationMethodType **, const char*, const char*);
 
@@ -6700,11 +6700,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerTo_wsse__SecurityTokenReference(struct soap*, const char *, int, struct _wsse__SecurityTokenReference *const*, const char *);
   SOAP_FMAC3 struct _wsse__SecurityTokenReference ** SOAP_FMAC4 soap_in_PointerTo_wsse__SecurityTokenReference(struct soap*, const char*, struct _wsse__SecurityTokenReference **, const char*);
 
-#define soap_write_PointerTo_wsse__SecurityTokenReference(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerTo_wsse__SecurityTokenReference(soap, data), 0) || soap_put_PointerTo_wsse__SecurityTokenReference(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerTo_wsse__SecurityTokenReference(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerTo_wsse__SecurityTokenReference(soap, data), 0) || soap_put_PointerTo_wsse__SecurityTokenReference(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerTo_wsse__SecurityTokenReference(struct soap*, struct _wsse__SecurityTokenReference *const*, const char*, const char*);
 
-#define soap_read_PointerTo_wsse__SecurityTokenReference(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerTo_wsse__SecurityTokenReference(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerTo_wsse__SecurityTokenReference(soap, data) (soap_begin_recv(soap) || !soap_get_PointerTo_wsse__SecurityTokenReference(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct _wsse__SecurityTokenReference ** SOAP_FMAC4 soap_get_PointerTo_wsse__SecurityTokenReference(struct soap*, struct _wsse__SecurityTokenReference **, const char*, const char*);
 
@@ -6715,11 +6715,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerTods__X509DataType(struct soap*, const char *, int, struct ds__X509DataType *const*, const char *);
   SOAP_FMAC3 struct ds__X509DataType ** SOAP_FMAC4 soap_in_PointerTods__X509DataType(struct soap*, const char*, struct ds__X509DataType **, const char*);
 
-#define soap_write_PointerTods__X509DataType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerTods__X509DataType(soap, data), 0) || soap_put_PointerTods__X509DataType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerTods__X509DataType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerTods__X509DataType(soap, data), 0) || soap_put_PointerTods__X509DataType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerTods__X509DataType(struct soap*, struct ds__X509DataType *const*, const char*, const char*);
 
-#define soap_read_PointerTods__X509DataType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerTods__X509DataType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerTods__X509DataType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerTods__X509DataType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ds__X509DataType ** SOAP_FMAC4 soap_get_PointerTods__X509DataType(struct soap*, struct ds__X509DataType **, const char*, const char*);
 
@@ -6730,11 +6730,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerTods__RetrievalMethodType(struct soap*, const char *, int, struct ds__RetrievalMethodType *const*, const char *);
   SOAP_FMAC3 struct ds__RetrievalMethodType ** SOAP_FMAC4 soap_in_PointerTods__RetrievalMethodType(struct soap*, const char*, struct ds__RetrievalMethodType **, const char*);
 
-#define soap_write_PointerTods__RetrievalMethodType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerTods__RetrievalMethodType(soap, data), 0) || soap_put_PointerTods__RetrievalMethodType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerTods__RetrievalMethodType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerTods__RetrievalMethodType(soap, data), 0) || soap_put_PointerTods__RetrievalMethodType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerTods__RetrievalMethodType(struct soap*, struct ds__RetrievalMethodType *const*, const char*, const char*);
 
-#define soap_read_PointerTods__RetrievalMethodType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerTods__RetrievalMethodType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerTods__RetrievalMethodType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerTods__RetrievalMethodType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ds__RetrievalMethodType ** SOAP_FMAC4 soap_get_PointerTods__RetrievalMethodType(struct soap*, struct ds__RetrievalMethodType **, const char*, const char*);
 
@@ -6745,11 +6745,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerTods__KeyValueType(struct soap*, const char *, int, struct ds__KeyValueType *const*, const char *);
   SOAP_FMAC3 struct ds__KeyValueType ** SOAP_FMAC4 soap_in_PointerTods__KeyValueType(struct soap*, const char*, struct ds__KeyValueType **, const char*);
 
-#define soap_write_PointerTods__KeyValueType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerTods__KeyValueType(soap, data), 0) || soap_put_PointerTods__KeyValueType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerTods__KeyValueType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerTods__KeyValueType(soap, data), 0) || soap_put_PointerTods__KeyValueType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerTods__KeyValueType(struct soap*, struct ds__KeyValueType *const*, const char*, const char*);
 
-#define soap_read_PointerTods__KeyValueType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerTods__KeyValueType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerTods__KeyValueType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerTods__KeyValueType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ds__KeyValueType ** SOAP_FMAC4 soap_get_PointerTods__KeyValueType(struct soap*, struct ds__KeyValueType **, const char*, const char*);
 
@@ -6760,11 +6760,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerTo_c14n__InclusiveNamespaces(struct soap*, const char *, int, struct _c14n__InclusiveNamespaces *const*, const char *);
   SOAP_FMAC3 struct _c14n__InclusiveNamespaces ** SOAP_FMAC4 soap_in_PointerTo_c14n__InclusiveNamespaces(struct soap*, const char*, struct _c14n__InclusiveNamespaces **, const char*);
 
-#define soap_write_PointerTo_c14n__InclusiveNamespaces(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerTo_c14n__InclusiveNamespaces(soap, data), 0) || soap_put_PointerTo_c14n__InclusiveNamespaces(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerTo_c14n__InclusiveNamespaces(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerTo_c14n__InclusiveNamespaces(soap, data), 0) || soap_put_PointerTo_c14n__InclusiveNamespaces(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerTo_c14n__InclusiveNamespaces(struct soap*, struct _c14n__InclusiveNamespaces *const*, const char*, const char*);
 
-#define soap_read_PointerTo_c14n__InclusiveNamespaces(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerTo_c14n__InclusiveNamespaces(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerTo_c14n__InclusiveNamespaces(soap, data) (soap_begin_recv(soap) || !soap_get_PointerTo_c14n__InclusiveNamespaces(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct _c14n__InclusiveNamespaces ** SOAP_FMAC4 soap_get_PointerTo_c14n__InclusiveNamespaces(struct soap*, struct _c14n__InclusiveNamespaces **, const char*, const char*);
 
@@ -6775,11 +6775,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerTods__KeyInfoType(struct soap*, const char *, int, struct ds__KeyInfoType *const*, const char *);
   SOAP_FMAC3 struct ds__KeyInfoType ** SOAP_FMAC4 soap_in_PointerTods__KeyInfoType(struct soap*, const char*, struct ds__KeyInfoType **, const char*);
 
-#define soap_write_PointerTods__KeyInfoType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerTods__KeyInfoType(soap, data), 0) || soap_put_PointerTods__KeyInfoType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerTods__KeyInfoType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerTods__KeyInfoType(soap, data), 0) || soap_put_PointerTods__KeyInfoType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerTods__KeyInfoType(struct soap*, struct ds__KeyInfoType *const*, const char*, const char*);
 
-#define soap_read_PointerTods__KeyInfoType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerTods__KeyInfoType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerTods__KeyInfoType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerTods__KeyInfoType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ds__KeyInfoType ** SOAP_FMAC4 soap_get_PointerTods__KeyInfoType(struct soap*, struct ds__KeyInfoType **, const char*, const char*);
 
@@ -6790,11 +6790,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerTods__SignedInfoType(struct soap*, const char *, int, struct ds__SignedInfoType *const*, const char *);
   SOAP_FMAC3 struct ds__SignedInfoType ** SOAP_FMAC4 soap_in_PointerTods__SignedInfoType(struct soap*, const char*, struct ds__SignedInfoType **, const char*);
 
-#define soap_write_PointerTods__SignedInfoType(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerTods__SignedInfoType(soap, data), 0) || soap_put_PointerTods__SignedInfoType(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerTods__SignedInfoType(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerTods__SignedInfoType(soap, data), 0) || soap_put_PointerTods__SignedInfoType(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerTods__SignedInfoType(struct soap*, struct ds__SignedInfoType *const*, const char*, const char*);
 
-#define soap_read_PointerTods__SignedInfoType(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerTods__SignedInfoType(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerTods__SignedInfoType(soap, data) (soap_begin_recv(soap) || !soap_get_PointerTods__SignedInfoType(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct ds__SignedInfoType ** SOAP_FMAC4 soap_get_PointerTods__SignedInfoType(struct soap*, struct ds__SignedInfoType **, const char*, const char*);
 
@@ -6805,11 +6805,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerTo_wsse__Embedded(struct soap*, const char *, int, struct _wsse__Embedded *const*, const char *);
   SOAP_FMAC3 struct _wsse__Embedded ** SOAP_FMAC4 soap_in_PointerTo_wsse__Embedded(struct soap*, const char*, struct _wsse__Embedded **, const char*);
 
-#define soap_write_PointerTo_wsse__Embedded(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerTo_wsse__Embedded(soap, data), 0) || soap_put_PointerTo_wsse__Embedded(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerTo_wsse__Embedded(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerTo_wsse__Embedded(soap, data), 0) || soap_put_PointerTo_wsse__Embedded(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerTo_wsse__Embedded(struct soap*, struct _wsse__Embedded *const*, const char*, const char*);
 
-#define soap_read_PointerTo_wsse__Embedded(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerTo_wsse__Embedded(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerTo_wsse__Embedded(soap, data) (soap_begin_recv(soap) || !soap_get_PointerTo_wsse__Embedded(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct _wsse__Embedded ** SOAP_FMAC4 soap_get_PointerTo_wsse__Embedded(struct soap*, struct _wsse__Embedded **, const char*, const char*);
 
@@ -6820,11 +6820,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerTo_wsse__KeyIdentifier(struct soap*, const char *, int, struct _wsse__KeyIdentifier *const*, const char *);
   SOAP_FMAC3 struct _wsse__KeyIdentifier ** SOAP_FMAC4 soap_in_PointerTo_wsse__KeyIdentifier(struct soap*, const char*, struct _wsse__KeyIdentifier **, const char*);
 
-#define soap_write_PointerTo_wsse__KeyIdentifier(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerTo_wsse__KeyIdentifier(soap, data), 0) || soap_put_PointerTo_wsse__KeyIdentifier(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerTo_wsse__KeyIdentifier(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerTo_wsse__KeyIdentifier(soap, data), 0) || soap_put_PointerTo_wsse__KeyIdentifier(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerTo_wsse__KeyIdentifier(struct soap*, struct _wsse__KeyIdentifier *const*, const char*, const char*);
 
-#define soap_read_PointerTo_wsse__KeyIdentifier(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerTo_wsse__KeyIdentifier(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerTo_wsse__KeyIdentifier(soap, data) (soap_begin_recv(soap) || !soap_get_PointerTo_wsse__KeyIdentifier(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct _wsse__KeyIdentifier ** SOAP_FMAC4 soap_get_PointerTo_wsse__KeyIdentifier(struct soap*, struct _wsse__KeyIdentifier **, const char*, const char*);
 
@@ -6835,11 +6835,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerTo_wsse__Reference(struct soap*, const char *, int, struct _wsse__Reference *const*, const char *);
   SOAP_FMAC3 struct _wsse__Reference ** SOAP_FMAC4 soap_in_PointerTo_wsse__Reference(struct soap*, const char*, struct _wsse__Reference **, const char*);
 
-#define soap_write_PointerTo_wsse__Reference(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerTo_wsse__Reference(soap, data), 0) || soap_put_PointerTo_wsse__Reference(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerTo_wsse__Reference(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerTo_wsse__Reference(soap, data), 0) || soap_put_PointerTo_wsse__Reference(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerTo_wsse__Reference(struct soap*, struct _wsse__Reference *const*, const char*, const char*);
 
-#define soap_read_PointerTo_wsse__Reference(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerTo_wsse__Reference(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerTo_wsse__Reference(soap, data) (soap_begin_recv(soap) || !soap_get_PointerTo_wsse__Reference(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct _wsse__Reference ** SOAP_FMAC4 soap_get_PointerTo_wsse__Reference(struct soap*, struct _wsse__Reference **, const char*, const char*);
 
@@ -6850,11 +6850,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_PointerTo_wsse__Password(struct soap*, const char *, int, struct _wsse__Password *const*, const char *);
   SOAP_FMAC3 struct _wsse__Password ** SOAP_FMAC4 soap_in_PointerTo_wsse__Password(struct soap*, const char*, struct _wsse__Password **, const char*);
 
-#define soap_write_PointerTo_wsse__Password(soap, data) ( soap_begin_send(soap) || (soap_serialize_PointerTo_wsse__Password(soap, data), 0) || soap_put_PointerTo_wsse__Password(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_PointerTo_wsse__Password(soap, data) (soap_begin_send(soap) || (soap_serialize_PointerTo_wsse__Password(soap, data), 0) || soap_put_PointerTo_wsse__Password(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_PointerTo_wsse__Password(struct soap*, struct _wsse__Password *const*, const char*, const char*);
 
-#define soap_read_PointerTo_wsse__Password(soap, data) ( soap_begin_recv(soap) || !soap_get_PointerTo_wsse__Password(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_PointerTo_wsse__Password(soap, data) (soap_begin_recv(soap) || !soap_get_PointerTo_wsse__Password(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 struct _wsse__Password ** SOAP_FMAC4 soap_get_PointerTo_wsse__Password(struct soap*, struct _wsse__Password **, const char*, const char*);
 
@@ -6870,11 +6870,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out__QName(struct soap*, const char*, int, char*const*, const char*);
   SOAP_FMAC3 char * * SOAP_FMAC4 soap_in__QName(struct soap*, const char*, char **, const char*);
 
-#define soap_write__QName(soap, data) ( soap_begin_send(soap) || (soap_serialize__QName(soap, data), 0) || soap_put__QName(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write__QName(soap, data) (soap_begin_send(soap) || (soap_serialize__QName(soap, data), 0) || soap_put__QName(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put__QName(struct soap*, char *const*, const char*, const char*);
 
-#define soap_read__QName(soap, data) ( soap_begin_recv(soap) || !soap_get__QName(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read__QName(soap, data) (soap_begin_recv(soap) || !soap_get__QName(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 char ** SOAP_FMAC4 soap_get__QName(struct soap*, char **, const char*, const char*);
 
@@ -6886,11 +6886,11 @@ extern "C" {
   SOAP_FMAC3 int SOAP_FMAC4 soap_out_string(struct soap*, const char*, int, char*const*, const char*);
   SOAP_FMAC3 char * * SOAP_FMAC4 soap_in_string(struct soap*, const char*, char **, const char*);
 
-#define soap_write_string(soap, data) ( soap_begin_send(soap) || (soap_serialize_string(soap, data), 0) || soap_put_string(soap, data, NULL, NULL) || soap_end_send(soap) )
+#define soap_write_string(soap, data) (soap_begin_send(soap) || (soap_serialize_string(soap, data), 0) || soap_put_string(soap, data, NULL, NULL) || soap_end_send(soap))
 
   SOAP_FMAC3 int SOAP_FMAC4 soap_put_string(struct soap*, char *const*, const char*, const char*);
 
-#define soap_read_string(soap, data) ( soap_begin_recv(soap) || !soap_get_string(soap, data, NULL, NULL) || soap_end_recv(soap) )
+#define soap_read_string(soap, data) (soap_begin_recv(soap) || !soap_get_string(soap, data, NULL, NULL) || soap_end_recv(soap))
 
   SOAP_FMAC3 char ** SOAP_FMAC4 soap_get_string(struct soap*, char **, const char*, const char*);
 

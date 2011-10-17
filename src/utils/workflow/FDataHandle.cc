@@ -123,10 +123,12 @@ FDataTag::FDataTag() : mySize(0), myStr() {
 
 void
 FDataTag::initStr() {
-  ostringstream ss;
+  std::ostringstream ss;
   for (unsigned int ix = 0; ix < mySize; ++ix) {
     ss << "_" << myIdxs[ix];
-    if (myLastFlags[ix]) ss << "L";
+    if (myLastFlags[ix]) {
+      ss << "L";
+    }
   }
   myStr = ss.str();
 }
@@ -136,7 +138,7 @@ FDataTag::FDataTag(const FDataTag& tag) {
   if (mySize>0) {
     myIdxs = new unsigned int[mySize];
     myLastFlags = new bool[mySize];
-    for (unsigned int ix = 0; ix<mySize; ++ix) {
+    for (unsigned int ix = 0; ix < mySize; ++ix) {
       myIdxs[ix] = tag.myIdxs[ix];
       myLastFlags[ix] = tag.myLastFlags[ix];
     }
@@ -157,7 +159,7 @@ FDataTag::FDataTag(const FDataTag& parentTag, unsigned int index, bool isLast) {
   mySize = parentTag.mySize + 1;
   myIdxs = new unsigned int[mySize];
   myLastFlags = new bool[mySize];
-  for (unsigned int ix = 0; ix<mySize-1; ++ix) {
+  for (unsigned int ix = 0; ix < mySize-1; ++ix) {
     myIdxs[ix] = parentTag.myIdxs[ix];
     myLastFlags[ix] = parentTag.myLastFlags[ix];
   }
@@ -170,11 +172,11 @@ FDataTag::FDataTag(const FDataTag& parentTag, const FDataTag& childTag) {
   mySize = parentTag.mySize + childTag.mySize;
   myIdxs = new unsigned int[mySize];
   myLastFlags = new bool[mySize];
-  for (unsigned int ix = 0; ix<parentTag.mySize; ++ix) {
+  for (unsigned int ix = 0; ix < parentTag.mySize; ++ix) {
     myIdxs[ix] = parentTag.myIdxs[ix];
     myLastFlags[ix] = parentTag.myLastFlags[ix];
   }
-  for (unsigned int ix = 0; ix<childTag.mySize; ++ix) {
+  for (unsigned int ix = 0; ix < childTag.mySize; ++ix) {
     myIdxs[parentTag.mySize + ix] = childTag.myIdxs[ix];
     myLastFlags[parentTag.mySize + ix] = childTag.myLastFlags[ix];
   }
@@ -190,8 +192,8 @@ FDataTag::FDataTag(unsigned int * idxTab, bool * lastTab, unsigned int level)
   if (mySize > 0) {
     myIdxs = new unsigned int[mySize];
     myLastFlags = new bool[mySize];
-    for (unsigned int ix = 0; ix<mySize; ++ix) {
-      myIdxs[ix]      = idxTab[ix];
+    for (unsigned int ix = 0; ix < mySize; ++ix) {
+      myIdxs[ix] = idxTab[ix];
       myLastFlags[ix] = lastTab[ix];
     }
   }
@@ -212,19 +214,19 @@ FDataTag::getLevel() const {
 
 bool
 FDataTag::isLastRec(unsigned int level) const {
-  if (level == mySize)
+  if (level == mySize) {
     return myLastFlags[level-1];
-  else if (level < mySize)
+  } else if (level < mySize) {
     return (myLastFlags[level-1] && isLastRec(level+1));
-  else {
-    INTERNAL_ERROR("isLastRec: wrong arguments",0);
+  } else {
+    INTERNAL_ERROR("isLastRec: wrong arguments", 0);
   }
 }
 
 bool
 FDataTag::isLastOfBranch() const {
   if (isEmpty()) {
-    INTERNAL_ERROR("Cannot test if last for empty tag",1);
+    INTERNAL_ERROR("Cannot test if last for empty tag", 1);
   }
   return myLastFlags[mySize-1];
 }
@@ -247,7 +249,7 @@ FDataTag::getIndex(unsigned int level) const {
 unsigned int
 FDataTag::getLastIndex() const {
   if (isEmpty()) {
-    INTERNAL_ERROR("Cannot get index of empty tag",1);
+    INTERNAL_ERROR("Cannot get index of empty tag", 1);
   }
   return myIdxs[mySize-1];
 }
@@ -263,13 +265,17 @@ FDataTag::getFlatIndex() const {
 
 FDataTag *
 FDataTag::getLeftPart(unsigned int maxLevel) const {
-  if (maxLevel > mySize) return NULL;
+  if (maxLevel > mySize) {
+    return NULL;
+  }
   return new FDataTag(myIdxs, myLastFlags, maxLevel);
 }
 
 FDataTag *
 FDataTag::getRightPart(unsigned int minLevel) const {
-  if (minLevel > mySize) return NULL;
+  if (minLevel > mySize) {
+    return NULL;
+  }
   unsigned offset = minLevel - 1;
   return new FDataTag(myIdxs + offset, myLastFlags + offset, mySize - offset);
 }
@@ -283,7 +289,7 @@ FDataTag::getAncestor(unsigned int level) const {
 FDataTag&
 FDataTag::getParent() {
   if (mySize == 0) {
-    INTERNAL_ERROR("Cannot get parent of root tag",1);
+    INTERNAL_ERROR("Cannot get parent of root tag", 1);
   }
   mySize -= 1;
   initStr();
@@ -293,7 +299,7 @@ FDataTag::getParent() {
 FDataTag&
 FDataTag::getPredecessor() {
   if (getLastIndex() == 0) {
-    INTERNAL_ERROR("Cannot get predecessor of tag",1);
+    INTERNAL_ERROR("Cannot get predecessor of tag", 1);
   }
   myIdxs[mySize-1] -= 1;
   initStr();
@@ -303,7 +309,7 @@ FDataTag::getPredecessor() {
 FDataTag&
 FDataTag::getSuccessor() {
   if (isLastOfBranch()) {
-    INTERNAL_ERROR("Cannot get successor of tag",1);
+    INTERNAL_ERROR("Cannot get successor of tag", 1);
   }
   myIdxs[mySize-1] += 1;
   initStr();
@@ -320,8 +326,9 @@ FDataTag::getTagAsLastOfBranch() {
 
 void
 FDataTag::updateLastFlags(const FDataTag& parentTag) {
-  for (unsigned int ix = 0; ix<parentTag.getLevel(); ++ix)
+  for (unsigned int ix = 0; ix < parentTag.getLevel(); ++ix) {
     myLastFlags[ix] = parentTag.myLastFlags[ix];
+  }
 }
 
 /**
@@ -329,17 +336,18 @@ FDataTag::updateLastFlags(const FDataTag& parentTag) {
  * Used to make the IDs of node instances
  * The only constraint is that the generated string should be unique
  */
-const string&
+const std::string&
 FDataTag::toString() const {
   return myStr;
 }
 
 int
-operator<( const FDataTag& tag1, const FDataTag& tag2 ) {
+operator<(const FDataTag& tag1, const FDataTag& tag2) {
   unsigned int ix = 0;
   while ((ix < tag1.getLevel()) && (ix < tag2.getLevel())) {
-    if (tag1.myIdxs[ix] != tag2.myIdxs[ix])
+    if (tag1.myIdxs[ix] != tag2.myIdxs[ix]) {
       return (tag1.myIdxs[ix] < tag2.myIdxs[ix]);
+    }
     ++ix;
   }
   return (tag1.getLevel() < tag2.getLevel());
@@ -348,20 +356,25 @@ operator<( const FDataTag& tag1, const FDataTag& tag2 ) {
 /*****************************************************************************/
 /*                   WfDataHandleException class                             */
 /*****************************************************************************/
-string
+std::string
 WfDataHandleException::ErrorMsg() {
-  string errorMsg;
-  switch(Type()) {
+  std::string errorMsg;
+  switch (Type()) {
   case eBAD_STRUCT:
-    errorMsg = "Data Hdl bad structure ("+Info()+")"; break;
+    errorMsg = "Data Hdl bad structure (" + Info() + ")";
+    break;
   case eINVALID_ADAPT:
-    errorMsg = "Invalid adapter ("+Info()+")"; break;
+    errorMsg = "Invalid adapter (" + Info() + ")";
+    break;
   case eCARD_UNDEF:
-    errorMsg = "Cardinal of DH undefined ("+Info()+")"; break;
+    errorMsg = "Cardinal of DH undefined (" + Info() + ")";
+    break;
   case eVALUE_UNDEF:
-    errorMsg = "Value of DH undefined ("+Info()+")";; break;
+    errorMsg = "Value of DH undefined (" + Info() + ")";
+    break;
   case eADAPT_UNDEF:
-    errorMsg = "DH Adapter undefined ("+Info()+")";; break;
+    errorMsg = "DH Adapter undefined (" + Info() + ")";
+    break;
   }
   return errorMsg;
 }
@@ -373,35 +386,39 @@ WfDataHandleException::ErrorMsg() {
 /**
  * Constructors
  */
-
 FDataHandle::FDataHandle()
-  : myTag(), myParentHdl(NULL), myPort(NULL), myPortElementIndexes(NULL),
-    myAdapterType(ADAPTER_UNDEFINED), myDepth(0), myCard(0), myCardList(NULL),
-    myCompletionDepth(0), cardDef(false), valueDef(false), dataIDOwner(false) {}
+  : myTag(), myParentHdl(NULL),
+    myPort(NULL), myPortElementIndexes(NULL),
+    myAdapterType(ADAPTER_UNDEFINED), myDepth(0),
+    myCard(0), myCardList(NULL),
+    myCompletionDepth(0), cardDef(false),
+    valueDef(false), dataIDOwner(false) {
+}
 
 FDataHandle::FDataHandle(const FDataTag& tag,
                          unsigned int depth,
                          bool isVoid,
                          DagNodeOutPort* port)
-  : myTag(tag), myParentHdl(NULL), myPort(port), myPortElementIndexes(NULL),
-    myDepth(depth), myCard(0), myCardList(NULL),
-    myCompletionDepth(0), cardDef(false), valueDef(false), dataIDOwner(false) {
-  if (depth > 0)
-    myData = new map<FDataTag,FDataHandle*>();
+  : myTag(tag), myParentHdl(NULL),
+    myPort(port), myPortElementIndexes(NULL),
+    myDepth(depth), myCard(0),
+    myCardList(NULL), myCompletionDepth(0),
+    cardDef(false), valueDef(false),
+    dataIDOwner(false) {
+  if (depth > 0) {
+    myData = new std::map<FDataTag, FDataHandle*>();
+  }
 
   if (port) {
-    //     TRACE_TEXT (TRACE_ALL_STEPS, " / adapter = direct" << endl);
     myAdapterType = ADAPTER_DIRECT;  // adapter defined by port reference
     myValueType = port->getBaseDataType();
-  }
-  else if (isVoid) {
-    //     TRACE_TEXT (TRACE_ALL_STEPS, " / adapter = VOID" << endl);
+  } else if (isVoid) {
     myAdapterType = ADAPTER_VOID;
-    if (depth > 0)
+    if (depth > 0) {
       setCardinal(1);  // by default a VOID container DH has 1 element
-  }
-  else {
-    INTERNAL_ERROR("Error in DH constructor: NULL port and not void",1);
+    }
+  } else {
+    INTERNAL_ERROR("Error in DH constructor: NULL port and not void", 1);
   }
 }
 
@@ -409,120 +426,133 @@ FDataHandle::FDataHandle(const FDataTag& tag,
 FDataHandle::FDataHandle(const FDataTag& tag,
                          unsigned int depth,
                          FDataHandle* parentHdl)
-  : myTag(tag), myParentHdl(parentHdl), myPort(NULL), myPortElementIndexes(NULL),
+  : myTag(tag), myParentHdl(parentHdl),
+    myPort(NULL), myPortElementIndexes(NULL),
     myAdapterType(ADAPTER_UNDEFINED), myValueType(parentHdl->myValueType),
-    myDepth(depth), myCard(0), myCardList(NULL),
-    myCompletionDepth(0), cardDef(false), valueDef(false), dataIDOwner(false)  {
-  //   TRACE_TEXT (TRACE_ALL_STEPS, "Creating data handle : tag = " << tag.toString()
-  //        << " / depth=" << depth << " / parent=" << parentHdl );
-  if (myDepth > 0)
-    myData = new map<FDataTag,FDataHandle*>();
+    myDepth(depth), myCard(0),
+    myCardList(NULL), myCompletionDepth(0),
+    cardDef(false), valueDef(false),
+    dataIDOwner(false)  {
+  if (myDepth > 0) {
+    myData = new std::map<FDataTag, FDataHandle*>();
+  }
 
   if ((parentHdl) && parentHdl->isAdapterDefined()) {
     // adapter is inherited from parent except if parent is MULTIPLE
     if ((parentHdl->myAdapterType == ADAPTER_DIRECT)
         || (parentHdl->myAdapterType == ADAPTER_SIMPLE)) {
-      //       TRACE_TEXT (TRACE_ALL_STEPS, " / adapter = simple (inherited)" << endl);
       myAdapterType = ADAPTER_SIMPLE;
       // inherit the port information
       myPort = parentHdl->myPort;
-      //       myPortLevel = parentHdl->myPortLevel;
-      if (parentHdl->myPortElementIndexes)
-        myPortElementIndexes = new list<unsigned int>(*parentHdl->myPortElementIndexes);
-      else
-        myPortElementIndexes = new list<unsigned int>();
+      if (parentHdl->myPortElementIndexes) {
+        myPortElementIndexes =
+          new std::list<unsigned int>(*parentHdl->myPortElementIndexes);
+      } else {
+        myPortElementIndexes = new std::list<unsigned int>();
+      }
       myPortElementIndexes->push_back(tag.getLastIndex());
 
     } else if (parentHdl->isVoid()) {
       // VOID IS PROPAGATED TO CHILDS AUTOMATICALLY (at construction time only)
-      // TRACE_TEXT (TRACE_ALL_STEPS, " / adapter = VOID" << endl);
       myAdapterType = ADAPTER_VOID;
-      if (depth > 0)
+      if (depth > 0) {
         setCardinal(1);  // by default a VOID container DH has 1 element
-
+      }
     } else if (parentHdl->myAdapterType == ADAPTER_DATAID) {
-      INTERNAL_ERROR(__FUNCTION__ << "invalid DH constructor params: child of DATAID DH",1);
+      INTERNAL_ERROR(__FUNCTION__
+                     << "invalid DH constructor params: child of DATAID DH",
+                     1);
     }
   } else {
-    // TRACE_TEXT (TRACE_ALL_STEPS, " / adapter = UNDEF" << endl);
   }
 }
 
 FDataHandle::FDataHandle(const FDataTag& tag,
                          WfCst::WfDataType valueType,
-                         const string& value)
-  : myTag(tag), myParentHdl(NULL), myPort(NULL), myPortElementIndexes(NULL),
-    myAdapterType(ADAPTER_VALUE), myValue(value), myValueType(valueType),
-    myDepth(0),  myCard(0), myCardList(NULL),
-    myCompletionDepth(0), cardDef(true), valueDef(true), dataIDOwner(false) {
-  //   TRACE_TEXT (TRACE_ALL_STEPS, "Creating data handle : tag = " << myTag.toString()
-  //        << " / value=" << value << " / adapter = VALUE " << endl);
+                         const std::string& value)
+  : myTag(tag), myParentHdl(NULL),
+    myPort(NULL), myPortElementIndexes(NULL),
+    myAdapterType(ADAPTER_VALUE), myValue(value),
+    myValueType(valueType), myDepth(0),
+    myCard(0), myCardList(NULL),
+    myCompletionDepth(0), cardDef(true),
+    valueDef(true), dataIDOwner(false) {
 }
 
 FDataHandle::FDataHandle(const FDataTag&   tag,
                          WfCst::WfDataType dataType,
                          unsigned int      dataDepth,
-                         const string&     dataId,
+                         const std::string&     dataId,
                          bool              isOwner)
-  : myTag(tag), myParentHdl(NULL), myPort(NULL), myPortElementIndexes(NULL),
-    myAdapterType(ADAPTER_DATAID), myValue(), myValueType(dataType),
-    myDataID(dataId), myDepth(dataDepth),  myCard(0), myCardList(NULL),
-    myCompletionDepth(0), cardDef(false), valueDef(false), dataIDOwner(isOwner)
-{
-  TRACE_TEXT (TRACE_ALL_STEPS, "Creating data handle : tag = " << myTag.toString()
-              << " / dataID = " << dataId << " / owner = " << isOwner << endl);
-  if (myDepth > 0)
-    myData = new map<FDataTag,FDataHandle*>();
+  : myTag(tag), myParentHdl(NULL),
+    myPort(NULL), myPortElementIndexes(NULL),
+    myAdapterType(ADAPTER_DATAID), myValue(),
+    myValueType(dataType), myDataID(dataId),
+    myDepth(dataDepth),  myCard(0),
+    myCardList(NULL), myCompletionDepth(0),
+    cardDef(false), valueDef(false),
+    dataIDOwner(isOwner) {
+  TRACE_TEXT(TRACE_ALL_STEPS, "Creating data handle : tag = "
+             << myTag.toString() << " / dataID = " << dataId
+             << " / owner = " << isOwner << "\n");
+  if (myDepth > 0) {
+    myData = new std::map<FDataTag, FDataHandle*>();
+  }
 }
 
 FDataHandle::FDataHandle(const FDataTag& tag,
                          WfCst::WfDataType dataType,
                          unsigned int dataDepth)
-  : myTag(tag), myParentHdl(NULL), myPort(NULL), myPortElementIndexes(NULL),
-    myAdapterType(ADAPTER_UNDEFINED), myValue(), myValueType(dataType),
-    myDepth(dataDepth), myCard(0), myCardList(NULL),
-    myCompletionDepth(0), cardDef(false), valueDef(false), dataIDOwner(false) {
-  //   TRACE_TEXT (TRACE_ALL_STEPS, "Creating data handle : tag = " << myTag.toString()
-  //        << " / depth=" << dataDepth << endl);
-  if (myDepth > 0)
-    myData = new map<FDataTag,FDataHandle*>();
+  : myTag(tag), myParentHdl(NULL),
+    myPort(NULL), myPortElementIndexes(NULL),
+    myAdapterType(ADAPTER_UNDEFINED), myValue(),
+    myValueType(dataType), myDepth(dataDepth),
+    myCard(0), myCardList(NULL),
+    myCompletionDepth(0), cardDef(false),
+    valueDef(false), dataIDOwner(false) {
+  if (myDepth > 0) {
+    myData = new std::map<FDataTag, FDataHandle*>();
+  }
 }
 
 /**
  * Special copy constructor with tag modification
- * Used for control structures (IF,WHILE) that use port mappings
+ * Used for control structures (IF, WHILE) that use port mappings
  * Tag is modified due to input operators or loop iterations
  */
 FDataHandle::FDataHandle(const FDataTag& tag, const FDataHandle& src)
-  : myTag(tag), myParentHdl(NULL), myPort(src.myPort), myPortElementIndexes(NULL),
-    myAdapterType(src.myAdapterType), myValue(src.myValue), myValueType(src.myValueType),
-    myDataID(src.myDataID), myDepth(src.myDepth), myCard(src.myCard), myCardList(NULL),
-    myCompletionDepth(src.myCompletionDepth), cardDef(src.cardDef), valueDef(src.valueDef),
+  : myTag(tag), myParentHdl(NULL),
+    myPort(src.myPort), myPortElementIndexes(NULL),
+    myAdapterType(src.myAdapterType), myValue(src.myValue),
+    myValueType(src.myValueType), myDataID(src.myDataID),
+    myDepth(src.myDepth), myCard(src.myCard),
+    myCardList(NULL), myCompletionDepth(src.myCompletionDepth),
+    cardDef(src.cardDef), valueDef(src.valueDef),
     dataIDOwner(false) {
-  //   TRACE_TEXT (TRACE_ALL_STEPS, "Creating data handle COPY of "
-  //                                << src.myTag.toString() << endl);
-
-  if (src.myPortElementIndexes)
-    myPortElementIndexes = new list<unsigned int>(*src.myPortElementIndexes);
+  if (src.myPortElementIndexes) {
+    myPortElementIndexes =
+      new std::list<unsigned int>(*src.myPortElementIndexes);
+  }
   // Copy the childs if applicable
   if (myDepth > 0) {
-    myData = new map<FDataTag,FDataHandle*>();
+    myData = new std::map<FDataTag, FDataHandle*>();
     if (!src.myData->empty()) {
-      for (map<FDataTag,FDataHandle*>::const_iterator srcEltIter = src.myData->begin();
-           srcEltIter != src.myData->end();
-           ++srcEltIter) {
+      std::map<FDataTag, FDataHandle*>::const_iterator srcEltIter =
+        src.myData->begin();
+      for (; srcEltIter != src.myData->end(); ++srcEltIter) {
         FDataHandle *srcElt = (FDataHandle*) srcEltIter->second;
         // Create new child tag based on new tag and last index of the src child
         const FDataTag& srcTag = srcElt->getTag();
-        FDataTag  *destTag = new FDataTag(tag, srcTag.getLastIndex(), srcTag.isLastOfBranch());
+        FDataTag  *destTag = new FDataTag(tag, srcTag.getLastIndex(),
+                                          srcTag.isLastOfBranch());
         FDataHandle *destElt = new FDataHandle(*destTag, *srcElt);
         // Add new child
-        myData->insert(pair<FDataTag,FDataHandle*>(*destTag,destElt));
+        myData->insert(std::pair<FDataTag, FDataHandle*>(*destTag, destElt));
         delete destTag;
       }
     }
     if (src.myCardList) {
-      myCardList = new list<string>(*src.myCardList);
+      myCardList = new std::list<std::string>(*src.myCardList);
     }
   }
 }
@@ -532,29 +562,35 @@ FDataHandle::FDataHandle(const FDataTag& tag, const FDataHandle& src)
  * FIXME duplicated code (some differences) with special copy constructor
  */
 FDataHandle::FDataHandle(const FDataHandle& src)
-  : myTag(src.myTag), myParentHdl(NULL), myPort(src.myPort), myPortElementIndexes(NULL),
-    myAdapterType(src.myAdapterType), myValue(src.myValue), myValueType(src.myValueType),
-    myDataID(src.myDataID), myDepth(src.myDepth), myCard(src.myCard), myCardList(NULL),
-    myCompletionDepth(src.myCompletionDepth), cardDef(src.cardDef), valueDef(src.valueDef),
+  : myTag(src.myTag), myParentHdl(NULL),
+    myPort(src.myPort), myPortElementIndexes(NULL),
+    myAdapterType(src.myAdapterType), myValue(src.myValue),
+    myValueType(src.myValueType), myDataID(src.myDataID),
+    myDepth(src.myDepth), myCard(src.myCard),
+    myCardList(NULL), myCompletionDepth(src.myCompletionDepth),
+    cardDef(src.cardDef), valueDef(src.valueDef),
     dataIDOwner(false) {
-  if (src.myPortElementIndexes)
-    myPortElementIndexes = new list<unsigned int>(*src.myPortElementIndexes);
+  if (src.myPortElementIndexes) {
+    myPortElementIndexes =
+      new std::list<unsigned int>(*src.myPortElementIndexes);
+  }
   // Copy the childs if applicable
   if (myDepth > 0) {
-    myData = new map<FDataTag,FDataHandle*>();
+    myData = new std::map<FDataTag, FDataHandle*>();
     if (!src.myData->empty()) {
-      for (map<FDataTag,FDataHandle*>::const_iterator srcEltIter = src.myData->begin();
-           srcEltIter != src.myData->end();
-           ++srcEltIter) {
+      std::map<FDataTag, FDataHandle*>::const_iterator srcEltIter =
+        src.myData->begin();
+      for (; srcEltIter != src.myData->end(); ++srcEltIter) {
         FDataHandle *srcElt = (FDataHandle*) srcEltIter->second;
         // Copy child
         FDataHandle *destElt = new FDataHandle(*srcElt);
         // Add new child
-        myData->insert(pair<FDataTag,FDataHandle*>(destElt->getTag(),destElt));
+        myData->insert(
+          std::pair<FDataTag, FDataHandle*>(destElt->getTag(), destElt));
       }
     }
     if (src.myCardList) {
-      myCardList = new list<string>(*src.myCardList);
+      myCardList = new std::list<std::string>(*src.myCardList);
     }
   }
 }
@@ -566,16 +602,19 @@ FDataHandle::FDataHandle(const FDataHandle& src)
 FDataHandle::~FDataHandle() {
   // free data
   if (myDepth > 0) {
-    while (! myData->empty() ) {
+    while (!myData->empty()) {
       FDataHandle * p = myData->begin()->second;
-      myData->erase( myData->begin() );
+      myData->erase(myData->begin());
       delete p;
     }
     delete myData;
-    if (myCardList) delete myCardList;
+    if (myCardList) {
+      delete myCardList;
+    }
   }
-  if (myPortElementIndexes)
+  if (myPortElementIndexes) {
     delete myPortElementIndexes;
+  }
 }
 
 /**
@@ -592,50 +631,49 @@ FDataHandle::getTag() const {
   return myTag;
 }
 
-string
+std::string
 FDataHandle::toString() const {
   return "Data Handle";
 }
 
-//private
+// private
 void
 FDataHandle::setCardinal(unsigned int card) {
-  //   TRACE_TEXT (TRACE_ALL_STEPS, "Set cardinal of " << myTag.toString()
-  //                                << " = " << card << endl);
   myCard = card;
   cardDef = true;
 }
 
 void
-FDataHandle::setCardinalList(const list<string>& cardList) {
+FDataHandle::setCardinalList(const std::list<std::string>& cardList) {
   if (!cardList.empty()) {
     // if the top element is defined, use it to set the cardinal
-    const string& cardStr = cardList.front();
+    const std::string& cardStr = cardList.front();
     if (cardStr != "x") {
       setCardinal(atoi(cardStr.c_str()));
     }
-    myCardList = new list<string>(cardList);
+    myCardList = new std::list<std::string>(cardList);
   }
 }
 
 void
-FDataHandle::setCardinalList(list<string>::const_iterator& start,
-                             list<string>::const_iterator& end) {
-  string cardStr = *start;
+FDataHandle::setCardinalList(std::list<std::string>::const_iterator& start,
+                             std::list<std::string>::const_iterator& end) {
+  std::string cardStr = *start;
   if (cardStr != "x") {
     setCardinal(atoi(cardStr.c_str()));
   }
-  myCardList = new list<string>(start,end);
+  myCardList = new std::list<std::string>(start, end);
 }
 
 unsigned int
 FDataHandle::getCardinal() const throw(WfDataHandleException) {
-  if (isCardinalDefined())
+  if (isCardinalDefined()) {
     return myCard;
-  else
+  } else {
     throw WfDataHandleException(WfDataHandleException::eCARD_UNDEF,
                                 "DH Cardinal undefined - tag="
                                 + getTag().toString());
+  }
 }
 
 bool
@@ -645,7 +683,7 @@ FDataHandle::isCardinalDefined() const {
 
 bool
 FDataHandle::isParentDefined() const {
-  return myParentHdl != NULL;
+  return (myParentHdl != NULL);
 }
 
 FDataHandle*
@@ -656,19 +694,22 @@ FDataHandle::getParent() const {
 bool
 FDataHandle::isSourcePortDefined() const {
   return (myAdapterType != ADAPTER_MULTIPLE) &&
-    ((myPort != NULL) || ((myParentHdl != NULL) && (myParentHdl->isSourcePortDefined())));
+    ((myPort != NULL) ||
+     ((myParentHdl != NULL) &&
+      (myParentHdl->isSourcePortDefined())));
 }
 
 DagNodeOutPort*
 FDataHandle::getSourcePort() const throw(WfDataHandleException) {
-  if (myPort != NULL)
+  if (myPort != NULL) {
     return myPort;
   //   else if ((myParentHdl != NULL) && (myParentHdl->isSourcePortDefined()))
   //     return myParentHdl->getSourcePort();
-  else
+  } else {
     throw WfDataHandleException(WfDataHandleException::eINVALID_ADAPT,
                                 "Cannot get source port - tag="
                                 + getTag().toString());
+  }
 }
 
 // private
@@ -691,13 +732,15 @@ FDataHandle::isEmpty() const {
 void
 FDataHandle::setAsVoid() {
   myAdapterType = ADAPTER_VOID;
-  if (myDepth > 0)
+  if (myDepth > 0) {
     setCardinal(1);
+  }
 }
 
 bool
 FDataHandle::isAdapterDefined() const {
-  return ((myAdapterType != ADAPTER_UNDEFINED) && (myAdapterType != ADAPTER_DELETED));
+  return ((myAdapterType != ADAPTER_UNDEFINED) &&
+          (myAdapterType != ADAPTER_DELETED));
 }
 
 /**
@@ -709,35 +752,36 @@ void
 FDataHandle::insertInTree(FDataHandle* dataHdl)
   throw(WfDataHandleException) {
   if (!dataHdl) {
-    INTERNAL_ERROR("FDataHandle::insertInTree : NULL input data handle",1);
+    INTERNAL_ERROR("FDataHandle::insertInTree : NULL input data handle", 1);
   }
-  if (myDepth == 0)
+  if (myDepth == 0) {
     throw WfDataHandleException(WfDataHandleException::eBAD_STRUCT,
-                                "Cannot insert into non-container data handle (depth = 0)");
+                                "Cannot insert into non-container data handle"
+                                "(depth = 0)");
+  }
   const FDataTag& dataTag = dataHdl->getTag();
   unsigned int dataLevel = dataTag.getLevel();
   unsigned int myLevel = myTag.getLevel();
 
-  if (dataLevel <= myLevel)
+  if (dataLevel <= myLevel) {
     throw WfDataHandleException(WfDataHandleException::eBAD_STRUCT,
-                                "Tried to insert data handle of same or lower level");
-
-  if (dataLevel == myLevel+1) { // data is a direct child of current DH
-
+                                "Tried to insert data handle of same or lower"
+                                "level");
+  }
+  // data is a direct child of current DH
+  if (dataLevel == myLevel+1) {
     this->addChild(dataHdl);
-
   } else {    // data is a descendant of current DH
-
     // look for its ancestor (direct child of current DH)
     FDataTag ancestorTag = dataTag.getAncestor(myLevel+1);
     FDataHandle* ancestorHdl = NULL;
-    map<FDataTag,FDataHandle*>::iterator parIter = myData->find(ancestorTag);
-
-    if (parIter != myData->end()) { // ancestor exists already
+    std::map<FDataTag, FDataHandle*>::iterator parIter =
+      myData->find(ancestorTag);
+    // ancestor exists already
+    if (parIter != myData->end()) {
       ancestorHdl = (FDataHandle*) parIter->second;
-
     } else {  // ancestor does not exist yet => create it
-      unsigned int    childDepth = dataHdl->getDepth() + dataLevel - myLevel - 1;
+      unsigned int childDepth = dataHdl->getDepth() + dataLevel - myLevel - 1;
       ancestorHdl = new FDataHandle(ancestorTag, childDepth, this);
       addChild(ancestorHdl);
     }
@@ -749,18 +793,18 @@ FDataHandle::insertInTree(FDataHandle* dataHdl)
 
 void
 FDataHandle::addChild(FDataHandle* dataHdl) {
-
   // insert the new DH in my child data map
-  myData->insert(pair<FDataTag,FDataHandle*>(dataHdl->getTag(),dataHdl));
+  myData->insert(
+    std::pair<FDataTag, FDataHandle*>(dataHdl->getTag(), dataHdl));
   dataHdl->setParent(this);
 
   // update my depth if element inserted is the first one and depth mismatches
   // (actually happens only for the root DH)
-  if (dataHdl->getDepth() != myDepth-1) {
+  if (dataHdl->getDepth() != (myDepth - 1)) {
     if (myData->size() == 1) {
       myDepth = dataHdl->getDepth() + 1;
     } else {
-      INTERNAL_ERROR("Depth mismatch during data handle child insertion",1);
+      INTERNAL_ERROR("Depth mismatch during data handle child insertion", 1);
     }
   }
   // update my cardinal if element inserted is the last one
@@ -784,19 +828,18 @@ FDataHandle::isLastChild() const {
  */
 void
 FDataHandle::updateAncestors() {
-  //   TRACE_TEXT(TRACE_ALL_STEPS,"Update ancestors for " << getTag().toString() << "(size=" << myData->size()
-  //          << " / cardinal=" << (isCardinalDefined() ? getCardinal() : 0) << ")" << endl);
   if (!isCardinalDefined() || (myData->size() != myCard)) {
     return;
   }
   bool allAdaptersDefined = true;
   bool allAdaptersVoid = true;
   unsigned int minChildCompletionDepth = 999;
-  if (myData->empty())  minChildCompletionDepth = myDepth-1;
+  if (myData->empty()) {
+    minChildCompletionDepth = myDepth-1;
+  }
   // LOOP for ALL childs - checking adapters, voids and completionDepth
-  for (map<FDataTag,FDataHandle*>::iterator childIter = myData->begin();
-       childIter != myData->end();
-       ++childIter) {
+  std::map<FDataTag, FDataHandle*>::iterator childIter = myData->begin();
+  for (; childIter != myData->end(); ++childIter) {
     FDataHandle * childData = (FDataHandle*) childIter->second;
     if (!childData->isAdapterDefined()) {
       allAdaptersDefined = false;
@@ -806,27 +849,21 @@ FDataHandle::updateAncestors() {
       allAdaptersVoid = false;
     }
 
-    if (childData->myCompletionDepth < minChildCompletionDepth)
+    if (childData->myCompletionDepth < minChildCompletionDepth) {
       minChildCompletionDepth = childData->myCompletionDepth;
-
+    }
   }
   bool updateParent = false;
   if ((int) minChildCompletionDepth > (int) myCompletionDepth-1) {
     myCompletionDepth = minChildCompletionDepth+1;
-    //     TRACE_TEXT (TRACE_ALL_STEPS,"**** Completion depth for " << myTag.toString()
-    //                   << " = " << myCompletionDepth << endl);
     updateParent = true;
   }
   if (!isAdapterDefined() && allAdaptersDefined) {
     if (allAdaptersVoid) {
       myAdapterType = ADAPTER_VOID;
-      //       TRACE_TEXT (TRACE_ALL_STEPS,"**** adapter for " << getTag().toString()
-      //                   << " is VOID ****" << endl);
     } else {
       // this is the only way to set the adapterType to MULTIPLE
       myAdapterType = ADAPTER_MULTIPLE;
-      //       TRACE_TEXT (TRACE_ALL_STEPS,"**** adapter for " << getTag().toString()
-      //                   << " is MULTIPLE ****" << endl);
     }
     updateParent = true;
   }
@@ -850,33 +887,37 @@ FDataHandle::checkIfComplete(unsigned int level) {
 unsigned int
 FDataHandle::getChildCount(unsigned int level) {
   // special cases (not used normally)
-  if ((myDepth == 0) || (level == 0)) return 0;
+  if ((myDepth == 0) || (level == 0)) {
+    return 0;
+  }
 
-  unsigned int    myLevel = myTag.getLevel();
-  unsigned int    count = 0;
-  bool            isParentLevel = (myLevel == level-1);
+  unsigned int myLevel = myTag.getLevel();
+  unsigned int count = 0;
+  bool isParentLevel = (myLevel == level-1);
 
-  for (map<FDataTag,FDataHandle*>::iterator childIter = myData->begin();
-       childIter != myData->end();
-       ++childIter) {
-    if (isParentLevel)
+  std::map<FDataTag, FDataHandle*>::iterator childIter = myData->begin();
+  for (; childIter != myData->end(); ++childIter) {
+    if (isParentLevel) {
       count += 1;  // recursion stops at level-1
-    else
+    } else {
       count += ((FDataHandle*) childIter->second)->getChildCount(level);
+    }
   }
 
   return count;
 }
 
 void
-FDataHandle::addProperty(const string& propKey, const string& propValue) {
+FDataHandle::addProperty(const std::string& propKey,
+                         const std::string& propValue) {
   TRACE_TEXT(TRACE_MAIN_STEPS, __FUNCTION__ << "DH=" << myTag.toString()
              << " : key=" << propKey
-             << "/value=" << propValue << endl);
+             << "/value=" << propValue << "\n");
 }
 
-const string&
-FDataHandle::getProperty(const string& propKey) throw(WfDataHandleException) {
+const std::string&
+FDataHandle::getProperty(const std::string& propKey)
+  throw(WfDataHandleException) {
   return propKey;
 }
 
@@ -889,31 +930,35 @@ FDataHandle::updateTreeCardinal() {
 void
 FDataHandle::updateTreeCardinalRec(bool isLast, bool parentTagMod) {
   // Modify the tag according to position and parent's tag
-  if (parentTagMod)
+  if (parentTagMod) {
     myTag.updateLastFlags(getParent()->getTag());
-  if (isLast)
+  }
+  if (isLast) {
     myTag.getTagAsLastOfBranch();
+  }
 
   // Update cardinal and call recursively the method for all childs
   if ((myDepth > 0) && (!myData->empty())) {
-
     // get last child DH
-    map<FDataTag,FDataHandle*>::reverse_iterator childRIter = myData->rbegin();
+    std::map<FDataTag, FDataHandle*>::reverse_iterator childRIter =
+      myData->rbegin();
     FDataHandle*  lastChild = (FDataHandle*)childRIter->second;
 
     // cardinal update
     setCardinal(lastChild->getTag().getLastIndex() + 1);
 
-    for (map<FDataTag,FDataHandle*>::iterator childIter = myData->begin();
-         childIter != myData->end();
-         ++childIter) {
-      FDataHandle*  currChild = (FDataHandle*)childIter->second;
-      currChild->updateTreeCardinalRec(currChild == lastChild, parentTagMod || isLast);
+    std::map<FDataTag, FDataHandle*>::iterator childIter = myData->begin();
+    for (; childIter != myData->end(); ++childIter) {
+      FDataHandle* currChild = (FDataHandle*)childIter->second;
+      currChild->updateTreeCardinalRec(currChild == lastChild,
+                                       parentTagMod || isLast);
     }
 
   } else {
     // call updateAncestors when on a leave which is the last of its parent
-    if (isLast) myParentHdl->updateAncestors();
+    if (isLast) {
+      myParentHdl->updateAncestors();
+    }
   }
 }
 
@@ -922,7 +967,7 @@ void
 FDataHandle::uploadTreeData(MasterAgent_var& MA) throw(WfDataHandleException) {
   // check childs
   if ((myDepth > 0) && (!myData->empty())) {
-    for (map<FDataTag,FDataHandle*>::iterator childIter = myData->begin();
+    for (std::map<FDataTag, FDataHandle*>::iterator childIter = myData->begin();
          childIter != myData->end();
          ++childIter) {
       FDataHandle*  currChild = (FDataHandle*)childIter->second;
@@ -932,16 +977,19 @@ FDataHandle::uploadTreeData(MasterAgent_var& MA) throw(WfDataHandleException) {
 
   // check data ID
   if (isDataIDDefined()) {
-    Dagda_var dataManager = ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT, MA->getDataManager());
-
-    if (! dataManager->pfmIsDataPresent(myDataID.c_str())) {
+    Dagda_var dataManager =
+      ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT,
+                                                  MA->getDataManager());
+    if (!dataManager->pfmIsDataPresent(myDataID.c_str())) {
       if (isValueDefined()) {
         // data ID is obsolete so try to recreate one using value
         myAdapterType = ADAPTER_VALUE;
         downloadDataID();
       } else {
-        string errorMsg = "Missing value and invalid data ID (tag=" + getTag().toString() + ")";
-        throw WfDataHandleException(WfDataHandleException::eVALUE_UNDEF, errorMsg);
+        std::string errorMsg("Missing value and invalid data ID (tag="
+                             + getTag().toString() + ")");
+        throw WfDataHandleException(WfDataHandleException::eVALUE_UNDEF,
+                                    errorMsg);
       }
     }
   } else if (isValueDefined()) {
@@ -951,57 +999,67 @@ FDataHandle::uploadTreeData(MasterAgent_var& MA) throw(WfDataHandleException) {
   }
 }
 
-map<FDataTag,FDataHandle*>::iterator
+std::map<FDataTag, FDataHandle*>::iterator
 FDataHandle::begin() throw(WfDataHandleException) {
   // check that data handle is a container
   if (myDepth < 1) {
     throw WfDataHandleException(WfDataHandleException::eBAD_STRUCT,
-                                "Tried to get elements of non-container data handle");
+                                "Tried to get elements of non-container data"
+                                "handle");
   }
   // if the dataID is known then the first call to begin will
   // create the childs automatically with their dataID set
-  vector<string>* childIDVect = NULL;
+  std::vector<std::string>* childIDVect = NULL;
   if (isDataIDDefined() && (myData->empty())) {
-    WfDataIDAdapter* adapterID = dynamic_cast<WfDataIDAdapter*>(createPortAdapter());
-    childIDVect = new vector<string>();
+    WfDataIDAdapter* adapterID =
+      dynamic_cast<WfDataIDAdapter*>(createPortAdapter());
+    childIDVect = new std::vector<std::string>();
     // retrieve the child IDs using the ID adapter
     try {
       adapterID->getElements(*childIDVect);
       delete adapterID;
-    } catch(WfDataException& e) {
+    } catch (WfDataException& e) {
       delete childIDVect;
       delete adapterID;
       throw WfDataHandleException(WfDataHandleException::eBAD_STRUCT,
-                                  "Cannot retrieve element IDs : " + e.ErrorMsg());
+                                  "Cannot retrieve element IDs : "
+                                  + e.ErrorMsg());
     }
-    if (!isCardinalDefined()) setCardinal(childIDVect->size());
+    if (!isCardinalDefined()) {
+      setCardinal(childIDVect->size());
+    }
   }
   // if the cardinal is defined then the first call to begin will
   // create the childs automatically
   if (isCardinalDefined() && (myData->empty())) {
     for (unsigned int ix = 0; ix < myCard; ++ix) {
-      FDataTag  childTag(getTag(),ix, (ix == myCard-1));
+      FDataTag childTag(getTag(), ix, (ix == myCard-1));
       // Create new data handle
       FDataHandle* childHdl;
-      if (childIDVect)
-        childHdl = new FDataHandle(childTag, myValueType, myDepth-1, (*childIDVect)[ix], true);
-      else
+      if (childIDVect) {
+        childHdl = new FDataHandle(childTag, myValueType,
+                                   myDepth-1, (*childIDVect)[ix], true);
+      } else {
         childHdl = new FDataHandle(childTag, myDepth-1, this);
+      }
       // Insert the data handle as child of this one
       this->addChild(childHdl);
       // set the cardinal list (static cardinal info) for childs
       if ((myCardList) && (myCardList->size() > 1)) {
-        list<string>::const_iterator cardListStart = ++myCardList->begin();
-        list<string>::const_iterator cardListEnd = myCardList->end();
+        std::list<std::string>::const_iterator cardListStart =
+          ++myCardList->begin();
+        std::list<std::string>::const_iterator cardListEnd = myCardList->end();
         childHdl->setCardinalList(cardListStart, cardListEnd);
       }
     }
-    if (childIDVect) delete childIDVect;
+    if (childIDVect) {
+      delete childIDVect;
+    }
   }
   return myData->begin();
 }
 
-map<FDataTag,FDataHandle*>::iterator
+std::map<FDataTag, FDataHandle*>::iterator
 FDataHandle::end() {
   return myData->end();
 }
@@ -1010,7 +1068,7 @@ FDataHandle::end() {
  * Port adapter creation (RECURSIVE for MULTIPLE adapters)
  */
 WfPortAdapter*
-FDataHandle::createPortAdapter(const string& currDagName) {
+FDataHandle::createPortAdapter(const std::string& currDagName) {
   WfPortAdapter * myAdapter = NULL;
 
   if (myAdapterType == ADAPTER_VOID) {
@@ -1029,7 +1087,7 @@ FDataHandle::createPortAdapter(const string& currDagName) {
     // LINK TO SEVERAL OUTPUT PORTS (MERGE)
     // get all my child adapters and create a multiple adapter from them
     WfMultiplePortAdapter* multAdapter = new WfMultiplePortAdapter();
-    for (map<FDataTag,FDataHandle*>::iterator childIter = myData->begin();
+    for (std::map<FDataTag, FDataHandle*>::iterator childIter = myData->begin();
          childIter != myData->end();
          ++childIter) {
       FDataHandle * childHdl = (FDataHandle*) childIter->second;
@@ -1037,21 +1095,22 @@ FDataHandle::createPortAdapter(const string& currDagName) {
     }
     myAdapter = (WfPortAdapter*) multAdapter;
 
-  } else if ((myAdapterType == ADAPTER_DIRECT) || (myAdapterType == ADAPTER_SIMPLE)) {
+  } else if ((myAdapterType == ADAPTER_DIRECT) ||
+             (myAdapterType == ADAPTER_SIMPLE)) {
     // get dag id of source dagNode
     DagNode * endNode = dynamic_cast<DagNode*>(myPort->getParent());
-    string dagName;
-    string endNodeDagName = endNode->getDag()->getId();
-    if (endNodeDagName != currDagName)
+    std::string dagName;
+    std::string endNodeDagName = endNode->getDag()->getId();
+    if (endNodeDagName != currDagName) {
       dagName = endNodeDagName;
-
+    }
     if (myAdapterType == ADAPTER_DIRECT) {
       // LINK TO OUTPUT PORT WITHOUT SPLIT
-      myAdapter = new WfSimplePortAdapter(myPort,dagName);
-
+      myAdapter = new WfSimplePortAdapter(myPort, dagName);
     } else if (myAdapterType == ADAPTER_SIMPLE) {
       // LINK TO OUTPUT PORT WITH SPLIT (use indexes)
-      myAdapter = new WfSimplePortAdapter(myPort,*myPortElementIndexes,dagName);
+      myAdapter =
+        new WfSimplePortAdapter(myPort, *myPortElementIndexes, dagName);
     }
   } else {
     throw WfDataHandleException(WfDataHandleException::eINVALID_ADAPT,
@@ -1067,16 +1126,16 @@ FDataHandle::isValueDefined() const {
 }
 
 void
-FDataHandle::setValue( WfCst::WfDataType valueType,
-                       const string&     value) {
+FDataHandle::setValue(WfCst::WfDataType valueType, const std::string& value) {
   myValueType = valueType;
   myValue = value;
   valueDef = true;
-  if (myAdapterType == ADAPTER_UNDEFINED)
+  if (myAdapterType == ADAPTER_UNDEFINED) {
     myAdapterType = ADAPTER_VALUE;
+  }
 }
 
-const string&
+const std::string&
 FDataHandle::getValue() const {
   return myValue;
 }
@@ -1096,13 +1155,13 @@ FDataHandle::isDataIDOwner() const {
   return dataIDOwner;
 }
 
-const string&
+const std::string&
 FDataHandle::getDataID() const {
   return myDataID;
 }
 
 void
-FDataHandle::setDataID(const string& dataID) {
+FDataHandle::setDataID(const std::string& dataID) {
   if (!dataID.empty()) {
     myDataID = dataID;
     myAdapterType = ADAPTER_DATAID;
@@ -1133,33 +1192,34 @@ FDataHandle::writeValue(WfDataWriter *dataWriter) {
  */
 void
 FDataHandle::downloadValue() throw(WfDataHandleException) {
-  if (isValueDefined()) return;
-  //   TRACE_TEXT (TRACE_ALL_STEPS,"Retrieving value of data..." << endl);
-  ostringstream  valStr;
+  if (isValueDefined()) {
+    return;
+  }
+
+  std::ostringstream  valStr;
   WfDataWriter  *dataWriter;
-  if (myDepth > 0)
+  if (myDepth > 0) {
     dataWriter = new WfXMLDataWriter(valStr);  // for containers
-  else
+  } else {
     dataWriter = new WfListDataWriter(valStr);  // for scalar values
+  }
   try {
-
     writeValue(dataWriter);
-
   } catch (WfDataHandleException& e) {
-    string errorMsg = "Cannot get data (" + e.ErrorMsg() + ")";
+    std::string errorMsg = "Cannot get data (" + e.ErrorMsg() + ")";
     delete dataWriter;
     throw WfDataHandleException(WfDataHandleException::eVALUE_UNDEF, errorMsg);
   } catch (WfDataException& e) {
-    string errorMsg = "Cannot get data (" + e.ErrorMsg() + ")";
+    std::string errorMsg = "Cannot get data (" + e.ErrorMsg() + ")";
     delete dataWriter;
     throw WfDataHandleException(WfDataHandleException::eVALUE_UNDEF, errorMsg);
   } catch (...) {
     WARNING("Uncaught exception in FDataHandle::downloadValue()");
   }
-  myValue = valStr.str();       //FIXME use setValue
+  myValue = valStr.str();  // FIXME use setValue
   valueDef = true;
   delete dataWriter;
-  TRACE_TEXT (TRACE_ALL_STEPS,"==> Value is : " << myValue << endl);
+  TRACE_TEXT(TRACE_ALL_STEPS, "==> Value is : " << myValue << "\n");
 }
 
 void
@@ -1201,7 +1261,7 @@ FDataHandle::downloadTreeData() {
       WARNING("Data Error (" << e.ErrorMsg() << ")");
     }
   } else {
-    for (map<FDataTag,FDataHandle*>::iterator childIter = this->begin();
+    for (std::map<FDataTag, FDataHandle*>::iterator childIter = this->begin();
          childIter != this->end();
          ++childIter) {
       ((FDataHandle*)childIter->second)->downloadTreeData();
@@ -1217,7 +1277,9 @@ FDataHandle::downloadTreeData() {
 
 void
 FDataHandle::downloadCardinal() {
-  if (isCardinalDefined()) return;
+  if (isCardinalDefined()) {
+    return;
+  }
   if (myDepth < 1) {
     throw WfDataHandleException(WfDataHandleException::eINVALID_ADAPT,
                                 "Cannot get cardinal of 0-depth data - tag="
@@ -1229,40 +1291,39 @@ FDataHandle::downloadCardinal() {
     begin();
   } else {
     throw WfDataHandleException(WfDataHandleException::eINVALID_ADAPT,
-                                "Cannot get cardinal due to invalid adapter - tag="
-                                + myTag.toString());
+                                "Cannot get cardinal due to invalid"
+                                "adapter - tag=" + myTag.toString());
   }
 }
 
 void
 FDataHandle::toXML(WfXMLDataWriter& XMLWriter) {
-  if ( myDepth > 0 ) {
+  if (myDepth > 0) {
     XMLWriter.startContainer(getDataID());
-    for (map<FDataTag,FDataHandle*>::iterator childIter = this->begin();
-         childIter != this->end();
-         ++childIter) {
+    std::map<FDataTag, FDataHandle*>::iterator childIter = this->begin();
+    for (; childIter != this->end(); ++childIter) {
       ((FDataHandle*)childIter->second)->toXML(XMLWriter);
     }
     XMLWriter.endContainer();
   } else {
-    XMLWriter.itemValue(getValue(),getDataID());
+    XMLWriter.itemValue(getValue(), getDataID());
   }
 }
 
 void
 FDataHandle::freePersistentDataRec(MasterAgent_var& MA) {
   if (isDataIDDefined() && isDataIDOwner()) {
-    TRACE_TEXT (TRACE_ALL_STEPS, "Deleting DH persistent data: " << getDataID() << endl);
+    TRACE_TEXT(TRACE_ALL_STEPS,
+               "Deleting DH persistent data: " << getDataID() << "\n");
     char *dataId = const_cast<char*>(getDataID().c_str());
-    if (MA->diet_free_pdata(dataId)==0) {
+    if (MA->diet_free_pdata(dataId) == 0) {
       WARNING("Could not delete persistent data: " << dataId);
     }
     myAdapterType = ADAPTER_DELETED;  // avoid warning in case of double call
   }
   if (myDepth > 0) {
-    for (map<FDataTag,FDataHandle*>::iterator childIter = this->begin();
-         childIter != this->end();
-         ++childIter) {
+    std::map<FDataTag, FDataHandle*>::iterator childIter = this->begin();
+    for (; childIter != this->end(); ++childIter) {
       ((FDataHandle*) childIter->second)->freePersistentDataRec(MA);
     }
   }
@@ -1273,11 +1334,11 @@ FDataHandle::freePersistentDataRec(MasterAgent_var& MA) {
  */
 void
 FDataHandle::display(bool goUp) {
-  if (goUp && myParentHdl)
+  if (goUp && myParentHdl) {
     myParentHdl->display(true);
-  else {
+  } else {
     if (getTag().getLevel() == 0) {
-      TRACE_TEXT(TRACE_MAIN_STEPS, "-------------------" << endl);
+      TRACE_TEXT(TRACE_MAIN_STEPS, "-------------------\n");
     }
     TRACE_TEXT(TRACE_MAIN_STEPS, "DATA: " << getTag().toString()
                << " (depth=" << myDepth << ")");
@@ -1285,16 +1346,15 @@ FDataHandle::display(bool goUp) {
     if (isValueDefined()) {
       TRACE_TEXT(TRACE_MAIN_STEPS, " VALUE=" << myValue);
     }
-    TRACE_TEXT(TRACE_MAIN_STEPS, endl);
+    TRACE_TEXT(TRACE_MAIN_STEPS, "\n");
 
     if (myDepth>0) {
-      for (map<FDataTag,FDataHandle*>::iterator childIter = myData->begin();
-           childIter != myData->end();
-           ++childIter)
+      std::map<FDataTag, FDataHandle*>::iterator childIter = myData->begin();
+      for (; childIter != myData->end(); ++childIter)
         ((FDataHandle*)childIter->second)->display(false);
     }
     if (getTag().getLevel() == 0) {
-      TRACE_TEXT(TRACE_MAIN_STEPS, "-------------------" << endl);
+      TRACE_TEXT(TRACE_MAIN_STEPS, "-------------------\n");
     }
   }
 }

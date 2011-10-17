@@ -46,11 +46,11 @@ main(int argc, char* argv[])
 {
   char* path = NULL;
   diet_profile_t* profile = NULL;
-  double nbreel=0 ;
-  size_t file_size = 0 ;
-  struct timeval tv ;
-  struct timezone tz ;
-  int server_found = 0 ;
+  double nbreel = 0;
+  size_t file_size = 0;
+  struct timeval tv;
+  struct timezone tz;
+  int server_found = 0;
       
   if (argc != 5) {
     fprintf(stderr, "Usage: %s <file.cfg> <file1> <double> <file2>\n",
@@ -63,20 +63,20 @@ main(int argc, char* argv[])
     return 1;
   }
 
-  path = "concatenation" ;
+  path = "concatenation";
   profile = diet_profile_alloc(path, 2, 2, 3);
-  if (diet_file_set(diet_parameter(profile,0), DIET_VOLATILE, argv[2])) {
+  if (diet_file_set(diet_parameter(profile, 0), DIET_VOLATILE, argv[2])) {
     printf("file1: diet_file_set error\n");
     return 1;
   }
-  nbreel = strtod(argv[3],NULL) ;
-  diet_scalar_set(diet_parameter(profile,1), &nbreel, DIET_VOLATILE,
+  nbreel = strtod(argv[3], NULL);
+  diet_scalar_set(diet_parameter(profile, 1), &nbreel, DIET_VOLATILE,
                   DIET_DOUBLE);
-  if (diet_file_set(diet_parameter(profile,2), DIET_VOLATILE, argv[4])) {
+  if (diet_file_set(diet_parameter(profile, 2), DIET_VOLATILE, argv[4])) {
     printf("file2: diet_file_set error\n");
     return 1;
   }
-  if (diet_file_set(diet_parameter(profile,3), DIET_VOLATILE, NULL)) {
+  if (diet_file_set(diet_parameter(profile, 3), DIET_VOLATILE, NULL)) {
     printf("result_file: diet_file_set error\n");
     return 1;
   }
@@ -87,51 +87,51 @@ main(int argc, char* argv[])
    *********************/
 
   gettimeofday(&tv, &tz);
-  printf("L'heure de soumission est %ld:%ld\n\n",tv.tv_sec,tv.tv_usec) ;
+  printf("L'heure de soumission est %ld:%ld\n\n", tv.tv_sec, tv.tv_usec);
 
-  if( SUBMISSION_TYPE == 1 ) {
+  if (SUBMISSION_TYPE == 1) {
     /* To ask explicitely for a parallel submission */
-    printf("Call explicitly a parallel service\n") ;
+    printf("Call explicitly a parallel service\n");
     if (!diet_parallel_call(profile)) {
-      printf("Job correctly submitted!\n\n\n") ;
-      server_found = 1 ;
-      diet_file_get(diet_parameter(profile,3), NULL, &file_size, &path);
+      printf("Job correctly submitted!\n\n\n");
+      server_found = 1;
+      diet_file_get(diet_parameter(profile, 3), NULL, &file_size, &path);
       if (path && (*path != '\0')) {
         printf("Location of returned file is %s, its size is %zd.\n",
                path, file_size);
       }
-    } else printf("Error in diet_parallel_call()\n") ;
-  } else if ( SUBMISSION_TYPE == 0 ) {
-    printf("All services, seq and parallel, with the correct name are Ok.\n") ;
+    } else printf("Error in diet_parallel_call()\n");
+  } else if (SUBMISSION_TYPE == 0) {
+    printf("All services, seq and parallel, with the correct name are Ok.\n");
     if (!diet_call(profile)) {
-      printf("Job correctly submitted!\n\n\n") ;
-      server_found = 1 ;
-      diet_file_get(diet_parameter(profile,3), NULL, &file_size, &path);
+      printf("Job correctly submitted!\n\n\n");
+      server_found = 1;
+      diet_file_get(diet_parameter(profile, 3), NULL, &file_size, &path);
       if (path && (*path != '\0')) {
         printf("Location of returned file is %s, its size is %zd.\n",
                path, file_size);
       }
-    } else printf("Error in diet_call()\n") ;
+    } else printf("Error in diet_call()\n");
   } else { /* only sequential servers are considered */
-    printf("Only proposed sequential services can be selected.\n") ;
+    printf("Only proposed sequential services can be selected.\n");
     if (!diet_sequential_call(profile)) {
-      printf("Job correctly submitted!\n\n\n") ;
-      server_found = 1 ;
-      diet_file_get(diet_parameter(profile,3), NULL, &file_size, &path);
+      printf("Job correctly submitted!\n\n\n");
+      server_found = 1;
+      diet_file_get(diet_parameter(profile, 3), NULL, &file_size, &path);
       if (path && (*path != '\0')) {
         printf("Location of returned file is %s, its size is %zd.\n",
                path, file_size);
       }
-    } else printf("Error in diet_sequential_call()\n") ;
+    } else printf("Error in diet_sequential_call()\n");
   }
 
   gettimeofday(&tv, &tz);
-  printf("L'heure de terminaison est %ld:%ld\n\n",tv.tv_sec,tv.tv_usec) ;
+  printf("L'heure de terminaison est %ld:%ld\n\n", tv.tv_sec, tv.tv_usec);
   
-  if( server_found == 1 ) {
+  if (server_found == 1) {
     /* If uncommented, the result file is removed */
-    /*  diet_free_data(diet_parameter(profile,4)); */
-    free(path) ;
+    /*  diet_free_data(diet_parameter(profile, 4)); */
+    free(path);
   }
   
   diet_profile_free(profile);

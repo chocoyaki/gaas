@@ -87,8 +87,10 @@ public:
    * @param varName string containing the variable name
    * @param varType type of the variable
    */
-  WfExprVariable(const std::string& varName,
-                 const WfCst::WfDataType varType);
+  WfExprVariable(const std::string& varName, const WfCst::WfDataType varType);
+
+  virtual ~WfExprVariable() {
+  }
 
   /**
    * Get name
@@ -160,7 +162,9 @@ public:
   /**
    * Check if a variable name is used in the expression
    */
-  static std::string XQVarSeparators;  // characters that can happen after a variable
+  // characters that can happen after a variable
+  static std::string XQVarSeparators;
+
   bool
   isVariableUsed(const std::string& varName);
 

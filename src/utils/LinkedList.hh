@@ -85,7 +85,7 @@ private:
     Node* previous;
     /// a pointer on the element.
     T* element;
-  } ;
+  };
 
 
   /**
@@ -126,7 +126,7 @@ public:
 
     counter = list.counter;
 
-    if(list.first) { // if list is not empty
+    if (list.first) { // if list is not empty
 
       Node* listNode = list.first; 
       Node* newNode;
@@ -251,7 +251,7 @@ public:
     linkedListMutex.lock();
     list->linkedListMutex.lock();
 
-    if(list->first) { // if list is not empty
+    if (list->first) { // if list is not empty
       last->next = list->first;
       list->first->previous = last;
       last = list->last;
@@ -388,11 +388,11 @@ public:
       --(linkedList->counter);
       Node* currentNodeBuf = currentNode;
       currentNode = currentNodeBuf->next;
-      if(currentNodeBuf->previous)
+      if (currentNodeBuf->previous)
         currentNodeBuf->previous->next = currentNodeBuf->next;
       else
         linkedList->first = currentNodeBuf->next;
-      if(currentNodeBuf->next)
+      if (currentNodeBuf->next)
         currentNodeBuf->next->previous = currentNodeBuf->previous;
       else
         linkedList->last = currentNodeBuf->previous;

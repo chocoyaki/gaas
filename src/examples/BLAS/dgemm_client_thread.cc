@@ -84,15 +84,15 @@ call(void* par) {
 
   profile = diet_profile_alloc(path, 3, 4, 4);
 
-  diet_scalar_set(diet_parameter(profile,0), &alpha,
+  diet_scalar_set(diet_parameter(profile, 0), &alpha,
                   DIET_VOLATILE, DIET_DOUBLE);
-  diet_matrix_set(diet_parameter(profile,1), A,
+  diet_matrix_set(diet_parameter(profile, 1), A,
                   DIET_VOLATILE, DIET_DOUBLE, m, k, oA);
-  diet_matrix_set(diet_parameter(profile,2), B,
+  diet_matrix_set(diet_parameter(profile, 2), B,
                   DIET_VOLATILE, DIET_DOUBLE, k, n, oB);
-  diet_scalar_set(diet_parameter(profile,3), &beta,
+  diet_scalar_set(diet_parameter(profile, 3), &beta,
                   DIET_VOLATILE, DIET_DOUBLE);
-  diet_matrix_set(diet_parameter(profile,4), C,
+  diet_matrix_set(diet_parameter(profile, 4), C,
                   DIET_VOLATILE, DIET_DOUBLE, m, n, oC);
 
   for (;;) {

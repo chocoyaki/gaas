@@ -35,9 +35,9 @@ main(int argc, char* argv[])
 {
   char* path = "random";
   diet_profile_t* profile = NULL;
-  int * nbprocs ;
-  struct timeval tv ;
-  struct timezone tz ;
+  int * nbprocs;
+  struct timeval tv;
+  struct timezone tz;
       
   if (argc != 2) {
     fprintf(stderr, "Usage: %s <file.cfg>\n",
@@ -50,19 +50,19 @@ main(int argc, char* argv[])
     return 1;
   }
 
-  path = "random" ;
+  path = "random";
   profile = diet_profile_alloc(path, -1, -1, 0);
-  diet_scalar_set(diet_parameter(profile,0), NULL, DIET_VOLATILE, DIET_INT);
+  diet_scalar_set(diet_parameter(profile, 0), NULL, DIET_VOLATILE, DIET_INT);
 
   /*********************
    * DIET Call
    *********************/
 
   gettimeofday(&tv, &tz);
-  printf("L'heure de soumission est %ld:%ld\n\n",tv.tv_sec,tv.tv_usec) ;
+  printf("L'heure de soumission est %ld:%ld\n\n", tv.tv_sec, tv.tv_usec);
 
   if (!diet_call(profile)) {
-    diet_scalar_get(diet_parameter(profile,0), &nbprocs, NULL);
+    diet_scalar_get(diet_parameter(profile, 0), &nbprocs, NULL);
     printf("The job has been solved on %d processor(s)\n", *nbprocs);
   } else {
     fprintf(stderr, "diet_call() has returned with an error code !\n");
@@ -70,7 +70,7 @@ main(int argc, char* argv[])
   }
 
   gettimeofday(&tv, &tz);
-  printf("L'heure de terminaison est %ld:%ld\n\n",tv.tv_sec,tv.tv_usec) ;
+  printf("L'heure de terminaison est %ld:%ld\n\n", tv.tv_sec, tv.tv_usec);
     
   diet_profile_free(profile);
   diet_finalize();

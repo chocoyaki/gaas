@@ -92,14 +92,18 @@ void BindService::run(void* ptr) {
       }
     }
     int n = write(newSockFd, ior, strlen(ior));
-    if (n < 0)
-      WARNING("error when writing to socket (bind service): " << strerror(errno));
+    if (n < 0) {
+      WARNING("error when writing to socket (bind service): "
+              << strerror(errno));
+    }
     n = close(newSockFd);
-    if (n < 0)
-      WARNING("error when writing to socket (bind service): " << strerror(errno));
+    if (n < 0) {
+      WARNING("error when writing to socket (bind service): "
+              << strerror(errno));
+    }
   }
   free(ior);
-} // run(void*)
+}
 
 BindService::~BindService() {}
 
@@ -111,7 +115,7 @@ BindService::BindService(MasterAgentImpl* ma, unsigned int port) {
   if (listenSocket < 0) {
     ERROR("opening bind service socket: " << strerror(errno) << "\n",;);
   }
-  memset((char *) &serverAddr, 0, sizeof(serverAddr));  // use memset instead of bzero
+  memset((char *) &serverAddr, 0, sizeof(serverAddr));
   serverAddr.sin_family = AF_INET;
   serverAddr.sin_addr.s_addr = INADDR_ANY;
   serverAddr.sin_port = htons(port);
@@ -119,7 +123,7 @@ BindService::BindService(MasterAgentImpl* ma, unsigned int port) {
            sizeof(serverAddr)) < 0)  {
     ERROR("in binding the bind service socket: " << strerror(errno) << "\n",;);
   }
-  listen(listenSocket,5);
+  listen(listenSocket, 5);
 
   TRACE_TEXT(TRACE_ALL_STEPS, "bind service open\n");
   start();
@@ -136,9 +140,8 @@ MasterAgent_ptr BindService::lookup(const char* addr) {
   if (idx != NULL) {
     idx[0] = '\0';
     portNo = atoi(idx+1);
-
   }
-  if(portNo == 0) {
+  if (portNo == 0) {
     TRACE_TEXT(TRACE_ALL_STEPS, addr << " is not a valid address\n");
     return MasterAgent::_nil();
   }
@@ -156,22 +159,23 @@ MasterAgent_ptr BindService::lookup(const char* addr) {
   }
 
   struct sockaddr_in servAddr;
-  memset((char *) &servAddr, 0, sizeof(servAddr));  // use memset instead of bzero
+  memset((char *) &servAddr, 0, sizeof(servAddr));
   servAddr.sin_family = AF_INET;
   memmove((char *)&servAddr.sin_addr.s_addr,
           (char *)server->h_addr,
           server->h_length);  // use memmove instead of bcopy
   servAddr.sin_port = htons(portNo);
 
-  if (connect(sockfd,(const sockaddr*)&servAddr,sizeof(servAddr)) < 0)  {
+  if (connect(sockfd, (const sockaddr*)&servAddr, sizeof(servAddr)) < 0) {
     TRACE_TEXT(TRACE_ALL_STEPS, " not connecting:" << strerror(errno) << "\n");
     return MasterAgent::_nil();
   }
   char buffer[2048];
   memset(buffer, 0, sizeof(buffer));  // use memset instead of bzero
-  int n = read(sockfd,buffer,sizeof(buffer)-1);
+  int n = read(sockfd, buffer, (sizeof(buffer) - 1));
   if (n < 0) {
-    TRACE_TEXT(TRACE_ALL_STEPS, " reading from socket:" << strerror(errno) << "\n");
+    TRACE_TEXT(TRACE_ALL_STEPS,
+               " reading from socket:" << strerror(errno) << "\n");
     close(sockfd);
     return MasterAgent::_nil();
   }

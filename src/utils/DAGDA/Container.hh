@@ -35,11 +35,12 @@
 #ifndef __CONTAINER_HH__
 #define __CONTAINER_HH__
 
+#include <map>
+#include <string>
 #include "DIET_data.h"
 #include "DIET_Dagda.h"
 #include "DagdaImpl.hh"
 #include "DataRelationMgr.hh"
-#include <map>
 
 class Container {
 public:

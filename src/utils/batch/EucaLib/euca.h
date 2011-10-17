@@ -960,13 +960,13 @@ struct ec2__ProductCodeListType
 struct ec2__ProductCodeItemType
 {
   /// CHOICE OF ELEMENTS <xs:choice>
-  $int                                  __union_ProductCodeItemType   ;        ///< Union _ec2__union_ProductCodeItemType selector: set to SOAP_UNION__ec2__union_ProductCodeItemType_<fieldname>
+  $int                                  __union_ProductCodeItemType  ;        ///< Union _ec2__union_ProductCodeItemType selector: set to SOAP_UNION__ec2__union_ProductCodeItemType_<fieldname>
   /// Union for choice in type ec2__ProductCodeItemType
   union _ec2__union_ProductCodeItemType
   {
     /// Element productCode of type xs:string.
     char*                                productCode                    1;      ///< Required element.
-  }                                    union_ProductCodeItemType     ;
+  }                                    union_ProductCodeItemType    ;
   //  END OF CHOICE
 };
 
@@ -988,7 +988,7 @@ struct ec2__ResetImageAttributeType
   {
     /// Element launchPermission of type "http://ec2.amazonaws.com/doc/2008-12-01/":EmptyElementType.
     struct ec2__EmptyElementType*        launchPermission               1;      ///< Required element.
-  }                                    union_ResetImageAttributeType ;
+  }                                    union_ResetImageAttributeType;
   //  END OF CHOICE
   /// Element imageId of type xs:string.
   char*                                imageId                        1;      ///< Required element.
@@ -2090,7 +2090,7 @@ struct ec2__RegionItemType
    struct ec2__RegisterImageType*      ec2__RegisterImage,
    // response parameters:
    struct ec2__RegisterImageResponseType* ec2__RegisterImageResponse
-   );
+);
    @endcode
 
    C server function (called from the service dispatcher defined in soapServer.c[pp]):
@@ -2101,7 +2101,7 @@ struct ec2__RegionItemType
    struct ec2__RegisterImageType*      ec2__RegisterImage,
    // response parameters:
    struct ec2__RegisterImageResponseType* ec2__RegisterImageResponse
-   );
+);
    @endcode
 
 */
@@ -2112,7 +2112,7 @@ struct ec2__RegionItemType
 int __ec2__RegisterImage(
                          struct ec2__RegisterImageType*      ec2__RegisterImage,     ///< Request parameter
                          struct ec2__RegisterImageResponseType* ec2__RegisterImageResponse   ///< Response parameter
-                         );
+);
 
 /******************************************************************************\
  *                                                                            *
@@ -2141,7 +2141,7 @@ int __ec2__RegisterImage(
    struct ec2__DeregisterImageType*    ec2__DeregisterImage,
    // response parameters:
    struct ec2__DeregisterImageResponseType* ec2__DeregisterImageResponse
-   );
+);
    @endcode
 
    C server function (called from the service dispatcher defined in soapServer.c[pp]):
@@ -2152,7 +2152,7 @@ int __ec2__RegisterImage(
    struct ec2__DeregisterImageType*    ec2__DeregisterImage,
    // response parameters:
    struct ec2__DeregisterImageResponseType* ec2__DeregisterImageResponse
-   );
+);
    @endcode
 
 */
@@ -2163,7 +2163,7 @@ int __ec2__RegisterImage(
 int __ec2__DeregisterImage(
                            struct ec2__DeregisterImageType*    ec2__DeregisterImage,   ///< Request parameter
                            struct ec2__DeregisterImageResponseType* ec2__DeregisterImageResponse       ///< Response parameter
-                           );
+);
 
 /******************************************************************************\
  *                                                                            *
@@ -2192,7 +2192,7 @@ int __ec2__DeregisterImage(
    struct ec2__CreateKeyPairType*      ec2__CreateKeyPair,
    // response parameters:
    struct ec2__CreateKeyPairResponseType* ec2__CreateKeyPairResponse
-   );
+);
    @endcode
 
    C server function (called from the service dispatcher defined in soapServer.c[pp]):
@@ -2203,7 +2203,7 @@ int __ec2__DeregisterImage(
    struct ec2__CreateKeyPairType*      ec2__CreateKeyPair,
    // response parameters:
    struct ec2__CreateKeyPairResponseType* ec2__CreateKeyPairResponse
-   );
+);
    @endcode
 
 */
@@ -2214,7 +2214,7 @@ int __ec2__DeregisterImage(
 int __ec2__CreateKeyPair(
                          struct ec2__CreateKeyPairType*      ec2__CreateKeyPair,     ///< Request parameter
                          struct ec2__CreateKeyPairResponseType* ec2__CreateKeyPairResponse   ///< Response parameter
-                         );
+);
 
 /******************************************************************************\
  *                                                                            *
@@ -2243,7 +2243,7 @@ int __ec2__CreateKeyPair(
    struct ec2__DescribeKeyPairsType*   ec2__DescribeKeyPairs,
    // response parameters:
    struct ec2__DescribeKeyPairsResponseType* ec2__DescribeKeyPairsResponse
-   );
+);
    @endcode
 
    C server function (called from the service dispatcher defined in soapServer.c[pp]):
@@ -2254,7 +2254,7 @@ int __ec2__CreateKeyPair(
    struct ec2__DescribeKeyPairsType*   ec2__DescribeKeyPairs,
    // response parameters:
    struct ec2__DescribeKeyPairsResponseType* ec2__DescribeKeyPairsResponse
-   );
+);
    @endcode
 
 */
@@ -2265,7 +2265,7 @@ int __ec2__CreateKeyPair(
 int __ec2__DescribeKeyPairs(
                             struct ec2__DescribeKeyPairsType*   ec2__DescribeKeyPairs,  ///< Request parameter
                             struct ec2__DescribeKeyPairsResponseType* ec2__DescribeKeyPairsResponse     ///< Response parameter
-                            );
+);
 
 /******************************************************************************\
  *                                                                            *
@@ -2294,7 +2294,7 @@ int __ec2__DescribeKeyPairs(
    struct ec2__DeleteKeyPairType*      ec2__DeleteKeyPair,
    // response parameters:
    struct ec2__DeleteKeyPairResponseType* ec2__DeleteKeyPairResponse
-   );
+);
    @endcode
 
    C server function (called from the service dispatcher defined in soapServer.c[pp]):
@@ -2305,7 +2305,7 @@ int __ec2__DescribeKeyPairs(
    struct ec2__DeleteKeyPairType*      ec2__DeleteKeyPair,
    // response parameters:
    struct ec2__DeleteKeyPairResponseType* ec2__DeleteKeyPairResponse
-   );
+);
    @endcode
 
 */
@@ -2316,7 +2316,7 @@ int __ec2__DescribeKeyPairs(
 int __ec2__DeleteKeyPair(
                          struct ec2__DeleteKeyPairType*      ec2__DeleteKeyPair,     ///< Request parameter
                          struct ec2__DeleteKeyPairResponseType* ec2__DeleteKeyPairResponse   ///< Response parameter
-                         );
+);
 
 /******************************************************************************\
  *                                                                            *
@@ -2345,7 +2345,7 @@ int __ec2__DeleteKeyPair(
    struct ec2__RunInstancesType*       ec2__RunInstances,
    // response parameters:
    struct ec2__RunInstancesResponseType* ec2__RunInstancesResponse
-   );
+);
    @endcode
 
    C server function (called from the service dispatcher defined in soapServer.c[pp]):
@@ -2356,7 +2356,7 @@ int __ec2__DeleteKeyPair(
    struct ec2__RunInstancesType*       ec2__RunInstances,
    // response parameters:
    struct ec2__RunInstancesResponseType* ec2__RunInstancesResponse
-   );
+);
    @endcode
 
 */
@@ -2367,7 +2367,7 @@ int __ec2__DeleteKeyPair(
 int __ec2__RunInstances(
                         struct ec2__RunInstancesType*       ec2__RunInstances,      ///< Request parameter
                         struct ec2__RunInstancesResponseType* ec2__RunInstancesResponse     ///< Response parameter
-                        );
+);
 
 /******************************************************************************\
  *                                                                            *
@@ -2396,7 +2396,7 @@ int __ec2__RunInstances(
    struct ec2__GetConsoleOutputType*   ec2__GetConsoleOutput,
    // response parameters:
    struct ec2__GetConsoleOutputResponseType* ec2__GetConsoleOutputResponse
-   );
+);
    @endcode
 
    C server function (called from the service dispatcher defined in soapServer.c[pp]):
@@ -2407,7 +2407,7 @@ int __ec2__RunInstances(
    struct ec2__GetConsoleOutputType*   ec2__GetConsoleOutput,
    // response parameters:
    struct ec2__GetConsoleOutputResponseType* ec2__GetConsoleOutputResponse
-   );
+);
    @endcode
 
 */
@@ -2418,7 +2418,7 @@ int __ec2__RunInstances(
 int __ec2__GetConsoleOutput(
                             struct ec2__GetConsoleOutputType*   ec2__GetConsoleOutput,  ///< Request parameter
                             struct ec2__GetConsoleOutputResponseType* ec2__GetConsoleOutputResponse     ///< Response parameter
-                            );
+);
 
 /******************************************************************************\
  *                                                                            *
@@ -2447,7 +2447,7 @@ int __ec2__GetConsoleOutput(
    struct ec2__TerminateInstancesType* ec2__TerminateInstances,
    // response parameters:
    struct ec2__TerminateInstancesResponseType* ec2__TerminateInstancesResponse
-   );
+);
    @endcode
 
    C server function (called from the service dispatcher defined in soapServer.c[pp]):
@@ -2458,7 +2458,7 @@ int __ec2__GetConsoleOutput(
    struct ec2__TerminateInstancesType* ec2__TerminateInstances,
    // response parameters:
    struct ec2__TerminateInstancesResponseType* ec2__TerminateInstancesResponse
-   );
+);
    @endcode
 
 */
@@ -2469,7 +2469,7 @@ int __ec2__GetConsoleOutput(
 int __ec2__TerminateInstances(
                               struct ec2__TerminateInstancesType* ec2__TerminateInstances,        ///< Request parameter
                               struct ec2__TerminateInstancesResponseType* ec2__TerminateInstancesResponse ///< Response parameter
-                              );
+);
 
 /******************************************************************************\
  *                                                                            *
@@ -2498,7 +2498,7 @@ int __ec2__TerminateInstances(
    struct ec2__RebootInstancesType*    ec2__RebootInstances,
    // response parameters:
    struct ec2__RebootInstancesResponseType* ec2__RebootInstancesResponse
-   );
+);
    @endcode
 
    C server function (called from the service dispatcher defined in soapServer.c[pp]):
@@ -2509,7 +2509,7 @@ int __ec2__TerminateInstances(
    struct ec2__RebootInstancesType*    ec2__RebootInstances,
    // response parameters:
    struct ec2__RebootInstancesResponseType* ec2__RebootInstancesResponse
-   );
+);
    @endcode
 
 */
@@ -2520,7 +2520,7 @@ int __ec2__TerminateInstances(
 int __ec2__RebootInstances(
                            struct ec2__RebootInstancesType*    ec2__RebootInstances,   ///< Request parameter
                            struct ec2__RebootInstancesResponseType* ec2__RebootInstancesResponse       ///< Response parameter
-                           );
+);
 
 /******************************************************************************\
  *                                                                            *
@@ -2549,7 +2549,7 @@ int __ec2__RebootInstances(
    struct ec2__DescribeInstancesType*  ec2__DescribeInstances,
    // response parameters:
    struct ec2__DescribeInstancesResponseType* ec2__DescribeInstancesResponse
-   );
+);
    @endcode
 
    C server function (called from the service dispatcher defined in soapServer.c[pp]):
@@ -2560,7 +2560,7 @@ int __ec2__RebootInstances(
    struct ec2__DescribeInstancesType*  ec2__DescribeInstances,
    // response parameters:
    struct ec2__DescribeInstancesResponseType* ec2__DescribeInstancesResponse
-   );
+);
    @endcode
 
 */
@@ -2571,7 +2571,7 @@ int __ec2__RebootInstances(
 int __ec2__DescribeInstances(
                              struct ec2__DescribeInstancesType*  ec2__DescribeInstances, ///< Request parameter
                              struct ec2__DescribeInstancesResponseType* ec2__DescribeInstancesResponse   ///< Response parameter
-                             );
+);
 
 /******************************************************************************\
  *                                                                            *
@@ -2600,7 +2600,7 @@ int __ec2__DescribeInstances(
    struct ec2__DescribeImagesType*     ec2__DescribeImages,
    // response parameters:
    struct ec2__DescribeImagesResponseType* ec2__DescribeImagesResponse
-   );
+);
    @endcode
 
    C server function (called from the service dispatcher defined in soapServer.c[pp]):
@@ -2611,7 +2611,7 @@ int __ec2__DescribeInstances(
    struct ec2__DescribeImagesType*     ec2__DescribeImages,
    // response parameters:
    struct ec2__DescribeImagesResponseType* ec2__DescribeImagesResponse
-   );
+);
    @endcode
 
 */
@@ -2622,7 +2622,7 @@ int __ec2__DescribeInstances(
 int __ec2__DescribeImages(
                           struct ec2__DescribeImagesType*     ec2__DescribeImages,    ///< Request parameter
                           struct ec2__DescribeImagesResponseType* ec2__DescribeImagesResponse ///< Response parameter
-                          );
+);
 
 /******************************************************************************\
  *                                                                            *
@@ -2651,7 +2651,7 @@ int __ec2__DescribeImages(
    struct ec2__CreateSecurityGroupType* ec2__CreateSecurityGroup,
    // response parameters:
    struct ec2__CreateSecurityGroupResponseType* ec2__CreateSecurityGroupResponse
-   );
+);
    @endcode
 
    C server function (called from the service dispatcher defined in soapServer.c[pp]):
@@ -2662,7 +2662,7 @@ int __ec2__DescribeImages(
    struct ec2__CreateSecurityGroupType* ec2__CreateSecurityGroup,
    // response parameters:
    struct ec2__CreateSecurityGroupResponseType* ec2__CreateSecurityGroupResponse
-   );
+);
    @endcode
 
 */
@@ -2673,7 +2673,7 @@ int __ec2__DescribeImages(
 int __ec2__CreateSecurityGroup(
                                struct ec2__CreateSecurityGroupType* ec2__CreateSecurityGroup,      ///< Request parameter
                                struct ec2__CreateSecurityGroupResponseType* ec2__CreateSecurityGroupResponse       ///< Response parameter
-                               );
+);
 
 /******************************************************************************\
  *                                                                            *
@@ -2702,7 +2702,7 @@ int __ec2__CreateSecurityGroup(
    struct ec2__DeleteSecurityGroupType* ec2__DeleteSecurityGroup,
    // response parameters:
    struct ec2__DeleteSecurityGroupResponseType* ec2__DeleteSecurityGroupResponse
-   );
+);
    @endcode
 
    C server function (called from the service dispatcher defined in soapServer.c[pp]):
@@ -2713,7 +2713,7 @@ int __ec2__CreateSecurityGroup(
    struct ec2__DeleteSecurityGroupType* ec2__DeleteSecurityGroup,
    // response parameters:
    struct ec2__DeleteSecurityGroupResponseType* ec2__DeleteSecurityGroupResponse
-   );
+);
    @endcode
 
 */
@@ -2724,7 +2724,7 @@ int __ec2__CreateSecurityGroup(
 int __ec2__DeleteSecurityGroup(
                                struct ec2__DeleteSecurityGroupType* ec2__DeleteSecurityGroup,      ///< Request parameter
                                struct ec2__DeleteSecurityGroupResponseType* ec2__DeleteSecurityGroupResponse       ///< Response parameter
-                               );
+);
 
 /******************************************************************************\
  *                                                                            *
@@ -2753,7 +2753,7 @@ int __ec2__DeleteSecurityGroup(
    struct ec2__DescribeSecurityGroupsType* ec2__DescribeSecurityGroups,
    // response parameters:
    struct ec2__DescribeSecurityGroupsResponseType* ec2__DescribeSecurityGroupsResponse
-   );
+);
    @endcode
 
    C server function (called from the service dispatcher defined in soapServer.c[pp]):
@@ -2764,7 +2764,7 @@ int __ec2__DeleteSecurityGroup(
    struct ec2__DescribeSecurityGroupsType* ec2__DescribeSecurityGroups,
    // response parameters:
    struct ec2__DescribeSecurityGroupsResponseType* ec2__DescribeSecurityGroupsResponse
-   );
+);
    @endcode
 
 */
@@ -2775,7 +2775,7 @@ int __ec2__DeleteSecurityGroup(
 int __ec2__DescribeSecurityGroups(
                                   struct ec2__DescribeSecurityGroupsType* ec2__DescribeSecurityGroups,        ///< Request parameter
                                   struct ec2__DescribeSecurityGroupsResponseType* ec2__DescribeSecurityGroupsResponse ///< Response parameter
-                                  );
+);
 
 /******************************************************************************\
  *                                                                            *
@@ -2804,7 +2804,7 @@ int __ec2__DescribeSecurityGroups(
    struct ec2__AuthorizeSecurityGroupIngressType* ec2__AuthorizeSecurityGroupIngress,
    // response parameters:
    struct ec2__AuthorizeSecurityGroupIngressResponseType* ec2__AuthorizeSecurityGroupIngressResponse
-   );
+);
    @endcode
 
    C server function (called from the service dispatcher defined in soapServer.c[pp]):
@@ -2815,7 +2815,7 @@ int __ec2__DescribeSecurityGroups(
    struct ec2__AuthorizeSecurityGroupIngressType* ec2__AuthorizeSecurityGroupIngress,
    // response parameters:
    struct ec2__AuthorizeSecurityGroupIngressResponseType* ec2__AuthorizeSecurityGroupIngressResponse
-   );
+);
    @endcode
 
 */
@@ -2826,7 +2826,7 @@ int __ec2__DescribeSecurityGroups(
 int __ec2__AuthorizeSecurityGroupIngress(
                                          struct ec2__AuthorizeSecurityGroupIngressType* ec2__AuthorizeSecurityGroupIngress,  ///< Request parameter
                                          struct ec2__AuthorizeSecurityGroupIngressResponseType* ec2__AuthorizeSecurityGroupIngressResponse   ///< Response parameter
-                                         );
+);
 
 /******************************************************************************\
  *                                                                            *
@@ -2855,7 +2855,7 @@ int __ec2__AuthorizeSecurityGroupIngress(
    struct ec2__RevokeSecurityGroupIngressType* ec2__RevokeSecurityGroupIngress,
    // response parameters:
    struct ec2__RevokeSecurityGroupIngressResponseType* ec2__RevokeSecurityGroupIngressResponse
-   );
+);
    @endcode
 
    C server function (called from the service dispatcher defined in soapServer.c[pp]):
@@ -2866,7 +2866,7 @@ int __ec2__AuthorizeSecurityGroupIngress(
    struct ec2__RevokeSecurityGroupIngressType* ec2__RevokeSecurityGroupIngress,
    // response parameters:
    struct ec2__RevokeSecurityGroupIngressResponseType* ec2__RevokeSecurityGroupIngressResponse
-   );
+);
    @endcode
 
 */
@@ -2877,7 +2877,7 @@ int __ec2__AuthorizeSecurityGroupIngress(
 int __ec2__RevokeSecurityGroupIngress(
                                       struct ec2__RevokeSecurityGroupIngressType* ec2__RevokeSecurityGroupIngress,        ///< Request parameter
                                       struct ec2__RevokeSecurityGroupIngressResponseType* ec2__RevokeSecurityGroupIngressResponse ///< Response parameter
-                                      );
+);
 
 /******************************************************************************\
  *                                                                            *
@@ -2906,7 +2906,7 @@ int __ec2__RevokeSecurityGroupIngress(
    struct ec2__ModifyImageAttributeType* ec2__ModifyImageAttribute,
    // response parameters:
    struct ec2__ModifyImageAttributeResponseType* ec2__ModifyImageAttributeResponse
-   );
+);
    @endcode
 
    C server function (called from the service dispatcher defined in soapServer.c[pp]):
@@ -2917,7 +2917,7 @@ int __ec2__RevokeSecurityGroupIngress(
    struct ec2__ModifyImageAttributeType* ec2__ModifyImageAttribute,
    // response parameters:
    struct ec2__ModifyImageAttributeResponseType* ec2__ModifyImageAttributeResponse
-   );
+);
    @endcode
 
 */
@@ -2928,7 +2928,7 @@ int __ec2__RevokeSecurityGroupIngress(
 int __ec2__ModifyImageAttribute(
                                 struct ec2__ModifyImageAttributeType* ec2__ModifyImageAttribute,    ///< Request parameter
                                 struct ec2__ModifyImageAttributeResponseType* ec2__ModifyImageAttributeResponse     ///< Response parameter
-                                );
+);
 
 /******************************************************************************\
  *                                                                            *
@@ -2957,7 +2957,7 @@ int __ec2__ModifyImageAttribute(
    struct ec2__ResetImageAttributeType* ec2__ResetImageAttribute,
    // response parameters:
    struct ec2__ResetImageAttributeResponseType* ec2__ResetImageAttributeResponse
-   );
+);
    @endcode
 
    C server function (called from the service dispatcher defined in soapServer.c[pp]):
@@ -2968,7 +2968,7 @@ int __ec2__ModifyImageAttribute(
    struct ec2__ResetImageAttributeType* ec2__ResetImageAttribute,
    // response parameters:
    struct ec2__ResetImageAttributeResponseType* ec2__ResetImageAttributeResponse
-   );
+);
    @endcode
 
 */
@@ -2979,7 +2979,7 @@ int __ec2__ModifyImageAttribute(
 int __ec2__ResetImageAttribute(
                                struct ec2__ResetImageAttributeType* ec2__ResetImageAttribute,      ///< Request parameter
                                struct ec2__ResetImageAttributeResponseType* ec2__ResetImageAttributeResponse       ///< Response parameter
-                               );
+);
 
 /******************************************************************************\
  *                                                                            *
@@ -3008,7 +3008,7 @@ int __ec2__ResetImageAttribute(
    struct ec2__DescribeImageAttributeType* ec2__DescribeImageAttribute,
    // response parameters:
    struct ec2__DescribeImageAttributeResponseType* ec2__DescribeImageAttributeResponse
-   );
+);
    @endcode
 
    C server function (called from the service dispatcher defined in soapServer.c[pp]):
@@ -3019,7 +3019,7 @@ int __ec2__ResetImageAttribute(
    struct ec2__DescribeImageAttributeType* ec2__DescribeImageAttribute,
    // response parameters:
    struct ec2__DescribeImageAttributeResponseType* ec2__DescribeImageAttributeResponse
-   );
+);
    @endcode
 
 */
@@ -3030,7 +3030,7 @@ int __ec2__ResetImageAttribute(
 int __ec2__DescribeImageAttribute(
                                   struct ec2__DescribeImageAttributeType* ec2__DescribeImageAttribute,        ///< Request parameter
                                   struct ec2__DescribeImageAttributeResponseType* ec2__DescribeImageAttributeResponse ///< Response parameter
-                                  );
+);
 
 /******************************************************************************\
  *                                                                            *
@@ -3059,7 +3059,7 @@ int __ec2__DescribeImageAttribute(
    struct ec2__ConfirmProductInstanceType* ec2__ConfirmProductInstance,
    // response parameters:
    struct ec2__ConfirmProductInstanceResponseType* ec2__ConfirmProductInstanceResponse
-   );
+);
    @endcode
 
    C server function (called from the service dispatcher defined in soapServer.c[pp]):
@@ -3070,7 +3070,7 @@ int __ec2__DescribeImageAttribute(
    struct ec2__ConfirmProductInstanceType* ec2__ConfirmProductInstance,
    // response parameters:
    struct ec2__ConfirmProductInstanceResponseType* ec2__ConfirmProductInstanceResponse
-   );
+);
    @endcode
 
 */
@@ -3081,7 +3081,7 @@ int __ec2__DescribeImageAttribute(
 int __ec2__ConfirmProductInstance(
                                   struct ec2__ConfirmProductInstanceType* ec2__ConfirmProductInstance,        ///< Request parameter
                                   struct ec2__ConfirmProductInstanceResponseType* ec2__ConfirmProductInstanceResponse ///< Response parameter
-                                  );
+);
 
 /******************************************************************************\
  *                                                                            *
@@ -3110,7 +3110,7 @@ int __ec2__ConfirmProductInstance(
    struct ec2__DescribeAvailabilityZonesType* ec2__DescribeAvailabilityZones,
    // response parameters:
    struct ec2__DescribeAvailabilityZonesResponseType* ec2__DescribeAvailabilityZonesResponse
-   );
+);
    @endcode
 
    C server function (called from the service dispatcher defined in soapServer.c[pp]):
@@ -3121,7 +3121,7 @@ int __ec2__ConfirmProductInstance(
    struct ec2__DescribeAvailabilityZonesType* ec2__DescribeAvailabilityZones,
    // response parameters:
    struct ec2__DescribeAvailabilityZonesResponseType* ec2__DescribeAvailabilityZonesResponse
-   );
+);
    @endcode
 
 */
@@ -3132,7 +3132,7 @@ int __ec2__ConfirmProductInstance(
 int __ec2__DescribeAvailabilityZones(
                                      struct ec2__DescribeAvailabilityZonesType* ec2__DescribeAvailabilityZones,  ///< Request parameter
                                      struct ec2__DescribeAvailabilityZonesResponseType* ec2__DescribeAvailabilityZonesResponse   ///< Response parameter
-                                     );
+);
 
 /******************************************************************************\
  *                                                                            *
@@ -3161,7 +3161,7 @@ int __ec2__DescribeAvailabilityZones(
    struct ec2__AllocateAddressType*    ec2__AllocateAddress,
    // response parameters:
    struct ec2__AllocateAddressResponseType* ec2__AllocateAddressResponse
-   );
+);
    @endcode
 
    C server function (called from the service dispatcher defined in soapServer.c[pp]):
@@ -3172,7 +3172,7 @@ int __ec2__DescribeAvailabilityZones(
    struct ec2__AllocateAddressType*    ec2__AllocateAddress,
    // response parameters:
    struct ec2__AllocateAddressResponseType* ec2__AllocateAddressResponse
-   );
+);
    @endcode
 
 */
@@ -3183,7 +3183,7 @@ int __ec2__DescribeAvailabilityZones(
 int __ec2__AllocateAddress(
                            struct ec2__AllocateAddressType*    ec2__AllocateAddress,   ///< Request parameter
                            struct ec2__AllocateAddressResponseType* ec2__AllocateAddressResponse       ///< Response parameter
-                           );
+);
 
 /******************************************************************************\
  *                                                                            *
@@ -3212,7 +3212,7 @@ int __ec2__AllocateAddress(
    struct ec2__ReleaseAddressType*     ec2__ReleaseAddress,
    // response parameters:
    struct ec2__ReleaseAddressResponseType* ec2__ReleaseAddressResponse
-   );
+);
    @endcode
 
    C server function (called from the service dispatcher defined in soapServer.c[pp]):
@@ -3223,7 +3223,7 @@ int __ec2__AllocateAddress(
    struct ec2__ReleaseAddressType*     ec2__ReleaseAddress,
    // response parameters:
    struct ec2__ReleaseAddressResponseType* ec2__ReleaseAddressResponse
-   );
+);
    @endcode
 
 */
@@ -3234,7 +3234,7 @@ int __ec2__AllocateAddress(
 int __ec2__ReleaseAddress(
                           struct ec2__ReleaseAddressType*     ec2__ReleaseAddress,    ///< Request parameter
                           struct ec2__ReleaseAddressResponseType* ec2__ReleaseAddressResponse ///< Response parameter
-                          );
+);
 
 /******************************************************************************\
  *                                                                            *
@@ -3263,7 +3263,7 @@ int __ec2__ReleaseAddress(
    struct ec2__DescribeAddressesType*  ec2__DescribeAddresses,
    // response parameters:
    struct ec2__DescribeAddressesResponseType* ec2__DescribeAddressesResponse
-   );
+);
    @endcode
 
    C server function (called from the service dispatcher defined in soapServer.c[pp]):
@@ -3274,7 +3274,7 @@ int __ec2__ReleaseAddress(
    struct ec2__DescribeAddressesType*  ec2__DescribeAddresses,
    // response parameters:
    struct ec2__DescribeAddressesResponseType* ec2__DescribeAddressesResponse
-   );
+);
    @endcode
 
 */
@@ -3285,7 +3285,7 @@ int __ec2__ReleaseAddress(
 int __ec2__DescribeAddresses(
                              struct ec2__DescribeAddressesType*  ec2__DescribeAddresses, ///< Request parameter
                              struct ec2__DescribeAddressesResponseType* ec2__DescribeAddressesResponse   ///< Response parameter
-                             );
+);
 
 /******************************************************************************\
  *                                                                            *
@@ -3314,7 +3314,7 @@ int __ec2__DescribeAddresses(
    struct ec2__AssociateAddressType*   ec2__AssociateAddress,
    // response parameters:
    struct ec2__AssociateAddressResponseType* ec2__AssociateAddressResponse
-   );
+);
    @endcode
 
    C server function (called from the service dispatcher defined in soapServer.c[pp]):
@@ -3325,7 +3325,7 @@ int __ec2__DescribeAddresses(
    struct ec2__AssociateAddressType*   ec2__AssociateAddress,
    // response parameters:
    struct ec2__AssociateAddressResponseType* ec2__AssociateAddressResponse
-   );
+);
    @endcode
 
 */
@@ -3336,7 +3336,7 @@ int __ec2__DescribeAddresses(
 int __ec2__AssociateAddress(
                             struct ec2__AssociateAddressType*   ec2__AssociateAddress,  ///< Request parameter
                             struct ec2__AssociateAddressResponseType* ec2__AssociateAddressResponse     ///< Response parameter
-                            );
+);
 
 /******************************************************************************\
  *                                                                            *
@@ -3365,7 +3365,7 @@ int __ec2__AssociateAddress(
    struct ec2__DisassociateAddressType* ec2__DisassociateAddress,
    // response parameters:
    struct ec2__DisassociateAddressResponseType* ec2__DisassociateAddressResponse
-   );
+);
    @endcode
 
    C server function (called from the service dispatcher defined in soapServer.c[pp]):
@@ -3376,7 +3376,7 @@ int __ec2__AssociateAddress(
    struct ec2__DisassociateAddressType* ec2__DisassociateAddress,
    // response parameters:
    struct ec2__DisassociateAddressResponseType* ec2__DisassociateAddressResponse
-   );
+);
    @endcode
 
 */
@@ -3387,7 +3387,7 @@ int __ec2__AssociateAddress(
 int __ec2__DisassociateAddress(
                                struct ec2__DisassociateAddressType* ec2__DisassociateAddress,      ///< Request parameter
                                struct ec2__DisassociateAddressResponseType* ec2__DisassociateAddressResponse       ///< Response parameter
-                               );
+);
 
 /******************************************************************************\
  *                                                                            *
@@ -3416,7 +3416,7 @@ int __ec2__DisassociateAddress(
    struct ec2__CreateVolumeType*       ec2__CreateVolume,
    // response parameters:
    struct ec2__CreateVolumeResponseType* ec2__CreateVolumeResponse
-   );
+);
    @endcode
 
    C server function (called from the service dispatcher defined in soapServer.c[pp]):
@@ -3427,7 +3427,7 @@ int __ec2__DisassociateAddress(
    struct ec2__CreateVolumeType*       ec2__CreateVolume,
    // response parameters:
    struct ec2__CreateVolumeResponseType* ec2__CreateVolumeResponse
-   );
+);
    @endcode
 
 */
@@ -3438,7 +3438,7 @@ int __ec2__DisassociateAddress(
 int __ec2__CreateVolume(
                         struct ec2__CreateVolumeType*       ec2__CreateVolume,      ///< Request parameter
                         struct ec2__CreateVolumeResponseType* ec2__CreateVolumeResponse     ///< Response parameter
-                        );
+);
 
 /******************************************************************************\
  *                                                                            *
@@ -3467,7 +3467,7 @@ int __ec2__CreateVolume(
    struct ec2__DeleteVolumeType*       ec2__DeleteVolume,
    // response parameters:
    struct ec2__DeleteVolumeResponseType* ec2__DeleteVolumeResponse
-   );
+);
    @endcode
 
    C server function (called from the service dispatcher defined in soapServer.c[pp]):
@@ -3478,7 +3478,7 @@ int __ec2__CreateVolume(
    struct ec2__DeleteVolumeType*       ec2__DeleteVolume,
    // response parameters:
    struct ec2__DeleteVolumeResponseType* ec2__DeleteVolumeResponse
-   );
+);
    @endcode
 
 */
@@ -3489,7 +3489,7 @@ int __ec2__CreateVolume(
 int __ec2__DeleteVolume(
                         struct ec2__DeleteVolumeType*       ec2__DeleteVolume,      ///< Request parameter
                         struct ec2__DeleteVolumeResponseType* ec2__DeleteVolumeResponse     ///< Response parameter
-                        );
+);
 
 /******************************************************************************\
  *                                                                            *
@@ -3518,7 +3518,7 @@ int __ec2__DeleteVolume(
    struct ec2__DescribeVolumesType*    ec2__DescribeVolumes,
    // response parameters:
    struct ec2__DescribeVolumesResponseType* ec2__DescribeVolumesResponse
-   );
+);
    @endcode
 
    C server function (called from the service dispatcher defined in soapServer.c[pp]):
@@ -3529,7 +3529,7 @@ int __ec2__DeleteVolume(
    struct ec2__DescribeVolumesType*    ec2__DescribeVolumes,
    // response parameters:
    struct ec2__DescribeVolumesResponseType* ec2__DescribeVolumesResponse
-   );
+);
    @endcode
 
 */
@@ -3540,7 +3540,7 @@ int __ec2__DeleteVolume(
 int __ec2__DescribeVolumes(
                            struct ec2__DescribeVolumesType*    ec2__DescribeVolumes,   ///< Request parameter
                            struct ec2__DescribeVolumesResponseType* ec2__DescribeVolumesResponse       ///< Response parameter
-                           );
+);
 
 /******************************************************************************\
  *                                                                            *
@@ -3569,7 +3569,7 @@ int __ec2__DescribeVolumes(
    struct ec2__AttachVolumeType*       ec2__AttachVolume,
    // response parameters:
    struct ec2__AttachVolumeResponseType* ec2__AttachVolumeResponse
-   );
+);
    @endcode
 
    C server function (called from the service dispatcher defined in soapServer.c[pp]):
@@ -3580,7 +3580,7 @@ int __ec2__DescribeVolumes(
    struct ec2__AttachVolumeType*       ec2__AttachVolume,
    // response parameters:
    struct ec2__AttachVolumeResponseType* ec2__AttachVolumeResponse
-   );
+);
    @endcode
 
 */
@@ -3591,7 +3591,7 @@ int __ec2__DescribeVolumes(
 int __ec2__AttachVolume(
                         struct ec2__AttachVolumeType*       ec2__AttachVolume,      ///< Request parameter
                         struct ec2__AttachVolumeResponseType* ec2__AttachVolumeResponse     ///< Response parameter
-                        );
+);
 
 /******************************************************************************\
  *                                                                            *
@@ -3620,7 +3620,7 @@ int __ec2__AttachVolume(
    struct ec2__DetachVolumeType*       ec2__DetachVolume,
    // response parameters:
    struct ec2__DetachVolumeResponseType* ec2__DetachVolumeResponse
-   );
+);
    @endcode
 
    C server function (called from the service dispatcher defined in soapServer.c[pp]):
@@ -3631,7 +3631,7 @@ int __ec2__AttachVolume(
    struct ec2__DetachVolumeType*       ec2__DetachVolume,
    // response parameters:
    struct ec2__DetachVolumeResponseType* ec2__DetachVolumeResponse
-   );
+);
    @endcode
 
 */
@@ -3642,7 +3642,7 @@ int __ec2__AttachVolume(
 int __ec2__DetachVolume(
                         struct ec2__DetachVolumeType*       ec2__DetachVolume,      ///< Request parameter
                         struct ec2__DetachVolumeResponseType* ec2__DetachVolumeResponse     ///< Response parameter
-                        );
+);
 
 /******************************************************************************\
  *                                                                            *
@@ -3671,7 +3671,7 @@ int __ec2__DetachVolume(
    struct ec2__CreateSnapshotType*     ec2__CreateSnapshot,
    // response parameters:
    struct ec2__CreateSnapshotResponseType* ec2__CreateSnapshotResponse
-   );
+);
    @endcode
 
    C server function (called from the service dispatcher defined in soapServer.c[pp]):
@@ -3682,7 +3682,7 @@ int __ec2__DetachVolume(
    struct ec2__CreateSnapshotType*     ec2__CreateSnapshot,
    // response parameters:
    struct ec2__CreateSnapshotResponseType* ec2__CreateSnapshotResponse
-   );
+);
    @endcode
 
 */
@@ -3693,7 +3693,7 @@ int __ec2__DetachVolume(
 int __ec2__CreateSnapshot(
                           struct ec2__CreateSnapshotType*     ec2__CreateSnapshot,    ///< Request parameter
                           struct ec2__CreateSnapshotResponseType* ec2__CreateSnapshotResponse ///< Response parameter
-                          );
+);
 
 /******************************************************************************\
  *                                                                            *
@@ -3722,7 +3722,7 @@ int __ec2__CreateSnapshot(
    struct ec2__DeleteSnapshotType*     ec2__DeleteSnapshot,
    // response parameters:
    struct ec2__DeleteSnapshotResponseType* ec2__DeleteSnapshotResponse
-   );
+);
    @endcode
 
    C server function (called from the service dispatcher defined in soapServer.c[pp]):
@@ -3733,7 +3733,7 @@ int __ec2__CreateSnapshot(
    struct ec2__DeleteSnapshotType*     ec2__DeleteSnapshot,
    // response parameters:
    struct ec2__DeleteSnapshotResponseType* ec2__DeleteSnapshotResponse
-   );
+);
    @endcode
 
 */
@@ -3744,7 +3744,7 @@ int __ec2__CreateSnapshot(
 int __ec2__DeleteSnapshot(
                           struct ec2__DeleteSnapshotType*     ec2__DeleteSnapshot,    ///< Request parameter
                           struct ec2__DeleteSnapshotResponseType* ec2__DeleteSnapshotResponse ///< Response parameter
-                          );
+);
 
 /******************************************************************************\
  *                                                                            *
@@ -3773,7 +3773,7 @@ int __ec2__DeleteSnapshot(
    struct ec2__DescribeSnapshotsType*  ec2__DescribeSnapshots,
    // response parameters:
    struct ec2__DescribeSnapshotsResponseType* ec2__DescribeSnapshotsResponse
-   );
+);
    @endcode
 
    C server function (called from the service dispatcher defined in soapServer.c[pp]):
@@ -3784,7 +3784,7 @@ int __ec2__DeleteSnapshot(
    struct ec2__DescribeSnapshotsType*  ec2__DescribeSnapshots,
    // response parameters:
    struct ec2__DescribeSnapshotsResponseType* ec2__DescribeSnapshotsResponse
-   );
+);
    @endcode
 
 */
@@ -3795,7 +3795,7 @@ int __ec2__DeleteSnapshot(
 int __ec2__DescribeSnapshots(
                              struct ec2__DescribeSnapshotsType*  ec2__DescribeSnapshots, ///< Request parameter
                              struct ec2__DescribeSnapshotsResponseType* ec2__DescribeSnapshotsResponse   ///< Response parameter
-                             );
+);
 
 /******************************************************************************\
  *                                                                            *
@@ -3824,7 +3824,7 @@ int __ec2__DescribeSnapshots(
    struct ec2__BundleInstanceType*     ec2__BundleInstance,
    // response parameters:
    struct ec2__BundleInstanceResponseType* ec2__BundleInstanceResponse
-   );
+);
    @endcode
 
    C server function (called from the service dispatcher defined in soapServer.c[pp]):
@@ -3835,7 +3835,7 @@ int __ec2__DescribeSnapshots(
    struct ec2__BundleInstanceType*     ec2__BundleInstance,
    // response parameters:
    struct ec2__BundleInstanceResponseType* ec2__BundleInstanceResponse
-   );
+);
    @endcode
 
 */
@@ -3846,7 +3846,7 @@ int __ec2__DescribeSnapshots(
 int __ec2__BundleInstance(
                           struct ec2__BundleInstanceType*     ec2__BundleInstance,    ///< Request parameter
                           struct ec2__BundleInstanceResponseType* ec2__BundleInstanceResponse ///< Response parameter
-                          );
+);
 
 /******************************************************************************\
  *                                                                            *
@@ -3875,7 +3875,7 @@ int __ec2__BundleInstance(
    struct ec2__DescribeBundleTasksType* ec2__DescribeBundleTasks,
    // response parameters:
    struct ec2__DescribeBundleTasksResponseType* ec2__DescribeBundleTasksResponse
-   );
+);
    @endcode
 
    C server function (called from the service dispatcher defined in soapServer.c[pp]):
@@ -3886,7 +3886,7 @@ int __ec2__BundleInstance(
    struct ec2__DescribeBundleTasksType* ec2__DescribeBundleTasks,
    // response parameters:
    struct ec2__DescribeBundleTasksResponseType* ec2__DescribeBundleTasksResponse
-   );
+);
    @endcode
 
 */
@@ -3897,7 +3897,7 @@ int __ec2__BundleInstance(
 int __ec2__DescribeBundleTasks(
                                struct ec2__DescribeBundleTasksType* ec2__DescribeBundleTasks,      ///< Request parameter
                                struct ec2__DescribeBundleTasksResponseType* ec2__DescribeBundleTasksResponse       ///< Response parameter
-                               );
+);
 
 /******************************************************************************\
  *                                                                            *
@@ -3926,7 +3926,7 @@ int __ec2__DescribeBundleTasks(
    struct ec2__CancelBundleTaskType*   ec2__CancelBundleTask,
    // response parameters:
    struct ec2__CancelBundleTaskResponseType* ec2__CancelBundleTaskResponse
-   );
+);
    @endcode
 
    C server function (called from the service dispatcher defined in soapServer.c[pp]):
@@ -3937,7 +3937,7 @@ int __ec2__DescribeBundleTasks(
    struct ec2__CancelBundleTaskType*   ec2__CancelBundleTask,
    // response parameters:
    struct ec2__CancelBundleTaskResponseType* ec2__CancelBundleTaskResponse
-   );
+);
    @endcode
 
 */
@@ -3948,7 +3948,7 @@ int __ec2__DescribeBundleTasks(
 int __ec2__CancelBundleTask(
                             struct ec2__CancelBundleTaskType*   ec2__CancelBundleTask,  ///< Request parameter
                             struct ec2__CancelBundleTaskResponseType* ec2__CancelBundleTaskResponse     ///< Response parameter
-                            );
+);
 
 /******************************************************************************\
  *                                                                            *
@@ -3977,7 +3977,7 @@ int __ec2__CancelBundleTask(
    struct ec2__DescribeRegionsType*    ec2__DescribeRegions,
    // response parameters:
    struct ec2__DescribeRegionsResponseType* ec2__DescribeRegionsResponse
-   );
+);
    @endcode
 
    C server function (called from the service dispatcher defined in soapServer.c[pp]):
@@ -3988,7 +3988,7 @@ int __ec2__CancelBundleTask(
    struct ec2__DescribeRegionsType*    ec2__DescribeRegions,
    // response parameters:
    struct ec2__DescribeRegionsResponseType* ec2__DescribeRegionsResponse
-   );
+);
    @endcode
 
 */
@@ -3999,7 +3999,7 @@ int __ec2__CancelBundleTask(
 int __ec2__DescribeRegions(
                            struct ec2__DescribeRegionsType*    ec2__DescribeRegions,   ///< Request parameter
                            struct ec2__DescribeRegionsResponseType* ec2__DescribeRegionsResponse       ///< Response parameter
-                           );
+);
 
 /******************************************************************************\
  *                                                                            *

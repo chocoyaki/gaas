@@ -33,17 +33,19 @@
 #ifndef _TS_MAP_HH_
 #define _TS_MAP_HH_
 
+#include <cassert>
+#include <functional>
 #include <map>
+#include <memory>
 #include <omniconfig.h>
 #include <omnithread.h>
-#include <cassert>
 
 /**
  * This is a thread safe version of the STL map. All the methods are
  * thread safe. All the method will be added when needed. Look at the
  * STL documentation for more information.
  *
- * a map is a sequence of (key,value) pairs that provides for fast
+ * a map is a sequence of (key, value) pairs that provides for fast
  * retrieval based on the key. At most one value is held for each key;
  * in other words, each key in a map is unique. A map porvides
  * bidirectional iterators.

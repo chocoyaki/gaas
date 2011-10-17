@@ -5,7 +5,7 @@
 /*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
 /*                                                                          */
 /* $LICENSE$                                                                */
-/****************************************************************************/ 
+/****************************************************************************/
 /* $Id$
  * $Log$
  * Revision 1.45  2010/12/28 10:35:45  hguemar
@@ -156,17 +156,18 @@
  * DIET can be transformed into convertors.
  ****************************************************************************/
 /**
-   \brief DIET client interface                                 
-                                                                          
-   \author Philippe COMBES (Philippe.Combes@ens-lyon.fr)                   
+   \brief DIET client interface
 
-   \remarks License:                                                                          
-   $LICENSE$                                               
+   \author Philippe COMBES (Philippe.Combes@ens-lyon.fr)
+
+   \remarks License:
+   $LICENSE$
 
    \details
 
-   To use a \c DIET platform and access services implemented on the DIET Server Daemon
-   a client program must use the DIET Client API described in this file.
+   To use a \c DIET platform and access services implemented on the
+   DIET Server Daemon a client program must use the DIET Client API
+   described in this file.
 
    \page DIETclient DIET Client interface
 
@@ -176,9 +177,9 @@
 
    \section clientProgramStructure Structure of a client program
 
-   Since the client side of \b DIET is a library, a client program has to define a
-   main function that uses \b DIET through function calls. The complete
-   data interface is described in \c DIET_data.
+   Since the client side of \b DIET is a library, a client program has to
+   define a main function that uses \b DIET through function calls.
+   The complete data interface is described in \c DIET_data.
 
    Here is an exemple of code including \c DIET_client.h
 
@@ -198,8 +199,8 @@
 
    The client program must open its \b DIET session with a call to
    \c diet_initialize, which parses the configuration file to set
-   all options and get a reference to the \b DIET \b Master \b Agent. The session
-   is closed with a call to \c diet_finalize, which frees all
+   all options and get a reference to the \b DIET \b Master \b Agent.
+   The session is closed with a call to \c diet_finalize, which frees all
    resources associated with this session on the client. Note that
    memory allocated for all \b INOUT and \b OUT arguments brought back onto
    the client during the session is not freed during
@@ -214,11 +215,11 @@
    \c diet_ functions are \b duplicated with \c grpc_
    functions.  Both \c diet_initialize \c grpc_initialize
    and \c diet_finalize \c grpc_finalize belong to the
-   GridRPC API. 
- 
+   GridRPC API.
+
    A problem is managed through a \e function_handle, that
    associates a server to a problem name. For compliance with GridRPC
-   \c DIET accepts \c diet_function_handle_init, but the server 
+   \c DIET accepts \c diet_function_handle_init, but the server
    specified in the call will be ignored; \c DIET is designed to
    automatically select the best server. The structure allocation is
    performed through the function
@@ -226,7 +227,6 @@
 
    The \e function_handle returned is associated to the problem description,
    its profile, in the call to \c diet_call.
-                 
 */
 
 #ifndef _DIET_CLIENT_H_
@@ -238,50 +238,60 @@
 extern "C" {
 #endif /* __cplusplus */
 
-
-
-
-  /****************************************************************************/
-  /* A DIET client can submit several request in one session.                 */
-  /****************************************************************************/
-
+  /***************************************************************************/
+  /* A DIET client can submit several request in one session.                */
+  /***************************************************************************/
   /**
      Function used to initialize the \c DIET environment. This function sets up
-     all the corba stuff and then connects the client to the \c DIET \c Master \c Agent.
+     all the corba stuff and then connects the client to the
+     \c DIET \c Master \c Agent.
 
-     @param config_file_name configuration file name container the Client configuration. @see User's Manual for more information about the client configuration content.
+     @param config_file_name configuration file name container the Client
+     configuration. @see User's Manual for more information about the client
+     configuration content.
      @param argc number of arguments passed to the client program
-     @param argv arguments passed to the client program. \c DIET can look for special
-     command-line arguments used for omniORB.
-     @return error value specifying whether the initialization was successful or not:
+     @param argv arguments passed to the client program. \c DIET can look
+     for special command-line arguments used for omniORB.
+     @return error value specifying whether the initialization was successful
+     or not:
      \arg GRPC_NO_ERROR on success
-     \arg GRPC_NOT_INITIALIZED if the initialization failed, or if the MA/MADAG/Workflow LogService was not located
+     \arg GRPC_NOT_INITIALIZED if the initialization failed, or if
+     the MA/MADAG/Workflow LogService was not located
      \arg -1 if the CORBA servant callback of the client could not be activated
      \arg GRPC_ALREADY_INITIALIZED if DIET has already be initialized
-     \arg DIET_FILE_IO_ERROR if an IO error happened during the config file parsing
+     \arg DIET_FILE_IO_ERROR if an IO error happened during the config file
+     parsing
      \arg DIET_PARSE_ERROR if the config file parsing happened
 
      @see the DIET_grpc.h file for more information about error values.
   */
-        
+
   diet_error_t
   diet_initialize(const char* config_file_name, int argc, char* argv[]);
   /**
-     Function used to finalize the \c DIET environment and free and the allocated memory by the DIET environment, this call will close all CORBA communications.
+     Function used to finalize the \c DIET environment and free and
+     the allocated memory by the DIET environment,
+     this call will close all CORBA communications.
 
-     @return error value specifying whether the finalization was successful or not: in fact GRPC_NO_ERROR in every case. 
- 
+     @return error value specifying whether the finalization was successful
+     or not: in fact GRPC_NO_ERROR in every case.
+
      @see the DIET_grpc.h file for more information about error values.
   */
   diet_error_t
   diet_finalize();
-        
+
   /* DIET finalize call through signals catch function. */
 
   /**
-     Function used to finalize the \c DIET environment and free and the allocated memory by the DIET environment, this call will close all CORBA communications. This finalization function is call like a callback when specified signals are thrown.
+     Function used to finalize the \c DIET environment and free and
+     the allocated memory by the DIET environment,
+     this call will close all CORBA communications.
+     This finalization function is call like a callback when specified
+     signals are thrown.
 
-     The program will exit with the error value returned by the underlying diet_finalize() call.
+     The program will exit with the error value returned by the underlying
+     diet_finalize() call.
 
      @param dummy the callback on which the finalize call will be done
 
@@ -294,14 +304,14 @@ extern "C" {
   /****************************************************************************/
 
   /**
-     diet_arg_t is a handle on data 
+     diet_arg_t is a handle on data
 
      @see diet_data_handle_t
   */
   typedef diet_arg_t diet_data_handle_t;
 
-  /* The grpc_malloc function is useless, since its data descriptor allocation is
-     useless and set functions aim at filling the structure.                  */
+  /* The grpc_malloc function is useless, since its data descriptor allocation
+     is useless and set functions aim at filling the structure. */
   /* Once the data handle is allocated, please use the set functions to fill in
      the structure. */
 
@@ -310,9 +320,12 @@ extern "C" {
 
      @return the \c diet_data_handle_t allocated
 
-     @remarks The grpc_malloc function is useless, since its data descriptor allocation is useless and set functions aim at filling the structure. Once the data handle is allocated, please use the set functions to fill in the structure.
+     @remarks The grpc_malloc function is useless, since its data descriptor
+     allocation is useless and set functions aim at filling the structure.
+     Once the data handle is allocated, please use the set functions to fill in
+     the structure.
   */
-        
+
   diet_data_handle_t*
   diet_data_handle_malloc();
 
@@ -321,30 +334,29 @@ extern "C" {
 
      @param handle handle of a data present in the platform and to be retrieved
 
-     @return a void pointer on the value contained by the \c handle passed in argument
+     @return a void pointer on the value contained by the \c handle passed in
+     argument
   */
-        
+
   void*
   diet_get(diet_data_handle_t* handle);
 
   /**
-     Free data on server, and free handle if and if only allocated by diet_data_handle_malloc.
+     Free data on server, and free handle if and if only allocated by
+     diet_data_handle_malloc.
 
      @param handle handle pointing to the data to free
-     @return error value specifying whether the deallocation was successful or not: GRPC_NO_ERROR in every case. 
-     @see the DIET_grpc.h file for more information about error values. 
+     @return error value specifying whether the deallocation was successful or
+     not: GRPC_NO_ERROR in every case.
+     @see the DIET_grpc.h file for more information about error values.
 
   */
   diet_error_t
   diet_free(diet_data_handle_t* handle);
 
-  /* obsoleted
-     void
-     create_file();
-  */
-
   /**
-     Function used to store identifier of a persistent data in a file in the client directory
+     Function used to store identifier of a persistent data in a file in
+     the client directory
 
      @param argID id of the data to store
      @param msg message used for the data to store
@@ -358,15 +370,18 @@ extern "C" {
   */
 
   /**
-     Function used to free a persistent data on the platform with the specified \c id.
+     Function used to free a persistent data on the platform with the
+     specified \c id.
 
      @param id id of the persistent data to free
      @return error value corresponding the operation:
      \arg 1 if the data has been successfully freed
      \arg 0 if the data was not a persistent data or anything else
 
-     @todo This function should probably return a diet_error_t value to correspond to other returned error values of api functions...
-     @warning the error values are different from the ones found in DIET_grpc.h (0 is different from GRPC_NO_ERROR)
+     @todo This function should probably return a diet_error_t value to
+     correspond to other returned error values of api functions...
+     @warning the error values are different from the ones found in DIET_grpc.h
+     (0 is different from GRPC_NO_ERROR)
   */
   int
   diet_free_persistent_data(char *id);
@@ -376,15 +391,21 @@ extern "C" {
   /****************************************************************************/
 
   /**
-     Function used to perform a diet call. The main parameter is the \c profile describing the service to call and the in/inout/out parameters of the service corresponding to the service description.
+     Function used to perform a diet call. The main parameter is the
+     \c profile describing the service to call and the in/inout/out parameters
+     of the service corresponding to the service description.
 
-     @param profile the profile describing the service to call and the in/inout/out parameters of the service corresponding to the service description.
+     @param profile the profile describing the service to call and the
+     in/inout/out parameters of the service corresponding to the service
+     description.
      @return error value specifying whether the call was successful or not:
      \arg GRPC_NO_ERROR on success
-     \arg 1 if the profile is wrongly built, if an CORBA error was caught while submitting the profile or if a profile to be sent was not inside the platform
+     \arg 1 if the profile is wrongly built, if an CORBA error was caught while
+     submitting the profile or if a profile to be sent was not inside the
+     platform
      \arg GRPC_SERVER_NOT_FOUND if the server was not found
- 
-     @see the DIET_grpc.h file for more information about error values. 
+
+     @see the DIET_grpc.h file for more information about error values.
 
   */
   diet_error_t
@@ -392,43 +413,60 @@ extern "C" {
 
 #if defined HAVE_ALT_BATCH
   /**
-     Function used to perform a parallel call. The main parameter is the \c profile describing the service to call and the in/inout/out parameters of the service corresponding to the service description.
+     Function used to perform a parallel call. The main parameter is the
+     \c profile describing the service to call and the in/inout/out parameters
+     of the service corresponding to the service description.
 
-     @remark This function is only available when the batch functionnality is selected during compilation.
+     @remark This function is only available when the batch functionnality is
+     selected during compilation.
 
-     @param profile the profile describing the service to call and the in/inout/out parameters of the service corresponding to the service description.
+     @param profile the profile describing the service to call and the
+     in/inout/out parameters of the service corresponding to the service
+     description.
      @return error value specifying whether the call was successful or not:
      \arg GRPC_NO_ERROR on success
-     \arg 1 if the profile is wrongly built, if an CORBA error was caught while submitting the profile or if a profile to be sent was not inside the platform
+     \arg 1 if the profile is wrongly built, if an CORBA error was caught
+     while submitting the profile or if a profile to be sent was not inside
+     the platform
      \arg GRPC_SERVER_NOT_FOUND if the server was not found
 
-     @see the DIET_grpc.h file for more information about error values. 
+     @see the DIET_grpc.h file for more information about error values.
 
   */
   diet_error_t
-  diet_parallel_call(diet_profile_t* profile) ;
+  diet_parallel_call(diet_profile_t* profile);
 
   /**
-     Function used to perform a sequential call. The main parameter is the \c profile describing the service to call and the in/inout/out parameters of the service corresponding to the service description.
+     Function used to perform a sequential call. The main parameter is the
+     \c profile describing the service to call and the in/inout/out parameters
+     of the service corresponding to the service description.
 
-     @remark This function is only available when the batch functionnality is selected during compilation.
+     @remark This function is only available when the batch functionnality is
+     selected during compilation.
 
-     @param profile the profile describing the service to call and the in/inout/out parameters of the service corresponding to the service description.
+     @param profile the profile describing the service to call and the
+     in/inout/out parameters of the service corresponding to the service
+     description.
      @return error value specifying whether the call was successful or not:
      \arg GRPC_NO_ERROR on success
-     \arg 1 if the profile is wrongly built, if an CORBA error was caught while submitting the profile or if a profile to be sent was not inside the platform
+     \arg 1 if the profile is wrongly built, if an CORBA error was caught while
+     submitting the profile or if a profile to be sent was not inside the
+     platform
      \arg GRPC_SERVER_NOT_FOUND if the server was not found
- 
-     @see the DIET_grpc.h file for more information about error values. 
+
+     @see the DIET_grpc.h file for more information about error values.
 
   */
   diet_error_t
-  diet_sequential_call(diet_profile_t* profile) ;
+  diet_sequential_call(diet_profile_t* profile);
 #endif
 
   /**
-     Function used to perform a asynchronous call. The main parameter is the \c profile describing the service to call and the in/inout/out parameters of the service corresponding to the service description.
-     It should be noted that the function directly returns. The end of the call must be controlled with the corresponding functions.
+     Function used to perform a asynchronous call. The main parameter is the
+     \c profile describing the service to call and the in/inout/out parameters
+     of the service corresponding to the service description.
+     It should be noted that the function directly returns.
+     The end of the call must be controlled with the corresponding functions.
      @sa diet_probe()
      @sa diet_probe_or()
      @sa diet_wait()
@@ -436,22 +474,29 @@ extern "C" {
      @sa diet_wait_or()
      @sa diet_wait_all()
      @sa diet_wait_any()
-     @param profile the profile describing the service to call and the in/inout/out parameters of the service corresponding to the service description.
-     @param reqID the request ID of the performed call. 
+     @param profile the profile describing the service to call and the
+     in/inout/out parameters of the service corresponding to the service
+     description.
+     @param reqID the request ID of the performed call.
      @return error value specifying whether the call was successful or not:
      \arg GRPC_NO_ERROR on success
-     \arg 1 if the profile is wrongly built, if an CORBA error was caught while submitting the profile or if a profile to be sent was not inside the platform
+     \arg 1 if the profile is wrongly built, if an CORBA error was caught while
+     submitting the profile or if a profile to be sent was not inside the
+     platform
      \arg GRPC_SERVER_NOT_FOUND if the server was not found
 
-     @see the DIET_grpc.h file for more information about error values. 
+     @see the DIET_grpc.h file for more information about error values.
 
   */
   diet_error_t
   diet_call_async(diet_profile_t* profile, diet_reqID_t* reqID);
 #if defined HAVE_ALT_BATCH
   /**
-     Function used to perform a parrallel asynchronous call. The main parameter is the \c profile describing the service to call and the in/inout/out parameters of the service corresponding to the service description.
-     It should be noted that the function directly returns. The end of the call must be controlled with the corresponding functions.
+     Function used to perform a parrallel asynchronous call. The main parameter
+     is the \c profile describing the service to call and the in/inout/out
+     parameters of the service corresponding to the service description.
+     It should be noted that the function directly returns. The end of the call
+     must be controlled with the corresponding functions.
      @sa diet_probe()
      @sa diet_probe_or()
      @sa diet_wait()
@@ -460,22 +505,31 @@ extern "C" {
      @sa diet_wait_all()
      @sa diet_wait_any()
 
-     @remark This function is only available when the batch functionnality is selected during compilation.
+     @remark This function is only available when the batch functionnality is
+     selected during compilation.
 
-     @param profile the profile describing the service to call and the in/inout/out parameters of the service corresponding to the service description.
-     @param reqID the request ID of the performed call. 
+     @param profile the profile describing the service to call and the
+     in/inout/out parameters of the service corresponding to the service
+     description.
+     @param reqID the request ID of the performed call.
      @return error value specifying whether the call was successful or not:
      \arg GRPC_NO_ERROR on success
-     \arg 1 if the profile is wrongly built, if an CORBA error was caught while submitting the profile or if a profile to be sent was not inside the platform
+     \arg 1 if the profile is wrongly built, if an CORBA error was caught while
+     submitting the profile or if a profile to be sent was not inside the
+     platform
      \arg GRPC_SERVER_NOT_FOUND if the server was not found
- 
-     @see the DIET_grpc.h file for more information about error values. 
+
+     @see the DIET_grpc.h file for more information about error values.
   */
   diet_error_t
   diet_parallel_call_async(diet_profile_t* profile, diet_reqID_t* reqID);
   /**
-     Function used to perform a sequential asynchronous call. The main parameter is the \c profile describing the service to call and the in/inout/out parameters of the service corresponding to the service description.
-     It should be noted that the function directly returns. The end of the call must be controlled with the corresponding functions.
+     Function used to perform a sequential asynchronous call.
+     The main parameter is the \c profile describing the service to call and
+     the in/inout/out parameters of the service corresponding to the service
+     description.
+     It should be noted that the function directly returns. The end of the call
+     must be controlled with the corresponding functions.
      @sa diet_probe()
      @sa diet_probe_or()
      @sa diet_wait()
@@ -484,16 +538,21 @@ extern "C" {
      @sa diet_wait_all()
      @sa diet_wait_any()
 
-     @remark This function is only available when the batch functionnality is selected during compilation.
+     @remark This function is only available when the batch functionnality is
+     selected during compilation.
 
-     @param profile the profile describing the service to call and the in/inout/out parameters of the service corresponding to the service description.
-     @param reqID the request ID of the performed call. 
+     @param profile the profile describing the service to call and the
+     in/inout/out parameters of the service corresponding to the service
+     description.
+     @param reqID the request ID of the performed call.
      @return error value specifying whether the call was successful or not:
      \arg GRPC_NO_ERROR on success
-     \arg 1 if the profile is wrongly built, if an CORBA error was caught while submitting the profile or if a profile to be sent was not inside the platform
+     \arg 1 if the profile is wrongly built, if an CORBA error was caught while
+     submitting the profile or if a profile to be sent was not inside the
+     platform
      \arg GRPC_SERVER_NOT_FOUND if the server was not found
- 
-     @see the DIET_grpc.h file for more information about error values. 
+
+     @see the DIET_grpc.h file for more information about error values.
   */
 
   diet_error_t
@@ -513,7 +572,7 @@ extern "C" {
      \arg GRPC_NO_ERROR on success
      \arg GRPC_NOT_COMPLETED if the call is not completed
      \arg GRPC_OTHER_ERROR_CODE if an error occured
-     @see the DIET_grpc.h file for more information about error values. 
+     @see the DIET_grpc.h file for more information about error values.
 
   */
   diet_error_t
@@ -522,7 +581,9 @@ extern "C" {
      Then exactly one reqID is returned in IDptr.                             */
 
   /**
-     Function used to test whether any of the asynchronous calls (the corresponding requests' ID are given in the diet_reqID_t array) has completed. Exactly one of the requests' ID is return in \c IDptr.
+     Function used to test whether any of the asynchronous calls
+     (the corresponding requests' ID are given in the diet_reqID_t array)
+     has completed. Exactly one of the requests' ID is return in \c IDptr.
 
      @param IDs the requests' ID of the asynchronous calls to test.
      @param length length of the ID's array passed in argument
@@ -540,15 +601,19 @@ extern "C" {
   /* Get the function handle linked to reqID */
 
   /**
-     Function used to get a function handle on the service executed for the corresponding \c sessionID.
+     Function used to get a function handle on the service executed for the
+     corresponding \c sessionID.
 
-     @param handle handle of the executed function corresponding to the sessionID
-     @param sessionID id of session for which we want to get the function handle
+     @param handle handle of the executed function corresponding to the
+     sessionID
+     @param sessionID id of session for which we want to get the function
+     handle
 
      @return error value specifying whether the handle could be retrieve or not:
      \arg GRPC_INVALID_SESSION_ID is returned if the session ID is invalid
      \arg GRPC_NO_ERROR is returned if no error appeared
-     \arg GRPC_OTHER_ERROR_CODE error returned if the session ID is not associated to a function handle
+     \arg GRPC_OTHER_ERROR_CODE error returned if the session ID is not
+     associated to a function handle
      @see the DIET_grpc.h file for more information about error values.
   */
   diet_error_t
@@ -557,7 +622,8 @@ extern "C" {
 
   /* Save the specified handle and associate it to a sessionID */
   /**
-     Function used to save a function handle and then associate it to a sessionID.
+     Function used to save a function handle and then associate it to a
+     sessionID.
 
      @param sessionID ID of session to which the function handle is associated
      @param handle function handlewe want to associate to a session ID
@@ -579,34 +645,39 @@ extern "C" {
                 diet_error_t error);
   /* This function erases all persistent data that are manipulated by the reqID
      request. Do not forget to call diet_get_data_handle on data you would like
-     to save.                                                                 */
+     to save. */
   /**
-     Function used to cancel a request ID. It cuts the link between the SeD and the client.
+     Function used to cancel a request ID. It cuts the link between the SeD
+     and the client.
 
-     @remark This function erases all persistent data that are manipulated by the reqID
-     request. Do not forget to call diet_get_data_handle on data you would like
-     to save.
+     @remark This function erases all persistent data that are manipulated by
+     the reqID request.
+     Do not forget to call diet_get_data_handle on data you would like to save.
 
      @param reqID request ID we want to cancel
-     @return error value specifying whether the call could be cancelled based on its ID or not:
+     @return error value specifying whether the call could be cancelled based
+     on its ID or not:
      \arg GRPC_INVALID_SESSION_ID is returned if the session ID is invalid
      \arg GRPC_NO_ERROR is returned if no error appeared
      \arg -1 error returned if something when wrong during the cancel phase
      \arg > 0 something else
-     @todo take a look at  CallAsyncMgr::deleteAsyncCallWithoutLock(). Why are we returning values that could not be understand be the user? Should better be something like error codes in the DIET_grph.h...
+     @todo take a look at  CallAsyncMgr::deleteAsyncCallWithoutLock().
+     Why are we returning values that could not be understand be the user ?
+     Should better be something like error codes in the DIET_grph.h...
      @see the DIET_grpc.h file for more information about error values.
   */
   diet_error_t
   diet_cancel(diet_reqID_t reqID);
 
   /**
-     Function used to cancel all request ID. 
+     Function used to cancel all request ID.
 
-     @remark This function erases all persistent data that are manipulated by the request IDs
-     request. Do not forget to call diet_get_data_handle on data you would like
-     to save.
+     @remark This function erases all persistent data that are manipulated by
+     the request IDs request.
+     Do not forget to call diet_get_data_handle on data you would like to save.
 
-     @return error value specifying whether calls have been cancelled based on their IDs:
+     @return error value specifying whether calls have been cancelled based on
+     their IDs:
      \arg GRPC_NO_ERROR in every cases
      @todo the error messages for each request ID cancelled are not managed.
      @see the DIET_grpc.h file for more information about error values.
@@ -619,46 +690,56 @@ extern "C" {
 
      @param reqID request ID to wait for
 
-     @return error values specifying whether the wait phase has been successful or not:
+     @return error values specifying whether the wait phase has been successful
+     or not:
      \arg GRPC_INVALID_SESSION_ID is returned if the request ID is invalid
      \arg STATUS_ERROR if something went wrong when waiting
      \arg STATUS_DONE if the call has completed
-     @todo status_to_grpc_code() must be used to convert status codes to grpc error codes
+     @todo status_to_grpc_code() must be used to convert status codes to grpc
+     error codes
      @see the DIET_grpc.h file for more information about error values.
   */
   diet_error_t
   diet_wait(diet_reqID_t reqID);
 
   /**
-     Function used to wait for all of the calls to complete based on their request ids
+     Function used to wait for all of the calls to complete based on their
+     request ids
 
      @param IDs IDs of the calls to wait for
      @param length the number of requests to wait for
 
-     @return error values specifying whether the calls have been successfully completed:
+     @return error values specifying whether the calls have been successfully
+     completed:
      \arg GRPC_INVALID_SESSION_ID is returned if the request ID is invalid
      \arg STATUS_ERROR if something went wrong when waiting
      \arg STATUS_DONE if the call has completed
-     @todo perhaps other error codes should be returned instead of STATUS_ERROR and STATUS_DONE which are located in CallAsyncMgr.hh. It should better be error codes located in DIET_grpc.h for the user to be able to take into account the output.
+     @todo perhaps other error codes should be returned instead of STATUS_ERROR
+     and STATUS_DONE which are located in CallAsyncMgr.hh. It should better be
+     error codes located in DIET_grpc.h for the user to be able to take into
+     account the output.
      @see the DIET_grpc.h file for more information about error values.
   */
   diet_error_t
   diet_wait_and(diet_reqID_t* IDs, size_t length);
 
   /**
-     Function used to wait for the first of the calls to complete based on their request ids
+     Function used to wait for the first of the calls to complete based on their
+     request ids
 
      @param IDs IDs of the calls to wait for
      @param length the number of requests to wait for
      @param IDptr the first completed request
 
-     @return error values specifying whether the calls have been successfully completed:
+     @return error values specifying whether the calls have been successfully
+     completed:
      \arg GRPC_INVALID_SESSION_ID is returned if the request ID is invalid
      \arg STATUS_CANCEL Cancel has been called on a reqID.
      \arg STATUS_ERROR if something went wrong when waiting
      \arg STATUS_DONE if the call has completed
      \arg -1 an unexpeted error happened
-     @todo status_to_grpc_code() must be used to convert status codes to grpc error codes
+     @todo status_to_grpc_code() must be used to convert status codes to grpc
+     error codes
      @todo something else than -1 should be returned ...
      @see the DIET_grpc.h file for more information about error values.
   */
@@ -666,23 +747,28 @@ extern "C" {
   diet_wait_or(diet_reqID_t* IDs, size_t length, diet_reqID_t* IDptr);
 
   /**
-     Function used to wait for all of the calls performed in the plateform in a asynchronous manner.
+     Function used to wait for all of the calls performed in the plateform in
+     a asynchronous manner.
 
-     @return error values specifying whether the calls have been successfully completed:
+     @return error values specifying whether the calls have been successfully
+     completed:
      \arg STATUS_ERROR if something went wrong when waiting
      \arg STATUS_DONE if the call has completed
-     @todo status_to_grpc_code() must be used to convert status codes to grpc error codes
+     @todo status_to_grpc_code() must be used to convert status codes to grpc
+     error codes
      @see the DIET_grpc.h file for more information about error values.
   */
   diet_error_t
   diet_wait_all();
 
   /**
-     Function used to wait for the first of the calls performed in the plateform in an asynchronous manner.
+     Function used to wait for the first of the calls performed in the
+     plateform in an asynchronous manner.
 
      @param IDptr the first completed request
 
-     @return error values specifying whether the calls have been successfully completed:
+     @return error values specifying whether the calls have been successfully
+     completed:
      \arg GRPC_NO_ERROR Cancel has been called on a reqID.
      \arg GRPC_OTHER_ERROR_CODE if something went wrong when waiting
      \arg GRPC_NO_ERROR if the call has completed
@@ -693,7 +779,8 @@ extern "C" {
   diet_wait_any(diet_reqID_t* IDptr);
 
   /**
-     Function used to return the error code of the asynchronous call identified by reqID
+     Function used to return the error code of the asynchronous call identified
+     by reqID
 
      @param reqID request ID for which we need the error code
 
@@ -720,15 +807,17 @@ extern "C" {
   diet_error_string(diet_error_t error);
 
 
-  /** 
-      Function used to return the identifier of the failed session. The failed session id is filled after the call
+  /**
+     Function used to return the identifier of the failed session.
+     The failed session id is filled after the call
 
-      @param reqIdPtr id of the failed session after the call. If no session failed, the reqIdPtr contains GRPC_SESSIONID_VOID.
+     @param reqIdPtr id of the failed session after the call.
+     If no session failed, the reqIdPtr contains GRPC_SESSIONID_VOID.
 
-      @return GRPC_NO_ERROR in every cases ...
+     @return GRPC_NO_ERROR in every cases ...
 
-      @todo that returned value is strange... 
-      @see the DIET_grpc.h file for more information about error values.
+     @todo that returned value is strange...
+     @see the DIET_grpc.h file for more information about error values.
   */
   diet_error_t
   diet_get_failed_session(diet_reqID_t* reqIdPtr);
@@ -741,11 +830,16 @@ extern "C" {
   /**
      Function used to get the names of the services available on the platform.
 
-     @remark The main problem of this function is due to collision of different services with same names. Use this function with caution !
-     @warning The main problem of this function is due to collision of different services with same names. Use this function with caution !
-     @todo this behaviour should be modified (perhaps the function should be deprecated and replaced by a function returning profiles and not service names)
+     @remark The main problem of this function is due to collision of different
+     services with same names. Use this function with caution !
+     @warning The main problem of this function is due to collision of
+     different services with same names. Use this function with caution !
+     @todo this behaviour should be modified
+     (perhaps the function should be deprecated and replaced by a function
+     returning profiles and not service names)
 
-     @param services_number after the call the value contains the number of services available on the platform.
+     @param services_number after the call the value contains the number of
+     services available on the platform.
      @return array of services' names
   */
   char **
@@ -760,11 +854,18 @@ extern "C" {
 
      @param profile workflow profile
      @return error telling whether the workflow call was successful or not:
-     \arg 1 if the MaDag was not created during the initialization, something was wrong with the type of workflow to launch (it must be DIET_WF_DAG or DIET_WF_FUNCTIONAL). Depending on the type of workflow the following problems may had occured: \c if \c it's \c a \c DAG, the DAG was cancelled or and error occured during its execution; \c if \c it's \c a \c functional \c workflow, the DAG execution failed or the workflow instantiation or execution failed.
+     \arg 1 if the MaDag was not created during the initialization, something
+     was wrong with the type of workflow to launch
+     (it must be DIET_WF_DAG or DIET_WF_FUNCTIONAL).
+     Depending on the type of workflow the following problems may had occured:
+     \c if \c it's \c a \c DAG, the DAG was cancelled or and error occured
+     during its execution; \c if \c it's \c a \c functional \c workflow,
+     the DAG execution failed or the workflow instantiation or execution failed.
      \arg XML_MALFORMED if the workflow file was malformed
      \arg WFL_BADSTRUCT if the structure of the workflow was incorrect
 
-     @todo the returned value corresponds to a lot of different possible errors ...
+     @todo the returned value corresponds to a lot of different possible
+     errors ...
      @see the DIET_grpc.h file for more information about error values.
   */
   diet_error_t
@@ -779,8 +880,10 @@ extern "C" {
 
      @param dagId Id of the DAG to cancel
      @return error value telling whether the cancellation was successful or not:
-     \arg 1 if the MaDag was not created during the initialization or if it's a invalid Dag
-     \arg 0 or GRPC_NO_ERROR it no problem appeared during the cancellation of the Dag
+     \arg 1 if the MaDag was not created during the initialization or if it's
+     an invalid Dag
+     \arg 0 or GRPC_NO_ERROR it no problem appeared during the cancellation of
+     the Dag
 
      @todo the returned value should perhaps use the ones defined in DIET_grpc.h
      @see the DIET_grpc.h file for more information about error values.
@@ -795,31 +898,21 @@ extern "C" {
   /*****************************************/
 
   /**
-     Function used to terminate a workflow session and free the memory allocated for the workflow profile.
+     Function used to terminate a workflow session and free the memory
+     allocated for the workflow profile.
 
      @param profile profile of the workflow
   */
   void
   diet_wf_free(diet_wf_desc_t * profile);
 
-  /* void
-     nodeIsDone(const char * node_id, const char * dag_id);
-
-     void
-     nodeIsRunning(const char * node_id);
-
-     void
-     nodeIsStarting(const char * node_id);
-
-     void
-     nodeIsWaiting(const char * node_id);
-  */
   /***************************************************************/
 
   /**
      Enumeration describing the workflow submission mode
 
-     @todo some more documentation should be added to explain what each value means 
+     @todo some more documentation should be added to explain what each value
+     means
   */
   typedef enum {
     MA_MODE, /*!< Master Agent Mode */

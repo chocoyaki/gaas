@@ -27,11 +27,11 @@ const char * Slurm_BatchSystem::statusNames[] = {
 };
 
 Slurm_BatchSystem::Slurm_BatchSystem(int ID, const char * batchname) {
-  if( pathToNFS == NULL ) {
+  if (pathToNFS == NULL) {
     ERROR_EXIT("Slurm needs a path to a NFS directory to store its script");
   }
 #if defined YC_DEBUG
-  TRACE_TEXT(TRACE_ALL_STEPS,"Nom NFS: " << getNFSPath() << "\n");
+  TRACE_TEXT(TRACE_ALL_STEPS, "Nom NFS: " << getNFSPath() << "\n");
 #endif
 
   batch_ID = ID;
@@ -46,7 +46,7 @@ Slurm_BatchSystem::Slurm_BatchSystem(int ID, const char * batchname) {
     (std::string("\n#SBATCH -J DIET_SeD \n DIET_HOST_FILE=") +
      std::string(pathToNFS) +
      std::string("/slurm-${SLURM_JOB_ID}.hosts") +
-     std::string(" \n srun hostname -s > $DIET_HOST_FILE \n if [ -z \"$SLURM_NPROCS\" ]; then \n if [ -z \"$SLURM_NTASKS_PER_NODE\" ]; then \n SLURM_NTASKS_PER_NODE = 1 \n fi \n SLURM_NPROCS=$(( $SLURM_JOB_NUM_NODES * $SLURM_NTASKS_PER_NODE )) \n fi" )).c_str());
+     std::string(" \n srun hostname -s > $DIET_HOST_FILE \n if [ -z \"$SLURM_NPROCS\" ]; then \n if [ -z \"$SLURM_NTASKS_PER_NODE\" ]; then \n SLURM_NTASKS_PER_NODE = 1 \n fi \n SLURM_NPROCS=$(($SLURM_JOB_NUM_NODES * $SLURM_NTASKS_PER_NODE)) \n fi")).c_str());
   nodesNumber       = "#SBATCH --nodes=";
   serial            = "#SBATCH --nodes = 1";
   coresNumber = BatchSystem::emptyString;
@@ -101,15 +101,15 @@ Slurm_BatchSystem::askBatchJobStatus(int batchJobID) {
   batchJobState status;
 
   /* If job has completed, not ask batch system */
-  status = getRecordedBatchJobStatus( batchJobID );
-  if( (status == TERMINATED) || (status == CANCELED) || (status == ERROR) ) {
+  status = getRecordedBatchJobStatus(batchJobID);
+  if ((status == TERMINATED) || (status == CANCELED) || (status == ERROR)) {
     return status;
   }
   /* create a temporary file to get results and batch job ID */
   filename = createUniqueTemporaryTmpFile("DIET_batch_finish");
-  file_descriptor = open(filename,O_RDONLY);
-  if( file_descriptor == -1 ) {
-    ERROR("Cannot open file", UNDETERMINED );
+  file_descriptor = open(filename, O_RDONLY);
+  if (file_descriptor == -1) {
+    ERROR("Cannot open file", UNDETERMINED);
   }
 
   /*** Ask batch system the job status ***/
@@ -117,50 +117,50 @@ Slurm_BatchSystem::askBatchJobStatus(int batchJobID) {
                                        + NBDIGITS_MAX_BATCH_JOB_ID * 2
                                        + strlen(waitFilter) * 2
                                        + strlen(filename) * 3
-                                       + 200 + 1) );
+                                       + 200 + 1));
   //cout << "First chaine : " << chaine << "\n";
   /* See EOF to get an example of what we parse */
   // ugly trick to use a Slurm which does not keep the status of the batch once finished
-  sprintf(chaine,"TMP_VAL=`%s %d 2>/dev/null | %s`;if [ \"$TMP_VAL\" == \"\" ];then echo FAILED > %s;else %s %d | %s > %s;fi",
-          wait4Command,batchJobID,waitFilter,
+  sprintf(chaine, "TMP_VAL=`%s %d 2>/dev/null | %s`;if [ \"$TMP_VAL\" == \"\" ];then echo FAILED > %s;else %s %d | %s > %s;fi",
+          wait4Command, batchJobID, waitFilter,
           filename,
-          wait4Command,batchJobID,waitFilter, filename, filename);
+          wait4Command, batchJobID, waitFilter, filename, filename);
 #if defined YC_DEBUG
-  TRACE_TEXT(TRACE_ALL_STEPS,"Execute:\n" << chaine << "\n");
+  TRACE_TEXT(TRACE_ALL_STEPS, "Execute:\n" << chaine << "\n");
 #endif
-  if( system(chaine) != 0 ) {
+  if (system(chaine) != 0) {
     ERROR("Cannot submit script", NB_STATUS);
   }
   /* Get job status */
-  for (int i = 0; i<=NBDIGITS_MAX_BATCH_JOB_ID; i++) {
+  for (int i = 0; i <= NBDIGITS_MAX_BATCH_JOB_ID; i++) {
     chaine[i] = '\0';
   }
 
-  if( (nbread = readn(file_descriptor,chaine,NBDIGITS_MAX_JOB_STATUS)) == 0 ) {
+  if ((nbread = readn(file_descriptor, chaine, NBDIGITS_MAX_JOB_STATUS)) == 0) {
     ERROR("Error with I/O file. Cannot read the batch status", NB_STATUS);
   }
 
-  if( nbread == 0 ) {
+  if (nbread == 0) {
     /* we consider that like OK */
     i = TERMINATED;
   } else {
     /* Adjust what have been read */
-    if( chaine[nbread-1] == '\n' ) {
+    if (chaine[nbread-1] == '\n') {
       chaine[nbread-1] = '\0';
     }
-    while( (i<NB_STATUS) &&
-           (strcmp(chaine,Slurm_BatchSystem::statusNames[i])!=0) ) {
+    while((i<NB_STATUS) &&
+           (strcmp(chaine, Slurm_BatchSystem::statusNames[i])!=0)) {
       i++;
     }
   }
-  if( i == NB_STATUS ) {
+  if (i == NB_STATUS) {
     ERROR("Cannot get batch job " << batchJobID << " status: " << chaine, NB_STATUS);
   }
   /* Remove temporary file by closing it */
 #if REMOVE_BATCH_TEMPORARY_FILE
-  unlink( filename );
+  unlink(filename);
 #endif
-  if( close(file_descriptor) != 0 ) {
+  if (close(file_descriptor) != 0) {
     WARNING("Couln't remove I/O redirection file");
   }
   updateBatchJobStatus(batchJobID,(batchJobState)i);
@@ -173,13 +173,13 @@ int
 Slurm_BatchSystem::isBatchJobCompleted(int batchJobID) {
   int status = getRecordedBatchJobStatus(batchJobID);
 
-  if( (status == TERMINATED) || (status == CANCELED) || (status == ERROR) ) {
+  if ((status == TERMINATED) || (status == CANCELED) || (status == ERROR)) {
     return 1;
   }
   status = askBatchJobStatus(batchJobID);
-  if( (status == TERMINATED) || (status == CANCELED) || (status == ERROR) ) {
+  if ((status == TERMINATED) || (status == CANCELED) || (status == ERROR)) {
     return 1;
-  } else if( status == NB_STATUS ) {
+  } else if (status == NB_STATUS) {
     return -1;
   }
   return 0;
@@ -195,7 +195,7 @@ Slurm_BatchSystem::getNbResources() {
 
 int
 Slurm_BatchSystem::getNbTotResources() {
-  return launchCommandAndGetInt( "sinfo -h -o \"%20F\" | cut -d\"/\" -f 4",
+  return launchCommandAndGetInt("sinfo -h -o \"%20F\" | cut -d\"/\" -f 4",
                                  "DIET_getNbResources");
 }
 
@@ -219,7 +219,7 @@ Slurm_BatchSystem::getMaxProcs() {
 
 int
 Slurm_BatchSystem::getNbTotFreeResources() {
-  return launchCommandAndGetInt( "sinfo -h -o \"%20F\" | cut -d\"/\" -f 2",
+  return launchCommandAndGetInt("sinfo -h -o \"%20F\" | cut -d\"/\" -f 2",
                                  "DIET_getNbResources");
 }
 

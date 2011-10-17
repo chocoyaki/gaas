@@ -29,15 +29,14 @@
 #ifndef _FLOOPNODE_HH_
 #define _FLOOPNODE_HH_
 
+#include <string>
+#include <vector>
 #include "FNode.hh"
 #include "WfExpression.hh"
 
 class FLoopNode : public FProcNode {
-
 public:
-
-  FLoopNode(FWorkflow* wf,
-            const string& id);
+  FLoopNode(FWorkflow* wf, const std::string& id);
   virtual ~FLoopNode();
 
   // ******************** NODE SETUP *********************
@@ -70,35 +69,34 @@ public:
   instanciate(Dag* dag);
 
   virtual void
-  createRealInstance(Dag* dag,
-                     const FDataTag& currTag,
-                     vector<FDataHandle*>& currDataLine);
+  createRealInstance(Dag* dag, const FDataTag& currTag,
+                     std::vector<FDataHandle*>& currDataLine);
 
   virtual void
   createVoidInstance(const FDataTag& currTag,
-                     vector<FDataHandle*>& currDataLine);
+                     std::vector<FDataHandle*>& currDataLine);
 
   virtual void
   updateInstanciationStatus();
 
 protected:
-
   virtual void
   checkCondition() throw(WfStructException);
 
   bool
-  testCondition(const vector<FDataHandle*>& currDataLine);
-  void
-  initLoopInPorts(vector<FDataHandle*>& currDataLine);
+  testCondition(const std::vector<FDataHandle*>& currDataLine);
 
-  vector<WfExprVariable*>*  myConditionVars;
-  WfBooleanExpression*      myCondition;
-  FNodePortMap  myDoMap;        // used for IN LOOP => OUT LOOP
-  FNodePortMap  myFinalOutMap;  // used for IN LOOP => OUT
-  FNodePortMap  myFinalLoopMap;  // used for VOID => OUT LOOP
-  FNodePortMap  myFinalVoidOutMap;  // used for VOID => OUT
-  FNodePortMap  myDirectInOutMap;   // used for IN => OUT (no loop iteration)
-  InputIterator*  myLoopIterator;
+  void
+  initLoopInPorts(std::vector<FDataHandle*>& currDataLine);
+
+  std::vector<WfExprVariable*>*  myConditionVars;
+  WfBooleanExpression* myCondition;
+  FNodePortMap myDoMap;        // used for IN LOOP => OUT LOOP
+  FNodePortMap myFinalOutMap;  // used for IN LOOP => OUT
+  FNodePortMap myFinalLoopMap;  // used for VOID => OUT LOOP
+  FNodePortMap myFinalVoidOutMap;  // used for VOID => OUT
+  FNodePortMap myDirectInOutMap;   // used for IN => OUT (no loop iteration)
+  InputIterator* myLoopIterator;
 
 private:
   /**
@@ -110,7 +108,6 @@ private:
    * Length of loop tags
    */
   unsigned int loopTagLength;
-
 };
 
 #endif  // _FLOOPNODE_HH_

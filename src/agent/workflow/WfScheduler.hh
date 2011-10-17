@@ -13,7 +13,7 @@
  * improved exception management
  *
  * Revision 1.7  2008/10/14 13:24:49  bisnard
- * use new class structure for dags (DagNode,DagNodePort)
+ * use new class structure for dags (DagNode, DagNodePort)
  *
  * Revision 1.6  2008/06/25 10:05:44  bisnard
  * - Waiting priority set when node is put back in waiting queue

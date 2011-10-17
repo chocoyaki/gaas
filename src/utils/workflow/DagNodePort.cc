@@ -133,7 +133,7 @@ DagNodePort::setProfileWithoutValue() {
                   NULL);
     break;
   case WfCst::TYPE_MATRIX :
-    diet_matrix_set(diet_parameter(profile,index), NULL, mode,
+    diet_matrix_set(diet_parameter(profile, index), NULL, mode,
                     (diet_base_type_t) WfCst::cvtWfToDietType(eltType),
                     nb_r, nb_c,
                     (diet_matrix_order_t) WfCst::cvtWfToDietMatrixOrder(order));
@@ -177,7 +177,7 @@ DagNodePort::setDataID(const string& dataID) {
 
 bool
 DagNodePort::isDataIDAvailable(MasterAgent_var& MA) {
-  Dagda_var dataManager = ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT,MA->getDataManager());
+  Dagda_var dataManager = ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT, MA->getDataManager());
   return dataManager->pfmIsDataPresent(myDataID.c_str());
 }
 
@@ -226,7 +226,7 @@ DagNodeOutPort::initProfileExec() throw(WfDataException) {
 void
 DagNodeOutPort::storeProfileData() {
   if (profile()) {
-    setDataID( profile()->parameters[getIndex()].desc.id );
+    setDataID(profile()->parameters[getIndex()].desc.id);
   }
 }
 
@@ -236,7 +236,7 @@ DagNodeOutPort::freePersistentData(MasterAgent_var& MA) {
     char* dataId = profile()->parameters[getIndex()].desc.id;
     if (dataId) {
       if (MA->diet_free_pdata(dataId)==0) {
-        sendEventFrom<DagNodeOutPort, 0>(this, "Delete persistent data failed", dataId , EventBase::WARNING );
+        sendEventFrom<DagNodeOutPort, 0>(this, "Delete persistent data failed", dataId , EventBase::WARNING);
       }
     }
   }
@@ -312,7 +312,7 @@ DagNodeOutPort::writeData(WfDataWriter* dataWriter) throw(WfDataException) {
     throw WfDataException(WfDataException::eNOTAVAIL, "Node execution not complete "
                           + getCompleteId());
   }
-  diet_arg_t* dietParam = diet_parameter(profile(),getIndex());
+  diet_arg_t* dietParam = diet_parameter(profile(), getIndex());
 
   if (dataType == WfCst::TYPE_CONTAINER) {
     const char *contID = (*dietParam).desc.id;
@@ -323,7 +323,7 @@ DagNodeOutPort::writeData(WfDataWriter* dataWriter) throw(WfDataException) {
     size_t size;
     char * path;
     diet_file_get(dietParam, NULL, &size, &path);
-    dataWriter->itemValue(path,(WfCst::WfDataType) dataType );
+    dataWriter->itemValue(path,(WfCst::WfDataType) dataType);
   }
   else if (dataType == WfCst::TYPE_DOUBLE) {
     double * value = NULL;
@@ -335,7 +335,7 @@ DagNodeOutPort::writeData(WfDataWriter* dataWriter) throw(WfDataException) {
     diet_scalar_get(dietParam, &value, NULL);
     dataWriter->itemValue(value, (WfCst::WfDataType) dataType);
   }
-  else if ( (dataType == WfCst::TYPE_CHAR) ||
+  else if ((dataType == WfCst::TYPE_CHAR) ||
             (dataType == WfCst::TYPE_SHORT) ||
             (dataType == WfCst::TYPE_INT) ||
             (dataType == WfCst::TYPE_LONGINT)) {
@@ -443,27 +443,27 @@ DagNodeOutPort::writeContainerData(WfDataWriter* dataWriter,
   try {
     if (baseType == WfCst::TYPE_DOUBLE) {
       double * value;
-      dagda_get_scalar(eltID.c_str(),&value,NULL);
+      dagda_get_scalar(eltID.c_str(),&value, NULL);
       dataWriter->itemValue(value, (WfCst::WfDataType) baseType);
     } else if (baseType == WfCst::TYPE_INT) {
       int *value;
-      dagda_get_scalar(eltID.c_str(),&value,NULL);
+      dagda_get_scalar(eltID.c_str(),&value, NULL);
       dataWriter->itemValue(value, (WfCst::WfDataType) baseType);
     } else if (baseType == WfCst::TYPE_LONGINT) {
       long *value;
-      dagda_get_scalar(eltID.c_str(),&value,NULL);
+      dagda_get_scalar(eltID.c_str(),&value, NULL);
       dataWriter->itemValue(value, (WfCst::WfDataType) baseType);
     } else if (baseType == WfCst::TYPE_FLOAT) {
       float *value;
-      dagda_get_scalar(eltID.c_str(),&value,NULL);
+      dagda_get_scalar(eltID.c_str(),&value, NULL);
       dataWriter->itemValue(value, (WfCst::WfDataType) baseType);
     } else if (baseType == WfCst::TYPE_CHAR) {
       char *value;
-      dagda_get_scalar(eltID.c_str(),&value,NULL);
+      dagda_get_scalar(eltID.c_str(),&value, NULL);
       dataWriter->itemValue(value, (WfCst::WfDataType) baseType);
     } else if (baseType == WfCst::TYPE_SHORT) {
       short *value;
-      dagda_get_scalar(eltID.c_str(),&value,NULL);
+      dagda_get_scalar(eltID.c_str(),&value, NULL);
       dataWriter->itemValue(value, (WfCst::WfDataType) baseType);
     } else if (baseType == WfCst::TYPE_PARAMSTRING) {
       char *value;
@@ -541,7 +541,7 @@ DagNodeInPort::initProfileExec() throw(WfDataException) {
 void
 DagNodeInPort::initSourceData() throw(WfDataException) {
 
-  setDataID( adapter->getSourceDataID() );
+  setDataID(adapter->getSourceDataID());
 
   // Check types are matching
   // FIXME this is using static type which has already been checked so unuseful ?
@@ -556,7 +556,7 @@ DagNodeInPort::initSourceData() throw(WfDataException) {
     if (!myDataID.empty()) {
       diet_use_data(diet_parameter(this->profile(), index), myParent->newString(myDataID));
     } else {
-      throw(WfDataException(WfDataException::eNOTFOUND,""));
+      throw(WfDataException(WfDataException::eNOTFOUND, ""));
     }
   }
 }
@@ -593,8 +593,8 @@ DagNodeInOutPort::DagNodeInOutPort(DagNode * parent,
                                    unsigned int _depth,
                                    unsigned int _ind)
   : DagNodePort(parent, _id, WfPort::PORT_INOUT, _type, _depth, _ind),
-    DagNodeInPort(parent,_id,_type,_depth,_ind),
-    DagNodeOutPort(parent,_id,_type,_depth,_ind) {
+    DagNodeInPort(parent, _id, _type, _depth, _ind),
+    DagNodeOutPort(parent, _id, _type, _depth, _ind) {
 }
 
 
@@ -688,7 +688,7 @@ DagNodeArgPort::setProfileWithValue() {
   diet_profile_t* profile = myParent->getProfile();
   diet_persistence_mode_t mode = this->getPersistenceMode();
   void * mat = NULL;
-  switch(type) {
+  switch (type) {
   case WfCst::TYPE_CHAR :
     diet_scalar_set(diet_parameter(profile, index),
                     myParent->newChar(value), mode, DIET_CHAR);
@@ -727,7 +727,7 @@ DagNodeArgPort::setProfileWithValue() {
     break;
   case WfCst::TYPE_MATRIX :
     initMatrixValue(&mat);
-    diet_matrix_set(diet_parameter(profile,index), mat, mode,
+    diet_matrix_set(diet_parameter(profile, index), mat, mode,
                     (diet_base_type_t) WfCst::cvtWfToDietType(eltType),
                     nb_r, nb_c,
                     (diet_matrix_order_t) WfCst::cvtWfToDietMatrixOrder(order));
@@ -770,7 +770,7 @@ DagNodeArgPort::initMatrixValue(void **buffer) {
   if (value.substr(0, (string("file->")).size()) == "file->") {
     string dataFileName = value.substr((string("file->")).size());
     unsigned len = nb_r*nb_c;
-    TRACE_TEXT (TRACE_ALL_STEPS,
+    TRACE_TEXT(TRACE_ALL_STEPS,
                 "reading the matrix data file" << endl);
     switch (eltType) {
     case WfCst::TYPE_CHAR:
@@ -800,7 +800,7 @@ DagNodeArgPort::initMatrixValue(void **buffer) {
     vector<string> v = getStringToken(value);
     unsigned int len = v.size();
     // fill the matrix with the given data
-    TRACE_TEXT (TRACE_ALL_STEPS,
+    TRACE_TEXT(TRACE_ALL_STEPS,
                 "filling the matrix with the data (" << len << ")" << endl);
     char  * ptr1(NULL);
     short * ptr2(NULL);
@@ -847,15 +847,15 @@ DagNodeArgPort::initMatrixValue(void **buffer) {
 
 void
 DagNodeArgPort::initContainerValue() {
-  TRACE_TEXT (TRACE_ALL_STEPS," # Initializing container for port " << getId() << endl);
+  TRACE_TEXT(TRACE_ALL_STEPS, " # Initializing container for port " << getId() << endl);
   // init container and link it to profile
   char* contID;
   // fill-in the container with the values (recursive)
   string contVal = value;
   initContainerValueRec(&contID, contVal, depth);
   // attach to profile
-  diet_use_data(diet_parameter(myParent->getProfile(), index),contID);
-  TRACE_TEXT (TRACE_ALL_STEPS," # END OF container initialization for port " << getId() << endl);
+  diet_use_data(diet_parameter(myParent->getProfile(), index), contID);
+  TRACE_TEXT(TRACE_ALL_STEPS, " # END OF container initialization for port " << getId() << endl);
 }
 
 /**
@@ -877,8 +877,8 @@ DagNodeArgPort::initContainerValueRec(char** contIDPtr,
   bool  valEnd = false;
   bool  strEnd = false;
   // remove first and last characters (open and close parenthesis)
-  contStr.erase(0,1);
-  contStr.erase(contStr.length()-1,1);
+  contStr.erase(0, 1);
+  contStr.erase(contStr.length()-1, 1);
 
   while (!(valEnd || contStr.empty())) {
     string::size_type parLeft = contStr.find("(");
@@ -896,7 +896,7 @@ DagNodeArgPort::initContainerValueRec(char** contIDPtr,
       valSepRight = contStr.length();
     }
     if (valSepRight == 0) {
-      contStr.erase(0,1);
+      contStr.erase(0, 1);
       continue;
     }
     if ((parLeft == string::npos) || (parLeft > valSepRight)) {
@@ -910,9 +910,9 @@ DagNodeArgPort::initContainerValueRec(char** contIDPtr,
       else
         contStr.clear();
     } else {
-      initContainerValueRec(&valID,contStr,depth-1);
+      initContainerValueRec(&valID, contStr, depth-1);
     }
-    dagda_add_container_element(*contIDPtr,valID,valIdx++);
+    dagda_add_container_element(*contIDPtr, valID, valIdx++);
     CORBA::string_free(valID);
   } // end while
 }
@@ -949,7 +949,7 @@ DagNodeArgPort::initContainerElementValue(const char* valStr, char** valIDPtr) {
     break;
   case WfCst::TYPE_MATRIX:
   default:
-    INTERNAL_ERROR("Type not managed in container initialization",0);
+    INTERNAL_ERROR("Type not managed in container initialization", 0);
   } // end (switch)
 }
 

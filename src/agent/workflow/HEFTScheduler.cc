@@ -38,7 +38,7 @@
  * renamed Node class as WfNode
  *
  * Revision 1.10  2008/10/14 13:24:48  bisnard
- * use new class structure for dags (DagNode,DagNodePort)
+ * use new class structure for dags (DagNode, DagNodePort)
  *
  * Revision 1.9  2008/09/30 15:33:35  bisnard
  * Node::prevNodes and nextNodes data structures modified
@@ -104,7 +104,7 @@ HEFTScheduler::~HEFTScheduler() {
 void
 HEFTScheduler::setNodesPriority(const wf_response_t * wf_response, Dag * dag) {
 
-  TRACE_TEXT (TRACE_ALL_STEPS, "HEFT : Setting nodes priority" << endl);
+  TRACE_TEXT(TRACE_ALL_STEPS, "HEFT : Setting nodes priority" << endl);
   // Initialize the node weights (priority attr)
   this->computeNodeWeights(wf_response, dag);
 
@@ -137,7 +137,7 @@ HEFTScheduler::setNodesEFT(std::vector<DagNode *>& orderedNodes,
                            double initTime) {
   // to store the availabilty of resources
   map<SeD_ptr, double> avail;
-  TRACE_TEXT (TRACE_ALL_STEPS, "HEFT : start computing nodes EFT (init time = "
+  TRACE_TEXT(TRACE_ALL_STEPS, "HEFT : start computing nodes EFT (init time = "
               << initTime << ")" << endl);
   // LOOP-1: for all dag nodes in the order provided
   for (std::vector<DagNode *>::iterator p = orderedNodes.begin();
@@ -180,7 +180,7 @@ HEFTScheduler::setNodesEFT(std::vector<DagNode *>& orderedNodes,
       }
       // choose server if it improves the EFT
       double nodeDuration = this->getNodeDurationEst(wf_response, pb_index, ix);
-      if ( ( EST + nodeDuration < EFT ) || (EFT == 0)) {
+      if ((EST + nodeDuration < EFT) || (EFT == 0)) {
         EFT = EST + nodeDuration;
         chosenSeDPtr = curSeDPtr;
       }
@@ -192,7 +192,7 @@ HEFTScheduler::setNodesEFT(std::vector<DagNode *>& orderedNodes,
     // update node scheduling info
     AFT[n->getCompleteId()] = EFT;
     n->setEstCompTime((long int)EFT);
-    TRACE_TEXT (TRACE_ALL_STEPS, "HEFT : node " << n->getCompleteId()
+    TRACE_TEXT(TRACE_ALL_STEPS, "HEFT : node " << n->getCompleteId()
                 << " : EFT = " << EFT << endl);
   } // end LOOP-1
 } // end setNodesEFT
@@ -219,7 +219,7 @@ HEFTScheduler::getNodeDurationEst(const wf_response_t * wf_response,
 void
 HEFTScheduler::computeNodeWeights(const wf_response_t * wf_response,
                                   Dag * dag) {
-  TRACE_TEXT (TRACE_ALL_STEPS, "HEFT : start computing weights (mean of estimates)" << endl);
+  TRACE_TEXT(TRACE_ALL_STEPS, "HEFT : start computing weights (mean of estimates)" << endl);
   DagNode * n = NULL;
   int ix = 0;  // index of the node response in wf_response
   for (std::map <std::string, DagNode *>::iterator p = dag->begin();
@@ -233,8 +233,8 @@ HEFTScheduler::computeNodeWeights(const wf_response_t * wf_response,
     for (unsigned int jx = 0; jx < nbServers; jx++) {
       w += this->getNodeDurationEst(wf_response, ix, jx);
     } // end for jx
-    if (nbServers > 0) n->setEstDuration( w / nbServers);
-    TRACE_TEXT (TRACE_ALL_STEPS, " HEFT : node " << n->getCompleteId() << " weight :"
+    if (nbServers > 0) n->setEstDuration(w / nbServers);
+    TRACE_TEXT(TRACE_ALL_STEPS, " HEFT : node " << n->getCompleteId() << " weight :"
                 << n->getEstDuration() << endl);
   } // end for nodes
 } // end computeNodeWeights
@@ -262,7 +262,7 @@ HEFTScheduler::rank(DagNode * n) {  // RECURSIVE
       }
     }
   }
-  TRACE_TEXT (TRACE_ALL_STEPS, " HEFT : priority of node " << n->getCompleteId()
+  TRACE_TEXT(TRACE_ALL_STEPS, " HEFT : priority of node " << n->getCompleteId()
               << " is " << n->getPriority() << endl);
   // LOOP for all preceding nodes of n
   for (vector<WfNode*>::iterator prevIter = n->prevNodesBegin();

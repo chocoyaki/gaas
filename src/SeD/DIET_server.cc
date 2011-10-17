@@ -496,7 +496,7 @@ diet_profile_desc_alloc(const char* path, int last_in,
   desc->param_desc = param_desc;
 #if defined HAVE_ALT_BATCH
   // By default, the profile is registered in the server as sequential
-  diet_profile_desc_set_sequential( desc );
+  diet_profile_desc_set_sequential(desc);
   desc->parallel_environment = NULL;
 #endif
   return desc;
@@ -550,7 +550,7 @@ diet_aggregator_set_type(diet_aggregator_desc_t* agg,
       && atype != DIET_AGG_USER
 #endif
       /*************************************/
-    ) {
+) {
     ERROR(__FUNCTION__ << ": unknown aggregation type (" << atype << ")", 0);
   }
   if (agg->agg_method != DIET_AGG_DEFAULT) {
@@ -822,7 +822,7 @@ diet_SeD(const char* config_file_name, int argc, char* argv[]) {
     myargv[myargc] = strdup("-ORBendPoint");
 
     endpoint << "giop:tcp:" << host << ":";
-    if(hasPort) {
+    if (hasPort) {
       endpoint << port;
     }
 
@@ -861,7 +861,7 @@ diet_SeD(const char* config_file_name, int argc, char* argv[]) {
 
 #ifdef HAVE_ALT_BATCH
   /* Define the role of the SeD: batch, serial, etc. */
-  SeD->setServerStatus( st );
+  SeD->setServerStatus(st);
   TRACE_TEXT(TRACE_MAIN_STEPS, "setServerStatus " << (int)st << endl);
 #endif
 
@@ -918,7 +918,7 @@ diet_SeD(const char* config_file_name, int argc, char* argv[]) {
 
   dataManager = DagdaFactory::getSeDDataManager();
 #ifdef USE_LOG_SERVICE
-  dataManager->setLogComponent( dietLogComponent );  // modif bisnard_logs_1
+  dataManager->setLogComponent(dietLogComponent);  // modif bisnard_logs_1
 #endif
 
   ORBMgr::getMgr()->activate(dataManager);
@@ -991,7 +991,7 @@ diet_est_get_system(estVectorConst_t ev, int systemTag, double errVal) {
           EST_USERDEFINED<<
           ")", errVal);
   }
-  return (diet_est_get_internal(ev,systemTag, errVal));
+  return (diet_est_get_internal(ev, systemTag, errVal));
 }
 
 int
@@ -1027,7 +1027,7 @@ diet_est_defined_system(estVectorConst_t ev, int systemTag) {
           ")", -1);
   }
 
-  return (diet_est_defined_internal(ev, systemTag ));
+  return (diet_est_defined_internal(ev, systemTag));
 }
 
 int
@@ -1197,7 +1197,7 @@ diet_new_estVect() {
 }
 
 void
-diet_destroy_estVect( estVector_t perfVect ) {
+diet_destroy_estVect(estVector_t perfVect) {
   delete perfVect;
 }
 #endif  // HAVE_ALT_BATCH
@@ -1207,10 +1207,10 @@ diet_estimate_cori(estVector_t ev,
                    int info_type,
                    diet_est_collect_tag_t collector_type,
                    const void * data) {
-  switch( collector_type ) {
+  switch (collector_type) {
   case EST_COLL_EASY:
   case EST_COLL_BATCH:
-    CORIMgr::call_cori_mgr( &ev, info_type, collector_type, data );
+    CORIMgr::call_cori_mgr(&ev, info_type, collector_type, data);
     break;
   case EST_COLL_GANGLIA:
   case EST_COLL_NAGIOS:
@@ -1381,18 +1381,18 @@ diet_estimate_eft(estVector_t ev,
 #ifdef HAVE_ALT_BATCH
 /* TODO (YC): put me in right place in this file */
 void
-diet_set_server_status( diet_server_status_t status ) {
-  if( (status > -1) && (status<NB_SERVER_STATUS) ) {
+diet_set_server_status(diet_server_status_t status) {
+  if ((status > -1) && (status<NB_SERVER_STATUS)) {
     st = status;
-    switch((int)st) {
+    switch ((int)st) {
     case BATCH:
-      TRACE_TEXT(TRACE_MAIN_STEPS,"SeD is batch\n");
+      TRACE_TEXT(TRACE_MAIN_STEPS, "SeD is batch\n");
       break;
     case SERIAL:
-      TRACE_TEXT(TRACE_MAIN_STEPS,"SeD is sequential\n");
+      TRACE_TEXT(TRACE_MAIN_STEPS, "SeD is sequential\n");
       break;
     default:
-      TRACE_TEXT(TRACE_MAIN_STEPS,"Server status list to update\n");
+      TRACE_TEXT(TRACE_MAIN_STEPS, "Server status list to update\n");
     }
   } else ERROR_EXIT("Server status not recognized");
 }
@@ -1414,7 +1414,7 @@ int
 diet_concurrent_submit_parallel(int batchJobID, diet_profile_t * profile,
                                 const char * command) {
   return (((SeDImpl*)profile->SeDPtr)->getBatch())->
-    diet_submit_parallel(batchJobID,profile,command);
+    diet_submit_parallel(batchJobID, profile, command);
 }
 
 /* Used to explicitely wait for the completion of a batch job */
@@ -1452,7 +1452,7 @@ diet_get_SeD_services(int *services_number,
       *profiles =
         (diet_profile_desc_t**)calloc(length, sizeof(diet_profile_desc_t*));
 
-      for(int i = 0; i < *services_number; i++) {
+      for (int i = 0; i < *services_number; i++) {
         (*profiles)[i] = new diet_profile_desc_t;
         unmrsh_profile_desc((*profiles)[i], &((*profileList)[i]));
       }

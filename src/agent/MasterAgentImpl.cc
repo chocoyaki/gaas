@@ -303,7 +303,7 @@ omni_mutex reqCount_mutex;
 
 #define MA_TRACE_FUNCTION(formatted_text)               \
   TRACE_TEXT(TRACE_ALL_STEPS, "MA::");                  \
-  TRACE_FUNCTION(TRACE_ALL_STEPS,formatted_text)
+  TRACE_FUNCTION(TRACE_ALL_STEPS, formatted_text)
 
 MasterAgentImpl::MasterAgentImpl() : AgentImpl() {
   this->reqIDCounter = 0;
@@ -365,7 +365,7 @@ MasterAgentImpl::run() {
   begin_copy = neighbours;
   while((comma = strchr(neighbours, ',')) != NULL) {
     comma[0] = '\0';
-    if(neighbours[0] != '\0')
+    if (neighbours[0] != '\0')
       MAIds.insert(CORBA::string_dup(neighbours));
     neighbours = comma + 1;
   }
@@ -415,7 +415,7 @@ MasterAgentImpl::get_data_id() {
 #if ! HAVE_ADVANCED_UUID
   char id[100];
   (this->num_data)++;
-  sprintf(id,"DAGDA://id.%s.%d.%d",myName,(int)(num_session), (int)(num_data));
+  sprintf(id, "DAGDA://id.%s.%d.%d", myName,(int)(num_session), (int)(num_data));
   return CORBA::string_dup(id);
 #else /* ! HAVE_ADVANCED_UUID */
   uuid_t uuid;
@@ -440,7 +440,7 @@ MasterAgentImpl::get_data_id() {
  */
 SeqCorbaProfileDesc_t*
 MasterAgentImpl::getProfiles(CORBA::Long& length) {
-  TRACE_TEXT(TRACE_ALL_STEPS,"ask for list of services\n");
+  TRACE_TEXT(TRACE_ALL_STEPS, "ask for list of services\n");
   return this->AgentImpl::SrvT->getProfiles(length);
 }
 
@@ -492,7 +492,7 @@ MasterAgentImpl::submit(const corba_pb_desc_t& pb_profile,
     /* Initialize the corba request structure */
     creq.reqID = reqIDCounter++;  // thread safe
     sprintf(statMsg, "start request %ld", (unsigned long) creq.reqID);
-    stat_in(this->myName,statMsg);
+    stat_in(this->myName, statMsg);
     creq.pb = pb_profile;
     creq.max_srv = maxServers;
 #if HAVE_ALTPREDICT
@@ -512,7 +512,7 @@ MasterAgentImpl::submit(const corba_pb_desc_t& pb_profile,
     if (decision->servers.length() == 0) {
       sprintf(statMsg, "start floodRequest %ld",
               (unsigned long) creq.reqID);
-      stat_in(this->myName,statMsg);
+      stat_in(this->myName, statMsg);
 
       FloodRequest& floodRequest =
         *(new FloodRequest(MADescription(),
@@ -536,7 +536,7 @@ MasterAgentImpl::submit(const corba_pb_desc_t& pb_profile,
             TRACE_TEXT(TRACE_ALL_STEPS, decision->servers.length()
                        << " SeD have been found for request ("
                        << creq.reqID << ")" << std::endl);
-          } catch(FloodRequestNotFoundException& f) {
+          } catch (FloodRequestNotFoundException& f) {
             WARNING("Can not found the requested decision in multi-MA search");
           }
         }
@@ -550,10 +550,10 @@ MasterAgentImpl::submit(const corba_pb_desc_t& pb_profile,
 
       sprintf(statMsg, "stop floodRequest %ld",
               (unsigned long) creq.reqID);
-      stat_out(this->myName,statMsg);
+      stat_out(this->myName, statMsg);
     }
 #endif /* HAVE_MULTI_MA */
-  } catch(...) {
+  } catch (...) {
     WARNING("An exception was caught\n");
   }
 
@@ -567,7 +567,7 @@ MasterAgentImpl::submit(const corba_pb_desc_t& pb_profile,
              "**************************************************"
              << std::endl);
   sprintf(statMsg, "stop request %ld", (unsigned long) creq.reqID);
-  stat_out(this->myName,statMsg);
+  stat_out(this->myName, statMsg);
   stat_flush();
 
   return decision;
@@ -583,7 +583,7 @@ MasterAgentImpl::submit_local(const corba_request_t& creq) {
 
   /* Initialize the request with a global scheduler */
   TRACE_TEXT(TRACE_ALL_STEPS, "Initialize the request "
-             << creq.reqID << "." << std::endl);
+             << creq.reqID << ".\n");
   /* Check that service exists */
   ServiceTable::ServiceReference_t sref;
   srvTMutex.lock();
@@ -605,13 +605,13 @@ MasterAgentImpl::submit_local(const corba_request_t& creq) {
     assert(sref < numProfiles);
     const corba_profile_desc_t profile = (*profiles)[sref];
 #else /* ! defined HAVE_ALT_BATCH */
-    /* I have defined, for batch cases, ServiceTable::getProfile( index )
+    /* I have defined, for batch cases, ServiceTable::getProfile(index)
        I use it here because of efficiency.
        Can we replace previous non batch code?
 
        TODO: we can only manipulate reference here... look if we can change
        chooseGlobalScheduler() prototype */
-    corba_profile_desc_t profile = this->SrvT->getProfile( sref );
+    corba_profile_desc_t profile = this->SrvT->getProfile(sref);
     /* Copy parallel flag of the client profile (reason why not const
        anymore) */
     profile.parallel_flag = creq.pb.parallel_flag;
@@ -627,17 +627,16 @@ MasterAgentImpl::submit_local(const corba_request_t& creq) {
 #endif /* ! defined HAVE_ALT_BATCH*/
   }
 
-  resp->myID = (ChildID) - 1;
-
   // Constructor initializes sequences with length == 0
   if ((resp) && (resp->servers.length() != 0)) {
     resp->servers.length(MIN(resp->servers.length(),
                              static_cast<size_t>(creq.max_srv)));
-    TRACE_TEXT(TRACE_ALL_STEPS, "Decision signaled." << std::endl);
+    TRACE_TEXT(TRACE_ALL_STEPS, "Decision signaled.\n");
+    resp->myID = (ChildID) - 1;
   } else {
     TRACE_TEXT(TRACE_MAIN_STEPS,
                "No server found for problem "
-               << creq.pb.path << "." << std::endl);
+               << creq.pb.path << ".\n");
   }
 
   reqList[creq.reqID] = 0;
@@ -679,12 +678,12 @@ MasterAgentImpl::updateRefs() {
   MasterAgent_var ma;
   int loopCpt = 0;
 
-  for(StrList::iterator iter = MAIds.begin();
+  for (StrList::iterator iter = MAIds.begin();
       iter != MAIds.end(); ++iter) {
-    if(loopCpt < maxMAlinks) {
+    if (loopCpt < maxMAlinks) {
       TRACE_TEXT(TRACE_ALL_STEPS, "Resolving " << *iter << "...");
       ma = bindSrv->lookup(*iter);
-      if(CORBA::is_nil(ma)) {
+      if (CORBA::is_nil(ma)) {
         TRACE_TEXT(TRACE_ALL_STEPS, "not found" << std::endl);
       } else {
         TRACE_TEXT(TRACE_ALL_STEPS, "found" << std::endl);
@@ -700,7 +699,7 @@ MasterAgentImpl::updateRefs() {
                        "connection refused" << std::endl);
             knownMAs.erase(*iter);
           }
-        } catch(CORBA::SystemException& ex) {
+        } catch (CORBA::SystemException& ex) {
           TRACE_TEXT(TRACE_ALL_STEPS,
                      "obsolete reference" << std::endl);
           knownMAs.erase(*iter);
@@ -728,7 +727,7 @@ MasterAgentImpl::handShake(const char* maName, const char* myName) {
              << " is shaking my hand ("
              << knownMAs.size() << "/" << maxMAlinks << ")" << std::endl);
   MasterAgent_ptr me =
-    ORBMgr::getMgr()->resolve<MasterAgent, MasterAgent_ptr>(AGENTCTXT,maName);
+    ORBMgr::getMgr()->resolve<MasterAgent, MasterAgent_ptr>(AGENTCTXT, maName);
   /* FIXME: There is probably a cleaner way to find if two IOR are equal */
   std::string myior = ORBMgr::getMgr()->getIOR(_this());
   std::string hisior = ORBMgr::getMgr()->getIOR(me);
@@ -778,7 +777,7 @@ MasterAgentImpl::searchService(const char* predecessorStr,
   stat_init();
 
   sprintf(statMsg, "start searchService %ld", (unsigned long) request.reqID);
-  stat_in(this->myName,statMsg);
+  stat_in(this->myName, statMsg);
 
   reqIdList.lock();
   ReqIdList::iterator pos = reqIdList.find(request.reqID);
@@ -816,7 +815,7 @@ MasterAgentImpl::searchService(const char* predecessorStr,
   TRACE_TEXT(TRACE_MAIN_STEPS,
              "**************************************************\n");
   sprintf(statMsg, "stop searchService %ld", (unsigned long) request.reqID);
-  stat_out(this->myName,statMsg);
+  stat_out(this->myName, statMsg);
   stat_flush();
 } // searchService(...)
 
@@ -868,7 +867,7 @@ MasterAgentImpl::newFlood(CORBA::Long reqId, const char* senderId) {
       floodRequestsList->get(reqId);
       try {
         corba_response_t decisions = floodRequest.getDecision();
-        if(decisions.servers.length() != 0) {
+        if (decisions.servers.length() != 0) {
           floodRequest.getPredecessor()->serviceFound(reqId,
                                                       decisions);
           decisions.servers.length(0);
@@ -880,14 +879,14 @@ MasterAgentImpl::newFlood(CORBA::Long reqId, const char* senderId) {
         }
       } catch (FloodRequestNotFoundException& e) {
         WARNING(e);
-      } catch(CORBA::SystemException& ex) {
+      } catch (CORBA::SystemException& ex) {
         // does nothing
       }
       floodRequestsList->put(floodRequest);
     }
   } catch (FloodRequestNotFoundException& e) {
     WARNING(e);
-  } catch(CORBA::SystemException& ex) {
+  } catch (CORBA::SystemException& ex) {
     // does nothing
   }
 }
@@ -948,14 +947,14 @@ MasterAgentImpl::logNeighbors() {
   size_t str_len = 1;
 
   knownMAs.lock();
-  for(MasterAgentImpl::MAList::iterator iter = knownMAs.begin();
+  for (MasterAgentImpl::MAList::iterator iter = knownMAs.begin();
       iter != knownMAs.end(); ++iter)
     str_len += strlen(iter->first) + 1;
 
   str = new char[str_len];
   str[0] = 0;
 
-  for(MasterAgentImpl::MAList::iterator iter = knownMAs.begin();
+  for (MasterAgentImpl::MAList::iterator iter = knownMAs.begin();
       iter != knownMAs.end(); ++iter) {
     strcat(str, iter->first);
     strcat(str, " ");
@@ -1009,7 +1008,7 @@ MasterAgentImpl::submit_pb_set(const corba_pb_desc_seq_t& seq_pb) {
   if (!missingService) {
     wf_response->complete = true;
   } else {
-    TRACE_TEXT (TRACE_MAIN_STEPS,
+    TRACE_TEXT(TRACE_MAIN_STEPS,
                 "The problem set can't be solved (one or more services are "
                 << "missing) " << std::endl);
     wf_response->complete = false;
@@ -1047,7 +1046,7 @@ MasterAgentImpl::submit_pb_seq(const corba_pb_desc_seq_t& pb_seq,
   for (unsigned int ix = 0; ix<pb_seq.length(); ix++) {
     corba_response = this->submit(pb_seq[ix], reqCount);
     if ((!corba_response) || (corba_response->servers.length() == 0)) {
-      TRACE_TEXT (TRACE_MAIN_STEPS,
+      TRACE_TEXT(TRACE_MAIN_STEPS,
                   "Problem sequence can't be solved: service "
                   << pb_seq[ix].path
                   << " missing) " << std::endl);
@@ -1059,7 +1058,7 @@ MasterAgentImpl::submit_pb_seq(const corba_pb_desc_seq_t& pb_seq,
     } // end if
   } // end for
 
-  TRACE_TEXT (TRACE_MAIN_STEPS,
+  TRACE_TEXT(TRACE_MAIN_STEPS,
               "Problem sequence can be solved (all services available) "
               << std::endl);
   complete = true;

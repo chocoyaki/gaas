@@ -23,34 +23,39 @@
 
 #ifdef __cplusplus
 extern "C" {
-#endif // __cplusplus
-  
+#endif  // __cplusplus
   typedef int diet_mutex_t;
 
   void
   diet_mutex_initialize();
+
   void
-  diet_mutex_create(int*);
+  diet_mutex_create(int* ret);
+
   void
-  diet_mutex_lock(int);
+  diet_mutex_lock(int i);
+
   void
-  diet_mutex_unlock(int);
+  diet_mutex_unlock(int i);
+
   void
-  diet_mutex_free(int*);
+  diet_mutex_free(int* i);
+
   void
   diet_mutex_finalize();
 
   void
-  diet_thread_sleep(int, int);
+  diet_thread_sleep(int m, int n);
+
   void
   diet_thread_yield();
+
   int
   diet_thread_id();
-
 #ifdef __cplusplus
 }
-#endif // __cplusplus
+#endif  // __cplusplus
 
-#endif // _DIET_MUTEX_H_
+#endif  // _DIET_MUTEX_H_
 
 

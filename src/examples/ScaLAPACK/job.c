@@ -55,6 +55,6 @@ void job_destruct(job *j){
   free(j->intercomm);
   free(j->procs);
   free(j);
-  j=0;
+  j = 0;
 }
 

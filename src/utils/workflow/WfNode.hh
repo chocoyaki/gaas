@@ -44,7 +44,7 @@
  * moved pb name attribute from Node to DagNode class
  *
  * Revision 1.18  2008/10/14 13:31:01  bisnard
- * new class structure for dags (DagNode,DagNodePort)
+ * new class structure for dags (DagNode, DagNodePort)
  *
  * Revision 1.17  2008/10/02 07:35:10  bisnard
  * new constants definitions (matrix order and port type)

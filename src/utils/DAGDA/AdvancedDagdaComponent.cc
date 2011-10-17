@@ -239,7 +239,7 @@ void AdvancedDagdaComponent::incNbUsage(const char* dataID) {
 }
 
 void AdvancedDagdaComponent::shareData(const corba_data_t& data) {
-  std::map<string,Dagda_ptr>::iterator itch;
+  std::map<string, Dagda_ptr>::iterator itch;
 
   childrenMutex.lock();
   for (itch = getChildren()->begin();itch != getChildren()->end();)

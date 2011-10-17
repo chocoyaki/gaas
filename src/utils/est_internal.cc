@@ -27,9 +27,9 @@
 #include "debug.hh"
 #include "est_internal.hh"
 
-#define EV_ELT(e,i) (((e)->estValues)[(i)])
+#define EV_ELT(e, i) (((e)->estValues)[(i)])
 #define EV_LEN(e) ((e)->estValues.length())
-#define EV_SETLEN(e,l) ((e)->estValues.length(l))
+#define EV_SETLEN(e, l) ((e)->estValues.length(l))
 
 int
 diet_est_set_internal(estVector_t ev, int tag, double value)

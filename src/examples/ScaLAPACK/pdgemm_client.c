@@ -118,26 +118,26 @@ main(int argc, char* argv[])
 
   profile = diet_profile_alloc(path, 7, 8, 8);
 
-  diet_scalar_set(diet_parameter(profile,0), &procs, DIET_VOLATILE, DIET_INT);
-  diet_scalar_set(diet_parameter(profile,1), &rows, DIET_VOLATILE, DIET_INT);
-  diet_scalar_set(diet_parameter(profile,2), &cols, DIET_VOLATILE, DIET_INT);
-  diet_scalar_set(diet_parameter(profile,3), &bs, DIET_VOLATILE, DIET_INT);
-  diet_scalar_set(diet_parameter(profile,4), &alpha,
+  diet_scalar_set(diet_parameter(profile, 0), &procs, DIET_VOLATILE, DIET_INT);
+  diet_scalar_set(diet_parameter(profile, 1), &rows, DIET_VOLATILE, DIET_INT);
+  diet_scalar_set(diet_parameter(profile, 2), &cols, DIET_VOLATILE, DIET_INT);
+  diet_scalar_set(diet_parameter(profile, 3), &bs, DIET_VOLATILE, DIET_INT);
+  diet_scalar_set(diet_parameter(profile, 4), &alpha,
                   DIET_VOLATILE, DIET_DOUBLE);
-  diet_matrix_set(diet_parameter(profile,5), A,
+  diet_matrix_set(diet_parameter(profile, 5), A,
                   DIET_VOLATILE, DIET_DOUBLE, m, k, oA);
-  diet_matrix_set(diet_parameter(profile,6), B,
+  diet_matrix_set(diet_parameter(profile, 6), B,
                   DIET_VOLATILE, DIET_DOUBLE, k, n, oB);
-  diet_scalar_set(diet_parameter(profile,7), &beta,
+  diet_scalar_set(diet_parameter(profile, 7), &beta,
                   DIET_VOLATILE, DIET_DOUBLE);
-  diet_matrix_set(diet_parameter(profile,8), C,
+  diet_matrix_set(diet_parameter(profile, 8), C,
                   DIET_VOLATILE, DIET_DOUBLE, m, n, oC);
   
   print_matrix(A, m, k, (oA == DIET_ROW_MAJOR));
   print_matrix(B, k, n, (oB == DIET_ROW_MAJOR));
   print_matrix(C, m, n, (oC == DIET_ROW_MAJOR));
   
-  if(!diet_call(profile)){
+  if (!diet_call(profile)){
     print_matrix(C, m, n, (oC == DIET_ROW_MAJOR));
   }
 

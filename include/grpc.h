@@ -12,4 +12,10 @@
  * Just an include to DIET_grpc.h, thus no modification in GridRPC GGF client
  *
  ****************************************************************************/
+#ifndef _GRPC_H_
+#define _GRPC_H_
+
 #include <DIET_grpc.h>
+
+#endif /* _GRPC_H_ */
+

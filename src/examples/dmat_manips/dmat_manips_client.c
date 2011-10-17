@@ -115,8 +115,8 @@ main(int argc, char* argv[])
   int n_loops = 1;
   char* path = NULL;
   diet_profile_t* profile = NULL;
-  /* double mat1[9] = {1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0}; */
-  /* double mat2[9] = {10.0,11.0,12.0,13.0,14.0,15.0,16.0,17.0,18.0}; */
+  /* double mat1[9] = {1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0}; */
+  /* double mat2[9] = {10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0}; */
   double A[9];
   double B[9];
   double* C = NULL;
@@ -205,20 +205,20 @@ main(int argc, char* argv[])
       print_matrix(A, m, n, (oA == DIET_ROW_MAJOR));
     } else if (pb[1] || pb[2]){
       profile = diet_profile_alloc(path, 1, 1, 2);
-      diet_matrix_set(diet_parameter(profile,0),
+      diet_matrix_set(diet_parameter(profile, 0),
                       A, DIET_VOLATILE, DIET_DOUBLE, m, n, oA);
       print_matrix(A, m, n, (oA == DIET_ROW_MAJOR));
       if (pb[1]) {
-        diet_matrix_set(diet_parameter(profile,1),
+        diet_matrix_set(diet_parameter(profile, 1),
                         B, DIET_VOLATILE, DIET_DOUBLE, n, m, oB);
         print_matrix(B, n, m, (oB == DIET_ROW_MAJOR));
-        diet_matrix_set(diet_parameter(profile,2),
+        diet_matrix_set(diet_parameter(profile, 2),
                         NULL, DIET_VOLATILE, DIET_DOUBLE, m, m, oC);
       } else {
-        diet_matrix_set(diet_parameter(profile,1),
+        diet_matrix_set(diet_parameter(profile, 1),
                         B, DIET_VOLATILE, DIET_DOUBLE, m, n, oB);
         print_matrix(B, m, n, (oB == DIET_ROW_MAJOR));
-        diet_matrix_set(diet_parameter(profile,2),
+        diet_matrix_set(diet_parameter(profile, 2),
                         NULL, DIET_VOLATILE, DIET_DOUBLE, m, n, oC);
       }
     } else {

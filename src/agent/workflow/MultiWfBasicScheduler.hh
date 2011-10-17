@@ -11,7 +11,7 @@
 /* $Id$
  * $Log$
  * Revision 1.6  2008/10/14 13:24:49  bisnard
- * use new class structure for dags (DagNode,DagNodePort)
+ * use new class structure for dags (DagNode, DagNodePort)
  *
  * Revision 1.5  2008/04/30 07:37:01  bisnard
  * use relative timestamps for estimated and real completion time

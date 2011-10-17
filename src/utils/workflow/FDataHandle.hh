@@ -76,30 +76,33 @@
 #ifndef _FDATAHANDLE_HH_
 #define _FDATAHANDLE_HH_
 
+#include <list>
 #include <map>
+#include <string>
 #include "debug.hh"
 #include "DagNodePort.hh"
 #include "WfDataWriter.hh"
 
-using namespace std;
-
 /*****************************************************************************/
 /*                            FDataTag class                                 */
 /*****************************************************************************/
-
 class FDataTag {
-
 public:
-
   FDataTag();
+
   FDataTag(const FDataTag& tag);
+
   FDataTag(unsigned int index, bool isLast);
+
   FDataTag(const FDataTag& parentTag, unsigned int index, bool isLast);
+
   FDataTag(const FDataTag& parentTag, const FDataTag& childTag);
+
   FDataTag(unsigned int * idxTab, bool * lastTab, unsigned int level);
+
   ~FDataTag();
 
-  friend int operator<( const FDataTag& tag1, const FDataTag& tag2 );
+  friend int operator<(const FDataTag& tag1, const FDataTag& tag2);
 
   /**
    * Returns the level of the tag
@@ -206,11 +209,10 @@ public:
    * Converts the tag to a string
    * (used to generate node IDs)
    */
-  const string&
+  const std::string&
   toString() const;
 
 private:
-
   /**
    * Returns true if this is the last element at a given level
    * (recursive)
@@ -256,15 +258,28 @@ public:
                                eCARD_UNDEF,
                                eVALUE_UNDEF,
                                eADAPT_UNDEF };
-  WfDataHandleException(WfDataHandleErrorType t,
-                        const string& _info)
-  { this->why = t; this->info = _info; }
-  WfDataHandleErrorType Type() { return this->why; }
-  const string& Info()       { return this->info; }
-  string ErrorMsg();
+
+  WfDataHandleException(WfDataHandleErrorType t, const string& _info) {
+    this->why = t;
+    this->info = _info;
+  }
+
+  WfDataHandleErrorType
+  Type() {
+    return this->why;
+  }
+
+  const std::string&
+  Info() {
+    return this->info;
+  }
+
+  std::string
+  ErrorMsg();
+
 private:
   WfDataHandleErrorType why;
-  string info;
+  std::string info;
 };
 
 /*****************************************************************************/
@@ -272,9 +287,7 @@ private:
 /*****************************************************************************/
 
 class FDataHandle {
-
 public:
-
   /**
    * Default constructor
    * (builds a data handle with an empty tag)
@@ -288,10 +301,8 @@ public:
    * @param isVoid  set to true to create a VOID data
    * @param port the port that produces the data (NULL if void data)
    */
-  FDataHandle(const FDataTag& tag,
-              unsigned int depth,
-              bool isVoid = false,
-              DagNodeOutPort* port = NULL);
+  FDataHandle(const FDataTag& tag, unsigned int depth,
+              bool isVoid = false, DagNodeOutPort* port = NULL);
 
   /**
    * Constructor of a constant data handle (depth = 0: scalar value)
@@ -299,9 +310,8 @@ public:
    * @param valueType the type of the data
    * @param value the value of the data
    */
-  FDataHandle(const FDataTag&   tag,
-              WfCst::WfDataType valueType,
-              const string&     value);
+  FDataHandle(const FDataTag& tag, WfCst::WfDataType valueType,
+              const string& value);
 
   /**
    * Constructor of a data handle referencing a data ID (from data manager)
@@ -311,11 +321,9 @@ public:
    * @param dataId    the data ID string
    * @param isOwner   if true, DH is allowed to free the data (remove from platform)
    */
-  FDataHandle(const FDataTag&   tag,
-              WfCst::WfDataType dataType,
-              unsigned int      dataDepth,
-              const string&     dataId,
-              bool              isOwner = false);
+  FDataHandle(const FDataTag& tag, WfCst::WfDataType dataType,
+              unsigned int dataDepth, const string& dataId,
+              bool isOwner = false);
 
   /**
    * Constructor of a data handle (used for buffer or data with dataID)
@@ -323,9 +331,8 @@ public:
    * @param dataType data type (type of leaves)
    * @param dataDepth data depth
    */
-  FDataHandle(const FDataTag&   tag,
-              WfCst::WfDataType dataType,
-              unsigned int      dataDepth);
+  FDataHandle(const FDataTag& tag, WfCst::WfDataType dataType,
+              unsigned int dataDepth);
 
   /**
    * Special copy constructor (used for port mappings in control structures)
@@ -458,8 +465,8 @@ public:
    * This will insert the dataHdl at the right sublevel of the datahandle
    * depending on the TAG of the dataHdl
    * The data level must be HIGHER than the level of this object and the tag
-   * prefix should match. For example a tag '2,3,1,4' can be added to the
-   * object with tag '2,3'.
+   * prefix should match. For example a tag '2, 3, 1, 4' can be added to the
+   * object with tag '2, 3'.
    * If there are missing nodes in the tree then they will be created.
    * If the inserted child is a direct child and its tag is marked as last then
    * this handle's cardinal is set as defined
@@ -479,11 +486,11 @@ public:
    * will generate the childs with the correct tags
    * @exception WfDataHandleException(eBAD_STRUCT) if DH depth = 0
    */
-  map<FDataTag,FDataHandle*>::iterator
+  map<FDataTag, FDataHandle*>::iterator
   begin()
     throw(WfDataHandleException);
 
-  map<FDataTag,FDataHandle*>::iterator
+  map<FDataTag, FDataHandle*>::iterator
   end();
 
   /**
@@ -515,7 +522,7 @@ public:
    * Does not change the adapter type
    */
   void
-  setValue( WfCst::WfDataType valueType,
+  setValue(WfCst::WfDataType valueType,
             const string&     value);
 
   /**
@@ -702,7 +709,7 @@ private:
   /**
    * the map of sub-data handles
    */
-  map<FDataTag,FDataHandle*>*  myData;
+  map<FDataTag, FDataHandle*>*  myData;
 
   /**
    * my parent data handle (if applicable)

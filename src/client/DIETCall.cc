@@ -93,7 +93,7 @@ request_submission(MasterAgent_var& MA,
 
   /* Request submission : try nb_tries times */
 
-  stat_in("Client","request_submission");
+  stat_in("Client", "request_submission");
   subm_count = 0;
   do {
     response = NULL;
@@ -103,7 +103,7 @@ request_submission(MasterAgent_var& MA,
         return ret;
     }
 
-    if(data_OK == 0) {
+    if (data_OK == 0) {
       /* Submit to the agent. */
       try {
         response = MA->submit(corba_pb, maxServers);
@@ -144,7 +144,7 @@ request_submission(MasterAgent_var& MA,
   } while ((response) && (response->servers.length() > 0) &&
            (server_OK == -1) && (++subm_count < nb_tries) && (data_OK == 0));
 
-  if(data_OK == 1) {
+  if (data_OK == 1) {
     ERROR (" data with ID " <<  bad_id << " not inside the platform.", 1);
     delete (bad_id);
   } else {
@@ -191,7 +191,7 @@ request_submission(MasterAgent_var& MA,
 
     }
     sprintf(statMsg, "request_submission %ld", (unsigned long) reqID);
-    stat_out("Client",statMsg);
+    stat_out("Client", statMsg);
     profile->dietReqID = reqID;
   }
 
@@ -223,7 +223,7 @@ diet_call_common(MasterAgent_var& MA,
   corba_profile_t corba_profile;
   char statMsg[128];
   corba_estimation_t emptyEstimVect;
-  stat_in("Client","diet_call");
+  stat_in("Client", "diet_call");
 
   if (CORBA::is_nil(chosenServer)) {
     if (!(res = request_submission(MA, profile, chosenServer, estimVect, maxServers))) {
@@ -252,17 +252,17 @@ diet_call_common(MasterAgent_var& MA,
   /* Computation */
   sprintf(statMsg, "computation %ld", (unsigned long) profile->dietReqID);
 
-  stat_in("Client",statMsg);
+  stat_in("Client", statMsg);
   TRACE_TEXT(TRACE_MAIN_STEPS, "Calling the ref Corba of the SeD" << endl);
   /* CORBA CALL to SED */
   solve_res = chosenServer->solve(profile->pb_name, corba_profile);
 
-  stat_out("Client",statMsg);
+  stat_out("Client", statMsg);
 
   dagda_download_SeD_data(profile, &corba_profile);
 
   sprintf(statMsg, "diet_call %ld", (unsigned long) profile->dietReqID);
-  stat_out("Client",statMsg);
+  stat_out("Client", statMsg);
   return solve_res;
 }
 
@@ -291,7 +291,7 @@ diet_call_async_common(MasterAgent_var& MA,
   // get sole CallAsyncMgr singleton
   caMgr = CallAsyncMgr::Instance();
 
-  stat_in("Client","diet_call_async");
+  stat_in("Client", "diet_call_async");
 
   try {
 
@@ -330,11 +330,11 @@ diet_call_async_common(MasterAgent_var& MA,
           return 1;
         }
 
-        stat_in("Client","computation_async");
+        stat_in("Client", "computation_async");
         chosenServer->solveAsync(profile->pb_name, corba_profile,
                                  refCallbackServer);
 
-        stat_out("Client","computation_async");
+        stat_out("Client", "computation_async");
 
         if (unmrsh_out_args_to_profile(profile, &corba_profile)) {
           INTERNAL_ERROR("returned profile is wrongly built", 1);
@@ -366,7 +366,7 @@ diet_call_async_common(MasterAgent_var& MA,
     return 1;
   }
 
-  stat_out("Client","diet_call_async");
+  stat_out("Client", "diet_call_async");
   return 0;
 }
 

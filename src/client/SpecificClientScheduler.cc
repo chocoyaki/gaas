@@ -72,7 +72,7 @@ SpecificClientScheduler::setSchedulingId(const char * scheduling_name) {
 void
 SpecificClientScheduler::start(SeD_var& chosenServer,
                                corba_response_t * response) {
-  if (myScheduler == NULL && !enabled ) {
+  if (myScheduler == NULL && !enabled) {
     cerr << "FATAL ERROR : burst scheduler not enabled" << endl;
     exit(1);
   }
@@ -86,10 +86,10 @@ void
 SpecificClientScheduler::schedule(const char * scheduling_name,
                                   SeD_var& chosenServer,
                                   corba_response_t * response) {
-  if (!strcmp(SpecificClientScheduler::BurstRequest, scheduling_name) ) {
+  if (!strcmp(SpecificClientScheduler::BurstRequest, scheduling_name)) {
     burstRequest(chosenServer, response);
   }
-  if (!strcmp(SpecificClientScheduler::BurstLimit, scheduling_name) ) {
+  if (!strcmp(SpecificClientScheduler::BurstLimit, scheduling_name)) {
     burstLimitRequest(chosenServer, response);
   }
 } // end schedule
@@ -274,7 +274,7 @@ void
 SpecificClientScheduler::removeBlanks(string& token) {
   // remove blank
   size_t blankIt;
-  while ( (blankIt = token.find_first_of(" ")) != token.npos) {
+  while ((blankIt = token.find_first_of(" ")) != token.npos) {
     token.erase(blankIt, blankIt + 1);
   }
 }
@@ -282,16 +282,16 @@ SpecificClientScheduler::removeBlanks(string& token) {
 void
 SpecificClientScheduler::stringSplit(string str, string delim, vector<string>& results) {
   size_t cutAt;
-  while( (cutAt = str.find_first_of(delim)) != str.npos ) {
-    if(cutAt > 0) {
-      string token = str.substr(0,cutAt);
+  while((cutAt = str.find_first_of(delim)) != str.npos) {
+    if (cutAt > 0) {
+      string token = str.substr(0, cutAt);
       cout << "token " << token << endl;
       removeBlanks(token);
       results.push_back(token);
     }
     str = str.substr(cutAt+1);
   } // end while
-  if(str.length() > 0) {
+  if (str.length() > 0) {
     removeBlanks(str);
     results.push_back(str);
   }

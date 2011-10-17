@@ -111,7 +111,7 @@
  *
  * Revision 1.43  2007/04/03 11:38:48  ycaniou
  * Error when the client wants to transfer a zero size file
- * ( if not, there is an omniorb error, then now, it is "clean")
+ * (if not, there is an omniorb error, then now, it is "clean")
  *
  * Revision 1.42  2006/11/06 11:54:54  aamar
  * *** empty log message ***
@@ -461,7 +461,7 @@ file_set_desc(diet_data_desc_t* desc, const char* id,
       return status;
     if (!(buf.st_mode & S_IFREG))
       return 2;
-    if( buf.st_size == 0 ) {
+    if (buf.st_size == 0) {
       ERROR("One of the file that you want to transfer is of zero size", 1);
     }
     desc->specific.file.size = (size_t) buf.st_size;
@@ -498,17 +498,17 @@ profile_desc_match(const corba_profile_desc_t* p1,
 {
   if (strcmp(p1->path, p2->path))
     return 0;
-  if ( (p1->last_in                != p2->last_in)
+  if ((p1->last_in                != p2->last_in)
        || (p1->last_inout          != p2->last_inout)
        || (p1->last_out            != p2->last_out)
        || (p1->param_desc.length() != p2->param_desc.length())
 #if defined HAVE_ALT_BATCH
        || (p1->parallel_flag          != p2->parallel_flag)
 #endif
-    )
+)
     return 0;
   for (size_t i = 0; i < p1->param_desc.length(); i++) {
-    if (   (p1->param_desc[i].type      != p2->param_desc[i].type)
+    if ((p1->param_desc[i].type      != p2->param_desc[i].type)
            || (p1->param_desc[i].base_type != p2->param_desc[i].base_type))
       return 0;
   }
@@ -526,22 +526,22 @@ profile_match(const corba_profile_desc_t* sv_profile,
 {
   if (strcmp(sv_profile->path, pb_desc->path)) //param_desc[�→].id.idNumber
     return 0;
-  if ( (sv_profile->last_in                != pb_desc->last_in)
+  if ((sv_profile->last_in                != pb_desc->last_in)
        || (sv_profile->last_inout          != pb_desc->last_inout)
        || (sv_profile->last_out            != pb_desc->last_out)
-       || (sv_profile->param_desc.length() != pb_desc->param_desc.length()) )
+       || (sv_profile->param_desc.length() != pb_desc->param_desc.length()))
     return 0;
 #if defined HAVE_ALT_BATCH
   /*
   **  - if parallel or sequential is asked, strict check
   **  - if nothing specified, both // and non-// must be considered
   */
-  if( (pb_desc->parallel_flag != 0) &&
-      (sv_profile->parallel_flag != pb_desc->parallel_flag) )
+  if ((pb_desc->parallel_flag != 0) &&
+      (sv_profile->parallel_flag != pb_desc->parallel_flag))
     return 0;
 #endif
   for (size_t i = 0; i < sv_profile->param_desc.length(); i++) {
-    if ((   (sv_profile->param_desc[i].type
+    if (((sv_profile->param_desc[i].type
              != pb_desc->param_desc[i].specific._d())
             || (sv_profile->param_desc[i].base_type
                 != pb_desc->param_desc[i].base_type)))
@@ -561,15 +561,15 @@ profile_match(const corba_profile_desc_t* sv_profile,
 {
   if (strcmp(sv_profile->path, path))
     return 0;
-  if ( (sv_profile->last_in                != pb->last_in)
+  if ((sv_profile->last_in                != pb->last_in)
        || (sv_profile->last_inout          != pb->last_inout)
        || (sv_profile->last_out            != pb->last_out)
-       || (sv_profile->param_desc.length() != pb->parameters.length()) )
+       || (sv_profile->param_desc.length() != pb->parameters.length()))
     return 0;
 
 #if defined HAVE_ALT_BATCH
-  /*  if( (sv_profile->parallel_flag == 1)
-      && (sv_profile->parallel_flag != pb->parallel_flag) )
+  /*  if ((sv_profile->parallel_flag == 1)
+      && (sv_profile->parallel_flag != pb->parallel_flag))
       return 0;*/
   /* As the client request this server, and until here, then SeD propose
      the service. We assume that SeD that was seq or // is still seq or //
@@ -577,7 +577,7 @@ profile_match(const corba_profile_desc_t* sv_profile,
 #endif
 
   for (size_t i = 0; i < sv_profile->param_desc.length(); i++) {
-    if ((   (sv_profile->param_desc[i].type
+    if (((sv_profile->param_desc[i].type
              != pb->parameters[i].desc.specific._d())
             || (sv_profile->param_desc[i].base_type
                 != pb->parameters[i].desc.base_type)))
@@ -614,7 +614,7 @@ extern "C" {
       res->parameters[i].desc.id = NULL;
     res->dietReqID = 0;
 #if defined HAVE_ALT_BATCH
-    /* By default, ask for sequential and parallel task (cf DIET_data.h ) */
+    /* By default, ask for sequential and parallel task (cf DIET_data.h) */
     res->parallel_flag = 0;
     res->nbprocs   = 0;
     res->nbprocess = 0;
@@ -649,7 +649,7 @@ extern "C" {
   int
   diet_profile_set_nbprocs(diet_profile_t* profile, int nbprocs)
   {
-    if( nbprocs <= 0 )
+    if (nbprocs <= 0)
       ERROR("the Number of procs must be greater than 0", 1);
     profile->nbprocs = nbprocs;
     return 0;
@@ -673,7 +673,7 @@ extern "C" {
   /* Utils functions for setting parameters of a problem description          */
   /****************************************************************************/
 
-#define get_id(id,arg)                          \
+#define get_id(id, arg)                          \
   char* id;                                     \
   if (!arg)                                     \
     return 1;                                   \
@@ -812,7 +812,7 @@ extern "C" {
     if (!data->value) {
       ERROR(__FUNCTION__ << " misused (data->value is NULL)", 1);
     }
-    switch(data->desc.generic.base_type) {
+    switch (data->desc.generic.base_type) {
     case DIET_CHAR:    *((char*)data->value)     = *((char*)value);     break;
     case DIET_SHORT:   *((short*)data->value)    = *((short*)value);    break;
     case DIET_INT:     *((int*)data->value)      = *((int*)value);      break;
@@ -857,7 +857,7 @@ extern "C" {
   int
   diet_file_desc_set(diet_data_t* data, char* path)
   {
-    if( (data->desc.generic.type != DIET_FILE) ) {
+    if ((data->desc.generic.type != DIET_FILE)) {
       ERROR(__FUNCTION__ << " misused (wrong type)", 1);
     }
     if (path != data->desc.specific.file.path)
@@ -887,7 +887,7 @@ extern "C" {
       /*
       ** no need to cast pointer, since the output is still treated as a void
       */
-      //     switch(data->desc.generic.base_type) {
+      //     switch (data->desc.generic.base_type) {
       //     case DIET_CHAR:    *((char**)value)     = (char*)data->value;     break;
       //     case DIET_SHORT:   *((short**)value)    = (short*)data->value;    break;
       //     case DIET_INT:     *((int**)value)      = (int*)data->value;      break;

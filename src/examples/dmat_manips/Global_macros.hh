@@ -49,7 +49,7 @@
 #define TIMER_OUTPUT()                                                  \
   timeval tval;                                                         \
   gettimeofday(&tval, NULL);                                            \
-  cout << "timer=" << tval.tv_sec << "," << tval.tv_usec << "|";
+  cout << "timer=" << tval.tv_sec << ", " << tval.tv_usec << "|";
 #define VARIABLE_OUTPUT(X)                      \
   cout << #X << "=" << X;
 #define TEXT_OUTPUT(X)                          \

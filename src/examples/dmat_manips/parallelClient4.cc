@@ -50,7 +50,7 @@ using namespace std;
 #define print_matrix(pouf, string, reqID, mat, m, n, rm)                \
   {                                                                     \
     printf(string);                                                     \
-    printf("Matrix linked to Thread -%d- and requestID -%s-:\n",omni_thread::self()->id(), reqID); \
+    printf("Matrix linked to Thread -%d- and requestID -%s-:\n", omni_thread::self()->id(), reqID); \
     size_t i, j;                                                        \
     printf("%s (%s-major) = \n", #mat,                                  \
            (rm) ? "row" : "column");                                    \
@@ -110,14 +110,14 @@ class worker : public omni_thread
     double* B = NULL;
     double* C = NULL;
     diet_profile_t* profile[5];
-    double mat1[9] = {1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0};
-    double mat2[9] = {10.0,11.0,12.0,13.0,14.0,15.0,16.0,17.0,18.0};
+    double mat1[9] = {1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0};
+    double mat2[9] = {10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0};
     diet_matrix_order_t oA, oB, oC;
     int i;
-    diet_reqID_t rst[5] = {0,0,0,0,0};
+    diet_reqID_t rst[5] = {0, 0, 0, 0, 0};
     char * requestID = new char[10];
     MUTEX_WORKER.lock();
-    while ( n_loops > 0){
+    while (n_loops > 0){
       n_loops-=5;
       MUTEX_WORKER.unlock();
       A = mat1;
@@ -135,36 +135,36 @@ class worker : public omni_thread
         oC = (rand() & 1) ? DIET_ROW_MAJOR : DIET_COL_MAJOR;
         if (IS_PB[0]) {
           profile[i] = diet_profile_alloc(path, -1, 0, 0);
-          diet_matrix_set(diet_parameter(profile[i],0),
+          diet_matrix_set(diet_parameter(profile[i], 0),
                           A, DIET_VOLATILE, DIET_DOUBLE, m, n, oA);
           //print_matrix(A, m, n, (oA == DIET_ROW_MAJOR));
         }
         else if (IS_PB[1] || IS_PB[2] || IS_PB[3]) {
           profile[i] = diet_profile_alloc(path, 1, 1, 2);
-          diet_matrix_set(diet_parameter(profile[i],0),
+          diet_matrix_set(diet_parameter(profile[i], 0),
                           A, DIET_VOLATILE, DIET_DOUBLE, m, n, oA);
           //print_matrix(A, m, n, (oA == DIET_ROW_MAJOR));
           if (IS_PB[1]) {
-            diet_matrix_set(diet_parameter(profile[i],1),
+            diet_matrix_set(diet_parameter(profile[i], 1),
                             B, DIET_VOLATILE, DIET_DOUBLE, n, m, oB);
             //print_matrix(B, n, m, (oB == DIET_ROW_MAJOR));
-            diet_matrix_set(diet_parameter(profile[i],2),
+            diet_matrix_set(diet_parameter(profile[i], 2),
                             NULL, DIET_VOLATILE, DIET_DOUBLE, m, m, oC);
           }
           else {
-            diet_matrix_set(diet_parameter(profile[i],1),
+            diet_matrix_set(diet_parameter(profile[i], 1),
                             B, DIET_VOLATILE, DIET_DOUBLE, m, n, oB);
             //print_matrix(B, m, n, (oB == DIET_ROW_MAJOR));
-            diet_matrix_set(diet_parameter(profile[i],2),
+            diet_matrix_set(diet_parameter(profile[i], 2),
                             NULL, DIET_VOLATILE, DIET_DOUBLE, m, n, oC);
           }
         }
         else if (IS_PB[4]) {
           profile[i] = diet_profile_alloc(path, 0, 1, 1);
-          diet_matrix_set(diet_parameter(profile[i],0),
+          diet_matrix_set(diet_parameter(profile[i], 0),
                           A, DIET_VOLATILE, DIET_DOUBLE, m, m, oA);
           //print_matrix(A, m, m, (oA == DIET_ROW_MAJOR));
-          diet_matrix_set(diet_parameter(profile[i],1),
+          diet_matrix_set(diet_parameter(profile[i], 1),
                           B, DIET_VOLATILE, DIET_DOUBLE, m, m, oB);
           //print_matrix(B, m, m, (oB == DIET_ROW_MAJOR));
 
@@ -193,26 +193,26 @@ class worker : public omni_thread
       for (i = 0; i < 5; i++){
         sprintf(requestID, "%d", rst[i]);
         if (IS_PB[0]) {
-          diet_matrix_get(diet_parameter(profile[i],0), NULL, NULL, (size_t*)&m, (size_t*)&n, &oA);
-          print_matrix(i, "-Input data-\n",requestID, A, m, n, (oA == DIET_ROW_MAJOR));
+          diet_matrix_get(diet_parameter(profile[i], 0), NULL, NULL, (size_t*)&m, (size_t*)&n, &oA);
+          print_matrix(i, "-Input data-\n", requestID, A, m, n, (oA == DIET_ROW_MAJOR));
         }
         else if (IS_PB[1] || IS_PB[2] || IS_PB[3]) {
-          diet_matrix_get(diet_parameter(profile[i],0), NULL, NULL, (size_t*)&m, (size_t*)&n, &oA);
-          print_matrix(i, "-Input data-\n",requestID, A, m, n, (oA == DIET_ROW_MAJOR));
+          diet_matrix_get(diet_parameter(profile[i], 0), NULL, NULL, (size_t*)&m, (size_t*)&n, &oA);
+          print_matrix(i, "-Input data-\n", requestID, A, m, n, (oA == DIET_ROW_MAJOR));
           if (IS_PB[1]) {
-            diet_matrix_get(diet_parameter(profile[i],0), NULL, NULL, (size_t*)&m, (size_t*)&n, &oB);
-            print_matrix(i, "-Input data-\n",requestID, B, n, m, (oB == DIET_ROW_MAJOR));
+            diet_matrix_get(diet_parameter(profile[i], 0), NULL, NULL, (size_t*)&m, (size_t*)&n, &oB);
+            print_matrix(i, "-Input data-\n", requestID, B, n, m, (oB == DIET_ROW_MAJOR));
           }
           else {
-            diet_matrix_get(diet_parameter(profile[i],0), NULL, NULL, (size_t*)&m, (size_t*)&n, &oB);
-            print_matrix(i, "-Input data-\n",requestID, B, m, n, (oB == DIET_ROW_MAJOR));
+            diet_matrix_get(diet_parameter(profile[i], 0), NULL, NULL, (size_t*)&m, (size_t*)&n, &oB);
+            print_matrix(i, "-Input data-\n", requestID, B, m, n, (oB == DIET_ROW_MAJOR));
           }
         }
         else if (IS_PB[4]) {
-          diet_matrix_get(diet_parameter(profile[i],0), NULL, NULL, (size_t*)&m, (size_t*)&n, &oA);
-          diet_matrix_get(diet_parameter(profile[i],0), NULL, NULL, (size_t*)&m, (size_t*)&n, &oB);
-          print_matrix(i, "-Input data-\n",requestID, A, m, m, (oA == DIET_ROW_MAJOR));
-          print_matrix(i, "-Input data-\n",requestID,B, m, m, (oB == DIET_ROW_MAJOR));
+          diet_matrix_get(diet_parameter(profile[i], 0), NULL, NULL, (size_t*)&m, (size_t*)&n, &oA);
+          diet_matrix_get(diet_parameter(profile[i], 0), NULL, NULL, (size_t*)&m, (size_t*)&n, &oB);
+          print_matrix(i, "-Input data-\n", requestID, A, m, m, (oA == DIET_ROW_MAJOR));
+          print_matrix(i, "-Input data-\n", requestID, B, m, m, (oB == DIET_ROW_MAJOR));
         }
       }
       printf("***********************************************************\n");
@@ -233,17 +233,17 @@ class worker : public omni_thread
         for (int w = 0; w < 5; w++){
           if (resultReqID == rst[w]){
             if (IS_PB[0]) {
-              diet_matrix_get(diet_parameter(profile[w],0), NULL, NULL, (size_t*)&m, (size_t*)&n, &oA);
+              diet_matrix_get(diet_parameter(profile[w], 0), NULL, NULL, (size_t*)&m, (size_t*)&n, &oA);
               print_matrix(i, "-result-\n", requestID, A, m, n, (oA == DIET_ROW_MAJOR));
             }
             else if (IS_PB[4]) {
-              diet_matrix_get(diet_parameter(profile[w],0), NULL, NULL, (size_t*)&m, (size_t*)&n, &oB);
+              diet_matrix_get(diet_parameter(profile[w], 0), NULL, NULL, (size_t*)&m, (size_t*)&n, &oB);
               print_matrix(i, "-result-\n", requestID, B, m, n, (oB == DIET_ROW_MAJOR));
             }
             else {
-              diet_matrix_get(diet_parameter(profile[w],2), &C, NULL, (size_t*)&m, (size_t*)&n, &oC);
+              diet_matrix_get(diet_parameter(profile[w], 2), &C, NULL, (size_t*)&m, (size_t*)&n, &oC);
               print_matrix(i, "-result-\n", requestID, C, m, n, (oC == DIET_ROW_MAJOR));
-              diet_free_data(diet_parameter(profile[w],2));
+              diet_free_data(diet_parameter(profile[w], 2));
             }
             printf("***********************************************************\n");
           }

@@ -55,7 +55,7 @@
  * removed createNode method from NodeSet class
  *
  * Revision 1.14  2008/10/14 13:31:01  bisnard
- * new class structure for dags (DagNode,DagNodePort)
+ * new class structure for dags (DagNode, DagNodePort)
  *
  * Revision 1.13  2008/09/30 15:32:53  bisnard
  * - using simple port id instead of composite ones

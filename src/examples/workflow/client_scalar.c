@@ -64,7 +64,7 @@ main(int argc, char* argv[])
 
   fileName = argv[2];
 
-  profile = diet_wf_profile_alloc(fileName,"test",DIET_WF_DAG);
+  profile = diet_wf_profile_alloc(fileName, "test", DIET_WF_DAG);
 
   printf("Try to execute the workflow\n");
   if (! diet_wf_call(profile)) {

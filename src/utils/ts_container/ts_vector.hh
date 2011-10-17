@@ -31,10 +31,11 @@
 #ifndef _TS_VECTOR_HH_
 #define _TS_VECTOR_HH_
 
+#include <cassert>
+#include <memory>
 #include <vector>
 #include <omniconfig.h>
 #include <omnithread.h>
-#include <cassert>
 
 /**
  * This is a thread safe version of the STL vector. All the methods are
@@ -127,7 +128,7 @@ public:
     VectorType::clear();
     locker.unlock();
   }
-  
+
 };
 
 #endif  // _TS_VECTOR_HH_

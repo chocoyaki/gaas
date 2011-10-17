@@ -50,7 +50,7 @@
  ****************************************************************************/
 #include <unistd.h> //int getpagesize (void)
 #ifdef CORI_HAVE_SYS_SYSINFO
-#include <sys/sysinfo.h> // get_phys_pages (),get_avphys_pages ()
+#include <sys/sysinfo.h> // get_phys_pages (), get_avphys_pages ()
 #endif
 #include <cstdio>
 #include "Cori_Easy_Memory.hh"
@@ -67,8 +67,8 @@ using namespace std;
 int
 Easy_Memory::get_Total_Memory(double * result)
 {
-  double temp1,temp2,temp3;
-  if (!get_Info_Memory_byProcMem(&temp1,0)){
+  double temp1, temp2, temp3;
+  if (!get_Info_Memory_byProcMem(&temp1, 0)){
     *result = temp1;
     return 0;
   }
@@ -90,7 +90,7 @@ int
 Easy_Memory::get_Avail_Memory(double * result)
 {
   double temp;
-  if (!get_Info_Memory_byProcMem(&temp,1)){
+  if (!get_Info_Memory_byProcMem(&temp, 1)){
     *result = temp;
     return 0;
   }
@@ -147,7 +147,7 @@ int
 Easy_Memory::get_Avail_Memory_byvmstat(double * result)
 {
   int returnval = 1;
-  FILE * myfile =popen("vmstat","r");
+  FILE * myfile =popen("vmstat", "r");
   char word[256];
   if ((myfile != NULL)){
     if (!feof(myfile)){
@@ -160,7 +160,7 @@ Easy_Memory::get_Avail_Memory_byvmstat(double * result)
           i++;
         }
         if (i == 4){
-          *result = atof ( word )/1024;
+          *result = atof (word)/1024;
           returnval = 0;
         }
         else return 1;
@@ -186,15 +186,15 @@ Easy_Memory::get_Info_Memory_byProcMem(double* resultat,
   ifstream file ("/proc/meminfo");
 
   if (freemem)
-    strcpy (demanded,"MemFree:");
-  else strcpy (demanded,"MemTotal:");
+    strcpy (demanded, "MemFree:");
+  else strcpy (demanded, "MemTotal:");
 
 
   if (file.is_open())
   {
-    while ( ! file.eof() )  //look at the whole file
+    while (! file.eof())  //look at the whole file
     {
-      if ( strcmp (demanded , word ) == 0 )
+      if (strcmp (demanded , word) == 0)
       {
         file >> word;
         *resultat = atof(word)/1024;
@@ -205,7 +205,7 @@ Easy_Memory::get_Info_Memory_byProcMem(double* resultat,
     file.close();
   }
   else{
-    TRACE_TEXT(TRACE_MAX_VALUE,"Error on reading file");
+    TRACE_TEXT(TRACE_MAX_VALUE, "Error on reading file");
     return 1;
   }
 #endif  //CORI_HAVE_PROCMEM

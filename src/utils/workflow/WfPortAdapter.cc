@@ -77,7 +77,7 @@
  * replaced uint by standard type
  *
  * Revision 1.7  2008/10/14 13:31:01  bisnard
- * new class structure for dags (DagNode,DagNodePort)
+ * new class structure for dags (DagNode, DagNodePort)
  *
  * Revision 1.6  2008/10/02 09:10:51  bisnard
  * incorrect constant definition
@@ -123,11 +123,9 @@ extern "C" {
 #include "FNodePort.hh"
 
 
-using std::string;
-
-string WfMultiplePortAdapter::parLeftChar = "(";
-string WfMultiplePortAdapter::parRightChar = ")";
-string WfMultiplePortAdapter::separatorChar = ";";
+std::string WfMultiplePortAdapter::parLeftChar("(");
+std::string WfMultiplePortAdapter::parRightChar(")");
+std::string WfMultiplePortAdapter::separatorChar(";");
 
 
 /*****************************************************************************/
@@ -145,27 +143,31 @@ WfPortAdapter::~WfPortAdapter() {}
  * Example of input: (nodeA#port1;nodeB#port2[0][1];#UNDEF;#VALDEB#toto#VALFIN#)
  */
 WfPortAdapter*
-WfPortAdapter::createAdapter(const string& strRef) {
-  string::size_type refSep = strRef.find("(");
-  if (refSep == string::npos) {
-    string::size_type testVoid = strRef.find(WfVoidAdapter::voidRef);
-    if (testVoid == string::npos) {
-      string::size_type startValue = strRef.find(WfValueAdapter::valStartTag);
-      if (startValue == string::npos) {
-        string::size_type startID = strRef.find(WfDataIDAdapter::IDStartTag);
-        if (startID == string::npos) {
+WfPortAdapter::createAdapter(const std::string& strRef) {
+  std::string::size_type refSep = strRef.find("(");
+  if (refSep == std::string::npos) {
+    std::string::size_type testVoid = strRef.find(WfVoidAdapter::voidRef);
+    if (testVoid == std::string::npos) {
+      std::string::size_type startValue =
+        strRef.find(WfValueAdapter::valStartTag);
+      if (startValue == std::string::npos) {
+        std::string::size_type startID =
+          strRef.find(WfDataIDAdapter::IDStartTag);
+        if (startID == std::string::npos) {
           // case of reference to a dag port
           return new WfSimplePortAdapter(strRef);
         } else {
           // case of data ID
           startID += WfDataIDAdapter::IDStartTag.length();
-          string::size_type endID = strRef.find(WfDataIDAdapter::IDFinishTag);
+          std::string::size_type endID =
+            strRef.find(WfDataIDAdapter::IDFinishTag);
           return new WfDataIDAdapter(strRef.substr(startID, endID - startID));
         }
       } else {
         // case of data value
         startValue += WfValueAdapter::valStartTag.length();
-        string::size_type endValue = strRef.find(WfValueAdapter::valFinishTag);
+        std::string::size_type endValue =
+          strRef.find(WfValueAdapter::valFinishTag);
         return new WfValueAdapter(strRef.substr(startValue,
                                                 endValue - startValue));
       }
@@ -175,8 +177,8 @@ WfPortAdapter::createAdapter(const string& strRef) {
     }
   } else {
     // case of container data
-    string::size_type refSepLast = strRef.rfind(")");
-    if (refSepLast == string::npos) {
+    std::string::size_type refSepLast = strRef.rfind(")");
+    if (refSepLast == std::string::npos) {
       INTERNAL_ERROR("No closing bracket in " << strRef << endl, 1);
     }
     return new WfMultiplePortAdapter(strRef.substr(refSep+1, refSepLast-1));
@@ -191,25 +193,25 @@ WfPortAdapter::createAdapter(const string& strRef) {
  * Constructor for simple port adapter
  * PARSING of a simple reference (with or without subports)
  */
-WfSimplePortAdapter::WfSimplePortAdapter(const string& strRef)
+WfSimplePortAdapter::WfSimplePortAdapter(const std::string& strRef)
   : nodePtr(NULL), portPtr(NULL) {
-  string::size_type nodeSep = strRef.find(":");
-  string::size_type nodeStart = 0;
-  if (nodeSep != string::npos) {
+  std::string::size_type nodeSep = strRef.find(":");
+  std::string::size_type nodeStart = 0;
+  if (nodeSep != std::string::npos) {
     this->dagName = strRef.substr(0, nodeSep);
     nodeStart = nodeSep + 1;
   }
-  string::size_type portSep = strRef.find("#", nodeStart);
-  if (portSep != string::npos) {
+  std::string::size_type portSep = strRef.find("#", nodeStart);
+  if (portSep != std::string::npos) {
     this->nodeName = strRef.substr(nodeStart, portSep-nodeStart);
-    string::size_type idxListLeft = strRef.find("[");
-    if (idxListLeft == string::npos) {
+    std::string::size_type idxListLeft = strRef.find("[");
+    if (idxListLeft == std::string::npos) {
       this->portName = strRef.substr(portSep+1);
     } else {
       this->portName = strRef.substr(portSep+1, idxListLeft-portSep-1);
-      while (idxListLeft != string::npos) {
-        string::size_type idxListRight = strRef.find("]", idxListLeft);
-        if (idxListRight == string::npos) {
+      while (idxListLeft != std::string::npos) {
+        std::string::size_type idxListRight = strRef.find("]", idxListLeft);
+        if (idxListRight == std::string::npos) {
           // throw exception (brackets not closed)
         }
         unsigned int idx =
@@ -226,7 +228,7 @@ WfSimplePortAdapter::WfSimplePortAdapter(const string& strRef)
 }
 
 WfSimplePortAdapter::WfSimplePortAdapter(WfPort * port,
-                                         const string& portDagName) {
+                                         const std::string& portDagName) {
   nodePtr  = port->getParent();
   portPtr  = port;
   nodeName = nodePtr->getId();
@@ -236,7 +238,7 @@ WfSimplePortAdapter::WfSimplePortAdapter(WfPort * port,
 
 WfSimplePortAdapter::WfSimplePortAdapter(WfPort* port,
                                          const list<unsigned int>& indexes,
-                                         const string& portDagName) {
+                                         const std::string& portDagName) {
   nodePtr  = port->getParent();
   portPtr  = port;
   nodeName = nodePtr->getId();
@@ -249,7 +251,7 @@ WfSimplePortAdapter::~WfSimplePortAdapter() {}
 
 string
 WfSimplePortAdapter::getSourceRef() const {
-  stringstream ss;
+  std::stringstream ss;
   if (!dagName.empty()) {
     ss << dagName << ":";
   }
@@ -266,7 +268,7 @@ void
 WfSimplePortAdapter::setNodePrecedence(WfNode* node, NodeSet* nodeSet)
   throw(WfStructException) {
   // create the full node name (including dag prefix if needed)
-  string dagPrefix;
+  std::string dagPrefix;
   if (!dagName.empty()) {
     dagPrefix = dagName + ":";
   }
@@ -289,12 +291,12 @@ WfSimplePortAdapter::connectPorts(WfPort* port, unsigned int adapterLevel)
     INTERNAL_ERROR(__FUNCTION__ << "NULL node pointer" << endl, 1);
   }
   WfPort *linkedPort = nodePtr->getPort(portName);
-  string errorMsg = "connect " + port->getCompleteId()
+  std::string errorMsg = "connect " + port->getCompleteId()
     + " to " + linkedPort->getCompleteId();
 
   // check data type compatibility
   if (port->getBaseDataType() != linkedPort->getBaseDataType()) {
-    throw WfStructException(WfStructException::eTYPE_MISMATCH,errorMsg);
+    throw WfStructException(WfStructException::eTYPE_MISMATCH, errorMsg);
   }
 
   this->portPtr = linkedPort;       // SET the port ref FOR THE ADAPTER
@@ -315,8 +317,9 @@ WfSimplePortAdapter::connectPorts(WfPort* port, unsigned int adapterLevel)
   }
 
   // check data depth compatibility
-  if (port->getDepth() != adapterLevel + linkedPort->getDepth() - getDepth())
-    throw WfStructException(WfStructException::eDEPTH_MISMATCH,errorMsg);
+  if (port->getDepth() != adapterLevel + linkedPort->getDepth() - getDepth()) {
+    throw WfStructException(WfStructException::eDEPTH_MISMATCH, errorMsg);
+  }
 }
 
 DagNodeOutPort*
@@ -329,7 +332,7 @@ WfSimplePortAdapter::getSourcePort() const {
   return p;
 }
 
-const string&
+const std::string&
 WfSimplePortAdapter::getSourceDataID() {
   if (!dataID.empty()) {
     return dataID;
@@ -356,23 +359,24 @@ WfSimplePortAdapter::isDataIDCreator() {
 
 void
 WfSimplePortAdapter::writeDataValue(WfDataWriter* dataWriter) {
-  if (getDepth() == 0)
+  if (getDepth() == 0) {
     getSourcePort()->writeData(dataWriter);
-  else
+  } else {
     getSourcePort()->writeDataElement(dataWriter, eltIdxList);
+  }
 }
 
-const string&
+const std::string&
 WfSimplePortAdapter::getPortName() const {
   return portName;
 }
 
-const string&
+const std::string&
 WfSimplePortAdapter::getNodeName() const {
   return nodeName;
 }
 
-const string&
+const std::string&
 WfSimplePortAdapter::getDagName() const {
   return dagName;
 }
@@ -401,29 +405,30 @@ WfSimplePortAdapter::freeAdapterPersistentData(MasterAgent_var& MA) {
  * Example of input: (nodeA#port1;nodeB#port1[0]);(nodeC#port1;#UNDEF)
  * (note that createAdapter strips the toplevel parenthesis)
  */
-WfMultiplePortAdapter::WfMultiplePortAdapter(const string& strRef) {
-  string::size_type refStart = 0;
+WfMultiplePortAdapter::WfMultiplePortAdapter(const std::string& strRef) {
+  std::string::size_type refStart = 0;
   parse(strRef, refStart);
 }
 
-void WfMultiplePortAdapter::parse(const string& strRef,
-                                  string::size_type& startPos) {
+void
+WfMultiplePortAdapter::parse(const std::string& strRef,
+                             std::string::size_type& startPos) {
   while (startPos < strRef.length()) {
-    string::size_type parLeft  = strRef.find(parLeftChar,startPos);
-    string::size_type parRight = strRef.find(parRightChar,startPos);
-    string::size_type sepRight = strRef.find(separatorChar,startPos);
-    if (parLeft < sepRight) { // multiple refs inside ( )
+    std::string::size_type parLeft  = strRef.find(parLeftChar, startPos);
+    std::string::size_type parRight = strRef.find(parRightChar, startPos);
+    std::string::size_type sepRight = strRef.find(separatorChar, startPos);
+    if (parLeft < sepRight) {  // multiple refs inside ()
       startPos = parLeft+1;
       WfMultiplePortAdapter* mulAd = new WfMultiplePortAdapter();
       mulAd->parse(strRef, startPos);
       addSubAdapter(mulAd);
       // re-initialize separator position (because startPos changed)
-      sepRight = strRef.find(separatorChar,startPos);
-      parRight = strRef.find(parRightChar,startPos);
+      sepRight = strRef.find(separatorChar, startPos);
+      parRight = strRef.find(parRightChar, startPos);
 
     } else {  // simple ref
-      string::size_type refEnd = (parRight < sepRight) ? parRight-1 :
-        (sepRight == string::npos) ? strRef.length()-1 : sepRight-1;
+      std::string::size_type refEnd = (parRight < sepRight) ? parRight-1 :
+        (sepRight == std::string::npos) ? strRef.length()-1 : sepRight-1;
       WfPortAdapter* adapt =
         createAdapter(strRef.substr(startPos, refEnd-startPos+1));
       addSubAdapter(adapt);
@@ -431,9 +436,10 @@ void WfMultiplePortAdapter::parse(const string& strRef,
     // if followed by a; => skip it and continue parsing
     if (sepRight < parRight) {
       startPos = sepRight + 1;
-      // in other cases i.e. ) or nothing, this is the end of the current adapter
+      // in other cases i.e.) or nothing, this is the end of the current adapter
     } else {
-      startPos = (parRight == string::npos) ? strRef.length()-1 : parRight + 1;
+      startPos = (parRight == std::string::npos) ?
+        strRef.length()-1 : parRight + 1;
       break;
     }
   }
@@ -448,7 +454,7 @@ WfMultiplePortAdapter::WfMultiplePortAdapter(const WfMultiplePortAdapter& mpa) {
 
 WfMultiplePortAdapter::~WfMultiplePortAdapter() {
   // Free the adapters list
-  while (! adapters.empty() ) {
+  while (!adapters.empty()) {
     WfPortAdapter *p = adapters.front();
     adapters.pop_front();
     delete p;
@@ -480,24 +486,27 @@ WfMultiplePortAdapter::connectPorts(WfPort* port, unsigned int adapterLevel)
   }
 }
 
-string WfMultiplePortAdapter::errorID = string("ID_Error");
+string WfMultiplePortAdapter::errorID = std::string("ID_Error");
 
 string
 WfMultiplePortAdapter::getSourceRef() const {
-  string s = "(";
-  list<WfPortAdapter*>::const_iterator adaptIter = adapters.begin();
+  std::string s("(");
+  std::list<WfPortAdapter*>::const_iterator adaptIter = adapters.begin();
   while (adaptIter != adapters.end()) {
     s += ((WfPortAdapter*) *adaptIter)->getSourceRef();
-    if (++adaptIter != adapters.end())
+    if (++adaptIter != adapters.end()) {
       s += ";";
+    }
   }
   s += ")";
   return s;
 }
 
-const string&
+const std::string&
 WfMultiplePortAdapter::getSourceDataID() {
-  if (!containerID.empty()) return containerID;
+  if (!containerID.empty()) {
+    return containerID;
+  }
   // First check if all adapters have either their ID defined or are VOID
   // (will throw exception if one is not defined)
   for (list<WfPortAdapter*>::iterator iter = adapters.begin();
@@ -506,35 +515,36 @@ WfMultiplePortAdapter::getSourceDataID() {
     try {
       (*iter)->getSourceDataID();
     } catch (WfDataException& e) {
-      if (e.Type() != WfDataException::eVOID_DATA)
+      if (e.Type() != WfDataException::eVOID_DATA) {
         throw;
+      }
     }
   }
   // If ok then create container to merge all adapters
   char* idCont;
-  TRACE_TEXT(TRACE_ALL_STEPS,"## Creating container to merge ports" << endl);
+  TRACE_TEXT(TRACE_ALL_STEPS, "## Creating container to merge ports\n");
   dagda_create_container(&idCont);
   int ix = 0;
   for (list<WfPortAdapter*>::iterator iter = adapters.begin();
        iter != adapters.end();
        ++iter) {
     try {
-
-      const string& idElt = (*iter)->getSourceDataID();
+      const std::string& idElt = (*iter)->getSourceDataID();
       TRACE_TEXT(TRACE_ALL_STEPS, "## merging "
-                 << idElt << " into " << idCont << endl);
-      dagda_add_container_element(idCont,idElt.c_str(),ix++);
-
+                 << idElt << " into " << idCont << "\n");
+      dagda_add_container_element(idCont, idElt.c_str(), ix++);
     } catch (WfDataException& e) {
       if (e.Type() == WfDataException::eVOID_DATA) {
         TRACE_TEXT(TRACE_ALL_STEPS, "## merging NULL elt into "
-                   << idCont << endl);
+                   << idCont << "\n");
         dagda_add_container_null_element(idCont, ix++);
-      } else throw;
+      } else {
+        throw;
+      }
     }
   }
   containerID = idCont;
-  TRACE_TEXT(TRACE_ALL_STEPS,"## End of merge ports" << endl);
+  TRACE_TEXT(TRACE_ALL_STEPS, "## End of merge ports\n");
   return containerID;
 }
 
@@ -586,7 +596,7 @@ WfVoidAdapter::WfVoidAdapter() {
 
 WfVoidAdapter::~WfVoidAdapter() {}
 
-string WfVoidAdapter::voidRef = string("#UNDEF");
+std::string WfVoidAdapter::voidRef("#UNDEF");
 
 void
 WfVoidAdapter::setNodePrecedence(WfNode* node, NodeSet* nodeSet)
@@ -603,7 +613,7 @@ WfVoidAdapter::getSourceRef() const {
   return voidRef;
 }
 
-const string&
+const std::string&
 WfVoidAdapter::getSourceDataID() {
   throw WfDataException(WfDataException::eVOID_DATA, "");
 }
@@ -631,16 +641,16 @@ WfVoidAdapter::freeAdapterPersistentData(MasterAgent_var& MA) {
 /*                          WfValueAdapter                                   */
 /*****************************************************************************/
 
-string WfValueAdapter::valStartTag = string("#VALDEB#");
-string WfValueAdapter::valFinishTag = string("#VALFIN#");
+std::string WfValueAdapter::valStartTag("#VALDEB#");
+std::string WfValueAdapter::valFinishTag("#VALFIN#");
 
-WfValueAdapter::WfValueAdapter(const string& value)
+WfValueAdapter::WfValueAdapter(const std::string& value)
   : myValue(value), myDataType(WfCst::TYPE_UNKNOWN),
     cx(NULL), sx(NULL), ix(NULL), lx(NULL), fx(NULL), dx(NULL), str(NULL) {
 }
 
 WfValueAdapter::WfValueAdapter(WfCst::WfDataType valueType,
-                               const string& value)
+                               const std::string& value)
   : myValue(value), myDataType(valueType),
     cx(NULL), sx(NULL), ix(NULL), lx(NULL), fx(NULL), dx(NULL), str(NULL) {
 }
@@ -673,7 +683,7 @@ WfValueAdapter::getSourceRef() const {
   return valStartTag + myValue + valFinishTag;
 }
 
-const string&
+const std::string&
 WfValueAdapter::getSourceDataID() {
   if (!myDataID.empty()) {
     return myDataID;
@@ -681,8 +691,9 @@ WfValueAdapter::getSourceDataID() {
 
   char *valID = NULL;
   char **valIDPtr = &valID;
-  boost::format errorTpl("DAGDA failed to upload data to the platform (value '%1%')%2%");
-  std::cout << "GetSourceDataID: " << myValue << std::endl;
+  boost::format errorTpl("DAGDA failed to upload data to the platform"
+                         "(value '%1%')%2%");
+  std::cout << "GetSourceDataID: " << myValue << "\n";
   try {
     switch (myDataType) {
     case WfCst::TYPE_CHAR:
@@ -714,8 +725,9 @@ WfValueAdapter::getSourceDataID() {
       break;
     default:
       throw WfDataException(WfDataException::eWRONGTYPE,
-                            "Cannot initialize data due to unknown type in value adapter");
-    } // end (switch)
+                            "Cannot initialize data due to unknown"
+                            "type in value adapter");
+    }
   } catch (Dagda::ReadError& ex) {
     errorTpl % myValue % "(Read Error)";
     throw WfDataException(WfDataException::eREADFILERROR, errorTpl.str());
@@ -751,7 +763,7 @@ WfValueAdapter::freeAdapterPersistentData(MasterAgent_var& MA) {
     TRACE_TEXT(TRACE_ALL_STEPS, "Deleting persistent data (value adapter): "
                << myDataID << endl);
     char *dataId = const_cast<char*>(myDataID.c_str());
-    if (MA->diet_free_pdata(dataId)==0) {
+    if (MA->diet_free_pdata(dataId) == 0) {
       WARNING("Could not delete persistent data: " << dataId);
     }
   }
@@ -787,15 +799,17 @@ WfValueAdapter::newLong() {
 
 char *
 WfValueAdapter::newString() {
-  str = new char[myValue.size()+1];
-  strcpy(str, myValue.c_str());
+  size_t sz = myValue.size() + 1;
+  str = new char[sz];
+  snprintf(str, sz, myValue.c_str());
   return str;
 }
 
 char *
 WfValueAdapter::newFile() {
-  str = new char[myValue.size()+1];
-  strcpy(str, myValue.c_str());
+  size_t sz = myValue.size() + 1;
+  str = new char[sz];
+  snprintf(str, sz, myValue.c_str());
   return str;
 }
 
@@ -817,20 +831,22 @@ WfValueAdapter::newDouble() {
 /*                         WfDataIDAdapter                                   */
 /*****************************************************************************/
 
-string WfDataIDAdapter::IDStartTag = string("#IDDEB#");
-string WfDataIDAdapter::IDFinishTag = string("#IDFIN#");
-std::map<string, std::vector<string> > WfDataIDAdapter::myCache;
+std::string WfDataIDAdapter::IDStartTag("#IDDEB#");
+
+std::string WfDataIDAdapter::IDFinishTag("#IDFIN#");
+
+std::map<std::string, std::vector<std::string> > WfDataIDAdapter::myCache;
 
 WfDataIDAdapter::WfDataIDAdapter(WfCst::WfDataType dataType,
                                  unsigned int dataDepth,
-                                 const string& dataID)
+                                 const std::string& dataID)
   : myDataID(dataID), myDataType(dataType), myDepth(dataDepth) {
   if (dataID.empty()) {
     WARNING("Creating WfDataIDAdapter with empty data ID");
   }
 }
 
-WfDataIDAdapter::WfDataIDAdapter(const string& dataID)
+WfDataIDAdapter::WfDataIDAdapter(const std::string& dataID)
   : myDataID(dataID), myDataType(WfCst::TYPE_UNKNOWN), myDepth(0) {
   if (dataID.empty()) {
     WARNING("Creating WfDataIDAdapter with empty data ID");
@@ -854,7 +870,7 @@ WfDataIDAdapter::getSourceRef() const {
   return IDStartTag + myDataID + IDFinishTag;
 }
 
-const string&
+const std::string&
 WfDataIDAdapter::getSourceDataID() {
   return myDataID;
 }
@@ -865,9 +881,11 @@ WfDataIDAdapter::getSourceDataType() {
 }
 
 void
-WfDataIDAdapter::getElements(vector< string >& vectID)
-{
-  if (myDataID.empty()) return;
+WfDataIDAdapter::getElements(vector< std::string >& vectID) {
+  if (myDataID.empty()) {
+    return;
+  }
+
   std::map<string, std::vector<string> >::const_iterator cacheIter =
     myCache.find(myDataID);
   if (cacheIter != myCache.end()) {
@@ -890,21 +908,23 @@ WfDataIDAdapter::getElements(vector< string >& vectID)
     if (content->size != vectID.size()) {
       vectID.resize(content->size);
     }
-    string eltIdsMsg = "";
-    for (unsigned int i = 0; i<content->size; ++i) {
+    std::string eltIdsMsg = "";
+    for (unsigned int i = 0; i < content->size; ++i) {
       if (content->elt_ids[i] != NULL) {
         vectID[i] = content->elt_ids[i];
         eltIdsMsg += vectID[i];
       } else {
         eltIdsMsg += WfVoidAdapter::voidRef;
       }
-      if (i != content->size-1) eltIdsMsg += ";";
+      if (i != content->size-1) {
+        eltIdsMsg += ";";
+      }
     }
     events::sendEventFrom<WfDataIDAdapter,
-      WfDataIDAdapter::ELTIDLIST>(this,
-                                  "Container elements",
-                                  eltIdsMsg,
-                                  EventBase::INFO);
+                          WfDataIDAdapter::ELTIDLIST>(this,
+                                                      "Container elements",
+                                                      eltIdsMsg,
+                                                      EventBase::INFO);
     free(content->elt_ids);
 
     // update cache
@@ -937,7 +957,7 @@ WfDataIDAdapter::writeDataValue(WfDataWriter* dataWriter) {
 // static & recursive
 void
 WfDataIDAdapter::getAndWriteData(WfDataWriter* dataWriter,
-                                 const string& dataID,
+                                 const std::string& dataID,
                                  WfCst::WfDataType dataType,
                                  unsigned int dataDepth) {
   if (dataID.empty()) {
@@ -959,7 +979,7 @@ WfDataIDAdapter::getAndWriteData(WfDataWriter* dataWriter,
         } else {
           getAndWriteData(dataWriter, *eltIter, dataType, dataDepth-1);
         }
-      } // end for
+      }
 
       dataWriter->endContainer();
 
@@ -985,7 +1005,7 @@ WfDataIDAdapter::getAndWriteData(WfDataWriter* dataWriter,
       dataWriter->itemValue(value, (WfCst::WfDataType) dataType);
     } else if (dataType == WfCst::TYPE_SHORT) {
       short *value;
-      dagda_get_scalar(dataID.c_str(),&value, NULL);
+      dagda_get_scalar(dataID.c_str(), &value, NULL);
       dataWriter->itemValue(value, (WfCst::WfDataType) dataType);
     } else if (dataType == WfCst::TYPE_PARAMSTRING) {
       char *value;
@@ -997,14 +1017,14 @@ WfDataIDAdapter::getAndWriteData(WfDataWriter* dataWriter,
       dataWriter->itemValue(value, (WfCst::WfDataType) dataType);
     } else if (dataType == WfCst::TYPE_FILE) {
       char *path;
-      dagda_get_file(dataID.c_str(),&path);
+      dagda_get_file(dataID.c_str(), &path);
       dataWriter->itemValue(path, (WfCst::WfDataType) dataType);
     }
   } catch (Dagda::DataNotFound& e) {
-    string errorMsg = "Data ID = " + string(dataID.c_str());
+    std::string errorMsg = "Data ID = " + std::string(dataID.c_str());
     throw WfDataException(WfDataException::eNOTFOUND, errorMsg);
   } catch (Dagda::ReadError& e) {
-    string errorMsg = "Data ID = " + string(dataID.c_str());
+    std::string errorMsg = "Data ID = " + std::string(dataID.c_str());
     throw WfDataException(WfDataException::eREADFILERROR, errorMsg);
   }
 }

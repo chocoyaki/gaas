@@ -58,7 +58,7 @@
  * replaced uint by standard type
  *
  * Revision 1.7  2008/10/14 13:31:01  bisnard
- * new class structure for dags (DagNode,DagNodePort)
+ * new class structure for dags (DagNode, DagNodePort)
  *
  * Revision 1.6  2008/10/02 08:28:47  bisnard
  * new WfPort method to free persistent data

@@ -58,7 +58,7 @@ extern "C" {
     *pk_out = NULL;
     printf("path = %s\n", pem_path);
     fd = fopen(pem_path, "r");
-    if(fd != NULL)
+    if (fd != NULL)
       {
         *pk_out = PEM_read_PrivateKey(fd, NULL, NULL, NULL);
         printf("read-pk\n");
@@ -77,7 +77,7 @@ extern "C" {
     FILE*fd;
     *cert_out = NULL;
     fd = fopen(pem_path, "r");
-    if(fd != NULL)
+    if (fd != NULL)
       {
         *cert_out = PEM_read_X509(fd, NULL, NULL, NULL);
         fclose(fd);

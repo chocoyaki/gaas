@@ -56,7 +56,7 @@ WfExpressionParser* WfExpressionParser::myInstance = NULL;
 
 // Private constructor
 WfExpressionParser::WfExpressionParser() {
-  TRACE_TEXT (TRACE_ALL_STEPS,"Initializing XQilla..." << endl);
+  TRACE_TEXT(TRACE_ALL_STEPS, "Initializing XQilla...\n");
   myImpl = new XQilla();
 }
 
@@ -77,7 +77,7 @@ WfExpressionParser::instance() {
 // Parse method
 XQQuery*
 WfExpressionParser::parse(const std::string& queryStr) {
-  TRACE_TEXT (TRACE_ALL_STEPS,"Parsing XQuery: " << queryStr << endl);
+  TRACE_TEXT(TRACE_ALL_STEPS, "Parsing XQuery: " << queryStr << "\n");
   return myImpl->parse(X(queryStr.c_str()));
 }
 
@@ -90,18 +90,17 @@ WfExprVariable::WfExprVariable(const std::string& varName,
   : myName(varName), myType(varType), myValue() {}
 
 void
-WfExprVariable::getXQDeclaration(ostream& output) {
+WfExprVariable::getXQDeclaration(std::ostream& output) {
   output << "declare variable $" << myName;
   if (myType != WfCst::TYPE_CONTAINER) {
-
     std::string xsType = WfCst::cvtWfToXSType(myType);
     std::string quotes = (xsType == "xs:string") ? "'" : "";
     output << " as " << xsType
-           << " := " << xsType << "(" << quotes << myValue << quotes << "); "
-           << endl;
+           << " := " << xsType << "(" << quotes << myValue << quotes
+           << "); \n";
   } else {
     // in this case the value is supposed to be XML-encoded
-    output << " := document { " << myValue << " }; " << endl;
+    output << " := document { " << myValue << " }\n";
   }
 }
 
@@ -160,8 +159,9 @@ WfExpression::isVariableUsed(const std::string& varName) {
   // find character following the variable (if not at the end)
   std::string nextChar;
   std::string::size_type nextPos = pos + varName.length() + 1;
-  if (nextPos < myExpression.length())
+  if (nextPos < myExpression.length()) {
     nextChar = myExpression.substr(nextPos, 1);
+  }
   // find occurence of this next character in the separators list
   std::string::size_type nextCharIsSep = XQVarSeparators.find(nextChar);
 
@@ -181,12 +181,11 @@ WfExpression::getQueryString() {
 
 void
 WfExpression::initQuery() {
-  TRACE_TEXT(TRACE_MAIN_STEPS, "Initialize query..." << endl);
-  ostringstream queryStream;
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Initialize query...\n");
+  std::ostringstream queryStream;
 
-  for (list<WfExprVariable*>::iterator varIter = myVariables.begin();
-       varIter != myVariables.end();
-       ++varIter) {
+  std::list<WfExprVariable*>::iterator varIter = myVariables.begin();
+  for (; varIter != myVariables.end(); ++varIter) {
     ((WfExprVariable*) *varIter)->getXQDeclaration(queryStream);
   }
   queryStream << myExpression;
@@ -232,7 +231,7 @@ WfBooleanExpression::testIfTrue() {
   } else if (myResult == "false") {
     return false;
   } else {
-    WARNING("WfBooleanExpression: wrong result! (" << myResult << ")" << endl);
+    WARNING("WfBooleanExpression: wrong result! (" << myResult << ")\n");
     return false;
   }
 }

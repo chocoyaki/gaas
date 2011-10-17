@@ -9,7 +9,7 @@
 /* $Id$
  * $Log$
  * Revision 1.18  2011/03/16 14:54:06  hguemar
- * remove dead code: unused class DietException in src/client/CallAsyncMgr.{hh,cc}
+ * remove dead code: unused class DietException in src/client/CallAsyncMgr.{hh, cc}
  *
  * Revision 1.17  2010/03/31 21:15:39  bdepardo
  * Changed C headers into C++ headers

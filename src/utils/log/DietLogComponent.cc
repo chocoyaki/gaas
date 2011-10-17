@@ -196,7 +196,7 @@ using namespace std;
 /**
  * Error message - exit with exit_value.
  */
-#define DLC_ERROR(formatted_msg,exit_value)                     \
+#define DLC_ERROR(formatted_msg, exit_value)                     \
   cerr << "DIET ERROR: " << formatted_msg << "." << endl        \
   << "cannot proceed." << endl;                                 \
   exit(exit_value)
@@ -249,7 +249,7 @@ FlushBufferThread::run_undetached(void* params)
   while (threadRunning) {
     myDLC->sendOutBuffer();
 
-    sleep(0,outBufferTimeNSec);
+    sleep(0, outBufferTimeNSec);
   }
   return NULL;
 }
@@ -370,17 +370,17 @@ DietLogComponent::DietLogComponent(const char* name,
 
   //   try {
   //     myLCCptr = LogORBMgr::getMgr()->resolveObject(LOGCOMPCTXT, "LCC");
-  //   } catch(CORBA::SystemException &e) {
-  //     DLC_ERROR("Could not resolve 'LogService./LogComponent (LCC).' from the NS",1);
+  //   } catch (CORBA::SystemException &e) {
+  //     DLC_ERROR("Could not resolve 'LogService./LogComponent (LCC).' from the NS", 1);
   //   }
   //   if (CORBA::is_nil(myLCCptr)) {
-  //     DLC_ERROR("Could not resolve 'LogService./LogComponent (LCC).' from the NS",1);
+  //     DLC_ERROR("Could not resolve 'LogService./LogComponent (LCC).' from the NS", 1);
   //   }
 
   //   try {
   //     myLCC = LogCentralComponent::_narrow(myLCCptr);
-  //   } catch(CORBA::SystemException &e) {
-  //     DLC_ERROR("Could not narrow the LogCentralComponent",1);
+  //   } catch (CORBA::SystemException &e) {
+  //     DLC_ERROR("Could not narrow the LogCentralComponent", 1);
   //   }
 
   //   try{
@@ -428,7 +428,7 @@ int DietLogComponent::run(const char* agentType,
   // Connect myself to the LogCentral
   short ret = 0;
   char* hostName = (char*) malloc(256 * sizeof(char));
-  if(gethostname(hostName,255) != 0) {
+  if (gethostname(hostName, 255) != 0) {
     free(hostName);
     hostName = strdup("unknownHost");
   }
@@ -450,18 +450,17 @@ int DietLogComponent::run(const char* agentType,
       name,
       time,
       currentTagList
-      );
+);
   } catch (CORBA::SystemException &e) {
-    free(msg);
-    free(hostName);
-    TRACE_TEXT(TRACE_MAIN_STEPS, "Error: could not connect to the LogCentral" << endl);
+    TRACE_TEXT(TRACE_MAIN_STEPS,
+               "Error: could not connect to the LogCentral\n");
     ERROR("SystemException",-1);
   }
   free(hostName);  // alloc'ed with new[]
-  free(msg);          // alloc'ed with strdup (e.g. malloc)
+  free(msg);       // alloc'ed with strdup (e.g. malloc)
 
   if (ret != LS_OK) {
-    ERROR("LogCentral refused connection",ret);
+    ERROR("LogCentral refused connection", ret);
   }
 
   setTagFilter(currentTagList);
@@ -603,7 +602,7 @@ DietLogComponent::test() {
 char*
 DietLogComponent::getEstimationTags(const int v_tag){
   char* ret;
-  switch(v_tag){
+  switch (v_tag){
   case(EST_INVALID): // -1
     ret = strdup("EST_INVALID");
     break;
@@ -721,7 +720,7 @@ int DietLogComponent::getTagIndex(const char* tag) {
 
 bool DietLogComponent::containsStar(const tag_list_t* tagList) {
   for (int i = 0; i < (int)tagList->length(); i++) {
-    if (strcmp((*tagList)[i],"*") == 0) {
+    if (strcmp((*tagList)[i], "*") == 0) {
       return true;
     }
   }
@@ -752,7 +751,7 @@ DietLogComponent::getLocalTime() {
  * Count the number of Digits in a unsigned long
  */
 static int num_Digits(unsigned long num){
-  if ( num < 10 )
+  if (num < 10)
     return 1;
   else
     return 1+num_Digits(num/10);
@@ -763,7 +762,7 @@ static int num_Digits(unsigned long num){
 
 void
 DietLogComponent::ping() {
-  if(isConnected) {
+  if (isConnected) {
     try {
       myLCC->ping(name);
     } catch (CORBA::SystemException &e) {
@@ -776,7 +775,7 @@ DietLogComponent::ping() {
 void
 DietLogComponent::synchronize() {
   log_time_t time = getLocalTime();
-  if(isConnected) {
+  if (isConnected) {
     try {
       myLCC->synchronize(name, time);
     } catch (CORBA::SystemException &e) {
@@ -829,7 +828,7 @@ void
 DietLogComponent::handleDisconnect(CORBA::SystemException &e) {
   DLC_WARNING("Connection to LogCentral failed");
 #ifdef DLC_ERROR_BEHAVIOUR_FATAL
-  DLC_ERROR("Cannot proceed without LogCentral connection",1);
+  DLC_ERROR("Cannot proceed without LogCentral connection", 1);
 #else
   DLC_WARNING("LogComponent module stopped - agent will continue without LogCentral");
   isConnected = false;
@@ -899,8 +898,8 @@ DietLogComponent::logAskForSeD(const corba_request_t* request) {
   if (tagFlags[1]) {
     // FIXME: add request parameters (size of request arguments?)
     char* s;
-    s = (char*)malloc( (strlen(request->pb.path) + num_Digits(request->reqID)+2)*sizeof(char));
-    sprintf(s,"%s %ld",(const char *)(request->pb.path),(unsigned long)(request->reqID));
+    s = (char*)malloc((strlen(request->pb.path) + num_Digits(request->reqID)+2)*sizeof(char));
+    sprintf(s, "%s %ld",(const char *)(request->pb.path),(unsigned long)(request->reqID));
     log(tagNames[1], s);
     free(s);
   }
@@ -912,9 +911,9 @@ DietLogComponent::logSedChosen(const corba_request_t* request,
   if (tagFlags[2]) {
     char* s;
     if (response->servers.length()>0){
-      unsigned int i,j;
+      unsigned int i, j;
       string estim_string = "";
-      for ( i = 0; i < response->servers.length();i++){
+      for (i = 0; i < response->servers.length();i++){
         estim_string.append(" ");
         estim_string.append(response->servers[i].loc.hostName);
         for (j = 0; j < response->servers[i].estim.estValues.length(); j++){
@@ -924,7 +923,7 @@ DietLogComponent::logSedChosen(const corba_request_t* request,
           estim_string.append("=");
           //char* v_value= new char[256];
           char v_value[128];
-          sprintf(v_value,"%f",response->servers[i].estim.estValues[j].v_value);
+          sprintf(v_value, "%f", response->servers[i].estim.estValues[j].v_value);
           estim_string.append(v_value);
           //delete(v_value);
         }
@@ -934,21 +933,21 @@ DietLogComponent::logSedChosen(const corba_request_t* request,
                          +num_Digits(response->servers.length())
                          +estim_string.length()
                          +5)*sizeof(char));
-      sprintf(s,"%s %ld %ld%s"
+      sprintf(s, "%s %ld %ld%s"
               ,(const char *)(request->pb.path)
               ,(unsigned long)(request->reqID)
               ,(unsigned long)(response->servers.length())
               ,(const char *)(estim_string.c_str())
-        );
+);
     } else {
       s = (char*)malloc((strlen(request->pb.path)
                          +num_Digits(request->reqID)
                          +num_Digits(response->servers.length())
                          +3)*sizeof(char));
-      sprintf(s,"%s %ld %ld",
+      sprintf(s, "%s %ld %ld",
               (const char *)(request->pb.path),
               (unsigned long)(request->reqID),
-              (unsigned long)(response->servers.length()) );
+              (unsigned long)(response->servers.length()));
     }
     log(tagNames[2], s);
     free(s);
@@ -970,7 +969,7 @@ DietLogComponent::logBeginSolve(const char* path,
     // FIXME: print problem (argument size?)
     char* s;
     s = (char*)malloc((strlen(path)+num_Digits(problem->dietReqID)+2)*sizeof(char));
-    sprintf(s,"%s %ld",(const char *)(path),(unsigned long)(problem->dietReqID));
+    sprintf(s, "%s %ld",(const char *)(path),(unsigned long)(problem->dietReqID));
     log(tagNames[3], s);
     free(s);
   }
@@ -983,7 +982,7 @@ DietLogComponent::logEndDownload(const char* path,
   if (tagFlags[28]) {
     char* s;
     s = (char*)malloc((strlen(path)+num_Digits(problem->dietReqID)+2)*sizeof(char));
-    sprintf(s,"%s %ld",(const char *)(path),(unsigned long)(problem->dietReqID));
+    sprintf(s, "%s %ld",(const char *)(path),(unsigned long)(problem->dietReqID));
     log(tagNames[28], s);
     free(s);
   }
@@ -996,7 +995,7 @@ DietLogComponent::logEndSolve(const char* path,
   if (tagFlags[4]) {
     char* s;
     s = (char*)malloc((strlen(path)+num_Digits(problem->dietReqID)+2)*sizeof(char));
-    sprintf(s,"%s %ld",(const char *)(path),(unsigned long)(problem->dietReqID));
+    sprintf(s, "%s %ld",(const char *)(path),(unsigned long)(problem->dietReqID));
     log(tagNames[4], s);
     free(s);
   }
@@ -1023,33 +1022,33 @@ DietLogComponent::logDataStore(const char* dataID, const long unsigned int size,
   if (tagFlags[6]) {
     switch (base_type) {
     case DIET_CHAR: {
-      strcpy(base,"CHAR");
-      sprintf(s,"%s %ld %s %s",(const char *)(dataID),(long unsigned int)(size),type, base);
+      strcpy(base, "CHAR");
+      sprintf(s, "%s %ld %s %s",(const char *)(dataID),(long unsigned int)(size), type, base);
       break;
     }
     case DIET_SHORT: {
-      strcpy(base,"SHORT");
-      sprintf(s,"%s %ld %s %s",(const char *)(dataID),(long unsigned int)(size), type, base);
+      strcpy(base, "SHORT");
+      sprintf(s, "%s %ld %s %s",(const char *)(dataID),(long unsigned int)(size), type, base);
       break;
     }
     case DIET_INT: {
-      strcpy(base,"INTEGER");
-      sprintf(s,"%s %ld %s %s",(const char *)(dataID),(long unsigned int)(size), type, base);
+      strcpy(base, "INTEGER");
+      sprintf(s, "%s %ld %s %s",(const char *)(dataID),(long unsigned int)(size), type, base);
       break;
     }
     case DIET_LONGINT: {
-      strcpy(base,"LONGINT");
-      sprintf(s,"%s %ld %s %s",(const char *)(dataID),(long unsigned int)(size), type, base);
+      strcpy(base, "LONGINT");
+      sprintf(s, "%s %ld %s %s",(const char *)(dataID),(long unsigned int)(size), type, base);
       break;
     }
     case DIET_FLOAT: {
-      strcpy(base,"FLOAT");
-      sprintf(s,"%s %ld %s %s",(const char *)(dataID),(long unsigned int)(size), type, base);
+      strcpy(base, "FLOAT");
+      sprintf(s, "%s %ld %s %s",(const char *)(dataID),(long unsigned int)(size), type, base);
       break;
     }
     case DIET_DOUBLE: {
-      strcpy(base,"DOUBLE");
-      sprintf(s,"%s %ld %s %s",(const char *)(dataID),(long unsigned int)(size), type, base);
+      strcpy(base, "DOUBLE");
+      sprintf(s, "%s %ld %s %s",(const char *)(dataID),(long unsigned int)(size), type, base);
       break;
     }
     } // end switch
@@ -1066,7 +1065,7 @@ DietLogComponent::logDataBeginTransfer(const char* dataID,
   if (tagFlags[7]) {
     char* s;
     s = (char*)malloc((strlen(dataID)+strlen(destAgent)+2)*sizeof(char));
-    sprintf(s,"%s %s",dataID, destAgent);
+    sprintf(s, "%s %s", dataID, destAgent);
     log(tagNames[7], s);
     free(s);
   }
@@ -1078,7 +1077,7 @@ DietLogComponent::logDataEndTransfer(const char* dataID,
   if (tagFlags[8]) {
     char* s;
     s = (char*)malloc((strlen(dataID)+strlen(destAgent)+2)*sizeof(char));
-    sprintf(s,"%s %s",dataID, destAgent);
+    sprintf(s, "%s %s", dataID, destAgent);
     log(tagNames[8], s);
     free(s);
   }
@@ -1091,7 +1090,7 @@ DietLogComponent::logDataTransferTime(const char* dataID,
   if (tagFlags[23]) {
     char* s;
     s = (char*)malloc((strlen(dataID)+strlen(destAgent)+num_Digits(elapsedTime)+3)*sizeof(char));
-    sprintf(s,"%s %s %ld",dataID, destAgent, elapsedTime);
+    sprintf(s, "%s %s %ld", dataID, destAgent, elapsedTime);
     log(tagNames[23], s);
   }
 }
@@ -1104,7 +1103,7 @@ void
 DietLogComponent::logMem(double mem) {
   if (tagFlags[9]) {
     char buf[20];
-    sprintf(buf,"%14.4f",mem);
+    sprintf(buf, "%14.4f", mem);
     log(tagNames[9], buf);
   }
 }
@@ -1113,7 +1112,7 @@ void
 DietLogComponent::logLoad(double load) {
   if (tagFlags[10]) {
     char buf[20];
-    sprintf(buf,"%14.4f",load);
+    sprintf(buf, "%14.4f", load);
     log(tagNames[10], buf);
   }
 }
@@ -1122,7 +1121,7 @@ void
 DietLogComponent::logLatency(double latency) {
   if (tagFlags[11]) {
     char buf[20];
-    sprintf(buf,"%14.4f",latency);
+    sprintf(buf, "%14.4f", latency);
     log(tagNames[11], buf);
   }
 }
@@ -1131,7 +1130,7 @@ void
 DietLogComponent::logBandwidth(double bandwidth) {
   if (tagFlags[12]) {
     char buf[20];
-    sprintf(buf,"%14.4f",bandwidth);
+    sprintf(buf, "%14.4f", bandwidth);
     log(tagNames[12], buf);
   }
 
@@ -1146,7 +1145,7 @@ void DietLogComponent::logWfNodeReady(const char *dagName,
                                       const char *nodeName)
 {
   char* log_msg = (char*)malloc((strlen(dagName)+strlen(nodeName)+1)*sizeof(char)+1);
-  sprintf(log_msg,"%s:%s",dagName,nodeName);
+  sprintf(log_msg, "%s:%s", dagName, nodeName);
   log(tagNames[24], log_msg);
   free(log_msg);
 }
@@ -1162,7 +1161,7 @@ void DietLogComponent::logWfNodeStart(const char *dagName,
 {
   char* log_msg = (char*)malloc((strlen(dagName)+strlen(nodeName)+strlen(pbName)
                                  +strlen(sedName)+num_Digits(reqID)+4)*sizeof(char)+1);
-  sprintf(log_msg,"%s:%s:%s:%s %ld",dagName,nodeName,sedName,pbName,reqID);
+  sprintf(log_msg, "%s:%s:%s:%s %ld", dagName, nodeName, sedName, pbName, reqID);
   log(tagNames[25], log_msg);
   free(log_msg);
 }
@@ -1171,7 +1170,7 @@ void DietLogComponent::logWfNodeStart(const char *dagName,
                                       const char *nodeName)
 {
   char* log_msg = (char*)malloc((strlen(dagName)+strlen(nodeName)+1)*sizeof(char)+1);
-  sprintf(log_msg,"%s:%s",dagName,nodeName);
+  sprintf(log_msg, "%s:%s", dagName, nodeName);
   log(tagNames[25], log_msg);
   free(log_msg);
 }
@@ -1183,7 +1182,7 @@ void DietLogComponent::logWfNodeFinish(const char *dagName,
                                        const char *nodeName)
 {
   char* log_msg = (char*)malloc((strlen(dagName)+strlen(nodeName)+1)*sizeof(char)+1);
-  sprintf(log_msg,"%s:%s",dagName,nodeName);
+  sprintf(log_msg, "%s:%s", dagName, nodeName);
   log(tagNames[26], log_msg);
   free(log_msg);
 }
@@ -1195,7 +1194,7 @@ void DietLogComponent::logWfNodeFailed(const char *dagName,
                                        const char *nodeName)
 {
   char* log_msg = (char*)malloc((strlen(dagName)+strlen(nodeName)+1)*sizeof(char)+1);
-  sprintf(log_msg,"%s:%s",dagName,nodeName);
+  sprintf(log_msg, "%s:%s", dagName, nodeName);
   log(tagNames[27], log_msg);
   free(log_msg);
 }
@@ -1206,7 +1205,7 @@ void DietLogComponent::logWfNodeFailed(const char *dagName,
 void
 DietLogComponent::maDagSchedulerType(const char* msg) {
   char* log_msg = (char*)malloc(strlen(msg)*sizeof(char)+1);
-  sprintf(log_msg,"%s",msg);
+  sprintf(log_msg, "%s", msg);
   log(tagNames[18], log_msg);
   free(log_msg);
 }
@@ -1217,7 +1216,7 @@ DietLogComponent::maDagSchedulerType(const char* msg) {
 void
 DietLogComponent::logDag(const char* msg) {
   char* log_msg = (char*)malloc(strlen(msg)*sizeof(char)+1);
-  sprintf(log_msg,"%s",msg);
+  sprintf(log_msg, "%s", msg);
   log(tagNames[19], log_msg);
   free(log_msg);
 }

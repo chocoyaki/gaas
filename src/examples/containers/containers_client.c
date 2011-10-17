@@ -26,7 +26,7 @@
 int
 usage(char* cmd)
 {
-  printf("Usage : %s <file.cfg> <service_name> <time>\nExample : %s client.cfg service1 100\n",cmd,cmd);
+  printf("Usage : %s <file.cfg> <service_name> <time>\nExample : %s client.cfg service1 100\n", cmd, cmd);
   printf("Warning: file /tmp/logo_diet.jpg MUST EXIST!\n");
   return 1;
 }
@@ -46,7 +46,7 @@ main(int argc, char* argv[])
   char * ID5;
   diet_container_t content1, content2;
   char *path3 = NULL;
-  if(argc == 4){
+  if (argc == 4){
     service_name = argv[2];
     sleepTime = (long) atoi(argv[3]);
   } else
@@ -56,9 +56,9 @@ main(int argc, char* argv[])
     fprintf(stderr, "DIET initialization failed !\n");
     return 1;
   }
-  profile1 = diet_profile_alloc(service_name,1,1,2);
+  profile1 = diet_profile_alloc(service_name, 1, 1, 2);
   /* set INPUT scalar parameter */
-  diet_scalar_set(diet_parameter(profile1,0), &sleepTime,DIET_VOLATILE, DIET_LONGINT);
+  diet_scalar_set(diet_parameter(profile1, 0), &sleepTime, DIET_VOLATILE, DIET_LONGINT);
 
   /* set INPUT container profile */
   printf("PUT first element on platform (scalar)\n");
@@ -76,13 +76,13 @@ main(int argc, char* argv[])
   printf("Add container element\n");
   dagda_add_container_element(ID4, ID3, 0);
   printf("Add PARENT container to profile\n");
-  diet_use_data(diet_parameter(profile1,1), ID4);
+  diet_use_data(diet_parameter(profile1, 1), ID4);
 
   /* set OUTPUT container profile */
-  diet_container_set(diet_parameter(profile1,2), DIET_PERSISTENT);
+  diet_container_set(diet_parameter(profile1, 2), DIET_PERSISTENT);
 
   printf("Start DIET CALL\n");
-  if (diet_call(profile1) ){
+  if (diet_call(profile1)){
     return 1;
   }
   printf("DIET CALL finished\n");

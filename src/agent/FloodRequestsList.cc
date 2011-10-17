@@ -9,7 +9,7 @@
 /* $Id$
  * $Log$
  * Revision 1.6  2011/03/20 14:40:03  bdepardo
- * move nanobased usleep implementation to src/utils/DIET_compat.{hh,cc}
+ * move nanobased usleep implementation to src/utils/DIET_compat.{hh, cc}
  *
  * Revision 1.5  2010/03/31 21:15:39  bdepardo
  * Changed C headers into C++ headers
@@ -45,47 +45,44 @@
 #include "debug.hh"
 #include "DIET_compat.hh"
 
-bool FloodRequestsList::put(FloodRequest& floodRequest) {
-  //TRACE_TEXT(15,"fr put lock" << endl);
+bool
+FloodRequestsList::put(FloodRequest& floodRequest) {
   mutex.lock();
-  //TRACE_TEXT(15,"fr put --lock" << endl);
   RequestID reqId = floodRequest.getId();
   iterator iter = requestsList.find(reqId);
   bool result = (iter == requestsList.end());
-  if(result) {
+  if (result) {
     requestsList[reqId] = &floodRequest;
   }
-  //TRACE_TEXT(15,"fr put unlock" << endl);
   mutex.unlock();
   return result;
 }
 
-FloodRequest & FloodRequestsList::get(const RequestID & reqID) {
+FloodRequest &
+FloodRequestsList::get(const RequestID & reqID) {
   int lp = 0;
   FloodRequest* result = NULL;
   bool find = false;
-  while (!find && lp < 100) { // waits a maximum of one second
-    //TRACE_TEXT(15,"fr get lock" << endl);
+  // waits a maximum of one second
+  while (!find && lp < 100) {
     mutex.lock();
-    //TRACE_TEXT(15,"fr get --lock" << endl);
     iterator iter = requestsList.find(reqID);
     find = (iter != requestsList.end());
     if (find) {
       result = &(*iter->second);
       requestsList.erase(iter);
-      //TRACE_TEXT(15,"fr get unlock" << endl);
       mutex.unlock();
     } else {
       // if the request is not found, wait 10 ms that a thread free
       // the resource access
-      //TRACE_TEXT(15,"fr get unlock" << endl);
       mutex.unlock();
       TRACE_TEXT(20, "FloodRequestsLists sleep 10ms\n");
       diet::usleep(10000);
     }
   }
-  if (!find)
+  if (!find) {
     throw FloodRequestNotFoundException(reqID);
+  }
   return *result;
 }
 

@@ -171,7 +171,7 @@ extern omni_mutex debug_log_mutex;
 /**
  * Error message - return with return_value.
  */
-#define ERROR(formatted_msg,return_value) {                     \
+#define ERROR(formatted_msg, return_value) {                     \
     if ((int)TRACE_LEVEL >= (int)TRACE_ERR_AND_WARN) {          \
       debug_log_mutex.lock();                                   \
       std::cerr << "DIET ERROR: " << formatted_msg << ".\n";    \
@@ -208,7 +208,7 @@ extern omni_mutex debug_log_mutex;
 /**
  * Internal Error message - exit with exit_value.
  */
-#define INTERNAL_ERROR(formatted_msg,exit_value)                        \
+#define INTERNAL_ERROR(formatted_msg, exit_value)                        \
   if ((int)TRACE_LEVEL >= (int)TRACE_ERR_AND_WARN) {                    \
     debug_log_mutex.lock();                                             \
     std::cerr << "DIET INTERNAL ERROR: " << formatted_msg << ".\n" <<   \
@@ -225,12 +225,12 @@ extern omni_mutex debug_log_mutex;
     debug_log_mutex.lock();                                             \
     std::cerr << "DIET INTERNAL WARNING: " << formatted_msg << ".\n" << \
       "This is not a fatal bug, but please send a report "              \
-      "to diet-dev@ens-lyon.fr\n"                          ;            \
+      "to diet-dev@ens-lyon.fr\n"                         ;            \
     debug_log_mutex.unlock(); }
 
 
 // DEBUG pause: insert a pause of duration <s>+<us>E-6 seconds
-#define PAUSE(s,us)                             \
+#define PAUSE(s, us)                             \
   {                                             \
     struct timeval tv;                          \
     tv.tv_sec  = s;                             \
@@ -241,7 +241,7 @@ extern omni_mutex debug_log_mutex;
 
 // DEBUG trace: print "function(formatted_text)\n", following the iostream
 // format. First argument is the minimum TRACE_LEVEL for the line to be printed.
-#define TRACE_FUNCTION(level,formatted_text)                            \
+#define TRACE_FUNCTION(level, formatted_text)                            \
   if ((int)TRACE_LEVEL >= (int)(level)) {                               \
     debug_log_mutex.lock();                                             \
     std::cout << __FUNCTION__ << '(' << formatted_text << ")\n";        \
@@ -249,7 +249,7 @@ extern omni_mutex debug_log_mutex;
 
 // DEBUG trace: print formatted_text following the iostream format (no '\n'
 // added). First argument is the minimum TRACE_LEVEL for the line to be printed.
-#define TRACE_TEXT(level,formatted_text)        \
+#define TRACE_TEXT(level, formatted_text)        \
   if ((int)TRACE_LEVEL >= (int)(level)) {       \
     debug_log_mutex.lock();                     \
     std::cout << formatted_text;                \
@@ -258,7 +258,7 @@ extern omni_mutex debug_log_mutex;
 // DEBUG trace: print "file:line: formatted_text", following the iostream format
 // (no '\n' added). First argument is the minimum TRACE_LEVEL for the line to be
 // printed.
-#define TRACE_TEXT_POS(level,formatted_text)                            \
+#define TRACE_TEXT_POS(level, formatted_text)                            \
   if ((int)TRACE_LEVEL >= (int)(level)) {                               \
     debug_log_mutex.lock();                                             \
     std::cout << __FILE__ << ':' << __LINE__ << ": " << formatted_text; \
@@ -267,7 +267,7 @@ extern omni_mutex debug_log_mutex;
 // DEBUG trace: print "time: formatted_text", following the iostream format (no
 // '\n' added). First argument is the minimum TRACE_LEVEL for the line to be
 // printed.
-#define TRACE_TIME(level,formatted_text)                                \
+#define TRACE_TIME(level, formatted_text)                                \
   if ((int)TRACE_LEVEL >= (int)(level)) {                               \
     struct timeval tv;                                                  \
     debug_log_mutex.lock();                                             \
@@ -318,7 +318,7 @@ extern omni_mutex debug_log_mutex;
   timeval tval;                                                 \
   gettimeofday(&tval, NULL);                                    \
   if (debug_format == 1) std::cout << "timer=";                 \
-  std::cout << tval.tv_sec << "," << tval.tv_usec << "|";
+  std::cout << tval.tv_sec << ", " << tval.tv_usec << "|";
 #define VARIABLE_OUTPUT(X)                      \
   std::cout << #X << "=" << X;
 #define TEXT_OUTPUT(X)                          \
@@ -326,10 +326,10 @@ extern omni_mutex debug_log_mutex;
 # if defined (NDEBUG)
 #   define DIET_DEBUG(X)
 # else
-#   define DIET_DEBUG(X) DIET_TRACE_IMPL(X,Y)
+#   define DIET_DEBUG(X) DIET_TRACE_IMPL(X, Y)
 # endif
 
-# define DIET_TRACE_IMPL(X,Y)                           \
+# define DIET_TRACE_IMPL(X, Y)                           \
   do {                                                  \
     if (traceTimer == 1) { TIMER_OUTPUT() }             \
     if (traceThreadId == 1){ OMNITHREADID_OUTPUT() }    \

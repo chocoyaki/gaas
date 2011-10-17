@@ -131,11 +131,11 @@ main(int argc, char* argv[]) {
   std::cout << "#### Characters" << std::endl;
   std::cout << "Before the call: l1=" << (short) l1 << ", l2=" << (short)l2 << std::endl;
   profile = diet_profile_alloc(PB[0], 0, 1, 2);
-  diet_scalar_set(diet_parameter(profile,0), &l1,  DIET_VOLATILE, DIET_CHAR);
-  diet_scalar_set(diet_parameter(profile,1), &l2,  DIET_VOLATILE, DIET_CHAR);
-  diet_scalar_set(diet_parameter(profile,2), NULL, DIET_VOLATILE, DIET_CHAR);
+  diet_scalar_set(diet_parameter(profile, 0), &l1,  DIET_VOLATILE, DIET_CHAR);
+  diet_scalar_set(diet_parameter(profile, 1), &l2,  DIET_VOLATILE, DIET_CHAR);
+  diet_scalar_set(diet_parameter(profile, 2), NULL, DIET_VOLATILE, DIET_CHAR);
   if (!diet_call(profile)) {
-    diet_scalar_get(diet_parameter(profile,2), &pl3, NULL);
+    diet_scalar_get(diet_parameter(profile, 2), &pl3, NULL);
     std::cout << "After the call: l1=" << (long) l1 << ", l2=" << (long)l2
               << ", l3=" << (long)*pl3 << std::endl;
   } else {
@@ -152,11 +152,11 @@ main(int argc, char* argv[]) {
   std::cout << "#### Shorts" << std::endl;
   std::cout << "Before the call: l1=" << (short) l1 << ", l2=" << (short)l2 << std::endl;
   profile = diet_profile_alloc(PB[1], 0, 1, 2);
-  diet_scalar_set(diet_parameter(profile,0), &l1,  DIET_VOLATILE, DIET_SHORT);
-  diet_scalar_set(diet_parameter(profile,1), &l2,  DIET_VOLATILE, DIET_SHORT);
-  diet_scalar_set(diet_parameter(profile,2), NULL, DIET_VOLATILE, DIET_SHORT);
+  diet_scalar_set(diet_parameter(profile, 0), &l1,  DIET_VOLATILE, DIET_SHORT);
+  diet_scalar_set(diet_parameter(profile, 1), &l2,  DIET_VOLATILE, DIET_SHORT);
+  diet_scalar_set(diet_parameter(profile, 2), NULL, DIET_VOLATILE, DIET_SHORT);
   if (!diet_call(profile)) {
-    diet_scalar_get(diet_parameter(profile,2), &pl3, NULL);
+    diet_scalar_get(diet_parameter(profile, 2), &pl3, NULL);
     std::cout << "After the call: l1=" << (long) l1 << ", l2=" << (long)l2
               << ", l3=" << (long)*pl3 << std::endl;
   } else {
@@ -172,11 +172,11 @@ main(int argc, char* argv[]) {
   std::cout << "#### Integers" << std::endl;
   std::cout << "Before the call: l1=" << (int) l1 << ", l2=" << (int)l2 << std::endl;
   profile = diet_profile_alloc(PB[2], 0, 1, 2);
-  diet_scalar_set(diet_parameter(profile,0), &l1,  DIET_VOLATILE, DIET_INT);
-  diet_scalar_set(diet_parameter(profile,1), &l2,  DIET_VOLATILE, DIET_INT);
-  diet_scalar_set(diet_parameter(profile,2), NULL, DIET_VOLATILE, DIET_INT);
+  diet_scalar_set(diet_parameter(profile, 0), &l1,  DIET_VOLATILE, DIET_INT);
+  diet_scalar_set(diet_parameter(profile, 1), &l2,  DIET_VOLATILE, DIET_INT);
+  diet_scalar_set(diet_parameter(profile, 2), NULL, DIET_VOLATILE, DIET_INT);
   if (!diet_call(profile)) {
-    diet_scalar_get(diet_parameter(profile,2), &pl3, NULL);
+    diet_scalar_get(diet_parameter(profile, 2), &pl3, NULL);
     std::cout << "After the call: l1=" << (long) l1 << ", l2=" << (long)l2
               << ", l3=" << (long)*pl3 << std::endl;
   } else {
@@ -193,11 +193,11 @@ main(int argc, char* argv[]) {
   std::cout << "#### Longs" << std::endl;
   std::cout << "Before the call: l1=" << (long) l1 << ", l2=" << (long)l2 << std::endl;
   profile = diet_profile_alloc(PB[3], 0, 1, 2);
-  diet_scalar_set(diet_parameter(profile,0), &l1,  DIET_VOLATILE, DIET_LONGINT);
-  diet_scalar_set(diet_parameter(profile,1), &l2,  DIET_VOLATILE, DIET_LONGINT);
-  diet_scalar_set(diet_parameter(profile,2), NULL, DIET_VOLATILE, DIET_LONGINT);
+  diet_scalar_set(diet_parameter(profile, 0), &l1,  DIET_VOLATILE, DIET_LONGINT);
+  diet_scalar_set(diet_parameter(profile, 1), &l2,  DIET_VOLATILE, DIET_LONGINT);
+  diet_scalar_set(diet_parameter(profile, 2), NULL, DIET_VOLATILE, DIET_LONGINT);
   if (!diet_call(profile)) {
-    diet_scalar_get(diet_parameter(profile,2), &pl3, NULL);
+    diet_scalar_get(diet_parameter(profile, 2), &pl3, NULL);
     std::cout << "After the call: l1=" << (long) l1 << ", l2=" << (long)l2
               << ", l3=" << (long)*pl3 << std::endl;
   } else {
@@ -213,11 +213,11 @@ main(int argc, char* argv[]) {
   std::cout << "#### Floats" << std::endl;
   std::cout << "Before the call: f1=" << f1 << ", f2=" << f2 << std::endl;
   profile = diet_profile_alloc(PB[4], 0, 1, 2);
-  diet_scalar_set(diet_parameter(profile,0), &f1,  DIET_VOLATILE, DIET_FLOAT);
-  diet_scalar_set(diet_parameter(profile,1), &f2,  DIET_VOLATILE, DIET_FLOAT);
-  diet_scalar_set(diet_parameter(profile,2), NULL, DIET_VOLATILE, DIET_FLOAT);
+  diet_scalar_set(diet_parameter(profile, 0), &f1,  DIET_VOLATILE, DIET_FLOAT);
+  diet_scalar_set(diet_parameter(profile, 1), &f2,  DIET_VOLATILE, DIET_FLOAT);
+  diet_scalar_set(diet_parameter(profile, 2), NULL, DIET_VOLATILE, DIET_FLOAT);
   if (!diet_call(profile)) {
-    diet_scalar_get(diet_parameter(profile,2), &pf3, NULL);
+    diet_scalar_get(diet_parameter(profile, 2), &pf3, NULL);
     std::cout << "After the call: f1=" << (float) f1 << ", f2=" << (float)f2
               << ", f3=" << (float)*pf3 << std::endl;
   } else {
@@ -233,11 +233,11 @@ main(int argc, char* argv[]) {
   std::cout << "#### Doubles" << std::endl;
   std::cout << "Before the call: d1=" << d1 << ", d2=" << d2 << std::endl;
   profile = diet_profile_alloc(PB[5], 0, 1, 2);
-  diet_scalar_set(diet_parameter(profile,0), &d1,  DIET_VOLATILE, DIET_DOUBLE);
-  diet_scalar_set(diet_parameter(profile,1), &d2,  DIET_VOLATILE, DIET_DOUBLE);
-  diet_scalar_set(diet_parameter(profile,2), NULL, DIET_VOLATILE, DIET_DOUBLE);
+  diet_scalar_set(diet_parameter(profile, 0), &d1,  DIET_VOLATILE, DIET_DOUBLE);
+  diet_scalar_set(diet_parameter(profile, 1), &d2,  DIET_VOLATILE, DIET_DOUBLE);
+  diet_scalar_set(diet_parameter(profile, 2), NULL, DIET_VOLATILE, DIET_DOUBLE);
   if (!diet_call(profile)) {
-    diet_scalar_get(diet_parameter(profile,2), &pd3, NULL);
+    diet_scalar_get(diet_parameter(profile, 2), &pd3, NULL);
     std::cout << "After the call: d1=" << (float) d1 << ", l2=" << (double)d2
               << ", l3=" << (double)*pd3 << std::endl;
   } else {
@@ -277,15 +277,15 @@ main(int argc, char* argv[]) {
   std::cout << "#### Characters" << std::endl;
   profile = diet_profile_alloc(PB_VECTOR[0], 0, 1, 2);
 
-  diet_vector_set(diet_parameter(profile,0),
+  diet_vector_set(diet_parameter(profile, 0),
                   (long *) A, DIET_VOLATILE, DIET_CHAR, n);
   std::cout << "A:" << std::endl;
   printVector((long *)A, n);
-  diet_vector_set(diet_parameter(profile,1),
+  diet_vector_set(diet_parameter(profile, 1),
                   (long *) B, DIET_VOLATILE, DIET_CHAR, n);
   std::cout << "B (before call):" << std::endl;
   printVector((long *)B, n);
-  diet_vector_set(diet_parameter(profile,2),
+  diet_vector_set(diet_parameter(profile, 2),
                   NULL, DIET_VOLATILE, DIET_CHAR, n);
 
   if (!diet_call(profile)) {
@@ -311,15 +311,15 @@ main(int argc, char* argv[]) {
   std::cout << "#### Shorts" << std::endl;
   profile = diet_profile_alloc(PB_VECTOR[1], 0, 1, 2);
 
-  diet_vector_set(diet_parameter(profile,0),
+  diet_vector_set(diet_parameter(profile, 0),
                   (long *) A, DIET_VOLATILE, DIET_SHORT, n);
   std::cout << "A:" << std::endl;
   printVector((long *)A, n);
-  diet_vector_set(diet_parameter(profile,1),
+  diet_vector_set(diet_parameter(profile, 1),
                   (long *) B, DIET_VOLATILE, DIET_SHORT, n);
   std::cout << "B (before call):" << std::endl;
   printVector((long *)B, n);
-  diet_vector_set(diet_parameter(profile,2),
+  diet_vector_set(diet_parameter(profile, 2),
                   NULL, DIET_VOLATILE, DIET_SHORT, n);
 
   if (!diet_call(profile)) {
@@ -345,15 +345,15 @@ main(int argc, char* argv[]) {
   std::cout << "#### Integers" << std::endl;
   profile = diet_profile_alloc(PB_VECTOR[2], 0, 1, 2);
 
-  diet_vector_set(diet_parameter(profile,0),
+  diet_vector_set(diet_parameter(profile, 0),
                   (long *) A, DIET_VOLATILE, DIET_INT, n);
   std::cout << "A:" << std::endl;
   printVector((long *)A, n);
-  diet_vector_set(diet_parameter(profile,1),
+  diet_vector_set(diet_parameter(profile, 1),
                   (long *) B, DIET_VOLATILE, DIET_INT, n);
   std::cout << "B (before call):" << std::endl;
   printVector((long *)B, n);
-  diet_vector_set(diet_parameter(profile,2),
+  diet_vector_set(diet_parameter(profile, 2),
                   NULL, DIET_VOLATILE, DIET_INT, n);
 
   if (!diet_call(profile)) {
@@ -379,15 +379,15 @@ main(int argc, char* argv[]) {
   std::cout << "#### Long" << std::endl;
   profile = diet_profile_alloc(PB_VECTOR[3], 0, 1, 2);
 
-  diet_vector_set(diet_parameter(profile,0),
+  diet_vector_set(diet_parameter(profile, 0),
                   (long *) A, DIET_VOLATILE, DIET_LONGINT, n);
   std::cout << "A:" << std::endl;
   printVector((long *)A, n);
-  diet_vector_set(diet_parameter(profile,1),
+  diet_vector_set(diet_parameter(profile, 1),
                   (long *) B, DIET_VOLATILE, DIET_LONGINT, n);
   std::cout << "B (before call):" << std::endl;
   printVector((long *)B, n);
-  diet_vector_set(diet_parameter(profile,2),
+  diet_vector_set(diet_parameter(profile, 2),
                   NULL, DIET_VOLATILE, DIET_LONGINT, n);
 
   if (!diet_call(profile)) {
@@ -418,15 +418,15 @@ main(int argc, char* argv[]) {
   std::cout << "#### Floats" << std::endl;
   profile = diet_profile_alloc(PB_VECTOR[4], 0, 1, 2);
 
-  diet_vector_set(diet_parameter(profile,0),
+  diet_vector_set(diet_parameter(profile, 0),
                   (float *) A, DIET_VOLATILE, DIET_FLOAT, n);
   std::cout << "A:" << std::endl;
   printVector((float *)A, n);
-  diet_vector_set(diet_parameter(profile,1),
+  diet_vector_set(diet_parameter(profile, 1),
                   (float *) B, DIET_VOLATILE, DIET_FLOAT, n);
   std::cout << "B (before call):" << std::endl;
   printVector((float *)B, n);
-  diet_vector_set(diet_parameter(profile,2),
+  diet_vector_set(diet_parameter(profile, 2),
                   NULL, DIET_VOLATILE, DIET_FLOAT, n);
 
   if (!diet_call(profile)) {
@@ -457,15 +457,15 @@ main(int argc, char* argv[]) {
   std::cout << "#### Doubles" << std::endl;
   profile = diet_profile_alloc(PB_VECTOR[5], 0, 1, 2);
 
-  diet_vector_set(diet_parameter(profile,0),
+  diet_vector_set(diet_parameter(profile, 0),
                   (double *) A, DIET_VOLATILE, DIET_DOUBLE, n);
   std::cout << "A:" << std::endl;
   printVector((double *)A, n);
-  diet_vector_set(diet_parameter(profile,1),
+  diet_vector_set(diet_parameter(profile, 1),
                   (double *) B, DIET_VOLATILE, DIET_DOUBLE, n);
   std::cout << "B (before call):" << std::endl;
   printVector((double *)B, n);
-  diet_vector_set(diet_parameter(profile,2),
+  diet_vector_set(diet_parameter(profile, 2),
                   NULL, DIET_VOLATILE, DIET_DOUBLE, n);
 
   if (!diet_call(profile)) {
@@ -520,15 +520,15 @@ main(int argc, char* argv[]) {
   std::cout << "#### Characters" << std::endl;
   profile = diet_profile_alloc(PB_MATRIX[0], 0, 1, 2);
 
-  diet_matrix_set(diet_parameter(profile,0),
+  diet_matrix_set(diet_parameter(profile, 0),
                   (long *) A, DIET_VOLATILE, DIET_CHAR, m, n, oA);
   std::cout << "A:" << std::endl;
   printMatrix((long *)A, m, n, (oA == DIET_ROW_MAJOR));
-  diet_matrix_set(diet_parameter(profile,1),
+  diet_matrix_set(diet_parameter(profile, 1),
                   (long *) B, DIET_VOLATILE, DIET_CHAR, n, m, oB);
   std::cout << "B (before call):" << std::endl;
   printMatrix((long *)B, n, m, (oB == DIET_ROW_MAJOR));
-  diet_matrix_set(diet_parameter(profile,2),
+  diet_matrix_set(diet_parameter(profile, 2),
                   NULL, DIET_VOLATILE, DIET_CHAR, m, m, oC);
 
   if (!diet_call(profile)) {
@@ -556,15 +556,15 @@ main(int argc, char* argv[]) {
   std::cout << "#### Shorts" << std::endl;
   profile = diet_profile_alloc(PB_MATRIX[1], 0, 1, 2);
 
-  diet_matrix_set(diet_parameter(profile,0),
+  diet_matrix_set(diet_parameter(profile, 0),
                   (long *) A, DIET_VOLATILE, DIET_SHORT, m, n, oA);
   std::cout << "A:" << std::endl;
   printMatrix((long *)A, m, n, (oA == DIET_ROW_MAJOR));
-  diet_matrix_set(diet_parameter(profile,1),
+  diet_matrix_set(diet_parameter(profile, 1),
                   (long *) B, DIET_VOLATILE, DIET_SHORT, n, m, oB);
   std::cout << "B (before call):" << std::endl;
   printMatrix((long *)B, n, m, (oB == DIET_ROW_MAJOR));
-  diet_matrix_set(diet_parameter(profile,2),
+  diet_matrix_set(diet_parameter(profile, 2),
                   NULL, DIET_VOLATILE, DIET_SHORT, m, m, oC);
 
   if (!diet_call(profile)) {
@@ -590,15 +590,15 @@ main(int argc, char* argv[]) {
   std::cout << "#### Integers" << std::endl;
   profile = diet_profile_alloc(PB_MATRIX[2], 0, 1, 2);
 
-  diet_matrix_set(diet_parameter(profile,0),
+  diet_matrix_set(diet_parameter(profile, 0),
                   (long *) A, DIET_VOLATILE, DIET_INT, m, n, oA);
   std::cout << "A:" << std::endl;
   printMatrix((long *)A, m, n, (oA == DIET_ROW_MAJOR));
-  diet_matrix_set(diet_parameter(profile,1),
+  diet_matrix_set(diet_parameter(profile, 1),
                   (long *) B, DIET_VOLATILE, DIET_INT, n, m, oB);
   std::cout << "B (before call):" << std::endl;
   printMatrix((long *)B, n, m, (oB == DIET_ROW_MAJOR));
-  diet_matrix_set(diet_parameter(profile,2),
+  diet_matrix_set(diet_parameter(profile, 2),
                   NULL, DIET_VOLATILE, DIET_INT, m, m, oC);
 
   if (!diet_call(profile)) {
@@ -625,15 +625,15 @@ main(int argc, char* argv[]) {
   std::cout << "#### Longs" << std::endl;
   profile = diet_profile_alloc(PB_MATRIX[3], 0, 1, 2);
 
-  diet_matrix_set(diet_parameter(profile,0),
+  diet_matrix_set(diet_parameter(profile, 0),
                   (long *) A, DIET_VOLATILE, DIET_LONGINT, m, n, oA);
   std::cout << "A:" << std::endl;
   printMatrix((long *)A, m, n, (oA == DIET_ROW_MAJOR));
-  diet_matrix_set(diet_parameter(profile,1),
+  diet_matrix_set(diet_parameter(profile, 1),
                   (long *) B, DIET_VOLATILE, DIET_LONGINT, n, m, oB);
   std::cout << "B (before call):" << std::endl;
   printMatrix((long *)B, n, m, (oB == DIET_ROW_MAJOR));
-  diet_matrix_set(diet_parameter(profile,2),
+  diet_matrix_set(diet_parameter(profile, 2),
                   NULL, DIET_VOLATILE, DIET_LONGINT, m, m, oC);
 
   if (!diet_call(profile)) {
@@ -665,15 +665,15 @@ main(int argc, char* argv[]) {
   }
   profile = diet_profile_alloc(PB_MATRIX[4], 0, 1, 2);
 
-  diet_matrix_set(diet_parameter(profile,0),
+  diet_matrix_set(diet_parameter(profile, 0),
                   (float *) A, DIET_VOLATILE, DIET_FLOAT, m, n, oA);
   std::cout << "A:" << std::endl;
   printMatrix((float *)A, m, n, (oA == DIET_ROW_MAJOR));
-  diet_matrix_set(diet_parameter(profile,1),
+  diet_matrix_set(diet_parameter(profile, 1),
                   (float *) B, DIET_VOLATILE, DIET_FLOAT, n, m, oB);
   std::cout << "B (before call):" << std::endl;
   printMatrix((float *)B, n, m, (oB == DIET_ROW_MAJOR));
-  diet_matrix_set(diet_parameter(profile,2),
+  diet_matrix_set(diet_parameter(profile, 2),
                   NULL, DIET_VOLATILE, DIET_FLOAT, m, m, oC);
 
   if (!diet_call(profile)) {
@@ -704,15 +704,15 @@ main(int argc, char* argv[]) {
   }
   profile = diet_profile_alloc(PB_MATRIX[5], 0, 1, 2);
 
-  diet_matrix_set(diet_parameter(profile,0),
+  diet_matrix_set(diet_parameter(profile, 0),
                   (double *) A, DIET_VOLATILE, DIET_DOUBLE, m, n, oA);
   std::cout << "A:" << std::endl;
   printMatrix((double *)A, m, n, (oA == DIET_ROW_MAJOR));
-  diet_matrix_set(diet_parameter(profile,1),
+  diet_matrix_set(diet_parameter(profile, 1),
                   (double *) B, DIET_VOLATILE, DIET_DOUBLE, n, m, oB);
   std::cout << "B (before call):" << std::endl;
   printMatrix((double *)B, n, m, (oB == DIET_ROW_MAJOR));
-  diet_matrix_set(diet_parameter(profile,2),
+  diet_matrix_set(diet_parameter(profile, 2),
                   NULL, DIET_VOLATILE, DIET_DOUBLE, m, m, oC);
 
   if (!diet_call(profile)) {
@@ -764,11 +764,11 @@ main(int argc, char* argv[]) {
   std::cout << "#### Characters" << std::endl;
   profile = diet_profile_alloc(PB_STRING[0], 0, 1, 2);
 
-  diet_string_set(diet_parameter(profile,0), s1, DIET_VOLATILE);
+  diet_string_set(diet_parameter(profile, 0), s1, DIET_VOLATILE);
   std::cout << "s1: " << s1 << std::endl;
-  diet_string_set(diet_parameter(profile,1), s2, DIET_VOLATILE);
+  diet_string_set(diet_parameter(profile, 1), s2, DIET_VOLATILE);
   std::cout << "s2 (before call): " << s2 << std::endl;
-  diet_string_set(diet_parameter(profile,2), NULL, DIET_VOLATILE);
+  diet_string_set(diet_parameter(profile, 2), NULL, DIET_VOLATILE);
 
   if (!diet_call(profile)) {
     diet_string_get(diet_parameter(profile, 2), &s3, NULL);
@@ -813,9 +813,9 @@ main(int argc, char* argv[]) {
   std::cout << "#### Characters" << std::endl;
   profile = diet_profile_alloc(PB_PSTRING[0], 0, 1, 1);
 
-  diet_paramstring_set(diet_parameter(profile,0), s1, DIET_VOLATILE);
+  diet_paramstring_set(diet_parameter(profile, 0), s1, DIET_VOLATILE);
   std::cout << "s1: " << s1 << std::endl;
-  diet_paramstring_set(diet_parameter(profile,1), s2, DIET_VOLATILE);
+  diet_paramstring_set(diet_parameter(profile, 1), s2, DIET_VOLATILE);
   std::cout << "s2 (before call): " << s2 << std::endl;
 
   if (!diet_call(profile)) {
@@ -852,13 +852,13 @@ main(int argc, char* argv[]) {
   std::cout << "#### Characters" << std::endl;
   profile = diet_profile_alloc(PB_FILE[0], 0, 1, 2);
 
-  if (diet_file_set(diet_parameter(profile,0), DIET_PERSISTENT, s1))
+  if (diet_file_set(diet_parameter(profile, 0), DIET_PERSISTENT, s1))
     std::cout << "Error on diet_file_set on s1" << std::endl;
   std::cout << "File s1: " << s1 << std::endl;
-  if (diet_file_set(diet_parameter(profile,1), DIET_VOLATILE, s2))
+  if (diet_file_set(diet_parameter(profile, 1), DIET_VOLATILE, s2))
     std::cout << "Error on diet_file_set on s2" << std::endl;
   std::cout << "File s2 (before call): " << s2 << std::endl;
-  if (diet_file_set(diet_parameter(profile,2), DIET_VOLATILE, NULL))
+  if (diet_file_set(diet_parameter(profile, 2), DIET_VOLATILE, NULL))
     std::cout << "Error on diet_file_set on s3" << std::endl;
 
   if (!diet_call(profile)) {
@@ -914,7 +914,7 @@ main(int argc, char* argv[]) {
   dagda_add_container_element(s1, p1, 0);
   dagda_put_scalar(&l2, DIET_LONGINT, DIET_PERSISTENT, &p2);
   dagda_add_container_element(s1, p2, 1);
-  diet_use_data(diet_parameter(profile,0), s1);
+  diet_use_data(diet_parameter(profile, 0), s1);
 
   /* INOUT */
   dagda_create_container(&s2);
@@ -922,10 +922,10 @@ main(int argc, char* argv[]) {
   dagda_add_container_element(s2, p3, 0);
   dagda_put_scalar(&l4, DIET_LONGINT, DIET_PERSISTENT, &p4);
   dagda_add_container_element(s2, p4, 1);
-  diet_use_data(diet_parameter(profile,1), s2);
+  diet_use_data(diet_parameter(profile, 1), s2);
 
   /* OUT */
-  diet_container_set(diet_parameter(profile,2), DIET_PERSISTENT);
+  diet_container_set(diet_parameter(profile, 2), DIET_PERSISTENT);
 
   if (!diet_call(profile)) {
     diet_container_t content1;

@@ -51,10 +51,10 @@ extern unsigned int TRACE_LEVEL;
 
 #define ACCESS_TRACE_FUNCTION(formatted_text)           \
   TRACE_TEXT(TRACE_ALL_STEPS, "AccessControl::");       \
-  TRACE_FUNCTION(TRACE_ALL_STEPS,formatted_text)
+  TRACE_FUNCTION(TRACE_ALL_STEPS, formatted_text)
 
 AccessController::AccessController(int initialResources) {
-  if(initialResources >= 0) {
+  if (initialResources >= 0) {
     this->resourcesInitial = initialResources;
   } else {
     this->resourcesInitial = 0;
@@ -93,17 +93,17 @@ AccessController::waitForResource(){
   // important because those tasks arrive at almost the same moment.
   // However, semaphores do not guarantee FIFO ordering so for portability
   // another solution must be found to guarantee FIFO.
-  if( myReqID != (this->maxIDReleased + 1) ) {
+  if (myReqID != (this->maxIDReleased + 1)) {
     WARNING("Thread " << (omni_thread::self())->id()
             << " / Request " << myReqID << " exiting queue out-of-order.");
   }
 
-  if(this->numFreeSlots <= 0){
+  if (this->numFreeSlots <= 0){
     fprintf(stderr,
             "AccessController:: confusion between "
             "semaphore and numFreeSlots ...");
   }
-  if(this->numWaiting <= 0){
+  if (this->numWaiting <= 0){
     fprintf(stderr,
             "AccessController:: Unexplained problem "
             "counting waiting threads.");
@@ -112,7 +112,7 @@ AccessController::waitForResource(){
   this->globalLock.lock();      /** LOCK */
   this->numFreeSlots--;
   this->numWaiting--;
-  if(myReqID > this->maxIDReleased){
+  if (myReqID > this->maxIDReleased){
     maxIDReleased = myReqID;
   }
   this->globalLock.unlock();    /** UNLOCK */

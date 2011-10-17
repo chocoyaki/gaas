@@ -33,7 +33,7 @@
  * use MetaDags to handle multi-dag submission and execution
  *
  * Revision 1.18  2008/10/14 13:24:49  bisnard
- * use new class structure for dags (DagNode,DagNodePort)
+ * use new class structure for dags (DagNode, DagNodePort)
  *
  * Revision 1.17  2008/09/30 09:25:34  bisnard
  * use Node::initProfileSubmit to create the diet profile before requesting node estimation to MA

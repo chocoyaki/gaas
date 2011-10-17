@@ -54,7 +54,7 @@
  * replaced uint by standard type
  *
  * Revision 1.8  2008/10/14 13:31:01  bisnard
- * new class structure for dags (DagNode,DagNodePort)
+ * new class structure for dags (DagNode, DagNodePort)
  *
  * Revision 1.7  2008/10/02 08:28:47  bisnard
  * new WfPort method to free persistent data
@@ -128,7 +128,7 @@ WfPort::getId() const {
   return this->id;
 }
 
-string
+std::string
 WfPort::getCompleteId() const {
   return (this->myParent->getId() + "#" + this->id);
 }
@@ -154,7 +154,7 @@ WfPort::isInput() const {
           || (portType == PORT_INOUT));
 }
 
-string
+std::string
 WfPort::getPortDescr() const {
   std::string portDescr;
   switch (portType) {

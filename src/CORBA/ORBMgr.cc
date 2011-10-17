@@ -108,7 +108,7 @@ void ORBMgr::init(CORBA::ORB_ptr ORB) {
 }
 
 ORBMgr::ORBMgr(int argc, char* argv[]) {
-  const char* opts[][2]= {{0,0}};
+  const char* opts[][2]= {{0, 0}};
 
   ORB = CORBA::ORB_init(argc, argv, "omniORB4", opts);
   init(ORB);
@@ -360,7 +360,7 @@ ORBMgr::resolveObject(const std::string& context, const std::string& name,
       std::string objHost = getHost(ior);
       try {
         if (objHost.size()>0 && objHost.at(0)=='@') {
-          objHost.erase(0,1);  // Remove '@' before the forwarder name
+          objHost.erase(0, 1);  // Remove '@' before the forwarder name
           Forwarder_var fwd =
             resolve<Forwarder, Forwarder_var>(FWRDCTXT, objHost);
 
@@ -679,7 +679,7 @@ ORBMgr::wait() const {
   try {
     TRACE_TEXT(TRACE_MAIN_STEPS, "Press CTRL+C to exit\n");
 #ifdef __cygwin__
-    sem_init(&waitLock,0,1);
+    sem_init(&waitLock, 0, 1);
     sem_wait(&waitLock);
     sem_wait(&waitLock);
     sem_post(&waitLock);

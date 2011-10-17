@@ -30,13 +30,14 @@
 #ifndef _FACTIVITYNODE_HH_
 #define _FACTIVITYNODE_HH_
 
+#include <string>
+#include <vector>
 #include "FNode.hh"
 
 class FActivityNode : public FProcNode {
-
 public:
-
   FActivityNode(FWorkflow* wf, const string& id);
+
   virtual ~FActivityNode();
 
   /**
@@ -51,7 +52,7 @@ public:
    * @param path the DIET service name
    */
   void
-  setDIETServicePath(const string& path);
+  setDIETServicePath(const std::string& path);
 
   /**
    * Set DIET estimation option
@@ -60,7 +61,7 @@ public:
    * @param estimOption = ('constant'|...)
    */
   void
-  setDIETEstimationOption(const string& estimOption);
+  setDIETEstimationOption(const std::string& estimOption);
 
   /**
    * Initialization
@@ -90,9 +91,8 @@ public:
    * @param currDataLine dataLine used to set input data for the DagNode
    */
   virtual void
-  createRealInstance(Dag* dag,
-                     const FDataTag& currTag,
-                     vector<FDataHandle*>& currDataLine);
+  createRealInstance(Dag* dag, const FDataTag& currTag,
+                     std::vector<FDataHandle*>& currDataLine);
 
   /**
    * Update the FNode instanciation status after data processing loop
@@ -101,16 +101,15 @@ public:
   updateInstanciationStatus();
 
 protected:
-
   /**
    * The service path
    */
-  string myPath;
+  std::string myPath;
 
   /**
    * The estimation option
    */
-  string myEstimOption;
+  std::string myEstimOption;
 
   /**
    * Max number of instances per dag
@@ -118,12 +117,10 @@ protected:
   short maxInstNb;
 
 private:
-
   /**
    * Nb of instances created in current dag
    */
   int nbInstances;
-
 };
 
 #endif  // _FACTIVITYNODE_HH_

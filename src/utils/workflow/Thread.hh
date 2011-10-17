@@ -9,7 +9,7 @@
 /* $Id$
  * $Log$
  * Revision 1.6  2011/03/18 16:28:33  hguemar
- * fix initialization and const-correctness issues in src/utils/workflow/Thread.{hh,cc} raised by cppchecks
+ * fix initialization and const-correctness issues in src/utils/workflow/Thread.{hh, cc} raised by cppchecks
  *
  * Revision 1.5  2011/01/17 16:38:51  bdepardo
  * Missing space in virtual~Runnable() = 0;

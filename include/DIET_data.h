@@ -277,17 +277,24 @@
 
    \page DIETDataPage DIET data Interface
 
-   It is important that \c DIET can manipulate data to optimize copies and memory allocation, to estimate data transfer and computation time, etc. Therefore the data must be fully described in terms of their data types and various attributes associated with these types.
+   It is important that \c DIET can manipulate data to optimize copies and
+   memory allocation, to estimate data transfer and computation time, etc.
+   Therefore the data must be fully described in terms of their data types and
+   various attributes associated with these types.
 
    \section DataTypes Data types
 
-   \c DIET defines a precise set of data types to be used to describe the arguments of the services (on the server side) and of the problems (on the client side).
+   \c DIET defines a precise set of data types to be used to describe the
+   arguments of the services (on the server side) and of the problems
+   (on the client side).
 
-   To keep \c DIET type descriptions generic, two main sets are used: base and composite types.
+   To keep \c DIET type descriptions generic, two main sets are used:
+   base and composite types.
 
    \subsection BaseType Base types
 
-   Base types are defined in an enum type \c diet_base_type_t and have the following semantics:
+   Base types are defined in an enum type \c diet_base_type_t and have the
+   following semantics:
 
    \latexonly
    \begin{center}
@@ -411,7 +418,8 @@
    \textbf{mode}&\textbf{Description}\\
    \hline
    \textsf{DIET\_VOLATILE} & not stored\\
-   \textsf{DIET\_PERSISTENT\_RETURN} & stored on server, movable and copy back to client\\
+   \textsf{DIET\_PERSISTENT\_RETURN} & stored on server, movable and copy back
+   to client\                                                   \
    \textsf{DIET\_PERSISTENT} & stored on server and movable\\
    \textsf{DIET\_STICKY} & stored and non movable\\
    \hline\hline
@@ -430,7 +438,8 @@
    <td>DIET_VOLATILE</td><td>not stored</td>
    </tr>
    <tr>
-   <td>DIET_PERSISTENT_RETURN</td><td>stored on server, movable and copy back to client</td>
+   <td>DIET_PERSISTENT_RETURN</td><td>stored on server, movable and copy back
+   to client</td>
    </tr>
    <tr>
    <td>DIET_PERSISTENT</td><td>stored on server and movable</td>
@@ -439,7 +448,8 @@
    <td>DIET_STICKY</td><td>stored and non movable</td>
    </tr>
    <tr>
-   <td>DIET_STICKY_RETURN</td><td>stored, non movable and copy back to client</td>
+   <td>DIET_STICKY_RETURN</td><td>stored, non movable and copy back to client
+   </td>
    </tr>
    </table>
    \endhtmlonly
@@ -447,7 +457,8 @@
 
    \section DataDescription Data description
 
-   Each parameter of a client problem is manipulated by \c DIET using the following
+   Each parameter of a client problem is manipulated by \c DIET using the
+   following
    structure:
    \code
    typedef struct diet_arg_s diet_arg_t;
@@ -509,23 +520,24 @@
    \section ManipulatingDIETStructures Manipulating \c DIET structures
 
    The user will notice that the API to the \c DIET data structures consists of
-   modifier and accessor functions only: no allocation function is required, since
-   \c diet_profile_alloc allocates all
+   modifier and accessor functions only: no allocation function is required,
+   since \c diet_profile_alloc allocates all
    necessary memory for all argument \b descriptions. This avoids the
-   temptation for the user to allocate the memory for these data structures twice
-   (which would lead to \c DIET errors while reading profile arguments).
+   temptation for the user to allocate the memory for these data structures
+   twice (would lead to \c DIET errors while reading profile arguments).
 
    Moreover, the user should know that arguments of the \b *_set functions
    that are passed by pointers are \b not copied, in order to save memory.
    This is true for the \e value arguments, but also for the \e path in
    \c diet_file_set. Thus, the user keeps ownership of the memory zones
-   pointed at by these pointers, and he/she must be very careful not to alter it
-   during a call to \c DIET.
+   pointed at by these pointers, and he/she must be very careful not to alter
+   it during a call to \c DIET.
 
    \subsection SetFunctions Set functions
 
    \code
-   // On the server side, these functions should not be used on arguments, but only
+   // On the server side, these functions should not be used on arguments,
+   but only
    // on convertors (see section 5.5).
    // If mode                                is DIET_PERSISTENCE_MODE_COUNT,
    // or if base_type                        is DIET_BASE_TYPE_COUNT,
@@ -607,15 +619,18 @@
    \section DataManagementFunctions Data Management functions
 
 
-   \arg The \b store_id method is used to store the identifier of persistent data. It also accepts a description of
-   the data stored. This method has to be called after the \c diet_call() so that the identifier exists.
+   \arg The \b store_id method is used to store the identifier of persistent
+   data. It also accepts a description of the data stored.
+   This method has to be called after the \c diet_call() so that the identifier
+   exists.
    \code
-   store_id(char* argID,char *msg);
+   store_id(char* argID, char *msg);
    \endcode
 
-   \arg The \c diet_use_data method allows the client to use a data item that is already stored in the platform.
+   \arg The \c diet_use_data method allows the client to use a data item that
+   is already stored in the platform.
    \code
-   diet_use_data(diet_arg_t* arg,char* argID);
+   diet_use_data(diet_arg_t* arg, char* argID);
    \endcode
 
    This function replaces the set functions.
@@ -650,7 +665,8 @@
 
    \subsection FreeFunctions Free functions
 
-   The amount of data  pointed at by value fields should be freed through a \c DIET
+   The amount of data  pointed at by value fields should be freed through a
+   \c DIET
    API function:
 
    \code
@@ -670,10 +686,10 @@
    \section ProblemDescription Problem description
 
 
-   For \c DIET to match the client problem with a service, servers and clients must
-   ``speak the same language'', \e ie they must use the same problem
-   description. A unified way to describe problems is to use a name and define its
-   profile with the type \c diet_profile_t:
+   For \c DIET to match the client problem with a service, servers and clients
+   must ``speak the same language'', \e ie they must use the same problem
+   description. A unified way to describe problems is to use a name and define
+   its profile with the type \c diet_profile_t:
    \code
    typedef struct {
    char*       pb_name;
@@ -684,12 +700,13 @@
 
    The field \e parameters consists of a \c diet_arg_t array of size
    \f$last\_out + 1\f$. Arguments can be
-   \arg \b IN: The data are sent to the server. The memory is allocated by the user.
+   \arg \b IN: The data are sent to the server. The memory is allocated by the
+   user.
    \arg \b INOUT: The data are allocated by the user as for the IN
-   arguments, then sent to the server and brought back into the same memory zone
-   after the computation has completed, without any copy. Thus freeing this
-   memory at the client while the computation is performed on the
-   server would result in a segmentation fault when the data are
+   arguments, then sent to the server and brought back into the same memory
+   zone after the computation has completed, without any copy.
+   Thus freeing this memory at the client while the computation is performed
+   on the server would result in a segmentation fault when the data are
    brought back onto the client.
    \arg \b OUT: The data are created on the server and brought back into a
    newly allocated zone on the client. This allocation is performed by
@@ -702,10 +719,11 @@
    \c diet_profile_t structure respectively point at the indexes in the
    \e parameters array of the last IN, INOUT and OUT arguments.
 
-   Functions to create and destroy such profiles are defined with the prototypes
-   below:
+   Functions to create and destroy such profiles are defined with the
+   prototypes below:
    \code
-   diet_profile_t *diet_profile_alloc(char* pb_name, int last_in, int last_inout, int last_out);
+   diet_profile_t *diet_profile_alloc(char* pb_name, int last_in,
+   int last_inout, int last_out);
    int diet_profile_free(diet_profile_t *profile);
    \endcode
 
@@ -720,15 +738,15 @@
 
    Here is the documentation of the DIET API.
    It is composed of :
-   \arg DIET_client.h : the DIET Client API allowing users to access the DIET middleware and
-   the services made available through the DIET middleware
-   \arg DIET_server.h : the DIET Server API allowing programers to make applications as services
+   \arg DIET_client.h : the DIET Client API allowing users to access the DIET
+   middleware and the services made available through the DIET middleware
+   \arg DIET_server.h : the DIET Server API allowing programers to make
+   applications as services
    available for clients through the DIET middleware
-   \arg DIET_data.h : the Data API allowing the users and the server programmers to set and
-   get data to/from clients and servers programs.
-   \arg DIET_grpc.h : the GRPC API compliant with the GridRPC paradigm of defined by the
-   Grid RPC working group of the Open Grid Forum.
-
+   \arg DIET_data.h : the Data API allowing the users and the server
+   programmers to set and get data to/from clients and servers programs.
+   \arg DIET_grpc.h : the GRPC API compliant with the GridRPC paradigm of
+   defined by the Grid RPC working group of the Open Grid Forum.
 */
 
 
@@ -746,29 +764,34 @@ extern "C" {
   */
 #define EST_INVALI2D 1;
 
-  /****************************************************************************/
-  /* Aggregator types                                                         */
-  /****************************************************************************/
+  /***************************************************************************/
+  /* Aggregator types                                                        */
+  /***************************************************************************/
 
   /**
-     Enumeration used to specify whether the provided aggregator is the base one,
-     the priority one (using default aggregation macros, or a user provided one.
+     Enumeration used to specify whether the provided aggregator is the base
+     one, the priority one (using default aggregation macros, or a user
+     provided one.
 
-     \arg The aggregator defined on the SeD level must be used with DIET_AGG_PRIORITY
-     \arg The aggregator defined on the Agent level must be used with DIET_AGG_USER
+     \arg The aggregator defined on the SeD level must be used with
+     DIET_AGG_PRIORITY
+     \arg The aggregator defined on the Agent level must be used with
+     DIET_AGG_USER
   */
   typedef enum {
     DIET_AGG_DEFAULT = 0 /*!< default aggregator type*/,
-    DIET_AGG_PRIORITY /*!< priority aggregator to use with SeD level aggregators */
+     /*!< priority aggregator to use with SeD level aggregators */
+    DIET_AGG_PRIORITY
     /* New : The aggregator to use DIET agents scheduler dynamic loading. */
 #ifdef USERSCHED
-    , DIET_AGG_USER /*!< The aggregator to use DIET agents scheduler dynamic loading */
+     /*!< The aggregator to use DIET agents scheduler dynamic loading */
+    , DIET_AGG_USER
 #endif
   } diet_aggregator_type_t;
 
-  /****************************************************************************/
-  /* Base and data types                                                      */
-  /****************************************************************************/
+  /***************************************************************************/
+  /* Base and data types                                                     */
+  /***************************************************************************/
 
   /**
      Enumeration defining the base \c DIET types
@@ -793,52 +816,64 @@ extern "C" {
     DIET_VECTOR, /*!< vector of values (all base types)*/
     DIET_MATRIX, /*!< matrix of values (all base types)*/
     DIET_STRING, /*!< type representing a string (array of char)*/
-    DIET_PARAMSTRING, /*!< type representing a string passed in parameter (array of char)*/
-    DIET_FILE, /*!< type representing a file (the corresponding base type is char)*/
+    /*!< type representing a string passed in parameter (array of char)*/
+    DIET_PARAMSTRING,
+     /*!< type representing a file (the corresponding base type is char)*/
+    DIET_FILE,
     DIET_CONTAINER, /*!< type representing a container (all base types)*/
     DIET_DATA_TYPE_COUNT /*!< \c DIET composite types count */
   } diet_data_type_t;
 
 
-  /****************************************************************************/
-  /* Various persistence modes for data :                                     */
-  /*   - DIET_VOLATILE:                                                       */
-  /*        No persistency at all.                                            */
-  /*   - DIET_PERSISTENT_RETURN: (valid for INOUT and OUT arguments only)     */
-  /*        Data are saved on the server and a copy is sent back to the       */
-  /*        client after the computation is complete.                         */
-  /*   - DIET_PERSISTENT:                                                     */
-  /*        Data are saved on the server and nothing is brought back to the   */
-  /*        client.                                                           */
-  /*   - DIET_STICKY:                                                         */
-  /*        Data are saved on the server, they cannot been moved from there   */
-  /*        to another server, and thus cannot be sent back to the client.    */
-  /****************************************************************************/
+  /***************************************************************************/
+  /* Various persistence modes for data :                                    */
+  /*   - DIET_VOLATILE:                                                      */
+  /*        No persistency at all.                                           */
+  /*   - DIET_PERSISTENT_RETURN: (valid for INOUT and OUT arguments only)    */
+  /*        Data are saved on the server and a copy is sent back to the      */
+  /*        client after the computation is complete.                        */
+  /*   - DIET_PERSISTENT:                                                    */
+  /*        Data are saved on the server and nothing is brought back to the  */
+  /*        client.                                                          */
+  /*   - DIET_STICKY:                                                        */
+  /*        Data are saved on the server, they cannot been moved from there  */
+  /*        to another server, and thus cannot be sent back to the client.   */
+  /***************************************************************************/
 
   /**
      Enumeration representing the persistent modes available within \c DIET
   */
   typedef enum {
     DIET_VOLATILE = 0, /*!< No persistency at all. */
-    DIET_PERSISTENT_RETURN, /*!< (valid for INOUT and OUT arguments only) Data are saved on the server and a copy is sent back to the client after the computation is complete. */
-    DIET_PERSISTENT, /*!< Data are saved on the server and nothing is brought back to the client. */
-    DIET_STICKY, /*!< Data are saved on the server, they cannot been moved from there to another server, and thus cannot be sent back to the client.    */
-    DIET_STICKY_RETURN, /*!< (valid only when DAGDA activated) The data is stored, non movable and copy back to client */
+    /*!< (valid for INOUT and OUT arguments only) Data are saved on the server
+      and a copy is sent back to the client after the computation is
+      complete. */
+    DIET_PERSISTENT_RETURN,
+    /*!< Data are saved on the server and nothing is brought back to the
+      client. */
+    DIET_PERSISTENT,
+    /*!< Data are saved on the server, they cannot been moved from there
+      to another server, and thus cannot be sent back to the client. */
+    DIET_STICKY,
+    /*!< (valid only when DAGDA activated) The data is stored, non movable
+      and copy back to client */
+    DIET_STICKY_RETURN,
     DIET_PERSISTENCE_MODE_COUNT /*!< \c DIET persistence mode count */
   } diet_persistence_mode_t;
 
 
-  /****************************************************************************/
-  /* Argument type - a structure with two fields:                             */
-  /*  desc  : a descriptor of the argument                                    */
-  /*  value : a (void*) pointer to the memory zone where the data are stored. */
-  /****************************************************************************/
+  /***************************************************************************/
+  /* Argument type - a structure with two fields:                            */
+  /*  desc  : a descriptor of the argument                                   */
+  /*  value : a (void*) pointer to the memory zone where the data are stored.*/
+  /***************************************************************************/
 
   /**
      Argument type - a structure with two fields:
 
      \arg desc  : a descriptor of the argument
-     \arg value : a (void*) pointer to the memory zone where the data are stored.
+     \arg value : a (void*) pointer to the memory zone where the data are
+     stored.
   */
   typedef struct diet_arg_s diet_arg_t;
 
@@ -846,50 +881,59 @@ extern "C" {
     This function returns true if arg persistence mode is sticky or persistent.
     Type: int diet_is_persistent ((diet_arg_t))
 
-    @warning no error checking is realized concerning the input argument (whether it is null,
+    @warning no error checking is realized concerning the input argument
+    (whether it is null,
     or desc is null or the mode is correctly defined)
   */
 #define diet_is_persistent(arg)                                         \
   (((arg).desc.mode > DIET_VOLATILE) && ((arg).desc.mode <= DIET_STICKY))
 
-  /****************************************************************************/
-  /* Profile descriptor                                                       */
-  /****************************************************************************/
+  /***************************************************************************/
+  /* Profile descriptor                                                      */
+  /***************************************************************************/
 
   /**
      \struct diet_profile_t DIET_data.h
      This structure corresponds to the descriptor of a profile
   */
   typedef struct {
-    char*       pb_name; /*!< pb_name corresponds to the name of the service to be called */
-    int         last_in; /*!< last_in : \f$-1\f$ + number of input data */
-    int             last_inout; /*!< last_inout : \e last_in \f$+\f$ number of inout data */
-    int             last_out; /*!< last_out : \e last_inout \f$+\f$ number of out data */
+    /*!< pb_name corresponds to the name of the service to be called */
+    char* pb_name;
+    int last_in; /*!< \f$-1\f$ + number of input data */
+    int last_inout; /*!< \e last_in \f$+\f$ number of inout data */
+    int last_out; /*!< \e last_inout \f$+\f$ number of out data */
     diet_arg_t* parameters; /*!< an array of parameters for the service */
-    const void* SeDPtr; /*!< pointer to SeD object, to be used in performance estimation and for batch submission */
-    int dietReqID ; /*!< request ID of the service call */
+    const void* SeDPtr; /*!< pointer to SeD object, to be used in
+                          performance estimation and for batch submission */
+    int dietReqID; /*!< request ID of the service call */
 #if defined HAVE_ALT_BATCH
     /* if 0, select seq AND parallel tasks for the request
        if 1, select only seq tasks
        if 2, parallel only */
-    unsigned short int parallel_flag ; /*!< flag defining the parallel aspects:
-                                         \arg if 0, select seq AND parallel tasks for the request
+    unsigned short int parallel_flag; /*!< flag defining the parallel aspects:
+                                         \arg if 0, select seq AND parallel
+                                         tasks for the request
                                          \arg if 1, select only seq tasks
                                          \arg if 2, parallel only
                                        */
-    int nbprocs ; /*!< number of processors to be requested for the parallel call */
-    int nbprocess ; /*!< number of processes to be executed by the parallel call */
-    unsigned long walltime ; /*!< walltime in seconds of the parallel call to realize */
+    /*!< number of processors to be requested for the parallel call */
+    int nbprocs;
+    /*!< number of processes to be executed by the parallel call */
+    int nbprocess;
+    /*!< walltime in seconds of the parallel call to realize */
+    unsigned long walltime;
 #endif
   } diet_profile_t;
 
   /**
-     Function used to allocate a DIET profile with memory space for its arguments.
+     Function used to allocate a DIET profile with memory space for its
+     arguments.
 
      Once the profile is allocated, please use set functions on each parameter.
      For example, the nth argument is a matrix:
      \code
-     diet_matrix_set(diet_parameter(profile,n), mode, value, btype, nb_r, nb_c, order);
+     diet_matrix_set(diet_parameter(profile, n), mode, value, btype,
+     nb_r, nb_c, order);
      \endcode
 
      @remark mode is the persistence mode of the parameter.
@@ -897,13 +941,17 @@ extern "C" {
      possible to refer to each parameter for data handles
 
      @param pb_name is deep-copied.
-     @param last_in : \f$-1\f$ + number of input data. If no IN argument, please give -1 for last_in.
-     @param last_inout : \e last_in \f$+\f$ number of inout data. If no INOUT argument, please give last_in for last_inout.
-     @param last_out : \e last_inout \f$+\f$ number of out data. If no OUT argument, please give last_inout for last_out.
+     @param last_in : \f$-1\f$ + number of input data. If no IN argument,
+     please give -1 for last_in.
+     @param last_inout : \e last_in \f$+\f$ number of inout data.
+     If no INOUT argument, please give last_in for last_inout.
+     @param last_out : \e last_inout \f$+\f$ number of out data.
+     If no OUT argument, please give last_inout for last_out.
      @return allocated profile
   */
   diet_profile_t*
-  diet_profile_alloc(const char* pb_name, int last_in, int last_inout, int last_out);
+  diet_profile_alloc(const char* pb_name, int last_in,
+                     int last_inout, int last_out);
 
   /**
      Function used to free the profile and the inner data
@@ -911,9 +959,11 @@ extern "C" {
      @param profile the profile to deallocate
      @return 0 in every case
 
-     @todo is it a normal case to always return 0 (in that case we'd bether return void) or could something else be returned (like a diet_error_t)
+     @todo is it a normal case to always return 0 (in that case we'd bether
+     return void) or could something else be returned (like a diet_error_t)
 
-     @todo error codes defined in DIET_grpc.h should better be used. This needs to defined new error codes
+     @todo error codes defined in DIET_grpc.h should better be used.
+     This needs to defined new error codes
      @sa DIET_grpc.h for error codes
 
   */
@@ -923,41 +973,49 @@ extern "C" {
 #if defined HAVE_ALT_BATCH
 
   /**
-     Function used to set the parallel flag of the profile to tell that the call must be parallel
+     Function used to set the parallel flag of the profile to tell that the
+     call must be parallel
 
      @param profile the profile to be modified
      @return 0 in every case
 
-     @todo is it a normal case to always return 0 (in that case we'd bether return void) or could something else be returned (lire a diet_error_t)
+     @todo is it a normal case to always return 0 (in that case we'd bether
+     return void) or could something else be returned (lire a diet_error_t)
 
-     @todo error codes defined in DIET_grpc.h should better be used. This needs to defined new error codes
+     @todo error codes defined in DIET_grpc.h should better be used.
+     This needs to defined new error codes
      @sa DIET_grpc.h for error codes
 
   */
   int
-  diet_profile_set_parallel(diet_profile_t * profile) ;
+  diet_profile_set_parallel(diet_profile_t * profile);
 
   /**
-     Function used to set the parallel flag of the profile to tell that the call must be sequential
+     Function used to set the parallel flag of the profile to tell that the
+     call must be sequential
 
      @param profile the profile to be modified
      @return 0 in every case
 
-     @todo is it a normal case to always return 0 (in that case we'd bether return void) or could something else be returned (lire a diet_error_t)
+     @todo is it a normal case to always return 0 (in that case we'd bether
+     return void) or could something else be returned (lire a diet_error_t)
 
-     @todo error codes defined in DIET_grpc.h should better be used. This needs to defined new error codes
+     @todo error codes defined in DIET_grpc.h should better be used.
+     This needs to defined new error codes
      @sa DIET_grpc.h for error codes
 
   */
   int
-  diet_profile_set_sequential(diet_profile_t * profile) ;
+  diet_profile_set_sequential(diet_profile_t * profile);
 
   /**
-     Function used to set the number of processors needed for the execution of the selected service in the profile.
+     Function used to set the number of processors needed for the execution of
+     the selected service in the profile.
 
      @param profile the profile to be modified
      @param nbprocs the number of processors needed to execute the service
-     @return Error value telling whether the number of processors has be correctly set
+     @return Error value telling whether the number of processors has be
+     correctly set
      \arg 0 if nbprocs > 0
      \arg 1 otherwise
 
@@ -965,21 +1023,21 @@ extern "C" {
      @sa DIET_grpc.h for error codes
   */
   int
-  diet_profile_set_nbprocs(diet_profile_t * profile, int nbprocs) ;
+  diet_profile_set_nbprocs(diet_profile_t * profile, int nbprocs);
 #endif
 
   /**
      Function used to get a pointer on the nth parameter of a profile
 
-     Here is the signature of the function: (diet_arg_t*) diet_parameter( (diet_profile_t*), (int) )
+     Here is the signature of the function: (diet_arg_t*) diet_parameter((diet_profile_t*), (int))
 
      @param pt_profile profile of which we need the nth parameter
      @param n index of the requested parameter
 
      @return corresponding nth parameter
 
-     @todo no error checking is realized: we do not check if the requested parameter is
-     not out of the parameters array bounds*/
+     @todo no error checking is realized: we do not check if the requested
+     parameter is not out of the parameters array bounds*/
 #define diet_parameter(pt_profile, n) &((pt_profile)->parameters[(n)])
 
 
@@ -1008,15 +1066,17 @@ extern "C" {
 
      @return error value telling if the alteration has been correctly realized
      \arg 0 if the alteration was successful
-     \arg 1 otherwise : mainly if the description is NULL or not defined correctly
+     \arg 1 otherwise : mainly if the description is NULL or not defined
+     correctly
 
-     @remark if the persistence mode is DIET_PERSISTENCE_MODE_COUNT, the original mode is not modified
+     @remark if the persistence mode is DIET_PERSISTENCE_MODE_COUNT,
+     the original mode is not modified
      @todo error codes defined in DIET_grpc.h should better be used.
      @sa DIET_grpc.h for error codes
   */
   int
-  diet_scalar_set(diet_arg_t* arg, void* value, diet_persistence_mode_t mode,
-                  diet_base_type_t base_type);
+  diet_scalar_set(diet_arg_t* arg, void* value,
+                  diet_persistence_mode_t mode, diet_base_type_t base_type);
   /**
      Function used to set a parameter in the profile for a vector value
 
@@ -1026,18 +1086,21 @@ extern "C" {
      @param base_type base type of the vector elements
      @param size the size of the vector
 
-     @return error value telling if the alteration of the profile has been correctly realized
+     @return error value telling if the alteration of the profile has been
+     correctly realized
      \arg 0 if the alteration was successful
-     \arg 1 otherwise : mainly if the description is NULL or not defined correctly
+     \arg 1 otherwise : mainly if the description is NULL or not defined
+     correctly
 
-     @remark if the persistence mode is DIET_PERSISTENCE_MODE_COUNT, the original mode is not modified
+     @remark if the persistence mode is DIET_PERSISTENCE_MODE_COUNT,
+     the original mode is not modified
      @todo error codes defined in DIET_grpc.h should better be used.
      @sa DIET_grpc.h for error codes
   */
-
   int
-  diet_vector_set(diet_arg_t* arg, void* value, diet_persistence_mode_t mode,
-                  diet_base_type_t base_type, size_t size);
+  diet_vector_set(diet_arg_t* arg, void* value,
+                  diet_persistence_mode_t mode, diet_base_type_t base_type,
+                  size_t size);
 
   /**
      Matrices can be stored by rows or by columns.
@@ -1061,18 +1124,21 @@ extern "C" {
 
      @sa diet_matrix_order_t for information on matrix orders
 
-     @return error value telling if the alteration of the profile has been correctly realized
+     @return error value telling if the alteration of the profile has been
+     correctly realized
      \arg 0 if the alteration was successful
-     \arg 1 otherwise : mainly if the description is NULL or not defined correctly
+     \arg 1 otherwise : mainly if the description is NULL or not defined
+     correctly
 
-     @remark if the persistence mode is DIET_PERSISTENCE_MODE_COUNT, the original mode is not modified
+     @remark if the persistence mode is DIET_PERSISTENCE_MODE_COUNT,
+     the original mode is not modified
      @todo error codes defined in DIET_grpc.h should better be used.
      @sa DIET_grpc.h for error codes
   */
   int
   diet_matrix_set(diet_arg_t* arg, void* value, diet_persistence_mode_t mode,
-                  diet_base_type_t base_type,
-                  size_t nb_rows, size_t nb_cols, diet_matrix_order_t order);
+                  diet_base_type_t base_type, size_t nb_rows,
+                  size_t nb_cols, diet_matrix_order_t order);
 
   /**
      Function used to set a parameter in the profile for a string value
@@ -1081,11 +1147,14 @@ extern "C" {
      @param value string to set in the corresponding argument of the profile
      @param mode persistence mode
 
-     @return error value telling if the alteration of the profile has been correctly realized
+     @return error value telling if the alteration of the profile has been
+     correctly realized
      \arg 0 if the alteration was successful
-     \arg 1 otherwise : mainly if the description is NULL or not defined correctly
+     \arg 1 otherwise : mainly if the description is NULL or not defined
+     correctly
 
-     @remark if the persistence mode is DIET_PERSISTENCE_MODE_COUNT, the original mode is not modified
+     @remark if the persistence mode is DIET_PERSISTENCE_MODE_COUNT,
+     the original mode is not modified
      @todo error codes defined in DIET_grpc.h should better be used.
      @sa DIET_grpc.h for error codes
   */
@@ -1093,26 +1162,31 @@ extern "C" {
   diet_string_set(diet_arg_t* arg, char* value, diet_persistence_mode_t mode);
 
   /**
-     Function used to set a parameter in the profile for a parameter string value.
-     The difference with a classical string is based on the fact that this paramstring is
+     Function used to set a parameter in the profile for a parameter string
+     value.
+     The difference with a classical string is based on the fact that this
+     paramstring is
      sent with the request and not only for the resolution for the service call.
-     The paramstring can be used to send information to performance metrics or agent schedulers.
+     The paramstring can be used to send information to performance metrics
+ or agent schedulers.
 
      @param arg argument to modify
      @param value string to set in the corresponding argument of the profile
      @param mode persistence mode
 
-     @return error value telling if the alteration of the profile has been correctly realized
+     @return error value telling if the alteration of the profile has been
+     correctly realized
      \arg 0 if the alteration was successful
-     \arg 1 otherwise : mainly if the description is NULL or not defined correctly
+     \arg 1 otherwise : mainly if the description is NULL or not defined
+     correctly
 
-     @remark if the persistence mode is DIET_PERSISTENCE_MODE_COUNT, the original mode is not modified
+     @remark if the persistence mode is DIET_PERSISTENCE_MODE_COUNT,
+     the original mode is not modified
      @todo error codes defined in DIET_grpc.h should better be used.
      @sa DIET_grpc.h for error codes
   */
   int
-  diet_paramstring_set(diet_arg_t* arg,
-                       char* value,
+  diet_paramstring_set(diet_arg_t* arg, char* value,
                        diet_persistence_mode_t mode);
 
   /**
@@ -1124,14 +1198,18 @@ extern "C" {
      @param mode persistence mode
      @return the following error values could be returned:
      \arg 0 if the alteration was successful
-     \arg 1 otherwise : mainly if the description is NULL or not defined correctly
-     \arg -1 if the underlying stat() call failed. The corresponding error (retrieve with errno) could then be the following:
-     \arg EACCES Search permission is denied for one of the directories in the path prefix of path. (See also path_resolution(2).)
+     \arg 1 otherwise : mainly if the description is NULL or not defined
+     correctly
+     \arg -1 if the underlying stat() call failed. The corresponding error
+     (retrieve with errno) could then be the following:
+     \arg EACCES Search permission is denied for one of the directories in
+     the path prefix of path. (See also path_resolution(2).)
      \arg EBADF filedes is bad.
      \arg EFAULT Bad address.
      \arg ELOOP Too many symbolic links encountered while traversing the path.
      \arg ENAMETOOLONG File name too long.
-     \arg ENOENT A component of the path path does not exist, or the path is an empty string.
+     \arg ENOENT A component of the path path does not exist, or the path is
+     an empty string.
      \arg ENOMEM Out of memory (i.e. kernel memory).
      \arg ENOTDIR A component of the path is not a directory.
 
@@ -1140,8 +1218,8 @@ extern "C" {
      @sa DIET_grpc.h for error codes
   */
   int
-  diet_file_set(diet_arg_t* arg, diet_persistence_mode_t mode, const char* path);
-
+  diet_file_set(diet_arg_t* arg, diet_persistence_mode_t mode,
+                const char* path);
 
   /**
      Function used to set a parameter in the profile for a container value.
@@ -1149,11 +1227,14 @@ extern "C" {
      @param arg argument to modify
      @param mode persistence mode
 
-     @return error value telling if the alteration of the profile has been correctly realized
+     @return error value telling if the alteration of the profile has been
+     correctly realized
      \arg 0 if the alteration was successful
-     \arg 1 otherwise : mainly if the description is NULL or not defined correctly
+     \arg 1 otherwise : mainly if the description is NULL or not defined
+     correctly
 
-     @remark if the persistence mode is DIET_PERSISTENCE_MODE_COUNT, the original mode is not modified
+     @remark if the persistence mode is DIET_PERSISTENCE_MODE_COUNT, the
+     original mode is not modified
      @todo why is diet_container_set available outside a dagda ifdef?
      @todo error codes defined in DIET_grpc.h should better be used.
      @sa DIET_grpc.h for error codes
@@ -1458,7 +1539,8 @@ extern "C" {
   /**
      Type of a container description
 
-     @todo is it normal that a type specific to Dagda is not located inside ifdefs?
+     @todo is it normal that a type specific to Dagda is not located inside
+     ifdefs?
   */
   typedef const struct diet_container_specific* diet_container_desc_t;
 
@@ -1466,52 +1548,63 @@ extern "C" {
      Function used to retrieve a description of a scalar value from an argument
 
      @param arg arugment from which we want to retrieve the scalar description
-     @return scalar description or \c NULL if the underlying composite type is not the good one
-
+     @return scalar description or \c NULL if the underlying composite type
+     is not the good one
   */
-  diet_scalar_desc_t diet_scalar_get_desc(diet_arg_t* arg);
+  diet_scalar_desc_t
+  diet_scalar_get_desc(diet_arg_t* arg);
 
   /**
      Function used to retrieve a description of a vector value from an argument
 
      @param arg arugment from which we want to retrieve the vector description
-     @return vector description or \c NULL if the underlying composite type is not the good one
-
+     @return vector description or \c NULL if the underlying composite type is
+     not the good one
   */
-  diet_vector_desc_t diet_vector_get_desc(diet_arg_t* arg);
+  diet_vector_desc_t
+  diet_vector_get_desc(diet_arg_t* arg);
+
   /**
      Function used to retrieve a description of a matrix value from an argument
 
      @param arg arugment from which we want to retrieve the matrix description
-     @return matrix description or \c NULL if the underlying type is not the good one
-
+     @return matrix description or \c NULL if the underlying type is not the
+     good one
   */
-  diet_matrix_desc_t diet_matrix_get_desc(diet_arg_t* arg);
+  diet_matrix_desc_t
+  diet_matrix_get_desc(diet_arg_t* arg);
+
   /**
      Function used to retrieve a description of a string value from an argument
 
      @param arg arugment from which we want to retrieve the string description
-     @return string description or \c NULL if the underlying type is not the good one
-
+     @return string description or \c NULL if the underlying type is not the
+     good one
   */
-  diet_string_desc_t diet_string_get_desc(diet_arg_t* arg);
+  diet_string_desc_t
+  diet_string_get_desc(diet_arg_t* arg);
+
   /**
-     Function used to retrieve a description of a paramstring value from an argument
+     Function used to retrieve a description of a paramstring value from
+     an argument
 
-     @param arg arugment from which we want to retrieve the paramstring description
-     @return paramstring description or \c NULL if the underlying type is not the good one
-
+     @param arg arugment from which we want to retrieve the paramstring
+     description
+     @return paramstring description or \c NULL if the underlying type is
+     not the good one
   */
-  diet_paramstring_desc_t diet_paramstring_get_desc(diet_arg_t* arg);
+  diet_paramstring_desc_t
+  diet_paramstring_get_desc(diet_arg_t* arg);
+
   /**
      Function used to retrieve a description of a file value from an argument
 
      @param arg arugment from which we want to retrieve the file description
-     @return file description or \c NULL if the underlying type is not the good one
-
+     @return file description or \c NULL if the underlying type is not the
+     good one
   */
-  diet_file_desc_t diet_file_get_desc(diet_arg_t* arg);
-  /* diet_container_desc_t diet_container_get_desc(diet_arg_t* arg); */
+  diet_file_desc_t
+  diet_file_get_desc(diet_arg_t* arg);
 
   /*
     Free the amount of data pointed at by the value field of an argument.
@@ -1542,7 +1635,6 @@ extern "C" {
      @todo error codes defined in DIET_grpc.h should better be used.
      @sa DIET_grpc.h for error codes
   */
-
   int
   diet_free_data(diet_arg_t* arg);
 
@@ -1717,9 +1809,11 @@ extern "C" {
      @todo error codes defined in DIET_grpc.h should better be used.
      @sa DIET_grpc.h for error codes
 
-     @remark \c (void**) means \c (int**), \c (double**), \c (float**), etc., depending on the
+     @remark \c (void**) means \c (int**), \c (double**), \c (float**), etc.,
+     depending on the
      base C type of users's data.
-     @remark A \c NULL pointer is not an error (except for arg): it is simply IGNORED.
+     @remark A \c NULL pointer is not an error (except for arg):
+     it is simply IGNORED.
      For instance,
      \code
      diet_scalar_get(arg, &value, NULL)
@@ -1727,12 +1821,12 @@ extern "C" {
 
      will only set the value to the value field of the \c (*arg) structure.
 
-     @remark these are macros that let the user not worry about casting its \c (int**)
-     or \c (double**) etc. into \c (void**).
-
+     @remark these are macros that let the user not worry about casting its
+     \c (int**) or \c (double**) etc. into \c (void**).
   */
   int
-  _paramstring_get(diet_arg_t* arg, char** value, diet_persistence_mode_t* mode);
+  _paramstring_get(diet_arg_t* arg, char** value,
+                   diet_persistence_mode_t* mode);
 
   /**
      \internal
@@ -1863,17 +1957,24 @@ extern "C" {
 
   */
   typedef struct {
-    char* id;     /*!< id of the data. Allocated at the creation of the encapsulating data_handle */
+    char* id;     /*!< id of the data. Allocated at the creation
+                    of the encapsulating data_handle */
     diet_persistence_mode_t  mode; /*!< persistence mode of the data */
     struct diet_data_generic generic; /*!< generic elements of a data */
     union {
-      struct diet_scalar_specific      scal; /*!< specific elements of a scalar value */
-      struct diet_vector_specific      vect; /*!< specific elements of a vector value */
-      struct diet_matrix_specific      mat;  /*!< specific elements of a matrix value */
-      struct diet_string_specific      str;  /*!< specific elements of a string value */
-      struct diet_paramstring_specific pstr; /*!< specific elements of a paramstring value */
-      struct diet_file_specific        file; /*!< specific elements of a file value */
-      struct diet_container_specific   cont; /*!< specific elements of a container value */
+      struct diet_scalar_specific scal; /*!< specific elements of a scalar
+                                          value */
+      struct diet_vector_specific vect; /*!< specific elements of a vector
+                                          value */
+      struct diet_matrix_specific mat;  /*!< specific elements of a matrix
+                                          value */
+      struct diet_string_specific str;  /*!< specific elements of a string
+                                          value */
+      struct diet_paramstring_specific pstr; /*!< specific elements of a
+                                               paramstring value */
+      struct diet_file_specific file; /*!< specific elements of a file value */
+      struct diet_container_specific cont; /*!< specific elements of a
+                                             container value */
     } specific; /*!< specific element of the data */
   } diet_data_desc_t;
 
@@ -1882,7 +1983,7 @@ extern "C" {
   */
   struct diet_arg_s {
     diet_data_desc_t desc; /*!< description of a data */
-    void*            value; /*!< value of an argument */
+    void* value; /*!< value of an argument */
   };
 
   /**

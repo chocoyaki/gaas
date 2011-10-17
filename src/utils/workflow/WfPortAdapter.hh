@@ -39,7 +39,7 @@
  * replaced uint by standard type
  *
  * Revision 1.5  2008/10/14 13:31:01  bisnard
- * new class structure for dags (DagNode,DagNodePort)
+ * new class structure for dags (DagNode, DagNodePort)
  *
  * Revision 1.4  2008/10/02 07:35:10  bisnard
  * new constants definitions (matrix order and port type)
@@ -62,22 +62,21 @@
 #define _WFPORTADAPTER_HH_
 
 #include <list>
+#include <map>
+#include <string>
+#include <vector>
 #include "MasterAgent.hh"
 #include "WfPort.hh"
 #include "WfDataWriter.hh"
 
 class DagNodeOutPort;
 
-using namespace std;
-
 /*****************************************************************************/
 /*                        WfPortAdapter (ABSTRACT)                           */
 /*****************************************************************************/
 
 class WfPortAdapter {
-
 public:
-
   virtual ~WfPortAdapter();
 
   /**
@@ -88,7 +87,7 @@ public:
    *                attribute of the port, for ex: node1#port0[2][3])
    */
   static WfPortAdapter*
-  createAdapter(const string& strRef);
+  createAdapter(const std::string& strRef);
 
   /**
    * Node precedence analysis
@@ -113,7 +112,7 @@ public:
   /**
    * Returns the string reference (used for generating xml)
    */
-  virtual string
+  virtual std::string
   getSourceRef() const = 0;
 
   /**
@@ -122,7 +121,7 @@ public:
    * REQUIRED: to be used only with adapters of DagNode ports
    * @return a string containing the data ID of the toplevel data item
    */
-  virtual const string&
+  virtual const std::string&
   getSourceDataID() = 0;
 
   /**
@@ -159,7 +158,6 @@ public:
 /*****************************************************************************/
 
 class WfSimplePortAdapter : public WfPortAdapter {
-
 public:
   /**
    * Destructor
@@ -170,7 +168,7 @@ public:
    * Constructor for a simple port
    * @param strRef the complete port reference
    */
-  WfSimplePortAdapter(const string& strRef);
+  explicit WfSimplePortAdapter(const std::string& strRef);
 
   /**
    * Constructor for a simple port
@@ -178,7 +176,7 @@ public:
    * @param portDagName (optional) the name of dag that contains that port
    *                    (for external links => adds a prefix to the ref)
    */
-  WfSimplePortAdapter(WfPort* port, const string& portDagName = "");
+  WfSimplePortAdapter(WfPort* port, const std::string& portDagName = "");
 
   /**
    * Constructor for a simple port
@@ -188,8 +186,8 @@ public:
    *                    (for external links => adds a prefix to the ref)
    */
   WfSimplePortAdapter(WfPort* port,
-                      const list<unsigned int>& indexes,
-                      const string& portDagName = "");
+                      const std::list<unsigned int>& indexes,
+                      const std::string& portDagName = "");
 
 
   // virtual base methods
@@ -197,13 +195,15 @@ public:
   void
   setNodePrecedence(WfNode* node, NodeSet* nodeSet)
     throw(WfStructException);
+
   void
   connectPorts(WfPort* port, unsigned int adapterLevel)
     throw(WfStructException);
-  string
+
+  std::string
   getSourceRef() const;
 
-  const string&
+  const std::string&
   getSourceDataID();
 
   WfCst::WfDataType
@@ -225,24 +225,27 @@ protected:
   DagNodeOutPort*
   getSourcePort() const;
 
-  //   protected:
-  const string&
+  const std::string&
   getPortName() const;
-  const string&
+
+  const std::string&
   getNodeName() const;
-  const string&
+
+  const std::string&
   getDagName() const;
+
   unsigned int
   getDepth() const;
-  const list<unsigned int>&
+
+  const std::list<unsigned int>&
   getElementIndexes();
 
 private:
-  string portName;
-  string nodeName;
-  string dagName;
-  string dataID;
-  list<unsigned int> eltIdxList;
+  std::string portName;
+  std::string nodeName;
+  std::string dagName;
+  std::string dataID;
+  std::list<unsigned int> eltIdxList;
   WfNode *nodePtr;
   WfPort *portPtr;
 
@@ -254,7 +257,6 @@ private:
 /*****************************************************************************/
 
 class WfMultiplePortAdapter : public WfPortAdapter {
-
 public:
   /**
    * Destructor
@@ -264,34 +266,41 @@ public:
   /**
    * Separator and Parenthesis characters definition
    */
-  static string parLeftChar;
-  static string parRightChar;
-  static string separatorChar;
+  static std::string parLeftChar;
+  static std::string parRightChar;
+  static std::string separatorChar;
 
   /**
    * Constructor for a multiple port
    * @param strRef the complete port reference
    */
-  WfMultiplePortAdapter(const string& strRef);
+  explicit WfMultiplePortAdapter(const std::string& strRef);
 
   WfMultiplePortAdapter();
 
   void
   addSubAdapter(WfPortAdapter* subAdapter);
+
   void
   setNodePrecedence(WfNode* node, NodeSet* nodeSet)
     throw(WfStructException);
+
   void
   connectPorts(WfPort* port, unsigned int adapterLevel)
     throw(WfStructException);
-  string
+
+  std::string
   getSourceRef() const;
-  const string&
+
+  const std::string&
   getSourceDataID();
+
   WfCst::WfDataType
   getSourceDataType();
+
   bool
   isDataIDCreator();
+
   void
   writeDataValue(WfDataWriter* dataWriter);
   /**
@@ -302,19 +311,17 @@ public:
   freeAdapterPersistentData(MasterAgent_var& MA);
 
 protected:
-
   WfMultiplePortAdapter(const WfMultiplePortAdapter& mpa);
 
-  void parse(const string& strRef,
-             string::size_type& startPos);
+  void
+  parse(const std::string& strRef, std::string::size_type& startPos);
 
 private:
-  string      strRef;
-  string      containerID;
-  list<WfPortAdapter*>  adapters;
+  std::string strRef;
+  std::string containerID;
+  std::list<WfPortAdapter*>  adapters;
 
-  static string errorID;
-
+  static std::string errorID;
 };  // end class WfMultiplePortAdapter
 
 
@@ -323,10 +330,8 @@ private:
 /*****************************************************************************/
 
 class WfVoidAdapter : public WfPortAdapter {
-
 public:
-
-  static string voidRef;    // appears in dag
+  static std::string voidRef;  // appears in dag
 
   WfVoidAdapter();
   ~WfVoidAdapter();
@@ -336,19 +341,26 @@ public:
   void
   setNodePrecedence(WfNode* node, NodeSet* nodeSet)
     throw(WfStructException);
+
   void
   connectPorts(WfPort* port, unsigned int adapterLevel)
     throw(WfStructException);
-  string
+
+  std::string
   getSourceRef() const;
-  const string&
+
+  const std::string&
   getSourceDataID();  // throws exception WfDataException::eVOID_DATA
+
   WfCst::WfDataType
   getSourceDataType();  // throws exception WfDataException::eVOID_DATA
+
   bool
   isDataIDCreator();
+
   void
   writeDataValue(WfDataWriter* dataWriter);
+
   void
   freeAdapterPersistentData(MasterAgent_var& MA);
 };
@@ -359,9 +371,7 @@ public:
 /*****************************************************************************/
 
 class WfValueAdapter : public WfPortAdapter {
-
-  friend WfPortAdapter* WfPortAdapter::createAdapter(const string& strRef);
-
+  friend WfPortAdapter* WfPortAdapter::createAdapter(const std::string& strRef);
 public:
 
   /**
@@ -371,8 +381,7 @@ public:
    * @param valueType the type of the data (necessary to initialize data)
    * @param value the stringified value of the data (e.g. path for a file)
    */
-  WfValueAdapter(WfCst::WfDataType valueType,
-                 const string& value);
+  WfValueAdapter(WfCst::WfDataType valueType, const std::string& value);
 
   ~WfValueAdapter();
 
@@ -383,39 +392,45 @@ public:
    * may contain different types of adapter references (simple, void,
    * multiple or value)
    */
-  static string valStartTag;
-  static string valFinishTag;
+  static std::string valStartTag;
+  static std::string valFinishTag;
 
   // virtual base methods
 
   void
   setNodePrecedence(WfNode* node, NodeSet* nodeSet)
     throw(WfStructException);
+
   void
   connectPorts(WfPort* port, unsigned int adapterLevel)
     throw(WfStructException);
-  string
+
+  std::string
   getSourceRef() const;
-  const string&
+
+  const std::string&
   getSourceDataID();
+
   WfCst::WfDataType
   getSourceDataType();
+
   bool
   isDataIDCreator();
+
   void
   writeDataValue(WfDataWriter* dataWriter);
+
   void
   freeAdapterPersistentData(MasterAgent_var& MA);  //FIXME move to parent class
 
 protected:
-
   /**
    * The basic constructor stores only the value but cannot be used to
    * generate the dataID due to missing data type
    * (used by MADAG ONLY during DAG PARSING)
    * @param value the (string) value of the data (e.g. path for a file)
    */
-  WfValueAdapter(const string& value);
+  WfValueAdapter(const std::string& value);
 
   char* newChar();
   short* newShort();
@@ -426,8 +441,8 @@ protected:
   float* newFloat();
   double* newDouble();
 
-  string myDataID;  //FIXME move this attribute to parent class
-  string myValue;
+  std::string myDataID;  //FIXME move this attribute to parent class
+  std::string myValue;
   WfCst::WfDataType myDataType;
 
   char *cx;
@@ -444,9 +459,7 @@ protected:
 /*****************************************************************************/
 
 class WfDataIDAdapter : public WfPortAdapter {
-
-  friend WfPortAdapter* WfPortAdapter::createAdapter(const string& strRef);
-
+  friend WfPortAdapter* WfPortAdapter::createAdapter(const std::string& strRef);
 public:
 
   /**
@@ -456,9 +469,8 @@ public:
    * @param dataDepth the depth of the data (>0 if container)
    * @param dataID  the dataID provided by the dataMgr
    */
-  WfDataIDAdapter(WfCst::WfDataType dataType,
-                  unsigned int      dataDepth,
-                  const string&     dataID);
+  WfDataIDAdapter(WfCst::WfDataType dataType, unsigned int dataDepth,
+                  const std::string& dataID);
 
   /**
    * Basic constructor with dataID only
@@ -466,7 +478,7 @@ public:
    * TODO modify writeDataValue to avoid using depth
    * @param dataID the data ID
    */
-  WfDataIDAdapter(const string& dataID);
+  WfDataIDAdapter(const std::string& dataID);
 
   ~WfDataIDAdapter();
 
@@ -484,50 +496,54 @@ public:
    * may contain different types of adapter references (simple, void,
    * multiple or value)
    */
-  static string IDStartTag;
-  static string IDFinishTag;
+  static std::string IDStartTag;
+  static std::string IDFinishTag;
 
   // virtual base methods
 
   void
   setNodePrecedence(WfNode* node, NodeSet* nodeSet)
     throw(WfStructException);
+
   void
   connectPorts(WfPort* port, unsigned int adapterLevel)
     throw(WfStructException);
-  string
+
+  std::string
   getSourceRef() const;
-  const string&
+
+  const std::string&
   getSourceDataID();
+
   WfCst::WfDataType
   getSourceDataType();
+
   bool
   isDataIDCreator();
+
   void
   writeDataValue(WfDataWriter* dataWriter);
+
   void
   freeAdapterPersistentData(MasterAgent_var& MA);
 
   // specific dataID adapter methods
 
   void
-  getElements(vector<string>& vectID);
+  getElements(std::vector<std::string>& vectID);
 
-  string
+  std::string
   getDataID() const;
 
-  string
+  std::string
   toString() const;
 
 protected:
-
   static void
-  getAndWriteData(WfDataWriter* dataWriter,
-                  const string& dataID,
-                  WfCst::WfDataType  dataType,
-                  unsigned int dataDepth);
+  getAndWriteData(WfDataWriter* dataWriter, const std::string& dataID,
+                  WfCst::WfDataType  dataType, unsigned int dataDepth);
 
-  string myDataID;  //FIXME move to parent class
+  std::string myDataID;  //FIXME move to parent class
   WfCst::WfDataType myDataType;
   unsigned int myDepth;
 
@@ -535,8 +551,7 @@ protected:
    * Cache containing the elements of container data
    * Used to avoid requesting the dataMgr for the same vectors of elts
    */
-  static map<string, vector<string> > myCache;
-
+  static std::map<std::string, std::vector<std::string> > myCache;
 };
 
 

@@ -19,7 +19,7 @@
  * A few warnings removal
  *
  * Revision 1.8  2008/10/14 13:31:01  bisnard
- * new class structure for dags (DagNode,DagNodePort)
+ * new class structure for dags (DagNode, DagNodePort)
  *
  * Revision 1.7  2008/09/04 14:34:36  bisnard
  * new method removeLastNodes
@@ -52,19 +52,21 @@
 #include "DagNode.hh"
 #include "debug.hh"
 
-using namespace std;
-
 /****************************************************************************/
 /*                    NodeQueue - PUBLIC METHODS                            */
 /****************************************************************************/
 
-NodeQueue::NodeQueue() : nodeCounter(0) { }
-NodeQueue::NodeQueue(string name) : nodeCounter(0), myName(name) { }
+NodeQueue::NodeQueue() : nodeCounter(0) {
+}
+
+NodeQueue::NodeQueue(std::string name) : nodeCounter(0), myName(name) {
+}
+
 NodeQueue::~NodeQueue() {
   // Important: the queue must be empty before being destroyed
 }
 
-string
+std::string
 NodeQueue::getName() {
   return myName;
 }
@@ -115,7 +117,9 @@ ChainedNodeQueue::notifyStateChange(DagNode * node) {
     this->outputQ->pushNode(node);
     this->nodeCounter--;
     return true;
-  } else return false;
+  } else {
+    return false;
+  }
 }
 
 
@@ -124,27 +128,17 @@ ChainedNodeQueue::notifyStateChange(DagNode * node) {
 /****************************************************************************/
 
 OrderedNodeQueue::OrderedNodeQueue() { }
-OrderedNodeQueue::OrderedNodeQueue(string name) : NodeQueue(name) { }
+OrderedNodeQueue::OrderedNodeQueue(std::string name) : NodeQueue(name) { }
 OrderedNodeQueue::~OrderedNodeQueue() { }
 
 // The basic version of this method inserts a ready node at the end
 // of the ready nodes list without doing any re-ordering
 void
 OrderedNodeQueue::pushNode(DagNode * node) {
-  //   TRACE_TEXT (TRACE_ALL_STEPS,
-  //       "Node " << node->getCompleteId() << " inserted at end of queue" << endl);
   orderedNodes.push_back(node);
   node->setNodeQueue(this);
   this->nodeCounter++;
 }
-
-// DagNode *
-// OrderedNodeQueue::getFirstNode() {
-//   if (!orderedNodes.empty())
-//     return orderedNodes.front();
-//   else
-//     return NULL;
-// }
 
 DagNode *
 OrderedNodeQueue::popFirstNode() {
@@ -154,8 +148,7 @@ OrderedNodeQueue::popFirstNode() {
     nodePtr->setNodeQueue(NULL);
     this->nodeCounter--;
     return nodePtr;
-  }
-  else {
+  } else {
     return NULL;
   }
 }
@@ -230,16 +223,4 @@ PriorityNodeQueue::pushNode(DagNode * insNode) {
   orderedNodes.insert(nodeIter, insNode);
   insNode->setNodeQueue(this);
   this->nodeCounter++;
-
-  //   if (nodeIter != orderedNodes.end()) {
-  //     TRACE_TEXT (TRACE_ALL_STEPS,
-  //       "Node " << insNode->getCompleteId() << " inserted before "
-  //           << curNode->getCompleteId() << " in queue" << endl);
-  //   } else if (curNode != NULL) {
-  //     TRACE_TEXT (TRACE_ALL_STEPS,
-  //       "Node " << insNode->getCompleteId() << " inserted last in queue" << endl);
-  //   } else {
-  //     TRACE_TEXT (TRACE_ALL_STEPS,
-  //       "Node " << insNode->getCompleteId() << " inserted first in queue" << endl);
-  //   }
 }

@@ -21,6 +21,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <string>
 #include "EventBase.hh"
 #include "EventManager.hh"
 
@@ -35,30 +36,40 @@ namespace events {
 
 template <class SOURCE_TYPE, class MSG_CLASS>
 class EventFrom : public EventBase {
-
 public:
+  EventFrom(EventBase::Severity severity, std::string message,
+            std::string data, const SOURCE_TYPE* src)
+    : EventBase(severity), myMessage(message), myData(data), mySource(src) {
+  }
 
-  EventFrom(EventBase::Severity severity,
-            std::string message,
-            std::string data,
-            const SOURCE_TYPE* src)
-    : EventBase(severity), myMessage(message), myData(data), mySource(src) {}
+  std::string
+  getMessage() const {
+    return myMessage;
+  }
 
-  std::string         getMessage() const      { return myMessage; }
-  std::string         getData() const         { return myData; }
-  const SOURCE_TYPE*  getSource() const       { return mySource; }
+  std::string
+  getData() const {
+    return myData;
+  }
 
-  virtual std::string toString() const;
+  const SOURCE_TYPE*
+  getSource() const {
+    return mySource;
+  }
+
+  virtual std::string
+  toString() const;
 
 private:
-  std::string         myMessage;
-  std::string         myData;
-  const SOURCE_TYPE*  mySource;
-  static const int    myMsgCode;
+  std::string myMessage;
+  std::string myData;
+  const SOURCE_TYPE* mySource;
+  static const int myMsgCode;
 };
 
 template <class SOURCE_TYPE, class MSG_CLASS>
-std::string EventFrom<SOURCE_TYPE, MSG_CLASS>::toString() const {
+std::string
+EventFrom<SOURCE_TYPE, MSG_CLASS>::toString() const {
   std::ostringstream str;
   str << EventBase::toString() << " : " << myMessage << " : ";
   str << "FROM " << mySource->toString() << " : " << myData << "/END";
@@ -72,23 +83,21 @@ std::string EventFrom<SOURCE_TYPE, MSG_CLASS>::toString() const {
  */
 template <class SOURCE_TYPE, int MSG_TYPE>
 class EventStandardMsg {
-
 private:
   static const int myMsgCode;
 };
 
 template <class SOURCE_TYPE, int MSG_TYPE>
-const int EventStandardMsg<SOURCE_TYPE, MSG_TYPE>::myMsgCode = MSG_TYPE;
+const int
+EventStandardMsg<SOURCE_TYPE, MSG_TYPE>::myMsgCode = MSG_TYPE;
 
 
 template<class SOURCE_TYPE, int MSG_TYPE>
 static void
-sendEventFrom(const SOURCE_TYPE* src,
-              std::string msg,
-              std::string data,
-              EventBase::Severity severity) {
+sendEventFrom(const SOURCE_TYPE* src, std::string msg,
+              std::string data, EventBase::Severity severity) {
   EventManager::getEventMgr()->sendEvent(
-    new EventFrom<SOURCE_TYPE, EventStandardMsg<SOURCE_TYPE, MSG_TYPE> >(severity, msg, data, src) );
+    new EventFrom<SOURCE_TYPE, EventStandardMsg<SOURCE_TYPE, MSG_TYPE> >(severity, msg, data, src));
 }
 
 /**
@@ -99,25 +108,32 @@ sendEventFrom(const SOURCE_TYPE* src,
 
 template <class OBJ_TYPE, class PARENT_TYPE>
 class EventCreateObject : public EventBase {
-
 public:
-
   EventCreateObject(OBJ_TYPE* obj, PARENT_TYPE* parent)
-    : myObj(obj), myParent(parent) {}
+    : myObj(obj), myParent(parent) {
+  }
 
-  const OBJ_TYPE*             getObject() const       { return myObj; }
-  const PARENT_TYPE*          getParent() const       { return myParent; }
+  const OBJ_TYPE*
+  getObject() const {
+    return myObj;
+  }
 
-  virtual std::string toString() const;
+  const PARENT_TYPE*
+  getParent() const {
+    return myParent;
+  }
+
+  virtual std::string
+  toString() const;
 
 private:
   OBJ_TYPE*           myObj;
   PARENT_TYPE*        myParent;
-
 };
 
 template <class OBJ_TYPE, class PARENT_TYPE>
-std::string EventCreateObject<OBJ_TYPE,PARENT_TYPE>::toString() const {
+std::string
+EventCreateObject<OBJ_TYPE, PARENT_TYPE>::toString() const {
   if (myParent == NULL) {
     return "CREATION OF " + myObj->toString();
   } else {
@@ -133,25 +149,32 @@ std::string EventCreateObject<OBJ_TYPE,PARENT_TYPE>::toString() const {
  */
 template <class SRC_TYPE, class DEST_TYPE>
 class EventCreateDirectedLink : public EventBase {
-
 public:
-
   EventCreateDirectedLink(SRC_TYPE* src, DEST_TYPE* dest)
-    : mySrc(src), myDest(dest) {}
+    : mySrc(src), myDest(dest) {
+  }
 
-  const SRC_TYPE*             getSource() const       { return mySrc; }
-  const DEST_TYPE*            getDestination() const  { return myDest; }
+  const SRC_TYPE*
+  getSource() const {
+    return mySrc;
+  }
 
-  virtual std::string toString() const;
+  const DEST_TYPE*
+  getDestination() const {
+    return myDest;
+  }
+
+  virtual std::string
+  toString() const;
 
 private:
-  SRC_TYPE*           mySrc;
-  DEST_TYPE*          myDest;
-
+  SRC_TYPE* mySrc;
+  DEST_TYPE* myDest;
 };
 
 template <class SRC_TYPE, class DEST_TYPE>
-std::string EventCreateDirectedLink<SRC_TYPE,DEST_TYPE>::toString() const {
+std::string
+EventCreateDirectedLink<SRC_TYPE, DEST_TYPE>::toString() const {
   return "CREATION OF LINK FROM=" + mySrc->toString() + " TO=" + myDest->toString();
 }
 

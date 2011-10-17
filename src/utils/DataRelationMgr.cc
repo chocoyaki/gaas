@@ -93,7 +93,7 @@ DataRelationMgr::getRelationList(const std::string& dataID,
        ++iter) {
     int jx = ordered ? iter->second.index : ix++;
     if (jx >= listSize) {
-      INTERNAL_ERROR("Mismatching container element index with nb of relationships",1);
+      INTERNAL_ERROR("Mismatching container element index with nb of relationships", 1);
     }
     dataIDList[jx] = CORBA::string_dup(iter->second.ID.c_str());
     flagList[jx]   = iter->second.flag;

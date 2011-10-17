@@ -153,13 +153,13 @@ int checkUsage(int argc, char ** argv) {
         strcmp(argv[2], "-fairness") &&
         strcmp(argv[2], "-g_aging_heft") &&
         strcmp(argv[2], "-srpt") &&
-        strcmp(argv[2], "-fcfs"  )) {
+        strcmp(argv[2], "-fcfs")) {
       usage(argv[0]);
     }
   }
   if (argc >=4) {
     if (strcmp(argv[3], "-pfm_any") &&
-        strcmp(argv[3], "-pfm_sameservices" )) {
+        strcmp(argv[3], "-pfm_sameservices")) {
       usage(argv[0]);
     }
   }
@@ -181,7 +181,7 @@ int main(int argc, char * argv[]) {
   std::vector<char *> args;
   CStringInserter<std::vector<char *> > ins(args);
 
-  checkUsage(argc,argv);
+  checkUsage(argc, argv);
 
 
   /* Parsing */
@@ -229,7 +229,7 @@ int main(int argc, char * argv[]) {
   if (argc >= 5) {
     if (!strcmp(argv[4], "-IRD")) {
       IRD = true;
-      if (!sscanf(argv[5],"%d",&IRD_value)) {
+      if (!sscanf(argv[5], "%d",&IRD_value)) {
         ERROR("Wrong IRD parameter value", 1);
       }
     }

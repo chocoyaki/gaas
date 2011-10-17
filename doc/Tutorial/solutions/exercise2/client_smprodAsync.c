@@ -22,7 +22,7 @@ int main(int argc, char **argv)
   float  *time   = NULL; /* To check that time is set by the server */
 
   diet_profile_t         *profile[5];
-  diet_reqID_t rst[5] = {0,0,0,0,0};
+  diet_reqID_t rst[5] = {0, 0, 0, 0, 0};
 
   m = 60;
   n = 100;
@@ -38,13 +38,13 @@ int main(int argc, char **argv)
     for (j = 0; j < (m * n); j++) {
       matrix[i][j] = 1.2 * j;
     }
-    profile[i] = diet_profile_alloc("smprod",0, 1, 2); // last_in, last_inout, last_out
+    profile[i] = diet_profile_alloc("smprod", 0, 1, 2); // last_in, last_inout, last_out
   
     /* Set profile arguments */
-    diet_scalar_set(diet_parameter(profile[i],0), &factor, 0, DIET_DOUBLE);
-    diet_matrix_set(diet_parameter(profile[i],1), matrix[i],  0, DIET_DOUBLE,
+    diet_scalar_set(diet_parameter(profile[i], 0), &factor, 0, DIET_DOUBLE);
+    diet_matrix_set(diet_parameter(profile[i], 1), matrix[i],  0, DIET_DOUBLE,
                     m, n, DIET_COL_MAJOR);
-    diet_scalar_set(diet_parameter(profile[i],2), NULL,    0, DIET_FLOAT);
+    diet_scalar_set(diet_parameter(profile[i], 2), NULL,    0, DIET_FLOAT);
   }
   
   /* Call Diet */
@@ -71,7 +71,7 @@ int main(int argc, char **argv)
     for (i = 0; i < 5; i++) printf(" %d ", rst[i]);
     for (i = 0; i < 5; i++){
       /* Get and print time */
-      diet_scalar_get(diet_parameter(profile[i],2), &time, NULL);
+      diet_scalar_get(diet_parameter(profile[i], 2), &time, NULL);
       if (time == NULL) {
         printf("Error: time not set !\n");
       } else {

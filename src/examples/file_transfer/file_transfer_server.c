@@ -96,7 +96,7 @@ solve_size(diet_profile_t* pb)
 
   fprintf(stderr, "Solve size ");
   
-  diet_file_get(diet_parameter(pb,0), NULL, &arg_size, &path1) ;
+  diet_file_get(diet_parameter(pb, 0), NULL, &arg_size, &path1);
   fprintf(stderr, "on %s (%zd) ", path1, arg_size);
   if ((status = stat(path1, &buf)))
     return status;
@@ -105,7 +105,7 @@ solve_size(diet_profile_t* pb)
     return 2;
   s1 = calloc(1, sizeof *s1);
   *s1 = buf.st_size;
-  diet_scalar_set(diet_parameter(pb,2), s1, DIET_VOLATILE, DIET_INT);
+  diet_scalar_set(diet_parameter(pb, 2), s1, DIET_VOLATILE, DIET_INT);
   
   diet_file_get(diet_parameter(pb, 1), NULL, &arg_size, &path2);
   fprintf(stderr, "and %s (%zd) ...", path2, arg_size);
@@ -115,11 +115,11 @@ solve_size(diet_profile_t* pb)
     return 2;
   s2 = calloc(1, sizeof *s2);
   *s2 = buf.st_size;
-  diet_scalar_set(diet_parameter(pb,3), s2, DIET_VOLATILE, DIET_INT);
+  diet_scalar_set(diet_parameter(pb, 3), s2, DIET_VOLATILE, DIET_INT);
   
   path2 = strdup(path1);
   
-  if (diet_file_set(diet_parameter(pb,4), DIET_VOLATILE, path2)) {
+  if (diet_file_set(diet_parameter(pb, 4), DIET_VOLATILE, path2)) {
     printf("diet_file_desc_set error\n");
     return 1;
   }
@@ -156,11 +156,11 @@ main(int argc, char* argv[])
 
   diet_service_table_init(1);
   profile = diet_profile_desc_alloc("size", 1, 1, 4);
-  diet_generic_desc_set(diet_param_desc(profile,0), DIET_FILE, DIET_CHAR);
-  diet_generic_desc_set(diet_param_desc(profile,1), DIET_FILE, DIET_CHAR);
-  diet_generic_desc_set(diet_param_desc(profile,2), DIET_SCALAR, DIET_INT);
-  diet_generic_desc_set(diet_param_desc(profile,3), DIET_SCALAR, DIET_INT);
-  diet_generic_desc_set(diet_param_desc(profile,4), DIET_FILE, DIET_CHAR);
+  diet_generic_desc_set(diet_param_desc(profile, 0), DIET_FILE, DIET_CHAR);
+  diet_generic_desc_set(diet_param_desc(profile, 1), DIET_FILE, DIET_CHAR);
+  diet_generic_desc_set(diet_param_desc(profile, 2), DIET_SCALAR, DIET_INT);
+  diet_generic_desc_set(diet_param_desc(profile, 3), DIET_SCALAR, DIET_INT);
+  diet_generic_desc_set(diet_param_desc(profile, 4), DIET_FILE, DIET_CHAR);
   if (diet_service_table_add(profile, NULL, solve_size)) return 1;
 
   diet_profile_desc_free(profile);

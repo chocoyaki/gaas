@@ -38,7 +38,7 @@ int add_services();
 static DynamicServiceMgr *mgr = NULL;
 
 template <typename T>
-std::string toString( T t )
+std::string toString(T t)
 {
   std::ostringstream oss;
   oss << t;
@@ -64,7 +64,7 @@ serviceAdd(diet_profile_t* pb)
     return -1;
   }
     
-  diet_file_get(diet_parameter(pb,0), NULL, &arg_size, &path);
+  diet_file_get(diet_parameter(pb, 0), NULL, &arg_size, &path);
   std::cerr << "on " << path << " (" << (int) arg_size << ") ";
   if ((status = stat(path, &buf)))
     return status;
@@ -80,7 +80,7 @@ serviceAdd(diet_profile_t* pb)
   diet_print_service_table();
 
   //   /* Unlink file */
-  //   diet_free_data(diet_parameter(pb,0));
+  //   diet_free_data(diet_parameter(pb, 0));
 
   return 0;
 }
@@ -98,14 +98,14 @@ serviceRem(diet_profile_t* pb)
     return -1;
   }
     
-  diet_string_get(diet_parameter(pb,0), &serviceName, NULL);
+  diet_string_get(diet_parameter(pb, 0), &serviceName, NULL);
   
   mgr->removeServiceMgr(serviceName);
 
   /* Print service table */
   diet_print_service_table();
 
-  //   diet_free_data(diet_parameter(pb,0));
+  //   diet_free_data(diet_parameter(pb, 0));
 
   return 0;
 }
@@ -144,11 +144,11 @@ add_services()
 
 
   /* Set profile parameters: */
-  profile = diet_profile_desc_alloc(add,0,0,0);
-  diet_generic_desc_set(diet_param_desc(profile,0),DIET_FILE, DIET_CHAR);
+  profile = diet_profile_desc_alloc(add, 0, 0, 0);
+  diet_generic_desc_set(diet_param_desc(profile, 0), DIET_FILE, DIET_CHAR);
 
   /* Add service to the service table */
-  if (diet_service_table_add(profile, NULL, serviceAdd )) return 1;
+  if (diet_service_table_add(profile, NULL, serviceAdd)) return 1;
 
   /* Free the profile, since it was deep copied */
   diet_profile_desc_free(profile);
@@ -157,11 +157,11 @@ add_services()
 
 
   /* Set profile parameters: */
-  profile2 = diet_profile_desc_alloc(rem,0,0,0);
-  diet_generic_desc_set(diet_param_desc(profile2,0),DIET_STRING, DIET_CHAR);
+  profile2 = diet_profile_desc_alloc(rem, 0, 0, 0);
+  diet_generic_desc_set(diet_param_desc(profile2, 0), DIET_STRING, DIET_CHAR);
 
   /* Add service to the service table */
-  if (diet_service_table_add(profile2, NULL, serviceRem )) return 1;
+  if (diet_service_table_add(profile2, NULL, serviceRem)) return 1;
 
   /* Free the profile, since it was deep copied */
   diet_profile_desc_free(profile2);
@@ -177,7 +177,7 @@ add_services()
  * MAIN
  */
 int
-main( int argc, char* argv[]) 
+main(int argc, char* argv[]) 
 {
   int res;
   
@@ -188,7 +188,7 @@ main( int argc, char* argv[])
 
   /* Print service table and launch daemon */
   diet_print_service_table();
-  res = diet_SeD(argv[1],argc,argv);
+  res = diet_SeD(argv[1], argc, argv);
 
   delete mgr;
 

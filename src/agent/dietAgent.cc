@@ -258,10 +258,9 @@ public:
 
 template <typename C>
 class CStringInserter {
-private:
-  C& c_;
 public:
-  explicit CStringInserter(C& c) : c_(c) {}
+  explicit CStringInserter(C& c) : c_(c) {
+}
 
   void
   operator() (const char *cstr) {
@@ -273,6 +272,9 @@ public:
     char *cstr = strdup(oss.str().c_str());
     c_.push_back(cstr);
   }
+
+private:
+  C& c_;
 };
 
 
@@ -476,7 +478,6 @@ int main(int argc, char* argv[], char *envp[]) {
     if (dietLogComponent->run(agtTypeName.c_str(),
                               parentName.c_str(),
                               flushTime)) {
-      // delete(dietLogComponent);  // DLC is activated, do not delete !
       WARNING("Could not initialize DietLogComponent");
       TRACE_TEXT(TRACE_ALL_STEPS, "* LogService: disabled" << endl);
       dietLogComponent = NULL;

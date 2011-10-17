@@ -373,7 +373,7 @@ DagdaImpl::recordData(const SeqChar& data,
 /* CORBA */
 char*
 DagdaImpl::sendData(const char* dataId, const char* destName) {
-  Dagda_ptr dest = ORBMgr::getMgr()->resolve<Dagda,Dagda_ptr>(DAGDACTXT, destName);
+  Dagda_ptr dest = ORBMgr::getMgr()->resolve<Dagda, Dagda_ptr>(DAGDACTXT, destName);
 
   dataMutex.lock();
   if (getData()->find(dataId)==getData()->end()) {
@@ -434,8 +434,8 @@ DagdaImpl::sendContainer(const char* containerID, const char* destName,
   TRACE_TEXT(TRACE_ALL_STEPS, "*** Sending container " << containerID << "\n");
   dest->unlockData(containerID);
   // transfer the container elements
-  Container *container = new Container(containerID,_this(),containerRelationMgr);
-  char *distID = container->send(destName,sendElements);
+  Container *container = new Container(containerID, _this(), containerRelationMgr);
+  char *distID = container->send(destName, sendElements);
 
   return distID;
 }
@@ -570,7 +570,7 @@ SimpleDagdaImpl::init(const char* ID, const char* parentID,
 
     Dagda_ptr parent;
     try {
-      parent = ORBMgr::getMgr()->resolve<Dagda,Dagda_ptr>(DAGDACTXT, parentID);
+      parent = ORBMgr::getMgr()->resolve<Dagda, Dagda_ptr>(DAGDACTXT, parentID);
     } catch (...) {
       parent = Dagda::_nil();
     }
@@ -655,7 +655,7 @@ SimpleDagdaImpl::downloadData(Dagda_ptr src, const corba_data_t& data) {
 /* CORBA */
 void
 SimpleDagdaImpl::lclAddData(const char* srcName, const corba_data_t& data) {
-  Dagda_ptr src = ORBMgr::getMgr()->resolve<Dagda,Dagda_ptr>(DAGDACTXT, srcName);
+  Dagda_ptr src = ORBMgr::getMgr()->resolve<Dagda, Dagda_ptr>(DAGDACTXT, srcName);
 
   TRACE_TEXT(TRACE_ALL_STEPS, "Add the data " << data.desc.id.idNumber
              << " locally.\n");
@@ -727,16 +727,16 @@ SimpleDagdaImpl::lclAddContainerElt(const char* containerID,
                                     const char* dataID,
                                     CORBA::Long index,
                                     CORBA::Long flag) {
-  Container *container = new Container(containerID,_this(),containerRelationMgr);
+  Container *container = new Container(containerID, _this(), containerRelationMgr);
   const char* eltID = dataID ? dataID : NoID;
   lockData(containerID);
-  container->addData(eltID,index,flag);
+  container->addData(eltID, index, flag);
   unlockData(containerID);
 }
 
 /* CORBA */
 CORBA::Long SimpleDagdaImpl::lclGetContainerSize(const char* containerID) {
-  Container *container = new Container(containerID,_this(),containerRelationMgr);
+  Container *container = new Container(containerID, _this(), containerRelationMgr);
   return (CORBA::Long) container->size();
 }
 
@@ -746,9 +746,9 @@ SimpleDagdaImpl::lclGetContainerElts(const char* containerID,
                                      SeqString& dataIDSeq,
                                      SeqLong& flagSeq,
                                      CORBA::Boolean ordered) {
-  Container *container = new Container(containerID,_this(),containerRelationMgr);
+  Container *container = new Container(containerID, _this(), containerRelationMgr);
   try {
-    container->getAllElements(dataIDSeq,flagSeq,ordered);
+    container->getAllElements(dataIDSeq, flagSeq, ordered);
   } catch (CORBA::SystemException& e) {
     std::cerr << "lclGetContainerElts Caught a CORBA " << e._name() << " exception ("
               << e.NP_minorString() << ")\n";
@@ -801,7 +801,7 @@ SimpleDagdaImpl::pfmRemData(const char* dataID) {
 /* CORBA */
 void
 SimpleDagdaImpl::lclUpdateData(const char* srcName, const corba_data_t& data) {
-  Dagda_ptr src = ORBMgr::getMgr()->resolve<Dagda,Dagda_ptr>(DAGDACTXT, srcName);
+  Dagda_ptr src = ORBMgr::getMgr()->resolve<Dagda, Dagda_ptr>(DAGDACTXT, srcName);
   if (getIDstr() == src->getID()) return;
   lclRemData(data.desc.id.idNumber);
   lclAddData(srcName, data);
@@ -918,7 +918,7 @@ SimpleDagdaImpl::lclReplicate(const char* dataID, CORBA::Long target,
 void
 SimpleDagdaImpl::lvlReplicate(const char* dataID, CORBA::Long target,
                               const char* pattern, CORBA::Boolean replace) {
-  std::map<std::string,Dagda_ptr>::iterator itch;
+  std::map<std::string, Dagda_ptr>::iterator itch;
 
   lclReplicate(dataID, target, pattern, replace);
 
@@ -956,9 +956,9 @@ SimpleDagdaImpl::lclGetDataDescList() {
 /* CORBA */
 SeqCorbaDataDesc_t*
 SimpleDagdaImpl::lvlGetDataDescList() {
-  std::map<std::string,Dagda_ptr>::iterator itch;
+  std::map<std::string, Dagda_ptr>::iterator itch;
   SeqCorbaDataDesc_t* local = lclGetDataDescList();
-  std::map<char*,corba_data_desc_t> dataMap;
+  std::map<char*, corba_data_desc_t> dataMap;
   SeqCorbaDataDesc_t* result = new SeqCorbaDataDesc_t();
 
   for (unsigned int i = 0; i<local->length(); i++)
@@ -980,7 +980,7 @@ SimpleDagdaImpl::lvlGetDataDescList() {
     }
 
   childrenMutex.unlock();
-  std::map<char*,corba_data_desc_t>::iterator itmap;
+  std::map<char*, corba_data_desc_t>::iterator itmap;
 
   result->length(dataMap.size());
   int i = 0;
@@ -1014,7 +1014,7 @@ SimpleDagdaImpl::lclGetDataDesc(const char* dataID) {
 /* CORBA */
 corba_data_desc_t*
 SimpleDagdaImpl::lvlGetDataDesc(const char* dataID) {
-  std::map<std::string,Dagda_ptr>::iterator itch;
+  std::map<std::string, Dagda_ptr>::iterator itch;
   if (lclIsDataPresent(dataID))
     return lclGetDataDesc(dataID);
 
@@ -1050,7 +1050,7 @@ SimpleDagdaImpl::pfmGetDataDesc(const char* dataID) {
 /* CORBA */
 SeqString*
 SimpleDagdaImpl::lvlGetDataManagers(const char* dataID) {
-  std::map<std::string,Dagda_ptr>::iterator itch;
+  std::map<std::string, Dagda_ptr>::iterator itch;
   SeqString* result = new SeqString();
   std::list<std::string> dtmList;
   if (lclIsDataPresent(dataID))
@@ -1546,7 +1546,7 @@ thrdCheckpointChild(void* child) {
 
 void
 DagdaImpl::checkpointState() {
-  std::map<std::string,Dagda_ptr>::iterator itch;
+  std::map<std::string, Dagda_ptr>::iterator itch;
   saveState();
 
   childrenMutex.lock();

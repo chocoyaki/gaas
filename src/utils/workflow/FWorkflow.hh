@@ -80,8 +80,11 @@
 #ifndef _FWORKFLOW_HH_
 #define _FWORKFLOW_HH_
 
-#include <map>
 #include <iostream>
+#include <list>
+#include <map>
+#include <string>
+#include <vector>
 
 #include "NodeSet.hh"
 #include "FNode.hh"
@@ -287,7 +290,7 @@ public:
    * will be re-used (uses data IDs written in the transcript)
    */
   void
-  readDagsState( list<Dag*>& dagList );
+  readDagsState(list<Dag*>& dagList);
 
   /**
    * Check workflow execution transcript for a given dag node id
@@ -295,9 +298,9 @@ public:
    * @param dagNodePtr  returns a ptr to the dagNode if found
    * @param isDone      returns true if dagNode is done
    */
-  void findDagNodeTranscript( const string& dagNodeId,
+  void findDagNodeTranscript(const string& dagNodeId,
                               DagNode* & dagNodePtr,
-                              bool& isDone );
+                              bool& isDone);
 
   /**
    * results

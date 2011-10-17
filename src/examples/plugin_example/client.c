@@ -96,13 +96,13 @@ constructTargetString(int num, char **strings)
   assert(num > 0);
   assert(strings != NULL);
 
-  for (strIter = 0 ; strIter < num ; strIter++) {
+  for (strIter = 0; strIter < num; strIter++) {
     stringLengthCount += strlen(strings[strIter]);
   }
   s = calloc(num + stringLengthCount, sizeof (char));
   assert(s != NULL);
 
-  for (strIter = 0 ; strIter < num-1 ; strIter++) {
+  for (strIter = 0; strIter < num-1; strIter++) {
     sprintf(s+strlen(s), "%s:", strings[strIter]);
   }
   sprintf(s+strlen(s), "%s", strings[num-1]);

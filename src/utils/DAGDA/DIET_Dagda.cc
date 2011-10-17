@@ -126,7 +126,7 @@ void display_profile(corba_profile_t* p) {
        << p->last_out << " / "
        << p->dietReqID << " / "
        << p->clientName << endl;
-  for (int i = 0; i<=p->last_out; ++i) {
+  for (int i = 0; i <= p->last_out; ++i) {
     cout << "Parameter " << i << " : "
          << p->parameters[i].desc.id.idNumber << " / "
          << p->parameters[i].desc.mode << " / "
@@ -156,7 +156,7 @@ void dagda_mrsh_profile(corba_profile_t* corba_profile, diet_profile_t* profile,
 
   corba_profile->clientName = CORBA::string_dup(dataManagerName.c_str());
 
-  for (int i = 0; i<=profile->last_out; ++i) {
+  for (int i = 0; i <= profile->last_out; ++i) {
     bool haveID = false;
     corba_data_t data;
     //CORBA::Char* value = (CORBA::Char*) profile->parameters[i].value;
@@ -174,7 +174,7 @@ void dagda_mrsh_profile(corba_profile_t* corba_profile, diet_profile_t* profile,
 
     // This is a new data. It needs an ID and its data manager is
     // this client data manager.
-    if (i<=profile->last_inout && !haveID) {
+    if (i <= profile->last_inout && !haveID) {
       corba_data_t* storedData;
       size_t size;
       char* dataID = MA->get_data_id();
@@ -183,7 +183,7 @@ void dagda_mrsh_profile(corba_profile_t* corba_profile, diet_profile_t* profile,
       profile->parameters[i].desc.id = dataID;
       mrsh_data_desc(&data.desc, &profile->parameters[i].desc);
       data.desc.dataManager = CORBA::string_dup(dataManagerName.c_str());
-      TRACE_TEXT(TRACE_ALL_STEPS,"Dagda marshall: param " << i << " : new ID "
+      TRACE_TEXT(TRACE_ALL_STEPS, "Dagda marshall: param " << i << " : new ID "
                  << dataID << " for IN/INOUT parameter created" << endl);
 
       // Add the data in the client data manager.
@@ -199,7 +199,7 @@ void dagda_mrsh_profile(corba_profile_t* corba_profile, diet_profile_t* profile,
       if (profile->parameters[i].value != NULL)
         storedData->value.replace(size, size,
                                   (CORBA::Char*) profile->parameters[i].value,
-                                  i<=profile->last_in ? 0:1);
+                                  i <= profile->last_in ? 0:1);
 
       // Only scalar values are sent into the profile.
       // For other types, the peer has to download them.
@@ -217,14 +217,14 @@ void dagda_mrsh_profile(corba_profile_t* corba_profile, diet_profile_t* profile,
 
       profile->parameters[i].desc.id = dataID;
       mrsh_data_desc(&corba_profile->parameters[i].desc, &profile->parameters[i].desc);
-      TRACE_TEXT(TRACE_ALL_STEPS,"Dagda marshall: param " << i << " : new ID "
+      TRACE_TEXT(TRACE_ALL_STEPS, "Dagda marshall: param " << i << " : new ID "
                  << corba_profile->parameters[i].desc.id.idNumber
                  << " for OUT parameter created" << endl);
     }
     // The data is on the platform. Set its description.
     if (haveID) {
       corba_profile->parameters[i].desc = data.desc;
-      TRACE_TEXT(TRACE_ALL_STEPS,"Dagda marshall: param " << i << " : using ID "
+      TRACE_TEXT(TRACE_ALL_STEPS, "Dagda marshall: param " << i << " : using ID "
                  << data.desc.id.idNumber << endl);
     }
   } // end for
@@ -244,14 +244,14 @@ void dagda_download_SeD_data(diet_profile_t* profile,
   bool mvFileError;
 
   // Free the remote volatile data.
-  for (int i = 0; i<=pb->last_in; ++i) {
+  for (int i = 0; i <= pb->last_in; ++i) {
     Dagda_var remoteManager =
       ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT, string(pb->parameters[i].desc.dataManager));
     if (pb->parameters[i].desc.mode == DIET_VOLATILE)
       remoteManager->lclRemData(pb->parameters[i].desc.id.idNumber);
   }
   // Downloads the INOUT data from the SeD to the client.
-  for (int i = pb->last_in+1; i<=pb->last_inout; ++i) {
+  for (int i = pb->last_in+1; i <= pb->last_inout; ++i) {
     // Get a reference to the data manager of the data.
     string remoteManagerName = string(pb->parameters[i].desc.dataManager);
     Dagda_var remoteManager =
@@ -320,14 +320,14 @@ void dagda_download_SeD_data(diet_profile_t* profile,
       remoteManager->lclRemData(pb->parameters[i].desc.id.idNumber);
   }
   // Download the OUT data.
-  for (int i = pb->last_inout+1; i<=pb->last_out; ++i) {
+  for (int i = pb->last_inout+1; i <= pb->last_out; ++i) {
     string remoteManagerName = string(pb->parameters[i].desc.dataManager);
     Dagda_var remoteManager =
       ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT, remoteManagerName);
 
     if (pb->parameters[i].desc.mode != DIET_PERSISTENT &&
         pb->parameters[i].desc.mode != DIET_STICKY) {
-      if (pb->parameters[i].desc.specific._d() != DIET_SCALAR ) {
+      if (pb->parameters[i].desc.specific._d() != DIET_SCALAR) {
         dataManager->lclAddData(remoteManagerName.c_str(), pb->parameters[i]);
         inserted = dataManager->getData(pb->parameters[i].desc.id.idNumber);
         size = inserted->value.length();
@@ -354,7 +354,7 @@ void dagda_download_SeD_data(diet_profile_t* profile,
 
 diet_error_t dagda_get_data_desc(corba_pb_desc_t& corba_pb, MasterAgent_var& MA) {
   // Retrieves the information about a data stored on the platform.
-  for (int i = 0; i<=corba_pb.last_out; ++i) {
+  for (int i = 0; i <= corba_pb.last_out; ++i) {
     if (strlen(corba_pb.param_desc[i].id.idNumber)!=0) {
       if (!MA->dataLookUp(corba_pb.param_desc[i].id.idNumber)) {
         ERROR(" data with ID " << corba_pb.param_desc[i].id.idNumber
@@ -458,7 +458,7 @@ void dagda_download_data(diet_profile_t& profile, corba_profile_t& pb) {
       profile.parameters[i].value = inserted->value.get_buffer(i>pb.last_in ? true:false);
     }
   }
-  for (int i = pb.last_inout+1;i<=pb.last_out; ++i) {
+  for (int i = pb.last_inout+1;i <= pb.last_out; ++i) {
     size_t outDataSize = data_sizeof(&pb.parameters[i].desc);
     unmrsh_data_desc(&profile.parameters[i].desc, &pb.parameters[i].desc);
     profile.parameters[i].value = new CORBA::Char[outDataSize];
@@ -467,7 +467,7 @@ void dagda_download_data(diet_profile_t& profile, corba_profile_t& pb) {
 
 void dagda_upload_data(diet_profile_t& profile, corba_profile_t& pb) {
   DagdaImpl* manager = DagdaFactory::getDataManager();
-  for (int i = 0;i<=pb.last_in;++i)
+  for (int i = 0;i <= pb.last_in;++i)
     pb.parameters[i].desc.dataManager = CORBA::string_dup(manager->getID());
   for (int i = profile.last_in+1; i<= profile.last_out; ++i) {
     // marshalling of the data
@@ -478,7 +478,7 @@ void dagda_upload_data(diet_profile_t& profile, corba_profile_t& pb) {
 
     mrsh_data_desc(&data.desc, &profile.parameters[i].desc);
 
-    if (i<=pb.last_inout && data.desc.specific._d()==DIET_FILE) {
+    if (i <= pb.last_inout && data.desc.specific._d()==DIET_FILE) {
       // We cannot delete an INOUT file but we have to update the used
       // disk space.
       size_t previousSize;
@@ -1273,7 +1273,7 @@ int dagda_get_container_elements(const char* idContainer, diet_container_t* cont
   SeqString  eltIDSeq;
   SeqLong    eltFlagSeq;
   try {
-    manager->lclGetContainerElts(idContainer,eltIDSeq,eltFlagSeq,true);
+    manager->lclGetContainerElts(idContainer, eltIDSeq, eltFlagSeq, true);
   } catch (CORBA::SystemException& e) {
     cerr << "dagda_get_container_elements: Caught a CORBA " << e._name() << " exception ("
          << e.NP_minorString() << ")" << endl;

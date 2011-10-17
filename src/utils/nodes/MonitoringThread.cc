@@ -58,7 +58,7 @@ MonitoringThread::run_undetached(void* params) {
     if (dietLogComponent != NULL) {
     }
 
-    sleep(1,0);
+    sleep(1, 0);
   }
   return NULL;
 }

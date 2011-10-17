@@ -25,7 +25,7 @@
  * improved exception management
  *
  * Revision 1.16  2008/10/14 13:24:49  bisnard
- * use new class structure for dags (DagNode,DagNodePort)
+ * use new class structure for dags (DagNode, DagNodePort)
  *
  * Revision 1.15  2008/07/10 11:42:20  bisnard
  * Fix bug 68 memory loss during workflow execution
@@ -104,7 +104,7 @@ using namespace madag;
 MultiWfFOFT::MultiWfFOFT(MaDag_impl* maDag)
   : MultiWfScheduler(maDag, MultiWfScheduler::MULTIWF_DAG_METRIC) {
   this->execQueue = new PriorityNodeQueue;
-  TRACE_TEXT(TRACE_MAIN_STEPS,"Using FOFT multi-workflow scheduler" << endl);
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Using FOFT multi-workflow scheduler" << endl);
 }
 
 MultiWfFOFT::~MultiWfFOFT() {
@@ -136,7 +136,7 @@ MultiWfFOFT::intraDagSchedule(Dag * dag, MasterAgent_var MA)
   delete &orderedNodes;
 
   // Initialize nodesFlag and nodesHEFTPrio
-  for (map <string,DagNode *>::iterator iter = dag->begin(); iter != dag->end();
+  for (map <string, DagNode *>::iterator iter = dag->begin(); iter != dag->end();
        ++iter) {
     DagNode * node = (DagNode*) iter->second;
     this->nodesFlag[node] = false;

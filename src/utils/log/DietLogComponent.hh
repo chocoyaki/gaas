@@ -85,7 +85,7 @@
  * adds multi-mas informations into the logService
  *
  * Revision 1.3  2004/12/02 11:24:38  bdelfabr
- * add informations on data (size, type, base type )
+ * add informations on data (size, type, base type)
  *
  * Revision 1.2  2004/07/29 18:53:06  rbolze
  * make some change to send more info to the logService.
@@ -99,6 +99,7 @@
 #ifndef _DIETLOGCOMPONENT_HH_
 #define _DIETLOGCOMPONENT_HH_
 
+#include <string>
 #include "LogComponent.hh"
 #include "DIET_data.h"
 
@@ -350,7 +351,7 @@ public:
    */
   void
   logDataStore(const char* dataID, const long unsigned int size,
-               const long base_type, const char * type );    // data profile ?
+               const long base_type, const char * type);    // data profile ?
 
   void
   logDataRelease(const char* dataID);

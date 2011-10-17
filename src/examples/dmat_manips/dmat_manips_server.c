@@ -95,7 +95,7 @@ solve_T(diet_profile_t* pb)
 
   diet_matrix_get(diet_parameter(pb, 0), &A, NULL, &m, &n, &o);
   C = malloc(n*m*sizeof(double));
-  for (i=0; i<n*m; ++i)
+  for (i = 0; i<n*m; ++i)
     C[i]=A[i];
   if ((res = T(m, n, A, (o == DIET_ROW_MAJOR)))) {
     free(C);
@@ -103,7 +103,7 @@ solve_T(diet_profile_t* pb)
   }
   
   /* no need to set order */
-  diet_matrix_set(diet_parameter(pb,1), C, DIET_VOLATILE, DIET_DOUBLE, n, m, o);
+  diet_matrix_set(diet_parameter(pb, 1), C, DIET_VOLATILE, DIET_DOUBLE, n, m, o);
   print_matrix(A, m, n, o);
 
   printf(" done\n");
@@ -128,7 +128,7 @@ solve_MatSUM(diet_profile_t* pb)
   tA = (oA == DIET_ROW_MAJOR) ? 'T' : 'N';
   tB = (oB == DIET_ROW_MAJOR) ? 'T' : 'N';
   if ((mA != mB) || (nA != nB)) {
-    fprintf(stderr, "MatSUM error: mA=%zd, nA=%zd ; mB=%zd, nB=%zd\n",
+    fprintf(stderr, "MatSUM error: mA=%zd, nA=%zd; mB=%zd, nB=%zd\n",
             mA, nA, mB, nB);
     return 1;
   }
@@ -170,7 +170,7 @@ solve_MatPROD(diet_profile_t* pb)
   tA = (oA == DIET_ROW_MAJOR) ? 'T' : 'N';
   tB = (oB == DIET_ROW_MAJOR) ? 'T' : 'N';
   if (nA != mB) {
-    fprintf(stderr, "MatPROD error: mA=%ld, nA=%ld ; mB=%ld, nB=%ld\n",
+    fprintf(stderr, "MatPROD error: mA=%ld, nA=%ld; mB=%ld, nB=%ld\n",
             (long)mA, (long)nA, (long)mB, (long)nB);
     return 1;
   }
@@ -207,7 +207,7 @@ usage(char* cmd)
 int
 main(int argc, char* argv[])
 {
-  size_t i,j;
+  size_t i, j;
   int res;
   int services[NB_SRV] = {0, 0, 0};
   diet_profile_desc_t* profile = NULL;
@@ -246,9 +246,9 @@ main(int argc, char* argv[])
   
   if (services[1]) {
     profile = diet_profile_desc_alloc("MatPROD", 1, 1, 2);
-    diet_generic_desc_set(diet_param_desc(profile,0), DIET_MATRIX, DIET_DOUBLE);
-    diet_generic_desc_set(diet_param_desc(profile,1), DIET_MATRIX, DIET_DOUBLE);
-    diet_generic_desc_set(diet_param_desc(profile,2), DIET_MATRIX, DIET_DOUBLE);
+    diet_generic_desc_set(diet_param_desc(profile, 0), DIET_MATRIX, DIET_DOUBLE);
+    diet_generic_desc_set(diet_param_desc(profile, 1), DIET_MATRIX, DIET_DOUBLE);
+    diet_generic_desc_set(diet_param_desc(profile, 2), DIET_MATRIX, DIET_DOUBLE);
 
     diet_service_table_add(profile, NULL, solve_MatPROD);
     diet_profile_desc_free(profile);
@@ -256,9 +256,9 @@ main(int argc, char* argv[])
   
   if (services[2]) {
     profile = diet_profile_desc_alloc("MatSUM", 1, 1, 2);
-    diet_generic_desc_set(diet_param_desc(profile,0), DIET_MATRIX, DIET_DOUBLE);
-    diet_generic_desc_set(diet_param_desc(profile,1), DIET_MATRIX, DIET_DOUBLE);
-    diet_generic_desc_set(diet_param_desc(profile,2), DIET_MATRIX, DIET_DOUBLE);
+    diet_generic_desc_set(diet_param_desc(profile, 0), DIET_MATRIX, DIET_DOUBLE);
+    diet_generic_desc_set(diet_param_desc(profile, 1), DIET_MATRIX, DIET_DOUBLE);
+    diet_generic_desc_set(diet_param_desc(profile, 2), DIET_MATRIX, DIET_DOUBLE);
     
     diet_service_table_add(profile, NULL, solve_MatSUM);
     diet_profile_desc_free(profile);

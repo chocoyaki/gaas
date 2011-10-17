@@ -75,7 +75,7 @@ solve_dgemm(diet_profile_t *pb)
 int
 main(int argc, char **argv)
 {
-  size_t i,j;
+  size_t i, j;
   int res;
 
   diet_profile_desc_t *profile;

@@ -80,7 +80,7 @@ SeDDescrParser::parseXml(bool checkValid)
     //     XREL(xmlFileName);
 
   } else {
-    throw XMLParsingException(XMLParsingException::eUNKNOWN,"Empty XML filename");
+    throw XMLParsingException(XMLParsingException::eUNKNOWN, "Empty XML filename");
   }
 
   // PARSE
@@ -88,7 +88,7 @@ SeDDescrParser::parseXml(bool checkValid)
     this->document = parser->parse((DOMLSInput*) wrapper);
   } catch (...) {
     cerr << errorMsgPfx << "Unexpected exception during XML Parsing";
-    throw XMLParsingException(XMLParsingException::eUNKNOWN,"");
+    throw XMLParsingException(XMLParsingException::eUNKNOWN, "");
   }
 
   if (document == NULL)
@@ -223,8 +223,8 @@ GASWParser::parseInput(const DOMElement * element, SeDService * service)
   string name    = DagWfParser::getAttributeValue("name", element);
   string option  = DagWfParser::getAttributeValue("option", element);
   string type    = DagWfParser::getAttributeValue("type", element);
-  //   if (type.empty()) throw XMLParsingException(XMLParsingException::eEMPTY_ATTR,"type");
-  SeDArgument *in = service->addInput(name,option,type);
+  //   if (type.empty()) throw XMLParsingException(XMLParsingException::eEMPTY_ATTR, "type");
+  SeDArgument *in = service->addInput(name, option, type);
 }
 
 void
@@ -233,8 +233,8 @@ GASWParser::parseOutput(const DOMElement * element, SeDService * service)
   string name    = DagWfParser::getAttributeValue("name", element);
   string option  = DagWfParser::getAttributeValue("option", element);
   string type    = DagWfParser::getAttributeValue("type", element);
-  //   if (type.empty()) throw XMLParsingException(XMLParsingException::eEMPTY_ATTR,"type");
-  SeDArgument *out = service->addOutput(name,option,type);
+  //   if (type.empty()) throw XMLParsingException(XMLParsingException::eEMPTY_ATTR, "type");
+  SeDArgument *out = service->addOutput(name, option, type);
 
   const DOMNode * child = element->getFirstChild();
   while (child != NULL) {
@@ -338,7 +338,7 @@ GASWParser::evalTemplate(SeDArgument *arg, string& value) {
   // Replace %s by unique id provided by SeDService
   string::size_type idPos = 0;
   if ((idPos = value.find("%s")) != string::npos) {
-    value = value.substr(0,idPos)
+    value = value.substr(0, idPos)
       + arg->getService()->getReqId()
       + value.substr(idPos + 2, value.length()-idPos-2);
   }

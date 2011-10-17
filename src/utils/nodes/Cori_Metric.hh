@@ -64,8 +64,8 @@ public:
   /**
    * Initialize the CoRI Metric of this SeD
    * @param type_collector is the program where you get the information from
-   *                for exemple EASY,GANGLIA,NAGIOS
-   *                ={EASY,BATCH*} are the supported programs
+   *                for exemple EASY, GANGLIA, NAGIOS
+   *                ={EASY, BATCH*} are the supported programs
    *                                    (*only if installed)
    * @param data can be used to help initialize the collector.
    *        Not used for the moment in any collector
@@ -84,7 +84,7 @@ public:
   call_cori_metric(int type_Info,
                    estVector_t *information,
                    const void* data
-    );
+);
 
   diet_est_collect_tag_t
   get_Collector_type();

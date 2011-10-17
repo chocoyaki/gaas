@@ -43,7 +43,7 @@ diet_disconnect_from_hierarchy(dynamic_type_t type, const char *name) {
     }
     } // end: switch (type)
 
-  } catch(...) {
+  } catch (...) {
     return DIET_COMM_ERROR;
   }
   return DIET_NO_ERROR;

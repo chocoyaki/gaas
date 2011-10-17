@@ -59,8 +59,8 @@ int
 Easy_Disk::get_Write_Speed(const char* path,
                            double * result)
 {
-  if ((!get_Write_Speed_by_gettimeofday(path,result))
-      ||(!get_Write_Speed_by_sig_alarm(path,result)))
+  if ((!get_Write_Speed_by_gettimeofday(path, result))
+      ||(!get_Write_Speed_by_sig_alarm(path, result)))
     return 0;
   else {
     *result = 0;
@@ -73,8 +73,8 @@ Easy_Disk::get_Read_Speed(const char* path,
                           double* result)
 {
 
-  if ((!get_Read_Speed_by_gettimeofday(path,result))
-      ||(!get_Read_Speed_by_sig_alarm(path,result)))
+  if ((!get_Read_Speed_by_gettimeofday(path, result))
+      ||(!get_Read_Speed_by_sig_alarm(path, result)))
     return 0;
   else {
     *result = 0;
@@ -85,7 +85,7 @@ Easy_Disk::get_Read_Speed(const char* path,
 int
 Easy_Disk::get_Available_DiskSpace(const char* path,
                                    double * result){
-  if (!gatherSizeDisks(0,result , path))
+  if (!gatherSizeDisks(0, result , path))
     return 0;
   else {
     *result = 0;
@@ -96,7 +96,7 @@ Easy_Disk::get_Available_DiskSpace(const char* path,
 int
 Easy_Disk::get_Total_DiskSpace(const char* path,
                                double * result){
-  if (!gatherSizeDisks(1,result , path))
+  if (!gatherSizeDisks(1, result , path))
     return 0;
   else {
     *result = 0;
@@ -118,14 +118,14 @@ removePath_file(char** path){
   delete[]*path;
 }
 
-bool is_readable( const std::string & file )
+bool is_readable(const std::string & file)
 {
-  std::ifstream fichier( file.c_str() );
+  std::ifstream fichier(file.c_str());
   return fichier != 0;
 }
 
 void
-createPath(char **path_file,const char* path)
+createPath(char **path_file, const char* path)
 {
   char *namefile = new char[8];
   int nombre = (int)((double)rand() / ((double)RAND_MAX + 1) * 9999);
@@ -133,15 +133,15 @@ createPath(char **path_file,const char* path)
   sprintf(namefile, "%i", nombre);
 
   *path_file = new char[strlen(path)+strlen(namefile)];
-  strcpy(*path_file,path);
-  strcat(*path_file,namefile);
+  strcpy(*path_file, path);
+  strcat(*path_file, namefile);
 
-  while ( is_readable( *path_file ) )
+  while (is_readable(*path_file))
   {
     nombre = (int)((double)rand() / ((double)RAND_MAX + 1) * 9999);
     sprintf(namefile, "%i",  nombre);
-    strcpy(*path_file,path);
-    strcat(*path_file,namefile);
+    strcpy(*path_file, path);
+    strcat(*path_file, namefile);
   }
   delete [] namefile;
 }
@@ -158,14 +158,14 @@ Easy_Disk::search_for_percent(FILE * file,
 
   while (!feof(file)){
     //looking for the last character of the word
-    if (strstr(last,"%\0")!=NULL){
+    if (strstr(last, "%\0")!=NULL){
       if (typeOfInfo == 1)returnnumb = atof(bbblast);
       else if (typeOfInfo == 0)returnnumb = atof(beforelast);
       break;
     }
-    strcpy(bbblast,beforebeforelast);
-    strcpy(beforebeforelast,beforelast);
-    strcpy(beforelast,last);
+    strcpy(bbblast, beforebeforelast);
+    strcpy(beforebeforelast, beforelast);
+    strcpy(beforelast, last);
     fscanf (file, "%255s", last);
   }
   return returnnumb;
@@ -190,7 +190,7 @@ Easy_Disk::create_file(char** path_file){
     buffer[j]=rand()%26+'a';
 #if defined HAVE_ALARM && defined HAVE_SIGNAL
   alarm(seconds);
-  signal(SIGALRM,stop_count);
+  signal(SIGALRM, stop_count);
 #else
 #ifdef HAVE_GETTIMEOFDAY
   timeval tim;
@@ -227,7 +227,7 @@ Easy_Disk::create_file(char** path_file){
 }
 
 int
-Easy_Disk::openfile(char ** path_file,ofstream* outfile){
+Easy_Disk::openfile(char ** path_file, ofstream* outfile){
 
   (*outfile).open (*path_file, ofstream::out | ofstream::trunc);
   if ((*outfile).is_open())
@@ -249,17 +249,17 @@ Easy_Disk::openfile(char ** path_file,ofstream* outfile){
  */
 
 int
-Easy_Disk::gatherSizeDisks(int typeOfInfo,double *result,
+Easy_Disk::gatherSizeDisks(int typeOfInfo, double *result,
                            const char* path){
   // information is collected from POSIX standard 'df $path -k'
   typedef char mystring_t[256];
   int retval = 0;
   char *str;
   str = new char[(strlen(path)*2)+20];
-  strcpy (str,"df ");
-  strcat(str,path);
+  strcpy (str, "df ");
+  strcat(str, path);
   strcat(str, " -k");
-  FILE * myfile =popen(str,"r");
+  FILE * myfile =popen(str, "r");
 
   mystring_t word;
   double number = 0;
@@ -270,7 +270,7 @@ Easy_Disk::gatherSizeDisks(int typeOfInfo,double *result,
       fgets(word, 256, myfile);
       if (!feof(myfile)){
         //look for the '%' and save the isstatic th element before this
-        number= search_for_percent(myfile,typeOfInfo);
+        number= search_for_percent(myfile, typeOfInfo);
         if (number!=-1){ //found the percent
           *result = number/1024;
           number=-1;
@@ -297,9 +297,9 @@ Easy_Disk::get_Write_Speed_by_gettimeofday(const char* path,
 #endif
 
   char* path_file;
-  createPath(&path_file,path);
+  createPath(&path_file, path);
   ofstream outfile;
-  outfile.exceptions ( ofstream::eofbit | ofstream::failbit | ofstream::badbit );
+  outfile.exceptions (ofstream::eofbit | ofstream::failbit | ofstream::badbit);
   if (openfile(&path_file,&outfile)){
     return 1;
   }
@@ -333,7 +333,7 @@ Easy_Disk::get_Write_Speed_by_gettimeofday(const char* path,
         *result = 0;
         return 1;
       }
-      outfile.write(buffer,sizeTab);
+      outfile.write(buffer, sizeTab);
       outfile.flush();
       i++;
     }
@@ -349,7 +349,7 @@ Easy_Disk::get_Write_Speed_by_gettimeofday(const char* path,
   // To avoid std::ios_base::failure from libstdc++ after a remove function close seems not required.
   // outfile.close();
   double Mpersec;
-  if(elapsed_time == 0)
+  if (elapsed_time == 0)
     return 1;
   Mpersec = sizeTab*sizeofchar*i/(elapsed_time*MEGABYTE);
   writespeed = Mpersec/COUNTPERBUFFER;
@@ -371,9 +371,9 @@ Easy_Disk::get_Write_Speed_by_sig_alarm(const char* path,
 
   *result = 0;
   char* path_file;
-  createPath(&path_file,path);
+  createPath(&path_file, path);
   ofstream outfile;
-  outfile.exceptions ( ofstream::eofbit | ofstream::failbit | ofstream::badbit );
+  outfile.exceptions (ofstream::eofbit | ofstream::failbit | ofstream::badbit);
   if (openfile(&path_file,&outfile)){
     return 1;
   }
@@ -384,7 +384,7 @@ Easy_Disk::get_Write_Speed_by_sig_alarm(const char* path,
   int sizeTab = BUFFSIZE/sizeofchar;
   long  rounds = FILESIZE/sizeTab;
 
-  signal(SIGALRM,stop_count);
+  signal(SIGALRM, stop_count);
   sigalarm = 0; /* reset alarm flag */
 
   char *buffer = new char [sizeTab];
@@ -411,7 +411,7 @@ Easy_Disk::get_Write_Speed_by_sig_alarm(const char* path,
         *result = 0;
         return 1;
       }
-      outfile.write(buffer,sizeTab);
+      outfile.write(buffer, sizeTab);
       outfile.flush();
       i++;
     }
@@ -458,7 +458,7 @@ Easy_Disk::get_Read_Speed_by_gettimeofday(const char* path,
   return 1;
 #endif
   char* path_file;
-  createPath(&path_file,path);
+  createPath(&path_file, path);
   *result = 0;
   int seconds = 3;
   int sizeofchar = sizeof(char);
@@ -470,7 +470,7 @@ Easy_Disk::get_Read_Speed_by_gettimeofday(const char* path,
   }
 
   ifstream infile;
-  infile.exceptions ( ifstream::eofbit | ifstream::failbit | ifstream::badbit );
+  infile.exceptions (ifstream::eofbit | ifstream::failbit | ifstream::badbit);
   double readspeed = 0;
 
   char *buffer = new char [sizeTab];
@@ -496,12 +496,12 @@ Easy_Disk::get_Read_Speed_by_gettimeofday(const char* path,
         &&(infile.is_open())) {
     if (infile.eof()){
       infile.close();
-      infile.open (path_file,ifstream::in);
+      infile.open (path_file, ifstream::in);
       j++;
       i = 0;
     }
     try{
-      infile.read(buffer,sizeTab);
+      infile.read(buffer, sizeTab);
       i++;
     }
     catch (ifstream::failure& e) {//not so dangerous -> shi* happens
@@ -535,7 +535,7 @@ Easy_Disk::get_Read_Speed_by_sig_alarm(const char* path,
 #endif
 
   char* path_file;
-  createPath(&path_file,path);
+  createPath(&path_file, path);
   *result = 0;
 
   int seconds = 3;
@@ -547,9 +547,9 @@ Easy_Disk::get_Read_Speed_by_sig_alarm(const char* path,
     return 1;
   }
   ifstream infile;
-  infile.exceptions ( ifstream::eofbit | ifstream::failbit | ifstream::badbit );
+  infile.exceptions (ifstream::eofbit | ifstream::failbit | ifstream::badbit);
   double readspeed = 0;
-  signal(SIGALRM,stop_count);
+  signal(SIGALRM, stop_count);
   sigalarm = 0; /* reset alarm flag */
   char *buffer = new char [sizeTab];
   double j = 0;
@@ -567,12 +567,12 @@ Easy_Disk::get_Read_Speed_by_sig_alarm(const char* path,
         &&(infile.is_open())) {
     if (infile.eof()){
       infile.close();
-      infile.open (path_file,ifstream::in);
+      infile.open (path_file, ifstream::in);
       j++;
       i = 0;
     }
     try{
-      infile.read(buffer,sizeTab);
+      infile.read(buffer, sizeTab);
       i++;
     }
     catch (ifstream::failure& e) {//not so dangerous -> shi* happens

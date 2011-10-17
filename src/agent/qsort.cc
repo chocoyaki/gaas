@@ -44,7 +44,7 @@
  *  * CMakeLists.txt changed accordingly.
  *  * src/agent/qsort.cc: possible include of alloca.h removed.
  *  * src/CORBA/idl/CMakeLists.txt: DIET_USE_JXTA and DIET_USE_JXTA now cleanly
- *    handled (thanks to SEPARATE_ARGUMENTS( ).         ---- Injay 2461
+ *    handled (thanks to SEPARATE_ARGUMENTS().         ---- Injay 2461
  *
  * Revision 1.2  2003/05/05 14:50:52  pcombes
  * alloca.h does not exist on all platforms ...

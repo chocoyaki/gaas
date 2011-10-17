@@ -30,6 +30,8 @@
 #ifndef _METADAG_HH_
 #define _METADAG_HH_
 
+#include <map>
+#include <string>
 #include "NodeSet.hh"
 
 class Dag;

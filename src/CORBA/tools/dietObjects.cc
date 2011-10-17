@@ -47,13 +47,13 @@ public:
 
   std::string
   getArg(const unsigned int idx) const {
-    if (idx>=argc) return "";
+    if (idx >= argc) return "";
     return argv.at(idx);
   }
 
   std::list<std::string>
   values() const {
-    if (argc<=2) {
+    if (argc <= 2) {
       return std::list<std::string>();
     }
 

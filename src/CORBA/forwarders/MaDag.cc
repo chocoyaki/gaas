@@ -63,7 +63,7 @@ DIETForwarder::processMultiDagWf(const ::corba_wf_desc_t& dag_desc,
   name = getName(objString);
 
   MaDag_var agent =
-    ORBMgr::getMgr()->resolve<MaDag, MaDag_var>(MADAGCTXT, name,this->name);
+    ORBMgr::getMgr()->resolve<MaDag, MaDag_var>(MADAGCTXT, name, this->name);
   return agent->processMultiDagWf(dag_desc, cltMgrRef, wfReqId, release);
   }
 

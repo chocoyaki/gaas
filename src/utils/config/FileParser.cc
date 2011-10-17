@@ -42,7 +42,7 @@ FileParser::FileParser(const std::string& path) {
 void
 FileParser::parseFile(const std::string& path) {
   DIR *dp = opendir(path.c_str());
-  if(dp != NULL) {
+  if (dp != NULL) {
     closedir(dp);
     throw FileOpenError(path);
   }
@@ -76,7 +76,7 @@ FileParser::parseFile(const std::string& path) {
        use remove then erase idiom
        use ::isspace so we don't get the std::locale plagued C++ variant*/
     line.erase(
-      std::remove_if(line.begin(), line.end(), ::isspace),
+      std::remove_if (line.begin(), line.end(), ::isspace),
       line.end());
 
     /* Empty line => continue. */

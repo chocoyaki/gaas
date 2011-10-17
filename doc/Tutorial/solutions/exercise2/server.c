@@ -93,21 +93,21 @@ int scal_mat_prod_file(double alpha, char *path, float *time)
 int
 solve_smprod(diet_profile_t *pb)
 {
-  size_t m,n;
+  size_t m, n;
   double* coeff;
   double* mat;
   float  time;
 
   /* Get arguments */
-  diet_scalar_get(diet_parameter(pb,0), &coeff, NULL);
-  diet_matrix_get(diet_parameter(pb,1), &mat, NULL, &m, &n, NULL);
+  diet_scalar_get(diet_parameter(pb, 0), &coeff, NULL);
+  diet_matrix_get(diet_parameter(pb, 1), &mat, NULL, &m, &n, NULL);
 
   /* Launch computation */
   scal_mat_prod(*coeff, mat, m, n, &time);
   printf("Computation done in %fs\n", time);
   
   /* Set OUT arguments */
-  diet_scalar_desc_set(diet_parameter(pb,2), &time);
+  diet_scalar_desc_set(diet_parameter(pb, 2), &time);
 
   return 0;
 }
@@ -120,16 +120,16 @@ solve_smprod_file(diet_profile_t *pb)
   float   time;
   
   /* Get arguments */
-  diet_scalar_get(diet_parameter(pb,0), &coeff, NULL);
+  diet_scalar_get(diet_parameter(pb, 0), &coeff, NULL);
 
-  diet_file_get(diet_parameter(pb,1), NULL, NULL, &path);
+  diet_file_get(diet_parameter(pb, 1), NULL, NULL, &path);
 
   /* Launch computation */
   scal_mat_prod_file(*coeff, path, &time);
   printf("Computation done in %fs\n", time);
   
   /* Set OUT arguments */
-  diet_scalar_desc_set(diet_parameter(pb,2), &time);
+  diet_scalar_desc_set(diet_parameter(pb, 2), &time);
 
   return 0;
 }
@@ -150,12 +150,12 @@ main(int argc, char **argv)
   diet_service_table_init(nb_max_services);
 
   /* Allocate smprod profile */
-  profile = diet_profile_desc_alloc("smprod",0, 1, 2);
+  profile = diet_profile_desc_alloc("smprod", 0, 1, 2);
 
   /* Set profile parameters */
-  diet_generic_desc_set(diet_param_desc(profile,0), DIET_SCALAR, DIET_DOUBLE);
-  diet_generic_desc_set(diet_param_desc(profile,1), DIET_MATRIX, DIET_DOUBLE);
-  diet_generic_desc_set(diet_param_desc(profile,2), DIET_SCALAR, DIET_FLOAT);
+  diet_generic_desc_set(diet_param_desc(profile, 0), DIET_SCALAR, DIET_DOUBLE);
+  diet_generic_desc_set(diet_param_desc(profile, 1), DIET_MATRIX, DIET_DOUBLE);
+  diet_generic_desc_set(diet_param_desc(profile, 2), DIET_SCALAR, DIET_FLOAT);
 
   /* Add the smprod to the service table */
   diet_service_table_add(profile, NULL, solve_smprod);
@@ -164,12 +164,12 @@ main(int argc, char **argv)
   diet_profile_desc_free(profile);
   
   /* Allocate smprod_file profile */
-  profile = diet_profile_desc_alloc("smprod_file",0, 1, 2);
+  profile = diet_profile_desc_alloc("smprod_file", 0, 1, 2);
 
   /* Set profile parameters */
-  diet_generic_desc_set(diet_param_desc(profile,0), DIET_SCALAR, DIET_DOUBLE);
-  diet_generic_desc_set(diet_param_desc(profile,1), DIET_FILE,   DIET_CHAR);
-  diet_generic_desc_set(diet_param_desc(profile,2), DIET_SCALAR, DIET_FLOAT);
+  diet_generic_desc_set(diet_param_desc(profile, 0), DIET_SCALAR, DIET_DOUBLE);
+  diet_generic_desc_set(diet_param_desc(profile, 1), DIET_FILE,   DIET_CHAR);
+  diet_generic_desc_set(diet_param_desc(profile, 2), DIET_SCALAR, DIET_FLOAT);
   
   /* Add the smprod_file to the service table */
   diet_service_table_add(profile, NULL, solve_smprod_file);

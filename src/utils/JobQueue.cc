@@ -65,7 +65,7 @@ JobQueue::addJobWaiting(int dietReqID, double jobEstCompTime,
   myWaitingQueue.push_back(dietReqID);
   this->nbActiveJobs++;
   this->myLock.unlock();      /** UNLOCK */
-  TRACE_TEXT (TRACE_ALL_STEPS,"JobQueue: adding job " << dietReqID << " in status WAITING"
+  TRACE_TEXT(TRACE_ALL_STEPS, "JobQueue: adding job " << dietReqID << " in status WAITING"
               << " (duration est.=" << jobEstCompTime << " ms)" << endl);
 }
 
@@ -113,9 +113,9 @@ JobQueue::deleteJob(int dietReqID) {
               << dietReqID << endl);
     myJobs.erase(p);
 
-    TRACE_TEXT (TRACE_ALL_STEPS,"job " << dietReqID << " deleted / new map size=" << myJobs.size() << endl);
+    TRACE_TEXT(TRACE_ALL_STEPS, "job " << dietReqID << " deleted / new map size=" << myJobs.size() << endl);
     for (map<int, diet_job_t>::iterator q = myJobs.begin(); q != myJobs.end(); ++ q) {
-      TRACE_TEXT (TRACE_ALL_STEPS," Queue contains job " <<
+      TRACE_TEXT(TRACE_ALL_STEPS, " Queue contains job " <<
                   q->first << " in status " <<
                   (q->second).status << endl);
     }
@@ -158,7 +158,7 @@ JobQueue::estimateEFTwithFIFOSched() {
   // initialize EFT=>processor map
   multimap<double, int> procMap;
   for (int i = 0; i<nbProc; ++i)
-    procMap.insert(make_pair(0,0));
+    procMap.insert(make_pair(0, 0));
 
   // initialize current time
   struct timeval currentTime;
@@ -186,7 +186,7 @@ JobQueue::estimateEFTwithFIFOSched() {
       }
       // add this job to the processor with lowest EFT
       procMap.erase(procMap.begin());
-      procMap.insert(make_pair(newEFT,0));
+      procMap.insert(make_pair(newEFT, 0));
     }
   }
 
@@ -203,12 +203,12 @@ JobQueue::estimateEFTwithFIFOSched() {
     // add this job to the proc with lowest EFT
     double newEFT = procMap.begin()->first + job.estCompTime;
     procMap.erase(procMap.begin());
-    procMap.insert(make_pair(newEFT,0));
+    procMap.insert(make_pair(newEFT, 0));
   }
   this->myLock.unlock();        /** UNLOCK */
 
 
-  TRACE_TEXT (TRACE_ALL_STEPS,"Computing EFT: " << nbJobsRunning << " jobs running / "
+  TRACE_TEXT(TRACE_ALL_STEPS, "Computing EFT: " << nbJobsRunning << " jobs running / "
               << myWaitingQueue.size() << " jobs waiting" << endl);
   // Take the lowest EFT value
   return procMap.begin()->first;

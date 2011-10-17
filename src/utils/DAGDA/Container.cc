@@ -80,7 +80,7 @@ Container::addData(const char* dataID, long index, long flag) {
   //      << "(flag=" << flag << ") to container " << myID << endl);
   if (notFound)
     throw Dagda::DataNotFound(myID.c_str());
-  myRelMgr->addRelation(myID,dataID,index,flag);
+  myRelMgr->addRelation(myID, dataID, index, flag);
 }
 
 void
@@ -126,7 +126,7 @@ Container::getAllElements(SeqString& dataIDSeq, SeqLong& flagSeq, bool ordered) 
  */
 char *
 Container::send(const char* destName, bool sendData) {
-  Dagda_ptr dest = ORBMgr::getMgr()->resolve<Dagda,Dagda_ptr>(DAGDACTXT, destName);
+  Dagda_ptr dest = ORBMgr::getMgr()->resolve<Dagda, Dagda_ptr>(DAGDACTXT, destName);
 
   SeqString* dataIDSeq = new SeqString();
   SeqLong*   flagSeq = new SeqLong();

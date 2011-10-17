@@ -16,6 +16,8 @@
 
 using events::EventFrom;
 using events::EventStandardMsg;
+using events::EventCreateObject;
+using events::EventCreateDirectedLink;
 
 WfLogDispatcher::WfLogDispatcher(std::ostream& output)
   : myOutput(output) {

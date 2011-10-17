@@ -47,11 +47,11 @@
 
 bool
 DIETForwarder::remoteCall(std::string& objName) {
-  if (objName.find("remote:")!=0) {
+  if (objName.find("remote:") != std::string::npos) {
     /* Local network call: need to be forwarded to
      * the peer forwarder. Add the prefix.
      */
-    objName = "remote:"+objName;
+    objName = "remote:" + objName;
     return false;
   }
   /* Remote network call. Remove the prefix. */

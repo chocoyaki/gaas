@@ -81,7 +81,7 @@ extern unsigned int TRACE_LEVEL;
 
 #define STAT_TRACE_FUNCTION(formatted_text)             \
   TRACE_TEXT(TRACE_ALL_STEPS, "Statistics::");          \
-  TRACE_FUNCTION(TRACE_ALL_STEPS,formatted_text)
+  TRACE_FUNCTION(TRACE_ALL_STEPS, formatted_text)
 
 
 static char* STAT_FILE_NAME;  // We don't need it to be global
@@ -105,7 +105,7 @@ do_stat_init()
                    << ".\n");
         ERROR("do_stat_init() - Check DIET_STAT_FILE_NAME env variable?",);
       } else {
-        TRACE_TEXT(TRACE_ALL_STEPS,"* Statistics collection: enabled "
+        TRACE_TEXT(TRACE_ALL_STEPS, "* Statistics collection: enabled "
                    << "(file" << STAT_FILE_NAME << ")\n");
         USING_STATS = 1;
       }

@@ -1714,7 +1714,7 @@ extern "C" {
             if (!soap->error && soap->body)
               {       soap->level++;
                 while (!soap_ignore_element(soap))
-                  ;
+                 ;
                 if (soap->error == SOAP_NO_TAG)
                   soap->error = soap_element_end_in(soap, NULL);
               }

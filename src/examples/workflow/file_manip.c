@@ -53,10 +53,10 @@ char time_str[MAX_TIME_SIZE];
 long int t = 0;
 
 void
-performance_Exec_Time(diet_profile_t* pb ,estVector_t perfValues )
+performance_Exec_Time(diet_profile_t* pb , estVector_t perfValues)
 {
   t = atoi(time_str);
-  if ( t == 0 )
+  if (t == 0)
     t = 10;
   diet_estimate_comptime(perfValues, t*1000);
   diet_estimate_eft(perfValues, t*1000, pb);
@@ -82,7 +82,7 @@ greyscale(diet_profile_t* pb)
 
   fprintf(stderr, "GREYSCALE SOLVING\n");
 
-  diet_file_get(diet_parameter(pb,0), NULL, &arg_size, &path1) ;
+  diet_file_get(diet_parameter(pb, 0), NULL, &arg_size, &path1);
   fprintf(stderr, "on %s (%zd) \n", path1, arg_size);
 
 
@@ -98,7 +98,7 @@ greyscale(diet_profile_t* pb)
 
   printf("%d\n", system(cmd));
 
-  if (diet_file_desc_set(diet_parameter(pb,1), path_result)) {
+  if (diet_file_desc_set(diet_parameter(pb, 1), path_result)) {
     printf("diet_file_desc_set error\n");
     free(path_result);
     return 1;
@@ -120,7 +120,7 @@ flip(diet_profile_t* pb)
 
   fprintf(stderr, "FLIP SOLVING\n");
 
-  diet_file_get(diet_parameter(pb,0), NULL, &arg_size, &path1) ;
+  diet_file_get(diet_parameter(pb, 0), NULL, &arg_size, &path1);
   fprintf(stderr, "on %s (%zd) \n", path1, arg_size);
 
   path_result = (char*)malloc(strlen(path1) + 10);
@@ -134,8 +134,8 @@ flip(diet_profile_t* pb)
 
   printf("flip cmd = %s\n", cmd);
   printf("%d\n", system(cmd));
-  printf( "@@@@@@@@@@@@@ Path of result: %s\n",path_result);
-  if (diet_file_desc_set(diet_parameter(pb,1), path_result)) {
+  printf("@@@@@@@@@@@@@ Path of result: %s\n", path_result);
+  if (diet_file_desc_set(diet_parameter(pb, 1), path_result)) {
     printf("diet_file_desc_set error\n");
     return 1;
   }
@@ -158,7 +158,7 @@ duplicate(diet_profile_t* pb)
 
   fprintf(stderr, "DUPLICATE SOLVING\n");
 
-  diet_file_get(diet_parameter(pb,0), NULL, &arg_size, &path1) ;
+  diet_file_get(diet_parameter(pb, 0), NULL, &arg_size, &path1);
   fprintf(stderr, "on %s (%zd) \n", path1, arg_size);
 
 
@@ -181,11 +181,11 @@ duplicate(diet_profile_t* pb)
 
   printf("duplicate %d\n", system(cmd));
 
-  if (diet_file_desc_set(diet_parameter(pb,1), path_result1)) {
+  if (diet_file_desc_set(diet_parameter(pb, 1), path_result1)) {
     printf("diet_file_desc_set error\n");
     ret = 1;
   }
-  if (diet_file_desc_set(diet_parameter(pb,2), path_result2)) {
+  if (diet_file_desc_set(diet_parameter(pb, 2), path_result2)) {
     printf("diet_file_desc_set error\n");
     ret = 1;
   }
@@ -210,23 +210,23 @@ int main(int argc, char * argv[]) {
   diet_service_table_init(3);
 
   profile = diet_profile_desc_alloc("greyscale", 0, 0, 1);
-  diet_generic_desc_set(diet_param_desc(profile,0), DIET_FILE, DIET_CHAR);
-  diet_generic_desc_set(diet_param_desc(profile,1), DIET_FILE, DIET_CHAR);
+  diet_generic_desc_set(diet_param_desc(profile, 0), DIET_FILE, DIET_CHAR);
+  diet_generic_desc_set(diet_param_desc(profile, 1), DIET_FILE, DIET_CHAR);
   set_up_scheduler(profile);
   if (diet_service_table_add(profile, NULL, greyscale)) return 1;
   diet_profile_desc_free(profile);
 
   profile = diet_profile_desc_alloc("flip", 0, 0, 1);
-  diet_generic_desc_set(diet_param_desc(profile,0), DIET_FILE, DIET_CHAR);
-  diet_generic_desc_set(diet_param_desc(profile,1), DIET_FILE, DIET_CHAR);
+  diet_generic_desc_set(diet_param_desc(profile, 0), DIET_FILE, DIET_CHAR);
+  diet_generic_desc_set(diet_param_desc(profile, 1), DIET_FILE, DIET_CHAR);
   set_up_scheduler(profile);
   if (diet_service_table_add(profile, NULL, flip)) return 1;
   diet_profile_desc_free(profile);
 
   profile = diet_profile_desc_alloc("duplicate", 0, 0, 2);
-  diet_generic_desc_set(diet_param_desc(profile,0), DIET_FILE, DIET_CHAR);
-  diet_generic_desc_set(diet_param_desc(profile,1), DIET_FILE, DIET_CHAR);
-  diet_generic_desc_set(diet_param_desc(profile,2), DIET_FILE, DIET_CHAR);
+  diet_generic_desc_set(diet_param_desc(profile, 0), DIET_FILE, DIET_CHAR);
+  diet_generic_desc_set(diet_param_desc(profile, 1), DIET_FILE, DIET_CHAR);
+  diet_generic_desc_set(diet_param_desc(profile, 2), DIET_FILE, DIET_CHAR);
   set_up_scheduler(profile);
   if (diet_service_table_add(profile, NULL, duplicate)) return 1;
   diet_profile_desc_free(profile);

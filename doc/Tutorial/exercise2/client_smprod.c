@@ -24,7 +24,7 @@ int main(int argc, char **argv)
   float  *time   = NULL; /* Computation time */
   diet_profile_t         *profile;
 
-  m=60;
+  m = 60;
   n = 100;
 
   /* Allocate the matrix: m lines, n columns */

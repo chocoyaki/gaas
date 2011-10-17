@@ -74,19 +74,19 @@ char parse_args(int argc, char**argv)
   int i;
   path_to_A = NULL;
   path_to_B = NULL;
-  if(argc <= 1)
+  if (argc <= 1)
     {
       usage(argv[0]);
       return 0;
     }
-  for(i=2;i<argc;i++)
+  for (i = 2;i<argc;i++)
     {
-      if(strcmp("--A-path", argv[i]) == 0 && i + 1 < argc)
+      if (strcmp("--A-path", argv[i]) == 0 && i + 1 < argc)
         path_to_A = argv[i + 1];
-      if(strcmp("--B-path", argv[i]) == 0 && i + 1 < argc)
+      if (strcmp("--B-path", argv[i]) == 0 && i + 1 < argc)
         path_to_B = argv[i + 1];
     }
-  if((path_to_A == NULL && path_to_B == NULL) || (path_to_A != NULL && path_to_B != NULL))
+  if ((path_to_A == NULL && path_to_B == NULL) || (path_to_A != NULL && path_to_B != NULL))
     return 1;
   else
     {
@@ -100,13 +100,13 @@ char matrix_from_file(char* file_path, double** mat, int* n, int* m)
   FILE* fi;
   int i;
   fi = fopen(file_path, "r");
-  if(fi == NULL)
+  if (fi == NULL)
     return 0;
   fscanf(fi, "%20d", n);
   fscanf(fi, "%20d", m);
   *mat = (double*)malloc(*n * *m * sizeof(double));
 
-  for(i=0;i<*n * *m;i++)
+  for (i = 0;i<*n * *m;i++)
     fscanf(fi, "%lf", &(*mat)[i]);
 
   fclose(fi);
@@ -116,7 +116,7 @@ char matrix_from_file(char* file_path, double** mat, int* n, int* m)
 
 int main(int argc, char **argv)
 {
-  if(!parse_args(argc, argv))
+  if (!parse_args(argc, argv))
     return 1;
   diet_profile_t          *profile;
   char * result;
@@ -127,7 +127,7 @@ int main(int argc, char **argv)
   double* B;
   int n;
   int m;
-  if(path_to_A == NULL)
+  if (path_to_A == NULL)
     {
       n = 2;
       m = 3;
@@ -141,7 +141,7 @@ int main(int argc, char **argv)
     }
   else
     {
-      if(!matrix_from_file(path_to_A, &A, &n, &m)||
+      if (!matrix_from_file(path_to_A, &A, &n, &m)||
          !matrix_from_file(path_to_B, &B, &m, &n))
         {
           fprintf(stderr, "Cannot read input files.\n");
@@ -152,9 +152,9 @@ int main(int argc, char **argv)
   /* Initialize a DIET session */
   diet_initialize(argv[1], argc, argv);
   /* Create the profile as explained in Chapter 3 */
-  profile = diet_profile_alloc("cloud-demo",1, 1, 3); /* last_in, last_inout, last_out */
+  profile = diet_profile_alloc("cloud-demo", 1, 1, 3); /* last_in, last_inout, last_out */
   /* Set profile arguments */
-  diet_string_set(diet_parameter(profile,3), NULL,    DIET_VOLATILE);
+  diet_string_set(diet_parameter(profile, 3), NULL,    DIET_VOLATILE);
 
   /* init matrix orders */
   diet_matrix_order_t oA, oB, oC;
@@ -166,17 +166,17 @@ int main(int argc, char **argv)
     DIET_COL_MAJOR;
   C = NULL;
 
-  diet_matrix_set(diet_parameter(profile,0),
+  diet_matrix_set(diet_parameter(profile, 0),
                   A, DIET_VOLATILE, DIET_DOUBLE, m, n, oA);
   print_matrix(A, m, n, (oA == DIET_ROW_MAJOR));
-  diet_matrix_set(diet_parameter(profile,1),
+  diet_matrix_set(diet_parameter(profile, 1),
                   B, DIET_VOLATILE, DIET_DOUBLE, n, m, oB);
   print_matrix(B, n, m, (oB == DIET_ROW_MAJOR));
-  diet_string_set(diet_parameter(profile,2), NULL,    DIET_VOLATILE);
+  diet_string_set(diet_parameter(profile, 2), NULL,    DIET_VOLATILE);
 
   if (!diet_parallel_call(profile)) { /* If the call has succeeded ... */
     /* Get and print time */
-    diet_string_get(diet_parameter(profile,3), &result, NULL);
+    diet_string_get(diet_parameter(profile, 3), &result, NULL);
     if (result == NULL) {
       printf("Error: result is null !\n");
     } else {

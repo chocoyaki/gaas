@@ -88,6 +88,8 @@
 #define _FNODE_HH_
 
 #include <map>
+#include <string>
+#include <vector>
 
 #include "WfNode.hh"
 #include "FNodePort.hh"
@@ -95,14 +97,10 @@
 #include "WfUtils.hh"
 class FWorkflow;
 
-using namespace std;
-
 /*****************************************************************************/
 /*                                 FNode                                     */
 /*****************************************************************************/
-
 class FNode : public WfNode {
-
 public:
   friend class FNodeInPort;
 
@@ -126,10 +124,8 @@ public:
    * Create a new port
    */
   virtual WfPort *
-  newPort(string portId,
-          unsigned int ind,
-          WfPort::WfPortType portType,
-          WfCst::WfDataType dataType,
+  newPort(std::string portId, unsigned int ind,
+          WfPort::WfPortType portType, WfCst::WfDataType dataType,
           unsigned int depth) throw(WfStructException);
 
   /**
@@ -409,7 +405,7 @@ protected:
    * @return ref on the data
    */
   FDataHandle *
-  createData( const FDataTag& tag );
+  createData(const FDataTag& tag);
 
   /**
    * Instanciate a new list for the source (used by parser)
@@ -417,7 +413,7 @@ protected:
    * @return ref on the data
    */
   FDataHandle *
-  createList( const FDataTag& tag );
+  createList(const FDataTag& tag);
 
   /**
    * Set the value of the data
@@ -425,7 +421,7 @@ protected:
    * @param value string containing the value
    */
   void
-  setDataValue( FDataHandle* DH, const string& value);
+  setDataValue(FDataHandle* DH, const string& value);
 
   /**
    * Set the data ID of the data
@@ -433,7 +429,7 @@ protected:
    * @param dataID  string containing the data ID
    */
   void
-  setDataID( FDataHandle* DH, const string& dataID);
+  setDataID(FDataHandle* DH, const string& dataID);
 
   /**
    * Set a property of the data
@@ -442,15 +438,15 @@ protected:
    * @param propValue value of the property
    */
   void
-  setDataProperty( FDataHandle* DH,
+  setDataProperty(FDataHandle* DH,
                    const string& propKey,
-                   const string& propValue );
+                   const string& propValue);
   /**
    * Store the new data for the source (used by parser)
    * @param newDH the ref to the data (created by createData)
    */
   void
-  insertData( FDataHandle* newDH );
+  insertData(FDataHandle* newDH);
 
 private:
   DataSourceParser * myParser;
@@ -714,7 +710,7 @@ protected:
   /**
    * The map of all input operators
    */
-  map<string,InputIterator*> myIterators;
+  map<string, InputIterator*> myIterators;
 
   /**
    * The root operator
@@ -731,13 +727,13 @@ protected:
    * The dynamic parameters map
    * contains param_Name => param_Variable_Name
    */
-  map<string,string> dynParMap;
+  map<string, string> dynParMap;
 
   /**
    * The variables map
    * contains param_Variable_Name => param_Value
    */
-  map<string,string> varMap;
+  map<string, string> varMap;
 
 };  // end class FProcNode
 

@@ -246,7 +246,7 @@ ConfigFile::parseFile(const std::string& path) {
 
     /* Cut the line on '=' chararcter. */
     transform(line.begin(), line.end(), line.begin(), cut);
-    /* Extract key,value */
+    /* Extract key, value */
     is.str(line);
     is >> key >> value;
     if (value.empty()) {

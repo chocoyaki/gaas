@@ -35,9 +35,9 @@ set_profile_desc()
   unsigned int pos = 0;
 
   /* Set profile parameters: */
-  profile = diet_profile_desc_alloc(strdup(service_name),0,0,0);
+  profile = diet_profile_desc_alloc(strdup(service_name), 0, 0, 0);
 
-  diet_generic_desc_set(diet_param_desc(profile,pos++),DIET_STRING, DIET_CHAR);
+  diet_generic_desc_set(diet_param_desc(profile, pos++), DIET_STRING, DIET_CHAR);
   return profile;
 }
 
@@ -62,7 +62,7 @@ service(diet_profile_t* pb)
     return -1;
   }
     
-  diet_string_get(diet_parameter(pb,0), &str, NULL);
+  diet_string_get(diet_parameter(pb, 0), &str, NULL);
 
   std::cout << "*****************************************************" << std::endl
             << service_name << std::endl
@@ -83,7 +83,7 @@ addService()
   diet_profile_desc_t* profile = set_profile_desc();
 
   /* Add service to the service table */
-  if (diet_service_table_add(profile, NULL, service )) return 1;
+  if (diet_service_table_add(profile, NULL, service)) return 1;
 
   /* Free the profile, since it was deep copied */
   diet_profile_desc_free(profile);

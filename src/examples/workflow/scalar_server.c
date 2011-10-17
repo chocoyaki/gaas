@@ -56,11 +56,11 @@ char time_str[MAX_TIME_SIZE];
 long int t = 0;
 
 void
-performance_Exec_Time(diet_profile_t* pb ,estVector_t perfValues )
+performance_Exec_Time(diet_profile_t* pb , estVector_t perfValues)
 {
   double eft, tcomp;
   t = atoi(time_str);
-  if ( t == 0 )
+  if (t == 0)
     t = 10;
   /* Set the job duration and compute SeD's EFT (results stored in EV) */
   diet_estimate_comptime(perfValues, t*1000);
@@ -92,15 +92,15 @@ succ(diet_profile_t* pb)
 
   fprintf(stderr, "SUCC SOLVING\n");
 
-  diet_scalar_get(diet_parameter(pb,0), &ix, NULL);
+  diet_scalar_get(diet_parameter(pb, 0), &ix, NULL);
   fprintf(stderr, "i = %d\n", *(int*)ix);
   jx = (int*) malloc(sizeof(int));
   kx = (int*) malloc(sizeof(int));
   *(int*)jx = *(int*)ix + 1;
   *(int*)kx = *(int*)ix + 1;
   fprintf(stderr, "succ(i) = %d\n", *(int*)jx);
-  diet_scalar_desc_set(diet_parameter(pb,1), jx);
-  diet_scalar_desc_set(diet_parameter(pb,2), kx);
+  diet_scalar_desc_set(diet_parameter(pb, 1), jx);
+  diet_scalar_desc_set(diet_parameter(pb, 2), kx);
 
   usleep(t*100000);
 
@@ -118,12 +118,12 @@ double_int(diet_profile_t* pb)
 
   fprintf(stderr, "DOUBLE SOLVING\n");
 
-  diet_scalar_get(diet_parameter(pb,0), &ix, NULL);
+  diet_scalar_get(diet_parameter(pb, 0), &ix, NULL);
   fprintf(stderr, "i = %d\n", *(int*)ix);
   jx = (int*) malloc(sizeof(int));
   *(int*)jx = *(int*)ix * 2;
   fprintf(stderr, "j = 2i = %d\n", *(int*)jx);
-  diet_scalar_desc_set(diet_parameter(pb,1), jx);
+  diet_scalar_desc_set(diet_parameter(pb, 1), jx);
 
   usleep(t*100000);
 
@@ -142,13 +142,13 @@ sum(diet_profile_t* pb)
   int * kx = NULL;
 
   fprintf(stderr, "SUM SOLVING\n");
-  diet_scalar_get(diet_parameter(pb,0), &ix, NULL);
-  diet_scalar_get(diet_parameter(pb,1), &jx, NULL);
+  diet_scalar_get(diet_parameter(pb, 0), &ix, NULL);
+  diet_scalar_get(diet_parameter(pb, 1), &jx, NULL);
   fprintf(stderr, "i = %d, j =%d\n", *(int*)ix, *(int*)jx);
   kx = (int*) malloc(sizeof(int));
   *(int*)kx = *(int*)ix + *(int*)jx;
   fprintf(stderr, "k = i + j = %d\n", *(int*)kx);
-  diet_scalar_desc_set(diet_parameter(pb,2), kx);
+  diet_scalar_desc_set(diet_parameter(pb, 2), kx);
 
   usleep(t*100000);
 
@@ -166,12 +166,12 @@ square(diet_profile_t* pb)
 
   fprintf(stderr, "SQUARE SOLVING\n");
 
-  diet_scalar_get(diet_parameter(pb,0), &ix, NULL);
+  diet_scalar_get(diet_parameter(pb, 0), &ix, NULL);
   fprintf(stderr, "i = %d\n", *(int*)ix);
   jx = (double*) malloc(sizeof(double));
   *(double*)jx = sqrt(*(int*)ix);
   fprintf(stderr, "sqrt(i) = %f\n", *(double*)jx);
-  diet_scalar_desc_set(diet_parameter(pb,1), jx);
+  diet_scalar_desc_set(diet_parameter(pb, 1), jx);
 
   usleep(t*100000);
 
@@ -195,34 +195,34 @@ int main(int argc, char * argv[]) {
 
   /* Add the SUCC service */
   profile = diet_profile_desc_alloc("succ", 0, 0, 2);
-  diet_generic_desc_set(diet_param_desc(profile,0), DIET_SCALAR, DIET_INT);
-  diet_generic_desc_set(diet_param_desc(profile,1), DIET_SCALAR, DIET_INT);
-  diet_generic_desc_set(diet_param_desc(profile,2), DIET_SCALAR, DIET_INT);
+  diet_generic_desc_set(diet_param_desc(profile, 0), DIET_SCALAR, DIET_INT);
+  diet_generic_desc_set(diet_param_desc(profile, 1), DIET_SCALAR, DIET_INT);
+  diet_generic_desc_set(diet_param_desc(profile, 2), DIET_SCALAR, DIET_INT);
   set_up_scheduler(profile);
   if (diet_service_table_add(profile, NULL, succ)) return 1;
   diet_profile_desc_free(profile);
 
   /* Add the DOUBLE service */
   profile = diet_profile_desc_alloc("double", 0, 0, 1);
-  diet_generic_desc_set(diet_param_desc(profile,0), DIET_SCALAR, DIET_INT);
-  diet_generic_desc_set(diet_param_desc(profile,1), DIET_SCALAR, DIET_INT);
+  diet_generic_desc_set(diet_param_desc(profile, 0), DIET_SCALAR, DIET_INT);
+  diet_generic_desc_set(diet_param_desc(profile, 1), DIET_SCALAR, DIET_INT);
   set_up_scheduler(profile);
   if (diet_service_table_add(profile, NULL, double_int)) return 1;
   diet_profile_desc_free(profile);
 
   /* Add the SUM service */
   profile = diet_profile_desc_alloc("sum", 1, 1, 2);
-  diet_generic_desc_set(diet_param_desc(profile,0), DIET_SCALAR, DIET_INT);
-  diet_generic_desc_set(diet_param_desc(profile,1), DIET_SCALAR, DIET_INT);
-  diet_generic_desc_set(diet_param_desc(profile,2), DIET_SCALAR, DIET_INT);
+  diet_generic_desc_set(diet_param_desc(profile, 0), DIET_SCALAR, DIET_INT);
+  diet_generic_desc_set(diet_param_desc(profile, 1), DIET_SCALAR, DIET_INT);
+  diet_generic_desc_set(diet_param_desc(profile, 2), DIET_SCALAR, DIET_INT);
   set_up_scheduler(profile);
   if (diet_service_table_add(profile, NULL, sum)) return 1;
   diet_profile_desc_free(profile);
 
   /* Add the SQUARE service */
   profile = diet_profile_desc_alloc("square", 0, 0, 1);
-  diet_generic_desc_set(diet_param_desc(profile,0), DIET_SCALAR, DIET_INT);
-  diet_generic_desc_set(diet_param_desc(profile,1), DIET_SCALAR, DIET_DOUBLE);
+  diet_generic_desc_set(diet_param_desc(profile, 0), DIET_SCALAR, DIET_INT);
+  diet_generic_desc_set(diet_param_desc(profile, 1), DIET_SCALAR, DIET_DOUBLE);
   set_up_scheduler(profile);
   if (diet_service_table_add(profile, NULL, square)) return 1;
   diet_profile_desc_free(profile);

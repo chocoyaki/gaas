@@ -49,16 +49,16 @@ namespace fs = boost::filesystem;
 /*                           CLASS SeDArgument                               */
 /*****************************************************************************/
 
-static const pair<string,short> argTypes[] = {
-  pair<string,short>( "string", SeDArgument::STRING),
-  pair<string,short>( "double", SeDArgument::DOUBLE),
-  pair<string,short>( "integer", SeDArgument::INT),
-  pair<string,short>( "boolean", SeDArgument::BOOLEAN),
-  pair<string,short>( "file", SeDArgument::URI),
-  pair<string,short>( "directory", SeDArgument::DIR),
+static const pair<string, short> argTypes[] = {
+  pair<string, short>("string", SeDArgument::STRING),
+  pair<string, short>("double", SeDArgument::DOUBLE),
+  pair<string, short>("integer", SeDArgument::INT),
+  pair<string, short>("boolean", SeDArgument::BOOLEAN),
+  pair<string, short>("file", SeDArgument::URI),
+  pair<string, short>("directory", SeDArgument::DIR),
 };
 
-static map<string,short> StrTypesToArgTypes(argTypes, argTypes
+static map<string, short> StrTypesToArgTypes(argTypes, argTypes
                                             + sizeof(argTypes)/sizeof(argTypes[0]));
 
 SeDArgument::SeDArgument(SeDService* parent)
@@ -88,7 +88,7 @@ SeDArgument::setType(const string& strType) {
 void
 SeDArgument::setTemplate(const string& templ) {
   myTemplate = templ;
-  TRACE(" Argument '" << myLabel << "' template = " << myTemplate );
+  TRACE(" Argument '" << myLabel << "' template = " << myTemplate);
 }
 
 /*****************************************************************************/
@@ -97,12 +97,12 @@ SeDArgument::setTemplate(const string& templ) {
 
 SeDService::SeDService(const string& name)
   : myName(name), myAvgCompTime(0), myTotalReqNb(0), myParser(NULL) {
-  TRACE( "Created new service (name=" << myName << ")" );
+  TRACE("Created new service (name=" << myName << ")");
 }
 
 SeDService::SeDService(SeDDescrParser *parser, const string& name)
   : myName(name), myAvgCompTime(0), myTotalReqNb(0), myParser(parser) {
-  TRACE( "Created new service (name=" << myName << ")" );
+  TRACE("Created new service (name=" << myName << ")");
 }
 
 SeDService::SeDService(const SeDService& src)
@@ -113,14 +113,14 @@ SeDService::SeDService(const SeDService& src)
   list<SeDArgument*>::const_iterator srcArgIter = src.myArgs.begin();
   while (srcArgIter != src.myArgs.end())
     myArgs.push_back(new SeDArgument(**(srcArgIter++), this));
-  TRACE( "Created new service (name=" << myName << ")" );
+  TRACE("Created new service (name=" << myName << ")");
 }
 
 SeDService::~SeDService() {
   // Free the args list
-  while (! myArgs.empty() ) {
+  while (! myArgs.empty()) {
     SeDArgument * a = *(myArgs.begin());
-    myArgs.erase( myArgs.begin() );
+    myArgs.erase(myArgs.begin());
     delete a;
   }
 }
@@ -128,7 +128,7 @@ SeDService::~SeDService() {
 SeDDescrParser *SeDService::getParser()
 {
   if (myParser == NULL) {
-    WARN( __FUNCTION__ << " : Parser not defined" );
+    WARN(__FUNCTION__ << " : Parser not defined");
     exit(1);
   }
   return myParser;
@@ -145,7 +145,7 @@ SeDService::addInput(const string& name,
   arg->setOption(option);
   arg->setType(type);
   myArgs.push_back(arg);
-  TRACE( "Created INPUT (name=" << name << "/ type=" << type << ")" );
+  TRACE("Created INPUT (name=" << name << "/ type=" << type << ")");
   return arg;
 }
 
@@ -160,7 +160,7 @@ SeDService::addOutput(const string& name,
   arg->setOption(option);
   arg->setType(type);
   myArgs.push_back(arg);
-  TRACE( "Created OUTPUT (name=" << name << "/ type=" << type << ")" );
+  TRACE("Created OUTPUT (name=" << name << "/ type=" << type << ")");
   return arg;
 }
 
@@ -168,8 +168,8 @@ void
 SeDService::addDependency(const string& name,
                           const string& localPath)
 {
-  myDeps.insert(make_pair<string,string>(name,localPath));
-  TRACE( "Created DEPENDENCY (path=" << localPath << ")" );
+  myDeps.insert(make_pair<string, string>(name, localPath));
+  TRACE("Created DEPENDENCY (path=" << localPath << ")");
 }
 
 unsigned int
@@ -225,27 +225,27 @@ SeDService::createAndDeclareProfile() {
        ++argIter)
   {
     SeDArgument *currArg = (SeDArgument*) *argIter;
-    switch(currArg->getType()) {
+    switch (currArg->getType()) {
     case SeDArgument::STRING :
-      diet_generic_desc_set(diet_param_desc(profile,argIndex++), DIET_STRING, DIET_CHAR);
+      diet_generic_desc_set(diet_param_desc(profile, argIndex++), DIET_STRING, DIET_CHAR);
       break;
     case SeDArgument::URI :
-      diet_generic_desc_set(diet_param_desc(profile,argIndex++), DIET_FILE, DIET_CHAR);
+      diet_generic_desc_set(diet_param_desc(profile, argIndex++), DIET_FILE, DIET_CHAR);
       break;
     case SeDArgument::DIR :
-      diet_generic_desc_set(diet_param_desc(profile,argIndex++), DIET_CONTAINER, DIET_CHAR);
+      diet_generic_desc_set(diet_param_desc(profile, argIndex++), DIET_CONTAINER, DIET_CHAR);
       break;
     case SeDArgument::INT :
-      diet_generic_desc_set(diet_param_desc(profile,argIndex++), DIET_SCALAR, DIET_INT);
+      diet_generic_desc_set(diet_param_desc(profile, argIndex++), DIET_SCALAR, DIET_INT);
       break;
     case SeDArgument::DOUBLE :
-      diet_generic_desc_set(diet_param_desc(profile,argIndex++), DIET_SCALAR, DIET_DOUBLE);
+      diet_generic_desc_set(diet_param_desc(profile, argIndex++), DIET_SCALAR, DIET_DOUBLE);
       break;
     case SeDArgument::BOOLEAN :
-      diet_generic_desc_set(diet_param_desc(profile,argIndex++), DIET_SCALAR, DIET_CHAR);
+      diet_generic_desc_set(diet_param_desc(profile, argIndex++), DIET_SCALAR, DIET_CHAR);
       break;
     default:
-      WARN( __FUNCTION__ << " : Invalid argument type" );
+      WARN(__FUNCTION__ << " : Invalid argument type");
       exit(1);
     }
   }
@@ -260,21 +260,21 @@ SeDService::createWorkingDirectory(const string& currentDirectory) {
   fs::path dir = fs::path(currentDirectory) / dirName;
   try
   {
-    fs::create_directory( dir );
+    fs::create_directory(dir);
   }
-  catch ( const fs::filesystem_error & x )
+  catch (const fs::filesystem_error & x)
   {
-    WARN( x.what() );
-    WARN( "Creating directory " << dir.string() << " failed." );
+    WARN(x.what());
+    WARN("Creating directory " << dir.string() << " failed.");
     return 1;
   }
-  catch ( ... )
+  catch (...)
   {
-    WARN( "Creating directory " << dir.string() << " failed." );
+    WARN("Creating directory " << dir.string() << " failed.");
     return 1;
   }
   myWorkingDir = dir.string();
-  TRACE( "Creating directory " << dir.string() << " done." );
+  TRACE("Creating directory " << dir.string() << " done.");
   return 0;
 }
 
@@ -288,89 +288,89 @@ SeDService::removeWorkingDirectory() {
   try {
     fs::remove_all(myWorkingDir);
   }
-  catch ( const fs::filesystem_error & x )
+  catch (const fs::filesystem_error & x)
   {
-    WARN( x.what() );
-    WARN( "Removing directory " << myWorkingDir << " failed." );
+    WARN(x.what());
+    WARN("Removing directory " << myWorkingDir << " failed.");
     return 1;
   }
-  catch ( ... )
+  catch (...)
   {
-    WARN( "Creating directory " << myWorkingDir << " failed." );
+    WARN("Creating directory " << myWorkingDir << " failed.");
     return 1;
   }
-  TRACE( "Remove directory " << myWorkingDir << " done." );
+  TRACE("Remove directory " << myWorkingDir << " done.");
   return 0;
 }
 
 /* MUST BE REENTRANT */
 int
 SeDService::cpyDependencies() {
-  for (map<string,string>::const_iterator depIter = myDeps.begin();
+  for (map<string, string>::const_iterator depIter = myDeps.begin();
        depIter != myDeps.end();
        ++depIter)
   {
     fs::path  depPath(depIter->second);
     if (!fs::is_regular_file(depPath)) {
-      WARN( "Invalid dependency: " << depPath.string() );
+      WARN("Invalid dependency: " << depPath.string());
       return 1;
     }
     fs::path  destPath = fs::path(myWorkingDir) / depPath.leaf();
     try
     {
-      fs::copy_file( depPath, destPath );
+      fs::copy_file(depPath, destPath);
     }
-    catch (const fs::filesystem_error & x )
+    catch (const fs::filesystem_error & x)
     {
-      WARN( x.what() );
-      WARN( "Copy of dependency '" << depIter->first << "' from "
-            << depPath.string() << " failed." );
+      WARN(x.what());
+      WARN("Copy of dependency '" << depIter->first << "' from "
+            << depPath.string() << " failed.");
       return 1;
     }
-    catch ( ... )
+    catch (...)
     {
-      WARN( "Copy of dependency '" << depIter->first << "' from "
-            << depPath.string() << " failed." );
+      WARN("Copy of dependency '" << depIter->first << "' from "
+            << depPath.string() << " failed.");
       return 1;
     }
-    TRACE( "Copy of dependency '" << depIter->first << "' from "
-           << depPath.string() << " done." );
+    TRACE("Copy of dependency '" << depIter->first << "' from "
+           << depPath.string() << " done.");
   }
   return 0;
 }
 
 /* MUST BE REENTRANT */
 int
-SeDService::cpyFileToWorkingDir( SeDArgument *arg,
+SeDService::cpyFileToWorkingDir(SeDArgument *arg,
                                  const string& srcFile,
                                  const string& dstDir,
-                                 string& dstFile )
+                                 string& dstFile)
 {
   fs::path  srcPath(srcFile);
   if (!fs::is_regular_file(srcPath)) {
-    WARN( "Invalid input file: " << srcPath.string() );
+    WARN("Invalid input file: " << srcPath.string());
     return 1;
   }
   fs::path  destPath = fs::path(dstDir) / srcPath.leaf();
   try
   {
-    fs::copy_file( srcPath, destPath );
+    fs::copy_file(srcPath, destPath);
   }
-  catch (const fs::filesystem_error & x )
+  catch (const fs::filesystem_error & x)
   {
-    WARN( x.what() );
-    WARN( "Copy of input '" << arg->getLabel() << "' from "
-          << srcPath.string() << " failed." );
+    WARN(x.what());
+    WARN("Copy of input '" << arg->getLabel() << "' from "
+          << srcPath.string() << " failed.");
     return 1;
   }
-  catch ( ... )
+  catch (...)
   {
-    WARN( "Copy of input '" << arg->getLabel() << "' from "
-          << srcPath.string() << " failed." );
+    WARN("Copy of input '" << arg->getLabel() << "' from "
+          << srcPath.string() << " failed.");
     return 1;
   }
-  TRACE( "Copy of input '" << arg->getLabel() << "' from "
-         << srcPath.string() << " done." );
+  TRACE("Copy of input '" << arg->getLabel() << "' from "
+         << srcPath.string() << " done.");
   dstFile = destPath.leaf();
   return 0;
 }
@@ -382,7 +382,7 @@ SeDService::cpyFileToWorkingDir( SeDArgument *arg,
  * TODO create a data file containing a XML-encoded structure
  */
 int
-SeDService::cpyContainerToDir( SeDArgument *arg,
+SeDService::cpyContainerToDir(SeDArgument *arg,
                                const string& containerID,
                                string& createdDir)
 {
@@ -391,17 +391,17 @@ SeDService::cpyContainerToDir( SeDArgument *arg,
   createdDir = arg->getLabel();
   try
   {
-    fs::create_directory( dirPath );
+    fs::create_directory(dirPath);
   }
-  catch ( const fs::filesystem_error & x )
+  catch (const fs::filesystem_error & x)
   {
-    WARN( x.what() );
-    WARN( "Creating directory " << dirPath.string() << " failed." );
+    WARN(x.what());
+    WARN("Creating directory " << dirPath.string() << " failed.");
     return 1;
   }
-  catch ( ... )
+  catch (...)
   {
-    WARN( "Creating directory " << dirPath.string() << " failed." );
+    WARN("Creating directory " << dirPath.string() << " failed.");
     return 1;
   }
 
@@ -409,12 +409,12 @@ SeDService::cpyContainerToDir( SeDArgument *arg,
   diet_container_t  content;
   int status = dagda_get_container(containerID.c_str());
   if (status != 0) {
-    WARN( "Cannot download container: " << containerID );
+    WARN("Cannot download container: " << containerID);
     return 1;
   }
   status = dagda_get_container_elements(containerID.c_str(), &content);
   if (status != 0) {
-    WARN( "Cannot get container elements list: " << containerID );
+    WARN("Cannot get container elements list: " << containerID);
     return 1;
   }
 
@@ -426,7 +426,7 @@ SeDService::cpyContainerToDir( SeDArgument *arg,
       // download
       status = dagda_get_file(content.elt_ids[ix], &currEltPathStr);
       if (status != 0) {
-        WARN( "Warning: Cannot get container element: " << content.elt_ids[ix] );
+        WARN("Warning: Cannot get container element: " << content.elt_ids[ix]);
       } else {
         // let's copy it into the created directory
         string fileName;
@@ -445,36 +445,36 @@ SeDService::cpyContainerToDir( SeDArgument *arg,
  * TODO create a data file containing a XML-encoded structure
  */
 void
-SeDService::cpyDirToContainer( SeDArgument *arg,
+SeDService::cpyDirToContainer(SeDArgument *arg,
                                const string& containerID,
-                               const string& dirPath )
+                               const string& dirPath)
 {
   // get the list of files in the container
-  TRACE( "Opening directory: " << dirPath );
+  TRACE("Opening directory: " << dirPath);
   fs::path dirPathB(dirPath);
   fs::directory_iterator end_itr;
   unsigned int eltIdx = 0;
-  for ( fs::directory_iterator itr(dirPathB);
+  for (fs::directory_iterator itr(dirPathB);
         itr != end_itr;
-        ++itr )
+        ++itr)
   {
-    if ( fs::is_directory(itr->status()) )
+    if (fs::is_directory(itr->status()))
     {
-      TRACE( "Found directory: " << itr->path().leaf() );
+      TRACE("Found directory: " << itr->path().leaf());
       char *contID;
       dagda_create_container(&contID);
       dagda_add_container_element(containerID.c_str(), contID, eltIdx++);
-      TRACE( " -> dir stored with id : " << contID );
+      TRACE(" -> dir stored with id : " << contID);
       cpyDirToContainer(arg, string(contID), itr->path().string());
     }
-    else if ( fs::is_regular_file(itr->status()) )
+    else if (fs::is_regular_file(itr->status()))
     {
-      TRACE( "Found file: " << itr->path().string() );
+      TRACE("Found file: " << itr->path().string());
       char *fileID;
       char *curFilePath = const_cast<char*>(itr->path().string().c_str());
       dagda_put_file(curFilePath, DIET_PERSISTENT, &fileID);
       dagda_add_container_element(containerID.c_str(), fileID, eltIdx++);
-      TRACE( " -> file stored with id : " << fileID );
+      TRACE(" -> file stored with id : " << fileID);
     }
   }
 
@@ -500,7 +500,7 @@ SeDService::cpyProfileToArgs(diet_profile_t* pb)
       ostringstream cvt;
       string path;
       size_t inputFileSize;
-      switch(currArg->getType()) {
+      switch (currArg->getType()) {
       case SeDArgument::STRING :
         diet_string_get(diet_parameter(pb, argIndex), &inputStr, NULL);
         cvt << inputStr;
@@ -529,7 +529,7 @@ SeDService::cpyProfileToArgs(diet_profile_t* pb)
         cvt << path;
         break;
       default:
-        WARN( __FUNCTION__ << " : Invalid argument type" );
+        WARN(__FUNCTION__ << " : Invalid argument type");
         exit(1);
       }
       currArg->setValue(cvt.str());
@@ -559,15 +559,15 @@ SeDService::cpyArgsToProfile(diet_profile_t* pb)
         if (!filePath.has_root_path()) {
           filePath = fs::path(myWorkingDir) / filePath;
         }
-        TRACE( "Output '" << argName << "' (src file) = " << filePath.string() );
+        TRACE("Output '" << argName << "' (src file) = " << filePath.string());
 
         if (!fs::exists(filePath)) {
-          WARN( "ERROR: argument " << argName << " is not found" );
+          WARN("ERROR: argument " << argName << " is not found");
           success = false;
           continue;
         }
         if (!fs::is_regular(filePath)) {
-          WARN( "ERROR: argument " << argName << " is not a file" );
+          WARN("ERROR: argument " << argName << " is not a file");
           success = false;
           continue;
         }
@@ -582,14 +582,14 @@ SeDService::cpyArgsToProfile(diet_profile_t* pb)
         if (!dirPath.has_root_path()) {
           dirPath = fs::path(myWorkingDir) / dirPath;
         }
-        TRACE( "Output '" << argName << "' (src dir) = " << dirPath.string() );
+        TRACE("Output '" << argName << "' (src dir) = " << dirPath.string());
         if (!fs::exists(dirPath)) {
-          WARN( "ERROR: argument " << argIndex << " is not found" );
+          WARN("ERROR: argument " << argIndex << " is not found");
           success = false;
           continue;
         }
         if (!fs::is_directory(dirPath)) {
-          WARN( "ERROR: argument " << argName << " is not a directory" );
+          WARN("ERROR: argument " << argName << " is not a directory");
           success = false;
           continue;
         }
@@ -597,7 +597,7 @@ SeDService::cpyArgsToProfile(diet_profile_t* pb)
         string  containerID((*diet_parameter(pb, argIndex)).desc.id);
         if (containerID.empty()) continue;
         cpyDirToContainer(currArg, containerID, dirPath.string());
-        TRACE( "Stored output container ID: " << containerID );
+        TRACE("Stored output container ID: " << containerID);
       }
     }
     argIndex++;

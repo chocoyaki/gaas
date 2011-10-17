@@ -487,7 +487,7 @@ SeDImpl::bindParent(const char * parentName) {
   Agent_var parentTmp;
   try {
     parentTmp =
-      ORBMgr::getMgr()->resolve<Agent,Agent_var>(AGENTCTXT, parentName);
+      ORBMgr::getMgr()->resolve<Agent, Agent_var>(AGENTCTXT, parentName);
   } catch (...) {
     parentTmp = Agent::_nil();
   }
@@ -622,7 +622,7 @@ SeDImpl::run(ServiceTable* services) {
   this->SrvT = services;
 
 #if defined HAVE_ALT_BATCH
-  if( this->server_status == BATCH ) {
+  if (this->server_status == BATCH) {
     // Read "batchName" if parallel jobs are to be submitted
     std::string batchname;
     if (!CONFIG_STRING(diet::BATCHNAME, batchname)) {
@@ -630,7 +630,7 @@ SeDImpl::run(ServiceTable* services) {
             " scheduler specified in the config file", 1);
     }
     batch = BatchCreator::getBatchSystem(batchname.c_str());
-    if( batch == NULL ) {
+    if (batch == NULL) {
       ERROR("Parallel/batch scheduler not recognized", 1);
     }
     TRACE_TEXT(TRACE_MAIN_STEPS,
@@ -640,12 +640,12 @@ SeDImpl::run(ServiceTable* services) {
        should be recognized automatically
        -> for the moment, only one queue specified in the file
     */
-    if( batch->getBatchQueueName() != NULL )
+    if (batch->getBatchQueueName() != NULL)
       TRACE_TEXT(TRACE_MAIN_STEPS, " using queue "
-                 << batch->getBatchQueueName() );
-    TRACE_TEXT(TRACE_MAIN_STEPS, endl );
-    TRACE_TEXT(TRACE_MAIN_STEPS,"pathToNFS: " << batch->getNFSPath() << endl);
-    TRACE_TEXT(TRACE_MAIN_STEPS,"pathToTmp: " << batch->getTmpPath() << endl);
+                 << batch->getBatchQueueName());
+    TRACE_TEXT(TRACE_MAIN_STEPS, endl);
+    TRACE_TEXT(TRACE_MAIN_STEPS, "pathToNFS: " << batch->getNFSPath() << endl);
+    TRACE_TEXT(TRACE_MAIN_STEPS, "pathToTmp: " << batch->getTmpPath() << endl);
   }
 #endif
 
@@ -760,7 +760,7 @@ SeDImpl::getRequest(const corba_request_t& creq)
 #ifdef HAVE_ALT_BATCH
   const char * jobSpec;
 
-  if( creq.pb.parallel_flag == 1 )
+  if (creq.pb.parallel_flag == 1)
     jobSpec = "sequential";
   else
     jobSpec = "parallel";
@@ -772,13 +772,13 @@ SeDImpl::getRequest(const corba_request_t& creq)
 #endif
 
 #ifdef HAVE_ALT_BATCH
-  stat_in("SeD",statMsg);
+  stat_in("SeD", statMsg);
   TRACE_TEXT(TRACE_MAIN_STEPS,
              endl << "**************************************************" << endl
              << "Got " << jobSpec << " request " << creq.reqID << endl
              << endl);
 #else
-  stat_in("SeD",statMsg);
+  stat_in("SeD", statMsg);
   TRACE_TEXT(TRACE_MAIN_STEPS,
              endl << "**************************************************" << endl
              << "Got request " << creq.reqID << endl
@@ -832,7 +832,7 @@ SeDImpl::getRequest(const corba_request_t& creq)
       dietLogComponent->logSedChosen(&creq,&resp);
       }
   */
-  stat_out("SeD",statMsg);
+  stat_out("SeD", statMsg);
 
   parentTmp->getResponse(resp);
 }
@@ -853,7 +853,7 @@ SeDImpl::checkContract(corba_estimation_t& estimation,
 
 void persistent_data_release(corba_data_t* arg) {
 
-  switch((diet_data_type_t)(arg->desc.specific._d())) {
+  switch ((diet_data_type_t)(arg->desc.specific._d())) {
   case DIET_VECTOR: {
     corba_vector_specific_t vect;
 
@@ -958,7 +958,7 @@ SeDImpl::solve(const char* path, corba_profile_t& pb) {
   this->jobQueue->addJobWaiting(pb.dietReqID, estCompTime, pb.estim);
 
 #if defined HAVE_ALT_BATCH
-  if( server_status == BATCH ) {
+  if (server_status == BATCH) {
     return this->parallel_solve(path, pb, ref, profile);
   }
 #endif
@@ -968,7 +968,7 @@ SeDImpl::solve(const char* path, corba_profile_t& pb) {
   }
 
   sprintf(statMsg, "solve %ld", (unsigned long) pb.dietReqID);
-  stat_in("SeD",statMsg);
+  stat_in("SeD", statMsg);
 
 #ifdef USE_LOG_SERVICE
   if (dietLogComponent != NULL) {
@@ -983,7 +983,7 @@ SeDImpl::solve(const char* path, corba_profile_t& pb) {
   cvt = SrvT->getConvertor(ref);
 
   /* Data transfer */
-  downloadSyncSeDData(profile,pb,cvt);
+  downloadSyncSeDData(profile, pb, cvt);
 
 #ifdef USE_LOG_SERVICE
   if (dietLogComponent != NULL) {
@@ -1001,16 +1001,16 @@ SeDImpl::solve(const char* path, corba_profile_t& pb) {
   solve_res = (*(SrvT->getSolver(ref)))(&profile);    // SOLVE
 
   /* Data transfer */
-  uploadSyncSeDData(profile,pb,cvt);
+  uploadSyncSeDData(profile, pb, cvt);
 
-  TRACE_TEXT(TRACE_MAIN_STEPS,"SeD::solve complete" << endl
+  TRACE_TEXT(TRACE_MAIN_STEPS, "SeD::solve complete" << endl
              << "************************************************************"<< endl);
   delete [] profile.parameters;  // allocated by unmrsh_in_args_to_profile
 
   this->jobQueue->setJobFinished(profile.dietReqID);
   this->jobQueue->deleteJob(profile.dietReqID);
 
-  stat_out("SeD",statMsg);
+  stat_out("SeD", statMsg);
   stat_flush();
 
 #ifdef USE_LOG_SERVICE
@@ -1028,7 +1028,7 @@ SeDImpl::solve(const char* path, corba_profile_t& pb) {
 
 #if defined HAVE_ALT_BATCH
 void
-SeDImpl::setServerStatus( diet_server_status_t status ) {
+SeDImpl::setServerStatus(diet_server_status_t status) {
   this->server_status = status;
 }
 
@@ -1072,7 +1072,7 @@ SeDImpl::parallel_solve(const char* path, corba_profile_t& pb,
   }
 
   sprintf(statMsg, "solve %ld", (unsigned long) pb.dietReqID);
-  stat_in("SeD",statMsg);
+  stat_in("SeD", statMsg);
 
   this->jobQueue->setJobStarted(pb.dietReqID);
 
@@ -1088,7 +1088,7 @@ SeDImpl::parallel_solve(const char* path, corba_profile_t& pb,
   cvt = SrvT->getConvertor(ref);
 
   /* Data transfer */
-  downloadSyncSeDData(profile,pb,cvt);
+  downloadSyncSeDData(profile, pb, cvt);
 
   TRACE_TEXT(TRACE_MAIN_STEPS, "Calling getSolver" << endl);
   solve_res = (*(SrvT->getSolver(ref)))(&profile);    // SOLVE
@@ -1097,20 +1097,20 @@ SeDImpl::parallel_solve(const char* path, corba_profile_t& pb,
              " on batch system with ID " <<
              batch->getBatchJobID(profile.dietReqID)
              << endl);
-  if( batch->wait4BatchJobCompletion(batch->getBatchJobID(profile.dietReqID))
-      < 0 ) {
+  if (batch->wait4BatchJobCompletion(batch->getBatchJobID(profile.dietReqID))
+      < 0) {
     ERROR("An error occured during the execution of the parallel job", 21);
   }
   batch->removeBatchJobID(profile.dietReqID);
 
   /* Data transfer */
-  uploadSyncSeDData(profile,pb,cvt);
+  uploadSyncSeDData(profile, pb, cvt);
 
-  TRACE_TEXT(TRACE_MAIN_STEPS,"SeD::parallel_solve() completed" << endl
+  TRACE_TEXT(TRACE_MAIN_STEPS, "SeD::parallel_solve() completed" << endl
              << "************************************************************" << endl);
   delete [] profile.parameters;  // allocated by unmrsh_in_args_to_profile
 
-  stat_out("SeD",statMsg);
+  stat_out("SeD", statMsg);
   stat_flush();
 
 #ifdef USE_LOG_SERVICE
@@ -1169,8 +1169,8 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
 
 #if defined HAVE_ALT_BATCH
       /* Use parallel_flag of the proposed SeD service to know what to do */
-      const corba_profile_desc_t & sed_profile = SrvT->getProfile( ref );
-      if( sed_profile.parallel_flag == 2 )
+      const corba_profile_desc_t & sed_profile = SrvT->getProfile(ref);
+      if (sed_profile.parallel_flag == 2)
         this->parallel_AsyncSolve(path, pb, ref,
                                   cb, profile);
       else {
@@ -1181,7 +1181,7 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
         }
 
         sprintf(statMsg, "solveAsync %ld", (unsigned long) pb.dietReqID);
-        stat_in("SeD",statMsg);
+        stat_in("SeD", statMsg);
 
 #ifdef USE_LOG_SERVICE
         if (dietLogComponent != NULL) {
@@ -1223,7 +1223,7 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
         this->jobQueue->setJobFinished(profile.dietReqID);
         this->jobQueue->deleteJob(profile.dietReqID);
 
-        stat_out("SeD",statMsg);
+        stat_out("SeD", statMsg);
         stat_flush();
 
 #ifdef USE_LOG_SERVICE
@@ -1310,7 +1310,7 @@ SeDImpl::parallel_AsyncSolve(const char * path, const corba_profile_t & pb,
       }
 
       sprintf(statMsg, "solve_AsyncParallel %ld", (unsigned long) pb.dietReqID);
-      stat_in("SeD",statMsg);
+      stat_in("SeD", statMsg);
 
 #ifdef USE_LOG_SERVICE
       if (dietLogComponent != NULL) {
@@ -1340,10 +1340,10 @@ SeDImpl::parallel_AsyncSolve(const char * path, const corba_profile_t & pb,
                  " on batch system with ID " <<
                  batch->getBatchJobID(profile.dietReqID)
                  << endl);
-      if(
+      if (
         batch->wait4BatchJobCompletion(batch->getBatchJobID(profile.dietReqID)
-          )
-        < 0 ) {
+)
+        < 0) {
         ERROR_EXIT("An error occured during the execution of the parallel job");
       }
       batch->removeBatchJobID(profile.dietReqID);
@@ -1356,9 +1356,9 @@ SeDImpl::parallel_AsyncSolve(const char * path, const corba_profile_t & pb,
                  << endl);
       /* This waits until the jobs ends
       ** and remove batchID/DIETreqID correspondance */
-      if( (ELBASE_Poll(findBatchID(profile.dietReqID), 1, &status) == 0)
-          && status == 0 ) {
-        if( this->batchID == ELBASE_SHELLSCRIPT ) {
+      if ((ELBASE_Poll(findBatchID(profile.dietReqID), 1, &status) == 0)
+          && status == 0) {
+        if (this->batchID == ELBASE_SHELLSCRIPT) {
           ERROR_EXIT("An error occured during the execution of "
                      "the parallel job");
         } else {
@@ -1374,7 +1374,7 @@ SeDImpl::parallel_AsyncSolve(const char * path, const corba_profile_t & pb,
       TRACE_TEXT(TRACE_MAIN_STEPS, "SeD::" << __FUNCTION__ << " complete" << endl
                  << "**************************************************" << endl);
 
-      stat_out("SeD",statMsg);
+      stat_out("SeD", statMsg);
       stat_flush();
 
 #ifdef USE_LOG_SERVICE
@@ -1496,9 +1496,9 @@ SeDImpl::estimate(corba_estimation_t& estimation,
        by making SeDImpl.cc:estimate() return 0 or 1 and changing the
        code accordingly in getRequest().
     */
-    switch(server_status) {
+    switch (server_status) {
     case BATCH:
-      if( pb.parallel_flag == 1 ) {
+      if (pb.parallel_flag == 1) {
         TRACE_TEXT(TRACE_MAIN_STEPS,
                    "SeD::Have to provide information on sequential "
                    "resolution through "
@@ -1631,8 +1631,8 @@ SeDImpl::uploadAsyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
 
   /* Free data */
 #if 0
-  for(i = 0;i<pb.last_out;i++)
-    if(!diet_is_persistent(profile.parameters[i])) {
+  for (i = 0;i<pb.last_out;i++)
+    if (!diet_is_persistent(profile.parameters[i])) {
       // FIXME : adding file test
       CORBA::Char *p1 (NULL);
       p1 = pbc.parameters[i].value.get_buffer(1);
@@ -1764,7 +1764,7 @@ SeDImpl::getDataMgrID() {
  */
 SeqCorbaProfileDesc_t*
 SeDImpl::getSeDProfiles(CORBA::Long& length) {
-  TRACE_TEXT(TRACE_ALL_STEPS,"ask for list of services" << std::endl);
+  TRACE_TEXT(TRACE_ALL_STEPS, "ask for list of services" << std::endl);
   return SrvT->getProfiles(length);
 }
 

@@ -84,41 +84,50 @@
  * Some tools used for workflow support.
  *
  ****************************************************************************/
-#include <iostream>
-#include <stack>
-#include <list>
-#include <sstream>
 #include <cstdlib>
-
-#include "WfUtils.hh"
+#include <iostream>
+#include <list>
 #include <map>
+#include <stack>
+#include <sstream>
+#include "WfUtils.hh"
 
-using namespace std;
+using std::pair;
 
-string
+std::string
 WfStructException::ErrorMsg() const {
-  string errorMsg;
-  switch(Type()) {
+  std::string errorMsg;
+  switch (Type()) {
   case eUNKNOWN_DAG:
-    errorMsg = "Unknown dag (" + Info() + ")"; break;
+    errorMsg = "Unknown dag (" + Info() + ")";
+    break;
   case eUNKNOWN_NODE:
-    errorMsg = "Unknown node (" + Info() + ")"; break;
+    errorMsg = "Unknown node (" + Info() + ")";
+    break;
   case eUNKNOWN_PORT:
-    errorMsg = "Unknown port (" + Info() + ")"; break;
+    errorMsg = "Unknown port (" + Info() + ")";
+    break;
   case eDUPLICATE_NODE:
-    errorMsg = "Duplicate node (" + Info() + ")"; break;
+    errorMsg = "Duplicate node (" + Info() + ")";
+    break;
   case eDUPLICATE_PORT:
-    errorMsg = "Duplicate port (" + Info() + ")"; break;
+    errorMsg = "Duplicate port (" + Info() + ")";
+    break;
   case eTYPE_MISMATCH:
-    errorMsg = "Type mismatch (" + Info() + ")"; break;
+    errorMsg = "Type mismatch (" + Info() + ")";
+    break;
   case eDEPTH_MISMATCH:
-    errorMsg = "Depth mismatch (" + Info() + ")"; break;
+    errorMsg = "Depth mismatch (" + Info() + ")";
+    break;
   case eINVALID_EXPR:
-    errorMsg = "Invalid expression (" + Info() + ")"; break;
+    errorMsg = "Invalid expression (" + Info() + ")";
+    break;
   case eWF_UNDEF:
-    errorMsg = "Workflow not defined (" + Info() + ")"; break;
+    errorMsg = "Workflow not defined (" + Info() + ")";
+    break;
   case eOTHER:
-    errorMsg = Info(); break;
+    errorMsg = Info();
+    break;
   }
   return errorMsg;
 }
@@ -128,105 +137,116 @@ WfStructException::ErrorMsg() const {
  * WF -> DIET
  * STRING -> WF
  */
-string WfCst::dietTypePrefix = "DIET_";
+std::string WfCst::dietTypePrefix = "DIET_";
 
-static const pair<short,short> wf2DietTypes[] = {
-  pair<short,short>( WfCst::TYPE_CHAR, DIET_CHAR ),
-  pair<short,short>( WfCst::TYPE_SHORT, DIET_SHORT),
-  pair<short,short>( WfCst::TYPE_INT, DIET_INT),
-  pair<short,short>( WfCst::TYPE_LONGINT, DIET_LONGINT),
-  pair<short,short>( WfCst::TYPE_FLOAT, DIET_FLOAT),
-  pair<short,short>( WfCst::TYPE_DOUBLE, DIET_DOUBLE),
-  pair<short,short>( WfCst::TYPE_MATRIX, DIET_MATRIX),
-  pair<short,short>( WfCst::TYPE_STRING, DIET_STRING),
-  pair<short,short>( WfCst::TYPE_PARAMSTRING, DIET_PARAMSTRING),
-  pair<short,short>( WfCst::TYPE_FILE, DIET_FILE),
-  pair<short,short>( WfCst::TYPE_CONTAINER, DIET_CONTAINER)
+static const pair<short, short> wf2DietTypes[] = {
+  pair<short, short>(WfCst::TYPE_CHAR, DIET_CHAR),
+  pair<short, short>(WfCst::TYPE_SHORT, DIET_SHORT),
+  pair<short, short>(WfCst::TYPE_INT, DIET_INT),
+  pair<short, short>(WfCst::TYPE_LONGINT, DIET_LONGINT),
+  pair<short, short>(WfCst::TYPE_FLOAT, DIET_FLOAT),
+  pair<short, short>(WfCst::TYPE_DOUBLE, DIET_DOUBLE),
+  pair<short, short>(WfCst::TYPE_MATRIX, DIET_MATRIX),
+  pair<short, short>(WfCst::TYPE_STRING, DIET_STRING),
+  pair<short, short>(WfCst::TYPE_PARAMSTRING, DIET_PARAMSTRING),
+  pair<short, short>(WfCst::TYPE_FILE, DIET_FILE),
+  pair<short, short>(WfCst::TYPE_CONTAINER, DIET_CONTAINER)
 };
 
-static const pair<short,short> diet2WfTypes[] = {
-  pair<short,short>( DIET_CHAR, WfCst::TYPE_CHAR),
-  pair<short,short>( DIET_SHORT, WfCst::TYPE_SHORT),
-  pair<short,short>( DIET_INT, WfCst::TYPE_INT),
-  pair<short,short>( DIET_LONGINT, WfCst::TYPE_LONGINT),
-  pair<short,short>( DIET_FLOAT, WfCst::TYPE_FLOAT),
-  pair<short,short>( DIET_DOUBLE, WfCst::TYPE_DOUBLE),
-  pair<short,short>( DIET_MATRIX, WfCst::TYPE_MATRIX),
-  pair<short,short>( DIET_STRING, WfCst::TYPE_STRING),
-  pair<short,short>( DIET_PARAMSTRING, WfCst::TYPE_PARAMSTRING),
-  pair<short,short>( DIET_FILE, WfCst::TYPE_FILE),
-  pair<short,short>( DIET_CONTAINER, WfCst::TYPE_CONTAINER)
+static const pair<short, short> diet2WfTypes[] = {
+  pair<short, short>(DIET_CHAR, WfCst::TYPE_CHAR),
+  pair<short, short>(DIET_SHORT, WfCst::TYPE_SHORT),
+  pair<short, short>(DIET_INT, WfCst::TYPE_INT),
+  pair<short, short>(DIET_LONGINT, WfCst::TYPE_LONGINT),
+  pair<short, short>(DIET_FLOAT, WfCst::TYPE_FLOAT),
+  pair<short, short>(DIET_DOUBLE, WfCst::TYPE_DOUBLE),
+  pair<short, short>(DIET_MATRIX, WfCst::TYPE_MATRIX),
+  pair<short, short>(DIET_STRING, WfCst::TYPE_STRING),
+  pair<short, short>(DIET_PARAMSTRING, WfCst::TYPE_PARAMSTRING),
+  pair<short, short>(DIET_FILE, WfCst::TYPE_FILE),
+  pair<short, short>(DIET_CONTAINER, WfCst::TYPE_CONTAINER)
 };
 
-static const pair<string,short> wfTypes[] = {
-  pair<string,short>( "", WfCst::TYPE_UNKNOWN),
-  pair<string,short>( "DIET_CHAR", WfCst::TYPE_CHAR),
-  pair<string,short>( "DIET_SHORT", WfCst::TYPE_SHORT),
-  pair<string,short>( "DIET_INT", WfCst::TYPE_INT),
-  pair<string,short>( "DIET_LONGINT", WfCst::TYPE_LONGINT),
-  pair<string,short>( "DIET_FLOAT", WfCst::TYPE_FLOAT),
-  pair<string,short>( "DIET_DOUBLE", WfCst::TYPE_DOUBLE),
-  pair<string,short>( "DIET_MATRIX", WfCst::TYPE_MATRIX),
-  pair<string,short>( "DIET_STRING", WfCst::TYPE_STRING),
-  pair<string,short>( "DIET_PARAMSTRING", WfCst::TYPE_PARAMSTRING),
-  pair<string,short>( "DIET_FILE", WfCst::TYPE_FILE),
-  pair<string,short>( "DIET_CONTAINER", WfCst::TYPE_CONTAINER)
+static const pair<std::string, short> wfTypes[] = {
+  pair<std::string, short>("", WfCst::TYPE_UNKNOWN),
+  pair<std::string, short>("DIET_CHAR", WfCst::TYPE_CHAR),
+  pair<std::string, short>("DIET_SHORT", WfCst::TYPE_SHORT),
+  pair<std::string, short>("DIET_INT", WfCst::TYPE_INT),
+  pair<std::string, short>("DIET_LONGINT", WfCst::TYPE_LONGINT),
+  pair<std::string, short>("DIET_FLOAT", WfCst::TYPE_FLOAT),
+  pair<std::string, short>("DIET_DOUBLE", WfCst::TYPE_DOUBLE),
+  pair<std::string, short>("DIET_MATRIX", WfCst::TYPE_MATRIX),
+  pair<std::string, short>("DIET_STRING", WfCst::TYPE_STRING),
+  pair<std::string, short>("DIET_PARAMSTRING", WfCst::TYPE_PARAMSTRING),
+  pair<std::string, short>("DIET_FILE", WfCst::TYPE_FILE),
+  pair<std::string, short>("DIET_CONTAINER", WfCst::TYPE_CONTAINER)
 };
 
-static const pair<short, const string> strTypes[] = {
-  pair<short, const string>( WfCst::TYPE_CHAR, "DIET_CHAR"),
-  pair<short, const string>( WfCst::TYPE_SHORT, "DIET_SHORT"),
-  pair<short, const string>( WfCst::TYPE_INT, "DIET_INT"),
-  pair<short, const string>( WfCst::TYPE_LONGINT, "DIET_LONGINT"),
-  pair<short, const string>( WfCst::TYPE_FLOAT, "DIET_FLOAT"),
-  pair<short, const string>( WfCst::TYPE_DOUBLE, "DIET_DOUBLE"),
-  pair<short, const string>( WfCst::TYPE_MATRIX, "DIET_MATRIX"),
-  pair<short, const string>( WfCst::TYPE_STRING, "DIET_STRING"),
-  pair<short, const string>( WfCst::TYPE_PARAMSTRING, "DIET_PARAMSTRING"),
-  pair<short, const string>( WfCst::TYPE_FILE, "DIET_FILE"),
-  pair<short, const string>( WfCst::TYPE_CONTAINER, "DIET_CONTAINER"),
-  pair<short, const string>( WfCst::TYPE_UNKNOWN,"_UNKNOWN_")
+static const pair<short, const std::string> strTypes[] = {
+  pair<short, const std::string>(WfCst::TYPE_CHAR, "DIET_CHAR"),
+  pair<short, const std::string>(WfCst::TYPE_SHORT, "DIET_SHORT"),
+  pair<short, const std::string>(WfCst::TYPE_INT, "DIET_INT"),
+  pair<short, const std::string>(WfCst::TYPE_LONGINT, "DIET_LONGINT"),
+  pair<short, const std::string>(WfCst::TYPE_FLOAT, "DIET_FLOAT"),
+  pair<short, const std::string>(WfCst::TYPE_DOUBLE, "DIET_DOUBLE"),
+  pair<short, const std::string>(WfCst::TYPE_MATRIX, "DIET_MATRIX"),
+  pair<short, const std::string>(WfCst::TYPE_STRING, "DIET_STRING"),
+  pair<short, const std::string>(WfCst::TYPE_PARAMSTRING, "DIET_PARAMSTRING"),
+  pair<short, const std::string>(WfCst::TYPE_FILE, "DIET_FILE"),
+  pair<short, const std::string>(WfCst::TYPE_CONTAINER, "DIET_CONTAINER"),
+  pair<short, const std::string>(WfCst::TYPE_UNKNOWN, "_UNKNOWN_")
 };
 
-static const pair<short, const string> XSTypes[] = {
-  pair<short, const string>( WfCst::TYPE_CHAR, "xs:byte"),
-  pair<short, const string>( WfCst::TYPE_SHORT, "xs:short"),
-  pair<short, const string>( WfCst::TYPE_INT, "xs:integer"),
-  pair<short, const string>( WfCst::TYPE_LONGINT, "xs:long"),
-  pair<short, const string>( WfCst::TYPE_FLOAT, "xs:float"),
-  pair<short, const string>( WfCst::TYPE_DOUBLE, "xs:double"),
-  pair<short, const string>( WfCst::TYPE_MATRIX, ""), // not defined
-  pair<short, const string>( WfCst::TYPE_STRING, "xs:string"),
-  pair<short, const string>( WfCst::TYPE_PARAMSTRING, "xs:string"),
-  pair<short, const string>( WfCst::TYPE_FILE, ""),
-  pair<short, const string>( WfCst::TYPE_CONTAINER, ""),
-  pair<short, const string>( WfCst::TYPE_UNKNOWN,"")
+static const pair<short, const std::string> XSTypes[] = {
+  pair<short, const std::string>(WfCst::TYPE_CHAR, "xs:byte"),
+  pair<short, const std::string>(WfCst::TYPE_SHORT, "xs:short"),
+  pair<short, const std::string>(WfCst::TYPE_INT, "xs:integer"),
+  pair<short, const std::string>(WfCst::TYPE_LONGINT, "xs:long"),
+  pair<short, const std::string>(WfCst::TYPE_FLOAT, "xs:float"),
+  pair<short, const std::string>(WfCst::TYPE_DOUBLE, "xs:double"),
+  pair<short, const std::string>(WfCst::TYPE_MATRIX, ""),  // not defined
+  pair<short, const std::string>(WfCst::TYPE_STRING, "xs:string"),
+  pair<short, const std::string>(WfCst::TYPE_PARAMSTRING, "xs:string"),
+  pair<short, const std::string>(WfCst::TYPE_FILE, ""),
+  pair<short, const std::string>(WfCst::TYPE_CONTAINER, ""),
+  pair<short, const std::string>(WfCst::TYPE_UNKNOWN, "")
 };
 
-static const pair<const string, const string> gw2dietTypes[] = {
-  pair<const string, const string>( "", ""),
-  pair<const string, const string>( "string", "DIET_STRING"),
-  pair<const string, const string>( "file", "DIET_FILE"),
-  pair<const string, const string>( "integer", "DIET_INT"),
-  pair<const string, const string>( "short", "DIET_SHORT"),
-  pair<const string, const string>( "double", "DIET_DOUBLE"),
-  pair<const string, const string>( "longint", "DIET_LONGINT"),
-  pair<const string, const string>( "boolean", "DIET_CHAR"),
-  pair<const string, const string>( "float", "DIET_FLOAT"),
+static const pair<const std::string, const std::string> gw2dietTypes[] = {
+  pair<const std::string, const std::string>("", ""),
+  pair<const std::string, const std::string>("string", "DIET_STRING"),
+  pair<const std::string, const std::string>("file", "DIET_FILE"),
+  pair<const std::string, const std::string>("integer", "DIET_INT"),
+  pair<const std::string, const std::string>("short", "DIET_SHORT"),
+  pair<const std::string, const std::string>("double", "DIET_DOUBLE"),
+  pair<const std::string, const std::string>("longint", "DIET_LONGINT"),
+  pair<const std::string, const std::string>("boolean", "DIET_CHAR"),
+  pair<const std::string, const std::string>("float", "DIET_FLOAT"),
 };
 
-static map<short,short> WfTypesToDietTypes(wf2DietTypes, wf2DietTypes
-                                           + sizeof(wf2DietTypes)/sizeof(wf2DietTypes[0]));
-static map<short,short> DietTypesToWfTypes(diet2WfTypes, diet2WfTypes
-                                           + sizeof(diet2WfTypes)/sizeof(diet2WfTypes[0]));
-static map<string,short> StrTypesToWfTypes(wfTypes, wfTypes
-                                           + sizeof(wfTypes)/sizeof(wfTypes[0]));
-static map<short, const string> WfTypesToStrTypes(strTypes, strTypes
-                                                  + sizeof(strTypes)/sizeof(strTypes[0]));
-static map<short, const string> WfTypesToXSTypes(XSTypes, XSTypes
-                                                 + sizeof(XSTypes)/sizeof(XSTypes[0]));
-static map<const string, const string> GwendiaToDietTypes(gw2dietTypes,
-                                                          gw2dietTypes + sizeof(gw2dietTypes)/sizeof(gw2dietTypes[0]));
+static std::map<short, short>
+WfTypesToDietTypes(wf2DietTypes, wf2DietTypes
+                   + sizeof(wf2DietTypes)/sizeof(wf2DietTypes[0]));
+
+static std::map<short, short>
+DietTypesToWfTypes(diet2WfTypes, diet2WfTypes
+                   + sizeof(diet2WfTypes)/sizeof(diet2WfTypes[0]));
+
+static std::map<std::string, short>
+StrTypesToWfTypes(wfTypes, wfTypes
+                  + sizeof(wfTypes)/sizeof(wfTypes[0]));
+
+static std::map<short, const std::string>
+WfTypesToStrTypes(strTypes, strTypes
+                  + sizeof(strTypes)/sizeof(strTypes[0]));
+
+static std::map<short, const std::string>
+WfTypesToXSTypes(XSTypes, XSTypes
+                 + sizeof(XSTypes)/sizeof(XSTypes[0]));
+
+static std::map<const std::string, const std::string>
+GwendiaToDietTypes(gw2dietTypes,
+                   gw2dietTypes + sizeof(gw2dietTypes)/sizeof(gw2dietTypes[0]));
 
 short
 WfCst::cvtWfToDietType(WfDataType wfType) {
@@ -239,30 +259,31 @@ WfCst::cvtDietToWfType(short dietType) {
 }
 
 short
-WfCst::cvtStrToWfType(const string& strType) {
-  if (strType.substr(0,5) == dietTypePrefix)
+WfCst::cvtStrToWfType(const std::string& strType) {
+  if (strType.substr(0, 5) == dietTypePrefix) {
     return StrTypesToWfTypes[strType];
-  else
+  } else {
     return StrTypesToWfTypes[cvtGwendiaToDietType(strType)];
+  }
 }
 
-const string&
+const std::string&
 WfCst::cvtWfToStrType(WfDataType wfType) {
   return WfTypesToStrTypes[wfType];
 }
 
-const string&
+const std::string&
 WfCst::cvtWfToXSType(WfDataType wfType) {
   return WfTypesToXSTypes[wfType];
 }
 
-const string&
-WfCst::cvtGwendiaToDietType(const string& gwType) {
+const std::string&
+WfCst::cvtGwendiaToDietType(const std::string& gwType) {
   return GwendiaToDietTypes[gwType];
 }
 
 bool
-WfCst::isMatrixType(const string& strType) {
+WfCst::isMatrixType(const std::string& strType) {
   return (strType == "DIET_MATRIX");
 }
 
@@ -277,27 +298,32 @@ WfCst::isMatrixType(const WfDataType type) {
  * STRING -> WF
  */
 
-static const pair<short,short> dietMatrixOrders[] = {
-  pair<short,short>( WfCst::ORDER_COL_MAJOR, DIET_COL_MAJOR ),
-  pair<short,short>( WfCst::ORDER_ROW_MAJOR, DIET_ROW_MAJOR )
+static const pair<short, short> dietMatrixOrders[] = {
+  pair<short, short>(WfCst::ORDER_COL_MAJOR, DIET_COL_MAJOR),
+  pair<short, short>(WfCst::ORDER_ROW_MAJOR, DIET_ROW_MAJOR)
 };
 
-static const pair<string,short> wfMatrixOrders[] = {
-  pair<string,short>( "DIET_COL_MAJOR", WfCst::ORDER_COL_MAJOR),
-  pair<string,short>( "DIET_ROW_MAJOR", WfCst::ORDER_ROW_MAJOR)
+static const pair<std::string, short> wfMatrixOrders[] = {
+  pair<std::string, short>("DIET_COL_MAJOR", WfCst::ORDER_COL_MAJOR),
+  pair<std::string, short>("DIET_ROW_MAJOR", WfCst::ORDER_ROW_MAJOR)
 };
 
-static const pair<short, const string> strMatrixOrders[] = {
-  pair<short, const string>( WfCst::ORDER_COL_MAJOR, "DIET_COL_MAJOR"),
-  pair<short, const string>( WfCst::ORDER_ROW_MAJOR, "DIET_ROW_MAJOR")
+static const pair<short, const std::string> strMatrixOrders[] = {
+  pair<short, const std::string>(WfCst::ORDER_COL_MAJOR, "DIET_COL_MAJOR"),
+  pair<short, const std::string>(WfCst::ORDER_ROW_MAJOR, "DIET_ROW_MAJOR")
 };
 
-static map<short,short> WfToDietMatrixOrders(dietMatrixOrders, dietMatrixOrders
-                                             + sizeof(dietMatrixOrders)/sizeof(dietMatrixOrders[0]));
-static map<string,short> StrToWfMatrixOrders(wfMatrixOrders, wfMatrixOrders
-                                             + sizeof(wfMatrixOrders)/sizeof(wfMatrixOrders[0]));
-static map<short,const string> WfToStrMatrixOrders(strMatrixOrders, strMatrixOrders
-                                                   + sizeof(strMatrixOrders)/sizeof(strMatrixOrders[0]));
+static std::map<short, short>
+WfToDietMatrixOrders(dietMatrixOrders, dietMatrixOrders
+                     + sizeof(dietMatrixOrders)/sizeof(dietMatrixOrders[0]));
+
+static std::map<std::string, short>
+StrToWfMatrixOrders(wfMatrixOrders, wfMatrixOrders
+                    + sizeof(wfMatrixOrders)/sizeof(wfMatrixOrders[0]));
+
+static std::map<short, const std::string>
+WfToStrMatrixOrders(strMatrixOrders, strMatrixOrders
+                    + sizeof(strMatrixOrders)/sizeof(strMatrixOrders[0]));
 
 short
 WfCst::cvtWfToDietMatrixOrder(WfMatrixOrder wfMatrixOrder) {
@@ -309,7 +335,7 @@ WfCst::cvtStrToWfMatrixOrder(const std::string& strMatrixOrder) {
   return StrToWfMatrixOrders[strMatrixOrder];
 }
 
-const string&
+const std::string&
 WfCst::cvtWfToStrMatrixOrder(WfMatrixOrder wfMatrixOrder) {
   return WfToStrMatrixOrders[wfMatrixOrder];
 }
@@ -322,8 +348,8 @@ void
 WfCst::open_file(const char * fileName, FILE *& myFile) {
   myFile = fopen(fileName, "r");
   if (!myFile) {
-    cerr << "FATAL ERROR" << endl << "Data file " << fileName <<
-      " not found" << endl;
+    std::cerr << "FATAL ERROR\nData file " << fileName
+              << " not found\n";
     exit(1);
   }
 }
@@ -336,15 +362,17 @@ WfCst::readChar(const char * fileName, char * mat, unsigned long mat_size) {
   char c;
   int res;
   res = fscanf(myFile, "%c", &c);
-  while (res && !feof(myFile) && (p<mat_size)) {
-    if ((c != '\n') && (c != '\r') && (c!=' '))
+  while (res && !feof(myFile) && (p < mat_size)) {
+    if ((c != '\n') && (c != '\r') && (c != ' ')) {
       mat[p++] = c;
+    }
     res = fscanf(myFile, "%c", &c);
   }
   //  rewind(myFile);
   fclose(myFile);
   return p;
 }
+
 unsigned long
 WfCst::readShort(const char * fileName, short * mat, unsigned long mat_size) {
   FILE * myFile;
@@ -353,7 +381,7 @@ WfCst::readShort(const char * fileName, short * mat, unsigned long mat_size) {
   short i;
   int res;
   res = fscanf(myFile, "%5hd", &i);
-  while (res && !feof(myFile) && (p<mat_size)) {
+  while (res && !feof(myFile) && (p < mat_size)) {
     mat[p++] = i;
     res = fscanf(myFile, "%5hd", &i);
   }
@@ -369,7 +397,7 @@ WfCst::readInt(const char * fileName, int * mat, unsigned long mat_size) {
   int i;
   int res;
   res = fscanf(myFile, "%20d", &i);
-  while (res && !feof(myFile) && (p<mat_size)) {
+  while (res && !feof(myFile) && (p < mat_size)) {
     mat[p++] = i;
     res = fscanf(myFile, "%20d", &i);
   }
@@ -377,6 +405,7 @@ WfCst::readInt(const char * fileName, int * mat, unsigned long mat_size) {
   fclose(myFile);
   return p;
 }
+
 unsigned long
 WfCst::readLong(const char * fileName, long * mat, unsigned long mat_size) {
   FILE * myFile;
@@ -385,7 +414,7 @@ WfCst::readLong(const char * fileName, long * mat, unsigned long mat_size) {
   long l;
   int res;
   res = fscanf(myFile, "%ld", &l);
-  while (res && !feof(myFile)&& (p<mat_size)) {
+  while (res && !feof(myFile)&& (p < mat_size)) {
     mat[p++] = l;
     res = fscanf(myFile, "%ld", &l);
   }
@@ -403,7 +432,7 @@ WfCst::readFloat(const char * fileName, float * mat, unsigned long mat_size) {
   float f;
   int res;
   res = fscanf(myFile, "%f", &f);
-  while (res && !feof(myFile)&& (p<mat_size)) {
+  while (res && !feof(myFile)&& (p < mat_size)) {
     mat[p++] = f;
     res = fscanf(myFile, "%f", &f);
   }
@@ -413,7 +442,8 @@ WfCst::readFloat(const char * fileName, float * mat, unsigned long mat_size) {
 }
 
 unsigned long
-WfCst::readDouble(const char * fileName, double * mat, unsigned long mat_size) {
+WfCst::readDouble(const char * fileName, double * mat,
+                  unsigned long mat_size) {
   FILE * myFile;
   open_file(fileName, myFile);
 
@@ -421,7 +451,7 @@ WfCst::readDouble(const char * fileName, double * mat, unsigned long mat_size) {
   double d;
   int res;
   res = fscanf(myFile, "%lf", &d);
-  while (res && !feof(myFile)&& (p<mat_size)) {
+  while (res && !feof(myFile)&& (p < mat_size)) {
     mat[p++] = d;
     res = fscanf(myFile, "%lf", &d);
   }
@@ -433,66 +463,68 @@ WfCst::readDouble(const char * fileName, double * mat, unsigned long mat_size) {
 
 long
 WfCst::eval_expr(std::string& expr, int var) {
-  map<string, int> op_priority;
+  std::map<std::string, int> op_priority;
   op_priority["+"] = 0;
   op_priority["-"] = 0;
   op_priority["*"] = 1;
   op_priority["/"] = 1;
   op_priority["%"] = 1;
-  stack<string> tokens;
-  list<string> post_fixe_exp;
-  stack<string>  polish;
-  string tok;
-  string op;
+  std::stack<std::string> tokens;
+  std::list<std::string> post_fixe_exp;
+  std::stack<std::string>  polish;
+  std::string tok;
+  std::string op;
   long total = 0;
-  string::size_type p = string::npos;
+  std::string::size_type p = std::string::npos;
   // remove blanks
-  while (expr.find(" ") != string::npos)
+  while (expr.find(" ") != std::string::npos) {
     expr.erase(expr.find(" "), 1);
+  }
   // replace the unary - by a #
-  if (expr[0] == '-') expr[0]='#';
-  for (unsigned int i = 1; i<expr.size(); i++)
-    if ( (expr[i] == '-') && (!isdigit(expr[i-1])) ) expr[i]='#';
-
+  if (expr[0] == '-') {
+    expr[0]='#';
+  }
+  for (unsigned int i = 1; i < expr.size(); i++) {
+    if ((expr[i] == '-') && (!isdigit(expr[i-1]))) {
+      expr[i]='#';
+    }
+  }
 
   // read the expression
   while (expr.size() > 0) {
-    if (isdigit(expr[0]) || isalpha(expr[0]) || (expr[0]=='#')) {
+    if (isdigit(expr[0]) || isalpha(expr[0]) || (expr[0] == '#')) {
       p = expr.find_first_of("+-/*%()");
       tok = expr.substr(0, p);
       post_fixe_exp.push_back(tok);
-      if (p!= string::npos)
+      if (p !=  std::string::npos) {
         expr = expr.substr(p);
-      else
+      } else {
         expr = "";
-    }
-    else {
+      }
+      } else {
       if (expr[0] == '(') {
         tokens.push("(");
-      }
-      else {
+      } else {
         if (expr[0] == ')') {
           while (tokens.top() != "(") {
             post_fixe_exp.push_back(tokens.top());
             tokens.pop();
           }
           tokens.pop();
-        } // if '('
-        else {
+        } else {
           // it is an op
-          op = expr.substr(0,1);
+          op = expr.substr(0, 1);
           while ((!tokens.empty())&&
-                 (op_priority[tokens.top()] > op_priority[op])
-            ) {
+                 (op_priority[tokens.top()] > op_priority[op])) {
             post_fixe_exp.push_back(tokens.top());
             tokens.pop();
-          } // end while
+          }  // end while
           tokens.push(op);
         }
       }
       expr = expr.substr(1);
     }
-  } // end while
+  }  // end while
   while (!tokens.empty()) {
     post_fixe_exp.push_back(tokens.top());
     tokens.pop();
@@ -503,7 +535,7 @@ WfCst::eval_expr(std::string& expr, int var) {
     post_fixe_exp.pop_front();
     if (tok == "+" || tok == "-" || tok == "*" || tok == "/" || tok == "%") {
       // pop the first value
-      string v1s = polish.top().c_str();
+      std::string v1s = polish.top().c_str();
       long v1 = 1;
       if (v1s[0] == '#') {
         v1 = -1;
@@ -512,7 +544,7 @@ WfCst::eval_expr(std::string& expr, int var) {
       v1 = v1*atoi(v1s.c_str());
       polish.pop();
       // pop the second value
-      string v2s = polish.top().c_str();
+      std::string v2s = polish.top().c_str();
       long v2 = 1;
       if (v2s[0] == '#') {
         v2 = -1;
@@ -520,8 +552,8 @@ WfCst::eval_expr(std::string& expr, int var) {
       }
       v2 = v2*atoi(v2s.c_str());
       polish.pop();
-      //***
-      stringstream ss;
+
+      std::stringstream ss;
       if (tok == "+") {
         ss << (v1+v2);
       }
@@ -538,8 +570,7 @@ WfCst::eval_expr(std::string& expr, int var) {
         ss << (v2%v1);
       }
       polish.push(ss.str());
-    }
-    else {
+    } else {
       polish.push(tok);
     }
   }
@@ -552,40 +583,37 @@ WfCst::eval_expr(std::string& expr, int var) {
  * return a list of token composing a string
  * used to read the matrix value
  */
-vector<string>
-getStringToken(string str) {
-  vector<string> v;
-  string str2(str);
+std::vector<std::string>
+getStringToken(std::string str) {
+  std::vector<std::string> v;
+  std::string str2(str);
   bool b = true;
   while (b) {
     v.push_back(str.substr(0, str.find(" ")));
     // read the immediate following blanks
     int ix = str.find(" ")+1;
-    while (str[ix] == ' ')
+    while (str[ix] == ' ') {
       ix++;
+    }
 
     // remove the read token
     str2 =  str.substr(ix);
-    if (str2 == str)
+    if (str2 == str) {
       b = false;
-    else
+    } else {
       str = str2;
+    }
   }
   return v;
-} // end getStringToken
+}  // end getStringToken
 
 /**
  * return a string representation on an integer
  */
-string
+std::string
 itoa(long l) {
   // stringstream seems to be not thread safe !!!
-  /*
-    stringstream ss;
-    ss << l;
-    return ss.str();
-  */
   char str[128];
-  sprintf(str, "%ld", l);
-  return string(str);
+  snprintf(str, sizeof(str), "%ld", l);
+  return std::string(str);
 }

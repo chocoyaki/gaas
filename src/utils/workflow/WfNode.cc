@@ -54,7 +54,7 @@
  * moved pb name attribute from Node to DagNode class
  *
  * Revision 1.30  2008/10/14 13:31:01  bisnard
- * new class structure for dags (DagNode,DagNodePort)
+ * new class structure for dags (DagNode, DagNodePort)
  *
  * Revision 1.29  2008/10/02 08:28:47  bisnard
  * new WfPort method to free persistent data
@@ -211,19 +211,19 @@
 
 #include "debug.hh"
 #include "WfNode.hh"
-#include "Dag.hh" // for NodeSet definition
+#include "Dag.hh"  // for NodeSet definition
 
 /****************************************************************************/
 /*                       Constructors/Destructor                            */
 /****************************************************************************/
 
-WfNode::WfNode(const string& id) : myId(id) {}
+WfNode::WfNode(const std::string& id) : myId(id) {}
 
 WfNode::~WfNode() {
   // Free the ports map
-  while (! ports.empty() ) {
+  while (!ports.empty()) {
     WfPort * p = ports.begin()->second;
-    ports.erase( ports.begin() );
+    ports.erase(ports.begin());
     delete p;
   }
 }
@@ -232,7 +232,10 @@ WfNode::~WfNode() {
 /*                              Basic GET/SET                               */
 /****************************************************************************/
 
-const string& WfNode::getId() const { return this->myId; }
+const std::string&
+WfNode::getId() const {
+  return this->myId;
+}
 
 /****************************************************************************/
 /*                       Predecessor/Successors Mgmt                        */
@@ -243,7 +246,7 @@ const string& WfNode::getId() const { return this->myId; }
  * add a new previous node id *
  */
 void
-WfNode::addPrevId(const string& nodeId) {
+WfNode::addPrevId(const std::string& nodeId) {
   if (nodeId.empty()) {
     INTERNAL_ERROR("WfNode::addPrevId Fatal Error: Empty node id", 1);
   }
@@ -255,7 +258,7 @@ WfNode::addPrevId(const string& nodeId) {
  * remove a previous node id *
  */
 void
-WfNode::remPrevId(const string& nodeId) {
+WfNode::remPrevId(const std::string& nodeId) {
   if (nodeId.empty()) {
     INTERNAL_ERROR("WfNode::remPrevId Fatal Error: Empty node id", 1);
   }
@@ -273,7 +276,8 @@ WfNode::setNodePrecedence(NodeSet* nodeSet) throw(WfStructException) {
   // The predecessors defined by control links (<prec> tag) were
   // already added by the dag parser.
   // Add the predecessors defined by data links
-  TRACE_TEXT (TRACE_ALL_STEPS, "Processing ports of node : " << myId << endl);
+  TRACE_TEXT(TRACE_ALL_STEPS, "Processing ports of node : "
+             << myId << "\n");
   for (map<string, WfPort*>::iterator p = ports.begin();
        p != ports.end();
        ++p) {
@@ -296,7 +300,7 @@ WfNode::setNodePrecedence(NodeSet* nodeSet) throw(WfStructException) {
  * (may check some constraints before adding the predecessor effectively)
  */
 void
-WfNode::addNodePredecessor(WfNode * node, const string& fullNodeId) {
+WfNode::addNodePredecessor(WfNode * node, const std::string& fullNodeId) {
   // no check is done in this class
   addPrevId(fullNodeId);
 }
@@ -396,8 +400,8 @@ WfNode::isAnExit() const {
  */
 void
 WfNode::connectNodePorts() throw(WfStructException) {
-  TRACE_TEXT (TRACE_ALL_STEPS,
-              "connectNodePorts : processing node " << getId() << endl);
+  TRACE_TEXT(TRACE_ALL_STEPS,
+              "connectNodePorts : processing node " << getId() << "\n");
   for (map<string, WfPort*>::iterator p = ports.begin();
        p != ports.end();
        ++p) {
@@ -409,8 +413,8 @@ WfNode::connectNodePorts() throw(WfStructException) {
  * check if port already exists
  */
 bool
-WfNode::isPortDefined(const string& id) {
-  map<string, WfPort*>::iterator p = ports.find(id);
+WfNode::isPortDefined(const std::string& id) {
+  std::map<std::string, WfPort*>::iterator p = ports.find(id);
   return (p != ports.end());
 }
 
@@ -418,10 +422,12 @@ WfNode::isPortDefined(const string& id) {
  * Add a new port to the ports map
  */
 WfPort *
-WfNode::addPort(const string& portId, WfPort* port) throw(WfStructException) {
+WfNode::addPort(const std::string& portId, WfPort* port)
+  throw(WfStructException) {
   if (isPortDefined(portId)) {
     delete port;
-    throw WfStructException(WfStructException::eDUPLICATE_PORT,"port id="+portId);
+    throw WfStructException(WfStructException::eDUPLICATE_PORT,
+                            "port id="+portId);
   }
   ports[portId] = port;
   return port;
@@ -431,13 +437,14 @@ WfNode::addPort(const string& portId, WfPort* port) throw(WfStructException) {
  * Get the input port references by id *
  */
 WfPort *
-WfNode::getPort(const string& id) throw(WfStructException) {
+WfNode::getPort(const std::string& id) throw(WfStructException) {
   map<string, WfPort*>::iterator p = ports.find(id);
-  if (p != ports.end())
+  if (p != ports.end()) {
     return ((WfPort*)(p->second));
-  else
+  } else {
     throw WfStructException(WfStructException::eUNKNOWN_PORT,
                             "node id=" + myId + "/port id=" + id);
+  }
 }
 
 /**
@@ -457,8 +464,9 @@ WfNode::getPortNb(WfPort::WfPortType portType) const {
   map<string, WfPort*>::const_iterator portIter = ports.begin();
   while (portIter != ports.end()) {
     WfPort *port = (WfPort*) portIter->second;
-    if (port->getPortType() == portType)
+    if (port->getPortType() == portType) {
       count++;
+    }
     ++portIter;
   }
   return count;
@@ -472,8 +480,9 @@ WfNode::getPortByIndex(unsigned int portIdx) const {
   map<string, WfPort*>::const_iterator portIter = ports.begin();
   while (portIter != ports.end()) {
     const WfPort *port = (const WfPort*) portIter->second;
-    if (port->getIndex() == portIdx)
+    if (port->getIndex() == portIdx) {
       return port;
+    }
     ++portIter;
   }
   return NULL;
@@ -485,11 +494,12 @@ WfNode::getPortByIndex(unsigned int portIdx) const {
 string
 WfNode::getPortsDescr() const {
   string descrStr;
-  for (unsigned int ix = 0; ix<getPortNb(); ++ix) {
+  for (unsigned int ix = 0; ix < getPortNb(); ++ix) {
     const WfPort* port = getPortByIndex(ix);
     descrStr += port->getPortDescr();
-    if (ix < getPortNb()-1)
+    if (ix < getPortNb()-1) {
       descrStr += ", ";
+    }
   }
   return descrStr;
 }

@@ -46,7 +46,7 @@ MaDagNodeLauncher::execNode()
   {
     if (isSeDDefinedFlag)
     {
-      TRACE_TEXT (TRACE_ALL_STEPS, nodePx << "call client (sed defined) - request #"
+      TRACE_TEXT(TRACE_ALL_STEPS, nodePx << "call client (sed defined) - request #"
                   << this->myReqID << endl);
       res = myCltMgr->execNodeOnSed(nodeId.c_str(),
                                     dagId.c_str(),
@@ -54,11 +54,11 @@ MaDagNodeLauncher::execNode()
                                     (CORBA::ULong) myReqID,
                                     myEstimVect);
     } else {
-      TRACE_TEXT (TRACE_ALL_STEPS, nodePx << "call client (sed not defined)" << endl);
+      TRACE_TEXT(TRACE_ALL_STEPS, nodePx << "call client (sed not defined)" << endl);
       res = myCltMgr->execNode(nodeId.c_str(),
                                dagId.c_str());
     }
-    TRACE_TEXT (TRACE_MAIN_STEPS, nodePx << "call client DONE" << endl);
+    TRACE_TEXT(TRACE_MAIN_STEPS, nodePx << "call client DONE" << endl);
   } catch (CORBA::COMM_FAILURE& e) {
     WARNING(nodePx << "Client call had connection problems" << endl);
     clientFailure = true;

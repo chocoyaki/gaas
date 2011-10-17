@@ -13,7 +13,7 @@
  * setup exceptions
  *
  * Revision 1.7  2008/10/14 13:31:01  bisnard
- * new class structure for dags (DagNode,DagNodePort)
+ * new class structure for dags (DagNode, DagNodePort)
  *
  * Revision 1.6  2008/09/04 14:34:36  bisnard
  * new method removeLastNodes

@@ -49,9 +49,9 @@
 using namespace std;
 
 void
-className::printMetric( estVector_t vector_v, int type_Info )
+className::printMetric(estVector_t vector_v, int type_Info)
 {
-  switch( type_Info ){
+  switch (type_Info){
 
   case EST_SERVER_TYPE: /* Value appears only once */
     cout << "In construction: EST_SERVER_TYPE" << endl << endl;
@@ -70,12 +70,12 @@ className::printMetric( estVector_t vector_v, int type_Info )
                                                                << endl << endl;
     break;
   default: {
-    INTERNAL_WARNING( "CoRI: Tag " << type_Info <<" for printing info");
+    INTERNAL_WARNING("CoRI: Tag " << type_Info <<" for printing info");
   }
   }
 }
 
-Cori_batch::Cori_batch( diet_profile_t * profile )
+Cori_batch::Cori_batch(diet_profile_t * profile)
 {
   /* At this time, because diet_SeD() has not yet been called, we cannot do
      that */
@@ -90,50 +90,50 @@ Cori_batch::get_Information(int type_Info,
                             estVector_t * estvect,
                             const void * data)
 {
-  switch( type_Info ) {
+  switch (type_Info) {
     /* The following one should be replaced, when SeDseq, SeDpar will be
        implemented, by est_PARAL_ID */
   case EST_SERVER_TYPE:
-    /*    diet_est_set_internal( *estvect, type_Info, this->SeD->getServerStatus()); */
-    diet_est_set_internal( *estvect, type_Info,
-                           (( SeDImpl*)(((diet_profile_t*)data)->SeDPtr))->getServerStatus());
+    /*    diet_est_set_internal(*estvect, type_Info, this->SeD->getServerStatus()); */
+    diet_est_set_internal(*estvect, type_Info,
+                           ((SeDImpl*)(((diet_profile_t*)data)->SeDPtr))->getServerStatus());
     break;
   case EST_PARAL_NBTOT_RESOURCES:
-    diet_est_set_internal( *estvect, type_Info,
-                           ((( SeDImpl*)(((diet_profile_t*)data)->SeDPtr))
-                            ->getBatch())->getNbTotResources() );
-    /*                     this->batch->getNbTotResources() ); */
+    diet_est_set_internal(*estvect, type_Info,
+                           (((SeDImpl*)(((diet_profile_t*)data)->SeDPtr))
+                            ->getBatch())->getNbTotResources());
+    /*                     this->batch->getNbTotResources()); */
     break;
   case EST_PARAL_NBTOT_FREE_RESOURCES:
-    diet_est_set_internal( *estvect, type_Info,
-                           ((( SeDImpl*)(((diet_profile_t*)data)->SeDPtr))
-                            ->getBatch())->getNbTotFreeResources() );
-    /*                     this->batch->getNbTotFreeResources() ); */
+    diet_est_set_internal(*estvect, type_Info,
+                           (((SeDImpl*)(((diet_profile_t*)data)->SeDPtr))
+                            ->getBatch())->getNbTotFreeResources());
+    /*                     this->batch->getNbTotFreeResources()); */
     break;
     /* Information concerning the default queue now */
   case EST_PARAL_NB_RESOURCES_IN_DEFAULT_QUEUE:
-    diet_est_set_internal( *estvect, type_Info,
-                           ((( SeDImpl*)(((diet_profile_t*)data)->SeDPtr))
-                            ->getBatch())->getNbResources() );
-    /*                     this->batch->getNbResources() ); */
+    diet_est_set_internal(*estvect, type_Info,
+                           (((SeDImpl*)(((diet_profile_t*)data)->SeDPtr))
+                            ->getBatch())->getNbResources());
+    /*                     this->batch->getNbResources()); */
     break;
   case EST_PARAL_NB_FREE_RESOURCES_IN_DEFAULT_QUEUE:
-    diet_est_set_internal( *estvect, type_Info,
-                           ((( SeDImpl*)(((diet_profile_t*)data)->SeDPtr))
-                            ->getBatch())->getNbFreeResources() );
-    /*                     this->batch->getNbFreeResources() ); */
+    diet_est_set_internal(*estvect, type_Info,
+                           (((SeDImpl*)(((diet_profile_t*)data)->SeDPtr))
+                            ->getBatch())->getNbFreeResources());
+    /*                     this->batch->getNbFreeResources()); */
     break;
   case EST_PARAL_MAX_WALLTIME:
-    diet_est_set_internal( *estvect, type_Info,
-                           ((( SeDImpl*)(((diet_profile_t*)data)->SeDPtr))
-                            ->getBatch())->getMaxWalltime() );
-    /*                     this->batch->getMaxWalltime() ); */
+    diet_est_set_internal(*estvect, type_Info,
+                           (((SeDImpl*)(((diet_profile_t*)data)->SeDPtr))
+                            ->getBatch())->getMaxWalltime());
+    /*                     this->batch->getMaxWalltime()); */
     break;
   case EST_PARAL_MAX_PROCS:
-    diet_est_set_internal( *estvect, type_Info,
-                           ((( SeDImpl*)(((diet_profile_t*)data)->SeDPtr))
-                            ->getBatch())->getMaxProcs() );
-    /*                     this->batch->getMaxProcs() ); */
+    diet_est_set_internal(*estvect, type_Info,
+                           (((SeDImpl*)(((diet_profile_t*)data)->SeDPtr))
+                            ->getBatch())->getMaxProcs());
+    /*                     this->batch->getMaxProcs()); */
     break;
   default:
   {
@@ -143,8 +143,8 @@ Cori_batch::get_Information(int type_Info,
   }
   }
 
-  if (TRACE_LEVEL>=TRACE_ALL_STEPS)
-    printMetric( *estvect, type_Info );
+  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
+    printMetric(*estvect, type_Info);
   return 0;
 }
 
@@ -155,13 +155,13 @@ Cori_batch::get_Information(int type_Info,
 int
 Cori_batch::convertArray(vector <double> vect,
                          estVector_t * estvect,
-                         int typeOfInfo )
+                         int typeOfInfo)
 {
   /*  vector<double>::iterator iter1;
       iter1 = vect.begin();
       int i = 0;
-      while( iter1 != vect.end()) {
-      diet_est_array_set_internal(*estvect,typeOfInfo,i,*iter1);
+      while(iter1 != vect.end()) {
+      diet_est_array_set_internal(*estvect, typeOfInfo, i,*iter1);
       i++;
       iter1++;
       }
@@ -173,8 +173,8 @@ Cori_batch::convertArray(vector <double> vect,
 int
 Cori_batch::convertSimple(double value,
                           estVector_t * estvect,
-                          int typeOfInfo ){
-  diet_est_set_internal(*estvect,typeOfInfo,value);
+                          int typeOfInfo){
+  diet_est_set_internal(*estvect, typeOfInfo, value);
   return 0;
 }
 

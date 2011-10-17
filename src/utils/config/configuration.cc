@@ -67,7 +67,7 @@ getAddressConfigValue(diet::param_type_t param, std::string& value) {
     // if not return an empty string
     regcomp(preg, "^[-_.a-zA_Z0-9]+?:[0-9]+$", REG_EXTENDED | REG_NOSUB);
     int res = regexec(preg, val.c_str(), 0, 0, 0);
-    if( res != 0 ) {
+    if (res != 0) {
       return false;
     }
     delete preg;
@@ -92,7 +92,7 @@ getAgentConfigValue(diet::param_type_t param, std::string& value) {
     return false;
   } else {
     std::string& val = it->second;
-    if( (val == "LA") ||
+    if ((val == "LA") ||
         (val == "DIET_LOCAL_AGENT") ||
         (val == "MA") ||
         (val == "DIET_MASTER_AGENT") ||

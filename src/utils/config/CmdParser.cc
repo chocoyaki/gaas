@@ -125,7 +125,7 @@ void CmdParser::parse()
         break;
       }
     }
-  } catch(CmdParserError& e) {
+  } catch (CmdParserError& e) {
     std::cerr << e.what() << std::endl;
     std::cerr << help();
     exit(-1);
@@ -307,7 +307,7 @@ void CmdParser::lint() const
     CmdConfig::const_iterator end = config_.end();
 
     CmdConfig::const_iterator  it2 =
-      std::find_if(it1, end , CheckCmdEntry(*it));
+      std::find_if (it1, end , CheckCmdEntry(*it));
 
     if (config_.end() != it2) {
       throw CmdConfigError("");
@@ -318,7 +318,7 @@ void CmdParser::lint() const
 
 void CmdParser::parseArgs(int argc, char *argv[])
 {
-  for(int i = 1; i < argc; i++) {
+  for (int i = 1; i < argc; i++) {
     args_.push_back(argv[i]);
     if ((0 == std::strcmp("-h", argv[i])) ||
         (0 == std::strcmp("--help", argv[i]))) {
@@ -383,7 +383,7 @@ void CmdParser::findSwitch(const CmdEntry& entry)
 
   // check grouped switch
   if (args_.end() == it) {
-    it = std::find_if(args_.begin(), args_.end(),
+    it = std::find_if (args_.begin(), args_.end(),
                       IsGroupedSwitch(entry.shortName));
     doErase = false;
   }
@@ -430,7 +430,7 @@ void CmdParser::findParam(const CmdEntry& entry)
 
   std::string s("-");
   // skip unknown options
-  Args::iterator it = std::find_if(args_.begin(), args_.end(),
+  Args::iterator it = std::find_if (args_.begin(), args_.end(),
                                    std::not1(StartsWith("-")));
 
   if (args_.end() != it) {
@@ -452,7 +452,7 @@ const std::string
 CmdParser::findOption_(const CmdEntry& entry)
 {
   std::string typeString;
-  switch(entry.type) {
+  switch (entry.type) {
   case CmdParser::Option:
     typeString.assign("Option : ");
     break;
@@ -494,7 +494,7 @@ CmdParser::findOption_(const CmdEntry& entry)
   s.assign("--");
   s.append(entry.longName);
   s.append("=");
-  it1 = std::find_if(args_.begin(), args_.end(), StartsWith(s));
+  it1 = std::find_if (args_.begin(), args_.end(), StartsWith(s));
 
   if (args_.end() != it1) {
     std::string key, value;
@@ -525,7 +525,7 @@ CmdParser::findOption_(const CmdEntry& entry)
   if (CmdParser::Param == entry.type) {
     s.assign("--");
     s.append(entry.longName);
-    it1 =std::find_if(args_.begin(), args_.end(), StartsWith(s));
+    it1 =std::find_if (args_.begin(), args_.end(), StartsWith(s));
 
     if (args_.end() != it1) {
       throw ParameterNotFoundError(entry.longName);

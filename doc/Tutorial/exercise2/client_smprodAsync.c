@@ -24,12 +24,12 @@ int main(int argc, char **argv)
   float  *time   = NULL; /* Computation time */
   
   diet_profile_t         *profile[5];
-  diet_reqID_t rst[5] = {0,0,0,0,0};
+  diet_reqID_t rst[5] = {0, 0, 0, 0, 0};
 
-  m=60;
+  m = 60;
   n = 100;
 
-  for (i = 0; i < 5 ; i++) {
+  for (i = 0; i < 5; i++) {
      /* Allocate the matrix: m lines, n columns */
      matrix[i] = malloc(m * n * sizeof(double));
      /* Fill in the matrix with dummy values (who cares ?) */

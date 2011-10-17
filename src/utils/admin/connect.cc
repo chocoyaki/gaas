@@ -44,7 +44,7 @@ diet_change_parent(dynamic_type_t type, const char *name, const char *parent_nam
     } // end: switch (type)
 
   }
-  catch(...) {
+  catch (...) {
     return DIET_COMM_ERROR;
   }
   return DIET_NO_ERROR;

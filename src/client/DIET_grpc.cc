@@ -14,7 +14,7 @@
  * Fixed a bug with inout in async calls
  *
  * Revision 1.16  2011/03/16 14:54:06  hguemar
- * remove dead code: unused class DietException in src/client/CallAsyncMgr.{hh,cc}
+ * remove dead code: unused class DietException in src/client/CallAsyncMgr.{hh, cc}
  *
  * Revision 1.15  2010/07/12 16:14:11  glemahec
  * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
@@ -131,7 +131,7 @@ bool removeFromInitialized(const grpc_function_handle_t handle) {
   for (vector<grpc_function_handle_t>::iterator p = handles.begin();
        p != handles.end();
        ++p) {
-    if ( (*p) == handle) {
+    if ((*p) == handle) {
       handles.erase(p);
       return true;
     }
@@ -208,7 +208,7 @@ grpc_function_handle_default(grpc_function_handle_t* handle, char* func_name)
   // put this handle in the vector of initialized handles
   handles.push_back(*handle);
   // Search for the service
-  if (!getProfileDesc( (*handle)->func_name,
+  if (!getProfileDesc((*handle)->func_name,
                        (*handle)->profile))
     return GRPC_SERVER_NOT_FOUND;
   // put this handle in the vector of initialized handles
@@ -241,7 +241,7 @@ grpc_function_handle_init(grpc_function_handle_t* handle,
 #endif  // IT_IS_DONE
 
   // Search for the service
-  if (!getProfileDesc( (*handle)->func_name,
+  if (!getProfileDesc((*handle)->func_name,
                        (*handle)->profile))
     return GRPC_SERVER_NOT_FOUND;
 
@@ -433,37 +433,37 @@ grpc_build_profile(grpc_function_handle_t* handle, diet_profile_t*& profile,
       case DIET_CHAR:
         char_arg = va_arg(arglist, int);
         char_arg_ptr = new char(char_arg);
-        diet_scalar_set(diet_parameter(profile,ix),
+        diet_scalar_set(diet_parameter(profile, ix),
                         char_arg_ptr, DIET_VOLATILE, DIET_CHAR);
         break;
       case DIET_SHORT:
         short_arg = va_arg(arglist, int);
         short_arg_ptr = new short(short_arg);
-        diet_scalar_set(diet_parameter(profile,ix),
+        diet_scalar_set(diet_parameter(profile, ix),
                         short_arg_ptr, DIET_VOLATILE, DIET_SHORT);
         break;
       case DIET_INT:
         int_arg = va_arg(arglist, int);
         int_arg_ptr = new int(int_arg);
-        diet_scalar_set(diet_parameter(profile,ix),
+        diet_scalar_set(diet_parameter(profile, ix),
                         int_arg_ptr, DIET_VOLATILE, DIET_INT);
         break;
       case DIET_LONGINT:
         long_arg = va_arg(arglist, long);
         long_arg_ptr = new long(long_arg);
-        diet_scalar_set(diet_parameter(profile,ix),
+        diet_scalar_set(diet_parameter(profile, ix),
                         long_arg_ptr, DIET_VOLATILE, DIET_LONGINT);
         break;
       case DIET_FLOAT:
         float_arg = va_arg(arglist, double);
         float_arg_ptr = new float(float_arg);
-        diet_scalar_set(diet_parameter(profile,ix),
+        diet_scalar_set(diet_parameter(profile, ix),
                         float_arg_ptr, DIET_VOLATILE, DIET_FLOAT);
         break;
       case DIET_DOUBLE:
         double_arg = va_arg(arglist, double);
         double_arg_ptr = new double(double_arg);
-        diet_scalar_set(diet_parameter(profile,ix),
+        diet_scalar_set(diet_parameter(profile, ix),
                         double_arg_ptr, DIET_VOLATILE, DIET_DOUBLE);
         break;
       case DIET_SCOMPLEX:
@@ -509,37 +509,37 @@ grpc_build_profile(grpc_function_handle_t* handle, diet_profile_t*& profile,
       switch ((*handle)->profile.param_desc[ix].base_type) {
       case DIET_CHAR:
         char_arg_ptr = va_arg(arglist, char*);
-        diet_scalar_set(diet_parameter(profile,ix),
+        diet_scalar_set(diet_parameter(profile, ix),
                         char_arg_ptr, DIET_VOLATILE, DIET_CHAR);
         (*handle)->args_refs[ix] = (void*)(char_arg_ptr);
         break;
       case DIET_SHORT:
         short_arg_ptr = va_arg(arglist, short*);
-        diet_scalar_set(diet_parameter(profile,ix),
+        diet_scalar_set(diet_parameter(profile, ix),
                         short_arg_ptr, DIET_VOLATILE, DIET_SHORT);
         (*handle)->args_refs[ix] = (void*)(short_arg_ptr);
         break;
       case DIET_INT:
         int_arg_ptr = va_arg(arglist, int*);
-        diet_scalar_set(diet_parameter(profile,ix),
+        diet_scalar_set(diet_parameter(profile, ix),
                         int_arg_ptr, DIET_VOLATILE, DIET_INT);
         (*handle)->args_refs[ix] = (void*)(int_arg_ptr);
         break;
       case DIET_LONGINT:
         long_arg_ptr = va_arg(arglist, long*);
-        diet_scalar_set(diet_parameter(profile,ix),
+        diet_scalar_set(diet_parameter(profile, ix),
                         long_arg_ptr, DIET_VOLATILE, DIET_LONGINT);
         (*handle)->args_refs[ix] = (void*)(long_arg_ptr);
         break;
       case DIET_FLOAT:
         float_arg_ptr = va_arg(arglist, float*);
-        diet_scalar_set(diet_parameter(profile,ix),
+        diet_scalar_set(diet_parameter(profile, ix),
                         float_arg_ptr, DIET_VOLATILE, DIET_FLOAT);
         (*handle)->args_refs[ix] = (void*)(float_arg_ptr);
         break;
       case DIET_DOUBLE:
         double_arg_ptr = va_arg(arglist, double*);
-        diet_scalar_set(diet_parameter(profile,ix),
+        diet_scalar_set(diet_parameter(profile, ix),
                         double_arg_ptr, DIET_VOLATILE, DIET_DOUBLE);
         (*handle)->args_refs[ix] = (void*)(double_arg_ptr);
         break;
@@ -740,7 +740,7 @@ const char *
 grpc_error_string(const grpc_error_t error_code) {
   return diet_error_string(error_code);
   /*
-    switch(error_code)
+    switch (error_code)
     {
     case  0 : return(CORBA::string_dup("GRPC_NO_ERROR"));
     case  1 : return(CORBA::string_dup("GRPC_NOT_INITIALIZED"));

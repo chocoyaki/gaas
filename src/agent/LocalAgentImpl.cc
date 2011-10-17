@@ -127,7 +127,7 @@ extern unsigned int TRACE_LEVEL;
 
 #define LA_TRACE_FUNCTION(formatted_text)               \
   TRACE_TEXT(TRACE_ALL_STEPS, "LA::");                  \
-  TRACE_FUNCTION(TRACE_ALL_STEPS,formatted_text)
+  TRACE_FUNCTION(TRACE_ALL_STEPS, formatted_text)
 
 LocalAgentImpl::LocalAgentImpl()
 {
@@ -481,7 +481,7 @@ LocalAgentImpl::getRequest(const corba_request_t& req)
   /* Initialize statistics module */
   stat_init();
   sprintf(statMsg, "getRequest %ld", (unsigned long) req.reqID);
-  stat_in(this->myName,statMsg);
+  stat_in(this->myName, statMsg);
 
   corba_response_t& resp = *(this->findServer(currRequest, req.max_srv));
   resp.myID = this->childID;
@@ -499,7 +499,7 @@ LocalAgentImpl::getRequest(const corba_request_t& req)
   delete currRequest;
   delete &resp;
 
-  stat_out(this->myName,statMsg);
+  stat_out(this->myName, statMsg);
   stat_flush();
 } // getRequest(const corba_request_t& req)
 

@@ -36,6 +36,9 @@
 #ifndef _FIFNODE_HH_
 #define _FIFNODE_HH_
 
+#include <map>
+#include <string>
+#include <vector>
 #include "FNode.hh"
 #include "WfUtils.hh"
 #include "WfExpression.hh"
@@ -47,33 +50,28 @@
 
 
 class FIfNode : public FProcNode {
-
 public:
+  FIfNode(FWorkflow* wf, const std::string& id);
 
-  FIfNode(FWorkflow* wf, const string& id);
   virtual ~FIfNode();
 
   // ******************** NODE SETUP *********************
 
   virtual WfPort *
-  newPort(string portId,
-          unsigned int ind,
-          WfPort::WfPortType portType,
-          WfCst::WfDataType dataType,
+  newPort(std::string portId, unsigned int ind,
+          WfPort::WfPortType portType, WfCst::WfDataType dataType,
           unsigned int depth) throw(WfStructException);
 
   void
-  setCondition(const string& conditionStr)
+  setCondition(const std::string& conditionStr)
     throw(WfStructException);
 
   void
-  setThenMap(const string& leftPortName,
-             const string& rightPortName)
+  setThenMap(const std::string& leftPortName, const std::string& rightPortName)
     throw(WfStructException);
 
   void
-  setElseMap(const string& leftPortName,
-             const string& rightPortName)
+  setElseMap(const std::string& leftPortName, const std::string& rightPortName)
     throw(WfStructException);
 
   // ******************** INSTANCIATION *********************
@@ -85,19 +83,17 @@ public:
    * @param currDataLine dataLine used to set input data for the DagNode
    */
   virtual void
-  createRealInstance(Dag* dag,
-                     const FDataTag& currTag,
-                     vector<FDataHandle*>& currDataLine);
+  createRealInstance(Dag* dag, const FDataTag& currTag,
+                     std::vector<FDataHandle*>& currDataLine);
 
 protected:
-
   virtual void
   checkCondition() throw(WfStructException);
 
   FNodePortMap  myThenMap;
   FNodePortMap  myElseMap;
-  vector<WfExprVariable*>*  myConditionVars;
-  WfBooleanExpression*      myCondition;
+  std::vector<WfExprVariable*>* myConditionVars;
+  WfBooleanExpression* myCondition;
 
 };
 
@@ -106,10 +102,9 @@ protected:
 /*****************************************************************************/
 
 class FMergeNode : public FProcNode {
-
 public:
+  FMergeNode(FWorkflow* wf, const std::string& id);
 
-  FMergeNode(FWorkflow* wf, const string& id);
   ~FMergeNode();
 
   /**
@@ -117,30 +112,24 @@ public:
    * A merge node must create 2 input ports and 1 output port to be valid
    */
   virtual WfPort *
-  newPort(string portId,
-          unsigned int ind,
-          WfPort::WfPortType portType,
-          WfCst::WfDataType dataType,
+  newPort(std::string portId, unsigned int ind,
+          WfPort::WfPortType portType, WfCst::WfDataType dataType,
           unsigned int depth) throw(WfStructException);
 
   virtual void
-  createRealInstance(Dag* dag,
-                     const FDataTag& currTag,
-                     vector<FDataHandle*>& currDataLine);
+  createRealInstance(Dag* dag, const FDataTag& currTag,
+                     std::vector<FDataHandle*>& currDataLine);
 
   virtual void
   createVoidInstance(const FDataTag& currTag,
-                     vector<FDataHandle*>& currDataLine);
-
+                     std::vector<FDataHandle*>& currDataLine);
 
 private:
-
   void
   createMergeInstance(const FDataTag& currTag,
-                      vector<FDataHandle*>& currDataLine);
+                      std::vector<FDataHandle*>& currDataLine);
 
   FNodeOutPort* myOutPort;
-
 };
 
 /*****************************************************************************/
@@ -148,30 +137,25 @@ private:
 /*****************************************************************************/
 
 class FFilterNode : public FProcNode {
-
 public:
+  FFilterNode(FWorkflow* wf, const std::string& id);
 
-  FFilterNode(FWorkflow* wf, const string& id);
   virtual ~FFilterNode();
 
   virtual WfPort *
-  newPort(string portId,
-          unsigned int ind,
-          WfPort::WfPortType portType,
-          WfCst::WfDataType dataType,
+  newPort(std::string portId, unsigned int ind,
+          WfPort::WfPortType portType, WfCst::WfDataType dataType,
           unsigned int depth) throw(WfStructException);
 
   virtual void
-  createRealInstance(Dag* dag,
-                     const FDataTag& currTag,
-                     vector<FDataHandle*>& currDataLine);
+  createRealInstance(Dag* dag, const FDataTag& currTag,
+                     std::vector<FDataHandle*>& currDataLine);
 
   virtual void
   createVoidInstance(const FDataTag& currTag,
-                     vector<FDataHandle*>& currDataLine);
+                     std::vector<FDataHandle*>& currDataLine);
 
 private:
-
   struct filterNode_t {
     FDataHandle*  dataHdl;
     bool          voidDef;
@@ -182,23 +166,43 @@ private:
     bool          newLastFlag;
   };
 
-  void updateUp(FDataHandle* DH, short depth);
-  void updateRight(const FDataTag& tag, int precIdx, short depth);
-  void updateLeftNonVoid(const FDataTag& tag, short depth);
-  void updateLeftVoid(const FDataTag& tag, short depth);
-  void sendDown(FDataHandle* DH, short depth);
+  void
+  updateUp(FDataHandle* DH, short depth);
 
-  bool isNonVoid(FDataHandle* DH);  // test if there is at least one non-void element (only for container)
-  bool isReadyAssumingParentIs(const FDataTag& srcTag);
-  bool isReady(const FDataTag& srcTag);
-  FDataTag getNewTag(const FDataTag& srcTag);
-  filterNode_t* getTreeNode(FDataHandle* DH);
-  filterNode_t* getTreeNode(const FDataTag& tag);
+  void
+  updateRight(const FDataTag& tag, int precIdx, short depth);
+
+  void
+  updateLeftNonVoid(const FDataTag& tag, short depth);
+
+  void
+  updateLeftVoid(const FDataTag& tag, short depth);
+
+  void
+  sendDown(FDataHandle* DH, short depth);
+
+  // test if there is at least one non-void element (only for container)
+  bool
+  isNonVoid(FDataHandle* DH);
+
+  bool
+  isReadyAssumingParentIs(const FDataTag& srcTag);
+
+  bool
+  isReady(const FDataTag& srcTag);
+
+  FDataTag
+  getNewTag(const FDataTag& srcTag);
+
+  filterNode_t*
+  getTreeNode(FDataHandle* DH);
+
+  filterNode_t*
+  getTreeNode(const FDataTag& tag);
 
   FNodeOutPort* myOutPort;
 
-  map<FDataTag, filterNode_t*> myTree;
-
+  std::map<FDataTag, filterNode_t*> myTree;
 };
 
 

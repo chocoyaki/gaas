@@ -215,7 +215,7 @@ public:
   rmChild(const CORBA::ULong child);
 
   const corba_profile_desc_t &
-  getProfile( const ServiceReference_t index );
+  getProfile(const ServiceReference_t index);
   // Return a pointer to a copy of all profiles.
   // Caller is responsible for freeing the result.
   SeqCorbaProfileDesc_t*
@@ -274,7 +274,7 @@ public:
 
 private:
 
-  // number of couples {service,profile} in the table
+  // number of couples {service, profile} in the table
   CORBA::ULong nb_s, max_nb_s, max_nb_s_step;
   // max number of capable children for one service
   // array of name and generic data description (a profile description)

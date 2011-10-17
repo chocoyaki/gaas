@@ -76,6 +76,10 @@
 #ifndef _FNODEPORT_HH_
 #define _FNODEPORT_HH_
 
+#include <list>
+#include <map>
+#include <string>
+#include <vector>
 #include "WfPort.hh"
 #include "FDataHandle.hh"
 #include "DagNode.hh"
@@ -89,16 +93,16 @@ class FNodeInPort;
 /*****************************************************************************/
 
 class FNodePort : public WfPort {
-
 public:
-  FNodePort(WfNode * parent, const string& _id, WfPort::WfPortType _portType,
-            WfCst::WfDataType _type, unsigned int _depth, unsigned int _ind);
+  FNodePort(WfNode * parent, const std::string& _id,
+            WfPort::WfPortType _portType, WfCst::WfDataType _type,
+            unsigned int _depth, unsigned int _ind);
   virtual ~FNodePort();
 
   /**
    * Get a description of the node
    */
-  virtual string
+  virtual std::string
   toString() const;
 
 protected:
@@ -124,11 +128,11 @@ protected:
 /*****************************************************************************/
 
 class FNodeOutPort : public virtual FNodePort {
-
 public:
+  FNodeOutPort(WfNode * parent, const std::string& _id,
+               WfPort::WfPortType _portType, WfCst::WfDataType _type,
+               unsigned int _depth, unsigned int _ind);
 
-  FNodeOutPort(WfNode * parent, const string& _id, WfPort::WfPortType _portType,
-               WfCst::WfDataType _type, unsigned int _depth, unsigned int _ind);
   virtual ~FNodeOutPort();
 
   /**
@@ -275,13 +279,14 @@ protected:
 /*****************************************************************************/
 
 class FNodeInPort : public virtual FNodePort {
-
 public:
-
   friend class PortInputIterator;
 
-  FNodeInPort(WfNode * parent, const string& _id, WfPort::WfPortType _portType,
-              WfCst::WfDataType _type, unsigned int _depth, unsigned int _ind);
+  FNodeInPort(WfNode * parent, const std::string& _id,
+              WfPort::WfPortType _portType,
+              WfCst::WfDataType _type, unsigned int _depth,
+              unsigned int _ind);
+
   virtual ~FNodeInPort();
 
   /**
@@ -337,10 +342,8 @@ public:
   void
   createRealInstance(Dag* dag, DagNode* nodeInst, FDataHandle* dataHdl);
 
-
 protected:
-
-  map<FDataTag, FDataHandle*> myQueue;
+  std::map<FDataTag, FDataHandle*> myQueue;
 
   /**
    * The total nb of data items that the node will receive
@@ -358,8 +361,7 @@ protected:
    * Flag for value required
    */
   bool valueRequired;
-
-};  // end class FNodeInPort
+};
 
 
 /*****************************************************************************/
@@ -367,9 +369,7 @@ protected:
 /*****************************************************************************/
 
 class FNodeInOutPort : public FNodeInPort, public FNodeOutPort {
-
 public:
-
   FNodeInOutPort(WfNode* parent, const std::string& _id,
                  WfCst::WfDataType _type, unsigned int _depth,
                  unsigned int _ind);
@@ -392,9 +392,8 @@ public:
    * @param dataHdl   the data Handle to be used (as source) - NOT NULL
    */
   FDataHandle*
-  createRealInstance(Dag* dag, DagNode* nodeInst, const FDataTag& tag,
-                     FDataHandle* dataHdl);
-
+  createRealInstance(Dag* dag, DagNode* nodeInst,
+                     const FDataTag& tag, FDataHandle* dataHdl);
 };
 
 /*****************************************************************************/
@@ -405,13 +404,11 @@ public:
 // 2/ a param port must be defined
 
 class FNodeParamPort : public FNodeInPort {
-
 public:
-
-  FNodeParamPort(WfNode * parent, const string& _id,
+  FNodeParamPort(WfNode * parent, const std::string& _id,
                  WfCst::WfDataType _type, unsigned int _ind);
-  virtual ~FNodeParamPort();
 
+  virtual ~FNodeParamPort();
 };
 
 /*****************************************************************************/
@@ -419,9 +416,7 @@ public:
 /*****************************************************************************/
 
 class FNodePortMap {
-
 public:
-
   FNodePortMap();
 
   /**
@@ -445,9 +440,7 @@ public:
   applyMap(const FDataTag& tag, const vector<FDataHandle*>& dataLine);
 
 private:
-
-  map<FNodeOutPort*,FNodeInPort*> myPortMap;
-
+  std::map<FNodeOutPort*, FNodeInPort*> myPortMap;
 };
 
 
