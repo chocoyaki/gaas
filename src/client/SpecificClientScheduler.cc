@@ -282,7 +282,7 @@ SpecificClientScheduler::removeBlanks(string& token) {
 void
 SpecificClientScheduler::stringSplit(string str, string delim, vector<string>& results) {
   size_t cutAt;
-  while((cutAt = str.find_first_of(delim)) != str.npos) {
+  while ((cutAt = str.find_first_of(delim)) != str.npos) {
     if (cutAt > 0) {
       string token = str.substr(0, cutAt);
       cout << "token " << token << endl;

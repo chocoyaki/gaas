@@ -104,7 +104,7 @@ HEFTScheduler::~HEFTScheduler() {
 void
 HEFTScheduler::setNodesPriority(const wf_response_t * wf_response, Dag * dag) {
 
-  TRACE_TEXT(TRACE_ALL_STEPS, "HEFT : Setting nodes priority" << endl);
+  TRACE_TEXT(TRACE_ALL_STEPS, "HEFT : Setting nodes priority\n");
   // Initialize the node weights (priority attr)
   this->computeNodeWeights(wf_response, dag);
 
@@ -136,9 +136,9 @@ HEFTScheduler::setNodesEFT(std::vector<DagNode *>& orderedNodes,
                            Dag * dag,
                            double initTime) {
   // to store the availabilty of resources
-  map<SeD_ptr, double> avail;
+  std::map<SeD_ptr, double> avail;
   TRACE_TEXT(TRACE_ALL_STEPS, "HEFT : start computing nodes EFT (init time = "
-              << initTime << ")" << endl);
+              << initTime << ")\n");
   // LOOP-1: for all dag nodes in the order provided
   for (std::vector<DagNode *>::iterator p = orderedNodes.begin();
        p != orderedNodes.end();
@@ -154,16 +154,21 @@ HEFTScheduler::setNodesEFT(std::vector<DagNode *>& orderedNodes,
     /* LOOP-2 FOR ONE NODE => CHOOSES THE BEST SERVER & COMPUTES AFT */
     /* Remark: this loop can be very costly: <nb servers> * <nb predecessors> !! */
     for (unsigned int ix = 0;
-         ix<wf_response->wfn_seq_resp[pb_index].response.servers.length();
+         ix < wf_response->wfn_seq_resp[pb_index].response.servers.length();
          ix++) {
-      string ss(CORBA::string_dup(wf_response->wfn_seq_resp[pb_index].response.servers[ix].loc.hostName));
-      string sedName = string(wf_response->wfn_seq_resp[pb_index].response.servers[ix].loc.SeDName);
-      SeD_ptr curSeDPtr = ORBMgr::getMgr()->resolve<SeD, SeD_ptr>(SEDCTXT, sedName);
+      std::string ss(CORBA::string_dup(wf_response->wfn_seq_resp[pb_index].response.servers[ix].loc.hostName));
+      std::string sedName(
+        wf_response->wfn_seq_resp[pb_index].response.servers[ix].loc.SeDName);
+      SeD_ptr curSeDPtr =
+        ORBMgr::getMgr()->resolve<SeD, SeD_ptr>(SEDCTXT, sedName);
 
-      // get availability of current server (loop to check SeD ref equivalence - this is used to
+      // get availability of current server
+      // (loop to check SeD ref equivalence - this is used to
       // avoid conflicts if two SeDs share the same hostname)
-      double EST = initTime;  // earliest start time among all SeDs for this service
-      for (map<SeD_ptr, double>::iterator availIter = avail.begin();
+      // earliest start time among all SeDs for this service
+      double EST = initTime;
+
+      for (std::map<SeD_ptr, double>::iterator availIter = avail.begin();
            availIter != avail.end();
            ++availIter) {
         if (curSeDPtr->_is_equivalent(availIter->first)) {
@@ -173,10 +178,12 @@ HEFTScheduler::setNodesEFT(std::vector<DagNode *>& orderedNodes,
         }
       }
       // increase earliest starting time if some dependencies with other nodes
-      for (vector<WfNode*>::iterator prevIter = n->prevNodesBegin();
+      for (std::vector<WfNode*>::iterator prevIter = n->prevNodesBegin();
            prevIter != n->prevNodesEnd();
            ++prevIter) {
-        EST = max(EST, AFT[(dynamic_cast<DagNode*>(*prevIter))->getCompleteId()]);
+        EST =
+          std::max(EST,
+                   AFT[(dynamic_cast<DagNode*>(*prevIter))->getCompleteId()]);
       }
       // choose server if it improves the EFT
       double nodeDuration = this->getNodeDurationEst(wf_response, pb_index, ix);
@@ -193,7 +200,7 @@ HEFTScheduler::setNodesEFT(std::vector<DagNode *>& orderedNodes,
     AFT[n->getCompleteId()] = EFT;
     n->setEstCompTime((long int)EFT);
     TRACE_TEXT(TRACE_ALL_STEPS, "HEFT : node " << n->getCompleteId()
-                << " : EFT = " << EFT << endl);
+                << " : EFT = " << EFT << "\n");
   } // end LOOP-1
 } // end setNodesEFT
 
@@ -219,25 +226,28 @@ HEFTScheduler::getNodeDurationEst(const wf_response_t * wf_response,
 void
 HEFTScheduler::computeNodeWeights(const wf_response_t * wf_response,
                                   Dag * dag) {
-  TRACE_TEXT(TRACE_ALL_STEPS, "HEFT : start computing weights (mean of estimates)" << endl);
+  TRACE_TEXT(TRACE_ALL_STEPS,
+             "HEFT : start computing weights (mean of estimates)\n");
   DagNode * n = NULL;
   int ix = 0;  // index of the node response in wf_response
-  for (std::map <std::string, DagNode *>::iterator p = dag->begin();
+  for (std::map<std::string, DagNode *>::iterator p = dag->begin();
        p != dag->end();
        ++p) {
     n = (DagNode *)(p->second);
     n->setEstDuration(0);
     ix = n->getSubmitIndex();  // the index was stored before submitting to MA
     double w = 0;
-    unsigned int    nbServers = wf_response->wfn_seq_resp[ix].response.servers.length();
+    unsigned int nbServers =
+      wf_response->wfn_seq_resp[ix].response.servers.length();
     for (unsigned int jx = 0; jx < nbServers; jx++) {
       w += this->getNodeDurationEst(wf_response, ix, jx);
     } // end for jx
     if (nbServers > 0) n->setEstDuration(w / nbServers);
-    TRACE_TEXT(TRACE_ALL_STEPS, " HEFT : node " << n->getCompleteId() << " weight :"
-                << n->getEstDuration() << endl);
-  } // end for nodes
-} // end computeNodeWeights
+    TRACE_TEXT(TRACE_ALL_STEPS,
+               " HEFT : node " << n->getCompleteId() << " weight :"
+               << n->getEstDuration() << "\n");
+  }
+}
 
 /**
  * rank the nodes upward
@@ -251,7 +261,7 @@ HEFTScheduler::rank(DagNode * n) {  // RECURSIVE
     n->setPriority(n->getEstDuration());
   } else {
     // LOOP for all descendant nodes of n
-    for (list<WfNode*>::iterator nextIter = n->nextNodesBegin();
+    for (std::list<WfNode*>::iterator nextIter = n->nextNodesBegin();
          nextIter != n->nextNodesEnd();
          ++nextIter) {
       succ = dynamic_cast<DagNode*>(*nextIter);
@@ -263,9 +273,9 @@ HEFTScheduler::rank(DagNode * n) {  // RECURSIVE
     }
   }
   TRACE_TEXT(TRACE_ALL_STEPS, " HEFT : priority of node " << n->getCompleteId()
-              << " is " << n->getPriority() << endl);
+              << " is " << n->getPriority() << "\n");
   // LOOP for all preceding nodes of n
-  for (vector<WfNode*>::iterator prevIter = n->prevNodesBegin();
+  for (std::vector<WfNode*>::iterator prevIter = n->prevNodesBegin();
        prevIter != n->prevNodesEnd();
        ++prevIter) {
     DagNode * prev = dynamic_cast<DagNode*>(*prevIter);

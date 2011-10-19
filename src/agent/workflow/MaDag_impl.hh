@@ -226,7 +226,7 @@ public:
    * @return client manager pointer (CORBA)
    */
   virtual CltMan_ptr
-  getCltMan(const string& dagId);
+  getCltMan(const std::string& dagId);
 
   /** Used to test if it is alive. */
   virtual CORBA::Long
@@ -289,7 +289,7 @@ protected:
    */
   Dag *
   parseNewDag(const corba_wf_desc_t& wf_desc,
-              const string& dagId,
+              const std::string& dagId,
               MetaDag * mDag = NULL)
   throw(MaDag::InvalidDag);
 
@@ -315,17 +315,17 @@ private:
   /**
    * The mapping table dagId => wfReqId
    */
-  map<string, CORBA::Long> wfReqs;
+  std::map<std::string, CORBA::Long> wfReqs;
 
   /**
    * The mapping table wfReqId => cltManager
    */
-  map<CORBA::Long, CltMan_ptr> cltMans;
+  std::map<CORBA::Long, CltMan_ptr> cltMans;
 
   /**
    * The mapping table wfReqId => MetaDag
    */
-  map<CORBA::Long, MetaDag*> myMetaDags;
+  std::map<CORBA::Long, MetaDag*> myMetaDags;
 
   /**
    * The meta-scheduler (used for multiworkflow support)

@@ -432,7 +432,7 @@ AgentImpl::serverSubscribe(const char* name, const char* hostName,
   TRACE_TEXT(TRACE_MAIN_STEPS,
              "subscribed SeD IOR: " << ORBMgr::getMgr()->getIOR(me) << "\n");
 
-  assert (hostName != NULL);
+  assert(hostName != NULL);
   retID = (this->childIDCounter)++;  // thread safe
 
   // FIXME: resize calls default constructor + copy constructor + 1 desctructor

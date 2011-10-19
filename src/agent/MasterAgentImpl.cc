@@ -363,7 +363,7 @@ MasterAgentImpl::run() {
   char *neighbours = ms_strdup(neighbors.c_str());
   char* comma, *begin_copy;
   begin_copy = neighbours;
-  while((comma = strchr(neighbours, ',')) != NULL) {
+  while ((comma = strchr(neighbours, ',')) != NULL) {
     comma[0] = '\0';
     if (neighbours[0] != '\0')
       MAIds.insert(CORBA::string_dup(neighbours));
@@ -519,7 +519,7 @@ MasterAgentImpl::submit(const corba_pb_desc_t& pb_profile,
                            MADescription(_this(), myName),
                            creq, knownMAs));
 
-      while((decision->servers.length() == 0) &&
+      while ((decision->servers.length() == 0) &&
             (!floodRequest.flooded())) {
         TRACE_TEXT(TRACE_ALL_STEPS, "multi-MAs search "
                    << creq.pb.path

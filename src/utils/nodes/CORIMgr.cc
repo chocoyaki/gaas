@@ -63,7 +63,7 @@ CORIMgr::startCollectors()
   int res = 0;
   vector <Cori_Metric>::iterator iter1;
   iter1 = collector_v->begin();
-  while(iter1 != collector_v->end()) {
+  while (iter1 != collector_v->end()) {
     res = iter1->start(iter1->get_Collector_type())||res;
     ++iter1;
   }
@@ -78,7 +78,7 @@ CORIMgr::call_cori_mgr(estVector_t *ev,
 {
   vector <Cori_Metric>::iterator iter1;
   iter1 = collector_v->begin();
-  while(iter1 != collector_v->end()) {
+  while (iter1 != collector_v->end()) {
 
     if (name == iter1->get_Collector_type())
       return iter1->call_cori_metric(info_type, ev, datav);

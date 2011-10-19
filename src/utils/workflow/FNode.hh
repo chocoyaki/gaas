@@ -131,7 +131,7 @@ public:
   /**
    * Get the name of the default port (only for interface nodes)
    */
-  virtual const string&
+  virtual const std::string&
   getDefaultPortName() const;
 
   /**
@@ -175,46 +175,54 @@ public:
   /**
    * Instanciation status: ready to process data
    */
-  bool instanciationReady();
+  bool
+  instanciationReady();
 
   /**
    * Instanciation status: waiting for event from dag engine
    */
-  bool instanciationPending();
+  bool
+  instanciationPending();
 
   /**
    * Instanciation status: waiting to resume instanciation (stopped due
    * to instance nb limitation)
    */
-  bool instanciationOnHold();
+  bool
+  instanciationOnHold();
 
   /**
    * Instanciation status: stopped (unexpected event: instanciation or
    * execution error)
    */
-  bool instanciationStopped();
+  bool
+  instanciationStopped();
 
   /**
    * Instanciation status: no more data to process
    */
-  bool instanciationCompleted();
+  bool
+  instanciationCompleted();
 
   /**
    * Stop the instanciation (execution error)
    */
-  void stopInstanciation();
+  void
+  stopInstanciation();
 
   /**
    * Resume instanciation
    * Calls the parent workflow to resume its instanciation as well.
    */
-  void resumeInstanciation();
+  void
+  resumeInstanciation();
 
   /**
    * Set instanciation as complete
    * (used when node cannot update its status itself)
    */
-  void setInstanciationCompleted();
+  void
+  setInstanciationCompleted();
 
   /**
    * Remove data created by the node on the platform
@@ -225,7 +233,7 @@ public:
   /**
    * Write a text description of the node
    */
-  virtual string
+  virtual std::string
   toString() const;
 
 protected:
@@ -247,54 +255,54 @@ protected:
   /**
    * Constructor
    */
-  FNode(FWorkflow* wf, const string& id, nodeInstStatus_t initStatus);
+  FNode(FWorkflow* wf, const std::string& id, nodeInstStatus_t initStatus);
 
   /**
    * Instanciation status
    */
-  nodeInstStatus_t  myStatus;
+  nodeInstStatus_t myStatus;
 
   /**
    * Set instanciation status to ready
    */
-  void setStatusReady();
+  void
+  setStatusReady();
 
   /**
    * Trace header
    */
-  string traceId();
-
-};  // end class FNode
+  std::string
+  traceId();
+};
 
 /*****************************************************************************/
 /*                           FConstantNode                                   */
 /*****************************************************************************/
 
 class FConstantNode : public FNode {
-
 public:
   FConstantNode(FWorkflow* wf,
-                const string& id,
+                const std::string& id,
                 WfCst::WfDataType type);
   virtual ~FConstantNode();
 
   /**
    * Get the name of the default port
    */
-  virtual const string&
+  virtual const std::string&
   getDefaultPortName() const;
 
   /**
    * Set the value of the constant
    */
   void
-  setValue(const string& strVal);
+  setValue(const std::string& strVal);
 
   /**
    * Set the data ID of the constant
    */
   void
-  setDataID(const string& dataID);
+  setDataID(const std::string& dataID);
 
   /**
    * Initialization of the constant node
@@ -310,21 +318,18 @@ public:
   instanciate(Dag* dag);
 
 private:
-
   /**
    * The default name of the output port
    * (a default port is automatically created to allow connections from
    *  other nodes input ports)
    */
-  static string outPortName;
+  static std::string outPortName;
   FNodeOutPort* myOutPort;
 
-  string myValue;
-  string myDataID;
+  std::string myValue;
+  std::string myDataID;
   FDataHandle* myDH;
-
-
-};  // end class FConstantNode
+};
 
 /*****************************************************************************/
 /*                            FSourceNode                                    */
@@ -338,16 +343,10 @@ class DataSourceParser;  // used to parse the data source XML file
  * the inputs of processor nodes of the workflow. The items sent through this
  * stream are described in a XML file
  */
-
 class FSourceNode : public FNode {
-
-  // provides access to protected method (no use of attributes)
-  friend class DataSourceHandler;
-
 public:
-  FSourceNode(FWorkflow* wf,
-              const string& id,
-              WfCst::WfDataType type);
+  FSourceNode(FWorkflow* wf, const std::string& id, WfCst::WfDataType type);
+
   virtual ~FSourceNode();
 
   /***************************************************/
@@ -358,7 +357,7 @@ public:
     DATATREE
   };
 
-  const string&
+  const std::string&
   getDefaultPortName() const;
 
   WfCst::WfDataType
@@ -389,14 +388,14 @@ public:
    */
   virtual void
   createInstance(const FDataTag& currTag,
-                 vector<FDataHandle*>& currDataLine);
+                 std::vector<FDataHandle*>& currDataLine);
 
   /**
    * Write the XML description of the source
    * with data IDs (if available)
    */
   virtual void
-  toXML(ostream& output);
+  toXML(std::ostream& output);
 
 protected:
   /**
@@ -421,7 +420,7 @@ protected:
    * @param value string containing the value
    */
   void
-  setDataValue(FDataHandle* DH, const string& value);
+  setDataValue(FDataHandle* DH, const std::string& value);
 
   /**
    * Set the data ID of the data
@@ -429,7 +428,7 @@ protected:
    * @param dataID  string containing the data ID
    */
   void
-  setDataID(FDataHandle* DH, const string& dataID);
+  setDataID(FDataHandle* DH, const std::string& dataID);
 
   /**
    * Set a property of the data
@@ -438,9 +437,8 @@ protected:
    * @param propValue value of the property
    */
   void
-  setDataProperty(FDataHandle* DH,
-                   const string& propKey,
-                   const string& propValue);
+  setDataProperty(FDataHandle* DH, const std::string& propKey,
+                  const std::string& propValue);
   /**
    * Store the new data for the source (used by parser)
    * @param newDH the ref to the data (created by createData)
@@ -449,26 +447,26 @@ protected:
   insertData(FDataHandle* newDH);
 
 private:
+  // provides access to protected method (no use of attributes)
+  friend class DataSourceHandler;
+
   DataSourceParser * myParser;
-  static string outPortName;
+  static std::string outPortName;
   FNodeOutPort* myOutPort;
 
   FNodeInPort* myConnectedPort;  // used for sub-workflows
   bool  isConnected;
-
-};  // end class FSourceNode
+};
 
 /*****************************************************************************/
 /*                             FSinkNode                                     */
 /*****************************************************************************/
 
 class FSinkNode : public FNode {
-
 public:
-  FSinkNode(FWorkflow* wf,
-            const string& id,
-            WfCst::WfDataType type,
-            unsigned int depth);
+  FSinkNode(FWorkflow* wf, const std::string& id,
+            WfCst::WfDataType type, unsigned int depth);
+
   virtual ~FSinkNode();
 
   /***************************************************/
@@ -479,7 +477,7 @@ public:
     DATAID
   };
 
-  virtual const string&
+  virtual const std::string&
   getDefaultPortName() const;
 
   virtual void
@@ -505,25 +503,25 @@ public:
    * Write sink data in a readable way
    */
   virtual void
-  displayResults(ostream& output);
+  displayResults(std::ostream& output);
 
   /**
    * Write the XML description of sink data
    * with data IDs
    */
   virtual void
-  toXML(ostream& output);
+  toXML(std::ostream& output);
 
   /**
    * Get the data ID of a container that contains all sink data
    * @param  containerID string that will contain the dataID
    */
   virtual void
-  getResultsInContainer(string& containerID);
+  getResultsInContainer(std::string& containerID);
 
 private:
 
-  static string inPortName;
+  static std::string inPortName;
   FNodeInPort* myInPort;
   FNodeOutPort* myOutPort;  // used as a buffer only
 
@@ -531,18 +529,16 @@ private:
   FNodeOutPort* myConnectedPort;
   bool  isConnected;
   PortInputIterator*  myIterator;
-
-};  // end class FSinkNode
+};
 
 /*****************************************************************************/
 /*                             FProcNode                                     */
 /*****************************************************************************/
 
 class FProcNode : public FNode {
-
 public:
-  FProcNode(FWorkflow* wf,
-            const string& id);
+  FProcNode(FWorkflow* wf, const std::string& id);
+
   virtual ~FProcNode();
 
   // ******************** INPUT DATA OPERATORS *********************
@@ -564,15 +560,16 @@ public:
    * @param inputIds  the ids of the inputs of the operator
    * @return the id of the operator created
    */
-  const string&
-  createInputOperator(inputOperator_t opType, const vector<string>& inputIds);
+  const std::string&
+  createInputOperator(inputOperator_t opType,
+                      const std::vector<std::string>& inputIds);
 
   /**
    * Set the root element of the iteration strategy tree
    * @param opId  the id of the root operator (must already be registered)
    */
   void
-  setRootInputOperator(const string& opId);
+  setRootInputOperator(const std::string& opId);
 
   /**
    * Set the root element of the iteration strategy tree
@@ -605,8 +602,8 @@ public:
    * @param paramValue string containing the value of the parameter
    */
   void
-  checkDynamicParam(const string& paramName, const string& paramValue);
-
+  checkDynamicParam(const std::string& paramName,
+                    const std::string& paramValue);
 
   // *********************** INSTANCIATION *************************
 
@@ -630,11 +627,11 @@ public:
   virtual void
   createRealInstance(Dag* dag,
                      const FDataTag& currTag,
-                     vector<FDataHandle*>& currDataLine) = 0;
+                     std::vector<FDataHandle*>& currDataLine) = 0;
 
   virtual void
   createVoidInstance(const FDataTag& currTag,
-                     vector<FDataHandle*>& currDataLine);
+                     std::vector<FDataHandle*>& currDataLine);
 
   virtual void
   updateInstanciationStatus();
@@ -659,8 +656,8 @@ protected:
    * @param paramVarName name of the variable
    */
   void
-  setDynamicParam(const string& paramName,
-                  const string& paramVarName);
+  setDynamicParam(const std::string& paramName,
+                  const std::string& paramVarName);
 
   /**
    * Set the value of a dynamic parameter
@@ -668,14 +665,14 @@ protected:
    * @param paramValue    value of the variable
    */
   void
-  setDynamicParamValue(const string& paramVarName,
-                       const string& paramValue);
+  setDynamicParamValue(const std::string& paramVarName,
+                       const std::string& paramValue);
 
   bool
-  isDynamicParam(const string& paramName);
+  isDynamicParam(const std::string& paramName);
 
-  const string&
-  getDynamicParamValue(const string& paramName);
+  const std::string&
+  getDynamicParamValue(const std::string& paramName);
 
   // ****************** INTERNAL PORT MAPPING  *********************
   /**
@@ -685,12 +682,12 @@ protected:
    */
   template<class PortType>
   PortType*
-  checkAssignPort(const string& portName)
+  checkAssignPort(const std::string& portName)
     throw(WfStructException) {
     WfPort* port = getPort(portName);  // throws exception
     PortType* FPort = dynamic_cast<PortType*>(port);
     if (!FPort) {
-      string errorMsg = string("Invalid port in port assignment ")
+      std::string errorMsg = std::string("Invalid port in port assignment ")
         + "(node=" + getId() + "/port=" + portName + ")";
       throw WfStructException(WfStructException::eOTHER, errorMsg);
     }
@@ -700,17 +697,18 @@ protected:
   // ******************** INPUT DATA OPERATORS *********************
 
   PortInputIterator *
-  createPortInputIterator(const string& portId);
+  createPortInputIterator(const std::string& portId);
 
   bool
-  isIteratorDefined(const string& portId);
+  isIteratorDefined(const std::string& portId);
 
-  void initDataLine();
+  void
+  initDataLine();
 
   /**
    * The map of all input operators
    */
-  map<string, InputIterator*> myIterators;
+  std::map<std::string, InputIterator*> myIterators;
 
   /**
    * The root operator
@@ -721,20 +719,19 @@ protected:
    * The template data line used for each instance
    * Contains the constant port values and is copied for each new instance
    */
-  vector<FDataHandle*>* cstDataLine;
+  std::vector<FDataHandle*>* cstDataLine;
 
   /**
    * The dynamic parameters map
    * contains param_Name => param_Variable_Name
    */
-  map<string, string> dynParMap;
+  std::map<std::string, std::string> dynParMap;
 
   /**
    * The variables map
    * contains param_Variable_Name => param_Value
    */
-  map<string, string> varMap;
-
-};  // end class FProcNode
+  std::map<std::string, std::string> varMap;
+};
 
 #endif  // _FNODE_HH_

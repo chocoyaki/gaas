@@ -97,7 +97,9 @@ static void
 sendEventFrom(const SOURCE_TYPE* src, std::string msg,
               std::string data, EventBase::Severity severity) {
   EventManager::getEventMgr()->sendEvent(
-    new EventFrom<SOURCE_TYPE, EventStandardMsg<SOURCE_TYPE, MSG_TYPE> >(severity, msg, data, src));
+    new EventFrom<SOURCE_TYPE,
+                  EventStandardMsg<SOURCE_TYPE, MSG_TYPE> >(severity, msg,
+                                                            data, src));
 }
 
 /**
@@ -137,7 +139,8 @@ EventCreateObject<OBJ_TYPE, PARENT_TYPE>::toString() const {
   if (myParent == NULL) {
     return "CREATION OF " + myObj->toString();
   } else {
-    return "CREATION OF " + myObj->toString() + " [PARENT=" + myParent->toString() + "]";
+    return "CREATION OF " + myObj->toString() +
+      " [PARENT=" + myParent->toString() + "]";
   }
 }
 
@@ -175,7 +178,8 @@ private:
 template <class SRC_TYPE, class DEST_TYPE>
 std::string
 EventCreateDirectedLink<SRC_TYPE, DEST_TYPE>::toString() const {
-  return "CREATION OF LINK FROM=" + mySrc->toString() + " TO=" + myDest->toString();
+  return "CREATION OF LINK FROM=" + mySrc->toString() +
+    " TO=" + myDest->toString();
 }
 
 }

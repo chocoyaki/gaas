@@ -21,8 +21,8 @@
 #define _CMD_EXCEPTION_HH_
 
 #include <exception>
-#include <string>
 #include <sstream>
+#include <string>
 
 /**
  * @author hguemar <hguemar@sysfera.com>
@@ -71,7 +71,8 @@ public:
     diagnostic.append(msg);
   }
 
-  virtual ~OptionNotFoundError() throw() {}
+  virtual ~OptionNotFoundError() throw() {
+  }
 
   virtual const char *
   what() const throw() {
@@ -133,4 +134,4 @@ private:
   std::string diagnostic;
 };
 
-#endif /* _OPTION_EXCEPTION_HH_ */
+#endif  /* _OPTION_EXCEPTION_HH_ */

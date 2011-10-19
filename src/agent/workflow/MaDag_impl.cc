@@ -195,10 +195,9 @@
  *
  ****************************************************************************/
 
-#include <iostream>
-
 #include "MaDag_impl.hh"
 
+#include <iostream>
 #include "ORBMgr.hh"
 #include "debug.hh"
 #include "configuration.hh"
@@ -214,14 +213,20 @@
 #include "MaDagLogCentralDispatcher.hh"
 #include "debug.hh"
 
-// FIXME: never ever import namespace globally
-using namespace madag;
 
-MaDag_impl::MaDag_impl(const char * name,
-                       const MaDagSchedType schedType,
-                       const int interRoundDelay) :
-  myName(name), myMultiWfSched(0), wfReqIdCounter(0), dagIdCounter(0) {
+using events::EventManager;
+using events::sendEventFrom;
+using madag::MultiWfScheduler;
+using madag::MultiWfBasicScheduler;
+using madag::MultiWfHEFT;
+using madag::MultiWfAgingHEFT;
+using madag::MultiWfSRPT;
+using madag::MultiWfFCFS;
+using madag::MultiWfFOFT;
 
+MaDag_impl::MaDag_impl(const char * name, const MaDagSchedType schedType,
+                       const int interRoundDelay)
+  : myName(name), myMultiWfSched(0), wfReqIdCounter(0), dagIdCounter(0) {
   std::string MAName;
 
   // check if the parent is NULL
@@ -249,41 +254,55 @@ MaDag_impl::MaDag_impl(const char * name,
     ERROR_EXIT("could not declare myself as " << this->myName);
   }
 
-  TRACE_TEXT(TRACE_MAIN_STEPS, std::endl
-             <<  "MA DAG " << this->myName << " created." << std::endl);
+  TRACE_TEXT(TRACE_MAIN_STEPS, "\n"
+             <<  "MA DAG " << this->myName << " created.\n");
   TRACE_TEXT(TRACE_MAIN_STEPS, "## MADAG_IOR "
-             << ORBMgr::getMgr()->getIOR(this->_this()) << std::endl);
+             << ORBMgr::getMgr()->getIOR(this->_this()) << "\n");
 #ifdef USE_LOG_SERVICE
   this->setupDietLogComponent();
   if (dietLogComponent) {
-    EventManager::getEventMgr()->addObserver(new MaDagLogCentralDispatcher(dietLogComponent));
+    EventManager::getEventMgr()->addObserver(
+      new MaDagLogCentralDispatcher(dietLogComponent));
   }
 #endif
   // starting the multiwfscheduler
   switch (schedType) {
   case BASIC:
     this->myMultiWfSched = new MultiWfBasicScheduler(this);
-    sendEventFrom<MultiWfScheduler, MultiWfScheduler::CONSTR>(myMultiWfSched, "Created", "BASIC", EventBase::INFO);
+    sendEventFrom<MultiWfScheduler,
+                  MultiWfScheduler::CONSTR>(myMultiWfSched, "Created",
+                                            "BASIC", EventBase::INFO);
     break;
   case GHEFT:
     this->myMultiWfSched = new MultiWfHEFT(this);
-    sendEventFrom<MultiWfScheduler, MultiWfScheduler::CONSTR>(myMultiWfSched, "Created", "GLOBAL_HEFT", EventBase::INFO);
+    sendEventFrom<MultiWfScheduler,
+                  MultiWfScheduler::CONSTR>(myMultiWfSched, "Created",
+                                            "GLOBAL_HEFT", EventBase::INFO);
     break;
   case FOFT:
     this->myMultiWfSched = new MultiWfFOFT(this);
-    sendEventFrom<MultiWfScheduler, MultiWfScheduler::CONSTR>(myMultiWfSched, "Created", "FOFT", EventBase::INFO);
+    sendEventFrom<MultiWfScheduler,
+                  MultiWfScheduler::CONSTR>(myMultiWfSched, "Created",
+                                            "FOFT", EventBase::INFO);
     break;
   case GAHEFT:
     this->myMultiWfSched = new MultiWfAgingHEFT(this);
-    sendEventFrom<MultiWfScheduler, MultiWfScheduler::CONSTR>(myMultiWfSched, "Created", "GLOBAL_AGING_HEFT", EventBase::INFO);
+    sendEventFrom<MultiWfScheduler,
+                  MultiWfScheduler::CONSTR>(myMultiWfSched, "Created",
+                                            "GLOBAL_AGING_HEFT",
+                                            EventBase::INFO);
     break;
   case SRPT:
     this->myMultiWfSched = new MultiWfSRPT(this);
-    sendEventFrom<MultiWfScheduler, MultiWfScheduler::CONSTR>(myMultiWfSched, "Created", "SRPT", EventBase::INFO);
+    sendEventFrom<MultiWfScheduler,
+                  MultiWfScheduler::CONSTR>(myMultiWfSched, "Created",
+                                            "SRPT", EventBase::INFO);
     break;
   case FCFS:
     this->myMultiWfSched = new MultiWfFCFS(this);
-    sendEventFrom<MultiWfScheduler, MultiWfScheduler::CONSTR>(myMultiWfSched, "Created", "FCFS", EventBase::INFO);
+    sendEventFrom<MultiWfScheduler,
+                  MultiWfScheduler::CONSTR>(myMultiWfSched, "Created",
+                                            "FCFS", EventBase::INFO);
     break;
   }
 
@@ -293,10 +312,10 @@ MaDag_impl::MaDag_impl(const char * name,
 
   this->myMultiWfSched->start();
   TRACE_TEXT(TRACE_ALL_STEPS, "InterRoundDelay= " <<
-             this->myMultiWfSched->getInterRoundDelay() << std::endl);
+             this->myMultiWfSched->getInterRoundDelay() << "\n");
   // init the statistics module
   stat_init();
-} // end MA DAG constructor
+}
 
 MaDag_impl::~MaDag_impl() {
   ORBMgr::getMgr()->unbind(MADAGCTXT, this->myName);
@@ -309,7 +328,7 @@ MaDag_impl::~MaDag_impl() {
     this->myMultiWfSched->stop();
     delete (this->myMultiWfSched);
   }
-} // end MA DAG destructor
+}
 
 
 /**
@@ -321,7 +340,7 @@ MaDag_impl::processDagWf(const corba_wf_desc_t& dag_desc,
                          CORBA::Long wfReqId) {
   TRACE_TEXT(TRACE_ALL_STEPS,
              "%%%%% MADAG receives a SINGLE DAG request (wfReqId = "
-             << wfReqId << ")" << std::endl);
+             << wfReqId << ")\n");
   return processDagWfCommon(dag_desc, cltMgrRef, wfReqId);
 }
 
@@ -331,14 +350,13 @@ MaDag_impl::processDagWf(const corba_wf_desc_t& dag_desc,
 CORBA::Long
 MaDag_impl::processMultiDagWf(const corba_wf_desc_t& dag_desc,
                               const char* cltMgrRef,
-                              CORBA::Long wfReqId, CORBA::Boolean release)
-{
+                              CORBA::Long wfReqId, CORBA::Boolean release) {
   TRACE_TEXT(TRACE_ALL_STEPS,
              "%%%%% MADAG receives a MULTIPLE DAG request (wfReqId = "
-             << wfReqId << " / release=" << release << ")" << std::endl);
+             << wfReqId << " / release=" << release << ")\n");
   // Check if a MetaDag already exists for this wf request (or create one)
   MetaDag* mDag = 0;
-  map<CORBA::Long, MetaDag*>::iterator mDagIter = myMetaDags.find(wfReqId);
+  std::map<CORBA::Long, MetaDag*>::iterator mDagIter = myMetaDags.find(wfReqId);
   if (mDagIter != myMetaDags.end()) {
     mDag = (MetaDag*) mDagIter->second;
   } else {
@@ -355,24 +373,25 @@ MaDag_impl::processMultiDagWf(const corba_wf_desc_t& dag_desc,
  * Multi DAG Workflow Release
  */
 void
-MaDag_impl::releaseMultiDag(CORBA::Long wfReqId)
-{
+MaDag_impl::releaseMultiDag(CORBA::Long wfReqId) {
   TRACE_TEXT(TRACE_ALL_STEPS,
              "%%%%% MADAG receives a RELEASE request (wfReqId = "
-             << wfReqId << ")" << std::endl);
+             << wfReqId << ")\n");
   MetaDag* mDag = 0;
-  map<CORBA::Long, MetaDag*>::iterator mDagIter = myMetaDags.find(wfReqId);
+  std::map<CORBA::Long, MetaDag*>::iterator mDagIter =
+    myMetaDags.find(wfReqId);
   if (mDagIter != myMetaDags.end()) {
     mDag = (MetaDag*) mDagIter->second;
   } else {
-    string errorMsg = "Request ID '" + itoa(wfReqId) + "' not found";
+    std::string errorMsg = "Request ID '" + itoa(wfReqId) + "' not found";
     throw(MaDag::InvalidRequest(errorMsg.c_str()));
   }
   // Set the release flag
   bool isDone = false;
   mDag->setReleaseFlag(true, isDone);
-  if (isDone)
+  if (isDone) {
     delete mDag;
+  }
 }
 
 /**
@@ -384,7 +403,8 @@ MaDag_impl::processDagWfCommon(const corba_wf_desc_t& dag_desc,
                                CORBA::Long wfReqId,
                                MetaDag* mDag) {
   char statMsg[128];
-  sprintf(statMsg, "Start workflow request %ld", static_cast<long int>(wfReqId));
+  snprintf(statMsg, 128, "Start workflow request %ld",
+           static_cast<long int>(wfReqId));
   stat_in("MA_DAG", statMsg);
 
   this->myMutex.lock();
@@ -406,7 +426,7 @@ MaDag_impl::processDagWfCommon(const corba_wf_desc_t& dag_desc,
             "Dag request (%ld) aborted", static_cast<long int>(dagId));
     stat_out("MA_DAG", statMsg);
     TRACE_TEXT(TRACE_ALL_STEPS, "MADAG cancelled DAG request (wfReqId = "
-               << wfReqId << ")" << std::endl);
+               << wfReqId << ")\n");
     this->myMutex.unlock();
     throw;
   }
@@ -423,10 +443,9 @@ MaDag_impl::processDagWfCommon(const corba_wf_desc_t& dag_desc,
  */
 Dag *
 MaDag_impl::parseNewDag(const corba_wf_desc_t& wf_desc,
-                        const string& dagId,
+                        const std::string& dagId,
                         MetaDag * mDag)
-  throw(MaDag::InvalidDag)
-{
+  throw(MaDag::InvalidDag) {
   // CREATION & PARSING
   Dag *newDag = new Dag(dagId);
   SingleDagParser* reader = new SingleDagParser(*newDag, wf_desc.abstract_wf);
@@ -450,8 +469,9 @@ MaDag_impl::parseNewDag(const corba_wf_desc_t& wf_desc,
   try {
     newDag->checkPrec(contextNodeSet);
   } catch (WfStructException& e) {
-    if (mDag)
+    if (mDag) {
       mDag->setCurrentDag(0);
+    }
     throw(MaDag::InvalidDag(e.ErrorMsg().c_str()));
   }
 
@@ -467,31 +487,28 @@ MaDag_impl::parseNewDag(const corba_wf_desc_t& wf_desc,
  * Get a new workflow request identifier
  */
 CORBA::Long
-MaDag_impl::getWfReqId()
-{
+MaDag_impl::getWfReqId() {
   this->myMutex.lock();
   CORBA::Long res = this->wfReqIdCounter++;
   this->myMutex.unlock();
   return res;
-} // end getWfReqId
+}
 
 /**
  * Used to test if it is alive.
  */
 CORBA::Long
-MaDag_impl::ping()
-{
-  TRACE_TEXT(TRACE_ALL_STEPS, "ping()" << std::endl);
+MaDag_impl::ping() {
+  TRACE_TEXT(TRACE_ALL_STEPS, "ping()\n");
   stat_flush();
   return getpid();
-} // ping()
+}
 
 /**
  * Cancel a dag
  */
 void
-MaDag_impl::cancelDag(CORBA::Long dagId)
-{
+MaDag_impl::cancelDag(CORBA::Long dagId) {
   this->myMultiWfSched->cancelDag(itoa(dagId));
 }
 
@@ -499,8 +516,7 @@ MaDag_impl::cancelDag(CORBA::Long dagId)
  * Get the MA
  */
 MasterAgent_var
-MaDag_impl::getMA() const
-{
+MaDag_impl::getMA() const {
   return this->myMA;
 }
 
@@ -508,13 +524,14 @@ MaDag_impl::getMA() const
  * Get the client manager for a given dag id
  */
 CltMan_ptr
-MaDag_impl::getCltMan(const string& dagId)
-{
-  map<string, CORBA::Long>::iterator wfReqIter = wfReqs.find(dagId);
+MaDag_impl::getCltMan(const std::string& dagId) {
+  std::map<std::string, CORBA::Long>::iterator wfReqIter = wfReqs.find(dagId);
   if (wfReqIter != wfReqs.end()) {
-    map<CORBA::Long, CltMan_ptr>::iterator cltManIter = cltMans.find(wfReqIter->second);
-    if (cltManIter != cltMans.end())
+    std::map<CORBA::Long, CltMan_ptr>::iterator cltManIter =
+      cltMans.find(wfReqIter->second);
+    if (cltManIter != cltMans.end()) {
       return cltManIter->second;
+    }
   }
   return CltMan::_nil();
 }
@@ -523,8 +540,7 @@ MaDag_impl::getCltMan(const string& dagId)
  * Set the client manager for a wf request
  */
 void
-MaDag_impl::setCltMan(CORBA::Long wfReqId, CltMan_ptr cltMan)
-{
+MaDag_impl::setCltMan(CORBA::Long wfReqId, CltMan_ptr cltMan) {
   this->cltMans[wfReqId] = cltMan;
 }
 
@@ -532,8 +548,7 @@ MaDag_impl::setCltMan(CORBA::Long wfReqId, CltMan_ptr cltMan)
  * set the wf request id for a given dag
  */
 void
-MaDag_impl::setWfReq(CORBA::Long dagId, CORBA::Long wfReqId)
-{
+MaDag_impl::setWfReq(CORBA::Long dagId, CORBA::Long wfReqId) {
   this->wfReqs[itoa(dagId)] = wfReqId;
 }
 
@@ -541,8 +556,7 @@ MaDag_impl::setWfReq(CORBA::Long dagId, CORBA::Long wfReqId)
  * Set the platform type
  */
 void
-MaDag_impl::setPlatformType(MaDag::pfmType_t pfmType)
-{
+MaDag_impl::setPlatformType(MaDag::pfmType_t pfmType) {
   switch (pfmType) {
   case (MaDag::DISTINCT_SERVICES):
     this->myMultiWfSched->setPlatformType(MultiWfScheduler::PFM_ANY);
@@ -560,8 +574,7 @@ MaDag_impl::setPlatformType(MaDag::pfmType_t pfmType)
  * Get the DietLogComponent
  */
 DietLogComponent*
-MaDag_impl::getDietLogComponent()
-{
+MaDag_impl::getDietLogComponent() {
   return this->dietLogComponent;
 }
 
@@ -569,8 +582,7 @@ MaDag_impl::getDietLogComponent()
  * Set the DietLogComponent
  */
 void
-MaDag_impl::setupDietLogComponent()
-{
+MaDag_impl::setupDietLogComponent() {
   /* Create the DietLogComponent for use with LogService */
   bool useLS;
 
@@ -597,7 +609,7 @@ MaDag_impl::setupDietLogComponent()
       WARNING("lsFlushinterval not configured, using default");
     }
 
-    TRACE_TEXT(TRACE_ALL_STEPS, "LogService enabled" << std::endl);
+    TRACE_TEXT(TRACE_ALL_STEPS, "LogService enabled\n");
     char* agtTypeName = NULL;
     char* agtParentName = NULL;
     char* agtName;
@@ -611,8 +623,7 @@ MaDag_impl::setupDietLogComponent()
     }
 
     // the agent names should be correct if we arrive here
-    this->dietLogComponent = new DietLogComponent(agtName,
-                                                  outBufferSize,
+    this->dietLogComponent = new DietLogComponent(agtName, outBufferSize,
                                                   0, 0);
 
     ORBMgr::getMgr()->activate(dietLogComponent);
@@ -620,12 +631,12 @@ MaDag_impl::setupDietLogComponent()
     agtTypeName = strdup("MA_DAG");
     if (dietLogComponent->run(agtTypeName, agtParentName, flushTime) != 0) {
       WARNING("Could not initialize DietLogComponent");
-      TRACE_TEXT(TRACE_ALL_STEPS, "* LogService: disabled" << endl);
+      TRACE_TEXT(TRACE_ALL_STEPS, "* LogService: disabled\n");
       dietLogComponent = NULL;
     }
     free(agtTypeName);
   } else {
-    TRACE_TEXT(TRACE_ALL_STEPS, "LogService disabled" << endl);
+    TRACE_TEXT(TRACE_ALL_STEPS, "LogService disabled\n");
     this->dietLogComponent = NULL;
   }
 }
@@ -639,46 +650,41 @@ MaDagFwdrImpl::MaDagFwdrImpl(Forwarder_ptr fwdr, const char* objName) {
 CORBA::Long
 MaDagFwdrImpl::processDagWf(const corba_wf_desc_t& dag_desc,
                             const char* cltMgrRef,
-                            CORBA::Long wfReqId)
-{
+                            CORBA::Long wfReqId) {
   return forwarder->processDagWf(dag_desc, cltMgrRef, wfReqId, objName);
 }
 
 CORBA::Long
-MaDagFwdrImpl::processMultiDagWf(const corba_wf_desc_t& dag_desc, const char* cltMgrRef,
+MaDagFwdrImpl::processMultiDagWf(const corba_wf_desc_t& dag_desc,
+                                 const char* cltMgrRef,
                                  CORBA::Long wfReqId,
-                                 CORBA::Boolean release)
-{
-  return forwarder->processMultiDagWf(dag_desc, cltMgrRef, wfReqId, release, objName);
+                                 CORBA::Boolean release) {
+  return forwarder->processMultiDagWf(dag_desc, cltMgrRef,
+                                      wfReqId, release, objName);
 }
 
 CORBA::Long
-MaDagFwdrImpl::getWfReqId()
-{
+MaDagFwdrImpl::getWfReqId() {
   return forwarder->getWfReqId(objName);
 }
 
 void
-MaDagFwdrImpl::releaseMultiDag(CORBA::Long wfReqId)
-{
+MaDagFwdrImpl::releaseMultiDag(CORBA::Long wfReqId) {
   forwarder->releaseMultiDag(wfReqId, objName);
 }
 
 void
-MaDagFwdrImpl::cancelDag(CORBA::Long dagId)
-{
+MaDagFwdrImpl::cancelDag(CORBA::Long dagId) {
   forwarder->cancelDag(dagId, objName);
 }
 
 void
-MaDagFwdrImpl::setPlatformType(MaDag::pfmType_t pfmType)
-{
+MaDagFwdrImpl::setPlatformType(MaDag::pfmType_t pfmType) {
   forwarder->setPlatformType(pfmType, objName);
 }
 
 CORBA::Long
-MaDagFwdrImpl::ping()
-{
+MaDagFwdrImpl::ping() {
   return forwarder->ping(objName);
 }
 

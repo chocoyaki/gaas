@@ -30,28 +30,22 @@
 #ifndef _CORIMGR_HH__
 #define _CORIMGR_HH__
 
-#include "Cori_Metric.hh"
-
 #include <vector>
-#include "DIET_data.h" //TAGS
-using namespace std;
+#include "Cori_Metric.hh"
+#include "DIET_data.h"  // TAGS
 
-class CORIMgr{
+class CORIMgr {
 public:
+  static int
+  add(diet_est_collect_tag_t collectorName, const void * datav);
 
   static int
-  add(diet_est_collect_tag_t collectorName,
-      const void * datav);
-
-  static int
-  call_cori_mgr(estVector_t* ev,
-                int info_type,
-                diet_est_collect_tag_t collector_type,
-                const void * data);
+  call_cori_mgr(estVector_t* ev, int info_type,
+                diet_est_collect_tag_t collector_type, const void * data);
   static int
   startCollectors();
 
 private:
-  static vector <Cori_Metric>* collector_v;
+  static std::vector<Cori_Metric>* collector_v;
 };
-#endif  //_CORIMGR_HH__
+#endif  // _CORIMGR_HH__

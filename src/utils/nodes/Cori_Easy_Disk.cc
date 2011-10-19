@@ -202,7 +202,7 @@ Easy_Disk::create_file(char** path_file){
 #endif  // HAVE_ALARM
   int i = 0;
 
-  while((!sigalarm)&&(i<rounds)) {
+  while ((!sigalarm)&&(i<rounds)) {
     outfile.write(buffer, BUFFSIZE);
     outfile.flush();
     i++;
@@ -323,7 +323,7 @@ Easy_Disk::get_Write_Speed_by_gettimeofday(const char* path,
   double t2 = 0;
   double elapsed_time = 0;
 
-  while((elapsed_time<seconds)
+  while ((elapsed_time<seconds)
         &&(i<rounds)) {
     try{
       if (!outfile.is_open()){
@@ -401,7 +401,7 @@ Easy_Disk::get_Write_Speed_by_sig_alarm(const char* path,
 
   /*start clock*/
 
-  while((!sigalarm)
+  while ((!sigalarm)
         &&(i<rounds)) {
     try{
       if (!outfile.is_open()){
@@ -492,7 +492,7 @@ Easy_Disk::get_Read_Speed_by_gettimeofday(const char* path,
   gettimeofday(&tim, NULL);
   double elapsed_time= 0;
   double t2 = 0;
-  while((elapsed_time<seconds)
+  while ((elapsed_time<seconds)
         &&(infile.is_open())) {
     if (infile.eof()){
       infile.close();
@@ -563,7 +563,7 @@ Easy_Disk::get_Read_Speed_by_sig_alarm(const char* path,
     *result = 0;
     return 1;
   }
-  while((!sigalarm)
+  while ((!sigalarm)
         &&(infile.is_open())) {
     if (infile.eof()){
       infile.close();

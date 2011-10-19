@@ -180,7 +180,7 @@ Loadleveler_BatchSystem::askBatchJobStatus(int batchJobID)
     if (chaine[nbread-1] == '\n')
       chaine[nbread-1] = '\0';
     /* Compare to chaine+1 because of a space as a first char */
-    while((i<NB_STATUS) &&
+    while ((i<NB_STATUS) &&
            (strcmp(chaine+1, Loadleveler_BatchSystem::statusNames[i])!=0)) {
       i++;
     }

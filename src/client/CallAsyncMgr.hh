@@ -74,12 +74,11 @@
 #ifndef _CALLASYNCMGR_H_
 #define _CALLASYNCMGR_H_
 
+#include <cassert>
 #include <map>
 #include <vector>
 #include <omnithread.h>
 #include <sys/types.h>
-#include <cassert>
-
 #include "DIET_client.h"
 #include "DIET_data_internal.hh"
 #include "ReadersWriterLock.hh"

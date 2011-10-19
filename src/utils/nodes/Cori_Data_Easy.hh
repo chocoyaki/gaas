@@ -25,39 +25,34 @@
 #define _CORI_DATA_EASY_HH_
 
 #include <vector>
-using namespace std;
 
-#include "DIET_data.h" 
+#include "DIET_data.h"
 #include "est_internal.hh"
 
-//include here other Info type 
+// include here other Info type
 #include "Cori_Easy_CPU.hh"
 #include "Cori_Easy_Disk.hh"
 #include "Cori_Easy_Memory.hh"
 
 
-class Cori_Data_Easy{
+class Cori_Data_Easy {
+public:
+  Cori_Data_Easy();
+
+  int
+  get_Information(int type_Info, estVector_t* info, const void * data);
 
 private:
   Easy_CPU*  cpu;
   Easy_Disk* disk;
   Easy_Memory* memory;
 
-  int 
-  convertArray(vector <double> vect,
-               estVector_t * estvect,
+  int
+  convertArray(std::vector<double> vect, estVector_t * estvect,
                int typeOfInfo);
 
-  int 
-  convertSimple(double value,
-                estVector_t * estvect,
-                int typeOfInfo);
-public:
-  Cori_Data_Easy();
-  int 
-  get_Information(int type_Info,       
-                  estVector_t* info,
-                  const void * data);
- 
+  int
+  convertSimple(double value, estVector_t * estvect, int typeOfInfo);
 };
-#endif  //CORI_DATA_EASY_HH
+
+#endif  // CORI_DATA_EASY_HH

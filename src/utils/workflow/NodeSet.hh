@@ -34,6 +34,9 @@
 
 class NodeSet {
 public:
+  virtual ~NodeSet() {
+  }
+
   /**
    * Get a node from the nodeset
    * @param nodeId  the identifier (string) of the node

@@ -46,30 +46,31 @@ using namespace events;
 #define MAX_EXEC_SERVERS 10 // max nb of servers in the agent response
 
 CltDagNodeLauncher::CltDagNodeLauncher(DagNode * parent)
-  : DagNodeLauncher(parent)
-{
+  : DagNodeLauncher(parent) {
 }
 
-string
-CltDagNodeLauncher::toString() const
-{
+std::string
+CltDagNodeLauncher::toString() const {
   return "Client " + DagNodeLauncher::toString();
 }
 
 
 void
-CltDagNodeLauncher::execNode()
-{
-  string traceHeader = "[" + myNode->getId() + "] Client Launcher : ";
-  TRACE_TEXT(TRACE_ALL_STEPS, traceHeader << "starting... " << endl);
+CltDagNodeLauncher::execNode() {
+  std::string traceHeader = "[" + myNode->getId() + "] Client Launcher : ";
+  TRACE_TEXT(TRACE_ALL_STEPS, traceHeader << "starting... \n");
 
-  sendEventFrom<DagNodeLauncher, DagNode::START>(this, "Start client launcher", "", EventBase::INFO);
+  sendEventFrom<DagNodeLauncher,
+                DagNode::START>(this,
+                                "Start client launcher",
+                                "",
+                                EventBase::INFO);
 
   // set the reqId in the profile
   if (isSeDDefinedFlag) {
     myNode->getProfile()->dietReqID = (int) myReqID;
     TRACE_TEXT(TRACE_ALL_STEPS, traceHeader << "setting reqID in profile to #"
-               << myReqID << endl);
+               << myReqID << "\n");
   }
 
   // diet call
@@ -87,11 +88,11 @@ CltDagNodeLauncher::execNode()
                           MAX_EXEC_SERVERS)) {
       isSuccessfulFlag = true;
       TRACE_TEXT(TRACE_MAIN_STEPS, traceHeader << "diet call DONE reqID=" <<
-                  myNode->getProfile()->dietReqID << endl);
+                  myNode->getProfile()->dietReqID << "\n");
       myNode->storeProfileData();
     }
     else {
-      WARNING(traceHeader << "diet call FAILED" << endl);
+      WARNING(traceHeader << "diet call FAILED\n");
       isSuccessfulFlag = false;
     }
   } catch (Dagda::DataNotFound& e) {

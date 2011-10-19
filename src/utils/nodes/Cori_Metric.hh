@@ -49,17 +49,7 @@
 #include "Cori_batch.hh"
 #endif
 
-class Cori_Metric
-{
-private:
-
-  diet_est_collect_tag_t type_collector;
-
-  Cori_Data_Easy* cori_easy;
-#if not defined CLEAN_CORILIB_FROM_BATCH_STAFF and defined HAVE_ALT_BATCH
-  Cori_batch * cori_batch;
-#endif
-
+class Cori_Metric {
 public:
   /**
    * Initialize the CoRI Metric of this SeD
@@ -71,8 +61,7 @@ public:
    *        Not used for the moment in any collector
    */
 
-  Cori_Metric(diet_est_collect_tag_t type_collector,
-              const void *data);
+  Cori_Metric(diet_est_collect_tag_t type_collector, const void *data);
 
   /**
    * type_Info is the type of the information you want collecting
@@ -81,10 +70,7 @@ public:
    *                               is set to defaults (dummy) values
    */
   int
-  call_cori_metric(int type_Info,
-                   estVector_t *information,
-                   const void* data
-);
+  call_cori_metric(int type_Info, estVector_t *information, const void* data);
 
   diet_est_collect_tag_t
   get_Collector_type();
@@ -94,6 +80,12 @@ public:
 
 private:
   diet_est_collect_tag_t collector_type;
+  diet_est_collect_tag_t type_collector;
+
+  Cori_Data_Easy* cori_easy;
+#if not defined CLEAN_CORILIB_FROM_BATCH_STAFF and defined HAVE_ALT_BATCH
+  Cori_batch * cori_batch;
+#endif
 };
 
 

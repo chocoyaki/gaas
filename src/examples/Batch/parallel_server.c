@@ -228,7 +228,7 @@ int solve_concatenation(diet_profile_t *pb)
   free(cmd);
   free(epilogue);
   free(script);
-  while((-1 == (status = close(machine_file_descriptor))) && (errno == EINTR))
+  while ((-1 == (status = close(machine_file_descriptor))) && (errno == EINTR))
    ;
   if (status == -1)
     fprintf(stderr, "Error closing machineFile\n");

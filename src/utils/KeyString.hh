@@ -47,20 +47,7 @@
 #include <iostream>
 
 class KeyString {
-
-private:
-  /**
-   * value of the key.
-   */
-  char* str;
-
-  /**
-   * hash value of the identifier
-   */
-  u_int32_t hashValue;
-
 public:
-
   /**
    * calculate the hash value of the key
    *
@@ -69,7 +56,8 @@ public:
    *
    * @return the hash value of id.
    */
-  static u_int32_t hash(const char* id);
+  static u_int32_t
+  hash(const char* id);
 
   /**
    * creates a new KeyString.
@@ -97,7 +85,8 @@ public:
    *
    * @param masterAgentId the new value of the key.
    */
-  KeyString & operator= (const KeyString & masterAgentId);
+  KeyString &
+  operator=(const KeyString & masterAgentId);
 
   /**
    * returnes a char* that containes the value of the
@@ -106,14 +95,26 @@ public:
   operator const char*() const;
 
 
-  friend bool operator< (const KeyString & a,
-                         const KeyString & b);
+  friend bool
+  operator<(const KeyString & a, const KeyString & b);
 
-  friend bool operator== (const KeyString & a,
-                          const KeyString & b);
+  friend bool
+  operator==(const KeyString & a, const KeyString & b);
 
-  friend std::ostream& operator<<(std::ostream& output, const KeyString & id);
-};  // KeyString
+  friend std::ostream&
+  operator<<(std::ostream& output, const KeyString & id);
+
+private:
+  /**
+   * value of the key.
+   */
+  char* str;
+
+  /**
+   * hash value of the identifier
+   */
+  u_int32_t hashValue;
+};
 
 
 /**
@@ -124,7 +125,8 @@ public:
  *
  * @param b a KeyString
  */
-bool operator< (const KeyString & a, const KeyString & b);
+bool
+operator<(const KeyString & a, const KeyString & b);
 
 /**
  * returns true if a and b represent the same ID.
@@ -133,13 +135,14 @@ bool operator< (const KeyString & a, const KeyString & b);
  *
  * @param b a KeyString
  */
-bool operator== (const KeyString & a, const KeyString & b);
+bool
+operator==(const KeyString & a, const KeyString & b);
 
 /**
  * Writes an ascii description of an id.
  */
-inline std::ostream& operator<<(std::ostream& output,
-                                const KeyString & key) {
+inline std::ostream&
+operator<<(std::ostream& output, const KeyString & key) {
   return output << key.str;
 }
 

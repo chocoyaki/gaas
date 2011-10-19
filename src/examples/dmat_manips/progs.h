@@ -41,17 +41,17 @@
 #include <string.h>
 
 
-#define print_matrix(mat, m, n, rm)             \
-  {                                             \
+#define print_matrix(mat, m, n, rm) {           \
     size_t i, j;                                \
     printf("%s (%s-major) = \n", #mat,          \
            (rm) ? "row" : "column");            \
     for (i = 0; i < (m); i++) {                 \
       for (j = 0; j < (n); j++) {               \
-        if (rm)                                 \
+        if (rm) {                               \
           printf("%3f ", (mat)[j + i*(n)]);     \
-        else                                    \
+        } else {                                \
           printf("%3f ", (mat)[i + j*(m)]);     \
+          }                                     \
       }                                         \
       printf("\n");                             \
     }                                           \
@@ -63,20 +63,20 @@
  */
 
 inline int
-T(int m, int n, double* A, int rm)
-{
+T(int m, int n, double* A, int rm) {
   size_t i, j;
   double* tmp = NULL;
 
-  tmp = malloc(m*n*sizeof(double));
-  memcpy(tmp, A, m*n*sizeof(double));
+  tmp = malloc(m*n*sizeof(tmp));
+  memcpy(tmp, A, m*n*sizeof(tmp));
 
   for (i = 0; i < n; i++) {
     for (j = 0; j < m; j++) {
-      if (rm)
+      if (rm) {
         A[i*m + j] = tmp[j*n + i];
-      else
+      } else {
         A[j*n + i] = tmp[i*m + j];
+      }
     }
   }
 
@@ -90,10 +90,9 @@ T(int m, int n, double* A, int rm)
  */
 
 inline int
-MatSUM(char tA, char tB, int m, int n, double* A, double* B, double* C)
-{
+MatSUM(char tA, char tB, int m, int n, double* A, double* B, double* C) {
   size_t i, j;
-  
+
   if (tA == 'T') {
     if (tB == 'T') {
       for (i = 0; i < m; i++) {
@@ -108,7 +107,7 @@ MatSUM(char tA, char tB, int m, int n, double* A, double* B, double* C)
         }
       }
     }
-    
+
   } else {
     if (tB == 'T') {
       for (i = 0; i < m; i++) {
@@ -124,7 +123,7 @@ MatSUM(char tA, char tB, int m, int n, double* A, double* B, double* C)
       }
     }
   }
-  
+
   return 0;
 }
 
@@ -137,11 +136,10 @@ MatSUM(char tA, char tB, int m, int n, double* A, double* B, double* C)
 inline int
 MatPROD(char tA, char tB,
         int mA, int nA, double* A,
-        int nB, double* B, double* C)
-{
+        int nB, double* B, double* C) {
   size_t i, j, k;
   int mB = nA;
-  
+
   if (tA == 'T') {
     if (tB == 'T') {
       for (i = 0; i < mA; i++) {
@@ -162,7 +160,7 @@ MatPROD(char tA, char tB,
         }
       }
     }
-    
+
   } else {
     if (tB == 'T') {
       for (i = 0; i < mA; i++) {
@@ -184,8 +182,8 @@ MatPROD(char tA, char tB,
       }
     }
   }
-  
+
   return 0;
 }
 
-#endif // _PROGS_H_
+#endif  // _PROGS_H_

@@ -486,7 +486,7 @@ BatchSystem::removeBatchJobID(int dietReqID)
     if (index_1->dietReqID != dietReqID) {
       index_2 = index_1->nextStruct;
 
-      while((index_2 != NULL) && (index_2->dietReqID != dietReqID)) {
+      while ((index_2 != NULL) && (index_2->dietReqID != dietReqID)) {
         index_1 = index_2;
         index_2 = index_2->nextStruct;
       }
@@ -519,7 +519,7 @@ BatchSystem::getBatchJobID(int dietReqID)
 {
   corresID * index = this->batchJobQueue;
 
-  while((index != NULL) && (index->dietReqID != dietReqID))
+  while ((index != NULL) && (index->dietReqID != dietReqID))
     index = index->nextStruct;
 
   if ((index == NULL))
@@ -535,7 +535,7 @@ BatchSystem::wait4BatchJobCompletion(int batchJobID)
 
   status = isBatchJobCompleted(batchJobID);
 
-  while(status == 0) {
+  while (status == 0) {
     sleep(WAITING_BATCH_JOB_COMPLETION);
     status = isBatchJobCompleted(batchJobID);
   }
@@ -547,7 +547,7 @@ BatchSystem::getRecordedBatchJobStatus(int batchJobID)
 {
   corresID * index = this->batchJobQueue;
 
-  while((index != NULL) && (index->batchJobID != batchJobID))
+  while ((index != NULL) && (index->batchJobID != batchJobID))
     index = index->nextStruct;
   if ((index == NULL))
     return NB_STATUS;
@@ -559,7 +559,7 @@ BatchSystem::updateBatchJobStatus(int batchJobID, batchJobState job_status)
 {
   corresID * index = this->batchJobQueue;
 
-  while((index != NULL) && (index->batchJobID != batchJobID))
+  while ((index != NULL) && (index->batchJobID != batchJobID))
     index = index->nextStruct;
   if ((index == NULL))
     return -1;
@@ -616,7 +616,7 @@ BatchSystem::replaceAllOccurencesInString(char ** input,
   resultingString = (char*)calloc(lengthResult, sizeof(char));
   tmpString = resultingString;
 
-  while((indexEnd != NULL) && (indexEnd < (*input)+lengthInput)) {
+  while ((indexEnd != NULL) && (indexEnd < (*input)+lengthInput)) {
     indexEnd = strstr(indexBegin, occurence);
     if (indexEnd != NULL) {
       found = 1;
@@ -697,7 +697,7 @@ BatchSystem::writen(int fd, const char * buffer, size_t n)
 
   ptr = buffer;
   nleft = n;
-  while(nleft > 0) {
+  while (nleft > 0) {
     if ((nwritten = write(fd, ptr, nleft)) <= 0) {
       if (errno == EINTR)
         nwritten = 0;  /* and call write() again */
@@ -723,7 +723,7 @@ BatchSystem::readn(int fd, char * buffer, int n)
 
   ptr = buffer;
   nleft = n;
-  while(nleft != 0) {
+  while (nleft != 0) {
     if ((nread = read(fd, ptr, nleft)) < 0) {
       if (nread < 0)       // ERROR
 #if defined YC_DEBUG_

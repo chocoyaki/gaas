@@ -532,7 +532,7 @@ SeDImpl::bindParent(const char * parentName) {
     childID = this->parent->serverSubscribe(myName, localHostName,
                                             *profiles);
 
-    TRACE_TEXT(TRACE_ALL_STEPS, "* Bound myself to parent: " << parentName << std::endl);
+    TRACE_TEXT(TRACE_ALL_STEPS, "* Bound myself to parent: " << parentName << "\n");
 
     /* Data manager also needs to connect to the new parent */
     this->dataManager->subscribeParent(parentName);
@@ -610,7 +610,7 @@ SeDImpl::run(ServiceTable* services) {
   SeqCorbaProfileDesc_t* profiles(NULL);
   stat_init();
 
-  TRACE_TEXT(TRACE_ALL_STEPS, "* Declared myself as: " << this->myName << std::endl);
+  TRACE_TEXT(TRACE_ALL_STEPS, "* Declared myself as: " << this->myName << "\n");
   try {
     ORBMgr::getMgr()->bind(SEDCTXT, this->myName, this->_this(), true);
     ORBMgr::getMgr()->fwdsBind(SEDCTXT, this->myName,
@@ -643,9 +643,9 @@ SeDImpl::run(ServiceTable* services) {
     if (batch->getBatchQueueName() != NULL)
       TRACE_TEXT(TRACE_MAIN_STEPS, " using queue "
                  << batch->getBatchQueueName());
-    TRACE_TEXT(TRACE_MAIN_STEPS, endl);
-    TRACE_TEXT(TRACE_MAIN_STEPS, "pathToNFS: " << batch->getNFSPath() << endl);
-    TRACE_TEXT(TRACE_MAIN_STEPS, "pathToTmp: " << batch->getTmpPath() << endl);
+    TRACE_TEXT(TRACE_MAIN_STEPS, "\n");
+    TRACE_TEXT(TRACE_MAIN_STEPS, "pathToNFS: " << batch->getNFSPath() << "\n");
+    TRACE_TEXT(TRACE_MAIN_STEPS, "pathToTmp: " << batch->getTmpPath() << "\n");
   }
 #endif
 
@@ -678,10 +678,10 @@ SeDImpl::run(ServiceTable* services) {
   if (! CORBA::is_nil(parent)) {
     try {
       TRACE_TEXT(TRACE_ALL_STEPS, "parent->serverSubscribe(" << this->myName
-                 << ", " << localHostName << ", *profiles)" << endl);
+                 << ", " << localHostName << ", *profiles)\n");
       childID = parent->serverSubscribe(this->myName, localHostName,
                                         *profiles);
-      TRACE_TEXT(TRACE_ALL_STEPS, "subscribe !" << endl);
+      TRACE_TEXT(TRACE_ALL_STEPS, "subscribe !\n");
     } catch (CORBA::Exception& e) {
       CORBA::Any tmp;
       tmp <<= e;
@@ -717,12 +717,12 @@ SeDImpl::run(ServiceTable* services) {
     this->accessController = new AccessController(this->maxConcJobs);
     this->jobQueue = new JobQueue(this->maxConcJobs);
     TRACE_TEXT(TRACE_ALL_STEPS, "* SeD Queue: enabled "
-               << "(maximum " << this->maxConcJobs << " concurrent solves)" << endl);
+               << "(maximum " << this->maxConcJobs << " concurrent solves)\n");
   } else {
     this->accessController = NULL;
     this->jobQueue = new JobQueue();
     TRACE_TEXT(TRACE_ALL_STEPS, "* SeD Queue: disabled (no restriction"
-               << " on concurrent solves)" << endl);
+               << " on concurrent solves)\n");
   }
 
 
@@ -774,15 +774,15 @@ SeDImpl::getRequest(const corba_request_t& creq)
 #ifdef HAVE_ALT_BATCH
   stat_in("SeD", statMsg);
   TRACE_TEXT(TRACE_MAIN_STEPS,
-             endl << "**************************************************" << endl
-             << "Got " << jobSpec << " request " << creq.reqID << endl
-             << endl);
+             "\n**************************************************\n"
+             << "Got " << jobSpec << " request " << creq.reqID << "\n"
+             << "\n");
 #else
   stat_in("SeD", statMsg);
   TRACE_TEXT(TRACE_MAIN_STEPS,
-             endl << "**************************************************" << endl
-             << "Got request " << creq.reqID << endl
-             << endl);
+             "\n**************************************************\n"
+             << "Got request " << creq.reqID << "\n"
+             << "\n");
 #endif
   resp.reqID = creq.reqID;
   resp.myID  = childID;
@@ -799,7 +799,7 @@ SeDImpl::getRequest(const corba_request_t& creq)
     resp.servers.length(0);
     TRACE_TEXT(TRACE_MAIN_STEPS,
                "service not found ??????????????????????????????????????"
-               << endl);
+               << "\n");
   } else {
     resp.servers.length(1);
 
@@ -978,7 +978,7 @@ SeDImpl::solve(const char* path, corba_profile_t& pb) {
 
   this->jobQueue->setJobStarted(pb.dietReqID);
 
-  TRACE_TEXT(TRACE_MAIN_STEPS, "SeD::solve invoked on pb: " << path << endl);
+  TRACE_TEXT(TRACE_MAIN_STEPS, "SeD::solve invoked on pb: " << path << "\n");
 
   cvt = SrvT->getConvertor(ref);
 
@@ -997,14 +997,14 @@ SeDImpl::solve(const char* path, corba_profile_t& pb) {
    */
   profile.pb_name = strdup(path);
 
-  TRACE_TEXT(TRACE_MAIN_STEPS, "Calling getSolver" << endl);
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Calling getSolver\n");
   solve_res = (*(SrvT->getSolver(ref)))(&profile);    // SOLVE
 
   /* Data transfer */
   uploadSyncSeDData(profile, pb, cvt);
 
-  TRACE_TEXT(TRACE_MAIN_STEPS, "SeD::solve complete" << endl
-             << "************************************************************"<< endl);
+  TRACE_TEXT(TRACE_MAIN_STEPS, "SeD::solve complete\n"
+             << "************************************************************"<< "\n");
   delete [] profile.parameters;  // allocated by unmrsh_in_args_to_profile
 
   this->jobQueue->setJobFinished(profile.dietReqID);
@@ -1083,20 +1083,20 @@ SeDImpl::parallel_solve(const char* path, corba_profile_t& pb,
 #endif
 
   TRACE_TEXT(TRACE_MAIN_STEPS, "SeD::parallel_solve() invoked on pb: "
-             << path << endl);
+             << path << "\n");
 
   cvt = SrvT->getConvertor(ref);
 
   /* Data transfer */
   downloadSyncSeDData(profile, pb, cvt);
 
-  TRACE_TEXT(TRACE_MAIN_STEPS, "Calling getSolver" << endl);
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Calling getSolver\n");
   solve_res = (*(SrvT->getSolver(ref)))(&profile);    // SOLVE
   TRACE_TIME(TRACE_MAIN_STEPS, "Submitting DIET job of ID "
              << profile.dietReqID <<
              " on batch system with ID " <<
              batch->getBatchJobID(profile.dietReqID)
-             << endl);
+             << "\n");
   if (batch->wait4BatchJobCompletion(batch->getBatchJobID(profile.dietReqID))
       < 0) {
     ERROR("An error occured during the execution of the parallel job", 21);
@@ -1106,8 +1106,8 @@ SeDImpl::parallel_solve(const char* path, corba_profile_t& pb,
   /* Data transfer */
   uploadSyncSeDData(profile, pb, cvt);
 
-  TRACE_TEXT(TRACE_MAIN_STEPS, "SeD::parallel_solve() completed" << endl
-             << "************************************************************" << endl);
+  TRACE_TEXT(TRACE_MAIN_STEPS, "SeD::parallel_solve() completed\n"
+             << "************************************************************\n");
   delete [] profile.parameters;  // allocated by unmrsh_in_args_to_profile
 
   stat_out("SeD", statMsg);
@@ -1193,7 +1193,7 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
 
         TRACE_TEXT(TRACE_MAIN_STEPS,
                    "SeD::solveAsync invoked on pb: " << path
-                   << " (reqID " << profile.dietReqID << ")" << endl);
+                   << " (reqID " << profile.dietReqID << ")\n");
 
 
         cvt = SrvT->getConvertor(ref);
@@ -1212,13 +1212,13 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
          */
         profile.pb_name = strdup(path);
 
-        TRACE_TEXT(TRACE_MAIN_STEPS, "Calling getSolver" << endl);
+        TRACE_TEXT(TRACE_MAIN_STEPS, "Calling getSolver\n");
         int solve_res = (*(SrvT->getSolver(ref)))(&profile);    // SOLVE
 
         uploadAsyncSeDData(profile,  const_cast<corba_profile_t&>(pb), cvt);
 
-        TRACE_TEXT(TRACE_MAIN_STEPS, "SeD::" << __FUNCTION__ << " complete" << endl
-                   << "**************************************************" << endl);
+        TRACE_TEXT(TRACE_MAIN_STEPS, "SeD::" << __FUNCTION__ << " complete\n"
+                   << "**************************************************\n");
 
         this->jobQueue->setJobFinished(profile.dietReqID);
         this->jobQueue->deleteJob(profile.dietReqID);
@@ -1241,7 +1241,7 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
         // send result data to client.
         // TODO : change notifyResults and solveResults signature remove dietReqID
         TRACE_TEXT(TRACE_ALL_STEPS, "SeD::" << __FUNCTION__
-                   << ": performing the call-back." << endl);
+                   << ": performing the call-back.\n");
         Callback_var cb_var = Callback::_narrow(cb);
 
         cb_var->notifyResults(path, pb, pb.dietReqID);
@@ -1320,7 +1320,7 @@ SeDImpl::parallel_AsyncSolve(const char * path, const corba_profile_t & pb,
 
       TRACE_TEXT(TRACE_MAIN_STEPS,
                  "SeD::solve_AsyncParallel invoked on pb: " << path
-                 << " (reqID " << pb.dietReqID << ")" << endl);
+                 << " (reqID " << pb.dietReqID << ")\n");
 
       cvt = SrvT->getConvertor(ref);
 
@@ -1339,7 +1339,7 @@ SeDImpl::parallel_AsyncSolve(const char * path, const corba_profile_t & pb,
                  << profile.dietReqID <<
                  " on batch system with ID " <<
                  batch->getBatchJobID(profile.dietReqID)
-                 << endl);
+                 << "\n");
       if (
         batch->wait4BatchJobCompletion(batch->getBatchJobID(profile.dietReqID)
 )
@@ -1353,7 +1353,7 @@ SeDImpl::parallel_AsyncSolve(const char * path, const corba_profile_t & pb,
                  << profile.dietReqID <<
                  " is of pid " <<
                  (long)((ProcessInfo)findBatchID(profile.dietReqID))->pid
-                 << endl);
+                 << "\n");
       /* This waits until the jobs ends
       ** and remove batchID/DIETreqID correspondance */
       if ((ELBASE_Poll(findBatchID(profile.dietReqID), 1, &status) == 0)
@@ -1371,8 +1371,8 @@ SeDImpl::parallel_AsyncSolve(const char * path, const corba_profile_t & pb,
 
       uploadAsyncSeDData(profile,  const_cast<corba_profile_t&>(pb), cvt);
 
-      TRACE_TEXT(TRACE_MAIN_STEPS, "SeD::" << __FUNCTION__ << " complete" << endl
-                 << "**************************************************" << endl);
+      TRACE_TEXT(TRACE_MAIN_STEPS, "SeD::" << __FUNCTION__ << " complete\n"
+                 << "**************************************************\n");
 
       stat_out("SeD", statMsg);
       stat_flush();
@@ -1391,7 +1391,7 @@ SeDImpl::parallel_AsyncSolve(const char * path, const corba_profile_t & pb,
 
       // send result data to client.
       TRACE_TEXT(TRACE_ALL_STEPS, "SeD::" << __FUNCTION__
-                 << ": performing the call-back." << endl);
+                 << ": performing the call-back.\n");
       Callback_var cb_var = Callback::_narrow(cb);
       cb_var->notifyResults(path, pb, pb.dietReqID);
       cb_var->solveResults(path, pb, pb.dietReqID, solve_res);
@@ -1431,7 +1431,7 @@ SeDImpl::timeSinceLastSolve()
 CORBA::Long
 SeDImpl::ping()
 {
-  TRACE_TEXT(TRACE_ALL_STEPS, "ping()" << endl);
+  TRACE_TEXT(TRACE_ALL_STEPS, "ping()\n");
   fflush(stdout);
   return getpid();
 }
@@ -1502,13 +1502,13 @@ SeDImpl::estimate(corba_estimation_t& estimation,
         TRACE_TEXT(TRACE_MAIN_STEPS,
                    "SeD::Have to provide information on sequential "
                    "resolution through "
-                   << batch->getBatchName() << " Batch scheduler" << endl);
+                   << batch->getBatchName() << " Batch scheduler\n");
       } else {
         // Give information about parallel_job and parallel_resource
         TRACE_TEXT(TRACE_MAIN_STEPS,
                    "SeD::Have to provide information on parallel "
                    "resolution through " << batch->getBatchName() <<
-                   " Batch scheduler" << endl);
+                   " Batch scheduler\n");
       }
       break;
       /* Set values like nb_resources, nb_free_resources, etc.
@@ -1607,7 +1607,7 @@ inline void
 SeDImpl::downloadAsyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
                               diet_convertor_t* cvt)
 {
-  TRACE_TIME(TRACE_MAIN_STEPS, "SeD downloads client datas" << endl);
+  TRACE_TIME(TRACE_MAIN_STEPS, "SeD downloads client datas\n");
 
   dagda_download_data(profile, pb);
 }
@@ -1616,7 +1616,7 @@ inline void
 SeDImpl::downloadSyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
                              diet_convertor_t* cvt)
 {
-  TRACE_TIME(TRACE_MAIN_STEPS, "SeD downloads client datas" << endl);
+  TRACE_TIME(TRACE_MAIN_STEPS, "SeD downloads client datas\n");
 
   dagda_download_data(profile, pb);
 }
@@ -1625,7 +1625,7 @@ inline void
 SeDImpl::uploadAsyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
                             diet_convertor_t* cvt)
 {
-  TRACE_TIME(TRACE_MAIN_STEPS, "SeD uploads client datas" << endl);
+  TRACE_TIME(TRACE_MAIN_STEPS, "SeD uploads client datas\n");
 
   dagda_upload_data(profile, pb);
 
@@ -1645,7 +1645,7 @@ SeDImpl::uploadAsyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
 inline void
 SeDImpl::uploadSyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
                            diet_convertor_t* cvt) {
-  TRACE_TIME(TRACE_MAIN_STEPS, "SeD uploads client datas" << endl);
+  TRACE_TIME(TRACE_MAIN_STEPS, "SeD uploads client datas\n");
 
   dagda_upload_data(profile, pb);
 }
@@ -1764,7 +1764,7 @@ SeDImpl::getDataMgrID() {
  */
 SeqCorbaProfileDesc_t*
 SeDImpl::getSeDProfiles(CORBA::Long& length) {
-  TRACE_TEXT(TRACE_ALL_STEPS, "ask for list of services" << std::endl);
+  TRACE_TEXT(TRACE_ALL_STEPS, "ask for list of services\n");
   return SrvT->getProfiles(length);
 }
 

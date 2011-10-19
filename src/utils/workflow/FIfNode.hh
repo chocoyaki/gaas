@@ -94,7 +94,6 @@ protected:
   FNodePortMap  myElseMap;
   std::vector<WfExprVariable*>* myConditionVars;
   WfBooleanExpression* myCondition;
-
 };
 
 /*****************************************************************************/

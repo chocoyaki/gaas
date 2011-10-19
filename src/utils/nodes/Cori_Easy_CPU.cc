@@ -314,7 +314,7 @@ Easy_CPU::get_CPU_ActualLoad_Byps(double * actualload){
   }
   float loadCPU = 0;
   float tmp = 0;
-  while(!feof(psfile)){
+  while (!feof(psfile)){
     fscanf (psfile, "%6f",&tmp);
     loadCPU+=tmp;
   }

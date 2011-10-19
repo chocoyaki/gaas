@@ -552,13 +552,13 @@ DIETForwarder::bind(const char* objName, const char* ior) {
 
   if (!remoteCall(objString)) {
     TRACE_TEXT(TRACE_MAIN_STEPS,
-               "Forward bind to peer (" << objName << ")" << std::endl);
+               "Forward bind to peer (" << objName << ")\n");
     return getPeer()->bind(objString.c_str(), ior);
   }
   ctxt = getCtxt(objString);
   name = getName(objString);
   TRACE_TEXT(TRACE_MAIN_STEPS,
-             "Bind locally (" << objString << ")" << std::endl);
+             "Bind locally (" << objString << ")\n");
   if (ctxt == LOCALAGENT) {
     ctxt = AGENTCTXT;
     /* Specific case for local agent.
@@ -583,13 +583,14 @@ DIETForwarder::bind(const char* objName, const char* ior) {
     }
   }
   /* NEW: Tag the object with the forwarder name. */
-  std::string newIOR = ORBMgr::convertIOR(ior, string("@") + getName(), 0);
+  std::string newIOR =
+    ORBMgr::convertIOR(ior, std::string("@") + getName(), 0);
 
   ORBMgr::getMgr()->bind(ctxt, name, newIOR, true);
   // Broadcast the binding to all forwarders.
   ORBMgr::getMgr()->fwdsBind(ctxt, name, newIOR, this->name);
   TRACE_TEXT(TRACE_MAIN_STEPS,
-             "Binded! (" << ctxt << "/" << name << ")" << std::endl);
+             "Binded! (" << ctxt << "/" << name << ")\n");
 }
 
 /* Return the local bindings. Result is a set of couple
@@ -611,7 +612,7 @@ DIETForwarder::getBindings(const char* ctxt) {
         ORBMgr::getMgr()->resolveObject(ctxt, it->c_str(), "no-Forwarder");
       (*result)[cmpt++] = it->c_str();
       (*result)[cmpt++] = ORBMgr::getMgr()->getIOR(obj).c_str();
-    } catch (const runtime_error& err) {
+    } catch (const std::runtime_error& err) {
       continue;
     }
   }
@@ -728,33 +729,39 @@ DIETForwarder::getPeer() {
 }
 
 
-char* DIETForwarder::getIOR() {
+char*
+DIETForwarder::getIOR() {
   return CORBA::string_dup(ORBMgr::getMgr()->getIOR(_this()).c_str());
 }
 
-char* DIETForwarder::getName() {
+char*
+DIETForwarder::getName() {
   return CORBA::string_dup(name.c_str());
 }
 
-char* DIETForwarder::getPeerName() {
+char*
+DIETForwarder::getPeerName() {
   return CORBA::string_dup(getPeer()->getName());
 }
 
-char* DIETForwarder::getHost() {
+char*
+DIETForwarder::getHost() {
   return CORBA::string_dup(host.c_str());
 }
 
-char* DIETForwarder::getPeerHost() {
+char*
+DIETForwarder::getPeerHost() {
   return CORBA::string_dup(getPeer()->getHost());
 }
 
-SeqString* DIETForwarder::routeTree() {
+SeqString*
+DIETForwarder::routeTree() {
   SeqString* result = new SeqString();
   return result;
 }
 
 
-list<string>
+std::list<std::string>
 DIETForwarder::otherForwarders() const {
   ORBMgr* mgr = ORBMgr::getMgr();
   std::list<std::string> result = mgr->list(FWRDCTXT);
@@ -763,8 +770,8 @@ DIETForwarder::otherForwarders() const {
   return result;
 }
 
-string
-DIETForwarder::getName(const string& namectxt) {
+std::string
+DIETForwarder::getName(const std::string& namectxt) {
   size_t pos = namectxt.find('/');
   if (pos == std::string::npos) {
     return namectxt;
@@ -772,8 +779,8 @@ DIETForwarder::getName(const string& namectxt) {
   return namectxt.substr(pos+1);
 }
 
-string
-DIETForwarder::getCtxt(const string& namectxt) {
+std::string
+DIETForwarder::getCtxt(const std::string& namectxt) {
   size_t pos = namectxt.find('/');
   if (pos == std::string::npos) {
     return "";

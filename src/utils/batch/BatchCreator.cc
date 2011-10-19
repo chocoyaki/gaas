@@ -128,7 +128,7 @@ BatchCreator::existBatchScheduler(const char * batchName,
 {
   int id_tmp = 0;
 
-  while((id_tmp < NUMBER_OF_SUPPORTED_BATCH)
+  while ((id_tmp < NUMBER_OF_SUPPORTED_BATCH)
          && (strncmp(batchName, batchNames[id_tmp], 4)!=0))
     /* for the moment, only a check on the 4 first chars is needed */
     id_tmp++;

@@ -79,8 +79,8 @@ NodeQueue::pushNode(DagNode * node) {
 }
 
 void
-NodeQueue::pushNodes(vector<DagNode *> nodes) {
-  vector<DagNode *>::iterator iter = nodes.begin();
+NodeQueue::pushNodes(std::vector<DagNode *> nodes) {
+  std::vector<DagNode *>::iterator iter = nodes.begin();
   while (iter != nodes.end()) {
     this->pushNode(*iter);
     ++iter;
@@ -106,10 +106,15 @@ NodeQueue::isEmpty() { return (this->nodeCounter == 0); }
 /****************************************************************************/
 
 ChainedNodeQueue::ChainedNodeQueue(NodeQueue * outputQ)
-  : outputQ(outputQ) { }
-ChainedNodeQueue::ChainedNodeQueue(string name, NodeQueue * outputQ)
-  : NodeQueue(name), outputQ(outputQ) { }
-ChainedNodeQueue::~ChainedNodeQueue() { }
+  : outputQ(outputQ) {
+}
+
+ChainedNodeQueue::ChainedNodeQueue(std::string name, NodeQueue * outputQ)
+  : NodeQueue(name), outputQ(outputQ) {
+}
+
+ChainedNodeQueue::~ChainedNodeQueue() {
+}
 
 bool
 ChainedNodeQueue::notifyStateChange(DagNode * node) {
@@ -155,7 +160,7 @@ OrderedNodeQueue::popFirstNode() {
 
 void
 OrderedNodeQueue::removeNode(DagNode * node) {
-  list<DagNode*>::iterator np = orderedNodes.begin();
+  std::list<DagNode*>::iterator np = orderedNodes.begin();
   while (np != orderedNodes.end()) {
     if (*np == node) {
       np = orderedNodes.erase(np);
@@ -170,7 +175,7 @@ OrderedNodeQueue::removeNode(DagNode * node) {
 
 void
 OrderedNodeQueue::removeLastNodes(int nbNodesToKeep) {
-  list<DagNode*>::iterator  nodeIter = this->begin();
+  std::list<DagNode*>::iterator  nodeIter = this->begin();
   // Go to the first item to delete
   int ix = 0;
   while ((nodeIter != this->end()) && (ix++ < nbNodesToKeep)) {
@@ -204,17 +209,23 @@ OrderedNodeQueue::end() {
 /*                PriorityNodeQueue - PUBLIC METHODS                        */
 /****************************************************************************/
 
-PriorityNodeQueue::PriorityNodeQueue() { }
-PriorityNodeQueue::PriorityNodeQueue(string name) : OrderedNodeQueue(name) { }
-PriorityNodeQueue::~PriorityNodeQueue() { }
+PriorityNodeQueue::PriorityNodeQueue() {
+}
+
+PriorityNodeQueue::PriorityNodeQueue(std::string name)
+  : OrderedNodeQueue(name) {
+}
+
+PriorityNodeQueue::~PriorityNodeQueue() {
+}
 
 // The version that implements ordering based on node priority
 // It orders the ready nodes in DECREASING priority
 void
 PriorityNodeQueue::pushNode(DagNode * insNode) {
   double insNodePrio = insNode->getPriority();
-  list<DagNode*>::iterator  nodeIter = orderedNodes.begin();
-  DagNode *                      curNode   = NULL;
+  std::list<DagNode*>::iterator  nodeIter = orderedNodes.begin();
+  DagNode *curNode   = NULL;
   while ((nodeIter != orderedNodes.end())
          && (curNode = (DagNode *) *nodeIter)
          && (curNode->getPriority() >= insNodePrio)) {

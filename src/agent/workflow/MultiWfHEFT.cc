@@ -82,7 +82,7 @@ using namespace madag;
 MultiWfHEFT::MultiWfHEFT(MaDag_impl* maDag)
   : MultiWfScheduler(maDag, MultiWfScheduler::MULTIWF_NODE_METRIC) {
   this->execQueue = new PriorityNodeQueue;
-  TRACE_TEXT(TRACE_MAIN_STEPS, "Using HEFT multi-workflow scheduler" << endl);
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Using HEFT multi-workflow scheduler\n");
 }
 
 MultiWfHEFT::~MultiWfHEFT() {
@@ -94,7 +94,7 @@ MultiWfHEFT::~MultiWfHEFT() {
 MultiWfAgingHEFT::MultiWfAgingHEFT(MaDag_impl* maDag)
   : MultiWfScheduler(maDag, MultiWfScheduler::MULTIWF_NODE_METRIC) {
   this->execQueue = new PriorityNodeQueue;
-  TRACE_TEXT(TRACE_MAIN_STEPS, "Using AgingHEFT multi-workflow scheduler" << endl);
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Using AgingHEFT multi-workflow scheduler\n");
 }
 
 MultiWfAgingHEFT::~MultiWfAgingHEFT() {
@@ -133,7 +133,8 @@ MultiWfAgingHEFT::intraDagSchedule(Dag * dag, MasterAgent_var MA)
   delete &orderedNodes;
 
   // Store the HEFT Priority of nodes
-  for (map <string, DagNode *>::iterator iter = dag->begin(); iter != dag->end();
+  for (std::map<std::string, DagNode *>::iterator iter = dag->begin();
+       iter != dag->end();
        ++iter) {
     DagNode * node = (DagNode*) iter->second;
     this->nodesHEFTPrio[node] = node->getPriority();
@@ -144,7 +145,7 @@ MultiWfAgingHEFT::intraDagSchedule(Dag * dag, MasterAgent_var MA)
   this->dagsState[dag].makespan  = this->dagsState[dag].EFT - startTime;
   TRACE_TEXT(TRACE_ALL_STEPS, "[AHEFT] Init (Dag " << dag->getId() << ") EFT = "
              << this->dagsState[dag].EFT << " / makespan = "
-             << this->dagsState[dag].makespan << endl);
+             << this->dagsState[dag].makespan << "\n");
 
   // Cleanup
   delete wf_response;
@@ -168,7 +169,7 @@ MultiWfAgingHEFT::setExecPriority(DagNode * node) {
   TRACE_TEXT(TRACE_ALL_STEPS, "[AHEFT] Node priority set to " << node->getPriority()
              << " (dag" << node->getDag()->getId()
              << " age = " << dagAge
-             << "/factor = " << ageFactor << ")" << endl);
+             << "/factor = " << ageFactor << ")\n");
 }
 
 /**

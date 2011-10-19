@@ -26,8 +26,9 @@ class Dag;
 class DagNode;
 
 class DagScheduler {
-
 public:
+  virtual ~DagScheduler() {
+  }
 
   /**
    * Handle DAG DONE event

@@ -66,21 +66,7 @@
  */
 
 class Counter {
-
-private:
-  
-  /**
-   * The counter value.
-   */
-  CORBA::ULong             value;
-
-  /**
-   * the counter critical zone mutex;
-   */
-  mutable omni_mutex    valueMutex;
-
 public:
-  
   /**
    * Creates a new Counter initialized with the value \c n. If no
    * arguments are given, the counter is initialized with the value
@@ -89,7 +75,8 @@ public:
    * @param n the initial value of the counter. It must be positive or
    * null.
    */
-  Counter(CORBA::ULong n = 0)  : value(n) {}
+  Counter(CORBA::ULong n = 0)  : value(n) {
+  }
 
   /**
    * Creates a copy of the counter given in arguments.
@@ -104,13 +91,15 @@ public:
    *
    * @todo replace the assert by an exception.
    */
-  Counter operator++(int);
+  Counter
+  operator++(int i);
 
   /**
    * Decrements the counter. An assert check that the counter is
    * greater than 0. The argument is not used.
    */
-  Counter operator--(int);
+  Counter
+  operator--(int i);
 
   /**
    * Increments the counter. An assert check that the counter does
@@ -118,40 +107,47 @@ public:
    *
    * @todo replace the assert by an exception.
    */
-  Counter& operator++();
+  Counter&
+  operator++();
   /**
-   * Increments the counter by a given value. 
+   * Increments the counter by a given value.
    * An assert check that the counter does not overflow its capacity.
    *
    * @todo replace the assert by an exception.
    */
-  Counter & operator+=(const Counter & aCounter);
+  Counter &
+  operator+=(const Counter & aCounter);
   /**
    * Decrements the counter. An assert check that the counter is
    * greater than 0. The argument is not used.
    */
-  Counter & operator--();
+  Counter &
+  operator--();
   /**
-   * Decrements the counter by a given value. 
+   * Decrements the counter by a given value.
    * An assert check that the counter is greater than 0.
    *
    * @todo replace the assert by an exception.
    */
-  Counter & operator-=(const Counter & aCounter);
+  Counter &
+  operator-=(const Counter & aCounter);
   /**
    * The instance get the same value as \c aCounter.
    *
    * @param aCounter The counter where the value is taken.
    */
-  Counter & operator=(const Counter & aCounter);
+  Counter &
+  operator=(const Counter & aCounter);
 
   /**
    * Converts the counter to a \c CORBA::ULong value. The argument is not
    * used.
    */
   operator CORBA::ULong() const;
-  
 
+private:
+  CORBA::ULong value; /**<! counter value */
+  mutable omni_mutex valueMutex; /**<! counter mutex guard */
 };
 
 #endif  // _COUNTER_HH_

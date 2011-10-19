@@ -45,77 +45,114 @@ extern "C" {
   /* If we don't know the type of the data to download. */
 #define DIET_UNKNOWN_TYPE DIET_DATA_TYPE_COUNT
   /* To add a data to the platform. */
-  int dagda_put_data(void* value, diet_data_type_t type,
-                     diet_base_type_t base_type, diet_persistence_mode_t mode,
-                     size_t nb_r, size_t nb_c, diet_matrix_order_t order, char* path, char** ID);
+  int
+  dagda_put_data(void* value, diet_data_type_t type,
+                 diet_base_type_t base_type, diet_persistence_mode_t mode,
+                 size_t nb_r, size_t nb_c, diet_matrix_order_t order,
+                 char* path, char** ID);
+
   /* To get a data from the platform. */
-  int dagda_get_data(const char* dataID, void** value, diet_data_type_t type,
-                     diet_base_type_t* base_type, size_t* nb_r, size_t* nb_c,
-                     diet_matrix_order_t* order, char** path);
+  int
+  dagda_get_data(const char* dataID, void** value,
+                 diet_data_type_t type, diet_base_type_t* base_type,
+                 size_t* nb_r, size_t* nb_c,
+                 diet_matrix_order_t* order, char** path);
+
   /* To remove a data from the platform */
-  int dagda_delete_data(char* dataID);
+  int
+  dagda_delete_data(char* dataID);
 
   /* Asynchronous versions. */
   /* Put a data. Return the thread ID. */
-  unsigned int dagda_put_data_async(void* value, diet_data_type_t type,
-                                    diet_base_type_t base_type, diet_persistence_mode_t mode,
-                                    size_t nb_r, size_t nb_c, diet_matrix_order_t order, char* path);
+  unsigned int
+  dagda_put_data_async(void* value, diet_data_type_t type,
+                       diet_base_type_t base_type, diet_persistence_mode_t mode,
+                       size_t nb_r, size_t nb_c,
+                       diet_matrix_order_t order, char* path);
+
   /* Get a data. Return the thread ID. */
-  unsigned int dagda_get_data_async(char* ID, diet_data_type_t type);
+  unsigned int
+  dagda_get_data_async(char* ID, diet_data_type_t type);
 
   /* Wait functions. */
   /* Wait for the end of a data transfer from here. */
-  int dagda_wait_put(unsigned int threadID, char** ID);
+  int
+  dagda_wait_put(unsigned int threadID, char** ID);
+
   /* Wait for the end of a data transfer to here. */
-  int dagda_wait_get(unsigned int threadID, void** value, diet_base_type_t* base_type,
-                     size_t* nb_r, size_t* nb_c, diet_matrix_order_t* order, char** path);
+  int
+  dagda_wait_get(unsigned int threadID, void** value,
+                 diet_base_type_t* base_type, size_t* nb_r,
+                 size_t* nb_c, diet_matrix_order_t* order, char** path);
 
   /* Add a data asynchronously without waiting possibility. */
   /* As is, this function does not make sense. Should be modified later
      to return the ID immediately. */
-  int dagda_add_data(void* value, diet_data_type_t type,
-                     diet_base_type_t base_type, diet_persistence_mode_t mode,
-                     size_t nb_r, size_t nb_c, diet_matrix_order_t order, char* path);
-  /* Load a data asynchronously on this data manager without waiting possibility. */
-  int dagda_load_data(char* ID, diet_data_type_t type);
+  int
+  dagda_add_data(void* value, diet_data_type_t type,
+                 diet_base_type_t base_type, diet_persistence_mode_t mode,
+                 size_t nb_r, size_t nb_c,
+                 diet_matrix_order_t order, char* path);
+
+  /* Load a data asynchronously on this data manager without waiting
+     possibility. */
+  int
+  dagda_load_data(char* ID, diet_data_type_t type);
 
   /* Asks to the nodes to save their data on checkpoint file. */
-  int dagda_save_platform();
+  int
+  dagda_save_platform();
 
   /* Creates a data alias. */
-  int dagda_data_alias(const char* id, const char* alias);
+  int
+  dagda_data_alias(const char* id, const char* alias);
+
   /* Get the id of a data from its alias. */
-  int dagda_id_from_alias(const char* alias, char** id);
+  int
+  dagda_id_from_alias(const char* alias, char** id);
 
   /* Data replication following a wildcard rule. */
-  int dagda_replicate_data(const char* id, const char* rule);
+  int
+  dagda_replicate_data(const char* id, const char* rule);
 
   /* Create a container */
-  int dagda_create_container(char** ID);
+  int
+  dagda_create_container(char** ID);
 
   /* Initialize a container (ID already defined) */
-  int dagda_init_container(diet_data_t* profile_data);
+  int
+  dagda_init_container(diet_data_t* profile_data);
 
   /* Add an element to a container *
    * The container must be either created or initialized before, so that
    * it is declared on the local dagda manager */
-  int dagda_add_container_element(const char* idContainer, const char* idElement, int index);
+  int
+  dagda_add_container_element(const char* idContainer, const char* idElement,
+                              int index);
 
   /* Add an empty slot to a container (replaces an element)
    * The container must be either created or initialized before, so that
    * it is declared on the local dagda manager */
-  int dagda_add_container_null_element(const char* idContainer, int index);
+  int
+  dagda_add_container_null_element(const char* idContainer, int index);
 
   /* Get all IDs of the elements of a container *
    * The container must be either created or initialized before, so that
    * it is declared on the local dagda manager */
-  int dagda_get_container_elements(const char* idContainer, diet_container_t* content);
+  int
+  dagda_get_container_elements(const char* idContainer,
+                               diet_container_t* content);
 
-  double dagda_get_progress(const char* dataId);
-  void dagda_rem_progress(const char* transferId);
+  double
+  dagda_get_progress(const char* dataId);
 
-  /* Used to reset internal variables (used for successive diet_initialize/diet_finalize) */
-  void dagda_reset();
+  void
+  dagda_rem_progress(const char* transferId);
+
+  /* Used to reset internal variables
+     (used for successive diet_initialize/diet_finalize) */
+  void
+  dagda_reset();
 
   /* Put macros */
 #define dagda_put_scalar(value, base_type, mode, ID)            \

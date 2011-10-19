@@ -192,7 +192,7 @@ OAR1_6BatchSystem::askBatchJobStatus(int batchJobID)
   /* Adjust what have been read */
   if (chaine[nbread-1] == '\n')
     chaine[nbread-1] = '\0';
-  while((i<NB_STATUS) &&
+  while ((i<NB_STATUS) &&
          (strcmp(chaine, OAR1_6BatchSystem::statusNames[i])!=0)) {
     i++;
   }
@@ -332,13 +332,13 @@ OAR1_6BatchSystem::getNbFreeResources()
     /* Search for hostname in fileToParse */
     do
       k = fscanf(fileToParse, "%499s", chaine);
-    while((k != EOF) && (strcmp(chaine, hostname)!=0));
+    while ((k != EOF) && (strcmp(chaine, hostname)!=0));
     /* TODO: should end if k == EOF because ERROR! */
     /* We have reached the line ^hostname */
     /* Search for the status */
     do
       k = fscanf(fileToParse, "%499s", chaine);
-    while((k != EOF) && (strcmp(chaine, "state")!=0));
+    while ((k != EOF) && (strcmp(chaine, "state")!=0));
 
     /* Seek "=" and get status */
     k = fscanf(fileToParse, "%499s", chaine);
@@ -347,7 +347,7 @@ OAR1_6BatchSystem::getNbFreeResources()
     if (strcmp(chaine, "free") == 0)
       nbfree++;
 
-  } while((j != EOF));
+  } while ((j != EOF));
 
 #if REMOVE_BATCH_TEMPORARY_FILE
   unlink(filename);

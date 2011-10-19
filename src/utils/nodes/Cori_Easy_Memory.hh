@@ -23,22 +23,25 @@
 #ifndef _CORI_EASY_MEMORY_HH_
 #define _CORI_EASY_MEMORY_HH_
 
-class Easy_Memory{
+class Easy_Memory {
 public:
-  int 
+  int
   get_Total_Memory(double * result);
-  int 
+
+  int
   get_Avail_Memory(double * result);
 
 private:
-  int 
+  int
   get_Avail_Memory_byvmstat(double * result);
-  int 
+
+  int
   get_Avail_Memory_bysysinfo(double * result);
-  int 
+
+  int
   get_Total_Memory_bysysinfo(double * result);
-  int 
-  get_Info_Memory_byProcMem(double* resultat,
-                            int freemem);
+
+  int
+  get_Info_Memory_byProcMem(double* resultat, int freemem);
 };
-#endif  //_CORI_EASY_MEMORY_HH_
+#endif  // _CORI_EASY_MEMORY_HH_

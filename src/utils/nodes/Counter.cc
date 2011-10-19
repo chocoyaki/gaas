@@ -43,7 +43,7 @@ Counter::Counter(const Counter& aCounter) {
   value = static_cast<CORBA::ULong>(aCounter);
 }
 
-Counter Counter::operator++(int) {
+Counter Counter::operator++(int i) {
   valueMutex.lock();
   assert(value < value + 1);  // check for overflow
   Counter oldValue;
@@ -53,7 +53,7 @@ Counter Counter::operator++(int) {
   return oldValue;
 }
 
-Counter Counter::operator--(int) {
+Counter Counter::operator--(int i) {
   valueMutex.lock();
   assert(value > 0);
   Counter oldValue;

@@ -389,7 +389,7 @@ DFS(WfNode* node, std::map<WfNode*, DFSNodeInfo>& DFSInfo, short& endCount) {
   DFSInfo[node].ongoing = true;
   TRACE_TEXT(TRACE_ALL_STEPS, "Starting DFS search for node : "
              << node->getId() << "\n");
-  for (list<WfNode*>::iterator nextIter = node->nextNodesBegin();
+  for (std::list<WfNode*>::iterator nextIter = node->nextNodesBegin();
        nextIter != node->nextNodesEnd();
        ++nextIter) {
     WfNode* nextNode = (WfNode*) *nextIter;
@@ -704,7 +704,7 @@ FWorkflow::instanciate(Dag * dag) {
 void
 FWorkflow::createRealInstance(Dag* dag,
                               const FDataTag& currTag,
-                              vector<FDataHandle*>& currDataLine) {
+                              std::vector<FDataHandle*>& currDataLine) {
   // LOOP for each source
   std::map<std::string, FNode *>::iterator interfIter = myInterface.begin();
   for (; interfIter != myInterface.end(); ++interfIter) {
@@ -721,7 +721,7 @@ FWorkflow::createRealInstance(Dag* dag,
  */
 void
 FWorkflow::createVoidInstance(const FDataTag& currTag,
-                              vector<FDataHandle*>& currDataLine) {
+                              std::vector<FDataHandle*>& currDataLine) {
   createRealInstance(NULL, currTag, currDataLine);
 }
 

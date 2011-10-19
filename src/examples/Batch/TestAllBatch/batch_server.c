@@ -71,7 +71,7 @@ copyFile(char * inputName, char * outputName)
     perror("open");
     exit(-1);
   }
-  while((bytes = read(inputFile, line, sizeof(line))) > 0)
+  while ((bytes = read(inputFile, line, sizeof(line))) > 0)
     write(outputFile, line, bytes);
 
   close(inputFile);

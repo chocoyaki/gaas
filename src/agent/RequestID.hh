@@ -44,7 +44,8 @@ public:
    *
    * @param reqID the value of the RequestID.
    */
-  RequestID(CORBA::Long reqID) : value(reqID) {}
+  RequestID(CORBA::Long reqID) : value(reqID) {
+  }
 
   /**
    * Clones a RequestID.

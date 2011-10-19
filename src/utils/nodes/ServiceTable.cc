@@ -790,7 +790,7 @@ ServiceTable::getChildren(const corba_pb_desc_t * pb_desc,
   ServiceTable::matching_children_t * mc = NULL;
 
   /* Search for 1rst occurence of service in table */
-  while((i < nb_s) && (!profile_match(&(profiles[i]), pb_desc)))
+  while ((i < nb_s) && (!profile_match(&(profiles[i]), pb_desc)))
     i++;
   if (i == nb_s) {
     SRVT_ERROR("attempting to get children" << endl
@@ -807,7 +807,7 @@ ServiceTable::getChildren(const corba_pb_desc_t * pb_desc,
     int second_found = -1;
     i++;
     /* Search for 2nd occurence of service in table */
-    while((i < nb_s) && (!profile_match(&(profiles[i]), pb_desc)))
+    while ((i < nb_s) && (!profile_match(&(profiles[i]), pb_desc)))
       i++;
     if (i== nb_s) /* No new occurence */
       mc->nb_children =
@@ -997,7 +997,7 @@ ServiceTable::testIfAllParallelServices()
 {
   size_t i = 1;
 
-  while((i<nb_s) && (profiles[0].parallel_flag == profiles[i].parallel_flag))
+  while ((i<nb_s) && (profiles[0].parallel_flag == profiles[i].parallel_flag))
     i++;
   if (i == nb_s)
     return (profiles[0].parallel_flag == 2);

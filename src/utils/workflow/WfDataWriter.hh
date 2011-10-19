@@ -109,7 +109,7 @@ public:
 
 class WfListDataWriter : public WfDataWriter  {
 public:
-  WfListDataWriter(std::ostream& output);
+  explicit WfListDataWriter(std::ostream& output);
 
   virtual void
   startContainer();

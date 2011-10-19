@@ -60,8 +60,8 @@
 #ifndef _DAGNODEPORT_HH_
 #define _DAGNODEPORT_HH_
 
-#include <string>
 #include <list>
+#include <string>
 
 #include "DIET_data.h"
 #include "WfPortAdapter.hh"
@@ -69,20 +69,15 @@
 #include "WfPort.hh"
 #include "DagNode.hh"
 
-using namespace std;
-
 /*****************************************************************************/
 /*                        DagNodePort (ABSTRACT)                             */
 /*****************************************************************************/
-
 class DagNodePort : public WfPort {
-
 public:
-
   /**
    * Separator used for initializing or displaying container elements
    */
-  static string containerSeparator;
+  static std::string containerSeparator;
 
   /**
    * Event Message types
@@ -94,18 +89,13 @@ public:
   /***************************************************/
   /* constructors/destructor                         */
   /***************************************************/
-
-  DagNodePort(DagNode * parent,
-              string _id,
-              WfPort::WfPortType _portType,
-              WfCst::WfDataType _type,
-              unsigned int _depth,
-              unsigned int _ind);
+  DagNodePort(DagNode * parent, std::string _id,
+              WfPort::WfPortType _portType, WfCst::WfDataType _type,
+              unsigned int _depth, unsigned int _ind);
 
   /***************************************************/
   /*               public methods                    */
   /***************************************************/
-
   /**
    * Initialize the profile before node submission
    */
@@ -121,14 +111,14 @@ public:
   /**
    * Return the object description as a string
    */
-  virtual string
+  virtual std::string
   toString() const;
 
   /**
    * Return the XML description of the port
    */
   virtual void
-  toXML(ostream& output) const;
+  toXML(std::ostream& output) const;
 
   /**
    * Return the profile of the node
@@ -141,13 +131,13 @@ public:
    * Set the data ID of the data received/produced by the port
    */
   void
-  setDataID(const string& dataID);
+  setDataID(const std::string& dataID);
 
   /**
    * Return the data ID of the port
    * @exception WfDataException(eID_UNDEF) if the data ID is not defined
    */
-  const string&
+  const std::string&
   getDataID() throw(WfDataException);
 
   bool
@@ -160,7 +150,6 @@ public:
   freePersistentData(MasterAgent_var& MA) = 0;
 
 protected:
-
   /**
    * Returns the persistence mode for this port
    */
@@ -176,14 +165,13 @@ protected:
   /**
    * The port data ID
    */
-  string myDataID;
+  std::string myDataID;
 
   /**
    * The reference of port node
    */
   DagNode * myParent;
-
-};  // end DagNodePort
+};
 
 
 /*****************************************************************************/
@@ -192,10 +180,8 @@ protected:
 
 class DagNodeOutPort : virtual public DagNodePort {
 public:
-  DagNodeOutPort(DagNode * parent,
-                 string _id,
-                 WfCst::WfDataType _type,
-                 unsigned int _depth,
+  DagNodeOutPort(DagNode * parent, std::string _id,
+                 WfCst::WfDataType _type, unsigned int _depth,
                  unsigned int _ind);
 
   ~DagNodeOutPort();
@@ -221,23 +207,14 @@ public:
   /**
    * Return the object description as a string
    */
-  virtual string
+  virtual std::string
   toString() const;
 
   /**
    * Return the XML description of the port
    */
   virtual void
-  toXML(ostream& output) const;
-
-  /**
-   * Get the cardinal of the content of the output data (when it's a container)
-   * (for any ID within the container tree of the output)
-   * @param dataID  the ID of the data container
-   * @return  the size of the container
-   */
-  //   unsigned int
-  //   getDataIDCardinal(const string& dataID) throw(WfDataException);
+  toXML(std::ostream& output) const;
 
   /**
    * Get the ID of an element of the output data (when it's a container)
@@ -245,8 +222,9 @@ public:
    * @return  the data ID (may be empty if the element is NULL)
    * @exception WfDataException(eID_UNDEF) if the data ID is not defined
    */
-  string
-  getElementDataID(const list<unsigned int>& eltIdx) throw(WfDataException);
+  std::string
+  getElementDataID(const std::list<unsigned int>& eltIdx)
+    throw(WfDataException);
 
   /**
    * Write the output data in a stream
@@ -263,46 +241,39 @@ public:
    * @param eltIdx a list of indexes for the element
    */
   void
-  writeDataElement(WfDataWriter* dataWriter, const list<unsigned int>& idxList)
+  writeDataElement(WfDataWriter* dataWriter,
+                   const std::list<unsigned int>& idxList)
     throw(WfDataException);
 
-
 protected:
-
   /**
    * Display method used only when port type is container
    * (recursive)
    */
   void
-  writeContainer(WfDataWriter* dataWriter,
-                 const string& containerID,
+  writeContainer(WfDataWriter* dataWriter, const std::string& containerID,
                  unsigned int depth) throw(WfDataException);
   /**
    * Display method used for container elements (dagda API)
    */
   void
-  writeContainerData(WfDataWriter* dataWriter,
-                     const string& eltID);
+  writeContainerData(WfDataWriter* dataWriter, const std::string& eltID);
 
   /**
    * Returns the persistence mode for this port
    */
   diet_persistence_mode_t
   getPersistenceMode();
-
 };
 
 
 /*****************************************************************************/
 /*                           DagNodeInPort                                   */
 /*****************************************************************************/
-
 class DagNodeInPort : virtual public DagNodePort {
 public:
-  DagNodeInPort(DagNode * parent,
-                string _id,
-                WfCst::WfDataType _type,
-                unsigned int _depth,
+  DagNodeInPort(DagNode * parent, std::string _id,
+                WfCst::WfDataType _type, unsigned int _depth,
                 unsigned int _ind);
 
   /**
@@ -317,7 +288,7 @@ public:
    * @param strRef The source port (output port) reference
    */
   virtual void
-  setConnectionRef(const string& strRef);
+  setConnectionRef(const std::string& strRef);
 
   /**
    * Set the source of the input port (when dag built by wf instanciator)
@@ -335,14 +306,14 @@ public:
   /**
    * Return the object description as a string
    */
-  virtual string
+  virtual std::string
   toString() const;
 
   /**
    * Return the XML description of the port
    */
   virtual void
-  toXML(ostream& output) const;
+  toXML(std::ostream& output) const;
 
   /**
    * Free the persistent data
@@ -366,7 +337,6 @@ protected:
    */
   diet_persistence_mode_t
   getPersistenceMode();
-
 };  // end DagNodeInPort
 
 
@@ -377,10 +347,8 @@ protected:
 class DagNodeInOutPort : virtual public DagNodeInPort,
                          virtual public DagNodeOutPort {
 public:
-  DagNodeInOutPort(DagNode * parent,
-                   string _id,
-                   WfCst::WfDataType _type,
-                   unsigned int _depth,
+  DagNodeInOutPort(DagNode * parent, std::string _id,
+                   WfCst::WfDataType _type, unsigned int _depth,
                    unsigned int _ind);
   /**
    * Initialize the profile before node execution
@@ -391,14 +359,14 @@ public:
   /**
    * Return the object description as a string
    */
-  virtual string
+  virtual std::string
   toString() const;
 
   /**
    * Return the XML description of the port
    */
   virtual void
-  toXML(ostream& output) const;
+  toXML(std::ostream& output) const;
 
   /**
    * Free the persistent data
@@ -412,8 +380,7 @@ protected:
    */
   diet_persistence_mode_t
   getPersistenceMode();
-
-};  // end DagNodeInOutPort
+};
 
 
 /*****************************************************************************/
@@ -422,17 +389,15 @@ protected:
 
 class DagNodeArgPort : virtual public DagNodePort {
 public:
-  DagNodeArgPort(DagNode * parent,
-                 string _id,
-                 WfCst::WfDataType _type,
-                 unsigned int _depth,
+  DagNodeArgPort(DagNode * parent, std::string _id,
+                 WfCst::WfDataType _type, unsigned int _depth,
                  unsigned int _ind);
 
   /**
    * Set the value of the data for the port
    */
   void
-  setValue(const string& val);
+  setValue(const std::string& val);
 
   /**
    * Initialize the profile before node submission
@@ -449,14 +414,14 @@ public:
   /**
    * Return the object description as a string
    */
-  virtual string
+  virtual std::string
   toString() const;
 
   /**
    * Return the XML description of the port
    */
   virtual void
-  toXML(ostream& output) const;
+  toXML(std::ostream& output) const;
 
   /**
    * Free the persistent data
@@ -492,8 +457,7 @@ protected:
    * @param contDepth depth of the current container (must be >= 1)
    */
   void
-  initContainerValueRec(char** contIDPtr,
-                        string& contStr,
+  initContainerValueRec(char** contIDPtr, std::string& contStr,
                         unsigned int contDepth);
   /**
    * Stores a data defined by a value string into the data manager
@@ -512,8 +476,7 @@ protected:
   /**
    * The value of the data
    */
-  string value;
-
+  std::string value;
 };  // end DagNodeArgPort
 
 

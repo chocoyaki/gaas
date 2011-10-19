@@ -133,7 +133,7 @@ OAR2_XBatchSystem::askBatchJobStatus(int batchJobID)
   /* Adjust what have been read */
   if (chaine[nbread-1] == '\n')
     chaine[nbread-1] = '\0';
-  while((i<NB_STATUS) &&
+  while ((i<NB_STATUS) &&
          (strcmp(chaine, OAR2_XBatchSystem::statusNames[i])!=0)) {
     i++;
   }

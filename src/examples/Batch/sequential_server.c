@@ -77,13 +77,13 @@ int solve_concatenation(diet_profile_t *pb)
   /* Concatenation */
   file = fopen(path1, "r");
   output_file = fopen(path_result, "w+");
-  while(!feof(file)) {
+  while (!feof(file)) {
     count = fread(&chaine, sizeof(char), MAX_STRING_LENGTH, file);
     fwrite(chaine, sizeof(char), count, output_file);
   }
   fclose(file);
   file = fopen(path2, "r");
-  while(!feof(file)) {
+  while (!feof(file)) {
     count = fread(&chaine, sizeof(char), MAX_STRING_LENGTH, file);
     fwrite(chaine, sizeof(char), count, output_file);
   }

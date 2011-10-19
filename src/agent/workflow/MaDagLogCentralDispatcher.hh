@@ -27,8 +27,12 @@
 #ifdef USE_LOG_SERVICE
 #include "DietLogComponent.hh"
 #endif
-using namespace events;
-using namespace madag;
+
+using events::EventDispatcher;
+using events::EventFrom;
+using events::EventStandardMsg;
+using madag::MultiWfScheduler;
+
 
 class MaDagLogCentralDispatcher : public EventDispatcher {
 public:
@@ -38,13 +42,13 @@ public:
   void
   onMultiWfSchedulerCreation(
     const EventFrom<MultiWfScheduler,
-    EventStandardMsg<MultiWfScheduler,
-    MultiWfScheduler::CONSTR> >* event);
+                    EventStandardMsg<MultiWfScheduler,
+                                     MultiWfScheduler::CONSTR> >* event);
 
   void
   onDagNodeReady(
     const EventFrom<DagNode,
-    EventStandardMsg<DagNode, DagNode::READY> >* event);
+                    EventStandardMsg<DagNode, DagNode::READY> >* event);
 
 private:
   DietLogComponent* myLC;

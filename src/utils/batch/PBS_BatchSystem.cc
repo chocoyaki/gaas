@@ -172,7 +172,7 @@ PBS_BatchSystem::askBatchJobStatus(int batchJobID)
     /* Adjust what have been read */
     if (chaine[nbread-1] == '\n')
       chaine[nbread-1] = '\0';
-    while((i<NB_STATUS) &&
+    while ((i<NB_STATUS) &&
            (strcmp(chaine, PBS_BatchSystem::statusNames[i])!=0)) {
       i++;
     }

@@ -25,38 +25,35 @@
 
 DagNodeLauncher::DagNodeLauncher(DagNode * parent,
                                  DagScheduler * scheduler)
-  : myNode(parent), myDagScheduler(scheduler), isSeDDefinedFlag(false), myReqID(0),
-    isSuccessfulFlag(false)
-{
+  : myNode(parent), myDagScheduler(scheduler),
+    isSeDDefinedFlag(false), myReqID(0),
+    isSuccessfulFlag(false) {
   myChosenServer = NULL;
 }
 
 void
-DagNodeLauncher::setSeD(const char* sed,
-                        const unsigned long reqID,
-                        corba_estimation_t& ev)
-{
+DagNodeLauncher::setSeD(const char* sed, const unsigned long reqID,
+                        corba_estimation_t& ev) {
   myChosenServer = CORBA::string_dup(sed);
   myReqID = reqID;
   myEstimVect = ev;  // COPY of estimation vector (required)
   isSeDDefinedFlag = true;
 }
 
-//FIXME should return the hostname not the dataMgr name (temp for gwendia exp.)
-string 
-DagNodeLauncher::getSeDName() const
-{
-  if (isSeDDefined())
+// FIXME should return the hostname not the dataMgr name (temp for gwendia exp.)
+std::string
+DagNodeLauncher::getSeDName() const {
+  if (isSeDDefined()) {
     return myChosenServer;
-  else
+  } else {
     return "";
+  }
 }
 
 
-string 
-DagNodeLauncher::toString() const
-{
-  string s = "DagNode Launcher (";
+std::string
+DagNodeLauncher::toString() const {
+  std::string s("DagNode Launcher (");
   s += myNode->getId();
   s += ")";
   return s;
@@ -64,18 +61,17 @@ DagNodeLauncher::toString() const
 
 
 void *
-DagNodeLauncher::run()
-{
+DagNodeLauncher::run() {
   execNode();
-  if (isSuccessfulFlag)   
+  if (isSuccessfulFlag) {
     myNode->setAsDone(myDagScheduler);
-  else      
+  } else {
     myNode->setAsFailed(myDagScheduler);
+  }
   finishNode();
   return NULL;
 };
 
 void
-DagNodeLauncher::finishNode()
-{
+DagNodeLauncher::finishNode() {
 }

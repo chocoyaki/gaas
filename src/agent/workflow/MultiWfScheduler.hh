@@ -228,12 +228,12 @@ public:
    * Dag cancellation
    */
   virtual void
-  cancelDag(const string& dagId);
+  cancelDag(const std::string& dagId);
 
   /**
    * Returns a description
    */
-  virtual string
+  virtual std::string
   toString() const;
 
 protected:
@@ -243,7 +243,7 @@ protected:
    * (will not find a completed dag except if part of a non-completed metaDag)
    */
   Dag *
-  getDag(const string& dagId) throw(MaDag::InvalidDag);
+  getDag(const std::string& dagId) throw(MaDag::InvalidDag);
 
   /**
    * Get the MetaDag of a given dag

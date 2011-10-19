@@ -159,11 +159,10 @@
 #define MAX_NB_CHILDREN 10
 #define MAX_NB_SERVICES 20
 
-class ServiceTable
-{
-
+class ServiceTable {
 public:
   typedef int ServiceReference_t;
+
   typedef struct {
     CORBA::ULong  nb_children;
     CORBA::ULong* children;
@@ -171,12 +170,14 @@ public:
 
   // Equivalent to ServiceTable(MAX_NB_SERVICES, MAX_NB_CHILDREN)
   ServiceTable();
+
   // Equivalent to ServiceTable(max_nb_services, 0)
   ServiceTable(CORBA::ULong max_nb_services);
   // Allocate memory with given inital numbers, but:
   //  - the solvers part of the table is nil if max_nb_children > 0
   //  - the matching children part is nil either
   ServiceTable(CORBA::ULong max_nb_services, CORBA::ULong max_nb_children);
+
   virtual
   ~ServiceTable();
 
@@ -191,11 +192,6 @@ public:
   lookupService(const char* path, const corba_profile_t* pb);
 
   // All data structures are duplicated in add methods
-  /*
-    int
-    addService(const corba_profile_desc_t* profile, diet_convertor_t* cvt,
-    diet_solve_t solver, diet_eval_t evalf);
-  */
   int
   addService(const corba_profile_desc_t* profile,
              const diet_convertor_t* const cvt,
@@ -207,10 +203,13 @@ public:
 
   int
   rmService(const corba_profile_desc_t* profile);
+
   int
   rmService(const ServiceReference_t ref);
+
   int
   rmChildService(const corba_profile_desc_t* profile, CORBA::ULong childID);
+
   int
   rmChild(const CORBA::ULong child);
 
@@ -220,22 +219,31 @@ public:
   // Caller is responsible for freeing the result.
   SeqCorbaProfileDesc_t*
   getProfiles();
+
   SeqCorbaProfileDesc_t*
   getProfiles(CORBA::Long& length);
+
   diet_solve_t
   getSolver(const corba_profile_desc_t* profile);
+
   diet_solve_t
   getSolver(const ServiceReference_t ref);
+
   diet_eval_t
   getEvalf(const corba_profile_desc_t* profile);
+
   diet_eval_t
   getEvalf(const ServiceReference_t ref);
+
   diet_convertor_t*
   getConvertor(const corba_profile_desc_t* profile);
+
   diet_convertor_t*
   getConvertor(const ServiceReference_t ref);
+
   diet_perfmetric_t
   getPerfMetric(const corba_profile_desc_t* profile);
+
   diet_perfmetric_t
   getPerfMetric(const ServiceReference_t ref);
   /* Unused!
@@ -287,8 +295,8 @@ private:
   diet_convertor_t* convertors;
   // array of performance metric functions
   diet_perfmetric_t* perfmetrics;
-  // array of int arrays: each element is an array of children ID, which offer the
-  // corresponding service
+  // array of int arrays: each element is an array of children ID,
+  // which offer the corresponding service
   matching_children_t* matching_children;
 
   // private methods

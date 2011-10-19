@@ -46,10 +46,10 @@
 #define OMNITHREADID_OUTPUT()                   \
   int id = omni_thread::self()->id();           \
   cout << "ThreaID=" << id << "|";
-#define TIMER_OUTPUT()                                                  \
-  timeval tval;                                                         \
-  gettimeofday(&tval, NULL);                                            \
-  cout << "timer=" << tval.tv_sec << ", " << tval.tv_usec << "|";
+#define TIMER_OUTPUT()                          \
+  timeval tval;                                 \
+  gettimeofday(&tval, NULL);                    \
+  std::cout << "timer=" << tval.tv_sec << ", " << tval.tv_usec << "|";
 #define VARIABLE_OUTPUT(X)                      \
   cout << #X << "=" << X;
 #define TEXT_OUTPUT(X)                          \
@@ -71,6 +71,6 @@
       std::cout << "\n";                                \
     fflush(stdout);                                     \
     fflush(stderr);                                     \
-  } while(0);
+  } while (0);
 
 #endif /* _GLOBAL_MACROS_H_ */

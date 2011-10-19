@@ -39,7 +39,7 @@ using namespace madag;
 MultiWfSRPT::MultiWfSRPT(MaDag_impl* maDag)
   : MultiWfScheduler(maDag, MultiWfScheduler::MULTIWF_DAG_METRIC) {
   this->execQueue = new PriorityNodeQueue;
-  TRACE_TEXT(TRACE_MAIN_STEPS, "Using SRPT multi-workflow scheduler" << endl);
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Using SRPT multi-workflow scheduler\n");
 }
 
 MultiWfSRPT::~MultiWfSRPT() {
@@ -86,7 +86,7 @@ MultiWfSRPT::setExecPriority(DagNode * node) {
   } // end loop (dag nodes)
   if (RPT > 0) {
     TRACE_TEXT(TRACE_ALL_STEPS, "[SRPT] Dag " << dag->getId()
-               << " RPT = " << RPT << endl);
+               << " RPT = " << RPT << "\n");
     node->setPriority(1 / RPT);
   }
 }

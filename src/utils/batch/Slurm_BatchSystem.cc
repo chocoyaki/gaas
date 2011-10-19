@@ -148,7 +148,7 @@ Slurm_BatchSystem::askBatchJobStatus(int batchJobID) {
     if (chaine[nbread-1] == '\n') {
       chaine[nbread-1] = '\0';
     }
-    while((i<NB_STATUS) &&
+    while ((i<NB_STATUS) &&
            (strcmp(chaine, Slurm_BatchSystem::statusNames[i])!=0)) {
       i++;
     }

@@ -51,11 +51,12 @@
 #include "FWorkflow.hh"
 #include "Dag.hh"
 
-FActivityNode::FActivityNode(FWorkflow* wf,
-                             const string& id)
-  : FProcNode(wf, id), myPath(), maxInstNb(0) {}
+FActivityNode::FActivityNode(FWorkflow* wf, const std::string& id)
+  : FProcNode(wf, id), myPath(), maxInstNb(0) {
+}
 
-FActivityNode::~FActivityNode() {}
+FActivityNode::~FActivityNode() {
+}
 
 void
 FActivityNode::setMaxInstancePerDag(short maxInst) {
@@ -63,12 +64,12 @@ FActivityNode::setMaxInstancePerDag(short maxInst) {
 }
 
 void
-FActivityNode::setDIETServicePath(const string& path) {
+FActivityNode::setDIETServicePath(const std::string& path) {
   myPath = path;
 }
 
 void
-FActivityNode::setDIETEstimationOption(const string& estimOption) {
+FActivityNode::setDIETEstimationOption(const std::string& estimOption) {
   myEstimOption = estimOption;
 }
 
@@ -96,9 +97,9 @@ FActivityNode::instLimitReached() {
 void
 FActivityNode::createRealInstance(Dag* dag,
                                   const FDataTag& currTag,
-                                  vector<FDataHandle*>& currDataLine) {
+                                  std::vector<FDataHandle*>& currDataLine) {
   DagNode* dagNode = NULL;
-  string   dagNodeId = getId() + currTag.toString();
+  std::string dagNodeId = getId() + currTag.toString();
 
   // check if dagNode id is not available in the execution transcript
   // (used in case of workflow re-start)
@@ -130,7 +131,7 @@ FActivityNode::createRealInstance(Dag* dag,
     TRACE_TEXT(TRACE_MAIN_STEPS,
                "  ## RE-USE ACTIVITY INSTANCE : " << dagNodeId << "\n");
     // LOOP for each port - send data
-    std::map<string, WfPort*>::iterator portIter = ports.begin();
+    std::map<std::string, WfPort*>::iterator portIter = ports.begin();
     for (; portIter != ports.end(); ++portIter) {
       WfPort* FPort = (WfPort*) portIter->second;
       if (FPort->getPortType() == WfPort::PORT_OUT) {

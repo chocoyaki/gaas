@@ -76,7 +76,7 @@ void BindService::run(void* ptr) {
   bool doNotStop = true;
   char* ior = this->ior;
   this->ior = NULL;
-  while(doNotStop) {
+  while (doNotStop) {
     struct sockaddr_in clientAddr;
     socklen_t clientLen = static_cast<socklen_t>(sizeof(clientAddr));
     int newSockFd = accept(listenSocket, (struct sockaddr *) &clientAddr,

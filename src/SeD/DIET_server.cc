@@ -855,14 +855,14 @@ diet_SeD(const char* config_file_name, int argc, char* argv[]) {
   /* SeD creation */
   SeD = new SeDImpl();
   TRACE_TEXT(TRACE_MAIN_STEPS,
-             "## SED_IOR " << ORBMgr::getMgr()->getIOR(SeD->_this()) << endl);
+             "## SED_IOR " << ORBMgr::getMgr()->getIOR(SeD->_this()) << "\n");
   fsync(1);
   fflush(NULL);
 
 #ifdef HAVE_ALT_BATCH
   /* Define the role of the SeD: batch, serial, etc. */
   SeD->setServerStatus(st);
-  TRACE_TEXT(TRACE_MAIN_STEPS, "setServerStatus " << (int)st << endl);
+  TRACE_TEXT(TRACE_MAIN_STEPS, "setServerStatus " << (int)st << "\n");
 #endif
 
 #ifdef USE_LOG_SERVICE
@@ -872,7 +872,7 @@ diet_SeD(const char* config_file_name, int argc, char* argv[]) {
 
   CONFIG_BOOL(diet::USELOGSERVICE, useLS);
   if (!useLS) {
-    TRACE_TEXT(TRACE_ALL_STEPS, "LogService disabled" << endl);
+    TRACE_TEXT(TRACE_ALL_STEPS, "LogService disabled\n");
     dietLogComponent = NULL;
   } else {
     int outBufferSize;
@@ -888,7 +888,7 @@ diet_SeD(const char* config_file_name, int argc, char* argv[]) {
       WARNING("lsFlushinterval not configured, using default");
     }
 
-    TRACE_TEXT(TRACE_ALL_STEPS, "* LogService: enabled" << endl);
+    TRACE_TEXT(TRACE_ALL_STEPS, "* LogService: enabled\n");
     std::string parentName;
     CONFIG_STRING(diet::PARENTNAME, parentName);
 
@@ -900,7 +900,7 @@ diet_SeD(const char* config_file_name, int argc, char* argv[]) {
     if (dietLogComponent->run("SeD", parentName.c_str(), flushTime) != 0) {
       //      delete(dietLogComponent);  // DLC is activated, do not delete !
       WARNING("Could not initialize DietLogComponent");
-      TRACE_TEXT(TRACE_ALL_STEPS, "* LogService: disabled" << endl);
+      TRACE_TEXT(TRACE_ALL_STEPS, "* LogService: disabled\n");
       dietLogComponent = NULL;
     }
   }
@@ -1438,7 +1438,7 @@ diet_get_SeD_services(int *services_number,
     try {
       SeD_var sed = NULL;
       TRACE_TEXT(TRACE_ALL_STEPS,
-                 "Searching SeD " << SeDName << endl);
+                 "Searching SeD " << SeDName << "\n");
       sed = ORBMgr::getMgr()->resolve<SeD, SeD_ptr>(SEDCTXT, SeDName);
 
       if (CORBA::is_nil(sed)) {

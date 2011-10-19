@@ -193,7 +193,7 @@ int Eucalyptus_BatchSystem::diet_submit_parallel(diet_profile_t * profile,
   int index = 0;
   /* wait while the VMs have no assigned IP addresses */
   state = SUBMITTED;
-  while(unassigned)
+  while (unassigned)
   {
     unassigned = 0;
     if (count > maxTries)
@@ -381,7 +381,7 @@ void Eucalyptus_BatchSystem::doWait(int count, char*addresses)
     if (result)
       sleep(sleepTimeout);
   }
-  while(index < count && result);
+  while (index < count && result);
 
 }
 
@@ -680,7 +680,7 @@ Eucalyptus_BatchSystem::request_data_t * Eucalyptus_BatchSystem::request_begin(i
 
   request_mutex.lock();
 
-  while(index < max_threads && thread_local_id[index] != -1)
+  while (index < max_threads && thread_local_id[index] != -1)
     index++;
   if (index >= max_threads)
     return NULL;
@@ -708,7 +708,7 @@ void Eucalyptus_BatchSystem::request_end(int thread_id)
 
   request_mutex.lock();
 
-  while(index < max_threads && thread_local_id[index] != -1)
+  while (index < max_threads && thread_local_id[index] != -1)
     index++;
   if (index >= max_threads)
     return;

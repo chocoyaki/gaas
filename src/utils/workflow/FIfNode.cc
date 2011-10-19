@@ -120,9 +120,9 @@ FIfNode::checkCondition() throw(WfStructException) {
   if (myConditionVars != NULL) {
     delete myConditionVars;
   }
-  myConditionVars = new vector<WfExprVariable*>(getPortNb(), NULL);
+  myConditionVars = new std::vector<WfExprVariable*>(getPortNb(), NULL);
   // loop over all inputs and set the variable in the table
-  for (map<std::string, WfPort*>::iterator portIter = ports.begin();
+  for (std::map<std::string, WfPort*>::iterator portIter = ports.begin();
        portIter != ports.end();
        ++portIter) {
     WfPort *port = (WfPort*) portIter->second;
@@ -263,7 +263,7 @@ FMergeNode::createMergeInstance(const FDataTag& currTag,
              << currTag.toString() << "\n");
   FDataHandle* srcData = NULL;
   FDataHandle *outData = NULL;
-  vector<FDataHandle*>::const_iterator DLIter = currDataLine.begin();
+  std::vector<FDataHandle*>::const_iterator DLIter = currDataLine.begin();
   while ((!srcData || srcData->isVoid()) && !(DLIter == currDataLine.end())) {
     srcData = (FDataHandle*) *(DLIter++);
   }
@@ -607,7 +607,7 @@ FFilterNode::getNewTag(const FDataTag& srcTag) {
 FFilterNode::filterNode_t*
 FFilterNode::getTreeNode(FDataHandle* DH) {
   const FDataTag& tag = DH->getTag();
-  map<FDataTag, filterNode_t*>::iterator treeSrch = myTree.find(tag);
+  std::map<FDataTag, filterNode_t*>::iterator treeSrch = myTree.find(tag);
   if (treeSrch == myTree.end()) {
     // create new node in the tree
     filterNode_t* newNode = myTree[tag] = new filterNode_t;
@@ -628,7 +628,7 @@ FFilterNode::getTreeNode(FDataHandle* DH) {
 
 FFilterNode::filterNode_t*
 FFilterNode::getTreeNode(const FDataTag& tag) {
-  map<FDataTag, filterNode_t*>::iterator treeSrch = myTree.find(tag);
+  std::map<FDataTag, filterNode_t*>::iterator treeSrch = myTree.find(tag);
   if (treeSrch == myTree.end()) {
     // create new node in the tree
     filterNode_t* newNode = myTree[tag] = new filterNode_t;

@@ -89,8 +89,6 @@
 #include "NodeSet.hh"
 #include "FNode.hh"
 
-using namespace std;
-
 /* The different types of nodes used in a functional workflow */
 
 class FActivityNode;
@@ -100,9 +98,7 @@ class FFilterNode;
 class FLoopNode;
 
 class FWorkflow : public NodeSet, public FProcNode {
-
 public:
-
   /***************************************************/
   /* constructors/destructor                         */
   /***************************************************/
@@ -112,14 +108,14 @@ public:
    * @param id    workflow identifier
    * @param name  name of the workflow (only descriptive)
    */
-  FWorkflow(string id, string name);
+  FWorkflow(std::string id, std::string name);
 
   /**
    * Constructor of sub-workflow (child of another workflow)
    * @param id        a unique identifier (among all parent wf processors)
    * @param parentWf  ref to the parent wf
    */
-  FWorkflow(string id, string name, FWorkflow* parentWf);
+  FWorkflow(std::string id, std::string name, FWorkflow* parentWf);
 
   /**
    * FWorkflow destructor
@@ -142,9 +138,8 @@ public:
   /***************************************************/
   /*            NodeSet methods                      */
   /***************************************************/
-
   virtual WfNode *
-  getNode(const string& nodeId) throw(WfStructException);
+  getNode(const std::string& nodeId) throw(WfStructException);
 
   virtual void
   checkPrec(NodeSet* contextNodeSet) throw(WfStructException);
@@ -168,11 +163,11 @@ public:
   virtual void
   createRealInstance(Dag* dag,
                      const FDataTag& currTag,
-                     vector<FDataHandle*>& currDataLine);
+                     std::vector<FDataHandle*>& currDataLine);
 
   virtual void
   createVoidInstance(const FDataTag& currTag,
-                     vector<FDataHandle*>& currDataLine);
+                     std::vector<FDataHandle*>& currDataLine);
 
   virtual void
   updateInstanciationStatus();
@@ -180,19 +175,19 @@ public:
   /***************************************************/
   /*               public methods                    */
   /***************************************************/
-  string
+  std::string
   getName() const;
 
-  virtual string
+  virtual std::string
   toString() const;
 
   virtual FWorkflow*
   getRootWorkflow() const;
 
   void
-  setDataSrcXmlFile(const string& dataFileName);
+  setDataSrcXmlFile(const std::string& dataFileName);
 
-  const string&
+  const std::string&
   getDataSrcXmlFile();
 
   /**
@@ -201,32 +196,35 @@ public:
    */
 
   FActivityNode*
-  createActivity(const string& id) throw(WfStructException);
+  createActivity(const std::string& id) throw(WfStructException);
 
   FIfNode*
-  createIf(const string& id) throw(WfStructException);
+  createIf(const std::string& id) throw(WfStructException);
 
   FMergeNode*
-  createMerge(const string& id) throw(WfStructException);
+  createMerge(const std::string& id) throw(WfStructException);
 
   FFilterNode*
-  createFilter(const string& id) throw(WfStructException);
+  createFilter(const std::string& id) throw(WfStructException);
 
   FLoopNode*
-  createLoop(const string& id) throw(WfStructException);
+  createLoop(const std::string& id) throw(WfStructException);
 
   FWorkflow*
-  createSubWorkflow(const string& id, const string& name) throw(WfStructException);
+  createSubWorkflow(const std::string& id, const std::string& name)
+    throw(WfStructException);
 
   FSourceNode*
-  createSource(const string& id, WfCst::WfDataType type) throw(WfStructException);
+  createSource(const std::string& id, WfCst::WfDataType type)
+    throw(WfStructException);
 
   FConstantNode*
-  createConstant(const string& id, WfCst::WfDataType type) throw(WfStructException);
+  createConstant(const std::string& id, WfCst::WfDataType type)
+    throw(WfStructException);
 
   FSinkNode*
-  createSink(const string& id, WfCst::WfDataType type, unsigned int depth)
-  throw(WfStructException);
+  createSink(const std::string& id, WfCst::WfDataType type, unsigned int depth)
+    throw(WfStructException);
 
   /**
    * Get methods for workflow nodes
@@ -234,10 +232,10 @@ public:
    */
 
   FProcNode *
-  getProcNode(const string& id) throw(WfStructException);
+  getProcNode(const std::string& id) throw(WfStructException);
 
   FNode *
-  getInterfaceNode(const string& id) throw(WfStructException);
+  getInterfaceNode(const std::string& id) throw(WfStructException);
 
 
   /**
@@ -270,7 +268,7 @@ public:
    * @param output  output stream
    */
   void
-  writeAllDagsState(ostream& output);
+  writeAllDagsState(std::ostream& output);
 
   /**
    * Write a status of all the sources and sinks of the workflow
@@ -280,7 +278,7 @@ public:
    * @param output  output stream
    */
   void
-  writeAllSourcesAndSinksData(ostream& output);
+  writeAllSourcesAndSinksData(std::ostream& output);
 
   /**
    * Initialize a workflow using the transcript of all generated
@@ -290,7 +288,7 @@ public:
    * will be re-used (uses data IDs written in the transcript)
    */
   void
-  readDagsState(list<Dag*>& dagList);
+  readDagsState(std::list<Dag*>& dagList);
 
   /**
    * Check workflow execution transcript for a given dag node id
@@ -298,9 +296,9 @@ public:
    * @param dagNodePtr  returns a ptr to the dagNode if found
    * @param isDone      returns true if dagNode is done
    */
-  void findDagNodeTranscript(const string& dagNodeId,
-                              DagNode* & dagNodePtr,
-                              bool& isDone);
+  void
+  findDagNodeTranscript(const std::string& dagNodeId, DagNode* & dagNodePtr,
+                        bool& isDone);
 
   /**
    * results
@@ -315,12 +313,13 @@ public:
   downloadSinkData();
 
   void
-  displayAllResults(ostream& output);
+  displayAllResults(std::ostream& output);
+
   void
-  displayDagSummary(ostream& output);
+  displayDagSummary(std::ostream& output);
+
   void
-  getSinkContainer(const string& sinkName,
-                   string& containerID);
+  getSinkContainer(const std::string& sinkName, std::string& containerID);
 
   /**
    * memory free
@@ -329,58 +328,60 @@ public:
   /**
    * Remove all data produced by the workflow from the platform
    */
-  void deleteAllResults();
+  void
+  deleteAllResults();
 
   /**
    * Remove input data created by the workflow engine on the platform
    * (sources and constants)
    */
-  void deleteAllInputData(MasterAgent_var& MA);
+  void
+  deleteAllInputData(MasterAgent_var& MA);
 
   /**
    * Remove intermediate data created by the workflow engine on the platform
    */
-  void deleteAllIntermediateData(MasterAgent_var& MA);
+  void
+  deleteAllIntermediateData(MasterAgent_var& MA);
 
   /**
    * Free memory used for dags generated by the workflow engine
    */
-  void deleteAllDags();
-
+  void
+  deleteAllDags();
 
 private:
-
   /**
    * Workflow Name
    * (descriptive)
    */
-  string myName;
+  std::string myName;
 
   /**
    * Workflow nodes for the interface (sources, sinks, constants)
    */
-  map<string, FNode *> myInterface;
+  std::map<std::string, FNode *> myInterface;
 
   /**
    * Workflow nodes for the processors
    */
-  map<string, FProcNode*> myProc;
+  std::map<std::string, FProcNode*> myProc;
 
   /**
    * Workflow nodes to be instanciated (ordered list)
    */
-  list<FProcNode*> todoProc;
+  std::list<FProcNode*> todoProc;
 
   /**
    * File to use for instanciation of data sources
    */
-  string dataSrcXmlFile;
+  std::string dataSrcXmlFile;
 
   /**
    * List of generated dags
    */
 
-  list<Dag*> myDags;
+  std::list<Dag*> myDags;
 
   /**
    * Pending instance record
@@ -396,13 +397,13 @@ private:
    * dependency of other functional nodes on the cardinal of the outputs of
    * this node)
    */
-  multimap<DagNode*, pendingDagNodeInfo_t> pendingNodes;
+  std::multimap<DagNode*, pendingDagNodeInfo_t> pendingNodes;
 
   /**
    * The execution transcript of the workflow
    * It contains all dagNodes that have been executed (status isDone)
    */
-  map<string, DagNode*> transcriptNodes;
+  std::map<std::string, DagNode*> transcriptNodes;
 
   /**
    * Critical section
@@ -413,9 +414,11 @@ private:
   /*   PRIVATE METHODS   */
   /***********************/
 
-  void writeAllSourcesState(ostream& output);
-  void writeAllSinksState(ostream& output);
+  void
+  writeAllSourcesState(std::ostream& output);
 
+  void
+  writeAllSinksState(std::ostream& output);
 };
 
 

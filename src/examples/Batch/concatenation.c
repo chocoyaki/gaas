@@ -52,13 +52,13 @@ int main(argc, argv)
   if (my_num == 0) {
     file = fopen(argv[1], "r");
     output_file = fopen(argv[NB_ARGS], "w+");
-    while(!feof(file)) {
+    while (!feof(file)) {
       count = fread(&chaine, sizeof(char), MAX_STRING_LENGTH, file);
       fwrite(chaine, sizeof(char), count, output_file);
     }
     fclose(file);
     file = fopen(argv[3], "r");
-    while(!feof(file)) {
+    while (!feof(file)) {
       count = fread(&chaine, sizeof(char), MAX_STRING_LENGTH, file);
       fwrite(chaine, sizeof(char), count, output_file);
     }

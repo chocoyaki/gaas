@@ -278,18 +278,16 @@ WfNode::setNodePrecedence(NodeSet* nodeSet) throw(WfStructException) {
   // Add the predecessors defined by data links
   TRACE_TEXT(TRACE_ALL_STEPS, "Processing ports of node : "
              << myId << "\n");
-  for (map<string, WfPort*>::iterator p = ports.begin();
-       p != ports.end();
-       ++p) {
+  std::map<std::string, WfPort*>::iterator p = ports.begin();
+  for (; p != ports.end(); ++p) {
     ((WfPort*)p->second)->setNodePrecedence(nodeSet);
   }
   // convert the predecessors defined by ID in prevNodeIds to
   // direct object references stored in prevNodes
   prevNodes.resize(prevNodeIds.size());
   int prevIdx = 0;
-  for (set<string>::iterator idIter = prevNodeIds.begin();
-       idIter != prevNodeIds.end();
-       ++idIter) {
+  std::set<std::string>::iterator idIter = prevNodeIds.begin();
+  for (; idIter != prevNodeIds.end(); ++idIter) {
     WfNode * prevNode = nodeSet->getNode(*idIter);
     setPrev(prevIdx++, prevNode);
   }
@@ -326,7 +324,7 @@ WfNode::prevNodesNb() const {
 /**
  * return an iterator on the first previous nodes
  */
-vector<WfNode*>::iterator
+std::vector<WfNode*>::iterator
 WfNode::prevNodesBegin() {
   return prevNodes.begin();
 }
@@ -334,7 +332,7 @@ WfNode::prevNodesBegin() {
 /**
  * return an iterator on the end of previous nodes
  */
-vector<WfNode*>::iterator
+std::vector<WfNode*>::iterator
 WfNode::prevNodesEnd() {
   return prevNodes.end();
 }
@@ -359,7 +357,7 @@ WfNode::nextNodesNb() const {
 /**
  * return an iterator on the first next node
  */
-list<WfNode*>::iterator
+std::list<WfNode*>::iterator
 WfNode::nextNodesBegin() {
   return nextNodes.begin();
 }
@@ -367,7 +365,7 @@ WfNode::nextNodesBegin() {
 /**
  * return an iterator on the end of next nodes
  */
-list<WfNode*>::iterator
+std::list<WfNode*>::iterator
 WfNode::nextNodesEnd() {
   return nextNodes.end();
 }
@@ -402,9 +400,8 @@ void
 WfNode::connectNodePorts() throw(WfStructException) {
   TRACE_TEXT(TRACE_ALL_STEPS,
               "connectNodePorts : processing node " << getId() << "\n");
-  for (map<string, WfPort*>::iterator p = ports.begin();
-       p != ports.end();
-       ++p) {
+  std::map<std::string, WfPort*>::iterator p = ports.begin();
+  for (; p != ports.end(); ++p) {
     ((WfPort*)(p->second))->connectPorts();
   }
 }
@@ -438,7 +435,7 @@ WfNode::addPort(const std::string& portId, WfPort* port)
  */
 WfPort *
 WfNode::getPort(const std::string& id) throw(WfStructException) {
-  map<string, WfPort*>::iterator p = ports.find(id);
+  std::map<std::string, WfPort*>::iterator p = ports.find(id);
   if (p != ports.end()) {
     return ((WfPort*)(p->second));
   } else {
@@ -461,7 +458,7 @@ WfNode::getPortNb() const {
 unsigned int
 WfNode::getPortNb(WfPort::WfPortType portType) const {
   unsigned int count = 0;
-  map<string, WfPort*>::const_iterator portIter = ports.begin();
+  std::map<std::string, WfPort*>::const_iterator portIter = ports.begin();
   while (portIter != ports.end()) {
     WfPort *port = (WfPort*) portIter->second;
     if (port->getPortType() == portType) {
@@ -477,7 +474,7 @@ WfNode::getPortNb(WfPort::WfPortType portType) const {
  */
 const WfPort*
 WfNode::getPortByIndex(unsigned int portIdx) const {
-  map<string, WfPort*>::const_iterator portIter = ports.begin();
+  std::map<std::string, WfPort*>::const_iterator portIter = ports.begin();
   while (portIter != ports.end()) {
     const WfPort *port = (const WfPort*) portIter->second;
     if (port->getIndex() == portIdx) {
@@ -491,9 +488,9 @@ WfNode::getPortByIndex(unsigned int portIdx) const {
 /**
  * Get description of ports (used for error msg)
  */
-string
+std::string
 WfNode::getPortsDescr() const {
-  string descrStr;
+  std::string descrStr;
   for (unsigned int ix = 0; ix < getPortNb(); ++ix) {
     const WfPort* port = getPortByIndex(ix);
     descrStr += port->getPortDescr();

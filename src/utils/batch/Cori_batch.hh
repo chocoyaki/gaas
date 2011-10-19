@@ -49,21 +49,16 @@ public:
   /* TODO: Change the name of this prototype! We don't get anything!
      This place in the vector the information! */
   int
-  get_Information(int type_Info,
-                  estVector_t * info,
-                  const void * data);
+  get_Information(int type_Info, estVector_t * info, const void * data);
 private:
   SeDImpl     * SeD;
   BatchSystem * batch;
 
   int
-  convertArray(vector <double> vect,
-               estVector_t * estvect,
+  convertArray(std::vector<double> vect, estVector_t * estvect,
                int typeOfInfo);
 
   int
-  convertSimple(double value,
-                estVector_t * estvect,
-                int typeOfInfo);
+  convertSimple(double value, estVector_t * estvect, int typeOfInfo);
 };
 #endif  //CORI_BATCH_HH

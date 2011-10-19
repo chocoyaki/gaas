@@ -388,7 +388,6 @@ protected:
                    const std::string& name,
                    unsigned int lastArg,
                    WfNode * node);
-
 };
 
 /*****************************************************************************/
@@ -453,7 +452,8 @@ public:
   virtual ~SingleDagParser();
 
 protected:
-  virtual void parseRoot(DOMNode* root);
+  virtual void
+  parseRoot(DOMNode* root);
 };
 
 
@@ -492,13 +492,11 @@ public:
 protected:
   std::list<Dag*>  myDags;
   FWorkflow*  myWorkflow;
-
-};  // end class MultiDagParser
+};
 
 /*****************************************************************************/
 /*                         CLASS FWfParser                                   */
 /*****************************************************************************/
-
 class FWfParser : public DagWfParser {
 public:
   FWfParser(FWorkflow& workflow, const char * content);
@@ -609,7 +607,7 @@ private:
    * Ref to the workflow
    */
   FWorkflow&  workflow;
-};  // end class FWfParser
+};
 
 /*****************************************************************************/
 /*                    CLASS DataSourceParser                                 */
@@ -652,7 +650,7 @@ public:
              const XMLCh* const qname);
 
   void
-  characters (const XMLCh* const chars, const XMLSize_t length);
+  characters(const XMLCh* const chars, const XMLSize_t length);
 
   void
   fatalError(const SAXParseException& e);
@@ -703,7 +701,7 @@ private:
 
 class MyDOMErrorHandler : public DOMErrorHandler {
   virtual bool
-  handleError (const DOMError &domError);
+  handleError(const DOMError &domError);
 };
 
 

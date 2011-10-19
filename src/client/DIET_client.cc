@@ -691,7 +691,7 @@ diet_initialize(const char* config_file_name, int argc, char* argv[]) {
   CORBA::Object_var obj = cb->_this();
 
   // create corba client callback serveur reference
-  ostringstream os;
+  std::ostringstream os;
   char host[256];
   gethostname(host, 256);
   host[255]='\0';
@@ -712,7 +712,7 @@ diet_initialize(const char* config_file_name, int argc, char* argv[]) {
 
   /* Find Master Agent */
   CONFIG_STRING(diet::MANAME, tmpString);
-  TRACE_TEXT(TRACE_MAIN_STEPS, "MA NAME PARSING = " << tmpString << endl);
+  TRACE_TEXT(TRACE_MAIN_STEPS, "MA NAME PARSING = " << tmpString << "\n");
   MA_MUTEX->lock();
   try {
     MA = ORBMgr::getMgr()->resolve<MasterAgent, MasterAgent_var>(AGENTCTXT,
@@ -752,7 +752,7 @@ diet_initialize(const char* config_file_name, int argc, char* argv[]) {
       flushTime = 10000;
       WARNING("lsFlushinterval not configured, using default");
     }
-    TRACE_TEXT(TRACE_ALL_STEPS, "LogService enabled" << endl);
+    TRACE_TEXT(TRACE_ALL_STEPS, "LogService enabled\n");
 
     char* agtTypeName = strdup("CLIENT");
     char* agtParentName = NULL;
@@ -772,7 +772,7 @@ diet_initialize(const char* config_file_name, int argc, char* argv[]) {
     ORBMgr::getMgr()->activate(dietLogComponent);
 
     if (dietLogComponent->run(agtTypeName, agtParentName, flushTime) != 0) {
-      TRACE_TEXT(TRACE_ALL_STEPS, "* LogService: disabled" << endl);
+      TRACE_TEXT(TRACE_ALL_STEPS, "* LogService: disabled\n");
       WARNING("Could not initialize DietLogComponent");
       dietLogComponent = NULL;
     }
@@ -809,7 +809,7 @@ diet_initialize(const char* config_file_name, int argc, char* argv[]) {
   /* Find the MA_DAG */
   if (CONFIG_STRING(diet::MADAGNAME, tmpString)) {
     TRACE_TEXT(TRACE_MAIN_STEPS,
-               "MA DAG NAME PARSING = " << tmpString << endl);
+               "MA DAG NAME PARSING = " << tmpString << "\n");
     MA_DAG = ORBMgr::getMgr()->resolve<MaDag, MaDag_var>(MADAGCTXT,
                                                          tmpString);
     // CORBA::string_dup(tmpString.c_str()));
@@ -828,7 +828,7 @@ diet_initialize(const char* config_file_name, int argc, char* argv[]) {
   bool useWfLogService = false;
   CONFIG_BOOL(diet::USEWFLOGSERVICE, useWfLogService);
   if (useWfLogService) {
-    TRACE_TEXT(TRACE_MAIN_STEPS, "Connecting to Workflow Log Service" << endl);
+    TRACE_TEXT(TRACE_MAIN_STEPS, "Connecting to Workflow Log Service\n");
     WfLogService_var wfLogSrv =
       ORBMgr::getMgr()->resolve<WfLogService, WfLogService_var>(WFLOGCTXT, "WfLogService");
     if (CORBA::is_nil(wfLogSrv)) {
@@ -883,7 +883,7 @@ diet_finalize() {
     // Terminate the CltWfMgr
     CltWfMgr::terminate();
   } catch (...) {
-    std::cerr << "Exception caught while destroying workflows" << std::endl;
+    std::cerr << "Exception caught while destroying workflows\n";
   }
   MA_DAG = MaDag::_nil();
 #endif  // HAVE_WORKFLOW
@@ -1000,7 +1000,7 @@ diet_free_persistent_data(char* argID) {
     stat_out("client", statMsg);
     return 1;
   } else {
-    cerr << "UNKNOWN DATA" << endl;
+    std::cerr << "UNKNOWN DATA\n";
     return 0;
   }
 }
@@ -1189,7 +1189,7 @@ diet_wait(diet_reqID_t reqID) {
     } else {
       WARNING(__FUNCTION__ << ": exception caught (" << tc->id() << ')');
     }
-  } catch (const exception& e) {
+  } catch (const std::exception& e) {
     ERROR(__FUNCTION__ << ": unexpected exception (what="
           << e.what() << ')', STATUS_ERROR);
   }
@@ -1242,7 +1242,7 @@ diet_wait_and(diet_reqID_t* IDs, size_t length) {
       WARNING(__FUNCTION__ << ": exception caught (" << tc->id() << ')');
     }
   }
-  catch (const exception& e) {
+  catch (const std::exception& e) {
     ERROR(__FUNCTION__ << ": unexpected exception (what=" << e.what() << ')',
           STATUS_ERROR);
   }
@@ -1313,7 +1313,7 @@ diet_wait_or(diet_reqID_t* IDs, size_t length, diet_reqID_t* IDptr) {
     } else {
       WARNING(__FUNCTION__ << ": exception caught (" << tc->id() << ')');
     }
-  } catch (const exception& e) {
+  } catch (const std::exception& e) {
     ERROR(__FUNCTION__ << ": unexpected exception (what="
           << e.what() << ')', STATUS_ERROR);
   }
@@ -1650,7 +1650,8 @@ getProfileDesc(const char * srvName, diet_profile_desc_t& profile) {
       if (!strcmp ((*allProfiles)[ix].path,
                     srvName)) {
         // The service is found
-        TRACE_TEXT(TRACE_MAIN_STEPS, "The service " << srvName << " is found " << endl);
+        TRACE_TEXT(TRACE_MAIN_STEPS,
+                   "The service " << srvName << " is found \n");
         // this function place is marshalling.cc file
         // to fix is necessary
         unmrsh_profile_desc(&profile,
@@ -1659,7 +1660,8 @@ getProfileDesc(const char * srvName, diet_profile_desc_t& profile) {
       }
     }
   }
-  TRACE_TEXT(TRACE_MAIN_STEPS, "The service " << srvName << " was not found" << endl);
+  TRACE_TEXT(TRACE_MAIN_STEPS,
+             "The service " << srvName << " was not found\n");
   return false;
 }
 

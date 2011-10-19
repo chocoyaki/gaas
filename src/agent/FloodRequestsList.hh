@@ -51,7 +51,7 @@ class FloodRequestNotFoundException {
 public:
   /** constructor, reqID is the request identifier which was not
       found.*/
-  FloodRequestNotFoundException(const RequestID & reqId)
+  explicit FloodRequestNotFoundException(const RequestID & reqId)
     : reqId(reqId) {
   }
 

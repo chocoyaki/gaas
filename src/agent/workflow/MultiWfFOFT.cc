@@ -104,7 +104,7 @@ using namespace madag;
 MultiWfFOFT::MultiWfFOFT(MaDag_impl* maDag)
   : MultiWfScheduler(maDag, MultiWfScheduler::MULTIWF_DAG_METRIC) {
   this->execQueue = new PriorityNodeQueue;
-  TRACE_TEXT(TRACE_MAIN_STEPS, "Using FOFT multi-workflow scheduler" << endl);
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Using FOFT multi-workflow scheduler\n");
 }
 
 MultiWfFOFT::~MultiWfFOFT() {
@@ -136,7 +136,8 @@ MultiWfFOFT::intraDagSchedule(Dag * dag, MasterAgent_var MA)
   delete &orderedNodes;
 
   // Initialize nodesFlag and nodesHEFTPrio
-  for (map <string, DagNode *>::iterator iter = dag->begin(); iter != dag->end();
+  for (std::map<std::string, DagNode *>::iterator iter = dag->begin();
+       iter != dag->end();
        ++iter) {
     DagNode * node = (DagNode*) iter->second;
     this->nodesFlag[node] = false;
@@ -148,7 +149,7 @@ MultiWfFOFT::intraDagSchedule(Dag * dag, MasterAgent_var MA)
   this->dagsState[dag].makespan  = this->dagsState[dag].EFT - startTime;
   TRACE_TEXT(TRACE_ALL_STEPS, "[FOFT] Init (Dag " << dag->getId() << ") EFT = "
              << this->dagsState[dag].EFT << " / makespan = "
-             << this->dagsState[dag].makespan << endl);
+             << this->dagsState[dag].makespan << "\n");
 
   // Cleanup
   delete wf_response;
@@ -176,10 +177,10 @@ MultiWfFOFT::setExecPriority(DagNode * node) {
       TRACE_TEXT(TRACE_MAIN_STEPS, "[FOFT] Waiting node "
                  << node->getCompleteId() << " delay updated (duration="
                  << node->getEstDuration() << "/EFT=" << node->getEstCompTime()
-                 << "/delay=" << currDelay << ")" << endl);
+                 << "/delay=" << currDelay << ")\n");
     } else {
       TRACE_TEXT(TRACE_MAIN_STEPS, "[FOFT] Waiting node " << node->getCompleteId()
-                 << " is on schedule" << endl);
+                 << " is on schedule\n");
     }
   }
   node->setPriority(this->dagsState[node->getDag()].slowdown);
@@ -215,6 +216,6 @@ MultiWfFOFT::updateNodeDelay(DagNode * node, double delay) {
     // slowdown is the percentage of delay relatively to initial makespan
     curDagState.slowdown = (double) 100 * dagNewEstDelay / curDagState.makespan;
     TRACE_TEXT(TRACE_MAIN_STEPS, "[FOFT] Updated slowdown for dag "
-               << node->getDag()->getId() << " = " << curDagState.slowdown << endl);
+               << node->getDag()->getId() << " = " << curDagState.slowdown << "\n");
   }
 }

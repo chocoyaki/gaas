@@ -131,11 +131,11 @@ request_submission(MasterAgent_var& MA,
 
         if (TRACE_LEVEL >= TRACE_MAIN_STEPS) {
           TRACE_TEXT(TRACE_MAIN_STEPS,
-                     "The Master Agent found the following server(s):" << endl);
+                     "The Master Agent found the following server(s):\n");
           for (size_t i = 0; i < response->servers.length(); i++) {
             TRACE_TEXT(TRACE_MAIN_STEPS,
                        "    " << response->servers[i].loc.hostName << ":"
-                       << response->servers[i].loc.port << endl);
+                       << response->servers[i].loc.port << "\n");
           }
         }
         server_OK = 0;    // Use this when no contract checking
@@ -162,8 +162,9 @@ request_submission(MasterAgent_var& MA,
     }
 
     if (server_OK >= 0) {
-      string serverName = string(response->servers[server_OK].loc.SeDName);
-      chosenServer = ORBMgr::getMgr()->resolve<SeD, SeD_var>(SEDCTXT, serverName);
+      std::string serverName(response->servers[server_OK].loc.SeDName);
+      chosenServer =
+        ORBMgr::getMgr()->resolve<SeD, SeD_var>(SEDCTXT, serverName);
 
       /* The estimation vector of the chosen SeD is copied into the profile.
        * This is done because:
@@ -253,7 +254,7 @@ diet_call_common(MasterAgent_var& MA,
   sprintf(statMsg, "computation %ld", (unsigned long) profile->dietReqID);
 
   stat_in("Client", statMsg);
-  TRACE_TEXT(TRACE_MAIN_STEPS, "Calling the ref Corba of the SeD" << endl);
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Calling the ref Corba of the SeD\n");
   /* CORBA CALL to SED */
   solve_res = chosenServer->solve(profile->pb_name, corba_profile);
 

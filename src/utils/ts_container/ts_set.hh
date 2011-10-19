@@ -38,10 +38,10 @@
 #ifndef _TS_SET_HH_
 #define _TS_SET_HH_
 
+#include <cassert>
 #include <set>
 #include <omniconfig.h>
 #include <omnithread.h>
-#include <cassert>
 
 /**
  * This is a thread safe version of the STL set. Some methods are
@@ -56,9 +56,7 @@
 template <class Key, class CMP = std::less<Key>,
           class A = std::allocator<Key> >
 class ts_set : private std::set<Key, CMP, A> {
-
 private:
-
 #ifndef NDEBUG
   /**
    * used bye the assertion to check if the \c lock() methods is

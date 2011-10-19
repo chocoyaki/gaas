@@ -340,7 +340,7 @@ extern omni_mutex debug_log_mutex;
       std::cout << "\n";                                \
     fflush(stdout);                                     \
     fflush(stderr);                                     \
-  } while(0);
+  } while (0);
 
 
 

@@ -181,7 +181,7 @@ FNodeOutPort::createRealInstance(Dag* dag, DagNode* nodeInst,
   }
   FDataHandle* dataHdl;
   // create the portInst (DagNodeOutPort) for the nodeInst
-  string portId = this->getId();
+  std::string portId = this->getId();
   TRACE_TEXT(TRACE_ALL_STEPS,
              "   # Creating new instance of OUT port: " << portId << "\n");
   WfPort* portInst = nodeInst->newPort(portId,
@@ -315,13 +315,13 @@ FNodeOutPort::updateAllDataCardinal() {
 }
 
 void
-FNodeOutPort::writeAllDataAsXML(ostream& output) {
+FNodeOutPort::writeAllDataAsXML(std::ostream& output) {
   WfXMLDataWriter xmlWriter(output);
   myBuffer.toXML(xmlWriter);
 }
 
 void
-FNodeOutPort::writeAllDataAsList(ostream& output) {
+FNodeOutPort::writeAllDataAsList(std::ostream& output) {
   if (myBuffer.isCardinalDefined()) {
     output << "TOTAL NB OF RESULTS: " << myBuffer.getCardinal() << "\n";
   } else {
@@ -356,7 +356,7 @@ FNodeOutPort::getBufferContainerID() {
 void
 FNodeOutPort::checkIfEmptyOutput() {
   if (myBuffer.isEmpty()) {
-    for (list<FNodeInPort*>::iterator inPortIter = myConnectedPorts.begin();
+    for (std::list<FNodeInPort*>::iterator inPortIter = myConnectedPorts.begin();
          inPortIter != myConnectedPorts.end();
          ++inPortIter) {
       FNodeInPort* inPort = (FNodeInPort*) *inPortIter;
@@ -373,7 +373,7 @@ FNodeOutPort::setAsConstant(FDataHandle* dataHdl) {
   // store this handle in my buffer (for deallocation)
   myBuffer.insertInTree(dataHdl);
   // set the connected in ports as constant with this handle
-  for (list<FNodeInPort*>::iterator inPortIter = myConnectedPorts.begin();
+  for (std::list<FNodeInPort*>::iterator inPortIter = myConnectedPorts.begin();
        inPortIter != myConnectedPorts.end();
        ++inPortIter) {
     ((FNodeInPort*) *inPortIter)->setAsConstant(dataHdl);
@@ -527,7 +527,7 @@ FNodeInPort::createRealInstance(Dag* dag, DagNode* nodeInst,
     INTERNAL_ERROR("FNodeInPort::instanciate called with NULL data handle", 1);
   }
   // create a DagNodeInPort for the nodeInst
-  string portId = this->getId();
+  std::string portId = this->getId();
   TRACE_TEXT(TRACE_ALL_STEPS,
              "   # Creating new instance of IN port: " << portId << "\n");
   WfPort* portInst = nodeInst->newPort(portId, getIndex(),

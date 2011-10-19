@@ -49,7 +49,7 @@ ReferenceUpdateThread::~ReferenceUpdateThread() { }
 
 void ReferenceUpdateThread::run(void* ptr) {
   set_priority(omni_thread::PRIORITY_LOW);
-  while(true) {
+  while (true) {
     owner->updateRefs();
     sleep(period);
   }

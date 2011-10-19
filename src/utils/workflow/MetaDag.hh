@@ -48,7 +48,7 @@ class DagScheduler;
 
 class MetaDag : public NodeSet {
 public:
-  MetaDag(const std::string& id);
+  explicit MetaDag(const std::string& id);
 
   virtual ~MetaDag();
 
@@ -169,15 +169,18 @@ protected:
    * Critical section
    */
   omni_mutex myLock;
-  void lock();
-  void unlock();
+
+  void
+  lock();
+
+  void
+  unlock();
 
   /**
    * Not applicable to this class
    */
   virtual void
   checkPrec(NodeSet* contextNodeSet) throw(WfStructException);
-
 };
 
 #endif   /* not defined _METADAG_HH. */

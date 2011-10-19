@@ -173,14 +173,13 @@ MetaDag::cancelAllDags(DagScheduler * scheduler) {
   }
   lock();
   TRACE_TEXT(TRACE_ALL_STEPS, "Cancelling all dags of Metadag "
-             << myId << endl);
-  for (std::map<std::string, Dag*>::iterator dagIter = myDags.begin();
-       dagIter != myDags.end();
-       ++dagIter) {
+             << myId << "\n");
+  std::map<std::string, Dag*>::iterator dagIter = myDags.begin();
+  for (; dagIter != myDags.end(); ++dagIter) {
     Dag *currDag = (Dag*) dagIter->second;
     if (!currDag->isDone()) {
       TRACE_TEXT(TRACE_ALL_STEPS, "Cancelling dag "
-                 << currDag->getId() << endl);
+                 << currDag->getId() << "\n");
       currDag->setAsCancelled(scheduler);
     }
   }

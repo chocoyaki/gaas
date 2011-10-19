@@ -36,7 +36,7 @@
 
 class FActivityNode : public FProcNode {
 public:
-  FActivityNode(FWorkflow* wf, const string& id);
+  FActivityNode(FWorkflow* wf, const std::string& id);
 
   virtual ~FActivityNode();
 

@@ -20,23 +20,25 @@
  *
  ****************************************************************************/
 
-#include "ms_function.hh"
-#include "KeyString.hh"
 #include <cassert>
 #include <cstring>
+#include "ms_function.hh"
+#include "KeyString.hh"
 
 /* disp_state is a macro that displayed the attribut's value of the
    object and the name of the called methods */
-//#include <cstdio>
-//#define disp_state(fct) printf("KeyString::%s %s (%lx)\n", fct, (const char*)this->value ? (const char*)this->value : "empty-string", (long)(const char*)this->value)
 #define disp_state(fct)
 
-u_int32_t KeyString::hash(const char* id) {
+u_int32_t
+KeyString::hash(const char* id) {
   assert(id != NULL);
   u_int32_t result = 0;
   size_t length = strlen(id);
-  for (size_t idIdx = 0; idIdx < length; idIdx++)
+
+  for (size_t idIdx = 0; idIdx < length; idIdx++) {
     result = ((result<<1) | (result>>31))+ id[idIdx];
+  }
+
   return result;
 }
 
@@ -64,7 +66,7 @@ KeyString::~KeyString() {
 
 
 KeyString &
-KeyString::operator= (const KeyString & value) {
+KeyString::operator=(const KeyString & value) {
   disp_state("operator= (const KeyString & value)");
   ms_strfree(str);
   str = ms_strdup(value.str);
@@ -79,17 +81,19 @@ KeyString::operator const char*() const {
 }
 
 
-bool operator< (const KeyString & a, const KeyString & b) {
+bool
+operator<(const KeyString & a, const KeyString & b) {
   bool result;
-  if (a.hashValue == b.hashValue)
+  if (a.hashValue == b.hashValue) {
     result = strcmp(a.str, b.str) < 0;
-  else
+  } else {
     result = a.hashValue < b.hashValue;
+  }
   return result;
 }
 
 
 bool operator== (const KeyString & a, const KeyString & b) {
-  return (a.hashValue == b.hashValue)
-    && (strcmp(a.str, b.str) == 0);
+  return ((a.hashValue == b.hashValue) &&
+          (strcmp(a.str, b.str) == 0));
 }

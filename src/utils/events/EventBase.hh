@@ -38,7 +38,7 @@ public:
   EventBase() : mySeverity(INFO) {
   }
 
-  EventBase(Severity severity) : mySeverity(severity) {
+  explicit EventBase(Severity severity) : mySeverity(severity) {
   }
 
   short

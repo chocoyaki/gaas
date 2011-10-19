@@ -120,8 +120,7 @@ protected:
    */
   FProcNode*
   getParentProcNode();
-
-};  // end class FNodePort
+};
 
 /*****************************************************************************/
 /*                           FNodeOutPort                                    */
@@ -223,14 +222,14 @@ public:
    * @param output    the output stream
    */
   void
-  writeAllDataAsXML(ostream& output);
+  writeAllDataAsXML(std::ostream& output);
 
   /**
    * Write all data contained in the buffer in list format (for display)
    * @param output    the output stream
    */
   void
-  writeAllDataAsList(ostream& output);
+  writeAllDataAsList(std::ostream& output);
 
   /**
    * Get the data handle of the buffer
@@ -244,7 +243,7 @@ public:
    * @return  the data ID of the container
    * @exception WfDataHandleException(eINVALID_ADAPT) if buffer is not completed
    */
-  const string&
+  const std::string&
   getBufferContainerID();
 
   /**
@@ -254,10 +253,9 @@ public:
   freePersistentData(MasterAgent_var& MA);
 
 protected:
-
   void
-  setPendingDataTransfer(FDataHandle* dataHdl,
-                         FNodeInPort* inPort) throw(WfDataHandleException);
+  setPendingDataTransfer(FDataHandle* dataHdl, FNodeInPort* inPort)
+    throw(WfDataHandleException);
 
   void
   checkTotalDataNb(FNodeInPort *inPort);
@@ -265,14 +263,13 @@ protected:
   /**
    * The list of in ports connected
    */
-  list<FNodeInPort*>  myConnectedPorts;
+  std::list<FNodeInPort*>  myConnectedPorts;
 
   /**
    * The root data handle used to store all generated data handles
    */
   FDataHandle myBuffer;
-
-};  // end class FNodeOutPort
+};
 
 /*****************************************************************************/
 /*                            FNodeInPort                                    */
@@ -437,7 +434,7 @@ public:
    * Apply mapping to a given dataline
    */
   void
-  applyMap(const FDataTag& tag, const vector<FDataHandle*>& dataLine);
+  applyMap(const FDataTag& tag, const std::vector<FDataHandle*>& dataLine);
 
 private:
   std::map<FNodeOutPort*, FNodeInPort*> myPortMap;

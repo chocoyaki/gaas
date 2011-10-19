@@ -72,8 +72,8 @@
  * @author Sylvain DAHAN, LIFC Besançon (France)
  */
 
-template<class T>class LinkedList {
-
+template<class T>
+class LinkedList {
 private:
   /**
    * This structure define each node of the list.
@@ -113,7 +113,8 @@ public:
   /**
    * creates an new empty list.
    */
-  LinkedList() : counter(0), first(NULL), last(NULL) {}
+  LinkedList() : counter(0), first(NULL), last(NULL) {
+  }
 
 
   /**
@@ -126,16 +127,15 @@ public:
 
     counter = list.counter;
 
-    if (list.first) { // if list is not empty
-
-      Node* listNode = list.first; 
+    if (list.first) {
+      Node* listNode = list.first;
       Node* newNode;
       newNode = new Node;
       first = newNode;
       newNode->previous = NULL;
       newNode->element = new T(*listNode->element);
 
-      while(listNode->next) {
+      while (listNode->next) {
         listNode = listNode->next;
         Node* nextNode = new Node;
         nextNode->previous = newNode;
@@ -145,8 +145,7 @@ public:
       }
 
       newNode->next = NULL;
-      last = newNode;      
-
+      last = newNode;
     } else {
       first = NULL;
     }
@@ -168,11 +167,12 @@ public:
    * destroyes all the element of the list. The list become an empty
    * list.
    */
-  void emptyIt() {
+  void
+  emptyIt() {
     linkedListMutex.lock();
     counter = 0;
     Node* nodeBuf;
-    while((nodeBuf = first) != NULL) {
+    while ((nodeBuf = first) != NULL) {
       first = nodeBuf->next;
       delete nodeBuf->element;
       delete nodeBuf;
@@ -188,7 +188,8 @@ public:
    * @param element a pointer on the element added into the list. It
    * must be not \c NULL.
    */
-  void addElement(T* element) {
+  void
+  addElement(T* element) {
     assert(element != NULL);
 
     Node* newNode = new Node();
@@ -197,7 +198,7 @@ public:
 
     linkedListMutex.lock();
     ++counter;
-    if (first) { // if (first != NULL)
+    if (first) {
       newNode->previous = last;
       last->next = newNode;
       last = newNode;
@@ -214,7 +215,8 @@ public:
    * returnes the first element of the list et removes it from the
    * list. If the list is empty, return a \c NULL pointer.
    */
-  T* pop() {
+  T*
+  pop() {
     linkedListMutex.lock();
     T* elementBuf = NULL;
     if (first) {
@@ -232,7 +234,8 @@ public:
   /**
    * returnes the length (number of element) of the list.
    */
-  long length() const {
+  long
+  length() const {
     linkedListMutex.lock();
     long size = counter;
     linkedListMutex.unlock();
@@ -247,11 +250,12 @@ public:
    * @param list The list which is append to the end of the current
    * list. At the end of the call, list is an empty list.
    */
-  void append(LinkedList* list) {
+  void
+  append(LinkedList* list) {
     linkedListMutex.lock();
     list->linkedListMutex.lock();
 
-    if (list->first) { // if list is not empty
+    if (list->first) {
       last->next = list->first;
       list->first->previous = last;
       last = list->last;
@@ -265,9 +269,7 @@ public:
 
 
   /***** Iteration section ***************************************************/
-
 public:
-  
   friend class Iterator;
 
   /**
@@ -276,10 +278,117 @@ public:
    * the list. The access is realised when the iterator is destroyed.
    */
   class Iterator {
+  public:
+    /**
+     * destroy the iterator and free the access to the linked list.
+     */
+    ~Iterator() {
+      linkedList->linkedListMutex.unlock();
+    }
 
-    friend class LinkedList;
+    /**
+     * The first element of the linked list controled by the iterator
+     * become the current element.
+     */
+    inline void
+    reset() {
+      currentNode = linkedList->first;
+    }
+
+    /**
+     * returns true if there is a current element
+     */
+    inline bool
+    hasCurrent() {
+      return (currentNode != NULL);
+    }
+
+    /**
+     * returns true if there is a next element
+     */
+    inline bool
+    hasNext() {
+      return (currentNode->next != NULL);
+    }
+
+    /**
+     * returns true if there is a previous element
+     */
+    inline bool
+    hasPrevious() {
+      return (currentNode->previous != NULL);
+    }
+
+    /**
+     * goes to the next element. The next element must exist. You can
+     * check if it existe withe the \c hasNext() methods.
+     */
+    inline void
+    next() {
+      assert(currentNode != NULL);
+      currentNode = currentNode->next;
+    }
+
+    /**
+     * goes to the previous element. The previous element must
+     * exist. You can check if it exist with the \c hasPrevious()
+     * methods.
+     */
+    inline void
+    previous() {
+      assert(currentNode != NULL);
+      currentNode = currentNode->previous;
+    }
+
+    /**
+     * gets the current element. The current element must exist.
+     */
+    inline T*
+    getCurrent() {
+      assert(hasCurrent());
+      return currentNode->element;
+    }
+
+    /**
+     * sets the current element. The actual current element is not
+     * destroyed. The current element must exist.
+     *
+     * @param aElement it's the new current element. It must be not \c NULL.
+     */
+    inline void
+    setCurrent(T* aElement) {
+      assert(aElement != NULL);
+      assert(hasCurrent());
+      currentNode->element = aElement;
+    }
+
+    /**
+     * removes the current element from the list. But it does not
+     * delete it. The element is not destoyed, just is reference is
+     * removed from the list. The current element must exist.
+     */
+    void
+    removeCurrent() {
+      assert(hasCurrent());
+      --(linkedList->counter);
+      Node* currentNodeBuf = currentNode;
+      currentNode = currentNodeBuf->next;
+      if (currentNodeBuf->previous) {
+        currentNodeBuf->previous->next = currentNodeBuf->next;
+      } else {
+        linkedList->first = currentNodeBuf->next;
+      }
+      if (currentNodeBuf->next) {
+        currentNodeBuf->next->previous = currentNodeBuf->previous;
+      } else {
+        linkedList->last = currentNodeBuf->previous;
+      }
+      delete currentNodeBuf;
+    }
 
   private:
+    friend class LinkedList;
+
     /**
      * pointer on the linkedList which is controled by the iterator.
      */
@@ -296,121 +405,22 @@ public:
      * @param controledList pointer on the list which is controled by
      * the iterator.
      */
-    Iterator(LinkedList* controledList) {
+    explicit Iterator(LinkedList* controledList) {
       linkedList = controledList;
       currentNode = linkedList->first;
     }
-
-  public:
-
-    /**
-     * destroy the iterator and free the access to the linked list.
-     */
-    ~Iterator() {
-      linkedList->linkedListMutex.unlock();
-    }
-
-    /**
-     * The first element of the linked list controled by the iterator
-     * become the current element.
-     */
-    inline void reset() {
-      currentNode = linkedList->first;
-    }
-
-    /**
-     * returns true if there is a current element
-     */
-    inline bool hasCurrent() {
-      return (currentNode != NULL);
-    }
-
-    /**
-     * returns true if there is a next element
-     */
-    inline bool hasNext() {
-      return (currentNode->next != NULL);
-    }
-
-    /**
-     * returns true if there is a previous element
-     */
-    inline bool hasPrevious() {
-      return (currentNode->previous != NULL);
-    }
-
-    /**
-     * goes to the next element. The next element must exist. You can
-     * check if it existe withe the \c hasNext() methods.
-     */
-    inline void next() {
-      assert(currentNode != NULL);
-      currentNode = currentNode->next;
-    }
-
-    /**
-     * goes to the previous element. The previous element must
-     * exist. You can check if it exist with the \c hasPrevious()
-     * methods.
-     */
-    inline void previous() {
-      assert(currentNode != NULL);
-      currentNode = currentNode->previous;
-    }
-
-    /**
-     * gets the current element. The current element must exist.
-     */
-    inline T* getCurrent() {
-      assert(hasCurrent());
-      return currentNode->element;
-    }
-
-    /**
-     * sets the current element. The actual current element is not
-     * destroyed. The current element must exist.
-     *
-     * @param aElement it's the new current element. It must be not \c NULL.
-     */
-    inline void setCurrent(T* aElement) {
-      assert(aElement != NULL);
-      assert(hasCurrent());
-      currentNode->element = aElement;
-    }
-
-    /**
-     * removes the current element from the list. But it does not
-     * delete it. The element is not destoyed, just is reference is
-     * removed from the list. The current element must exist.
-     */
-    void removeCurrent() {
-      assert(hasCurrent());
-      --(linkedList->counter);
-      Node* currentNodeBuf = currentNode;
-      currentNode = currentNodeBuf->next;
-      if (currentNodeBuf->previous)
-        currentNodeBuf->previous->next = currentNodeBuf->next;
-      else
-        linkedList->first = currentNodeBuf->next;
-      if (currentNodeBuf->next)
-        currentNodeBuf->next->previous = currentNodeBuf->previous;
-      else
-        linkedList->last = currentNodeBuf->previous;
-      delete currentNodeBuf;
-    }
-
   };
 
   /**
    * Creates an iterator which control the linked list. All the access
    * on the list is blocked until the iterator is destroyed.
    */
-  Iterator* getIterator() {
+  Iterator*
+  getIterator() {
     linkedListMutex.lock();
     Iterator* iteratorBuf = new Iterator(this);
     return iteratorBuf;
   }
-
 };
 
 #endif  // _LINKEDLIST_HH_

@@ -39,9 +39,9 @@
 #ifndef _NODEDESCRIPTION_HH_
 #define _NODEDESCRIPTION_HH_
 
-#include "ms_function.hh"
 #include <cassert>
 #include "debug.hh"
+#include "ms_function.hh"
 
 /**
  * The NodeDescription manages the hostname and the IOR of an

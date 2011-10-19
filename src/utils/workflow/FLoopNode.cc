@@ -179,7 +179,7 @@ FLoopNode::checkCondition() throw(WfStructException) {
   if (myConditionVars != NULL) {
     delete myConditionVars;
   }
-  myConditionVars = new vector<WfExprVariable*>(getPortNb(), NULL);
+  myConditionVars = new std::vector<WfExprVariable*>(getPortNb(), NULL);
   // loop over all inputs and set the variable in the table
   std::map<std::string, WfPort*>::iterator portIter = ports.begin();
   for (; portIter != ports.end(); ++portIter) {
@@ -224,7 +224,7 @@ FLoopNode::checkCondition() throw(WfStructException) {
 void
 FLoopNode::initialize() {
   TRACE_TEXT(TRACE_ALL_STEPS, "Initializing loop node :" << getId() << "\n");
-  std::vector<InputIterator*> *inputIterTab = new vector<InputIterator*>();
+  std::vector<InputIterator*> *inputIterTab = new std::vector<InputIterator*>();
 
   std::map<std::string, WfPort*>::iterator portIter = ports.begin();
   for (; portIter != ports.end(); ++portIter) {
@@ -245,7 +245,7 @@ FLoopNode::initialize() {
 }
 
 bool
-FLoopNode::testCondition(const vector<FDataHandle*>& currDataLine) {
+FLoopNode::testCondition(const std::vector<FDataHandle*>& currDataLine) {
   // init variables for condition
   for (unsigned int ix = 0; ix < currDataLine.size(); ++ix) {
     // check if current input is used as variable in the condition
@@ -280,7 +280,7 @@ FLoopNode::instanciate(Dag* dag) {
   TRACE_TEXT(TRACE_ALL_STEPS, "   ## instanciate loop (internally) : \n");
   // Process ongoing loops
   std::vector<FDataHandle*>* loopDataLine =
-    new vector<FDataHandle*>(getPortNb());
+    new std::vector<FDataHandle*>(getPortNb());
   myLoopIterator->begin();
   while (!myLoopIterator->isAtEnd()) {
     // GET DATALINE
@@ -305,7 +305,7 @@ FLoopNode::instanciate(Dag* dag) {
 
     // CHECK IF VOID // FIXME duplicated code with FProcNode::instanciate
     bool dataIsVoid = false;
-    vector<FDataHandle*>::const_iterator DLIter = loopDataLine->begin();
+    std::vector<FDataHandle*>::const_iterator DLIter = loopDataLine->begin();
     while ((!dataIsVoid) && (DLIter != loopDataLine->end())) {
       FDataHandle* currDataHdl = *(DLIter++);
       dataIsVoid = currDataHdl ? currDataHdl->isVoid() : dataIsVoid;
@@ -350,7 +350,7 @@ FLoopNode::instanciate(Dag* dag) {
  * Copy the DH of IN ports onto LOOP IN ports
  */
 void
-FLoopNode::initLoopInPorts(vector<FDataHandle*>& currDataLine) {
+FLoopNode::initLoopInPorts(std::vector<FDataHandle*>& currDataLine) {
   std::map<std::string, WfPort*>::iterator portIter = ports.begin();
   for (; portIter != ports.end(); ++portIter) {
     FLoopInPort* loopInPort =
@@ -410,7 +410,7 @@ FLoopNode::createRealInstance(Dag* dag, const FDataTag& currTag,
 // to all nodes in the loop to make them completed
 void
 FLoopNode::createVoidInstance(const FDataTag& currTag,
-                              vector<FDataHandle*>& currDataLine) {
+                              std::vector<FDataHandle*>& currDataLine) {
   TRACE_TEXT(TRACE_ALL_STEPS, "  ## NEW LOOP VOID INSTANCE : " << getId()
              << currTag.toString() << "\n");
 

@@ -26,7 +26,7 @@ using namespace events;
 EventDispatcher::~EventDispatcher()
 {
   Handlers::iterator it = _handlers.begin();
-  while(it != _handlers.end())
+  while (it != _handlers.end())
   {
     delete it->second;
     ++it;

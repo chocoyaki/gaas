@@ -85,10 +85,12 @@ private:
   pthread_attr_t threadAttribute;
 
   Thread(const Thread&);
+
   const Thread&
   operator=(const Thread&);
 
-  void setCompleted() const;
+  void
+  setCompleted() const;
 
   void* result;                      // stores return value of run()
 

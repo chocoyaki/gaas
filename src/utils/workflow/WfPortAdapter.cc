@@ -179,7 +179,7 @@ WfPortAdapter::createAdapter(const std::string& strRef) {
     // case of container data
     std::string::size_type refSepLast = strRef.rfind(")");
     if (refSepLast == std::string::npos) {
-      INTERNAL_ERROR("No closing bracket in " << strRef << endl, 1);
+      INTERNAL_ERROR("No closing bracket in " << strRef << "\n", 1);
     }
     return new WfMultiplePortAdapter(strRef.substr(refSep+1, refSepLast-1));
   }
@@ -237,7 +237,7 @@ WfSimplePortAdapter::WfSimplePortAdapter(WfPort * port,
 }
 
 WfSimplePortAdapter::WfSimplePortAdapter(WfPort* port,
-                                         const list<unsigned int>& indexes,
+                                         const std::list<unsigned int>& indexes,
                                          const std::string& portDagName) {
   nodePtr  = port->getParent();
   portPtr  = port;
@@ -249,14 +249,14 @@ WfSimplePortAdapter::WfSimplePortAdapter(WfPort* port,
 
 WfSimplePortAdapter::~WfSimplePortAdapter() {}
 
-string
+std::string
 WfSimplePortAdapter::getSourceRef() const {
   std::stringstream ss;
   if (!dagName.empty()) {
     ss << dagName << ":";
   }
   ss << nodeName << "#" << portName;
-  for (list<unsigned int>::const_iterator idxIter = eltIdxList.begin();
+  for (std::list<unsigned int>::const_iterator idxIter = eltIdxList.begin();
        idxIter != eltIdxList.end();
        ++idxIter) {
     ss << "[" << (unsigned int) *idxIter << "]";
@@ -288,7 +288,7 @@ void
 WfSimplePortAdapter::connectPorts(WfPort* port, unsigned int adapterLevel)
   throw(WfStructException) {
   if (!nodePtr) {
-    INTERNAL_ERROR(__FUNCTION__ << "NULL node pointer" << endl, 1);
+    INTERNAL_ERROR(__FUNCTION__ << "NULL node pointer\n", 1);
   }
   WfPort *linkedPort = nodePtr->getPort(portName);
   std::string errorMsg = "connect " + port->getCompleteId()
@@ -327,7 +327,7 @@ WfSimplePortAdapter::getSourcePort() const {
   DagNodeOutPort* p = dynamic_cast<DagNodeOutPort*>(portPtr);
   if (!p) {
     INTERNAL_ERROR(__FUNCTION__ << " used with adapter to incorrect port type"
-                   << endl, 1);
+                   << "\n", 1);
   }
   return p;
 }
@@ -386,7 +386,7 @@ WfSimplePortAdapter::getDepth() const {
   return eltIdxList.size();
 }
 
-const list<unsigned int>&
+const std::list<unsigned int>&
 WfSimplePortAdapter::getElementIndexes() {
   return eltIdxList;
 }
@@ -469,7 +469,7 @@ WfMultiplePortAdapter::addSubAdapter(WfPortAdapter* subAdapter) {
 void
 WfMultiplePortAdapter::setNodePrecedence(WfNode* node, NodeSet* nodeSet)
   throw(WfStructException) {
-  for (list<WfPortAdapter*>::iterator iter = adapters.begin();
+  for (std::list<WfPortAdapter*>::iterator iter = adapters.begin();
        iter != adapters.end();
        ++iter) {
     (*iter)->setNodePrecedence(node, nodeSet);
@@ -479,16 +479,16 @@ WfMultiplePortAdapter::setNodePrecedence(WfNode* node, NodeSet* nodeSet)
 void
 WfMultiplePortAdapter::connectPorts(WfPort* port, unsigned int adapterLevel)
   throw(WfStructException) {
-  for (list<WfPortAdapter*>::iterator iter = adapters.begin();
+  for (std::list<WfPortAdapter*>::iterator iter = adapters.begin();
        iter != adapters.end();
        ++iter) {
     (*iter)->connectPorts(port, adapterLevel+1);
   }
 }
 
-string WfMultiplePortAdapter::errorID = std::string("ID_Error");
+std::string WfMultiplePortAdapter::errorID("ID_Error");
 
-string
+std::string
 WfMultiplePortAdapter::getSourceRef() const {
   std::string s("(");
   std::list<WfPortAdapter*>::const_iterator adaptIter = adapters.begin();
@@ -509,7 +509,7 @@ WfMultiplePortAdapter::getSourceDataID() {
   }
   // First check if all adapters have either their ID defined or are VOID
   // (will throw exception if one is not defined)
-  for (list<WfPortAdapter*>::iterator iter = adapters.begin();
+  for (std::list<WfPortAdapter*>::iterator iter = adapters.begin();
        iter != adapters.end();
        ++iter) {
     try {
@@ -525,7 +525,7 @@ WfMultiplePortAdapter::getSourceDataID() {
   TRACE_TEXT(TRACE_ALL_STEPS, "## Creating container to merge ports\n");
   dagda_create_container(&idCont);
   int ix = 0;
-  for (list<WfPortAdapter*>::iterator iter = adapters.begin();
+  for (std::list<WfPortAdapter*>::iterator iter = adapters.begin();
        iter != adapters.end();
        ++iter) {
     try {
@@ -561,7 +561,7 @@ WfMultiplePortAdapter::isDataIDCreator() {
 void
 WfMultiplePortAdapter::writeDataValue(WfDataWriter* dataWriter) {
   dataWriter->startContainer();
-  for (list<WfPortAdapter*>::const_iterator adaptIter = adapters.begin();
+  for (std::list<WfPortAdapter*>::const_iterator adaptIter = adapters.begin();
        adaptIter != adapters.end();
        ++adaptIter) {
     ((WfPortAdapter*) *adaptIter)->writeDataValue(dataWriter);
@@ -571,7 +571,7 @@ WfMultiplePortAdapter::writeDataValue(WfDataWriter* dataWriter) {
 
 void
 WfMultiplePortAdapter::freeAdapterPersistentData(MasterAgent_var& MA) {
-  for (list<WfPortAdapter*>::const_iterator adaptIter = adapters.begin();
+  for (std::list<WfPortAdapter*>::const_iterator adaptIter = adapters.begin();
        adaptIter != adapters.end();
        ++adaptIter) {
     ((WfPortAdapter*) *adaptIter)->freeAdapterPersistentData(MA);
@@ -579,7 +579,7 @@ WfMultiplePortAdapter::freeAdapterPersistentData(MasterAgent_var& MA) {
   if (!containerID.empty()) {
     // This class of adapter is always the owner of its dataID
     TRACE_TEXT(TRACE_ALL_STEPS, "Deleting persistent container: "
-               << containerID << endl);
+               << containerID << "\n");
     char *dataId = const_cast<char*>(containerID.c_str());
     if (MA->diet_free_pdata(dataId) == 0) {
       WARNING("Could not delete persistent data: " << dataId);
@@ -608,7 +608,7 @@ WfVoidAdapter::connectPorts(WfPort* port, unsigned int adapterLevel)
   throw(WfStructException) {
 }
 
-string
+std::string
 WfVoidAdapter::getSourceRef() const {
   return voidRef;
 }
@@ -678,7 +678,7 @@ WfValueAdapter::connectPorts(WfPort* port, unsigned int adapterLevel)
   throw(WfStructException) {
 }
 
-string
+std::string
 WfValueAdapter::getSourceRef() const {
   return valStartTag + myValue + valFinishTag;
 }
@@ -761,7 +761,7 @@ WfValueAdapter::freeAdapterPersistentData(MasterAgent_var& MA) {
   // the dataID can be provided in the constructor
   if (isDataIDCreator()) {
     TRACE_TEXT(TRACE_ALL_STEPS, "Deleting persistent data (value adapter): "
-               << myDataID << endl);
+               << myDataID << "\n");
     char *dataId = const_cast<char*>(myDataID.c_str());
     if (MA->diet_free_pdata(dataId) == 0) {
       WARNING("Could not delete persistent data: " << dataId);
@@ -865,7 +865,7 @@ WfDataIDAdapter::connectPorts(WfPort* port, unsigned int adapterLevel)
   throw(WfStructException) {
 }
 
-string
+std::string
 WfDataIDAdapter::getSourceRef() const {
   return IDStartTag + myDataID + IDFinishTag;
 }
@@ -881,12 +881,12 @@ WfDataIDAdapter::getSourceDataType() {
 }
 
 void
-WfDataIDAdapter::getElements(vector< std::string >& vectID) {
+WfDataIDAdapter::getElements(std::vector<std::string >& vectID) {
   if (myDataID.empty()) {
     return;
   }
 
-  std::map<string, std::vector<string> >::const_iterator cacheIter =
+  std::map<std::string, std::vector<std::string> >::const_iterator cacheIter =
     myCache.find(myDataID);
   if (cacheIter != myCache.end()) {
     vectID = cacheIter->second;
@@ -932,12 +932,13 @@ WfDataIDAdapter::getElements(vector< std::string >& vectID) {
   }
 }
 
-string
+std::string
 WfDataIDAdapter::getDataID() const {
   return myDataID;
 }
 
-string WfDataIDAdapter::toString() const {
+std::string
+WfDataIDAdapter::toString() const {
   return "Adapter ID=" + myDataID;
 }
 
@@ -968,10 +969,10 @@ WfDataIDAdapter::getAndWriteData(WfDataWriter* dataWriter,
     if (dataDepth > 0) {
       dataWriter->startContainer();
       WfDataIDAdapter adapter(dataID);
-      vector<string> vectID;
+      std::vector<std::string> vectID;
       adapter.getElements(vectID);
 
-      for (vector<string>::iterator eltIter = vectID.begin();
+      for (std::vector<std::string>::iterator eltIter = vectID.begin();
            eltIter != vectID.end();
            ++eltIter) {
         if ((*eltIter).empty()) {

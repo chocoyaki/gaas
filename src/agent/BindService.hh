@@ -37,8 +37,8 @@
 
 #ifdef HAVE_MULTI_MA
 
-#include "omnithread.h"
 #include <omniORB4/CORBA.h>
+#include <omnithread.h>
 #include "MasterAgent.hh"
 
 class MasterAgentImpl;

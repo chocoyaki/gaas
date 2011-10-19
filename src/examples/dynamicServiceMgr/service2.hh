@@ -33,8 +33,8 @@ extern "C" {
   int
   removeService();
 
-  const char *
-  const serviceName();
+  const char * const
+  serviceName();
 }
 
 #endif

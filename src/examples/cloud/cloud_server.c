@@ -98,7 +98,7 @@ void read_all(char*buff, const char*in_file)
   char aux[500];
   /* Collect the result */
   FILE*fi = fopen(in_file, "r");
-  while(fi != NULL && !feof(fi))
+  while (fi != NULL && !feof(fi))
     {
       fgets(aux, 500, fi);
       if (!feof(fi))

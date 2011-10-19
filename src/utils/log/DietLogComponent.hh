@@ -109,10 +109,6 @@
 #include "response.hh"
 #include "common_types.hh"
 
-//#include "CorbaLogForwarder.hh"
-//#include "LogComponentFwdr.hh"
-
-
 #define PINGTHREAD_SYNCHRO_FREQUENCY      60
 #define PINGTHREAD_SLEEP_SEC              1
 #define PINGTHREAD_SLEEP_NSEC             0
@@ -124,7 +120,7 @@
  * the agent will print a warning and continue without
  * sending logmessages.
  */
-//#define DLC_ERROR_BEHAVIOUR_FATAL
+
 
 // forward declaraction
 class DietLogComponent;
@@ -134,8 +130,7 @@ class DietLogComponent;
  * DietLogComponent(DLC). It flushes the DLC in regular
  * intervals by calling its sendOutBuffer() function.
  */
-class FlushBufferThread: public omni_thread
-{
+class FlushBufferThread : public omni_thread {
 public:
   /**
    * Constructor.
@@ -197,14 +192,13 @@ private:
  * LogCentral will disconnect the component after
  * some time.
  */
-class PingThread: public omni_thread
-{
+class PingThread : public omni_thread {
 public:
   /**
    * Constructor.
    * @param DLC reference to the DietLogComponent of this thread.
    */
-  PingThread(DietLogComponent* DLC);
+  explicit PingThread(DietLogComponent* DLC);
 
   /**
    * Start the thread.
@@ -218,7 +212,6 @@ public:
    */
   void
   stopThread();
-
 
 protected:
   /**
@@ -263,7 +256,6 @@ private:
 class DietLogComponent:  public POA_ComponentConfigurator,
                          public PortableServer::RefCountServantBase {
 public:
-
   /**
    * Initialise the DietLogComponent.
    * @param name The name of this component. Set to "" if this is a SeD.
@@ -288,7 +280,8 @@ public:
    * outBuffer. After this time, the FlushBufferThread sends them.
    * The value specified nanoseconds.
    */
-  int run(const char* agentType, const char* parentName, int outBufferTime);
+  int
+  run(const char* agentType, const char* parentName, int outBufferTime);
 
   /**
    * Client functions (for DIET)
@@ -340,8 +333,9 @@ public:
   void
   logBeginSolve(const char* path, const corba_profile_t* problem);
 
+  // modif bisnard_logs_1
   void
-  logEndDownload(const char* path, const corba_profile_t* problem);  // modif bisnard_logs_1
+  logEndDownload(const char* path, const corba_profile_t* problem);
 
   void
   logEndSolve(const char* path, const corba_profile_t* problem);
@@ -365,7 +359,7 @@ public:
 
   void
   logDataTransferTime(const char* dataID, const char* destAgent,
-                      const unsigned long elapsedTime);  // modif bisnard_logs_1
+                      const unsigned long elapsedTime);
 
   /**
    * NWS values
@@ -445,7 +439,6 @@ public:
 
 #ifdef HAVE_WORKFLOW
 
-  // modif bisnard_logs_1
   /**
    * Send msg : workflow node queued (ie ready for execution)
    */
@@ -474,21 +467,17 @@ public:
    */
   void
   logWfNodeFailed(const char *dagName, const char *nodeName);
-  // end modif bisnard_logs_1
   /**
    * Send msg and workflow processing time
-   *
    * @param msg the message which identify dag and request_id of the dag
-   * @param ptime  the time elapsed by the MA_DAG in ms to process the workflow submission
-   *
+   * @param ptime the time elapsed by the MA_DAG in ms to process
+   * the workflow submission
    */
   void
   logDag(const char * msg);
   /**
    * Send msg : madag schedulerType
-   *
    * @param msg the message which contains the scheduler type of the MA_DAG
-   *
    */
   void
   maDagSchedulerType(const char * msg);

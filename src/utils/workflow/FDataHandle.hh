@@ -244,7 +244,7 @@ private:
   /**
    * String version of the tag
    */
-  string myStr;
+  std::string myStr;
 };
 
 /*****************************************************************************/
@@ -259,7 +259,7 @@ public:
                                eVALUE_UNDEF,
                                eADAPT_UNDEF };
 
-  WfDataHandleException(WfDataHandleErrorType t, const string& _info) {
+  WfDataHandleException(WfDataHandleErrorType t, const std::string& _info) {
     this->why = t;
     this->info = _info;
   }
@@ -311,7 +311,7 @@ public:
    * @param value the value of the data
    */
   FDataHandle(const FDataTag& tag, WfCst::WfDataType valueType,
-              const string& value);
+              const std::string& value);
 
   /**
    * Constructor of a data handle referencing a data ID (from data manager)
@@ -322,7 +322,7 @@ public:
    * @param isOwner   if true, DH is allowed to free the data (remove from platform)
    */
   FDataHandle(const FDataTag& tag, WfCst::WfDataType dataType,
-              unsigned int dataDepth, const string& dataId,
+              unsigned int dataDepth, const std::string& dataId,
               bool isOwner = false);
 
   /**
@@ -375,7 +375,7 @@ public:
   /**
    * Get a string description of the handle
    */
-  string
+  std::string
   toString() const;
 
   /**
@@ -401,10 +401,11 @@ public:
    * (the list may include 'x' values if cardinal unknown at that level)
    */
   void
-  setCardinalList(const list<string>& cardList);
+  setCardinalList(const std::list<std::string>& cardList);
+
   void
-  setCardinalList(list<string>::const_iterator& start,
-                  list<string>::const_iterator& end);
+  setCardinalList(std::list<std::string>::const_iterator& start,
+                  std::list<std::string>::const_iterator& end);
   /**
    * Get the cardinal
    * (does not match the nb of childs if not complete)
@@ -486,11 +487,11 @@ public:
    * will generate the childs with the correct tags
    * @exception WfDataHandleException(eBAD_STRUCT) if DH depth = 0
    */
-  map<FDataTag, FDataHandle*>::iterator
+  std::map<FDataTag, FDataHandle*>::iterator
   begin()
     throw(WfDataHandleException);
 
-  map<FDataTag, FDataHandle*>::iterator
+  std::map<FDataTag, FDataHandle*>::iterator
   end();
 
   /**
@@ -509,7 +510,7 @@ public:
    *         adapter is not defined
    */
   WfPortAdapter*
-  createPortAdapter(const string& currDagName = "");
+  createPortAdapter(const std::string& currDagName = "");
 
   /**
    * Returns true if the handle has a defined value
@@ -523,12 +524,12 @@ public:
    */
   void
   setValue(WfCst::WfDataType valueType,
-            const string&     value);
+            const std::string&     value);
 
   /**
    * Returns value
    */
-  const string&
+  const std::string&
   getValue() const;
 
   /**
@@ -541,7 +542,7 @@ public:
    * Set the data ID of the data (if existing on the platform)
    */
   void
-  setDataID(const string& dataID);
+  setDataID(const std::string& dataID);
 
   /**
    * Returns true if the handle has a defined data ID
@@ -560,7 +561,7 @@ public:
    * Returns data ID
    * @return the data ID or an empty string if not available
    */
-  const string&
+  const std::string&
   getDataID() const;
 
   /**
@@ -623,15 +624,15 @@ public:
    * If property already defined, value is overriden. //CONFIRM
    */
   void
-  addProperty(const string& propKey, const string& propValue);
+  addProperty(const std::string& propKey, const std::string& propValue);
 
   /**
    * Get the value of a property
    * @param propKey the property name
    * @exception FDataHandleException  if property is not defined
    */
-  const string&
-  getProperty(const string& propKey) throw(WfDataHandleException);
+  const std::string&
+  getProperty(const std::string& propKey) throw(WfDataHandleException);
 
   /**
    * Write all the data tree in XML format
@@ -709,7 +710,7 @@ private:
   /**
    * the map of sub-data handles
    */
-  map<FDataTag, FDataHandle*>*  myData;
+  std::map<FDataTag, FDataHandle*>*  myData;
 
   /**
    * my parent data handle (if applicable)
@@ -724,7 +725,7 @@ private:
   /**
    * the list of indexes of the port element (if ADAPTER_SIMPLE)
    */
-  list<unsigned int>* myPortElementIndexes;
+  std::list<unsigned int>* myPortElementIndexes;
 
   /**
    * type of port adapter
@@ -734,7 +735,7 @@ private:
   /**
    * value (stored in XML format)
    */
-  string myValue;
+  std::string myValue;
 
   /**
    * value type (used for ADAPTER_VALUE only)
@@ -744,7 +745,7 @@ private:
   /**
    * data ID
    */
-  string myDataID;
+  std::string myDataID;
 
   /**
    * data depth (if container)
@@ -759,7 +760,7 @@ private:
   /**
    * predefined cardinal info (may contain several levels)
    */
-  list<string>* myCardList;
+  std::list<std::string>* myCardList;
 
   /**
    * completion depth (= childs at this depth are all defined)

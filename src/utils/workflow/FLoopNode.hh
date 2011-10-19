@@ -42,7 +42,7 @@ public:
   // ******************** NODE SETUP *********************
 
   virtual WfPort *
-  newPort(string portId,
+  newPort(std::string portId,
           unsigned int ind,
           WfPort::WfPortType portType,
           WfCst::WfDataType dataType,
@@ -52,12 +52,12 @@ public:
   connectNodePorts() throw(WfStructException);
 
   void
-  setDoMap(const string& leftPortName,
-           const string& rightPortName)
+  setDoMap(const std::string& leftPortName,
+           const std::string& rightPortName)
     throw(WfStructException);
 
   void
-  setWhileCondition(const string& conditionStr)
+  setWhileCondition(const std::string& conditionStr)
     throw(WfStructException);
 
   // ******************** INSTANCIATION *********************

@@ -26,8 +26,7 @@
 #include "ORBMgr.hh"
 #include "AgentImpl.hh"
 
-class ExitClass
-{
+class ExitClass {
 public:
   /**
    * You must initialize the ExitClass with all informations needed by the
