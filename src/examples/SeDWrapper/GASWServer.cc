@@ -32,12 +32,12 @@
 #include "DIET_server.h"
 #include "DagWfParser.hh" // for XMLParsingException
 
-#define TRACE(mess) {                   \
-  cout << "[GASW] " << mess << endl;    \
-}
-#define WARN(mess) {                    \
-  cerr << "[GASW] " << mess << endl;    \
-}
+#define TRACE(mess) {                           \
+    cout << "[GASW] " << mess << endl;          \
+  }
+#define WARN(mess) {                            \
+    cerr << "[GASW] " << mess << endl;          \
+  }
 
 using namespace std;
 namespace fs = boost::filesystem;
@@ -61,12 +61,12 @@ getService(const string& serviceName) {
 
 /* MUST BE REENTRANT */
 void
-performance_Exec_Time(diet_profile_t* pb ,estVector_t perfValues )
+performance_Exec_Time(diet_profile_t* pb , estVector_t perfValues)
 {
   SeDService *serv = getService(string(pb->pb_name));
   double tcomp = serv->getAvgComputationTime();
   TRACE("Estimation of computation time for '" << serv->getName()
-       << "' = " << tcomp << " ms ");
+        << "' = " << tcomp << " ms ");
   double eft = 0;
   /* Set the job duration and compute SeD's EFT (results stored in EV) */
   diet_estimate_comptime(perfValues, tcomp);
@@ -136,18 +136,18 @@ serviceRun(diet_profile_t* pb)
   }
 
   // Cleanup
-//   if (!serv->removeWorkingDirectory()) {
-//     cout << "Removed working directory: done." << endl;
-//   }
+  //   if (!serv->removeWorkingDirectory()) {
+  //     cout << "Removed working directory: done." << endl;
+  //   }
 
   // delete the current instance of service
   delete serv;
 
   // update reference service with value of computation time for this request
-//   double time_us = (t2.tv_sec - t1.tv_sec) * 1000000 + (t2.tv_usec - t1.tv_usec);
-//   myLock.lock();
-//   getService(string(pb->pb_name))->setComputationTimeMeasure(time_us / 1000);
-//   myLock.unlock();
+  //   double time_us = (t2.tv_sec - t1.tv_sec) * 1000000 + (t2.tv_usec - t1.tv_usec);
+  //   myLock.lock();
+  //   getService(string(pb->pb_name))->setComputationTimeMeasure(time_us / 1000);
+  //   myLock.unlock();
 
   return res;
 }

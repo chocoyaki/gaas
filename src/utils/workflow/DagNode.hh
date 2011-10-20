@@ -90,30 +90,40 @@
 #include "DagScheduler.hh"
 #include "DagNodeLauncher.hh"
 
-using namespace std;
-
 /*****************************************************************************/
 /*                         CLASS WfDataException                             */
 /*****************************************************************************/
-
 class WfDataException {
-  public:
-    enum WfDataErrorType { eNOTFOUND,
-			   eNOTAVAIL,
-                           eWRONGTYPE,
-                           eINVALID_CONTAINER,
-                           eID_UNDEF,
-                           eVOID_DATA,
-                           eREADFILERROR,
-                           eINVALID_VALUE };
-    WfDataException(WfDataErrorType t, const string& info)
-      { this->why = t; this->info = info; }
-    WfDataErrorType Type() const { return this->why; }
-    const string& Info() const { return this->info; }
-    string ErrorMsg() const;
-  private:
-    WfDataErrorType why;
-    string info;
+public:
+  enum WfDataErrorType { eNOTFOUND,
+                         eNOTAVAIL,
+                         eWRONGTYPE,
+                         eINVALID_CONTAINER,
+                         eID_UNDEF,
+                         eVOID_DATA,
+                         eREADFILERROR,
+                         eINVALID_VALUE };
+
+  WfDataException(WfDataErrorType t, const std::string& info)
+    : why(t), info(info) {
+  }
+
+  WfDataErrorType
+  Type() const {
+    return this->why;
+  }
+
+  const std::string&
+  Info() const {
+    return this->info;
+  }
+
+  std::string
+  ErrorMsg() const;
+
+private:
+  WfDataErrorType why;
+  std::string info;
 };
 
 /****************************************************************************/
@@ -127,17 +137,15 @@ class FWorkflow;
 class FProcNode;
 
 class DagNode : public WfNode  {
-
 public:
-
   /**
    * The Dag Node default constructor
    * @param id         the node id
    * @param dag        the parent dag
    * @param wf         the workflow that generated this dag node (optional)
    */
-  DagNode(const string& id, Dag *dag = NULL, FWorkflow* wf = NULL);
-  
+  DagNode(const std::string& id, Dag *dag = NULL, FWorkflow* wf = NULL);
+
   /**
    * Dag Node event message types
    */
@@ -156,7 +164,7 @@ public:
   /**
    * Get the node complete id (dagName-nodeName) *
    */
-  string
+  std::string
   getCompleteId();
 
   /**
@@ -182,21 +190,21 @@ public:
    * set the node problem name (ie service name)
    */
   void
-  setPbName(const string& pbName);
+  setPbName(const std::string& pbName);
 
   /**
    * get the problem name
    */
-  const string&
+  const std::string&
   getPbName() const;
 
   /**
    * create a new port
    */
   WfPort *
-  newPort(string portId, unsigned int ind,
+  newPort(std::string portId, unsigned int ind,
           WfPort::WfPortType portType, WfCst::WfDataType dataType,
-          unsigned int depth) throw (WfStructException);
+          unsigned int depth) throw(WfStructException);
 
   /**
    * Add a new predecessor
@@ -205,12 +213,12 @@ public:
    * @param fullNodeId  contains the id of the predecessor eventually prefixed (if external)
    */
   virtual void
-  addNodePredecessor(WfNode * node, const string& fullNodeId);
-  
+  addNodePredecessor(WfNode * node, const std::string& fullNodeId);
+
   /**
    * Returns a string description of the node
    */
-  virtual string
+  virtual std::string
   toString() const;
 
   /**
@@ -218,7 +226,7 @@ public:
    * @param output the out stream
    */
   void
-  toXML(ostream& output) const;
+  toXML(std::ostream& output) const;
 
   /******************************/
   /* DIET Profile Mgmt          */
@@ -243,12 +251,12 @@ public:
    * of the same class)
    */
   void
-  setEstimationClass(const string& estimClassId);
+  setEstimationClass(const std::string& estimClassId);
 
   /**
    * Get the estimation class
    */
-  const string&
+  const std::string&
   getEstimationClass();
 
   /**
@@ -279,7 +287,7 @@ public:
    * create the diet profile associated to the node (CLIENT) *
    */
   void
-  initProfileExec() throw (WfDataException);
+  initProfileExec() throw(WfDataException);
 
   /**
    * Store the persistent data IDs from profile to node
@@ -298,61 +306,61 @@ public:
    * @param value the parameter value as a string
    */
   char *
-  newChar  (const string value = "");
+  newChar(const std::string value = "");
   /**
    * Allocate a new short *
    * @param value the parameter value as a string
    */
   short *
-  newShort (const string value = "");
+  newShort(const std::string value = "");
 
   /**
    * Allocate a new int  *
    * @param value the parameter value as a string
    */
   int *
-  newInt   (const string value = "");
+  newInt(const std::string value = "");
 
   /**
    * Allocate a new long *
    * @param value the parameter value as a string
    */
   long *
-  newLong  (const string value = "");
+  newLong(const std::string value = "");
 
   /**
    * Allocate a new string *
    * @param value the parameter value as a string
    */
   char *
-  newString (const string value = "");
+  newString(const std::string value = "");
 
   /**
    * Allocate a new float  *
    * @param value the parameter value as a string
    */
   float *
-  newFloat  (const string value = "");
+  newFloat(const std::string value = "");
 
   /**
    * Allocate a new double  *
    * @param value the parameter value as a string
    */
   double *
-  newDouble (const string value = "");
+  newDouble(const std::string value = "");
 
   /**
    * Allocate a new filename  *
    * @param value the parameter value as a string
    */
   char *
-  newFile   (const string value = "");
+  newFile(const std::string value = "");
 
   /**
    * Display all results of the node
    */
   void
-  displayResults(ostream& output);
+  displayResults(std::ostream& output);
 
 
   /******************************/
@@ -531,10 +539,10 @@ public:
 
   /**
    * Set the status of the node given a string value of the status
-   * @param statusStr	status value as provided by getStateAsString()
+   * @param statusStr   status value as provided by getStateAsString()
    */
   void
-  setStatus(const string& statusStr);
+  setStatus(const std::string& statusStr);
 
   /**********************************/
   /* Execution thread               */
@@ -562,7 +570,7 @@ protected:
   /**
    * Get node status as an attribute value (for XML output)
    */
-  string
+  std::string
   getStatusAsString() const;
 
   /**
@@ -580,7 +588,7 @@ private:
   /**
    * Node problem
    */
-  string myPb;
+  std::string myPb;
 
   /**
    * NodeQueue ref (used to notify NodeQueue when state changes)
@@ -630,14 +638,14 @@ private:
   /*************************/
   /* problem parameters    */
   /*************************/
-  vector<char*>   charParams;
-  vector<short*>  shortParams;
-  vector<int*>    intParams;
-  vector<long*>   longParams;
-  vector<char *>  stringParams;
-  vector<float*>  floatParams;
-  vector<double*> doubleParams;
-  vector<char*>   fileParams;
+  std::vector<char*> charParams;
+  std::vector<short*> shortParams;
+  std::vector<int*> intParams;
+  std::vector<long*> longParams;
+  std::vector<char *> stringParams;
+  std::vector<float*> floatParams;
+  std::vector<double*> doubleParams;
+  std::vector<char*> fileParams;
   /*************************/
 
   /**
@@ -645,10 +653,10 @@ private:
    */
   double priority;
 
-    /**
+  /**
    * node running status *
    */
-//   bool node_running;
+  //   bool node_running;
 
   /**
    * number of immediate next nodes that have end their execution *
@@ -690,7 +698,7 @@ private:
    * the scheduler will use the same estimation value as for any node
    * of the same class)
    */
-  string estimationClass;
+  std::string estimationClass;
 
   /**
    * Indicates that the node started a thread
@@ -701,7 +709,6 @@ private:
    * Indicates that the node's thread was joined
    */
   bool isTerminated;
-
 };
 
-#endif // _DAGNODE_HH_
+#endif  // _DAGNODE_HH_

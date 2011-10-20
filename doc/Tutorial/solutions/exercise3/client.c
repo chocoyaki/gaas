@@ -82,14 +82,14 @@ main(int argc, char **argv)
   }
 
   /* Create the profile */
-  profile = diet_profile_alloc(problem_name,3, 4, 4);
+  profile = diet_profile_alloc(problem_name, 3, 4, 4);
 
   /* Set profile arguments */
-  diet_scalar_set(diet_parameter(profile,0), &alpha, DIET_VOLATILE, DIET_DOUBLE);
-  diet_matrix_set(diet_parameter(profile,1), A, DIET_VOLATILE, DIET_DOUBLE, m, k, oA);
-  diet_matrix_set(diet_parameter(profile,2), B, DIET_VOLATILE, DIET_DOUBLE, k, n, oB);
-  diet_scalar_set(diet_parameter(profile,3), &beta, DIET_VOLATILE, DIET_DOUBLE);
-  diet_matrix_set(diet_parameter(profile,4), C, DIET_VOLATILE, DIET_DOUBLE, m, n, DIET_COL_MAJOR);
+  diet_scalar_set(diet_parameter(profile, 0), &alpha, DIET_VOLATILE, DIET_DOUBLE);
+  diet_matrix_set(diet_parameter(profile, 1), A, DIET_VOLATILE, DIET_DOUBLE, m, k, oA);
+  diet_matrix_set(diet_parameter(profile, 2), B, DIET_VOLATILE, DIET_DOUBLE, k, n, oB);
+  diet_scalar_set(diet_parameter(profile, 3), &beta, DIET_VOLATILE, DIET_DOUBLE);
+  diet_matrix_set(diet_parameter(profile, 4), C, DIET_VOLATILE, DIET_DOUBLE, m, n, DIET_COL_MAJOR);
   
   print_matrix(A, m, k, (oA == DIET_ROW_MAJOR));
   print_matrix(B, k, n, (oB == DIET_ROW_MAJOR));

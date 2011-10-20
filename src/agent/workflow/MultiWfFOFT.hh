@@ -18,7 +18,7 @@
  * improved exception management
  *
  * Revision 1.11  2008/10/14 13:24:49  bisnard
- * use new class structure for dags (DagNode,DagNodePort)
+ * use new class structure for dags (DagNode, DagNodePort)
  *
  * Revision 1.10  2008/06/25 10:05:44  bisnard
  * - Waiting priority set when node is put back in waiting queue
@@ -73,66 +73,59 @@
 
 #include "MultiWfScheduler.hh"
 
-using namespace std;
-
-
 namespace madag {
 
-  class MultiWfFOFT : public MultiWfScheduler {
-  public:
-    MultiWfFOFT(MaDag_impl* maDag);
-    virtual ~MultiWfFOFT();
+class MultiWfFOFT : public MultiWfScheduler {
+public:
+  explicit MultiWfFOFT(MaDag_impl* maDag);
+  virtual ~MultiWfFOFT();
 
-  protected:
+protected:
+  /**
+   * Updates scheduler when a node has been executed
+   */
+  virtual void
+  handlerNodeDone(DagNode * node);
 
-    /**
-     * Updates scheduler when a node has been executed
-     */
-    virtual void
-        handlerNodeDone(DagNode * node);
+  /**
+   * internal dag scheduling
+   */
+  virtual void
+  intraDagSchedule(Dag * dag, MasterAgent_var MA)
+    throw(MaDag::ServiceNotFound, MaDag::CommProblem);
 
-    /**
-     * internal dag scheduling
-     */
-    virtual void
-        intraDagSchedule(Dag * dag, MasterAgent_var MA)
-        throw (MaDag::ServiceNotFound, MaDag::CommProblem);
+  /**
+   * set node priority before inserting into execution queue
+   */
+  virtual void
+  setExecPriority(DagNode * node);
 
-    /**
-     * set node priority before inserting into execution queue
-     */
-    virtual void
-        setExecPriority(DagNode * node);
+  /**
+   * set node priority before inserting back in the ready queue
+   */
+  virtual void
+  setWaitingPriority(DagNode * node);
 
-    /**
-     * set node priority before inserting back in the ready queue
-     */
-    virtual void
-        setWaitingPriority(DagNode * node);
+  /**
+   * updates the delay for a given node and change the current dag
+   * slowdown value accordingly if the dag delay is impacted
+   * @param node
+   * @param delay delay in ms
+   */
+  virtual void
+  updateNodeDelay(DagNode * node, double delay);
 
-    /**
-     * updates the delay for a given node and change the current dag
-     * slowdown value accordingly if the dag delay is impacted
-     * @param node
-     * @param delay delay in ms
-     */
-    virtual void
-        updateNodeDelay(DagNode * node, double delay);
+private:
+  /**
+   * Save the state of dags
+   */
+  std::map<Dag*, DagState> dagsState;
 
-  private:
-
-    /**
-     * Save the state of dags
-     */
-    map<Dag*, DagState> dagsState;
-
-    /**
-     * Mark the nodes which priority must be re-calculated
-     */
-    map<DagNode*,bool> nodesFlag;
-
-  };
-
+  /**
+   * Mark the nodes which priority must be re-calculated
+   */
+  std::map<DagNode*, bool> nodesFlag;
+};
 }
 
 #endif   /* not defined _MULTIWFFAIRNESS_SCHED_HH */

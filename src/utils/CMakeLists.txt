@@ -18,20 +18,13 @@ if (DIET_USE_LOG)
   add_subdirectory (log)
 endif (DIET_USE_LOG)
 
-if (DIET_USE_DAGDA)
-  set(DIET_Utils_SOURCES
-    ${DIET_Utils_SOURCES}
-    DataRelationMgr.cc
-    )
-  add_subdirectory(DAGDA)
-endif (DIET_USE_DAGDA)
-
+set(DIET_Utils_SOURCES
+  ${DIET_Utils_SOURCES}
+  DataRelationMgr.cc
+  )
+add_subdirectory(DAGDA)
 
 add_subdirectory(config)
-
-if (DIET_USE_FD)
-  add_subdirectory(fd)
-endif (DIET_USE_FD)
 
 include_directories(
   ${OMNIORB4_INCLUDE_DIR}
@@ -65,9 +58,7 @@ if (DIET_USE_WORKFLOW)
   add_subdirectory(events)
   target_link_libraries(DIET_Utils UtilsEvents)
 endif (DIET_USE_WORKFLOW)
-if (DIET_USE_CORI)
-  target_link_libraries(DIET_Utils UtilsCori)
-endif (DIET_USE_CORI)
+target_link_libraries(DIET_Utils UtilsCori)
 
 if (DIET_USE_USERSCHED)
   install(TARGETS DIET_Utils DESTINATION ${LIB_INSTALL_DIR})
@@ -94,8 +85,5 @@ if (DIET_USE_USERSCHED)
     )
 endif (DIET_USE_USERSCHED)
 
-
 ## Admin API
-if ( DIET_ADMIN_API )
-  add_subdirectory( admin )
-endif()
+add_subdirectory( admin )

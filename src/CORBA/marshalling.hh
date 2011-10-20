@@ -178,17 +178,15 @@ mrsh_profile_to_in_args(corba_profile_t* dest, const diet_profile_t* src);
 // To convert client data profile to service profile
 int
 unmrsh_in_args_to_profile(diet_profile_t* dest, corba_profile_t* src,
-			  const diet_convertor_t* cvt);
-#if HAVE_DAGDA
+                          const diet_convertor_t* cvt);
 /* Needed by DAGDA. */
 int
 mrsh_data_desc(corba_data_desc_t* dest, diet_data_desc_t* src);
-#endif
 
 // To reconvert service output data to client data profile
 int
 mrsh_profile_to_out_args(corba_profile_t* dest, const diet_profile_t* src,
-			 const diet_convertor_t* cvt);
+                         const diet_convertor_t* cvt);
 
 // To receive output data on the client
 int
@@ -209,30 +207,18 @@ unmrsh_data(diet_data_t* dest, corba_data_t* src, int);
 
 // unmarshall only the data description (needed for custom
 // performance metrics)
-int unmrsh_data_desc(diet_data_desc_t* dest,
-                     const corba_data_desc_t* const src);
+int
+unmrsh_data_desc(diet_data_desc_t* dest, const corba_data_desc_t* const src);
 
 
 #ifdef HAVE_WORKFLOW
-// Workflow structure marshaling 
+// Workflow structure marshaling
 int
-mrsh_wf_desc(corba_wf_desc_t* dest,
-	     const diet_wf_desc_t* const src);
+mrsh_wf_desc(corba_wf_desc_t* dest, const diet_wf_desc_t* const src);
 #endif
 
-
-int unmrsh_profile_desc(diet_profile_desc_t* dest,
-                        const corba_profile_desc_t* src);
-
-
-#ifdef WITH_ENDIANNESS
-
-/**
- * For big endian architecture, reswap in and inout parameters
- */
 int
-post_call(diet_profile_t * profile);
+unmrsh_profile_desc(diet_profile_desc_t* dest,
+                    const corba_profile_desc_t* src);
 
-#endif // WITH_ENDIANNESS
-
-#endif // _MARSHALLING_HH_
+#endif  // _MARSHALLING_HH_

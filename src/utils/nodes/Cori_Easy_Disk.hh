@@ -22,66 +22,55 @@
 #ifndef _CORI_EASY_DISK_HH_
 #define _CORI_EASY_DISK_HH_
 
-#include <iostream>
-#include <fstream>	
 #include <cstdlib>
-using namespace std;
-#define FILESIZE_MB 10 //MB
+#include <iostream>
+#include <fstream>
+
+#define FILESIZE_MB 10  // MB
 #define KILOBYTE 1024
 #define MEGABYTE KILOBYTE*KILOBYTE
 #define FILESIZE FILESIZE_MB*MEGABYTE
 #define BUFFSIZE 1024
 #define COUNTPERBUFFER 20
 
-class Easy_Disk{
-
+class Easy_Disk {
 public:
-  int 
-  get_Read_Speed(const char* path, 
-		 double * result);
-  int 
-  get_Write_Speed(const char* path, 
-		  double * result);
-  int 
-  get_Available_DiskSpace(const char* path, 
-			  double * result);
-  int 
-  get_Total_DiskSpace(const char* path, 
-		      double * result);
-  
+  int
+  get_Read_Speed(const char* path, double * result);
+
+  int
+  get_Write_Speed(const char* path, double * result);
+
+  int
+  get_Available_DiskSpace(const char* path, double * result);
+
+  int
+  get_Total_DiskSpace(const char* path, double * result);
+
 private:
-  // int sigalarm;
-  // void stop_count(int a);
-  int 
+  int
   create_file(char** path_file);
-  int 
-  gatherSizeDisks(int typeOfInfo,
-		  double * result, 
-		  const char* path);
 
-  int 
-  get_Write_Speed_by_gettimeofday(const char* path, 
-				  double * result);
+  int
+  gatherSizeDisks(int typeOfInfo, double * result, const char* path);
 
-  int 
-  get_Write_Speed_by_sig_alarm(const char* path, 
-			       double * result);
-  int 
-  get_Read_Speed_by_gettimeofday(const char* path, 
-				 double * result);
+  int
+  get_Write_Speed_by_gettimeofday(const char* path, double * result);
 
-  int 
-  get_Read_Speed_by_sig_alarm(const char* path, 
-			      double * result);
+  int
+  get_Write_Speed_by_sig_alarm(const char* path, double * result);
 
- int 
-  openfile(char ** path,
-	   ofstream* outfile);
- 
-double 
-  search_for_percent(FILE * file,
-		     int typeOfInfo);
+  int
+  get_Read_Speed_by_gettimeofday(const char* path, double * result);
 
+  int
+  get_Read_Speed_by_sig_alarm(const char* path, double * result);
+
+  int
+  openfile(char ** path, std::ofstream* outfile);
+
+  double
+  search_for_percent(FILE * file, int typeOfInfo);
 };
 
-#endif //_CORI_EASY_DISK_HH_
+#endif  // _CORI_EASY_DISK_HH_

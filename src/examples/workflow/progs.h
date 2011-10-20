@@ -43,21 +43,21 @@
 #include <string.h>
 
 
-#define print_matrix(mat, m, n, rm)        \
-  {                                        \
-    size_t i, j;                           \
-    printf("%s (%s-major) = \n", #mat,     \
-           (rm) ? "row" : "column");       \
-    for (i = 0; i < (m); i++) {            \
-      for (j = 0; j < (n); j++) {          \
-        if (rm)                            \
-	  printf("%3f ", (mat)[j + i*(n)]);\
-        else                               \
-	  printf("%3f ", (mat)[i + j*(m)]);\
-      }                                    \
-      printf("\n");                        \
-    }                                      \
-    printf("\n");                          \
+#define print_matrix(mat, m, n, rm) {           \
+    size_t i, j;                                \
+    printf("%s (%s-major) = \n", #mat,          \
+           (rm) ? "row" : "column");            \
+    for (i = 0; i < (m); i++) {                 \
+      for (j = 0; j < (n); j++) {               \
+        if (rm) {                               \
+          printf("%3f ", (mat)[j + i*(n)]);     \
+        } else {                                \
+        printf("%3f ", (mat)[i + j*(m)]);       \
+        }                                       \
+      }                                         \
+      printf("\n");                             \
+    }                                           \
+    printf("\n");                               \
   }
 
 /*
@@ -65,20 +65,20 @@
  */
 
 inline int
-T(int m, int n, double* A, int rm)
-{
+T(int m, int n, double* A, int rm) {
   size_t i, j;
   double* tmp = NULL;
 
-  tmp = malloc(m*n*sizeof(double));
-  memcpy(tmp, A, m*n*sizeof(double));
+  tmp = malloc(m*n*sizeof(tmp));
+  memcpy(tmp, A, m*n*sizeof(tmp));
 
   for (i = 0; i < n; i++) {
     for (j = 0; j < m; j++) {
-      if (rm)
-	A[i*m + j] = tmp[j*n + i];
-      else
-	A[j*n + i] = tmp[i*m + j];
+      if (rm) {
+        A[i*m + j] = tmp[j*n + i];
+      } else {
+        A[j*n + i] = tmp[i*m + j];
+      }
     }
   }
 
@@ -90,43 +90,41 @@ T(int m, int n, double* A, int rm)
  * Sum 2 column-major matrices (modulo tA and tB):
  * if tA == 'T', then A is row-major ...
  */
-
 inline int
-MatSUM(char tA, char tB, int m, int n, double* A, double* B, double* C)
-{
+MatSUM(char tA, char tB, int m, int n, double* A, double* B, double* C) {
   size_t i, j;
-  
+
   if (tA == 'T') {
     if (tB == 'T') {
       for (i = 0; i < m; i++) {
-	for (j = 0; j < n; j++) {
-	  C[j*m + i] = A[i*n + j] + B[i*n + j];
-	}
+        for (j = 0; j < n; j++) {
+          C[j*m + i] = A[i*n + j] + B[i*n + j];
+        }
       }
     } else {
       for (i = 0; i < m; i++) {
-	for (j = 0; j < n; j++) {
-	  C[j*m + i] = A[i*n + j] + B[j*m + i];
-	}
+        for (j = 0; j < n; j++) {
+          C[j*m + i] = A[i*n + j] + B[j*m + i];
+        }
       }
     }
-    
+
   } else {
     if (tB == 'T') {
       for (i = 0; i < m; i++) {
-	for (j = 0; j < n; j++) {
-	  C[j*m + i] = A[j*m + i] + B[i*n + j];
-	}
+        for (j = 0; j < n; j++) {
+          C[j*m + i] = A[j*m + i] + B[i*n + j];
+        }
       }
     } else {
       for (i = 0; i < m; i++) {
-	for (j = 0; j < n; j++) {
-	  C[j*m + i] = A[j*m + i] + B[j*m + i];
-	}
+        for (j = 0; j < n; j++) {
+          C[j*m + i] = A[j*m + i] + B[j*m + i];
+        }
       }
     }
   }
-  
+
   return 0;
 }
 
@@ -138,56 +136,55 @@ MatSUM(char tA, char tB, int m, int n, double* A, double* B, double* C)
 
 inline int
 MatPROD(char tA, char tB,
-	int mA, int nA, double* A,
-	int nB, double* B, double* C)
-{
+        int mA, int nA, double* A,
+        int nB, double* B, double* C) {
   size_t i, j, k;
   int mB = nA;
-  
+
   if (tA == 'T') {
     if (tB == 'T') {
       for (i = 0; i < mA; i++) {
-	for (j = 0; j < nB; j++) {
-	  C[j*mA + i] = 0;
-	  for (k = 0; k < nA; k++) {
-	    C[j*mA + i] += A[i*nA + k] * B[k*nB + j];
-	  }
-	}
+        for (j = 0; j < nB; j++) {
+          C[j*mA + i] = 0;
+          for (k = 0; k < nA; k++) {
+            C[j*mA + i] += A[i*nA + k] * B[k*nB + j];
+          }
+        }
       }
     } else {
       for (i = 0; i < mA; i++) {
-	for (j = 0; j < nB; j++) {
-	  C[j*mA + i] = 0;
-	  for (k = 0; k < nA; k++) {
-	    C[j*mA + i] += A[i*nA + k] * B[j*mB + k];
-	  }
-	}
+        for (j = 0; j < nB; j++) {
+          C[j*mA + i] = 0;
+          for (k = 0; k < nA; k++) {
+            C[j*mA + i] += A[i*nA + k] * B[j*mB + k];
+          }
+        }
       }
     }
-    
+
   } else {
     if (tB == 'T') {
       for (i = 0; i < mA; i++) {
-	for (j = 0; j < nB; j++) {
-	  C[j*mA + i] = 0;
-	  for (k = 0; k < nA; k++) {
-	    C[j*mA + i] += A[k*mA + i] * B[k*nB + j];
-	  }
-	}
+        for (j = 0; j < nB; j++) {
+          C[j*mA + i] = 0;
+          for (k = 0; k < nA; k++) {
+            C[j*mA + i] += A[k*mA + i] * B[k*nB + j];
+          }
+        }
       }
     } else {
       for (i = 0; i < mA; i++) {
-	for (j = 0; j < nB; j++) {
-	  C[j*mA + i] = 0;
-	  for (k = 0; k < nA; k++) {
-	    C[j*mA + i] += A[k*mA + i] * B[j*mB + k];
-	  }
-	}
+        for (j = 0; j < nB; j++) {
+          C[j*mA + i] = 0;
+          for (k = 0; k < nA; k++) {
+            C[j*mA + i] += A[k*mA + i] * B[j*mB + k];
+          }
+        }
       }
     }
   }
-  
+
   return 0;
 }
 
-#endif // _PROGS_H_
+#endif  // _PROGS_H_

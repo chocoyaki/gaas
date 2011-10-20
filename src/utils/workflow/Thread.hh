@@ -9,7 +9,7 @@
 /* $Id$
  * $Log$
  * Revision 1.6  2011/03/18 16:28:33  hguemar
- * fix initialization and const-correctness issues in src/utils/workflow/Thread.{hh,cc} raised by cppchecks
+ * fix initialization and const-correctness issues in src/utils/workflow/Thread.{hh, cc} raised by cppchecks
  *
  * Revision 1.5  2011/01/17 16:38:51  bdepardo
  * Missing space in virtual~Runnable() = 0;
@@ -39,8 +39,7 @@
 
 #include <iostream>
 #include <memory>
-
-using namespace std;
+#include <string>
 
 class Runnable {
 public:
@@ -58,17 +57,14 @@ public:
   /*********************************************************************/
   /* public methods                                                    */
   /*********************************************************************/
-  Thread(auto_ptr<Runnable> runnable_, bool isDetached = false);
-  Thread(bool isDetached = false);
+  Thread(std::auto_ptr<Runnable> runnable_, bool isDetached = false);
+  explicit Thread(bool isDetached = false);
 
   virtual ~Thread();
-
 
   void start();
 
   void* join();
-
-//   long unsigned int getId();
 
 private:
   /*********************************************************************/
@@ -79,7 +75,7 @@ private:
    */
   pthread_t PthreadThreadID;
 
-  auto_ptr<Runnable> runnable;
+  std::auto_ptr<Runnable> runnable;
 
   /**
    * true if thread created in detached state;false otherwise *
@@ -89,14 +85,19 @@ private:
   pthread_attr_t threadAttribute;
 
   Thread(const Thread&);
-  const Thread& operator= (const Thread&);
 
-  void setCompleted() const;
+  const Thread&
+  operator=(const Thread&);
+
+  void
+  setCompleted() const;
 
   void* result;                      // stores return value of run()
 
-  virtual
-  void* run() { return NULL;}
+  virtual void*
+  run() {
+    return NULL;
+  }
 
   static void*
   startThreadRunnable(void* pVoid);
@@ -105,7 +106,8 @@ private:
   startThread(void* pVoid);
 
   void
-  PrintError(string msg, int status, string fileName, int lineNumber);
+  PrintError(std::string msg, int status,
+             std::string fileName, int lineNumber);
 };
 
 

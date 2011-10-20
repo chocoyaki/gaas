@@ -29,46 +29,36 @@
 #define _CORI_BATCH_HH_
 
 #include <vector>
-using namespace std;
 
-#include "DIET_data.h" 
+#include "DIET_data.h"
 #include "est_internal.hh"
 #include "SeDImpl.hh"
 
-class SeDImpl ;
-class BatchSystem ;
+class SeDImpl;
+class BatchSystem;
 
-class Cori_batch 
-{
-
-private :
-
-  SeDImpl     * SeD ;
-  BatchSystem * batch ;
-
-  int 
-  convertArray(vector <double> vect,
-	       estVector_t * estvect,
-	       int typeOfInfo );
-
-  int 
-  convertSimple(double value,
-		estVector_t * estvect,
-		int typeOfInfo );
-public :
-  Cori_batch( diet_profile_t* );
+class Cori_batch {
+public:
+  explicit Cori_batch(diet_profile_t* profile);
 
   /** Print the values defined for the metric \c type_Info stored in the
       estimation vector \c vector_v */
   void
-  printMetric( estVector_t vector_v, int type_Info ) ;
-  
+  printMetric(estVector_t vector_v, int type_Info);
+
   /* TODO: Change the name of this prototype! We don't get anything!
      This place in the vector the information! */
   int
-  get_Information(int type_Info,       
-		  estVector_t * info,
-		  const void * data);
- 
+  get_Information(int type_Info, estVector_t * info, const void * data);
+private:
+  SeDImpl     * SeD;
+  BatchSystem * batch;
+
+  int
+  convertArray(std::vector<double> vect, estVector_t * estvect,
+               int typeOfInfo);
+
+  int
+  convertSimple(double value, estVector_t * estvect, int typeOfInfo);
 };
-#endif //CORI_BATCH_HH
+#endif  //CORI_BATCH_HH

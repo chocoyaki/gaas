@@ -43,17 +43,16 @@ public:
    *
    * @param scheduling_name scheduling name
    */
-  static void 
+  static void
   setSchedulingId(const char * scheduling_name);
 
   static void
-  start(SeD_var& chosenServer,
-        corba_response_t * response);
+  start(SeD_var& chosenServer, corba_response_t * response);
 
   /**
    * Generic method to execute a specific scheduling.
-   * 
-   * @param scheduling_name the scheduling name defined in 
+   *
+   * @param scheduling_name the scheduling name defined in
    *       USE_SPECIFIC_SCHEDULING entry in client configuration file
    * @param chosenServer  the SeD reference
    * @param reponse       the received response
@@ -112,12 +111,12 @@ public:
    * @param delim string delimeter
    * @param results the elements of the split string
    */
-  
+
   static void
-  stringSplit(std::string str, std::string delim, std::vector<std::string>& results);
+  stringSplit(std::string str, std::string delim,
+              std::vector<std::string>& results);
 
 private:
-  
   /**
    * Scheduler state
    */
@@ -127,7 +126,7 @@ private:
    * Scheduler ID
    */
   static std::string schedulerId;
-  
+
   /**
    * The used scheduler
    */
@@ -157,27 +156,24 @@ private:
   /**
    * BURST REQUEST : used to implement a better round robbin for
    * following configuration : 1 client -> 1 MA -> n SeDs.
-   * 
+   *
    * @param chosenServer the SeD reference
-   * @param response     the MA response   
+   * @param response     the MA response
    */
   virtual void
-  burstRequest(SeD_var& chosenServer,
-               corba_response_t * response);
+  burstRequest(SeD_var& chosenServer, corba_response_t * response);
 
   /**
    * BURST LIMIT REQUEST : used to implement a better round robbin for
-   * following configuration : 1 client -> 1 MA -> n SeDs. 
+   * following configuration : 1 client -> 1 MA -> n SeDs.
    * Additionnaly it allow only n simultaneous call
-   * 
+   *
    * @param chosenServer the SeD reference
-   * @param response     the MA response   
+   * @param response     the MA response
    */
   virtual void
-  burstLimitRequest(SeD_var& chosenServer,
-                    corba_response_t * response);  
+  burstLimitRequest(SeD_var& chosenServer, corba_response_t * response);
 };
 
 
 #endif   /* not defined _SPECIFICCLIENTSCHEDULER._HH */
-

@@ -39,10 +39,10 @@
 char time_str[MAX_TIME_SIZE];
 long int t = 0;
 void
-performance_Exec_Time(diet_profile_t* pb ,estVector_t perfValues )
+performance_Exec_Time(diet_profile_t* pb , estVector_t perfValues)
 {
   t = atoi(time_str);
-  if ( t == 0 )
+  if (t == 0)
     t = 10;
   diet_estimate_comptime(perfValues, t*1000);
   diet_estimate_eft(perfValues, t*1000, pb);
@@ -65,12 +65,12 @@ STRLEN(diet_profile_t* pb)
 
   fprintf(stderr, "STRLEN SOLVING\n");
 
-  diet_string_get(diet_parameter(pb,0), &str, NULL);
-  diet_scalar_get(diet_parameter(pb,1), &len, NULL);
+  diet_string_get(diet_parameter(pb, 0), &str, NULL);
+  diet_scalar_get(diet_parameter(pb, 1), &len, NULL);
   fprintf(stderr, "strlen(%s) = %d\n", str, (int)strlen(str));
   *(int*)len = strlen(str);
 
-  diet_scalar_desc_set(diet_parameter(pb,1), len);
+  diet_scalar_desc_set(diet_parameter(pb, 1), len);
 
   usleep(t*100000);
 
@@ -91,10 +91,10 @@ int main(int argc, char * argv[]) {
 
   diet_service_table_init(1);
   profile = diet_profile_desc_alloc("strlen", 0, 0, 1);
-  diet_generic_desc_set(diet_param_desc(profile,0), DIET_STRING, DIET_CHAR);
-  diet_generic_desc_set(diet_param_desc(profile,1), DIET_SCALAR, DIET_INT);
+  diet_generic_desc_set(diet_param_desc(profile, 0), DIET_STRING, DIET_CHAR);
+  diet_generic_desc_set(diet_param_desc(profile, 1), DIET_SCALAR, DIET_INT);
 
-  set_up_scheduler(profile );
+  set_up_scheduler(profile);
 
   if (diet_service_table_add(profile, NULL, STRLEN)) return 1;
 

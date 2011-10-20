@@ -173,11 +173,8 @@ interface Dagda {
 
   void checkpointState();
 
-#ifdef HAVE_DYNAMICS
   void subscribeParent(in string parentID);
   void unsubscribeParent();
-#endif
-
 };
 
 typedef Dagda::SeqDagda_t SeqDagda_t;

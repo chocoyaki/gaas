@@ -38,22 +38,22 @@
 
 
 #define print_condition 1
-#define print_matrix(mat, m, n, rm)        \
-  if (print_condition) {                   \
-    size_t i, j;                           \
-    printf("%s (%s-major) = \n", #mat,     \
-           (rm) ? "row" : "column");       \
-    printf(" %zd %zd \n",m,n);		   \
-    for (i = 0; i < (m); i++) {            \
-      for (j = 0; j < (n); j++) {          \
-        if (rm)                            \
-	  printf("%3f ", (mat)[j + i*(n)]);\
-        else                               \
-	  printf("%3f ", (mat)[i + j*(m)]);\
-      }                                    \
-      printf("\n");                        \
-    }                                      \
-    printf("\n");                          \
+#define print_matrix(mat, m, n, rm)             \
+  if (print_condition) {                        \
+    size_t i, j;                                \
+    printf("%s (%s-major) = \n", #mat,          \
+           (rm) ? "row" : "column");            \
+    printf(" %zd %zd \n", m, n);                  \
+    for (i = 0; i < (m); i++) {                 \
+      for (j = 0; j < (n); j++) {               \
+        if (rm)                                 \
+          printf("%3f ", (mat)[j + i*(n)]);     \
+        else                                    \
+          printf("%3f ", (mat)[i + j*(m)]);     \
+      }                                         \
+      printf("\n");                             \
+    }                                           \
+    printf("\n");                               \
   }
 
 void
@@ -74,16 +74,16 @@ main(int argc, char* argv[])
   size_t mA, nA, nB, mB; /* use size_t for 32 / 64 portability */
   diet_profile_t* profile = NULL;
   diet_profile_t* profile2 = NULL;
-  double mat1[15] = {1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0,10.0,11.0,12.0,13.0,14.0,15.0};
-  double mat2[18] = {10.0,11.0,12.0,13.0,14.0,15.0,16.0,17.0,18.0,19.0,20.0,21.0,22.0,23.0,24.0,40.0,41.0,42.0};
-  double mat3[30] = {19.0,20.0,21.0,22.0,23.0,24.0,25.0,26.0,27.0,28.0,29.0,30.0,31.0,32.0,33.0,18.0,19.0,20.0,21.0,22.0,23.0,24.0,40.0,41.0,42.0,50.0,51.0,52.0,53.0,54.0};  
+  double mat1[15] = {1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0};
+  double mat2[18] = {10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.0, 21.0, 22.0, 23.0, 24.0, 40.0, 41.0, 42.0};
+  double mat3[30] = {19.0, 20.0, 21.0, 22.0, 23.0, 24.0, 25.0, 26.0, 27.0, 28.0, 29.0, 30.0, 31.0, 32.0, 33.0, 18.0, 19.0, 20.0, 21.0, 22.0, 23.0, 24.0, 40.0, 41.0, 42.0, 50.0, 51.0, 52.0, 53.0, 54.0};  
 
   double* A = NULL;
   double* B = NULL;
   double* C = NULL;
   double *D = NULL;
   double *E = NULL;
-  diet_matrix_order_t oA, oB, oC,oD,oE;
+  diet_matrix_order_t oA, oB, oC, oD, oE;
 
   struct timeval tv_pause;
   
@@ -96,9 +96,9 @@ main(int argc, char* argv[])
   mB= 3;
   nB= 6;
 
-  oA = DIET_ROW_MAJOR ;
-  oB = DIET_ROW_MAJOR ;
-  oC = DIET_ROW_MAJOR ;
+  oA = DIET_ROW_MAJOR;
+  oB = DIET_ROW_MAJOR;
+  oC = DIET_ROW_MAJOR;
   oD = DIET_ROW_MAJOR;
   oE = DIET_ROW_MAJOR;
 
@@ -117,37 +117,37 @@ main(int argc, char* argv[])
   path = (char*) malloc(sizeof(char) * 10);
   path2 = (char*) malloc(sizeof(char) * 10);
 
-  strcpy(path,"MatPROD");
+  strcpy(path, "MatPROD");
   profile = diet_profile_alloc(path, 1, 1, 2);
-  diet_matrix_set(diet_parameter(profile,0),
-		  A, DIET_PERSISTENT, DIET_DOUBLE, mA, nA, oA);
+  diet_matrix_set(diet_parameter(profile, 0),
+                  A, DIET_PERSISTENT, DIET_DOUBLE, mA, nA, oA);
   print_matrix(A, mA, nA, (oA == DIET_ROW_MAJOR));
-  diet_matrix_set(diet_parameter(profile,1),
-		  B, DIET_PERSISTENT, DIET_DOUBLE, mB, nB, oB);
+  diet_matrix_set(diet_parameter(profile, 1),
+                  B, DIET_PERSISTENT, DIET_DOUBLE, mB, nB, oB);
   print_matrix(B, mB, nB, (oB == DIET_ROW_MAJOR));
-  diet_matrix_set(diet_parameter(profile,2),
-		  NULL, DIET_PERSISTENT_RETURN, DIET_DOUBLE, mA, nB, oC);
+  diet_matrix_set(diet_parameter(profile, 2),
+                  NULL, DIET_PERSISTENT_RETURN, DIET_DOUBLE, mA, nB, oC);
 
-  strcpy(path2,"MatSUM");
+  strcpy(path2, "MatSUM");
   profile2 = diet_profile_alloc(path2, 1, 1, 2);
-  diet_matrix_set(diet_parameter(profile2,0),
-		  NULL, DIET_PERSISTENT, DIET_DOUBLE, mA, nB, oC);
+  diet_matrix_set(diet_parameter(profile2, 0),
+                  NULL, DIET_PERSISTENT, DIET_DOUBLE, mA, nB, oC);
   
-  diet_matrix_set(diet_parameter(profile2,1),
-		  E, DIET_PERSISTENT, DIET_DOUBLE, mA, nB, oE);
+  diet_matrix_set(diet_parameter(profile2, 1),
+                  E, DIET_PERSISTENT, DIET_DOUBLE, mA, nB, oE);
   print_matrix(E, mA, nB, (oE == DIET_ROW_MAJOR));
-  diet_matrix_set(diet_parameter(profile2,2),
-		  NULL, DIET_PERSISTENT_RETURN, DIET_DOUBLE, mA, nB, oD);
+  diet_matrix_set(diet_parameter(profile2, 2),
+                  NULL, DIET_PERSISTENT_RETURN, DIET_DOUBLE, mA, nB, oD);
   
   for (i = 0; i < n_loops; i++) {
     if (!diet_call(profile)) {
-      diet_matrix_get(diet_parameter(profile,2),&C, NULL, &mA, &nB, &oC);
+      diet_matrix_get(diet_parameter(profile, 2),&C, NULL, &mA, &nB, &oC);
       print_matrix(C, mA, nB, (oC == DIET_ROW_MAJOR));
     }
 
     /** For giving the JuxMem ID of mat C to profile 2 */
     if (i == 0) {
-      diet_use_data(diet_parameter(profile2,0), profile->parameters[2].desc.id);
+      diet_use_data(diet_parameter(profile2, 0), profile->parameters[2].desc.id);
     }
     
     if (pause != 0) {
@@ -157,7 +157,7 @@ main(int argc, char* argv[])
     }
 
     if (!diet_call(profile2)) {
-      diet_matrix_get(diet_parameter(profile2,2), &D, NULL, &mA, &nB, &oD);
+      diet_matrix_get(diet_parameter(profile2, 2), &D, NULL, &mA, &nB, &oD);
       print_matrix(D, mA, nB, (oD == DIET_ROW_MAJOR));
     }
   }

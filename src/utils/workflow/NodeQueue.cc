@@ -19,7 +19,7 @@
  * A few warnings removal
  *
  * Revision 1.8  2008/10/14 13:31:01  bisnard
- * new class structure for dags (DagNode,DagNodePort)
+ * new class structure for dags (DagNode, DagNodePort)
  *
  * Revision 1.7  2008/09/04 14:34:36  bisnard
  * new method removeLastNodes
@@ -52,19 +52,21 @@
 #include "DagNode.hh"
 #include "debug.hh"
 
-using namespace std;
-
 /****************************************************************************/
 /*                    NodeQueue - PUBLIC METHODS                            */
 /****************************************************************************/
 
-NodeQueue::NodeQueue() : nodeCounter(0) { }
-NodeQueue::NodeQueue(string name) : nodeCounter(0), myName(name) { }
+NodeQueue::NodeQueue() : nodeCounter(0) {
+}
+
+NodeQueue::NodeQueue(std::string name) : nodeCounter(0), myName(name) {
+}
+
 NodeQueue::~NodeQueue() {
   // Important: the queue must be empty before being destroyed
 }
 
-string
+std::string
 NodeQueue::getName() {
   return myName;
 }
@@ -77,8 +79,8 @@ NodeQueue::pushNode(DagNode * node) {
 }
 
 void
-NodeQueue::pushNodes(vector<DagNode *> nodes) {
-  vector<DagNode *>::iterator iter = nodes.begin();
+NodeQueue::pushNodes(std::vector<DagNode *> nodes) {
+  std::vector<DagNode *>::iterator iter = nodes.begin();
   while (iter != nodes.end()) {
     this->pushNode(*iter);
     ++iter;
@@ -104,10 +106,15 @@ NodeQueue::isEmpty() { return (this->nodeCounter == 0); }
 /****************************************************************************/
 
 ChainedNodeQueue::ChainedNodeQueue(NodeQueue * outputQ)
-  : outputQ(outputQ) { }
-ChainedNodeQueue::ChainedNodeQueue(string name, NodeQueue * outputQ)
-  : NodeQueue(name), outputQ(outputQ) { }
-ChainedNodeQueue::~ChainedNodeQueue() { }
+  : outputQ(outputQ) {
+}
+
+ChainedNodeQueue::ChainedNodeQueue(std::string name, NodeQueue * outputQ)
+  : NodeQueue(name), outputQ(outputQ) {
+}
+
+ChainedNodeQueue::~ChainedNodeQueue() {
+}
 
 bool
 ChainedNodeQueue::notifyStateChange(DagNode * node) {
@@ -115,7 +122,9 @@ ChainedNodeQueue::notifyStateChange(DagNode * node) {
     this->outputQ->pushNode(node);
     this->nodeCounter--;
     return true;
-  } else return false;
+  } else {
+    return false;
+  }
 }
 
 
@@ -124,45 +133,34 @@ ChainedNodeQueue::notifyStateChange(DagNode * node) {
 /****************************************************************************/
 
 OrderedNodeQueue::OrderedNodeQueue() { }
-OrderedNodeQueue::OrderedNodeQueue(string name) : NodeQueue(name) { }
+OrderedNodeQueue::OrderedNodeQueue(std::string name) : NodeQueue(name) { }
 OrderedNodeQueue::~OrderedNodeQueue() { }
 
 // The basic version of this method inserts a ready node at the end
 // of the ready nodes list without doing any re-ordering
 void
 OrderedNodeQueue::pushNode(DagNode * node) {
-//   TRACE_TEXT (TRACE_ALL_STEPS,
-//       "Node " << node->getCompleteId() << " inserted at end of queue" << endl);
   orderedNodes.push_back(node);
   node->setNodeQueue(this);
   this->nodeCounter++;
 }
 
-// DagNode *
-// OrderedNodeQueue::getFirstNode() {
-//   if (!orderedNodes.empty())
-//     return orderedNodes.front();
-//   else
-//     return NULL;
-// }
-
 DagNode *
 OrderedNodeQueue::popFirstNode() {
   if (!orderedNodes.empty()) {
     DagNode * nodePtr = orderedNodes.front();  // get the ref to the first node
-    orderedNodes.pop_front(); // removes the node from the queue
+    orderedNodes.pop_front();  // removes the node from the queue
     nodePtr->setNodeQueue(NULL);
     this->nodeCounter--;
     return nodePtr;
-  }
-  else {
+  } else {
     return NULL;
   }
 }
 
 void
 OrderedNodeQueue::removeNode(DagNode * node) {
-  list<DagNode*>::iterator np = orderedNodes.begin();
+  std::list<DagNode*>::iterator np = orderedNodes.begin();
   while (np != orderedNodes.end()) {
     if (*np == node) {
       np = orderedNodes.erase(np);
@@ -177,9 +175,9 @@ OrderedNodeQueue::removeNode(DagNode * node) {
 
 void
 OrderedNodeQueue::removeLastNodes(int nbNodesToKeep) {
-  list<DagNode*>::iterator  nodeIter = this->begin();
+  std::list<DagNode*>::iterator  nodeIter = this->begin();
   // Go to the first item to delete
-  int ix=0;
+  int ix = 0;
   while ((nodeIter != this->end()) && (ix++ < nbNodesToKeep)) {
     ++nodeIter;
   }
@@ -211,35 +209,29 @@ OrderedNodeQueue::end() {
 /*                PriorityNodeQueue - PUBLIC METHODS                        */
 /****************************************************************************/
 
-PriorityNodeQueue::PriorityNodeQueue() { }
-PriorityNodeQueue::PriorityNodeQueue(string name) : OrderedNodeQueue(name) { }
-PriorityNodeQueue::~PriorityNodeQueue() { }
+PriorityNodeQueue::PriorityNodeQueue() {
+}
+
+PriorityNodeQueue::PriorityNodeQueue(std::string name)
+  : OrderedNodeQueue(name) {
+}
+
+PriorityNodeQueue::~PriorityNodeQueue() {
+}
 
 // The version that implements ordering based on node priority
 // It orders the ready nodes in DECREASING priority
 void
 PriorityNodeQueue::pushNode(DagNode * insNode) {
   double insNodePrio = insNode->getPriority();
-  list<DagNode*>::iterator  nodeIter = orderedNodes.begin();
-  DagNode *                      curNode   = NULL;
+  std::list<DagNode*>::iterator  nodeIter = orderedNodes.begin();
+  DagNode *curNode   = NULL;
   while ((nodeIter != orderedNodes.end())
-          && (curNode = (DagNode *) *nodeIter)
-          && (curNode->getPriority() >= insNodePrio)) {
+         && (curNode = (DagNode *) *nodeIter)
+         && (curNode->getPriority() >= insNodePrio)) {
     ++nodeIter;
   }
   orderedNodes.insert(nodeIter, insNode);
   insNode->setNodeQueue(this);
   this->nodeCounter++;
-
-//   if (nodeIter != orderedNodes.end()) {
-//     TRACE_TEXT (TRACE_ALL_STEPS,
-//       "Node " << insNode->getCompleteId() << " inserted before "
-//           << curNode->getCompleteId() << " in queue" << endl);
-//   } else if (curNode != NULL) {
-//     TRACE_TEXT (TRACE_ALL_STEPS,
-//       "Node " << insNode->getCompleteId() << " inserted last in queue" << endl);
-//   } else {
-//     TRACE_TEXT (TRACE_ALL_STEPS,
-//       "Node " << insNode->getCompleteId() << " inserted first in queue" << endl);
-//   }
 }

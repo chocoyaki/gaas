@@ -29,7 +29,7 @@ using namespace madag;
 MultiWfFCFS::MultiWfFCFS(MaDag_impl* maDag)
   : MultiWfScheduler(maDag, MultiWfScheduler::MULTIWF_DAG_METRIC) {
   this->execQueue = new PriorityNodeQueue;
-  TRACE_TEXT(TRACE_MAIN_STEPS,"Using FCFS multi-workflow scheduler" << endl);
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Using FCFS multi-workflow scheduler\n");
 }
 
 MultiWfFCFS::~MultiWfFCFS() {

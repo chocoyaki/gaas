@@ -58,21 +58,21 @@
 #include "DIET_client.h"
 
 
-#define print_matrix(mat, m, n, rm)        \
-  {                                        \
-    size_t i, j;                           \
-    printf("%s (%s-major) = \n", #mat,     \
-           (rm) ? "row" : "column");       \
-    for (i = 0; i < (m); i++) {            \
-      for (j = 0; j < (n); j++) {          \
-        if (rm)                            \
-	  printf("%3f ", (mat)[j + i*(n)]);\
-        else                               \
-	  printf("%3f ", (mat)[i + j*(m)]);\
-      }                                    \
-      printf("\n");                        \
-    }                                      \
-    printf("\n");                          \
+#define print_matrix(mat, m, n, rm)             \
+  {                                             \
+    size_t i, j;                                \
+    printf("%s (%s-major) = \n", #mat,          \
+           (rm) ? "row" : "column");            \
+    for (i = 0; i < (m); i++) {                 \
+      for (j = 0; j < (n); j++) {               \
+        if (rm)                                 \
+          printf("%3f ", (mat)[j + i*(n)]);     \
+        else                                    \
+          printf("%3f ", (mat)[i + j*(m)]);     \
+      }                                         \
+      printf("\n");                             \
+    }                                           \
+    printf("\n");                               \
   }
 
 /* argv[1]: client config file path
@@ -94,8 +94,8 @@ main(int argc, char* argv[])
   srand(time(NULL));
   
   /*oA = (rand() & 1) ? DIET_ROW_MAJOR : DIET_COL_MAJOR;
-  oB = (rand() & 1) ? DIET_ROW_MAJOR : DIET_COL_MAJOR;
-  oC = (rand() & 1) ? DIET_ROW_MAJOR : DIET_COL_MAJOR;*/
+    oB = (rand() & 1) ? DIET_ROW_MAJOR : DIET_COL_MAJOR;
+    oC = (rand() & 1) ? DIET_ROW_MAJOR : DIET_COL_MAJOR;*/
   oA = DIET_ROW_MAJOR;
   oB = DIET_COL_MAJOR;
   oC = DIET_ROW_MAJOR;
@@ -127,16 +127,16 @@ main(int argc, char* argv[])
 
   profile = diet_profile_alloc(path, 3, 4, 4);
 
-  diet_scalar_set(diet_parameter(profile,0), &alpha,
-		  DIET_VOLATILE, DIET_DOUBLE);
-  diet_matrix_set(diet_parameter(profile,1), A,
-		  DIET_VOLATILE, DIET_DOUBLE, m, k, oA);
-  diet_matrix_set(diet_parameter(profile,2), B,
-		  DIET_VOLATILE, DIET_DOUBLE, k, n, oB);
-  diet_scalar_set(diet_parameter(profile,3), &beta,
-		  DIET_VOLATILE, DIET_DOUBLE);
-  diet_matrix_set(diet_parameter(profile,4), C,
-		  DIET_VOLATILE, DIET_DOUBLE, m, n, oC);
+  diet_scalar_set(diet_parameter(profile, 0), &alpha,
+                  DIET_VOLATILE, DIET_DOUBLE);
+  diet_matrix_set(diet_parameter(profile, 1), A,
+                  DIET_VOLATILE, DIET_DOUBLE, m, k, oA);
+  diet_matrix_set(diet_parameter(profile, 2), B,
+                  DIET_VOLATILE, DIET_DOUBLE, k, n, oB);
+  diet_scalar_set(diet_parameter(profile, 3), &beta,
+                  DIET_VOLATILE, DIET_DOUBLE);
+  diet_matrix_set(diet_parameter(profile, 4), C,
+                  DIET_VOLATILE, DIET_DOUBLE, m, n, oC);
   
   print_matrix(A, m, k, (oA == DIET_ROW_MAJOR));
   print_matrix(B, k, n, (oB == DIET_ROW_MAJOR));

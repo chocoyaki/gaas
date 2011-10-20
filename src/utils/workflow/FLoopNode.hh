@@ -29,88 +29,85 @@
 #ifndef _FLOOPNODE_HH_
 #define _FLOOPNODE_HH_
 
+#include <string>
+#include <vector>
 #include "FNode.hh"
 #include "WfExpression.hh"
 
 class FLoopNode : public FProcNode {
+public:
+  FLoopNode(FWorkflow* wf, const std::string& id);
+  virtual ~FLoopNode();
 
-  public:
+  // ******************** NODE SETUP *********************
 
-    FLoopNode(FWorkflow* wf,
-              const string& id);
-    virtual ~FLoopNode();
+  virtual WfPort *
+  newPort(std::string portId,
+          unsigned int ind,
+          WfPort::WfPortType portType,
+          WfCst::WfDataType dataType,
+          unsigned int depth) throw(WfStructException);
 
-    // ******************** NODE SETUP *********************
+  virtual void
+  connectNodePorts() throw(WfStructException);
 
-    virtual WfPort *
-        newPort(string portId,
-                unsigned int ind,
-                WfPort::WfPortType portType,
-                WfCst::WfDataType dataType,
-                unsigned int depth) throw (WfStructException);
+  void
+  setDoMap(const std::string& leftPortName,
+           const std::string& rightPortName)
+    throw(WfStructException);
 
-    virtual void
-        connectNodePorts() throw (WfStructException);
+  void
+  setWhileCondition(const std::string& conditionStr)
+    throw(WfStructException);
 
-    void
-        setDoMap(const string& leftPortName,
-                 const string& rightPortName)
-        throw (WfStructException);
+  // ******************** INSTANCIATION *********************
 
-    void
-        setWhileCondition(const string& conditionStr)
-        throw (WfStructException);
+  virtual void
+  initialize();
 
-    // ******************** INSTANCIATION *********************
+  virtual void
+  instanciate(Dag* dag);
 
-    virtual void
-        initialize();
+  virtual void
+  createRealInstance(Dag* dag, const FDataTag& currTag,
+                     std::vector<FDataHandle*>& currDataLine);
 
-    virtual void
-        instanciate(Dag* dag);
+  virtual void
+  createVoidInstance(const FDataTag& currTag,
+                     std::vector<FDataHandle*>& currDataLine);
 
-    virtual void
-        createRealInstance(Dag* dag,
-                           const FDataTag& currTag,
-                           vector<FDataHandle*>& currDataLine);
+  virtual void
+  updateInstanciationStatus();
 
-    virtual void
-        createVoidInstance(const FDataTag& currTag,
-                           vector<FDataHandle*>& currDataLine);
+protected:
+  virtual void
+  checkCondition() throw(WfStructException);
 
-    virtual void
-        updateInstanciationStatus();
+  bool
+  testCondition(const std::vector<FDataHandle*>& currDataLine);
 
-  protected:
+  void
+  initLoopInPorts(std::vector<FDataHandle*>& currDataLine);
 
-    virtual void
-        checkCondition() throw (WfStructException);
+  std::vector<WfExprVariable*>*  myConditionVars;
+  WfBooleanExpression* myCondition;
+  FNodePortMap myDoMap;        // used for IN LOOP => OUT LOOP
+  FNodePortMap myFinalOutMap;  // used for IN LOOP => OUT
+  FNodePortMap myFinalLoopMap;  // used for VOID => OUT LOOP
+  FNodePortMap myFinalVoidOutMap;  // used for VOID => OUT
+  FNodePortMap myDirectInOutMap;   // used for IN => OUT (no loop iteration)
+  InputIterator* myLoopIterator;
 
-    bool
-        testCondition(const vector<FDataHandle*>& currDataLine);
-    void
-        initLoopInPorts(vector<FDataHandle*>& currDataLine);
+private:
+  /**
+   * Total nb of running loop instances
+   */
+  int activeInstanceNb;
 
-    vector<WfExprVariable*>*  myConditionVars;
-    WfBooleanExpression*      myCondition;
-    FNodePortMap  myDoMap;        // used for IN LOOP => OUT LOOP
-    FNodePortMap  myFinalOutMap;  // used for IN LOOP => OUT
-    FNodePortMap  myFinalLoopMap; // used for VOID => OUT LOOP
-    FNodePortMap  myFinalVoidOutMap;  // used for VOID => OUT
-    FNodePortMap  myDirectInOutMap;   // used for IN => OUT (no loop iteration)
-    InputIterator*  myLoopIterator;
-
-  private:
-    /**
-     * Total nb of running loop instances
-     */
-    int activeInstanceNb;
-
-    /**
-     * Length of loop tags
-     */
-    unsigned int loopTagLength;
-
+  /**
+   * Length of loop tags
+   */
+  unsigned int loopTagLength;
 };
 
-#endif // _FLOOPNODE_HH_
+#endif  // _FLOOPNODE_HH_

@@ -41,18 +41,18 @@ int main(int argc, char **argv)
   profile = diet_profile_alloc("smprod", 0, 1, 2); // last_in, last_inout, last_out
 
   /* Set profile arguments */
-  diet_scalar_set(diet_parameter(profile,0),
+  diet_scalar_set(diet_parameter(profile, 0),
 		  &factor, DIET_VOLATILE, DIET_DOUBLE);
-  diet_matrix_set(diet_parameter(profile,1),
+  diet_matrix_set(diet_parameter(profile, 1),
 		  matrix, DIET_VOLATILE, DIET_DOUBLE, m, n, DIET_COL_MAJOR);
-  diet_scalar_set(diet_parameter(profile,2),
+  diet_scalar_set(diet_parameter(profile, 2),
 		  NULL, DIET_VOLATILE, DIET_FLOAT);
 
   /* Call DIET */
   if (!diet_call(profile)) { /* If the call has succeeded ... */
      
     /* Get and print time */
-    diet_scalar_get(diet_parameter(profile,2), &time, DIET_VOLATILE);
+    diet_scalar_get(diet_parameter(profile, 2), &time, DIET_VOLATILE);
     if (time == NULL) {
       printf("Error: time not set !\n");
    } else {

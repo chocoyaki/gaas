@@ -25,7 +25,7 @@
  * improved exception management
  *
  * Revision 1.16  2008/10/14 13:24:49  bisnard
- * use new class structure for dags (DagNode,DagNodePort)
+ * use new class structure for dags (DagNode, DagNodePort)
  *
  * Revision 1.15  2008/07/10 11:42:20  bisnard
  * Fix bug 68 memory loss during workflow execution
@@ -104,7 +104,7 @@ using namespace madag;
 MultiWfFOFT::MultiWfFOFT(MaDag_impl* maDag)
   : MultiWfScheduler(maDag, MultiWfScheduler::MULTIWF_DAG_METRIC) {
   this->execQueue = new PriorityNodeQueue;
-  TRACE_TEXT(TRACE_MAIN_STEPS,"Using FOFT multi-workflow scheduler" << endl);
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Using FOFT multi-workflow scheduler\n");
 }
 
 MultiWfFOFT::~MultiWfFOFT() {
@@ -122,7 +122,7 @@ MultiWfFOFT::~MultiWfFOFT() {
  */
 void
 MultiWfFOFT::intraDagSchedule(Dag * dag, MasterAgent_var MA)
-    throw (MaDag::ServiceNotFound, MaDag::CommProblem) {
+  throw(MaDag::ServiceNotFound, MaDag::CommProblem) {
   // Call the MA to get estimations for all services
   wf_response_t * wf_response = this->getProblemEstimates(dag, MA);
 
@@ -136,7 +136,8 @@ MultiWfFOFT::intraDagSchedule(Dag * dag, MasterAgent_var MA)
   delete &orderedNodes;
 
   // Initialize nodesFlag and nodesHEFTPrio
-  for (map <string,DagNode *>::iterator iter = dag->begin(); iter != dag->end();
+  for (std::map<std::string, DagNode *>::iterator iter = dag->begin();
+       iter != dag->end();
        ++iter) {
     DagNode * node = (DagNode*) iter->second;
     this->nodesFlag[node] = false;
@@ -147,8 +148,8 @@ MultiWfFOFT::intraDagSchedule(Dag * dag, MasterAgent_var MA)
   this->dagsState[dag].EFT       = dag->getEFT();
   this->dagsState[dag].makespan  = this->dagsState[dag].EFT - startTime;
   TRACE_TEXT(TRACE_ALL_STEPS, "[FOFT] Init (Dag " << dag->getId() << ") EFT = "
-      << this->dagsState[dag].EFT << " / makespan = "
-      << this->dagsState[dag].makespan << endl);
+             << this->dagsState[dag].EFT << " / makespan = "
+             << this->dagsState[dag].makespan << "\n");
 
   // Cleanup
   delete wf_response;
@@ -174,12 +175,12 @@ MultiWfFOFT::setExecPriority(DagNode * node) {
     if (currDelay > 0) {
       this->updateNodeDelay(node, currDelay);
       TRACE_TEXT(TRACE_MAIN_STEPS, "[FOFT] Waiting node "
-              << node->getCompleteId() << " delay updated (duration="
-              << node->getEstDuration() << "/EFT=" << node->getEstCompTime()
-              << "/delay=" << currDelay << ")" << endl);
+                 << node->getCompleteId() << " delay updated (duration="
+                 << node->getEstDuration() << "/EFT=" << node->getEstCompTime()
+                 << "/delay=" << currDelay << ")\n");
     } else {
       TRACE_TEXT(TRACE_MAIN_STEPS, "[FOFT] Waiting node " << node->getCompleteId()
-          << " is on schedule" << endl);
+                 << " is on schedule\n");
     }
   }
   node->setPriority(this->dagsState[node->getDag()].slowdown);
@@ -189,7 +190,7 @@ MultiWfFOFT::setExecPriority(DagNode * node) {
  * Set priority before inserting back in the ready queue
  * Set a flag to trigger slowdown calculation the next time this node's
  * priority is set.
-*/
+ */
 void
 MultiWfFOFT::setWaitingPriority(DagNode * node) {
   node->setPriority(this->nodesHEFTPrio[node]);
@@ -215,6 +216,6 @@ MultiWfFOFT::updateNodeDelay(DagNode * node, double delay) {
     // slowdown is the percentage of delay relatively to initial makespan
     curDagState.slowdown = (double) 100 * dagNewEstDelay / curDagState.makespan;
     TRACE_TEXT(TRACE_MAIN_STEPS, "[FOFT] Updated slowdown for dag "
-        << node->getDag()->getId() << " = " << curDagState.slowdown << endl);
+               << node->getDag()->getId() << " = " << curDagState.slowdown << "\n");
   }
 }

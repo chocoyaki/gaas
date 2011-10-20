@@ -152,7 +152,7 @@ Vector_clear(Vector_t v)
 
   rv = v->v_size;
 
-  for (i = 0 ; i < v->v_size ; i++) {
+  for (i = 0; i < v->v_size; i++) {
     v->v_obj[i] = NULL;
   }
   v->v_size = 0;
@@ -278,7 +278,7 @@ Vector_indexOf3(const VectorConst_t v, const void* o, compfn_t c)
     return (0);
   }
 
-  for (i = 0 ; i < v->v_size ; i++) {
+  for (i = 0; i < v->v_size; i++) {
     if ((*c)(o, v->v_obj[i])) {
       return (i);
     }
@@ -327,7 +327,7 @@ Vector_lastIndexOf(const VectorConst_t v, const void* o)
     return (0);
   }
 
-  for (i = v->v_size - 1 ; i >= 0 ; i--) {
+  for (i = v->v_size - 1; i >= 0; i--) {
     if (o == (v->v_obj)[i]) {
       return (i);
     }
@@ -432,7 +432,7 @@ Vector_size(const VectorConst_t v)
 void
 Vector_sort(Vector_t v, int (*sort_fn)(const void* a, const void* b))
 {
-   qsort(v->v_obj, v->v_size, sizeof (void*), sort_fn);
+  qsort(v->v_obj, v->v_size, sizeof (void*), sort_fn);
 }
 
 int

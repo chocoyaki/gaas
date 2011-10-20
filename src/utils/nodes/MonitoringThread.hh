@@ -41,14 +41,13 @@
  * other passive values which cannot be measured directly in the
  * sorucecode
  */
-class MonitoringThread: public omni_thread
-{
+class MonitoringThread: public omni_thread {
 public:
   /**
    * Constructor.
    * @param DLC reference to the DietLogComponent of this thread.
    */
-  MonitoringThread(DietLogComponent* DLC);
+  explicit MonitoringThread(DietLogComponent* DLC);
 
   /**
    * Start the thread.

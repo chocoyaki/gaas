@@ -105,11 +105,11 @@ main(int argc, char* argv[])
   wfName = (char*) NULL;
   dagFileName = (char*) NULL;
 
-  if (!strcmp(argv[2],"-dag")) {
+  if (!strcmp(argv[2], "-dag")) {
     strcpy(wfTypeName, "dag");
     wfType = DIET_WF_DAG;
     if (argc > 4) usage(argv[0]);
-  } else if (!strcmp(argv[2],"-wf")) {
+  } else if (!strcmp(argv[2], "-wf")) {
     strcpy(wfTypeName, "workflow");
     wfType = DIET_WF_FUNCTIONAL;
     if (argc < 5) usage(argv[0]);
@@ -122,19 +122,19 @@ main(int argc, char* argv[])
     dataFileName = argv[4];
     int curPos = 5;
     if ((argc > curPos) && (strcmp(argv[curPos], "-name"))) {
-	transcriptFileName = argv[curPos];
-	curPos++;
+      transcriptFileName = argv[curPos];
+      curPos++;
     }
     if ((argc > curPos) && (!strcmp(argv[curPos], "-name"))) {
       curPos++;
       if (argc > curPos)
-	wfName = argv[curPos];
+        wfName = argv[curPos];
       else
-	wfName = "";
+        wfName = "";
     } else {
       wfName = basename(wfFileName);
     }
-  } else {	/* DIET_WF_DAG */
+  } else {      /* DIET_WF_DAG */
     dagFileName = argv[3];
   }
 
@@ -148,29 +148,29 @@ main(int argc, char* argv[])
      */
     profile = diet_wf_profile_alloc(wfFileName, wfName, wfType);
     /*
-    * For functional workflows ONLY
-    * Defines which file is used to provide the data to instanciate the wf
-    */
-    diet_wf_set_data_file(profile,dataFileName);
+     * For functional workflows ONLY
+     * Defines which file is used to provide the data to instanciate the wf
+     */
+    diet_wf_set_data_file(profile, dataFileName);
 
     /*
-    * For workflow restart
-    * Defines which file is used to store the execution transcriptFileName
-    * (file will be overwritten if existing)
-    */
+     * For workflow restart
+     * Defines which file is used to store the execution transcriptFileName
+     * (file will be overwritten if existing)
+     */
     diet_wf_set_transcript_file(profile, transcriptFileName);
-  } else {	/* DIET_WF_DAG */
+  } else {      /* DIET_WF_DAG */
     /*
      * Allocate the dag profile
      */
-    profile = diet_wf_profile_alloc(dagFileName,"test", wfType);
+    profile = diet_wf_profile_alloc(dagFileName, "test", wfType);
   }
 
   printf("Try to execute the %s\n", wfTypeName);
   if (! diet_wf_call(profile)) {
     gettimeofday(&t2, NULL);
     float time = (t2.tv_sec - t1.tv_sec) + ((float)(t2.tv_usec - t1.tv_usec))/1000000;
-    printf("The %s submission succeed / time= %f s\n" ,wfTypeName, time);
+    printf("The %s submission succeed / time= %f s\n" , wfTypeName, time);
 
     if (wfType == DIET_WF_FUNCTIONAL) {
       printf("Save data in data_out.xml\n");

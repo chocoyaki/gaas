@@ -12,7 +12,7 @@
  * Fixed compilation
  *
  * Revision 1.10  2011/03/18 16:28:33  hguemar
- * fix initialization and const-correctness issues in src/utils/workflow/Thread.{hh,cc} raised by cppchecks
+ * fix initialization and const-correctness issues in src/utils/workflow/Thread.{hh, cc} raised by cppchecks
  *
  * Revision 1.9  2011/02/24 16:50:06  bdepardo
  * Code cleanup.
@@ -62,27 +62,27 @@
 #include "debug.hh"
 
 
-Runnable::~Runnable() {}
+Runnable::~Runnable() {
+}
 
-Thread::Thread(auto_ptr<Runnable> runnable_, bool isDetached) :
-  runnable(runnable_), detached(isDetached), result(NULL) {
+Thread::Thread(std::auto_ptr<Runnable> runnable_, bool isDetached)
+  : runnable(runnable_), detached(isDetached), result(NULL) {
   if (runnable.get() == NULL) {
-    ERROR_EXIT("Thread::Thread(auto_ptr<Runnable> runnable_,"
+    ERROR_EXIT("Thread::Thread(auto_ptr<Runnable> runnable_, "
                <<"bool isDetached) failed at " << ' ' << __FILE__ << ":"
                << __LINE__ << "- " << "runnable is NULL " << std::endl);
   }
 }
 
 Thread::Thread(bool isDetached)
-  : runnable(NULL), detached(isDetached), result(NULL) { }
+  : runnable(NULL), detached(isDetached), result(NULL) {
+}
 
-Thread::~Thread() { }
-
-// long unsigned int
-// Thread::getId() {	return PthreadThreadID; }
+Thread::~Thread() {
+}
 
 void*
-Thread::startThreadRunnable(void* pVoid){
+Thread::startThreadRunnable(void* pVoid) {
   // thread start function when a Runnable is involved
   Thread* runnableThread = static_cast<Thread*> (pVoid);
   assert(runnableThread);
@@ -103,71 +103,83 @@ Thread::startThread(void* pVoid) {
 
 
 void Thread::start() {
-  int status = pthread_attr_init(&threadAttribute); // initialize attribute object
+  int status = pthread_attr_init(&threadAttribute);
   if (status != 0) {
-    PrintError("pthread_attr_init failed at", status, __FILE__,
-	       __LINE__); exit(status);
+    PrintError("pthread_attr_init failed at", status, __FILE__, __LINE__);
+    exit(status);
   }
-  status = pthread_attr_setscope(&threadAttribute,
-				 PTHREAD_SCOPE_SYSTEM);
+  status = pthread_attr_setscope(&threadAttribute, PTHREAD_SCOPE_SYSTEM);
   if (status != 0) {
-    PrintError("pthread_attr_setscope failed at",
-	       status, __FILE__, __LINE__); exit(status);
+    PrintError("pthread_attr_setscope failed at", status, __FILE__, __LINE__);
+    exit(status);
   }
   if (!detached) {
     if (runnable.get() == NULL) {
-      int status = pthread_create(&PthreadThreadID,&threadAttribute,
-				  Thread::startThread,(void*) this);
-      if (status != 0) { PrintError("pthread_create failed at",
-				    status, __FILE__, __LINE__); exit(status);}
+      int status = pthread_create(&PthreadThreadID, &threadAttribute,
+                                  Thread::startThread, (void*) this);
+      if (status != 0) {
+        PrintError("pthread_create failed at", status, __FILE__, __LINE__);
+        exit(status);
+      }
+    } else {
+      int status = pthread_create(&PthreadThreadID, &threadAttribute,
+                                  Thread::startThreadRunnable, (void*)this);
+      if (status != 0) {
+        PrintError("pthread_create failed at", status, __FILE__, __LINE__);
+        exit(status);
+      }
     }
-    else {
-      int status = pthread_create(&PthreadThreadID,&threadAttribute,
-				  Thread::startThreadRunnable, (void*)this);
-      if (status != 0) {PrintError("pthread_create failed at",
-				   status, __FILE__, __LINE__); exit(status);}
-    }
-  }
-  else {
+  } else {
     // set the detachstate attribute to detached
-    status = pthread_attr_setdetachstate(&threadAttribute,
-					 PTHREAD_CREATE_DETACHED);
-    if (status != 0){
+    status =
+      pthread_attr_setdetachstate(&threadAttribute, PTHREAD_CREATE_DETACHED);
+    if (status != 0) {
       PrintError("pthread_attr_setdetachstate failed at",
-                 status,__FILE__,__LINE__);exit(status);
+                 status, __FILE__, __LINE__);
+      exit(status);
     }
     if (runnable.get() == NULL) {
-      status = pthread_create(&PthreadThreadID,&threadAttribute,
-			      Thread::startThread, (void*) this);
-      if (status != 0) {PrintError("pthread_create failed at",
-				   status, __FILE__, __LINE__);exit(status);}
-    }
-    else {
-      status = pthread_create(&PthreadThreadID,&threadAttribute,
-			      Thread::startThreadRunnable, (void*) this);
-      if (status != 0) {PrintError("pthread_create failed at",
-				   status, __FILE__, __LINE__); exit(status);}
+      status = pthread_create(&PthreadThreadID, &threadAttribute,
+                              Thread::startThread, (void*) this);
+      if (status != 0) {
+        PrintError("pthread_create failed at", status, __FILE__, __LINE__);
+        exit(status);
+      }
+    } else {
+      status = pthread_create(&PthreadThreadID, &threadAttribute,
+                              Thread::startThreadRunnable, (void*) this);
+      if (status != 0) {
+        PrintError("pthread_create failed at", status, __FILE__, __LINE__);
+        exit(status);
+      }
     }
   }
   status = pthread_attr_destroy(&threadAttribute);
-  if (status != 0) { PrintError("pthread_attr_destroy failed at",
-				status, __FILE__, __LINE__); exit(status);}
+  if (status != 0) {
+    PrintError("pthread_attr_destroy failed at", status, __FILE__, __LINE__);
+    exit(status);
+  }
 }
 
 void*
 Thread::join() {
-  int status = pthread_join(PthreadThreadID,NULL);
+  int status = pthread_join(PthreadThreadID, NULL);
   // result was already saved by thread start functions
-  if (status != 0) { PrintError("pthread_join failed at",
-				status, __FILE__, __LINE__); exit(status);}
+  if (status != 0) {
+    PrintError("pthread_join failed at", status, __FILE__, __LINE__);
+    exit(status);
+  }
   return result;
 }
 
 void
-Thread::setCompleted() const { /* completion was handled by pthread_join() */ }
+Thread::setCompleted() const {
+  /* completion was handled by pthread_join() */
+}
 
 void
-Thread::PrintError(std::string msg, int status, std::string fileName, int lineNumber) {
+Thread::PrintError(std::string msg, int status,
+                   std::string fileName, int lineNumber) {
   TRACE_TEXT(TRACE_MAIN_STEPS, msg << ' ' << fileName << ":" << lineNumber
              << "- " << strerror(status) << std::endl);
 }

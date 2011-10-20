@@ -55,7 +55,7 @@
  * removed createNode method from NodeSet class
  *
  * Revision 1.14  2008/10/14 13:31:01  bisnard
- * new class structure for dags (DagNode,DagNodePort)
+ * new class structure for dags (DagNode, DagNodePort)
  *
  * Revision 1.13  2008/09/30 15:32:53  bisnard
  * - using simple port id instead of composite ones
@@ -116,22 +116,20 @@
 #ifndef _DAG_HH_
 #define _DAG_HH_
 
+#include <ctime>
+#include <iostream>
+#include <list>
+#include <map>
 #include <string>
 #include <vector>
-#include <map>
-#include <list>
-#include <iostream>
-
-#include "DIET_client.h" // for diet_ReqID_t
 
 #include <sys/time.h>
-#include <ctime>
+#include "DIET_client.h"  // for diet_ReqID_t
+
 
 #include "WfNode.hh"
 #include "MasterAgent.hh"
 #include "NodeSet.hh"
-
-using namespace std;
 
 class FWorkflow;
 class DagNode;
@@ -150,16 +148,16 @@ public:
 
   /**
    * Dag constructor WITHOUT DAG execution agent
-   * @param id	required non-empty identifier
+   * @param id  required non-empty identifier
    */
-  Dag(string id);
+  explicit Dag(std::string id);
 
   /**
    * Dag constructor WITH DAG execution agent (DIET MasterAgent)
    * @param id  required non-empty identifier
-   * @param MA	master agent (DIET platform MA used for dag execution)
+   * @param MA  master agent (DIET platform MA used for dag execution)
    */
-  Dag(string id, MasterAgent_var& MA);
+  Dag(std::string id, MasterAgent_var& MA);
 
   /**
    * Dag destructor
@@ -177,7 +175,7 @@ public:
    * @return pointer to node (does not return NULL)
    */
   virtual WfNode *
-  getNode(const string& nodeId) throw (WfStructException);
+  getNode(const std::string& nodeId) throw(WfStructException);
 
   /**
    * check the precedence between node
@@ -185,12 +183,12 @@ public:
    * link the ports
    */
   virtual void
-  checkPrec(NodeSet* contextNodeSet) throw (WfStructException);
-  
+  checkPrec(NodeSet* contextNodeSet) throw(WfStructException);
+
   /***************************************************/
   /* event message types                             */
   /***************************************************/
-  
+
   enum eventMsg_e {
     MODID,
     EMPTY,
@@ -205,12 +203,12 @@ public:
    * Set the dag id
    */
   void
-  setId(const string& id);
+  setId(const std::string& id);
 
   /**
    * Get the dag id
    */
-  const string&
+  const std::string&
   getId() const;
 
   /**
@@ -223,7 +221,7 @@ public:
    * Get the functional wf
    */
   FWorkflow *
-  getWorkflow() const throw (WfStructException);
+  getWorkflow() const throw(WfStructException);
 
   /**
    * Set the execution agent
@@ -245,20 +243,21 @@ public:
    * @return pointer to the node (does not return NULL)
    */
   DagNode*
-  createDagNode(const string& id, FWorkflow* wf = NULL) throw (WfStructException);
+  createDagNode(const std::string& id, FWorkflow* wf = NULL)
+    throw(WfStructException);
 
   /**
    * return a dag's node
    * @return pointer to the node (does not return NULL)
    */
   DagNode *
-  getDagNode(const string& nodeId) throw (WfStructException);
+  getDagNode(const std::string& nodeId) throw(WfStructException);
 
   /**
    * remove a node from the dag
    */
   void
-  removeNode(const string& nodeId) throw (WfStructException);
+  removeNode(const std::string& nodeId) throw(WfStructException);
 
   /**
    * return the size of the Dag (the nodes number and not the dag length)
@@ -270,33 +269,33 @@ public:
    * return an iterator on the first node
    * (according to the map and not to the dag structure)
    */
-  map <string, DagNode *>::iterator
+  std::map <std::string, DagNode *>::iterator
   begin();
 
   /**
    * return an iterator on the last node *
    * (according to the map and not to the dag structure) *
    */
-  map <string, DagNode *>::iterator
+  std::map <std::string, DagNode *>::iterator
   end();
-  
+
   /**
-   * Returns a string description of the dag
+   * Returns a std::string description of the dag
    */
-  string
+  std::string
   toString() const;
 
   /**
    * returns the XML description of the dag
    */
   void
-  toXML(ostream& output) const;
+  toXML(std::ostream& output) const;
 
   /**
    * link all ports of the dag
    */
   void
-  linkAllPorts() throw (WfStructException);
+  linkAllPorts() throw(WfStructException);
 
   /**
    * check if the dag execution is ongoing
@@ -343,8 +342,7 @@ public:
    * @param path  the file name
    */
   int
-  get_file_output (const char * id,
-		   size_t* size, char** path);
+  get_file_output(const char * id, size_t* size, char** path);
 
   /**
    * Get a matrix result of the workflow
@@ -356,9 +354,9 @@ public:
    * @param order   the matrix order
    */
   int
-  get_matrix_output (const char * id, void** value,
-		     size_t* nb_rows, size_t *nb_cols,
-		     diet_matrix_order_t* order);
+  get_matrix_output(const char * id, void** value,
+                    size_t* nb_rows, size_t *nb_cols,
+                    diet_matrix_order_t* order);
 
   /**
    * Get a container result of the workflow
@@ -366,14 +364,14 @@ public:
    * @param dataID  a ref to a string that will contain a copy of the container dataID
    */
   int
-  get_container_output (const char * id, char** dataID);
+  get_container_output(const char * id, char** dataID);
 
   /**
    * Get all the results and display them. This function doesn't returned
    * the value.
    */
   void
-  displayAllResults(ostream& output);
+  displayAllResults(std::ostream& output);
 
   /**
    * Delete all results of the workflow (includes intermediary and final
@@ -385,15 +383,15 @@ public:
   /**
    * Get all dag nodes sorted by priority
    *
-   * @return ref to a vector of nodes (to be deleted by caller)
+   * @return ref to a std::vector of nodes (to be deleted by caller)
    */
-  vector<DagNode*>&
+  std::vector<DagNode*>&
   getNodesByPriority();
 
   /**
    * Get the input nodes
    */
-  vector<DagNode*>
+  std::vector<DagNode*>
   getInputNodes();
 
   /**
@@ -407,8 +405,8 @@ public:
    * get the estimated makespan of the DAG
    * @deprecated
    */
-//   double
-//   getEstMakespan();
+  //   double
+  //   getEstMakespan();
 
   /**
    * get the estimated earliest finish time of the DAG
@@ -470,12 +468,12 @@ public:
    * notify dag of node execution failure
    */
   void
-  setNodeFailure(string nodeId, DagScheduler* scheduler = NULL);
+  setNodeFailure(std::string nodeId, DagScheduler* scheduler = NULL);
 
   /**
    * get the list of failed nodes
    */
-  const list<string>&
+  const std::list<std::string>&
   getNodeFailureList();
 
   /**
@@ -487,7 +485,7 @@ public:
   void
   showDietReqID();
 
-  vector<diet_reqID_t>
+  std::vector<diet_reqID_t>
   getAllDietReqID();
 
 private:
@@ -499,7 +497,7 @@ private:
   /**
    * The dag id
    */
-  string myId;
+  std::string myId;
 
   /**
    * Workflow for which dag is an instance
@@ -514,7 +512,7 @@ private:
   /**
    * Dag nodes *
    */
-  map<string, DagNode *> nodes;
+  std::map<std::string, DagNode *> nodes;
 
   /**
    * start time
@@ -534,7 +532,7 @@ private:
   /**
    * Failed nodes list
    */
-  list<string> failedNodes;
+  std::list<std::string> failedNodes;
 
   /**
    * Temporary dag flag. Used to not delete the nodes of the dag
@@ -547,7 +545,7 @@ private:
   bool cancelled;
 
   /**
-    * Critical section of the dag
+   * Critical section of the dag
    */
   omni_mutex myLock;
 
@@ -562,7 +560,7 @@ private:
    * (used for getting results for client API)
    */
   DagNodeOutPort *
-  getOutputPort(const char* id) throw (WfStructException);
+  getOutputPort(const char* id) throw(WfStructException);
 };
 
 #endif   /* not defined _DAG_HH. */

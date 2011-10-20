@@ -25,14 +25,14 @@
 namespace events {
 
 class EventObserver : public EventHandler {
-  
-  public:
-    
-    virtual bool isObserver(const EventBase* event) const = 0;
+public:
+  virtual ~EventObserver() {
+  }
 
+  virtual bool
+  isObserver(const EventBase* event) const = 0;
 };
-
 }
 
-#endif // EVENTOBSERVER_HH_
+#endif  // EVENTOBSERVER_HH_
 

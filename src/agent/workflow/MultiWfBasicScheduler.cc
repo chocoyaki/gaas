@@ -28,7 +28,7 @@
  * - added dag cancellation method
  *
  * Revision 1.12  2008/10/14 13:24:49  bisnard
- * use new class structure for dags (DagNode,DagNodePort)
+ * use new class structure for dags (DagNode, DagNodePort)
  *
  * Revision 1.11  2008/06/25 10:05:44  bisnard
  * - Waiting priority set when node is put back in waiting queue
@@ -92,7 +92,7 @@ using namespace madag;
 
 MultiWfBasicScheduler::MultiWfBasicScheduler(MaDag_impl* maDag)
   : MultiWfScheduler(maDag, MultiWfScheduler::MULTIWF_NO_METRIC) {
-   TRACE_TEXT(TRACE_MAIN_STEPS,"Using BASIC multi-workflow scheduler" << endl);
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Using BASIC multi-workflow scheduler\n");
 }
 
 MultiWfBasicScheduler::~MultiWfBasicScheduler() {
@@ -104,32 +104,32 @@ MultiWfBasicScheduler::~MultiWfBasicScheduler() {
  */
 void*
 MultiWfBasicScheduler::run() {
-  TRACE_TEXT(TRACE_MAIN_STEPS,"MultiWfBasicScheduler is running" << endl);
+  TRACE_TEXT(TRACE_MAIN_STEPS, "MultiWfBasicScheduler is running\n");
   int nodeCount = 0;
   while (this->keepOnRunning) {
-    TRACE_TEXT(TRACE_MAIN_STEPS,"\t ** Starting MultiWfBasicScheduler" << endl);
+    TRACE_TEXT(TRACE_MAIN_STEPS, "\t ** Starting MultiWfBasicScheduler\n");
     myLock.lock();
     // Loop over all nodeQueues and run the first ready node
     // for each queue
     nodeCount = 0;
     std::list<OrderedNodeQueue *>::iterator qp = readyQueues.begin();
     while (qp != readyQueues.end()) {
-      TRACE_TEXT(TRACE_ALL_STEPS,"Checking ready nodes queue:" << endl);
+      TRACE_TEXT(TRACE_ALL_STEPS, "Checking ready nodes queue:\n");
       OrderedNodeQueue * readyQ = *qp;
       DagNode * n = readyQ->popFirstNode();
       if (n != NULL) {
-        TRACE_TEXT(TRACE_ALL_STEPS,"  #### Ready node : " << n->getCompleteId()
-            << " => execute" << endl);
+        TRACE_TEXT(TRACE_ALL_STEPS, "  #### Ready node : " << n->getCompleteId()
+                   << " => execute\n");
         // EXECUTE NODE (NEW THREAD)
         // create a node launcher
-        DagNodeLauncher *launcher = new MaDagNodeLauncher( n, this,
-                                           myMaDag->getCltMan(n->getDag()->getId()));
+        DagNodeLauncher *launcher = new MaDagNodeLauncher(n, this,
+                                                           myMaDag->getCltMan(n->getDag()->getId()));
         n->start(launcher);
         nodeCount++;
         // Destroy queues if both are empty
         ChainedNodeQueue * waitQ = waitingQueues[readyQ];
         if (waitQ->isEmpty() && readyQ->isEmpty()) {
-	  TRACE_TEXT(TRACE_ALL_STEPS,"Node Queues are empty: remove & destroy" << endl);
+          TRACE_TEXT(TRACE_ALL_STEPS, "Node Queues are empty: remove & destroy\n");
           qp = readyQueues.erase(qp);      // removes from the list
           this->deleteNodeQueue(readyQ);  // deletes both queues
           continue;
@@ -137,12 +137,12 @@ MultiWfBasicScheduler::run() {
         // DELAY between NODES (to avoid interference btw submits)
         diet::usleep(this->interRoundDelay * 1000);
       }
-      ++qp; // go to next queue
+      ++qp;  // go to next queue
     }
     myLock.unlock();
 
     if (nodeCount == 0) {
-      TRACE_TEXT(TRACE_MAIN_STEPS,"No ready nodes" << endl);
+      TRACE_TEXT(TRACE_MAIN_STEPS, "No ready nodes\n");
       this->mySem.wait();
 
       // WAIT UNTIL A NEW DAG IS SUBMITTED OR A NODE IS COMPLETED
@@ -170,7 +170,7 @@ MultiWfBasicScheduler::handlerNodeDone(DagNode * node) {
 
 OrderedNodeQueue *
 MultiWfBasicScheduler::createNodeQueue(Dag * dag)  {
-  TRACE_TEXT(TRACE_ALL_STEPS, "Creating new node queues (basic)" << endl);
+  TRACE_TEXT(TRACE_ALL_STEPS, "Creating new node queues (basic)\n");
   OrderedNodeQueue *  readyQ  = new OrderedNodeQueue();
   ChainedNodeQueue *  waitQ   = new ChainedNodeQueue(readyQ);
   for (std::map <std::string, DagNode *>::iterator nodeIt = dag->begin();
@@ -178,7 +178,7 @@ MultiWfBasicScheduler::createNodeQueue(Dag * dag)  {
        ++nodeIt) {
     waitQ->pushNode(&(*nodeIt->second));
   }
-  this->waitingQueues[readyQ] = waitQ; // used to destroy waiting queue
+  this->waitingQueues[readyQ] = waitQ;  // used to destroy waiting queue
   return readyQ;
 }
 
@@ -189,7 +189,7 @@ MultiWfBasicScheduler::createNodeQueue(Dag * dag)  {
  */
 void
 MultiWfBasicScheduler::deleteNodeQueue(OrderedNodeQueue * nodeQ) {
-  TRACE_TEXT (TRACE_ALL_STEPS, "Deleting node queues" << endl);
+  TRACE_TEXT(TRACE_ALL_STEPS, "Deleting node queues\n");
   ChainedNodeQueue *  waitQ = waitingQueues[nodeQ];
   waitingQueues.erase(nodeQ);     // removes from the map
   delete waitQ;

@@ -43,7 +43,7 @@ main (int argc, char** argv) {
   }
   cout << "Element name: " << name << endl;
   cout << "Parent name: " << parentName << endl;
-	
+        
 
   res = diet_change_parent(type, name, parentName);
 

@@ -29,12 +29,11 @@
  *
  ****************************************************************************/
 
-using namespace std;
 #include "ExitClass.hh"
 
-#include "configuration.hh"
-#include <iostream>
 #include <cstdlib>
+#include <iostream>
+#include "configuration.hh"
 
 /** The trace level. */
 extern unsigned int TRACE_LEVEL;
@@ -42,26 +41,23 @@ extern unsigned int TRACE_LEVEL;
 AgentImpl* ExitClass::agent = 0;
 
 void
-ExitClass::init(AgentImpl* agent)
-{
-    ExitClass::agent = agent;
+ExitClass::init(AgentImpl* agent) {
+  ExitClass::agent = agent;
 }
 
 void
-ExitClass::exitFunction()
-{
-    TRACE_TEXT(TRACE_MAIN_STEPS, "______________________________" << std::endl);
-    TRACE_TEXT(TRACE_MAIN_STEPS, "Stopping the Agent..." << std::endl);
-    // Deactivate and destroy the agent
-    try {
-	if (ExitClass::agent) {
-	    delete ExitClass::agent;
-	}
-	delete ORBMgr::getMgr();
-    } catch (...) {}
-    TRACE_TEXT(TRACE_MAIN_STEPS, "Agent stopped !" << std::endl);
-    
-    /* We do not need the parsing results any more */
-    delete configPtr;
+ExitClass::exitFunction() {
+  TRACE_TEXT(TRACE_MAIN_STEPS, "______________________________\n");
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Stopping the Agent...\n");
+  // Deactivate and destroy the agent
+  try {
+    if (ExitClass::agent) {
+      delete ExitClass::agent;
+    }
+    delete ORBMgr::getMgr();
+  } catch (...) {}
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Agent stopped !\n");
+  /* We do not need the parsing results any more */
+  delete configPtr;
 }
 

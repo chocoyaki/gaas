@@ -68,7 +68,7 @@
  * removed createNode method from NodeSet class
  *
  * Revision 1.18  2008/10/14 13:31:01  bisnard
- * new class structure for dags (DagNode,DagNodePort)
+ * new class structure for dags (DagNode, DagNodePort)
  *
  * Revision 1.17  2008/09/30 15:32:53  bisnard
  * - using simple port id instead of composite ones
@@ -195,7 +195,7 @@ Dag::Dag(string id, MasterAgent_var& MA)
   if (MA != MasterAgent::_nil())
     myExecAgent = MA;
   else {
-    INTERNAL_ERROR("Null MASTER AGENT in Dag constructor",1);
+    INTERNAL_ERROR("Null MASTER AGENT in Dag constructor", 1);
   }
 }
 
@@ -204,10 +204,10 @@ Dag::Dag(string id, MasterAgent_var& MA)
  */
 Dag::~Dag() {
   if (! this->tmpDag) {
-    while (! nodes.empty() ) {
-       DagNode * p = begin()->second ;
-       nodes.erase( begin() ) ;
-       delete p ;
+    while (! nodes.empty()) {
+      DagNode * p = begin()->second;
+      nodes.erase(begin());
+      delete p;
     }
     nodes.clear();
   }
@@ -231,7 +231,7 @@ Dag::setWorkflow(FWorkflow * wf) {
 }
 
 FWorkflow *
-Dag::getWorkflow() const throw (WfStructException) {
+Dag::getWorkflow() const throw(WfStructException) {
   if (myWf != NULL)
     return myWf;
   throw WfStructException(WfStructException::eWF_UNDEF, "dag_id=" + getId());
@@ -240,7 +240,7 @@ Dag::getWorkflow() const throw (WfStructException) {
 MasterAgent_var&
 Dag::getExecutionAgent() {
   if (myExecAgent == MasterAgent::_nil()) {
-    INTERNAL_ERROR(__FUNCTION__<<"No MA defined for dag execution"<<endl,1);
+    INTERNAL_ERROR(__FUNCTION__<<"No MA defined for dag execution"<<endl, 1);
   }
   return myExecAgent;
 }
@@ -254,7 +254,7 @@ Dag::setExecutionAgent(MasterAgent_var& MA) {
  * Get the node with given identifier (only node id, not the complete id)
  */
 WfNode *
-Dag::getNode(const string& nodeId) throw (WfStructException) {
+Dag::getNode(const string& nodeId) throw(WfStructException) {
   return getDagNode(nodeId);
 }
 
@@ -262,14 +262,14 @@ Dag::getNode(const string& nodeId) throw (WfStructException) {
  * Allocates a new node and add it to the dag
  */
 DagNode*
-Dag::createDagNode(const string& id, FWorkflow* wf) throw (WfStructException) {
+Dag::createDagNode(const string& id, FWorkflow* wf) throw(WfStructException) {
   map<string, DagNode*>::iterator p = this->nodes.find(id);
   if (p != this->nodes.end())
-    throw WfStructException(WfStructException::eDUPLICATE_NODE,"node id="+id);
+    throw WfStructException(WfStructException::eDUPLICATE_NODE, "node id="+id);
   DagNode* newDagNode = new DagNode(id, this, wf);
   this->nodes[id] = newDagNode;
   EventManager::getEventMgr()->sendEvent(
-    new EventCreateObject<DagNode,Dag>(newDagNode, this) );
+    new EventCreateObject<DagNode, Dag>(newDagNode, this));
   return newDagNode;
 }
 
@@ -277,25 +277,25 @@ Dag::createDagNode(const string& id, FWorkflow* wf) throw (WfStructException) {
  * Get the dag node with given identifier (only node id, not the complete id)
  */
 DagNode *
-Dag::getDagNode(const string& nodeId) throw (WfStructException) {
+Dag::getDagNode(const string& nodeId) throw(WfStructException) {
   map<string, DagNode*>::iterator p = this->nodes.find(nodeId);
-  if ( p != this->nodes.end())
+  if (p != this->nodes.end())
     return p->second;
   else
-    throw WfStructException(WfStructException::eUNKNOWN_NODE,"node id="+nodeId);
+    throw WfStructException(WfStructException::eUNKNOWN_NODE, "node id="+nodeId);
 }
 
 void
-Dag::removeNode(const string& nodeId) throw (WfStructException) {
+Dag::removeNode(const string& nodeId) throw(WfStructException) {
   map<string, DagNode*>::iterator p = this->nodes.find(nodeId);
-  if ( p != this->nodes.end()) {
+  if (p != this->nodes.end()) {
     // remove node from the list of nodes
     this->nodes.erase(p);
     // clean parent attribute of the node
     ((DagNode*) p->second)->setDag(NULL);
 
   } else
-    throw WfStructException(WfStructException::eUNKNOWN_NODE,"node id="+nodeId);
+    throw WfStructException(WfStructException::eUNKNOWN_NODE, "node id="+nodeId);
 }
 
 /**
@@ -304,13 +304,13 @@ Dag::removeNode(const string& nodeId) throw (WfStructException) {
  * link the WfPorts but it creates the list of predecessors of each node *
  */
 void
-Dag::checkPrec(NodeSet* contextNodeSet) throw (WfStructException) {
+Dag::checkPrec(NodeSet* contextNodeSet) throw(WfStructException) {
   TRACE_TEXT(TRACE_ALL_STEPS, "CHECKING DAG STRUCTURE START" << endl);
-  for (map<string, DagNode * >::iterator p = nodes.begin( );
-       p != nodes.end( );
-       ++p ) {
+  for (map<string, DagNode * >::iterator p = nodes.begin();
+       p != nodes.end();
+       ++p) {
     DagNode *node = (DagNode*) p->second;
-    node->setNodePrecedence(contextNodeSet); // throw WfStructException
+    node->setNodePrecedence(contextNodeSet);  // throw WfStructException
   }
   // TODO use DFS to check there is no cycle
   TRACE_TEXT(TRACE_ALL_STEPS, "CHECKING DAG STRUCTURE END" << endl);
@@ -320,7 +320,7 @@ Dag::checkPrec(NodeSet* contextNodeSet) throw (WfStructException) {
  * link all ports of the dag *
  */
 void
-Dag::linkAllPorts() throw (WfStructException) {
+Dag::linkAllPorts() throw(WfStructException) {
   TRACE_TEXT(TRACE_ALL_STEPS, "LINKING NODES START" << endl);
   for (map<string, DagNode*>::iterator p = nodes.begin();
        p != nodes.end();
@@ -354,7 +354,7 @@ Dag::begin() {
  */
 map <string, DagNode *>::iterator
 Dag::end() {
- return nodes.end();
+  return nodes.end();
 }
 
 string
@@ -470,7 +470,7 @@ Dag::isCancelled() {
  */
 
 DagNodeOutPort *
-Dag::getOutputPort(const char* id) throw (WfStructException) {
+Dag::getOutputPort(const char* id) throw(WfStructException) {
   string strId(id);
   string::size_type portSep = strId.find("#");
   string nodeId = strId.substr(0, portSep);
@@ -493,7 +493,7 @@ int
 Dag::get_scalar_output(const char * id,
                        void** value) {
   DagNodeOutPort * outp = getOutputPort(id);
-  return diet_scalar_get(diet_parameter(outp->profile(),outp->getIndex()),
+  return diet_scalar_get(diet_parameter(outp->profile(), outp->getIndex()),
                          value, NULL);
 }
 
@@ -504,7 +504,7 @@ int
 Dag::get_string_output(const char * id,
                        char** value) {
   DagNodeOutPort * outp = getOutputPort(id);
-  return diet_string_get(diet_parameter(outp->profile(),outp->getIndex()),
+  return diet_string_get(diet_parameter(outp->profile(), outp->getIndex()),
                          value, NULL);
 }
 
@@ -515,7 +515,7 @@ int
 Dag::get_file_output (const char * id,
                       size_t* size, char** path) {
   DagNodeOutPort * outp = getOutputPort(id);
-  return diet_file_get(diet_parameter(outp->profile(), outp->getIndex()),NULL,
+  return diet_file_get(diet_parameter(outp->profile(), outp->getIndex()), NULL,
                        size, path);
 }
 
@@ -552,7 +552,7 @@ std::vector<DagNode*>&
 Dag::getNodesByPriority() {
   std::vector<DagNode*> * sorted_list = new std::vector<DagNode*>;
   DagNode * n1 = NULL;
-  TRACE_TEXT (TRACE_ALL_STEPS, "Sorting dag nodes by priority" << endl);
+  TRACE_TEXT(TRACE_ALL_STEPS, "Sorting dag nodes by priority" << endl);
   for (std::map <std::string, DagNode *>::iterator p = this->begin();
        p != this->end();
        ++p) {
@@ -650,8 +650,8 @@ Dag::setInputNodesReady(DagScheduler* scheduler) {
 //        p != this->nodes.end();
 //        ++p) {
 //     n = (WfNode*)(p->second);
-//     if ( (n != NULL) &&
-// 	 (n->getEstCompTime() > makespan) )
+//     if ((n != NULL) &&
+//       (n->getEstCompTime() > makespan))
 //       makespan = n->getEstCompTime();
 //   }
 //   return makespan;
@@ -668,8 +668,8 @@ Dag::getEFT() {
        p != this->nodes.end();
        ++p) {
     n = (DagNode*)(p->second);
-    if ( (n != NULL) &&
-	 (n->getEstCompTime() > EFT) )
+    if ((n != NULL) &&
+         (n->getEstCompTime() > EFT))
       EFT = n->getEstCompTime();
   }
   return EFT;
@@ -723,8 +723,8 @@ Dag::getEstDelay() {
 void
 Dag::setEstDelay(double delay) {
   this->estDelay = delay;
-  TRACE_TEXT (TRACE_ALL_STEPS, "Updated est. delay on DAG "
-        << this->getId() << " : delay = " << delay << endl);
+  TRACE_TEXT(TRACE_ALL_STEPS, "Updated est. delay on DAG "
+              << this->getId() << " : delay = " << delay << endl);
 }
 
 bool
@@ -755,10 +755,10 @@ Dag::_updateDelayRec(DagNode * node, double newDelay) {
     }
   }
   else {
-    TRACE_TEXT (TRACE_ALL_STEPS, "Delay estimate for node "
-        << node->getCompleteId() << " unchanged (newDelay = "
-        << newDelay << " / previous delay = " << node->getEstDelay()
-        << ")" << endl);
+    TRACE_TEXT(TRACE_ALL_STEPS, "Delay estimate for node "
+                << node->getCompleteId() << " unchanged (newDelay = "
+                << newDelay << " / previous delay = " << node->getEstDelay()
+                << ")" << endl);
   }
   return res;
 }
@@ -773,18 +773,18 @@ Dag::setNodeDone(DagNode* node, DagScheduler* scheduler) {
     // trigger next nodes (even if dag finished , because nodes belonging to other dags
     // can depend on the current one)
     if (!isCancelled() && (node->nextNodesNb() > 0)) {
-      TRACE_TEXT (TRACE_ALL_STEPS,"Dag " << getId() << " : Calling next nodes of "
+      TRACE_TEXT(TRACE_ALL_STEPS, "Dag " << getId() << " : Calling next nodes of "
                   << node->getId() << endl);
       for (list<WfNode*>::iterator nextIter = node->nextNodesBegin();
            nextIter != node->nextNodesEnd();
            ++nextIter) {
-          (dynamic_cast<DagNode*>(*nextIter))->prevNodeHasDone(scheduler);
+        (dynamic_cast<DagNode*>(*nextIter))->prevNodeHasDone(scheduler);
       }
     }
     // manage dag termination when the current node is the last
     // one finishing (either dag is complete or is cancelled)
     if (isDone() || isCancelled()) {
-      TRACE_TEXT (TRACE_ALL_STEPS,"Dag " << getId() << " : End of execution" << endl);
+      TRACE_TEXT(TRACE_ALL_STEPS, "Dag " << getId() << " : End of execution" << endl);
       scheduler->handlerDagDone(this);
     }
   }
@@ -818,8 +818,8 @@ Dag::setAsCancelled(DagScheduler* scheduler) {
   // the following is used only by MaDag
   if (scheduler) {
     // remove all nodes from their queues
-    TRACE_TEXT (TRACE_ALL_STEPS, "Dag " << getId()
-                 << " : removing all nodes from nodeQueues" << endl);
+    TRACE_TEXT(TRACE_ALL_STEPS, "Dag " << getId()
+                << " : removing all nodes from nodeQueues" << endl);
     for (map<string, DagNode*>::iterator p = this->nodes.begin();
          p != this->nodes.end();
          ++p) {

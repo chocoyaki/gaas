@@ -15,7 +15,7 @@
  * improved exception management
  *
  * Revision 1.2  2008/10/14 13:24:49  bisnard
- * use new class structure for dags (DagNode,DagNodePort)
+ * use new class structure for dags (DagNode, DagNodePort)
  *
  * Revision 1.1  2008/07/24 21:08:11  rbolze
  * New multi-wf heuristic FCFS (First Come First Serve)
@@ -28,36 +28,33 @@
 
 #include "MultiWfScheduler.hh"
 
-using namespace std;
-
 namespace madag {
 
-  class MultiWfFCFS : public MultiWfScheduler {
-  public:
-    MultiWfFCFS(MaDag_impl* maDag);
-    virtual ~MultiWfFCFS();
+class MultiWfFCFS : public MultiWfScheduler {
+public:
+  explicit MultiWfFCFS(MaDag_impl* maDag);
 
-  protected:
+  virtual ~MultiWfFCFS();
 
-    /**
-     * Updates scheduler when a node has been executed
-     */
-    virtual void
-        handlerNodeDone(DagNode * node);
+protected:
+  /**
+   * Updates scheduler when a node has been executed
+   */
+  virtual void
+  handlerNodeDone(DagNode * node);
 
-    /**
-     * set node priority before inserting into execution queue
-     */
-    virtual void
-        setExecPriority(DagNode * node);
+  /**
+   * set node priority before inserting into execution queue
+   */
+  virtual void
+  setExecPriority(DagNode * node);
 
-    /**
-     * set node priority before inserting back in the ready queue
-     */
-    virtual void
-        setWaitingPriority(DagNode * node);
-  };
-
+  /**
+   * set node priority before inserting back in the ready queue
+   */
+  virtual void
+  setWaitingPriority(DagNode * node);
+};
 }
 
 #endif   /* not defined _MULTIWFFCFS_HH */

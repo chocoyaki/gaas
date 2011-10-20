@@ -30,8 +30,8 @@
 #ifndef _WFEXPRESSION_HH_
 #define _WFEXPRESSION_HH_
 
-#include <string>
 #include <list>
+#include <string>
 #include <xqilla/xqilla-simple.hpp>
 #include "WfUtils.hh"
 
@@ -41,41 +41,39 @@
 /*****************************************************************************/
 
 class WfExpressionParser {
+public:
+  /**
+   * Parse a string containing a XQuery and returns the XQilla query
+   * object (query is not executed yet)
+   * @param queryStr  string containing a XQuery
+   */
+  XQQuery*
+  parse(const std::string& queryStr);
 
-  public:
+  /**
+   * Returns the unique instance of this class
+   */
+  static WfExpressionParser*
+  instance();
 
-    /**
-     * Parse a string containing a XQuery and returns the XQilla query
-     * object (query is not executed yet)
-     * @param queryStr  string containing a XQuery
-     */
-    XQQuery*
-        parse(const std::string& queryStr);
+  /**
+   * Destructor
+   */
+  ~WfExpressionParser();
 
-    /**
-     * Returns the unique instance of this class
-     */
-    static WfExpressionParser*
-        instance();
+private:
 
-    /**
-     * Destructor
-     */
-    ~WfExpressionParser();
+  WfExpressionParser();
 
-  private:
+  /**
+   * Unique instance reference
+   */
+  static WfExpressionParser* myInstance;
 
-    WfExpressionParser();
-
-    /**
-     * Unique instance reference
-     */
-    static WfExpressionParser* myInstance;
-
-    /**
-     * Xqilla environment object
-     */
-    XQilla* myImpl;
+  /**
+   * Xqilla environment object
+   */
+  XQilla* myImpl;
 };
 
 /*****************************************************************************/
@@ -83,48 +81,47 @@ class WfExpressionParser {
 /*****************************************************************************/
 
 class WfExprVariable {
+public:
+  /**
+   * Initialize a variable
+   * @param varName string containing the variable name
+   * @param varType type of the variable
+   */
+  WfExprVariable(const std::string& varName, const WfCst::WfDataType varType);
 
-  public:
-    /**
-     * Initialize a variable
-     * @param varName string containing the variable name
-     * @param varType type of the variable
-     */
-    WfExprVariable(const std::string& varName,
-                   const WfCst::WfDataType varType);
+  virtual ~WfExprVariable() {
+  }
 
-    /**
-     * Get name
-     */
-    const std::string&
-        getName() { return myName; }
+  /**
+   * Get name
+   */
+  const std::string&
+  getName() { return myName; }
 
-    /**
-     * Generate the XQuery declaration of the variable
-     * @param output  an output stream
-     */
-    virtual void
-        getXQDeclaration(std::ostream& output);
+  /**
+   * Generate the XQuery declaration of the variable
+   * @param output  an output stream
+   */
+  virtual void
+  getXQDeclaration(std::ostream& output);
 
-    /**
-     * Set the value of the variable
-     * @param varValue raw value if scalar, XML-encoded if container
-     */
-    virtual void
-        setValue(const std::string& varValue);
+  /**
+   * Set the value of the variable
+   * @param varValue raw value if scalar, XML-encoded if container
+   */
+  virtual void
+  setValue(const std::string& varValue);
 
-    /**
-     * Set a default value for the variable
-     */
-    virtual void
-        setDefaultValue();
+  /**
+   * Set a default value for the variable
+   */
+  virtual void
+  setDefaultValue();
 
-  protected:
-
-    std::string myName;
-    WfCst::WfDataType myType;
-    std::string myValue;
-
+protected:
+  std::string myName;
+  WfCst::WfDataType myType;
+  std::string myValue;
 };
 
 /*****************************************************************************/
@@ -132,89 +129,94 @@ class WfExprVariable {
 /*****************************************************************************/
 
 class WfExpression {
+public:
+  WfExpression();
+  virtual ~WfExpression();
 
-  public:
+  /**
+   * Set the conditional expression
+   * @param exprStr XQuery containing variables with syntax $var
+   */
+  virtual void
+  setExpression(const std::string& exprStr);
 
-    WfExpression();
-    virtual ~WfExpression();
+  /**
+   * Add a variable to the expression
+   * @param var ref to a WfExprVariable
+   */
+  virtual void
+  addVariable(WfExprVariable*  var);
 
-    /**
-     * Set the conditional expression
-     * @param exprStr XQuery containing variables with syntax $var
-     */
-    virtual void setExpression(const std::string& exprStr);
+  /**
+   * Get the expression
+   */
+  const std::string&
+  getExpression();
 
-    /**
-     * Add a variable to the expression
-     * @param var ref to a WfExprVariable
-     */
-    virtual void addVariable(WfExprVariable*  var);
+  /**
+   * Get the full query (used for exceptions)
+   */
+  const std::string&
+  getQueryString();
 
-    /**
-     * Get the expression
-     */
-    const std::string& getExpression();
+  /**
+   * Check if a variable name is used in the expression
+   */
+  // characters that can happen after a variable
+  static std::string XQVarSeparators;
 
-    /**
-     * Get the full query (used for exceptions)
-     */
-    const std::string& getQueryString();
+  bool
+  isVariableUsed(const std::string& varName);
 
-    /**
-     * Check if a variable name is used in the expression
-     */
-    static std::string XQVarSeparators;  // characters that can happen after a variable
-    bool isVariableUsed(const std::string& varName);
+  /**
+   * Evaluate the expression
+   */
+  virtual void
+  evaluate();
 
-    /**
-     * Evaluate the expression
-     */
-    virtual void evaluate();
+protected:
+  /**
+   * Method to initialize the XQuery before parsing
+   * (uses both the expression and the variables)
+   */
+  void
+  initQuery();
 
+  /**
+   * Method to parse an expression containing variables
+   */
+  void
+  parseQuery();
 
-  protected:
+  /**
+   * Original expression
+   */
+  std::string myExpression;
 
-    /**
-     * Method to initialize the XQuery before parsing
-     * (uses both the expression and the variables)
-     */
-    void initQuery();
+  /**
+   * Query (in XQuery lang)
+   */
+  std::string myQueryStr;
 
-    /**
-     * Method to parse an expression containing variables
-     */
-    void parseQuery();
+  /**
+   * Result
+   */
+  std::string myResult;
 
-    /**
-     * Original expression
-     */
-    std::string myExpression;
+  /**
+   * Variables storage
+   */
+  std::list<WfExprVariable*> myVariables;
 
-    /**
-     * Query (in XQuery lang)
-     */
-    std::string myQueryStr;
+  /**
+   * Parser
+   */
+  WfExpressionParser* myParser;
 
-    /**
-     * Result
-     */
-    std::string myResult;
-
-    /**
-     * Variables storage
-     */
-    std::list<WfExprVariable*> myVariables;
-
-    /**
-     * Parser
-     */
-    WfExpressionParser* myParser;
-
-    /**
-     * The query object
-     */
-    XQQuery* myQuery;
-
+  /**
+   * The query object
+   */
+  XQQuery* myQuery;
 };
 
 
@@ -223,15 +225,13 @@ class WfExpression {
 /*****************************************************************************/
 
 class WfBooleanExpression : public WfExpression {
-
-  public:
-
-    /**
-     * Evaluate the expression
-     * @return true if the expression evaluates to 'true', else false
-     */
-    bool
-        testIfTrue();
+public:
+  /**
+   * Evaluate the expression
+   * @return true if the expression evaluates to 'true', else false
+   */
+  bool
+  testIfTrue();
 };
 
-#endif // _WFEXPRESSION_HH_
+#endif  // _WFEXPRESSION_HH_

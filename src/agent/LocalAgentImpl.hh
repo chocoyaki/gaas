@@ -66,23 +66,18 @@
 #include "Forwarder.hh"
 #include "LocalAgentFwdr.hh"
 
-class LocalAgentImpl : public POA_LocalAgent, public AgentImpl
-{
-
-public :
-
+class LocalAgentImpl : public POA_LocalAgent, public AgentImpl {
+public:
   LocalAgentImpl();
-  ~LocalAgentImpl(){};
+
+  ~LocalAgentImpl() {}
 
   /** Force call for POA_LocalAgent::_this. */
   inline LocalAgent_ptr
-  _this()
-  {
+  _this() {
     return this->POA_LocalAgent::_this();
   };
 
-
-#ifdef HAVE_DYNAMICS
   /** Change the parent */
   CORBA::Long
   bindParent(const char * parentName);
@@ -100,7 +95,6 @@ public :
 
   virtual void
   removeElementClean(bool recursive);
-#endif // HAVE_DYNAMICS
 
   /** Launch this agent (initialization + registration in the hierarchy). */
   int
@@ -117,19 +111,15 @@ public :
   virtual CORBA::Long
   addServices(CORBA::ULong myID, const SeqCorbaProfileDesc_t& services);
 
-#ifdef HAVE_DYNAMICS
   virtual CORBA::Long
   childUnsubscribe(CORBA::ULong childID,
-		   const SeqCorbaProfileDesc_t& services);
-#endif // HAVE_DYNAMICS
+                   const SeqCorbaProfileDesc_t& services);
 
-#ifdef HAVE_DAGDA
   /** Remove services into the service table for a given child */
   virtual CORBA::Long
   childRemoveService(CORBA::ULong childID, const corba_profile_desc_t& profile);
-  virtual SeqString* searchData(const char* request);
-#endif
-
+  virtual SeqString*
+  searchData(const char* request);
 
 private:
 
@@ -137,57 +127,61 @@ private:
   Agent_var parent;
   /** ID of this agent amongst the children of its parent */
   ChildID childID;
-
-
-}; // LocalAgentImpl
+};  // LocalAgentImpl
 
 class LocalAgentFwdrImpl : public POA_LocalAgentFwdr,
-			   public PortableServer::RefCountServantBase
-{
+                           public PortableServer::RefCountServantBase {
+public:
+  LocalAgentFwdrImpl(Forwarder_ptr fwdr, const char* objName);
+
+  virtual CORBA::Long
+  agentSubscribe(const char* me, const char* hostName,
+                 const SeqCorbaProfileDesc_t& services);
+  virtual CORBA::Long
+  serverSubscribe(const char* me, const char* hostName,
+                  const SeqCorbaProfileDesc_t& services);
+
+  virtual CORBA::Long
+  childUnsubscribe(CORBA::ULong childID,
+                   const SeqCorbaProfileDesc_t& services);
+
+  virtual CORBA::Long
+  removeElement(bool recursive);
+
+  CORBA::Long
+  bindParent(const char * parentName);
+
+  CORBA::Long
+  disconnect();
+
+  virtual void
+  getRequest(const corba_request_t& req);
+
+  virtual void
+  getResponse(const corba_response_t& resp);
+
+  virtual CORBA::Long
+  ping();
+
+  virtual char*
+  getHostname();
+
+  virtual CORBA::Long
+  addServices(CORBA::ULong myID, const SeqCorbaProfileDesc_t& services);
+
+  virtual CORBA::Long
+  childRemoveService(CORBA::ULong childID,
+                     const corba_profile_desc_t& profile);
+
+  virtual char*
+  getDataManager();
+
+  virtual SeqString*
+  searchData(const char* request);
+
 private:
   Forwarder_ptr forwarder;
   char* objName;
-public:
-  LocalAgentFwdrImpl(Forwarder_ptr fwdr, const char* objName);
-	
-  virtual CORBA::Long
-  agentSubscribe(const char* me, const char* hostName,
-		 const SeqCorbaProfileDesc_t& services);
-  virtual CORBA::Long
-  serverSubscribe(const char* me, const char* hostName,
-#if HAVE_JXTA
-		  const char* uuid,
-#endif // HAVE_JXTA
-		  const SeqCorbaProfileDesc_t& services);
-	
-#ifdef HAVE_DYNAMICS
-  virtual CORBA::Long
-  childUnsubscribe(CORBA::ULong childID,
-		   const SeqCorbaProfileDesc_t& services);
-	
-  virtual CORBA::Long removeElement(bool recursive);
-	
-  CORBA::Long bindParent(const char * parentName);
-	
-  CORBA::Long disconnect();
-#endif // HAVE_DYNAMICS
-	
-  virtual void getRequest(const corba_request_t& req);
-	
-  virtual void getResponse(const corba_response_t& resp);
-  virtual CORBA::Long ping();
-	
-  virtual char* getHostname();
-	
-  virtual CORBA::Long addServices(CORBA::ULong myID,
-				  const SeqCorbaProfileDesc_t& services);
-	
-  virtual CORBA::Long
-  childRemoveService(CORBA::ULong childID, const corba_profile_desc_t& profile);
-#ifdef HAVE_DAGDA
-  virtual char* getDataManager();
-  virtual SeqString* searchData(const char* request);
-#endif
 };
 
-#endif // _LOCALAGENTIMPL_HH_
+#endif  // _LOCALAGENTIMPL_HH_

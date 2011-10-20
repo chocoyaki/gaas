@@ -58,7 +58,8 @@
 /*****************************************************************************/
 
 
-FIfNode::FIfNode(FWorkflow* wf, const string& id) : FProcNode(wf,id) {
+FIfNode::FIfNode(FWorkflow* wf, const std::string& id)
+  : FProcNode(wf, id) {
   myCondition = new WfBooleanExpression();
   myConditionVars = NULL;
 }
@@ -66,71 +67,74 @@ FIfNode::FIfNode(FWorkflow* wf, const string& id) : FProcNode(wf,id) {
 FIfNode::~FIfNode() {}
 
 WfPort *
-FIfNode::newPort(string portId,
-                 unsigned int ind,
-                 WfPort::WfPortType portType,
-                 WfCst::WfDataType dataType,
-                 unsigned int depth) throw (WfStructException) {
-
+FIfNode::newPort(std::string portId, unsigned int ind,
+                 WfPort::WfPortType portType, WfCst::WfDataType dataType,
+                 unsigned int depth) throw(WfStructException) {
   WfPort * p = NULL;
   switch (portType) {
-    case WfPort::PORT_PARAM:
-      p = new FNodeParamPort(this, portId, dataType, ind);
-      addPort(portId, p);
-      break;
-    case WfPort::PORT_IN:
-      p = new FNodeInPort(this, portId, portType, dataType, depth, ind);
-      addPort(portId, p);
-      break;
-    case WfPort::PORT_INOUT:
-      throw WfStructException("Inout port is not valid within conditional node");
-      break;
-    case WfPort::PORT_OUT:
-      throw WfStructException("Out port is not valid within conditional node (Use outThen or outElse tag)");
-      break;
-    case WfPort::PORT_OUT_THEN:
-      p = new FNodeOutPort(this, portId, portType, dataType, depth, ind);
-      addPort(portId, p);
-      setThenMap(portId,"VOID");  // default mapping (to be overriden by explicit mapping)
-      setElseMap(portId,"VOID");  // opposite case mapping
-      break;
-    case WfPort::PORT_OUT_ELSE:
-      p = new FNodeOutPort(this, portId, portType, dataType, depth, ind);
-      addPort(portId, p);
-      setElseMap(portId,"VOID");  // default mapping (to be overriden by explicit mapping)
-      setThenMap(portId,"VOID");  // opposite case mapping
-      break;
-    default:
-      throw WfStructException("Invalid port type in conditional node");
+  case WfPort::PORT_PARAM:
+    p = new FNodeParamPort(this, portId, dataType, ind);
+    addPort(portId, p);
+    break;
+  case WfPort::PORT_IN:
+    p = new FNodeInPort(this, portId, portType, dataType, depth, ind);
+    addPort(portId, p);
+    break;
+  case WfPort::PORT_INOUT:
+    throw WfStructException("Inout port is not valid within conditional node");
+    break;
+  case WfPort::PORT_OUT:
+    throw WfStructException("Out port is not valid within conditional node "
+                            "(Use outThen or outElse tag)");
+    break;
+  case WfPort::PORT_OUT_THEN:
+    p = new FNodeOutPort(this, portId, portType, dataType, depth, ind);
+    addPort(portId, p);
+    // default mapping (to be overriden by explicit mapping)
+    setThenMap(portId, "VOID");
+    setElseMap(portId, "VOID");  // opposite case mapping
+    break;
+  case WfPort::PORT_OUT_ELSE:
+    p = new FNodeOutPort(this, portId, portType, dataType, depth, ind);
+    addPort(portId, p);
+    // default mapping (to be overriden by explicit mapping)
+    setElseMap(portId, "VOID");
+    setThenMap(portId, "VOID");  // opposite case mapping
+    break;
+  default:
+    throw WfStructException("Invalid port type in conditional node");
   }
   return p;
 }
 
 void
-FIfNode::setCondition(const string& conditionStr)
-  throw (WfStructException) {
+FIfNode::setCondition(const std::string& conditionStr)
+  throw(WfStructException) {
   myCondition->setExpression(conditionStr);
   checkCondition();
 }
 
 void
-FIfNode::checkCondition() throw (WfStructException) {
+FIfNode::checkCondition() throw(WfStructException) {
   // init variables table
-  if (myConditionVars != NULL)  delete myConditionVars;
-  myConditionVars = new vector<WfExprVariable*>(getPortNb(), NULL);
+  if (myConditionVars != NULL) {
+    delete myConditionVars;
+  }
+  myConditionVars = new std::vector<WfExprVariable*>(getPortNb(), NULL);
   // loop over all inputs and set the variable in the table
-  for (map<string, WfPort*>::iterator portIter = ports.begin();
+  for (std::map<std::string, WfPort*>::iterator portIter = ports.begin();
        portIter != ports.end();
        ++portIter) {
     WfPort *port = (WfPort*) portIter->second;
     if ((port->getPortType() == WfPort::PORT_IN)
-         && myCondition->isVariableUsed(port->getId())) {
+        && myCondition->isVariableUsed(port->getId())) {
       // each port involved in the condition must be modified to accept only
       // DH with a real value
       FNodeInPort* inPort = dynamic_cast<FNodeInPort*>(port);
       inPort->setValueRequired();
       // create a new variable
-      WfExprVariable* newVar = new WfExprVariable(inPort->getId(), inPort->getDataType());
+      WfExprVariable* newVar =
+        new WfExprVariable(inPort->getId(), inPort->getDataType());
       newVar->setDefaultValue();
       // store the new variable in the table (index = port index)
       (*myConditionVars)[inPort->getIndex()] = newVar;
@@ -145,12 +149,12 @@ FIfNode::checkCondition() throw (WfStructException) {
     throw WfStructException(WfStructException::eINVALID_EXPR,
                             myCondition->getExpression());
   }
-//   myCondition->reset();
+  //   myCondition->reset();
 }
 
 void
-FIfNode::setThenMap(const string& leftPortName,
-                    const string& rightPortName) throw (WfStructException) {
+FIfNode::setThenMap(const std::string& leftPortName,
+                    const std::string& rightPortName) throw(WfStructException) {
   FNodeOutPort* outPort = checkAssignPort<FNodeOutPort>(leftPortName);
   if (rightPortName != "VOID") {
     myThenMap.mapPorts(outPort, checkAssignPort<FNodeInPort>(rightPortName));
@@ -160,8 +164,8 @@ FIfNode::setThenMap(const string& leftPortName,
 }
 
 void
-FIfNode::setElseMap(const string& leftPortName,
-                    const string& rightPortName) throw (WfStructException) {
+FIfNode::setElseMap(const std::string& leftPortName,
+                    const std::string& rightPortName) throw(WfStructException) {
   FNodeOutPort* outPort = checkAssignPort<FNodeOutPort>(leftPortName);
   if (rightPortName != "VOID") {
     myElseMap.mapPorts(outPort, checkAssignPort<FNodeInPort>(rightPortName));
@@ -171,27 +175,22 @@ FIfNode::setElseMap(const string& leftPortName,
 }
 
 void
-FIfNode::createRealInstance(Dag* dag,
-                            const FDataTag& currTag,
-                            vector<FDataHandle*>& currDataLine) {
-  TRACE_TEXT (TRACE_MAIN_STEPS,"  ## NEW IF INSTANCE : " << getId()
-                              << currTag.toString() << endl);
+FIfNode::createRealInstance(Dag* dag, const FDataTag& currTag,
+                            std::vector<FDataHandle*>& currDataLine) {
+  TRACE_TEXT(TRACE_MAIN_STEPS, "  ## NEW IF INSTANCE : " << getId()
+             << currTag.toString() << "\n");
   FNodePortMap* mapToApply;
   // Loop for all inputs
   for (unsigned int ix = 0; ix < currDataLine.size(); ++ix) {
-
     // check if current input is used as variable in the condition
     if ((*myConditionVars)[ix] != NULL) {
-
       // check if current input has a value
-      FDataHandle *dataHdl = (FDataHandle*) currDataLine[ix];
+      FDataHandle *dataHdl = currDataLine[ix];
       if (dataHdl && dataHdl->isValueDefined()) {
-
         // set the value of the variable
         (*myConditionVars)[ix]->setValue(dataHdl->getValue());
-
       } else {
-        //TODO throw exception
+        // TODO throw exception
       }
     }
   }
@@ -200,70 +199,74 @@ FIfNode::createRealInstance(Dag* dag,
     result = myCondition->testIfTrue();
   } catch (...) {
     WARNING("IF NODE name=" << getId() << " / tag=" << currTag.toString()
-            << " : Cannot evaluate IF expression : " << endl
-            << myCondition->getQueryString() << endl
-            << " ===> considering expression is FALSE" << endl);
-    //TODO it would be better to set all outputs as VOID
+            << " : Cannot evaluate IF expression : \n"
+            << myCondition->getQueryString() << "\n"
+            << " ===> considering expression is FALSE\n");
+    // TODO it would be better to set all outputs as VOID
   }
   if (result) {
     mapToApply = &myThenMap;
-    TRACE_TEXT (TRACE_ALL_STEPS,"  # IF condition is TRUE => Apply THEN mapping" << endl);
+    TRACE_TEXT(TRACE_ALL_STEPS,
+               "  # IF condition is TRUE => Apply THEN mapping\n");
   } else {
     mapToApply = &myElseMap;
-    TRACE_TEXT (TRACE_ALL_STEPS,"  # IF condition is FALSE => Apply ELSE mapping" << endl);
+    TRACE_TEXT(TRACE_ALL_STEPS,
+               "  # IF condition is FALSE => Apply ELSE mapping\n");
   }
   // Apply the chosen map accordingly
   mapToApply->applyMap(currTag, currDataLine);
-//   myCondition->reset();
-  TRACE_TEXT (TRACE_ALL_STEPS,"  ## END IF INSTANCE : "
-                              << getId() << currTag.toString() << endl);
+  //   myCondition->reset();
+  TRACE_TEXT(TRACE_ALL_STEPS, "  ## END IF INSTANCE : "
+             << getId() << currTag.toString() << "\n");
 }
 
 /*****************************************************************************/
 /*                           FMergeNode class                                */
 /*****************************************************************************/
 
-FMergeNode::FMergeNode(FWorkflow* wf, const string& id)
+FMergeNode::FMergeNode(FWorkflow* wf, const std::string& id)
   : FProcNode(wf, id) , myOutPort(NULL) {
 }
 
-FMergeNode::~FMergeNode() {}
+FMergeNode::~FMergeNode() {
+}
 
 WfPort *
-FMergeNode::newPort(string portId,
-                    unsigned int ind,
-                    WfPort::WfPortType portType,
-                    WfCst::WfDataType dataType,
-                    unsigned int depth) throw (WfStructException) {
+FMergeNode::newPort(std::string portId, unsigned int ind,
+                    WfPort::WfPortType portType, WfCst::WfDataType dataType,
+                    unsigned int depth) throw(WfStructException) {
   WfPort * p = NULL;
   switch (portType) {
-    case WfPort::PORT_IN:
-      if (getPortNb(WfPort::PORT_IN) > 1)
-        throw WfStructException("Merge node can have only 2 input ports");
-      p = new FNodeInPort(this, portId, portType, dataType, depth, ind);
-      break;
-    case WfPort::PORT_OUT:
-      if (getPortNb(WfPort::PORT_OUT) > 0)
-        throw WfStructException("Merge node can have only 1 output port");
-      myOutPort = new FNodeOutPort(this, portId, portType, dataType, depth, ind);
-      p = (WfPort *) myOutPort;
-      break;
-    default:
-      throw WfStructException("Invalid port type in merge node");
+  case WfPort::PORT_IN:
+    if (getPortNb(WfPort::PORT_IN) > 1) {
+      throw WfStructException("Merge node can have only 2 input ports");
+    }
+    p = new FNodeInPort(this, portId, portType, dataType, depth, ind);
+    break;
+  case WfPort::PORT_OUT:
+    if (getPortNb(WfPort::PORT_OUT) > 0) {
+      throw WfStructException("Merge node can have only 1 output port");
+    }
+    myOutPort = new FNodeOutPort(this, portId, portType, dataType, depth, ind);
+    p = (WfPort *) myOutPort;
+    break;
+  default:
+    throw WfStructException("Invalid port type in merge node");
   }
   return addPort(portId, p);
 }
 
 void
 FMergeNode::createMergeInstance(const FDataTag& currTag,
-                                vector<FDataHandle*>& currDataLine) {
-  TRACE_TEXT (TRACE_MAIN_STEPS,"  ## NEW MERGE INSTANCE : " << getId()
-                              << currTag.toString() << endl);
+                                std::vector<FDataHandle*>& currDataLine) {
+  TRACE_TEXT(TRACE_MAIN_STEPS, "  ## NEW MERGE INSTANCE : " << getId()
+             << currTag.toString() << "\n");
   FDataHandle* srcData = NULL;
   FDataHandle *outData = NULL;
-  vector<FDataHandle*>::const_iterator DLIter = currDataLine.begin();
-  while ((!srcData || srcData->isVoid()) && !(DLIter == currDataLine.end()))
+  std::vector<FDataHandle*>::const_iterator DLIter = currDataLine.begin();
+  while ((!srcData || srcData->isVoid()) && !(DLIter == currDataLine.end())) {
     srcData = (FDataHandle*) *(DLIter++);
+  }
 
   if (srcData && !srcData->isVoid()) {
     // we have got a non-VOID datahandle on one of our inputs
@@ -278,83 +281,79 @@ FMergeNode::createMergeInstance(const FDataTag& currTag,
 }
 
 void
-FMergeNode::createRealInstance(Dag* dag,
-                               const FDataTag& currTag,
-                               vector<FDataHandle*>& currDataLine) {
+FMergeNode::createRealInstance(Dag* dag, const FDataTag& currTag,
+                               std::vector<FDataHandle*>& currDataLine) {
   WARNING("MERGE Node received two non-VOID inputs");
   createMergeInstance(currTag, currDataLine);
 }
 
 void
 FMergeNode::createVoidInstance(const FDataTag& currTag,
-                               vector<FDataHandle*>& currDataLine) {
+                               std::vector<FDataHandle*>& currDataLine) {
   createMergeInstance(currTag, currDataLine);
 }
 
 /*****************************************************************************/
 /*                           FFilterNode class                               */
 /*****************************************************************************/
-
-
-FFilterNode::FFilterNode(FWorkflow* wf, const string& id)
+FFilterNode::FFilterNode(FWorkflow* wf, const std::string& id)
   : FProcNode(wf, id), myOutPort(NULL) {
 }
 
 FFilterNode::~FFilterNode() {
   // Free the tree
-  while (! myTree.empty() ) {
+  while (!myTree.empty()) {
     filterNode_t* p = myTree.begin()->second;
-    myTree.erase( myTree.begin() );
+    myTree.erase(myTree.begin());
     delete p;
   }
 }
 
 WfPort *
-FFilterNode::newPort(string portId,
-                    unsigned int ind,
-                    WfPort::WfPortType portType,
-                    WfCst::WfDataType dataType,
-                    unsigned int depth) throw (WfStructException) {
+FFilterNode::newPort(std::string portId, unsigned int ind,
+                     WfPort::WfPortType portType, WfCst::WfDataType dataType,
+                     unsigned int depth) throw(WfStructException) {
   WfPort * p = NULL;
   switch (portType) {
-    case WfPort::PORT_IN:
-      if (getPortNb(WfPort::PORT_IN) > 0)
-        throw WfStructException("Filter node can have only 1 input port");
-      p = new FNodeInPort(this, portId, portType, dataType, depth, 0);
-      break;
-    case WfPort::PORT_OUT:
-      if (getPortNb(WfPort::PORT_OUT) > 0)
-        throw WfStructException("Filter node can have only 1 output port");
-      myOutPort = new FNodeOutPort(this, portId, portType, dataType, depth, 1);
-      p = (WfPort *) myOutPort;
-      break;
-    default:
-       throw WfStructException("Invalid port type in filter node");
+  case WfPort::PORT_IN:
+    if (getPortNb(WfPort::PORT_IN) > 0) {
+      throw WfStructException("Filter node can have only 1 input port");
+    }
+    p = new FNodeInPort(this, portId, portType, dataType, depth, 0);
+    break;
+  case WfPort::PORT_OUT:
+    if (getPortNb(WfPort::PORT_OUT) > 0) {
+      throw WfStructException("Filter node can have only 1 output port");
+    }
+    myOutPort = new FNodeOutPort(this, portId, portType, dataType, depth, 1);
+    p = (WfPort *) myOutPort;
+    break;
+  default:
+    throw WfStructException("Invalid port type in filter node");
   }
   return addPort(portId, p);
 }
 
 void
-FFilterNode::createRealInstance(Dag* dag,
-                                const FDataTag& currTag,
-                                vector<FDataHandle*>& currDataLine) {
-  TRACE_TEXT (TRACE_MAIN_STEPS,"  ## FILTER PROCESSES NON-VOID ITEM : "
-                               << currTag.toString() << endl);
+FFilterNode::createRealInstance(Dag* dag, const FDataTag& currTag,
+                                std::vector<FDataHandle*>& currDataLine) {
+  TRACE_TEXT(TRACE_MAIN_STEPS, "  ## FILTER PROCESSES NON-VOID ITEM : "
+             << currTag.toString() << "\n");
   FDataHandle* srcData = currDataLine[0];
   if (!srcData) {
-    INTERNAL_ERROR("Invalid (NULL) data to process in filter node",1);
+    INTERNAL_ERROR("Invalid (NULL) data to process in filter node", 1);
   }
   updateUp(srcData, 0);
 }
 
 void
 FFilterNode::createVoidInstance(const FDataTag& currTag,
-                                vector<FDataHandle*>& currDataLine) {
-  TRACE_TEXT (TRACE_MAIN_STEPS,"  ## FILTER PROCESSES VOID ITEM : "
-                               << currTag.toString() << endl);
+                                std::vector<FDataHandle*>& currDataLine) {
+  TRACE_TEXT(TRACE_MAIN_STEPS, "  ## FILTER PROCESSES VOID ITEM : "
+             << currTag.toString() << "\n");
   FDataHandle* srcData = currDataLine[0];
   if (!srcData) {
-    INTERNAL_ERROR("Invalid (NULL) data to process in filter node",1);
+    INTERNAL_ERROR("Invalid (NULL) data to process in filter node", 1);
   }
   updateUp(srcData, 0);
 }
@@ -390,12 +389,14 @@ FFilterNode::updateUp(FDataHandle* DH, short depth) {
       } else {
         FDataTag DHTagCpy = DHTag;
         filterNode_t* precTreeNode = getTreeNode(DHTagCpy.getPredecessor());
-        if (precTreeNode->indexOk)
+        if (precTreeNode->indexOk) {
           precIdx = precTreeNode->newIndex;
+        }
       }
 
-      if (precIdx > -2)
+      if (precIdx > -2) {
         updateRight(DHTag, precIdx, depth);
+      }
     }
 
     // Updates the lastFlagOk flag (and the newLastFlag if available)
@@ -404,22 +405,29 @@ FFilterNode::updateUp(FDataHandle* DH, short depth) {
       FDataTag DHTagCpy = DHTag;
 
       // condition for setting 'last' flag is either this is the last item of
-      // the branch or the item's successor (index+1) has its 'last' flag defined
-      if(DHTag.isLastOfBranch() || getTreeNode(DHTagCpy.getSuccessor())->lastFlagOk) {
+      // the branch or the item's successor (index+1) has its 'last' flag
+      // defined
+      if (DHTag.isLastOfBranch() ||
+         getTreeNode(DHTagCpy.getSuccessor())->lastFlagOk) {
         currTreeNode->lastFlagOk = true;
         // value of flag depends on type of current data (void or non-void only)
         if (DH->isVoid()) {
           currTreeNode->newLastFlag = false;
-          if (DHTag.getLastIndex() > 0) updateLeftVoid(DHTag, depth);
+          if (DHTag.getLastIndex() > 0) {
+            updateLeftVoid(DHTag, depth);
+          }
         } else {
           currTreeNode->newLastFlag = true;
-          if (DHTag.getLastIndex() > 0) updateLeftNonVoid(DHTag, depth);
+          if (DHTag.getLastIndex() > 0) {
+            updateLeftNonVoid(DHTag, depth);
+          }
         }
         // flag was modified for current node so check if ready for sending
-        if (isReady(DHTag)) sendDown(DH, depth);
-      }
-      // 'last' flag of predecessors can be set if current item is non-void
-      else if (!DH->isVoid()) {
+        if (isReady(DHTag)) {
+          sendDown(DH, depth);
+        }
+      } else if (!DH->isVoid()) {
+        // 'last' flag of predecessors can be set if current item is non-void
         updateLeftNonVoid(DHTag, depth);
       }
     }
@@ -438,26 +446,31 @@ FFilterNode::updateRight(const FDataTag& tag, int precIdx, short depth) {
   while (currTreeNode->voidDef) {
     currTreeNode->indexOk = true;
 
-    // value of new index depends on type of current data (void or non-void only)
+    // value of new index depends on type of current data
+    // (void or non-void only)
     if (!currTreeNode->dataHdl) {
-      INTERNAL_ERROR("Invalid data ref in FFilterNode::updateRight",1);
+      INTERNAL_ERROR("Invalid data ref in FFilterNode::updateRight", 1);
     }
-    if (currTreeNode->dataHdl->isVoid())
+    if (currTreeNode->dataHdl->isVoid()) {
       currTreeNode->newIndex = precIdx;
-    else
+    } else {
       currTreeNode->newIndex = precIdx + 1;
+    }
 
     // flag was modified for current node so check if ready for sending
-    if (isReady(currTag)) sendDown(currTreeNode->dataHdl, depth);
+    if (isReady(currTag)) {
+      sendDown(currTreeNode->dataHdl, depth);
+    }
 
     // stop if current node is the last one of the branch
-    if (currTreeNode->dataHdl->getTag().isLastOfBranch()) break;
+    if (currTreeNode->dataHdl->getTag().isLastOfBranch()) {
+      break;
+    }
 
     // next node (successor) - (last flags are invalid)
     currTag.getSuccessor();
     currTreeNode = getTreeNode(currTag);
-
-  } // end while
+  }
 }
 
 void
@@ -471,8 +484,10 @@ FFilterNode::updateLeftNonVoid(const FDataTag& tag, short depth) {
     currTreeNode->newLastFlag = false;
 
     // flag was modified for current node so check if ready for sending
-    if (isReady(currTag)) sendDown(currTreeNode->dataHdl, depth);
-  } // end while
+    if (isReady(currTag)) {
+      sendDown(currTreeNode->dataHdl, depth);
+    }
+  }
 }
 
 void
@@ -483,27 +498,26 @@ FFilterNode::updateLeftVoid(const FDataTag& tag, short depth) {
     filterNode_t* currTreeNode = getTreeNode(currTag);
 
     if (currTreeNode->voidDef) {
-
       // as long as we get VOID items, 'last' flag is set to false
       if (currTreeNode->dataHdl->isVoid()) {
         currTreeNode->lastFlagOk = true;
         currTreeNode->newLastFlag = false;
-      }
-      // when a non-VOID is found, this is the 'last' item
-      else {
+      } else {
+        // when a non-VOID is found, this is the 'last' item
         currTreeNode->lastFlagOk = true;
         currTreeNode->newLastFlag = true;
 
         // flag was modified for current node so check if ready for sending
-        if (isReady(currTag)) sendDown(currTreeNode->dataHdl, depth);
-
+        if (isReady(currTag)) {
+          sendDown(currTreeNode->dataHdl, depth);
+        }
         // continue with update for non-void item
         updateLeftNonVoid(currTag, depth);
       }
-
-    } else break; // an undefined item is found ==> stop update
-
-  } // end while
+    } else {
+      break;  // an undefined item is found ==> stop update
+    }
+  }
 }
 
 // RECURSIVE
@@ -517,11 +531,9 @@ FFilterNode::sendDown(FDataHandle* DH, short depth) {
       myOutPort->storeData(dataHdl);
       myOutPort->sendData(dataHdl);
       myTree[DH->getTag()]->isDone = true;
-
     } else {
-      for (map<FDataTag,FDataHandle*>::iterator childIter = DH->begin();
-           childIter != DH->end();
-           ++childIter) {
+      std::map<FDataTag, FDataHandle*>::iterator childIter = DH->begin();
+      for (; childIter != DH->end(); ++childIter) {
         FDataHandle* childDH = (FDataHandle*) childIter->second;
         if (isReadyAssumingParentIs(childDH->getTag())) {
           sendDown(childDH, depth-1);
@@ -536,7 +548,7 @@ FFilterNode::sendDown(FDataHandle* DH, short depth) {
 bool
 FFilterNode::isNonVoid(FDataHandle* DH) {
   bool nonVoidFound = false;
-  map<FDataTag,FDataHandle*>::iterator childIter = DH->begin();
+  std::map<FDataTag, FDataHandle*>::iterator childIter = DH->begin();
   while (!nonVoidFound && childIter != DH->end()) {
     FDataHandle * childData = (FDataHandle*) childIter->second;
     filterNode_t* childTreeNode = getTreeNode(childData);
@@ -583,7 +595,7 @@ FFilterNode::getNewTag(const FDataTag& srcTag) {
     idxTab[currTag.getLevel()-1] = (unsigned int) tNode->newIndex;
     lastTab[currTag.getLevel()-1] = tNode->newLastFlag;
     currTag.getParent();
-  } // end while
+  }
 
   FDataTag newTag = FDataTag(idxTab, lastTab, srcTag.getLevel());
   delete [] idxTab;
@@ -595,7 +607,7 @@ FFilterNode::getNewTag(const FDataTag& srcTag) {
 FFilterNode::filterNode_t*
 FFilterNode::getTreeNode(FDataHandle* DH) {
   const FDataTag& tag = DH->getTag();
-  map<FDataTag, filterNode_t*>::iterator treeSrch = myTree.find(tag);
+  std::map<FDataTag, filterNode_t*>::iterator treeSrch = myTree.find(tag);
   if (treeSrch == myTree.end()) {
     // create new node in the tree
     filterNode_t* newNode = myTree[tag] = new filterNode_t;
@@ -607,15 +619,16 @@ FFilterNode::getTreeNode(FDataHandle* DH) {
     return newNode;
   } else {
     filterNode_t *tNode = (filterNode_t*) treeSrch->second;
-    if (tNode->dataHdl == NULL)
+    if (tNode->dataHdl == NULL) {
       tNode->dataHdl = DH;
+    }
     return tNode;
   }
 }
 
 FFilterNode::filterNode_t*
 FFilterNode::getTreeNode(const FDataTag& tag) {
-  map<FDataTag, filterNode_t*>::iterator treeSrch = myTree.find(tag);
+  std::map<FDataTag, filterNode_t*>::iterator treeSrch = myTree.find(tag);
   if (treeSrch == myTree.end()) {
     // create new node in the tree
     filterNode_t* newNode = myTree[tag] = new filterNode_t;

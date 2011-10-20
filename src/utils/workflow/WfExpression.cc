@@ -47,31 +47,28 @@
 #include "debug.hh"
 #include "DagWfParser.hh"
 
-using namespace std;
 
-
-/*****************************************************************************/
-/*                     WfExpressionParser class                               */
-/*****************************************************************************/
-
+/*****************************************************************************
+ *                     WfExpressionParser class                               *
+ *****************************************************************************/
 // Initialisation of static members
 WfExpressionParser* WfExpressionParser::myInstance = NULL;
 
 // Private constructor
 WfExpressionParser::WfExpressionParser() {
-  TRACE_TEXT (TRACE_ALL_STEPS,"Initializing XQilla..." << endl);
+  TRACE_TEXT(TRACE_ALL_STEPS, "Initializing XQilla...\n");
   myImpl = new XQilla();
 }
 
 // Destructor
 WfExpressionParser::~WfExpressionParser() {
-  if (myImpl) delete myImpl;
+  delete myImpl;
 }
 
 // Static single instance accessor
 WfExpressionParser*
 WfExpressionParser::instance() {
-  if (myInstance == NULL) {
+  if (!myInstance) {
     myInstance = new WfExpressionParser();
   }
   return myInstance;
@@ -79,8 +76,8 @@ WfExpressionParser::instance() {
 
 // Parse method
 XQQuery*
-WfExpressionParser::parse(const string& queryStr) {
-  TRACE_TEXT (TRACE_ALL_STEPS,"Parsing XQuery: " << queryStr << endl);
+WfExpressionParser::parse(const std::string& queryStr) {
+  TRACE_TEXT(TRACE_ALL_STEPS, "Parsing XQuery: " << queryStr << "\n");
   return myImpl->parse(X(queryStr.c_str()));
 }
 
@@ -93,18 +90,17 @@ WfExprVariable::WfExprVariable(const std::string& varName,
   : myName(varName), myType(varType), myValue() {}
 
 void
-WfExprVariable::getXQDeclaration(ostream& output) {
+WfExprVariable::getXQDeclaration(std::ostream& output) {
   output << "declare variable $" << myName;
   if (myType != WfCst::TYPE_CONTAINER) {
-
-    string xsType = WfCst::cvtWfToXSType(myType);
-    string quotes = (xsType == "xs:string") ? "'" : "";
+    std::string xsType = WfCst::cvtWfToXSType(myType);
+    std::string quotes = (xsType == "xs:string") ? "'" : "";
     output << " as " << xsType
-           << " := " << xsType << "(" << quotes << myValue << quotes << "); "
-           << endl;
+           << " := " << xsType << "(" << quotes << myValue << quotes
+           << "); \n";
   } else {
     // in this case the value is supposed to be XML-encoded
-    output << " := document { " << myValue << " }; " << endl;
+    output << " := document { " << myValue << " }\n";
   }
 }
 
@@ -129,45 +125,48 @@ WfExprVariable::setDefaultValue() {
 WfExpression::WfExpression()
   : myQuery(NULL) {
   myParser = WfExpressionParser::instance();
-  if (myParser == NULL) {
-    INTERNAL_ERROR("Condition parser initialization failed",1);
+  if (!myParser) {
+    INTERNAL_ERROR("Condition parser initialization failed", 1);
   }
 }
 
 WfExpression::~WfExpression() {
-  if (myQuery) delete myQuery;
+  delete myQuery;
 }
 
 void
-WfExpression::setExpression(const string& exprStr) {
+WfExpression::setExpression(const std::string& exprStr) {
   myExpression = exprStr;
 }
 
-const string&
+const std::string&
 WfExpression::getExpression() {
   return myExpression;
 }
 
 /**
  * List of all characters than can separate words in XQuery
- * (used to avoid false positive in next method when a variable is prefix of another)
+ * (used to avoid false positive in next method when a variable
+ * is prefix of another)
  */
-string WfExpression::XQVarSeparators = string(" ,)+*-/");
+std::string WfExpression::XQVarSeparators = std::string(" ,)+*-/");
 
 bool
-WfExpression::isVariableUsed(const string& varName) {
-  // find occurence of variable (may be positive in case variable is prefix of another)
-  string::size_type pos = myExpression.find("$"+varName);
+WfExpression::isVariableUsed(const std::string& varName) {
+  // find occurence of variable
+  // (may be positive in case variable is prefix of another)
+  std::string::size_type pos = myExpression.find("$"+varName);
   // find character following the variable (if not at the end)
-  string nextChar;
-  string::size_type nextPos = pos + varName.length() + 1;
-  if (nextPos < myExpression.length())
-    nextChar = myExpression.substr(nextPos,1);
+  std::string nextChar;
+  std::string::size_type nextPos = pos + varName.length() + 1;
+  if (nextPos < myExpression.length()) {
+    nextChar = myExpression.substr(nextPos, 1);
+  }
   // find occurence of this next character in the separators list
-  string::size_type nextCharIsSep = XQVarSeparators.find(nextChar);
+  std::string::size_type nextCharIsSep = XQVarSeparators.find(nextChar);
 
-  return ((pos != string::npos)
-          && (nextChar.empty() || (nextCharIsSep != string::npos)));
+  return ((pos != std::string::npos)
+          && (nextChar.empty() || (nextCharIsSep != std::string::npos)));
 }
 
 void
@@ -182,12 +181,11 @@ WfExpression::getQueryString() {
 
 void
 WfExpression::initQuery() {
-  TRACE_TEXT(TRACE_MAIN_STEPS, "Initialize query..." << endl);
-  ostringstream queryStream;
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Initialize query...\n");
+  std::ostringstream queryStream;
 
-  for (list<WfExprVariable*>::iterator varIter = myVariables.begin();
-       varIter != myVariables.end();
-       ++varIter) {
+  std::list<WfExprVariable*>::iterator varIter = myVariables.begin();
+  for (; varIter != myVariables.end(); ++varIter) {
     ((WfExprVariable*) *varIter)->getXQDeclaration(queryStream);
   }
   queryStream << myExpression;
@@ -196,7 +194,7 @@ WfExpression::initQuery() {
 
 void
 WfExpression::parseQuery() {
-  if (myQuery) delete myQuery;
+  delete myQuery;
   myQuery = myParser->parse(myQueryStr);
 }
 
@@ -205,15 +203,15 @@ WfExpression::evaluate() {
   initQuery();
   parseQuery();
   DynamicContext* dynContext = myQuery->createDynamicContext();
-  if (dynContext == NULL) {
-    INTERNAL_ERROR("Error in WfExpression::evaluate() : void context",1);
+  if (!dynContext) {
+    INTERNAL_ERROR("Error in WfExpression::evaluate() : void context", 1);
   }
   Result result = myQuery->execute(dynContext);
   if (result.isNull()) {
-    INTERNAL_ERROR("Error in WfExpression::evaluate() : void result",1);
+    INTERNAL_ERROR("Error in WfExpression::evaluate() : void result", 1);
   }
   Item::Ptr item = result->next(dynContext);
-  if (item != NULL) {
+  if (item) {
     myResult = UTF8(item->asString(dynContext));
   } else {
     myResult = "";
@@ -221,22 +219,19 @@ WfExpression::evaluate() {
   delete dynContext;
 }
 
-/*****************************************************************************/
-/*                    WfBooleanExpression class                              */
-/*****************************************************************************/
-
-
-
+/*****************************************************************************
+ *                    WfBooleanExpression class                              *
+ *****************************************************************************/
 bool
 WfBooleanExpression::testIfTrue() {
   evaluate();
 
-  if (myResult == "true") return true;
-  else if (myResult == "false") return false;
-  else {
-    WARNING("WfBooleanExpression: wrong result! (" << myResult << ")" << endl);
+  if (myResult == "true") {
+    return true;
+  } else if (myResult == "false") {
+    return false;
+  } else {
+    WARNING("WfBooleanExpression: wrong result! (" << myResult << ")\n");
     return false;
   }
 }
-
-

@@ -44,7 +44,7 @@
  * moved pb name attribute from Node to DagNode class
  *
  * Revision 1.18  2008/10/14 13:31:01  bisnard
- * new class structure for dags (DagNode,DagNodePort)
+ * new class structure for dags (DagNode, DagNodePort)
  *
  * Revision 1.17  2008/10/02 07:35:10  bisnard
  * new constants definitions (matrix order and port type)
@@ -115,21 +115,17 @@
 #define _NODE_HH_
 
 #include <iostream>
-#include <string>
-#include <set>
-#include <vector>
 #include <list>
 #include <map>
-
+#include <set>
+#include <string>
+#include <vector>
 #include "WfUtils.hh"
 #include "WfPort.hh"
 
 class NodeSet;
 
-using namespace std;
-
 class WfNode  {
-
 public:
   /*********************************************************************/
   /* public methods                                                    */
@@ -139,7 +135,7 @@ public:
    * The Node default constructor
    * @param id         the node id
    */
-  WfNode(const string& id);
+  WfNode(const std::string& id);
 
   /**
    * Node destructor
@@ -149,7 +145,7 @@ public:
   /**
    * To get the node id *
    */
-  const string&
+  const std::string&
   getId() const;
 
 
@@ -163,7 +159,7 @@ public:
    * data dependencies (ports links)
    */
   virtual void
-  setNodePrecedence(NodeSet* nodeSet) throw (WfStructException);
+  setNodePrecedence(NodeSet *nodeSet) throw(WfStructException);
 
   /**
    * Add a new predecessor
@@ -172,7 +168,7 @@ public:
    * @param fullNodeId  contains the id of the predecessor eventually prefixed (if external)
    */
   virtual void
-  addNodePredecessor(WfNode * node, const string& fullNodeId);
+  addNodePredecessor(WfNode *node, const std::string& fullNodeId);
 
   /**
    * return the number of previous nodes
@@ -184,13 +180,13 @@ public:
   /**
    * return an iterator on the first previous nodes
    */
-  vector<WfNode*>::iterator
+  std::vector<WfNode*>::iterator
   prevNodesBegin();
 
   /**
    * return an iterator on the end of previous nodes
    */
-  vector<WfNode*>::iterator
+  std::vector<WfNode*>::iterator
   prevNodesEnd();
 
   /**
@@ -202,20 +198,20 @@ public:
   /**
    * return an iterator on the first next node
    */
-  list<WfNode*>::iterator
+  std::list<WfNode*>::iterator
   nextNodesBegin();
 
   /**
    * return an iterator on the end of next nodes
    */
-  list<WfNode*>::iterator
+  std::list<WfNode*>::iterator
   nextNodesEnd();
 
   /**
    * Link the ports by object references
    */
   virtual void
-  connectNodePorts() throw (WfStructException);
+  connectNodePorts() throw(WfStructException);
 
   /**
    * return true if the node is an input node *
@@ -244,25 +240,25 @@ public:
    * @param depth     the depth of the list structure (0 if no list)
    */
   virtual WfPort *
-  newPort(string id,
+  newPort(std::string id,
           unsigned int ind,
           WfPort::WfPortType portType,
           WfCst::WfDataType dataType,
-          unsigned int depth) throw (WfStructException) = 0;
+          unsigned int depth) throw(WfStructException) = 0;
 
   /**
    * check if port already exists
    * @return true if the port id is already defined
    */
   bool
-  isPortDefined(const string& id);
+  isPortDefined(const std::string& id);
 
   /**
    * Get the port by id. If not found returns NULL
    * @param id the port id
    */
   WfPort*
-  getPort(const string& id) throw (WfStructException);
+  getPort(const std::string& id) throw(WfStructException);
 
   /**
    * Get nb of ports
@@ -284,13 +280,12 @@ public:
 
   /**
    * Get ports description
-   * @return a string (example: "IN DIET_INT, OUT DIET_DOUBLE")
+   * @return a std::string (example: "IN DIET_INT, OUT DIET_DOUBLE")
    */
-  string
+  std::string
   getPortsDescr() const;
 
 protected:
-
   /**
    * add a previous node using the node id
    * (this is the only way to add new predecessors; after adding all node
@@ -298,13 +293,13 @@ protected:
    * predecessors ids into object references)
    */
   void
-  addPrevId(const string& nodeId);
+  addPrevId(const std::string& nodeId);
 
   /**
    * remove a previous node using the node id
    */
   void
-  remPrevId(const string& nodeId);
+  remPrevId(const std::string& nodeId);
 
   /**
    * Set the precedence relationship between two nodes
@@ -326,7 +321,7 @@ protected:
   /**
    * Node id *
    */
-  string myId;
+  std::string myId;
 
   /**
    * Method to add a port
@@ -336,25 +331,25 @@ protected:
    * @exception WfStructException if duplicate port (pointer is deleted)
    */
   WfPort *
-  addPort(const string& portId, WfPort* port)
-      throw (WfStructException);
+  addPort(const std::string& portId, WfPort* port)
+    throw(WfStructException);
 
   /**
    * ports map<id, reference> *
    */
-  map<string, WfPort*> ports;
+  std::map<std::string, WfPort*> ports;
 
   /**
    * The previous nodes list
    * (use a vector because nb of items is known by prevNodeIds)
    */
-  vector<WfNode*> prevNodes;
+  std::vector<WfNode*> prevNodes;
 
   /**
    * The next nodes list
    * (use a list because nb of items is not known in advance)
    */
-  list<WfNode*> nextNodes;
+  std::list<WfNode*> nextNodes;
 
 private:
 
@@ -362,9 +357,7 @@ private:
    * the previous nodes ids
    * (use a set to avoid searching duplicate when inserting)
    */
-  set<string> prevNodeIds;
-
+  std::set<std::string> prevNodeIds;
 };
-
 
 #endif   /* not defined _NODE_HH */

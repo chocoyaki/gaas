@@ -19,23 +19,21 @@
 #ifndef _CLTDAGNODELAUNCHER_
 #define _CLTDAGNODELAUNCHER_
 
+#include <string>
 #include "DagNodeLauncher.hh"
 
 class CltDagNodeLauncher : public DagNodeLauncher {
+public:
+  explicit CltDagNodeLauncher(DagNode * parent);
 
-  public:
-    CltDagNodeLauncher(DagNode * parent);
-    
-    virtual string
-	toString() const;
+  virtual std::string
+  toString() const;
 
-    virtual void
-        execNode();
-	
-    virtual void
-	finishNode();
+  virtual void
+  execNode();
 
+  virtual void
+  finishNode();
 };
-
 
 #endif

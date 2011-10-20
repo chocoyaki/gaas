@@ -13,7 +13,7 @@
  * improved exception management
  *
  * Revision 1.8  2008/10/14 13:24:48  bisnard
- * use new class structure for dags (DagNode,DagNodePort)
+ * use new class structure for dags (DagNode, DagNodePort)
  *
  * Revision 1.7  2008/06/25 10:05:44  bisnard
  * - Waiting priority set when node is put back in waiting queue
@@ -53,71 +53,70 @@
 #define _HEFTSCHEDULER_HH_
 
 #include <map>
-
-#include "WfScheduler.hh"
+#include <string>
+#include <vector>
 #include "Dag.hh"
+#include "WfScheduler.hh"
 
 namespace madag {
-  class HEFTScheduler : public WfScheduler {
-  public:
-    HEFTScheduler();
+class HEFTScheduler : public WfScheduler {
+public:
+  HEFTScheduler();
 
-    virtual ~HEFTScheduler();
+  virtual ~HEFTScheduler();
 
-    /**
-     * Set the priority of nodes using b-level algorithm
-     */
-    virtual void
-    setNodesPriority(const wf_response_t * wf_response, Dag * dag);
+  /**
+   * Set the priority of nodes using b-level algorithm
+   */
+  virtual void
+  setNodesPriority(const wf_response_t * wf_response, Dag * dag);
 
-    /**
-     * Set the EFT of nodes using HEFT algorithm
-     *
-     * @param orderedNodes  vector of nodes ordered by decreasing priority
-     * @param wf_response   the estimates given by the MA
-     * @param dag           the dag
-     * @param initTime      dag starting time in ms (relative)
-     */
-    virtual void
-    setNodesEFT(std::vector<DagNode *>& orderedNodes,
-                const wf_response_t * wf_response,
-                Dag * dag,
-                double initTime);
+  /**
+   * Set the EFT of nodes using HEFT algorithm
+   *
+   * @param orderedNodes  vector of nodes ordered by decreasing priority
+   * @param wf_response   the estimates given by the MA
+   * @param dag           the dag
+   * @param initTime      dag starting time in ms (relative)
+   */
+  virtual void
+  setNodesEFT(std::vector<DagNode *>& orderedNodes,
+              const wf_response_t * wf_response,
+              Dag * dag,
+              double initTime);
 
-  private:
+private:
 
-    /**
-     * Get the value of estimated job duration from wf response
-     * for a given service and a given server
-     * @param wf_response the wf response structure
-     * @param pbIndex the index of the problem (service)
-     * @param srvIndex the index of the server
-     */
-    double
-    getNodeDurationEst(const wf_response_t * wf_response,
-                   unsigned int pbIndex,
-                   unsigned int srvIndex);
+  /**
+   * Get the value of estimated job duration from wf response
+   * for a given service and a given server
+   * @param wf_response the wf response structure
+   * @param pbIndex the index of the problem (service)
+   * @param srvIndex the index of the server
+   */
+  double
+  getNodeDurationEst(const wf_response_t * wf_response,
+                     unsigned int pbIndex,
+                     unsigned int srvIndex);
 
-    /**
-     * Computes the average value of node workload across the Seds
-     */
-    void
-    computeNodeWeights(const wf_response_t * wf_response, Dag * dag);
+  /**
+   * Computes the average value of node workload across the Seds
+   */
+  void
+  computeNodeWeights(const wf_response_t * wf_response, Dag * dag);
 
-    /**
-     * rank the node upward
-     * @param n the top node to rank.
-     */
-    void
-    rank(DagNode * n);
+  /**
+   * rank the node upward
+   * @param n the top node to rank.
+   */
+  void
+  rank(DagNode * n);
 
-    /**
-     * Stores all the nodes earliest finish times
-     */
-    map<string, double> AFT;
-
-  };
-
+  /**
+   * Stores all the nodes earliest finish times
+   */
+  std::map<std::string, double> AFT;
+};
 }
 
 #endif   /* not defined _HEFTSCHEDULER_HH */

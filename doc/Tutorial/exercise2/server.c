@@ -97,7 +97,7 @@ int scal_mat_prod_file(double alpha, char *path, float *time)
 int 
 solve_smprod(diet_profile_t *pb)
 {
-  size_t m,n;
+  size_t m, n;
   double* coeff;
   double *mat;
   float  time;

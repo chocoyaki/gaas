@@ -54,40 +54,23 @@ typedef std::list<std::string> Args;
  * switches/options must have short and long names
  * params always come last, switches/options can be mixed
  */
-class CmdParser
-{
-private:
-  CmdConfig config_;
-  mutable OptionMap options_;
-  Args args_;
-
-  std::string version_;
-  std::string copyright_;
-  std::string exec_;
-
-  bool hasSwitchs_;
-  bool hasOptions_;
-  bool hasParams_;
-  bool enabledHelp_;
-  bool enabledVersion_;
-  bool showVersion_;
-
+class CmdParser {
 public:
   /**
    * @enum Type
    */
   typedef enum {
-    Param,			/**< parameter */
-    Switch,			/**< switch (option without any parameter) */
-    Option			/**< option (option with parameter) */
+    Param,                      /**< parameter */
+    Switch,                     /**< switch (option without any parameter) */
+    Option                      /**< option (option with parameter) */
   } Type;
 
   /**
    * @enum Flags
    */
   typedef enum {
-    Optional = 0,		/**< optional argument */
-    Mandatory		/**< mandatory argument */
+    Optional = 0,               /**< optional argument */
+    Mandatory           /**< mandatory argument */
   } Flags;
 
   /**
@@ -103,7 +86,7 @@ public:
    * @param oc  CmdParser configuration
    */
   CmdParser(int argc, char *argv[],
-	    CmdConfig& oc);
+            CmdConfig& oc);
 
   /**
    * @brief sets command line configuration object
@@ -123,7 +106,7 @@ public:
    * @param showVersion display version string as preamble (false by default)
    */
   void
-  enableHelp(bool showVersion=false);
+  enableHelp(bool showVersion = false);
 
   /**
    * @brief enable generated version switch
@@ -132,7 +115,7 @@ public:
    */
   void
   enableVersion(const std::string& version,
-		const std::string& copyright = nullString);
+                const std::string& copyright = nullString);
 
   /**
    * @brief get command line help string
@@ -153,14 +136,14 @@ public:
    * @return option value
    */
   std::string&
-  operator[](const std::string& key); // setter
+  operator[](const std::string& key);  // setter
   /** y
    * @brief subscript operator
    * @param key option name
    * @return option value
    */
   const std::string&
-  operator[](const std::string& key) const; //getter
+  operator[](const std::string& key) const;  // getter
 
   /**
    * @brief return options
@@ -185,6 +168,21 @@ private:
   // used by both findOption and findParam
   const std::string
   findOption_(const CmdEntry& entry);
+
+  CmdConfig config_;
+  mutable OptionMap options_;
+  Args args_;
+
+  std::string version_;
+  std::string copyright_;
+  std::string exec_;
+
+  bool hasSwitchs_;
+  bool hasOptions_;
+  bool hasParams_;
+  bool enabledHelp_;
+  bool enabledVersion_;
+  bool showVersion_;
 };
 
 /**
@@ -195,14 +193,13 @@ private:
  *
  * store command line option configuration
  */
-struct CmdEntry
-{
-  CmdParser::Type type;	/**< command-line argument type */
-  CmdParser::Flags flags;	/**< command-line argument flag */
-  std::string name;		/**< option name */
-  std::string longName;	/**< command-line argument long name */
-  std::string shortName;	/**< command-line argument short name */
-  std::string desc;		/**< command-line argument description */
+struct CmdEntry {
+  CmdParser::Type type;    /**< command-line argument type */
+  CmdParser::Flags flags;  /**< command-line argument flag */
+  std::string name;        /**< option name */
+  std::string longName;    /**< command-line argument long name */
+  std::string shortName;   /**< command-line argument short name */
+  std::string desc;        /**< command-line argument description */
 
   // required for sorting entries
   bool
@@ -210,13 +207,13 @@ struct CmdEntry
 };
 
 const CmdEntry helpEntry = {CmdParser::Switch,
-			    CmdParser::Optional,
-			    "help", "help",
-			    "h", "Display this help and exit"};
+                            CmdParser::Optional,
+                            "help", "help",
+                            "h", "Display this help and exit"};
 
 const CmdEntry versionEntry = {CmdParser::Switch,
-			       CmdParser::Optional,
-			       "version", "version", "V",
-			       "Display version and exit"};
+                               CmdParser::Optional,
+                               "version", "version", "V",
+                               "Display version and exit"};
 
 #endif /* _CMD_PARSER_HH_ */

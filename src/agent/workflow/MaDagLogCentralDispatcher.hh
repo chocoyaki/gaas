@@ -27,23 +27,31 @@
 #ifdef USE_LOG_SERVICE
 #include "DietLogComponent.hh"
 #endif
-using namespace events;
-using namespace madag;
+
+using events::EventDispatcher;
+using events::EventFrom;
+using events::EventStandardMsg;
+using madag::MultiWfScheduler;
+
 
 class MaDagLogCentralDispatcher : public EventDispatcher {
-  public:
+public:
 #ifdef USE_LOG_SERVICE
-    MaDagLogCentralDispatcher(DietLogComponent* LC);
-    
-    void onMultiWfSchedulerCreation(const EventFrom<MultiWfScheduler, EventStandardMsg<MultiWfScheduler, MultiWfScheduler::CONSTR> >* event);
-    
-    void onDagNodeReady(const EventFrom<DagNode, EventStandardMsg<DagNode, DagNode::READY> >* event);
-//     void onDagNodeStart(const EventFrom<DagNodeLauncher, EventStandardMsg<DagNodeLauncher, DagNode::START> >* event);
-//     void onDagNodeFinish(const EventFrom<DagNodeLauncher, EventStandardMsg<DagNodeLauncher, DagNode::FINISH> >* event);
-//     void onDagNodeFailed(const EventFrom<DagNodeLauncher, EventStandardMsg<DagNodeLauncher, DagNode::FAILED> >* event);
+  explicit MaDagLogCentralDispatcher(DietLogComponent* LC);
 
-  private:
-    DietLogComponent*	myLC;
+  void
+  onMultiWfSchedulerCreation(
+    const EventFrom<MultiWfScheduler,
+                    EventStandardMsg<MultiWfScheduler,
+                                     MultiWfScheduler::CONSTR> >* event);
+
+  void
+  onDagNodeReady(
+    const EventFrom<DagNode,
+                    EventStandardMsg<DagNode, DagNode::READY> >* event);
+
+private:
+  DietLogComponent* myLC;
 #endif
 };
 

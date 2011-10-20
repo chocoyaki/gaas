@@ -50,7 +50,7 @@ main(int argc, char* argv[])
     return 1;
   }
 
-  if (strcmp(argv[2],"-stop")) {
+  if (strcmp(argv[2], "-stop")) {
     usage(argv[0]);
   }
 

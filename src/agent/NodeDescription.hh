@@ -39,9 +39,9 @@
 #ifndef _NODEDESCRIPTION_HH_
 #define _NODEDESCRIPTION_HH_
 
-#include "ms_function.hh"
 #include <cassert>
 #include "debug.hh"
+#include "ms_function.hh"
 
 /**
  * The NodeDescription manages the hostname and the IOR of an
@@ -54,71 +54,7 @@
  */
 
 template<class T, class T_ptr> class NodeDescription {
-private :
-  /** the IOR of the node */
-  T_ptr ior; 
-
-  /**
-   * the hostname of the node. It is \c NULL if the description is not
-   * defined
-   */
-  char* hostName;
-
-#if HAVE_JXTA
-  /**
-   * the uuid of JXTA SeD
-   */
-  char* uuid;
-#endif // HAVE_JXTA
-
-  /**
-   * free the memory of the node description
-   */
-  inline void
-  freeMemory() {
-    if(defined()) {
-      ms_strfree(hostName);
-      hostName = NULL;
-#if HAVE_JXTA
-      ms_strfree(uuid);
-      uuid = NULL;
-#endif // HAVE_JXTA
-      CORBA::release(ior);
-    }
-  }
-
-  /**
-   * copy the argument into the attribut of the node
-   */
-  inline void
-  copyMemory(T_ptr ior, const char* hostName) {
-    if (hostName != NULL) {
-      this->ior = T::_duplicate(ior);
-      this->hostName = ms_strdup(hostName);
-    } else {
-      this->ior = T::_nil();
-      this->hostName = NULL;
-    }
-  }
-
-#if HAVE_JXTA
-/**
-   * copy the argument into the attribut of the node
-   */
-  inline void
-  copyMemory(T_ptr ior, const char* hostName, const char* uuid) {
-    if (hostName != NULL) {
-      this->ior = T::_duplicate(ior);
-      this->hostName = ms_strdup(hostName);
-      this->uuid = ms_strdup(uuid);
-    } else {
-      this->ior = T::_nil();
-      this->hostName = NULL;
-    }
-  }
-#endif // HAVE_JXTA
-
-public :
+public:
   /** return true if the node is define, false if not. */
   inline bool
   defined() const { return hostName; }
@@ -143,21 +79,6 @@ public :
     copyMemory(ior, hostName);
   }
 
-#if HAVE_JXTA
-/**
-   * creates a new defined NodeDescription with the IOR \c ior, 
-   * the hostName \c hostName and the uuid \c uuid.
-   *
-   * @param ior the IOR of the node. the ior must be defined.
-   * @param hostName the hostName of the node. It must be not \c NULL. A
-   * copy of the hostName is made.
-   */
-  NodeDescription(T_ptr ior, const char* hostName, const char* uuid) {
-    assert(hostName != NULL);
-    copyMemory(ior, hostName, uuid);
-  }
-#endif // HAVE_JXTA
-
   /**
    * Creates a new NodeDescription which is a clone of \c
    * nodeDescription.
@@ -173,7 +94,7 @@ public :
    * Destructor of the NodeDescription.
    */
   ~NodeDescription() {
-      freeMemory();
+    freeMemory();
   }
 
   /**
@@ -198,21 +119,7 @@ public :
     freeMemory();
     copyMemory(ior, hostName);
   }
-  
-#if HAVE_JXTA
-  /**
-   * Set fields if this NodeDescription has been built with default constructor.
-   * @param ior      deep copied
-   * @param hostName deep copied
-   * @param uuid     deep copied
-   */
-  void
-  set(const T_ptr ior, const char* hostName, const char* uuid) {
-    freeMemory() ;
-    copyMemory(ior, hostName, uuid) ;
-  }
-#endif // HAVE_JXTA
- 
+
 
   /**
    * returns the IOR of the node. The NodeDescription must be defined.
@@ -246,6 +153,41 @@ public :
   operator->() const {
     return ior;
   }
+private:
+  /** the IOR of the node */
+  T_ptr ior;
+
+  /**
+   * the hostname of the node. It is \c NULL if the description is not
+   * defined
+   */
+  char* hostName;
+
+  /**
+   * free the memory of the node description
+   */
+  inline void
+  freeMemory() {
+    if (defined()) {
+      ms_strfree(hostName);
+      hostName = NULL;
+      CORBA::release(ior);
+    }
+  }
+
+  /**
+   * copy the argument into the attribut of the node
+   */
+  inline void
+  copyMemory(T_ptr ior, const char* hostName) {
+    if (hostName != NULL) {
+      this->ior = T::_duplicate(ior);
+      this->hostName = ms_strdup(hostName);
+    } else {
+      this->ior = T::_nil();
+      this->hostName = NULL;
+    }
+  }
 };
 
-#endif // _NODE_DESCRIPTION_HH_
+#endif  // _NODE_DESCRIPTION_HH_

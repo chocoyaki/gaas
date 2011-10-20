@@ -38,10 +38,10 @@
 #ifndef _TS_SET_HH_
 #define _TS_SET_HH_
 
+#include <cassert>
 #include <set>
 #include <omniconfig.h>
 #include <omnithread.h>
-#include <cassert>
 
 /**
  * This is a thread safe version of the STL set. Some methods are
@@ -54,43 +54,41 @@
 
 
 template <class Key, class CMP = std::less<Key>,
-  class A = std::allocator<Key> >
+          class A = std::allocator<Key> >
 class ts_set : private std::set<Key, CMP, A> {
-
-private :
-
+private:
 #ifndef NDEBUG
   /**
    * used bye the assertion to check if the \c lock() methods is
    * called before the not thread safe methods are called.
    */
-  mutable bool accessLocked ;
-#endif // NDEBUG
+  mutable bool accessLocked;
+#endif  // NDEBUG
 
   /**
    * This is the mutex that lock the access to the set to avoid that
    * to thread access to the set in the same time.
    */
-  mutable omni_mutex locker ;
+  mutable omni_mutex locker;
 
   /**
    * A type to avoid to type set<Key, T, CMP, A> each time.
    */
-  typedef std::set<Key, CMP, A> SetType ;
+  typedef std::set<Key, CMP, A> SetType;
 
-public :
+public:
 
   /**
    * the size_type type is the same as the set::size_type
    */
-  typedef typename SetType::size_type size_type ;
+  typedef typename SetType::size_type size_type;
 
   /**
    * the iterator type
    */
-  typedef typename SetType::iterator iterator ;
+  typedef typename SetType::iterator iterator;
 
-public :
+public:
 
   /***<direct access>*********************************************************/
 
@@ -107,10 +105,10 @@ public :
    * return the size (number of elements) of the set. (thread safe)
    */
   inline size_type size() const {
-    locker.lock() ;
-    size_type result = SetType::size() ;
-    locker.unlock() ;
-    return result ;
+    locker.lock();
+    size_type result = SetType::size();
+    locker.unlock();
+    return result;
   }
 
   /**
@@ -119,10 +117,10 @@ public :
    * @return 1 if the element \c k was found and erased, 0 if not.
    */
   inline size_type erase(const Key& k) {
-    locker.lock() ;
-    size_type result = SetType::erase(k) ;
-    locker.unlock() ;
-    return result ;
+    locker.lock();
+    size_type result = SetType::erase(k);
+    locker.unlock();
+    return result;
   }
 
   /**
@@ -131,11 +129,11 @@ public :
    * destructor of the object. (thread safe)
    */
   inline void clear() {
-    locker.lock() ;
-    SetType::clear() ;
-    locker.unlock() ;
+    locker.lock();
+    SetType::clear();
+    locker.unlock();
   }
-  
+
   /**
    * Inserts x into the set. Inserts x into the set if and only if the
    * set does not already contain an element whose key is the same as
@@ -149,64 +147,64 @@ public :
    * @param x the key added into the set
    */
   std::pair<iterator, bool> insert(const Key & x) {
-    locker.lock() ;
-    std::pair<iterator, bool> result = SetType::insert(x) ;
-    locker.unlock() ;
-    return result ;
+    locker.lock();
+    std::pair<iterator, bool> result = SetType::insert(x);
+    locker.unlock();
+    return result;
   }
-  
+
   /***<iterator>**************************************************************/
 
   /**
    * locks the access to the container
    */
   inline void lock() const {
-    locker.lock() ;
-    #ifndef NDEBUG // only used by the assert
-    assert(!accessLocked) ;
-    accessLocked = true ;
-    #endif // NDEBUG
+    locker.lock();
+#ifndef NDEBUG // only used by the assert
+    assert(!accessLocked);
+    accessLocked = true;
+#endif  // NDEBUG
   }
 
   /**
    * unlocks the access to the container
    */
   inline void unlock() const {
-    locker.unlock() ;
-    #ifndef NDEBUG // only used by the assert
-    assert(accessLocked) ;
-    accessLocked = false ;
-    #endif // NDEBUG
+    locker.unlock();
+#ifndef NDEBUG // only used by the assert
+    assert(accessLocked);
+    accessLocked = false;
+#endif  // NDEBUG
   }
 
   /**
    * Returns an iterator pointing to the beginning of the set.
    */
   inline iterator begin() const {
-    #ifndef NDEBUG // only used by the assert
-    assert(accessLocked) ;
-    #endif // NDEBUG
-    return SetType::begin() ;
+#ifndef NDEBUG // only used by the assert
+    assert(accessLocked);
+#endif  // NDEBUG
+    return SetType::begin();
   }
 
   /**
    * Returns an iterator pointing to the end of the set.
    */
   inline iterator end() const {
-    #ifndef NDEBUG // only used by the assert
-    assert(accessLocked) ;
-    #endif // NDEBUG
-    return SetType::end() ;
+#ifndef NDEBUG // only used by the assert
+    assert(accessLocked);
+#endif  // NDEBUG
+    return SetType::end();
   }
 
   /**
    * returns an iterator pointing onto the x elements.
    */
   inline iterator find(const Key & x) {
-    #ifndef NDEBUG // only used by the assert
-    assert(accessLocked) ;
-    #endif // NDEBUG
-    return SetType::find(x) ;
+#ifndef NDEBUG // only used by the assert
+    assert(accessLocked);
+#endif  // NDEBUG
+    return SetType::find(x);
   }
 
   /**
@@ -214,14 +212,14 @@ public :
    * inserted. The set must be lock to use it.
    */
   inline iterator insert(iterator pos, const Key & x) {
-    #ifndef NDEBUG // only used by the assert
-    assert(accessLocked) ;
-    #endif // NDEBUG
-    return SetType::insert(pos, x) ;
+#ifndef NDEBUG // only used by the assert
+    assert(accessLocked);
+#endif  // NDEBUG
+    return SetType::insert(pos, x);
   }
 
   /**************************************************************************/
 
-} ;
+};
 
-#endif // _TS_SET_HH_
+#endif  // _TS_SET_HH_

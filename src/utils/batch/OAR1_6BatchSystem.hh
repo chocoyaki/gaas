@@ -18,7 +18,7 @@
  * Revision 1.3  2008/04/07 13:11:44  ycaniou
  * Correct "deprecated conversion from string constant to 'char*'" warnings
  * First attempt to code functions to dynamicaly get batch information
- * 	(e.g.,  getNbMaxResources(), etc.)
+ *      (e.g.,  getNbMaxResources(), etc.)
  *
  * Revision 1.2  2007/04/17 13:34:54  ycaniou
  * Error in debug.tex header
@@ -35,14 +35,11 @@
 
 #include "BatchSystem.hh"
 
-class OAR1_6BatchSystem : public BatchSystem
-{
-  
-public :
+class OAR1_6BatchSystem : public BatchSystem {
+public:
+  OAR1_6BatchSystem(int batchID, const char * batchName);
 
-  OAR1_6BatchSystem(int batchID, const char * batchName) ;
-
-  ~OAR1_6BatchSystem() ;
+  ~OAR1_6BatchSystem();
 
   /** If job not terminated, ask the batch system for the status of job
       whose ID is @param batchJobID .
@@ -50,54 +47,53 @@ public :
       Returns NB_STATUS on error, the status otherwise.
   */
   batchJobState
-  askBatchJobStatus(int batchJobID) ;
-  
+  askBatchJobStatus(int batchJobID);
+
   /** If job whose id is @param batchJobID is:
       - not finished, returns 0
       - terminated, returns 1
       - not found, -1
   */
   int
-  isBatchJobCompleted(int batchJobID) ;
+  isBatchJobCompleted(int batchJobID);
 
   /********** Batch static information accessing Functions **********/
   /* These should soon change for they assume a default queue and we
      want to be able to manage all queues of a system! */
 
   int
-  getNbTotResources() ;
+  getNbTotResources();
 
   int
-  getNbResources() ;
+  getNbResources();
 
   char *
-  getResourcesName() ;
-  
-  int
-  getMaxWalltime() ;
+  getResourcesName();
 
   int
-  getMaxProcs() ;
-  
+  getMaxWalltime();
+
+  int
+  getMaxProcs();
+
   /********** Batch dynamic information accessing Functions *********/
   /* These should soon change for they assume a default queue and we
      want to be able to manage all queues of a system! */
 
   int
-  getNbTotFreeResources() ;
+  getNbTotFreeResources();
 
   int
-  getNbFreeResources() ;
+  getNbFreeResources();
 
   /****************** Performance Prediction Functions ***************/
 
-private :
+private:
   /* Dirty Trick for OAR1.6 to get information on default queue */
-  const char * internQueueName ;
+  const char * internQueueName;
 
   /* Strings used to filter batch job status if possible */
-  static const char * const statusNames[] ;
+  static const char * const statusNames[];
+};
 
-} ;
-
-#endif // OAR_BATCH_SYSTEM
+#endif  // OAR_BATCH_SYSTEM

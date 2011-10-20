@@ -49,15 +49,9 @@ interface MasterAgentForwarder : AgentForwarder {
                            in string objName)
     raises(UnknownObject);
 
-#ifdef HAVE_DAGDA
   corba_data_desc_t get_data_arg(in string argID,
                                  in string objName)
     raises(Dagda::DataNotFound, UnknownObject);
-#else
-  corba_data_desc_t get_data_arg(in string argID,
-                                 in string objName)
-    raises(UnknownObject);
-#endif
 
   long diet_free_pdata(in string argID, in string objName)
     raises(UnknownObject);
@@ -115,14 +109,12 @@ interface MasterAgentForwarder : AgentForwarder {
     raises(UnknownObject);
 #endif // HAVE_WORKFLOW
 
-#ifdef HAVE_DAGDA
   SeqString searchData(in string request,
                        in string objName)
     raises(UnknownObject);
   long insertData(in string key, in SeqString values,
                   in string objName)
     raises(UnknownObject);
-#endif
 };
 
 

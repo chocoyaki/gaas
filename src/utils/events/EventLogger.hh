@@ -27,25 +27,25 @@
 namespace events {
 
 class EventLogger : public EventObserver {
-  public:
-    EventLogger(std::ostream& output, EventBase::Severity minSeverity)
+public:
+  EventLogger(std::ostream& output, EventBase::Severity minSeverity)
     : myOutput(output), myMinSeverity(minSeverity) {}
-    
-    virtual bool isObserver(const EventBase* event) const {
-      return (event->getSeverity() >= myMinSeverity);
-    }
-    
-    virtual void handleEvent(const EventBase* event) {
-      myOutput << *event << std::endl;
-    }
-    
-  private:
-    std::ostream&	myOutput;
-    EventBase::Severity	myMinSeverity;
-    
-};
 
+  virtual bool
+  isObserver(const EventBase* event) const {
+    return (event->getSeverity() >= myMinSeverity);
+  }
+
+  virtual void
+  handleEvent(const EventBase* event) {
+    myOutput << *event << std::endl;
+  }
+
+private:
+  std::ostream& myOutput;
+  EventBase::Severity myMinSeverity;
+};
 }
 
-#endif // EVENTLOGGER_HH_
+#endif  // EVENTLOGGER_HH_
 

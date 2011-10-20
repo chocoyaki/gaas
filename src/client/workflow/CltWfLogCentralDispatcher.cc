@@ -33,15 +33,15 @@ CltWfLogCentralDispatcher::onDagNodeStart(const events::EventFrom< DagNodeLaunch
 {
   if (event->getSource()->isSeDDefined()) {
     myLC->logWfNodeStart(event->getSource()->getNode()->getDag()->getId().c_str(),
-			 event->getSource()->getNode()->getId().c_str(),
-			 event->getSource()->getSeDName().c_str(),
-			 event->getSource()->getNode()->getPbName().c_str(),
-			 event->getSource()->getReqId()
-			 );
+                         event->getSource()->getNode()->getId().c_str(),
+                         event->getSource()->getSeDName().c_str(),
+                         event->getSource()->getNode()->getPbName().c_str(),
+                         event->getSource()->getReqId()
+);
   } else {
     myLC->logWfNodeStart(event->getSource()->getNode()->getDag()->getId().c_str(),
-			 event->getSource()->getNode()->getId().c_str()
-			 );
+                         event->getSource()->getNode()->getId().c_str()
+);
   }
 }
 
@@ -49,16 +49,16 @@ void
 CltWfLogCentralDispatcher::onDagNodeFinish(const events::EventFrom< DagNodeLauncher, events::EventStandardMsg< DagNodeLauncher, DagNode::FINISH > >* event)
 {
   myLC->logWfNodeFinish(event->getSource()->getNode()->getDag()->getId().c_str(),
-			event->getSource()->getNode()->getId().c_str()
-			);
+                        event->getSource()->getNode()->getId().c_str()
+);
 }
 
-void 
+void
 CltWfLogCentralDispatcher::onDagNodeFailed(const events::EventFrom< DagNodeLauncher, events::EventStandardMsg< DagNodeLauncher, DagNode::FAILED > >* event)
 {
   myLC->logWfNodeFailed(event->getSource()->getNode()->getDag()->getId().c_str(),
-			event->getSource()->getNode()->getId().c_str()
-			);
+                        event->getSource()->getNode()->getId().c_str()
+);
 }
 
 #endif

@@ -439,19 +439,19 @@
 
 #include "DIET_client.h"
 
-#include <omniORB4/CORBA.h>
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include <csignal>
+#include <cstring>
+#include <algorithm>
 #include <iostream>
 #include <fstream>
-using namespace std;
-#include <unistd.h> // For gethostname()
-#include <cstdlib>
-#include <cstdio>
-#include <cstring>
-#include <cmath>
-#include <csignal>
-#include <algorithm>
 #include <sstream>
 #include <stdexcept>
+#include <boost/scoped_ptr.hpp>
+#include <unistd.h> // For gethostname()
+#include <omniORB4/CORBA.h>
 
 #include "debug.hh"
 #include "est_internal.hh"
@@ -468,10 +468,8 @@ using namespace std;
 #include "DietLogComponent.hh"
 #endif
 
-#if HAVE_DAGDA
 #include "DIET_Dagda.hh"
 #include "DagdaFactory.hh"
-#endif // HAVE_DAGDA
 
 #include "DIETCall.hh"
 #include "CallAsyncMgr.hh"
@@ -480,7 +478,7 @@ using namespace std;
 #ifdef HAVE_CCS
 /** Custom client scheduling */
 #include "SpecificClientScheduler.hh"
-#endif // HAVE_CCS
+#endif  // HAVE_CCS
 
 #ifdef HAVE_WORKFLOW
 #include "WfLogService.hh"
@@ -491,9 +489,6 @@ using namespace std;
 #define BEGIN_API extern "C" {
 #define END_API   } // extern "C"
 
-#ifdef WITH_ENDIANNESS
-extern bool little_endian;
-#endif // WITH_ENDIANNESS
 /****************************************************************************/
 /* Global variables                                                         */
 /****************************************************************************/
@@ -529,11 +524,11 @@ DietLogComponent* dietLogComponent;
 /* Manage MA name and Session Number for data persistency issue             */
 /****************************************************************************/
 
-  char* MA_Name;
+char* MA_Name;
 
-  int num_Session;
+int num_Session;
 
-  char file_Name[256];
+char file_Name[256];
 
 /*
  * String representation of error code
@@ -570,14 +565,14 @@ const char * const ErrorCodeStr[] = {
  * make sure that our error code string array is up2date.
  */
 // #include <boost/static_assert.hpp>
-// BOOST_STATIC_ASSERT( sizeof(ErrorCodeStr)/sizeof(char*) == DIET_LAST_ERROR_CODE + 1 );
+// BOOST_STATIC_ASSERT(sizeof(ErrorCodeStr)/sizeof(char*) == DIET_LAST_ERROR_CODE + 1);
 
 diet_error_t
 status_to_grpc_code(int err) {
   switch (err) {
-    case STATUS_DONE:
-      err = GRPC_NO_ERROR;
-      break;
+  case STATUS_DONE:
+    err = GRPC_NO_ERROR;
+    break;
   case STATUS_WAITING:
     err = GRPC_NOT_COMPLETED;
     break;
@@ -599,16 +594,16 @@ status_to_grpc_code(int err) {
 /* Initialize and Finalize session                                          */
 /****************************************************************************/
 /* Transformation function for the host name. */
-int chgName(int c) {
-	if (c=='.') return '-';
-	return c;
+int
+chgName(int c) {
+  if (c=='.') return '-';
+  return c;
 }
 
 BEGIN_API
 
 diet_error_t
-diet_initialize(const char* config_file_name, int argc, char* argv[])
-{
+diet_initialize(const char* config_file_name, int argc, char* argv[]) {
   int    myargc(0);
   char ** myargv(NULL);
 
@@ -624,7 +619,7 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
     return GRPC_ALREADY_INITIALIZED;
   }
   MA_MUTEX->unlock();
-  
+
   /* Set arguments for ORBMgr::init */
   if (argc) {
     myargc = argc;
@@ -649,7 +644,7 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
   CONFIG_ULONG(diet::TRACELEVEL, tmpTraceLevel);
   TRACE_LEVEL = tmpTraceLevel;
   if (TRACE_LEVEL >= TRACE_MAX_VALUE) {
-    char *  level = (char *) calloc(48, sizeof(char*)) ;
+    char *  level = (char *) calloc(48, sizeof(char*));
     int    tmp_argc = myargc + 2;
     myargv = (char**)realloc(myargv, tmp_argc * sizeof(char*));
     myargv[myargc] = strdup("-ORBtraceLevel");
@@ -668,7 +663,7 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
   if (CONFIG_STRING(diet::PARENTNAME, tmpString)) {
     WARNING("No need to specify a parent for a client - ignored");
   }
-  
+
   if (CONFIG_AGENT(diet::AGENTTYPE, tmpString)) {
     WARNING("agentType is useless for a client - ignored");
   }
@@ -696,7 +691,7 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
   CORBA::Object_var obj = cb->_this();
 
   // create corba client callback serveur reference
-  ostringstream os;
+  std::ostringstream os;
   char host[256];
   gethostname(host, 256);
   host[255]='\0';
@@ -715,16 +710,13 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
   }
 
 
-#if HAVE_JUXMEM
-  initJuxMem();
-#endif // HAVE_JUXMEM
-
   /* Find Master Agent */
   CONFIG_STRING(diet::MANAME, tmpString);
-  TRACE_TEXT(TRACE_MAIN_STEPS, "MA NAME PARSING = " << tmpString << endl);
+  TRACE_TEXT(TRACE_MAIN_STEPS, "MA NAME PARSING = " << tmpString << "\n");
   MA_MUTEX->lock();
   try {
-    MA = ORBMgr::getMgr()->resolve<MasterAgent, MasterAgent_var>(AGENTCTXT, tmpString);
+    MA = ORBMgr::getMgr()->resolve<MasterAgent, MasterAgent_var>(AGENTCTXT,
+                                                                 tmpString);
   } catch (...) {
     MA_MUTEX->unlock();
     return GRPC_NOT_INITIALIZED;
@@ -750,17 +742,17 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
   if (useLS) {
     int outBufferSize;
     int flushTime;
-  
+
     if (!CONFIG_INT(diet::LSOUTBUFFERSIZE, outBufferSize)) {
       outBufferSize = 0;
       WARNING("lsOutbuffersize not configured, using default");
     }
-    
+
     if (!CONFIG_INT(diet::LSFLUSHINTERVAL, flushTime)) {
       flushTime = 10000;
       WARNING("lsFlushinterval not configured, using default");
     }
-    TRACE_TEXT(TRACE_ALL_STEPS, "LogService enabled" << endl);
+    TRACE_TEXT(TRACE_ALL_STEPS, "LogService enabled\n");
 
     char* agtTypeName = strdup("CLIENT");
     char* agtParentName = NULL;
@@ -772,29 +764,24 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
       userDefName = strdup(tmpString.c_str());
       dietLogComponent = new DietLogComponent(userDefName, outBufferSize, argc, argv);
     } else {
-#if HAVE_DAGDA
       // Use DAGDA agent as component name (same ref as in data transfer logs)
       dietLogComponent = new DietLogComponent(DagdaFactory::getClientName(),
                                               outBufferSize, argc, argv);
-#else
-      dietLogComponent = new DietLogComponent("", outBufferSize, argc, argv);
-#endif // end: HAVE_DAGDA
     }
 
     ORBMgr::getMgr()->activate(dietLogComponent);
-    
+
     if (dietLogComponent->run(agtTypeName, agtParentName, flushTime) != 0) {
-      TRACE_TEXT(TRACE_ALL_STEPS, "* LogService: disabled" << endl);
+      TRACE_TEXT(TRACE_ALL_STEPS, "* LogService: disabled\n");
       WARNING("Could not initialize DietLogComponent");
       dietLogComponent = NULL;
     }
     free(agtTypeName);
-
-  } // end: if (useLS)
-  else {
+  } else {
+    // end: if (useLS)
     dietLogComponent = NULL;
-  } 
-#endif // end: USE_LOG_SERVICE
+  }
+#endif  // end: USE_LOG_SERVICE
   // end modif bisnard_logs_1
 
   //create_file();
@@ -808,43 +795,40 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
       && (tmpString.size() > 1)) {
     SpecificClientScheduler::setSchedulingId(tmpString.c_str());
   }
-#endif // HAVE_CCS
+#endif  // HAVE_CCS
 
-#if HAVE_DAGDA
   // Dagda component activation.
   DagdaImpl* tmpDataManager = DagdaFactory::getClientDataManager();
 #ifdef USE_LOG_SERVICE
-  tmpDataManager->setLogComponent( dietLogComponent ); // modif bisnard_logs_1
+  tmpDataManager->setLogComponent(dietLogComponent);  // modif bisnard_logs_1
 #endif
   ORBMgr::getMgr()->activate(tmpDataManager);
-#endif // HAVE_DAGDA
 
 #ifdef HAVE_WORKFLOW
   // Workflow parsing
   /* Find the MA_DAG */
   if (CONFIG_STRING(diet::MADAGNAME, tmpString)) {
     TRACE_TEXT(TRACE_MAIN_STEPS,
-               "MA DAG NAME PARSING = " << tmpString << endl);
+               "MA DAG NAME PARSING = " << tmpString << "\n");
     MA_DAG = ORBMgr::getMgr()->resolve<MaDag, MaDag_var>(MADAGCTXT,
                                                          tmpString);
-                                                         // CORBA::string_dup(tmpString.c_str()));
-		
+    // CORBA::string_dup(tmpString.c_str()));
+
     if (CORBA::is_nil(MA_DAG)) {
       ERROR("Cannot locate MA DAG " << tmpString, GRPC_NOT_INITIALIZED);
-    }
-    else {
+    } else {
       CltWfMgr::instance()->setMaDag(MA_DAG);
 #ifdef USE_LOG_SERVICE
       CltWfMgr::instance()->setLogComponent(dietLogComponent);
 #endif
     }
   } // end if (CONFIG_STRING(diet::MADAGNAME, tmpString)
-  
+
   // check if the Workflow Log Service is used
   bool useWfLogService = false;
   CONFIG_BOOL(diet::USEWFLOGSERVICE, useWfLogService);
   if (useWfLogService) {
-    TRACE_TEXT(TRACE_MAIN_STEPS, "Connecting to Workflow Log Service" << endl);
+    TRACE_TEXT(TRACE_MAIN_STEPS, "Connecting to Workflow Log Service\n");
     WfLogService_var wfLogSrv =
       ORBMgr::getMgr()->resolve<WfLogService, WfLogService_var>(WFLOGCTXT, "WfLogService");
     if (CORBA::is_nil(wfLogSrv)) {
@@ -861,9 +845,10 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
 
   /* Has the maximum number of SeD been specified? */
   if (CONFIG_ULONG(diet::CLIENT_MAX_NB_SED, MAX_SERVERS)) {
-    TRACE_TEXT (TRACE_MAIN_STEPS,"Max number of SeD allowed = " << MAX_SERVERS << endl);
+    TRACE_TEXT(TRACE_MAIN_STEPS,
+                "Max number of SeD allowed = " << MAX_SERVERS << "\n");
   }
-  
+
   /* Catch signals to try to exit cleanly. */
   signal(SIGABRT, diet_finalize_sig);
   signal(SIGTERM, diet_finalize_sig);
@@ -872,10 +857,10 @@ diet_initialize(const char* config_file_name, int argc, char* argv[])
 }
 
 /* DIET finalize call through signal catch function. */
-void diet_finalize_sig(int dummy) {
-	(void) dummy;
-	int status = static_cast<int>(diet_finalize());
-	exit(status);
+void
+diet_finalize_sig(int dummy) {
+  int status = static_cast<int>(diet_finalize());
+  exit(status);
 }
 
 diet_error_t
@@ -898,10 +883,10 @@ diet_finalize() {
     // Terminate the CltWfMgr
     CltWfMgr::terminate();
   } catch (...) {
-    std::cerr << "Exception caught while destroying workflows" << std::endl;
+    std::cerr << "Exception caught while destroying workflows\n";
   }
   MA_DAG = MaDag::_nil();
-#endif // HAVE_WORKFLOW
+#endif  // HAVE_WORKFLOW
 
   stat_finalize();
 
@@ -914,36 +899,30 @@ diet_finalize() {
   }
   caMgr->release();
 
-#if HAVE_JUXMEM
-  terminateJuxMem();
-#endif // HAVE_JUXMEM
-  
 #ifdef USE_LOG_SERVICE
   if (dietLogComponent != NULL) {
-    //delete dietLogComponent; // FIXME: this does not work
+    //delete dietLogComponent;  // FIXME: this does not work
     dietLogComponent = NULL;
   }
 #endif
 
-#ifdef HAVE_DAGDA
   DagdaFactory::reset();
-#endif
 
   try {
-      ORBMgr *mgr = ORBMgr::getMgr();
-      mgr->unbind(CLIENTCTXT, REF_CALLBACK_SERVER);
-      mgr->fwdsUnbind(CLIENTCTXT, REF_CALLBACK_SERVER);
-      delete mgr;
-  } catch( std::runtime_error& e ) {
-      std::cerr << "Exception caugh: "
-		<< e.what()
-		<< "\n";
-  } catch( ... ) {}
-  
-  
+    ORBMgr *mgr = ORBMgr::getMgr();
+    mgr->unbind(CLIENTCTXT, REF_CALLBACK_SERVER);
+    mgr->fwdsUnbind(CLIENTCTXT, REF_CALLBACK_SERVER);
+    delete mgr;
+  } catch (std::runtime_error& e) {
+    std::cerr << "Exception caugh: "
+              << e.what()
+              << "\n";
+  } catch (...) {}
+
+
   /* end fileName */
   // *fileName='\0';
-  
+
   MA_MUTEX->lock();
   MA = MasterAgent::_nil();
   MA_MUTEX->unlock();
@@ -966,20 +945,17 @@ END_API
 BEGIN_API
 
 diet_data_handle_t*
-diet_data_handle_malloc()
-{
+diet_data_handle_malloc() {
   return new diet_data_handle_t;
 }
 
 void*
-diet_get(diet_data_handle_t* handle)
-{
+diet_get(diet_data_handle_t* handle) {
   return handle->value;
 }
 
 int
-diet_free(diet_data_handle_t* handle)
-{
+diet_free(diet_data_handle_t* handle) {
   delete handle;
   return GRPC_NO_ERROR;
 }
@@ -992,13 +968,13 @@ END_API
 
 /* Only return the name of services available on the platform */
 char**
-get_diet_services(int *services_number){
+get_diet_services(int *services_number) {
   CORBA::Long length;
   SeqCorbaProfileDesc_t* profileList = MA->getProfiles(length);
   *services_number= (int)length;
-  char** services_list = (char**)calloc(length+1,sizeof(char*));
+  char** services_list = (char**)calloc(length+1, sizeof(char*));
   fflush(stdout);
-  for(int i=0;i<*services_number;i++){
+  for (int i = 0; i<*services_number; i++) {
     services_list[i]= CORBA::string_dup((*profileList)[i].path);
   }
   return services_list;
@@ -1006,53 +982,9 @@ get_diet_services(int *services_number){
 
 
 /****************************************************************
- *   creation of the file that stores identifiers               *
- ***************************************************************/
-/*
-void create_file()
-{
-  sprintf(file_Name,"/tmp/ID_FILE.%s.%d",MA_Name,num_Session);
-  create_header();
-
-}
-
-void create_header()
-{
-  const char * header_id = "Data Handle   ";
-  const char * header_msg = "Description \n";
-
-  ofstream f(file_Name,ios_base::app|ios_base::ate);
-  int cpt = strlen(header_id);
-  f.write(header_id,cpt);
-  for(int i = 0; i < 10; i++) {
-    f.put(' ');
-  }
-  cpt = strlen(header_msg);
-  f.write(header_msg,cpt);
-  f.close();
-}
-*/
-/****************************************************************
  *   Add handler id with message msg in the file                *
  ***************************************************************/
-
-void store_id(char* argID, char* msg)
-{
-/*
-  size_t cpt;
-
-  char* msg1 = new char[strlen(msg)+2];
-  cpt=strlen(argID);
-  ofstream f(file_Name,ios_base::app|ios_base::ate);
-  f.write(argID,cpt);
-  for(int i = 0; i < 10; i++) {
-    f.put(' ');
-  }
-  sprintf(msg1,"%s\n",msg);
-  cpt = strlen(msg1);
-  f.write(msg1,cpt);
-  f.close();
-  */
+void store_id(char* argID, char* msg) {
 }
 
 
@@ -1060,16 +992,15 @@ void store_id(char* argID, char* msg)
  *  Free persistent data identified by argID                     *
  *****************************************************************/
 int
-diet_free_persistent_data(char* argID)
-{
+diet_free_persistent_data(char* argID) {
   char statMsg[128];
-  sprintf(statMsg,"%s %s",__FUNCTION__,argID);
+  sprintf(statMsg, "%s %s", __FUNCTION__, argID);
   stat_in("client", statMsg);
-  if(MA->diet_free_pdata(argID)!=0) {
+  if (MA->diet_free_pdata(argID)!=0) {
     stat_out("client", statMsg);
     return 1;
   } else {
-    cerr << "UNKNOWN DATA" << endl;
+    std::cerr << "UNKNOWN DATA\n";
     return 0;
   }
 }
@@ -1088,45 +1019,37 @@ BEGIN_API
  * Request + computation submissions.
  */
 diet_error_t
-diet_call(diet_profile_t* profile)
-{
+diet_call(diet_profile_t* profile) {
   SeD_var chosenServer = SeD::_nil();
 
 #ifdef HAVE_CCS
   if (SpecificClientScheduler::isEnabled()) {
     SpecificClientScheduler::pre_diet_call();
   }
-#endif // HAVE_CCS
+#endif  // HAVE_CCS
 
   diet_error_t err = diet_call_common(MA, profile, chosenServer, NULL, MAX_SERVERS);
 
 #ifdef HAVE_CCS
- if (SpecificClientScheduler::isEnabled()) {
+  if (SpecificClientScheduler::isEnabled()) {
     SpecificClientScheduler::post_diet_call();
   }
-#endif // HAVE_CCS
+#endif  // HAVE_CCS
 
-#ifdef WITH_ENDIANNESS
-  // reswap  in and inout parameter
-  if (!little_endian) {
-    post_call(profile);
-  }
-#endif // WITH_ENDIANNESS
   return err;
 }
 
 #if defined HAVE_ALT_BATCH
 diet_error_t
-diet_parallel_call(diet_profile_t* profile)
-{
-  diet_profile_set_parallel(profile) ;
-  return diet_call(profile) ;
+diet_parallel_call(diet_profile_t* profile) {
+  diet_profile_set_parallel(profile);
+  return diet_call(profile);
 }
+
 diet_error_t
-diet_sequential_call(diet_profile_t* profile)
-{
-  diet_profile_set_sequential(profile) ;
-  return diet_call(profile) ;
+diet_sequential_call(diet_profile_t* profile) {
+  diet_profile_set_sequential(profile);
+  return diet_call(profile);
 }
 #endif
 
@@ -1142,8 +1065,7 @@ BEGIN_API
  * Request + asynchronous computation submissions.
  */
 diet_error_t
-diet_call_async(diet_profile_t* profile, diet_reqID_t* reqID)
-{
+diet_call_async(diet_profile_t* profile, diet_reqID_t* reqID) {
   SeD_var chosenServer = SeD::_nil();
   diet_error_t err = diet_call_async_common(MA, profile, chosenServer, NULL,
                                             MAX_SERVERS, REF_CALLBACK_SERVER);
@@ -1154,16 +1076,14 @@ diet_call_async(diet_profile_t* profile, diet_reqID_t* reqID)
 
 #if defined HAVE_ALT_BATCH
 diet_error_t
-diet_parallel_call_async(diet_profile_t* profile, diet_reqID_t* reqID)
-{
-  diet_profile_set_parallel(profile) ;
-  return diet_call_async(profile, reqID) ;
+diet_parallel_call_async(diet_profile_t* profile, diet_reqID_t* reqID) {
+  diet_profile_set_parallel(profile);
+  return diet_call_async(profile, reqID);
 }
 diet_error_t
-diet_sequential_call_async(diet_profile_t* profile, diet_reqID_t* reqID)
-{
-  diet_profile_set_sequential(profile) ;
-  return diet_call_async(profile, reqID) ;
+diet_sequential_call_async(diet_profile_t* profile, diet_reqID_t* reqID) {
+  diet_profile_set_sequential(profile);
+  return diet_call_async(profile, reqID);
 }
 #endif
 
@@ -1182,22 +1102,21 @@ BEGIN_API
  * return reqID status.
  ****************************************************************************/
 int
-diet_probe(diet_reqID_t reqID)
-{
+diet_probe(diet_reqID_t reqID) {
   int err = CallAsyncMgr::Instance()->getStatusReqID(reqID);
   /**
    * transform the request status as defined by the CallAsyncMgr to its
    * equivalent in GridRPC standard
-  STATUS_DONE = 0, // Result is available in local memory
-  STATUS_WAITING,       // End of solving on Server, result comes
-  STATUS_RESOLVING,          // Request is currently solving on Server
-  STATUS_CANCEL,	// Cancel is called on a reqID.
-  STATUS_ERROR		// Error caught
-   */
+   STATUS_DONE = 0, // Result is available in local memory
+   STATUS_WAITING,       // End of solving on Server, result comes
+   STATUS_RESOLVING,          // Request is currently solving on Server
+   STATUS_CANCEL,        // Cancel is called on a reqID.
+   STATUS_ERROR          // Error caught
+  */
   switch (err) {
-    case STATUS_DONE:
-      err = GRPC_NO_ERROR;
-      break;
+  case STATUS_DONE:
+    err = GRPC_NO_ERROR;
+    break;
   case STATUS_WAITING:
     err = GRPC_NOT_COMPLETED;
     break;
@@ -1222,8 +1141,7 @@ diet_probe(diet_reqID_t reqID)
  * to save.
  ****************************************************************************/
 int
-diet_cancel(diet_reqID_t reqID)
-{
+diet_cancel(diet_reqID_t reqID) {
   return CallAsyncMgr::Instance()->deleteAsyncCall(reqID);
 }
 
@@ -1238,14 +1156,14 @@ diet_cancel_all() {
 
 
 int
-diet_wait(diet_reqID_t reqID)
-{
+diet_wait(diet_reqID_t reqID) {
   // check if all request ID is valid
-  if (!CallAsyncMgr::Instance()->checkSessionID(reqID))
+  if (!CallAsyncMgr::Instance()->checkSessionID(reqID)) {
     return GRPC_INVALID_SESSION_ID;
+  }
 
   try {
-      // Create ruleElements table ...
+    // Create ruleElements table ...
     ruleElement * simpleWait = new ruleElement[1];
     simpleWait[0].reqID = reqID;
     simpleWait[0].op = WAITOPERATOR(SOLE);
@@ -1259,8 +1177,7 @@ diet_wait(diet_reqID_t reqID)
     // NOTES: Be careful, there may be others rules
     // using some of this reqID(AsyncCall)
     // So, be careful using diet_cancel
-  }
-  catch (const CORBA::Exception &e) {
+  } catch (const CORBA::Exception &e) {
     // Process any other User exceptions. Use the .id() method to
     // record or display useful information
     CORBA::Any tmp;
@@ -1272,8 +1189,7 @@ diet_wait(diet_reqID_t reqID)
     } else {
       WARNING(__FUNCTION__ << ": exception caught (" << tc->id() << ')');
     }
-  }
-  catch (const exception& e) {
+  } catch (const std::exception& e) {
     ERROR(__FUNCTION__ << ": unexpected exception (what="
           << e.what() << ')', STATUS_ERROR);
   }
@@ -1289,12 +1205,12 @@ diet_wait(diet_reqID_t reqID)
  *      2 - size of the table.
  *****************************************************************************/
 int
-diet_wait_and(diet_reqID_t* IDs, size_t length)
-{
+diet_wait_and(diet_reqID_t* IDs, size_t length) {
   // check if all the session IDs in the array are valid
-  for (unsigned int ix=0; ix<length; ix++) {
-    if (!CallAsyncMgr::Instance()->checkSessionID(IDs[ix]))
+  for (unsigned int ix = 0; ix<length; ix++) {
+    if (!CallAsyncMgr::Instance()->checkSessionID(IDs[ix])) {
       return GRPC_INVALID_SESSION_ID;
+    }
   }
 
   request_status_t rst = STATUS_ERROR;
@@ -1313,8 +1229,7 @@ diet_wait_and(diet_reqID_t* IDs, size_t length)
     return CallAsyncMgr::Instance()->addWaitRule(rule);
     // NOTES: Be careful, there may be others rules using some of this
     // reqID(AsyncCall) So, careful using diet_cancel
-  }
-  catch (const CORBA::Exception &e) {
+  } catch (const CORBA::Exception &e) {
     // Process any other User exceptions. Use the .id() method to
     // record or display useful information
     CORBA::Any tmp;
@@ -1327,7 +1242,7 @@ diet_wait_and(diet_reqID_t* IDs, size_t length)
       WARNING(__FUNCTION__ << ": exception caught (" << tc->id() << ')');
     }
   }
-  catch (const exception& e) {
+  catch (const std::exception& e) {
     ERROR(__FUNCTION__ << ": unexpected exception (what=" << e.what() << ')',
           STATUS_ERROR);
   }
@@ -1343,14 +1258,14 @@ diet_wait_and(diet_reqID_t* IDs, size_t length)
  *      3 - received reqID
  *****************************************************************************/
 int
-diet_wait_or(diet_reqID_t* IDs, size_t length, diet_reqID_t* IDptr)
-{
+diet_wait_or(diet_reqID_t* IDs, size_t length, diet_reqID_t* IDptr) {
   request_status_t rst = STATUS_ERROR;
 
   // check if all the session IDs in the array are valid
-  for (unsigned int ix=0; ix<length; ix++) {
-    if (!CallAsyncMgr::Instance()->checkSessionID(IDs[ix]))
+  for (unsigned int ix = 0; ix < length; ix++) {
+    if (!CallAsyncMgr::Instance()->checkSessionID(IDs[ix])) {
       return GRPC_INVALID_SESSION_ID;
+    }
   }
 
   try {
@@ -1360,13 +1275,13 @@ diet_wait_or(diet_reqID_t* IDs, size_t length, diet_reqID_t* IDptr)
       simpleWait[k].reqID = IDs[k];
       simpleWait[k].op = WAITOPERATOR(OR);
     }
-    Rule * rule = new Rule;
+    boost::scoped_ptr<Rule> rule(new Rule);
     rule->length = length;
     rule->ruleElts = simpleWait;
 
     // get lock on condition/waitRule
     // and manage return rule status
-    switch (CallAsyncMgr::Instance()->addWaitRule(rule)) {
+    switch (CallAsyncMgr::Instance()->addWaitRule(rule.get())) {
     case STATUS_DONE:
       for (unsigned int k = 0; k < length; k++) {
         if (CallAsyncMgr::Instance()->getStatusReqID(IDs[k]) == STATUS_DONE) {
@@ -1380,7 +1295,7 @@ diet_wait_or(diet_reqID_t* IDs, size_t length, diet_reqID_t* IDptr)
     case STATUS_ERROR:
       return STATUS_ERROR;
     default:
-      return -1; // Unexpected error, no value describing it
+      return -1;  // Unexpected error, no value describing it
       // NOTES: Be careful, there may be others rules
       // using some of this reqID(AsyncCall)
       // So, careful using diet_cancel
@@ -1398,7 +1313,7 @@ diet_wait_or(diet_reqID_t* IDs, size_t length, diet_reqID_t* IDptr)
     } else {
       WARNING(__FUNCTION__ << ": exception caught (" << tc->id() << ')');
     }
-  } catch (const exception& e) {
+  } catch (const std::exception& e) {
     ERROR(__FUNCTION__ << ": unexpected exception (what="
           << e.what() << ')', STATUS_ERROR);
   }
@@ -1410,8 +1325,7 @@ diet_wait_or(diet_reqID_t* IDs, size_t length, diet_reqID_t* IDptr)
  * return error status
  *****************************************************************************/
 int
-diet_wait_all()
-{
+diet_wait_all() {
   return CallAsyncMgr::Instance()->addWaitAllRule();
 }
 
@@ -1420,8 +1334,7 @@ diet_wait_all()
  * return the ID of the received request
  *****************************************************************************/
 int
-diet_wait_any(diet_reqID_t* IDptr)
-{
+diet_wait_any(diet_reqID_t* IDptr) {
   grpc_error_t err = CallAsyncMgr::Instance()->addWaitAnyRule(IDptr);
   err = status_to_grpc_code(err);
   return err;
@@ -1458,16 +1371,17 @@ diet_get_failed_session(diet_reqID_t* reqIdPtr) {
  ***************************************************************************/
 diet_error_t
 diet_probe_or(diet_reqID_t* reqIdArray,
-	      size_t length,
-	      diet_reqID_t* reqIdPtr) {
+              size_t length,
+              diet_reqID_t* reqIdPtr) {
   unsigned int ix;
   int reqStatus;
   // check if all request IDs are valid
-  for (ix=0; ix< length; ix++) {
-    if (!CallAsyncMgr::Instance()->checkSessionID(reqIdArray[ix]))
+  for (ix = 0; ix< length; ix++) {
+    if (!CallAsyncMgr::Instance()->checkSessionID(reqIdArray[ix])) {
       return GRPC_INVALID_SESSION_ID;
+    }
   }
-  for (ix=0; ix< length; ix++) {
+  for (ix = 0; ix< length; ix++) {
     reqStatus = CallAsyncMgr::Instance()->getStatusReqID(reqIdArray[ix]);
     if  (reqStatus == STATUS_DONE) {
       *reqIdPtr = reqIdArray[ix];
@@ -1483,16 +1397,16 @@ diet_probe_or(diet_reqID_t* reqIdArray,
  ***************************************************************************/
 diet_error_t
 diet_get_handle(grpc_function_handle_t** handle,
-		diet_reqID_t sessionID) {
-
+                diet_reqID_t sessionID) {
   return CallAsyncMgr::Instance()->getHandle(handle, sessionID);
 }
+
 /***************************************************************************
  * Save the specified handle and associate it to a sessionID
  ***************************************************************************/
 void
 diet_save_handle(diet_reqID_t sessionID,
-		 grpc_function_handle_t* handle) {
+                 grpc_function_handle_t* handle) {
   CallAsyncMgr::Instance()->saveHandle(sessionID, handle);
 }
 
@@ -1501,7 +1415,7 @@ diet_save_handle(diet_reqID_t sessionID,
  ***************************************************************************/
 void
 set_req_error(diet_reqID_t sessionID,
-	      diet_error_t error) {
+              diet_error_t error) {
   CallAsyncMgr::Instance()->setReqErrorCode(sessionID, error);
 }
 
@@ -1513,14 +1427,14 @@ set_req_error(diet_reqID_t sessionID,
 diet_error_t
 diet_wf_call(diet_wf_desc_t* profile) {
   if (CORBA::is_nil(MA_DAG)) {
-      ERROR("No MA DAG defined", 1);
+    ERROR("No MA DAG defined", 1);
   }
   CltWfMgr::instance()->setMA(MA);
-  switch(profile->level) {
-    case DIET_WF_DAG:
-      return CltWfMgr::instance()->wfDagCall(profile);
-    case DIET_WF_FUNCTIONAL:
-      return CltWfMgr::instance()->wfFunctionalCall(profile);
+  switch (profile->level) {
+  case DIET_WF_DAG:
+    return CltWfMgr::instance()->wfDagCall(profile);
+  case DIET_WF_FUNCTIONAL:
+    return CltWfMgr::instance()->wfFunctionalCall(profile);
   }
   return 1;
 }
@@ -1531,7 +1445,7 @@ diet_wf_call(diet_wf_desc_t* profile) {
 diet_error_t
 diet_wf_cancel_dag(const char* dagId) {
   if (CORBA::is_nil(MA_DAG)) {
-      ERROR("No MA DAG defined", 1);
+    ERROR("No MA DAG defined", 1);
   }
   return CltWfMgr::instance()->cancelDag(dagId);
 }
@@ -1542,7 +1456,7 @@ diet_wf_cancel_dag(const char* dagId) {
 int
 diet_wf_get_reqID() {
   if (CORBA::is_nil(MA_DAG)) {
-      ERROR("No MA DAG defined", 1);
+    ERROR("No MA DAG defined", 1);
   }
   return (int) CltWfMgr::instance()->getNewWfReqID();
 }
@@ -1598,10 +1512,11 @@ diet_wf_save_data_file(diet_wf_desc_t * profile,
 int
 diet_wf_save_transcript_file(diet_wf_desc_t * profile,
                              const char * transcript_file_name) {
-  if (!transcript_file_name)
+  if (!transcript_file_name) {
     return 1;
-  return CltWfMgr::instance()->saveWorkflowExecutionTranscript(profile,
-                                                transcript_file_name);
+  }
+  return CltWfMgr::instance()->
+    saveWorkflowExecutionTranscript(profile, transcript_file_name);
 }
 
 /**
@@ -1620,18 +1535,20 @@ diet_wf_free(diet_wf_desc_t * profile) {
 int
 _diet_wf_scalar_get(diet_wf_desc_t * profile,
                     const char * id,
-		    void** value) {
-  if (wf_check_profile_level(profile, DIET_WF_DAG))
+                    void** value) {
+  if (wf_check_profile_level(profile, DIET_WF_DAG)) {
     return 1;
+  }
   return CltWfMgr::instance()->getWfOutputScalar(profile, id, value);
 } // end _diet_wf_scalar_get
 
 int
 _diet_wf_string_get(diet_wf_desc_t * profile,
                     const char * id,
-		    char** value) {
-  if (wf_check_profile_level(profile, DIET_WF_DAG))
+                    char** value) {
+  if (wf_check_profile_level(profile, DIET_WF_DAG)) {
     return 1;
+  }
   return CltWfMgr::instance()->getWfOutputString(profile, id, value);
 } // end _diet_wf_string_get
 
@@ -1639,28 +1556,33 @@ _diet_wf_string_get(diet_wf_desc_t * profile,
 int
 _diet_wf_file_get(diet_wf_desc_t * profile,
                   const char * id,
-		  size_t* size, char** path) {
-  if (wf_check_profile_level(profile, DIET_WF_DAG))
+                  size_t* size, char** path) {
+  if (wf_check_profile_level(profile, DIET_WF_DAG)) {
     return 1;
+  }
   return CltWfMgr::instance()->getWfOutputFile(profile, id, size, path);
 }
 
 int
 _diet_wf_matrix_get(diet_wf_desc_t * profile,
                     const char * id, void** value,
-		    size_t* nb_rows, size_t *nb_cols,
-		    diet_matrix_order_t* order) {
-  if (wf_check_profile_level(profile, DIET_WF_DAG))
+                    size_t* nb_rows, size_t *nb_cols,
+                    diet_matrix_order_t* order) {
+  if (wf_check_profile_level(profile, DIET_WF_DAG)) {
     return 1;
-  return CltWfMgr::instance()->getWfOutputMatrix(profile, id, value, nb_rows, nb_cols, order);
+  }
+  return CltWfMgr::instance()->getWfOutputMatrix(profile, id,
+                                                 value, nb_rows,
+                                                 nb_cols, order);
 }
 
 int
 _diet_wf_container_get(diet_wf_desc_t * profile,
                        const char * id,
                        char** dataID) {
-  if (wf_check_profile_level(profile, DIET_WF_DAG))
+  if (wf_check_profile_level(profile, DIET_WF_DAG)) {
     return 1;
+  }
   return CltWfMgr::instance()->getWfOutputContainer(profile, id, dataID);
 }
 
@@ -1674,11 +1596,11 @@ get_all_results(diet_wf_desc_t * profile) {
 
 int
 diet_wf_print_results(diet_wf_desc_t * profile) {
-  switch(profile->level) {
-    case DIET_WF_DAG:
-      return CltWfMgr::instance()->printAllDagResults(profile);
-    case DIET_WF_FUNCTIONAL:
-      return CltWfMgr::instance()->printAllFunctionalWfResults(profile);
+  switch (profile->level) {
+  case DIET_WF_DAG:
+    return CltWfMgr::instance()->printAllDagResults(profile);
+  case DIET_WF_FUNCTIONAL:
+    return CltWfMgr::instance()->printAllFunctionalWfResults(profile);
   }
   return 1;
 }
@@ -1691,12 +1613,13 @@ int
 diet_wf_sink_get(diet_wf_desc_t * profile,
                  const char * id,
                  char** dataID) {
-  if (wf_check_profile_level(profile, DIET_WF_FUNCTIONAL))
+  if (wf_check_profile_level(profile, DIET_WF_FUNCTIONAL)) {
     return 1;
+  }
   return CltWfMgr::instance()->getWfSinkContainer(profile, id, dataID);
 }
 
-#endif // HAVE_WORKFLOW
+#endif  // HAVE_WORKFLOW
 
 END_API
 
@@ -1723,20 +1646,22 @@ bool
 getProfileDesc(const char * srvName, diet_profile_desc_t& profile) {
   SeqCorbaProfileDesc_t * allProfiles = getProfiles();
   if (allProfiles) {
-    for (unsigned int ix=0; ix < allProfiles->length(); ix++) {
-      if (!strcmp ( (*allProfiles)[ix].path,
-		    srvName)) {
-	// The service is found
-        TRACE_TEXT (TRACE_MAIN_STEPS,"The service " << srvName << " is found " << endl);
-	// this function place is marshalling.cc file
-	// to fix is necessary
-	unmrsh_profile_desc( &profile,
-			     &((*allProfiles)[ix]));
-	return true;
+    for (unsigned int ix = 0; ix < allProfiles->length(); ix++) {
+      if (!strcmp ((*allProfiles)[ix].path,
+                    srvName)) {
+        // The service is found
+        TRACE_TEXT(TRACE_MAIN_STEPS,
+                   "The service " << srvName << " is found \n");
+        // this function place is marshalling.cc file
+        // to fix is necessary
+        unmrsh_profile_desc(&profile,
+                             &((*allProfiles)[ix]));
+        return true;
       }
     }
   }
-  TRACE_TEXT (TRACE_MAIN_STEPS,"The service " << srvName << " was not found" << endl);
+  TRACE_TEXT(TRACE_MAIN_STEPS,
+             "The service " << srvName << " was not found\n");
   return false;
 }
 

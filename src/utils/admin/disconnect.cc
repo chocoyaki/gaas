@@ -27,14 +27,14 @@ diet_disconnect_from_hierarchy(dynamic_type_t type, const char *name) {
     case SED: {
       SeD_var sed = ORBMgr::getMgr()->resolve<SeD, SeD_ptr>(SEDCTXT, name);
       if (sed->disconnect()) {
-	return DIET_ADMIN_CALL_ERROR;
+        return DIET_ADMIN_CALL_ERROR;
       }
       break;
     }
     case LA: {
       LocalAgent_var agent = ORBMgr::getMgr()->resolve<LocalAgent, LocalAgent_var>(AGENTCTXT, name);
       if (agent->disconnect()) {
-	return DIET_ADMIN_CALL_ERROR;
+        return DIET_ADMIN_CALL_ERROR;
       }
       break;
     }
@@ -43,7 +43,7 @@ diet_disconnect_from_hierarchy(dynamic_type_t type, const char *name) {
     }
     } // end: switch (type)
 
-  } catch(...) {
+  } catch (...) {
     return DIET_COMM_ERROR;
   }
   return DIET_NO_ERROR;

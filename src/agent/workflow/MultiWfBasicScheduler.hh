@@ -11,7 +11,7 @@
 /* $Id$
  * $Log$
  * Revision 1.6  2008/10/14 13:24:49  bisnard
- * use new class structure for dags (DagNode,DagNodePort)
+ * use new class structure for dags (DagNode, DagNodePort)
  *
  * Revision 1.5  2008/04/30 07:37:01  bisnard
  * use relative timestamps for estimated and real completion time
@@ -42,42 +42,39 @@
 
 namespace madag {
 
-  class MultiWfBasicScheduler : public MultiWfScheduler {
+class MultiWfBasicScheduler : public MultiWfScheduler {
+public:
+  explicit MultiWfBasicScheduler(MaDag_impl* maDag);
 
-  public:
+  virtual ~MultiWfBasicScheduler();
 
-    MultiWfBasicScheduler(MaDag_impl* maDag);
-    virtual ~MultiWfBasicScheduler();
+  /**
+   * Execution method
+   */
+  virtual void *
+  run();
 
-    /**
-     * Execution method
-     */
-    virtual void *
-        run();
+  /**
+   * Updates scheduler when a node has been executed
+   * (does nothing)
+   */
+  virtual void
+  handlerNodeDone(DagNode * node);
 
-    /**
-     * Updates scheduler when a node has been executed
-     * (does nothing)
-     */
-    virtual void
-        handlerNodeDone(DagNode * node);
+protected:
+  /**
+   * create simple ordered NodeQueue for ready nodes
+   * (does not use priority of nodes)
+   */
+  virtual OrderedNodeQueue *
+  createNodeQueue(Dag * dag);
 
-  protected:
-
-    /**
-     * create simple ordered NodeQueue for ready nodes
-     * (does not use priority of nodes)
-     */
-    virtual OrderedNodeQueue *
-        createNodeQueue(Dag * dag);
-
-    /**
-     * delete the node queue created in createNodeQueue
-     */
-    virtual void
-        deleteNodeQueue(OrderedNodeQueue * nodeQ);
-  };
-
+  /**
+   * delete the node queue created in createNodeQueue
+   */
+  virtual void
+  deleteNodeQueue(OrderedNodeQueue * nodeQ);
+};
 }
 
 #endif   /* not defined _MULTIWFBASICSCHEDULER_HH */

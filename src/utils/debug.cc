@@ -164,19 +164,19 @@
 unsigned int TRACE_LEVEL = TRACE_DEFAULT;
 
 // see debug.hh
-omni_mutex debug_log_mutex ;
+omni_mutex debug_log_mutex;
 
 void
 displayResponse(FILE* os, const corba_response_t* resp)
 {
 #ifdef HAVE_ALT_BATCH
-  const char * serverType ;
-  const char * jobSpec ;
+  const char * serverType;
+  const char * jobSpec;
 #endif
 
   fprintf(os, "\n----------------------------------------\n");
   fprintf(os, " Response structure for request %lu :\n\n",
-	  (long unsigned int)resp->reqID);
+          (long unsigned int)resp->reqID);
   if (TRACE_LEVEL >= TRACE_ALL_STEPS) {
     fprintf(os, " I'm son nb %lu\n", (long unsigned int)resp->myID);
   }
@@ -189,21 +189,21 @@ displayResponse(FILE* os, const corba_response_t* resp)
 
 #ifdef HAVE_ALT_BATCH
     /* TODO: Should be called from somewhere in DIET_server.cc */
-    if( resp->servers[i].loc.serverType == BATCH )
-      serverType = "Batch" ;
-    else if( resp->servers[i].loc.serverType == SERIAL )
-      serverType = "serial" ;
+    if (resp->servers[i].loc.serverType == BATCH)
+      serverType = "Batch";
+    else if (resp->servers[i].loc.serverType == SERIAL)
+      serverType = "serial";
     else {
-      WARNING("Type of server is not well defined!" << endl);
-      serverType = "" ;
+      WARNING("Type of server is not well defined!\n");
+      serverType = "";
     }
-    if( resp->servers[i].loc.parallel_flag == 1 )
-      jobSpec = "sequential" ;
-    else if( resp->servers[i].loc.parallel_flag == 2 )
-      jobSpec = "parallel" ;
+    if (resp->servers[i].loc.parallel_flag == 1)
+      jobSpec = "sequential";
+    else if (resp->servers[i].loc.parallel_flag == 2)
+      jobSpec = "parallel";
     else {
-      WARNING("Type of job is not well defined!" << endl);
-      jobSpec = "" ;
+      WARNING("Type of job is not well defined!\n");
+      jobSpec = "";
     }
 
 
@@ -214,17 +214,17 @@ displayResponse(FILE* os, const corba_response_t* resp)
       fprintf(os,
               "  %ldth %s server can solve the %s problem in %g seconds\n",
               (long) i,
-	      serverType,
-	      jobSpec,
+              serverType,
+              jobSpec,
               diet_est_get_internal(ev, EST_TCOMP, HUGE_VAL));
     }
     else {
       fprintf(os,
               "  %ldth %s server can solve the %s problem and "
-	      "has %g free CPU and %g free memory\n",
+              "has %g free CPU and %g free memory\n",
               (long) i,
-	      serverType,
-	      jobSpec,
+              serverType,
+              jobSpec,
               diet_est_get_internal(ev, EST_FREECPU, HUGE_VAL),
               diet_est_get_internal(ev, EST_FREEMEM, HUGE_VAL));
     }
@@ -239,7 +239,7 @@ displayResponse(FILE* os, const corba_response_t* resp)
     else {
       fprintf(os,
               "  %ldth server can solve the problem and "
-	      "has %g free CPU and %g free memory\n",
+              "has %g free CPU and %g free memory\n",
               (long) i,
               diet_est_get_internal(ev, EST_FREECPU, HUGE_VAL),
               diet_est_get_internal(ev, EST_FREEMEM, HUGE_VAL));
@@ -249,19 +249,19 @@ displayResponse(FILE* os, const corba_response_t* resp)
     int numComms = diet_est_array_size_internal(ev, EST_COMMTIME);
     if (numComms > 0) {
       fprintf(os, "       Parameter transfer times (sec): ");
-      for (int commTimeIter = 0 ;
-           commTimeIter < numComms ;
+      for (int commTimeIter = 0;
+           commTimeIter < numComms;
            commTimeIter++) {
         fprintf(os,
                 " %g |",
                 diet_est_array_get_internal(ev,
-                                          EST_COMMTIME,
-                                          commTimeIter,
-                                          HUGE_VAL));
+                                            EST_COMMTIME,
+                                            commTimeIter,
+                                            HUGE_VAL));
       } // end for each comm time parameter
     }   // end check if comm times exist in est vector
   }     // end for each server
-  fprintf(os,"\n");
+  fprintf(os, "\n");
   fprintf(os, "----------------------------------------\n");
 }
 
@@ -270,34 +270,34 @@ displayResponseShort(FILE* os, const corba_response_t* resp)
 {
 #ifdef HAVE_ALT_BATCH
 
-  const char * serverType ;
-  const char * jobSpec ;
+  const char * serverType;
+  const char * jobSpec;
 #endif
 
   fprintf(os, "\n---------- Responses for request %lu ----------\n",
-	  (unsigned long)resp->reqID);
+          (unsigned long)resp->reqID);
 
   for (size_t i = 0; i < resp->servers.length(); i++){
     estVectorConst_t ev = &(resp->servers[i].estim);
 
 #ifdef HAVE_ALT_BATCH
-  /* TODO: Should be called from somewhere in DIET_server.cc */
-  if( resp->servers[i].loc.serverType == BATCH )
-    serverType = "Batch" ;
-  else if( resp->servers[i].loc.serverType == SERIAL )
-    serverType = "serial" ;
-  else {
-    WARNING("Type of server is not well defined!" << endl);
-    serverType = "" ;
-  }
-  if( resp->servers[i].loc.parallel_flag == 1 )
-    jobSpec = "sequential" ;
-  else if( resp->servers[i].loc.parallel_flag == 2 )
-    jobSpec = "parallel" ;
-  else {
-    WARNING("Type of job is not well defined!" << endl);
-    jobSpec = "" ;
-  }
+    /* TODO: Should be called from somewhere in DIET_server.cc */
+    if (resp->servers[i].loc.serverType == BATCH)
+      serverType = "Batch";
+    else if (resp->servers[i].loc.serverType == SERIAL)
+      serverType = "serial";
+    else {
+      WARNING("Type of server is not well defined!\n");
+      serverType = "";
+    }
+    if (resp->servers[i].loc.parallel_flag == 1)
+      jobSpec = "sequential";
+    else if (resp->servers[i].loc.parallel_flag == 2)
+      jobSpec = "parallel";
+    else {
+      WARNING("Type of job is not well defined!\n");
+      jobSpec = "";
+    }
 #endif
 
     fprintf(stdout,
@@ -306,7 +306,7 @@ displayResponseShort(FILE* os, const corba_response_t* resp)
             (long int)i,
             (const char *)(resp->servers[i].loc.hostName),
             (long int)resp->servers[i].loc.port,
-	    serverType, jobSpec,
+            serverType, jobSpec,
 #else
             "    %ld: %s:%ld: tComp %g fCpu %g fMem %g\n",
             (long int)i,
@@ -323,7 +323,7 @@ displayResponseShort(FILE* os, const corba_response_t* resp)
 void
 displayArgDesc(FILE* f, int type, int base_type)
 {
-  switch(type) {
+  switch (type) {
   case DIET_SCALAR: fprintf(f, "scalar"); break;
   case DIET_VECTOR: fprintf(f, "vector"); break;
   case DIET_MATRIX: fprintf(f, "matrix"); break;
@@ -353,7 +353,7 @@ displayArgDesc(FILE* f, int type, int base_type)
 void
 displayArg(FILE* f, const corba_data_desc_t* arg)
 {
-  switch(arg->specific._d()) {
+  switch (arg->specific._d()) {
   case DIET_SCALAR: fprintf(f, "scalar");            break;
   case DIET_VECTOR: fprintf(f, "vector (%ld)",
                             (long)arg->specific.vect().size);  break;
@@ -363,7 +363,7 @@ displayArg(FILE* f, const corba_data_desc_t* arg)
   case DIET_STRING: fprintf(f, "string (%ld)",
                             (long)arg->specific.str().length); break;
   case DIET_PARAMSTRING: fprintf(f, "paramstring (%ld)",
-                            (long)arg->specific.pstr().length); break;
+                                 (long)arg->specific.pstr().length); break;
   case DIET_FILE:   fprintf(f, "file (%ld)",
                             (long)arg->specific.file().size);  break;
   case DIET_CONTAINER:  fprintf(f, "container");  break;
@@ -390,7 +390,7 @@ displayArg(FILE* f, const corba_data_desc_t* arg)
 void
 displayArg(FILE* f, const diet_data_desc_t* arg)
 {
-  switch((int) arg->generic.type) {
+  switch ((int) arg->generic.type) {
   case DIET_SCALAR: fprintf(f, "scalar");                break;
   case DIET_VECTOR: fprintf(f, "vector (%ld)",
                             (long)arg->specific.vect.size);    break;
@@ -400,7 +400,7 @@ displayArg(FILE* f, const diet_data_desc_t* arg)
   case DIET_STRING: fprintf(f, "string (%ld)",
                             (long)arg->specific.str.length); break;
   case DIET_PARAMSTRING: fprintf(f, "paramstring (%ld)",
-                            (long)arg->specific.pstr.length); break;
+                                 (long)arg->specific.pstr.length); break;
   case DIET_FILE:   fprintf(f, "file (%ld)",
                             (long)arg->specific.file.size);  break;
   case DIET_CONTAINER:  fprintf(f, "container");  break;
@@ -429,16 +429,16 @@ void
 displayProfileDesc(const diet_profile_desc_t* desc, const char* path)
 {
 #ifdef HAVE_ALT_BATCH
-  const char * jobSpec ;
+  const char * jobSpec;
 
   /* TODO: Should be called from somewhere in DIET_server.cc */
-  if( desc->parallel_flag == 1 )
-    jobSpec = "sequential" ;
-  else if( desc->parallel_flag == 2 )
-    jobSpec = "parallel" ;
+  if (desc->parallel_flag == 1)
+    jobSpec = "sequential";
+  else if (desc->parallel_flag == 2)
+    jobSpec = "parallel";
   else {
-    WARNING("Type of job is not well defined!" << endl);
-    jobSpec = "" ;
+    WARNING("Type of job is not well defined!\n");
+    jobSpec = "";
   }
 #endif
 
@@ -457,27 +457,27 @@ displayProfileDesc(const diet_profile_desc_t* desc, const char* path)
   }
   fprintf(f, "\n");
 
-  switch((desc->aggregator).agg_method) {
-    case DIET_AGG_DEFAULT:
-      fprintf(f,"   Aggregator: Default\n");
-      break;
-    case DIET_AGG_PRIORITY:
-      fprintf(f,"   Aggregator: Priority (");
-      {
-        diet_aggregator_priority_t prior =
-          (desc->aggregator).agg_specific.agg_specific_priority;
-        if (prior.p_numPValues == 0) {
-          fprintf(f," No priorities assigned");
-        } else {
-          for (int i = 0; i < prior.p_numPValues; i++) {
-            fprintf(f," %d", prior.p_pValues[i]);
-          }
+  switch ((desc->aggregator).agg_method) {
+  case DIET_AGG_DEFAULT:
+    fprintf(f, "   Aggregator: Default\n");
+    break;
+  case DIET_AGG_PRIORITY:
+    fprintf(f, "   Aggregator: Priority (");
+    {
+      diet_aggregator_priority_t prior =
+        (desc->aggregator).agg_specific.agg_specific_priority;
+      if (prior.p_numPValues == 0) {
+        fprintf(f, " No priorities assigned");
+      } else {
+        for (int i = 0; i < prior.p_numPValues; i++) {
+          fprintf(f, " %d", prior.p_pValues[i]);
         }
       }
-      fprintf(f, " )\n");
-      break;
-    default:
-      fprintf(f,"   Aggregator: ERROR\n");
+    }
+    fprintf(f, ")\n");
+    break;
+  default:
+    fprintf(f, "   Aggregator: ERROR\n");
   }
 }
 
@@ -487,16 +487,16 @@ displayProfileDesc(const corba_profile_desc_t* desc)
   FILE* f = stdout;
   char* path = CORBA::string_dup(desc->path);
 #ifdef HAVE_ALT_BATCH
-  const char * jobSpec ;
+  const char * jobSpec;
 
   /* TODO: Should be called from somewhere in DIET_server.cc */
-  if( desc->parallel_flag == 1 )
-    jobSpec = "sequential" ;
-  else if( desc->parallel_flag == 2 )
-    jobSpec = "parallel" ;
+  if (desc->parallel_flag == 1)
+    jobSpec = "sequential";
+  else if (desc->parallel_flag == 2)
+    jobSpec = "parallel";
   else {
-    WARNING("Type of job is not well defined!" << endl);
-    jobSpec = "" ;
+    WARNING("Type of job is not well defined!\n");
+    jobSpec = "";
   }
   fprintf(f, " - Service %s (%s)", path, jobSpec);
 #else
@@ -513,29 +513,29 @@ displayProfileDesc(const corba_profile_desc_t* desc)
   }
   fprintf(f, "\n");
 
-  switch((desc->aggregator).agg_specific._d()) {
-    case DIET_AGG_DEFAULT:
-    {
-      fprintf(f,"   Aggregator: Default\n");
-      break;
-    }
-    case DIET_AGG_PRIORITY:
-    {
-      fprintf(f,"   Aggregator: Priority (");
-      corba_agg_priority_t prior =
-          (desc->aggregator).agg_specific.agg_priority();
-      if (prior.priorityList.length() == 0) {
-        fprintf(f," No priorities assigned");
-      } else {
-        for (unsigned int i = 0; i < prior.priorityList.length(); i++) {
-          fprintf(f," %ld", (long int)prior.priorityList[i]);
-        }
+  switch ((desc->aggregator).agg_specific._d()) {
+  case DIET_AGG_DEFAULT:
+  {
+    fprintf(f, "   Aggregator: Default\n");
+    break;
+  }
+  case DIET_AGG_PRIORITY:
+  {
+    fprintf(f, "   Aggregator: Priority (");
+    corba_agg_priority_t prior =
+      (desc->aggregator).agg_specific.agg_priority();
+    if (prior.priorityList.length() == 0) {
+      fprintf(f, " No priorities assigned");
+    } else {
+      for (unsigned int i = 0; i < prior.priorityList.length(); i++) {
+        fprintf(f, " %ld", (long int)prior.priorityList[i]);
       }
-      fprintf(f, " )\n");
-      break;
     }
-    default:
-      fprintf(f,"   Aggregator: ERROR\n");
+    fprintf(f, ")\n");
+    break;
+  }
+  default:
+    fprintf(f, "   Aggregator: ERROR\n");
   }
 }
 
@@ -545,16 +545,16 @@ displayProfile(const diet_profile_t* profile, const char* path)
   FILE* f = stdout;
 
 #ifdef HAVE_ALT_BATCH
-  const char * jobSpec ;
+  const char * jobSpec;
 
   /* TODO: Should be called from somewhere in DIET_server.cc */
-  if( profile->parallel_flag == 1 )
-    jobSpec = "sequential" ;
-  else if( profile->parallel_flag == 2 )
-    jobSpec = "parallel" ;
+  if (profile->parallel_flag == 1)
+    jobSpec = "sequential";
+  else if (profile->parallel_flag == 2)
+    jobSpec = "parallel";
   else {
-    WARNING("Type of job is not well defined!" << endl);
-    jobSpec = "" ;
+    WARNING("Type of job is not well defined!\n");
+    jobSpec = "";
   }
   fprintf(f, " - Service %s (%s)", path, jobSpec);
 #else
@@ -577,16 +577,16 @@ displayProfile(const corba_profile_t* profile, const char* path)
   FILE* f = stdout;
 
 #ifdef HAVE_ALT_BATCH
-  const char * jobSpec ;
+  const char * jobSpec;
 
   /* TODO: Should be called from somewhere in DIET_server.cc */
-  if( profile->parallel_flag == 1 )
-    jobSpec = "sequential" ;
-  else if( profile->parallel_flag == 2 )
-    jobSpec = "parallel" ;
+  if (profile->parallel_flag == 1)
+    jobSpec = "sequential";
+  else if (profile->parallel_flag == 2)
+    jobSpec = "parallel";
   else {
-    WARNING("Type of job is not well defined!" << endl);
-    jobSpec = "" ;
+    WARNING("Type of job is not well defined!\n");
+    jobSpec = "";
   }
   fprintf(f, " - Service %s (%s)", path, jobSpec);
 #else
@@ -610,16 +610,16 @@ displayPbDesc(const corba_pb_desc_t* profile)
   char* path = CORBA::string_dup(profile->path);
 
 #ifdef HAVE_ALT_BATCH
-  const char * jobSpec ;
+  const char * jobSpec;
 
   /* TODO: Should be called from somewhere in DIET_server.cc */
-  if( profile->parallel_flag == 1 )
-    jobSpec = "sequential" ;
-  else if( profile->parallel_flag == 2 )
-    jobSpec = "parallel" ;
+  if (profile->parallel_flag == 1)
+    jobSpec = "sequential";
+  else if (profile->parallel_flag == 2)
+    jobSpec = "parallel";
   else {
-    WARNING("Type of job is not well defined!" << endl);
-    jobSpec = "" ;
+    WARNING("Type of job is not well defined!\n");
+    jobSpec = "";
   }
   fprintf(f, " - Service %s (%s)", path, jobSpec);
 #else
@@ -646,7 +646,7 @@ displayConvertor(FILE* f, const diet_convertor_t* cvt)
             (i <= cvt->last_in) ? "IN   "
             : (i <= cvt->last_inout) ? "INOUT"
             : "OUT  ");
-    switch((int)cvt->arg_convs[i].f) {
+    switch ((int)cvt->arg_convs[i].f) {
     case DIET_CVT_IDENTITY:   fprintf(f, "IDENT  of "); break;
     case DIET_CVT_FILE_SIZE:
     case DIET_CVT_VECT_SIZE:  fprintf(f, "SIZE   of "); break;

@@ -139,7 +139,7 @@ checkMismatch(const char *str)
     strLen = strchr(str, ':') - str;
   }
 
-  for (resIter = 0 ; resIter < numResources ; resIter++) {
+  for (resIter = 0; resIter < numResources; resIter++) {
     if (strlen(resources[resIter]) > strLen) {
       continue;
     }

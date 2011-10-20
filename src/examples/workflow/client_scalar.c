@@ -64,14 +64,14 @@ main(int argc, char* argv[])
 
   fileName = argv[2];
 
-  profile = diet_wf_profile_alloc(fileName,"test",DIET_WF_DAG);
+  profile = diet_wf_profile_alloc(fileName, "test", DIET_WF_DAG);
 
   printf("Try to execute the workflow\n");
   if (! diet_wf_call(profile)) {
     printf("The workflow submission succeed\n");
     diet_wf_scalar_get(profile, "n5#out", &result);
     if (result) {
-    	printf("The results is %f\n", *result);
+      printf("The results is %f\n", *result);
     }
   }
   else {

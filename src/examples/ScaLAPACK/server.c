@@ -61,9 +61,9 @@ dgemm_(char*, char*,  int*, int*, int*, double*, double*, int*, double*, int*,
 
 extern void
 pdgemm_(char*, char*, int*, int*, int*, double*,
-	double*, int*, int*, int*,
-	double*, int*, int*, int*, double*,
-	double*, int*, int*, int*);
+        double*, int*, int*, int*,
+        double*, int*, int*, int*, double*,
+        double*, int*, int*, int*);
 
 
 
@@ -88,7 +88,7 @@ diet_mutex_t mutex;
 
 int wakeupMsgSize;
 
-int jobCounter=0;
+int jobCounter = 0;
 
 // some static definitions
 int MSG_TYPE      =    0;
@@ -103,21 +103,21 @@ int MSGTYPE_JOB   = 1000;
 int MSGTYPE_FREE  = 1001;
 
 
-#define print_matrix(mat, m, n, rm)        \
-  {                                        \
-    size_t i, j;                           \
-    printf("%s (%s-major) = \n", #mat,     \
-           (rm) ? "row" : "column");       \
-    for (i = 0; i < (m); i++) {            \
-      for (j = 0; j < (n); j++) {          \
-        if (rm)                            \
-	  printf("%3f ", (mat)[j + i*(n)]);\
-        else                               \
-	  printf("%3f ", (mat)[i + j*(m)]);\
-      }                                    \
-      printf("\n");                        \
-    }                                      \
-    printf("\n");                          \
+#define print_matrix(mat, m, n, rm)             \
+  {                                             \
+    size_t i, j;                                \
+    printf("%s (%s-major) = \n", #mat,          \
+           (rm) ? "row" : "column");            \
+    for (i = 0; i < (m); i++) {                 \
+      for (j = 0; j < (n); j++) {               \
+        if (rm)                                 \
+          printf("%3f ", (mat)[j + i*(n)]);     \
+        else                                    \
+          printf("%3f ", (mat)[i + j*(m)]);     \
+      }                                         \
+      printf("\n");                             \
+    }                                           \
+    printf("\n");                               \
   }
 
 #ifdef DEBUG
@@ -136,29 +136,29 @@ getJobId()
 }
 
 
-#define STATUS(n)                                               \
-  {                                                             \
-    if(getJobId() != -1)                                        \
-      printf("Process %d - Job %d : %s\n", myId, getJobId(), n);\
-    else			 	                        \
-      printf("Process %d : %s\n", myId, n);                     \
-}
+#define STATUS(n)                                                       \
+  {                                                                     \
+    if (getJobId() != -1)                                                \
+      printf("Process %d - Job %d : %s\n", myId, getJobId(), n);        \
+    else                                                                \
+      printf("Process %d : %s\n", myId, n);                             \
+  }
 
 #define STATUSL(n)                                              \
   {                                                             \
     if (getJobId() != -1)                                       \
       printf("Process %d - Job %d : %s", myId, getJobId(), n);  \
-    else			 	                        \
+    else                                                        \
       printf("Process %d : %s", myId, n);                       \
-}
+  }
 
-#define STATUS2I(n, m)                                                 \
-  {                                                                    \
-    if (getJobId() != -1)                                              \
-      printf("Process %d - Job %d : %s %d\n", myId, getJobId(), n, m); \
-    else			 	                               \
-      printf("Process %d : %s %d \n", myId, n, m);                     \
-}
+#define STATUS2I(n, m)                                                  \
+  {                                                                     \
+    if (getJobId() != -1)                                               \
+      printf("Process %d - Job %d : %s %d\n", myId, getJobId(), n, m);  \
+    else                                                                \
+      printf("Process %d : %s %d \n", myId, n, m);                      \
+  }
 
 #define STATUS4(n, m, o, p, q)                                  \
   {                                                             \
@@ -166,12 +166,12 @@ getJobId()
       printf("Process %d - Job %d : ", myId, getJobId());       \
       printf(n, m, o, p, q);                                    \
       printf("\n");                                             \
-    } else {			 	                        \
+    } else {                                                    \
       printf("Process %d : ", myId);                            \
       printf(n, m, o, p, q);                                    \
       printf("\n");                                             \
-    }				 	                        \
-}
+    }                                                           \
+  }
 
 
 
@@ -182,11 +182,11 @@ getJobId()
 
 void
 compute(int m, int n, int k, char tA, char tB,
-	double alpha, double* A, double* B, double beta, double* C,
-	int fromctxt, int toctxt, int allctxt, job_t* j);
+        double alpha, double* A, double* B, double beta, double* C,
+        int fromctxt, int toctxt, int allctxt, job_t* j);
 
 job_t*
-sed_getJob(int, int, int ,int );
+sed_getJob(int, int, int , int);
 void
 sed_leaveJob(job_t*);
 
@@ -210,17 +210,17 @@ solve_pdgemm(diet_profile_t* pb)
   diet_matrix_order_t oA, oB, oC;
   
   // values for partial martices and their redistribution
-  diet_scalar_get(diet_parameter(pb,0), &procs, NULL);
-  diet_scalar_get(diet_parameter(pb,1), &rows, NULL);
-  diet_scalar_get(diet_parameter(pb,2), &cols, NULL);
-  diet_scalar_get(diet_parameter(pb,3), &bs, NULL);
-  diet_scalar_get(diet_parameter(pb,4), &alpha, NULL);
-  diet_matrix_get(diet_parameter(pb,5), &A, NULL, &m, &k, &oA);
+  diet_scalar_get(diet_parameter(pb, 0), &procs, NULL);
+  diet_scalar_get(diet_parameter(pb, 1), &rows, NULL);
+  diet_scalar_get(diet_parameter(pb, 2), &cols, NULL);
+  diet_scalar_get(diet_parameter(pb, 3), &bs, NULL);
+  diet_scalar_get(diet_parameter(pb, 4), &alpha, NULL);
+  diet_matrix_get(diet_parameter(pb, 5), &A, NULL, &m, &k, &oA);
   tA    = (oA == DIET_ROW_MAJOR) ? 'T' : 'N';
-  diet_matrix_get(diet_parameter(pb,6), &B, NULL, &k_, &n, &oB);
+  diet_matrix_get(diet_parameter(pb, 6), &B, NULL, &k_, &n, &oB);
   tB    = (oB == DIET_ROW_MAJOR) ? 'T' : 'N';
-  diet_scalar_get(diet_parameter(pb,7), &beta, NULL);
-  diet_matrix_get(diet_parameter(pb,8), &C, NULL, NULL, NULL, &oC);
+  diet_scalar_get(diet_parameter(pb, 7), &beta, NULL);
+  diet_matrix_get(diet_parameter(pb, 8), &C, NULL, NULL, NULL, &oC);
 
   STATUS("########################## Request received.");
 
@@ -259,18 +259,18 @@ solve_pdgemm(diet_profile_t* pb)
       tA = (tA == 'T') ? 'N' : 'T';
       tB = (tB == 'T') ? 'N' : 'T';
       printf("dgemm args : m=%d, n=%d, k=%d, alpha=%f, beta=%f, tA=%c, tB=%c\n",
-	     n, m, k, *alpha, *beta, tB, tA);
+             n, m, k, *alpha, *beta, tB, tA);
       dgemm_(&tB, &tA, &n, &m, &k, alpha,
-	     B, (tB == 'T') ? &k : &n,
-	     A, (tA == 'T') ? &m : &k,
-	     beta, C, &n);  
+             B, (tB == 'T') ? &k : &n,
+             A, (tA == 'T') ? &m : &k,
+             beta, C, &n);  
     } else {
       printf("dgemm args : m=%zd, n=%zd, k=%zd, alpha=%f, beta=%f, tA=%c, tB=%c\n",
-	     m, n, k, *alpha, *beta, tA, tB);
+             m, n, k, *alpha, *beta, tA, tB);
       dgemm_(&tA, &tB, &m, &n, &k, alpha,
-	     A, (tA == 'T') ? &k : &m,
-	     B, (tB == 'T') ? &n : &k,
-	     beta, C, &m);
+             A, (tA == 'T') ? &k : &m,
+             B, (tB == 'T') ? &n : &k,
+             beta, C, &m);
     }
 
   } else {
@@ -314,10 +314,10 @@ solve_pdgemm(diet_profile_t* pb)
       tA = (tA == 'T') ? 'N' : 'T';
       tB = (tB == 'T') ? 'N' : 'T';
       compute(n, m, k, tB, tA, *alpha, B, A, *beta, C,
-	      j->context1x1, -1, j->contextAll, j);
+              j->context1x1, -1, j->contextAll, j);
     } else {
       compute(m, n, k, tA, tB, *alpha, A, B, *beta, C,
-	      j->context1x1, -1, j->contextAll, j);
+              j->context1x1, -1, j->contextAll, j);
     }
     //print_matrix(C, m, n, (oC == DIET_ROW_MAJOR));
 
@@ -335,7 +335,7 @@ solve_pdgemm(diet_profile_t* pb)
   }
 
   for (i = 0; i < 8; i++)
-    diet_free_data(diet_parameter(pb,i));
+    diet_free_data(diet_parameter(pb, i));
 
   if (IsSqMatSUM) {
     free(B);
@@ -353,8 +353,8 @@ solve_pdgemm(diet_profile_t* pb)
 
 void
 compute(int m, int n, int k, char tA, char tB,
-	double alpha, double* A, double* B, double beta, double* C,
-	int fromctxt, int toctxt, int allctxt, job_t* j)
+        double alpha, double* A, double* B, double beta, double* C,
+        int fromctxt, int toctxt, int allctxt, job_t* j)
 {
   int descPA[9];
   int descPB[9];
@@ -376,17 +376,17 @@ compute(int m, int n, int k, char tA, char tB,
 
 #ifdef DEBUG
   printf("Process %d : compute myRow=%d myCol=%d rowcount=%d colcount=%d\n",
-	 myId, j->row, j->col, j->rowCount, j->colCount);
-  printf("                     fromctxt=%d toctxt=%d ",fromctxt, toctxt);
+         myId, j->row, j->col, j->rowCount, j->colCount);
+  printf("                     fromctxt=%d toctxt=%d ", fromctxt, toctxt);
   printf("allctxt=%d blocksize=%d\n", allctxt, j->blocksize);
 #endif // DEBUG
 
   descset_(&descA, &m, &k, &(j->blocksize), &(j->blocksize),
-	   &zero, &zero, &fromctxt, &m);
+           &zero, &zero, &fromctxt, &m);
   descset_(&descB, &k, &n, &(j->blocksize), &(j->blocksize),
-	   &zero, &zero, &fromctxt, &k);
+           &zero, &zero, &fromctxt, &k);
   descset_(&descC, &m, &n, &(j->blocksize), &(j->blocksize),
-	   &zero, &zero, &fromctxt, &m);
+           &zero, &zero, &fromctxt, &m);
 
   LOCpA = numroc_(&m, &(j->blocksize),&(j->row),&zero,&(j->rowCount));
   LOCqA = numroc_(&k, &(j->blocksize),&(j->col),&zero,&(j->colCount));
@@ -395,19 +395,19 @@ compute(int m, int n, int k, char tA, char tB,
 
   pA = (double*)malloc(LOCpA*LOCqA*sizeof(double));
   descset_(&descPA, &m, &k, &(j->blocksize), &(j->blocksize),
-	   &zero, &zero, &toctxt, &LOCpA);  
+           &zero, &zero, &toctxt, &LOCpA);  
   
   LOCpB = numroc_(&k, &(j->blocksize),&(j->row),&zero,&(j->rowCount));
   LOCqB = numroc_(&n, &(j->blocksize),&(j->col),&zero,&(j->colCount));
   pB = (double*)malloc(LOCpB*LOCqB*sizeof(double));    
   descset_(&descPB, &k, &n, &(j->blocksize), &(j->blocksize),
-	   &zero, &zero, &toctxt, &LOCpB);  
+           &zero, &zero, &toctxt, &LOCpB);  
   
   LOCpC = numroc_(&m, &(j->blocksize),&(j->row),&zero,&(j->rowCount));
   LOCqC = numroc_(&n, &(j->blocksize),&(j->col),&zero,&(j->colCount));
   pC = (double*)malloc(LOCpC*LOCqC*sizeof(double));    
   descset_(&descPC, &m, &n, &(j->blocksize), &(j->blocksize),
-	   &zero, &zero, &toctxt, &LOCpC);  
+           &zero, &zero, &toctxt, &LOCpC);  
 
   LOG("Ready for redistribution");
 
@@ -419,11 +419,11 @@ compute(int m, int n, int k, char tA, char tB,
   Cpdgemr2d(m, n, C, first, first, descC , pC, first, first, descPC, allctxt); 
   
 
-  //for(i=0;i<9;i++)printf(" %d", descPA[i]);
+  //for (i = 0;i<9;i++)printf(" %d", descPA[i]);
   //printf("\n");
   if (myId!=j->sedId) STATUS("Calculating... ");
   
-  if (myId==j->sedId) {
+  if (myId == j->sedId) {
     diet_mutex_unlock(mutex);
     LOG("Mutex unlocked");
   }
@@ -431,24 +431,24 @@ compute(int m, int n, int k, char tA, char tB,
   if (myId!=j->sedId) {
     LOG("Starting pdgemm");
     pdgemm_(&tA, &tB, &m, &n, &k, &alpha, 
-	    pA, &first, &first, descPA, 
-	    pB, &first, &first, descPB, &beta,
-	    pC, &first, &first, descPC);
+            pA, &first, &first, descPA, 
+            pB, &first, &first, descPB, &beta,
+            pC, &first, &first, descPC);
   }
 
   LOG("Ready to collect C");
   
-  if (myId==j->sedId) {
+  if (myId == j->sedId) {
     MPI_Recv(msg, 1, MPI_INT, localLeader(j), j->id, MPI_COMM_WORLD, &status);
     STATUS("Waiting for result");
-    if (delay) diet_thread_sleep(10,0);
-  } else {	     
-    if (myId==localLeader(j)) {
+    if (delay) diet_thread_sleep(10, 0);
+  } else {           
+    if (myId == localLeader(j)) {
       MPI_Send(msg, 1, MPI_INT, 0, j->id, MPI_COMM_WORLD);
     }
   } 
  
-  if (myId==j->sedId) {
+  if (myId == j->sedId) {
     LOG("Waiting for mutex");
     diet_mutex_lock(mutex);
     LOG("Mutex locked");
@@ -456,7 +456,7 @@ compute(int m, int n, int k, char tA, char tB,
 
 
   Cpdgemr2d(m, n, pC, first, first, descPC, C, first, first, descC, allctxt);
-  if (myId==j->sedId) STATUS("Calculation finished and result collected.");
+  if (myId == j->sedId) STATUS("Calculation finished and result collected.");
   
 
   LOG("C collected");
@@ -480,7 +480,7 @@ fillSubmap(int* bitvector, int* submap)
   int i;
   int count = 0;
   
-  for (i=0;i<nbProcs;i++) {
+  for (i = 0;i<nbProcs;i++) {
     if (bitvector[i]) {
       submap[count]=i;
       count++;
@@ -503,7 +503,7 @@ demarshallMessage(int* msg)
   j->colCount = msg[MSG_COLCOUNT];
   j->rowCount = msg[MSG_ROWCOUNT];
   j->procCount = msg[MSG_PROCS];
-  for (i=0; i< nbProcs; i++) {
+  for (i = 0; i< nbProcs; i++) {
     j->procs[i]=msg[MSG_FIRSTPROC+i];
   }
   
@@ -528,7 +528,7 @@ marshallMessage(job_t* j)
   msg[MSG_COLCOUNT] = j->colCount;
   msg[MSG_ROWCOUNT] = j->rowCount;
   msg[MSG_BLOCKSIZE] = j->blocksize;
-  for (i=0; i<nbProcs; i++) {
+  for (i = 0; i<nbProcs; i++) {
     msg[i+MSG_FIRSTPROC] = j->procs[i];
   }
   return msg;
@@ -539,7 +539,7 @@ int
 localLeader(job_t* j)
 {
   int i;
-  for (i=0; i<nbProcs; i++) {
+  for (i = 0; i<nbProcs; i++) {
     if (j->procs[i])
       return i;
   }
@@ -568,9 +568,9 @@ sed_leaveJob(job_t* j)
   LOG("Waking free Processes to reunite with finished Workers ... ");
   msg = marshallMessage(j);
   msg[MSG_TYPE]=MSGTYPE_FREE;
-  for (i=0;i<nbProcs; i++) {
+  for (i = 0;i<nbProcs; i++) {
     if (!usedProcesses[i]) {
-      LOG2I("Waking Process to reunite with working Workers", i );
+      LOG2I("Waking Process to reunite with working Workers", i);
       MPI_Send(msg, wakeupMsgSize, MPI_INT, i, 0, MPI_COMM_WORLD);
     }
   }
@@ -602,7 +602,7 @@ sed_leaveJob(job_t* j)
 
   // updating usedProcesses
 
-  for (i=0; i<nbProcs; i++) {
+  for (i = 0; i<nbProcs; i++) {
     if (j->procs[i])
       usedProcesses[i]=0;
   }
@@ -642,18 +642,18 @@ sed_getJob(int procs, int rows, int cols, int bs)
   int remoteLeaderId=-1;
 
   STATUS4("Building grid. Processes %d Rows %d Cols %d Blocksize %d. ",
-	  procs, rows, cols, bs);
+          procs, rows, cols, bs);
 
   // creating job
 
   j = job_construct(nbProcs);
-  j->id=jobCounter;
-  j->rowCount=rows;
-  j->colCount=cols;
-  j->blocksize=bs; 
+  j->id = jobCounter;
+  j->rowCount = rows;
+  j->colCount = cols;
+  j->blocksize = bs; 
   jobCounter++;
   j->sedId = myId;
-  j->procCount=0;
+  j->procCount = 0;
   setJobId(j->id);
 
   LOG2I("Rows", rows);
@@ -664,18 +664,18 @@ sed_getJob(int procs, int rows, int cols, int bs)
   // choosing free processes ... waiting until there are some free if not.
 
   do {
-    j->procCount=0;
-    for (i=0;i<nbProcs ; i++) {
+    j->procCount = 0;
+    for (i = 0;i<nbProcs; i++) {
       j->procs[i]=0;
     }
 
     STATUSL("Choosing Processes ... ");
-    for (i=0; i<nbProcs && j->procCount < procs; i++) {
+    for (i = 0; i<nbProcs && j->procCount < procs; i++) {
       if (!usedProcesses[i]) {
-	if (remoteLeaderId==-1) remoteLeaderId=i;
-	printf("%d ", i);
-	j->procCount++;
-	j->procs[i]=1;
+        if (remoteLeaderId==-1) remoteLeaderId = i;
+        printf("%d ", i);
+        j->procCount++;
+        j->procs[i]=1;
       }
     }
     printf("\n");
@@ -698,12 +698,12 @@ sed_getJob(int procs, int rows, int cols, int bs)
   msg = marshallMessage(j);
   // sending Messages
   LOG("Sending Messages ");
-  for (i=0; i<nbProcs; i++) {
+  for (i = 0; i<nbProcs; i++) {
     if (!usedProcesses[i]) {
-      LOG2I("Waking Process ", i );
+      LOG2I("Waking Process ", i);
       MPI_Send(msg, wakeupMsgSize, MPI_INT, i, 0, MPI_COMM_WORLD);
-      if(j->procs[i])usedProcesses[i]=1;
-      // if(i%3==0)if(delay)diet_thread_sleep(1,0);
+      if (j->procs[i])usedProcesses[i]=1;
+      // if (i%3 == 0)if (delay)diet_thread_sleep(1, 0);
     }
   }
   free(msg);
@@ -716,25 +716,25 @@ sed_getJob(int procs, int rows, int cols, int bs)
   submapWorkers = malloc(j->procCount*sizeof(int));
   fillSubmap(j->procs, submapTemp);
   MPI_Group_translate_ranks(worldGroup, j->procCount, submapTemp,
-			    freeGroup, submapWorkers);
+                            freeGroup, submapWorkers);
   // submapAll
   submapAll = malloc((j->procCount+1)*sizeof(int));
   submapTemp[0] = j->sedId;
   fillSubmap(j->procs, &(submapTemp[1]));
   MPI_Group_translate_ranks(worldGroup, j->procCount+1, submapTemp,
-			    freeGroup, submapAll);
+                            freeGroup, submapAll);
   // submap1x1
   submap1x1 = malloc(sizeof(int));
   submap1x1[0] = submapAll[0];
 #ifdef DEBUG
   printf("Process %d Submap1x1=[%d]\n", myId, submap1x1[0]);
   printf("Process %d SubmapAll=[", myId);
-  for(i=0;i<j->procCount+1;i++){
-    printf("%d%s", submapAll[i], (i!=j->procCount?",":"]\n"));
+  for (i = 0;i<j->procCount+1;i++){
+    printf("%d%s", submapAll[i], (i!=j->procCount?", ":"]\n"));
   }
   printf("Process %d SubmapWorkers=[", myId);
-  for(i=0;i<j->procCount;i++){
-    printf("%d%s", submapWorkers[i], (i!=j->procCount-1?",":"]\n"));
+  for (i = 0;i<j->procCount;i++){
+    printf("%d%s", submapWorkers[i], (i!=j->procCount-1?", ":"]\n"));
   }
 #endif // DEBUG
   free(submapTemp);
@@ -751,7 +751,7 @@ sed_getJob(int procs, int rows, int cols, int bs)
   // create communicator with workers and Sed
 
   LOG("Creating comm all ");
-  LOG2I("Creating GroupAll with Members=",j->procCount+1); 
+  LOG2I("Creating GroupAll with Members=", j->procCount+1); 
   MPI_Group_incl(freeGroup, j->procCount+1, submapAll, group);
   LOG("Creating commAll");
   MPI_Comm_create(freeComm, *group, j->commAll);
@@ -808,7 +808,7 @@ sed_getJob(int procs, int rows, int cols, int bs)
   printf("Process %d : Created GridAll Rows=%d, Cols=%d, myRow=%d myCol=%d    \n", myId, rowCount, colCount, myR, myC);    
 #endif
   j->context1x1 = Csys2blacs_handle(*(j->comm1x1));
-  Cblacs_gridinit(&(j->context1x1), &Ori, 1,1,1);
+  Cblacs_gridinit(&(j->context1x1), &Ori, 1, 1, 1);
 #ifdef DEBUG
   Cblacs_gridinfo(j->context1x1, &rowCount, &colCount, &myR,&myC);
   printf("Process %d : Created Grid1x1 Rows=%d, Cols=%d, myRow=%d myCol=%d    \n", myId, rowCount, colCount, myR, myC);    
@@ -837,8 +837,8 @@ void
 worker_leaveJob(job_t* j)
 {
   int i;
-  int localLeader=0;
-  int wasWorking=0;
+  int localLeader = 0;
+  int wasWorking = 0;
 
   MPI_Comm temp;
 
@@ -847,7 +847,7 @@ worker_leaveJob(job_t* j)
 
   // who is the local Leader ?
 
-  for (i=0; i<nbProcs; i++) {
+  for (i = 0; i<nbProcs; i++) {
     if (j->procs[i]==1) {
       localLeader = i;
       break;
@@ -856,7 +856,7 @@ worker_leaveJob(job_t* j)
 
   
   // sending Messages signaling that I am ready (busy workers only)
-  wasWorking=j->procs[myId];
+  wasWorking = j->procs[myId];
 
 
   // creating intercomm and merging free and woring workers
@@ -866,12 +866,12 @@ worker_leaveJob(job_t* j)
   if (wasWorking) {
     LOG("I was working");
     MPI_Intercomm_create(*(j->commWorkers), 0, MPI_COMM_WORLD,
-			 j->sedId, 1, j->intercomm);    
+                         j->sedId, 1, j->intercomm);    
     MPI_Intercomm_merge(*(j->intercomm), 1, &freeComm);
   } else {
     LOG("I have done nothing");
     MPI_Intercomm_create(freeComm, 0, MPI_COMM_WORLD,
-			 localLeader, 1, j->intercomm );
+                         localLeader, 1, j->intercomm);
     LOG("Merging");
     MPI_Intercomm_merge(*(j->intercomm), 0, &freeComm);
   }
@@ -917,14 +917,14 @@ worker_handleMessages()
 
   do {
     // waiting for wakeupmessage
-    jobRequest=0;
+    jobRequest = 0;
     LOG("Going to sleep");
     MPI_Recv(msg, wakeupMsgSize, MPI_INT, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD , &status);
     setJobId(msg[MSG_ID]);
 #ifdef DEBUG
     printf("Process %d was woken.\n msg=[", myId);
-    for (i=0; i<wakeupMsgSize; i++) {
-      printf("%d%s", msg[i], (i!=(wakeupMsgSize-1)?",":"]\n"));
+    for (i = 0; i<wakeupMsgSize; i++) {
+      printf("%d%s", msg[i], (i!=(wakeupMsgSize-1)?", ":"]\n"));
     }
 #endif // DEBUG
     
@@ -947,7 +947,7 @@ worker_handleMessages()
       LOG("I am awake! Forming new Job.");
 
       jobRequest = worker_formJob(j);
-      if(jobRequest)LOG("I received a job!");
+      if (jobRequest)LOG("I received a job!");
     }
   } while (!jobRequest);
 
@@ -967,7 +967,7 @@ worker_formJob(job_t* j)
   int  rowCount, colCount, myR, myC;
   MPI_Group* group;
   MPI_Comm* tempComm;
-  int jobRequest=0;
+  int jobRequest = 0;
   int i;
 
 
@@ -990,12 +990,12 @@ worker_formJob(job_t* j)
 #ifdef DEBUG
   printf("Process %d Submap1x1=[%d]\n", myId, submap1x1[0]);
   printf("Process %d SubmapAll=[", myId);
-  for (i=0;i<j->procCount+1;i++) {
-    printf("%d%s", submapAll[i], (i!=j->procCount?",":"]\n"));
+  for (i = 0;i<j->procCount+1;i++) {
+    printf("%d%s", submapAll[i], (i!=j->procCount?", ":"]\n"));
   }
   printf("Process %d SubmapWorkers=[", myId);
-  for (i=0;i<j->procCount;i++) {
-    printf("%d%s", submapWorkers[i], (i!=j->procCount-1?",":"]\n"));
+  for (i = 0;i<j->procCount;i++) {
+    printf("%d%s", submapWorkers[i], (i!=j->procCount-1?", ":"]\n"));
   }
 #endif // DEBUG
 
@@ -1009,7 +1009,7 @@ worker_formJob(job_t* j)
   
   // creating communicator with sed and workers
   
-  LOG2I("Creating GroupAll with Members=",j->procCount+1); 
+  LOG2I("Creating GroupAll with Members=", j->procCount+1); 
   MPI_Group_incl(freeGroup, j->procCount+1, submapAll, group);
   LOG("creating commAll");
 
@@ -1067,7 +1067,7 @@ worker_formJob(job_t* j)
     Cblacs_gridinit(&(j->contextAll), &Ori, 1, j->procCount+1);
     // workercontext
     j->contextWorkers = Csys2blacs_handle(*(j->commWorkers));
-    for(u=0; u<j->procCount; u++){
+    for (u = 0; u<j->procCount; u++){
       submapWorkers[u]=u;
     }
 
@@ -1077,18 +1077,18 @@ worker_formJob(job_t* j)
     
     
     Cblacs_gridmap(&(j->contextWorkers), submapWorkers,
-		   j->rowCount, j->rowCount, j->colCount);
+                   j->rowCount, j->rowCount, j->colCount);
     Cblacs_gridinfo(j->contextWorkers, &rowCount, &colCount, &myR,&myC);
     j->row = myR;
     j->col = myC;
 
 #ifdef DEBUG
     printf("Process %d: Created WorkerGrid R=%d, C=%d, myRow=%d myCol=%d\n",
-	   myId, rowCount, colCount, myR, myC);
+           myId, rowCount, colCount, myR, myC);
 
     Cblacs_gridinfo(j->contextAll, &rowCount, &colCount, &myR,&myC);
     printf("Process %d: Created  AllGrid   R=%d, C=%d, myRow=%d myCol=%d\n", 
-	   myId, rowCount, colCount, myR, myC);    
+           myId, rowCount, colCount, myR, myC);    
 #endif // DEBUG
 
 
@@ -1121,15 +1121,15 @@ waitingLoop()
   // MPI Communication & Jobstuff
   MPI_Status status;
   
-   // pdgemm variables
+  // pdgemm variables
   int m, n, k;
   double* A = NULL,* B = NULL,* C = NULL;
   double alpha, beta;
   
-   // transmission of pre calculation variables
-  int q=1;
-  int w=5;
-  int LDA=1;
+  // transmission of pre calculation variables
+  int q = 1;
+  int w = 5;
+  int LDA = 1;
   double* E;
 
   job_t* j;
@@ -1162,7 +1162,7 @@ waitingLoop()
     // waiting for all processes to be ready to leave ... 
     
     LOG2I("Ready to leave Job", j->id);
-      //MPI_Barrier(*(myJob->commAll));
+    //MPI_Barrier(*(myJob->commAll));
     
     worker_leaveJob(j);
     
@@ -1194,15 +1194,15 @@ registration(int argc, char* argv[])
    */
   profile = diet_profile_desc_alloc("ScaLAPACK/pdgemm", 7, 8, 8);
   // nbProcs, nbRows, nbCols, bs, alpha, A, B, beta, C
-  diet_generic_desc_set(diet_param_desc(profile,0), DIET_SCALAR, DIET_INT);
-  diet_generic_desc_set(diet_param_desc(profile,1), DIET_SCALAR, DIET_INT);
-  diet_generic_desc_set(diet_param_desc(profile,2), DIET_SCALAR, DIET_INT);
-  diet_generic_desc_set(diet_param_desc(profile,3), DIET_SCALAR, DIET_INT);
-  diet_generic_desc_set(diet_param_desc(profile,4), DIET_SCALAR, DIET_DOUBLE);
-  diet_generic_desc_set(diet_param_desc(profile,5), DIET_MATRIX, DIET_DOUBLE);
-  diet_generic_desc_set(diet_param_desc(profile,6), DIET_MATRIX, DIET_DOUBLE);
-  diet_generic_desc_set(diet_param_desc(profile,7), DIET_SCALAR, DIET_DOUBLE);
-  diet_generic_desc_set(diet_param_desc(profile,8), DIET_MATRIX, DIET_DOUBLE);
+  diet_generic_desc_set(diet_param_desc(profile, 0), DIET_SCALAR, DIET_INT);
+  diet_generic_desc_set(diet_param_desc(profile, 1), DIET_SCALAR, DIET_INT);
+  diet_generic_desc_set(diet_param_desc(profile, 2), DIET_SCALAR, DIET_INT);
+  diet_generic_desc_set(diet_param_desc(profile, 3), DIET_SCALAR, DIET_INT);
+  diet_generic_desc_set(diet_param_desc(profile, 4), DIET_SCALAR, DIET_DOUBLE);
+  diet_generic_desc_set(diet_param_desc(profile, 5), DIET_MATRIX, DIET_DOUBLE);
+  diet_generic_desc_set(diet_param_desc(profile, 6), DIET_MATRIX, DIET_DOUBLE);
+  diet_generic_desc_set(diet_param_desc(profile, 7), DIET_SCALAR, DIET_DOUBLE);
+  diet_generic_desc_set(diet_param_desc(profile, 8), DIET_MATRIX, DIET_DOUBLE);
 
   if (diet_service_table_add(profile, NULL, solve_pdgemm)) return 1;
   diet_profile_desc_free(profile);
@@ -1213,29 +1213,29 @@ registration(int argc, char* argv[])
   /* Set profile */
   profile = diet_profile_desc_alloc("dgemm", 3, 4, 4);
   // alpha, A, B, beta, C
-  diet_generic_desc_set(diet_param_desc(profile,0), DIET_SCALAR, DIET_DOUBLE);
-  diet_generic_desc_set(diet_param_desc(profile,1), DIET_MATRIX, DIET_DOUBLE);
-  diet_generic_desc_set(diet_param_desc(profile,2), DIET_MATRIX, DIET_DOUBLE);
-  diet_generic_desc_set(diet_param_desc(profile,3), DIET_SCALAR, DIET_DOUBLE);
-  diet_generic_desc_set(diet_param_desc(profile,4), DIET_MATRIX, DIET_DOUBLE);
+  diet_generic_desc_set(diet_param_desc(profile, 0), DIET_SCALAR, DIET_DOUBLE);
+  diet_generic_desc_set(diet_param_desc(profile, 1), DIET_MATRIX, DIET_DOUBLE);
+  diet_generic_desc_set(diet_param_desc(profile, 2), DIET_MATRIX, DIET_DOUBLE);
+  diet_generic_desc_set(diet_param_desc(profile, 3), DIET_SCALAR, DIET_DOUBLE);
+  diet_generic_desc_set(diet_param_desc(profile, 4), DIET_MATRIX, DIET_DOUBLE);
   /* Set convertor */
   arg = (diet_arg_t*) malloc(sizeof(diet_arg_t));
   diet_scalar_set(arg, &nbProcs, DIET_VOLATILE, DIET_INT);
-  diet_arg_cvt_short_set(diet_arg_conv(cvt,0), -1, arg);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt, 0), -1, arg);
   arg = (diet_arg_t*) malloc(sizeof(diet_arg_t));
   diet_scalar_set(arg, &nbRows, DIET_VOLATILE, DIET_INT);
-  diet_arg_cvt_short_set(diet_arg_conv(cvt,1), -1, arg);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt, 1), -1, arg);
   arg = (diet_arg_t*) malloc(sizeof(diet_arg_t));
   diet_scalar_set(arg, &nbCols, DIET_VOLATILE, DIET_INT);
   diet_arg_cvt_short_set(&(cvt->arg_convs[2]), -1, arg);
   arg = (diet_arg_t*) malloc(sizeof(diet_arg_t));
   diet_scalar_set(arg, &bs, DIET_VOLATILE, DIET_INT);
-  diet_arg_cvt_short_set(diet_arg_conv(cvt,3), -1, arg);
-  diet_arg_cvt_short_set(diet_arg_conv(cvt,4),  0, NULL);
-  diet_arg_cvt_short_set(diet_arg_conv(cvt,5),  1, NULL);
-  diet_arg_cvt_short_set(diet_arg_conv(cvt,6),  2, NULL);
-  diet_arg_cvt_short_set(diet_arg_conv(cvt,7),  3, NULL);
-  diet_arg_cvt_short_set(diet_arg_conv(cvt,8),  4, NULL);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt, 3), -1, arg);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt, 4),  0, NULL);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt, 5),  1, NULL);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt, 6),  2, NULL);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt, 7),  3, NULL);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt, 8),  4, NULL);
   /* Add */
   if (diet_service_table_add(profile, cvt, solve_pdgemm)) return 1;
   diet_profile_desc_free(profile);
@@ -1246,36 +1246,36 @@ registration(int argc, char* argv[])
    */
   /* Set profile */
   profile = diet_profile_desc_alloc("SqMatSUM", 0, 1, 1);
-  diet_generic_desc_set(diet_param_desc(profile,0), DIET_MATRIX, DIET_DOUBLE);
-  diet_generic_desc_set(diet_param_desc(profile,1), DIET_MATRIX, DIET_DOUBLE);
+  diet_generic_desc_set(diet_param_desc(profile, 0), DIET_MATRIX, DIET_DOUBLE);
+  diet_generic_desc_set(diet_param_desc(profile, 1), DIET_MATRIX, DIET_DOUBLE);
   /* Set convertor */
   arg = (diet_arg_t*) malloc(sizeof(diet_arg_t));
   diet_scalar_set(arg, &nbProcs, DIET_VOLATILE, DIET_INT);
-  diet_arg_cvt_short_set(diet_arg_conv(cvt,0), -1, arg);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt, 0), -1, arg);
   arg = (diet_arg_t*) malloc(sizeof(diet_arg_t));
   diet_scalar_set(arg, &nbRows, DIET_VOLATILE, DIET_INT);
-  diet_arg_cvt_short_set(diet_arg_conv(cvt,1), -1, arg);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt, 1), -1, arg);
   arg = (diet_arg_t*) malloc(sizeof(diet_arg_t));
   diet_scalar_set(arg, &nbCols, DIET_VOLATILE, DIET_INT);
-  diet_arg_cvt_short_set(diet_arg_conv(cvt,2), -1, arg);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt, 2), -1, arg);
   arg = (diet_arg_t*) malloc(sizeof(diet_arg_t));
   diet_scalar_set(arg, &bs, DIET_VOLATILE, DIET_INT);
-  diet_arg_cvt_short_set(diet_arg_conv(cvt,3), -1, arg);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt, 3), -1, arg);
   {
     double alpha = 1.0;
     arg = (diet_arg_t*) malloc(sizeof(diet_arg_t));
     diet_scalar_set(arg, &alpha, DIET_VOLATILE, DIET_DOUBLE);
   }
-  diet_arg_cvt_short_set(diet_arg_conv(cvt,4), -1, arg);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt, 4), -1, arg);
   // beta is the same
-  diet_arg_cvt_short_set(diet_arg_conv(cvt,7), -1, arg);
-  diet_arg_cvt_short_set(diet_arg_conv(cvt,5),  0, NULL);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt, 7), -1, arg);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt, 5),  0, NULL);
   {
     arg = (diet_arg_t*) calloc(1, sizeof(diet_arg_t));
     diet_matrix_set(arg, NULL, DIET_VOLATILE, DIET_DOUBLE, 0, 0, DIET_COL_MAJOR);
   }
-  diet_arg_cvt_short_set(diet_arg_conv(cvt,6), -1, arg);
-  diet_arg_cvt_short_set(diet_arg_conv(cvt,8),  1, NULL);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt, 6), -1, arg);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt, 8),  1, NULL);
   /* Add */
   if (diet_service_table_add(profile, cvt, solve_pdgemm)) return 1;
   diet_profile_desc_free(profile);
@@ -1286,37 +1286,37 @@ registration(int argc, char* argv[])
    */
   /* Set profile */
   profile = diet_profile_desc_alloc("MatPROD", 1, 1, 2);
-  diet_generic_desc_set(diet_param_desc(profile,0), DIET_MATRIX, DIET_DOUBLE);
-  diet_generic_desc_set(diet_param_desc(profile,1), DIET_MATRIX, DIET_DOUBLE);
-  diet_generic_desc_set(diet_param_desc(profile,2), DIET_MATRIX, DIET_DOUBLE);
+  diet_generic_desc_set(diet_param_desc(profile, 0), DIET_MATRIX, DIET_DOUBLE);
+  diet_generic_desc_set(diet_param_desc(profile, 1), DIET_MATRIX, DIET_DOUBLE);
+  diet_generic_desc_set(diet_param_desc(profile, 2), DIET_MATRIX, DIET_DOUBLE);
   /* Set convertor */
   arg = (diet_arg_t*) malloc(sizeof(diet_arg_t));
   diet_scalar_set(arg, &nbProcs, DIET_VOLATILE, DIET_INT);
-  diet_arg_cvt_short_set(diet_arg_conv(cvt,0), -1, arg);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt, 0), -1, arg);
   arg = (diet_arg_t*) malloc(sizeof(diet_arg_t));
   diet_scalar_set(arg, &nbRows, DIET_VOLATILE, DIET_INT);
-  diet_arg_cvt_short_set(diet_arg_conv(cvt,1), -1, arg);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt, 1), -1, arg);
   arg = (diet_arg_t*) malloc(sizeof(diet_arg_t));
   diet_scalar_set(arg, &nbCols, DIET_VOLATILE, DIET_INT);
   diet_arg_cvt_short_set(&(cvt->arg_convs[2]), -1, arg);
   arg = (diet_arg_t*) malloc(sizeof(diet_arg_t));
   diet_scalar_set(arg, &bs, DIET_VOLATILE, DIET_INT);
-  diet_arg_cvt_short_set(diet_arg_conv(cvt,3), -1, arg);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt, 3), -1, arg);
   {
     double alpha = 1.0;
     arg = (diet_arg_t*) malloc(sizeof(diet_arg_t));
     diet_scalar_set(arg, &alpha, DIET_VOLATILE, DIET_DOUBLE);
   }
-  diet_arg_cvt_short_set(diet_arg_conv(cvt,4), -1, arg);
-  diet_arg_cvt_short_set(diet_arg_conv(cvt,5),  0, NULL);
-  diet_arg_cvt_short_set(diet_arg_conv(cvt,6),  1, NULL);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt, 4), -1, arg);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt, 5),  0, NULL);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt, 6),  1, NULL);
   {
     double beta = 0.0;
     arg = (diet_arg_t*) malloc(sizeof(diet_arg_t));
     diet_scalar_set(arg, &beta, DIET_VOLATILE, DIET_DOUBLE);
   }
-  diet_arg_cvt_short_set(diet_arg_conv(cvt,7), -1, arg);
-  diet_arg_cvt_short_set(diet_arg_conv(cvt,8),  2, NULL);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt, 7), -1, arg);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt, 8),  2, NULL);
   /* Add */
   if (diet_service_table_add(profile, cvt, solve_pdgemm)) return 1;
   diet_profile_desc_free(profile);
@@ -1327,35 +1327,35 @@ registration(int argc, char* argv[])
    */
   /* Set profile */
   profile = diet_profile_desc_alloc("MatScalMult", 0, 1, 1);
-  diet_generic_desc_set(diet_param_desc(profile,0), DIET_SCALAR, DIET_DOUBLE);
-  diet_generic_desc_set(diet_param_desc(profile,1), DIET_MATRIX, DIET_DOUBLE);
+  diet_generic_desc_set(diet_param_desc(profile, 0), DIET_SCALAR, DIET_DOUBLE);
+  diet_generic_desc_set(diet_param_desc(profile, 1), DIET_MATRIX, DIET_DOUBLE);
   /* Set convertor */
   arg = (diet_arg_t*) malloc(sizeof(diet_arg_t));
   diet_scalar_set(arg, &nbProcs, DIET_VOLATILE, DIET_INT);
-  diet_arg_cvt_set(diet_arg_conv(cvt,0), DIET_CVT_IDENTITY, -1, arg);
+  diet_arg_cvt_set(diet_arg_conv(cvt, 0), DIET_CVT_IDENTITY, -1, arg);
   arg = (diet_arg_t*) malloc(sizeof(diet_arg_t));
   diet_scalar_set(arg, &nbRows, DIET_VOLATILE, DIET_INT);
-  diet_arg_cvt_set(diet_arg_conv(cvt,1), DIET_CVT_IDENTITY, -1, arg);
+  diet_arg_cvt_set(diet_arg_conv(cvt, 1), DIET_CVT_IDENTITY, -1, arg);
   arg = (diet_arg_t*) malloc(sizeof(diet_arg_t));
   diet_scalar_set(arg, &nbCols, DIET_VOLATILE, DIET_INT);
-  diet_arg_cvt_set(diet_arg_conv(cvt,2), DIET_CVT_IDENTITY, -1, arg);
+  diet_arg_cvt_set(diet_arg_conv(cvt, 2), DIET_CVT_IDENTITY, -1, arg);
   arg = (diet_arg_t*) malloc(sizeof(diet_arg_t));
   diet_scalar_set(arg, &bs, DIET_VOLATILE, DIET_INT);
-  diet_arg_cvt_set(diet_arg_conv(cvt,3), DIET_CVT_IDENTITY, -1, arg);
+  diet_arg_cvt_set(diet_arg_conv(cvt, 3), DIET_CVT_IDENTITY, -1, arg);
   {
     double alpha = 0.0;
     arg = (diet_arg_t*) malloc(sizeof(diet_arg_t));
     diet_scalar_set(arg, &alpha, DIET_VOLATILE, DIET_DOUBLE);
   }
-  diet_arg_cvt_short_set(diet_arg_conv(cvt,4), -1, arg);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt, 4), -1, arg);
   {
     arg = (diet_arg_t*) calloc(1, sizeof(diet_arg_t));
     diet_matrix_set(arg, NULL, DIET_VOLATILE, DIET_DOUBLE, 1, 1, DIET_COL_MAJOR);
   }  
-  diet_arg_cvt_short_set(diet_arg_conv(cvt,5), -1, arg);
-  diet_arg_cvt_short_set(diet_arg_conv(cvt,6), -1, arg);
-  diet_arg_cvt_short_set(diet_arg_conv(cvt,7),  0, NULL);
-  diet_arg_cvt_short_set(diet_arg_conv(cvt,8),  1, NULL);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt, 5), -1, arg);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt, 6), -1, arg);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt, 7),  0, NULL);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt, 8),  1, NULL);
   /* Add */
   if (diet_service_table_add(profile, cvt, solve_pdgemm)) return 1; 
   diet_profile_desc_free(profile);
@@ -1374,7 +1374,7 @@ parseArguments(int argc, char* argv[])
 
   if (argc != 2) {
     MPI_Finalize();
-    if (myId==0) {
+    if (myId == 0) {
       fprintf(stderr, "Usage: %s <file.cfg> \n", argv[0]);
     }
     exit(2);
@@ -1404,7 +1404,7 @@ initialize(int*  argc, char** argv[])
 
   MPI_Init(argc, argv);
 
-  printf("MPI_Comm_rank(%d, %d)\n", MPI_COMM_WORLD,myId);
+  printf("MPI_Comm_rank(%d, %d)\n", MPI_COMM_WORLD, myId);
   MPI_Comm_rank(MPI_COMM_WORLD,&myId);
   MPI_Comm_size(MPI_COMM_WORLD,&nbProcs);
   
@@ -1424,7 +1424,7 @@ initialize(int*  argc, char** argv[])
   wakeupMsgSize = MSG_FIRSTPROC+nbProcs;
 
   myJobId= malloc(nbProcs*sizeof(int));
-  for (q=0; q<nbProcs; q++)
+  for (q = 0; q<nbProcs; q++)
     myJobId[q]=-1;
 }
 
@@ -1458,7 +1458,7 @@ main(int argc, char* argv[])
 
   STATUS("Started");
 
-  if(myId==0){
+  if (myId == 0){
 
     ret = registration(argc, argv);
   }else{

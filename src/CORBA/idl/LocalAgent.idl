@@ -32,14 +32,10 @@ interface LocalAgent : Agent {
    */
   oneway void getRequest(in corba_request_t req);
 
-
-#ifdef HAVE_DYNAMICS
   /** Send an order for the agent to connect to a new parent */
   long bindParent(in string parentName);
   /** Send an order for the agent to disconnect from its parent */
   long disconnect();
-#endif // HAVE_DYNAMICS
-
 };
 
 #endif // _LOCAL_AGENT_IDL_

@@ -49,21 +49,11 @@ if( BUILD_TESTING )
   set( GENERATED_FWD_TESTS_DIR ${PROJECT_BINARY_DIR}/generated_test_forwarders )
   set( GENERATED_LOGFWD_TESTS_DIR ${PROJECT_BINARY_DIR}/generated_test_logs_forwarders )
 
-  if( DIET_USE_DAGDA )
-    set( DIET_CLIENT_LIBRARIES DIET_client DIET_Dagda)
-    set( DIET_SERVER_LIBRARIES DIET_SeD DIET_Dagda)
-  else( DIET_USE_DAGDA )
-    set( DIET_CLIENT_LIBRARIES DIET_client)
-    set( DIET_SERVER_LIBRARIES DIET_SeD)
-  endif ( DIET_USE_DAGDA )
-
-  if( DIET_ADMIN_API )
-    SET( DIET_ADMIN_LIBRARIES DIET_admin)
-  endif()
-
+  set( DIET_CLIENT_LIBRARIES DIET_client DIET_Dagda)
+  set( DIET_SERVER_LIBRARIES DIET_SeD DIET_Dagda)
+  set( DIET_ADMIN_LIBRARIES DIET_admin)
 
   diet_test_setup()
-
 
   # temporary directories for Dagda
   string(RANDOM LENGTH 32 TMPPATHUUID)

@@ -1,18 +1,13 @@
-#############################################################################
-# DIET main cmake entry point: comment or perish...                         #
-#############################################################################
-project(DIET)
 cmake_minimum_required(VERSION 2.6)
+project(DIET)
 
 set(DIET_MAJOR_VERSION 2)
-set(DIET_MINOR_VERSION 8)
+set(DIET_MINOR_VERSION 90)
 set(DIET_REVISION_VERSION 0)
 
-set(DIET_VERSION ${DIET_MAJOR_VERSION}.${DIET_MINOR_VERSION})
+set(DIET_VERSION
+  "${DIET_MAJOR_VERSION}.${DIET_MINOR_VERSION}.${DIET_REVISION_VERSION}")
 
-if (DIET_REVISION_VERSION)
-  set(DIET_VERSION ${DIET_VERSION}.${DIET_REVISION_VERSION})
-endif ()
 add_definitions(-DDIET_VERSION="${DIET_VERSION}")
 
 # Get Date
@@ -30,11 +25,6 @@ else (WIN32)
 endif (WIN32)
 
 set(DIET_BUILD_VERSION ${BUILD_DATE})
-
-# To remove an issue with Cmake internal rpath tool
-if (NOT BUILT_SHARED_LIBS)
-  set(CMAKE_NO_BUILTIN_CHRPATH 1)
-endif ()
 
 # because x86_64 can't link static libraries to shared libraries
 # and from 2.5, this is what is done in DIET
@@ -63,10 +53,6 @@ endif()
 # --------------------- OPTIONS OF THE PROJECT -----------------------------
 # Options dependencies:
 #    - DIET_BUILD_BLAS_EXAMPLES => DIET_BUILD_EXAMPLES
-#    - DIET_USE_ALT_BATCH => DIET_USE_CORI
-#    - DIET_USE_DYNAMICS => DIET_USE_DAGDA (!DIET_USE_DTM)
-#    - DIET_WORKFLOW => DIET_USE_DAGDA (!DIET_USE_DTM)
-#    - DIET_TRANSFER_PROGRESSION => DIET_USE_DAGDA
 #    - DIET_USE_CLOUD => DIET_USE_ALT_BATCH
 
 option(DIET_BUILD_BLAS_EXAMPLES "Build BLAS based DIET examples." OFF)
@@ -93,56 +79,20 @@ else (DIET_USE_CLOUD)
 	option(DIET_USE_ALT_BATCH  "Build DIET with Batch support." OFF)
 endif (DIET_USE_CLOUD)
 
-if (DIET_USE_ALT_BATCH)
-  if (NOT DIET_USE_CORI)
-    set(DIET_USE_CORI ON CACHE BOOL "Cori support" FORCE)
-    message(WARNING "CORI was activated for batch support.")
-  endif (NOT DIET_USE_CORI)
-  option(DIET_USE_CORI "Build DIET with CORI support (Mandatory for the batch support)." ON)
-else (DIET_USE_ALT_BATCH)
-  option(DIET_USE_CORI   "Build DIET with CORI support." OFF)
-endif (DIET_USE_ALT_BATCH)
-
-option(DIET_USE_DART   "Build DIET with dart reporting support." OFF)
-option(DIET_USE_DYNAMICS   "Build DIET with dynamic hierarchy modifications features." ON)
-mark_as_advanced(DIET_USE_DYNAMICS)
-option(DIET_USE_FAST   "Build DIET with FAST support." OFF)
-option(DIET_USE_FD     "Build DIET with Fault Detector support." OFF)
-option(DIET_USE_JUXMEM "Build DIET with JuxMem support." OFF)
 option(DIET_USE_WORKFLOW    "Build DIET with workflow support..." OFF)
 option(DIET_WITH_STATISTICS "Build DIET with generation of statistics." OFF)
 option(DIET_WITH_MULTI_MA   "Build DIET with MULTI-Master-Agent support." OFF)
 option(DIET_USE_USERSCHED   "Build DIET with user scheduler support (Experimental)." OFF)
-option(DIET_USE_ENDIANNESS  "Build DIET with endianness management  (Experimental)." OFF)
 option(DIET_USE_CCS         "Build DIET with client custom scheduling  (Experimental)." OFF)
-set (DIET_USE_DAGDA CACHE INTERNAL ON FORCE)
-if (NOT DIET_USE_DTM)
-  option(DIET_TRANSFER_PROGRESSION "Build DIET with DAGDA progression API" OFF )
-endif (NOT DIET_USE_DTM)
-option(DIET_USE_ACKFILE     "Build DIET with acknowledge file." OFF)
 option(DIET_BUILD_TOOLS	    "Build DIET tools." OFF)
 
-if (DIET_USE_DYNAMICS OR DIET_USE_WORKFLOW)
-endif (DIET_USE_DYNAMICS OR DIET_USE_WORKFLOW)
-
-# Profiling, used to add counters with TAU (http://http://www.cs.uoregon.edu/research/tau/home.php)
-option( DIET_TAU_PROFILING "Build DIET with TAU profiling support. (In developpment)." OFF )
-mark_as_advanced(DIET_TAU_PROFILING)
 option( DIET_USE_MULTICALL "Build DIET with the multiple async call (In development)" OFF)
 mark_as_advanced(DIET_USE_MULTICALL)
-
-# admin API
-option(DIET_ADMIN_API   "Build DIET administration API." OFF)
-
 
 option(DIET_BUILD_DOC "Build DIET documentation." OFF)
 if( DIET_BUILD_DOC )
   add_subdirectory(doc)
 endif()
-
-
-# JXTA architecture is deprecated
-#option(DIET_USE_JXTA   "Build DIET with JXTA architecture support." OFF)
 
 
 # --------------------- OPTIONS SET BY DEFAULT  ----------------------------
@@ -246,6 +196,9 @@ endif (CYGWIN)
 # reference to non CMake defined "standard" modules):
 set(CMAKE_MODULE_PATH ${DIET_SOURCE_DIR}/Cmake)
 
+# Boost is mandatory
+find_package(Boost 1.46.1 REQUIRED)
+
 # OmniORB is mandatory:
 find_package(OmniORB)
 if (OMNIORB4_FOUND)
@@ -284,68 +237,13 @@ endif (DIET_USE_CLOUD)
 # --------------------------- CORI support ------------------------
 # CORI (COllector of Resource Information) is heavily dependant on
 # system calls for probing ressources:
-if (DIET_USE_CORI)
-  add_definitions(-DHAVE_CORI)
-  include(${DIET_SOURCE_DIR}/Cmake/ConfigureCORI.cmake)
-endif (DIET_USE_CORI)
-
-# --------------------------- JXTA Multi MA support ------------------------
-##### JXTA support is deprecated
-# Enable dynamic MULTI-Master-Agent support based on JXTA library
-# (refer to http://www.jxta.org/ ). This is similar to functionalities offered
-# the DIET_WITH_MULTI_MA option (see below) except that JXTA is used in place
-# of CORBA. JXTA allows the creation of a new MA on demand and it's
-# integration within the multi-hierarchy of existing MAs.
-#IF( DIET_USE_JXTA )
-# Looking for the java compiler, javac, javah...
-#  FIND_PACKAGE( JavaExtended )
-#  IF( JAVA_FOUND )
-#    ADD_DEFINITIONS(-DHAVE_JXTA)
-#  ELSE( JAVA_FOUND )
-#    SET( DIET_USE_JXTA OFF )
-#  ENDIF( JAVA_FOUND )
-# For locating the jni.h:
-#  FIND_PACKAGE( JNI )
-#  IF( NOT JAVA_INCLUDE_PATH )
-#    MESSAGE( SEND_ERROR "JXTA exension: could not find jni.h.")
-#    SET( DIET_USE_JXTA OFF )
-#  ENDIF( NOT JAVA_INCLUDE_PATH )
-#ENDIF( DIET_USE_JXTA )
+include(${DIET_SOURCE_DIR}/Cmake/ConfigureCORI.cmake)
 
 # --------------------------- Multi MA support ------------------------
 # So called MULTI-Master-Agent
 if (DIET_WITH_MULTI_MA)
   add_definitions(-DHAVE_MULTI_MA)
 endif (DIET_WITH_MULTI_MA)
-
-# Define for Fault Detection system
-if (DIET_USE_FD)
-  add_definitions(-DHAVE_FD)
-endif (DIET_USE_FD)
-
-if (DIET_USE_FAST)
-  find_package(FAST)
-  if (FAST_FOUND)
-    add_definitions(-DHAVE_FAST)
-    ### FIXME: we only ported the FAST 0.8.x API way of doing things.
-    ### Nevertheless the code still makes references to the FAST 0.4.x API
-    ### (search for defines __FAST_0_4__ versus __FAST_0_8__. Should we trash
-    ### the FAST 0.4.x API support ?
-    add_definitions(-D__FAST_0_8__)
-  endif (FAST_FOUND)
-endif (DIET_USE_FAST)
-
-# --------------------------- Juxmem support ------------------------
-# Enable distributed shared memory based on Juxtaposed Memory (JuxMem)
-# library (refer to http://juxmem.gforge.inria.fr/ ).
-if (DIET_USE_JUXMEM)
-  find_package(Juxmem)
-  if (JUXMEM_FOUND)
-    add_definitions(-DHAVE_JUXMEM)
-  else (JUXMEM_FOUND)
-    set(DIET_USE_JUXMEM OFF CACHE BOOL "Build DIET with JuxMem support.")
-  endif (JUXMEM_FOUND)
-endif (DIET_USE_JUXMEM)
 
 # --------------------------- Statistic support ------------------------
 if (DIET_WITH_STATISTICS)
@@ -396,38 +294,19 @@ if (DIET_USE_WORKFLOW)
   endif (XERCES_FOUND)
 endif (DIET_USE_WORKFLOW)
 
-# --------------------------- Ackfile support ------------------------
-if (DIET_USE_ACKFILE)
-  add_definitions(-DHAVE_ACKFILE)
-endif (DIET_USE_ACKFILE)
-
-
 # --------------- For users agents scheduler support ------------------
 if (DIET_USE_USERSCHED)
   add_definitions(-DUSERSCHED)
 endif(DIET_USE_USERSCHED)
 
-# Now Dagda is the default DIET data manager.
-if (DIET_USE_DTM)
-  set(DIET_USE_DAGDA OFF CACHE INTERNAL "Use Dagda as data manager" FORCE)
-else (DIET_USE_DTM)
-  set(DIET_USE_DAGDA ON CACHE INTERNAL "Use Dagda as data manager" FORCE)
-endif (DIET_USE_DTM)
-
 # --------------- Dagda as data manager support ---------------
-if (DIET_USE_DAGDA)
-  find_package(UUID)
-	if (NOT UUID_FOUND)
-	  message(WARNING "UUID lib was not found. DIET will use unsafe data names. Please provide a valid path to uuid installation and/or install e2fstools")
-	endif (NOT UUID_FOUND)
-  add_definitions(-DHAVE_DAGDA)
-  if (DIET_TRANSFER_PROGRESSION)
-    add_definitions(-DDAGDA_PROGRESSION)
-  endif (DIET_TRANSFER_PROGRESSION)
-else (DIET_USE_DAGDA)
-  set (DIET_USE_DYNAMICS OFF)
-endif (DIET_USE_DAGDA)
-
+find_package(UUID)
+if (NOT UUID_FOUND)
+  message(WARNING "UUID lib was not found. DIET will use unsafe data names. Please provide a valid path to uuid installation and/or install e2fstools")
+endif (NOT UUID_FOUND)
+if (DIET_TRANSFER_PROGRESSION)
+  add_definitions(-DDAGDA_PROGRESSION)
+endif (DIET_TRANSFER_PROGRESSION)
 
 #-------------------- DIET log service use -------------------
 option(DIET_USE_LOG "Allow Diet to send log message to log service " OFF)
@@ -441,11 +320,6 @@ if (DIET_USE_LOG)
   endif (LOGSERVICE_FOUND)
   
 endif (DIET_USE_LOG)
-# --------------- DIET Endianness support  ------------------
-if (DIET_USE_ENDIANNESS)
-  add_definitions(-DWITH_ENDIANNESS)
-endif (DIET_USE_ENDIANNESS)
-
 # --------------- DIET custom client scheduling support  ------------------
 if (DIET_USE_CCS)
   add_definitions(-DHAVE_CCS)
@@ -485,7 +359,7 @@ set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib
 set(CMAKE_INSTALL_NAME_DIR ${CMAKE_INSTALL_PREFIX}/lib)
 
 # ------------------- CTEST SUPPORT ----------------------------------------
-if (BUILD_TESTING OR DIET_USE_DART)
+if (BUILD_TESTING)
   include(${DIET_SOURCE_DIR}/Cmake/FindTestingUtils.cmake)
   # Caveat emptor:
   # 1/ Excerpt from docs about ENABLE_TESTING:
@@ -544,31 +418,7 @@ if (BUILD_TESTING OR DIET_USE_DART)
     FORCE
   )
 
-endif (BUILD_TESTING OR DIET_USE_DART)
-
-# ---------------- OPTIONAL DART2 CLIENT SUPPORT ---------------------------
-# Refer to http://na-mic.org/Wiki/index.php/Dart2Summary
-if (DIET_USE_DART)
-  # With the following include you somehow engage yourself in providing
-  # a CTestConfig.cmake file: refer to Modules/CTest.cmake for further details.
-  include(CTest)
-endif (DIET_USE_DART)
-
-# ---------------- TAU PROFILING SUPPORT -----------------------------------
-# Refer to http://www.cs.uoregon.edu/research/tau/home.php for TAU installation
-if (DIET_TAU_PROFILING)
-  # Still testing this part
-  # the following include will add the path to the installation of TAU, and
-  # will determine the configuration used in TAU.
-  # The CXX and C compilers will be replaced with the TAU script: tau_compiler.sh
-  option(TAU_KEEP_MOD_SRC "Keep generated instrumented files." OFF)
-  include(${CMAKE_MODULE_PATH}/TAU/TAU_Profiling.cmake)
-endif (DIET_TAU_PROFILING)
-
-# ---------------- DYNAMIC HIERARCHY MODIFICATION FEATURES ----------------
-if (DIET_USE_DYNAMICS)
-  add_definitions(-DHAVE_DYNAMICS)
-endif (DIET_USE_DYNAMICS)
+endif (BUILD_TESTING)
 
 # ---------------- STATIC LINKING FIXES ------------------------------------
 # When BUILD_SHARED_LIBS is NOT set, we assume that we not only expect

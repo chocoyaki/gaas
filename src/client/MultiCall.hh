@@ -24,14 +24,20 @@
 #include <vector>
 
 class MultiCall {
-
 public:
-  static corba_response_t* get_response();
-  static void set_response(corba_response_t *response);
-  static bool updateCall(diet_profile_t* profile, SeD_var& chosenServer);
+  static corba_response_t*
+  get_response();
+
+  static void
+  set_response(corba_response_t *response);
+
+  static bool
+  updateCall(diet_profile_t* profile, SeD_var& chosenServer);
 
 private:
-  static std::vector<int> cerfacsSchedule();
+  static std::vector<int>
+  cerfacsSchedule();
+
   static corba_response_t *corba_response;
 };
 

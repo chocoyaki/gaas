@@ -11,16 +11,16 @@
 
 #include "debug.hh"
 
-#include <string>
-#include <cstring>
-#include <fstream>
-#include <stdexcept>
-#include <iostream>
-#include <vector>
-#include <sstream>
-#include <iterator>
-#include <algorithm>
 #include <cstdio>
+#include <cstring>
+#include <algorithm>
+#include <string>
+#include <fstream>
+#include <iterator>
+#include <iostream>
+#include <sstream>
+#include <stdexcept>
+#include <vector>
 
 #include <unistd.h>    // For sleep & fork functions
 #include <sys/wait.h>  // For waitpid function
@@ -31,45 +31,48 @@
 #include <netinet/in.h>
 /**/
 
-using namespace std;
-
 const unsigned int DEFAULT_WAITING_TIME = 10;
 
-string SSHTunnel::cmdFormat  = "%p -l %u %s -p %P -N";
-string SSHTunnel::cmdFormatDefault = "%p %s -N";
-string SSHTunnel::localFormat = "-L%l:%h:%R";
-string SSHTunnel::remoteFormat = "-R%r:%h:%L";
-string SSHTunnel::keyFormat = "-i %k";
+std::string SSHTunnel::cmdFormat  = "%p -l %u %s -p %P -N";
+std::string SSHTunnel::cmdFormatDefault = "%p %s -N";
+std::string SSHTunnel::localFormat = "-L%l:%h:%R";
+std::string SSHTunnel::remoteFormat = "-R%r:%h:%L";
+std::string SSHTunnel::keyFormat = "-i %k";
 
 /* Return the current session login. */
-string SSHConnection::userLogin() {
+std::string
+SSHConnection::userLogin() {
   char* result = getlogin();
 
   if (result == NULL) {
-    TRACE_TEXT(TRACE_MAIN_STEPS, "Unable to determine the user login." << endl);
+    TRACE_TEXT(TRACE_MAIN_STEPS,
+               "Unable to determine the user login.\n");
     return "";
   }
   return result;
 }
 
 /* Get the default path to user SSH key. If the user does not use
- * a private key for connection, return empty string.
+ * a private key for connection, return empty std::string.
  */
 
-string SSHConnection::userKey() {
+std::string
+SSHConnection::userKey() {
   char* home = getenv("HOME");
-  string path;
+  std::string path;
 
   /* Try the RSA key default path. */
-  path = ((home == NULL) ? string(""):string(home)) + "/.ssh/id_rsa";
-  ifstream f(path.c_str());
+  path = ((home == NULL) ?
+          std::string("") : std::string(home)) + "/.ssh/id_rsa";
+  std::ifstream f(path.c_str());
   if (f.is_open()) {
     f.close();
     return path;
   }
 
   /* Try the DSA key default path. */
-  path = ((home == NULL) ? string(""):string(home)) + "/.ssh/id_dsa";
+  path = ((home == NULL) ?
+          std::string("") : std::string(home)) + "/.ssh/id_dsa";
   f.open(path.c_str());
   if (f.is_open()) {
     f.close();
@@ -96,61 +99,73 @@ SSHConnection::SSHConnection(const std::string& sshHost,
   setSshPath(sshPath);
 }
 
-const std::string& SSHConnection::getSshHost() const {
+const std::string&
+SSHConnection::getSshHost() const {
   return sshHost;
 }
 
-const std::string& SSHConnection::getSshPath() const {
+const std::string&
+SSHConnection::getSshPath() const {
   return sshPath;
 }
 
-const std::string& SSHConnection::getSshPort() const {
+const std::string&
+SSHConnection::getSshPort() const {
   return sshPort;
 }
 
-const std::string& SSHConnection::getSshLogin() const {
+const std::string&
+SSHConnection::getSshLogin() const {
   return login;
 }
 
-const std::string& SSHConnection::getSshKeyPath() const {
+const std::string&
+SSHConnection::getSshKeyPath() const {
   return keyPath;
 }
 
-const std::string& SSHConnection::getSshOptions() const {
+const std::string&
+SSHConnection::getSshOptions() const {
   return options;
 }
 
-void SSHConnection::setSshHost(const std::string& host) {
+void
+SSHConnection::setSshHost(const std::string& host) {
   if (host != "") {
     this->sshHost = host;
   }
 }
 
-void SSHConnection::setSshPath(const std::string& path) {
+void
+SSHConnection::setSshPath(const std::string& path) {
   if (path != "") {
     this->sshPath = path;
   }
 }
 
-void SSHConnection::setSshPort(const std::string& port) {
+void
+SSHConnection::setSshPort(const std::string& port) {
   if (port != "") {
     this->sshPort = port;
   }
 }
 
-void SSHConnection::setSshPort(const int port) {
-  ostringstream os;
+void
+SSHConnection::setSshPort(const int port) {
+  std::ostringstream os;
   os << port;
   this->sshPort = os.str();
 }
 
-void SSHConnection::setSshLogin(const std::string& login) {
+void
+SSHConnection::setSshLogin(const std::string& login) {
   if (login != "") {
     this->login = login;
   }
 }
 
-void SSHConnection::setSshKeyPath(const std::string& path) {
+void
+SSHConnection::setSshKeyPath(const std::string& path) {
   this->keyPath = path;
 }
 
@@ -159,9 +174,10 @@ void SSHConnection::setSshOptions(const std::string& options) {
 }
 
 /* Replace "s" by "r" in "str". */
-void replace(const string& s, const string& r, string& str) {
+void
+replace(const std::string& s, const std::string& r, std::string& str) {
   size_t pos;
-  if ((pos = str.find(s)) != string::npos) {
+  if ((pos = str.find(s)) != std::string::npos) {
     str.erase(pos, s.length());
     str.insert(pos, r);
   }
@@ -171,8 +187,8 @@ void replace(const string& s, const string& r, string& str) {
  * the socket file descriptor used to find
  * the port.
  */
-string freeTCPport() {
-  ostringstream os;
+std::string freeTCPport() {
+  std::ostringstream os;
   struct sockaddr_in sck;
 
   int sfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -188,8 +204,9 @@ string freeTCPport() {
   return os.str();
 }
 
-string SSHTunnel::makeCmd() {
-  string result;
+std::string
+SSHTunnel::makeCmd() {
+  std::string result;
 
   if (getSshLogin() == "" && getSshPort() == "" && getSshKeyPath() == "") {
     result = cmdFormatDefault;
@@ -242,20 +259,19 @@ SSHTunnel::SSHTunnel() : SSHConnection() {
 }
 
 /* Constructor for bi-directionnal SSH tunnel. */
-SSHTunnel::SSHTunnel(const string& sshHost,
-                     const string& remoteHost,
-                     const string& localPortFrom,
-                     const string& remotePortTo,
-                     const string& remotePortFrom,
-                     const string& localPortTo,
+SSHTunnel::SSHTunnel(const std::string& sshHost,
+                     const std::string& remoteHost,
+                     const std::string& localPortFrom,
+                     const std::string& remotePortTo,
+                     const std::string& remotePortFrom,
+                     const std::string& localPortTo,
                      const bool createTo,
                      const bool createFrom,
-                     const string& sshPath,
-                     const string& sshPort,
-                     const string& login,
-                     const string& keyPath) :
-  SSHConnection(sshHost, sshPort, login, keyPath, sshPath)
-{
+                     const std::string& sshPath,
+                     const std::string& sshPort,
+                     const std::string& login,
+                     const std::string& keyPath)
+  : SSHConnection(sshHost, sshPort, login, keyPath, sshPath) {
   this->remoteHost = remoteHost;
   this->localPortFrom = localPortFrom;
   this->remotePortTo = remotePortTo;
@@ -267,17 +283,16 @@ SSHTunnel::SSHTunnel(const string& sshHost,
 }
 
 /* Constructor for unidirectionnal SSH tunnel. */
-SSHTunnel::SSHTunnel(const string& sshHost,
-                     const string& remoteHost,
-                     const string& localPortFrom,
-                     const string& remotePortTo,
+SSHTunnel::SSHTunnel(const std::string& sshHost,
+                     const std::string& remoteHost,
+                     const std::string& localPortFrom,
+                     const std::string& remotePortTo,
                      const bool createTo,
-                     const string& sshPath,
-                     const string& sshPort,
-                     const string& login,
-                     const string& keyPath) :
-  SSHConnection(sshHost, sshPort, login, keyPath, sshPath)
-{
+                     const std::string& sshPath,
+                     const std::string& sshPort,
+                     const std::string& login,
+                     const std::string& keyPath)
+  : SSHConnection(sshHost, sshPort, login, keyPath, sshPath) {
   this->remoteHost = remoteHost;
   this->localPortFrom = localPortFrom;
   this->remotePortTo = remotePortTo;
@@ -290,194 +305,220 @@ SSHTunnel::~SSHTunnel() {
   close();
 }
 
-void SSHTunnel::open() {
+void
+SSHTunnel::open() {
   if (!createTo && !createFrom) {
     return;
   }
 
-  vector<string> tokens;
-  string command = makeCmd();
-  istringstream is(command);
+  std::vector<std::string> tokens;
+  std::string command = makeCmd();
+  std::istringstream is(command);
 
-  copy(istream_iterator<string>(is),
-       istream_iterator<string>(),
-       back_inserter<vector<string> >(tokens));
+  std::copy(std::istream_iterator<std::string>(is),
+            std::istream_iterator<std::string>(),
+            std::back_inserter<std::vector<std::string> >(tokens));
 
-  char* argv[tokens.size()+1];
-  argv[tokens.size()]=NULL;
+  char* argv[tokens.size() + 1];
+  argv[tokens.size()] = NULL;
 
-  for (unsigned int i=0; i<tokens.size(); ++i)
-    argv[i]=strdup(tokens[i].c_str());
+  for (unsigned int i = 0; i < tokens.size(); ++i) {
+    argv[i] = strdup(tokens[i].c_str());
+  }
 
   pid = fork();
-  if (pid==-1) {
-    throw runtime_error("Error forking process.");
+  if (pid == -1) {
+    throw std::runtime_error("Error forking process.");
   }
-  if (pid==0) {
+  if (pid == 0) {
     if (execvp(argv[0], argv)) {
       ERROR_EXIT("Error executing command " << command);
     }
   }
-  for (unsigned int i=0; i<tokens.size(); ++i)
+  for (unsigned int i = 0; i < tokens.size(); ++i) {
     free(argv[i]);
-  TRACE_TEXT(TRACE_MAIN_STEPS, "Sleep " << this->waitingTime << " s. waiting for tunnel" << endl);
+  }
+
+  TRACE_TEXT(TRACE_MAIN_STEPS,
+             "Sleep " << this->waitingTime
+             << " s. waiting for tunnel\n");
   sleep(this->waitingTime);
-  TRACE_TEXT(TRACE_MAIN_STEPS, "Wake up!" << endl);
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Wake up!\n");
 }
 
-void SSHTunnel::close() {
+void
+SSHTunnel::close() {
   if (!createTo && !createFrom) {
     return;
   }
   if (pid && kill(pid, SIGTERM)) {
     if (kill(pid, SIGKILL)) {
-      throw runtime_error("Unable to stop the ssh process");
+      throw std::runtime_error("Unable to stop the ssh process");
     }
   }
   pid = 0;
 }
 
-const string& SSHTunnel::getRemoteHost() const {
+const std::string&
+SSHTunnel::getRemoteHost() const {
   return remoteHost;
 }
 
-int SSHTunnel::getLocalPortFrom() const {
+int
+SSHTunnel::getLocalPortFrom() const {
   int res;
-  istringstream is(localPortFrom);
+  std::istringstream is(localPortFrom);
 
   is >> res;
 
   return res;
 }
 
-int SSHTunnel::getLocalPortTo() const {
+int
+SSHTunnel::getLocalPortTo() const {
   int res;
-  istringstream is(localPortTo);
+  std::istringstream is(localPortTo);
 
   is >> res;
 
   return res;
 }
 
-int SSHTunnel::getRemotePortFrom() const {
+int
+SSHTunnel::getRemotePortFrom() const {
   int res;
-  istringstream is(remotePortFrom);
+  std::istringstream is(remotePortFrom);
 
   is >> res;
 
   return res;
 }
 
-int SSHTunnel::getRemotePortTo() const {
+int
+SSHTunnel::getRemotePortTo() const {
   int res;
-  istringstream is(remotePortTo);
+  std::istringstream is(remotePortTo);
 
   is >> res;
 
   return res;
 }
 
-void SSHTunnel::setRemoteHost(const std::string& host) {
+void
+SSHTunnel::setRemoteHost(const std::string& host) {
   this->remoteHost = host;
 }
 
-void SSHTunnel::setLocalPortFrom(const std::string& port) {
+void
+SSHTunnel::setLocalPortFrom(const std::string& port) {
   this->localPortFrom = port;
 }
 
-void SSHTunnel::setLocalPortFrom(const int port) {
-  ostringstream os;
+void
+SSHTunnel::setLocalPortFrom(const int port) {
+  std::ostringstream os;
   os << port;
   this->localPortFrom = os.str();
 }
 
-void SSHTunnel::setRemotePortTo(const std::string& port) {
+void
+SSHTunnel::setRemotePortTo(const std::string& port) {
   this->remotePortTo = port;
 }
 
-void SSHTunnel::setRemotePortTo(const int port) {
-  ostringstream os;
+void
+SSHTunnel::setRemotePortTo(const int port) {
+  std::ostringstream os;
   os << port;
   this->remotePortTo = os.str();
 }
 
-void SSHTunnel::setRemotePortFrom(const std::string& port) {
+void
+SSHTunnel::setRemotePortFrom(const std::string& port) {
   this->remotePortFrom = port;
 }
 
-void SSHTunnel::setRemotePortFrom(const int port) {
-  ostringstream os;
+void
+SSHTunnel::setRemotePortFrom(const int port) {
+  std::ostringstream os;
   os << port;
   this->remotePortFrom = os.str();
 }
 
-void SSHTunnel::setLocalPortTo(const std::string& port) {
+void
+SSHTunnel::setLocalPortTo(const std::string& port) {
   this->localPortTo = port;
 }
 
-void SSHTunnel::setLocalPortTo(const int port) {
-  ostringstream os;
+void
+SSHTunnel::setLocalPortTo(const int port) {
+  std::ostringstream os;
   os << port;
   this->localPortTo = os.str();
 }
 
-void SSHTunnel::setWaitingTime(const unsigned int time) {
+void
+SSHTunnel::setWaitingTime(const unsigned int time) {
   if (time != 0) {
     this->waitingTime = time;
   }
 }
 
-void SSHTunnel::createTunnelTo(const bool create) {
+void
+SSHTunnel::createTunnelTo(const bool create) {
   this->createTo = create;
 }
 
-void SSHTunnel::createTunnelFrom(const bool create) {
+void
+SSHTunnel::createTunnelFrom(const bool create) {
   this->createFrom = create;
 }
 
 
-SSHCopy::SSHCopy(const string& sshHost,
-                 const string& remoteFilename,
-                 const string& localFilename)
-{
+SSHCopy::SSHCopy(const std::string& sshHost,
+                 const std::string& remoteFilename,
+                 const std::string& localFilename) {
   setSshHost(sshHost);
   this->remoteFilename = remoteFilename;
   this->localFilename = localFilename;
 }
 
-bool SSHCopy::getFile() const {
-  vector<string> tokens;
+bool
+SSHCopy::getFile() const {
+  std::vector<std::string> tokens;
   int status;
-  string command;
+  std::string command;
 
   command = getSshPath();
-  if (getSshPort()!="")
-    command += " -P "+getSshPort();
-  if (getSshKeyPath()!="") {
-    command += " -i "+getSshKeyPath();
+  if (getSshPort() != "") {
+    command += " -P " + getSshPort();
   }
-  if (getSshLogin()!="")
-    command += " "+getSshLogin()+"@"+getSshHost()+":"+remoteFilename;
-  else
-    command += " "+getSshHost()+":"+remoteFilename;
+  if (getSshKeyPath() != "") {
+    command += " -i " + getSshKeyPath();
+  }
+  if (getSshLogin() != "") {
+    command += " " + getSshLogin() + "@" + getSshHost() + ":" + remoteFilename;
+  } else {
+    command += " " + getSshHost() + ":" + remoteFilename;
+  }
 
-  command += " "+localFilename;
+  command += " " + localFilename;
 
-  istringstream is(command);
+  std::istringstream is(command);
 
-  copy(istream_iterator<string>(is),
-       istream_iterator<string>(),
-       back_inserter<vector<string> >(tokens));
+  std::copy(std::istream_iterator<std::string>(is),
+            std::istream_iterator<std::string>(),
+            std::back_inserter<std::vector<std::string> >(tokens));
 
-  char* argv[tokens.size()+1];
-  argv[tokens.size()]=NULL;
+  char* argv[tokens.size() + 1];
+  argv[tokens.size()] = NULL;
 
-  for (unsigned int i=0; i<tokens.size(); ++i)
-    argv[i]=strdup(tokens[i].c_str());
-
+  for (unsigned int i = 0; i < tokens.size(); ++i) {
+    argv[i] = strdup(tokens[i].c_str());
+  }
   pid = fork();
-  if (pid==-1) {
-    throw runtime_error("Error forking process.");
+  if (pid == -1) {
+    throw std::runtime_error("Error forking process.");
   }
   if (pid == 0) {
     fclose(stdout);
@@ -486,62 +527,69 @@ bool SSHCopy::getFile() const {
     }
   }
 
-  for (unsigned int i=0; i<tokens.size(); ++i) {
+  for (unsigned int i = 0; i < tokens.size(); ++i) {
     free(argv[i]);
   }
 
-  if (waitpid(pid, &status, 0)==-1) {
-    throw runtime_error("Error executing scp command");
+  if (waitpid(pid, &status, 0) == -1) {
+    throw std::runtime_error("Error executing scp command");
   }
-  return (WIFEXITED(status)!=0 ? (WEXITSTATUS(status)==0):false);
+  // FIXME: WTF ?
+  return ((WIFEXITED(status) !=0) ? (WEXITSTATUS(status) == 0) : false);
 }
 
-bool SSHCopy::putFile() const {
-  vector<string> tokens;
+bool
+SSHCopy::putFile() const {
+  std::vector<std::string> tokens;
   int status;
-  string command;
+  std::string command;
 
   command = getSshPath();
-  if (getSshPort()!="")
-    command += " -P "+getSshPort();
-  if (getSshKeyPath()!="")
-    command += " -i "+getSshKeyPath();
+  if (getSshPort() != "") {
+    command += " -P " + getSshPort();
+  }
+  if (getSshKeyPath() != "") {
+    command += " -i " + getSshKeyPath();
+  }
 
-  command += " "+localFilename;
-  if (getSshLogin()!="")
+  command += " " + localFilename;
+  if (getSshLogin() != "")  {
     command += " "+getSshLogin()+"@"+getSshHost()+":"+remoteFilename;
-  else
+  } else {
     command += " "+getSshHost()+":"+remoteFilename;
+  }
 
-  istringstream is(command);
+  std::istringstream is(command);
 
-  copy(istream_iterator<string>(is),
-       istream_iterator<string>(),
-       back_inserter<vector<string> >(tokens));
+  std::copy(std::istream_iterator<std::string>(is),
+            std::istream_iterator<std::string>(),
+            std::back_inserter<std::vector<std::string> >(tokens));
 
-  char* argv[tokens.size()+1];
-  argv[tokens.size()]=NULL;
+  char* argv[tokens.size() + 1];
+  argv[tokens.size()] = NULL;
 
-  for (unsigned int i=0; i<tokens.size(); ++i)
-    argv[i]=strdup(tokens[i].c_str());
+  for (unsigned int i = 0; i < tokens.size(); ++i) {
+    argv[i] = strdup(tokens[i].c_str());
+  }
 
   pid = fork();
-  if (pid==-1) {
-    throw runtime_error("Error forking process.");
+  if (pid == -1) {
+    throw std::runtime_error("Error forking process.");
   }
-  if (pid==0) {
+  if (pid == 0) {
     fclose(stdout);
     if (execvp(argv[0], argv)) {
       ERROR_EXIT("Error executing command " << command);
     }
   }
 
-  for (unsigned int i=0; i<tokens.size(); ++i)
+  for (unsigned int i = 0; i < tokens.size(); ++i) {
     free(argv[i]);
-
-  if (waitpid(pid, &status, 0) == -1) {
-    throw runtime_error("Error executing scp command");
   }
 
-  return (WIFEXITED(status)!=0 ? (WEXITSTATUS(status)==0):false);
+  if (waitpid(pid, &status, 0) == -1) {
+    throw std::runtime_error("Error executing scp command");
+  }
+
+  return ((WIFEXITED(status) != 0) ? (WEXITSTATUS(status) == 0) : false);
 }

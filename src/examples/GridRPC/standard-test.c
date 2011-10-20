@@ -80,10 +80,10 @@ void error_report_test_7(char *, char **);
 
 int main(int argc, char **argv)
 {
-  if( argc != 7 ){
+  if (argc != 7){
     fprintf(stderr,
             "Usage: %s <config> <server> <add_func> <sleep_func> <exit_func> <loop_func>\n",
-	    argv[0]);
+            argv[0]);
     exit(-1);
   } 
 
@@ -709,14 +709,14 @@ void wait_test_1(char *config_file, char **func_list)
   int i, j, x = 3, y = 0;
   printf("Wait Test 1: ");
 
-  for (i=0; i<NCALLS; i++) id[i] = GRPC_SESSIONID_VOID;
+  for (i = 0; i<NCALLS; i++) id[i] = GRPC_SESSIONID_VOID;
 
   err = grpc_initialize(config_file);
   if (err != GRPC_NO_ERROR) {
     fprintf(stderr, "grpc_initialize() failed: %s\n", grpc_error_string(err));
     return;
   }
-  for (i=0; i<NCALLS; i++) {
+  for (i = 0; i<NCALLS; i++) {
     err = grpc_function_handle_default(&handle[i], func_list[0]);
     if (err != GRPC_NO_ERROR) {
       fprintf(stderr, "grpc_function_handle_default() failed: %s\n", grpc_error_string(err));
@@ -724,34 +724,34 @@ void wait_test_1(char *config_file, char **func_list)
       return;
     }
   }
-  for (i=0; i<NCALLS; i++) {
+  for (i = 0; i<NCALLS; i++) {
     err = grpc_call_async(&handle[i], &id[i], x, &y);
     if (err != GRPC_NO_ERROR) {
       printf("Failure (%s)\n", grpc_error_string(err));
-      for (j=0; j<NCALLS; j++) grpc_function_handle_destruct(&handle[j]);
+      for (j = 0; j<NCALLS; j++) grpc_function_handle_destruct(&handle[j]);
       grpc_finalize();
       return;
     }
   }
 
-  for (i=0; i<NCALLS; i++) {
+  for (i = 0; i<NCALLS; i++) {
     err = grpc_wait(id[i]);
     if (err != GRPC_NO_ERROR) {
       printf("Failure (%s)\n", grpc_error_string(err));
-      for (j=0; j<NCALLS; j++) grpc_function_handle_destruct(&handle[j]);
+      for (j = 0; j<NCALLS; j++) grpc_function_handle_destruct(&handle[j]);
       grpc_finalize();
       return;
     }
     if (y != (x + 1)) {
       printf("Failure (wrong result: y = %d)\n", y);
-      for (j=0; j<NCALLS; j++) grpc_function_handle_destruct(&handle[j]);
+      for (j = 0; j<NCALLS; j++) grpc_function_handle_destruct(&handle[j]);
       grpc_finalize();
       return;
     }
   } 
   printf("Success\n");
 
-  for (i=0; i<NCALLS; i++) {
+  for (i = 0; i<NCALLS; i++) {
     err = grpc_function_handle_destruct(&handle[i]);
     if (err != GRPC_NO_ERROR) {
       fprintf(stderr, "grpc_function_handle_destruct() failed: %s\n", grpc_error_string(err));
@@ -826,14 +826,14 @@ void wait_test_4(char *config_file, char **func_list)
   int i, j, x = 3, y = 0;
   printf("Wait Test 4: ");
 
-  for (i=0; i<NCALLS; i++) id[i] = GRPC_SESSIONID_VOID;
+  for (i = 0; i<NCALLS; i++) id[i] = GRPC_SESSIONID_VOID;
 
   grpc_initialize(config_file);
   if (err != GRPC_NO_ERROR) {
     fprintf(stderr, "grpc_initialize() failed: %s\n", grpc_error_string(err));
     return;
   }
-  for (i=0; i<NCALLS; i++) {
+  for (i = 0; i<NCALLS; i++) {
     err = grpc_function_handle_default(&handle[i], func_list[0]);
     if (err != GRPC_NO_ERROR) {
       fprintf(stderr, "grpc_function_handle_default() failed: %s\n", grpc_error_string(err));
@@ -841,11 +841,11 @@ void wait_test_4(char *config_file, char **func_list)
       return;
     }
   }
-  for (i=0; i<NCALLS; i++) {
+  for (i = 0; i<NCALLS; i++) {
     err = grpc_call_async(&handle[i], &id[i], x, &y);
     if (err != GRPC_NO_ERROR) {
       printf("Failure (%s)\n", grpc_error_string(err));
-      for (j=0; j<NCALLS; j++) grpc_function_handle_destruct(&handle[j]);
+      for (j = 0; j<NCALLS; j++) grpc_function_handle_destruct(&handle[j]);
       grpc_finalize();
       return;
     }
@@ -854,19 +854,19 @@ void wait_test_4(char *config_file, char **func_list)
   err = grpc_wait_and(id, NCALLS);
   if (err != GRPC_NO_ERROR) {
     printf("Failure (%s)\n", grpc_error_string(err));
-    for (j=0; j<NCALLS; j++) grpc_function_handle_destruct(&handle[j]);
+    for (j = 0; j<NCALLS; j++) grpc_function_handle_destruct(&handle[j]);
     grpc_finalize();
     return;
   }
   if (y != (x + 1)) {
     printf("Failure (wrong result: y = %d)\n", y);
-    for (j=0; j<NCALLS; j++) grpc_function_handle_destruct(&handle[j]);
+    for (j = 0; j<NCALLS; j++) grpc_function_handle_destruct(&handle[j]);
     grpc_finalize();
     return;
   }
   printf("Success\n");
 
-  for (i=0; i<NCALLS; i++) {
+  for (i = 0; i<NCALLS; i++) {
     err = grpc_function_handle_destruct(&handle[i]);
     if (err != GRPC_NO_ERROR) {
       fprintf(stderr, "grpc_function_handle_destruct() failed: %s\n", grpc_error_string(err));
@@ -891,7 +891,7 @@ void wait_test_5(char *config_file)
   int i;
   printf("Wait Test 5: ");
 
-  for (i=0; i<NCALLS; i++) id[i] = GRPC_SESSIONID_VOID;
+  for (i = 0; i<NCALLS; i++) id[i] = GRPC_SESSIONID_VOID;
 
   err = grpc_initialize(config_file);
   if (err != GRPC_NO_ERROR) {
@@ -946,7 +946,7 @@ void wait_test_7(char *config_file, char **func_list)
   int i, j, found, x[NCALLS];
   printf("Wait Test 7: ");
   
-  for (i=0; i<NCALLS; i++) {
+  for (i = 0; i<NCALLS; i++) {
     id[i] = GRPC_SESSIONID_VOID;
     if (i == 0) x[i] = 1;
     else x[i] = 10;
@@ -957,7 +957,7 @@ void wait_test_7(char *config_file, char **func_list)
     fprintf(stderr, "grpc_initialize() failed: %s\n", grpc_error_string(err));
     return;
   }
-  for (i=0; i<NCALLS; i++) {
+  for (i = 0; i<NCALLS; i++) {
     err = grpc_function_handle_default(&handle[i], func_list[1]);
     if (err != GRPC_NO_ERROR) {
       fprintf(stderr, "grpc_function_handle_default() failed: %s\n", grpc_error_string(err));
@@ -965,45 +965,45 @@ void wait_test_7(char *config_file, char **func_list)
       return;
     }
   }
-  for (i=0; i<NCALLS; i++) {
+  for (i = 0; i<NCALLS; i++) {
     err = grpc_call_async(&handle[i], &id[i], x[i]);
     if (err != GRPC_NO_ERROR) {
       printf("Failure (%s)\n", grpc_error_string(err));
-      for (j=0; j<NCALLS; j++) grpc_function_handle_destruct(&handle[j]);
+      for (j = 0; j<NCALLS; j++) grpc_function_handle_destruct(&handle[j]);
       grpc_finalize();
       return;
     }
   }
 
-  for (i=NCALLS; i>0; i--) {
+  for (i = NCALLS; i>0; i--) {
     err = grpc_wait_or(id, i, &ret_id);
     if (err != GRPC_NO_ERROR) {
       printf("Failure (%s)\n", grpc_error_string(err));
-      for (j=0; j<NCALLS; j++) grpc_function_handle_destruct(&handle[j]);
+      for (j = 0; j<NCALLS; j++) grpc_function_handle_destruct(&handle[j]);
       grpc_finalize();
       return;
     }
 
     /* Find the returned id and replace it with the last id */
     found = 0;
-    for (j=0; j<i; j++) {
+    for (j = 0; j<i; j++) {
       if (ret_id == id[j]) {
         id[j] = id[i-1];
-	id[i-1] = ret_id;
-	found = 1;
-	break;
+        id[i-1] = ret_id;
+        found = 1;
+        break;
       }
     }
     if (found == 0) {
       printf("Failure (%s)\n", grpc_error_string(err));
-      for (j=0; j<NCALLS; j++) grpc_function_handle_destruct(&handle[j]);
+      for (j = 0; j<NCALLS; j++) grpc_function_handle_destruct(&handle[j]);
       grpc_finalize();
       return;
     }
   }
   printf("Success\n");
 
-  for (i=0; i<NCALLS; i++) {
+  for (i = 0; i<NCALLS; i++) {
     err = grpc_function_handle_destruct(&handle[i]);
     if (err != GRPC_NO_ERROR) {
       fprintf(stderr, "grpc_function_handle_destruct() failed: %s\n", grpc_error_string(err));
@@ -1028,7 +1028,7 @@ void wait_test_8(char *config_file)
   int i;
   printf("Wait Test 8: ");
 
-  for (i=0; i<NCALLS; i++) id[i] = GRPC_SESSIONID_VOID;
+  for (i = 0; i<NCALLS; i++) id[i] = GRPC_SESSIONID_VOID;
 
   err = grpc_initialize(config_file);
   if (err != GRPC_NO_ERROR) {
@@ -1082,26 +1082,26 @@ void wait_test_10(char *config_file, char **func_list)
   int i, j, x = 3, y[NCALLS];
   printf("Wait Test 10: ");
 
-  for (i=0; i<NCALLS; i++) y[i] = 0;
+  for (i = 0; i<NCALLS; i++) y[i] = 0;
 
   err = grpc_initialize(config_file);
   if (err != GRPC_NO_ERROR) {
     fprintf(stderr, "grpc_initialize() failed: %s\n", grpc_error_string(err));
     return;
   }
-  for (i=0; i<NCALLS; i++) {
+  for (i = 0; i<NCALLS; i++) {
     err = grpc_function_handle_default(&handle[i], func_list[0]);
     if (err != GRPC_NO_ERROR) {
-    fprintf(stderr, "grpc_function_handle_default() failed: %s\n", grpc_error_string(err));
-    grpc_finalize();
-    return;
+      fprintf(stderr, "grpc_function_handle_default() failed: %s\n", grpc_error_string(err));
+      grpc_finalize();
+      return;
     }
   }
-  for (i=0; i<NCALLS; i++) {
+  for (i = 0; i<NCALLS; i++) {
     err = grpc_call_async(&handle[i], &id[i], x, &y[i]);
     if (err != GRPC_NO_ERROR) {
       printf("Failure (%s)\n", grpc_error_string(err));
-      for (j=0; j<NCALLS; j++) grpc_function_handle_destruct(&handle[j]);
+      for (j = 0; j<NCALLS; j++) grpc_function_handle_destruct(&handle[j]);
       grpc_finalize();
       return;
     }
@@ -1110,21 +1110,21 @@ void wait_test_10(char *config_file, char **func_list)
   err = grpc_wait_all();
   if (err != GRPC_NO_ERROR) {
     printf("Failure (%s)\n", grpc_error_string(err));
-    for (j=0; j<NCALLS; j++) grpc_function_handle_destruct(&handle[j]);
+    for (j = 0; j<NCALLS; j++) grpc_function_handle_destruct(&handle[j]);
     grpc_finalize();
     return;
   }
-  for (i=0; i<NCALLS; i++) {
+  for (i = 0; i<NCALLS; i++) {
     if (y[i] != (x + 1)) {
       printf("Failure (wrong result: y[%d] = %d)\n", i, y[i]);
-      for (j=0; j<NCALLS; j++) grpc_function_handle_destruct(&handle[j]);
+      for (j = 0; j<NCALLS; j++) grpc_function_handle_destruct(&handle[j]);
       grpc_finalize();
       return;
     }
   }
   printf("Success\n");
 
-  for (i=0; i<NCALLS; i++) {
+  for (i = 0; i<NCALLS; i++) {
     err = grpc_function_handle_destruct(&handle[i]);
     if (err != GRPC_NO_ERROR) {
       fprintf(stderr, "grpc_function_handle_destruct() failed: %s\n", grpc_error_string(err));
@@ -1168,14 +1168,14 @@ void wait_test_12(char *config_file, char **func_list)
   int i, j, counter = 0, x = 3, y[NCALLS];
   printf("Wait Test 12: ");
 
-  for (i=0; i<NCALLS; i++) id[i] = GRPC_SESSIONID_VOID;
+  for (i = 0; i<NCALLS; i++) id[i] = GRPC_SESSIONID_VOID;
 
   err = grpc_initialize(config_file);
   if (err != GRPC_NO_ERROR) {
     fprintf(stderr, "grpc_initialize() failed: %s\n", grpc_error_string(err));
     return;
   }
-  for (i=0; i<NCALLS; i++) {
+  for (i = 0; i<NCALLS; i++) {
     err = grpc_function_handle_default(&handle[i], func_list[0]);
     if (err != GRPC_NO_ERROR) {
       fprintf(stderr, "grpc_function_handle_default() failed: %s\n", grpc_error_string(err));
@@ -1183,11 +1183,11 @@ void wait_test_12(char *config_file, char **func_list)
       return;
     }
   }
-  for (i=0; i<NCALLS; i++) {
+  for (i = 0; i<NCALLS; i++) {
     err = grpc_call_async(&handle[i], &id[i], x, &y[i]);
     if (err != GRPC_NO_ERROR) {
       printf("Failure (%s)\n", grpc_error_string(err));
-      for (j=0; j<NCALLS; j++) grpc_function_handle_destruct(&handle[j]);
+      for (j = 0; j<NCALLS; j++) grpc_function_handle_destruct(&handle[j]);
       grpc_finalize();
       return;
     }
@@ -1197,24 +1197,24 @@ void wait_test_12(char *config_file, char **func_list)
     err = grpc_wait_any(&ret_id);
     if (err != GRPC_NO_ERROR) {
       printf("Failure (%s)\n", grpc_error_string(err));
-      for (j=0; j<NCALLS; j++) grpc_function_handle_destruct(&handle[j]);
+      for (j = 0; j<NCALLS; j++) grpc_function_handle_destruct(&handle[j]);
       grpc_finalize();
       return;
     }
     counter++;
     if (counter == NCALLS) break;
   }
-  for (i=0; i<NCALLS; i++) {  
+  for (i = 0; i<NCALLS; i++) {  
     if (y[i] != (x + 1)) {
       printf("Failure (wrong result: y[%d] = %d)\n", i, y[i]);
-      for (j=0; j<NCALLS; j++) grpc_function_handle_destruct(&handle[j]);
+      for (j = 0; j<NCALLS; j++) grpc_function_handle_destruct(&handle[j]);
       grpc_finalize();
       return;
     }
   }
   printf("Success\n");
 
-  for (i=0; i<NCALLS; i++) {
+  for (i = 0; i<NCALLS; i++) {
     err = grpc_function_handle_destruct(&handle[i]);
     if (err != GRPC_NO_ERROR) {
       fprintf(stderr, "grpc_function_handle_destruct() failed: %s\n", grpc_error_string(err));
@@ -1271,10 +1271,10 @@ void probe_test_1(char *config_file, char **func_list)
   }
   err = grpc_call_async(&handle, &id, x, &y);
   if (err != GRPC_NO_ERROR) {
-     printf("Failure (%s)\n", grpc_error_string(err));
-     grpc_function_handle_destruct(&handle);
-     grpc_finalize();
-     return;
+    printf("Failure (%s)\n", grpc_error_string(err));
+    grpc_function_handle_destruct(&handle);
+    grpc_finalize();
+    return;
   }
 
   while (1) {
@@ -1432,7 +1432,7 @@ void probe_test_5(char *config_file, char **func_list)
   int i, j, x[NCALLS];
   printf("Probe Test 5: ");
 
-  for (i=0; i<NCALLS; i++) {
+  for (i = 0; i<NCALLS; i++) {
     id[i] = GRPC_SESSIONID_VOID;
     if (i == 0) x[i] = 0;
     else x[i] = 10;
@@ -1443,7 +1443,7 @@ void probe_test_5(char *config_file, char **func_list)
     fprintf(stderr, "grpc_initialize() failed: %s\n", grpc_error_string(err));
     return;
   }
-  for (i=0; i<NCALLS; i++) {
+  for (i = 0; i<NCALLS; i++) {
     err = grpc_function_handle_default(&handle[i], func_list[1]);
     if (err != GRPC_NO_ERROR) {
       fprintf(stderr, "grpc_function_handle_default() failed: %s\n", grpc_error_string(err));
@@ -1451,11 +1451,11 @@ void probe_test_5(char *config_file, char **func_list)
       return;
     }
   }
-  for (i=0; i<NCALLS; i++) {
+  for (i = 0; i<NCALLS; i++) {
     err = grpc_call_async(&handle[i], &id[i], x[i]);
     if (err != GRPC_NO_ERROR) {
       fprintf(stderr, "grpc_call_async() failed: %s\n", grpc_error_string(err));
-      for (j=0; j<NCALLS; j++) grpc_function_handle_destruct(&handle[j]);
+      for (j = 0; j<NCALLS; j++) grpc_function_handle_destruct(&handle[j]);
       grpc_finalize();
       return;
     }
@@ -1468,7 +1468,7 @@ void probe_test_5(char *config_file, char **func_list)
       break;
     } else if (err != GRPC_NONE_COMPLETED) {
       printf("Failure (%s)\n", grpc_error_string(err));
-      for (i=0; i<NCALLS; i++) grpc_function_handle_destruct(&handle[i]);
+      for (i = 0; i<NCALLS; i++) grpc_function_handle_destruct(&handle[i]);
       grpc_finalize();
       return;
     }
@@ -1478,7 +1478,7 @@ void probe_test_5(char *config_file, char **func_list)
   if (err != GRPC_NO_ERROR) {
     fprintf(stderr, "grpc_wait_all() failed: %s\n", grpc_error_string(err));
   }
-  for (i=0; i<NCALLS; i++) {
+  for (i = 0; i<NCALLS; i++) {
     err = grpc_function_handle_destruct(&handle[i]);
     if (err != GRPC_NO_ERROR) {
       fprintf(stderr, "grpc_function_handle_destruct() failed: %s\n", grpc_error_string(err));
@@ -1504,7 +1504,7 @@ void probe_test_6(char *config_file, char **func_list)
   int i, j, x[NCALLS];
   printf("Probe Test 6: ");
 
-  for (i=0; i<NCALLS; i++) {
+  for (i = 0; i<NCALLS; i++) {
     id[i] = GRPC_SESSIONID_VOID;
     x[i] = 10;
   }
@@ -1514,7 +1514,7 @@ void probe_test_6(char *config_file, char **func_list)
     fprintf(stderr, "grpc_initialize() failed: %s\n", grpc_error_string(err));
     return;
   }
-  for (i=0; i<NCALLS; i++) {
+  for (i = 0; i<NCALLS; i++) {
     err = grpc_function_handle_default(&handle[i], func_list[1]);
     if (err != GRPC_NO_ERROR) {
       fprintf(stderr, "grpc_function_handle_default() failed: %s\n", grpc_error_string(err));
@@ -1522,11 +1522,11 @@ void probe_test_6(char *config_file, char **func_list)
       return;
     }
   }
-  for (i=0; i<NCALLS; i++) {
+  for (i = 0; i<NCALLS; i++) {
     err = grpc_call_async(&handle[i], &id[i], x[i]);
     if (err != GRPC_NO_ERROR) {
       fprintf(stderr, "grpc_call_async() failed: %s\n", grpc_error_string(err));
-      for (j=0; j<NCALLS; j++) grpc_function_handle_destruct(&handle[j]);
+      for (j = 0; j<NCALLS; j++) grpc_function_handle_destruct(&handle[j]);
       grpc_finalize();
       return;
     }
@@ -1534,13 +1534,13 @@ void probe_test_6(char *config_file, char **func_list)
 
   err = grpc_probe_or(id, NCALLS, &ret_id);
   if (err == GRPC_NONE_COMPLETED) {
-    if(ret_id == GRPC_SESSIONID_VOID) printf("Success\n");
+    if (ret_id == GRPC_SESSIONID_VOID) printf("Success\n");
     else printf("Failure (The returned ID was not GRPC_SESSIONID_VOID.)\n");
   } else if (err == GRPC_NO_ERROR) {
     printf("Failure (All sessions were completed before calling grpc_probe_or().)");
   } else {
     printf("Failure (%s)\n", grpc_error_string(err));
-    for (i=0; i<NCALLS; i++) grpc_function_handle_destruct(&handle[i]);
+    for (i = 0; i<NCALLS; i++) grpc_function_handle_destruct(&handle[i]);
     grpc_finalize();
     return;
   }
@@ -1549,7 +1549,7 @@ void probe_test_6(char *config_file, char **func_list)
   if (err != GRPC_NO_ERROR) {
     fprintf(stderr, "grpc_wait_all() failed: %s\n", grpc_error_string(err));
   }
-  for (i=0; i<NCALLS; i++) {
+  for (i = 0; i<NCALLS; i++) {
     err = grpc_function_handle_destruct(&handle[i]);
     if (err != GRPC_NO_ERROR) {
       fprintf(stderr, "grpc_function_handle_destruct() failed: %s\n", grpc_error_string(err));
@@ -1574,7 +1574,7 @@ void probe_test_7(char *config_file)
   int i;
   printf("Probe Test 7: ");
 
-  for (i=0; i<NCALLS; i++) id[i] = GRPC_SESSIONID_VOID;
+  for (i = 0; i<NCALLS; i++) id[i] = GRPC_SESSIONID_VOID;
 
   err = grpc_initialize(config_file);
   if (err != GRPC_NO_ERROR) {
@@ -1686,7 +1686,7 @@ void cancel_test_2(char *config_file)
   if (err != GRPC_NO_ERROR) {
     fprintf(stderr, "grpc_initialize() failed: %s\n", grpc_error_string(err));
     return;
-  }	   
+  }        
 
   err = grpc_cancel(id);
   if (err != GRPC_INVALID_SESSION_ID) {
@@ -1734,14 +1734,14 @@ void cancel_test_4(char *config_file, char **func_list)
   int i, j, x = 1;
   printf("Cancel Test 4: ");
 
-  for (i=0; i<NCALLS; i++) id[i] = GRPC_SESSIONID_VOID;
+  for (i = 0; i<NCALLS; i++) id[i] = GRPC_SESSIONID_VOID;
 
   err = grpc_initialize(config_file);
   if (err != GRPC_NO_ERROR) {
     fprintf(stderr, "grpc_initialize() failed: %s\n", grpc_error_string(err));
     return;
   }
-  for (i=0; i<NCALLS; i++) {
+  for (i = 0; i<NCALLS; i++) {
     err = grpc_function_handle_default(&handle[i], func_list[3]);
     if (err != GRPC_NO_ERROR) {
       fprintf(stderr, "grpc_function_handle_default() failed: %s\n", grpc_error_string(err));
@@ -1749,11 +1749,11 @@ void cancel_test_4(char *config_file, char **func_list)
       return;
     }
   }
-  for (i=0; i<NCALLS; i++) {
+  for (i = 0; i<NCALLS; i++) {
     err = grpc_call_async(&handle[i], &id[i], x);
     if (err != GRPC_NO_ERROR) {
       fprintf(stderr, "grpc_call_async() failed: %s\n", grpc_error_string(err));
-      for (j=0; j<NCALLS; j++) grpc_function_handle_destruct(&handle[j]);
+      for (j = 0; j<NCALLS; j++) grpc_function_handle_destruct(&handle[j]);
       grpc_finalize();
       return;
     }
@@ -1762,7 +1762,7 @@ void cancel_test_4(char *config_file, char **func_list)
   err = grpc_cancel_all();
   if (err != GRPC_NO_ERROR) {
     printf("Failure (%s)\n", grpc_error_string(err));
-    for (i=0; i<NCALLS; i++) grpc_function_handle_destruct(&handle[i]);
+    for (i = 0; i<NCALLS; i++) grpc_function_handle_destruct(&handle[i]);
     grpc_finalize();
     return;
   }
@@ -1772,7 +1772,7 @@ void cancel_test_4(char *config_file, char **func_list)
   if (err != GRPC_NO_ERROR) {
     fprintf(stderr, "grpc_wait_all() failed: %s\n", grpc_error_string(err));
   }
-  for (i=0; i<NCALLS; i++) {
+  for (i = 0; i<NCALLS; i++) {
     err = grpc_function_handle_destruct(&handle[i]);
     if (err != GRPC_NO_ERROR) {
       fprintf(stderr, "grpc_function_handle_destruct() failed: %s\n", grpc_error_string(err));
@@ -1811,13 +1811,13 @@ void error_report_test_1(char *config_file)
 {
   grpc_error_t err = GRPC_NO_ERROR;
   printf("Error Reporting Test 1:\n");
-	
+        
   err = grpc_initialize(config_file);
   if (err != GRPC_NO_ERROR) {
     fprintf(stderr, "grpc_initialize() failed: %s\n", grpc_error_string(err));
     return;
   }
-	
+        
   printf("  GRPC_NO_ERROR: %s\n", grpc_error_string(GRPC_NO_ERROR));
   printf("  GRPC_NOT_INITIALIZED: %s\n", grpc_error_string(GRPC_NOT_INITIALIZED)); 
   printf("  GRPC_ALREADY_INITIALIZED: %s\n", grpc_error_string(GRPC_ALREADY_INITIALIZED));
@@ -1968,7 +1968,7 @@ void error_report_test_5(char *config_file, char **func_list)
   int i, j, x = 3, y[NCALLS];
   printf("Error Reporting Test 5: ");
 
-  for (i=0; i<NCALLS; i++){
+  for (i = 0; i<NCALLS; i++){
     y[i] = 0;
     id[i] = GRPC_SESSIONID_VOID;
   }
@@ -1978,7 +1978,7 @@ void error_report_test_5(char *config_file, char **func_list)
     fprintf(stderr, "grpc_initialize() failed: %s\n", grpc_error_string(err));
     return;
   }
-  for (i=0; i<NCALLS; i++) {
+  for (i = 0; i<NCALLS; i++) {
     err = grpc_function_handle_default(&handle[i], func_list[0]);
     if (err != GRPC_NO_ERROR) {
       fprintf(stderr, "grpc_function_handle_default() failed: %s\n", grpc_error_string(err));
@@ -1986,11 +1986,11 @@ void error_report_test_5(char *config_file, char **func_list)
       return;
     }
   }
-  for (i=0; i<NCALLS; i++) {
+  for (i = 0; i<NCALLS; i++) {
     err = grpc_call_async(&handle[i], &id[i], x, &y[i]);
     if (err != GRPC_NO_ERROR) {
       fprintf(stderr, "grpc_call_async() failed: %s\n", grpc_error_string(err));
-      for (j=0; j<NCALLS; j++) grpc_function_handle_destruct(&handle[j]);
+      for (j = 0; j<NCALLS; j++) grpc_function_handle_destruct(&handle[j]);
       grpc_finalize();
       return;
     }
@@ -1998,14 +1998,14 @@ void error_report_test_5(char *config_file, char **func_list)
   err = grpc_wait_all();
   if (err != GRPC_NO_ERROR) {
     fprintf(stderr, "grpc_wait_all() failed: %s\n", grpc_error_string(err));
-    for (i=0; i<NCALLS; i++) grpc_function_handle_destruct(&handle[i]);
+    for (i = 0; i<NCALLS; i++) grpc_function_handle_destruct(&handle[i]);
     grpc_finalize();
     return;
   }
-  for (i=0; i<NCALLS; i++) {
+  for (i = 0; i<NCALLS; i++) {
     if (y[i] != (x + 1)) {
       fprintf(stderr, "Wrong result: y[%d] = %d\n", i, y[i]);
-      for (j=0; j<NCALLS; j++) grpc_function_handle_destruct(&handle[j]);
+      for (j = 0; j<NCALLS; j++) grpc_function_handle_destruct(&handle[j]);
       grpc_finalize();
       return;
     }
@@ -2014,13 +2014,13 @@ void error_report_test_5(char *config_file, char **func_list)
   err = grpc_get_failed_sessionid(&ret_id);
   if (err != GRPC_NO_ERROR) {
     printf("Failure (ID %d got the error: %s)", ret_id, grpc_error_string(err));
-    for (i=0; i<NCALLS; i++) grpc_function_handle_destruct(&handle[i]);
+    for (i = 0; i<NCALLS; i++) grpc_function_handle_destruct(&handle[i]);
     grpc_finalize();
     return;
   }
   printf("Success\n");
 
-  for (i=0; i<NCALLS; i++) {
+  for (i = 0; i<NCALLS; i++) {
     err = grpc_function_handle_destruct(&handle[i]);
     if (err != GRPC_NO_ERROR) {
       fprintf(stderr, "grpc_function_handle_destruct() failed: %s\n", grpc_error_string(err));
@@ -2046,14 +2046,14 @@ void error_report_test_6(char *config_file, char **func_list)
   int i, j, x = 10;
   printf("Error Reporting Test 6: ");
 
-  for (i=0; i<NCALLS; i++) id[i] = GRPC_SESSIONID_VOID;
+  for (i = 0; i<NCALLS; i++) id[i] = GRPC_SESSIONID_VOID;
   
   err = grpc_initialize(config_file);
   if (err != GRPC_NO_ERROR) {
     fprintf(stderr, "grpc_initialize() failed: %s\n", grpc_error_string(err));
     return;
   }
-  for (i=0; i<NCALLS; i++) {
+  for (i = 0; i<NCALLS; i++) {
     if (i == 0) err = grpc_function_handle_default(&handle[i], func_list[2]);
     else err = grpc_function_handle_default(&handle[i], func_list[1]);
     if (err != GRPC_NO_ERROR) {
@@ -2062,11 +2062,11 @@ void error_report_test_6(char *config_file, char **func_list)
       return;
     }
   }
-  for (i=0; i<NCALLS; i++) {
+  for (i = 0; i<NCALLS; i++) {
     err = grpc_call_async(&handle[i], &id[i], x);
     if (err != GRPC_NO_ERROR) {
       fprintf(stderr, "grpc_call_async() failed: %s\n", grpc_error_string(err));
-      for (j=0; j<NCALLS; j++) grpc_function_handle_destruct(&handle[j]);
+      for (j = 0; j<NCALLS; j++) grpc_function_handle_destruct(&handle[j]);
       grpc_finalize();
       return;
     }
@@ -2077,7 +2077,7 @@ void error_report_test_6(char *config_file, char **func_list)
   err = grpc_get_failed_sessionid(&ret_id);
   if (err != GRPC_NO_ERROR) {
     printf("Failure (%s)\n", grpc_error_string(err));
-    for (i=0; i<NCALLS; i++) grpc_function_handle_destruct(&handle[i]);
+    for (i = 0; i<NCALLS; i++) grpc_function_handle_destruct(&handle[i]);
     grpc_finalize();
     return;
   }
@@ -2086,7 +2086,7 @@ void error_report_test_6(char *config_file, char **func_list)
   else
     printf("Failure (The session ID was not returned.)\n");
 
-  for (i=0; i<NCALLS; i++) {
+  for (i = 0; i<NCALLS; i++) {
     err = grpc_function_handle_destruct(&handle[i]);
     if (err != GRPC_NO_ERROR) {
       fprintf(stderr, "grpc_function_handle_destruct() failed: %s\n", grpc_error_string(err));
@@ -2118,7 +2118,7 @@ void error_report_test_7(char *config_file, char **func_list)
     fprintf(stderr, "grpc_initialize() failed: %s\n", grpc_error_string(err));
     return;
   }
-  for (i=0; i<NCALLS; i++) {
+  for (i = 0; i<NCALLS; i++) {
     err = grpc_function_handle_default(&handle[i], func_list[2]);
     if (err != GRPC_NO_ERROR) {
       fprintf(stderr, "grpc_function_handle_default() failed: %s\n", grpc_error_string(err));
@@ -2126,11 +2126,11 @@ void error_report_test_7(char *config_file, char **func_list)
       return;
     }
   }
-  for (i=0; i<NCALLS; i++) {
+  for (i = 0; i<NCALLS; i++) {
     err = grpc_call_async(&handle[i], &id[i], x);
     if (err != GRPC_NO_ERROR) {
       fprintf(stderr, "grpc_call_async() failed: %s\n", grpc_error_string(err));
-      for (j=0; j<NCALLS; j++) grpc_function_handle_destruct(&handle[j]);
+      for (j = 0; j<NCALLS; j++) grpc_function_handle_destruct(&handle[j]);
       grpc_finalize();
       return;
     }
@@ -2142,13 +2142,13 @@ void error_report_test_7(char *config_file, char **func_list)
     err = grpc_get_failed_sessionid(&ret_id);
     if (err != GRPC_NO_ERROR) {
       printf("Failure (%s)\n", grpc_error_string(err));
-      for (i=0; i<NCALLS; i++) grpc_function_handle_destruct(&handle[i]);
+      for (i = 0; i<NCALLS; i++) grpc_function_handle_destruct(&handle[i]);
       grpc_finalize();
       return;
     } else {
       if (ret_id == GRPC_SESSIONID_VOID){
         if (counter == 3) printf("Success\n");
-	else printf("Failure (Only %d errors was returned.)\n", counter);
+        else printf("Failure (Only %d errors was returned.)\n", counter);
         break;
       } else {
         counter++;
@@ -2156,7 +2156,7 @@ void error_report_test_7(char *config_file, char **func_list)
     }
   }
 
-  for (i=0; i<NCALLS; i++) {
+  for (i = 0; i<NCALLS; i++) {
     err = grpc_function_handle_destruct(&handle[i]);
     if (err != GRPC_NO_ERROR) {
       fprintf(stderr, "grpc_function_handle_destruct() failed: %s\n", grpc_error_string(err));

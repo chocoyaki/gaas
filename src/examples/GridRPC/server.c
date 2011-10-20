@@ -76,7 +76,7 @@ int myExit(diet_profile_t* pb) {
   printf("Exit with parameter = %d \n", *i);
   return 10;
 }
-	
+        
 int
 usage(char* cmd)
 {
@@ -104,35 +104,35 @@ main(int argc, char* argv[])
   /* The succ function */
   profile = diet_profile_desc_alloc("SUCC", 0, 1, 1);
   diet_generic_desc_set(diet_param_desc(profile, 0),
-		  	DIET_SCALAR, DIET_INT);
+                        DIET_SCALAR, DIET_INT);
   diet_generic_desc_set(diet_param_desc(profile, 1),
                         DIET_SCALAR, DIET_INT);
   if (diet_service_table_add(profile, NULL, succ))
-	 return 1;
+    return 1;
   diet_profile_desc_free(profile);
 
   /* The sleep function */
   profile = diet_profile_desc_alloc("SLEEP", 0, 0, 0);
   diet_generic_desc_set(diet_param_desc(profile, 0),
-		        DIET_SCALAR, DIET_INT);
+                        DIET_SCALAR, DIET_INT);
   if (diet_service_table_add(profile, NULL, mySleep))
-         return 1;
+    return 1;
   diet_profile_desc_free(profile);
-	    
+            
   /* The loop function */
   profile = diet_profile_desc_alloc("LOOP", 0, 0, 0);
   diet_generic_desc_set(diet_param_desc(profile, 0),
-		        DIET_SCALAR, DIET_INT);
+                        DIET_SCALAR, DIET_INT);
   if (diet_service_table_add(profile, NULL, myLoop))
-         return 1;
+    return 1;
   diet_profile_desc_free(profile);
   
   /* The exit function */
   profile = diet_profile_desc_alloc("EXIT", 0, 0, 0);
   diet_generic_desc_set(diet_param_desc(profile, 0),
-		        DIET_SCALAR, DIET_INT);
+                        DIET_SCALAR, DIET_INT);
   if (diet_service_table_add(profile, NULL, myExit))
-         return 1;
+    return 1;
   diet_profile_desc_free(profile);
   
   diet_print_service_table();

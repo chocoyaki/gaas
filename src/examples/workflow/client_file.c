@@ -77,7 +77,7 @@ main(int argc, char* argv[])
 
   fileName = argv[2];
 
-  profile = diet_wf_profile_alloc(fileName,"test",DIET_WF_DAG);
+  profile = diet_wf_profile_alloc(fileName, "test", DIET_WF_DAG);
 
   printf("Try to execute the workflow\n");
   if (! diet_wf_call(profile)) {
@@ -85,14 +85,14 @@ main(int argc, char* argv[])
     diet_wf_file_get(profile, "n3#out1", &out_size1, &path1);
     if (path1 && (*path1 != '\0')) {
       printf("Location of returned file is %s, its size is %zd.\n",
-	     path1, out_size1);
-      /* diet_free_data(diet_parameter(profile,4)); */
+             path1, out_size1);
+      /* diet_free_data(diet_parameter(profile, 4)); */
     }
     diet_wf_file_get(profile, "n3#out2", &out_size2, &path2);
     if (path2 && (*path2 != '\0')) {
       printf("Location of returned file is %s, its size is %zd.\n",
-	     path2, out_size2);
-      /* diet_free_data(diet_parameter(profile,4)); */
+             path2, out_size2);
+      /* diet_free_data(diet_parameter(profile, 4)); */
     }
 
   }

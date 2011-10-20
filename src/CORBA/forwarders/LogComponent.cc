@@ -25,81 +25,79 @@
 #include "ORBMgr.hh"
 #include <string>
 
-using namespace std;
+void
+DIETForwarder::setTagFilter(const ::tag_list_t& tagList, const char* objName) {
+  std::string objString(objName);
+  std::string name;
 
-void DIETForwarder::setTagFilter(const ::tag_list_t& tagList,
-																 const char* objName)
-{
-	string objString(objName);
-	string name;
-	
-	if (!remoteCall(objString)) {
-		return getPeer()->setTagFilter(tagList, objString.c_str());
-	}
-	
-	name = getName(objString);
-	
-	ComponentConfigurator_var cfg =
-		ORBMgr::getMgr()->resolve<ComponentConfigurator, ComponentConfigurator_var>(LOGCOMPCTXT,
-																																								name,
-																																								this->name);
-	return cfg->setTagFilter(tagList);
+  if (!remoteCall(objString)) {
+    return getPeer()->setTagFilter(tagList, objString.c_str());
+  }
+
+  name = getName(objString);
+
+  ComponentConfigurator_var cfg =
+    ORBMgr::getMgr()->
+    resolve<ComponentConfigurator, ComponentConfigurator_var>(LOGCOMPCTXT,
+                                                              name,
+                                                              this->name);
+  return cfg->setTagFilter(tagList);
 }
 
-void DIETForwarder::addTagFilter(const ::tag_list_t& tagList,
-																 const char* objName)
-{
-	string objString(objName);
-	string name;
-	
-	if (!remoteCall(objString)) {
-		return getPeer()->addTagFilter(tagList, objString.c_str());
-	}
-	
-	name = getName(objString);
-		
-	ComponentConfigurator_var cfg =
-	ORBMgr::getMgr()->resolve<ComponentConfigurator, ComponentConfigurator_var>(LOGCOMPCTXT,
-																																							name,
-																																							this->name);
-	return cfg->addTagFilter(tagList);
-	
+void
+DIETForwarder::addTagFilter(const ::tag_list_t& tagList, const char* objName) {
+  std::string objString(objName);
+  std::string name;
+
+  if (!remoteCall(objString)) {
+    return getPeer()->addTagFilter(tagList, objString.c_str());
+  }
+
+  name = getName(objString);
+
+  ComponentConfigurator_var cfg =
+    ORBMgr::getMgr()->
+    resolve<ComponentConfigurator, ComponentConfigurator_var>(LOGCOMPCTXT,
+                                                              name,
+                                                              this->name);
+  return cfg->addTagFilter(tagList);
 }
 
-void DIETForwarder::removeTagFilter(const ::tag_list_t& tagList,
-																		const char* objName)
-{
-	string objString(objName);
-	string name;
-	
-	if (!remoteCall(objString)) {
-		return getPeer()->removeTagFilter(tagList, objString.c_str());
-	}
-	
-	name = getName(objString);
-	
-	ComponentConfigurator_var cfg =
-	ORBMgr::getMgr()->resolve<ComponentConfigurator, ComponentConfigurator_var>(LOGCOMPCTXT,
-																																							name,
-																																							this->name);
-	return cfg->removeTagFilter(tagList);
-	
+void
+DIETForwarder::removeTagFilter(const ::tag_list_t& tagList,
+                               const char* objName) {
+  std::string objString(objName);
+  std::string name;
+
+  if (!remoteCall(objString)) {
+    return getPeer()->removeTagFilter(tagList, objString.c_str());
+  }
+
+  name = getName(objString);
+
+  ComponentConfigurator_var cfg =
+    ORBMgr::getMgr()->
+    resolve<ComponentConfigurator, ComponentConfigurator_var>(LOGCOMPCTXT,
+                                                              name,
+                                                              this->name);
+  return cfg->removeTagFilter(tagList);
 }
 
-void DIETForwarder::test(const char* objName) {
-	string objString(objName);
-	string name;
-	
-	if (!remoteCall(objString)) {
-		return getPeer()->test(objString.c_str());
-	}
-	
-	name = getName(objString);
-		
-	ComponentConfigurator_var cfg =
-	ORBMgr::getMgr()->resolve<ComponentConfigurator, ComponentConfigurator_var>(LOGCOMPCTXT,
-																																							name,
-																																							this->name);
-	return cfg->test();
-	
+void
+DIETForwarder::test(const char* objName) {
+  std::string objString(objName);
+  std::string name;
+
+  if (!remoteCall(objString)) {
+    return getPeer()->test(objString.c_str());
+  }
+
+  name = getName(objString);
+
+  ComponentConfigurator_var cfg =
+    ORBMgr::getMgr()->
+    resolve<ComponentConfigurator, ComponentConfigurator_var>(LOGCOMPCTXT,
+                                                              name,
+                                                              this->name);
+  return cfg->test();
 }

@@ -60,14 +60,16 @@ typedef std::map<std::string, std::string> OptionMap;
  * @brief functor used to find short/long options
  * @internal
  */
-class StartsWith : public std::unary_function<std::string, bool>
-{
-private:
-    std::string s1;
+class StartsWith : public std::unary_function<std::string, bool> {
 public:
-    StartsWith(const std::string& str) : s1(str) {}
+  explicit StartsWith(const std::string& str) : s1(str) {
+  }
 
-    bool operator() (const std::string& s2) const;
+  bool
+  operator() (const std::string& s2) const;
+
+private:
+  std::string s1;
 };
 
 /**
@@ -77,26 +79,35 @@ public:
  * @brief functor working as token generator
  * @internal
  */
-class Splitter
-{
-private:
-    char delim_;
-    bool hasNext_;
-    std::string::size_type previous_;
-    std::string::size_type current_;
-    std::string token_;
-    std::string str_;
+class Splitter {
 public:
-    Splitter();
-    Splitter(const char c);
-    Splitter(const std::string& str, const char c);
+  Splitter();
 
-    bool hasNext() const { return hasNext_; }
+  explicit Splitter(const char c);
 
-    void reset(const std::string& str);
-    void reset(const std::string& str, const char c);
+  Splitter(const std::string& str, const char c);
 
-    std::string& operator() ();
+  bool
+  hasNext() const {
+    return hasNext_;
+  }
+
+  void
+  reset(const std::string& str);
+
+  void
+  reset(const std::string& str, const char c);
+
+  std::string&
+  operator() ();
+
+private:
+  char delim_;
+  bool hasNext_;
+  std::string::size_type previous_;
+  std::string::size_type current_;
+  std::string token_;
+  std::string str_;
 };
 
 #endif /* _COMMON_PARSER_HH_ */

@@ -144,7 +144,7 @@
  * Revision 1.72  2008/04/07 13:11:44  ycaniou
  * Correct "deprecated conversion from string constant to 'char*'" warnings
  * First attempt to code functions to dynamicaly get batch information
- * 	(e.g.,  getNbMaxResources(), etc.)
+ *      (e.g.,  getNbMaxResources(), etc.)
  *
  * Revision 1.71  2008/01/14 11:16:33  glemahec
  * The servers can now use DAGDA as data manager.
@@ -215,7 +215,7 @@
  * Changed the prototype of solve_batch: reqID is in the profile when batch mode
  *   is enabled.
  *
- * Batch management for sync. calls is now fully operationnal (at least for oar ;)
+ * Batch management for sync. calls is now fully operationnal (at least for oar;)
  *
  * Revision 1.56  2006/07/11 08:59:09  ycaniou
  * .Batch queue is now read in the serveur config file (only one queue
@@ -278,8 +278,6 @@
 #include <cstdlib>
 #include <csignal>
 
-using namespace std;
-
 #include "DIET_server.h"
 #include "DIET_grpc.h"
 
@@ -296,26 +294,10 @@ using namespace std;
 #include "MonitoringThread.hh"
 #endif
 
-#if HAVE_CORI
 #include "CORIMgr.hh"
-#else
-#include "FASTMgr.hh"
-#endif //HAVE_CORI
 
-#if ! HAVE_JUXMEM
-#if ! HAVE_DAGDA
-#include "DataMgrImpl.hh"
-#else
 #include "DagdaImpl.hh"
 #include "DagdaFactory.hh"
-#endif // ! HAVE_DAGDA
-#else
-#include "JuxMem.hh"
-#endif // ! HAVE_JUXMEM
-
-#if HAVE_FD
-#include "fd/fd.h"
-#endif
 
 #define BEGIN_API extern "C" {
 #define END_API   } // extern "C"
@@ -329,19 +311,18 @@ BEGIN_API
 /****************************************************************************/
 
 static ServiceTable* SRVT;
-#ifdef HAVE_DAGDA
+
 /* We need to keep a pointer to the SeD Impl in order to be able to dynamically
  * add/remove services
  */
 static SeDImpl * sedImpl = NULL;
-#endif
+
 #ifdef HAVE_ALT_BATCH
-static diet_server_status_t st=SERIAL ;
+static diet_server_status_t st = SERIAL;
 #endif
 
 int
-diet_service_table_init(int maxsize)
-{
+diet_service_table_init(int maxsize) {
   SRVT = new ServiceTable(maxsize);
   return 0;
 }
@@ -352,8 +333,7 @@ diet_convertor_check(const diet_convertor_t* const cvt,
 
 static diet_perfmetric_t current_perfmetric_fn = NULL;
 diet_perfmetric_t
-diet_service_use_perfmetric(diet_perfmetric_t perfmetric_fn)
-{
+diet_service_use_perfmetric(diet_perfmetric_t perfmetric_fn) {
   diet_perfmetric_t tmp_fn = current_perfmetric_fn;
   current_perfmetric_fn = perfmetric_fn;
   return (tmp_fn);
@@ -361,12 +341,11 @@ diet_service_use_perfmetric(diet_perfmetric_t perfmetric_fn)
 
 int
 diet_service_table_add(const diet_profile_desc_t* const profile,
-                       const diet_convertor_t*    const cvt,
-                       diet_solve_t                     solve_func)
-{
+                       const diet_convertor_t* const cvt,
+                       diet_solve_t solve_func) {
   int res;
   corba_profile_desc_t corba_profile;
-  const diet_convertor_t*    actual_cvt(NULL);
+  const diet_convertor_t* actual_cvt(NULL);
 
   if (SRVT == NULL) {
     ERROR(__FUNCTION__ << ": service table not yet initialized", 1);
@@ -377,19 +356,19 @@ diet_service_table_add(const diet_profile_desc_t* const profile,
     /* Check the convertor */
     if (diet_convertor_check(cvt, profile)) {
       ERROR("the convertor for profile " << profile->path
-	    << " is not valid. Please correct above errors first", 1);
+            << " is not valid. Please correct above errors first", 1);
     }
     actual_cvt = cvt;
   } else {
     actual_cvt = diet_convertor_alloc(profile->path, profile->last_in,
-				      profile->last_inout, profile->last_out);
+                                      profile->last_inout, profile->last_out);
 #if defined HAVE_ALT_BATCH
     // TODO: Must I add something about convertors ??
 #endif
 
     for (int i = 0; i <= profile->last_out; i++)
       diet_arg_cvt_set(&(actual_cvt->arg_convs[i]),
-		       DIET_CVT_IDENTITY, i, NULL, i);
+                       DIET_CVT_IDENTITY, i, NULL, i);
   }
   res = SRVT->addService(&corba_profile,
                          actual_cvt,
@@ -398,13 +377,11 @@ diet_service_table_add(const diet_profile_desc_t* const profile,
                          current_perfmetric_fn);
 
 
-#ifdef HAVE_DAGDA
   /** if the SeD is already running, we need to inform our parent
    * that we added a new service.
    */
   if (sedImpl)
     sedImpl->addService(corba_profile);
-#endif
 
   if (!cvt) {
     /*
@@ -419,47 +396,18 @@ diet_service_table_add(const diet_profile_desc_t* const profile,
 }
 
 
-#ifdef HAVE_DAGDA
 int
-diet_service_table_remove(const diet_profile_t* const profile)
-{
+diet_service_table_remove(const diet_profile_t* const profile) {
   return ((SeDImpl*) profile->SeDPtr)->removeService(profile);
 }
 
 int
-diet_service_table_remove_desc(const diet_profile_desc_t* const profile)
-{
+diet_service_table_remove_desc(const diet_profile_desc_t* const profile) {
   return sedImpl->removeServiceDesc(profile);
 }
-#endif
-
-
-/* Unused !!!
-   int
-   diet_service_table_lookup(const diet_profile_desc_t* const profile)
-   {
-   int refNum;
-   corba_profile_desc_t corbaProfile;
-
-   if (profile == NULL) {
-   ERROR(__FUNCTION__ << ": NULL profile", -1);
-   }
-
-   if (SRVT == NULL) {
-   ERROR(__FUNCTION__ << ": service table not yet initialized", -1);
-   }
-
-   mrsh_profile_desc(&corbaProfile, profile);
-   refNum = SRVT->lookupService(&corbaProfile);
-
-   return (refNum);
-   }
-*/
-
 
 int
-diet_service_table_lookup_by_profile(const diet_profile_t* const profile)
-{
+diet_service_table_lookup_by_profile(const diet_profile_t* const profile) {
   /* Called from diet_estimate_fast */
   int refNum;
   corba_profile_desc_t corbaProfile;
@@ -479,12 +427,12 @@ diet_service_table_lookup_by_profile(const diet_profile_t* const profile)
     profileDesc.last_inout = profile->last_inout;
     profileDesc.last_out = profile->last_out;
 #if defined HAVE_ALT_BATCH
-    profileDesc.parallel_flag = profile->parallel_flag ;
+    profileDesc.parallel_flag = profile->parallel_flag;
 #endif
     int numArgs = profile->last_out + 1;
     profileDesc.param_desc =
       (diet_arg_desc_t*) calloc (numArgs, sizeof (diet_arg_desc_t));
-    for (int argIter = 0 ; argIter < numArgs ; argIter++) {
+    for (int argIter = 0; argIter < numArgs; argIter++) {
       profileDesc.param_desc[argIter] =
         (profile->parameters[argIter]).desc.generic;
     }
@@ -504,8 +452,7 @@ diet_service_table_lookup_by_profile(const diet_profile_t* const profile)
 }
 
 void
-diet_print_service_table()
-{
+diet_print_service_table() {
   if (SRVT == NULL) {
     ERROR(__FUNCTION__ << ": service table not yet initialized",);
   }
@@ -518,25 +465,27 @@ diet_print_service_table()
 /****************************************************************************/
 
 diet_profile_desc_t*
-diet_profile_desc_alloc(const char* path,
-			int last_in, int last_inout, int last_out)
-{
+diet_profile_desc_alloc(const char* path, int last_in,
+                        int last_inout, int last_out) {
   diet_profile_desc_t* desc(NULL);
-  diet_arg_desc_t*     param_desc(NULL);
+  diet_arg_desc_t* param_desc(NULL);
 
-  if ((last_in < -1) || (last_inout < -1) || (last_out < -1))
+  if ((last_in < -1) || (last_inout < -1) || (last_out < -1)) {
     return NULL;
-  if (last_out == -1)
+  }
+  if (last_out == -1) {
     param_desc = NULL;
-  else {
+  } else {
     param_desc = new diet_arg_desc_t[last_out + 1];
-    if (!param_desc)
+    if (!param_desc) {
       return NULL;
+    }
   }
   desc = new diet_profile_desc_t;
   if (!desc) {
-    if (param_desc != NULL)
+    if (param_desc != NULL) {
       delete[] param_desc;
+    }
     return NULL;
   }
   desc->aggregator.agg_method = DIET_AGG_DEFAULT;
@@ -547,15 +496,14 @@ diet_profile_desc_alloc(const char* path,
   desc->param_desc = param_desc;
 #if defined HAVE_ALT_BATCH
   // By default, the profile is registered in the server as sequential
-  diet_profile_desc_set_sequential( desc ) ;
-  desc->parallel_environment = NULL ;
+  diet_profile_desc_set_sequential(desc);
+  desc->parallel_environment = NULL;
 #endif
   return desc;
 }
 
 int
-diet_profile_desc_free(diet_profile_desc_t* desc)
-{
+diet_profile_desc_free(diet_profile_desc_t* desc) {
   if (!desc) {
     return 1;
   }
@@ -567,7 +515,7 @@ diet_profile_desc_free(diet_profile_desc_t* desc)
     return 0;
   }
 
-  if ((desc->last_out == -1) && desc->param_desc == NULL) {
+  if ((desc->last_out == -1) && (desc->param_desc == NULL)) {
     delete desc;
     return 0;
   }
@@ -581,18 +529,17 @@ diet_profile_desc_free(diet_profile_desc_t* desc)
 /* DIET aggregation                                                         */
 /****************************************************************************/
 diet_aggregator_desc_t*
-diet_profile_desc_aggregator(diet_profile_desc_t* profile)
-{
+diet_profile_desc_aggregator(diet_profile_desc_t* profile) {
   if (profile == NULL) {
     WARNING(__FUNCTION__ << ": NULL profile");
     return (NULL);
   }
   return (&(profile->aggregator));
 }
+
 int
 diet_aggregator_set_type(diet_aggregator_desc_t* agg,
-                         diet_aggregator_type_t atype)
-{
+                         diet_aggregator_type_t atype) {
   if (agg == NULL) {
     ERROR(__FUNCTION__ << ": NULL aggregator", 0);
   }
@@ -603,7 +550,7 @@ diet_aggregator_set_type(diet_aggregator_desc_t* agg,
       && atype != DIET_AGG_USER
 #endif
       /*************************************/
-      ) {
+) {
     ERROR(__FUNCTION__ << ": unknown aggregation type (" << atype << ")", 0);
   }
   if (agg->agg_method != DIET_AGG_DEFAULT) {
@@ -616,16 +563,14 @@ diet_aggregator_set_type(diet_aggregator_desc_t* agg,
   return (1);
 }
 static int
-__diet_agg_pri_add_value(diet_aggregator_priority_t* priority, int value)
-{
+__diet_agg_pri_add_value(diet_aggregator_priority_t* priority, int value) {
   if (priority->p_numPValues == 0) {
     if ((priority->p_pValues = (int *) calloc(1, sizeof (int))) == NULL) {
       return (0);
     }
     priority->p_pValues[0] = value;
     priority->p_numPValues = 1;
-  }
-  else {
+  } else {
     int *newArray = (int *) realloc(priority->p_pValues,
                                     (priority->p_numPValues+1) * sizeof (int));
     if (newArray == NULL) {
@@ -638,10 +583,9 @@ __diet_agg_pri_add_value(diet_aggregator_priority_t* priority, int value)
 
   return (1);
 }
+
 int
-diet_aggregator_priority_max(diet_aggregator_desc_t* agg,
-                             int tag)
-{
+diet_aggregator_priority_max(diet_aggregator_desc_t* agg, int tag) {
   if (agg == NULL) {
     ERROR(__FUNCTION__ << ": NULL aggregator", 0);
   }
@@ -657,10 +601,9 @@ diet_aggregator_priority_max(diet_aggregator_desc_t* agg,
   }
   return (1);
 }
+
 int
-diet_aggregator_priority_min(diet_aggregator_desc_t* agg,
-                             int tag)
-{
+diet_aggregator_priority_min(diet_aggregator_desc_t* agg, int tag) {
   if (agg == NULL) {
     ERROR(__FUNCTION__ << ": NULL aggregator", 0);
   }
@@ -678,8 +621,7 @@ diet_aggregator_priority_min(diet_aggregator_desc_t* agg,
 }
 
 int
-diet_aggregator_priority_maxuser(diet_aggregator_desc_t* agg, int val)
-{
+diet_aggregator_priority_maxuser(diet_aggregator_desc_t* agg, int val) {
   if (agg == NULL) {
     ERROR(__FUNCTION__ << ": NULL aggregator", 0);
   }
@@ -695,9 +637,9 @@ diet_aggregator_priority_maxuser(diet_aggregator_desc_t* agg, int val)
   }
   return (1);
 }
+
 int
-diet_aggregator_priority_minuser(diet_aggregator_desc_t* agg, int val)
-{
+diet_aggregator_priority_minuser(diet_aggregator_desc_t* agg, int val) {
   if (agg == NULL) {
     ERROR(__FUNCTION__ << ": NULL aggregator", 0);
   }
@@ -714,8 +656,6 @@ diet_aggregator_priority_minuser(diet_aggregator_desc_t* agg, int val)
   return (1);
 }
 
-
-
 /****************************************************************************/
 /* DIET problem evaluation                                                  */
 /****************************************************************************/
@@ -731,10 +671,11 @@ diet_aggregator_priority_minuser(diet_aggregator_desc_t* agg, int val)
 
 int
 diet_arg_cvt_set(diet_arg_convertor_t* arg_cvt, diet_convertor_function_t f,
-		 int in_arg_idx, diet_arg_t* arg, int out_arg_idx)
-{
-  if (!arg_cvt)
+                 int in_arg_idx, diet_arg_t* arg, int out_arg_idx) {
+  if (!arg_cvt) {
     return 1;
+  }
+
   arg_cvt->f           = f;
   arg_cvt->in_arg_idx  = in_arg_idx;
   arg_cvt->arg         = arg;
@@ -743,9 +684,8 @@ diet_arg_cvt_set(diet_arg_convertor_t* arg_cvt, diet_convertor_function_t f,
 }
 
 diet_convertor_t*
-diet_convertor_alloc(const char* path,
-		     int last_in, int last_inout, int last_out)
-{
+diet_convertor_alloc(const char* path, int last_in,
+                     int last_inout, int last_out) {
   diet_convertor_t* res = new diet_convertor_t;
   res->path       = strdup(path);
   res->last_in    = last_in;
@@ -760,20 +700,21 @@ diet_convertor_alloc(const char* path,
 }
 
 int
-diet_convertor_free(diet_convertor_t* cvt)
-{
+diet_convertor_free(diet_convertor_t* cvt) {
   int res = 0;
 
-  if (!cvt)
+  if (!cvt) {
     return 1;
+  }
   free(cvt->path);
   if ((cvt->last_out <= -1) || !(cvt->arg_convs)) {
     res = 1;
   } else {
 #if 0
     for (int i = 0; i < cvt->last_out; i++) {
-      if (cvt->arg_convs[i].arg)
-	free(cvt->arg_convs[i].arg);
+      if (cvt->arg_convs[i].arg) {
+        free(cvt->arg_convs[i].arg);
+      }
     }
 #endif
     delete [] cvt->arg_convs;
@@ -784,39 +725,39 @@ diet_convertor_free(diet_convertor_t* cvt)
 
 int
 diet_convertor_check(const diet_convertor_t* const cvt,
-                     const diet_profile_desc_t* const profile)
-{
+                     const diet_profile_desc_t* const profile) {
   int res = 0;
 
-#define CHECK_ERROR(formatted_text)					\
-  if (res == 0)								\
-    cerr << "DIET ERROR while checking the convertor from "		\
-	 << profile->path << " to " << cvt->path << ":" << endl;	\
-  cerr << formatted_text << "." << endl;				\
-  res = 1;
-
+#define CHECK_ERROR(formatted_text)                                     \
+  if (res == 0) {                                                       \
+    std::cerr << "DIET ERROR while checking the convertor from "        \
+              << profile->path << " to " << cvt->path << ":\n"          \
+              << formatted_text << ".\n";                               \
+  } res = 1;
 
   for (int i = 0; i <= cvt->last_out; i++) {
     int in, out;
 
     if ((((int)cvt->arg_convs[i].f) < 0)
-	|| (cvt->arg_convs[i].f >= DIET_CVT_COUNT)) {
+        || (cvt->arg_convs[i].f >= DIET_CVT_COUNT)) {
       CHECK_ERROR("- the argument convertor " << i << " has got a wrong "
-		  << "convertor function (" << cvt->arg_convs[i].f << ")");
+                  << "convertor function (" << cvt->arg_convs[i].f << ")");
     }
     in  = cvt->arg_convs[i].in_arg_idx;
     out = cvt->arg_convs[i].out_arg_idx;
     if ((in < 0) || (in > profile->last_out) ||
-	(out < 0) || (out > profile->last_out)) {
+        (out < 0) || (out > profile->last_out)) {
       if (cvt->arg_convs[i].arg == NULL) {
-	CHECK_ERROR("- the argument convertor " << i << " references no "
-		    << "argument ;" << endl << " it should reference either an index of "
-		    << "the profile, or a constant argument");
+        CHECK_ERROR("- the argument convertor " << i
+                    << " references no argument;\n"
+                    << " it should reference either an index of "
+                    << "the profile, or a constant argument");
       }
     } else if (cvt->arg_convs[i].arg != NULL) {
-      CHECK_ERROR("- the argument convertor " << i << " references too many "
-		  << "arguments ;" << endl << " it should reference either an index of "
-		  << "the profile, or a constant argument");
+      CHECK_ERROR("- the argument convertor " << i
+                  << " references too many arguments;\n"
+                  << " it should reference either an index of "
+                  << "the profile, or a constant argument");
     }
   }
   return res;
@@ -827,8 +768,7 @@ diet_convertor_check(const diet_convertor_t* const cvt,
 /****************************************************************************/
 
 int
-diet_SeD(const char* config_file_name, int argc, char* argv[])
-{
+diet_SeD(const char* config_file_name, int argc, char* argv[]) {
   SeDImpl* SeD;
   int    myargc;
   char** myargv;
@@ -837,15 +777,7 @@ diet_SeD(const char* config_file_name, int argc, char* argv[])
   MonitoringThread* monitoringThread;
 #endif
 
-#if HAVE_JUXMEM
-  JuxMem::Wrapper* juxmem;
-#else
-#if ! HAVE_DAGDA
-  DataMgrImpl* dataMgr;
-#else
   DagdaImpl* dataManager;
-#endif // ! HAVE_DAGDA
-#endif // HAVE_JUXMEM
 
   if (SRVT == NULL) {
     ERROR(__FUNCTION__ << ": service table not yet initialized", 1);
@@ -887,10 +819,10 @@ diet_SeD(const char* config_file_name, int argc, char* argv[])
     std::ostringstream endpoint;
     int    tmp_argc = myargc + 2;
     myargv = (char**)realloc(myargv, tmp_argc * sizeof(char*));
-    myargv[myargc] = strdup("-ORBendPoint") ;
+    myargv[myargc] = strdup("-ORBendPoint");
 
     endpoint << "giop:tcp:" << host << ":";
-    if(hasPort) {
+    if (hasPort) {
       endpoint << port;
     }
 
@@ -903,10 +835,10 @@ diet_SeD(const char* config_file_name, int argc, char* argv[])
   CONFIG_ULONG(diet::TRACELEVEL, tmpTraceLevel);
   TRACE_LEVEL = tmpTraceLevel;
   if (TRACE_LEVEL >= TRACE_MAX_VALUE) {
-    char *  level = (char *) calloc(48, sizeof(char*)) ;
+    char *  level = (char *) calloc(48, sizeof(char*));
     int    tmp_argc = myargc + 2;
     myargv = (char**)realloc(myargv, tmp_argc * sizeof(char*));
-    myargv[myargc] = strdup("-ORBtraceLevel") ;
+    myargv[myargc] = strdup("-ORBtraceLevel");
     sprintf(level, "%u", TRACE_LEVEL - TRACE_MAX_VALUE);
     myargv[myargc + 1] = (char*)level;
     myargc = tmp_argc;
@@ -920,24 +852,17 @@ diet_SeD(const char* config_file_name, int argc, char* argv[])
   }
 
 
-#if HAVE_FD
-  /* very simple registration: SeD only is observable by FD, no details on
-   * services hosted by this sed
-   */
-  fd_register_service(getpid(), 1);
-#endif
-
   /* SeD creation */
   SeD = new SeDImpl();
   TRACE_TEXT(TRACE_MAIN_STEPS,
-	     "## SED_IOR " << ORBMgr::getMgr()->getIOR(SeD->_this()) << endl);
+             "## SED_IOR " << ORBMgr::getMgr()->getIOR(SeD->_this()) << "\n");
   fsync(1);
   fflush(NULL);
 
 #ifdef HAVE_ALT_BATCH
   /* Define the role of the SeD: batch, serial, etc. */
-  SeD->setServerStatus( st ) ;
-  TRACE_TEXT(TRACE_MAIN_STEPS, "setServerStatus " << (int)st << endl);
+  SeD->setServerStatus(st);
+  TRACE_TEXT(TRACE_MAIN_STEPS, "setServerStatus " << (int)st << "\n");
 #endif
 
 #ifdef USE_LOG_SERVICE
@@ -947,7 +872,7 @@ diet_SeD(const char* config_file_name, int argc, char* argv[])
 
   CONFIG_BOOL(diet::USELOGSERVICE, useLS);
   if (!useLS) {
-    TRACE_TEXT(TRACE_ALL_STEPS, "LogService disabled" << endl);
+    TRACE_TEXT(TRACE_ALL_STEPS, "LogService disabled\n");
     dietLogComponent = NULL;
   } else {
     int outBufferSize;
@@ -963,7 +888,7 @@ diet_SeD(const char* config_file_name, int argc, char* argv[])
       WARNING("lsFlushinterval not configured, using default");
     }
 
-    TRACE_TEXT(TRACE_ALL_STEPS, "* LogService: enabled" << endl);
+    TRACE_TEXT(TRACE_ALL_STEPS, "* LogService: enabled\n");
     std::string parentName;
     CONFIG_STRING(diet::PARENTNAME, parentName);
 
@@ -973,9 +898,9 @@ diet_SeD(const char* config_file_name, int argc, char* argv[])
     ORBMgr::getMgr()->activate(dietLogComponent);
 
     if (dietLogComponent->run("SeD", parentName.c_str(), flushTime) != 0) {
-      //      delete(dietLogComponent); // DLC is activated, do not delete !
+      //      delete(dietLogComponent);  // DLC is activated, do not delete !
       WARNING("Could not initialize DietLogComponent");
-      TRACE_TEXT(TRACE_ALL_STEPS, "* LogService: disabled" << endl);
+      TRACE_TEXT(TRACE_ALL_STEPS, "* LogService: disabled\n");
       dietLogComponent = NULL;
     }
   }
@@ -991,81 +916,36 @@ diet_SeD(const char* config_file_name, int argc, char* argv[])
     ERROR("unable to launch the SeD", 1);
   }
 
-#if HAVE_JUXMEM
-  /** JuxMem creation */
-  juxmem = new JuxMem::Wrapper(SeD->getName());
-  SeD->linkToJuxMem(juxmem);
-#else
-#if ! HAVE_DAGDA
-  /* Set-up and activate Data Manager for DTM usage */
-  std::string dtmName;
-  if (!CONFIG_STRING(diet::PARENTNAME, dtmName)) {
-    ERROR("Cannot create the local data manager. SeD needs a parent name", 1);
-  }
-  dtmName="DataMgr-"+dtmName;
-
-  dataMgr = new DataMgrImpl(dtmName.c_str());
-#ifdef USE_LOG_SERVICE
-  dataMgr->setDietLogComponent(dietLogComponent);
-#endif
-  ORBMgr::getMgr()->activate(dataMgr);
-  ORBMgr::getMgr()->bind(DATAMGRCTXT, dtmName, dataMgr->_this(), true);
-  ORBMgr::getMgr()->fwdsBind(DATAMGRCTXT, dtmName,
-			     ORBMgr::getMgr()->getIOR(dataMgr->_this()));
-	
-  if (dataMgr->run()) {
-    ERROR("unable to launch the DataManager", 1);
-  }
-  SeD->linkToDataMgr(dataMgr);
-#else
   dataManager = DagdaFactory::getSeDDataManager();
 #ifdef USE_LOG_SERVICE
-  dataManager->setLogComponent( dietLogComponent ); // modif bisnard_logs_1
+  dataManager->setLogComponent(dietLogComponent);  // modif bisnard_logs_1
 #endif
 
   ORBMgr::getMgr()->activate(dataManager);
   SeD->setDataManager(dataManager);
-#endif // ! HAVE_DAGDA
-#endif // HAVE_JUXMEM
 
-#ifdef HAVE_ACKFILE
-  /* Touch a file to notify the end of the initialization */
-  std::string ackFile;
-  if (CONFIG_STRING(diet::ACKFILE, ackFile)) {
-    cerr << "Open OutFile: "<< ackFile <<endl;
-    ofstream out (ackFile.c_str());
-    out << "ok" << endl;
-    out.close();
-  }
-#endif
-
-#ifdef HAVE_DAGDA
   sedImpl = SeD;
-#endif
 
   /* Wait for RPCs : */
   ORBMgr::getMgr()->wait();
 
-#ifdef HAVE_DYNAMICS
   signal(SIGINT, SIG_IGN);
   signal(SIGTERM, SIG_IGN);
   SeD->removeElementClean();
   signal(SIGINT, SIG_DFL);
   signal(SIGTERM, SIG_DFL);
-#endif // HAVE_DYNAMICS
 
   /* shutdown and destroy the ORB
    * Servants will be deactivated and deleted automatically */
   delete ORBMgr::getMgr();
 
-  TRACE_TEXT(TRACE_ALL_STEPS, "SeD has exited" << std::endl);
+  TRACE_TEXT(TRACE_ALL_STEPS, "SeD has exited\n");
 
   return 0;
 }
 
 int
-diet_est_set(estVector_t ev, int userTag, double value)
-{
+diet_est_set(estVector_t ev, int userTag, double value) {
   if (ev == NULL) {
     ERROR(__FUNCTION__ << ": NULL estimation vector", -1);
   }
@@ -1080,8 +960,7 @@ diet_est_set(estVector_t ev, int userTag, double value)
 }
 
 double
-diet_est_get(estVectorConst_t ev, int userTag, double errVal)
-{
+diet_est_get(estVectorConst_t ev, int userTag, double errVal) {
   if (ev == NULL) {
     ERROR(__FUNCTION__ << ": NULL estimation vector", errVal);
   }
@@ -1096,8 +975,7 @@ diet_est_get(estVectorConst_t ev, int userTag, double errVal)
 }
 
 double
-diet_est_get_system(estVectorConst_t ev, int systemTag, double errVal)
-{
+diet_est_get_system(estVectorConst_t ev, int systemTag, double errVal) {
   if (ev == NULL) {
     ERROR(__FUNCTION__ << ": NULL estimation vector", errVal);
   }
@@ -1113,12 +991,11 @@ diet_est_get_system(estVectorConst_t ev, int systemTag, double errVal)
           EST_USERDEFINED<<
           ")", errVal);
   }
-  return (diet_est_get_internal(ev,systemTag, errVal));
+  return (diet_est_get_internal(ev, systemTag, errVal));
 }
 
 int
-diet_est_defined(estVectorConst_t ev, int userTag)
-{
+diet_est_defined(estVectorConst_t ev, int userTag) {
   if (ev == NULL) {
     ERROR(__FUNCTION__ << ": NULL estimation vector", -1);
   }
@@ -1131,9 +1008,9 @@ diet_est_defined(estVectorConst_t ev, int userTag)
 
   return (diet_est_defined_internal(ev, userTag + EST_USERDEFINED));
 }
+
 int
-diet_est_defined_system(estVectorConst_t ev, int systemTag)
-{
+diet_est_defined_system(estVectorConst_t ev, int systemTag) {
   if (ev == NULL) {
     ERROR(__FUNCTION__ << ": NULL estimation vector", -1);
   }
@@ -1150,12 +1027,11 @@ diet_est_defined_system(estVectorConst_t ev, int systemTag)
           ")", -1);
   }
 
-  return (diet_est_defined_internal(ev, systemTag ));
+  return (diet_est_defined_internal(ev, systemTag));
 }
 
 int
-diet_est_array_size(estVectorConst_t ev, int userTag)
-{
+diet_est_array_size(estVectorConst_t ev, int userTag) {
   if (ev == NULL) {
     ERROR(__FUNCTION__ << ": NULL estimation vector", -1);
   }
@@ -1168,9 +1044,9 @@ diet_est_array_size(estVectorConst_t ev, int userTag)
 
   return (diet_est_array_size_internal(ev, userTag + EST_USERDEFINED));
 }
+
 int
-diet_est_array_size_system(estVectorConst_t ev, int systemTag)
-{
+diet_est_array_size_system(estVectorConst_t ev, int systemTag) {
   if (ev == NULL) {
     ERROR(__FUNCTION__ << ": NULL estimation vector", -1);
   }
@@ -1191,8 +1067,7 @@ diet_est_array_size_system(estVectorConst_t ev, int systemTag)
 }
 
 int
-diet_est_array_set(estVector_t ev, int userTag, int idx, double value)
-{
+diet_est_array_set(estVector_t ev, int userTag, int idx, double value) {
   if (ev == NULL) {
     ERROR(__FUNCTION__ << ": NULL estimation vector", -1);
   }
@@ -1213,8 +1088,7 @@ diet_est_array_set(estVector_t ev, int userTag, int idx, double value)
 }
 
 double
-diet_est_array_get(estVectorConst_t ev, int userTag, int idx, double errVal)
-{
+diet_est_array_get(estVectorConst_t ev, int userTag, int idx, double errVal) {
   if (ev == NULL) {
     ERROR(__FUNCTION__ << ": NULL estimation vector", errVal);
   }
@@ -1231,15 +1105,15 @@ diet_est_array_get(estVectorConst_t ev, int userTag, int idx, double errVal)
           ")", errVal);
   }
 
-  return (diet_est_array_get_internal(ev,
-                                      userTag + EST_USERDEFINED,
-                                      idx,
-                                      errVal));
+  return diet_est_array_get_internal(ev,
+                                     userTag + EST_USERDEFINED,
+                                     idx,
+                                     errVal);
 }
 
 double
-diet_est_array_get_system(estVectorConst_t ev, int systemTag, int idx, double errVal)
-{
+diet_est_array_get_system(estVectorConst_t ev, int systemTag,
+                          int idx, double errVal) {
   if (ev == NULL) {
     ERROR(__FUNCTION__ << ": NULL estimation vector", errVal);
   }
@@ -1261,16 +1135,15 @@ diet_est_array_get_system(estVectorConst_t ev, int systemTag, int idx, double er
           EST_USERDEFINED<<
           ")", errVal);
   }
-  return (diet_est_array_get_internal(ev,
-                                      systemTag,
-                                      idx,
-                                      errVal));
+  return diet_est_array_get_internal(ev,
+                                     systemTag,
+                                     idx,
+                                     errVal);
 }
 
 
 int
-diet_est_array_defined(estVectorConst_t ev, int userTag, int idx)
-{
+diet_est_array_defined(estVectorConst_t ev, int userTag, int idx) {
   if (ev == NULL) {
     ERROR(__FUNCTION__ << ": NULL estimation vector", -1);
   }
@@ -1284,14 +1157,13 @@ diet_est_array_defined(estVectorConst_t ev, int userTag, int idx)
     ERROR(__FUNCTION__ << ": idx must be non-negative (" << idx << ")", -1);
   }
 
-  return (diet_est_array_defined_internal(ev,
-                                          userTag + EST_USERDEFINED,
-                                          idx));
+  return diet_est_array_defined_internal(ev,
+                                         userTag + EST_USERDEFINED,
+                                         idx);
 }
 
 int
-diet_est_array_defined_system(estVectorConst_t ev, int systemTag, int idx)
-{
+diet_est_array_defined_system(estVectorConst_t ev, int systemTag, int idx) {
   if (ev == NULL) {
     ERROR(__FUNCTION__ << ": NULL estimation vector", -1);
   }
@@ -1310,172 +1182,127 @@ diet_est_array_defined_system(estVectorConst_t ev, int systemTag, int idx)
           EST_USERDEFINED<<
           ")", -1);
   }
-  return (diet_est_array_defined_internal(ev,
-                                          systemTag,
-                                          idx));
+  return diet_est_array_defined_internal(ev,
+                                         systemTag,
+                                         idx);
 }
-#if HAVE_CORI
 
 #ifdef HAVE_ALT_BATCH
 /* These two functions shall be removed and a better mechanism found
-   for example vhen and if CoRI is rewritten.
-*/
+ * for example vhen and if CoRI is rewritten.
+ */
 estVector_t
-diet_new_estVect()
-{
-  return new corba_estimation_t() ;
+diet_new_estVect() {
+  return new corba_estimation_t();
 }
 
 void
-diet_destroy_estVect( estVector_t perfVect )
-{
-  delete perfVect ;
+diet_destroy_estVect(estVector_t perfVect) {
+  delete perfVect;
 }
-#endif // HAVE_ALT_BATCH
+#endif  // HAVE_ALT_BATCH
 
 int
 diet_estimate_cori(estVector_t ev,
-		   int info_type,
-		   diet_est_collect_tag_t collector_type,
-		   const void * data)
-{
-  fast_param_t fastparam={(diet_profile_t*)data,SRVT};
-  switch( collector_type ) {
-  case EST_COLL_FAST:
-    //#if HAVE_FAST
-    //testing already here, because it is possible that an internal call use tag COMMTIME
-    if ((info_type==EST_TCOMP)||
-	(info_type==EST_FREECPU)||
-	(info_type==EST_FREEMEM)||
-	(info_type==EST_NBCPU)||
-	(info_type==EST_ALLINFOS))
-      CORIMgr::call_cori_mgr(&ev,info_type,collector_type,&fastparam);
-    else {
-      // FIXME: set the default values for each type
-      double value ;
-      switch( info_type ) {
-      case EST_TCOMP:
-      case EST_FREECPU:
-      case EST_FREEMEM:
-      case EST_NBCPU:
-      case EST_ALLINFOS:
-      default:
-	value = 0 ;
-      }
-      diet_est_set_internal(ev,info_type,value);
-      ERROR(__FUNCTION__ << ": info_type must be EST_TCOMP,EST_FREECPU,EST_FREEMEM, EST_NBCPU or EST_ALLINFOS!)", -1);
-    }
-    //#endif //HAVE_FAST
-    break ;
+                   int info_type,
+                   diet_est_collect_tag_t collector_type,
+                   const void * data) {
+  switch (collector_type) {
   case EST_COLL_EASY:
   case EST_COLL_BATCH:
-    CORIMgr::call_cori_mgr( &ev, info_type, collector_type, data ) ;
-    break ;
+    CORIMgr::call_cori_mgr(&ev, info_type, collector_type, data);
+    break;
   case EST_COLL_GANGLIA:
   case EST_COLL_NAGIOS:
   default:
-    ERROR("Requested collector not implemented", -1) ;
+    ERROR("Requested collector not implemented", -1);
   }
-  return 0 ;
+  return 0;
 }
 
 int
 diet_estimate_cori_add_collector(diet_est_collect_tag_t collector_type,
-				 void * data){
+                                 void * data) {
   return CORIMgr::add(collector_type, data);
 }
 
 void
-print_message(){
-  cerr<<"=default value used"<<endl;
+print_message() {
+  std::cerr << "=default value used\n";
 }
 
 void
-diet_estimate_coriEasy_print(){
-  int tmp_int=TRACE_LEVEL;
-  TRACE_LEVEL=15;
+diet_estimate_coriEasy_print() {
+  int tmp_int = TRACE_LEVEL;
+  TRACE_LEVEL = 15;
 
-  cerr<<"start printing CoRI values.."<<endl;
-  estVector_t vec=new corba_estimation_t();
+  std::cerr << "start printing CoRI values..\n";
+  estVector_t vec = new corba_estimation_t();
 
-  CORIMgr::add(EST_COLL_EASY,NULL);
+  CORIMgr::add(EST_COLL_EASY, NULL);
 
-  int minut=15;
+  int minut = 15;
 
-  if  (diet_estimate_cori(vec,EST_AVGFREECPU,EST_COLL_EASY,&minut))
+  if (diet_estimate_cori(vec, EST_AVGFREECPU, EST_COLL_EASY, &minut)) {
     print_message();
+  }
 
-  if  (diet_estimate_cori(vec,EST_CACHECPU,EST_COLL_EASY,NULL))
+  if (diet_estimate_cori(vec, EST_CACHECPU, EST_COLL_EASY, NULL)) {
     print_message();
+  }
 
-  if  (diet_estimate_cori(vec,EST_NBCPU,EST_COLL_EASY,NULL))
+  if (diet_estimate_cori(vec, EST_NBCPU, EST_COLL_EASY, NULL)) {
     print_message();
+  }
 
-  if  (diet_estimate_cori(vec,EST_BOGOMIPS,EST_COLL_EASY,NULL))
+  if (diet_estimate_cori(vec, EST_BOGOMIPS, EST_COLL_EASY, NULL)) {
     print_message();
-  const char * tmp="./" ;
-  if  (diet_estimate_cori(vec,EST_DISKACCESREAD,EST_COLL_EASY,tmp))
-    print_message();
+  }
 
-  if  (diet_estimate_cori(vec,EST_DISKACCESWRITE,EST_COLL_EASY,tmp))
-    print_message();
+  const char * tmp = "./";
 
-  if  (diet_estimate_cori(vec,EST_TOTALSIZEDISK,EST_COLL_EASY,tmp))
+  if (diet_estimate_cori(vec, EST_DISKACCESREAD, EST_COLL_EASY, tmp)) {
     print_message();
+  }
 
-  if  (diet_estimate_cori(vec,EST_FREESIZEDISK,EST_COLL_EASY,tmp))
+  if (diet_estimate_cori(vec, EST_DISKACCESWRITE, EST_COLL_EASY, tmp)) {
     print_message();
+  }
 
-  if  (diet_estimate_cori(vec,EST_TOTALMEM,EST_COLL_EASY,NULL))
+  if (diet_estimate_cori(vec, EST_TOTALSIZEDISK, EST_COLL_EASY, tmp)) {
     print_message();
+  }
 
-  if  (diet_estimate_cori(vec,EST_FREEMEM,EST_COLL_EASY,NULL))
+  if (diet_estimate_cori(vec, EST_FREESIZEDISK, EST_COLL_EASY, tmp)) {
     print_message();
+  }
 
-  cerr<<"end printing CoRI values"<<endl;
-  TRACE_LEVEL=tmp_int;
+  if (diet_estimate_cori(vec, EST_TOTALMEM, EST_COLL_EASY, NULL)) {
+    print_message();
+  }
+
+  if (diet_estimate_cori(vec, EST_FREEMEM, EST_COLL_EASY, NULL)) {
+    print_message();
+  }
+
+  std::cerr << "end printing CoRI values\n";
+  TRACE_LEVEL = tmp_int;
 
   /* FIXME (YC->ANY): release vec ? */
 }
 
-#else //HAVE_CORI
 
 int
-diet_estimate_fast(estVector_t ev,
-                   const diet_profile_t* const profilePtr)
-//                    int stRef)
-{
-  char hostnameBuf[256]; //was HOSTNAME_BUFLEN initially
-  int stRef;
-
-  if (gethostname(hostnameBuf, 255)) {
-    ERROR("error getting hostname", 0);
-  }
-
-  stRef = diet_service_table_lookup_by_profile(profilePtr);
-  FASTMgr::estimate(hostnameBuf,
-                    profilePtr,
-                    SRVT,
-                    (ServiceTable::ServiceReference_t) stRef,
-                    ev);
-
-  return (1);
-}
-
-#endif //HAVE_CORI
-
-int diet_estimate_lastexec(estVector_t ev,
-                           const diet_profile_t* const profilePtr)
-{
+diet_estimate_lastexec(estVector_t ev,
+                       const diet_profile_t* const profilePtr) {
   const SeDImpl* refSeD = (SeDImpl*) profilePtr->SeDPtr;
   double timeSinceLastSolve;
   const struct timeval* lastSolveStartPtr;
   struct timeval currentTime;
 
-  /*
-  ** casting away const-ness, because we know that the
-  ** method doesn't change the SeD
-  */
+  /* casting away const-ness, because we know that the
+   * method doesn't change the SeD
+   */
   lastSolveStartPtr = ((SeDImpl*) refSeD)->timeSinceLastSolve();
 
   gettimeofday(&currentTime, NULL);
@@ -1486,59 +1313,62 @@ int diet_estimate_lastexec(estVector_t ev,
                          1000000.0));
   /* store the value in the performance data array */
   diet_est_set_internal(ev, EST_TIMESINCELASTSOLVE, timeSinceLastSolve);
-  return (1);
+  return 1;
 }
 
-int diet_estimate_comptime(estVector_t ev, double value) {
+int
+diet_estimate_comptime(estVector_t ev, double value) {
   diet_est_set_internal(ev, EST_TCOMP, value);
-  return 0 ;
+  return 0;
 }
 
 /* Get the number of waiting jobs in the queue. */
 /* TODO : Add to the documentation. */
-int diet_estimate_waiting_jobs(estVector_t ev,
-			       const diet_profile_t* const profilePtr)
-{
+int
+diet_estimate_waiting_jobs(estVector_t ev,
+                           const diet_profile_t* const profilePtr) {
   const SeDImpl* refSeD = (SeDImpl*) profilePtr->SeDPtr;
 
-  if( refSeD!=NULL ) {
-    /*
-    ** casting away const-ness, because we know that the
-    ** method doesn't change the SeD
-    */
+  if (refSeD != NULL) {
+    /* casting away const-ness, because we know that the
+     * method doesn't change the SeD
+     */
     diet_est_set_internal(ev, EST_NUMWAITINGJOBS,
-			  ((SeDImpl*) refSeD)->getNumJobsWaiting());
+                          ((SeDImpl*) refSeD)->getNumJobsWaiting());
     return 0;
-  } else
-    INTERNAL_ERROR(__FUNCTION__ <<": ref on SeD not initialized?", 1) ;
+  } else {
+    INTERNAL_ERROR(__FUNCTION__ <<": ref on SeD not initialized?", 1);
+  }
 }
 
 /* Get the list of all running and waiting jobs */
 /* (Caller is responsible for freeing the result) */
-int diet_estimate_list_jobs(jobVector_t* jv, int* jobNb,
-                            const diet_profile_t* const profilePtr) {
+int
+diet_estimate_list_jobs(jobVector_t* jv, int* jobNb,
+                        const diet_profile_t* const profilePtr) {
   const SeDImpl* refSeD = (SeDImpl*) profilePtr->SeDPtr;
   /* const_cast required due to lock/unlock mutex when getting jobs */
   SeDImpl* ncrefSeD = const_cast<SeDImpl*> (refSeD);
-  if( ncrefSeD!=NULL ) {
+  if (ncrefSeD != NULL) {
     *jobNb = ncrefSeD->getActiveJobVector(*jv);
     return 0;
-  } else
-    INTERNAL_ERROR(__FUNCTION__ <<": ref on SeD not initialized?", 1) ;
+  } else {
+    INTERNAL_ERROR(__FUNCTION__ <<": ref on SeD not initialized?", 1);
+  }
 }
 
 /* Get the estimated Earliest Finish Time for a job with given duration est.*/
-int diet_estimate_eft(estVector_t ev,
-                      double  jobEstimatedCompTime,
-                      const diet_profile_t* const profilePtr) {
+int
+diet_estimate_eft(estVector_t ev,
+                  double  jobEstimatedCompTime,
+                  const diet_profile_t* const profilePtr) {
   const SeDImpl* refSeD = (SeDImpl*) profilePtr->SeDPtr;
-  if( refSeD==NULL ) {
+  if (refSeD == NULL) {
     ERROR(__FUNCTION__ <<": ref on SeD not initialized?", 1);
   }
-  /*
-  ** casting away const-ness, because we know that the
-  ** method doesn't change the SeD
-  */
+  /* casting away const-ness, because we know that the
+   * method doesn't change the SeD
+   */
   double value = jobEstimatedCompTime + ((SeDImpl*) refSeD)->getEFT();
   diet_est_set_internal(ev, EST_EFT, value);
   return 0;
@@ -1551,34 +1381,30 @@ int diet_estimate_eft(estVector_t ev,
 #ifdef HAVE_ALT_BATCH
 /* TODO (YC): put me in right place in this file */
 void
-diet_set_server_status( diet_server_status_t status )
-{
-  if( (status > -1) && (status<NB_SERVER_STATUS) ) {
-    st = status ;
-    //#if defined YC_DEBUG
-    switch((int)st) {
+diet_set_server_status(diet_server_status_t status) {
+  if ((status > -1) && (status<NB_SERVER_STATUS)) {
+    st = status;
+    switch ((int)st) {
     case BATCH:
-      TRACE_TEXT(TRACE_MAIN_STEPS,"SeD is batch" << endl) ;
-      break ;
+      TRACE_TEXT(TRACE_MAIN_STEPS, "SeD is batch\n");
+      break;
     case SERIAL:
-      TRACE_TEXT(TRACE_MAIN_STEPS,"SeD is sequential" << endl) ;
-      break ;
+      TRACE_TEXT(TRACE_MAIN_STEPS, "SeD is sequential\n");
+      break;
     default:
-      TRACE_TEXT(TRACE_MAIN_STEPS,"Server status list to update" << endl) ;
+      TRACE_TEXT(TRACE_MAIN_STEPS, "Server status list to update\n");
     }
-    //#endif
-  } else ERROR_EXIT("Server status not recognized") ;
+  } else ERROR_EXIT("Server status not recognized");
 }
 #endif
 
 #ifdef HAVE_ALT_BATCH
 int
 diet_submit_parallel(diet_profile_t * profile,
-		     const char * addon_prologue,
-		     const char * command)
-{
+                     const char * addon_prologue,
+                     const char * command) {
   return ((((SeDImpl*)profile->SeDPtr)->getBatch())->
-	  diet_submit_parallel(profile, addon_prologue, command)) ;
+          diet_submit_parallel(profile, addon_prologue, command));
 }
 
 /* This is to be used later: a SeD can manage a reservation as he wants. It
@@ -1586,21 +1412,19 @@ diet_submit_parallel(diet_profile_t * profile,
    tasks overlapping or not */
 int
 diet_concurrent_submit_parallel(int batchJobID, diet_profile_t * profile,
-				const char * command)
-{
+                                const char * command) {
   return (((SeDImpl*)profile->SeDPtr)->getBatch())->
-    diet_submit_parallel(batchJobID,profile,command) ;
+    diet_submit_parallel(batchJobID, profile, command);
 }
 
 /* Used to explicitely wait for the completion of a batch job */
 int
-diet_wait_batch_job_completion(diet_profile_t * profile)
-{
+diet_wait_batch_job_completion(diet_profile_t * profile) {
   return ((SeDImpl*) profile->SeDPtr)->getBatch()->
-    wait4BatchJobCompletion(((SeDImpl*) profile->SeDPtr)->getBatch()->getBatchJobID(profile->dietReqID));
+    wait4BatchJobCompletion(((SeDImpl*) profile->SeDPtr)->
+                            getBatch()->getBatchJobID(profile->dietReqID));
 }
 #endif
-
 
 int
 diet_get_SeD_services(int *services_number,
@@ -1614,36 +1438,34 @@ diet_get_SeD_services(int *services_number,
     try {
       SeD_var sed = NULL;
       TRACE_TEXT(TRACE_ALL_STEPS,
-                 "Searching SeD " << SeDName << endl);
-      sed = ORBMgr::getMgr()->resolve<SeD, SeD_ptr>(SEDCTXT,
-                                                    SeDName);
-      
+                 "Searching SeD " << SeDName << "\n");
+      sed = ORBMgr::getMgr()->resolve<SeD, SeD_ptr>(SEDCTXT, SeDName);
+
       if (CORBA::is_nil(sed)) {
         ERROR("Cannot locate SeD " << SeDName, GRPC_SERVER_NOT_FOUND);
-      } 
-      
+      }
+
       // Now retreive the services
       CORBA::Long length;
       SeqCorbaProfileDesc_t* profileList = sed->getSeDProfiles(length);
       *services_number= (int)length;
-      *profiles = (diet_profile_desc_t**)calloc(length, sizeof(diet_profile_desc_t*));
-      
-      for(int i = 0; i < *services_number; i++) {
+      *profiles =
+        (diet_profile_desc_t**)calloc(length, sizeof(diet_profile_desc_t*));
+
+      for (int i = 0; i < *services_number; i++) {
         (*profiles)[i] = new diet_profile_desc_t;
         unmrsh_profile_desc((*profiles)[i], &((*profileList)[i]));
       }
     } catch (...) {
       // TODO catch exceptions correctly
-      ERROR("An exception has been caught while searching for SeD " << SeDName, GRPC_SERVER_NOT_FOUND);
+      ERROR("An exception has been caught while searching for SeD "
+            << SeDName, GRPC_SERVER_NOT_FOUND);
     }
   } else {
     ERROR("No SeDName has been given", GRPC_SERVER_NOT_FOUND);
   }
 
-
   return 0;
 }
-
-
 
 END_API

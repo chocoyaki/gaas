@@ -85,7 +85,7 @@
  * adds multi-mas informations into the logService
  *
  * Revision 1.3  2004/12/02 11:24:38  bdelfabr
- * add informations on data (size, type, base type )
+ * add informations on data (size, type, base type)
  *
  * Revision 1.2  2004/07/29 18:53:06  rbolze
  * make some change to send more info to the logService.
@@ -99,6 +99,7 @@
 #ifndef _DIETLOGCOMPONENT_HH_
 #define _DIETLOGCOMPONENT_HH_
 
+#include <string>
 #include "LogComponent.hh"
 #include "DIET_data.h"
 
@@ -107,10 +108,6 @@
 #include "commonLogTypes.hh"
 #include "response.hh"
 #include "common_types.hh"
-
-//#include "CorbaLogForwarder.hh"
-//#include "LogComponentFwdr.hh"
-
 
 #define PINGTHREAD_SYNCHRO_FREQUENCY      60
 #define PINGTHREAD_SLEEP_SEC              1
@@ -123,7 +120,7 @@
  * the agent will print a warning and continue without
  * sending logmessages.
  */
-//#define DLC_ERROR_BEHAVIOUR_FATAL
+
 
 // forward declaraction
 class DietLogComponent;
@@ -133,8 +130,7 @@ class DietLogComponent;
  * DietLogComponent(DLC). It flushes the DLC in regular
  * intervals by calling its sendOutBuffer() function.
  */
-class FlushBufferThread: public omni_thread
-{
+class FlushBufferThread : public omni_thread {
 public:
   /**
    * Constructor.
@@ -196,14 +192,13 @@ private:
  * LogCentral will disconnect the component after
  * some time.
  */
-class PingThread: public omni_thread
-{
+class PingThread : public omni_thread {
 public:
   /**
    * Constructor.
    * @param DLC reference to the DietLogComponent of this thread.
    */
-  PingThread(DietLogComponent* DLC);
+  explicit PingThread(DietLogComponent* DLC);
 
   /**
    * Start the thread.
@@ -217,7 +212,6 @@ public:
    */
   void
   stopThread();
-
 
 protected:
   /**
@@ -260,18 +254,16 @@ private:
  * check for the flag with the index that corresponds to their tag.
  */
 class DietLogComponent:  public POA_ComponentConfigurator,
-        public PortableServer::RefCountServantBase
-{
+                         public PortableServer::RefCountServantBase {
 public:
-
   /**
    * Initialise the DietLogComponent.
    * @param name The name of this component. Set to "" if this is a SeD.
    * @param outBufferMaxSize the size of the outBuffer. If the size is 0,
    * messages will not be cached but sent immediately.
    */
-  DietLogComponent(const char* name,
-		   int outBufferMaxSize, int argc, char** argv);
+  DietLogComponent(const char* name, int outBufferMaxSize,
+                   int argc, char** argv);
 
   /**
    * Release the memory allocated by this class;
@@ -288,9 +280,8 @@ public:
    * outBuffer. After this time, the FlushBufferThread sends them.
    * The value specified nanoseconds.
    */
-  int run(const char* agentType,
-          const char* parentName,
-          int outBufferTime);
+  int
+  run(const char* agentType, const char* parentName, int outBufferTime);
 
   /**
    * Client functions (for DIET)
@@ -305,73 +296,86 @@ public:
    * This can only declare one service at a time, so each service
    * has to be declared in a single message.
    */
-  void logAddService(const corba_profile_desc_t* serviceProfile);
+  void
+  logAddService(const corba_profile_desc_t* serviceProfile);
 
-#ifdef HAVE_DYNAMICS
-  void logNewParent(const char* type, const char* parent);
-  void logDisconnect();
-  void logRemoveElement();
-#endif // HAVE_DYNAMICS
+  void
+  logNewParent(const char* type, const char* parent);
+
+  void
+  logDisconnect();
+
+  void
+  logRemoveElement();
 
   /**
    * Request best SeD for problem
    */
-  void logAskForSeD(const corba_request_t* request);
-  void logSedChosen(const corba_request_t* request,
-                    const corba_response_t* response);
+  void
+  logAskForSeD(const corba_request_t* request);
+
+  void
+  logSedChosen(const corba_request_t* request,
+               const corba_response_t* response);
 
 #ifdef HAVE_MULTI_MA
   /**
    * Notifies the list of neighbors MA in multi-MA environment.
    */
-  void logNeighbors(const char* list) ;
-#endif // HAVE_MULTI_MA
+  void
+  logNeighbors(const char* list);
+#endif  // HAVE_MULTI_MA
 
   /**
    * Solve a problem
    * (No ID here, ID exists only in async and is client-specific)
    */
-  void logBeginSolve(const char* path, const corba_profile_t* problem);
-  void logEndDownload(const char* path, const corba_profile_t* problem); // modif bisnard_logs_1
-  void logEndSolve(const char* path, const corba_profile_t* problem);
+  void
+  logBeginSolve(const char* path, const corba_profile_t* problem);
+
+  // modif bisnard_logs_1
+  void
+  logEndDownload(const char* path, const corba_profile_t* problem);
+
+  void
+  logEndSolve(const char* path, const corba_profile_t* problem);
 
   /**
    * Track data movements
    */
-  void logDataStore(const char* dataID, const long unsigned int size,const long base_type, const char * type );    // data profile ?
-  void logDataRelease(const char* dataID);
-  // invoked by Sender:
-  void logDataBeginTransfer(const char* dataID,
-			    const char* destAgent);
-  void logDataEndTransfer(const char* dataID,
-			    const char* destAgent);
-  void logDataTransferTime(const char* dataID,
-                           const char* destAgent,
-                           const unsigned long elapsedTime);  // modif bisnard_logs_1
+  void
+  logDataStore(const char* dataID, const long unsigned int size,
+               const long base_type, const char * type);    // data profile ?
 
-#if HAVE_JUXMEM
-  /**
-   * Track the use of JuxMem inside DIET
-   */
-  void logJuxMemDataStore(const unsigned long reqID, const char* dataID, const long unsigned int size, const long base_type, const char * type, const float time);
-  void logJuxMemDataUse(const unsigned long reqID, const char* dataID, const char* access_mode, const long unsigned int size, const long base_type, const char * type, const float time);
-#endif // HAVE_JUXMEM
+  void
+  logDataRelease(const char* dataID);
+
+  // invoked by Sender:
+  void
+  logDataBeginTransfer(const char* dataID, const char* destAgent);
+
+  void
+  logDataEndTransfer(const char* dataID, const char* destAgent);
+
+  void
+  logDataTransferTime(const char* dataID, const char* destAgent,
+                      const unsigned long elapsedTime);
 
   /**
    * NWS values
    */
-  void logMem(double mem);
-  void logLoad(double load);
-  void logLatency(double latency);
-  void logBandwidth(double bandwidth);
+  void
+  logMem(double mem);
 
+  void
+  logLoad(double load);
 
-#if HAVE_FD
-  /** log failure detections */
-  void logFailure(const char *observed);
-  /** log failure detectors reconfigurations (and detected network conditions) */
-  void logDetectorParams(const char *observed, double Pl, double Vd, double eta, double alpha);
-#endif
+  void
+  logLatency(double latency);
+
+  void
+  logBandwidth(double bandwidth);
+
 
   /**
    * No-User functions
@@ -381,38 +385,45 @@ public:
    * Synchronise with the LogCentral.
    * Not to be called by the user.
    */
-  void synchronize();
+  void
+  synchronize();
 
   /**
    * Ping the LogCentral. Not to be called by the user.
    */
-  void ping();
+  void
+  ping();
 
   /**
    * Flushes the outBuffer. All stored messages are sent.
    * Should not be called by the user.
    */
-  void sendOutBuffer();
+  void
+  sendOutBuffer();
 
   /**
    * create a logmessage and store it in the outBuffer.
    * Send the buffer if it is full. Not to be called by
    * the user.
    */
-  void log(const char* tag, const char* msg);
+  void
+  log(const char* tag, const char* msg);
 
   /**
    * Implements the ComponentConfigurator class in LogComponent.idl
    */
-  void setTagFilter(const tag_list_t& tagList);
+  void
+  setTagFilter(const tag_list_t& tagList);
   /**
    * Implements the ComponentConfigurator class in LogComponent.idl
    */
-  void addTagFilter(const tag_list_t& tagList);
+  void
+  addTagFilter(const tag_list_t& tagList);
   /**
    * Implements the ComponentConfigurator class in LogComponent.idl
    */
-  void removeTagFilter(const tag_list_t& tagList);
+  void
+  removeTagFilter(const tag_list_t& tagList);
   /**
    * Implements the ComponentConfigurator class in LogComponent.idl
    */
@@ -423,89 +434,90 @@ public:
   /**
    * get a string representation of the v_tag value
    */
-  char* getEstimationTags(const int v_tag);
+  char*
+  getEstimationTags(const int v_tag);
 
 #ifdef HAVE_WORKFLOW
 
-  // modif bisnard_logs_1
   /**
    * Send msg : workflow node queued (ie ready for execution)
    */
-  void logWfNodeReady(const char *dagName,
-                      const char *nodeName);
+  void
+  logWfNodeReady(const char *dagName, const char *nodeName);
 
   /**
    * Send msg : workflow node execution start
    */
-  void logWfNodeStart(const char *dagName,
-                      const char *nodeName,
-                      const char *sedName,
-                      const char *pbName,
-                      const unsigned long reqID);
-  void logWfNodeStart(const char *dagName,
-                      const char *nodeName);
+  void
+  logWfNodeStart(const char *dagName, const char *nodeName,
+                 const char *sedName, const char *pbName,
+                 const unsigned long reqID);
+
+  void
+  logWfNodeStart(const char *dagName, const char *nodeName);
 
   /**
    * Send msg : workflow node execution finish
    */
-  void logWfNodeFinish(const char *dagName,
-                       const char *nodeName);
+  void
+  logWfNodeFinish(const char *dagName, const char *nodeName);
 
   /**
    * Send msg : workflow node failure
    */
-  void logWfNodeFailed(const char *dagName,
-                       const char *nodeName);
-  // end modif bisnard_logs_1
+  void
+  logWfNodeFailed(const char *dagName, const char *nodeName);
   /**
    * Send msg and workflow processing time
-   *
    * @param msg the message which identify dag and request_id of the dag
-   * @param ptime  the time elapsed by the MA_DAG in ms to process the workflow submission
-   *
+   * @param ptime the time elapsed by the MA_DAG in ms to process
+   * the workflow submission
    */
   void
-	logDag(const char * msg);
+  logDag(const char * msg);
   /**
    * Send msg : madag schedulerType
-   *
    * @param msg the message which contains the scheduler type of the MA_DAG
-   *
    */
   void
-	maDagSchedulerType(const char * msg);
-#endif // HAVE_WORKFLOW
+  maDagSchedulerType(const char * msg);
+#endif  // HAVE_WORKFLOW
 
 private:
   /**
    * Helper function - allocates an array of bools which are
    * set to false.
    */
-  bool* createBoolArrayFalse(int size);
+  bool*
+  createBoolArrayFalse(int size);
 
   /**
    * Checks if a given tag_list_t contains a '*'
    */
-  bool containsStar(const tag_list_t* tagList);
+  bool
+  containsStar(const tag_list_t* tagList);
 
   /**
    * Checks if a given tag is stored in the list of available tags
    * on this component and returns its index in the internal array.
    * Returns -1 if the tag is not known to this component.
    */
-  int getTagIndex(const char* tag);
+  int
+  getTagIndex(const char* tag);
 
   /**
    * Takes all necessary actions if a remove procedure call fails
    * due to a lost connection. It either shuts the whole agent down
    * or deactivates all communication with the LogCentral.
    */
-  void handleDisconnect(CORBA::SystemException &e);
+  void
+  handleDisconnect(CORBA::SystemException &e);
 
   /**
    * return the local time (including milliseconds)
    */
-  log_time_t getLocalTime();
+  log_time_t
+  getLocalTime();
 
 
   /**
@@ -571,17 +583,25 @@ private:
 };
 
 class DietLogComponentFwdr:  public POA_ComponentConfigurator,
-  public PortableServer::RefCountServantBase
-{
-protected:
-	CorbaLogForwarder_ptr forwarder;
-	char* objName;
+                             public PortableServer::RefCountServantBase {
 public:
   DietLogComponentFwdr(CorbaLogForwarder_ptr fwdr, const char* objName);
-  void setTagFilter(const tag_list_t& tagList);
-  void addTagFilter(const tag_list_t& tagList);
-  void removeTagFilter(const tag_list_t& tagList);
-  void test();
+
+  void
+  setTagFilter(const tag_list_t& tagList);
+
+  void
+  addTagFilter(const tag_list_t& tagList);
+
+  void
+  removeTagFilter(const tag_list_t& tagList);
+
+  void
+  test();
+
+protected:
+  CorbaLogForwarder_ptr forwarder;
+  char* objName;
 };
 
 #endif

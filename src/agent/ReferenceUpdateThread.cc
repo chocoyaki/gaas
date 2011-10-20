@@ -38,9 +38,9 @@
 #include <cstdio>
 
 ReferenceUpdateThread::ReferenceUpdateThread(MasterAgentImpl* owner,
-					     unsigned int period) 
+                                             unsigned int period) 
   : owner(owner), period(period) {
-  start() ;
+  start();
 } // ReferenceUpdateThread(MasterAgent_impl*)
 
 
@@ -48,11 +48,11 @@ ReferenceUpdateThread::~ReferenceUpdateThread() { }
 
 
 void ReferenceUpdateThread::run(void* ptr) {
-  set_priority(omni_thread::PRIORITY_LOW) ;
-  while(true) {
-    owner->updateRefs() ;
-    sleep(period) ;
+  set_priority(omni_thread::PRIORITY_LOW);
+  while (true) {
+    owner->updateRefs();
+    sleep(period);
   }
 } // run(void*)
 
-#endif // HAVE_MULTI_MA
+#endif  // HAVE_MULTI_MA

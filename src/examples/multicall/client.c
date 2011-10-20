@@ -54,10 +54,10 @@ main(int argc, char* argv[])
  
  
   while ((temp = strtok(temp, &c)) != NULL)
-  {
-    temp = NULL;
-    NS++;
-  }
+    {
+      temp = NULL;
+      NS++;
+    }
   free(tempBak);
   
   profile = diet_profile_alloc("CERFACS", 2, 2, 2);

@@ -110,26 +110,26 @@ using namespace events;
 /*                          class WfDataException                           */
 /*                                                                          */
 /****************************************************************************/
-string
+std::string
 WfDataException::ErrorMsg() const {
-  string errorMsg;
-  switch(Type()) {
-    case eNOTFOUND:
-      errorMsg = "Data not found (" + Info() + ")"; break;
-    case eNOTAVAIL:
-      errorMsg = "Data not available (" + Info() + ")"; break;
-    case eWRONGTYPE:
-      errorMsg = "Wrong data type (" + Info() + ")"; break;
-    case eINVALID_CONTAINER:
-      errorMsg = "Invalid container (" + Info() + ")"; break;
-    case eID_UNDEF:
-      errorMsg = "Undefined data ID (" + Info() + ")"; break;
-    case eINVALID_VALUE:
-      errorMsg = "Invalid init value (" + Info() + ")"; break;
-    case eREADFILERROR:
-      errorMsg = "Cannot read file (" + Info() + ")"; break;
-    case eVOID_DATA:
-      errorMsg = "Void data (" + Info() + ")"; break;
+  std::string errorMsg;
+  switch (Type()) {
+  case eNOTFOUND:
+    errorMsg = "Data not found (" + Info() + ")"; break;
+  case eNOTAVAIL:
+    errorMsg = "Data not available (" + Info() + ")"; break;
+  case eWRONGTYPE:
+    errorMsg = "Wrong data type (" + Info() + ")"; break;
+  case eINVALID_CONTAINER:
+    errorMsg = "Invalid container (" + Info() + ")"; break;
+  case eID_UNDEF:
+    errorMsg = "Undefined data ID (" + Info() + ")"; break;
+  case eINVALID_VALUE:
+    errorMsg = "Invalid init value (" + Info() + ")"; break;
+  case eREADFILERROR:
+    errorMsg = "Cannot read file (" + Info() + ")"; break;
+  case eVOID_DATA:
+    errorMsg = "Void data (" + Info() + ")"; break;
   }
   return errorMsg;
 }
@@ -144,7 +144,7 @@ WfDataException::ErrorMsg() const {
 /*                       Constructors/Destructor                            */
 /****************************************************************************/
 
-DagNode::DagNode(const string& id, Dag *dag, FWorkflow* wf)
+DagNode::DagNode(const std::string& id, Dag *dag, FWorkflow* wf)
   : WfNode(id), myDag(dag), myWf(wf), isStarted(false), isTerminated(false) {
   if (id.empty()) {
     WARNING("Creating dagNode with empty id - may cause errors");
@@ -168,11 +168,13 @@ DagNode::DagNode(const string& id, Dag *dag, FWorkflow* wf)
  * Node destructor
  */
 DagNode::~DagNode() {
-//   TRACE_TEXT (TRACE_ALL_STEPS, "~DagNode() destructor (id: " << getCompleteId() << ") ..." << endl);
-  if (profile != NULL)
+  if (profile != NULL) {
     diet_profile_free(profile);
-  if (myQueue)
+  }
+
+  if (myQueue) {
     myQueue->removeNode(this);
+  }
 
   // free the ports map ()
   // free the parameters vectors
@@ -182,8 +184,7 @@ DagNode::~DagNode() {
     while (charParams.size() != 0) {
       cx = charParams.back();
       charParams.pop_back();
-      if (cx)
-	delete (cx);
+      delete (cx);
     }
   }
   {
@@ -193,7 +194,7 @@ DagNode::~DagNode() {
       sx = shortParams.back();
       shortParams.pop_back();
       if (sx) {
-	delete(sx);
+        delete(sx);
       }
     }
   }
@@ -204,7 +205,7 @@ DagNode::~DagNode() {
       ix = intParams.back();
       intParams.pop_back();
       if (ix)
-	delete (ix);
+        delete (ix);
     }
   }
   {
@@ -214,17 +215,18 @@ DagNode::~DagNode() {
       lx = longParams.back();
       longParams.pop_back();
       if (lx)
-	delete (lx);
+        delete (lx);
     }
   }
   {
-    // string
+    // std::string
     char * cx = NULL;
     while (stringParams.size() != 0) {
       cx = stringParams.back();
       stringParams.pop_back();
-      if (cx)
-	delete [] cx;
+      if (cx) {
+        delete [] cx;
+      }
     }
   }
 
@@ -235,7 +237,7 @@ DagNode::~DagNode() {
       cx = fileParams.back();
       fileParams.pop_back();
       if (cx)
-	delete [] cx;
+        delete [] cx;
     }
   }
 
@@ -246,7 +248,7 @@ DagNode::~DagNode() {
       fx = floatParams.back();
       floatParams.pop_back();
       if (fx)
-	delete(fx);
+        delete(fx);
     }
   }
   {
@@ -256,12 +258,12 @@ DagNode::~DagNode() {
       dx = doubleParams.back();
       doubleParams.pop_back();
       if (dx)
-	delete(dx);
+        delete(dx);
     }
   }
 }
 
-string DagNode::getCompleteId() {
+std::string DagNode::getCompleteId() {
   if (this->myDag != NULL)
     return this->myDag->getId() + "-" + this->myId;
   return this->myId;
@@ -277,7 +279,8 @@ DagNode::getDag() const {
   if (this->myDag != NULL)
     return this->myDag;
   else {
-    INTERNAL_ERROR( "ERROR: calling getDag() on a node not linked to a dag" << endl, 1);
+    INTERNAL_ERROR("ERROR: calling getDag() on a node not linked to a dag\n",
+                   1);
   }
 }
 
@@ -287,11 +290,11 @@ DagNode::getWorkflow() const {
 }
 
 void
-DagNode::setPbName(const string& pbName) {
+DagNode::setPbName(const std::string& pbName) {
   this->myPb = pbName;
 }
 
-const string&
+const std::string&
 DagNode::getPbName() const {
   return this->myPb;
 }
@@ -315,7 +318,7 @@ DagNode::getPbName() const {
  * (may check some constraints before adding the predecessor effectively)
  */
 void
-DagNode::addNodePredecessor(WfNode * node, const string& fullNodeId) {
+DagNode::addNodePredecessor(WfNode * node, const std::string& fullNodeId) {
   // check if predecessor is not already done
   DagNode *predNode = dynamic_cast<DagNode*>(node);
   if (predNode == NULL) {
@@ -333,7 +336,7 @@ DagNode::addNodePredecessor(WfNode * node, const string& fullNodeId) {
  */
 void
 DagNode::setPrev(int index, WfNode * node) {
-  WfNode::setPrev(index,node);
+  WfNode::setPrev(index, node);
   prevNodesTodoCount++;
 }
 
@@ -341,53 +344,53 @@ DagNode::setPrev(int index, WfNode * node) {
  * create and add a new port to the node *
  */
 WfPort *
-DagNode::newPort(string portId, unsigned int ind,
+DagNode::newPort(std::string portId, unsigned int ind,
                  WfPort::WfPortType portType, WfCst::WfDataType dataType,
-                 unsigned int depth) throw (WfStructException) {
+                 unsigned int depth) throw(WfStructException) {
   if (isPortDefined(portId))
-    throw WfStructException(WfStructException::eDUPLICATE_PORT,"port id="+portId);
+    throw WfStructException(WfStructException::eDUPLICATE_PORT, "port id="+portId);
   DagNodePort * p = NULL;
   switch (portType) {
-    case WfPort::PORT_IN:
-      p = new DagNodeInPort(this, portId, dataType, depth, ind);
-      break;
-    case WfPort::PORT_ARG:
-      p = new DagNodeArgPort(this, portId, dataType, depth, ind);
-      break;
-    case WfPort::PORT_INOUT:
-      p = new DagNodeInOutPort(this, portId, dataType, depth, ind);
-      break;
-    case WfPort::PORT_OUT:
-      p = new DagNodeOutPort(this, portId, dataType, depth, ind);
-      break;
-    default:
-      INTERNAL_ERROR("Invalid port type for DagNode",1);
+  case WfPort::PORT_IN:
+    p = new DagNodeInPort(this, portId, dataType, depth, ind);
+    break;
+  case WfPort::PORT_ARG:
+    p = new DagNodeArgPort(this, portId, dataType, depth, ind);
+    break;
+  case WfPort::PORT_INOUT:
+    p = new DagNodeInOutPort(this, portId, dataType, depth, ind);
+    break;
+  case WfPort::PORT_OUT:
+    p = new DagNodeOutPort(this, portId, dataType, depth, ind);
+    break;
+  default:
+    INTERNAL_ERROR("Invalid port type for DagNode", 1);
   }
   this->ports[portId] = p;
   EventManager::getEventMgr()->sendEvent(
-    new EventCreateObject<DagNodePort,DagNode>(p, this) );
+    new EventCreateObject<DagNodePort, DagNode>(p, this));
   return (WfPort*) p;
 }
 
-string
+std::string
 DagNode::toString() const {
   return "DAG_NODE " + getId();
 }
 
 void
-DagNode::toXML(ostream& output) const {
+DagNode::toXML(std::ostream& output) const {
   output << "<node id=\"" << myId << "\" path=\"" << myPb << "\" ";
   if (!estimationClass.empty())
     output << "est-class=\"" << estimationClass << "\" ";
-  string currState = this->getStatusAsString();
+  std::string currState = this->getStatusAsString();
   if (!currState.empty())
     output << "status=\"" << currState << "\" ";
-  output << ">" << endl;
+  output << ">\n";
   for (unsigned int ix = 0; ix < getPortNb(); ++ix) {
     const DagNodePort * port = dynamic_cast<const DagNodePort*>(getPortByIndex(ix));
     port->toXML(output);
   }
-  output << "</node>" << endl;
+  output << "</node>\n";
 }
 
 /******************************/
@@ -407,7 +410,7 @@ DagNode::getProfile() {
  */
 diet_reqID_t
 DagNode::getReqID(){
-  if(this->isDone())
+  if (this->isDone())
     return this->getProfile()->dietReqID;
   return -1;
 }
@@ -416,14 +419,14 @@ DagNode::getReqID(){
  * Set the estimation class
  */
 void
-DagNode::setEstimationClass(const string& estimClassId) {
+DagNode::setEstimationClass(const std::string& estimClassId) {
   estimationClass = estimClassId;
 }
 
 /**
  * Get the estimation class
  */
-const string&
+const std::string&
 DagNode::getEstimationClass() {
   return estimationClass;
 }
@@ -451,37 +454,37 @@ DagNode::getSubmitIndex() {
 void
 DagNode::createProfile() {
   if (this->profile) {
-    WARNING("DagNode::createProfile : profile already defined!!" << endl);
+    WARNING("DagNode::createProfile : profile already defined!!\n");
   }
   int nbIn = 0, nbOut = 0, nbInOut = 0;
-  for (map<string, WfPort*>::iterator p = ports.begin();
+  for (std::map<std::string, WfPort*>::iterator p = ports.begin();
        p != ports.end();
        ++p) {
     WfPort * port = (WfPort *) p->second;
     switch (port->getPortType()) {
-      case WfPort::PORT_IN:
-      case WfPort::PORT_ARG:
-        ++nbIn;
-        break;
-      case WfPort::PORT_INOUT:
-        ++nbInOut;
-        break;
-      case WfPort::PORT_OUT:
-        ++nbOut;
-        break;
-      default:
-        INTERNAL_ERROR("Invalid port type for profile creation",1);
+    case WfPort::PORT_IN:
+    case WfPort::PORT_ARG:
+      ++nbIn;
+      break;
+    case WfPort::PORT_INOUT:
+      ++nbInOut;
+      break;
+    case WfPort::PORT_OUT:
+      ++nbOut;
+      break;
+    default:
+      INTERNAL_ERROR("Invalid port type for profile creation", 1);
     }
   } // end for all ports
   int last_in    = nbIn - 1;
   int last_inout = last_in + nbInOut;
   int last_out   = last_inout + nbOut;
-  TRACE_TEXT(TRACE_ALL_STEPS,"Creating DIET profile: pb=" << myPb
-                              << " / last_in=" << last_in
-                              << " / last_inout=" << last_inout
-                              << " / last_out=" << last_out << endl);
+  TRACE_TEXT(TRACE_ALL_STEPS, "Creating DIET profile: pb=" << myPb
+             << " / last_in=" << last_in
+             << " / last_inout=" << last_inout
+             << " / last_out=" << last_out << "\n");
   this->profile =  diet_profile_alloc((char*)(myPb.c_str()),
-                                       last_in, last_inout, last_out);
+                                      last_in, last_inout, last_out);
 
 }
 
@@ -490,31 +493,29 @@ DagNode::createProfile() {
  */
 void
 DagNode::initProfileSubmit() {
-//   TRACE_TEXT(TRACE_ALL_STEPS,"Creating profile for Submit" << endl);
   createProfile();
-  for (map<string, WfPort*>::iterator p = ports.begin();
+  for (std::map<std::string, WfPort*>::iterator p = ports.begin();
        p != ports.end();
        ++p) {
     DagNodePort * dagPort = dynamic_cast<DagNodePort*>(p->second);
     dagPort->initProfileSubmit();
   }
-//   TRACE_TEXT(TRACE_ALL_STEPS,"Profile for Submit done (" << myId << ")" << endl);
 }
 
 /**
  * Creates the profile before execution of the node (CLIENT SIDE)
  */
 void
-DagNode::initProfileExec() throw (WfDataException) {
-  TRACE_TEXT(TRACE_ALL_STEPS,"Creating profile for Execution" << endl);
+DagNode::initProfileExec() throw(WfDataException) {
+  TRACE_TEXT(TRACE_ALL_STEPS, "Creating profile for Execution\n");
   createProfile();
-  for (map<string, WfPort*>::iterator p = ports.begin();
+  for (std::map<std::string, WfPort*>::iterator p = ports.begin();
        p != ports.end();
        ++p) {
     DagNodePort * dagPort = dynamic_cast<DagNodePort*>(p->second);
     dagPort->initProfileExec();
   }
-  TRACE_TEXT(TRACE_ALL_STEPS,"Profile for Execution done (" << myId << ")" << endl);
+  TRACE_TEXT(TRACE_ALL_STEPS, "Profile for Execution done (" << myId << ")\n");
 }
 
 /**
@@ -523,7 +524,7 @@ DagNode::initProfileExec() throw (WfDataException) {
 void
 DagNode::storeProfileData() {
   // store the data IDs for each port
-  for (map<string, WfPort*>::iterator p = ports.begin();
+  for (std::map<std::string, WfPort*>::iterator p = ports.begin();
        p != ports.end();
        ++p) {
     if (((WfPort *)p->second)->isOutput()) {
@@ -538,10 +539,10 @@ DagNode::storeProfileData() {
  */
 void
 DagNode::freeProfileAndData(MasterAgent_var& MA) {
-  TRACE_TEXT (TRACE_ALL_STEPS,
-              myId << " Free profile and release persistent data" << endl);
+  TRACE_TEXT(TRACE_ALL_STEPS,
+              myId << " Free profile and release persistent data\n");
   // Free persistent data
-  for (map<string, WfPort*>::iterator p = ports.begin();
+  for (std::map<std::string, WfPort*>::iterator p = ports.begin();
        p != ports.end();
        ++p) {
     DagNodePort * dagPort = dynamic_cast<DagNodePort*>(p->second);
@@ -557,15 +558,13 @@ DagNode::freeProfileAndData(MasterAgent_var& MA) {
  * Allocate a new char *
  */
 char *
-DagNode::newChar(const string value) {
-//   TRACE_TEXT (TRACE_ALL_STEPS, "new char ; value | " << value <<  " |" << endl);
+DagNode::newChar(const std::string value) {
   if (value != "") {
     char * cx = new char;
     *cx = value.c_str()[0];
     charParams.push_back(cx);
   }
   else {
-//     TRACE_TEXT (TRACE_ALL_STEPS, "$$$$$$$$$$$$$ Add a NULL" << endl);
     charParams.push_back(NULL);
   }
   return charParams[charParams.size() - 1];
@@ -575,15 +574,13 @@ DagNode::newChar(const string value) {
  * Allocate a new short *
  */
 short *
-DagNode::newShort(const string value) {
-//   TRACE_TEXT (TRACE_ALL_STEPS, "new short ; value | " << value <<  " |" << endl);
+DagNode::newShort(const std::string value) {
   if (value != "") {
     short * sx = new short;
     *sx = atoi(value.c_str());
     shortParams.push_back(sx);
   }
   else {
-//     TRACE_TEXT (TRACE_ALL_STEPS, "$$$$$$$$$$$$$ Add a NULL" << endl);
     shortParams.push_back(NULL);
   }
   return shortParams[shortParams.size() - 1];
@@ -593,17 +590,13 @@ DagNode::newShort(const string value) {
  * Allocate a new int  *
  */
 int *
-DagNode::newInt(const string value) {
-//   TRACE_TEXT (TRACE_ALL_STEPS,
-// 	      "new int ; value | " << value <<  " |" << endl);
+DagNode::newInt(const std::string value) {
   if (value != "") {
     int * ix = new int;
     *ix = atoi(value.c_str());
     intParams.push_back(ix);
   }
   else {
-//     TRACE_TEXT (TRACE_ALL_STEPS,
-// 		"$$$$$$$$$$$$$ Add a NULL" << endl);
     intParams.push_back(NULL);
   }
   return intParams[intParams.size() - 1];
@@ -613,17 +606,13 @@ DagNode::newInt(const string value) {
  * Allocate a new long *
  */
 long *
-DagNode::newLong(const string value) {
-//    TRACE_TEXT (TRACE_ALL_STEPS,
-//  	      "new long ; value | " << value <<  " |" << endl);
+DagNode::newLong(const std::string value) {
   if (value != "") {
     long * lx = new long;
     *lx = atoi(value.c_str());
     longParams.push_back(lx);
   }
   else {
-//     TRACE_TEXT (TRACE_ALL_STEPS,
-// 		"$$$$$$$$$$$$$ Add a NULL" << endl);
     longParams.push_back(NULL);
   }
   return longParams[longParams.size() - 1];
@@ -633,12 +622,9 @@ DagNode::newLong(const string value) {
  * Allocate a new string *
  */
 char *
-DagNode::newString (const string value) {
+DagNode::newString (const std::string value) {
   char * str = new char[value.size()+1];
   strcpy(str, value.c_str());
-
-//   TRACE_TEXT (TRACE_ALL_STEPS,
-// 	      "----> new string; value = " << value << ", " << str << endl);
   stringParams.push_back(str);
   return str;
 }
@@ -647,12 +633,12 @@ DagNode::newString (const string value) {
  * Allocate a new file *
  */
 char *
-DagNode::newFile (const string value) {
+DagNode::newFile (const std::string value) {
   char * str = new char[value.size()+1];
   strcpy(str, value.c_str());
 
-//   TRACE_TEXT (TRACE_ALL_STEPS,
-// 	      "----> new file; value = " << value << ", " << str << endl);
+  //   TRACE_TEXT(TRACE_ALL_STEPS,
+  //            "----> new file; value = " << value << ", " << str << "\n");
   fileParams.push_back(str);
   return str;
 }
@@ -661,7 +647,7 @@ DagNode::newFile (const string value) {
  * Allocate a new float  *
  */
 float *
-DagNode::newFloat  (const string value) {
+DagNode::newFloat  (const std::string value) {
   float * fx = new float;
   *fx = (float)atof(value.c_str());
   floatParams.push_back(fx);
@@ -672,7 +658,7 @@ DagNode::newFloat  (const string value) {
  * Allocate a new double  *
  */
 double *
-DagNode::newDouble (const string value) {
+DagNode::newDouble (const std::string value) {
   double * dx = new double;
   *dx = atof(value.c_str());
   doubleParams.push_back(dx);
@@ -683,21 +669,23 @@ DagNode::newDouble (const string value) {
  * Display the results of the node
  */
 void
-DagNode::displayResults(ostream& output) {
-  for (map<string, WfPort*>::iterator p = ports.begin();
+DagNode::displayResults(std::ostream& output) {
+  for (std::map<std::string, WfPort*>::iterator p = ports.begin();
        p != ports.end();
        ++p) {
     if (((WfPort *)p->second)->isOutput()) {
       DagNodeOutPort * outp = dynamic_cast<DagNodeOutPort *>(p->second);
-      string currPortFullId = outp->getParent()->getId() + "#" + outp->getId();
+      std::string currPortFullId =
+        outp->getParent()->getId() + "#" + outp->getId();
       if (!outp->isConnected()) {
         output << "## DAG OUTPUT (" << currPortFullId << ") = ";
         if (!hasFailed()) {
           WfListDataWriter  dataWriter(output);
           outp->writeData(&dataWriter);
-        } else
+        } else {
           output << "<error>";
-        output << endl;
+        }
+        output << "\n";
       }
     }
   }
@@ -744,8 +732,8 @@ DagNode::removeFromNodeQueue() {
 }
 
 /**
-  * set the ref to the last nodeQueue occupied by the node
-  */
+ * set the ref to the last nodeQueue occupied by the node
+ */
 void
 DagNode::setLastQueue(NodeQueue * queue) {
   this->lastQueue = queue;
@@ -801,7 +789,7 @@ DagNode::getEstCompTime() {
  */
 void
 DagNode::setEstDelay(double delay) {
-  string traceHeader = "[" + getId() + "] setEstDelay() : ";
+  std::string traceHeader = "[" + getId() + "] setEstDelay() : ";
   // if this is an exit node then eventually updates the dag delay
   if (this->isAnExit()
       && (delay > this->estDelay)
@@ -809,7 +797,7 @@ DagNode::setEstDelay(double delay) {
     this->getDag()->setEstDelay(delay);
   }
   this->estDelay = delay;
-  TRACE_TEXT (TRACE_ALL_STEPS, traceHeader << "delay = " << delay << endl);
+  TRACE_TEXT(TRACE_ALL_STEPS, traceHeader << "delay = " << delay << "\n");
 }
 
 /**
@@ -897,7 +885,7 @@ DagNode::setAsReady(DagScheduler* scheduler) {
  */
 
 void DagNode::start(DagNodeLauncher * launcher) {
-  TRACE_TEXT (TRACE_ALL_STEPS, "[" << getId() << "] : starting" << endl);/**/
+  TRACE_TEXT(TRACE_ALL_STEPS, "[" << getId() << "] : starting\n");
   myLauncher = launcher;
   myLauncher->start();
   isStarted = true;
@@ -907,16 +895,16 @@ void DagNode::start(DagNodeLauncher * launcher) {
  * terminate the node execution (thread)
  */
 void DagNode::terminate() {
-  string pfx = " [" + getCompleteId() + "] : ";
+  std::string pfx = " [" + getCompleteId() + "] : ";
   if (!isStarted) {
-    WARNING(__FUNCTION__ << pfx << "cannot terminate thread not started" << endl);
+    WARNING(__FUNCTION__ << pfx << "cannot terminate thread not started\n");
     return;
   }
   if (isTerminated) {
-    WARNING(__FUNCTION__ << pfx << "cannot terminate thread already terminated" << endl);
+    WARNING(__FUNCTION__ << pfx << "cannot terminate thread already terminated\n");
     return;
   }
-  TRACE_TEXT (TRACE_ALL_STEPS, pfx << "waiting for node termination" << endl);
+  TRACE_TEXT(TRACE_ALL_STEPS, pfx << "waiting for node termination\n");
   myLauncher->join();
   delete myLauncher;
   isTerminated = true;
@@ -985,21 +973,21 @@ DagNode::hasFailed() const {
 }
 
 void
-DagNode::setStatus(const string& statusStr) {
+DagNode::setStatus(const std::string& statusStr) {
   if (statusStr == "done")
     this->setAsDone();
   else if (statusStr ==  "running") {
-      // nothing to do this status cannot be set because it is dynamic
+    // nothing to do this status cannot be set because it is dynamic
   } else if (statusStr == "failed")
     this->setAsFailed();
   else if (statusStr == "ready") {
-      // nothing to do: this status depends on predecessors status
+    // nothing to do: this status depends on predecessors status
   } else {
-    INTERNAL_ERROR(__FUNCTION__ <<"Wrong status value"<<endl,1);
+    INTERNAL_ERROR(__FUNCTION__ <<"Wrong status value\n", 1);
   }
 }
 
-string
+std::string
 DagNode::getStatusAsString() const {
   if (this->isDone()) return "done";
   if (this->isRunning()) return "running";

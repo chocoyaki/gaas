@@ -26,7 +26,7 @@ using namespace events;
 EventDispatcher::~EventDispatcher()
 {
   Handlers::iterator it = _handlers.begin();
-  while(it != _handlers.end())
+  while (it != _handlers.end())
   {
     delete it->second;
     ++it;
@@ -37,7 +37,7 @@ EventDispatcher::~EventDispatcher()
 void EventDispatcher::handleEvent(const EventBase* event)
 {
   Handlers::iterator it = _handlers.find(TypeInfo(typeid(*event)));
-  if(it != _handlers.end())
+  if (it != _handlers.end())
   {
     try {
       it->second->exec(event);

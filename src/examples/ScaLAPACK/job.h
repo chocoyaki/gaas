@@ -20,7 +20,7 @@
 #ifndef _JOB_H_
 #define _JOB_H_
 
-typedef struct{
+typedef struct {
   int* procs;
   int procCount;
   int row;
@@ -44,7 +44,8 @@ typedef struct{
 
 job_t*
 job_construct(int nbProcs);
+
 void
 job_destruct(job_t *j);
 
-#endif // _JOB_H_
+#Endif  // _JOB_H_

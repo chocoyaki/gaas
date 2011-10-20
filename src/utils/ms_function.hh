@@ -51,13 +51,14 @@
 /**
  * Duplicates the string given in argument with the \c
  * CORBA::string_dup() function. If there is no enough memory to
- * allocate the string, it throws a \c bad_alloc exception. 
+ * allocate the string, it throws a \c bad_alloc exception.
  *
  * @param str the string to duplicate
  *
  * @return a clone of \c str.
  */
-char* ms_strdup(const char* str) ;
+char*
+ms_strdup(const char* str);
 
 /**
  * Create an new string of length \c length with the \c
@@ -68,7 +69,8 @@ char* ms_strdup(const char* str) ;
  *
  * @return an undefined string of length \c length.
  */
-char* ms_stralloc(int length) ;
+char*
+ms_stralloc(int length);
 
 /**
  * Frees the memory of the string given in argument with the function
@@ -78,4 +80,4 @@ char* ms_stralloc(int length) ;
  */
 #define ms_strfree(str) CORBA::string_free(str)
 
-#endif // _MS_FUNCTION_HH_
+#endif  // _MS_FUNCTION_HH_

@@ -16,7 +16,7 @@
  * modified includes to reduce inter-dependencies
  *
  * Revision 1.2  2008/10/14 13:24:49  bisnard
- * use new class structure for dags (DagNode,DagNodePort)
+ * use new class structure for dags (DagNode, DagNodePort)
  *
  * Revision 1.1  2008/07/17 13:33:09  bisnard
  * New multi-wf heuristic SRPT
@@ -39,7 +39,7 @@ using namespace madag;
 MultiWfSRPT::MultiWfSRPT(MaDag_impl* maDag)
   : MultiWfScheduler(maDag, MultiWfScheduler::MULTIWF_DAG_METRIC) {
   this->execQueue = new PriorityNodeQueue;
-  TRACE_TEXT(TRACE_MAIN_STEPS,"Using SRPT multi-workflow scheduler" << endl);
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Using SRPT multi-workflow scheduler\n");
 }
 
 MultiWfSRPT::~MultiWfSRPT() {
@@ -66,9 +66,9 @@ MultiWfSRPT::handlerNodeDone(DagNode * node) {
 void
 MultiWfSRPT::setExecPriority(DagNode * node) {
   Dag * dag = node->getDag();
-  double  RPT = 0; // remaining processing time
+  double  RPT = 0;  // remaining processing time
   // loop over all dag nodes and add their computation time if not yet executed
-  for (std::map<std::string,DagNode*>::iterator np = dag->begin();
+  for (std::map<std::string, DagNode*>::iterator np = dag->begin();
        np != dag->end(); ++np) {
     DagNode * curNode = (DagNode *) np->second;
     if (!curNode->isDone() && !curNode->hasFailed()) {
@@ -79,14 +79,14 @@ MultiWfSRPT::setExecPriority(DagNode * node) {
           WARNING("Error in MultiWfSRPT::setExecPriority (missing node start time)");
           RPT -= curNode->getEstDuration();
         } else {
-          RPT -= this->getRelCurrTime() - nodeStartTime; // remove already done
+          RPT -= this->getRelCurrTime() - nodeStartTime;  // remove already done
         }
       }
     }
   } // end loop (dag nodes)
   if (RPT > 0) {
-    TRACE_TEXT(TRACE_ALL_STEPS,"[SRPT] Dag " << dag->getId()
-        << " RPT = " << RPT << endl);
+    TRACE_TEXT(TRACE_ALL_STEPS, "[SRPT] Dag " << dag->getId()
+               << " RPT = " << RPT << "\n");
     node->setPriority(1 / RPT);
   }
 }

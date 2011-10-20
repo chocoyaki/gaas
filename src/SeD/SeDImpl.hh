@@ -131,7 +131,7 @@
  * Changed the prototype of solve_batch: reqID is in the profile when batch mode
  *   is enabled.
  *
- * Batch management for sync. calls is now fully operationnal (at least for oar ;)
+ * Batch management for sync. calls is now fully operationnal (at least for oar;)
  *
  * Revision 1.27  2006/07/11 08:59:09  ycaniou
  * .Batch queue is now read in the serveur config file (only one queue
@@ -268,15 +268,7 @@
 #include "DietLogComponent.hh"
 #endif
 
-#if ! HAVE_JUXMEM
-#if ! HAVE_DAGDA
-#include "DataMgrImpl.hh"     // DTM header file
-#else
 #include "DagdaImpl.hh"
-#endif // ! HAVE_DAGDA
-#else
-#include "JuxMem.hh"          // JuxMem header file
-#endif // ! HAVE_JUXMEM
 
 #if HAVE_ALT_BATCH
 extern "C" {
@@ -295,44 +287,29 @@ extern "C" {
 /* SeD class                                                                */
 /****************************************************************************/
 class SeDImpl : public POA_SeD,
-		public PortableServer::RefCountServantBase
-{
-
+                public PortableServer::RefCountServantBase {
 public:
-
   SeDImpl();
-#if HAVE_JXTA
-  SeDImpl(const char*);
-#endif // HAVE_JXTA
+
   ~SeDImpl();
 
-#ifdef HAVE_DYNAMICS
   virtual CORBA::Long
   bindParent(const char * parentName);
+
   virtual CORBA::Long
   disconnect();
+
   virtual CORBA::Long
   removeElement();
-  void removeElementClean();
-#endif // HAVE_DYNAMICS
+
+  void
+  removeElementClean();
 
   int
   run(ServiceTable* services);
 
-#if ! HAVE_JUXMEM
-#if ! HAVE_DAGDA
-  /** Set this->dataMgr for DTM usage */
-  int
-  linkToDataMgr(DataMgrImpl* dataMgr);
-#else
   void
   setDataManager(DagdaImpl* dataManager);
-#endif // ! HAVE_DAGDA
-#else
-  /** Set this->JuxMem */
-  int
-  linkToJuxMem(JuxMem::Wrapper* juxmem);
-#endif // ! HAVE_JUXMEM
 
 #ifdef USE_LOG_SERVICE
   /**
@@ -349,68 +326,65 @@ public:
 
   virtual CORBA::Long
   checkContract(corba_estimation_t& estimation,
-		const corba_pb_desc_t& pb);
+                const corba_pb_desc_t& pb);
 
   virtual void
-  updateTimeSinceLastSolve() ;
+  updateTimeSinceLastSolve();
 
   virtual CORBA::Long
   solve(const char* pbName, corba_profile_t& pb);
 
-  char* getName();
+  char*
+  getName();
 
 #if defined HAVE_ALT_BATCH
   /* Set if server is SERIAL, BATCH,.. */
   void
-  setServerStatus( diet_server_status_t status ) ;
+  setServerStatus(diet_server_status_t status);
 
   diet_server_status_t
-  getServerStatus() ;
+  getServerStatus();
 
   virtual CORBA::Long
   parallel_solve(const char* pbName, corba_profile_t& pb,
                  ServiceTable::ServiceReference_t& ref,
-                 diet_profile_t& profile) ;
+                 diet_profile_t& profile);
 
   void
   parallel_AsyncSolve(const char* path, const corba_profile_t& pb,
-		      ServiceTable::ServiceReference_t ref,
-		      CORBA::Object_var & cb,
-		      diet_profile_t& profile) ;
+                      ServiceTable::ServiceReference_t ref,
+                      CORBA::Object_var & cb,
+                      diet_profile_t& profile);
 
-  char* getLocalHostName() ;
+  char*
+  getLocalHostName();
 #endif
 #if HAVE_ALT_BATCH
-  BatchSystem * // should be const
-  getBatch() ;
-
-//   int
-//   diet_submit_parallel(diet_profile_t * profile, const char * command) ;
-
-//   int
-//   diet_concurrent_submit_parallel(int batchJobID, diet_profile_t * profile,
-// 			             const char * command) ;
+  BatchSystem *
+  getBatch();  // should be const
 #endif
-
 
   virtual void
   solveAsync(const char* pb_name, const corba_profile_t& pb,
-	     const char * volatileclientIOR);
+             const char * volatileclientIOR);
 
   virtual CORBA::Long
   ping();
 
-  const struct timeval* timeSinceLastSolve();
+  const struct timeval*
+  timeSinceLastSolve();
 
   /* Access to the queue size in the AccessController object. */
-  int getNumJobsWaiting();
+  int
+  getNumJobsWaiting();
 
   /**
    * Retrieve the list of all jobs currently waiting or running
    * @param jv  a table of diet_job_t (caller resp. for freeing this table)
    * @return number of jobs in the table (0 if failure)
    */
-  int getActiveJobVector(jobVector_t& jv);
+  int
+  getActiveJobVector(jobVector_t& jv);
 
   /**
    * Get the Earliest Finish Time of the SeD ie time until it's available
@@ -418,15 +392,21 @@ public:
    * running or waiting) and SeD's concurrency constraint (nb of procs).
    * @return  the estimated EFT in ms from now
    */
-  double getEFT();
+  double
+  getEFT();
 
 
-#ifdef HAVE_DAGDA
-  int removeService(const diet_profile_t* const profile);
-  int removeServiceDesc(const diet_profile_desc_t* profile);
-  int addService(const corba_profile_desc_t& profile);
-  virtual char* getDataMgrID(); // modif bisnard_logs_1
-#endif
+  int
+  removeService(const diet_profile_t* const profile);
+
+  int
+  removeServiceDesc(const diet_profile_desc_t* profile);
+
+  int
+  addService(const corba_profile_desc_t& profile);
+
+  virtual char*
+  getDataMgrID();  // modif bisnard_logs_1
 
   virtual  SeqCorbaProfileDesc_t*
   getSeDProfiles(CORBA::Long& length);
@@ -434,7 +414,7 @@ public:
 private:
 #ifdef HAVE_ALT_BATCH
   /* Status of SeD: Batch, Serial, other? */
-  diet_server_status_t server_status ;
+  diet_server_status_t server_status;
 #endif
 
   /** Reference of the parent */
@@ -455,27 +435,18 @@ private:
   /** Service table */
   ServiceTable* SrvT;
 
-#if ! HAVE_JUXMEM
-#if ! HAVE_DAGDA
-  /* Data Manager associated to this SeD */
-  DataMgrImpl* dataMgr;
-#else
   DagdaImpl* dataManager;
-#endif // ! HAVE_DAGDA
-#else
-  JuxMem::Wrapper * juxmem;
-#endif // ! HAVE_JUXMEM
 
   /** Time at which last solve started (when not using queues) and when
    * last job was enqueued (when using queues) */
   struct timeval lastSolveStart;
 
 #if HAVE_ALT_BATCH
-  BatchSystem * batch ;
+  BatchSystem * batch;
 #endif
 
 #if HAVE_SEDSCHEDULER
-  SeDScheduler * sched ;
+  SeDScheduler * sched;
 #endif
 
   /* Queue: should SeD restrict the number of concurrent solves? */
@@ -488,16 +459,6 @@ private:
   /* Queue: Maintains the list of running or waiting jobs
    * used for computing the estimation of earliest finish time */
   JobQueue* jobQueue;
-
-#if HAVE_JXTA
-  /* endoint of JXTA SeD*/
-  const char* uuid;
-#endif // HAVE_JXTA
-#if !HAVE_CORI && HAVE_FAST
-  /** Use of FAST */
-  // size_t --> unsigned int
-  unsigned int fastUse;
-#endif //!HAVE_CORI && HAVE_FAST
 
 #ifdef USE_LOG_SERVICE
   /**
@@ -514,71 +475,78 @@ private:
 
   /** Private method to centralize all shared variable initializations
    * in various constructors. */
-  virtual void initialize();
+  virtual void
+  initialize();
 
   inline void
   estimate(corba_estimation_t& estimation,
-	   const corba_pb_desc_t& pb,
-	   const ServiceTable::ServiceReference_t ref);
+           const corba_pb_desc_t& pb,
+           const ServiceTable::ServiceReference_t ref);
 
   /**
    * TODO: if possible merge async and sync function. Currently, the DTM code
    * if different
    */
-
   inline void
   downloadSyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
-		      diet_convertor_t* cvt) ;
+                      diet_convertor_t* cvt);
 
   inline void
   uploadSyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
-		    diet_convertor_t* cvt) ;
+                    diet_convertor_t* cvt);
 
   inline void
   downloadAsyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
-		      diet_convertor_t* cvt) ;
+                       diet_convertor_t* cvt);
 
   inline void
   uploadAsyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
-		    diet_convertor_t* cvt) ;
-
-  inline void
-  uploadSeDDataJuxMem(diet_profile_t* profile);
-
-  inline void
-  downloadSeDDataJuxMem(diet_profile_t* profile);
+                     diet_convertor_t* cvt);
 };
 
 class SeDFwdrImpl : public POA_SeD,
-                    public PortableServer::RefCountServantBase
-{
+                    public PortableServer::RefCountServantBase {
+public:
+  SeDFwdrImpl(Forwarder_ptr fwdr, const char* objName);
+
+  virtual CORBA::Long
+  ping();
+
+  virtual CORBA::Long
+  bindParent(const char * parentName);
+
+  virtual CORBA::Long
+  disconnect();
+
+  virtual CORBA::Long
+  removeElement();
+
+  virtual void
+  getRequest(const corba_request_t& req);
+
+  virtual CORBA::Long
+  checkContract(corba_estimation_t& estimation,
+                const corba_pb_desc_t& pb);
+
+  virtual void
+  updateTimeSinceLastSolve();
+
+  virtual CORBA::Long
+  solve(const char* pbName, corba_profile_t& pb);
+
+  virtual void
+  solveAsync(const char* pb_name, const corba_profile_t& pb,
+             const char * volatileclientIOR);
+
+  virtual char*
+  getDataMgrID();
+
+  virtual SeqCorbaProfileDesc_t*
+  getSeDProfiles(CORBA::Long& length);
+
 protected:
   Forwarder_ptr forwarder;
   char* objName;
-
-public:
-  SeDFwdrImpl(Forwarder_ptr fwdr, const char* objName);
-  virtual CORBA::Long ping();
-#ifdef HAVE_DYNAMICS
-  virtual CORBA::Long bindParent(const char * parentName);
-  virtual CORBA::Long disconnect();
-  virtual CORBA::Long removeElement();
-#endif
-  virtual void getRequest(const corba_request_t& req);
-  virtual CORBA::Long checkContract(corba_estimation_t& estimation,
-                                    const corba_pb_desc_t& pb);
-  
-  virtual void updateTimeSinceLastSolve() ;
-  
-  virtual CORBA::Long solve(const char* pbName, corba_profile_t& pb);
-  virtual void solveAsync(const char* pb_name, const corba_profile_t& pb,
-                          const char * volatileclientIOR);
-#ifdef HAVE_DAGDA
-  virtual char* getDataMgrID();
-#endif
-
-  virtual  SeqCorbaProfileDesc_t*
-  getSeDProfiles(CORBA::Long& length);
 };
 
-#endif // _SED_IMPL_HH_
+#endif  // _SED_IMPL_HH_

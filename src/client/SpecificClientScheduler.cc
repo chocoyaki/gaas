@@ -6,7 +6,7 @@
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
-/* $Id$ 
+/* $Id$
  * $Log$
  * Revision 1.6  2011/03/02 00:18:17  bdepardo
  * Removed warnings: comparison is always true due to limited range of data type
@@ -72,7 +72,7 @@ SpecificClientScheduler::setSchedulingId(const char * scheduling_name) {
 void
 SpecificClientScheduler::start(SeD_var& chosenServer,
                                corba_response_t * response) {
-  if (myScheduler == NULL && !enabled ) {
+  if (myScheduler == NULL && !enabled) {
     cerr << "FATAL ERROR : burst scheduler not enabled" << endl;
     exit(1);
   }
@@ -86,10 +86,10 @@ void
 SpecificClientScheduler::schedule(const char * scheduling_name,
                                   SeD_var& chosenServer,
                                   corba_response_t * response) {
-  if (!strcmp(SpecificClientScheduler::BurstRequest, scheduling_name) ) {
+  if (!strcmp(SpecificClientScheduler::BurstRequest, scheduling_name)) {
     burstRequest(chosenServer, response);
   }
-  if (!strcmp(SpecificClientScheduler::BurstLimit, scheduling_name) ) {
+  if (!strcmp(SpecificClientScheduler::BurstLimit, scheduling_name)) {
     burstLimitRequest(chosenServer, response);
   }
 } // end schedule
@@ -101,11 +101,11 @@ SpecificClientScheduler::setScheduler(SpecificClientScheduler * scheduler) {
 
 /**
  * Round Robbin sur les SeDs ou sur les services?
- * 
+ *
  */
 void
 SpecificClientScheduler::burstRequest(SeD_var& chosenServer,
-                                corba_response_t * response) {
+                                      corba_response_t * response) {
   static vector<string> availableSeDs;
   static vector<int> use;
   static int min = 0;
@@ -113,12 +113,12 @@ SpecificClientScheduler::burstRequest(SeD_var& chosenServer,
   bool found;
   vector<string>::iterator i_s, i_r;
   vector<int>::iterator i_us, i_ur;
-  
+
   // Remove obsolete SeDs
   for (i_s = availableSeDs.begin(), i_us = use.begin();
        i_s != availableSeDs.end() && i_us != use.end(); ++ i_s, ++ i_us) {
     found = false;
-    for (ix=0; ix < response->servers.length(); ++ ix) {
+    for (ix = 0; ix < response->servers.length(); ++ ix) {
       if (*i_s == static_cast<char*>(response->servers[ix].loc.SeDName)) {
         found = true;
         break;
@@ -137,7 +137,7 @@ SpecificClientScheduler::burstRequest(SeD_var& chosenServer,
   }
 
   // Add news SeDs
-  for (ix=0; ix < response->servers.length(); ix++) {
+  for (ix = 0; ix < response->servers.length(); ix++) {
     found = false;
     for (i_s = availableSeDs.begin(); i_s != availableSeDs.end(); ++ i_s) {
       if (*i_s == static_cast<char*>(response->servers[ix].loc.SeDName)) {
@@ -165,17 +165,17 @@ SpecificClientScheduler::burstRequest(SeD_var& chosenServer,
       i_r = i_s;
     }
   } // end for
-  TRACE_FUNCTION(TRACE_ALL_STEPS, "Burst scheduler chooses a SeD used " << 
-		 min << " times before." <<
-		 " The SeDs vector contains " << availableSeDs.size() <<
-		 " references");
+  TRACE_FUNCTION(TRACE_ALL_STEPS, "Burst scheduler chooses a SeD used " <<
+                 min << " times before." <<
+                 " The SeDs vector contains " << availableSeDs.size() <<
+                 " references");
   (*i_ur) += 1;
   chosenServer = ORBMgr::getMgr()->resolve<SeD, SeD_var>(SEDCTXT, *i_r);
 }
 
 /**
  * Round Robbin sur les SeDs ou sur les services?
- * 
+ *
  */
 void
 SpecificClientScheduler::burstLimitRequest(SeD_var& chosenServer,
@@ -184,9 +184,9 @@ SpecificClientScheduler::burstLimitRequest(SeD_var& chosenServer,
   static vector<int> use;
 
   // Add news SeDs
-  for (unsigned int ix=0; ix < response->servers.length(); ix++) {
+  for (unsigned int ix = 0; ix < response->servers.length(); ix++) {
     bool found = false;
-    for (unsigned int jx=0; jx < availableSeDs.size(); jx++) {
+    for (unsigned int jx = 0; jx < availableSeDs.size(); jx++) {
       if (availableSeDs[jx]==static_cast<char*>(response->servers[ix].loc.SeDName)) {
         found = true;
         break;
@@ -203,7 +203,7 @@ SpecificClientScheduler::burstLimitRequest(SeD_var& chosenServer,
   // Search the SeD with the minimum value => Less used
   int min = use[0];
   int idx = 0;
-  for (unsigned int ix=0;
+  for (unsigned int ix = 0;
        ix < availableSeDs.size();
        ix++) {
     if (use[ix] < min) {
@@ -211,7 +211,7 @@ SpecificClientScheduler::burstLimitRequest(SeD_var& chosenServer,
       min = use[ix];
     }
   } // end for
-  cout << "Burst scheduler chooses a SeD used " << 
+  cout << "Burst scheduler chooses a SeD used " <<
     use[idx] << "(" << min << ") times before." <<
     " The SeDs vector contains " << availableSeDs.size() <<
     " references" << endl;
@@ -263,7 +263,7 @@ SpecificClientScheduler::isEnabled() {
 
 bool
 SpecificClientScheduler::isOptionEnabled(string option, vector<string>& params) {
-  for (unsigned int ix=0; ix<params.size(); ix++)
+  for (unsigned int ix = 0; ix<params.size(); ix++)
     if (params[ix] == option) {
       return true;
     }
@@ -274,7 +274,7 @@ void
 SpecificClientScheduler::removeBlanks(string& token) {
   // remove blank
   size_t blankIt;
-  while ( (blankIt = token.find_first_of(" ")) != token.npos) {
+  while ((blankIt = token.find_first_of(" ")) != token.npos) {
     token.erase(blankIt, blankIt + 1);
   }
 }
@@ -282,16 +282,16 @@ SpecificClientScheduler::removeBlanks(string& token) {
 void
 SpecificClientScheduler::stringSplit(string str, string delim, vector<string>& results) {
   size_t cutAt;
-  while( (cutAt = str.find_first_of(delim)) != str.npos ) {
-    if(cutAt > 0) {
-      string token = str.substr(0,cutAt);
+  while ((cutAt = str.find_first_of(delim)) != str.npos) {
+    if (cutAt > 0) {
+      string token = str.substr(0, cutAt);
       cout << "token " << token << endl;
       removeBlanks(token);
       results.push_back(token);
     }
     str = str.substr(cutAt+1);
   } // end while
-  if(str.length() > 0) {
+  if (str.length() > 0) {
     removeBlanks(str);
     results.push_back(str);
   }

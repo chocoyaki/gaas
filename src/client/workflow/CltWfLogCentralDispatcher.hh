@@ -26,22 +26,42 @@
 #ifdef USE_LOG_SERVICE
 #include "DietLogComponent.hh"
 #endif
-using namespace events;
 
-class CltWfLogCentralDispatcher : public EventDispatcher {
-  public:
+class CltWfLogCentralDispatcher : public events::EventDispatcher {
+public:
 #ifdef USE_LOG_SERVICE
-    CltWfLogCentralDispatcher(DietLogComponent* LC);
-    
-    void onDagNodeReady(const EventFrom<DagNode, EventStandardMsg<DagNode, DagNode::READY> >* event);
-    void onDagNodeStart(const EventFrom<DagNodeLauncher, EventStandardMsg<DagNodeLauncher, DagNode::START> >* event);
-    void onDagNodeFinish(const EventFrom<DagNodeLauncher, EventStandardMsg<DagNodeLauncher, DagNode::FINISH> >* event);
-    void onDagNodeFailed(const EventFrom<DagNodeLauncher, EventStandardMsg<DagNodeLauncher, DagNode::FAILED> >* event);
-    
-  private:
-    DietLogComponent*	myLC;
+  explicit CltWfLogCentralDispatcher(DietLogComponent* LC);
+
+  void
+  onDagNodeReady(
+    const events::EventFrom<DagNode,
+    events::EventStandardMsg<DagNode, DagNode::READY> >*
+    event);
+
+  void
+  onDagNodeStart(
+    const events::EventFrom<DagNodeLauncher,
+    events::EventStandardMsg<DagNodeLauncher,
+    DagNode::START> >*
+    event);
+
+  void
+  onDagNodeFinish(
+    const events::EventFrom<DagNodeLauncher,
+    events::EventStandardMsg<DagNodeLauncher,
+    DagNode::FINISH> >*
+    event);
+
+  void
+  onDagNodeFailed(
+    const events::EventFrom<DagNodeLauncher,
+    events::EventStandardMsg<DagNodeLauncher,
+    DagNode::FAILED> >*
+    event);
+
+private:
+  DietLogComponent*   myLC;
 #endif
 };
-
 
 #endif

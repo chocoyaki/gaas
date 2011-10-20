@@ -69,21 +69,21 @@
 #include "DIET_client.h"
 
 #define print_condition 1
-#define print_matrix(mat, m, n, rm)        \
-  if (print_condition) {                   \
-    size_t i, j;                           \
-    printf("%s (%s-major) = \n", #mat,     \
-           (rm) ? "row" : "column");       \
-    for (i = 0; i < (m); i++) {            \
-      for (j = 0; j < (n); j++) {          \
-        if (rm)                            \
-	  printf("%3f ", (mat)[j + i*(n)]);\
-        else                               \
-	  printf("%3f ", (mat)[i + j*(m)]);\
-      }                                    \
-      printf("\n");                        \
-    }                                      \
-    printf("\n");                          \
+#define print_matrix(mat, m, n, rm)             \
+  if (print_condition) {                        \
+    size_t i, j;                                \
+    printf("%s (%s-major) = \n", #mat,          \
+           (rm) ? "row" : "column");            \
+    for (i = 0; i < (m); i++) {                 \
+      for (j = 0; j < (n); j++) {               \
+        if (rm)                                 \
+          printf("%3f ", (mat)[j + i*(n)]);     \
+        else                                    \
+          printf("%3f ", (mat)[i + j*(m)]);     \
+      }                                         \
+      printf("\n");                             \
+    }                                           \
+    printf("\n");                               \
   }
 
 
@@ -99,11 +99,11 @@ void
 usage(char* cmd)
 {
   fprintf(stderr, "Usage: %s %s <file.cfg> [%s|%s|%s]\n", cmd,
-	  "[--repeat <n>] [--pause <n µs>]", PB[0], PB[1], PB[2]);
+          "[--repeat <n>] [--pause <n µs>]", PB[0], PB[1], PB[2]);
   fprintf(stderr, "    ex: %s client.cfg T\n", cmd);
   fprintf(stderr, "        %s --repeat 1000 client.cfg MatSUM\n", cmd);
   fprintf(stderr, "        %s --repeat 1000 --pause 1000 %s\n",
-	  cmd, "client.cfg MatSUM (1ms between two steps of the loop)");
+          cmd, "client.cfg MatSUM (1ms between two steps of the loop)");
   exit(1);
 }
 
@@ -115,8 +115,8 @@ main(int argc, char* argv[])
   int n_loops = 1;
   char* path = NULL;
   diet_profile_t* profile = NULL;
-  /* double mat1[9] = {1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0}; */
-  /* double mat2[9] = {10.0,11.0,12.0,13.0,14.0,15.0,16.0,17.0,18.0}; */
+  /* double mat1[9] = {1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0}; */
+  /* double mat2[9] = {10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0}; */
   double A[9];
   double B[9];
   double* C = NULL;
@@ -170,11 +170,11 @@ main(int argc, char* argv[])
   nb_of_requests = 0;
 
   oA = ((double)rand()/(double)RAND_MAX <= 0.5) ? DIET_ROW_MAJOR : 
-                                                  DIET_COL_MAJOR;
+    DIET_COL_MAJOR;
   oB = ((double)rand()/(double)RAND_MAX <= 0.5) ? DIET_ROW_MAJOR : 
-                                                  DIET_COL_MAJOR;
+    DIET_COL_MAJOR;
   oC = ((double)rand()/(double)RAND_MAX <= 0.5) ? DIET_ROW_MAJOR : 
-                                                  DIET_COL_MAJOR;
+    DIET_COL_MAJOR;
   /* printf("oA: %d oB: %d oC: %d\n", oA, oB, oC); */
 
   A[0] = 1.0; A[1] = 2.0; A[2] = 3.0; A[3] = 4.0; A[4] = 5.0;
@@ -199,27 +199,27 @@ main(int argc, char* argv[])
     if (pb[0]) {
       profile = diet_profile_alloc(path, 0, 0, 1);
       diet_matrix_set(diet_parameter(profile, 0),
-		      A, DIET_VOLATILE, DIET_DOUBLE, m, n, oA);
+                      A, DIET_VOLATILE, DIET_DOUBLE, m, n, oA);
       diet_matrix_set(diet_parameter(profile, 1),
                       NULL, DIET_VOLATILE, DIET_DOUBLE, n, m, oA);
       print_matrix(A, m, n, (oA == DIET_ROW_MAJOR));
     } else if (pb[1] || pb[2]){
       profile = diet_profile_alloc(path, 1, 1, 2);
-      diet_matrix_set(diet_parameter(profile,0),
-		      A, DIET_VOLATILE, DIET_DOUBLE, m, n, oA);
+      diet_matrix_set(diet_parameter(profile, 0),
+                      A, DIET_VOLATILE, DIET_DOUBLE, m, n, oA);
       print_matrix(A, m, n, (oA == DIET_ROW_MAJOR));
       if (pb[1]) {
-       diet_matrix_set(diet_parameter(profile,1),
-		        B, DIET_VOLATILE, DIET_DOUBLE, n, m, oB);
+        diet_matrix_set(diet_parameter(profile, 1),
+                        B, DIET_VOLATILE, DIET_DOUBLE, n, m, oB);
         print_matrix(B, n, m, (oB == DIET_ROW_MAJOR));
-        diet_matrix_set(diet_parameter(profile,2),
-		        NULL, DIET_VOLATILE, DIET_DOUBLE, m, m, oC);
+        diet_matrix_set(diet_parameter(profile, 2),
+                        NULL, DIET_VOLATILE, DIET_DOUBLE, m, m, oC);
       } else {
-        diet_matrix_set(diet_parameter(profile,1),
-		        B, DIET_VOLATILE, DIET_DOUBLE, m, n, oB);
+        diet_matrix_set(diet_parameter(profile, 1),
+                        B, DIET_VOLATILE, DIET_DOUBLE, m, n, oB);
         print_matrix(B, m, n, (oB == DIET_ROW_MAJOR));
-        diet_matrix_set(diet_parameter(profile,2),
-		        NULL, DIET_VOLATILE, DIET_DOUBLE, m, n, oC);
+        diet_matrix_set(diet_parameter(profile, 2),
+                        NULL, DIET_VOLATILE, DIET_DOUBLE, m, n, oC);
       }
     } else {
       fprintf(stderr, "Unknown problem: %s !\n", path);

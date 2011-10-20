@@ -14,7 +14,7 @@
  ****************************************************************************/
 
 /*
- !! YOU MUST INCLUDE THIS HEADER PRIOR TO THE OTHERS !!
+  !! YOU MUST INCLUDE THIS HEADER PRIOR TO THE OTHERS !!
 */
 
 #ifndef _EXITCLASS_HH_
@@ -26,8 +26,7 @@
 #include "ORBMgr.hh"
 #include "AgentImpl.hh"
 
-class ExitClass
-{
+class ExitClass {
 public:
   /**
    * You must initialize the ExitClass with all informations needed by the
@@ -46,4 +45,4 @@ private:
   static AgentImpl* agent;
 };
 
-#endif // _EXITCLASS_HH_
+#endif  // _EXITCLASS_HH_

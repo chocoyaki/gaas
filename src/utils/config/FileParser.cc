@@ -42,27 +42,27 @@ FileParser::FileParser(const std::string& path) {
 void
 FileParser::parseFile(const std::string& path) {
   DIR *dp = opendir(path.c_str());
-  if(dp != NULL) {
+  if (dp != NULL) {
     closedir(dp);
     throw FileOpenError(path);
   }
 
   std::ifstream file(path.c_str());
-    
+
   unsigned int l = 0;
-    
+
   if (!file.is_open()) {
     throw FileOpenError(path);
   }
-    
+
   Splitter split('=');
-  
+
   while (!file.eof()) {
     char buffer[1024];
     std::string line, key, value;
     std::istringstream is;
     std::string::size_type pos;
-    
+
     l++;
     file.getline(buffer, 1024);
     line = buffer;
@@ -71,14 +71,14 @@ FileParser::parseFile(const std::string& path) {
     if (std::string::npos != pos) {
       line = line.substr(0, pos);
     }
-	
-    /* Remove white spaces. 
-       use remove then erase idiom 
+
+    /* Remove white spaces.
+       use remove then erase idiom
        use ::isspace so we don't get the std::locale plagued C++ variant*/
-    line.erase( 
-               std::remove_if(line.begin(), line.end(), ::isspace),
-               line.end());
-	
+    line.erase(
+      std::remove_if (line.begin(), line.end(), ::isspace),
+      line.end());
+
     /* Empty line => continue. */
     if (line.empty()) {
       continue;
@@ -86,10 +86,10 @@ FileParser::parseFile(const std::string& path) {
 
     /* Cut the line on '=' character. */
     split.reset(line);
-	
+
     std::string& token = split();
     key.swap(token);
-	
+
     if (!split.hasNext()) {
       debug << "Warning : " << key
             << " has no value! (line " << l << ")\n";
@@ -97,7 +97,7 @@ FileParser::parseFile(const std::string& path) {
 
     token = split();
     value.swap(token);
-	
+
     if (split.hasNext()) {
       debug << "Warning : " << key
             << " has multiple values! "

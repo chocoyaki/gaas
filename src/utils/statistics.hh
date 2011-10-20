@@ -29,8 +29,8 @@
  *
  * Revision 1.11  2003/09/28 22:10:00  ecaron
  * New API for statistics module
- *   stat_in(myname,message)
- *   stat_out(myname,message)
+ *   stat_in(myname, message)
+ *   stat_out(myname, message)
  * where myname is the identity of DIET component
  *       message is the name of the current function
  *
@@ -83,8 +83,8 @@ gen_stat(int type, const char * myname, const char * message) {
 
     if (gettimeofday(&tv, &tz) == 0) {
       fprintf(STAT_FILE, "%10ld.%06ld|%s|[%s] %s\n",
-	      (long int)tv.tv_sec, (long int)tv.tv_usec,
-	      STAT_TYPE_STRING[type], myname, message);
+              (long int)tv.tv_sec, (long int)tv.tv_usec,
+              STAT_TYPE_STRING[type], myname, message);
 
       /* Examples of generated trace :
        * 123456.340569|IN  |[Name of DIET component] submission.start
@@ -108,21 +108,21 @@ do_stat_finalize();
 // Use only the following calls :
 
 #  define stat_init()        do_stat_init()
-#  define stat_in(myname,message)   gen_stat(STAT_IN, myname, message)
-#  define stat_out(myname,message)  gen_stat(STAT_OUT, myname, message)
-#  define stat_info(myname,message) gen_stat(STAT_INFO, myname, message)
+#  define stat_in(myname, message)   gen_stat(STAT_IN, myname, message)
+#  define stat_out(myname, message)  gen_stat(STAT_OUT, myname, message)
+#  define stat_info(myname, message) gen_stat(STAT_INFO, myname, message)
 #  define stat_finalize()    do_stat_finalize()
 #  define stat_flush()    do_stat_flush()
 
 #else  // HAVE_STATISTICS
 
 #  define stat_init()
-#  define stat_in(myname,message)
-#  define stat_out(myname,message)
-#  define stat_info(myname,message)
+#  define stat_in(myname, message)
+#  define stat_out(myname, message)
+#  define stat_info(myname, message)
 #  define stat_finalize()
 #  define stat_flush()
 
-#endif // HAVE_STATISTICS
+#endif  // HAVE_STATISTICS
 
-#endif // _STATISTICS_HH_
+#endif  // _STATISTICS_HH_

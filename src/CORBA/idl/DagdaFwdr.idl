@@ -164,12 +164,10 @@ interface DagdaForwarder {
   void checkpointState(in string objName)
 		raises(UnknownObject);
 
-#ifdef HAVE_DYNAMICS
   void subscribeParent(in string parentID, in string objName)
 		raises(UnknownObject);
   void unsubscribeParent(in string objName)
 		raises(UnknownObject);
-#endif
 };
 
 #endif

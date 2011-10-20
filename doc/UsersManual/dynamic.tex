@@ -40,9 +40,8 @@ killing part of the hierarchy, and deploying once again.
 
 \subsection{``And thus it began to evolve''}
 
-Hence, \diet also has a mode in which you can dynamically modify its
-shape using CORBA calls. For this, you need to compile \diet with the
-option \texttt{DIET\_USE\_DYNAMICS}. In this mode, if a \diet element
+Hence, \diet also has a built-in mode in which you can dynamically modify
+its shape using CORBA calls.  In this mode, if a \diet element
 cannot reach its parent, when initializing, it won't exit, but will
 wait for an order to connect itself to a new parent. Hence, you do not
 need to deploy \diet starting from the MA down to the \sed, you can

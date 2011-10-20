@@ -98,7 +98,7 @@
  * new classes for functional workflows
  *
  */
-//#include <boost/shared_ptr.hpp>
+
 #include <map>
 #include <functional>
 
@@ -111,46 +111,45 @@
 #include "FLoopNode.hh"
 #include "EventTypes.hh"
 
-using namespace events;
 
-FWorkflow::FWorkflow(string id, string name): FProcNode(NULL, id), myName(name)
-{
+FWorkflow::FWorkflow(std::string id, std::string name)
+  : FProcNode(NULL, id), myName(name) {
 }
 
 
-FWorkflow::FWorkflow(string id, string name, FWorkflow*  parentWf)
-  : FProcNode(parentWf, id), myName(name)
-{
+FWorkflow::FWorkflow(std::string id, std::string name, FWorkflow*  parentWf)
+  : FProcNode(parentWf, id), myName(name) {
 }
 
 FWorkflow::~FWorkflow() {
   // free nodes
-  while (! myInterface.empty() ) {
+  while (!myInterface.empty()) {
     FNode * p = myInterface.begin()->second;
-    myInterface.erase( myInterface.begin() );
+    myInterface.erase(myInterface.begin());
     delete p;
   }
-  while (! myProc.empty() ) {
+  while (!myProc.empty()) {
     FProcNode * p = myProc.begin()->second;
-    myProc.erase( myProc.begin() );
+    myProc.erase(myProc.begin());
     delete p;
   }
 }
 
-string FWorkflow::getName() const
-{
+std::string
+FWorkflow::getName() const {
   return myName;
 }
 
 FWorkflow*
-FWorkflow::getRootWorkflow() const
-{
-  if (getWorkflow() == NULL) return const_cast<FWorkflow*>(this);
+FWorkflow::getRootWorkflow() const {
+  if (getWorkflow() == NULL) {
+    return const_cast<FWorkflow*>(this);
+  }
   return getWorkflow()->getRootWorkflow();
 }
 
 WfNode *
-FWorkflow::getNode(const string& nodeId) throw (WfStructException) {
+FWorkflow::getNode(const std::string& nodeId) throw(WfStructException) {
   WfNode * node;
   try {
     node = (WfNode *) getProcNode(nodeId);
@@ -161,38 +160,43 @@ FWorkflow::getNode(const string& nodeId) throw (WfStructException) {
 }
 
 FProcNode *
-FWorkflow::getProcNode(const string& id) throw (WfStructException) {
+FWorkflow::getProcNode(const std::string& id) throw(WfStructException) {
   FProcNode *node = NULL;
   myLock.lock();    /** LOCK */
-  map<string, FProcNode*>::iterator p = this->myProc.find(id);
-  if ( p != this->myProc.end())
+  std::map<std::string, FProcNode*>::iterator p = this->myProc.find(id);
+  if (p != this->myProc.end()) {
     node = p->second;
+  }
   myLock.unlock();  /** UNLOCK */
-  if (node == NULL)
-    throw WfStructException(WfStructException::eUNKNOWN_NODE,"FNode id="+id);
+  if (node == NULL) {
+    throw WfStructException(WfStructException::eUNKNOWN_NODE, "FNode id=" + id);
+  }
   return node;
 }
 
 FNode *
-FWorkflow::getInterfaceNode(const string& id) throw (WfStructException) {
+FWorkflow::getInterfaceNode(const std::string& id) throw(WfStructException) {
   FNode *node = NULL;
   myLock.lock();    /** LOCK */
-  map<string, FNode*>::iterator p = this->myInterface.find(id);
-  if ( p != this->myInterface.end())
+  std::map<std::string, FNode*>::iterator p = this->myInterface.find(id);
+  if (p != this->myInterface.end()) {
     node = p->second;
+  }
   myLock.unlock();  /** UNLOCK */
-  if (node == NULL)
-    throw WfStructException(WfStructException::eUNKNOWN_NODE,"FNode id="+id);
+  if (node == NULL) {
+    throw WfStructException(WfStructException::eUNKNOWN_NODE,
+                            "FNode id=" + id);
+  }
   return node;
 }
 
 void
-FWorkflow::checkPrec(NodeSet* contextNodeSet) throw (WfStructException) {
-  TRACE_TEXT(TRACE_ALL_STEPS, traceId() << "CHECKING WF PRECEDENCE START" << endl);
+FWorkflow::checkPrec(NodeSet* contextNodeSet) throw(WfStructException) {
+  TRACE_TEXT(TRACE_ALL_STEPS, traceId() << "CHECKING WF PRECEDENCE START\n");
   // processor nodes
-  for (map<string, FProcNode * >::iterator p = myProc.begin();
+  for (std::map<std::string, FProcNode * >::iterator p = myProc.begin();
        p != myProc.end();
-       ++p ) {
+       ++p) {
     FProcNode * node = (FProcNode*) p->second;
     node->setNodePrecedence(contextNodeSet);
     // sub-workflows
@@ -202,14 +206,14 @@ FWorkflow::checkPrec(NodeSet* contextNodeSet) throw (WfStructException) {
     }
   }
   // interface nodes (does sth only for sink nodes)
-  for (map<string, FNode * >::iterator p = myInterface.begin();
+  for (std::map<std::string, FNode * >::iterator p = myInterface.begin();
        p != myInterface.end();
-       ++p ) {
+       ++p) {
     FNode * node = (FNode *) p->second;
     node->setNodePrecedence(contextNodeSet);
   }
   // ports of workflow (for sub-workflows only)
-  for (map<string,WfPort*>::iterator portIter = ports.begin();
+  for (std::map<std::string, WfPort*>::iterator portIter = ports.begin();
        portIter != ports.end();
        ++portIter) {
     FNodePort* wfPort = dynamic_cast<FNodePort*>((WfPort*) portIter->second);
@@ -217,147 +221,148 @@ FWorkflow::checkPrec(NodeSet* contextNodeSet) throw (WfStructException) {
       FNode* interfNode = getInterfaceNode(wfPort->getInterfaceRef());
       interfNode->connectToWfPort(wfPort);
     } catch (const WfStructException& e) {
-      throw WfStructException(e.Type(), string("Unknown reference for sub-workflow interface : ")
-                                        + e.Info());
+      throw WfStructException(e.Type(),
+                              std::string("Unknown reference"
+                                          "for sub-workflow interface : ")
+                              + e.Info());
     }
   }
-  TRACE_TEXT(TRACE_ALL_STEPS, traceId() << "CHECKING WF PRECEDENCE END" << endl);
+  TRACE_TEXT(TRACE_ALL_STEPS, traceId() << "CHECKING WF PRECEDENCE END\n");
 }
 
 FActivityNode*
-FWorkflow::createActivity(const string& id) throw (WfStructException)
-{
+FWorkflow::createActivity(const std::string& id) throw(WfStructException) {
   // check if node does not already exist
   try {
     getProcNode(id);
   } catch (WfStructException& e) {
-    TRACE_TEXT (TRACE_ALL_STEPS,"Creating activity node : " << id << endl);
+    TRACE_TEXT(TRACE_ALL_STEPS, "Creating activity node : " << id << "\n");
     FActivityNode* node = new FActivityNode(this, id);
     myProc[id] = node;
     return node;
   }
-  throw WfStructException(WfStructException::eDUPLICATE_NODE,"FNode id="+id);
+  throw WfStructException(WfStructException::eDUPLICATE_NODE, "FNode id=" + id);
 }
 
 FIfNode*
-FWorkflow::createIf(const string& id) throw (WfStructException)
-{
+FWorkflow::createIf(const std::string& id) throw(WfStructException) {
   // check if node does not already exist
   try {
     getProcNode(id);
   } catch (WfStructException& e) {
-    TRACE_TEXT (TRACE_ALL_STEPS,"Creating IF node : " << id << endl);
+    TRACE_TEXT(TRACE_ALL_STEPS, "Creating IF node : " << id << "\n");
     FIfNode* node = new FIfNode(this, id);
     myProc[id] = node;
     return node;
   }
-  throw WfStructException(WfStructException::eDUPLICATE_NODE,"FNode id="+id);
+  throw WfStructException(WfStructException::eDUPLICATE_NODE, "FNode id=" + id);
 }
 
 FMergeNode*
-FWorkflow::createMerge(const string& id) throw (WfStructException)
-{
+FWorkflow::createMerge(const std::string& id) throw(WfStructException) {
   // check if node does not already exist
   try {
     getProcNode(id);
   } catch (WfStructException& e) {
-    TRACE_TEXT (TRACE_ALL_STEPS,"Creating MERGE node : " << id << endl);
+    TRACE_TEXT(TRACE_ALL_STEPS, "Creating MERGE node : " << id << "\n");
     FMergeNode* node = new FMergeNode(this, id);
     myProc[id] = node;
     return node;
   }
-  throw WfStructException(WfStructException::eDUPLICATE_NODE,"FNode id="+id);
+  throw WfStructException(WfStructException::eDUPLICATE_NODE,
+                          "FNode id=" + id);
 }
 
 FFilterNode*
-FWorkflow::createFilter(const string& id) throw (WfStructException)
-{
+FWorkflow::createFilter(const std::string& id) throw(WfStructException) {
   // check if node does not already exist
   try {
     getProcNode(id);
   } catch (WfStructException& e) {
-    TRACE_TEXT (TRACE_ALL_STEPS,"Creating FILTER node : " << id << endl);
+    TRACE_TEXT(TRACE_ALL_STEPS, "Creating FILTER node : " << id << "\n");
     FFilterNode* node = new FFilterNode(this, id);
     myProc[id] = node;
     return node;
   }
-  throw WfStructException(WfStructException::eDUPLICATE_NODE,"FNode id="+id);
+  throw WfStructException(WfStructException::eDUPLICATE_NODE,
+                          "FNode id=" + id);
 }
 
 FLoopNode*
-FWorkflow::createLoop(const string& id) throw (WfStructException)
-{
+FWorkflow::createLoop(const std::string& id) throw(WfStructException) {
   // check if node does not already exist
   try {
     getProcNode(id);
   } catch (WfStructException& e) {
-    TRACE_TEXT (TRACE_ALL_STEPS,"Creating LOOP node : " << id << endl);
+    TRACE_TEXT(TRACE_ALL_STEPS, "Creating LOOP node : " << id << "\n");
     FLoopNode* node = new FLoopNode(this, id);
     myProc[id] = node;
     return node;
   }
-  throw WfStructException(WfStructException::eDUPLICATE_NODE,"FNode id="+id);
+  throw WfStructException(WfStructException::eDUPLICATE_NODE,
+                          "FNode id=" + id);
 }
 
 FWorkflow*
-FWorkflow::createSubWorkflow(const string& id, const string& name) throw (WfStructException)
-{
+FWorkflow::createSubWorkflow(const std::string& id, const std::string& name)
+  throw(WfStructException) {
   try {
     getProcNode(id);
   } catch (WfStructException& e) {
-    TRACE_TEXT (TRACE_ALL_STEPS,"Creating sub-workflow node : " << id << endl);
+    TRACE_TEXT(TRACE_ALL_STEPS, "Creating sub-workflow node : " << id << "\n");
     FWorkflow* node = new FWorkflow(id, name, this);
-    EventManager::getEventMgr()->sendEvent(
-      new EventCreateObject<FWorkflow,FWorkflow>(node, this) );
+    events::EventManager::getEventMgr()->sendEvent(
+      new events::EventCreateObject<FWorkflow, FWorkflow>(node, this));
     myProc[id] = node;
     return node;
   }
-  throw WfStructException(WfStructException::eDUPLICATE_NODE,"FNode id="+id);
+  throw WfStructException(WfStructException::eDUPLICATE_NODE,
+                          "FNode id=" + id);
 }
 
 FSourceNode*
-FWorkflow::createSource(const string& id, WfCst::WfDataType type)
-    throw (WfStructException)
-{
+FWorkflow::createSource(const std::string& id, WfCst::WfDataType type)
+  throw(WfStructException) {
   try {
     getInterfaceNode(id);
   } catch (WfStructException& e) {
-    TRACE_TEXT (TRACE_ALL_STEPS,"Creating source node : " << id << endl);
+    TRACE_TEXT(TRACE_ALL_STEPS, "Creating source node : " << id << "\n");
     FSourceNode* node = new FSourceNode(this, id, type);
     myInterface[id] = node;
     return node;
   }
-  throw WfStructException(WfStructException::eDUPLICATE_NODE,"FNode id="+id);
+  throw WfStructException(WfStructException::eDUPLICATE_NODE,
+                          "FNode id=" + id);
 }
 
 FConstantNode*
-FWorkflow::createConstant(const string& id, WfCst::WfDataType type)
-    throw (WfStructException)
-{
+FWorkflow::createConstant(const std::string& id, WfCst::WfDataType type)
+  throw(WfStructException) {
   try {
     getInterfaceNode(id);
   } catch (WfStructException& e) {
-    TRACE_TEXT (TRACE_ALL_STEPS,"Creating constant node : " << id << endl);
+    TRACE_TEXT(TRACE_ALL_STEPS, "Creating constant node : " << id << "\n");
     FConstantNode* node = new FConstantNode(this, id, type);
     myInterface[id] = node;
     return node;
   }
-  throw WfStructException(WfStructException::eDUPLICATE_NODE,"FNode id="+id);
+  throw WfStructException(WfStructException::eDUPLICATE_NODE,
+                          "FNode id=" + id);
 }
 
 FSinkNode*
-FWorkflow::createSink(const string& id, WfCst::WfDataType type, unsigned int depth)
-    throw (WfStructException)
-{
+FWorkflow::createSink(const std::string& id, WfCst::WfDataType type,
+                      unsigned int depth) throw(WfStructException) {
   try {
     getInterfaceNode(id);
   } catch (WfStructException& e) {
-    TRACE_TEXT (TRACE_ALL_STEPS,"Creating sink node : " << id << endl);
+    TRACE_TEXT(TRACE_ALL_STEPS, "Creating sink node : " << id << "\n");
     FSinkNode* node = new FSinkNode(this, id, type, depth);
     myInterface[id] = node;
     return node;
   }
-  throw WfStructException(WfStructException::eDUPLICATE_NODE,"FNode id="+id);
+  throw WfStructException(WfStructException::eDUPLICATE_NODE,
+                          "FNode id=" + id);
 }
 
 /**
@@ -367,45 +372,52 @@ FWorkflow::createSink(const string& id, WfCst::WfDataType type, unsigned int dep
  */
 
 struct DFSNodeInfo {
-  bool  explored;
-  bool  ongoing;
+  bool explored;
+  bool ongoing;
   short end;
-  DFSNodeInfo() {};
+
+  DFSNodeInfo() {
+  }
+
   DFSNodeInfo(bool _expl, bool _ongoing, short _end)
-  : explored(_expl),ongoing(_ongoing),end(_end) {};
+    : explored(_expl), ongoing(_ongoing), end(_end) {
+  }
 };
 
-void DFS(WfNode* node,
-         map<WfNode*, DFSNodeInfo>& DFSInfo,
-         short& endCount) {
+void
+DFS(WfNode* node, std::map<WfNode*, DFSNodeInfo>& DFSInfo, short& endCount) {
   DFSInfo[node].ongoing = true;
-  TRACE_TEXT (TRACE_ALL_STEPS, "Starting DFS search for node : " << node->getId() << endl);
-  for(list<WfNode*>::iterator nextIter = node->nextNodesBegin();
-      nextIter != node->nextNodesEnd();
-      ++nextIter) {
+  TRACE_TEXT(TRACE_ALL_STEPS, "Starting DFS search for node : "
+             << node->getId() << "\n");
+  for (std::list<WfNode*>::iterator nextIter = node->nextNodesBegin();
+       nextIter != node->nextNodesEnd();
+       ++nextIter) {
     WfNode* nextNode = (WfNode*) *nextIter;
-    TRACE_TEXT (TRACE_ALL_STEPS, "  Processing next node : " << nextNode->getId() << endl);
+    TRACE_TEXT(TRACE_ALL_STEPS, "  Processing next node : "
+               << nextNode->getId() << "\n");
     // look for next node DFS information
-    map<WfNode*, DFSNodeInfo>::iterator nextNodeInfoSearch = DFSInfo.find(nextNode);
+    std::map<WfNode*, DFSNodeInfo>::iterator nextNodeInfoSearch =
+      DFSInfo.find(nextNode);
     // if not found skip the node (means next node is not a processor)
-    if (nextNodeInfoSearch == DFSInfo.end())
+    if (nextNodeInfoSearch == DFSInfo.end()) {
       continue;
+    }
     DFSNodeInfo& nextNodeInfo = nextNodeInfoSearch->second;
     if (!nextNodeInfo.explored) {
       if (!nextNodeInfo.ongoing) {
         DFS(nextNode, DFSInfo, endCount);
       } else {
         // this is a BACK edge
-        TRACE_TEXT (TRACE_ALL_STEPS, "Found back edge!!" << endl);
+        TRACE_TEXT(TRACE_ALL_STEPS, "Found back edge!!\n");
       }
     } else {
-      TRACE_TEXT (TRACE_ALL_STEPS, "  Next node was already explored" << endl);
+      TRACE_TEXT(TRACE_ALL_STEPS, "  Next node was already explored\n");
     }
   }
   DFSInfo[node].explored = true;
   DFSInfo[node].end      = endCount++;
-  TRACE_TEXT (TRACE_ALL_STEPS, "End of DFS search for node : " << node->getId()
-            << " (count=" << endCount-1 << ")" << endl);
+  TRACE_TEXT(TRACE_ALL_STEPS, "End of DFS search for node : " << node->getId()
+             << " (count=" << endCount-1 << ")\n");
 }
 
 /**
@@ -415,83 +427,78 @@ void DFS(WfNode* node,
  */
 void
 FWorkflow::initialize() {
-
   if (getPortNb() > 0) {  // used for sub-workflows
     FProcNode::initialize();
   }
 
-  TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "Sorting processors..." << endl);
+  TRACE_TEXT(TRACE_ALL_STEPS, traceId() << "Sorting processors...\n");
   // create a topologically sorted list of processor nodes
-  map<WfNode*, DFSNodeInfo>* DFSInfo = new map<WfNode*,DFSNodeInfo>();
+  std::map<WfNode*, DFSNodeInfo>* DFSInfo =
+    new std::map<WfNode*, DFSNodeInfo>();
   short DFSEndCount = 0;
   // -> initialization of DFSInfo
-  for(map<string,FProcNode*>::iterator iter = myProc.begin();
-      iter != myProc.end();
-      ++iter) {
+  std::map<std::string, FProcNode*>::iterator iter = myProc.begin();
+  for (; iter != myProc.end(); ++iter) {
     WfNode* node = (WfNode*) iter->second;
-    (*DFSInfo)[node] = DFSNodeInfo(false,false,0);
+    (*DFSInfo)[node] = DFSNodeInfo(false, false, 0);
   }
   // -> DFS search
-  for(map<string,FProcNode*>::iterator iter = myProc.begin();
-      iter != myProc.end();
-      ++iter) {
+  iter = myProc.begin();
+  for (; iter != myProc.end(); ++iter) {
     WfNode* node = (WfNode*) iter->second;
     if (!(*DFSInfo)[node].explored) {
       DFS(node,*DFSInfo, DFSEndCount);
     }
   }
   // -> create sorted todo list
-  for(map<string,FProcNode*>::iterator iter = myProc.begin();
-      iter != myProc.end();
-      ++iter) {
+  iter = myProc.begin();
+  for (; iter != myProc.end(); ++iter) {
     FProcNode* node = (FProcNode*) iter->second;
     if (todoProc.empty()) {
       todoProc.push_back(node);
-    } else { // insertion sort
+    } else {
+      // insertion sort
       short insNodePrio = (*DFSInfo)[(WfNode*)node].end;
-      list<FProcNode*>::iterator todoIter = todoProc.begin();
+      std::list<FProcNode*>::iterator todoIter = todoProc.begin();
       while ((insNodePrio < (*DFSInfo)[(WfNode*) *todoIter].end)
-              && (todoIter != todoProc.end()))
-           ++todoIter;
+             && (todoIter != todoProc.end())) {
+        ++todoIter;
+      }
       todoProc.insert(todoIter, node);
     }
   }
 
-  TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "Connecting all nodes..." << endl);
-  for(map<string,FProcNode*>::iterator iter = myProc.begin();
-      iter != myProc.end();
-      ++iter) {
+  TRACE_TEXT(TRACE_ALL_STEPS, traceId() << "Connecting all nodes...\n");
+  iter = myProc.begin();
+  for (; iter != myProc.end(); ++iter) {
     ((FProcNode*) iter->second)->connectNodePorts();
   }
-  for(map<string,FNode*>::iterator iter = myInterface.begin();
-      iter != myInterface.end();
-      ++iter) {
-    ((FNode*) iter->second)->connectNodePorts();
+  std::map<std::string, FNode*>::iterator iter2 = myInterface.begin();
+  for (; iter2 != myInterface.end(); ++iter2) {
+    ((FNode*) iter2->second)->connectNodePorts();
   }
 
-  TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "Initializing Interface..." << endl);
-  for(map<string,FNode*>::iterator iter = myInterface.begin();
-      iter != myInterface.end();
-      ++iter) {
+  TRACE_TEXT(TRACE_ALL_STEPS, traceId() << "Initializing Interface...\n");
+  iter2 = myInterface.begin();
+  for (; iter2 != myInterface.end(); ++iter2) {
     try {
-      ((FNode*) iter->second)->initialize();
+      ((FNode*) iter2->second)->initialize();
     } catch (WfDataException& e) {
-        WARNING("Data failure during node " << ((FNode*) iter->second)->getId()
-                << " initialization:" << endl << e.ErrorMsg() << endl);
+      WARNING("Data failure during node " << ((FNode*) iter2->second)->getId()
+              << " initialization:\n" << e.ErrorMsg() << "\n");
     } catch (WfDataHandleException& e) {
-        WARNING("Failure during node " << ((FNode*) iter->second)->getId()
-                << " initialization:" << endl << e.ErrorMsg() << endl);
+      WARNING("Failure during node " << ((FNode*) iter2->second)->getId()
+              << " initialization:\n" << e.ErrorMsg() << "\n");
     }
   }
-  TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "Initializing Processors..." << endl);
-  for(map<string,FProcNode*>::iterator iter = myProc.begin();
-      iter != myProc.end();
-      ++iter) {
+  TRACE_TEXT(TRACE_ALL_STEPS, traceId() << "Initializing Processors...\n");
+  iter = myProc.begin();
+  for (; iter != myProc.end(); ++iter) {
     ((FProcNode*) iter->second)->initialize();
   }
 }
 
-string
+std::string
 FWorkflow::toString() const {
   return "WORKFLOW " + getId();
 }
@@ -500,14 +507,14 @@ FWorkflow::toString() const {
  * Set the path of the file used for data sources instanciation
  */
 void
-FWorkflow::setDataSrcXmlFile(const string& dataFileName) {
+FWorkflow::setDataSrcXmlFile(const std::string& dataFileName) {
   this->dataSrcXmlFile = dataFileName;
 }
 
 /**
  * Returns the path of the file used for data sources instanciation
  */
-const string&
+const std::string&
 FWorkflow::getDataSrcXmlFile() {
   return dataSrcXmlFile;
 }
@@ -522,20 +529,23 @@ FWorkflow::instanciate(Dag * dag) {
   // re-initialize status
   myStatus = N_INSTANC_READY;
 
-  TRACE_TEXT (TRACE_MAIN_STEPS, traceId() << "########## WORKFLOW '" << getId()
-                            << "' INSTANCIATION START ##########" << endl);
-
-  if (getPortNb() > 0) {  // used for sub-workflows
-    FProcNode::instanciate(dag); // run the iterator and call createReal/VoidInstance
+  TRACE_TEXT(TRACE_MAIN_STEPS, traceId() << "########## WORKFLOW '" << getId()
+             << "' INSTANCIATION START ##########\n");
+  // used for sub-workflows
+  if (getPortNb() > 0) {
+      // run the iterator and call createReal/VoidInstance
+    FProcNode::instanciate(dag);
   }
-  TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "###### Instanciate sources/constants ..." << endl);
-  // instanciate the INTERFACE (this will create the input data items if source is XML)
-  for(map<string,FNode*>::iterator iter = myInterface.begin();
-      iter != myInterface.end();
-      ++iter)
-  {
+  TRACE_TEXT(TRACE_ALL_STEPS,
+             traceId() << "###### Instanciate sources/constants ...\n");
+  // instanciate the INTERFACE (this will create the input data items
+  // if source is XML)
+  for (std::map<std::string, FNode*>::iterator iter = myInterface.begin();
+       iter != myInterface.end();
+       ++iter) {
     // CONSTANT NODES
-    FConstantNode* cstNode = dynamic_cast<FConstantNode*>((FNode*) iter->second);
+    FConstantNode* cstNode =
+      dynamic_cast<FConstantNode*>((FNode*) iter->second);
     if (cstNode) {
       cstNode->instanciate(dag);
     }
@@ -547,42 +557,47 @@ FWorkflow::instanciate(Dag * dag) {
         try {
           srcNode->instanciate(dag);
         } catch (WfDataHandleException& e) {
-          WARNING("Failure during node " << srcNode->getId() << " instanciation:"
-                  << endl << e.ErrorMsg());
+          WARNING("Failure during node " << srcNode->getId()
+                  << " instanciation:\n" << e.ErrorMsg());
         }
       }
-      if (srcNode->instanciationCompleted())
+      if (srcNode->instanciationCompleted()) {
         srcNode->finalize();
+      }
     }
   }
 
-  TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "###### Instanciate processors..." << endl);
-  // resume instanciation (if node was put on hold during a previous instanciate call)
-  for(list<FProcNode*>::iterator iter = todoProc.begin();
-      iter != todoProc.end();
-      ++iter) {
-     ((FProcNode*) *iter)->resumeInstanciation();
+  TRACE_TEXT(TRACE_ALL_STEPS,
+             traceId() << "###### Instanciate processors...\n");
+  // resume instanciation (if node was put on hold during a previous
+  // instanciate call)
+  for (std::list<FProcNode*>::iterator iter = todoProc.begin();
+       iter != todoProc.end();
+       ++iter) {
+    ((FProcNode*) *iter)->resumeInstanciation();
   }
 
   // loop until all nodes have no data to process
   bool dataToProcess = true;
-  while ( dataToProcess ) {
-
+  while (dataToProcess) {
     // for each node in the todo list
-    list<FProcNode*>::iterator procIter = todoProc.begin();
+    std::list<FProcNode*>::iterator procIter = todoProc.begin();
     while (procIter != todoProc.end()) {
       FProcNode* currProc = (FProcNode*) *procIter;
 
       // instanciate node
-      TRACE_TEXT (TRACE_MAIN_STEPS,"  ## INSTANCIATE NODE : " << currProc->getId() << endl);
+      TRACE_TEXT(TRACE_MAIN_STEPS,
+                 "  ## INSTANCIATE NODE : " << currProc->getId() << "\n");
       try {
         currProc->instanciate(dag);
       } catch (WfDataHandleException& e) {
-        WARNING("Failure during node " << currProc->getId() << " instanciation:"
-                << endl << e.ErrorMsg());
+        WARNING("Failure during node " << currProc->getId()
+                << " instanciation:\n"
+                << e.ErrorMsg());
       } catch (WfDataException& e) {
-        WARNING("Data failure during node " << currProc->getId() << " instanciation:"
-                << endl << e.ErrorMsg());
+        WARNING("Data failure during node " << currProc->getId()
+                << " instanciation:"
+                << "\n" << e.ErrorMsg());
       }
       // if on hold, then set the whole wf on hold
       if (currProc->instanciationOnHold()) {
@@ -594,21 +609,23 @@ FWorkflow::instanciate(Dag * dag) {
       // if fully instanciated, remove from todo list
       if (currProc->instanciationCompleted()) {
         currProc->finalize();
-        TRACE_TEXT (TRACE_MAIN_STEPS,"#### Processor " << currProc->getId()
-                      << " instanciation COMPLETE" << endl);
+        TRACE_TEXT(TRACE_MAIN_STEPS, "#### Processor " << currProc->getId()
+                   << " instanciation COMPLETE\n");
         procIter = todoProc.erase(procIter);
         continue;
       }
       ++procIter;
-    } // end loop todo list
+    }
 
-    TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "###### Check if still data to process..." << endl);
+    TRACE_TEXT(TRACE_ALL_STEPS,
+               traceId() << "###### Check if still data to process...\n");
     // check if nodes have still some data to process
-    // (this may happen in case of workflow restart with while loops when activities
-    // inside the loop are re-used, ie they are already completed; then outputs of
-    // these activities are submitted to the while node during the same round)
+    // (this may happen in case of workflow restart with while loops when
+    // activitie inside the loop are re-used, ie they are already completed;
+    // then outputs of these activities are submitted to the while node
+    // during the same round)
     dataToProcess = false;
-    for (list<FProcNode*>::iterator procIter = todoProc.begin();
+    for (std::list<FProcNode*>::iterator procIter = todoProc.begin();
          procIter != todoProc.end();
          ++procIter) {
       FProcNode *proc = (FProcNode*) *procIter;
@@ -617,57 +634,64 @@ FWorkflow::instanciate(Dag * dag) {
         break;
       }
     }
-    TRACE_TEXT (TRACE_ALL_STEPS, traceId() << (dataToProcess ? "YES" : "NO") << endl);
-
+    TRACE_TEXT(TRACE_ALL_STEPS,
+               traceId() << (dataToProcess ? "YES" : "NO") << "\n");
   } // end while (dataToProcess)
 
-  TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "###### Instanciate sinks ..." << endl);
-  for(map<string,FNode*>::iterator iter = myInterface.begin();
-      iter != myInterface.end();
-      ++iter) {
+  TRACE_TEXT(TRACE_ALL_STEPS, traceId() << "###### Instanciate sinks ...\n");
+  for (std::map<std::string, FNode*>::iterator iter = myInterface.begin();
+       iter != myInterface.end();
+       ++iter) {
     FSinkNode* sinkNode = dynamic_cast<FSinkNode*>((FNode*) iter->second);
     if (sinkNode) {
       sinkNode->instanciate(dag);
-      if (sinkNode->instanciationCompleted())
+      if (sinkNode->instanciationCompleted()) {
         sinkNode->finalize();
+      }
     }
   }
 
   if (instanciationOnHold()) {
-    TRACE_TEXT (TRACE_MAIN_STEPS, traceId() << "########## WORKFLOW INSTANCIATION ON HOLD ##########" << endl);
-  }
-  // check if instanciation is pending on node execution
-  // the first condition happens when one of the nodes (a sub-wf) is pending
-  else if (instanciationPending() || !pendingNodes.empty()) {
-    TRACE_TEXT (TRACE_MAIN_STEPS, traceId() << "########## WORKFLOW INSTANCIATION PENDING ##########" << endl);
+    TRACE_TEXT(TRACE_MAIN_STEPS,
+               traceId() << "########## WORKFLOW INSTANCIATION ON HOLD "
+               "##########\n");
+  } else if (instanciationPending() || !pendingNodes.empty()) {
+    // check if instanciation is pending on node execution
+    // the first condition happens when one of the nodes (a sub-wf) is pending
+    TRACE_TEXT(TRACE_MAIN_STEPS,
+               traceId() << "########## WORKFLOW INSTANCIATION PENDING "
+               "##########\n");
     myStatus = N_INSTANC_PENDING;
-  }
+  } else if (todoProc.empty()) {
   // check if instanciation is finished
-  else if (todoProc.empty()) {
-    TRACE_TEXT (TRACE_MAIN_STEPS, traceId() << "############ WORKFLOW INSTANCIATION END ############" << endl);
+    TRACE_TEXT(TRACE_MAIN_STEPS,
+               traceId() << "############ WORKFLOW INSTANCIATION END "
+               "############\n");
     // check if sinks are completed too
-    for(map<string,FNode*>::iterator iter = myInterface.begin();
-      iter != myInterface.end();
-      ++iter) {
+    for (std::map<std::string, FNode*>::iterator iter = myInterface.begin();
+         iter != myInterface.end();
+         ++iter) {
       FSinkNode* sinkNode = dynamic_cast<FSinkNode*>((FNode*) iter->second);
       if (sinkNode && !sinkNode->instanciationCompleted()) {
-        WARNING(traceId() << "Sink '" << sinkNode->getId() << " is not complete (instanciation error)" << endl);
+        WARNING(traceId() << "Sink '"
+                << sinkNode->getId()
+                << " is not complete (instanciation error)\n");
       }
     }
     myStatus = N_INSTANC_END;
-  }
-  else if (getPortNb() > 0) {  // used for sub-workflows
-    TRACE_TEXT (TRACE_MAIN_STEPS, traceId() << "############ WORKFLOW INSTANCIATION NOT FINISHED ############" << endl);
-  }
+  } else if (getPortNb() > 0) {  // used for sub-workflows
+    TRACE_TEXT(TRACE_MAIN_STEPS,
+               traceId()
+               << "############ WORKFLOW INSTANCIATION NOT FINISHED"
+               "############\n");
+  } else {
   // incorrect status
-  else {
     WARNING(traceId() << "Instanciation stopped in incorrect state!!");
     myStatus = N_INSTANC_STOPPED;
-    for (list<FProcNode*>::iterator procIter = todoProc.begin();
-         procIter != todoProc.end();
-         ++procIter) {
+    std::list<FProcNode*>::iterator procIter = todoProc.begin();
+    for (; procIter != todoProc.end(); ++procIter) {
       WARNING(traceId() << "Functional node remaining in TODO list: "
-                  << ((FProcNode*) *procIter)->getId() << endl);
+              << ((FProcNode*) *procIter)->getId() << "\n");
     }
   }
   // add dag to my list of dags
@@ -680,12 +704,12 @@ FWorkflow::instanciate(Dag * dag) {
 void
 FWorkflow::createRealInstance(Dag* dag,
                               const FDataTag& currTag,
-                              vector<FDataHandle*>& currDataLine) {
+                              std::vector<FDataHandle*>& currDataLine) {
   // LOOP for each source
-  for (map<string, FNode *>::iterator interfIter = myInterface.begin();
-       interfIter != myInterface.end();
-       ++interfIter) {
-    FSourceNode * source = dynamic_cast<FSourceNode*>((FNode*) interfIter->second);
+  std::map<std::string, FNode *>::iterator interfIter = myInterface.begin();
+  for (; interfIter != myInterface.end(); ++interfIter) {
+    FSourceNode * source =
+      dynamic_cast<FSourceNode*>((FNode*) interfIter->second);
     if (source) {
       source->createInstance(currTag, currDataLine);
     }
@@ -697,8 +721,8 @@ FWorkflow::createRealInstance(Dag* dag,
  */
 void
 FWorkflow::createVoidInstance(const FDataTag& currTag,
-                              vector<FDataHandle*>& currDataLine) {
-  createRealInstance(NULL,currTag,currDataLine);
+                              std::vector<FDataHandle*>& currDataLine) {
+  createRealInstance(NULL, currTag, currDataLine);
 }
 
 /**
@@ -710,22 +734,25 @@ FWorkflow::updateInstanciationStatus() {
     if (myRootIterator->isDone()) {
 
       // LOOP for each source - set them as completed
-      // (sources cannot update their status themselves as they don't use an iterator)
-      for (map<string, FNode *>::iterator interfIter = myInterface.begin();
-           interfIter != myInterface.end();
-           ++interfIter) {
-        FSourceNode * source = dynamic_cast<FSourceNode*>((FNode*) interfIter->second);
+      // (sources cannot update their status themselves as they don't use an
+      // iterator)
+      std::map<std::string, FNode *>::iterator interfIter = myInterface.begin();
+      for (; interfIter != myInterface.end(); ++interfIter) {
+        FSourceNode * source =
+          dynamic_cast<FSourceNode*>((FNode*) interfIter->second);
         if (source) {
           source->setInstanciationCompleted();
         }
       } // end for interface nodes
 
-      TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "########## ALL INPUTS PROCESSED" << endl);
-      // status not updated here but in the instanciate() method because instanciation
-      // is completed only after all nodes of the wf have been completed
-
+      TRACE_TEXT(TRACE_ALL_STEPS,
+                 traceId() << "########## ALL INPUTS PROCESSED\n");
+      // status not updated here but in the instanciate() method because
+      // instanciation is completed only after all nodes of the wf have been
+      // completed
     } else {
-      TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "########## WAITING FOR INPUTS " << endl);
+      TRACE_TEXT(TRACE_ALL_STEPS,
+                 traceId() << "########## WAITING FOR INPUTS \n");
       myStatus = N_INSTANC_READY;
     }
   }
@@ -734,9 +761,8 @@ FWorkflow::updateInstanciationStatus() {
 void
 FWorkflow::downloadSinkData() {
   // display all sink results
-  for (map<string,FNode*>::const_iterator nodeIter = myInterface.begin();
-       nodeIter != myInterface.end();
-       ++nodeIter) {
+  std::map<std::string, FNode*>::const_iterator nodeIter = myInterface.begin();
+  for (; nodeIter != myInterface.end(); ++nodeIter) {
     FSinkNode *sink = dynamic_cast<FSinkNode*>((FNode*) nodeIter->second);
     if (sink != NULL) {
       sink->downloadResults();
@@ -745,21 +771,19 @@ FWorkflow::downloadSinkData() {
 }
 
 void
-FWorkflow::displayAllResults(ostream& output) {
+FWorkflow::displayAllResults(std::ostream& output) {
   // display cancelled dags
-  for (list<Dag*>::const_iterator dagIter = myDags.begin();
-       dagIter != myDags.end();
-       ++dagIter) {
+  std::list<Dag*>::const_iterator dagIter = myDags.begin();
+  for (; dagIter != myDags.end(); ++dagIter) {
     Dag * currDag = (Dag*) *dagIter;
     if (currDag->isCancelled()) {
-       output  << "** DAG " << currDag->getId()
-               << " was cancelled => no results **" << endl;
+      output  << "** DAG " << currDag->getId()
+              << " was cancelled => no results **\n";
     }
   }
   // display all sink results
-  for (map<string,FNode*>::const_iterator nodeIter = myInterface.begin();
-       nodeIter != myInterface.end();
-       ++nodeIter) {
+  std::map<std::string, FNode*>::const_iterator nodeIter = myInterface.begin();
+  for (; nodeIter != myInterface.end(); ++nodeIter) {
     FSinkNode *sink = dynamic_cast<FSinkNode*>((FNode*) nodeIter->second);
     if (sink != NULL) {
       sink->displayResults(output);
@@ -768,47 +792,46 @@ FWorkflow::displayAllResults(ostream& output) {
 }
 
 void
-FWorkflow::getSinkContainer(const string& sinkName,
-                            string& containerID) {
+FWorkflow::getSinkContainer(const std::string& sinkName,
+                            std::string& containerID) {
   FNode* interfNode = getInterfaceNode(sinkName);
   FSinkNode *sink = dynamic_cast<FSinkNode*>(interfNode);
-  if (sink)
+  if (sink) {
     try {
       sink->getResultsInContainer(containerID);
     } catch (WfDataHandleException& e) {
-      WARNING("Cannot get sink container ID (" << e.ErrorMsg() << ")" << endl);
+      WARNING("Cannot get sink container ID (" << e.ErrorMsg() << ")\n");
     }
-  else
+  } else {
     throw WfStructException(WfStructException::eUNKNOWN_NODE,
-                            "Sink name="+sinkName);
-}
-
-void
-FWorkflow::displayDagSummary(ostream& output) {
-  output << "** INSTANCIATED DAGS SUMMARY:" << endl;
-  for (list<Dag*>::iterator dagIter = myDags.begin();
-       dagIter != myDags.end();
-       ++dagIter) {
-    Dag * dag = (Dag*) *dagIter;
-    output << "DAG ID '" << dag->getId() << "': "
-           << "size = " << dag->size() << " node(s), "
-           << "makespan = " << dag->getMakespan() << " ms" << endl;
+                            "Sink name=" + sinkName);
   }
 }
 
 void
-FWorkflow::setPendingInstanceInfo(DagNode * dagNode,
-                                  FDataHandle * dataHdl,
+FWorkflow::displayDagSummary(std::ostream& output) {
+  output << "** INSTANCIATED DAGS SUMMARY:\n";
+  std::list<Dag*>::iterator dagIter = myDags.begin();
+  for (; dagIter != myDags.end(); ++dagIter) {
+    Dag * dag = (Dag*) *dagIter;
+    output << "DAG ID '" << dag->getId() << "': "
+           << "size = " << dag->size() << " node(s), "
+           << "makespan = " << dag->getMakespan() << " ms\n";
+  }
+}
+
+void
+FWorkflow::setPendingInstanceInfo(DagNode * dagNode, FDataHandle * dataHdl,
                                   FNodeOutPort * outPort,
                                   FNodeInPort * inPort) {
   pendingDagNodeInfo_t info;
   info.dataHdl = dataHdl;
   info.outPort = outPort;
   info.inPort  = inPort;
-  pendingNodes.insert(make_pair(dagNode,info));
-  TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "new PENDING dag node ("
-                              << dagNode->getId() << ") for IN port (" << inPort->getCompleteId()
-                              << ")" << endl);
+  pendingNodes.insert(std::make_pair(dagNode, info));
+  TRACE_TEXT(TRACE_ALL_STEPS, traceId() << "new PENDING dag node ("
+             << dagNode->getId() << ") for IN port (" << inPort->getCompleteId()
+             << ")\n");
 }
 
 /**
@@ -819,20 +842,21 @@ FWorkflow::handlerDagNodeDone(DagNode* dagNode) {
   bool statusChange = false;
   myLock.lock();    /** LOCK */
   // search the instance in the pending list
-  multimap<DagNode*, pendingDagNodeInfo_t>::iterator pendingIter, pendingStart;
+  std::multimap<DagNode*,
+                pendingDagNodeInfo_t>::iterator pendingIter, pendingStart;
   pendingStart = pendingIter = pendingNodes.lower_bound(dagNode);
   // if found, resubmit the datahandle to the in port(s)
   while (pendingIter != pendingNodes.upper_bound(dagNode)) {
     pendingDagNodeInfo_t info = (pendingDagNodeInfo_t) (pendingIter++)->second;
-    TRACE_TEXT (TRACE_ALL_STEPS, traceId() << " ## RETRY DATA SUBMISSION FOR INSTANCE : "
-                                << dagNode->getId() << endl);
+    TRACE_TEXT(TRACE_ALL_STEPS,
+               traceId() << " ## RETRY DATA SUBMISSION FOR INSTANCE : "
+               << dagNode->getId() << "\n");
 
     try {
       // update the data ID
       info.dataHdl->downloadDataID();
       // submit data to the in port
       info.outPort->reSendData(info.dataHdl, info.inPort);
-
     } catch (WfDataHandleException& e) {
       WARNING("Instanciator error due to data handle error :" << e.ErrorMsg());
       myStatus = N_INSTANC_STOPPED;
@@ -843,14 +867,15 @@ FWorkflow::handlerDagNodeDone(DagNode* dagNode) {
     // re-start instanciation
     statusChange = true;
 
-    TRACE_TEXT (TRACE_ALL_STEPS, traceId() << " ## END OF RETRY FOR INSTANCE : "
-                                << dagNode->getId() << endl);
+    TRACE_TEXT(TRACE_ALL_STEPS, traceId() << " ## END OF RETRY FOR INSTANCE : "
+               << dagNode->getId() << "\n");
   }
   // remove entries from the pending list
-  pendingNodes.erase(pendingStart,pendingIter);
+  pendingNodes.erase(pendingStart, pendingIter);
   // re-initialize instanciation
-  if (statusChange)
+  if (statusChange) {
     resumeInstanciation();
+  }
 
   myLock.unlock();  /** UNLOCK */
 }
@@ -859,106 +884,109 @@ FWorkflow::handlerDagNodeDone(DagNode* dagNode) {
  * Status
  */
 void
-FWorkflow::writeAllDagsState(ostream& output) {
-  TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "Writing workflow status ..." <<  endl);
-  output << "<dags>" << endl;
-  for (list<Dag*>::iterator dagIter = myDags.begin();
-       dagIter != myDags.end();
-       ++dagIter) {
+FWorkflow::writeAllDagsState(std::ostream& output) {
+  TRACE_TEXT(TRACE_ALL_STEPS, traceId() << "Writing workflow status ...\n");
+  output << "<dags>\n";
+  std::list<Dag*>::iterator dagIter = myDags.begin();
+  for (; dagIter != myDags.end(); ++dagIter) {
     Dag *currDag = ((Dag*) *dagIter);
     if (!currDag->size() == 0) {
       currDag->toXML(output);
     }
   }
-  output << "</dags>" << endl;
+  output << "</dags>\n";
 }
 
 void
-FWorkflow::writeAllSourcesState(ostream& output) {
+FWorkflow::writeAllSourcesState(std::ostream& output) {
   // my own sources
-  for(map<string,FNode*>::iterator iter = myInterface.begin();
-      iter != myInterface.end();
-      ++iter) {
+  for (std::map<std::string, FNode*>::iterator iter = myInterface.begin();
+       iter != myInterface.end();
+       ++iter) {
     FSourceNode* srcNode = dynamic_cast<FSourceNode*>((FNode*) iter->second);
-    if (srcNode && !srcNode->isConnectedToWfPort())
+    if (srcNode && !srcNode->isConnectedToWfPort()) {
       srcNode->toXML(output);
+    }
   }
   // idem for all sub-workflows
-  for(map<string,FProcNode*>::iterator iter = myProc.begin();
-      iter != myProc.end();
-      ++iter) {
+  for (std::map<std::string, FProcNode*>::iterator iter = myProc.begin();
+       iter != myProc.end();
+       ++iter) {
     FWorkflow* subWf = dynamic_cast<FWorkflow*>((FProcNode*) iter->second);
-    if (subWf)
+    if (subWf) {
       subWf->writeAllSourcesState(output);
+    }
   }
 }
 
 void
-FWorkflow::writeAllSinksState(ostream& output) {
+FWorkflow::writeAllSinksState(std::ostream& output) {
   // my own sinks
-  for(map<string,FNode*>::iterator iter = myInterface.begin();
-      iter != myInterface.end();
-      ++iter) {
+  std::map<std::string, FNode*>::iterator iter = myInterface.begin();
+  for (; iter != myInterface.end(); ++iter) {
     FSinkNode* sinkNode = dynamic_cast<FSinkNode*>((FNode*) iter->second);
-    if (sinkNode && !sinkNode->isConnectedToWfPort())
+    if (sinkNode && !sinkNode->isConnectedToWfPort()) {
       sinkNode->toXML(output);
+    }
   }
 }
 
 void
-FWorkflow::writeAllSourcesAndSinksData(ostream& output) {
-  output << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << endl;
-  output << "<data>" << endl;
+FWorkflow::writeAllSourcesAndSinksData(std::ostream& output) {
+  output << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+  output << "<data>\n";
   this->writeAllSourcesState(output);
   this->writeAllSinksState(output);
-  output << "</data>" << endl;
+  output << "</data>\n";
 }
 
 /**
  * Restart workflow
  * This method stores a ptr to the dag nodes that are already done in the
- * transcriptNodes map, and include the transcript dags (if not empty) in the workflow
+ * transcriptNodes std::map, and include the transcript dags (if not empty) in the workflow
  * dag list
  */
 void
-FWorkflow::readDagsState(list<Dag*>& dagList) {
-  TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "Using previous execution transcript ..." <<  endl);
+FWorkflow::readDagsState(std::list<Dag*>& dagList) {
+  TRACE_TEXT(TRACE_ALL_STEPS,
+             traceId() << "Using previous execution transcript ...\n");
   while (!dagList.empty()) {
     Dag *currDag = dagList.front();
     if (currDag) {
       // iterate over all nodes
-      //	if done => store (node ID ====> dagNode ptr)
+      //        if done => store (node ID ====> dagNode ptr)
       //        if not done => remove from dag
-      for ( map<string, DagNode *>::iterator nodeIter = currDag->begin();
-            nodeIter != currDag->end();
-            ++nodeIter ) {
-	DagNode * currNode = (DagNode*) nodeIter->second;
-	if (currNode->isDone()) {
-	  transcriptNodes[currNode->getId()] = currNode;
-	} else {
+      std::map<std::string, DagNode *>::iterator nodeIter = currDag->begin();
+      for (; nodeIter != currDag->end(); ++nodeIter) {
+        DagNode * currNode = nodeIter->second;
+        if (currNode->isDone()) {
+          transcriptNodes[currNode->getId()] = currNode;
+        } else {
           currDag->removeNode(currNode->getId());
           delete currNode;
         }
       }
       // store the cleaned dag in current workflow's dag list
-      if (!currDag->size() == 0)
+      if (!currDag->size() == 0)  {
         myDags.push_back(currDag);
-      else
+      } else {
         delete currDag;
+      }
     }
     dagList.pop_front();
   }
-  TRACE_TEXT (TRACE_ALL_STEPS, traceId() << " ==> " << transcriptNodes.size()
-					 << " executed nodes found" << endl);
+  TRACE_TEXT(TRACE_ALL_STEPS, traceId() << " ==> " << transcriptNodes.size()
+             << " executed nodes found\n");
 }
 
 void
-FWorkflow::findDagNodeTranscript( const string& dagNodeId,
-                                  DagNode* & dagNodePtr,
-                                  bool& isDone ) {
-  map<string, DagNode*>::iterator nodeIter = transcriptNodes.find(dagNodeId);
+FWorkflow::findDagNodeTranscript(const std::string& dagNodeId,
+                                 DagNode* & dagNodePtr,
+                                 bool& isDone) {
+  std::map<std::string, DagNode*>::iterator nodeIter =
+    transcriptNodes.find(dagNodeId);
   if (nodeIter != transcriptNodes.end()) {
-    // node found in current workflow transcript map
+    // node found in current workflow transcript std::map
     dagNodePtr = (DagNode*) nodeIter->second;
     isDone = dagNodePtr->isDone();
   } else if (getWorkflow() != NULL) {
@@ -977,8 +1005,8 @@ FWorkflow::findDagNodeTranscript( const string& dagNodeId,
 
 void
 FWorkflow::deleteAllResults() {
-  TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "Deleting all dag results ..." <<  endl);
-  for (list<Dag*>::iterator dagIter = myDags.begin();
+  TRACE_TEXT(TRACE_ALL_STEPS, traceId() << "Deleting all dag results ...\n");
+  for (std::list<Dag*>::iterator dagIter = myDags.begin();
        dagIter != myDags.end();
        ++dagIter) {
     ((Dag*) *dagIter)->deleteAllResults();
@@ -987,35 +1015,37 @@ FWorkflow::deleteAllResults() {
 
 void
 FWorkflow::deleteAllInputData(MasterAgent_var& MA) {
-  TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "Deleting all wf input data..." <<  endl);
-  for(map<string,FNode*>::iterator iter = myInterface.begin();
-      iter != myInterface.end();
-      ++iter) {
+  TRACE_TEXT(TRACE_ALL_STEPS,
+             traceId() << "Deleting all wf input data...\n");
+  for (std::map<std::string, FNode*>::iterator iter = myInterface.begin();
+       iter != myInterface.end();
+       ++iter) {
     ((FNode*) iter->second)->freeNodePersistentData(MA);
   }
 }
 
 void
 FWorkflow::deleteAllIntermediateData(MasterAgent_var& MA) {
-  TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "Deleting all wf intermediate data..." <<  endl);
-  for(map<string,FProcNode*>::iterator iter = myProc.begin();
-      iter != myProc.end();
-      ++iter) {
+  TRACE_TEXT(TRACE_ALL_STEPS,
+             traceId() << "Deleting all wf intermediate data...\n");
+  for (std::map<std::string, FProcNode*>::iterator iter = myProc.begin();
+       iter != myProc.end();
+       ++iter) {
     ((FNode*) iter->second)->freeNodePersistentData(MA);
   }
 }
 
 void
 FWorkflow::freeNodePersistentData(MasterAgent_var& MA) {
-  TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "Deleting sub-workflow data..." <<  endl);
+  TRACE_TEXT(TRACE_ALL_STEPS, traceId() << "Deleting sub-workflow data...\n");
   deleteAllInputData(MA);
   deleteAllIntermediateData(MA);
 }
 
 void
 FWorkflow::deleteAllDags() {
-  TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "Deleting all wf dags ..." <<  endl);
-  while (! myDags.empty() ) {
+  TRACE_TEXT(TRACE_ALL_STEPS, traceId() << "Deleting all wf dags ...\n");
+  while (!myDags.empty()) {
     Dag * p = myDags.front();
     myDags.pop_front();
     delete p;

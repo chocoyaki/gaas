@@ -64,21 +64,21 @@ solve_dgemm(diet_profile_t *pb) {
 
   /* Get arguments */
   // This line is equivalent to:
-  //   alpha = *diet_value(double,diet_parameter(pb,0))
-  diet_scalar_get(diet_parameter(pb,0), &alpha, NULL);
-  diet_matrix_get(diet_parameter(pb,1), &A, NULL, &m, &k, &oA);
+  //   alpha = *diet_value(double, diet_parameter(pb, 0))
+  diet_scalar_get(diet_parameter(pb, 0), &alpha, NULL);
+  diet_matrix_get(diet_parameter(pb, 1), &A, NULL, &m, &k, &oA);
   tA = (oA == DIET_ROW_MAJOR) ? 'T' : 'N';
-  diet_matrix_get(diet_parameter(pb,2), &B, NULL, &k_, &n, &oB);
+  diet_matrix_get(diet_parameter(pb, 2), &B, NULL, &k_, &n, &oB);
   tB = (oB == DIET_ROW_MAJOR) ? 'T' : 'N';
   if (k_ != k) {
     fprintf(stderr, "dgemm Error: invalid matrix dimensions !\n");
     return 1;
   }
-  diet_scalar_get(diet_parameter(pb,3), &beta,  NULL);
+  diet_scalar_get(diet_parameter(pb, 3), &beta,  NULL);
 
-  diet_matrix_get(diet_parameter(pb,4), &C, NULL, &m_, &n_, &oC);
+  diet_matrix_get(diet_parameter(pb, 4), &C, NULL, &m_, &n_, &oC);
 
-//  diet_generic_desc_set(diet_param_desc(pb,4),
+//  diet_generic_desc_set(diet_param_desc(pb, 4),
 //			DIET_MATRIX, DIET_DOUBLE); // C
 
   // DEBUG
@@ -116,15 +116,15 @@ main(int argc, char **argv)
   diet_service_table_init(3);
 
   /* Allocate dgemm profile */
-  profile = diet_profile_desc_alloc("dgemm",3, 4, 4);
+  profile = diet_profile_desc_alloc("dgemm", 3, 4, 4);
 
   /* Set profile parameters */
   // alpha, A, B, beta, C
-  diet_generic_desc_set(diet_param_desc(profile,0), DIET_SCALAR, DIET_DOUBLE);
-  diet_generic_desc_set(diet_param_desc(profile,1), DIET_MATRIX, DIET_DOUBLE);
-  diet_generic_desc_set(diet_param_desc(profile,2), DIET_MATRIX, DIET_DOUBLE);
-  diet_generic_desc_set(diet_param_desc(profile,3), DIET_SCALAR, DIET_DOUBLE);
-  diet_generic_desc_set(diet_param_desc(profile,4), DIET_MATRIX, DIET_DOUBLE);
+  diet_generic_desc_set(diet_param_desc(profile, 0), DIET_SCALAR, DIET_DOUBLE);
+  diet_generic_desc_set(diet_param_desc(profile, 1), DIET_MATRIX, DIET_DOUBLE);
+  diet_generic_desc_set(diet_param_desc(profile, 2), DIET_MATRIX, DIET_DOUBLE);
+  diet_generic_desc_set(diet_param_desc(profile, 3), DIET_SCALAR, DIET_DOUBLE);
+  diet_generic_desc_set(diet_param_desc(profile, 4), DIET_MATRIX, DIET_DOUBLE);
 
   /* Add the dgemm to the service table */
   diet_service_table_add(profile, NULL, solve_dgemm);

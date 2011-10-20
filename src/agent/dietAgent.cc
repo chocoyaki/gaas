@@ -231,15 +231,8 @@ using namespace std;
 #include "DietLogComponent.hh"
 #endif /* USE_LOG_SERVICE */
 
-#if ! HAVE_JUXMEM && ! HAVE_DAGDA
-#include "LocMgrImpl.hh"    // DTM header file
-#endif /* ! HAVE_JUXMEM && ! HAVE_DAGDA */
-
-#if HAVE_DAGDA
 #include "DagdaImpl.hh"
 #include "DagdaFactory.hh"
-#endif /* HAVE_DAGDA */
-
 
 /** The trace level. */
 extern unsigned int TRACE_LEVEL;
@@ -251,12 +244,6 @@ DietLogComponent* dietLogComponent;
 
 /** The Agent object. */
 AgentImpl* Agt;
-
-#if ! HAVE_JUXMEM && ! HAVE_DAGDA
-/** The DTM Data Location Manager Object  */
-LocMgrImpl *Loc;
-#endif /* ! HAVE_JUXMEM && ! HAVE_DAGDA */
-
 
 class CStringDeleter {
 public:
@@ -271,10 +258,9 @@ public:
 
 template <typename C>
 class CStringInserter {
-private:
-  C& c_;
 public:
-  explicit CStringInserter(C& c) : c_(c) {}
+  explicit CStringInserter(C& c) : c_(c) {
+}
 
   void
   operator() (const char *cstr) {
@@ -286,6 +272,9 @@ public:
     char *cstr = strdup(oss.str().c_str());
     c_.push_back(cstr);
   }
+
+private:
+  C& c_;
 };
 
 
@@ -381,7 +370,7 @@ int main(int argc, char* argv[], char *envp[]) {
   } catch (std::runtime_error &e) {
     ERROR(e.what(), GRPC_CONFIGFILE_ERROR);
   }
-  // std::string& agentName = CONFIG_STRING("name"]; // UNUSED ?
+  // std::string& agentName = CONFIG_STRING("name"];  // UNUSED ?
   std::string parentName = "";
   bool hasParentName = CONFIG_STRING(diet::PARENTNAME, parentName);
   std::string maName;
@@ -393,7 +382,7 @@ int main(int argc, char* argv[], char *envp[]) {
     ERROR("parsing " << configFile
           << ": no parent name specified", GRPC_CONFIGFILE_ERROR);
   } else if (((agentType != "DIET_LOCAL_AGENT") && (agentType != "LA")) &&
-            hasParentName) {
+             hasParentName) {
     WARNING("parsing " << configFile << ": no need to specify "
             << "a parent name for an MA - ignored");
   }
@@ -432,7 +421,7 @@ int main(int argc, char* argv[], char *envp[]) {
     ins(level);
   }
 
-  /* Copy the arguments in a temporary vector, as it 
+  /* Copy the arguments in a temporary vector, as it
    * is modified by ORBMgr::init
    */
   argsTmp = args;
@@ -489,7 +478,6 @@ int main(int argc, char* argv[], char *envp[]) {
     if (dietLogComponent->run(agtTypeName.c_str(),
                               parentName.c_str(),
                               flushTime)) {
-      // delete(dietLogComponent); // DLC is activated, do not delete !
       WARNING("Could not initialize DietLogComponent");
       TRACE_TEXT(TRACE_ALL_STEPS, "* LogService: disabled" << endl);
       dietLogComponent = NULL;
@@ -497,11 +485,6 @@ int main(int argc, char* argv[], char *envp[]) {
   }
 #endif /* USE_LOG_SERVICE */
 
-#if ! HAVE_JUXMEM && ! HAVE_DAGDA
-  /* Create the DTM Data Location Manager */
-  Loc = new LocMgrImpl();
-#endif /* ! HAVE_JUXMEM && ! HAVE_DAGDA */
-#if HAVE_DAGDA
   DagdaImpl* dataManager;
   try {
     dataManager = DagdaFactory::getAgentDataManager();
@@ -514,7 +497,6 @@ int main(int argc, char* argv[], char *envp[]) {
           << " is OMNIORB_CONFIG variable correctly set?",
           GRPC_COMMUNICATION_FAILED);
   }
-#endif /* HAVE_DAGDA */
 
   /* Create, activate, and launch the agent */
   if ((agentType == "DIET_LOCAL_AGENT") || (agentType == "LA")) {
@@ -546,36 +528,8 @@ int main(int argc, char* argv[], char *envp[]) {
     ERROR("unable to launch the agent", 1);
   }
 
-#if ! HAVE_JUXMEM
-  // Use Dagda instead of DTM.
-#if ! HAVE_DAGDA
-  /* Launch the DTM LocMgr */
-  ORBMgr::getMgr()->activate(Loc);
-  if (Loc->run()) {
-    std::for_each(args.begin(), args.end(), CStringDeleter());
-    ERROR("unable to launch the LocMgr", 1);
-  }
-  Agt->linkToLocMgr(Loc);
-#else
   ORBMgr::getMgr()->activate(dataManager);
   Agt->setDataManager(dataManager->_this());
-#endif /* ! HAVE_DAGDA */
-#endif /* ! HAVE_JUXMEM */
-
-
-#ifdef HAVE_ACKFILE
-  /* Touch a file to notify the end of the initialization */
-  std::string ackFile;
-  if (!CONFIG_STRING(diet::ACKFILE, ackFile)) {
-    WARNING("parsing " << configFile << ": no ackFile specified");
-  } else {
-    cerr << "Open OutFile: "<< ackFile <<endl;
-    ofstream out(ackFile.c_str());
-    out << "ok" << endl << endl;
-    out.close();
-  }
-#endif /* HAVE_ACKFILE */
-
 
   /* Wait for RPCs (blocking call): */
   try {
@@ -584,9 +538,7 @@ int main(int argc, char* argv[], char *envp[]) {
     WARNING("Error while exiting the ORBMgr::wait() function");
   }
 
-#ifdef HAVE_DYNAMICS
   Agt->removeElementClean(false);
-#endif /* HAVE_DYNAMICS */
 
   /* shutdown and destroy the ORB
    * Servants will be deactivated and deleted automatically

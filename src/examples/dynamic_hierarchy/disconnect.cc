@@ -35,7 +35,7 @@ main (int argc, char** argv) {
   char *name = argv[2];
   int res;
   cout << "Element name: " << name << endl;
-	
+        
   if (!strcmp(argv[1], "SED")) {
     type = SED;
   } else {

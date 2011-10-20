@@ -21,7 +21,7 @@
  * improved exception management
  *
  * Revision 1.7  2008/10/14 13:24:49  bisnard
- * use new class structure for dags (DagNode,DagNodePort)
+ * use new class structure for dags (DagNode, DagNodePort)
  *
  * Revision 1.6  2008/07/24 21:08:11  rbolze
  * New multi-wf heuristic FCFS (First Come First Serve)
@@ -54,83 +54,73 @@
 #define _MULTIWFHEFT_HH_
 
 #include <cmath>
-
+#include <map>
 #include "debug.hh"
-
 #include "MultiWfScheduler.hh"
 
 
-using namespace std;
 
 namespace madag {
-
 /****************************************************************************/
 /*                              Multi-HEFT                                  */
 /****************************************************************************/
 
-  class MultiWfHEFT : public MultiWfScheduler {
+class MultiWfHEFT : public MultiWfScheduler {
+public:
+  explicit MultiWfHEFT(MaDag_impl* maDag);
 
-  public:
+  virtual ~MultiWfHEFT();
 
-    MultiWfHEFT(MaDag_impl* maDag);
-    virtual ~MultiWfHEFT();
-
-  protected:
-    /**
-     * Updates scheduler when a node has been executed
-     */
-    virtual void
-        handlerNodeDone(DagNode * node);
-
-  }; // end class MultiWfHEFT
+protected:
+  /**
+   * Updates scheduler when a node has been executed
+   */
+  virtual void
+  handlerNodeDone(DagNode * node);
+};  // end class MultiWfHEFT
 
 /****************************************************************************/
 /*                              Aging HEFT                                  */
 /****************************************************************************/
 
-  class MultiWfAgingHEFT : public MultiWfScheduler {
+class MultiWfAgingHEFT : public MultiWfScheduler {
+public:
+  explicit MultiWfAgingHEFT(MaDag_impl* maDag);
+  virtual ~MultiWfAgingHEFT();
 
-      public:
+protected:
+  /**
+   * internal dag scheduling
+   */
+  virtual void
+  intraDagSchedule(Dag * dag, MasterAgent_var MA)
+    throw(MaDag::ServiceNotFound, MaDag::CommProblem);
 
-    MultiWfAgingHEFT(MaDag_impl* maDag);
-    virtual ~MultiWfAgingHEFT();
+  /**
+   * Updates scheduler when a node has been executed
+   */
+  virtual void
+  handlerNodeDone(DagNode * node);
 
-  protected:
+  /**
+   * set node priority before inserting into execution queue
+   * (called by run method)
+   * @param node   the node to insert
+   */
+  virtual void
+  setExecPriority(DagNode * node);
 
-    /**
-     * internal dag scheduling
-     */
-    virtual void
-        intraDagSchedule(Dag * dag, MasterAgent_var MA)
-        throw (MaDag::ServiceNotFound, MaDag::CommProblem);
+  /**
+   * set node priority before inserting back in the ready queue
+   */
+  virtual void
+  setWaitingPriority(DagNode * node);
 
-    /**
-     * Updates scheduler when a node has been executed
-     */
-    virtual void
-        handlerNodeDone(DagNode * node);
+  /**
+   * Save the state of dags
+   */
+  std::map<Dag*, DagState> dagsState;
+};  // end class MultiWfAgingHEFT
+}  // end namespace madag
 
-    /**
-     * set node priority before inserting into execution queue
-     * (called by run method)
-     * @param node   the node to insert
-     */
-    virtual void
-        setExecPriority(DagNode * node);
-
-    /**
-     * set node priority before inserting back in the ready queue
-     */
-    virtual void
-        setWaitingPriority(DagNode * node);
-
-    /**
-     * Save the state of dags
-     */
-    map<Dag*, DagState> dagsState;
-
-  }; // end class MultiWfAgingHEFT
-
-} // end namespace madag
-
-#endif // _MULTIWFHEFT_HH_
+#endif  // _MULTIWFHEFT_HH_

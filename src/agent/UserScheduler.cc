@@ -17,7 +17,7 @@ UserScheduler* UserScheduler::instance = NULL;
 const char* UserScheduler::stName = "UserGS";
 
 UserScheduler* UserScheduler::getInstance(const char * moduleName) {
-  if (instance==NULL) instance = new UserScheduler(moduleName);
+  if (instance == NULL) instance = new UserScheduler(moduleName);
   return instance;
 }
 
@@ -68,7 +68,7 @@ void UserScheduler::destroy(GlobalScheduler* scheduler) {
 /** Deserialization: returns a new instance of the chosen scheduler class. */
 GlobalScheduler*
 UserScheduler::deserialize(const char* serializedScheduler,
-			   const char* moduleName) {
+                           const char* moduleName) {
   return getInstance(moduleName)->constructs();
 }
 
@@ -80,9 +80,9 @@ UserScheduler::serialize(GlobalScheduler* GS) {
 /** Should never been called. Overridden in the user scheduler class. */
 int
 UserScheduler::aggregate(corba_response_t* aggrResp,
-	  size_t max_srv,
-	  const size_t nb_responses,
-	  const corba_response_t* responses) {
+                         size_t max_srv,
+                         const size_t nb_responses,
+                         const corba_response_t* responses) {
   return GlobalScheduler::aggregate(aggrResp, max_srv, nb_responses, responses);
 }
 
@@ -90,25 +90,26 @@ UserScheduler::aggregate(corba_response_t* aggrResp,
 
 /* Utility function converting the responses given by the children to a STL
    list of servers. */
-std::list<corba_server_estimation_t> CORBA_to_STL(const corba_response_t* responses,
-						  int nb_responses) {
+std::list<corba_server_estimation_t>
+CORBA_to_STL(const corba_response_t* responses, int nb_responses) {
   std::list<corba_server_estimation_t> result;
 
-  for (int i=0; i<nb_responses; ++i)
-    for (unsigned int j=0; j<responses[i].servers.length(); ++j)
+  for (int i = 0; i<nb_responses; ++i)
+    for (unsigned int j = 0; j<responses[i].servers.length(); ++j)
       result.push_back(responses[i].servers[j]);
 
   return result;
 }
 
 /* Utility function converting a STL list of servers to a CORBA sequence. */
-void STL_to_CORBA(std::list<corba_server_estimation_t> &servers,
-		  corba_response_t* &aggrResp) {
+void
+STL_to_CORBA(std::list<corba_server_estimation_t> &servers,
+             corba_response_t* &aggrResp) {
   std::list<corba_server_estimation_t>::iterator it;
-  unsigned int i=0;
+  unsigned int i = 0;
 
   aggrResp->servers.length(servers.size());
-  for (it=servers.begin(); it!=servers.end(); ++it)
+  for (it = servers.begin(); it != servers.end(); ++it)
     aggrResp->servers[i++]=*it;
 }
 

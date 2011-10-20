@@ -13,9 +13,6 @@ include_directories(
   ${OMNIORB4_INCLUDE_DIR}
   ${DIET_BINARY_DIR}/src/CORBA/idl
 )
-if (DIET_USE_JUXMEM)
-  include_directories(${JUXMEM_INCLUDE_DIR})
-endif (DIET_USE_JUXMEM)
 
 # Generate the code out of the IDL source files
 
@@ -31,10 +28,6 @@ if (DIET_USE_ALT_BATCH)
    set(DIET_IDL_FLAGS "${DIET_IDL_FLAGS} -DHAVE_ALT_BATCH")
 endif (DIET_USE_ALT_BATCH)
 
-if (DIET_USE_JXTA)
-   set(DIET_IDL_FLAGS "${DIET_IDL_FLAGS} -DHAVE_JXTA")
-endif (DIET_USE_JXTA)
-
 if (DIET_USE_WORKFLOW)
    set(DIET_IDL_FLAGS "${DIET_IDL_FLAGS} -DHAVE_WORKFLOW")
 endif (DIET_USE_WORKFLOW)
@@ -42,14 +35,6 @@ endif (DIET_USE_WORKFLOW)
 if (DIET_WITH_MULTI_MA)
    set(DIET_IDL_FLAGS "${DIET_IDL_FLAGS} -DHAVE_MULTI_MA")
 endif (DIET_WITH_MULTI_MA)
-
-if (DIET_USE_DAGDA)
-  set(DIET_IDL_FLAGS "${DIET_IDL_FLAGS} -DHAVE_DAGDA")
-endif (DIET_USE_DAGDA)
-
-if (DIET_USE_DYNAMICS)
-  set(DIET_IDL_FLAGS "${DIET_IDL_FLAGS} -DHAVE_DYNAMICS")
-endif (DIET_USE_DYNAMICS)
 
 if (DIET_USE_USERSCHED)
   set(DIET_IDL_FLAGS "${DIET_IDL_FLAGS} -DUSERSCHED")
@@ -99,21 +84,11 @@ if (DIET_USE_WORKFLOW)
   )
 endif (DIET_USE_WORKFLOW)
 #    - Data manager's IDL
-if (DIET_USE_DAGDA)
-  set(IDL_SOURCES
-    Dagda
-    DagdaFwdr
-    ${IDL_SOURCES}
+set(IDL_SOURCES
+  Dagda
+  DagdaFwdr
+  ${IDL_SOURCES}
   )
-else (DIET_USE_DAGDA)
-  set(IDL_SOURCES
-    DataMgr
-    LocMgr
-    DataMgrFwdr
-    LocMgrFwdr
-    ${IDL_SOURCES}
-  )
-endif (DIET_USE_DAGDA)
 
 # A clean way to call omniidl
 #   Output:        Skeletons, dynamic skeletons and headers files

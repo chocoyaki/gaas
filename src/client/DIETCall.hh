@@ -37,9 +37,4 @@ diet_call_async_common(MasterAgent_var& MA,
                        unsigned long maxServers,
                        const char *refCallbackServer);
 
-#if HAVE_JUXMEM
-void initJuxMem();
-void terminateJuxMem();
-#endif
-
-#endif // _DIET_CALL_H_
+#endif  // _DIET_CALL_H_

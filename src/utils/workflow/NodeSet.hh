@@ -16,6 +16,7 @@
 #ifndef _NODESET_
 #define _NODESET_
 
+#include <string>
 #include "WfUtils.hh"
 #include "WfNode.hh"
 
@@ -33,6 +34,8 @@
 
 class NodeSet {
 public:
+  virtual ~NodeSet() {
+  }
 
   /**
    * Get a node from the nodeset
@@ -40,7 +43,7 @@ public:
    * @return pointer to node (does not return NULL)
    */
   virtual WfNode*
-  getNode(const string& nodeId) throw (WfStructException) = 0;
+  getNode(const std::string& nodeId) throw(WfStructException) = 0;
 
   /**
    * Check that the relationships between nodes are correct
@@ -48,8 +51,7 @@ public:
    * current nodeSet (can be the current nodeSet itself)
    */
   virtual void
-  checkPrec(NodeSet* contextNodeSet) throw (WfStructException) = 0;
-
+  checkPrec(NodeSet* contextNodeSet) throw(WfStructException) = 0;
 };
 
-#endif // _NODESET_
+#endif  // _NODESET_

@@ -26,15 +26,15 @@
 #include "EventBase.hh"
 
 namespace events {
-  
-class EventHandler
-{
-  public:
 
-    virtual void handleEvent(const EventBase*) = 0;
-    
+class EventHandler {
+public:
+  virtual ~EventHandler() {
+  }
+
+  virtual void
+  handleEvent(const EventBase*) = 0;
 };
-
 }
 
 #endif

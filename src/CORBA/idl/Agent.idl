@@ -93,12 +93,8 @@ interface Agent {
    */
   long serverSubscribe(in string seDName,
                        in string hostname,
-#if HAVE_JXTA
-                       in string uuid,
-#endif // HAVE_JXTA
                        in SeqCorbaProfileDesc_t services);
 
-#ifdef HAVE_DYNAMICS
   /** Sends a request to the agent to commit suicide.
    * If "recursive" is true, then the agent forwards the request
    * to its children.
@@ -112,9 +108,7 @@ interface Agent {
    */
   long childUnsubscribe(in unsigned long childID,
 			in SeqCorbaProfileDesc_t services);
-#endif // HAVE_DYNAMICS
 
-//#ifdef HAVE_DAGDA
   /**
    * Invoked by SeDImpl::removeService(...) after removing a service
    * locally on a SeD. Used to inform the rest of the hierarchy that this
@@ -122,7 +116,6 @@ interface Agent {
    */
   long childRemoveService(in unsigned long childID,
 			  in corba_profile_desc_t profile);
-//#endif
 
   /**
    * Service table update method. Propagate the update of the problem list up
@@ -146,13 +139,8 @@ interface Agent {
 
   /** Used to get the host name of the Agent */
   string getHostname() ;
-#if HAVE_DAGDA
   string getDataManager();
-#endif
-
-#ifdef HAVE_DAGDA
   SeqString searchData(in string request);
-#endif
 };
 
 

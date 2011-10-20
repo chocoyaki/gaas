@@ -24,10 +24,17 @@
 
 
 extern "C" {
-int service(diet_profile_t *pb);
-int addService();
-int removeService();
-const char * const serviceName();
+  int
+  service(diet_profile_t *pb);
+
+  int
+  addService();
+
+  int
+  removeService();
+
+  const char * const
+  serviceName();
 }
 
 #endif

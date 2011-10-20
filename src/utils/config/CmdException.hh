@@ -21,8 +21,8 @@
 #define _CMD_EXCEPTION_HH_
 
 #include <exception>
-#include <string>
 #include <sstream>
+#include <string>
 
 /**
  * @author hguemar <hguemar@sysfera.com>
@@ -30,7 +30,8 @@
  * @class CmdParserError
  * @brief Base class for all CmdParser exceptions
  */
-class CmdParserError : public std::exception {};
+class CmdParserError : public std::exception {
+};
 
 /**
  * @author hguemar <hguemar@sysfera.com>
@@ -38,46 +39,48 @@ class CmdParserError : public std::exception {};
  * @class CmdConfigError
  * @brief CmdParser ill-formed configuration
  */
-class CmdConfigError : public CmdParserError
-{
-private:
-    std::string diagnostic;
+class CmdConfigError : public CmdParserError {
 public:
-    CmdConfigError(const std::string& msg)
-	: diagnostic("Bad Options configuration") {}
-    
-    virtual ~CmdConfigError() throw() {}
+  explicit CmdConfigError(const std::string& msg)
+    : diagnostic("Bad Options configuration") {
+  }
 
-    virtual const char *what() const throw()
-    {
-	return diagnostic.c_str();
-    }
+  virtual ~CmdConfigError() throw() {
+  }
+
+  virtual const char *
+  what() const throw() {
+    return diagnostic.c_str();
+  }
+
+private:
+  std::string diagnostic;
 };
 
-    
+
 /**
  * @author hguemar <hguemar@sysfera.com>
  *
  * @class OptionNotFoundError
  * @brief Missing mandatory option
  */
-class OptionNotFoundError : public CmdParserError
-{ 
-private:
-    std::string diagnostic;
+class OptionNotFoundError : public CmdParserError {
 public:
-    OptionNotFoundError(const std::string& msg) 
-	: diagnostic("Option not found: ") 
-    {
-	diagnostic.append(msg);
-    }
-    
-    virtual ~OptionNotFoundError() throw() {}
-    
-    virtual const char *what() const throw()
-    {
-	return diagnostic.c_str();
-    }
+  explicit OptionNotFoundError(const std::string& msg)
+    : diagnostic("Option not found: ") {
+    diagnostic.append(msg);
+  }
+
+  virtual ~OptionNotFoundError() throw() {
+  }
+
+  virtual const char *
+  what() const throw() {
+    return diagnostic.c_str();
+  }
+
+private:
+  std::string diagnostic;
 };
 
 /**
@@ -86,22 +89,23 @@ public:
  * @class OptionNoArgumentsError
  * @brief Missing option parameter
  */
-class OptionNoArgumentsError : public CmdParserError
-{ 
-    std::string diagnostic;
+class OptionNoArgumentsError : public CmdParserError {
 public:
-    OptionNoArgumentsError(const std::string& name)
-    {
-	std::ostringstream ss(diagnostic);
-	ss << "Option " << name << "has no argument.";
-    }
-    
-    virtual ~OptionNoArgumentsError() throw() {};
-    
-    virtual const char *what() const throw()
-    {
-	return diagnostic.c_str();
-    }
+  explicit OptionNoArgumentsError(const std::string& name) {
+    std::ostringstream ss(diagnostic);
+    ss << "Option " << name << "has no argument.";
+  }
+
+  virtual ~OptionNoArgumentsError() throw() {
+  }
+
+  virtual const char *
+  what() const throw() {
+    return diagnostic.c_str();
+  }
+
+private:
+  std::string diagnostic;
 };
 
 
@@ -111,22 +115,23 @@ public:
  * @class ParameterNotFoundError
  * @brief Missing parameter
  */
-class ParameterNotFoundError : public CmdParserError
-{ 
-    std::string diagnostic;
+class ParameterNotFoundError : public CmdParserError {
 public:
-    ParameterNotFoundError(const std::string& msg) 
-	: diagnostic("Missing parameter: ")
-    {
-	diagnostic.append(msg);
-    }
-    
-    virtual ~ParameterNotFoundError() throw() {};
-    
-    virtual const char *what() const throw()
-    {
-	return diagnostic.c_str();
-    }
+  explicit ParameterNotFoundError(const std::string& msg)
+    : diagnostic("Missing parameter: ") {
+    diagnostic.append(msg);
+  }
+
+  virtual ~ParameterNotFoundError() throw() {
+  }
+
+  virtual const char *
+  what() const throw() {
+    return diagnostic.c_str();
+  }
+
+private:
+  std::string diagnostic;
 };
 
-#endif /* _OPTION_EXCEPTION_HH_ */
+#endif  /* _OPTION_EXCEPTION_HH_ */
