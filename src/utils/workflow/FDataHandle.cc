@@ -1315,7 +1315,7 @@ FDataHandle::freePersistentDataRec(MasterAgent_var& MA) {
   if (isDataIDDefined() && isDataIDOwner()) {
     TRACE_TEXT(TRACE_ALL_STEPS,
                "Deleting DH persistent data: " << getDataID() << "\n");
-    char *dataId = const_cast<char*>(getDataID().c_str());
+    const char *dataId = getDataID().c_str();
     if (MA->diet_free_pdata(dataId) == 0) {
       WARNING("Could not delete persistent data: " << dataId);
     }
