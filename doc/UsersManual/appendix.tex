@@ -160,16 +160,6 @@ checkpointing is possible.
 %%%% E
 
 %%%% F
-\item{\bf{fastUse}}
-  \begin{itemize}
-  \item Component: Agent and \sed
-  \item Mode: FAST
-  \item Type: Boolean
-  \item Description: If set to 0, all LDAP and NWS parameters are
-    ignored, and all requests to FAST are disabled (when \diet is compiled
-    with FAST). This is useful for testing a \diet platform without
-    deploying an LDAP base nor an NWS platform.
-  \end{itemize}
 
 %%%% G
 
@@ -200,32 +190,6 @@ checkpointing is possible.
 %%%% K
 
 %%%% L
-\item{\bf{ldapBase}}
-  \begin{itemize}
-  \item Component: Agent and \sed
-  \item Mode: FAST
-  \item Type: Address 
-  \item Description: <host:port> of the LDAP base that stores
-    FAST-known services.
-  \end{itemize}
-
-\item{\bf{ldapMask}}
-  \begin{itemize}
-  \item Component: Agent and \sed
-  \item Mode: FAST
-  \item Type: String
-  \item Description: the mask which is registered in the LDAP base.
-  \end{itemize}
-
-\item{\bf{ldapUse}}
-  \begin{itemize}
-  \item Component: Agent and \sed
-  \item Mode: FAST
-  \item Type: Boolean
-  \item Description: 0 tells FAST not to look for the services in an
-    LDAP base.
-  \end{itemize}
-
 \item{\bf{locationID}}
   \begin{itemize}
   \item Component: \sed
@@ -357,31 +321,6 @@ memory usage is set. Same effect than to choose 0.
   \item Type: String
   \item Description: A list of Master Agent that must be contacted to
     build a federation. The format is a list of host:port.
-  \end{itemize}
-
-\item{\bf{nwsForecaster}}
-  \begin{itemize}
-  \item Component: Agent and \sed
-  \item Mode: FAST
-  \item Type: Address
-  \item Description: NWS forecast module used by FAST.
-  \end{itemize}
-
-\item{\bf{nwsNameserver}}
-  \begin{itemize}
-  \item Component: Agent and \sed
-  \item Mode: FAST
-  \item Type: Address
-  \item Description: <host:port> of the NWS nameserver.
-  \end{itemize}
-
-\item{\bf{nwsUse}}
-  \begin{itemize}
-  \item Component: Agent and \sed
-  \item Mode: FAST
-  \item Type: Boolean
-  \item Description: 0 tells FAST not to use NWS for its comm times
-    forecasts.
   \end{itemize}
 
 %%%% O

@@ -342,56 +342,6 @@ change the default parameters if you do not encounter problems. The buffer
 options will be ignored if \texttt{useLogService} is set to 0.
 
 
-\subsubsection{FAST options}
-
-\noindent
-Currently, FAST is only used at the \sed-level, so these parameters will only
-have an effect in \sed configuration files.\\
-
-\noindent
-\texttt{fastUse} \ \ \emph{default}\texttt{ = 0}\\ This option activates the
-requests to FAST. It is ignored if \diet was compiled without FAST, and
-defaults to 0 otherwise.\\
-
-The following options are ignored if \diet was compiled without FAST or if
-\texttt{fastUse} is set to 0.
-
-\noindent
-\textbf{LDAP options}
-
-\noindent
-\texttt{ldapUse} \ \ \emph{default}\texttt{ = 0}\\ This option activates the
-use of LDAP in FAST requests.  Only \seds need to connect to the LDAP so the
-option is ignored at the agent-level.\\
-
-The following two options are ignored if \texttt{ldapUse} is set to 0.\\
-
-\noindent
-\texttt{ldapBase} \ \ \emph{default}\texttt{ = }\emph{none}\\ Specify the
-\texttt{host:port} address of the LDAP base where FAST gets the results of its
-benchmarks.\\
-
-\noindent
-\texttt{ldapMask} \ \ \emph{default}\texttt{ = }\emph{none}\\ Specify the mask
-used for requests to the LDAP base. It must match the one given in the
-\texttt{.ldif} file of the server that was added to the base.
-
-
-\noindent
-\textbf{NWS options}
-
-\noindent
-\texttt{nwsUse} \ \ \emph{default}\texttt{ = 0}\\ This option activates the use
-of NWS in FAST requests. If 0, FAST will use an internal sensor for the
-performance of the machine, but will not be able to evaluate communication
-times.\\
-
-The following option is ignored if \texttt{nwsUse} is set to 0.\\
-
-\noindent
-\texttt{nwsNameserver} \ \ \emph{default}\texttt{ = }\emph{none}\\ Specify the
-\texttt{host:port} address of the NWS name server.\\
-
 \noindent
 \textbf{Multi-MA options}
 
@@ -441,20 +391,7 @@ You can find the full set of \diet configuration file options in the chapter
 As shown in Section \ref{init}, the hierarchy is built from top to bottom:
 children register to their parent.
 
-Here is an example of a complete platform deployment. Let us assume that:
-
-\begin{itemize}
-\item \diet was compiled with FAST on all machines used,
-\item the LDAP server is launched on the machine \texttt{ldaphost} and listens
-  on the port 9000,
-\item the NWS name server is launched on the machine \texttt{nwshost} and
-  listens on the port 9001,
-\item the NWS forecaster is launched on the machine \texttt{nwshost} and
-  listens on the port 9002,
-\item the NWS sensors are launched on every machine we use.
-\end{itemize}
-
-
+Here is an example of a complete platform deployment.
 \subsubsection{Launching the MA}
 
 For such a platform, the MA configuration file could be:
@@ -468,10 +405,6 @@ For such a platform, the MA configuration file could be:
   \#traceLevel  &=&1                  &\# default\\
   \#dietPort    &=&<port>             &\# not needed\\
   \#dietHostname&=&<hostname|IP>      &\# not needed\\
-  fastUse       &=&1                  &\\
-  \#ldapUse     &=&0                  &\# default\\
-  nwsUse        &=&1                  &\\
-  nwsNameserver &=&nwshost:9001       &\\
   \#useLogService &=& 0               &\# default\\
   \#lsOutbuffersize &=& 0             &\# default\\
   \#lsFlushinterval &=& 10000           &\# default\\
@@ -506,10 +439,6 @@ For such a platform, an LA configuration file could be:
   \#traceLevel &=&1                 &\# default\\
   \#dietPort    &=&<port>             &\# not needed\\
   \#dietHostname&=&<hostname|IP>      &\# not needed\\
-  fastUse    &=&1                 &\\
-  \#ldapUse    &=&0                 &\# default\\
-  nwsUse     &=&1                 &\\
-  nwsNameserver&=&nwshost:9001      &\\
   \#useLogService &=& 0               &\# default\\
   \#lsOutbuffersize &=& 0             &\# default\\
   \#lsFlushinterval &=& 10000           &\# default\\
@@ -540,12 +469,6 @@ For such a platform, a \sed\ configuration file could be:
   \#traceLevel &=&1                 &\# default\\
   \#dietPort    &=&<port>             &\# not needed\\
   \#dietHostname&=&<hostname|IP>      &\# not needed\\
-  fastUse    &=&1                 &\\
-  ldapUse    &=&1                 &\\
-  ldapBase     &=&ldaphost:9000     &\\
-  ldapMask     &=&dc=LIP,dc=ens-lyon,dc=fr&\\
-  nwsUse     &=&1                 &\\
-  nwsNameserver&=&nwshost:9001      &\\
   \#useLogService &=& 0               &\# default\\
   \#lsOutbuffersize &=& 0             &\# default\\
   \#lsFlushinterval &=& 10000           &\# default\\

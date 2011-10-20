@@ -366,23 +366,6 @@ obtain the compilation of the desired extensions.
   details.
 
 \item
-  \verb+DIET_USE_CORI+ CoRI, which stands for COllector of Resource
-  Information, provides a framework for probing hardware and
-  performance information about the \sed. CoRI also yields a very
-  basic set of probing resources which are heavily dependent on the
-  system calls available for the considered platform.  When this
-  option is activated (disabled by default), the user can either
-  define new collectors or use existing collectors through CoRI's interface. 
-  CoRI thus
-  provides a possible tactical approach for tuning the performance of
-  your favorite plug-in scheduler.  Chapter~\ref{chapter:performance}
-  describes in more details CoRI and its possible usage within \diet.
-
-\item \verb+DIET_USE_DYNAMICS+ enables a mode in which you can dynamically
-  modify its shape using CORBA calls. See chapter \ref{ch:dynamic} for more
-  details about the option and how it works.
-
-\item
   \verb+DIET_USE_FD+ for activating Fault Detector.
 
 \item
@@ -466,7 +449,6 @@ looking the little summary proposed by cmake.  This summary should look like
 %%      [...]libomniORB4.so;[...]libomnithread.so;[...]libCOS4.so;[...]
 %%  - General options:
 %%    * Documentation: ON
-%%    * Dynamics Libraries: ON
 %%    * Examples: ON
 %%    * BLAS Examples: ON
 %%  - Options set:
@@ -496,12 +478,10 @@ looking the little summary proposed by cmake.  This summary should look like
 -- XXX   * OmniORB includes: /usr/include
 -- XXX   * OmniORB libraries: [...]libomniDynamic4.so;[...]libomniORB4.so;[...]libomnithread.so
 -- XXX - General options:
--- XXX   * Dynamics Libraries: ON
 -- XXX   * Examples: ON
 -- XXX   * BLAS Examples: ON
 -- XXX - Options set:
 -- XXX   * Batch: ON
--- XXX   * CORI: ON
 -- XXX   * Statistics: ON
 -- XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 [...]

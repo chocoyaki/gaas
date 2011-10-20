@@ -124,11 +124,8 @@
 \diet~\cite{Caron:2006gf} is built upon \emph{Server Daemons}. The process of
 scheduling the requests is distributed amongst a hierarchy of \emph{Local
 Agents} and \emph{Master Agents}. The scheduler can use resource availability
-information collected from three different tools: from NWS~\cite{WSH99} sensors
-which are placed on every node of the hierarchy, from the application-centric
-performance prediction tool \textsc{FAST} \cite{Qui02}, which relies on NWS
-information, or from CoRI Easy, which is based on simple system calls and some
-basic performance tests (see
+information collected from different tools like CoRI Easy, which is based on 
+simple system calls and some basic performance tests (see
 Chapter~\ref{chapter:performance}). Figure~\ref{fig:platform} shows the
 hierarchical organization of \diet.
 
@@ -178,7 +175,7 @@ following:
   the number of resources available. When it registers, a \sed declares the
   problems it can solve to its parent LA or MA.  A \sed can give perfomance and
   hardware information by using the CoRI module or performance predictions for
-  some types of problems by using the FAST module.  Both modules are described
+  some types of problems by using the CoRI module.  Both modules are described
   in Chapter~\ref{chapter:performance}.
 
 \end{description}
@@ -295,16 +292,6 @@ will forward the request to other MAs of the federation. To read more about
 multi-MA, see Chapter~\ref{ch:multiMAextension} and
 Chapter~\ref{ch:p2pextension}.
 
-%====[ FAST ]==============================================================
-\subsection{FAST}
-\label{sub:fast}
-
-Fast Agent's System Timer (FAST)~\cite{Qui02} is a tool for dynamic performance
-forecasting in a Grid environment.  When \diet is compiled with the appropriate
-options and FAST has been configured on the \sed machine, {\sed}s can access
-FAST to obtain dynamic performance predictions.  See
-Chapter~\ref{chapter:performance} for details on using FAST.
-
 %====[ CoRI ]==============================================================
 \subsection{CoRI}
 \label{sub:cori}
@@ -312,7 +299,7 @@ Chapter~\ref{chapter:performance} for details on using FAST.
 Collector of Resource Information (CoRI) is a manager for collecting hardware
 and performance information.  When \diet is compiled with the appropriate
 option, it is possible to get this information via different sub-modules like
-FAST* or CoRI-Easy. (* if compiled and configured on the \sed machine). See
+ CoRI-Easy. (* if compiled and configured on the \sed machine). See
 Chapter~\ref{chapter:performance} for details on using CoRI.
 
 %%%%%%%%%%%%%%%
