@@ -59,7 +59,6 @@ TARGET_LINK_LIBRARIES (maDagAgent
   UtilsWf
   CorbaCommon
   DIET_Utils
-  ${UUID_LIB}
   ${XQILLA_LIBRARY}
   ${XERCES_LIBRARY}
   ${OMNIORB4_LIBRARIES}

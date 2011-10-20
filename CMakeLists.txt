@@ -300,10 +300,6 @@ if (DIET_USE_USERSCHED)
 endif(DIET_USE_USERSCHED)
 
 # --------------- Dagda as data manager support ---------------
-find_package(UUID)
-if (NOT UUID_FOUND)
-  message(WARNING "UUID lib was not found. DIET will use unsafe data names. Please provide a valid path to uuid installation and/or install e2fstools")
-endif (NOT UUID_FOUND)
 if (DIET_TRANSFER_PROGRESSION)
   add_definitions(-DDAGDA_PROGRESSION)
 endif (DIET_TRANSFER_PROGRESSION)

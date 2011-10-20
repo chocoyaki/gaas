@@ -278,12 +278,10 @@ Cmake/FindLOGSERVICE.cmake
 Cmake/FindOmniORB.cmake
 Cmake/FindPackageHandleStandardArgs.cmake
 Cmake/FindTestingUtils.cmake
-Cmake/FindUUID.cmake
 Cmake/FindXQilla.cmake
 Cmake/FindXerces.cmake
 Cmake/Makefile.inc.in
 Cmake/README
-Cmake/libuuid_test.cc.in
 Cmake/xercesv.cc.in
 Cmake/Ctest/CMakeLists.txt
 Cmake/Ctest/CTestCustom.ctest.in

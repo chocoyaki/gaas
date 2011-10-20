@@ -36,7 +36,6 @@ set(DAGDA_Libs
   CorbaCommon
   UtilsNodes
   DIET_Utils
-  ${UUID_LIB}
   pthread
   ${OMNIORB4_LIBRARIES}
 )
@@ -50,7 +49,6 @@ endif (DIET_USE_LOG)
 if (CYGWIN)
   set(DAGDA_Libs
     ${DAGDA_Libs}
-    /lib/e2fsprogs/libuuid.a
   )
 endif (CYGWIN)
 

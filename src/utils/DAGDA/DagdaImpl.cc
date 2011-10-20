@@ -112,6 +112,10 @@
 #include <sstream>
 #include <iterator>
 
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_io.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+
 #include "Dagda.hh"
 #include "common_types.hh"
 
@@ -128,9 +132,6 @@
 #include "Transfers.hh"
 #endif
 
-#if HAVE_ADVANCED_UUID
-#include <uuid/uuid.h>
-#endif
 
 /**  FNM_CASEFOLD for AIX (available only in AIX 5.1 or later). */
 #if __aix__
@@ -220,6 +221,8 @@ DagdaImpl::writeFile(const SeqChar& data, const char* basename,
 
 std::string
 gen_filename(std::string basename) {
+  static boost::uuids::random_generator uuid_rg;
+
   unsigned long int idx = basename.find_last_of('/');
   if (idx != std::string::npos) {
     basename = basename.substr(idx+1);
@@ -231,17 +234,10 @@ gen_filename(std::string basename) {
     basename = basename.substr(0, dot);
   }
   std::ostringstream name;
-#if HAVE_ADVANCED_UUID
-  uuid_t uuid;
-  char ID[37];
+  boost::uuids::uuid uuid = uuid_rg();
 
-  uuid_generate(uuid);
-  uuid_unparse(uuid, ID);
+  name << basename << "-" << uuid << suffix;
 
-  name << basename << "-" << ID << suffix;
-#else
-  name << basename << "." << getpid() << suffix;
-#endif
   return name.str();
 }
 

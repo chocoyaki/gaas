@@ -102,6 +102,7 @@
 #ifndef _MASTERAGENTIMPL_HH_
 #define _MASTERAGENTIMPL_HH_
 
+#include <boost/uuid/uuid_generators.hpp>
 #include "MasterAgent.hh"
 #include "AgentImpl.hh"
 #include "LinkedList.hh"
@@ -266,6 +267,8 @@ private:
   void
   logNeighbors();
 #endif  // HAVE_MULTI_MA
+  boost::uuids::random_generator uuid_rg;
+
   void
   cp_arg_to_pb(corba_data_desc_t& pb, corba_data_desc_t arg_desc);
 };  // MasterAgentImpl

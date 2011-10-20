@@ -14,7 +14,6 @@ include_directories(
   ${DIET_SOURCE_DIR}/src/agent
   ${DIET_SOURCE_DIR}/src/utils/config
   ${DIET_SOURCE_DIR}/src/utils/DAGDA
-  ${UUID_PATH}
 )
 
 
@@ -63,7 +62,6 @@ add_dependencies(DIET_client CORBAFiles)
 # library), otherwise it won't work on APPLE.
   set(DIET_client_Libs
     ${DIET_client_Libs}
-    ${UUID_LIB}
     DIET_Dagda
   )
 
@@ -93,7 +91,6 @@ endif ( DIET_USE_WORKFLOW )
 
 set(DIET_client_Libs
   ${DIET_client_Libs}
-  ${UUID_LIB}
   DIET_Dagda
   )
 

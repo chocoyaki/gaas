@@ -270,12 +270,12 @@
  ****************************************************************************/
 
 
-#include <iostream>
 #include <cstdio>
+#include <iostream>
 
-#if HAVE_ADVANCED_UUID
-#include <uuid/uuid.h>
-#endif
+#include <boost/format.hpp>
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_io.hpp>
 
 #include "configuration.hh"
 #include "MasterAgentImpl.hh"
@@ -403,8 +403,7 @@ MasterAgentImpl::run() {
   catalog = new MapDagdaCatalog();
 
   return 0;
-} // run(char* configFileName)
-
+}
 
 
 /**
@@ -412,24 +411,12 @@ MasterAgentImpl::run() {
  */
 char *
 MasterAgentImpl::get_data_id() {
-#if ! HAVE_ADVANCED_UUID
-  char id[100];
-  (this->num_data)++;
-  sprintf(id, "DAGDA://id.%s.%d.%d", myName,(int)(num_session), (int)(num_data));
-  return CORBA::string_dup(id);
-#else /* ! HAVE_ADVANCED_UUID */
-  uuid_t uuid;
-  char ID[37];
-  std::string id("DAGDA://id-");
+  boost::format id("DAGDA://id-%1%-%2%");
+  boost::uuids::uuid uuid = uuid_rg();
+  id % uuid % myName;
 
-  uuid_generate(uuid);
-  uuid_unparse(uuid, ID);
-  id += ID;
-  id += "-";
-  id += myName;
-  return CORBA::string_dup(id.c_str());
-#endif /* ! HAVE_ADVANCED_UUID */
-} // get_data_id()
+  return CORBA::string_dup(id.str().c_str());
+}
 
 /****************************************************************************/
 /* Available Service                                                        */

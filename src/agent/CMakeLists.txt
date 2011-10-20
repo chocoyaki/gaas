@@ -11,7 +11,6 @@ include_directories(
   ${DIET_SOURCE_DIR}/src/SeD	# for SeDImpl.hh from Cori_Metric
   ${DIET_SOURCE_DIR}/src/utils/config
   ${DIET_SOURCE_DIR}/src/utils/DAGDA
-  ${UUID_PATH}
   )
 
 if (DIET_USE_ALT_BATCH)
@@ -66,7 +65,6 @@ add_dependencies(AgentCommon CORBAFiles)
 
 set(dietAgent_Libs
   ${dietAgent_Libs}
-  ${UUID_LIB}
   DIET_Dagda
   )
 	

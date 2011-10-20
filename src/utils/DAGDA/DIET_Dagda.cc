@@ -85,14 +85,13 @@
  *
  *
  ************************************************************/
-#include <string>
-#include <sstream>
 #include <iostream>
 #include <map>
-
-#if HAVE_ADVANCED_UUID
-#include <uuid/uuid.h>
-#endif
+#include <sstream>
+#include <string>
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_io.hpp>
+#include <boost/uuid/uuid_generators.hpp>
 
 #include "DIET_Dagda.hh"
 #include "DagdaFactory.hh"
@@ -535,38 +534,21 @@ dagda_reset() {
 
 // Returns an new ID
 // DAGDA should use the uuid library to avoid id's conflicts.
-char * get_data_id()
-{
+char *
+get_data_id() {
+  static boost::uuids::random_generator uuid_rg;
   SimpleDagdaImpl* localManager = (SimpleDagdaImpl*) DagdaFactory::getDataManager();
-#if ! HAVE_ADVANCED_UUID
-  static int num_data = 0;
   ostringstream id;
+  boost::uuids::uuid uuid = uuid_rg();
   char* name = localManager->getID();
 
   if (name != NULL) {
-    id << "DAGDA://id." << name << "." << getpid() << "." << num_data++;
+    id << "DAGDA://id-" << uuid << "-" << name;
     CORBA::string_free(name);
   } else
-    id << "DAGDA://id." << "client." << getpid() << "." << num_data++;
+    id << "DAGDA://id-" << uuid << "-client-" << getpid();
 
   return CORBA::string_dup(id.str().c_str());
-#else
-  uuid_t uuid;
-  char ID[37];
-  ostringstream id;
-  char* name = localManager->getID();
-
-  uuid_generate(uuid);
-  uuid_unparse(uuid, ID);
-
-  if (name != NULL) {
-    id << "DAGDA://id-" << ID << "-" << name;
-    CORBA::string_free(name);
-  } else
-    id << "DAGDA://id-" << ID << "-client-" << getpid();
-
-  return CORBA::string_dup(id.str().c_str());
-#endif
 }
 
 MasterAgent_var getMasterAgent() {

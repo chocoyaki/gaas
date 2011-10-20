@@ -40,7 +40,7 @@ if (DIET_USE_LOG)
     ${DIET_SOURCE_DIR}/src/utils/log)
 endif (DIET_USE_LOG)
 
-include_directories(${DIET_SOURCE_DIR}/src/utils/DAGDA ${UUID_PATH})
+include_directories(${DIET_SOURCE_DIR}/src/utils/DAGDA)
 
 
 add_library(DIET_SeD ${DIET_SeD_SOURCES})
@@ -55,7 +55,6 @@ add_dependencies(DIET_SeD CORBAFiles)
 # library), otherwise it won't work on APPLE.
 set(DIET_SeD_Libs
   ${DIET_SeD_Libs}
-  ${UUID_LIB}
   DIET_Dagda
   )
 

@@ -104,7 +104,6 @@ add_dependencies(LibForwarder CORBAFiles)
 
 set(Forwarder_Libs
   ${Forwarder_Libs}
-  ${UUID_LIB}
   DIET_Dagda
   )
 
