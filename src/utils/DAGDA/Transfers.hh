@@ -52,7 +52,9 @@ private:
   static Transfers* instance;
   unsigned long long msgSize;
   std::map<std::string, struct transfer_t> progress;
-  void incProgress(const std::string& id);
+
+  void
+  incProgress(const std::string& id);
 
   friend char*
   DagdaImpl::sendFile(const corba_data_t&, const char* destName);
