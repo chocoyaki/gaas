@@ -53,19 +53,19 @@
  *
  * Revision 1.7 2006/01/25 20:55:37 pfrauenk
  * CoRI : printing approved
- * 
+ *
  * Revision 1.6 2006/01/19 21:45:55 pfrauenk
  * CoRI : small bugs fixed - Cori in FAST-Mode now with EST_COMMTIME
- * 
+ *
  * Revision 1.5 2006/01/15 15:37:07 pfrauenk
  * CoRI: debug.hh is used now, cleanup, minor changes
- * 
+ *
  * Revision 1.4 2005/12/20 21:53:28 pfrauenk
  * CoRI print function improved
  *
  * Revision 1.3 2005/12/16 07:31:34 pfrauenk
  * CoRI bug fixes
- * 
+ *
  * Revision 1.2 2005/12/15 14:00:37 pfrauenk
  * Cori fixes
  *
@@ -83,7 +83,7 @@
 #include <string>
 #include <cmath>
 
- 
+
 using namespace std;
 
 void
@@ -91,26 +91,26 @@ print_Metric(estVector_t vector_v, int type_Info){
 
   double errorCode = 0;
   switch (type_Info){
-  
+
   case EST_ALLINFOS:
     break;
-  case EST_CPUSPEED: 
+  case EST_CPUSPEED:
     for (int i = 0; i<diet_est_array_size_internal(vector_v, EST_CPUSPEED);i++)
       cout << "CPU "<<i<<" frequence : "<< diet_est_array_get_internal(vector_v, EST_CPUSPEED, i, errorCode)<<" Mhz"<< endl;
     break;
   case EST_CACHECPU:
     for (int i = 0; i<diet_est_array_size_internal(vector_v, EST_CACHECPU);i++)
       cout << "CPU "<<i<<" cache : "<< diet_est_array_get_internal(vector_v, EST_CACHECPU, i, errorCode)<<" Kb"<< endl;
-    break;      
+    break;
   case EST_BOGOMIPS:
     for (int i = 0; i<diet_est_array_size_internal(vector_v, EST_BOGOMIPS);i++)
       cout << "CPU "<<i<<" Bogomips : "<< diet_est_array_get_internal(vector_v, EST_BOGOMIPS, i, errorCode)<< endl;
-    break;   
-  case EST_AVGFREECPU:  
+    break;
+  case EST_AVGFREECPU:
     cout << "cpu average load : "<<diet_est_get_internal(vector_v, EST_AVGFREECPU, errorCode)<<endl;
     break;
   case EST_NBCPU:
-    cout << "number of processors : " << diet_est_get_internal(vector_v, EST_NBCPU, errorCode)<< endl;     
+    cout << "number of processors : " << diet_est_get_internal(vector_v, EST_NBCPU, errorCode)<< endl;
     break;
   case EST_DISKACCESREAD:
     cout << "diskspeed in reading : "<<diet_est_get_internal(vector_v, EST_DISKACCESREAD, errorCode)<<" Mbyte/s"<<endl;
@@ -118,24 +118,24 @@ print_Metric(estVector_t vector_v, int type_Info){
   case EST_DISKACCESWRITE:
     cout << "diskspeed in writing : "<<diet_est_get_internal(vector_v, EST_DISKACCESWRITE, errorCode)<<" Mbyte/s"<<endl;
     break;
-  case EST_TOTALSIZEDISK: 
+  case EST_TOTALSIZEDISK:
     cout << "total disk size : " << diet_est_get_internal(vector_v, EST_TOTALSIZEDISK, errorCode)<<" Mb" << endl;
     break;
   case EST_FREESIZEDISK:
     cout <<     "available disk size  :"<<diet_est_get_internal(vector_v, EST_FREESIZEDISK, errorCode)<<" Mb"<<endl;
     break;
-  case EST_TOTALMEM: 
+  case EST_TOTALMEM:
     cout << "total memory : "<< diet_est_get_internal(vector_v, EST_TOTALMEM, errorCode)<<" Mb" << endl;
     break;
   case EST_FREEMEM:
     cout << "available memory : "<<diet_est_get_internal(vector_v, EST_FREEMEM, errorCode)<<" Mb" <<endl;
     break;
-  case EST_FREECPU: 
+  case EST_FREECPU:
     cout << "free cpu: "<<diet_est_get_internal(vector_v, EST_FREECPU, errorCode)<<endl;
     break;
   default: {
     INTERNAL_WARNING("CoRI: Tag " <<type_Info <<" for printing info");
-  }     
+  }
   }
 }
 Cori_Data_Easy::Cori_Data_Easy(){
@@ -144,8 +144,8 @@ Cori_Data_Easy::Cori_Data_Easy(){
   //    disk = new Cori_Easy_Disk();
 }
 
-int 
-Cori_Data_Easy::get_Information(int type_Info,       
+int
+Cori_Data_Easy::get_Information(int type_Info,
                                 estVector_t* info,
                                 const void * data){
   const char * path;
@@ -155,7 +155,7 @@ Cori_Data_Easy::get_Information(int type_Info,
   int minut;
   const char * tmp="./";
   switch (type_Info){
- 
+
   case EST_ALLINFOS:{
     minut = 15;
     res = get_Information(EST_CPUSPEED, info, NULL)||res;
@@ -168,15 +168,16 @@ Cori_Data_Easy::get_Information(int type_Info,
     res = get_Information(EST_TOTALSIZEDISK, info, tmp)||res;
     res = get_Information(EST_FREESIZEDISK, info, tmp)||res;
     res = get_Information(EST_TOTALMEM, info, NULL)||res;
-    res = get_Information(EST_FREEMEM, info, NULL)||res; 
+    res = get_Information(EST_FREEMEM, info, NULL)||res;
     //set all other TAGS to bad values
     diet_est_set_internal(*info, EST_TCOMP, HUGE_VAL);
+    break;
   }
   case EST_CPUSPEED:
-    res =cpu->get_CPU_Frequence(&vect); 
+    res =cpu->get_CPU_Frequence(&vect);
     convertArray(vect, info, type_Info);
     break;
-  case EST_AVGFREECPU:  
+  case EST_AVGFREECPU:
     if (data == NULL){
       minut = 15;
     }
@@ -197,11 +198,11 @@ Cori_Data_Easy::get_Information(int type_Info,
     res = cpu->get_CPU_Bogomips(&vect);
     convertArray(vect, info, type_Info);
     break;
-  case EST_DISKACCESREAD: 
+  case EST_DISKACCESREAD:
     if (data == NULL)
       path="./";
     else
-      path= (char *) data;        
+      path= (char *) data;
     res = disk->get_Read_Speed(path, &temp);
     convertSimple(temp, info, type_Info);
     break;
@@ -209,15 +210,15 @@ Cori_Data_Easy::get_Information(int type_Info,
     if (data == NULL)
       path="./";
     else
-      path=(char *) data;       
+      path=(char *) data;
     res = disk->get_Write_Speed(path, &temp);
     convertSimple(temp, info, type_Info);
     break;
-  case EST_TOTALSIZEDISK: 
+  case EST_TOTALSIZEDISK:
     if (data == NULL)
       path="./";
     else
-      path= (char *) data;        
+      path= (char *) data;
     res = disk->get_Total_DiskSpace(path,&temp);
     convertSimple(temp, info, type_Info);
     break;
@@ -225,7 +226,7 @@ Cori_Data_Easy::get_Information(int type_Info,
     if (data == NULL)
       path="./";
     else
-      path= (char *) data;        
+      path= (char *) data;
     res = disk->get_Available_DiskSpace(path,&temp);
     convertSimple(temp, info, type_Info);
     break;
@@ -233,7 +234,7 @@ Cori_Data_Easy::get_Information(int type_Info,
     res = memory->get_Total_Memory(&temp);
     convertSimple(temp, info, type_Info);
     break;
-  case EST_FREEMEM: 
+  case EST_FREEMEM:
     res = memory->get_Avail_Memory(&temp);
     convertSimple(temp, info, type_Info);
     break;
@@ -250,7 +251,7 @@ Cori_Data_Easy::get_Information(int type_Info,
   }
   }
   if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-    print_Metric(*info, type_Info); 
+    print_Metric(*info, type_Info);
   return res;
 }
 
@@ -259,7 +260,7 @@ Cori_Data_Easy::get_Information(int type_Info,
 /****************************************************************************/
 
 
-int  
+int
 Cori_Data_Easy::convertArray(vector <double> vect,
                              estVector_t * estvect,
                              int typeOfInfo){
@@ -268,13 +269,13 @@ Cori_Data_Easy::convertArray(vector <double> vect,
   int i = 0;
   while (iter1 != vect.end()) {
     diet_est_array_set_internal(*estvect, typeOfInfo, i,*iter1);
-    i++; 
+    i++;
     ++iter1;
   }
   return 0;
 }
 
-int  
+int
 Cori_Data_Easy::convertSimple(double value,
                               estVector_t * estvect,
                               int typeOfInfo){
