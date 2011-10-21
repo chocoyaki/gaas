@@ -737,15 +737,18 @@
    \mainpage
 
    Here is the documentation of the DIET API.
-   It is composed of :
+   It is composed of:
    \arg DIET_client.h : the DIET Client API allowing users to access the DIET
    middleware and the services made available through the DIET middleware
-   \arg DIET_server.h : the DIET Server API allowing programers to make
-   applications as services
-   available for clients through the DIET middleware
-   \arg DIET_data.h : the Data API allowing the users and the server
+   \arg DIET_server.h: the DIET Server API allowing programmers to make
+   applications as services available for clients through the DIET middleware
+   \arg DIET_admin.h: the DIET administration API allowing programmers
+   dynamically change the shape of the DIET hierarchy
+   \arg DIET_data.h: the Data API allowing the users and the server
    programmers to set and get data to/from clients and servers programs.
-   \arg DIET_grpc.h : the GRPC API compliant with the GridRPC paradigm of
+   \arg DIET_Dagda.h: the DAGDA API allowing the programmers to directly
+   manage their data.
+   \arg DIET_grpc.h: the GRPC API compliant with the GridRPC paradigm of
    defined by the Grid RPC working group of the Open Grid Forum.
 */
 
