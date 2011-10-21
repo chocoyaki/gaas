@@ -244,9 +244,12 @@ gen_filename(std::string basename) {
 std::string
 conditional_filename(std::string basename) {
   unsigned long int idx = basename.find_last_of('/');
-  if (idx != std::string::npos)
+  if (idx != std::string::npos) {
     basename = basename.substr(idx+1);
+  }
 
+  // NOTE: should be ok with boost uuid since uuids are
+  // standardized by RFC 4122 (http://tools.ietf.org/html/rfc4122)
   if (fnmatch("*-????????""-????""-????""-????????????*",
               basename.c_str(), FNM_CASEFOLD)==0) {
     return basename;

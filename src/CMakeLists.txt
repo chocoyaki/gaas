@@ -23,6 +23,8 @@ macro(corba_headers arg1)
   set(${arg1} ${res})
 endmacro(corba_headers)
 
+include_directories(${Boost_INCLUDE_DIRS})
+
 add_subdirectory(CORBA/idl)
 
 add_subdirectory(utils)

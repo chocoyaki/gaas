@@ -11,13 +11,14 @@ if( BUILD_TESTING )
   # flags are set for in Debug mode.
   SET(CMAKE_BUILD_TYPE "Release")
 
-  find_package( Boost 1.44.0 COMPONENTS 
+  find_package(Boost 1.46.1 COMPONENTS
     unit_test_framework
     filesystem
-    system 
-    thread REQUIRED )
-  set( Boost_MULTITHREADED OFF )
+    system
+    thread REQUIRED)
+  set(Boost_MULTITHREADED OFF)
   add_definitions(-DBOOST_FILESYSTEM_VERSION=3)
+
   #find_package( GTest REQUIRED )
   include( tests/DietTestingMacros )
 
