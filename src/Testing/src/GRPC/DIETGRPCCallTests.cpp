@@ -1,3 +1,4 @@
+#include <cstring>
 #include <boost/scoped_ptr.hpp>
 
 #include <DIET_client.h>
@@ -7,7 +8,7 @@
 #include "utils.hpp"
 #include "configGRPC.hpp"
 
-BOOST_FIXTURE_TEST_SUITE( GRPCCallTests, 
+BOOST_FIXTURE_TEST_SUITE( GRPCCallTests,
 			  GRPCSeDFixture )
 
 
@@ -24,11 +25,12 @@ BOOST_AUTO_TEST_CASE( call_test_1 )
   grpc_error_t err = GRPC_NO_ERROR;
   int x = 3, y = 0;
   utils::ClientArgs c("call_test_1", "client_testing.cfg");
-	
+
   err = grpc_initialize(c.config());
   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
-  err = grpc_function_handle_default(&handle, func_list[0]);
+  boost::scoped_ptr<char> func_name(strdup(func_list[0]));
+  err = grpc_function_handle_default(&handle, func_name.get());
   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
   err = grpc_call(&handle, x, &y);
@@ -58,7 +60,7 @@ BOOST_AUTO_TEST_CASE( call_test_2 )
   err = grpc_call(&handle, x, &y);
   BOOST_CHECK_EQUAL( err, GRPC_NOT_INITIALIZED );
 }
- 
+
 
 /*
  * Call grpc_call_async() with an initialized handle and valid
@@ -75,11 +77,12 @@ BOOST_AUTO_TEST_CASE( call_test_3 )
   int x = 3, y = 0;
 
   utils::ClientArgs c("call_test_3", "client_testing.cfg");
-	
+
   err = grpc_initialize(c.config());
   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
-  err = grpc_function_handle_default(&handle, func_list[0]);
+  boost::scoped_ptr<char> func_name(strdup(func_list[0]));
+  err = grpc_function_handle_default(&handle, func_name);
   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
   err = grpc_call_async(&handle, &id, x, &y);
@@ -97,7 +100,7 @@ BOOST_AUTO_TEST_CASE( call_test_3 )
 }
 
 
-/* 
+/*
  * Call grpc_call_async() before calling grpc_initialize(),
  * checking GRPC_NOT_INITIALIZED returned.
  */
