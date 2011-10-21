@@ -44,42 +44,118 @@ extern "C" {
 
   /* If we don't know the type of the data to download. */
 #define DIET_UNKNOWN_TYPE DIET_DATA_TYPE_COUNT
-  /* To add a data to the platform. */
+  /**
+   * @brief add a data to the platform
+   *
+   * @param value value to be stored
+   * @param type diet data type
+   * @param base_type basic data type
+   * @param mode persistence mode
+   * @param nb_r
+   * @param nb_c
+   * @param order
+   * @param path
+   * @param ID return data ID
+   *
+   * @return  0 (success), 1 (failure)
+   */
   int
   dagda_put_data(void* value, diet_data_type_t type,
                  diet_base_type_t base_type, diet_persistence_mode_t mode,
                  size_t nb_r, size_t nb_c, diet_matrix_order_t order,
                  char* path, char** ID);
 
-  /* To get a data from the platform. */
+  /**
+   * @brief get a data from platform
+   *
+   * @param dataID ID of the data to be retrieved
+   * @param value return data value
+   * @param type diet data type
+   * @param base_type basic data type
+   * @param nb_r
+   * @param nb_c
+   * @param order
+   * @param path
+   *
+   * @return 0 (success), 1 (failure)
+   */
   int
   dagda_get_data(const char* dataID, void** value,
                  diet_data_type_t type, diet_base_type_t* base_type,
                  size_t* nb_r, size_t* nb_c,
                  diet_matrix_order_t* order, char** path);
 
-  /* To remove a data from the platform */
+  /**
+   * @brief remove a data from the platform
+   * @param dataID ID of the data to be removed
+   *
+   * @return 0 (success)
+   */
   int
   dagda_delete_data(char* dataID);
 
-  /* Asynchronous versions. */
-  /* Put a data. Return the thread ID. */
+  /**
+   * @brief add a data to the platform (asynchronous)
+   *
+   * @param value value to be stored
+   * @param type diet data type
+   * @param base_type basic data type
+   * @param mode persistence mode
+   * @param nb_r
+   * @param nb_c
+   * @param order
+   * @param path
+   * @param ID return data ID
+   *
+   * @return thread ID
+   */
   unsigned int
   dagda_put_data_async(void* value, diet_data_type_t type,
                        diet_base_type_t base_type, diet_persistence_mode_t mode,
                        size_t nb_r, size_t nb_c,
                        diet_matrix_order_t order, char* path);
 
-  /* Get a data. Return the thread ID. */
+  /**
+   * @brief get a data from platform (asynchronous)
+   *
+   * @param dataID ID of the data to be retrieved
+   * @param value return data value
+   * @param type diet data type
+   * @param base_type basic data type
+   * @param nb_r
+   * @param nb_c
+   * @param order
+   * @param path
+   *
+   * @return thread ID
+   */
   unsigned int
   dagda_get_data_async(char* ID, diet_data_type_t type);
 
   /* Wait functions. */
-  /* Wait for the end of a data transfer from here. */
+  /**
+   * @brief wait for the end of data transfer (put)
+   * @param threadID thread ID of the transfer
+   * @param ID return ID of the data transferred
+   *
+   * @return
+   */
   int
   dagda_wait_put(unsigned int threadID, char** ID);
 
-  /* Wait for the end of a data transfer to here. */
+  /**
+   * @brief wait for the end of data transfer (get)
+   *
+   * @param threadID thread ID of the transfer
+   * @param value data to be returned
+   * @param base_type basic data type
+   * @param nb_r
+   * @param nb_c
+   * @param order
+   * @param path
+   *
+   * @return
+   */
   int
   dagda_wait_get(unsigned int threadID, void** value,
                  diet_base_type_t* base_type, size_t* nb_r,
