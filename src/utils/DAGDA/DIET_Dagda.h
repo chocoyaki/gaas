@@ -161,72 +161,164 @@ extern "C" {
                  diet_base_type_t* base_type, size_t* nb_r,
                  size_t* nb_c, diet_matrix_order_t* order, char** path);
 
-  /* Add a data asynchronously without waiting possibility. */
   /* As is, this function does not make sense. Should be modified later
      to return the ID immediately. */
+  /**
+   * @brief add data asynchronously without waiting
+   *
+   * @param value value to be added
+   * @param type diet data type
+   * @param base_type basic data type
+   * @param mode persistence mode
+   * @param nb_r
+   * @param nb_c
+   * @param order
+   * @param path
+   *
+   * @return 0 (success)
+   */
   int
   dagda_add_data(void* value, diet_data_type_t type,
                  diet_base_type_t base_type, diet_persistence_mode_t mode,
                  size_t nb_r, size_t nb_c,
                  diet_matrix_order_t order, char* path);
 
-  /* Load a data asynchronously on this data manager without waiting
-     possibility. */
+  /**
+   * @brief load data asynchronously without wait
+   *
+   * @param ID ID of the data to be loaded
+   * @param type diet data type
+   *
+   * @return 0 (success)
+   */
   int
   dagda_load_data(char* ID, diet_data_type_t type);
 
-  /* Asks to the nodes to save their data on checkpoint file. */
+  /**
+   * @brief ask node to save data on checkpoint file
+   *
+   * @return 0 (success), 1 (failure)
+   */
   int
   dagda_save_platform();
 
-  /* Creates a data alias. */
+  /**
+   * @brief create a data alias
+   *
+   * @param id
+   * @param alias
+   *
+   * @return 1 (failure)
+   */
   int
   dagda_data_alias(const char* id, const char* alias);
 
-  /* Get the id of a data from its alias. */
+  /**
+   * @brief get data ID from its alias
+   *
+   * @param alias alias of the data
+   * @param id return the ID of the data
+   *
+   * @return 0 (success), 1 (failure)
+   */
   int
   dagda_id_from_alias(const char* alias, char** id);
 
-  /* Data replication following a wildcard rule. */
+  /**
+   * @brief replicate data according a wildcard
+   *
+   * @param id ID of the data to be replicate
+   * @param rule wildcard rule
+   *
+   * @return 0 (success), 1 (failure)
+   */
   int
   dagda_replicate_data(const char* id, const char* rule);
 
-  /* Create a container */
+  /**
+   * @brief create a container
+   *
+   * @param ID return ID of the container
+   *
+   * @return
+   */
   int
   dagda_create_container(char** ID);
 
-  /* Initialize a container (ID already defined) */
+  /**
+   * @brief initialize a container (ID already defined)
+   *
+   * @param profile_data
+   *
+   * @return 0 (success)
+   */
   int
   dagda_init_container(diet_data_t* profile_data);
 
-  /* Add an element to a container *
-   * The container must be either created or initialized before, so that
-   * it is declared on the local dagda manager */
+  /**
+   * @brief add an element to a container
+   * (the container must be either created/initialized before
+   *  before it is registered in the local DAGDA manager)
+   *
+   * @param idContainer
+   * @param idElement
+   * @param index
+   *
+   * @return 0 (success), 1 (failure)
+   */
   int
   dagda_add_container_element(const char* idContainer, const char* idElement,
                               int index);
 
-  /* Add an empty slot to a container (replaces an element)
+  /**
+   * @brief add an empty slot to a container (replaces an element)
    * The container must be either created or initialized before, so that
-   * it is declared on the local dagda manager */
+   * it is declared on the local dagda manager
+   *
+   * @param idContainer container ID
+   * @param index index
+   *
+   * @return
+   */
   int
   dagda_add_container_null_element(const char* idContainer, int index);
 
-  /* Get all IDs of the elements of a container *
+  /**
+   * @brief Get all IDs of the elements of a container
    * The container must be either created or initialized before, so that
-   * it is declared on the local dagda manager */
+   * it is declared on the local dagda manager
+   *
+   * @param idContainer
+   * @param content
+   *
+   * @return  0 (success), 1 (failure)
+   */
   int
   dagda_get_container_elements(const char* idContainer,
                                diet_container_t* content);
 
+  /**
+   * @brief get download progress
+   *
+   * @param dataId ID of the data transferred
+   *
+   * @return progress
+   */
   double
   dagda_get_progress(const char* dataId);
 
+  /**
+   *
+   *
+   * @param transferId
+   */
   void
   dagda_rem_progress(const char* transferId);
 
-  /* Used to reset internal variables
-     (used for successive diet_initialize/diet_finalize) */
+  /**
+   * @brief reset internal state of the node
+   * (used for sucessive diet_initialize/diet_finalize)
+   */
   void
   dagda_reset();
 

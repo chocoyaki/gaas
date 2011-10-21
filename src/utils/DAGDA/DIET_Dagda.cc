@@ -1113,8 +1113,9 @@ dagda_delete_data(char* dataID) {
   if (entryPoint != NULL) {
     entryPoint->pfmRemData(dataID);
     manager->lclRemData(dataID);
-  } else
+  } else {
     manager->pfmRemData(dataID);
+  }
   return 0;
 }
 
@@ -1206,7 +1207,7 @@ dagda_id_from_alias(const char* alias, char** id) {
 
     Agent_var parent = getParent();
     SeqString* attributes = parent->searchData(alias);
-    if (attributes->length()==0) {
+    if (attributes->length() == 0) {
       return 1;
     }
     *id = (*attributes)[0];
@@ -1235,8 +1236,9 @@ dagda_replicate_data(const char* id, const char* rule) {
 
   if (entryPoint != NULL) { // We are on a client.
     entryPoint->pfmReplicate(id, target, pattern, replace);
-  } else
+  } else {
     manager->pfmReplicate(id, target, pattern, replace);
+  }
   return 0;
 }
 
@@ -1363,7 +1365,7 @@ dagda_get_progress(const char* transferId) {
   try {
     return instance->getProgress(transferId);
   } catch (runtime_error& err) {
-    return 0;
+    return 0;  // should return a distinct value
   }
 }
 
