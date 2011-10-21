@@ -743,7 +743,7 @@
    \arg DIET_server.h: the DIET Server API allowing programmers to make
    applications as services available for clients through the DIET middleware
    \arg DIET_admin.h: the DIET administration API allowing programmers
-   dynamically change the shape of the DIET hierarchy
+   dynamically change the shape of the DIET hierarchy.
    \arg DIET_data.h: the Data API allowing the users and the server
    programmers to set and get data to/from clients and servers programs.
    \arg DIET_Dagda.h: the DAGDA API allowing the programmers to directly
