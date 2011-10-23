@@ -1,3 +1,4 @@
+#include <cstring>
 #include <boost/scoped_ptr.hpp>
 
 #include <DIET_client.h>
@@ -8,7 +9,7 @@
 #include "configGRPC.hpp"
 
 
-BOOST_FIXTURE_TEST_SUITE( GRPCErrorReportTests, 
+BOOST_FIXTURE_TEST_SUITE( GRPCErrorReportTests,
 			  GRPCSeDFixture )
 
 
@@ -23,12 +24,12 @@ BOOST_AUTO_TEST_CASE( error_reporting_test_1 )
 
   grpc_error_t err = GRPC_NO_ERROR;
   utils::ClientArgs c("error_reporting_test_1", "client_testing.cfg");
-	
+
   err = grpc_initialize(c.config());
   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
-	
+
   BOOST_CHECK_EQUAL("GRPC_NO_ERROR", grpc_error_string(GRPC_NO_ERROR));
-  BOOST_CHECK_EQUAL("GRPC_NOT_INITIALIZED", grpc_error_string(GRPC_NOT_INITIALIZED)); 
+  BOOST_CHECK_EQUAL("GRPC_NOT_INITIALIZED", grpc_error_string(GRPC_NOT_INITIALIZED));
   BOOST_CHECK_EQUAL("GRPC_ALREADY_INITIALIZED", grpc_error_string(GRPC_ALREADY_INITIALIZED));
   BOOST_CHECK_EQUAL("GRPC_CONFIGFILE_NOT_FOUND", grpc_error_string(GRPC_CONFIGFILE_NOT_FOUND));
   BOOST_CHECK_EQUAL("GRPC_CONFIGFILE_ERROR", grpc_error_string(GRPC_CONFIGFILE_ERROR));
@@ -60,7 +61,7 @@ BOOST_AUTO_TEST_CASE( error_reporting_test_2 )
 
   grpc_error_t err = GRPC_NO_ERROR;
   utils::ClientArgs c("error_reporting_test_2", "client_testing.cfg");
-	
+
   err = grpc_initialize(c.config());
   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
@@ -89,16 +90,16 @@ BOOST_AUTO_TEST_CASE( error_reporting_test_3 )
   grpc_sessionid_t id = GRPC_SESSIONID_VOID;
   int x = 3, y = 0;
   utils::ClientArgs c("error_reporting_test_3", "client_testing.cfg");
-	
+
   err = grpc_initialize(c.config());
   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
-  err = grpc_function_handle_default(&handle, func_list[0]);
+  err = grpc_function_handle_default(&handle, strdup(func_list[0]));
   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
   err = grpc_call_async(&handle, &id, x, &y);
   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
-  
+
   err = grpc_get_error(id);
   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
@@ -124,7 +125,7 @@ BOOST_AUTO_TEST_CASE( error_reporting_test_4 )
   grpc_error_t err;
   grpc_sessionid_t id = GRPC_SESSIONID_VOID;
   utils::ClientArgs c("error_reporting_test_4", "client_testing.cfg");
-	
+
   err = grpc_initialize(c.config());
   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
@@ -155,12 +156,12 @@ BOOST_AUTO_TEST_CASE( error_reporting_test_5 )
   }
 
   utils::ClientArgs c("error_reporting_test_4", "client_testing.cfg");
-	
+
   err = grpc_initialize(c.config());
   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
   for (i=0; i<NCALLS; i++) {
-    err = grpc_function_handle_default(&handle[i], func_list[0]);
+    err = grpc_function_handle_default(&handle[i], strdup(func_list[0]));
     BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
   }
 
@@ -206,17 +207,17 @@ BOOST_AUTO_TEST_CASE( error_reporting_test_6 )
   for (i=0; i<NCALLS; i++) {
     id[i] = GRPC_SESSIONID_VOID;
   }
-  
+
   utils::ClientArgs c("error_reporting_test_6", "client_testing.cfg");
-	
+
   err = grpc_initialize(c.config());
   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
   for (i=0; i<NCALLS; i++) {
     if (i == 0) {
-      err = grpc_function_handle_default(&handle[i], func_list[2]);
+      err = grpc_function_handle_default(&handle[i], strdup(func_list[2]));
     } else {
-      err = grpc_function_handle_default(&handle[i], func_list[1]);
+      err = grpc_function_handle_default(&handle[i], strdup(func_list[1]));
     }
     BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
   }
@@ -258,12 +259,12 @@ BOOST_AUTO_TEST_CASE( error_reporting_test_7 )
   int i, j, counter = 0, x = 10;
 
   utils::ClientArgs c("error_reporting_test_7", "client_testing.cfg");
-	
+
   err = grpc_initialize(c.config());
   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
   for (i=0; i<NCALLS; i++) {
-    err = grpc_function_handle_default(&handle[i], func_list[2]);
+    err = grpc_function_handle_default(&handle[i], strdup(func_list[2]));
     BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
   }
 
@@ -281,7 +282,7 @@ BOOST_AUTO_TEST_CASE( error_reporting_test_7 )
     if (ret_id == GRPC_SESSIONID_VOID){
       if (counter == NCALLS) {
         BOOST_CHECK_EQUAL(counter, NCALLS);
-      } 
+      }
       break;
     } else {
       counter++;

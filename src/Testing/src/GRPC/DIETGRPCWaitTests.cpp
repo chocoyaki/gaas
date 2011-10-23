@@ -1,3 +1,4 @@
+#include <cstring>
 #include <boost/scoped_ptr.hpp>
 
 #include <DIET_client.h>
@@ -7,7 +8,7 @@
 #include "utils.hpp"
 #include "configGRPC.hpp"
 
-BOOST_FIXTURE_TEST_SUITE( GRPCWaitTests, 
+BOOST_FIXTURE_TEST_SUITE( GRPCWaitTests,
 			  GRPCSeDFixture )
 
 
@@ -28,43 +29,43 @@ BOOST_AUTO_TEST_CASE( wait_test_1 )
   int i, j, x = 3, y = 0;
   utils::ClientArgs c("wait_test_1", "client_testing.cfg");
 
-  for (i=0; i<NCALLS; i++) {
+  for (i = 0; i < NCALLS; i++) {
     id[i] = GRPC_SESSIONID_VOID;
   }
 
   err = grpc_initialize(c.config());
   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
-  for (i=0; i<NCALLS; i++) {
-    err = grpc_function_handle_default(&handle[i], func_list[0]);
+  for (i = 0; i < NCALLS; i++) {
+    err = grpc_function_handle_default(&handle[i], strdup(func_list[0]));
     BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
   }
 
-  for (i=0; i<NCALLS; i++) {
+  for (i = 0; i < NCALLS; i++) {
     err = grpc_call_async(&handle[i], &id[i], x, &y);
     BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
   }
 
-  for (i=0; i<NCALLS; i++) {
+  for (i = 0; i < NCALLS; i++) {
     err = grpc_wait(id[i]);
-    BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );    
+    BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
     BOOST_CHECK_EQUAL(y, x + 1);
-  } 
+  }
 
-  for (i=0; i<NCALLS; i++) {
+  for (i = 0; i < NCALLS; i++) {
     err = grpc_function_handle_destruct(&handle[i]);
-    BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );    
+    BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
   }
 
   err = grpc_finalize();
-  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );    
+  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 }
 
 
 /*
  * Call grpc_wait() with an invalid session ID,
  * checking GRPC_INVALID_SESSION_ID returned.
- */ 
+ */
 BOOST_AUTO_TEST_CASE( wait_test_2 )
 {
   BOOST_TEST_MESSAGE( "-- Test: Wait Test 2" );
@@ -74,13 +75,13 @@ BOOST_AUTO_TEST_CASE( wait_test_2 )
   utils::ClientArgs c("wait_test_2", "client_testing.cfg");
 
   err = grpc_initialize(c.config());
-  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );    
+  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
   err = grpc_wait(id);
-  BOOST_CHECK_EQUAL( err, GRPC_INVALID_SESSION_ID );    
+  BOOST_CHECK_EQUAL( err, GRPC_INVALID_SESSION_ID );
 
   err = grpc_finalize();
-  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );    
+  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 }
 
 
@@ -96,7 +97,7 @@ BOOST_AUTO_TEST_CASE( wait_test_3 )
   grpc_sessionid_t id = GRPC_SESSIONID_VOID;
 
   err = grpc_wait(id);
-  BOOST_CHECK_EQUAL( err, GRPC_NOT_INITIALIZED );    
+  BOOST_CHECK_EQUAL( err, GRPC_NOT_INITIALIZED );
 }
 
 
@@ -114,34 +115,34 @@ BOOST_AUTO_TEST_CASE( wait_test_4 )
   int i, j, x = 3, y = 0;
   utils::ClientArgs c("wait_test_4", "client_testing.cfg");
 
-  for (i=0; i<NCALLS; i++) {
+  for (i = 0; i < NCALLS; i++) {
     id[i] = GRPC_SESSIONID_VOID;
   }
 
   err = grpc_initialize(c.config());
-  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );    
+  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
-  for (i=0; i<NCALLS; i++) {
-    err = grpc_function_handle_default(&handle[i], func_list[0]);
-    BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );    
+  for (i = 0; i < NCALLS; i++) {
+    err = grpc_function_handle_default(&handle[i], strdup(func_list[0]));
+    BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
   }
 
-  for (i=0; i<NCALLS; i++) {
+  for (i = 0; i < NCALLS; i++) {
     err = grpc_call_async(&handle[i], &id[i], x, &y);
-    BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );    
+    BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
   }
 
   err = grpc_wait_and(id, NCALLS);
-  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );    
+  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
   BOOST_CHECK_EQUAL(y, x + 1);
 
-  for (i=0; i<NCALLS; i++) {
+  for (i = 0; i < NCALLS; i++) {
     err = grpc_function_handle_destruct(&handle[i]);
-    BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );    
+    BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
   }
 
   err = grpc_finalize();
-  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );    
+  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 }
 
 
@@ -159,18 +160,18 @@ BOOST_AUTO_TEST_CASE( wait_test_5 )
   int i;
   utils::ClientArgs c("wait_test_5", "client_testing.cfg");
 
-  for (i=0; i<NCALLS; i++) {
+  for (i = 0; i < NCALLS; i++) {
     id[i] = GRPC_SESSIONID_VOID;
   }
 
   err = grpc_initialize(c.config());
-  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );    
+  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
   err = grpc_wait_and(id, NCALLS);
-  BOOST_CHECK_EQUAL( err, GRPC_INVALID_SESSION_ID );    
+  BOOST_CHECK_EQUAL( err, GRPC_INVALID_SESSION_ID );
 
   err = grpc_finalize();
-  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );    
+  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 }
 
 
@@ -186,7 +187,7 @@ BOOST_AUTO_TEST_CASE( wait_test_6 )
   grpc_sessionid_t id = GRPC_SESSIONID_VOID;
 
   err = grpc_wait_and(&id, 1);
-  BOOST_CHECK_EQUAL( err, GRPC_NOT_INITIALIZED );    
+  BOOST_CHECK_EQUAL( err, GRPC_NOT_INITIALIZED );
 }
 
 
@@ -204,8 +205,8 @@ BOOST_AUTO_TEST_CASE( wait_test_7 )
   grpc_sessionid_t id[NCALLS], ret_id = GRPC_SESSIONID_VOID;
   int i, j, found, x[NCALLS];
   utils::ClientArgs c("wait_test_7", "client_testing.cfg");
-  
-  for (i=0; i<NCALLS; i++) {
+
+  for (i = 0; i < NCALLS; i++) {
     id[i] = GRPC_SESSIONID_VOID;
     if (i == 0) {
       x[i] = 1;
@@ -215,16 +216,16 @@ BOOST_AUTO_TEST_CASE( wait_test_7 )
   }
 
   err = grpc_initialize(c.config());
-  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );    
+  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
-  for (i=0; i<NCALLS; i++) {
-    err = grpc_function_handle_default(&handle[i], func_list[1]);
-    BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );    
+  for (i = 0; i < NCALLS; i++) {
+    err = grpc_function_handle_default(&handle[i], strdup(func_list[1]));
+    BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
   }
 
-  for (i=0; i<NCALLS; i++) {
+  for (i = 0; i < NCALLS; i++) {
     err = grpc_call_async(&handle[i], &id[i], x[i]);
-    BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );    
+    BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
   }
 
   for (i=NCALLS; i>0; i--) {
@@ -241,16 +242,16 @@ BOOST_AUTO_TEST_CASE( wait_test_7 )
 	break;
       }
     }
-    BOOST_CHECK( found != 0 );    
+    BOOST_CHECK( found != 0 );
   }
 
   for (i = 0; i < NCALLS; i++) {
     err = grpc_function_handle_destruct(&handle[i]);
-    BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );    
+    BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
   }
 
   err = grpc_finalize();
-  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );    
+  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 }
 
 
@@ -268,18 +269,18 @@ BOOST_AUTO_TEST_CASE( wait_test_8 )
   int i;
   utils::ClientArgs c("wait_test_8", "client_testing.cfg");
 
-  for (i=0; i<NCALLS; i++) {
+  for (i = 0; i < NCALLS; i++) {
     id[i] = GRPC_SESSIONID_VOID;
   }
 
   err = grpc_initialize(c.config());
-  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );    
+  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
   err = grpc_wait_or(id, NCALLS, &ret_id);
-  BOOST_CHECK_EQUAL( err, GRPC_INVALID_SESSION_ID );    
+  BOOST_CHECK_EQUAL( err, GRPC_INVALID_SESSION_ID );
 
   err = grpc_finalize();
-  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );    
+  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 }
 
 
@@ -295,7 +296,7 @@ BOOST_AUTO_TEST_CASE( wait_test_9 )
   grpc_sessionid_t id = GRPC_SESSIONID_VOID, ret_id = GRPC_SESSIONID_VOID;
 
   err = grpc_wait_or(&id, 1, &ret_id);
-  BOOST_CHECK_EQUAL( err, GRPC_NOT_INITIALIZED );    
+  BOOST_CHECK_EQUAL( err, GRPC_NOT_INITIALIZED );
 }
 
 
@@ -318,32 +319,32 @@ BOOST_AUTO_TEST_CASE( wait_test_10 )
   }
 
   err = grpc_initialize(c.config());
-  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );    
+  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
   for (i = 0; i < NCALLS; i++) {
-    err = grpc_function_handle_default(&handle[i], func_list[0]);
-    BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );    
+    err = grpc_function_handle_default(&handle[i], strdup(func_list[0]));
+    BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
   }
 
-  for (i=0; i<NCALLS; i++) {
+  for (i = 0; i < NCALLS; i++) {
     err = grpc_call_async(&handle[i], &id[i], x, &y[i]);
-    BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );    
+    BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
   }
 
   err = grpc_wait_all();
-  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );    
+  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
-  for (i=0; i<NCALLS; i++) {
+  for (i = 0; i < NCALLS; i++) {
     BOOST_CHECK_EQUAL(y[i], x + 1);
   }
 
-  for (i=0; i<NCALLS; i++) {
+  for (i = 0; i < NCALLS; i++) {
     err = grpc_function_handle_destruct(&handle[i]);
-    BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );    
+    BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
   }
 
   err = grpc_finalize();
-  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );    
+  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 }
 
 
@@ -358,7 +359,7 @@ BOOST_AUTO_TEST_CASE( wait_test_11 )
   grpc_error_t err = GRPC_NO_ERROR;
 
   err = grpc_wait_all();
-  BOOST_CHECK_EQUAL( err, GRPC_NOT_INITIALIZED );    
+  BOOST_CHECK_EQUAL( err, GRPC_NOT_INITIALIZED );
 }
 
 
@@ -377,43 +378,43 @@ BOOST_AUTO_TEST_CASE( wait_test_12 )
   int i, j, counter = 0, x = 3, y[NCALLS];
   utils::ClientArgs c("wait_test_12", "client_testing.cfg");
 
-  for (i=0; i<NCALLS; i++) {
+  for (i = 0; i < NCALLS; i++) {
     id[i] = GRPC_SESSIONID_VOID;
   }
 
   err = grpc_initialize(c.config());
-  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );    
+  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
-  for (i=0; i<NCALLS; i++) {
-    err = grpc_function_handle_default(&handle[i], func_list[0]);
-    BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );    
+  for (i = 0; i < NCALLS; i++) {
+    err = grpc_function_handle_default(&handle[i], strdup(func_list[0]));
+    BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
   }
 
-  for (i=0; i<NCALLS; i++) {
+  for (i = 0; i < NCALLS; i++) {
     err = grpc_call_async(&handle[i], &id[i], x, &y[i]);
-    BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );    
+    BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
   }
 
   while (1) {
     err = grpc_wait_any(&ret_id);
-    BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );    
+    BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
     counter++;
     if (counter == NCALLS) {
       break;
     }
   }
 
-  for (i=0; i<NCALLS; i++) {  
-    BOOST_CHECK_EQUAL(y[i], x + 1);    
+  for (i = 0; i < NCALLS; i++) {
+    BOOST_CHECK_EQUAL(y[i], x + 1);
   }
 
-  for (i=0; i<NCALLS; i++) {
+  for (i = 0; i < NCALLS; i++) {
     err = grpc_function_handle_destruct(&handle[i]);
-    BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );    
+    BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
   }
 
   err = grpc_finalize();
-  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );    
+  BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 }
 
 
@@ -430,7 +431,7 @@ BOOST_AUTO_TEST_CASE( wait_test_13 )
   printf("Wait Test 13: ");
 
   err = grpc_wait_any(&id);
-  BOOST_CHECK_EQUAL( err, GRPC_NOT_INITIALIZED );    
+  BOOST_CHECK_EQUAL( err, GRPC_NOT_INITIALIZED );
 }
 
 

@@ -7,6 +7,7 @@
  * Author: bdepardo
  */
 
+#include <cstring>
 #include <string>
 #include <sstream>
 
@@ -28,7 +29,7 @@ BOOST_AUTO_TEST_CASE( files ) {
   BOOST_TEST_MESSAGE( "-- Test: files" );
   diet_profile_t* profile = NULL;
   unsigned int i;
-  
+
   size_t arg_size  = 0;
   struct stat buf;
   int status = 0;
@@ -41,16 +42,16 @@ BOOST_AUTO_TEST_CASE( files ) {
 
 
   utils::ClientArgs c("files", "client_testing.cfg");
-    
+
   diet_error_t error = diet_initialize(c.config(), c.argc(), c.argv());
-  
+
   // check if diet_initialize don't return any error
   BOOST_REQUIRE_MESSAGE( GRPC_NO_ERROR == error,
                          "diet_initialize() should return "
                          << diet_error_string(GRPC_NO_ERROR)
                          << " instead of "
                          << diet_error_string(error) );
-  
+
 
   /* Characters: no choice it has to be DIET_CHAR */
   profile = diet_profile_alloc(PB_FILE[0], 0, 1, 2);
@@ -82,17 +83,17 @@ BOOST_AUTO_TEST_CASE( files ) {
   //  error = diet_free_data(diet_parameter(profile, 2));
   // BOOST_CHECK_EQUAL( GRPC_NO_ERROR, error);
   free(s3);
-  
+
   error = diet_profile_free(profile);
   BOOST_CHECK_EQUAL( GRPC_NO_ERROR, error);
   free(s1);
   free(s2);
-  
+
   // now we're good
   BOOST_TEST_MESSAGE( "-- Now calling diet_finalize " );
-  diet_finalize();  
+  diet_finalize();
   BOOST_REQUIRE_MESSAGE( GRPC_NO_ERROR == error,
-                         "diet_finalize() should return " 
+                         "diet_finalize() should return "
                          << diet_error_string(GRPC_NO_ERROR)
                          << " instead of "
                          << diet_error_string(error) );

@@ -1,3 +1,4 @@
+#include <cstring>
 #include <boost/scoped_ptr.hpp>
 
 #include <DIET_client.h>
@@ -7,7 +8,7 @@
 #include "utils.hpp"
 #include "configGRPC.hpp"
 
-BOOST_FIXTURE_TEST_SUITE( GRPCCancelTests, 
+BOOST_FIXTURE_TEST_SUITE( GRPCCancelTests,
 			  GRPCSeDFixture )
 
 
@@ -26,11 +27,11 @@ BOOST_AUTO_TEST_CASE( cancel_test_1 )
   grpc_sessionid_t id;
   int x = 1;
   utils::ClientArgs c("cancel_test_1", "client_testing.cfg");
-	
+
   err = grpc_initialize(c.config());
   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
-  err = grpc_function_handle_default(&handle, func_list[3]);
+  err = grpc_function_handle_default(&handle, strdup(func_list[3]));
   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
   err = grpc_call_async(&handle, &id, x);
@@ -61,7 +62,7 @@ BOOST_AUTO_TEST_CASE( cancel_test_2 )
   grpc_error_t err = GRPC_NO_ERROR;
   grpc_sessionid_t id = GRPC_SESSIONID_VOID;
   utils::ClientArgs c("cancel_test_2", "client_testing.cfg");
-	
+
   err = grpc_initialize(c.config());
   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
@@ -107,12 +108,12 @@ BOOST_AUTO_TEST_CASE( cancel_test_4 )
   }
 
   utils::ClientArgs c("cancel_test_4", "client_testing.cfg");
-	
+
   err = grpc_initialize(c.config());
   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
   for (i=0; i<NCALLS; i++) {
-    err = grpc_function_handle_default(&handle[i], func_list[3]);
+    err = grpc_function_handle_default(&handle[i], strdup(func_list[3]));
     BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
   }
 
