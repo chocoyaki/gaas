@@ -1364,7 +1364,7 @@ dagda_get_progress(const char* transferId) {
 
   try {
     return instance->getProgress(transferId);
-  } catch (runtime_error& err) {
+  } catch (std::runtime_error& err) {
     return 0;  // should return a distinct value
   }
 }
@@ -1375,7 +1375,7 @@ dagda_rem_progress(const char* transferId) {
 
   try {
     instance->remTransfer(transferId);
-  } catch (runtime_error& err) {
+  } catch (std::runtime_error& err) {
     std::cerr << "Error: " << err.what() << "\n";
   }
 }
