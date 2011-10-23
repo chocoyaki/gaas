@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_CASE( call_test_3 )
   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
   boost::scoped_ptr<char> func_name(strdup(func_list[0]));
-  err = grpc_function_handle_default(&handle, func_name);
+  err = grpc_function_handle_default(&handle, func_name.get());
   BOOST_CHECK_EQUAL( err, GRPC_NO_ERROR );
 
   err = grpc_call_async(&handle, &id, x, &y);

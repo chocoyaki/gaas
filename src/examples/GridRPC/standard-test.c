@@ -21,6 +21,7 @@
  ****************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <grpc.h>
 #include <DIET_client.h>
 
@@ -2054,7 +2055,7 @@ void error_report_test_6(char *config_file, char **func_list)
     return;
   }
   for (i = 0; i < NCALLS; i++) {
-    if (i == 0) err = grpc_function_handle_default(&handle[i], strdup(func_list[2]D));
+    if (i == 0) err = grpc_function_handle_default(&handle[i], strdup(func_list[2]));
     else err = grpc_function_handle_default(&handle[i], strdup(func_list[1]));
     if (err != GRPC_NO_ERROR) {
       fprintf(stderr, "grpc_function_handle_default() failed: %s\n", grpc_error_string(err));
