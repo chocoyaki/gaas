@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.6)
 project(DIET)
 
 set(DIET_MAJOR_VERSION 2)
-set(DIET_MINOR_VERSION 90)
+set(DIET_MINOR_VERSION 8)
 set(DIET_REVISION_VERSION 0)
 
 set(DIET_VERSION
