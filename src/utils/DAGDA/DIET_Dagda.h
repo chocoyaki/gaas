@@ -323,106 +323,432 @@ extern "C" {
   dagda_reset();
 
   /* Put macros */
+/**
+ * @brief convenience macro around dagda_put_data
+ *
+ * @param value scalar data to be uploaded
+ * @param base_type data base type
+ * @param mode persistence mode
+ * @param ID data ID
+ *
+ * @return 0 (success), 1 (failure)
+ */
 #define dagda_put_scalar(value, base_type, mode, ID)            \
   dagda_put_data(value, DIET_SCALAR, base_type, mode, 0, 0,     \
                  (diet_matrix_order_t) 0, NULL, ID)
 
+/**
+ * @brief convenience macro around dagda_put_data
+ *
+ * @param value vector value to be uploaded
+ * @param base_type  data base type
+ * @param mode persistence mode
+ * @param size vector size
+ * @param ID data ID
+ *
+ * @return 0 (success), 1 (failure)
+ */
 #define dagda_put_vector(value, base_type, mode, size, ID)      \
   dagda_put_data(value, DIET_VECTOR, base_type, mode, 0, size,  \
                  (diet_matrix_order_t) 0, NULL, ID)
 
+/**
+ * @brief convenience macro around dagda_put_data
+ *
+ * @param value matrix data to be uploaded
+ * @param base_type data base type
+ * @param mode persistence mode
+ * @param nb_rows matrix rows number
+ * @param nb_cols matrix columns number
+ * @param order matrix order
+ * @param ID data ID
+ *
+ * @return 0 (success), 1 (failure)
+ */
 #define dagda_put_matrix(value, base_type, mode, nb_rows, nb_cols, order, ID) \
   dagda_put_data(value, DIET_MATRIX, base_type, mode, nb_rows, nb_cols, \
                  order, NULL, ID)
 
+/**
+ * @brief convenience macro around dagda_put_data
+ *
+ * @param value string data to be uploaded
+ * @param mode persistence mode
+ * @param ID data ID
+ *
+ * @return 0 (success), 1 (failure)
+ */
 #define dagda_put_string(value, mode, ID)                       \
   dagda_put_data(value, DIET_STRING, DIET_CHAR, mode, 0, 0,     \
                  (diet_matrix_order_t) 0, NULL, ID)
 
+/**
+ * @brief convenience macro around dagda_put_data
+ *
+ * @param value param string data to be uploaded
+ * @param mode persistence mode
+ * @param ID data ID
+ *
+ * @return 0 (success), 1 (failure)
+ */
 #define dagda_put_paramstring(value, mode, ID)                          \
   dagda_put_data(value, DIET_PARAMSTRING, DIET_CHAR, mode, 0, 0,        \
                  (diet_matrix_order_t) 0, NULL, ID)
 
+
+/**
+ * @brief convenience macro around dagda_put_data
+ *
+ * @param path file path to be uploaded
+ * @param mode persistence mode
+ * @param ID data ID
+ *
+ * @return 0 (success), 1 (failure)
+ */
 #define dagda_put_file(path, mode, ID)                          \
   dagda_put_data(NULL, DIET_FILE, DIET_CHAR, mode, 0, 0,        \
                  (diet_matrix_order_t) 0, path, ID)
 
-  /* Get macros */
+/* Get macros */
+/**
+ * @brief convenience macro around dagda_get_data
+ *
+ * @param ID ID to the downloaded scalar
+ * @param[out] value downloaded scalar
+ * @param base_type base type
+ *
+ * @return 0 (success), 1 (failure)
+ */
 #define dagda_get_scalar(ID, value, base_type)                          \
   dagda_get_data(ID, (void**) (value), DIET_SCALAR, base_type, NULL, NULL, NULL, NULL)
 
+/**
+ * @brief convenience macro around dagda_get_data
+ *
+ * @param ID ID to the downloaded vector
+ * @param[out] value downloaded vector
+ * @param base_type base type
+ * @oaram size vector size
+ *
+ * @return 0 (success), 1 (failure)
+ */
 #define dagda_get_vector(ID, value, base_type, size)                    \
   dagda_get_data(ID, (void**) (value), DIET_VECTOR, base_type, NULL, size, NULL, NULL)
 
+/**
+ * @brief convenience macro around dagda_get_data
+ *
+ * @param ID ID to the downloaded matrix
+ * @param[out] value downloaded matrix
+ * @param base_type base type
+ * @oaram nb_r matrix rows number
+ * @param nb_c matrix columns number
+ * @param order matrix order
+ *
+ * @return 0 (success), 1 (failure)
+ */
 #define dagda_get_matrix(ID, value, base_type, nb_r, nb_c, order)       \
   dagda_get_data(ID, (void**) (value), DIET_MATRIX, base_type, nb_r, nb_c, order, NULL)
 
+/**
+ * @brief convenience macro around dagda_get_data
+ *
+ * @param ID ID to the downloaded string
+ * @param[out] value downloaded string
+ *
+ * @return 0 (success), 1 (failure)
+ */
 #define dagda_get_string(ID, value)                                     \
   dagda_get_data(ID, (void**) (value), DIET_STRING, NULL, NULL, NULL, NULL, NULL)
 
+/**
+ * @brief convenience macro around dagda_get_data
+ *
+ * @param ID ID to the downloaded param string
+ * @param[out] value downloaded param string
+ *
+ * @return 0 (success), 1 (failure)
+ */
 #define dagda_get_paramstring(ID, value)                                \
   dagda_get_data(ID, (void**) (value), DIET_PARAMSTRING, NULL, NULL, NULL, NULL, NULL)
 
+/**
+ * @brief convenience macro around dagda_get_data
+ *
+ * @param ID ID to the downloaded file
+ * @param[out] value downloaded file path
+ *
+ * @return 0 (success), 1 (failure)
+ */
 #define dagda_get_file(ID, path)                                        \
   dagda_get_data(ID, NULL, DIET_FILE, NULL, NULL, NULL, NULL, (char**) (path))
 
+/**
+ * @brief convenience macro around dagda_get_data
+ *
+ * @param ID ID to the downloaded container
+ *
+ * @return 0 (success), 1 (failure)
+ */
 #define dagda_get_container(ID)                                         \
   dagda_get_data(ID, NULL, DIET_CONTAINER, NULL, NULL, NULL, NULL, NULL)
 
-  /* Asynchronous versions. */
+/* Asynchronous versions. */
+/* Put macros */
   /* Put macros */
+/**
+ * @brief convenience macro around dagda_put_data_async
+ *
+ * @param value scalar data to be uploaded
+ * @param base_type data base type
+ * @param mode persistence mode
+ *
+ * @return thread ID
+ */
 #define dagda_put_scalar_async(value, base_type, mode)                  \
   dagda_put_data_async(value, DIET_SCALAR, base_type, mode, 0, 0,       \
                        (diet_matrix_order_t) 0, NULL)
 
+/**
+ * @brief convenience macro around dagda_put_data_async
+ *
+ * @param value vector value to be uploaded
+ * @param base_type data base type
+ * @param mode persistence mode
+ * @param size vector size
+ *
+ * @return thread ID
+ */
 #define dagda_put_vector_async(value, base_type, mode, size)            \
   dagda_put_data_async(value, DIET_VECTOR, base_type, mode, 0, size,    \
                        (diet_matrix_order_t) 0, NULL)
-
+/**
+ * @brief convenience macro around dagda_put_data_async
+ *
+ * @param value matrix data to be uploaded
+ * @param base_type data base type
+ * @param mode persistence mode
+ * @param nb_rows matrix rows number
+ * @param nb_cols matrix columns number
+ * @param order matrix order
+ *
+ * @return thread ID
+ */
 #define dagda_put_matrix_async(value, base_type, mode, nb_rows, nb_cols, order) \
   dagda_put_data_async(value, DIET_MATRIX, base_type, mode, nb_rows, nb_cols, order, NULL)
 
+/**
+ * @brief convenience macro around dagda_put_data_async
+ *
+ * @param value string data to be uploaded
+ * @param mode persistence mode
+ *
+ * @return thread ID
+ */
 #define dagda_put_string_async(value, mode)                             \
   dagda_put_data_async(value, DIET_STRING, DIET_CHAR, mode, 0, 0,       \
                        (diet_matrix_order_t) 0, NULL)
 
+/**
+ * @brief convenience macro around dagda_put_data_async
+ *
+ * @param value param string data to be uploaded
+ * @param mode persistence mode
+ *
+ * @return thread ID
+ */
 #define dagda_put_paramstring_async(value, mode)                        \
   dagda_put_data_async(value, DIET_PARAMSTRING, DIET_CHAR, mode, 0, 0,  \
                        (diet_matrix_order_t) 0, NULL)
 
+/**
+ * @brief convenience macro around dagda_put_data_async
+ *
+ * @param path file path to be uploaded
+ * @param mode persistence mode
+ *
+ * @return thread ID
+ */
 #define dagda_put_file_async(path, mode)                        \
   dagda_put_data_async(NULL, DIET_FILE, DIET_CHAR, mode, 0, 0,  \
                        (diet_matrix_order_t) 0, path)
 
-  /* Get macros */
+/* Get macros */
+/**
+ * @brief convenience macro around dagda_get_data_async
+ *
+ * @param ID ID to the downloaded scalar
+ *
+ * @return thread ID
+ */
 #define dagda_get_scalar_async(ID) dagda_get_data_async(ID, DIET_SCALAR)
+/**
+ * @brief convenience macro around dagda_get_data_async
+ *
+ * @param ID ID to the downloaded vector
+ *
+ * @return thread ID
+ */
 #define dagda_get_vector_async(ID) dagda_get_data_async(ID, DIET_VECTOR)
+/**
+ * @brief convenience macro around dagda_get_data_async
+ *
+ * @param ID ID to the downloaded matrix
+ *
+ * @return thread ID
+ */
 #define dagda_get_matrix_async(ID) dagda_get_data_async(ID, DIET_MATRIX)
+/**
+ * @brief convenience macro around dagda_get_data_async
+ *
+ * @param ID ID to the downloaded string
+ *
+ * @return thread ID
+ */
 #define dagda_get_string_async(ID) dagda_get_data_async(ID, DIET_STRING)
+/**
+ * @brief convenience macro around dagda_get_data_async
+ *
+ * @param ID ID to the downloaded param string
+ *
+ * @return thread ID
+ */
 #define dagda_get_paramstring_async(ID) dagda_get_data_async(ID, DIET_PARAMSTRING)
+/**
+ * @brief convenience macro around dagda_get_data_async
+ *
+ * @param ID ID to the downloaded file
+ *
+ * @return thread ID
+ */
 #define dagda_get_file_async(ID) dagda_get_data_async(ID, DIET_FILE)
 
-  /* Asynchronous without thread control. */
+/* Asynchronous without thread control. */
+/**
+ * @brief convenience macro around dagda_load_data
+ *
+ * @param ID ID to the downloaded scalar
+ *
+ * @return  0 (success)
+ */
 #define dagda_load_scalar(ID) dagda_load_data(ID, DIET_SCALAR)
+/**
+ * @brief convenience macro around dagda_load_data
+ *
+ * @param ID ID to the downloaded vector
+ *
+ * @return  0 (success)
+ */
 #define dagda_load_vector(ID) dagda_load_data(ID, DIET_VECTOR)
+/**
+ * @brief convenience macro around dagda_load_data
+ *
+ * @param ID ID to the downloaded matrix
+ *
+ * @return  0 (success)
+ */
 #define dagda_load_matrix(ID) dagda_load_data(ID, DIET_MATRIX)
+/**
+ * @brief convenience macro around dagda_load_data_string
+ *
+ * @param ID ID to the downloaded string
+ *
+ * @return  0 (success)
+ */
 #define dagda_load_string(ID) dagda_load_data(ID, DIET_STRING)
+/**
+ * @brief convenience macro around dagda_load_data
+ *
+ * @param ID ID to the downloaded param string
+ *
+ * @return  0 (success)
+ */
 #define dagda_load_paramstring(ID) dagda_load_data(ID, DIET_PARAMSTRING)
+/**
+ * @brief convenience macro around dagda_load_data
+ *
+ * @param ID ID to the downloaded file
+ *
+ * @return  0 (success)
+ */
 #define dagda_load_file(ID) dagda_load_data(ID, DIET_FILE)
 
-  /* Wait macros */
+/* Wait macros */
+/**
+ * @brief convenience macro around dagda_wait_get
+ *
+ * @param thread thread ID
+ * @param ID data ID
+ *
+ * @return
+ */
 #define dagda_wait_data_ID(thread, ID) dagda_wait_put(thread, ID)
 
+/**
+ * @brief convenience macro around dagda_wait_get
+ *
+ * @param thread thread ID
+ * @param[out] value retrieved scalar
+ * @param base_type data base type
+ *
+ * @return
+ */
 #define dagda_wait_scalar(thread, value, base_type)                     \
   dagda_wait_get(thread, value, base_type, NULL, NULL, NULL, NULL)
+/**
+ * @brief convenience macro around dagda_wait_get
+ *
+ * @param thread thread ID
+ * @param[out] value retrieved vector
+ * @param base_type data base type
+ * @param size vector size
+ *
+ * @return
+ */
 #define dagda_wait_vector(thread, value, base_type, size)               \
   dagda_wait_get(thread, value, base_type, NULL, size, NULL, NULL)
+/**
+ * @brief convenience macro around dagda_wait_get
+ *
+ * @param thread thread ID
+ * @param[out] value retrieved matrix
+ * @param base_type data base type
+ * @param nb_r matrix rows number
+ * @param nb_c matrix columns number
+ * @param order matrix order
+ *
+ * @return
+ */
 #define dagda_wait_matrix(thread, value, base_type, nb_r, nb_c, order)  \
   dagda_wait_get(thread, value, base_type, nb_r, nb_c, order, NULL)
+/**
+ * @brief convenience macro around dagda_wait_get
+ *
+ * @param thread thread ID
+ * @param[out] value retrieved string
+ *
+ * @return
+ */
 #define dagda_wait_string(thread, value)                        \
   dagda_wait_get(thread, value, NULL, NULL, NULL, NULL, NULL)
+/**
+ * @brief convenience macro around dagda_wait_get
+ *
+ * @param thread thread ID
+ * @param[out] value retrieved param string
+ *
+ * @return
+ */
 #define dagda_wait_paramstring(thread, value)   \
   dagda_wait_string(thread, value)
+/**
+ * @brief convenience macro around dagda_wait_get
+ *
+ * @param thread thread ID
+ * @param[out] path retrieved file
+ *
+ * @return
+ */
 #define dagda_wait_file(thread, path)                           \
   dagda_wait_get(thread, NULL, NULL, NULL, NULL, NULL, path)
 
