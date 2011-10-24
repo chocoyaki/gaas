@@ -103,7 +103,6 @@
 
 #include <unistd.h>
 #include <cerrno>
-#include <fnmatch.h>
 
 #include <list>
 #include <map>
@@ -112,6 +111,8 @@
 #include <sstream>
 #include <iterator>
 
+#include <boost/algorithm/string/replace.hpp>
+#include <boost/regex.hpp>
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/uuid/uuid_generators.hpp>
@@ -250,10 +251,13 @@ conditional_filename(std::string basename) {
 
   // NOTE: should be ok with boost uuid since uuids are
   // standardized by RFC 4122 (http://tools.ietf.org/html/rfc4122)
-  if (fnmatch("*-????????""-????""-????""-????????????*",
-              basename.c_str(), FNM_CASEFOLD)==0) {
+  const boost::regex mask("\\w*-\\w{8}-\\w{4}-\\w{4}-\\w{12}\\w*",
+                          boost::regex::perl|boost::regex::icase);
+  boost::smatch res;
+  if (boost::regex_match(basename, res, mask)) {
     return basename;
   }
+
   return gen_filename(basename);
 }
 
@@ -840,11 +844,24 @@ SimpleDagdaImpl::pfmUpdateData(const char* srcName, const corba_data_t& data) {
 
 // To replicate a data on the nodes matching the pattern.
 // Pattern matching function.
-bool match(const char* str, const char* pattern) {
-  int ret;
-  ret = fnmatch(pattern, str, FNM_CASEFOLD);
+bool
+match(const char* str, const char* pattern) {
+  // FIXME: this must be removed, we should use real regular expressions
+  std::string tpl(pattern);
+  // poor's man globbing alternative -- note this should work on most cases
+  // ? -> matches one character
+  // * -> matches any string including empty string
+  // this crappy workaround does not support
+  // globbing character classes and performs poorly
+  boost::algorithm::replace_all(tpl, "?", "\\w");
+  boost::algorithm::replace_all(tpl, "*", "\\w*");
+  bool ret;
+  boost::cmatch res;
 
-  return (ret == 0);
+  boost::regex mask(tpl, boost::regex::perl|boost::regex::icase);
+  ret = boost::regex_match(str, res, mask);
+
+  return ret;
 }
 
 
@@ -899,18 +916,24 @@ SimpleDagdaImpl::lclReplicate(const char* dataID, CORBA::Long target,
   bool replic;
   void* ID = CORBA::string_dup(const_cast<char*>(dataID));
 
-  if (lclIsDataPresent(dataID)) return;
+  if (lclIsDataPresent(dataID)) {
+    return;
+  }
 
-  if (target == 0) // Target is the hostname.
+  // Target is the hostname.
+  if (target == 0) {
     replic = match(getHostname(), pattern);
-  else // Target is the ID
+  } else {
+  // Target is the ID
     replic = match(getIDstr().c_str(), pattern);
+  }
 
   if (replic) {
-    if (replace)
+    if (replace) {
       omni_thread::create(replicate, ID);
-    else
+    } else {
       omni_thread::create(replicateIfPossible, ID);
+    }
   }
 }
 

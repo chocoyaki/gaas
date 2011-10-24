@@ -29,7 +29,7 @@ if (DIET_TRANSFER_PROGRESSION)
 endif (DIET_TRANSFER_PROGRESSION)
 
 add_library(DIET_Dagda ${DAGDA_SOURCES})
-SET_TARGET_PROPERTIES (DIET_Dagda  PROPERTIES VERSION ${DIET_VERSION})
+set_target_properties(DIET_Dagda PROPERTIES VERSION ${DIET_VERSION})
 
 set(DAGDA_Libs
   DIET_CORBA
@@ -54,6 +54,7 @@ endif (CYGWIN)
 
 target_link_libraries(DIET_Dagda
   ${DAGDA_Libs}
+  ${Boost_LIBRARIES}
   DietConfig
 )
 
