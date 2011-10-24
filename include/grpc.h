@@ -15,6 +15,14 @@
 #ifndef _GRPC_H_
 #define _GRPC_H_
 
+/**
+ * @file   grpc.h
+ *
+ * @brief  GRPC compatibility header
+ *
+ */
+
+
 #include <DIET_grpc.h>
 
 #endif /* _GRPC_H_ */

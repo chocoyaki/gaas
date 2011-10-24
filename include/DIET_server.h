@@ -265,7 +265,7 @@
    DIET server interface
 
    @author
-   \arg Philippe COMBES (Philippe.Combes@ens-lyon.fr)
+   @arg Philippe COMBES (Philippe.Combes@ens-lyon.fr)
 
    @remark
    $LICENSE$
@@ -495,9 +495,9 @@ extern "C" {
       I have seen mpich, mpich2, lam, ompi, mpichgm, openmp */
     char * parallel_environment;
     /*!< flag defining the parallel aspects:
-      \arg if 0, select seq AND parallel tasks for the request
-      \arg if 1, select only seq tasks
-      \arg if 2, parallel only
+      @arg if 0, select seq AND parallel tasks for the request
+      @arg if 1, select only seq tasks
+      @arg if 2, parallel only
     */
     unsigned short int parallel_flag;
     int nbprocs; /*!< Number of processors available? */
@@ -528,9 +528,9 @@ extern "C" {
   /**
      Function used to allocate a DIET profile descriptors with memory space
      for its argument descriptors.
-     \arg If no IN argument, please give -1 for last_in.
-     \arg If no INOUT argument, please give last_in for last_inout.
-     \arg If no OUT argument, please give last_inout for last_out.
+     @arg If no IN argument, please give -1 for last_in.
+     @arg If no INOUT argument, please give last_in for last_inout.
+     @arg If no OUT argument, please give last_inout for last_out.
 
      Once allocation is performed, please use set functions for each descriptor.
      For example, the nth argument is a matrix of doubles:
@@ -556,8 +556,8 @@ extern "C" {
 
      @return error value specifying whether the deallocation
      was successful or not:
-     \arg 0 if everything is ok
-     \arg 1 otherwise (description was NULL or no argument should be
+     @arg 0 if everything is ok
+     @arg 1 otherwise (description was NULL or no argument should be
      provided and the parameter description is not null)
 
      @todo error codes defined in DIET_grpc.h should better be used.
@@ -612,8 +612,8 @@ extern "C" {
      of a batch job
      @return error value specifying whether the job completion was correct or
      not:
-     \arg 1 is the job was terminated, cancelled or on error
-     \arg -1 if there was an error when trying to read the status,
+     @arg 1 is the job was terminated, cancelled or on error
+     @arg -1 if there was an error when trying to read the status,
      if the submission of the script could not be performed,
      if there was an error with I/O file,
      if the whole batch status of specific batch job status cannot be read
@@ -649,9 +649,9 @@ extern "C" {
 
      @return error value telling whether the type setup was
      correctly realized or not:
-     \arg 0 if agg is NULL (it's an error)
-     \arg 0 if the aggregation type is unknown (it's an error)
-     \arg 1 if all went well
+     @arg 0 if agg is NULL (it's an error)
+     @arg 0 if the aggregation type is unknown (it's an error)
+     @arg 1 if all went well
 
      @todo error codes defined in DIET_grpc.h should better be used.
      This needs to defined new error codes
@@ -670,11 +670,11 @@ extern "C" {
      @param tag a tag specifying which metric to study
      @return error value telling whether the type setup was correctly realized
      or not:
-     \arg 0 if the aggregator is NULL
-     \arg 0 if the aggregator is not a priority list
+     @arg 0 if the aggregator is NULL
+     @arg 0 if the aggregator is not a priority list
      (in fact if the aggregation method is not DIET_AGG_PRIORITY)
-     \arg 0 if the function failed in adding value to priority list
-     \arg 1 if all went well
+     @arg 0 if the function failed in adding value to priority list
+     @arg 1 if all went well
 
      @todo error codes defined in DIET_grpc.h should better be used.
      This needs to defined new error codes
@@ -693,11 +693,11 @@ extern "C" {
      @param tag a tag specifying which metric to study
      @return error value telling whether the type setup was correctly realized
      or not:
-     \arg 0 if the aggregator is NULL
-     \arg 0 if the aggregator is not a priority list
+     @arg 0 if the aggregator is NULL
+     @arg 0 if the aggregator is not a priority list
      (in fact if the aggregation method is not DIET_AGG_PRIORITY)
-     \arg 0 if the function failed in adding value to priority list
-     \arg 1 if all went well
+     @arg 0 if the function failed in adding value to priority list
+     @arg 1 if all went well
 
      @todo error codes defined in DIET_grpc.h should better be used.
      This needs to defined new error codes
@@ -717,11 +717,11 @@ extern "C" {
      @param tag a tag specifying which metric to study
      @return error value telling whether the type setup was correctly realized
      or not:
-     \arg 0 if the aggregator is NULL
-     \arg 0 if the aggregator is not a priority list
+     @arg 0 if the aggregator is NULL
+     @arg 0 if the aggregator is not a priority list
      (in fact if the aggregation method is not DIET_AGG_PRIORITY)
-     \arg 0 if the function failed in adding value to priority list
-     \arg 1 if all went well
+     @arg 0 if the function failed in adding value to priority list
+     @arg 1 if all went well
 
      @todo error codes defined in DIET_grpc.h should better be used.
      This needs to defined new error codes
@@ -740,11 +740,11 @@ extern "C" {
      @param tag a tag specifying which metric to study
      @return error value telling whether the type setup was correctly
      realized or not:
-     \arg 0 if the aggregator is NULL
-     \arg 0 if the aggregator is not a priority list
+     @arg 0 if the aggregator is NULL
+     @arg 0 if the aggregator is not a priority list
      (in fact if the aggregation method is not DIET_AGG_PRIORITY)
-     \arg 0 if the function failed in adding value to priority list
-     \arg 1 if all went well
+     @arg 0 if the function failed in adding value to priority list
+     @arg 1 if all went well
 
      @todo error codes defined in DIET_grpc.h should better be used.
      This needs to defined new error codes
@@ -815,8 +815,8 @@ extern "C" {
 
      @return error value telling whether the operation has been successful
      or not:
-     \arg 1 if the argument convertor was not set
-     \arg 0 if all went well
+     @arg 1 if the argument convertor was not set
+     @arg 0 if all went well
 
      @todo error codes defined in DIET_grpc.h should better be used.
      This needs to defined new error codes
@@ -829,19 +829,19 @@ extern "C" {
   /**
      This function is used to convert argument without modificiations.
      It is often used with this configuration:
-     \arg f == DIET_CVT_IDENTITY
-     \arg out_arg_idx == in_arg_idx
+     @arg f == DIET_CVT_IDENTITY
+     @arg out_arg_idx == in_arg_idx
      Thus we define the following macro that sets these two arguments ...
      Type:
      (int) diet_arg_cvt_short_set((diet_arg_convertor_t*), (int), (diet_arg_t *))
 
-     \arg arg_cvt argument convertor
-     \arg arg_idx index of the argument to convert
-     \arg arg the argument to convert
+     @arg arg_cvt argument convertor
+     @arg arg_idx index of the argument to convert
+     @arg arg the argument to convert
 
      The returned value tells whether the operation has been successful or not:
-     \arg 1 if the argument convertor was not set
-     \arg 0 if all went well
+     @arg 1 if the argument convertor was not set
+     @arg 0 if all went well
 
      @todo error codes defined in DIET_grpc.h should better be used.
      This needs to defined new error codes
@@ -863,11 +863,11 @@ extern "C" {
                                        profile */
 #if defined HAVE_ALT_BATCH
     unsigned short int batch_flag; /*!< flag defining the parallel aspects:
-                                     \arg if 0,
+                                     @arg if 0,
                                      select seq AND parallel tasks for
                                      the request
-                                     \arg if 1, select only seq tasks
-                                     \arg if 2, parallel only
+                                     @arg if 1, select only seq tasks
+                                     @arg if 2, parallel only
                                    */
     int nbprocs; /*!< Number of processors to request */
     unsigned long walltime; /*!< Walltime to request */
@@ -903,8 +903,8 @@ extern "C" {
      array.
      @param cvt the convertor to deallocate
      @return error value telling whether the deallocation was successful:
-     \arg 0 if ok
-     \arg 1 if all went well
+     @arg 0 if ok
+     @arg 1 if all went well
 
      @warning Be careful to the coherence between arg_idx and arg fields !!!
 
@@ -987,10 +987,10 @@ extern "C" {
 
      @return error value telling whether the operation was successfully
      realized or not:
-     \arg 1 if the function was misused (wrong type)
-     \arg 1 if the function was misused (data->value is NULL)
-     \arg 1 if the function was misused (wrong base type)
-     \arg 0 if all went well
+     @arg 1 if the function was misused (wrong type)
+     @arg 1 if the function was misused (data->value is NULL)
+     @arg 1 if the function was misused (wrong base type)
+     @arg 0 if all went well
 
      @todo error codes defined in DIET_grpc.h should better be used.
      This needs to defined new error codes
@@ -1013,9 +1013,9 @@ extern "C" {
 
      @return error value telling whether the operation was successfully
      realized or not:
-     \arg 1 if the function was misused (the new size cannot exceed the old one)
-     \arg 1 if the function was misused (wrong type)
-     \arg 0 if all went well
+     @arg 1 if the function was misused (the new size cannot exceed the old one)
+     @arg 1 if the function was misused (wrong type)
+     @arg 0 if all went well
 
      @todo error codes defined in DIET_grpc.h should better be used.
      This needs to defined new error codes
@@ -1037,8 +1037,8 @@ extern "C" {
 
      @return error value telling whether the operation was successfully
      realized or not:
-     \arg 1 if the function was misused (wrong type)
-     \arg 0 if all went well
+     @arg 1 if the function was misused (wrong type)
+     @arg 0 if all went well
 
      @todo error codes defined in DIET_grpc.h should better be used.
      This needs to defined new error codes
@@ -1084,13 +1084,13 @@ extern "C" {
      @param profile profile to remove form the the service table
      @return error value telling whether the operation was successfully
      realized or not:
-     \arg -1 if the profile is NULL
-     \arg -1 if the service table is not yet initialized
-     \arg 1 if the server did not subscribe yet
-     \arg 1 if the service reference corresponding to the profile was wrong
-     \arg 1 if we are attempting to rm a service that is not in table of a
+     @arg -1 if the profile is NULL
+     @arg -1 if the service table is not yet initialized
+     @arg 1 if the server did not subscribe yet
+     @arg 1 if the service reference corresponding to the profile was wrong
+     @arg 1 if we are attempting to rm a service that is not in table of a
      parent agent
-     \arg 1 if we are attempting to rm a service to a child which do not
+     @arg 1 if we are attempting to rm a service to a child which do not
      possess it
 
      @todo error codes defined in DIET_grpc.h should better be used.
@@ -1109,13 +1109,13 @@ extern "C" {
      @param profile profile description to remove form the the service table
      @return error value telling whether the operation was successfullly
      realized or not:
-     \arg -1 if the profile is NULL
-     \arg -1 if the service table is not yet initialized
-     \arg 1 if the server did not subscribe yet
-     \arg 1 if the service reference corresponding to the profile was wrong
-     \arg 1 if we are attempting to rm a service that is not in table of a
+     @arg -1 if the profile is NULL
+     @arg -1 if the service table is not yet initialized
+     @arg 1 if the server did not subscribe yet
+     @arg 1 if the service reference corresponding to the profile was wrong
+     @arg 1 if we are attempting to rm a service that is not in table of a
      parent agent
-     \arg 1 if we are attempting to rm a service to a child which do not
+     @arg 1 if we are attempting to rm a service to a child which do not
      possess it
 
      @todo error codes defined in DIET_grpc.h should better be used.
@@ -1136,8 +1136,8 @@ extern "C" {
      @param profile the profile to use in order to find the sed reference
      inside the service table
      @return the index of the corresponding service or -1 if :
-     \arg the profile is NULL
-     \arg the service table was not yet initialized
+     @arg the profile is NULL
+     @arg the service table was not yet initialized
 
      @todo error codes defined in DIET_grpc.h should better be used.
      ²This needs to defined new error codes
@@ -1223,8 +1223,8 @@ extern "C" {
      @param value the value to set
 
      @return error code telling whether the operation was successful or not:
-     \arg -1 if the estimation vector is null
-     \arg -1 if the userTag is negative
+     @arg -1 if the estimation vector is null
+     @arg -1 if the userTag is negative
 
      @remark userTag should start at 0 for the first user-defined value.
      The code then translates the index to get userTag + EST_USERDEFINED.
@@ -1248,8 +1248,8 @@ extern "C" {
      estimation vector.
 
      An error will appear if :
-     \arg the estimation vector is null
-     \arg the userTag is negative
+     @arg the estimation vector is null
+     @arg the userTag is negative
 
      @remark userTag should start at 0 for the first user-defined value.
      The code then translates the index to get userTag + EST_USERDEFINED.
@@ -1272,9 +1272,9 @@ extern "C" {
      @return the value at the systemTag position in the estimation vector.
 
      An error will appear if :
-     \arg the estimation vector is null
-     \arg the systemTag is negative
-     \arg the tag is greater than EST_USERDEFINED (in that case the value to get corresponds to a user-defined one)
+     @arg the estimation vector is null
+     @arg the systemTag is negative
+     @arg the tag is greater than EST_USERDEFINED (in that case the value to get corresponds to a user-defined one)
 
      @todo error codes defined in DIET_grpc.h should better be used. This needs to defined new error codes
      @sa DIET_grpc.h for error codes
@@ -1294,10 +1294,10 @@ extern "C" {
 
      @return value telling whether the userTag is defined or not
      (an error code is returned if an error has been encountered):
-     \arg 1 if the tag is defined
-     \arg 0 if the tag was not defined
-     \arg -1 if the estimation vector is null
-     \arg -1 if the userTag is negative
+     @arg 1 if the tag is defined
+     @arg 0 if the tag was not defined
+     @arg -1 if the estimation vector is null
+     @arg -1 if the userTag is negative
 
      @todo error codes defined in DIET_grpc.h should better be used.
      This needs to defined new error codes
@@ -1316,10 +1316,10 @@ extern "C" {
 
      @return value telling whether the the systemTag is defined or not
      (an error code is returned if an error has been encountered):
-     \arg 1 if the tag is defined
-     \arg 0 if the tag was not defined
-     \arg -1 if the estimation vector is null
-     \arg -1 if the userTag is negative
+     @arg 1 if the tag is defined
+     @arg 0 if the tag was not defined
+     @arg -1 if the estimation vector is null
+     @arg -1 if the userTag is negative
 
      @todo error codes defined in DIET_grpc.h should better be used.
      This needs to defined new error codes
@@ -1341,10 +1341,10 @@ extern "C" {
 
      @return size of the array value in the estimation vector
      (an error code is returned if an error has been encountered):
-     \arg The corresponding size on success
-     \arg 0 if the tag does not correspond to an array or the size is 0
-     \arg -1 if the estimation vector is null
-     \arg -1 if the userTag is negative
+     @arg The corresponding size on success
+     @arg 0 if the tag does not correspond to an array or the size is 0
+     @arg -1 if the estimation vector is null
+     @arg -1 if the userTag is negative
 
      @todo error codes defined in DIET_grpc.h should better be used.
      This needs to defined new error codes
@@ -1363,10 +1363,10 @@ extern "C" {
 
      @return size of the array value in the estimation vector
      (an error code is returned if an error has been encountered):
-     \arg The corresponding size on success
-     \arg 0 if the tag does not correspond to an array or the size is 0
-     \arg -1 if the estimation vector is null
-     \arg -1 if the userTag is negative
+     @arg The corresponding size on success
+     @arg 0 if the tag does not correspond to an array or the size is 0
+     @arg -1 if the estimation vector is null
+     @arg -1 if the userTag is negative
 
      @todo error codes defined in DIET_grpc.h should better be used.
      This needs to defined new error codes
@@ -1387,9 +1387,9 @@ extern "C" {
      estimation vector
 
      @return error code telling whether the operation was successful or not:
-     \arg -1 if the estimation vector is null
-     \arg -1 if the userTag is negative
-     \arg -1 if index is negative
+     @arg -1 if the estimation vector is null
+     @arg -1 if the userTag is negative
+     @arg -1 if index is negative
 
      @remark userTag should start at 0 for the first user-defined value.
      The code then translates the index to get userTag + EST_USERDEFINED.
@@ -1412,9 +1412,9 @@ extern "C" {
 
      @return value at the idx position of the array at the userTag position
      in the estimation vector or errVal if :
-     \arg the estimation vector is NULL
-     \arg the userTag is not defined or is negative
-     \arg the idx does not corresponds to a position in the array or is negative
+     @arg the estimation vector is NULL
+     @arg the userTag is not defined or is negative
+     @arg the idx does not corresponds to a position in the array or is negative
 
      @remark userTag should start at 0 for the first user-defined value.
      The code then translates the index to get userTag + EST_USERDEFINED.
@@ -1437,9 +1437,9 @@ extern "C" {
 
      @return value at the idx position of the array at the systemTag position
      in the estimation vector or errVal if :
-     \arg the estimation vector is NULL
-     \arg the systemTag is not defined or is negative
-     \arg the idx does not corresponds to a position in the array or is negative
+     @arg the estimation vector is NULL
+     @arg the systemTag is not defined or is negative
+     @arg the idx does not corresponds to a position in the array or is negative
 
      @todo error codes defined in DIET_grpc.h should better be used.
      This needs to defined new error codes
@@ -1462,13 +1462,13 @@ extern "C" {
 
      @return value telling whether the userTag is defined or not
      (an error code is returned if an error has been encountered):
-     \arg 1 if the value at the idx position in the array at the userTag
+     @arg 1 if the value at the idx position in the array at the userTag
      position is defined
-     \arg 0 if the value at the idx position in the array at the userTag
+     @arg 0 if the value at the idx position in the array at the userTag
      position was not defined
-     \arg -1 if the estimation vector is null
-     \arg -1 if the userTag value is negative
-     \arg -1 if the idx value is negative
+     @arg -1 if the estimation vector is null
+     @arg -1 if the userTag value is negative
+     @arg -1 if the idx value is negative
 
      @todo error codes defined in DIET_grpc.h should better be used.
      This needs to defined new error codes
@@ -1487,13 +1487,13 @@ extern "C" {
 
      @return value telling whether the systemTag is defined or not
      (an error code is returned if an error has been encountered):
-     \arg 1 if the value at the idx position in the array at the systemTag
+     @arg 1 if the value at the idx position in the array at the systemTag
      position is defined
-     \arg 0 if the value at the idx position in the array at the systemTag
+     @arg 0 if the value at the idx position in the array at the systemTag
      position was not defined
-     \arg -1 if the estimation vector is null
-     \arg -1 if the systemTag value is negative
-     \arg -1 if the idx value is negative
+     @arg -1 if the estimation vector is null
+     @arg -1 if the systemTag value is negative
+     @arg -1 if the idx value is negative
 
      @todo error codes defined in DIET_grpc.h should better be used.
      This needs to defined new error codes
@@ -1550,9 +1550,9 @@ extern "C" {
      collector_type provided
 
      @return error value telling whether the operation was successful or not:
-     \arg -1 if info_type was not EST_TCOMP, EST_FREECPU, EST_FREEMEM,
+     @arg -1 if info_type was not EST_TCOMP, EST_FREECPU, EST_FREEMEM,
      EST_NBCPU or EST_ALLINFOS
-     \arg -1 if the requested collector not implemented (Ganglia or Nagios)
+     @arg -1 if the requested collector not implemented (Ganglia or Nagios)
 
      @todo error codes defined in DIET_grpc.h should better be used.
      This needs to defined new error codes
@@ -1596,8 +1596,8 @@ extern "C" {
      of a specific service)
 
      @return error code specifying if the operation was sucessful or not:
-     \arg 1 on success
-     \arg -1 if the estimation vector was NULL
+     @arg 1 on success
+     @arg -1 if the estimation vector was NULL
 
      @todo error codes defined in DIET_grpc.h should better be used.
      This needs to defined new error codes
@@ -1630,8 +1630,8 @@ extern "C" {
      @param profilePtr
 
      @return error code telling whether the operation was successful or not:
-     \arg 0 on success
-     \arg 1 if the reference on the SeD (corresponding to the profile) was
+     @arg 0 on success
+     @arg 1 if the reference on the SeD (corresponding to the profile) was
      not initialized
 
      @todo error codes defined in DIET_grpc.h should better be used.
@@ -1680,8 +1680,8 @@ extern "C" {
      @param profilePtr pointer to the profile
 
      @return error value telling whether the operation was successful or not:
-     \arg 0 on success
-     \arg 1 if the reference on the SeD was not initialized
+     @arg 0 on success
+     @arg 1 if the reference on the SeD was not initialized
 
      @todo error codes defined in DIET_grpc.h should better be used.
      This needs to defined new error codes
@@ -1701,9 +1701,9 @@ extern "C" {
      @param profilePtr pointer to the profile
 
      @return error value telling whether the operation was successful or not:
-     \arg 0 on success
-     \arg 1 if the reference on the SeD was not initialized
-     \arg -1 if the estimation vector is null
+     @arg 0 on success
+     @arg 1 if the reference on the SeD was not initialized
+     @arg -1 if the estimation vector is null
 
      @todo error codes defined in DIET_grpc.h should better be used.
      This needs to defined new error codes
@@ -1729,8 +1729,8 @@ extern "C" {
      @param base_type base type
 
      @return error value telling whether the operation was successful or not:
-     \arg 1 if the description was NULL
-     \arg 0 on success
+     @arg 1 if the description was NULL
+     @arg 0 on success
 
      @todo error codes defined in DIET_grpc.h should better be used.
      This needs to defined new error codes

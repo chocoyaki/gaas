@@ -26,8 +26,8 @@
 #include "DIET_mutex.h"
 
 #include <cstdio>
-#include <iostream>
 #include <cstdlib>
+#include <iostream>
 
 #include "debug.hh"
 #include "omnithread.h"
@@ -79,7 +79,6 @@ diet_mutex_create(int* ret) {
     }
   }
 
-  //printf("adding space %d \n", MUTEXCOUNT);
   temp = (omni_mutex**)malloc((10+MUTEXCOUNT)*sizeof(omni_mutex));
   for (i = 0; i < MUTEXCOUNT; i++) {
     temp[i] = MUTEX_FIELD[i];
@@ -93,7 +92,7 @@ diet_mutex_create(int* ret) {
   MUTEX_FIELD[MUTEXCOUNT] = new omni_mutex();
   *ret = MUTEXCOUNT;
 
-  MUTEXCOUNT+=10;
+  MUTEXCOUNT += 10;
 }
 
 void

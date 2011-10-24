@@ -282,7 +282,7 @@
    Therefore the data must be fully described in terms of their data types and
    various attributes associated with these types.
 
-   \section DataTypes Data types
+   @section DataTypes Data types
 
    \c DIET defines a precise set of data types to be used to describe the
    arguments of the services (on the server side) and of the problems
@@ -455,7 +455,7 @@
    \endhtmlonly
    @remark \c DIET_STICKY_RETURN only works with \b dagda.
 
-   \section DataDescription Data description
+   @section DataDescription Data description
 
    Each parameter of a client problem is manipulated by \c DIET using the
    following
@@ -474,7 +474,7 @@
    description, which is better described by a figure than with C code,
    since it can be set and accessed through API functions.
 
-   \section DataManagement Data management
+   @section DataManagement Data management
 
    \subsection DataIdentifier Data identifier
 
@@ -517,7 +517,7 @@
    @remark for the moment, when a data item is erased from the platform, the
    file isn't updated.
 
-   \section ManipulatingDIETStructures Manipulating \c DIET structures
+   @section ManipulatingDIETStructures Manipulating \c DIET structures
 
    The user will notice that the API to the \c DIET data structures consists of
    modifier and accessor functions only: no allocation function is required,
@@ -616,10 +616,10 @@
    _file_get(arg, mode, size, (char **)path)
    \endcode
 
-   \section DataManagementFunctions Data Management functions
+   @section DataManagementFunctions Data Management functions
 
 
-   \arg The \b store_id method is used to store the identifier of persistent
+   @arg The \b store_id method is used to store the identifier of persistent
    data. It also accepts a description of the data stored.
    This method has to be called after the \c diet_call() so that the identifier
    exists.
@@ -627,7 +627,7 @@
    store_id(char* argID, char *msg);
    \endcode
 
-   \arg The \c diet_use_data method allows the client to use a data item that
+   @arg The \c diet_use_data method allows the client to use a data item that
    is already stored in the platform.
    \code
    diet_use_data(diet_arg_t* arg, char* argID);
@@ -683,7 +683,7 @@
 
    \endcode
 
-   \section ProblemDescription Problem description
+   @section ProblemDescription Problem description
 
 
    For \c DIET to match the client problem with a service, servers and clients
@@ -700,15 +700,15 @@
 
    The field \e parameters consists of a \c diet_arg_t array of size
    \f$last\_out + 1\f$. Arguments can be
-   \arg \b IN: The data are sent to the server. The memory is allocated by the
+   @arg \b IN: The data are sent to the server. The memory is allocated by the
    user.
-   \arg \b INOUT: The data are allocated by the user as for the IN
+   @arg \b INOUT: The data are allocated by the user as for the IN
    arguments, then sent to the server and brought back into the same memory
    zone after the computation has completed, without any copy.
    Thus freeing this memory at the client while the computation is performed
    on the server would result in a segmentation fault when the data are
    brought back onto the client.
-   \arg \b OUT: The data are created on the server and brought back into a
+   @arg \b OUT: The data are created on the server and brought back into a
    newly allocated zone on the client. This allocation is performed by
    \c DIET. After the call has returned, the user can find the result in
    the zone pointed at by the \e value field. Of course, \c DIET
@@ -730,25 +730,25 @@
    The values of \e last_in, \e ast_inout and \e last_out
    are respectively:
 
-   \arg \e last_in : \f$-1\f$ + number of input data.
-   \arg \e last_inout : \e last_in \f$+\f$ number of inout data.
-   \arg \e last_out : \e last_inout \f$+\f$ number of out data.
+   @arg \e last_in : \f$-1\f$ + number of input data.
+   @arg \e last_inout : \e last_in \f$+\f$ number of inout data.
+   @arg \e last_out : \e last_inout \f$+\f$ number of out data.
 
    \mainpage
 
    Here is the documentation of the DIET API.
    It is composed of:
-   \arg DIET_client.h : the DIET Client API allowing users to access the DIET
+   @arg DIET_client.h : the DIET Client API allowing users to access the DIET
    middleware and the services made available through the DIET middleware
-   \arg DIET_server.h: the DIET Server API allowing programmers to make
+   @arg DIET_server.h: the DIET Server API allowing programmers to make
    applications as services available for clients through the DIET middleware
-   \arg DIET_admin.h: the DIET administration API allowing programmers
+   @arg DIET_admin.h: the DIET administration API allowing programmers
    dynamically change the shape of the DIET hierarchy.
-   \arg DIET_data.h: the Data API allowing the users and the server
+   @arg DIET_data.h: the Data API allowing the users and the server
    programmers to set and get data to/from clients and servers programs.
-   \arg DIET_Dagda.h: the DAGDA API allowing the programmers to directly
+   @arg DIET_Dagda.h: the DAGDA API allowing the programmers to directly
    manage their data.
-   \arg DIET_grpc.h: the GRPC API compliant with the GridRPC paradigm of
+   @arg DIET_grpc.h: the GRPC API compliant with the GridRPC paradigm of
    defined by the Grid RPC working group of the Open Grid Forum.
 */
 
@@ -776,9 +776,9 @@ extern "C" {
      one, the priority one (using default aggregation macros, or a user
      provided one.
 
-     \arg The aggregator defined on the SeD level must be used with
+     @arg The aggregator defined on the SeD level must be used with
      DIET_AGG_PRIORITY
-     \arg The aggregator defined on the Agent level must be used with
+     @arg The aggregator defined on the Agent level must be used with
      DIET_AGG_USER
   */
   typedef enum {
@@ -874,8 +874,8 @@ extern "C" {
   /**
      Argument type - a structure with two fields:
 
-     \arg desc  : a descriptor of the argument
-     \arg value : a (void*) pointer to the memory zone where the data are
+     @arg desc  : a descriptor of the argument
+     @arg value : a (void*) pointer to the memory zone where the data are
      stored.
   */
   typedef struct diet_arg_s diet_arg_t;
@@ -914,10 +914,10 @@ extern "C" {
        if 1, select only seq tasks
        if 2, parallel only */
     unsigned short int parallel_flag; /*!< flag defining the parallel aspects:
-                                         \arg if 0, select seq AND parallel
+                                         @arg if 0, select seq AND parallel
                                          tasks for the request
-                                         \arg if 1, select only seq tasks
-                                         \arg if 2, parallel only
+                                         @arg if 1, select only seq tasks
+                                         @arg if 2, parallel only
                                        */
     /*!< number of processors to be requested for the parallel call */
     int nbprocs;
@@ -1019,8 +1019,8 @@ extern "C" {
      @param nbprocs the number of processors needed to execute the service
      @return Error value telling whether the number of processors has be
      correctly set
-     \arg 0 if nbprocs > 0
-     \arg 1 otherwise
+     @arg 0 if nbprocs > 0
+     @arg 1 otherwise
 
      @todo error codes defined in DIET_grpc.h should better be used.
      @sa DIET_grpc.h for error codes
@@ -1068,8 +1068,8 @@ extern "C" {
      @param base_type base type of the parameter
 
      @return error value telling if the alteration has been correctly realized
-     \arg 0 if the alteration was successful
-     \arg 1 otherwise : mainly if the description is NULL or not defined
+     @arg 0 if the alteration was successful
+     @arg 1 otherwise : mainly if the description is NULL or not defined
      correctly
 
      @remark if the persistence mode is DIET_PERSISTENCE_MODE_COUNT,
@@ -1091,8 +1091,8 @@ extern "C" {
 
      @return error value telling if the alteration of the profile has been
      correctly realized
-     \arg 0 if the alteration was successful
-     \arg 1 otherwise : mainly if the description is NULL or not defined
+     @arg 0 if the alteration was successful
+     @arg 1 otherwise : mainly if the description is NULL or not defined
      correctly
 
      @remark if the persistence mode is DIET_PERSISTENCE_MODE_COUNT,
@@ -1129,8 +1129,8 @@ extern "C" {
 
      @return error value telling if the alteration of the profile has been
      correctly realized
-     \arg 0 if the alteration was successful
-     \arg 1 otherwise : mainly if the description is NULL or not defined
+     @arg 0 if the alteration was successful
+     @arg 1 otherwise : mainly if the description is NULL or not defined
      correctly
 
      @remark if the persistence mode is DIET_PERSISTENCE_MODE_COUNT,
@@ -1152,8 +1152,8 @@ extern "C" {
 
      @return error value telling if the alteration of the profile has been
      correctly realized
-     \arg 0 if the alteration was successful
-     \arg 1 otherwise : mainly if the description is NULL or not defined
+     @arg 0 if the alteration was successful
+     @arg 1 otherwise : mainly if the description is NULL or not defined
      correctly
 
      @remark if the persistence mode is DIET_PERSISTENCE_MODE_COUNT,
@@ -1179,8 +1179,8 @@ extern "C" {
 
      @return error value telling if the alteration of the profile has been
      correctly realized
-     \arg 0 if the alteration was successful
-     \arg 1 otherwise : mainly if the description is NULL or not defined
+     @arg 0 if the alteration was successful
+     @arg 1 otherwise : mainly if the description is NULL or not defined
      correctly
 
      @remark if the persistence mode is DIET_PERSISTENCE_MODE_COUNT,
@@ -1200,21 +1200,21 @@ extern "C" {
      @param path file to set in the corresponding argument of the profile
      @param mode persistence mode
      @return the following error values could be returned:
-     \arg 0 if the alteration was successful
-     \arg 1 otherwise : mainly if the description is NULL or not defined
+     @arg 0 if the alteration was successful
+     @arg 1 otherwise : mainly if the description is NULL or not defined
      correctly
-     \arg -1 if the underlying stat() call failed. The corresponding error
+     @arg -1 if the underlying stat() call failed. The corresponding error
      (retrieve with errno) could then be the following:
-     \arg EACCES Search permission is denied for one of the directories in
+     @arg EACCES Search permission is denied for one of the directories in
      the path prefix of path. (See also path_resolution(2).)
-     \arg EBADF filedes is bad.
-     \arg EFAULT Bad address.
-     \arg ELOOP Too many symbolic links encountered while traversing the path.
-     \arg ENAMETOOLONG File name too long.
-     \arg ENOENT A component of the path path does not exist, or the path is
+     @arg EBADF filedes is bad.
+     @arg EFAULT Bad address.
+     @arg ELOOP Too many symbolic links encountered while traversing the path.
+     @arg ENAMETOOLONG File name too long.
+     @arg ENOENT A component of the path path does not exist, or the path is
      an empty string.
-     \arg ENOMEM Out of memory (i.e. kernel memory).
-     \arg ENOTDIR A component of the path is not a directory.
+     @arg ENOMEM Out of memory (i.e. kernel memory).
+     @arg ENOTDIR A component of the path is not a directory.
 
      @warning The path is not duplicated
      @todo error codes defined in DIET_grpc.h should better be used.
@@ -1232,8 +1232,8 @@ extern "C" {
 
      @return error value telling if the alteration of the profile has been
      correctly realized
-     \arg 0 if the alteration was successful
-     \arg 1 otherwise : mainly if the description is NULL or not defined
+     @arg 0 if the alteration was successful
+     @arg 1 otherwise : mainly if the description is NULL or not defined
      correctly
 
      @remark if the persistence mode is DIET_PERSISTENCE_MODE_COUNT, the
@@ -1273,15 +1273,15 @@ extern "C" {
   /**
      Function used to get a scalar value.
 
-     \arg arg argument from which we want to get a value
-     \arg value the value where to store the element
-     \arg mode persistence mode
+     @arg arg argument from which we want to get a value
+     @arg value the value where to store the element
+     @arg mode persistence mode
 
      Type: int diet_scalar_get((diet_arg_t*), (void**), (diet_persistence_mode_t*))
 
      @return error value returned by the macro:
-     \arg 0 if the get function is successful
-     \arg 1 if base_type was not set properly or the argument is null
+     @arg 0 if the get function is successful
+     @arg 1 if base_type was not set properly or the argument is null
 
      @todo error codes defined in DIET_grpc.h should better be used.
      @sa DIET_grpc.h for error codes
@@ -1305,16 +1305,16 @@ extern "C" {
   /**
      Function used to get a vector value.
 
-     \arg arg argument from which we want to get a value
-     \arg value the value where to store the element
-     \arg mode persistence mode
-     \arg size the size of the vector to get
+     @arg arg argument from which we want to get a value
+     @arg value the value where to store the element
+     @arg mode persistence mode
+     @arg size the size of the vector to get
 
      Type: int diet_vector_get((diet_arg_t*), (void**),(diet_persistence_mode_t*), (size_t*))
 
      @return error value returned by the macro:
-     \arg 0 if the get function is successful
-     \arg 1 if base_type was not set properly or the argument is null
+     @arg 0 if the get function is successful
+     @arg 1 if base_type was not set properly or the argument is null
 
      @todo error codes defined in DIET_grpc.h should better be used.
      @sa DIET_grpc.h for error codes
@@ -1339,18 +1339,18 @@ extern "C" {
   /**
      Function used to get a matrix value.
 
-     \arg arg argument from which we want to get a value
-     \arg value the value where to store the element
-     \arg mode persistence mode
-     \arg nb_rows the number of rows of the matrix
-     \arg nb_cols the number of columns of the matrix
-     \arg order the matrix order
+     @arg arg argument from which we want to get a value
+     @arg value the value where to store the element
+     @arg mode persistence mode
+     @arg nb_rows the number of rows of the matrix
+     @arg nb_cols the number of columns of the matrix
+     @arg order the matrix order
 
      Type: int diet_matrix_get((diet_arg_t*), (void**), (diet_persistence_mode_t*), (size_t*), (size_t*), (diet_matrix_order_t*))
 
      @return error value returned by the macro:
-     \arg 0 if the get function is successful
-     \arg 1 if base_type was not set properly or the argument is null
+     @arg 0 if the get function is successful
+     @arg 1 if base_type was not set properly or the argument is null
 
      @todo error codes defined in DIET_grpc.h should better be used.
      @sa DIET_grpc.h for error codes
@@ -1375,19 +1375,19 @@ extern "C" {
   /**
      Function used to get a matrix value with an id.
 
-     \arg arg argument from which we want to get a value
-     \arg id id of the matrix
-     \arg value the value where to store the element
-     \arg mode persistence mode
-     \arg nb_rows the number of rows of the matrix
-     \arg nb_cols the number of columns of the matrix
-     \arg order the matrix order
+     @arg arg argument from which we want to get a value
+     @arg id id of the matrix
+     @arg value the value where to store the element
+     @arg mode persistence mode
+     @arg nb_rows the number of rows of the matrix
+     @arg nb_cols the number of columns of the matrix
+     @arg order the matrix order
 
      Type: int diet_matrix_get((diet_arg_t*), (char*), (void**), (diet_persistence_mode_t*), (size_t*), (size_t*), (diet_matrix_order_t*))
 
      @return error value returned by the macro:
-     \arg 0 if the get function is successful
-     \arg 1 if base_type was not set properly or the argument is null
+     @arg 0 if the get function is successful
+     @arg 1 if base_type was not set properly or the argument is null
 
      @todo error codes defined in DIET_grpc.h should better be used.
      @sa DIET_grpc.h for error codes
@@ -1414,15 +1414,15 @@ extern "C" {
   /**
      Function used to get a string value.
 
-     \arg arg argument from which we want to get a value
-     \arg value the value where to store the element
-     \arg mode persistence mode
+     @arg arg argument from which we want to get a value
+     @arg value the value where to store the element
+     @arg mode persistence mode
 
      Type: int diet_string_get((diet_arg_t*), (char**), (diet_persistence_mode_t*))
 
      @return error value returned by the macro:
-     \arg 0 if the get function is successful
-     \arg 1 if base_type was not set properly or the argument is null
+     @arg 0 if the get function is successful
+     @arg 1 if base_type was not set properly or the argument is null
 
      @todo error codes defined in DIET_grpc.h should better be used.
      @sa DIET_grpc.h for error codes
@@ -1447,15 +1447,15 @@ extern "C" {
   /**
      Function used to get a paramstring value.
 
-     \arg arg argument from which we want to get a value
-     \arg value the value where to store the element
-     \arg mode persistence mode
+     @arg arg argument from which we want to get a value
+     @arg value the value where to store the element
+     @arg mode persistence mode
 
      Type: int diet_paramstring_get((diet_arg_t*), (char**), (diet_persistence_mode_t*))
 
      @return error value returned by the macro:
-     \arg 0 if the get function is successful
-     \arg 1 if base_type was not set properly or the argument is null
+     @arg 0 if the get function is successful
+     @arg 1 if base_type was not set properly or the argument is null
 
      @todo error codes defined in DIET_grpc.h should better be used.
      @sa DIET_grpc.h for error codes
@@ -1480,16 +1480,16 @@ extern "C" {
   /**
      Function used to get a file value.
 
-     \arg arg argument from which we want to get a value
-     \arg mode persistence mode
-     \arg size the size ofthe file to get
-     \arg path the path where to store the element
+     @arg arg argument from which we want to get a value
+     @arg mode persistence mode
+     @arg size the size ofthe file to get
+     @arg path the path where to store the element
 
      Type: int diet_file_get((diet_arg_t*), (diet_persistence_mode_t*), (size_t*), (char**))
 
      @return error value returned by the macro:
-     \arg 0 if the get function is successful
-     \arg 1 if base_type was not set properly or the argument is null
+     @arg 0 if the get function is successful
+     @arg 1 if base_type was not set properly or the argument is null
 
      @todo error codes defined in DIET_grpc.h should better be used.
      @sa DIET_grpc.h for error codes
@@ -1622,18 +1622,18 @@ extern "C" {
   /**
      This function is used to free the amount of data pointed at by the value field of an argument.
      This should be used ONLY for VOLATILE data,
-     \arg on the server for IN arguments that will no longer be used
-     \arg on the client for OUT arguments, after the problem has been solved,
+     @arg on the server for IN arguments that will no longer be used
+     @arg on the client for OUT arguments, after the problem has been solved,
      when they will no longer be used.
      @remark for files, this function removes the file and frees the path (since
      it has been dynamically allocated by DIET in both cases)
 
      @param arg argument we want to free the data
      @return error value telling whether the data deallocation was successful or not:
-     \arg 3 if we were trying to free persistent data
-     \arg 2 if something went wrong when deallocating a file (when the data is a file). A error message explaining the error will be printed.
-     \arg 1 if the path of the file to deallocate was NULL, or if the value of a scalar/vector/string/paramstring/matrix was NULL
-     \arg 0 otherwise
+     @arg 3 if we were trying to free persistent data
+     @arg 2 if something went wrong when deallocating a file (when the data is a file). A error message explaining the error will be printed.
+     @arg 1 if the path of the file to deallocate was NULL, or if the value of a scalar/vector/string/paramstring/matrix was NULL
+     @arg 0 otherwise
 
      @todo error codes defined in DIET_grpc.h should better be used.
      @sa DIET_grpc.h for error codes
@@ -1656,15 +1656,15 @@ extern "C" {
      \internal
      Function used to get a scalar value.
 
-     \arg arg argument from which we want to get a value
-     \arg value the value where to store the element
-     \arg mode persistence mode
+     @arg arg argument from which we want to get a value
+     @arg value the value where to store the element
+     @arg mode persistence mode
 
      Type: int diet_scalar_get((diet_arg_t*), (void**), (diet_persistence_mode_t*))
 
      @return error value returned by the macro:
-     \arg 0 if the get function is successful
-     \arg 1 if base_type was not set properly or the argument is null
+     @arg 0 if the get function is successful
+     @arg 1 if base_type was not set properly or the argument is null
 
      @todo error codes defined in DIET_grpc.h should better be used.
      @sa DIET_grpc.h for error codes
@@ -1690,16 +1690,16 @@ extern "C" {
      \internal
      Function used to get a vector value.
 
-     \arg arg argument from which we want to get a value
-     \arg value the value where to store the element
-     \arg mode persistence mode
-     \arg size the size of the vector to get
+     @arg arg argument from which we want to get a value
+     @arg value the value where to store the element
+     @arg mode persistence mode
+     @arg size the size of the vector to get
 
      Type: int diet_vector_get((diet_arg_t*), (void**),(diet_persistence_mode_t*), (size_t*))
 
      @return error value returned by the macro:
-     \arg 0 if the get function is successful
-     \arg 1 if base_type was not set properly or the argument is null
+     @arg 0 if the get function is successful
+     @arg 1 if base_type was not set properly or the argument is null
 
      @todo error codes defined in DIET_grpc.h should better be used.
      @sa DIET_grpc.h for error codes
@@ -1727,18 +1727,18 @@ extern "C" {
 
      Function used to get a matrix value.
 
-     \arg arg argument from which we want to get a value
-     \arg value the value where to store the element
-     \arg mode persistence mode
-     \arg nb_rows the number of rows of the matrix
-     \arg nb_cols the number of columns of the matrix
-     \arg order the matrix order
+     @arg arg argument from which we want to get a value
+     @arg value the value where to store the element
+     @arg mode persistence mode
+     @arg nb_rows the number of rows of the matrix
+     @arg nb_cols the number of columns of the matrix
+     @arg order the matrix order
 
      Type: int diet_matrix_get((diet_arg_t*), (void**), (diet_persistence_mode_t*), (size_t*), (size_t*), (diet_matrix_order_t*))
 
      @return error value returned by the macro:
-     \arg 0 if the get function is successful
-     \arg 1 if base_type was not set properly or the argument is null
+     @arg 0 if the get function is successful
+     @arg 1 if base_type was not set properly or the argument is null
 
      @todo error codes defined in DIET_grpc.h should better be used.
      @sa DIET_grpc.h for error codes
@@ -1765,15 +1765,15 @@ extern "C" {
      \internal
      Function used to get a string value.
 
-     \arg arg argument from which we want to get a value
-     \arg value the value where to store the element
-     \arg mode persistence mode
+     @arg arg argument from which we want to get a value
+     @arg value the value where to store the element
+     @arg mode persistence mode
 
      Type: int diet_string_get((diet_arg_t*), (char**), (diet_persistence_mode_t*))
 
      @return error value returned by the macro:
-     \arg 0 if the get function is successful
-     \arg 1 if base_type was not set properly or the argument is null
+     @arg 0 if the get function is successful
+     @arg 1 if base_type was not set properly or the argument is null
 
      @todo error codes defined in DIET_grpc.h should better be used.
      @sa DIET_grpc.h for error codes
@@ -1799,15 +1799,15 @@ extern "C" {
      \internal
      Function used to get a paramstring value.
 
-     \arg arg argument from which we want to get a value
-     \arg value the value where to store the element
-     \arg mode persistence mode
+     @arg arg argument from which we want to get a value
+     @arg value the value where to store the element
+     @arg mode persistence mode
 
      Type: int diet_paramstring_get((diet_arg_t*), (char**), (diet_persistence_mode_t*))
 
      @return error value returned by the macro:
-     \arg 0 if the get function is successful
-     \arg 1 if base_type was not set properly or the argument is null
+     @arg 0 if the get function is successful
+     @arg 1 if base_type was not set properly or the argument is null
 
      @todo error codes defined in DIET_grpc.h should better be used.
      @sa DIET_grpc.h for error codes
@@ -1835,16 +1835,16 @@ extern "C" {
      \internal
      Function used to get a file value.
 
-     \arg arg argument from which we want to get a value
-     \arg mode persistence mode
-     \arg size the size ofthe file to get
-     \arg path the path where to store the element
+     @arg arg argument from which we want to get a value
+     @arg mode persistence mode
+     @arg size the size ofthe file to get
+     @arg path the path where to store the element
 
      Type: int diet_file_get((diet_arg_t*), (diet_persistence_mode_t*), (size_t*), (char**))
 
      @return error value returned by the macro:
-     \arg 0 if the get function is successful
-     \arg 1 if base_type was not set properly or the argument is null
+     @arg 0 if the get function is successful
+     @arg 1 if base_type was not set properly or the argument is null
 
      @todo error codes defined in DIET_grpc.h should better be used.
      @sa DIET_grpc.h for error codes
@@ -2220,8 +2220,8 @@ extern "C" {
      @param profile is the functional wf profile ref
      @param data_file_name  output file (overwritten if existing)
      @return error value specifying if the data has been saved correctly or not:
-     \arg 0 on success
-     \arg 1 if the profile is null, the workflow file malformed, the data_file_name is NULL or if the write operation failed
+     @arg 0 on success
+     @arg 1 if the profile is null, the workflow file malformed, the data_file_name is NULL or if the write operation failed
 
      @todo error codes defined in DIET_grpc.h should better be used.
      @sa DIET_grpc.h for error codes
@@ -2255,8 +2255,8 @@ extern "C" {
      @param transcript_file_name output file (overwritten if existing)
 
      @return error value specifying if the data has been saved correctly or not:
-     \arg 0 on success
-     \arg 1 if the profile is null, the workflow file malformed, the transcript_file_name is NULL or if the write operation failed
+     @arg 0 on success
+     @arg 1 if the profile is null, the workflow file malformed, the transcript_file_name is NULL or if the write operation failed
 
      @todo error codes defined in DIET_grpc.h should better be used.
      @sa DIET_grpc.h for error codes
@@ -2281,8 +2281,8 @@ extern "C" {
 
      @param profile is the dag / functional wf profile ref
      @return error value specifying if the data could be displayed correctly or not:
-     \arg 0 on success
-     \arg 1 if something wrong happened during the display
+     @arg 0 on success
+     @arg 1 if something wrong happened during the display
 
      @warning this function is declared in DIET_data.h but implemented in DIET_client.cc !
 
@@ -2300,8 +2300,8 @@ extern "C" {
 
      @param profile is the dag / functional wf profile ref
      @return error value specifying if the data could be displayed correctly or not:
-     \arg 0 on success
-     \arg 1 if something wrong happened during the display
+     @arg 0 on success
+     @arg 1 if something wrong happened during the display
 
      @warning this function is declared in DIET_data.h but implemented in DIET_client.cc !
 
@@ -2317,14 +2317,14 @@ extern "C" {
 
      Type : int diet_wf_scalar_get(diet_wf_desc_t * profile, const char * id, void** value)
 
-     \arg profile the profile of the workflow
-     \arg id The 'id' parameter is the port complete id (ex: 'nodeA#out')
-     \arg value the scalar value
+     @arg profile the profile of the workflow
+     @arg id The 'id' parameter is the port complete id (ex: 'nodeA#out')
+     @arg value the scalar value
 
      The returned value could be :
-     \arg 0 on success
-     \arg 1 if the profile is null, the workflow type is invalid
-     \arg the returned error value of the underlying diet_scalar_get call
+     @arg 0 on success
+     @arg 1 if the profile is null, the workflow type is invalid
+     @arg the returned error value of the underlying diet_scalar_get call
 
      @remark error checking are realized in _diet_wf_scalar_get (the underlying called function)
 
@@ -2346,9 +2346,9 @@ extern "C" {
      @param value the scalar value
 
      @return error value telling whether the recuperation of the container value succeeded or not :
-     \arg 0 on success
-     \arg 1 if the profile is null, the workflow type is invalid
-     \arg the returned error value of the underlying diet_scalar_get call
+     @arg 0 on success
+     @arg 1 if the profile is null, the workflow type is invalid
+     @arg the returned error value of the underlying diet_scalar_get call
 
      @warning this function is declared in DIET_data.h but implemented in DIET_client.cc !
      @todo error codes defined in DIET_grpc.h should better be used.
@@ -2365,14 +2365,14 @@ extern "C" {
 
      Type : int diet_wf_string_get(diet_wf_desc_t * profile, const char * id, char** value)
 
-     \arg profile the profile of the workflow
-     \arg id The 'id' parameter is the port complete id (ex: 'nodeA#out')
-     \arg value the string value
+     @arg profile the profile of the workflow
+     @arg id The 'id' parameter is the port complete id (ex: 'nodeA#out')
+     @arg value the string value
 
      The returned value could be :
-     \arg 0 on success
-     \arg 1 if the profile is null, the workflow type is invalid
-     \arg the returned error value of the underlying diet_string_get call
+     @arg 0 on success
+     @arg 1 if the profile is null, the workflow type is invalid
+     @arg the returned error value of the underlying diet_string_get call
 
      @remark error checking are realized in _diet_wf_string_get (the underlying called function)
 
@@ -2392,9 +2392,9 @@ extern "C" {
      @param value the string value
 
      @return error value telling whether the recuperation of the container value succeeded or not :
-     \arg 0 on success
-     \arg 1 if the profile is null, the workflow type is invalid
-     \arg the returned error value of the underlying diet_string_get call
+     @arg 0 on success
+     @arg 1 if the profile is null, the workflow type is invalid
+     @arg the returned error value of the underlying diet_string_get call
 
      @todo error codes defined in DIET_grpc.h should better be used.
      @sa DIET_grpc.h for error codes
@@ -2412,15 +2412,15 @@ extern "C" {
 
      Type : int diet_wf_file_get(diet_wf_desc_t * profile, const char * id, size_t* size, char** path)
 
-     \arg profile the profile of the workflow
-     \arg id The 'id' parameter is the port complete id (ex: 'nodeA#out')
-     \arg size the size of the file
-     \arg path the path to the file
+     @arg profile the profile of the workflow
+     @arg id The 'id' parameter is the port complete id (ex: 'nodeA#out')
+     @arg size the size of the file
+     @arg path the path to the file
 
      The returned value could be :
-     \arg 0 on success
-     \arg 1 if the profile is null, the workflow type is invalid
-     \arg the returned error value of the underlying diet_file_get call
+     @arg 0 on success
+     @arg 1 if the profile is null, the workflow type is invalid
+     @arg the returned error value of the underlying diet_file_get call
 
      @remark error checking are realized in _diet_wf_file_get (the underlying called function)
 
@@ -2442,9 +2442,9 @@ extern "C" {
      @param path the path to the file
 
      @return error value telling whether the recuperation of the file value succeeded or not :
-     \arg 0 on success
-     \arg 1 if the profile is null, the workflow type is invalid
-     \arg the returned error value of the underlying diet_file_get call
+     @arg 0 on success
+     @arg 1 if the profile is null, the workflow type is invalid
+     @arg the returned error value of the underlying diet_file_get call
 
      @warning this function is declared in DIET_data.h but implemented in DIET_client.cc !
 
@@ -2462,16 +2462,16 @@ extern "C" {
 
      Type : int diet_wf_matrix_get(diet_wf_desc_t * profile, const char * id, size_t* nb_rows, size_t* nb_cols, diet_matrix_order_t* order)
 
-     \arg profile the profile of the workflow
-     \arg id The 'id' parameter is the port complete id (ex: 'nodeA#out')
-     \arg nb_rows number of rows of the matrix
-     \arg nb_cols number of columns of the matrix
-     \arg order order of the matrix
+     @arg profile the profile of the workflow
+     @arg id The 'id' parameter is the port complete id (ex: 'nodeA#out')
+     @arg nb_rows number of rows of the matrix
+     @arg nb_cols number of columns of the matrix
+     @arg order order of the matrix
 
      The returned value could be :
-     \arg 0 on success
-     \arg 1 if the profile is null, the workflow type is invalid
-     \arg the returned error value of the underlying diet_matrix_get call
+     @arg 0 on success
+     @arg 1 if the profile is null, the workflow type is invalid
+     @arg the returned error value of the underlying diet_matrix_get call
 
      @remark error checking are realized in _diet_wf_matrix_get (the underlying called function)
 
@@ -2495,9 +2495,9 @@ extern "C" {
      @param order order of the matrix
 
      @return error value telling whether the recuperation of the matrix value succeeded or not :
-     \arg 0 on success
-     \arg 1 if the profile is null, the workflow type is invalid
-     \arg the returned error value of the underlying diet_matrix_get call
+     @arg 0 on success
+     @arg 1 if the profile is null, the workflow type is invalid
+     @arg the returned error value of the underlying diet_matrix_get call
 
      @todo error codes defined in DIET_grpc.h should better be used.
      @sa DIET_grpc.h for error codes
@@ -2518,14 +2518,14 @@ extern "C" {
 
      Type : int diet_wf_container_get(diet_wf_desc_t * profile, const char * id, char** dataID)
 
-     \arg profile the profile of the workflow
-     \arg id The 'id' parameter is the port complete id (ex: 'nodeA#out')
-     \arg dataID data ID
+     @arg profile the profile of the workflow
+     @arg id The 'id' parameter is the port complete id (ex: 'nodeA#out')
+     @arg dataID data ID
 
      The returned value could be :
-     \arg 0 on success
-     \arg 1 if the profile is null, the workflow type is invalid
-     \arg the returned error value of the underlying diet_container_get call
+     @arg 0 on success
+     @arg 1 if the profile is null, the workflow type is invalid
+     @arg the returned error value of the underlying diet_container_get call
 
      @remark error checking are realized in _diet_wf_container_get (the underlying called function)
 
@@ -2544,9 +2544,9 @@ extern "C" {
      @param dataID data ID
 
      @return error value telling whether the recuperation of the container value succeeded or not :
-     \arg 0 on success
-     \arg 1 if the profile is null, the workflow type is invalid
-     \arg the returned error value of the underlying diet_container_get call
+     @arg 0 on success
+     @arg 1 if the profile is null, the workflow type is invalid
+     @arg the returned error value of the underlying diet_container_get call
 
      @warning this function is declared in DIET_data.h but implemented in DIET_client.cc !
 
@@ -2568,9 +2568,9 @@ extern "C" {
      @param dataID returns the DAGDA ID of a container containing the results
 
      @return error value telling whether the recuperation of the sink value succeeded or not :
-     \arg 0 on success
-     \arg 1 if the profile is null, the workflow type is invalid, the value is invalid
-     \arg the returned error value of the underlying diet_container_get call
+     @arg 0 on success
+     @arg 1 if the profile is null, the workflow type is invalid, the value is invalid
+     @arg the returned error value of the underlying diet_container_get call
 
      @todo error codes defined in DIET_grpc.h should better be used.
      @sa DIET_grpc.h for error codes

@@ -156,26 +156,26 @@
  * DIET can be transformed into convertors.
  ****************************************************************************/
 /**
-   \brief DIET client interface
+   @brief DIET client interface
 
-   \author Philippe COMBES (Philippe.Combes@ens-lyon.fr)
+   @author Philippe COMBES (Philippe.Combes@ens-lyon.fr)
 
-   \remarks License:
+   @remarks License:
    $LICENSE$
 
-   \details
+   @details
 
    To use a \c DIET platform and access services implemented on the
    DIET Server Daemon a client program must use the DIET Client API
    described in this file.
 
-   \page DIETclient DIET Client interface
+   @page DIETclient DIET Client interface
 
    The most difficult part of building a client program is to understand how
    to describe the problem interface. Once this step is done, it is
    fairly easy to build calls to \b DIET.
 
-   \section clientProgramStructure Structure of a client program
+   @section clientProgramStructure Structure of a client program
 
    Since the client side of \b DIET is a library, a client program has to
    define a main function that uses \b DIET through function calls.
@@ -195,7 +195,7 @@
    // Successive DIET calls ...
    diet_finalize();
    }
-   \endcode
+   @endcode
 
    The client program must open its \b DIET session with a call to
    \c diet_initialize, which parses the configuration file to set
@@ -209,7 +209,7 @@
    The user must also free the memory he or she allocated for \b IN
    arguments.
 
-   \section ClientAPI Client API
+   @section ClientAPI Client API
 
    The client API follows the GridRPC definition: all
    \c diet_ functions are \b duplicated with \c grpc_
@@ -217,7 +217,7 @@
    and \c diet_finalize \c grpc_finalize belong to the
    GridRPC API.
 
-   A problem is managed through a \e function_handle, that
+   A problem is managed through a @e function_handle, that
    associates a server to a problem name. For compliance with GridRPC
    \c DIET accepts \c diet_function_handle_init, but the server
    specified in the call will be ignored; \c DIET is designed to
@@ -225,7 +225,7 @@
    performed through the function
    \c diet_function_handle_default.
 
-   The \e function_handle returned is associated to the problem description,
+   The @e function_handle returned is associated to the problem description,
    its profile, in the call to \c diet_call.
 */
 
@@ -254,14 +254,14 @@ extern "C" {
      for special command-line arguments used for omniORB.
      @return error value specifying whether the initialization was successful
      or not:
-     \arg GRPC_NO_ERROR on success
-     \arg GRPC_NOT_INITIALIZED if the initialization failed, or if
+     @arg GRPC_NO_ERROR on success
+     @arg GRPC_NOT_INITIALIZED if the initialization failed, or if
      the MA/MADAG/Workflow LogService was not located
-     \arg -1 if the CORBA servant callback of the client could not be activated
-     \arg GRPC_ALREADY_INITIALIZED if DIET has already be initialized
-     \arg DIET_FILE_IO_ERROR if an IO error happened during the config file
+     @arg -1 if the CORBA servant callback of the client could not be activated
+     @arg GRPC_ALREADY_INITIALIZED if DIET has already be initialized
+     @arg DIET_FILE_IO_ERROR if an IO error happened during the config file
      parsing
-     \arg DIET_PARSE_ERROR if the config file parsing happened
+     @arg DIET_PARSE_ERROR if the config file parsing happened
 
      @see the DIET_grpc.h file for more information about error values.
   */
@@ -375,8 +375,8 @@ extern "C" {
 
      @param id id of the persistent data to free
      @return error value corresponding the operation:
-     \arg 1 if the data has been successfully freed
-     \arg 0 if the data was not a persistent data or anything else
+     @arg 1 if the data has been successfully freed
+     @arg 0 if the data was not a persistent data or anything else
 
      @todo This function should probably return a diet_error_t value to
      correspond to other returned error values of api functions...
@@ -399,11 +399,11 @@ extern "C" {
      in/inout/out parameters of the service corresponding to the service
      description.
      @return error value specifying whether the call was successful or not:
-     \arg GRPC_NO_ERROR on success
-     \arg 1 if the profile is wrongly built, if an CORBA error was caught while
+     @arg GRPC_NO_ERROR on success
+     @arg 1 if the profile is wrongly built, if an CORBA error was caught while
      submitting the profile or if a profile to be sent was not inside the
      platform
-     \arg GRPC_SERVER_NOT_FOUND if the server was not found
+     @arg GRPC_SERVER_NOT_FOUND if the server was not found
 
      @see the DIET_grpc.h file for more information about error values.
 
@@ -424,11 +424,11 @@ extern "C" {
      in/inout/out parameters of the service corresponding to the service
      description.
      @return error value specifying whether the call was successful or not:
-     \arg GRPC_NO_ERROR on success
-     \arg 1 if the profile is wrongly built, if an CORBA error was caught
+     @arg GRPC_NO_ERROR on success
+     @arg 1 if the profile is wrongly built, if an CORBA error was caught
      while submitting the profile or if a profile to be sent was not inside
      the platform
-     \arg GRPC_SERVER_NOT_FOUND if the server was not found
+     @arg GRPC_SERVER_NOT_FOUND if the server was not found
 
      @see the DIET_grpc.h file for more information about error values.
 
@@ -448,11 +448,11 @@ extern "C" {
      in/inout/out parameters of the service corresponding to the service
      description.
      @return error value specifying whether the call was successful or not:
-     \arg GRPC_NO_ERROR on success
-     \arg 1 if the profile is wrongly built, if an CORBA error was caught while
+     @arg GRPC_NO_ERROR on success
+     @arg 1 if the profile is wrongly built, if an CORBA error was caught while
      submitting the profile or if a profile to be sent was not inside the
      platform
-     \arg GRPC_SERVER_NOT_FOUND if the server was not found
+     @arg GRPC_SERVER_NOT_FOUND if the server was not found
 
      @see the DIET_grpc.h file for more information about error values.
 
@@ -479,11 +479,11 @@ extern "C" {
      description.
      @param reqID the request ID of the performed call.
      @return error value specifying whether the call was successful or not:
-     \arg GRPC_NO_ERROR on success
-     \arg 1 if the profile is wrongly built, if an CORBA error was caught while
+     @arg GRPC_NO_ERROR on success
+     @arg 1 if the profile is wrongly built, if an CORBA error was caught while
      submitting the profile or if a profile to be sent was not inside the
      platform
-     \arg GRPC_SERVER_NOT_FOUND if the server was not found
+     @arg GRPC_SERVER_NOT_FOUND if the server was not found
 
      @see the DIET_grpc.h file for more information about error values.
 
@@ -513,11 +513,11 @@ extern "C" {
      description.
      @param reqID the request ID of the performed call.
      @return error value specifying whether the call was successful or not:
-     \arg GRPC_NO_ERROR on success
-     \arg 1 if the profile is wrongly built, if an CORBA error was caught while
+     @arg GRPC_NO_ERROR on success
+     @arg 1 if the profile is wrongly built, if an CORBA error was caught while
      submitting the profile or if a profile to be sent was not inside the
      platform
-     \arg GRPC_SERVER_NOT_FOUND if the server was not found
+     @arg GRPC_SERVER_NOT_FOUND if the server was not found
 
      @see the DIET_grpc.h file for more information about error values.
   */
@@ -546,11 +546,11 @@ extern "C" {
      description.
      @param reqID the request ID of the performed call.
      @return error value specifying whether the call was successful or not:
-     \arg GRPC_NO_ERROR on success
-     \arg 1 if the profile is wrongly built, if an CORBA error was caught while
+     @arg GRPC_NO_ERROR on success
+     @arg 1 if the profile is wrongly built, if an CORBA error was caught while
      submitting the profile or if a profile to be sent was not inside the
      platform
-     \arg GRPC_SERVER_NOT_FOUND if the server was not found
+     @arg GRPC_SERVER_NOT_FOUND if the server was not found
 
      @see the DIET_grpc.h file for more information about error values.
   */
@@ -569,9 +569,9 @@ extern "C" {
 
      @param reqID the request ID to test
      @return error value specifying whether the call was successful or not
-     \arg GRPC_NO_ERROR on success
-     \arg GRPC_NOT_COMPLETED if the call is not completed
-     \arg GRPC_OTHER_ERROR_CODE if an error occured
+     @arg GRPC_NO_ERROR on success
+     @arg GRPC_NOT_COMPLETED if the call is not completed
+     @arg GRPC_OTHER_ERROR_CODE if an error occured
      @see the DIET_grpc.h file for more information about error values.
 
   */
@@ -590,9 +590,9 @@ extern "C" {
      @param IDptr pointer to the ID of exactly one asynchronous call completed
 
      @return error value specifying whether one of the calls was successful:
-     \arg GRPC_INVALID_SESSION_ID is returned if one of the IDs is invalid
-     \arg GRPC_NO_ERROR is returned if no error appeared
-     \arg GRPC_NONE_COMPLETED is returned if no specified call has completed
+     @arg GRPC_INVALID_SESSION_ID is returned if one of the IDs is invalid
+     @arg GRPC_NO_ERROR is returned if no error appeared
+     @arg GRPC_NONE_COMPLETED is returned if no specified call has completed
      @see the DIET_grpc.h file for more information about error values.
   */
   diet_error_t
@@ -610,9 +610,9 @@ extern "C" {
      handle
 
      @return error value specifying whether the handle could be retrieve or not:
-     \arg GRPC_INVALID_SESSION_ID is returned if the session ID is invalid
-     \arg GRPC_NO_ERROR is returned if no error appeared
-     \arg GRPC_OTHER_ERROR_CODE error returned if the session ID is not
+     @arg GRPC_INVALID_SESSION_ID is returned if the session ID is invalid
+     @arg GRPC_NO_ERROR is returned if no error appeared
+     @arg GRPC_OTHER_ERROR_CODE error returned if the session ID is not
      associated to a function handle
      @see the DIET_grpc.h file for more information about error values.
   */
@@ -657,10 +657,10 @@ extern "C" {
      @param reqID request ID we want to cancel
      @return error value specifying whether the call could be cancelled based
      on its ID or not:
-     \arg GRPC_INVALID_SESSION_ID is returned if the session ID is invalid
-     \arg GRPC_NO_ERROR is returned if no error appeared
-     \arg -1 error returned if something when wrong during the cancel phase
-     \arg > 0 something else
+     @arg GRPC_INVALID_SESSION_ID is returned if the session ID is invalid
+     @arg GRPC_NO_ERROR is returned if no error appeared
+     @arg -1 error returned if something when wrong during the cancel phase
+     @arg > 0 something else
      @todo take a look at  CallAsyncMgr::deleteAsyncCallWithoutLock().
      Why are we returning values that could not be understand be the user ?
      Should better be something like error codes in the DIET_grph.h...
@@ -678,7 +678,7 @@ extern "C" {
 
      @return error value specifying whether calls have been cancelled based on
      their IDs:
-     \arg GRPC_NO_ERROR in every cases
+     @arg GRPC_NO_ERROR in every cases
      @todo the error messages for each request ID cancelled are not managed.
      @see the DIET_grpc.h file for more information about error values.
   */
@@ -692,9 +692,9 @@ extern "C" {
 
      @return error values specifying whether the wait phase has been successful
      or not:
-     \arg GRPC_INVALID_SESSION_ID is returned if the request ID is invalid
-     \arg STATUS_ERROR if something went wrong when waiting
-     \arg STATUS_DONE if the call has completed
+     @arg GRPC_INVALID_SESSION_ID is returned if the request ID is invalid
+     @arg STATUS_ERROR if something went wrong when waiting
+     @arg STATUS_DONE if the call has completed
      @todo status_to_grpc_code() must be used to convert status codes to grpc
      error codes
      @see the DIET_grpc.h file for more information about error values.
@@ -711,9 +711,9 @@ extern "C" {
 
      @return error values specifying whether the calls have been successfully
      completed:
-     \arg GRPC_INVALID_SESSION_ID is returned if the request ID is invalid
-     \arg STATUS_ERROR if something went wrong when waiting
-     \arg STATUS_DONE if the call has completed
+     @arg GRPC_INVALID_SESSION_ID is returned if the request ID is invalid
+     @arg STATUS_ERROR if something went wrong when waiting
+     @arg STATUS_DONE if the call has completed
      @todo perhaps other error codes should be returned instead of STATUS_ERROR
      and STATUS_DONE which are located in CallAsyncMgr.hh. It should better be
      error codes located in DIET_grpc.h for the user to be able to take into
@@ -733,11 +733,11 @@ extern "C" {
 
      @return error values specifying whether the calls have been successfully
      completed:
-     \arg GRPC_INVALID_SESSION_ID is returned if the request ID is invalid
-     \arg STATUS_CANCEL Cancel has been called on a reqID.
-     \arg STATUS_ERROR if something went wrong when waiting
-     \arg STATUS_DONE if the call has completed
-     \arg -1 an unexpeted error happened
+     @arg GRPC_INVALID_SESSION_ID is returned if the request ID is invalid
+     @arg STATUS_CANCEL Cancel has been called on a reqID.
+     @arg STATUS_ERROR if something went wrong when waiting
+     @arg STATUS_DONE if the call has completed
+     @arg -1 an unexpeted error happened
      @todo status_to_grpc_code() must be used to convert status codes to grpc
      error codes
      @todo something else than -1 should be returned ...
@@ -752,8 +752,8 @@ extern "C" {
 
      @return error values specifying whether the calls have been successfully
      completed:
-     \arg STATUS_ERROR if something went wrong when waiting
-     \arg STATUS_DONE if the call has completed
+     @arg STATUS_ERROR if something went wrong when waiting
+     @arg STATUS_DONE if the call has completed
      @todo status_to_grpc_code() must be used to convert status codes to grpc
      error codes
      @see the DIET_grpc.h file for more information about error values.
@@ -769,10 +769,10 @@ extern "C" {
 
      @return error values specifying whether the calls have been successfully
      completed:
-     \arg GRPC_NO_ERROR Cancel has been called on a reqID.
-     \arg GRPC_OTHER_ERROR_CODE if something went wrong when waiting
-     \arg GRPC_NO_ERROR if the call has completed
-     \arg -1 an unexpected error happened
+     @arg GRPC_NO_ERROR Cancel has been called on a reqID.
+     @arg GRPC_OTHER_ERROR_CODE if something went wrong when waiting
+     @arg GRPC_NO_ERROR if the call has completed
+     @arg -1 an unexpected error happened
      @see the DIET_grpc.h file for more information about error values.
   */
   diet_error_t
@@ -785,9 +785,9 @@ extern "C" {
      @param reqID request ID for which we need the error code
 
      @return error code of the call for which we specify the request ID:
-     \arg GRPC_INVALID_SESSION_ID is the id is not valid
-     \arg -1 if the request id is not registered
-     \arg GRPC_* corresponding error code
+     @arg GRPC_INVALID_SESSION_ID is the id is not valid
+     @arg -1 if the request id is not registered
+     @arg GRPC_* corresponding error code
 
      @see the DIET_grpc.h file for more information about error values.
   */
@@ -854,15 +854,15 @@ extern "C" {
 
      @param profile workflow profile
      @return error telling whether the workflow call was successful or not:
-     \arg 1 if the MaDag was not created during the initialization, something
+     @arg 1 if the MaDag was not created during the initialization, something
      was wrong with the type of workflow to launch
      (it must be DIET_WF_DAG or DIET_WF_FUNCTIONAL).
      Depending on the type of workflow the following problems may had occured:
      \c if \c it's \c a \c DAG, the DAG was cancelled or and error occured
      during its execution; \c if \c it's \c a \c functional \c workflow,
      the DAG execution failed or the workflow instantiation or execution failed.
-     \arg XML_MALFORMED if the workflow file was malformed
-     \arg WFL_BADSTRUCT if the structure of the workflow was incorrect
+     @arg XML_MALFORMED if the workflow file was malformed
+     @arg WFL_BADSTRUCT if the structure of the workflow was incorrect
 
      @todo the returned value corresponds to a lot of different possible
      errors ...
@@ -880,9 +880,9 @@ extern "C" {
 
      @param dagId Id of the DAG to cancel
      @return error value telling whether the cancellation was successful or not:
-     \arg 1 if the MaDag was not created during the initialization or if it's
+     @arg 1 if the MaDag was not created during the initialization or if it's
      an invalid Dag
-     \arg 0 or GRPC_NO_ERROR it no problem appeared during the cancellation of
+     @arg 0 or GRPC_NO_ERROR it no problem appeared during the cancellation of
      the Dag
 
      @todo the returned value should perhaps use the ones defined in DIET_grpc.h
