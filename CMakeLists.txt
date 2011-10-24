@@ -191,7 +191,7 @@ endif (CYGWIN)
 # Path to additional modules (i.e. used by FIND_PACKAGE commands making
 # reference to non CMake defined "standard" modules):
 set(CMAKE_MODULE_PATH ${DIET_SOURCE_DIR}/Cmake)
-message(WARNING "CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH}")
+
 # Boost is mandatory
 find_package(Boost 1.46.1 REQUIRED)
 
