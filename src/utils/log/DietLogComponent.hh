@@ -261,6 +261,8 @@ public:
    * @param name The name of this component. Set to "" if this is a SeD.
    * @param outBufferMaxSize the size of the outBuffer. If the size is 0,
    * messages will not be cached but sent immediately.
+   * @param argc number of command line arguments
+   * @param argv command line arguments array
    */
   DietLogComponent(const char* name, int outBufferMaxSize,
                    int argc, char** argv);

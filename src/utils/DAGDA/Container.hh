@@ -92,7 +92,7 @@ public:
 
   /**
    * Send the container to a remote Data Mgr
-   * @param dest  the destination dagda agent
+   * @param destName  the destination dagda agent
    * @param sendData  if true, will send all the elements of the container
    *                  if false, will send only the relationships
    */

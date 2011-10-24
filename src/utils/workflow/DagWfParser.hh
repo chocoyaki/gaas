@@ -189,8 +189,8 @@ private:
 
 class DagWfParser {
 public:
-  /** Reader constructor
-   * @param content the workflow description
+  /**
+   * @brief Reader constructor
    */
   DagWfParser();
 
@@ -364,7 +364,7 @@ protected:
   /**
    * create a node port
    * Note: two different syntax are possible for container types:
-   *  * either type="LIST(LIST(<base_type>))" : oldest syntax used in MaDag
+   *  * either type="LIST(LIST(\<base_type\>))" : oldest syntax used in MaDag
    *  * either type="<base_type>" depth="2" : new syntax used for funct parser
    *
    * @param param_type  the type of port (IN, OUT or INOUT)
@@ -413,7 +413,8 @@ protected:
   setCurrentDag(Dag& dag);
 
   /**
-   * Parse XML for one dag (beginning with <dag>)
+   * @brief Parse XML for one dag (beginning with <dag>)
+   * @param root root node of the subtree
    */
   void
   parseOneDag(DOMNode* root);
@@ -476,8 +477,8 @@ public:
   setWorkflow(FWorkflow* wf);
 
   /**
-   * Parse a <dags> DOM element
-   * @param root      the DOM node corresponding to <dags>
+   * Parse a \<dags\> DOM element
+   * @param root      the DOM node corresponding to \<dags\>
    */
   virtual void
   parseRoot(DOMNode* root);
@@ -557,8 +558,8 @@ protected:
   parseCardAttr(const DOMElement * element, WfPort* port);
 
   /**
-   * Parse a <link> element
-   * @param element the DOM element corresponding to the <link> tag
+   * Parse a \<link\> element
+   * @param element the DOM element corresponding to the \<link\> tag
    */
   void
   parseLink(const DOMElement * element);
@@ -576,7 +577,7 @@ protected:
 
   /**
    * Parse the iteration strategy tree
-   * @param element the DOM element corresponding to the <iterationstragegy>
+   * @param element the DOM element corresponding to the \<iterationstragegy\>
    *                or to an operator tag
    * @param procNode  the current processor node
    * @return a vector containing the ids of the operator(s) created

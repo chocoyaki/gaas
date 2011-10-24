@@ -113,6 +113,7 @@ public:
   /**
    * Constructor of sub-workflow (child of another workflow)
    * @param id        a unique identifier (among all parent wf processors)
+   * @param name      name of the sub-workflow
    * @param parentWf  ref to the parent wf
    */
   FWorkflow(std::string id, std::string name, FWorkflow* parentWf);

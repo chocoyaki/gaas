@@ -238,7 +238,7 @@ public:
   /**
    * Write an element of the output data (when it's a container)
    * @param dataWriter  the data output formatter
-   * @param eltIdx a list of indexes for the element
+   * @param idxList a list of indexes for the element
    */
   void
   writeDataElement(WfDataWriter* dataWriter,
@@ -292,7 +292,7 @@ public:
 
   /**
    * Set the source of the input port (when dag built by wf instanciator)
-   * @param strRef The source port (output port) reference
+   * @param adapter The source port (output port) reference
    */
   virtual void
   setPortAdapter(WfPortAdapter* adapter);
@@ -462,7 +462,7 @@ protected:
   /**
    * Stores a data defined by a value string into the data manager
    * @param valStr  the value
-   * @param valID   will contain the ID of the data
+   * @param valIDPtr   will contain the ID of the data
    */
   void
   initContainerElementValue(const char* valStr, char** valIDPtr);

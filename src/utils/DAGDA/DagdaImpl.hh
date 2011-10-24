@@ -113,21 +113,21 @@ public:
   getHostname();
 
   /**
-   * Add new child data manager
-   * @param me  the child data mgr ref
+   * @brief Add new child data manager
+   * @param name  the child data mgr ref
    */
   virtual void
   subscribe(const char* name) = 0;
 
   /**
-   * Remove child data manager
-   * @param me the child data mgr ref
+   * @brief Remove child data manager
+   * @param name the child data mgr ref
    */
   virtual void
   unsubscribe(const char* name) = 0;
 
   /**
-   * subscribe to a new parent
+   * @brief subscribe to a new parent
    * @param parentID ID of the new parent
    */
   virtual void
@@ -313,7 +313,7 @@ public:
 
   /**
    * Send a container to a remote data manager
-   * @param ID    the ID of the data
+   * @param containerID    the ID of the data
    * @param dest  the remote data mgr ref
    * @param sendElements  if true, also send each element of the container
    * @return THE ID OF THE DATA ON THE DESTINATION => WHY WOULD IT BE DIFFERENT?

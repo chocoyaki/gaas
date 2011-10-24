@@ -105,7 +105,6 @@ extern "C" {
    * @param nb_c
    * @param order
    * @param path
-   * @param ID return data ID
    *
    * @return thread ID
    */
@@ -118,14 +117,8 @@ extern "C" {
   /**
    * @brief get a data from platform (asynchronous)
    *
-   * @param dataID ID of the data to be retrieved
-   * @param value return data value
+   * @param ID ID of the data to be retrieved
    * @param type diet data type
-   * @param base_type basic data type
-   * @param nb_r
-   * @param nb_c
-   * @param order
-   * @param path
    *
    * @return thread ID
    */
@@ -428,7 +421,7 @@ extern "C" {
  * @param ID ID to the downloaded vector
  * @param[out] value downloaded vector
  * @param base_type base type
- * @oaram size vector size
+ * @param size vector size
  *
  * @return 0 (success), 1 (failure)
  */
@@ -441,7 +434,7 @@ extern "C" {
  * @param ID ID to the downloaded matrix
  * @param[out] value downloaded matrix
  * @param base_type base type
- * @oaram nb_r matrix rows number
+ * @param nb_r matrix rows number
  * @param nb_c matrix columns number
  * @param order matrix order
  *
@@ -476,7 +469,7 @@ extern "C" {
  * @brief convenience macro around dagda_get_data
  *
  * @param ID ID to the downloaded file
- * @param[out] value downloaded file path
+ * @param[out] path downloaded file path
  *
  * @return 0 (success), 1 (failure)
  */

@@ -155,7 +155,7 @@ public:
 
   /**
    * initializes the previous nodes using both
-   * the control dependencies (<prec> tag) and the
+   * the control dependencies (\<prec\> tag) and the
    * data dependencies (ports links)
    */
   virtual void
