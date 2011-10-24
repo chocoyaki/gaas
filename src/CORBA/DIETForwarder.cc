@@ -55,8 +55,8 @@
  */
 bool
 DIETForwarder::remoteCall(std::string& objName) {
-  // Fixme when cleaning the code, use std::string::npos instead of 0, 
-  // but care need to change the comparison
+  // Fixme when cleaning the code, looks for a string 
+  // that is prefixed by remote:
   if (objName.find("remote:") != 0) {
     /* Local network call: need to be forwarded to
      * the peer forwarder. Add the prefix.
