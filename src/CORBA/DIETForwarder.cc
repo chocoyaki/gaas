@@ -45,9 +45,19 @@
 #define MAX_HOSTNAME_LENGTH  255
 #endif
 
+
+/**
+ * WARNING: tricky function
+ * The function return wheter the object designed by objName is local or remote
+ * If the object is local, the prefix 'remote' will be added
+ * so that when passed to a remote omniname, it is known as a remote object
+ * When remote object, removing the remote prefix to be able to use it locally
+ */
 bool
 DIETForwarder::remoteCall(std::string& objName) {
-  if (objName.find("remote:") != std::string::npos) {
+  // Fixme when cleaning the code, use std::string::npos instead of 0, 
+  // but care need to change the comparison
+  if (objName.find("remote:") != 0) {
     /* Local network call: need to be forwarded to
      * the peer forwarder. Add the prefix.
      */
