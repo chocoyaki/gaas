@@ -90,10 +90,6 @@ option( DIET_USE_MULTICALL "Build DIET with the multiple async call (In developm
 mark_as_advanced(DIET_USE_MULTICALL)
 
 option(DIET_BUILD_DOC "Build DIET documentation." OFF)
-if( DIET_BUILD_DOC )
-  add_subdirectory(doc)
-endif()
-
 
 # --------------------- OPTIONS SET BY DEFAULT  ----------------------------
 # Are libraries dynamic libraries as opposed to library archives ?
@@ -195,7 +191,7 @@ endif (CYGWIN)
 # Path to additional modules (i.e. used by FIND_PACKAGE commands making
 # reference to non CMake defined "standard" modules):
 set(CMAKE_MODULE_PATH ${DIET_SOURCE_DIR}/Cmake)
-
+message(WARNING "CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH}")
 # Boost is mandatory
 find_package(Boost 1.46.1 REQUIRED)
 
@@ -371,7 +367,6 @@ if (BUILD_TESTING)
 
   if ( NOT DIET_BUILD_EXAMPLES )
     set(DIET_BUILD_EXAMPLES ON CACHE BOOL "Build DIET examples." FORCE)
-    message(WARNING "Examples building was activated.")
   endif ( NOT DIET_BUILD_EXAMPLES )
 
 
@@ -466,6 +461,11 @@ set( CMAKE_MOD_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/share/cmake/Modules"
 add_subdirectory(src)
 add_subdirectory(include)
 add_subdirectory(Cmake)
+if(DIET_BUILD_DOC)
+  add_subdirectory(doc)
+endif()
+
+
 
 # --------------------------------------------------------------------------
 include(${DIET_SOURCE_DIR}/Cmake/DisplaySummary.cmake)
