@@ -193,7 +193,7 @@ endif (CYGWIN)
 set(CMAKE_MODULE_PATH ${DIET_SOURCE_DIR}/Cmake)
 
 # Boost is mandatory
-find_package(Boost 1.46.1 REQUIRED)
+find_package(Boost 1.46.1 COMPONENTS regex REQUIRED)
 
 # OmniORB is mandatory:
 find_package(OmniORB)
