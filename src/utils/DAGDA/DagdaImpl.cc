@@ -251,8 +251,9 @@ conditional_filename(std::string basename) {
 
   // NOTE: should be ok with boost uuid since uuids are
   // standardized by RFC 4122 (http://tools.ietf.org/html/rfc4122)
-  const boost::regex mask("\\w*-\\w{8}-\\w{4}-\\w{4}-\\w{12}\\w*",
-                          boost::regex::perl|boost::regex::icase);
+  const boost::regex
+    mask("[[:punct:]\\w\\s]*-\\w{8}-\\w{4}-\\w{4}-\\w{12}[[:punct:]\\w\\s]*",
+         boost::regex::perl|boost::regex::icase);
   boost::smatch res;
   if (boost::regex_match(basename, res, mask)) {
     return basename;
