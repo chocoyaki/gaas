@@ -132,6 +132,7 @@
 #include "Transfers.hh"
 #endif
 
+#include <boost/detail/endian.hpp>
 
 /**  FNM_CASEFOLD for AIX (available only in AIX 5.1 or later). */
 #if __aix__
@@ -332,6 +333,17 @@ DagdaImpl::sendFile(const corba_data_t &data, const char* destName) {
   return distPath;
 }
 
+// Endianness management
+void swap_endian(CORBA::Char* array, const size_t size) {
+  char tmp;
+  for (size_t i=0; i<size/2; ++i) {
+    tmp=array[i];
+    array[i]=array[size-1-i];
+    array[size-1-i]=tmp;
+  }
+}
+
+
 /* Warning : this function MUST be protected by a dataMutex.lock()/unlock() pair. */
 /* New version: memory access optimization. */
 char*
@@ -345,6 +357,10 @@ DagdaImpl::recordData(const SeqChar& data,
                << "\n");
     corba_data_t newData;
     newData.desc = dataDesc;
+    // Endianness management.
+    if (BOOST_BYTE_ORDER != newData.desc.byte_order) {
+      newData.desc.byte_order = BOOST_BYTE_ORDER;
+    }
     lockData(dataId.c_str());
     (*getData())[dataId]=newData;
   }
@@ -363,6 +379,16 @@ DagdaImpl::recordData(const SeqChar& data,
     buffer = (*getData())[dataId].value.get_buffer(false);
 
   memcpy(buffer+offset, data.get_buffer(), data.length());
+  // Endianness management.
+  if (BOOST_BYTE_ORDER != dataDesc.byte_order) {
+    if (data.length()%dataDesc.base_type_size!=0) {
+      WARNING("data endianness cannot be converted. Something is wrong with the data size...");
+    } else {
+      // Swap endianness
+      for (size_t i=0; i<data.length(); i+=dataDesc.base_type_size)
+        swap_endian(buffer+offset+i, dataDesc.base_type_size);
+    }
+  }
   (*getData())[dataId].value.replace(data_sizeof(&dataDesc), data_sizeof(&dataDesc), buffer, true);
 
   return CORBA::string_dup((*getData())[dataId].desc.id.idNumber);

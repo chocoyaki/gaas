@@ -288,6 +288,8 @@ struct corba_data_desc_t {
   long base_type;
   type specific;
   string dataManager; // This data Dagda data manager name.
+  short byte_order;
+  short base_type_size;
 };
 typedef sequence<corba_data_desc_t> SeqCorbaDataDesc_t;
 

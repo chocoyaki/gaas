@@ -315,6 +315,8 @@
 #include "BatchSystem.hh"
 #endif
 
+#include <boost/detail/endian.hpp>
+
 extern unsigned int TRACE_LEVEL;
 
 #define MRSH_ERROR(formatted_msg, return_value)                          \
@@ -470,6 +472,36 @@ mrsh_data_desc(corba_data_desc_t* dest, diet_data_desc_t* src)
   dest->id.dataCopy = DIET_ORIGINAL;
   dest->mode = src->mode;
   dest->base_type = src->generic.base_type;
+  // Endianness management
+  dest->byte_order = BOOST_BYTE_ORDER;
+  switch (dest->base_type) {
+    case DIET_CHAR:
+      dest->base_type_size = 1;
+      break;
+    case DIET_SHORT:
+      dest->base_type_size = sizeof(short);
+      break;
+    case DIET_INT:
+      dest->base_type_size = sizeof(int);
+      break;
+    case DIET_LONGINT:
+      dest->base_type_size = sizeof(long);
+      break;
+    case DIET_FLOAT:
+      dest->base_type_size = sizeof(float);
+      break;
+    case DIET_DOUBLE:
+      dest->base_type_size = sizeof(double);
+      break;
+    case DIET_SCOMPLEX:
+      dest->base_type_size = sizeof(float)*2;
+      break;
+    case DIET_DCOMPLEX:
+      dest->base_type_size = sizeof(double)*2;
+      break;
+    default:
+      MRSH_ERROR("base type " << dest->base_type << " unknown", 1);
+  }
 
   if (__mrsh_data_desc_type(dest, src) != 0) {
     return (1);
