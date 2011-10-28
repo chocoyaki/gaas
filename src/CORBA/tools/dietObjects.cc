@@ -16,17 +16,17 @@
 /* $Id$
  * $Log$
  ****************************************************************************/
-#include <iostream>
 #include <cstdlib>
-#include <string>
-#include <list>
 #include <algorithm>
+#include <iostream>
 #include <iterator>
-#include <vector>
+#include <list>
+#include <string>
 #include <stdexcept>
+#include <vector>
 
-#include "ORBMgr.hh"
 #include "DIETForwarder.hh"
+#include "ORBMgr.hh"
 
 /* Sorted DIET contexts list. */
 static const char* DIET_CTXTS[] = {DAGDACTXT,
@@ -43,11 +43,14 @@ static const char* DIET_CTXTS[] = {DAGDACTXT,
 /* TODO: Use a more generic class. */
 class Args {
 public:
-  Args(unsigned int argc, char* argv[]) : argc(argc), argv(argv, argv+argc) {}
+  Args(unsigned int argc, char* argv[]) : argc(argc), argv(argv, argv+argc) {
+  }
 
   std::string
   getArg(const unsigned int idx) const {
-    if (idx >= argc) return "";
+    if (idx >= argc) {
+      return "";
+    }
     return argv.at(idx);
   }
 
@@ -64,7 +67,7 @@ public:
 
   bool
   list() const {
-    return getArg(1)=="list" && argc == 2;
+    return (getArg(1) == "list") && (argc == 2);
   }
 
   bool
@@ -121,7 +124,8 @@ main(int argc, char* argv[]) {
 
   Args args(argc, argv);
 
-  if (args.list()) { // Display DIET CORBA contexts
+  if (args.list()) {
+    // Display DIET CORBA contexts
     std::list<std::string> allCtxts = mgr->contextList();
     allCtxts.sort();
 
@@ -130,13 +134,15 @@ main(int argc, char* argv[]) {
     set_intersection(DIET_CTXTS, DIET_CTXTS+10,
                      allCtxts.begin(), allCtxts.end(),
                      std::insert_iterator<std::list<
-                     std::string> >(dietCtxts, dietCtxts.begin()));
+                       std::string> >(dietCtxts, dietCtxts.begin()));
 
-    for (it = dietCtxts.begin(); it != dietCtxts.end(); ++it)
+    for (it = dietCtxts.begin(); it != dietCtxts.end(); ++it) {
       std::cout << *it << "\n";
+    }
   }
 
-  if (args.objList()) { // Display DIET objects on a given contexts
+  if (args.objList()) {
+    // Display DIET objects on a given contexts
     std::list<std::string> contexts = args.values();
     contexts.sort();
     std::list<std::string> dietCtxts;
@@ -156,9 +162,9 @@ main(int argc, char* argv[]) {
       for (jt = objects.begin(); jt != objects.end(); ++jt) {
         bool isLocal = mgr->isLocal(*it, *jt);
         std::cout << "  " << *jt;
-        if (isLocal)
+        if (isLocal) {
           std::cout << " (local object)\n";
-        else {
+        } else {
           std::cout << " (proxy object reachable through "
                     << mgr->forwarderName(*it, *jt);
           std::cout << " forwarder)\n";
@@ -167,7 +173,8 @@ main(int argc, char* argv[]) {
     }
   }
 
-  if (args.forwarder() || args.objForwarder()) { // Display the Forwarders
+  if (args.forwarder() || args.objForwarder()) {
+    // Display the Forwarders
     std::list<std::string> forwarders;
     if (args.objForwarder()) {
       forwarders = args.values();
@@ -187,7 +194,7 @@ main(int argc, char* argv[]) {
           CORBA::Object_ptr object = mgr->simpleResolve(*jt, *kt);
           std::string ior = mgr->getIOR(object);
 
-          if (mgr->getHost(ior)=="@"+*it) {
+          if (mgr->getHost(ior) == ("@" + *it)) {
             objects.push_back(std::string(*jt) + "/" + *kt);
           }
         }
@@ -206,8 +213,9 @@ main(int argc, char* argv[]) {
       std::cout << "  Managing: \n";
       for (std::list<std::string>::const_iterator jt = objects.begin();
            jt != objects.end();
-           ++jt)
+           ++jt) {
         std::cout << "    - " << *jt << "\n";
+      }
     }
   }
 
