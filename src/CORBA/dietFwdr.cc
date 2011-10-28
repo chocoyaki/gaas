@@ -53,7 +53,7 @@ main(int argc, char* argv[], char* envp[]) {
   opt.setOptCallback("--ssh-key", key_path);
 
   /* Optionnal parameters/flags. */
-  opt.setOptCallback("--retry", nb_retry);
+  opt.setOptCallback("--nb-retry", nb_retry);
   opt.setOptCallback("--peer-ior", peer_ior);
 
   opt.processOptions();
