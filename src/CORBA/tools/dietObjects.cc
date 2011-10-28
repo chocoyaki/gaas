@@ -207,14 +207,20 @@ main(int argc, char* argv[]) {
         continue;
       }
 
-      std::cout << "  " << fwd->getName() << " (" << fwd->getHost() << ")";
-      std::cout << " <=> " << fwd->getPeerName()
-                << " (" << fwd->getPeerHost() << ")\n";
-      std::cout << "  Managing: \n";
-      for (std::list<std::string>::const_iterator jt = objects.begin();
+      try {
+        std::cout << "  " << fwd->getName() << " (" << fwd->getHost() << ")";
+        std::cout << " <=> " << fwd->getPeerName()
+                  << " (" << fwd->getPeerHost() << ")\n";
+        std::cout << "  Managing: \n";
+        for (std::list<std::string>::const_iterator jt = objects.begin();
            jt != objects.end();
            ++jt) {
-        std::cout << "    - " << *jt << "\n";
+          std::cout << "    - " << *jt << "\n";
+        }
+      } catch (...) {
+        std::cerr << "Error: forwarder \""
+                  << *it
+                  << "\" is unreachable\n";
       }
     }
   }
