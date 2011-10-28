@@ -6,6 +6,6 @@
 
 Welcome in using DIET.
 
-To install DIET, you must use CMAKE (a GNU-Autotools
+In order to build DIET, you'll need cmake (a GNU-Autotools
 substitute). Refer to the ./Cmake/README or the INSTALL.txt file for
 all the details.
