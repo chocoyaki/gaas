@@ -283,9 +283,6 @@ Cmake/FindXerces.cmake
 Cmake/Makefile.inc.in
 Cmake/README
 Cmake/xercesv.cc.in
-Cmake/Ctest/CMakeLists.txt
-Cmake/Ctest/CTestCustom.ctest.in
-Cmake/Ctest/OmniDaemon.bash.in
 Cmake/tests/CTestConfig.cmake
 Cmake/tests/DietTestingMacros.cmake
 Cmake/tests/runtest.cmake
@@ -313,8 +310,6 @@ src/CORBA/CMakeLists.txt
 [Templated]
 src/CORBA/DIETForwarder.cc
 src/CORBA/DIETForwarder.hh
-src/CORBA/NetConfig.cc
-src/CORBA/NetConfig.hh
 src/CORBA/ORBMgr.cc
 src/CORBA/ORBMgr.hh
 src/CORBA/Options.cc
@@ -338,11 +333,7 @@ src/CORBA/idl/CltMan.idl
 src/CORBA/idl/CltManFwdr.idl
 src/CORBA/idl/Dagda.idl
 src/CORBA/idl/DagdaFwdr.idl
-src/CORBA/idl/DataMgr.idl
-src/CORBA/idl/DataMgrFwdr.idl
 src/CORBA/idl/Forwarder.idl
-src/CORBA/idl/LocMgr.idl
-src/CORBA/idl/LocMgrFwdr.idl
 src/CORBA/idl/LocalAgent.idl
 src/CORBA/idl/LocalAgentFwdr.idl
 src/CORBA/idl/LogComponent.idl
@@ -365,8 +356,6 @@ src/CORBA/forwarders/Agent.cc
 src/CORBA/forwarders/Callback.cc
 src/CORBA/forwarders/CltMan.cc
 src/CORBA/forwarders/Dagda.cc
-src/CORBA/forwarders/DataMgr.cc
-src/CORBA/forwarders/LocMgr.cc
 src/CORBA/forwarders/LogComponent.cc
 src/CORBA/forwarders/MaDag.cc
 src/CORBA/forwarders/MasterAgent.cc
@@ -380,12 +369,8 @@ src/CORBA/forwarders/WfLogService.cc
 src/SeD/CMakeLists.txt
 [Templated]
 src/SeD/DIET_server.cc
-src/SeD/DataMgrImpl.cc
-src/SeD/DataMgrImpl.hh
 src/SeD/SeDImpl.cc
 src/SeD/SeDImpl.hh
-src/SeD/SeDJNI.cc
-src/SeD/dmat_jxta_progs.h
 
 # agent section
 [Untemplated]
@@ -404,9 +389,6 @@ src/agent/FloodRequestsList.cc
 src/agent/FloodRequestsList.hh
 src/agent/GlobalSchedulers.cc
 src/agent/GlobalSchedulers.hh
-src/agent/LA.java
-src/agent/LocMgrImpl.cc
-src/agent/LocMgrImpl.hh
 src/agent/LocalAgentImpl.cc
 src/agent/LocalAgentImpl.hh
 src/agent/MasterAgentImpl.cc
@@ -414,7 +396,6 @@ src/agent/MasterAgentImpl.hh
 src/agent/NodeDescription.hh
 src/agent/ReferenceUpdateThread.cc
 src/agent/ReferenceUpdateThread.hh
-src/agent/ReqMgr.java
 src/agent/Request.cc
 src/agent/Request.hh
 src/agent/RequestID.hh
@@ -422,10 +403,7 @@ src/agent/Schedulers.cc
 src/agent/Schedulers.hh
 src/agent/UserScheduler.cc
 src/agent/UserScheduler.hh
-src/agent/UuidsMgr.java
 src/agent/dietAgent.cc
-src/agent/localAgentJNI.cc
-src/agent/masterAgentJNI.cc
 src/agent/qsort.cc
 
 # agent workflow section
@@ -1086,8 +1064,6 @@ src/Testing/workflows/loop_container.xml.in
 # Doc section
 [Untemplated]
 doc/CMakeLists.txt
-doc/Doxyfile-man.in
-doc/Doxyfile.in
 doc/Cmake/DisplayDocSummary.cmake
 doc/Cmake/FindTransfig.cmake
 doc/Cmake/UseLATEX.cmake
@@ -1102,9 +1078,7 @@ doc/UsersManual/fig/DIETScheduling.graffle/image3.png
 doc/UsersManual/fig/DIETScheduling.pdf
 doc/UsersManual/fig/DIET_arch_request-2.pdf
 doc/UsersManual/fig/DiagrammeGridRPCDietStructure.fig
-doc/UsersManual/fig/FAST.fig
 doc/UsersManual/fig/Forwarder.png
-doc/UsersManual/fig/JXTAConfig.ps
 doc/UsersManual/fig/VizDIET.pdf
 doc/UsersManual/fig/VizDIET_screenshot_2.gif
 doc/UsersManual/fig/VizDIET_screenshot_2.png
@@ -1112,7 +1086,6 @@ doc/UsersManual/fig/dagdaArch.pdf
 doc/UsersManual/fig/dagdaArch.ps
 doc/UsersManual/fig/data.fig
 doc/UsersManual/fig/global_platform.fig
-doc/UsersManual/fig/global_platform_jxta.fig
 doc/UsersManual/fig/init.fig
 doc/UsersManual/fig/logo_DIET.gif
 doc/UsersManual/fig/logo_DIET.png
@@ -1145,7 +1118,6 @@ doc/UsersManual/UsersManual.tex
 doc/UsersManual/agent_scheduler.tex
 doc/UsersManual/appendix.tex
 doc/UsersManual/batch.tex
-doc/UsersManual/batch.tex.in
 doc/UsersManual/client.tex
 doc/UsersManual/client_scheduler.tex
 doc/UsersManual/cloud.tex
@@ -1157,8 +1129,6 @@ doc/UsersManual/description.tex
 doc/UsersManual/dynamic.tex
 doc/UsersManual/forwarder.tex
 doc/UsersManual/install.tex
-doc/UsersManual/juxmem.tex
-doc/UsersManual/jxta.tex
 doc/UsersManual/multima.tex
 doc/UsersManual/plugin.tex
 doc/UsersManual/prediction.tex
@@ -1277,15 +1247,6 @@ doc/Tutorial/solutions/exercise2/server.c
 # Cmake Section
 [Devel_untemplated]
 Cmake/TODO
-
-# Section TESTING:
-# Les utilitaires servant a mettre en place et a developper la test suite
-# sont reserve aux developpeurs:
-[Devel_Untemplated]
-src/Testing/Utilities/README
-src/Testing/Utilities/LightClient/MainFrame.java
-src/Testing/Utilities/LightClient/Makefile
-src/Testing/Utilities/LightClient/README
 
 # bin/scripts section
 [Devel_Untemplated]

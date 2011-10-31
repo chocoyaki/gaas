@@ -13,8 +13,7 @@ INSTALL( TARGETS dmat_manips_server DESTINATION bin/examples/dmat_manips )
 ### ... and many clients
 SET( C_CLIENT_EXAMPLES
   dmat_manips_client
-  clientWithID
-  clientJuxMem )
+  clientWithID )
 
 FOREACH( loop_var ${C_CLIENT_EXAMPLES} )
   ADD_EXECUTABLE( ${loop_var} ${loop_var}.c )
