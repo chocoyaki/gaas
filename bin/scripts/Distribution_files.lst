@@ -879,33 +879,6 @@ src/utils/events/EventObserver.hh
 src/utils/events/EventTypes.hh
 src/utils/events/TypeInfo.hh
 
-# Utils/Fault Detector section
-[Untemplated]
-src/utils/fd/CMakeLists.txt
-[Templated]
-src/utils/fd/application_watcher.cc
-src/utils/fd/application_watcher.h
-src/utils/fd/fd.h
-src/utils/fd/fd_private.h
-src/utils/fd/fdc.cc
-src/utils/fd/fdd.cc
-src/utils/fd/fdd.h
-src/utils/fd/formulae.cc
-src/utils/fd/formulae.h
-src/utils/fd/hashtable.cc
-src/utils/fd/hashtable.h
-src/utils/fd/heap.cc
-src/utils/fd/heap.h
-src/utils/fd/heartbeat_sender.cc
-src/utils/fd/heartbeat_sender.h
-src/utils/fd/list.cc
-src/utils/fd/list.h
-src/utils/fd/tcp_server.cc
-src/utils/fd/tcp_server.h
-src/utils/fd/threadoverlay.h
-src/utils/fd/udp_server.cc
-src/utils/fd/udp_server.h
-
 # Utils/ts_container section
 [Templated]
 src/utils/ts_container/ts_map.hh
