@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* CoRI: Collectors for disk ressource                                      */
-/*                                                                          */
-/* Author(s):                                                               */
-/*    - Frauenkron Peter (Peter.Frauenkron@ens-lyon.fr)                     */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file Cori_Easy_Disk.cc
+* 
+* @brief  CoRI: Collectors for disk ressource  
+* 
+* @author  - Frauenkron Peter (Peter.Frauenkron@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.6  2011/03/31 17:45:29  hguemar

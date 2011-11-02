@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* Hashed string object to be used with container                           */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)                   */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file  KeyString.cc
+* 
+* @brief  Hashed string object to be used with container
+* 
+* @author  - Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.3  2010/03/31 21:15:40  bdepardo

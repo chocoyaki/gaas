@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* DIET service table source code (this is used by agents and SeDs)         */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file ServiceTable.cc
+* 
+* @brief  DIET service table source code (this is used by agents and SeDs) 
+* 
+* @author  - Philippe COMBES (Philippe.Combes@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.6  2011/02/24 16:51:16  bdepardo

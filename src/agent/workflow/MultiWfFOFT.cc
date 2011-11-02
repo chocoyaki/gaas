@@ -1,13 +1,14 @@
-/****************************************************************************/
-/* Another multi-workflow scheduler                                         */
-/* This scheduler is based on Fairness On Finish Time algorithm             */
-/*                                                                          */
-/* Author(s):                                                               */
-/* - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)                          */
-/* - Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)                          */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file MultiWfFOFT.cc
+* 
+* @brief  Another multi-workflow scheduler based on Fairness On Finish Time algorithm
+* 
+* @author - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr) 
+*         - Benjamin Isnard (Benjamin.Isnard@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.20  2011/01/20 18:31:50  bdepardo

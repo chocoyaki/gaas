@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* DIET UserScheduler class source code.                                    */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Gael LE MAHEC (lemahec@clermont.in2p3.fr)                           */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file  UserSchedulers.cc
+* 
+* @brief   DIET UserScheduler class source code  
+* 
+* @author  - Gael LE MAHEC (lemahec@clermont.in2p3.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 
 #include "UserScheduler.hh"
 #include <dlfcn.h>

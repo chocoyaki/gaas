@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* Tools for job management on SCALAPACK servers (specification)            */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Bert VAN HEUKELOM (Bert.Van-Heukelom@ens-lyon.fr)                   */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file job.h
+* 
+* @brief   Tools for job management on SCALAPACK servers (source code)   
+* 
+* @author  - Bert VAN HEUKELOM (Bert.Van-Heukelom@ens-lyon.fr) 
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.1.1.1  2003/04/10 13:21:39  pcombes

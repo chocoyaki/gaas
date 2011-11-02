@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* DIET agent schedulers header : add yours !!!                             */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file  Schedulers.hh
+* 
+* @brief  DIET agent schedulers implementation : add yours !!!  
+* 
+* @author  - Philippe COMBES (Philippe.Combes@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.9  2006/11/16 09:55:54  eboix

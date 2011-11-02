@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* C++ Thread class description                                             */
-/*                                                                          */
-/* Author(s):                                                               */
-/* - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)                          */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file  Thread.hh
+* 
+* @brief  C++ Thread class description 
+* 
+* @author  - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.6  2011/03/18 16:28:33  hguemar

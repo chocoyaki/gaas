@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* Specific client scheduling : to implement some specific scheduling       */
-/*                                                                          */
-/* Author(s):                                                               */
-/* - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)                          */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file  SpecificClientScheduler.hh
+* 
+* @brief   Specific client scheduling : to implement some specific scheduling   
+* 
+* @author  - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.3  2011/01/12 09:12:16  bdepardo

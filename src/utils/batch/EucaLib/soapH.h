@@ -1,13 +1,14 @@
-/****************************************************************************/
-/* Batch System implementation for Amazon EC2 compatible clouds             */
-/* Auto-generated file by using gSOAP that provides an implementation       */
-/* of a SOAP client for the EC2 interface.                                  */
-/*                                                                          */
-/* Author(s):                                                               */
-/*    - Adrian Muresan (adrian.muresan@ens-lyon.fr)                         */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file soapH.h
+* 
+* @brief Batch System implementation for Amazon EC2 compatible clouds
+* 
+* @author Adrian Muresan (adrian.muresan@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
+
 /* $Id$
  * $Log$
  * Revision 1.1  2010/05/05 13:13:51  amuresan
@@ -31,140 +32,188 @@
 extern "C" {
 #endif
 #ifndef WITH_NOIDREF
-  SOAP_FMAC3 void SOAP_FMAC4 soap_markelement(struct soap*, const void*, int);
-  SOAP_FMAC3 int SOAP_FMAC4 soap_putelement(struct soap*, const void*, const char*, int, int);
-  SOAP_FMAC3 void *SOAP_FMAC4 soap_getelement(struct soap*, int*);
-  SOAP_FMAC3 int SOAP_FMAC4 soap_putindependent(struct soap*);
-  SOAP_FMAC3 int SOAP_FMAC4 soap_getindependent(struct soap*);
+  SOAP_FMAC3 void SOAP_FMAC4
+  soap_markelement(struct soap*, const void*, int);
+  SOAP_FMAC3 int SOAP_FMAC4
+  soap_putelement(struct soap*, const void*, const char*, int, int);
+  SOAP_FMAC3 void *SOAP_FMAC4
+  soap_getelement(struct soap*, int*);
+  SOAP_FMAC3 int SOAP_FMAC4
+  soap_putindependent(struct soap*);
+  SOAP_FMAC3 int SOAP_FMAC4
+  soap_getindependent(struct soap*);
 #endif
-  SOAP_FMAC3 int SOAP_FMAC4 soap_ignore_element(struct soap*);
+  SOAP_FMAC3 int SOAP_FMAC4
+  soap_ignore_element(struct soap*);
 
 #ifndef SOAP_TYPE_byte
 #define SOAP_TYPE_byte (3)
 #endif
-  SOAP_FMAC3 void SOAP_FMAC4 soap_default_byte(struct soap*, char *);
-  SOAP_FMAC3 int SOAP_FMAC4 soap_out_byte(struct soap*, const char*, int, const char *, const char*);
-  SOAP_FMAC3 char * SOAP_FMAC4 soap_in_byte(struct soap*, const char*, char *, const char*);
+  SOAP_FMAC3 void SOAP_FMAC4
+  soap_default_byte(struct soap*, char *);
+  SOAP_FMAC3 int SOAP_FMAC4
+  soap_out_byte(struct soap*, const char*, int, const char *, const char*);
+  SOAP_FMAC3 char * SOAP_FMAC4
+  soap_in_byte(struct soap*, const char*, char *, const char*);
 
 #define soap_write_byte(soap, data) (soap_begin_send(soap) || soap_put_byte(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
-  SOAP_FMAC3 int SOAP_FMAC4 soap_put_byte(struct soap*, const char *, const char*, const char*);
+  SOAP_FMAC3 int SOAP_FMAC4
+  soap_put_byte(struct soap*, const char *, const char*, const char*);
 
 #define soap_read_byte(soap, data) (soap_begin_recv(soap) || !soap_get_byte(soap, data, NULL, NULL) || soap_end_recv(soap))
 
-  SOAP_FMAC3 char * SOAP_FMAC4 soap_get_byte(struct soap*, char *, const char*, const char*);
+  SOAP_FMAC3 char * SOAP_FMAC4
+  soap_get_byte(struct soap*, char *, const char*, const char*);
 
 #ifndef SOAP_TYPE_int
 #define SOAP_TYPE_int (1)
 #endif
-  SOAP_FMAC3 void SOAP_FMAC4 soap_default_int(struct soap*, int *);
-  SOAP_FMAC3 int SOAP_FMAC4 soap_out_int(struct soap*, const char*, int, const int *, const char*);
-  SOAP_FMAC3 int * SOAP_FMAC4 soap_in_int(struct soap*, const char*, int *, const char*);
+  SOAP_FMAC3 void SOAP_FMAC4
+  soap_default_int(struct soap*, int *);
+  SOAP_FMAC3 int SOAP_FMAC4
+  soap_out_int(struct soap*, const char*, int, const int *, const char*);
+  SOAP_FMAC3 int * SOAP_FMAC4
+  soap_in_int(struct soap*, const char*, int *, const char*);
 
 #define soap_write_int(soap, data) (soap_begin_send(soap) || soap_put_int(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
-  SOAP_FMAC3 int SOAP_FMAC4 soap_put_int(struct soap*, const int *, const char*, const char*);
+  SOAP_FMAC3 int SOAP_FMAC4
+  soap_put_int(struct soap*, const int *, const char*, const char*);
 
 #define soap_read_int(soap, data) (soap_begin_recv(soap) || !soap_get_int(soap, data, NULL, NULL) || soap_end_recv(soap))
 
-  SOAP_FMAC3 int * SOAP_FMAC4 soap_get_int(struct soap*, int *, const char*, const char*);
+  SOAP_FMAC3 int * SOAP_FMAC4
+  soap_get_int(struct soap*, int *, const char*, const char*);
 
 #ifndef SOAP_TYPE_time
 #define SOAP_TYPE_time (104)
 #endif
-  SOAP_FMAC3 void SOAP_FMAC4 soap_default_time(struct soap*, time_t *);
-  SOAP_FMAC3 int SOAP_FMAC4 soap_out_time(struct soap*, const char*, int, const time_t *, const char*);
-  SOAP_FMAC3 time_t * SOAP_FMAC4 soap_in_time(struct soap*, const char*, time_t *, const char*);
+  SOAP_FMAC3 void SOAP_FMAC4
+  soap_default_time(struct soap*, time_t *);
+  SOAP_FMAC3 int SOAP_FMAC4
+  soap_out_time(struct soap*, const char*, int, const time_t *, const char*);
+  SOAP_FMAC3 time_t * SOAP_FMAC4
+  soap_in_time(struct soap*, const char*, time_t *, const char*);
 
 #define soap_write_time(soap, data) (soap_begin_send(soap) || soap_put_time(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
-  SOAP_FMAC3 int SOAP_FMAC4 soap_put_time(struct soap*, const time_t *, const char*, const char*);
+  SOAP_FMAC3 int SOAP_FMAC4
+  soap_put_time(struct soap*, const time_t *, const char*, const char*);
 
 #define soap_read_time(soap, data) (soap_begin_recv(soap) || !soap_get_time(soap, data, NULL, NULL) || soap_end_recv(soap))
 
-  SOAP_FMAC3 time_t * SOAP_FMAC4 soap_get_time(struct soap*, time_t *, const char*, const char*);
+  SOAP_FMAC3 time_t * SOAP_FMAC4
+  soap_get_time(struct soap*, time_t *, const char*, const char*);
 
 #ifndef SOAP_TYPE_xsd__boolean_
 #define SOAP_TYPE_xsd__boolean_ (62)
 #endif
-  SOAP_FMAC3 void SOAP_FMAC4 soap_default_xsd__boolean_(struct soap*, enum xsd__boolean_ *);
-  SOAP_FMAC3 int SOAP_FMAC4 soap_out_xsd__boolean_(struct soap*, const char*, int, const enum xsd__boolean_ *, const char*);
+  SOAP_FMAC3 void SOAP_FMAC4
+  soap_default_xsd__boolean_(struct soap*, enum xsd__boolean_ *);
+  SOAP_FMAC3 int SOAP_FMAC4
+  soap_out_xsd__boolean_(struct soap*, const char*, int, const enum xsd__boolean_ *, const char*);
 
-  SOAP_FMAC3S const char* SOAP_FMAC4S soap_xsd__boolean_2s(struct soap*, enum xsd__boolean_);
-  SOAP_FMAC3 enum xsd__boolean_ * SOAP_FMAC4 soap_in_xsd__boolean_(struct soap*, const char*, enum xsd__boolean_ *, const char*);
+  SOAP_FMAC3S const char* SOAP_FMAC4S
+  soap_xsd__boolean_2s(struct soap*, enum xsd__boolean_);
+  SOAP_FMAC3 enum xsd__boolean_ * SOAP_FMAC4
+  soap_in_xsd__boolean_(struct soap*, const char*, enum xsd__boolean_ *, const char*);
 
-  SOAP_FMAC3S int SOAP_FMAC4S soap_s2xsd__boolean_(struct soap*, const char*, enum xsd__boolean_ *);
+  SOAP_FMAC3S int SOAP_FMAC4S
+  soap_s2xsd__boolean_(struct soap*, const char*, enum xsd__boolean_ *);
 
 #define soap_write_xsd__boolean_(soap, data) (soap_begin_send(soap) || soap_put_xsd__boolean_(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
-  SOAP_FMAC3 int SOAP_FMAC4 soap_put_xsd__boolean_(struct soap*, const enum xsd__boolean_ *, const char*, const char*);
+  SOAP_FMAC3 int SOAP_FMAC4
+  soap_put_xsd__boolean_(struct soap*, const enum xsd__boolean_ *, const char*, const char*);
 
 #define soap_read_xsd__boolean_(soap, data) (soap_begin_recv(soap) || !soap_get_xsd__boolean_(soap, data, NULL, NULL) || soap_end_recv(soap))
 
-  SOAP_FMAC3 enum xsd__boolean_ * SOAP_FMAC4 soap_get_xsd__boolean_(struct soap*, enum xsd__boolean_ *, const char*, const char*);
+  SOAP_FMAC3 enum xsd__boolean_ * SOAP_FMAC4
+  soap_get_xsd__boolean_(struct soap*, enum xsd__boolean_ *, const char*, const char*);
 
 #ifndef SOAP_TYPE_wsse__FaultcodeEnum
 #define SOAP_TYPE_wsse__FaultcodeEnum (9)
 #endif
-  SOAP_FMAC3 void SOAP_FMAC4 soap_default_wsse__FaultcodeEnum(struct soap*, enum wsse__FaultcodeEnum *);
-  SOAP_FMAC3 int SOAP_FMAC4 soap_out_wsse__FaultcodeEnum(struct soap*, const char*, int, const enum wsse__FaultcodeEnum *, const char*);
+  SOAP_FMAC3 void SOAP_FMAC4
+  soap_default_wsse__FaultcodeEnum(struct soap*, enum wsse__FaultcodeEnum *);
+  SOAP_FMAC3 int SOAP_FMAC4
+  soap_out_wsse__FaultcodeEnum(struct soap*, const char*, int, const enum wsse__FaultcodeEnum *, const char*);
 
-  SOAP_FMAC3S const char* SOAP_FMAC4S soap_wsse__FaultcodeEnum2s(struct soap*, enum wsse__FaultcodeEnum);
-  SOAP_FMAC3 enum wsse__FaultcodeEnum * SOAP_FMAC4 soap_in_wsse__FaultcodeEnum(struct soap*, const char*, enum wsse__FaultcodeEnum *, const char*);
+  SOAP_FMAC3S const char* SOAP_FMAC4S
+  soap_wsse__FaultcodeEnum2s(struct soap*, enum wsse__FaultcodeEnum);
+  SOAP_FMAC3 enum wsse__FaultcodeEnum * SOAP_FMAC4
+  soap_in_wsse__FaultcodeEnum(struct soap*, const char*, enum wsse__FaultcodeEnum *, const char*);
 
-  SOAP_FMAC3S int SOAP_FMAC4S soap_s2wsse__FaultcodeEnum(struct soap*, const char*, enum wsse__FaultcodeEnum *);
+  SOAP_FMAC3S int SOAP_FMAC4S
+  soap_s2wsse__FaultcodeEnum(struct soap*, const char*, enum wsse__FaultcodeEnum *);
 
 #define soap_write_wsse__FaultcodeEnum(soap, data) (soap_begin_send(soap) || soap_put_wsse__FaultcodeEnum(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
-  SOAP_FMAC3 int SOAP_FMAC4 soap_put_wsse__FaultcodeEnum(struct soap*, const enum wsse__FaultcodeEnum *, const char*, const char*);
+  SOAP_FMAC3 int SOAP_FMAC4
+  soap_put_wsse__FaultcodeEnum(struct soap*, const enum wsse__FaultcodeEnum *, const char*, const char*);
 
 #define soap_read_wsse__FaultcodeEnum(soap, data) (soap_begin_recv(soap) || !soap_get_wsse__FaultcodeEnum(soap, data, NULL, NULL) || soap_end_recv(soap))
 
-  SOAP_FMAC3 enum wsse__FaultcodeEnum * SOAP_FMAC4 soap_get_wsse__FaultcodeEnum(struct soap*, enum wsse__FaultcodeEnum *, const char*, const char*);
+  SOAP_FMAC3 enum wsse__FaultcodeEnum * SOAP_FMAC4
+  soap_get_wsse__FaultcodeEnum(struct soap*, enum wsse__FaultcodeEnum *, const char*, const char*);
 
 #ifndef SOAP_TYPE_wsu__tTimestampFault
 #define SOAP_TYPE_wsu__tTimestampFault (7)
 #endif
-  SOAP_FMAC3 void SOAP_FMAC4 soap_default_wsu__tTimestampFault(struct soap*, enum wsu__tTimestampFault *);
-  SOAP_FMAC3 int SOAP_FMAC4 soap_out_wsu__tTimestampFault(struct soap*, const char*, int, const enum wsu__tTimestampFault *, const char*);
+  SOAP_FMAC3 void SOAP_FMAC4
+  soap_default_wsu__tTimestampFault(struct soap*, enum wsu__tTimestampFault *);
+  SOAP_FMAC3 int SOAP_FMAC4
+  soap_out_wsu__tTimestampFault(struct soap*, const char*, int, const enum wsu__tTimestampFault *, const char*);
 
-  SOAP_FMAC3S const char* SOAP_FMAC4S soap_wsu__tTimestampFault2s(struct soap*, enum wsu__tTimestampFault);
-  SOAP_FMAC3 enum wsu__tTimestampFault * SOAP_FMAC4 soap_in_wsu__tTimestampFault(struct soap*, const char*, enum wsu__tTimestampFault *, const char*);
+  SOAP_FMAC3S const char* SOAP_FMAC4S
+  soap_wsu__tTimestampFault2s(struct soap*, enum wsu__tTimestampFault);
+  SOAP_FMAC3 enum wsu__tTimestampFault * SOAP_FMAC4
+  soap_in_wsu__tTimestampFault(struct soap*, const char*, enum wsu__tTimestampFault *, const char*);
 
-  SOAP_FMAC3S int SOAP_FMAC4S soap_s2wsu__tTimestampFault(struct soap*, const char*, enum wsu__tTimestampFault *);
+  SOAP_FMAC3S int SOAP_FMAC4S
+  soap_s2wsu__tTimestampFault(struct soap*, const char*, enum wsu__tTimestampFault *);
 
 #define soap_write_wsu__tTimestampFault(soap, data) (soap_begin_send(soap) || soap_put_wsu__tTimestampFault(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
-  SOAP_FMAC3 int SOAP_FMAC4 soap_put_wsu__tTimestampFault(struct soap*, const enum wsu__tTimestampFault *, const char*, const char*);
+  SOAP_FMAC3 int SOAP_FMAC4
+  soap_put_wsu__tTimestampFault(struct soap*, const enum wsu__tTimestampFault *, const char*, const char*);
 
 #define soap_read_wsu__tTimestampFault(soap, data) (soap_begin_recv(soap) || !soap_get_wsu__tTimestampFault(soap, data, NULL, NULL) || soap_end_recv(soap))
 
-  SOAP_FMAC3 enum wsu__tTimestampFault * SOAP_FMAC4 soap_get_wsu__tTimestampFault(struct soap*, enum wsu__tTimestampFault *, const char*, const char*);
+  SOAP_FMAC3 enum wsu__tTimestampFault * SOAP_FMAC4
+  soap_get_wsu__tTimestampFault(struct soap*, enum wsu__tTimestampFault *, const char*, const char*);
 
 #ifndef WITH_NOGLOBAL
 
 #ifndef SOAP_TYPE_SOAP_ENV__Fault
 #define SOAP_TYPE_SOAP_ENV__Fault (467)
 #endif
-  SOAP_FMAC3 void SOAP_FMAC4 soap_default_SOAP_ENV__Fault(struct soap*, struct SOAP_ENV__Fault *);
-  SOAP_FMAC3 void SOAP_FMAC4 soap_serialize_SOAP_ENV__Fault(struct soap*, const struct SOAP_ENV__Fault *);
-  SOAP_FMAC3 int SOAP_FMAC4 soap_out_SOAP_ENV__Fault(struct soap*, const char*, int, const struct SOAP_ENV__Fault *, const char*);
-  SOAP_FMAC3 struct SOAP_ENV__Fault * SOAP_FMAC4 soap_in_SOAP_ENV__Fault(struct soap*, const char*, struct SOAP_ENV__Fault *, const char*);
+  SOAP_FMAC3 void SOAP_FMAC4
+  soap_default_SOAP_ENV__Fault(struct soap*, struct SOAP_ENV__Fault *);
+  SOAP_FMAC3 void SOAP_FMAC4
+  soap_serialize_SOAP_ENV__Fault(struct soap*, const struct SOAP_ENV__Fault *);
+  SOAP_FMAC3 int SOAP_FMAC4
+  soap_out_SOAP_ENV__Fault(struct soap*, const char*, int, const struct SOAP_ENV__Fault *, const char*);
+  SOAP_FMAC3 struct SOAP_ENV__Fault * SOAP_FMAC4
+  soap_in_SOAP_ENV__Fault(struct soap*, const char*, struct SOAP_ENV__Fault *, const char*);
 
 #define soap_write_SOAP_ENV__Fault(soap, data) (soap_begin_send(soap) || (soap_serialize_SOAP_ENV__Fault(soap, data), 0) || soap_put_SOAP_ENV__Fault(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
-  SOAP_FMAC3 int SOAP_FMAC4 soap_put_SOAP_ENV__Fault(struct soap*, const struct SOAP_ENV__Fault *, const char*, const char*);
+  SOAP_FMAC3 int SOAP_FMAC4
+  soap_put_SOAP_ENV__Fault(struct soap*, const struct SOAP_ENV__Fault *, const char*, const char*);
 
 #define soap_read_SOAP_ENV__Fault(soap, data) (soap_begin_recv(soap) || !soap_get_SOAP_ENV__Fault(soap, data, NULL, NULL) || soap_end_recv(soap))
 
-  SOAP_FMAC3 struct SOAP_ENV__Fault * SOAP_FMAC4 soap_get_SOAP_ENV__Fault(struct soap*, struct SOAP_ENV__Fault *, const char*, const char*);
+  SOAP_FMAC3 struct SOAP_ENV__Fault * SOAP_FMAC4
+  soap_get_SOAP_ENV__Fault(struct soap*, struct SOAP_ENV__Fault *, const char*, const char*);
 
 #endif
 
@@ -173,19 +222,25 @@ extern "C" {
 #ifndef SOAP_TYPE_SOAP_ENV__Reason
 #define SOAP_TYPE_SOAP_ENV__Reason (466)
 #endif
-  SOAP_FMAC3 void SOAP_FMAC4 soap_default_SOAP_ENV__Reason(struct soap*, struct SOAP_ENV__Reason *);
-  SOAP_FMAC3 void SOAP_FMAC4 soap_serialize_SOAP_ENV__Reason(struct soap*, const struct SOAP_ENV__Reason *);
-  SOAP_FMAC3 int SOAP_FMAC4 soap_out_SOAP_ENV__Reason(struct soap*, const char*, int, const struct SOAP_ENV__Reason *, const char*);
-  SOAP_FMAC3 struct SOAP_ENV__Reason * SOAP_FMAC4 soap_in_SOAP_ENV__Reason(struct soap*, const char*, struct SOAP_ENV__Reason *, const char*);
+  SOAP_FMAC3 void SOAP_FMAC4
+  soap_default_SOAP_ENV__Reason(struct soap*, struct SOAP_ENV__Reason *);
+  SOAP_FMAC3 void SOAP_FMAC4
+  soap_serialize_SOAP_ENV__Reason(struct soap*, const struct SOAP_ENV__Reason *);
+  SOAP_FMAC3 int SOAP_FMAC4
+  soap_out_SOAP_ENV__Reason(struct soap*, const char*, int, const struct SOAP_ENV__Reason *, const char*);
+  SOAP_FMAC3 struct SOAP_ENV__Reason * SOAP_FMAC4
+  soap_in_SOAP_ENV__Reason(struct soap*, const char*, struct SOAP_ENV__Reason *, const char*);
 
 #define soap_write_SOAP_ENV__Reason(soap, data) (soap_begin_send(soap) || (soap_serialize_SOAP_ENV__Reason(soap, data), 0) || soap_put_SOAP_ENV__Reason(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
-  SOAP_FMAC3 int SOAP_FMAC4 soap_put_SOAP_ENV__Reason(struct soap*, const struct SOAP_ENV__Reason *, const char*, const char*);
+  SOAP_FMAC3 int SOAP_FMAC4
+  soap_put_SOAP_ENV__Reason(struct soap*, const struct SOAP_ENV__Reason *, const char*, const char*);
 
 #define soap_read_SOAP_ENV__Reason(soap, data) (soap_begin_recv(soap) || !soap_get_SOAP_ENV__Reason(soap, data, NULL, NULL) || soap_end_recv(soap))
 
-  SOAP_FMAC3 struct SOAP_ENV__Reason * SOAP_FMAC4 soap_get_SOAP_ENV__Reason(struct soap*, struct SOAP_ENV__Reason *, const char*, const char*);
+  SOAP_FMAC3 struct SOAP_ENV__Reason * SOAP_FMAC4
+  soap_get_SOAP_ENV__Reason(struct soap*, struct SOAP_ENV__Reason *, const char*, const char*);
 
 #endif
 
@@ -194,19 +249,25 @@ extern "C" {
 #ifndef SOAP_TYPE_SOAP_ENV__Detail
 #define SOAP_TYPE_SOAP_ENV__Detail (463)
 #endif
-  SOAP_FMAC3 void SOAP_FMAC4 soap_default_SOAP_ENV__Detail(struct soap*, struct SOAP_ENV__Detail *);
-  SOAP_FMAC3 void SOAP_FMAC4 soap_serialize_SOAP_ENV__Detail(struct soap*, const struct SOAP_ENV__Detail *);
-  SOAP_FMAC3 int SOAP_FMAC4 soap_out_SOAP_ENV__Detail(struct soap*, const char*, int, const struct SOAP_ENV__Detail *, const char*);
-  SOAP_FMAC3 struct SOAP_ENV__Detail * SOAP_FMAC4 soap_in_SOAP_ENV__Detail(struct soap*, const char*, struct SOAP_ENV__Detail *, const char*);
+  SOAP_FMAC3 void SOAP_FMAC4
+  soap_default_SOAP_ENV__Detail(struct soap*, struct SOAP_ENV__Detail *);
+  SOAP_FMAC3 void SOAP_FMAC4
+  soap_serialize_SOAP_ENV__Detail(struct soap*, const struct SOAP_ENV__Detail *);
+  SOAP_FMAC3 int SOAP_FMAC4
+  soap_out_SOAP_ENV__Detail(struct soap*, const char*, int, const struct SOAP_ENV__Detail *, const char*);
+  SOAP_FMAC3 struct SOAP_ENV__Detail * SOAP_FMAC4
+  soap_in_SOAP_ENV__Detail(struct soap*, const char*, struct SOAP_ENV__Detail *, const char*);
 
 #define soap_write_SOAP_ENV__Detail(soap, data) (soap_begin_send(soap) || (soap_serialize_SOAP_ENV__Detail(soap, data), 0) || soap_put_SOAP_ENV__Detail(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
-  SOAP_FMAC3 int SOAP_FMAC4 soap_put_SOAP_ENV__Detail(struct soap*, const struct SOAP_ENV__Detail *, const char*, const char*);
+  SOAP_FMAC3 int SOAP_FMAC4
+  soap_put_SOAP_ENV__Detail(struct soap*, const struct SOAP_ENV__Detail *, const char*, const char*);
 
 #define soap_read_SOAP_ENV__Detail(soap, data) (soap_begin_recv(soap) || !soap_get_SOAP_ENV__Detail(soap, data, NULL, NULL) || soap_end_recv(soap))
 
-  SOAP_FMAC3 struct SOAP_ENV__Detail * SOAP_FMAC4 soap_get_SOAP_ENV__Detail(struct soap*, struct SOAP_ENV__Detail *, const char*, const char*);
+  SOAP_FMAC3 struct SOAP_ENV__Detail * SOAP_FMAC4
+  soap_get_SOAP_ENV__Detail(struct soap*, struct SOAP_ENV__Detail *, const char*, const char*);
 
 #endif
 
@@ -215,80 +276,108 @@ extern "C" {
 #ifndef SOAP_TYPE_SOAP_ENV__Code
 #define SOAP_TYPE_SOAP_ENV__Code (461)
 #endif
-  SOAP_FMAC3 void SOAP_FMAC4 soap_default_SOAP_ENV__Code(struct soap*, struct SOAP_ENV__Code *);
-  SOAP_FMAC3 void SOAP_FMAC4 soap_serialize_SOAP_ENV__Code(struct soap*, const struct SOAP_ENV__Code *);
-  SOAP_FMAC3 int SOAP_FMAC4 soap_out_SOAP_ENV__Code(struct soap*, const char*, int, const struct SOAP_ENV__Code *, const char*);
-  SOAP_FMAC3 struct SOAP_ENV__Code * SOAP_FMAC4 soap_in_SOAP_ENV__Code(struct soap*, const char*, struct SOAP_ENV__Code *, const char*);
+  SOAP_FMAC3 void SOAP_FMAC4
+  soap_default_SOAP_ENV__Code(struct soap*, struct SOAP_ENV__Code *);
+  SOAP_FMAC3 void SOAP_FMAC4
+  soap_serialize_SOAP_ENV__Code(struct soap*, const struct SOAP_ENV__Code *);
+  SOAP_FMAC3 int SOAP_FMAC4
+  soap_out_SOAP_ENV__Code(struct soap*, const char*, int, const struct SOAP_ENV__Code *, const char*);
+  SOAP_FMAC3 struct SOAP_ENV__Code * SOAP_FMAC4
+  soap_in_SOAP_ENV__Code(struct soap*, const char*, struct SOAP_ENV__Code *, const char*);
 
 #define soap_write_SOAP_ENV__Code(soap, data) (soap_begin_send(soap) || (soap_serialize_SOAP_ENV__Code(soap, data), 0) || soap_put_SOAP_ENV__Code(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
-  SOAP_FMAC3 int SOAP_FMAC4 soap_put_SOAP_ENV__Code(struct soap*, const struct SOAP_ENV__Code *, const char*, const char*);
+  SOAP_FMAC3 int SOAP_FMAC4
+  soap_put_SOAP_ENV__Code(struct soap*, const struct SOAP_ENV__Code *, const char*, const char*);
 
 #define soap_read_SOAP_ENV__Code(soap, data) (soap_begin_recv(soap) || !soap_get_SOAP_ENV__Code(soap, data, NULL, NULL) || soap_end_recv(soap))
 
-  SOAP_FMAC3 struct SOAP_ENV__Code * SOAP_FMAC4 soap_get_SOAP_ENV__Code(struct soap*, struct SOAP_ENV__Code *, const char*, const char*);
+  SOAP_FMAC3 struct SOAP_ENV__Code * SOAP_FMAC4
+  soap_get_SOAP_ENV__Code(struct soap*, struct SOAP_ENV__Code *, const char*, const char*);
 
 #endif
 
 #ifndef SOAP_TYPE___ec2__DescribeRegions
 #define SOAP_TYPE___ec2__DescribeRegions (460)
 #endif
-  SOAP_FMAC3 void SOAP_FMAC4 soap_default___ec2__DescribeRegions(struct soap*, struct __ec2__DescribeRegions *);
-  SOAP_FMAC3 void SOAP_FMAC4 soap_serialize___ec2__DescribeRegions(struct soap*, const struct __ec2__DescribeRegions *);
-  SOAP_FMAC3 int SOAP_FMAC4 soap_out___ec2__DescribeRegions(struct soap*, const char*, int, const struct __ec2__DescribeRegions *, const char*);
-  SOAP_FMAC3 struct __ec2__DescribeRegions * SOAP_FMAC4 soap_in___ec2__DescribeRegions(struct soap*, const char*, struct __ec2__DescribeRegions *, const char*);
+  SOAP_FMAC3 void SOAP_FMAC4
+  soap_default___ec2__DescribeRegions(struct soap*, struct __ec2__DescribeRegions *);
+  SOAP_FMAC3 void SOAP_FMAC4
+  soap_serialize___ec2__DescribeRegions(struct soap*, const struct __ec2__DescribeRegions *);
+  SOAP_FMAC3 int SOAP_FMAC4
+  soap_out___ec2__DescribeRegions(struct soap*, const char*, int, const struct __ec2__DescribeRegions *, const char*);
+  SOAP_FMAC3 struct __ec2__DescribeRegions * SOAP_FMAC4
+  soap_in___ec2__DescribeRegions(struct soap*, const char*, struct __ec2__DescribeRegions *, const char*);
 
 #define soap_write___ec2__DescribeRegions(soap, data) (soap_begin_send(soap) || (soap_serialize___ec2__DescribeRegions(soap, data), 0) || soap_put___ec2__DescribeRegions(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
-  SOAP_FMAC3 int SOAP_FMAC4 soap_put___ec2__DescribeRegions(struct soap*, const struct __ec2__DescribeRegions *, const char*, const char*);
+  SOAP_FMAC3 int SOAP_FMAC4
+  soap_put___ec2__DescribeRegions(struct soap*, const struct __ec2__DescribeRegions *, const char*, const char*);
 
 #define soap_read___ec2__DescribeRegions(soap, data) (soap_begin_recv(soap) || !soap_get___ec2__DescribeRegions(soap, data, NULL, NULL) || soap_end_recv(soap))
 
-  SOAP_FMAC3 struct __ec2__DescribeRegions * SOAP_FMAC4 soap_get___ec2__DescribeRegions(struct soap*, struct __ec2__DescribeRegions *, const char*, const char*);
+  SOAP_FMAC3 struct __ec2__DescribeRegions * SOAP_FMAC4
+  soap_get___ec2__DescribeRegions(struct soap*, struct __ec2__DescribeRegions *, const char*, const char*);
 
 #ifndef SOAP_TYPE___ec2__CancelBundleTask
 #define SOAP_TYPE___ec2__CancelBundleTask (456)
 #endif
-  SOAP_FMAC3 void SOAP_FMAC4 soap_default___ec2__CancelBundleTask(struct soap*, struct __ec2__CancelBundleTask *);
-  SOAP_FMAC3 void SOAP_FMAC4 soap_serialize___ec2__CancelBundleTask(struct soap*, const struct __ec2__CancelBundleTask *);
-  SOAP_FMAC3 int SOAP_FMAC4 soap_out___ec2__CancelBundleTask(struct soap*, const char*, int, const struct __ec2__CancelBundleTask *, const char*);
-  SOAP_FMAC3 struct __ec2__CancelBundleTask * SOAP_FMAC4 soap_in___ec2__CancelBundleTask(struct soap*, const char*, struct __ec2__CancelBundleTask *, const char*);
+  SOAP_FMAC3 void SOAP_FMAC4
+  soap_default___ec2__CancelBundleTask(struct soap*, struct __ec2__CancelBundleTask *);
+  SOAP_FMAC3 void SOAP_FMAC4
+  soap_serialize___ec2__CancelBundleTask(struct soap*, const struct __ec2__CancelBundleTask *);
+  SOAP_FMAC3 int SOAP_FMAC4
+  soap_out___ec2__CancelBundleTask(struct soap*, const char*, int, const struct __ec2__CancelBundleTask *, const char*);
+  SOAP_FMAC3 struct __ec2__CancelBundleTask * SOAP_FMAC4
+  soap_in___ec2__CancelBundleTask(struct soap*, const char*, struct __ec2__CancelBundleTask *, const char*);
 
 #define soap_write___ec2__CancelBundleTask(soap, data) (soap_begin_send(soap) || (soap_serialize___ec2__CancelBundleTask(soap, data), 0) || soap_put___ec2__CancelBundleTask(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
-  SOAP_FMAC3 int SOAP_FMAC4 soap_put___ec2__CancelBundleTask(struct soap*, const struct __ec2__CancelBundleTask *, const char*, const char*);
+  SOAP_FMAC3 int SOAP_FMAC4
+  soap_put___ec2__CancelBundleTask(struct soap*, const struct __ec2__CancelBundleTask *, const char*, const char*);
 
 #define soap_read___ec2__CancelBundleTask(soap, data) (soap_begin_recv(soap) || !soap_get___ec2__CancelBundleTask(soap, data, NULL, NULL) || soap_end_recv(soap))
 
-  SOAP_FMAC3 struct __ec2__CancelBundleTask * SOAP_FMAC4 soap_get___ec2__CancelBundleTask(struct soap*, struct __ec2__CancelBundleTask *, const char*, const char*);
+  SOAP_FMAC3 struct __ec2__CancelBundleTask * SOAP_FMAC4
+  soap_get___ec2__CancelBundleTask(struct soap*, struct __ec2__CancelBundleTask *, const char*, const char*);
 
 #ifndef SOAP_TYPE___ec2__DescribeBundleTasks
 #define SOAP_TYPE___ec2__DescribeBundleTasks (452)
 #endif
-  SOAP_FMAC3 void SOAP_FMAC4 soap_default___ec2__DescribeBundleTasks(struct soap*, struct __ec2__DescribeBundleTasks *);
-  SOAP_FMAC3 void SOAP_FMAC4 soap_serialize___ec2__DescribeBundleTasks(struct soap*, const struct __ec2__DescribeBundleTasks *);
-  SOAP_FMAC3 int SOAP_FMAC4 soap_out___ec2__DescribeBundleTasks(struct soap*, const char*, int, const struct __ec2__DescribeBundleTasks *, const char*);
-  SOAP_FMAC3 struct __ec2__DescribeBundleTasks * SOAP_FMAC4 soap_in___ec2__DescribeBundleTasks(struct soap*, const char*, struct __ec2__DescribeBundleTasks *, const char*);
+  SOAP_FMAC3 void SOAP_FMAC4
+  soap_default___ec2__DescribeBundleTasks(struct soap*, struct __ec2__DescribeBundleTasks *);
+  SOAP_FMAC3 void SOAP_FMAC4
+  soap_serialize___ec2__DescribeBundleTasks(struct soap*, const struct __ec2__DescribeBundleTasks *);
+  SOAP_FMAC3 int SOAP_FMAC4
+  soap_out___ec2__DescribeBundleTasks(struct soap*, const char*, int, const struct __ec2__DescribeBundleTasks *, const char*);
+  SOAP_FMAC3 struct __ec2__DescribeBundleTasks * SOAP_FMAC4
+  soap_in___ec2__DescribeBundleTasks(struct soap*, const char*, struct __ec2__DescribeBundleTasks *, const char*);
 
 #define soap_write___ec2__DescribeBundleTasks(soap, data) (soap_begin_send(soap) || (soap_serialize___ec2__DescribeBundleTasks(soap, data), 0) || soap_put___ec2__DescribeBundleTasks(soap, data, NULL, NULL) || soap_end_send(soap))
 
 
-  SOAP_FMAC3 int SOAP_FMAC4 soap_put___ec2__DescribeBundleTasks(struct soap*, const struct __ec2__DescribeBundleTasks *, const char*, const char*);
+  SOAP_FMAC3 int SOAP_FMAC4
+  soap_put___ec2__DescribeBundleTasks(struct soap*, const struct __ec2__DescribeBundleTasks *, const char*, const char*);
 
 #define soap_read___ec2__DescribeBundleTasks(soap, data) (soap_begin_recv(soap) || !soap_get___ec2__DescribeBundleTasks(soap, data, NULL, NULL) || soap_end_recv(soap))
 
-  SOAP_FMAC3 struct __ec2__DescribeBundleTasks * SOAP_FMAC4 soap_get___ec2__DescribeBundleTasks(struct soap*, struct __ec2__DescribeBundleTasks *, const char*, const char*);
+  SOAP_FMAC3 struct __ec2__DescribeBundleTasks * SOAP_FMAC4
+  soap_get___ec2__DescribeBundleTasks(struct soap*, struct __ec2__DescribeBundleTasks *, const char*, const char*);
 
 #ifndef SOAP_TYPE___ec2__BundleInstance
 #define SOAP_TYPE___ec2__BundleInstance (448)
 #endif
-  SOAP_FMAC3 void SOAP_FMAC4 soap_default___ec2__BundleInstance(struct soap*, struct __ec2__BundleInstance *);
-  SOAP_FMAC3 void SOAP_FMAC4 soap_serialize___ec2__BundleInstance(struct soap*, const struct __ec2__BundleInstance *);
-  SOAP_FMAC3 int SOAP_FMAC4 soap_out___ec2__BundleInstance(struct soap*, const char*, int, const struct __ec2__BundleInstance *, const char*);
-  SOAP_FMAC3 struct __ec2__BundleInstance * SOAP_FMAC4 soap_in___ec2__BundleInstance(struct soap*, const char*, struct __ec2__BundleInstance *, const char*);
+  SOAP_FMAC3 void SOAP_FMAC4
+  soap_default___ec2__BundleInstance(struct soap*, struct __ec2__BundleInstance *);
+  SOAP_FMAC3 void SOAP_FMAC4
+  soap_serialize___ec2__BundleInstance(struct soap*, const struct __ec2__BundleInstance *);
+  SOAP_FMAC3 int SOAP_FMAC4
+  soap_out___ec2__BundleInstance(struct soap*, const char*, int, const struct __ec2__BundleInstance *, const char*);
+  SOAP_FMAC3 struct __ec2__BundleInstance * SOAP_FMAC4
+  soap_in___ec2__BundleInstance(struct soap*, const char*, struct __ec2__BundleInstance *, const char*);
 
 #define soap_write___ec2__BundleInstance(soap, data) (soap_begin_send(soap) || (soap_serialize___ec2__BundleInstance(soap, data), 0) || soap_put___ec2__BundleInstance(soap, data, NULL, NULL) || soap_end_send(soap))
 

@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* The MA DAG scheduler interface                                           */
-/*                                                                          */
-/* Author(s):                                                               */
-/* - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)                          */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file WfScheduler.cc
+* 
+* @brief  The MA DAG scheduler interface
+* 
+* @author - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.2  2008/04/28 11:54:52  bisnard

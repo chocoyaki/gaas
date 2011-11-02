@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* Parser common utilities                                                  */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Haikel Guemar (haikel.guemar@sysfera.com)                          */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file CommonParser.cc
+* 
+* @brief  Parser common utilities 
+* 
+* @author - Haikel Guemar (haikel.guemar@sysfera.com)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.5  2011/03/07 15:34:55  hguemar

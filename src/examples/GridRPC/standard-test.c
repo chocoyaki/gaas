@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* Interoperability test code of the GridRPC End-User API                   */
-/*  Author(s):                                                              */
-/*    - Yusuke Tanimura (yusuke.tanimura@aist.go.jp)                        */
-/*                                                                          */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file standard-test.c
+* 
+* @brief   Interoperability test code of the GridRPC End-User API   
+* 
+* @author  -  Yusuke Tanimura (yusuke.tanimura@aist.go.jp)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.3  2006/07/21 09:29:22  eboix

@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* Workflow client for admin commands                                       */
-/*                                                                          */
-/* Author(s):                                                               */
-/* - Benjamin Isnard (benjamin.isnard@ens-lyon.fr)                          */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file utils_client.c
+* 
+* @brief  Workflow client for admin commands   
+* 
+* @author  - Benjamin Isnard (benjamin.isnard@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.1  2009/09/25 12:54:23  bisnard

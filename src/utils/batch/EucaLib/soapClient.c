@@ -1,12 +1,17 @@
+/**
+* @file soapClient.c
+* 
+* @brief  Batch System implementation for Amazon EC2 compatible clouds
+* 
+* @author - Adrian Muresan (adrian.muresan@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /****************************************************************************/
 /* Batch System implementation for Amazon EC2 compatible clouds             */
 /* Auto-generated file by using gSOAP that provides an implementation       */
 /* of a SOAP client for the EC2 interface.                                  */
-/*                                                                          */
-/* Author(s):                                                               */
-/*    - Adrian Muresan (adrian.muresan@ens-lyon.fr)                         */
-/*                                                                          */
-/* $LICENSE$                                                                */
 /****************************************************************************/
 /* $Id$
  * $Log$

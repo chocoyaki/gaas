@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* DIET client interface                                                    */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file DIET_client.h
+* 
+* @brief  DIET client interface
+* 
+* @author - Philippe COMBES (Philippe.Combes@ens-lyon.fr)  
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.45  2010/12/28 10:35:45  hguemar

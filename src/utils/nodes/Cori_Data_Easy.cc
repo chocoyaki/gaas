@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* CoRI Collectors of ressource information (Data part)                     */
-/*                                                                          */
-/* Author(s):                                                               */
-/*    - Frauenkron Peter (Peter.Frauenkron@ens-lyon.fr)                     */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file Cori_Data_Easy.cc
+* 
+* @brief  CoRI Collectors of ressource information (Data part) 
+* 
+* @author  - Frauenkron Peter (Peter.Frauenkron@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.4  2011/01/20 23:54:49  bdepardo

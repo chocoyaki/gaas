@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* DIET data internal specification                                         */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file  DIET_data_internal.hh
+* 
+* @brief  DIET data internal specification
+* 
+* @author  - Philippe COMBES (Philippe.Combes@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.5  2008/09/10 09:04:27  bisnard

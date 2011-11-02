@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* DIET call methods                                                        */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file  DIETCall.cc
+* 
+* @brief   DIET call methods  
+* 
+* @author  - Philippe COMBES (Philippe.Combes@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.8  2011/04/20 14:16:28  bdepardo

@@ -1,13 +1,15 @@
-/****************************************************************************/
-/* DIET local agent implementation source code                              */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
-/*    - Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)                   */
-/*    - Frederic LOMBARD (Frederic.Lombard@lifc.univ-fcomte.fr)             */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file  LocalAgentImpl.cc
+* 
+* @brief  DIET local agent implementation source code  
+* 
+* @author - Philippe COMBES (Philippe.Combes@ens-lyon.fr)
+*         - Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)
+*         - Frederic LOMBARD (Frederic.Lombard@lifc.univ-fcomte.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.29  2011/02/24 11:55:46  bdepardo

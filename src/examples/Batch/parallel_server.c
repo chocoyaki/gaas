@@ -1,10 +1,13 @@
-/****************************************************************************/
-/* DIET server for parallel submission on a non NFS cluster                 */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Yves CANIOU (ycaniou@ens-lyon.fr)                                   */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file parallel_server.c
+* 
+* @brief   DIET server for parallel submission on a non NFS cluster  
+* 
+* @author  - Yves Caniou (Yves.Caniou@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.10  2011/03/25 17:35:59  hguemar

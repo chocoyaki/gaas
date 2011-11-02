@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* Type for SeD Service description                                         */
-/*                                                                          */
-/* Author(s):                                                               */
-/* - Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)                          */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file SeDService.cc
+* 
+* @brief   Type for SeD Service description  
+* 
+* @author  - Benjamin ISNARD (benjamin.isnard@ens-lyon.fr) 
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.3  2011/01/21 18:20:21  bdepardo

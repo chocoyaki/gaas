@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* file_transfer example: server side                                       */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file file_transfer_server.c
+* 
+* @brief  file_transfer example: server side  
+* 
+* @author  - Philippe COMBES (Philippe.Combes@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.2  2011/02/01 22:49:57  bdepardo

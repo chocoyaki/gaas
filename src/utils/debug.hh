@@ -1,12 +1,14 @@
-/****************************************************************************/
-/* DIET debug utils header                                                  */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
-/*    - Frederic LOMBARD (Frederic.Lombard@lifc.univ-fcomte.fr)             */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file  debug.hh
+* 
+* @brief  DIET debug utils source code 
+* 
+* @author  - Philippe COMBES (Philippe.Combes@ens-lyon.fr)
+*          - Frederic LOMBARD (Frederic.Lombard@lifc.univ-fcomte.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.35  2011/04/06 10:05:10  bdepardo

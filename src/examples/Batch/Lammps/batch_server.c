@@ -1,10 +1,13 @@
-/****************************************************************************/
-/* DIET server for Batch submission                                         */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Yves CANIOU (ycaniou@ens-lyon.fr)                                   */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file batch_server.c
+* 
+* @brief   DIET server for Batch submission   
+* 
+* @author  - Yves Caniou (Yves.Caniou@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.2  2011/01/23 19:19:59  bdepardo

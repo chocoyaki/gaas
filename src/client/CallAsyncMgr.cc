@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* Asynchronized calls singleton Mgr                                        */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Christophe PERA (christophe.pera@ens-lyon.fr)                       */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file  CallAsyncMgr.cc
+* 
+* @brief   Asynchronized calls singleton Mgr  
+* 
+* @author  - Christophe PERA (christophe.pera@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.36  2011/04/20 14:16:28  bdepardo

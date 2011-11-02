@@ -1,12 +1,13 @@
-/****************************************************************************/
-/* dmat_manips example: a DIET client for transpose, MatSUM and MatPROD     */
-/*   problems (MatSUM is expanded to SqMatSUM and SqMatSUM_bis).            */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Philippe COMBES           - LIP ENS-Lyon (France)                   */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file clientWithID.c
+* 
+* @brief  a DIET client for transpose, MatSUM and MatPROD problems 
+* 
+* @author  - Philippe COMBES (Philippe.Combes@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.11  2011/01/23 19:20:00  bdepardo

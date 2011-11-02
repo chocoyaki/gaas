@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* DIET service table header (this is used by agents and SeDs)              */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file ServiceTable.hh
+* 
+* @brief  DIET service table header (this is used by agents and SeDs) 
+* 
+* @author  - Philippe COMBES (Philippe.Combes@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.4  2010/08/04 09:06:21  glemahec

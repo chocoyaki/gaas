@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* Configuration manager                                                    */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Haikel Guemar (haikel.guemar@sysfera.com)                          */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file configuration.hh
+* 
+* @brief  Configuration manager 
+* 
+* @author - Haikel Guemar (haikel.guemar@sysfera.com)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.8  2011/03/07 15:34:55  hguemar

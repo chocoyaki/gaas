@@ -1,12 +1,13 @@
-/****************************************************************************/
-/* CoRI Collectors of ressource information                                 */
-/* This is the API Header file to use CoRI                                  */
-/*                                                                          */
-/* Author(s):                                                               */
-/*    - Frauenkron Peter (Peter.Frauenkron@ens-lyon.fr)                     */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file Cori_Metric.cc
+* 
+* @brief  This is the API impl file to use CoRI   
+* 
+* @author  - Frauenkron Peter (Peter.Frauenkron@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.2  2011/02/01 20:51:25  bdepardo

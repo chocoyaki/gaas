@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* Abstract interface for dag schedulers to handle execution events         */
-/*                                                                          */
-/* Author(s):                                                               */
-/* - Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)                          */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file DagScheduler.hh
+* 
+* @brief  Abstract interface for dag schedulers to handle execution events 
+* 
+* @author  - Benjamin ISNARD (Benjamin.Isnard@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.4  2011/04/05 14:19:08  bdepardo

@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* Template event classes (inherit from EventBase)                          */
-/*                                                                          */
-/* Author(s):                                                               */
-/* - Benjamin Isnard (benjamin.isnard@ens-lyon.fr                           */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file EventTypes.hh
+* 
+* @brief   Template event classes (inherit from EventBase) 
+* 
+* @author - Benjamin Isnard (benjamin.isnard@ens-lyon.fr
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.2  2010/11/24 15:36:59  bdepardo

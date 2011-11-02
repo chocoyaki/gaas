@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* DIET forwarder implementation - Log component forwarder implementation   */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Gael Le Mahec   (gael.le.mahec@ens-lyon.fr)                         */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file LogComponent.cc
+* 
+* @brief  DIET forwarder implementation - Log component forwarder implementation  
+* 
+* @author - Gael Le Mahec   (gael.le.mahec@ens-lyon.fr) 
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.4  2010/07/27 16:16:49  glemahec

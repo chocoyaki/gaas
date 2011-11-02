@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* Memory safe management (source code)                                     */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)                   */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file  ms_function.cc
+* 
+* @brief  Memory safe management (source code) 
+* 
+* @author  - Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.4  2003/04/10 12:45:10  pcombes

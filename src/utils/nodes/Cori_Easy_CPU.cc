@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* CoRI Collectors of ressource information                                 */
-/*                                                                          */
-/* Author(s):                                                               */
-/*    - Frauenkron Peter (Peter.Frauenkron@ens-lyon.fr)                     */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file Cori_Easy_CPU.cc
+* 
+* @brief  CoRI Colleting CPU Information for EASY  
+* 
+* @author  - Frauenkron Peter (Peter.Frauenkron@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.5  2011/03/31 17:45:29  hguemar

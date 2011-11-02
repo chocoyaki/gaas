@@ -1,12 +1,13 @@
-/****************************************************************************/
-/* The class representing the nodes of a functional workflow that will      */
-/* correspond to tasks in the DAG                                           */
-/*                                                                          */
-/* Author(s):                                                               */
-/* - Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)                          */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file FActivityNode.hh
+* 
+* @brief  The nodes of a functional workflow that correspond to tasks in the DAG 
+* 
+* @author  - Benjamin ISNARD (Benjamin.Isnard@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.5  2009/08/26 10:33:09  bisnard

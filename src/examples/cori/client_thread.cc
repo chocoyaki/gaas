@@ -1,13 +1,14 @@
-/****************************************************************************/
-/* DIET scalars example: a client for additions of all types of scalars.    */
-/* Uses threads to submit requests                                          */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Benjamin Depardon (Benjamin.Depardon@ens-lyon.fr)                   */
-/*    - Peter Frauenkron (Peter.Frauenkron@gmail.com)                       */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file client_thread.c
+* 
+* @brief  DIET scalars example: a client for additions of all types of scalars. 
+* 
+* @author  - Benjamin Depardon (Benjamin.Depardon@ens-lyon.fr)
+*          - Peter Frauenkron (Peter.Frauenkron@gmail.com) 
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.3  2010/05/07 08:19:03  bdepardo

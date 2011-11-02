@@ -1,12 +1,17 @@
+/**
+* @file serialClient.cc
+* 
+* @brief  a DIET client for using the concurrent asynchronous calls.
+* 
+* @author  - Christophe PERA (Philippe.Combes@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /****************************************************************************/
 /* dmat_manips example: a DIET client for transpose, MatSUM and MatPROD     */
 /*   problems (MatSUM is expanded to SqMatSUM and SqMatSUM_bis) using the   */
 /*   asynchronous API, but simulating the synchronous one.                  */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Christope PERA            - LIP ENS-Lyon (France)                   */
-/*                                                                          */
-/* $LICENSE$                                                                */
 /****************************************************************************/
 /* $Id$
  * $Log$

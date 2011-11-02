@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* DIET scalars example: a client for additions of all types of scalars.    */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Peter Frauenkron (Peter.Frauenkron@gmail.com)                       */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file client.c
+* 
+* @brief  DIET scalars example: a client for additions of all types of scalars 
+* 
+* @author  - Peter Frauenkron (Peter.Frauenkron@gmail.com) 
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.3  2009/08/06 14:00:52  bdepardo

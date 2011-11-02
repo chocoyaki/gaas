@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* Workflow Log Dispatcher                                                  */
-/*                                                                          */
-/* Author(s):                                                               */
-/*   - Benjamin Isnard (benjamin.isnard@ens-lyon.fr)                        */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file  WfLogDispatcher.hh
+* 
+* @brief Workflow Log Dispatcher
+* 
+* @author  - Benjamin Isnard (benjamin.isnard@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.2  2011/01/13 23:36:12  ecaron

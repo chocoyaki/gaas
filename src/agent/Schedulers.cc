@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* DIET agent schedulers implementation : add yours !!!                     */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file  Schedulers.cc
+* 
+* @brief  DIET agent schedulers implementation : add yours !!!  
+* 
+* @author  - Philippe COMBES (Philippe.Combes@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.24  2011/01/20 17:46:13  bdepardo

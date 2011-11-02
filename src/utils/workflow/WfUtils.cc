@@ -1,10 +1,13 @@
-/****************************************************************************/
-/* Some stuffs used for workflow management                                 */
-/* Author(s):                                                               */
-/* - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)                          */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file  WfUtils.cc
+* 
+* @brief  Some stuffs used for workflow management 
+* 
+* @author  - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.20  2011/03/31 17:45:29  hguemar

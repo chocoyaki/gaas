@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* Multicall client                                                         */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*   - Ghislain Charrier (ghislain.charrier@inria.fr)                       */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file client.c
+* 
+* @brief  Multicall client  
+* 
+* @author  - Ghislain Charrier (ghislain.charrier@inria.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.3  2011/05/10 13:14:58  bdepardo

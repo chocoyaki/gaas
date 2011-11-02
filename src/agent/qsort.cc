@@ -1,13 +1,13 @@
-/****************************************************************************/
-/* This is the qsort.c of the gcclib modified so that it can cope with      */
-/* another level of indirection (cf. the couples sortedIndexes / servers    */
-/* in the schedulers' algorithms).                                          */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file  qsort.cc
+* 
+* @brief This is the qsort.c of the gcclib modified so that it can cope with another level of indirectiony  
+* 
+* @author - Philippe COMBES (Philippe.Combes@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.4  2010/03/31 21:15:39  bdepardo

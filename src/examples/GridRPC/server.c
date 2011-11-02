@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* Server used for GridRPC test cases (July 2006)                          */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Abdelkader Amar (Abdelkader.Amar@ens-lyon.fr)                       */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file server.c
+* 
+* @brief   Server used for GridRPC test cases (July 2006)   
+* 
+* @author  - Abdelkader Amar (Abdelkader.Amar@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.3  2006/09/11 11:12:29  ycaniou

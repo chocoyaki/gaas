@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* DIET DynamicSeD header.                                                  */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Benjamin DEPARDON (benjamin.depardon@ens-lyon.fr)                   */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file DynamicServiceMgr.hh
+* 
+* @brief  DIET DynamicSeD header
+* 
+* @author  - Benjamin Depardon (benjamin.depardon@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.2  2011/01/21 17:31:29  bdepardo

@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* Main function of the MA DAG agent                                        */
-/*                                                                          */
-/* Author(s):                                                               */
-/* - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)                          */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file maDagAgent.cc
+* 
+* @brief  Main function of the MA DAG agent 
+* 
+* @author - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.21  2011/04/22 08:32:40  bdepardo

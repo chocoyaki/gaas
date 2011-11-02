@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* DIET client for SCALAPACK functions                                      */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file client.c
+* 
+* @brief   DIET client for SCALAPACK functions   
+* 
+* @author  - Philippe COMBES (Philippe.Combes@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.2  2003/07/25 20:37:36  pcombes

@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* Thread safe STL set header                                               */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)                   */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file ts_set.hh
+* 
+* @brief  Thread safe STL set header 
+* 
+* @author  - Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.7  2010/03/31 21:15:41  bdepardo

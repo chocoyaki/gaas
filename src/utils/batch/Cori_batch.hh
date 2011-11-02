@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* CoRI Collectors of ressource information for batch systems               */
-/*                                                                          */
-/* Author(s):                                                               */
-/*    - Yves Caniou (yves.caniou@ens-lyon.fr)                               */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file Cori_batch.hh
+* 
+* @brief  CoRI Collectors of ressource information for batch systems
+* 
+* @author - Yves Caniou (yves.caniou@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.3  2008/05/11 16:19:51  ycaniou

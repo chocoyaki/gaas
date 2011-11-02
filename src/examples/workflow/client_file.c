@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* Workflow example : Client for file workflow submission                   */
-/*                                                                          */
-/* Author(s):                                                               */
-/* - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)                          */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file client_file.c
+* 
+* @brief  Workflow example : Client for file workflow submission   
+* 
+* @author  - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.9  2010/09/06 07:41:13  bdepardo

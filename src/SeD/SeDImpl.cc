@@ -1,12 +1,14 @@
-/****************************************************************************/
-/* DIET SeD implementation source code                                      */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
-/*    - Frederic LOMBARD (Frederic.Lombard@lifc.univ-fcomte.fr)             */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file SeDImpl.cc
+* 
+* @brief  DIET SeD implementation source code 
+* 
+* @author - Philippe COMBES (Philippe.Combes@ens-lyon.fr)
+*         - Frederic LOMBARD (Frederic.Lombard@lifc.univ-fcomte.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.133  2011/05/09 13:10:11  bdepardo

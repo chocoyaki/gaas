@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* Description for an node of the DIET hierarchy                            */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)                   */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file  NodeDescription.hh
+* 
+* @brief  Description for an node of the DIET hierarchy  
+* 
+* @author - Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.7  2010/03/31 21:15:39  bdepardo

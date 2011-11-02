@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* Service that sends the IOR of the agent                                  */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)                   */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file BindService.hh
+* 
+* @brief  Service that sends the IOR of the agen
+* 
+* @author - Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.4  2006/11/16 09:55:54  eboix

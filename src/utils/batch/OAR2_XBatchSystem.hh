@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* Batch System Management with performance prediction: OAR v2.x            */
-/*                                                                          */
-/* Author(s):                                                               */
-/*    - Yves Caniou (yves.caniou@ens-lyon.fr)                               */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file OAR2_XBatchSystem.hh
+* 
+* @brief  Batch System Management with performance prediction: OAR v2.x
+* 
+* @author - Yves Caniou (yves.caniou@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.1  2009/11/27 03:24:30  ycaniou

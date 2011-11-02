@@ -1,13 +1,15 @@
-/****************************************************************************/
-/* DIET master agent implementation header                                  */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
-/*    - Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)                   */
-/*    - Frederic LOMBARD (Frederic.Lombard@lifc.univ-fcomte.fr)             */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file  MasterAgentImpl.hh
+* 
+* @brief  DIET master agent implementation header  
+* 
+* @author - Philippe COMBES (Philippe.Combes@ens-lyon.fr)
+*         - Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)
+*         - Frederic LOMBARD (Frederic.Lombard@lifc.univ-fcomte.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.24  2011/02/04 15:20:48  hguemar

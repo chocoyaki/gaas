@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* Client workflow manager class                                            */
-/*                                                                          */
-/* Author(s):                                                               */
-/* - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)                          */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file  CltWfMgr.cc
+* 
+* @brief   Client workflow manager class  
+* 
+* @author  - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.47  2011/03/17 09:27:36  hguemar

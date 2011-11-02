@@ -1,12 +1,14 @@
-/****************************************************************************/
-/* DIET CORBA marshalling source code                                       */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
-/*    - Frederic LOMBARD (Frederc.Lombard@lifc.univ-fcomte.fr)              */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file marshalling.cc
+* 
+* @brief  DIET CORBA marshalling source code 
+* 
+* @author - Philippe COMBES (Philippe.Combes@ens-lyon.fr) 
+*         - Frederic LOMBARD (Frederc.Lombard@lifc.univ-fcomte.fr) 
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.100  2011/05/10 14:33:51  bdepardo

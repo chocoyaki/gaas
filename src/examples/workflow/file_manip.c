@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* DIET scheduling - JPEG file manipulation (based on jpegtran command)     */
-/*                                                                          */
-/*  Author(s):                                                              */
-/* - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)                          */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file file_manip.c
+* 
+* @brief  DIET scheduling - JPEG file manipulation (based on jpegtran command)   
+* 
+* @author  - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.10  2011/02/01 22:27:53  bdepardo

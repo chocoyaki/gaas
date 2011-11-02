@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* DIET forwarder implementation - Forwarder executable                     */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Gael Le Mahec   (gael.le.mahec@ens-lyon.fr)                         */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file dietFwdr.hh
+* 
+* @brief   DIET forwarder implementation - Forwarder executable 
+* 
+* @author - Gaël Le Mahec (gael.le.mahec@ens-lyon.fr)  
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 
 #ifndef _DIETFWDR_HH_
 #define _DIETFWDR_HH_

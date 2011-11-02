@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* Command line parser                                                      */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Haikel Guemar (haikel.guemar@sysfera.com)                          */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file CmdParser.cc
+* 
+* @brief  Command line parser 
+* 
+* @author - Haikel Guemar (haikel.guemar@sysfera.com)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.10  2011/03/07 15:34:55  hguemar

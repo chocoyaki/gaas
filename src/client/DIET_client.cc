@@ -1,13 +1,15 @@
-/****************************************************************************/
-/* DIET client interface                                                    */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
-/*    - Frederic LOMBARD (Frederic.Lombard@lifc.univ-fcomte.fr)             */
-/*    - Christophe PERA (pera.christophe@ens-lyon.fr)                       */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file  DIET_client.cc
+* 
+* @brief   DIET client interface  
+* 
+* @author  - Philippe COMBES (Philippe.Combes@ens-lyon.fr)
+*          - Frederic LOMBARD (Frederic.Lombard@lifc.univ-fcomte.fr)
+*          - Christophe PERA (christophe.pera@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.176  2011/05/12 15:27:34  bdepardo

@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* Batch System Management with performance prediction: PBS                 */
-/*                                                                          */
-/* Author(s):                                                               */
-/*    - Benjamin Depardon (Benjamin.Depardon@ens-lyon.fr)                   */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file PBS_BatchSystem.cc
+* 
+* @brief  Batch System Management with performance prediction: PBS
+* 
+* @author - Benjamin Depardon (Benjamin.Depardon@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.7  2010/03/31 19:37:55  bdepardo

@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* DIET forwarder implementation - SeD forwarder implementation             */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Gael Le Mahec   (gael.le.mahec@ens-lyon.fr)                         */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file SeD.cc
+* 
+* @brief  DIET forwarder implementation - SeD forwarder implementation
+* 
+* @author - Gael Le Mahec   (gael.le.mahec@ens-lyon.fr) 
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.5  2011/05/09 13:10:10  bdepardo

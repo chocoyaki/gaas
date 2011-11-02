@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* The class representing the IF condition in a functional workflow         */
-/*                                                                          */
-/* Author(s):                                                               */
-/* - Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)                          */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file  FIfNode.cc
+* 
+* @brief  The class representing the IF condition in a functional workflow
+* 
+* @author  - Benjamin ISNARD (Benjamin.Isnard@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.11  2011/02/24 16:50:06  bdepardo

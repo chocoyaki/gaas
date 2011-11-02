@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* DIET server for Batch submission:                                        */
-/* -> randomly choose a number of procs to run a minimal batch script       */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Yves CANIOU (ycaniou@ens-lyon.fr)                                   */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file batch_server.c
+* 
+* @brief   Batch server: choose a random number of procs to run a minimal batch  
+* 
+* @author  - Yves Caniou (Yves.Caniou@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.14  2010/03/05 02:38:04  ycaniou

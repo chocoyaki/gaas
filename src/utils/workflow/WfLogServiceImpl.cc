@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* Workflows LogService                                                     */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Gaël Le Mahec (gael.le.mahec@ens-lyon.fr)                           */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file  WfLogServiceImpl.cc
+* 
+* @brief Workflow LogService 
+* 
+* @author  - Gaël Le Mahec (gael.le.mahec@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.4  2010/07/20 14:31:46  glemahec

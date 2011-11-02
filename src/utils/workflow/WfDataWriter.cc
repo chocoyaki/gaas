@@ -1,12 +1,13 @@
-/****************************************************************************/
-/* Abstract interface and implementations of data writers                   */
-/*                                                                          */
-/*                                                                          */
-/* Author(s):                                                               */
-/* - Benjamin Isnard (benjamin.isnard@ens-lyon.fr)                          */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file  WfDataWriter.cc
+* 
+* @brief  Abstract interface and implementations of data writers 
+* 
+* @author  - Benjamin Isnard (benjamin.isnard@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.4  2009/11/06 13:06:37  bisnard

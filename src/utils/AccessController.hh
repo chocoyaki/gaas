@@ -1,12 +1,13 @@
-/****************************************************************************/
-/* Interface for limiting access to a resource to a configurable number of  */
-/* consumers.                                                               */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Holly DAIL (Holly.Dail@ens-lyon.fr)                                 */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file  AccessController.hh
+* 
+* @brief  Interface for limiting access to a resource to a configurable consumers 
+* 
+* @author  - Holly DAIL (Holly.Dail@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.4  2010/03/31 21:15:40  bdepardo

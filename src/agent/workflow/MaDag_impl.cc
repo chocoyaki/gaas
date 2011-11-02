@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* The MA DAG CORBA object implementation                                   */
-/*                                                                          */
-/* Author(s):                                                               */
-/* - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)                          */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file MaDag_impl.cc
+* 
+* @brief  The MA DAG CORBA object implementation 
+* 
+* @author - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 
 /****************************************************************************/
 /* $Id$

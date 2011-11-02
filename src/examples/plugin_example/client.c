@@ -1,5 +1,15 @@
+/**
+* @file client.c
+* 
+* @brief  plugin_example, client side   
+* 
+* @author  - Alan SU (Alan.Su@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /****************************************************************************/
-/* plugin_example, server side                                              */
+/* plugin_example, client side                                              */
 /*                                                                          */
 /*   This example simulates a database search application, in which         */
 /*   servers have access to a fixed set of databases, and clients           */
@@ -8,11 +18,6 @@
 /*   client request scheduling based on optimization of the                 */
 /*   availability of the requested database(s) at the targeted              */
 /*   server nodes.                                                          */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Alan SU (Alan.Su@ens-lyon.fr)                                       */
-/*                                                                          */
-/* $LICENSE$                                                                */
 /****************************************************************************/
 /* $Id$
  * $Log$

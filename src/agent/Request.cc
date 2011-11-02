@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* Request class source code                                                */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)                   */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file  Request.cc
+* 
+* @brief  Request class source code  
+* 
+* @author  - Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.10  2010/03/31 21:15:39  bdepardo

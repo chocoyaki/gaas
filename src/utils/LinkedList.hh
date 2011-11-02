@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* Thread generic double linked list header                                 */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)                   */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file  LinkedList.hh
+* 
+* @brief  Thread generic double linked list header
+* 
+* @author  - Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.6  2010/03/31 21:15:40  bdepardo

@@ -1,12 +1,13 @@
-/****************************************************************************/
-/* Another multi-workflow scheduler                                         */
-/* This scheduler is based on Shortest Remaining Processing Time            */
-/*                                                                          */
-/* Author(s):                                                               */
-/* - Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)                          */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file MultiWfSRPT.cc
+* 
+* @brief  Another multi-workflow scheduler based on Shortest Remaining Processing Time
+* 
+* @author - Benjamin Isnard (Benjamin.Isnard@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.4  2011/01/21 17:28:50  bdepardo

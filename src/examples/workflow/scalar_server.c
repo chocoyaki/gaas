@@ -1,12 +1,13 @@
-/****************************************************************************/
-/* DIET scheduling - This server include all services needed to execute     */
-/* the workflow described in scalar.xml                  .                  */
-/*                                                                          */
-/*  Author(s):                                                              */
-/* - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)                          */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file scalar_server.c
+* 
+* @brief  Include services needed to execute the workflow in scalar.xml   
+* 
+* @author  - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.9  2011/01/23 19:20:01  bdepardo

@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* The classes representing the for/while loops of a functional workflow    */
-/*                                                                          */
-/* Author(s):                                                               */
-/* - Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)                          */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file  FLoopNode.hh
+* 
+* @brief  The classes representing the for/while loops of a functional workflow
+* 
+* @author  - Benjamin ISNARD (Benjamin.Isnard@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.5  2011/01/13 23:07:20  ecaron

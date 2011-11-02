@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* DIET forwarder implementation - SSH Tunnel implementation                */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Gael Le Mahec   (gael.le.mahec@ens-lyon.fr)                         */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file SSHTunnel.hh
+* 
+* @brief  DIET forwarder implementation - SSH Tunnel implementation 
+* 
+* @author - Gaël Le Mahec (gael.le.mahec@ens-lyon.fr)  
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 
 #ifndef SSHTUNNEL_HH
 #define SSHTUNNEL_HH

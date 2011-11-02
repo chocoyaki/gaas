@@ -1,12 +1,13 @@
-/****************************************************************************/
-/* Dynamic hierarchy management                                             */
-/* Example code for dynamically changing the parent of an element.          */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Benjamin DEPARDON (Benjamin.Depardon@ens-lyon.fr)                   */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file connect.cc
+* 
+* @brief  Example code for dynamically changing the parent of an element.  
+* 
+* @author  - Benjamin Depardon (benjamin.depardon@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.2  2010/01/14 11:06:37  bdepardo

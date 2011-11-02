@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* Class TypeInfo                                                           */
-/*                                                                          */
-/* Author(s):                                                               */
-/*   - Benjamin Isnard (benjamin.isnard@ens-lyon.fr)                        */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file TypeInfo.hh
+* 
+* @brief   Class TypeInf 
+* 
+* @author - Benjamin Isnard (benjamin.isnard@ens-lyon.fr
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.3  2011/01/13 23:55:44  ecaron

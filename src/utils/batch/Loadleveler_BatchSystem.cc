@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* Batch System Management with performance prediction: Loadleveler         */
-/*                                                                          */
-/* Author(s):                                                               */
-/*    - Yves Caniou (yves.caniou@ens-lyon.fr)                               */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file Loadleveler_BatchSystem.cc
+* 
+* @brief  Batch System Management with performance prediction: Loadleveler
+* 
+* @author - Yves Caniou (yves.caniou@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.6  2010/03/31 19:37:55  bdepardo

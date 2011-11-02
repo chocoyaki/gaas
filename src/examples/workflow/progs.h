@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* dmat_manips example: matrix manipulations programs                       */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file progs.h
+* 
+* @brief  mat_manips example: matrix manipulations program   
+* 
+* @author  - Philippe COMBES (Philippe.Combes@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.2  2011/01/17 18:35:16  bdepardo

@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* POA callback implementation                                             */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Christophe PERA (christophe.pera@ens-lyon.fr)                       */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file  CallbackImpl.cc
+* 
+* @brief   POA callback implementation  
+* 
+* @author  - Christophe PERA (christophe.pera@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.10  2011/04/21 16:02:59  bdepardo

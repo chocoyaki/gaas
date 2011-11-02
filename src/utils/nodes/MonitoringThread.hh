@@ -1,13 +1,14 @@
-/****************************************************************************/
-/* MonitoringThread header - actively collects monitoring information for   */
-/* DIET, mainly from FAST                                                   */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Georg Hoesch (hoesch@in.tum.de)                                     */
-/*    - Cyrille Pontvieux (cyrille.pontvieux@edu.univ-fcomte.fr)            */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file MonitoringThread.hh
+* 
+* @brief  actively collects monitoring information for DIET, mainly from FAST 
+* 
+* @author  - Georg Hoesch (hoesch@in.tum.de)
+*          - Cyrille Pontvieux (cyrille.pontvieux@edu.univ-fcomte.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.2  2010/12/17 09:48:02  kcoulomb

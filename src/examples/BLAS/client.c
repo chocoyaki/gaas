@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* DIET client for BLAS functions                                           */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file  client.c
+* 
+* @brief   DIET client for BLAS functions   
+* 
+* @author  - Philippe COMBES (Philippe.Combes@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.11  2011/03/31 17:45:27  hguemar

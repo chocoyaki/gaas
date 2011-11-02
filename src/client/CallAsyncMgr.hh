@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* asynchronized calls singleton Manager                                    */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Christophe PERA (christophe.pera@ens-lyon.fr)                       */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file  CallAsyncMgr.hh
+* 
+* @brief   Asynchronized calls singleton Manager  
+* 
+* @author  - Christophe PERA (christophe.pera@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.18  2011/03/16 14:54:06  hguemar

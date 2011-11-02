@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* DIET Agent Exit Class implementation                                     */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Cyrille PONTVIEUX (cyrille.pontvieux@ens-lyon.fr)                   */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file  ExitClass.cc
+* 
+* @brief  DIET Agent Exit Class implementation
+* 
+* @author - Cyrille PONTVIEUX (cyrille.pontvieux@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.6  2011/02/04 15:20:48  hguemar

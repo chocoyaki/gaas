@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* DIET DynamicServiceMgr.                                                  */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Benjamin DEPARDON (benjamin.depardon@ens-lyon.fr)                   */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file DynamicServiceMgr.cc
+* 
+* @brief  DIET DynamicServiceMgr.
+* 
+* @author  - Benjamin Depardon (benjamin.depardon@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.4  2011/01/23 19:27:47  bdepardo

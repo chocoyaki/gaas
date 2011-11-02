@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* Hostname scheduler                                                       */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*   - David Loureiro (david.loureiro@sysfera.com)                          */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file HostnameRR.cc
+* 
+* @brief  Hostname scheduler 
+* 
+* @author  - David Loureiro (david.loureiro@sysfera.com) 
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.3  2011/05/10 13:14:57  bdepardo

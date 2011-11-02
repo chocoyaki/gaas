@@ -1,12 +1,14 @@
-/****************************************************************************/
-/* DIET SeD implementation header                                           */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
-/*    - Frederic LOMBARD (Frederic.Lombard@lifc.univ-fcomte.fr)             */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file SeDImpl.hh
+* 
+* @brief  DIET SeD implementation header 
+* 
+* @author - Philippe COMBES (Philippe.Combes@ens-lyon.fr)
+*         - Frederic LOMBARD (Frederic.Lombard@lifc.univ-fcomte.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.53  2011/05/09 13:10:11  bdepardo

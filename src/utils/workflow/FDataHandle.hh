@@ -1,11 +1,16 @@
+/**
+* @file FDataHandle.hh
+* 
+* @brief  Represent a data produced consumed by  a functional workflow node
+* 
+* @author  - Benjamin ISNARD (Benjamin.Isnard@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /****************************************************************************/
 /* The class used to represent a data produced or consumed by an instance   */
 /* of a functional workflow node                                            */
-/*                                                                          */
-/* Author(s):                                                               */
-/* - Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)                          */
-/*                                                                          */
-/* $LICENSE$                                                                */
 /****************************************************************************/
 /* $Id$
  * $Log$

@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* DIET forwarder implementation                                            */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Gael Le Mahec   (gael.le.mahec@ens-lyon.fr)                         */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file DIETForwarder.hh
+* 
+* @brief  DIET forwarder implementation
+* 
+* @author - Gael Le Mahec   (gael.le.mahec@ens-lyon.fr) 
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 
 #ifndef DIETFORWARDER_HH
 #define DIETFORWARDER_HH

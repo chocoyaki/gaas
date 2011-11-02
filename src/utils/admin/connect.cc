@@ -1,12 +1,12 @@
-/****************************************************************************/
-/* Dynamic hierarchy management                                             */
-/* Example code for dynamically changing the parent of an element.          */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Benjamin DEPARDON (Benjamin.Depardon@ens-lyon.fr)                   */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file connect.cc
+* @brief  Example code for dynamically changing the parent of an element.
+* 
+* @author - Benjamin DEPARDON (Benjamin.Depardon@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 
 
 #include "DIET_admin.h"

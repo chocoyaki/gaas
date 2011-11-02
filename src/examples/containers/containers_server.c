@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* Server example using Containers                                          */
-/*                                                                          */
-/* Author(s):                                                               */
-/*   - Gaël Le Mahec (gael.le.mahec@ens-lyon.fr)                            */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file containers_server.c
+* 
+* @brief  Server example using Containers 
+* 
+* @author  - Gaël Le Mahec (gael.le.mahec@ens-lyon.fr) 
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.6  2011/01/25 18:46:11  bdepardo

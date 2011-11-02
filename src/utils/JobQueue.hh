@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* Container for SeD jobs status information                                */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)                       */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file  JobQueue.hh
+* 
+* @brief  Container for SeD jobs status information
+* 
+* @author  - Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.6  2011/01/12 09:12:17  bdepardo

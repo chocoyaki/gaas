@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* GridRPC compliancy for the client interface of DIET                      */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Eddy CARON (Eddy.Caron@ens-lyon.fr)                                 */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file grpc.h
+* 
+* @brief  GridRPC compliancy for the client interface of DIET 
+* 
+* @author - Eddy CARON (Eddy.Caron@ens-lyon.fr) 
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.1  2006/06/29 12:50:03  ecaron

@@ -1,11 +1,13 @@
-/***********************************************************/
-/* Dagda component implementation.                         */
-/*                                                         */
-/*  Author(s):                                             */
-/*    - Gael Le Mahec (lemahec@clermont.in2p3.fr)          */
-/*                                                         */
-/* $LICENSE$                                               */
-/***********************************************************/
+/**
+* @file DagdaImpl.hh
+* 
+* @brief Dagda component implementation
+* 
+* @author Gael Le Mahec (lemahec@clermont.in2p3.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.35  2011/03/18 08:43:32  hguemar

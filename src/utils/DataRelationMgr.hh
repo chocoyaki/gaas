@@ -1,12 +1,13 @@
-/***********************************************************/
-/* Class used to manage relationships between data items   */
-/* (used for containers in DAGDA)                          */
-/*                                                         */
-/*  Author(s):                                             */
-/*    - Benjamin Isnard (benjamin.isnard@ens-lyon.fr       */
-/*                                                         */
-/* $LICENSE$                                               */
-/***********************************************************/
+/**
+* @file  DataRelationMgr.hh
+* 
+* @brief  Class used to manage relationships between data items (used for containers in DAGDA) 
+* 
+* @author  - Benjamin Isnard (benjamin.isnard@ens-lyon.fr
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.4  2009/09/25 12:51:31  bisnard

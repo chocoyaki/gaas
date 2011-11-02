@@ -1,12 +1,13 @@
-/****************************************************************************/
-/* The virtual class used for dagNode execution                             */
-/*                                                                          */
-/*                                                                          */
-/* Author(s):                                                               */
-/* - Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)                          */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file DagNodeLauncher.hh
+* 
+* @brief  The virtual class used for dagNode execution 
+* 
+* @author  - Benjamin ISNARD (Benjamin.Isnard@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.3  2010/07/20 09:20:11  bisnard

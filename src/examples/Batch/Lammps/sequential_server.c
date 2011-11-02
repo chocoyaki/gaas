@@ -1,10 +1,13 @@
-/****************************************************************************/
-/* DIET server for sequential submission for lammps                         */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Yves CANIOU (ycaniou@ens-lyon.fr)                                   */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file sequential_server.c
+* 
+* @brief   DIET server for sequential submission for lammps   
+* 
+* @author  - Yves Caniou (Yves.Caniou@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id: 
  * $Log: 
  ****************************************************************************/

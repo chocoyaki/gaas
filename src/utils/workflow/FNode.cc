@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* The class representing the nodes of a functional workflow                */
-/*                                                                          */
-/* Author(s):                                                               */
-/* - Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)                          */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file  FNode.cc
+* 
+* @brief  The classes representing the node functional workflow
+* 
+* @author  - Benjamin ISNARD (Benjamin.Isnard@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.25  2010/08/27 13:23:07  bisnard

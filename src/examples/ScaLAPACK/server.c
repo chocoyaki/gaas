@@ -1,12 +1,14 @@
-/****************************************************************************/
-/* DIET server for ScaLAPACK functions                                      */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
-/*    - Bert VAN HEUKELOM (Bert.Van-Heukelom@ens-lyon.fr)                   */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file server.c
+* 
+* @brief   DIET server for ScaLAPACK functions   
+* 
+* @author  - Philippe COMBES (Philippe.Combes@ens-lyon.fr)
+*          - Bert VAN HEUKELOM (Bert.Van-Heukelom@ens-lyon.fr) 
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.7  2011/02/03 19:31:31  bdepardo

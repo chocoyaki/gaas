@@ -1,10 +1,13 @@
-/****************************************************************************/
-/* Plug-in scheduler: DIET-internal estimation vector access functions      */
-/*                                                                          */
-/* Author(s):                                                               */
-/*    - Alan Su (Alan.Su@ens-lyon.fr)                                       */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file  est_internal.hh
+* 
+* @brief  Plug-in scheduler: DIET-internal estimation vector access functions
+* 
+* @author  - Alan Su (Alan.Su@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.3  2006/11/01 14:13:02  ecaron

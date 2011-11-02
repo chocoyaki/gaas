@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* Register the state of a request which is send through the MAs graph      */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)                   */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file  FloodRequestList.cc
+* 
+* @brief  Register the state of a request which is send through the MAs graph
+* 
+* @author - Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.6  2011/03/20 14:40:03  bdepardo

@@ -1,8 +1,13 @@
-/****************************************************************************/
-/* DIET agent implementation source code                                    */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file AgentImpl.cc
+* 
+* @brief  DIET agent implementation source code
+* 
+* @author 
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.77  2011/03/16 21:40:17  bdepardo

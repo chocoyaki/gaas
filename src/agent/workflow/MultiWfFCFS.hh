@@ -1,13 +1,14 @@
-/****************************************************************************/
-/* Another multi-workflow scheduler                                         */
-/* This scheduler is based on First Come First Serve                        */
-/*                                                                          */
-/* Author(s):                                                               */
-/* - Raphaël  Bolze  (raphael.bolze@ens-lyon.fr)                            */
-/* - Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)                          */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file MultiWfFCFS.hh
+* 
+* @brief  Another multi-workflow scheduler based on First Come First Serve
+* 
+* @author - Raphaël  Bolze  (raphael.bolze@ens-lyon.fr) 
+*         - Benjamin Isnard (Benjamin.Isnard@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.3  2009/01/16 13:41:22  bisnard

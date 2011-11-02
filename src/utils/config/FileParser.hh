@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* File parser                                                              */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Haikel Guemar (haikel.guemar@sysfera.com)                          */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file FileParser.hh
+* 
+* @brief  File parser  
+* 
+* @author - Haikel Guemar (haikel.guemar@sysfera.com)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.4  2011/03/07 15:34:55  hguemar

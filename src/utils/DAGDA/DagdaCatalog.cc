@@ -1,11 +1,13 @@
-/***********************************************************/
-/* Dagda catalog implementation.                           */
-/*                                                         */
-/*  Author(s):                                             */
-/*    - Gael Le Mahec (lemahec@clermont.in2p3.fr)          */
-/*                                                         */
-/* $LICENSE$                                               */
-/***********************************************************/
+/**
+* @file DagdaContainer.cc
+* 
+* @brief  Dagda catalog implementation   
+* 
+* @author  - Gael Le Mahec (lemahec@clermont.in2p3.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.5  2009/03/25 15:06:41  glemahec

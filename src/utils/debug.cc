@@ -1,12 +1,14 @@
-/****************************************************************************/
-/* DIET debug utils source code                                             */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
-/*    - Frederic LOMBARD (Frederic.Lombard@lifc.univ-fcomte.fr)             */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file  debug.cc
+* 
+* @brief  DIET debug utils source code 
+* 
+* @author  - Philippe COMBES (Philippe.Combes@ens-lyon.fr)
+*          - Frederic LOMBARD (Frederic.Lombard@lifc.univ-fcomte.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.44  2010/08/04 09:06:20  glemahec

@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* The class representing the ports of nodes of a functional workflow       */
-/*                                                                          */
-/* Author(s):                                                               */
-/* - Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)                          */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file  FNodePort.cc
+* 
+* @brief  The classes representing the ports the nodes of functional workflow
+* 
+* @author  - Benjamin ISNARD (Benjamin.Isnard@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.23  2011/03/25 17:15:20  hguemar

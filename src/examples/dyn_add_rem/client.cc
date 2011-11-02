@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* Client used to dynamically add and remove a service                      */
-/*                                                                          */
-/* Author(s):                                                               */
-/* - Benjamin Depardon (benjamin.depardon@ens-lyon.fr)                      */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file client.cc
+* 
+* @brief  Client used to dynamically add and remove a service
+* 
+* @author  - Benjamin Depardon (benjamin.depardon@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.2  2010/01/14 10:57:48  bdepardo

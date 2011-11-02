@@ -1,11 +1,13 @@
-/***********************************************************/
-/* Dagda component implementation.                         */
-/*                                                         */
-/*  Author(s):                                             */
-/*    - Gael Le Mahec (lemahec@clermont.in2p3.fr)          */
-/*                                                         */
-/* $LICENSE$                                               */
-/***********************************************************/
+/**
+* @file DagdaImpl.cc
+* 
+* @brief Dagda component implementation
+* 
+* @author Gael Le Mahec (lemahec@clermont.in2p3.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.51  2011/04/04 13:38:02  bdepardo
@@ -101,7 +103,6 @@
  ***********************************************************/
 
 
-#include <unistd.h>
 #include <cerrno>
 
 #include <list>
@@ -111,11 +112,14 @@
 #include <sstream>
 #include <iterator>
 
+#include <unistd.h>
+
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/regex.hpp>
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/uuid/uuid_generators.hpp>
+#include <boost/detail/endian.hpp>
 
 #include "Dagda.hh"
 #include "common_types.hh"
@@ -133,7 +137,7 @@
 #include "Transfers.hh"
 #endif
 
-#include <boost/detail/endian.hpp>
+
 
 /**  FNM_CASEFOLD for AIX (available only in AIX 5.1 or later). */
 #if __aix__
@@ -211,10 +215,14 @@ DagdaImpl::writeFile(const SeqChar& data, const char* basename,
     file.open(filename.c_str(), std::ios_base::app);
   }
 
-  if (!file.is_open()) throw Dagda::WriteError(errno);
+  if (!file.is_open()) {
+    throw Dagda::WriteError(errno);
+  }  
   file.write((const char*) data.get_buffer(), data.length());
 
-  if (file.bad()) throw Dagda::WriteError(errno);
+  if (file.bad()) {
+    throw Dagda::WriteError(errno);
+  }  
   TRACE_TEXT(TRACE_ALL_STEPS, "Write " << data.length()
              << " bytes on the file "
              << filename << "\n");
@@ -269,7 +277,9 @@ unsigned long
 computeFileSize(const std::string& path) {
   std::ifstream f(path.c_str());
 
-  if (!f.is_open()) return 0;
+  if (!f.is_open()) {
+    return 0;
+  }  
 
   f.seekg(0, std::ios_base::end);
   return f.tellg();
@@ -279,18 +289,21 @@ computeFileSize(const std::string& path) {
 /* CORBA */
 char*
 DagdaImpl::sendFile(const corba_data_t &data, const char* destName) {
-  Dagda_ptr dest = ORBMgr::getMgr()->resolve<Dagda, Dagda_ptr>(DAGDACTXT, destName);
+  Dagda_ptr dest = ORBMgr::getMgr()->resolve<Dagda, Dagda_ptr>(DAGDACTXT,
+							       destName);
 
-  if (data.desc.specific.file().path == NULL) // path not initialized.
+  if (data.desc.specific.file().path == NULL) {  // path not initialized.
     throw Dagda::InvalidPathName(data.desc.id.idNumber, "null");
+  }  
 
   std::ifstream file(data.desc.specific.file().path);
-  if (!file.is_open()) {// Unable to open the file.
+  if (!file.is_open()) {  // Unable to open the file.
     throw Dagda::ReadError(errno);
   }
 
-  TRACE_TEXT(TRACE_ALL_STEPS, "*** Sending file " << data.desc.specific.file().path
-             << " (" << data.desc.id.idNumber << ")\n");
+  TRACE_TEXT(TRACE_ALL_STEPS, "*** Sending file " 
+             << data.desc.specific.file().path << " (" 
+	     << data.desc.id.idNumber << ")\n");
 
   unsigned long wrote = 0;
   unsigned long fileSize = computeFileSize(std::string(data.desc.specific.file().path));
@@ -308,32 +321,37 @@ DagdaImpl::sendFile(const corba_data_t &data, const char* destName) {
                                         fileSize);
 #endif
 #ifdef USE_LOG_SERVICE
-  if (getLogComponent())
-    getLogComponent()->logDataBeginTransfer(data.desc.id.idNumber, dest->getID());
+  if (getLogComponent()) {
+    getLogComponent()->logDataBeginTransfer(data.desc.id.idNumber,
+					    dest->getID());
+  }  
 #endif
-  for (unsigned long i = 0; i<nBlocks; ++i) {
+  for (unsigned long i = 0; i < nBlocks; ++i) {
     SeqChar buffer;
     unsigned long toSend = (fileSize-wrote > getMaxMsgSize() ?
                             getMaxMsgSize():(fileSize-wrote));
     TRACE_TEXT(TRACE_ALL_STEPS, "\tSend " << toSend << " bytes...\n");
     buffer.length(toSend);
-    file.read((char*) buffer.get_buffer(false), toSend);
+    file.read(reinterpret_cast<char*> buffer.get_buffer(false), toSend);
     if (file.bad()) {
       throw Dagda::ReadError(errno);
     }
     // Send the data.
-    if (distPath != NULL) CORBA::string_free(distPath);
+    if (distPath != NULL) {
+      CORBA::string_free(distPath);
+    }  
     distPath = dest->writeFile(buffer, name.c_str(), replace);
 
-    wrote+=toSend;
+    wrote += toSend;
     replace = false;
 #if DAGDA_PROGRESSION
     Transfers::getInstance()->incProgress(std::string(data.desc.id.idNumber)+">>"+destHost);
 #endif
   }
 #ifdef USE_LOG_SERVICE
-  if (getLogComponent())
+  if (getLogComponent()) {
     getLogComponent()->logDataEndTransfer(data.desc.id.idNumber, dest->getID());
+  }  
 #endif
   return distPath;
 }
@@ -369,32 +387,38 @@ DagdaImpl::recordData(const SeqChar& data,
     lockData(dataId.c_str());
     (*getData())[dataId]=newData;
   }
-  TRACE_TEXT(TRACE_ALL_STEPS, "\tRecord " << data.length() << " bytes for the data "
+  TRACE_TEXT(TRACE_ALL_STEPS, "\tRecord " << data.length()
+	     << " bytes for the data "
              << dataDesc.id.idNumber << "\n");
   if (replace) {
-    if ((*getData())[dataId].value.length()!=data_sizeof(&dataDesc))
+    if ((*getData())[dataId].value.length() != data_sizeof(&dataDesc)) {
       (*getData())[dataId].value.length(data_sizeof(&dataDesc));
+    }  
   }
 
   CORBA::Char* buffer;
   // If the pointer is managed by DAGDA, ask the control.
-  if ((*getData())[dataId].value.release())
+  if ((*getData())[dataId].value.release()) {
     buffer = (*getData())[dataId].value.get_buffer(true);
-  else
+  }  
+  else {
     buffer = (*getData())[dataId].value.get_buffer(false);
+  }  
 
   memcpy(buffer+offset, data.get_buffer(), data.length());
   // Endianness management.
   if (BOOST_BYTE_ORDER != dataDesc.byte_order) {
-    if (data.length()%dataDesc.base_type_size!=0) {
+    if (data.length()%dataDesc.base_type_size != 0) {
       WARNING("data endianness cannot be converted. Something is wrong with the data size...");
     } else {
       // Swap endianness
-      for (size_t i=0; i<data.length(); i+=dataDesc.base_type_size)
+      for (size_t i=0; i<data.length(); i+=dataDesc.base_type_size) {
         swap_endian(buffer+offset+i, dataDesc.base_type_size);
+      }	
     }
   }
-  (*getData())[dataId].value.replace(data_sizeof(&dataDesc), data_sizeof(&dataDesc), buffer, true);
+  (*getData())[dataId].value.replace(data_sizeof(&dataDesc), 
+				     data_sizeof(&dataDesc), buffer, true);
 
   return CORBA::string_dup((*getData())[dataId].desc.id.idNumber);
 }
@@ -403,7 +427,8 @@ DagdaImpl::recordData(const SeqChar& data,
 /* CORBA */
 char*
 DagdaImpl::sendData(const char* dataId, const char* destName) {
-  Dagda_ptr dest = ORBMgr::getMgr()->resolve<Dagda, Dagda_ptr>(DAGDACTXT, destName);
+  Dagda_ptr dest = ORBMgr::getMgr()->resolve<Dagda, Dagda_ptr>(DAGDACTXT, 
+							       destName);
 
   dataMutex.lock();
   if (getData()->find(dataId)==getData()->end()) {
@@ -411,7 +436,7 @@ DagdaImpl::sendData(const char* dataId, const char* destName) {
     throw Dagda::DataNotFound(dataId);
   }
 
-  if ((*getDataStatus())[dataId]==Dagda::downloading) {
+  if ((*getDataStatus())[dataId] == Dagda::downloading) {
     dataMutex.unlock();
     throw Dagda::UnavailableData(dataId);
   }
@@ -426,17 +451,19 @@ DagdaImpl::sendData(const char* dataId, const char* destName) {
   bool replace = true;
   char* distID = NULL;
 
-  for (unsigned long i = 0; i<nBlocks; ++i) {
+  for (unsigned long i = 0; i < nBlocks; ++i) {
     unsigned long toSend = (dataSize-wrote > getMaxMsgSize() ?
                             getMaxMsgSize():(dataSize-wrote));
     TRACE_TEXT(TRACE_ALL_STEPS, "\tSend " <<  toSend << " bytes...\n");
     SeqChar buffer(toSend, toSend, data->value.get_buffer()+wrote);
 
-    if (distID != NULL) CORBA::string_free(distID);
+    if (distID != NULL) {
+      CORBA::string_free(distID);
+    }  
 
     distID = dest->recordData(buffer, data->desc, replace, i*getMaxMsgSize());
 
-    wrote+=toSend;
+    wrote += toSend;
     replace = false;
   }
 
@@ -449,14 +476,15 @@ DagdaImpl::sendData(const char* dataId, const char* destName) {
 char*
 DagdaImpl::sendContainer(const char* containerID, const char* destName,
                          CORBA::Boolean sendElements) {
-  Dagda_ptr dest = ORBMgr::getMgr()->resolve<Dagda, Dagda_ptr>(DAGDACTXT, destName);
+  Dagda_ptr dest = ORBMgr::getMgr()->resolve<Dagda, Dagda_ptr>(DAGDACTXT, 
+							       destName);
 
   dataMutex.lock();
-  if (getData()->find(containerID)==getData()->end()) {
+  if (getData()->find(containerID) == getData()->end()) {
     dataMutex.unlock();
     throw Dagda::DataNotFound(containerID);
   }
-  if ((*getDataStatus())[containerID]==Dagda::downloading) {
+  if ((*getDataStatus())[containerID] == Dagda::downloading) {
     dataMutex.unlock();
     throw Dagda::UnavailableData(containerID);
   }
@@ -464,7 +492,8 @@ DagdaImpl::sendContainer(const char* containerID, const char* destName,
   TRACE_TEXT(TRACE_ALL_STEPS, "*** Sending container " << containerID << "\n");
   dest->unlockData(containerID);
   // transfer the container elements
-  Container *container = new Container(containerID, _this(), containerRelationMgr);
+  Container *container = new Container(containerID, _this(), 
+				       containerRelationMgr);
   char *distID = container->send(destName, sendElements);
 
   return distID;
@@ -526,7 +555,8 @@ SimpleDagdaImpl::subscribeParent(const char * parentID) {
     } catch (CORBA::Exception& e) {
       WARNING("Exception caught while subscribing to parent");
     }
-    TRACE_TEXT(TRACE_ALL_STEPS, "*** Subscribed to parent: "<< parentID << "\n");
+    TRACE_TEXT(TRACE_ALL_STEPS, "*** Subscribed to parent: "<< parentID 
+							    << "\n");
   }
 }
 
@@ -536,7 +566,8 @@ SimpleDagdaImpl::unsubscribeParent() {
     try {
       getParent()->unsubscribe(getID());
     } catch (CORBA::Exception& e) {
-      WARNING("Exception caught while unsubscribing from parent: " << e._name());
+      WARNING("Exception caught while unsubscribing from parent: "
+	      << e._name());
     }
     TRACE_TEXT(TRACE_ALL_STEPS, "*** Unsubscribed from parent\n");
   }
@@ -552,7 +583,9 @@ SimpleDagdaImpl::subscribe(const char* myName) {
   childrenMutex.lock();
   std::map<std::string, Dagda_ptr>::iterator it = getChildren()->find(name);
 
-  if (it != getChildren()->end()) getChildren()->erase(name);
+  if (it != getChildren()->end()) {
+    getChildren()->erase(name);
+  }  
 
   (*getChildren())[name]=Dagda::_duplicate(me);
 
@@ -568,7 +601,9 @@ SimpleDagdaImpl::unsubscribe(const char* myName) {
   childrenMutex.lock();
   std::map<std::string, Dagda_ptr>::iterator it = getChildren()->find(name);
 
-  if (it != getChildren()->end()) getChildren()->erase(name);
+  if (it != getChildren()->end()) {
+    getChildren()->erase(name);
+  }  
   childrenMutex.unlock();
 }
 
@@ -594,7 +629,9 @@ SimpleDagdaImpl::init(const char* ID, const char* parentID,
   ORBMgr::getMgr()->fwdsBind(DAGDACTXT, getIDstr(),
                              ORBMgr::getMgr()->getIOR(_this()));
 
-  if (parentID == NULL) setParent(NULL);
+  if (parentID == NULL) {
+    setParent(NULL);
+  }  
   else {
     parentID = CORBA::string_dup(parentID);
 
@@ -618,7 +655,9 @@ SimpleDagdaImpl::init(const char* ID, const char* parentID,
              "IOR : " << ORBMgr::getMgr()->getIOR(_this()) << "\n");
 
 
-  if (getParent()!=NULL) getParent()->subscribe(getID());
+  if (getParent() != NULL) {
+    getParent()->subscribe(getID());
+  }  
 
   setMaxMsgSize(maxMsgSize);
   setDiskMaxSpace(diskMaxSpace);
@@ -640,10 +679,12 @@ CORBA::Boolean
 SimpleDagdaImpl::lvlIsDataPresent(const char* dataID) {
   std::map<std::string, Dagda_ptr>::iterator itch;
 
-  if (lclIsDataPresent(dataID)) return true;
+  if (lclIsDataPresent(dataID)) {
+    return true;
+  }  
   childrenMutex.lock();
 
-  for (itch = getChildren()->begin();itch != getChildren()->end();)
+  for (itch = getChildren()->begin();itch != getChildren()->end();){
     try {
       if ((*itch).second->lvlIsDataPresent(dataID)) {
         childrenMutex.unlock();
@@ -655,6 +696,7 @@ SimpleDagdaImpl::lvlIsDataPresent(const char* dataID) {
     } catch (CORBA::TRANSIENT& e2) {
       getChildren()->erase(itch++);
     }
+  }  
   childrenMutex.unlock();
   return false;
 }
@@ -664,34 +706,41 @@ SimpleDagdaImpl::lvlIsDataPresent(const char* dataID) {
 /* CORBA */
 CORBA::Boolean
 SimpleDagdaImpl::pfmIsDataPresent(const char* dataID) {
-  if (lclIsDataPresent(dataID)) return true;
-  if (getParent()==NULL)
+  if (lclIsDataPresent(dataID)) {
+    return true;
+  }  
+  if (getParent() == NULL) {
     return lvlIsDataPresent(dataID);
+  }  
   return getParent()->pfmIsDataPresent(dataID);
 }
 
 // This method downloads the data from the node src.
 char*
 SimpleDagdaImpl::downloadData(Dagda_ptr src, const corba_data_t& data) {
-  if (data.desc.specific._d()==DIET_FILE)
+  if (data.desc.specific._d() == DIET_FILE) {
     return src->sendFile(data, getID());
-  else if (data.desc.specific._d()==DIET_CONTAINER)
+  }  
+  else if (data.desc.specific._d() == DIET_CONTAINER) {
     return src->sendContainer(data.desc.id.idNumber, getID(), false);
-  else
+  }  
+  else {
     return src->sendData(data.desc.id.idNumber, getID());
+  }  
 }
 
 // Add a data locally.
 /* CORBA */
 void
 SimpleDagdaImpl::lclAddData(const char* srcName, const corba_data_t& data) {
-  Dagda_ptr src = ORBMgr::getMgr()->resolve<Dagda, Dagda_ptr>(DAGDACTXT, srcName);
+  Dagda_ptr src = ORBMgr::getMgr()->resolve<Dagda, Dagda_ptr>(DAGDACTXT,
+							      srcName);
 
   TRACE_TEXT(TRACE_ALL_STEPS, "Add the data " << data.desc.id.idNumber
              << " locally.\n");
   if (getIDstr() != src->getID()) {
-    if (data.desc.specific._d()==DIET_FILE) {
-      if (getDiskMaxSpace()!=0 && getUsedDiskSpace()+data_sizeof(&data.desc)>getDiskMaxSpace()) {
+    if (data.desc.specific._d() == DIET_FILE) {
+      if (getDiskMaxSpace() != 0 && getUsedDiskSpace()+data_sizeof(&data.desc)>getDiskMaxSpace()) {
         throw Dagda::NotEnoughSpace(getDiskMaxSpace()-getUsedDiskSpace());
       }
 
@@ -703,7 +752,7 @@ SimpleDagdaImpl::lclAddData(const char* srcName, const corba_data_t& data) {
         unlockData(data.desc.id.idNumber);  //
         useDiskSpace(data.desc.specific.file().size);
       }
-    } else if (data.desc.specific._d()==DIET_CONTAINER) {
+    } else if (data.desc.specific._d() == DIET_CONTAINER) {
       char* dataID;
       corba_data_t* inserted;
       inserted = addData(data);
@@ -713,7 +762,7 @@ SimpleDagdaImpl::lclAddData(const char* srcName, const corba_data_t& data) {
       //         if (TRACE_LEVEL >= TRACE_ALL_STEPS)
       //           getContainerRelationMgr()->displayContent();
     } else {
-      if (getMemMaxSpace()!=0 && getUsedMemSpace()+data_sizeof(&data.desc)>getMemMaxSpace()) {
+      if (getMemMaxSpace() != 0 && getUsedMemSpace()+data_sizeof(&data.desc)>getMemMaxSpace()) {
         throw Dagda::NotEnoughSpace(getMemMaxSpace()-getUsedMemSpace());
       }
 
@@ -728,8 +777,8 @@ SimpleDagdaImpl::lclAddData(const char* srcName, const corba_data_t& data) {
 }
 
 // Add at this level.
-// Plusieurs mani�res de faire �a :
-// * on copie en local (m�thode choisie).
+// Plusieurs manieres de faire ca :
+// * on copie en local (methode choisie).
 // * on essaye de copier en local. Si ce n'est pas possible, on essaye sur
 //   les noeuds enfants.
 // * Utilisation d'une heuristique pour choisir le noeud.
@@ -757,7 +806,8 @@ SimpleDagdaImpl::lclAddContainerElt(const char* containerID,
                                     const char* dataID,
                                     CORBA::Long index,
                                     CORBA::Long flag) {
-  Container *container = new Container(containerID, _this(), containerRelationMgr);
+  Container *container = new Container(containerID, _this(),
+				       containerRelationMgr);
   const char* eltID = dataID ? dataID : NoID;
   lockData(containerID);
   container->addData(eltID, index, flag);
@@ -766,7 +816,8 @@ SimpleDagdaImpl::lclAddContainerElt(const char* containerID,
 
 /* CORBA */
 CORBA::Long SimpleDagdaImpl::lclGetContainerSize(const char* containerID) {
-  Container *container = new Container(containerID, _this(), containerRelationMgr);
+  Container *container = new Container(containerID, _this(),
+				       containerRelationMgr);
   return (CORBA::Long) container->size();
 }
 
@@ -776,12 +827,13 @@ SimpleDagdaImpl::lclGetContainerElts(const char* containerID,
                                      SeqString& dataIDSeq,
                                      SeqLong& flagSeq,
                                      CORBA::Boolean ordered) {
-  Container *container = new Container(containerID, _this(), containerRelationMgr);
+  Container *container = new Container(containerID, _this(), 
+				       containerRelationMgr);
   try {
     container->getAllElements(dataIDSeq, flagSeq, ordered);
   } catch (CORBA::SystemException& e) {
-    std::cerr << "lclGetContainerElts Caught a CORBA " << e._name() << " exception ("
-              << e.NP_minorString() << ")\n";
+    std::cerr << "lclGetContainerElts Caught a CORBA " << e._name() 
+	      << " exception (" << e.NP_minorString() << ")\n";
   } catch (...) {
     std::cerr << "UNMANAGED exception in lclGetContainerElts\n";
     throw;
@@ -803,16 +855,18 @@ SimpleDagdaImpl::lvlRemData(const char* dataID) {
   lclRemData(dataID);
 
   childrenMutex.lock();
-  for (itch = getChildren()->begin();itch != getChildren()->end();)
+  for (itch = getChildren()->begin();itch != getChildren()->end();) {
     try {
-      if ((*itch).second->lvlIsDataPresent(dataID))
+      if ((*itch).second->lvlIsDataPresent(dataID)) {
         (*itch).second->lvlRemData(dataID);
+      }	  
       ++itch;
     } catch (CORBA::COMM_FAILURE& e1) {
       getChildren()->erase(itch++);
     } catch (CORBA::TRANSIENT& e2) {
       getChildren()->erase(itch++);
     }
+  }  
   childrenMutex.unlock();
 }
 
@@ -821,18 +875,23 @@ SimpleDagdaImpl::lvlRemData(const char* dataID) {
 /* CORBA */
 void
 SimpleDagdaImpl::pfmRemData(const char* dataID) {
-  if (getParent()==NULL)
+  if (getParent() == NULL) {
     lvlRemData(dataID);
-  else
+  }  
+  else {
     getParent()->pfmRemData(dataID);
+  }  
 }
 
 // Simple implementation : remove and add.
 /* CORBA */
 void
 SimpleDagdaImpl::lclUpdateData(const char* srcName, const corba_data_t& data) {
-  Dagda_ptr src = ORBMgr::getMgr()->resolve<Dagda, Dagda_ptr>(DAGDACTXT, srcName);
-  if (getIDstr() == src->getID()) return;
+  Dagda_ptr src = ORBMgr::getMgr()->resolve<Dagda, Dagda_ptr>(DAGDACTXT,
+							      srcName);
+  if (getIDstr() == src->getID()) {
+    return;
+  }  
   lclRemData(data.desc.id.idNumber);
   lclAddData(srcName, data);
 }
@@ -843,11 +902,12 @@ void
 SimpleDagdaImpl::lvlUpdateData(const char* srcName,
                                const corba_data_t& data) {
   std::map<std::string, Dagda_ptr>::iterator itch;
-  if (lclIsDataPresent(data.desc.id.idNumber))
+  if (lclIsDataPresent(data.desc.id.idNumber)) {
     lclUpdateData(srcName, data);
+  }  
 
   childrenMutex.lock();
-  for (itch = getChildren()->begin();itch != getChildren()->end();)
+  for (itch = getChildren()->begin();itch != getChildren()->end();) {
     try {
       (*itch).second->lvlUpdateData(srcName, data);
       ++itch;
@@ -856,6 +916,7 @@ SimpleDagdaImpl::lvlUpdateData(const char* srcName,
     } catch (CORBA::TRANSIENT& e2) {
       getChildren()->erase(itch++);
     }
+  }  
   childrenMutex.unlock();
 }
 
@@ -863,10 +924,12 @@ SimpleDagdaImpl::lvlUpdateData(const char* srcName,
 /* CORBA */
 void
 SimpleDagdaImpl::pfmUpdateData(const char* srcName, const corba_data_t& data) {
-  if (getParent()==NULL)
+  if (getParent() == NULL) {
     lvlUpdateData(srcName, data);
-  else
+  }  
+  else {
     getParent()->pfmUpdateData(srcName, data);
+  }  
 }
 
 // To replicate a data on the nodes matching the pattern.
@@ -1375,7 +1438,7 @@ DagdaImpl::writeDataDesc(corba_data_t& data, std::ofstream& file) {
     file.write((char*) &data.desc.mode, sizeof(long));
     file.write((char*) &data.desc.base_type, sizeof(long));
     file.write((char*) &type, sizeof(long));
-    // Temporaire... Il y a un soucis avec l'IOR... Au red�marrage, il aura chang�...
+    // Temporaire... Il y a un soucis avec l'IOR... Au redï¿½marrage, il aura changï¿½...
     file.write((char*) data.desc.dataManager, strlen(data.desc.dataManager)+1);
     file.write((char*) &size, sizeof(size_t));
   } catch (std::ios_base::failure &ex) {

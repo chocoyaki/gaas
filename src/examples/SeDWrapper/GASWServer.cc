@@ -1,12 +1,18 @@
+/**
+* @file GASWServer.cc
+* 
+* @brief   SeD based on GASW description of executable program  
+* 
+* @author  - Benjamin ISNARD (benjamin.isnard@ens-lyon.fr) 
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /****************************************************************************/
 /* SeD based on GASW description of executable program                      */
 /* Generic Application Service Wrapper (GASW)                               */
 /* http://modalis.polytech.unice.fr/softwares/moteur/gasw                   */
 /*                                                                          */
-/* Author(s):                                                               */
-/* - Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)                          */
-/*                                                                          */
-/* $LICENSE$                                                                */
 /****************************************************************************/
 /* $Id$
  * $Log$

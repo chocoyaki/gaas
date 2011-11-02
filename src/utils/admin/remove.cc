@@ -1,14 +1,14 @@
-/****************************************************************************/
-/* Remove a diet component                                                  */
-/* Function code for dynamically killing an element and (potentially) its   */
-/* underlying hierachy.                                                     */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Benjamin DEPARDON (Benjamin.Depardon@ens-lyon.fr)                   */
-/*    - Kevin COULOMB (kevin.coulomb@-sysfera.fr)                           */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file remove.cc
+* 
+* @brief  Function code for dynamically killing an element and its underlying hierachy
+* 
+* @author - Benjamin DEPARDON (Benjamin.Depardon@ens-lyon.fr)
+*         - Kevin COULOMB (kevin.coulomb@-sysfera.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 
 
 #include "DIET_admin.h"

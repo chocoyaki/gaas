@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* DIET macros for use with thte asynchronous versions of dmat_manips.      */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Christophe PERA (Philippe.Combes@ens-lyon.fr)                       */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file Global_macros.hh
+* 
+* @brief  DIET macros for use with thte asynchronous versions of dmat_manips 
+* 
+* @author  - Christophe PERA (Philippe.Combes@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.3  2006/02/03 01:45:39  ecaron

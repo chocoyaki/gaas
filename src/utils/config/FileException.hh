@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* File parser exceptions                                                   */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Haikel Guemar (haikel.guemar@sysfera.com)                          */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file FileException.hh
+* 
+* @brief  File parser exceptions 
+* 
+* @author - Haikel Guemar (haikel.guemar@sysfera.com)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.3  2011/03/07 15:34:55  hguemar

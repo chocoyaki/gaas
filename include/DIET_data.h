@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* DIET data interface                                                      */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file DIET_data.h
+* 
+* @brief  DIET data interface
+* 
+* @author - Philippe COMBES (Philippe.Combes@ens-lyon.fr) 
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.73  2010/11/30 22:03:40  dloureir

@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* The MA DAG HEFT scheduler                                                */
-/*                                                                          */
-/* Author(s):                                                               */
-/* - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)                          */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file HEFTScheduler.cc
+* 
+* @brief  The MA DAG HEFT scheduler 
+* 
+* @author - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.19  2011/01/20 18:27:03  bdepardo

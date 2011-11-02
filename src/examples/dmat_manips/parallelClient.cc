@@ -1,12 +1,17 @@
+/**
+* @file parallelClient.cc
+* 
+* @brief  a DIET client for using the concurrent asynchronous calls.
+* 
+* @author  - Christophe PERA (Philippe.Combes@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /****************************************************************************/
 /* dmat_manips example: a DIET client for transpose, MatSUM and MatPROD     */
 /*   problems (MatSUM is expanded to SqMatSUM and SqMatSUM_bis) using the   */
 /*   concurrent asynchronous calls.                                         */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Christophe PERA           - LIP ENS-Lyon (France)                   */
-/*                                                                          */
-/* $LICENSE$                                                                */
 /****************************************************************************/
 /* $Id$
  * $Log$

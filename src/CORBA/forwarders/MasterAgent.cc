@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* DIET forwarder implementation - Master Agent forwarder implementation    */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Gael Le Mahec   (gael.le.mahec@ens-lyon.fr)                         */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file MasterAgent.cc
+* 
+* @brief  DIET forwarder implementation - MA DAG forwarder implementation
+* 
+* @author - Gael Le Mahec   (gael.le.mahec@ens-lyon.fr) 
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.5  2010/11/24 15:12:56  bdepardo

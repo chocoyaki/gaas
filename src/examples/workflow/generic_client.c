@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* Workflow example : Generic client for workflow submission                */
-/*                                                                          */
-/* Author(s):                                                               */
-/* - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)                          */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file generic_client.c
+* 
+* @brief  Workflow example : Generic client for workflow submission   
+* 
+* @author  - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.14  2011/01/23 19:20:01  bdepardo

@@ -1,13 +1,13 @@
-/***********************************************************/
-/* Dagda component factory header file.                    */
-/* Used to obtain this DIET component data manager easily  */
-/* from everywhere in the DIET source code.                */
-/*                                                         */
-/*  Author(s):                                             */
-/*    - Gael Le Mahec (lemahec@clermont.in2p3.fr)          */
-/*                                                         */
-/* $LICENSE$                                               */
-/***********************************************************/
+/**
+* @file DagdaFactory.hh
+* 
+* @brief  Used to obtain this DIET component data manager easil from everywhere.   
+* 
+* @author  - Gael Le Mahec (lemahec@clermont.in2p3.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.8  2011/02/23 23:13:56  bdepardo

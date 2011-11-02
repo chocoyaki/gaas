@@ -1,12 +1,14 @@
-/****************************************************************************/
-/* DIET mutex interface for multi-threaded server applications              */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
-/*    - Bert VAN HEUKELOM (Bert.Van-Heukelom@ens-lyon.fr)                   */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file DIET_mutex.h
+* 
+* @brief  DIET mutex interface for multi-threaded server applications 
+* 
+* @author - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                  
+*         - Bert VAN HEUKELOM (Bert.Van-Heukelom@ens-lyon.fr) 
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.5  2003/04/10 11:32:15  pcombes

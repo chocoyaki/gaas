@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* Workflow example : a server that convert an integer to a string          */
-/*                                                                          */
-/* Author(s):                                                               */
-/* - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)                          */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file int2str.c
+* 
+* @brief  Workflow example : a server that convert an integer to a string   
+* 
+* @author  - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.6  2011/01/23 19:20:01  bdepardo

@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* Client example using Containers                                          */
-/*                                                                          */
-/* Author(s):                                                               */
-/*   - Gaël Le Mahec (gael.le.mahec@ens-lyon.fr)                            */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file containers_client.c
+* 
+* @brief  Client example using Containers 
+* 
+* @author  - Gaël Le Mahec (gael.le.mahec@ens-lyon.fr) 
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.4  2011/01/13 23:50:21  ecaron

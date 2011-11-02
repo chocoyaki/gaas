@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* Event Manager (Notifier class)                                           */
-/*                                                                          */
-/* Author(s):                                                               */
-/* - Benjamin Isnard (benjamin.isnard@ens-lyon.fr                           */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file EventManager.hh
+* 
+* @brief   Event Manager (Notifier class)  
+* 
+* @author - Benjamin Isnard (benjamin.isnard@ens-lyon.fr
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.3  2011/01/12 09:12:17  bdepardo

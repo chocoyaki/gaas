@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* Absctract class common parent to dag and workflows                       */
-/*                                                                          */
-/* Author(s):                                                               */
-/* - Benjamin Isnard (benjamin.isnard@ens-lyon.fr)                          */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file  NodeSet.hh
+* 
+* @brief  Absctract class common parent to dag and workflows 
+* 
+* @author  - Benjamin ISNARD (Benjamin.Isnard@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.1  2009/09/25 12:39:18  bisnard

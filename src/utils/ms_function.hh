@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* Memory safe management header                                            */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Sylvain DAHAN             - Sylvain.Dahan@lifc.univ-fcomte.fr       */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file  ms_function.hh
+* 
+* @brief  Memory safe management header 
+* 
+* @author  - Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.10  2006/11/16 09:55:56  eboix

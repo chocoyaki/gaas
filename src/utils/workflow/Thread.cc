@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* C++ Thread class implementation                                          */
-/*                                                                          */
-/* Author(s):                                                               */
-/* - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)                          */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file  Thread.cc
+* 
+* @brief  C++ Thread class implementation 
+* 
+* @author  - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.11  2011/03/18 16:38:03  bdepardo

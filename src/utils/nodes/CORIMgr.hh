@@ -1,12 +1,13 @@
-/****************************************************************************/
-/* CoRI Collectors of ressource information                                 */
-/* Header of the DIET/CORI interface Manager                                */
-/*                                                                          */
-/* Author(s):                                                               */
-/*    - Frauenkron Peter (Peter.Frauenkron@ens-lyon.fr)                     */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file CORIMgr.hh
+* 
+* @brief  Header of the DIET/CORI interface Manager  
+* 
+* @author  - Frauenkron Peter (Peter.Frauenkron@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.1  2010/03/03 14:26:35  bdepardo

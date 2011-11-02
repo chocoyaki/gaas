@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* DIET client for pdgemm                                                   */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file pdgemm_client.c
+* 
+* @brief   DIET client for pdgemm   
+* 
+* @author  - Philippe COMBES (Philippe.Combes@ens-lyon.fr) 
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.3  2011/01/23 19:20:00  bdepardo

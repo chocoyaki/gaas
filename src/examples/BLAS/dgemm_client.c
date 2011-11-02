@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* BLAS/dgemm server : a DIET client for dgemm                              */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file  dgemm_client.c
+* 
+* @brief   BLAS/dgemm server : a DIET client for dgemm   
+* 
+* @author  - Philippe COMBES (Philippe.Combes@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.10  2011/01/24 23:14:19  bdepardo

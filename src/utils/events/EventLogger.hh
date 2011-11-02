@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* Event Logger (Event listener with basic handler for logging events)      */
-/*                                                                          */
-/* Author(s):                                                               */
-/* - Benjamin Isnard (benjamin.isnard@ens-lyon.fr                           */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file EventLogger.hh
+* 
+* @brief   Event Logger (Event listener with basic handler for logging events)  
+* 
+* @author - Benjamin Isnard (benjamin.isnard@ens-lyon.fr
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.2  2010/11/24 15:36:59  bdepardo

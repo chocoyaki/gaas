@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* Parser of XML files used to convert external service into SeD            */
-/*                                                                          */
-/* Author(s):                                                               */
-/* - Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)                          */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file SeDDescrParser.cc
+* 
+* @brief   Parser of XML files used to convert external service into SeD  
+* 
+* @author  - Benjamin ISNARD (benjamin.isnard@ens-lyon.fr) 
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.1  2010/04/06 15:02:37  bdepardo

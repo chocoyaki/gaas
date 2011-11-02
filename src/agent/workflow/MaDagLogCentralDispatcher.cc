@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* The MA DAG LogCentral Dispatcher                                         */
-/*                                                                          */
-/* Author(s):                                                               */
-/*   - Benjamin Isnard (Benjamin.Isnard@ens-lyon.fr)                        */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file MaDagLogCentralDispatcher.cc
+* 
+* @brief  The MA DAG LogCentral Dispatcher 
+* 
+* @author - Benjamin Isnard (Benjamin.Isnard@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.3  2011/01/13 23:01:09  ecaron

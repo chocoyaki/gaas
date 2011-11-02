@@ -1,12 +1,14 @@
-/****************************************************************************/
-/* DIET server for BLAS functions                                           */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
-/*    - Yves Caniou (Yves.Caniou@ens-lyon.fr)                               */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file  server.c
+* 
+* @brief   DIET server for BLAS functions   
+* 
+* @author  - Philippe COMBES (Philippe.Combes@ens-lyon.fr)
+*          - Yves Caniou (Yves.Caniou@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.16  2011/02/10 23:19:02  hguemar

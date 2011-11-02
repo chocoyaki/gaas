@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* Plug-in Scheduler: Information vector management                         */
-/*                                                                          */
-/* Author(s):                                                               */
-/*    - Alan Su (Alan.Su@ens-lyon.fr)                                       */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file  Vector.c
+* 
+* @brief  Plug-in Scheduler: Information vector management 
+* 
+* @author  - Alan Su (Alan.Su@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.8  2008/04/01 09:13:37  bdepardo

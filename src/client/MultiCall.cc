@@ -1,13 +1,13 @@
-/****************************************************************************/
-/* MultiCall.                                                               */
-/* It is used to divide a profile and make several calls with just one SeD. */
-/*                                                                          */
-/*                                                                          */
-/* Author(s):                                                               */
-/*   - Ghislain Charrier (Ghislain.Charrier@ens-lyon.fr)                    */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file  MultiCall.cc
+* 
+* @brief   Used to divide a profile and make several calls with just one SeD  
+* 
+* @author  - Ghislain Charrier (Ghislain.Charrier@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.5  2011/05/10 14:54:20  bdepardo

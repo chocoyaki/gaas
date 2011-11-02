@@ -1,12 +1,13 @@
-/****************************************************************************/
-/* MetaDag is a structure containing multiple dags having                   */
-/* inter-relationships                                                      */
-/*                                                                          */
-/* Author(s):                                                               */
-/* - Benjamin Isnard (benjamin.isnard@ens-lyon.fr)                          */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file  MetaDagr.cc
+* 
+* @brief  A structure containing multiple dags having inter-relationships
+* 
+* @author  - Benjamin ISNARD (Benjamin.Isnard@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.7  2010/03/08 13:50:19  bisnard

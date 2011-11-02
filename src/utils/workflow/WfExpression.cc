@@ -1,12 +1,13 @@
-/****************************************************************************/
-/* The class used to parse and execute conditional expressions used in      */
-/* workflow control structures (If, While, ...)                             */
-/*                                                                          */
-/* Author(s):                                                               */
-/* - Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)                          */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file  WfExpression.cc
+* 
+* @brief  The class used to parse and execute conditional expressions used in workflow control structures
+* 
+* @author  - Benjamin Isnard (benjamin.isnard@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.9  2011/03/19 23:34:01  bdepardo

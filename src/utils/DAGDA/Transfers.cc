@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* Object to obtain transfers progression.                                  */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Gaël Le Mahec (gael.le.mahec@ens-lyon.fr)                           */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file Transfers.cc
+* 
+* @brief  Object to obtain transfers progression.
+* 
+* @author Gael Le Mahec (lemahec@clermont.in2p3.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.2  2010/04/20 12:30:33  glemahec

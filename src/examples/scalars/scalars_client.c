@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* DIET scalars example: a client for additions of all types of scalars.    */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file scalars_client.c
+* 
+* @brief  DIET scalars example: a client for additions of all types of scalars.   
+* 
+* @author  - Philippe COMBES (Philippe.Combes@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.1  2010/08/06 14:25:29  glemahec

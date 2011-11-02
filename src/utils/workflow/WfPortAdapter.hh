@@ -1,12 +1,13 @@
-/****************************************************************************/
-/* Port adapter classes used to split or merge container content            */
-/*                                                                          */
-/*                                                                          */
-/* Author(s):                                                               */
-/* - Benjamin Isnard (benjamin.isnard@ens-lyon.fr)                          */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file  WfPortAdapter.hh
+* 
+* @brief  Port adapter classes used to split or merge container content 
+* 
+* @author  - Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.14  2010/07/20 09:20:11  bisnard

@@ -1,23 +1,20 @@
-/****************************************************************************/
-/* Header for the admin API                                                 */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Benjamin DEPARDON (Benjamin.Depardon@ens-lyon.fr)                   */
-/*    - Kevin COULOMB (kevin.coulomb@-sysfera.fr)                           */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file DIET_admin.h
+* 
+* @brief  Header for the admin API
+* 
+* @author - Benjamin DEPARDON (Benjamin.Depardon@ens-lyon.fr)                  
+*         - Kevin COULOMB (kevin.coulomb@-sysfera.fr) 
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
+
 
 #ifndef _DIET_ADMIN_H_
 #define _DIET_ADMIN_H_
 
-/**
- * @file   DIET_admin.h
- *
- * @brief  DIET admin API
- *
- *
- */
+
 
 
 #ifdef __cplusplus

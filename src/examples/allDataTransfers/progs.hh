@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* DIET all data transfers example: a server for transfering all data types */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Benjamin Depardon (Benjamin.Depardon@ens-lyon.fr)                   */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file progs.hh
+* 
+* @brief  DIET all data transfers example: a server for transfering all data types 
+* 
+* @author  - Benjamin Depardon (Benjamin.Depardon@ens-lyon.fr) 
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.2  2011/01/17 18:35:17  bdepardo

@@ -1,11 +1,13 @@
-/***********************************************************/
-/* Dagda catalog implementation header.                    */
-/*                                                         */
-/*  Author(s):                                             */
-/*    - Gael Le Mahec (lemahec@clermont.in2p3.fr)          */
-/*                                                         */
-/* $LICENSE$                                               */
-/***********************************************************/
+/**
+* @file DagdaCatalog.hh
+* 
+* @brief  Dagda catalog implementation header.   
+* 
+* @author  - Gael Le Mahec (lemahec@clermont.in2p3.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.6  2010/11/20 11:56:19  bdepardo

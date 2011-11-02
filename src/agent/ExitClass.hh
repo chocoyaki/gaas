@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* DIET Agent Exit Class header                                             */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Cyrille PONTVIEUX (cyrille.pontvieux@ens-lyon.fr)                   */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file ExitClass.hh
+* 
+* @brief  DIET Agent Exit Class header
+* 
+* @author - Cyrille PONTVIEUX (cyrille.pontvieux@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.1  2003/10/06 10:11:35  cpontvie

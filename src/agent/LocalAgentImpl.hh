@@ -1,13 +1,15 @@
-/****************************************************************************/
-/* DIET local agent implementation header                                   */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
-/*    - Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)                   */
-/*    - Frederic LOMBARD (Frederic.Lombard@lifc.univ-fcomte.fr)             */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file  LocalAgentImpl.hh
+* 
+* @brief  DIET local agent implementation header  
+* 
+* @author - Philippe COMBES (Philippe.Combes@ens-lyon.fr)
+*         - Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)
+*         - Frederic LOMBARD (Frederic.Lombard@lifc.univ-fcomte.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.11  2011/02/15 16:21:50  bdepardo

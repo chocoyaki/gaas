@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* Batch System Management with performance prediction                      */
-/*                                                                          */
-/* Author(s):                                                               */
-/*    - Yves Caniou (yves.caniou@ens-lyon.fr)                               */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file BatchSystem.cc
+* 
+* @brief  Batch System Management with performance prediction
+* 
+* @author - Yves Caniou (yves.caniou@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.14  2011/03/31 16:17:34  hguemar

@@ -1,3 +1,14 @@
+/**
+* @file DIET_grpc.h
+* 
+* @brief  GridRPC compliancy for the client interface of DIET
+* 
+* @author - Philippe COMBES (Philippe.Combes@ens-lyon.fr) 
+*         - Eddy CARON (Eddy.Caron@ens-lyon.fr
+*         - Cedric TEDESCHI (Cedric.Tedeschi@ens-lyon.fr)
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /****************************************************************************/
 /*  GridRPC compliancy for the client interface of DIET                     */
 /*                                                                          */

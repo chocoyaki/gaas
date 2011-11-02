@@ -1,9 +1,14 @@
+/**
+* @file	  dietObjects.cc
+* 
+* @brief  dietObjects tool
+* 
+* @author - Gael Le Mahec   (gael.le.mahec@ens-lyon.fr) 
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /****************************************************************************/
-/* dietObjects tool                                                         */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Gael Le Mahec   (gael.le.mahec@u-picardie.fr)                       */
-/*                                                                          */
 /* Options:                                                                 */
 /*  list: without argument show the DIET corba contexts                     */
 /*        show the DIET objects of given context(s)                         */
@@ -11,7 +16,6 @@
 /*             show the active forwarders of given name(s)                  */
 /*  resolve: display the IOR(s) of the DIET objects                         */
 /*                                                                          */
-/* $LICENSE$                                                                */
 /****************************************************************************/
 /* $Id$
  * $Log$

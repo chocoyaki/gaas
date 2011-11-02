@@ -1,12 +1,14 @@
-/****************************************************************************/
-/* Batch System implementation for Amazon EC2 compatible clouds             */
-/* Contains a set of helper functions for communicating with Eucalyptus     */
-/* (and Amazon EC2)                                                         */
-/* Author(s):                                                               */
-/*    - Adrian Muresan (adrian.muresan@ens-lyon.fr)                         */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file euca.h
+* 
+* @brief Contains a set of helper functions for communicating with Eucalyptus
+* 
+* @author Adrian Muresan (adrian.muresan@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
+
 /* $Id$
  * $Log$
  * Revision 1.1  2010/05/05 13:13:51  amuresan
@@ -90,7 +92,7 @@
 */
 
 
-//gsoapopt cw
+// gsoapopt cw
 
 /******************************************************************************\
  *                                                                            *
@@ -126,9 +128,9 @@
 
 /// @brief
 #define SOAP_NAMESPACE_OF_ec2   "http://ec2.amazonaws.com/doc/2008-12-01/"
-//gsoap ec2   schema namespace: http://ec2.amazonaws.com/doc/2008-12-01/
-//gsoap ec2   schema elementForm:       qualified
-//gsoap ec2   schema attributeForm:     unqualified
+// gsoap ec2   schema namespace: http://ec2.amazonaws.com/doc/2008-12-01/
+// gsoap ec2   schema elementForm:       qualified
+// gsoap ec2   schema attributeForm:     unqualified
 
 /******************************************************************************\
  *                                                                            *
@@ -158,17 +160,15 @@ enum xsd__boolean_ { _false, _true };
 
 
 /// "http://ec2.amazonaws.com/doc/2008-12-01/":RegisterImageType is a complexType.
-struct ec2__RegisterImageType
-{
+struct ec2__RegisterImageType {
   /// Element imageLocation of type xs:string.
-  char*                                imageLocation                  1;      ///< Required element.
+  char*  imageLocation 1;      ///< Required element.
 };
 
 /// "http://ec2.amazonaws.com/doc/2008-12-01/":RegisterImageResponseType is a complexType.
-struct ec2__RegisterImageResponseType
-{
+struct ec2__RegisterImageResponseType {
   /// Element requestId of type xs:string.
-  char*                                requestId                      1;      ///< Required element.
+  char*  requestId 1;      ///< Required element.
   /// Element imageId of type xs:string.
   char*                                imageId                        1;      ///< Required element.
 };

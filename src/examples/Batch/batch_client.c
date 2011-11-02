@@ -1,10 +1,13 @@
-/****************************************************************************/
-/* DIET client for Batch submission                                         */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Yves CANIOU (ycaniou@ens-lyon.fr)                                   */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file batch_client.c
+* 
+* @brief   DIET client for Batch submission   
+* 
+* @author  - Yves Caniou (Yves.Caniou@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.9  2010/08/06 14:25:27  glemahec

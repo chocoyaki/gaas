@@ -1,11 +1,17 @@
+/**
+* @file ec2wrapper.h
+* 
+* @brief  Batch System implementation for Amazon EC2 compatible clouds
+* 
+* @author - Adrian Muresan (adrian.muresan@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /****************************************************************************/
 /* Batch System implementation for Amazon EC2 compatible clouds             */
 /* Contains a set of helper functions for communicating with Eucalyptus     */
 /* (and Amazon EC2)                                                         */
-/* Author(s):                                                               */
-/*    - Adrian Muresan (adrian.muresan@ens-lyon.fr)                         */
-/*                                                                          */
-/* $LICENSE$                                                                */
 /****************************************************************************/
 /* $Id$
  * $Log$

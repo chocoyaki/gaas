@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* DIET forwarder implementation - Workflow Logservice forwarder implem.    */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Gael Le Mahec   (gael.le.mahec@ens-lyon.fr)                         */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file WfLogService.cc
+* 
+* @brief  DIET forwarder implementation - Workflow Logservice forwarder implem
+* 
+* @author - Gael Le Mahec   (gael.le.mahec@ens-lyon.fr) 
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.5  2010/07/27 16:16:49  glemahec

@@ -1,12 +1,14 @@
-/****************************************************************************/
-/* DIET statistics tools source code                                        */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Ludovic BERTSCH (Ludovic.Bertsch@ens-lyon.fr)                       */
-/*    - Eddy CARON (Eddy.Caron@ens-lyon.fr)                                 */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file  statistics.cc
+* 
+* @brief  DIET statistics tools source code 
+* 
+* @author  - Ludovic BERTSCH (Ludovic.Bertsch@ens-lyon.fr)
+*          - Eddy CARON (Eddy.Caron@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.18  2010/03/31 21:15:40  bdepardo

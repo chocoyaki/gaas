@@ -1,13 +1,13 @@
-/****************************************************************************/
-/* Another multi-workflow scheduler                                         */
-/* This scheduler is based on HEFT algorithm                                */
-/*                                                                          */
-/* Author(s):                                                               */
-/* - Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)                          */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
-
+/**
+* @file MultiWfHEFT.hh
+* 
+* @brief  Another multi-workflow scheduler based on HEFT algorithm
+* 
+* @author - Benjamin Isnard (Benjamin.Isnard@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.10  2010/03/31 21:15:39  bdepardo

@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* Batch System Management with performance prediction: OAR                 */
-/*                                                                          */
-/* Author(s):                                                               */
-/*    - Yves Caniou (yves.caniou@ens-lyon.fr)                               */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file Loadleveler_BatchSystem.hh
+* 
+* @brief  Batch System Management with performance prediction: OAR
+* 
+* @author - Yves Caniou (yves.caniou@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.3  2008/05/11 16:19:51  ycaniou

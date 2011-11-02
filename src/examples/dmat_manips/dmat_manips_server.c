@@ -1,12 +1,13 @@
-/****************************************************************************/
-/* dmat_manips example: a DIET server for transpose, MatPROD, MatSUM,       */
-/*   SqMatSUM, SqMatSUM_opt services.                                       */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file dmat_manips_server.c
+* 
+* @brief  DIET server for transpose, MatSUM and MatPROD SqMatSUM, SqMatSUM_opt 
+* 
+* @author  - Philippe COMBES (Philippe.Combes@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.2  2011/01/23 19:20:00  bdepardo

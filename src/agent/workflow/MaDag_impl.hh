@@ -1,12 +1,13 @@
-/****************************************************************************/
-/* The MA DAG CORBA object implementation header                            */
-/*                                                                          */
-/* Author(s):                                                               */
-/* - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)                          */
-/* - Benjamin Isnard (Benjamin.Isnard@ens-lyon.fr)                          */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file MaDag_impl.hh
+* 
+* @brief  The MA DAG CORBA object implementation header
+* 
+* @author - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 
 /****************************************************************************/
 /* $Id$

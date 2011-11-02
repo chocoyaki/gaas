@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* DIET compatibility header                                                */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*   - Haikel Guemar <haikel.guemar@sysfera.com>                            */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file  DIET_compat.hh
+* 
+* @brief  DIET compatibility header
+* 
+* @author  - Haikel Guemard (haikel.guemard@sysfera.com)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.2  2011/05/10 13:14:58  bdepardo

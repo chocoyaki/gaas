@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* A thread which updates the MultiMA links                                 */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)                   */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file  ReferenceUpdateThread.hh
+* 
+* @brief  A thread which updates the MultiMA links  
+* 
+* @author  - Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.3  2006/11/16 09:55:54  eboix

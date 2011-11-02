@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* DIET ChildID implementation header                                       */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)                   */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file ChildID.hh
+* 
+* @brief  DIET ChildID implementation header
+* 
+* @author - Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.2  2005/04/28 13:07:05  eboix

@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* DIET forwarder implementation - Agent forwarder implementation           */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Gael Le Mahec   (gael.le.mahec@ens-lyon.fr)                         */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file Agent.cc
+* 
+* @brief  DIET forwarder implementation - Agent forwarder implementation 
+* 
+* @author - Gael Le Mahec   (gael.le.mahec@ens-lyon.fr) 
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.8  2011/02/24 16:56:20  bdepardo

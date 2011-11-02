@@ -1,12 +1,14 @@
-/****************************************************************************/
-/* The base class for multi-workflow scheduler                     */
-/*                                                                          */
-/* Author(s):                                                               */
-/* - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)                          */
-/* - Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)                          */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file MultiWfScheduler.hh
+* 
+* @brief  The base class for multi-workflow schedule
+* 
+* @author - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)
+*         - Benjamin Isnard (Benjamin.Isnard@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.25  2011/03/16 21:37:06  bdepardo

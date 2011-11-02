@@ -1,12 +1,12 @@
-/****************************************************************************/
-/* Dynamic hierarchy management                                             */
-/* Example code for dynamically disconnecting an element from its parent.   */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Benjamin DEPARDON (Benjamin.Depardon@ens-lyon.fr)                   */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file disconnect.cc
+* @brief  Example code for dynamically disconnecting an element from its parent.
+* 
+* @author - Benjamin DEPARDON (Benjamin.Depardon@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 
 #include "DIET_admin.h"
 #include "SeD.hh"

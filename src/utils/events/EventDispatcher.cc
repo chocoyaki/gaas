@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* Event Dispatcher (Listener class with template of event handler)         */
-/*                                                                          */
-/* Author(s):                                                               */
-/* - Benjamin Isnard (benjamin.isnard@ens-lyon.fr                           */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file EventDispatcher.cc
+* 
+* @brief  Event Dispatcher (Listener class with template of event handler)  
+* 
+* @author - Benjamin Isnard (benjamin.isnard@ens-lyon.fr
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.2  2010/11/24 15:38:05  bdepardo

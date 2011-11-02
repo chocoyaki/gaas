@@ -1,12 +1,13 @@
-/****************************************************************************/
-/* DIET scheduling - This server include all services needed to execute     */
-/* the workflow described in func_string.xml                  .             */
-/*                                                                          */
-/*  Author(s):                                                              */
-/* - Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)                          */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file string_server.c
+* 
+* @brief  Include services needed to execute the workflow in func_string.xml   
+* 
+* @author  - Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.10  2011/01/23 19:20:01  bdepardo

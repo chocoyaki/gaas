@@ -1,13 +1,14 @@
-/****************************************************************************/
-/* The Workflow Meta-scheduler                                              */
-/* This scheduler is used when multi-workflow support is enabled            */
-/*                                                                          */
-/* Author(s):                                                               */
-/* - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)                          */
-/* - Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)                          */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file MultiWfBasicScheduler.hh
+* 
+* @brief  The Workflow Meta-schedulerg used when multi-workflow support is enabled
+* 
+* @author - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr) 
+*         - Benjamin Isnard (Benjamin.Isnard@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.6  2008/10/14 13:24:49  bisnard

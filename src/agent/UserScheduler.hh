@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* DIET UserScheduler header.                                               */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Gael LE MAHEC (lemahec@clermont.in2p3.fr)                           */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file  UserSchedulers.hh
+* 
+* @brief   DIET UserScheduler class header  
+* 
+* @author  - Gael LE MAHEC (lemahec@clermont.in2p3.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 #ifndef _USERSCHEDULER_HH_
 #define _USERSCHEDULER_HH_
 #include "GlobalSchedulers.hh"

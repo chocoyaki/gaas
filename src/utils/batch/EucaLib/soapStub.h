@@ -1,13 +1,10 @@
-/****************************************************************************/
-/* Batch System implementation for Amazon EC2 compatible clouds             */
-/* Auto-generated file by using gSOAP that provides an implementation       */
-/* of a SOAP client for the EC2 interface.                                  */
-/*                                                                          */
-/* Author(s):                                                               */
-/*    - Adrian Muresan (adrian.muresan@ens-lyon.fr)                         */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file soapStub.h
+* @brief  Auto-generated file by using gSOAP that provides aa SOAP client
+* @author Adrian Muresan (adrian.muresan@ens-lyon.fr)
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.1  2010/05/05 13:13:51  amuresan

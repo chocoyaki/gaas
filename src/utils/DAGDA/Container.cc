@@ -1,11 +1,13 @@
-/***********************************************************/
-/* Container implementation.                               */
-/*                                                         */
-/*  Author(s):                                             */
-/*    - Benjamin Isnard (benjamin.isnard@ens-lyon.fr)      */
-/*                                                         */
-/* $LICENSE$                                               */
-/***********************************************************/
+/**
+* @file Container.cc
+* 
+* @brief  Container implementation   
+* 
+* @author  - Benjamin Isnard (benjamin.isnard@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.10  2010/12/17 16:30:49  bdepardo

@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* Server used to dynamically add and remove a service using a library      */
-/*                                                                          */
-/* Author(s):                                                               */
-/* - Benjamin Depardon (benjamin.depardon@ens-lyon.fr)                      */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file server.cc
+* 
+* @brief  Server used to dynamically add and remove a service using a library
+* 
+* @author  - Benjamin Depardon (benjamin.depardon@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.2  2010/01/14 10:58:09  bdepardo

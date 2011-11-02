@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* Example client for the Cloud Batch System                                */
-/*                                                                          */
-/* Author(s):                                                               */
-/*    - Adrian Muresan (adrian.muresan@ens-lyon.fr)                         */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file cloud_client.c
+* 
+* @brief  Example client for the Cloud Batch System 
+* 
+* @author  - Adrian Muresan (adrian.muresan@ens-lyon.fr) 
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.6  2011/03/31 17:45:28  hguemar

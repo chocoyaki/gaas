@@ -1,13 +1,13 @@
-/****************************************************************************/
-/* Dynamic hierarchy management                                             */
-/* Example code for dynamically killing an element and (potentially) its    */
-/* underlying hierachy.                                                     */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Benjamin DEPARDON (Benjamin.Depardon@ens-lyon.fr)                   */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file remove.cc
+* 
+* @brief  Example for dynamically killing an element and underlying hierachy  
+* 
+* @author  - Benjamin Depardon (benjamin.depardon@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.2  2010/01/14 11:06:37  bdepardo

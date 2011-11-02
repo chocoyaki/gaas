@@ -1,12 +1,14 @@
-/****************************************************************************/
-/* DietLogComponent header - LogService connection for DIET                 */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Georg Hoesch (hoesch@in.tum.de)                                     */
-/*    - Cyrille Pontvieux (cyrille.pontvieux@edu.univ-fcomte.fr)            */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file DietLogComponent.hh
+* 
+* @brief  DietLogComponent header - LogService module for DIET 
+* 
+* @author  - Georg Hoesch (hoesch@in.tum.de)
+*          - Cyrille Pontvieux (cyrille.pontvieux@edu.univ-fcomte.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.1  2010/12/17 09:48:01  kcoulomb

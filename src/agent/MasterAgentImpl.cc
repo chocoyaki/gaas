@@ -1,13 +1,15 @@
-/****************************************************************************/
-/* DIET master agent implementation source code                             */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
-/*    - Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)                   */
-/*    - Frederic LOMBARD (Frederic.Lombard@lifc.univ-fcomte.fr)             */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file  MasterAgentImpl.cc
+* 
+* @brief  DIET master agent implementation source code  
+* 
+* @author - Philippe COMBES (Philippe.Combes@ens-lyon.fr)
+*         - Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)
+*         - Frederic LOMBARD (Frederic.Lombard@lifc.univ-fcomte.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.73  2011/03/03 00:23:11  bdepardo

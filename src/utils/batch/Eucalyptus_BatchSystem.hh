@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* Batch System implementation for Amazon EC2 compatible clouds             */
-/*                                                                          */
-/* Author(s):                                                               */
-/*    - Adrian Muresan (adrian.muresan@ens-lyon.fr)                         */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file Eucalyptus_BatchSystem.hh
+* 
+* @brief  Batch System implementation for Amazon EC2 compatible clouds
+* 
+* @author - Adrian Muresan (adrian.muresan@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.5  2011/02/24 16:52:40  bdepardo

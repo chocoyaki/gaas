@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* CoRI Collectors of ressource information (Memory part)                   */
-/*                                                                          */
-/* Author(s):                                                               */
-/*    - Frauenkron Peter (Peter.Frauenkron@ens-lyon.fr)                     */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file Cori_Easy_Memory.cc
+* 
+* @brief  CoRI Collectors of ressource information (Memory part)  
+* 
+* @author  - Frauenkron Peter (Peter.Frauenkron@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.6  2011/03/31 17:45:29  hguemar

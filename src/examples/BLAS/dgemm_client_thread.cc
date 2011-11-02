@@ -1,12 +1,14 @@
-/****************************************************************************/
-/* BLAS/dgemm server : a DIET client for dgemm using threads                */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Benjamin DEPARDON (Benjamin.Depardon@ens-lyon.fr                    */
-/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file  dgemm_client_thread.cc
+* 
+* @brief   BLAS/dgemm server : a DIET client for dgemm using threads   
+* 
+* @author  - Benjamin DEPARDON (Benjamin.Depardon@ens-lyon.fr
+*          - Philippe COMBES (Philippe.Combes@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.2  2010/01/22 10:36:48  bdepardo

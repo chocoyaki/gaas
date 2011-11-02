@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* Workflow example : Client for scalar workflow submission                 */
-/*                                                                          */
-/* Author(s):                                                               */
-/* - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)                          */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file client_scalar.c
+* 
+* @brief  Workflow example : Client for file workflow submission   
+* 
+* @author  - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.6  2008/12/09 09:01:06  bisnard

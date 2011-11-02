@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* DIET data interface for clients as well as servers                       */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file  DIET_data.cc
+* 
+* @brief  DIET data interface for clients as well as servers
+* 
+* @author  - Philippe COMBES (Philippe.Combes@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.72  2011/03/03 00:23:09  bdepardo

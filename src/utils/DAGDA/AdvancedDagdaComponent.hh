@@ -1,11 +1,13 @@
-/***********************************************************/
-/* Advanced Dagda component implementation.                */
-/*                                                         */
-/*  Author(s):                                             */
-/*    - Gael Le Mahec (lemahec@clermont.in2p3.fr)          */
-/*                                                         */
-/* $LICENSE$                                               */
-/***********************************************************/
+/**
+* @file AdvancedDagdaComponent.hh
+* 
+* @brief  Advanced Dagda component implementation   
+* 
+* @author  - Gael Le Mahec (lemahec@clermont.in2p3.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.6  2010/07/12 16:14:12  glemahec

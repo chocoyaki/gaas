@@ -1,13 +1,13 @@
-/****************************************************************************/
-/* ReadersWriter guard                                                      */
-/*      algorithm from comp.programming.threads and c.schmidt scope         */
-/*      guard paper                                                         */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Christophe PERA (christophe.pera@ens-lyon.fr)                       */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file  ReadersWriterLock.hh
+* 
+* @brief  ReadersWriter guard algorithm from comp.programming.threads and c.schmidt scope 
+* 
+* @author  - Christophe PERA (christophe.pera@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.5  2003/09/22 13:19:52  cpera

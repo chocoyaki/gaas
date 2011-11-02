@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* Workflow example : a server that computes the length of a string         */
-/*                                                                          */
-/* Author(s):                                                               */
-/* - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)                          */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file strlen.c
+* 
+* @brief  Workflow example : a server that computes the length of a stringl   
+* 
+* @author  - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.7  2011/01/23 19:20:01  bdepardo

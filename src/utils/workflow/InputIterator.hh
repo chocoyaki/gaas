@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* Set of classes used to implement data operators for functional workflows */
-/*                                                                          */
-/* Author(s):                                                               */
-/* - Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)                          */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file  InputIterator.hh
+* 
+* @brief  Set of classes used to implement data operators for functional workflows
+* 
+* @author  - Benjamin ISNARD (Benjamin.Isnard@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.4  2009/10/02 07:44:56  bisnard

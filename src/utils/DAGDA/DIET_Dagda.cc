@@ -1,11 +1,13 @@
-/***********************************************************/
-/* Dagda specific functions.                               */
-/*                                                         */
-/*  Author(s):                                             */
-/*    - Gael Le Mahec (lemahec@in2p3.fr)                   */
-/*                                                         */
-/* $LICENSE$                                               */
-/***********************************************************/
+/**
+* @file DIET_Dagda.cc
+* 
+* @brief Dagda specific functions
+* 
+* @author Gael Le Mahec (lemahec@clermont.in2p3.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.38  2011/04/22 10:13:25  bdepardo

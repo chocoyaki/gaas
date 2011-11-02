@@ -1,14 +1,14 @@
-/****************************************************************************/
-/* Node description class                                                   */
-/* This class contains the diet profile, the i/o ports and the execution    */
-/* object                                                                   */
-/*                                                                          */
-/* Author(s):                                                               */
-/* - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)                          */
-/* - Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)                          */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file  WfNode.cc
+* 
+* @brief This class contains the diet profile, the i/o ports and the execution object
+* 
+* @author  - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)
+*          - Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.9  2011/03/25 17:24:02  hguemar

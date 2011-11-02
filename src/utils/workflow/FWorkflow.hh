@@ -1,12 +1,17 @@
+/**
+* @file  FWorkflow.hh
+* 
+* @brief  The class representing a functional workflow Contains the workflow node
+* 
+* @author  - Benjamin ISNARD (Benjamin.Isnard@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /****************************************************************************/
 /* The class representing a functional workflow                             */
 /* Contains the workflow nodes and manages their instanciation as one or    */
 /* several dags.                                                            */
-/*                                                                          */
-/* Author(s):                                                               */
-/* - Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)                          */
-/*                                                                          */
-/* $LICENSE$                                                                */
 /****************************************************************************/
 /* $Id$
  * $Log$

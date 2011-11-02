@@ -1,11 +1,13 @@
-/***********************************************************/
-/* Dagda API.                                              */
-/*                                                         */
-/*  Author(s):                                             */
-/*    - Gael Le Mahec (lemahec@in2p3.fr)                   */
-/*                                                         */
-/* $LICENSE$                                               */
-/***********************************************************/
+/**
+* @file DIET_Dagda.h
+* 
+* @brief  Dagda API
+* 
+* @author Gael Le Mahec (lemahec@clermont.in2p3.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.15  2011/04/22 09:31:20  bdepardo

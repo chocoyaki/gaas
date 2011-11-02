@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* Tools for job management on SCALAPACK servers (source code)              */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Bert VAN HEUKELOM         - LIP ENS-Lyon (France)                   */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file job.c
+* 
+* @brief   Tools for job management on SCALAPACK servers (source code)   
+* 
+* @author  - Bert VAN HEUKELOM         - LIP ENS-Lyon (France)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.1.1.1  2003/04/10 13:21:39  pcombes

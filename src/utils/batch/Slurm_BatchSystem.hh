@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* Batch System Management with performance prediction: Slurm               */
-/*                                                                          */
-/* Author(s):                                                               */
-/*    - Benjamin Depardon (Benjamin.Depardon@ens-lyon.fr)                   */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file Slurm_BatchSystem.hh
+* 
+* @brief  Batch System Management with performance prediction: Slurm 
+* 
+* @author - Benjamin Depardon (Benjamin.Depardon@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  ****************************************************************************/

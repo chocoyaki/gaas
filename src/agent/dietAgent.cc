@@ -1,13 +1,15 @@
-/****************************************************************************/
-/* dietAgent main                                                           */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
-/*    - Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)                   */
-/*    - Frederic LOMBARD (Frederic.Lombard@lifc.univ-fcomte.fr)             */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file dietAgent.cc
+* 
+* @brief  dietAgent main
+* 
+* @author - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                      
+*         - Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr) 
+*         - Frederic LOMBARD (Frederic.Lombard@lifc.univ-fcomte.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.64  2011/05/13 09:05:10  bdepardo

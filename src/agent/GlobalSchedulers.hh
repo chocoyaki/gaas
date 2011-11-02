@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* DIET agent global schedulers header : add yours !!!                      */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file  GlobalSchedulers.hh
+* 
+* @brief  DIET agent globlal schedulers implementation : add yours !!! 
+* 
+* @author - Philippe COMBES (Philippe.Combes@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.8  2008/01/01 19:04:46  ycaniou

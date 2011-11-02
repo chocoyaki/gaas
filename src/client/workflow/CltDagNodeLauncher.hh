@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* Launcher for client-side dag node                                        */
-/*                                                                          */
-/* Author(s):                                                               */
-/* - Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)                          */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file  CltDagNodeLauncher.hh
+* 
+* @brief   Launcher for client-side dag node  
+* 
+* @author  - Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.2  2010/07/20 09:22:33  bisnard

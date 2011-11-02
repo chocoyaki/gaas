@@ -1,12 +1,13 @@
-/****************************************************************************/
-/* Service example for dynamic loading.                                     */
-/* This is only a 'Hello world' service                                     */
-/*                                                                          */
-/* Author(s):                                                               */
-/* - Benjamin Depardon (benjamin.depardon@ens-lyon.fr)                      */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file service2.cc
+* 
+* @brief  Service example for dynamic loading. This is only a 'Hello world'  
+* 
+* @author  - Benjamin Depardon (benjamin.depardon@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.1  2008/12/08 15:32:43  bdepardo

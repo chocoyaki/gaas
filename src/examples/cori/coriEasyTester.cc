@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* CoRI: Simple example for EasyTester                                      */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Peter Frauenkron (Peter.Frauenkron@gmail.com)                       */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file coriEasyTester.cc
+* 
+* @brief  CoRI: Simple example for EasyTester 
+* 
+* @author  - Peter Frauenkron (Peter.Frauenkron@gmail.com) 
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.3  2006/11/01 21:35:05  ecaron

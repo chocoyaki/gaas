@@ -1,11 +1,16 @@
+/**
+* @file  NodeQueue.cc
+* 
+* @brief  The base class for workflow node queueing container
+* 
+* @author  - Benjamin ISNARD (Benjamin.Isnard@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /****************************************************************************/
 /* The base class for workflow node queueing container                      */
 /* and the derived class that handles priority of nodes                     */
-/*                                                                          */
-/* Author(s):                                                               */
-/* - Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)                          */
-/*                                                                          */
-/* $LICENSE$                                                                */
 /****************************************************************************/
 /* $Id$
  * $Log$

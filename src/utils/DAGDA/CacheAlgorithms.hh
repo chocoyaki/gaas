@@ -1,12 +1,13 @@
-/***********************************************************/
-/* Cache replacements algorithms used by DAGDA when        */
-/* a data needs to be removed.                             */
-/*                                                         */
-/*  Author(s):                                             */
-/*    - Gael Le Mahec (lemahec@clermont.in2p3.fr)          */
-/*                                                         */
-/* $LICENSE$                                               */
-/***********************************************************/
+/**
+* @file CacheAlgorithms.hh
+* 
+* @brief  Cache replacements algorithms used by DAGDA when we remove data   
+* 
+* @author  - Gael Le Mahec (lemahec@clermont.in2p3.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.3  2008/11/07 14:32:14  bdepardo

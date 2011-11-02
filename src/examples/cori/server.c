@@ -1,11 +1,13 @@
-/****************************************************************************/
-/* DIET scheduling - CoRI example: a server for fibonacci.                  */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Peter Frauenkron (Peter.Frauenkron@gmail.com)                       */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file server.c
+* 
+* @brief  DIET scheduling - CoRI example: a server for fibonacci 
+* 
+* @author  -  Peter Frauenkron (Peter.Frauenkron@gmail.com) 
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.6  2010/03/29 15:15:29  glemahec

@@ -1,10 +1,13 @@
-/****************************************************************************/
-/* DIET client for Batch submission: loadleveler on a parallel machine      */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Yves CANIOU (ycaniou@ens-lyon.fr)                                   */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file client.c
+* 
+* @brief   DIET client for Batch submission: loadleveler on a parallel machine    
+* 
+* @author  - Yves Caniou (Yves.Caniou@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.3  2010/03/05 15:52:08  ycaniou

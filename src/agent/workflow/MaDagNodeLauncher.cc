@@ -1,12 +1,13 @@
-/****************************************************************************/
-/* The specialized launcher class used for dagNode scheduling               */
-/*                                                                          */
-/*                                                                          */
-/* Author(s):                                                               */
-/* - Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)                          */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
+/**
+* @file MaDagNodeLauncher.cc
+* 
+* @brief  The specialized launcher class used for dagNode scheduling 
+* 
+* @author - Benjamin Isnard (Benjamin.Isnard@ens-lyon.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
 /* $Id$
  * $Log$
  * Revision 1.2  2010/07/20 08:59:36  bisnard
