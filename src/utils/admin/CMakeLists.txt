@@ -14,8 +14,8 @@ add_library(DIET_admin
   disconnect.cc
 )
 
-target_link_libraries( DIET_admin DIET_CORBA DIET_SeD )
+target_link_libraries(DIET_admin DIET_CORBA DIET_SeD)
 
-set_target_properties( DIET_admin  PROPERTIES VERSION ${DIET_VERSION} )
+set_target_properties(DIET_admin  PROPERTIES VERSION ${DIET_VERSION})
 
-install( TARGETS DIET_admin DESTINATION lib/)
+install(TARGETS DIET_admin DESTINATION ${LIB_INSTALL_DIR})

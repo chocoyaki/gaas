@@ -1,9 +1,0 @@
-This directory contains a tiny java client that makes a simple
-"initial_services" request on the omniNames server specified with
-GUIs.
-Usage:
- 1/ make (Note: only compiles with Sun's java compiler)
- 2/ make run
- 3/ Specify the hostname
- 4/ Specify the port number
- 5/ click on Test and watch the result in the terminal of invocation.

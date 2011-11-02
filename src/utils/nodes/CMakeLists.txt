@@ -87,8 +87,6 @@ set(UtilsCoriSource
 add_library(UtilsCori STATIC ${UtilsCoriSource})
 add_dependencies(UtilsCori DIET_CORBA)
 
-install (TARGETS UtilsCori DESTINATION lib)
-
 
 ########################################################################
 ### CORI related properties:
