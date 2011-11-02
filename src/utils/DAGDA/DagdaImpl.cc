@@ -332,7 +332,7 @@ DagdaImpl::sendFile(const corba_data_t &data, const char* destName) {
                             getMaxMsgSize():(fileSize-wrote));
     TRACE_TEXT(TRACE_ALL_STEPS, "\tSend " << toSend << " bytes...\n");
     buffer.length(toSend);
-    file.read(reinterpret_cast<char*> buffer.get_buffer(false), toSend);
+    file.read(reinterpret_cast<char*>(buffer.get_buffer(false)), toSend);
     if (file.bad()) {
       throw Dagda::ReadError(errno);
     }

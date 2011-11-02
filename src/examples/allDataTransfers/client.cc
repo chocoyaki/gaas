@@ -280,11 +280,11 @@ main(int argc, char* argv[]) {
   std::cout << "######################################################################" << std::endl;
 
   /* Use the long type for all "integer" types. */
-  A = reinterpret_cast<long *> malloc(sizeof(long) * SIZE);
-  B = reinterpret_cast<long *> malloc(sizeof(long) * SIZE);
+  A = reinterpret_cast<long *>(malloc(sizeof(long) * SIZE));
+  B = reinterpret_cast<long *>(malloc(sizeof(long) * SIZE));
   for (i = 0; i < SIZE; ++ i) {
-    (reinterpret_cast<long *>A)[i] = i;
-    (reinterpret_cast<long *>B)[i] = i + SIZE;
+    (reinterpret_cast<long *>(A))[i] = i;
+    (reinterpret_cast<long *>(B))[i] = i + SIZE;
   }
 
   /* Characters */
@@ -292,23 +292,23 @@ main(int argc, char* argv[]) {
   profile = diet_profile_alloc(PB_VECTOR[0], 0, 1, 2);
 
   diet_vector_set(diet_parameter(profile, 0),
-                  reinterpret_cast<long *> A, DIET_VOLATILE, DIET_CHAR, n);
+                  reinterpret_cast<long *>(A), DIET_VOLATILE, DIET_CHAR, n);
   std::cout << "A:" << std::endl;
   printVector((long *)A, n);
   diet_vector_set(diet_parameter(profile, 1),
-                  reinterpret_cast<long *> B, DIET_VOLATILE, DIET_CHAR, n);
+                  reinterpret_cast<long *>(B), DIET_VOLATILE, DIET_CHAR, n);
   std::cout << "B (before call):" << std::endl;
-  printVector(reinterpret_cast<long *>B, n);
+  printVector(reinterpret_cast<long *>(B), n);
   diet_vector_set(diet_parameter(profile, 2),
                   NULL, DIET_VOLATILE, DIET_CHAR, n);
 
   if (!diet_call(profile)) {
     diet_vector_get(diet_parameter(profile, 2), 
-		    reinterpret_cast<long **> &C, NULL, &n);
+		    reinterpret_cast<long **>(&C), NULL, &n);
     std::cout << "B (after call):" << std::endl;
-    printVector(reinterpret_cast<long *>B, n);
+    printVector(reinterpret_cast<long *>(B), n);
     std::cout << "C:" << std::endl;
-    printVector(reinterpret_cast<long *>C, n);
+    printVector(reinterpret_cast<long *>(C), n);
     diet_free_data(diet_parameter(profile, 1));
     diet_free_data(diet_parameter(profile, 2));
     free(C);
@@ -322,29 +322,29 @@ main(int argc, char* argv[]) {
 
   /* Short */
   for (i = 0; i < SIZE; ++ i) {
-    (reinterpret_cast<long *>B)[i] = i + SIZE;
+    (reinterpret_cast<long *>(B))[i] = i + SIZE;
   }
   std::cout << "#### Shorts" << std::endl;
   profile = diet_profile_alloc(PB_VECTOR[1], 0, 1, 2);
 
   diet_vector_set(diet_parameter(profile, 0),
-                  reinterpret_cast<long *> A, DIET_VOLATILE, DIET_SHORT, n);
+                  reinterpret_cast<long *>(A), DIET_VOLATILE, DIET_SHORT, n);
   std::cout << "A:" << std::endl;
   printVector(reinterpret_cast<long *>A, n);
   diet_vector_set(diet_parameter(profile, 1),
-                  reinterpret_cast<long *> B, DIET_VOLATILE, DIET_SHORT, n);
+                  reinterpret_cast<long *>(B), DIET_VOLATILE, DIET_SHORT, n);
   std::cout << "B (before call):" << std::endl;
-  printVector(reinterpret_cast<long *>B, n);
+  printVector(reinterpret_cast<long *>(B), n);
   diet_vector_set(diet_parameter(profile, 2),
                   NULL, DIET_VOLATILE, DIET_SHORT, n);
 
   if (!diet_call(profile)) {
     diet_vector_get(diet_parameter(profile, 2), 
-		    reinterpret_cast<long **> &C, NULL, &n);
+		    reinterpret_cast<long **>(&C), NULL, &n);
     std::cout << "B (after call):" << std::endl;
-    printVector(reinterpret_cast<long *>B, n);
+    printVector(reinterpret_cast<long *>(B), n);
     std::cout << "C:" << std::endl;
-    printVector(reinterpret_cast<long *>C, n);
+    printVector(reinterpret_cast<long *>(C), n);
     diet_free_data(diet_parameter(profile, 1));
     diet_free_data(diet_parameter(profile, 2));
     free(C);
@@ -358,29 +358,29 @@ main(int argc, char* argv[]) {
 
   /* Integer */
   for (i = 0; i < SIZE; ++ i) {
-    (reinterpret_cast<long *>B)[i] = i + SIZE;
+    (reinterpret_cast<long *>(B))[i] = i + SIZE;
   }
   std::cout << "#### Integers" << std::endl;
   profile = diet_profile_alloc(PB_VECTOR[2], 0, 1, 2);
 
   diet_vector_set(diet_parameter(profile, 0),
-                  reinterpret_cast<long *> A, DIET_VOLATILE, DIET_INT, n);
+                  reinterpret_cast<long *> (A), DIET_VOLATILE, DIET_INT, n);
   std::cout << "A:" << std::endl;
-  printVector(reinterpret_cast<long *>A, n);
+  printVector(reinterpret_cast<long *>(A), n);
   diet_vector_set(diet_parameter(profile, 1),
-                  reinterpret_cast<long *> B, DIET_VOLATILE, DIET_INT, n);
+                  reinterpret_cast<long *>(B), DIET_VOLATILE, DIET_INT, n);
   std::cout << "B (before call):" << std::endl;
-  printVector(reinterpret_cast<long *>B, n);
+  printVector(reinterpret_cast<long *>(B), n);
   diet_vector_set(diet_parameter(profile, 2),
                   NULL, DIET_VOLATILE, DIET_INT, n);
 
   if (!diet_call(profile)) {
     diet_vector_get(diet_parameter(profile, 2), 
-		    reinterpret_cast<long **> &C, NULL, &n);
+		    reinterpret_cast<long **>(&C), NULL, &n);
     std::cout << "B (after call):" << std::endl;
-    printVector(reinterpret_cast<long *>B, n);
+    printVector(reinterpret_cast<long *>(B), n);
     std::cout << "C:" << std::endl;
-    printVector(reinterpret_cast<long *>C, n);
+    printVector(reinterpret_cast<long *>(C), n);
     diet_free_data(diet_parameter(profile, 1));
     diet_free_data(diet_parameter(profile, 2));
     free(C);
@@ -394,29 +394,29 @@ main(int argc, char* argv[]) {
 
   /* Long */
   for (i = 0; i < SIZE; ++ i) {
-    (reinterpret_cast<long *>B)[i] = i + SIZE;
+    (reinterpret_cast<long *>(B))[i] = i + SIZE;
   }
   std::cout << "#### Long" << std::endl;
   profile = diet_profile_alloc(PB_VECTOR[3], 0, 1, 2);
 
   diet_vector_set(diet_parameter(profile, 0),
-                  reinterpret_cast<long *> A, DIET_VOLATILE, DIET_LONGINT, n);
+                  reinterpret_cast<long *>(A), DIET_VOLATILE, DIET_LONGINT, n);
   std::cout << "A:" << std::endl;
-  printVector(reinterpret_cast<long *>A, n);
+  printVector(reinterpret_cast<long *>(A), n);
   diet_vector_set(diet_parameter(profile, 1),
-                  reinterpret_cast<long *> B, DIET_VOLATILE, DIET_LONGINT, n);
+                  reinterpret_cast<long *>(B), DIET_VOLATILE, DIET_LONGINT, n);
   std::cout << "B (before call):" << std::endl;
-  printVector(reinterpret_cast<long *>B, n);
+  printVector(reinterpret_cast<long *>(B), n);
   diet_vector_set(diet_parameter(profile, 2),
                   NULL, DIET_VOLATILE, DIET_LONGINT, n);
 
   if (!diet_call(profile)) {
-    diet_vector_get(diet_parameter(profile, 2), reinterpret_cast<long **> &C, 
+    diet_vector_get(diet_parameter(profile, 2), reinterpret_cast<long **>(&C), 
 		    NULL, &n);
     std::cout << "B (after call):" << std::endl;
-    printVector(reinterpret_cast<long *>B, n);
+    printVector(reinterpret_cast<long *>(B), n);
     std::cout << "C:" << std::endl;
-    printVector(reinterpret_cast<long *>C, n);
+    printVector(reinterpret_cast<long *>(C), n);
     diet_free_data(diet_parameter(profile, 1));
     diet_free_data(diet_parameter(profile, 2));
     free(C);
@@ -431,33 +431,33 @@ main(int argc, char* argv[]) {
   free(B);
 
   /* Float */
-  A = reinterpret_cast<float *> malloc(sizeof(float) * SIZE);
-  B = reinterpret_cast<float *> malloc(sizeof(float) * SIZE);
+  A = reinterpret_cast<float *>(malloc(sizeof(float) * SIZE));
+  B = reinterpret_cast<float *>(malloc(sizeof(float) * SIZE));
   for (i = 0; i < SIZE; ++ i) {
-    (reinterpret_cast<float *>A)[i] = i * 2.0;
-    (reinterpret_cast<float *>B)[i] = (i + SIZE) * 2.0;
+    (reinterpret_cast<float *>(A))[i] = i * 2.0;
+    (reinterpret_cast<float *>(B))[i] = (i + SIZE) * 2.0;
   }
   std::cout << "#### Floats" << std::endl;
   profile = diet_profile_alloc(PB_VECTOR[4], 0, 1, 2);
 
   diet_vector_set(diet_parameter(profile, 0),
-                  reinterpret_cast<float *> A, DIET_VOLATILE, DIET_FLOAT, n);
+                  reinterpret_cast<float *>(A), DIET_VOLATILE, DIET_FLOAT, n);
   std::cout << "A:" << std::endl;
-  printVector(reinterpret_cast<float *>A, n);
+  printVector(reinterpret_cast<float *>(A), n);
   diet_vector_set(diet_parameter(profile, 1),
-                  reinterpret_cast<float *> B, DIET_VOLATILE, DIET_FLOAT, n);
+                  reinterpret_cast<float *>(B), DIET_VOLATILE, DIET_FLOAT, n);
   std::cout << "B (before call):" << std::endl;
-  printVector(reinterpret_cast<float *>B, n);
+  printVector(reinterpret_cast<float *>(B), n);
   diet_vector_set(diet_parameter(profile, 2),
                   NULL, DIET_VOLATILE, DIET_FLOAT, n);
 
   if (!diet_call(profile)) {
-    diet_vector_get(diet_parameter(profile, 2), reinterpret_cast<float **> &C,
+    diet_vector_get(diet_parameter(profile, 2), reinterpret_cast<float **>(&C),
 		    NULL, &n);
     std::cout << "B (after call):" << std::endl;
-    printVector(reinterpret_cast<float *>B, n);
+    printVector(reinterpret_cast<float *>(B), n);
     std::cout << "C:" << std::endl;
-    printVector(reinterpret_cast<float *> C, n);
+    printVector(reinterpret_cast<float *>(C), n);
     diet_free_data(diet_parameter(profile, 1));
     diet_free_data(diet_parameter(profile, 2));
     free(C);
@@ -481,23 +481,23 @@ main(int argc, char* argv[]) {
   profile = diet_profile_alloc(PB_VECTOR[5], 0, 1, 2);
 
   diet_vector_set(diet_parameter(profile, 0),
-                  reinterpret_cast<float *> A, DIET_VOLATILE, DIET_DOUBLE, n);
+                  reinterpret_cast<float *>(A), DIET_VOLATILE, DIET_DOUBLE, n);
   std::cout << "A:" << std::endl;
-  printVector(reinterpret_cast<float *>A, n);
+  printVector(reinterpret_cast<float *>(A), n);
   diet_vector_set(diet_parameter(profile, 1),
-                  reinterpret_cast<float *> B, DIET_VOLATILE, DIET_DOUBLE, n);
+                  reinterpret_cast<float *>(B), DIET_VOLATILE, DIET_DOUBLE, n);
   std::cout << "B (before call):" << std::endl;
-  printVector(reinterpret_cast<float *>B, n);
+  printVector(reinterpret_cast<float *>(B), n);
   diet_vector_set(diet_parameter(profile, 2),
                   NULL, DIET_VOLATILE, DIET_DOUBLE, n);
 
   if (!diet_call(profile)) {
-    diet_vector_get(diet_parameter(profile, 2), reinterpret_cast<float **> &C,
+    diet_vector_get(diet_parameter(profile, 2), reinterpret_cast<float **>(&C),
 		    NULL, &n);
     std::cout << "B (after call):" << std::endl;
-    printVector(reinterpret_cast<float *>B, n);
+    printVector(reinterpret_cast<float *>(B), n);
     std::cout << "C:" << std::endl;
-    printVector(reinterpret_cast<float *>C, n);
+    printVector(reinterpret_cast<float *>(C), n);
     diet_free_data(diet_parameter(profile, 1));
     diet_free_data(diet_parameter(profile, 2));
     free(C);
@@ -534,11 +534,11 @@ main(int argc, char* argv[]) {
 
 
   /* Use the long type for all "integer" types. */
-  A = reinterpret_cast<long *> malloc(sizeof(long) * SIZE * SIZE);
-  B = reinterpret_cast<long *> malloc(sizeof(long) * SIZE * SIZE);
+  A = reinterpret_cast<long *>(malloc(sizeof(long) * SIZE * SIZE));
+  B = reinterpret_cast<long *>(malloc(sizeof(long) * SIZE * SIZE));
   for (i = 0; i < SIZE * SIZE; ++ i) {
-    (reinterpret_cast<long *>A)[i] = i;
-    (reinterpret_cast<long *>B)[i] = i + SIZE;
+    (reinterpret_cast<long *>(A))[i] = i;
+    (reinterpret_cast<long *>(B))[i] = i + SIZE;
   }
 
   /* Characters */
@@ -546,23 +546,23 @@ main(int argc, char* argv[]) {
   profile = diet_profile_alloc(PB_MATRIX[0], 0, 1, 2);
 
   diet_matrix_set(diet_parameter(profile, 0),
-                  reinterpret_cast<long *> A, DIET_VOLATILE, DIET_CHAR, m, n, oA);
+                  reinterpret_cast<long *>(A), DIET_VOLATILE, DIET_CHAR, m, n, oA);
   std::cout << "A:" << std::endl;
-  printMatrix(reinterpret_cast<long *>A, m, n, (oA == DIET_ROW_MAJOR));
+  printMatrix(reinterpret_cast<long *>(A), m, n, (oA == DIET_ROW_MAJOR));
   diet_matrix_set(diet_parameter(profile, 1),
-                  reinterpret_cast<long *> B, DIET_VOLATILE, DIET_CHAR, n, m, oB);
+                  reinterpret_cast<long *>(B), DIET_VOLATILE, DIET_CHAR, n, m, oB);
   std::cout << "B (before call):" << std::endl;
-  printMatrix(reinterpret_cast<long *>B, n, m, (oB == DIET_ROW_MAJOR));
+  printMatrix(reinterpret_cast<long *>(B), n, m, (oB == DIET_ROW_MAJOR));
   diet_matrix_set(diet_parameter(profile, 2),
                   NULL, DIET_VOLATILE, DIET_CHAR, m, m, oC);
 
   if (!diet_call(profile)) {
-    diet_matrix_get(diet_parameter(profile, 2), reinterpret_cast<long **> &C, 
+    diet_matrix_get(diet_parameter(profile, 2), reinterpret_cast<long **>(&C), 
 		    NULL, &m, &n, &oC);
     std::cout << "B (after call):" << std::endl;
-    printMatrix(reinterpret_cast<long *>B, n, m, (oB == DIET_ROW_MAJOR));
+    printMatrix(reinterpret_cast<long *>(B), n, m, (oB == DIET_ROW_MAJOR));
     std::cout << "C:" << std::endl;
-    printMatrix(reinterpret_cast<long *>C, m, n, (oC == DIET_ROW_MAJOR));
+    printMatrix(reinterpret_cast<long *>(C), m, n, (oC == DIET_ROW_MAJOR));
     diet_free_data(diet_parameter(profile, 1));
     diet_free_data(diet_parameter(profile, 2));
     free(C);
@@ -578,29 +578,29 @@ main(int argc, char* argv[]) {
 
   /* Short */
   for (i = 0; i < SIZE * SIZE; ++ i) {
-    (reinterpret_cast<long *>B)[i] = i + SIZE;
+    (reinterpret_cast<long *>(B))[i] = i + SIZE;
   }
   std::cout << "#### Shorts" << std::endl;
   profile = diet_profile_alloc(PB_MATRIX[1], 0, 1, 2);
 
   diet_matrix_set(diet_parameter(profile, 0),
-                  reinterpret_cast<long *> A, DIET_VOLATILE, DIET_SHORT, m, n, oA);
+                  reinterpret_cast<long *>(A), DIET_VOLATILE, DIET_SHORT, m, n, oA);
   std::cout << "A:" << std::endl;
-  printMatrix(reinterpret_cast<long *>A, m, n, (oA == DIET_ROW_MAJOR));
+  printMatrix(reinterpret_cast<long *>(A), m, n, (oA == DIET_ROW_MAJOR));
   diet_matrix_set(diet_parameter(profile, 1),
-                  reinterpret_cast<long *> B, DIET_VOLATILE, DIET_SHORT, n, m, oB);
+                  reinterpret_cast<long *>(B), DIET_VOLATILE, DIET_SHORT, n, m, oB);
   std::cout << "B (before call):" << std::endl;
-  printMatrix(reinterpret_cast<long *> B, n, m, (oB == DIET_ROW_MAJOR));
+  printMatrix(reinterpret_cast<long *>(B), n, m, (oB == DIET_ROW_MAJOR));
   diet_matrix_set(diet_parameter(profile, 2),
                   NULL, DIET_VOLATILE, DIET_SHORT, m, m, oC);
 
   if (!diet_call(profile)) {
-    diet_matrix_get(diet_parameter(profile, 2), reinterpret_cast<long **> &C,
+    diet_matrix_get(diet_parameter(profile, 2), reinterpret_cast<long **>(&C),
 		    NULL, &m, &n, &oC);
     std::cout << "B (after call):" << std::endl;
-    printMatrix(reinterpret_cast<long *>B, n, m, (oB == DIET_ROW_MAJOR));
+    printMatrix(reinterpret_cast<long *>(B), n, m, (oB == DIET_ROW_MAJOR));
     std::cout << "C:" << std::endl;
-    printMatrix(reinterpret_cast<long *>C, m, n, (oC == DIET_ROW_MAJOR));
+    printMatrix(reinterpret_cast<long *>(C), m, n, (oC == DIET_ROW_MAJOR));
     diet_free_data(diet_parameter(profile, 1));
     diet_free_data(diet_parameter(profile, 2));
   } else {
@@ -614,29 +614,29 @@ main(int argc, char* argv[]) {
 
   /* Integer */
   for (i = 0; i < SIZE * SIZE; ++ i) {
-    (reinterpret_cast<long *>B)[i] = i + SIZE;
+    (reinterpret_cast<long *>(B))[i] = i + SIZE;
   }
   std::cout << "#### Integers" << std::endl;
   profile = diet_profile_alloc(PB_MATRIX[2], 0, 1, 2);
 
   diet_matrix_set(diet_parameter(profile, 0),
-                  reinterpret_cast<long *> A, DIET_VOLATILE, DIET_INT, m, n, oA);
+                  reinterpret_cast<long *>(A), DIET_VOLATILE, DIET_INT, m, n, oA);
   std::cout << "A:" << std::endl;
-  printMatrix(reinterpret_cast<long *>A, m, n, (oA == DIET_ROW_MAJOR));
+  printMatrix(reinterpret_cast<long *>(A), m, n, (oA == DIET_ROW_MAJOR));
   diet_matrix_set(diet_parameter(profile, 1),
-                  reinterpret_cast<long *> B, DIET_VOLATILE, DIET_INT, n, m, oB);
+                  reinterpret_cast<long *>(B), DIET_VOLATILE, DIET_INT, n, m, oB);
   std::cout << "B (before call):" << std::endl;
-  printMatrix(reinterpret_cast<long *>B, n, m, (oB == DIET_ROW_MAJOR));
+  printMatrix(reinterpret_cast<long *>(B), n, m, (oB == DIET_ROW_MAJOR));
   diet_matrix_set(diet_parameter(profile, 2),
                   NULL, DIET_VOLATILE, DIET_INT, m, m, oC);
 
   if (!diet_call(profile)) {
-    diet_matrix_get(diet_parameter(profile, 2), reinterpret_cast<long **> &C,
+    diet_matrix_get(diet_parameter(profile, 2), reinterpret_cast<long **>(&C),
 		    NULL, &m, &n, &oC);
     std::cout << "B (after call):" << std::endl;
-    printMatrix(reinterpret_cast<long *> B, n, m, (oB == DIET_ROW_MAJOR));
+    printMatrix(reinterpret_cast<long *>(B), n, m, (oB == DIET_ROW_MAJOR));
     std::cout << "C:" << std::endl;
-    printMatrix(reinterpret_cast<long *> C, m, n, (oC == DIET_ROW_MAJOR));
+    printMatrix(reinterpret_cast<long *>(C), m, n, (oC == DIET_ROW_MAJOR));
     diet_free_data(diet_parameter(profile, 1));
     diet_free_data(diet_parameter(profile, 2));
     free(C);
@@ -651,29 +651,29 @@ main(int argc, char* argv[]) {
 
   /* Long */
   for (i = 0; i < SIZE * SIZE; ++ i) {
-    (reinterpret_cast<long *>B)[i] = i + SIZE;
+    (reinterpret_cast<long *>(B))[i] = i + SIZE;
   }
   std::cout << "#### Longs" << std::endl;
   profile = diet_profile_alloc(PB_MATRIX[3], 0, 1, 2);
 
   diet_matrix_set(diet_parameter(profile, 0),
-                  reinterpret_cast<long *> A, DIET_VOLATILE, DIET_LONGINT, m, n, oA);
+                  reinterpret_cast<long *>(A), DIET_VOLATILE, DIET_LONGINT, m, n, oA);
   std::cout << "A:" << std::endl;
-  printMatrix(reinterpret_cast<long *>A, m, n, (oA == DIET_ROW_MAJOR));
+  printMatrix(reinterpret_cast<long *>(A), m, n, (oA == DIET_ROW_MAJOR));
   diet_matrix_set(diet_parameter(profile, 1),
-                  reinterpret_cast<long *> B, DIET_VOLATILE, DIET_LONGINT, n, m, oB);
+                  reinterpret_cast<long *>(B), DIET_VOLATILE, DIET_LONGINT, n, m, oB);
   std::cout << "B (before call):" << std::endl;
-  printMatrix(reinterpret_cast<long *>B, n, m, (oB == DIET_ROW_MAJOR));
+  printMatrix(reinterpret_cast<long *>(B), n, m, (oB == DIET_ROW_MAJOR));
   diet_matrix_set(diet_parameter(profile, 2),
                   NULL, DIET_VOLATILE, DIET_LONGINT, m, m, oC);
 
   if (!diet_call(profile)) {
-    diet_matrix_get(diet_parameter(profile, 2), reinterpret_cast<long **> &C,
+    diet_matrix_get(diet_parameter(profile, 2), reinterpret_cast<long **>(&C),
 		    NULL, &m, &n, &oC);
     std::cout << "B (after call):" << std::endl;
-    printMatrix(reinterpret_cast<long *>B, n, m, (oB == DIET_ROW_MAJOR));
+    printMatrix(reinterpret_cast<long *>(B), n, m, (oB == DIET_ROW_MAJOR));
     std::cout << "C:" << std::endl;
-    printMatrix(reinterpret_cast<long *>C, m, n, (oC == DIET_ROW_MAJOR));
+    printMatrix(reinterpret_cast<long *>(C), m, n, (oC == DIET_ROW_MAJOR));
     diet_free_data(diet_parameter(profile, 1));
     diet_free_data(diet_parameter(profile, 2));
     free(C);
@@ -690,32 +690,32 @@ main(int argc, char* argv[]) {
 
   /* Float */
   std::cout << "#### Floats" << std::endl;
-  A = reinterpret_cast<float *> malloc(sizeof(float) * SIZE * SIZE);
-  B = reinterpret_cast<float *> malloc(sizeof(float) * SIZE * SIZE);
+  A = reinterpret_cast<float *>(malloc(sizeof(float) * SIZE * SIZE));
+  B = reinterpret_cast<float *>(malloc(sizeof(float) * SIZE * SIZE));
   for (i = 0; i < SIZE * SIZE; ++ i) {
-    (reinterpret_cast<float *>A)[i] = i * 2.0;
-    (reinterpret_cast<float *>B)[i] = (i + SIZE) * 2.0;
+    (reinterpret_cast<float *>(A))[i] = i * 2.0;
+    (reinterpret_cast<float *>(B))[i] = (i + SIZE) * 2.0;
   }
   profile = diet_profile_alloc(PB_MATRIX[4], 0, 1, 2);
 
   diet_matrix_set(diet_parameter(profile, 0),
-                  reinterpret_cast<float *> A, DIET_VOLATILE, DIET_FLOAT, m, n, oA);
+                  reinterpret_cast<float *>(A), DIET_VOLATILE, DIET_FLOAT, m, n, oA);
   std::cout << "A:" << std::endl;
-  printMatrix(reinterpret_cast<float *>A, m, n, (oA == DIET_ROW_MAJOR));
+  printMatrix(reinterpret_cast<float *>(A), m, n, (oA == DIET_ROW_MAJOR));
   diet_matrix_set(diet_parameter(profile, 1),
-                  reinterpret_cast<float *> B, DIET_VOLATILE, DIET_FLOAT, n, m, oB);
+                  reinterpret_cast<float *>(B), DIET_VOLATILE, DIET_FLOAT, n, m, oB);
   std::cout << "B (before call):" << std::endl;
-  printMatrix(reinterpret_cast<float *>B, n, m, (oB == DIET_ROW_MAJOR));
+  printMatrix(reinterpret_cast<float *>(B), n, m, (oB == DIET_ROW_MAJOR));
   diet_matrix_set(diet_parameter(profile, 2),
                   NULL, DIET_VOLATILE, DIET_FLOAT, m, m, oC);
 
   if (!diet_call(profile)) {
-    diet_matrix_get(diet_parameter(profile, 2), reinterpret_cast<float **> &C,
+    diet_matrix_get(diet_parameter(profile, 2), reinterpret_cast<float **>(&C),
 		    NULL, &m, &n, &oC);
     std::cout << "B (after call):" << std::endl;
-    printMatrix(reinterpret_cast<float *>B, n, m, (oB == DIET_ROW_MAJOR));
+    printMatrix(reinterpret_cast<float *>(B), n, m, (oB == DIET_ROW_MAJOR));
     std::cout << "C:" << std::endl;
-    printMatrix(reinterpret_cast<float *>C, m, n, (oC == DIET_ROW_MAJOR));
+    printMatrix(reinterpret_cast<float *>(C), m, n, (oC == DIET_ROW_MAJOR));
     diet_free_data(diet_parameter(profile, 1));
     diet_free_data(diet_parameter(profile, 2));
     free(C);
@@ -731,32 +731,32 @@ main(int argc, char* argv[]) {
 
   /* Double */
   std::cout << "#### Doubles" << std::endl;
-  A = reinterpret_cast<double *> malloc(sizeof(double) * SIZE * SIZE);
-  B = reinterpret_cast<double *> malloc(sizeof(double) * SIZE * SIZE);
+  A = reinterpret_cast<double *>(malloc(sizeof(double) * SIZE * SIZE));
+  B = reinterpret_cast<double *>(malloc(sizeof(double) * SIZE * SIZE));
   for (i = 0; i < SIZE * SIZE; ++ i) {
-    (reinterpret_cast<double *> A)[i] = i * 2.0;
-    (reinterpret_cast<double *> B)[i] = (i + SIZE) * 2.0;
+    (reinterpret_cast<double *>(A))[i] = i * 2.0;
+    (reinterpret_cast<double *>(B))[i] = (i + SIZE) * 2.0;
   }
   profile = diet_profile_alloc(PB_MATRIX[5], 0, 1, 2);
 
   diet_matrix_set(diet_parameter(profile, 0),
-                  reinterpret_cast<double *> A, DIET_VOLATILE, DIET_DOUBLE, m, n, oA);
+                  reinterpret_cast<double *>(A), DIET_VOLATILE, DIET_DOUBLE, m, n, oA);
   std::cout << "A:" << std::endl;
-  printMatrix(reinterpret_cast<double *> A, m, n, (oA == DIET_ROW_MAJOR));
+  printMatrix(reinterpret_cast<double *>(A), m, n, (oA == DIET_ROW_MAJOR));
   diet_matrix_set(diet_parameter(profile, 1),
-                  reinterpret_cast<double *> B, DIET_VOLATILE, DIET_DOUBLE, n, m, oB);
+                  reinterpret_cast<double *>(B), DIET_VOLATILE, DIET_DOUBLE, n, m, oB);
   std::cout << "B (before call):" << std::endl;
-  printMatrix(reinterpret_cast<double *> B, n, m, (oB == DIET_ROW_MAJOR));
+  printMatrix(reinterpret_cast<double *>(B), n, m, (oB == DIET_ROW_MAJOR));
   diet_matrix_set(diet_parameter(profile, 2),
                   NULL, DIET_VOLATILE, DIET_DOUBLE, m, m, oC);
 
   if (!diet_call(profile)) {
-    diet_matrix_get(diet_parameter(profile, 2), reinterpret_cast<double **> &C,
+    diet_matrix_get(diet_parameter(profile, 2), reinterpret_cast<double **>(&C),
 		    NULL, &m, &n, &oC);
     std::cout << "B (after call):" << std::endl;
-    printMatrix(reinterpret_cast<double *>B, n, m, (oB == DIET_ROW_MAJOR));
+    printMatrix(reinterpret_cast<double *>(B), n, m, (oB == DIET_ROW_MAJOR));
     std::cout << "C:" << std::endl;
-    printMatrix(reinterpret_cast<double *>C, m, n, (oC == DIET_ROW_MAJOR));
+    printMatrix(reinterpret_cast<double *>(C), m, n, (oC == DIET_ROW_MAJOR));
     diet_free_data(diet_parameter(profile, 1));
     diet_free_data(diet_parameter(profile, 2));
     free(C);
@@ -788,8 +788,8 @@ main(int argc, char* argv[]) {
   char *s2;
   char *s3;
 
-  s1 = reinterpret_cast<char *> malloc(sizeof(char) * (SIZE + 1));
-  s2 = reinterpret_cast<char *> malloc(sizeof(char) * (SIZE + 1));
+  s1 = reinterpret_cast<char *>(malloc(sizeof(char) * (SIZE + 1)));
+  s2 = reinterpret_cast<char *>(malloc(sizeof(char) * (SIZE + 1)));
   for (i = 0; i < SIZE; ++ i) {
     s1[i] = 'a';
     s2[i] = 'b';
@@ -837,8 +837,8 @@ main(int argc, char* argv[]) {
   std::cout << "#                           PARAMSTRING                              #" << std::endl;
   std::cout << "######################################################################" << std::endl;
 
-  s1 = reinterpret_cast<char *> malloc(sizeof(char) * (SIZE + 1));
-  s2 = reinterpret_cast<char *> malloc(sizeof(char) * (SIZE + 1));
+  s1 = reinterpret_cast<char *>(malloc(sizeof(char) * (SIZE + 1)));
+  s2 = reinterpret_cast<char *>(malloc(sizeof(char) * (SIZE + 1)));
   s3 = NULL;
   for (i = 0; i < SIZE; ++ i) {
     s1[i] = 'a';
