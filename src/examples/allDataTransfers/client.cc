@@ -1,49 +1,13 @@
 /**
 * @file client.cc
-* 
+*
 * @brief DIET all data transfers example: a client for transfering all data types
-* 
+*
 * @author Benjamin Depardon (Benjamin.Depardon@ens-lyon.fr)
-* 
+*
 * @section Licence
-*   |LICENSE|                                                                
+*   |LICENSE|
 */
-/* $Id$
- * $Log$
- * Revision 1.9  2011/02/24 16:54:23  bdepardo
- * Print output file size
- *
- * Revision 1.8  2011/02/09 17:17:59  bdepardo
- * Test on containers now always create containers with 2 elements
- *
- * Revision 1.7  2011/01/22 16:27:51  glemahec
- * Bug workflows/#156 correction (#155 too ?) - pointers management was bugged when reusing INOUT data.
- *
- * Revision 1.6  2010/10/18 08:35:43  bdepardo
- * Added includes cstdlib and cstring
- *
- * Revision 1.5  2010/10/18 08:18:54  bdepardo
- * Added containers
- *
- * Revision 1.4  2010/10/18 06:51:39  bdepardo
- * Added file transfer
- *
- * Revision 1.3  2010/10/15 07:43:56  bdepardo
- * Added Paramstring
- *
- * Revision 1.2  2010/10/15 07:07:45  bdepardo
- * String service
- *
- * Revision 1.1  2010/10/15 06:08:08  bdepardo
- * Client/Server to test all kinds of data transfers.
- * Each profile has 1 IN, 1 INOUT and 1 OUT all of the same type.
- * Currently are implemented:
- * - base types:
- *   DIET_CHAR, DIET_SHORT, DIET_INT, DIET_LONGINT, DIET_FLOAT and DIET_DOUBLE
- * - data types:
- *   DIET_SCALAR, DIET_VECTOR and DIET_MATRIX
- *
- ****************************************************************************/
 
 #include <iostream>
 #include <cstdlib>
@@ -128,8 +92,8 @@ main(int argc, char* argv[]) {
   std::cout << "#                            SCALARS                                 #" << std::endl;
   std::cout << "######################################################################" << std::endl;
   /* Characters */
-  l1 = static_cast<char> 0x1;
-  l2 = static_cast<char> 0x2;
+  l1 = static_cast<char>(0x1);
+  l2 = static_cast<char>(0x2);
   std::cout << "#### Characters" << std::endl;
   std::cout << "Before the call: l1=" << (short) l1 << ", l2=" << (short)l2
 	    << std::endl;
@@ -142,7 +106,7 @@ main(int argc, char* argv[]) {
     std::cout << "After the call: l1=" << (long) l1 << ", l2=" << (long)l2
               << ", l3=" << (long)*pl3 << std::endl;
   } else {
-    std::cerr << "diet_call has returned with an error code on " << PB[0] 
+    std::cerr << "diet_call has returned with an error code on " << PB[0]
 	      << "!" << std::endl;
     error = error | (1<<errorPos);
   }
@@ -173,11 +137,11 @@ main(int argc, char* argv[]) {
   diet_profile_free(profile);
 
   /* Integer */
-  l1 = static_cast<int> 0x1111;
-  l2 = static_cast<int> 0x2222;
+  l1 = static_cast<int>(0x1111);
+  l2 = static_cast<int>(0x2222);
   std::cout << "#### Integers" << std::endl;
-  std::cout << "Before the call: l1=" << (int) l1 << ", l2=" 
-	    << static_cast<int>l2 << std::endl;
+  std::cout << "Before the call: l1=" << (int) l1 << ", l2="
+	    << static_cast<int>(l2) << std::endl;
   profile = diet_profile_alloc(PB[2], 0, 1, 2);
   diet_scalar_set(diet_parameter(profile, 0), &l1,  DIET_VOLATILE, DIET_INT);
   diet_scalar_set(diet_parameter(profile, 1), &l2,  DIET_VOLATILE, DIET_INT);
@@ -210,7 +174,7 @@ main(int argc, char* argv[]) {
     std::cout << "After the call: l1=" << (long) l1 << ", l2=" << (long)l2
               << ", l3=" << (long)*pl3 << std::endl;
   } else {
-    std::cerr << "diet_call has returned with an error code on " << PB[3] 
+    std::cerr << "diet_call has returned with an error code on " << PB[3]
 	      << "!" << std::endl;
     error = error | (1<<errorPos);
   }
@@ -228,8 +192,8 @@ main(int argc, char* argv[]) {
   diet_scalar_set(diet_parameter(profile, 2), NULL, DIET_VOLATILE, DIET_FLOAT);
   if (!diet_call(profile)) {
     diet_scalar_get(diet_parameter(profile, 2), &pf3, NULL);
-    std::cout << "After the call: f1=" << static_cast<float> f1 << ", f2=" 
-	      << static_cast<float>f2 << ", f3=" << static_cast<float>*pf3 
+    std::cout << "After the call: f1=" << static_cast<float>(f1) << ", f2="
+	      << static_cast<float>(f2) << ", f3=" << static_cast<float>(*pf3)
 	      << std::endl;
   } else {
     std::cerr << "diet_call has returned with an error code on " << PB[4] << "!"
@@ -250,11 +214,11 @@ main(int argc, char* argv[]) {
   diet_scalar_set(diet_parameter(profile, 2), NULL, DIET_VOLATILE, DIET_DOUBLE);
   if (!diet_call(profile)) {
     diet_scalar_get(diet_parameter(profile, 2), &pd3, NULL);
-    std::cout << "After the call: d1=" << static_cast<float> d1 << ", l2=" 
-	      << static_cast<double>d2 << ", l3=" << static_cast<double>*pd3 
+    std::cout << "After the call: d1=" << static_cast<float>(d1) << ", l2="
+	      << static_cast<double>(d2) << ", l3=" << static_cast<double>(*pd3)
 	      << std::endl;
   } else {
-    std::cerr << "diet_call has returned with an error code on " << PB[5] << "!" 
+    std::cerr << "diet_call has returned with an error code on " << PB[5] << "!"
 	      << std::endl;
     error = error | (1<<errorPos);
   }
@@ -303,7 +267,7 @@ main(int argc, char* argv[]) {
                   NULL, DIET_VOLATILE, DIET_CHAR, n);
 
   if (!diet_call(profile)) {
-    diet_vector_get(diet_parameter(profile, 2), 
+    diet_vector_get(diet_parameter(profile, 2),
 		    reinterpret_cast<long **>(&C), NULL, &n);
     std::cout << "B (after call):" << std::endl;
     printVector(reinterpret_cast<long *>(B), n);
@@ -313,7 +277,7 @@ main(int argc, char* argv[]) {
     diet_free_data(diet_parameter(profile, 2));
     free(C);
   } else {
-    std::cerr << "diet_call has returned with an error code on " 
+    std::cerr << "diet_call has returned with an error code on "
 	      << PB_VECTOR[0] << "!" << std::endl;
     error = error | (1<<errorPos);
   }
@@ -330,7 +294,7 @@ main(int argc, char* argv[]) {
   diet_vector_set(diet_parameter(profile, 0),
                   reinterpret_cast<long *>(A), DIET_VOLATILE, DIET_SHORT, n);
   std::cout << "A:" << std::endl;
-  printVector(reinterpret_cast<long *>A, n);
+  printVector(reinterpret_cast<long *>(A), n);
   diet_vector_set(diet_parameter(profile, 1),
                   reinterpret_cast<long *>(B), DIET_VOLATILE, DIET_SHORT, n);
   std::cout << "B (before call):" << std::endl;
@@ -339,7 +303,7 @@ main(int argc, char* argv[]) {
                   NULL, DIET_VOLATILE, DIET_SHORT, n);
 
   if (!diet_call(profile)) {
-    diet_vector_get(diet_parameter(profile, 2), 
+    diet_vector_get(diet_parameter(profile, 2),
 		    reinterpret_cast<long **>(&C), NULL, &n);
     std::cout << "B (after call):" << std::endl;
     printVector(reinterpret_cast<long *>(B), n);
@@ -375,7 +339,7 @@ main(int argc, char* argv[]) {
                   NULL, DIET_VOLATILE, DIET_INT, n);
 
   if (!diet_call(profile)) {
-    diet_vector_get(diet_parameter(profile, 2), 
+    diet_vector_get(diet_parameter(profile, 2),
 		    reinterpret_cast<long **>(&C), NULL, &n);
     std::cout << "B (after call):" << std::endl;
     printVector(reinterpret_cast<long *>(B), n);
@@ -385,7 +349,7 @@ main(int argc, char* argv[]) {
     diet_free_data(diet_parameter(profile, 2));
     free(C);
   } else {
-    std::cerr << "diet_call has returned with an error code on " << PB_VECTOR[2] 
+    std::cerr << "diet_call has returned with an error code on " << PB_VECTOR[2]
 	      << "!" << std::endl;
     error = error | (1<<errorPos);
   }
@@ -411,7 +375,7 @@ main(int argc, char* argv[]) {
                   NULL, DIET_VOLATILE, DIET_LONGINT, n);
 
   if (!diet_call(profile)) {
-    diet_vector_get(diet_parameter(profile, 2), reinterpret_cast<long **>(&C), 
+    diet_vector_get(diet_parameter(profile, 2), reinterpret_cast<long **>(&C),
 		    NULL, &n);
     std::cout << "B (after call):" << std::endl;
     printVector(reinterpret_cast<long *>(B), n);
@@ -421,7 +385,7 @@ main(int argc, char* argv[]) {
     diet_free_data(diet_parameter(profile, 2));
     free(C);
   } else {
-    std::cerr << "diet_call has returned with an error code on " << PB_VECTOR[3] 
+    std::cerr << "diet_call has returned with an error code on " << PB_VECTOR[3]
 	      << "!" << std::endl;
     error = error | (1<<errorPos);
   }
@@ -557,7 +521,7 @@ main(int argc, char* argv[]) {
                   NULL, DIET_VOLATILE, DIET_CHAR, m, m, oC);
 
   if (!diet_call(profile)) {
-    diet_matrix_get(diet_parameter(profile, 2), reinterpret_cast<long **>(&C), 
+    diet_matrix_get(diet_parameter(profile, 2), reinterpret_cast<long **>(&C),
 		    NULL, &m, &n, &oC);
     std::cout << "B (after call):" << std::endl;
     printMatrix(reinterpret_cast<long *>(B), n, m, (oB == DIET_ROW_MAJOR));
@@ -860,7 +824,7 @@ main(int argc, char* argv[]) {
     std::cout << "s2 (after call): " << s2 << std::endl;
     diet_free_data(diet_parameter(profile, 1));
   } else {
-    std::cerr << "diet_call has returned with an error code on " << PB_PSTRING[0] 
+    std::cerr << "diet_call has returned with an error code on " << PB_PSTRING[0]
 	      << "!" << std::endl;
     error = error | (1<<errorPos);
   }
