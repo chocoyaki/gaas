@@ -4,10 +4,41 @@
 * Features:
 	- New forwarders: they do not need a configuration file anymore,
 	and they can be started at any time.
+	- CORBA calls are more robust: Two handlers for communication
+	failures and transient exceptions have been added. They retry the
+	CORBA call for as long as the maximum number of authorized retries
+	(currently 3) has not been reached.
+	- a new tool has been introduced: dietObjects. It mimics the
+	behavior of nameclt, but restricted to DIET CORBA objects. It also
+	shows which object is managed by which forwarder (or through which
+	forwarder an object is accessible).
 * Bug Fix:
 	- Forwarders now unregister themselves from omniNames when they
 	are shut down properly.
 	- Forwarders can be launched after any DIET element
+	- Forwarders now unregister themselves from omniNames when they
+	exit
+	- To avoid problems when a file managed by DAGDA is modified
+	outside DAGDA, we know compute the files sizes before any
+	transfer.
+* Source code organization:
+	- we now use a modified version of cpplint
+	(http://google-styleguide.googlecode.com/svn/trunk/cpplint/cpplint.py)
+	for checking our code against our coding standards.
+	- DIET now requires Boost to compile.
+	- removed dependency towards libuuid, we now use Boost UUID
+	instead
+	- endianness is now managed with Boost
+	- replaced usage of fnmatch by boost:regex
+	- intermediary libraries are not installed anymore
+	- we removed all deprecated code:
+	  + JXTA: was used to build a multi-MA hierarchy using a P2P approach
+	  + DTM: the former data manager
+	  + JUXMEM: was a P2P data manager used in conjunction with DTM
+	  + FD: fault detector
+	  + FAST: performance evaluation plugin
+	  + TAU: a code profiler
+	
 
 +------------+
 | diet 2.7.1 |
