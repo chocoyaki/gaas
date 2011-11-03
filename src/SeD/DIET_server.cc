@@ -1,12 +1,12 @@
 /**
 * @file DIET_server.cc
-* 
-* @brief  DIET server interface 
-* 
-* @author - Philippe COMBES (Philippe.Combes@ens-lyon.fr)  
-* 
+*
+* @brief  DIET server interface
+*
+* @author - Philippe COMBES (Philippe.Combes@ens-lyon.fr)
+*
 * @section Licence
-*   |LICENSE|                                                                
+*   |LICENSE|
 */
 /* $Id$
  * $Log$
@@ -1189,7 +1189,6 @@ diet_est_array_defined_system(estVectorConst_t ev, int systemTag, int idx) {
                                          idx);
 }
 
-#ifdef HAVE_ALT_BATCH
 /* These two functions shall be removed and a better mechanism found
  * for example vhen and if CoRI is rewritten.
  */
@@ -1202,7 +1201,6 @@ void
 diet_destroy_estVect(estVector_t perfVect) {
   delete perfVect;
 }
-#endif  // HAVE_ALT_BATCH
 
 int
 diet_estimate_cori(estVector_t ev,
