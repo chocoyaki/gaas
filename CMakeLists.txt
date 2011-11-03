@@ -473,7 +473,6 @@ include(${DIET_SOURCE_DIR}/Cmake/DisplaySummary.cmake)
 
 # --------------------------------------------------------------------------
 # Configuration of CPack to generate packages
-set(CPACK_BUNDLE_NAME "DIET v${DIET_VERSION}")
 set(CPACK_PACKAGE_NAME "DIET v${DIET_VERSION}")
 set(CPACK_PACKAGE_VERSION_MAJOR ${DIET_MAJOR_VERSION})
 set(CPACK_PACKAGE_VERSION_MINOR ${DIET_MINOR_VERSION})
@@ -484,6 +483,32 @@ set(CPACK_PACKAGE_FILE_NAME "diet-${DIET_VERSION}")
 set(CPACK_RESOURCE_FILE_LICENSE ${DIET_SOURCE_DIR}/LICENCE_eng.txt)
 # set(CPACK_RESOURCE_FILE_README ) # TODO
 # set(CPACK_RESOURCE_FILE_WELCOME ) # TODO
+
+# CPack generators: do not use this macro, but change the comments whenever a
+# new generator is supported. Also push your modifications in the INSTALL.txt
+# file.
+# set(CPACK_GENERATOR 
+#   # CPACK_BINARY_BUNDLE     # currently not supported
+#   # CPACK_BINARY_DEB        # do not use, it does not generate proper debian packages
+#   CPACK_BINARY_DRAGNDROP    # OK, but not really interesting 
+#   # CPACK_BINARY_NSIS       # not tested yet
+#   CPACK_BINARY_OSXX11       # do not use, creates a .app, but it does not mean much for us
+#   CPACK_BINARY_PACKAGEMAKER # OK
+#   # CPACK_BINARY_RPM        # do not use, it does not generate proper rpm packages
+#   CPACK_BINARY_STGZ         # OK
+#   CPACK_BINARY_TBZ2         # OK
+#   CPACK_BINARY_TGZ          # OK
+#   CPACK_SOURCE_TBZ2         # currently not supported
+#   CPACK_SOURCE_TGZ          # currently not supported
+#   CPACK_SOURCE_TZ           # currently not supported
+#   CPACK_SOURCE_ZIP          # currently not supported
+# )
+
+# CPack Mac OS X specific variables
+set(CPACK_BUNDLE_NAME "DIET v${DIET_VERSION}")
+# set(CPACK_BUNDLE_PLIST ) # TODO
+# set(CPACK_BUNDLE_ICON ) # TODO
+# set(CPACK_DMG_BACKGROUND_IMAGE ) # TODO
 
 # Finally include CPack
 include(CPack)
