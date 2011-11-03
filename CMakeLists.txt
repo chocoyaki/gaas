@@ -437,24 +437,24 @@ ENDIF( NOT BUILD_SHARED_LIBS )
 
 IF( CYGWIN )
   IF( BUILD_SHARED_LIBS )  
-    SET( DIET_INSTALL_LIBS_DIR ${CMAKE_INSTALL_PREFIX}/bin )
+    SET( DIET_INSTALL_LIBS_DIR bin )
   ELSE( BUILD_SHARED_LIBS )
-    SET( DIET_INSTALL_LIBS_DIR ${CMAKE_INSTALL_PREFIX}/lib )
+    SET( DIET_INSTALL_LIBS_DIR lib )
   ENDIF( BUILD_SHARED_LIBS )
 ELSE( CYGWIN )
-  SET( DIET_INSTALL_LIBS_DIR ${CMAKE_INSTALL_PREFIX}/lib )
+  SET( DIET_INSTALL_LIBS_DIR lib )
 ENDIF( CYGWIN )
 
 # installation customization hooks
 # manage lib/lib64 install issue
 set( LIB_SUFFIX "" CACHE STRING "Define suffix of lib directory name (32/64)" )
-set( LIB_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}"
+set( LIB_INSTALL_DIR "lib${LIB_SUFFIX}"
   CACHE INTERNAL "Directory where lib will be installed")
-set( BIN_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/bin"
+set( BIN_INSTALL_DIR "bin"
   CACHE INTERNAL "Directory where binary will be installed" )
-set( INCLUDE_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/include"
+set( INCLUDE_INSTALL_DIR "include"
   CACHE INTERNAL "Directory where include will be installed" )
-set( CMAKE_MOD_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/share/cmake/Modules"
+set( CMAKE_MOD_INSTALL_DIR "share/cmake/Modules"
   CACHE INTERNAL "Directory where cmake modules will be installed" )
 
 # --------------------------------------------------------------------------
@@ -474,6 +474,7 @@ include(${DIET_SOURCE_DIR}/Cmake/DisplaySummary.cmake)
 # --------------------------------------------------------------------------
 # Configuration of CPack to generate packages
 set(CPACK_BUNDLE_NAME "DIET v${DIET_VERSION}")
+set(CPACK_PACKAGE_NAME "DIET v${DIET_VERSION}")
 set(CPACK_PACKAGE_VERSION_MAJOR ${DIET_MAJOR_VERSION})
 set(CPACK_PACKAGE_VERSION_MINOR ${DIET_MINOR_VERSION})
 set(CPACK_PACKAGE_VERSION_REVISION ${DIET_REVISION_VERSION})
