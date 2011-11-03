@@ -470,4 +470,21 @@ endif()
 # --------------------------------------------------------------------------
 include(${DIET_SOURCE_DIR}/Cmake/DisplaySummary.cmake)
 
+
+# --------------------------------------------------------------------------
+# Configuration of CPack to generate packages
+set(CPACK_BUNDLE_NAME "DIET v${DIET_VERSION}")
+set(CPACK_PACKAGE_VERSION_MAJOR ${DIET_MAJOR_VERSION})
+set(CPACK_PACKAGE_VERSION_MINOR ${DIET_MINOR_VERSION})
+set(CPACK_PACKAGE_VERSION_REVISION ${DIET_REVISION_VERSION})
+# set(CPACK_PACKAGE_DESCRIPTION_FILE ) # TODO
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "DIET (Distributed Interactive Engineering Toolbox) is a middleware designed for high-performance computing in a heterogeneous and distributed environment (workstations, clusters, grids, clouds).")
+set(CPACK_PACKAGE_FILE_NAME "diet-${DIET_VERSION}")
+set(CPACK_RESOURCE_FILE_LICENSE ${DIET_SOURCE_DIR}/LICENCE_eng.txt)
+# set(CPACK_RESOURCE_FILE_README ) # TODO
+# set(CPACK_RESOURCE_FILE_WELCOME ) # TODO
+
+# Finally include CPack
+include(CPack)
+
 ## eof - CMakeLists.txt

@@ -12,5 +12,5 @@ INSTALL( FILES
     DIET_admin.h
 
     DESTINATION
-    include
+    ${INCLUDE_INSTALL_DIR}
 )
