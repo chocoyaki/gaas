@@ -26,7 +26,7 @@ FOREACH( filename ${DIET_CONFIG_FILES_GLOB} )
     ${filenameDest}
     IMMEDIATE
   )
-  INSTALL( FILES ${filenameDest} DESTINATION etc )
+  INSTALL( FILES ${filenameDest} DESTINATION ${ETC_INSTALL_DIR} )
 ENDFOREACH( filename )
 
 ## FIXME: find out why we cannot test availability of the hostname command with

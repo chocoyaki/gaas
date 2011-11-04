@@ -9,7 +9,7 @@ FOREACH( filename ${DIET_WF_XML_GLOB} )
     ${filenameDest}
     IMMEDIATE
   )
-  INSTALL( FILES ${filenameNoPath} DESTINATION bin/examples/workflow/xml )
+  INSTALL( FILES ${filenameNoPath} DESTINATION ${EXAMPLE_INSTALL_DIR}/workflow/xml )
 ENDFOREACH( filename )
 
-INSTALL( FILES logo_diet.jpg DESTINATION bin/examples/workflow )
+INSTALL( FILES logo_diet.jpg DESTINATION ${EXAMPLE_INSTALL_DIR}/workflow )

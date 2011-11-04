@@ -13,5 +13,5 @@ TARGET_LINK_LIBRARIES( client_dyn_add_rem ${DIET_CLIENT_LIBRARIES} )
 ADD_EXECUTABLE( server_dyn_add_rem server.cc )
 TARGET_LINK_LIBRARIES( server_dyn_add_rem ${DIET_SERVER_LIBRARIES} )
 
-INSTALL( TARGETS client_dyn_add_rem server_dyn_add_rem DESTINATION bin/examples/dyn_add_rem )
-INSTALL( FILES README DESTINATION bin/examples/dyn_add_rem )
+INSTALL( TARGETS client_dyn_add_rem server_dyn_add_rem DESTINATION ${EXAMPLE_INSTALL_DIR}/dyn_add_rem )
+INSTALL( FILES README DESTINATION ${EXAMPLE_INSTALL_DIR}/dyn_add_rem )

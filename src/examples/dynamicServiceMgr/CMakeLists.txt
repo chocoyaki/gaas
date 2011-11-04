@@ -28,7 +28,7 @@ ADD_EXECUTABLE( server_DynamicServiceMgr ${DYNAMICSERVICEMGR_SERVER_SRC} )
 TARGET_LINK_LIBRARIES( server_DynamicServiceMgr ${DIET_SERVER_LIBRARIES} dl)
 
 # install client and server 
-INSTALL( TARGETS client_DynamicServiceMgr server_DynamicServiceMgr DESTINATION bin/examples/dynamicServiceMgr )
+INSTALL( TARGETS client_DynamicServiceMgr server_DynamicServiceMgr DESTINATION ${EXAMPLE_INSTALL_DIR}/dynamicServiceMgr )
 
 # Library for Dynamic Service Mgr
 ADD_LIBRARY( DynamicServiceMgr_example
@@ -42,9 +42,9 @@ ADD_LIBRARY( DynamicServiceMgr_example2
 TARGET_LINK_LIBRARIES( DynamicServiceMgr_example2 ${DIET_SERVER_LIBRARIES} )
 
 # install libraries
-INSTALL( TARGETS DynamicServiceMgr_example DynamicServiceMgr_example2 DESTINATION bin/examples/dynamicServiceMgr )
+INSTALL( TARGETS DynamicServiceMgr_example DynamicServiceMgr_example2 DESTINATION ${EXAMPLE_INSTALL_DIR}/dynamicServiceMgr )
 
 
 # README
-INSTALL( FILES README DESTINATION bin/examples/dynamicServiceMgr )
+INSTALL( FILES README DESTINATION ${EXAMPLE_INSTALL_DIR}/dynamicServiceMgr )
 

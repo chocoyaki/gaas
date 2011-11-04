@@ -8,7 +8,7 @@ INCLUDE_DIRECTORIES( ${DIET_SOURCE_DIR}/include )
 ### A single server...
 ADD_EXECUTABLE( dmat_manips_server dmat_manips_server.c )
 TARGET_LINK_LIBRARIES( dmat_manips_server ${DIET_SERVER_LIBRARIES} )
-INSTALL( TARGETS dmat_manips_server DESTINATION bin/examples/dmat_manips )
+INSTALL( TARGETS dmat_manips_server DESTINATION ${EXAMPLE_INSTALL_DIR}/dmat_manips )
 
 ### ... and many clients
 SET( C_CLIENT_EXAMPLES
@@ -18,7 +18,7 @@ SET( C_CLIENT_EXAMPLES
 FOREACH( loop_var ${C_CLIENT_EXAMPLES} )
   ADD_EXECUTABLE( ${loop_var} ${loop_var}.c )
   TARGET_LINK_LIBRARIES( ${loop_var} ${DIET_CLIENT_LIBRARIES} )
-  INSTALL( TARGETS ${loop_var} DESTINATION bin/examples/dmat_manips )
+  INSTALL( TARGETS ${loop_var} DESTINATION ${EXAMPLE_INSTALL_DIR}/dmat_manips )
 ENDFOREACH( loop_var )
 
 
@@ -37,6 +37,6 @@ INCLUDE_DIRECTORIES( ${OMNIORB4_INCLUDE_DIR} )
 FOREACH( loop_var ${CXX_EXAMPLES} )
   ADD_EXECUTABLE( ${loop_var} ${loop_var}.cc )
   TARGET_LINK_LIBRARIES( ${loop_var} ${DIET_CLIENT_LIBRARIES} )
-  INSTALL( TARGETS ${loop_var} DESTINATION bin/examples/dmat_manips )
+  INSTALL( TARGETS ${loop_var} DESTINATION ${EXAMPLE_INSTALL_DIR}/dmat_manips )
 ENDFOREACH( loop_var )
 

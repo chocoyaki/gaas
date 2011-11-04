@@ -42,4 +42,4 @@ TARGET_LINK_LIBRARIES( standard-test ${DIET_CLIENT_LIBRARIES} ${DIET_SERVER_LIBR
 ADD_EXECUTABLE(gridrpc_server server.c )
 TARGET_LINK_LIBRARIES( gridrpc_server ${DIET_SERVER_LIBRARIES} )
 
-INSTALL( TARGETS standard-test gridrpc_server DESTINATION bin/examples/GridRPC )
+INSTALL( TARGETS standard-test gridrpc_server DESTINATION ${EXAMPLE_INSTALL_DIR}/GridRPC )

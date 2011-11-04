@@ -449,11 +449,13 @@ ENDIF( CYGWIN )
 # manage lib/lib64 install issue
 set( LIB_SUFFIX "" CACHE STRING "Define suffix of lib directory name (32/64)" )
 set( LIB_INSTALL_DIR "lib${LIB_SUFFIX}"
-  CACHE INTERNAL "Directory where lib will be installed")
+  CACHE INTERNAL "Directory where libraries will be installed")
 set( BIN_INSTALL_DIR "bin"
-  CACHE INTERNAL "Directory where binary will be installed" )
+  CACHE INTERNAL "Directory where binaries will be installed" )
 set( INCLUDE_INSTALL_DIR "include"
-  CACHE INTERNAL "Directory where include will be installed" )
+  CACHE INTERNAL "Directory where include files will be installed" )
+set( ETC_INSTALL_DIR "etc"
+  CACHE INTERNAL "Directory where configuration files will be installed" )
 set( CMAKE_MOD_INSTALL_DIR "share/cmake/Modules"
   CACHE INTERNAL "Directory where cmake modules will be installed" )
 
