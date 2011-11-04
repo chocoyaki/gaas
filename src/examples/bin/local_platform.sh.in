@@ -1,5 +1,5 @@
-#!/bin/sh
-#****************************************************************************#
+#! /bin/sh
+#* ***************************************************************************#
 #* Manager of a local platform, containing:                                 *#
 #*   - an LDAP base                                                         *#
 #*   - an NWS platform:                                                     *#
@@ -10,7 +10,7 @@
 #*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       *#
 #*                                                                          *#
 #* $LICENSE$                                                                *#
-#****************************************************************************#
+#* ***************************************************************************#
 #* $Id$
 #* $Log$
 #* Revision 1.1  2003/09/26 14:05:39  pcombes
@@ -18,38 +18,46 @@
 #*
 #* Revision 1.1  2003/09/22 21:09:08  pcombes
 #* Scripts for managing a local platform with LDAP + NWS + CORBA Name server.
-#****************************************************************************#
+#* ***************************************************************************#
 
-mode=$1
+mode = $1
 
-case "$mode" in
- restart)
-   $0 stop && echo && $0 start;;
- stop)
-   mode=${mode}p;;
- start|test);;
- *) echo "$0 {start|stop|restart|test}"; exit 1;;
-esac
-status=$?
-if [ "$status" -ne 0 -o "$mode" = "restart" ]; then
-  exit $status
-fi
+     case "$mode" in
+       restart)
+       $0 stop && echo && $0 start;
+       stop)
+       mode = $ {mode} p;
+       start | test);
+       *)echo "$0 {start|stop|restart|test}";
+       exit 1;
+       esac
+         status = $ ?
+                  if["$status" - ne 0 - o "$mode" = "restart"];
+       then
+       exit $status
+       fi
 
-BINDIR=`dirname $0`
+         BINDIR = ` dirname $0 `
 
-$BINDIR/local_ldap.sh     $1 &&\
-$BINDIR/local_nws.sh      $1 &&\
-$BINDIR/local_corba_ns.sh $1
-status=$?
+                  $BINDIR / local_ldap.sh $1 && \
+                  $BINDIR / local_nws.sh $1 && \
+                  $BINDIR / local_corba_ns.sh $1
+                  status = $ ?
 
-case $status in
-  0) echo "The local FAST platform has been successfully ${mode}ed.";;
-  1) echo "The local LDAP base could not be ${mode}ed.";;
-  2) echo "The local NWS platform could not be ${mode}ed.";;
-  3) echo "The local CORBA name server could not be ${mode}ed.";;
-  *) echo "I am not sure that the local platform has been successfully ${mode}ed,"
-     echo " probably because of the CORBA name server. Just try, and if it does"
-     echo " not work, try changing its listening port, or killing all CORBA name"
-     echo " servers running.";;
-esac
-exit $status
+                         case $status in
+                           0)echo
+                           "The local FAST platform has been successfully ${mode}ed.";
+                           1)echo "The local LDAP base could not be ${mode}ed.";
+                           2)echo
+                           "The local NWS platform could not be ${mode}ed.";
+                           3)echo
+                           "The local CORBA name server could not be ${mode}ed.";
+                           *)echo
+                           "I am not sure that the local platform has been successfully ${mode}ed,"
+                           echo
+                           " probably because of the CORBA name server. Just try, and if it does"
+                           echo
+                           " not work, try changing its listening port, or killing all CORBA name"
+                           echo " servers running.";
+                           esac
+                           exit $status

@@ -1,39 +1,26 @@
 /**
-* @file CltMan.cc
-* 
-* @brief  DIET forwarder implementation - Workflow mngr forwarder implementation  
-* 
-* @author - Gael Le Mahec   (gael.le.mahec@ens-lyon.fr) 
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.4  2010/07/27 16:16:49  glemahec
- * Forwarders robustness
+ * @file CltMan.cc
  *
- * Revision 1.3  2010/07/14 23:45:30  bdepardo
- * Header corrections
+ * @brief  DIET forwarder implementation - Workflow mngr forwarder implementation
  *
- * Revision 1.2  2010/07/13 15:24:13  glemahec
- * Warnings corrections and some robustness improvements
+ * @author  Gael Le Mahec   (gael.le.mahec@ens-lyon.fr)
  *
- * Revision 1.1  2010/07/12 16:08:56  glemahec
- * DIET 2.5 beta 1 - Forwarder implementations
- ****************************************************************************/
+ * @section Licence
+ *   |LICENSE|
+ */
+
 
 #include "DIETForwarder.hh"
 #include "ORBMgr.hh"
 #include <string>
 
 ::CORBA::Long
-DIETForwarder::execNodeOnSed(const char* node_id,
-                             const char* dag_id,
-                             const char* seDName,
+DIETForwarder::execNodeOnSed(const char *node_id,
+                             const char *dag_id,
+                             const char *seDName,
                              ::CORBA::ULong reqID,
-                             ::corba_estimation_t& ev,
-                             const char* objName) {
+                             ::corba_estimation_t &ev,
+                             const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -47,12 +34,12 @@ DIETForwarder::execNodeOnSed(const char* node_id,
   CltMan_var clt =
     ORBMgr::getMgr()->resolve<CltMan, CltMan_var>(WFMGRCTXT, name, this->name);
   return clt->execNodeOnSed(node_id, dag_id, seDName, reqID, ev);
-  }
+} // execNodeOnSed
 
 ::CORBA::Long
-DIETForwarder::execNode(const char* node_id,
-                        const char* dag_id,
-                        const char* objName) {
+DIETForwarder::execNode(const char *node_id,
+                        const char *dag_id,
+                        const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -65,12 +52,12 @@ DIETForwarder::execNode(const char* node_id,
   CltMan_var clt =
     ORBMgr::getMgr()->resolve<CltMan, CltMan_var>(WFMGRCTXT, name, this->name);
   return clt->execNode(node_id, dag_id);
-  }
+} // execNode
 
-char*
-DIETForwarder::release(const char* dag_id,
+char *
+DIETForwarder::release(const char *dag_id,
                        ::CORBA::Boolean successful,
-                       const char* objName) {
+                       const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -83,4 +70,4 @@ DIETForwarder::release(const char* dag_id,
   CltMan_var clt =
     ORBMgr::getMgr()->resolve<CltMan, CltMan_var>(WFMGRCTXT, name, this->name);
   return clt->release(dag_id, successful);
-}
+} // release

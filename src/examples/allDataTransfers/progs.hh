@@ -1,28 +1,14 @@
 /**
-* @file progs.hh
-* 
-* @brief  DIET all data transfers example: a server for transfering all data types 
-* 
-* @author  - Benjamin Depardon (Benjamin.Depardon@ens-lyon.fr) 
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.2  2011/01/17 18:35:17  bdepardo
- * Add missing #ifndef... #define
+ * @file progs.hh
  *
- * Revision 1.1  2010/10/15 06:08:08  bdepardo
- * Client/Server to test all kinds of data transfers.
- * Each profile has 1 IN, 1 INOUT and 1 OUT all of the same type.
- * Currently are implemented:
- * - base types:
- *   DIET_CHAR, DIET_SHORT, DIET_INT, DIET_LONGINT, DIET_FLOAT and DIET_DOUBLE
- * - data types:
- *   DIET_SCALAR, DIET_VECTOR and DIET_MATRIX
+ * @brief  DIET all data transfers example: a server for transfering all data types
  *
- ****************************************************************************/
+ * @author  Benjamin Depardon (Benjamin.Depardon@ens-lyon.fr)
+ *
+ * @section Licence
+ *   |LICENSE|
+ */
+
 #ifndef _PROGS_HH_
 #define _PROGS_HH_
 
@@ -44,15 +30,15 @@ printMatrix(T *mat, size_t m, size_t n, bool rm) {
   for (i = 0; i < (m); i++) {
     for (j = 0; j < (n); j++) {
       if (rm) {
-        std::cout << mat[j + i*(n)] << " ";
+        std::cout << mat[j + i * (n)] << " ";
       } else {
-        std::cout << mat[i + j*(m)] << " ";
+        std::cout << mat[i + j * (m)] << " ";
       }
     }
     std::cout << "\n";
   }
   std::cout << "\n";
-}
+} /* printMatrix */
 
 
 template <class T>
@@ -73,20 +59,20 @@ printVector(T *vec, size_t n) {
  */
 template <class T>
 int
-MatSUM(char tA, char tB, size_t m, size_t n, T* A, T* B, T* C) {
+MatSUM(char tA, char tB, size_t m, size_t n, T *A, T *B, T *C) {
   size_t i, j;
 
   if (tA == 'T') {
     if (tB == 'T') {
       for (i = 0; i < m; i++) {
         for (j = 0; j < n; j++) {
-          C[j*m + i] = A[i*n + j] + B[i*n + j];
+          C[j * m + i] = A[i * n + j] + B[i * n + j];
         }
       }
     } else {
       for (i = 0; i < m; i++) {
         for (j = 0; j < n; j++) {
-          C[j*m + i] = A[i*n + j] + B[j*m + i];
+          C[j * m + i] = A[i * n + j] + B[j * m + i];
         }
       }
     }
@@ -94,20 +80,20 @@ MatSUM(char tA, char tB, size_t m, size_t n, T* A, T* B, T* C) {
     if (tB == 'T') {
       for (i = 0; i < m; i++) {
         for (j = 0; j < n; j++) {
-          C[j*m + i] = A[j*m + i] + B[i*n + j];
+          C[j * m + i] = A[j * m + i] + B[i * n + j];
         }
       }
     } else {
       for (i = 0; i < m; i++) {
         for (j = 0; j < n; j++) {
-          C[j*m + i] = A[j*m + i] + B[j*m + i];
+          C[j * m + i] = A[j * m + i] + B[j * m + i];
         }
       }
     }
   }
 
   return 0;
-}
+} /* MatSUM */
 
 
 
@@ -117,7 +103,7 @@ MatSUM(char tA, char tB, size_t m, size_t n, T* A, T* B, T* C) {
 
 template <class T>
 int
-VecSUM(size_t n, T* A, T* B, T* C) {
+VecSUM(size_t n, T *A, T *B, T *C) {
   size_t i;
 
   for (i = 0; i < n; i++) {

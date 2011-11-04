@@ -1,45 +1,17 @@
 #!/usr/bin/perl
+#**
+#*  @file  make_dist.pl
+#*  @brief  Clean up CVS fields in DIET files, when building a distribution.
+#*  @author Eddy Caron (Eddy.Caron@ens-lyon.fr)
+#*  @section Licence 
+#*    |LICENCE|
 #****************************************************************************#
 #* FIXME: Description of the file is to be updated...                       *#
 #* Clean up CVS fields in DIET files, when building a distribution.         *#
 #* This script takes at most one argument: "dev", set when building a       *#
 #*  maintainer distribution. It reads Distribution_files.lst.               *#
-#*                                                                          *#
-#*  Author(s):                                                              *#
-#*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       *#
-#*                                                                          *#
-#* $LICENSE$                                                                *#
 #****************************************************************************#
-#* $Id$
-#* $Log$
-#* Revision 1.7  2011/05/10 13:17:24  bdepardo
-#* Updated distribution file.
-#* Source file of the UserManual are now in the distribution tarball, this is
-#* required for Debian packages
-#*
-#* Revision 1.6  2008/04/04 10:05:22  rbolze
-#* - add check function in order to help the distrubtion builder to check
-#* - if all file are correctly listed and add in the Distribution_files.lst
-#* - update bin/scripts/Distribution_files.lst
-#*
-#* Revision 1.5  2008/03/27 18:47:03  rbolze
-#* update scripts and list of distrib. files
-#* exec "./bin/scripts/make_dist.pl -help" for usage
-#*
-#* Revision 1.4  2006/11/27 11:41:35  pcombes
-#* Do not test file presence if not needed in distribution
-#*
-#* Revision 1.3  2006/11/02 01:57:32  ecaron
-#* Get version number for release from CMakeLists.txt file (perl version)
-#*
-#* Revision 1.2  2006/11/02 00:24:43  ecaron
-#* Get version number for release from CMakeLists.txt file
-#*
-#* Revision 1.1  2006/11/01 23:45:39  ecaron
-#* Script to generate the DIET distribution
-#* Author: Philippe Combes
-#*
-#****************************************************************************#
+
 
 use File::Path;
 use File::Copy "cp";

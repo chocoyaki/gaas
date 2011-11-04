@@ -1,32 +1,14 @@
 /**
-* @file DynamicServiceMgr.cc
-* 
-* @brief  DIET DynamicServiceMgr.
-* 
-* @author  - Benjamin Depardon (benjamin.depardon@ens-lyon.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.4  2011/01/23 19:27:47  bdepardo
- * Fixed: Throwing exception in destructor
+ * @file DynamicServiceMgr.cc
  *
- * Revision 1.3  2011/01/21 17:31:29  bdepardo
- * Prefer prefix ++/-- operators for non-primitive types.
- * The function 'InstanciationError::message' can be const
+ * @brief  DIET DynamicServiceMgr.
  *
- * Revision 1.2  2010/03/03 14:05:16  bdepardo
- * Definition for CYGWIN compilation
+ * @author  Benjamin Depardon (benjamin.depardon@ens-lyon.fr)
  *
- * Revision 1.1  2008/12/08 15:32:43  bdepardo
- * Added an example to dynamically load a service given a library:
- * the library is sent by the client, and the SeD loads it and uses the new
- * service(s) added.
- *
- *
- ****************************************************************************/
+ * @section Licence
+ *   |LICENSE|
+ */
+
 
 #include "DynamicServiceMgr.hh"
 #include <dlfcn.h>
@@ -53,17 +35,17 @@ DynamicServiceMgr::DynamicServiceMgr() {
 /** The default destructor. */
 DynamicServiceMgr::~DynamicServiceMgr() {
   map_string_void_t::iterator i_m;
-  removeService* rmS;
-  const char* error;
+  removeService *rmS;
+  const char *error;
 
-  for (i_m = this->services.begin(); i_m != this->services.end(); ++ i_m) {
+  for (i_m = this->services.begin(); i_m != this->services.end(); ++i_m) {
     if (!(i_m->second)) {
       WARNING("Problem while dealing with an \"opened\" module");
     }
     dlerror();
 
 
-    rmS = (removeService*) dlsym(i_m->second, "removeService");
+    rmS = (removeService *) dlsym(i_m->second, "removeService");
     error = dlerror();
     if (error) {
       WARNING("Problem while searching for removeService");
@@ -78,15 +60,17 @@ DynamicServiceMgr::~DynamicServiceMgr() {
 
 
 
-int DynamicServiceMgr::addServiceMgr(const std::string & lib) {
-  void* module = NULL;
-  addService* addS;
-  serviceName* serName;
-  const char* error;
+int
+DynamicServiceMgr::addServiceMgr(const std::string &lib) {
+  void *module = NULL;
+  addService *addS;
+  serviceName *serName;
+  const char *error;
   std::string name;
 
-  TRACE_TEXT(TRACE_ALL_STEPS, "*** Adding library '" << lib << "' ***" << std::endl);
-  module = dlopen(lib.c_str(), RTLD_NOW|RTLD_LOCAL);
+  TRACE_TEXT(TRACE_ALL_STEPS,
+             "*** Adding library '" << lib << "' ***" << std::endl);
+  module = dlopen(lib.c_str(), RTLD_NOW | RTLD_LOCAL);
 
   if (!module) {
     WARNING("Pb opening module");
@@ -95,7 +79,7 @@ int DynamicServiceMgr::addServiceMgr(const std::string & lib) {
   }
   dlerror();
 
-  serName = (serviceName*) dlsym(module, "serviceName");
+  serName = (serviceName *) dlsym(module, "serviceName");
   TRACE_TEXT(TRACE_ALL_STEPS, "*** Got serviceName() ***" << std::endl);
 
   error = dlerror();
@@ -106,7 +90,8 @@ int DynamicServiceMgr::addServiceMgr(const std::string & lib) {
   }
 
   name = serName();
-  TRACE_TEXT(TRACE_ALL_STEPS, "*** Found service '" << name << "' ***"  << std::endl);
+  TRACE_TEXT(TRACE_ALL_STEPS,
+             "*** Found service '" << name << "' ***" << std::endl);
 
   if (this->services.find(name) != this->services.end()) {
     WARNING("*** Service '" << name << "' already exists ***");
@@ -116,7 +101,7 @@ int DynamicServiceMgr::addServiceMgr(const std::string & lib) {
 
   this->services[name] = module;
 
-  addS = (addService*) dlsym(module, "addService");
+  addS = (addService *) dlsym(module, "addService");
   error = dlerror();
   if (error) {
     WARNING("Problem getting addService " << error);
@@ -125,13 +110,14 @@ int DynamicServiceMgr::addServiceMgr(const std::string & lib) {
   }
 
   return addS();
-}
+} // addServiceMgr
 
 
-int DynamicServiceMgr::removeServiceMgr(const std::string & name) {
-  void* module;
-  removeService* rmS;
-  const char* error;
+int
+DynamicServiceMgr::removeServiceMgr(const std::string &name) {
+  void *module;
+  removeService *rmS;
+  const char *error;
   map_string_void_t::iterator i_m = this->services.find(name);
 
   if (i_m == this->services.end()) {
@@ -141,7 +127,7 @@ int DynamicServiceMgr::removeServiceMgr(const std::string & name) {
 
   module = i_m->second;
   this->services.erase(i_m);
-  TRACE_TEXT(TRACE_ALL_STEPS, "*** Will now remove a module ***"  << std::endl);
+  TRACE_TEXT(TRACE_ALL_STEPS, "*** Will now remove a module ***" << std::endl);
 
   if (!module) {
     WARNING("Pb opening module");
@@ -150,7 +136,7 @@ int DynamicServiceMgr::removeServiceMgr(const std::string & name) {
   }
   dlerror();
 
-  rmS = (removeService*) dlsym(module, "removeService");
+  rmS = (removeService *) dlsym(module, "removeService");
   error = dlerror();
   if (error) {
     WARNING("Pb getting removeService " << error);
@@ -158,7 +144,4 @@ int DynamicServiceMgr::removeServiceMgr(const std::string & name) {
     throw exception;
   }
   return rmS();
-}
-
-
-
+} // removeServiceMgr

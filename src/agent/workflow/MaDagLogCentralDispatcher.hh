@@ -1,19 +1,14 @@
 /**
-* @file MaDagLogCentralDispatcher.hh
-* 
-* @brief  The MA DAG LogCentral Dispatcher 
-* 
-* @author - Benjamin Isnard (Benjamin.Isnard@ens-lyon.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.3  2011/01/13 23:01:09  ecaron
- * Add header for MaDag LogCentral Dispatcher
+ * @file MaDagLogCentralDispatcher.hh
  *
- ****************************************************************************/
+ * @brief  The MA DAG LogCentral Dispatcher
+ *
+ * @author  Benjamin Isnard (Benjamin.Isnard@ens-lyon.fr)
+ *
+ * @section Licence
+ *   |LICENSE|
+ */
+
 
 #ifndef MADAGLOGCENTRALDISPATCHER_HH_
 #define MADAGLOGCENTRALDISPATCHER_HH_
@@ -39,23 +34,24 @@ using madag::MultiWfScheduler;
 class MaDagLogCentralDispatcher : public EventDispatcher {
 public:
 #ifdef USE_LOG_SERVICE
-  explicit MaDagLogCentralDispatcher(DietLogComponent* LC);
+  explicit
+  MaDagLogCentralDispatcher(DietLogComponent *LC);
 
   void
   onMultiWfSchedulerCreation(
     const EventFrom<MultiWfScheduler,
                     EventStandardMsg<MultiWfScheduler,
-                                     MultiWfScheduler::CONSTR> >* event);
+                                     MultiWfScheduler::CONSTR> > *event);
 
   void
   onDagNodeReady(
     const EventFrom<DagNode,
-                    EventStandardMsg<DagNode, DagNode::READY> >* event);
+                    EventStandardMsg<DagNode, DagNode::READY> > *event);
 
 private:
-  DietLogComponent* myLC;
-#endif
+  DietLogComponent *myLC;
+#endif /* ifdef USE_LOG_SERVICE */
 };
 
 
-#endif
+#endif /* ifndef MADAGLOGCENTRALDISPATCHER_HH_ */

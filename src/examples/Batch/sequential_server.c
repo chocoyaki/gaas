@@ -1,24 +1,14 @@
 /**
-* @file sequential_server.c
-* 
-* @brief   DIET server for sequential submission   
-* 
-* @author  - Yves Caniou (Yves.Caniou@ens-lyon.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.4  2006/12/27 22:45:02  ecaron
- * Fix warning (remove unused variable)
+ * @file sequential_server.c
  *
- * Revision 1.3  2006/11/28 20:40:31  ycaniou
- * Only headers
+ * @brief   DIET server for sequential submission
  *
- * Revision 1.2  2006/11/27 08:13:59  ycaniou
- * Added missing fields Id and Log in headers
- ****************************************************************************/
+ * @author  Yves Caniou (Yves.Caniou@ens-lyon.fr)
+ *
+ * @section Licence
+ *   |LICENSE|
+ */
+
 
 #include <string.h>
 #include <unistd.h>
@@ -34,39 +24,43 @@
 #define MAX_STRING_LENGTH 100
 
 /****************************************************************************
- * SOLVE FUNCTION
- ****************************************************************************/
+* SOLVE FUNCTION
+****************************************************************************/
 
-int solve_concatenation(diet_profile_t *pb)
-{
-  size_t arg_size1  = 0;
-  size_t arg_size2  = 0;
-  char * path1 = NULL;
-  char * path2 = NULL;
-  char * path_result = NULL;
-  double * ptr_nbreel = NULL;
-  FILE * file, * output_file;
+int
+solve_concatenation(diet_profile_t *pb) {
+  size_t arg_size1 = 0;
+  size_t arg_size2 = 0;
+  char *path1 = NULL;
+  char *path2 = NULL;
+  char *path_result = NULL;
+  double *ptr_nbreel = NULL;
+  FILE *file, *output_file;
   int status = 0;
   size_t count;
-  char chaine[ MAX_STRING_LENGTH ];
+  char chaine[MAX_STRING_LENGTH];
   struct stat buf;
 
   printf("Resolving sequential service 'concatenation'!\n\n");
 
-  /* IN args */  
+  /* IN args */
   diet_file_get(diet_parameter(pb, 0), NULL, &arg_size1, &path1);
-  if ((status = stat(path1, &buf)))
+  if ((status = stat(path1, &buf))) {
     return status;
-  if (!(buf.st_mode & S_IFREG)) /* regular file */
+  }
+  if (!(buf.st_mode & S_IFREG)) { /* regular file */
     return 2;
+  }
   printf("Name of the first file: %s\n", path1);
-  
+
   diet_scalar_get(diet_parameter(pb, 1), &ptr_nbreel, NULL);
   diet_file_get(diet_parameter(pb, 2), NULL, &arg_size2, &path2);
-  if ((status = stat(path2, &buf)))
+  if ((status = stat(path2, &buf))) {
     return status;
-  if (!(buf.st_mode & S_IFREG)) /* regular file */
+  }
+  if (!(buf.st_mode & S_IFREG)) { /* regular file */
     return 2;
+  }
   printf("Name of the second file: %s\n", path2);
 
   /* OUT args */
@@ -97,24 +91,23 @@ int solve_concatenation(diet_profile_t *pb)
 
   /* Don't free path1, path2 and path_result since not duplicated by CORBA */
   return 0;
-}
+} /* solve_concatenation */
 
 /****************************************************************************
- * MAIN
- ****************************************************************************/
+* MAIN
+****************************************************************************/
 
 int
-main(int argc, char* argv[])
-{
+main(int argc, char *argv[]) {
   int res = 0;
   int nb_max_services = 1;
-  diet_profile_desc_t* profile = NULL;
-  
-  
+  diet_profile_desc_t *profile = NULL;
+
+
   if (argc < 2) {
     fprintf(stderr, "Usage: %s <file.cfg>\n", argv[0]);
     return 1;
-  }  
+  }
 
   /* Initialize table with maximum services */
   diet_service_table_init(nb_max_services);
@@ -134,8 +127,10 @@ main(int argc, char* argv[])
   /* All done */
 
   /* Add service to the service table */
-  if (diet_service_table_add(profile, NULL, solve_concatenation)) return 1;
-  
+  if (diet_service_table_add(profile, NULL, solve_concatenation)) {
+    return 1;
+  }
+
   /* Free the profile, since it was deep copied */
   diet_profile_desc_free(profile);
 
@@ -146,4 +141,4 @@ main(int argc, char* argv[])
   res = diet_SeD(argv[1], argc, argv);
 
   return res;
-}
+} /* main */

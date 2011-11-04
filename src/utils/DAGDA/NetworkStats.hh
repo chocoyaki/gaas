@@ -1,20 +1,14 @@
 /**
-* @file NetworkStats.hh
-* 
-* @brief  Network statistics utility classes headers.
-* 
-* @author Gael Le Mahec (lemahec@clermont.in2p3.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.4  2008/11/07 14:32:14  bdepardo
- * Headers correction
+ * @file NetworkStats.hh
  *
+ * @brief  Network statistics utility classes headers.
  *
- ***********************************************************/
+ * @author Gael Le Mahec (lemahec@clermont.in2p3.fr)
+ *
+ * @section Licence
+ *   |LICENSE|
+ */
+
 #ifndef __NETWORKSTATS_HH__
 #define __NETWORKSTATS_HH__
 
@@ -27,7 +21,7 @@ public:
     : values() {
   }
 
-  NetworkStats(const NetworkStats& stat)
+  NetworkStats(const NetworkStats &stat)
     : values(stat.values) {
   }
 
@@ -50,11 +44,11 @@ protected:
 class AvgNetworkStats : public NetworkStats {
 public:
   AvgNetworkStats()
-    : NetworkStats(), nbStats() {
+  : NetworkStats(), nbStats() {
   }
 
-  AvgNetworkStats(const AvgNetworkStats& stat)
-    : NetworkStats(stat), nbStats(stat.nbStats) {
+  AvgNetworkStats(const AvgNetworkStats &stat)
+  : NetworkStats(stat), nbStats(stat.nbStats) {
   }
 
   virtual ~AvgNetworkStats() {
@@ -72,4 +66,4 @@ public:
 protected:
   std::map<std::string, std::map<std::string, unsigned long> > nbStats;
 };
-#endif
+#endif /* ifndef __NETWORKSTATS_HH__ */

@@ -1,12 +1,12 @@
-/****************************************************************************/
-/* DIET tutorial scalar by matrix product example: server                   */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Ludovic BERTSCH           Ludovic.Bertsch@ens-lyon.fr               */
-/*    - Eddy CARON                Eddy.Caron@ens-lyon.fr                    */
-/*    - Philippe COMBES           Philippe.Combes@ens-lyon.fr               */
-/*                                                                          */
-/****************************************************************************/
+/**
+*  @file  server.c
+*  @brief   DIET tutorial scalar by matrix product example: server 
+*  @author  - Ludovic BERTSCH  (Ludovic.Bertsch@ens-lyon.fr)
+*           - Eddy CARON  (Eddy.Caron@ens-lyon.fr)
+*           - Philippe COMBES  (Philippe.Combes@ens-lyon.fr)
+*  @section Licence 
+*    |LICENCE|
+*/
 
 #include <unistd.h>
 #include <stdlib.h>

@@ -1,24 +1,12 @@
 /**
-* @file SeDService.cc
-* 
-* @brief   Type for SeD Service description  
-* 
-* @author  - Benjamin ISNARD (benjamin.isnard@ens-lyon.fr) 
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.3  2011/01/21 18:20:21  bdepardo
- * Set a few methods to const
+ * @file SeDService.cc
  *
- * Revision 1.2  2011/01/21 18:17:11  bdepardo
- * Prefer prefix ++/-- operators for non-primitive types.
+ * @brief   Type for SeD Service description
  *
- * Revision 1.1  2010/04/06 15:02:37  bdepardo
- * Added SeDWrapper example. This example is compiled when workflows are activated.
+ * @author  Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)
  *
+ * @section Licence
+ *   |LICENSE|
  */
 
 #include <iostream>
@@ -40,10 +28,10 @@
 
 #define TRACE(mess) {                           \
     cout << "[GASW] " << mess << endl;          \
-  }
+}
 #define WARN(mess) {                            \
     cerr << "[GASW] " << mess << endl;          \
-  }
+}
 
 namespace fs = boost::filesystem;
 
@@ -60,20 +48,22 @@ static const pair<string, short> argTypes[] = {
   pair<string, short>("directory", SeDArgument::DIR),
 };
 
-static map<string, short> StrTypesToArgTypes(argTypes, argTypes
-                                            + sizeof(argTypes)/sizeof(argTypes[0]));
+static map<string, short> StrTypesToArgTypes(
+  argTypes, argTypes
+  + sizeof(argTypes) /
+  sizeof(argTypes[0]));
 
-SeDArgument::SeDArgument(SeDService* parent)
+SeDArgument::SeDArgument(SeDService *parent)
   : myParent(parent), myIo(NIO), myType(URI) {
 }
 
-SeDArgument::SeDArgument(const SeDArgument& src, SeDService* parent)
+SeDArgument::SeDArgument(const SeDArgument &src, SeDService *parent)
   : myParent(parent), myIo(src.myIo), myType(src.myType),
-    myLabel(src.myLabel), myOption(src.myOption), myValue(src.myValue),
-    myTemplate(src.myTemplate) {
+  myLabel(src.myLabel), myOption(src.myOption), myValue(src.myValue),
+  myTemplate(src.myTemplate) {
 }
 
-const string&
+const string &
 SeDArgument::getValue() {
   if (!myTemplate.empty()) {
     getService()->getParser()->evalTemplate(this, myValue);
@@ -82,13 +72,14 @@ SeDArgument::getValue() {
 }
 
 void
-SeDArgument::setType(const string& strType) {
-  if (!strType.empty())
+SeDArgument::setType(const string &strType) {
+  if (!strType.empty()) {
     setType((Type_t) StrTypesToArgTypes[strType]);
+  }
 }
 
 void
-SeDArgument::setTemplate(const string& templ) {
+SeDArgument::setTemplate(const string &templ) {
   myTemplate = templ;
   TRACE(" Argument '" << myLabel << "' template = " << myTemplate);
 }
@@ -97,38 +88,38 @@ SeDArgument::setTemplate(const string& templ) {
 /*                           CLASS SeDService                                */
 /*****************************************************************************/
 
-SeDService::SeDService(const string& name)
+SeDService::SeDService(const string &name)
   : myName(name), myAvgCompTime(0), myTotalReqNb(0), myParser(NULL) {
   TRACE("Created new service (name=" << myName << ")");
 }
 
-SeDService::SeDService(SeDDescrParser *parser, const string& name)
+SeDService::SeDService(SeDDescrParser *parser, const string &name)
   : myName(name), myAvgCompTime(0), myTotalReqNb(0), myParser(parser) {
   TRACE("Created new service (name=" << myName << ")");
 }
 
-SeDService::SeDService(const SeDService& src)
+SeDService::SeDService(const SeDService &src)
   : myName(src.myName), myExecName(src.myExecName),
-    myAvgCompTime(src.myAvgCompTime),
-    myDeps(src.myDeps), myParser(src.myParser)
-{
-  list<SeDArgument*>::const_iterator srcArgIter = src.myArgs.begin();
-  while (srcArgIter != src.myArgs.end())
+  myAvgCompTime(src.myAvgCompTime),
+  myDeps(src.myDeps), myParser(src.myParser) {
+  list<SeDArgument *>::const_iterator srcArgIter = src.myArgs.begin();
+  while (srcArgIter != src.myArgs.end()) {
     myArgs.push_back(new SeDArgument(**(srcArgIter++), this));
+  }
   TRACE("Created new service (name=" << myName << ")");
 }
 
 SeDService::~SeDService() {
   // Free the args list
-  while (! myArgs.empty()) {
-    SeDArgument * a = *(myArgs.begin());
+  while (!myArgs.empty()) {
+    SeDArgument *a = *(myArgs.begin());
     myArgs.erase(myArgs.begin());
     delete a;
   }
 }
 
-SeDDescrParser *SeDService::getParser()
-{
+SeDDescrParser *
+SeDService::getParser() {
   if (myParser == NULL) {
     WARN(__FUNCTION__ << " : Parser not defined");
     exit(1);
@@ -136,12 +127,11 @@ SeDDescrParser *SeDService::getParser()
   return myParser;
 }
 
-SeDArgument*
-SeDService::addInput(const string& name,
-                     const string& option,
-                     const string& type)
-{
-  SeDArgument * arg = new SeDArgument(this);
+SeDArgument *
+SeDService::addInput(const string &name,
+                     const string &option,
+                     const string &type) {
+  SeDArgument *arg = new SeDArgument(this);
   arg->setIo(SeDArgument::IN);
   arg->setLabel(name);
   arg->setOption(option);
@@ -151,12 +141,11 @@ SeDService::addInput(const string& name,
   return arg;
 }
 
-SeDArgument*
-SeDService::addOutput(const string& name,
-                      const string& option,
-                      const string& type)
-{
-  SeDArgument * arg = new SeDArgument(this);
+SeDArgument *
+SeDService::addOutput(const string &name,
+                      const string &option,
+                      const string &type) {
+  SeDArgument *arg = new SeDArgument(this);
   arg->setIo(SeDArgument::OUT);
   arg->setLabel(name);
   arg->setOption(option);
@@ -167,9 +156,8 @@ SeDService::addOutput(const string& name,
 }
 
 void
-SeDService::addDependency(const string& name,
-                          const string& localPath)
-{
+SeDService::addDependency(const string &name,
+                          const string &localPath) {
   myDeps.insert(make_pair<string, string>(name, localPath));
   TRACE("Created DEPENDENCY (path=" << localPath << ")");
 }
@@ -182,31 +170,31 @@ SeDService::getArgumentNb() const {
 unsigned int
 SeDService::getInputNb() const {
   unsigned int count = 0;
-  for (list<SeDArgument*>::const_iterator argIter = myArgs.begin();
+  for (list<SeDArgument *>::const_iterator argIter = myArgs.begin();
        argIter != myArgs.end();
-       ++argIter)
-  {
-    if ((*argIter)->getIo() == SeDArgument::IN)
+       ++argIter) {
+    if ((*argIter)->getIo() == SeDArgument::IN) {
       count++;
+    }
   }
   return count;
-}
+} // getInputNb
 unsigned int
 SeDService::getOutputNb() const {
   unsigned int count = 0;
-  for (list<SeDArgument*>::const_iterator argIter = myArgs.begin();
+  for (list<SeDArgument *>::const_iterator argIter = myArgs.begin();
        argIter != myArgs.end();
-       ++argIter)
-  {
-    if ((*argIter)->getIo() == SeDArgument::OUT)
+       ++argIter) {
+    if ((*argIter)->getIo() == SeDArgument::OUT) {
       count++;
+    }
   }
   return count;
-}
+} // getOutputNb
 
 SeDArgument *
 SeDService::getArg(unsigned int idx) const {
-  list<SeDArgument*>::const_iterator argIter = myArgs.begin();
+  list<SeDArgument *>::const_iterator argIter = myArgs.begin();
   for (int ix = 0; ix < idx; ++ix) ++argIter;
   return *argIter;
 }
@@ -216,71 +204,73 @@ SeDService::createAndDeclareProfile() {
   // Initialize profile
   diet_profile_desc_t *profile
     = diet_profile_desc_alloc(getName().c_str(),
-                              getInputNb()-1,
-                              getInputNb()-1,
-                              getArgumentNb()-1);
+                              getInputNb() - 1,
+                              getInputNb() - 1,
+                              getArgumentNb() - 1);
 
   // Set arguments in the profile
   int argIndex = 0;
-  for (list<SeDArgument*>::const_iterator argIter = myArgs.begin();
+  for (list<SeDArgument *>::const_iterator argIter = myArgs.begin();
        argIter != myArgs.end();
-       ++argIter)
-  {
-    SeDArgument *currArg = (SeDArgument*) *argIter;
+       ++argIter) {
+    SeDArgument *currArg = (SeDArgument *) *argIter;
     switch (currArg->getType()) {
-    case SeDArgument::STRING :
-      diet_generic_desc_set(diet_param_desc(profile, argIndex++), DIET_STRING, DIET_CHAR);
+    case SeDArgument::STRING:
+      diet_generic_desc_set(diet_param_desc(profile,
+                                            argIndex++), DIET_STRING, DIET_CHAR);
       break;
-    case SeDArgument::URI :
-      diet_generic_desc_set(diet_param_desc(profile, argIndex++), DIET_FILE, DIET_CHAR);
+    case SeDArgument::URI:
+      diet_generic_desc_set(diet_param_desc(profile,
+                                            argIndex++), DIET_FILE, DIET_CHAR);
       break;
-    case SeDArgument::DIR :
-      diet_generic_desc_set(diet_param_desc(profile, argIndex++), DIET_CONTAINER, DIET_CHAR);
+    case SeDArgument::DIR:
+      diet_generic_desc_set(diet_param_desc(profile,
+                                            argIndex++), DIET_CONTAINER,
+                            DIET_CHAR);
       break;
-    case SeDArgument::INT :
-      diet_generic_desc_set(diet_param_desc(profile, argIndex++), DIET_SCALAR, DIET_INT);
+    case SeDArgument::INT:
+      diet_generic_desc_set(diet_param_desc(profile,
+                                            argIndex++), DIET_SCALAR, DIET_INT);
       break;
-    case SeDArgument::DOUBLE :
-      diet_generic_desc_set(diet_param_desc(profile, argIndex++), DIET_SCALAR, DIET_DOUBLE);
+    case SeDArgument::DOUBLE:
+      diet_generic_desc_set(diet_param_desc(profile,
+                                            argIndex++), DIET_SCALAR,
+                            DIET_DOUBLE);
       break;
-    case SeDArgument::BOOLEAN :
-      diet_generic_desc_set(diet_param_desc(profile, argIndex++), DIET_SCALAR, DIET_CHAR);
+    case SeDArgument::BOOLEAN:
+      diet_generic_desc_set(diet_param_desc(profile,
+                                            argIndex++), DIET_SCALAR, DIET_CHAR);
       break;
     default:
       WARN(__FUNCTION__ << " : Invalid argument type");
       exit(1);
-    }
+    } // switch
   }
 
   return profile;
-}
+} // createAndDeclareProfile
 
 /* MUST BE REENTRANT */
 int
-SeDService::createWorkingDirectory(const string& currentDirectory) {
-  string  dirName = "w_" + getName() + "-" + getReqId();
+SeDService::createWorkingDirectory(const string &currentDirectory) {
+  string dirName = "w_" + getName() + "-" + getReqId();
   fs::path dir = fs::path(currentDirectory) / dirName;
-  try
-  {
+  try {
     fs::create_directory(dir);
-  }
-  catch (const fs::filesystem_error & x)
-  {
+  } catch (const fs::filesystem_error &x) {
     WARN(x.what());
     WARN("Creating directory " << dir.string() << " failed.");
     return 1;
-  }
-  catch (...)
-  {
+  } catch (...) {
     WARN("Creating directory " << dir.string() << " failed.");
     return 1;
   }
   myWorkingDir = dir.string();
   TRACE("Creating directory " << dir.string() << " done.");
   return 0;
-}
+} // createWorkingDirectory
 
-const string&
+const string &
 SeDService::getWorkingDirectory() const {
   return myWorkingDir;
 }
@@ -289,93 +279,77 @@ int
 SeDService::removeWorkingDirectory() {
   try {
     fs::remove_all(myWorkingDir);
-  }
-  catch (const fs::filesystem_error & x)
-  {
+  } catch (const fs::filesystem_error &x) {
     WARN(x.what());
     WARN("Removing directory " << myWorkingDir << " failed.");
     return 1;
-  }
-  catch (...)
-  {
+  } catch (...) {
     WARN("Creating directory " << myWorkingDir << " failed.");
     return 1;
   }
   TRACE("Remove directory " << myWorkingDir << " done.");
   return 0;
-}
+} // removeWorkingDirectory
 
 /* MUST BE REENTRANT */
 int
 SeDService::cpyDependencies() {
   for (map<string, string>::const_iterator depIter = myDeps.begin();
        depIter != myDeps.end();
-       ++depIter)
-  {
-    fs::path  depPath(depIter->second);
+       ++depIter) {
+    fs::path depPath(depIter->second);
     if (!fs::is_regular_file(depPath)) {
       WARN("Invalid dependency: " << depPath.string());
       return 1;
     }
-    fs::path  destPath = fs::path(myWorkingDir) / depPath.leaf();
-    try
-    {
+    fs::path destPath = fs::path(myWorkingDir) / depPath.leaf();
+    try {
       fs::copy_file(depPath, destPath);
-    }
-    catch (const fs::filesystem_error & x)
-    {
+    } catch (const fs::filesystem_error &x) {
       WARN(x.what());
       WARN("Copy of dependency '" << depIter->first << "' from "
-            << depPath.string() << " failed.");
+                                  << depPath.string() << " failed.");
       return 1;
-    }
-    catch (...)
-    {
+    } catch (...) {
       WARN("Copy of dependency '" << depIter->first << "' from "
-            << depPath.string() << " failed.");
+                                  << depPath.string() << " failed.");
       return 1;
     }
     TRACE("Copy of dependency '" << depIter->first << "' from "
-           << depPath.string() << " done.");
+                                 << depPath.string() << " done.");
   }
   return 0;
-}
+} // cpyDependencies
 
 /* MUST BE REENTRANT */
 int
 SeDService::cpyFileToWorkingDir(SeDArgument *arg,
-                                 const string& srcFile,
-                                 const string& dstDir,
-                                 string& dstFile)
-{
-  fs::path  srcPath(srcFile);
+                                const string &srcFile,
+                                const string &dstDir,
+                                string &dstFile) {
+  fs::path srcPath(srcFile);
   if (!fs::is_regular_file(srcPath)) {
     WARN("Invalid input file: " << srcPath.string());
     return 1;
   }
-  fs::path  destPath = fs::path(dstDir) / srcPath.leaf();
-  try
-  {
+  fs::path destPath = fs::path(dstDir) / srcPath.leaf();
+  try {
     fs::copy_file(srcPath, destPath);
-  }
-  catch (const fs::filesystem_error & x)
-  {
+  } catch (const fs::filesystem_error &x) {
     WARN(x.what());
     WARN("Copy of input '" << arg->getLabel() << "' from "
-          << srcPath.string() << " failed.");
+                           << srcPath.string() << " failed.");
     return 1;
-  }
-  catch (...)
-  {
+  } catch (...) {
     WARN("Copy of input '" << arg->getLabel() << "' from "
-          << srcPath.string() << " failed.");
+                           << srcPath.string() << " failed.");
     return 1;
   }
   TRACE("Copy of input '" << arg->getLabel() << "' from "
-         << srcPath.string() << " done.");
+                          << srcPath.string() << " done.");
   dstFile = destPath.leaf();
   return 0;
-}
+} // cpyFileToWorkingDir
 
 /* MUST BE REENTRANT */
 /** DIRECTORY as INPUT
@@ -385,30 +359,24 @@ SeDService::cpyFileToWorkingDir(SeDArgument *arg,
  */
 int
 SeDService::cpyContainerToDir(SeDArgument *arg,
-                               const string& containerID,
-                               string& createdDir)
-{
+                              const string &containerID,
+                              string &createdDir) {
   // create directory within working directory
-  fs::path  dirPath = fs::path(myWorkingDir) / arg->getLabel();
+  fs::path dirPath = fs::path(myWorkingDir) / arg->getLabel();
   createdDir = arg->getLabel();
-  try
-  {
+  try {
     fs::create_directory(dirPath);
-  }
-  catch (const fs::filesystem_error & x)
-  {
+  } catch (const fs::filesystem_error &x) {
     WARN(x.what());
     WARN("Creating directory " << dirPath.string() << " failed.");
     return 1;
-  }
-  catch (...)
-  {
+  } catch (...) {
     WARN("Creating directory " << dirPath.string() << " failed.");
     return 1;
   }
 
   // retrieve container content
-  diet_container_t  content;
+  diet_container_t content;
   int status = dagda_get_container(containerID.c_str());
   if (status != 0) {
     WARN("Cannot download container: " << containerID);
@@ -437,7 +405,7 @@ SeDService::cpyContainerToDir(SeDArgument *arg,
     }
   }
   return 0;
-}
+} // cpyContainerToDir
 
 /* MUST BE REENTRANT */
 /* IS RECURSIVE */
@@ -448,50 +416,42 @@ SeDService::cpyContainerToDir(SeDArgument *arg,
  */
 void
 SeDService::cpyDirToContainer(SeDArgument *arg,
-                               const string& containerID,
-                               const string& dirPath)
-{
+                              const string &containerID,
+                              const string &dirPath) {
   // get the list of files in the container
   TRACE("Opening directory: " << dirPath);
   fs::path dirPathB(dirPath);
   fs::directory_iterator end_itr;
   unsigned int eltIdx = 0;
   for (fs::directory_iterator itr(dirPathB);
-        itr != end_itr;
-        ++itr)
-  {
-    if (fs::is_directory(itr->status()))
-    {
+       itr != end_itr;
+       ++itr) {
+    if (fs::is_directory(itr->status())) {
       TRACE("Found directory: " << itr->path().leaf());
       char *contID;
       dagda_create_container(&contID);
       dagda_add_container_element(containerID.c_str(), contID, eltIdx++);
       TRACE(" -> dir stored with id : " << contID);
       cpyDirToContainer(arg, string(contID), itr->path().string());
-    }
-    else if (fs::is_regular_file(itr->status()))
-    {
+    } else if (fs::is_regular_file(itr->status())) {
       TRACE("Found file: " << itr->path().string());
       char *fileID;
-      char *curFilePath = const_cast<char*>(itr->path().string().c_str());
+      char *curFilePath = const_cast<char *>(itr->path().string().c_str());
       dagda_put_file(curFilePath, DIET_PERSISTENT, &fileID);
       dagda_add_container_element(containerID.c_str(), fileID, eltIdx++);
       TRACE(" -> file stored with id : " << fileID);
     }
   }
-
-}
+} // cpyDirToContainer
 
 /* MUST BE REENTRANT */
 void
-SeDService::cpyProfileToArgs(diet_profile_t* pb)
-{
+SeDService::cpyProfileToArgs(diet_profile_t *pb) {
   int argIndex = 0;
-  for (list<SeDArgument*>::const_iterator argIter = myArgs.begin();
+  for (list<SeDArgument *>::const_iterator argIter = myArgs.begin();
        argIter != myArgs.end();
-       ++argIter)
-  {
-    SeDArgument *currArg = (SeDArgument*) *argIter;
+       ++argIter) {
+    SeDArgument *currArg = (SeDArgument *) *argIter;
 
     // IN ARGUMENT (get from DIET and copy value to argument)
     if (currArg->getIo() == SeDArgument::IN) {
@@ -503,60 +463,62 @@ SeDService::cpyProfileToArgs(diet_profile_t* pb)
       string path;
       size_t inputFileSize;
       switch (currArg->getType()) {
-      case SeDArgument::STRING :
+      case SeDArgument::STRING:
         diet_string_get(diet_parameter(pb, argIndex), &inputStr, NULL);
         cvt << inputStr;
         break;
-      case SeDArgument::URI :
-        diet_file_get(diet_parameter(pb, argIndex), NULL, &inputFileSize, &inputStr);
-        if (cpyFileToWorkingDir(currArg, inputStr, myWorkingDir, path))
+      case SeDArgument::URI:
+        diet_file_get(diet_parameter(pb,
+                                     argIndex), NULL, &inputFileSize, &inputStr);
+        if (cpyFileToWorkingDir(currArg, inputStr, myWorkingDir, path)) {
           continue;
+        }
         cvt << path;
         break;
-      case SeDArgument::BOOLEAN :
+      case SeDArgument::BOOLEAN:
         diet_scalar_get(diet_parameter(pb, argIndex), &inputChar, NULL);
         cvt << *inputChar;
         break;
-      case SeDArgument::INT :
+      case SeDArgument::INT:
         diet_scalar_get(diet_parameter(pb, argIndex), &inputInt, NULL);
         cvt << *inputInt;
         break;
-      case SeDArgument::DOUBLE :
+      case SeDArgument::DOUBLE:
         diet_scalar_get(diet_parameter(pb, argIndex), &inputDouble, NULL);
         cvt << *inputDouble;
         break;
-      case SeDArgument::DIR :
-        if (cpyContainerToDir(currArg, (pb->parameters[argIndex]).desc.id, path))
+      case SeDArgument::DIR:
+        if (cpyContainerToDir(currArg, (pb->parameters[argIndex]).desc.id,
+                              path)) {
           continue;
+        }
         cvt << path;
         break;
       default:
         WARN(__FUNCTION__ << " : Invalid argument type");
         exit(1);
-      }
+      } // switch
       currArg->setValue(cvt.str());
     }
 
     ++argIndex;
   }
-}
+} // cpyProfileToArgs
 
 /* MUST BE REENTRANT */
 bool
-SeDService::cpyArgsToProfile(diet_profile_t* pb)
-{
+SeDService::cpyArgsToProfile(diet_profile_t *pb) {
   int argIndex = 0;
   bool success = true;
-  for (list<SeDArgument*>::const_iterator argIter = myArgs.begin();
+  for (list<SeDArgument *>::const_iterator argIter = myArgs.begin();
        argIter != myArgs.end();
-       ++argIter)
-  {
-    SeDArgument *currArg = (SeDArgument*) *argIter;
+       ++argIter) {
+    SeDArgument *currArg = (SeDArgument *) *argIter;
     string argName = currArg->getLabel();
 
     if (currArg->getIo() == SeDArgument::OUT) {
       if (currArg->getType() == SeDArgument::URI) {
-        fs::path  filePath(currArg->getValue());
+        fs::path filePath(currArg->getValue());
         // check if relative path, and prefix with working directory path if yes
         if (!filePath.has_root_path()) {
           filePath = fs::path(myWorkingDir) / filePath;
@@ -574,10 +536,9 @@ SeDService::cpyArgsToProfile(diet_profile_t* pb)
           continue;
         }
         string filePathStr = filePath.string();
-        char *outputStr = (char*) malloc(filePathStr.size()+1);
+        char *outputStr = (char *) malloc(filePathStr.size() + 1);
         strcpy(outputStr, filePathStr.c_str());
         diet_file_set(diet_parameter(pb, argIndex), DIET_PERSISTENT, outputStr);
-
       } else if (currArg->getType() == SeDArgument::DIR) {
         fs::path dirPath(currArg->getValue());
         // check if relative path, and prefix with working directory path if yes
@@ -596,8 +557,10 @@ SeDService::cpyArgsToProfile(diet_profile_t* pb)
           continue;
         }
         dagda_init_container(diet_parameter(pb, argIndex));
-        string  containerID((*diet_parameter(pb, argIndex)).desc.id);
-        if (containerID.empty()) continue;
+        string containerID((*diet_parameter(pb, argIndex)).desc.id);
+        if (containerID.empty()) {
+          continue;
+        }
         cpyDirToContainer(currArg, containerID, dirPath.string());
         TRACE("Stored output container ID: " << containerID);
       }
@@ -605,15 +568,14 @@ SeDService::cpyArgsToProfile(diet_profile_t* pb)
     argIndex++;
   }
   return success;
-}
+} // cpyArgsToProfile
 
 void
-SeDService::genCommandLine(string& cmdLine) {
+SeDService::genCommandLine(string &cmdLine) {
   cmdLine = getExecName();
-  for (list<SeDArgument*>::const_iterator argIter = myArgs.begin();
+  for (list<SeDArgument *>::const_iterator argIter = myArgs.begin();
        argIter != myArgs.end();
-       ++argIter)
-  {
+       ++argIter) {
     cmdLine += " " + (*argIter)->getValue();
   }
 }
@@ -633,7 +595,8 @@ SeDService::setComputationTimeMeasure(double time_ms) {
   if (myTotalReqNb = 0) {
     myAvgCompTime = time_ms;
   } else {
-    myAvgCompTime = (time_ms + myTotalReqNb * myAvgCompTime) / (myTotalReqNb+1);
+    myAvgCompTime =
+      (time_ms + myTotalReqNb * myAvgCompTime) / (myTotalReqNb + 1);
   }
   myTotalReqNb += 1;
 }

@@ -1,29 +1,14 @@
 /**
-* @file  DataRelationMgr.hh
-* 
-* @brief  Class used to manage relationships between data items (used for containers in DAGDA) 
-* 
-* @author  - Benjamin Isnard (benjamin.isnard@ens-lyon.fr
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.4  2009/09/25 12:51:31  bisnard
- * fixed bug in case of containers containing empty elements as first elements
+ * @file  DataRelationMgr.hh
  *
- * Revision 1.3  2009/03/27 08:06:20  bisnard
- * new method getRelationNb
+ * @brief  Class used to manage relationships between data items (used for containers in DAGDA)
  *
- * Revision 1.2  2009/01/16 13:36:54  bisnard
- * make thread-safe using mutex
+ * @author  Benjamin Isnard (benjamin.isnard@ens-lyon.fr
  *
- * Revision 1.1  2008/09/09 10:07:36  bisnard
- * new class used for container mgmt using Dagda agent
- *
- *
- ***********************************************************/
+ * @section Licence
+ *   |LICENSE|
+ */
+
 
 #ifndef __DATARELATIONMGR_HH__
 #define __DATARELATIONMGR_HH__
@@ -56,7 +41,7 @@ public:
    * @param flag    specific info about linked item
    */
   void
-  addRelation(const std::string& dataID1, const std::string& dataID2,
+  addRelation(const std::string &dataID1, const std::string &dataID2,
               long index, long flag = 0);
 
   /**
@@ -65,7 +50,7 @@ public:
    * @param index   index of the link
    */
   void
-  remRelation(const std::string& dataID1, long index);
+  remRelation(const std::string &dataID1, long index);
 
   /**
    * Remove all relationships for a given item
@@ -73,21 +58,21 @@ public:
    * @param reverse if true, will consider links in BOTH WAYS
    */
   void
-  remAllRelation(const std::string& dataID, bool reverse = false);
+  remAllRelation(const std::string &dataID, bool reverse = false);
 
   /**
    * Get the total nb of relations for a given dataID
    * @param dataID  id of the container
    */
   unsigned int
-  getRelationNb(const std::string& dataID);
+  getRelationNb(const std::string &dataID);
 
   /**
    * Get the maximum index value for a given dataID (indexes start from 0)
    * @param dataID  id of the container
    */
   unsigned int
-  getRelationMaxIndex(const std::string& dataID);
+  getRelationMaxIndex(const std::string &dataID);
 
   /**
    * Get the relationships from a given item (using index order)
@@ -104,8 +89,8 @@ public:
    * @param ordered     if false, will not use the index field to sort
    */
   void
-  getRelationList(const std::string& dataID, SeqString& dataIDList,
-                  SeqLong& flagList, bool ordered = true);
+  getRelationList(const std::string &dataID, SeqString &dataIDList,
+                  SeqLong &flagList, bool ordered = true);
 
   /**
    * Display all relationships (for debug)
@@ -115,9 +100,9 @@ public:
 
 protected:
   typedef struct {
-    std::string  ID;
-    long    index;
-    long    flag;
+    std::string ID;
+    long index;
+    long flag;
   } dataRelationValue_t;
 
   std::multimap<std::string, dataRelationValue_t> myMap;
@@ -128,4 +113,4 @@ protected:
   omni_mutex myLock;
 };  // end class DataRelationMgr
 
-#endif
+#endif /* ifndef __DATARELATIONMGR_HH__ */

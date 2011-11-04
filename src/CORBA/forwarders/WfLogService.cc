@@ -1,39 +1,23 @@
 /**
-* @file WfLogService.cc
-* 
-* @brief  DIET forwarder implementation - Workflow Logservice forwarder implem
-* 
-* @author - Gael Le Mahec   (gael.le.mahec@ens-lyon.fr) 
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.5  2010/07/27 16:16:49  glemahec
- * Forwarders robustness
+ * @file WfLogService.cc
  *
- * Revision 1.4  2010/07/20 08:56:23  bisnard
- * Updated WfLogService IDL
+ * @brief  DIET forwarder implementation - Workflow Logservice forwarder implem
  *
- * Revision 1.3  2010/07/14 23:45:30  bdepardo
- * Header corrections
+ * @author Gael Le Mahec   (gael.le.mahec@ens-lyon.fr)
  *
- * Revision 1.2  2010/07/13 15:24:13  glemahec
- * Warnings corrections and some robustness improvements
- *
- * Revision 1.1  2010/07/12 16:08:56  glemahec
- * DIET 2.5 beta 1 - Forwarder implementations
- ****************************************************************************/
+ * @section Licence
+ *   |LICENSE|
+ */
+
 
 #include "DIETForwarder.hh"
 #include "ORBMgr.hh"
 #include <string>
 
 void
-DIETForwarder::createDag(const char* dagId,
-                         const char* wfId,
-                         const char* objName) {
+DIETForwarder::createDag(const char *dagId,
+                         const char *wfId,
+                         const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -48,11 +32,11 @@ DIETForwarder::createDag(const char* dagId,
                                                               name,
                                                               this->name);
   return wfls->createDag(dagId, wfId);
-}
+} // createDag
 
 void
-DIETForwarder::createDagNode(const char* dagNodeId, const char* dagId,
-                             const char* wfId, const char* objName) {
+DIETForwarder::createDagNode(const char *dagNodeId, const char *dagId,
+                             const char *wfId, const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -67,12 +51,12 @@ DIETForwarder::createDagNode(const char* dagNodeId, const char* dagId,
                                                               name,
                                                               this->name);
   return wfls->createDagNode(dagNodeId, dagId, wfId);
-}
+} // createDagNode
 
 void
-DIETForwarder::createDagNodeData(const char* dagNodeId, const char* wfId,
-                                 const char* dagNodePortId, const char* dataId,
-                                 const char* objName) {
+DIETForwarder::createDagNodeData(const char *dagNodeId, const char *wfId,
+                                 const char *dagNodePortId, const char *dataId,
+                                 const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -88,12 +72,12 @@ DIETForwarder::createDagNodeData(const char* dagNodeId, const char* wfId,
                                                               name,
                                                               this->name);
   return wfls->createDagNodeData(dagNodeId, wfId, dagNodePortId, dataId);
-}
+} // createDagNodeData
 
 void
-DIETForwarder::createDagNodeLink(const char* srcNodeId, const char* srcWfId,
-                                 const char* destNodeId, const char* destWfId,
-                                 const char* objName) {
+DIETForwarder::createDagNodeLink(const char *srcNodeId, const char *srcWfId,
+                                 const char *destNodeId, const char *destWfId,
+                                 const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -109,14 +93,14 @@ DIETForwarder::createDagNodeLink(const char* srcNodeId, const char* srcWfId,
                                                               name,
                                                               this->name);
   return wfls->createDagNodeLink(srcNodeId, srcWfId, destNodeId, destWfId);
-}
+} // createDagNodeLink
 
 void
-DIETForwarder::createDagNodePort(const char* dagNodePortId,
-                                 const char* portDirection,
-                                 const char* dagNodeId,
-                                 const char* wfId,
-                                 const char* objName) {
+DIETForwarder::createDagNodePort(const char *dagNodePortId,
+                                 const char *portDirection,
+                                 const char *dagNodeId,
+                                 const char *wfId,
+                                 const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -132,12 +116,12 @@ DIETForwarder::createDagNodePort(const char* dagNodePortId,
                                                               name,
                                                               this->name);
   return wfls->createDagNodePort(dagNodePortId, portDirection, dagNodeId, wfId);
-}
+} // createDagNodePort
 
 void
-DIETForwarder::createDataElements(const char* dataId,
-                                  const char* elementIdList,
-                                  const char* objName) {
+DIETForwarder::createDataElements(const char *dataId,
+                                  const char *elementIdList,
+                                  const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -152,11 +136,11 @@ DIETForwarder::createDataElements(const char* dataId,
                                                               name,
                                                               this->name);
   return wfls->createDataElements(dataId, elementIdList);
-}
+} // createDataElements
 
 void
-DIETForwarder::createSinkData(const char* sinkId, const char* wfId,
-                              const char* dataId, const char* objName) {
+DIETForwarder::createSinkData(const char *sinkId, const char *wfId,
+                              const char *dataId, const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -171,13 +155,13 @@ DIETForwarder::createSinkData(const char* sinkId, const char* wfId,
                                                               name,
                                                               this->name);
   return wfls->createSinkData(sinkId, wfId, dataId);
-}
+} // createSinkData
 
 void
-DIETForwarder::createSourceDataTree(const char* sourceId,
-                                    const char* wfId,
-                                    const char* dataIdTree,
-                                    const char* objName) {
+DIETForwarder::createSourceDataTree(const char *sourceId,
+                                    const char *wfId,
+                                    const char *dataIdTree,
+                                    const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -193,11 +177,11 @@ DIETForwarder::createSourceDataTree(const char* sourceId,
                                                               name,
                                                               this->name);
   return wfls->createSourceDataTree(sourceId, wfId, dataIdTree);
-}
+} // createSourceDataTree
 
 void
-DIETForwarder::initWorkflow(const char* wfId, const char* wfName,
-                            const char* parentWfId, const char* objName) {
+DIETForwarder::initWorkflow(const char *wfId, const char *wfName,
+                            const char *parentWfId, const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -212,14 +196,14 @@ DIETForwarder::initWorkflow(const char* wfId, const char* wfName,
                                                               name,
                                                               this->name);
   return wfls->initWorkflow(wfId, wfName, parentWfId);
-}
+} // initWorkflow
 
 void
-DIETForwarder::setInPortDependencies(const char* dagNodePortId,
-                                     const char* dagNodeId,
-                                     const char* wfId,
-                                     const char* dependencies,
-                                     const char* objName) {
+DIETForwarder::setInPortDependencies(const char *dagNodePortId,
+                                     const char *dagNodeId,
+                                     const char *wfId,
+                                     const char *dependencies,
+                                     const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -236,12 +220,12 @@ DIETForwarder::setInPortDependencies(const char* dagNodePortId,
                                                               this->name);
   return wfls->setInPortDependencies(dagNodePortId, dagNodeId,
                                      wfId, dependencies);
-}
+} // setInPortDependencies
 
 void
-DIETForwarder::updateDag(const char* dagId, const char* wfId,
-                         const char* dagState, const char* data,
-                         const char* objName) {
+DIETForwarder::updateDag(const char *dagId, const char *wfId,
+                         const char *dagState, const char *data,
+                         const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -256,11 +240,11 @@ DIETForwarder::updateDag(const char* dagId, const char* wfId,
                                                               name,
                                                               this->name);
   return wfls->updateDag(dagId, wfId, dagState, data);
-}
+} // updateDag
 
 void
-DIETForwarder::updateWorkflow(const char* wfId, const char* wfState,
-                              const char* data, const char* objName) {
+DIETForwarder::updateWorkflow(const char *wfId, const char *wfState,
+                              const char *data, const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -275,11 +259,11 @@ DIETForwarder::updateWorkflow(const char* wfId, const char* wfState,
                                                               name,
                                                               this->name);
   return wfls->updateWorkflow(wfId, wfState, data);
-}
+} // updateWorkflow
 
 void
-DIETForwarder::nodeIsDone(const char* node_id, const char* wfId,
-                          const char* objName) {
+DIETForwarder::nodeIsDone(const char *node_id, const char *wfId,
+                          const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -294,11 +278,11 @@ DIETForwarder::nodeIsDone(const char* node_id, const char* wfId,
                                                               name,
                                                               this->name);
   return wfls->nodeIsDone(node_id, wfId);
-}
+} // nodeIsDone
 
 void
-DIETForwarder::nodeIsFailed(const char* node_id, const char* wfId,
-                            const char* objName) {
+DIETForwarder::nodeIsFailed(const char *node_id, const char *wfId,
+                            const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -313,11 +297,11 @@ DIETForwarder::nodeIsFailed(const char* node_id, const char* wfId,
                                                               name,
                                                               this->name);
   return wfls->nodeIsFailed(node_id, wfId);
-}
+} // nodeIsFailed
 
 void
-DIETForwarder::nodeIsReady(const char* node_id, const char* wfId,
-                           const char* objName) {
+DIETForwarder::nodeIsReady(const char *node_id, const char *wfId,
+                           const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -332,11 +316,11 @@ DIETForwarder::nodeIsReady(const char* node_id, const char* wfId,
                                                               name,
                                                               this->name);
   return wfls->nodeIsReady(node_id, wfId);
-}
+} // nodeIsReady
 
 void
-DIETForwarder::nodeIsRunning(const char* node_id, const char* wfId,
-                             const char* objName) {
+DIETForwarder::nodeIsRunning(const char *node_id, const char *wfId,
+                             const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -351,13 +335,12 @@ DIETForwarder::nodeIsRunning(const char* node_id, const char* wfId,
                                                               name,
                                                               this->name);
   return wfls->nodeIsRunning(node_id, wfId);
-
-}
+} // nodeIsRunning
 
 void
-DIETForwarder::nodeIsStarting(const char* node_id, const char* wfId,
-                              const char* pbName, const char* hostname,
-                              const char* objName) {
+DIETForwarder::nodeIsStarting(const char *node_id, const char *wfId,
+                              const char *pbName, const char *hostname,
+                              const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -374,5 +357,4 @@ DIETForwarder::nodeIsStarting(const char* node_id, const char* wfId,
                                                               name,
                                                               this->name);
   return wfls->nodeIsStarting(node_id, wfId, pbName, hostname);
-}
-
+} // nodeIsStarting

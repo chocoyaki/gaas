@@ -1,4 +1,4 @@
-#!/bin/bash
+#! /bin/bash
 
 echo "I have to print $2"
 

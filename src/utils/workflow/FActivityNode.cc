@@ -3,49 +3,12 @@
 * 
 * @brief  The nodes of a functional workflow that correspond to tasks in the DAG 
 * 
-* @author  - Benjamin ISNARD (Benjamin.Isnard@ens-lyon.fr)
+* @author  Benjamin ISNARD (Benjamin.Isnard@ens-lyon.fr)
 * 
 * @section Licence
 *   |LICENSE|                                                                
 */
-/* $Id$
- * $Log$
- * Revision 1.10  2011/02/24 16:50:06  bdepardo
- * Code cleanup.
- * Use TRACE_TEXT instead of cout
- *
- * Revision 1.9  2010/07/20 09:20:11  bisnard
- * integration with eclipse gui and with dietForwarder
- *
- * Revision 1.8  2009/10/02 07:43:51  bisnard
- * modified trace verbosity
- *
- * Revision 1.7  2009/08/26 10:33:09  bisnard
- * implementation of workflow status & restart
- *
- * Revision 1.6  2009/07/23 12:30:10  bisnard
- * new method finalize() for functional wf nodes
- * removed const on currDataLine parameter for instance creation
- *
- * Revision 1.5  2009/07/07 09:03:22  bisnard
- * changes for sub-workflows (FWorkflow class now inherits from FProcNode)
- *
- * Revision 1.4  2009/06/15 12:11:12  bisnard
- * use new XML Parser (SAX) for data source file
- * use new class WfValueAdapter to avoid data duplication
- * use new method FNodeOutPort::storeData
- * changed method to compute total nb of data items
- *
- * Revision 1.3  2009/05/15 11:10:20  bisnard
- * release for workflow conditional structure (if)
- *
- * Revision 1.2  2009/04/17 09:04:07  bisnard
- * initial version for conditional nodes in functional workflows
- *
- * Revision 1.1  2009/04/09 09:55:27  bisnard
- * new class
- *
- */
+
 
 #include "debug.hh"
 #include "FActivityNode.hh"

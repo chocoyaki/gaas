@@ -1,29 +1,14 @@
 /**
-* @file  est_internal.cc
-* 
-* @brief  Plug-in scheduler: DIET-internal estimation vector access functions
-* 
-* @author  - Alan Su (Alan.Su@ens-lyon.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.4  2010/01/14 13:15:08  bdepardo
- * "\n" -> endl
+ * @file  est_internal.cc
  *
- * Revision 1.3  2006/11/01 14:13:02  ecaron
- * Add missing header for release
+ * @brief  Plug-in scheduler: DIET-internal estimation vector access functions
  *
- * Revision 1.2 2005/09/07 07:42:26 hdail
- * Correction of small indexing bug.
+ * @author  Alan Su (Alan.Su@ens-lyon.fr)
  *
- * Revision 1.1 2005/08/31 15:01:10; alsu
- * New plugin scheduling interface: implementation of the DIET-internal
- * estimation vector access functions
- *
- ****************************************************************************/
+ * @section Licence
+ *   |LICENSE|
+ */
+
 #ifndef OLD_EV
 #include "DIET_data.h"
 
@@ -35,8 +20,7 @@
 #define EV_SETLEN(e, l) ((e)->estValues.length(l))
 
 int
-diet_est_set_internal(estVector_t ev, int tag, double value)
-{
+diet_est_set_internal(estVector_t ev, int tag, double value) {
   if (ev == NULL) {
     ERROR(__FUNCTION__ << ": NULL estimation vector", -1);
   }
@@ -53,16 +37,15 @@ diet_est_set_internal(estVector_t ev, int tag, double value)
   }
 
   EV_SETLEN(ev, EV_LEN(ev) + 1);
-  (EV_ELT(ev, EV_LEN(ev)-1)).v_tag = tag;
-  (EV_ELT(ev, EV_LEN(ev)-1)).v_idx = EST_IDX_SCALAR;
-  (EV_ELT(ev, EV_LEN(ev)-1)).v_value = value;
+  (EV_ELT(ev, EV_LEN(ev) - 1)).v_tag = tag;
+  (EV_ELT(ev, EV_LEN(ev) - 1)).v_idx = EST_IDX_SCALAR;
+  (EV_ELT(ev, EV_LEN(ev) - 1)).v_value = value;
 
   return (1);
-}
+} // diet_est_set_internal
 
 double
-diet_est_get_internal(estVectorConst_t ev, int tag, double errVal)
-{
+diet_est_get_internal(estVectorConst_t ev, int tag, double errVal) {
   if (ev == NULL) {
     ERROR(__FUNCTION__ << ": NULL estimation vector", errVal);
   }
@@ -82,11 +65,10 @@ diet_est_get_internal(estVectorConst_t ev, int tag, double errVal)
   }
 
   return (errVal);
-}
+} // diet_est_get_internal
 
 int
-diet_est_defined_internal(estVectorConst_t ev, int tag)
-{
+diet_est_defined_internal(estVectorConst_t ev, int tag) {
   if (ev == NULL) {
     ERROR(__FUNCTION__ << ": NULL estimation vector", -1);
   }
@@ -94,7 +76,7 @@ diet_est_defined_internal(estVectorConst_t ev, int tag)
     ERROR(__FUNCTION__ << ": tag must be non-negative (" << tag << ")\n", -1);
   }
 
-  //   cout << "AS: [" << __FUNCTION__ << "] num values = " << EV_LEN(ev) << "\n";
+  // cout << "AS: [" << __FUNCTION__ << "] num values = " << EV_LEN(ev) << "\n";
 
   for (unsigned int valIter = 0; valIter < EV_LEN(ev); valIter++) {
     if (tag == (EV_ELT(ev, valIter)).v_tag &&
@@ -104,11 +86,10 @@ diet_est_defined_internal(estVectorConst_t ev, int tag)
   }
 
   return (0);
-}
+} // diet_est_defined_internal
 
 int
-diet_est_array_size_internal(estVectorConst_t ev, int tag)
-{
+diet_est_array_size_internal(estVectorConst_t ev, int tag) {
   if (ev == NULL) {
     ERROR(__FUNCTION__ << ": NULL estimation vector", -1);
   }
@@ -125,11 +106,10 @@ diet_est_array_size_internal(estVectorConst_t ev, int tag)
   }
 
   return (maxIdx + 1);
-}
+} // diet_est_array_size_internal
 
 int
-diet_est_array_set_internal(estVector_t ev, int tag, int idx, double value)
-{
+diet_est_array_set_internal(estVector_t ev, int tag, int idx, double value) {
   if (ev == NULL) {
     ERROR(__FUNCTION__ << ": NULL estimation vector", -1);
   }
@@ -149,19 +129,18 @@ diet_est_array_set_internal(estVector_t ev, int tag, int idx, double value)
   }
 
   EV_SETLEN(ev, EV_LEN(ev) + 1);
-  (EV_ELT(ev, EV_LEN(ev)-1)).v_tag = tag;
-  (EV_ELT(ev, EV_LEN(ev)-1)).v_idx = idx;
-  (EV_ELT(ev, EV_LEN(ev)-1)).v_value = value;
+  (EV_ELT(ev, EV_LEN(ev) - 1)).v_tag = tag;
+  (EV_ELT(ev, EV_LEN(ev) - 1)).v_idx = idx;
+  (EV_ELT(ev, EV_LEN(ev) - 1)).v_value = value;
 
   return (1);
-}
+} // diet_est_array_set_internal
 
 double
 diet_est_array_get_internal(estVectorConst_t ev,
                             int tag,
                             int idx,
-                            double errVal)
-{
+                            double errVal) {
   if (ev == NULL) {
     ERROR(__FUNCTION__ << ": NULL estimation vector", errVal);
   }
@@ -188,11 +167,10 @@ diet_est_array_get_internal(estVectorConst_t ev,
   }
 
   return (errVal);
-}
+} // diet_est_array_get_internal
 
 int
-diet_est_array_defined_internal(estVectorConst_t ev, int tag, int idx)
-{
+diet_est_array_defined_internal(estVectorConst_t ev, int tag, int idx) {
   if (ev == NULL) {
     ERROR(__FUNCTION__ << ": NULL estimation vector", -1);
   }
@@ -211,5 +189,5 @@ diet_est_array_defined_internal(estVectorConst_t ev, int tag, int idx)
   }
 
   return (0);
-}
+} // diet_est_array_defined_internal
 #endif /* OLD_EV */

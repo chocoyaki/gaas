@@ -3,39 +3,12 @@
 * 
 * @brief  Thread safe STL set header 
 * 
-* @author  - Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)
+* @author  Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)
 * 
 * @section Licence
 *   |LICENSE|                                                                
 */
-/* $Id$
- * $Log$
- * Revision 1.7  2010/03/31 21:15:41  bdepardo
- * Changed C headers into C++ headers
- *
- * Revision 1.6  2009/08/19 15:51:11  bdepardo
- * Did not compile in release mode
- *
- * Revision 1.5  2006/05/12 12:12:33  sdahan
- * Add some documentation about multi-MA
- *
- * Bug fix:
- *  - segfault when the neighbours configuration line was empty
- *  - deadlock when a MA create a link on itself
- *
- * Revision 1.4  2004/12/15 15:57:20  sdahan
- * rewrite the FloodRequestsList to use a simplest implementation. The previous mut
- * ex bugs does not exist anymore.
- *
- * Revision 1.3  2004/09/29 13:35:32  sdahan
- * Add the Multi-MAs feature.
- *
- * Revision 1.2  2003/04/10 12:44:44  pcombes
- * Apply Coding Standards.
- *
- * Revision 1.1  2003/01/23 14:27:37  sdahan
- * adds a thread safe set container
- ****************************************************************************/
+
 
 #ifndef _TS_SET_HH_
 #define _TS_SET_HH_

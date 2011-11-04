@@ -24,11 +24,10 @@
 
 namespace boost {
 namespace process {
-
 /**
  * Standard stream id to refer to standard streams in a cross-platform manner.
  */
-enum std_stream_id { stdin_id, stdout_id, stderr_id };
+enum std_stream_id {stdin_id, stdout_id, stderr_id};
 
 #if defined(BOOST_PROCESS_DOXYGEN)
 /**
@@ -43,8 +42,7 @@ typedef int stream_id;
 #elif defined(BOOST_WINDOWS_API)
 typedef std_stream_id stream_id;
 #endif
-
 }
 }
 
-#endif
+#endif // ifndef BOOST_PROCESS_STREAM_ID_HPP

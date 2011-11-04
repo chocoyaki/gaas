@@ -3,36 +3,12 @@
 * 
 * @brief  A structure containing multiple dags having inter-relationships
 * 
-* @author  - Benjamin ISNARD (Benjamin.Isnard@ens-lyon.fr)
+* @author  Benjamin ISNARD (Benjamin.Isnard@ens-lyon.fr)
 * 
 * @section Licence
 *   |LICENSE|                                                                
 */
-/* $Id$
- * $Log$
- * Revision 1.7  2010/03/08 13:50:19  bisnard
- * debug too verbose
- *
- * Revision 1.6  2009/09/25 12:49:11  bisnard
- * avoid deadlocks due to new thread mgmt in DagNodeLauncher
- *
- * Revision 1.5  2009/08/26 10:32:11  bisnard
- * corrected  warnings
- *
- * Revision 1.4  2009/04/17 08:54:44  bisnard
- * renamed Node class as WfNode
- *
- * Revision 1.3  2009/02/06 14:53:46  bisnard
- * make thread-safe
- *
- * Revision 1.2  2008/12/09 12:15:59  bisnard
- * pending instanciation handling (uses dag outputs for instanciation
- * of a functional wf)
- *
- * Revision 1.1  2008/12/02 10:07:07  bisnard
- * new classes for functional workflow instanciation and execution
- *
- */
+
 
 #include <map>
 #include <string>

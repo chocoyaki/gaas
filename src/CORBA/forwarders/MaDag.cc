@@ -1,37 +1,24 @@
 /**
-* @file MaDag.cc
-* 
-* @brief  DIET forwarder implementation - MA DAG forwarder implementation
-* 
-* @author - Gael Le Mahec   (gael.le.mahec@ens-lyon.fr) 
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.4  2010/07/27 16:16:49  glemahec
- * Forwarders robustness
+ * @file MaDag.cc
  *
- * Revision 1.3  2010/07/14 23:45:30  bdepardo
- * Header corrections
+ * @brief  DIET forwarder implementation - MA DAG forwarder implementation
  *
- * Revision 1.2  2010/07/13 15:24:13  glemahec
- * Warnings corrections and some robustness improvements
+ * @author  Gael Le Mahec   (gael.le.mahec@ens-lyon.fr)
  *
- * Revision 1.1  2010/07/12 16:08:56  glemahec
- * DIET 2.5 beta 1 - Forwarder implementations
- ****************************************************************************/
+ * @section Licence
+ *   |LICENSE|
+ */
+
 
 #include "DIETForwarder.hh"
 #include "ORBMgr.hh"
 #include <string>
 
 ::CORBA::Long
-DIETForwarder::processDagWf(const ::corba_wf_desc_t& dag_desc,
-                            const char* cltMgrRef,
+DIETForwarder::processDagWf(const ::corba_wf_desc_t &dag_desc,
+                            const char *cltMgrRef,
                             ::CORBA::Long wfReqId,
-                            const char* objName) {
+                            const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -45,14 +32,14 @@ DIETForwarder::processDagWf(const ::corba_wf_desc_t& dag_desc,
   MaDag_var agent =
     ORBMgr::getMgr()->resolve<MaDag, MaDag_var>(MADAGCTXT, name, this->name);
   return agent->processDagWf(dag_desc, cltMgrRef, wfReqId);
-  }
+} // processDagWf
 
 ::CORBA::Long
-DIETForwarder::processMultiDagWf(const ::corba_wf_desc_t& dag_desc,
-                                 const char* cltMgrRef,
+DIETForwarder::processMultiDagWf(const ::corba_wf_desc_t &dag_desc,
+                                 const char *cltMgrRef,
                                  ::CORBA::Long wfReqId,
                                  ::CORBA::Boolean release,
-                                 const char* objName) {
+                                 const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -67,10 +54,10 @@ DIETForwarder::processMultiDagWf(const ::corba_wf_desc_t& dag_desc,
   MaDag_var agent =
     ORBMgr::getMgr()->resolve<MaDag, MaDag_var>(MADAGCTXT, name, this->name);
   return agent->processMultiDagWf(dag_desc, cltMgrRef, wfReqId, release);
-  }
+} // processMultiDagWf
 
 ::CORBA::Long
-DIETForwarder::getWfReqId(const char* objName) {
+DIETForwarder::getWfReqId(const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -83,10 +70,10 @@ DIETForwarder::getWfReqId(const char* objName) {
   MaDag_var agent =
     ORBMgr::getMgr()->resolve<MaDag, MaDag_var>(MADAGCTXT, name, this->name);
   return agent->getWfReqId();
-  }
+} // getWfReqId
 
 void
-DIETForwarder::releaseMultiDag(::CORBA::Long wfReqId, const char* objName) {
+DIETForwarder::releaseMultiDag(::CORBA::Long wfReqId, const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -99,10 +86,10 @@ DIETForwarder::releaseMultiDag(::CORBA::Long wfReqId, const char* objName) {
   MaDag_var agent =
     ORBMgr::getMgr()->resolve<MaDag, MaDag_var>(MADAGCTXT, name, this->name);
   return agent->releaseMultiDag(wfReqId);
-}
+} // releaseMultiDag
 
 void
-DIETForwarder::cancelDag(::CORBA::Long dagId, const char* objName) {
+DIETForwarder::cancelDag(::CORBA::Long dagId, const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -115,11 +102,11 @@ DIETForwarder::cancelDag(::CORBA::Long dagId, const char* objName) {
   MaDag_var agent =
     ORBMgr::getMgr()->resolve<MaDag, MaDag_var>(MADAGCTXT, name, this->name);
   return agent->cancelDag(dagId);
-}
+} // cancelDag
 
 void
 DIETForwarder::setPlatformType(::MaDag::pfmType_t pfmType,
-                               const char* objName) {
+                               const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -132,4 +119,4 @@ DIETForwarder::setPlatformType(::MaDag::pfmType_t pfmType,
   MaDag_var agent =
     ORBMgr::getMgr()->resolve<MaDag, MaDag_var>(MADAGCTXT, name, this->name);
   return agent->setPlatformType(pfmType);
-}
+} // setPlatformType

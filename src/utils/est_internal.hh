@@ -1,26 +1,14 @@
 /**
-* @file  est_internal.hh
-* 
-* @brief  Plug-in scheduler: DIET-internal estimation vector access functions
-* 
-* @author  - Alan Su (Alan.Su@ens-lyon.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.3  2006/11/01 14:13:02  ecaron
- * Add missing header for release
+ * @file  est_internal.hh
  *
- * Revision 1.2 2005/10/12 15:56:21; alsu
- * potential bug, as identified by Peter
+ * @brief  Plug-in scheduler: DIET-internal estimation vector access functions
  *
- * Revision 1.1 2005/08/31 15:01:10 alsu
- * New plugin scheduling interface: implementation of the DIET-internal
- * estimation vector access functions
+ * @author   Alan Su (Alan.Su@ens-lyon.fr)
  *
- ****************************************************************************/
+ * @section Licence
+ *   |LICENSE|
+ */
+
 #ifndef OLD_EV
 #ifndef _EST_INTERNAL_HH_
 #define _EST_INTERNAL_HH_

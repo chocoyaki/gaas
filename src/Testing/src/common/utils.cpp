@@ -15,68 +15,65 @@
 #include "config_tests.h"
 
 namespace utils {
-    namespace ba = boost::assign;
-    namespace bf = boost::filesystem;
-    
-    bp::child *copy_child(const bp::child& c) 
-    {
-	std::map<bp::stream_id, bp::handle> handles;
-	ba::insert(handles)
-	    (bp::stdin_id, c.get_handle(bp::stdin_id))
-	    (bp::stdout_id, c.get_handle(bp::stdout_id))
-	    (bp::stderr_id, c.get_handle(bp::stderr_id));
+namespace ba = boost::assign;
+namespace bf = boost::filesystem;
 
-	return new bp::child(c.get_id(), handles);
-    }
+bp::child *
+copy_child(const bp::child &c) {
+  std::map<bp::stream_id, bp::handle> handles;
+  ba::insert(handles)
+    (bp::stdin_id, c.get_handle (bp::stdin_id))
+    (bp::stdout_id, c.get_handle (bp::stdout_id))
+    (bp::stderr_id, c.get_handle(bp::stderr_id));
+
+    return new bp::child(c.get_id(), handles);
+}
 
 
-    ClientArgs::ClientArgs(std::string progName,
-			   std::string config)
-    {
-	size_t len = progName.length();
-	exec.reset(new char[len + 1]);
-	std::strncpy(exec.get(), progName.c_str(), len + 1);
-	args[0] = exec.get();
-	
-	/* config file path */
-	bf::path config_path(CONFIG_DIR);
-	config_path /= config;
-	
-	const char *tmp = config_path.c_str();
-	len = std::strlen(tmp);
-	configFile.reset(new char[len + 1]);
-	std::strncpy(configFile.get(), tmp, len+1);
-	args[1] = configFile.get();
-	args[2] = 0;
+ClientArgs::ClientArgs(std::string progName,
+                       std::string config) {
+  size_t len = progName.length();
+  exec.reset(new char[len + 1]);
+  std::strncpy(exec.get(), progName.c_str(), len + 1);
+  args[0] = exec.get();
 
-        std::cout << std::endl; // hack for having clean xml outputs
-	BOOST_TEST_MESSAGE( "config file path : " << args[1] );
-        std::cout << std::endl; // hack for having clean xml outputs
-    }
+  /* config file path */
+  bf::path config_path(CONFIG_DIR);
+  config_path /= config;
 
-    // for debugging purpose only
-    std::ostream& operator<<(std::ostream& s, const ClientArgs& c)
-    {
-	s << boost::format("Configuration file: %1%\n"
-	    		   "argc: %2%\n"
-	    		   "argv[0]: %3%\n"
-	    		   "argv[1]: %4%\n"
-			   "argv[2]: %5%\n") 
-	    % c.configFile.get()
-	    % c.argc()
-	    % c.args[0]
-	    % c.args[1]
-	    % (c.args[2] == 0);
-    }
+  const char *tmp = config_path.c_str();
+  len = std::strlen(tmp);
+  configFile.reset(new char[len + 1]);
+  std::strncpy(configFile.get(), tmp, len + 1);
+  args[1] = configFile.get();
+  args[2] = 0;
 
-  std::string
-  genID(const std::string& begin) {
-    std::ostringstream ID;
-    boost::uuids::basic_random_generator<boost::mt19937> gen;
-    boost::uuids::uuid u = gen();
-    ID << begin << u;
-    return ID.str();
-  }
-    
+  std::cout << std::endl;       // hack for having clean xml outputs
+  BOOST_TEST_MESSAGE("config file path : " << args[1]);
+  std::cout << std::endl;       // hack for having clean xml outputs
+}
 
+// for debugging purpose only
+std::ostream &
+operator<<(std::ostream &s, const ClientArgs &c) {
+  s << boost::format("Configuration file: %1%\n"
+                     "argc: %2%\n"
+                     "argv[0]: %3%\n"
+                     "argv[1]: %4%\n"
+                     "argv[2]: %5%\n")
+  % c.configFile.get()
+  % c.argc()
+  % c.args[0]
+  % c.args[1]
+  % (c.args[2] == 0);
+} // <<
+
+std::string
+genID(const std::string &begin) {
+  std::ostringstream ID;
+  boost::uuids::basic_random_generator<boost::mt19937> gen;
+  boost::uuids::uuid u = gen();
+  ID << begin << u;
+  return ID.str();
+}
 }

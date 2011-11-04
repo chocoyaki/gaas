@@ -1,19 +1,14 @@
 /**
-* @file  CltWfLogCentralDispatcher.hh
-* 
-* @brief   Control Workflow LogCentral Dispatcher  
-* 
-* @author  - Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.3  2011/01/13 23:38:19  ecaron
- * Add missing header
+ * @file  CltWfLogCentralDispatcher.hh
  *
- ****************************************************************************/
+ * @brief   Control Workflow LogCentral Dispatcher
+ *
+ * @author   Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)
+ *
+ * @section Licence
+ *   |LICENSE|
+ */
+
 
 #ifndef CLTWFLOGCENTRALDISPATCHER_HH_
 #define CLTWFLOGCENTRALDISPATCHER_HH_
@@ -32,38 +27,40 @@
 class CltWfLogCentralDispatcher : public events::EventDispatcher {
 public:
 #ifdef USE_LOG_SERVICE
-  explicit CltWfLogCentralDispatcher(DietLogComponent* LC);
+  explicit
+  CltWfLogCentralDispatcher(DietLogComponent *LC);
 
   void
   onDagNodeReady(
     const events::EventFrom<DagNode,
-    events::EventStandardMsg<DagNode, DagNode::READY> >*
+                            events::EventStandardMsg<DagNode,
+                                                     DagNode::READY> > *
     event);
 
   void
   onDagNodeStart(
     const events::EventFrom<DagNodeLauncher,
-    events::EventStandardMsg<DagNodeLauncher,
-    DagNode::START> >*
+                            events::EventStandardMsg<DagNodeLauncher,
+                                                     DagNode::START> > *
     event);
 
   void
   onDagNodeFinish(
     const events::EventFrom<DagNodeLauncher,
-    events::EventStandardMsg<DagNodeLauncher,
-    DagNode::FINISH> >*
+                            events::EventStandardMsg<DagNodeLauncher,
+                                                     DagNode::FINISH> > *
     event);
 
   void
   onDagNodeFailed(
     const events::EventFrom<DagNodeLauncher,
-    events::EventStandardMsg<DagNodeLauncher,
-    DagNode::FAILED> >*
+                            events::EventStandardMsg<DagNodeLauncher,
+                                                     DagNode::FAILED> > *
     event);
 
 private:
-  DietLogComponent*   myLC;
-#endif
+  DietLogComponent *myLC;
+#endif /* ifdef USE_LOG_SERVICE */
 };
 
-#endif
+#endif /* ifndef CLTWFLOGCENTRALDISPATCHER_HH_ */

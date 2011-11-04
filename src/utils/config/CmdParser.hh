@@ -3,31 +3,17 @@
 * 
 * @brief  Command line parser 
 * 
-* @author - Haikel Guemar (haikel.guemar@sysfera.com)
+* @author  Haikel Guemar (haikel.guemar@sysfera.com)
 * 
 * @section Licence
 *   |LICENSE|                                                                
 */
-/* $Id$
- * $Log$
- * Revision 1.5  2011/03/07 15:34:55  hguemar
- * fix typo in mail address
- *
- * Revision 1.4  2011/03/03 11:55:52  bdepardo
- * Add missing headers
- *
- ****************************************************************************/
+
 
 
 #ifndef _CMD_PARSER_HH_
 #define _CMD_PARSER_HH_
-/**
- * @file   CmdParser.hh
- * @author hguemar <hguemar@sysfera.com>
- * @date   Mon Jan 31 12:24:17 2011
- *
- * @brief  Command line parser
- */
+
 
 #include <functional>
 #include <list>

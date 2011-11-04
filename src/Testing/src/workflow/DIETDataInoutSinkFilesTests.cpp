@@ -17,13 +17,14 @@
 #include "utils.hpp"
 
 
-BOOST_FIXTURE_TEST_SUITE( workflows_data_inout_files_sink, AllDataTransferSeDFixtureWF )
+BOOST_FIXTURE_TEST_SUITE(workflows_data_inout_files_sink,
+                         AllDataTransferSeDFixtureWF)
 
 #include "genericSimpleWfClientTest.hpp"
 
 
-BOOST_AUTO_TEST_CASE( data_inout_sink_files ) {
-  BOOST_TEST_MESSAGE( "-- Test: workflow data inout files sink" );
+BOOST_AUTO_TEST_CASE(data_inout_sink_files) {
+  BOOST_TEST_MESSAGE("-- Test: workflow data inout files sink");
 
   genericSimpleWorkflowClient(WF_DIRECTORY "inout_sink_FTRANSFER.xml",
                               "Inout Scalars Sink files",

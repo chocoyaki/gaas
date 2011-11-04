@@ -1,35 +1,13 @@
 /**
-* @file  ExitClass.cc
-* 
-* @brief  DIET Agent Exit Class implementation
-* 
-* @author - Cyrille PONTVIEUX (cyrille.pontvieux@ens-lyon.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.6  2011/02/04 15:20:48  hguemar
- * fixes to new configuration parser
- * some cleaning
+ * @file  ExitClass.cc
  *
- * Revision 1.5  2010/07/12 16:14:11  glemahec
- * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
+ * @brief  DIET Agent Exit Class implementation
  *
- * Revision 1.4  2010/03/31 21:15:39  bdepardo
- * Changed C headers into C++ headers
+ * @author  Cyrille PONTVIEUX (cyrille.pontvieux@ens-lyon.fr)
  *
- * Revision 1.3  2010/03/03 10:19:03  bdepardo
- * Changed \n into endl
- *
- * Revision 1.2  2004/03/01 18:45:28  rbolze
- * change in exitFunction()
- *
- * Revision 1.1  2003/10/06 10:11:55  cpontvie
- * Class to manage a clean exit, call by EXITFUNCTION
- *
- ****************************************************************************/
+ * @section Licence
+ *   |LICENSE|
+ */
 
 #include "ExitClass.hh"
 
@@ -40,10 +18,10 @@
 /** The trace level. */
 extern unsigned int TRACE_LEVEL;
 
-AgentImpl* ExitClass::agent = 0;
+AgentImpl *ExitClass::agent = 0;
 
 void
-ExitClass::init(AgentImpl* agent) {
+ExitClass::init(AgentImpl *agent) {
   ExitClass::agent = agent;
 }
 
@@ -57,9 +35,9 @@ ExitClass::exitFunction() {
       delete ExitClass::agent;
     }
     delete ORBMgr::getMgr();
-  } catch (...) {}
+  } catch (...) {
+  }
   TRACE_TEXT(TRACE_MAIN_STEPS, "Agent stopped !\n");
   /* We do not need the parsing results any more */
   delete configPtr;
-}
-
+} // exitFunction

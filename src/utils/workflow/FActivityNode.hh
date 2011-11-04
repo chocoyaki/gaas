@@ -3,30 +3,11 @@
 * 
 * @brief  The nodes of a functional workflow that correspond to tasks in the DAG 
 * 
-* @author  - Benjamin ISNARD (Benjamin.Isnard@ens-lyon.fr)
+* @author   Benjamin ISNARD (Benjamin.Isnard@ens-lyon.fr)
 * 
 * @section Licence
 *   |LICENSE|                                                                
 */
-/* $Id$
- * $Log$
- * Revision 1.5  2009/08/26 10:33:09  bisnard
- * implementation of workflow status & restart
- *
- * Revision 1.4  2009/07/23 12:30:10  bisnard
- * new method finalize() for functional wf nodes
- * removed const on currDataLine parameter for instance creation
- *
- * Revision 1.3  2009/05/15 11:10:20  bisnard
- * release for workflow conditional structure (if)
- *
- * Revision 1.2  2009/04/17 09:04:07  bisnard
- * initial version for conditional nodes in functional workflows
- *
- * Revision 1.1  2009/04/09 09:55:27  bisnard
- * new class
- *
- */
 
 #ifndef _FACTIVITYNODE_HH_
 #define _FACTIVITYNODE_HH_

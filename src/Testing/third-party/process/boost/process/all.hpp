@@ -37,4 +37,4 @@
 #include <boost/process/stream_id.hpp>
 #include <boost/process/stream_type.hpp>
 
-#endif
+#endif // ifndef BOOST_PROCESS_ALL_HPP

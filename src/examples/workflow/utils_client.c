@@ -1,20 +1,14 @@
 /**
-* @file utils_client.c
-* 
-* @brief  Workflow client for admin commands   
-* 
-* @author  - Benjamin Isnard (benjamin.isnard@ens-lyon.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.1  2009/09/25 12:54:23  bisnard
- * new executable to cancel dag submission
+ * @file utils_client.c
  *
+ * @brief  Workflow client for admin commands
  *
- ****************************************************************************/
+ * @author  Benjamin Isnard (benjamin.isnard@ens-lyon.fr)
+ *
+ * @section Licence
+ *   |LICENSE|
+ */
+
 
 #include <string.h>
 #include <unistd.h>
@@ -29,11 +23,13 @@
 /* argv[1]: client config file path
  */
 
-void usage(char * s) {
+void
+usage(char *s) {
   fprintf(stderr, "Usage: %s <file.cfg> -stop <dagId>\n", s);
   exit(1);
 }
-int checkUsage(int argc, char ** argv) {
+int
+checkUsage(int argc, char **argv) {
   if ((argc != 4)) {
     usage(argv[0]);
   }
@@ -41,8 +37,7 @@ int checkUsage(int argc, char ** argv) {
 }
 
 int
-main(int argc, char* argv[])
-{
+main(int argc, char *argv[]) {
   char *dagId;
 
   checkUsage(argc, argv);
@@ -59,7 +54,7 @@ main(int argc, char* argv[])
   dagId = argv[3];
 
   printf("Try to cancel dag '%s'\n", dagId);
-  if (! diet_wf_cancel_dag(dagId)) {
+  if (!diet_wf_cancel_dag(dagId)) {
     printf("Cancel OK\n");
   } else {
     printf("Cancel failed\n");
@@ -68,4 +63,4 @@ main(int argc, char* argv[])
   diet_finalize();
   fflush(stdout);
   return 0;
-}
+} /* main */

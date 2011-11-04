@@ -3,14 +3,12 @@
 * 
 * @brief   DIET server for parallel submission on a non NFS cluster   
 * 
-* @author  - Yves Caniou (Yves.Caniou@ens-lyon.fr)
+* @author   Yves Caniou (Yves.Caniou@ens-lyon.fr)
 * 
 * @section Licence
 *   |LICENSE|                                                                
 */
-/* $Id:
- * $Log:
- ****************************************************************************/
+
 
 #include <string.h>
 #include <unistd.h>

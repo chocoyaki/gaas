@@ -1,14 +1,14 @@
 /**
-* @file remove.cc
-* 
-* @brief  Function code for dynamically killing an element and its underlying hierachy
-* 
-* @author - Benjamin DEPARDON (Benjamin.Depardon@ens-lyon.fr)
-*         - Kevin COULOMB (kevin.coulomb@-sysfera.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
+ * @file remove.cc
+ *
+ * @brief  Function code for dynamically killing an element and its underlying hierachy
+ *
+ * @author  Benjamin DEPARDON (Benjamin.Depardon@ens-lyon.fr)
+ *          Kevin COULOMB (kevin.coulomb@-sysfera.fr)
+ *
+ * @section Licence
+ *   |LICENSE|
+ */
 
 
 #include "DIET_admin.h"
@@ -17,7 +17,8 @@
 #include "ORBMgr.hh"
 
 int
-diet_remove_from_hierarchy(dynamic_type_t type, const char *name, int recursive) {
+diet_remove_from_hierarchy(dynamic_type_t type, const char *name,
+                           int recursive) {
   int argc = 0;
   char **argv = NULL;
 
@@ -34,11 +35,12 @@ diet_remove_from_hierarchy(dynamic_type_t type, const char *name, int recursive)
       break;
     }
     case AGENT:
-      // Intentional fall through
+    // Intentional fall through
     case MA:
-      // Intentional fall through
+    // Intentional fall through
     case LA: {
-      Agent_var agent = ORBMgr::getMgr()->resolve<Agent, Agent_var>(AGENTCTXT, name);
+      Agent_var agent = ORBMgr::getMgr()->resolve<Agent, Agent_var>(AGENTCTXT,
+                                                                    name);
       if (agent->removeElement(recursive)) {
         return DIET_ADMIN_CALL_ERROR;
       }
@@ -48,10 +50,8 @@ diet_remove_from_hierarchy(dynamic_type_t type, const char *name, int recursive)
       return DIET_UNKNOWN_ERROR;
     }
     } // end: switch (type)
-
   } catch (...) {
     return DIET_COMM_ERROR;
   }
   return DIET_NO_ERROR;
-}
-
+} // diet_remove_from_hierarchy

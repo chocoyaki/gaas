@@ -1,13 +1,13 @@
 /**
-* @file DIETForwarder.cc
-* 
-* @brief   DIET forwarder implementation
-* 
-* @author - Gaël Le Mahec (gael.le.mahec@ens-lyon.fr)  
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
+ * @file DIETForwarder.cc
+ *
+ * @brief   DIET forwarder implementation
+ *
+ * @author  Gaël Le Mahec (gael.le.mahec@ens-lyon.fr)
+ *
+ * @section Licence
+ *   |LICENSE|
+ */
 
 #include "DIETForwarder.hh"
 
@@ -44,7 +44,7 @@
 #ifdef MAXHOSTNAMELEN
 #define MAX_HOSTNAME_LENGTH MAXHOSTNAMELEN
 #else
-#define MAX_HOSTNAME_LENGTH  255
+#define MAX_HOSTNAME_LENGTH 255
 #endif
 
 
@@ -56,8 +56,8 @@
  * When remote object, removing the remote prefix to be able to use it locally
  */
 bool
-DIETForwarder::remoteCall(std::string& objName) {
-  // Fixme when cleaning the code, looks for a string 
+DIETForwarder::remoteCall(std::string &objName) {
+  // Fixme when cleaning the code, looks for a string
   // that is prefixed by remote:
   if (objName.find("remote:") != 0) {
     /* Local network call: need to be forwarded to
@@ -69,24 +69,24 @@ DIETForwarder::remoteCall(std::string& objName) {
   /* Remote network call. Remove the prefix. */
   objName = objName.substr(strlen("remote:"));
   return true;
-}
+} // remoteCall
 
 
 ::CORBA::Object_ptr
-DIETForwarder::getObjectCache(const std::string& name) {
+DIETForwarder::getObjectCache(const std::string &name) {
   std::map<std::string, ::CORBA::Object_ptr>::iterator it;
 
   cachesMutex.lock();
-  if ((it = objectCache.find(name))!=objectCache.end()) {
+  if ((it = objectCache.find(name)) != objectCache.end()) {
     cachesMutex.unlock();
     return CORBA::Object::_duplicate(it->second);
   }
   cachesMutex.unlock();
   return ::CORBA::Object::_nil();
-}
+} // getObjectCache
 
-DIETForwarder::DIETForwarder(const std::string& name) {
-  char buffer[MAX_HOSTNAME_LENGTH+1];
+DIETForwarder::DIETForwarder(const std::string &name) {
+  char buffer[MAX_HOSTNAME_LENGTH + 1];
   gethostname(buffer, MAX_HOSTNAME_LENGTH);
 
   this->name = name;
@@ -98,22 +98,23 @@ DIETForwarder::DIETForwarder(const std::string& name) {
 
 /* DIET object factory methods. */
 Agent_ptr
-DIETForwarder::getAgent(const char* name) {
+DIETForwarder::getAgent(const char *name) {
   std::string nm(name);
   ::CORBA::Object_ptr object;
 
   if (nm.find('/') == std::string::npos) {
-    nm = std::string(AGENTCTXT)+"/"+nm;
+    nm = std::string(AGENTCTXT) + "/" + nm;
   }
   object = getObjectCache(nm);
   if (!CORBA::is_nil(object)) {
     if (object->_non_existent()) {
       removeObjectFromCache(name);
-    } else
+    } else {
       return Agent::_duplicate(Agent::_narrow(object));
+    }
   }
 
-  AgentFwdrImpl * agent = new AgentFwdrImpl(this->_this(), nm.c_str());
+  AgentFwdrImpl *agent = new AgentFwdrImpl(this->_this(), nm.c_str());
 
   ORBMgr::getMgr()->activate(agent);
 
@@ -123,25 +124,26 @@ DIETForwarder::getAgent(const char* name) {
   cachesMutex.unlock();
 
   return Agent::_duplicate(agent->_this());
-}
+} // getAgent
 
 Callback_ptr
-DIETForwarder::getCallback(const char* name) {
+DIETForwarder::getCallback(const char *name) {
   std::string nm(name);
   ::CORBA::Object_ptr object;
 
   if (nm.find('/') == std::string::npos) {
-    nm = std::string(CLIENTCTXT)+"/"+nm;
+    nm = std::string(CLIENTCTXT) + "/" + nm;
   }
   object = getObjectCache(nm);
   if (!CORBA::is_nil(object)) {
     if (object->_non_existent()) {
       removeObjectFromCache(name);
-    } else
+    } else {
       return Callback::_duplicate(Callback::_narrow(object));
+    }
   }
 
-  CallbackFwdrImpl * callback = new CallbackFwdrImpl(this->_this(), nm.c_str());
+  CallbackFwdrImpl *callback = new CallbackFwdrImpl(this->_this(), nm.c_str());
 
   ORBMgr::getMgr()->activate(callback);
 
@@ -151,23 +153,24 @@ DIETForwarder::getCallback(const char* name) {
   cachesMutex.unlock();
 
   return Callback::_duplicate(callback->_this());
-}
+} // getCallback
 
 LocalAgent_ptr
-DIETForwarder::getLocalAgent(const char* name) {
+DIETForwarder::getLocalAgent(const char *name) {
   std::string nm(name);
   ::CORBA::Object_ptr object;
   if (nm.find('/') == std::string::npos) {
-    nm = std::string(AGENTCTXT)+"/"+nm;
+    nm = std::string(AGENTCTXT) + "/" + nm;
   }
   object = getObjectCache(nm);
   if (!CORBA::is_nil(object)) {
     if (object->_non_existent()) {
       removeObjectFromCache(name);
-    } else
+    } else {
       return LocalAgent::_duplicate(LocalAgent::_narrow(object));
+    }
   }
-  LocalAgentFwdrImpl * agent = new LocalAgentFwdrImpl(this->_this(), nm.c_str());
+  LocalAgentFwdrImpl *agent = new LocalAgentFwdrImpl(this->_this(), nm.c_str());
 
   ORBMgr::getMgr()->activate(agent);
 
@@ -177,22 +180,23 @@ DIETForwarder::getLocalAgent(const char* name) {
   cachesMutex.unlock();
 
   return LocalAgent::_duplicate(agent->_this());
-}
+} // getLocalAgent
 
 MasterAgent_ptr
-DIETForwarder::getMasterAgent(const char* name) {
+DIETForwarder::getMasterAgent(const char *name) {
   std::string nm(name);
   ::CORBA::Object_ptr object;
 
   if (nm.find('/') == std::string::npos) {
-    nm = std::string(AGENTCTXT)+"/"+nm;
+    nm = std::string(AGENTCTXT) + "/" + nm;
   }
   object = getObjectCache(nm);
   if (!CORBA::is_nil(object)) {
     if (object->_non_existent()) {
       removeObjectFromCache(name);
-    } else
+    } else {
       return MasterAgent::_duplicate(MasterAgent::_narrow(object));
+    }
   }
   MasterAgentFwdrImpl *agent =
     new MasterAgentFwdrImpl(this->_this(), nm.c_str());
@@ -204,16 +208,16 @@ DIETForwarder::getMasterAgent(const char* name) {
   cachesMutex.unlock();
 
   return MasterAgent::_duplicate(agent->_this());
-}
+} // getMasterAgent
 
 SeD_ptr
-DIETForwarder::getSeD(const char* name) {
+DIETForwarder::getSeD(const char *name) {
   std::string nm(name);
   ::CORBA::Object_ptr object;
 
   if (nm.find('/') ==
       std::string::npos) {
-    nm = std::string(SEDCTXT)+"/"+nm;
+    nm = std::string(SEDCTXT) + "/" + nm;
   }
   object = getObjectCache(nm);
   if (!CORBA::is_nil(object)) {
@@ -224,7 +228,7 @@ DIETForwarder::getSeD(const char* name) {
     }
   }
 
-  SeDFwdrImpl * sed = new SeDFwdrImpl(this->_this(), nm.c_str());
+  SeDFwdrImpl *sed = new SeDFwdrImpl(this->_this(), nm.c_str());
   ORBMgr::getMgr()->activate(sed);
 
   cachesMutex.lock();
@@ -233,24 +237,25 @@ DIETForwarder::getSeD(const char* name) {
   cachesMutex.unlock();
 
   return SeD::_duplicate(sed->_this());
-}
+} // getSeD
 
 Dagda_ptr
-DIETForwarder::getDagda(const char* name) {
+DIETForwarder::getDagda(const char *name) {
   std::string nm(name);
   ::CORBA::Object_ptr object;
 
   if (nm.find('/') == std::string::npos) {
-    nm = std::string(DAGDACTXT)+"/"+nm;
+    nm = std::string(DAGDACTXT) + "/" + nm;
   }
   object = getObjectCache(nm);
   if (!CORBA::is_nil(object)) {
     if (object->_non_existent()) {
       removeObjectFromCache(name);
-    } else
+    } else {
       return Dagda::_duplicate(Dagda::_narrow(object));
+    }
   }
-  DagdaFwdrImpl * dagda = new DagdaFwdrImpl(this->_this(), nm.c_str());
+  DagdaFwdrImpl *dagda = new DagdaFwdrImpl(this->_this(), nm.c_str());
   ORBMgr::getMgr()->activate(dagda);
 
   cachesMutex.lock();
@@ -259,16 +264,16 @@ DIETForwarder::getDagda(const char* name) {
   cachesMutex.unlock();
 
   return Dagda::_duplicate(dagda->_this());
-}
+} // getDagda
 
 #ifdef HAVE_WORKFLOW
 CltMan_ptr
-DIETForwarder::getCltMan(const char* name) {
+DIETForwarder::getCltMan(const char *name) {
   std::string nm(name);
   ::CORBA::Object_ptr object;
 
   if (nm.find('/') == std::string::npos) {
-    nm = std::string(WFMGRCTXT)+"/"+nm;
+    nm = std::string(WFMGRCTXT) + "/" + nm;
   }
   object = getObjectCache(nm);
   if (!CORBA::is_nil(object)) {
@@ -279,7 +284,7 @@ DIETForwarder::getCltMan(const char* name) {
     }
   }
 
-  CltWfMgrFwdr * mgr = new CltWfMgrFwdr(this->_this(), nm.c_str());
+  CltWfMgrFwdr *mgr = new CltWfMgrFwdr(this->_this(), nm.c_str());
   ORBMgr::getMgr()->activate(mgr);
 
   cachesMutex.lock();
@@ -288,15 +293,15 @@ DIETForwarder::getCltMan(const char* name) {
   cachesMutex.unlock();
 
   return CltManFwdr::_duplicate(mgr->_this());
-}
+} // getCltMan
 
 MaDag_ptr
-DIETForwarder::getMaDag(const char* name) {
+DIETForwarder::getMaDag(const char *name) {
   std::string nm(name);
   ::CORBA::Object_ptr object;
 
   if (nm.find('/') == std::string::npos) {
-    nm = std::string(AGENTCTXT)+"/"+nm;
+    nm = std::string(AGENTCTXT) + "/" + nm;
   }
   object = getObjectCache(nm);
   if (!CORBA::is_nil(object)) {
@@ -307,7 +312,7 @@ DIETForwarder::getMaDag(const char* name) {
     }
   }
 
-  MaDagFwdrImpl * madag = new MaDagFwdrImpl(this->_this(), nm.c_str());
+  MaDagFwdrImpl *madag = new MaDagFwdrImpl(this->_this(), nm.c_str());
   ORBMgr::getMgr()->activate(madag);
 
   cachesMutex.lock();
@@ -316,15 +321,15 @@ DIETForwarder::getMaDag(const char* name) {
   cachesMutex.unlock();
 
   return MaDag::_duplicate(madag->_this());
-}
+} // getMaDag
 
 WfLogService_ptr
-DIETForwarder::getWfLogService(const char* name) {
+DIETForwarder::getWfLogService(const char *name) {
   std::string nm(name);
   ::CORBA::Object_ptr object;
 
   if (nm.find('/') == std::string::npos) {
-    nm = std::string(WFLOGCTXT)+"/"+nm;
+    nm = std::string(WFLOGCTXT) + "/" + nm;
   }
   object = getObjectCache(nm);
   if (!CORBA::is_nil(object)) {
@@ -345,13 +350,13 @@ DIETForwarder::getWfLogService(const char* name) {
   cachesMutex.unlock();
 
   return WfLogService::_duplicate(wfl->_this());
-}
+} // getWfLogService
 
-#endif
+#endif // ifdef HAVE_WORKFLOW
 
 /* Common methods implementations. */
 ::CORBA::Long
-DIETForwarder::ping(const char* objName) {
+DIETForwarder::ping(const char *objName) {
   std::string objString(objName);
   std::string name;
   std::string ctxt;
@@ -386,17 +391,17 @@ DIETForwarder::ping(const char* objName) {
       ORBMgr::getMgr()->resolve<MaDag, MaDag_var>(MADAGCTXT, name, this->name);
     return madag->ping();
   }
-#endif
-  if (ctxt== std::string(SEDCTXT)) {
+#endif // ifdef HAVE_WORKFLOW
+  if (ctxt == std::string(SEDCTXT)) {
     SeD_var sed = ORBMgr::getMgr()->resolve<SeD, SeD_var>(SEDCTXT, name,
                                                           this->name);
     return sed->ping();
   }
   throw BadNameException(objString.c_str(), __FUNCTION__, getName());
-}
+} // ping
 
 void
-DIETForwarder::getRequest(const ::corba_request_t& req, const char* objName) {
+DIETForwarder::getRequest(const ::corba_request_t &req, const char *objName) {
   std::string objString(objName);
   std::string name;
   std::string ctxt;
@@ -419,10 +424,10 @@ DIETForwarder::getRequest(const ::corba_request_t& req, const char* objName) {
       ORBMgr::getMgr()->resolve<SeD, SeD_var>(ctxt, name, this->name);
     return sed->getRequest(req);
   }
-}
+} // getRequest
 
-char*
-DIETForwarder::getHostname(const char* objName) {
+char *
+DIETForwarder::getHostname(const char *objName) {
   std::string objString(objName);
   std::string name;
   std::string ctxt;
@@ -433,8 +438,9 @@ DIETForwarder::getHostname(const char* objName) {
 
   name = objString;
 
-  if (name.find('/') == std::string::npos)
+  if (name.find('/') == std::string::npos) {
     throw BadNameException(name.c_str(), __FUNCTION__, getName());
+  }
 
   ctxt = getCtxt(objString);
   name = getName(objString);
@@ -452,10 +458,10 @@ DIETForwarder::getHostname(const char* objName) {
   }
 
   throw BadNameException(objString.c_str(), __FUNCTION__, getName());
-}
+} // getHostname
 
 ::CORBA::Long
-DIETForwarder::bindParent(const char* parentName, const char* objName) {
+DIETForwarder::bindParent(const char *parentName, const char *objName) {
   std::string objString(objName);
   std::string name;
   std::string ctxt;
@@ -466,8 +472,9 @@ DIETForwarder::bindParent(const char* parentName, const char* objName) {
 
   name = objString;
 
-  if (name.find('/') == std::string::npos)
+  if (name.find('/') == std::string::npos) {
     throw BadNameException(name.c_str(), __FUNCTION__, getName());
+  }
 
   ctxt = getCtxt(objString);
   name = getName(objString);
@@ -484,10 +491,10 @@ DIETForwarder::bindParent(const char* parentName, const char* objName) {
     return sed->bindParent(parentName);
   }
   throw BadNameException(objString.c_str(), __FUNCTION__, getName());
-}
+} // bindParent
 
 ::CORBA::Long
-DIETForwarder::disconnect(const char* objName) {
+DIETForwarder::disconnect(const char *objName) {
   std::string objString(objName);
   std::string name;
   std::string ctxt;
@@ -498,8 +505,9 @@ DIETForwarder::disconnect(const char* objName) {
 
   name = objString;
 
-  if (name.find('/') == std::string::npos)
+  if (name.find('/') == std::string::npos) {
     throw BadNameException(name.c_str(), __FUNCTION__, getName());
+  }
 
   ctxt = getCtxt(objString);
   name = getName(objString);
@@ -516,10 +524,10 @@ DIETForwarder::disconnect(const char* objName) {
     return sed->disconnect();
   }
   throw BadNameException(objString.c_str(), __FUNCTION__, getName());
-}
+} // disconnect
 
 ::CORBA::Long
-DIETForwarder::removeElement(::CORBA::Boolean recursive, const char* objName) {
+DIETForwarder::removeElement(::CORBA::Boolean recursive, const char *objName) {
   std::string objString(objName);
   std::string name;
   std::string ctxt;
@@ -548,11 +556,11 @@ DIETForwarder::removeElement(::CORBA::Boolean recursive, const char* objName) {
     return sed->removeElement();
   }
   throw BadNameException(objString.c_str(), __FUNCTION__, getName());
-}
+} // removeElement
 
 
 void
-DIETForwarder::bind(const char* objName, const char* ior) {
+DIETForwarder::bind(const char *objName, const char *ior) {
   /* To avoid crashes when the peer forwarder is not ready: */
   /* If the peer was not initialized, the following call is blocking. */
   peerMutex.lock();
@@ -576,10 +584,10 @@ DIETForwarder::bind(const char* objName, const char* ior) {
     /* Specific case for local agent.
        It is added into the cache to avoid resolution
        problems later.
-    */
+     */
     LocalAgent_ptr agent = getLocalAgent(name.c_str());
     cachesMutex.lock();
-    objectCache[ctxt+"/"+name] = CORBA::Object::_duplicate(agent);
+    objectCache[ctxt + "/" + name] = CORBA::Object::_duplicate(agent);
     cachesMutex.unlock();
   } else {
     if (ctxt == MASTERAGENT) {
@@ -587,10 +595,10 @@ DIETForwarder::bind(const char* objName, const char* ior) {
       /* Specific case for master agent.
          It is added into the cache to avoid resolution
          problems later.
-      */
+       */
       MasterAgent_ptr agent = getMasterAgent(name.c_str());
       cachesMutex.lock();
-      objectCache[ctxt+"/"+name] = CORBA::Object::_duplicate(agent);
+      objectCache[ctxt + "/" + name] = CORBA::Object::_duplicate(agent);
       cachesMutex.unlock();
     }
   }
@@ -603,20 +611,20 @@ DIETForwarder::bind(const char* objName, const char* ior) {
   ORBMgr::getMgr()->fwdsBind(ctxt, name, newIOR, this->name);
   TRACE_TEXT(TRACE_MAIN_STEPS,
              "Binded! (" << ctxt << "/" << name << ")\n");
-}
+} // bind
 
 /* Return the local bindings. Result is a set of couple
  * (object name, object ior)
  */
-SeqString*
-DIETForwarder::getBindings(const char* ctxt) {
+SeqString *
+DIETForwarder::getBindings(const char *ctxt) {
   std::list<std::string> objects;
   std::list<std::string>::iterator it;
-  SeqString* result = new SeqString();
+  SeqString *result = new SeqString();
   unsigned int cmpt = 0;
 
   objects = ORBMgr::getMgr()->list(ctxt);
-  result->length(objects.size()*2);
+  result->length(objects.size() * 2);
 
   for (it = objects.begin(); it != objects.end(); ++it) {
     try {
@@ -624,15 +632,16 @@ DIETForwarder::getBindings(const char* ctxt) {
         ORBMgr::getMgr()->resolveObject(ctxt, it->c_str(), "no-Forwarder");
       (*result)[cmpt++] = it->c_str();
       (*result)[cmpt++] = ORBMgr::getMgr()->getIOR(obj).c_str();
-    } catch (const std::runtime_error& err) {
+    } catch (const std::runtime_error &err) {
       continue;
     }
   }
   result->length(cmpt);
   return result;
-}
+} // getBindings
 
-void DIETForwarder::unbind(const char* objName) {
+void
+DIETForwarder::unbind(const char *objName) {
   std::string objString(objName);
   std::string name;
   std::string ctxt;
@@ -655,15 +664,15 @@ void DIETForwarder::unbind(const char* objName) {
   ORBMgr::getMgr()->unbind(ctxt, name);
   // Broadcast the unbinding to all forwarders.
   ORBMgr::getMgr()->fwdsUnbind(ctxt, name, this->name);
-}
+} // unbind
 
 void
-DIETForwarder::removeObjectFromCache(const std::string& name) {
+DIETForwarder::removeObjectFromCache(const std::string &name) {
   std::map<std::string, ::CORBA::Object_ptr>::iterator it;
-  std::map<std::string, PortableServer::ServantBase*>::iterator jt;
+  std::map<std::string, PortableServer::ServantBase *>::iterator jt;
   /* If the object is in the servant cache. */
   cachesMutex.lock();
-  if ((jt = servants.find(name))!=servants.end()) {
+  if ((jt = servants.find(name)) != servants.end()) {
     /* - Deactivate object. */
     try {
       ORBMgr::getMgr()->deactivate(jt->second);
@@ -676,10 +685,11 @@ DIETForwarder::removeObjectFromCache(const std::string& name) {
     servants.erase(jt);
   }
   /* Remove the object from the cache. */
-  if ((it = objectCache.find(name))!=objectCache.end())
+  if ((it = objectCache.find(name)) != objectCache.end()) {
     objectCache.erase(it);
+  }
   cachesMutex.unlock();
-}
+} // removeObjectFromCache
 
 /* Remove non existing objects from the caches. */
 void
@@ -693,17 +703,17 @@ DIETForwarder::cleanCaches() {
     try {
       Forwarder_var object = Forwarder::_narrow(it->second);
       object->getName();
-    } catch (const CORBA::TRANSIENT& err) {
+    } catch (const CORBA::TRANSIENT &err) {
       invalidObjects.push_back(it->first);
     }
   }
   cachesMutex.unlock();
   for (jt = invalidObjects.begin(); jt != invalidObjects.end(); ++jt)
     removeObjectFromCache(*jt);
-}
+} // cleanCaches
 
 void
-DIETForwarder::connectPeer(const char* ior, const char* host,
+DIETForwarder::connectPeer(const char *ior, const char *host,
                            const ::CORBA::Long port) {
   std::string converted = ORBMgr::convertIOR(ior, host, port);
   setPeer(ORBMgr::getMgr()->resolve<Forwarder, Forwarder_ptr>(converted));
@@ -724,13 +734,13 @@ DIETForwarder::getPeer() {
   try {
     // Check if peer is still alive
     peer->getName();
-  } catch (const CORBA::COMM_FAILURE& err) {
+  } catch (const CORBA::COMM_FAILURE &err) {
     // Lock peerMutex, then wait for setPeer
     // (setPeer() unlock the mutex
     peerMutex.lock();
     peerMutex.lock();
     peerMutex.unlock();
-  } catch (const CORBA::TRANSIENT& err) {
+  } catch (const CORBA::TRANSIENT &err) {
     // Lock peerMutex, then wait for setPeer
     // (setPeer() unlock the mutex
     peerMutex.lock();
@@ -738,44 +748,44 @@ DIETForwarder::getPeer() {
     peerMutex.unlock();
   }
   return peer;
-}
+} // getPeer
 
 
-char*
+char *
 DIETForwarder::getIOR() {
   return CORBA::string_dup(ORBMgr::getMgr()->getIOR(_this()).c_str());
 }
 
-char*
+char *
 DIETForwarder::getName() {
   return CORBA::string_dup(name.c_str());
 }
 
-char*
+char *
 DIETForwarder::getPeerName() {
   return CORBA::string_dup(getPeer()->getName());
 }
 
-char*
+char *
 DIETForwarder::getHost() {
   return CORBA::string_dup(host.c_str());
 }
 
-char*
+char *
 DIETForwarder::getPeerHost() {
   return CORBA::string_dup(getPeer()->getHost());
 }
 
-SeqString*
+SeqString *
 DIETForwarder::routeTree() {
-  SeqString* result = new SeqString();
+  SeqString *result = new SeqString();
   return result;
 }
 
 
 std::list<std::string>
 DIETForwarder::otherForwarders() const {
-  ORBMgr* mgr = ORBMgr::getMgr();
+  ORBMgr *mgr = ORBMgr::getMgr();
   std::list<std::string> result = mgr->list(FWRDCTXT);
 
   result.remove(name);
@@ -783,16 +793,16 @@ DIETForwarder::otherForwarders() const {
 }
 
 std::string
-DIETForwarder::getName(const std::string& namectxt) {
+DIETForwarder::getName(const std::string &namectxt) {
   size_t pos = namectxt.find('/');
   if (pos == std::string::npos) {
     return namectxt;
   }
-  return namectxt.substr(pos+1);
+  return namectxt.substr(pos + 1);
 }
 
 std::string
-DIETForwarder::getCtxt(const std::string& namectxt) {
+DIETForwarder::getCtxt(const std::string &namectxt) {
   size_t pos = namectxt.find('/');
   if (pos == std::string::npos) {
     return "";

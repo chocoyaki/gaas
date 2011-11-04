@@ -1,45 +1,14 @@
 /**
-* @file  FloodRequest.hh
-* 
-* @brief  Register the state of a request which is send through the MAs graph
-* 
-* @author - Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.6  2006/11/16 09:55:54  eboix
- *   DIET_config.h is no longer used. --- Injay2461
+ * @file  FloodRequest.hh
  *
- * Revision 1.5  2006/05/12 12:12:32  sdahan
- * Add some documentation about multi-MA
+ * @brief  Register the state of a request which is send through the MAs graph
  *
- * Bug fix:
- *  - segfault when the neighbours configuration line was empty
- *  - deadlock when a MA create a link on itself
+ * @author  Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)
  *
- * Revision 1.4  2004/12/15 15:57:08  sdahan
- * rewrite the FloodRequestsList to use a simplest implementation. The previous mutex bugs does not exist anymore.
- *
- * Revision 1.3  2004/10/21 18:14:55  rbolze
- * correct a comment line which wasn't compatible with distrib script :)
- *
- * Revision 1.2  2004/10/04 09:40:43  sdahan
- * warning fix :
- *  - debug.cc : change the printf format from %ul to %lu and from %l to %ld
- *  - ReferenceUpdateThread and BindService : The omniORB documentation said that
- *    it's better to create private destructor for the thread subclasses. But
- *    private destructors generate warning, so I set the destructors public.
- *  - CORBA.h and DIET_config.h define the same macros. So I include the CORBA.h
- *    before the DIET_config.h to avoid to define two times the same macros.
- *  - remove the deprecated warning when including iostream.h and set.h
- *
- * Revision 1.1  2004/09/29 13:35:31  sdahan
- * Add the Multi-MAs feature.
- *
- ****************************************************************************/
+ * @section Licence
+ *   |LICENSE|
+ */
+
 
 #ifndef _FLOOD_REQUEST_HH_
 #define _FLOOD_REQUEST_HH_
@@ -54,13 +23,6 @@
 
 class FloodRequestsList;
 
-/**
- * This class manages the search of a SeD by flooding the MA
- * graph. Each MA can have some FloodRequest object that find a SeD
- * for a problem by contacting the neighborhood MA.
- *
- * @author Sylvain DAHAN - LIFC Besancon (France)
- */
 
 class FloodRequest {
   friend class FloodRequestsList;
@@ -76,7 +38,7 @@ public:
    *
    * @param request the flood request which is cloned.
    */
-  FloodRequest(const FloodRequest & request);
+  FloodRequest(const FloodRequest &request);
 
   /**
    * creates a new defined FloodRequest.
@@ -94,8 +56,8 @@ public:
    */
   FloodRequest(const MasterAgentImpl::MADescription & predecessor,
                const MasterAgentImpl::MADescription & owner,
-               const corba_request_t& request,
-               MasterAgentImpl::MAList& knownMAs);
+               const corba_request_t &request,
+               MasterAgentImpl::MAList & knownMAs);
 
   /**
    * destroys the current flood request. (thread safe)
@@ -108,7 +70,7 @@ public:
    * @param request the flood request which is copied.
    */
   FloodRequest &
-  operator=(const FloodRequest & request);
+  operator = (const FloodRequest &request);
 
   /**
    * Returns true if all the area is flooded. In this case no other MA
@@ -146,7 +108,8 @@ public:
    * return the description of the predecessor, it is not defined if
    * there is no predecessor.
    */
-  inline MasterAgentImpl::MADescription getPredecessor() {
+  inline MasterAgentImpl::MADescription
+  getPredecessor() {
     return predecessor;
   }
 
@@ -200,7 +163,7 @@ public:
    * @param decision the list of the founded SeDs.
    */
   void
-  addResponseServiceFound(const corba_response_t& decision);
+  addResponseServiceFound(const corba_response_t &decision);
 
 private:
   /**
@@ -285,7 +248,7 @@ private:
    * an condition to used to wait all the responses of the last
    * flooding.
    */
-  omni_condition* allResponseReceived;
+  omni_condition *allResponseReceived;
 };  // FloodRequest
 
 #endif  // HAVE_MULTI_MA

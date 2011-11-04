@@ -1,7 +1,7 @@
 /*
  * DIETMultipleInitializationTests.cpp
  *
- * call initialize/finalize multiple times and 
+ * call initialize/finalize multiple times and
  * make DIET crash badly
  *
  * Created on: 27 december 2010
@@ -18,101 +18,99 @@
 #include "utils.hpp"
 
 
-BOOST_FIXTURE_TEST_SUITE( multiple_initialization_finalization, DietMAFixture )
+BOOST_FIXTURE_TEST_SUITE(multiple_initialization_finalization, DietMAFixture)
 
 
-BOOST_AUTO_TEST_CASE( successive_diet_finalize_calls )
-{
-    BOOST_TEST_MESSAGE( "-- Test: successive_diet_finalize_calls " );
+BOOST_AUTO_TEST_CASE(successive_diet_finalize_calls) {
+  BOOST_TEST_MESSAGE("-- Test: successive_diet_finalize_calls ");
 
-    utils::ClientArgs c("successive_diet_finalize_calls", "client_testing.cfg");
-    
-    diet_error_t error = diet_initialize(c.config(), c.argc(), c.argv());
+  utils::ClientArgs c("successive_diet_finalize_calls", "client_testing.cfg");
 
-    // check if diet_initialize don't return any error
-    BOOST_REQUIRE_MESSAGE( GRPC_NO_ERROR == error,
-    			   "diet_initialize() should return "
-    			   << diet_error_string(GRPC_NO_ERROR)
-    			   << " instead of "
-    			   << diet_error_string(error) );
+  diet_error_t error = diet_initialize(c.config(), c.argc(), c.argv());
 
-    // we finalize our DIET environment once
+  // check if diet_initialize don't return any error
+  BOOST_REQUIRE_MESSAGE(GRPC_NO_ERROR == error,
+                        "diet_initialize() should return "
+                        << diet_error_string(GRPC_NO_ERROR)
+                        << " instead of "
+                        << diet_error_string(error));
+
+  // we finalize our DIET environment once
+  error = diet_finalize();
+
+  BOOST_REQUIRE_MESSAGE(GRPC_NO_ERROR == error,
+                        "diet_finalize() should return "
+                        << diet_error_string(GRPC_NO_ERROR)
+                        << " instead of "
+                        << diet_error_string(error));
+
+  // now we're good
+  for (int i = 0; i < 5; ++i) {
     error = diet_finalize();
 
-    BOOST_REQUIRE_MESSAGE( GRPC_NO_ERROR == error,
-    			   "diet_finalize() should return " 
-    			   << diet_error_string(GRPC_NO_ERROR)
-    			   << " instead of "
-    			   << diet_error_string(error) );
-
-    // now we're good
-    for( int i = 0; i < 5; ++i ) {
-    	error = diet_finalize();
-	
-    	BOOST_REQUIRE_MESSAGE( GRPC_NO_ERROR == error,
-    			       "diet_finalize() should return " 
-    			       << diet_error_string(GRPC_NO_ERROR)
-    			       << " instead of "
-    			       << diet_error_string(error) );
-    }
+    BOOST_REQUIRE_MESSAGE(GRPC_NO_ERROR == error,
+                          "diet_finalize() should return "
+                          << diet_error_string(GRPC_NO_ERROR)
+                          << " instead of "
+                          << diet_error_string(error));
+  }
 }
 
-BOOST_AUTO_TEST_CASE( successive_diet_initialize_calls )
-{
-    BOOST_TEST_MESSAGE( "-- Test: successive_diet_initialize_calls " );
-    
-    utils::ClientArgs c("successive_diet_initialize_calls", "client_testing.cfg");
-    
-    diet_error_t error = diet_initialize(c.config(), c.argc(), c.argv());
+BOOST_AUTO_TEST_CASE(successive_diet_initialize_calls) {
+  BOOST_TEST_MESSAGE("-- Test: successive_diet_initialize_calls ");
 
-    // check if diet_initialize don't return any error
-    BOOST_REQUIRE_MESSAGE( GRPC_NO_ERROR == error,
-			   "diet_initialize() should return "
-			   << diet_error_string(GRPC_NO_ERROR)
-			   << " instead of "
-			   << diet_error_string(error) );
+  utils::ClientArgs c("successive_diet_initialize_calls", "client_testing.cfg");
 
-    // just to be sure
-    BOOST_TEST_MESSAGE( "-- Now calling diet_initialize 5 times" );
-    for(int i = 0; i < 5; ++i) {
-	error = diet_initialize(c.config(), c.argc(), c.argv());
-	
-	// DIET is already initialized
-	BOOST_REQUIRE_MESSAGE( GRPC_ALREADY_INITIALIZED == error,
-			       "diet_initialize() should return "
-			       << diet_error_string(GRPC_ALREADY_INITIALIZED)
-			       << " instead of "
-			       << diet_error_string(error) );
-    }
-    
-    BOOST_TEST_MESSAGE( "-- Now calling diet_finalize " );
-    error = diet_finalize();
+  diet_error_t error = diet_initialize(c.config(), c.argc(), c.argv());
 
-    BOOST_REQUIRE_MESSAGE( GRPC_NO_ERROR == error,
-    			   "diet_finalize() should return " 
-    			   << diet_error_string(GRPC_NO_ERROR)
-    			   << " instead of "
-    			   << diet_error_string(error) );
+  // check if diet_initialize don't return any error
+  BOOST_REQUIRE_MESSAGE(GRPC_NO_ERROR == error,
+                        "diet_initialize() should return "
+                        << diet_error_string(GRPC_NO_ERROR)
+                        << " instead of "
+                        << diet_error_string(error));
 
-    BOOST_TEST_MESSAGE( "-- Now calling diet_initialize one more time " );
+  // just to be sure
+  BOOST_TEST_MESSAGE("-- Now calling diet_initialize 5 times");
+  for (int i = 0; i < 5; ++i) {
     error = diet_initialize(c.config(), c.argc(), c.argv());
-    
-    // DIET should gracefully initialize now
-    BOOST_REQUIRE_MESSAGE( GRPC_NO_ERROR == error,
-    			   "diet_initialize() should return "
-    			   << diet_error_string(GRPC_NO_ERROR)
-    			   << " instead of "
-    			   << diet_error_string(error) );
-    
-    // now we're good
-    BOOST_TEST_MESSAGE( "-- Now calling diet_finalize " );
-    diet_finalize();
 
-    BOOST_REQUIRE_MESSAGE( GRPC_NO_ERROR == error,
-    			   "diet_finalize() should return " 
-    			   << diet_error_string(GRPC_NO_ERROR)
-    			   << " instead of "
-    			   << diet_error_string(error) );
+    // DIET is already initialized
+    BOOST_REQUIRE_MESSAGE(GRPC_ALREADY_INITIALIZED == error,
+                          "diet_initialize() should return "
+                          << diet_error_string(GRPC_ALREADY_INITIALIZED)
+                          << " instead of "
+                          << diet_error_string(error));
+  }
+
+  BOOST_TEST_MESSAGE("-- Now calling diet_finalize ");
+  error = diet_finalize();
+
+  BOOST_REQUIRE_MESSAGE(GRPC_NO_ERROR == error,
+                        "diet_finalize() should return "
+                        << diet_error_string(GRPC_NO_ERROR)
+                        << " instead of "
+                        << diet_error_string(error));
+
+  BOOST_TEST_MESSAGE("-- Now calling diet_initialize one more time ");
+  error = diet_initialize(c.config(), c.argc(), c.argv());
+
+  // DIET should gracefully initialize now
+  BOOST_REQUIRE_MESSAGE(GRPC_NO_ERROR == error,
+                        "diet_initialize() should return "
+                        << diet_error_string(GRPC_NO_ERROR)
+                        << " instead of "
+                        << diet_error_string(error));
+
+  // now we're good
+  BOOST_TEST_MESSAGE("-- Now calling diet_finalize ");
+  diet_finalize();
+
+  BOOST_REQUIRE_MESSAGE(GRPC_NO_ERROR == error,
+                        "diet_finalize() should return "
+                        << diet_error_string(GRPC_NO_ERROR)
+                        << " instead of "
+                        << diet_error_string(error));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

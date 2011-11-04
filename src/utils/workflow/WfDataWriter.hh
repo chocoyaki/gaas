@@ -3,21 +3,12 @@
 * 
 * @brief  Abstract interface and implementations of data writers 
 * 
-* @author  - Benjamin Isnard (benjamin.isnard@ens-lyon.fr)
+* @author  Benjamin Isnard (benjamin.isnard@ens-lyon.fr)
 * 
 * @section Licence
 *   |LICENSE|                                                                
 */
-/* $Id$
- * $Log$
- * Revision 1.2  2009/08/26 10:32:11  bisnard
- * corrected  warnings
- *
- * Revision 1.1  2009/06/15 12:01:20  bisnard
- * new class WfDataWriter to abstract the different ways of
- * displaying data within a workflow (XML or list)
- *
- */
+
 
 #ifndef _WFDATAWRITER_HH_
 #define _WFDATAWRITER_HH_

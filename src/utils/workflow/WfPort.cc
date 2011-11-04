@@ -3,91 +3,13 @@
 * 
 * @brief  The port classes used in workflow node (WfPort, WfOutPort and WfInPort) 
 * 
-* @author  - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)
-*          - Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)
+* @author  Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)
+*          Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)
 * 
 * @section Licence
 *   |LICENSE|                                                                
 */
-/* $Id$
- * $Log$
- * Revision 1.21  2010/08/26 07:48:39  bisnard
- * added check for non-connected input ports
- *
- * Revision 1.20  2009/08/26 10:32:11  bisnard
- * corrected  warnings
- *
- * Revision 1.19  2009/07/10 12:55:59  bisnard
- * implemented while loop workflow node
- *
- * Revision 1.18  2009/07/07 09:04:40  bisnard
- * new method isOutput to handle output ports that have different types
- *
- * Revision 1.17  2009/06/15 12:24:30  bisnard
- * new class DagNodeArgPort (arg ports not used for funct wf anymore)
- * use WfDataWriter class to display data
- *
- * Revision 1.16  2009/04/17 08:54:44  bisnard
- * renamed Node class as WfNode
- *
- * Revision 1.15  2009/02/24 14:01:05  bisnard
- * added dynamic parameter mgmt for wf processors
- *
- * Revision 1.14  2009/02/06 14:55:08  bisnard
- * setup exceptions
- *
- * Revision 1.13  2009/01/16 13:55:36  bisnard
- * changes in dag event handling methods
- *
- * Revision 1.12  2008/12/02 10:14:51  bisnard
- * modified nodes links mgmt to handle inter-dags links
- *
- * Revision 1.11  2008/11/07 13:42:05  bdepardo
- * Added two getters in WfPort:
- * - getDataType
- * - getEltDataType.
- * Use them in DagNode::displayResults
- *
- * Revision 1.10  2008/10/27 16:19:58  bisnard
- * correction of bug in connectPorts
- *
- * Revision 1.9  2008/10/22 09:29:00  bisnard
- * replaced uint by standard type
- *
- * Revision 1.8  2008/10/14 13:31:01  bisnard
- * new class structure for dags (DagNode, DagNodePort)
- *
- * Revision 1.7  2008/10/02 08:28:47  bisnard
- * new WfPort method to free persistent data
- *
- * Revision 1.6  2008/10/02 07:35:10  bisnard
- * new constants definitions (matrix order and port type)
- *
- * Revision 1.5  2008/09/30 15:32:53  bisnard
- * - using simple port id instead of composite ones
- * - dag nodes linking refactoring
- * - prevNodes and nextNodes data structures modified
- * - prevNodes initialization by Node::setNodePredecessors
- *
- * Revision 1.4  2008/09/30 09:23:29  bisnard
- * removed diet profile initialization from DagWfParser and replaced by node methods initProfileSubmit and initProfileExec
- *
- * Revision 1.3  2008/09/19 14:01:30  bisnard
- * allow compile wf support with or without DAGDA
- *
- * Revision 1.2  2008/09/19 13:11:07  bisnard
- * - added support for containers split/merge in workflows
- * - added support for multiple port references
- * - profile for node execution initialized by port (instead of node)
- * - ports linking managed by ports (instead of dag)
- *
- * Revision 1.1  2008/04/10 08:38:50  bisnard
- * New version of the MaDag where workflow node execution is triggered by the MaDag agent and done by a new CORBA object CltWfMgr located in the client
- *
- * Revision 1.2  2006/11/27 10:15:12  aamar
- * Correct headers of files used in workflow support.
- *
- ****************************************************************************/
+
 
 
 #include "WfPort.hh"

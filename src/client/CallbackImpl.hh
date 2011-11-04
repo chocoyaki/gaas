@@ -1,32 +1,13 @@
 /**
-* @file  CallbackImpl.hh
-* 
-* @brief   POA callback implementation  
-* 
-* @author  - Christophe PERA (christophe.pera@ens-lyon.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.5  2010/07/12 16:14:11  glemahec
- * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
+ * @file  CallbackImpl.hh
  *
- * Revision 1.4  2006/07/07 09:29:03  aamar
- * Modify the solveResults prototype: adding the parameter solve_res
- * that represents the execution status of the asynchronous request.
+ * @brief   POA callback implementation
  *
- * Revision 1.3  2003/10/13 13:02:22  cpera
- * Replace long by CORBA::Long.
+ * @author   Christophe PERA (christophe.pera@ens-lyon.fr)
  *
- * Revision 1.2  2003/06/02 14:51:54  cpera
- * Applying coding standards on Callback.idl.
- *
- * Revision 1.1  2003/06/02 08:09:55  cpera
- * Beta version of asynchronize DIET API.
- *
- ****************************************************************************/
+ * @section Licence
+ *   |LICENSE|
+ */
 
 
 #ifndef _CALLBACKIMPL_H_
@@ -39,7 +20,7 @@
 #include "CallbackFwdr.hh"
 
 class CallbackImpl : public POA_Callback,
-                     public PortableServer::RefCountServantBase {
+public PortableServer::RefCountServantBase {
 public:
   CallbackImpl();
 
@@ -49,39 +30,39 @@ public:
   ping();
 
   virtual CORBA::Long
-  notifyResults(const char * path,
-                const corba_profile_t& pb,
+  notifyResults(const char *path,
+                const corba_profile_t &pb,
                 CORBA::Long reqID);
 
   virtual CORBA::Long
-  solveResults(const char * path,
-               const corba_profile_t& pb,
+  solveResults(const char *path,
+               const corba_profile_t &pb,
                CORBA::Long reqID,
                CORBA::Long solve_res);
 };
 
 class CallbackFwdrImpl : public POA_CallbackFwdr,
-                         public PortableServer::RefCountServantBase {
+public PortableServer::RefCountServantBase {
 public:
-  CallbackFwdrImpl(Forwarder_ptr fwdr, const char* objName);
+  CallbackFwdrImpl(Forwarder_ptr fwdr, const char *objName);
 
   virtual CORBA::Long
   ping();
 
   virtual CORBA::Long
-  notifyResults(const char * path,
-                const corba_profile_t& pb,
+  notifyResults(const char *path,
+                const corba_profile_t &pb,
                 CORBA::Long reqID);
 
   virtual CORBA::Long
-  solveResults(const char * path,
-               const corba_profile_t& pb,
+  solveResults(const char *path,
+               const corba_profile_t &pb,
                CORBA::Long reqID,
                CORBA::Long solve_res);
 
 private:
   Forwarder_ptr forwarder;
-  char* objName;
+  char *objName;
 };
 
-#endif
+#endif /* ifndef _CALLBACKIMPL_H_ */

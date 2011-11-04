@@ -37,56 +37,51 @@
 
 namespace boost {
 namespace process {
-
 /**
  * The child class provides access to a child process.
  */
-class child : public process
-{
+class child: public process {
 public:
-    /**
-     * Creates a new child object that represents the just spawned child
-     * process \a id.
-     */
-    child(pid_type id, std::map<stream_id, handle> handles)
-        : process(id),
-        handles_(handles)
-    {
-    }
+/**
+ * Creates a new child object that represents the just spawned child
+ * process \a id.
+ */
+child(pid_type id, std::map<stream_id, handle> handles)
+  : process(id),
+  handles_(handles) {
+}
 
 #if defined(BOOST_WINDOWS_API)
-    /**
-     * Creates a new child object that represents the just spawned child
-     * process \a id.
-     *
-     * This operation is only available on Windows systems.
-     */
-    child(handle hprocess, std::map<stream_id, handle> handles)
-        : process(hprocess),
-        handles_(handles)
-    {
-    }
+/**
+ * Creates a new child object that represents the just spawned child
+ * process \a id.
+ *
+ * This operation is only available on Windows systems.
+ */
+child(handle hprocess, std::map<stream_id, handle> handles)
+  : process(hprocess),
+  handles_(handles) {
+}
 #endif
 
-    /**
-     * Gets a handle to a stream attached to the child.
-     *
-     * If the handle doesn't exist an invalid handle is returned.
-     */
-    handle get_handle(stream_id id) const
-    {
-        std::map<stream_id, handle>::const_iterator it = handles_.find(id);
-        return (it != handles_.end()) ? it->second : handle();
-    }
+/**
+ * Gets a handle to a stream attached to the child.
+ *
+ * If the handle doesn't exist an invalid handle is returned.
+ */
+handle
+get_handle(stream_id id) const {
+  std::map<stream_id, handle>::const_iterator it = handles_.find(id);
+  return (it != handles_.end()) ? it->second : handle();
+}
 
 private:
-    /**
-     * Handles providing access to streams attached to the child process.
-     */
-    std::map<stream_id, handle> handles_;
+/**
+ * Handles providing access to streams attached to the child process.
+ */
+std::map<stream_id, handle> handles_;
 };
-
 }
 }
 
-#endif
+#endif // ifndef BOOST_PROCESS_CHILD_HPP

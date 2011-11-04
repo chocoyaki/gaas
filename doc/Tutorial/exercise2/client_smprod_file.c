@@ -1,12 +1,13 @@
-/****************************************************************************/
-/* DIET tutorial scalar by matrix product example: client (file version)    */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Eddy CARON                Eddy.Caron@ens-lyon.fr                    */
-/*    - Ludovic BERTSCH           Ludovic.Bertsch@ens-lyon.fr               */
-/*    - Philippe COMBES           Philippe.Combes@ens-lyon.fr               */
-/*                                                                          */
-/****************************************************************************/
+/**
+*  @file  client_smprod_file.c
+*  @brief   DIET tutorial scalar by matrix product example: client 
+*  @author  Ludovic BERTSCH  (Ludovic.Bertsch@ens-lyon.fr)
+*           Eddy CARON  (Eddy.Caron@ens-lyon.fr)
+*           Philippe COMBES  (Philippe.Combes@ens-lyon.fr)
+*  @section Licence 
+*    |LICENCE|
+*/
+
 
 #include <stdio.h>
 #include <stdlib.h>

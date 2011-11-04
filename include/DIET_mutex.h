@@ -3,21 +3,13 @@
 * 
 * @brief  DIET mutex interface for multi-threaded server applications 
 * 
-* @author - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                  
-*         - Bert VAN HEUKELOM (Bert.Van-Heukelom@ens-lyon.fr) 
+* @author Philippe COMBES (Philippe.Combes@ens-lyon.fr)                  
+*         Bert VAN HEUKELOM (Bert.Van-Heukelom@ens-lyon.fr) 
 * 
 * @section Licence
 *   |LICENSE|                                                                
 */
-/* $Id$
- * $Log$
- * Revision 1.5  2003/04/10 11:32:15  pcombes
- * Apply Coding Standards.
- *
- * Revision 1.1  2002/12/03 19:08:24  pcombes
- * Update configure, update to FAST 0.3.15, clean CVS logs in files.
- * Put main Makefile in root directory.
- ****************************************************************************/
+
 
 
 #ifndef _DIET_MUTEX_H_

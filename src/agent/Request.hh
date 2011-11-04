@@ -1,24 +1,14 @@
 /**
-* @file  Request.hh
-* 
-* @brief  Request class header  
-* 
-* @author  - Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.3  2003/12/01 14:49:30  pcombes
- * Rename dietTypes.hh to DIET_data_internal.hh, for more coherency.
+ * @file  Request.hh
  *
- * Revision 1.2  2003/04/10 13:02:50  pcombes
- * Apply Coding Standards. Add the GS (GlobalScheduler) private member.
+ * @brief  Request class header
  *
- * Revision 1.1  2002/12/27 15:57:39  sdahan
- * the log list becaume a ts_map<RequestID, Request*>
- ****************************************************************************/
+ * @author   Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)
+ *
+ * @section Licence
+ *   |LICENSE|
+ */
+
 
 #ifndef _REQUEST_HH_
 #define _REQUEST_HH_
@@ -28,15 +18,7 @@
 #include "ms_function.hh"
 
 
-/**
- * This object store the state of a request. This is use to trace a
- * request by the agent.
- *
- * The Request class is not thread safe. The lock and unlock methods
- * must be used to avoid silmutaneous access to it.
- *
- * @author Sylvain DAHAN, LIFC Besancon (France)
- */
+
 
 class Request {
 public:
@@ -48,7 +30,8 @@ public:
    * of it and the variable used to initiate the Request must not be
    * modified or release before the Request is destroyed.
    */
-  explicit Request(const corba_request_t* request);
+  explicit
+  Request(const corba_request_t *request);
 
   /**
    * Creates a new Request.
@@ -58,7 +41,7 @@ public:
    *                or release before the Request is destroyed.
    * @param GS the GlobalScheduler used to schedule servers for this request.
    */
-  Request(const corba_request_t* request, GlobalScheduler* GS);
+  Request(const corba_request_t * request, GlobalScheduler * GS);
 
 
   /**
@@ -102,7 +85,7 @@ public:
    * \c Request.
    */
   void
-  addResponse(const corba_response_t* response);
+  addResponse(const corba_response_t *response);
 
 
   /**
@@ -110,7 +93,7 @@ public:
    * own by the \c Request and free at the same time as the \c
    * Request.
    */
-  corba_response_t*
+  corba_response_t *
   getResponses() const;
 
 
@@ -129,13 +112,13 @@ public:
   /**
    * returns the request used to creates the Request.
    */
-  const corba_request_t*
+  const corba_request_t *
   getRequest() const;
 
   /**
    * Returns the scheduler associated to this request.
    */
-  GlobalScheduler*
+  GlobalScheduler *
   getScheduler();
 
 private:
@@ -150,7 +133,7 @@ private:
    * the \c corba_request_t used to creats the Request but the
    * \c corba_request_t itself.
    */
-  const corba_request_t* request;
+  const corba_request_t *request;
 
   /**
    * a mutex use by the gatheringEnded omni_condition.
@@ -160,7 +143,7 @@ private:
   /**
    * An omni_condition used to wait all the responses of the request.
    */
-  omni_condition* gatheringEnded;
+  omni_condition *gatheringEnded;
 
   /**
    * number of waited responses.
@@ -170,7 +153,7 @@ private:
   /**
    * the responses given by the sons.
    */
-  corba_response_t* responses;
+  corba_response_t *responses;
 
   /**
    * size of responses
@@ -180,7 +163,7 @@ private:
   /**
    * the scheduler to use for this request
    */
-  GlobalScheduler* GS;
+  GlobalScheduler *GS;
 };
 
 #endif  // _REQUEST_HH_

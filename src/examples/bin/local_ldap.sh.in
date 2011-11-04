@@ -1,12 +1,12 @@
-#!/bin/sh
-#****************************************************************************#
+#! /bin/sh
+#* ***************************************************************************#
 #* Manager of a local LDAP base.                                            *#
 #*                                                                          *#
 #*  Author(s):                                                              *#
 #*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       *#
 #*                                                                          *#
 #* $LICENSE$                                                                *#
-#****************************************************************************#
+#* ***************************************************************************#
 #* $Id$
 #* $Log$
 #* Revision 1.3  2003/11/28 16:11:23  cpera
@@ -20,189 +20,199 @@
 #*
 #* Revision 1.1  2003/09/22 21:09:08  pcombes
 #* Scripts for managing a local platform with LDAP + NWS + CORBA Name server.
-#****************************************************************************#
+#* ***************************************************************************#
 
 
 ldap_start() {
-
   echo "## Starting a local LDAP platform ..."
   echo "Start the slapd daemon on port $SLAPD_PORT."
-    
-  cmd="$SLAPD -h ldap://localhost:$SLAPD_PORT -f $SLAPD_CONF\
+
+  cmd =
+    "$SLAPD -h ldap://localhost:$SLAPD_PORT -f $SLAPD_CONF\
        > $LOGDIR/slapd.log 2>&1"
-  echo "$cmd"
-  $cmd
-  status="$?"
-  if [ "$status" -ne 0 ] ; then
+    echo "$cmd"
+    $cmd
+    status = "$?"
+             if["$status" - ne 0];
+  then
     echo "Error($status): can't start slapd. Check /var/log/debug "
-    echo "Make sure to edit $SLAPD_CONF to reflect your LDAP installation paths."
-    exit 1
+  echo "Make sure to edit $SLAPD_CONF to reflect your LDAP installation paths."
+  exit 1
   fi
   sleep 5
-  
+
   echo "Initialize the base ($BASE_LDIF)."
-  $LDAPBIN/ldapadd -x -c -H "ldap://localhost:$SLAPD_PORT"     \
-          -D "cn=admin,ou=People,dc=ens-lyon,dc=fr" -w "DUMMY_PASSWD" \
-          -f "$BASE_LDIF" >> $LOG 2>&1
-  if [ "$?" -ne 0 ] ; then
+  $LDAPBIN / ldapadd - x - c - H "ldap://localhost:$SLAPD_PORT"     \
+  - D "cn=admin,ou=People,dc=ens-lyon,dc=fr" - w "DUMMY_PASSWD" \
+  - f "$BASE_LDIF" >> $LOG 2 > & 1
+  if["$?" - ne 0];
+  then
     echo "Error: cannot add the base (check $LOG)"
-    exit 1
+  exit 1
   fi
- 
-  echo "Fill it with the plus, mult and dgemm entries ($LDIF)."
-  $LDAPBIN/ldapadd -x -c -H "ldap://localhost:$SLAPD_PORT"            \
-          -D "cn=admin,ou=People,dc=ens-lyon,dc=fr" -w "DUMMY_PASSWD" \
-	  -f "$LDIF" >> $LOG 2>&1
+
+    echo "Fill it with the plus, mult and dgemm entries ($LDIF)."
+  $LDAPBIN / ldapadd - x - c - H "ldap://localhost:$SLAPD_PORT"            \
+  - D "cn=admin,ou=People,dc=ens-lyon,dc=fr" - w "DUMMY_PASSWD" \
+  - f "$LDIF" >> $LOG 2 > & 1
   # 68 is return ldapadd code when data is already registered in ldap base ...
-  # so, it is not an error.
-  if [ "$?" -ne 0 -a "$?" -ne 68 ] ; then
+  # so , it is not an error.
+  if["$?" - ne 0 - a "$?" - ne 68];
+  then
     echo "Error: cannot add the plus, mult and dgemm problems (check $LOG)"
-    exit 1
-  fi  
-  echo "## LDAP platform started."
+  exit 1
+  fi
+    echo "## LDAP platform started."
 }
 
 ldap_stop() {
   echo "## Stopping the local LDAP platform ..."
-  if [ -e "$PID_FILE" ] ; then
-    kill -TERM `cat $PID_FILE`
-    sleep 5
+  if[-e "$PID_FILE"];
+  then
+    kill - TERM ` cat $PID_FILE `
+  sleep 5
   fi
-  if [ ! -e "$PID_FILE" ] ; then
-    pprocess=`ps -wwwww -u $USER | grep sladp | grep -v -e grep | sort | head -1`
-    if [ -n "$pprocess" -a "`echo $pprocess | grep 'grep slapd'`" = "" ]; then
-      pid=`echo $pprocess | cut -f1 -d' '`
-      kill $pid > /dev/null 2>&1
-      status=$?
-      if [ $status -ne 0 ]; then
-        echo "Error: cannot stop the sladp server."
-        exit 3
-      fi
+  if[!-e "$PID_FILE"];
+  then
+    pprocess = ` ps - wwwww - u $USER | grep sladp | grep - v - e grep | sort |
+               head - 1 `
+               if[-n "$pprocess" - a "`echo $pprocess | grep 'grep slapd'`" =
+                    ""];
+  then
+    pid = ` echo $pprocess | cut - f1 - d ' ' `
+          kill $pid > / dev / null 2 > & 1
+          status = $ ?
+                   if[$status - ne 0];
+  then
+    echo "Error: cannot stop the sladp server."
+  exit 3
+  fi
     fi
-  else
+  else {
     echo "not running"
-  fi
-
-  rm -f $PID_FILE `echo $PID_FILE | sed 's/\.pid$/args/g'` \
-         `echo $PID_FILE | sed 's/\.pid$/log/g'` $LOG
-  if [ -d $DATABASE_DIR ]; then
-    rm -rf $DATABASE_DIR/*
-  fi
-
-  echo "## LDAP platform stopped."
-}
-
-ldap_search()  { # search an entry and return the number of entries
-    count=`$LDAPBIN/ldapsearch -H ldap://localhost:$SLAPD_PORT -x -b $1\
-                    2>/dev/null | grep 'numEntries' | sed 's/# numEntries: //'`
-    if test "x$count" = "x"; then count="0"; fi
-#    affiche "$1 -> $count"
-    return $count
-}
-
-
-ldap_test() {
-  echo "## Testing the LDAP platform ..."
-  # check slapd process
-  if [ "`ps -edfwwwww | grep slapd | grep -v -e grep`" = "" ]; then
-    echo "No sladp server seems alive."
-    exit 1
-  else
-    echo "There is a sladp server running."
-  fi
-  # check server
-  ldap_search dc=ens-lyon,dc=fr
-  if [ $? -eq 0 ]; then
-     echo "slapd is not dead, but the base is empty !"
-     exit 1
-  fi
-  echo "slapd is running."
- 
-  # check content
-  err=0
-  for ldif in $LDIF ; do
-      echo "verify file $ldif"
-      for entry in `egrep '^dn:' ./$ldif |sed 's/dn: //'` ; do
-          ldap_search $entry
-          if test $? -le 0 ; then
-              err=`expr $err + 1`
-              echo "Not found in LDAP !! Entry:"
-              echo " $entry"
-          fi
-      done
-  done
-  if [ "$err" != 0 ] ; then
-      echo
-      echo "$err entrie(s) are missing."
-      exit 2
-  else
-      echo "Everything seems ok"
-  fi
-}
-
-#
-# Get the paths for slapd and ldapadd
-#
-status=0
-SLAPD="noidea"
-LDAPBIN="noidea"
-for part in `echo $PATH|sed 's|:| |g'` /sbin /usr/sbin /bin /usr/bin; do
-  if [ -x "$part/slapd" ]; then
-    if [ "x$SLAPD" = "xnoidea" ]; then
-      SLAPD="$part/slapd"
     fi
-  fi
-  if [ -x "$part/ldapadd" ]; then
-    if [ "x$LDAPBIN" = "xnoidea" ]; then
-      LDAPBIN="$part"
-    fi
-  fi
-done
-if [ "x$SLAPD" = "xnoidea" ]; then
-  echo "Cannot find the slapd binary in"
-  echo "PATH=$PATH[+:/sbin:/usr/sbin:/bin:/usr/bin]"
-  status=1
-fi
-if [ "x$LDAPBIN" = "xnoidea" ]; then
-  echo "Cannot find the LDAP binaries in"
-  echo "PATH=$PATH[+:/sbin:/usr/sbin:/bin:/usr/bin]"
-  status=1
-fi
-if [ $status -ne 0 ]; then
-  exit $status
-fi
 
-#
-# Set the configuration environment
-#
+    rm - f $PID_FILE ` echo $PID_FILE | sed 's/\.pid$/args/g' ` \
+    ` echo $PID_FILE | sed 's/\.pid$/log/g' ` $LOG
+    if[-d $DATABASE_DIR];
+  } then
+    rm - rf $DATABASE_DIR /*
+                             fi
 
-BINDIR=`dirname $0`
-PWD=`cd $BINDIR/..; pwd`
+                             echo "## LDAP platform stopped."
+                             }
 
-LOGDIR=$BINDIR/../var/log
-if [ ! -d $LOGDIR ]; then mkdir -p $LOGDIR; fi
-LOG=$LOGDIR/local_ldap.log
+                             ldap_search()  { # search an entry and return the number of entries
+                             count=`$LDAPBIN/ldapsearch -H ldap://localhost:$SLAPD_PORT -x -b $1\
+                             2>/dev/null | grep 'numEntries' | sed 's/# numEntries: //'`
+                             if test "x$count" = "x"; then count="0"; fi
+                           #    affiche "$1 -> $count"
+                             return $count
+                             }
 
-CONFDIR=$BINDIR/../etc
-LDIF=$CONFDIR/plus_mult_dgemm.ldif
-BASE_LDIF=$CONFDIR/base.ldif
 
-SLAPD_CONF=$CONFDIR/slapd.cfg
-SLAPD_PORT=9050
+                             ldap_test() {
+                             echo "## Testing the LDAP platform ..."
+                           # check slapd process
+                             if [ "`ps -edfwwwww | grep slapd | grep -v -e grep`" = "" ]; then
+                             echo "No sladp server seems alive."
+                             exit 1
+                             else
+                             echo "There is a sladp server running."
+                             fi
+                           # check server
+                             ldap_search dc=ens-lyon,dc=fr
+                             if [ $? -eq 0 ]; then
+                             echo "slapd is not dead, but the base is empty !"
+                             exit 1
+                             fi
+                             echo "slapd is running."
 
-DATABASE_DIR=`grep ^directory $SLAPD_CONF`
-DATABASE_DIR=`echo $DATABASE_DIR | cut -f2- -d' '`
-if [ ! -d $DATABASE_DIR ]; then
-  mkdir -p $DATABASE_DIR
-fi
+                           # check content
+                             err=0
+                             for ldif in $LDIF ; do
+                             echo "verify file $ldif"
+                             for entry in `egrep '^dn:' ./$ldif |sed 's/dn: //'` ; do
+                             ldap_search $entry
+                             if test $? -le 0 ; then
+                             err=`expr $err + 1`
+                             echo "Not found in LDAP !! Entry:"
+                             echo " $entry"
+                             fi
+                             done
+                             done
+                             if [ "$err" != 0 ] ; then
+                             echo
+                             echo "$err entrie(s) are missing."
+                             exit 2
+                             else
+                             echo "Everything seems ok"
+                             fi
+                             }
 
-PID_FILE=`grep ^pidfile $SLAPD_CONF`
-PID_FILE=`echo $PID_FILE | cut -f2- -d' '`
+                           #
+                           # Get the paths for slapd and ldapadd
+                           #
+                             status=0
+                             SLAPD="noidea"
+                             LDAPBIN="noidea"
+                             for part in `echo $PATH|sed 's|:| |g'` /sbin /usr/sbin /bin /usr/bin; do
+                             if [ -x "$part/slapd" ]; then
+                             if [ "x$SLAPD" = "xnoidea" ]; then
+                             SLAPD="$part/slapd"
+                             fi
+                             fi
+                             if [ -x "$part/ldapadd" ]; then
+                             if [ "x$LDAPBIN" = "xnoidea" ]; then
+                             LDAPBIN="$part"
+                             fi
+                             fi
+                             done
+                             if [ "x$SLAPD" = "xnoidea" ]; then
+                             echo "Cannot find the slapd binary in"
+                             echo "PATH=$PATH[+:/sbin:/usr/sbin:/bin:/usr/bin]"
+                             status=1
+                             fi
+                             if [ "x$LDAPBIN" = "xnoidea" ]; then
+                             echo "Cannot find the LDAP binaries in"
+                             echo "PATH=$PATH[+:/sbin:/usr/sbin:/bin:/usr/bin]"
+                             status=1
+                             fi
+                             if [ $status -ne 0 ]; then
+                             exit $status
+                             fi
 
-case "$1" in 
-  start) ldap_start;;
-  stop)  ldap_stop;;
-  test)  ldap_test;;
-  *) echo "$0 {start|stop|test} (and not $1)"; exit 1;;
-esac
+                           #
+                           # Set the configuration environment
+                           #
+
+                             BINDIR=`dirname $0`
+                             PWD=`cd $BINDIR/..; pwd`
+
+                             LOGDIR=$BINDIR/../var/log
+                             if [ ! -d $LOGDIR ]; then mkdir -p $LOGDIR; fi
+                             LOG=$LOGDIR/local_ldap.log
+
+                             CONFDIR=$BINDIR/../etc
+                             LDIF=$CONFDIR/plus_mult_dgemm.ldif
+                             BASE_LDIF=$CONFDIR/base.ldif
+
+                             SLAPD_CONF=$CONFDIR/slapd.cfg
+                             SLAPD_PORT=9050
+
+                             DATABASE_DIR=`grep ^directory $SLAPD_CONF`
+                             DATABASE_DIR=`echo $DATABASE_DIR | cut -f2- -d' '`
+                             if [ ! -d $DATABASE_DIR ]; then
+                             mkdir -p $DATABASE_DIR
+                             fi
+
+                             PID_FILE=`grep ^pidfile $SLAPD_CONF`
+                             PID_FILE=`echo $PID_FILE | cut -f2- -d' '`
+
+                             case "$1" in
+                             start) ldap_start;;
+                             stop)  ldap_stop;;
+                             test)  ldap_test;;
+                           #*) echo "$0 {start|stop|test} (and not $1)"; exit 1;;
+                             esac
 

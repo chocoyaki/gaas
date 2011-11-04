@@ -3,90 +3,12 @@
 * 
 * @brief  Some stuffs used for workflow management 
 * 
-* @author  - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)
+* @author  Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)
 * 
 * @section Licence
 *   |LICENSE|                                                                
 */
-/* $Id$
- * $Log$
- * Revision 1.20  2011/03/31 17:45:29  hguemar
- * more robust data input: add field width limits to scanf/fscanf
- *
- * Revision 1.19  2011/02/24 16:50:06  bdepardo
- * Code cleanup.
- * Use TRACE_TEXT instead of cout
- *
- * Revision 1.18  2010/07/20 09:20:11  bisnard
- * integration with eclipse gui and with dietForwarder
- *
- * Revision 1.17  2010/04/28 14:12:03  bdepardo
- * fscanf warnings correction.
- *
- * Revision 1.16  2009/10/13 14:50:08  bisnard
- * updated gwendia types
- *
- * Revision 1.15  2009/10/02 07:46:15  bisnard
- * conversion of types for gwendia wf language
- *
- * Revision 1.14  2009/07/07 09:05:49  bisnard
- * added some const's
- *
- * Revision 1.13  2009/06/15 12:25:24  bisnard
- * added missing mappings for TYPE_UNKNOWN
- *
- * Revision 1.12  2009/05/15 11:10:20  bisnard
- * release for workflow conditional structure (if)
- *
- * Revision 1.11  2009/04/24 11:04:07  bisnard
- * added conversion to XSchema types
- *
- * Revision 1.10  2009/02/24 14:01:05  bisnard
- * added dynamic parameter mgmt for wf processors
- *
- * Revision 1.9  2009/02/06 14:55:08  bisnard
- * setup exceptions
- *
- * Revision 1.8  2008/12/02 10:05:27  bisnard
- * new conversion method
- *
- * Revision 1.7  2008/10/22 11:01:28  bdepardo
- * missing include
- *
- * Revision 1.6  2008/10/14 13:31:36  bisnard
- * new conversion method
- *
- * Revision 1.5  2008/10/02 07:34:20  bisnard
- * new constants definitions (matrix order)
- *
- * Revision 1.4  2008/09/30 09:24:27  bisnard
- * new static maps for converting workflow data types to diet data types
- *
- * Revision 1.3  2008/09/19 13:11:07  bisnard
- * - added support for containers split/merge in workflows
- * - added support for multiple port references
- * - profile for node execution initialized by port (instead of node)
- * - ports linking managed by ports (instead of dag)
- *
- * Revision 1.2  2008/04/28 12:16:23  bisnard
- * timestamps diff not used anymore
- *
- * Revision 1.1  2008/04/10 08:38:50  bisnard
- * New version of the MaDag where workflow node execution is triggered by the MaDag agent and done by a new CORBA object CltWfMgr located in the client
- *
- * Revision 1.3  2007/04/17 13:34:54  ycaniou
- * Error in debug.tex header
- * Removes some warnings during doc generation
- *
- * Revision 1.2  2006/07/10 11:10:30  aamar
- * - Adding some helpful functions for matrix handling and diet
- * data types manipulation.
- * - The eval_expr to evaluate arithmetic expressions
- *
- * Revision 1.1  2006/04/14 14:02:03  aamar
- * Some tools used for workflow support.
- *
- ****************************************************************************/
+
 #include <cstdlib>
 #include <iostream>
 #include <list>

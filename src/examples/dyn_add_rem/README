@@ -1,11 +1,12 @@
 This example presents the functionality to dynamically create and
 destroy a service.
 
-- server: takes as parameters a DIET SeD configuration file.
-- client: takes as parameters a DIET client configuration file, 
-  the service number to call (the first one that is created on the
-  server is number 0), and the number of services to spawn.
+- server : takes as parameters a DIET SeD configuration file.
+- client : takes as parameters a DIET client configuration file,
+the service number to
+call(the first one that is created on the
+     server is number 0), and the number of services to spawn.
 
 Each time a service is called, it will create the given number of new
 services, and will then destroy itself.
-A SeD can still be running without any service available.
+A SeD can still be running without any service available .

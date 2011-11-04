@@ -17,13 +17,14 @@
 #include "utils.hpp"
 
 
-BOOST_FIXTURE_TEST_SUITE( workflows_data_inout_vectors_sink, AllDataTransferSeDFixtureWF )
+BOOST_FIXTURE_TEST_SUITE(workflows_data_inout_vectors_sink,
+                         AllDataTransferSeDFixtureWF)
 
 #include "genericSimpleWfClientTest.hpp"
 
 
-BOOST_AUTO_TEST_CASE( data_inout_sink_vectors_character ) {
-  BOOST_TEST_MESSAGE( "-- Test: workflow data inout vectors sink character" );
+BOOST_AUTO_TEST_CASE(data_inout_sink_vectors_character) {
+  BOOST_TEST_MESSAGE("-- Test: workflow data inout vectors sink character");
 
   genericSimpleWorkflowClient(WF_DIRECTORY "inout_sink_CVADD.xml",
                               "Inout Vectors Sink character",
@@ -31,8 +32,8 @@ BOOST_AUTO_TEST_CASE( data_inout_sink_vectors_character ) {
                               WF_DIRECTORY "data_inout_sink_vectors.xml");
 }
 
-BOOST_AUTO_TEST_CASE( data_inout_sink_vectors_short ) {
-  BOOST_TEST_MESSAGE( "-- Test: workflow data inout vectors sink short" );
+BOOST_AUTO_TEST_CASE(data_inout_sink_vectors_short) {
+  BOOST_TEST_MESSAGE("-- Test: workflow data inout vectors sink short");
 
   genericSimpleWorkflowClient(WF_DIRECTORY "inout_sink_BVADD.xml",
                               "Inout Vectors Sink short",
@@ -40,8 +41,8 @@ BOOST_AUTO_TEST_CASE( data_inout_sink_vectors_short ) {
                               WF_DIRECTORY "data_inout_sink_vectors.xml");
 }
 
-BOOST_AUTO_TEST_CASE( data_inout_sink_vectors_integer ) {
-  BOOST_TEST_MESSAGE( "-- Test: workflow data inout vectors sink integer" );
+BOOST_AUTO_TEST_CASE(data_inout_sink_vectors_integer) {
+  BOOST_TEST_MESSAGE("-- Test: workflow data inout vectors sink integer");
 
   genericSimpleWorkflowClient(WF_DIRECTORY "inout_sink_IVADD.xml",
                               "Inout Vectors Sink integer",
@@ -49,8 +50,8 @@ BOOST_AUTO_TEST_CASE( data_inout_sink_vectors_integer ) {
                               WF_DIRECTORY "data_inout_sink_vectors.xml");
 }
 
-BOOST_AUTO_TEST_CASE( data_inout_sink_vectors_long ) {
-  BOOST_TEST_MESSAGE( "-- Test: workflow data inout vectors sink long" );
+BOOST_AUTO_TEST_CASE(data_inout_sink_vectors_long) {
+  BOOST_TEST_MESSAGE("-- Test: workflow data inout vectors sink long");
 
   genericSimpleWorkflowClient(WF_DIRECTORY "inout_sink_LVADD.xml",
                               "Inout Vectors Sink long",
@@ -58,8 +59,8 @@ BOOST_AUTO_TEST_CASE( data_inout_sink_vectors_long ) {
                               WF_DIRECTORY "data_inout_sink_vectors.xml");
 }
 
-BOOST_AUTO_TEST_CASE( data_inout_sink_vectors_float ) {
-  BOOST_TEST_MESSAGE( "-- Test: workflow data inout vectors sink float" );
+BOOST_AUTO_TEST_CASE(data_inout_sink_vectors_float) {
+  BOOST_TEST_MESSAGE("-- Test: workflow data inout vectors sink float");
 
   genericSimpleWorkflowClient(WF_DIRECTORY "inout_sink_FVADD.xml",
                               "Inout Vectors Sink float",
@@ -67,8 +68,8 @@ BOOST_AUTO_TEST_CASE( data_inout_sink_vectors_float ) {
                               WF_DIRECTORY "data_inout_sink_vectors.xml");
 }
 
-BOOST_AUTO_TEST_CASE( data_inout_sink_vectors_double ) {
-  BOOST_TEST_MESSAGE( "-- Test: workflow data inout vectors sink double" );
+BOOST_AUTO_TEST_CASE(data_inout_sink_vectors_double) {
+  BOOST_TEST_MESSAGE("-- Test: workflow data inout vectors sink double");
 
   genericSimpleWorkflowClient(WF_DIRECTORY "inout_sink_DVADD.xml",
                               "Inout Vectors Sink double",

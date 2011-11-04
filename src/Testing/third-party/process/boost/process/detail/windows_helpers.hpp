@@ -32,7 +32,6 @@
 namespace boost {
 namespace process {
 namespace detail {
-
 /**
  * Converts an environment to a string used by CreateProcess().
  *
@@ -47,35 +46,31 @@ namespace detail {
  *         the environment's content. This string is of the form
  *         var1=value1\\0var2=value2\\0\\0.
  */
-inline boost::shared_array<char> environment_to_windows_strings(environment
-    &env)
-{
-    boost::shared_array<char> envp;
+inline boost::shared_array<char>
+environment_to_windows_strings(environment
+                               &env) {
+  boost::shared_array<char> envp;
 
-    if (env.empty())
-    {
-        envp.reset(new char[2]);
-        ZeroMemory(envp.get(), 2);
+  if (env.empty()) {
+    envp.reset(new char[2]);
+    ZeroMemory(envp.get(), 2);
+  } else {
+    std::string s;
+    for (environment::const_iterator it = env.begin(); it != env.end();
+         ++it) {
+      s += it->first + "=" + it->second;
+      s.push_back(0);
     }
-    else
-    {
-        std::string s;
-        for (environment::const_iterator it = env.begin(); it != env.end();
-            ++it)
-        {
-            s += it->first + "=" + it->second;
-            s.push_back(0);
-        }
-        envp.reset(new char[s.size() + 1]);
+    envp.reset(new char[s.size() + 1]);
 #if defined(__CYGWIN__) || defined(_SCL_SECURE_NO_DEPRECATE)
-        memcpy(envp.get(), s.c_str(), s.size() + 1);
+    memcpy(envp.get(), s.c_str(), s.size() + 1);
 #else
-        memcpy_s(envp.get(), s.size() + 1, s.c_str(), s.size() + 1);
+    memcpy_s(envp.get(), s.size() + 1, s.c_str(), s.size() + 1);
 #endif
-    }
+  }
 
-    return envp;
-}
+  return envp;
+} // environment_to_windows_strings
 
 /**
  * Converts the command line to a plain string.
@@ -90,49 +85,48 @@ inline boost::shared_array<char> environment_to_windows_strings(environment
  *         shared_array object to ensure its release at some point.
  */
 template <class Arguments>
-inline boost::shared_array<char> collection_to_windows_cmdline(const Arguments
-    &args)
-{
-    typedef std::vector<std::string> arguments_t;
-    arguments_t args2;
-    typename Arguments::size_type i = 0;
-    std::size_t size = 0;
-    for (typename Arguments::const_iterator it = args.begin(); it != args.end();
-        ++it)
-    {
-        std::string arg = *it;
+inline boost::shared_array<char>
+collection_to_windows_cmdline(const Arguments
+                              &args) {
+  typedef std::vector<std::string> arguments_t;
+  arguments_t args2;
+  typename Arguments::size_type i = 0;
+  std::size_t size = 0;
+  for (typename Arguments::const_iterator it = args.begin(); it != args.end();
+       ++it) {
+    std::string arg = *it;
 
-        std::string::size_type pos = 0;
-        while ( (pos = arg.find('"', pos)) != std::string::npos)
-        {
-            arg.replace(pos, 1, "\\\"");
-            pos += 2;
-        }
-
-        if (arg.find(' ') != std::string::npos)
-            arg = '\"' + arg + '\"';
-
-        if (i++ != args.size() - 1)
-            arg += ' ';
-
-        args2.push_back(arg);
-        size += arg.size() + 1;
+    std::string::size_type pos = 0;
+    while ((pos = arg.find('"', pos)) != std::string::npos) {
+      arg.replace(pos, 1, "\\\"");
+      pos += 2;
     }
 
-    boost::shared_array<char> cmdline(new char[size]);
-    cmdline.get()[0] = '\0';
-    for (arguments_t::size_type i = 0; i < args.size(); ++i)
+    if (arg.find(' ') != std::string::npos) {
+      arg = '\"' + arg + '\"';
+    }
+
+    if (i++ != args.size() - 1) {
+      arg += ' ';
+    }
+
+    args2.push_back(arg);
+    size += arg.size() + 1;
+  }
+
+  boost::shared_array<char> cmdline(new char[size]);
+  cmdline.get()[0] = '\0';
+  for (arguments_t::size_type i = 0; i < args.size(); ++i)
 #if defined(__CYGWIN__) || defined(_SCL_SECURE_NO_DEPRECATE)
-        strncat(cmdline.get(), args2[i].c_str(), args2[i].size());
+    strncat(cmdline.get(), args2[i].c_str(), args2[i].size());
 #else
-        strcat_s(cmdline.get(), size, args2[i].c_str());
+    strcat_s(cmdline.get(), size, args2[i].c_str());
 #endif
 
-    return cmdline;
+  return cmdline;
+} // collection_to_windows_cmdline
+}
+}
 }
 
-}
-}
-}
-
-#endif
+#endif // ifndef BOOST_PROCESS_WINDOWS_HELPERS_HPP

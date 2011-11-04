@@ -3,17 +3,12 @@
 * 
 * @brief  Absctract class common parent to dag and workflows 
 * 
-* @author  - Benjamin ISNARD (Benjamin.Isnard@ens-lyon.fr)
+* @author  Benjamin ISNARD (Benjamin.Isnard@ens-lyon.fr)
 * 
 * @section Licence
 *   |LICENSE|                                                                
 */
-/* $Id$
- * $Log$
- * Revision 1.1  2009/09/25 12:39:18  bisnard
- * modified includes to reduce inter-dependencies
- *
- ****************************************************************************/
+
 
 #ifndef _NODESET_
 #define _NODESET_

@@ -1,42 +1,14 @@
 /**
-* @file DIET_Dagda.h
-* 
-* @brief  Dagda API
-* 
-* @author Gael Le Mahec (lemahec@clermont.in2p3.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.15  2011/04/22 09:31:20  bdepardo
- * Fixed a bug in dagda_get_paramstring: it now directly uses dagda_get_data
- * instead of dagda_get_string.
+ * @file DIET_Dagda.h
  *
- * Revision 1.14  2011/03/18 17:37:45  bdepardo
- * Add dagda_reset method to reset internal variables.
- * This is used for allowing multiple consecutive diet_initialize/diet_finalize
+ * @brief  Dagda API
  *
- * Revision 1.13  2010/09/03 10:09:28  bdepardo
- * Changed C++ comments into C comments to remove warnings.
+ * @author Gael Le Mahec (lemahec@clermont.in2p3.fr)
  *
- * Revision 1.12  2010/07/12 16:14:12  glemahec
- * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
- *
- * Revision 1.11  2010/04/20 12:00:43  glemahec
- * Ajout de l option de compilation TRANSFER_PROGRESSION => Extension de l API DAGDA pour compatibilite services de gestion de fichiers.
- *
- * Revision 1.10  2009/04/17 08:50:49  bisnard
- * added handling of container empty elements
- *
- * Revision 1.9  2008/10/22 15:07:28  bdepardo
- * Fixed header:
- *  - now CVS will write the log
- *  - this removes a warning during compilation
- *
- *
- ***********************************************************/
+ * @section Licence
+ *   |LICENSE|
+ */
+
 #ifndef __DIET_DAGDA_H__
 #define __DIET_DAGDA_H__
 #include "DIET_data.h"
@@ -44,280 +16,280 @@
 extern "C" {
 #endif
 
-  /* If we don't know the type of the data to download. */
+/* If we don't know the type of the data to download. */
 #define DIET_UNKNOWN_TYPE DIET_DATA_TYPE_COUNT
-  /**
-   * @brief add a data to the platform
-   *
-   * @param value value to be stored
-   * @param type diet data type
-   * @param base_type basic data type
-   * @param mode persistence mode
-   * @param nb_r
-   * @param nb_c
-   * @param order
-   * @param path
-   * @param ID return data ID
-   *
-   * @return  0 (success), 1 (failure)
-   */
-  int
-  dagda_put_data(void* value, diet_data_type_t type,
-                 diet_base_type_t base_type, diet_persistence_mode_t mode,
-                 size_t nb_r, size_t nb_c, diet_matrix_order_t order,
-                 char* path, char** ID);
+/**
+ * @brief add a data to the platform
+ *
+ * @param value value to be stored
+ * @param type diet data type
+ * @param base_type basic data type
+ * @param mode persistence mode
+ * @param nb_r
+ * @param nb_c
+ * @param order
+ * @param path
+ * @param ID return data ID
+ *
+ * @return  0 (success), 1 (failure)
+ */
+int
+dagda_put_data(void *value, diet_data_type_t type,
+               diet_base_type_t base_type, diet_persistence_mode_t mode,
+               size_t nb_r, size_t nb_c, diet_matrix_order_t order,
+               char *path, char **ID);
 
-  /**
-   * @brief get a data from platform
-   *
-   * @param dataID ID of the data to be retrieved
-   * @param value return data value
-   * @param type diet data type
-   * @param base_type basic data type
-   * @param nb_r
-   * @param nb_c
-   * @param order
-   * @param path
-   *
-   * @return 0 (success), 1 (failure)
-   */
-  int
-  dagda_get_data(const char* dataID, void** value,
-                 diet_data_type_t type, diet_base_type_t* base_type,
-                 size_t* nb_r, size_t* nb_c,
-                 diet_matrix_order_t* order, char** path);
+/**
+ * @brief get a data from platform
+ *
+ * @param dataID ID of the data to be retrieved
+ * @param value return data value
+ * @param type diet data type
+ * @param base_type basic data type
+ * @param nb_r
+ * @param nb_c
+ * @param order
+ * @param path
+ *
+ * @return 0 (success), 1 (failure)
+ */
+int
+dagda_get_data(const char *dataID, void **value,
+               diet_data_type_t type, diet_base_type_t *base_type,
+               size_t *nb_r, size_t *nb_c,
+               diet_matrix_order_t *order, char **path);
 
-  /**
-   * @brief remove a data from the platform
-   * @param dataID ID of the data to be removed
-   *
-   * @return 0 (success)
-   */
-  int
-  dagda_delete_data(char* dataID);
+/**
+ * @brief remove a data from the platform
+ * @param dataID ID of the data to be removed
+ *
+ * @return 0 (success)
+ */
+int
+dagda_delete_data(char *dataID);
 
-  /**
-   * @brief add a data to the platform (asynchronous)
-   *
-   * @param value value to be stored
-   * @param type diet data type
-   * @param base_type basic data type
-   * @param mode persistence mode
-   * @param nb_r
-   * @param nb_c
-   * @param order
-   * @param path
-   *
-   * @return thread ID
-   */
-  unsigned int
-  dagda_put_data_async(void* value, diet_data_type_t type,
-                       diet_base_type_t base_type, diet_persistence_mode_t mode,
-                       size_t nb_r, size_t nb_c,
-                       diet_matrix_order_t order, char* path);
+/**
+ * @brief add a data to the platform (asynchronous)
+ *
+ * @param value value to be stored
+ * @param type diet data type
+ * @param base_type basic data type
+ * @param mode persistence mode
+ * @param nb_r
+ * @param nb_c
+ * @param order
+ * @param path
+ *
+ * @return thread ID
+ */
+unsigned int
+dagda_put_data_async(void *value, diet_data_type_t type,
+                     diet_base_type_t base_type, diet_persistence_mode_t mode,
+                     size_t nb_r, size_t nb_c,
+                     diet_matrix_order_t order, char *path);
 
-  /**
-   * @brief get a data from platform (asynchronous)
-   *
-   * @param ID ID of the data to be retrieved
-   * @param type diet data type
-   *
-   * @return thread ID
-   */
-  unsigned int
-  dagda_get_data_async(char* ID, diet_data_type_t type);
+/**
+ * @brief get a data from platform (asynchronous)
+ *
+ * @param ID ID of the data to be retrieved
+ * @param type diet data type
+ *
+ * @return thread ID
+ */
+unsigned int
+dagda_get_data_async(char *ID, diet_data_type_t type);
 
-  /* Wait functions. */
-  /**
-   * @brief wait for the end of data transfer (put)
-   * @param threadID thread ID of the transfer
-   * @param ID return ID of the data transferred
-   *
-   * @return
-   */
-  int
-  dagda_wait_put(unsigned int threadID, char** ID);
+/* Wait functions. */
+/**
+ * @brief wait for the end of data transfer (put)
+ * @param threadID thread ID of the transfer
+ * @param ID return ID of the data transferred
+ *
+ * @return
+ */
+int
+dagda_wait_put(unsigned int threadID, char **ID);
 
-  /**
-   * @brief wait for the end of data transfer (get)
-   *
-   * @param threadID thread ID of the transfer
-   * @param value data to be returned
-   * @param base_type basic data type
-   * @param nb_r
-   * @param nb_c
-   * @param order
-   * @param path
-   *
-   * @return
-   */
-  int
-  dagda_wait_get(unsigned int threadID, void** value,
-                 diet_base_type_t* base_type, size_t* nb_r,
-                 size_t* nb_c, diet_matrix_order_t* order, char** path);
+/**
+ * @brief wait for the end of data transfer (get)
+ *
+ * @param threadID thread ID of the transfer
+ * @param value data to be returned
+ * @param base_type basic data type
+ * @param nb_r
+ * @param nb_c
+ * @param order
+ * @param path
+ *
+ * @return
+ */
+int
+dagda_wait_get(unsigned int threadID, void **value,
+               diet_base_type_t *base_type, size_t *nb_r,
+               size_t *nb_c, diet_matrix_order_t *order, char **path);
 
-  /* As is, this function does not make sense. Should be modified later
-     to return the ID immediately. */
-  /**
-   * @brief add data asynchronously without waiting
-   *
-   * @param value value to be added
-   * @param type diet data type
-   * @param base_type basic data type
-   * @param mode persistence mode
-   * @param nb_r
-   * @param nb_c
-   * @param order
-   * @param path
-   *
-   * @return 0 (success)
-   */
-  int
-  dagda_add_data(void* value, diet_data_type_t type,
-                 diet_base_type_t base_type, diet_persistence_mode_t mode,
-                 size_t nb_r, size_t nb_c,
-                 diet_matrix_order_t order, char* path);
+/* As is, this function does not make sense. Should be modified later
+   to return the ID immediately. */
+/**
+ * @brief add data asynchronously without waiting
+ *
+ * @param value value to be added
+ * @param type diet data type
+ * @param base_type basic data type
+ * @param mode persistence mode
+ * @param nb_r
+ * @param nb_c
+ * @param order
+ * @param path
+ *
+ * @return 0 (success)
+ */
+int
+dagda_add_data(void *value, diet_data_type_t type,
+               diet_base_type_t base_type, diet_persistence_mode_t mode,
+               size_t nb_r, size_t nb_c,
+               diet_matrix_order_t order, char *path);
 
-  /**
-   * @brief load data asynchronously without wait
-   *
-   * @param ID ID of the data to be loaded
-   * @param type diet data type
-   *
-   * @return 0 (success)
-   */
-  int
-  dagda_load_data(char* ID, diet_data_type_t type);
+/**
+ * @brief load data asynchronously without wait
+ *
+ * @param ID ID of the data to be loaded
+ * @param type diet data type
+ *
+ * @return 0 (success)
+ */
+int
+dagda_load_data(char *ID, diet_data_type_t type);
 
-  /**
-   * @brief ask node to save data on checkpoint file
-   *
-   * @return 0 (success), 1 (failure)
-   */
-  int
-  dagda_save_platform();
+/**
+ * @brief ask node to save data on checkpoint file
+ *
+ * @return 0 (success), 1 (failure)
+ */
+int
+dagda_save_platform();
 
-  /**
-   * @brief create a data alias
-   *
-   * @param id
-   * @param alias
-   *
-   * @return 1 (failure)
-   */
-  int
-  dagda_data_alias(const char* id, const char* alias);
+/**
+ * @brief create a data alias
+ *
+ * @param id
+ * @param alias
+ *
+ * @return 1 (failure)
+ */
+int
+dagda_data_alias(const char *id, const char *alias);
 
-  /**
-   * @brief get data ID from its alias
-   *
-   * @param alias alias of the data
-   * @param id return the ID of the data
-   *
-   * @return 0 (success), 1 (failure)
-   */
-  int
-  dagda_id_from_alias(const char* alias, char** id);
+/**
+ * @brief get data ID from its alias
+ *
+ * @param alias alias of the data
+ * @param id return the ID of the data
+ *
+ * @return 0 (success), 1 (failure)
+ */
+int
+dagda_id_from_alias(const char *alias, char **id);
 
-  /**
-   * @brief replicate data according a wildcard
-   *
-   * @param id ID of the data to be replicate
-   * @param rule wildcard rule
-   *
-   * @return 0 (success), 1 (failure)
-   */
-  int
-  dagda_replicate_data(const char* id, const char* rule);
+/**
+ * @brief replicate data according a wildcard
+ *
+ * @param id ID of the data to be replicate
+ * @param rule wildcard rule
+ *
+ * @return 0 (success), 1 (failure)
+ */
+int
+dagda_replicate_data(const char *id, const char *rule);
 
-  /**
-   * @brief create a container
-   *
-   * @param ID return ID of the container
-   *
-   * @return
-   */
-  int
-  dagda_create_container(char** ID);
+/**
+ * @brief create a container
+ *
+ * @param ID return ID of the container
+ *
+ * @return
+ */
+int
+dagda_create_container(char **ID);
 
-  /**
-   * @brief initialize a container (ID already defined)
-   *
-   * @param profile_data
-   *
-   * @return 0 (success)
-   */
-  int
-  dagda_init_container(diet_data_t* profile_data);
+/**
+ * @brief initialize a container (ID already defined)
+ *
+ * @param profile_data
+ *
+ * @return 0 (success)
+ */
+int
+dagda_init_container(diet_data_t *profile_data);
 
-  /**
-   * @brief add an element to a container
-   * (the container must be either created/initialized before
-   *  before it is registered in the local DAGDA manager)
-   *
-   * @param idContainer
-   * @param idElement
-   * @param index
-   *
-   * @return 0 (success), 1 (failure)
-   */
-  int
-  dagda_add_container_element(const char* idContainer, const char* idElement,
-                              int index);
+/**
+ * @brief add an element to a container
+ * (the container must be either created/initialized before
+ *  before it is registered in the local DAGDA manager)
+ *
+ * @param idContainer
+ * @param idElement
+ * @param index
+ *
+ * @return 0 (success), 1 (failure)
+ */
+int
+dagda_add_container_element(const char *idContainer, const char *idElement,
+                            int index);
 
-  /**
-   * @brief add an empty slot to a container (replaces an element)
-   * The container must be either created or initialized before, so that
-   * it is declared on the local dagda manager
-   *
-   * @param idContainer container ID
-   * @param index index
-   *
-   * @return
-   */
-  int
-  dagda_add_container_null_element(const char* idContainer, int index);
+/**
+ * @brief add an empty slot to a container (replaces an element)
+ * The container must be either created or initialized before, so that
+ * it is declared on the local dagda manager
+ *
+ * @param idContainer container ID
+ * @param index index
+ *
+ * @return
+ */
+int
+dagda_add_container_null_element(const char *idContainer, int index);
 
-  /**
-   * @brief Get all IDs of the elements of a container
-   * The container must be either created or initialized before, so that
-   * it is declared on the local dagda manager
-   *
-   * @param idContainer
-   * @param content
-   *
-   * @return  0 (success), 1 (failure)
-   */
-  int
-  dagda_get_container_elements(const char* idContainer,
-                               diet_container_t* content);
+/**
+ * @brief Get all IDs of the elements of a container
+ * The container must be either created or initialized before, so that
+ * it is declared on the local dagda manager
+ *
+ * @param idContainer
+ * @param content
+ *
+ * @return  0 (success), 1 (failure)
+ */
+int
+dagda_get_container_elements(const char *idContainer,
+                             diet_container_t *content);
 
-  /**
-   * @brief get download progress
-   *
-   * @param dataId ID of the data transferred
-   *
-   * @return progress
-   */
-  double
-  dagda_get_progress(const char* dataId);
+/**
+ * @brief get download progress
+ *
+ * @param dataId ID of the data transferred
+ *
+ * @return progress
+ */
+double
+dagda_get_progress(const char *dataId);
 
-  /**
-   *
-   *
-   * @param transferId
-   */
-  void
-  dagda_rem_progress(const char* transferId);
+/**
+ *
+ *
+ * @param transferId
+ */
+void
+dagda_rem_progress(const char *transferId);
 
-  /**
-   * @brief reset internal state of the node
-   * (used for sucessive diet_initialize/diet_finalize)
-   */
-  void
-  dagda_reset();
+/**
+ * @brief reset internal state of the node
+ * (used for sucessive diet_initialize/diet_finalize)
+ */
+void
+dagda_reset();
 
-  /* Put macros */
+/* Put macros */
 /**
  * @brief convenience macro around dagda_put_data
  *
@@ -415,7 +387,9 @@ extern "C" {
  * @return 0 (success), 1 (failure)
  */
 #define dagda_get_scalar(ID, value, base_type)                          \
-  dagda_get_data(ID, (void**) (value), DIET_SCALAR, base_type, NULL, NULL, NULL, NULL)
+  dagda_get_data(ID, (void **) (value), DIET_SCALAR, base_type, NULL, NULL, \
+                 NULL, \
+                 NULL)
 
 /**
  * @brief convenience macro around dagda_get_data
@@ -428,7 +402,9 @@ extern "C" {
  * @return 0 (success), 1 (failure)
  */
 #define dagda_get_vector(ID, value, base_type, size)                    \
-  dagda_get_data(ID, (void**) (value), DIET_VECTOR, base_type, NULL, size, NULL, NULL)
+  dagda_get_data(ID, (void **) (value), DIET_VECTOR, base_type, NULL, size, \
+                 NULL, \
+                 NULL)
 
 /**
  * @brief convenience macro around dagda_get_data
@@ -443,7 +419,9 @@ extern "C" {
  * @return 0 (success), 1 (failure)
  */
 #define dagda_get_matrix(ID, value, base_type, nb_r, nb_c, order)       \
-  dagda_get_data(ID, (void**) (value), DIET_MATRIX, base_type, nb_r, nb_c, order, NULL)
+  dagda_get_data(ID, (void **) (value), DIET_MATRIX, base_type, nb_r, nb_c, \
+                 order, \
+                 NULL)
 
 /**
  * @brief convenience macro around dagda_get_data
@@ -454,7 +432,8 @@ extern "C" {
  * @return 0 (success), 1 (failure)
  */
 #define dagda_get_string(ID, value)                                     \
-  dagda_get_data(ID, (void**) (value), DIET_STRING, NULL, NULL, NULL, NULL, NULL)
+  dagda_get_data(ID, (void **) (value), DIET_STRING, NULL, NULL, NULL, NULL, \
+                 NULL)
 
 /**
  * @brief convenience macro around dagda_get_data
@@ -465,7 +444,9 @@ extern "C" {
  * @return 0 (success), 1 (failure)
  */
 #define dagda_get_paramstring(ID, value)                                \
-  dagda_get_data(ID, (void**) (value), DIET_PARAMSTRING, NULL, NULL, NULL, NULL, NULL)
+  dagda_get_data(ID, (void **) (value), DIET_PARAMSTRING, NULL, NULL, NULL, \
+                 NULL, \
+                 NULL)
 
 /**
  * @brief convenience macro around dagda_get_data
@@ -476,7 +457,7 @@ extern "C" {
  * @return 0 (success), 1 (failure)
  */
 #define dagda_get_file(ID, path)                                        \
-  dagda_get_data(ID, NULL, DIET_FILE, NULL, NULL, NULL, NULL, (char**) (path))
+  dagda_get_data(ID, NULL, DIET_FILE, NULL, NULL, NULL, NULL, (char **) (path))
 
 /**
  * @brief convenience macro around dagda_get_data
@@ -490,7 +471,7 @@ extern "C" {
 
 /* Asynchronous versions. */
 /* Put macros */
-  /* Put macros */
+/* Put macros */
 /**
  * @brief convenience macro around dagda_put_data_async
  *
@@ -530,7 +511,9 @@ extern "C" {
  * @return thread ID
  */
 #define dagda_put_matrix_async(value, base_type, mode, nb_rows, nb_cols, order) \
-  dagda_put_data_async(value, DIET_MATRIX, base_type, mode, nb_rows, nb_cols, order, NULL)
+  dagda_put_data_async(value, DIET_MATRIX, base_type, mode, nb_rows, nb_cols, \
+                       order, \
+                       NULL)
 
 /**
  * @brief convenience macro around dagda_put_data_async
@@ -608,7 +591,8 @@ extern "C" {
  *
  * @return thread ID
  */
-#define dagda_get_paramstring_async(ID) dagda_get_data_async(ID, DIET_PARAMSTRING)
+#define dagda_get_paramstring_async(ID) dagda_get_data_async(ID, \
+                                                             DIET_PARAMSTRING)
 /**
  * @brief convenience macro around dagda_get_data_async
  *
@@ -750,4 +734,4 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
-#endif
+#endif // ifndef __DIET_DAGDA_H__

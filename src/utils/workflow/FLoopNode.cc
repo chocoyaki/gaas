@@ -3,40 +3,12 @@
 * 
 * @brief  The classes representing the for/while loops of a functional workflow
 * 
-* @author  - Benjamin ISNARD (Benjamin.Isnard@ens-lyon.fr)
+* @author  Benjamin ISNARD (Benjamin.Isnard@ens-lyon.fr)
 * 
 * @section Licence
 *   |LICENSE|                                                                
 */
-/* $Id$
- * $Log$
- * Revision 1.8  2011/02/24 16:50:06  bdepardo
- * Code cleanup.
- * Use TRACE_TEXT instead of cout
- *
- * Revision 1.7  2011/01/13 23:07:20  ecaron
- * Bug fix in header
- *
- * Revision 1.6  2010/07/20 09:20:11  bisnard
- * integration with eclipse gui and with dietForwarder
- *
- * Revision 1.5  2010/04/28 14:11:49  bdepardo
- * Bug correction for while condition.
- *
- * Revision 1.4  2009/08/26 10:32:11  bisnard
- * corrected  warnings
- *
- * Revision 1.3  2009/07/23 12:30:10  bisnard
- * new method finalize() for functional wf nodes
- * removed const on currDataLine parameter for instance creation
- *
- * Revision 1.2  2009/07/10 12:55:59  bisnard
- * implemented while loop workflow node
- *
- * Revision 1.1  2009/07/07 09:06:08  bisnard
- * new class FLoopNode to handle workflow loops
- *
- ****************************************************************************/
+
 
 #include "FLoopNode.hh"
 

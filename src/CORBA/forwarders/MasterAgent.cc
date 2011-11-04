@@ -1,32 +1,14 @@
 /**
-* @file MasterAgent.cc
-* 
-* @brief  DIET forwarder implementation - MA DAG forwarder implementation
-* 
-* @author - Gael Le Mahec   (gael.le.mahec@ens-lyon.fr) 
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.5  2010/11/24 15:12:56  bdepardo
- * searchData is now available on all agents. SeDs are now able to retrieve
- * a DAGDA data from an alias specified by a client.
- * Currently a SeD cannot declare an alias.
+ * @file MasterAgent.cc
  *
- * Revision 1.4  2010/07/27 16:16:49  glemahec
- * Forwarders robustness
+ * @brief  DIET forwarder implementation - MA DAG forwarder implementation
  *
- * Revision 1.3  2010/07/14 23:45:30  bdepardo
- * Header corrections
+ * @author  Gael Le Mahec   (gael.le.mahec@ens-lyon.fr)
  *
- * Revision 1.2  2010/07/13 15:24:13  glemahec
- * Warnings corrections and some robustness improvements
- *
- * Revision 1.1  2010/07/12 16:08:56  glemahec
- * DIET 2.5 beta 1 - Forwarder implementations
- ****************************************************************************/
+ * @section Licence
+ *   |LICENSE|
+ */
+
 
 #include "DIETForwarder.hh"
 #include "ORBMgr.hh"
@@ -35,10 +17,10 @@
 #include <string>
 #include <iostream>
 
-corba_response_t*
-DIETForwarder::submit(const ::corba_pb_desc_t& pb_profile,
+corba_response_t *
+DIETForwarder::submit(const ::corba_pb_desc_t &pb_profile,
                       ::CORBA::ULong maxServers,
-                      const char* objName) {
+                      const char *objName) {
   TRACE_TEXT(TRACE_STRUCTURES, __FILE__
              << ": l." << __LINE__ << " (" << __FUNCTION__ << ")\n");
   std::string objString(objName);
@@ -57,17 +39,17 @@ DIETForwarder::submit(const ::corba_pb_desc_t& pb_profile,
   TRACE_TEXT(TRACE_MAIN_STEPS, "Forwarder local object call: \n");
   TRACE_TEXT(TRACE_MAIN_STEPS,
              "\t- Resolve " << name << " from this forwarder ("
-             << this->name << ")\n");
+                            << this->name << ")\n");
 
   MasterAgent_var agent =
     ORBMgr::getMgr()->resolve<MasterAgent, MasterAgent_var>(AGENTCTXT,
                                                             name,
                                                             this->name);
   return agent->submit(pb_profile, maxServers);
-}
+} // submit
 
 ::CORBA::Long
-DIETForwarder::get_session_num(const char* objName) {
+DIETForwarder::get_session_num(const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -82,10 +64,10 @@ DIETForwarder::get_session_num(const char* objName) {
                                                             name,
                                                             this->name);
   return agent->get_session_num();
-}
+} // get_session_num
 
-char*
-DIETForwarder::get_data_id(const char* objName) {
+char *
+DIETForwarder::get_data_id(const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -100,10 +82,10 @@ DIETForwarder::get_data_id(const char* objName) {
                                                             name,
                                                             this->name);
   return agent->get_data_id();
-}
+} // get_data_id
 
 ::CORBA::ULong
-DIETForwarder::dataLookUp(const char* id, const char* objName) {
+DIETForwarder::dataLookUp(const char *id, const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -118,10 +100,10 @@ DIETForwarder::dataLookUp(const char* id, const char* objName) {
                                                             name,
                                                             this->name);
   return agent->dataLookUp(id);
-}
+} // dataLookUp
 
-corba_data_desc_t*
-DIETForwarder::get_data_arg(const char* argID, const char* objName) {
+corba_data_desc_t *
+DIETForwarder::get_data_arg(const char *argID, const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -136,10 +118,10 @@ DIETForwarder::get_data_arg(const char* argID, const char* objName) {
                                                             name,
                                                             this->name);
   return agent->get_data_arg(argID);
-}
+} // get_data_arg
 
 ::CORBA::Long
-DIETForwarder::diet_free_pdata(const char* argID, const char* objName) {
+DIETForwarder::diet_free_pdata(const char *argID, const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -154,10 +136,10 @@ DIETForwarder::diet_free_pdata(const char* argID, const char* objName) {
                                                             name,
                                                             this->name);
   return agent->diet_free_pdata(argID);
-}
+} // diet_free_pdata
 
-SeqCorbaProfileDesc_t*
-DIETForwarder::getProfiles(::CORBA::Long& length, const char* objName) {
+SeqCorbaProfileDesc_t *
+DIETForwarder::getProfiles(::CORBA::Long &length, const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -172,12 +154,12 @@ DIETForwarder::getProfiles(::CORBA::Long& length, const char* objName) {
                                                             name,
                                                             this->name);
   return agent->getProfiles(length);
-}
+} // getProfiles
 
 #ifdef HAVE_WORKFLOW
-wf_response_t*
-DIETForwarder::submit_pb_set(const ::corba_pb_desc_seq_t& seq_pb,
-                             const char* objName) {
+wf_response_t *
+DIETForwarder::submit_pb_set(const ::corba_pb_desc_seq_t &seq_pb,
+                             const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -192,15 +174,15 @@ DIETForwarder::submit_pb_set(const ::corba_pb_desc_seq_t& seq_pb,
                                                             name,
                                                             this->name);
   return agent->submit_pb_set(seq_pb);
-}
+} // submit_pb_set
 
-response_seq_t*
-DIETForwarder::submit_pb_seq(const ::corba_pb_desc_seq_t& pb_seq,
+response_seq_t *
+DIETForwarder::submit_pb_seq(const ::corba_pb_desc_seq_t &pb_seq,
                              ::CORBA::Long reqCount,
-                             ::CORBA::Boolean& complete,
-                             ::CORBA::Long& firstReqId,
-                             ::CORBA::Long& seqReqId,
-                             const char* objName) {
+                             ::CORBA::Boolean &complete,
+                             ::CORBA::Long &firstReqId,
+                             ::CORBA::Long &seqReqId,
+                             const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -216,13 +198,13 @@ DIETForwarder::submit_pb_seq(const ::corba_pb_desc_seq_t& pb_seq,
                                                             name,
                                                             this->name);
   return agent->submit_pb_seq(pb_seq, reqCount, complete, firstReqId, seqReqId);
-}
-#endif
+} // submit_pb_seq
+#endif // ifdef HAVE_WORKFLOW
 
 ::CORBA::Long
-DIETForwarder::insertData(const char* key,
-                          const ::SeqString& values,
-                          const char* objName) {
+DIETForwarder::insertData(const char *key,
+                          const ::SeqString &values,
+                          const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -237,13 +219,13 @@ DIETForwarder::insertData(const char* key,
                                                             name,
                                                             this->name);
   return agent->insertData(key, values);
-}
+} // insertData
 
 #ifdef HAVE_MULTI_MA
 ::CORBA::Boolean
-DIETForwarder::handShake(const char* masterAgentName,
-                         const char* myName,
-                         const char* objName) {
+DIETForwarder::handShake(const char *masterAgentName,
+                         const char *myName,
+                         const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -258,10 +240,10 @@ DIETForwarder::handShake(const char* masterAgentName,
                                                             name,
                                                             this->name);
   return agent->handShake(masterAgentName, myName);
-}
+} // handShake
 
-char*
-DIETForwarder::getBindName(const char* objName) {
+char *
+DIETForwarder::getBindName(const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -276,13 +258,13 @@ DIETForwarder::getBindName(const char* objName) {
                                                             name,
                                                             this->name);
   return agent->getBindName();
-}
+} // getBindName
 
 void
-DIETForwarder::searchService(const char* masterAgentName,
-                             const char* myName,
-                             const ::corba_request_t& request,
-                             const char* objName) {
+DIETForwarder::searchService(const char *masterAgentName,
+                             const char *myName,
+                             const ::corba_request_t &request,
+                             const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -298,12 +280,12 @@ DIETForwarder::searchService(const char* masterAgentName,
                                                             name,
                                                             this->name);
   return agent->searchService(masterAgentName, myName, request);
-}
+} // searchService
 
 void
 DIETForwarder::stopFlooding(::CORBA::Long reqId,
-                            const char* senderId,
-                            const char* objName) {
+                            const char *senderId,
+                            const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -318,12 +300,12 @@ DIETForwarder::stopFlooding(::CORBA::Long reqId,
                                                             name,
                                                             this->name);
   return agent->stopFlooding(reqId, senderId);
-}
+} // stopFlooding
 
 void
 DIETForwarder::serviceNotFound(::CORBA::Long reqId,
-                               const char* senderId,
-                               const char* objName) {
+                               const char *senderId,
+                               const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -338,12 +320,12 @@ DIETForwarder::serviceNotFound(::CORBA::Long reqId,
                                                             name,
                                                             this->name);
   return agent->serviceNotFound(reqId, senderId);
-}
+} // serviceNotFound
 
 void
 DIETForwarder::newFlood(::CORBA::Long reqId,
-                        const char* senderId,
-                        const char* objName) {
+                        const char *senderId,
+                        const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -358,12 +340,12 @@ DIETForwarder::newFlood(::CORBA::Long reqId,
                                                             name,
                                                             this->name);
   return agent->newFlood(reqId, senderId);
-}
+} // newFlood
 
 void
 DIETForwarder::floodedArea(::CORBA::Long reqId,
-                           const char* senderId,
-                           const char* objName) {
+                           const char *senderId,
+                           const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -378,12 +360,12 @@ DIETForwarder::floodedArea(::CORBA::Long reqId,
                                                             name,
                                                             this->name);
   return agent->floodedArea(reqId, senderId);
-}
+} // floodedArea
 
 void
 DIETForwarder::alreadyContacted(::CORBA::Long reqId,
-                                const char* senderId,
-                                const char* objName) {
+                                const char *senderId,
+                                const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -398,12 +380,12 @@ DIETForwarder::alreadyContacted(::CORBA::Long reqId,
                                                             name,
                                                             this->name);
   return agent->alreadyContacted(reqId, senderId);
-}
+} // alreadyContacted
 
 void
 DIETForwarder::serviceFound(::CORBA::Long reqId,
-                            const ::corba_response_t& decision,
-                            const char* objName) {
+                            const ::corba_response_t &decision,
+                            const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -418,5 +400,5 @@ DIETForwarder::serviceFound(::CORBA::Long reqId,
                                                             name,
                                                             this->name);
   return agent->serviceFound(reqId, decision);
-}
-#endif
+} // serviceFound
+#endif // ifdef HAVE_MULTI_MA

@@ -25,7 +25,6 @@
 
 namespace boost {
 namespace process {
-
 /**
  * Representation of a process' environment variables.
  *
@@ -45,8 +44,7 @@ namespace process {
  * type, and this behavior is required by Windows systems.
  */
 typedef std::map<std::string, std::string> environment;
-
 }
 }
 
-#endif
+#endif // ifndef BOOST_PROCESS_ENVIRONMENT_HPP

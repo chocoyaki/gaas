@@ -3,37 +3,12 @@
 * 
 * @brief  The class representing the IF condition in a functional workflow
 * 
-* @author  - Benjamin ISNARD (Benjamin.Isnard@ens-lyon.fr)
+* @author  Benjamin ISNARD (Benjamin.Isnard@ens-lyon.fr)
 * 
 * @section Licence
 *   |LICENSE|                                                                
 */
-/* $Id$
- * $Log$
- * Revision 1.6  2009/07/23 12:30:10  bisnard
- * new method finalize() for functional wf nodes
- * removed const on currDataLine parameter for instance creation
- *
- * Revision 1.5  2009/07/07 09:03:22  bisnard
- * changes for sub-workflows (FWorkflow class now inherits from FProcNode)
- *
- * Revision 1.4  2009/06/15 12:11:12  bisnard
- * use new XML Parser (SAX) for data source file
- * use new class WfValueAdapter to avoid data duplication
- * use new method FNodeOutPort::storeData
- * changed method to compute total nb of data items
- *
- * Revision 1.3  2009/05/27 08:49:43  bisnard
- * - modified condition output: new IF_THEN and IF_ELSE port types
- * - implemented MERGE and FILTER workflow nodes
- *
- * Revision 1.2  2009/05/15 11:10:20  bisnard
- * release for workflow conditional structure (if)
- *
- * Revision 1.1  2009/04/17 09:04:07  bisnard
- * initial version for conditional nodes in functional workflows
- *
- */
+
 
 #ifndef _FIFNODE_HH_
 #define _FIFNODE_HH_

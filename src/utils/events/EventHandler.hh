@@ -1,22 +1,14 @@
 /**
-* @file EventHandler.hh
-* 
-* @brief  Event Handler (Abstract interface class)  
-* 
-* @author - Benjamin Isnard (benjamin.isnard@ens-lyon.fr
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.2  2010/11/24 15:36:59  bdepardo
- * New line at the end of file to prevent warnings
+ * @file EventHandler.hh
  *
- * Revision 1.1  2010/07/20 09:13:57  bisnard
- * Adding event dispatcher
+ * @brief  Event Handler (Abstract interface class)
  *
+ * @author Benjamin Isnard (benjamin.isnard@ens-lyon.fr)
+ *
+ * @section Licence
+ *   |LICENSE|
  */
+
 
 #ifndef EVENTHANDLER_HH_
 #define EVENTHANDLER_HH_
@@ -28,16 +20,14 @@
 #include "EventBase.hh"
 
 namespace events {
-
 class EventHandler {
 public:
   virtual ~EventHandler() {
   }
 
   virtual void
-  handleEvent(const EventBase*) = 0;
+  handleEvent(const EventBase *) = 0;
 };
 }
 
-#endif
-
+#endif /* ifndef EVENTHANDLER_HH_ */

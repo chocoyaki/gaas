@@ -27,7 +27,6 @@
 
 namespace boost {
 namespace process {
-
 /**
  * Child process' input stream.
  *
@@ -54,62 +53,60 @@ namespace process {
  *         eventually fills up and the system blocks until the reader
  *         consumes some data, leaving some new room.
  */
-class postream : public std::ostream, public boost::noncopyable
-{
+class postream: public std::ostream, public boost::noncopyable {
 public:
-    /**
-     * Creates a new process' input stream.
-     */
-    explicit postream(boost::process::handle h)
-        : std::ostream(0),
-          handle_(h),
-          systembuf_(handle_.native())
-    {
-        rdbuf(&systembuf_);
-    }
+/**
+ * Creates a new process' input stream.
+ */
+explicit
+postream(boost::process::handle h)
+  : std::ostream(0),
+  handle_(h),
+  systembuf_(handle_.native()) {
+  rdbuf(&systembuf_);
+}
 
-    /**
-     * Returns the handle managed by this stream.
-     */
-    const boost::process::handle &handle() const
-    {
-        return handle_;
-    }
+/**
+ * Returns the handle managed by this stream.
+ */
+const boost::process::handle &
+handle() const {
+  return handle_;
+}
 
-    /**
-     * Returns the handle managed by this stream.
-     */
-    boost::process::handle &handle()
-    {
-        return handle_;
-    }
+/**
+ * Returns the handle managed by this stream.
+ */
+boost::process::handle &
+handle() {
+  return handle_;
+}
 
-    /**
-     * Closes the handle managed by this stream.
-     *
-     * Explicitly closes the handle managed by this stream. This
-     * function can be used by the user to tell the child process there
-     * is no more data to send.
-     */
-    void close()
-    {
-        systembuf_.sync();
-        handle_.close();
-    }
+/**
+ * Closes the handle managed by this stream.
+ *
+ * Explicitly closes the handle managed by this stream. This
+ * function can be used by the user to tell the child process there
+ * is no more data to send.
+ */
+void
+close() {
+  systembuf_.sync();
+  handle_.close();
+}
 
 private:
-    /**
-     * The handle managed by this stream.
-     */
-    boost::process::handle handle_;
+/**
+ * The handle managed by this stream.
+ */
+boost::process::handle handle_;
 
-    /**
-     * The systembuf object used to manage this stream's data.
-     */
-    detail::systembuf systembuf_;
+/**
+ * The systembuf object used to manage this stream's data.
+ */
+detail::systembuf systembuf_;
 };
-
 }
 }
 
-#endif
+#endif // ifndef BOOST_PROCESS_POSTREAM_HPP

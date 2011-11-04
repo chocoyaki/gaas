@@ -1,56 +1,13 @@
 /**
-* @file  FloodRequest.cc
-* 
-* @brief  Register the state of a request which is send through the MAs graph
-* 
-* @author - Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.10  2011/04/20 14:17:31  bdepardo
- * Removed a cout
+ * @file  FloodRequest.cc
  *
- * Revision 1.9  2011/01/21 17:27:31  bdepardo
- * Prefer prefix ++/-- operators for non-primitive types.
+ * @brief  Register the state of a request which is send through the MAs graph
  *
- * Revision 1.8  2010/07/12 20:14:32  glemahec
- * DIET 2.5 beta 1 - Forwarders with Multi-MAs bug correction
+ * @author  Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)
  *
- * Revision 1.7  2010/03/31 21:15:39  bdepardo
- * Changed C headers into C++ headers
- *
- * Revision 1.6  2010/03/03 10:19:03  bdepardo
- * Changed \n into endl
- *
- * Revision 1.5  2006/05/12 12:12:32  sdahan
- * Add some documentation about multi-MA
- *
- * Bug fix:
- *  - segfault when the neighbours configuration line was empty
- *  - deadlock when a MA create a link on itself
- *
- * Revision 1.4  2004/12/15 15:57:08  sdahan
- * rewrite the FloodRequestsList to use a simplest implementation. The previous mutex bugs does not exist anymore.
- *
- * Revision 1.3  2004/12/02 08:21:07  sdahan
- * bug fix:
- *   - file id leak in the BindService
- *   - can search an service that do not existe and having MA name different to
- *     its binding name.
- * warning message added in FloodRequest:
- *   - instead of just ignoring eronous message, a warning is print in the log
- * ALL_PRINT_STEP messages added to show some Multi-MAs request
- *
- * Revision 1.2  2004/10/15 08:19:56  hdail
- * Removed references to corba_response_t->sortedIndexes - no longer useful.
- *
- * Revision 1.1  2004/09/29 13:35:31  sdahan
- * Add the Multi-MAs feature.
- *
- ****************************************************************************/
+ * @section Licence
+ *   |LICENSE|
+ */
 
 #include "FloodRequest.hh"
 
@@ -58,11 +15,12 @@
 
 #include <cassert>
 
-//#include <stdio.h>
-//#define disp(act)  printf("-> %s %s\n", __ASSERT_FUNCTION, #act); act; printf("-< %s %s\n", __ASSERT_FUNCTION, #act);
+// #include <stdio.h>
+// #define disp(act)  printf("-> %s %s\n", __ASSERT_FUNCTION, #act); act; printf("-< %s %s\n", __ASSERT_FUNCTION, #act);
 #define disp(act) act;
 
-void FloodRequest::addNewResponse() {
+void
+FloodRequest::addNewResponse() {
   nbOfWaitingResponse--;
   if (nbOfWaitingResponse == 0) {
     disp(allResponseReceived->signal());
@@ -77,7 +35,7 @@ FloodRequest::FloodRequest() {
 }
 
 
-FloodRequest::FloodRequest(const FloodRequest & request) {
+FloodRequest::FloodRequest(const FloodRequest &request) {
   predecessor = request.predecessor;
   hop = 0;
   nbOfWaitingResponse = 0;
@@ -89,10 +47,10 @@ FloodRequest::FloodRequest(const FloodRequest & request) {
 }
 
 
-FloodRequest::FloodRequest(const MasterAgentImpl::MADescription& predecessor,
-                           const MasterAgentImpl::MADescription& owner,
-                           const corba_request_t& request,
-                           MasterAgentImpl::MAList& knownMAs) :
+FloodRequest::FloodRequest(const MasterAgentImpl::MADescription &predecessor,
+                           const MasterAgentImpl::MADescription &owner,
+                           const corba_request_t &request,
+                           MasterAgentImpl::MAList &knownMAs):
   predecessor(predecessor), owner(owner), request(request) {
   hop = 0;
   nbOfWaitingResponse = 0;
@@ -100,8 +58,8 @@ FloodRequest::FloodRequest(const MasterAgentImpl::MADescription& predecessor,
   // copy the list of the neighboring MAs but without the MA that had
   // send this request.
   for (MasterAgentImpl::MAList::iterator iter = knownMAs.begin();
-      iter != knownMAs.end(); ++iter) {
-    NeighbouringMA& newNeighbouringMA = neighbouringMAs[iter->first];
+       iter != knownMAs.end(); ++iter) {
+    NeighbouringMA &newNeighbouringMA = neighbouringMAs[iter->first];
     newNeighbouringMA.maDescription = iter->second;
     if (predecessor.defined() &&
         (iter->first == KeyString(predecessor->getBindName()))) {
@@ -121,7 +79,7 @@ FloodRequest::~FloodRequest() {
 
 
 FloodRequest &
-FloodRequest::operator=(const FloodRequest & request) {
+FloodRequest::operator=(const FloodRequest &request) {
   predecessor = request.predecessor;
   owner = request.owner;
   neighbouringMAs = request.neighbouringMAs;
@@ -132,7 +90,7 @@ FloodRequest::operator=(const FloodRequest & request) {
 
 
 RequestID
-FloodRequest::getId(){
+FloodRequest::getId() {
   return request.reqID;
 }
 
@@ -143,7 +101,7 @@ FloodRequest::flooded() {
   if (hop >= 8) {
     return true;
   }
-   /* stop if the result is found or if there is no other MA. */
+  /* stop if the result is found or if there is no other MA. */
   NeighbouringMAs::iterator iter = neighbouringMAs.begin();
   for (; result && iter != neighbouringMAs.end(); ++iter) {
     if (iter->second.state != NeighbouringMA::nmaStateFlooded) {
@@ -151,52 +109,53 @@ FloodRequest::flooded() {
     }
   }
   return result;
-}
+} // flooded
 
 
 bool
 FloodRequest::floodNextStep() {
   KeyString ownerId = KeyString(owner->getBindName());
-  hop = hop+1;
+  hop = hop + 1;
   nbOfWaitingResponse = 0;
   bool completelyFlooded = true;
 
   for (NeighbouringMAs::iterator iter = neighbouringMAs.begin();
-      iter != neighbouringMAs.end(); ++iter) {
-    MasterAgentImpl::MADescription& MA = iter->second.maDescription;
+       iter != neighbouringMAs.end(); ++iter) {
+    MasterAgentImpl::MADescription &MA = iter->second.maDescription;
     switch (iter->second.state) {
-    case NeighbouringMA::nmaStateNotContacted :
+    case NeighbouringMA::nmaStateNotContacted:
       // first contact with the MA
       try {
         MA->searchService(ownerId, ownerId, request);
         iter->second.state = NeighbouringMA::nmaStateFlooding;
         completelyFlooded = false;
         nbOfWaitingResponse++;
-      } catch (CORBA::SystemException& ex) {
+      } catch (CORBA::SystemException &ex) {
         iter->second.state = NeighbouringMA::nmaStateFlooded;
       }
       break;
-    case NeighbouringMA::nmaStateFlooding :
+    case NeighbouringMA::nmaStateFlooding:
       // the MA was already contacted, ask to continue the search
       try {
         MA->newFlood(request.reqID, ownerId);
         nbOfWaitingResponse++;
-      } catch (CORBA::SystemException& ex) {
+      } catch (CORBA::SystemException &ex) {
         iter->second.state = NeighbouringMA::nmaStateFlooded;
       }
       completelyFlooded = false;
       break;
-    case NeighbouringMA::nmaStateFlooded :
-    case NeighbouringMA::nmaStateAlreadyContacted :
+    case NeighbouringMA::nmaStateFlooded:
+    case NeighbouringMA::nmaStateAlreadyContacted:
       // this area is already completely flooded
       break;
-    }
+    } // switch
   }
   return completelyFlooded;
-}
+} // floodNextStep
 
 
-void FloodRequest::waitResponses() {
+void
+FloodRequest::waitResponses() {
   // wait a maximum of 5 seconds
   unsigned long s, n;
   locker.lock();
@@ -220,13 +179,13 @@ FloodRequest::stopFlooding() {
   /* tell to all the contacted MA that the service is found and the
      flooding must stop. */
   for (NeighbouringMAs::iterator iter = neighbouringMAs.begin();
-      iter != neighbouringMAs.end(); ++iter) {
+       iter != neighbouringMAs.end(); ++iter) {
     if (iter->second.state != NeighbouringMA::nmaStateNotContacted &&
-       iter->second.state != NeighbouringMA::nmaStateAlreadyContacted) {
+        iter->second.state != NeighbouringMA::nmaStateAlreadyContacted) {
       try {
         iter->second.maDescription->stopFlooding(request.reqID,
                                                  owner->getBindName());
-      } catch (CORBA::SystemException& ex) {
+      } catch (CORBA::SystemException &ex) {
         /* does nothing */
       }
     }
@@ -237,7 +196,7 @@ FloodRequest::stopFlooding() {
     nbOfWaitingResponse = 0;
     allResponseReceived->signal();
   }
-}
+} // stopFlooding
 
 
 void
@@ -271,7 +230,7 @@ FloodRequest::addResponseAlreadyContacted(KeyString senderId) {
 
 
 void
-FloodRequest::addResponseServiceFound(const corba_response_t& decision) {
+FloodRequest::addResponseServiceFound(const corba_response_t &decision) {
   CORBA::ULong decisionsLength = decisions.servers.length();
   CORBA::ULong newDecisionsLength =
     decisionsLength + decision.servers.length();
@@ -285,6 +244,6 @@ FloodRequest::addResponseServiceFound(const corba_response_t& decision) {
   }
 
   addNewResponse();
-}
+} // addResponseServiceFound
 
 #endif  // HAVE_MULTI_MA

@@ -1,38 +1,14 @@
 /**
-* @file Container.hh
-* 
-* @brief  Container implementation   
-* 
-* @author  - Benjamin Isnard (benjamin.isnard@ens-lyon.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.6  2010/07/12 16:14:12  glemahec
- * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
+ * @file Container.hh
  *
- * Revision 1.5  2009/09/25 12:43:37  bisnard
- * modified send method to handle missing relationships
+ * @brief  Container implementation
  *
- * Revision 1.4  2009/03/27 09:09:41  bisnard
- * replace container size attr by dynamic value
+ * @author  Benjamin Isnard (benjamin.isnard@ens-lyon.fr)
  *
- * Revision 1.3  2009/01/16 13:32:47  bisnard
- * replaced use of DagdaImpl ptr by dagda object ref
- * modified constructor signature
- * moved container descr update from addData to DagdaImpl
- *
- * Revision 1.2  2008/12/09 12:06:21  bisnard
- * changed container download method to transfer only the list of IDs
- * (each container element must be downloaded separately)
- *
- * Revision 1.1  2008/09/09 10:05:14  bisnard
- * container mgmt using Dagda agent
- *
- *
- ***********************************************************/
+ * @section Licence
+ *   |LICENSE|
+ */
+
 
 #ifndef __CONTAINER_HH__
 #define __CONTAINER_HH__
@@ -50,7 +26,7 @@ public:
    * Constructor by ID
    * Access an existing container on the local Data Mgr
    */
-  Container(const char* dataID, Dagda_ptr dataMgr, DataRelationMgr* relMgr);
+  Container(const char *dataID, Dagda_ptr dataMgr, DataRelationMgr * relMgr);
 
   /**
    * Destructor
@@ -66,7 +42,7 @@ public:
    * @param flag    the flag of the relation to the container
    */
   void
-  addData(const char* dataID, long index, long flag);
+  addData(const char *dataID, long index, long flag);
 
   /**
    * Remove the i-th element from the container (does not delete the element)
@@ -90,7 +66,7 @@ public:
    * @param ordered sort the elements in the initial order
    */
   void
-  getAllElements(SeqString& dataIDSeq, SeqLong& flagSeq, bool ordered);
+  getAllElements(SeqString &dataIDSeq, SeqLong &flagSeq, bool ordered);
 
   /**
    * Send the container to a remote Data Mgr
@@ -98,14 +74,14 @@ public:
    * @param sendData  if true, will send all the elements of the container
    *                  if false, will send only the relationships
    */
-  char*
-  send(const char* destName, bool sendData = true);
+  char *
+  send(const char *destName, bool sendData = true);
 
 private:
   /**
    * The DAGDA ID of the container
    */
-  std::string  myID;
+  std::string myID;
 
   /**
    * The Data Mgr that contains the container
@@ -115,7 +91,7 @@ private:
   /**
    * The data relation Mgr that manages the container-elements relationship
    */
-  DataRelationMgr*  myRelMgr;
+  DataRelationMgr *myRelMgr;
 
   /**
    * Not found flag
@@ -128,4 +104,4 @@ private:
   int nbOfElements;
 };  // end class Container
 
-#endif
+#endif /* ifndef __CONTAINER_HH__ */

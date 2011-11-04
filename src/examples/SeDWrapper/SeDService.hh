@@ -1,21 +1,12 @@
 /**
-* @file SeDService.hh
-* 
-* @brief   Type for SeD Service description  
-* 
-* @author  - Benjamin ISNARD (benjamin.isnard@ens-lyon.fr) 
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.2  2011/01/21 18:20:21  bdepardo
- * Set a few methods to const
+ * @file SeDService.hh
  *
- * Revision 1.1  2010/04/06 15:02:37  bdepardo
- * Added SeDWrapper example. This example is compiled when workflows are activated.
+ * @brief   Type for SeD Service description
  *
+ * @author  Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)
+ *
+ * @section Licence
+ *   |LICENSE|
  */
 
 #ifndef _SEDSERVICE_HH_
@@ -36,9 +27,10 @@ class SeDDescrParser;
 
 class SeDArgument {
 public:
-  explicit SeDArgument(SeDService* parent);
+  explicit
+  SeDArgument(SeDService *parent);
 
-  SeDArgument(const SeDArgument& src, SeDService* parent);
+  SeDArgument(const SeDArgument &src, SeDService * parent);
 
   typedef enum {
     IN,
@@ -70,20 +62,20 @@ public:
     return myType;
   }
 
-  const std::string&
+  const std::string &
   getOption() const {
     return myOption;
   }
 
-  const std::string&
+  const std::string &
   getValue();
 
-  const std::string&
+  const std::string &
   getTemplate() const {
     return myTemplate;
   }
 
-  const std::string&
+  const std::string &
   getLabel() const {
     return myLabel;
   }
@@ -99,37 +91,37 @@ public:
   }
 
   void
-  setType(const std::string& strType);
+  setType(const std::string &strType);
 
   void
-  setLabel(const std::string& label) {
+  setLabel(const std::string &label) {
     myLabel = label;
   }
 
   void
-  setOption(const std::string& option) {
+  setOption(const std::string &option) {
     myOption = option;
   }
 
   void
-  setValue(const std::string& value) {
+  setValue(const std::string &value) {
     myValue = value;
   }
 
   void
-  setTemplate(const std::string& templ);
+  setTemplate(const std::string &templ);
 
 private:
-  SeDArgument(const SeDArgument& src) {
+  SeDArgument(const SeDArgument &src) {
   }
 
   SeDService *myParent;
-  Io_t    myIo;
-  Type_t  myType;
-  std::string  myLabel;
-  std::string  myOption;
-  std::string  myValue;
-  std::string  myTemplate;
+  Io_t myIo;
+  Type_t myType;
+  std::string myLabel;
+  std::string myOption;
+  std::string myValue;
+  std::string myTemplate;
 };
 
 /*****************************************************************************/
@@ -142,11 +134,12 @@ public:
    * Constructor
    * @param name  the identifier of the service
    */
-  explicit SeDService(const std::string& name);
+  explicit
+  SeDService(const std::string &name);
 
-  SeDService(SeDDescrParser *parser, const std::string& name);
+  SeDService(SeDDescrParser * parser, const std::string & name);
 
-  SeDService(const SeDService& src);
+  SeDService(const SeDService &src);
 
   ~SeDService();
 
@@ -161,7 +154,7 @@ public:
    * @param execName  the script name (absolute or relative path)
    */
   void
-  setExecutableName(const std::string& execName) {
+  setExecutableName(const std::string &execName) {
     myExecName = execName;
   }
 
@@ -178,34 +171,35 @@ public:
   }
 
   // Properties getters
-  const std::string&
+  const std::string &
   getName() const {
     return myName;
   }
 
-  const std::string&
+  const std::string &
   getExecName() const {
     return myExecName;
   }
 
   double
   getAvgComputationTime() const {
-    return myAvgCompTime; }
+    return myAvgCompTime;
+  }
 
   // Elements builders (order of creation = order of the params)
-  SeDArgument*
-  addInput(const std::string& name,
-           const std::string& option,
-           const std::string& type);
+  SeDArgument *
+  addInput(const std::string &name,
+           const std::string &option,
+           const std::string &type);
 
-  SeDArgument*
-  addOutput(const std::string& name,
-            const std::string& option,
-            const std::string& type);
+  SeDArgument *
+  addOutput(const std::string &name,
+            const std::string &option,
+            const std::string &type);
 
   void
-  addDependency(const std::string& name,
-                const std::string& localPath);
+  addDependency(const std::string &name,
+                const std::string &localPath);
 
   // Elements access
   unsigned int
@@ -217,13 +211,14 @@ public:
   unsigned int
   getOutputNb() const;
 
-  const std::list<SeDArgument*>&
+  const std::list<SeDArgument *> &
   getArgs() const {
     return myArgs;
   }
 
   SeDArgument
-  *getArg(unsigned int idx) const;  // idx starts at 0
+  *
+  getArg(unsigned int idx) const;   // idx starts at 0
 
   /* DECLARATION */
 
@@ -233,9 +228,9 @@ public:
   /* EXECUTION */
 
   int
-  createWorkingDirectory(const std::string& currentDirectory);
+  createWorkingDirectory(const std::string &currentDirectory);
 
-  const std::string&
+  const std::string &
   getWorkingDirectory() const;
 
   int
@@ -245,18 +240,18 @@ public:
   cpyDependencies();
 
   void
-  cpyProfileToArgs(diet_profile_t* pb);
+  cpyProfileToArgs(diet_profile_t *pb);
 
   bool
-  cpyArgsToProfile(diet_profile_t* pb);
+  cpyArgsToProfile(diet_profile_t *pb);
 
   void
-  genCommandLine(std::string& cmdLine);
+  genCommandLine(std::string &cmdLine);
 
   void
   genUniqueReqId();
 
-  const std::string&
+  const std::string &
   getReqId() const {
     return myReqId;
   }
@@ -277,9 +272,9 @@ protected:
    */
   int
   cpyFileToWorkingDir(SeDArgument *arg,
-                      const std::string& srcFile,
-                      const std::string& dstDir,
-                      std::string& dstFile);
+                      const std::string &srcFile,
+                      const std::string &dstDir,
+                      std::string &dstFile);
   /**
    * Make a copy of files contained in a DAGDA container
    * Assumes the container is containing only files (depth = 1)
@@ -290,8 +285,8 @@ protected:
    */
   int
   cpyContainerToDir(SeDArgument *arg,
-                    const std::string& containerID,
-                    std::string& createdDir);
+                    const std::string &containerID,
+                    std::string &createdDir);
 
   /**
    * Make a copy of files into a DAGDA container
@@ -305,8 +300,8 @@ protected:
    */
   void
   cpyDirToContainer(SeDArgument *arg,
-                    const std::string& containerID,
-                    const std::string& dirPath);
+                    const std::string &containerID,
+                    const std::string &dirPath);
 
   /**
    * Service name (identifier)
@@ -322,7 +317,7 @@ protected:
    * Average computation time for the service
    * This is used to answer DIET requests for performance estimation
    */
-  double  myAvgCompTime;
+  double myAvgCompTime;
 
   /**
    * Number of service requests received
@@ -333,7 +328,7 @@ protected:
   /**
    * List of all arguments (same order as command line)
    */
-  std::list<SeDArgument*>  myArgs;
+  std::list<SeDArgument *>  myArgs;
 
   /**
    * Container for all dependencies (no order)
@@ -343,7 +338,7 @@ protected:
   /**
    * Parser used to process templates
    */
-  SeDDescrParser * myParser;
+  SeDDescrParser *myParser;
 
   /**
    * Unique request ID used to generate directory or file names for the
@@ -359,4 +354,4 @@ protected:
   std::string myWorkingDir;
 };
 
-#endif
+#endif /* ifndef _SEDSERVICE_HH_ */

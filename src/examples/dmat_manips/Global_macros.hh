@@ -1,25 +1,14 @@
 /**
-* @file Global_macros.hh
-* 
-* @brief  DIET macros for use with thte asynchronous versions of dmat_manips 
-* 
-* @author  - Christophe PERA (Philippe.Combes@ens-lyon.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.3  2006/02/03 01:45:39  ecaron
- * Take into account the OS for omnithread thus MacOSX compilation is done.
+ * @file Global_macros.hh
  *
- * Revision 1.2  2003/06/30 11:15:12  cpera
- * Fix bugs in ReaderWriter and new internal debug macros.
+ * @brief  DIET macros for use with thte asynchronous versions of dmat_manips
  *
- * Revision 1.1  2003/06/16 17:12:49  pcombes
- * Move the examples using the asynchronous API into this directory.
+ * @author  Christophe PERA (Philippe.Combes@ens-lyon.fr)
  *
- ****************************************************************************/
+ * @section Licence
+ *   |LICENSE|
+ */
+
 
 #ifndef _GLOBAL_MACROS_HH_
 #define _GLOBAL_MACROS_HH_
@@ -53,7 +42,7 @@
   gettimeofday(&tval, NULL);                    \
   std::cout << "timer=" << tval.tv_sec << ", " << tval.tv_usec << "|";
 #define VARIABLE_OUTPUT(X)                      \
-  cout << #X << "=" << X;
+  cout << # X << "=" << X;
 #define TEXT_OUTPUT(X)                          \
   printf X;
 # if defined (DIET_NDEBUG)
@@ -64,13 +53,13 @@
 
 # define DIET_TRACE_IMPL(X)                             \
   do {                                                  \
-    if (traceTimer == 1) { TIMER_OUTPUT() }             \
-    if (traceThreadId == 1){ OMNITHREADID_OUTPUT() }    \
-    if (traceFile == 1) { FILE_OUTPUT() }               \
-    if (traceLine == 1) { LINE_OUTPUT() }               \
-    if (traceFunction == 1) { FUNCTION_OUTPUT() }       \
+    if (traceTimer == 1) {TIMER_OUTPUT()}             \
+    if (traceThreadId == 1) {OMNITHREADID_OUTPUT()}    \
+    if (traceFile == 1) {FILE_OUTPUT()}               \
+    if (traceLine == 1) {LINE_OUTPUT()}               \
+    if (traceFunction == 1) {FUNCTION_OUTPUT()}       \
     X                                                   \
-      std::cout << "\n";                                \
+    std::cout << "\n";                                \
     fflush(stdout);                                     \
     fflush(stderr);                                     \
   } while (0);

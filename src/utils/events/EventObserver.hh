@@ -1,22 +1,14 @@
 /**
-* @file EventObserver.hh
-* 
-* @brief   Event Observer (Abstract Listener interface class) 
-* 
-* @author - Benjamin Isnard (benjamin.isnard@ens-lyon.fr
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.2  2010/11/24 15:36:59  bdepardo
- * New line at the end of file to prevent warnings
+ * @file EventObserver.hh
  *
- * Revision 1.1  2010/07/20 09:13:57  bisnard
- * Adding event dispatcher
+ * @brief   Event Observer (Abstract Listener interface class)
  *
+ * @author  Benjamin Isnard (benjamin.isnard@ens-lyon.fr)
+ *
+ * @section Licence
+ *   |LICENSE|
  */
+
 
 #ifndef EVENTOBSERVER_HH_
 #define EVENTOBSERVER_HH_
@@ -25,16 +17,14 @@
 #include "EventHandler.hh"
 
 namespace events {
-
 class EventObserver : public EventHandler {
 public:
   virtual ~EventObserver() {
   }
 
   virtual bool
-  isObserver(const EventBase* event) const = 0;
+  isObserver(const EventBase *event) const = 0;
 };
 }
 
 #endif  // EVENTOBSERVER_HH_
-

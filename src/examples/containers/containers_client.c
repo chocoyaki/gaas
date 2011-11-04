@@ -1,19 +1,13 @@
 /**
-* @file containers_client.c
-* 
-* @brief  Client example using Containers 
-* 
-* @author  - Gaël Le Mahec (gael.le.mahec@ens-lyon.fr) 
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.4  2011/01/13 23:50:21  ecaron
- * Add missing header
+ * @file containers_client.c
  *
- ****************************************************************************/
+ * @brief  Client example using Containers
+ *
+ * @author  Gaël Le Mahec (gael.le.mahec@ens-lyon.fr)
+ *
+ * @section Licence
+ *   |LICENSE|
+ */
 
 #include <string.h>
 #include <unistd.h>
@@ -26,33 +20,34 @@
 #include "DIET_Dagda.h"
 
 int
-usage(char* cmd)
-{
-  printf("Usage : %s <file.cfg> <service_name> <time>\nExample : %s client.cfg service1 100\n", cmd, cmd);
+usage(char *cmd) {
+  printf(
+    "Usage : %s <file.cfg> <service_name> <time>\nExample : %s client.cfg service1 100\n",
+    cmd, cmd);
   printf("Warning: file /tmp/logo_diet.jpg MUST EXIST!\n");
   return 1;
 }
 
 int
-main(int argc, char* argv[])
-{
+main(int argc, char *argv[]) {
   long sleepTime;
-  char *path1 = (char*) "/tmp/logo_diet.jpg";
+  char *path1 = (char *) "/tmp/logo_diet.jpg";
   long *outsleepTime = NULL;
-  char * service_name = NULL;
-  diet_profile_t* profile1;
-  char * ID1;
-  char * ID2;
-  char * ID3;
-  char * ID4;
-  char * ID5;
+  char *service_name = NULL;
+  diet_profile_t *profile1;
+  char *ID1;
+  char *ID2;
+  char *ID3;
+  char *ID4;
+  char *ID5;
   diet_container_t content1, content2;
   char *path3 = NULL;
-  if (argc == 4){
+  if (argc == 4) {
     service_name = argv[2];
     sleepTime = (long) atoi(argv[3]);
-  } else
+  } else {
     return usage(argv[0]);
+  }
 
   if (diet_initialize(argv[1], argc, argv)) {
     fprintf(stderr, "DIET initialization failed !\n");
@@ -60,7 +55,8 @@ main(int argc, char* argv[])
   }
   profile1 = diet_profile_alloc(service_name, 1, 1, 2);
   /* set INPUT scalar parameter */
-  diet_scalar_set(diet_parameter(profile1, 0), &sleepTime, DIET_VOLATILE, DIET_LONGINT);
+  diet_scalar_set(diet_parameter(profile1,
+                                 0), &sleepTime, DIET_VOLATILE, DIET_LONGINT);
 
   /* set INPUT container profile */
   printf("PUT first element on platform (scalar)\n");
@@ -84,7 +80,7 @@ main(int argc, char* argv[])
   diet_container_set(diet_parameter(profile1, 2), DIET_PERSISTENT);
 
   printf("Start DIET CALL\n");
-  if (diet_call(profile1)){
+  if (diet_call(profile1)) {
     return 1;
   }
   printf("DIET CALL finished\n");
@@ -102,20 +98,24 @@ main(int argc, char* argv[])
     printf("Get CHILD elements\n");
     if (content2.size == 4) {
       /* The first two elements are empty */
-      if ((content2.elt_ids[0] != NULL) || (content2.elt_ids[1] != NULL))
-        printf("ERROR: first two elements of the CHILD container are not empty\n");
-      dagda_get_scalar(content2.elt_ids[2],&outsleepTime, NULL);
-      dagda_get_file(content2.elt_ids[3],&path3);
+      if ((content2.elt_ids[0] != NULL) || (content2.elt_ids[1] != NULL)) {
+        printf(
+          "ERROR: first two elements of the CHILD container are not empty\n");
+      }
+      dagda_get_scalar(content2.elt_ids[2], &outsleepTime, NULL);
+      dagda_get_file(content2.elt_ids[3], &path3);
       printf("Container contains: VOID, VOID, %ld, %s\n", *outsleepTime, path3);
     } else {
-      printf("ERROR: OUTPUT CHILD container does not contain expected nb of elements\n");
+      printf(
+        "ERROR: OUTPUT CHILD container does not contain expected nb of elements\n");
     }
   } else {
-    printf("ERROR: OUTPUT PARENT container does not contain expected nb of elements\n");
+    printf(
+      "ERROR: OUTPUT PARENT container does not contain expected nb of elements\n");
   }
   printf("Deleting persistent data\n");
   dagda_delete_data(ID4);
   dagda_delete_data(content1.elt_ids[0]);
   diet_profile_free(profile1);
   return 0;
-}
+} /* main */

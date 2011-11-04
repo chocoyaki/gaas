@@ -1,13 +1,13 @@
 /**
-* @file	  dietObjects.cc
-* 
-* @brief  dietObjects tool
-* 
-* @author - Gael Le Mahec   (gael.le.mahec@ens-lyon.fr) 
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
+ * @file  dietObjects.cc
+ *
+ * @brief  dietObjects tool
+ *
+ * @author  Gael Le Mahec   (gael.le.mahec@ens-lyon.fr)
+ *
+ * @section Licence
+ *   |LICENSE|
+ */
 /****************************************************************************/
 /* Options:                                                                 */
 /*  list: without argument show the DIET corba contexts                     */
@@ -17,9 +17,7 @@
 /*  resolve: display the IOR(s) of the DIET objects                         */
 /*                                                                          */
 /****************************************************************************/
-/* $Id$
- * $Log$
- ****************************************************************************/
+
 #include <cstdlib>
 #include <algorithm>
 #include <iostream>
@@ -33,7 +31,7 @@
 #include "ORBMgr.hh"
 
 /* Sorted DIET contexts list. */
-static const char* DIET_CTXTS[] = {DAGDACTXT,
+static const char *DIET_CTXTS[] = {DAGDACTXT,
                                    LOGCOMPCTXT,
                                    WFLOGCTXT,
                                    AGENTCTXT,
@@ -47,70 +45,70 @@ static const char* DIET_CTXTS[] = {DAGDACTXT,
 /* TODO: Use a more generic class. */
 class Args {
 public:
-  Args(unsigned int argc, char* argv[]) : argc(argc), argv(argv, argv+argc) {
+Args(unsigned int argc, char *argv[]): argc(argc), argv(argv, argv + argc) {
+}
+
+std::string
+getArg(const unsigned int idx) const {
+  if (idx >= argc) {
+    return "";
+  }
+  return argv.at(idx);
+}
+
+std::list<std::string>
+values() const {
+  if (argc <= 2) {
+    return std::list<std::string>();
   }
 
-  std::string
-  getArg(const unsigned int idx) const {
-    if (idx >= argc) {
-      return "";
-    }
-    return argv.at(idx);
-  }
+  std::vector<std::string>::const_iterator beg = argv.begin();
+  std::advance(beg, 2);
+  return std::list<std::string>(beg, argv.end());
+}
 
-  std::list<std::string>
-  values() const {
-    if (argc <= 2) {
-      return std::list<std::string>();
-    }
+bool
+list() const {
+  return (getArg(1) == "list") && (argc == 2);
+}
 
-    std::vector<std::string>::const_iterator beg = argv.begin();
-    std::advance(beg, 2);
-    return std::list<std::string>(beg, argv.end());
-  }
+bool
+objList() const {
+  return (getArg(1) == "list") && (argc > 2);
+}
 
-  bool
-  list() const {
-    return (getArg(1) == "list") && (argc == 2);
-  }
+bool
+forwarder() const {
+  return (getArg(1) == "forwarder") && (argc == 2);
+}
 
-  bool
-  objList() const {
-    return (getArg(1) == "list") && (argc > 2);
-  }
+bool
+objForwarder() const {
+  return (getArg(1) == "forwarder") && (argc > 2);
+}
 
-  bool
-  forwarder() const {
-    return (getArg(1) == "forwarder") && (argc == 2);
-  }
-
-  bool
-  objForwarder() const {
-    return (getArg(1) == "forwarder") && (argc > 2);
-  }
-
-  bool
-  resolve() const {
-    return (getArg(1) == "resolve") && (argc > 2);
-  }
+bool
+resolve() const {
+  return (getArg(1) == "resolve") && (argc > 2);
+}
 
 private:
-  unsigned int argc;
-  std::vector<std::string> argv;
+unsigned int argc;
+std::vector<std::string> argv;
 };
 
 std::string
-getName(const std::string& namectxt) {
+getName(const std::string &namectxt) {
   size_t pos = namectxt.find('/');
   if (pos == std::string::npos) {
     return namectxt;
   }
 
-  return namectxt.substr(pos+1);
+  return namectxt.substr(pos + 1);
 }
 
 std::string
-getCtxt(const std::string& namectxt) {
+getCtxt(const std::string &namectxt) {
   size_t pos = namectxt.find('/');
   if (pos == std::string::npos) {
     return "";
@@ -121,9 +119,9 @@ getCtxt(const std::string& namectxt) {
 
 
 int
-main(int argc, char* argv[]) {
+main(int argc, char *argv[]) {
   ORBMgr::init(argc, argv);
-  ORBMgr* mgr = ORBMgr::getMgr();
+  ORBMgr *mgr = ORBMgr::getMgr();
   std::list<std::string>::iterator it;
 
   Args args(argc, argv);
@@ -135,10 +133,11 @@ main(int argc, char* argv[]) {
 
     std::list<std::string> dietCtxts;
 
-    set_intersection(DIET_CTXTS, DIET_CTXTS+10,
+    set_intersection(DIET_CTXTS, DIET_CTXTS + 10,
                      allCtxts.begin(), allCtxts.end(),
                      std::insert_iterator<std::list<
-                       std::string> >(dietCtxts, dietCtxts.begin()));
+                                            std::string> >(dietCtxts,
+                                                           dietCtxts.begin()));
 
     for (it = dietCtxts.begin(); it != dietCtxts.end(); ++it) {
       std::cout << *it << "\n";
@@ -151,10 +150,11 @@ main(int argc, char* argv[]) {
     contexts.sort();
     std::list<std::string> dietCtxts;
 
-    set_intersection(DIET_CTXTS, DIET_CTXTS+10,
+    set_intersection(DIET_CTXTS, DIET_CTXTS + 10,
                      contexts.begin(), contexts.end(),
                      std::insert_iterator<std::list<
-                     std::string> >(dietCtxts, dietCtxts.begin()));
+                                            std::string> >(dietCtxts,
+                                                           dietCtxts.begin()));
 
     for (it = dietCtxts.begin(); it != dietCtxts.end(); ++it) {
       std::list<std::string> objects;
@@ -162,7 +162,7 @@ main(int argc, char* argv[]) {
       std::cout << "Object type: " << *it << " (";
       objects = mgr->list(*it);
       std::cout << objects.size() << " object"
-                << (objects.size()>1 ? "s)":")") << "\n";
+                << (objects.size() > 1 ? "s)" : ")") << "\n";
       for (jt = objects.begin(); jt != objects.end(); ++jt) {
         bool isLocal = mgr->isLocal(*it, *jt);
         std::cout << "  " << *jt;
@@ -190,7 +190,7 @@ main(int argc, char* argv[]) {
       Forwarder_var fwd;
       std::list<std::string> objects;
 
-      for (const char** jt = DIET_CTXTS; *jt != NULL; ++jt) {
+      for (const char **jt = DIET_CTXTS; *jt != NULL; ++jt) {
         std::list<std::string> obj = mgr->list(*jt);
         for (std::list<std::string>::const_iterator kt = obj.begin();
              kt != obj.end();
@@ -206,7 +206,7 @@ main(int argc, char* argv[]) {
       std::cout << "Forwarder " << *it << "\n";
       try {
         fwd = mgr->resolve<Forwarder, Forwarder_var>(FWRDCTXT, *it);
-      } catch (std::runtime_error& err) {
+      } catch (std::runtime_error &err) {
         std::cerr << "Unknown forwarder: " << *it << "\n";
         continue;
       }
@@ -217,8 +217,8 @@ main(int argc, char* argv[]) {
                   << " (" << fwd->getPeerHost() << ")\n";
         std::cout << "  Managing: \n";
         for (std::list<std::string>::const_iterator jt = objects.begin();
-           jt != objects.end();
-           ++jt) {
+             jt != objects.end();
+             ++jt) {
           std::cout << "    - " << *jt << "\n";
         }
       } catch (...) {
@@ -247,7 +247,7 @@ main(int argc, char* argv[]) {
       try {
         localObject = mgr->simpleResolve(ctxt, name);
         proxyObject = mgr->resolveObject(ctxt, name);
-      } catch (std::runtime_error& err) {
+      } catch (std::runtime_error &err) {
         std::cerr << "Unknown object " << *it << "\n";
         continue;
       }
@@ -267,4 +267,4 @@ main(int argc, char* argv[]) {
     }
   }
   mgr->shutdown(true);
-}
+} // main

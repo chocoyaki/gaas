@@ -1,3 +1,10 @@
+/**
+*  @file  simple_server.c
+*  @brief  A Simple Client example
+*  @author
+*  @section Licence 
+*    |LICENCE|
+*/ 
 #include <stdio.h>
 #include "DIET_server.h"
 

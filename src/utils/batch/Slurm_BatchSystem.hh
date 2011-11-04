@@ -1,16 +1,14 @@
 /**
-* @file Slurm_BatchSystem.hh
-* 
-* @brief  Batch System Management with performance prediction: Slurm 
-* 
-* @author - Benjamin Depardon (Benjamin.Depardon@ens-lyon.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- ****************************************************************************/
+ * @file Slurm_BatchSystem.hh
+ *
+ * @brief  Batch System Management with performance prediction: Slurm
+ *
+ * @author  Benjamin Depardon (Benjamin.Depardon@ens-lyon.fr)
+ *
+ * @section Licence
+ *   |LICENSE|
+ */
+
 
 #ifndef _SLURM_BATCH_SYSTEM_HH_
 #define _SLURM_BATCH_SYSTEM_HH_
@@ -19,7 +17,7 @@
 
 class Slurm_BatchSystem : public BatchSystem {
 public:
-  Slurm_BatchSystem(int batchID, const char * batchName);
+  Slurm_BatchSystem(int batchID, const char *batchName);
 
   ~Slurm_BatchSystem();
 
@@ -27,7 +25,7 @@ public:
       whose ID is @param batchJobID .
       Updates the internal structure.
       Returns NB_STATUS on error, the status otherwise.
-  */
+   */
   batchJobState
   askBatchJobStatus(int batchJobID);
 
@@ -35,7 +33,7 @@ public:
       - not finished, returns 0
       - terminated, returns 1
       - not found, -1
-  */
+   */
   int
   isBatchJobCompleted(int batchJobID);
 
@@ -72,7 +70,7 @@ public:
 
 private:
   /* Strings used to filter batch job status if possible */
-  static const char * statusNames[];
+  static const char *statusNames[];
 };
 
 #endif  // SLURM_BATCH_SYSTEM

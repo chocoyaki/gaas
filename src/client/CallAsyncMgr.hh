@@ -1,76 +1,14 @@
 /**
-* @file  CallAsyncMgr.hh
-* 
-* @brief   Asynchronized calls singleton Manager  
-* 
-* @author  - Christophe PERA (christophe.pera@ens-lyon.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.18  2011/03/16 14:54:06  hguemar
- * remove dead code: unused class DietException in src/client/CallAsyncMgr.{hh, cc}
+ * @file  CallAsyncMgr.hh
  *
- * Revision 1.17  2010/03/31 21:15:39  bdepardo
- * Changed C headers into C++ headers
+ * @brief   Asynchronized calls singleton Manager
  *
- * Revision 1.16  2008/10/22 14:16:37  gcharrie
- * Adding MultiCall. It is used to devide a profile and make several calls with just one SeD. Some documentation will be added soon.
+ * @author   Christophe PERA (christophe.pera@ens-lyon.fr)
  *
- * Revision 1.15  2008/03/28 13:17:16  rbolze
- * update code to avoid warning with the intel compiler
- *
- * Revision 1.14  2006/07/13 14:40:39  aamar
- * Adding the doneRequest vector for already tested requests by
- * grpc_wait_any.
- *
- * Revision 1.13  2006/07/07 09:20:03  aamar
- * Adding the public function getAddSessionIDs.
- *
- * Revision 1.12  2006/06/29 15:02:41  aamar
- * Make change to handle the new type definition of grpc_function_handle_t (from a grpc_function_handle_s to grpc_function_handle_s*
- *
- * Revision 1.11  2006/06/29 12:26:15  aamar
- * Adding the following functions to the CallAsyncMgr class:
- *    - deleteAllAsyncCall (to be able to do a diet_cancel_all).
- *    - setReqErrorCode and getReqErrorCode to set and get the error code
- *      associated to each asynchronous request.
- *    - getFailedSession
- *    - checkSessionID (test if session id is valid)
- *    - saveHandle and getHandle
- * To manage these function three data strutures were added:
- *    - map<diet_reqID_t, diet_error_t>, vector<diet_reqID_t> failedSessions
- *      and map<diet_reqID_t, grpc_function_handle_t *> handlesMap
- *
- * Revision 1.10  2006/06/03 21:12:13  ycaniou
- * Correct warning "'CallAsyncMgr::dex' contains empty classes"
- * -- tkx Injay
- *
- * Revision 1.9  2003/12/01 14:49:31  pcombes
- * Rename dietTypes.hh to DIET_data_internal.hh, for more coherency.
- *
- * Revision 1.8  2003/10/13 13:03:52  uid515
- * Replace int by int32_t for managing 32-64 bits system and CORBA::Long type.
- *
- * Revision 1.7  2003/09/22 13:10:54  cpera
- * Fix bugs and correct release function.
- *
- * Revision 1.6  2003/07/25 20:37:36  pcombes
- * Separate the DIET API (slightly modified) from the GridRPC API (version of
- * the draft dated to 07/21/2003)
- *
- * Revision 1.5  2003/07/04 09:48:01  pcombes
- * enum STATE -> request_status_t, and its values are prefixed by STATUS.
- *
- * Revision 1.2  2003/06/04 14:40:05  cpera
- * Resolve bugs, change type of reqID (long int) and modify
- * diet_wait_all/diet_wait_any.
- *
- * Revision 1.1  2003/06/02 08:09:55  cpera
- * Beta version of asynchronize DIET API.
- ****************************************************************************/
+ * @section Licence
+ *   |LICENSE|
+ */
+
 
 
 #ifndef _CALLASYNCMGR_H_
@@ -87,12 +25,12 @@
 
 
 /****************************************************************************
- * A singleton class which manage asynchronnized call on SeD
- * Thread Safe using from client threads and corba callback server threads
- * Object model managing multiplex/demultiplex between client wait and corba
- * notify.
- * Use omni_conditionnal omnithread synchronized mecanism.
- ****************************************************************************/
+* A singleton class which manage asynchronnized call on SeD
+* Thread Safe using from client threads and corba callback server threads
+* Object model managing multiplex/demultiplex between client wait and corba
+* notify.
+* Use omni_conditionnal omnithread synchronized mecanism.
+****************************************************************************/
 
 
 typedef enum WAITOPERATOR {
@@ -102,7 +40,7 @@ typedef enum WAITOPERATOR {
   ANY,          // Wait rule is satisfied whatever request arrived
   ALL           // Wait rule is satisfied if all requests registered when the
   // rule is created are available
-}WAITOPERATOR;
+} WAITOPERATOR;
 
 typedef enum {
   STATUS_DONE = 0,   // Result is available in local memory
@@ -130,7 +68,7 @@ struct ruleElement {
 
 struct Rule {
   int length;
-  ruleElement * ruleElts;
+  ruleElement *ruleElts;
   request_status_t status;
 };
 
@@ -146,13 +84,13 @@ typedef std::map<int32_t, request_status_t> ReqIDStateMap;
 class CallAsyncMgr {
 public:
   // give a unique instance of CallAsyncMgr
-  static CallAsyncMgr*
+  static CallAsyncMgr *
   Instance();
 
   // client service API
   // add into internal list a new asynchronized reference
   int
-  addAsyncCall(diet_reqID_t reqID, diet_profile_t* dpt);
+  addAsyncCall(diet_reqID_t reqID, diet_profile_t *dpt);
 
   int
   deleteAsyncCall(diet_reqID_t reqID);
@@ -166,13 +104,13 @@ public:
   addWaitRule(Rule *rule);
 
   int
-  addWaitAnyRule(diet_reqID_t* IDptr);
+  addWaitAnyRule(diet_reqID_t *IDptr);
 
   int
   addWaitAllRule();
 
   int
-  deleteWaitRule(Rule* rule);
+  deleteWaitRule(Rule *rule);
 
   // persistence of async call ID and corba callback IOR
   // Not implemented
@@ -195,7 +133,7 @@ public:
   // initialise all necessary corba services
   // call by the first add of asynchronized call
   int
-  init(int argc, char* argv[]);
+  init(int argc, char *argv[]);
 
   // uninitialise all. end of corba servers ...
   // call when there is
@@ -221,7 +159,7 @@ public:
    * return the successives failed sessions
    */
   diet_error_t
-  getFailedSession(diet_reqID_t * reqIdPtr);
+  getFailedSession(diet_reqID_t *reqIdPtr);
 
   /*
    * check if the request ID is a valid
@@ -233,18 +171,18 @@ public:
    * Save a handle and associate it to a session ID
    */
   void
-  saveHandle(diet_reqID_t sessionID, grpc_function_handle_t* handle);
+  saveHandle(diet_reqID_t sessionID, grpc_function_handle_t *handle);
   /*
    * get the handle associated to the provided sessionID
    */
   diet_error_t
-  getHandle(grpc_function_handle_t** handle, diet_reqID_t sessionID);
+  getHandle(grpc_function_handle_t **handle, diet_reqID_t sessionID);
 
   /*
    * get all the session IDs
    */
-  diet_reqID_t*
-  getAllSessionIDs(int& len);
+  diet_reqID_t *
+  getAllSessionIDs(int &len);
 
 protected:
   int
@@ -254,7 +192,7 @@ protected:
   CallAsyncMgr();
 
 private:
-  static CallAsyncMgr* pinstance;
+  static CallAsyncMgr *pinstance;
   CallAsyncList caList;
   RulesReqIDMap rulesIDs;
   RulesConditionMap rulesConds;
@@ -273,7 +211,7 @@ private:
   /*
    * A map to save the function handles indexed by their session ID
    */
-  std::map<diet_reqID_t, grpc_function_handle_t*> handlesMap;
+  std::map<diet_reqID_t, grpc_function_handle_t *> handlesMap;
   /*
    * A vector of already done requests (that the user do
    * a wait_any on)

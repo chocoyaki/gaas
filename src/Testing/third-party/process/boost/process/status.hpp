@@ -26,7 +26,6 @@
 
 namespace boost {
 namespace process {
-
 /**
  * The status class to wait for processes to exit.
  *
@@ -34,8 +33,7 @@ namespace process {
  * and asynchronous wait operations.
  */
 typedef detail::basic_status<detail::basic_status_service<> > status;
-
 }
 }
 
-#endif
+#endif // ifndef BOOST_PROCESS_STATUS_HPP

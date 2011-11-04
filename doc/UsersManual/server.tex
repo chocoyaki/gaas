@@ -1,92 +1,12 @@
-%****************************************************************************%
-%* DIET User's Manual server chapter file                                   *%
-%*                                                                          *%
-%*  Author(s):                                                              *%
-%*    - Eddy CARON (Eddy.Caron@ens-lyon.fr)                                 *%
-%*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       *%
-%*    - Georg Hoesh (Georg.Hoesh@ens-lyon.fr)                               *%
-%*                                                                          *%
-%* $LICENSE$                                                                *%
-%****************************************************************************%
-%* $Id$
-%* $Log$
-%* Revision 1.22  2011/05/02 10:01:43  bdepardo
-%* Corrected a few typos.
-%* Renamed "round-robin" scheduler into "least recently used" scheduler as this
-%* is closer to the behavior of this scheduler.
-%*
-%* Revision 1.21  2010/02/25 06:45:38  ycaniou
-%* Add local variables
-%*
-%* Revision 1.20  2010/01/21 14:05:58  bdepardo
-%* DIET -> \diet
-%* SeD -> \sed
-%* GoDIET -> \godiet
-%*
-%* Revision 1.19  2009/09/07 16:07:48  bdepardo
-%* Added CCS mode.
-%* A few corrections:
-%* - DIET -> \diet
-%* - SeD -> \sed
-%*
-%* Revision 1.18  2008/07/02 10:04:17  bdepardo
-%* Proofreading of chapters 5 and 7.
-%*
-%* Revision 1.17  2006/11/29 16:55:11  dloureir
-%* minor corrections
-%*
-%* Revision 1.16  2006/11/15 22:36:50  eboix
-%*   Documentation concerning user compilation updated. --- Injay2461
-%*
-%* Revision 1.15  2006/09/11 11:15:00  ycaniou
-%* - Up to date documentation for parallel/batch submission
-%* - Corrected wrong references
-%*
-%* Revision 1.14  2006/06/06 09:05:30  eboix
-%* FIX. --- Injay2461
-%*
-%* Revision 1.13  2006/01/25 16:52:55  pfrauenk
-%* CoRI : renaming of the chapter performance prediction with fast
-%* 	to performance prediction, add of the CoRI Usersmanual,
-%* 	changes in the plugin scheduler
-%*
-%* Revision 1.12  2005/06/27 08:59:41  hdail
-%* Updating interfaces to agree with current versions and adding memory cleanup
-%* to end of example programs.
-%*
-%* Revision 1.11  2005/05/29 13:51:22  ycaniou
-%* Moved the section concerning FAST from description to a new chapter about FAST
-%* and performances prediction.
-%* Moved the section about convertors in the FAST chapter.
-%* Modified the small introduction in chapter 1.
-%* The rest of the changes are purely in the format of .tex files.
-%*
-%* Revision 1.10  2004/07/12 13:26:11  mcolin
-%* Correct the first example service/solve_service : pb of pointer.
-%* There is still a pb with diet_string_get (it exists?) and with
-%* parameter 3 (is this an OUT or INOUT parameter and so
-%* must we use diet_desc_set?)
-%*
-%* Revision 1.9  2004/07/08 15:59:10  mcolin
-%* correct the asynchronous example from the tutorial and user manual
-%* FIXME :
-%*  - still a bug with the INOUT parameter : the matrix is not modified
-%*  - User Manuel [5.1] : the first example service/solve_service doesn't
-%*  match with the actual version of DIET (pb with pointer and diet_string_get
-%*  which doesn't exist)
-%*
-%* Revision 1.8  2004/02/10 01:12:16  ecaron
-%* Add suggestions from Jean-Yves L'Excellent. Thanks !
-%*
-%* Revision 1.7  2004/01/29 17:08:47  ecaron
-%* Add suggestions from Frederic Desprez. Thanks !
-%*
-%* Revision 1.5  2004/01/21 00:25:13  ecaron
-%* Add suggestions from Holly Dail. Thanks !
-%*
-%* Revision 1.4  2004/01/05 23:17:00  ecaron
-%* Building a server application for DIET 1.0
-%****************************************************************************%
+%**
+%*  @file  server.tex
+%*  @brief   DIET User's Manual server chapter file 
+%*  @author   - Eddy CARON (Eddy.Caron@ens-lyon.fr)
+%*            - Philippe COMBES (Philippe.Combes@ens-lyon.fr)
+%*            - Georg Hoesh (Georg.Hoesh@ens-lyon.fr)
+%*  @section Licence 
+%*    |LICENCE|
+
 
 \chapter{Building a server application}
 \label{ch:server}

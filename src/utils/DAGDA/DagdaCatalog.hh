@@ -1,26 +1,14 @@
 /**
-* @file DagdaCatalog.hh
-* 
-* @brief  Dagda catalog implementation header.   
-* 
-* @author  - Gael Le Mahec (lemahec@clermont.in2p3.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.6  2010/11/20 11:56:19  bdepardo
- * Added #ifndef
+ * @file DagdaCatalog.hh
  *
- * Revision 1.5  2009/03/25 15:06:41  glemahec
- * Bug correction (data alias)
+ * @brief  Dagda catalog implementation header.
  *
- * Revision 1.4  2008/11/07 14:32:14  bdepardo
- * Headers correction
+ * @author  Gael Le Mahec (lemahec@clermont.in2p3.fr)
  *
- *
- ***********************************************************/
+ * @section Licence
+ *   |LICENSE|
+ */
+
 #ifndef _DAGDACATALOG_HH_
 #define _DAGDACATALOG_HH_
 
@@ -48,7 +36,8 @@ public:
 
 class MapDagdaCatalog : public DagdaCatalog {
 public:
-  virtual ~MapDagdaCatalog() {}
+  virtual ~MapDagdaCatalog() {
+  }
 
   virtual attributes_t
   request(std::string req);

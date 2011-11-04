@@ -1,60 +1,14 @@
 /**
-* @file BindService.cc
-* 
-* @brief  A thread which updates the MultiMA links
-* 
-* @author - Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.10  2011/02/01 16:25:56  bdepardo
- * Replaced obsolete function bzero by memset.
- * Replaced obsolete function bcopy by memmove.
+ * @file BindService.cc
  *
- * Revision 1.9  2011/01/20 23:20:04  bdepardo
- * Fixed possible bug: Dangerous usage of 'hostname' (strncpy doesn't always 0-terminate it)
+ * @brief  A thread which updates the MultiMA links
  *
- * Revision 1.8  2010/07/14 23:45:30  bdepardo
- * Header corrections
+ * @author  Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)
  *
- * Revision 1.7  2010/07/12 20:14:32  glemahec
- * DIET 2.5 beta 1 - Forwarders with Multi-MAs bug correction
- *
- * Revision 1.6  2010/05/07 08:08:55  bdepardo
- * Remove a warning
- *
- * Revision 1.5  2010/03/31 21:15:39  bdepardo
- * Changed C headers into C++ headers
- *
- * Revision 1.4  2010/03/03 10:19:03  bdepardo
- * Changed \n into "\n"
- *
- * Revision 1.3  2004/12/02 08:21:07  sdahan
- * bug fix:
- *   - file id leak in the BindService
- *   - can search an service that do not existe and having MA name different to
- *     its binding name.
- * warning message added in FloodRequest:
- *   - instead of just ignoring eronous message, a warning is print in the log
- * ALL_PRINT_STEP messages added to show some Multi-MAs request
- *
- * Revision 1.2  2004/10/04 09:40:43  sdahan
- * warning fix :
- *  - debug.cc : change the printf format from %ul to %lu and from %l to %ld
- *  - ReferenceUpdateThread and BindService : The omniORB documentation said that
- *    it's better to create private destructor for the thread subclasses. But
- *    private destructors generate warning, so I set the destructors public.
- *  - CORBA.h and DIET_config.h define the same macros. So I include the CORBA.h
- *    before the DIET_config.h to avoid to define two times the same macros.
- *  - remove the deprecated warning when including iostream.h and set.h
- *
- * Revision 1.1  2004/09/29 13:35:31  sdahan
- * Add the Multi-MAs feature.
- *
- ****************************************************************************/
+ * @section Licence
+ *   |LICENSE|
+ */
+
 
 #include "MasterAgentImpl.hh"
 #include "BindService.hh"
@@ -74,9 +28,10 @@
 
 extern unsigned int TRACE_LEVEL;
 
-void BindService::run(void* ptr) {
+void
+BindService::run(void *ptr) {
   bool doNotStop = true;
-  char* ior = this->ior;
+  char *ior = this->ior;
   this->ior = NULL;
   while (doNotStop) {
     struct sockaddr_in clientAddr;
@@ -105,25 +60,28 @@ void BindService::run(void* ptr) {
     }
   }
   free(ior);
+} // run
+
+BindService::~BindService() {
 }
 
-BindService::~BindService() {}
-
-BindService::BindService(MasterAgentImpl* ma, unsigned int port) {
+BindService::BindService(MasterAgentImpl *ma, unsigned int port) {
   ior = CORBA::string_dup(ORBMgr::getMgr()->getIOR(ma->_this()).c_str());
 
   struct sockaddr_in serverAddr;
   listenSocket = socket(AF_INET, SOCK_STREAM, 0);
   if (listenSocket < 0) {
-    ERROR("opening bind service socket: " << strerror(errno) << "\n",;);
+    ERROR("opening bind service socket: " << strerror(errno) << "\n",;
+          );
   }
   memset((char *) &serverAddr, 0, sizeof(serverAddr));
   serverAddr.sin_family = AF_INET;
   serverAddr.sin_addr.s_addr = INADDR_ANY;
   serverAddr.sin_port = htons(port);
   if (bind(listenSocket, (struct sockaddr *) &serverAddr,
-           sizeof(serverAddr)) < 0)  {
-    ERROR("in binding the bind service socket: " << strerror(errno) << "\n",;);
+           sizeof(serverAddr)) < 0) {
+    ERROR("in binding the bind service socket: " << strerror(errno) << "\n",;
+          );
   }
   listen(listenSocket, 5);
 
@@ -132,16 +90,17 @@ BindService::BindService(MasterAgentImpl* ma, unsigned int port) {
 }
 
 
-MasterAgent_ptr BindService::lookup(const char* addr) {
+MasterAgent_ptr
+BindService::lookup(const char *addr) {
   assert(addr != NULL);
   char hostname[256];
   strncpy(hostname, addr, sizeof(hostname) - 1);
   hostname[sizeof(hostname) - 1] = '\0';
-  char* idx = strchr(hostname, ':');
+  char *idx = strchr(hostname, ':');
   int portNo = 0;
   if (idx != NULL) {
     idx[0] = '\0';
-    portNo = atoi(idx+1);
+    portNo = atoi(idx + 1);
   }
   if (portNo == 0) {
     TRACE_TEXT(TRACE_ALL_STEPS, addr << " is not a valid address\n");
@@ -154,7 +113,7 @@ MasterAgent_ptr BindService::lookup(const char* addr) {
     return MasterAgent::_nil();
   }
 
-  struct hostent* server = gethostbyname(hostname);
+  struct hostent *server = gethostbyname(hostname);
   if (server == NULL) {
     TRACE_TEXT(TRACE_ALL_STEPS, " no such host: " << hostname << "\n");
     return MasterAgent::_nil();
@@ -163,12 +122,12 @@ MasterAgent_ptr BindService::lookup(const char* addr) {
   struct sockaddr_in servAddr;
   memset((char *) &servAddr, 0, sizeof(servAddr));
   servAddr.sin_family = AF_INET;
-  memmove((char *)&servAddr.sin_addr.s_addr,
-          (char *)server->h_addr,
+  memmove((char *) &servAddr.sin_addr.s_addr,
+          (char *) server->h_addr,
           server->h_length);  // use memmove instead of bcopy
   servAddr.sin_port = htons(portNo);
 
-  if (connect(sockfd, (const sockaddr*)&servAddr, sizeof(servAddr)) < 0) {
+  if (connect(sockfd, (const sockaddr *) &servAddr, sizeof(servAddr)) < 0) {
     TRACE_TEXT(TRACE_ALL_STEPS, " not connecting:" << strerror(errno) << "\n");
     return MasterAgent::_nil();
   }
@@ -188,6 +147,6 @@ MasterAgent_ptr BindService::lookup(const char* addr) {
     return MasterAgent::_nil();
   }
   return MasterAgent::_narrow(obj);
-}
+} // lookup
 
 #endif  // HAVE_MULTI_MA

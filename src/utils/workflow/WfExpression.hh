@@ -3,30 +3,12 @@
 * 
 * @brief  The class used to parse and execute conditional expressions used in workflow control structures
 * 
-* @author  - Benjamin Isnard (benjamin.isnard@ens-lyon.fr)
+* @author  Benjamin Isnard (benjamin.isnard@ens-lyon.fr)
 * 
 * @section Licence
 *   |LICENSE|                                                                
 */
-/* $Id$
- * $Log$
- * Revision 1.5  2011/01/12 09:12:18  bdepardo
- * Removed warning during code documentation generation
- *
- * Revision 1.4  2009/08/26 10:32:11  bisnard
- * corrected  warnings
- *
- * Revision 1.3  2009/07/08 08:56:55  bisnard
- * avoid false variable detection when var name is prefix of another variable
- *
- * Revision 1.2  2009/06/15 12:14:08  bisnard
- * added new class WfExprVariable to handle expression variables in conditional nodes
- *
- * Revision 1.1  2009/05/15 11:01:24  bisnard
- * new class WfExpression used to evaluate expression in IF node
- *
- *
- */
+
 
 #ifndef _WFEXPRESSION_HH_
 #define _WFEXPRESSION_HH_

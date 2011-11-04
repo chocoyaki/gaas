@@ -17,13 +17,14 @@
 #include "utils.hpp"
 
 
-BOOST_FIXTURE_TEST_SUITE( workflows_loop_scalars_sink, AllDataTransferSeDFixtureWF )
+BOOST_FIXTURE_TEST_SUITE(workflows_loop_scalars_sink,
+                         AllDataTransferSeDFixtureWF)
 
 #include "genericSimpleWfClientTest.hpp"
 
 
-BOOST_AUTO_TEST_CASE( loop_scalars_character ) {
-  BOOST_TEST_MESSAGE( "-- Test: workflow loop scalars character" );
+BOOST_AUTO_TEST_CASE(loop_scalars_character) {
+  BOOST_TEST_MESSAGE("-- Test: workflow loop scalars character");
 
   genericSimpleWorkflowClient(WF_DIRECTORY "loop_CADD.xml",
                               "Loop Scalars character",
@@ -31,8 +32,8 @@ BOOST_AUTO_TEST_CASE( loop_scalars_character ) {
                               WF_DIRECTORY "data_inout_sink.xml");
 }
 
-BOOST_AUTO_TEST_CASE( loop_scalars_short ) {
-  BOOST_TEST_MESSAGE( "-- Test: workflow loop scalars short" );
+BOOST_AUTO_TEST_CASE(loop_scalars_short) {
+  BOOST_TEST_MESSAGE("-- Test: workflow loop scalars short");
 
   genericSimpleWorkflowClient(WF_DIRECTORY "loop_BADD.xml",
                               "Loop Scalars short",
@@ -40,8 +41,8 @@ BOOST_AUTO_TEST_CASE( loop_scalars_short ) {
                               WF_DIRECTORY "data_inout_sink.xml");
 }
 
-BOOST_AUTO_TEST_CASE( loop_scalars_integer ) {
-  BOOST_TEST_MESSAGE( "-- Test: workflow loop scalars integer" );
+BOOST_AUTO_TEST_CASE(loop_scalars_integer) {
+  BOOST_TEST_MESSAGE("-- Test: workflow loop scalars integer");
 
   genericSimpleWorkflowClient(WF_DIRECTORY "loop_IADD.xml",
                               "Loop Scalars integer",
@@ -49,8 +50,8 @@ BOOST_AUTO_TEST_CASE( loop_scalars_integer ) {
                               WF_DIRECTORY "data_inout_sink.xml");
 }
 
-BOOST_AUTO_TEST_CASE( loop_scalars_long ) {
-  BOOST_TEST_MESSAGE( "-- Test: workflow loop scalars long" );
+BOOST_AUTO_TEST_CASE(loop_scalars_long) {
+  BOOST_TEST_MESSAGE("-- Test: workflow loop scalars long");
 
   genericSimpleWorkflowClient(WF_DIRECTORY "loop_LADD.xml",
                               "Loop Scalars long",
@@ -58,8 +59,8 @@ BOOST_AUTO_TEST_CASE( loop_scalars_long ) {
                               WF_DIRECTORY "data_inout_sink.xml");
 }
 
-BOOST_AUTO_TEST_CASE( loop_scalars_float ) {
-  BOOST_TEST_MESSAGE( "-- Test: workflow loop scalars float" );
+BOOST_AUTO_TEST_CASE(loop_scalars_float) {
+  BOOST_TEST_MESSAGE("-- Test: workflow loop scalars float");
 
   genericSimpleWorkflowClient(WF_DIRECTORY "loop_FADD.xml",
                               "Loop Scalars float",
@@ -67,8 +68,8 @@ BOOST_AUTO_TEST_CASE( loop_scalars_float ) {
                               WF_DIRECTORY "data_inout_sink.xml");
 }
 
-BOOST_AUTO_TEST_CASE( loop_scalars_double ) {
-  BOOST_TEST_MESSAGE( "-- Test: workflow loop scalars double" );
+BOOST_AUTO_TEST_CASE(loop_scalars_double) {
+  BOOST_TEST_MESSAGE("-- Test: workflow loop scalars double");
 
   genericSimpleWorkflowClient(WF_DIRECTORY "loop_FADD.xml",
                               "Loop Scalars double",

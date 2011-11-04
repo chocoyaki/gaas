@@ -1,40 +1,15 @@
 /**
-* @file MultiWfBasicScheduler.hh
-* 
-* @brief  The Workflow Meta-schedulerg used when multi-workflow support is enabled
-* 
-* @author - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr) 
-*         - Benjamin Isnard (Benjamin.Isnard@ens-lyon.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.6  2008/10/14 13:24:49  bisnard
- * use new class structure for dags (DagNode, DagNodePort)
+ * @file MultiWfBasicScheduler.hh
  *
- * Revision 1.5  2008/04/30 07:37:01  bisnard
- * use relative timestamps for estimated and real completion time
- * make MultiWfScheduler abstract and add HEFT MultiWf scheduler
+ * @brief  The Workflow Meta-schedulerg used when multi-workflow support is enabled
  *
- * Revision 1.4  2008/04/21 14:31:45  bisnard
- * moved common multiwf routines from derived classes to MultiWfScheduler
- * use wf request identifer instead of dagid to reference client
- * use nodeQueue to manage multiwf scheduling
- * renamed WfParser as DagWfParser
+ * @author  Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)
+ *          Benjamin Isnard (Benjamin.Isnard@ens-lyon.fr)
  *
- * Revision 1.3  2008/04/14 13:44:29  bisnard
- * - Parameter 'used' obsoleted in MultiWfScheduler::submit_wf & submit_pb_set
- *
- * Revision 1.2  2008/04/14 09:10:37  bisnard
- *  - Workflow rescheduling (CltReoMan) no longer used with MaDag v2
- *  - AbstractWfSched and derived classes no longer used with MaDag v2
- *
- * Revision 1.1  2008/04/10 09:13:29  bisnard
- * New version of the MaDag where workflow node execution is triggered by the MaDag agent and done by a new CORBA object CltWfMgr located in the client
- *
- ****************************************************************************/
+ * @section Licence
+ *   |LICENSE|
+ */
+
 
 #ifndef _MULTIWFBASICSCHEDULER_HH_
 #define _MULTIWFBASICSCHEDULER_HH_
@@ -42,10 +17,10 @@
 #include "MultiWfScheduler.hh"
 
 namespace madag {
-
 class MultiWfBasicScheduler : public MultiWfScheduler {
 public:
-  explicit MultiWfBasicScheduler(MaDag_impl* maDag);
+  explicit
+  MultiWfBasicScheduler(MaDag_impl *maDag);
 
   virtual ~MultiWfBasicScheduler();
 
@@ -60,7 +35,7 @@ public:
    * (does nothing)
    */
   virtual void
-  handlerNodeDone(DagNode * node);
+  handlerNodeDone(DagNode *node);
 
 protected:
   /**
@@ -68,17 +43,14 @@ protected:
    * (does not use priority of nodes)
    */
   virtual OrderedNodeQueue *
-  createNodeQueue(Dag * dag);
+  createNodeQueue(Dag *dag);
 
   /**
    * delete the node queue created in createNodeQueue
    */
   virtual void
-  deleteNodeQueue(OrderedNodeQueue * nodeQ);
+  deleteNodeQueue(OrderedNodeQueue *nodeQ);
 };
 }
 
 #endif   /* not defined _MULTIWFBASICSCHEDULER_HH */
-
-
-

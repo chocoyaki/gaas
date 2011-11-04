@@ -3,114 +3,13 @@
 * 
 * @brief  Node description class that contains the i/o ports of a workflow node 
 * 
-* @author  - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)
-*          - Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)
+* @author  Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)
+*          Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)
 * 
 * @section Licence
 *   |LICENSE|                                                                
 */
-/* $Id$
- * $Log$
- * Revision 1.4  2011/01/12 09:12:18  bdepardo
- * Removed warning during code documentation generation
- *
- * Revision 1.3  2009/10/12 15:00:14  bisnard
- * added some const
- *
- * Revision 1.2  2009/05/27 08:43:42  bisnard
- * added new addPort method to avoid direct access to map
- *
- * Revision 1.1  2009/04/17 08:54:44  bisnard
- * renamed Node class as WfNode
- *
- * Revision 1.25  2009/02/24 14:01:05  bisnard
- * added dynamic parameter mgmt for wf processors
- *
- * Revision 1.24  2009/02/06 14:55:08  bisnard
- * setup exceptions
- *
- * Revision 1.23  2009/01/16 13:55:36  bisnard
- * changes in dag event handling methods
- *
- * Revision 1.22  2008/12/02 10:14:51  bisnard
- * modified nodes links mgmt to handle inter-dags links
- *
- * Revision 1.21  2008/10/22 09:29:00  bisnard
- * replaced uint by standard type
- *
- * Revision 1.20  2008/10/22 08:52:39  bisnard
- * duplicate parameter name in newPort()
- *
- * Revision 1.19  2008/10/20 08:02:19  bisnard
- * moved pb name attribute from Node to DagNode class
- *
- * Revision 1.18  2008/10/14 13:31:01  bisnard
- * new class structure for dags (DagNode, DagNodePort)
- *
- * Revision 1.17  2008/10/02 07:35:10  bisnard
- * new constants definitions (matrix order and port type)
- *
- * Revision 1.16  2008/09/30 15:32:53  bisnard
- * - using simple port id instead of composite ones
- * - dag nodes linking refactoring
- * - prevNodes and nextNodes data structures modified
- * - prevNodes initialization by Node::setNodePredecessors
- *
- * Revision 1.15  2008/09/30 09:23:29  bisnard
- * removed diet profile initialization from DagWfParser and replaced by node methods initProfileSubmit and initProfileExec
- *
- * Revision 1.14  2008/09/19 13:11:07  bisnard
- * - added support for containers split/merge in workflows
- * - added support for multiple port references
- * - profile for node execution initialized by port (instead of node)
- * - ports linking managed by ports (instead of dag)
- *
- * Revision 1.13  2008/07/17 13:34:18  bisnard
- * new attribute RealStartTime and get/set for SRPT heuristic
- *
- * Revision 1.12  2008/06/25 10:07:12  bisnard
- * - removed debug messages
- * - Node index in wf_response stored in Node class (new attribute submitIndex)
- *
- * Revision 1.11  2008/06/18 15:00:32  bisnard
- * use new Node attribute estDuration to store job duration for each node
- *
- * Revision 1.10  2008/06/04 07:52:38  bisnard
- * SeD mapping done by MaDag just before node execution
- *
- * Revision 1.9  2008/06/03 12:14:29  bisnard
- * New lastQueue attribute to allow node go back to prev queue
- *
- * Revision 1.8  2008/06/02 08:35:39  bisnard
- * Avoid MaDag crash in case of client-SeD comm failure
- *
- * Revision 1.7  2008/06/01 09:16:57  rbolze
- * remove myreqID attribute from the RunnableNode
- * add getReqID() method which return the reqID stored in the diet_profile_t
- *
- * Revision 1.6  2008/05/16 12:33:32  bisnard
- * cleanup outputs of workflow node
- *
- * Revision 1.5  2008/04/30 07:28:56  bisnard
- * use relative timestamps for estimated and real completion time
- *
- * Revision 1.4  2008/04/28 12:06:03  bisnard
- * changed constructor for Node (new param wfReqId)
- * Node delay at execution: new attr & methods
- *
- * Revision 1.3  2008/04/21 14:36:59  bisnard
- * use nodeQueue to manage multiwf scheduling
- * use wf request identifer instead of dagid to reference client
- * renamed WfParser as DagWfParser
- *
- * Revision 1.2  2008/04/14 09:10:40  bisnard
- *  - Workflow rescheduling (CltReoMan) no longer used with MaDag v2
- *  - AbstractWfSched and derived classes no longer used with MaDag v2
- *
- * Revision 1.1  2008/04/10 08:38:50  bisnard
- * New version of the MaDag where workflow node execution is triggered by the MaDag agent and done by a new CORBA object CltWfMgr located in the client
- *
- ****************************************************************************/
+
 
 #ifndef _NODE_HH_
 #define _NODE_HH_

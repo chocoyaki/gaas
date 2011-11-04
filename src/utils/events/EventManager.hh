@@ -1,25 +1,14 @@
 /**
-* @file EventManager.hh
-* 
-* @brief   Event Manager (Notifier class)  
-* 
-* @author - Benjamin Isnard (benjamin.isnard@ens-lyon.fr
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.3  2011/01/12 09:12:17  bdepardo
- * Removed warning during code documentation generation
+ * @file EventManager.hh
  *
- * Revision 1.2  2010/11/24 15:36:59  bdepardo
- * New line at the end of file to prevent warnings
+ * @brief   Event Manager (Notifier class)
  *
- * Revision 1.1  2010/07/20 09:13:57  bisnard
- * Adding event dispatcher
+ * @author Benjamin Isnard (benjamin.isnard@ens-lyon.fr)
  *
+ * @section Licence
+ *   |LICENSE|
  */
+
 
 #ifndef EVENTMANAGER_HH_
 #define EVENTMANAGER_HH_
@@ -30,7 +19,6 @@
 #include "EventObserver.hh"
 
 namespace events {
-
 // Singleton class for the global event manager
 // Implements the Mediator pattern to reduce coupling btw event producers and
 // event observers
@@ -44,7 +32,7 @@ public:
    * Get the instance of the singleton
    * @return ref to the instance
    */
-  static EventManager*
+  static EventManager *
   getEventMgr();
 
   /**
@@ -53,25 +41,24 @@ public:
    * @param event
    */
   virtual void
-  sendEvent(EventBase* event);
+  sendEvent(EventBase *event);
 
   /**
    * Add a new observer with a basic filter on severity
    * @param observer  the observer
    */
   void
-  addObserver(EventObserver* observer);
+  addObserver(EventObserver *observer);
 
 protected:
-  EventManager() : _parent(NULL) {
+  EventManager(): _parent(NULL) {
   }
-  EventManager* _parent;
+  EventManager *_parent;
 
 private:
-  static EventManager* _instance;
-  std::vector<EventObserver*> _observers;
+  static EventManager *_instance;
+  std::vector<EventObserver *> _observers;
 };
 }
 
 #endif  // EVENTMANAGER_HH_
-

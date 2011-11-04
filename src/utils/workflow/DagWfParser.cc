@@ -3,8 +3,8 @@
 * 
 * @brief  DAG Workflow description Reader class implementation 
 * 
-* @author  - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)
-*          - Benjamin ISNARD (Benjamin.Isnard@ens-lyon.fr)
+* @author  Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)
+*          Benjamin ISNARD (Benjamin.Isnard@ens-lyon.fr)
 * 
 * @section Licence
 *   |LICENSE|                                                                
@@ -14,147 +14,7 @@
 /* This class read a textual representation of DAG workflow and return the  */
 /* corresponding DAG object                                                 */
 /****************************************************************************/
-/* $Id$
- * $Log$
- * Revision 1.43  2010/08/27 07:30:26  bisnard
- * 'added missing include'
- *
- * Revision 1.42  2010/08/26 11:05:46  bdepardo
- * Check that data file exists before trying to parse it.
- * Throws an XMLParsingException::eFILENOTFOUND exception if it does not exist.
- *
- * Revision 1.41  2010/07/20 09:20:11  bisnard
- * integration with eclipse gui and with dietForwarder
- *
- * Revision 1.40  2010/07/12 16:14:13  glemahec
- * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
- *
- * Revision 1.39  2010/06/11 14:10:09  bisnard
- * fixed warning
- *
- * Revision 1.38  2009/11/06 13:06:37  bisnard
- * replaced 'list' tag by 'array' tag in data files
- *
- * Revision 1.37  2009/10/23 13:59:25  bisnard
- * replaced \n by std::endl
- *
- * Revision 1.36  2009/10/02 07:44:56  bisnard
- * new wf data operators MATCH & N-CROSS
- *
- * Revision 1.35  2009/09/25 12:49:45  bisnard
- * handle user data tags
- *
- * Revision 1.34  2009/08/26 10:33:09  bisnard
- * implementation of workflow status & restart
- *
- * Revision 1.33  2009/07/24 15:06:46  bisnard
- * XML validation using DTD for functional workflows
- *
- * Revision 1.32  2009/07/23 12:29:11  bisnard
- * separated sub-workflow parsing and precedence check
- *
- * Revision 1.31  2009/07/10 12:55:59  bisnard
- * implemented while loop workflow node
- *
- * Revision 1.30  2009/07/07 11:25:54  bisnard
- * modified data file parser
- *
- * Revision 1.29  2009/07/07 09:03:22  bisnard
- * changes for sub-workflows (FWorkflow class now inherits from FProcNode)
- *
- * Revision 1.28  2009/06/23 13:08:19  bisnard
- * updated include dependencies
- *
- * Revision 1.27  2009/06/15 12:11:12  bisnard
- * use new XML Parser (SAX) for data source file
- * use new class WfValueAdapter to avoid data duplication
- * use new method FNodeOutPort::storeData
- * changed method to compute total nb of data items
- *
- * Revision 1.26  2009/05/27 08:49:43  bisnard
- * - modified condition output: new IF_THEN and IF_ELSE port types
- * - implemented MERGE and FILTER workflow nodes
- *
- * Revision 1.25  2009/05/15 11:10:20  bisnard
- * release for workflow conditional structure (if)
- *
- * Revision 1.24  2009/04/17 08:54:43  bisnard
- * renamed Node class as WfNode
- *
- * Revision 1.23  2009/04/09 09:56:20  bisnard
- * refactoring due to new class FActivityNode
- *
- * Revision 1.22  2009/02/24 14:01:05  bisnard
- * added dynamic parameter mgmt for wf processors
- *
- * Revision 1.21  2009/02/20 10:23:54  bisnard
- * use estimation class to reduce the nb of submit requests
- *
- * Revision 1.20  2009/02/06 14:55:08  bisnard
- * setup exceptions
- *
- * Revision 1.19  2009/01/16 16:31:54  bisnard
- * added option to specify data source file name
- *
- * Revision 1.18  2009/01/16 13:54:50  bisnard
- * new version of the dag instanciator with iteration strategies for nodes with multiple input ports
- *
- * Revision 1.17  2008/12/02 10:14:51  bisnard
- * modified nodes links mgmt to handle inter-dags links
- *
- * Revision 1.16  2008/11/08 19:12:40  bdepardo
- * A few warnings removal
- *
- * Revision 1.15  2008/11/06 08:27:34  bdepardo
- * Added a warning when the 'source' attribute is missing in an input parameter
- *
- * Revision 1.14  2008/10/22 09:29:00  bisnard
- * replaced uint by standard type
- *
- * Revision 1.13  2008/10/20 08:02:57  bisnard
- * new classes XML parser (Dagparser, FWfParser)
- *
- * Revision 1.12  2008/10/14 13:31:01  bisnard
- * new class structure for dags (DagNode, DagNodePort)
- *
- * Revision 1.11  2008/10/02 07:35:09  bisnard
- * new constants definitions (matrix order and port type)
- *
- * Revision 1.10  2008/09/30 15:29:22  bisnard
- * code refactoring after profile mgmt change
- *
- * Revision 1.9  2008/09/30 09:23:29  bisnard
- * removed diet profile initialization from DagWfParser and replaced by node methods initProfileSubmit and initProfileExec
- *
- * Revision 1.8  2008/09/19 13:11:07  bisnard
- * - added support for containers split/merge in workflows
- * - added support for multiple port references
- * - profile for node execution initialized by port (instead of node)
- * - ports linking managed by ports (instead of dag)
- *
- * Revision 1.7  2008/09/08 09:12:58  bisnard
- * removed obsolete attribute nodes_list, pbs_list, alloc
- *
- * Revision 1.6  2008/06/19 10:17:41  bisnard
- * remove some debug mess
- *
- * Revision 1.5  2008/06/01 14:06:56  rbolze
- * replace most ot the cout by adapted function from debug.cc
- * there are some left ...
- *
- * Revision 1.4  2008/05/28 20:53:33  rbolze
- * now DIET_PARAMSTRING type can be use in DAG.
- *
- * Revision 1.3  2008/05/20 12:41:17  bisnard
- * corrected bug of bad profile desc initialization for scalars
- *
- * Revision 1.2  2008/04/28 12:06:28  bisnard
- * changed constructor for Node (new param wfReqId)
- *
- * Revision 1.1  2008/04/21 14:35:50  bisnard
- * added NodeQueue and renamed WfParser as DagWfParser
- *
- ****************************************************************************/
+
 
 #include <iostream>
 #include <sys/stat.h>

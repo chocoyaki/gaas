@@ -17,13 +17,14 @@
 #include "utils.hpp"
 
 
-BOOST_FIXTURE_TEST_SUITE( workflows_loop_containers_sink, AllDataTransferSeDFixtureWF )
+BOOST_FIXTURE_TEST_SUITE(workflows_loop_containers_sink,
+                         AllDataTransferSeDFixtureWF)
 
 #include "genericSimpleWfClientTest.hpp"
 
 
-BOOST_AUTO_TEST_CASE( loop_container_character ) {
-  BOOST_TEST_MESSAGE( "-- Test: workflow loop containers character" );
+BOOST_AUTO_TEST_CASE(loop_container_character) {
+  BOOST_TEST_MESSAGE("-- Test: workflow loop containers character");
 
   genericSimpleWorkflowClient(WF_DIRECTORY "loop_container_LCADD.xml",
                               "Loop Containers character",

@@ -1,21 +1,12 @@
 /**
-* @file Transfers.hh
-* @brief  Object to obtain transfers progression.
-* 
-* @author Gael Le Mahec (lemahec@clermont.in2p3.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.3  2010/07/12 17:23:07  glemahec
- * DIET 2.5 beta 1 - The missing commit
+ * @file Transfers.hh
+ * @brief  Object to obtain transfers progression.
  *
- * Revision 1.2  2010/04/20 12:30:33  glemahec
- * Ajout des fichiers Transfers.?? dans Distribution_files.lst et des en-tetes dans lesdits fichiers
+ * @author Gael Le Mahec (lemahec@clermont.in2p3.fr)
  *
- ****************************************************************************/
+ * @section Licence
+ *   |LICENSE|
+ */
 
 
 #ifndef TRANSFERS_HH
@@ -27,43 +18,44 @@
 
 class Transfers {
 public:
-  static Transfers*
+  static Transfers *
   getInstance();
 
   void
-  newTransfer(const std::string& id, const unsigned long long total);
+  newTransfer(const std::string &id, const unsigned long long total);
 
   unsigned long long
-  totalSize(const std::string& id) const;
+  totalSize(const std::string &id) const;
 
   unsigned long long
-  getTransfered(const std::string& id) const;
+  getTransfered(const std::string &id) const;
 
   double
-  getProgress(const std::string& id);
+  getProgress(const std::string &id);
 
   void
-  remTransfer(const std::string& id);
+  remTransfer(const std::string &id);
 
 private:
   struct transfer_t {
     unsigned long long total;
     unsigned long long transfered;
   };
-  static Transfers* instance;
+  static Transfers *instance;
   unsigned long long msgSize;
   std::map<std::string, struct transfer_t> progress;
 
   void
-  incProgress(const std::string& id);
+  incProgress(const std::string &id);
 
-  friend char*
-  DagdaImpl::sendFile(const corba_data_t&, const char* destName);
+  friend char *
+  DagdaImpl::sendFile(const corba_data_t &, const char *destName);
 
-  friend char*
-  DagdaImpl::sendData(const char*, const char* destName);
+  friend char *
+  DagdaImpl::sendData(const char *, const char *destName);
 
-  explicit Transfers(unsigned long long msgSize);
+  explicit
+  Transfers(unsigned long long msgSize);
 };
 
-#endif
+#endif /* ifndef TRANSFERS_HH */

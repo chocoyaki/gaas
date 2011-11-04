@@ -1,22 +1,14 @@
 /**
-* @file connect.cc
-* 
-* @brief  Example code for dynamically changing the parent of an element.  
-* 
-* @author  - Benjamin Depardon (benjamin.depardon@ens-lyon.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.2  2010/01/14 11:06:37  bdepardo
- * Compiles with gcc 4.4
+ * @file connect.cc
  *
- * Revision 1.1  2009/10/26 09:23:51  bdepardo
- * Examples to dynamically manage the hierarchy.
+ * @brief  Example code for dynamically changing the parent of an element.
  *
- *****************************************************************************/
+ * @author  Benjamin Depardon (benjamin.depardon@ens-lyon.fr)
+ *
+ * @section Licence
+ *   |LICENSE|
+ */
+
 
 #include <iostream>
 #include <cstring>
@@ -26,15 +18,16 @@
 using namespace std;
 
 int
-main (int argc, char** argv) {
+main(int argc, char **argv) {
   if (argc < 4) {
-    cout << "Usage: " << argv[0] << " <SED|LA> <element name> <parent name>" << endl;
+    cout << "Usage: " << argv[0] << " <SED|LA> <element name> <parent name>" <<
+    endl;
     return 1;
   }
-  
+
   dynamic_type_t type;
-  char * name = argv[2];
-  char * parentName = argv[3];
+  char *name = argv[2];
+  char *parentName = argv[3];
   int res;
 
   if (!strcmp(argv[1], "SED")) {
@@ -44,7 +37,7 @@ main (int argc, char** argv) {
   }
   cout << "Element name: " << name << endl;
   cout << "Parent name: " << parentName << endl;
-        
+
 
   res = diet_change_parent(type, name, parentName);
 
@@ -57,8 +50,9 @@ main (int argc, char** argv) {
     }
     cout << name << " (error code=" << res << ")." << endl;
   } else {
-    cout << "** " << name << " has been attached to " << parentName << "." << endl;
+    cout << "** " << name << " has been attached to " << parentName << "." <<
+    endl;
   }
 
   return res;
-}
+} // main

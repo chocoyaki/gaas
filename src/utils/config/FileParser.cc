@@ -3,24 +3,12 @@
 * 
 * @brief  File parser  
 * 
-* @author - Haikel Guemar (haikel.guemar@sysfera.com)
+* @author  Haikel Guemar (haikel.guemar@sysfera.com)
 * 
 * @section Licence
 *   |LICENSE|                                                                
 */
-/* $Id$
- * $Log$
- * Revision 1.6  2011/05/09 21:09:03  bdepardo
- * More robust configuration file parsing: check if the path points to a
- * directory or a file
- *
- * Revision 1.5  2011/03/07 15:34:55  hguemar
- * fix typo in mail address
- *
- * Revision 1.4  2011/03/03 11:55:52  bdepardo
- * Add missing headers
- *
- ****************************************************************************/
+
 
 
 #include "FileParser.hh"

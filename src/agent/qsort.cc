@@ -1,58 +1,14 @@
 /**
-* @file  qsort.cc
-* 
-* @brief This is the qsort.c of the gcclib modified so that it can cope with another level of indirectiony  
-* 
-* @author - Philippe COMBES (Philippe.Combes@ens-lyon.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.4  2010/03/31 21:15:39  bdepardo
- * Changed C headers into C++ headers
+ * @file  qsort.cc
  *
- * Revision 1.3  2005/10/18 11:05:43  eboix
- *  * Cmake/DIET_config.h.in: clean up of flags
- *  - HAVE_LOGSERVICE no longer used since diet is now allways compiled with
- *    logservice on (and dynamic checking is performed depending on configuration
- *    file).
- *  - HAVE_OMNIORB no longer used since diet is now allways compiled with OmniORB
- *  - HAVE_JXTA passed as command line flag, cf DIET_USE_JXTA in top CMakeLists.txt
- *  - HAVE_STATISTICS passed as command line flag, cf DIET_WITH_STATISTICS in top
- *    CMakeLists.txt
- *  - HAVE_STAT_EMPTY_STRING_BUG, HAVE_SCALAPACK, LSTAT_FOLLOWS_SLASHED_SYMLINK,
- *    PACKAGE_BUGREPORT, STDC_HEADERS, HAVE_CICHLID removed (not present in
- *    sources)
- *  - HAVE_STDINT_H removed since not used in sources. Dependency not propagated
- *    since stdint.h is not included directely from DIET sources.
- *  - HAVE_MEMORY_H removed since not used in sources. Dependency not propagated
- *    since memory.h is not included directely from DIET sources.
- *  - HAVE_STDLIB_H removed since not used in sources. Dependency wired in the
- *    top CMakeLists.txt (see CMAKE_FOUND_STDLIB_HEADER).
- *  - HAVE_MATH_H removed since not used in sources. Dependency wired in the
- *    top CMakeLists.txt (see CMAKE_FOUND_MATH_HEADER).
- *  - HAVE_LIMITS_H removed since not used in sources. Dependency wired in the
- *    top CMakeLists.txt (see CMAKE_FOUND_LIMITS_HEADER).
- *  - HAVE_ASSERT_H removed since not used in sources. Dependency wired in the
- *    top CMakeLists.txt (see CMAKE_FOUND_ASSERT_HEADER).
- *  - HAVE_DLFCN_H removed (only used by acmacros/libtool.m4 and ltdl.m4)
- *  - HAVE_STRINGS_H removed (only used by acmacros/libtool.m4 and ltdl.m4)
- *  - HAVE_FSTREAM removed (<fstream> is really standard)
- *  - HAVE_ALLOCA_H removed (only used in src/agent/qsort.cc and cleaned up).
- *  * CMakeLists.txt changed accordingly.
- *  * src/agent/qsort.cc: possible include of alloca.h removed.
- *  * src/CORBA/idl/CMakeLists.txt: DIET_USE_JXTA and DIET_USE_JXTA now cleanly
- *    handled (thanks to SEPARATE_ARGUMENTS().         ---- Injay 2461
+ * @brief This is the qsort.c of the gcclib modified so that it can cope with another level of indirectiony
  *
- * Revision 1.2  2003/05/05 14:50:52  pcombes
- * alloca.h does not exist on all platforms ...
+ * @author  Philippe COMBES (Philippe.Combes@ens-lyon.fr)
  *
- * Revision 1.1  2003/04/10 12:58:53  pcombes
- * The gcclib qsort, adapted to server descriptions.
- *
- ****************************************************************************/
+ * @section Licence
+ *   |LICENSE|
+ */
+
 
 #include <climits>
 #include <cstdlib>
@@ -81,33 +37,31 @@ typedef struct
   char *lo;
   char *hi;
 } stack_node;
-#define STACK_SIZE      (CHAR_BIT * sizeof(size_t))
+#define STACK_SIZE (CHAR_BIT * sizeof(size_t))
 #define PUSH(low, high) ((void) ((top->lo = (low)), (top->hi = (high)), ++top))
-#define POP(low, high)  ((void) (--top, (low = top->lo), (high = top->hi)))
+#define POP(low, high) ((void) (--top, (low = top->lo), (high = top->hi)))
 #define STACK_NOT_EMPTY (stack < top)
 
 void
-gcclib_quicksort(void* const pbase, size_t total_elems, size_t size,
-                 comp_fun_t cmp, SeqServerEstimation_t* servers,
-                 const void* wi)
-{
+gcclib_quicksort(void *const pbase, size_t total_elems, size_t size,
+                 comp_fun_t cmp, SeqServerEstimation_t *servers,
+                 const void *wi) {
   register char *base_ptr = (char *) pbase;
 
   const size_t max_thresh = MAX_THRESH * size;
 
-  if (total_elems == 0)
+  if (total_elems == 0) {
     /* Avoid lossage with unsigned arithmetic below.  */
     return;
+  }
 
-  if (total_elems > MAX_THRESH)
-  {
+  if (total_elems > MAX_THRESH) {
     char *lo = base_ptr;
     char *hi = &lo[size * (total_elems - 1)];
     stack_node stack[STACK_SIZE];
     stack_node *top = stack + 1;
 
-    while (STACK_NOT_EMPTY)
-    {
+    while (STACK_NOT_EMPTY) {
       char *left_ptr;
       char *right_ptr;
 
@@ -119,78 +73,75 @@ gcclib_quicksort(void* const pbase, size_t total_elems, size_t size,
 
       char *mid = lo + size * ((hi - lo) / size >> 1);
 
-      if ((*cmp) ((void *) mid, (void *) lo, servers, servers, wi) < 0)
-        SWAP (mid, lo, size);
-      if ((*cmp) ((void *) hi, (void *) mid, servers, servers, wi) < 0)
-        SWAP (mid, hi, size);
-      else
+      if ((*cmp)((void *) mid, (void *) lo, servers, servers, wi) < 0) {
+        SWAP(mid, lo, size);
+      }
+      if ((*cmp)((void *) hi, (void *) mid, servers, servers, wi) < 0) {
+        SWAP(mid, hi, size);
+      } else {
         goto jump_over;
-      if ((*cmp) ((void *) mid, (void *) lo, servers, servers, wi) < 0)
-        SWAP (mid, lo, size);
-    jump_over:;
+      }
+      if ((*cmp)((void *) mid, (void *) lo, servers, servers, wi) < 0) {
+        SWAP(mid, lo, size);
+      }
+jump_over:;
 
-      left_ptr  = lo + size;
+      left_ptr = lo + size;
       right_ptr = hi - size;
 
       /* Here's the famous ``collapse the walls'' section of quicksort.
          Gotta like those tight inner loops!  They are the main reason
          that this algorithm runs much faster than others. */
-      do
-      {
-        while ((*cmp)((void*)left_ptr, (void*)mid, servers, servers, wi)
-               < 0)
+      do {
+        while ((*cmp)((void *) left_ptr, (void *) mid, servers, servers, wi)
+               < 0) {
           left_ptr += size;
+        }
 
-        while ((*cmp)((void*)mid, (void*)right_ptr, servers, servers, wi)
-               < 0)
-          right_ptr -= size;
-
-        if (left_ptr < right_ptr)
-        {
-          SWAP (left_ptr, right_ptr, size);
-          if (mid == left_ptr)
-            mid = right_ptr;
-          else if (mid == right_ptr)
-            mid = left_ptr;
-          left_ptr += size;
+        while ((*cmp)((void *) mid, (void *) right_ptr, servers, servers, wi)
+               < 0) {
           right_ptr -= size;
         }
-        else if (left_ptr == right_ptr)
-        {
+
+        if (left_ptr < right_ptr) {
+          SWAP(left_ptr, right_ptr, size);
+          if (mid == left_ptr) {
+            mid = right_ptr;
+          } else if (mid == right_ptr) {
+            mid = left_ptr;
+          }
+          left_ptr += size;
+          right_ptr -= size;
+        } else if (left_ptr == right_ptr) {
           left_ptr += size;
           right_ptr -= size;
           break;
         }
-      }
-      while (left_ptr <= right_ptr);
+      } while (left_ptr <= right_ptr);
 
       /* Set up pointers for next iteration.  First determine whether
          left and right partitions are below the threshold size.  If so,
          ignore one or both.  Otherwise, push the larger partition's
          bounds on the stack and continue sorting the smaller one. */
 
-      if ((size_t) (right_ptr - lo) <= max_thresh)
-      {
-        if ((size_t) (hi - left_ptr) <= max_thresh)
+      if ((size_t) (right_ptr - lo) <= max_thresh) {
+        if ((size_t) (hi - left_ptr) <= max_thresh) {
           /* Ignore both small partitions. */
-          POP (lo, hi);
-        else
+          POP(lo, hi);
+        } else {
           /* Ignore small left partition. */
           lo = left_ptr;
-      }
-      else if ((size_t) (hi - left_ptr) <= max_thresh)
+        }
+      } else if ((size_t) (hi - left_ptr) <= max_thresh) {
         /* Ignore small right partition. */
         hi = right_ptr;
-      else if ((right_ptr - lo) > (hi - left_ptr))
-      {
+      } else if ((right_ptr - lo) > (hi - left_ptr)) {
         /* Push larger left partition indices. */
-        PUSH (lo, right_ptr);
+        PUSH(lo, right_ptr);
         lo = left_ptr;
-      }
-      else
-      {
+      } else {
         /* Push larger right partition indices. */
-        PUSH (left_ptr, hi);
+        PUSH(left_ptr, hi);
         hi = right_ptr;
       }
     }
@@ -215,29 +166,31 @@ gcclib_quicksort(void* const pbase, size_t total_elems, size_t size,
        and the operation speeds up insertion sort's inner loop. */
 
     for (run_ptr = tmp_ptr + size; run_ptr <= thresh; run_ptr += size)
-      if ((*cmp) ((void *) run_ptr, (void *) tmp_ptr, servers, servers, wi) < 0)
+      if ((*cmp)((void *) run_ptr, (void *) tmp_ptr, servers, servers,
+                 wi) < 0) {
         tmp_ptr = run_ptr;
+      }
 
-    if (tmp_ptr != base_ptr)
-      SWAP (tmp_ptr, base_ptr, size);
+    if (tmp_ptr != base_ptr) {
+      SWAP(tmp_ptr, base_ptr, size);
+    }
 
     /* Insertion sort, running from left-hand-side up to right-hand-side.  */
 
     run_ptr = base_ptr + size;
-    while ((run_ptr += size) <= end_ptr)
-    {
+    while ((run_ptr += size) <= end_ptr) {
       tmp_ptr = run_ptr - size;
-      while ((*cmp)((void*)run_ptr, (void*)tmp_ptr, servers, servers, wi) < 0)
+      while ((*cmp)((void *) run_ptr, (void *) tmp_ptr, servers, servers,
+                    wi) < 0) {
         tmp_ptr -= size;
+      }
 
       tmp_ptr += size;
-      if (tmp_ptr != run_ptr)
-      {
+      if (tmp_ptr != run_ptr) {
         char *trav;
 
         trav = run_ptr + size;
-        while (--trav >= run_ptr)
-        {
+        while (--trav >= run_ptr) {
           char c = *trav;
           char *hi, *lo;
 
@@ -248,4 +201,4 @@ gcclib_quicksort(void* const pbase, size_t total_elems, size_t size,
       }
     }
   }
-}
+} // gcclib_quicksort

@@ -1,40 +1,14 @@
 /**
-* @file Cori_batch.cc
-* 
-* @brief  CoRI Collectors of ressource information for batch systems
-* 
-* @author - Yves Caniou (yves.caniou@ens-lyon.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.6  2010/03/31 21:15:40  bdepardo
- * Changed C headers into C++ headers
+ * @file Cori_batch.cc
  *
- * Revision 1.5  2010/01/14 13:15:08  bdepardo
- * "\n" -> endl
+ * @brief  CoRI Collectors of ressource information for batch systems
  *
- * Revision 1.4  2008/05/11 16:19:51  ycaniou
- * Check that pathToTmp and pathToNFS exist
- * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
- * Rewrite of the propagation of the request concerning job parallel_flag
- * Implementation of Cori_batch system
- * Numerous information can be dynamically retrieved through batch systems
+ * @author  Yves Caniou (yves.caniou@ens-lyon.fr)
  *
- * Revision 1.3  2008/04/07 12:19:12  ycaniou
- * Except for the class Parsers (someone to re-code it? :)
- *   correct "deprecated conversion from string constant to 'char*'" warnings
- *
- * Revision 1.2  2007/04/30 13:55:18  ycaniou
- * Removed compilation warnings by adding Cori_Batch in the lib and modifs
- *   in files
- *
- * Revision 1.1  2007/04/16 22:37:20  ycaniou
- * Added the class to make perf prediction with batch systems.
- * First draw. Not operational for the moment.
- ****************************************************************************/
+ * @section Licence
+ *   |LICENSE|
+ */
+
 
 #include "Cori_batch.hh"
 #include "BatchSystem.hh"
@@ -51,10 +25,8 @@
 using namespace std;
 
 void
-className::printMetric(estVector_t vector_v, int type_Info)
-{
-  switch (type_Info){
-
+className::printMetric(estVector_t vector_v, int type_Info) {
+  switch (type_Info) {
   case EST_SERVER_TYPE: /* Value appears only once */
     cout << "In construction: EST_SERVER_TYPE" << endl << endl;
     break;
@@ -66,19 +38,18 @@ className::printMetric(estVector_t vector_v, int type_Info)
     break;
   case EST_PARAL_NB_FREE_RESOURCES_IN_DEFAULT_QUEUE:
     cout <<
-      "CoRI: EST_PARAL_NB_FREE_RESOURCES_IN_DEFAULT_QUEUE... " <<
-      (int)diet_est_get_system(vector_v,
-                               EST_PARAL_NB_FREE_RESOURCES_IN_DEFAULT_QUEUE, 0)
-                                                               << endl << endl;
+    "CoRI: EST_PARAL_NB_FREE_RESOURCES_IN_DEFAULT_QUEUE... " <<
+    (int) diet_est_get_system(vector_v,
+                              EST_PARAL_NB_FREE_RESOURCES_IN_DEFAULT_QUEUE, 0)
+    << endl << endl;
     break;
   default: {
-    INTERNAL_WARNING("CoRI: Tag " << type_Info <<" for printing info");
+    INTERNAL_WARNING("CoRI: Tag " << type_Info << " for printing info");
   }
-  }
-}
+  } // switch
+} // printMetric
 
-Cori_batch::Cori_batch(diet_profile_t * profile)
-{
+Cori_batch::Cori_batch(diet_profile_t *profile) {
   /* At this time, because diet_SeD() has not yet been called, we cannot do
      that */
   /* TODO: make a diet_initialize() or something before diet_SeD()! */
@@ -89,66 +60,67 @@ Cori_batch::Cori_batch(diet_profile_t * profile)
 
 int
 Cori_batch::get_Information(int type_Info,
-                            estVector_t * estvect,
-                            const void * data)
-{
+                            estVector_t *estvect,
+                            const void *data) {
   switch (type_Info) {
-    /* The following one should be replaced, when SeDseq, SeDpar will be
-       implemented, by est_PARAL_ID */
+  /* The following one should be replaced, when SeDseq, SeDpar will be
+     implemented, by est_PARAL_ID */
   case EST_SERVER_TYPE:
     /*    diet_est_set_internal(*estvect, type_Info, this->SeD->getServerStatus()); */
-    diet_est_set_internal(*estvect, type_Info,
-                           ((SeDImpl*)(((diet_profile_t*)data)->SeDPtr))->getServerStatus());
+    diet_est_set_internal(
+      *estvect, type_Info,
+      ((SeDImpl *) (((diet_profile_t *) data)->SeDPtr))->
+      getServerStatus());
     break;
   case EST_PARAL_NBTOT_RESOURCES:
     diet_est_set_internal(*estvect, type_Info,
-                           (((SeDImpl*)(((diet_profile_t*)data)->SeDPtr))
-                            ->getBatch())->getNbTotResources());
+                          (((SeDImpl *) (((diet_profile_t *) data)->SeDPtr))
+                           ->getBatch())->getNbTotResources());
     /*                     this->batch->getNbTotResources()); */
     break;
   case EST_PARAL_NBTOT_FREE_RESOURCES:
     diet_est_set_internal(*estvect, type_Info,
-                           (((SeDImpl*)(((diet_profile_t*)data)->SeDPtr))
-                            ->getBatch())->getNbTotFreeResources());
+                          (((SeDImpl *) (((diet_profile_t *) data)->SeDPtr))
+                           ->getBatch())->getNbTotFreeResources());
     /*                     this->batch->getNbTotFreeResources()); */
     break;
-    /* Information concerning the default queue now */
+  /* Information concerning the default queue now */
   case EST_PARAL_NB_RESOURCES_IN_DEFAULT_QUEUE:
     diet_est_set_internal(*estvect, type_Info,
-                           (((SeDImpl*)(((diet_profile_t*)data)->SeDPtr))
-                            ->getBatch())->getNbResources());
+                          (((SeDImpl *) (((diet_profile_t *) data)->SeDPtr))
+                           ->getBatch())->getNbResources());
     /*                     this->batch->getNbResources()); */
     break;
   case EST_PARAL_NB_FREE_RESOURCES_IN_DEFAULT_QUEUE:
     diet_est_set_internal(*estvect, type_Info,
-                           (((SeDImpl*)(((diet_profile_t*)data)->SeDPtr))
-                            ->getBatch())->getNbFreeResources());
+                          (((SeDImpl *) (((diet_profile_t *) data)->SeDPtr))
+                           ->getBatch())->getNbFreeResources());
     /*                     this->batch->getNbFreeResources()); */
     break;
   case EST_PARAL_MAX_WALLTIME:
     diet_est_set_internal(*estvect, type_Info,
-                           (((SeDImpl*)(((diet_profile_t*)data)->SeDPtr))
-                            ->getBatch())->getMaxWalltime());
+                          (((SeDImpl *) (((diet_profile_t *) data)->SeDPtr))
+                           ->getBatch())->getMaxWalltime());
     /*                     this->batch->getMaxWalltime()); */
     break;
   case EST_PARAL_MAX_PROCS:
     diet_est_set_internal(*estvect, type_Info,
-                           (((SeDImpl*)(((diet_profile_t*)data)->SeDPtr))
-                            ->getBatch())->getMaxProcs());
+                          (((SeDImpl *) (((diet_profile_t *) data)->SeDPtr))
+                           ->getBatch())->getMaxProcs());
     /*                     this->batch->getMaxProcs()); */
     break;
   default:
   {
-
     WARNING("CoRI Batch: Tag " << type_Info <<
             " unknown for collecting info");
   }
-  }
+  } // switch
 
-  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
+  if (TRACE_LEVEL >= TRACE_ALL_STEPS) {
     printMetric(*estvect, type_Info);
+  }
   return 0;
-}
+} // get_Information
 
 /****************************************************************************/
 /* Private methods                                                          */
@@ -156,9 +128,8 @@ Cori_batch::get_Information(int type_Info,
 
 int
 Cori_batch::convertArray(vector <double> vect,
-                         estVector_t * estvect,
-                         int typeOfInfo)
-{
+                         estVector_t *estvect,
+                         int typeOfInfo) {
   /*  vector<double>::iterator iter1;
       iter1 = vect.begin();
       int i = 0;
@@ -168,16 +139,14 @@ Cori_batch::convertArray(vector <double> vect,
       iter1++;
       }
       return 0;
-  */
+   */
   return 0;
 }
 
 int
 Cori_batch::convertSimple(double value,
-                          estVector_t * estvect,
-                          int typeOfInfo){
+                          estVector_t *estvect,
+                          int typeOfInfo) {
   diet_est_set_internal(*estvect, typeOfInfo, value);
   return 0;
 }
-
-

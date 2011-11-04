@@ -1,19 +1,14 @@
 /**
-* @file  MultiCall.hh
-* 
-* @brief   Used to divide a profile and make several calls with just one SeD  
-* 
-* @author  - Ghislain Charrier (Ghislain.Charrier@ens-lyon.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.3  2011/01/13 23:42:40  ecaron
- * Add missing header
+ * @file  MultiCall.hh
  *
- ****************************************************************************/
+ * @brief   Used to divide a profile and make several calls with just one SeD
+ *
+ * @author   Ghislain Charrier (Ghislain.Charrier@ens-lyon.fr)
+ *
+ * @section Licence
+ *   |LICENSE|
+ */
+
 
 #ifndef _MULTICALL_HH_
 #define _MULTICALL_HH_
@@ -25,14 +20,14 @@
 
 class MultiCall {
 public:
-  static corba_response_t*
+  static corba_response_t *
   get_response();
 
   static void
   set_response(corba_response_t *response);
 
   static bool
-  updateCall(diet_profile_t* profile, SeD_var& chosenServer);
+  updateCall(diet_profile_t *profile, SeD_var &chosenServer);
 
 private:
   static std::vector<int>
@@ -41,4 +36,4 @@ private:
   static corba_response_t *corba_response;
 };
 
-#endif
+#endif /* ifndef _MULTICALL_HH_ */

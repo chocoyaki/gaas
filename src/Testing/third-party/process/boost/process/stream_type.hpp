@@ -24,7 +24,6 @@
 
 namespace boost {
 namespace process {
-
 /**
  * Stream type to differentiate between input and output streams.
  *
@@ -32,14 +31,13 @@ namespace process {
  * to stream behaviors for file descriptors greater than 2.
  */
 enum stream_type {
-    input_stream,
-    output_stream
+  input_stream,
+  output_stream
 #if defined(BOOST_POSIX_API)
-    , unknown_stream
+  , unknown_stream
 #endif
 };
-
 }
 }
 
-#endif
+#endif // ifndef BOOST_PROCESS_STREAM_TYPE_HPP

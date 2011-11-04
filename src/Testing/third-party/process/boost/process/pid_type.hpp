@@ -30,7 +30,6 @@
 
 namespace boost {
 namespace process {
-
 #if defined(BOOST_PROCESS_DOXYGEN)
 /**
  * Opaque name for the process identifier type.
@@ -49,8 +48,7 @@ typedef pid_t pid_type;
 #elif defined(BOOST_WINDOWS_API)
 typedef DWORD pid_type;
 #endif
-
 }
 }
 
-#endif
+#endif // ifndef BOOST_PROCESS_PID_TYPE_HPP

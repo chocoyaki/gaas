@@ -1,12 +1,12 @@
 /**
-* @file disconnect.cc
-* @brief  Example code for dynamically disconnecting an element from its parent.
-* 
-* @author - Benjamin DEPARDON (Benjamin.Depardon@ens-lyon.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
+ * @file disconnect.cc
+ * @brief  Example code for dynamically disconnecting an element from its parent.
+ *
+ * @author Benjamin DEPARDON (Benjamin.Depardon@ens-lyon.fr)
+ *
+ * @section Licence
+ *   |LICENSE|
+ */
 
 #include "DIET_admin.h"
 #include "SeD.hh"
@@ -32,7 +32,8 @@ diet_disconnect_from_hierarchy(dynamic_type_t type, const char *name) {
       break;
     }
     case LA: {
-      LocalAgent_var agent = ORBMgr::getMgr()->resolve<LocalAgent, LocalAgent_var>(AGENTCTXT, name);
+      LocalAgent_var agent =
+        ORBMgr::getMgr()->resolve<LocalAgent, LocalAgent_var>(AGENTCTXT, name);
       if (agent->disconnect()) {
         return DIET_ADMIN_CALL_ERROR;
       }
@@ -42,9 +43,8 @@ diet_disconnect_from_hierarchy(dynamic_type_t type, const char *name) {
       return DIET_UNKNOWN_ERROR;
     }
     } // end: switch (type)
-
   } catch (...) {
     return DIET_COMM_ERROR;
   }
   return DIET_NO_ERROR;
-}
+} // diet_disconnect_from_hierarchy

@@ -1,28 +1,15 @@
 /**
-* @file MultiWfFCFS.hh
-* 
-* @brief  Another multi-workflow scheduler based on First Come First Serve
-* 
-* @author - Raphaël  Bolze  (raphael.bolze@ens-lyon.fr) 
-*         - Benjamin Isnard (Benjamin.Isnard@ens-lyon.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.3  2009/01/16 13:41:22  bisnard
- * added common base class DagScheduler to simplify dag events handling
- * improved exception management
+ * @file MultiWfFCFS.hh
  *
- * Revision 1.2  2008/10/14 13:24:49  bisnard
- * use new class structure for dags (DagNode, DagNodePort)
+ * @brief  Another multi-workflow scheduler based on First Come First Serve
  *
- * Revision 1.1  2008/07/24 21:08:11  rbolze
- * New multi-wf heuristic FCFS (First Come First Serve)
+ * @author  Raphaël  Bolze  (raphael.bolze@ens-lyon.fr)
+ *          Benjamin Isnard (Benjamin.Isnard@ens-lyon.fr)
  *
- *
+ * @section Licence
+ *   |LICENSE|
  */
+
 
 #ifndef _MULTIWFFCFC_HH_
 #define _MULTIWFFCFS_HH_
@@ -30,10 +17,10 @@
 #include "MultiWfScheduler.hh"
 
 namespace madag {
-
 class MultiWfFCFS : public MultiWfScheduler {
 public:
-  explicit MultiWfFCFS(MaDag_impl* maDag);
+  explicit
+  MultiWfFCFS(MaDag_impl *maDag);
 
   virtual ~MultiWfFCFS();
 
@@ -42,21 +29,20 @@ protected:
    * Updates scheduler when a node has been executed
    */
   virtual void
-  handlerNodeDone(DagNode * node);
+  handlerNodeDone(DagNode *node);
 
   /**
    * set node priority before inserting into execution queue
    */
   virtual void
-  setExecPriority(DagNode * node);
+  setExecPriority(DagNode *node);
 
   /**
    * set node priority before inserting back in the ready queue
    */
   virtual void
-  setWaitingPriority(DagNode * node);
+  setWaitingPriority(DagNode *node);
 };
 }
 
 #endif   /* not defined _MULTIWFFCFS_HH */
-

@@ -1,22 +1,14 @@
 /**
-* @file MaDagNodeLauncher.hh
-* 
-* @brief  The specialized launcher class used for dagNode scheduling 
-* 
-* @author - Benjamin Isnard (Benjamin.Isnard@ens-lyon.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.2  2010/07/20 08:59:36  bisnard
- * Added event generation
+ * @file MaDagNodeLauncher.hh
  *
- * Revision 1.1  2009/09/25 12:35:50  bisnard
- * created new classes DagNodeLauncher & childs
+ * @brief  The specialized launcher class used for dagNode scheduling
  *
- ****************************************************************************/
+ * @author  Benjamin Isnard (Benjamin.Isnard@ens-lyon.fr)
+ *
+ * @section Licence
+ *   |LICENSE|
+ */
+
 
 #ifndef _MADAGNODELAUNCHER_
 #define _MADAGNODELAUNCHER_
@@ -26,11 +18,10 @@
 #include "CltMan.hh"
 
 namespace madag {
-
 class MaDagNodeLauncher : public DagNodeLauncher {
 public:
   MaDagNodeLauncher(DagNode * parent,
-                    MultiWfScheduler *scheduler,
+                    MultiWfScheduler * scheduler,
                     CltMan_ptr clientMgr);
 
   virtual void
@@ -40,8 +31,8 @@ public:
   finishNode();
 
 protected:
-  MultiWfScheduler *  myScheduler;
-  CltMan_ptr          myCltMgr;
+  MultiWfScheduler *myScheduler;
+  CltMan_ptr myCltMgr;
 };
 }
 

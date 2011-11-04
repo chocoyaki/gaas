@@ -1,71 +1,18 @@
 /**
-* @file DagdaImpl.hh
-* 
-* @brief Dagda component implementation
-* 
-* @author Gael Le Mahec (lemahec@clermont.in2p3.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.35  2011/03/18 08:43:32  hguemar
- * fix memory leak in DagdaImpl: getID() method returns a CORBA::String which is not always deallocated (patch from Gael Le Mahec)
+ * @file DagdaImpl.hh
  *
- * Revision 1.34  2011/03/16 22:02:34  bdepardo
- * Unbind dagda element in destructor
+ * @brief Dagda component implementation
  *
- * Revision 1.33  2011/03/03 00:29:46  bdepardo
- * Add missing include
+ * @author Gael Le Mahec (lemahec@clermont.in2p3.fr)
  *
- * Revision 1.32  2011/03/03 00:23:10  bdepardo
- * Resolved a few fix me
- *
- * Revision 1.31  2010/12/17 09:48:01  kcoulomb
- * * Set diet to use the new log with forwarders
- * * Fix a CoRI problem
- * * Add library version remove DTM flag from ccmake because deprecated
- *
- * Revision 1.30  2010/10/15 02:38:55  bdepardo
- * Bug correction in INOUT data
- *
- * Revision 1.29  2010/08/04 09:06:20  glemahec
- * Parallel compilation
- *
- * Revision 1.28  2010/07/12 16:14:12  glemahec
- * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
- *
- * Revision 1.27  2009/10/26 09:11:26  bdepardo
- * Added method for dynamically managing the hierarchy:
- * - void subscribeParent(const char * parentID)
- * - void unsubscribeParent()
- *
- * Revision 1.26  2009/04/17 08:50:49  bisnard
- * added handling of container empty elements
- *
- * Revision 1.25  2009/03/27 09:09:41  bisnard
- * replace container size attr by dynamic value
- *
- * Revision 1.24  2009/01/16 13:36:13  bisnard
- * changed Container constructor signature
- * modified scope of getDataRelationMgr to protected
- * lock container during element addition
- * check lock before sending container
- *
- * Revision 1.23  2008/12/09 12:06:21  bisnard
- * changed container download method to transfer only the list of IDs
- * (each container element must be downloaded separately)
- *
- * Revision 1.22  2008/11/07 14:32:14  bdepardo
- * Headers correction
- *
- *
- ***********************************************************/
+ * @section Licence
+ *   |LICENSE|
+ */
+
 
 #ifndef _DAGDAIMPL_HH_
 #define _DAGDAIMPL_HH_
-#define MAXBUFFSIZE  (getMaxMsgSize() == 0 ? 4294967295U:getMaxMsgSize())
+#define MAXBUFFSIZE (getMaxMsgSize() == 0 ? 4294967295U : getMaxMsgSize())
 
 #include <fstream>
 #include <iterator>
@@ -92,7 +39,7 @@ typedef enum {DGD_CLIENT_MNGR,
               DGD_SED_MNGR} dagda_manager_type_t;
 
 class DagdaImpl : public POA_Dagda,
-                  public PortableServer::RefCountServantBase {
+public PortableServer::RefCountServantBase {
 public:
   static char NoID[];
 
@@ -101,7 +48,7 @@ public:
     char host[256];
 
     gethostname(host, 256);
-    host[255]='\0';
+    host[255] = '\0';
     hostname = CORBA::string_dup(host);
 #ifdef USE_LOG_SERVICE
     logComponent = NULL;
@@ -111,7 +58,7 @@ public:
   ~DagdaImpl();
 
   /* CORBA part. To be remotely called. */
-  virtual char*
+  virtual char *
   getHostname();
 
   /**
@@ -119,21 +66,21 @@ public:
    * @param name  the child data mgr ref
    */
   virtual void
-  subscribe(const char* name) = 0;
+  subscribe(const char *name) = 0;
 
   /**
    * @brief Remove child data manager
    * @param name the child data mgr ref
    */
   virtual void
-  unsubscribe(const char* name) = 0;
+  unsubscribe(const char *name) = 0;
 
   /**
    * @brief subscribe to a new parent
    * @param parentID ID of the new parent
    */
   virtual void
-  subscribeParent(const char * parentID) = 0;
+  subscribeParent(const char *parentID) = 0;
 
   /**
    * unsubscribe from current parent
@@ -146,13 +93,13 @@ public:
    * @param dataID  data identifier
    */
   virtual CORBA::Boolean
-  lclIsDataPresent(const char* dataID) = 0;
+  lclIsDataPresent(const char *dataID) = 0;
 
   virtual CORBA::Boolean
-  lvlIsDataPresent(const char* dataID) = 0;
+  lvlIsDataPresent(const char *dataID) = 0;
 
   virtual CORBA::Boolean
-  pfmIsDataPresent(const char* dataID) = 0;
+  pfmIsDataPresent(const char *dataID) = 0;
 
   /**
    * Store a data (description + value) on the local data manager
@@ -161,7 +108,7 @@ public:
    * @param data  the data handle (ID already defined)
    */
   virtual void
-  lclAddData(const char* src, const corba_data_t& data) = 0;
+  lclAddData(const char *src, const corba_data_t &data) = 0;
 
   /**
    * Store a data (description + value) at a given level of the platform
@@ -169,7 +116,7 @@ public:
    * @param data  the data handle (ID already defined)
    */
   virtual void
-  lvlAddData(const char* src, const corba_data_t& data) = 0;
+  lvlAddData(const char *src, const corba_data_t &data) = 0;
 
   /**
    * Store a data (description + value) on the platform
@@ -178,14 +125,14 @@ public:
    * @param data  the data handle (ID already defined)
    */
   virtual void
-  pfmAddData(const char* src, const corba_data_t& data) = 0;
+  pfmAddData(const char *src, const corba_data_t &data) = 0;
 
   /**
    * Register a file on the local data manager (for file sharing)
    * @param data  the data handle
    */
   virtual void
-  registerFile(const corba_data_t& data) = 0;
+  registerFile(const corba_data_t &data) = 0;
 
   /**
    * Add an element to a container (on the local Data Mgr)
@@ -196,8 +143,8 @@ public:
    * @param flag        flag (used for NULL elements)
    */
   virtual void
-  lclAddContainerElt(const char* containerID,
-                     const char* dataID,
+  lclAddContainerElt(const char *containerID,
+                     const char *dataID,
                      CORBA::Long index,
                      CORBA::Long flag) = 0;
 
@@ -211,7 +158,7 @@ public:
    * @param containerID the id of the container
    */
   virtual CORBA::Long
-  lclGetContainerSize(const char* containerID) = 0;
+  lclGetContainerSize(const char *containerID) = 0;
 
   /**
    * Get the list of elements of a container
@@ -222,75 +169,75 @@ public:
    * @param ordered     if true, sort the elements using index field
    */
   virtual void
-  lclGetContainerElts(const char* containerID,
-                      SeqString& dataIDSeq,
-                      SeqLong& flagSeq,
+  lclGetContainerElts(const char *containerID,
+                      SeqString &dataIDSeq,
+                      SeqLong &flagSeq,
                       CORBA::Boolean ordered) = 0;
 
   virtual void
-  lclRemData(const char* dataID) = 0;
+  lclRemData(const char *dataID) = 0;
 
   virtual void
-  lvlRemData(const char* dataID) = 0;
+  lvlRemData(const char *dataID) = 0;
 
   virtual void
-  pfmRemData(const char* dataID) = 0;
+  pfmRemData(const char *dataID) = 0;
 
   virtual void
-  lclUpdateData(const char* src, const corba_data_t& data) = 0;
+  lclUpdateData(const char *src, const corba_data_t &data) = 0;
 
   virtual void
-  lvlUpdateData(const char* src, const corba_data_t& data) = 0;
+  lvlUpdateData(const char *src, const corba_data_t &data) = 0;
 
   virtual void
-  pfmUpdateData(const char* src, const corba_data_t& data) = 0;
+  pfmUpdateData(const char *src, const corba_data_t &data) = 0;
 
   virtual void
-  lclReplicate(const char* dataID, CORBA::Long target,
-               const char* pattern, CORBA::Boolean replace) = 0;
+  lclReplicate(const char *dataID, CORBA::Long target,
+               const char *pattern, CORBA::Boolean replace) = 0;
 
   virtual void
-  lvlReplicate(const char* dataID, CORBA::Long,
-               const char* pattern, CORBA::Boolean replace) = 0;
+  lvlReplicate(const char *dataID, CORBA::Long,
+               const char *pattern, CORBA::Boolean replace) = 0;
 
   virtual void
-  pfmReplicate(const char* dataID, CORBA::Long,
-               const char* pattern, CORBA::Boolean replace) = 0;
+  pfmReplicate(const char *dataID, CORBA::Long,
+               const char *pattern, CORBA::Boolean replace) = 0;
 
-  virtual SeqCorbaDataDesc_t*
+  virtual SeqCorbaDataDesc_t *
   lclGetDataDescList() = 0;
 
-  virtual SeqCorbaDataDesc_t*
+  virtual SeqCorbaDataDesc_t *
   lvlGetDataDescList() = 0;
 
-  virtual SeqCorbaDataDesc_t*
+  virtual SeqCorbaDataDesc_t *
   pfmGetDataDescList() = 0;
 
-  virtual corba_data_desc_t*
-  lclGetDataDesc(const char* dataID) = 0;
+  virtual corba_data_desc_t *
+  lclGetDataDesc(const char *dataID) = 0;
 
-  virtual corba_data_desc_t*
-  lvlGetDataDesc(const char* dataID) = 0;
+  virtual corba_data_desc_t *
+  lvlGetDataDesc(const char *dataID) = 0;
 
-  virtual corba_data_desc_t*
-  pfmGetDataDesc(const char* dataID) = 0;
+  virtual corba_data_desc_t *
+  pfmGetDataDesc(const char *dataID) = 0;
 
 
-  virtual SeqString*
-  lvlGetDataManagers(const char* dataID) = 0;
+  virtual SeqString *
+  lvlGetDataManagers(const char *dataID) = 0;
 
-  virtual SeqString*
-  pfmGetDataManagers(const char* dataID) = 0;
+  virtual SeqString *
+  pfmGetDataManagers(const char *dataID) = 0;
 
-  virtual char*
-  getBestSource(const char* dest, const char* dataID) = 0;
+  virtual char *
+  getBestSource(const char *dest, const char *dataID) = 0;
 
-  virtual char*
-  writeFile(const SeqChar& data, const char* basename,
+  virtual char *
+  writeFile(const SeqChar &data, const char *basename,
             CORBA::Boolean replace);
 
-  virtual char*
-  sendFile(const corba_data_t &data, const char* dest);
+  virtual char *
+  sendFile(const corba_data_t &data, const char *dest);
 
   /**
    * Store binary data (block) in the local value buffer of the data
@@ -300,8 +247,8 @@ public:
    * @param offset    start nb of bytes from the beginning of the buffer
    * @return THE ID OF THE DATA ON THE DESTINATION => WHY WOULD IT BE DIFFERENT?
    */
-  virtual char*
-  recordData(const SeqChar& data, const corba_data_desc_t& dataDesc,
+  virtual char *
+  recordData(const SeqChar &data, const corba_data_desc_t &dataDesc,
              CORBA::Boolean replace, CORBA::Long offset);
 
   /**
@@ -310,8 +257,8 @@ public:
    * @param dest  the remote data mgr ref
    * @return THE ID OF THE DATA ON THE DESTINATION => WHY WOULD IT BE DIFFERENT?
    */
-  virtual char*
-  sendData(const char* ID, const char* dest);
+  virtual char *
+  sendData(const char *ID, const char *dest);
 
   /**
    * Send a container to a remote data manager
@@ -320,8 +267,8 @@ public:
    * @param sendElements  if true, also send each element of the container
    * @return THE ID OF THE DATA ON THE DESTINATION => WHY WOULD IT BE DIFFERENT?
    */
-  virtual char*
-  sendContainer(const char* containerID, const char* dest,
+  virtual char *
+  sendContainer(const char *containerID, const char *dest,
                 CORBA::Boolean sendElements);
 
   /**
@@ -331,27 +278,27 @@ public:
    * @param data  the data handle
    * @return THE ID OF THE DATA ON THE DESTINATION => WHY WOULD IT BE DIFFERENT?
    */
-  virtual char*
-  downloadData(Dagda_ptr src, const corba_data_t& data) = 0;
+  virtual char *
+  downloadData(Dagda_ptr src, const corba_data_t &data) = 0;
 
   virtual void
-  lockData(const char* dataID);
+  lockData(const char *dataID);
 
   virtual void
-  unlockData(const char* dataID);
+  unlockData(const char *dataID);
 
   virtual Dagda::dataStatus
-  getDataStatus(const char* dataID);
+  getDataStatus(const char *dataID);
 
   virtual void
-  setDataStatus(const char* dataID, Dagda::dataStatus status);
+  setDataStatus(const char *dataID, Dagda::dataStatus status);
 
   /* Implementation dependent functions. */
   virtual bool
-  isDataPresent(const char* dataID) = 0;
+  isDataPresent(const char *dataID) = 0;
 
-  virtual corba_data_t*
-  getData(const char* dataID) = 0;
+  virtual corba_data_t *
+  getData(const char *dataID) = 0;
 
   /**
    * Register a data on the local data manager
@@ -359,26 +306,26 @@ public:
    * for scalar data which will be stored with its value)
    * @param data  the data handle (ID already defined)
    */
-  virtual corba_data_t*
-  addData(const corba_data_t& data) = 0;
+  virtual corba_data_t *
+  addData(const corba_data_t &data) = 0;
 
   virtual void
-  remData(const char* dataID) = 0;
+  remData(const char *dataID) = 0;
 
-  virtual SeqCorbaDataDesc_t*
+  virtual SeqCorbaDataDesc_t *
   getDataDescList() = 0;
 
   virtual int
-  init(const char* ID, const char* parentID,
-       const char* dataPath, const unsigned long maxMsgSize,
+  init(const char *ID, const char *parentID,
+       const char *dataPath, const unsigned long maxMsgSize,
        const unsigned long diskMaxSpace,
        const unsigned long memMaxSpace) = 0;
 
   // Accessors.
   void
-  setDataPath(const char* path);
+  setDataPath(const char *path);
 
-  const char*
+  const char *
   getDataPath();
 
   void
@@ -447,17 +394,17 @@ public:
     usedMemSpaceMutex.unlock();
   }
 
-  std::map<std::string, Dagda_ptr>*
+  std::map<std::string, Dagda_ptr> *
   getChildren() {
     return &children;
   }
 
-  std::map<std::string, corba_data_t>*
+  std::map<std::string, corba_data_t> *
   getData() {
     return &data;
   }
 
-  std::map<std::string, Dagda::dataStatus>*
+  std::map<std::string, Dagda::dataStatus> *
   getDataStatus() {
     return &dataStatus;
   }
@@ -473,11 +420,11 @@ public:
   }
 
   void
-  setID(char* ID) {
+  setID(char *ID) {
     this->ID = ID;
   }
 
-  char*
+  char *
   getID() {
     return CORBA::string_dup(this->ID);
   }  // CORBA
@@ -493,13 +440,13 @@ public:
   }
 
 #ifdef USE_LOG_SERVICE
-  DietLogComponent*
+  DietLogComponent *
   getLogComponent() {
     return logComponent;
   }
 
   void
-  setLogComponent(DietLogComponent* comp) {
+  setLogComponent(DietLogComponent *comp) {
     logComponent = comp;
   }
 #endif  // USE_LOG_SERVICE
@@ -519,12 +466,12 @@ public:
   checkpointState();
 
 protected:
-  DataRelationMgr*
+  DataRelationMgr *
   getContainerRelationMgr() {
     return containerRelationMgr;
   }
 
-  DataRelationMgr* containerRelationMgr;  // container-elements relationships
+  DataRelationMgr *containerRelationMgr;  // container-elements relationships
   omni_mutex dataMutex;
   omni_mutex dataStatusMutex;
   omni_mutex childrenMutex;
@@ -533,22 +480,22 @@ protected:
 
 private:
   size_t
-  make_corba_data(corba_data_t& data, diet_data_type_t type,
+  make_corba_data(corba_data_t &data, diet_data_type_t type,
                   diet_base_type_t base_type, diet_persistence_mode_t mode,
                   size_t nb_r, size_t nb_c, diet_matrix_order_t order,
-                  void* value, char* path);
+                  void *value, char *path);
 
   int
-  writeDataDesc(corba_data_t& data, std::ofstream& file);
+  writeDataDesc(corba_data_t &data, std::ofstream &file);
 
   int
-  writeData(corba_data_t& data, std::ofstream& file);
+  writeData(corba_data_t &data, std::ofstream &file);
 
   int
-  readData(corba_data_t& data, std::ifstream& file);
+  readData(corba_data_t &data, std::ifstream &file);
 
-  char* ID;
-  char* hostname;
+  char *ID;
+  char *hostname;
   size_t maxMsgSize;
   size_t diskMaxSpace;
   size_t memMaxSpace;
@@ -561,142 +508,143 @@ private:
   std::map<std::string, Dagda::dataStatus> dataStatus;
   std::string stateFile;
 #ifdef USE_LOG_SERVICE
-  DietLogComponent* logComponent;
+  DietLogComponent *logComponent;
 #endif
 };
 
 class SimpleDagdaImpl : public DagdaImpl {
 public:
-  explicit SimpleDagdaImpl(dagda_manager_type_t t)
+  explicit
+  SimpleDagdaImpl(dagda_manager_type_t t)
     : DagdaImpl(), type(t) {
   }
 
   ~SimpleDagdaImpl();
 
   virtual void
-  subscribe(const char* name);
+  subscribe(const char *name);
 
   virtual void
-  unsubscribe(const char* name);
+  unsubscribe(const char *name);
 
   virtual void
-  subscribeParent(const char * parentID);
+  subscribeParent(const char *parentID);
 
   virtual void
   unsubscribeParent();
 
   virtual CORBA::Boolean
-  lclIsDataPresent(const char* dataID);
+  lclIsDataPresent(const char *dataID);
 
   virtual CORBA::Boolean
-  lvlIsDataPresent(const char* dataID);
+  lvlIsDataPresent(const char *dataID);
 
   virtual CORBA::Boolean
-  pfmIsDataPresent(const char* dataID);
+  pfmIsDataPresent(const char *dataID);
 
   virtual void
-  lclAddData(const char* src, const corba_data_t& data);
+  lclAddData(const char *src, const corba_data_t &data);
 
   virtual void
-  lvlAddData(const char* src, const corba_data_t& data);
+  lvlAddData(const char *src, const corba_data_t &data);
 
   virtual void
-  pfmAddData(const char* src, const corba_data_t& data);
+  pfmAddData(const char *src, const corba_data_t &data);
 
   virtual void
-  registerFile(const corba_data_t& data);
+  registerFile(const corba_data_t &data);
 
   virtual void
-  lclAddContainerElt(const char* containerID,
-                     const char* dataID,
+  lclAddContainerElt(const char *containerID,
+                     const char *dataID,
                      CORBA::Long index,
                      CORBA::Long flag);
 
   virtual CORBA::Long
-  lclGetContainerSize(const char* containerID);
+  lclGetContainerSize(const char *containerID);
 
   virtual void
-  lclGetContainerElts(const char* containerID,
-                      SeqString& dataIDSeq,
-                      SeqLong& flagSeq,
+  lclGetContainerElts(const char *containerID,
+                      SeqString &dataIDSeq,
+                      SeqLong &flagSeq,
                       CORBA::Boolean ordered);
 
   virtual void
-  lclRemData(const char* dataID);
+  lclRemData(const char *dataID);
 
   virtual void
-  lvlRemData(const char* dataID);
+  lvlRemData(const char *dataID);
 
   virtual void
-  pfmRemData(const char* dataID);
+  pfmRemData(const char *dataID);
 
   virtual void
-  lclUpdateData(const char* src, const corba_data_t& data);
+  lclUpdateData(const char *src, const corba_data_t &data);
 
   virtual void
-  lvlUpdateData(const char* src, const corba_data_t& data);
+  lvlUpdateData(const char *src, const corba_data_t &data);
 
   virtual void
-  pfmUpdateData(const char* src, const corba_data_t& data);
+  pfmUpdateData(const char *src, const corba_data_t &data);
 
   virtual void
-  lclReplicate(const char* dataID, CORBA::Long target,
-               const char* pattern, bool replace);
+  lclReplicate(const char *dataID, CORBA::Long target,
+               const char *pattern, bool replace);
 
   virtual void
-  lvlReplicate(const char* dataID, CORBA::Long target,
-               const char* pattern, bool replace);
+  lvlReplicate(const char *dataID, CORBA::Long target,
+               const char *pattern, bool replace);
 
   virtual void
-  pfmReplicate(const char* dataID, CORBA::Long target,
-               const char* pattern, bool replace);
+  pfmReplicate(const char *dataID, CORBA::Long target,
+               const char *pattern, bool replace);
 
-  virtual SeqCorbaDataDesc_t*
+  virtual SeqCorbaDataDesc_t *
   lclGetDataDescList();
 
-  virtual SeqCorbaDataDesc_t*
+  virtual SeqCorbaDataDesc_t *
   lvlGetDataDescList();
 
-  virtual SeqCorbaDataDesc_t*
+  virtual SeqCorbaDataDesc_t *
   pfmGetDataDescList();
 
-  virtual corba_data_desc_t*
-  lclGetDataDesc(const char* dataID);
+  virtual corba_data_desc_t *
+  lclGetDataDesc(const char *dataID);
 
-  virtual corba_data_desc_t*
-  lvlGetDataDesc(const char* dataID);
+  virtual corba_data_desc_t *
+  lvlGetDataDesc(const char *dataID);
 
-  virtual corba_data_desc_t*
-  pfmGetDataDesc(const char* dataID);
+  virtual corba_data_desc_t *
+  pfmGetDataDesc(const char *dataID);
 
-  virtual SeqString*
-  lvlGetDataManagers(const char* dataID);
+  virtual SeqString *
+  lvlGetDataManagers(const char *dataID);
 
-  virtual SeqString*
-  pfmGetDataManagers(const char* dataID);
+  virtual SeqString *
+  pfmGetDataManagers(const char *dataID);
 
-  virtual char*
-  getBestSource(const char* dest, const char* dataID);
+  virtual char *
+  getBestSource(const char *dest, const char *dataID);
 
   /* Local part. */
   /* Implementation dependent functions. */
   virtual bool
-  isDataPresent(const char* data);
+  isDataPresent(const char *data);
 
-  virtual corba_data_t*
-  getData(const char* data);
+  virtual corba_data_t *
+  getData(const char *data);
 
-  virtual corba_data_t*
-  addData(const corba_data_t& data);
+  virtual corba_data_t *
+  addData(const corba_data_t &data);
 
   virtual void
-  remData(const char* dataID);
+  remData(const char *dataID);
 
-  virtual SeqCorbaDataDesc_t*
+  virtual SeqCorbaDataDesc_t *
   getDataDescList();
 
-  virtual char*
-  downloadData(Dagda_ptr src, const corba_data_t& data);
+  virtual char *
+  downloadData(Dagda_ptr src, const corba_data_t &data);
 
   /* Get an iterator over children. */
   std::map<std::string, Dagda_ptr>::iterator
@@ -711,7 +659,7 @@ public:
   }
 
   /* To avoid a lot of "DagdaImpl::getData()... */
-  std::map<std::string, corba_data_t>*
+  std::map<std::string, corba_data_t> *
   getData() {
     return DagdaImpl::getData();
   }
@@ -724,8 +672,8 @@ public:
 
   /* Initialisation. */
   virtual int
-  init(const char* ID, const char* parentID,
-       const char* dataPath, const unsigned long maxMsgSize,
+  init(const char *ID, const char *parentID,
+       const char *dataPath, const unsigned long maxMsgSize,
        const unsigned long diskMaxSpace,
        const unsigned long memMaxSpace);
 
@@ -734,156 +682,156 @@ private:
 };
 
 class DagdaFwdrImpl : public POA_DagdaFwdr,
-                      public PortableServer::RefCountServantBase {
+public PortableServer::RefCountServantBase {
 public:
-  DagdaFwdrImpl(Forwarder_ptr fwdr, const char* objName);
+  DagdaFwdrImpl(Forwarder_ptr fwdr, const char *objName);
 
   virtual void
-  subscribe(const char* name);
+  subscribe(const char *name);
 
   virtual void
-  unsubscribe(const char* name);
+  unsubscribe(const char *name);
 
   virtual void
-  subscribeParent(const char * parentID);
+  subscribeParent(const char *parentID);
 
   virtual void
   unsubscribeParent();
 
   /* ------------ */
-  virtual char*
-  writeFile(const SeqChar& data, const char* basename,
+  virtual char *
+  writeFile(const SeqChar &data, const char *basename,
             CORBA::Boolean replace);
 
-  virtual char*
-  sendFile(const corba_data_t &data, const char* dest);
+  virtual char *
+  sendFile(const corba_data_t &data, const char *dest);
 
-  virtual char*
-  recordData(const SeqChar& data, const corba_data_desc_t& dataDesc,
+  virtual char *
+  recordData(const SeqChar &data, const corba_data_desc_t &dataDesc,
              CORBA::Boolean replace, CORBA::Long offset);
 
-  virtual char*
-  sendData(const char* ID, const char* dest);
+  virtual char *
+  sendData(const char *ID, const char *dest);
 
-  virtual char*
-  sendContainer(const char* containerID, const char* dest,
+  virtual char *
+  sendContainer(const char *containerID, const char *dest,
                 CORBA::Boolean sendElements);
   virtual void
-  lockData(const char* dataID);
+  lockData(const char *dataID);
 
   virtual void
-  unlockData(const char* dataID);
+  unlockData(const char *dataID);
 
   virtual Dagda::dataStatus
-  getDataStatus(const char* dataID);
+  getDataStatus(const char *dataID);
 
   /* ------------ */
 
 
   virtual CORBA::Boolean
-  lclIsDataPresent(const char* dataID);
+  lclIsDataPresent(const char *dataID);
 
   virtual CORBA::Boolean
-  lvlIsDataPresent(const char* dataID);
+  lvlIsDataPresent(const char *dataID);
 
   virtual CORBA::Boolean
-  pfmIsDataPresent(const char* dataID);
+  pfmIsDataPresent(const char *dataID);
 
   virtual void
-  lclAddData(const char* src, const corba_data_t& data);
+  lclAddData(const char *src, const corba_data_t &data);
 
   virtual void
-  lvlAddData(const char* src, const corba_data_t& data);
+  lvlAddData(const char *src, const corba_data_t &data);
 
   virtual void
-  pfmAddData(const char* src, const corba_data_t& data);
+  pfmAddData(const char *src, const corba_data_t &data);
 
   virtual void
-  registerFile(const corba_data_t& data);
+  registerFile(const corba_data_t &data);
 
   virtual void
-  lclAddContainerElt(const char* containerID,
-                     const char* dataID,
+  lclAddContainerElt(const char *containerID,
+                     const char *dataID,
                      CORBA::Long index,
                      CORBA::Long flag);
 
   virtual CORBA::Long
-  lclGetContainerSize(const char* containerID);
+  lclGetContainerSize(const char *containerID);
 
   virtual void
-  lclGetContainerElts(const char* containerID,
-                      SeqString& dataIDSeq,
-                      SeqLong& flagSeq,
+  lclGetContainerElts(const char *containerID,
+                      SeqString &dataIDSeq,
+                      SeqLong &flagSeq,
                       CORBA::Boolean ordered);
 
   virtual void
-  lclRemData(const char* dataID);
+  lclRemData(const char *dataID);
 
   virtual void
-  lvlRemData(const char* dataID);
+  lvlRemData(const char *dataID);
 
   virtual void
-  pfmRemData(const char* dataID);
+  pfmRemData(const char *dataID);
 
   virtual void
-  lclUpdateData(const char* src, const corba_data_t& data);
+  lclUpdateData(const char *src, const corba_data_t &data);
 
   virtual void
-  lvlUpdateData(const char* src, const corba_data_t& data);
+  lvlUpdateData(const char *src, const corba_data_t &data);
 
   virtual void
-  pfmUpdateData(const char* src, const corba_data_t& data);
+  pfmUpdateData(const char *src, const corba_data_t &data);
 
   virtual void
-  lclReplicate(const char* dataID, CORBA::Long target,
-               const char* pattern, bool replace);
+  lclReplicate(const char *dataID, CORBA::Long target,
+               const char *pattern, bool replace);
 
   virtual void
-  lvlReplicate(const char* dataID, CORBA::Long target,
-               const char* pattern, bool replace);
+  lvlReplicate(const char *dataID, CORBA::Long target,
+               const char *pattern, bool replace);
 
   virtual void
-  pfmReplicate(const char* dataID, CORBA::Long target,
-               const char* pattern, bool replace);
+  pfmReplicate(const char *dataID, CORBA::Long target,
+               const char *pattern, bool replace);
 
-  virtual SeqCorbaDataDesc_t*
+  virtual SeqCorbaDataDesc_t *
   lclGetDataDescList();
 
-  virtual SeqCorbaDataDesc_t*
+  virtual SeqCorbaDataDesc_t *
   lvlGetDataDescList();
 
-  virtual SeqCorbaDataDesc_t*
+  virtual SeqCorbaDataDesc_t *
   pfmGetDataDescList();
 
-  virtual corba_data_desc_t*
-  lclGetDataDesc(const char* dataID);
+  virtual corba_data_desc_t *
+  lclGetDataDesc(const char *dataID);
 
-  virtual corba_data_desc_t*
-  lvlGetDataDesc(const char* dataID);
+  virtual corba_data_desc_t *
+  lvlGetDataDesc(const char *dataID);
 
-  virtual corba_data_desc_t*
-  pfmGetDataDesc(const char* dataID);
+  virtual corba_data_desc_t *
+  pfmGetDataDesc(const char *dataID);
 
-  virtual SeqString*
-  lvlGetDataManagers(const char* dataID);
+  virtual SeqString *
+  lvlGetDataManagers(const char *dataID);
 
-  virtual SeqString*
-  pfmGetDataManagers(const char* dataID);
+  virtual SeqString *
+  pfmGetDataManagers(const char *dataID);
 
-  virtual char*
-  getBestSource(const char* dest, const char* dataID);
+  virtual char *
+  getBestSource(const char *dest, const char *dataID);
 
-  virtual char*
+  virtual char *
   getID();
 
   virtual void
   checkpointState();
 
-  virtual char*
+  virtual char *
   getHostname();
 
 private:
   Forwarder_ptr forwarder;
-  char* objName;
+  char *objName;
 };
-#endif
+#endif /* ifndef _DAGDAIMPL_HH_ */

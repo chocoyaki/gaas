@@ -1,22 +1,14 @@
-/****************************************************************************/
-/* DIET local agent IDL description                                         */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)                   */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
-/* $Id$
- * $Log$
- * Revision 1.2  2009/10/26 09:04:08  bdepardo
- * Added 2 methods to dynamically manage the hierarchy:
- * - long bindParent(in string parentName): change the parent of the LA
- * - long disconnect(): unsubscribe the LA from its parent
+/**
+ * @file LocalAgent.idl
  *
- * Revision 1.1  2003/04/10 12:31:47  pcombes
- * Replace localAgent.idl. Update doxygen doc.
+ * @brief  DIET local agent IDL description 
  *
- ****************************************************************************/
+ * @author  Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)
+ *
+ * @section Licence
+ *   |LICENSE|
+ */
+
 
 #ifndef _LOCAL_AGENT_IDL_
 #define _LOCAL_AGENT_IDL_

@@ -1,71 +1,10 @@
-%****************************************************************************%
-%* DIET Programmer's Guide                                                  *%
-%*                                                                          *%
-%*  Author(s):                                                              *%
-%*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       *%
-%*                                                                          *%
-%* $LICENSE$                                                                *%
-%****************************************************************************%
-%* $Id$
-%* $Log$
-%* Revision 1.16  2010/12/28 17:50:48  bdepardo
-%* Added \xspace in \diet command.
-%* Typos.
-%*
-%* Revision 1.15  2010/07/07 15:10:51  amuresan
-%* Added Cloud entry for the UsersGuide and ProgrammersGuide.
-%*
-%* Revision 1.14  2009/08/28 15:20:13  ecaron
-%* Add information to generate the DIET tarball
-%*
-%* Revision 1.13  2008/04/07 22:26:26  ecaron
-%* Updated files to pdflatex compilation
-%*
-%* Revision 1.12  2007/11/22 21:07:02  mimbert
-%* use latex package fancyhdr instead of fancyheadings which seems deprecated in some recent latex distributions
-%*
-%* Revision 1.11  2007/04/17 13:34:52  ycaniou
-%* Error in debug.tex header
-%* Removes some warnings during doc generation
-%*
-%* Revision 1.10  2007/02/16 10:27:35  ycaniou
-%* Beginning of a chapter on the Diet debugging (here, valgrind).
-%*
-%* Revision 1.9  2006/11/16 14:09:19  eboix
-%* - Programmers guide converted from autotools to cmake.
-%* - cmake summary deported to Cmake sub-dir.   --- Injay2461
-%*
-%* Revision 1.8  2006/06/30 21:20:37  eboix
-%*   Cmake and dart related modifications:
-%*    - [c]cmake's ambiguous option DIET_MAINTAINER_MODE removed. Building the
-%*      documentation is now only controled by DIET_BUILD_DOCUMENTATION (and
-%*      user's, developpers and doxygen docs are handled together). In order
-%*      to use the Maintainer build type add -DCMAKE_BUILD_TYPE:STRING=Maintainer
-%*      as [c]cmake option.
-%*    - Created Cmake/Dart subdir as placeholder for Dart related utilities.
-%*    - Cmake/DashBoardScript.cmake renamed to Cmake/Dart/DashBoardScript.cmake
-%*                                                                 --- Injay2461
-%*
-%* Revision 1.7  2006/01/25 17:26:04  pfrauenk
-%* CoRI : Some useful information about CoRI now available
-%*
-%* Revision 1.6  2005/08/08 08:26:57  ycaniou
-%* Fixed remaining reference to ../UserManual/fig/logo in ProgrammersGuide.tex to ./fig/logo
-%* Addition of a cp of the ../UserManual/fig/logo in the makefile: now it compiles
-%* Addition of a batch section (also contains general remarks which have to be dispatched if pertinent). Not complete!
-%*
-%* Revision 1.4  2004/01/09 15:26:53  cpera
-%* Add Annexe on Autotools.
-%*
-%* Revision 1.3  2003/12/15 00:13:53  ecaron
-%* New structure for the first sheet
-%*
-%* Revision 1.2  2003/09/17 14:41:28  pcombes
-%* Split the .tex according to its chapters.
-%*
-%* Revision 1.1  2003/09/09 12:42:44  pcombes
-%* Reorganization of doc: include CS in a programmer's guide.
-%****************************************************************************%
+%**
+%*  @file  ProgrammersGuide.tex
+%*  @brief  DIET Programmer' guide
+%*  @author  Philippe Combes (Philippe.Combes@ens-lyon.fr)
+%*  @section Licence 
+%*    |LICENCE|
+
 
 \documentclass[11pt,a4paper]{report}
 \makeatletter

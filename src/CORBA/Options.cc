@@ -1,13 +1,13 @@
 /**
-* @file Options.cc
-* 
-* @brief  DIET forwarder implementation - Executable options 
-* 
-* @author - Gaël Le Mahec (gael.le.mahec@ens-lyon.fr)  
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
+ * @file Options.cc
+ *
+ * @brief  DIET forwarder implementation - Executable options
+ *
+ * @author  Gaël Le Mahec (gael.le.mahec@ens-lyon.fr)
+ *
+ * @section Licence
+ *   |LICENSE|
+ */
 #include "Options.hh"
 #include "debug.hh"
 
@@ -26,29 +26,29 @@ Configuration::Configuration() {
 }
 
 /* Standard constructor. Get the program name as parameter. */
-Configuration::Configuration(const std::string& pgName) {
+Configuration::Configuration(const std::string &pgName) {
   this->pgName = pgName;
 }
 
 /* Generic program configuration accessors. */
-const std::string&
+const std::string &
 Configuration::getConfigFile() const {
   return configFile;
 }
 
-const std::string&
+const std::string &
 Configuration::getPgName() const {
   return pgName;
 }
 
 void
-Configuration::setConfigFile(const std::string& configFile) {
+Configuration::setConfigFile(const std::string &configFile) {
   this->configFile = configFile;
 }
 
 /* Standard Options constructor. Get a pointer on a config object, and
  * the command line arguments. */
-Options::Options(Configuration* config, int argc, char* argv[], char* envp[]) {
+Options::Options(Configuration *config, int argc, char *argv[], char *envp[]) {
   unsigned int j = 0;
 
   this->config = config;
@@ -59,7 +59,7 @@ Options::Options(Configuration* config, int argc, char* argv[], char* envp[]) {
       if (i == (argc - 1)) {
         singleArgs.push_back(curArg);
       } else {
-        std::string nextArg(argv[i+1]);
+        std::string nextArg(argv[i + 1]);
         if (nextArg.find('-') == 0) {
           singleArgs.push_back(curArg);
         } else {
@@ -89,7 +89,7 @@ Options::Options(Configuration* config, int argc, char* argv[], char* envp[]) {
       singleEnvs.push_back(curEnv);
     } else {
       std::string key = curEnv.substr(0, pos);
-      std::string value = curEnv.substr(pos+1);
+      std::string value = curEnv.substr(pos + 1);
       environment[key] = value;
     }
   }
@@ -100,13 +100,13 @@ Options::Options(Configuration* config, int argc, char* argv[], char* envp[]) {
  * These parameters must start with "--".
  */
 void
-Options::setOptCallback(const std::string& arg, optCallback callBack) {
+Options::setOptCallback(const std::string &arg, optCallback callBack) {
   optCallbacks[arg] = callBack;
 }
 
 /* Define the callback function for an environment variable. */
 void
-Options::setEnvCallback(const std::string& arg, optCallback callBack) {
+Options::setEnvCallback(const std::string &arg, optCallback callBack) {
   envCallbacks[arg] = callBack;
 }
 
@@ -120,7 +120,8 @@ Options::setParamCallback(unsigned int idx, optCallback callBack) {
 /* Define the callback function for a parameter that don't take argument.
  * These parameters must start with a single '-'.
  */
-void Options::setFlagCallback(const char flag, optCallback callBack) {
+void
+Options::setFlagCallback(const char flag, optCallback callBack) {
   flagCallbacks[flag] = callBack;
 }
 
@@ -134,7 +135,7 @@ Options::processOptions() {
   optCallback callback;
 
   for (l = flags.begin(); l != flags.end(); ++l) {
-    if (flagCallbacks.find(*l)!=flagCallbacks.end()) {
+    if (flagCallbacks.find(*l) != flagCallbacks.end()) {
       std::string flag;
       flag += *l;
       callback = flagCallbacks.find(*l)->second;
@@ -169,7 +170,7 @@ Options::processOptions() {
       WARNING("argument " << params[k] << " ignored");
     }
   }
-}
+} // processOptions
 
 /* Process the environment variables using the defined callback functions. */
 void
@@ -190,7 +191,7 @@ Options::processEnv() {
       callback(*j, config);
     }
   }
-}
+} // processEnv
 
 /* Simple utility function:
  * Replace the '=' character with a white space.
@@ -204,14 +205,15 @@ cut(int c) {
   return c;
 }
 
-ConfigFile::ConfigFile() {}
+ConfigFile::ConfigFile() {
+}
 
-ConfigFile::ConfigFile(const std::string& path) {
+ConfigFile::ConfigFile(const std::string &path) {
   parseFile(path);
 }
 
 void
-ConfigFile::parseFile(const std::string& path) {
+ConfigFile::parseFile(const std::string &path) {
   std::ifstream file(path.c_str());
   unsigned int l = 0;
 
@@ -256,16 +258,16 @@ ConfigFile::parseFile(const std::string& path) {
     }
     if (attributes.find(key) != attributes.end()) {
       WARNING("Multiple values for the attribute " << key
-              << " (l." << l << ")");
+                                                   << " (l." << l << ")");
     }
     /* Transform to lower case. */
     transform(key.begin(), key.end(), key.begin(), ::tolower);
 
-    attributes[key]=value;
+    attributes[key] = value;
   }
-}
+} // parseFile
 
-const std::string&
-ConfigFile::getAttr(const std::string& key) {
+const std::string &
+ConfigFile::getAttr(const std::string &key) {
   return attributes[key];
 }

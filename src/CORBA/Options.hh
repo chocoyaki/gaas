@@ -1,13 +1,13 @@
 /**
-* @file Options.hh
-* 
-* @brief  DIET forwarder implementation - Executable options 
-* 
-* @author - Gaël Le Mahec (gael.le.mahec@ens-lyon.fr)  
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
+ * @file Options.hh
+ *
+ * @brief  DIET forwarder implementation - Executable options
+ *
+ * @author  Gaël Le Mahec (gael.le.mahec@ens-lyon.fr)
+ *
+ * @section Licence
+ *   |LICENSE|
+ */
 #ifndef OPTIONS_HH
 #define OPTIONS_HH
 
@@ -24,16 +24,17 @@ class Configuration {
 public:
   Configuration();
 
-  explicit Configuration(const std::string& pgName);
+  explicit
+  Configuration(const std::string &pgName);
 
-  const std::string&
+  const std::string &
   getPgName() const;
 
-  const std::string&
+  const std::string &
   getConfigFile() const;
 
   void
-  setConfigFile(const std::string& configFile);
+  setConfigFile(const std::string &configFile);
 
 private:
   std::string pgName;
@@ -41,20 +42,20 @@ private:
 };
 
 /* Callback function type definition. */
-typedef void (*optCallback)(const std::string&, Configuration*);
+typedef void (*optCallback)(const std::string &, Configuration *);
 
 /* Options class. Used to process the users command line parameters. */
 /* This class is a generic command line parameters processing tool.
  */
 class Options {
 public:
-  Options(Configuration* config, int argc, char* argv[], char* envp[]=NULL);
+  Options(Configuration * config, int argc, char *argv[], char *envp[] = NULL);
 
   void
-  setOptCallback(const std::string& arg, optCallback callBack);
+  setOptCallback(const std::string &arg, optCallback callBack);
 
   void
-  setEnvCallback(const std::string& arg, optCallback callBack);
+  setEnvCallback(const std::string &arg, optCallback callBack);
 
   void
   setParamCallback(unsigned int idx, optCallback callBack);
@@ -69,7 +70,7 @@ public:
   processEnv();
 
 private:
-  Configuration* config;
+  Configuration *config;
   std::map<std::string, std::string> arguments;
   std::map<std::string, std::string> environment;
   std::map<unsigned int, std::string> params;
@@ -89,15 +90,16 @@ private:
 class ConfigFile {
 public:
   ConfigFile();
-  explicit ConfigFile(const std::string& path);
+  explicit
+  ConfigFile(const std::string &path);
 
   void
-  parseFile(const std::string& path);
+  parseFile(const std::string &path);
 
-  const std::string&
-  getAttr(const std::string& key);
+  const std::string &
+  getAttr(const std::string &key);
 
 private:
   std::map<std::string, std::string> attributes;
 };
-#endif
+#endif /* ifndef OPTIONS_HH */

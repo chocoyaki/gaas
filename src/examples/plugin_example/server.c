@@ -1,13 +1,13 @@
 /**
-* @file server.c
-* 
-* @brief  plugin_example, server side   
-* 
-* @author  - Alan SU (Alan.Su@ens-lyon.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
+ * @file server.c
+ *
+ * @brief  plugin_example, server side
+ *
+ * @author  Alan SU (Alan.Su@ens-lyon.fr)
+ *
+ * @section Licence
+ *   |LICENSE|
+ */
 /****************************************************************************/
 /* plugin_example, server side                                              */
 /*                                                                          */
@@ -19,25 +19,6 @@
 /*   availability of the requested database(s) at the targeted              */
 /*   server nodes.                                                          */
 /****************************************************************************/
-/* $Id$
- * $Log$
- * Revision 1.6  2005/12/09 14:28:37  pfrauenk
- * *** empty log message ***
- *
- * Revision 1.5  2005/10/30 01:58:41  alsu
- * correcting problems with the last checkin of plugin scheduler example/doc
- *
- * Revision 1.4  2005/10/15 17:10:49  alsu
- * basic updates to doc/example for plugin scheduler
- *
- * Revision 1.3  2005/08/31 15:03:10  alsu
- * New plugin scheduling interface: using the new estimation vector
- * interface
- *
- * Revision 1.2  2005/06/13 11:35:36  alsu
- * a few more comments to make the example easier to understand
- *
- ****************************************************************************/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -46,8 +27,10 @@
 #include "DIET_server.h"
 
 /* forward declarations of private functions */
-static int solveFn(diet_profile_t *pb);
-static void performanceFn(diet_profile_t* pb, estVector_t perfValues);
+static int
+solveFn(diet_profile_t *pb);
+static void
+performanceFn(diet_profile_t *pb, estVector_t perfValues);
 
 /* server-level global variables */
 static int numResources = 0;
@@ -57,32 +40,31 @@ static char **resources = NULL;
 ** MAIN
 */
 int
-main(int argc, char **argv)
-{
+main(int argc, char **argv) {
   diet_profile_desc_t *profile = NULL;
 
   if (argc < 3) {
     fprintf(stderr,
             "usage: %s <SeD config> <resource> [<resource> ...]\n",
             argv[0]);
-    exit (1);
+    exit(1);
   }
 
   if ((profile = diet_profile_desc_alloc("DBsearch", 0, 0, 0)) == NULL) {
     fprintf(stderr, "%s: unable to allocate DIET profile\n", argv[0]);
-    exit (1);
+    exit(1);
   }
 
   /*
   ** the arguments from the second onward represent logical
   ** databases to which this server has access
   */
-  numResources = argc-2;
+  numResources = argc - 2;
   resources = &(argv[2]);
 
   if (diet_service_table_init(1) != 0) {
     fprintf(stderr, "%s: unable to initialize service table\n", argv[0]);
-    exit (1);
+    exit(1);
   }
 
   {
@@ -112,7 +94,7 @@ main(int argc, char **argv)
                         DIET_CHAR);
   if (diet_service_table_add(profile, NULL, solveFn) != 0) {
     fprintf(stderr, "%s: unable to add DBsearch to service table\n", argv[0]);
-    exit (1);
+    exit(1);
   }
 
   diet_profile_desc_free(profile);
@@ -120,27 +102,25 @@ main(int argc, char **argv)
     int retval = diet_SeD(argv[1], argc, argv);
     if (retval != 0) {
       fprintf(stderr, "%s: diet_SeD failed (%d)\n", argv[0], retval);
-      exit (1);
+      exit(1);
     }
   }
 
-  exit (0);
-}
+  exit(0);
+} /* main */
 
 /*
 ** checkMismatch: determine if the server has access to the next
 **   requested database in a colon-separated list
 */
 static int
-checkMismatch(const char *str)
-{
+checkMismatch(const char *str) {
   int strLen;
   int resIter;
 
   if (strchr(str, ':') == NULL) {
     strLen = strlen(str);
-  }
-  else {
+  } else {
     strLen = strchr(str, ':') - str;
   }
 
@@ -156,7 +136,7 @@ checkMismatch(const char *str)
 
   printf(" mismatch: %.*s\n", strLen, str);
   return (1);
-}
+} /* checkMismatch */
 
 /*
 ** computeMismatch: utility function to calculate the number
@@ -165,28 +145,25 @@ checkMismatch(const char *str)
 **   are declared available to the server at executino-time).
 */
 static int
-computeMismatches(const char *scanString)
-{
+computeMismatches(const char *scanString) {
   int numMismatch = 0;
   do {
     numMismatch += checkMismatch(scanString);
     if (strchr(scanString, ':') == NULL) {
       scanString = NULL;
-    }
-    else {
+    } else {
       scanString = strchr(scanString, ':') + 1;
     }
   } while (scanString);
 
   return (numMismatch);
-}
+} /* computeMismatches */
 
 /*
 ** solveFn: the main DIET solve function
 */
 static int
-solveFn(diet_profile_t *pb)
-{
+solveFn(diet_profile_t *pb) {
   const char *target;
   diet_persistence_mode_t strMode;
   int numMismatch;
@@ -197,15 +174,14 @@ solveFn(diet_profile_t *pb)
   printf("%d mismatches on string %s\n", numMismatch, target);
 
   return (0);
-}
+} /* solveFn */
 
 /*
 ** performanceFn: the performance function to use in the DIET
 **   plugin scheduling facility
 */
 static void
-performanceFn(diet_profile_t* pb, estVector_t perfValues)
-{
+performanceFn(diet_profile_t *pb, estVector_t perfValues) {
   const char *target;
   int numMismatch;
   /* string value must be fetched from description; value is NULL */
@@ -220,4 +196,4 @@ performanceFn(diet_profile_t* pb, estVector_t perfValues)
 
   /* also store the timestamp since last execution */
   diet_estimate_lastexec(perfValues, pb);
-}
+} /* performanceFn */

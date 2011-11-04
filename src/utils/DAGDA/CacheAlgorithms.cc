@@ -1,20 +1,14 @@
 /**
-* @file CacheAlgorithms.cc
-* 
-* @brief  Cache replacements algorithms used by DAGDA when we remove data   
-* 
-* @author  - Gael Le Mahec (lemahec@clermont.in2p3.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.4  2008/11/07 14:32:14  bdepardo
- * Headers correction
+ * @file CacheAlgorithms.cc
  *
+ * @brief  Cache replacements algorithms used by DAGDA when we remove data
  *
- ***********************************************************/
+ * @author  Gael Le Mahec (lemahec@clermont.in2p3.fr)
+ *
+ * @section Licence
+ *   |LICENSE|
+ */
+
 #include <iostream>
 #include <string>
 #include <map>
@@ -25,7 +19,8 @@
 
 using namespace std;
 
-int LRU(AdvancedDagdaComponent* manager, size_t size, dagda_object_type_t type) {
+int
+LRU(AdvancedDagdaComponent *manager, size_t size, dagda_object_type_t type) {
   TRACE_TEXT(TRACE_ALL_STEPS, "Needs more space for the data:" <<
              " Tries to remove one using LRU." << endl);
   std::map<std::string, corba_data_t>::iterator it;
@@ -33,21 +28,25 @@ int LRU(AdvancedDagdaComponent* manager, size_t size, dagda_object_type_t type) 
   std::string found;
 
   for (it = manager->getData()->begin(); it != manager->getData()->end(); ++it)
-    if (it->second.desc.mode != DIET_STICKY && DGD_OBJ_TYPE(it->second)==type) {
-      if ((leastRecent == 0 || leastRecent > manager->getLastUsageTime(it->first.c_str()))
-          && data_sizeof(&it->second.desc)>=size) {
+    if (it->second.desc.mode != DIET_STICKY && DGD_OBJ_TYPE(it->second) ==
+        type) {
+      if ((leastRecent == 0 || leastRecent >
+           manager->getLastUsageTime(it->first.c_str()))
+          && data_sizeof(&it->second.desc) >= size) {
         leastRecent = manager->getLastUsageTime(it->first.c_str());
         found = it->first;
       }
     }
-  if (found!="") {
+  if (found != "") {
     manager->remData(found.c_str());
     return 0;
-  } else cerr << "No sufficient space found..." << endl;
+  } else {cerr << "No sufficient space found..." << endl;
+  }
   return 1;
-}
+} // LRU
 
-int LFU(AdvancedDagdaComponent* manager, size_t size, dagda_object_type_t type) {
+int
+LFU(AdvancedDagdaComponent *manager, size_t size, dagda_object_type_t type) {
   TRACE_TEXT(TRACE_ALL_STEPS, "Needs more space for the data:" <<
              " Tries to remove one using LFU policy." << endl);
   std::map<std::string, corba_data_t>::iterator it;
@@ -55,21 +54,24 @@ int LFU(AdvancedDagdaComponent* manager, size_t size, dagda_object_type_t type) 
   std::string found;
 
   for (it = manager->getData()->begin(); it != manager->getData()->end(); ++it)
-    if (it->second.desc.mode != DIET_STICKY && DGD_OBJ_TYPE(it->second)==type) {
+    if (it->second.desc.mode != DIET_STICKY && DGD_OBJ_TYPE(it->second) ==
+        type) {
       if ((usageMin == 0 || usageMin > manager->getNbUsage(it->first.c_str()))
-          && data_sizeof(&it->second.desc)>=size) {
+          && data_sizeof(&it->second.desc) >= size) {
         usageMin = manager->getNbUsage(it->first.c_str());
         found = it->first;
       }
     }
-  if (found!="") {
+  if (found != "") {
     manager->remData(found.c_str());
     return 0;
-  } else cerr << "No sufficient space found..." << endl;
+  } else {cerr << "No sufficient space found..." << endl;
+  }
   return 1;
-}
+} // LFU
 
-int FIFO(AdvancedDagdaComponent* manager, size_t size, dagda_object_type_t type) {
+int
+FIFO(AdvancedDagdaComponent *manager, size_t size, dagda_object_type_t type) {
   TRACE_TEXT(TRACE_ALL_STEPS, "Needs more space for the data:" <<
              " Tries to remove one using FIFO policy." << endl);
   std::map<std::string, corba_data_t>::iterator it;
@@ -77,16 +79,19 @@ int FIFO(AdvancedDagdaComponent* manager, size_t size, dagda_object_type_t type)
   std::string found;
 
   for (it = manager->getData()->begin(); it != manager->getData()->end(); ++it)
-    if (it->second.desc.mode != DIET_STICKY && DGD_OBJ_TYPE(it->second)==type) {
-      if ((registerTime == 0 || registerTime > manager->getRegisterTime(it->first.c_str()))
-          && data_sizeof(&it->second.desc)>=size) {
+    if (it->second.desc.mode != DIET_STICKY && DGD_OBJ_TYPE(it->second) ==
+        type) {
+      if ((registerTime == 0 || registerTime >
+           manager->getRegisterTime(it->first.c_str()))
+          && data_sizeof(&it->second.desc) >= size) {
         registerTime = manager->getRegisterTime(it->first.c_str());
         found = it->first;
       }
     }
-  if (found!="") {
+  if (found != "") {
     manager->remData(found.c_str());
     return 0;
-  } else cerr << "No sufficient space found..." << endl;
+  } else {cerr << "No sufficient space found..." << endl;
+  }
   return 1;
-}
+} // FIFO

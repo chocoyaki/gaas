@@ -1,26 +1,14 @@
 /**
-* @file  SpecificClientScheduler.hh
-* 
-* @brief   Specific client scheduling : to implement some specific scheduling   
-* 
-* @author  - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.3  2011/01/12 09:12:16  bdepardo
- * Removed warning during code documentation generation
+ * @file  SpecificClientScheduler.hh
  *
- * Revision 1.2  2007/07/12 08:43:49  aamar
- * Correct prototype (virtual void) of pre/post diet_call functions.
+ * @brief   Specific client scheduling : to implement some specific scheduling
  *
- * Revision 1.1  2007/07/11 08:42:09  aamar
- * Adding "custom client scheduling" mode (known as Burst mode). Need to be
- * activated in cmake.
+ * @author   Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)
  *
- ****************************************************************************/
+ * @section Licence
+ *   |LICENSE|
+ */
+
 
 #ifndef _SPECIFICCLIENTSCHEDULER_HH_
 #define _SPECIFICCLIENTSCHEDULER_HH_
@@ -36,9 +24,9 @@ public:
 
   virtual ~SpecificClientScheduler();
 
-  static const char * BurstRequest;
+  static const char *BurstRequest;
 
-  static const char * BurstLimit;
+  static const char *BurstLimit;
 
   /**
    * initialize the scheduler
@@ -46,10 +34,10 @@ public:
    * @param scheduling_name scheduling name
    */
   static void
-  setSchedulingId(const char * scheduling_name);
+  setSchedulingId(const char *scheduling_name);
 
   static void
-  start(SeD_var& chosenServer, corba_response_t * response);
+  start(SeD_var &chosenServer, corba_response_t *response);
 
   /**
    * Generic method to execute a specific scheduling.
@@ -60,15 +48,15 @@ public:
    * @param reponse       the received response
    */
   virtual void
-  schedule(const char * scheduling_name,
-           SeD_var& chosenServer,
-           corba_response_t * reponse);
+  schedule(const char *scheduling_name,
+           SeD_var &chosenServer,
+           corba_response_t *reponse);
 
   /**
    * Set the current SpecificScheduler
    */
   static void
-  setScheduler(SpecificClientScheduler * scheduler);
+  setScheduler(SpecificClientScheduler *scheduler);
 
 
   static void
@@ -96,7 +84,7 @@ public:
    * @param params parameters vector
    */
   static bool
-  isOptionEnabled(std::string option, std::vector<std::string>& params);
+  isOptionEnabled(std::string option, std::vector<std::string> &params);
 
   /**
    * Utility method: remove blanks from a string
@@ -104,7 +92,7 @@ public:
    * @param token string to trim
    */
   static void
-  removeBlanks(std::string& token);
+  removeBlanks(std::string &token);
 
   /**
    * Utility method: split a string given a delimiter
@@ -116,7 +104,7 @@ public:
 
   static void
   stringSplit(std::string str, std::string delim,
-              std::vector<std::string>& results);
+              std::vector<std::string> &results);
 
 private:
   /**
@@ -132,7 +120,7 @@ private:
   /**
    * The used scheduler
    */
-  static SpecificClientScheduler * myScheduler;
+  static SpecificClientScheduler *myScheduler;
 
   /**
    * Synchronisation semaphore
@@ -153,7 +141,7 @@ private:
    * set the scheduling options
    */
   void
-  setSchedulingOptions(const char * schedOptions);
+  setSchedulingOptions(const char *schedOptions);
 
   /**
    * BURST REQUEST : used to implement a better round robbin for
@@ -163,7 +151,7 @@ private:
    * @param response     the MA response
    */
   virtual void
-  burstRequest(SeD_var& chosenServer, corba_response_t * response);
+  burstRequest(SeD_var &chosenServer, corba_response_t *response);
 
   /**
    * BURST LIMIT REQUEST : used to implement a better round robbin for
@@ -174,7 +162,7 @@ private:
    * @param response     the MA response
    */
   virtual void
-  burstLimitRequest(SeD_var& chosenServer, corba_response_t * response);
+  burstLimitRequest(SeD_var &chosenServer, corba_response_t *response);
 };
 
 

@@ -1,46 +1,14 @@
 /**
-* @file Cori_Metric.hh
-* 
-* @brief  This is the API header file to use CoRI Metric management  
-* 
-* @author  - Frauenkron Peter (Peter.Frauenkron@ens-lyon.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.2  2011/02/01 20:51:25  bdepardo
- * changed "!defined" into "not defined".
+ * @file Cori_Metric.hh
  *
- * Revision 1.1  2010/03/03 14:26:35  bdepardo
- * BEWARE!!!
- * Huge modifications to take into account CYGWIN.
- * Lots of files' directory have been changed.
+ * @brief  This is the API header file to use CoRI Metric management
  *
- * Revision 1.10  2008/05/11 16:19:51  ycaniou
- * Check that pathToTmp and pathToNFS exist
- * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
- * Rewrite of the propagation of the request concerning job parallel_flag
- * Implementation of Cori_batch system
- * Numerous information can be dynamically retrieved through batch systems
+ * @author  Frauenkron Peter (Peter.Frauenkron@ens-lyon.fr)
  *
- * Revision 1.9  2007/04/30 13:53:22  ycaniou
- * Cosmetic changes (indentation) and small changes for Cori_Batch
- *
- * Revision 1.8  2007/04/16 22:43:44  ycaniou
- * Make all necessary changes to have the new option HAVE_ALT_BATCH operational.
- * This is indented to replace HAVE_BATCH.
- *
- * First draw to manage batch systems with a new Cori plug-in.
- *
- * Revision 1.7  2006/11/16 09:55:55  eboix
- *   DIET_config.h is no longer used. --- Injay2461
- *
- * Revision 1.6  2006/10/31 23:14:46  ecaron
- * CoRI: Metric management
- *
- ****************************************************************************/
+ * @section Licence
+ *   |LICENSE|
+ */
+
 #ifndef _CORI_METRIC_HH_
 #define _CORI_METRIC_HH_
 
@@ -71,7 +39,7 @@ public:
    *                               is set to defaults (dummy) values
    */
   int
-  call_cori_metric(int type_Info, estVector_t *information, const void* data);
+  call_cori_metric(int type_Info, estVector_t *information, const void *data);
 
   diet_est_collect_tag_t
   get_Collector_type();
@@ -83,9 +51,9 @@ private:
   diet_est_collect_tag_t collector_type;
   diet_est_collect_tag_t type_collector;
 
-  Cori_Data_Easy* cori_easy;
+  Cori_Data_Easy *cori_easy;
 #if not defined CLEAN_CORILIB_FROM_BATCH_STAFF and defined HAVE_ALT_BATCH
-  Cori_batch * cori_batch;
+  Cori_batch *cori_batch;
 #endif
 };
 

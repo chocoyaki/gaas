@@ -17,13 +17,14 @@
 #include "utils.hpp"
 
 
-BOOST_FIXTURE_TEST_SUITE( workflows_data_inout_scalars_sink, AllDataTransferSeDFixtureWF )
+BOOST_FIXTURE_TEST_SUITE(workflows_data_inout_scalars_sink,
+                         AllDataTransferSeDFixtureWF)
 
 #include "genericSimpleWfClientTest.hpp"
 
 
-BOOST_AUTO_TEST_CASE( data_inout_sink_scalars_character ) {
-  BOOST_TEST_MESSAGE( "-- Test: workflow data inout scalars sink character" );
+BOOST_AUTO_TEST_CASE(data_inout_sink_scalars_character) {
+  BOOST_TEST_MESSAGE("-- Test: workflow data inout scalars sink character");
 
   genericSimpleWorkflowClient(WF_DIRECTORY "inout_sink_CADD.xml",
                               "Inout Scalars Sink character",
@@ -31,8 +32,8 @@ BOOST_AUTO_TEST_CASE( data_inout_sink_scalars_character ) {
                               WF_DIRECTORY "data_inout_sink.xml");
 }
 
-BOOST_AUTO_TEST_CASE( data_inout_sink_scalars_short ) {
-  BOOST_TEST_MESSAGE( "-- Test: workflow data inout scalars sink short" );
+BOOST_AUTO_TEST_CASE(data_inout_sink_scalars_short) {
+  BOOST_TEST_MESSAGE("-- Test: workflow data inout scalars sink short");
 
   genericSimpleWorkflowClient(WF_DIRECTORY "inout_sink_BADD.xml",
                               "Inout Scalars Sink short",
@@ -40,8 +41,8 @@ BOOST_AUTO_TEST_CASE( data_inout_sink_scalars_short ) {
                               WF_DIRECTORY "data_inout_sink.xml");
 }
 
-BOOST_AUTO_TEST_CASE( data_inout_sink_scalars_integer ) {
-  BOOST_TEST_MESSAGE( "-- Test: workflow data inout scalars sink integer" );
+BOOST_AUTO_TEST_CASE(data_inout_sink_scalars_integer) {
+  BOOST_TEST_MESSAGE("-- Test: workflow data inout scalars sink integer");
 
   genericSimpleWorkflowClient(WF_DIRECTORY "inout_sink_IADD.xml",
                               "Inout Scalars Sink integer",
@@ -49,8 +50,8 @@ BOOST_AUTO_TEST_CASE( data_inout_sink_scalars_integer ) {
                               WF_DIRECTORY "data_inout_sink.xml");
 }
 
-BOOST_AUTO_TEST_CASE( data_inout_sink_scalars_long ) {
-  BOOST_TEST_MESSAGE( "-- Test: workflow data inout scalars sink long" );
+BOOST_AUTO_TEST_CASE(data_inout_sink_scalars_long) {
+  BOOST_TEST_MESSAGE("-- Test: workflow data inout scalars sink long");
 
   genericSimpleWorkflowClient(WF_DIRECTORY "inout_sink_LADD.xml",
                               "Inout Scalars Sink long",
@@ -58,8 +59,8 @@ BOOST_AUTO_TEST_CASE( data_inout_sink_scalars_long ) {
                               WF_DIRECTORY "data_inout_sink.xml");
 }
 
-BOOST_AUTO_TEST_CASE( data_inout_sink_scalars_float ) {
-  BOOST_TEST_MESSAGE( "-- Test: workflow data inout scalars sink float" );
+BOOST_AUTO_TEST_CASE(data_inout_sink_scalars_float) {
+  BOOST_TEST_MESSAGE("-- Test: workflow data inout scalars sink float");
 
   genericSimpleWorkflowClient(WF_DIRECTORY "inout_sink_FADD.xml",
                               "Inout Scalars Sink float",
@@ -67,8 +68,8 @@ BOOST_AUTO_TEST_CASE( data_inout_sink_scalars_float ) {
                               WF_DIRECTORY "data_inout_sink.xml");
 }
 
-BOOST_AUTO_TEST_CASE( data_inout_sink_scalars_double ) {
-  BOOST_TEST_MESSAGE( "-- Test: workflow data inout scalars sink double" );
+BOOST_AUTO_TEST_CASE(data_inout_sink_scalars_double) {
+  BOOST_TEST_MESSAGE("-- Test: workflow data inout scalars sink double");
 
   genericSimpleWorkflowClient(WF_DIRECTORY "inout_sink_DADD.xml",
                               "Inout Scalars Sink double",

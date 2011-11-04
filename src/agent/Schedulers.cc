@@ -1,148 +1,14 @@
 /**
-* @file  Schedulers.cc
-* 
-* @brief  DIET agent schedulers implementation : add yours !!!  
-* 
-* @author  - Philippe COMBES (Philippe.Combes@ens-lyon.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.24  2011/01/20 17:46:13  bdepardo
- * Fixed memory leak
+ * @file  Schedulers.cc
  *
- * Revision 1.23  2010/03/04 08:56:09  bdepardo
- * Include C++ headers instead of C headers.
- * strchr returns a const char* and not a char*, hence, in order to compile
- * with gcc >= 4.4.1 we need to retrieve the result of strchr into a
- * const char* and not just a char*.
+ * @brief  DIET agent schedulers implementation : add yours !!!
  *
- * Revision 1.22  2010/03/03 10:19:03  bdepardo
- * Changed \n into endl
+ * @author  Philippe COMBES (Philippe.Combes@ens-lyon.fr)
  *
- * Revision 1.21  2008/05/27 22:55:12  rbolze
- * add warning message when compare function retruned a COMPARE_UNDEFINED
- *
- * Revision 1.20  2008/01/01 19:04:46  ycaniou
- * Only cosmetic
- *
- * Revision 1.19  2007/04/17 13:34:54  ycaniou
- * Error in debug.tex header
- * Removes some warnings during doc generation
- *
- * Revision 1.18  2006/05/15 19:45:58  ecaron
- * Retrieve previous version (Last commit was an error)
- *
- * Revision 1.17  2006/05/15 19:37:42  ecaron
- * *** empty log message ***
- *
- * Revision 1.16  2006/02/24 01:59:50  hdail
- * Commenting out somebody's personal debugging output that was sent to stderr
- * and caused a performance hit of several orders of magnitude in aggregate
- * function of DIET.  ALWAYS use trace level controls around your debugging
- * output!
- *
- * Revision 1.15  2006/01/25 21:07:59  pfrauenk
- * CoRI - plugin scheduler: the type diet_est_tag_t est replace by int
- *        some new fonctions in DIET_server.h to manage the estVector
- *
- * Revision 1.14  2006/01/19 21:35:42  pfrauenk
- * CoRI : when --enable-cori - round-robin is the default scheduler -
- *        CoRI is not called (any more) for collecting information
- *        (so no FAST possible any more)
- *
- * Revision 1.13  2006/01/16 16:25:44  pfrauenk
- * NWSScheduler: bug fixes in WEIGHT function
- *      very special thanks to Raphaël Bolze
- *
- * Revision 1.12  2005/08/31 14:47:41  alsu
- * New plugin scheduling interface: adapting the various schedulers to
- * access performance data using the new estimation vector interface
- *
- * Revision 1.11  2005/05/16 12:27:24  alsu
- * removing hard-coded nameLength fields
- *
- * Revision 1.10  2005/05/15 15:50:49  alsu
- * implementing PriorityScheduler
- *
- * Revision 1.9  2005/04/25 08:57:56  hdail
- * Clean up memory leak for levels[] structure used in tree-based response sorting.
- *
- * Revision 1.8  2004/12/08 15:02:52  alsu
- * plugin scheduler first-pass validation testing complete.  merging into
- * main CVS trunk; ready for more rigorous testing.
- *
- * Revision 1.7.2.8  2004/12/08 00:03:06  alsu
- * - basic validation tests using FAST 0.8.5 / NWS 2.6.mt4 complete
- * - change WEIGHT macro for NWS scheduler to ignore the "total time"
- *   metric; if it is not HUGE_VAL, we would already have used the FAST
- *   scheduler to deal with this.  (TODO: discuss what to do with the
- *   weight value for "total time" ?)
- *
- * Revision 1.7.2.7  2004/12/06 16:05:23  alsu
- * debugging output cleaned up
- *
- * Revision 1.7.2.6  2004/11/30 15:48:00  alsu
- * fixing problems found testing FAST with plugin schedulers
- *
- * Revision 1.7.2.5  2004/11/21 22:33:20  alsu
- * more explicit commenting of the changes to the COMPARE_NODES macro
- *
- * Revision 1.7.2.4  2004/11/06 16:32:39  alsu
- * - changes for new parameter-based default values for estVector access
- *   functions
- * - when comparing an existing response (resp_idx >= 0) to a "null"
- *   response (resp_idx==-1), the behavior of COMPARE_NODES macro is
- *   changed to return COMPARE_UNDEFINED if the response would not be
- *   able to be compared in a standard comparison.  previously, a
- *   response without the necessary values to be treated by a particular
- *   aggregator was promoted when compared against a "null" response
- * - adding generic min and generic max aggregators
- *
- * Revision 1.7.2.3  2004/11/02 00:37:28  alsu
- * removing references to obviated fields in the estimation data structure
- *
- * Revision 1.7.2.2  2004/10/31 22:21:52  alsu
- * - restructured the old COMP_* definitions to be more "logcial" rather
- *   than absolute (i.e., COMP_FIRST_IS_INF => COMPARE_FIRST_IS_BETTER)
- * - added class methods to the Scheduler class to construct (and cache)
- *   estimation value vectors during the server sorting process
- * - implementation of the new default round-robin scheduler that is
- *   consistent with the dynamic performance data design
- *
- * Revision 1.7.2.1  2004/10/27 22:35:51  alsu
- * include
- *
- * Revision 1.7  2004/10/15 11:49:33  hdail
- * Modified tree update algorithm in aggregate to reduce unecessary comparisons.
- *
- * Revision 1.6  2004/10/15 08:21:17  hdail
- * - Removed references to corba_response_t->sortedIndexes - no longer useful.
- * - Removed sort functions -- they have been replaced by aggregate and are never
- *   called.
- *
- * Revision 1.5  2004/09/14 12:45:28  hdail
- * Changed mispelling of input variable for NWSScheduler variable.  Should correct
- * bug where can not change setting of epsilon for NWSScheduler.
- *
- * Revision 1.4  2004/05/18 21:07:10  alsu
- * problems fixed in the process of building in support for custom
- * performance metrics:
- *  - call to comparator used wrong server lists
- *  - code to move entries up the sort tree took max, not min value
- *
- * Revision 1.3  2003/07/04 09:47:59  pcombes
- * Use new ERROR, WARNING and TRACE macros.
- *
- * Revision 1.2  2003/05/05 14:46:21  pcombes
- * Add traces for all methods. aggregate: fix bug in the computation of pow.
- * Improve the server weight computation for NWSScheduler.
- *
- * Revision 1.1  2003/04/10 12:57:15  pcombes
- * Interface, plus three examples, for agent schedulers.
- ****************************************************************************/
+ * @section Licence
+ *   |LICENSE|
+ */
+
 
 
 #include "Schedulers.hh"
@@ -175,7 +41,7 @@ extern unsigned int TRACE_LEVEL;
  * \c seq.
  */
 void
-random_permute(SeqLong* seq, int first_idx, int last_idx);
+random_permute(SeqLong *seq, int first_idx, int last_idx);
 
 
 /****************************************************************************/
@@ -187,82 +53,70 @@ random_permute(SeqLong* seq, int first_idx, int last_idx);
 Scheduler::Scheduler() {
   this->name = "Scheduler";
 }
-Scheduler::~Scheduler() {}
+Scheduler::~Scheduler() {
+}
 
 /**
  * Return the serialized scheduler (a string)
  * NB: doubles are serialized with a precision of 10 significant decimals.
  */
-char*
-Scheduler::serialize(Scheduler* S)
-{
-  SCHED_TRACE_FUNCTION((void*)S->name);
+char *
+Scheduler::serialize(Scheduler *S) {
+  SCHED_TRACE_FUNCTION((void *) S->name);
   if (!strncmp(S->name, RandScheduler::stName, S->nameLength)) {
-    return (RandScheduler::serialize((RandScheduler*) S));
-  }
-  else if (!strncmp(S->name, MinScheduler::stName, S->nameLength)) {
-    return (MinScheduler::serialize((MinScheduler*) S));
-  }
-  else if (!strncmp(S->name, MaxScheduler::stName, S->nameLength)) {
-    return (MaxScheduler::serialize((MaxScheduler*) S));
-  }
-  else if (!strncmp(S->name, PriorityScheduler::stName, S->nameLength)) {
-    return (PriorityScheduler::serialize((PriorityScheduler*) S));
-  }
-  else if (!strncmp(S->name, RRScheduler::stName, S->nameLength)) {
-    return (RRScheduler::serialize((RRScheduler*) S));
-  }
-  else {
+    return (RandScheduler::serialize((RandScheduler *) S));
+  } else if (!strncmp(S->name, MinScheduler::stName, S->nameLength)) {
+    return (MinScheduler::serialize((MinScheduler *) S));
+  } else if (!strncmp(S->name, MaxScheduler::stName, S->nameLength)) {
+    return (MaxScheduler::serialize((MaxScheduler *) S));
+  } else if (!strncmp(S->name, PriorityScheduler::stName, S->nameLength)) {
+    return (PriorityScheduler::serialize((PriorityScheduler *) S));
+  } else if (!strncmp(S->name, RRScheduler::stName, S->nameLength)) {
+    return (RRScheduler::serialize((RRScheduler *) S));
+  } else {
     INTERNAL_ERROR("unable to serialize scheduler named " << S->name, 1);
     /* this line never executes, but exists to avoid  warning */
     return NULL;
   }
-}
+} // serialize
 
 /**
  * Return the Scheduler deserialized from the string \c serializedScheduler.
  */
-Scheduler*
-Scheduler::deserialize(const char* serializedScheduler)
-{
-  //  SCHED_TRACE_FUNCTION(serializedScheduler);
+Scheduler *
+Scheduler::deserialize(const char *serializedScheduler) {
+  // SCHED_TRACE_FUNCTION(serializedScheduler);
   int nameLength;
 
   {
     const char *comma;
     if ((comma = strchr(serializedScheduler, ',')) != NULL) {
       nameLength = comma - serializedScheduler;
-    }
-    else {
+    } else {
       nameLength = strlen(serializedScheduler);
     }
   }
 
   if (!strncmp(serializedScheduler, RandScheduler::stName, nameLength)) {
     return (RandScheduler::deserialize(serializedScheduler + nameLength));
-  }
-  else if (!strncmp(serializedScheduler, MinScheduler::stName, nameLength)) {
+  } else if (!strncmp(serializedScheduler, MinScheduler::stName, nameLength)) {
     return (MinScheduler::deserialize(serializedScheduler + nameLength));
-  }
-  else if (!strncmp(serializedScheduler, MaxScheduler::stName, nameLength)) {
+  } else if (!strncmp(serializedScheduler, MaxScheduler::stName, nameLength)) {
     return (MaxScheduler::deserialize(serializedScheduler + nameLength));
-  }
-  else if (!strncmp(serializedScheduler,
-                    PriorityScheduler::stName,
-                    nameLength)) {
+  } else if (!strncmp(serializedScheduler,
+                      PriorityScheduler::stName,
+                      nameLength)) {
     return (PriorityScheduler::deserialize(serializedScheduler + nameLength));
-  }
-  else if (!strncmp(serializedScheduler, RRScheduler::stName, nameLength)) {
+  } else if (!strncmp(serializedScheduler, RRScheduler::stName, nameLength)) {
     return (RRScheduler::deserialize(serializedScheduler + nameLength));
-  }
-  else {
+  } else {
     INTERNAL_WARNING("unable to deserialize scheduler \""
                      << serializedScheduler
                      << "\"; "
                      << "reverting to default (random)");
     return (new RandScheduler());
   }
-}
+} // deserialize
 
 /* agregate is non-static: use this->name for the SCHED_TRACE_FUNCTION */
 #undef SCHED_CLASS
@@ -284,13 +138,12 @@ Scheduler::deserialize(const char* serializedScheduler)
  *                       estVector objects
  */
 int
-Scheduler::aggregate(corba_response_t& aggrResp,
-                     int* lastAggregated,
+Scheduler::aggregate(corba_response_t &aggrResp,
+                     int *lastAggregated,
                      const size_t nb_responses,
-                     const corba_response_t* responses,
-                     int* lastAggr,
-                     Vector_t evCache)
-{
+                     const corba_response_t *responses,
+                     int *lastAggr,
+                     Vector_t evCache) {
   /**
    * For default aggregation method, we decide to merge all server sequences at
    * once.
@@ -309,21 +162,21 @@ Scheduler::aggregate(corba_response_t& aggrResp,
   typedef struct {
     int resp_idx, srv_idx;
   } node_t;
-  typedef node_t* level_t;
+  typedef node_t *level_t;
 
   /* Number of actual leaves of the tree (== nb_responses). */
   size_t nb_leaves = nb_responses;
   /* The lowest power of 2 greater or equal than nb_leaves. */
   size_t pow;
   /* Array of (pow + 1) arrays: each array is a level of the binary tree. */
-  level_t* levels;
+  level_t *levels;
   /* Point at the root. */
-  node_t* root;
+  node_t *root;
   /* Point at the leaves array. */
   level_t leaves;
   /* Left and right storage for nodes for comparisons */
-  node_t* lft;
-  node_t* rht;
+  node_t *lft;
+  node_t *rht;
 
   /** Print the tree on standard output */
 #define TRACE_TREE(levels, pow)                                          \
@@ -338,10 +191,10 @@ Scheduler::aggregate(corba_response_t& aggrResp,
   /** Compare 2 nodes */
 #if 0
 #define COMPARE_NODES(levels, pow, responses, fst, snd, parent)              \
-  if (fst->resp_idx == -1)                                              \
-    parent = *snd;                                                      \
-  else if (snd->resp_idx == -1)                                         \
-    parent = *fst;                                                      \
+  if (fst->resp_idx == -1) {                                              \
+    parent = *snd; }                                                      \
+  else if (snd->resp_idx == -1) {                                         \
+    parent = *fst; }                                                      \
   else {                                                                \
     int cmp =                                                           \
       (*compare)(fst->srv_idx,                                          \
@@ -364,7 +217,7 @@ Scheduler::aggregate(corba_response_t& aggrResp,
       parent.resp_idx = -1;                                             \
     }                                                                   \
   }
-#endif
+#endif // if 0
 #define COMPARE_NODES(levels, pow, responses, fst, snd, parent)              \
   if (fst->resp_idx == -1) {                                            \
     if (snd->resp_idx == -1 ||                                          \
@@ -442,19 +295,21 @@ Scheduler::aggregate(corba_response_t& aggrResp,
   /* Initialize the tree */
   size_t idx;
 
-  if (*lastAggregated >= ((int)aggrResp.servers.length() - 1)) // Nothing to do
+  if (*lastAggregated >= ((int) aggrResp.servers.length() - 1)) { // Nothing to do
     return 0;
+  }
 
   /* compute the lower power of 2 greater than nb_leaves */
   pow = 0;
   bool power_of_two = true;
   while (nb_leaves > 1) {
-    if ((nb_leaves & 1) == 1)
+    if ((nb_leaves & 1) == 1) {
       power_of_two = false;
+    }
     nb_leaves = (nb_leaves >> 1);
     pow++;
   }
-  if (!power_of_two){
+  if (!power_of_two) {
     pow++;
   }
   /* init levels array */
@@ -468,18 +323,18 @@ Scheduler::aggregate(corba_response_t& aggrResp,
   /* init the lower level (the leaves) */
   for (idx = 0; idx < nb_responses; idx++) {
     (levels[pow])[idx].resp_idx = idx;
-    (levels[pow])[idx].srv_idx  = lastAggr[idx] + 1;
+    (levels[pow])[idx].srv_idx = lastAggr[idx] + 1;
   }
   /* fill in rest of leaves with -1 */
-  for (; (int)idx < (1 << pow); idx++) {
+  for (; (int) idx < (1 << pow); idx++) {
     (levels[pow])[idx].resp_idx = -1;
   }
   /* init the other levels of the tree */
   for (int i = pow - 1; i >= 0; i--) {
     for (int j = 0; j < (1 << i); j++) {
-      lft = &((levels[i + 1])[2*j]);
-      rht = &((levels[i + 1])[2*j + 1]);
-      COMPARE_NODES(levels, pow, responses, lft, rht,(levels[i])[j]);
+      lft = &((levels[i + 1])[2 * j]);
+      rht = &((levels[i + 1])[2 * j + 1]);
+      COMPARE_NODES(levels, pow, responses, lft, rht, (levels[i])[j]);
     }
   }
 
@@ -490,14 +345,14 @@ Scheduler::aggregate(corba_response_t& aggrResp,
 
   /* Perform the aggregation itself. */
   while ((root->resp_idx != -1)
-         && (*lastAggregated < ((int)aggrResp.servers.length() - 1))) {
+         && (*lastAggregated < ((int) aggrResp.servers.length() - 1))) {
     size_t new_srv_idx;
     (*lastAggregated)++;
     aggrResp.servers[*lastAggregated]
       = responses[root->resp_idx].servers[root->srv_idx];
 
     new_srv_idx = ++leaves[root->resp_idx].srv_idx;
-    if (new_srv_idx >= responses[root->resp_idx].servers.length()){
+    if (new_srv_idx >= responses[root->resp_idx].servers.length()) {
       leaves[root->resp_idx].resp_idx = -1;  // this response is aggregated
     }
 
@@ -511,19 +366,20 @@ Scheduler::aggregate(corba_response_t& aggrResp,
     for (int i = pow; i > 0; i--) {
       if ((changed_srv_idx & 1) == 0) {  /* even */
         lft = &((levels[i])[changed_srv_idx]);
-        rht = &((levels[i])[changed_srv_idx+1]);
+        rht = &((levels[i])[changed_srv_idx + 1]);
       } else {                           /* odd */
-        lft = &((levels[i])[changed_srv_idx-1]);
+        lft = &((levels[i])[changed_srv_idx - 1]);
         rht = &((levels[i])[changed_srv_idx]);
       }
       parent_loc = changed_srv_idx >> 1; /* parent location in bin tree */
-      COMPARE_NODES(levels, pow, responses, lft, rht,(levels[i-1])[parent_loc]);
+      COMPARE_NODES(levels, pow, responses, lft, rht,
+                    (levels[i - 1])[parent_loc]);
 
       /* Find parent srv_idx in binary tree */
       changed_srv_idx = parent_loc;
     }
 
-    if (TRACE_LEVEL >= TRACE_ALL_STEPS){
+    if (TRACE_LEVEL >= TRACE_ALL_STEPS) {
       TRACE_TREE(levels, pow);
     }
   }
@@ -537,10 +393,9 @@ Scheduler::aggregate(corba_response_t& aggrResp,
   return 0;
 
 #undef COMPARE_NODES
-  //#undef UPDATE_TREE
+  // #undef UPDATE_TREE
 #undef TRACE_TREE
-
-}
+} // aggregate
 
 /**
  * Return an estVector for the indicated server estimation
@@ -548,8 +403,7 @@ Scheduler::aggregate(corba_response_t& aggrResp,
 estVectorConst_t
 Scheduler::getEstVector(int sIdx,
                         int rIdx,
-                        const corba_response_t* responses)
-{
+                        const corba_response_t *responses) {
   const CORBA::Long idx = sIdx;
 
   estVectorConst_t eVals = &(responses[rIdx].servers[idx].estim);
@@ -564,9 +418,8 @@ Scheduler::getEstVector(int sIdx,
 estVectorConst_t
 Scheduler::getEstVector(int sIdx,
                         int rIdx,
-                        const corba_response_t* responses,
-                        Vector_t evCache)
-{
+                        const corba_response_t *responses,
+                        Vector_t evCache) {
   assert(evCache != NULL);
   assert(rIdx < Vector_size(evCache));
 
@@ -575,15 +428,15 @@ Scheduler::getEstVector(int sIdx,
 
   if (sIdx < Vector_size(sv) &&
       (ev = (estVector_t) Vector_elementAt(sv, sIdx)) != NULL) {
-    //     fprintf(stderr, "CACHE(%d,%d) = %d*\n", rIdx, sIdx, (int) ev);
+    // fprintf(stderr, "CACHE(%d,%d) = %d*\n", rIdx, sIdx, (int) ev);
     return (ev);
   }
 
   ev = Scheduler::getEstVector(sIdx, rIdx, responses);
   Vector_set(sv, ev, sIdx);
-  //   fprintf(stderr, "CACHE(%d,%d) = %d\n", rIdx, sIdx, (int) ev);
+  // fprintf(stderr, "CACHE(%d,%d) = %d\n", rIdx, sIdx, (int) ev);
   return (ev);
-}
+} // getEstVector
 
 
 /****************************************************************************/
@@ -592,50 +445,48 @@ Scheduler::getEstVector(int sIdx,
 #undef SCHED_CLASS
 #define SCHED_CLASS "RandScheduler"
 
-const char*  RandScheduler::stName     = "RandScheduler";
+const char *RandScheduler::stName = "RandScheduler";
 
 /** This is designed to fill in RandScheduler compare member. */
-int RandScheduler_compare(int serverIdx1,
-                          int serverIdx2,
-                          int responseIdx1,
-                          int responseIdx2,
-                          const corba_response_t* responses,
-                          Vector_t evCache,
-                          const void* useless)
-{
+int
+RandScheduler_compare(int serverIdx1,
+                      int serverIdx2,
+                      int responseIdx1,
+                      int responseIdx2,
+                      const corba_response_t *responses,
+                      Vector_t evCache,
+                      const void *useless) {
   return ((rand() % 2) ? COMPARE_FIRST_IS_BETTER : COMPARE_SECOND_IS_BETTER);
 }
 
-RandScheduler::RandScheduler()
-{
-  this->name    = RandScheduler::stName;
+RandScheduler::RandScheduler() {
+  this->name = RandScheduler::stName;
   this->nameLength = strlen(this->name);
   this->compare = RandScheduler_compare;
   this->cmpInfo = NULL;
-  this->seed    = time(NULL);
+  this->seed = time(NULL);
   srand(this->seed);
 }
 
-RandScheduler::RandScheduler(unsigned int seed)
-{
-  this->name    = RandScheduler::stName;
+RandScheduler::RandScheduler(unsigned int seed) {
+  this->name = RandScheduler::stName;
   this->nameLength = strlen(this->name);
   this->compare = RandScheduler_compare;
   this->cmpInfo = NULL;
-  this->seed    = seed;
+  this->seed = seed;
   srand(seed);
 }
 
-RandScheduler::~RandScheduler() {}
+RandScheduler::~RandScheduler() {
+}
 
 /**
  * Return the serialized Rand scheduler (a string)
  * NB: doubles are serialized with a precision of 10 significant decimals.
  */
-char*
-RandScheduler::serialize(RandScheduler* S)
-{
-  char* res = new char[S->nameLength + 1];
+char *
+RandScheduler::serialize(RandScheduler *S) {
+  char *res = new char[S->nameLength + 1];
 
   SCHED_TRACE_FUNCTION(S->name);
   strcpy(res, S->stName);
@@ -646,9 +497,8 @@ RandScheduler::serialize(RandScheduler* S)
  * Return the RandScheduler deserialized from the string
  * \c serializedScheduler.
  */
-RandScheduler*
-RandScheduler::deserialize(const char* serializedScheduler)
-{
+RandScheduler *
+RandScheduler::deserialize(const char *serializedScheduler) {
   SCHED_TRACE_FUNCTION(serializedScheduler);
   assert(*serializedScheduler == '\0');
   return (new RandScheduler());
@@ -660,17 +510,17 @@ RandScheduler::deserialize(const char* serializedScheduler)
 #undef SCHED_CLASS
 #define SCHED_CLASS "RRScheduler"
 
-const char*  RRScheduler::stName     = "RRScheduler";
+const char *RRScheduler::stName = "RRScheduler";
 
 /** This is designed to fill in RRScheduler compare member. */
-int RRScheduler_compare(int serverIdx1,
-                        int serverIdx2,
-                        int responseIdx1,
-                        int responseIdx2,
-                        const corba_response_t* responses,
-                        Vector_t evCache,
-                        const void* useless)
-{
+int
+RRScheduler_compare(int serverIdx1,
+                    int serverIdx2,
+                    int responseIdx1,
+                    int responseIdx2,
+                    const corba_response_t *responses,
+                    Vector_t evCache,
+                    const void *useless) {
   if (serverIdx1 == serverIdx2 && responseIdx1 == responseIdx2) {
     estVectorConst_t est = Scheduler::getEstVector(serverIdx1,
                                                    responseIdx1,
@@ -697,57 +547,50 @@ int RRScheduler_compare(int serverIdx1,
   if (tsls_s1 < 0.0) {
     if (tsls_s2 < 0.0) {
       return (COMPARE_UNDEFINED);
-    }
-    else {
+    } else {
       return (COMPARE_SECOND_IS_BETTER);
     }
-  }
-  else if (tsls_s2 < 0.0) {
+  } else if (tsls_s2 < 0.0) {
     return (COMPARE_FIRST_IS_BETTER);
-  }
-  else {
+  } else {
     if (tsls_s1 < tsls_s2) {
       return (COMPARE_SECOND_IS_BETTER);
-    }
-    else if (tsls_s1 == tsls_s2) {
+    } else if (tsls_s1 == tsls_s2) {
       return (COMPARE_EQUAL);
-    }
-    else {
+    } else {
       return (COMPARE_FIRST_IS_BETTER);
     }
   }
-}
+} // RRScheduler_compare
 
-RRScheduler::RRScheduler()
-{
-  this->name    = RRScheduler::stName;
+RRScheduler::RRScheduler() {
+  this->name = RRScheduler::stName;
   this->nameLength = strlen(this->name);
   this->compare = RRScheduler_compare;
   this->cmpInfo = NULL;
-  this->seed    = time(NULL);
+  this->seed = time(NULL);
   srand(this->seed);
 }
 
-RRScheduler::RRScheduler(unsigned int seed)
-{
-  this->name    = RRScheduler::stName;
+RRScheduler::RRScheduler(unsigned int seed) {
+  this->name = RRScheduler::stName;
   this->nameLength = strlen(this->name);
   this->compare = RRScheduler_compare;
   this->cmpInfo = NULL;
-  this->seed    = seed;
+  this->seed = seed;
   srand(seed);
 }
 
-RRScheduler::~RRScheduler() {}
+RRScheduler::~RRScheduler() {
+}
 
 /**
  * Return the serialized RR scheduler (a string)
  * NB: doubles are serialized with a precision of 10 significant decimals.
  */
-char*
-RRScheduler::serialize(RRScheduler* S)
-{
-  char* res = new char[S->nameLength + 1];
+char *
+RRScheduler::serialize(RRScheduler *S) {
+  char *res = new char[S->nameLength + 1];
 
   SCHED_TRACE_FUNCTION(S->name);
   strcpy(res, S->stName);
@@ -758,9 +601,8 @@ RRScheduler::serialize(RRScheduler* S)
  * Return the RRScheduler deserialized from the string
  * \c serializedScheduler.
  */
-RRScheduler*
-RRScheduler::deserialize(const char* serializedScheduler)
-{
+RRScheduler *
+RRScheduler::deserialize(const char *serializedScheduler) {
   SCHED_TRACE_FUNCTION(serializedScheduler);
   assert(*serializedScheduler == '\0');
   return (new RRScheduler());
@@ -772,17 +614,17 @@ RRScheduler::deserialize(const char* serializedScheduler)
 #undef SCHED_CLASS
 #define SCHED_CLASS "MinScheduler"
 
-const char*  MinScheduler::stName     = "MinScheduler";
+const char *MinScheduler::stName = "MinScheduler";
 
 /** This is designed to fill in MinScheduler compare member. */
-int MinScheduler_compare(int serverIdx1,
-                         int serverIdx2,
-                         int responseIdx1,
-                         int responseIdx2,
-                         const corba_response_t* responses,
-                         Vector_t evCache,
-                         const void* tagvalPtr)
-{
+int
+MinScheduler_compare(int serverIdx1,
+                     int serverIdx2,
+                     int responseIdx1,
+                     int responseIdx2,
+                     const corba_response_t *responses,
+                     Vector_t evCache,
+                     const void *tagvalPtr) {
   int tagval = *((int *) tagvalPtr);
   estVectorConst_t s1est = Scheduler::getEstVector(serverIdx1,
                                                    responseIdx1,
@@ -799,48 +641,42 @@ int MinScheduler_compare(int serverIdx1,
   if (mval_s1 == HUGE_VAL) {
     if (mval_s2 == HUGE_VAL) {
       return (COMPARE_UNDEFINED);
-    }
-    else {
+    } else {
       return (COMPARE_SECOND_IS_BETTER);
     }
-  }
-  else if (mval_s2 == HUGE_VAL) {
+  } else if (mval_s2 == HUGE_VAL) {
     return (COMPARE_FIRST_IS_BETTER);
-  }
-  else {
-    //     fprintf(stderr, "min metric comparing %.4f %.4f\n", mval_s1, mval_s2);
+  } else {
+    // fprintf(stderr, "min metric comparing %.4f %.4f\n", mval_s1, mval_s2);
     if (mval_s1 > mval_s2) {
       return (COMPARE_SECOND_IS_BETTER);
-    }
-    else if (mval_s1 == mval_s2) {
+    } else if (mval_s1 == mval_s2) {
       return (COMPARE_EQUAL);
-    }
-    else {
+    } else {
       return (COMPARE_FIRST_IS_BETTER);
     }
   }
-}
+} // MinScheduler_compare
 
-MinScheduler::MinScheduler(int tagval)
-{
+MinScheduler::MinScheduler(int tagval) {
   assert(tagval >= 0);
-  this->name    = MinScheduler::stName;
+  this->name = MinScheduler::stName;
   this->nameLength = strlen(this->name);
   this->compare = MinScheduler_compare;
-  this->tagval  = tagval;
+  this->tagval = tagval;
   this->cmpInfo = &(this->tagval);
 }
 
-MinScheduler::~MinScheduler() {}
+MinScheduler::~MinScheduler() {
+}
 
 /**
  * Return the serialized Min scheduler (a string)
  * NB: doubles are serialized with a precision of 10 significant decimals.
  */
-char*
-MinScheduler::serialize(MinScheduler* S)
-{
-  char* res = new char[S->nameLength + 20];
+char *
+MinScheduler::serialize(MinScheduler *S) {
+  char *res = new char[S->nameLength + 20];
 
   SCHED_TRACE_FUNCTION(S->name);
   sprintf(res, "%s,%d", S->stName, S->tagval);
@@ -851,20 +687,20 @@ MinScheduler::serialize(MinScheduler* S)
  * Return the MinScheduler deserialized from the string
  * \c serializedScheduler.
  */
-MinScheduler*
-MinScheduler::deserialize(const char* serializedScheduler)
-{
+MinScheduler *
+MinScheduler::deserialize(const char *serializedScheduler) {
   int tagval;
   char dummy;
 
   SCHED_TRACE_FUNCTION(serializedScheduler);
-  if (sscanf((char*)(serializedScheduler + 1), "%d%c", &tagval, &dummy) != 1) {
+  if (sscanf((char *) (serializedScheduler + 1), "%d%c", &tagval,
+             &dummy) != 1) {
     INTERNAL_ERROR("invalid parameters for Min scheduler", -1);
     return (NULL);
   }
 
   return (new MinScheduler(tagval));
-}
+} // deserialize
 
 /****************************************************************************/
 /* Max Scheduler                                                            */
@@ -872,17 +708,17 @@ MinScheduler::deserialize(const char* serializedScheduler)
 #undef SCHED_CLASS
 #define SCHED_CLASS "MaxScheduler"
 
-const char*  MaxScheduler::stName     = "MaxScheduler";
+const char *MaxScheduler::stName = "MaxScheduler";
 
 /** This is designed to fill in MaxScheduler compare member. */
-int MaxScheduler_compare(int serverIdx1,
-                         int serverIdx2,
-                         int responseIdx1,
-                         int responseIdx2,
-                         const corba_response_t* responses,
-                         Vector_t evCache,
-                         const void* tagvalPtr)
-{
+int
+MaxScheduler_compare(int serverIdx1,
+                     int serverIdx2,
+                     int responseIdx1,
+                     int responseIdx2,
+                     const corba_response_t *responses,
+                     Vector_t evCache,
+                     const void *tagvalPtr) {
   int tagval = *((int *) tagvalPtr);
   estVectorConst_t s1est = Scheduler::getEstVector(serverIdx1,
                                                    responseIdx1,
@@ -899,48 +735,42 @@ int MaxScheduler_compare(int serverIdx1,
   if (mval_s1 == -HUGE_VAL) {
     if (mval_s2 == -HUGE_VAL) {
       return (COMPARE_UNDEFINED);
-    }
-    else {
+    } else {
       return (COMPARE_SECOND_IS_BETTER);
     }
-  }
-  else if (mval_s2 == -HUGE_VAL) {
+  } else if (mval_s2 == -HUGE_VAL) {
     return (COMPARE_FIRST_IS_BETTER);
-  }
-  else {
-    //     fprintf(stderr, "max metric comparing %.4f %.4f\n", mval_s1, mval_s2);
+  } else {
+    // fprintf(stderr, "max metric comparing %.4f %.4f\n", mval_s1, mval_s2);
     if (mval_s1 < mval_s2) {
       return (COMPARE_SECOND_IS_BETTER);
-    }
-    else if (mval_s1 == mval_s2) {
+    } else if (mval_s1 == mval_s2) {
       return (COMPARE_EQUAL);
-    }
-    else {
+    } else {
       return (COMPARE_FIRST_IS_BETTER);
     }
   }
-}
+} // MaxScheduler_compare
 
-MaxScheduler::MaxScheduler(int tagval)
-{
+MaxScheduler::MaxScheduler(int tagval) {
   assert(tagval >= 0);
-  this->name    = MaxScheduler::stName;
+  this->name = MaxScheduler::stName;
   this->nameLength = strlen(this->name);
   this->compare = MaxScheduler_compare;
-  this->tagval  = tagval;
+  this->tagval = tagval;
   this->cmpInfo = &(this->tagval);
 }
 
-MaxScheduler::~MaxScheduler() {}
+MaxScheduler::~MaxScheduler() {
+}
 
 /**
  * Return the serialized Max scheduler (a string)
  * NB: doubles are serialized with a precision of 10 significant decimals.
  */
-char*
-MaxScheduler::serialize(MaxScheduler* S)
-{
-  char* res = new char[S->nameLength + 20];
+char *
+MaxScheduler::serialize(MaxScheduler *S) {
+  char *res = new char[S->nameLength + 20];
 
   SCHED_TRACE_FUNCTION(S->name);
   sprintf(res, "%s,%d", S->stName, S->tagval);
@@ -951,20 +781,20 @@ MaxScheduler::serialize(MaxScheduler* S)
  * Return the MaxScheduler deserialized from the string
  * \c serializedScheduler.
  */
-MaxScheduler*
-MaxScheduler::deserialize(const char* serializedScheduler)
-{
+MaxScheduler *
+MaxScheduler::deserialize(const char *serializedScheduler) {
   int tagval;
   char dummy;
 
   SCHED_TRACE_FUNCTION(serializedScheduler);
-  if (sscanf((char*)(serializedScheduler + 1), "%d%c", &tagval, &dummy) != 1) {
+  if (sscanf((char *) (serializedScheduler + 1), "%d%c", &tagval,
+             &dummy) != 1) {
     INTERNAL_ERROR("invalid parameters for Max scheduler", -1);
     return (NULL);
   }
 
   return (new MaxScheduler(tagval));
-}
+} // deserialize
 
 /****************************************************************************/
 /* Priority Scheduler                                                       */
@@ -972,17 +802,17 @@ MaxScheduler::deserialize(const char* serializedScheduler)
 #undef SCHED_CLASS
 #define SCHED_CLASS "PriorityScheduler"
 
-const char*  PriorityScheduler::stName     = "PriorityScheduler";
+const char *PriorityScheduler::stName = "PriorityScheduler";
 
 /** This is designed to fill in PriorityScheduler compare member. */
-int PriorityScheduler_compare(int serverIdx1,
-                              int serverIdx2,
-                              int responseIdx1,
-                              int responseIdx2,
-                              const corba_response_t* responses,
-                              Vector_t evCache,
-                              const void* pListPtr)
-{
+int
+PriorityScheduler_compare(int serverIdx1,
+                          int serverIdx2,
+                          int responseIdx1,
+                          int responseIdx2,
+                          const corba_response_t *responses,
+                          Vector_t evCache,
+                          const void *pListPtr) {
   estVectorConst_t s1est = Scheduler::getEstVector(serverIdx1,
                                                    responseIdx1,
                                                    responses,
@@ -1025,16 +855,13 @@ int PriorityScheduler_compare(int serverIdx1,
     if (minimize) {
       if (val1 < val2) {
         return (COMPARE_FIRST_IS_BETTER);
-      }
-      else if (val2 < val1) {
+      } else if (val2 < val1) {
         return (COMPARE_SECOND_IS_BETTER);
       }
-    }
-    else {
+    } else {
       if (val1 > val2) {
         return (COMPARE_FIRST_IS_BETTER);
-      }
-      else if (val2 > val1) {
+      } else if (val2 > val1) {
         return (COMPARE_SECOND_IS_BETTER);
       }
     }
@@ -1042,15 +869,14 @@ int PriorityScheduler_compare(int serverIdx1,
 
   /* all comparisons were valid, and equal */
   return (COMPARE_EQUAL);
-}
+} // PriorityScheduler_compare
 
-PriorityScheduler::PriorityScheduler(int numValues, int *values)
-{
+PriorityScheduler::PriorityScheduler(int numValues, int *values) {
   if (numValues <= 0) {
     INTERNAL_ERROR("Priority scheduler instantiated with <= 0 values", -1);
     return;
   }
-  this->name    = PriorityScheduler::stName;
+  this->name = PriorityScheduler::stName;
   this->nameLength = strlen(this->name);
   this->compare = PriorityScheduler_compare;
   this->pl.pl_numValues = numValues;
@@ -1061,16 +887,16 @@ PriorityScheduler::PriorityScheduler(int numValues, int *values)
   this->cmpInfo = &(this->pl);
 }
 
-PriorityScheduler::~PriorityScheduler() {}
+PriorityScheduler::~PriorityScheduler() {
+}
 
 /**
  * Return the serialized Priority scheduler (a string)
  * NB: doubles are serialized with a precision of 10 significant decimals.
  */
-char*
-PriorityScheduler::serialize(PriorityScheduler* S)
-{
-  char* res = new char[S->nameLength + (8 * S->pl.pl_numValues)];
+char *
+PriorityScheduler::serialize(PriorityScheduler *S) {
+  char *res = new char[S->nameLength + (8 * S->pl.pl_numValues)];
 
   SCHED_TRACE_FUNCTION(S->name);
   sprintf(res, "%s,%d", S->stName, S->pl.pl_numValues);
@@ -1084,11 +910,10 @@ PriorityScheduler::serialize(PriorityScheduler* S)
  * Return the PriorityScheduler deserialized from the string
  * \c serializedScheduler.
  */
-PriorityScheduler*
-PriorityScheduler::deserialize(const char* serializedScheduler)
-{
+PriorityScheduler *
+PriorityScheduler::deserialize(const char *serializedScheduler) {
   int numValues;
-  const char *strPtr = serializedScheduler+1;
+  const char *strPtr = serializedScheduler + 1;
 
   SCHED_TRACE_FUNCTION(serializedScheduler);
 
@@ -1108,7 +933,7 @@ PriorityScheduler::deserialize(const char* serializedScheduler)
   }
   strPtr = strchr(strPtr, ',') + 1;
 
-  int* values = new int[numValues];
+  int *values = new int[numValues];
   for (int valIter = 0; valIter < numValues; valIter++) {
     int curVal;
     if (sscanf(strPtr, "%d", &curVal) != 1) {
@@ -1128,7 +953,7 @@ PriorityScheduler::deserialize(const char* serializedScheduler)
   PriorityScheduler *ps = new PriorityScheduler(numValues, values);
   delete [] values;
   return (ps);
-}
+} // deserialize
 
 /****************************************************************************/
 /* Utils                                                                    */
@@ -1140,8 +965,7 @@ PriorityScheduler::deserialize(const char* serializedScheduler)
  * \c first_idx, ending at index \c last_idx.
  */
 void
-random_permute(SeqLong* seq, int first_idx, int last_idx)
-{
+random_permute(SeqLong *seq, int first_idx, int last_idx) {
   int rem_length(last_idx - first_idx + 1);
   int i(0);
 
@@ -1153,4 +977,4 @@ random_permute(SeqLong* seq, int first_idx, int last_idx)
     rem_length--;
     i++;
   }
-}
+} // random_permute

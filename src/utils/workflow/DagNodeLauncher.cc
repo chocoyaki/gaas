@@ -3,23 +3,12 @@
 * 
 * @brief  TThe virtual class used for dagNode execution 
 * 
-* @author  - Benjamin ISNARD (Benjamin.Isnard@ens-lyon.fr)
+* @author  Benjamin ISNARD (Benjamin.Isnard@ens-lyon.fr)
 * 
 * @section Licence
 *   |LICENSE|                                                                
 */
-/* $Id$
- * $Log$
- * Revision 1.3  2010/07/20 09:20:11  bisnard
- * integration with eclipse gui and with dietForwarder
- *
- * Revision 1.2  2010/07/12 16:14:13  glemahec
- * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
- *
- * Revision 1.1  2009/09/25 12:36:18  bisnard
- * created new classes DagNodeLauncher & childs
- *
- ****************************************************************************/
+
 
 #include "DagNodeLauncher.hh"
 #include "DagNode.hh"

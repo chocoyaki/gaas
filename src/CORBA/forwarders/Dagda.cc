@@ -1,27 +1,14 @@
 /**
-* @file Dagda.cc
-* 
-* @brief  DIET forwarder implementation - Dagda forwarder implementation  
-* 
-* @author - Gael Le Mahec   (gael.le.mahec@ens-lyon.fr) 
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.4  2010/07/27 16:16:49  glemahec
- * Forwarders robustness
+ * @file Dagda.cc
  *
- * Revision 1.3  2010/07/14 23:45:30  bdepardo
- * Header corrections
+ * @brief  DIET forwarder implementation - Dagda forwarder implementation
  *
- * Revision 1.2  2010/07/13 15:24:13  glemahec
- * Warnings corrections and some robustness improvements
+ * @author  Gael Le Mahec   (gael.le.mahec@ens-lyon.fr)
  *
- * Revision 1.1  2010/07/12 16:08:56  glemahec
- * DIET 2.5 beta 1 - Forwarder implementations
- ****************************************************************************/
+ * @section Licence
+ *   |LICENSE|
+ */
+
 
 #include "DIETForwarder.hh"
 #include "ORBMgr.hh"
@@ -30,7 +17,7 @@
 
 
 ::CORBA::Boolean
-DIETForwarder::lclIsDataPresent(const char* dataID, const char* objName) {
+DIETForwarder::lclIsDataPresent(const char *dataID, const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -43,10 +30,10 @@ DIETForwarder::lclIsDataPresent(const char* dataID, const char* objName) {
   Dagda_var dagda =
     ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT, name, this->name);
   return dagda->lclIsDataPresent(dataID);
-  }
+} // lclIsDataPresent
 
 ::CORBA::Boolean
-DIETForwarder::lvlIsDataPresent(const char* dataID, const char* objName) {
+DIETForwarder::lvlIsDataPresent(const char *dataID, const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -59,10 +46,10 @@ DIETForwarder::lvlIsDataPresent(const char* dataID, const char* objName) {
   Dagda_var dagda =
     ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT, name, this->name);
   return dagda->lvlIsDataPresent(dataID);
-  }
+} // lvlIsDataPresent
 
 ::CORBA::Boolean
-DIETForwarder::pfmIsDataPresent(const char* dataID, const char* objName) {
+DIETForwarder::pfmIsDataPresent(const char *dataID, const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -75,11 +62,12 @@ DIETForwarder::pfmIsDataPresent(const char* dataID, const char* objName) {
   Dagda_var dagda =
     ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT, name, this->name);
   return dagda->pfmIsDataPresent(dataID);
-  }
+} // pfmIsDataPresent
 
-void DIETForwarder::lclAddData(const char* srcDagda,
-                               const ::corba_data_t& data,
-                               const char* objName) {
+void
+DIETForwarder::lclAddData(const char *srcDagda,
+                          const ::corba_data_t &data,
+                          const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -92,12 +80,12 @@ void DIETForwarder::lclAddData(const char* srcDagda,
   Dagda_var dagda = ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT, name,
                                                                 this->name);
   return dagda->lclAddData(srcDagda, data);
-}
+} // lclAddData
 
 void
-DIETForwarder::lvlAddData(const char* srcDagda,
-                          const ::corba_data_t& data,
-                          const char* objName) {
+DIETForwarder::lvlAddData(const char *srcDagda,
+                          const ::corba_data_t &data,
+                          const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -110,12 +98,12 @@ DIETForwarder::lvlAddData(const char* srcDagda,
   Dagda_var dagda =
     ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT, name, this->name);
   return dagda->lvlAddData(srcDagda, data);
-}
+} // lvlAddData
 
 void
-DIETForwarder::pfmAddData(const char* srcDagda,
-                          const ::corba_data_t& data,
-                          const char* objName) {
+DIETForwarder::pfmAddData(const char *srcDagda,
+                          const ::corba_data_t &data,
+                          const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -128,10 +116,10 @@ DIETForwarder::pfmAddData(const char* srcDagda,
   Dagda_var dagda =
     ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT, name, this->name);
   return dagda->pfmAddData(srcDagda, data);
-}
+} // pfmAddData
 
 void
-DIETForwarder::registerFile(const ::corba_data_t& data, const char* objName) {
+DIETForwarder::registerFile(const ::corba_data_t &data, const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -144,14 +132,14 @@ DIETForwarder::registerFile(const ::corba_data_t& data, const char* objName) {
   Dagda_var dagda = ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT, name,
                                                                 this->name);
   return dagda->registerFile(data);
-}
+} // registerFile
 
 void
-DIETForwarder::lclAddContainerElt(const char* containerID,
-                                  const char* dataID,
+DIETForwarder::lclAddContainerElt(const char *containerID,
+                                  const char *dataID,
                                   ::CORBA::Long index,
                                   ::CORBA::Long flag,
-                                  const char* objName) {
+                                  const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -165,11 +153,11 @@ DIETForwarder::lclAddContainerElt(const char* containerID,
   Dagda_var dagda =
     ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT, name, this->name);
   return dagda->lclAddContainerElt(containerID, dataID, index, flag);
-}
+} // lclAddContainerElt
 
 ::CORBA::Long
-DIETForwarder::lclGetContainerSize(const char* containerID,
-                                   const char* objName) {
+DIETForwarder::lclGetContainerSize(const char *containerID,
+                                   const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -182,14 +170,14 @@ DIETForwarder::lclGetContainerSize(const char* containerID,
   Dagda_var dagda =
     ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT, name, this->name);
   return dagda->lclGetContainerSize(containerID);
-}
+} // lclGetContainerSize
 
 void
-DIETForwarder::lclGetContainerElts(const char* containerID,
-                                   ::SeqString& dataIDSeq,
-                                   ::SeqLong& flagSeq,
+DIETForwarder::lclGetContainerElts(const char *containerID,
+                                   ::SeqString &dataIDSeq,
+                                   ::SeqLong &flagSeq,
                                    ::CORBA::Boolean ordered,
-                                   const char* objName) {
+                                   const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -204,10 +192,10 @@ DIETForwarder::lclGetContainerElts(const char* containerID,
   Dagda_var dagda =
     ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT, name, this->name);
   return dagda->lclGetContainerElts(containerID, dataIDSeq, flagSeq, ordered);
-}
+} // lclGetContainerElts
 
 void
-DIETForwarder::lclRemData(const char* dataID, const char* objName) {
+DIETForwarder::lclRemData(const char *dataID, const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -220,10 +208,10 @@ DIETForwarder::lclRemData(const char* dataID, const char* objName) {
   Dagda_var dagda =
     ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT, name, this->name);
   return dagda->lclRemData(dataID);
-}
+} // lclRemData
 
 void
-DIETForwarder::lvlRemData(const char* dataID, const char* objName) {
+DIETForwarder::lvlRemData(const char *dataID, const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -236,10 +224,10 @@ DIETForwarder::lvlRemData(const char* dataID, const char* objName) {
   Dagda_var dagda =
     ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT, name, this->name);
   return dagda->lvlRemData(dataID);
-}
+} // lvlRemData
 
 void
-DIETForwarder::pfmRemData(const char* dataID, const char* objName) {
+DIETForwarder::pfmRemData(const char *dataID, const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -252,12 +240,12 @@ DIETForwarder::pfmRemData(const char* dataID, const char* objName) {
   Dagda_var dagda =
     ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT, name, this->name);
   return dagda->pfmRemData(dataID);
-}
+} // pfmRemData
 
 void
-DIETForwarder::lclUpdateData(const char* srcDagda,
-                             const ::corba_data_t& data,
-                             const char* objName) {
+DIETForwarder::lclUpdateData(const char *srcDagda,
+                             const ::corba_data_t &data,
+                             const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -270,12 +258,12 @@ DIETForwarder::lclUpdateData(const char* srcDagda,
   Dagda_var dagda =
     ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT, name, this->name);
   return dagda->lclUpdateData(srcDagda, data);
-}
+} // lclUpdateData
 
 void
-DIETForwarder::lvlUpdateData(const char* srcDagda,
-                             const ::corba_data_t& data,
-                             const char* objName) {
+DIETForwarder::lvlUpdateData(const char *srcDagda,
+                             const ::corba_data_t &data,
+                             const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -288,12 +276,12 @@ DIETForwarder::lvlUpdateData(const char* srcDagda,
   Dagda_var dagda =
     ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT, name, this->name);
   return dagda->lvlUpdateData(srcDagda, data);
-}
+} // lvlUpdateData
 
 void
-DIETForwarder::pfmUpdateData(const char* srcDagda,
-                             const ::corba_data_t& data,
-                             const char* objName) {
+DIETForwarder::pfmUpdateData(const char *srcDagda,
+                             const ::corba_data_t &data,
+                             const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -306,10 +294,10 @@ DIETForwarder::pfmUpdateData(const char* srcDagda,
   Dagda_var dagda =
     ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT, name, this->name);
   return dagda->pfmUpdateData(srcDagda, data);
-}
+} // pfmUpdateData
 
-SeqCorbaDataDesc_t*
-DIETForwarder::lclGetDataDescList(const char* objName) {
+SeqCorbaDataDesc_t *
+DIETForwarder::lclGetDataDescList(const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -322,10 +310,10 @@ DIETForwarder::lclGetDataDescList(const char* objName) {
   Dagda_var dagda =
     ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT, name, this->name);
   return dagda->lclGetDataDescList();
-}
+} // lclGetDataDescList
 
-SeqCorbaDataDesc_t*
-DIETForwarder::lvlGetDataDescList(const char* objName) {
+SeqCorbaDataDesc_t *
+DIETForwarder::lvlGetDataDescList(const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -338,10 +326,10 @@ DIETForwarder::lvlGetDataDescList(const char* objName) {
   Dagda_var dagda =
     ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT, name, this->name);
   return dagda->lvlGetDataDescList();
-}
+} // lvlGetDataDescList
 
-SeqCorbaDataDesc_t*
-DIETForwarder::pfmGetDataDescList(const char* objName) {
+SeqCorbaDataDesc_t *
+DIETForwarder::pfmGetDataDescList(const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -354,10 +342,10 @@ DIETForwarder::pfmGetDataDescList(const char* objName) {
   Dagda_var dagda =
     ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT, name, this->name);
   return dagda->pfmGetDataDescList();
-}
+} // pfmGetDataDescList
 
-corba_data_desc_t*
-DIETForwarder::lclGetDataDesc(const char* dataID, const char* objName) {
+corba_data_desc_t *
+DIETForwarder::lclGetDataDesc(const char *dataID, const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -370,10 +358,10 @@ DIETForwarder::lclGetDataDesc(const char* dataID, const char* objName) {
   Dagda_var dagda =
     ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT, name, this->name);
   return dagda->lclGetDataDesc(dataID);
-}
+} // lclGetDataDesc
 
-corba_data_desc_t*
-DIETForwarder::lvlGetDataDesc(const char* dataID, const char* objName) {
+corba_data_desc_t *
+DIETForwarder::lvlGetDataDesc(const char *dataID, const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -386,10 +374,10 @@ DIETForwarder::lvlGetDataDesc(const char* dataID, const char* objName) {
   Dagda_var dagda = ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT, name,
                                                                 this->name);
   return dagda->lvlGetDataDesc(dataID);
-}
+} // lvlGetDataDesc
 
-corba_data_desc_t*
-DIETForwarder::pfmGetDataDesc(const char* dataID, const char* objName) {
+corba_data_desc_t *
+DIETForwarder::pfmGetDataDesc(const char *dataID, const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -402,14 +390,14 @@ DIETForwarder::pfmGetDataDesc(const char* dataID, const char* objName) {
   Dagda_var dagda =
     ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT, name, this->name);
   return dagda->pfmGetDataDesc(dataID);
-}
+} // pfmGetDataDesc
 
 void
-DIETForwarder::lclReplicate(const char* dataID,
+DIETForwarder::lclReplicate(const char *dataID,
                             ::CORBA::Long ruleTarget,
-                            const char* pattern,
+                            const char *pattern,
                             ::CORBA::Boolean replace,
-                            const char* objName) {
+                            const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -423,14 +411,14 @@ DIETForwarder::lclReplicate(const char* dataID,
   Dagda_var dagda =
     ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT, name, this->name);
   return dagda->lclReplicate(dataID, ruleTarget, pattern, replace);
-}
+} // lclReplicate
 
 void
-DIETForwarder::lvlReplicate(const char* dataID,
+DIETForwarder::lvlReplicate(const char *dataID,
                             ::CORBA::Long ruleTarget,
-                            const char* pattern,
+                            const char *pattern,
                             ::CORBA::Boolean replace,
-                            const char* objName) {
+                            const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -444,14 +432,14 @@ DIETForwarder::lvlReplicate(const char* dataID,
   Dagda_var dagda =
     ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT, name, this->name);
   return dagda->lvlReplicate(dataID, ruleTarget, pattern, replace);
-}
+} // lvlReplicate
 
 void
-DIETForwarder::pfmReplicate(const char* dataID,
+DIETForwarder::pfmReplicate(const char *dataID,
                             ::CORBA::Long ruleTarget,
-                            const char* pattern,
+                            const char *pattern,
                             ::CORBA::Boolean replace,
-                            const char* objName) {
+                            const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -465,13 +453,13 @@ DIETForwarder::pfmReplicate(const char* dataID,
   Dagda_var dagda =
     ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT, name, this->name);
   return dagda->pfmReplicate(dataID, ruleTarget, pattern, replace);
-}
+} // pfmReplicate
 
-char*
-DIETForwarder::writeFile(const ::SeqChar& data,
-                         const char* basename,
+char *
+DIETForwarder::writeFile(const ::SeqChar &data,
+                         const char *basename,
                          ::CORBA::Boolean replace,
-                         const char* objName) {
+                         const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -484,12 +472,12 @@ DIETForwarder::writeFile(const ::SeqChar& data,
   Dagda_var dagda =
     ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT, name, this->name);
   return dagda->writeFile(data, basename, replace);
-}
+} // writeFile
 
-char*
-DIETForwarder::sendFile(const ::corba_data_t& data,
-                        const char* destDagda,
-                        const char* objName) {
+char *
+DIETForwarder::sendFile(const ::corba_data_t &data,
+                        const char *destDagda,
+                        const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -502,14 +490,14 @@ DIETForwarder::sendFile(const ::corba_data_t& data,
   Dagda_var dagda =
     ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT, name, this->name);
   return dagda->sendFile(data, destDagda);
-}
+} // sendFile
 
-char*
-DIETForwarder::recordData(const ::SeqChar& data,
-                          const ::corba_data_desc_t& dataDesc,
+char *
+DIETForwarder::recordData(const ::SeqChar &data,
+                          const ::corba_data_desc_t &dataDesc,
                           ::CORBA::Boolean replace,
                           ::CORBA::Long offset,
-                          const char* objName) {
+                          const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -523,12 +511,12 @@ DIETForwarder::recordData(const ::SeqChar& data,
   Dagda_var dagda =
     ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT, name, this->name);
   return dagda->recordData(data, dataDesc, replace, offset);
-}
+} // recordData
 
-char*
-DIETForwarder::sendData(const char* ID,
-                        const char* destDagda,
-                        const char* objName) {
+char *
+DIETForwarder::sendData(const char *ID,
+                        const char *destDagda,
+                        const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -541,13 +529,13 @@ DIETForwarder::sendData(const char* ID,
   Dagda_var dagda =
     ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT, name, this->name);
   return dagda->sendData(ID, destDagda);
-}
+} // sendData
 
-char*
-DIETForwarder::sendContainer(const char* ID,
-                             const char* destDagda,
+char *
+DIETForwarder::sendContainer(const char *ID,
+                             const char *destDagda,
                              ::CORBA::Boolean sendElements,
-                             const char* objName) {
+                             const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -561,10 +549,10 @@ DIETForwarder::sendContainer(const char* ID,
   Dagda_var dagda =
     ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT, name, this->name);
   return dagda->sendContainer(ID, destDagda, sendElements);
-}
+} // sendContainer
 
-SeqString*
-DIETForwarder::lvlGetDataManagers(const char* dataID, const char* objName) {
+SeqString *
+DIETForwarder::lvlGetDataManagers(const char *dataID, const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -577,10 +565,10 @@ DIETForwarder::lvlGetDataManagers(const char* dataID, const char* objName) {
   Dagda_var dagda =
     ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT, name, this->name);
   return dagda->lvlGetDataManagers(dataID);
-}
+} // lvlGetDataManagers
 
-SeqString*
-DIETForwarder::pfmGetDataManagers(const char* dataID, const char* objName) {
+SeqString *
+DIETForwarder::pfmGetDataManagers(const char *dataID, const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -593,10 +581,10 @@ DIETForwarder::pfmGetDataManagers(const char* dataID, const char* objName) {
   Dagda_var dagda =
     ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT, name, this->name);
   return dagda->pfmGetDataManagers(dataID);
-}
+} // pfmGetDataManagers
 
 void
-DIETForwarder::subscribe(const char* dagdaName, const char* objName) {
+DIETForwarder::subscribe(const char *dagdaName, const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -608,10 +596,10 @@ DIETForwarder::subscribe(const char* dagdaName, const char* objName) {
   Dagda_var dagda =
     ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT, name, this->name);
   dagda->subscribe(dagdaName);
-}
+} // subscribe
 
 void
-DIETForwarder::unsubscribe(const char* dagdaName, const char* objName) {
+DIETForwarder::unsubscribe(const char *dagdaName, const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -624,10 +612,10 @@ DIETForwarder::unsubscribe(const char* dagdaName, const char* objName) {
   Dagda_var dagda =
     ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT, name, this->name);
   return dagda->unsubscribe(dagdaName);
-}
+} // unsubscribe
 
-char*
-DIETForwarder::getID(const char* objName) {
+char *
+DIETForwarder::getID(const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -640,10 +628,10 @@ DIETForwarder::getID(const char* objName) {
   Dagda_var dagda =
     ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT, name, this->name);
   return dagda->getID();
-}
+} // getID
 
 void
-DIETForwarder::lockData(const char* dataID, const char* objName) {
+DIETForwarder::lockData(const char *dataID, const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -656,10 +644,10 @@ DIETForwarder::lockData(const char* dataID, const char* objName) {
   Dagda_var dagda =
     ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT, name, this->name);
   return dagda->lockData(dataID);
-}
+} // lockData
 
 void
-DIETForwarder::unlockData(const char* dataID, const char* objName) {
+DIETForwarder::unlockData(const char *dataID, const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -672,10 +660,10 @@ DIETForwarder::unlockData(const char* dataID, const char* objName) {
   Dagda_var dagda =
     ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT, name, this->name);
   return dagda->unlockData(dataID);
-}
+} // unlockData
 
 Dagda::dataStatus
-DIETForwarder::getDataStatus(const char* dataID, const char* objName) {
+DIETForwarder::getDataStatus(const char *dataID, const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -688,12 +676,12 @@ DIETForwarder::getDataStatus(const char* dataID, const char* objName) {
   Dagda_var dagda =
     ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT, name, this->name);
   return dagda->getDataStatus(dataID);
-}
+} // getDataStatus
 
-char*
-DIETForwarder::getBestSource(const char* destDagda,
-                             const char* dataID,
-                             const char* objName) {
+char *
+DIETForwarder::getBestSource(const char *destDagda,
+                             const char *dataID,
+                             const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -706,10 +694,10 @@ DIETForwarder::getBestSource(const char* destDagda,
   Dagda_var dagda =
     ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT, name, this->name);
   return dagda->getBestSource(destDagda, dataID);
-}
+} // getBestSource
 
 void
-DIETForwarder::checkpointState(const char* objName) {
+DIETForwarder::checkpointState(const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -722,10 +710,10 @@ DIETForwarder::checkpointState(const char* objName) {
   Dagda_var dagda =
     ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT, name, this->name);
   return dagda->checkpointState();
-}
+} // checkpointState
 
 void
-DIETForwarder::subscribeParent(const char* parentID, const char* objName) {
+DIETForwarder::subscribeParent(const char *parentID, const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -738,10 +726,10 @@ DIETForwarder::subscribeParent(const char* parentID, const char* objName) {
   Dagda_var dagda =
     ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT, name, this->name);
   return dagda->subscribeParent(parentID);
-}
+} // subscribeParent
 
 void
-DIETForwarder::unsubscribeParent(const char* objName) {
+DIETForwarder::unsubscribeParent(const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -754,5 +742,4 @@ DIETForwarder::unsubscribeParent(const char* objName) {
   Dagda_var dagda =
     ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT, name, this->name);
   return dagda->unsubscribeParent();
-}
-
+} // unsubscribeParent

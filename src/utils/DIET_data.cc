@@ -1,230 +1,14 @@
 /**
-* @file  DIET_data.cc
-* 
-* @brief  DIET data interface for clients as well as servers
-* 
-* @author  - Philippe COMBES (Philippe.Combes@ens-lyon.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.72  2011/03/03 00:23:09  bdepardo
- * Resolved a few fix me
+ * @file  DIET_data.cc
  *
- * Revision 1.71  2011/03/02 23:57:50  bdepardo
- * Removed a fix me and cleaned commented code
+ * @brief  DIET data interface for clients as well as servers
  *
- * Revision 1.70  2010/10/17 15:38:39  bdepardo
- * More explicit message in diet_paramstring_set when a NULL pointer is passed
- * as parameter: explain that paramstrings cannot be used as OUT parameters.
+ * @author  Philippe COMBES (Philippe.Combes@ens-lyon.fr)
  *
- * Revision 1.69  2010/07/20 09:15:31  bisnard
- * Check if file exists in wf_profile_alloc
- *
- * Revision 1.68  2010/07/12 16:14:12  glemahec
- * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
- *
- * Revision 1.67  2010/03/31 21:15:40  bdepardo
- * Changed C headers into C++ headers
- *
- * Revision 1.66  2010/03/31 19:37:55  bdepardo
- * Changed "\n" into std::endl
- *
- * Revision 1.65  2010/03/29 15:15:29  glemahec
- * Bug fix when compiling with Dagda
- *
- * Revision 1.64  2009/08/26 10:34:29  bisnard
- * added new API methods for workflows (data in/out, transcript)
- *
- * Revision 1.63  2009/03/27 09:09:41  bisnard
- * replace container size attr by dynamic value
- *
- * Revision 1.62  2009/01/22 15:09:29  bisnard
- * cancelled previous change
- *
- * Revision 1.61  2009/01/20 16:17:12  bisnard
- * corrected bug in data_sizeof for strings and paramstrings (wrong length)
- *
- * Revision 1.60  2009/01/19 16:19:15  bisnard
- * added error message for diet_paramstring_set when value is NULL
- *
- * Revision 1.59  2009/01/16 16:33:10  bisnard
- * added API method to provide data source filename for functional wf
- *
- * Revision 1.58  2009/01/14 12:22:12  bdepardo
- * Use long int for DIET_INT, and long long int for DIET_LONGINT, as this is
- * what is used in the marshalling.
- *
- * Revision 1.57  2009/01/13 21:01:13  bdepardo
- * Correction of bug 83: float as well as integer are now passed correctly
- * in the profile description.
- * The size of Diet types are no longer statically defined, uses sizeof.
- * Also fixed a memory leak in marshalling.cc.
- *
- * Revision 1.56  2008/12/09 12:10:27  bisnard
- * added parameter wfReqID in wf profile for inter-dependent dag submissions
- *
- * Revision 1.55  2008/12/02 10:16:47  bisnard
- * modified workflow profile allocation to handle functional wf
- *
- * Revision 1.54  2008/11/06 12:19:35  bdepardo
- * Fixed a bug where a DIET_STRING crashed when initialized to NULL
- *
- * Revision 1.53  2008/09/10 09:04:26  bisnard
- * new diet type for containers
- *
- * Revision 1.52  2008/04/10 09:13:32  bisnard
- * New version of the MaDag where workflow node execution is triggered by the MaDag agent and done by a new CORBA object CltWfMgr located in the client
- *
- * Revision 1.51  2008/04/07 15:33:44  ycaniou
- * This should remove all HAVE_BATCH occurences (still appears in the doc, which
- *   must be updated.. soon :)
- * Add the definition of DIET_BATCH_JOBID wariable in batch scripts
- *
- * Revision 1.50  2008/04/07 13:56:27  glemahec
- * Correction of file_set_desc.
- *
- * Revision 1.49  2008/04/07 12:19:12  ycaniou
- * Except for the class Parsers (someone to re-code it? :)
- *   correct "deprecated conversion from string constant to 'char*'" warnings
- *
- * Revision 1.48  2008/01/14 11:46:52  glemahec
- * Adds the DAGDA parameters to the possible ones in the config files.
- *
- * Revision 1.47  2007/07/11 08:42:10  aamar
- * Adding "custom client scheduling" mode (known as Burst mode). Need to be
- * activated in cmake.
- *
- * Revision 1.46  2007/07/09 18:54:49  aamar
- * Adding Endianness support (CMake option).
- *
- * Revision 1.45  2007/06/28 18:23:20  rbolze
- * add dietReqID in the profile.
- * and propagate this change to all functions that  have both reqID and profile parameters.
- * TODO : look at the asynchronous mechanism (client->SED) to propage this change.
- *
- * Revision 1.44  2007/04/16 22:43:44  ycaniou
- * Make all necessary changes to have the new option HAVE_ALT_BATCH operational.
- * This is indented to replace HAVE_BATCH.
- *
- * First draw to manage batch systems with a new Cori plug-in.
- *
- * Revision 1.43  2007/04/03 11:38:48  ycaniou
- * Error when the client wants to transfer a zero size file
- * (if not, there is an omniorb error, then now, it is "clean")
- *
- * Revision 1.42  2006/11/06 11:54:54  aamar
- * *** empty log message ***
- *
- * Revision 1.41  2006/09/18 19:46:08  ycaniou
- * Corrected a bug in file_transfer:server.c
- * Corrected memory leaks due to incorrect free of char *
- * ServiceTable prints if service is sequential or parallel
- * Fully complete examples, whith a batch, a parallel and a sequential server and
- *  a unique client
- *
- * Revision 1.40  2006/08/27 18:40:11  ycaniou
- * Modified parallel submission API
- * - client: diet_call_batch() -> diet_parallel_call()
- * - SeD: diet_profile_desc_set_batch() -> [...]_parallel()
- * - from now, internal fields are related to parallel not batch
- * and corrected a bug:
- * - 3 types of submission: request among only seq, only parallel, or all
- *   available services (second wasn't implemented, third bug)
- *
- * Revision 1.39  2006/07/25 14:37:40  ycaniou
- * dietJobID changed to dietReqID
- *
- * Update batch code
- *
- * Revision 1.38  2006/06/30 15:41:48  ycaniou
- * DIET is now capable to submit batch Jobs in synchronous mode. Still some
- *   tuning to do (hard coded NFS path for OAR, tests for synchro between
- *   SeD and the batch job in regard to delete files.., more examples).
- *
- * Put the Data transfer section (JuxMem and DTM) before and after the call to
- * the SeD solve, in inline functions
- *   - downloadSyncSeDData()
- *   - uploadSyncSeDData()
- *
- * Revision 1.37  2006/06/01 13:04:21  ycaniou
- * Correct "File structure is vicious" bug.
- * BATCH: add explicit test of batch job for matching functions
- *
- * Revision 1.36  2006/04/14 14:19:40  aamar
- * Adding the  workflow profiles allocation/freeing methods.
- *       diet_wf_desc_t* diet_wf_profile_alloc(const char* wf_file_name);
- *       void diet_wf_profile_free(diet_wf_desc_t * profile);
- *
- * Revision 1.35  2006/01/13 10:41:27  mjan
- * Updating DIET for next JuxMem (0.2)
- *
- * Revision 1.34  2005/10/04 12:05:39  alsu
- * minor changes to pacify gcc/g++ 4.0
- *
- * Revision 1.33  2005/09/05 16:08:32  hdail
- * Correction of allocation / deletion mismatch in diet free method.
- *
- * Revision 1.32  2005/08/30 07:24:23  ycaniou
- * Changed the test in profile_match to enable the possibility for DIET to
- *   decide if a 'normal' job sould be submitted via batch or not.
- * Add the parsing of 'batchName' in config file.
- * Some type precisions in estVector (but real code untouched) because of
- *   compilation warnings I had.
- *
- * Revision 1.31  2005/04/27 01:49:41  ycaniou
- * Added the necessary for initialisation of batch profile, for profiles to
- * match
- * Added the functions diet_profile_set_parallel(), diet_profile_set_nbprocs(),
- * diet_profile_desc_set_batch(), diet_profile_desc_set_parallel() that the
- * client needs to define a parallel/batch job
- * Added the parsing of the batch scheduler name that must be provided in the
- * server configuration file, accordingly to the elagi library, plus some
- * checkings about the server that can only submit batch or non-batch jobs
- *
- * Revision 1.30  2004/12/08 15:02:52  alsu
- * plugin scheduler first-pass validation testing complete.  merging into
- * main CVS trunk; ready for more rigorous testing.
- *
- * Revision 1.29  2004/11/25 21:21:15  hdail
- * Fixed bug in function diet_free_data causing lack of proper data cleanup.
- *
- * Revision 1.28.2.2  2004/11/26 15:20:09  alsu
- * - string/paramstring functions calculate length on their own (so that
- *   they can be null-terminated automatically)
- * - in get_value, unnecessary casts removed
- *
- * Revision 1.28.2.1  2004/11/24 09:30:15  alsu
- * - adding new datatype DIET_PARAMSTRING, which allows users to define
- *   strings for which the value is important for performance evaluation
- *   (and which is consequently stored in the argument description, much
- *   like what is done for DIET_SCALAR arguments)
- * - adding functions to access the type-specific data structures stored
- *   in the diet_data_desc_t.specific union (for use in custom
- *   performance metrics to access data such as those that are described
- *   above)
- *
- * Revision 1.28  2004/09/14 12:48:05  hdail
- * Commented out cleanup of arg->value using free due to mismatch with
- * allocation method.
- *
- * Revision 1.27  2004/05/06 07:01:14  bdelfabr
- * set src path to null when out file in mrsh_data_desc
- *
- * Revision 1.26  2004/02/27 10:29:09  bdelfabr
- * adding call for data already present using only its identifier
- *
- * Revision 1.25  2003/12/15 17:26:30  pcombes
- * Fix minor bug in diet_free_data (for scalar case)
- *
- * Revision 1.24  2003/12/01 14:49:31  pcombes
- * Rename dietTypes.hh to DIET_data_internal.hh, for more coherency.
- *
- * Revision 1.21  2003/09/27 07:54:01  pcombes
- * Replace silly base type DIET_BYTE by DIET_SHORT.
- ****************************************************************************/
+ * @section Licence
+ *   |LICENSE|
+ */
+
 
 #include <cstdlib>
 #include <cstdio>
@@ -240,11 +24,13 @@
 #include "debug.hh"
 
 #define DATA_INTERNAL_WARNING(formatted_msg)                            \
-  INTERNAL_WARNING(__FUNCTION__ << ": " << formatted_msg << "\n"        \
-                   << "Your program might have written in a DIET-reserved " \
-                   << "space: please make sure\n"                       \
-                   << "you are using use the API "                      \
-                   << "functions to fill in DIET data structures")
+  INTERNAL_WARNING( \
+    __FUNCTION__ << ": " << formatted_msg << "\n"        \
+                 << \
+    "Your program might have written in a DIET-reserved " \
+                 << "space: please make sure\n"                       \
+                 << "you are using use the API "                      \
+                 << "functions to fill in DIET data structures")
 
 
 
@@ -258,59 +44,74 @@ type_sizeof(const diet_base_type_t type) {
   switch (type) {
   case DIET_CHAR:
     return sizeof(char);
+
   case DIET_SHORT:
     return sizeof(short);
+
   case DIET_INT:
     return sizeof(long int);
+
   case DIET_LONGINT:
     return sizeof(long long int);
+
   case DIET_FLOAT:
     return sizeof(float);
+
   case DIET_DOUBLE:
     return sizeof(double);
+
   case DIET_SCOMPLEX:
     return 2 * sizeof(float);
+
   case DIET_DCOMPLEX:
-    return  2 * sizeof(double);
+    return 2 * sizeof(double);
+
   default:
     return 0;
-  }
-}
+  } // switch
+} // type_sizeof
 
 /** Compute the size in base elements (base type elements) of an argment. */
 size_t
-macro_data_sizeof(const diet_data_desc_t* desc) {
+macro_data_sizeof(const diet_data_desc_t *desc) {
   switch (desc->generic.type) {
   case DIET_SCALAR:
     return 1;
+
   case DIET_VECTOR:
     return desc->specific.vect.size;
+
   case DIET_MATRIX:
     return (desc->specific.mat.nb_c * desc->specific.mat.nb_r);
+
   case DIET_STRING:
     return desc->specific.str.length;
+
   case DIET_PARAMSTRING:
     return desc->specific.pstr.length;
+
   case DIET_FILE:
     return desc->specific.file.size;
+
   case DIET_CONTAINER:
-    //     return desc->specific.cont.size;
+    // return desc->specific.cont.size;
     return 0;
+
   default:
     DATA_INTERNAL_WARNING("bad type (cons type)");
     return 0;
-  }
-}
+  } // switch
+} // macro_data_sizeof
 
 /** Compute data size in bytes from their descriptor. */
 size_t
-data_sizeof(const diet_data_desc_t* desc) {
+data_sizeof(const diet_data_desc_t *desc) {
   return (macro_data_sizeof(desc) * type_sizeof(desc->generic.base_type));
 }
 
 /** Compute data size in bytes from their descriptor. */
 size_t
-data_sizeof(const corba_data_desc_t* desc) {
+data_sizeof(const corba_data_desc_t *desc) {
   size_t base_size(type_sizeof((diet_base_type_t) desc->base_type));
   size_t size(0);
   switch (desc->specific._d()) {
@@ -333,19 +134,19 @@ data_sizeof(const corba_data_desc_t* desc) {
     size = desc->specific.file().size;
     break;
   case DIET_CONTAINER:
-    //     size = desc->specific.cont().size;
+    // size = desc->specific.cont().size;
     break;
     size = 0;
     break;
   default:
     DATA_INTERNAL_WARNING("bad type (cons type)");
-  }
+  } // switch
   return (base_size * size);
-}
+} // data_sizeof
 
 /** Alter the part of a descriptor that is common to all types. */
 inline int
-generic_set_desc(diet_data_desc_t* desc, const char* id,
+generic_set_desc(diet_data_desc_t *desc, const char *id,
                  const diet_persistence_mode_t mode,
                  const diet_data_type_t type,
                  const diet_base_type_t base_type) {
@@ -363,16 +164,16 @@ generic_set_desc(diet_data_desc_t* desc, const char* id,
     desc->mode = mode;
   }
   return status;
-}
+} // generic_set_desc
 
 /**
  * Alter a scalar descriptor.
  * Each -1 (NULL for pointers) argument does not alter the corresponding field.
  */
 int
-scalar_set_desc(diet_data_desc_t* desc, char* const id,
+scalar_set_desc(diet_data_desc_t *desc, char *const id,
                 const diet_persistence_mode_t mode,
-                const diet_base_type_t base_type, void* const value) {
+                const diet_base_type_t base_type, void *const value) {
   int status(0);
   if ((status = generic_set_desc(desc, id, mode, DIET_SCALAR, base_type))) {
     return status;
@@ -386,7 +187,7 @@ scalar_set_desc(diet_data_desc_t* desc, char* const id,
  * Each -1 (NULL for pointers) argument does not alter the corresponding field.
  */
 int
-vector_set_desc(diet_data_desc_t* desc, char* const id,
+vector_set_desc(diet_data_desc_t *desc, char *const id,
                 const diet_persistence_mode_t mode,
                 const diet_base_type_t base_type, const size_t size) {
   int status(0);
@@ -404,7 +205,7 @@ vector_set_desc(diet_data_desc_t* desc, char* const id,
  * Each -1 (NULL for pointers) argument does not alter the corresponding field.
  */
 int
-matrix_set_desc(diet_data_desc_t* desc, char* const id,
+matrix_set_desc(diet_data_desc_t *desc, char *const id,
                 const diet_persistence_mode_t mode,
                 const diet_base_type_t base_type,
                 const size_t nb_r, const size_t nb_c,
@@ -423,31 +224,31 @@ matrix_set_desc(diet_data_desc_t* desc, char* const id,
     desc->specific.mat.order = order;
   }
   return status;
-}
+} // matrix_set_desc
 
 /**
  * Alter a string descriptor.
  * Each -1 (NULL for pointers) argument does not alter the corresponding field.
  */
 int
-string_set_desc(diet_data_desc_t* desc, char* const id,
+string_set_desc(diet_data_desc_t *desc, char *const id,
                 const diet_persistence_mode_t mode, const size_t length) {
   int status(0);
   if ((status = generic_set_desc(desc, id, mode, DIET_STRING, DIET_CHAR))) {
     return status;
   }
-  //  if (length != 0)
+  // if (length != 0)
   desc->specific.str.length = length;
   return status;
 }
 
 int
-paramstring_set_desc(diet_data_desc_t* desc, char* const id,
+paramstring_set_desc(diet_data_desc_t *desc, char *const id,
                      const diet_persistence_mode_t mode,
-                     const size_t length, const char* const param) {
+                     const size_t length, const char *const param) {
   int status(0);
   if ((status =
-       generic_set_desc(desc, id, mode, DIET_PARAMSTRING, DIET_CHAR))) {
+         generic_set_desc(desc, id, mode, DIET_PARAMSTRING, DIET_CHAR))) {
     return status;
   }
   if (length != 0) {
@@ -455,15 +256,15 @@ paramstring_set_desc(diet_data_desc_t* desc, char* const id,
     desc->specific.pstr.param = strdup(param);
   }
   return status;
-}
+} // paramstring_set_desc
 
 /**
  * Alter a file descriptor. Also computes the file size ...
  * Each -1 (NULL for pointers) argument does not alter the corresponding field.
  */
 int
-file_set_desc(diet_data_desc_t* desc, const char* id,
-              const diet_persistence_mode_t mode, const char* path) {
+file_set_desc(diet_data_desc_t *desc, const char *id,
+              const diet_persistence_mode_t mode, const char *path) {
   int status(0);
   struct stat buf;
   if ((status = generic_set_desc(desc, id, mode, DIET_FILE, DIET_CHAR))) {
@@ -482,26 +283,26 @@ file_set_desc(diet_data_desc_t* desc, const char* id,
     }
     desc->specific.file.size = (size_t) buf.st_size;
   } else {
-    desc->specific.file.path = (char*) "";
+    desc->specific.file.path = (char *) "";
     // Should be NULL. Needs some verifications...
     desc->specific.file.size = 0;
   }
 
   return status;
-}
+} // file_set_desc
 
 /**
  * Alter a container descriptor.
  * Each -1 (NULL for pointers) argument does not alter the corresponding field.
  */
 int
-container_set_desc(diet_data_desc_t* desc, char* const id,
+container_set_desc(diet_data_desc_t *desc, char *const id,
                    const diet_persistence_mode_t mode, const size_t size) {
   int status(0);
   if ((status = generic_set_desc(desc, id, mode, DIET_CONTAINER, DIET_CHAR))) {
     return status;
   }
-  //   desc->specific.cont.size = size;
+  // desc->specific.cont.size = size;
   desc->specific.cont.size = 0;
   return status;
 }
@@ -509,8 +310,8 @@ container_set_desc(diet_data_desc_t* desc, char* const id,
 
 /** Return true if p1 is exactly identical to p2. */
 int
-profile_desc_match(const corba_profile_desc_t* p1,
-                   const corba_profile_desc_t* p2) {
+profile_desc_match(const corba_profile_desc_t *p1,
+                   const corba_profile_desc_t *p2) {
   if (strcmp(p1->path, p2->path)) {
     return 0;
   }
@@ -521,7 +322,7 @@ profile_desc_match(const corba_profile_desc_t* p1,
 #if defined HAVE_ALT_BATCH
       || (p1->parallel_flag != p2->parallel_flag)) {
 #else
-    ) {
+      ) {
 #endif
     return 0;
   }
@@ -532,7 +333,7 @@ profile_desc_match(const corba_profile_desc_t* p1,
     }
   }
   return 1;
-}
+} // profile_desc_match
 
 
 /**
@@ -540,8 +341,8 @@ profile_desc_match(const corba_profile_desc_t* p1,
  * pb_desc describes.
  */
 int
-profile_match(const corba_profile_desc_t* sv_profile,
-              const corba_pb_desc_t* pb_desc) {
+profile_match(const corba_profile_desc_t *sv_profile,
+              const corba_pb_desc_t *pb_desc) {
   if (strcmp(sv_profile->path, pb_desc->path)) {
     return 0;
   }
@@ -570,7 +371,7 @@ profile_match(const corba_profile_desc_t* sv_profile,
     }
   }
   return 1;
-}
+} // profile_match
 
 
 /**
@@ -578,8 +379,8 @@ profile_match(const corba_profile_desc_t* sv_profile,
  * pb and path describe.
  */
 int
-profile_match(const corba_profile_desc_t* sv_profile, const char* path,
-              const corba_profile_t* pb) {
+profile_match(const corba_profile_desc_t *sv_profile, const char *path,
+              const corba_profile_t *pb) {
   if (strcmp(sv_profile->path, path)) {
     return 0;
   }
@@ -593,7 +394,7 @@ profile_match(const corba_profile_desc_t* sv_profile, const char* path,
 #if defined HAVE_ALT_BATCH
   /* As the client request this server, and until here, then SeD propose
      the service. We assume that SeD that was seq or // is still seq or //
-  */
+   */
 #endif
 
   for (size_t i = 0; i < sv_profile->param_desc.length(); i++) {
@@ -605,7 +406,7 @@ profile_match(const corba_profile_desc_t* sv_profile, const char* path,
     }
   }
   return 1;
-}
+} // profile_match
 
 
 
@@ -615,86 +416,86 @@ profile_match(const corba_profile_desc_t* sv_profile, const char* path,
 
 
 extern "C" {
-  /****************************************************************************/
-  /* Profile descriptor                                                       */
-  /****************************************************************************/
+/****************************************************************************/
+/* Profile descriptor                                                       */
+/****************************************************************************/
 
-  /* Called from client */
-  diet_profile_t*
-  diet_profile_alloc(const char* pb_name, int last_in,
-                     int last_inout, int last_out) {
-    diet_profile_t* res(NULL);
-    res = new diet_profile_t;
-    res->pb_name = strdup(pb_name);
-    res->last_in = last_in;
-    res->last_inout = last_inout;
-    res->last_out = last_out;
-    res->parameters = new diet_arg_t[last_out + 1];
-    for (int i = 0; i <= last_out; i++) {
-      res->parameters[i].desc.id = NULL;
-    }
-    res->dietReqID = 0;
+/* Called from client */
+diet_profile_t *
+diet_profile_alloc(const char *pb_name, int last_in,
+                   int last_inout, int last_out) {
+  diet_profile_t *res(NULL);
+  res = new diet_profile_t;
+  res->pb_name = strdup(pb_name);
+  res->last_in = last_in;
+  res->last_inout = last_inout;
+  res->last_out = last_out;
+  res->parameters = new diet_arg_t[last_out + 1];
+  for (int i = 0; i <= last_out; i++) {
+    res->parameters[i].desc.id = NULL;
+  }
+  res->dietReqID = 0;
 #if defined HAVE_ALT_BATCH
-    /* By default, ask for sequential and parallel task (cf DIET_data.h) */
-    res->parallel_flag = 0;
-    res->nbprocs = 0;
-    res->nbprocess = 0;
-    res->walltime = 0;
+  /* By default, ask for sequential and parallel task (cf DIET_data.h) */
+  res->parallel_flag = 0;
+  res->nbprocs = 0;
+  res->nbprocess = 0;
+  res->walltime = 0;
 #endif
-    return res;
-  }
+  return res;
+} // diet_profile_alloc
 
-  int
-  diet_profile_free(diet_profile_t* profile) {
-    free(profile->pb_name);
-    delete [] profile->parameters;
-    delete profile;
-    return 0;
-  }
+int
+diet_profile_free(diet_profile_t *profile) {
+  free(profile->pb_name);
+  delete [] profile->parameters;
+  delete profile;
+  return 0;
+}
 
 #if defined HAVE_ALT_BATCH
-  /* Functions for client profile request */
-  int
-  diet_profile_set_parallel(diet_profile_t* profile) {
-    profile->parallel_flag = 2;
-    return 0;
-  }
+/* Functions for client profile request */
+int
+diet_profile_set_parallel(diet_profile_t *profile) {
+  profile->parallel_flag = 2;
+  return 0;
+}
 
-  int
-  diet_profile_set_sequential(diet_profile_t* profile) {
-    profile->parallel_flag = 1;
-    return 0;
-  }
+int
+diet_profile_set_sequential(diet_profile_t *profile) {
+  profile->parallel_flag = 1;
+  return 0;
+}
 
-  int
-  diet_profile_set_nbprocs(diet_profile_t* profile, int nbprocs) {
-    if (nbprocs <= 0) {
-      ERROR("the Number of procs must be greater than 0", 1);
-    }
-    profile->nbprocs = nbprocs;
-    return 0;
+int
+diet_profile_set_nbprocs(diet_profile_t *profile, int nbprocs) {
+  if (nbprocs <= 0) {
+    ERROR("the Number of procs must be greater than 0", 1);
   }
+  profile->nbprocs = nbprocs;
+  return 0;
+}
 
-  /* Functions for server profile registration */
-  int
-  diet_profile_desc_set_sequential(diet_profile_desc_t* profile) {
-    profile->parallel_flag = 1;
-    return 0;
-  }
+/* Functions for server profile registration */
+int
+diet_profile_desc_set_sequential(diet_profile_desc_t *profile) {
+  profile->parallel_flag = 1;
+  return 0;
+}
 
-  int
-  diet_profile_desc_set_parallel(diet_profile_desc_t* profile) {
-    profile->parallel_flag = 2;
-    return 0;
-  }
-#endif
+int
+diet_profile_desc_set_parallel(diet_profile_desc_t *profile) {
+  profile->parallel_flag = 2;
+  return 0;
+}
+#endif // if defined HAVE_ALT_BATCH
 
-  /****************************************************************************/
-  /* Utils functions for setting parameters of a problem description          */
-  /****************************************************************************/
+/****************************************************************************/
+/* Utils functions for setting parameters of a problem description          */
+/****************************************************************************/
 
 #define get_id(id, arg)                         \
-  char* id;                                     \
+  char *id;                                     \
   if (!arg) {                                   \
     return 1;                                   \
   }                                             \
@@ -705,506 +506,507 @@ extern "C" {
   }                                              \
 
 
-  int
-  diet_scalar_set(diet_arg_t* arg, void* value, diet_persistence_mode_t mode,
-                  diet_base_type_t base_type) {
-    int status(0);
-    if ((status =
+int
+diet_scalar_set(diet_arg_t *arg, void *value, diet_persistence_mode_t mode,
+                diet_base_type_t base_type) {
+  int status(0);
+  if ((status =
          scalar_set_desc(&(arg->desc), NULL, mode, base_type, value))) {
-      return status;
-    }
-    arg->value = value;
     return status;
   }
+  arg->value = value;
+  return status;
+}
 
-  int
-  diet_vector_set(diet_arg_t* arg, void* value,
-                  diet_persistence_mode_t mode, diet_base_type_t base_type,
-                  size_t size)  {
-    int status(0);
-    if ((status =
+int
+diet_vector_set(diet_arg_t *arg, void *value,
+                diet_persistence_mode_t mode, diet_base_type_t base_type,
+                size_t size) {
+  int status(0);
+  if ((status =
          vector_set_desc(&(arg->desc), NULL, mode, base_type, size))) {
-      return status;
-    }
-    arg->value = value;
+    return status;
+  }
+  arg->value = value;
+  return status;
+}
+
+int
+diet_matrix_set(diet_arg_t *arg, void *value,
+                diet_persistence_mode_t mode, diet_base_type_t base_type,
+                size_t nb_rows, size_t nb_cols,
+                diet_matrix_order_t order) {
+  int status(0);
+  if ((status = matrix_set_desc(&(arg->desc), NULL, mode, base_type,
+                                nb_rows, nb_cols, order))) {
+    return status;
+  }
+  arg->value = value;
+  return status;
+}
+
+int
+diet_string_set(diet_arg_t *arg, char *value, diet_persistence_mode_t mode) {
+  int status(0);
+  size_t len;
+
+  if (value) {
+    len = strlen((char *) value) + 1;
+  } else {
+    len = 0;
+  }
+
+  if ((status = string_set_desc(&(arg->desc), NULL, mode, len))) {
+    return status;
+  }
+  arg->value = value;
+  return status;
+} // diet_string_set
+
+int
+diet_paramstring_set(diet_arg_t *arg, char *value,
+                     diet_persistence_mode_t mode) {
+  int status(0);
+  if (!value) {
+    ERROR(
+      __FUNCTION__ << " misused (value is NULL).\n"
+                   << "Make sure you allocated the paramstring pointer.\n"
+                   <<
+      "Note that paramstrings cannot be used as OUT parameters", 1);
+  }
+  if ((status = paramstring_set_desc(&(arg->desc), NULL, mode,
+                                     strlen((char *) value) + 1,
+                                     value))) {
     return status;
   }
 
-  int
-  diet_matrix_set(diet_arg_t* arg, void* value,
-                  diet_persistence_mode_t mode, diet_base_type_t base_type,
-                  size_t nb_rows, size_t nb_cols,
-                  diet_matrix_order_t order) {
-    int status(0);
-    if ((status = matrix_set_desc(&(arg->desc), NULL, mode, base_type,
-                                  nb_rows, nb_cols, order))) {
-      return status;
-    }
-    arg->value = value;
+  arg->value = value;
+  return status;
+} // diet_paramstring_set
+
+int
+diet_container_set(diet_arg_t *arg, diet_persistence_mode_t mode) {
+  int status(0);
+  if ((status = container_set_desc(&(arg->desc), NULL, mode, 0))) {
     return status;
   }
+  return status;
+}
 
-  int
-  diet_string_set(diet_arg_t* arg, char* value, diet_persistence_mode_t mode) {
-    int status(0);
-    size_t len;
+void
+diet_use_data(diet_arg_t *arg, const char *id) {
+  arg->value = NULL;
+  arg->desc.id = CORBA::string_dup(id);
+}
 
-    if (value) {
-      len = strlen((char*) value) + 1;
-    } else {
-      len = 0;
-    }
-
-    if ((status = string_set_desc(&(arg->desc), NULL, mode, len))) {
-      return status;
-    }
-    arg->value = value;
+/* Computes the file size (stocked in a field of arg) */
+int
+diet_file_set(diet_arg_t *arg, diet_persistence_mode_t mode,
+              const char *path) {
+  int status(0);
+  if ((status = file_set_desc(&(arg->desc), NULL, mode, path))) {
     return status;
   }
+  arg->value = NULL;
+  return status;
+}
 
-  int
-  diet_paramstring_set(diet_arg_t* arg, char* value,
-                       diet_persistence_mode_t mode) {
-    int status(0);
-    if (!value) {
-      ERROR(__FUNCTION__ << " misused (value is NULL).\n"
-            << "Make sure you allocated the paramstring pointer.\n"
-            << "Note that paramstrings cannot be used as OUT parameters", 1);
-    }
-    if ((status = paramstring_set_desc(&(arg->desc), NULL, mode,
-                                       strlen((char*) value) + 1,
-                                       value))) {
-      return status;
-    }
+/****************************************************************************/
+/* Utils for setting (IN)OUT arguments (solve functions, after computation) */
+/****************************************************************************/
 
-    arg->value = value;
-    return status;
+/**
+ * Since this function should only be used with (IN)OUT arguments,
+ * it copies (* value) into the zone allocated by DIET.
+ */
+int
+diet_scalar_desc_set(diet_data_t *data, void *value) {
+  return diet_scalar_set(data, value,
+                         data->desc.mode, data->desc.generic.base_type);
+
+  if (data->desc.generic.type != DIET_SCALAR) {
+    ERROR(__FUNCTION__ << " misused (wrong type)", 1);
   }
-
-  int
-  diet_container_set(diet_arg_t* arg, diet_persistence_mode_t mode) {
-    int status(0);
-    if ((status = container_set_desc(&(arg->desc), NULL, mode, 0))) {
-      return status;
-    }
-    return status;
+  if (!data->value) {
+    ERROR(__FUNCTION__ << " misused (data->value is NULL)", 1);
   }
-
-  void
-  diet_use_data(diet_arg_t* arg, const char* id) {
-    arg->value = NULL;
-    arg->desc.id = CORBA::string_dup(id);
+  switch (data->desc.generic.base_type) {
+  case DIET_CHAR:
+    *((char *) data->value) = *((char *) value);
+    break;
+  case DIET_SHORT:
+    *((short *) data->value) = *((short *) value);
+    break;
+  case DIET_INT:
+    *((int *) data->value) = *((int *) value);
+    break;
+  case DIET_LONGINT:
+    *((long int *) data->value) = *((long int *) value);
+    break;
+  case DIET_FLOAT:
+    *((float *) data->value) = *((float *) value);
+    break;
+  case DIET_DOUBLE:
+    *((double *) data->value) = *((double *) value);
+    break;
+#if HAVE_COMPLEX
+  case DIET_SCOMPLEX:
+    *((complex *) data->value) = *((complex *) value);
+    break;
+  case DIET_DCOMPLEX:
+    *((double complex *) data->value) = *((double complex *) value);
+    break;
+#endif  // HAVE_COMPLEX
+  default: {
+    ERROR(__FUNCTION__ << " misused (wrong base type)", 1);
   }
+  } // switch
+  data->desc.specific.scal.value = data->value;
+  return 0;
+} // diet_scalar_desc_set
 
-  /* Computes the file size (stocked in a field of arg) */
-  int
-  diet_file_set(diet_arg_t* arg, diet_persistence_mode_t mode,
-                const char* path) {
-    int status(0);
-    if ((status = file_set_desc(&(arg->desc), NULL, mode, path))) {
-      return status;
-    }
-    arg->value = NULL;
-    return status;
+int
+diet_matrix_desc_set(diet_data_t *data, size_t nb_r, size_t nb_c,
+                     diet_matrix_order_t order) {
+  if (data->desc.generic.type != DIET_MATRIX) {
+    ERROR(__FUNCTION__ << " misused (wrong type)", 1);
   }
+  if ((nb_r * nb_c) >
+      (data->desc.specific.mat.nb_r * data->desc.specific.mat.nb_c)) {
+    ERROR(__FUNCTION__
+          << " misused (the new size cannot exceed the old one)", 1);
+  }
+  if (nb_r != 0) {
+    data->desc.specific.mat.nb_r = nb_r;
+  }
+  if (nb_c != 0) {
+    data->desc.specific.mat.nb_c = nb_c;
+  }
+  if (order != DIET_MATRIX_ORDER_COUNT) {
+    data->desc.specific.mat.order = order;
+  }
+  return 0;
+} // diet_matrix_desc_set
 
-  /****************************************************************************/
-  /* Utils for setting (IN)OUT arguments (solve functions, after computation) */
-  /****************************************************************************/
+int
+diet_file_desc_set(diet_data_t *data, char *path) {
+  if ((data->desc.generic.type != DIET_FILE)) {
+    ERROR(__FUNCTION__ << " misused (wrong type)", 1);
+  }
+  if (path != data->desc.specific.file.path) {
+    /* FIXME: erase me if ok:
+       was created with new char[25] in unmarsh_data
+       and released with free((char*)data->desc.specific.file.path);
+       Now, it is CORBA stuff
+     */
+    CORBA::string_free(data->desc.specific.file.path);
+  }
+  data->desc.specific.file.path = path;
+  return 0;
+} // diet_file_desc_set
 
-  /**
-   * Since this function should only be used with (IN)OUT arguments,
-   * it copies (* value) into the zone allocated by DIET.
-   */
-  int
-  diet_scalar_desc_set(diet_data_t* data, void* value) {
-    return diet_scalar_set(data, value,
-                           data->desc.mode, data->desc.generic.base_type);
 
-    if (data->desc.generic.type != DIET_SCALAR) {
-      ERROR(__FUNCTION__ << " misused (wrong type)", 1);
-    }
-    if (!data->value) {
-      ERROR(__FUNCTION__ << " misused (data->value is NULL)", 1);
-    }
+/****************************************************************************/
+/* Utils for getting data descriptions and values                           */
+/*    (parameter extraction in solve functions)                             */
+/****************************************************************************/
+
+
+int
+get_value(diet_data_t *data, void **value) {
+  if (!data) {
+    return 1;
+  }
+  if (value) {
     switch (data->desc.generic.base_type) {
     case DIET_CHAR:
-      *((char*)data->value) = *((char*)value);
-      break;
     case DIET_SHORT:
-      *((short*)data->value) = *((short*)value);
-      break;
     case DIET_INT:
-      *((int*)data->value) = *((int*)value);
-      break;
     case DIET_LONGINT:
-      *((long int*)data->value) = *((long int*)value);
-      break;
     case DIET_FLOAT:
-      *((float*)data->value) = *((float*)value);
-      break;
     case DIET_DOUBLE:
-      *((double*)data->value) = *((double*)value);
-      break;
 #if HAVE_COMPLEX
     case DIET_SCOMPLEX:
-      *((complex*)data->value) = *((complex*)value);
-      break;
     case DIET_DCOMPLEX:
-      *((double complex*)data->value) = *((double complex*)value);
-      break;
-#endif  // HAVE_COMPLEX
-    default: {
-      ERROR(__FUNCTION__ << " misused (wrong base type)", 1);
-    }
-    }
-    data->desc.specific.scal.value = data->value;
-    return 0;
-  }
-
-  int
-  diet_matrix_desc_set(diet_data_t* data, size_t nb_r, size_t nb_c,
-                       diet_matrix_order_t order) {
-    if (data->desc.generic.type != DIET_MATRIX) {
-      ERROR(__FUNCTION__ << " misused (wrong type)", 1);
-    }
-    if ((nb_r * nb_c) >
-        (data->desc.specific.mat.nb_r * data->desc.specific.mat.nb_c)) {
-      ERROR(__FUNCTION__
-            << " misused (the new size cannot exceed the old one)", 1);
-    }
-    if (nb_r != 0) {
-      data->desc.specific.mat.nb_r    = nb_r;
-    }
-    if (nb_c != 0) {
-      data->desc.specific.mat.nb_c    = nb_c;
-    }
-    if (order != DIET_MATRIX_ORDER_COUNT) {
-      data->desc.specific.mat.order = order;
-    }
-    return 0;
-  }
-
-  int
-  diet_file_desc_set(diet_data_t* data, char* path) {
-    if ((data->desc.generic.type != DIET_FILE)) {
-      ERROR(__FUNCTION__ << " misused (wrong type)", 1);
-    }
-    if (path != data->desc.specific.file.path) {
-      /* FIXME: erase me if ok:
-         was created with new char[25] in unmarsh_data
-         and released with free((char*)data->desc.specific.file.path);
-         Now, it is CORBA stuff
-      */
-      CORBA::string_free(data->desc.specific.file.path);
-    }
-    data->desc.specific.file.path = path;
-    return 0;
-  }
-
-
-  /****************************************************************************/
-  /* Utils for getting data descriptions and values                           */
-  /*    (parameter extraction in solve functions)                             */
-  /****************************************************************************/
-
-
-  int
-  get_value(diet_data_t* data, void** value) {
-    if (!data) {
-      return 1;
-    }
-    if (value) {
-      switch (data->desc.generic.base_type) {
-      case DIET_CHAR:
-      case DIET_SHORT:
-      case DIET_INT:
-      case DIET_LONGINT:
-      case DIET_FLOAT:
-      case DIET_DOUBLE:
-#if HAVE_COMPLEX
-      case DIET_SCOMPLEX:
-      case DIET_DCOMPLEX:
 #endif /* HAVE_COMPLEX */
-        *(value) = data->value;
-        break;
-      default:
-        return (1);
-      }
-    }
-    return 0;
+      *(value) = data->value;
+      break;
+    default:
+      return (1);
+    } // switch
+  }
+  return 0;
+} // get_value
+
+int
+_scalar_get(diet_arg_t *arg, void **value, diet_persistence_mode_t *mode) {
+  int res;
+
+  if ((arg->desc.generic.type != DIET_SCALAR) || !arg) {
+    ERROR(__FUNCTION__ << " misused (wrong type or arg pointer is NULL)", 1);
+  }
+  if ((res = get_value((diet_data_t *) arg, value))) {
+    ERROR(__FUNCTION__
+          << " misused (wrong base type or arg pointer is NULL)", res);
+  }
+  if (mode) {
+    *mode = arg->desc.mode;
+  }
+  return 0;
+} // _scalar_get
+
+int
+_vector_get(diet_arg_t *arg, void **value,
+            diet_persistence_mode_t *mode, size_t *size) {
+  int res;
+
+  if (arg->desc.generic.type != DIET_VECTOR) {
+    ERROR(__FUNCTION__ << " misused (wrong type)", 1);
+  }
+  if ((res = get_value((diet_data_t *) arg, value))) {
+    ERROR(__FUNCTION__
+          << " misused (wrong base type or arg pointer is NULL)", res);
+  }
+  if (mode) {
+    *mode = arg->desc.mode;
+  }
+  if (size) {
+    *size = arg->desc.specific.vect.size;
+  }
+  return 0;
+} // _vector_get
+
+int
+_matrix_get(diet_arg_t *arg, void **value, diet_persistence_mode_t *mode,
+            size_t *nb_rows, size_t *nb_cols, diet_matrix_order_t *order) {
+  int res;
+
+  if (arg->desc.generic.type != DIET_MATRIX) {
+    ERROR(__FUNCTION__ << " misused (wrong type)", 1);
   }
 
-  int
-  _scalar_get(diet_arg_t* arg, void** value, diet_persistence_mode_t* mode) {
-    int res;
-
-    if ((arg->desc.generic.type != DIET_SCALAR) || !arg) {
-      ERROR(__FUNCTION__ << " misused (wrong type or arg pointer is NULL)", 1);
-    }
-    if ((res = get_value((diet_data_t*)arg, value))) {
-      ERROR(__FUNCTION__
-            << " misused (wrong base type or arg pointer is NULL)", res);
-    }
-    if (mode) {
-      *mode = arg->desc.mode;
-    }
-    return 0;
+  if ((res = get_value((diet_data_t *) arg, value))) {
+    ERROR(__FUNCTION__
+          << " misused (wrong base type or arg pointer is NULL)", res);
   }
 
-  int
-  _vector_get(diet_arg_t *arg, void** value,
-              diet_persistence_mode_t* mode, size_t* size) {
-    int res;
+  if (mode) {
+    *mode = arg->desc.mode;
+  }
+  if (nb_rows) {
+    *nb_rows = arg->desc.specific.mat.nb_r;
+  }
+  if (nb_cols) {
+    *nb_cols = arg->desc.specific.mat.nb_c;
+  }
+  if (order) {
+    *order = arg->desc.specific.mat.order;
+  }
+  return 0;
+} // _matrix_get
 
-    if (arg->desc.generic.type != DIET_VECTOR) {
-      ERROR(__FUNCTION__ << " misused (wrong type)", 1);
-    }
-    if ((res = get_value((diet_data_t*)arg, value))) {
-      ERROR(__FUNCTION__
-            << " misused (wrong base type or arg pointer is NULL)", res);
-    }
-    if (mode) {
-      *mode = arg->desc.mode;
-    }
-    if (size) {
-      *size = arg->desc.specific.vect.size;
-    }
-    return 0;
+int
+_string_get(diet_arg_t *arg, char **value, diet_persistence_mode_t *mode) {
+  int res;
+
+  if (arg->desc.generic.type != DIET_STRING) {
+    ERROR(__FUNCTION__ << " misused (wrong type)", 1);
+  }
+  if ((res = get_value((diet_data_t *) arg, (void **) value))) {
+    ERROR(__FUNCTION__
+          << " misused (wrong base type or arg pointer is NULL)", res);
+  }
+  if (mode) {
+    *mode = arg->desc.mode;
   }
 
-  int
-  _matrix_get(diet_arg_t* arg, void** value, diet_persistence_mode_t* mode,
-              size_t* nb_rows, size_t* nb_cols, diet_matrix_order_t* order) {
-    int res;
+  return 0;
+} // _string_get
 
-    if (arg->desc.generic.type != DIET_MATRIX) {
-      ERROR(__FUNCTION__ << " misused (wrong type)", 1);
-    }
+int
+_paramstring_get(diet_arg_t *arg, char **value,
+                 diet_persistence_mode_t *mode) {
+  int res;
 
-    if ((res = get_value((diet_data_t*)arg, value))) {
-      ERROR(__FUNCTION__
-            << " misused (wrong base type or arg pointer is NULL)", res);
-    }
-
-    if (mode) {
-      *mode = arg->desc.mode;
-    }
-    if (nb_rows) {
-      *nb_rows = arg->desc.specific.mat.nb_r;
-    }
-    if (nb_cols) {
-      *nb_cols = arg->desc.specific.mat.nb_c;
-    }
-    if (order) {
-      *order = arg->desc.specific.mat.order;
-    }
-    return 0;
+  if (arg->desc.generic.type != DIET_PARAMSTRING) {
+    ERROR(__FUNCTION__ << " misused (wrong type)", 1);
+  }
+  if ((res = get_value((diet_data_t *) arg, (void **) value))) {
+    ERROR(__FUNCTION__
+          << " misused (wrong base type or arg pointer is NULL)", res);
+  }
+  if (mode) {
+    *mode = arg->desc.mode;
   }
 
-  int
-  _string_get(diet_arg_t* arg, char** value, diet_persistence_mode_t* mode) {
-    int res;
+  return 0;
+} // _paramstring_get
 
-    if (arg->desc.generic.type != DIET_STRING) {
-      ERROR(__FUNCTION__ << " misused (wrong type)", 1);
-    }
-    if ((res = get_value((diet_data_t*)arg, (void**)value))) {
-      ERROR(__FUNCTION__
-            << " misused (wrong base type or arg pointer is NULL)", res);
-    }
-    if (mode) {
-      *mode = arg->desc.mode;
-    }
-
-    return 0;
+int
+_file_get(diet_arg_t *arg, diet_persistence_mode_t *mode,
+          size_t *size, char **path) {
+  if (arg->desc.generic.type != DIET_FILE) {
+    ERROR(__FUNCTION__ << " misused (wrong type)", 1);
+  }
+  if (mode) {
+    *mode = arg->desc.mode;
+  }
+  if (size) {
+    *size = arg->desc.specific.file.size;
+  }
+  if (path) {
+    /* Assume that path contains NULL. If not, it's SeD programmer's error */
+    *path = arg->desc.specific.file.path;
   }
 
-  int
-  _paramstring_get(diet_arg_t* arg, char** value,
-                   diet_persistence_mode_t* mode) {
-    int res;
+  return 0;
+} // _file_get
 
-    if (arg->desc.generic.type != DIET_PARAMSTRING) {
-      ERROR(__FUNCTION__ << " misused (wrong type)", 1);
-    }
-    if ((res = get_value((diet_data_t*)arg, (void**)value))) {
-      ERROR(__FUNCTION__
-            << " misused (wrong base type or arg pointer is NULL)", res);
-    }
-    if (mode) {
-      *mode = arg->desc.mode;
-    }
-
-    return 0;
+diet_scalar_desc_t
+diet_scalar_get_desc(diet_arg_t *arg) {
+  if (arg->desc.generic.type != DIET_SCALAR) {
+    ERROR(__FUNCTION__ << " misused (wrong type)", NULL);
   }
+  return (&((arg->desc).specific.scal));
+}
 
-  int
-  _file_get(diet_arg_t* arg, diet_persistence_mode_t* mode,
-            size_t* size, char** path) {
-    if (arg->desc.generic.type != DIET_FILE) {
-      ERROR(__FUNCTION__ << " misused (wrong type)", 1);
-    }
-    if (mode) {
-      *mode = arg->desc.mode;
-    }
-    if (size) {
-      *size = arg->desc.specific.file.size;
-    }
-    if (path) {
-      /* Assume that path contains NULL. If not, it's SeD programmer's error */
-      *path = arg->desc.specific.file.path;
-    }
-
-    return 0;
+diet_vector_desc_t
+diet_vector_get_desc(diet_arg_t *arg) {
+  if (arg->desc.generic.type != DIET_VECTOR) {
+    ERROR(__FUNCTION__ << " misused (wrong type)", NULL);
   }
+  return (&((arg->desc).specific.vect));
+}
 
-  diet_scalar_desc_t
-  diet_scalar_get_desc(diet_arg_t* arg) {
-    if (arg->desc.generic.type != DIET_SCALAR) {
-      ERROR(__FUNCTION__ << " misused (wrong type)", NULL);
-    }
-    return (&((arg->desc).specific.scal));
+diet_matrix_desc_t
+diet_matrix_get_desc(diet_arg_t *arg) {
+  if (arg->desc.generic.type != DIET_MATRIX) {
+    ERROR(__FUNCTION__ << " misused (wrong type)", NULL);
   }
+  return (&((arg->desc).specific.mat));
+}
 
-  diet_vector_desc_t
-  diet_vector_get_desc(diet_arg_t* arg) {
-    if (arg->desc.generic.type != DIET_VECTOR) {
-      ERROR(__FUNCTION__ << " misused (wrong type)", NULL);
-    }
-    return (&((arg->desc).specific.vect));
+diet_string_desc_t
+diet_string_get_desc(diet_arg_t *arg) {
+  if (arg->desc.generic.type != DIET_STRING) {
+    ERROR(__FUNCTION__ << " misused (wrong type)", NULL);
   }
+  return (&((arg->desc).specific.str));
+}
 
-  diet_matrix_desc_t
-  diet_matrix_get_desc(diet_arg_t* arg) {
-    if (arg->desc.generic.type != DIET_MATRIX) {
-      ERROR(__FUNCTION__ << " misused (wrong type)", NULL);
-    }
-    return (&((arg->desc).specific.mat));
+diet_paramstring_desc_t
+diet_paramstring_get_desc(diet_arg_t *arg) {
+  if (arg->desc.generic.type != DIET_PARAMSTRING) {
+    ERROR(__FUNCTION__ << " misused (wrong type)", NULL);
   }
+  return (&((arg->desc).specific.pstr));
+}
 
-  diet_string_desc_t
-  diet_string_get_desc(diet_arg_t* arg) {
-    if (arg->desc.generic.type != DIET_STRING) {
-      ERROR(__FUNCTION__ << " misused (wrong type)", NULL);
-    }
-    return (&((arg->desc).specific.str));
+diet_file_desc_t
+diet_file_get_desc(diet_arg_t *arg) {
+  if (arg->desc.generic.type != DIET_FILE) {
+    ERROR(__FUNCTION__ << " misused (wrong type)", NULL);
   }
-
-  diet_paramstring_desc_t
-  diet_paramstring_get_desc(diet_arg_t* arg) {
-    if (arg->desc.generic.type != DIET_PARAMSTRING) {
-      ERROR(__FUNCTION__ << " misused (wrong type)", NULL);
-    }
-    return (&((arg->desc).specific.pstr));
-  }
-
-  diet_file_desc_t
-  diet_file_get_desc(diet_arg_t* arg) {
-    if (arg->desc.generic.type != DIET_FILE) {
-      ERROR(__FUNCTION__ << " misused (wrong type)", NULL);
-    }
-    return (&((arg->desc).specific.file));
-  }
+  return (&((arg->desc).specific.file));
+}
 
 
-  /****************************************************************************/
-  /* Free the amount of data pointed at by the value field of an argument.    */
-  /* This should be used ONLY for VOLATILE data,                              */
-  /*    - on the server for IN arguments that will no longer be used          */
-  /*    - on the client for OUT arguments, after the problem has been solved, */
-  /*      when they will no longer be used.                                   */
-  /* NB: for files, this function removes the file and free the path (since   */
-  /*     it has been dynamically allocated by DIET in both cases)             */
-  /****************************************************************************/
+/****************************************************************************/
+/* Free the amount of data pointed at by the value field of an argument.    */
+/* This should be used ONLY for VOLATILE data,                              */
+/*    - on the server for IN arguments that will no longer be used          */
+/*    - on the client for OUT arguments, after the problem has been solved, */
+/*      when they will no longer be used.                                   */
+/* NB: for files, this function removes the file and free the path (since   */
+/*     it has been dynamically allocated by DIET in both cases)             */
+/****************************************************************************/
 
-  int
-  diet_free_data(diet_arg_t* arg) {
-    return 0;
-  }
+int
+diet_free_data(diet_arg_t *arg) {
+  return 0;
+}
 
 #ifdef HAVE_WORKFLOW
 
 #define LINE_LENGTH 1024
-  /****************************************************************************/
-  /* Workflow profile descriptor                                              */
-  /****************************************************************************/
+/****************************************************************************/
+/* Workflow profile descriptor                                              */
+/****************************************************************************/
 
-  /**
-   * Workflow profile allocation method *
-   * (common for dags and functional workflows)
-   */
-  diet_wf_desc_t*
-  diet_wf_profile_alloc(const char* wf_file_name, const char* name,
-                        wf_level_t wf_level) {
-    diet_wf_desc_t* profile = new diet_wf_desc_t;
-    profile->level = wf_level;
-    profile->name = strdup(name);
-    profile->dataFile = NULL;
-    profile->wfReqID = -1;
-    struct stat stat_p;
-    FILE * file;
-    char line[LINE_LENGTH];
+/**
+ * Workflow profile allocation method *
+ * (common for dags and functional workflows)
+ */
+diet_wf_desc_t *
+diet_wf_profile_alloc(const char *wf_file_name, const char *name,
+                      wf_level_t wf_level) {
+  diet_wf_desc_t *profile = new diet_wf_desc_t;
+  profile->level = wf_level;
+  profile->name = strdup(name);
+  profile->dataFile = NULL;
+  profile->wfReqID = -1;
+  struct stat stat_p;
+  FILE *file;
+  char line[LINE_LENGTH];
 
-    stat(wf_file_name, &stat_p);
-    profile->abstract_wf = (char*)malloc(stat_p.st_size + 1);
-    strcpy(profile->abstract_wf, "");
-    file = fopen(wf_file_name, "r");
-    if (file != NULL) {
-      while (fgets(line, LINE_LENGTH, file) != NULL) {
-        strcat(profile->abstract_wf, line);
-      }
-      fclose(file);
-    } else {
-      WARNING("Initializing workflow profile with invalid file : "
-              << wf_file_name);
+  stat(wf_file_name, &stat_p);
+  profile->abstract_wf = (char *) malloc(stat_p.st_size + 1);
+  strcpy(profile->abstract_wf, "");
+  file = fopen(wf_file_name, "r");
+  if (file != NULL) {
+    while (fgets(line, LINE_LENGTH, file) != NULL) {
+      strcat(profile->abstract_wf, line);
     }
-
-    return profile;
+    fclose(file);
+  } else {
+    WARNING("Initializing workflow profile with invalid file : "
+            << wf_file_name);
   }
 
-  /**
-   * Workflow profile method to set data file name
-   * (for functional wf only)
-   */
-  void
-  diet_wf_set_data_file(diet_wf_desc_t* profile, const char * data_file_name) {
-    if (data_file_name) {
-      profile->dataFile = strdup(data_file_name);
-    }
-  }
+  return profile;
+} // diet_wf_profile_alloc
 
-  /**
-   * Workflow profile method to set transcript file name
-   * (for DAG or FUNCTIONAL wf)
-   */
-  void
-  diet_wf_set_transcript_file(diet_wf_desc_t * profile,
-                              const char * transcript_file_name) {
-    if (transcript_file_name) {
-      profile->transcriptFile = strdup(transcript_file_name);
-    }
+/**
+ * Workflow profile method to set data file name
+ * (for functional wf only)
+ */
+void
+diet_wf_set_data_file(diet_wf_desc_t *profile, const char *data_file_name) {
+  if (data_file_name) {
+    profile->dataFile = strdup(data_file_name);
   }
+}
 
-  /**
-   * Free a workflow profile *
-   */
-  void
-  diet_wf_profile_free(diet_wf_desc_t * profile) {
-    if (profile->abstract_wf) {
-      free(profile->abstract_wf);
-    }
-    if (profile->name) {
-      free(profile->name);
-    }
-    if (profile->dataFile) {
-      free(profile->dataFile);
-    }
-    if (profile->transcriptFile) {
-      free(profile->transcriptFile);
-    }
-    free(profile);
+/**
+ * Workflow profile method to set transcript file name
+ * (for DAG or FUNCTIONAL wf)
+ */
+void
+diet_wf_set_transcript_file(diet_wf_desc_t *profile,
+                            const char *transcript_file_name) {
+  if (transcript_file_name) {
+    profile->transcriptFile = strdup(transcript_file_name);
   }
+}
+
+/**
+ * Free a workflow profile *
+ */
+void
+diet_wf_profile_free(diet_wf_desc_t *profile) {
+  if (profile->abstract_wf) {
+    free(profile->abstract_wf);
+  }
+  if (profile->name) {
+    free(profile->name);
+  }
+  if (profile->dataFile) {
+    free(profile->dataFile);
+  }
+  if (profile->transcriptFile) {
+    free(profile->transcriptFile);
+  }
+  free(profile);
+} // diet_wf_profile_free
 #endif  // endif HAVE_WORKFLOW
 }  // extern "C"
-

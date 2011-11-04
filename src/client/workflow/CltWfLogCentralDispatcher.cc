@@ -1,26 +1,21 @@
 /**
-* @file  CltWfLogCentralDispatcher.cc
-* 
-* @brief   Control Workflow LogCentral Dispatcher  
-* 
-* @author  - Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.3  2011/01/13 23:38:19  ecaron
- * Add missing header
+ * @file  CltWfLogCentralDispatcher.cc
  *
- ****************************************************************************/
+ * @brief   Control Workflow LogCentral Dispatcher
+ *
+ * @author  Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)
+ *
+ * @section Licence
+ *   |LICENSE|
+ */
+
 
 #include "CltWfLogCentralDispatcher.hh"
 #include "debug.hh"
 
 #ifdef USE_LOG_SERVICE
-CltWfLogCentralDispatcher::CltWfLogCentralDispatcher(DietLogComponent* LC): myLC(LC)
-{
+CltWfLogCentralDispatcher::CltWfLogCentralDispatcher(DietLogComponent *LC):
+  myLC(LC) {
   if (myLC == NULL) {
     INTERNAL_ERROR("Invalid WfLogCentralDispatcher constructor parameter", 1);
   }
@@ -31,7 +26,10 @@ CltWfLogCentralDispatcher::CltWfLogCentralDispatcher(DietLogComponent* LC): myLC
 }
 
 void
-CltWfLogCentralDispatcher::onDagNodeStart(const events::EventFrom< DagNodeLauncher, events::EventStandardMsg< DagNodeLauncher, DagNode::START > >* event)
+CltWfLogCentralDispatcher::onDagNodeStart(
+  const events::EventFrom< DagNodeLauncher,
+                           events::EventStandardMsg< DagNodeLauncher,
+                                                     DagNode::START > > *event)
 {
   if (event->getSource()->isSeDDefined()) {
     myLC->logWfNodeStart(event->getSource()->getNode()->getDag()->getId().c_str(),
@@ -39,28 +37,34 @@ CltWfLogCentralDispatcher::onDagNodeStart(const events::EventFrom< DagNodeLaunch
                          event->getSource()->getSeDName().c_str(),
                          event->getSource()->getNode()->getPbName().c_str(),
                          event->getSource()->getReqId()
-);
+                         );
   } else {
     myLC->logWfNodeStart(event->getSource()->getNode()->getDag()->getId().c_str(),
                          event->getSource()->getNode()->getId().c_str()
-);
+                         );
   }
-}
+} // onDagNodeStart
 
 void
-CltWfLogCentralDispatcher::onDagNodeFinish(const events::EventFrom< DagNodeLauncher, events::EventStandardMsg< DagNodeLauncher, DagNode::FINISH > >* event)
+CltWfLogCentralDispatcher::onDagNodeFinish(
+  const events::EventFrom< DagNodeLauncher,
+                           events::EventStandardMsg< DagNodeLauncher,
+                                                     DagNode::FINISH > > *event)
 {
   myLC->logWfNodeFinish(event->getSource()->getNode()->getDag()->getId().c_str(),
                         event->getSource()->getNode()->getId().c_str()
-);
+                        );
 }
 
 void
-CltWfLogCentralDispatcher::onDagNodeFailed(const events::EventFrom< DagNodeLauncher, events::EventStandardMsg< DagNodeLauncher, DagNode::FAILED > >* event)
+CltWfLogCentralDispatcher::onDagNodeFailed(
+  const events::EventFrom< DagNodeLauncher,
+                           events::EventStandardMsg< DagNodeLauncher,
+                                                     DagNode::FAILED > > *event)
 {
   myLC->logWfNodeFailed(event->getSource()->getNode()->getDag()->getId().c_str(),
                         event->getSource()->getNode()->getId().c_str()
-);
+                        );
 }
 
-#endif
+#endif // ifdef USE_LOG_SERVICE

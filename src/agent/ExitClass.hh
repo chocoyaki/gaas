@@ -1,23 +1,14 @@
 /**
-* @file ExitClass.hh
-* 
-* @brief  DIET Agent Exit Class header
-* 
-* @author - Cyrille PONTVIEUX (cyrille.pontvieux@ens-lyon.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.1  2003/10/06 10:11:35  cpontvie
- * Class to manage a clean exit, call by EXITFUNCTION
+ * @file ExitClass.hh
  *
- ****************************************************************************/
+ * @brief  DIET Agent Exit Class header
+ *
+ * @author  Cyrille PONTVIEUX (cyrille.pontvieux@ens-lyon.fr)
+ *
+ * @section Licence
+ *   |LICENSE|
+ */
 
-/*
-  !! YOU MUST INCLUDE THIS HEADER PRIOR TO THE OTHERS !!
-*/
 
 #ifndef _EXITCLASS_HH_
 #define _EXITCLASS_HH_
@@ -35,7 +26,7 @@ public:
    * ExitFunction
    */
   static void
-  init(AgentImpl* agent);
+  init(AgentImpl *agent);
 
   /**
    * The ExitFunction called by the INTERNAL_ERROR macro.
@@ -44,7 +35,7 @@ public:
   exitFunction();
 
 private:
-  static AgentImpl* agent;
+  static AgentImpl *agent;
 };
 
 #endif  // _EXITCLASS_HH_

@@ -1,24 +1,14 @@
-/****************************************************************************/
-/* DIET callBack IDL description                                            */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Christophe PERA           - LIP ENS-Lyon (France)                   */
-/*                                                                          */
-/* $LICENCES$                                                                          */
-/****************************************************************************/
-/* $Id$
- * $Log$
- * Revision 1.2  2006/07/07 09:30:44  aamar
- * Add the parameter solve_res to solveResults function to get the
- * execution status.
+/**
+ * @file callback.idl
  *
- * Revision 1.1  2003/06/02 14:56:26  cpera
- * Applying coding standards.
+ * @brief  DIET callBack IDL description
  *
- * Revision 1.1  2003/06/02 08:13:55  cpera
- * Beta version of asynchronize DIEt API.
+ * @author Christophe PERA   (christophe.pera@ens-lyon.fr)
  *
- ****************************************************************************/
+ * @section Licence
+ *   |LICENSE|
+ */
+
 
 
 #ifndef _CALLBACK_IDL_

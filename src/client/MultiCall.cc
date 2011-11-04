@@ -1,22 +1,14 @@
 /**
-* @file  MultiCall.cc
-* 
-* @brief   Used to divide a profile and make several calls with just one SeD  
-* 
-* @author  - Ghislain Charrier (Ghislain.Charrier@ens-lyon.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.5  2011/05/10 14:54:20  bdepardo
- * Fixed compilation
+ * @file  MultiCall.cc
  *
- * Revision 1.4  2011/01/13 23:42:40  ecaron
- * Add missing header
+ * @brief   Used to divide a profile and make several calls with just one SeD
  *
- ****************************************************************************/
+ * @author   Ghislain Charrier (Ghislain.Charrier@ens-lyon.fr)
+ *
+ * @section Licence
+ *   |LICENSE|
+ */
+
 
 #include <iostream>
 #include <cstdlib>
@@ -28,18 +20,21 @@
 
 using namespace std;
 
-corba_response_t * MultiCall::corba_response = NULL;
+corba_response_t *MultiCall::corba_response = NULL;
 
-void MultiCall::set_response(corba_response_t *response) {
+void
+MultiCall::set_response(corba_response_t *response) {
   corba_response = response;
 }
 
-corba_response_t* MultiCall::get_response() {
+corba_response_t *
+MultiCall::get_response() {
   return corba_response;
 }
 
-//computes the number of scenario per cluster
-vector<int> MultiCall::cerfacsSchedule() {
+// computes the number of scenario per cluster
+vector<int>
+MultiCall::cerfacsSchedule() {
   vector<int> nbDags;
   int nbClusters = corba_response->servers.length();
   int NS = (&(corba_response->servers[0]).estim)->estValues.length() - 1;
@@ -57,7 +52,10 @@ vector<int> MultiCall::cerfacsSchedule() {
     MSmin = -1;
     clusterMin = 0;
     for (i = 0; i < nbClusters; i++) {
-      temp = diet_est_get_internal((&(corba_response->servers[i]).estim), EST_USERDEFINED + (nbDags[i]), 0);
+      temp =
+        diet_est_get_internal((&(corba_response->servers[i]).estim),
+                              EST_USERDEFINED + (nbDags[i]),
+                              0);
       if (MSmin == -1 || temp < MSmin) {
         MSmin = temp;
         clusterMin = i;
@@ -66,51 +64,52 @@ vector<int> MultiCall::cerfacsSchedule() {
     nbDags[clusterMin]++;
   }
   return nbDags;
-}
+} // cerfacsSchedule
 
-bool MultiCall::updateCall(diet_profile_t* profile, SeD_var& chosenServer) {
+bool
+MultiCall::updateCall(diet_profile_t *profile, SeD_var &chosenServer) {
   static vector<int> nb_scenarios;
   static int counter = 0;
-  static char* save;
-  char* s;
+  static char *save;
+  char *s;
   char c[2];
-  char * stemp;
+  char *stemp;
   c[0] = '#';
   c[1] = '\0';
   chosenServer = SeD::_nil();
-    
 
-  //some datas need to be initialized just once
+
+  // some datas need to be initialized just once
   if (counter == 0) {
     nb_scenarios = MultiCall::cerfacsSchedule();
     diet_paramstring_get(diet_parameter(profile, 2), &save, NULL);
   }
 
-  s = (char*)malloc((strlen(save) + 1) * sizeof(char));
+  s = (char *) malloc((strlen(save) + 1) * sizeof(char));
   strcpy(s, save);
 
-  stemp = (char*)malloc((strlen(s) + 1) * sizeof(char));  
+  stemp = (char *) malloc((strlen(s) + 1) * sizeof(char));
   stemp[0] = '\0';
 
-  //if there is at least a scenario on this SeD
+  // if there is at least a scenario on this SeD
   if (nb_scenarios[counter] != 0) {
     string serverName = string(corba_response->servers[counter].loc.SeDName);
     chosenServer = ORBMgr::getMgr()->resolve<SeD, SeD_var>(SEDCTXT, serverName);
 
-    diet_scalar_set(diet_parameter(profile, 0), 
-                    &(nb_scenarios[counter]), 
+    diet_scalar_set(diet_parameter(profile, 0),
+                    &(nb_scenarios[counter]),
                     DIET_VOLATILE, DIET_INT);
-    //splits the mnemonics
-    char* tmp;
-    tmp = strtok(save, c); 
+    // splits the mnemonics
+    char *tmp;
+    tmp = strtok(save, c);
     for (int counter2 = 0; counter2 < nb_scenarios[counter]; counter2++) {
-      if (counter2 != 0) { 
+      if (counter2 != 0) {
         stemp = strcat(stemp, c);
       }
       stemp = strcat(stemp, tmp);
       tmp = strtok(NULL, c);
     }
-    //reconstruct the end of the string
+    // reconstruct the end of the string
     int counter2 = 0;
     s[0] = '\0';
     while (tmp != NULL) {
@@ -122,14 +121,14 @@ bool MultiCall::updateCall(diet_profile_t* profile, SeD_var& chosenServer) {
       counter2++;
     }
 
-    //updating the profile
+    // updating the profile
     diet_paramstring_set(diet_parameter(profile, 2), stemp, DIET_VOLATILE);
   }
-  
+
   strcpy(save, s);
   free(s);
-  
-  //there are scenarios to send, so call
+
+  // there are scenarios to send, so call
   if (nb_scenarios[counter] != 0) {
     counter++;
     return true;
@@ -138,4 +137,4 @@ bool MultiCall::updateCall(diet_profile_t* profile, SeD_var& chosenServer) {
   counter++;
 
   return false;
-}
+} // updateCall

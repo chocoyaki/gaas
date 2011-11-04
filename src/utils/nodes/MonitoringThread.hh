@@ -1,33 +1,15 @@
 /**
-* @file MonitoringThread.hh
-* 
-* @brief  actively collects monitoring information for DIET, mainly from FAST 
-* 
-* @author  - Georg Hoesch (hoesch@in.tum.de)
-*          - Cyrille Pontvieux (cyrille.pontvieux@edu.univ-fcomte.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.2  2010/12/17 09:48:02  kcoulomb
- * * Set diet to use the new log with forwarders
- * * Fix a CoRI problem
- * * Add library version remove DTM flag from ccmake because deprecated
+ * @file MonitoringThread.hh
  *
- * Revision 1.1  2010/03/03 14:26:35  bdepardo
- * BEWARE!!!
- * Huge modifications to take into account CYGWIN.
- * Lots of files' directory have been changed.
+ * @brief  actively collects monitoring information for DIET, mainly from FAST
  *
- * Revision 1.2  2004/09/29 13:35:32  sdahan
- * Add the Multi-MAs feature.
+ * @author  Georg Hoesch (hoesch@in.tum.de)
+ *          Cyrille Pontvieux (cyrille.pontvieux@edu.univ-fcomte.fr)
  *
- * Revision 1.1  2004/03/01 19:00:44  rbolze
- * Thread to enable monitoring from LogCentral
- *
- ****************************************************************************/
+ * @section Licence
+ *   |LICENSE|
+ */
+
 
 #ifndef _MONITORINGTHREAD_HH_
 #define _MONITORINGTHREAD_HH_
@@ -42,13 +24,14 @@
  * other passive values which cannot be measured directly in the
  * sorucecode
  */
-class MonitoringThread: public omni_thread {
+class MonitoringThread : public omni_thread {
 public:
   /**
    * Constructor.
    * @param DLC reference to the DietLogComponent of this thread.
    */
-  explicit MonitoringThread(DietLogComponent* DLC);
+  explicit
+  MonitoringThread(DietLogComponent *DLC);
 
   /**
    * Start the thread.
@@ -68,8 +51,8 @@ protected:
    * The main loop of the thread.
    * Logs FAST values with the dietLogComponent
    */
-  void*
-  run_undetached(void* params);
+  void *
+  run_undetached(void *params);
 
   /**
    * Destructor. Is called by the orb when the thread is
@@ -82,7 +65,7 @@ private:
    * This threads dietLogComponent. NULL if no monitoring information
    * is to be gathered (although you don't need to start this thread then)
    */
-  DietLogComponent* dietLogComponent;
+  DietLogComponent *dietLogComponent;
 
   /**
    * controls the main loop
@@ -90,4 +73,4 @@ private:
   bool threadRunning;
 };
 
-#endif
+#endif /* ifndef _MONITORINGTHREAD_HH_ */

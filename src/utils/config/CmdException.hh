@@ -3,20 +3,12 @@
 * 
 * @brief  Command line exceptions 
 * 
-* @author - Haikel Guemar (haikel.guemar@sysfera.com)
+* @author  Haikel Guemar (haikel.guemar@sysfera.com)
 * 
 * @section Licence
 *   |LICENSE|                                                                
 */
-/* $Id$
- * $Log$
- * Revision 1.3  2011/03/07 15:34:55  hguemar
- * fix typo in mail address
- *
- * Revision 1.2  2011/03/03 11:55:52  bdepardo
- * Add missing headers
- *
- ****************************************************************************/
+
 
 
 #ifndef _CMD_EXCEPTION_HH_

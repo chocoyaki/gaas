@@ -27,7 +27,6 @@
 namespace boost {
 namespace process {
 namespace detail {
-
 /**
  * The basic_status class to wait for processes to exit.
  *
@@ -36,34 +35,32 @@ namespace detail {
  */
 template <typename Service>
 class basic_status
-    : public boost::asio::basic_io_object<Service>
-{
+  : public boost::asio::basic_io_object<Service>{
 public:
-    explicit basic_status(boost::asio::io_service &io_service)
-    : boost::asio::basic_io_object<Service>(io_service)
-    {
-    }
+explicit
+basic_status(boost::asio::io_service &io_service)
+  : boost::asio::basic_io_object<Service>(io_service) {
+}
 
-    /**
-     * Waits synchronously for a process to exit.
-     */
-    int wait(pid_type pid)
-    {
-        return this->service.wait(this->implementation, pid);
-    }
+/**
+ * Waits synchronously for a process to exit.
+ */
+int
+wait(pid_type pid) {
+  return this->service.wait(this->implementation, pid);
+}
 
-    /**
-     * Waits asynchronously for a process to exit.
-     */
-    template <typename Handler>
-    void async_wait(pid_type pid, Handler handler)
-    {
-        this->service.async_wait(this->implementation, pid, handler);
-    }
+/**
+ * Waits asynchronously for a process to exit.
+ */
+template <typename Handler>
+void
+async_wait(pid_type pid, Handler handler) {
+  this->service.async_wait(this->implementation, pid, handler);
+}
 };
-
 }
 }
 }
 
-#endif 
+#endif // ifndef BOOST_PROCESS_DETAIL_BASIC_STATUS_HPP

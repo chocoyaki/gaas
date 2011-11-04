@@ -3,45 +3,12 @@
 * 
 * @brief  The class used to parse and execute conditional expressions used in workflow control structures
 * 
-* @author  - Benjamin Isnard (benjamin.isnard@ens-lyon.fr)
+* @author  Benjamin Isnard (benjamin.isnard@ens-lyon.fr)
 * 
 * @section Licence
 *   |LICENSE|                                                                
 */
-/* $Id$
- * $Log$
- * Revision 1.9  2011/03/19 23:34:01  bdepardo
- * Fixed a bug in variable initialization which prevented comparisons in
- * while condition
- *
- * Revision 1.8  2011/02/24 16:50:06  bdepardo
- * Code cleanup.
- * Use TRACE_TEXT instead of cout
- *
- * Revision 1.7  2011/02/09 14:34:57  bdepardo
- * Use <array><item>0</item></array> instead of <array><item value="0"/></array>
- * in default value.
- *
- * Revision 1.6  2011/02/09 14:27:11  bdepardo
- * Fixed default value when using a container
- *
- * Revision 1.5  2009/08/26 10:32:11  bisnard
- * corrected  warnings
- *
- * Revision 1.4  2009/07/10 12:55:17  bisnard
- * updated list of XQuery separators
- *
- * Revision 1.3  2009/07/08 08:56:55  bisnard
- * avoid false variable detection when var name is prefix of another variable
- *
- * Revision 1.2  2009/06/15 12:14:08  bisnard
- * added new class WfExprVariable to handle expression variables in conditional nodes
- *
- * Revision 1.1  2009/05/15 11:01:24  bisnard
- * new class WfExpression used to evaluate expression in IF node
- *
- *
- */
+
 #include <sstream>
 
 #include "WfExpression.hh"

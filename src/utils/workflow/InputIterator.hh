@@ -3,26 +3,12 @@
 * 
 * @brief  Set of classes used to implement data operators for functional workflows
 * 
-* @author  - Benjamin ISNARD (Benjamin.Isnard@ens-lyon.fr)
+* @author  Benjamin ISNARD (Benjamin.Isnard@ens-lyon.fr)
 * 
 * @section Licence
 *   |LICENSE|                                                                
 */
-/* $Id$
- * $Log$
- * Revision 1.4  2009/10/02 07:44:56  bisnard
- * new wf data operators MATCH & N-CROSS
- *
- * Revision 1.3  2009/08/26 10:26:29  bisnard
- * added new iterator flatcross
- *
- * Revision 1.2  2009/05/27 08:56:47  bisnard
- * moved id attribute to parent abstract class
- *
- * Revision 1.1  2009/01/16 13:52:36  bisnard
- * new class to manage different operators to mix input streams of data
- *
- */
+
 
 #ifndef _INPUTITERATOR_HH_
 #define _INPUTITERATOR_HH_

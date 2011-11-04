@@ -1,19 +1,14 @@
 /**
-* @file SeDDescrParser.cc
-* 
-* @brief   Parser of XML files used to convert external service into SeD  
-* 
-* @author  - Benjamin ISNARD (benjamin.isnard@ens-lyon.fr) 
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.1  2010/04/06 15:02:37  bdepardo
- * Added SeDWrapper example. This example is compiled when workflows are activated.
+ * @file SeDDescrParser.cc
  *
+ * @brief   Parser of XML files used to convert external service into SeD
+ *
+ * @author  Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)
+ *
+ * @section Licence
+ *   |LICENSE|
  */
+
 
 #include <iostream>
 #include <libgen.h>
@@ -41,7 +36,7 @@
 /*                          CLASS SeDDescrParser                             */
 /*****************************************************************************/
 
-SeDDescrParser::SeDDescrParser(const string& fileName)
+SeDDescrParser::SeDDescrParser(const string &fileName)
   : myXmlFileName(fileName), document(NULL) {
 }
 
@@ -49,65 +44,71 @@ SeDDescrParser::~SeDDescrParser() {
 }
 
 void
-SeDDescrParser::parseXml(bool checkValid)
-{
-  const XMLCh gLS[] = { chLatin_L, chLatin_S, chNull };
+SeDDescrParser::parseXml(bool checkValid) {
+  const XMLCh gLS[] = {chLatin_L, chLatin_S, chNull};
 
   XMLPlatformUtils::Initialize();
   DOMImplementation *impl = DOMImplementationRegistry::getDOMImplementation(gLS);
-  DOMLSParser *parser = impl->createLSParser(DOMImplementationLS::MODE_SYNCHRONOUS, 0);
-  MyDOMErrorHandler* errHandler = new MyDOMErrorHandler();
+  DOMLSParser *parser = impl->createLSParser(
+    DOMImplementationLS::MODE_SYNCHRONOUS, 0);
+  MyDOMErrorHandler *errHandler = new MyDOMErrorHandler();
 
   // Validation
-  if (parser->getDomConfig()->canSetParameter(XMLUni::fgDOMValidateIfSchema, true)) {
+  if (parser->getDomConfig()->canSetParameter(XMLUni::fgDOMValidateIfSchema,
+                                              true)) {
     parser->getDomConfig()->setParameter(XMLUni::fgDOMValidateIfSchema, true);
-    parser->getDomConfig()->setParameter(XMLUni::fgXercesValidationErrorAsFatal, true);
+    parser->getDomConfig()->setParameter(XMLUni::fgXercesValidationErrorAsFatal,
+                                         true);
   }
 
   // Error handler
-  if (parser->getDomConfig()->canSetParameter(XMLUni::fgDOMErrorHandler, errHandler)) {
+  if (parser->getDomConfig()->canSetParameter(XMLUni::fgDOMErrorHandler,
+                                              errHandler)) {
     parser->getDomConfig()->setParameter(XMLUni::fgDOMErrorHandler, errHandler);
   }
 
   // Wrapper
-  Wrapper4InputSource * wrapper;
+  Wrapper4InputSource *wrapper;
   string errorMsgPfx;
 
   if (!myXmlFileName.empty()) {
     // INITIALIZE FROM FILE
     errorMsgPfx = "In file " + myXmlFileName + " : ";
-    XMLCh* xmlFileName = CTOX(myXmlFileName.c_str());
-    LocalFileInputSource * fileBufIS = new LocalFileInputSource(xmlFileName);
+    XMLCh *xmlFileName = CTOX(myXmlFileName.c_str());
+    LocalFileInputSource *fileBufIS = new LocalFileInputSource(xmlFileName);
     wrapper = new Wrapper4InputSource(fileBufIS);
-    //     XREL(xmlFileName);
-
+    // XREL(xmlFileName);
   } else {
-    throw XMLParsingException(XMLParsingException::eUNKNOWN, "Empty XML filename");
+    throw XMLParsingException(XMLParsingException::eUNKNOWN,
+                              "Empty XML filename");
   }
 
   // PARSE
   try {
-    this->document = parser->parse((DOMLSInput*) wrapper);
+    this->document = parser->parse((DOMLSInput *) wrapper);
   } catch (...) {
     cerr << errorMsgPfx << "Unexpected exception during XML Parsing";
     throw XMLParsingException(XMLParsingException::eUNKNOWN, "");
   }
 
-  if (document == NULL)
+  if (document == NULL) {
     throw XMLParsingException(XMLParsingException::eFILENOTFOUND,
                               myXmlFileName);
+  }
 
   // Check if DTD was provided
   if (checkValid && !document->getDoctype()) {
     cerr << errorMsgPfx << "XML is not validated (no DTD provided)" << endl
-         << "Use <!DOCTYPE workflow SYSTEM \"[DIET_INSTALL_DIR]/etc/FWorkflow.dtd\">"
+         <<
+    "Use <!DOCTYPE workflow SYSTEM \"[DIET_INSTALL_DIR]/etc/FWorkflow.dtd\">"
          << " instruction to provide it";
   }
 
-  DOMNode * root = (DOMNode*)(document->getDocumentElement());
-  if (root == NULL)
+  DOMNode *root = (DOMNode *) (document->getDocumentElement());
+  if (root == NULL) {
     throw XMLParsingException(XMLParsingException::eUNKNOWN,
                               "No details available");
+  }
 
   // Parse the root element
   parseRoot(root);
@@ -115,11 +116,10 @@ SeDDescrParser::parseXml(bool checkValid)
   delete errHandler;
   delete parser;
   XMLPlatformUtils::Terminate();
-}
+} // parseXml
 
-const list<SeDService*>&
-SeDDescrParser::getServices()
-{
+const list<SeDService *> &
+SeDDescrParser::getServices() {
   return myServiceList;
 }
 
@@ -127,7 +127,7 @@ SeDDescrParser::getServices()
 /*                            CLASS GASWParser                               */
 /*****************************************************************************/
 
-GASWParser::GASWParser(const string& fileName)
+GASWParser::GASWParser(const string &fileName)
   : SeDDescrParser(fileName) {
 }
 
@@ -146,172 +146,163 @@ GASWParser::parseValueURI(const DOMElement *element) {
     }
   } // else return empty string
   return value;
-}
+} // parseValueURI
 
 void
-GASWParser::parseRoot(DOMNode* root)
-{
+GASWParser::parseRoot(DOMNode *root) {
   // Check root element
-  char * _rootNodeName = XTOC(root->getNodeName());
-  if (strcmp (_rootNodeName, "description")) {
+  char *_rootNodeName = XTOC(root->getNodeName());
+  if (strcmp(_rootNodeName, "description")) {
     throw XMLParsingException(XMLParsingException::eUNKNOWN_TAG,
                               "XML for GAS should begin with <description>");
   }
   XREL(_rootNodeName);
-  DOMNode * child = root->getFirstChild();
+  DOMNode *child = root->getFirstChild();
   while ((child != NULL)) {
     // Parse all the <executable> elements
     if (child->getNodeType() == DOMNode::ELEMENT_NODE) {
-      const DOMElement * child_elt = (DOMElement*)child;
-      char * _childName = XTOC(child_elt->getNodeName());
+      const DOMElement *child_elt = (DOMElement *) child;
+      char *_childName = XTOC(child_elt->getNodeName());
       string childName(_childName);
       XREL(_childName);
 
       if (childName == "executable") {
-
         parseExecutable(child_elt);
-
       }
-      //       } else
-      //      throw XMLParsingException(XMLParsingException::eUNKNOWN_TAG,
-      //                "Invalid tag within description element");
-
+      // } else
+      // throw XMLParsingException(XMLParsingException::eUNKNOWN_TAG,
+      // "Invalid tag within description element");
     }
     child = child->getNextSibling();
   }
-}
+} // parseRoot
 
 void
-GASWParser::parseExecutable(const DOMElement * element)
-{
-  string name  = DagWfParser::getAttributeValue("name", element);
-  SeDService*  service = new SeDService(this, name);
+GASWParser::parseExecutable(const DOMElement *element) {
+  string name = DagWfParser::getAttributeValue("name", element);
+  SeDService *service = new SeDService(this, name);
   service->setExecutableName(name);  // use this by default for script name
   myServiceList.push_back(service);
 
-  const DOMNode * child = element->getFirstChild();
+  const DOMNode *child = element->getFirstChild();
   while (child != NULL) {
     if (child->getNodeType() == DOMNode::ELEMENT_NODE) {
-      const DOMElement * child_elt = (DOMElement*) child;
+      const DOMElement *child_elt = (DOMElement *) child;
       char *_childName = XTOC(child_elt->getNodeName());
       string childName(_childName);
       XREL(_childName);
 
       if (childName == "value") {
         string execName = parseValueURI(child_elt);
-        if (!execName.empty()) service->setExecutableName(execName);
-
+        if (!execName.empty()) {
+          service->setExecutableName(execName);
+        }
       } else if (childName == "input") {
         parseInput(child_elt, service);
-
       } else if (childName == "output") {
         parseOutput(child_elt, service);
-
       } else if (childName == "sandbox") {
         parseDependency(child_elt, service);
-
       }
-      //       } else
-      //         throw XMLParsingException(XMLParsingException::eUNKNOWN_TAG,
-      //                "Invalid tag within executable element");
+      // } else
+      // throw XMLParsingException(XMLParsingException::eUNKNOWN_TAG,
+      // "Invalid tag within executable element");
     }
     child = child->getNextSibling();
   } // end while
-}
+} // parseExecutable
 
 void
-GASWParser::parseInput(const DOMElement * element, SeDService * service)
-{
-  string name    = DagWfParser::getAttributeValue("name", element);
-  string option  = DagWfParser::getAttributeValue("option", element);
-  string type    = DagWfParser::getAttributeValue("type", element);
-  //   if (type.empty()) throw XMLParsingException(XMLParsingException::eEMPTY_ATTR, "type");
+GASWParser::parseInput(const DOMElement *element, SeDService *service) {
+  string name = DagWfParser::getAttributeValue("name", element);
+  string option = DagWfParser::getAttributeValue("option", element);
+  string type = DagWfParser::getAttributeValue("type", element);
+  // if (type.empty()) throw XMLParsingException(XMLParsingException::eEMPTY_ATTR, "type");
   SeDArgument *in = service->addInput(name, option, type);
 }
 
 void
-GASWParser::parseOutput(const DOMElement * element, SeDService * service)
-{
-  string name    = DagWfParser::getAttributeValue("name", element);
-  string option  = DagWfParser::getAttributeValue("option", element);
-  string type    = DagWfParser::getAttributeValue("type", element);
-  //   if (type.empty()) throw XMLParsingException(XMLParsingException::eEMPTY_ATTR, "type");
+GASWParser::parseOutput(const DOMElement *element, SeDService *service) {
+  string name = DagWfParser::getAttributeValue("name", element);
+  string option = DagWfParser::getAttributeValue("option", element);
+  string type = DagWfParser::getAttributeValue("type", element);
+  // if (type.empty()) throw XMLParsingException(XMLParsingException::eEMPTY_ATTR, "type");
   SeDArgument *out = service->addOutput(name, option, type);
 
-  const DOMNode * child = element->getFirstChild();
+  const DOMNode *child = element->getFirstChild();
   while (child != NULL) {
     if (child->getNodeType() == DOMNode::ELEMENT_NODE) {
-      const DOMElement * child_elt = (DOMElement*) child;
+      const DOMElement *child_elt = (DOMElement *) child;
       char *_childName = XTOC(child_elt->getNodeName());
       string childName(_childName);
       XREL(_childName);
 
       if (childName == "value") {
-        string value    = parseValueURI(child_elt);
-        if (!value.empty())  out->setTemplate(value);
+        string value = parseValueURI(child_elt);
+        if (!value.empty()) {
+          out->setTemplate(value);
+        }
       }
     }
     child = child->getNextSibling();
   }
-}
+} // parseOutput
 
 void
-GASWParser::parseDependency(const DOMElement * element, SeDService * service)
-{
-  string name    = DagWfParser::getAttributeValue("name", element);
-  const DOMNode * child = element->getFirstChild();
+GASWParser::parseDependency(const DOMElement *element, SeDService *service) {
+  string name = DagWfParser::getAttributeValue("name", element);
+  const DOMNode *child = element->getFirstChild();
   string accessType;
   while (child != NULL) {
     if (child->getNodeType() == DOMNode::ELEMENT_NODE) {
-      const DOMElement * child_elt = (DOMElement*) child;
+      const DOMElement *child_elt = (DOMElement *) child;
       char *_childName = XTOC(child_elt->getNodeName());
       string childName(_childName);
       XREL(_childName);
 
       if (childName == "value") {
         string localPath = parseValueURI(child_elt);
-        if (!localPath.empty())
+        if (!localPath.empty()) {
           service->addDependency(name, localPath);
+        }
       }
     }
     child = child->getNextSibling();
   }
-}
+} // parseDependency
 
 
 void
-GASWParser::evalTemplate(SeDArgument *arg, string& value) {
+GASWParser::evalTemplate(SeDArgument *arg, string &value) {
   string::size_type dirPos = 0;
   string::size_type naPos = 0;
-  const string& argTempl = arg->getTemplate();
-  const list<SeDArgument*>&  args = arg->getService()->getArgs();
+  const string &argTempl = arg->getTemplate();
+  const list<SeDArgument *> &args = arg->getService()->getArgs();
   unsigned int argIndex = 1;  // references start at 1
 
   // Initialize value with template content
   value = argTempl;
 
   // Loop for all arguments that are IN && FILE
-  for (list<SeDArgument*>::const_iterator argIter = args.begin();
+  for (list<SeDArgument *>::const_iterator argIter = args.begin();
        argIter != args.end();
-       ++argIter)
-  {
+       ++argIter) {
     SeDArgument *currArg = (SeDArgument *) *argIter;
-    if (currArg->getIo() == SeDArgument::IN)
-    {
-      const string& refValue = currArg->getValue();
+    if (currArg->getIo() == SeDArgument::IN) {
+      const string &refValue = currArg->getValue();
       string dirRef;
       string naRef;
 
       if (currArg->getType() == SeDArgument::URI) {
         // Get the directory and base name of the file
-        char * pathC1 = strdup(refValue.c_str());
-        char * pathC2 = strdup(refValue.c_str());
+        char *pathC1 = strdup(refValue.c_str());
+        char *pathC2 = strdup(refValue.c_str());
         dirRef = dirname(pathC1);
         naRef = basename(pathC2);
         free(pathC1);
         free(pathC2);
       } else if (currArg->getType() == SeDArgument::DIR) {
-        char * pathC1 = strdup(refValue.c_str());
+        char *pathC1 = strdup(refValue.c_str());
         dirRef = refValue;
         naRef = basename(pathC1);
       } else {  // argument is scalar
@@ -324,14 +315,16 @@ GASWParser::evalTemplate(SeDArgument *arg, string& value) {
       // Replace $dirX (once)
       if ((dirPos = value.find(dirTempl)) != string::npos) {
         value = value.substr(0, dirPos)
-          + dirRef
-          + value.substr(dirPos + dirTempl.length(), value.length()-dirPos-dirTempl.length());
+                + dirRef
+                + value.substr(dirPos + dirTempl.length(),
+                               value.length() - dirPos - dirTempl.length());
       }
       // Replace $naX (once)
       if ((naPos = value.find(naTempl)) != string::npos) {
         value = value.substr(0, naPos)
-          + naRef
-          + value.substr(naPos + naTempl.length(), value.length()-naPos-naTempl.length());
+                + naRef
+                + value.substr(naPos + naTempl.length(),
+                               value.length() - naPos - naTempl.length());
       }
     }
     ++argIndex;
@@ -341,8 +334,7 @@ GASWParser::evalTemplate(SeDArgument *arg, string& value) {
   string::size_type idPos = 0;
   if ((idPos = value.find("%s")) != string::npos) {
     value = value.substr(0, idPos)
-      + arg->getService()->getReqId()
-      + value.substr(idPos + 2, value.length()-idPos-2);
+            + arg->getService()->getReqId()
+            + value.substr(idPos + 2, value.length() - idPos - 2);
   }
-
-}
+} // evalTemplate

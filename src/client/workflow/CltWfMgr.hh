@@ -1,121 +1,14 @@
 /**
-* @file  CltWfMgr.hh
-* 
-* @brief   Client workflow manager class  
-* 
-* @author  - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.27  2011/03/17 10:14:28  hguemar
- * clean some stuff left behind
+ * @file  CltWfMgr.hh
  *
- * Revision 1.25  2011/03/16 22:18:37  bdepardo
- * Added a method to delete the unique reference of CltWfMgr
+ * @brief   Client workflow manager class
  *
- * Revision 1.24  2011/03/15 22:51:02  bdepardo
- * Code cleanup and indentation
+ * @author   Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)
  *
- * Revision 1.23  2010/12/17 09:48:00  kcoulomb
- * * Set diet to use the new log with forwarders
- * * Fix a CoRI problem
- * * Add library version remove DTM flag from ccmake because deprecated
- *
- * Revision 1.22  2010/07/20 09:22:33  bisnard
- * changes for dietForwarder
- *
- * Revision 1.21  2010/07/12 16:14:12  glemahec
- * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
- *
- * Revision 1.20  2010/03/08 13:37:50  bisnard
- * replaced WfLogService by DietLogComponent
- *
- * Revision 1.19  2009/09/25 12:39:18  bisnard
- * modified includes to reduce inter-dependencies
- *
- * Revision 1.18  2009/08/26 10:35:24  bisnard
- * provide new methods for data input/output and execution transcript
- *
- * Revision 1.17  2009/07/23 12:26:06  bisnard
- * new API method to get functional wf results as a container
- *
- * Revision 1.16  2009/06/23 09:19:34  bisnard
- * use new classname for WfLogService
- * added missing exception catch in execNodeCommon
- *
- * Revision 1.15  2009/02/06 14:51:27  bisnard
- * - setup exceptions
- * - refactoring dag and functional wf submission
- *
- * Revision 1.14  2009/01/22 09:01:09  bisnard
- * added client method to retrieve workflow container output
- *
- * Revision 1.13  2009/01/16 16:32:26  bisnard
- * added option to specify data source file name
- *
- * Revision 1.12  2009/01/16 13:51:11  bisnard
- * corrected synchronization pbs between dag instanciation and execution
- *
- * Revision 1.11  2008/12/09 12:09:03  bisnard
- * added parameters to dag submit method to handle inter-dependent dags
- *
- * Revision 1.10  2008/12/02 14:17:48  bisnard
- * manage multi-dag cancellation when one dag fails
- *
- * Revision 1.9  2008/12/02 10:19:15  bisnard
- * functional workflow submission to MaDag
- *
- * Revision 1.8  2008/07/11 09:12:34  bisnard
- * Added exclusion blocks to avoid dag not found error
- *
- * Revision 1.7  2008/07/08 11:14:21  bisnard
- * Add dag makespan value in release message
- *
- * Revision 1.6  2008/06/26 15:00:18  bisnard
- * corba type mismatch
- *
- * Revision 1.5  2008/06/25 09:59:39  bisnard
- * new params in execNodeOnSeD to provide ReqId and estimation vector
- * to client for solve request
- *
- * Revision 1.4  2008/06/02 08:34:20  bisnard
- * Execute method (for wf node) now returns an error code in case of
- * communication failure with the SeD
- *
- * Revision 1.3  2008/06/01 09:20:37  rbolze
- * the remote method release now return a string which contains
- * feedback on the dag execution
- *
- * Revision 1.2  2008/05/16 12:32:10  bisnard
- * API function to retrieve all workflow results
- *
- * Revision 1.1  2008/04/30 07:26:10  bisnard
- * moved CltWfMgr into agent/workflow directory
- *
- * Revision 1.5  2008/04/28 12:08:16  bisnard
- * obsolete init_wf_call
- * changed constructor for Node (new param wfReqId)
- *
- * Revision 1.4  2008/04/21 14:31:45  bisnard
- * moved common multiwf routines from derived classes to MultiWfScheduler
- * use wf request identifer instead of dagid to reference client
- * use nodeQueue to manage multiwf scheduling
- * renamed WfParser as DagWfParser
- *
- * Revision 1.3  2008/04/15 14:20:20  bisnard
- * - Postpone sed mapping until wf node is executed
- *
- * Revision 1.2  2008/04/14 09:10:40  bisnard
- *  - Workflow rescheduling (CltReoMan) no longer used with MaDag v2
- *  - AbstractWfSched and derived classes no longer used with MaDag v2
- *
- * Revision 1.1  2008/04/10 08:38:50  bisnard
- * New version of the MaDag where workflow node execution is triggered by the MaDag agent and done by a new CORBA object CltWfMgr located in the client
- *
- ****************************************************************************/
+ * @section Licence
+ *   |LICENSE|
+ */
+
 
 #ifndef _CLTWFMGR_HH_
 #define _CLTWFMGR_HH_
@@ -148,7 +41,7 @@ class Dag;
 class MetaDag;
 
 class CltWfMgr : public POA_CltMan,
-                 public PortableServer::RefCountServantBase {
+public PortableServer::RefCountServantBase {
 public:
   /**
    * Executes a node on a specified Sed (CORBA method)
@@ -159,11 +52,11 @@ public:
    * @param ev      Estimation vector for this SeD (from submit request)
    */
   virtual CORBA::Long
-  execNodeOnSed(const char * node_id,
-                const char * dag_id,
-                const char * sed,
+  execNodeOnSed(const char *node_id,
+                const char *dag_id,
+                const char *sed,
                 const CORBA::ULong reqID,
-                corba_estimation_t& ev);
+                corba_estimation_t &ev);
 
   /**
    * Executes a node without specifying the Sed (CORBA method)
@@ -172,7 +65,7 @@ public:
    * @param dag_id  dag identifier
    */
   virtual CORBA::Long
-  execNode(const char * node_id, const char * dag_id);
+  execNode(const char *node_id, const char *dag_id);
 
   /**
    * (CORBA method)
@@ -180,7 +73,7 @@ public:
    * is done by this agent
    */
   virtual char *
-  release(const char * dag_id, bool successful);
+  release(const char *dag_id, bool successful);
 
   /**
    * Debug function
@@ -222,7 +115,7 @@ public:
    * @param logComponent log service reference
    */
   void
-  setLogComponent(DietLogComponent* logComponent);
+  setLogComponent(DietLogComponent *logComponent);
 #endif
   /**
    * Set the workflow log service (GUI)
@@ -244,14 +137,14 @@ public:
    * @param profile dag description
    */
   diet_error_t
-  wfDagCall(diet_wf_desc_t * profile);
+  wfDagCall(diet_wf_desc_t *profile);
 
   /**
    * Execute a functional workflow using the MA DAG
    * @param profile workflow description
    */
   diet_error_t
-  wfFunctionalCall(diet_wf_desc_t * profile);
+  wfFunctionalCall(diet_wf_desc_t *profile);
 
   /**
    * Cancel a running dag. This method returns immediately as it only set the dag's status.
@@ -259,19 +152,19 @@ public:
    * MaDag will send the release() call.
    */
   diet_error_t
-  cancelDag(const char* dagId);
+  cancelDag(const char *dagId);
 
   /**
    * Display all results from a dag
    */
   diet_error_t
-  printAllDagResults(diet_wf_desc_t* profile);
+  printAllDagResults(diet_wf_desc_t *profile);
 
   /**
    * DIsplay all results from a functional wf
    */
   diet_error_t
-  printAllFunctionalWfResults(diet_wf_desc_t* profile);
+  printAllFunctionalWfResults(diet_wf_desc_t *profile);
 
   /**
    * Read the workflow/dag execution transcript from a file (XML)
@@ -279,7 +172,7 @@ public:
    * If file does not exist, method does nothing
    */
   diet_error_t
-  readWorkflowExecutionTranscript(diet_wf_desc_t * profile);
+  readWorkflowExecutionTranscript(diet_wf_desc_t *profile);
 
   /**
    * Store the workflow/dag execution transcript in a file (XML)
@@ -287,8 +180,8 @@ public:
    * (If file contains sth, content is overwritten)
    */
   diet_error_t
-  saveWorkflowExecutionTranscript(diet_wf_desc_t * profile,
-                                  const char * transcriptFileName);
+  saveWorkflowExecutionTranscript(diet_wf_desc_t *profile,
+                                  const char *transcriptFileName);
 
   /**
    * Store the workflow data file (XML format) after workflow execution.
@@ -298,60 +191,60 @@ public:
    * (if file already exists, content will be overwritten)
    */
   diet_error_t
-  saveWorkflowDataFile(diet_wf_desc_t * profile,
-                       const char * dataFileName);
+  saveWorkflowDataFile(diet_wf_desc_t *profile,
+                       const char *dataFileName);
 
   /**
    * Get a scalar result from a dag
    */
   int
-  getWfOutputScalar(diet_wf_desc_t* profile,
-                    const char * id,
-                    void** value);
+  getWfOutputScalar(diet_wf_desc_t *profile,
+                    const char *id,
+                    void **value);
 
   /**
    * Get a string result from a dag
    */
   int
-  getWfOutputString(diet_wf_desc_t* profile,
-                    const char * id,
-                    char** value);
+  getWfOutputString(diet_wf_desc_t *profile,
+                    const char *id,
+                    char **value);
 
   /**
    * Get a file result from a dag
    */
   int
-  getWfOutputFile(diet_wf_desc_t* profile,
-                  const char * id,
-                  size_t* size, char** path);
+  getWfOutputFile(diet_wf_desc_t *profile,
+                  const char *id,
+                  size_t *size, char **path);
 
   /**
    * Get a matrix result from a dag
    */
   int
-  getWfOutputMatrix(diet_wf_desc_t* profile,
-                    const char * id,
-                    void** value,
-                    size_t* nb_rows,
+  getWfOutputMatrix(diet_wf_desc_t *profile,
+                    const char *id,
+                    void **value,
+                    size_t *nb_rows,
                     size_t *nb_cols,
-                    diet_matrix_order_t* order);
+                    diet_matrix_order_t *order);
 
   /**
    * Get a container result from a dag
    */
   int
-  getWfOutputContainer(diet_wf_desc_t* profile,
-                       const char * id,
-                       char** dataID);
+  getWfOutputContainer(diet_wf_desc_t *profile,
+                       const char *id,
+                       char **dataID);
 
   /**
    * Get sink results from a functional workflow
    * @return dataID contains the DAGDA ID of a container containing all results
    */
   int
-  getWfSinkContainer(diet_wf_desc_t* profile,
-                     const char * id,
-                     char** dataID);
+  getWfSinkContainer(diet_wf_desc_t *profile,
+                     const char *id,
+                     char **dataID);
 
   /**
    * terminate a workflow session and free the memory
@@ -359,7 +252,7 @@ public:
    * @param profile profile of workflow to execute
    */
   void
-  wf_free(diet_wf_desc_t * profile);
+  wf_free(diet_wf_desc_t *profile);
 
 private:
   std::string name;
@@ -370,7 +263,8 @@ private:
   /**
    * Private constructor
    */
-  explicit CltWfMgr(const std::string& name);
+  explicit
+  CltWfMgr(const std::string &name);
 
   /**
    * Get current time (in milliseconds)
@@ -382,8 +276,8 @@ private:
    * Return the object IOR
    */
   /*const char *
-    myIOR();*/
-  const std::string&
+     myIOR();*/
+  const std::string &
   myName() const;
 
 
@@ -399,29 +293,29 @@ private:
    * Initialize status for functional workflow
    */
   void
-  initDagStatus(FWorkflow* wf);
+  initDagStatus(FWorkflow *wf);
 
   /**
    * Set the dag status regarding dags sent for a given functional workflow
    */
   void
-  setWfSubmissionComplete(FWorkflow* wf);
+  setWfSubmissionComplete(FWorkflow *wf);
 
   /**
    * Get the status regarding dags sent for a given functional workflow
    */
   bool
-  isWfSubmissionComplete(FWorkflow* wf);
+  isWfSubmissionComplete(FWorkflow *wf);
 
   /**
    * Common part of node execution
    */
   CORBA::Long
-  execNodeCommon(const char * node_id,
-                 const char * dag_id,
-                 const char * sed,
+  execNodeCommon(const char *node_id,
+                 const char *dag_id,
+                 const char *sed,
                  const CORBA::ULong reqID,
-                 corba_estimation_t& ev);
+                 corba_estimation_t &ev);
 
   /**
    * Common part of the dag submission
@@ -443,7 +337,7 @@ private:
   /**
    * Unique instance reference
    */
-  static CltWfMgr * myInstance;
+  static CltWfMgr *myInstance;
 
   /**
    * Default data file name
@@ -464,7 +358,7 @@ private:
   /**
    * Log service reference
    */
-  DietLogComponent* myLC;
+  DietLogComponent *myLC;
 #endif
 
   /**
@@ -486,12 +380,12 @@ private:
   /**
    * Map for metadags
    */
-  std::map<CORBA::Long, MetaDag*> myMetaDags;
+  std::map<CORBA::Long, MetaDag *> myMetaDags;
 
   /**
    * Dags status for functional workflows
    */
-  std::map<FWorkflow*, bool> allDagsSent;
+  std::map<FWorkflow *, bool> allDagsSent;
 
   /**
    * Dag sent counter
@@ -517,30 +411,29 @@ private:
 
 /* Forwarder part. */
 class CltWfMgrFwdr : public POA_CltManFwdr,
-                     public PortableServer::RefCountServantBase {
+public PortableServer::RefCountServantBase {
 public:
-  CltWfMgrFwdr(Forwarder_ptr fwdr, const char* objName);
+  CltWfMgrFwdr(Forwarder_ptr fwdr, const char *objName);
 
   virtual CORBA::Long
-  execNodeOnSed(const char * node_id, const char * dag_id,
-                const char * sed, const CORBA::ULong reqID,
-                corba_estimation_t& ev);
+  execNodeOnSed(const char *node_id, const char *dag_id,
+                const char *sed, const CORBA::ULong reqID,
+                corba_estimation_t &ev);
 
   virtual CORBA::Long
-  execNode(const char * node_id, const char * dag_id);
+  execNode(const char *node_id, const char *dag_id);
 
   virtual char *
-  release(const char * dag_id, bool successful);
+  release(const char *dag_id, bool successful);
 
   virtual CORBA::Long
   ping();
 
 private:
   Forwarder_ptr forwarder;
-  char* objName;
+  char *objName;
 };
 
 
 
 #endif   /* not defined _CLTWFMGR._HH */
-

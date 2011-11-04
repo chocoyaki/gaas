@@ -1,12 +1,11 @@
-/****************************************************************************/
-/* DIET tutorial dgemm example: server                                      */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Ludovic BERTSCH           Ludovic.Bertsch@ens-lyon.fr               */
-/*    - Eddy CARON                Eddy.Caron@ens-lyon.fr                    */
-/*    - Philippe COMBES           Philippe.Combes@ens-lyon.fr               */
-/*                                                                          */
-/****************************************************************************/
+/**
+*  @file  server.c
+*  @brief   DIET  tutorial dgemm example: server  
+*  @author  - Ludovic BERTSCH  (Ludovic.Bertsch@ens-lyon.fr)
+*           - Philippe COMBES  (Philippe.Combes@ens-lyon.fr)
+*  @section Licence 
+*    |LICENCE|
+*/
 
 #include <string.h>
 #include <unistd.h>

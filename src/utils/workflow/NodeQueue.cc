@@ -3,7 +3,7 @@
 * 
 * @brief  The base class for workflow node queueing container
 * 
-* @author  - Benjamin ISNARD (Benjamin.Isnard@ens-lyon.fr)
+* @author  Benjamin ISNARD (Benjamin.Isnard@ens-lyon.fr)
 * 
 * @section Licence
 *   |LICENSE|                                                                
@@ -12,46 +12,7 @@
 /* The base class for workflow node queueing container                      */
 /* and the derived class that handles priority of nodes                     */
 /****************************************************************************/
-/* $Id$
- * $Log$
- * Revision 1.11  2011/01/21 16:42:24  bdepardo
- * Prefer prefix ++/-- operators for non-primitive types.
- *
- * Revision 1.10  2010/03/08 13:50:19  bisnard
- * debug too verbose
- *
- * Revision 1.9  2008/11/08 19:12:40  bdepardo
- * A few warnings removal
- *
- * Revision 1.8  2008/10/14 13:31:01  bisnard
- * new class structure for dags (DagNode, DagNodePort)
- *
- * Revision 1.7  2008/09/04 14:34:36  bisnard
- * new method removeLastNodes
- *
- * Revision 1.6  2008/07/08 11:15:58  bisnard
- * Correct dag/node destruction with nodequeues
- *
- * Revision 1.5  2008/06/25 09:56:37  bisnard
- * new method size()
- *
- * Revision 1.4  2008/06/18 14:58:05  bisnard
- * Bug in priority queue insertion
- *
- * Revision 1.3  2008/06/03 12:18:12  bisnard
- * Get iterator on ordered queue
- *
- * Revision 1.2  2008/04/28 12:15:00  bisnard
- * new NodeQueue implementation for FOFT
- * nodes sorting done by Dag instead of scheduler
- * method to propagate delay at execution (FOFT)
- *
- * Revision 1.1  2008/04/21 14:36:59  bisnard
- * use nodeQueue to manage multiwf scheduling
- * use wf request identifer instead of dagid to reference client
- * renamed WfParser as DagWfParser
- *
- ****************************************************************************/
+
 
 #include "NodeQueue.hh"
 #include "DagNode.hh"

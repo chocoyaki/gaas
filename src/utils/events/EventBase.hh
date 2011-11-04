@@ -1,21 +1,12 @@
 /**
-* @file EventBase.hh
-* 
-* @brief  Event Base class  
-* 
-* @author - Benjamin Isnard (benjamin.isnard@ens-lyon.fr
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.2  2010/11/24 15:36:59  bdepardo
- * New line at the end of file to prevent warnings
+ * @file EventBase.hh
  *
- * Revision 1.1  2010/07/20 09:13:57  bisnard
- * Adding event dispatcher
+ * @brief  Event Base class
  *
+ * @author  Benjamin Isnard (benjamin.isnard@ens-lyon.fr)
+ *
+ * @section Licence
+ *   |LICENSE|
  */
 
 #ifndef EVENTBASE_HH_
@@ -37,10 +28,11 @@ public:
     FATAL
   };
 
-  EventBase() : mySeverity(INFO) {
+  EventBase(): mySeverity(INFO) {
   }
 
-  explicit EventBase(Severity severity) : mySeverity(severity) {
+  explicit
+  EventBase(Severity severity): mySeverity(severity) {
   }
 
   short
@@ -55,11 +47,10 @@ protected:
   virtual ~EventBase() {
   }
 
-  Severity    mySeverity;
+  Severity mySeverity;
 };
 
-std::ostream&
-operator<<(std::ostream& out, const EventBase& e);
+std::ostream &
+operator << (std::ostream & out, const EventBase &e);
 
 #endif  // EVENTBASE_HH_
-

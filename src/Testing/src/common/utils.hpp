@@ -1,6 +1,6 @@
-/* 
+/*
  * utils.hpp
- * 
+ *
  * Created on: 10 january 2010
  * Author: hguemar
  *
@@ -19,37 +19,48 @@
 #include <boost/process/all.hpp>
 
 namespace utils {
-    namespace bp = boost::process;
+namespace bp = boost::process;
 
-    /* free function allowing us to build a boost::process::child 
-       from an existing boost::process::child */
-    bp::child *copy_child(const bp::child& c);
+/* free function allowing us to build a boost::process::child
+   from an existing boost::process::child */
+bp::child *
+copy_child(const bp::child &c);
 
-    /* encapsulate client arguments required for diet_initialize() */
-    class ClientArgs
-    {
-	static const int nbArgs = 2;
-	char *args[3];
-	boost::scoped_array<char> configFile;
-	boost::scoped_array<char> exec;
+/* encapsulate client arguments required for diet_initialize() */
+class ClientArgs {
+static const int nbArgs = 2;
+char *args[3];
+boost::scoped_array<char> configFile;
+boost::scoped_array<char> exec;
 
-	public:
-	ClientArgs(std::string progName,
-		   std::string config=std::string(""));
-	
-	int argc() const { return nbArgs; }
-	// fugly 
-	char **argv() const { return const_cast< char **>(args); }
-	char *config() const { return configFile.get(); }
-	
-	friend std::ostream& operator<<(std::ostream&, const ClientArgs&);
-    };
+public:
+ClientArgs(std::string progName,
+           std::string config = std::string(""));
 
-    std::ostream& operator<<(std::ostream&, const ClientArgs&);
+int
+argc() const {
+  return nbArgs;
+}
+// fugly
+char **
+argv() const {
+  return const_cast< char **>(args);
+}
+char *
+config() const {
+  return configFile.get();
+}
 
-  /* Generate a name with a uuid: begin+uuid */
-  std::string
-  genID(const std::string& begin);    
+friend std::ostream &
+operator<<(std::ostream &, const ClientArgs &);
+};
+
+std::ostream &
+operator<<(std::ostream &, const ClientArgs &);
+
+/* Generate a name with a uuid: begin+uuid */
+std::string
+genID(const std::string &begin);
 }
 
 

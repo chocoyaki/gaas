@@ -1,31 +1,19 @@
 /**
-* @file  DIET_compat.hh
-* 
-* @brief  DIET compatibility header
-* 
-* @author  - Haikel Guemard (haikel.guemard@sysfera.com)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.2  2011/05/10 13:14:58  bdepardo
- * Added missing header
+ * @file  DIET_compat.hh
  *
- ****************************************************************************/
+ * @brief  DIET compatibility header
+ *
+ * @author  Haikel Guemard (haikel.guemard@sysfera.com)
+ *
+ * @section Licence
+ *   |LICENSE|
+ */
+
 
 #ifndef _DIET_COMPAT_HH_
 #define _DIET_COMPAT_HH_
 
-/**
- * @file   DIET_compat.hh
- * @author hguemar <hguemar@sysfera.com>
- * @date   Thu Mar 17 09:08:56 2011
- *
- * @brief  unix compatibility header (this is private API!)
- *
- */
+
 
 namespace diet {
 /**

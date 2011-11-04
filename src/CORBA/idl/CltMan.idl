@@ -1,41 +1,13 @@
-/****************************************************************************/
-/* CLIENT Manager Interface (used in workflow support)                     */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Abdelkader Amar (Abdelkader.Amar@ens-lyon.fr)                       */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
-/* $Id$
- * $Log$
- * Revision 1.8  2010/07/12 15:54:11  glemahec
- * DIET 2.5 beta 1 - Forwarder IDL files
+/**
+ * @file CltMan.idl
  *
- * Revision 1.7  2008/12/02 14:17:48  bisnard
- * manage multi-dag cancellation when one dag fails
+ * @brief  CLIENT Manager Interface (used in workflow support)
  *
- * Revision 1.6  2008/12/02 10:18:37  bisnard
- * added exception
+ * @author Abdelkader Amar (Abdelkader.Amar@ens-lyon.fr)
  *
- * Revision 1.5  2008/06/25 09:59:40  bisnard
- * new params in execNodeOnSeD to provide ReqId and estimation vector
- * to client for solve request
- *
- * Revision 1.4  2008/06/02 08:34:23  bisnard
- * Execute method (for wf node) now returns an error code in case of
- * communication failure with the SeD
- *
- * Revision 1.3  2008/06/01 09:20:37  rbolze
- * the remote method release now return a string which contains
- * feedback on the dag execution
- *
- * Revision 1.2  2008/04/15 14:20:19  bisnard
- * - Postpone sed mapping until wf node is executed
- *
- * Revision 1.1  2008/04/10 08:17:14  bisnard
- * New version of the MaDag where workflow node execution is triggered by the MaDag agent and done by a new CORBA object CltWfMgr located in the client
- *
- ****************************************************************************/
+ * @section Licence
+ *   |LICENSE|
+ */
 
 #ifndef _CLTMAN_IDL_
 #define _CLTMAN_IDL_

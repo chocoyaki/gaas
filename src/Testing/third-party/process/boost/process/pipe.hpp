@@ -25,7 +25,6 @@
 
 namespace boost {
 namespace process {
-
 #if defined(BOOST_PROCESS_DOXYGEN)
 /**
  * The pipe class is a type definition for stream-based classes defined by
@@ -42,8 +41,7 @@ typedef boost::asio::windows::stream_handle pipe;
 #else
 #   error "Unsupported platform."
 #endif
-
 }
 }
 
-#endif
+#endif // ifndef BOOST_PROCESS_PIPE_HPP

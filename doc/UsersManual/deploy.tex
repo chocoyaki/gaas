@@ -1,94 +1,13 @@
-%****************************************************************************%
-%* DIET User's Manual deploying chapter file                                *%
-%*                                                                          *%
-%*  Author(s):                                                              *%
-%*    - Holly DAIL (Holly.Dail@ens-lyon.fr)                                 *%
-%*    - Raphael BOLZE (Raphael.Bolze@ens-lyon.fr)                           *%
-%*    - Eddy CARON (Eddy Caron@ens-lyon.fr)                                 *%
-%*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       *%
-%*    - Benjamin DEPARDON (Benjamin.Depardon@ens-lyon.fr)                   *%
-%*                                                                          *%
-%* $LICENSE$                                                                *%
-%****************************************************************************%
-%* $Id$
-%* $Log$
-%* Revision 1.27  2011/05/02 10:01:43  bdepardo
-%* Corrected a few typos.
-%* Renamed "round-robin" scheduler into "least recently used" scheduler as this
-%* is closer to the behavior of this scheduler.
-%*
-%* Revision 1.26  2010/09/19 10:35:46  bdepardo
-%* Added a section on how to choose the shape of the hierarchy
-%*
-%* Revision 1.25  2010/03/29 21:18:17  ecaron
-%* Update GoDIET commands
-%*
-%* Revision 1.24  2010/02/25 08:05:27  ycaniou
-%* e.g -> Use macro
-%* Typo + ispell
-%*
-%* Revision 1.23  2010/02/25 06:45:38  ycaniou
-%* Add local variables
-%*
-%* Revision 1.22  2010/01/21 14:05:58  bdepardo
-%* DIET -> \diet
-%* SeD -> \sed
-%* GoDIET -> \godiet
-%*
-%* Revision 1.21  2008/07/16 23:02:48  ecaron
-%* Fixe the problem with too long list of hosts
-%*
-%* Revision 1.20  2008/03/04 16:12:37  bdepardo
-%* Added a link to the file examples/commented.xml for GoDIET.
-%*
-%* Revision 1.19  2006/11/29 16:55:49  dloureir
-%* minor corrections
-%*
-%* Revision 1.18  2006/05/12 12:12:32  sdahan
-%* Add some documentation about multi-MA
-%*
-%* Bug fix:
-%*  - segfault when the neighbours configuration line was empty
-%*  - deadlock when a MA create a link on itself
-%*
-%* Revision 1.17  2005/07/13 07:56:15  hdail
-%* Corrected error in xml example and added console instructions to GoDIET section.
-%*
-%* Revision 1.16  2005/07/12 21:44:28  hdail
-%* - Correcting small problems throughout
-%* - Modified deployment chapter to have a real section for deploying via GoDIET
-%* - Adding short xml example without the comments to make a figure in GoDIET
-%*   section.
-%*
-%* Revision 1.15  2005/06/28 15:53:02  hdail
-%* Completed corrections for config file examples and text explaining launch of
-%* each component.
-%*
-%* Revision 1.14  2005/06/28 13:57:55  hdail
-%* Described GoDIET and updating section on launching by hand.
-%*
-%* Revision 1.13  2005/06/24 14:27:07  hdail
-%* Correcting english problems & updating descriptions that are no longer true.
-%*
-%* Revision 1.12  2005/06/14 08:26:32  ecaron
-%* Deployment section should introduce GoDIET (Fixme for Holly)
-%*
-%* Revision 1.11  2005/05/29 13:51:22  ycaniou
-%* Moved the section concerning FAST from description to a new chapter about FAST
-%* and performances prediction.
-%* Moved the section about convertors in the FAST chapter.
-%* Modified the small introduction in chapter 1.
-%* The rest of the changes are purely in the format of .tex files.
-%*
-%* Revision 1.10  2004/10/25 08:59:56  sdahan
-%* add the multi-MA documentation
-%*
-%* Revision 1.9  2004/09/28 07:03:39  rbolze
-%* remove useAsyncAPI parameter
-%*
-%* Revision 1.8  2004/07/12 08:33:58  rbolze
-%* explain how to copy cfgs file in install_dir/etc directory and correct my english
-%****************************************************************************%
+%**
+%*  @file  deploy.tex
+%*  @brief    DIET User's Manual deploying chapter file 
+%*  @author  -  Holly DAIL (Holly.Dail@ens-lyon.fr) 
+%*           -  Raphael BOLZE (Raphael.Bolze@ens-lyon.fr)
+%*           -  Eddy CARON (Eddy Caron@ens-lyon.fr)
+%*           -  Philippe COMBES (Philippe.Combes@ens-lyon.fr)
+%*           -  Benjamin DEPARDON (Benjamin.Depardon@ens-lyon.fr)
+%*  @section Licence 
+%*    |LICENCE|
 
 \chapter{Deploying a \diet platform}
 \label{ch:deploying}

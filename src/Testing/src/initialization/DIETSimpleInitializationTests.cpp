@@ -14,26 +14,25 @@
 #include "fixtures.hpp"
 #include "utils.hpp"
 
-BOOST_FIXTURE_TEST_CASE( simple_client_config_file , DietMAFixture )
-{
-    BOOST_TEST_MESSAGE( "Test : simple_client_config_file" );
+BOOST_FIXTURE_TEST_CASE(simple_client_config_file, DietMAFixture) {
+  BOOST_TEST_MESSAGE("Test : simple_client_config_file");
 
-    utils::ClientArgs c("simple_client_config_file", "client_testing.cfg");
+  utils::ClientArgs c("simple_client_config_file", "client_testing.cfg");
 
-    diet_error_t error = diet_initialize(c.config(), c.argc(), c.argv());
-    
-    // check if diet_initialize don't return any error
-    BOOST_CHECK_MESSAGE( GRPC_NO_ERROR == error,
-			   "diet_initialize() should return "
-			   << diet_error_string(GRPC_NO_ERROR)
-			   << " instead of "
-			   << diet_error_string(error) );
+  diet_error_t error = diet_initialize(c.config(), c.argc(), c.argv());
 
-    error = diet_finalize();
+  // check if diet_initialize don't return any error
+  BOOST_CHECK_MESSAGE(GRPC_NO_ERROR == error,
+                      "diet_initialize() should return "
+                      << diet_error_string(GRPC_NO_ERROR)
+                      << " instead of "
+                      << diet_error_string(error));
 
-    BOOST_CHECK_MESSAGE( GRPC_NO_ERROR == error,
-    			   "diet_finalize() should return " 
-    			   << diet_error_string(GRPC_NO_ERROR)
-    			   << " instead of "
-    			   << diet_error_string(error) );
+  error = diet_finalize();
+
+  BOOST_CHECK_MESSAGE(GRPC_NO_ERROR == error,
+                      "diet_finalize() should return "
+                      << diet_error_string(GRPC_NO_ERROR)
+                      << " instead of "
+                      << diet_error_string(error));
 }

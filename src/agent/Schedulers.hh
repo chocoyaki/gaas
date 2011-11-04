@@ -1,65 +1,14 @@
 /**
-* @file  Schedulers.hh
-* 
-* @brief  DIET agent schedulers implementation : add yours !!!  
-* 
-* @author  - Philippe COMBES (Philippe.Combes@ens-lyon.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.9  2006/11/16 09:55:54  eboix
- *   DIET_config.h is no longer used. --- Injay2461
+ * @file  Schedulers.hh
  *
- * Revision 1.8  2006/01/19 21:35:42  pfrauenk
- * CoRI : when --enable-cori - round-robin is the default scheduler -
- *        CoRI is not called (any more) for collecting information
- *        (so no FAST possible any more)
+ * @brief  DIET agent schedulers implementation : add yours !!!
  *
- * Revision 1.7  2005/08/31 14:47:41  alsu
- * New plugin scheduling interface: adapting the various schedulers to
- * access performance data using the new estimation vector interface
+ * @author   Philippe COMBES (Philippe.Combes@ens-lyon.fr)
  *
- * Revision 1.6  2005/05/16 12:27:24  alsu
- * removing hard-coded nameLength fields
- *
- * Revision 1.5  2005/05/15 15:50:49  alsu
- * implementing PriorityScheduler
- *
- * Revision 1.4  2004/12/08 15:02:52  alsu
- * plugin scheduler first-pass validation testing complete.  merging into
- * main CVS trunk; ready for more rigorous testing.
- *
- * Revision 1.3.2.4  2004/11/06 16:32:18  alsu
- * adding generic min and generic max aggregators
- *
- * Revision 1.3.2.3  2004/11/02 00:37:28  alsu
- * removing references to obviated fields in the estimation data structure
- *
- * Revision 1.3.2.2  2004/10/31 22:21:52  alsu
- * - restructured the old COMP_* definitions to be more "logcial" rather
- *   than absolute (i.e., COMP_FIRST_IS_INF => COMPARE_FIRST_IS_BETTER)
- * - added class methods to the Scheduler class to construct (and cache)
- *   estimation value vectors during the server sorting process
- * - implementation of the new default round-robin scheduler that is
- *   consistent with the dynamic performance data design
- *
- * Revision 1.3.2.1  2004/10/27 22:35:51  alsu
- * include
- *
- * Revision 1.3  2004/10/15 08:21:17  hdail
- * - Removed references to corba_response_t->sortedIndexes - no longer useful.
- * - Removed sort functions -- they have been replaced by aggregate and are never
- *   called.
- *
- * Revision 1.2  2003/05/05 14:50:15  pcombes
- * Changing the computation of server weights changes NWSScheduler fields.
- *
- * Revision 1.1  2003/04/10 12:57:15  pcombes
- * Interface, plus three examples, for agent schedulers.
- ****************************************************************************/
+ * @section Licence
+ *   |LICENSE|
+ */
+
 
 #ifndef _SCHEDULERS_HH_
 #define _SCHEDULERS_HH_
@@ -71,22 +20,19 @@
 #include "Vector.h"
 
 
-/**
- * Return values for compare functions.
- */
-#define COMPARE_EQUAL             0
-#define COMPARE_FIRST_IS_BETTER   1
-#define COMPARE_SECOND_IS_BETTER  2
-#define COMPARE_UNDEFINED         3
+#define COMPARE_EQUAL 0
+#define COMPARE_FIRST_IS_BETTER 1
+#define COMPARE_SECOND_IS_BETTER 2
+#define COMPARE_UNDEFINED 3
 
 /** Type of a compare function. */
 typedef int (*comp_fun_t)(int serverIdx1,
                           int serverIdx2,
                           int responseIdx1,
                           int responseIdx2,
-                          const corba_response_t* responses,
+                          const corba_response_t *responses,
                           Vector_t estVectorCache,
-                          const void* data);
+                          const void *data);
 
 
 /**
@@ -116,31 +62,31 @@ public:
    *                       estVector objects
    */
   virtual int
-  aggregate(corba_response_t& aggrResp,
-            int* lastAggregated,
+  aggregate(corba_response_t &aggrResp,
+            int *lastAggregated,
             const size_t nb_responses,
-            const corba_response_t* responses,
-            int* lastAggr,
+            const corba_response_t *responses,
+            int *lastAggr,
             Vector_t evCache);
 
   /**
    * Return the serialized scheduler (a string)
    * NB: doubles are serialized with a precision of 10 significant decimals.
    */
-  static char*
-  serialize(Scheduler* S);
+  static char *
+  serialize(Scheduler *S);
 
   /**
    * Return the Scheduler deserialized from the string \c serializedScheduler.
    */
-  static Scheduler*
-  deserialize(const char* serializedScheduler);
+  static Scheduler *
+  deserialize(const char *serializedScheduler);
 
   /**
    * Return an estVector for the indicated server estimation
    */
   static estVectorConst_t
-  getEstVector(int sIdx, int rIdx, const corba_response_t* responses);
+  getEstVector(int sIdx, int rIdx, const corba_response_t *responses);
 
   /**
    * Return an estVector for the indicated server estimation, using
@@ -148,12 +94,12 @@ public:
    */
   static estVectorConst_t
   getEstVector(int sIdx, int rIdx,
-               const corba_response_t* responses, Vector_t evCache);
+               const corba_response_t *responses, Vector_t evCache);
 
 protected:
-  const char* name;
+  const char *name;
   int nameLength;
-  SeqServerEstimation_t* servers;
+  SeqServerEstimation_t *servers;
 
   /**
    * Compare two servers. This is not a method, for it has to be passed down to
@@ -165,7 +111,7 @@ protected:
   comp_fun_t compare;
 
   /** Additional information for comparison. */
-  void* cmpInfo;
+  void *cmpInfo;
 };
 
 /**
@@ -175,7 +121,8 @@ class RandScheduler : public Scheduler {
 public:
   RandScheduler();
 
-  explicit RandScheduler(unsigned int seed);
+  explicit
+  RandScheduler(unsigned int seed);
 
   virtual ~RandScheduler();
 
@@ -183,17 +130,17 @@ public:
    * Return the serialized Rand scheduler (a string)
    * NB: doubles are serialized with a precision of 10 significant decimals.
    */
-  static char*
-  serialize(RandScheduler* S);
+  static char *
+  serialize(RandScheduler *S);
 
   /**
    * Return the RandScheduler deserialized from the string
    * \c serializedScheduler.
    */
-  static RandScheduler*
-  deserialize(const char* serializedScheduler);
+  static RandScheduler *
+  deserialize(const char *serializedScheduler);
 
-  static const char*  stName;
+  static const char *stName;
 
 private:
   unsigned int seed;
@@ -204,7 +151,8 @@ class RRScheduler : public Scheduler {
 public:
   RRScheduler();
 
-  explicit RRScheduler(unsigned int seed);
+  explicit
+  RRScheduler(unsigned int seed);
 
   virtual ~RRScheduler();
 
@@ -212,17 +160,17 @@ public:
    * Return the serialized RR scheduler (a string)
    * NB: doubles are serialized with a precision of 10 significant decimals.
    */
-  static char*
-  serialize(RRScheduler* S);
+  static char *
+  serialize(RRScheduler *S);
 
   /**
    * Return the RRScheduler deserialized from the string
    * \c serializedScheduler.
    */
-  static RRScheduler*
-  deserialize(const char* serializedScheduler);
+  static RRScheduler *
+  deserialize(const char *serializedScheduler);
 
-  static const char*  stName;
+  static const char *stName;
 
 private:
   unsigned int seed;
@@ -230,7 +178,8 @@ private:
 
 class MinScheduler : public Scheduler {
 public:
-  explicit MinScheduler(int tagval);
+  explicit
+  MinScheduler(int tagval);
 
   virtual ~MinScheduler();
 
@@ -238,17 +187,17 @@ public:
    * Return the serialized Min scheduler (a string)
    * NB: doubles are serialized with a precision of 10 significant decimals.
    */
-  static char*
-  serialize(MinScheduler* S);
+  static char *
+  serialize(MinScheduler *S);
 
   /**
    * Return the MinScheduler deserialized from the string
    * \c serializedScheduler.
    */
-  static MinScheduler*
-  deserialize(const char* serializedScheduler);
+  static MinScheduler *
+  deserialize(const char *serializedScheduler);
 
-  static const char* stName;
+  static const char *stName;
 
 private:
   int tagval;
@@ -256,7 +205,8 @@ private:
 
 class MaxScheduler : public Scheduler {
 public:
-  explicit MaxScheduler(int tagval);
+  explicit
+  MaxScheduler(int tagval);
 
   virtual ~MaxScheduler();
 
@@ -264,17 +214,17 @@ public:
    * Return the serialized Max scheduler (a string)
    * NB: doubles are serialized with a precision of 10 significant decimals.
    */
-  static char*
-  serialize(MaxScheduler* S);
+  static char *
+  serialize(MaxScheduler *S);
 
   /**
    * Return the MaxScheduler deserialized from the string
    * \c serializedScheduler.
    */
-  static MaxScheduler*
-  deserialize(const char* serializedScheduler);
+  static MaxScheduler *
+  deserialize(const char *serializedScheduler);
 
-  static const char* stName;
+  static const char *stName;
 
 private:
   int tagval;
@@ -283,12 +233,12 @@ private:
 class PriorityScheduler : public Scheduler {
 public:
   class priorityList {
-  public:
+public:
     int pl_numValues;
     int *pl_values;
   };
 
-  static const char*  stName;
+  static const char *stName;
 
   PriorityScheduler(int numValues, int *values);
 
@@ -298,15 +248,15 @@ public:
    * Return the serialized Max scheduler (a string)
    * NB: doubles are serialized with a precision of 10 significant decimals.
    */
-  static char*
-  serialize(PriorityScheduler* S);
+  static char *
+  serialize(PriorityScheduler *S);
 
   /**
    * Return the PriorityScheduler deserialized from the string
    * \c serializedScheduler.
    */
-  static PriorityScheduler*
-  deserialize(const char* serializedScheduler);
+  static PriorityScheduler *
+  deserialize(const char *serializedScheduler);
 
 private:
   PriorityScheduler::priorityList pl;

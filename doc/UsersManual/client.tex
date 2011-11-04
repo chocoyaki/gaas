@@ -1,84 +1,12 @@
-%****************************************************************************%
-%* DIET User's Manual client chapter file                                   *%
-%*                                                                          *%
-%*  Author(s):                                                              *%
-%*    - Eddy CARON      (Eddy.Caron@ens-lyon.fr)                            *%
-%*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       *%
-%*    - Christophe Pera (Christophe.Pera@ens-lyon.fr)                       *%
-%*                                                                          *%
-%* $LICENSE$                                                                *%
-%****************************************************************************%
-%* $Id$
-%* $Log$
-%* Revision 1.21  2011/05/02 07:35:09  bdepardo
-%* Corrected a few typos
-%*
-%* Revision 1.20  2010/04/01 10:11:50  bdepardo
-%* Changed	deprecated INSTALL_FILES and INSTALL_TARGETS to	INSTALL.
-%*
-%* Revision 1.19  2010/03/29 21:04:16  ecaron
-%* Remove information about autotools compilation (outdated)
-%*
-%* Revision 1.18  2010/02/25 06:45:38  ycaniou
-%* Add local variables
-%*
-%* Revision 1.17  2010/01/21 14:05:58  bdepardo
-%* DIET -> \diet
-%* SeD -> \sed
-%* GoDIET -> \godiet
-%*
-%* Revision 1.16  2008/07/11 10:11:53  ecaron
-%* - Ajout def API (un user a demandé)
-%* - Pas mal de modifications sur le chapitre des workflows
-%* 	* Corrections
-%* 	* Prises en compte des remarques de Brice
-%* - Fixme pour Benjamin corriger la vision 2 archi -> 1 archi
-%*
-%* Revision 1.15  2006/11/15 22:36:50  eboix
-%*   Documentation concerning user compilation updated. --- Injay2461
-%*
-%* Revision 1.14  2005/07/12 21:44:28  hdail
-%* - Correcting small problems throughout
-%* - Modified deployment chapter to have a real section for deploying via GoDIET
-%* - Adding short xml example without the comments to make a figure in GoDIET
-%*   section.
-%*
-%* Revision 1.13  2005/06/27 08:59:41  hdail
-%* Updating interfaces to agree with current versions and adding memory cleanup
-%* to end of example programs.
-%*
-%* Revision 1.12  2005/06/14 08:15:40  ecaron
-%* Typo
-%*
-%* Revision 1.11  2004/07/08 15:59:10  mcolin
-%* correct the asynchronous example from the tutorial and user manual
-%* FIXME :
-%*  - still a bug with the INOUT parameter : the matrix is not modified
-%*  - User Manuel [5.1] : the first example service/solve_service doesn't
-%*  match with the actual version of DIET (pb with pointer and diet_string_get
-%*  which doesn't exist)
-%*
-%* Revision 1.10  2004/02/10 00:44:24  ecaron
-%* Add suggestions from Christophe Pera. Thanks !
-%*
-%* Revision 1.9  2004/02/02 15:57:15  ecaron
-%* Add suggestion from Christophe Pera. Thanks !
-%*
-%* Revision 1.8  2004/01/29 17:08:47  ecaron
-%* Add suggestions from Frederic Desprez. Thanks !
-%*
-%* Revision 1.7  2004/01/27 00:21:17  ecaron
-%* Add suggestions from Jean-Yves (Thanks!)
-%*
-%* Revision 1.6  2004/01/21 00:25:13  ecaron
-%* Add suggestions from Holly Dail. Thanks !
-%*
-%* Revision 1.5  2004/01/07 10:27:33  cpera
-%* Add asynchronous call example and useAsyncAPI config parameter.
-%*
-%* Revision 1.4  2004/01/05 13:06:53  ecaron
-%* Update example to DIET 1.0
-%****************************************************************************%
+%**
+%*  @file  client.tex
+%*  @brief   DIET User's Manual: batch/parallel submissions 
+%*  @author  - Eddy CARON      (Eddy.Caron@ens-lyon.fr)
+%*           - Philippe COMBES (Philippe.Combes@ens-lyon.fr)
+%*           - Christophe Pera (Christophe.Pera@ens-lyon.fr)
+%*  @section Licence 
+%*    |LICENCE|
+
 
 \chapter{Building a client program}
 \label{ch:client}

@@ -1,22 +1,13 @@
 /**
-* @file ChildID.hh
-* 
-* @brief  DIET ChildID implementation header
-* 
-* @author - Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.2  2005/04/28 13:07:05  eboix
- *     Inclusion of CORBA.h substitued with omniORB4/CORBA.h. --- Injay 2461
+ * @file ChildID.hh
  *
- * Revision 1.1  2003/04/10 13:11:06  pcombes
- * Replace SonID.hh. Apply Coding Standards.
+ * @brief  DIET ChildID implementation header
  *
- ****************************************************************************/
+ * @author  Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)
+ *
+ * @section Licence
+ *   |LICENSE|
+ */
 
 
 #ifndef _CHILD_ID_
@@ -24,10 +15,7 @@
 
 #include <omniORB4/CORBA.h>
 
-/**
- * This is the identifier type for the agent children. It is a CORBA::Long
- * with -1 instead of 0 as default value.
- */
+
 
 class ChildID {
 public:
@@ -37,14 +25,16 @@ public:
    *
    * @param n the initial value of the ChildID.
    */
-  explicit ChildID(CORBA::Long n = -1) : value(n) {}
+  explicit
+  ChildID(CORBA::Long n = -1): value(n) {
+  }
 
   /**
    * Clones a ChildID.
    *
    * @param childID the ChildID to clone
    */
-  ChildID(const ChildID& childID) {
+  ChildID(const ChildID &childID) {
     value = childID.value;
   }
 
@@ -53,14 +43,14 @@ public:
    *
    * @param aChildID The ChildID where the value is taken.
    */
-  inline ChildID&
-  operator=(const ChildID& aChildID) {
+  inline ChildID &
+  operator = (const ChildID &aChildID) {
     value = aChildID.value;
     return *this;
   }
 
-  inline ChildID&
-  operator=(const CORBA::Long& val) {
+  inline ChildID &
+  operator = (const CORBA::Long & val) {
     value = val;
     return *this;
   }
@@ -68,7 +58,8 @@ public:
   /**
    * Converts the ChildID to a \c CORBA::Long value.
    */
-  inline operator CORBA::Long() const {
+  inline operator
+  CORBA::Long() const {
     return value;
   }
 

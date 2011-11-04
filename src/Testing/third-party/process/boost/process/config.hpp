@@ -50,7 +50,7 @@
 
 /** \cond */
 #define BOOST_PROCESS_SOURCE_LOCATION \
-    "in file '" __FILE__ "', line " BOOST_STRINGIZE(__LINE__) ": "
+  "in file '" __FILE__ "', line " BOOST_STRINGIZE(__LINE__) ": "
 
 #if defined(BOOST_POSIX_API)
 #   define BOOST_PROCESS_LAST_ERROR errno
@@ -59,16 +59,18 @@
 #endif
 
 #define BOOST_PROCESS_THROW_LAST_SYSTEM_ERROR(what) \
-    boost::throw_exception(boost::system::system_error( \
-        boost::system::error_code(BOOST_PROCESS_LAST_ERROR, \
-            boost::system::get_system_category()), \
-        BOOST_PROCESS_SOURCE_LOCATION what))
+  boost::throw_exception(boost::system::system_error( \
+                           boost::system::error_code(BOOST_PROCESS_LAST_ERROR, \
+                                                     boost::system:: \
+                                                     get_system_category()), \
+                           BOOST_PROCESS_SOURCE_LOCATION what))
 
 #define BOOST_PROCESS_THROW_ERROR(error, what) \
-    boost::throw_exception(boost::system::system_error( \
-        boost::system::error_code(error, \
-            boost::system::get_system_category()), \
-        BOOST_PROCESS_SOURCE_LOCATION what))
+  boost::throw_exception(boost::system::system_error( \
+                           boost::system::error_code(error, \
+                                                     boost::system:: \
+                                                     get_system_category()), \
+                           BOOST_PROCESS_SOURCE_LOCATION what))
 /** \endcond */
 
-#endif
+#endif // ifndef BOOST_PROCESS_CONFIG_HPP

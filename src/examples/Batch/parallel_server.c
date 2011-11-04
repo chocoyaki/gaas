@@ -1,27 +1,14 @@
 /**
-* @file parallel_server.c
-* 
-* @brief   DIET server for parallel submission on a non NFS cluster  
-* 
-* @author  - Yves Caniou (Yves.Caniou@ens-lyon.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.10  2011/03/25 17:35:59  hguemar
- * clarify boolean expression in batch sample applications
+ * @file parallel_server.c
  *
- * Revision 1.9  2011/01/23 19:19:59  bdepardo
- * Fixed memory and resources leaks, variables scopes, unread variables
+ * @brief   DIET server for parallel submission on a non NFS cluster
  *
- * Revision 1.8  2006/11/28 20:40:31  ycaniou
- * Only headers
+ * @author   Yves Caniou (Yves.Caniou@ens-lyon.fr)
  *
- * Revision 1.7  2006/11/27 08:13:59  ycaniou
- * Added missing fields Id and Log in headers
- ****************************************************************************/
+ * @section Licence
+ *   |LICENSE|
+ */
+
 
 #include <string.h>
 #include <unistd.h>
@@ -34,30 +21,33 @@
 #include "DIET_server.h"
 #include <sys/stat.h>
 
-ssize_t writen(int fd, const void *vptr, size_t n);
+ssize_t
+writen(int fd, const void *vptr, size_t n);
 
 int
-makeMachineFile(int * file_descriptor_ptr, char ** filename_ptr)
-{
+makeMachineFile(int *file_descriptor_ptr, char **filename_ptr) {
   /* In this example, we use static names */
-  char * machines_identity = "gdsdmi15\ngdsdmi16\ngdsdmi17";
+  char *machines_identity = "gdsdmi15\ngdsdmi16\ngdsdmi17";
   int sl = strlen(machines_identity);
 
   *file_descriptor_ptr = mkstemp(*filename_ptr);
-  if (*file_descriptor_ptr == -1) return -1;
+  if (*file_descriptor_ptr == -1) {
+    return -1;
+  }
 
-  if (writen(*file_descriptor_ptr, machines_identity, sl) != sl)
+  if (writen(*file_descriptor_ptr, machines_identity, sl) != sl) {
     return 1;
+  }
 
   return 0;
-}
+} /* makeMachineFile */
 
 /****************************************************************************
- * PREDICTION PERFORMANCE FUNCTION
- ****************************************************************************/
+* PREDICTION PERFORMANCE FUNCTION
+****************************************************************************/
 
-void make_perf(diet_profile_t *pb)
-{
+void
+make_perf(diet_profile_t *pb) {
   /* TODO: an API in order to provide the SeD with communication means
   ** with batch scheduler for prediction performances  */
 
@@ -68,26 +58,26 @@ void make_perf(diet_profile_t *pb)
 
 
 /****************************************************************************
- * SOLVE FUNCTION
- ****************************************************************************/
+* SOLVE FUNCTION
+****************************************************************************/
 
-int solve_concatenation(diet_profile_t *pb)
-{
-  size_t arg_size1  = 0;
-  size_t arg_size2  = 0;
-  char * prologue = NULL;
-  char * copying = NULL;
-  char * cmd = NULL;
-  char * epilogue = NULL;
-  char * script = NULL;
-  char * path1 = NULL;
-  char * path2 = NULL;
-  char * path_result = NULL;
-  char * local_output_filename = NULL;
-  double * ptr_nbreel = NULL;
+int
+solve_concatenation(diet_profile_t *pb) {
+  size_t arg_size1 = 0;
+  size_t arg_size2 = 0;
+  char *prologue = NULL;
+  char *copying = NULL;
+  char *cmd = NULL;
+  char *epilogue = NULL;
+  char *script = NULL;
+  char *path1 = NULL;
+  char *path2 = NULL;
+  char *path_result = NULL;
+  char *local_output_filename = NULL;
+  double *ptr_nbreel = NULL;
   int status = 0;
   int result;
-  char * machine_filename;
+  char *machine_filename;
   int machine_file_descriptor;
   struct stat buf;
 
@@ -95,18 +85,22 @@ int solve_concatenation(diet_profile_t *pb)
 
   /* IN args */
   diet_file_get(diet_parameter(pb, 0), NULL, &arg_size1, &path1);
-  if ((status = stat(path1, &buf)))
+  if ((status = stat(path1, &buf))) {
     return status;
-  if (!(buf.st_mode & S_IFREG)) /* regular file */
+  }
+  if (!(buf.st_mode & S_IFREG)) { /* regular file */
     return 2;
+  }
   printf("Name of the first file: %s\n", path1);
 
   diet_scalar_get(diet_parameter(pb, 1), &ptr_nbreel, NULL);
   diet_file_get(diet_parameter(pb, 2), NULL, &arg_size2, &path2);
-  if ((status = stat(path2, &buf)))
+  if ((status = stat(path2, &buf))) {
     return status;
-  if (!(buf.st_mode & S_IFREG)) /* regular file */
+  }
+  if (!(buf.st_mode & S_IFREG)) { /* regular file */
     return 2;
+  }
   printf("Name of the second file: %s\n", path2);
 
   /* OUT args */
@@ -122,14 +116,14 @@ int solve_concatenation(diet_profile_t *pb)
   /*******************************************/
   /* Put the command to submit into a script */
   /*******************************************/
-  machine_filename = (char*)malloc(sizeof(char)*100);
+  machine_filename = (char *) malloc(sizeof(char) * 100);
   if (machine_filename == NULL) {
     fprintf(stderr, "Memory allocation problem.. not solving the service\n\n");
     return 2;
   }
   /* Seem to only work on local filesystem (not on NFS) */
   sprintf(machine_filename, "/tmp/DIET_machineFile_XXXXXX");
-  if (makeMachineFile(& machine_file_descriptor, & machine_filename) != 0) {
+  if (makeMachineFile(&machine_file_descriptor, &machine_filename) != 0) {
     fprintf(stderr,
             "Making machineFile problem.. not solving the service\n\n");
     free(machine_filename);
@@ -137,7 +131,7 @@ int solve_concatenation(diet_profile_t *pb)
   }
 
   /* Some unecessary things, only for the example */
-  prologue = (char*)malloc(200*sizeof(char));
+  prologue = (char *) malloc(200 * sizeof(char));
   if (prologue == NULL) {
     fprintf(stderr, "Memory allocation problem.. not solving the service\n\n");
     free(machine_filename);
@@ -146,7 +140,7 @@ int solve_concatenation(diet_profile_t *pb)
   sprintf(prologue,
           "echo \"Name of the frontale station: $DIET_NAME_FRONTALE\"\n\n");
 
-  copying = (char*)malloc(600*sizeof(char));
+  copying = (char *) malloc(600 * sizeof(char));
   if (copying == NULL) {
     fprintf(stderr, "Memory allocation problem.. not solving the service\n\n");
     free(prologue);
@@ -173,7 +167,7 @@ int solve_concatenation(diet_profile_t *pb)
 
   /* The MPI command itself */
   local_output_filename = "/tmp/result.txt";
-  cmd = (char*)malloc(500*sizeof(char));
+  cmd = (char *) malloc(500 * sizeof(char));
   if (cmd == NULL) {
     fprintf(stderr, "Memory allocation problem.. not solving the service\n\n");
     free(prologue);
@@ -194,7 +188,7 @@ int solve_concatenation(diet_profile_t *pb)
   /* Put the Output file in the right place */
   /* Note: if output on NFS, with "ln -s" (see batch_server_2)
      or by Diet (see batch_server_3) */
-  epilogue = (char*)malloc(200*sizeof(char));
+  epilogue = (char *) malloc(200 * sizeof(char));
   if (epilogue == NULL) {
     fprintf(stderr, "Memory allocation problem.. not solving the service\n\n");
     free(prologue);
@@ -209,11 +203,11 @@ int solve_concatenation(diet_profile_t *pb)
           , path_result);
 
   /* Make Diet submit */
-  script = (char*)malloc((strlen(prologue)
-                           + strlen(copying)
-                           + strlen(cmd)
-                           + strlen(epilogue)
-                           + 1) * sizeof(char));
+  script = (char *) malloc((strlen(prologue)
+                            + strlen(copying)
+                            + strlen(cmd)
+                            + strlen(epilogue)
+                            + 1) * sizeof(char));
   sprintf(script, "%s%s%s%s", prologue, copying, cmd, epilogue);
 
 
@@ -222,8 +216,9 @@ int solve_concatenation(diet_profile_t *pb)
 
   /* Submission */
   result = diet_submit_parallel(pb, script);
-  if (result == 0)
+  if (result == 0) {
     printf("Error when submitting the script\n");
+  }
 
   /* Free memory */
   free(prologue);
@@ -231,28 +226,29 @@ int solve_concatenation(diet_profile_t *pb)
   free(cmd);
   free(epilogue);
   free(script);
-  while ((-1 == (status = close(machine_file_descriptor))) && (errno == EINTR))
-   ;
-  if (status == -1)
+  while ((-1 == (status = close(machine_file_descriptor))) &&
+         (errno == EINTR)) {
+  }
+  if (status == -1) {
     fprintf(stderr, "Error closing machineFile\n");
+  }
 
 
   free(machine_filename);
 
   /* Don't free path1, path2 and path_result */
   return 0;
-}
+} /* solve_concatenation */
 
 /****************************************************************************
- * MAIN
- ****************************************************************************/
+* MAIN
+****************************************************************************/
 
 int
-main(int argc, char* argv[])
-{
+main(int argc, char *argv[]) {
   int res = 0;
   int nb_max_services = 1;
-  diet_profile_desc_t* profile = NULL;
+  diet_profile_desc_t *profile = NULL;
 
 
   if (argc < 2) {
@@ -276,7 +272,9 @@ main(int argc, char* argv[])
   /* All done */
 
   /* Add service to the service table */
-  if (diet_service_table_add(profile, NULL, solve_concatenation)) return 1;
+  if (diet_service_table_add(profile, NULL, solve_concatenation)) {
+    return 1;
+  }
 
   /* Free the profile, since it was deep copied */
   diet_profile_desc_free(profile);
@@ -288,30 +286,30 @@ main(int argc, char* argv[])
   res = diet_SeD(argv[1], argc, argv);
 
   return res;
-}
+} /* main */
 
 /****************************************************************************
- * Utilities: do not change!
- ****************************************************************************/
-ssize_t /*Write "n" bytes to a descriptor. */
-writen(int fd, const void *vptr, size_t n)
-{
-  size_t        nleft;
-  ssize_t       nwritten;
-  const char    *ptr;
+* Utilities: do not change!
+****************************************************************************/
+ssize_t
+/*Write "n" bytes to a descriptor. */
+writen(int fd, const void *vptr, size_t n) {
+  size_t nleft;
+  ssize_t nwritten;
+  const char *ptr;
 
   ptr = vptr;
   nleft = n;
   while (nleft > 0) {
     if ((nwritten = write(fd, ptr, nleft)) <= 0) {
-      if (errno == EINTR)
+      if (errno == EINTR) {
         nwritten = 0;   /* and call write() again */
-      else
+      } else {
         return(-1);     /* error */
+      }
     }
     nleft -= nwritten;
-    ptr   += nwritten;
+    ptr += nwritten;
   }
   return(n);
-}
-
+} /* writen */

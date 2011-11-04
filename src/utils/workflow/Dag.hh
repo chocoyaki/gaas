@@ -3,117 +3,13 @@
 * 
 * @brief  Dag description 
 * 
-* @author  - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)
-*          - Benjamin ISNARD (Benjamin.Isnard@ens-lyon.fr)
+* @author  Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)
+*          Benjamin ISNARD (Benjamin.Isnard@ens-lyon.fr)
 * 
 * @section Licence
 *   |LICENSE|                                                                
 */
-/* $Id$
- * $Log$
- * Revision 1.29  2010/07/20 09:20:11  bisnard
- * integration with eclipse gui and with dietForwarder
- *
- * Revision 1.28  2010/03/31 21:15:41  bdepardo
- * Changed C headers into C++ headers
- *
- * Revision 1.27  2010/03/08 13:50:48  bisnard
- * handle node ready event (for logging)
- *
- * Revision 1.26  2009/09/25 12:49:11  bisnard
- * avoid deadlocks due to new thread mgmt in DagNodeLauncher
- *
- * Revision 1.25  2009/08/26 10:33:08  bisnard
- * implementation of workflow status & restart
- *
- * Revision 1.24  2009/07/07 09:02:00  bisnard
- * modified toXML method
- *
- * Revision 1.23  2009/05/15 11:02:55  bisnard
- * added makespan calculation
- *
- * Revision 1.22  2009/04/17 08:54:43  bisnard
- * renamed Node class as WfNode
- *
- * Revision 1.21  2009/02/06 14:55:08  bisnard
- * setup exceptions
- *
- * Revision 1.20  2009/01/22 09:01:09  bisnard
- * added client method to retrieve workflow container output
- *
- * Revision 1.19  2009/01/16 13:55:36  bisnard
- * changes in dag event handling methods
- *
- * Revision 1.18  2008/12/09 12:12:14  bisnard
- * added reference to FWorkflow
- *
- * Revision 1.17  2008/12/02 10:11:41  bisnard
- * modified node precedence check
- *
- * Revision 1.16  2008/10/22 09:29:00  bisnard
- * replaced uint by standard type
- *
- * Revision 1.15  2008/10/20 08:01:12  bisnard
- * removed createNode method from NodeSet class
- *
- * Revision 1.14  2008/10/14 13:31:01  bisnard
- * new class structure for dags (DagNode, DagNodePort)
- *
- * Revision 1.13  2008/09/30 15:32:53  bisnard
- * - using simple port id instead of composite ones
- * - dag nodes linking refactoring
- * - prevNodes and nextNodes data structures modified
- * - prevNodes initialization by Node::setNodePredecessors
- *
- * Revision 1.12  2008/09/19 13:11:07  bisnard
- * - added support for containers split/merge in workflows
- * - added support for multiple port references
- * - profile for node execution initialized by port (instead of node)
- * - ports linking managed by ports (instead of dag)
- *
- * Revision 1.11  2008/07/17 12:19:18  bisnard
- * Added dag cancellation method
- *
- * Revision 1.10  2008/07/11 07:56:01  bisnard
- * provide list of failed nodes in case of cancelled dag
- *
- * Revision 1.9  2008/06/25 10:07:12  bisnard
- * - removed debug messages
- * - Node index in wf_response stored in Node class (new attribute submitIndex)
- *
- * Revision 1.8  2008/06/19 10:17:13  bisnard
- * new attribute to store DAG start time
- *
- * Revision 1.7  2008/06/02 08:35:39  bisnard
- * Avoid MaDag crash in case of client-SeD comm failure
- *
- * Revision 1.6  2008/06/01 09:18:43  rbolze
- * remove myreqID attribute from the RunnableNode
- * add getReqID() method which return the reqID stored in the diet_profile_t
- * add 2 methods: showDietReqID and getAllDietReqID
- * this is use to send feedback through logservice
- *
- * Revision 1.5  2008/05/16 12:32:10  bisnard
- * API function to retrieve all workflow results
- *
- * Revision 1.4  2008/04/28 12:15:00  bisnard
- * new NodeQueue implementation for FOFT
- * nodes sorting done by Dag instead of scheduler
- * method to propagate delay at execution (FOFT)
- *
- * Revision 1.3  2008/04/21 14:36:59  bisnard
- * use nodeQueue to manage multiwf scheduling
- * use wf request identifer instead of dagid to reference client
- * renamed WfParser as DagWfParser
- *
- * Revision 1.2  2008/04/14 09:10:40  bisnard
- *  - Workflow rescheduling (CltReoMan) no longer used with MaDag v2
- *  - AbstractWfSched and derived classes no longer used with MaDag v2
- *
- * Revision 1.1  2008/04/10 08:38:50  bisnard
- * New version of the MaDag where workflow node execution is triggered by the MaDag agent and done by a new CORBA object CltWfMgr located in the client
- *
- ****************************************************************************/
+
 
 #ifndef _DAG_HH_
 #define _DAG_HH_

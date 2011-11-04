@@ -1,19 +1,13 @@
 /**
-* @file HostnameRR.cc
-* 
-* @brief  Hostname scheduler 
-* 
-* @author  - David Loureiro (david.loureiro@sysfera.com) 
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.3  2011/05/10 13:14:57  bdepardo
- * Added missing header
+ * @file HostnameRR.cc
  *
- ****************************************************************************/
+ * @brief  Hostname scheduler
+ *
+ * @author  David Loureiro (david.loureiro@sysfera.com)
+ *
+ * @section Licence
+ *   |LICENSE|
+ */
 
 #include <map>
 #include <string>
@@ -24,27 +18,30 @@
 
 std::map<std::string, unsigned int> hostCounter;
 
-class HostnameRR : public UserScheduler {
+class HostnameRR: public UserScheduler {
 public:
-  static const char* stName;
+static const char *stName;
 
-  HostnameRR();
-  ~HostnameRR();
-  void init();
+HostnameRR();
+~HostnameRR();
+void
+init();
 
-  static char* serialize(HostnameRR* GS);
-  static HostnameRR* deserialize(const char* serializedScheduler);
-  /* Overriden aggregate method to schedule jobs with the SRA policy. */
-  int aggregate(corba_response_t* aggrResp, size_t max_srv,
-                const size_t nb_responses, const corba_response_t* responses);
+static char *
+serialize(HostnameRR *GS);
+static HostnameRR *
+deserialize(const char *serializedScheduler);
+/* Overriden aggregate method to schedule jobs with the SRA policy. */
+int
+aggregate(corba_response_t *aggrResp, size_t max_srv,
+          const size_t nb_responses, const corba_response_t *responses);
 };
 
 using namespace std;
 
-const char* HostnameRR::stName="UserGS";
+const char *HostnameRR::stName = "UserGS";
 
 HostnameRR::~HostnameRR() {
-
 }
 
 HostnameRR::HostnameRR() {
@@ -52,10 +49,10 @@ HostnameRR::HostnameRR() {
   this->nameLength = strlen(this->name);
 }
 
-int HostnameRR::aggregate(corba_response_t* aggrResp, size_t max_srv,
-                          const size_t nb_responses,
-                          const corba_response_t* responses)
-{
+int
+HostnameRR::aggregate(corba_response_t *aggrResp, size_t max_srv,
+                      const size_t nb_responses,
+                      const corba_response_t *responses) {
   ServerList::iterator itSeD;
   unsigned int nbUsage = 0;
   corba_server_estimation_t selected;
@@ -66,13 +63,14 @@ int HostnameRR::aggregate(corba_response_t* aggrResp, size_t max_srv,
 
   for (itSeD = candidates.begin(); itSeD != candidates.end(); ++itSeD)
     // We select the SeD by its host usage.
-    if (hostCounter[HOSTNAME(*itSeD)]<=nbUsage)
-      selected=*itSeD;
+    if (hostCounter[HOSTNAME(*itSeD)] <= nbUsage) {
+      selected = *itSeD;
+    }
 
   aggrResp->servers.length(1);
-  aggrResp->servers[0]=selected;
+  aggrResp->servers[0] = selected;
 
   return 0;
-}
+} // aggregate
 
 SCHEDULER_CLASS(HostnameRR)

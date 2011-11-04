@@ -3,32 +3,18 @@
 * 
 * @brief  Environment variables parser 
 * 
-* @author - Haikel Guemar (haikel.guemar@sysfera.com)
+* @author  Haikel Guemar (haikel.guemar@sysfera.com)
 * 
 * @section Licence
 *   |LICENSE|                                                                
 */
-/* $Id$
- * $Log$
- * Revision 1.4  2011/03/07 15:34:55  hguemar
- * fix typo in mail address
- *
- * Revision 1.3  2011/03/03 11:55:52  bdepardo
- * Add missing headers
- *
- ****************************************************************************/
+
 
 
 #ifndef _ENV_PARSER_HH_
 #define _ENV_PARSER_HH_
 
-/**
- * @file   EnvParser.hh
- * @author hguemar <hguemar@sysfera.com>
- * @date   Mon Jan 31 09:17:06 2011
- *
- * @brief  Environment variables parser
- */
+
 
 #include <map>
 #include <string>

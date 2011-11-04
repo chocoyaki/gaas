@@ -1,22 +1,14 @@
 /**
-* @file service.cc
-* 
-* @brief  Service example for dynamic loading This is only a 'Hello world'  
-* 
-* @author  - Benjamin Depardon (benjamin.depardon@ens-lyon.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.1  2008/12/08 15:32:43  bdepardo
- * Added an example to dynamically load a service given a library:
- * the library is sent by the client, and the SeD loads it and uses the new
- * service(s) added.
+ * @file service.cc
  *
+ * @brief  Service example for dynamic loading This is only a 'Hello world'
  *
- ****************************************************************************/
+ * @author  Benjamin Depardon (benjamin.depardon@ens-lyon.fr)
+ *
+ * @section Licence
+ *   |LICENSE|
+ */
+
 
 #include "service.hh"
 
@@ -30,9 +22,8 @@
 static const char service_name[] = "Dynamic_creation";
 
 static diet_profile_desc_t *
-set_profile_desc()
-{
-  diet_profile_desc_t* profile = NULL;
+set_profile_desc() {
+  diet_profile_desc_t *profile = NULL;
   unsigned int pos = 0;
 
   /* Set profile parameters: */
@@ -42,8 +33,8 @@ set_profile_desc()
   return profile;
 }
 
-const char * const serviceName()
-{
+const char * const
+serviceName() {
   return service_name;
 }
 
@@ -52,26 +43,27 @@ const char * const serviceName()
  * SOLVE FUNCTION
  */
 int
-service(diet_profile_t* pb)
-{
+service(diet_profile_t *pb) {
   char *str;
 
-  if (pb->pb_name)
+  if (pb->pb_name) {
     std::cout << "## Executing " << pb->pb_name << std::endl;
-  else {
+  } else {
     std::cout << "## ERROR: No name for the service" << std::endl;
     return -1;
   }
-    
+
   diet_string_get(diet_parameter(pb, 0), &str, NULL);
 
-  std::cout << "*****************************************************" << std::endl
+  std::cout << "*****************************************************" <<
+  std::endl
             << service_name << std::endl
             << " Message: '" << str << "'" << std::endl
-            << "*****************************************************" << std::endl;
+            << "*****************************************************" <<
+  std::endl;
 
   return 0;
-}
+} // service
 
 
 /*
@@ -79,25 +71,25 @@ service(diet_profile_t* pb)
  * declare the DIET's service
  */
 int
-addService()
-{
-  diet_profile_desc_t* profile = set_profile_desc();
+addService() {
+  diet_profile_desc_t *profile = set_profile_desc();
 
   /* Add service to the service table */
-  if (diet_service_table_add(profile, NULL, service)) return 1;
+  if (diet_service_table_add(profile, NULL, service)) {
+    return 1;
+  }
 
   /* Free the profile, since it was deep copied */
   diet_profile_desc_free(profile);
 
   return 0;
-}
+} // addService
 
 
 
 int
-removeService()
-{
-  diet_profile_desc_t* profile = set_profile_desc();
+removeService() {
+  diet_profile_desc_t *profile = set_profile_desc();
 
   std::cout << "## Removing service " << profile->path << std::endl;
   diet_service_table_remove_desc(profile);
@@ -106,5 +98,4 @@ removeService()
   diet_profile_desc_free(profile);
 
   return 0;
-}
-
+} // removeService

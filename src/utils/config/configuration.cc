@@ -3,24 +3,12 @@
 * 
 * @brief  Configuration manager 
 * 
-* @author - Haikel Guemar (haikel.guemar@sysfera.com)
+* @author  Haikel Guemar (haikel.guemar@sysfera.com)
 * 
 * @section Licence
 *   |LICENSE|                                                                
 */
-/* $Id$
- * $Log$
- * Revision 1.7  2011/03/11 11:25:47  bdepardo
- * Fixed a problem in configuration parser. The agent type was not correctly
- * parsed.
- *
- * Revision 1.6  2011/03/07 15:34:55  hguemar
- * fix typo in mail address
- *
- * Revision 1.5  2011/03/03 11:55:52  bdepardo
- * Add missing headers
- *
- ****************************************************************************/
+
 
 
 #include <regex.h>

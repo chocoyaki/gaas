@@ -1,41 +1,14 @@
 /**
-* @file  AccessController.cc
-* 
-* @brief  Interface for limiting access to a resource to a configurable consumers 
-* 
-* @author  - Holly DAIL (Holly.Dail@ens-lyon.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.5  2010/03/31 21:15:40  bdepardo
- * Changed C headers into C++ headers
+ * @file  AccessController.cc
  *
- * Revision 1.4  2007/04/16 22:43:44  ycaniou
- * Make all necessary changes to have the new option HAVE_ALT_BATCH operational.
- * This is indented to replace HAVE_BATCH.
+ * @brief  Interface for limiting access to a resource to a configurable consumers
  *
- * First draw to manage batch systems with a new Cori plug-in.
+ * @author  - Holly DAIL (Holly.Dail@ens-lyon.fr)
  *
- * Revision 1.3  2005/04/25 09:08:12  hdail
- * Print warning if jobs exit SeD-level queue out of order, but don't re-insert
- * them.  This approach needs to be redone later.
- *
- * Revision 1.2  2004/12/08 15:02:52  alsu
- * plugin scheduler first-pass validation testing complete.  merging into
- * main CVS trunk; ready for more rigorous testing.
- *
- * Revision 1.1.2.1  2004/12/01 14:53:44  alsu
- * removing spurious argument that caused compilation warning (and thus
- * failure in maintainer mode) on certain "sensitive" versions of gcc.
- *
- * Revision 1.1  2004/10/04 13:55:06  hdail
- * - Added AccessController class, an enhanced counting semaphore.
- * - Added config file options for controlling concurrent SeD access.
- *
- ****************************************************************************/
+ * @section Licence
+ *   |LICENSE|
+ */
+
 
 #include "AccessController.hh"
 
@@ -73,7 +46,7 @@ AccessController::AccessController(int initialResources) {
 }
 
 void
-AccessController::waitForResource(){
+AccessController::waitForResource() {
   int myReqID = -1;
 
   this->globalLock.lock();      /** LOCK */
@@ -81,10 +54,13 @@ AccessController::waitForResource(){
   this->numWaiting++;
   this->globalLock.unlock();    /** UNLOCK */
 
-  TRACE_TEXT(TRACE_ALL_STEPS, "Thread " <<  (omni_thread::self())->id()
-             << " / Request " << myReqID << " enqueued ("
-             << this->numWaiting << " waiting, "
-             << this->numFreeSlots << " slots free)" << endl);
+  TRACE_TEXT(TRACE_ALL_STEPS,
+             "Thread " << (omni_thread::self())->id()
+                       << " / Request " << myReqID <<
+             " enqueued ("
+                       << this->numWaiting << " waiting, "
+                       << this->numFreeSlots <<
+             " slots free)" << endl);
 
   this->resourceSemaphore->wait();
 
@@ -95,16 +71,18 @@ AccessController::waitForResource(){
   // However, semaphores do not guarantee FIFO ordering so for portability
   // another solution must be found to guarantee FIFO.
   if (myReqID != (this->maxIDReleased + 1)) {
-    WARNING("Thread " << (omni_thread::self())->id()
-            << " / Request " << myReqID << " exiting queue out-of-order.");
+    WARNING(
+      "Thread " << (omni_thread::self())->id()
+                << " / Request " << myReqID <<
+      " exiting queue out-of-order.");
   }
 
-  if (this->numFreeSlots <= 0){
+  if (this->numFreeSlots <= 0) {
     fprintf(stderr,
             "AccessController:: confusion between "
             "semaphore and numFreeSlots ...");
   }
-  if (this->numWaiting <= 0){
+  if (this->numWaiting <= 0) {
     fprintf(stderr,
             "AccessController:: Unexplained problem "
             "counting waiting threads.");
@@ -113,40 +91,47 @@ AccessController::waitForResource(){
   this->globalLock.lock();      /** LOCK */
   this->numFreeSlots--;
   this->numWaiting--;
-  if (myReqID > this->maxIDReleased){
+  if (myReqID > this->maxIDReleased) {
     maxIDReleased = myReqID;
   }
   this->globalLock.unlock();    /** UNLOCK */
 
-  TRACE_TEXT(TRACE_ALL_STEPS, "Thread " <<  (omni_thread::self())->id()
-             << " / Request " << myReqID << " got resource ("
-             << this->numWaiting << " waiting, "
-             << this->numFreeSlots << " slots free)" << endl);
-}
+  TRACE_TEXT(TRACE_ALL_STEPS,
+             "Thread " << (omni_thread::self())->id()
+                       << " / Request " << myReqID <<
+             " got resource ("
+                       << this->numWaiting << " waiting, "
+                       << this->numFreeSlots <<
+             " slots free)" << endl);
+} // waitForResource
 
 void
-AccessController::releaseResource(){
+AccessController::releaseResource() {
   this->globalLock.lock();      /** LOCK */
   this->numFreeSlots++;
   this->globalLock.unlock();    /** UNLOCK */
 
-  TRACE_TEXT(TRACE_ALL_STEPS, "Thread " <<  (omni_thread::self())->id()
-             << " released resource ("
-             << this->numWaiting << " waiting, "
-             << this->numFreeSlots << " slots free)" << endl);
+  TRACE_TEXT(TRACE_ALL_STEPS,
+             "Thread " << (omni_thread::self())->id()
+                       << " released resource ("
+                       << this->numWaiting << " waiting, "
+                       << this->numFreeSlots <<
+             " slots free)" << endl);
 
   this->resourceSemaphore->post();
-}
+} // releaseResource
 
-int AccessController::getFreeSlotCount(){
+int
+AccessController::getFreeSlotCount() {
   return this->numFreeSlots;
 }
 
-int AccessController::getNumWaiting(){
+int
+AccessController::getNumWaiting() {
   return this->numWaiting;
 }
 
-int AccessController::getTotalResourceCount(){
+int
+AccessController::getTotalResourceCount() {
   return this->resourcesInitial;
 }
-

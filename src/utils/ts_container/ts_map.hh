@@ -3,33 +3,12 @@
 * 
 * @brief  Thread safe STL map header 
 * 
-* @author  - Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)
+* @author  Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)
 * 
 * @section Licence
 *   |LICENSE|                                                                
 */
-/* $Id$
- * $Log$
- * Revision 1.8  2010/03/31 21:15:41  bdepardo
- * Changed C headers into C++ headers
- *
- * Revision 1.7  2005/10/05 14:06:47  alsu
- * elimination of the troubling parameter of the ts_map template that is
- * different between the various versions STL libraries distributed with
- * different flavors of gcc 3/4.
- *
- * Revision 1.6  2004/09/29 13:35:32  sdahan
- * Add the Multi-MAs feature.
- *
- * Revision 1.5  2003/11/10 14:05:56  bdelfabr
- * adding iterator (made by sylvain)
- *
- * Revision 1.4  2003/04/10 12:44:44  pcombes
- * Apply Coding Standards.
- *
- * Revision 1.3  2002/12/25 21:12:38  sdahan
- * removes some ambiguities. now compile with gcc 3.1
- ****************************************************************************/
+
 
 
 #ifndef _TS_MAP_HH_

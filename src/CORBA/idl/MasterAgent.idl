@@ -1,78 +1,13 @@
-/****************************************************************************/
-/* DIET master agent IDL description                                        */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)                   */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
-/* $Id$
- * $Log$
- * Revision 1.18  2011/05/09 13:10:10  bdepardo
- * Added method diet_get_SeD_services to retreive the services of a SeD given
- * its name
+/**
+ * @file MasterAgent.idl
  *
- * Revision 1.17  2010/11/24 15:12:56  bdepardo
- * searchData is now available on all agents. SeDs are now able to retrieve
- * a DAGDA data from an alias specified by a client.
- * Currently a SeD cannot declare an alias.
+ * @brief  DIET master agent IDL description    
  *
- * Revision 1.16  2010/07/12 15:54:11  glemahec
- * DIET 2.5 beta 1 - Forwarder IDL files
+ * @author  Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)
  *
- * Revision 1.15  2009/08/26 09:27:30  bisnard
- * allow Dagda exception forwarding in get_data_arg
- *
- * Revision 1.14  2008/06/25 09:55:57  bisnard
- * removed unused parameter in submit_pb_set & corrected bug with ReqIDs
- *
- * Revision 1.13  2008/04/29 22:22:01  glemahec
- * DAGDA improvements :
- *   - Asynchronous API.
- *   - Data ID alias managing.
- *   - Data manager state backup and restore.
- *
- * Revision 1.12  2008/04/28 07:08:28  glemahec
- * The DAGDA API.
- *
- * Revision 1.11  2008/04/14 13:44:30  bisnard
- * - Parameter 'used' obsoleted in MultiWfScheduler::submit_wf & submit_pb_set
- *
- * Revision 1.10  2008/04/10 08:17:14  bisnard
- * New version of the MaDag where workflow node execution is triggered by the MaDag agent and done by a new CORBA object CltWfMgr located in the client
- *
- * Revision 1.9  2007/07/13 16:44:40  ecaron
- * Remove deprecated code (ALTPREDICT part)
- *
- * Revision 1.8  2006/11/06 15:45:53  aamar
- * Workflow support: modify submit_pb_set prototype to manage the reqID.
- *
- * Revision 1.7  2006/10/20 08:11:27  aamar
- * Remove the submit_wf function from Master Agent interface.
- * Changing the submit_pb_set prototype by adding the set size to handle
- * the request id in workflow submission.
- *
- * Revision 1.6  2006/04/14 14:13:10  aamar
- * Interface extension for workflow support.
- * Adding two methods : submit_wf (TO REMOVE) and submit_pb_set.
- *
- * Revision 1.5  2005/09/05 15:59:48  hdail
- * Addition of client hostname and location information to submit call
- * (experimental and protected by HAVE_ALTPREDICT).
- *
- * Revision 1.4  2004/10/06 16:39:14  rbolze
- * add function to get the profile available on its hierarchy
- *
- * Revision 1.3  2004/09/29 13:35:31  sdahan
- * Add the Multi-MAs feature.
- *
- * Revision 1.2  2004/02/27 10:19:50  bdelfabr
- * description of all methods for data persistency
- *
- * Revision 1.1  2003/04/10 12:31:10  pcombes
- * Replace masterAgent.idl. submit returns only a response.
- *
- ****************************************************************************/
+ * @section Licence
+ *   |LICENSE|
+ */
 
 #ifndef _MASTER_AGENT_IDL_
 #define _MASTER_AGENT_IDL_

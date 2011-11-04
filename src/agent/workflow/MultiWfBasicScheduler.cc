@@ -1,84 +1,15 @@
 /**
-* @file MultiWfBasicScheduler.cc
-* 
-* @brief  The Workflow Meta-schedulerg used when multi-workflow support is enabled
-* 
-* @author - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr) 
-*         - Benjamin Isnard (Benjamin.Isnard@ens-lyon.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.17  2011/03/18 16:58:13  hguemar
- * fixes several issues in src/agent/workflow: reduce some variables scope, use diet::usleep instead of Posix deprecated usleep
+ * @file MultiWfBasicScheduler.cc
  *
- * Revision 1.16  2011/03/16 21:30:51  bdepardo
- * Add a mean to stop the main loop of schedulers
+ * @brief  The Workflow Meta-schedulerg used when multi-workflow support is enabled
  *
- * Revision 1.15  2011/01/20 18:31:50  bdepardo
- * Prefer prefix ++/-- operators for non-primitive types.
- * Removed unused variable
+ * @author  Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)
+ *          Benjamin Isnard (Benjamin.Isnard@ens-lyon.fr)
  *
- * Revision 1.14  2010/08/27 07:41:53  bisnard
- * Fixed warning
- *
- * Revision 1.13  2009/09/25 12:42:09  bisnard
- * - use new DagNodeLauncher classes to manage threads
- * - added dag cancellation method
- *
- * Revision 1.12  2008/10/14 13:24:49  bisnard
- * use new class structure for dags (DagNode, DagNodePort)
- *
- * Revision 1.11  2008/06/25 10:05:44  bisnard
- * - Waiting priority set when node is put back in waiting queue
- * - Node index in wf_response stored in Node class (new attribute submitIndex)
- * - HEFT scheduler uses SeD ref instead of hostname
- * - Estimation vector and ReqID passed to client when SeD chosen by MaDag
- * - New params in execNodeOnSeD to provide ReqId and estimation vector
- * to client for solve request
- *
- * Revision 1.10  2008/06/03 13:37:09  bisnard
- * Multi-workflow sched now keeps nodes in the ready nodes queue
- * until a ressource is available to ensure comparison is done btw
- * nodes of different workflows (using sched-specific metric).
- *
- * Revision 1.9  2008/06/02 08:35:39  bisnard
- * Avoid MaDag crash in case of client-SeD comm failure
- *
- * Revision 1.8  2008/06/01 14:06:57  rbolze
- * replace most ot the cout by adapted function from debug.cc
- * there are some left ...
- *
- * Revision 1.7  2008/05/30 13:22:19  bisnard
- * added micro-delay between workflow node executions to avoid interf
- *
- * Revision 1.6  2008/04/30 07:37:01  bisnard
- * use relative timestamps for estimated and real completion time
- * make MultiWfScheduler abstract and add HEFT MultiWf scheduler
- *
- * Revision 1.5  2008/04/28 12:12:44  bisnard
- * new NodeQueue implementation for FOFT
- * manage thread join after node execution
- * compute slowdown for FOFT
- *
- * Revision 1.4  2008/04/21 14:31:45  bisnard
- * moved common multiwf routines from derived classes to MultiWfScheduler
- * use wf request identifer instead of dagid to reference client
- * use nodeQueue to manage multiwf scheduling
- * renamed WfParser as DagWfParser
- *
- * Revision 1.3  2008/04/15 14:20:19  bisnard
- * - Postpone sed mapping until wf node is executed
- *
- * Revision 1.2  2008/04/14 13:44:29  bisnard
- * - Parameter 'used' obsoleted in MultiWfScheduler::submit_wf & submit_pb_set
- *
- * Revision 1.1  2008/04/10 09:13:29  bisnard
- * New version of the MaDag where workflow node execution is triggered by the MaDag agent and done by a new CORBA object CltWfMgr located in the client
- *
- ****************************************************************************/
+ * @section Licence
+ *   |LICENSE|
+ */
+
 
 #include "MultiWfBasicScheduler.hh"
 #include "Dag.hh"
@@ -91,7 +22,7 @@
 
 using namespace madag;
 
-MultiWfBasicScheduler::MultiWfBasicScheduler(MaDag_impl* maDag)
+MultiWfBasicScheduler::MultiWfBasicScheduler(MaDag_impl *maDag)
   : MultiWfScheduler(maDag, MultiWfScheduler::MULTIWF_NO_METRIC) {
   TRACE_TEXT(TRACE_MAIN_STEPS, "Using BASIC multi-workflow scheduler\n");
 }
@@ -103,7 +34,7 @@ MultiWfBasicScheduler::~MultiWfBasicScheduler() {
  * Execution method
  * (does not use execQueue)
  */
-void*
+void *
 MultiWfBasicScheduler::run() {
   TRACE_TEXT(TRACE_MAIN_STEPS, "MultiWfBasicScheduler is running\n");
   int nodeCount = 0;
@@ -116,21 +47,25 @@ MultiWfBasicScheduler::run() {
     std::list<OrderedNodeQueue *>::iterator qp = readyQueues.begin();
     while (qp != readyQueues.end()) {
       TRACE_TEXT(TRACE_ALL_STEPS, "Checking ready nodes queue:\n");
-      OrderedNodeQueue * readyQ = *qp;
-      DagNode * n = readyQ->popFirstNode();
+      OrderedNodeQueue *readyQ = *qp;
+      DagNode *n = readyQ->popFirstNode();
       if (n != NULL) {
         TRACE_TEXT(TRACE_ALL_STEPS, "  #### Ready node : " << n->getCompleteId()
-                   << " => execute\n");
+                                                           << " => execute\n");
         // EXECUTE NODE (NEW THREAD)
         // create a node launcher
         DagNodeLauncher *launcher = new MaDagNodeLauncher(n, this,
-                                                           myMaDag->getCltMan(n->getDag()->getId()));
+                                                          myMaDag->getCltMan(n
+                                                                             ->
+                                                                             getDag()
+                                                                             ->getId()));
         n->start(launcher);
         nodeCount++;
         // Destroy queues if both are empty
-        ChainedNodeQueue * waitQ = waitingQueues[readyQ];
+        ChainedNodeQueue *waitQ = waitingQueues[readyQ];
         if (waitQ->isEmpty() && readyQ->isEmpty()) {
-          TRACE_TEXT(TRACE_ALL_STEPS, "Node Queues are empty: remove & destroy\n");
+          TRACE_TEXT(TRACE_ALL_STEPS,
+                     "Node Queues are empty: remove & destroy\n");
           qp = readyQueues.erase(qp);      // removes from the list
           this->deleteNodeQueue(readyQ);  // deletes both queues
           continue;
@@ -150,17 +85,16 @@ MultiWfBasicScheduler::run() {
 
       this->postWakeUp();
       this->checkDagsRelease();
-
     }
   }
   return NULL;
-}
+} // run
 
 /**
  * Notify the scheduler that a node is done
  */
 void
-MultiWfBasicScheduler::handlerNodeDone(DagNode * node) {
+MultiWfBasicScheduler::handlerNodeDone(DagNode *node) {
   // does nothing for this class
 }
 
@@ -170,10 +104,10 @@ MultiWfBasicScheduler::handlerNodeDone(DagNode * node) {
  */
 
 OrderedNodeQueue *
-MultiWfBasicScheduler::createNodeQueue(Dag * dag)  {
+MultiWfBasicScheduler::createNodeQueue(Dag *dag) {
   TRACE_TEXT(TRACE_ALL_STEPS, "Creating new node queues (basic)\n");
-  OrderedNodeQueue *  readyQ  = new OrderedNodeQueue();
-  ChainedNodeQueue *  waitQ   = new ChainedNodeQueue(readyQ);
+  OrderedNodeQueue *readyQ = new OrderedNodeQueue();
+  ChainedNodeQueue *waitQ = new ChainedNodeQueue(readyQ);
   for (std::map <std::string, DagNode *>::iterator nodeIt = dag->begin();
        nodeIt != dag->end();
        ++nodeIt) {
@@ -181,7 +115,7 @@ MultiWfBasicScheduler::createNodeQueue(Dag * dag)  {
   }
   this->waitingQueues[readyQ] = waitQ;  // used to destroy waiting queue
   return readyQ;
-}
+} // createNodeQueue
 
 
 /**
@@ -189,9 +123,9 @@ MultiWfBasicScheduler::createNodeQueue(Dag * dag)  {
  *  - WAITING queue => READY queue
  */
 void
-MultiWfBasicScheduler::deleteNodeQueue(OrderedNodeQueue * nodeQ) {
+MultiWfBasicScheduler::deleteNodeQueue(OrderedNodeQueue *nodeQ) {
   TRACE_TEXT(TRACE_ALL_STEPS, "Deleting node queues\n");
-  ChainedNodeQueue *  waitQ = waitingQueues[nodeQ];
+  ChainedNodeQueue *waitQ = waitingQueues[nodeQ];
   waitingQueues.erase(nodeQ);     // removes from the map
   delete waitQ;
   delete nodeQ;

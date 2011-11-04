@@ -1,29 +1,15 @@
 /**
-* @file  DIET_mutex.cc
-* 
-* @brief  DIET mutex interface for multi-threaded server applications (source code)
-* 
-* @author  - Philippe COMBES (Philippe.Combes@ens-lyon.fr)
-*          - Bert VAN HEUKELOM (Bert.Van-Heukelom@ens-lyon.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.6  2010/03/31 21:15:40  bdepardo
- * Changed C headers into C++ headers
+ * @file  DIET_mutex.cc
  *
- * Revision 1.5  2003/07/04 09:48:06  pcombes
- * Use new ERROR and WARNING macros.
+ * @brief  DIET mutex interface for multi-threaded server applications (source code)
  *
- * Revision 1.3  2003/02/19 09:03:40  cpera
- * Add headers include for gcc 2.95.3 compatibility under SunOS.
+ * @author  Philippe COMBES (Philippe.Combes@ens-lyon.fr)
+ *          Bert VAN HEUKELOM (Bert.Van-Heukelom@ens-lyon.fr)
  *
- * Revision 1.1  2002/12/03 19:08:24  pcombes
- * Update configure, update to FAST 0.3.15, clean CVS logs in files.
- * Put main Makefile in root directory.
- ****************************************************************************/
+ * @section Licence
+ *   |LICENSE|
+ */
+
 
 #include "DIET_mutex.h"
 
@@ -35,13 +21,13 @@
 #include "omnithread.h"
 
 
-static omni_mutex** MUTEX_FIELD = NULL;
-static int MUTEXCOUNT  = 0;
+static omni_mutex **MUTEX_FIELD = NULL;
+static int MUTEXCOUNT = 0;
 static int INITIALIZED = 0;
 
 
 #define MUTEX_ERROR(formatted_text)                     \
-  ERROR(__FUNCTION__ << ": " << formatted_text,)
+  ERROR(__FUNCTION__ << ": " << formatted_text, )
 
 #define MUTEX_CHECK_INIT()                                      \
   if (!INITIALIZED) {                                           \
@@ -58,16 +44,16 @@ static int INITIALIZED = 0;
 void
 diet_mutex_initialize() {
   int i;
-  MUTEX_FIELD=(omni_mutex**)malloc(10*sizeof(omni_mutex));
+  MUTEX_FIELD = (omni_mutex **) malloc(10 * sizeof(omni_mutex));
   for (i = 0; i < 10; i++) {
-    MUTEX_FIELD[i]=NULL;
+    MUTEX_FIELD[i] = NULL;
   }
   MUTEXCOUNT = 10;
   INITIALIZED = 1;
 }
 
 void
-diet_mutex_create(int* ret) {
+diet_mutex_create(int *ret) {
   int i;
   omni_mutex **temp;
 
@@ -81,12 +67,12 @@ diet_mutex_create(int* ret) {
     }
   }
 
-  temp = (omni_mutex**)malloc((10+MUTEXCOUNT)*sizeof(omni_mutex));
+  temp = (omni_mutex **) malloc((10 + MUTEXCOUNT) * sizeof(omni_mutex));
   for (i = 0; i < MUTEXCOUNT; i++) {
     temp[i] = MUTEX_FIELD[i];
   }
   for (i = 0; i < 10; i++) {
-    temp[i+MUTEXCOUNT] = NULL;
+    temp[i + MUTEXCOUNT] = NULL;
   }
   free(MUTEX_FIELD);
   MUTEX_FIELD = temp;
@@ -95,14 +81,14 @@ diet_mutex_create(int* ret) {
   *ret = MUTEXCOUNT;
 
   MUTEXCOUNT += 10;
-}
+} // diet_mutex_create
 
 void
-diet_mutex_free(int* i) {
+diet_mutex_free(int *i) {
   MUTEX_CHECK_INIT();
   MUTEX_CHECK_VALIDITY(*i);
 
-  delete(MUTEX_FIELD[*i]);
+  delete (MUTEX_FIELD[*i]);
 
   MUTEX_FIELD[*i] = NULL;
   *i = 0;
@@ -152,4 +138,3 @@ diet_thread_id() {
   myThread = omni_thread::self();
   return myThread->id();
 }
-

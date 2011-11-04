@@ -1,41 +1,14 @@
 /**
-* @file Counter.hh
-* 
-* @brief  Thread safe counter header  
-* 
-* @author  - Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.3  2010/07/30 14:44:26  glemahec
- * Temporary corrections for the new compilation process. Parallel compilation is still broken and there is a big mess on the CMakeLists files...
+ * @file Counter.hh
  *
- * Revision 1.2  2010/03/31 21:15:41  bdepardo
- * Changed C headers into C++ headers
+ * @brief  Thread safe counter header
  *
- * Revision 1.1  2010/03/03 14:26:35  bdepardo
- * BEWARE!!!
- * Huge modifications to take into account CYGWIN.
- * Lots of files' directory have been changed.
+ * @author  Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)
  *
- * Revision 1.8  2007/06/28 14:55:05  ycaniou
- * Rien dans Counter.cc
- *
- * Ajout en inline de += et de -= car a = a +/- b n'est pas atomique.
- *
- * Revision 1.7  2006/11/16 09:55:55  eboix
- *   DIET_config.h is no longer used. --- Injay2461
- *
- * Revision 1.6  2005/04/28 13:14:32  eboix
- *    Inclusion of CORBA.h substituted with omniORB4/CORBA.h --- Injay 2461
- *
- * Revision 1.5  2003/04/10 12:45:10  pcombes
- * Apply Coding Standards.
- *
- ****************************************************************************/
+ * @section Licence
+ *   |LICENSE|
+ */
+
 
 
 #ifndef _COUNTER_HH_
@@ -77,7 +50,7 @@ public:
    * @param n the initial value of the counter. It must be positive or
    * null.
    */
-  Counter(CORBA::ULong n = 0)  : value(n) {
+  Counter(CORBA::ULong n = 0): value(n) {
   }
 
   /**
@@ -85,7 +58,7 @@ public:
    *
    * @param aCounter the object that is copied
    */
-  Counter(const Counter& aCounter);
+  Counter(const Counter &aCounter);
 
   /**
    * Increments the the counter. An assert check that the counter does
@@ -94,14 +67,14 @@ public:
    * @todo replace the assert by an exception.
    */
   Counter
-  operator++(int i);
+    operator++ (int i);
 
   /**
    * Decrements the counter. An assert check that the counter is
    * greater than 0. The argument is not used.
    */
   Counter
-  operator--(int i);
+    operator-- (int i);
 
   /**
    * Increments the counter. An assert check that the counter does
@@ -109,8 +82,8 @@ public:
    *
    * @todo replace the assert by an exception.
    */
-  Counter&
-  operator++();
+  Counter &
+  operator++ ();
   /**
    * Increments the counter by a given value.
    * An assert check that the counter does not overflow its capacity.
@@ -118,13 +91,13 @@ public:
    * @todo replace the assert by an exception.
    */
   Counter &
-  operator+=(const Counter & aCounter);
+  operator += (const Counter &aCounter);
   /**
    * Decrements the counter. An assert check that the counter is
    * greater than 0. The argument is not used.
    */
   Counter &
-  operator--();
+  operator-- ();
   /**
    * Decrements the counter by a given value.
    * An assert check that the counter is greater than 0.
@@ -132,20 +105,21 @@ public:
    * @todo replace the assert by an exception.
    */
   Counter &
-  operator-=(const Counter & aCounter);
+  operator -= (const Counter &aCounter);
   /**
    * The instance get the same value as \c aCounter.
    *
    * @param aCounter The counter where the value is taken.
    */
   Counter &
-  operator=(const Counter & aCounter);
+  operator = (const Counter &aCounter);
 
   /**
    * Converts the counter to a \c CORBA::ULong value. The argument is not
    * used.
    */
-  operator CORBA::ULong() const;
+  operator
+  CORBA::ULong() const;
 
 private:
   CORBA::ULong value; /**<! counter value */

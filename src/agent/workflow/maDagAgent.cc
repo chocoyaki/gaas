@@ -1,88 +1,14 @@
 /**
-* @file maDagAgent.cc
-* 
-* @brief  Main function of the MA DAG agent 
-* 
-* @author - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.21  2011/04/22 08:32:40  bdepardo
- * Do not delete args at the end of the execution as it produces errors
+ * @file maDagAgent.cc
  *
- * Revision 1.20  2011/04/07 08:51:55  bdepardo
- * Take into account the traceLevel sooner
+ * @brief  Main function of the MA DAG agent
  *
- * Revision 1.19  2011/03/16 21:37:56  bdepardo
- * Fixed a few memleaks, and now this agent correctly exits.
+ * @author  Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)
  *
- * Revision 1.18  2011/02/24 16:57:02  bdepardo
- * Use new parser
- *
- * Revision 1.17  2011/02/04 15:20:48  hguemar
- * fixes to new configuration parser
- * some cleaning
- *
- * Revision 1.16  2010/08/27 07:47:31  bisnard
- * 'fixed warning'
- *
- * Revision 1.15  2010/07/12 16:14:11  glemahec
- * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
- *
- * Revision 1.14  2010/03/31 19:37:54  bdepardo
- * Changed "\n" into std::endl
- *
- * Revision 1.13  2008/09/04 15:22:25  bisnard
- * Changed name of multiwf heuristic HEFT to GHEFT
- *
- * Revision 1.12  2008/09/04 14:33:55  bisnard
- * - New option for MaDag to select platform type (servers
- * with same service list or not)
- * - Optimization of the multiwfscheduler to avoid requests to
- * MA for server availability
- *
- * Revision 1.11  2008/07/24 21:08:11  rbolze
- * New multi-wf heuristic FCFS (First Come First Serve)
- *
- * Revision 1.10  2008/07/17 13:33:09  bisnard
- * New multi-wf heuristic SRPT
- *
- * Revision 1.9  2008/07/08 15:52:03  bisnard
- * Set interRoundDelay as parameter of workflow scheduler
- *
- * Revision 1.8  2008/07/07 11:44:09  bisnard
- * changed options syntax
- *
- * Revision 1.7  2008/06/19 10:18:54  bisnard
- * new heuristic AgingHEFT for multi-workflow scheduling
- *
- * Revision 1.6  2008/06/03 08:52:05  bisnard
- * handle config parameter for ORB debugging
- *
- * Revision 1.5  2008/06/01 14:06:57  rbolze
- * replace most ot the cout by adapted function from debug.cc
- * there are some left ...
- *
- * Revision 1.4  2008/05/31 08:45:55  rbolze
- * add DietLogComponent to the maDagAgent
- *
- * Revision 1.3  2008/04/30 07:37:01  bisnard
- * use relative timestamps for estimated and real completion time
- * make MultiWfScheduler abstract and add HEFT MultiWf scheduler
- *
- * Revision 1.2  2008/04/28 11:51:43  bisnard
- * choose wf scheduler type when creating madag
- *
- * Revision 1.1  2008/04/10 09:13:29  bisnard
- * New version of the MaDag where workflow node execution is triggered by the MaDag agent and done by a new CORBA object CltWfMgr located in the client
- *
- * Revision 1.4  2006/11/27 09:53:00  aamar
- * Correct headers of source files used in workflow support.
- *
- ****************************************************************************/
+ * @section Licence
+ *   |LICENSE|
+ */
+
 
 #include <iostream>
 #include <algorithm>
@@ -99,53 +25,59 @@ using namespace std;
 #include "configuration.hh"
 
 /*
-  #include "DIET_client.h"
-  #include "HEFT_Sched.hh"
-*/
+   #include "DIET_client.h"
+   #include "HEFT_Sched.hh"
+ */
 
 extern unsigned int TRACE_LEVEL;
 
 class CStringDeleter {
 public:
-  void
-  operator() (char *it_) const {
-    if (it_ != NULL) {
-      free(it_);
-      it_ = NULL;
-    }
+void
+operator()(char *it_) const {
+  if (it_ != NULL) {
+    free(it_);
+    it_ = NULL;
   }
+}
 };
 
 template <typename C>
 class CStringInserter {
 private:
-  C& c_;
+C &c_;
 public:
-  explicit CStringInserter(C& c) : c_(c) {}
-  
-  void
-  operator() (const char *cstr) {
-    c_.push_back(strdup(cstr));
-  }
-  
-  void
-  operator() (std::ostringstream& oss) {
-    char *cstr = strdup(oss.str().c_str());
-    c_.push_back(cstr);
-  }
+explicit
+CStringInserter(C &c): c_(c) {
+}
+
+void
+operator()(const char *cstr) {
+  c_.push_back(strdup(cstr));
+}
+
+void
+operator()(std::ostringstream &oss) {
+  char *cstr = strdup(oss.str().c_str());
+  c_.push_back(cstr);
+}
 };
 
 
-void usage(char * s) {
-  std::cerr << "Usage: " << s << " <file.cfg> [sched] [pfm] [IRD]" 
+void
+usage(char *s) {
+  std::cerr << "Usage: " << s << " <file.cfg> [sched] [pfm] [IRD]"
             << std::endl;
-  std::cerr << "sched = -basic (default) | -g_heft | -g_aging_heft | -fairness | -srpt | -fcfs" << std::endl;
+  std::cerr <<
+  "sched = -basic (default) | -g_heft | -g_aging_heft | -fairness | -srpt | -fcfs"
+            << std::endl;
   std::cerr << "pfm   = -pfm_any (default) | -pfm_sameservices" << std::endl;
   std::cerr << "IRD   = -IRD <value>" << std::endl;
   exit(1);
 }
 
-int checkUsage(int argc, char ** argv) {
+int
+checkUsage(int argc, char **argv) {
   if (argc < 2) {
     usage(argv[0]);
   }
@@ -159,24 +91,26 @@ int checkUsage(int argc, char ** argv) {
       usage(argv[0]);
     }
   }
-  if (argc >=4) {
+  if (argc >= 4) {
     if (strcmp(argv[3], "-pfm_any") &&
         strcmp(argv[3], "-pfm_sameservices")) {
       usage(argv[0]);
     }
   }
-  if (argc >=5) {
-    if (strcmp(argv[4], "-IRD"))
+  if (argc >= 5) {
+    if (strcmp(argv[4], "-IRD")) {
       usage(argv[0]);
+    }
   }
   return 0;
-}
+} // checkUsage
 
 
-int main(int argc, char * argv[]) {
-  char * config_file_name = argv[1];
-  bool   IRD;
-  int    IRD_value;
+int
+main(int argc, char *argv[]) {
+  char *config_file_name = argv[1];
+  bool IRD;
+  int IRD_value;
 
   // use std::vector instead of C array
   // C++ standard guarantees that its storage is contiguous (C++ Faq 34.3)
@@ -212,7 +146,6 @@ int main(int argc, char * argv[]) {
     ins("-ORBtraceLevel");
     level << (TRACE_LEVEL - TRACE_MAX_VALUE);
     ins(level);
-
   }
 
   /* Check the parameters */
@@ -231,7 +164,7 @@ int main(int argc, char * argv[]) {
   if (argc >= 5) {
     if (!strcmp(argv[4], "-IRD")) {
       IRD = true;
-      if (!sscanf(argv[5], "%d",&IRD_value)) {
+      if (!sscanf(argv[5], "%d", &IRD_value)) {
         ERROR("Wrong IRD parameter value", 1);
       }
     }
@@ -270,13 +203,14 @@ int main(int argc, char * argv[]) {
     std::for_each(args.begin(), args.end(), CStringDeleter());
     ERROR("ORB initialization failed", 1);
   }
-    
-  MaDag_impl * maDag_impl = IRD ? new MaDag_impl(name.c_str(), schedType, IRD_value) :
-    new MaDag_impl(name.c_str(), schedType);
+
+  MaDag_impl *maDag_impl = IRD ? new MaDag_impl(
+    name.c_str(), schedType, IRD_value) :
+                           new MaDag_impl(name.c_str(), schedType);
   ORBMgr::getMgr()->activate(maDag_impl);
-  
+
   /* Change platform type */
-  if (argc >=4) {
+  if (argc >= 4) {
     if (!strcmp(argv[3], "-pfm_sameservices")) {
       maDag_impl->setPlatformType(MaDag::SAME_SERVICES);
     }
@@ -301,7 +235,6 @@ int main(int argc, char * argv[]) {
   // This is due to ORBMgr::init which adds elements in args.
   // std::for_each(args.begin(), args.end(), CStringDeleter());
   TRACE_TEXT(TRACE_ALL_STEPS, "maDagAgent has exited" << endl);
-    
-  return 0;
-}
 
+  return 0;
+} // main

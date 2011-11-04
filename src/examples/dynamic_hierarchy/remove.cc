@@ -1,22 +1,13 @@
 /**
-* @file remove.cc
-* 
-* @brief  Example for dynamically killing an element and underlying hierachy  
-* 
-* @author  - Benjamin Depardon (benjamin.depardon@ens-lyon.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.2  2010/01/14 11:06:37  bdepardo
- * Compiles with gcc 4.4
+ * @file remove.cc
  *
- * Revision 1.1  2009/10/26 09:23:51  bdepardo
- * Examples to dynamically manage the hierarchy.
+ * @brief  Example for dynamically killing an element and underlying hierachy
  *
- *****************************************************************************/
+ * @author  Benjamin Depardon (benjamin.depardon@ens-lyon.fr)
+ *
+ * @section Licence
+ *   |LICENSE|
+ */
 
 #include <iostream>
 #include <cstring>
@@ -27,9 +18,10 @@
 using namespace std;
 
 int
-main (int argc, char** argv) {
+main(int argc, char **argv) {
   if (argc < 3) {
-    cout << "Usage: " << argv[0] << " <SED|AGENT> <element name> [recursive: 0|1]" << endl;
+    cout << "Usage: " << argv[0] <<
+    " <SED|AGENT> <element name> [recursive: 0|1]" << endl;
     return 1;
   }
 
@@ -41,7 +33,7 @@ main (int argc, char** argv) {
   if (argc == 4) {
     recursive = atoi(argv[3]);
   }
-  
+
   if (!strcmp(argv[1], "SED")) {
     type = SED;
   } else {
@@ -64,4 +56,4 @@ main (int argc, char** argv) {
   }
 
   return res;
-}
+} // main

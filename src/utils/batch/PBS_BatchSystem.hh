@@ -1,21 +1,14 @@
 /**
-* @file PBS_BatchSystem.hh
-* 
-* @brief  Batch System Management with performance prediction: PBS
-* 
-* @author - Benjamin Depardon (Benjamin.Depardon@ens-lyon.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.1  2008/08/17 08:10:19  bdepardo
- * Added PBS batch system
- * /!\ not tested yet
+ * @file PBS_BatchSystem.hh
  *
+ * @brief  Batch System Management with performance prediction: PBS
  *
- ****************************************************************************/
+ * @author  Benjamin Depardon (Benjamin.Depardon@ens-lyon.fr)
+ *
+ * @section Licence
+ *   |LICENSE|
+ */
+
 
 #ifndef _PBS_BATCH_SYSTEM_HH_
 #define _PBS_BATCH_SYSTEM_HH_
@@ -25,11 +18,11 @@
 /* Strategy :
    - If mail is given, Diet submits a script which demands the client to
    alway be notified by mail. Maybe we can improve.
-*/
+ */
 
 class PBS_BatchSystem : public BatchSystem {
 public:
-  PBS_BatchSystem(int batchID, const char * batchName);
+  PBS_BatchSystem(int batchID, const char *batchName);
 
   ~PBS_BatchSystem();
 
@@ -37,7 +30,7 @@ public:
       whose ID is @param batchJobID .
       Updates the internal structure.
       Returns NB_STATUS on error, the status otherwise.
-  */
+   */
   batchJobState
   askBatchJobStatus(int batchJobID);
 
@@ -45,7 +38,7 @@ public:
       - not finished, returns 0
       - terminated, returns 1
       - not found, -1
-  */
+   */
   int
   isBatchJobCompleted(int batchJobID);
 
@@ -82,7 +75,7 @@ public:
 
 private:
   /* Strings used to filter batch job status if possible */
-  static const char * statusNames[];
+  static const char *statusNames[];
 };
 
 #endif  // PBS_BATCH_SYSTEM

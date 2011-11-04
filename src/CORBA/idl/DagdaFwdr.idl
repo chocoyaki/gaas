@@ -1,22 +1,13 @@
-/****************************************************************************/
-/* DIET forwarder IDL description                                           */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Gael Le Mahec   (gael.le.mahec@ens-lyon.fr)                         */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
-/* $Id$
- * $Log$
- * Revision 1.3  2010/07/20 14:31:46  glemahec
- * Forwarder robustness + bug corrections
+/**
+ * @file DagdaFwdr.idl
  *
- * Revision 1.2  2010/07/14 23:45:31  bdepardo
- * Header corrections
+ * @brief  DIET forwarder IDL description 
  *
- * Revision 1.1  2010/07/12 15:54:11  glemahec
- * DIET 2.5 beta 1 - Forwarder IDL files
- ****************************************************************************/
+ * @author  Gael Le Mahec (lemahec@clermont.in2p3.fr)
+ *
+ * @section Licence
+ *   |LICENSE|
+ */
 
 
 #ifndef DAGDAFWDR_IDL

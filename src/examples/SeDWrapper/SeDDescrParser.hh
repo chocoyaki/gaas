@@ -1,19 +1,14 @@
 /**
-* @file SeDDescrParser.hh
-* 
-* @brief   Parser of XML files used to convert external service into SeD  
-* 
-* @author  - Benjamin ISNARD (benjamin.isnard@ens-lyon.fr) 
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.1  2010/04/06 15:02:37  bdepardo
- * Added SeDWrapper example. This example is compiled when workflows are activated.
+ * @file SeDDescrParser.hh
  *
+ * @brief   Parser of XML files used to convert external service into SeD
+ *
+ * @author   Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)
+ *
+ * @section Licence
+ *   |LICENSE|
  */
+
 
 #ifndef _SEDDESCRPARSER_HH_
 #define _SEDDESCRPARSER_HH_
@@ -52,7 +47,8 @@ XERCES_CPP_NAMESPACE_USE
 
 class SeDDescrParser {
 public:
-  explicit SeDDescrParser(const std::string& fileName);
+  explicit
+  SeDDescrParser(const std::string &fileName);
 
   virtual ~SeDDescrParser();
 
@@ -60,14 +56,14 @@ public:
   parseXml(bool checkValid = false);
 
   virtual void
-  evalTemplate(SeDArgument *arg, string& value) = 0;
+  evalTemplate(SeDArgument *arg, string &value) = 0;
 
-  const list<SeDService*>&
+  const list<SeDService *> &
   getServices();
 
 protected:
   virtual void
-  parseRoot(DOMNode* root) = 0;
+  parseRoot(DOMNode *root) = 0;
 
   /**
    * XML File name
@@ -77,12 +73,12 @@ protected:
   /**
    * Xml document
    */
-  DOMDocument * document;
+  DOMDocument *document;
 
   /**
    * Generated objects storage
    */
-  std::list<SeDService*>  myServiceList;
+  std::list<SeDService *>  myServiceList;
 };
 
 
@@ -92,29 +88,30 @@ protected:
 
 class GASWParser : public SeDDescrParser {
 public:
-  explicit GASWParser(const std::string& fileName);
+  explicit
+  GASWParser(const std::string &fileName);
 
   virtual void
-  evalTemplate(SeDArgument *arg, std::string& value);
+  evalTemplate(SeDArgument *arg, std::string &value);
 
 protected:
   virtual std::string
   parseValueURI(const DOMElement *element);
 
   virtual void
-  parseRoot(DOMNode* root);
+  parseRoot(DOMNode *root);
 
   virtual void
-  parseExecutable(const DOMElement * element);
+  parseExecutable(const DOMElement *element);
 
   virtual void
-  parseInput(const DOMElement * element, SeDService * service);
+  parseInput(const DOMElement *element, SeDService *service);
 
   virtual void
-  parseOutput(const DOMElement * element, SeDService * service);
+  parseOutput(const DOMElement *element, SeDService *service);
 
   virtual void
-  parseDependency(const DOMElement * element, SeDService * service);
+  parseDependency(const DOMElement *element, SeDService *service);
 };
 
-#endif
+#endif /* ifndef _SEDDESCRPARSER_HH_ */

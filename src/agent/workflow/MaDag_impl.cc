@@ -1,201 +1,14 @@
 /**
-* @file MaDag_impl.cc
-* 
-* @brief  The MA DAG CORBA object implementation 
-* 
-* @author - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
+ * @file MaDag_impl.cc
+ *
+ * @brief  The MA DAG CORBA object implementation
+ *
+ * @author  Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)
+ *
+ * @section Licence
+ *   |LICENSE|
+ */
 
-/****************************************************************************/
-/* $Id$
- * $Log$
- * Revision 1.42  2011/04/05 14:03:42  bdepardo
- * IOR is printed only when the tracelevel is at least TRACE_MAIN_STEPS
- *
- * Revision 1.41  2011/03/21 08:27:39  bdepardo
- * Correctly register the logcomponent into the ORB, and correclty detroy it.
- *
- * Revision 1.40  2011/03/20 18:48:18  bdepardo
- * Be more robust when logComponent initialization fails
- *
- * Revision 1.39  2011/03/18 16:58:13  hguemar
- * fixes several issues in src/agent/workflow: reduce some variables scope, use diet::usleep instead of Posix deprecated usleep
- *
- * Revision 1.38  2011/03/16 21:36:37  bdepardo
- * Stop scheduling thread an unbind this agent in destructor.
- * Catch an exception when the MA cannot be found.
- *
- * Revision 1.37  2011/02/24 16:57:02  bdepardo
- * Use new parser
- *
- * Revision 1.36  2011/02/09 11:27:53  bdepardo
- * Removed endl at the end of the call to the WARNING macro
- *
- * Revision 1.35  2011/02/04 15:20:48  hguemar
- * fixes to new configuration parser
- * some cleaning
- *
- * Revision 1.34  2010/12/17 09:48:00  kcoulomb
- * * Set diet to use the new log with forwarders
- * * Fix a CoRI problem
- * * Add library version remove DTM flag from ccmake because deprecated
- *
- * Revision 1.33  2010/07/27 15:05:26  glemahec
- * Bug correction
- *
- * Revision 1.32  2010/07/20 08:59:36  bisnard
- * Added event generation
- *
- * Revision 1.31  2010/07/12 16:14:11  glemahec
- * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
- *
- * Revision 1.30  2009/10/23 13:59:18  bisnard
- * replaced \n by std::endl
- *
- * Revision 1.29  2009/09/25 12:42:09  bisnard
- * - use new DagNodeLauncher classes to manage threads
- * - added dag cancellation method
- *
- * Revision 1.28  2009/08/26 10:33:36  bisnard
- * use new parser for single dags
- *
- * Revision 1.27  2009/02/06 14:50:35  bisnard
- * setup exceptions
- *
- * Revision 1.26  2009/01/16 13:41:22  bisnard
- * added common base class DagScheduler to simplify dag events handling
- * improved exception management
- *
- * Revision 1.25  2008/12/09 12:09:00  bisnard
- * added parameters to dag submit method to handle inter-dependent dags
- *
- * Revision 1.24  2008/12/02 10:21:03  bisnard
- * use MetaDags to handle multi-dag submission and execution
- *
- * Revision 1.23  2008/10/14 13:23:01  bisnard
- * - use dagId instead of wfReqId as key for dags
- * - new mapping table dagId to wfReqId
- *
- * Revision 1.22  2008/09/04 15:22:25  bisnard
- * Changed name of multiwf heuristic HEFT to GHEFT
- *
- * Revision 1.21  2008/09/04 14:33:55  bisnard
- * - New option for MaDag to select platform type (servers
- * with same service list or not)
- * - Optimization of the multiwfscheduler to avoid requests to
- * MA for server availability
- *
- * Revision 1.20  2008/07/24 21:08:11  rbolze
- * New multi-wf heuristic FCFS (First Come First Serve)
- *
- * Revision 1.19  2008/07/17 13:33:09  bisnard
- * New multi-wf heuristic SRPT
- *
- * Revision 1.18  2008/07/17 10:49:14  rbolze
- * change fflush(stdout) by stat_flush()
- *
- * Revision 1.17  2008/07/17 10:14:36  rbolze
- * add some stat_info
- *
- * Revision 1.16  2008/07/12 00:22:28  rbolze
- * add function getInterRoundDelay()
- * use this function when the maDag start to display this value.
- * display the dag_id when compute the ageFactor in AgingHEFT
- * add some stats info :
- *      queuedNodeCount
- *      change MA DAG to MA_DAG
- *
- * Revision 1.15  2008/07/08 15:52:03  bisnard
- * Set interRoundDelay as parameter of workflow scheduler
- *
- * Revision 1.14  2008/07/08 09:47:36  rbolze
- * send madag scheduler type through dietLogComponent
- *
- * Revision 1.13  2008/06/19 10:18:54  bisnard
- * new heuristic AgingHEFT for multi-workflow scheduling
- *
- * Revision 1.12  2008/06/03 12:19:36  bisnard
- * Method to get MA ref
- *
- * Revision 1.11  2008/06/01 14:06:57  rbolze
- * replace most ot the cout by adapted function from debug.cc
- * there are some left ...
- *
- * Revision 1.10  2008/06/01 09:22:14  rbolze
- * add getter to retrieve the dietLogComponent
- *
- * Revision 1.9  2008/05/31 08:45:55  rbolze
- * add DietLogComponent to the maDagAgent
- *
- * Revision 1.8  2008/05/16 12:30:20  bisnard
- * MaDag returns dagID to client after dag submission
- * (used for node execution)
- *
- * Revision 1.7  2008/04/30 07:37:01  bisnard
- * use relative timestamps for estimated and real completion time
- * make MultiWfScheduler abstract and add HEFT MultiWf scheduler
- *
- * Revision 1.6  2008/04/29 07:25:01  rbolze
- * change stat_out messages
- *
- * Revision 1.5  2008/04/28 11:56:51  bisnard
- * choose wf scheduler type when creating madag
- *
- * Revision 1.4  2008/04/21 14:31:45  bisnard
- * moved common multiwf routines from derived classes to MultiWfScheduler
- * use wf request identifer instead of dagid to reference client
- * use nodeQueue to manage multiwf scheduling
- * renamed WfParser as DagWfParser
- *
- * Revision 1.3  2008/04/14 13:45:10  bisnard
- * - Removed wf mono-mode submit
- * - Renamed submit_wf in processDagWf
- *
- * Revision 1.2  2008/04/14 09:10:37  bisnard
- *  - Workflow rescheduling (CltReoMan) no longer used with MaDag v2
- *  - AbstractWfSched and derived classes no longer used with MaDag v2
- *
- * Revision 1.1  2008/04/10 09:13:29  bisnard
- * New version of the MaDag where workflow node execution is triggered by the MaDag agent and done by a new CORBA object CltWfMgr located in the client
- *
- * Revision 1.8  2008/03/21 10:22:04  rbolze
- *  - add ping() function to the MaDag in order to be able test this component.
- * this is use by goDIET.
- *  - print IOR in stdout in the constructor of the MaDag.
- *
- * Revision 1.7b ??? aamar (added by bisnard)
- * Added functions submit_dag and submit_dag_in_multi
- *
- * Revision 1.7  2006/11/06 15:14:53  aamar
- * Workflow support: Correct some code about reqID
- *
- * Revision 1.6  2006/11/06 12:05:15  aamar
- * Workflow support: correct some bugs.
- *
- * Revision 1.5  2006/11/02 17:10:19  rbolze
- * add some debug info
- *
- * Revision 1.4  2006/10/24 00:06:40  aamar
- * Adding statistics to submit workflow method.
- * The dag id is provided only by the MasterAgent.
- *
- * Revision 1.3  2006/10/20 09:13:55  aamar
- * Changing the submit_wf prototype (the return type)
- * Add the following function to the MA DAG interface
- *   - void setAsDone, setDagAsDone, registerClt
- * Some changes.
- *
- * Revision 1.2  2006/07/10 10:00:00  aamar
- * - Adding the function remainingDag to the MA DAG interface
- * - Round Robbin and HEFT scheduling
- *
- * Revision 1.1  2006/04/14 13:43:59  aamar
- * source of the MA DAG CORBA object.
- *
- ****************************************************************************/
 
 #include "MaDag_impl.hh"
 
@@ -226,7 +39,7 @@ using madag::MultiWfSRPT;
 using madag::MultiWfFCFS;
 using madag::MultiWfFOFT;
 
-MaDag_impl::MaDag_impl(const char * name, const MaDagSchedType schedType,
+MaDag_impl::MaDag_impl(const char *name, const MaDagSchedType schedType,
                        const int interRoundDelay)
   : myName(name), myMultiWfSched(0), wfReqIdCounter(0), dagIdCounter(0) {
   std::string MAName;
@@ -257,7 +70,7 @@ MaDag_impl::MaDag_impl(const char * name, const MaDagSchedType schedType,
   }
 
   TRACE_TEXT(TRACE_MAIN_STEPS, "\n"
-             <<  "MA DAG " << this->myName << " created.\n");
+             << "MA DAG " << this->myName << " created.\n");
   TRACE_TEXT(TRACE_MAIN_STEPS, "## MADAG_IOR "
              << ORBMgr::getMgr()->getIOR(this->_this()) << "\n");
 #ifdef USE_LOG_SERVICE
@@ -306,7 +119,7 @@ MaDag_impl::MaDag_impl(const char * name, const MaDagSchedType schedType,
                   MultiWfScheduler::CONSTR>(myMultiWfSched, "Created",
                                             "FCFS", EventBase::INFO);
     break;
-  }
+  } // switch
 
   if (interRoundDelay >= 0) {
     this->myMultiWfSched->setInterRoundDelay(interRoundDelay);
@@ -337,8 +150,8 @@ MaDag_impl::~MaDag_impl() {
  * DAG Workflow processing
  */
 CORBA::Long
-MaDag_impl::processDagWf(const corba_wf_desc_t& dag_desc,
-                         const char* cltMgrRef,
+MaDag_impl::processDagWf(const corba_wf_desc_t &dag_desc,
+                         const char *cltMgrRef,
                          CORBA::Long wfReqId) {
   TRACE_TEXT(TRACE_ALL_STEPS,
              "%%%%% MADAG receives a SINGLE DAG request (wfReqId = "
@@ -350,17 +163,17 @@ MaDag_impl::processDagWf(const corba_wf_desc_t& dag_desc,
  * Multi DAG Workflow processing
  */
 CORBA::Long
-MaDag_impl::processMultiDagWf(const corba_wf_desc_t& dag_desc,
-                              const char* cltMgrRef,
+MaDag_impl::processMultiDagWf(const corba_wf_desc_t &dag_desc,
+                              const char *cltMgrRef,
                               CORBA::Long wfReqId, CORBA::Boolean release) {
   TRACE_TEXT(TRACE_ALL_STEPS,
              "%%%%% MADAG receives a MULTIPLE DAG request (wfReqId = "
              << wfReqId << " / release=" << release << ")\n");
   // Check if a MetaDag already exists for this wf request (or create one)
-  MetaDag* mDag = 0;
-  std::map<CORBA::Long, MetaDag*>::iterator mDagIter = myMetaDags.find(wfReqId);
+  MetaDag *mDag = 0;
+  std::map<CORBA::Long, MetaDag *>::iterator mDagIter = myMetaDags.find(wfReqId);
   if (mDagIter != myMetaDags.end()) {
-    mDag = (MetaDag*) mDagIter->second;
+    mDag = (MetaDag *) mDagIter->second;
   } else {
     mDag = new MetaDag(itoa(wfReqId));
     myMetaDags[wfReqId] = mDag;
@@ -369,7 +182,7 @@ MaDag_impl::processMultiDagWf(const corba_wf_desc_t& dag_desc,
   mDag->setReleaseFlag(release);
   // Process the dag
   return processDagWfCommon(dag_desc, cltMgrRef, wfReqId, mDag);
-}
+} // processMultiDagWf
 
 /**
  * Multi DAG Workflow Release
@@ -379,11 +192,11 @@ MaDag_impl::releaseMultiDag(CORBA::Long wfReqId) {
   TRACE_TEXT(TRACE_ALL_STEPS,
              "%%%%% MADAG receives a RELEASE request (wfReqId = "
              << wfReqId << ")\n");
-  MetaDag* mDag = 0;
-  std::map<CORBA::Long, MetaDag*>::iterator mDagIter =
+  MetaDag *mDag = 0;
+  std::map<CORBA::Long, MetaDag *>::iterator mDagIter =
     myMetaDags.find(wfReqId);
   if (mDagIter != myMetaDags.end()) {
-    mDag = (MetaDag*) mDagIter->second;
+    mDag = (MetaDag *) mDagIter->second;
   } else {
     std::string errorMsg = "Request ID '" + itoa(wfReqId) + "' not found";
     throw(MaDag::InvalidRequest(errorMsg.c_str()));
@@ -394,16 +207,16 @@ MaDag_impl::releaseMultiDag(CORBA::Long wfReqId) {
   if (isDone) {
     delete mDag;
   }
-}
+} // releaseMultiDag
 
 /**
  * Common part
  */
 CORBA::Long
-MaDag_impl::processDagWfCommon(const corba_wf_desc_t& dag_desc,
-                               const char* cltMgrRef,
+MaDag_impl::processDagWfCommon(const corba_wf_desc_t &dag_desc,
+                               const char *cltMgrRef,
                                CORBA::Long wfReqId,
-                               MetaDag* mDag) {
+                               MetaDag *mDag) {
   char statMsg[128];
   snprintf(statMsg, 128, "Start workflow request %ld",
            static_cast<long int>(wfReqId));
@@ -421,7 +234,7 @@ MaDag_impl::processDagWfCommon(const corba_wf_desc_t& dag_desc,
   CORBA::Long dagId = dagIdCounter++;
   setWfReq(dagId, wfReqId);
   try {
-    Dag * newDag = this->parseNewDag(dag_desc, itoa(dagId), mDag);
+    Dag *newDag = this->parseNewDag(dag_desc, itoa(dagId), mDag);
     this->myMultiWfSched->scheduleNewDag(newDag, mDag);
   } catch (...) {
     sprintf(statMsg,
@@ -438,39 +251,39 @@ MaDag_impl::processDagWfCommon(const corba_wf_desc_t& dag_desc,
   stat_out("MA_DAG", statMsg);
   stat_flush();
   return dagId;
-}
+} // processDagWfCommon
 
 /**
  * Parse dag xml description and create a dag object
  */
 Dag *
-MaDag_impl::parseNewDag(const corba_wf_desc_t& wf_desc,
-                        const std::string& dagId,
-                        MetaDag * mDag)
-  throw(MaDag::InvalidDag) {
+MaDag_impl::parseNewDag(const corba_wf_desc_t &wf_desc,
+                        const std::string &dagId,
+                        MetaDag *mDag)
+throw(MaDag::InvalidDag) {
   // CREATION & PARSING
   Dag *newDag = new Dag(dagId);
-  SingleDagParser* reader = new SingleDagParser(*newDag, wf_desc.abstract_wf);
+  SingleDagParser *reader = new SingleDagParser(*newDag, wf_desc.abstract_wf);
 
   try {
     reader->parseXml();
-  } catch (XMLParsingException& e) {
+  } catch (XMLParsingException &e) {
     throw(MaDag::InvalidDag(e.ErrorMsg().c_str()));
   }
 
   delete reader;
   // CHECK STRUCTURE
-  NodeSet * contextNodeSet;
+  NodeSet *contextNodeSet;
   if (!mDag) {
-    contextNodeSet = (NodeSet*) newDag;
+    contextNodeSet = (NodeSet *) newDag;
   } else {
     mDag->addDag(newDag);
-    contextNodeSet = (NodeSet*) mDag;
+    contextNodeSet = (NodeSet *) mDag;
     mDag->setCurrentDag(newDag);
   }
   try {
     newDag->checkPrec(contextNodeSet);
-  } catch (WfStructException& e) {
+  } catch (WfStructException &e) {
     if (mDag) {
       mDag->setCurrentDag(0);
     }
@@ -483,7 +296,7 @@ MaDag_impl::parseNewDag(const corba_wf_desc_t& wf_desc,
   }
 
   return newDag;
-}
+} // parseNewDag
 
 /**
  * Get a new workflow request identifier
@@ -526,7 +339,7 @@ MaDag_impl::getMA() const {
  * Get the client manager for a given dag id
  */
 CltMan_ptr
-MaDag_impl::getCltMan(const std::string& dagId) {
+MaDag_impl::getCltMan(const std::string &dagId) {
   std::map<std::string, CORBA::Long>::iterator wfReqIter = wfReqs.find(dagId);
   if (wfReqIter != wfReqs.end()) {
     std::map<CORBA::Long, CltMan_ptr>::iterator cltManIter =
@@ -536,7 +349,7 @@ MaDag_impl::getCltMan(const std::string& dagId) {
     }
   }
   return CltMan::_nil();
-}
+} // getCltMan
 
 /**
  * Set the client manager for a wf request
@@ -569,13 +382,13 @@ MaDag_impl::setPlatformType(MaDag::pfmType_t pfmType) {
   default:
     WARNING("Wrong platform type");
   }
-}
+} // setPlatformType
 
 #ifdef USE_LOG_SERVICE
 /**
  * Get the DietLogComponent
  */
-DietLogComponent*
+DietLogComponent *
 MaDag_impl::getDietLogComponent() {
   return this->dietLogComponent;
 }
@@ -612,9 +425,9 @@ MaDag_impl::setupDietLogComponent() {
     }
 
     TRACE_TEXT(TRACE_ALL_STEPS, "LogService enabled\n");
-    char* agtTypeName = NULL;
-    char* agtParentName = NULL;
-    char* agtName;
+    char *agtTypeName = NULL;
+    char *agtParentName = NULL;
+    char *agtName;
     std::string tmpString;
     if (CONFIG_STRING(diet::PARENTNAME, tmpString)) {
       agtParentName = strdup(tmpString.c_str());
@@ -641,24 +454,24 @@ MaDag_impl::setupDietLogComponent() {
     TRACE_TEXT(TRACE_ALL_STEPS, "LogService disabled\n");
     this->dietLogComponent = NULL;
   }
-}
-#endif
+} // setupDietLogComponent
+#endif // ifdef USE_LOG_SERVICE
 
-MaDagFwdrImpl::MaDagFwdrImpl(Forwarder_ptr fwdr, const char* objName) {
+MaDagFwdrImpl::MaDagFwdrImpl(Forwarder_ptr fwdr, const char *objName) {
   this->forwarder = Forwarder::_duplicate(fwdr);
   this->objName = CORBA::string_dup(objName);
 }
 
 CORBA::Long
-MaDagFwdrImpl::processDagWf(const corba_wf_desc_t& dag_desc,
-                            const char* cltMgrRef,
+MaDagFwdrImpl::processDagWf(const corba_wf_desc_t &dag_desc,
+                            const char *cltMgrRef,
                             CORBA::Long wfReqId) {
   return forwarder->processDagWf(dag_desc, cltMgrRef, wfReqId, objName);
 }
 
 CORBA::Long
-MaDagFwdrImpl::processMultiDagWf(const corba_wf_desc_t& dag_desc,
-                                 const char* cltMgrRef,
+MaDagFwdrImpl::processMultiDagWf(const corba_wf_desc_t &dag_desc,
+                                 const char *cltMgrRef,
                                  CORBA::Long wfReqId,
                                  CORBA::Boolean release) {
   return forwarder->processMultiDagWf(dag_desc, cltMgrRef,
@@ -689,4 +502,3 @@ CORBA::Long
 MaDagFwdrImpl::ping() {
   return forwarder->ping(objName);
 }
-

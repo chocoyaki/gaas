@@ -1,34 +1,14 @@
 /**
-* @file Eucalyptus_BatchSystem.hh
-* 
-* @brief  Batch System implementation for Amazon EC2 compatible clouds
-* 
-* @author - Adrian Muresan (adrian.muresan@ens-lyon.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.5  2011/02/24 16:52:40  bdepardo
- * Use new parser
+ * @file Eucalyptus_BatchSystem.hh
  *
- * Revision 1.4  2010/11/16 01:42:28  amuresan
- *  - added proper concurrency support for cloud part
- *  - fixed small data initialization bug with cloud server example
+ * @brief  Batch System implementation for Amazon EC2 compatible clouds
  *
- * Revision 1.3  2010/11/15 07:17:13  amuresan
- * added dirty mutex hack to stop multiple requests from not working correctly (TODO: fix elegantly)
+ * @author Adrian Muresan (adrian.muresan@ens-lyon.fr)
  *
- * Revision 1.2  2010/10/27 06:41:30  amuresan
- * modified Eucalyptus_BatchSystem to be able to use existing VMs also
- *
- * Revision 1.1  2010/05/05 13:13:51  amuresan
- * First commit for the Eucalyptus BatchSystem.
- * Added SOAP client for the Amazon EC2 SOAP interface and
- * a new implementation of the BatchSystem base-class.
- *
- ****************************************************************************/
+ * @section Licence
+ *   |LICENSE|
+ */
+
 
 
 #ifndef _EUCALYPTUS_BATCH_SYSTEM_HH_
@@ -53,7 +33,7 @@ typedef enum {
 
 class Eucalyptus_BatchSystem : public BatchSystem {
 public:
-  Eucalyptus_BatchSystem(int batchID, const char * batchName);
+  Eucalyptus_BatchSystem(int batchID, const char *batchName);
 
   ~Eucalyptus_BatchSystem();
 
@@ -61,7 +41,7 @@ public:
       whose ID is @param batchJobID .
       Updates the internal structure.
       Returns NB_STATUS on error, the status otherwise.
-  */
+   */
   batchJobState
   askBatchJobStatus(int batchJobID);
 
@@ -69,15 +49,15 @@ public:
       - not finished, returns 0
       - terminated, returns 1
       - not found, -1
-  */
+   */
   int
   isBatchJobCompleted(int batchJobID);
 
   /** Override for diet_submit_parallel */
   int
-  diet_submit_parallel(diet_profile_t * profile,
-                       const char * addon_prologue,
-                       const char * command);
+  diet_submit_parallel(diet_profile_t *profile,
+                       const char *addon_prologue,
+                       const char *command);
 
   /********** Batch static information accessing Functions **********/
   /* These should soon change for they assume a default queue and we
@@ -146,13 +126,13 @@ private:
   int VM_Buff_count;
 
   int
-  init(char*pathToPrivateKey, char*pathToCert);
+  init(char *pathToPrivateKey, char *pathToCert);
 
   void
-  doWait(int count, char* addresses);
+  doWait(int count, char *addresses);
 
   void
-  allocVmNames(request_data_t * state);
+  allocVmNames(request_data_t *state);
 
   /****************** Eucalyptus VM Management ***********************/
   /* Makes a reservation on an Eucalyptus cloud and returns the number of instantiated VMs.
@@ -161,7 +141,7 @@ private:
    *  vmIPs - ip addresses of the instantiated vms
    */
   int
-  makeEucalyptusReservation(request_data_t * state,
+  makeEucalyptusReservation(request_data_t *state,
                             int minVMCount,
                             int maxVMCount);
 
@@ -174,12 +154,12 @@ private:
    *    != 0 - an error
    */
   int
-  describeInstances(request_data_t * state);
+  describeInstances(request_data_t *state);
 
   /* Terminates an Eucalyptus VM and returns a status code
      representing the success or failure of the operation. */
   int
-  terminateEucalyptusInstance(request_data_t * state);
+  terminateEucalyptusInstance(request_data_t *state);
 
   /* Utility function to create a default SOAP message
    * with the three required security headers.
@@ -210,7 +190,7 @@ private:
   batchJobState state;
 
   /* VM type that is defined as a string value inside the config file. */
-  static const char * vmTypes[];
+  static const char *vmTypes[];
 
   /* Security group
    */
@@ -223,7 +203,7 @@ private:
   int vmMaxCount;
 
   /* Path to the ssh key used for authentication on the VMs */
-  char * pathToSSHKey;
+  char *pathToSSHKey;
 
   /* Flag that tells wether to instantiate new VMs or use existing ones */
   int instantiateVMs;
@@ -239,23 +219,23 @@ private:
 
   /* This holds the URL of the Cloud system and
      is read from the SeD .cfg file. */
-  char * eucaURL;
+  char *eucaURL;
 
   /* This holds the name of the Eucalyptus Machine Image
      to be instantiated and is read from the SeD .cfg file. */
-  char * emiName;
+  char *emiName;
 
   /* This holds the name of the Eucalyptus Kernel Image
      to be instantiated and is read from the SeD .cfg file. */
-  char * ekiName;
+  char *ekiName;
 
   /* This holds the name of the Eucalyptus Ramdisk Image
      to be instantiated and is read from the SeD .cfg file. */
-  char * eriName;
+  char *eriName;
 
   /* This holds the name of the Eucalyptus Ramdisk Image
      to be instantiated and is read from the SeD .cfg file. */
-  char * userName;
+  char *userName;
 
   /* This holds the name of the Eucalyptus virtual machine
      type to be instantiated and is read from the SeD .cfg file. */
@@ -264,7 +244,7 @@ private:
   /* This holds the name of the keypair to be used by to be used for instanting
    * images and is read from the SeD .cfg file.
    */
-  char * keyName;
+  char *keyName;
 
   /* This is an internal configuration and represents
    * the maximum number of polling tries to perform when waiting
@@ -294,7 +274,7 @@ private:
 
   /* Per-request thread data.
      Used for simultaneous multiple-request handling. */
-  request_data_t ** request_state;
+  request_data_t **request_state;
 };
 
 #endif  // _EUCALYPTUS_BATCH_SYSTEM_HH_

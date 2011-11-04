@@ -3,23 +3,12 @@
 * 
 * @brief  Abstract interface for dag schedulers to handle execution events 
 * 
-* @author  - Benjamin ISNARD (Benjamin.Isnard@ens-lyon.fr)
+* @author  Benjamin ISNARD (Benjamin.Isnard@ens-lyon.fr)
 * 
 * @section Licence
 *   |LICENSE|                                                                
 */
-/* $Id$
- * $Log$
- * Revision 1.4  2011/04/05 14:19:08  bdepardo
- * Reverting last commit
- *
- * Revision 1.2  2010/03/08 13:50:48  bisnard
- * handle node ready event (for logging)
- *
- * Revision 1.1  2009/01/16 13:53:09  bisnard
- * new abstract class to simplify dag event handling
- *
- */
+
 
 #ifndef _DAG_SCHEDULER_HH_
 #define _DAG_SCHEDULER_HH_

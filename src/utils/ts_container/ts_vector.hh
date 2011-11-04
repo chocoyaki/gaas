@@ -3,32 +3,12 @@
 * 
 * @brief  Thread safe STL vector header 
 * 
-* @author  - Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)
+* @author  Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)
 * 
 * @section Licence
 *   |LICENSE|                                                                
 */
-/* $Id$
- * $Log$
- * Revision 1.7  2010/03/31 21:15:41  bdepardo
- * Changed C headers into C++ headers
- *
- * Revision 1.6  2004/09/29 13:35:32  sdahan
- * Add the Multi-MAs feature.
- *
- * Revision 1.5  2003/06/16 17:42:45  pcombes
- * Fix header.
- *
- * Revision 1.3  2002/12/25 21:12:38  sdahan
- * removes some ambiguities. now compile with gcc 3.1
- *
- * Revision 1.2  2002/12/23 22:55:26  sdahan
- * removes the implicite stuff and define the default stuff. Now it compile
- * with gcc 3.1
- *
- * Revision 1.1  2002/12/20 14:46:57  sdahan
- * creation of a thread safe vector
- ****************************************************************************/
+
 
 #ifndef _TS_VECTOR_HH_
 #define _TS_VECTOR_HH_

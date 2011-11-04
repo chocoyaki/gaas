@@ -1,12 +1,12 @@
-#!/bin/sh
-#****************************************************************************#
+#! /bin/sh
+#* ***************************************************************************#
 #* Manager of a CORBA name server.                                          *#
 #*                                                                          *#
 #*  Author(s):                                                              *#
 #*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       *#
 #*                                                                          *#
 #* $LICENSE$                                                                *#
-#****************************************************************************#
+#* ***************************************************************************#
 #* $Id$
 #* $Log$
 #* Revision 1.5  2004/01/07 23:03:02  cpera
@@ -25,84 +25,103 @@
 #*
 #* Revision 1.1  2003/09/22 21:09:08  pcombes
 #* Scripts for managing a local platform with LDAP + NWS + CORBA Name server.
-#****************************************************************************#
+#* ***************************************************************************#
 
-# FIXME: this should be independent from the ORB or at least 
+# FIXME : this should be independent from the ORB or at least
 
 omni_start() {
   echo "## Starting a local CORBA name server ..."
-  processes=`ps -edfwwwww | grep -v -e grep | grep omniNames | tr '\n' '@'`
-  nb_processes=`echo $processes | tr '@' '\n' | grep omniNames | wc -l`
-  if [ "$processes" = "" -o \
-       \( "$nb_processes" -eq 1 -a "`echo $processes | grep 'grep'`" != "" \) ]
+  processes = ` ps - edfwwwww | grep - v - e grep | grep omniNames |
+              tr '\n' '@' `
+              nb_processes = ` echo $processes | tr '@' '\n' | grep omniNames |
+                             wc - l `
+                             if["$processes" = "" - o \
+                                               \ ("$nb_processes" - eq 1 -
+                                                  a
+                                                  "`echo $processes | grep 'grep'`"
+                                                  != "" \)]
+                             then
+                             if[-f $LOGDIR / omninames - ` hostname `.log \
+                                - o - f $LOGDIR / omninames - ` hostname `.bak];
   then
-    if [ -f $LOGDIR/omninames-`hostname`.log \
-         -o -f $LOGDIR/omninames-`hostname`.bak ]; then
-      $OMNINAMES -errlog $ERRLOGDIR &
+    $OMNINAMES - errlog $ERRLOGDIR &
+  else
+    $OMNINAMES - start - errlog $ERRLOGDIR &
+    fi
     else
-      $OMNINAMES -start -errlog $ERRLOGDIR &
-    fi
-  else
-    echo "Error: a CORBA name server may have already been started."
-    exit 3
-  fi
-  echo "## CORBA name server started."
-}
-
-omni_stop() {
-  echo "## Stopping the local CORBA name server ..."
-  pprocess=`ps -wwwww -u $USER | grep -v -e grep  | grep omniNames | sort | head -1`
-  if [ -n "$pprocess" -a "`echo $pprocess | grep 'grep omniNames'`" = "" ]; then
-    pid=`echo $pprocess | cut -f1 -d' '`
-    kill $pid > /dev/null 2>&1
-    status=$?
-    if [ $status -ne 0 ]; then
-      echo "Error: cannot stop the CORBA name server."
+      echo "Error: a CORBA name server may have already been started."
       exit 3
-    fi
-  fi
-  echo "## CORBA name server stopped."
-}
+      fi
+      echo "## CORBA name server started."
+      }
 
-omninames_test() {
-  if [ "`ps -edfwwwww | grep -v -e grep  | grep omniNames`" = "" ]; then
-    echo "No CORBA name server seems alive."
-  else
-    echo "There is a CORBA name server running. I cannot guess its port (normal)."
-  fi
-}
+      omni_stop() {
+        echo "## Stopping the local CORBA name server ..."
+        pprocess = ` ps - wwwww - u $USER | grep - v - e grep |
+                   grep omniNames | sort | head - 1 `
+                   if[-n "$pprocess" -
+                      a "`echo $pprocess | grep 'grep omniNames'`" = ""];
+        then
+          pid = ` echo $pprocess | cut - f1 - d ' ' `
+                kill $pid > / dev / null 2 > & 1
+                status = $ ?
+                         if[$status - ne 0];
+        then
+          echo "Error: cannot stop the CORBA name server."
+        exit 3
+        fi
+        fi
+          echo "## CORBA name server stopped."
+      }
+
+      omninames_test() {
+        if["`ps -edfwwwww | grep -v -e grep  | grep omniNames`" = ""];
+        then
+          echo "No CORBA name server seems alive."
+        else {
+          echo
+          "There is a CORBA name server running. I cannot guess its port (normal)."
+          fi
+        }
 
 
 # check shell command
-# FIXME : change command according to test results. 
-grep -v -e "grep" "$0" > /dev/null 2>&1
-if [ ! $? -ne 1 ]; then
-  echo "command \"grep -v -e\" unknown"
-  exit 3
-fi
-ps -wwwww -u $USER sshd > /dev/null 2>&1
-if [ ! $? -ne 0 ]; then
-  echo "command \"ps -wwwww -u\" unknown"
-  exit 3
-fi
+# FIXME : change command according to test results.
+        grep - v - e "grep" "$0" > / dev / null 2 > &1
+        if[!$ ? -ne 1];
+      } then
+        echo "command \"grep -v -e\" unknown"
+      exit 3
+      fi
+        ps - wwwww - u $USER sshd > / dev / null 2 > & 1
+      if[!$ ? -ne 0];
+      then
+        echo "command \"ps -wwwww -u\" unknown"
+      exit 3
+      fi
 
-if [ "`echo @OMNIORB_HOME@ | cut -c1`" != "@" ]; then
+      if["`echo @OMNIORB_HOME@ | cut -c1`" != "@"];
+      then
 
-  OMNINAMES=@OMNIORB_HOME@/bin/omniNames
-  BINDIR=`dirname $0`
-  LOGDIR=`cd $BINDIR/..; pwd`/var/log
-  ERRLOGDIR=$LOGDIR/omniNamesError.log
-  if [ ! -d $LOGDIR ]; then mkdir -p $LOGDIR; fi
-  export OMNINAMES_LOGDIR=$LOGDIR
- 
-  case "$1" in 
-    start) omni_start;;
-    stop)  omni_stop;;
-    test)  omninames_test;;
-    *) echo "$0 {start|stop|test}"; exit 3;;
-  esac
+        OMNINAMES = @OMNIORB_HOME@ / bin / omniNames
+                    BINDIR = ` dirname $0 `
+                             LOGDIR = ` cd $BINDIR /..;
+      pwd ` / var / log
+      ERRLOGDIR = $LOGDIR / omniNamesError.log
+                  if[!-d $LOGDIR];
+      then mkdir - p $LOGDIR;
+      fi
+      export OMNINAMES_LOGDIR = $LOGDIR
+
+                              case "$1" in
+                                start)omni_start;
+                                stop)omni_stop;
+                                test)omninames_test;
+                                *)echo "$0 {start|stop|test}";
+                                exit 3;
+                                esac
 
 #elif ...
-# FIXME: The code for another ORB should take place here.
+# FIXME : The code for another ORB should take place here.
 
-fi
+                                fi

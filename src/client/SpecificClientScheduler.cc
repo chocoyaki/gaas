@@ -1,37 +1,14 @@
 /**
-* @file  SpecificClientScheduler.cc
-* 
-* @brief   Specific client scheduling : to implement some specific scheduling   
-* 
-* @author  - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.6  2011/03/02 00:18:17  bdepardo
- * Removed warnings: comparison is always true due to limited range of data type
+ * @file  SpecificClientScheduler.cc
  *
- * Revision 1.5  2010/07/30 14:44:25  glemahec
- * Temporary corrections for the new compilation process. Parallel compilation is still broken and there is a big mess on the CMakeLists files...
+ * @brief   Specific client scheduling : to implement some specific scheduling
  *
- * Revision 1.4  2010/07/13 08:17:39  glemahec
- * DIET 2.5 beta 1 - Client Specific Scheduler compilation error correction
+ * @author   Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)
  *
- * Revision 1.3  2009/09/23 14:16:18  bdepardo
- * Burst request now checks whether or not the SeDs it knows are still in the
- * list of available SeD, and removes them if necessary.
- * This is still to do for burstlimit.
- *
- * Revision 1.2  2009/09/07 11:18:53  bdepardo
- * Added #include <cstdlib> for exit()
- *
- * Revision 1.1  2007/07/11 08:42:09  aamar
- * Adding "custom client scheduling" mode (known as Burst mode). Need to be
- * activated in cmake.
- *
- ****************************************************************************/
+ * @section Licence
+ *   |LICENSE|
+ */
+
 #include "SpecificClientScheduler.hh"
 #include <cstdlib>
 #include <iostream>
@@ -44,20 +21,21 @@
 
 using namespace std;
 
-SpecificClientScheduler * SpecificClientScheduler::myScheduler = NULL;
+SpecificClientScheduler *SpecificClientScheduler::myScheduler = NULL;
 
-const char * SpecificClientScheduler::BurstRequest = "BURST_REQUEST";
-const char * SpecificClientScheduler::BurstLimit   = "BURST_LIMIT";
-string       SpecificClientScheduler::schedulerId  = "UNDEFINED";
-bool         SpecificClientScheduler::enabled      = false;
+const char *SpecificClientScheduler::BurstRequest = "BURST_REQUEST";
+const char *SpecificClientScheduler::BurstLimit = "BURST_LIMIT";
+string SpecificClientScheduler::schedulerId = "UNDEFINED";
+bool SpecificClientScheduler::enabled = false;
 
 unsigned int allowed_req_per_sed = 1;
 
-void setAllowedReqPerSeD(unsigned ix) {
+void
+setAllowedReqPerSeD(unsigned ix) {
   allowed_req_per_sed = ix;
 }
 
-SpecificClientScheduler::SpecificClientScheduler() :
+SpecificClientScheduler::SpecificClientScheduler():
   mySem(1) {
   enabled = true;
 }
@@ -66,14 +44,14 @@ SpecificClientScheduler::~SpecificClientScheduler() {
 }
 
 void
-SpecificClientScheduler::setSchedulingId(const char * scheduling_name) {
+SpecificClientScheduler::setSchedulingId(const char *scheduling_name) {
   schedulerId = scheduling_name;
   enabled = true;
 } // end setScheduling
 
 void
-SpecificClientScheduler::start(SeD_var& chosenServer,
-                               corba_response_t * response) {
+SpecificClientScheduler::start(SeD_var &chosenServer,
+                               corba_response_t *response) {
   if (myScheduler == NULL && !enabled) {
     cerr << "FATAL ERROR : burst scheduler not enabled" << endl;
     exit(1);
@@ -85,9 +63,9 @@ SpecificClientScheduler::start(SeD_var& chosenServer,
 } // end start
 
 void
-SpecificClientScheduler::schedule(const char * scheduling_name,
-                                  SeD_var& chosenServer,
-                                  corba_response_t * response) {
+SpecificClientScheduler::schedule(const char *scheduling_name,
+                                  SeD_var &chosenServer,
+                                  corba_response_t *response) {
   if (!strcmp(SpecificClientScheduler::BurstRequest, scheduling_name)) {
     burstRequest(chosenServer, response);
   }
@@ -97,7 +75,7 @@ SpecificClientScheduler::schedule(const char * scheduling_name,
 } // end schedule
 
 void
-SpecificClientScheduler::setScheduler(SpecificClientScheduler * scheduler) {
+SpecificClientScheduler::setScheduler(SpecificClientScheduler *scheduler) {
   myScheduler = scheduler;
 }
 
@@ -106,22 +84,22 @@ SpecificClientScheduler::setScheduler(SpecificClientScheduler * scheduler) {
  *
  */
 void
-SpecificClientScheduler::burstRequest(SeD_var& chosenServer,
-                                      corba_response_t * response) {
+SpecificClientScheduler::burstRequest(SeD_var &chosenServer,
+                                      corba_response_t *response) {
   static vector<string> availableSeDs;
   static vector<int> use;
   static int min = 0;
-  unsigned int ix;//, jx;
+  unsigned int ix; // , jx;
   bool found;
   vector<string>::iterator i_s, i_r;
   vector<int>::iterator i_us, i_ur;
 
   // Remove obsolete SeDs
   for (i_s = availableSeDs.begin(), i_us = use.begin();
-       i_s != availableSeDs.end() && i_us != use.end(); ++ i_s, ++ i_us) {
+       i_s != availableSeDs.end() && i_us != use.end(); ++i_s, ++i_us) {
     found = false;
-    for (ix = 0; ix < response->servers.length(); ++ ix) {
-      if (*i_s == static_cast<char*>(response->servers[ix].loc.SeDName)) {
+    for (ix = 0; ix < response->servers.length(); ++ix) {
+      if (*i_s == static_cast<char *>(response->servers[ix].loc.SeDName)) {
         found = true;
         break;
       }
@@ -129,9 +107,9 @@ SpecificClientScheduler::burstRequest(SeD_var& chosenServer,
 
     if (!found) {
       i_r = i_s;
-      -- i_s;
+      --i_s;
       i_ur = i_us;
-      -- i_us;
+      --i_us;
       TRACE_FUNCTION(TRACE_ALL_STEPS, "Removing a SeD from the list");
       availableSeDs.erase(i_r);
       use.erase(i_ur);
@@ -141,8 +119,8 @@ SpecificClientScheduler::burstRequest(SeD_var& chosenServer,
   // Add news SeDs
   for (ix = 0; ix < response->servers.length(); ix++) {
     found = false;
-    for (i_s = availableSeDs.begin(); i_s != availableSeDs.end(); ++ i_s) {
-      if (*i_s == static_cast<char*>(response->servers[ix].loc.SeDName)) {
+    for (i_s = availableSeDs.begin(); i_s != availableSeDs.end(); ++i_s) {
+      if (*i_s == static_cast<char *>(response->servers[ix].loc.SeDName)) {
         found = true;
         break;
       }
@@ -159,8 +137,8 @@ SpecificClientScheduler::burstRequest(SeD_var& chosenServer,
   i_ur = use.begin();
   i_r = availableSeDs.begin();
 
-  for (i_s = ++ availableSeDs.begin(), i_us = ++ use.begin();
-       i_s != availableSeDs.end(); ++ i_s, ++ i_us) {
+  for (i_s = ++availableSeDs.begin(), i_us = ++use.begin();
+       i_s != availableSeDs.end(); ++i_s, ++i_us) {
     if (*i_us < min) {
       i_ur = i_us;
       min = *i_us;
@@ -173,15 +151,15 @@ SpecificClientScheduler::burstRequest(SeD_var& chosenServer,
                  " references");
   (*i_ur) += 1;
   chosenServer = ORBMgr::getMgr()->resolve<SeD, SeD_var>(SEDCTXT, *i_r);
-}
+} // burstRequest
 
 /**
  * Round Robbin sur les SeDs ou sur les services?
  *
  */
 void
-SpecificClientScheduler::burstLimitRequest(SeD_var& chosenServer,
-                                           corba_response_t * response) {
+SpecificClientScheduler::burstLimitRequest(SeD_var &chosenServer,
+                                           corba_response_t *response) {
   static vector<string> availableSeDs;
   static vector<int> use;
 
@@ -189,7 +167,8 @@ SpecificClientScheduler::burstLimitRequest(SeD_var& chosenServer,
   for (unsigned int ix = 0; ix < response->servers.length(); ix++) {
     bool found = false;
     for (unsigned int jx = 0; jx < availableSeDs.size(); jx++) {
-      if (availableSeDs[jx]==static_cast<char*>(response->servers[ix].loc.SeDName)) {
+      if (availableSeDs[jx] ==
+          static_cast<char *>(response->servers[ix].loc.SeDName)) {
         found = true;
         break;
       }
@@ -214,15 +193,16 @@ SpecificClientScheduler::burstLimitRequest(SeD_var& chosenServer,
     }
   } // end for
   cout << "Burst scheduler chooses a SeD used " <<
-    use[idx] << "(" << min << ") times before." <<
-    " The SeDs vector contains " << availableSeDs.size() <<
-    " references" << endl;
+  use[idx] << "(" << min << ") times before." <<
+  " The SeDs vector contains " << availableSeDs.size() <<
+  " references" << endl;
   use[idx]++;
-  chosenServer = ORBMgr::getMgr()->resolve<SeD, SeD_var>(SEDCTXT, availableSeDs[idx]);
-}
+  chosenServer = ORBMgr::getMgr()->resolve<SeD, SeD_var>(SEDCTXT,
+                                                         availableSeDs[idx]);
+} // burstLimitRequest
 
 void
-SpecificClientScheduler::setSchedulingOptions(const char * schedOptions) {
+SpecificClientScheduler::setSchedulingOptions(const char *schedOptions) {
   this->schedulingOptions = schedOptions;
   stringSplit(this->schedulingOptions, "|", this->myParams);
 }
@@ -264,8 +244,9 @@ SpecificClientScheduler::isEnabled() {
 }
 
 bool
-SpecificClientScheduler::isOptionEnabled(string option, vector<string>& params) {
-  for (unsigned int ix = 0; ix<params.size(); ix++)
+SpecificClientScheduler::isOptionEnabled(string option,
+                                         vector<string> &params) {
+  for (unsigned int ix = 0; ix < params.size(); ix++)
     if (params[ix] == option) {
       return true;
     }
@@ -273,7 +254,7 @@ SpecificClientScheduler::isOptionEnabled(string option, vector<string>& params) 
 }
 
 void
-SpecificClientScheduler::removeBlanks(string& token) {
+SpecificClientScheduler::removeBlanks(string &token) {
   // remove blank
   size_t blankIt;
   while ((blankIt = token.find_first_of(" ")) != token.npos) {
@@ -282,7 +263,8 @@ SpecificClientScheduler::removeBlanks(string& token) {
 }
 
 void
-SpecificClientScheduler::stringSplit(string str, string delim, vector<string>& results) {
+SpecificClientScheduler::stringSplit(string str, string delim,
+                                     vector<string> &results) {
   size_t cutAt;
   while ((cutAt = str.find_first_of(delim)) != str.npos) {
     if (cutAt > 0) {
@@ -291,11 +273,10 @@ SpecificClientScheduler::stringSplit(string str, string delim, vector<string>& r
       removeBlanks(token);
       results.push_back(token);
     }
-    str = str.substr(cutAt+1);
+    str = str.substr(cutAt + 1);
   } // end while
   if (str.length() > 0) {
     removeBlanks(str);
     results.push_back(str);
   }
-}
-
+} // stringSplit

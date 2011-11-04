@@ -1,13 +1,13 @@
 /**
-* @file  UserSchedulers.hh
-* 
-* @brief   DIET UserScheduler class header  
-* 
-* @author  - Gael LE MAHEC (lemahec@clermont.in2p3.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
+ * @file  UserSchedulers.hh
+ *
+ * @brief   DIET UserScheduler class header
+ *
+ * @author   Gael LE MAHEC (lemahec@clermont.in2p3.fr)
+ *
+ * @section Licence
+ *   |LICENSE|
+ */
 #ifndef _USERSCHEDULER_HH_
 #define _USERSCHEDULER_HH_
 #include "GlobalSchedulers.hh"
@@ -15,22 +15,22 @@
 
 /** Utility macro to simplify the user source code. */
 #define SCHEDULER_CLASS(T)                                      \
-  extern "C" GlobalScheduler* constructor() {                   \
-    return new (T)();                                           \
+  extern "C" GlobalScheduler * constructor() {                   \
+    return new(T) ();                                           \
   }                                                             \
-  extern "C" void destructor(UserScheduler* scheduler) {        \
+  extern "C" void destructor(UserScheduler * scheduler) {        \
     delete scheduler;                                           \
   }
 
 /* Utility function converting the responses given by the children to a STL
    list of servers. */
 std::list<corba_server_estimation_t>
-CORBA_to_STL(const corba_response_t* responses, int nb_responses);
+CORBA_to_STL(const corba_response_t *responses, int nb_responses);
 
 /* Utility function converting a STL list of servers to a CORBA sequence. */
 void
 STL_to_CORBA(std::list<corba_server_estimation_t> &servers,
-             corba_response_t* &aggrResp);
+             corba_response_t * &aggrResp);
 
 /* To simplify the declarations. */
 typedef std::list<corba_server_estimation_t> ServerList;
@@ -38,28 +38,31 @@ typedef std::list<corba_server_estimation_t> ServerList;
 /** A simple exception when a module failed to be loaded. */
 class InstanciationError {
 public:
-  explicit InstanciationError(const char* error)
-    : errorCode(error) {}
+  explicit
+  InstanciationError(const char *error)
+    : errorCode(error) {
+  }
 
   InstanciationError(const InstanciationError &error)
-    : errorCode(error.errorCode) {}
+    : errorCode(error.errorCode) {
+  }
 
-  const char*
+  const char *
   message() {
     return errorCode;
   }
 
 private:
-  const char* errorCode;
+  const char *errorCode;
 };
 
 /** The UserScheduler class declaration. */
 class UserScheduler : public GlobalScheduler {
-  typedef GlobalScheduler* constructor();
-  typedef void destructor(UserScheduler*);
+  typedef GlobalScheduler *constructor ();
+  typedef void destructor (UserScheduler *);
 
 public:
-  static const char* stName;
+  static const char *stName;
 
   UserScheduler();
 
@@ -67,42 +70,43 @@ public:
 
   /** These methods are used to load the user module and to obtain an
       instance of the scheduler. */
-  static UserScheduler*
-  getInstance(const char* moduleName);
+  static UserScheduler *
+  getInstance(const char *moduleName);
 
   static GlobalScheduler *
-  instanciate(const char* moduleName);
+  instanciate(const char *moduleName);
 
   void
-  destroy(GlobalScheduler* scheduler);
+  destroy(GlobalScheduler *scheduler);
 
   static
-  GlobalScheduler*
-  deserialize(const char* serializedScheduler, const char* moduleName);
+  GlobalScheduler *
+  deserialize(const char *serializedScheduler, const char *moduleName);
 
-  static char*
-  serialize(GlobalScheduler* GS);
+  static char *
+  serialize(GlobalScheduler *GS);
 
   /** The method that has to be overloaded to define a new scheduler. */
   virtual int
-  aggregate(corba_response_t* aggrResp,
+  aggregate(corba_response_t *aggrResp,
             size_t max_srv,
             const size_t nb_responses,
-            const corba_response_t* responses);
+            const corba_response_t *responses);
 
 private:
   /** The UserScheduler class is a singleton class. Its constructor is
       private. */
-  explicit UserScheduler(const char* moduleName);
+  explicit
+  UserScheduler(const char *moduleName);
 
-  static UserScheduler* instance;
+  static UserScheduler *instance;
 
-  void* module;
+  void *module;
 
   /** These two methods are obtained from the loaded module. */
-  constructor* constructs;
+  constructor *constructs;
 
-  destructor* destroys;
+  destructor *destroys;
 };
 
 /* */
@@ -149,7 +153,8 @@ private:
 #define NUMWAITINGJOBS(server) (diet_est_get_internal((&(server).estim, \
                                                        EST_NUMWAITINGJOBS, 0))
 #define USERDEFINED(server, nb) (diet_est_get_internal(&(server).estim, \
-                                                       EST_USERDEFINED+(nb), 0))
+                                                       EST_USERDEFINED + (nb), \
+                                                       0))
 
 /* To define sort functions to use with a STL list. */
 
@@ -194,4 +199,4 @@ private:
 /* Sorts the list using the comparison function "fun". */
 #define SORT(list, fun) ((list).sort(fun))
 
-#endif
+#endif /* ifndef _USERSCHEDULER_HH_ */

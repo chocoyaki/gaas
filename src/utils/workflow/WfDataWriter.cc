@@ -3,27 +3,11 @@
 * 
 * @brief  Abstract interface and implementations of data writers 
 * 
-* @author  - Benjamin Isnard (benjamin.isnard@ens-lyon.fr)
+* @author  Benjamin Isnard (benjamin.isnard@ens-lyon.fr)
 * 
 * @section Licence
 *   |LICENSE|                                                                
 */
-/* $Id$
- * $Log$
- * Revision 1.4  2009/11/06 13:06:37  bisnard
- * replaced 'list' tag by 'array' tag in data files
- *
- * Revision 1.3  2009/08/26 10:32:11  bisnard
- * corrected  warnings
- *
- * Revision 1.2  2009/07/01 15:05:25  bisnard
- * bug correction (display pointer instead of value)
- *
- * Revision 1.1  2009/06/15 12:01:20  bisnard
- * new class WfDataWriter to abstract the different ways of
- * displaying data within a workflow (XML or list)
- *
- */
 
 
 #include "WfDataWriter.hh"

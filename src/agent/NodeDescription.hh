@@ -1,42 +1,14 @@
 /**
-* @file  NodeDescription.hh
-* 
-* @brief  Description for an node of the DIET hierarchy  
-* 
-* @author - Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.7  2010/03/31 21:15:39  bdepardo
- * Changed C headers into C++ headers
+ * @file  NodeDescription.hh
  *
- * Revision 1.6  2004/09/29 13:35:31  sdahan
- * Add the Multi-MAs feature.
+ * @brief  Description for an node of the DIET hierarchy
  *
- * Revision 1.5  2004/06/11 15:45:39  ctedesch
- * add DIET/JXTA
+ * @author  Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)
  *
- * Revision 1.4  2003/09/22 21:08:07  pcombes
- * Still some problems with Coding Standards ...
- *
- * Revision 1.3  2003/05/22 12:20:25  sdahan
- * Now the NodeDescriptor completly manages its own memory by itself.
- * The -> operator is defined. You can do :
- * descriptor->ping();
- * instead of :
- * LocalAgent_ptr la = localAgent::_duplicate(descriptor.getIor());
- * la->ping();
- * CORBA::release(la);
- *
- * Revision 1.2  2003/05/05 14:32:29  pcombes
- * assert in NodeDescription(T_ptr ior, const char* hostName) was buggy.
- *
- * Revision 1.1  2003/04/10 12:58:35  pcombes
- * Replace AgentDescription.hh. Fix bugs on memory management.
- ****************************************************************************/
+ * @section Licence
+ *   |LICENSE|
+ */
+
 
 #ifndef _NODEDESCRIPTION_HH_
 #define _NODEDESCRIPTION_HH_
@@ -45,21 +17,15 @@
 #include "debug.hh"
 #include "ms_function.hh"
 
-/**
- * The NodeDescription manages the hostname and the IOR of an
- * node. The node can be an Agent or a SeD. The T_ptr must be the
- * pointer of the node.  ex : NodeDescription<SeD, SeD_ptr>
- *
- * All the methods make a copy of the ior and hostname given in
- * argument. The memory is release when the object is destroyed or
- * when a new value of the ior and of the hostname is set.
- */
+
 
 template<class T, class T_ptr> class NodeDescription {
 public:
   /** return true if the node is define, false if not. */
   inline bool
-  defined() const { return hostName; }
+  defined() const {
+    return hostName;
+  }
 
   /**
    * creates a new undefined NodeDescription.
@@ -76,7 +42,7 @@ public:
    * @param hostName the hostName of the node. It must be not \c NULL. A
    * copy of the hostName is made.
    */
-  NodeDescription(T_ptr ior, const char* hostName) {
+  NodeDescription(T_ptr ior, const char *hostName) {
     assert(hostName != NULL);
     copyMemory(ior, hostName);
   }
@@ -88,7 +54,7 @@ public:
    * @param nodeDescription the NodeDescription which are
    * duplicated.
    */
-  NodeDescription(const NodeDescription& nodeDescription) {
+  NodeDescription(const NodeDescription &nodeDescription) {
     copyMemory(nodeDescription.ior, nodeDescription.hostName);
   }
 
@@ -104,8 +70,8 @@ public:
    *
    * @param nodeDescription a NodeDescription that must be copied.
    */
-  NodeDescription<T, T_ptr>&
-  operator=(const NodeDescription<T, T_ptr>& nodeDescription) {
+  NodeDescription<T, T_ptr> &
+  operator = (const NodeDescription<T, T_ptr>&nodeDescription) {
     freeMemory();
     copyMemory(nodeDescription.ior, nodeDescription.hostName);
     return *this;
@@ -117,7 +83,7 @@ public:
    * @param hostName deep copied
    */
   void
-  set(const T_ptr ior, const char* hostName) {
+  set(const T_ptr ior, const char *hostName) {
     freeMemory();
     copyMemory(ior, hostName);
   }
@@ -142,7 +108,7 @@ public:
    *
    * @return the hostName of the node.
    */
-  const char*
+  const char *
   getHostName() const {
     assert(defined());
     return this->hostName;
@@ -163,7 +129,7 @@ private:
    * the hostname of the node. It is \c NULL if the description is not
    * defined
    */
-  char* hostName;
+  char *hostName;
 
   /**
    * free the memory of the node description
@@ -181,7 +147,7 @@ private:
    * copy the argument into the attribut of the node
    */
   inline void
-  copyMemory(T_ptr ior, const char* hostName) {
+  copyMemory(T_ptr ior, const char *hostName) {
     if (hostName != NULL) {
       this->ior = T::_duplicate(ior);
       this->hostName = ms_strdup(hostName);

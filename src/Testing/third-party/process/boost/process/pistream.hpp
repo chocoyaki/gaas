@@ -27,7 +27,6 @@
 
 namespace boost {
 namespace process {
-
 /**
  * Child process' output stream.
  *
@@ -54,61 +53,59 @@ namespace process {
  *         eventually empties and the system blocks until the writer
  *         generates some data.
  */
-class pistream : public std::istream, public boost::noncopyable
-{
+class pistream: public std::istream, public boost::noncopyable {
 public:
-    /**
-     * Creates a new process' output stream.
-     */
-    explicit pistream(boost::process::handle h)
-        : std::istream(0),
-          handle_(h),
-          systembuf_(handle_.native())
-    {
-        rdbuf(&systembuf_);
-    }
+/**
+ * Creates a new process' output stream.
+ */
+explicit
+pistream(boost::process::handle h)
+  : std::istream(0),
+  handle_(h),
+  systembuf_(handle_.native()) {
+  rdbuf(&systembuf_);
+}
 
-    /**
-     * Returns the handle managed by this stream.
-     */
-    const boost::process::handle &handle() const
-    {
-        return handle_;
-    }
+/**
+ * Returns the handle managed by this stream.
+ */
+const boost::process::handle &
+handle() const {
+  return handle_;
+}
 
-    /**
-     * Returns the handle managed by this stream.
-     */
-    boost::process::handle &handle()
-    {
-        return handle_;
-    }
+/**
+ * Returns the handle managed by this stream.
+ */
+boost::process::handle &
+handle() {
+  return handle_;
+}
 
-    /**
-     * Closes the handle managed by this stream.
-     *
-     * Explicitly closes the handle managed by this stream. This
-     * function can be used by the user to tell the child process it's
-     * not willing to receive more data.
-     */
-    void close()
-    {
-        handle_.close();
-    }
+/**
+ * Closes the handle managed by this stream.
+ *
+ * Explicitly closes the handle managed by this stream. This
+ * function can be used by the user to tell the child process it's
+ * not willing to receive more data.
+ */
+void
+close() {
+  handle_.close();
+}
 
 private:
-    /**
-     * The handle managed by this stream.
-     */
-    boost::process::handle handle_;
+/**
+ * The handle managed by this stream.
+ */
+boost::process::handle handle_;
 
-    /**
-     * The systembuf object used to manage this stream's data.
-     */
-    detail::systembuf systembuf_;
+/**
+ * The systembuf object used to manage this stream's data.
+ */
+detail::systembuf systembuf_;
 };
-
 }
 }
 
-#endif
+#endif // ifndef BOOST_PROCESS_PISTREAM_HPP

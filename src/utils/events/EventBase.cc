@@ -1,22 +1,14 @@
 /**
-* @file EventBase.cc
-* 
-* @brief  Event Base class  
-* 
-* @author - Benjamin Isnard (benjamin.isnard@ens-lyon.fr
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.2  2010/11/24 15:38:05  bdepardo
- * New line at the end of the file to prevent warnings
+ * @file EventBase.cc
  *
- * Revision 1.1  2010/07/20 09:13:57  bisnard
- * Adding event dispatcher
+ * @brief  Event Base class
  *
+ * @author  Benjamin Isnard (benjamin.isnard@ens-lyon.fr)
+ *
+ * @section Licence
+ *   |LICENSE|
  */
+
 
 #include "EventBase.hh"
 #include <map>
@@ -35,16 +27,17 @@ static const pair<short, string> severity2str_init[] = {
   pair<short, string>(EventBase::FATAL, "FATAL ERROR")
 };
 
-static map<short, string> severity2str(severity2str_init, severity2str_init
-                                      + sizeof(severity2str_init)/sizeof(severity2str_init[0]));
+static map<short, string> severity2str(
+  severity2str_init, severity2str_init
+  + sizeof(severity2str_init) /
+  sizeof(severity2str_init[0]));
 
 string
 EventBase::toString() const {
   return severity2str[(short) mySeverity];
 }
 
-ostream&
-operator << (ostream& out, const EventBase& e) {
+ostream &
+operator<<(ostream &out, const EventBase &e) {
   return out << e.toString();
 }
-

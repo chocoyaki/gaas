@@ -1,19 +1,14 @@
 /**
-* @file  ReadersWriterLock.hh
-* 
-* @brief  ReadersWriter guard algorithm from comp.programming.threads and c.schmidt scope 
-* 
-* @author  - Christophe PERA (christophe.pera@ens-lyon.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.5  2003/09/22 13:19:52  cpera
- * Coding standards ...
+ * @file  ReadersWriterLock.hh
  *
- ****************************************************************************/
+ * @brief  ReadersWriter guard algorithm from comp.programming.threads and c.schmidt scope
+ *
+ * @author  Christophe PERA (christophe.pera@ens-lyon.fr)
+ *
+ * @section Licence
+ *   |LICENSE|
+ */
+
 
 #ifndef _ReadersWriterLock_h_
 #define _ReadersWriterLock_h_
@@ -37,7 +32,7 @@ class DietReadersWriterLock {
 public:
   DietReadersWriterLock()
     : c(&m), writer_count(0), readers_waiting(0),
-      reader_count(0), is_write_lock(0) {
+    reader_count(0), is_write_lock(0) {
   }
 
   void
@@ -82,10 +77,10 @@ private:
   int writer_count, readers_waiting, reader_count, is_write_lock;
 };
 
-//simple Scoped Lock
+// simple Scoped Lock
 class ReaderLockGuard {
 public:
-  ReaderLockGuard(DietReadersWriterLock& l) : lock(l), state(false) {
+  ReaderLockGuard(DietReadersWriterLock & l): lock(l), state(false) {
     acquire();
   }
 
@@ -110,14 +105,14 @@ public:
   }
 
 private:
-  DietReadersWriterLock& lock;
+  DietReadersWriterLock &lock;
   bool state;
 };
 
-//simple Scoped Lock
+// simple Scoped Lock
 class WriterLockGuard {
 public:
-  WriterLockGuard(DietReadersWriterLock& l) : lock(l), state(false) {
+  WriterLockGuard(DietReadersWriterLock & l): lock(l), state(false) {
     acquire();
   }
 
@@ -142,8 +137,8 @@ public:
   }
 
 private:
-  DietReadersWriterLock& lock;
+  DietReadersWriterLock &lock;
   bool state;
 };
 
-#endif
+#endif /* ifndef _ReadersWriterLock_h_ */

@@ -1,83 +1,14 @@
-/****************************************************************************/
-/* DIET SeD IDL description                                                 */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
-/*    - Frederic LOMBARD (Frederic.Lombard@lifc.univ-fcomte.fr)             */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
-/* $Id$
- * $Log$
- * Revision 1.21  2011/05/09 13:10:10  bdepardo
- * Added method diet_get_SeD_services to retreive the services of a SeD given
- * its name
+/**
+ * @file SeD.idl
  *
- * Revision 1.20  2010/03/08 13:33:08  bisnard
- * new method to retrieve DAGDA agent ID (CORBA)
+ * @brief  DIET SeD IDL description    
  *
- * Revision 1.19  2009/10/26 09:02:51  bdepardo
- * Added 3 methods to dynamically manage the hierarchy:
- * - long bindParent(in string parentName): change the parent of the SeD
- * - long disconnect(): unsubscribe the SeD from its parent
- * - long removeElement(): kills the SeD
+ * @author  Philippe COMBES (Philippe.Combes@ens-lyon.fr)
+ *          Frederic LOMBARD (Frederic.Lombard@lifc.univ-fcomte.fr)
  *
- * Revision 1.18  2007/06/28 18:23:19  rbolze
- * add dietReqID in the profile.
- * and propagate this change to all functions that  have both reqID and profile parameters.
- * TODO : look at the asynchronous mechanism (client->SED) to propage this change.
- *
- * Revision 1.17  2007/03/01 15:55:06  ycaniou
- * Added the updateTimeSinceLastSolve() feature
- *
- * Revision 1.16  2006/04/04 10:18:58  lphilipp
- *
- * Ajout d'un README, avec quelques explications
- * MIse a jour des IDL
- * Quelques changements
- *
- * Revision 1.15  2005/04/27 01:04:55  ycaniou
- * Added solve_batch() to the SeD API
- * Modified corba profile structures
- *
- * Revision 1.14  2004/07/29 18:52:11  rbolze
- * Change solve function now , DIET_client send the reqID of the request when
- * he call the solve function.
- * Nothing is change for DIET's API
- *
- * Revision 1.13  2003/06/02 15:29:46  cpera
- * Update callback use.
- *
- * Revision 1.12  2003/06/02 08:08:11  cpera
- * Beta version of asynchronize DIET API.
- *
- * Revision 1.11  2003/04/10 12:21:23  pcombes
- * Add checkContract method.
- *
- * Revision 1.10  2002/12/03 19:08:23  pcombes
- * Update configure, update to FAST 0.3.15, clean CVS logs in files.
- * Put main Makefile in root directory.
- *
- * Revision 1.8  2002/10/03 17:58:14  pcombes
- * Add trace levels (for Bert): traceLevel = n can be added in cfg files.
- * An agent son can now be killed (^C) without crashing this agent.
- * DIET with FAST: compilation is OK, but run time is still to be fixed.
- *
- * Revision 1.7  2002/09/17 15:23:12  pcombes
- * Bug fixes on inout arguments and examples
- * Add support for omniORB 4.0.0
- *
- * Revision 1.6  2002/08/30 16:50:13  pcombes
- * This version works as well as the alpha version from the user point of view,
- * but the API is now the one imposed by the latest specifications (GridRPC API
- * in its sequential part, config file for all parts of the platform, agent
- * algorithm, etc.)
- *  - Reduce marshalling by using CORBA types internally
- *  - Creation of a class ServiceTable that is to be replaced
- *    by an LDAP DB for the MA
- *  - No copy for client/SeD data transfers
- *  - ...
- ****************************************************************************/
+ * @section Licence
+ *   |LICENSE|
+ */
 
 
 #ifndef _SED_IDL_

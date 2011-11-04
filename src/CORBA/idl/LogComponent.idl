@@ -1,60 +1,14 @@
-/****************************************************************************/
-/* Defines the componentside interfaces needed by the new LogService        */
-/*                                                                          */
-/*  Author(s):                                                              */
-/*    - Georg Hoesch (hoesch@in.tum.de)                                     */
-/*    - Cyrille Pontivieux (cyrille.pontivieux@ens-lyon.fr)                 */
-/*                                                                          */
-/* $LICENSE$                                                                */
-/****************************************************************************/
-/* $Id$
- * $Log$
- * Revision 1.3  2010/07/12 15:54:11  glemahec
- * DIET 2.5 beta 1 - Forwarder IDL files
+/**
+ * @file LogComponent.idl
  *
- * Revision 1.2  2007/08/31 16:52:25  bdepardo
- * Implemented the new test() method in LogCentralComponent.
- * Used to check whether or not a component is reachable.
+ * @brief  Defines the componentside interfaces needed by the new LogService   
  *
- * Revision 1.1  2004/03/01 18:27:32  rbolze
- * idl file for logservice
+ * @author  Georg Hoesch (hoesch@in.tum.de)
+ *          Cyrille Pontivieux (cyrille.pontivieux@ens-lyon.fr)
  *
- * Revision 1.12  2003/11/18 18:41:14  cpontvie
- * Catch more exceptions
- *
- * Revision 1.11  2003/11/12 12:56:41  cpontvie
- * Bugfixes, more comments, remove some useless sections
- *
- * Revision 1.10  2003/11/06 16:06:32  cpontvie
- * Correct some bugs with mutex and change the type of the log_time_t
- *
- * Revision 1.9  2003/11/03 14:28:48  cpontvie
- * Update all Makefiles and add some checks to the testers
- *
- * Revision 1.8  2003/10/29 13:13:49  cpontvie
- * Add a constant
- *
- * Revision 1.7  2003/10/27 17:49:03  cpontvie
- * Add the implementation for the LogCentralComponent_impl
- *
- * Revision 1.6  2003/10/24 13:28:37  cpontvie
- * Change the log_time_t struct to a typedef of long long and some others minor
- * changes
- *
- * Revision 1.5  2003/10/24 12:05:43  ghoesch
- * corrected minor spelling errors in function names
- *
- * Revision 1.4  2003/10/24 10:05:11  cpontvie
- * New constants definition
- *
- * Revision 1.3  2003/10/23 10:06:44  cpontvie
- * minor changes
- *
- * Revision 1.2  2003/10/22 09:03:59  ghoesch
- * added the correct headers
- * 
- ****************************************************************************/
-
+ * @section Licence
+ *   |LICENSE|
+ */
 #ifndef _LOGCOMPONENT_IDL_
 #define _LOGCOMPONENT_IDL_
 

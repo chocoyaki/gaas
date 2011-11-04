@@ -25,7 +25,6 @@
 
 namespace boost {
 namespace process {
-
 /**
  * A pair of handles to configure streams.
  *
@@ -35,34 +34,31 @@ namespace process {
  * to communicate with a child process through its standard streams.
  */
 struct stream_ends {
-    /**
-     * The child's end.
-     */
-    handle child;
+  /**
+   * The child's end.
+   */
+  handle child;
 
-    /**
-     * The parent's end.
-     */
-    handle parent;
+  /**
+   * The parent's end.
+   */
+  handle parent;
 
-    /**
-     * Standard constructor creating two invalid handles.
-     */
-    stream_ends()
-    {
-    }
+  /**
+   * Standard constructor creating two invalid handles.
+   */
+  stream_ends() {
+  }
 
-    /**
-     * Helper constructor to easily initialize handles.
-     */
-    stream_ends(handle c, handle p)
+  /**
+   * Helper constructor to easily initialize handles.
+   */
+  stream_ends(handle c, handle p)
     : child(c),
-    parent(p)
-    {
-    }
+    parent(p) {
+  }
 };
-
 }
 }
 
-#endif
+#endif // ifndef BOOST_PROCESS_STREAM_ENDS_HPP

@@ -1,34 +1,21 @@
 /**
-* @file LogComponent.cc
-* 
-* @brief  DIET forwarder implementation - Log component forwarder implementation  
-* 
-* @author - Gael Le Mahec   (gael.le.mahec@ens-lyon.fr) 
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.4  2010/07/27 16:16:49  glemahec
- * Forwarders robustness
+ * @file LogComponent.cc
  *
- * Revision 1.3  2010/07/14 23:45:30  bdepardo
- * Header corrections
+ * @brief  DIET forwarder implementation - Log component forwarder implementation
  *
- * Revision 1.2  2010/07/13 15:24:13  glemahec
- * Warnings corrections and some robustness improvements
+ * @author  Gael Le Mahec   (gael.le.mahec@ens-lyon.fr)
  *
- * Revision 1.1  2010/07/12 16:08:56  glemahec
- * DIET 2.5 beta 1 - Forwarder implementations
- ****************************************************************************/
+ * @section Licence
+ *   |LICENSE|
+ */
+
 
 #include "DIETForwarder.hh"
 #include "ORBMgr.hh"
 #include <string>
 
 void
-DIETForwarder::setTagFilter(const ::tag_list_t& tagList, const char* objName) {
+DIETForwarder::setTagFilter(const ::tag_list_t &tagList, const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -44,10 +31,10 @@ DIETForwarder::setTagFilter(const ::tag_list_t& tagList, const char* objName) {
                                                               name,
                                                               this->name);
   return cfg->setTagFilter(tagList);
-}
+} // setTagFilter
 
 void
-DIETForwarder::addTagFilter(const ::tag_list_t& tagList, const char* objName) {
+DIETForwarder::addTagFilter(const ::tag_list_t &tagList, const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -63,11 +50,11 @@ DIETForwarder::addTagFilter(const ::tag_list_t& tagList, const char* objName) {
                                                               name,
                                                               this->name);
   return cfg->addTagFilter(tagList);
-}
+} // addTagFilter
 
 void
-DIETForwarder::removeTagFilter(const ::tag_list_t& tagList,
-                               const char* objName) {
+DIETForwarder::removeTagFilter(const ::tag_list_t &tagList,
+                               const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -83,10 +70,10 @@ DIETForwarder::removeTagFilter(const ::tag_list_t& tagList,
                                                               name,
                                                               this->name);
   return cfg->removeTagFilter(tagList);
-}
+} // removeTagFilter
 
 void
-DIETForwarder::test(const char* objName) {
+DIETForwarder::test(const char *objName) {
   std::string objString(objName);
   std::string name;
 
@@ -102,4 +89,4 @@ DIETForwarder::test(const char* objName) {
                                                               name,
                                                               this->name);
   return cfg->test();
-}
+} // test

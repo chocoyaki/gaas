@@ -1,18 +1,15 @@
 /**
-* @file MultiWfFCFS.cc
-* 
-* @brief  Another multi-workflow scheduler based on First Come First Serve
-* 
-* @author - Raphaël  Bolze  (raphael.bolze@ens-lyon.fr) 
-*         - Benjamin Isnard (Benjamin.Isnard@ens-lyon.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $@Id$
- * $@Log$
+ * @file MultiWfFCFS.cc
  *
+ * @brief  Another multi-workflow scheduler based on First Come First Serve
+ *
+ * @author  Raphaël  Bolze  (raphael.bolze@ens-lyon.fr)
+ *          Benjamin Isnard (Benjamin.Isnard@ens-lyon.fr)
+ *
+ * @section Licence
+ *   |LICENSE|
  */
+
 
 #include <map>
 
@@ -27,7 +24,7 @@ using namespace madag;
 /*                         PUBLIC METHODS                                   */
 /****************************************************************************/
 
-MultiWfFCFS::MultiWfFCFS(MaDag_impl* maDag)
+MultiWfFCFS::MultiWfFCFS(MaDag_impl *maDag)
   : MultiWfScheduler(maDag, MultiWfScheduler::MULTIWF_DAG_METRIC) {
   this->execQueue = new PriorityNodeQueue;
   TRACE_TEXT(TRACE_MAIN_STEPS, "Using FCFS multi-workflow scheduler\n");
@@ -47,7 +44,7 @@ MultiWfFCFS::~MultiWfFCFS() {
  * each time a node is put into execution queue)
  */
 void
-MultiWfFCFS::handlerNodeDone(DagNode * node) {
+MultiWfFCFS::handlerNodeDone(DagNode *node) {
   // does nothing
 }
 
@@ -55,14 +52,14 @@ MultiWfFCFS::handlerNodeDone(DagNode * node) {
  * set node priority before inserting into execution queue
  */
 void
-MultiWfFCFS::setExecPriority(DagNode * node) {
-  node->setPriority(1/node->getDag()->getStartTime());
+MultiWfFCFS::setExecPriority(DagNode *node) {
+  node->setPriority(1 / node->getDag()->getStartTime());
 }
 
 /**
  * Set priority before inserting back in the ready queue
  */
 void
-MultiWfFCFS::setWaitingPriority(DagNode * node) {
+MultiWfFCFS::setWaitingPriority(DagNode *node) {
   node->setPriority(this->nodesHEFTPrio[node]);
 }

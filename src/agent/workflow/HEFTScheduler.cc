@@ -1,86 +1,14 @@
 /**
-* @file HEFTScheduler.cc
-* 
-* @brief  The MA DAG HEFT scheduler 
-* 
-* @author - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.19  2011/01/20 18:27:03  bdepardo
- * Prefer prefix ++/-- operators for non-primitive types.
+ * @file HEFTScheduler.cc
  *
- * Revision 1.18  2011/01/20 18:25:06  bdepardo
- * Removed useless variable
+ * @brief  The MA DAG HEFT scheduler
  *
- * Revision 1.17  2010/12/17 09:48:00  kcoulomb
- * * Set diet to use the new log with forwarders
- * * Fix a CoRI problem
- * * Add library version remove DTM flag from ccmake because deprecated
+ * @author  Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)
  *
- * Revision 1.16  2010/07/20 08:59:36  bisnard
- * Added event generation
- *
- * Revision 1.15  2010/07/12 16:14:11  glemahec
- * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
- *
- * Revision 1.14  2010/03/08 13:42:46  bisnard
- * removed debug output
- *
- * Revision 1.13  2009/09/25 12:39:13  bisnard
- * modified includes to reduce inter-dependencies
- *
- * Revision 1.12  2009/06/23 09:25:38  bisnard
- * use new estimation vector entry (EST_EFT)
- *
- * Revision 1.11  2009/04/17 08:45:40  bisnard
- * renamed Node class as WfNode
- *
- * Revision 1.10  2008/10/14 13:24:48  bisnard
- * use new class structure for dags (DagNode, DagNodePort)
- *
- * Revision 1.9  2008/09/30 15:33:35  bisnard
- * Node::prevNodes and nextNodes data structures modified
- *
- * Revision 1.8  2008/06/25 10:05:44  bisnard
- * - Waiting priority set when node is put back in waiting queue
- * - Node index in wf_response stored in Node class (new attribute submitIndex)
- * - HEFT scheduler uses SeD ref instead of hostname
- * - Estimation vector and ReqID passed to client when SeD chosen by MaDag
- * - New params in execNodeOnSeD to provide ReqId and estimation vector
- * to client for solve request
- *
- * Revision 1.7  2008/06/18 15:01:33  bisnard
- * use new attribute estDuration to store job duration for each node
- * rename method to avoid confusion (getCompTimeEst)
- * initialize dag scheduling time in multi-wf scheduler
- *
- * Revision 1.6  2008/06/03 15:32:59  bisnard
- * Modify rank calculation
- *
- * Revision 1.5  2008/05/05 13:54:17  bisnard
- * new computation time estimation get/set functions
- *
- * Revision 1.4  2008/04/30 07:32:24  bisnard
- * use relative timestamps for estimated and real completion time
- *
- * Revision 1.3  2008/04/28 11:54:52  bisnard
- * new methods setNodePriorities & setNodesEFT replacing schedule
- * nodes sort done in separate method in Dag class
- *
- * Revision 1.2  2008/04/21 14:31:45  bisnard
- * moved common multiwf routines from derived classes to MultiWfScheduler
- * use wf request identifer instead of dagid to reference client
- * use nodeQueue to manage multiwf scheduling
- * renamed WfParser as DagWfParser
- *
- * Revision 1.1  2008/04/10 08:15:54  bisnard
- * New version of the MaDag where workflow node execution is triggered by the MaDag agent and done by a new CORBA object CltWfMgr located in the client
- *
- ****************************************************************************/
+ * @section Licence
+ *   |LICENSE|
+ */
+
 
 #include "est_internal.hh"
 #include "HEFTScheduler.hh"
@@ -104,20 +32,20 @@ HEFTScheduler::~HEFTScheduler() {
  * Set the priority of nodes using b-level algorithm
  */
 void
-HEFTScheduler::setNodesPriority(const wf_response_t * wf_response, Dag * dag) {
-
+HEFTScheduler::setNodesPriority(const wf_response_t *wf_response, Dag *dag) {
   TRACE_TEXT(TRACE_ALL_STEPS, "HEFT : Setting nodes priority\n");
   // Initialize the node weights (priority attr)
   this->computeNodeWeights(wf_response, dag);
 
   // Ranking
-  DagNode * n = NULL;
+  DagNode *n = NULL;
   for (std::map <std::string, DagNode *>::iterator p = dag->begin();
        p != dag->end();
        ++p) {
-    n = (DagNode *)(p->second);
-    if (n->isAnExit())
+    n = (DagNode *) (p->second);
+    if (n->isAnExit()) {
       rank(n);
+    }
   }
 } // end setNodesPriority
 
@@ -133,22 +61,22 @@ HEFTScheduler::setNodesPriority(const wf_response_t * wf_response, Dag * dag) {
  * @param initTime the current time (relative to scheduler ref) in ms
  */
 void
-HEFTScheduler::setNodesEFT(std::vector<DagNode *>& orderedNodes,
-                           const wf_response_t * wf_response,
-                           Dag * dag,
+HEFTScheduler::setNodesEFT(std::vector<DagNode *> &orderedNodes,
+                           const wf_response_t *wf_response,
+                           Dag *dag,
                            double initTime) {
   // to store the availabilty of resources
   std::map<SeD_ptr, double> avail;
   TRACE_TEXT(TRACE_ALL_STEPS, "HEFT : start computing nodes EFT (init time = "
-              << initTime << ")\n");
+             << initTime << ")\n");
   // LOOP-1: for all dag nodes in the order provided
   for (std::vector<DagNode *>::iterator p = orderedNodes.begin();
        p != orderedNodes.end();
        ++p) {
-    DagNode *        n = (DagNode *) *p;
-    unsigned int  pb_index = 0;  // index of the service (problem) in the wf_response
-    SeD_ptr       chosenSeDPtr;  // ref to the chosen SeD
-    double        EFT = 0;      // earliest finish time for current node
+    DagNode *n = (DagNode *) *p;
+    unsigned int pb_index = 0;   // index of the service (problem) in the wf_response
+    SeD_ptr chosenSeDPtr;        // ref to the chosen SeD
+    double EFT = 0;             // earliest finish time for current node
 
     // find the problem index
     pb_index = n->getSubmitIndex();  // this index was stored before submitting to MA
@@ -158,7 +86,9 @@ HEFTScheduler::setNodesEFT(std::vector<DagNode *>& orderedNodes,
     for (unsigned int ix = 0;
          ix < wf_response->wfn_seq_resp[pb_index].response.servers.length();
          ix++) {
-      std::string ss(CORBA::string_dup(wf_response->wfn_seq_resp[pb_index].response.servers[ix].loc.hostName));
+      std::string ss(CORBA::string_dup(
+                       wf_response->wfn_seq_resp[pb_index].response.servers[ix]
+                       .loc.hostName));
       std::string sedName(
         wf_response->wfn_seq_resp[pb_index].response.servers[ix].loc.SeDName);
       SeD_ptr curSeDPtr =
@@ -180,12 +110,12 @@ HEFTScheduler::setNodesEFT(std::vector<DagNode *>& orderedNodes,
         }
       }
       // increase earliest starting time if some dependencies with other nodes
-      for (std::vector<WfNode*>::iterator prevIter = n->prevNodesBegin();
+      for (std::vector<WfNode *>::iterator prevIter = n->prevNodesBegin();
            prevIter != n->prevNodesEnd();
            ++prevIter) {
         EST =
           std::max(EST,
-                   AFT[(dynamic_cast<DagNode*>(*prevIter))->getCompleteId()]);
+                   AFT[(dynamic_cast<DagNode *>(*prevIter))->getCompleteId()]);
       }
       // choose server if it improves the EFT
       double nodeDuration = this->getNodeDurationEst(wf_response, pb_index, ix);
@@ -194,15 +124,15 @@ HEFTScheduler::setNodesEFT(std::vector<DagNode *>& orderedNodes,
         chosenSeDPtr = curSeDPtr;
       }
     } // end for ix
-    /* END OF THE MAIN COMPUTATION LOOP */
+      /* END OF THE MAIN COMPUTATION LOOP */
 
     // update availability of chosen server
     avail[chosenSeDPtr] = EFT;
     // update node scheduling info
     AFT[n->getCompleteId()] = EFT;
-    n->setEstCompTime((long int)EFT);
+    n->setEstCompTime((long int) EFT);
     TRACE_TEXT(TRACE_ALL_STEPS, "HEFT : node " << n->getCompleteId()
-                << " : EFT = " << EFT << "\n");
+                                               << " : EFT = " << EFT << "\n");
   } // end LOOP-1
 } // end setNodesEFT
 
@@ -215,27 +145,28 @@ HEFTScheduler::setNodesEFT(std::vector<DagNode *>& orderedNodes,
  * IMPORTANT: the value must be in milliseconds
  */
 double
-HEFTScheduler::getNodeDurationEst(const wf_response_t * wf_response,
+HEFTScheduler::getNodeDurationEst(const wf_response_t *wf_response,
                                   unsigned int pbIndex,
                                   unsigned int srvIndex) {
-  return diet_est_get_internal(&wf_response->wfn_seq_resp[pbIndex].response.servers[srvIndex].estim,
-                               EST_TCOMP, 0);
+  return diet_est_get_internal(
+           &wf_response->wfn_seq_resp[pbIndex].response.servers[srvIndex].estim,
+           EST_TCOMP, 0);
 }
 
 /**
  * Computes the average value of node workload across the Seds
  */
 void
-HEFTScheduler::computeNodeWeights(const wf_response_t * wf_response,
-                                  Dag * dag) {
+HEFTScheduler::computeNodeWeights(const wf_response_t *wf_response,
+                                  Dag *dag) {
   TRACE_TEXT(TRACE_ALL_STEPS,
              "HEFT : start computing weights (mean of estimates)\n");
-  DagNode * n = NULL;
+  DagNode *n = NULL;
   int ix = 0;  // index of the node response in wf_response
   for (std::map<std::string, DagNode *>::iterator p = dag->begin();
        p != dag->end();
        ++p) {
-    n = (DagNode *)(p->second);
+    n = (DagNode *) (p->second);
     n->setEstDuration(0);
     ix = n->getSubmitIndex();  // the index was stored before submitting to MA
     double w = 0;
@@ -244,29 +175,31 @@ HEFTScheduler::computeNodeWeights(const wf_response_t * wf_response,
     for (unsigned int jx = 0; jx < nbServers; jx++) {
       w += this->getNodeDurationEst(wf_response, ix, jx);
     } // end for jx
-    if (nbServers > 0) n->setEstDuration(w / nbServers);
+    if (nbServers > 0) {
+      n->setEstDuration(w / nbServers);
+    }
     TRACE_TEXT(TRACE_ALL_STEPS,
                " HEFT : node " << n->getCompleteId() << " weight :"
-               << n->getEstDuration() << "\n");
+                               << n->getEstDuration() << "\n");
   }
-}
+} // computeNodeWeights
 
 /**
  * rank the nodes upward
  * (uses the estimation of job duration calculated for each node)
  */
 void
-HEFTScheduler::rank(DagNode * n) {  // RECURSIVE
-  DagNode * succ = NULL;
+HEFTScheduler::rank(DagNode *n) {   // RECURSIVE
+  DagNode *succ = NULL;
   unsigned len = n->nextNodesNb();
   if (len == 0) { // exit node
     n->setPriority(n->getEstDuration());
   } else {
     // LOOP for all descendant nodes of n
-    for (std::list<WfNode*>::iterator nextIter = n->nextNodesBegin();
+    for (std::list<WfNode *>::iterator nextIter = n->nextNodesBegin();
          nextIter != n->nextNodesEnd();
          ++nextIter) {
-      succ = dynamic_cast<DagNode*>(*nextIter);
+      succ = dynamic_cast<DagNode *>(*nextIter);
       // add duration of current node and priority of descendant node and compare it to
       // priority of current node: if higher then change priority of current node
       if ((succ->getPriority() + n->getEstDuration()) > n->getPriority()) {
@@ -274,15 +207,18 @@ HEFTScheduler::rank(DagNode * n) {  // RECURSIVE
       }
     }
   }
-  TRACE_TEXT(TRACE_ALL_STEPS, " HEFT : priority of node " << n->getCompleteId()
-              << " is " << n->getPriority() << "\n");
+  TRACE_TEXT(TRACE_ALL_STEPS,
+             " HEFT : priority of node " << n->getCompleteId()
+                                         << " is " <<
+             n->getPriority() << "\n");
   // LOOP for all preceding nodes of n
-  for (std::vector<WfNode*>::iterator prevIter = n->prevNodesBegin();
+  for (std::vector<WfNode *>::iterator prevIter = n->prevNodesBegin();
        prevIter != n->prevNodesEnd();
        ++prevIter) {
-    DagNode * prev = dynamic_cast<DagNode*>(*prevIter);
+    DagNode *prev = dynamic_cast<DagNode *>(*prevIter);
     // if preceding node is not already done or running then rank it
-    if ((!prev->isDone()) && (!prev->isRunning()))
+    if ((!prev->isDone()) && (!prev->isRunning())) {
       rank(prev);
+    }
   }
-}
+} // rank

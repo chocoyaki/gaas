@@ -1,27 +1,14 @@
 /**
-* @file DagdaFactory.hh
-* 
-* @brief  Used to obtain this DIET component data manager easil from everywhere.   
-* 
-* @author  - Gael Le Mahec (lemahec@clermont.in2p3.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.8  2011/02/23 23:13:56  bdepardo
- * Added a reset() method which sets to NULL all data managers to NULL
+ * @file DagdaFactory.hh
  *
- * Revision 1.7  2010/09/02 17:29:49  bdepardo
- * Fixed a memory corruption when linking two DIET library:
- * defaultStorageDir cannot be a static string, we need to use a static method
+ * @brief  Used to obtain this DIET component data manager easil from everywhere.
  *
- * Revision 1.6  2008/11/07 14:32:14  bdepardo
- * Headers correction
+ * @author  Gael Le Mahec (lemahec@clermont.in2p3.fr)
  *
- *
- ***********************************************************/
+ * @section Licence
+ *   |LICENSE|
+ */
+
 
 #ifndef _DAGDAFACTORY_HH_
 #define _DAGDAFACTORY_HH_
@@ -32,19 +19,19 @@
 /* A class factory to simplify the extensions of the Dagda object. */
 class DagdaFactory {
 public:
-  static DagdaImpl*
+  static DagdaImpl *
   getClientDataManager();
 
-  static DagdaImpl*
+  static DagdaImpl *
   getSeDDataManager();
 
-  static DagdaImpl*
+  static DagdaImpl *
   getAgentDataManager();
 
-  static DagdaImpl*
+  static DagdaImpl *
   getDataManager();
 
-  static const char*
+  static const char *
   getStorageDir();
 
   static unsigned long
@@ -56,32 +43,32 @@ public:
   static unsigned long
   getMaxMemSpace();
 
-  static const char*
+  static const char *
   getParentName();
 
-  static const char*
+  static const char *
   getClientName();
 
-  static const char*
+  static const char *
   getSeDName();
 
-  static const char*
+  static const char *
   getAgentName();
 
-  static const char*
+  static const char *
   getDefaultName();
 
   static void
   reset();
 
 private:
-  static DagdaImpl* clientDataManager;
-  static DagdaImpl* sedDataManager;
-  static DagdaImpl* agentDataManager;
-  static DagdaImpl* localDataManager;
+  static DagdaImpl *clientDataManager;
+  static DagdaImpl *sedDataManager;
+  static DagdaImpl *agentDataManager;
+  static DagdaImpl *localDataManager;
   static std::string storageDir;
 
-  static DagdaImpl*
+  static DagdaImpl *
   createDataManager(dagda_manager_type_t type);
 
   static unsigned long defaultMaxMsgSize;
@@ -92,4 +79,4 @@ private:
   getDefaultStorageDir();
 };
 
-#endif
+#endif /* ifndef _DAGDAFACTORY_HH_ */

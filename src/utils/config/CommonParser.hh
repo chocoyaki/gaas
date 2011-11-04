@@ -3,34 +3,18 @@
 * 
 * @brief  Parser common utilities 
 * 
-* @author - Haikel Guemar (haikel.guemar@sysfera.com)
+* @author  Haikel Guemar (haikel.guemar@sysfera.com)
 * 
 * @section Licence
 *   |LICENSE|                                                                
 */
-/* $Id$
- * $Log$
- * Revision 1.5  2011/03/07 15:34:55  hguemar
- * fix typo in mail address
- *
- * Revision 1.4  2011/03/03 11:55:52  bdepardo
- * Add missing headers
- *
- ****************************************************************************/
+
 
 
 #ifndef _COMMON_PARSER_HH_
 #define _COMMON_PARSER_HH_
 
-/**
- * @file   CommonParser.hh
- * @author hguemar <hguemar@sysfera.com>
- * @date   Mon Jan 31 11:48:12 2011
- *
- * @brief
- * @internal
- *
- */
+
 
 #include <functional>
 #include <iostream>

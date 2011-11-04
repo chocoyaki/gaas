@@ -9,12 +9,11 @@
 #define EXIT_FAILURE 1
 #endif
 
-int TestDummy(int argc, char* argv[])
-{
+int
+TestDummy(int argc, char *argv[]) {
   std::cout << "Kyron was in the dummy test." << std::endl;
-  // Do some shit and on success 
+  // Do some shit and on success
   return EXIT_SUCCESS;
   // and on failure
   // return EXIT_FAILURE;
 }
-

@@ -3,25 +3,12 @@
 * 
 * @brief   DIET server for Batch submission   
 * 
-* @author  - Yves Caniou (Yves.Caniou@ens-lyon.fr)
+* @author   Yves Caniou (Yves.Caniou@ens-lyon.fr)
 * 
 * @section Licence
 *   |LICENSE|                                                                
 */
-/* $Id$
- * $Log$
- * Revision 1.2  2011/01/23 19:19:59  bdepardo
- * Fixed memory and resources leaks, variables scopes, unread variables
- *
- * Revision 1.1  2007/01/08 13:45:35  ycaniou
- * Lammps parallel request example. Still work to do
- *
- * Revision 1.10  2006/11/28 20:40:31  ycaniou
- * Only headers
- *
- * Revision 1.9  2006/11/27 08:13:59  ycaniou
- * Added missing fields Id and Log in headers
- ****************************************************************************/
+
 
 #include <string.h>
 #include <unistd.h>

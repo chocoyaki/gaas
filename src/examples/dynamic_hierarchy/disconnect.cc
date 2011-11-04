@@ -1,22 +1,13 @@
 /**
-* @file disconnect.cc
-* 
-* @brief  Example code for dynamically disconnecting an element from its parent.  
-* 
-* @author  - Benjamin Depardon (benjamin.depardon@ens-lyon.fr)
-* 
-* @section Licence
-*   |LICENSE|                                                                
-*/
-/* $Id$
- * $Log$
- * Revision 1.2  2010/01/14 11:06:37  bdepardo
- * Compiles with gcc 4.4
+ * @file disconnect.cc
  *
- * Revision 1.1  2009/10/26 09:23:51  bdepardo
- * Examples to dynamically manage the hierarchy.
+ * @brief  Example code for dynamically disconnecting an element from its parent.
  *
- *****************************************************************************/
+ * @author  Benjamin Depardon (benjamin.depardon@ens-lyon.fr)
+ *
+ * @section Licence
+ *   |LICENSE|
+ */
 
 #include <iostream>
 #include <cstring>
@@ -26,17 +17,17 @@
 using namespace std;
 
 int
-main (int argc, char** argv) {
+main(int argc, char **argv) {
   if (argc < 3) {
     cout << "Usage: " << argv[0] << " <SED|LA> <element name>" << endl;
     return 1;
   }
-  
+
   dynamic_type_t type;
   char *name = argv[2];
   int res;
   cout << "Element name: " << name << endl;
-        
+
   if (!strcmp(argv[1], "SED")) {
     type = SED;
   } else {
@@ -54,8 +45,9 @@ main (int argc, char** argv) {
     }
     cout << name << " (error code=" << res << ")." << endl;
   } else {
-    cout << "** " << name << " has been disconnected from the hierarchy." << endl;
+    cout << "** " << name << " has been disconnected from the hierarchy." <<
+    endl;
   }
 
   return res;
-}
+} // main
