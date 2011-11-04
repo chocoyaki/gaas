@@ -343,12 +343,6 @@ if (CMAKE_COMPILER_IS_GNUCC AND NOT APPLE)
   string(REPLACE ";" " " CMAKE_C_FLAGS ${CMAKE_C_FLAGS}) # transform previous list in a string
 endif (CMAKE_COMPILER_IS_GNUCC AND NOT APPLE)
 
-# ---------------- SET THE LINKER SEARCH PATH (RPATH) ----------------------
-set(CMAKE_INSTALL_RPATH_USE_LINK_PATH ON
-    CACHE BOOL "Whether to set an rpath for dynamic libraries.")
-set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib
-    CACHE STRING "Rpath set at install stage." FORCE)
-set(CMAKE_INSTALL_NAME_DIR ${CMAKE_INSTALL_PREFIX}/lib)
 
 # ------------------- CTEST SUPPORT ----------------------------------------
 if (BUILD_TESTING)

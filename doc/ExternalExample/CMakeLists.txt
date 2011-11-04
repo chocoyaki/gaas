@@ -26,12 +26,6 @@ ENDIF( NOT DIET_FOUND )
 INCLUDE_DIRECTORIES( ${DIET_INCLUDE_DIR} )
 LINK_DIRECTORIES( ${DIET_LIBRARY_DIR} )
 
-# A cmake convenience to avoid using LD_LIBRARY_PATH after installation:
-SET( CMAKE_INSTALL_RPATH_USE_LINK_PATH ON
-     CACHE BOOL "Whether to set an rpath for dynamic libraries." )
-SET( CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib
-     CACHE STRING "Rpath set at install stage." FORCE )
-
 ### Define a simple server...
 ADD_EXECUTABLE( simple_server simple_server.c )
 TARGET_LINK_LIBRARIES( simple_server ${DIET_SERVER_LIBRARIES} )
