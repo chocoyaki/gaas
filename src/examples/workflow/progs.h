@@ -6,7 +6,7 @@
  * @author  Philippe COMBES (Philippe.Combes@ens-lyon.fr)
  *
  * @section Licence
- *   |LICENSE|
+ *   |LICENCE|
  */
 
 #ifndef _PROGS_H_

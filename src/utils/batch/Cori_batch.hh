@@ -6,7 +6,7 @@
  * @author  Yves Caniou (yves.caniou@ens-lyon.fr)
  *
  * @section Licence
- *   |LICENSE|
+ *   |LICENCE|
  */
 
 #ifndef _CORI_BATCH_HH_

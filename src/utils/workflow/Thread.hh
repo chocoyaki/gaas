@@ -6,9 +6,9 @@
 * @author  Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)
 * 
 * @section Licence
-*   |LICENSE|                                                                
+*   |LICENCE|                                                                
 */
-/
+
 
 #ifndef _THREAD_HH_
 #define _THREAD_HH_

@@ -7,7 +7,7 @@
  *         - Kevin COULOMB (kevin.coulomb@-sysfera.fr) 
  * 
  * @section Licence
- *   |LICENSE|                                                                
+ *   |LICENCE|                                                                
  */
 
 

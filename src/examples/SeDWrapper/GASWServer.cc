@@ -6,7 +6,7 @@
  * @author  Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)
  *
  * @section Licence
- *   |LICENSE|
+ *   |LICENCE|
  */
 /****************************************************************************/
 /* SeD based on GASW description of executable program                      */

@@ -6,7 +6,7 @@
  * @author  Philippe COMBES (Philippe.Combes@ens-lyon.fr)
  *
  * @section Licence
- *   |LICENSE|
+ *   |LICENCE|
  */
 
 
@@ -49,7 +49,7 @@ static const char *PB[NB_PB] =
 void
 usage(char *cmd) {
   fprintf(stderr, "Usage: %s %s <file.cfg> [%s|%s|%s]\n", cmd,
-          "[--repeat <n>] [--pause <n µs>]", PB[0], PB[1], PB[2]);
+          "[--repeat <n>] [--pause <n ï¿½s>]", PB[0], PB[1], PB[2]);
   fprintf(stderr, "    ex: %s client.cfg T\n", cmd);
   fprintf(stderr, "        %s --repeat 1000 client.cfg MatSUM\n", cmd);
   fprintf(stderr, "        %s --repeat 1000 --pause 1000 %s\n",

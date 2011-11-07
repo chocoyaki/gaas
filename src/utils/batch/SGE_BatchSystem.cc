@@ -6,7 +6,7 @@
  * @author  Yves Caniou (yves.caniou@ens-lyon.fr)
  *
  * @section Licence
- *   |LICENSE|
+ *   |LICENCE|
  */
 
 
@@ -59,8 +59,8 @@ SGE_BatchSystem::SGE_BatchSystem(int ID, const char *batchname) {
   /* SGE is a bit weird:
      - Si le grep du job sur "qstat -u "*"" ne donne rien, on n'a pas encore
      l'output dans le fichier
-     - l'output dans le fichier ne semble apparaître que quand qstat -j dit
-     que le job n'est plus dans le système
+     - l'output dans le fichier ne semble apparaï¿½tre que quand qstat -j dit
+     que le job n'est plus dans le systï¿½me
    */
   wait4Command = "qstat -j ";
   waitFilter =

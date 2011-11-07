@@ -6,7 +6,7 @@
 * @author Eddy CARON (Eddy.Caron@ens-lyon.fr) 
 * 
 * @section Licence
-*   |LICENSE|                                                                
+*   |LICENCE|                                                                
 */
 
 #ifndef _GRPC_H_

@@ -7,7 +7,7 @@
  *          Cyrille Pontivieux (cyrille.pontivieux@ens-lyon.fr)
  *
  * @section Licence
- *   |LICENSE|
+ *   |LICENCE|
  */
 #ifndef _LOGCOMPONENT_IDL_
 #define _LOGCOMPONENT_IDL_

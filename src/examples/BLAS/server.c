@@ -7,7 +7,7 @@
  *           Yves Caniou (Yves.Caniou@ens-lyon.fr)
  *
  * @section Licence
- *   |LICENSE|
+ *   |LICENCE|
  */
 
 

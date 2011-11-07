@@ -6,7 +6,7 @@
 * @author   Yves Caniou (Yves.Caniou@ens-lyon.fr)
 * 
 * @section Licence
-*   |LICENSE|                                                                
+*   |LICENCE|                                                                
 */
 
 
@@ -108,7 +108,7 @@ int solve_concatenation(diet_profile_t *pb)
   /* Data management: scp for file1, NFS for file2 */
   /* Note: one can do the NFS cp in a C thread (see batch_server_2) */
   /* mettre dans batch_server_2 un test sur la taille pour s'assurer 
-     que le fichier est copié :
+     que le fichier est copiï¿½ :
 
      while (size != %d); do
      sleep 1

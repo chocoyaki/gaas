@@ -6,7 +6,7 @@
  * @author  Benjamin Isnard (benjamin.isnard@ens-lyon.fr)
  *
  * @section Licence
- *   |LICENSE|
+ *   |LICENCE|
  */
 
 #ifndef EVENTBASE_HH_

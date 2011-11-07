@@ -7,7 +7,7 @@
 *          Benjamin ISNARD (Benjamin.Isnard@ens-lyon.fr)
 * 
 * @section Licence
-*   |LICENSE|                                                                
+*   |LICENCE|                                                                
 */
 
 #include "debug.hh"

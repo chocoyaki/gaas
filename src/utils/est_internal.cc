@@ -6,7 +6,7 @@
  * @author  Alan Su (Alan.Su@ens-lyon.fr)
  *
  * @section Licence
- *   |LICENSE|
+ *   |LICENCE|
  */
 
 #ifndef OLD_EV

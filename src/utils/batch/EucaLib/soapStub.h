@@ -3,7 +3,7 @@
  * @brief  Auto-generated file by using gSOAP that provides aa SOAP client
  * @author Adrian Muresan (adrian.muresan@ens-lyon.fr)
  * @section Licence
- *   |LICENSE|
+ *   |LICENCE|
  */
 
 
@@ -69,8 +69,7 @@ enum xsd__boolean_ {_false = 0, _true = 1};
 #ifndef SOAP_TYPE__wsu__Timestamp
 #define SOAP_TYPE__wsu__Timestamp (8)
 /* wsu:Timestamp */
-struct _wsu__Timestamp
-{
+struct _wsu__Timestamp{
   char *wsu__Id;    /* optional attribute of type xsd:string */
   char *Created;    /* optional element of type xsd:string */
   char *Expires;    /* optional element of type xsd:string */
@@ -81,8 +80,7 @@ typedef struct _wsu__Timestamp _wsu__Timestamp;
 #ifndef SOAP_TYPE__wsse__UsernameToken
 #define SOAP_TYPE__wsse__UsernameToken (10)
 /* wsse:UsernameToken */
-struct _wsse__UsernameToken
-{
+struct _wsse__UsernameToken{
   char *Username;   /* optional element of type xsd:string */
   struct _wsse__Password *Password;         /* optional element of type wsse:Password */
   char *Nonce;      /* optional element of type xsd:string */
@@ -95,8 +93,7 @@ typedef struct _wsse__UsernameToken _wsse__UsernameToken;
 #ifndef SOAP_TYPE__wsse__BinarySecurityToken
 #define SOAP_TYPE__wsse__BinarySecurityToken (13)
 /* Primitive wsse:BinarySecurityToken schema type: */
-struct _wsse__BinarySecurityToken
-{
+struct _wsse__BinarySecurityToken{
   char *__item;
   char *wsu__Id;    /* optional attribute of type xsd:string */
   char *ValueType;          /* optional attribute of type xsd:string */
@@ -108,8 +105,7 @@ typedef struct _wsse__BinarySecurityToken _wsse__BinarySecurityToken;
 #ifndef SOAP_TYPE__wsse__Reference
 #define SOAP_TYPE__wsse__Reference (14)
 /* wsse:Reference */
-struct _wsse__Reference
-{
+struct _wsse__Reference{
   char *URI;        /* optional attribute of type xsd:string */
   char *ValueType;          /* optional attribute of type xsd:string */
 };
@@ -119,8 +115,7 @@ typedef struct _wsse__Reference _wsse__Reference;
 #ifndef SOAP_TYPE__wsse__Embedded
 #define SOAP_TYPE__wsse__Embedded (15)
 /* wsse:Embedded */
-struct _wsse__Embedded
-{
+struct _wsse__Embedded{
   char *wsu__Id;    /* optional attribute of type xsd:string */
   char *ValueType;          /* optional attribute of type xsd:string */
 };
@@ -130,8 +125,7 @@ typedef struct _wsse__Embedded _wsse__Embedded;
 #ifndef SOAP_TYPE__wsse__KeyIdentifier
 #define SOAP_TYPE__wsse__KeyIdentifier (16)
 /* Primitive wsse:KeyIdentifier schema type: */
-struct _wsse__KeyIdentifier
-{
+struct _wsse__KeyIdentifier{
   char *__item;
   char *wsu__Id;    /* optional attribute of type xsd:string */
   char *ValueType;          /* optional attribute of type xsd:string */
@@ -143,8 +137,7 @@ typedef struct _wsse__KeyIdentifier _wsse__KeyIdentifier;
 #ifndef SOAP_TYPE__wsse__SecurityTokenReference
 #define SOAP_TYPE__wsse__SecurityTokenReference (17)
 /* wsse:SecurityTokenReference */
-struct _wsse__SecurityTokenReference
-{
+struct _wsse__SecurityTokenReference{
   struct _wsse__Reference *Reference;       /* optional element of type wsse:Reference */
   struct _wsse__KeyIdentifier *KeyIdentifier;       /* optional element of type wsse:KeyIdentifier */
   struct _wsse__Embedded *Embedded;         /* optional element of type wsse:Embedded */
@@ -157,8 +150,7 @@ typedef struct _wsse__SecurityTokenReference _wsse__SecurityTokenReference;
 #ifndef SOAP_TYPE_ds__SignatureType
 #define SOAP_TYPE_ds__SignatureType (21)
 /* ds:SignatureType */
-struct ds__SignatureType
-{
+struct ds__SignatureType{
   struct ds__SignedInfoType *SignedInfo;    /* optional element of type ds:SignedInfoType */
   char *SignatureValue;     /* optional element of type xsd:string */
   struct ds__KeyInfoType *KeyInfo;          /* optional element of type ds:KeyInfoType */
@@ -170,8 +162,7 @@ typedef struct ds__SignatureType ds__SignatureType;
 #ifndef SOAP_TYPE__c14n__InclusiveNamespaces
 #define SOAP_TYPE__c14n__InclusiveNamespaces (30)
 /* c14n:InclusiveNamespaces */
-struct _c14n__InclusiveNamespaces
-{
+struct _c14n__InclusiveNamespaces{
   char *PrefixList;         /* optional attribute of type xsd:string */
 };
 #endif
@@ -180,8 +171,7 @@ typedef struct _c14n__InclusiveNamespaces _c14n__InclusiveNamespaces;
 #ifndef SOAP_TYPE_ds__TransformType
 #define SOAP_TYPE_ds__TransformType (31)
 /* ds:TransformType */
-struct ds__TransformType
-{
+struct ds__TransformType{
   struct _c14n__InclusiveNamespaces *c14n__InclusiveNamespaces;     /* optional element of type c14n:InclusiveNamespaces */
   char *__any;
   char *Algorithm;          /* optional attribute of type xsd:string */
@@ -192,8 +182,7 @@ typedef struct ds__TransformType ds__TransformType;
 #ifndef SOAP_TYPE_ds__KeyInfoType
 #define SOAP_TYPE_ds__KeyInfoType (24)
 /* ds:KeyInfoType */
-struct ds__KeyInfoType
-{
+struct ds__KeyInfoType{
   char *KeyName;    /* optional element of type xsd:string */
   struct ds__KeyValueType *KeyValue;        /* optional element of type ds:KeyValueType */
   struct ds__RetrievalMethodType *RetrievalMethod;          /* optional element of type ds:RetrievalMethodType */
@@ -207,8 +196,7 @@ typedef struct ds__KeyInfoType ds__KeyInfoType;
 #ifndef SOAP_TYPE_ds__SignedInfoType
 #define SOAP_TYPE_ds__SignedInfoType (22)
 /* ds:SignedInfoType */
-struct ds__SignedInfoType
-{
+struct ds__SignedInfoType{
   struct ds__CanonicalizationMethodType *CanonicalizationMethod;    /* required element of type ds:CanonicalizationMethodType */
   struct ds__SignatureMethodType *SignatureMethod;          /* required element of type ds:SignatureMethodType */
   int __sizeReference;      /* sequence of elements <Reference> */
@@ -221,8 +209,7 @@ typedef struct ds__SignedInfoType ds__SignedInfoType;
 #ifndef SOAP_TYPE_ds__CanonicalizationMethodType
 #define SOAP_TYPE_ds__CanonicalizationMethodType (26)
 /* ds:CanonicalizationMethodType */
-struct ds__CanonicalizationMethodType
-{
+struct ds__CanonicalizationMethodType{
   char *Algorithm;          /* required attribute of type xsd:string */
   struct _c14n__InclusiveNamespaces *c14n__InclusiveNamespaces;     /* optional element of type c14n:InclusiveNamespaces */
 };

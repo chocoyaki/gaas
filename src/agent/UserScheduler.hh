@@ -6,7 +6,7 @@
  * @author   Gael LE MAHEC (lemahec@clermont.in2p3.fr)
  *
  * @section Licence
- *   |LICENSE|
+ *   |LICENCE|
  */
 #ifndef _USERSCHEDULER_HH_
 #define _USERSCHEDULER_HH_

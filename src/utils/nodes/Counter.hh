@@ -6,7 +6,7 @@
  * @author  Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)
  *
  * @section Licence
- *   |LICENSE|
+ *   |LICENCE|
  */
 
 
@@ -37,7 +37,7 @@
  *   printf("%lu\n", (unsigned long)static_cast<CORBA::ULong>(c--));
  * \endcode
  *
- * @author Sylvain DAHAN, LIFC Besançon (France)
+ * @author Sylvain DAHAN, LIFC Besanï¿½on (France)
  */
 
 class Counter {

@@ -5,7 +5,7 @@
  * @author Benjamin DEPARDON (Benjamin.Depardon@ens-lyon.fr)
  *
  * @section Licence
- *   |LICENSE|
+ *   |LICENCE|
  */
 
 #include "DIET_admin.h"

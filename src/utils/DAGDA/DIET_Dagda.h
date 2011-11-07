@@ -6,7 +6,7 @@
  * @author Gael Le Mahec (lemahec@clermont.in2p3.fr)
  *
  * @section Licence
- *   |LICENSE|
+ *   |LICENCE|
  */
 
 #ifndef __DIET_DAGDA_H__

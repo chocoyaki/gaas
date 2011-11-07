@@ -6,7 +6,7 @@
 * @author  Benjamin ISNARD (Benjamin.Isnard@ens-lyon.fr)
 * 
 * @section Licence
-*   |LICENSE|                                                                
+*   |LICENCE|                                                                
 */
 /****************************************************************************/
 /* The class used to represent a data produced or consumed by an instance   */

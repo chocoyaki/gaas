@@ -6,7 +6,7 @@
  * @author  Cyrille PONTVIEUX (cyrille.pontvieux@ens-lyon.fr)
  *
  * @section Licence
- *   |LICENSE|
+ *   |LICENCE|
  */
 
 #include "ExitClass.hh"

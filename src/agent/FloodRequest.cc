@@ -6,7 +6,7 @@
  * @author  Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)
  *
  * @section Licence
- *   |LICENSE|
+ *   |LICENCE|
  */
 
 #include "FloodRequest.hh"

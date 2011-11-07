@@ -6,7 +6,7 @@
  * @author   Christophe PERA (christophe.pera@ens-lyon.fr)
  *
  * @section Licence
- *   |LICENSE|
+ *   |LICENCE|
  */
 
 

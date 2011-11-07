@@ -6,7 +6,7 @@
  * @author  Gael Le Mahec   (gael.le.mahec@ens-lyon.fr)
  *
  * @section Licence
- *   |LICENSE|
+ *   |LICENCE|
  */
 
 #ifndef DIETFORWARDER_HH

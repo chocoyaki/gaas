@@ -7,7 +7,7 @@
 *         Eddy CARON (Eddy.Caron@ens-lyon.fr
 *         Cedric TEDESCHI (Cedric.Tedeschi@ens-lyon.fr)
 * @section Licence
-*   |LICENSE|                                                                
+*   |LICENCE|
 */
 
 #ifndef _DIET_GRPC_H_

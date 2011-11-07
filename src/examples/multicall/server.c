@@ -6,7 +6,7 @@
  * @author  Ghislain Charrier (ghislain.charrier@inria.fr)
  *
  * @section Licence
- *   |LICENSE|
+ *   |LICENCE|
  */
 
 

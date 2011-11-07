@@ -6,7 +6,7 @@
  * @author  Benjamin Depardon (benjamin.depardon@ens-lyon.fr)
  *
  * @section Licence
- *   |LICENSE|
+ *   |LICENCE|
  */
 
 

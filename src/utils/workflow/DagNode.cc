@@ -6,7 +6,7 @@
 * @author  Benjamin ISNARD (Benjamin.Isnard@ens-lyon.fr)
 * 
 * @section Licence
-*   |LICENSE|                                                                
+*   |LICENCE|                                                                
 */
 /****************************************************************************/
 /* The node class used for dag execution                                    */

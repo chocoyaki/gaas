@@ -6,7 +6,7 @@
  * @author  Gaël Le Mahec (gael.le.mahec@ens-lyon.fr)
  *
  * @section Licence
- *   |LICENSE|
+ *   |LICENCE|
  */
 
 #ifndef ORBMGR_HH

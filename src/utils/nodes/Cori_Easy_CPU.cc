@@ -6,7 +6,7 @@
  * @author  Frauenkron Peter (Peter.Frauenkron@ens-lyon.fr)
  *
  * @section Licence
- *   |LICENSE|
+ *   |LICENCE|
  */
 
 #include <cstdlib>           // for getloadavg

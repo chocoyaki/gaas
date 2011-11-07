@@ -7,7 +7,7 @@
 *          Benjamin ISNARD (Benjamin.Isnard@ens-lyon.fr)
 * 
 * @section Licence
-*   |LICENSE|                                                                
+*   |LICENCE|                                                                
 */
 /****************************************************************************/
 /* DAG Workflow description Reader class description                        */

@@ -3,10 +3,10 @@
  *
  * @brief  Client example using Containers
  *
- * @author  Gaël Le Mahec (gael.le.mahec@ens-lyon.fr)
+ * @author  Gaï¿½l Le Mahec (gael.le.mahec@ens-lyon.fr)
  *
  * @section Licence
- *   |LICENSE|
+ *   |LICENCE|
  */
 
 #include <string.h>

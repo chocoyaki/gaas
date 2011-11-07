@@ -6,7 +6,7 @@
  * @author  Philippe COMBES (Philippe.Combes@ens-lyon.fr)
  *
  * @section Licence
- *   |LICENSE|
+ *   |LICENCE|
  */
 
 
@@ -52,7 +52,7 @@ static const char *PB_NAME[NB_PB] =
 void
 usage(char *cmd) {
   fprintf(stderr, "Usage: %s %s <file.cfg> [%s|%s|%s|%s|%s]\n", cmd,
-          "[--repeat <n>] [--pause <n µs>]", PB_NAME[0], PB_NAME[1], PB_NAME[2],
+          "[--repeat <n>] [--pause <n ï¿½s>]", PB_NAME[0], PB_NAME[1], PB_NAME[2],
           PB_NAME[3],
           PB_NAME[4]);
   fprintf(stderr, "    ex: %s client.cfg T\n", cmd);

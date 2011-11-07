@@ -7,7 +7,7 @@
  *          Cyrille Pontvieux (cyrille.pontvieux@edu.univ-fcomte.fr)
  *
  * @section Licence
- *   |LICENSE|
+ *   |LICENCE|
  */
 
 
