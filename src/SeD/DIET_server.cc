@@ -1,5 +1,4 @@
 /**
-<<<<<<< HEAD
  * @file DIET_server.cc
  *
  * @brief  DIET server interface
@@ -10,17 +9,6 @@
  *   |LICENSE|
  */
 
-=======
-* @file DIET_server.cc
-*
-* @brief  DIET server interface
-*
-* @author - Philippe COMBES (Philippe.Combes@ens-lyon.fr)
-*
-* @section Licence
-*   |LICENSE|
-*/
->>>>>>> bcbca818c8621f535ea6e567753a00a0d7b7eec7
 #include <iostream>
 #include <unistd.h>  // For gethostname()
 #include <cstdlib>

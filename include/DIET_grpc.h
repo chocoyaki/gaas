@@ -9,11 +9,6 @@
 * @section Licence
 *   |LICENSE|                                                                
 */
-<<<<<<< HEAD
-
-
-=======
->>>>>>> bcbca818c8621f535ea6e567753a00a0d7b7eec7
 
 #ifndef _DIET_GRPC_H_
 #define _DIET_GRPC_H_
