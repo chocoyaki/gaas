@@ -11,7 +11,7 @@
 /* $Id$
  * $Log$
  * Revision 1.5  2011/05/09 13:10:10  bdepardo
- * Added method diet_get_SeD_services to retreive the services of a SeD given
+ * Added method diet_get_SeD_services to retrieve the services of a SeD given
  * its name
  *
  * Revision 1.4  2010/07/27 16:16:49  glemahec

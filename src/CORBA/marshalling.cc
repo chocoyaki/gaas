@@ -15,7 +15,7 @@
  * Fixed a bug in diet_get_SeD_services()
  *
  * Revision 1.99  2011/05/09 13:10:09  bdepardo
- * Added method diet_get_SeD_services to retreive the services of a SeD given
+ * Added method diet_get_SeD_services to retrieve the services of a SeD given
  * its name
  *
  * Revision 1.98  2011/02/24 16:55:56  bdepardo
