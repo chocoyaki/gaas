@@ -30,13 +30,14 @@
 	- endianness is now managed with Boost
 	- replaced usage of fnmatch by boost:regex
 	- intermediary libraries are not installed anymore
-	- we removed all deprecated code:
+	- we removed all deprecated code and documentation:
 	  + JXTA: was used to build a multi-MA hierarchy using a P2P approach
 	  + DTM: the former data manager
 	  + JUXMEM: was a P2P data manager used in conjunction with DTM
 	  + FD: fault detector
 	  + FAST: performance evaluation plugin
 	  + TAU: a code profiler
+	- old CVS headers have been removed and replaced by Doxygen headers
 	
 
 +------------+
