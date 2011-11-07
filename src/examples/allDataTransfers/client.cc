@@ -147,7 +147,7 @@ main(int argc, char *argv[]) {
   l2 = static_cast<int>(0x2222);
   std::cout << "#### Integers" << std::endl;
   std::cout << "Before the call: l1=" << (int) l1 << ", l2="
-            << static_cast<int>l2 << std::endl;
+            << static_cast<int>(l2) << std::endl;
 
   profile = diet_profile_alloc(PB[2], 0, 1, 2);
   diet_scalar_set(diet_parameter(profile, 0), &l1, DIET_VOLATILE, DIET_INT);
@@ -155,8 +155,9 @@ main(int argc, char *argv[]) {
   diet_scalar_set(diet_parameter(profile, 2), NULL, DIET_VOLATILE, DIET_INT);
   if (!diet_call(profile)) {
     diet_scalar_get(diet_parameter(profile, 2), &pl3, NULL);
-    std::cout << "After the call: l1=" << (long) l1 << ", l2=" << (long) l2
-              << ", l3=" << (long) *pl3 << std::endl;
+    std::cout << "After the call: l1=" << (long) l1 << ", l2="
+              << static_cast<long>(l2) << ", l3=" << static_cast<long>(*pl3)
+              << std::endl;
   } else {
     std::cerr << "diet_call has returned with an error code on " << PB[2]
               << "!" << std::endl;
@@ -170,16 +171,16 @@ main(int argc, char *argv[]) {
   l1 = 0x11111111;
   l2 = 0x22222222;
   std::cout << "#### Longs" << std::endl;
-  std::cout << "Before the call: l1=" << (long) l1 << ", l2=" << (long) l2
-            << std::endl;
+  std::cout << "Before the call: l1=" << static_cast<long>(l1) << ", l2="
+            << static_cast<long>(l2) << std::endl;
   profile = diet_profile_alloc(PB[3], 0, 1, 2);
   diet_scalar_set(diet_parameter(profile, 0), &l1, DIET_VOLATILE, DIET_LONGINT);
   diet_scalar_set(diet_parameter(profile, 1), &l2, DIET_VOLATILE, DIET_LONGINT);
   diet_scalar_set(diet_parameter(profile, 2), NULL, DIET_VOLATILE, DIET_LONGINT);
   if (!diet_call(profile)) {
     diet_scalar_get(diet_parameter(profile, 2), &pl3, NULL);
-    std::cout << "After the call: l1=" << (long) l1 << ", l2=" << (long) l2
-              << ", l3=" << (long) *pl3 << std::endl;
+    std::cout << "After the call: l1=" << static_cast<long>(l1) << ", l2=" << static_cast<long>(l2)
+              << ", l3=" << static_cast<long>(*pl3) << std::endl;
   } else {
     std::cerr << "diet_call has returned with an error code on " << PB[3]
               << "!" << std::endl;
