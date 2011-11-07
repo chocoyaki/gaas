@@ -296,13 +296,12 @@ ORBMgr::resolveObject(const std::string& context, const std::string& name,
   }
   cacheMutex.lock();
   /* Use object cache. */
-  if (cache.find(ctxt+"/"+name) != cache.end()) {
-    CORBA::Object_ptr ptr = cache[ctxt+"/"+name];
+  if (cache.find(ctxt + "/" + name) != cache.end()) {
+    CORBA::Object_ptr ptr = cache[ctxt + "/" + name];
     cacheMutex.unlock();
 
     try {
-      TRACE_TEXT(TRACE_ALL_STEPS,
-                 "Check if the object is still present\n");
+      TRACE_TEXT(TRACE_ALL_STEPS, "Check if the object is still present\n");
       if (ptr->_non_existent()) {
         TRACE_TEXT(TRACE_ALL_STEPS,
                    "Remove non existing object from cache (" << ctxt
@@ -353,7 +352,7 @@ ORBMgr::resolveObject(const std::string& context, const std::string& name,
     /* If the object is not a forwarder object, then
      * search if we need to use a forwarder to reach it.
      */
-    if (ctxt != FWRDCTXT && fwdName!="no-Forwarder") {
+    if ((ctxt != FWRDCTXT) && (fwdName != "no-Forwarder")) {
       std::string objIOR = getIOR(object);
       IOP::IOR ior;
       makeIOR(objIOR, ior);
@@ -361,7 +360,7 @@ ORBMgr::resolveObject(const std::string& context, const std::string& name,
       // Get the object host to check if it is a forwarder reference
       std::string objHost = getHost(ior);
       try {
-        if (objHost.size()>0 && objHost.at(0)=='@') {
+        if ((objHost.size() > 0) && (objHost.at(0) == '@')) {
           objHost.erase(0, 1);  // Remove '@' before the forwarder name
           Forwarder_var fwd =
             resolve<Forwarder, Forwarder_var>(FWRDCTXT, objHost);
@@ -459,7 +458,6 @@ ORBMgr::simpleResolve(const std::string& context,
   return CORBA::Object::_duplicate(object);
 }
 
-
 std::list<std::string>
 ORBMgr::list(CosNaming::NamingContext_var& ctxt) const {
   std::list<std::string> result;
@@ -468,12 +466,13 @@ ORBMgr::list(CosNaming::NamingContext_var& ctxt) const {
   CosNaming::Binding_var bv;
 
   ctxt->list(256, ctxtList, it);
-  for (unsigned int i = 0; i < ctxtList->length(); ++i)
+  for (unsigned int i = 0; i < ctxtList->length(); ++i) {
     if (ctxtList[i].binding_type == CosNaming::nobject) {
       for (unsigned int j = 0; j < ctxtList[i].binding_name.length(); ++j) {
         result.push_back(std::string(ctxtList[i].binding_name[j].id));
       }
     }
+  }
   if (CORBA::is_nil(it)) {
     return result;
   }
@@ -910,7 +909,7 @@ ORBMgr::removeObjectFromCache(const std::string& name) const {
 void
 ORBMgr::removeObjectFromCache(const std::string& ctxt,
                               const std::string& name) const {
-  removeObjectFromCache(ctxt+"/"+name);
+  removeObjectFromCache(ctxt + "/" + name);
 }
 
 void
