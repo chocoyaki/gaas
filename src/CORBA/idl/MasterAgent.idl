@@ -1,5 +1,21 @@
+<<<<<<< HEAD
 /**
  * @file MasterAgent.idl
+=======
+/****************************************************************************/
+/* DIET master agent IDL description                                        */
+/*                                                                          */
+/*  Author(s):                                                              */
+/*    - Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)                   */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+/* $Id$
+ * $Log$
+ * Revision 1.18  2011/05/09 13:10:10  bdepardo
+ * Added method diet_get_SeD_services to retrieve the services of a SeD given
+ * its name
+>>>>>>> 4546c9dcea36fa46c063a4fa287c2ad563a9ff85
  *
  * @brief  DIET master agent IDL description    
  *

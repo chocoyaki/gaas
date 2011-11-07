@@ -194,6 +194,9 @@ set(CMAKE_MODULE_PATH ${DIET_SOURCE_DIR}/Cmake)
 
 # Boost is mandatory
 find_package(Boost 1.46.0 COMPONENTS regex REQUIRED)
+if(Boost_FOUND)
+  set(THIRD_PARTY_LIBS ${THIRD_PARTY_LIBS} ${Boost_LIBRARIES})
+endif()
 
 # OmniORB is mandatory:
 find_package(OmniORB)
@@ -206,6 +209,7 @@ if (OMNIORB4_FOUND)
 	  # Link DIET to OmniORB static libs
 		set(OMNIORB4_LIBRARIES ${OMNIORB4_LIBRARIES_st})
 	endif (BUILD_SHARED_LIBS)
+   set(THIRD_PARTY_LIBS ${THIRD_PARTY_LIBS} ${OMNIORB4_LIBRARIES})
 else (OMNIORB4_FOUND)
   message("omniORB installation was not found. Please provide OMNIORB4_DIR:")
   message("  - through the GUI when working with ccmake, ")
@@ -278,6 +282,9 @@ if (DIET_USE_WORKFLOW)
 	  set(XERCES_LIBRARY ${XERCES_LIBRARY_st})
 	  set(XQILLA_LIBRARY ${XQILLA_LIBRARY_st})
 	endif (BUILD_SHARED_LIBS)
+        set(THIRD_PARTY_LIBS ${THIRD_PARTY_LIBS}
+          ${XERCES_LIBRARY}
+          ${XQILLA_LIBRARY})
       else (XQILLA_FOUND)
         message("Diet Workflow support requires XQilla library." )
         message("Workflow support will be disabled")

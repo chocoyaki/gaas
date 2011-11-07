@@ -1,7 +1,13 @@
 /**
  * @file marshalling.cc
  *
+<<<<<<< HEAD
  * @brief  DIET CORBA marshalling source code
+=======
+ * Revision 1.99  2011/05/09 13:10:09  bdepardo
+ * Added method diet_get_SeD_services to retrieve the services of a SeD given
+ * its name
+>>>>>>> 4546c9dcea36fa46c063a4fa287c2ad563a9ff85
  *
  * @author  Philippe COMBES (Philippe.Combes@ens-lyon.fr)
  *          Frederic LOMBARD (Frederc.Lombard@lifc.univ-fcomte.fr)

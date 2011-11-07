@@ -1,5 +1,196 @@
 /**
+<<<<<<< HEAD
  * @file SeDImpl.cc
+=======
+* @file SeDImpl.cc
+* 
+* @brief  DIET SeD implementation source code 
+* 
+* @author - Philippe COMBES (Philippe.Combes@ens-lyon.fr)
+*         - Frederic LOMBARD (Frederic.Lombard@lifc.univ-fcomte.fr)
+* 
+* @section Licence
+*   |LICENSE|                                                                
+*/
+/* $Id$
+ * $Log$
+ * Revision 1.133  2011/05/09 13:10:11  bdepardo
+ * Added method diet_get_SeD_services to retrieve the services of a SeD given
+ * its name
+ *
+ * Revision 1.132  2011/04/21 16:00:46  bdepardo
+ * Add log infos in async calls
+ *
+ * Revision 1.131  2011/04/05 14:01:07  bdepardo
+ * IOR is printed only when the tracelevel is at least TRACE_MAIN_STEPS
+ *
+ * Revision 1.130  2011/03/01 13:37:51  bdepardo
+ * SIGTERM can now also be used to properly terminate DIET
+ *
+ * Revision 1.129  2011/02/24 16:57:01  bdepardo
+ * Use new parser
+ *
+ * Revision 1.128  2011/02/15 16:19:37  bdepardo
+ * More robust disconnection from parent: catch exceptions
+ *
+ * Revision 1.127  2011/02/08 16:53:52  bdepardo
+ * Fixed dynamics. They didn't work anymore
+ *
+ * Revision 1.126  2011/01/23 19:19:58  bdepardo
+ * Fixed memory and resources leaks, variables scopes, unread variables
+ *
+ * Revision 1.125  2010/12/17 09:47:59  kcoulomb
+ * * Set diet to use the new log with forwarders
+ * * Fix a CoRI problem
+ * * Add library version remove DTM flag from ccmake because deprecated
+ *
+ * Revision 1.124  2010/11/24 12:30:17  bdepardo
+ * Added getName() method.
+ * Moved name and hostname initialization from run() to initialize() method,
+ * this allows the logComponent to retrieve the name of the SeD.
+ *
+ * Revision 1.123  2010/11/09 02:23:34  bdepardo
+ * Changed SeD name generation: now uses the PID of the process.
+ *
+ * Revision 1.122  2010/07/27 12:43:06  glemahec
+ * Bugs corrections
+ *
+ * Revision 1.121  2010/07/27 10:24:33  glemahec
+ * Improve robustness & general performance
+ *
+ * Revision 1.120  2010/07/14 23:45:47  bdepardo
+ * Warning correction
+ *
+ * Revision 1.119  2010/07/12 16:14:10  glemahec
+ * DIET 2.5 beta 1 - Use the new ORB manager and allow the use of SSH-forwarders for all DIET CORBA objects
+ *
+ * Revision 1.118  2010/03/31 21:15:39  bdepardo
+ * Changed C headers into C++ headers
+ *
+ * Revision 1.117  2010/03/31 19:37:54  bdepardo
+ * Changed "\n" into std::endl
+ *
+ * Revision 1.116  2010/03/08 13:33:09  bisnard
+ * new method to retrieve DAGDA agent ID (CORBA)
+ *
+ * Revision 1.115  2009/11/30 17:58:08  bdepardo
+ * New methods to remove the SeD in a cleaner way.
+ *
+ * Revision 1.114  2009/10/26 09:14:23  bdepardo
+ * Added methods for dynamic hierarchy modifications:
+ * - bindParent(const char * parentName)
+ * - disconnect()
+ * - removeElement()
+ *
+ * Revision 1.113  2009/06/23 09:28:27  bisnard
+ * new API method for EFT estimation
+ *
+ * Revision 1.112  2008/12/08 15:31:42  bdepardo
+ * Added the possibility to remove a service given its profile description.
+ * So now, one is able to remove a service given either the real profile,
+ * or the profile description.
+ *
+ * Revision 1.111  2008/11/18 10:13:57  bdepardo
+ * - Added the possibility to dynamically create and destroy a service
+ *   (even if the SeD is already started). An example is available.
+ *   This feature only works with DAGDA.
+ * - Added policy commands for CMake 2.6
+ * - Added the name of the service in the profile. It was only present in
+ *   the profile description, but not in the profile. Currently, the name is
+ *   copied in each solve function, but this should certainly be moved
+ *   somewhere else.
+ *
+ * Revision 1.110  2008/06/25 09:53:39  bisnard
+ * - Estimation vector sent with solve request to avoid storing it
+ * for each submit request as it depends on the parameters value. The
+ * estimation vector is used by SeD to updates internal Gantt chart and
+ * provide earliest finish time to submitted requests.
+ *
+ * Revision 1.109  2008/06/01 14:06:57  rbolze
+ * replace most ot the cout by adapted function from debug.cc
+ * there are some left ...
+ *
+ * Revision 1.108  2008/05/19 14:45:07  bisnard
+ * jobs added to the queue during submit instead of solve
+ *
+ * Revision 1.107  2008/05/16 12:25:55  bisnard
+ * API give status of all jobs running or waiting on the SeD
+ * (used to compute earliest finish time)
+ *
+ * Revision 1.106  2008/05/11 16:19:48  ycaniou
+ * Check that pathToTmp and pathToNFS exist
+ * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
+ * Rewrite of the propagation of the request concerning job parallel_flag
+ * Implementation of Cori_batch system
+ * Numerous information can be dynamically retrieved through batch systems
+ *
+ * Revision 1.105  2008/04/21 13:18:34  glemahec
+ * Memory leak and volatile data management corrections.
+ *
+ * Revision 1.104  2008/04/19 09:16:45  ycaniou
+ * Check that pathToTmp and pathToNFS exist
+ * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
+ * Rewrite of the propagation of the request concerning job parallel_flag
+ * Rewrite (and addition) of the propagation of the response concerning:
+ *   job parallel_flag and serverType (batch or serial for the moment)
+ * Complete debug info with batch stuff
+ *
+ * Revision 1.103  2008/04/18 13:47:23  glemahec
+ * Everything about DAGDA is now in utils/DAGDA directory.
+ *
+ * Revision 1.102  2008/04/07 15:33:42  ycaniou
+ * This should remove all HAVE_BATCH occurences (still appears in the doc, which
+ *   must be updated.. soon :)
+ * Add the definition of DIET_BATCH_JOBID wariable in batch scripts
+ *
+ * Revision 1.101  2008/04/06 15:53:10  glemahec
+ * DIET_PERSISTENT_RETURN & DIET_STICKY_RETURN modes are now working.
+ * Warning: The clients have to take into account that an out data declared as
+ * DIET_PERSISTENT or DIET_STICKY is  only stored on the SeDs and not returned
+ * to  the  client. DTM doesn't manage the  DIET_*_RETURN types it and  always
+ * returns the out data to the client: A client which uses this bug should not
+ * work when activating DAGDA.
+ *
+ * Revision 1.100  2008/04/03 21:18:44  glemahec
+ * Source cleaning, bug correction and headers.
+ *
+ * Revision 1.99  2008/02/27 14:32:04  rbolze
+ * the function ping() return getpid value instead of 0.
+ * Add Trace information when calling the function ping
+ *
+ * Revision 1.98  2008/01/14 11:32:15  glemahec
+ * SeDImpl, the SeD object implementation can now use Dagda as data manager.
+ *
+ * Revision 1.97  2008/01/01 19:40:35  ycaniou
+ * Modifications for batch management
+ *
+ * Revision 1.96  2007/12/18 13:04:28  glemahec
+ * This commit adds the "diet_estimate_waiting_jobs" function to obtain the
+ * number of jobs waiting in the FIFO queue when using the max concurrent
+ * jobs limit. This function has to be used in the SeD plugin schedulers.
+ *
+ * Revision 1.95  2007/07/13 10:00:26  ecaron
+ * Remove deprecated code (ALTPREDICT part)
+ *
+ * Revision 1.94  2007/07/04 15:11:52  ycaniou
+ * Correction of bug: when HAVE_BATCH, batchQueue was lost. strdup() and ok.
+ *
+ * Revision 1.93  2007/06/28 20:11:08  ycaniou
+ * Changed the call to logBeginSolve() in accordance to the remove of
+ * the dietReqID paramater which is now included in the profile as the
+ * prototype defines it
+ *
+ * Revision 1.92  2007/06/28 18:23:19  rbolze
+ * add dietReqID in the profile.
+ * and propagate this change to all functions that  have both reqID and profile parameters.
+ * TODO : look at the asynchronous mechanism (client->SED) to propage this change.
+ *
+ * Revision 1.91  2007/06/07 14:20:02  ycaniou
+ * Ajout d'un 'defined HAVE_BATCH' manquant pour parallel_AsyncSolve()
+ * -> corrige un warning/error sur cette fonction undefined pour HAVE_BATCH
+ *
+ * Utilisation correct de Macro ERROR_EXIT
+>>>>>>> 4546c9dcea36fa46c063a4fa287c2ad563a9ff85
  *
  * @brief  DIET SeD implementation source code
  *

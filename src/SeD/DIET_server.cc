@@ -1205,7 +1205,7 @@ diet_get_SeD_services(int *services_number,
         ERROR("Cannot locate SeD " << SeDName, GRPC_SERVER_NOT_FOUND);
       }
 
-      // Now retreive the services
+      // Now retrieve the services
       CORBA::Long length;
       SeqCorbaProfileDesc_t *profileList = sed->getSeDProfiles(length);
       *services_number = (int) length;
