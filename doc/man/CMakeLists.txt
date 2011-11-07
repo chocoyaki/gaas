@@ -18,5 +18,5 @@ foreach( SRC ${MAN_PAGES_SRCS} )
   add_dependencies( doc-man "man-${BASENAME}" ) 
 endforeach()
 
-install( DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/man1"
-  DESTINATION "${MAN_INSTALL_DIR}" )
+install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/man1/"
+  DESTINATION "${MAN_INSTALL_DIR}")

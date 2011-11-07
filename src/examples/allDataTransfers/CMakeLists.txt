@@ -12,4 +12,4 @@ TARGET_LINK_LIBRARIES( transfers_client ${DIET_CLIENT_LIBRARIES} )
 ADD_EXECUTABLE( transfers_server server.cc )
 TARGET_LINK_LIBRARIES( transfers_server ${DIET_SERVER_LIBRARIES} )
 
-INSTALL( TARGETS transfers_client transfers_server DESTINATION bin/examples/allDataTransfers )
+INSTALL( TARGETS transfers_client transfers_server DESTINATION ${EXAMPLE_INSTALL_DIR}/allDataTransfers )

@@ -5,6 +5,10 @@
 SET( DIET_CLIENT_LIBRARIES DIET_client DIET_Dagda)
 SET( DIET_SERVER_LIBRARIES DIET_SeD DIET_Dagda)
 
+
+set( EXAMPLE_INSTALL_DIR "${BIN_INSTALL_DIR}/examples"
+  CACHE INTERNAL "Directory where examples will be installed")
+
 ADD_SUBDIRECTORY( dynamic_hierarchy )
 
 IF( DIET_USE_ALT_BATCH )

@@ -356,6 +356,25 @@ Testing
    package). ctest --help provides a summary of the advanced options of 
    ctest among which we recommend the --verbose option.
 
+Creating packages
+   You can easily create packages using CMake and CPack. For this, when running
+   ccmake, select one or multiple of the following CPack generators:
+    - CPACK_BINARY_DRAGNDROP    # OK, but not really interesting 
+    - CPACK_BINARY_PACKAGEMAKER # OK
+    - CPACK_BINARY_STGZ         # OK
+    - CPACK_BINARY_TBZ2         # OK
+    - CPACK_BINARY_TGZ          # OK
+    - CPACK_BINARY_NSIS         # not tested yet
+    - CPACK_BINARY_DEB          # do not use, it does not generate proper debian packages
+    - CPACK_BINARY_RPM          # do not use, it does not generate proper rpm packages
+    - CPACK_BINARY_OSXX11       # do not use, creates a .app, but it does not mean much for us
+    - CPACK_BINARY_BUNDLE       # currently not supported
+    - CPACK_SOURCE_TBZ2         # currently not supported
+    - CPACK_SOURCE_TGZ          # currently not supported
+    - CPACK_SOURCE_TZ           # currently not supported
+    - CPACK_SOURCE_ZIP          # currently not supported
+
+
 
 
                              Diet client/server examples

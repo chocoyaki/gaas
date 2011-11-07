@@ -28,4 +28,4 @@ TARGET_LINK_LIBRARIES( disconnect DIET_admin )
 ADD_EXECUTABLE( remove remove.cc )
 TARGET_LINK_LIBRARIES( remove DIET_admin )
 
-INSTALL( TARGETS connect disconnect remove DESTINATION bin/examples/dynamic_hierarchy )
+INSTALL( TARGETS connect disconnect remove DESTINATION ${EXAMPLE_INSTALL_DIR}/dynamic_hierarchy )

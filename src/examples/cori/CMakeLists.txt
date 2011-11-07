@@ -19,4 +19,4 @@ ADD_EXECUTABLE( coriEasyTester coriEasyTester.cc )
 TARGET_LINK_LIBRARIES( coriEasyTester ${DIET_SERVER_LIBRARIES} )
 
 ### install everything
-INSTALL( TARGETS server_cori client_cori clientthread_cori coriEasyTester DESTINATION bin/examples/cori )
+INSTALL( TARGETS server_cori client_cori clientthread_cori coriEasyTester DESTINATION ${EXAMPLE_INSTALL_DIR}/cori )

@@ -68,7 +68,7 @@ endif (DIET_USE_USERSCHED)
 ########################################################################
 ## Install the files needed for scheduler development.
 if (DIET_USE_USERSCHED)
-  INSTALL(FILES
+  install(FILES
     est_internal.hh
     debug.hh
     LinkedList.hh

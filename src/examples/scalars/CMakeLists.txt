@@ -11,4 +11,4 @@ TARGET_LINK_LIBRARIES( scalars_client ${DIET_CLIENT_LIBRARIES} )
 ADD_EXECUTABLE( scalars_server scalars_server.c )
 TARGET_LINK_LIBRARIES( scalars_server ${DIET_SERVER_LIBRARIES} )
 
-INSTALL( TARGETS scalars_client scalars_server DESTINATION bin/examples/scalars )
+INSTALL( TARGETS scalars_client scalars_server DESTINATION ${EXAMPLE_INSTALL_DIR}/scalars )

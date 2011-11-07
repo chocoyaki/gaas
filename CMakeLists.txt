@@ -343,12 +343,6 @@ if (CMAKE_COMPILER_IS_GNUCC AND NOT APPLE)
   string(REPLACE ";" " " CMAKE_C_FLAGS ${CMAKE_C_FLAGS}) # transform previous list in a string
 endif (CMAKE_COMPILER_IS_GNUCC AND NOT APPLE)
 
-# ---------------- SET THE LINKER SEARCH PATH (RPATH) ----------------------
-set(CMAKE_INSTALL_RPATH_USE_LINK_PATH ON
-    CACHE BOOL "Whether to set an rpath for dynamic libraries.")
-set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib
-    CACHE STRING "Rpath set at install stage." FORCE)
-set(CMAKE_INSTALL_NAME_DIR ${CMAKE_INSTALL_PREFIX}/lib)
 
 # ------------------- CTEST SUPPORT ----------------------------------------
 if (BUILD_TESTING)
@@ -437,24 +431,26 @@ ENDIF( NOT BUILD_SHARED_LIBS )
 
 IF( CYGWIN )
   IF( BUILD_SHARED_LIBS )  
-    SET( DIET_INSTALL_LIBS_DIR ${CMAKE_INSTALL_PREFIX}/bin )
+    SET( DIET_INSTALL_LIBS_DIR bin )
   ELSE( BUILD_SHARED_LIBS )
-    SET( DIET_INSTALL_LIBS_DIR ${CMAKE_INSTALL_PREFIX}/lib )
+    SET( DIET_INSTALL_LIBS_DIR lib )
   ENDIF( BUILD_SHARED_LIBS )
 ELSE( CYGWIN )
-  SET( DIET_INSTALL_LIBS_DIR ${CMAKE_INSTALL_PREFIX}/lib )
+  SET( DIET_INSTALL_LIBS_DIR lib )
 ENDIF( CYGWIN )
 
 # installation customization hooks
 # manage lib/lib64 install issue
 set( LIB_SUFFIX "" CACHE STRING "Define suffix of lib directory name (32/64)" )
-set( LIB_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}"
-  CACHE INTERNAL "Directory where lib will be installed")
-set( BIN_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/bin"
-  CACHE INTERNAL "Directory where binary will be installed" )
-set( INCLUDE_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/include"
-  CACHE INTERNAL "Directory where include will be installed" )
-set( CMAKE_MOD_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/share/cmake/Modules"
+set( LIB_INSTALL_DIR "lib${LIB_SUFFIX}"
+  CACHE INTERNAL "Directory where libraries will be installed")
+set( BIN_INSTALL_DIR "bin"
+  CACHE INTERNAL "Directory where binaries will be installed" )
+set( INCLUDE_INSTALL_DIR "include"
+  CACHE INTERNAL "Directory where include files will be installed" )
+set( ETC_INSTALL_DIR "etc"
+  CACHE INTERNAL "Directory where configuration files will be installed" )
+set( CMAKE_MOD_INSTALL_DIR "share/cmake/Modules"
   CACHE INTERNAL "Directory where cmake modules will be installed" )
 
 # --------------------------------------------------------------------------
@@ -469,5 +465,48 @@ endif()
 
 # --------------------------------------------------------------------------
 include(${DIET_SOURCE_DIR}/Cmake/DisplaySummary.cmake)
+
+
+# --------------------------------------------------------------------------
+# Configuration of CPack to generate packages
+set(CPACK_PACKAGE_NAME "DIET v${DIET_VERSION}")
+set(CPACK_PACKAGE_VERSION_MAJOR ${DIET_MAJOR_VERSION})
+set(CPACK_PACKAGE_VERSION_MINOR ${DIET_MINOR_VERSION})
+set(CPACK_PACKAGE_VERSION_REVISION ${DIET_REVISION_VERSION})
+# set(CPACK_PACKAGE_DESCRIPTION_FILE ) # TODO
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "DIET (Distributed Interactive Engineering Toolbox) is a middleware designed for high-performance computing in a heterogeneous and distributed environment (workstations, clusters, grids, clouds).")
+set(CPACK_PACKAGE_FILE_NAME "diet-${DIET_VERSION}")
+set(CPACK_RESOURCE_FILE_LICENSE ${DIET_SOURCE_DIR}/LICENCE_eng.txt)
+# set(CPACK_RESOURCE_FILE_README ) # TODO
+# set(CPACK_RESOURCE_FILE_WELCOME ) # TODO
+
+# CPack generators: do not use this macro, but change the comments whenever a
+# new generator is supported. Also push your modifications in the INSTALL.txt
+# file.
+# set(CPACK_GENERATOR 
+#   # CPACK_BINARY_BUNDLE     # currently not supported
+#   # CPACK_BINARY_DEB        # do not use, it does not generate proper debian packages
+#   CPACK_BINARY_DRAGNDROP    # OK, but not really interesting 
+#   # CPACK_BINARY_NSIS       # not tested yet
+#   CPACK_BINARY_OSXX11       # do not use, creates a .app, but it does not mean much for us
+#   CPACK_BINARY_PACKAGEMAKER # OK
+#   # CPACK_BINARY_RPM        # do not use, it does not generate proper rpm packages
+#   CPACK_BINARY_STGZ         # OK
+#   CPACK_BINARY_TBZ2         # OK
+#   CPACK_BINARY_TGZ          # OK
+#   CPACK_SOURCE_TBZ2         # currently not supported
+#   CPACK_SOURCE_TGZ          # currently not supported
+#   CPACK_SOURCE_TZ           # currently not supported
+#   CPACK_SOURCE_ZIP          # currently not supported
+# )
+
+# CPack Mac OS X specific variables
+set(CPACK_BUNDLE_NAME "DIET v${DIET_VERSION}")
+# set(CPACK_BUNDLE_PLIST ) # TODO
+# set(CPACK_BUNDLE_ICON ) # TODO
+# set(CPACK_DMG_BACKGROUND_IMAGE ) # TODO
+
+# Finally include CPack
+include(CPack)
 
 ## eof - CMakeLists.txt

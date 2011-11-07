@@ -25,8 +25,8 @@ CMakeLists.txt
 README.FIRST
 INSTALL.txt
 ChangeLog
-LICENCE_eng
-LICENCE_fr
+LICENCE_eng.txt
+LICENCE_fr.txt
 COPYING
 
 # Cmake Section

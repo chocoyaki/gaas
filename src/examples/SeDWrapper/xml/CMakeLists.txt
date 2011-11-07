@@ -1,3 +1,3 @@
-INSTALL( FILES convert.gasw DESTINATION bin/examples/SeDWrapper/xml )
-INSTALL( FILES convert_dag.xml DESTINATION bin/examples/SeDWrapper/xml )
-INSTALL( FILES README.txt DESTINATION bin/examples/SeDWrapper/xml )
+INSTALL( FILES convert.gasw DESTINATION ${EXAMPLE_INSTALL_DIR}/SeDWrapper/xml )
+INSTALL( FILES convert_dag.xml DESTINATION ${EXAMPLE_INSTALL_DIR}/SeDWrapper/xml )
+INSTALL( FILES README.txt DESTINATION ${EXAMPLE_INSTALL_DIR}/SeDWrapper/xml )

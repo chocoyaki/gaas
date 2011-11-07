@@ -11,7 +11,7 @@ ELSE( NOT BLAS_FOUND )
   ### A single server...
   ADD_EXECUTABLE( server server.c )
   TARGET_LINK_LIBRARIES( server ${DIET_SERVER_LIBRARIES} ${BLAS_LIBRARIES} )
-  INSTALL( TARGETS server DESTINATION bin/examples/BLAS )
+  INSTALL( TARGETS server DESTINATION ${EXAMPLE_INSTALL_DIR}/BLAS )
   
   ### ... and many clients
   SET( C_CLIENT_EXAMPLES
@@ -22,11 +22,11 @@ ELSE( NOT BLAS_FOUND )
     ADD_EXECUTABLE( ${loop_var} ${loop_var}.c )
     TARGET_LINK_LIBRARIES( ${loop_var}
                            ${DIET_CLIENT_LIBRARIES} ${BLAS_LIBRARIES} )
-    INSTALL( TARGETS ${loop_var} DESTINATION bin/examples/BLAS )
+    INSTALL( TARGETS ${loop_var} DESTINATION ${EXAMPLE_INSTALL_DIR}/BLAS )
   ENDFOREACH( loop_var )
 
   ADD_EXECUTABLE( clientthread dgemm_client_thread.cc )
   TARGET_LINK_LIBRARIES( clientthread ${DIET_CLIENT_LIBRARIES} )
-  INSTALL( TARGETS clientthread DESTINATION bin/examples/BLAS )
+  INSTALL( TARGETS clientthread DESTINATION ${EXAMPLE_INSTALL_DIR}/BLAS )
 
 ENDIF( NOT BLAS_FOUND )
