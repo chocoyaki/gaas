@@ -39,6 +39,8 @@
 	  + FAST: performance evaluation plugin
 	  + TAU: a code profiler
 	- old CVS headers have been removed and replaced by Doxygen headers
+	- move FWorkflow.dtd from /etc to /usr/share/diet since
+	it's application data (accordingly to FHS)
 	
 
 +------------+

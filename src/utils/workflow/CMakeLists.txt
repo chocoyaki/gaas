@@ -52,4 +52,4 @@ add_library(UtilsWf STATIC
 target_link_libraries(UtilsWf
   DIET_Dagda
 )
-install(FILES FWorkflow.dtd DESTINATION ${ETC_INSTALL_DIR})
+install(FILES FWorkflow.dtd DESTINATION ${DATA_INSTALL_DIR})

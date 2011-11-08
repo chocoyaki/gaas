@@ -1,13 +1,13 @@
 /**
 * @file DagWfParser.cc
-* 
-* @brief  DAG Workflow description Reader class implementation 
-* 
+*
+* @brief  DAG Workflow description Reader class implementation
+*
 * @author  Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)
 *          Benjamin ISNARD (Benjamin.Isnard@ens-lyon.fr)
-* 
+*
 * @section Licence
-*   |LICENCE|                                                                
+*   |LICENCE|
 */
 /****************************************************************************/
 /* DAG Workflow description Reader class implementation                     */
@@ -183,8 +183,8 @@ DagWfParser::parseXml(bool checkValid) {
 
   // Check if DTD was provided
   if (checkValid && !document->getDoctype()) {
-    WARNING(errorMsgPfx << "XML is not validated (no DTD provided)" << endl
-            << "Use <!DOCTYPE workflow SYSTEM \"[DIET_INSTALL_DIR]/etc/FWorkflow.dtd\">"
+    WARNING(errorMsgPfx << "XML is not validated (no DTD provided)\n"
+            << "Use <!DOCTYPE workflow SYSTEM \"[DIET_INSTALL_DIR]/share/diet/FWorkflow.dtd\">"
             << " instruction to provide it");
   }
 
@@ -205,7 +205,8 @@ DagWfParser::parseXml(bool checkValid) {
  * parse a node element
  */
 void
-DagWfParser::parseNode (const DOMElement * element, const std::string& elementName) {
+DagWfParser::parseNode (const DOMElement * element,
+                        const std::string& elementName) {
   // parse the node start element and its attributes
   WfNode * newNode = this->createNode(element, elementName);
   // parse the node sub-elements

@@ -98,9 +98,8 @@ SeDDescrParser::parseXml(bool checkValid) {
 
   // Check if DTD was provided
   if (checkValid && !document->getDoctype()) {
-    cerr << errorMsgPfx << "XML is not validated (no DTD provided)" << endl
-         <<
-    "Use <!DOCTYPE workflow SYSTEM \"[DIET_INSTALL_DIR]/etc/FWorkflow.dtd\">"
+    cerr << errorMsgPfx << "XML is not validated (no DTD provided)\n"
+         << "Use <!DOCTYPE workflow SYSTEM \"[DIET_INSTALL_DIR]/share/diet/FWorkflow.dtd\">"
          << " instruction to provide it";
   }
 
