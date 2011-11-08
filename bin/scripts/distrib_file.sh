@@ -1,23 +1,10 @@
 #!/bin/sh
-<<<<<<< HEAD
 #**
 #*  @file  distrib_file.sh
 #*  @brief  Clean up CVS fields in DIET files, when building a distribution.
 #*  @author Philippe COMBES (Philippe.Combes@ens-lyon.fr)
 #*  @section Licence 
 #*    |LICENCE|
-
-
-=======
-#
-# Clean up CVS fields in DIET files, when building a distribution.
-#
-#  Author(s):                                
-#    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)
-#
-# |LICENSE|
-#
->>>>>>> bcbca818c8621f535ea6e567753a00a0d7b7eec7
 
 IN_FILE=$1
 FILEDIR=`dirname $1`
