@@ -11,7 +11,7 @@ if( BUILD_TESTING )
   # flags are set for in Debug mode.
   SET(CMAKE_BUILD_TYPE "Release")
 
-  find_package(Boost 1.46.1 COMPONENTS
+  find_package(Boost 1.46.0 COMPONENTS
     unit_test_framework
     filesystem
     system
