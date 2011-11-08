@@ -133,7 +133,10 @@ src/CORBA/forwarders/MasterAgent.cc
 src/CORBA/forwarders/SeD.cc
 src/CORBA/forwarders/WfLogService.cc
 
-
+# tools section
+[Untemplated]
+src/CORBA/tools/CMakeLists.txt
+src/CORBA/tools/dietObjects.cc
 
 # SeD section
 [Untemplated]
