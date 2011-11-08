@@ -15,7 +15,7 @@ foreach(SRC ${MAN_PAGES_SRCS})
   string(REGEX REPLACE "(.*).rst$" "\\1" BASENAME ${SRC})
   add_custom_target("man-${BASENAME}"
     ${RST2MAN_BIN} "${CMAKE_CURRENT_SOURCE_DIR}/${SRC}" "man1/${BASENAME}.1")
-  add_dependencies(doc-man "man-${BASENAME}") 
+  add_dependencies(doc-man "man-${BASENAME}")
 endforeach()
 
 install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/man1"
