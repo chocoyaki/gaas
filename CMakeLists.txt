@@ -460,6 +460,11 @@ set( ETC_INSTALL_DIR "etc"
 set( CMAKE_MOD_INSTALL_DIR "share/cmake/Modules"
   CACHE INTERNAL "Directory where cmake modules will be installed" )
 
+# hack to avoid installing configuration stuff in /usr/etc
+if(${CMAKE_INSTALL_PREFIX} MATCHES "^/usr")
+  set(ETC_INSTALL_DIR "/etc")
+endif()
+
 # --------------------------------------------------------------------------
 add_subdirectory(src)
 add_subdirectory(include)
@@ -467,8 +472,6 @@ add_subdirectory(Cmake)
 if(DIET_BUILD_DOC)
   add_subdirectory(doc)
 endif()
-
-
 
 # --------------------------------------------------------------------------
 include(${DIET_SOURCE_DIR}/Cmake/DisplaySummary.cmake)
