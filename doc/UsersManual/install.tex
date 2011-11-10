@@ -298,7 +298,12 @@ obtain the compilation of the desired extensions.
   for a \sed into the MA hierarchies it is connected to.
 
 \item
-  \verb+DIET_WITH_STATISTICS+ enables the generation of statistics logs
+  \verb+DIET_WITH_STATISTICS+ enables the generation of statistics logs.
+  The logs can be gotten for any element in the DIET hierarchy. To do
+  so, one have to define the DIET\_STAT\_FILE\_NAME environment variable.
+  For instance, export DIET\_STAT\_FILE\_NAME=/tmp/client then calling
+  a client will generate the statistics for the client in the /tmp/client
+  file.
 \end{itemize}
 
 %==================
