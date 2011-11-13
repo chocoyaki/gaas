@@ -234,7 +234,7 @@ Here are the main configuration flags:
   \verb+OMNIORB4_DIR+ is the path to the omniORB4 installation
   directory (only relevant when omniORB4 was not installed in
   /usr/local).\\ Example:
-  \verb+cmake .. -DOMNIORB4_DIR:PATH=$HOME/local/omniORB-4.0.7+
+  \verb+cmake .. -DOMNIORB4_DIR:PATH=$HOME/local/omniORB-4.1.5+
 
 \item
   \verb+DIET_BUILD_EXAMPLES+ activates the compilation of a set of
@@ -280,9 +280,6 @@ obtain the compilation of the desired extensions.
   details.
 
 \item
-  \verb+DIET_USE_FD+ for activating Fault Detector.
-
-\item
   \verb+DIET_USE_WORKFLOW+ enables the support of workflow. For the support
   of workflows inside \diet, Xerces and Xqilla libraries are mandatory 
   (see \url{http://xerces.apache.org/xerces-c/} and
@@ -298,7 +295,12 @@ obtain the compilation of the desired extensions.
   for a \sed into the MA hierarchies it is connected to.
 
 \item
-  \verb+DIET_WITH_STATISTICS+ enables the generation of statistics logs
+  \verb+DIET_WITH_STATISTICS+ enables the generation of statistics logs.
+  The logs can be obtained for any element in the DIET hierarchy. To do
+  so, you have to define the DIET\_STAT\_FILE\_NAME environment variable.
+  For instance, export DIET\_STAT\_FILE\_NAME=/tmp/client then calling
+  a client will generate the statistics for the client in the /tmp/client
+  file.
 \end{itemize}
 
 %==================
