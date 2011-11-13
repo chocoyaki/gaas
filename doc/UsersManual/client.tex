@@ -113,7 +113,11 @@ int main(int argc, char **argv)
   }
   
   /* Initialize a DIET session */
-  diet_initialize("./client.cfg", argc, argv);
+  if (diet_initialize("./client.cfg", argc, argv)) {
+    printf("A problem occured during DIET initialization.\n"
+           "Make sure that a configuration file named client.cfg is present in this directory.\n");
+    return 1;
+  }
 
   /* Create the profile as explained in Chapter 3 */
   profile = diet_profile_alloc("smprod",0, 1, 2); // last_in, last_inout, last_out
@@ -174,7 +178,11 @@ int main(int argc, char **argv)
   n = 100;
  
   /* Initialize a DIET session */
-  diet_initialize("./client.cfg", argc, argv);
+  if (diet_initialize("./client.cfg", argc, argv)) {
+    printf("A problem occured during DIET initialization.\n"
+           "Make sure that a configuration file named client.cfg is present in this directory.\n");
+    return 1;
+  }
 
   /* Create the profile as explained in Chapter 3 */
   for (i = 0; i < 5; i++){
@@ -258,10 +266,29 @@ this simple client/server example:
 \begin{verbatim}
 PROJECT( DIETSIMPLEEXAMPLE )
 
+cmake_minimum_required(VERSION 2.6)
+
+# This example needs the FindDiet.cmake package detection script. We placed
+# this script in the Cmake sub-directory:
 SET( CMAKE_MODULE_PATH ${DIETSIMPLEEXAMPLE_SOURCE_DIR}/Cmake )
+
+# Try to automaticaly detect a DIET installation...
 FIND_PACKAGE( Diet )
 
-# On success use the information we just recovered:
+# ...and on failure provide the user with some hints:
+IF( NOT DIET_FOUND )
+  IF( DIET_DIR ) 
+    MESSAGE( "The provided DIET_DIR parameter seems NOT correct." )
+  ELSE( DIET_DIR ) 
+    MESSAGE("Could NOT find any DIET installation among the well known paths.")
+    MESSAGE("If your DIET installation is in a non canonical place, please provide DIET_DIR:")
+    MESSAGE("  - through the GUI when working with ccmake, ")
+    MESSAGE("  - as a command line argument when working with cmake e.g. ")
+    MESSAGE("    cmake .. -DDIET_DIR:PATH=/home/<your_login_name>/local/diet ")
+  ENDIF( DIET_DIR ) 
+ENDIF( NOT DIET_FOUND )
+
+# On success use the information we just recovered: 
 INCLUDE_DIRECTORIES( ${DIET_INCLUDE_DIR} )
 LINK_DIRECTORIES( ${DIET_LIBRARY_DIR} )
 

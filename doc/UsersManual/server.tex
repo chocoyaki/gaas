@@ -203,6 +203,7 @@ between \diet and this function. Then, the \texttt{main} function defines one se
 adds it in the service table with its associated solve function.
 {\footnotesize
 \begin{verbatim}
+#include <stdio.h>
 #include "DIET_server.h"
 #include "scal_mat_prod.h"
 
@@ -246,7 +247,6 @@ int main(int argc, char* argv[])
   /* Launch the SeD: no return call */
   diet_SeD("./SeD.cfg", argc, argv);
 
-  /* Dead code */
   return 0;
 }
 \end{verbatim}
