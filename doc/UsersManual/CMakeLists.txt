@@ -26,8 +26,6 @@ add_latex_document(UsersManual.tex
   IMAGES fig/DIET_arch_request-2.pdf
   fig/VizDIET.pdf
   fig/VizDIET_screenshot_2.png
-  fig/data.fig
-  fig/global_platform.fig
   fig/init.fig
   fig/logo_DIET_big.png
   fig/multima.fig
