@@ -24,6 +24,9 @@ add_latex_document(UsersManual.tex
   BIBFILES UsersManual.bib
   IMAGE_DIRS fig
   IMAGES fig/DIET_arch_request-2.pdf
+  fig/init.pdf
+  fig/data.pdf
+  fig/global_platform.pdf
   fig/VizDIET.pdf
   fig/VizDIET_screenshot_2.png
   fig/logo_DIET_big.png
