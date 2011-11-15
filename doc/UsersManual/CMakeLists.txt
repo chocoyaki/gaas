@@ -26,11 +26,11 @@ add_latex_document(UsersManual.tex
   IMAGES fig/DIET_arch_request-2.pdf
   fig/init.pdf
   fig/data.pdf
-  fig/global_platform.png
+  fig/global_platform.pdf
   fig/VizDIET.pdf
   fig/VizDIET_screenshot_2.png
   fig/logo_DIET_big.png
-  fig/multima.fig
+  fig/multima.pdf
   fig/overviewCori.pdf
   fig/smprod.fig
   fig/wf_example1.fig
