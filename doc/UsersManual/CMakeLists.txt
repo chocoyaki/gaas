@@ -32,7 +32,7 @@ add_latex_document(UsersManual.tex
   fig/logo_DIET_big.png
   fig/multima.pdf
   fig/overviewCori.pdf
-  fig/smprod.fig
+  fig/smprod.pdf
   fig/wf_example1.fig
   fig/wf_archi2.fig
   fig/wf_archi1.fig
