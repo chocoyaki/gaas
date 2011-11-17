@@ -58,8 +58,8 @@ DagNodePort::setProfileWithoutValue() {
                     NULL, mode);
     break;
   case WfCst::TYPE_FILE :
-    diet_file_set(diet_parameter(profile, index), mode,
-                  NULL);
+    diet_file_set(diet_parameter(profile, index), NULL,
+                  mode);
     break;
   case WfCst::TYPE_MATRIX :
     diet_matrix_set(diet_parameter(profile, index), NULL, mode,
@@ -651,8 +651,8 @@ DagNodeArgPort::setProfileWithValue() {
                     myParent->newString(value), mode);
     break;
   case WfCst::TYPE_FILE :
-    diet_file_set(diet_parameter(profile, index), mode,
-                  myParent->newFile(value));
+    diet_file_set(diet_parameter(profile, index), myParent->newFile(value),
+                  mode);
     break;
   case WfCst::TYPE_MATRIX :
     initMatrixValue(&mat);

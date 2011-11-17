@@ -960,15 +960,15 @@ main(int argc, char *argv[]) {
   std::cout << "#### Characters" << std::endl;
   profile = diet_profile_alloc(PB_FILE[0], 0, 1, 2);
 
-  if (diet_file_set(diet_parameter(profile, 0), DIET_PERSISTENT, s1)) {
+  if (diet_file_set(diet_parameter(profile, 0), s1, DIET_PERSISTENT)) {
     std::cout << "Error on diet_file_set on s1" << std::endl;
   }
   std::cout << "File s1: " << s1 << std::endl;
-  if (diet_file_set(diet_parameter(profile, 1), DIET_VOLATILE, s2)) {
+  if (diet_file_set(diet_parameter(profile, 1), s2, DIET_VOLATILE)) {
     std::cout << "Error on diet_file_set on s2" << std::endl;
   }
   std::cout << "File s2 (before call): " << s2 << std::endl;
-  if (diet_file_set(diet_parameter(profile, 2), DIET_VOLATILE, NULL)) {
+  if (diet_file_set(diet_parameter(profile, 2), NULL, DIET_VOLATILE)) {
     std::cout << "Error on diet_file_set on s3" << std::endl;
   }
 

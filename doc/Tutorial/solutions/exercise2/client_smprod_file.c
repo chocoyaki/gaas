@@ -1,9 +1,9 @@
 /**
 *  @file  client_smprod_file.c
 *  @brief   DIET tutorial scalar by matrix product example: client 
-*  @author  - Ludovic BERTSCH  (Ludovic.Bertsch@ens-lyon.fr)
-*           - Eddy CARON  (Eddy.Caron@ens-lyon.fr)
-*           - Philippe COMBES  (Philippe.Combes@ens-lyon.fr)
+*  @author  Ludovic BERTSCH  (Ludovic.Bertsch@ens-lyon.fr)
+*           Eddy CARON  (Eddy.Caron@ens-lyon.fr)
+*           Philippe COMBES  (Philippe.Combes@ens-lyon.fr)
 *  @section Licence 
 *    |LICENCE|
 */
@@ -33,7 +33,7 @@ int main(int argc, char **argv)
   /* Set profile arguments */
   diet_scalar_set(diet_parameter(profile, 0), 
 		  &factor, DIET_VOLATILE, DIET_DOUBLE);
-  diet_file_set(diet_parameter(profile, 1), DIET_PERSISTENT, matrix_file);
+  diet_file_set(diet_parameter(profile, 1), matrix_file, DIET_PERSISTENT);
 
   diet_scalar_set(diet_parameter(profile, 2), NULL, DIET_VOLATILE, DIET_FLOAT);
 

@@ -45,18 +45,18 @@ main(int argc, char *argv[]) {
 
   path = "concatenation";
   profile = diet_profile_alloc(path, 2, 2, 3);
-  if (diet_file_set(diet_parameter(profile, 0), DIET_VOLATILE, argv[2])) {
+  if (diet_file_set(diet_parameter(profile, 0), argv[2], DIET_VOLATILE)) {
     printf("file1: diet_file_set error\n");
     return 1;
   }
   nbreel = strtod(argv[3], NULL);
   diet_scalar_set(diet_parameter(profile, 1), &nbreel, DIET_VOLATILE,
                   DIET_DOUBLE);
-  if (diet_file_set(diet_parameter(profile, 2), DIET_VOLATILE, argv[4])) {
+  if (diet_file_set(diet_parameter(profile, 2), argv[4], DIET_VOLATILE)) {
     printf("file2: diet_file_set error\n");
     return 1;
   }
-  if (diet_file_set(diet_parameter(profile, 3), DIET_VOLATILE, NULL)) {
+  if (diet_file_set(diet_parameter(profile, 3), NULL, DIET_VOLATILE)) {
     printf("result_file: diet_file_set error\n");
     return 1;
   }

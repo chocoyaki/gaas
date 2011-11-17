@@ -538,7 +538,7 @@ SeDService::cpyArgsToProfile(diet_profile_t *pb) {
         string filePathStr = filePath.string();
         char *outputStr = (char *) malloc(filePathStr.size() + 1);
         strcpy(outputStr, filePathStr.c_str());
-        diet_file_set(diet_parameter(pb, argIndex), DIET_PERSISTENT, outputStr);
+        diet_file_set(diet_parameter(pb, argIndex), outputStr, DIET_PERSISTENT);
       } else if (currArg->getType() == SeDArgument::DIR) {
         fs::path dirPath(currArg->getValue());
         // check if relative path, and prefix with working directory path if yes

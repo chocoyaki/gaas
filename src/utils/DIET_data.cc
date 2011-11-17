@@ -601,8 +601,8 @@ diet_use_data(diet_arg_t *arg, const char *id) {
 
 /* Computes the file size (stocked in a field of arg) */
 int
-diet_file_set(diet_arg_t *arg, diet_persistence_mode_t mode,
-              const char *path) {
+diet_file_set(diet_arg_t *arg, const char *path,
+              diet_persistence_mode_t mode) {
   int status(0);
   if ((status = file_set_desc(&(arg->desc), NULL, mode, path))) {
     return status;

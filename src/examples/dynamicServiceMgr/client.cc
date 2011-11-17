@@ -50,7 +50,7 @@ main(int argc, char *argv[]) {
   if (!strcmp(argv[2], "add")) {
     service = "addDyn";
     profile = diet_profile_alloc(strdup(service.c_str()), 0, 0, 0);
-    if (diet_file_set(diet_parameter(profile, 0), DIET_PERSISTENT, argv[3])) {
+    if (diet_file_set(diet_parameter(profile, 0), argv[3], DIET_PERSISTENT)) {
       std::cerr << "Problem while sending file '" << argv[3] << "'" <<
       std::endl;
       return 1;

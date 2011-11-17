@@ -1,11 +1,10 @@
-/*
- * DIETFilesDataTransfers.cpp
- *
- * call a service with 1 in, 1 inout and 1 out files
- *
- * Created on: 01 march 2011
- * Author: bdepardo
- */
+/**
+*  @file  DIETFilesDataTransfers.cpp
+*  @brief   call a service with 1 in, 1 inout and 1 out files
+*  @author  Benjamin DEPARDON  Benjamin.Depardon@ens-lyon.fr
+*  @section Licence
+*    |LICENCE|
+*/
 
 #include <cstring>
 #include <string>
@@ -57,11 +56,11 @@ BOOST_AUTO_TEST_CASE(files) {
   profile = diet_profile_alloc(PB_FILE[0], 0, 1, 2);
   BOOST_CHECK(profile != NULL);
 
-  error = diet_file_set(diet_parameter(profile, 0), DIET_PERSISTENT, s1);
+  error = diet_file_set(diet_parameter(profile, 0), s1, DIET_PERSISTENT);
   BOOST_CHECK_EQUAL(GRPC_NO_ERROR, error);
-  error = diet_file_set(diet_parameter(profile, 1), DIET_VOLATILE, s2);
+  error = diet_file_set(diet_parameter(profile, 1), s2, DIET_VOLATILE);
   BOOST_CHECK_EQUAL(GRPC_NO_ERROR, error);
-  error = diet_file_set(diet_parameter(profile, 2), DIET_VOLATILE, NULL);
+  error = diet_file_set(diet_parameter(profile, 2), NULL, DIET_VOLATILE);
   BOOST_CHECK_EQUAL(GRPC_NO_ERROR, error);
 
   error = diet_call(profile);

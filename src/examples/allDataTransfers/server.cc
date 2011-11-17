@@ -459,14 +459,14 @@ solve_FTRANSFER(diet_profile_t *pb) {
   if (!(buf.st_mode & S_IFREG)) {
     return 2;
   }
-  if (diet_file_set(diet_parameter(pb, 1), DIET_VOLATILE, path2)) {
+  if (diet_file_set(diet_parameter(pb, 1), path2, DIET_VOLATILE)) {
     std::cerr << "diet_file_desc_set error on INOUT file" << std::endl;
     return 1;
   }
 
   /* Send IN file as OUT file */
   path3 = strdup(path1);
-  if (diet_file_set(diet_parameter(pb, 2), DIET_VOLATILE, path3)) {
+  if (diet_file_set(diet_parameter(pb, 2), path3, DIET_VOLATILE)) {
     std::cerr << "diet_file_desc_set error on OUT file" << std::endl;
     return 1;
   }

@@ -62,7 +62,7 @@ solve_size(diet_profile_t *pb) {
 
   path2 = strdup(path1);
 
-  if (diet_file_set(diet_parameter(pb, 4), DIET_VOLATILE, path2)) {
+  if (diet_file_set(diet_parameter(pb, 4), path2, DIET_VOLATILE)) {
     printf("diet_file_desc_set error\n");
     return 1;
   }

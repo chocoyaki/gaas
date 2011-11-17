@@ -305,7 +305,7 @@
    // The file size is computed and stocked in a field of arg
    // ! Warning ! The path is not duplicated !!!
    int
-   diet_file_set(diet_arg_t* arg, diet_persistence_mode_t mode, char* path);
+   diet_file_set(diet_arg_t* arg, char* path, diet_persistence_mode_t mode);
    \endcode
 
    \subsection AccessFunctions Access functions
@@ -956,8 +956,8 @@ extern "C" {
      @sa DIET_grpc.h for error codes
   */
   int
-  diet_file_set(diet_arg_t* arg, diet_persistence_mode_t mode,
-                const char* path);
+  diet_file_set(diet_arg_t* arg, const char* path,
+                diet_persistence_mode_t mode);
 
   /**
      Function used to set a parameter in the profile for a container value.

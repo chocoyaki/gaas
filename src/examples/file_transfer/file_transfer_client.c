@@ -41,17 +41,17 @@ main(int argc, char *argv[]) {
   }
 
   profile = diet_profile_alloc(path, 1, 1, 4);
-  if (diet_file_set(diet_parameter(profile, 0), DIET_PERSISTENT, argv[2])) {
+  if (diet_file_set(diet_parameter(profile, 0), argv[2], DIET_PERSISTENT)) {
     printf("diet_file_set error\n");
     return 1;
   }
-  if (diet_file_set(diet_parameter(profile, 1), DIET_VOLATILE, argv[3])) {
+  if (diet_file_set(diet_parameter(profile, 1), argv[3], DIET_VOLATILE)) {
     printf("diet_file_set error\n");
     return 1;
   }
   diet_scalar_set(diet_parameter(profile, 2), NULL, DIET_VOLATILE, DIET_INT);
   diet_scalar_set(diet_parameter(profile, 3), NULL, DIET_VOLATILE, DIET_INT);
-  if (diet_file_set(diet_parameter(profile, 4), DIET_VOLATILE, NULL)) {
+  if (diet_file_set(diet_parameter(profile, 4), NULL, DIET_VOLATILE)) {
     printf("diet_file_set error\n");
     return 1;
   }
