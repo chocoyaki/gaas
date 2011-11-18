@@ -4,7 +4,7 @@
                          T oolbox
 
 
-Welcome in using DIET.
+Welcome to DIET.
 
 In order to build DIET, you'll need cmake (a GNU-Autotools
 substitute). Refer to the ./Cmake/README or the INSTALL.txt file for
