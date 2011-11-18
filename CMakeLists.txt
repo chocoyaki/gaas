@@ -490,8 +490,8 @@ set(CPACK_PACKAGE_VERSION_PATCH ${DIET_REVISION_VERSION})
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "DIET (Distributed Interactive Engineering Toolbox) is a middleware designed for high-performance computing in a heterogeneous and distributed environment (workstations, clusters, grids, clouds).")
 set(CPACK_PACKAGE_FILE_NAME "diet-${DIET_VERSION}")
 set(CPACK_RESOURCE_FILE_LICENSE ${DIET_SOURCE_DIR}/LICENCE_eng.txt)
-# set(CPACK_RESOURCE_FILE_README ) # TODO
-# set(CPACK_RESOURCE_FILE_WELCOME ) # TODO
+set(CPACK_RESOURCE_FILE_README ${DIET_SOURCE_DIR}/README.txt)
+# set(CPACK_RESOURCE_FILE_WELCOME ) # not necessary, CPack generates a default welcome screen
 
 # CPack generators: do not use this macro, but change the comments whenever a
 # new generator is supported. Also push your modifications in the INSTALL.txt
