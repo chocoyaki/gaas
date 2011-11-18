@@ -53,7 +53,7 @@ greyscale(diet_profile_t *pb) {
 
   fprintf(stderr, "GREYSCALE SOLVING\n");
 
-  diet_file_get(diet_parameter(pb, 0), NULL, &arg_size, &path1);
+  diet_file_get(diet_parameter(pb, 0), &path1, NULL, &arg_size);
   fprintf(stderr, "on %s (%zd) \n", path1, arg_size);
 
 
@@ -90,7 +90,7 @@ flip(diet_profile_t *pb) {
 
   fprintf(stderr, "FLIP SOLVING\n");
 
-  diet_file_get(diet_parameter(pb, 0), NULL, &arg_size, &path1);
+  diet_file_get(diet_parameter(pb, 0), &path1, NULL, &arg_size);
   fprintf(stderr, "on %s (%zd) \n", path1, arg_size);
 
   path_result = (char *) malloc(strlen(path1) + 10);
@@ -126,7 +126,7 @@ duplicate(diet_profile_t *pb) {
 
   fprintf(stderr, "DUPLICATE SOLVING\n");
 
-  diet_file_get(diet_parameter(pb, 0), NULL, &arg_size, &path1);
+  diet_file_get(diet_parameter(pb, 0), &path1, NULL, &arg_size);
   fprintf(stderr, "on %s (%zd) \n", path1, arg_size);
 
 

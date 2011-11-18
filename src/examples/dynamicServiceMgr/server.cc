@@ -57,7 +57,7 @@ serviceAdd(diet_profile_t *pb) {
     return -1;
   }
 
-  diet_file_get(diet_parameter(pb, 0), NULL, &arg_size, &path);
+  diet_file_get(diet_parameter(pb, 0), &path, NULL, &arg_size);
   std::cerr << "on " << path << " (" << (int) arg_size << ") ";
   if ((status = stat(path, &buf))) {
     return status;

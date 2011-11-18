@@ -76,7 +76,7 @@ main(int argc, char *argv[]) {
     if (!diet_parallel_call(profile)) {
       printf("Job correctly submitted!\n\n\n");
       server_found = 1;
-      diet_file_get(diet_parameter(profile, 3), NULL, &file_size, &path);
+      diet_file_get(diet_parameter(profile, 3), &path, NULL, &file_size);
       if (path && (*path != '\0')) {
         printf("Location of returned file is %s, its size is %zd.\n",
                path, file_size);
@@ -88,7 +88,7 @@ main(int argc, char *argv[]) {
     if (!diet_call(profile)) {
       printf("Job correctly submitted!\n\n\n");
       server_found = 1;
-      diet_file_get(diet_parameter(profile, 3), NULL, &file_size, &path);
+      diet_file_get(diet_parameter(profile, 3), &path, NULL, &file_size);
       if (path && (*path != '\0')) {
         printf("Location of returned file is %s, its size is %zd.\n",
                path, file_size);
@@ -100,7 +100,7 @@ main(int argc, char *argv[]) {
     if (!diet_sequential_call(profile)) {
       printf("Job correctly submitted!\n\n\n");
       server_found = 1;
-      diet_file_get(diet_parameter(profile, 3), NULL, &file_size, &path);
+      diet_file_get(diet_parameter(profile, 3), &path, NULL, &file_size);
       if (path && (*path != '\0')) {
         printf("Location of returned file is %s, its size is %zd.\n",
                path, file_size);

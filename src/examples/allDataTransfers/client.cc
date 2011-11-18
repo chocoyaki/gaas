@@ -973,7 +973,7 @@ main(int argc, char *argv[]) {
   }
 
   if (!diet_call(profile)) {
-    diet_file_get(diet_parameter(profile, 2), NULL, &arg_size, &s3);
+    diet_file_get(diet_parameter(profile, 2), &s3, NULL, &arg_size);
     std::cout << "s2 (after call): " << s2 << std::endl;
     std::cout << "s3:" << s3 << ", size=" << arg_size << std::endl;
 

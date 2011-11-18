@@ -843,8 +843,8 @@ _paramstring_get(diet_arg_t *arg, char **value,
 } // _paramstring_get
 
 int
-_file_get(diet_arg_t *arg, diet_persistence_mode_t *mode,
-          size_t *size, char **path) {
+_file_get(diet_arg_t *arg, char **path, diet_persistence_mode_t *mode,
+          size_t *size) {
   if (arg->desc.generic.type != DIET_FILE) {
     ERROR(__FUNCTION__ << " misused (wrong type)", 1);
   }

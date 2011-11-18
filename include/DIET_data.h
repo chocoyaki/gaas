@@ -344,11 +344,11 @@
    #define diet_string_get(arg, value, mode) \
    _string_get(arg, (char **)value, mode)
 
-   // Type: int diet_file_get((diet_arg_t *),
-   //                         (diet_persistence_mode_t *), (size_t *), (char **))
+   // Type: int diet_file_get((diet_arg_t *), (char **),
+   //                         (diet_persistence_mode_t *), (size_t *))
 
-   #define diet_file_get(arg, mode, size, path) \
-   _file_get(arg, mode, size, (char **)path)
+   #define diet_file_get(arg, path, mode, size) \
+   _file_get(arg, (char **)path, mode, size)
    \endcode
 
    @section DataManagementFunctions Data Management functions
@@ -1220,7 +1220,7 @@ extern "C" {
      @arg size the size ofthe file to get
      @arg path the path where to store the element
 
-     Type: int diet_file_get((diet_arg_t*), (diet_persistence_mode_t*), (size_t*), (char**))
+     Type: int diet_file_get((diet_arg_t*), (char**), (diet_persistence_mode_t*), (size_t*))
 
      @return error value returned by the macro:
      @arg 0 if the get function is successful
@@ -1243,8 +1243,8 @@ extern "C" {
      or \c (double**) etc. into \c (void**).
 
   */
-#define diet_file_get(arg, mode, size, path)    \
-  _file_get(arg, mode, size, (char**)path)
+#define diet_file_get(arg, path, mode, size)    \
+  _file_get(arg, (char**)path, mode, size)
 
   /*
     type-specific data descriptor access functions
@@ -1575,7 +1575,7 @@ extern "C" {
      @arg size the size ofthe file to get
      @arg path the path where to store the element
 
-     Type: int diet_file_get((diet_arg_t*), (diet_persistence_mode_t*), (size_t*), (char**))
+     Type: int diet_file_get((diet_arg_t*), (char**), (diet_persistence_mode_t*), (size_t*))
 
      @return error value returned by the macro:
      @arg 0 if the get function is successful
@@ -1599,8 +1599,8 @@ extern "C" {
 
   */
   int
-  _file_get(diet_arg_t* arg, diet_persistence_mode_t* mode,
-            size_t* size, char** path);
+  _file_get(diet_arg_t* arg, char** path, diet_persistence_mode_t* mode,
+            size_t* size);
 
 
 

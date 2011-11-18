@@ -66,7 +66,7 @@ BOOST_AUTO_TEST_CASE(files) {
   error = diet_call(profile);
   BOOST_CHECK_EQUAL(GRPC_NO_ERROR, error);
 
-  error = diet_file_get(diet_parameter(profile, 2), NULL, &arg_size, &s3);
+  error = diet_file_get(diet_parameter(profile, 2), &s3, NULL, &arg_size);
   BOOST_CHECK_EQUAL(GRPC_NO_ERROR, error);
 
   status = stat(s2, &buf);

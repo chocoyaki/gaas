@@ -359,8 +359,8 @@ int
 Dag::get_file_output (const char * id,
                       size_t* size, char** path) {
   DagNodeOutPort * outp = getOutputPort(id);
-  return diet_file_get(diet_parameter(outp->profile(), outp->getIndex()), NULL,
-                       size, path);
+  return diet_file_get(diet_parameter(outp->profile(), outp->getIndex()), path,
+                       NULL, size);
 }
 
 /**

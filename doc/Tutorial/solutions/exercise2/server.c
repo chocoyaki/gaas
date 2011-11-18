@@ -122,7 +122,7 @@ solve_smprod_file(diet_profile_t *pb)
   /* Get arguments */
   diet_scalar_get(diet_parameter(pb, 0), &coeff, NULL);
 
-  diet_file_get(diet_parameter(pb, 1), NULL, NULL, &path);
+  diet_file_get(diet_parameter(pb, 1), &path, NULL, NULL);
 
   /* Launch computation */
   scal_mat_prod_file(*coeff, path, &time);

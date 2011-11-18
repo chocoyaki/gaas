@@ -440,7 +440,7 @@ solve_FTRANSFER(diet_profile_t *pb) {
 
   /* IN file */
   std::cout << "Solve size ";
-  diet_file_get(diet_parameter(pb, 0), NULL, &arg_size, &path1);
+  diet_file_get(diet_parameter(pb, 0), &path1, NULL, &arg_size);
   std::cout << "on " << path1 << " (" << arg_size << ")" << std::endl;
   if ((status = stat(path1, &buf))) {
     return status;
@@ -451,7 +451,7 @@ solve_FTRANSFER(diet_profile_t *pb) {
   }
 
   /*  INOUT file */
-  diet_file_get(diet_parameter(pb, 1), NULL, &arg_size, &path2);
+  diet_file_get(diet_parameter(pb, 1), &path2, NULL, &arg_size);
   std::cout << " and on " << path2 << " (" << arg_size << ")" << std::endl;
   if ((status = stat(path2, &buf))) {
     return status;

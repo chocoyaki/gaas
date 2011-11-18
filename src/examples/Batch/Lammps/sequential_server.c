@@ -54,7 +54,7 @@ int solve_lammps(diet_profile_t *pb)
   printf("by calling '%s' binary\n\n", lammpsName);
   
   /* IN args */
-  diet_file_get(diet_parameter(pb, 0), NULL, &arg_size1, &path1);
+  diet_file_get(diet_parameter(pb, 0), &path1, NULL, &arg_size1);
   if ((status = stat(path1, &buf)))
     return status;
   if (!(buf.st_mode & S_IFREG)) /* regular file */

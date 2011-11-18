@@ -469,7 +469,7 @@ SeDService::cpyProfileToArgs(diet_profile_t *pb) {
         break;
       case SeDArgument::URI:
         diet_file_get(diet_parameter(pb,
-                                     argIndex), NULL, &inputFileSize, &inputStr);
+                                     argIndex), &inputStr, NULL, &inputFileSize);
         if (cpyFileToWorkingDir(currArg, inputStr, myWorkingDir, path)) {
           continue;
         }

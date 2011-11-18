@@ -251,7 +251,7 @@ DagNodeOutPort::writeData(WfDataWriter* dataWriter) throw(WfDataException) {
   else if (dataType == WfCst::TYPE_FILE) {
     size_t size;
     char * path;
-    diet_file_get(dietParam, NULL, &size, &path);
+    diet_file_get(dietParam, &path, NULL, &size);
     dataWriter->itemValue(path,(WfCst::WfDataType) dataType);
   }
   else if (dataType == WfCst::TYPE_DOUBLE) {

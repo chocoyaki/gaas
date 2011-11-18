@@ -44,7 +44,7 @@ solve_concatenation(diet_profile_t *pb) {
   printf("Resolving sequential service 'concatenation'!\n\n");
 
   /* IN args */
-  diet_file_get(diet_parameter(pb, 0), NULL, &arg_size1, &path1);
+  diet_file_get(diet_parameter(pb, 0), &path1, NULL, &arg_size1);
   if ((status = stat(path1, &buf))) {
     return status;
   }
@@ -54,7 +54,7 @@ solve_concatenation(diet_profile_t *pb) {
   printf("Name of the first file: %s\n", path1);
 
   diet_scalar_get(diet_parameter(pb, 1), &ptr_nbreel, NULL);
-  diet_file_get(diet_parameter(pb, 2), NULL, &arg_size2, &path2);
+  diet_file_get(diet_parameter(pb, 2), &path2, NULL, &arg_size2);
   if ((status = stat(path2, &buf))) {
     return status;
   }
