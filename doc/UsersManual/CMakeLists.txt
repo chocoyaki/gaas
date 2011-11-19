@@ -36,7 +36,6 @@ add_latex_document(UsersManual.tex
   fig/wf_example1.fig
   fig/wf_archi2.fig
   fig/wf_archi1.fig
-  fig/DiagrammeGridRPCDietStructure.fig
   fig/logo_DIET.png
   fig/DIETScheduling.pdf
   fig/schdl00.pdf
