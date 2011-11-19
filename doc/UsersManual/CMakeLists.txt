@@ -33,7 +33,7 @@ add_latex_document(UsersManual.tex
   fig/multima.pdf
   fig/overviewCori.pdf
   fig/smprod.pdf
-  fig/wf_example1.fig
+  fig/wf_example1.pdf
   fig/logo_DIET.png
   fig/DIETScheduling.pdf
   fig/schdl00.pdf
