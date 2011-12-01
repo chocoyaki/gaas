@@ -1,12 +1,12 @@
 /**
 * @file FileParser.cc
-* 
-* @brief  File parser  
-* 
+*
+* @brief  File parser
+*
 * @author  Haikel Guemar (haikel.guemar@sysfera.com)
-* 
+*
 * @section Licence
-*   |LICENCE|                                                                
+*   |LICENCE|
 */
 
 
@@ -17,7 +17,7 @@
 #include <algorithm>
 #include <fstream>
 #include <sstream>
-#include <dirent.h> // for opendir
+#include <boost/filesystem.hpp>
 
 #include "CommonParser.hh"
 
@@ -31,9 +31,7 @@ FileParser::FileParser(const std::string& path) {
 
 void
 FileParser::parseFile(const std::string& path) {
-  DIR *dp = opendir(path.c_str());
-  if (dp != NULL) {
-    closedir(dp);
+  if (!boost::filesystem::exists(path)) {
     throw FileOpenError(path);
   }
 
