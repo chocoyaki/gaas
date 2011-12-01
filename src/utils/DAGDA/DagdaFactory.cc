@@ -14,9 +14,7 @@
 #include <string>
 #include <algorithm>
 
-#include <dirent.h>
-#include <sys/types.h>
-#include <sys/stat.h>
+#include <boost/filesystem.hpp>
 
 #include "DagdaFactory.hh"
 #include "configuration.hh"
@@ -24,7 +22,6 @@
 #ifdef __OMNIORB4__
 #include "omniORB4/omniORB.h"
 #endif
-#include "sys/statvfs.h"
 
 #include "AdvancedDagdaComponent.hh"
 #include "CacheAlgorithms.hh"
@@ -34,16 +31,15 @@
 
 size_t
 availableDiskSpace(const char *path) {
-  struct statvfs buffer;
+  boost::system::error_code ec;
+  boost::filesystem::space_info si = boost::filesystem::space(path, ec);
 
-  if (!statvfs(path, &buffer)) {
-    size_t blksize, blocks, freeblks, disk_size, used, free;
-    blksize = buffer.f_bsize;
-    blocks = buffer.f_blocks;
-    freeblks = buffer.f_bfree;
-    disk_size = blocks * blksize;
-    free = freeblks * blksize;
-    used = disk_size - free;
+  // no error
+  if (!ec) {
+    size_t disk_size, used, free;
+    disk_size = si.available;
+    free = si.free;
+    used = si.available;
     return free;
   }
   return 0;
@@ -106,35 +102,23 @@ DagdaFactory::getDefaultStorageDir() {
 
 const char *
 DagdaFactory::getStorageDir() {
-  DIR *dp;
-  struct stat tmpStat;
-
   // if storageDir is not set, get default instead
   if (!CONFIG_STRING(diet::STORAGEDIR, storageDir)) {
     storageDir = DagdaFactory::getDefaultStorageDir();
   }
 
   /* Test if the directory exists */
-  if ((dp = opendir(storageDir.c_str())) == NULL) {
+  if (!boost::filesystem::exists(storageDir)) {
     // create the directory with rwxr-xr-x permissions
-    if (mkdir(storageDir.c_str(), 493)) {
+    // TODO: boost::filesystem does not support permissions
+    boost::system::error_code ec;
+    if (boost::filesystem::create_directory(storageDir, ec)) {
       ERROR_EXIT("The DAGDA storage directory '"
                  << storageDir << "' cannot be opened");
     }
-  } else {
-    closedir(dp);
   }
-
   /* Test if the directory has sufficient rights */
-  if (!stat(storageDir.c_str(), &tmpStat)) {
-    if (!(tmpStat.st_mode & S_IRUSR) ||
-        !(tmpStat.st_mode & S_IWUSR) ||
-        !(tmpStat.st_mode & S_IXUSR)) {
-      ERROR_EXIT("The DAGDA storage directory '"
-                 << storageDir
-                 << "' does not have sufficient rights (rwx)");
-    }
-  }
+  // TODO: add permissions checks
 
   return storageDir.c_str();
 } // getStorageDir
