@@ -463,6 +463,8 @@ set(DATA_INSTALL_DIR "share/diet"
   CACHE INTERNAL "Directory where data files will be installed")
 set(CMAKE_MOD_INSTALL_DIR "share/cmake/Modules"
   CACHE INTERNAL "Directory where cmake modules will be installed")
+set(EXECUTABLE_OUTPUT_PATH "${PROJECT_BINARY_DIR}/bin")
+set(LIBRARY_OUTPUT_PATH "${PROJECT_BINARY_DIR}/lib")
 
 # hack to avoid installing configuration stuff in /usr/etc
 if(${CMAKE_INSTALL_PREFIX} MATCHES "^/usr")
