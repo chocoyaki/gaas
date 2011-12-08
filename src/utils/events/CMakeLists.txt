@@ -12,6 +12,6 @@ set(UtilsEventsSource
   EventDispatcher.cc
   EventManager.cc )
 
-add_library(UtilsEvents STATIC ${UtilsEventsSource})
+add_library(UtilsEvents ${UtilsEventsSource})
 add_dependencies(UtilsEvents DIET_CORBA)
 

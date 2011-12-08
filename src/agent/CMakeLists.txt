@@ -42,7 +42,7 @@ if (DIET_USE_USERSCHED)
   set (AgentCommon_SOURCES ${AgentCommon_SOURCES} UserScheduler.cc)
 endif (DIET_USE_USERSCHED)
 
-add_library(AgentCommon STATIC ${AgentCommon_SOURCES})
+add_library(AgentCommon ${AgentCommon_SOURCES})
 target_link_libraries(AgentCommon
   DIET_Utils DietConfig
 )
@@ -66,6 +66,8 @@ add_dependencies(AgentCommon CORBAFiles)
 set(dietAgent_Libs
   ${dietAgent_Libs}
   DIET_Dagda
+  DIET_client
+  DIET_SeD
   )
 	
 set(dietAgent_Libs

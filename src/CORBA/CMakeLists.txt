@@ -73,6 +73,7 @@ set(Forwarder_SOURCES
 set(Forwarder_SOURCES
   ${Forwarder_SOURCES}
   forwarders/Dagda.cc
+  DIETForwarder.cc
   )
 if (DIET_USE_WORKFLOW)
   set(Forwarder_SOURCES
