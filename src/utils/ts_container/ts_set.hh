@@ -159,11 +159,7 @@ public:
 #ifndef NDEBUG // only used by the assert
     assert(accessLocked);
 #endif  // NDEBUG
-#ifdef AIX
-    return (iterator)SetType::begin();
-#else
-    return SetType::begin();
-#endif
+    return begin();
   }
 
   /**
@@ -173,11 +169,7 @@ public:
 #ifndef NDEBUG // only used by the assert
     assert(accessLocked);
 #endif  // NDEBUG
-#ifdef AIX
-    return (iterator)SetType::end();
-#else
-    return SetType::end();
-#endif
+    return end();
   }
 
   /**
