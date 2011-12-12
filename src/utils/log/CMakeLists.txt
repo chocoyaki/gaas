@@ -20,7 +20,7 @@ include_directories(
 set(LogSources
   DietLogComponent.cc)
 
-add_library(DietLogLibrary ${LogSources})
+add_library(DietLogLibrary STATIC ${LogSources})
 
 add_dependencies(DietLogLibrary DIET_CORBA)
 

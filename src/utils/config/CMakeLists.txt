@@ -7,4 +7,4 @@ set( config_SRCS CmdParser.cc
   configuration.cc)
 
 # static because we don't ship this
-add_library( DietConfig ${config_SRCS} )
+add_library( DietConfig STATIC ${config_SRCS} )

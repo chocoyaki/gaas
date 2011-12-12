@@ -42,7 +42,7 @@ if (DIET_USE_USERSCHED)
   set (AgentCommon_SOURCES ${AgentCommon_SOURCES} UserScheduler.cc)
 endif (DIET_USE_USERSCHED)
 
-add_library(AgentCommon ${AgentCommon_SOURCES})
+add_library(AgentCommon STATIC ${AgentCommon_SOURCES})
 target_link_libraries(AgentCommon
   DIET_Utils DietConfig
 )

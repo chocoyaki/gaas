@@ -44,7 +44,7 @@ set(FWD_CLIENT_NAME "clientFwd-${FWDGENUUID}")
 configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/config_tests.h.in 
   ${PROJECT_BINARY_DIR}/include/config_tests.h )
 
-add_library( utils utils.cpp )
+add_library( utils STATIC utils.cpp )
 
 
 ###############################################################################

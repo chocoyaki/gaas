@@ -49,7 +49,7 @@ if (DIET_USE_LOG)
     MonitoringThread.cc)
 endif (DIET_USE_LOG)
 
-add_library(UtilsNodes ${UtilsNodesSource})
+add_library(UtilsNodes STATIC ${UtilsNodesSource})
 add_dependencies(UtilsNodes DIET_CORBA)
 
 
@@ -84,7 +84,7 @@ set(UtilsCoriSource
   CORIMgr.cc
   )
 
-add_library(UtilsCori ${UtilsCoriSource})
+add_library(UtilsCori STATIC ${UtilsCoriSource})
 add_dependencies(UtilsCori DIET_CORBA)
 
 

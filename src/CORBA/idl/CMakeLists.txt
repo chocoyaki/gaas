@@ -123,6 +123,6 @@ add_custom_target(CORBAFiles
 )
 
 # Compile the main static CORBA library
-add_library(DIET_CORBA ${DIET_CORBA_SOURCES})
+add_library(DIET_CORBA STATIC ${DIET_CORBA_SOURCES})
 add_dependencies(DIET_CORBA ${IDL_GENERATED_HEADERS})
 
