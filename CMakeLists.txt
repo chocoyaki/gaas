@@ -425,8 +425,6 @@ endif (BUILD_TESTING)
 #   statically or shared.
 # For the time being we hence use the following dirty non-portable trick:
 IF( NOT BUILD_SHARED_LIBS )
-  SET( CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} "-static" )
-
   # For some mysterious, strange and yet unknown reason, the omnithread
   # library (from omniORB) requires to be linked against the pthread library
   # when building a static executable. Without further bitching on omniORB

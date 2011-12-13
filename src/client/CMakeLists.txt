@@ -110,11 +110,6 @@ if (DIET_USE_WORKFLOW)
   )
 endif (DIET_USE_WORKFLOW)
 
-if (NOT BUILD_SHARED_LIBS)
-  target_link_libraries(DIET_client stdc++)
-endif (NOT BUILD_SHARED_LIBS)
-
-
 # Link with log only if log enabled
 if (DIET_USE_LOG)
   Target_link_libraries(DIET_client

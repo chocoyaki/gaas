@@ -88,10 +88,6 @@ if (DIET_USE_ALT_BATCH)
   target_link_libraries(DIET_SeD UtilsSeDBatch)
 endif (DIET_USE_ALT_BATCH)
 
-if (NOT BUILD_SHARED_LIBS)
-  target_link_libraries(DIET_SeD stdc++)
-endif (NOT BUILD_SHARED_LIBS)
-
 
 # Install DIET_SeD library only, not the static one
 install(TARGETS DIET_SeD DESTINATION ${LIB_INSTALL_DIR})
