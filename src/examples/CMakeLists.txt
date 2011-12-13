@@ -2,9 +2,11 @@
 #* DIET cmake local file                                                    *#
 #****************************************************************************#
 
-SET( DIET_CLIENT_LIBRARIES DIET_client DIET_Dagda)
-SET( DIET_SERVER_LIBRARIES DIET_SeD DIET_Dagda)
+SET( DIET_CLIENT_LIBRARIES DIET_client DIET_Dagda AgentCommon DIET_SeD)
+SET( DIET_SERVER_LIBRARIES DIET_SeD DIET_Dagda AgentCommon DIET_SeD)
 
+set(CMAKE_C_COMPILER ${CMAKE_CXX_COMPILER})
+set(CMAKE_C_LINKER_PREFERENCE "CXX")
 
 set( EXAMPLE_INSTALL_DIR "${BIN_INSTALL_DIR}/examples"
   CACHE INTERNAL "Directory where examples will be installed")

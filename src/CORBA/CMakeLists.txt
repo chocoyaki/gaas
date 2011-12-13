@@ -104,16 +104,13 @@ add_dependencies(dietForwarder CORBAFiles)
 add_dependencies(LibForwarder CORBAFiles)
 
 set(Forwarder_Libs
-  ${Forwarder_Libs}
+  ${Forwarder_Lib}
   DIET_Dagda
-  )
-
-set(Forwarder_Libs
   DIET_Utils
-  ${Forwarder_Libs}
   DIET_CORBA
   CorbaCommon
   UtilsNodes
+  LibForwarder
 )
 
 if (DIET_USE_WORKFLOW)

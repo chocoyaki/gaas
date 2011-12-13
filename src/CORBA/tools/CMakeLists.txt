@@ -23,7 +23,12 @@ set(DIETOBJECTS_Libraries
   ${OMNIORB4_LIBRARIES}
   DIET_Utils
   LibForwarder
+  DIET_client DIET_SeD AgentCommon
 )
+
+if(DIET_USE_WORKFLOW)
+  set(DIETOBJECTS_Libraries ${DIETOBJECTS_Libraries} UtilsWf CltWf ${XERCES_LIBRARIES} ${XQILLA_LIBRARIES})
+endif()
 
 add_executable(dietObjects
   ${DIETOBJECTS_Sources}

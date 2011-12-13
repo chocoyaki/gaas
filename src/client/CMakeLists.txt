@@ -83,6 +83,7 @@ if (DIET_USE_WORKFLOW)
     MaDag
     UtilsWf
     UtilsEvents
+    LibForwarder
     ${XQILLA_LIBRARY}
     ${XERCES_LIBRARY}
     pthread
