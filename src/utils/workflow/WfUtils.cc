@@ -169,7 +169,12 @@ static std::map<short, const std::string>
 WfTypesToXSTypes(XSTypes, XSTypes
                  + sizeof(XSTypes)/sizeof(XSTypes[0]));
 
+// hack due o AIX shitty STL implementation
+#ifdef __aix__
+static std::map<std::string, std::string>
+#else
 static std::map<const std::string, const std::string>
+#endif
 GwendiaToDietTypes(gw2dietTypes,
                    gw2dietTypes + sizeof(gw2dietTypes)/sizeof(gw2dietTypes[0]));
 
