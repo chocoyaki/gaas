@@ -89,7 +89,7 @@ comptime_eval(diet_profile_t *pb) {
   const long *sleepTime;
   long outsleepTime;
   double comp_time = 0;
-  sleepTime = (diet_scalar_get_desc(diet_parameter(pb, 0)))->value;
+  sleepTime = (long *)(diet_scalar_get_desc(diet_parameter(pb, 0)))->value;
   outsleepTime = *sleepTime;
   comp_time = ratio * (double) outsleepTime;
   printf("@@ sleepTime        = %ld \n", *sleepTime);

@@ -44,8 +44,8 @@ solve_T(diet_profile_t *pb) {
   printf("Solve T ...");
 
   diet_matrix_get(diet_parameter(pb, 0), &A, NULL, &m, &n, &o);
-  C = malloc(n * m * sizeof(double));
-    
+  C = (double *)malloc(n * m * sizeof(double));
+
   for (i = 0; i < n * m; ++i)
     C[i] = A[i];
   if ((res = T(m, n, A, (o == DIET_ROW_MAJOR)))) {
@@ -84,7 +84,7 @@ solve_MatSUM(diet_profile_t *pb) {
   }
 
   diet_matrix_get(diet_parameter(pb, 2), &C, NULL, &mC, &nC, &oC);
-  C = calloc(mC * nC, sizeof *C);
+  C = (double *)calloc(mC * nC, sizeof *C);
 
   if (oC == DIET_ROW_MAJOR) {
     tA = (tA == 'T') ? 'N' : 'T';
@@ -126,7 +126,7 @@ solve_MatPROD(diet_profile_t *pb) {
     return 1;
   }
   diet_matrix_get(diet_parameter(pb, 2), &C, NULL, &mC, &nC, &oC);
-  C = calloc(mC * nC, sizeof *C);
+  C = (double *)calloc(mC * nC, sizeof *C);
 
   if (oC == DIET_ROW_MAJOR) {
     tA = (tA == 'T') ? 'N' : 'T';

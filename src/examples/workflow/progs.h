@@ -44,7 +44,7 @@ T(int m, int n, double *A, int rm) {
   size_t i, j;
   double *tmp = NULL;
 
-  tmp = malloc(m * n * sizeof(tmp));
+  tmp = (double *)malloc(m * n * sizeof(tmp));
   memcpy(tmp, A, m * n * sizeof(tmp));
 
   for (i = 0; i < n; i++) {

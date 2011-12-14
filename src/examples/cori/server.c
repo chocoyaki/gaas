@@ -81,7 +81,7 @@ fibonacci_linear(long n) {
 int
 solve_fib(diet_profile_t *pb) {
   int res = 0;
-  long *tmp = malloc(sizeof(long));
+  long *tmp = (long *)malloc(sizeof(long));
 
   /* For integers, we can use the longest type to store values
      of smaller types. */

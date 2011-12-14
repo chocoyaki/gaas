@@ -44,7 +44,7 @@ solve_size(diet_profile_t *pb) {
   if (!(buf.st_mode & S_IFREG)) {
     return 2;
   }
-  s1 = calloc(1, sizeof *s1);
+  s1 = (size_t *)calloc(1, sizeof *s1);
   *s1 = buf.st_size;
   diet_scalar_set(diet_parameter(pb, 2), s1, DIET_VOLATILE, DIET_INT);
 
@@ -56,7 +56,7 @@ solve_size(diet_profile_t *pb) {
   if (!(buf.st_mode & S_IFREG)) {
     return 2;
   }
-  s2 = calloc(1, sizeof *s2);
+  s2 = (size_t *)calloc(1, sizeof *s2);
   *s2 = buf.st_size;
   diet_scalar_set(diet_parameter(pb, 3), s2, DIET_VOLATILE, DIET_INT);
 
