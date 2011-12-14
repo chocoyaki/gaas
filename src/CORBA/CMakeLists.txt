@@ -108,9 +108,12 @@ set(Forwarder_Libs
   DIET_Dagda
   DIET_Utils
   DIET_CORBA
-  CorbaCommon
   UtilsNodes
-  LibForwarder
+  DIET_SeD
+  DIET_client
+  ${OMNIORB4_LIBRARIES}
+  AgentCommon
+  CorbaCommon
 )
 
 if (DIET_USE_WORKFLOW)
@@ -122,24 +125,29 @@ if (DIET_USE_WORKFLOW)
     UtilsEvents
     ${XQILLA_LIBRARY}
     ${XERCES_LIBRARY}
+    LibForwarder
   )
 endif (DIET_USE_WORKFLOW)
-set(Forwarder_Libs
-  ${Forwarder_Libs}
-  AgentCommon
-  DIET_SeD
-  DIET_client
-  ${OMNIORB4_LIBRARIES}
-)
+if (DIET_USE_USERSCHED)
+  set(Forwarder_Libs ${Forwarder_Libs} ${CMAKE_DL_LIBS})
+endif (DIET_USE_USERSCHED)
+
+
+if (DIET_USE_LOG)
+  include_directories(
+    ${LOG_INCLUDE_DIR}
+    ${LOG_INCLUDE_DIR}/monitor
+    ${LOG_INCLUDE_DIR}/idl
+    ${DIET_SOURCE_DIR}/src/utils/log)
+
+  set(Forwarder_Libs ${Forwarder_Libs} DietLogLibrary ${LOG_LIBRARY})
+endif (DIET_USE_LOG)
 
 message(STATUS "DIET forwarder libs: ${Forwarder_Libs}")
 
 target_link_libraries(dietForwarder
   ${Forwarder_Libs}
 )
-if (DIET_USE_USERSCHED)
-  target_link_libraries(dietForwarder ${CMAKE_DL_LIBS})
-endif (DIET_USE_USERSCHED)
 
 ## ------------- New : For scheduler load support. ---------------
 # Install the files needed for a scheduler creation.
@@ -151,18 +159,6 @@ endif (DIET_USE_USERSCHED)
 install(TARGETS dietForwarder DESTINATION ${BIN_INSTALL_DIR})
 
 
-if (DIET_USE_LOG)
-  include_directories(
-    ${LOG_INCLUDE_DIR}
-    ${LOG_INCLUDE_DIR}/monitor
-    ${LOG_INCLUDE_DIR}/idl
-    ${DIET_SOURCE_DIR}/src/utils/log)
-
-  set(Forwarder_Libs
-    ${Forwarder_Libs}
-    DietLogLibrary)
-
-endif (DIET_USE_LOG)
 
 if (DIET_BUILD_TOOLS)
   add_subdirectory(tools)
