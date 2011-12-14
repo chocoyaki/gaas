@@ -23,6 +23,7 @@ set(DIETOBJECTS_Libraries
   ${OMNIORB4_LIBRARIES}
   DIET_Utils
   LibForwarder
+  ${CMAKE_DL_LIBS}
   DIET_client DIET_SeD AgentCommon
 )
 

@@ -2,8 +2,8 @@
 #* DIET cmake local file                                                    *#
 #****************************************************************************#
 
-SET( DIET_CLIENT_LIBRARIES DIET_client DIET_Dagda AgentCommon DIET_SeD)
-SET( DIET_SERVER_LIBRARIES DIET_SeD DIET_Dagda AgentCommon DIET_SeD)
+SET( DIET_CLIENT_LIBRARIES DIET_client DIET_Dagda AgentCommon DIET_SeD ${CMAKE_DL_LIBS})
+SET( DIET_SERVER_LIBRARIES DIET_SeD DIET_Dagda AgentCommon DIET_SeD ${CMAKE_DL_LIBS})
 
 set(CMAKE_C_COMPILER ${CMAKE_CXX_COMPILER})
 set(CMAKE_C_LINKER_PREFERENCE "CXX")
