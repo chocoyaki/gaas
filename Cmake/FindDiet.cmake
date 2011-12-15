@@ -25,31 +25,13 @@ SET( DIET_DIR_STRING "directory containing the file share/cmake/Modules/DietConf
 SET( DIET_FOUND_STRING "Whether a Diet installation was found." )
 
 IF( NOT DIET_DIR )
-  ##### An indicative DIET_DIR was not provided and we search the well
-  # known system path that we use as search path:
-  IF(UNIX)
-    STRING(REGEX MATCHALL "[^:]+" DIET_DIR_SEARCH1 "$ENV{PATH}")
-  ELSE(UNIX)
-    STRING(REGEX REPLACE "\\\\" "/" DIET_DIR_SEARCH1 "$ENV{PATH}")
-  ENDIF(UNIX)
-  STRING(REGEX REPLACE "/;" ";" DIET_DIR_SEARCH2 ${DIET_DIR_SEARCH1})
-
-  ##### Construct a set of paths relative to the system search path.
-  SET( DIET_DIR_SEARCH "" )
-  FOREACH( dir ${DIET_DIR_SEARCH2} )
-    SET( DIET_DIR_SEARCH ${DIET_DIR_SEARCH} "${dir}/../share/cmake/Modules/" )
-  ENDFOREACH( dir )
-
   ##### Look for an installation or build tree.
-  FIND_PATH( DIET_DIR share/cmake/Modules/DietConfig.cmake
-    # Look for an environment variable DIET_DIR.
-    $ENV{DIET_DIR}
+  FIND_PATH( DIET_DIR
+	# Look for this file
+	NAMES share/cmake/Modules/DietConfig.cmake
 
-    # Look in places relative to the system executable search path.
-    ${DIET_DIR_SEARCH}
-
-    # Look in standard UNIX install locations.
-    /usr/local
+	# Descend one level, if necessary
+	PATH_SUFFIXES ..
 
     # Help the user find it if we cannot.
     DOC "The ${DIET_DIR_STRING}"
