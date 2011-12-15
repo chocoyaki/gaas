@@ -172,12 +172,13 @@ if (CYGWIN)
 
 elseif (AIX)
   add_definitions(-D__aix__)
+  # AIX doesn't like mixing static and shared libraries	 
+  set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build libraries as shared libraries." FORCE)
 elseif (APPLE)
   add_definitions( -D__darwin__)
   if (NOT BUILD_SHARED_LIBS)
     message("Cannot do a static build on Apple platforms")
   endif (NOT BUILD_SHARED_LIBS)
-
   set(BUILD_SHARED_LIBS ON CACHE BOOL "Build libraries as shared libraries." FORCE)
 elseif (LINUX)
   add_definitions(-D__linux__)
