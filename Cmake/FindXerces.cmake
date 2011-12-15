@@ -91,7 +91,7 @@ SET( XERCES_FOUND FALSE )
   
 
 IF( XERCES_INCLUDE_DIR )
-  IF( BUILD_SHARED_LIBS )
+  IF( BUILD_SHARED_LIBS AND NOT AIX )
     IF( XERCES_LIBRARY_sh )
       SET( XERCES_FOUND TRUE )
     ENDIF()
@@ -109,7 +109,7 @@ IF( XERCES_INCLUDE_DIR )
 ENDIF()
 
 
-IF(NOT XERCES_FOUND )
+IF(NOT XERCES_FOUND)
   MESSAGE("Xerces C++ library was not found. Please provide XERCES_DIR ")
   MESSAGE("  - through the GUI when working with ccmake, ")
   MESSAGE("  - as a command line argument when working with cmake e.g. ")

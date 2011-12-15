@@ -275,15 +275,15 @@ if (DIET_USE_WORKFLOW)
       find_package(XQilla)
       if (XQILLA_FOUND)
         add_definitions(-DHAVE_WORKFLOW)
-	if (BUILD_SHARED_LIBS)
+	if (BUILD_SHARED_LIBS AND NOT AIX)
 	  # Link DIET to Xerces and XQilla shared libs
 	  set(XERCES_LIBRARY ${XERCES_LIBRARY_sh})
 	  set(XQILLA_LIBRARY ${XQILLA_LIBRARY_sh})
-	else (BUILD_SHARED_LIBS)
+	else ()
 	  # Link DIET to Xerces and XQilla static libs
 	  set(XERCES_LIBRARY ${XERCES_LIBRARY_st})
 	  set(XQILLA_LIBRARY ${XQILLA_LIBRARY_st})
-	endif (BUILD_SHARED_LIBS)
+	endif ()
         set(THIRD_PARTY_LIBS ${THIRD_PARTY_LIBS}
           ${XERCES_LIBRARY}
           ${XQILLA_LIBRARY})
