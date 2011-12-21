@@ -1,17 +1,18 @@
 /**
 * @file DagNodeLauncher.cc
-* 
-* @brief  TThe virtual class used for dagNode execution 
-* 
+*
+* @brief  TThe virtual class used for dagNode execution
+*
 * @author  Benjamin ISNARD (Benjamin.Isnard@ens-lyon.fr)
-* 
+*
 * @section Licence
-*   |LICENCE|                                                                
+*   |LICENCE|
 */
 
 
 #include "DagNodeLauncher.hh"
 #include "DagNode.hh"
+#include <boost/format.hpp>
 
 DagNodeLauncher::DagNodeLauncher(DagNode * parent,
                                  DagScheduler * scheduler)
@@ -43,10 +44,8 @@ DagNodeLauncher::getSeDName() const {
 
 std::string
 DagNodeLauncher::toString() const {
-  std::string s("DagNode Launcher (");
-  s += myNode->getId();
-  s += ")";
-  return s;
+  boost::format fmter("DagNode Launcher ({0})");
+  return boost::str(fmter % myNode->getId());
 }
 
 
