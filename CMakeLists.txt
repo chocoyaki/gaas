@@ -194,7 +194,7 @@ endif (CYGWIN)
 set(CMAKE_MODULE_PATH ${DIET_SOURCE_DIR}/Cmake)
 
 # Boost is mandatory
-find_package(Boost 1.46.0 COMPONENTS filesystem regex system REQUIRED)
+find_package(Boost 1.46.0 COMPONENTS filesystem regex system thread REQUIRED)
 # Boost Filesystem API v2 is deprecated will be removed after Boost 1.48 release
 add_definitions(-DBOOST_FILESYSTEM_VERSION=3)
 if(Boost_FOUND)

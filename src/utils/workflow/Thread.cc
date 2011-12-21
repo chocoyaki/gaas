@@ -1,12 +1,12 @@
 /**
 * @file  Thread.cc
-* 
-* @brief  C++ Thread class implementation 
-* 
+*
+* @brief  C++ Thread class implementation
+*
 * @author  Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)
-* 
+*
 * @section Licence
-*   |LICENCE|                                                                
+*   |LICENCE|
 */
 
 #include <iostream>
@@ -18,119 +18,41 @@
 #include "debug.hh"
 
 
-Runnable::~Runnable() {
-}
+class Callable {
+public:
+  explicit Callable(Thread* thread, void *result) : t(thread), res(result) {}
 
-Thread::Thread(std::auto_ptr<Runnable> runnable_, bool isDetached)
-  : runnable(runnable_), detached(isDetached), result(NULL) {
-  if (runnable.get() == NULL) {
-    ERROR_EXIT("Thread::Thread(auto_ptr<Runnable> runnable_, "
-               <<"bool isDetached) failed at " << ' ' << __FILE__ << ":"
-               << __LINE__ << "- " << "runnable is NULL " << std::endl);
+  void operator() () {
+      res = t->run();
   }
-}
+
+private:
+  Thread* t;
+  void* res;
+};
+
 
 Thread::Thread(bool isDetached)
-  : runnable(NULL), detached(isDetached), result(NULL) {
+  : detached(isDetached), result(NULL) {
 }
 
 Thread::~Thread() {
 }
 
-void*
-Thread::startThreadRunnable(void* pVoid) {
-  // thread start function when a Runnable is involved
-  Thread* runnableThread = static_cast<Thread*> (pVoid);
-  assert(runnableThread);
-  runnableThread->result = runnableThread->runnable->run();
-  runnableThread->setCompleted();
-  return runnableThread->result;
-}
-
-void*
-Thread::startThread(void* pVoid) {
-  // thread start function when no Runnable is involved
-  Thread* aThread = static_cast<Thread*> (pVoid);
-  assert(aThread);
-  aThread->result = aThread->run();
-  aThread->setCompleted();
-  return aThread->result;
-}
-
-
 void Thread::start() {
-  int status = pthread_attr_init(&threadAttribute);
-  if (status != 0) {
-    PrintError("pthread_attr_init failed at", status, __FILE__, __LINE__);
-    exit(status);
-  }
-  status = pthread_attr_setscope(&threadAttribute, PTHREAD_SCOPE_SYSTEM);
-  if (status != 0) {
-    PrintError("pthread_attr_setscope failed at", status, __FILE__, __LINE__);
-    exit(status);
-  }
-  if (!detached) {
-    if (runnable.get() == NULL) {
-      int status = pthread_create(&PthreadThreadID, &threadAttribute,
-                                  Thread::startThread, (void*) this);
-      if (status != 0) {
-        PrintError("pthread_create failed at", status, __FILE__, __LINE__);
-        exit(status);
-      }
-    } else {
-      int status = pthread_create(&PthreadThreadID, &threadAttribute,
-                                  Thread::startThreadRunnable, (void*)this);
-      if (status != 0) {
-        PrintError("pthread_create failed at", status, __FILE__, __LINE__);
-        exit(status);
-      }
-    }
-  } else {
-    // set the detachstate attribute to detached
-    status =
-      pthread_attr_setdetachstate(&threadAttribute, PTHREAD_CREATE_DETACHED);
-    if (status != 0) {
-      PrintError("pthread_attr_setdetachstate failed at",
-                 status, __FILE__, __LINE__);
-      exit(status);
-    }
-    if (runnable.get() == NULL) {
-      status = pthread_create(&PthreadThreadID, &threadAttribute,
-                              Thread::startThread, (void*) this);
-      if (status != 0) {
-        PrintError("pthread_create failed at", status, __FILE__, __LINE__);
-        exit(status);
-      }
-    } else {
-      status = pthread_create(&PthreadThreadID, &threadAttribute,
-                              Thread::startThreadRunnable, (void*) this);
-      if (status != 0) {
-        PrintError("pthread_create failed at", status, __FILE__, __LINE__);
-        exit(status);
-      }
-    }
-  }
-  status = pthread_attr_destroy(&threadAttribute);
-  if (status != 0) {
-    PrintError("pthread_attr_destroy failed at", status, __FILE__, __LINE__);
-    exit(status);
+  Callable c(this, result);
+  boost::thread tmp(c);
+  t.swap(tmp);
+  if (detached) {
+    t.detach();
   }
 }
 
 void*
 Thread::join() {
-  int status = pthread_join(PthreadThreadID, NULL);
-  // result was already saved by thread start functions
-  if (status != 0) {
-    PrintError("pthread_join failed at", status, __FILE__, __LINE__);
-    exit(status);
-  }
-  return result;
-}
+  t.join();
 
-void
-Thread::setCompleted() const {
-  /* completion was handled by pthread_join() */
+  return result;
 }
 
 void
