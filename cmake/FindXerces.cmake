@@ -125,10 +125,10 @@ ENDIF( NOT XERCES_FOUND )
 IF( XERCES_INCLUDE_DIR )
   # We can't use CMAKE_CURRENT_SOURCE_DIR because this script is invoked
   # from the top-level cmake:
-  SET( WORKING_DIR ${DIET_BINARY_DIR}/Cmake )
+  SET( WORKING_DIR ${DIET_BINARY_DIR}/cmake )
   SET( XERCES_VERSION_SOURCE_FILE ${WORKING_DIR}/xercesv.cc )
   CONFIGURE_FILE(
-    ${DIET_SOURCE_DIR}/Cmake/xercesv.cc.in
+    ${DIET_SOURCE_DIR}/cmake/xercesv.cc.in
     ${XERCES_VERSION_SOURCE_FILE}
     IMMEDIATE
   )

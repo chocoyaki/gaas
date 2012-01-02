@@ -1,5 +1,5 @@
 # Handle the specificities of the C compiler 
-INCLUDE( ${DIET_SOURCE_DIR}/Cmake/CheckCCompiler.cmake )
+INCLUDE( ${DIET_SOURCE_DIR}/cmake/CheckCCompiler.cmake )
 
 # Reset the values before testing:
 SET( CMAKE_C_FLAGS ${CMAKE_C_FLAGS_INIT}

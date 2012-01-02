@@ -92,7 +92,7 @@ V/ DIET [c]cmake invocation example:
            -DAPPLESEEDS_DIR:PATH=/home/bozo/tmp/appleseeds-2.2.1/appleseeds
            -DFAST_CONFIG_EXECUTABLE:PATH=/usr/local/fast-0.8.7/bin/fast-config
 
-VI/ Cmake general information, references and docs:
+VI/ cmake general information, references and docs:
   Entry point:   http://www.cmake.org
   Official docs: http://www.cmake.org/HTML/Documentation.html
   Wiki docs:     http://www.cmake.org/Wiki/CMake

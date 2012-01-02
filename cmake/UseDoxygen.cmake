@@ -48,7 +48,7 @@ macro(generate_doxygen)
     set("GENERATE_${format}" "YES")
   endforeach()
   # configure our Doxyfile
-  configure_file(${PROJECT_SOURCE_DIR}/Cmake/Doxyfile.in
+  configure_file(${PROJECT_SOURCE_DIR}/cmake/Doxyfile.in
     ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
   # add new doxygen target
   add_custom_target(doxygen

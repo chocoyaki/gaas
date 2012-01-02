@@ -124,10 +124,10 @@ ENDIF( NOT XQILLA_FOUND )
 # IF( XQILLA_INCLUDE_DIR )
 #   # We can't use CMAKE_CURRENT_SOURCE_DIR because this script is invoked
 #   # from the top-level cmake:
-#   SET( WORKING_DIR ${DIET_BINARY_DIR}/Cmake )
+#   SET( WORKING_DIR ${DIET_BINARY_DIR}/cmake )
 #   SET( XQILLA_VERSION_SOURCE_FILE ${WORKING_DIR}/xercesv.cc )
 #   CONFIGURE_FILE(
-#     ${DIET_SOURCE_DIR}/Cmake/xercesv.cc.in
+#     ${DIET_SOURCE_DIR}/cmake/xercesv.cc.in
 #     ${XQILLA_VERSION_SOURCE_FILE}
 #     IMMEDIATE
 #   )

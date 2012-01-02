@@ -16,7 +16,7 @@
 #* The server source file is server.c and not gridrpc_server.c
 #*
 #* Revision 1.5  2010/08/06 14:25:28  glemahec
-#* Cmake corrections + uuid lib module + fPIC error control
+#* cmake corrections + uuid lib module + fPIC error control
 #*
 #* Revision 1.4  2010/04/01 10:03:59  bdepardo
 #* Changed	deprecated INSTALL_FILES and INSTALL_TARGETS to	INSTALL.

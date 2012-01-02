@@ -113,7 +113,7 @@ Configuring DIET's compilation: cmake quick instruction
    variables) and by not postponing configuration difficulties (in particular
    the handling of external dependencies like libraries) to compile stage.
 
-   Cmake classically provides two ways for setting configuration parameters in 
+   cmake classically provides two ways for setting configuration parameters in
    order to generate the makefiles in the form of two commands ccmake and cmake
    (the first one has an extra "c" character):
 
@@ -425,7 +425,7 @@ Creating packages
 
 Compiling the examples
 
-   Cmake will set the examples to be compiled when setting the 
+   cmake will set the examples to be compiled when setting the
    DIET_BUILD_EXAMPLES to ON which can be achieved by toggling the corresponding 
    entry of ccmake GUI's or by adding -DDIET_BUILD_EXAMPLES:BOOL=ON to the 
    command line arguments of [c]cmake invocation.

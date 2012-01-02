@@ -1,4 +1,4 @@
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/Cmake)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 # set documentation install dir
 set(DOC_INSTALL_DIR "share/doc/${PROJECT_NAME}"
@@ -61,7 +61,7 @@ if(NOT IMAGEMAGICK_CONVERT_EXECUTABLE)
 endif()
 
 if(ENABLE_GUIDE)
-  include(Cmake/UseLATEX.cmake)
+  include(cmake/UseLATEX.cmake)
   if(DIET_BUILD_PROGRAMMERGUIDE)
     add_subdirectory(ProgrammersGuide)
   endif()

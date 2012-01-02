@@ -7,5 +7,5 @@
 Welcome to DIET.
 
 In order to build DIET, you'll need cmake (a GNU-Autotools
-substitute). Refer to the ./Cmake/README or the INSTALL.txt file for
+substitute). Refer to the ./cmake/README or the INSTALL.txt file for
 all the details.

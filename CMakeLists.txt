@@ -191,7 +191,7 @@ endif (CYGWIN)
 # --------------------- DEPENDENCIES TOWARDS EXTERNAL PACKAGES -------------
 # Path to additional modules (i.e. used by FIND_PACKAGE commands making
 # reference to non CMake defined "standard" modules):
-set(CMAKE_MODULE_PATH ${DIET_SOURCE_DIR}/Cmake)
+set(CMAKE_MODULE_PATH ${DIET_SOURCE_DIR}/cmake)
 
 # Boost is mandatory
 find_package(Boost 1.46.0 COMPONENTS filesystem regex system thread REQUIRED)
@@ -240,7 +240,7 @@ endif (DIET_USE_CLOUD)
 # --------------------------- CORI support ------------------------
 # CORI (COllector of Resource Information) is heavily dependant on
 # system calls for probing ressources:
-include(${DIET_SOURCE_DIR}/Cmake/ConfigureCORI.cmake)
+include(${DIET_SOURCE_DIR}/cmake/ConfigureCORI.cmake)
 
 # --------------------------- Multi MA support ------------------------
 # So called MULTI-Master-Agent
@@ -333,10 +333,10 @@ if (DIET_USE_MULTICALL)
 endif (DIET_USE_MULTICALL)
 
 # --------------- OFFER BUILD MODE EXTENSIONS AND DEFAULTS  ----------------
-include(${DIET_SOURCE_DIR}/Cmake/DietDefaultBuildTypes.cmake)
+include(${DIET_SOURCE_DIR}/cmake/DietDefaultBuildTypes.cmake)
 
 # --------------- HANDLE SPECIFICITIES OF THE C COMPILER -------------------
-include(${DIET_SOURCE_DIR}/Cmake/ConfigureCCompiler.cmake)
+include(${DIET_SOURCE_DIR}/cmake/ConfigureCCompiler.cmake)
 
 #---------------- COMPILER SPECIFIC COMPILATION FLAGS ----------------------
 
@@ -353,7 +353,7 @@ endif (CMAKE_COMPILER_IS_GNUCC AND NOT APPLE)
 
 # ------------------- CTEST SUPPORT ----------------------------------------
 if (BUILD_TESTING)
-  include(${DIET_SOURCE_DIR}/Cmake/FindTestingUtils.cmake)
+  include(${DIET_SOURCE_DIR}/cmake/FindTestingUtils.cmake)
   # Caveat emptor:
   # 1/ Excerpt from docs about ENABLE_TESTING:
   #    [...] ctest expects to find a test file in the build directory root.
@@ -451,13 +451,13 @@ endif()
 # --------------------------------------------------------------------------
 add_subdirectory(src)
 add_subdirectory(include)
-add_subdirectory(Cmake)
+add_subdirectory(cmake)
 if(DIET_BUILD_DOC)
   add_subdirectory(doc)
 endif()
 
 # --------------------------------------------------------------------------
-include(${DIET_SOURCE_DIR}/Cmake/DisplaySummary.cmake)
+include(${DIET_SOURCE_DIR}/cmake/DisplaySummary.cmake)
 
 
 # --------------------------------------------------------------------------

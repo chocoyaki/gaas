@@ -68,7 +68,7 @@ macro( diet_test NAME )
 	-DTEST_PROG=${NAME}
 	-DBIN_PATH=${BIN_DIR}
 	-DREPORT_PATH=${REPORT_OUTPUT_PATH}
-	-P ${PROJECT_SOURCE_DIR}/Cmake/tests/runtest.cmake )
+	-P ${PROJECT_SOURCE_DIR}/cmake/tests/runtest.cmake )
       add_dependencies( test-xml ${TEST_NAME}-xml )
     endif()
   endif()
@@ -127,7 +127,7 @@ macro( generate_replace_tests NAME FIXTURENAME TESTNAME POSTFIX INCLUDEFILE GENE
 	-DTEST_PROG=${NAME}${POSTFIX}
 	-DBIN_PATH=${BIN_DIR}
 	-DREPORT_PATH=${REPORT_OUTPUT_PATH}
-	-P ${PROJECT_SOURCE_DIR}/Cmake/tests/runtest.cmake )
+	-P ${PROJECT_SOURCE_DIR}/cmake/tests/runtest.cmake )
       add_dependencies( test-xml ${TEST_NAME}-xml )
     endif()
 endmacro()
