@@ -4,7 +4,6 @@ include_directories(
   ${OMNIORB4_INCLUDE_DIR}
   ${DIET_SOURCE_DIR}/src/utils
   ${DIET_SOURCE_DIR}/src/utils/nodes
-  ${DIET_BINARY_DIR}/src/CORBA/idl
   ${DIET_SOURCE_DIR}/src/CORBA
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${DIET_SOURCE_DIR}/include
@@ -14,9 +13,7 @@ include_directories(
   )
 
 if (DIET_USE_ALT_BATCH)
-  include_directories(
-      ${DIET_SOURCE_DIR}/src/utils/batch
-    )
+  include_directories(${DIET_SOURCE_DIR}/src/utils/batch)
 endif (DIET_USE_ALT_BATCH)
   
 if (DIET_USE_WORKFLOW) 
@@ -36,16 +33,14 @@ set(AgentCommon_SOURCES
     ReferenceUpdateThread.cc
     Request.cc
     Schedulers.cc
-)
+    ${DIET_IDL_OUTPUT})
 
 if (DIET_USE_USERSCHED)
   set (AgentCommon_SOURCES ${AgentCommon_SOURCES} UserScheduler.cc)
 endif (DIET_USE_USERSCHED)
 
 add_library(AgentCommon STATIC ${AgentCommon_SOURCES})
-target_link_libraries(AgentCommon
-  DIET_Utils DietConfig
-)
+target_link_libraries(AgentCommon DIET_Utils DietConfig)
 
 set(CORI_LIBRARIES UtilsCori)
   
@@ -56,47 +51,32 @@ corba_headers(IDL_HDRS
   MasterAgent
   LocalAgent
   common_types
-  Dagda
-)
-
-# AgentCommon library & dietAgent depends on CORBA files.
-add_dependencies(dietAgent CORBAFiles)
-add_dependencies(AgentCommon CORBAFiles)
+  Dagda)
 
 set(dietAgent_Libs
-  ${dietAgent_Libs}
   DIET_Dagda
   DIET_client
   DIET_SeD
-  )
-	
-set(dietAgent_Libs
-  ${dietAgent_Libs}
-  DIET_CORBA
   CorbaCommon
   DIET_Utils
   LibForwarder
+  DietConfig
   ${OMNIORB4_LIBRARIES}
-  pthread
-  ${CMAKE_DL_LIBS}
-)
+  ${CMAKE_DL_LIBS})
+
 if (DIET_USE_WORKFLOW)
-  set(dietAgent_Libs
-    ${dietAgent_Libs}
+  set(dietAgent_Libs ${dietAgent_Libs}
     CltWf
     MaDag
     ${XQILLA_LIBRARY}
-    ${XERCES_LIBRARY}
-  )
+    ${XERCES_LIBRARY}  )
 endif (DIET_USE_WORKFLOW)
 
 if (DIET_USE_LOG)
-  set (dietAgent_Libs
-    ${dietAgent_Libs}
-    DietLogLibrary)
+  set (dietAgent_Libs ${dietAgent_Libs} DietLogLibrary)
 endif (DIET_USE_LOG)
 
-target_link_libraries(dietAgent ${dietAgent_Libs} DietConfig)
+target_link_libraries(dietAgent ${dietAgent_Libs})
 
 if (DIET_USE_WORKFLOW)
   add_subdirectory(workflow)

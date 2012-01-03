@@ -15,8 +15,7 @@ if (DIET_USE_ALT_BATCH)
       Loadleveler_BatchSystem.cc
       PBS_BatchSystem.cc
       SGE_BatchSystem.cc
-      Slurm_BatchSystem.cc
-      )
+      Slurm_BatchSystem.cc)
 
   if (DIET_USE_CLOUD)
     ########################################################################
@@ -69,7 +68,6 @@ if (DIET_USE_ALT_BATCH)
   add_library(UtilsSeDBatch STATIC
     ${UtilsSeDBatch_SOURCES}
     )
-  add_dependencies(UtilsSeDBatch DIET_CORBA)
 
   if (DIET_USE_CLOUD)
     target_link_libraries(UtilsSeDBatch

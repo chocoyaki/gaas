@@ -10,21 +10,15 @@
 include_directories(
   ${DIET_SOURCE_DIR}/include
   ${DIET_SOURCE_DIR}/src/utils
-  ${DIET_BINARY_DIR}/src/CORBA/idl
   ${LOG_INCLUDE_DIR}
   ${LOG_INCLUDE_DIR}/monitor
   ${LOG_INCLUDE_DIR}/idl
   ${OMNIORB4_INCLUDE_DIR})
 
 
-set(LogSources
-  DietLogComponent.cc)
+set(LogSources DietLogComponent.cc)
 
 add_library(DietLogLibrary STATIC ${LogSources})
 
-add_dependencies(DietLogLibrary DIET_CORBA)
-
-target_link_libraries(DietLogLibrary
-  ${LOG_LIBRARY}
-)
+target_link_libraries(DietLogLibrary ${LOG_LIBRARY})
 

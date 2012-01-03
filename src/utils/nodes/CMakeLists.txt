@@ -1,6 +1,5 @@
 include_directories(
   ${OMNIORB4_INCLUDE_DIR}
-  ${DIET_BINARY_DIR}/src/CORBA/idl
   ${DIET_SOURCE_DIR}/src/CORBA        # for e.g. marshalling.hh
   ${CMAKE_CURRENT_SOURCE_DIR}         # for DIET_data_internal.hh
   ${DIET_SOURCE_DIR}/include
@@ -15,8 +14,6 @@ include_directories(
 if (DIET_USE_ALT_BATCH) 
   include_directories(${DIET_SOURCE_DIR}/src/utils/batch)
 endif (DIET_USE_ALT_BATCH)  
-
-
 
 if (DIET_USE_LOG)
   #  MESSAGE ("${LOG_LIB_DIR}")
@@ -50,7 +47,6 @@ if (DIET_USE_LOG)
 endif (DIET_USE_LOG)
 
 add_library(UtilsNodes STATIC ${UtilsNodesSource})
-add_dependencies(UtilsNodes DIET_CORBA)
 
 
 ########################################################################
@@ -82,11 +78,9 @@ set(UtilsCoriSource
   Cori_Easy_Memory.cc
   Cori_Metric.cc
   CORIMgr.cc
-  )
+  ${DIET_IDL_OUTPUT})
 
 add_library(UtilsCori STATIC ${UtilsCoriSource})
-add_dependencies(UtilsCori DIET_CORBA)
-
 
 ########################################################################
 ### CORI related properties:

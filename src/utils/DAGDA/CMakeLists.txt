@@ -10,7 +10,7 @@ set(DAGDA_SOURCES
   AdvancedDagdaComponent.cc
   Container.cc
   DIET_Dagda.cc
-)
+  ${DIET_IDL_OUTPUT})
 
 include_directories(
   ${OMNIORB4_INCLUDE_DIR}
@@ -18,11 +18,9 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${DIET_SOURCE_DIR}/src/CORBA
   ${DIET_SOURCE_DIR}/include
-  ${DIET_BINARY_DIR}/src/CORBA/idl
   ${DIET_SOURCE_DIR}/src/agent
   ${DIET_SOURCE_DIR}/src/utils/nodes
-  ${DIET_SOURCE_DIR}/src/utils/config
-)
+  ${DIET_SOURCE_DIR}/src/utils/config)
 
 if (DIET_TRANSFER_PROGRESSION)
   set(DAGDA_SOURCES ${DAGDA_SOURCES} Transfers.cc)
@@ -32,7 +30,6 @@ add_library(DIET_Dagda ${DAGDA_SOURCES})
 set_target_properties(DIET_Dagda PROPERTIES VERSION ${DIET_VERSION})
 
 set(DAGDA_Libs
-  DIET_CORBA
   CorbaCommon
   UtilsNodes
   DIET_Utils

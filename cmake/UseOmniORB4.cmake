@@ -78,6 +78,7 @@ macro(generate_idl)
               ${MY_OUTPUT_PATH}/${_name}.hh
     COMMAND   ${OMNIORB4_IDL_COMPILER} ARGS ${MY_FLAGS}
               ${CMAKE_CURRENT_SOURCE_DIR}/${loop_var}
+    DEPENDS   ${CMAKE_CURRENT_SOURCE_DIR}/${loop_var}
     COMMENT   "idl generated code: ${_name}SK.cc, ${_name}DynSK.cc and ${_name}.hh"
     )
     set(${omni_OUTPUT} ${${omni_OUTPUT}} ${MY_OUTPUT_PATH}/${_name}SK.cc ${MY_OUTPUT_PATH}/${_name}DynSK.cc)

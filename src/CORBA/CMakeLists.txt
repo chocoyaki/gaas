@@ -14,7 +14,6 @@
 
 include_directories(
   ${OMNIORB4_INCLUDE_DIR}
-  ${DIET_BINARY_DIR}/src/CORBA/idl    
   ${DIET_SOURCE_DIR}/src/utils
   ${DIET_SOURCE_DIR}/include
   ${DIET_SOURCE_DIR}/src/CORBA
@@ -25,21 +24,14 @@ include_directories(
 add_library(CorbaCommon STATIC
   ORBMgr.cc
   marshalling.cc
-)
+  ${DIET_IDL_OUTPUT})
 
-# CorbaCommon library depends on CORBA files
-add_dependencies(CorbaCommon CORBAFiles)
 
 # Dependency when compiling with Batch support
 if (DIET_USE_ALT_BATCH)
   include_directories( ${DIET_SOURCE_DIR}/src/utils/batch )
   add_dependencies( CorbaCommon BatchSystem.hh )
 endif (DIET_USE_ALT_BATCH)
-
-# Link CorbaCommon to DIET_CORBA, DIET_Utils and OmniORB
-target_link_libraries(CorbaCommon
-  DIET_CORBA
-)
 
 
 if (DIET_USE_ALT_BATCH)
@@ -61,19 +53,13 @@ include_directories(
 set(Forwarder_SOURCES
   SSHTunnel.cc
   Options.cc
-#  NetConfig.cc
   forwarders/Agent.cc
   forwarders/Callback.cc
   forwarders/MasterAgent.cc
   forwarders/SeD.cc
-#  forwarders/LogComponent.cc
-)
-
-
-set(Forwarder_SOURCES
-  ${Forwarder_SOURCES}
   forwarders/Dagda.cc
   DIETForwarder.cc
+  ${DIET_IDL_OUTPUT}
   )
 if (DIET_USE_WORKFLOW)
   set(Forwarder_SOURCES
@@ -99,15 +85,10 @@ add_executable(dietForwarder
   ${Forwarder_SOURCES}
 )
 
-# dietForwarder & LibForwarder depend on CORBA files.
-add_dependencies(dietForwarder CORBAFiles)
-add_dependencies(LibForwarder CORBAFiles)
-
 set(Forwarder_Libs
   ${Forwarder_Lib}
   DIET_Dagda
   DIET_Utils
-  DIET_CORBA
   UtilsNodes
   DIET_SeD
   DIET_client
