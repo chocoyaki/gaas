@@ -87,12 +87,14 @@ generate_idl(OUTPUT DIET_IDL_OUTPUT
   FLAGS ${DIET_IDL_FLAGS}
   LANG C++)
 
-
-
-
-
-
-
+## configuration
+set(config_SRCS
+  ${CMAKE_CURRENT_SOURCE_DIR}/utils/config/CmdParser.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/utils/config/CommonParser.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/utils/config/EnvParser.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/utils/config/FileParser.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/utils/config/constants.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/utils/config/configuration.cc)
 
 
 add_subdirectory(utils)

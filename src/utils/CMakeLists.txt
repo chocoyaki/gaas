@@ -24,8 +24,6 @@ set(DIET_Utils_SOURCES
   )
 add_subdirectory(DAGDA)
 
-add_subdirectory(config)
-
 include_directories(
   ${OMNIORB4_INCLUDE_DIR}
   ${DIET_BINARY_DIR}/src/CORBA/idl

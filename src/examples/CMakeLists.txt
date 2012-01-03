@@ -2,48 +2,48 @@
 #* DIET cmake local file                                                    *#
 #****************************************************************************#
 
-SET( DIET_CLIENT_LIBRARIES DIET_client DIET_Dagda AgentCommon DIET_SeD ${CMAKE_DL_LIBS})
-SET( DIET_SERVER_LIBRARIES DIET_SeD DIET_Dagda AgentCommon DIET_SeD ${CMAKE_DL_LIBS})
+set(DIET_CLIENT_LIBRARIES DIET_client DIET_Dagda AgentCommon DIET_SeD ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
+set(DIET_SERVER_LIBRARIES DIET_SeD DIET_Dagda AgentCommon DIET_SeD ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 
 set(CMAKE_C_COMPILER ${CMAKE_CXX_COMPILER})
 set(CMAKE_C_LINKER_PREFERENCE "CXX")
 
-set( EXAMPLE_INSTALL_DIR "${BIN_INSTALL_DIR}/examples"
+set(EXAMPLE_INSTALL_DIR "${BIN_INSTALL_DIR}/examples"
   CACHE INTERNAL "Directory where examples will be installed")
 
-ADD_SUBDIRECTORY( dynamic_hierarchy )
+add_subdirectory(dynamic_hierarchy)
 
-IF( DIET_USE_ALT_BATCH )
-  ADD_SUBDIRECTORY( Batch )
-  IF( DIET_USE_CLOUD)
-    ADD_SUBDIRECTORY( cloud )
-  ENDIF( DIET_USE_CLOUD )
-ENDIF( DIET_USE_ALT_BATCH )
+if(DIET_USE_ALT_BATCH)
+  add_subdirectory(Batch)
+  if(DIET_USE_CLOUD)
+    add_subdirectory(cloud)
+  endif(DIET_USE_CLOUD)
+endif(DIET_USE_ALT_BATCH)
 
-ADD_SUBDIRECTORY( BLAS )
-ADD_SUBDIRECTORY( cfgs )
-ADD_SUBDIRECTORY( cori )
-ADD_SUBDIRECTORY( dmat_manips )
-ADD_SUBDIRECTORY( file_transfer )
-ADD_SUBDIRECTORY( scalars )
-ADD_SUBDIRECTORY( GridRPC)
+add_subdirectory(BLAS)
+add_subdirectory(cfgs)
+add_subdirectory(cori)
+add_subdirectory(dmat_manips)
+add_subdirectory(file_transfer)
+add_subdirectory(scalars)
+add_subdirectory(GridRPC)
 
-ADD_SUBDIRECTORY( allDataTransfers )
-ADD_SUBDIRECTORY( containers )
-ADD_SUBDIRECTORY( dyn_add_rem )
-ADD_SUBDIRECTORY( dynamicServiceMgr )
+add_subdirectory(allDataTransfers)
+add_subdirectory(containers)
+add_subdirectory(dyn_add_rem)
+add_subdirectory(dynamicServiceMgr)
 
-IF ( DIET_USE_WORKFLOW )
-  ADD_SUBDIRECTORY ( workflow )
+if (DIET_USE_WORKFLOW)
+  add_subdirectory (workflow)
   # Do not compile SeDWrapper example for as long as Diet 3.0 is not released:
   # this example requires BOOST.
-  # ADD_SUBDIRECTORY ( SeDWrapper )
-ENDIF ( DIET_USE_WORKFLOW )
+  # ADD_SUBDIRECTORY (SeDWrapper)
+endif (DIET_USE_WORKFLOW)
 
-# IF ( DIET_USE_CCS )
-#   ADD_SUBDIRECTORY ( ccs )
-# ENDIF ( DIET_USE_CCS )
+# IF (DIET_USE_CCS)
+#   ADD_SUBDIRECTORY (ccs)
+# ENDIF (DIET_USE_CCS)
 
-IF ( DIET_USE_MULTICALL )
-  ADD_SUBDIRECTORY ( multicall )
-ENDIF ( DIET_USE_MULTICALL )
+if (DIET_USE_MULTICALL)
+  add_subdirectory (multicall)
+endif (DIET_USE_MULTICALL)

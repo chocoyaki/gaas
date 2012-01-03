@@ -8,8 +8,9 @@ set(DIET_REVISION_VERSION 0)
 set(DIET_VERSION
   "${DIET_MAJOR_VERSION}.${DIET_MINOR_VERSION}.${DIET_REVISION_VERSION}")
 
-add_definitions(-DDIET_VERSION="${DIET_VERSION}")
+set(CMAKE_THREAD_LIBS_INIT pthread)
 
+add_definitions(-DDIET_VERSION="${DIET_VERSION}")
 # Get Date
 if (WIN32)
   execute_process(COMMAND "date" "+%Y/%m/%d-%H:%M:%S" 
@@ -198,7 +199,7 @@ find_package(Boost 1.46.0 COMPONENTS filesystem regex system thread REQUIRED)
 # Boost Filesystem API v2 is deprecated will be removed after Boost 1.48 release
 add_definitions(-DBOOST_FILESYSTEM_VERSION=3)
 if(Boost_FOUND)
-  set(THIRD_PARTY_LIBS ${THIRD_PARTY_LIBS} ${Boost_LIBRARIES})
+  set(THIRD_PARTY_LIBS ${THIRD_PARTY_LIBS} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 endif()
 
 # OmniORB is mandatory:

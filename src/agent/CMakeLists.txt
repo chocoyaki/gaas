@@ -33,14 +33,15 @@ set(AgentCommon_SOURCES
     ReferenceUpdateThread.cc
     Request.cc
     Schedulers.cc
-    ${DIET_IDL_OUTPUT})
+    ${DIET_IDL_OUTPUT}
+    ${config_SRCS})
 
 if (DIET_USE_USERSCHED)
   set (AgentCommon_SOURCES ${AgentCommon_SOURCES} UserScheduler.cc)
 endif (DIET_USE_USERSCHED)
 
 add_library(AgentCommon STATIC ${AgentCommon_SOURCES})
-target_link_libraries(AgentCommon DIET_Utils DietConfig)
+target_link_libraries(AgentCommon DIET_Utils)
 
 set(CORI_LIBRARIES UtilsCori)
   
@@ -60,7 +61,6 @@ set(dietAgent_Libs
   CorbaCommon
   DIET_Utils
   LibForwarder
-  DietConfig
   ${OMNIORB4_LIBRARIES}
   ${CMAKE_DL_LIBS})
 

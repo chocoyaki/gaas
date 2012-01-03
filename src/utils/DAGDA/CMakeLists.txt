@@ -10,7 +10,8 @@ set(DAGDA_SOURCES
   AdvancedDagdaComponent.cc
   Container.cc
   DIET_Dagda.cc
-  ${DIET_IDL_OUTPUT})
+  ${DIET_IDL_OUTPUT}
+  ${config_SRCS})
 
 include_directories(
   ${OMNIORB4_INCLUDE_DIR}
@@ -33,9 +34,8 @@ set(DAGDA_Libs
   CorbaCommon
   UtilsNodes
   DIET_Utils
-  pthread
   ${OMNIORB4_LIBRARIES}
-)
+  ${Boost_LIBRARIES})
 
 if (DIET_USE_LOG)
 set(DAGDA_Libs
@@ -49,11 +49,7 @@ if (CYGWIN)
   )
 endif (CYGWIN)
 
-target_link_libraries(DIET_Dagda
-  ${DAGDA_Libs}
-  ${Boost_LIBRARIES}
-  DietConfig
-)
+target_link_libraries(DIET_Dagda ${DAGDA_Libs})
 
 install(TARGETS DIET_Dagda DESTINATION ${LIB_INSTALL_DIR})
 install( FILES DIET_Dagda.h DESTINATION ${INCLUDE_INSTALL_DIR})
