@@ -4,16 +4,6 @@
 
 # Generates the DIET_CORBA static lib
 
-# Include directories for the library compilation:
-#    - OmniORB4 include: try to compile without it! ;)
-#    - Binary idl directory: for the generated headers files
-#    - Juxmem dir: JuxMem is broken. So, don't know why it is necessary.
-
-include_directories(
-  ${OMNIORB4_INCLUDE_DIR}
-  ${DIET_BINARY_DIR}/src/CORBA/idl
-)
-
 # Generate the code out of the IDL source files
 
 # Define the flags for the IDL compiler
@@ -21,8 +11,6 @@ include_directories(
 #    -Wba:  Generate stubs for TypeCode and Any classes
 #    -Wbtp: Generate 'tie' implementation skeletons
  
-set(DIET_IDL_FLAGS "-bcxx -Wba -Wbtp")
-
 # Flags for DIET modules
 if (DIET_USE_ALT_BATCH)
    set(DIET_IDL_FLAGS "${DIET_IDL_FLAGS} -DHAVE_ALT_BATCH")
@@ -48,81 +36,49 @@ if (DIET_USE_USERSCHED)
   )
 endif (DIET_USE_USERSCHED)
 
-# Transform DIET_IDL_FLAGS from a string to a string list containing
-# the arguments for omniidl
-separate_arguments(DIET_IDL_FLAGS)
-
 # Fix the IDL source files to compile
 #    - Main parts of DIET
 #    - Forwarder's IDLs
 
-set(IDL_SOURCES
-  common_types
-  Agent
-  Callback
-  LocalAgent
-  MasterAgent
-  response
-  SeD
-  AgentFwdr
-  CallbackFwdr
-  LocalAgentFwdr
-  MasterAgentFwdr
-  SeDFwdr
-  Forwarder
+set(DIET_IDL_SRCS
+  common_types.idl
+  Agent.idl
+  Callback.idl
+  LocalAgent.idl
+  MasterAgent.idl
+  response.idl
+  SeD.idl
+  AgentFwdr.idl
+  CallbackFwdr.idl
+  LocalAgentFwdr.idl
+  MasterAgentFwdr.idl
+  SeDFwdr.idl
+  Forwarder.idl
 )
 #    - Workflow's IDLs
 if (DIET_USE_WORKFLOW)
-  set(IDL_SOURCES
-    MaDag
-    CltMan
-    CltManFwdr
-    MaDagFwdr
-    WfLogService
-    WfLogServiceFwdr
-    ${IDL_SOURCES}
+  set(DIET_IDL_SRCS
+    MaDag.idl
+    CltMan.idl
+    CltManFwdr.idl
+    MaDagFwdr.idl
+    WfLogService.idl
+    WfLogServiceFwdr.idl
+    ${DIET_IDL_SRCS}
   )
 endif (DIET_USE_WORKFLOW)
 #    - Data manager's IDL
-set(IDL_SOURCES
-  Dagda
-  DagdaFwdr
-  ${IDL_SOURCES}
+set(DIET_IDL_SRCS
+  Dagda.idl
+  DagdaFwdr.idl
+  ${DIET_IDL_SRCS}
   )
 
-# A clean way to call omniidl
-#   Output:        Skeletons, dynamic skeletons and headers files
-#   Depends:       Produced files depends on the idl files
-#   Implicit deps: Scan the idl file for dependencies using CXX scanner
-
-foreach(loop_var ${IDL_SOURCES})
-  add_custom_command(
-    OUTPUT    ${CMAKE_CURRENT_BINARY_DIR}/${loop_var}SK.cc
-              ${CMAKE_CURRENT_BINARY_DIR}/${loop_var}DynSK.cc
-              ${CMAKE_CURRENT_BINARY_DIR}/${loop_var}.hh
-    COMMAND   ${OMNIORB4_IDL_COMPILER} ARGS ${DIET_IDL_FLAGS}
-              ${CMAKE_CURRENT_SOURCE_DIR}/${loop_var}.idl
-    DEPENDS   ${CMAKE_CURRENT_SOURCE_DIR}/${loop_var}.idl
-    IMPLICIT_DEPENDS CXX ${loop_var}.idl
-    COMMENT   "idl generated code: ${loop_var}SK.cc, ${loop_var}DynSK.cc and ${loop_var}.hh"
-  )
-  set(DIET_CORBA_SOURCES ${DIET_CORBA_SOURCES}
-    ${CMAKE_CURRENT_BINARY_DIR}/${loop_var}SK.cc
-    ${CMAKE_CURRENT_BINARY_DIR}/${loop_var}DynSK.cc
-  )
-  set(IDL_GENERATED_HEADERS
-    ${IDL_GENERATED_HEADERS}
-    ${CMAKE_CURRENT_BINARY_DIR}/${loop_var}.hh
-    CACHE INTERNAL "CORBA generated headers"
-    )
-endforeach(loop_var)
-
-# Create the CORBAFiles target.
-add_custom_target(CORBAFiles
-  DEPENDS ${DIET_CORBA_SOURCES} ${IDL_GENERATED_HEADERS}
-)
+generate_idl(OUTPUT DIET_IDL_OUTPUT
+  IDLS ${DIET_IDL_SRCS}
+  FLAGS ${DIET_IDL_FLAGS}
+  LANG C++)
 
 # Compile the main static CORBA library
-add_library(DIET_CORBA STATIC ${DIET_CORBA_SOURCES})
-add_dependencies(DIET_CORBA ${IDL_GENERATED_HEADERS})
+add_library(DIET_CORBA STATIC ${DIET_IDL_OUTPUT})
 

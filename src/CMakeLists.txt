@@ -1,6 +1,13 @@
 #****************************************************************************#
 #* DIET cmake local file                                                    *#
 #****************************************************************************#
+include(UseOmniORB4)
+
+include_directories(
+  ${OMNIORB4_INCLUDE_DIR}
+  ${Boost_INCLUDE_DIRS}
+  ${IDL_INCLUDE_DIRECTORIES}
+)
 
 # This macro extracts the complete path to the generated header file
 # containing the name passed as arg2 and stores it into arg1.
@@ -22,8 +29,6 @@ macro(corba_headers arg1)
   endforeach(arg)
   set(${arg1} ${res})
 endmacro(corba_headers)
-
-include_directories(${Boost_INCLUDE_DIRS})
 
 add_subdirectory(CORBA/idl)
 
