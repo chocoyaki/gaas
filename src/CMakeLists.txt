@@ -164,10 +164,9 @@ if(DIET_USE_USERSCHED)
     utils/ms_function.hh
     DESTINATION ${INCLUDE_INSTALL_DIR}/scheduler)
   install(FILES
-    ts_container/ts_set.hh
+    utils/ts_container/ts_set.hh
     DESTINATION
-    ${INCLUDE_INSTALL_DIR}/scheduler/ts_container
-    )
+    ${INCLUDE_INSTALL_DIR}/scheduler/ts_container)
 
 endif()
 
