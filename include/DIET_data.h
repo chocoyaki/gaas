@@ -1,12 +1,12 @@
 /**
 * @file DIET_data.h
-* 
+*
 * @brief  DIET data interface
-* 
-* @author - Philippe COMBES (Philippe.Combes@ens-lyon.fr) 
-* 
+*
+* @author - Philippe COMBES (Philippe.Combes@ens-lyon.fr)
+*
 * @section Licence
-*   |LICENCE|                                                                
+*   |LICENCE|
 
    \details
 
@@ -305,7 +305,7 @@
    // The file size is computed and stocked in a field of arg
    // ! Warning ! The path is not duplicated !!!
    int
-   diet_file_set(diet_arg_t* arg, char* path, diet_persistence_mode_t mode);
+   diet_file_set(diet_arg_t* arg, const char* path, diet_persistence_mode_t mode);
    \endcode
 
    \subsection AccessFunctions Access functions
