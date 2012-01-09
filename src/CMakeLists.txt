@@ -316,7 +316,7 @@ set_target_properties(DIET_Dagda PROPERTIES VERSION ${DIET_VERSION})
 target_link_libraries(DIET_Dagda ${DAGDA_LIBS})
 
 install(TARGETS DIET_Dagda DESTINATION ${LIB_INSTALL_DIR})
-install(FILES DIET_Dagda.h DESTINATION ${INCLUDE_INSTALL_DIR})
+install(FILES utils/DAGDA/DIET_Dagda.h DESTINATION ${INCLUDE_INSTALL_DIR})
 
 ## library: DIET_admin
 set(admin_SRCS
