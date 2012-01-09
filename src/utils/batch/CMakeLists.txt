@@ -8,14 +8,6 @@ if (DIET_USE_ALT_BATCH)
     )
 
   set(UtilsSeDBatch_SOURCES
-      BatchCreator.cc
-      BatchSystem.cc
-      OAR1_6BatchSystem.cc
-      OAR2_XBatchSystem.cc
-      Loadleveler_BatchSystem.cc
-      PBS_BatchSystem.cc
-      SGE_BatchSystem.cc
-      Slurm_BatchSystem.cc)
 
   if (DIET_USE_CLOUD)
     ########################################################################
@@ -25,7 +17,6 @@ if (DIET_USE_ALT_BATCH)
       ${CMAKE_CURRENT_SOURCE_DIR}/EucaLib
       ${GSOAP_SRC_DIR}
       )
-    add_definitions( -DWITH_DOM -DWITH_OPENSSL )
 
     # Yes, part of gSOAP needs to be recompiled in order to use the WSSE plugin.
     # This is the way it was built to work. There is no automatic build for
@@ -60,7 +51,7 @@ if (DIET_USE_ALT_BATCH)
     #        )
     set(UtilsSeDBatch_SOURCES
       ${UtilsSeDBatch_SOURCES}
-      Eucalyptus_BatchSystem.cc
+
       )
   endif (DIET_USE_CLOUD)
 

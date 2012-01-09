@@ -212,9 +212,16 @@ endif (DIET_USE_ALT_BATCH)
 
 # --------------------------- Cloud support ------------------------
 if (DIET_USE_CLOUD)
-    add_definitions(-DHAVE_CLOUD)
-    set(GSOAP_SRC_DIR "~" CACHE PATH "Root of gSOAP source tree.")
-endif (DIET_USE_CLOUD)
+  add_definitions(-DHAVE_CLOUD)
+  set(GSOAP_SRC_DIR "~" CACHE PATH "Root of gSOAP source tree.")
+  find_package(GSOAP)
+  find_package(OpenSSL)
+  find_package(ZLIB)
+  set(GSOAP_INCLUDE_DIRS ${GSOAP_INCLUDE_DIRS}
+    ${OPENSSL_INCLUDE_DIR} ${ZLIB_INCLUDE_DIRS})
+  set(GSOAP_LIBRARIES ${GSOAP_LIBRARIES}
+    ${OPENSSL_LIBRARIES} ${ZLIB_LIBRARIES})
+endif()
 
 # --------------------------- CORI support ------------------------
 # CORI (COllector of Resource Information) is heavily dependant on
