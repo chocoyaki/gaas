@@ -299,11 +299,7 @@ set(DAGDA_SRCS
   ${CorbaCommon_SRCS}
   ${dietUtils_SRCS})
 if(DIET_TRANSFER_PROGRESSION)
-  set(DAGDA_SRCS ${DAGDA_SRCS} Transfers.cc)
-endif()
-if(DIET_TRANSFER_PROGRESSION)
-  set(DAGDA_SRCS ${DAGDA_SRCS}
-    ${CMAKE_CURRENT_SOURCE_DIR}/utils/DAGDA/Transfers.cc)
+  set(DAGDA_SRCS ${DAGDA_SRCS} src/utils/DAGDA/Transfers.cc)
 endif()
 if(DIET_USE_WORKFLOW)
   set(DAGDA_SRCS ${DAGDA_SRCS} ${UtilsWf_SRCS})
