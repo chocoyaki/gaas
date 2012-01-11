@@ -7,7 +7,7 @@ execute_process( COMMAND ${BIN_PATH}/${TEST_PROG}
   --report_level=no
   --log_format=xml
   --log_level=test_suite
-  --report_sink=${REPORT_PATH}/${TEST_PROG}.xml
+  --log_sink=${REPORT_PATH}/${TEST_PROG}.xml
   OUTPUT_QUIET
   ERROR_QUIET
 )
