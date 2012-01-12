@@ -544,6 +544,10 @@ std::string
 itoa(long l) {
   // stringstream seems to be not thread safe !!!
   char str[128];
+  #ifdef __WIN32__
+  _snprintf(str, sizeof(str), "%ld", l);
+  #else
   snprintf(str, sizeof(str), "%ld", l);
+  #endif
   return std::string(str);
 }

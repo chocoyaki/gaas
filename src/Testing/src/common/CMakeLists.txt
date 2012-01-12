@@ -56,9 +56,15 @@ add_library( utils STATIC utils.cpp )
 # SeD c'est bien
 ###############################################################################
 add_executable( SimpleAddSeD SimpleAddSeD.cpp )
-
-target_link_libraries( SimpleAddSeD
-  ${DIET_SERVER_LIBRARIES} 
-  ${Boost_LIBRARIES} 
-  pthread )
+if (WIN32)
+  target_link_libraries( SimpleAddSeD
+    ${DIET_SERVER_LIBRARIES} 
+  )
+else (WIN32)
+  target_link_libraries( SimpleAddSeD
+    ${DIET_SERVER_LIBRARIES} 
+    ${Boost_LIBRARIES} 
+    pthread )
+endif (WIN32)	
+  
 

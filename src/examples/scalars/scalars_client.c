@@ -10,6 +10,9 @@
  */
 
 
+#ifndef __WIN32__
+#include <unistd.h>
+#endif
 #include <math.h>
 #include <string.h>
 #include <stdlib.h>

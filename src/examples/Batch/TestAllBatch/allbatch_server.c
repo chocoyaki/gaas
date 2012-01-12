@@ -10,15 +10,23 @@
  */
 
 #include <string.h>
+#ifndef __WIN32__
 #include <unistd.h>
+#include <libgen.h> /* basename() */
+#else
+#include <Winsock2.h>
+#include <windows.h>
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <libgen.h> /* basename() */
 #include <fcntl.h>       /* for O_RDONLY */
 
 #include "DIET_server.h"
 /* #include "DIET_mutex.h" */
+#ifdef __WIN32__
+#include "mkstemp.hh"
+#endif
 #include <sys/stat.h>
 
 /****************************************************************************
@@ -153,14 +161,26 @@ solve_concatenation_seq(diet_profile_t *pb) {
   if (outputName_1 == NULL) {
     perror("malloc outputName_1");
   }
+#ifdef __WIN32__
+  sprintf(outputName_1, "%s/", current_directory);
+  _splitpath(path1,NULL,NULL,outputName_1 + ((strlen(current_directory)+1)*sizeof(char)),NULL);
+#else
   sprintf(outputName_1, "%s/%s", current_directory, basename(path1));
+#endif  
+  
   copyFile(path1, outputName_1);
   outputName_2 = (char *) calloc(sizeof(char),
                                  (strlen(current_directory) + strlen(path2)));
   if (outputName_2 == NULL) {
     perror("malloc outputName_2");
   }
+#ifdef __WIN32__
+  sprintf(outputName_2, "%s/", current_directory);
+  _splitpath(path2,NULL,NULL,outputName_2 + ((strlen(current_directory)+1)*sizeof(char)),NULL);
+#else
   sprintf(outputName_2, "%s/%s", current_directory, basename(path2));
+#endif 
+  
   copyFile(path2, outputName_2);
 
   /********************************************/

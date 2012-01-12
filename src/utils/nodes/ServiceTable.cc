@@ -240,7 +240,7 @@ ServiceTable::addService(const corba_profile_desc_t *profile,
       const corba_aggregator_desc_t *a1 = &(storedProfile->aggregator);
       const corba_aggregator_desc_t *a2 = &(profile->aggregator);
       if (a1->agg_specific._d() != a2->agg_specific._d()) {
-        ERROR(__FUNCTION__ << ": aggregator type mismatch" << endl, -2);
+        ERROR_DEBUG(__FUNCTION__ << ": aggregator type mismatch" << endl, -2);
       }
       switch (a1->agg_specific._d()) {
         /* New : The user aggregator case.                           */
@@ -255,7 +255,7 @@ ServiceTable::addService(const corba_profile_desc_t *profile,
         const corba_agg_priority_t *p1 = &(a1->agg_specific.agg_priority());
         const corba_agg_priority_t *p2 = &(a2->agg_specific.agg_priority());
         if (p1->priorityList.length() != p2->priorityList.length()) {
-          ERROR(__FUNCTION__ <<
+          ERROR_DEBUG(__FUNCTION__ <<
                 ": priority list length mismatch (" <<
                 p1->priorityList.length() <<
                 " != " <<
@@ -266,7 +266,7 @@ ServiceTable::addService(const corba_profile_desc_t *profile,
              pvIter < p1->priorityList.length();
              pvIter++) {
           if (p1->priorityList[pvIter] != p2->priorityList[pvIter]) {
-            ERROR(
+            ERROR_DEBUG(
               __FUNCTION__ <<
               ": priority list value mismatch, index " <<
               pvIter <<
@@ -282,7 +282,7 @@ ServiceTable::addService(const corba_profile_desc_t *profile,
       }
       break;
       default:
-        ERROR(__FUNCTION__ <<
+        ERROR_DEBUG(__FUNCTION__ <<
               ": unexpected aggregator type (" <<
               a1->agg_specific._d(), -2);
       } // switch

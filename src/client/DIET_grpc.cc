@@ -19,6 +19,7 @@
 #include "DIETCall.hh"
 #include <vector>
 #include <map>
+#include "OSIndependance.hh"
 
 #define BEGIN_API extern "C" {
 #define END_API }   // extern "C"
@@ -216,7 +217,7 @@ grpc_error_t
 grpc_get_handle(grpc_function_handle_t **handle,
                 grpc_sessionid_t sessionID) {
   // FIXME: Christophe ...
-  // ERROR(__FUNCTION__ << " is not implemented yet", 1);
+  // ERROR_DEBUG(__FUNCTION__ << " is not implemented yet", 1);
   // check if GRPC is initialized
   if (!grpc_initialized) {
     return GRPC_NOT_INITIALIZED;
@@ -297,7 +298,7 @@ grpc_error_t
 grpc_arg_stack_pop(grpc_arg_stack_t *stack, diet_grpc_arg_t **arg) {
   if (stack->first == -1) {
     *arg = NULL;
-    ERROR(__FUNCTION__ << ": stack empty", 1);
+    ERROR_DEBUG(__FUNCTION__ << ": stack empty", 1);
   }
   *arg = new (diet_grpc_arg_t);
   **arg = stack->stack[stack->first];
@@ -340,9 +341,9 @@ grpc_build_profile(grpc_function_handle_t *handle, diet_profile_t * &profile,
 
   (*handle)->args_refs = new void *[(*handle)->profile.last_out + 1];
 
-  diet_arg_t *args[(*handle)->profile.last_out + 1];
+/*  diet_arg_t *args[(*handle)->profile.last_out + 1];
   for (int ix = 0; ix <= (*handle)->profile.last_out; ix++)
-    args[ix] = (diet_arg_t *) calloc(1, sizeof(diet_arg_t));
+    args[ix] = (diet_arg_t *) calloc(1, sizeof(diet_arg_t));*/
 
   profile =
     diet_profile_alloc(pb_name,
@@ -516,7 +517,12 @@ grpc_build_profile(diet_profile_t * &profile,
   profile = diet_profile_alloc(pb_name, 0, 0, args->first);
 
   tmp = 0;
-  for (int mode = (int) IN; mode >= (int) OUT; mode++) {
+
+#ifdef __WIN32__
+  for (int mode = (int) DIET_IN; mode >= (int) DIET_OUT; mode++) {
+#else
+  for (int mode = (int) DIET_IN; mode >= (int) DIET_OUT; mode++) {
+#endif
     for (int i = 0; i <= args->first; i++) {
       if (args->stack[i].mode == (diet_grpc_arg_mode_t) mode) {
         profile->parameters[tmp] = (*args->stack[i].arg);
@@ -524,13 +530,20 @@ grpc_build_profile(diet_profile_t * &profile,
       }
     }
     switch (mode) {
+#ifdef __WIN32__
+	case DIET_IN:    profile->last_in    = tmp - 1; break;
+    case DIET_INOUT: profile->last_inout = tmp - 1; break;
+    case DIET_OUT:   {
+
+#else    
     case IN:    profile->last_in = tmp - 1;
       break;
     case INOUT: profile->last_inout = tmp - 1;
       break;
     case OUT:   {
+#endif
       if (profile->last_out != tmp - 1) {
-        ERROR("argStack could not be converted into a profile", 1);
+        ERROR_DEBUG("argStack could not be converted into a profile", 1);
       }
     }
     } // switch
@@ -583,7 +596,7 @@ grpc_call_async(grpc_function_handle_t *handle,
   }
 
   if (!sessionID) {
-    ERROR(__FUNCTION__ << ": 2nd argument has not been allocated", 1);
+    ERROR_DEBUG(__FUNCTION__ << ": 2nd argument has not been allocated", 1);
   }
 
   va_start(ap, sessionID);

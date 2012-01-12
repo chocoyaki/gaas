@@ -15,13 +15,14 @@
 #include <cstdlib>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <unistd.h>
+
 
 #include "marshalling.hh"
 #include "debug.hh"
 #include "ms_function.hh"
 #include "DIET_data_internal.hh"     // for data_sizeof()
 #include "configuration.hh"
+#include "OSIndependance.hh"
 
 #if defined HAVE_ALT_BATCH
 #include "BatchSystem.hh"

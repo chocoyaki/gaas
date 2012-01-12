@@ -12,12 +12,16 @@
 
 #ifndef _DIET_CALL_H_
 #define _DIET_CALL_H_
-
+#ifdef WIN32
+   #define SHAREDLIB __declspec(dllexport)
+#else
+   #define SHAREDLIB
+#endif
 #include "DIET_grpc.h"
 #include "SeD.hh"
 #include "MasterAgent.hh"
 
-diet_error_t
+SHAREDLIB diet_error_t
 diet_call_common(MasterAgent_var &MA,
                  diet_profile_t *profile,
                  SeD_var &chosenServer,

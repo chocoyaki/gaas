@@ -78,7 +78,11 @@
 #define _DIET_CLIENT_H_
 
 #include "DIET_grpc.h"
-
+#ifdef WIN32
+   #define SHAREDLIB __declspec(dllexport)
+#else
+   #define SHAREDLIB
+#endif
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -111,7 +115,7 @@ extern "C" {
      @see the DIET_grpc.h file for more information about error values.
   */
 
-  diet_error_t
+  SHAREDLIB diet_error_t
   diet_initialize(const char* config_file_name, int argc, char* argv[]);
   /**
      Function used to finalize the \c DIET environment and free and
@@ -123,7 +127,7 @@ extern "C" {
 
      @see the DIET_grpc.h file for more information about error values.
   */
-  diet_error_t
+  SHAREDLIB diet_error_t
   diet_finalize();
 
   /* DIET finalize call through signals catch function. */
@@ -142,7 +146,8 @@ extern "C" {
 
      @sa diet_finalize()
   */
-  void diet_finalize_sig(int dummy);
+  SHAREDLIB void
+  diet_finalize_sig(int dummy);
 
   /****************************************************************************/
   /* Data handles                                                             */
@@ -171,7 +176,7 @@ extern "C" {
      the structure.
   */
 
-  diet_data_handle_t*
+  SHAREDLIB diet_data_handle_t*
   diet_data_handle_malloc();
 
   /**
@@ -183,7 +188,7 @@ extern "C" {
      argument
   */
 
-  void*
+  SHAREDLIB void*
   diet_get(diet_data_handle_t* handle);
 
   /**
@@ -196,7 +201,7 @@ extern "C" {
      @see the DIET_grpc.h file for more information about error values.
 
   */
-  diet_error_t
+  SHAREDLIB diet_error_t
   diet_free(diet_data_handle_t* handle);
 
   /**
@@ -206,7 +211,7 @@ extern "C" {
      @param argID id of the data to store
      @param msg message used for the data to store
   */
-  void
+  SHAREDLIB void
   store_id(char* argID, char* msg);
 
   /* obsoleted
@@ -228,7 +233,7 @@ extern "C" {
      @warning the error values are different from the ones found in DIET_grpc.h
      (0 is different from GRPC_NO_ERROR)
   */
-  int
+  SHAREDLIB int
   diet_free_persistent_data(char *id);
 
   /****************************************************************************/
@@ -253,7 +258,7 @@ extern "C" {
      @see the DIET_grpc.h file for more information about error values.
 
   */
-  diet_error_t
+  SHAREDLIB diet_error_t
   diet_call(diet_profile_t* profile);
 
 #if defined HAVE_ALT_BATCH
@@ -278,7 +283,7 @@ extern "C" {
      @see the DIET_grpc.h file for more information about error values.
 
   */
-  diet_error_t
+  SHAREDLIB diet_error_t
   diet_parallel_call(diet_profile_t* profile);
 
   /**
@@ -302,7 +307,7 @@ extern "C" {
      @see the DIET_grpc.h file for more information about error values.
 
   */
-  diet_error_t
+  SHAREDLIB diet_error_t
   diet_sequential_call(diet_profile_t* profile);
 #endif
 
@@ -333,7 +338,7 @@ extern "C" {
      @see the DIET_grpc.h file for more information about error values.
 
   */
-  diet_error_t
+  SHAREDLIB diet_error_t
   diet_call_async(diet_profile_t* profile, diet_reqID_t* reqID);
 #if defined HAVE_ALT_BATCH
   /**
@@ -366,7 +371,7 @@ extern "C" {
 
      @see the DIET_grpc.h file for more information about error values.
   */
-  diet_error_t
+  SHAREDLIB diet_error_t
   diet_parallel_call_async(diet_profile_t* profile, diet_reqID_t* reqID);
   /**
      Function used to perform a sequential asynchronous call.
@@ -400,7 +405,7 @@ extern "C" {
      @see the DIET_grpc.h file for more information about error values.
   */
 
-  diet_error_t
+  SHAREDLIB diet_error_t
   diet_sequential_call_async(diet_profile_t* profile, diet_reqID_t* reqID);
 #endif
 
@@ -420,7 +425,7 @@ extern "C" {
      @see the DIET_grpc.h file for more information about error values.
 
   */
-  diet_error_t
+  SHAREDLIB diet_error_t
   diet_probe(diet_reqID_t reqID);
   /* Return 0 if any asynchronous calls in the array of reqIDs have completed.
      Then exactly one reqID is returned in IDptr.                             */
@@ -440,7 +445,7 @@ extern "C" {
      @arg GRPC_NONE_COMPLETED is returned if no specified call has completed
      @see the DIET_grpc.h file for more information about error values.
   */
-  diet_error_t
+  SHAREDLIB diet_error_t
   diet_probe_or(diet_reqID_t* IDs, size_t length, diet_reqID_t* IDptr);
 
   /* Get the function handle linked to reqID */
@@ -461,7 +466,7 @@ extern "C" {
      associated to a function handle
      @see the DIET_grpc.h file for more information about error values.
   */
-  diet_error_t
+  SHAREDLIB diet_error_t
   diet_get_handle(grpc_function_handle_t** handle,
                   diet_reqID_t sessionID);
 
@@ -474,7 +479,7 @@ extern "C" {
      @param handle function handlewe want to associate to a session ID
 
   */
-  void
+  SHAREDLIB void
   diet_save_handle(diet_reqID_t sessionID,
                    grpc_function_handle_t* handle);
 
@@ -485,7 +490,7 @@ extern "C" {
      @param sessionID id of the session of which we want to set the error code
      @param error error code to set for the specified session
   */
-  void
+  SHAREDLIB void
   set_req_error(diet_reqID_t sessionID,
                 diet_error_t error);
   /* This function erases all persistent data that are manipulated by the reqID
@@ -511,7 +516,7 @@ extern "C" {
      Should better be something like error codes in the DIET_grph.h...
      @see the DIET_grpc.h file for more information about error values.
   */
-  diet_error_t
+  SHAREDLIB diet_error_t
   diet_cancel(diet_reqID_t reqID);
 
   /**
@@ -527,7 +532,7 @@ extern "C" {
      @todo the error messages for each request ID cancelled are not managed.
      @see the DIET_grpc.h file for more information about error values.
   */
-  diet_error_t
+  SHAREDLIB diet_error_t
   diet_cancel_all();
 
   /**
@@ -544,7 +549,7 @@ extern "C" {
      error codes
      @see the DIET_grpc.h file for more information about error values.
   */
-  diet_error_t
+  SHAREDLIB diet_error_t
   diet_wait(diet_reqID_t reqID);
 
   /**
@@ -565,7 +570,7 @@ extern "C" {
      account the output.
      @see the DIET_grpc.h file for more information about error values.
   */
-  diet_error_t
+  SHAREDLIB diet_error_t
   diet_wait_and(diet_reqID_t* IDs, size_t length);
 
   /**
@@ -588,7 +593,7 @@ extern "C" {
      @todo something else than -1 should be returned ...
      @see the DIET_grpc.h file for more information about error values.
   */
-  diet_error_t
+  SHAREDLIB diet_error_t
   diet_wait_or(diet_reqID_t* IDs, size_t length, diet_reqID_t* IDptr);
 
   /**
@@ -603,7 +608,7 @@ extern "C" {
      error codes
      @see the DIET_grpc.h file for more information about error values.
   */
-  diet_error_t
+  SHAREDLIB diet_error_t
   diet_wait_all();
 
   /**
@@ -620,7 +625,7 @@ extern "C" {
      @arg -1 an unexpected error happened
      @see the DIET_grpc.h file for more information about error values.
   */
-  diet_error_t
+  SHAREDLIB diet_error_t
   diet_wait_any(diet_reqID_t* IDptr);
 
   /**
@@ -636,7 +641,7 @@ extern "C" {
 
      @see the DIET_grpc.h file for more information about error values.
   */
-  diet_error_t
+  SHAREDLIB diet_error_t
   diet_get_error(diet_reqID_t reqID);
 
   /**
@@ -648,7 +653,7 @@ extern "C" {
 
      @see the DIET_grpc.h file for more information about error values.
   */
-  char *
+  SHAREDLIB char *
   diet_error_string(diet_error_t error);
 
 
@@ -664,7 +669,7 @@ extern "C" {
      @todo that returned value is strange...
      @see the DIET_grpc.h file for more information about error values.
   */
-  diet_error_t
+  SHAREDLIB diet_error_t
   diet_get_failed_session(diet_reqID_t* reqIdPtr);
 
 
@@ -687,7 +692,7 @@ extern "C" {
      services available on the platform.
      @return array of services' names
   */
-  char **
+  SHAREDLIB char **
   get_diet_services(int *services_number);
 
 #ifdef HAVE_WORKFLOW
@@ -713,7 +718,7 @@ extern "C" {
      errors ...
      @see the DIET_grpc.h file for more information about error values.
   */
-  diet_error_t
+  SHAREDLIB diet_error_t
   diet_wf_call(diet_wf_desc_t* profile);
 
   /********************************************/
@@ -734,7 +739,7 @@ extern "C" {
      @see the DIET_grpc.h file for more information about error values.
 
   */
-  diet_error_t
+  SHAREDLIB diet_error_t
   diet_wf_cancel_dag(const char* dagId);
 
   /*****************************************/
@@ -748,7 +753,7 @@ extern "C" {
 
      @param profile profile of the workflow
   */
-  void
+  SHAREDLIB void
   diet_wf_free(diet_wf_desc_t * profile);
 
   /***************************************************************/

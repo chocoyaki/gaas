@@ -283,7 +283,7 @@ extern "C" {
 
      @return the newly allocated diet_profile_desc
   */
-  diet_profile_desc_t*
+  SHAREDLIB diet_profile_desc_t*
   diet_profile_desc_alloc(const char* path, int last_in,
                           int last_inout, int last_out);
 
@@ -302,7 +302,7 @@ extern "C" {
      This needs to defined new error codes
      @sa DIET_grpc.h for error codes
   */
-  int
+  SHAREDLIB int
   diet_profile_desc_free(diet_profile_desc_t* desc);
 
 #if defined HAVE_ALT_BATCH
@@ -376,7 +376,7 @@ extern "C" {
      @return aggregator aggregator of the profile or NULL if no aggregator
      was defined for the profile
   */
-  diet_aggregator_desc_t*
+  SHAREDLIB diet_aggregator_desc_t*
   diet_profile_desc_aggregator(diet_profile_desc_t* profile);
 
   /**
@@ -395,7 +395,7 @@ extern "C" {
      This needs to defined new error codes
      @sa DIET_grpc.h for error codes
   */
-  int
+  SHAREDLIB int
   diet_aggregator_set_type(diet_aggregator_desc_t* agg,
                            diet_aggregator_type_t atype);
   /**
@@ -418,7 +418,7 @@ extern "C" {
      This needs to defined new error codes
      @sa DIET_grpc.h for error codes
   */
-  int
+  SHAREDLIB int
   diet_aggregator_priority_max(diet_aggregator_desc_t* agg, int tag);
 
   /**
@@ -442,7 +442,7 @@ extern "C" {
      @sa DIET_grpc.h for error codes
 
   */
-  int
+  SHAREDLIB int
   diet_aggregator_priority_min(diet_aggregator_desc_t* agg, int tag);
 
   /**
@@ -465,7 +465,7 @@ extern "C" {
      This needs to defined new error codes
      @sa DIET_grpc.h for error codes
   */
-  int
+  SHAREDLIB int
   diet_aggregator_priority_maxuser(diet_aggregator_desc_t* agg, int val);
 
   /**
@@ -796,7 +796,7 @@ extern "C" {
      @param max_size the number of services for the SeD
      @return 0 in every case
   */
-  int
+  SHAREDLIB int
   diet_service_table_init(int max_size);
 
   /* (cvt = NULL) is equivalent to "no conversion needed" */
@@ -807,10 +807,10 @@ extern "C" {
      @param fn performance metric function
      @return the current performance metric function
   */
-  diet_perfmetric_t
+  SHAREDLIB diet_perfmetric_t
   diet_service_use_perfmetric(diet_perfmetric_t fn);
 
-  int
+  SHAREDLIB int
   diet_service_table_add(const diet_profile_desc_t* const profile,
                          const diet_convertor_t* const cvt,
                          diet_solve_t solve_func);
@@ -836,7 +836,7 @@ extern "C" {
      @sa DIET_grpc.h for error codes
 
   */
-  int
+  SHAREDLIB int
   diet_service_table_remove(const diet_profile_t* const profile);
 
   /**
@@ -861,7 +861,7 @@ extern "C" {
      @sa DIET_grpc.h for error codes
 
   */
-  int
+  SHAREDLIB int
   diet_service_table_remove_desc(const diet_profile_desc_t* const profile);
 
   /* Unused !!!
@@ -882,13 +882,13 @@ extern "C" {
      @sa DIET_grpc.h for error codes
 
   */
-  int
+  SHAREDLIB int
   diet_service_table_lookup_by_profile(const diet_profile_t* const profile);
 
   /**
      Function used to print the service table on the standard output.
   */
-  void
+  SHAREDLIB void
   diet_print_service_table();
 
 
@@ -899,7 +899,7 @@ extern "C" {
   /* Most users should set argc to 0 and argv to NULL.
      Advanced omniORB users can set these arguments that are transmitted to
      the ORB initialization. */
-  int
+ SHAREDLIB  int
   diet_SeD(const char* config_file_name, int argc, char* argv[]);
 
   /****************************************************************************/
@@ -918,7 +918,7 @@ extern "C" {
      is batch specific
      @param script particular script to execute (variables inseide the script will be filled automatically)
   */
-  int
+  SHAREDLIB int
   diet_submit_parallel(diet_profile_t * profile,
                        const char * addon_prologue,
                        const char * command);
@@ -941,7 +941,7 @@ extern "C" {
      @param status the status to set for the server
 
   */
-  void
+  SHAREDLIB void
   diet_set_server_status(diet_server_status_t status);
 
 #endif
@@ -972,7 +972,7 @@ extern "C" {
      @sa DIET_grpc.h for error codes
 
   */
-  int
+  SHAREDLIB int
   diet_est_set(estVector_t ev, int userTag, double value);
 
   /**
@@ -997,7 +997,7 @@ extern "C" {
      @sa DIET_grpc.h for error codes
 
   */
-  double
+  SHAREDLIB double
   diet_est_get(estVectorConst_t ev, int userTag, double errVal);
 
   /**
@@ -1018,7 +1018,7 @@ extern "C" {
      @sa DIET_grpc.h for error codes
 
   */
-  double
+  SHAREDLIB double
   diet_est_get_system(estVectorConst_t ev, int systemTag,
                       double errVal);
   /**
@@ -1297,7 +1297,7 @@ extern "C" {
      @sa DIET_grpc.h for error codes
 
   */
-  int
+  SHAREDLIB int
   diet_estimate_cori(estVector_t ev, int info_type,
                      diet_est_collect_tag_t collector_type, const void *data);
 
@@ -1316,14 +1316,14 @@ extern "C" {
      This needs to defined new error codes
      @sa DIET_grpc.h for error codes
   */
-  int
+  SHAREDLIB int
   diet_estimate_cori_add_collector(diet_est_collect_tag_t collector_type,
                                    void* data);
 
   /**
      Function used to display data from CoRI Easy on the standard output
   */
-  void
+  SHAREDLIB void
   diet_estimate_coriEasy_print();
 
   /**
@@ -1341,7 +1341,7 @@ extern "C" {
      This needs to defined new error codes
      @sa DIET_grpc.h for error codes
   */
-  int
+  SHAREDLIB int
   diet_estimate_lastexec(estVector_t ev,
                          const diet_profile_t* const profilePtr);
 
@@ -1358,7 +1358,7 @@ extern "C" {
      @sa DIET_grpc.h for error codes
 
   */
-  int
+  SHAREDLIB int
   diet_estimate_comptime(estVector_t ev, double value);
 
   /**
@@ -1426,7 +1426,7 @@ extern "C" {
      @sa DIET_grpc.h for error codes
 
   */
-  int
+  SHAREDLIB int
   diet_estimate_list_jobs(jobVector_t* jv, int* jobNb,
                           const diet_profile_t* const profilePtr);
 
@@ -1448,7 +1448,7 @@ extern "C" {
      @sa DIET_grpc.h for error codes
 
   */
-  int
+  SHAREDLIB int
   diet_estimate_eft(estVector_t ev, double jobEstimatedCompTime,
                     const diet_profile_t* const profilePtr);
 
@@ -1475,7 +1475,7 @@ extern "C" {
      @sa DIET_grpc.h for error codes
 
   */
-  inline int
+  _inline int
   diet_generic_desc_set(struct diet_data_generic* desc,
                         diet_data_type_t type,
                         diet_base_type_t base_type) {

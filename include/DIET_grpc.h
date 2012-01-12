@@ -13,8 +13,22 @@
 #ifndef _DIET_GRPC_H_
 #define _DIET_GRPC_H_
 
+
 #include "DIET_data.h"
 #include "DIET_server.h"
+
+#ifdef __WIN32__
+#include "windows/stdint.h"
+#include "windows/dirent.h"
+#else 
+#include <unistd.h>
+#endif
+
+#ifdef WIN32
+   #define SHAREDLIB __declspec(dllexport)
+#else
+   #define SHAREDLIB
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -92,7 +106,7 @@ extern "C" {
      them from the client code correctly
 
   */
-  grpc_error_t
+  SHAREDLIB grpc_error_t
   grpc_initialize(char* config_file_name);
 
   /* #define grpc_finalize                 diet_finalize */
@@ -106,7 +120,7 @@ extern "C" {
      performed successfully or at all.
 
   */
-  grpc_error_t
+  SHAREDLIB grpc_error_t
   grpc_finalize();
 
 
@@ -130,7 +144,7 @@ extern "C" {
      \arg GRPC_SERVER_NOT_FOUND if no server was found for that service
      \arg GRPC_NO_ERROR on success
   */
-  grpc_error_t
+  SHAREDLIB grpc_error_t
   grpc_function_handle_default(grpc_function_handle_t* handle, char* pb_name);
 
   /**
@@ -151,7 +165,7 @@ extern "C" {
      \arg GRPC_SERVER_NOT_FOUND if no server was found for that service
      \arg GRPC_NO_ERROR on success
   */
-  grpc_error_t
+  SHAREDLIB grpc_error_t
   grpc_function_handle_init(grpc_function_handle_t* handle,
                             char* server_host_port, char* func_name);
 
@@ -167,7 +181,7 @@ extern "C" {
      \arg GRPC_NO_ERROR on success
 
   */
-  grpc_error_t
+  SHAREDLIB grpc_error_t
   grpc_function_handle_destruct(grpc_function_handle_t* handle);
 
   /**
@@ -185,7 +199,7 @@ extern "C" {
      \arg GRPC_OTHER_ERROR_CODE error returned if the session ID is not
      associated to a function handle
   */
-  grpc_error_t
+  SHAREDLIB grpc_error_t
   grpc_get_handle(grpc_function_handle_t** handle,
                   grpc_sessionid_t sessionID);
 
@@ -199,12 +213,20 @@ extern "C" {
   /**
      Enumeration representing the argument mode
   */
-  typedef enum {
-    IN, /*!< Input argument */
-    INOUT, /*!< Input/Output argument */
-    OUT /*!< Output argument */
-  }  diet_grpc_arg_mode_t;
-
+#ifdef __WIN32__
+	typedef enum {
+		DIET_IN, /*!< Input argument */
+		DIET_INOUT, /*!< Input/Output argument */
+		DIET_OUT /*!< Output argument */
+	} diet_grpc_arg_mode_t;
+#else
+	typedef enum {
+		IN, /*!< Input argument */
+		INOUT, /*!< Input/Output argument */
+		OUT /*!< Output argument */
+	} diet_grpc_arg_mode_t;
+#endif
+ 
   /**
      Structure representing the argument
   */
@@ -220,7 +242,7 @@ extern "C" {
 
      @warning The diet_grpc_arg_t should be freed !!!
   */
-  diet_grpc_arg_t*
+  SHAREDLIB diet_grpc_arg_t*
   diet_grpc_arg_alloc(diet_grpc_arg_mode_t mode, diet_arg_t* arg);
 
   /**
@@ -229,7 +251,7 @@ extern "C" {
      @param arg argument of which we want to get the argument mode
      @return argument mode of the input argument
   */
-  diet_grpc_arg_mode_t
+  SHAREDLIB diet_grpc_arg_mode_t
   diet_grpc_arg_mode(diet_grpc_arg_t* arg);
 
   /**
@@ -239,7 +261,7 @@ extern "C" {
      @return the argument parameter corresponding
 
   */
-  diet_arg_t*
+  SHAREDLIB diet_arg_t*
   diet_grpc_arg_diet_arg(diet_grpc_arg_t* arg);
 
   /* 2. Stack functions */
@@ -257,7 +279,7 @@ extern "C" {
 
       @return arguments stack created
   */
-  grpc_arg_stack_t*
+  SHAREDLIB grpc_arg_stack_t*
   grpc_stack_create(size_t maxsize);
 
   /**
@@ -274,7 +296,7 @@ extern "C" {
 
       @remark arg is actually a (diet_grpc_arg_t *) and its fields are copied.
   */
-  grpc_error_t
+  SHAREDLIB grpc_error_t
   grpc_stack_push(grpc_arg_stack_t* stack, void* arg);
 
   /**
@@ -290,7 +312,7 @@ extern "C" {
 
       @remark the result is newly allocated (and thus to be freed)
   */
-  grpc_error_t
+  SHAREDLIB grpc_error_t
   grpc_stack_pop(grpc_arg_stack_t* stack, diet_grpc_arg_t** arg);
 
   /**
@@ -300,7 +322,7 @@ extern "C" {
      @return 0 in every case.
 
   */
-  grpc_error_t
+  SHAREDLIB grpc_error_t
   grpc_stack_destruct(grpc_arg_stack_t* stack);
 
 
@@ -332,7 +354,7 @@ extern "C" {
      \arg GRPC_SERVER_NOT_FOUND if the server was not found
 
   */
-  grpc_error_t
+  SHAREDLIB grpc_error_t
   grpc_call(grpc_function_handle_t* handle, ...);
 
   /**
@@ -355,7 +377,7 @@ extern "C" {
      or if the MA/MADAG/Workflow LogService was not located
 
   */
-  grpc_error_t
+  SHAREDLIB grpc_error_t
   grpc_call_async(grpc_function_handle_t* handle,
                   grpc_sessionid_t* sessionID, ...);
 
@@ -373,7 +395,7 @@ extern "C" {
       \arg GRPC_SERVER_NOT_FOUND if the server was not found
 
   */
-  grpc_error_t
+  SHAREDLIB grpc_error_t
   grpc_call_argstack(grpc_function_handle_t* handle, grpc_arg_stack_t* args);
 
   /**
@@ -393,7 +415,7 @@ extern "C" {
       \arg GRPC_SERVER_NOT_FOUND if the server was not found
 
   */
-  grpc_error_t
+  SHAREDLIB grpc_error_t
   grpc_call_argstack_async(grpc_function_handle_t* handle,
                            grpc_sessionid_t* sessionID, grpc_arg_stack_t* args);
 
@@ -419,7 +441,7 @@ extern "C" {
      @todo the error messages for each request ID cancelled are not managed.
 
   */
-  grpc_error_t
+  SHAREDLIB grpc_error_t
   grpc_cancel(grpc_sessionid_t sessionID);
 
   /* Cancel all outstanding asynchronous GridRPC calls.                       */
@@ -435,7 +457,7 @@ extern "C" {
      MA/MADAG/Workflow LogService was not located
 
   */
-  grpc_error_t
+  SHAREDLIB grpc_error_t
   grpc_cancel_all();
 
   /* Check whether the asynchronous GridRPC call has completed.               */
@@ -451,7 +473,7 @@ extern "C" {
      \arg GRPC_OTHER_ERROR_CODE if an error occured
 
   */
-  grpc_error_t
+  SHAREDLIB grpc_error_t
   grpc_probe(grpc_sessionid_t sessionID);
 
 
@@ -474,7 +496,7 @@ extern "C" {
      \arg GRPC_NONE_COMPLETED is returned if no specified call has completed
 
   */
-  grpc_error_t
+  SHAREDLIB grpc_error_t
   grpc_probe_or(grpc_sessionid_t* reqIdArray, size_t length,
                 grpc_sessionid_t* reqIdPtr);
 
@@ -501,7 +523,7 @@ extern "C" {
      @todo status_to_grpc_code() must be used to convert status codes to grpc
      error codes
   */
-  grpc_error_t
+  SHAREDLIB grpc_error_t
   grpc_wait(grpc_sessionid_t reqID);
 
   /* Block until all of the specified non-blocking requests in a given set
@@ -528,7 +550,7 @@ extern "C" {
      It should better be error codes located in DIET_grpc.h for the user to be
      able to take into account the output.
   */
-  grpc_error_t
+  SHAREDLIB grpc_error_t
   grpc_wait_and(diet_reqID_t* IDs, size_t length);
 
   /* Block until any of the specified non-blocking requests in a given set
@@ -554,7 +576,7 @@ extern "C" {
      error codes inside the underlying diet call
      @todo something else than -1 should be returned ...
   */
-  grpc_error_t
+  SHAREDLIB grpc_error_t
   grpc_wait_or(diet_reqID_t* IDs, size_t length, diet_reqID_t* IDptr);
 
 
@@ -571,7 +593,7 @@ extern "C" {
      @todo status_to_grpc_code() must be used to convert status codes to grpc
      error codes in the underlying diet call
   */
-  grpc_error_t
+  SHAREDLIB grpc_error_t
   grpc_wait_all();
 
 
@@ -592,7 +614,7 @@ extern "C" {
      \arg GRPC_NO_ERROR if the call has completed
      \arg -1 an unexpected error happened
   */
-  grpc_error_t
+  SHAREDLIB grpc_error_t
   grpc_wait_any(diet_reqID_t* IDptr);
 
   /***************************************************************************/
@@ -614,7 +636,8 @@ extern "C" {
      @return string corresponding to the input error_code
 
   */
-  const char * grpc_error_string(grpc_error_t error_code);
+  SHAREDLIB const char * 
+  grpc_error_string(grpc_error_t error_code);
 
   /**
      Function used to get an error

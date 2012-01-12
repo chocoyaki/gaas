@@ -15,9 +15,9 @@
 #include <cstdlib>
 #include <cstring>
 #include <sys/types.h>
-#include <unistd.h>
 #include "debug.hh"
 #include "statistics.hh"
+#include "OSIndependance.hh"
 
 #if HAVE_STATISTICS
 
@@ -55,7 +55,7 @@ do_stat_init() {
           "Warning: do_stat_init() - Unable to open file " <<
           STAT_FILE_NAME
                                                            << ".\n");
-        ERROR("do_stat_init() - Check DIET_STAT_FILE_NAME env variable?", );
+        ERROR_DEBUG("do_stat_init() - Check DIET_STAT_FILE_NAME env variable?", );
       } else {
         TRACE_TEXT(TRACE_ALL_STEPS, "* Statistics collection: enabled "
                    << "(file" << STAT_FILE_NAME << ")\n");
@@ -80,7 +80,7 @@ do_stat_flush() {
         "Warning (do_stat_finalize): stats module is NOT initialized!\n");
     } else {
       if (fflush(STAT_FILE) != 0) {
-        ERROR("do_stat_flush() - Unable to flush stat file.", );
+        ERROR_DEBUG("do_stat_flush() - Unable to flush stat file.", );
       }
     }
   }
@@ -95,7 +95,7 @@ do_stat_finalize() {
         "Warning (do_stat_finalize): stats module is NOT initialized!\n");
     } else {
       if (fclose(STAT_FILE) < 0) {
-        ERROR("do_stat_finalize() - Unable to close stat file.", );
+        ERROR_DEBUG("do_stat_finalize() - Unable to close stat file.", );
       }
       STAT_FILE = NULL;
     }

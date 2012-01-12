@@ -20,13 +20,12 @@
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
-#include <sys/time.h>
-#include <unistd.h>
 #include <omniconfig.h>
 #include <omnithread.h>
 #include "common_types.hh"
 #include "response.hh"
 #include "DIET_data_internal.hh"
+#include "OSIndependance.hh"
 
 
 /** The trace level. */
@@ -75,7 +74,7 @@ extern omni_mutex debug_log_mutex;
 /**
  * Error message - return with return_value.
  */
-#define ERROR(formatted_msg, return_value) {                     \
+#define ERROR_DEBUG(formatted_msg, return_value) {                     \
     if ((int) TRACE_LEVEL >= (int) TRACE_ERR_AND_WARN) {          \
       debug_log_mutex.lock();                                   \
       std::cerr << "DIET ERROR: " << formatted_msg << ".\n";    \

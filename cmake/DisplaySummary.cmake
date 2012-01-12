@@ -51,6 +51,8 @@ disp()
 
 if (CYGWIN)
   message(STATUS "XXX System name Cygwin on Windows")
+elseif (WINDOWS)
+  message(STATUS "XXX System name Windows native")
 elseif (APPLE)
   message(STATUS "XXX System name Darwin")
 elseif (LINUX)

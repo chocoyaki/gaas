@@ -14,7 +14,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
+#ifdef WIN32
+#define SHAREDLIB __declspec(dllexport)
+#else
+#define SHAREDLIB
+#endif 
 /******************************************************************************\
 *                                                                            *
 * Enumerations                                                               *
@@ -2552,31 +2556,31 @@ soap_call___ec2__DeleteKeyPair(
   struct ec2__DeleteKeyPairType *ec2__DeleteKeyPair,
   struct ec2__DeleteKeyPairResponseType *ec2__DeleteKeyPairResponse);
 
-SOAP_FMAC5 int SOAP_FMAC6
+SHAREDLIB SOAP_FMAC5 int SOAP_FMAC6
 soap_call___ec2__RunInstances(
   struct soap *soap, const char *soap_endpoint, const char *soap_action,
   struct ec2__RunInstancesType *ec2__RunInstances,
   struct ec2__RunInstancesResponseType *ec2__RunInstancesResponse);
 
-SOAP_FMAC5 int SOAP_FMAC6
+SHAREDLIB SOAP_FMAC5 int SOAP_FMAC6
 soap_call___ec2__GetConsoleOutput(
   struct soap *soap, const char *soap_endpoint, const char *soap_action,
   struct ec2__GetConsoleOutputType *ec2__GetConsoleOutput,
   struct ec2__GetConsoleOutputResponseType *ec2__GetConsoleOutputResponse);
 
-SOAP_FMAC5 int SOAP_FMAC6
+SHAREDLIB SOAP_FMAC5 int SOAP_FMAC6
 soap_call___ec2__TerminateInstances(
   struct soap *soap, const char *soap_endpoint, const char *soap_action,
   struct ec2__TerminateInstancesType *ec2__TerminateInstances,
   struct ec2__TerminateInstancesResponseType *ec2__TerminateInstancesResponse);
 
-SOAP_FMAC5 int SOAP_FMAC6
+SHAREDLIB SOAP_FMAC5 int SOAP_FMAC6
 soap_call___ec2__RebootInstances(
   struct soap *soap, const char *soap_endpoint, const char *soap_action,
   struct ec2__RebootInstancesType *ec2__RebootInstances,
   struct ec2__RebootInstancesResponseType *ec2__RebootInstancesResponse);
 
-SOAP_FMAC5 int SOAP_FMAC6
+SHAREDLIB SOAP_FMAC5 int SOAP_FMAC6
 soap_call___ec2__DescribeInstances(
   struct soap *soap, const char *soap_endpoint, const char *soap_action,
   struct ec2__DescribeInstancesType *ec2__DescribeInstances,

@@ -9,7 +9,7 @@
  *   |LICENCE|
  */
 
-#include <unistd.h> // int getpagesize (void)
+
 #ifdef CORI_HAVE_SYS_SYSINFO
 #include <sys/sysinfo.h> // get_phys_pages (), get_avphys_pages ()
 #endif
@@ -22,6 +22,7 @@
 // #include <string.h>//srtcmp
 #include <string>
 #include "debug.hh"
+#include "OSIndependance.hh" // int getpagesize (void)
 
 using namespace std;
 
@@ -100,7 +101,11 @@ Easy_Memory::get_Avail_Memory_bysysinfo(double *result) {
 int
 Easy_Memory::get_Avail_Memory_byvmstat(double *result) {
   int returnval = 1;
+#ifdef WIN32
+  FILE *myfile = _popen("vmstat", "r");
+#else
   FILE *myfile = popen("vmstat", "r");
+#endif
   char word[256];
   if ((myfile != NULL)) {
     if (!feof(myfile)) {
@@ -119,7 +124,11 @@ Easy_Memory::get_Avail_Memory_byvmstat(double *result) {
         }
       }
     }
+#ifdef WIN32
+    _pclose(myfile);
+#else
     pclose(myfile);
+#endif
   }
   return returnval;
 } // get_Avail_Memory_byvmstat

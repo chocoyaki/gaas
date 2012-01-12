@@ -10,21 +10,55 @@
  */
 
 
+
 #include "DynamicServiceMgr.hh"
+#ifndef __WIN32__
 #include <dlfcn.h>
+#endif
 #include "debug.hh"
 
 #include <iostream>
 /*
- * When compiling the example on cygwin the variable RTLD_LOCAL
- * was not declared and thus it is now setted to 0
- *
- * Perhaps the test would better be on the cygwin flag but
- * this problem could also appear on other platforms
- *
- */
+* When compiling the example on cygwin the variable RTLD_LOCAL
+* was not declared and thus it is now setted to 0
+*
+* Perhaps the test would better be on the cygwin flag but
+* this problem could also appear on other platforms
+*
+*/
 #ifndef RTLD_LOCAL
 #define RTLD_LOCAL 0
+#endif
+
+#ifndef __WIN32__
+#include <dlfcn.h>
+#define GetFunctionFromModule dlsym
+#define CloseModule dlclose
+#define LoadModule(value1,value2) (dlopen(value1,value2))  
+#define GetDLError dlerror
+typedef (void*) LpHandleType;
+#else
+#include <windows.h>
+#define GetFunctionFromModule GetProcAddress
+#define LoadModule(value1,value2) (LoadLibrary(value1))
+#define CloseModule FreeLibrary
+const char* GetDLError(){
+
+	const char* lpMsgBuf;
+    DWORD dw = GetLastError(); 
+	if(dw == 0) return NULL;
+    FormatMessage(
+        FORMAT_MESSAGE_ALLOCATE_BUFFER | 
+        FORMAT_MESSAGE_FROM_SYSTEM |
+        FORMAT_MESSAGE_IGNORE_INSERTS,
+        NULL,
+        dw,
+        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+        (LPTSTR) &lpMsgBuf,
+        0, NULL );
+	return lpMsgBuf;
+}
+typedef HINSTANCE LpHandleType;
 #endif
 
 /** The default constructor. */
@@ -35,24 +69,24 @@ DynamicServiceMgr::DynamicServiceMgr() {
 /** The default destructor. */
 DynamicServiceMgr::~DynamicServiceMgr() {
   map_string_void_t::iterator i_m;
-  removeService *rmS;
-  const char *error;
+  removeService* rmS;
+  const char* error;
 
-  for (i_m = this->services.begin(); i_m != this->services.end(); ++i_m) {
+  for (i_m = this->services.begin(); i_m != this->services.end(); ++ i_m) {
     if (!(i_m->second)) {
       WARNING("Problem while dealing with an \"opened\" module");
     }
-    dlerror();
+    GetDLError();
 
 
-    rmS = (removeService *) dlsym(i_m->second, "removeService");
-    error = dlerror();
+    rmS = (removeService*) GetFunctionFromModule((LpHandleType)i_m->second, "removeService");
+    error = GetDLError();
     if (error) {
       WARNING("Problem while searching for removeService");
     }
 
     rmS();
-    dlclose(i_m->second);
+    CloseModule((LpHandleType)i_m->second);
   }
 
   this->services.clear();
@@ -60,29 +94,28 @@ DynamicServiceMgr::~DynamicServiceMgr() {
 
 
 
-int
-DynamicServiceMgr::addServiceMgr(const std::string &lib) {
-  void *module = NULL;
-  addService *addS;
-  serviceName *serName;
-  const char *error;
+int DynamicServiceMgr::addServiceMgr(const std::string & lib) {
+  LpHandleType module = NULL;
+  addService* addS;
+  serviceName* serName;
+  const char* error;
   std::string name;
 
-  TRACE_TEXT(TRACE_ALL_STEPS,
-             "*** Adding library '" << lib << "' ***" << std::endl);
-  module = dlopen(lib.c_str(), RTLD_NOW | RTLD_LOCAL);
+  TRACE_TEXT(TRACE_ALL_STEPS, "*** Adding library '" << lib << "' ***" << std::endl);
+  module = LoadModule(lib.c_str(), RTLD_NOW|RTLD_LOCAL);
 
   if (!module) {
     WARNING("Pb opening module");
-    InstanciationError exception(dlerror());
+    InstanciationError exception(GetDLError());
     throw exception;
   }
-  dlerror();
 
-  serName = (serviceName *) dlsym(module, "serviceName");
+  GetDLError();
+
+  serName = (serviceName*) GetFunctionFromModule(module, "serviceName");
   TRACE_TEXT(TRACE_ALL_STEPS, "*** Got serviceName() ***" << std::endl);
 
-  error = dlerror();
+  error = GetDLError();
   if (error) {
     WARNING("Pb getting serviceName " << error);
     InstanciationError exception(error);
@@ -90,19 +123,18 @@ DynamicServiceMgr::addServiceMgr(const std::string &lib) {
   }
 
   name = serName();
-  TRACE_TEXT(TRACE_ALL_STEPS,
-             "*** Found service '" << name << "' ***" << std::endl);
+  TRACE_TEXT(TRACE_ALL_STEPS, "*** Found service '" << name << "' ***"  << std::endl);
 
   if (this->services.find(name) != this->services.end()) {
     WARNING("*** Service '" << name << "' already exists ***");
-    dlclose(module);
+    CloseModule(module);
     return -1;
   }
 
   this->services[name] = module;
 
-  addS = (addService *) dlsym(module, "addService");
-  error = dlerror();
+  addS = (addService*) GetFunctionFromModule(module, "addService");
+  error = GetDLError();
   if (error) {
     WARNING("Problem getting addService " << error);
     InstanciationError exception(error);
@@ -110,14 +142,13 @@ DynamicServiceMgr::addServiceMgr(const std::string &lib) {
   }
 
   return addS();
-} // addServiceMgr
+}
 
 
-int
-DynamicServiceMgr::removeServiceMgr(const std::string &name) {
-  void *module;
-  removeService *rmS;
-  const char *error;
+int DynamicServiceMgr::removeServiceMgr(const std::string & name) {
+  LpHandleType module;
+  removeService* rmS;
+  const char* error;
   map_string_void_t::iterator i_m = this->services.find(name);
 
   if (i_m == this->services.end()) {
@@ -125,23 +156,23 @@ DynamicServiceMgr::removeServiceMgr(const std::string &name) {
     return -1;
   }
 
-  module = i_m->second;
+  module = (LpHandleType)i_m->second;
   this->services.erase(i_m);
-  TRACE_TEXT(TRACE_ALL_STEPS, "*** Will now remove a module ***" << std::endl);
+  TRACE_TEXT(TRACE_ALL_STEPS, "*** Will now remove a module ***"  << std::endl);
 
   if (!module) {
     WARNING("Pb opening module");
-    InstanciationError exception(dlerror());
+    InstanciationError exception(GetDLError());
     throw exception;
   }
-  dlerror();
+  GetDLError();
 
-  rmS = (removeService *) dlsym(module, "removeService");
-  error = dlerror();
+  rmS = (removeService*) GetFunctionFromModule(module, "removeService");
+  error = GetDLError();
   if (error) {
     WARNING("Pb getting removeService " << error);
     InstanciationError exception(error);
     throw exception;
   }
   return rmS();
-} // removeServiceMgr
+}

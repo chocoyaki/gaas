@@ -10,13 +10,13 @@
  */
 
 #include <iostream>
-#include <unistd.h>  // For gethostname()
 #include <cstdlib>
 #include <csignal>
 
 #include "DIET_server.h"
 #include "DIET_grpc.h"
 
+#include "OSIndependance.hh"
 #include "debug.hh"
 #include "est_internal.hh"
 #include "marshalling.hh"
@@ -84,14 +84,14 @@ diet_service_table_add(const diet_profile_desc_t *const profile,
   const diet_convertor_t *actual_cvt(NULL);
 
   if (SRVT == NULL) {
-    ERROR(__FUNCTION__ << ": service table not yet initialized", 1);
+    ERROR_DEBUG(__FUNCTION__ << ": service table not yet initialized", 1);
   }
 
   mrsh_profile_desc(&corba_profile, profile);
   if (cvt) {
     /* Check the convertor */
     if (diet_convertor_check(cvt, profile)) {
-      ERROR(
+      ERROR_DEBUG(
         "the convertor for profile " << profile->path
                                      <<
         " is not valid. Please correct above errors first", 1);
@@ -153,11 +153,11 @@ diet_service_table_lookup_by_profile(const diet_profile_t *const profile) {
   diet_profile_desc_t profileDesc;
 
   if (profile == NULL) {
-    ERROR(__FUNCTION__ << ": NULL profile", -1);
+    ERROR_DEBUG(__FUNCTION__ << ": NULL profile", -1);
   }
 
   if (SRVT == NULL) {
-    ERROR(__FUNCTION__ << ": service table not yet initialized", -1);
+    ERROR_DEBUG(__FUNCTION__ << ": service table not yet initialized", -1);
   }
 
   { /* create the corresponding profile description */
@@ -193,7 +193,7 @@ diet_service_table_lookup_by_profile(const diet_profile_t *const profile) {
 void
 diet_print_service_table() {
   if (SRVT == NULL) {
-    ERROR(__FUNCTION__ << ": service table not yet initialized", );
+    ERROR_DEBUG(__FUNCTION__ << ": service table not yet initialized", );
   }
 
   SRVT->dump(stdout);
@@ -280,7 +280,7 @@ int
 diet_aggregator_set_type(diet_aggregator_desc_t *agg,
                          diet_aggregator_type_t atype) {
   if (agg == NULL) {
-    ERROR(__FUNCTION__ << ": NULL aggregator", 0);
+    ERROR_DEBUG(__FUNCTION__ << ": NULL aggregator", 0);
   }
   if (atype != DIET_AGG_DEFAULT &&
       atype != DIET_AGG_PRIORITY
@@ -290,7 +290,7 @@ diet_aggregator_set_type(diet_aggregator_desc_t *agg,
 #endif
       /*************************************/
       ) {
-    ERROR(__FUNCTION__ << ": unknown aggregation type (" << atype << ")", 0);
+    ERROR_DEBUG(__FUNCTION__ << ": unknown aggregation type (" << atype << ")", 0);
   }
   if (agg->agg_method != DIET_AGG_DEFAULT) {
     WARNING(__FUNCTION__ <<
@@ -326,14 +326,14 @@ __diet_agg_pri_add_value(diet_aggregator_priority_t *priority, int value) {
 int
 diet_aggregator_priority_max(diet_aggregator_desc_t *agg, int tag) {
   if (agg == NULL) {
-    ERROR(__FUNCTION__ << ": NULL aggregator", 0);
+    ERROR_DEBUG(__FUNCTION__ << ": NULL aggregator", 0);
   }
   if (agg->agg_method != DIET_AGG_PRIORITY) {
-    ERROR(__FUNCTION__ << ": aggregator not a priority list", 0);
+    ERROR_DEBUG(__FUNCTION__ << ": aggregator not a priority list", 0);
   }
   if (!__diet_agg_pri_add_value(&(agg->agg_specific.agg_specific_priority),
                                 tag)) {
-    ERROR(__FUNCTION__ <<
+    ERROR_DEBUG(__FUNCTION__ <<
           ": failure adding value to priority list (" <<
           tag <<
           ")", 0);
@@ -344,14 +344,14 @@ diet_aggregator_priority_max(diet_aggregator_desc_t *agg, int tag) {
 int
 diet_aggregator_priority_min(diet_aggregator_desc_t *agg, int tag) {
   if (agg == NULL) {
-    ERROR(__FUNCTION__ << ": NULL aggregator", 0);
+    ERROR_DEBUG(__FUNCTION__ << ": NULL aggregator", 0);
   }
   if (agg->agg_method != DIET_AGG_PRIORITY) {
-    ERROR(__FUNCTION__ << ": aggregator not a priority list", 0);
+    ERROR_DEBUG(__FUNCTION__ << ": aggregator not a priority list", 0);
   }
   if (!__diet_agg_pri_add_value(&(agg->agg_specific.agg_specific_priority),
                                 -tag)) {
-    ERROR(__FUNCTION__ <<
+    ERROR_DEBUG(__FUNCTION__ <<
           ": failure adding value to priority list (" <<
           -tag <<
           ")", 0);
@@ -362,14 +362,14 @@ diet_aggregator_priority_min(diet_aggregator_desc_t *agg, int tag) {
 int
 diet_aggregator_priority_maxuser(diet_aggregator_desc_t *agg, int val) {
   if (agg == NULL) {
-    ERROR(__FUNCTION__ << ": NULL aggregator", 0);
+    ERROR_DEBUG(__FUNCTION__ << ": NULL aggregator", 0);
   }
   if (agg->agg_method != DIET_AGG_PRIORITY) {
-    ERROR(__FUNCTION__ << ": aggregator not a priority list", 0);
+    ERROR_DEBUG(__FUNCTION__ << ": aggregator not a priority list", 0);
   }
   if (!__diet_agg_pri_add_value(&(agg->agg_specific.agg_specific_priority),
                                 EST_USERDEFINED + val)) {
-    ERROR(__FUNCTION__ <<
+    ERROR_DEBUG(__FUNCTION__ <<
           ": failure adding value to priority list (" <<
           (EST_USERDEFINED + val) <<
           ")", 0);
@@ -380,14 +380,14 @@ diet_aggregator_priority_maxuser(diet_aggregator_desc_t *agg, int val) {
 int
 diet_aggregator_priority_minuser(diet_aggregator_desc_t *agg, int val) {
   if (agg == NULL) {
-    ERROR(__FUNCTION__ << ": NULL aggregator", 0);
+    ERROR_DEBUG(__FUNCTION__ << ": NULL aggregator", 0);
   }
   if (agg->agg_method != DIET_AGG_PRIORITY) {
-    ERROR(__FUNCTION__ << ": aggregator not a priority list", 0);
+    ERROR_DEBUG(__FUNCTION__ << ": aggregator not a priority list", 0);
   }
   if (!__diet_agg_pri_add_value(&(agg->agg_specific.agg_specific_priority),
                                 -(EST_USERDEFINED + val))) {
-    ERROR(__FUNCTION__ <<
+    ERROR_DEBUG(__FUNCTION__ <<
           ": failure adding value to priority list (" <<
           -(EST_USERDEFINED + val) <<
           ")", 0);
@@ -528,7 +528,7 @@ diet_SeD(const char *config_file_name, int argc, char *argv[]) {
   DagdaImpl *dataManager;
 
   if (SRVT == NULL) {
-    ERROR(__FUNCTION__ << ": service table not yet initialized", 1);
+    ERROR_DEBUG(__FUNCTION__ << ": service table not yet initialized", 1);
   }
 
   /* Set arguments for ORBMgr::init */
@@ -542,7 +542,7 @@ diet_SeD(const char *config_file_name, int argc, char *argv[]) {
   try {
     fileParser.parseFile(config_file_name);
   } catch (...) {
-    ERROR("while parsing " << config_file_name, DIET_FILE_IO_ERROR);
+    ERROR_DEBUG("while parsing " << config_file_name, DIET_FILE_IO_ERROR);
   }
   CONFIGMAP = fileParser.getConfiguration();
   // FIXME: should we also parse command line arguments?
@@ -551,7 +551,7 @@ diet_SeD(const char *config_file_name, int argc, char *argv[]) {
   /* Check the parameters */
   std::string tmpString;
   if (!CONFIG_STRING(diet::PARENTNAME, tmpString)) {
-    ERROR("No parentName found in the configuration", GRPC_CONFIGFILE_ERROR);
+    ERROR_DEBUG("No parentName found in the configuration", GRPC_CONFIGFILE_ERROR);
   }
   if (CONFIG_STRING(diet::MANAME, tmpString)) {
     WARNING("No need to specify an MA name for a SeD - ignored");
@@ -596,7 +596,7 @@ diet_SeD(const char *config_file_name, int argc, char *argv[]) {
   try {
     ORBMgr::init(myargc, (char **) myargv);
   } catch (...) {
-    ERROR("ORB initialization failed", 1);
+    ERROR_DEBUG("ORB initialization failed", 1);
   }
 
 
@@ -662,7 +662,7 @@ diet_SeD(const char *config_file_name, int argc, char *argv[]) {
   /* Activate SeD */
   ORBMgr::getMgr()->activate(SeD);
   if (SeD->run(SRVT)) {
-    ERROR("unable to launch the SeD", 1);
+    ERROR_DEBUG("unable to launch the SeD", 1);
   }
 
   dataManager = DagdaFactory::getSeDDataManager();
@@ -696,10 +696,10 @@ diet_SeD(const char *config_file_name, int argc, char *argv[]) {
 int
 diet_est_set(estVector_t ev, int userTag, double value) {
   if (ev == NULL) {
-    ERROR(__FUNCTION__ << ": NULL estimation vector", -1);
+    ERROR_DEBUG(__FUNCTION__ << ": NULL estimation vector", -1);
   }
   if (userTag < 0) {
-    ERROR(__FUNCTION__ <<
+    ERROR_DEBUG(__FUNCTION__ <<
           ": userTag must be non-negative (" <<
           userTag <<
           ")", -1);
@@ -711,10 +711,10 @@ diet_est_set(estVector_t ev, int userTag, double value) {
 double
 diet_est_get(estVectorConst_t ev, int userTag, double errVal) {
   if (ev == NULL) {
-    ERROR(__FUNCTION__ << ": NULL estimation vector", errVal);
+    ERROR_DEBUG(__FUNCTION__ << ": NULL estimation vector", errVal);
   }
   if (userTag < 0) {
-    ERROR(__FUNCTION__ <<
+    ERROR_DEBUG(__FUNCTION__ <<
           ": userTag must be non-negative (" <<
           userTag <<
           ")", errVal);
@@ -726,16 +726,16 @@ diet_est_get(estVectorConst_t ev, int userTag, double errVal) {
 double
 diet_est_get_system(estVectorConst_t ev, int systemTag, double errVal) {
   if (ev == NULL) {
-    ERROR(__FUNCTION__ << ": NULL estimation vector", errVal);
+    ERROR_DEBUG(__FUNCTION__ << ": NULL estimation vector", errVal);
   }
   if (systemTag < 0) {
-    ERROR(__FUNCTION__ <<
+    ERROR_DEBUG(__FUNCTION__ <<
           ": systemTag must be non-negative (" <<
           systemTag <<
           ")", errVal);
   }
   if (systemTag >= EST_USERDEFINED) {
-    ERROR(__FUNCTION__ <<
+    ERROR_DEBUG(__FUNCTION__ <<
           ": systemTag " << systemTag << " must be smaller than (" <<
           EST_USERDEFINED <<
           ")", errVal);
@@ -746,10 +746,10 @@ diet_est_get_system(estVectorConst_t ev, int systemTag, double errVal) {
 int
 diet_est_defined(estVectorConst_t ev, int userTag) {
   if (ev == NULL) {
-    ERROR(__FUNCTION__ << ": NULL estimation vector", -1);
+    ERROR_DEBUG(__FUNCTION__ << ": NULL estimation vector", -1);
   }
   if (userTag < 0) {
-    ERROR(__FUNCTION__ <<
+    ERROR_DEBUG(__FUNCTION__ <<
           ": userTag must be non-negative (" <<
           userTag <<
           ")", -1);
@@ -761,16 +761,16 @@ diet_est_defined(estVectorConst_t ev, int userTag) {
 int
 diet_est_defined_system(estVectorConst_t ev, int systemTag) {
   if (ev == NULL) {
-    ERROR(__FUNCTION__ << ": NULL estimation vector", -1);
+    ERROR_DEBUG(__FUNCTION__ << ": NULL estimation vector", -1);
   }
   if (systemTag < 0) {
-    ERROR(__FUNCTION__ <<
+    ERROR_DEBUG(__FUNCTION__ <<
           ": userTag must be non-negative (" <<
           systemTag <<
           ")", -1);
   }
   if (systemTag >= EST_USERDEFINED) {
-    ERROR(__FUNCTION__ <<
+    ERROR_DEBUG(__FUNCTION__ <<
           ": systemTag " << systemTag << " must be smaller than (" <<
           EST_USERDEFINED <<
           ")", -1);
@@ -782,10 +782,10 @@ diet_est_defined_system(estVectorConst_t ev, int systemTag) {
 int
 diet_est_array_size(estVectorConst_t ev, int userTag) {
   if (ev == NULL) {
-    ERROR(__FUNCTION__ << ": NULL estimation vector", -1);
+    ERROR_DEBUG(__FUNCTION__ << ": NULL estimation vector", -1);
   }
   if (userTag < 0) {
-    ERROR(__FUNCTION__ <<
+    ERROR_DEBUG(__FUNCTION__ <<
           ": userTag must be non-negative (" <<
           userTag <<
           ")", -1);
@@ -797,16 +797,16 @@ diet_est_array_size(estVectorConst_t ev, int userTag) {
 int
 diet_est_array_size_system(estVectorConst_t ev, int systemTag) {
   if (ev == NULL) {
-    ERROR(__FUNCTION__ << ": NULL estimation vector", -1);
+    ERROR_DEBUG(__FUNCTION__ << ": NULL estimation vector", -1);
   }
   if (systemTag < 0) {
-    ERROR(__FUNCTION__ <<
+    ERROR_DEBUG(__FUNCTION__ <<
           ": userTag must be non-negative (" <<
           systemTag <<
           ")", -1);
   }
   if (systemTag >= EST_USERDEFINED) {
-    ERROR(__FUNCTION__ <<
+    ERROR_DEBUG(__FUNCTION__ <<
           ": systemTag " << systemTag << " must be smaller than (" <<
           EST_USERDEFINED <<
           ")", -1);
@@ -818,16 +818,16 @@ diet_est_array_size_system(estVectorConst_t ev, int systemTag) {
 int
 diet_est_array_set(estVector_t ev, int userTag, int idx, double value) {
   if (ev == NULL) {
-    ERROR(__FUNCTION__ << ": NULL estimation vector", -1);
+    ERROR_DEBUG(__FUNCTION__ << ": NULL estimation vector", -1);
   }
   if (userTag < 0) {
-    ERROR(__FUNCTION__ <<
+    ERROR_DEBUG(__FUNCTION__ <<
           ": userTag must be non-negative (" <<
           userTag <<
           ")", -1);
   }
   if (idx < 0) {
-    ERROR(__FUNCTION__ << ": idx must be non-negative (" << idx << ")", -1);
+    ERROR_DEBUG(__FUNCTION__ << ": idx must be non-negative (" << idx << ")", -1);
   }
 
   return (diet_est_array_set_internal(ev,
@@ -839,16 +839,16 @@ diet_est_array_set(estVector_t ev, int userTag, int idx, double value) {
 double
 diet_est_array_get(estVectorConst_t ev, int userTag, int idx, double errVal) {
   if (ev == NULL) {
-    ERROR(__FUNCTION__ << ": NULL estimation vector", errVal);
+    ERROR_DEBUG(__FUNCTION__ << ": NULL estimation vector", errVal);
   }
   if (userTag < 0) {
-    ERROR(__FUNCTION__ <<
+    ERROR_DEBUG(__FUNCTION__ <<
           ": userTag must be non-negative (" <<
           userTag <<
           ")", errVal);
   }
   if (idx < 0) {
-    ERROR(__FUNCTION__ <<
+    ERROR_DEBUG(__FUNCTION__ <<
           ": idx must be non-negative (" <<
           idx <<
           ")", errVal);
@@ -864,22 +864,22 @@ double
 diet_est_array_get_system(estVectorConst_t ev, int systemTag,
                           int idx, double errVal) {
   if (ev == NULL) {
-    ERROR(__FUNCTION__ << ": NULL estimation vector", errVal);
+    ERROR_DEBUG(__FUNCTION__ << ": NULL estimation vector", errVal);
   }
   if (systemTag < 0) {
-    ERROR(__FUNCTION__ <<
+    ERROR_DEBUG(__FUNCTION__ <<
           ": userTag must be non-negative (" <<
           systemTag <<
           ")", errVal);
   }
   if (idx < 0) {
-    ERROR(__FUNCTION__ <<
+    ERROR_DEBUG(__FUNCTION__ <<
           ": idx must be non-negative (" <<
           idx <<
           ")", errVal);
   }
   if (systemTag >= EST_USERDEFINED) {
-    ERROR(__FUNCTION__ <<
+    ERROR_DEBUG(__FUNCTION__ <<
           ": systemTag " << systemTag << " must be smaller than (" <<
           EST_USERDEFINED <<
           ")", errVal);
@@ -894,16 +894,16 @@ diet_est_array_get_system(estVectorConst_t ev, int systemTag,
 int
 diet_est_array_defined(estVectorConst_t ev, int userTag, int idx) {
   if (ev == NULL) {
-    ERROR(__FUNCTION__ << ": NULL estimation vector", -1);
+    ERROR_DEBUG(__FUNCTION__ << ": NULL estimation vector", -1);
   }
   if (userTag < 0) {
-    ERROR(__FUNCTION__ <<
+    ERROR_DEBUG(__FUNCTION__ <<
           ": userTag must be non-negative (" <<
           userTag <<
           ")", -1);
   }
   if (idx < 0) {
-    ERROR(__FUNCTION__ << ": idx must be non-negative (" << idx << ")", -1);
+    ERROR_DEBUG(__FUNCTION__ << ": idx must be non-negative (" << idx << ")", -1);
   }
 
   return diet_est_array_defined_internal(ev,
@@ -914,19 +914,19 @@ diet_est_array_defined(estVectorConst_t ev, int userTag, int idx) {
 int
 diet_est_array_defined_system(estVectorConst_t ev, int systemTag, int idx) {
   if (ev == NULL) {
-    ERROR(__FUNCTION__ << ": NULL estimation vector", -1);
+    ERROR_DEBUG(__FUNCTION__ << ": NULL estimation vector", -1);
   }
   if (systemTag < 0) {
-    ERROR(__FUNCTION__ <<
+    ERROR_DEBUG(__FUNCTION__ <<
           ": userTag must be non-negative (" <<
           systemTag <<
           ")", -1);
   }
   if (idx < 0) {
-    ERROR(__FUNCTION__ << ": idx must be non-negative (" << idx << ")", -1);
+    ERROR_DEBUG(__FUNCTION__ << ": idx must be non-negative (" << idx << ")", -1);
   }
   if (systemTag >= EST_USERDEFINED) {
-    ERROR(__FUNCTION__ <<
+    ERROR_DEBUG(__FUNCTION__ <<
           ": systemTag " << systemTag << " must be smaller than (" <<
           EST_USERDEFINED <<
           ")", -1);
@@ -962,7 +962,7 @@ diet_estimate_cori(estVector_t ev,
   case EST_COLL_GANGLIA:
   case EST_COLL_NAGIOS:
   default:
-    ERROR("Requested collector not implemented", -1);
+    ERROR_DEBUG("Requested collector not implemented", -1);
   }
   return 0;
 } // diet_estimate_cori
@@ -1111,7 +1111,7 @@ diet_estimate_eft(estVector_t ev,
                   const diet_profile_t *const profilePtr) {
   const SeDImpl *refSeD = (SeDImpl *) profilePtr->SeDPtr;
   if (refSeD == NULL) {
-    ERROR(__FUNCTION__ << ": ref on SeD not initialized?", 1);
+    ERROR_DEBUG(__FUNCTION__ << ": ref on SeD not initialized?", 1);
   }
   /* casting away const-ness, because we know that the
    * method doesn't change the SeD
@@ -1190,7 +1190,7 @@ diet_get_SeD_services(int *services_number,
       sed = ORBMgr::getMgr()->resolve<SeD, SeD_ptr>(SEDCTXT, SeDName);
 
       if (CORBA::is_nil(sed)) {
-        ERROR("Cannot locate SeD " << SeDName, GRPC_SERVER_NOT_FOUND);
+        ERROR_DEBUG("Cannot locate SeD " << SeDName, GRPC_SERVER_NOT_FOUND);
       }
 
       // Now retrieve the services
@@ -1206,11 +1206,11 @@ diet_get_SeD_services(int *services_number,
       }
     } catch (...) {
       // TODO catch exceptions correctly
-      ERROR("An exception has been caught while searching for SeD "
+      ERROR_DEBUG("An exception has been caught while searching for SeD "
             << SeDName, GRPC_SERVER_NOT_FOUND);
     }
   } else {
-    ERROR("No SeDName has been given", GRPC_SERVER_NOT_FOUND);
+    ERROR_DEBUG("No SeDName has been given", GRPC_SERVER_NOT_FOUND);
   }
 
   return 0;

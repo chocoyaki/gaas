@@ -11,7 +11,12 @@
 
 
 
+#ifndef __WIN32__
 #include <unistd.h>
+#else
+#include <Winsock2.h>
+#include <windows.h>
+#endif
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -19,6 +24,9 @@
 #include "DIET_server.h"
 
 #define NB_SRV 4
+#ifdef __WIN32__
+#define sleep(value) (Sleep(value*1000))
+#endif 
 
 /*
  * The SUCC function

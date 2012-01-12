@@ -53,6 +53,7 @@
 
 using namespace std;
 using namespace events;
+#undef interface
 
 /**
  * XML Parsing errors description

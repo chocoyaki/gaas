@@ -9,7 +9,14 @@
  *   |LICENCE|
  */
 
+
+#ifndef __WIN32__
 #include <unistd.h>
+#else
+#include <Winsock2.h>
+#include <windows.h>
+#endif
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -18,6 +25,10 @@
 #include <time.h>
 
 #include "DIET_server.h"
+
+#ifdef __WIN32__
+#define msleep(value) (Sleep(value))
+#endif
 
 #define MAX_TIME_SIZE 64
 
@@ -56,8 +67,12 @@ int2str(diet_profile_t *pb) {
 
   diet_string_set(diet_parameter(pb, 1), str, DIET_PERSISTENT);
 
-  usleep(t * 100000);
-
+#ifdef __WIN32__
+	msleep(t*100);
+#else
+	usleep(t * 100000);
+#endif
+  
   return 0;
 } /* int2str */
 

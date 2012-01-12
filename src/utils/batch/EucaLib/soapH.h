@@ -15,11 +15,21 @@
 #ifndef soapH_H
 #define soapH_H
 #include "soapStub.h"
+
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#ifdef __WIN32__
+#define SHAREDLIB __declspec(dllexport)
+#else
+#define SHAREDLIB
+#endif
+
 #ifndef WITH_NOIDREF
-SOAP_FMAC3 void SOAP_FMAC4
+SOAP_FMAC3 void SOAP_FMAC4 SHAREDLIB
 soap_markelement(struct soap *, const void *, int);
 SOAP_FMAC3 int SOAP_FMAC4
 soap_putelement(struct soap *, const void *, const char *, int, int);
@@ -156,7 +166,7 @@ SOAP_FMAC3 int SOAP_FMAC4
 soap_out_wsse__FaultcodeEnum(struct soap *, const char *, int,
                              const enum wsse__FaultcodeEnum *, const char *);
 
-SOAP_FMAC3S const char * SOAP_FMAC4S
+SHAREDLIB SOAP_FMAC3S const char * SOAP_FMAC4S
 soap_wsse__FaultcodeEnum2s(struct soap *, enum wsse__FaultcodeEnum);
 SOAP_FMAC3 enum wsse__FaultcodeEnum * SOAP_FMAC4
 soap_in_wsse__FaultcodeEnum(struct soap *, const char *,

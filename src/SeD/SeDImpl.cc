@@ -17,9 +17,9 @@
 #include <cstdlib>
 #include <iostream>
 #include <sstream>
-#include <unistd.h>   // For gethostname()
 #include <ctime>
 #include <sys/types.h>
+#include "OSIndependance.hh"   // For gethostname()
 
 
 /* CLEAN ME: this was a hilarious pun except that slimfast_api.h is nowhere
@@ -100,7 +100,11 @@ SeDImpl::initialize() {
   if (!CONFIG_STRING(diet::NAME, name)) {
     /* Generate a name for this SeD and print it */
     std::stringstream oss;
-    pid_t pid = getpid();
+#ifdef __WIN32__
+  	int pid = getpid();
+#else
+	  pid_t pid = getpid();
+#endif
     oss << localHostName << "_" << pid << "_" << rand() % 10000;
     name = oss.str();
   }
@@ -306,7 +310,7 @@ SeDImpl::run(ServiceTable *services) {
     ORBMgr::getMgr()->fwdsBind(SEDCTXT, this->myName,
                                ORBMgr::getMgr()->getIOR(_this()));
   } catch (...) {
-    ERROR("could not declare myself as " << this->myName, 1);
+    ERROR_DEBUG("could not declare myself as " << this->myName, 1);
   }
 
   this->SrvT = services;
@@ -316,12 +320,12 @@ SeDImpl::run(ServiceTable *services) {
     // Read "batchName" if parallel jobs are to be submitted
     std::string batchname;
     if (!CONFIG_STRING(diet::BATCHNAME, batchname)) {
-      ERROR("SeD can not launch parallel/batch jobs, no parallel/batch"
+      ERROR_DEBUG("SeD can not launch parallel/batch jobs, no parallel/batch"
             " scheduler specified in the config file", 1);
     }
     batch = BatchCreator::getBatchSystem(batchname.c_str());
     if (batch == NULL) {
-      ERROR("Parallel/batch scheduler not recognized", 1);
+      ERROR_DEBUG("Parallel/batch scheduler not recognized", 1);
     }
     TRACE_TEXT(TRACE_MAIN_STEPS,
                "Parallel/batch submission enabled with "
@@ -379,7 +383,7 @@ SeDImpl::run(ServiceTable *services) {
       CORBA::Any tmp;
       tmp <<= e;
       CORBA::TypeCode_var tc = tmp.type();
-      ERROR(
+      ERROR_DEBUG(
         "exception caught (" << tc->name() << ") while subscribing to "
                              << parent_name <<
         ": either the latter is down, "
@@ -387,7 +391,7 @@ SeDImpl::run(ServiceTable *services) {
         "or there is a problem with the CORBA name server", 1);
     }
     if (childID < 0) {
-      ERROR(__FUNCTION__ << ": error subscribing server", 1);
+      ERROR_DEBUG(__FUNCTION__ << ": error subscribing server", 1);
     }
   } // end: if (! CORBA::is_nil(parent))
 
@@ -640,7 +644,7 @@ SeDImpl::solve(const char *path, corba_profile_t &pb) {
 
   ref = SrvT->lookupService(path, &pb);
   if (ref == -1) {
-    ERROR("SeD::" << __FUNCTION__ << ": service not found", 1);
+    ERROR_DEBUG("SeD::" << __FUNCTION__ << ": service not found", 1);
   }
 
   /* Record time at which solve started (when not using queues)
@@ -794,7 +798,7 @@ SeDImpl::parallel_solve(const char *path, corba_profile_t &pb,
              << "\n");
   if (batch->wait4BatchJobCompletion(batch->getBatchJobID(profile.dietReqID))
       < 0) {
-    ERROR("An error occured during the execution of the parallel job", 21);
+    ERROR_DEBUG("An error occured during the execution of the parallel job", 21);
   }
   batch->removeBatchJobID(profile.dietReqID);
 
@@ -838,7 +842,7 @@ SeDImpl::solveAsync(const char *path, const corba_profile_t &pb,
                                                            volatileclientREF);
     // ORBMgr::stringToObject(volatileclientREF);
     if (CORBA::is_nil(cb)) {
-      ERROR("SeD::" << __FUNCTION__ << ": received a nil callback", );
+      ERROR_DEBUG("SeD::" << __FUNCTION__ << ": received a nil callback", );
     } else {
       ServiceTable::ServiceReference_t ref(-1);
       diet_profile_t profile;
@@ -850,7 +854,7 @@ SeDImpl::solveAsync(const char *path, const corba_profile_t &pb,
 
       ref = SrvT->lookupService(path, &pb);
       if (ref == -1) {
-        ERROR("SeD::" << __FUNCTION__ << ": service not found", );
+        ERROR_DEBUG("SeD::" << __FUNCTION__ << ": service not found", );
       }
 
       /* Record time at which solve started (when not using queues)
@@ -962,15 +966,15 @@ SeDImpl::solveAsync(const char *path, const corba_profile_t &pb,
     CORBA::TypeCode_var tc = tmp.type();
     const char *p = tc->name();
     if (*p != '\0') {
-      ERROR("exception caught 55in SeD::" << __FUNCTION__ << '(' << p << ')', );
+      ERROR_DEBUG("exception caught 55in SeD::" << __FUNCTION__ << '(' << p << ')', );
     } else {
-      ERROR("exception caught 66in SeD::" << __FUNCTION__
+      ERROR_DEBUG("exception caught 66in SeD::" << __FUNCTION__
                                           << '(' << tc->id() << ')', );
     }
   } catch (...) {
     // Process any other exceptions. This would catch any other C++
     // exceptions and should probably never occur
-    ERROR("unknown exception caught 77", );
+    ERROR_DEBUG("unknown exception caught 77", );
   }
 } // solveAsync
 
@@ -997,7 +1001,7 @@ SeDImpl::parallel_AsyncSolve(const char *path, const corba_profile_t &pb,
 
   try {
     if (CORBA::is_nil(cb)) {
-      ERROR("SeD::" << __FUNCTION__ << ": received a nil callback", );
+      ERROR_DEBUG("SeD::" << __FUNCTION__ << ": received a nil callback", );
     } else {
       diet_convertor_t *cvt(NULL);
       int solve_res(0);
@@ -1110,15 +1114,15 @@ SeDImpl::parallel_AsyncSolve(const char *path, const corba_profile_t &pb,
     // CORBA::TypeCode_var tc = tmp.type();
     // const char * p = tc->name();
     // if (*p != '\0') {
-    // ERROR("exception caught in SeD::" << __FUNCTION__ << '(' << p << ')',);
+    //ERROR_DEBUG("exception caught in SeD::" << __FUNCTION__ << '(' << p << ')',);
     // } else {
-    // ERROR("exception caught in SeD::" << __FUNCTION__
+    //ERROR_DEBUG("exception caught in SeD::" << __FUNCTION__
     // << '(' << tc->id() << ')',);
     // }
     // } catch (...) {
     // // Process any other exceptions. This would catch any other C++
     // // exceptions and should probably never occur
-    // ERROR("unknown exception caught",);
+    //ERROR_DEBUG("unknown exception caught",);
   }
 } // parallel_AsyncSolve
 #endif  // HAVE_ALT_BATCH
@@ -1360,15 +1364,15 @@ SeDImpl::removeService(const diet_profile_t *const profile) {
   Agent_var parentTmp = this->parent;
 
   if (profile == NULL) {
-    ERROR(__FUNCTION__ << ": NULL profile", -1);
+    ERROR_DEBUG(__FUNCTION__ << ": NULL profile", -1);
   }
 
   if (this->SrvT == NULL) {
-    ERROR(__FUNCTION__ << ": service table not yet initialized", -1);
+    ERROR_DEBUG(__FUNCTION__ << ": service table not yet initialized", -1);
   }
 
   if (childID < 0) {
-    ERROR(__FUNCTION__ << ": server did not subscribe yet", 1);
+    ERROR_DEBUG(__FUNCTION__ << ": server did not subscribe yet", 1);
   }
 
   { /* create the corresponding profile description */
@@ -1408,15 +1412,15 @@ SeDImpl::removeServiceDesc(const diet_profile_desc_t *profile) {
   Agent_var parentTmp = this->parent;
 
   if (profile == NULL) {
-    ERROR(__FUNCTION__ << ": NULL profile", -1);
+    ERROR_DEBUG(__FUNCTION__ << ": NULL profile", -1);
   }
 
   if (this->SrvT == NULL) {
-    ERROR(__FUNCTION__ << ": service table not yet initialized", -1);
+    ERROR_DEBUG(__FUNCTION__ << ": service table not yet initialized", -1);
   }
 
   if (childID < 0) {
-    ERROR(__FUNCTION__ << ": server did not subscribe yet", 1);
+    ERROR_DEBUG(__FUNCTION__ << ": server did not subscribe yet", 1);
   }
 
   mrsh_profile_desc(&corba_profile, profile);

@@ -19,7 +19,11 @@
 // even when the macro HAVE_STATISTICS is not defined
 
 #include <cstdio>
+#ifdef WIN32
+#include <time.h>
+#else
 #include <sys/time.h>
+#endif
 
 #if HAVE_STATISTICS
 
@@ -38,7 +42,11 @@ inline void
 gen_stat(int type, const char *myname, const char *message) {
   if (STAT_FILE != NULL) {
     struct timeval tv;
-    struct timezone tz;
+#ifdef __WIN32__
+    struct timeval tz;
+#else
+	struct timezone tz;
+#endif
 
     if (gettimeofday(&tv, &tz) == 0) {
       fprintf(STAT_FILE, "%10ld.%06ld|%s|[%s] %s\n",

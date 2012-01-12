@@ -10,17 +10,35 @@
  */
 
 #include <string.h>
+#ifndef __WIN32__
 #include <unistd.h>
+#include <sys/time.h>
+#include <libgen.h>
+#else
+#include <Winsock2.h>
+#include <windows.h>
+#include <sys/timeb.h>
+#endif
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/stat.h>
 #include <time.h>
-#include <sys/time.h>
-#include <libgen.h> /* basename() */
+/*#include <libgen.h> basename() */
 #include "DIET_client.h"
+
 
 /* argv[1]: client config file path
    argv[2]: path of the worflow description file */
+#ifdef __WIN32__
+int gettimeofday (struct timeval *tp, void *tz)
+{
+	struct _timeb timebuffer;
+	_ftime (&timebuffer);
+	tp->tv_sec = timebuffer.time;
+	tp->tv_usec = timebuffer.millitm * 1000;
+	return 0;
+}
+#endif
 
 void
 usage(char *s) {
@@ -46,6 +64,8 @@ main(int argc, char *argv[]) {
   wf_level_t wfType;
   char wfTypeName[10];
   struct timeval t1, t2;
+  int curPos;
+  float time;
 
   checkUsage(argc, argv);
 
@@ -92,7 +112,12 @@ main(int argc, char *argv[]) {
         wfName = "";
       }
     } else {
-      wfName = basename(wfFileName);
+#ifdef __WIN32__
+        _splitpath(wfFileName,NULL,NULL,wfName,NULL);
+#else
+        wfName = basename(wfFileName);
+#endif
+
     }
   } else {      /* DIET_WF_DAG */
     dagFileName = argv[3];

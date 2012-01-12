@@ -155,7 +155,7 @@ public:
   /**
    * Returns an iterator pointing to the beginning of the set.
    */
-  inline iterator begin() const {
+  inline iterator begin() {
 #ifndef NDEBUG // only used by the assert
     assert(accessLocked);
 #endif  // NDEBUG
@@ -165,7 +165,7 @@ public:
   /**
    * Returns an iterator pointing to the end of the set.
    */
-  inline iterator end() const {
+  inline iterator end() {
 #ifndef NDEBUG // only used by the assert
     assert(accessLocked);
 #endif  // NDEBUG

@@ -22,12 +22,15 @@
 #include "plugin/wsseapi.h"
 #include "stdsoap2.h"
 
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 
-// Allocates and initalizes a new soap structure with default settings for Eucalyptus i.e. with the SOAP_XML_CANONICAL | SOAP_XML_INDENT flags
+
+// Allocates and initializes a new soap structure with default settings for Eucalyptus i.e. with the SOAP_XML_CANONICAL | SOAP_XML_INDENT flags
 extern struct soap *
 soap_default_new();
 
@@ -38,7 +41,7 @@ PEM_read_PK(char *pem_path, EVP_PKEY **pk_out);
 
 // Reads an X509 certificate located at the specified path and returns it in the pointer parameter.
 // Returns 0 - OK; !=0 - error
-extern int
+extern int  
 PEM_read_X509_cert(char *pem_path, X509 **cert_out);
 
 // Adds a security header to the soap message containing:

@@ -5,8 +5,8 @@
 # LOG_LIB_DIR: Directory containing all the lib
 # LOG_INCLUDE_DIR: Directory containing the files to include
 
-set (libName "LogForwarderUtils")
-MARK_AS_ADVANCED (libName)
+set(libName "LogServiceComponentBase")
+mark_as_advanced(libName)
 
 if(BUILD_SHARED_LIBS)
   set(PREFIX ${CMAKE_SHARED_LIBRARY_PREFIX})
@@ -19,16 +19,31 @@ endif()
 find_path(LOG_INCLUDE_DIR LogORBMgr.hh
   PATHS ${LOGSERVICE_DIR}/include 
   DOC "Directory containing the log service include files")
-find_library(LOG_LIBRARY  ${PREFIX}${libName}${SUFFIX}
-  PATHS ${LOGSERVICE_DIR}/lib 
-  DOC "The log service library")
-
+if(WIN32)  
+  find_library(LOG_LIBRARY_UTILS  "LogForwarderUtils" 
+    PATHS ${LOGSERVICE_DIR}/lib 
+    DOC "The log service library")
+  find_library(LOG_LIBRARY_BASE "LogServiceComponentBase" 
+    PATHS ${LOGSERVICE_DIR}/lib 
+    DOC "The log service library") 
+  find_library(LOG_LIBRARY_TBASE "LogServiceToolBase" 
+    PATHS ${LOGSERVICE_DIR}/lib 
+    DOC "The log service library") 
+  find_library(LOG_LIBRARY_CORBA "LogCorba" 
+    PATHS ${LOGSERVICE_DIR}/lib 
+    DOC "The log service library") 
+  set(LOG_LIBRARY
+    ${LOG_LIBRARY_UTILS} ${LOG_LIBRARY_BASE}
+    ${LOG_LIBRARY_TBASE} ${LOG_LIBRARY_CORBA})  
+else()
+  find_library(LOG_LIBRARY ${libName})
+endif()
+  
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(LOGSERVICE DEFAULT_MSG LOG_INCLUDE_DIR LOG_LIBRARY)
 
-
-if (NOT LOGSERVICE_FOUND)
-  MESSAGE("Log not found on this machine. DIET will not be able to use the log system.")
-  SET(LOGSERVICE_DIR "" CACHE PATH "Root of log service tree installation".)
-endif (NOT LOGSERVICE_FOUND)
+if(NOT LOGSERVICE_FOUND)
+  message("Log not found on this machine. DIET will not be able to use the log system.")
+  set(LOGSERVICE_DIR "" CACHE PATH "Root of log service tree installation".)
+endif()
 

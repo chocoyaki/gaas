@@ -10,7 +10,12 @@
  */
 
 
+#ifndef __WIN32__
 #include <unistd.h>
+#else
+#include <Winsock2.h>
+#include <windows.h>
+#endif
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -72,7 +77,7 @@ succ(diet_profile_t *pb) {
   diet_scalar_desc_set(diet_parameter(pb, 1), jx);
   diet_scalar_desc_set(diet_parameter(pb, 2), kx);
 
-  usleep(t * 100000);
+  //diet::usleep(t * 100000);
 
   return 0;
 } /* succ */
@@ -94,7 +99,7 @@ double_int(diet_profile_t *pb) {
   fprintf(stderr, "j = 2i = %d\n", *(int *) jx);
   diet_scalar_desc_set(diet_parameter(pb, 1), jx);
 
-  usleep(t * 100000);
+  //usleep(t * 100000);
 
   return 0;
 } /* double_int */
@@ -118,7 +123,7 @@ sum(diet_profile_t *pb) {
   fprintf(stderr, "k = i + j = %d\n", *(int *) kx);
   diet_scalar_desc_set(diet_parameter(pb, 2), kx);
 
-  usleep(t * 100000);
+  //usleep(t * 100000);
 
   return 0;
 } /* sum */
@@ -140,7 +145,7 @@ square(diet_profile_t *pb) {
   fprintf(stderr, "sqrt(i) = %f\n", *(double *) jx);
   diet_scalar_desc_set(diet_parameter(pb, 1), jx);
 
-  usleep(t * 100000);
+  //usleep(t * 100000);
 
   return 0;
 } /* square */

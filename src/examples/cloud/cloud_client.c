@@ -95,9 +95,7 @@ matrix_from_file(char *file_path, double **mat, int *n, int *m) {
 
 int
 main(int argc, char **argv) {
-  if (!parse_args(argc, argv)) {
-    return 1;
-  }
+  
   diet_profile_t *profile;
   char *result;
   double *C = NULL;
@@ -107,6 +105,10 @@ main(int argc, char **argv) {
   double *B;
   int n;
   int m;
+  diet_matrix_order_t oA, oB, oC;
+  if (!parse_args(argc, argv)) {
+	  return 1;
+  }
   if (path_to_A == NULL) {
     n = 2;
     m = 3;
@@ -147,7 +149,7 @@ main(int argc, char **argv) {
   diet_string_set(diet_parameter(profile, 3), NULL, DIET_VOLATILE);
 
   /* init matrix orders */
-  diet_matrix_order_t oA, oB, oC;
+  
   oA = ((double) rand() / (double) RAND_MAX <= 0.5) ? DIET_ROW_MAJOR :
        DIET_COL_MAJOR;
   oB = ((double) rand() / (double) RAND_MAX <= 0.5) ? DIET_ROW_MAJOR :

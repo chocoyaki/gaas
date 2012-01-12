@@ -490,7 +490,11 @@
 
 #ifndef _DIET_DATA_H_
 #define _DIET_DATA_H_
-
+#ifdef WIN32
+   #define SHAREDLIB __declspec(dllexport)
+#else
+   #define SHAREDLIB
+#endif
 #include <sys/types.h>
 
 #ifdef __cplusplus
@@ -1963,7 +1967,7 @@ extern "C" {
 
      @warning this function is declared in DIET_data.h but implemented in DIET_client.cc !
   */
-  int
+  SHAREDLIB int
   diet_wf_save_data_file(diet_wf_desc_t * profile,
                          const char * data_file_name);
 
@@ -1998,7 +2002,7 @@ extern "C" {
 
      @warning this function is declared in DIET_data.h but implemented in DIET_client.cc !
   */
-  int
+  SHAREDLIB int
   diet_wf_save_transcript_file(diet_wf_desc_t * profile,
                                const char * transcript_file_name);
 
@@ -2026,7 +2030,7 @@ extern "C" {
 
      @deprecated{should not be used. Use diet_wf_print_results instead}
   */
-  int
+  SHAREDLIB int
   get_all_results(diet_wf_desc_t * profile);  /* DEPRECATED */
 
   /**
@@ -2044,7 +2048,7 @@ extern "C" {
      @sa DIET_grpc.h for error codes
 
   */
-  int
+  SHAREDLIB int
   diet_wf_print_results(diet_wf_desc_t * profile);
 
   /**
@@ -2090,7 +2094,7 @@ extern "C" {
      @sa DIET_grpc.h for error codes
 
   */
-  int
+  SHAREDLIB int
   _diet_wf_scalar_get(diet_wf_desc_t * profile,
                       const char * id,
                       void** value);
@@ -2137,7 +2141,7 @@ extern "C" {
      @warning this function is declared in DIET_data.h but implemented in DIET_client.cc !
 
   */
-  int
+  SHAREDLIB int
   _diet_wf_string_get(diet_wf_desc_t * profile,
                       const char * id,
                       char** value);
@@ -2187,7 +2191,7 @@ extern "C" {
      @sa DIET_grpc.h for error codes
 
   */
-  int
+  SHAREDLIB int
   _diet_wf_file_get(diet_wf_desc_t * profile,
                     const char * id,
                     size_t* size, char** path);
@@ -2242,7 +2246,7 @@ extern "C" {
      @warning this function is declared in DIET_data.h but implemented in DIET_client.cc !
 
   */
-  int
+  SHAREDLIB int
   _diet_wf_matrix_get(diet_wf_desc_t * profile,
                       const char * id, void** value,
                       size_t* nb_rows, size_t *nb_cols,
@@ -2289,7 +2293,7 @@ extern "C" {
      @sa DIET_grpc.h for error codes
 
   */
-  int
+  SHAREDLIB int
   _diet_wf_container_get(diet_wf_desc_t * profile,
                          const char * id,
                          char** dataID);

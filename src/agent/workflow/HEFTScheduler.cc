@@ -17,6 +17,7 @@
 #include "ORBMgr.hh"
 
 using namespace madag;
+using namespace std;
 
 /****************************************************************************/
 /*                         PUBLIC METHODS                                   */
@@ -113,9 +114,7 @@ HEFTScheduler::setNodesEFT(std::vector<DagNode *> &orderedNodes,
       for (std::vector<WfNode *>::iterator prevIter = n->prevNodesBegin();
            prevIter != n->prevNodesEnd();
            ++prevIter) {
-        EST =
-          std::max(EST,
-                   AFT[(dynamic_cast<DagNode *>(*prevIter))->getCompleteId()]);
+        EST = max(EST, AFT[(dynamic_cast<DagNode *>(*prevIter))->getCompleteId()]);
       }
       // choose server if it improves the EFT
       double nodeDuration = this->getNodeDurationEst(wf_response, pb_index, ix);

@@ -129,7 +129,7 @@ Eucalyptus_BatchSystem::diet_submit_parallel(diet_profile_t *profile,
       stderr,
       "ERROR: Cannot create local data for new request. Increase number of maximum threads local variable.\n");
 #endif
-    state = ERROR;
+    state = ERROR_JOB;
     return 0;
   }
 #ifdef CLOUD_DEBUG
@@ -137,7 +137,7 @@ Eucalyptus_BatchSystem::diet_submit_parallel(diet_profile_t *profile,
 #endif
   if (instantiateVMs) {
     if (makeEucalyptusReservation(req_state, vmMinCount, vmMaxCount)) {
-      state = ERROR;
+      state = ERROR_JOB;
 #ifdef CLOUD_DEBUG
       fprintf(stderr, "ERROR: Cannot perform reservation\n");
 #endif
@@ -147,7 +147,7 @@ Eucalyptus_BatchSystem::diet_submit_parallel(diet_profile_t *profile,
   } else if (describeInstances(req_state)) {
     printf("error describing\n");
     terminateEucalyptusInstance(req_state);
-    state = ERROR;
+    state = ERROR_JOB;
 #ifdef CLOUD_DEBUG
     fprintf(stderr,
             "ERROR: Cannot call 'DescribeInstances' to cloud at address '%s'\n",
@@ -191,10 +191,14 @@ Eucalyptus_BatchSystem::diet_submit_parallel(diet_profile_t *profile,
         "INFO: Some VMs do not have an IP address assigned, waiting for %d seconds...\n",
         sleepTimeout);
 #endif
-      sleep(sleepTimeout);
+#ifdef __WIN32__
+	  Sleep(sleepTimeout);
+#else
+	  sleep(sleepTimeout);
+#endif
       if (describeInstances(req_state)) {
         terminateEucalyptusInstance(req_state);
-        state = ERROR;
+        state = ERROR_JOB;
 #ifdef CLOUD_DEBUG
         fprintf(
           stderr,
@@ -234,7 +238,7 @@ Eucalyptus_BatchSystem::diet_submit_parallel(diet_profile_t *profile,
 
   state = RUNNING;
   if (system(script)) {
-    state = ERROR;
+    state = ERROR_JOB;
 #ifdef CLOUD_DEBUG
     fprintf(stderr, "ERROR: Could not run system command\n");
 #endif
@@ -257,7 +261,7 @@ Eucalyptus_BatchSystem::askBatchJobStatus(int batchJobID) {
 
 int
 Eucalyptus_BatchSystem::isBatchJobCompleted(int batchJobID) {
-  if ((state == TERMINATED) || (state == CANCELED) || (state == ERROR)) {
+  if ((state == TERMINATED) || (state == CANCELED) || (state == ERROR_JOB)) {
     return 1;
   } else if (state == NB_STATUS) {
     return -1;
@@ -346,7 +350,11 @@ Eucalyptus_BatchSystem::doWait(int count, char *addresses) {
     fprintf(stdout, "Attempt %d with result %d...\n", index, result);
 #endif
     if (result) {
-      sleep(sleepTimeout);
+#ifdef __WIN32__
+		    Sleep(sleepTimeout);
+#else
+		    sleep(sleepTimeout);
+#endif      
     }
   } while (index < count && result);
 } // doWait

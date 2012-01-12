@@ -19,7 +19,7 @@
 
 using namespace std;
 
-int
+extern "C" __declspec (dllexport) int
 LRU(AdvancedDagdaComponent *manager, size_t size, dagda_object_type_t type) {
   TRACE_TEXT(TRACE_ALL_STEPS, "Needs more space for the data:" <<
              " Tries to remove one using LRU." << endl);

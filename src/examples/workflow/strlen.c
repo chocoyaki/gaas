@@ -9,7 +9,12 @@
  *   |LICENCE|
  */
 
+#ifndef __WIN32__
 #include <unistd.h>
+#else
+#include <Winsock2.h>
+#include <windows.h>
+#endif
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -18,6 +23,14 @@
 #include <time.h>
 
 #include "DIET_server.h"
+
+#ifdef __WIN32__
+int 
+usleep(unsigned int useconds) {
+	Sleep(useconds/1000);
+	return 0;
+}
+#endif
 
 #define MAX_TIME_SIZE 64
 

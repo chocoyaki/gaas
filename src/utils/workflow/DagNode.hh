@@ -20,7 +20,11 @@
 #include <string>
 #include <vector>
 
+#ifdef WIN32
+#include <time.h>
+#else
 #include <sys/time.h>
+#endif
 #include <ctime>
 
 // DIET core headers

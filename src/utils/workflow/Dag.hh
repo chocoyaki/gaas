@@ -21,7 +21,11 @@
 #include <string>
 #include <vector>
 
+#ifdef WIN32
+#include <time.h>
+#else
 #include <sys/time.h>
+#endif
 #include "DIET_client.h"  // for diet_ReqID_t
 
 

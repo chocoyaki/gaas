@@ -20,9 +20,15 @@
 #include "ORBMgr.hh"
 #include <cstdio>
 #include <sys/types.h>
+#ifndef __WIN32__
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
+#else
+#include <WinSock.h>
+#include <Winsock2.h>
+#include <windows.h>
+#endif
 #include <cstring>
 #include <cerrno>
 
@@ -71,7 +77,7 @@ BindService::BindService(MasterAgentImpl *ma, unsigned int port) {
   struct sockaddr_in serverAddr;
   listenSocket = socket(AF_INET, SOCK_STREAM, 0);
   if (listenSocket < 0) {
-    ERROR("opening bind service socket: " << strerror(errno) << "\n",;
+    ERROR_DEBUG("opening bind service socket: " << strerror(errno) << "\n",;
           );
   }
   memset((char *) &serverAddr, 0, sizeof(serverAddr));
@@ -80,7 +86,7 @@ BindService::BindService(MasterAgentImpl *ma, unsigned int port) {
   serverAddr.sin_port = htons(port);
   if (bind(listenSocket, (struct sockaddr *) &serverAddr,
            sizeof(serverAddr)) < 0) {
-    ERROR("in binding the bind service socket: " << strerror(errno) << "\n",;
+    ERROR_DEBUG("in binding the bind service socket: " << strerror(errno) << "\n",;
           );
   }
   listen(listenSocket, 5);

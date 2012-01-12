@@ -131,7 +131,7 @@ main(int argc, char *argv[]) {
   try {
     fileParser.parseFile(config_file_name);
   } catch (...) {
-    ERROR("while parsing " << config_file_name, DIET_FILE_IO_ERROR);
+    ERROR_DEBUG("while parsing " << config_file_name, DIET_FILE_IO_ERROR);
   }
   CONFIGMAP = fileParser.getConfiguration();
   // FIXME: should we also parse command line arguments?
@@ -152,10 +152,10 @@ main(int argc, char *argv[]) {
   std::string name;
   std::string agentType;
   if (!CONFIG_STRING(diet::NAME, name)) {
-    ERROR("No name found in the configuration", GRPC_CONFIGFILE_ERROR);
+    ERROR_DEBUG("No name found in the configuration", GRPC_CONFIGFILE_ERROR);
   }
   if (!CONFIG_STRING(diet::AGENTTYPE, agentType)) {
-    ERROR("No agentType found in the configuration", GRPC_CONFIGFILE_ERROR);
+    ERROR_DEBUG("No agentType found in the configuration", GRPC_CONFIGFILE_ERROR);
   }
 
 
@@ -165,7 +165,7 @@ main(int argc, char *argv[]) {
     if (!strcmp(argv[4], "-IRD")) {
       IRD = true;
       if (!sscanf(argv[5], "%d", &IRD_value)) {
-        ERROR("Wrong IRD parameter value", 1);
+        ERROR_DEBUG("Wrong IRD parameter value", 1);
       }
     }
   }
@@ -201,7 +201,7 @@ main(int argc, char *argv[]) {
     ORBMgr::init(args.size(), &args[0]);
   } catch (...) {
     std::for_each(args.begin(), args.end(), CStringDeleter());
-    ERROR("ORB initialization failed", 1);
+    ERROR_DEBUG("ORB initialization failed", 1);
   }
 
   MaDag_impl *maDag_impl = IRD ? new MaDag_impl(

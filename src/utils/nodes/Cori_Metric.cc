@@ -25,7 +25,7 @@ Cori_Metric::Cori_Metric(diet_est_collect_tag_t type,
     cori_easy = new Cori_Data_Easy();
   }
   break;
-#if (defined HAVE_ALT_BATCH) && (not defined CLEAN_CORILIB_FROM_BATCH_STAFF)
+#if defined HAVE_ALT_BATCH && not defined CLEAN_CORILIB_FROM_BATCH_STAFF
   case EST_COLL_BATCH:
     cori_batch = new Cori_batch((diet_profile_t *) data);
     break;
@@ -87,7 +87,7 @@ Cori_Metric::call_cori_metric(int type_Info,
   break;
   default: {
     diet_est_set_internal(*information, type_Info, 0);
-    ERROR("CoRI: Collector " << collector_type << " doesn't exist!", 1);
+    ERROR_DEBUG("CoRI: Collector " << collector_type << " doesn't exist!", 1);
     // fixme : add the default value to every type_info
   }
   break;

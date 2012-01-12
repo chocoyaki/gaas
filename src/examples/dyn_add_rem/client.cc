@@ -14,6 +14,7 @@
 #include <cstdlib>
 #include <boost/format.hpp>
 #include <boost/lexical_cast.hpp>
+#include <string>
 
 #include "DIET_client.h"
 #include "DIET_Dagda.h"

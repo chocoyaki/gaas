@@ -96,14 +96,14 @@ PBS_BatchSystem::askBatchJobStatus(int batchJobID) {
 
   /* If job has completed, not ask batch system */
   status = getRecordedBatchJobStatus(batchJobID);
-  if ((status == TERMINATED) || (status == CANCELED) || (status == ERROR)) {
+  if ((status == TERMINATED) || (status == CANCELED) || (status == ERROR_JOB)) {
     return status;
   }
   /* create a temporary file to get results and batch job ID */
   filename = createUniqueTemporaryTmpFile("DIET_batch_finish");
   file_descriptor = open(filename, O_RDONLY);
   if (file_descriptor == -1) {
-    ERROR("Cannot open file", UNDETERMINED);
+    ERROR_DEBUG("Cannot open file", UNDETERMINED);
   }
 
   /*** Ask batch system the job status ***/
@@ -124,7 +124,7 @@ PBS_BatchSystem::askBatchJobStatus(int batchJobID) {
   TRACE_TEXT(TRACE_ALL_STEPS, "Execute:\n" << chaine << "\n");
 #endif
   if (system(chaine) != 0) {
-    ERROR("Cannot submit script", NB_STATUS);
+    ERROR_DEBUG("Cannot submit script", NB_STATUS);
   }
 
   /* Get job status */
@@ -133,7 +133,7 @@ PBS_BatchSystem::askBatchJobStatus(int batchJobID) {
 
   if ((nbread =
          readn(file_descriptor, chaine, NBDIGITS_MAX_JOB_STATUS)) == 0) {
-    ERROR("Error with I/O file. Cannot read the batch status", NB_STATUS);
+    ERROR_DEBUG("Error with I/O file. Cannot read the batch status", NB_STATUS);
   }
 
   if (nbread == 0) {
@@ -151,7 +151,7 @@ PBS_BatchSystem::askBatchJobStatus(int batchJobID) {
   }
 
   if (i == NB_STATUS) {
-    ERROR("Cannot get batch job " << batchJobID << " status: " << chaine,
+    ERROR_DEBUG("Cannot get batch job " << batchJobID << " status: " << chaine,
           NB_STATUS);
   }
   /* Remove temporary file by closing it */
@@ -171,11 +171,11 @@ int
 PBS_BatchSystem::isBatchJobCompleted(int batchJobID) {
   int status = getRecordedBatchJobStatus(batchJobID);
 
-  if ((status == TERMINATED) || (status == CANCELED) || (status == ERROR)) {
+  if ((status == TERMINATED) || (status == CANCELED) || (status == ERROR_JOB)) {
     return 1;
   }
   status = askBatchJobStatus(batchJobID);
-  if ((status == TERMINATED) || (status == CANCELED) || (status == ERROR)) {
+  if ((status == TERMINATED) || (status == CANCELED) || (status == ERROR_JOB)) {
     return 1;
   } else if (status == NB_STATUS) {
     return -1;

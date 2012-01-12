@@ -13,11 +13,14 @@
 #include <sstream>
 #include <string>
 #include <algorithm>
-
 #include <boost/filesystem.hpp>
 
-#include "DagdaFactory.hh"
+#ifdef __WIN32__
+#include <WinBase.h>
+#endif
+
 #include "configuration.hh"
+#include "DagdaFactory.hh"
 #include "debug.hh"
 #include "omniORB4/omniORB.h"
 
@@ -26,6 +29,7 @@
 #include "NetworkStats.hh"
 
 #include "DIET_Dagda.h"
+#include "OSIndependance.hh"
 
 size_t
 availableDiskSpace(const char *path) {
@@ -235,7 +239,7 @@ DagdaFactory::getDefaultName() {
   return CORBA::string_dup(name.str().c_str());
 } // getDefaultName
 
-DagdaImpl *
+__declspec (dllexport) DagdaImpl *
 DagdaFactory::getClientDataManager() {
   if (!clientDataManager) {
     clientDataManager = createDataManager(DGD_CLIENT_MNGR);
@@ -248,7 +252,7 @@ DagdaFactory::getClientDataManager() {
   return clientDataManager;
 } // getClientDataManager
 
-DagdaImpl *
+__declspec (dllexport)DagdaImpl *
 DagdaFactory::getSeDDataManager() {
   if (!sedDataManager) {
     const char *parentName = getParentName();
@@ -280,7 +284,7 @@ DagdaFactory::getSeDDataManager() {
   return sedDataManager;
 } // getSeDDataManager
 
-DagdaImpl *
+__declspec (dllexport) DagdaImpl *
 DagdaFactory::getAgentDataManager() {
   if (!agentDataManager) {
     const char *parentName = getParentName();
@@ -321,7 +325,7 @@ DagdaFactory::getDataManager() {
   return localDataManager;
 }
 
-void
+__declspec (dllexport) void
 DagdaFactory::reset() {
   // Reset everything to default value
   // TODO: Do not delete managers, otherwise we get a segfault...

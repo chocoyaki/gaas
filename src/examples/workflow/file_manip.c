@@ -9,7 +9,13 @@
  *   |LICENCE|
  */
 
+#ifndef __WIN32__
 #include <unistd.h>
+#else
+#include <Winsock2.h>
+#include <windows.h>
+#endif
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -19,6 +25,10 @@
 #include <math.h>
 
 #include "DIET_server.h"
+
+#ifdef __WIN32__
+#define msleep(value) (Sleep(value))
+#endif
 
 #define MAX_TIME_SIZE 64
 char time_str[MAX_TIME_SIZE];
@@ -75,7 +85,11 @@ greyscale(diet_profile_t *pb) {
     return 1;
   }
 
-  usleep(t * 100000);
+#ifdef __WIN32__
+	msleep(t*100);
+#else
+	usleep(t * 100000);
+#endif
 
   return 0;
 } /* greyscale */
@@ -110,7 +124,11 @@ flip(diet_profile_t *pb) {
     return 1;
   }
 
-  usleep(t * 100000);
+#ifdef __WIN32__
+	msleep(t*100);
+#else
+	usleep(t * 100000);
+#endif
 
   return 0;
 } /* flip */
@@ -158,7 +176,11 @@ duplicate(diet_profile_t *pb) {
     ret = 1;
   }
 
-  usleep(t * 100000);
+#ifdef __WIN32__
+	msleep(t*100);
+#else
+	usleep(t * 100000);
+#endif
 
   return ret;
 } /* duplicate */

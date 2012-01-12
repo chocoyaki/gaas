@@ -27,7 +27,7 @@ static int INITIALIZED = 0;
 
 
 #define MUTEX_ERROR(formatted_text)                     \
-  ERROR(__FUNCTION__ << ": " << formatted_text, )
+  ERROR_DEBUG(__FUNCTION__ << ": " << formatted_text, )
 
 #define MUTEX_CHECK_INIT()                                      \
   if (!INITIALIZED) {                                           \

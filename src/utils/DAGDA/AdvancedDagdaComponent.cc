@@ -15,9 +15,9 @@
 #include <iostream>
 #include <fstream>
 #include <ctime>
-#include <sys/time.h> // modif bisnard_logs_1
 #include "debug.hh"
 // #include "ORBMgr2.hh"
+
 
 using namespace std;
 

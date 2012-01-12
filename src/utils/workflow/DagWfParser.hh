@@ -179,7 +179,7 @@ protected:
   /**
    * Xml document
    */
-  DOMDocument * document;
+  xercesc::DOMDocument * document;
 
 
   /****************/

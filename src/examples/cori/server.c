@@ -9,13 +9,14 @@
  *   |LICENCE|
  */
 
-#include "DIET_server.h"
 
-#include <unistd.h>
+
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include "DIET_server.h"
 
 /* This server offers the fibonacci function:                  */
 

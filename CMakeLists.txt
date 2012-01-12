@@ -12,18 +12,19 @@ set(CMAKE_THREAD_LIBS_INIT pthread)
 
 add_definitions(-DDIET_VERSION="${DIET_VERSION}")
 # Get Date
-if (WIN32)
+if(WIN32)
+  execute_process(COMMAND "cmd"
+    "/C echo %date:~6,4%/%date:~3,2%/%date:~0,2%-%time:~0,2%:%time:~3,2%:%time:~6,2%"
+    OUTPUT_VARIABLE BUILD_DATE)
+  string(STRIP ${BUILD_DATE} BUILD_DATE) # get rid of newline
+elseif(UNIX)
   execute_process(COMMAND "date" "+%Y/%m/%d-%H:%M:%S" 
     OUTPUT_VARIABLE BUILD_DATE)
   string(STRIP ${BUILD_DATE} BUILD_DATE) # get rid of newline
-elseif (UNIX)
-  execute_process(COMMAND "date" "+%Y/%m/%d-%H:%M:%S" 
-    OUTPUT_VARIABLE BUILD_DATE)
-  string(STRIP ${BUILD_DATE} BUILD_DATE) # get rid of newline
-else (WIN32)
+else()
   message(SEND_ERROR "date not implemented")
   set(${BUILD_DATE} 000000)
-endif (WIN32)
+endif()
 
 set(DIET_BUILD_VERSION ${BUILD_DATE})
 
@@ -37,13 +38,13 @@ set(DIET_BUILD_VERSION ${BUILD_DATE})
 
 # Note: CMAKE_SYSTEM_PROCESSOR return the equivalent of uname -p, note uname -m
 
-if (UNIX AND NOT WIN32)
-  find_program(CMAKE_UNAME uname /bin /usr/bin /usr/local/bin )
-  if (CMAKE_UNAME)
+if(UNIX AND NOT WIN32)
+  find_program(CMAKE_UNAME uname /bin /usr/bin /usr/local/bin)
+  if(CMAKE_UNAME)
     exec_program(uname ARGS -m OUTPUT_VARIABLE SYSTEM_PROC_TYPE)
     set(SYSTEM_PROC_TYPE ${SYSTEM_PROC_TYPE} CACHE INTERNAL 
     	"processor type (i386 and x86_64)")
-    if (SYSTEM_PROC_TYPE MATCHES "x86_64|amd64|ppc64")
+    if(SYSTEM_PROC_TYPE MATCHES "x86_64|amd64|ppc64")
       # TODO: Should be done only for libraries build
       add_definitions(-fPIC)
     endif()
@@ -57,28 +58,27 @@ endif()
 #    - DIET_USE_CLOUD => DIET_USE_ALT_BATCH
 
 option(DIET_BUILD_BLAS_EXAMPLES "Build BLAS based DIET examples." OFF)
-if (DIET_BUILD_BLAS_EXAMPLES)
-  if (NOT DIET_BUILD_EXAMPLES)
+if(DIET_BUILD_BLAS_EXAMPLES)
+  if(NOT DIET_BUILD_EXAMPLES)
     set(DIET_BUILD_EXAMPLES ON CACHE BOOL "Build DIET examples." FORCE)
     message(WARNING "Examples building was activated.")
-  endif (NOT DIET_BUILD_EXAMPLES)
+  endif()
   option(DIET_BUILD_EXAMPLES "Build DIET examples. (Mandatory for BLAS examples building.)" ON)
-  
-else (DIET_BUILD_BLAS_EXAMPLES)
-  option(DIET_BUILD_EXAMPLES      "Build DIET examples." OFF)
-endif (DIET_BUILD_BLAS_EXAMPLES)
+else()
+  option(DIET_BUILD_EXAMPLES "Build DIET examples." OFF)
+endif()
 
 option(DIET_USE_CLOUD "Build DIET with Cloud (EC2 compatible) support." OFF)
 
-if (DIET_USE_CLOUD)
-  if (NOT DIET_USE_ALT_BATCH)
-  	set(DIET_USE_ALT_BATCH ON CACHE BOOL "Batch support" FORCE)
+if(DIET_USE_CLOUD)
+  if(NOT DIET_USE_ALT_BATCH)
+    set(DIET_USE_ALT_BATCH ON CACHE BOOL "Batch support" FORCE)
     message(WARNING "Batch was activated for cloud support.")
-	endif (NOT DIET_USE_ALT_BATCH)
-	option(DIET_USE_ALT_BATCH "Build DIET with Batch support (Mandatory for cloud support)." ON)
-else (DIET_USE_CLOUD)
-	option(DIET_USE_ALT_BATCH  "Build DIET with Batch support." OFF)
-endif (DIET_USE_CLOUD)
+  endif()
+  option(DIET_USE_ALT_BATCH "Build DIET with Batch support (Mandatory for cloud support)." ON)
+else()
+  option(DIET_USE_ALT_BATCH  "Build DIET with Batch support." OFF)
+endif()
 
 option(DIET_USE_WORKFLOW    "Build DIET with workflow support..." OFF)
 option(DIET_WITH_STATISTICS "Build DIET with generation of statistics." OFF)
@@ -87,7 +87,7 @@ option(DIET_USE_USERSCHED   "Build DIET with user scheduler support (Experimenta
 option(DIET_USE_CCS         "Build DIET with client custom scheduling  (Experimental)." OFF)
 option(DIET_BUILD_TOOLS	    "Build DIET tools." OFF)
 
-option( DIET_USE_MULTICALL "Build DIET with the multiple async call (In development)" OFF)
+option(DIET_USE_MULTICALL "Build DIET with the multiple async call (In development)" OFF)
 mark_as_advanced(DIET_USE_MULTICALL)
 
 option(DIET_BUILD_DOC "Build DIET documentation." OFF)
@@ -105,25 +105,43 @@ option(BUILD_SHARED_LIBS "Build libraries as shared libraries." ON)
 # [Those tests are a translation of the AC_CHECK_HEADER(...) that were expressed
 # in the configure.ac of the autotools version].
 include(${CMAKE_ROOT}/Modules/CheckIncludeFileCXX.cmake)
+if(WIN32)
+  set(DIET_INCLUDES_TO_CHECK
+    Winsock2.h
+    io.h
+    process.h
+    time.h
+    windows.h
+    Shlwapi.h
+    assert.h
+    iostream
+    limits.h
+    math.h
+    stdlib.h
+    string.h
+    sys/stat.h
+    sys/types.h
+    sys/timeb.h
+    direct.h)
+else()
+  set(DIET_INCLUDES_TO_CHECK
+    assert.h
+    iostream
+    limits.h
+    math.h
+    stdlib.h
+    string.h
+    unistd.h
+    sys/stat.h
+    sys/types.h)
+endif()
 
-set(DIET_INCLUDES_TO_CHECK
-  assert.h
-  iostream
-  limits.h
-  math.h
-  stdlib.h
-  string.h
-  unistd.h
-  sys/stat.h
-  sys/types.h
-)
-
-foreach (include_to_check ${DIET_INCLUDES_TO_CHECK})
-  CHECK_INCLUDE_FILE_CXX( ${include_to_check} dummyfound${include_to_check} )
-  if (NOT dummyfound${include_to_check})
+foreach(include_to_check ${DIET_INCLUDES_TO_CHECK})
+  check_include_file_cxx(${include_to_check} dummyfound${include_to_check})
+  if(NOT dummyfound${include_to_check})
     message(FATAL_ERROR "Missing ${include_to_check} header file.")
-  endif (NOT dummyfound${include_to_check})
-endforeach (include_to_check)
+  endif()
+endforeach()
 
 # --------------------- DEPENDENCIES TOWARDS SYSTEM FUNCTIONS ------------
 # This is just a convenience to advance the detection of any potential missing
@@ -132,21 +150,29 @@ endforeach (include_to_check)
 # at linking stage...
 # [Those tests are a translation of the AC_CHECK_FUNCS(...) that were expressed
 # in the configure.ac of the autotools version].
-INCLUDE(${CMAKE_ROOT}/Modules/CheckFunctionExists.cmake)
-
-set(DIET_FUNCTIONS_TO_CHECK
-  gethostname
-  gettimeofday
-  strdup
-  strtok_r
-)
-
+include(${CMAKE_ROOT}/Modules/CheckFunctionExists.cmake)
+if(WIN32)
+  set(DIET_FUNCTIONS_TO_CHECK
+    #gethostname #must be retrieved
+    #gettimeofday #must be retrieved
+    #PathMatchSpec
+    #strtok_r
+    strdup 
+    stricmp
+    strpbrk)
+else()
+  set(DIET_FUNCTIONS_TO_CHECK
+    gethostname
+    gettimeofday
+    strdup
+    strtok_r)
+endif()
 foreach(function_to_check ${DIET_FUNCTIONS_TO_CHECK})
-  CHECK_FUNCTION_EXISTS( ${function_to_check} dummyfound${function_to_check} )
-  if (NOT dummyfound${function_to_check})
+  check_function_exists(${function_to_check} dummyfound${function_to_check})
+  if(NOT dummyfound${function_to_check})
     message(FATAL_ERROR "Missing ${function_to_check} function.")
-  endif (NOT dummyfound${function_to_check})
-endforeach (function_to_check)
+  endif()
+endforeach()
 
 #-------------- PLATFORM SPECIFIC COMPILATION FLAGS -----------------------
 # Requires CMake >= 2.4.7
@@ -159,8 +185,9 @@ string(COMPARE EQUAL ${CMAKE_SYSTEM_NAME} "Linux" LINUX)
 string(COMPARE EQUAL ${CMAKE_SYSTEM_NAME} "SunOS" SUNOS)
 string(COMPARE EQUAL ${CMAKE_SYSTEM_NAME} "FreeBSD" FREEBSD)
 string(COMPARE EQUAL ${CMAKE_SYSTEM_NAME} "CYGWIN" CYGWIN)
+string(COMPARE EQUAL ${CMAKE_SYSTEM_NAME} "Windows" WINDOWS)
 
-if (CYGWIN)
+if(CYGWIN)
   add_definitions(-D__cygwin__)
 
   # Workflow compilation on Windows inside the Cygwin environment
@@ -170,24 +197,36 @@ if (CYGWIN)
   # problem resolution
   # TODO : solve the problem.
   set(DIET_USE_WORKFLOW OFF CACHE BOOL "Unable to compile workflow on Windows with Cygwin. " FORCE)
-
-elseif (AIX)
+elseif(WINDOWS)
+  message(STATUS "XXX System name Windows native")
+  # __WIN32__ is also used by omniorb for the good use of omnithread.h
+  add_definitions(-D__WIN32__)
+  # definitions to add for the compilation of something using omniORB under windows
+  # with native compilation
+  # these definitions are taken from the omniORB user's guide
+  #
+  # These definitions prevent the fatal error compilation with VS9 looking like  
+  # omniORB-4.1.4\include\omniORB4/CORBA_sysdep_trad.h(609) : fatal error C1189: #error :  "The byte order of this platform is unknown"
+  add_definitions(-D__x86__ -D__NT__ -D__OSVERSION__=4)
+  # definition added to prevent some warnings due to strcpy being deprecated on windows
+  add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+elseif(AIX)
   add_definitions(-D__aix__)
   # AIX doesn't like mixing static and shared libraries	 
   set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build libraries as shared libraries." FORCE)
-elseif (APPLE)
-  add_definitions( -D__darwin__)
-  if (NOT BUILD_SHARED_LIBS)
+elseif(APPLE)
+  add_definitions(-D__darwin__)
+  if(NOT BUILD_SHARED_LIBS)
     message("Cannot do a static build on Apple platforms")
-  endif (NOT BUILD_SHARED_LIBS)
+  endif()
   set(BUILD_SHARED_LIBS ON CACHE BOOL "Build libraries as shared libraries." FORCE)
-elseif (LINUX)
+elseif(LINUX)
   add_definitions(-D__linux__)
-elseif (SUNOS)
+elseif(SUNOS)
   add_definitions(-D__sunos__)
 elseif(FREEBSD)
   add_definitions(-D__freebsd__)
-endif (CYGWIN)
+endif()
 
 # --------------------- DEPENDENCIES TOWARDS EXTERNAL PACKAGES -------------
 # Path to additional modules (i.e. used by FIND_PACKAGE commands making
@@ -199,19 +238,32 @@ find_package(Boost 1.46.0 COMPONENTS filesystem regex system thread REQUIRED)
 # Boost Filesystem API v2 is deprecated will be removed after Boost 1.48 release
 add_definitions(-DBOOST_FILESYSTEM_VERSION=3)
 if(Boost_FOUND)
-  set(THIRD_PARTY_LIBS ${THIRD_PARTY_LIBS} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+  if(WIN32)
+	link_directories(${Boost_LIBRARY_DIRS})
+  else()
+    set(THIRD_PARTY_LIBS ${THIRD_PARTY_LIBS} ${Boost_LIBRARIES})  
+  endif()
+  set(THIRD_PARTY_LIBS ${THIRD_PARTY_LIBS} ${CMAKE_THREAD_LIBS_INIT})
+endif()
+
+
+# ssh is mandatory for the forwarders
+find_package(SSH)
+if(SSH_FOUND)
+  add_definitions(-DSSH_BINARY="${SSH_BINARY}")
+  add_definitions(-DSCP_BINARY="${SCP_BINARY}")
 endif()
 
 # OmniORB is mandatory:
 find_package(OmniORB4 REQUIRED)
 
 # --------------------------- Batch support ------------------------
-if (DIET_USE_ALT_BATCH)
-    add_definitions(-DHAVE_ALT_BATCH)
-endif (DIET_USE_ALT_BATCH)
+if(DIET_USE_ALT_BATCH)
+  add_definitions(-DHAVE_ALT_BATCH)
+endif()
 
 # --------------------------- Cloud support ------------------------
-if (DIET_USE_CLOUD)
+if(DIET_USE_CLOUD)
   add_definitions(-DHAVE_CLOUD)
   set(GSOAP_SRC_DIR "~" CACHE PATH "Root of gSOAP source tree.")
   find_package(GSOAP)
@@ -223,6 +275,7 @@ if (DIET_USE_CLOUD)
     ${OPENSSL_LIBRARIES} ${ZLIB_LIBRARIES})
 endif()
 
+
 # --------------------------- CORI support ------------------------
 # CORI (COllector of Resource Information) is heavily dependant on
 # system calls for probing ressources:
@@ -230,93 +283,97 @@ include(${DIET_SOURCE_DIR}/cmake/ConfigureCORI.cmake)
 
 # --------------------------- Multi MA support ------------------------
 # So called MULTI-Master-Agent
-if (DIET_WITH_MULTI_MA)
+if(DIET_WITH_MULTI_MA)
   add_definitions(-DHAVE_MULTI_MA)
-endif (DIET_WITH_MULTI_MA)
+endif()
 
 # --------------------------- Statistic support ------------------------
-if (DIET_WITH_STATISTICS)
+if(DIET_WITH_STATISTICS)
   # Enable generation of the statistics log:
-  add_definitions( -DHAVE_STATISTICS )
-endif (DIET_WITH_STATISTICS)
+  add_definitions(-DHAVE_STATISTICS)
+endif()
 
-if (DIET_BUILD_BLAS_EXAMPLES)
+if(DIET_BUILD_BLAS_EXAMPLES)
   # BLAS (Basic Linear Algebric Subroutines) examples subdir requires...BLAS !
   find_package(BLAS)
-  IF (BUILD_SHARED_LIBS)
-    SET(BLAS_LIBRARIES ${BLAS_LIBRARIES_sh})
-  ELSE (BUILD_SHARED_LIBS)
-    SET(BLAS_LIBRARIES ${BLAS_LIBRARIES_st})
-  ENDIF (BUILD_SHARED_LIBS)
-endif (DIET_BUILD_BLAS_EXAMPLES)
+  if(BUILD_SHARED_LIBS)
+    set(BLAS_LIBRARIES ${BLAS_LIBRARIES_sh})
+  else()
+    set(BLAS_LIBRARIES ${BLAS_LIBRARIES_st})
+  endif()
+endif()
 
 # --------------------------- Workflow support ------------------------
-if (DIET_USE_WORKFLOW)
+if(DIET_USE_WORKFLOW)
   find_package(Xerces)
-  if (XERCES_FOUND)
-    if (XERCES_VERSION LESS 30)
+  if(XERCES_FOUND)
+    if(XERCES_VERSION LESS 30)
       message("Diet Workflow support requires at least version 3.0 of Xerces.")
       message("Workflow support will be disabled")
       set(DIET_USE_WORKFLOW OFF)
-    else (XERCES_VERSION LESS 30)
+    else()
       find_package(XQilla)
-      if (XQILLA_FOUND)
+      if(XQILLA_FOUND)
         add_definitions(-DHAVE_WORKFLOW)
-	if (BUILD_SHARED_LIBS AND NOT AIX)
+	if(BUILD_SHARED_LIBS AND NOT AIX)
 	  # Link DIET to Xerces and XQilla shared libs
-	  set(XERCES_LIBRARY ${XERCES_LIBRARY_sh})
-	  set(XQILLA_LIBRARY ${XQILLA_LIBRARY_sh})
-	else ()
+	  if(WIN32)
+	    set(XERCES_LIBRARY ${XERCES_LIBRARY_st})
+	    set(XQILLA_LIBRARY ${XQILLA_LIBRARY_st})
+	  else()
+	    set(XERCES_LIBRARY ${XERCES_LIBRARY_sh})
+	    set(XQILLA_LIBRARY ${XQILLA_LIBRARY_sh})
+	  endif()
+	else()
 	  # Link DIET to Xerces and XQilla static libs
 	  set(XERCES_LIBRARY ${XERCES_LIBRARY_st})
 	  set(XQILLA_LIBRARY ${XQILLA_LIBRARY_st})
-	endif ()
+	endif()
         set(THIRD_PARTY_LIBS ${THIRD_PARTY_LIBS}
           ${XERCES_LIBRARY}
           ${XQILLA_LIBRARY})
-      else (XQILLA_FOUND)
-        message("Diet Workflow support requires XQilla library." )
+      else()
+        message("Diet Workflow support requires XQilla library.")
         message("Workflow support will be disabled")
         set(DIET_USE_WORKFLOW OFF)
-      endif (XQILLA_FOUND)
-    endif(XERCES_VERSION LESS 30)
-  else (XERCES_FOUND)
-    set(DIET_USE_WORKFLOW OFF
-         CACHE BOOL "Build DIET with workflow support...")
-  endif (XERCES_FOUND)
-endif (DIET_USE_WORKFLOW)
+      endif()
+    endif()
+  else(XERCES_FOUND)
+    set(DIET_USE_WORKFLOW OFF CACHE BOOL "Build DIET with workflow support...")
+  endif()
+endif()
 
 # --------------- For users agents scheduler support ------------------
-if (DIET_USE_USERSCHED)
+if(DIET_USE_USERSCHED)
   add_definitions(-DUSERSCHED)
 endif(DIET_USE_USERSCHED)
 
 # --------------- Dagda as data manager support ---------------
-if (DIET_TRANSFER_PROGRESSION)
+if(DIET_TRANSFER_PROGRESSION)
   add_definitions(-DDAGDA_PROGRESSION)
-endif (DIET_TRANSFER_PROGRESSION)
+endif(DIET_TRANSFER_PROGRESSION)
 
 #-------------------- DIET log service use -------------------
 option(DIET_USE_LOG "Allow Diet to send log message to log service " OFF)
 
-if (DIET_USE_LOG)
+if(DIET_USE_LOG)
   find_package (LOGSERVICE)
-  if (LOGSERVICE_FOUND)
+  if(LOGSERVICE_FOUND)
     add_definitions(-DUSE_LOG_SERVICE)
   else(LOGSERVICE_FOUND)
   set(LOGSERVICE_DIR "" CACHE PATH "Root of log service install tree.")
-  endif (LOGSERVICE_FOUND)
+  endif(LOGSERVICE_FOUND)
   
-endif (DIET_USE_LOG)
+endif(DIET_USE_LOG)
 # --------------- DIET custom client scheduling support  ------------------
-if (DIET_USE_CCS)
+if(DIET_USE_CCS)
   add_definitions(-DHAVE_CCS)
-endif (DIET_USE_CCS)
+endif(DIET_USE_CCS)
 
 # --------------- DIET multiple async call support  ------------------
-if (DIET_USE_MULTICALL)
-  add_definitions( -DHAVE_MULTICALL )
-endif (DIET_USE_MULTICALL)
+if(DIET_USE_MULTICALL)
+  add_definitions(-DHAVE_MULTICALL)
+endif(DIET_USE_MULTICALL)
 
 # --------------- OFFER BUILD MODE EXTENSIONS AND DEFAULTS  ----------------
 include(${DIET_SOURCE_DIR}/cmake/DietDefaultBuildTypes.cmake)
@@ -326,7 +383,7 @@ include(${DIET_SOURCE_DIR}/cmake/ConfigureCCompiler.cmake)
 
 #---------------- COMPILER SPECIFIC COMPILATION FLAGS ----------------------
 
-if (CMAKE_COMPILER_IS_GNUCC AND NOT APPLE)
+if(CMAKE_COMPILER_IS_GNUCC AND NOT APPLE)
   # Get version
   execute_process(COMMAND ${CMAKE_C_COMPILER} "-dumpversion" 
     OUTPUT_VARIABLE CMAKE_C_COMPILER_VERSION
@@ -334,11 +391,11 @@ if (CMAKE_COMPILER_IS_GNUCC AND NOT APPLE)
   execute_process(COMMAND ${CMAKE_CXX_COMPILER} "-dumpversion"
     OUTPUT_VARIABLE CMAKE_CXX_COMPILER_VERSION 
     OUTPUT_STRIP_TRAILING_WHITESPACE)
-endif (CMAKE_COMPILER_IS_GNUCC AND NOT APPLE)
+endif(CMAKE_COMPILER_IS_GNUCC AND NOT APPLE)
 
 
 # ------------------- CTEST SUPPORT ----------------------------------------
-if (BUILD_TESTING)
+if(BUILD_TESTING)
   include(${DIET_SOURCE_DIR}/cmake/FindTestingUtils.cmake)
   # Caveat emptor:
   # 1/ Excerpt from docs about ENABLE_TESTING:
@@ -347,69 +404,62 @@ if (BUILD_TESTING)
   # 2/ ENABLE_TESTING() has to be run prior to any ADD_TEST() command (or
   #    the ADD_TEST are simply ignored). Since the Testing directory is
   #    within the src subdir, the ENABLE_TESTING() must occur PRIOR to
-  #    the ADD_SUBDIRECTORY( src ) command (see below).
+  #    the ADD_SUBDIRECTORY(src) command (see below).
   # 3/ Dart2 support also requires the ENABLE_TESTING() to be present
-  #    and invoked prior to the INCLUDE( CTest ) command (see below).
+  #    and invoked prior to the INCLUDE(CTest) command (see below).
   enable_testing()
 
-  if ( NOT DIET_BUILD_EXAMPLES )
+  if(NOT DIET_BUILD_EXAMPLES)
     set(DIET_BUILD_EXAMPLES ON CACHE BOOL "Build DIET examples." FORCE)
-  endif ( NOT DIET_BUILD_EXAMPLES )
+  endif()
 
 
   # For comments on the following CXX_TEST_PATH refer to
   #   http://public.kitware.com/pipermail/cmake/2002-January/002643.html
-  if (RUNTIME_OUTPUT_DIRECTORY)
+  if(RUNTIME_OUTPUT_DIRECTORY)
     set(CXX_TEST_PATH ${RUNTIME_OUTPUT_DIRECTORY})
-  else (RUNTIME_OUTPUT_DIRECTORY)
+  else()
     set(CXX_TEST_PATH .)
-  endif (RUNTIME_OUTPUT_DIRECTORY)
+  endif()
   
-  SET( CMAKE_CXX_FLAGS_DEBUG
+  if(NOT WIN32)
+  set(CMAKE_CXX_FLAGS_DEBUG
     "${CMAKE_CXX_FLAGS_DEBUG} -fprofile-arcs -ftest-coverage"
     CACHE STRING 
     "Flags used by the C++ compiler during debug builds."
-    FORCE
-  )
-  SET( CMAKE_C_FLAGS_DEBUG
+    FORCE)
+  set(CMAKE_C_FLAGS_DEBUG
     "${CMAKE_C_FLAGS_DEBUG} -fprofile-arcs -ftest-coverage"
     CACHE STRING 
     "Flags used by the C compiler during debug builds."
-    FORCE
-  )
-  SET( CMAKE_EXE_LINKER_FLAGS_DEBUG
+    FORCE)
+  set(CMAKE_EXE_LINKER_FLAGS_DEBUG
     "${CMAKE_EXE_LINKER_FLAGS_DEBUG} -lgcov"
     CACHE STRING 
     "Flags used for linking binaries during debug builds."
-    FORCE
-  )
-  SET( CMAKE_SHARED_LINKER_FLAGS_DEBUG
+    FORCE)
+  set(CMAKE_SHARED_LINKER_FLAGS_DEBUG
     "${CMAKE_SHARED_LINKER_FLAGS_DEBUG} -lgcov"
     CACHE STRING 
     "Flags used by the shared libraries linker during debug builds."
-    FORCE
-  )
-  SET( CMAKE_MODULE_LINKER_FLAGS_DEBUG
+    FORCE)
+  set(CMAKE_MODULE_LINKER_FLAGS_DEBUG
     "${CMAKE_MODULE_LINKER_FLAGS_DEBUG} -lgcov"
     CACHE STRING 
     "What the hack is a module anyhow (Apple notion?)..."
-    FORCE
-  )
+    FORCE)
+  endif()
+endif()
 
-endif (BUILD_TESTING)
-
-set(OMNIORB4_LIBRARIES ${OMNIORB4_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
-
-
-IF( CYGWIN )
-  IF( BUILD_SHARED_LIBS )  
-    SET( DIET_INSTALL_LIBS_DIR bin )
-  ELSE( BUILD_SHARED_LIBS )
-    SET( DIET_INSTALL_LIBS_DIR lib )
-  ENDIF( BUILD_SHARED_LIBS )
-ELSE( CYGWIN )
-  SET( DIET_INSTALL_LIBS_DIR lib )
-ENDIF( CYGWIN )
+if(CYGWIN)
+  if(BUILD_SHARED_LIBS)  
+    set(DIET_INSTALL_LIBS_DIR bin)
+  else()
+    set(DIET_INSTALL_LIBS_DIR lib)
+  endif()
+else()
+  set(DIET_INSTALL_LIBS_DIR lib)
+endif(CYGWIN)
 
 # installation customization hooks
 # manage lib/lib64 install issue
@@ -445,48 +495,49 @@ endif()
 # --------------------------------------------------------------------------
 include(${DIET_SOURCE_DIR}/cmake/DisplaySummary.cmake)
 
-
-# --------------------------------------------------------------------------
-# Configuration of CPack to generate packages
-set(CPACK_PACKAGE_NAME "DIET")
-set(CPACK_PACKAGE_VERSION_MAJOR ${DIET_MAJOR_VERSION})
-set(CPACK_PACKAGE_VERSION_MINOR ${DIET_MINOR_VERSION})
-set(CPACK_PACKAGE_VERSION_REVISION ${DIET_REVISION_VERSION})
-set(CPACK_PACKAGE_VERSION_PATCH ${DIET_REVISION_VERSION})
-# set(CPACK_PACKAGE_DESCRIPTION_FILE ) # TODO
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "DIET (Distributed Interactive Engineering Toolbox) is a middleware designed for high-performance computing in a heterogeneous and distributed environment (workstations, clusters, grids, clouds).")
-set(CPACK_PACKAGE_FILE_NAME "diet-${DIET_VERSION}")
-set(CPACK_RESOURCE_FILE_LICENSE ${DIET_SOURCE_DIR}/LICENCE_eng.txt)
-set(CPACK_RESOURCE_FILE_README ${DIET_SOURCE_DIR}/README.txt)
-# set(CPACK_RESOURCE_FILE_WELCOME ) # not necessary, CPack generates a default welcome screen
-
-# CPack generators: do not use this macro, but change the comments whenever a
-# new generator is supported. Also push your modifications in the INSTALL.txt
-# file.
-# set(CPACK_GENERATOR 
-#   # CPACK_BINARY_BUNDLE     # currently not supported
-#   # CPACK_BINARY_DEB        # do not use, it does not generate proper debian packages
-#   CPACK_BINARY_DRAGNDROP    # OK, but not really interesting 
-#   # CPACK_BINARY_NSIS       # not tested yet
-#   CPACK_BINARY_OSXX11       # do not use, creates a .app, but it does not mean much for us
-#   CPACK_BINARY_PACKAGEMAKER # OK
-#   # CPACK_BINARY_RPM        # do not use, it does not generate proper rpm packages
-#   CPACK_BINARY_STGZ         # OK
-#   CPACK_BINARY_TBZ2         # OK
-#   CPACK_BINARY_TGZ          # OK
-#   CPACK_SOURCE_TBZ2         # currently not supported
-#   CPACK_SOURCE_TGZ          # currently not supported
-#   CPACK_SOURCE_TZ           # currently not supported
-#   CPACK_SOURCE_ZIP          # currently not supported
-# )
-
-# CPack Mac OS X specific variables
-set(CPACK_BUNDLE_NAME "DIET v${DIET_VERSION}")
-# set(CPACK_BUNDLE_PLIST ) # TODO
-# set(CPACK_BUNDLE_ICON ) # TODO
-# set(CPACK_DMG_BACKGROUND_IMAGE ) # TODO
-
-# Finally include CPack
-include(CPack)
+if(NOT WIN32)
+  # --------------------------------------------------------------------------
+  # Configuration of CPack to generate packages
+  set(CPACK_PACKAGE_NAME "DIET")
+  set(CPACK_PACKAGE_VERSION_MAJOR ${DIET_MAJOR_VERSION})
+  set(CPACK_PACKAGE_VERSION_MINOR ${DIET_MINOR_VERSION})
+  set(CPACK_PACKAGE_VERSION_REVISION ${DIET_REVISION_VERSION})
+  set(CPACK_PACKAGE_VERSION_PATCH ${DIET_REVISION_VERSION})
+  # set(CPACK_PACKAGE_DESCRIPTION_FILE) # TODO
+  set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "DIET (Distributed Interactive Engineering Toolbox) is a middleware designed for high-performance computing in a heterogeneous and distributed environment (workstations, clusters, grids, clouds).")
+  set(CPACK_PACKAGE_FILE_NAME "diet-${DIET_VERSION}")
+  set(CPACK_RESOURCE_FILE_LICENSE ${DIET_SOURCE_DIR}/LICENCE_eng.txt)
+  set(CPACK_RESOURCE_FILE_README ${DIET_SOURCE_DIR}/README.txt)
+  # set(CPACK_RESOURCE_FILE_WELCOME) # not necessary, CPack generates a default welcome screen
+  
+  # CPack generators: do not use this macro, but change the comments whenever a
+  # new generator is supported. Also push your modifications in the INSTALL.txt
+  # file.
+  # set(CPACK_GENERATOR 
+  #   # CPACK_BINARY_BUNDLE     # currently not supported
+  #   # CPACK_BINARY_DEB        # do not use, it does not generate proper debian packages
+  #   CPACK_BINARY_DRAGNDROP    # OK, but not really interesting 
+  #   # CPACK_BINARY_NSIS       # not tested yet
+  #   CPACK_BINARY_OSXX11       # do not use, creates a .app, but it does not mean much for us
+  #   CPACK_BINARY_PACKAGEMAKER # OK
+  #   # CPACK_BINARY_RPM        # do not use, it does not generate proper rpm packages
+  #   CPACK_BINARY_STGZ         # OK
+  #   CPACK_BINARY_TBZ2         # OK
+  #   CPACK_BINARY_TGZ          # OK
+  #   CPACK_SOURCE_TBZ2         # currently not supported
+  #   CPACK_SOURCE_TGZ          # currently not supported
+  #   CPACK_SOURCE_TZ           # currently not supported
+  #   CPACK_SOURCE_ZIP          # currently not supported
+  #)
+  
+  # CPack Mac OS X specific variables
+  set(CPACK_BUNDLE_NAME "DIET v${DIET_VERSION}")
+  # set(CPACK_BUNDLE_PLIST) # TODO
+  # set(CPACK_BUNDLE_ICON) # TODO
+  # set(CPACK_DMG_BACKGROUND_IMAGE) # TODO
+  
+  # Finally include CPack
+  include(CPack)
+endif()
 
 ## eof - CMakeLists.txt

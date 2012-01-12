@@ -11,14 +11,13 @@
 
 
 
-#include <regex.h>
+#include <boost/regex.h>
 #include <stdexcept>
 
 #include "configuration.hh"
 #include "constants.hh"
 
 const std::string simple_cast_traits<std::string>::zero_value = "";
-
 /**
  * @param[in]  param
  * @param[out] value result

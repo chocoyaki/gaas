@@ -20,7 +20,7 @@
 #include <sstream>
 #include <iterator>
 
-#include <unistd.h>
+
 
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/regex.hpp>
@@ -41,6 +41,7 @@
 #include "DagdaImpl.hh"
 #include "DagdaFactory.hh"
 #include "Container.hh"
+#include "OSIndependance.hh"
 #if DAGDA_PROGRESSION
 #include "Transfers.hh"
 #endif

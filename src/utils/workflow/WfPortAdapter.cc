@@ -712,7 +712,12 @@ char *
 WfValueAdapter::newString() {
   size_t sz = myValue.size() + 1;
   str = new char[sz];
+#ifdef __WIN32__
+  _snprintf(str, sz, myValue.c_str());
+#else
   snprintf(str, sz, myValue.c_str());
+#endif
+  
   return str;
 }
 
@@ -720,7 +725,11 @@ char *
 WfValueAdapter::newFile() {
   size_t sz = myValue.size() + 1;
   str = new char[sz];
+#ifdef __WIN32__
+  _snprintf(str, sz, myValue.c_str());
+#else
   snprintf(str, sz, myValue.c_str());
+#endif
   return str;
 }
 

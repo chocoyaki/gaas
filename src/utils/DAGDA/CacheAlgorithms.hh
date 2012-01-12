@@ -15,7 +15,7 @@
 
 #include "AdvancedDagdaComponent.hh"
 
-int
+extern "C" __declspec (dllexport) int
 LRU(AdvancedDagdaComponent *manager, size_t size, dagda_object_type_t type);
 
 int

@@ -41,7 +41,11 @@ extern "C" {
 #if HAVE_SEDSCHEDULER
 #include "SeDScheduler.hh"
 #endif
-
+#ifdef WIN32
+   #define SHAREDLIB __declspec(dllexport)
+#else
+   #define SHAREDLIB
+#endif
 #include "Forwarder.hh"
 #include "SeDFwdr.hh"
 
@@ -266,7 +270,7 @@ private:
                      diet_convertor_t *cvt);
 };
 
-class SeDFwdrImpl : public POA_SeD,
+class SHAREDLIB SeDFwdrImpl : public POA_SeD,
 public PortableServer::RefCountServantBase {
 public:
   SeDFwdrImpl(Forwarder_ptr fwdr, const char *objName);

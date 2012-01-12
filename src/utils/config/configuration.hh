@@ -74,6 +74,7 @@ T simple_cast(const S& arg) {
  * @param[out] value result
  * @return param has been set or not
  */
+
 template<typename T>
 bool
 getConfigValue(diet::param_type_t param, T& value) {
@@ -88,6 +89,10 @@ getConfigValue(diet::param_type_t param, T& value) {
 }
 
 // TODO: not handled by generic method above
+template<> 
+bool
+getConfigValue(diet::param_type_t param, std::string& value);
+
 bool
 getAddressConfigValue(diet::param_type_t, std::string&);
 

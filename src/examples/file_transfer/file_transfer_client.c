@@ -11,7 +11,14 @@
 
 
 #include <string.h>
+
+#ifndef __WIN32__
 #include <unistd.h>
+#else
+#include <Winsock2.h>
+#include <windows.h>
+#endif
+
 #include <stdlib.h>
 #include <stdio.h>
 

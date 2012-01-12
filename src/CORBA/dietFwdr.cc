@@ -28,8 +28,11 @@
 
 #include <omniORB4/CORBA.h>
 
-#include <unistd.h>     // For sleep function
+#include "OSIndependance.hh"     // For sleep function
 
+#ifdef __WIN32__
+#define sleep(value) (Sleep(value*1000))
+#endif
 int
 main(int argc, char *argv[], char *envp[]) {
   /* Forwarder configuration. */
@@ -83,7 +86,7 @@ main(int argc, char *argv[], char *envp[]) {
   if (cfg.createFrom()) {
     if (cfg.getPeerName() == ""
         || cfg.getSshHost() == "") {
-      ERROR("Missing parameter(s) to create tunnel."
+      ERROR_DEBUG("Missing parameter(s) to create tunnel."
             << " Mandatory parameters:" << std::endl
             << '\t' << "- Peer name (--peer-name <name>)" << std::endl
             << '\t' << "- SSH host (--ssh-host <host>)", EXIT_FAILURE);
@@ -95,7 +98,7 @@ main(int argc, char *argv[], char *envp[]) {
   try {
     forwarder = new DIETForwarder(cfg.getName());
   } catch (std::exception &e) {
-    ERROR(e.what(), EXIT_FAILURE);
+    ERROR_DEBUG(e.what(), EXIT_FAILURE);
   }
   ORBMgr::init(argc, argv);
   ORBMgr *mgr = ORBMgr::getMgr();
@@ -171,7 +174,7 @@ main(int argc, char *argv[], char *envp[]) {
         TRACE_TEXT(TRACE_MAIN_STEPS, "Got remote IOR file" << std::endl);
         cfg.setPeerIOR("/tmp/DIET-forwarder-ior-" + cfg.getPeerName() + ".tmp");
       } else {
-        ERROR("Could not get remote IOR file.\n"
+        ERROR_DEBUG("Could not get remote IOR file.\n"
               << "Please check that you can scp files"
               << "between the ssh host and this host, _n"
               << "or specify the remote IOR with the following option:\n"
@@ -188,7 +191,7 @@ main(int argc, char *argv[], char *envp[]) {
     std::string peerIOR;
     std::string peerPort;
     if (!file.is_open()) {
-      ERROR("Error: Invalid peer-ior parameter", EXIT_FAILURE);
+      ERROR_DEBUG("Error: Invalid peer-ior parameter", EXIT_FAILURE);
     }
     file >> peerIOR;
     cfg.setPeerIOR(peerIOR);
@@ -221,7 +224,7 @@ main(int argc, char *argv[], char *envp[]) {
   // tunnel.setLocalPortFrom(cfg.getLocalPortFrom());
   if (cfg.createFrom()) {
     if (cfg.getRemotePortFrom() == "") {
-      ERROR("Failed to automatically determine a remote free port.\n"
+      ERROR_DEBUG("Failed to automatically determine a remote free port.\n"
             << " You need to specify the remote port:\n"
             << '\t' << "- Remote port (--remote-port <port>)", EXIT_FAILURE);
     }
@@ -341,7 +344,7 @@ connectPeer(const std::string &ior, const std::string &peerIOR,
       }
     }
   } catch (CORBA::TRANSIENT &err) {
-    ERROR(
+    ERROR_DEBUG(
       "Unable to contact remote peer using '" << newHost
                                               <<
       "' as a \"new remote host\"", 1);

@@ -136,15 +136,28 @@ if(DIET_USE_WORKFLOW)
 endif()
 
 if(DIET_USE_ALT_BATCH)
-  set(UtilsBatch_SRCS
-    utils/batch/BatchCreator.cc
-    utils/batch/BatchSystem.cc
-    utils/batch/OAR1_6BatchSystem.cc
-    utils/batch/OAR2_XBatchSystem.cc
-    utils/batch/Loadleveler_BatchSystem.cc
-    utils/batch/PBS_BatchSystem.cc
-    utils/batch/SGE_BatchSystem.cc
-    utils/batch/Slurm_BatchSystem.cc)
+  IF (WIN32)
+    set(UtilsBatch_SRCS
+      utils/batch/BatchCreator.cc
+      utils/batch/BatchSystem.cc
+      utils/batch/OAR1_6BatchSystem.cc
+      utils/batch/OAR2_XBatchSystem.cc
+      utils/batch/Loadleveler_BatchSystem.cc
+      utils/batch/PBS_BatchSystem.cc
+      utils/batch/SGE_BatchSystem.cc
+      utils/batch/Slurm_BatchSystem.cc
+	  utils/batch/mkstemp.cc)
+  ELSE (WIN32)
+    set(UtilsBatch_SRCS
+      utils/batch/BatchCreator.cc
+      utils/batch/BatchSystem.cc
+      utils/batch/OAR1_6BatchSystem.cc
+      utils/batch/OAR2_XBatchSystem.cc
+      utils/batch/Loadleveler_BatchSystem.cc
+      utils/batch/PBS_BatchSystem.cc
+      utils/batch/SGE_BatchSystem.cc
+      utils/batch/Slurm_BatchSystem.cc)  
+  ENDIF()
 endif()
 
 if(DIET_USE_USERSCHED)
@@ -201,6 +214,10 @@ set(dietUtils_SRCS
   utils/Vector.c
   utils/DIET_compat.cc
   utils/DataRelationMgr.cc)
+
+IF (WIN32)
+  set(dietUtils_SRCS ${dietUtils_SRCS} utils/OSIndependance.cc)
+ENDIF (WIN32)  
 
 if(DIET_USE_USERSCHED)
   install(FILES
@@ -306,6 +323,10 @@ endif()
 
 set(DAGDA_LIBS ${OMNIORB4_LIBRARIES} ${Boost_LIBRARIES})
 
+if (WIN32)
+  set(DAGDA_Libs ${DAGDA_LIBS} Shlwapi ws2_32)
+endif (WIN32)
+
 if(DIET_USE_LOG)
   set(DAGDA_SRCS ${DAGDA_SRCS} ${UtilsLog_SRCS})
   set(DAGDA_LIBS ${DAGDA_LIBS} ${LOG_LIBRARY})
@@ -343,8 +364,14 @@ set(dietForwarder_SRCS
   ${AgentCommon_SRCS}
   ${DIET_IDL_OUTPUT})
 
-set(dietForwarder_LIBS DIET_Dagda DIET_SeD DIET_client
-  ${OMNIORB4_LIBRARIES} ${CMAKE_DL_LIBS})
+IF (WIN32)
+  set(dietForwarder_LIBS DIET_Dagda DIET_SeD DIET_client
+    ${OMNIORB4_LIBRARIES} ${CMAKE_DL_LIBS}  ws2_32 Iphlpapi)
+ELSE (WIN32)
+  set(dietForwarder_LIBS DIET_Dagda DIET_SeD DIET_client
+    ${OMNIORB4_LIBRARIES} ${CMAKE_DL_LIBS})
+ENDIF()
+
 if(DIET_USE_WORKFLOW)
   set(dietForwarder_SRCS ${dietForwarder_SRCS}
     ${UtilsWf_SRCS} ${MaDagCommon_SRCS})
@@ -370,6 +397,12 @@ install(TARGETS dietForwarder DESTINATION ${BIN_INSTALL_DIR})
 if(DIET_BUILD_TOOLS)
   set(dietObjects_SRCS CORBA/tools/dietObjects.cc)
   set(dietObjects_LIBS DIET_client DIET_SeD ${OMNIORB4_LIBRARIES})
+  IF (WIN32)
+    set(dietObjects_LIBS
+      ${dietObjects_LIBS}
+      ws2_32)  
+   ENDIF (WIN32)
+
   if(DIET_USE_WORKFLOW)
     set(dietObjects_LIBS ${dietObjects_LIBS}
       ${XERCES_LIBRARY} ${XQILLA_LIBRARY})
@@ -506,6 +539,9 @@ if(DIET_USE_WORKFLOW)
   install(FILES utils/workflow/FWorkflow.dtd DESTINATION ${DATA_INSTALL_DIR})
 endif()
 
+if (WIN32)
+  set(DIET_client_Libs ${DIET_client_Libs} ws2_32 Shlwapi)
+endif (WIN32)
 
 add_library(DIET_client ${DIET_client_SRCS})
 
@@ -544,6 +580,9 @@ if(DIET_USE_CLOUD)
   set(dietAgent_SRCS ${dietAgent_SRCS} ${cloud_SRCS})
   set(dietAgent_LIBS ${dietAgent_LIBS} ${GSOAP_LIBRARIES})
 endif()
+IF(WIN32)
+  set(dietAgent_LIBS ${dietAgent_LIBS} Shlwapi  ws2_32)
+ENDIF(WIN32)
 
 add_executable(dietAgent ${dietAgent_SRCS})
 target_link_libraries(dietAgent ${dietAgent_LIBS})
@@ -553,7 +592,10 @@ install(TARGETS dietAgent DESTINATION ${BIN_INSTALL_DIR})
 if(DIET_USE_WORKFLOW)
   set(maDagAgent_LIBS DIET_Dagda ${XQILLA_LIBRARY} ${XERCES_LIBRARY}
     ${OMNIORB4_LIBRARIES})
-  
+  IF (WIN32)
+    set(maDagAgent_LIBS ${maDagAgent_LIBS} ws2_32 Shlwapi)
+  ENDIF (WIN32)  
+
   add_executable(maDagAgent agent/workflow/maDagAgent.cc ${MaDagCommon_SRCS}
     ${UtilsEvents_SRCS})
   target_link_libraries(maDagAgent ${maDagAgent_LIBS})
@@ -567,6 +609,11 @@ if(DIET_USE_ALT_BATCH)
   set(DIET_SeD_SRCS ${DIET_SeD_SRCS} ${cori_SRCS} ${UtilsBatch_SRCS})
 endif()
 set(DIET_SeD_LIBS DIET_Dagda ${OMNIORB4_LIBRARIES})
+IF (WIN32)
+  set(DIET_SeD_LIBS
+    ${DIET_SeD_LIBS}
+    ws2_32)
+ENDIF (WIN32)  
 if(DIET_USE_LOG)
   set(DIET_SeD_SRCS ${DIET_SeD_SRCS} ${UtilsLog_SRCS})
 endif()

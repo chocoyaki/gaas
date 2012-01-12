@@ -9,12 +9,20 @@
  *   |LICENCE|
  */
 
+#ifndef __WIN32__
 #include <unistd.h>
+#include <sys/time.h>
+#else
+#include <Winsock2.h>
+#include <windows.h>
+#include <sys/timeb.h>
+#endif
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-#include <sys/time.h>
+
+
 
 #include "DIET_server.h"
 #include "DIET_Dagda.h"
@@ -32,6 +40,17 @@ void
 performance_eval(diet_profile_t *pb, estVector_t perfValues);
 /* end function prototypes*/
 
+#ifdef __WIN32__
+int gettimeofday (struct timeval *tp, void *tz)
+{
+	struct _timeb timebuffer;
+	_ftime (&timebuffer);
+	tp->tv_sec = timebuffer.time;
+	tp->tv_usec = timebuffer.millitm * 1000;
+	return 0;
+}
+#define msleep(value) (Sleep(value))
+#endif
 
 /*
  * usage function:
@@ -201,7 +220,11 @@ service(diet_profile_t *pb) {
     }
   }
   printf("Time to Sleep =%ld ms\n", *outsleepTime);
-  usleep(*outsleepTime * 1000);
+#ifdef __WIN32__
+	msleep(*outsleepTime);
+#else
+	usleep(*outsleepTime*1000);
+#endif
   printf("INIT PARENT OUTPUT container\n");
   dagda_init_container(diet_parameter(pb, 2));
   printf("CREATE CHILD OUTPUT container\n");

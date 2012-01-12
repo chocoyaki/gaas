@@ -272,14 +272,22 @@ int
 Easy_CPU::get_CPU_ActualLoad_Byps(double *actualload) {
   FILE *psfile;
   char buffer[256];
+#ifdef WIN32
+  psfile = _popen("ps -e -o pcpu", "r");
+#else
   psfile = popen("ps -e -o pcpu", "r");
+#endif
   if (psfile == NULL) {
     return 1;
   } else {
     fscanf(psfile, "%255s", buffer);
   }
   if (strcmp(buffer, "%CPU") != 0) {
+#ifdef WIN32
+    _pclose(psfile);
+#else
     pclose(psfile);
+#endif
     return 1;
   }
   float loadCPU = 0;
@@ -288,7 +296,11 @@ Easy_CPU::get_CPU_ActualLoad_Byps(double *actualload) {
     fscanf(psfile, "%6f", &tmp);
     loadCPU += tmp;
   }
-  pclose(psfile);
+#ifdef WIN32
+    _pclose(psfile);
+#else
+    pclose(psfile);
+#endif
   *actualload = loadCPU / 100;
   if (*actualload < 0) { // error in what kind of manner
     *actualload = 1;

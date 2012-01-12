@@ -9,9 +9,15 @@
  *   |LICENCE|
  */
 
+
+
 #include "SSHTunnel.hh"
 
 #include "debug.hh"
+
+#ifdef __WIN32__
+#define sleep(value) (Sleep(value*1000))
+#endif 
 
 #include <cstdio>
 #include <cstring>
@@ -24,13 +30,19 @@
 #include <stdexcept>
 #include <vector>
 
-#include <unistd.h>    // For sleep & fork functions
+#include "OSIndependance.hh"   // For sleep & fork functions
+#ifndef __WIN32__
 #include <sys/wait.h>  // For waitpid function
+#endif
+
 
 /* To find a free tcp port. */
 #include <sys/types.h>
+#ifndef __WIN32__
 #include <sys/socket.h>
 #include <netinet/in.h>
+#endif
+
 /**/
 
 const unsigned int DEFAULT_WAITING_TIME = 10;
@@ -40,6 +52,8 @@ std::string SSHTunnel::cmdFormatDefault = "%p %s -N";
 std::string SSHTunnel::localFormat = "-L%l:%h:%R";
 std::string SSHTunnel::remoteFormat = "-R%r:%h:%L";
 std::string SSHTunnel::keyFormat = "-i %k";
+
+using namespace std;
 
 /* Return the current session login. */
 std::string
@@ -60,7 +74,11 @@ SSHConnection::userLogin() {
 
 std::string
 SSHConnection::userKey() {
-  char *home = getenv("HOME");
+#ifdef __WIN32__
+  char* home = getenv("USERPROFILE");
+#else
+  char* home = getenv("HOME");
+#endif
   std::string path;
 
   /* Try the RSA key default path. */
@@ -193,19 +211,96 @@ replace(const std::string &s, const std::string &r, std::string &str) {
 std::string
 freeTCPport() {
   std::ostringstream os;
-  struct sockaddr_in sck;
 
+#ifdef __WIN32__
+	// Declare and initialize variables
+	PMIB_TCPTABLE pTcpTable;
+	DWORD dwSize = 0;
+	DWORD dwRetVal = 0;
+
+	int i;
+
+	pTcpTable = (MIB_TCPTABLE *) malloc(sizeof (MIB_TCPTABLE));
+	if (pTcpTable == NULL) {
+		WARNING("Error allocating memory when trying to get a free TCP port");
+		os << -1;
+		return os.str();
+	}
+
+	dwSize = sizeof (MIB_TCPTABLE);
+	// Make an initial call to GetTcpTable to
+	// get the necessary size into the dwSize variable
+	if ((dwRetVal = GetTcpTable(pTcpTable, &dwSize, TRUE)) ==
+		ERROR_INSUFFICIENT_BUFFER) {
+			free(pTcpTable);
+			pTcpTable = (MIB_TCPTABLE *) malloc(dwSize);
+			if (pTcpTable == NULL) {
+		WARNING("Error allocating memory when trying to get a free TCP port");
+		os << -1;
+		return os.str();
+			}
+	}
+	// Make a second call to GetTcpTable to get
+	// the actual data we require
+	vector<int> usedPorts;
+	if ((dwRetVal = GetTcpTable(pTcpTable, &dwSize, TRUE)) == NO_ERROR) {
+		//printf("\tNumber of entries: %d\n", (int) pTcpTable->dwNumEntries);
+		for (i = 0; i < (int) pTcpTable->dwNumEntries; i++) {
+			usedPorts.push_back(pTcpTable->table[i].dwLocalPort);
+		}
+	} else {
+		//printf("\tGetTcpTable failed with %d\n", dwRetVal);
+		free(pTcpTable);
+		WARNING("Error allocating memory when trying to get a free TCP port");
+		os << -1;
+		return os.str();
+	}
+
+	if (pTcpTable != NULL) {
+		free(pTcpTable);
+		pTcpTable = NULL;
+	}    
+
+	bool freePortFound = false;
+
+	int aPort = 0;
+
+	while(!freePortFound) {
+
+		srand(time(NULL));
+		aPort = (rand()*2)%65536 + 1024;
+
+		//cout << "Trying with : "<< aPort << endl;
+
+		vector<int>::iterator iter;
+		iter = find(usedPorts.begin(),usedPorts.end(),aPort);
+		if(iter != usedPorts.end()) {
+			// current value found, we continue to search a port
+			//		cout << "That port is currently used !"<<endl;
+		}else{
+			//a free port has been found
+			//cout << "Free port found !"<<endl;
+			freePortFound=true;
+		}
+	}    
+		os << aPort;
+		std::cout << " : " << aPort << " : " << std::endl;
+		return os.str();
+#else
+  struct sockaddr_in sck;
+	
   int sfd = socket(AF_INET, SOCK_STREAM, 0);
   sck.sin_family = AF_INET;
   sck.sin_addr.s_addr = INADDR_ANY;
   sck.sin_port = 0;
-  bind(sfd, (struct sockaddr *) &sck, sizeof(sck));
+  bind(sfd, (struct sockaddr*) &sck, sizeof(sck));
   socklen_t len = sizeof(sck);
-  getsockname(sfd, (struct sockaddr *) &sck, &len);
+  getsockname(sfd, (struct sockaddr*) &sck, &len);
   os << sck.sin_port;
   close(sfd);
-
   return os.str();
+#endif
+  
 } // freeTCPport
 
 std::string
@@ -322,26 +417,68 @@ SSHTunnel::open() {
   std::copy(std::istream_iterator<std::string>(is),
             std::istream_iterator<std::string>(),
             std::back_inserter<std::vector<std::string> >(tokens));
+/*****************************************************************/
+#ifdef __WIN32__
+	STARTUPINFO si;
 
-  char *argv[tokens.size() + 1];
-  argv[tokens.size()] = NULL;
 
-  for (unsigned int i = 0; i < tokens.size(); ++i) {
-    argv[i] = strdup(tokens[i].c_str());
+  ZeroMemory( &si, sizeof(si) );
+  si.cb = sizeof(si);
+  ZeroMemory( &pid, sizeof(pid) );
+
+	ostringstream os;
+
+
+  for (unsigned int i=0; i<tokens.size(); ++i){
+    os << tokens[i];
   }
 
+	std::string argument=os.str();
+
+	char* cmdline=strdup(argument.c_str());
+
+    // Start the child process. 
+    if( !CreateProcess( NULL,   // No module name (use command line)
+		cmdline,        // Command line
+        NULL,           // Process handle not inheritable
+        NULL,           // Thread handle not inheritable
+        FALSE,          // Set handle inheritance to FALSE
+        0,              // No creation flags
+        NULL,           // Use parent's environment block
+        NULL,           // Use parent's starting directory 
+        &si,            // Pointer to STARTUPINFO structure
+        &pid )           // Pointer to PROCESS_INFORMATION structure
+    ){
+      printf( "CreateProcess failed (%d).\n", GetLastError() );
+      cerr << "Error executing command " << argument << endl;
+      exit(1);    
+	}
+
+	free(cmdline);
+
+#else
+  char* argv[tokens.size()+1];
+  argv[tokens.size()]=NULL;
+  
+  for (unsigned int i=0; i<tokens.size(); ++i){
+    argv[i]=strdup(tokens[i].c_str());
+  }
   pid = fork();
-  if (pid == -1) {
-    throw std::runtime_error("Error forking process.");
+  if (pid==-1){
+    throw runtime_error("Error forking process.");
   }
-  if (pid == 0) {
+  if (pid==0) {
     if (execvp(argv[0], argv)) {
-      ERROR_EXIT("Error executing command " << command);
+      cerr << "Error executing command " << command << endl;
+      exit(1);
     }
   }
-  for (unsigned int i = 0; i < tokens.size(); ++i) {
+
+  for (unsigned int i=0; i<tokens.size(); ++i){
     free(argv[i]);
   }
+
+#endif
 
   TRACE_TEXT(TRACE_MAIN_STEPS,
              "Sleep " << this->waitingTime
@@ -355,12 +492,20 @@ SSHTunnel::close() {
   if (!createTo && !createFrom) {
     return;
   }
+#ifdef __WIN32__
+      // Close process and thread handles. 
+    CloseHandle( pid.hProcess );
+    CloseHandle( pid.hThread );
+
+#else
   if (pid && kill(pid, SIGTERM)) {
     if (kill(pid, SIGKILL)) {
       throw std::runtime_error("Unable to stop the ssh process");
     }
   }
-  pid = 0;
+  pid =0;
+#endif
+  
 } // close
 
 const std::string &
@@ -508,38 +653,74 @@ SSHCopy::getFile() const {
 
   command += " " + localFilename;
 
+  
+
+
+#ifdef __WIN32__
+  STARTUPINFO si;
+  
+  char* cmdline=strdup(command.c_str());
+
+  si.cb = sizeof(si);
+  // Start the child process. 
+  if( !CreateProcess( NULL,   // No module name (use command line)
+      cmdline,        // Command line
+      NULL,           // Process handle not inheritable
+      NULL,           // Thread handle not inheritable
+      FALSE,          // Set handle inheritance to FALSE
+      0,              // No creation flags
+      NULL,           // Use parent's environment block
+      NULL,           // Use parent's starting directory 
+      &si,            // Pointer to STARTUPINFO structure
+      (LPPROCESS_INFORMATION)&pid )           // Pointer to PROCESS_INFORMATION structure
+    ){
+       printf( "CreateProcess failed (%d).\n", GetLastError() );
+       exit(1);
+    }
+	free(cmdline);
+    // Wait until child process exits.
+  WaitForSingleObject( pid.hProcess, INFINITE );
+
+    // Close process and thread handles. 
+  CloseHandle( pid.hProcess );
+  CloseHandle( pid.hThread );
+	return true;
+#else
+    
   std::istringstream is(command);
 
   std::copy(std::istream_iterator<std::string>(is),
             std::istream_iterator<std::string>(),
             std::back_inserter<std::vector<std::string> >(tokens));
-
-  char *argv[tokens.size() + 1];
-  argv[tokens.size()] = NULL;
-
-  for (unsigned int i = 0; i < tokens.size(); ++i) {
-    argv[i] = strdup(tokens[i].c_str());
-  }
+  
+  char* argv[tokens.size()+1];
+  argv[tokens.size()]=NULL;
+  
+  for (unsigned int i=0; i<tokens.size(); ++i)
+    argv[i]=strdup(tokens[i].c_str());
+	
   pid = fork();
-  if (pid == -1) {
-    throw std::runtime_error("Error forking process.");
+  if (pid==-1) {
+    throw runtime_error("Error forking process.");
   }
   if (pid == 0) {
     fclose(stdout);
     if (execvp(argv[0], argv)) {
-      ERROR_EXIT("Error executing command " << command);
+      cerr << "Error executing command " << command << endl;
+      exit(1);
     }
   }
-
-  for (unsigned int i = 0; i < tokens.size(); ++i) {
+	
+  for (unsigned int i=0; i<tokens.size(); ++i) {
     free(argv[i]);
   }
-
-  if (waitpid(pid, &status, 0) == -1) {
-    throw std::runtime_error("Error executing scp command");
+	
+  if (waitpid(pid, &status, 0)==-1) {
+    throw runtime_error("Error executing scp command");
   }
-  // FIXME: WTF ?
-  return ((WIFEXITED(status) != 0) ? (WEXITSTATUS(status) == 0) : false);
+  return (WIFEXITED(status)!=0 ? (WEXITSTATUS(status)==0):false);
+#endif
+ 
 } // getFile
 
 bool
@@ -562,13 +743,44 @@ SSHCopy::putFile() const {
   } else {
     command += " " + getSshHost() + ":" + remoteFilename;
   }
+/******************************************************************/
+#ifdef __WIN32__
+  STARTUPINFO si;
+  si.cb = sizeof(si);
+    // Start the child process. 
+  char* cmdline = strdup(command.c_str());
+	
+	if( !CreateProcess( NULL,   // No module name (use command line)
+        cmdline,        // Command line
+        NULL,           // Process handle not inheritable
+        NULL,           // Thread handle not inheritable
+        FALSE,          // Set handle inheritance to FALSE
+        0,              // No creation flags
+        NULL,           // Use parent's environment block
+        NULL,           // Use parent's starting directory 
+        &si,            // Pointer to STARTUPINFO structure
+        (LPPROCESS_INFORMATION)&pid )           // Pointer to PROCESS_INFORMATION structure
+    ){
+       printf( "CreateProcess failed (%d).\n", GetLastError() );
+       exit(1);
+    }
 
-  std::istringstream is(command);
+	free(cmdline);
+
+    // Wait until child process exits.
+  WaitForSingleObject( pid.hProcess, INFINITE );
+
+    // Close process and thread handles. 
+    CloseHandle( pid.hProcess );
+    CloseHandle( pid.hThread );
+	return true;
+#else
+    std::istringstream is(command);
 
   std::copy(std::istream_iterator<std::string>(is),
             std::istream_iterator<std::string>(),
             std::back_inserter<std::vector<std::string> >(tokens));
-
+  
   char *argv[tokens.size() + 1];
   argv[tokens.size()] = NULL;
 
@@ -596,4 +808,7 @@ SSHCopy::putFile() const {
   }
 
   return ((WIFEXITED(status) != 0) ? (WEXITSTATUS(status) == 0) : false);
+
+#endif
+  
 } // putFile

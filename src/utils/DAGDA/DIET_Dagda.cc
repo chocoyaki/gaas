@@ -58,7 +58,7 @@ display_profile(corba_profile_t *p) {
 } // display_profile
 
 /* Profile marshalling used by DAGDA on the client side. */
-void
+extern "C" __declspec (dllexport) void
 dagda_mrsh_profile(corba_profile_t *corba_profile, diet_profile_t *profile,
                    MasterAgent_var &MA) {
   DagdaImpl *dataManager = DagdaFactory::getDataManager();
@@ -163,7 +163,7 @@ dagda_mrsh_profile(corba_profile_t *corba_profile, diet_profile_t *profile,
 } // dagda_mrsh_profile
 
 /* Data download function used by DAGDA. */
-void
+extern "C" __declspec (dllexport) void
 dagda_download_SeD_data(diet_profile_t *profile,
                         corba_profile_t *pb) {
   DagdaImpl *dataManager = DagdaFactory::getDataManager();
@@ -289,13 +289,13 @@ dagda_download_SeD_data(diet_profile_t *profile,
 } // dagda_download_SeD_data
 
 
-diet_error_t
+extern "C" __declspec (dllexport) diet_error_t
 dagda_get_data_desc(corba_pb_desc_t &corba_pb, MasterAgent_var &MA) {
   // Retrieves the information about a data stored on the platform.
   for (int i = 0; i <= corba_pb.last_out; ++i) {
     if (strlen(corba_pb.param_desc[i].id.idNumber) != 0) {
       if (!MA->dataLookUp(corba_pb.param_desc[i].id.idNumber)) {
-        ERROR(" data with ID " << corba_pb.param_desc[i].id.idNumber
+        ERROR_DEBUG(" data with ID " << corba_pb.param_desc[i].id.idNumber
                                << " not inside the platform.", 1);
       } else {
         const_cast<corba_data_desc_t &>(corba_pb.param_desc[i]) =
@@ -314,7 +314,7 @@ dagda_get_data_desc(corba_pb_desc_t &corba_pb, MasterAgent_var &MA) {
    gives the pointer control to the user;
    These two parameters mean the opposite. Be careful to have it in mind.
  */
-void
+extern "C" __declspec (dllexport) void
 dagda_download_data(diet_profile_t &profile, corba_profile_t &pb) {
   DagdaImpl *dataManager = DagdaFactory::getDataManager();
   corba_data_t data;
@@ -410,7 +410,7 @@ dagda_download_data(diet_profile_t &profile, corba_profile_t &pb) {
   }
 } // dagda_download_data
 
-void
+extern "C" __declspec (dllexport) void
 dagda_upload_data(diet_profile_t &profile, corba_profile_t &pb) {
   DagdaImpl *manager = DagdaFactory::getDataManager();
   for (int i = 0; i <= pb.last_in; ++i)
@@ -519,7 +519,7 @@ getMasterAgent() {
   MasterAgent_var MA =
     ORBMgr::getMgr()->resolve<MasterAgent, MasterAgent_var>(AGENTCTXT, MA_name);
   if (CORBA::is_nil(MA)) {
-    // ERROR("cannot locate Master Agent " << MA_name, 1);
+    //ERROR_DEBUG("cannot locate Master Agent " << MA_name, 1);
     return NULL;
   }
   masterAgent = MasterAgent::_duplicate(MA);
@@ -570,7 +570,7 @@ getEntryPoint() {
       ORBMgr::getMgr()->resolve<MasterAgent, MasterAgent_var>(AGENTCTXT,
                                                               MA_name);
     if (CORBA::is_nil(MA)) {
-      // ERROR("cannot locate Master Agent " << MA_name, 1);
+      //ERROR_DEBUG("cannot locate Master Agent " << MA_name, 1);
       return NULL;
     }
 

@@ -23,7 +23,7 @@ public:
     INFO,     // default severity (application-level events)
     NOTICE,
     WARNING,
-    ERROR,
+    ERROR_EVENT,
     CRITICAL,
     FATAL
   };

@@ -10,7 +10,9 @@
  */
 
 #include <string.h>
+#ifndef __WIN32__
 #include <unistd.h>
+#endif
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/stat.h>

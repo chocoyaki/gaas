@@ -11,15 +11,31 @@
 
 
 #include <string.h>
+#ifndef __WIN32__
 #include <unistd.h>
+#include <sys/time.h>
+#else
+#include <Winsock2.h>
+#include <windows.h>
+#include <sys/timeb.h>
+#endif
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/stat.h>
 #include <time.h>
 
 #include "DIET_client.h"
+#ifdef __WIN32__
+int gettimeofday (struct timeval *tp, void *tz)
+{
+	struct _timeb timebuffer;
+	_ftime (&timebuffer);
+	tp->tv_sec = timebuffer.time;
+	tp->tv_usec = timebuffer.millitm * 1000;
+	return 0;
+}
+#endif
 
-#include <sys/time.h>
 
 int
 main(int argc, char *argv[]) {
@@ -27,7 +43,11 @@ main(int argc, char *argv[]) {
   diet_profile_t *profile = NULL;
   int *nbprocs;
   struct timeval tv;
+#ifdef __WIN32__
+  struct timeval tz;
+#else
   struct timezone tz;
+#endif  
   diet_reqID_t rst;
 
   if (argc != 2) {

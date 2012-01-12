@@ -10,7 +10,11 @@
  */
 
 #include "UserScheduler.hh"
-#include <dlfcn.h>
+#ifdef WIN32
+  #include <windows.h>
+#else
+  #include <dlfcn.h>
+#endif 
 
 /** To avoid multiple load of the chosen scheduler, "instance" is static and
  *  won't be changed after the first call to the "getInstance" method.
@@ -34,22 +38,55 @@ UserScheduler::UserScheduler() {
 
 /** The private constructor. "moduleName" is the path to the scheduler module. */
 UserScheduler::UserScheduler(const char *moduleName) {
+
+  const char *error = NULL;
+#ifdef WIN32
+  module = LoadLibrary(moduleName);
+#else
   module = dlopen(moduleName, RTLD_LAZY);
+#endif 
 
   if (!module) {
-    InstanciationError exception(dlerror());
+#ifdef __WIN32__
+    error = reinterpret_cast<char *>(GetLastError());
+#else
+    error = dlerror();
+#endif    
+	InstanciationError exception(error);
     throw exception;
   }
+#ifdef __WIN32__
+  GetLastError();
+#else
   dlerror();
+#endif 
 
+#ifdef __WIN32__
+  constructs = (constructor *) GetProcAddress((HMODULE)module, "constructor");
+#else
   constructs = (constructor *) dlsym(module, "constructor");
-  const char *error = dlerror();
+#endif 
+  
+#ifdef __WIN32__
+  error = reinterpret_cast<char *>(GetLastError());
+#else
+  error = dlerror();
+#endif 
   if (error) {
     InstanciationError exception(error);
     throw exception;
   }
+#ifdef __WIN32__
+  destroys = (destructor *) GetProcAddress((HMODULE)module, "destructor");
+#else
   destroys = (destructor *) dlsym(module, "destructor");
+#endif 
+
+#ifdef __WIN32__
+  error = reinterpret_cast<char *>(GetLastError());
+#else
   error = dlerror();
+#endif 
   if (error) {
     InstanciationError exception(error);
     throw exception;
@@ -91,6 +128,7 @@ UserScheduler::aggregate(corba_response_t *aggrResp,
                          const size_t nb_responses,
                          const corba_response_t *responses) {
   return GlobalScheduler::aggregate(aggrResp, max_srv, nb_responses, responses);
+  //return 0;
 }
 
 /* Usefull function to simplify the scheduler development. */

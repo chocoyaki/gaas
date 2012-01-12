@@ -13,7 +13,12 @@
 #ifndef _PROGS_H_
 #define _PROGS_H_
 
+#ifndef __WIN32__
 #include <unistd.h>
+#else
+#include <Winsock2.h>
+#include <windows.h>
+#endif
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -40,7 +45,7 @@
  * Transpose a matrix (column-major <=> rm == 0)
  */
 
-inline int
+_inline int
 T(int m, int n, double *A, int rm) {
   size_t i, j;
   double *tmp = NULL;
@@ -67,7 +72,7 @@ T(int m, int n, double *A, int rm) {
  * if tA == 'T', then A is row-major ...
  */
 
-inline int
+_inline int
 MatSUM(char tA, char tB, int m, int n, double *A, double *B, double *C) {
   size_t i, j;
 
@@ -110,7 +115,7 @@ MatSUM(char tA, char tB, int m, int n, double *A, double *B, double *C) {
  * if tA == 'T', then A is row-major ...
  */
 
-inline int
+_inline int
 MatPROD(char tA, char tB,
         int mA, int nA, double *A,
         int nB, double *B, double *C) {

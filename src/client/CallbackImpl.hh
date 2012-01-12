@@ -18,7 +18,11 @@
 
 #include "Forwarder.hh"
 #include "CallbackFwdr.hh"
-
+#ifdef WIN32
+   #define SHAREDLIB __declspec(dllexport)
+#else
+   #define SHAREDLIB
+#endif
 class CallbackImpl : public POA_Callback,
 public PortableServer::RefCountServantBase {
 public:
@@ -41,7 +45,7 @@ public:
                CORBA::Long solve_res);
 };
 
-class CallbackFwdrImpl : public POA_CallbackFwdr,
+class SHAREDLIB CallbackFwdrImpl : public POA_CallbackFwdr,
 public PortableServer::RefCountServantBase {
 public:
   CallbackFwdrImpl(Forwarder_ptr fwdr, const char *objName);

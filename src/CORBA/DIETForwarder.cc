@@ -39,7 +39,8 @@
 #include <string>
 #include <cstring>
 #include <list>
-#include <unistd.h>  // For gethostname()
+
+#include "OSIndependance.hh" // For gethostname()
 
 #ifdef MAXHOSTNAMELEN
 #define MAX_HOSTNAME_LENGTH MAXHOSTNAMELEN

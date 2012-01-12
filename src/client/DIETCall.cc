@@ -61,7 +61,7 @@ request_submission(MasterAgent_var &MA,
   chosenServer = SeD::_nil();
 
   if (mrsh_pb_desc(&corba_pb, profile)) {
-    ERROR("profile is wrongly built", 1);
+    ERROR_DEBUG("profile is wrongly built", 1);
   }
 
   /* Request submission : try nb_tries times */
@@ -88,7 +88,7 @@ request_submission(MasterAgent_var &MA,
         if (response) {
           delete response;
         }
-        ERROR("caught a CORBA exception (" << tc->name()
+        ERROR_DEBUG("caught a CORBA exception (" << tc->name()
                                            << ") while submitting problem", 1);
       }
 
@@ -118,18 +118,18 @@ request_submission(MasterAgent_var &MA,
            (server_OK == -1) && (++subm_count < nb_tries) && (data_OK == 0));
 
   if (data_OK == 1) {
-    ERROR(" data with ID " << bad_id << " not inside the platform.", 1);
+    ERROR_DEBUG(" data with ID " << bad_id << " not inside the platform.", 1);
     delete (bad_id);
   } else {
     if (!response || response->servers.length() == 0) {
       if (response) {
         delete response;
       }
-      ERROR("unable to find a server", GRPC_SERVER_NOT_FOUND);
+      ERROR_DEBUG("unable to find a server", GRPC_SERVER_NOT_FOUND);
     }
     if (server_OK == -1) {
       delete response;
-      ERROR(
+      ERROR_DEBUG(
         "unable to find a server after " << nb_tries << " tries."
                                          <<
         "The platform might be overloaded, try again later please",
