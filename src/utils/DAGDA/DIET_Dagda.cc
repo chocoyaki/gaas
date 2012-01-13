@@ -35,7 +35,11 @@ extern "C" {
 #include <omniORB4/CORBA.h>
 #include "debug.hh"
 #include "configuration.hh"
-
+#ifdef WIN32
+   #define DIET_API_LIB __declspec(dllexport)
+#else
+   #define DIET_API_LIB
+#endif
 
 #define BEGIN_API extern "C" {
 #define END_API }    // extern "C"
@@ -58,7 +62,7 @@ display_profile(corba_profile_t *p) {
 } // display_profile
 
 /* Profile marshalling used by DAGDA on the client side. */
-extern "C" __declspec (dllexport) void
+extern "C" DIET_API_LIB void
 dagda_mrsh_profile(corba_profile_t *corba_profile, diet_profile_t *profile,
                    MasterAgent_var &MA) {
   DagdaImpl *dataManager = DagdaFactory::getDataManager();
@@ -163,7 +167,7 @@ dagda_mrsh_profile(corba_profile_t *corba_profile, diet_profile_t *profile,
 } // dagda_mrsh_profile
 
 /* Data download function used by DAGDA. */
-extern "C" __declspec (dllexport) void
+extern "C" DIET_API_LIB void
 dagda_download_SeD_data(diet_profile_t *profile,
                         corba_profile_t *pb) {
   DagdaImpl *dataManager = DagdaFactory::getDataManager();
@@ -289,7 +293,7 @@ dagda_download_SeD_data(diet_profile_t *profile,
 } // dagda_download_SeD_data
 
 
-extern "C" __declspec (dllexport) diet_error_t
+extern "C" DIET_API_LIB diet_error_t
 dagda_get_data_desc(corba_pb_desc_t &corba_pb, MasterAgent_var &MA) {
   // Retrieves the information about a data stored on the platform.
   for (int i = 0; i <= corba_pb.last_out; ++i) {
@@ -314,7 +318,7 @@ dagda_get_data_desc(corba_pb_desc_t &corba_pb, MasterAgent_var &MA) {
    gives the pointer control to the user;
    These two parameters mean the opposite. Be careful to have it in mind.
  */
-extern "C" __declspec (dllexport) void
+extern "C" DIET_API_LIB void
 dagda_download_data(diet_profile_t &profile, corba_profile_t &pb) {
   DagdaImpl *dataManager = DagdaFactory::getDataManager();
   corba_data_t data;
@@ -410,7 +414,7 @@ dagda_download_data(diet_profile_t &profile, corba_profile_t &pb) {
   }
 } // dagda_download_data
 
-extern "C" __declspec (dllexport) void
+extern "C" DIET_API_LIB void
 dagda_upload_data(diet_profile_t &profile, corba_profile_t &pb) {
   DagdaImpl *manager = DagdaFactory::getDataManager();
   for (int i = 0; i <= pb.last_in; ++i)

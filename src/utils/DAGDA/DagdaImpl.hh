@@ -35,9 +35,9 @@
 #include "DagdaFwdr.hh"
 #include "debug.hh"
 #ifdef WIN32
-   #define SHAREDLIB __declspec(dllexport)
+   #define DIET_API_LIB __declspec(dllexport)
 #else
-   #define SHAREDLIB
+   #define DIET_API_LIB
 #endif
 typedef enum {DGD_CLIENT_MNGR,
               DGD_AGENT_MNGR,
@@ -686,7 +686,7 @@ private:
   dagda_manager_type_t type;
 };
 
-class SHAREDLIB DagdaFwdrImpl : public POA_DagdaFwdr,
+class DIET_API_LIB DagdaFwdrImpl : public POA_DagdaFwdr,
 public PortableServer::RefCountServantBase {
 public:
   DagdaFwdrImpl(Forwarder_ptr fwdr, const char *objName);

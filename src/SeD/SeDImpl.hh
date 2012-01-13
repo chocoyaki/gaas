@@ -42,9 +42,9 @@ extern "C" {
 #include "SeDScheduler.hh"
 #endif
 #ifdef WIN32
-   #define SHAREDLIB __declspec(dllexport)
+   #define DIET_API_LIB __declspec(dllexport)
 #else
-   #define SHAREDLIB
+   #define DIET_API_LIB
 #endif
 #include "Forwarder.hh"
 #include "SeDFwdr.hh"
@@ -270,7 +270,7 @@ private:
                      diet_convertor_t *cvt);
 };
 
-class SHAREDLIB SeDFwdrImpl : public POA_SeD,
+class DIET_API_LIB SeDFwdrImpl : public POA_SeD,
 public PortableServer::RefCountServantBase {
 public:
   SeDFwdrImpl(Forwarder_ptr fwdr, const char *objName);

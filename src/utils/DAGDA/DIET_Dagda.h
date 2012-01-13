@@ -13,9 +13,9 @@
 #define __DIET_DAGDA_H__
 #include "DIET_data.h"
 #ifdef WIN32
-   #define SHAREDLIB __declspec(dllexport)
+   #define DIET_API_LIB __declspec(dllexport)
 #else
-   #define SHAREDLIB
+   #define DIET_API_LIB
 #endif
 #ifdef __cplusplus
 extern "C" {
@@ -38,7 +38,7 @@ extern "C" {
  *
  * @return  0 (success), 1 (failure)
  */
-SHAREDLIB int
+DIET_API_LIB int
 dagda_put_data(void *value, diet_data_type_t type,
                diet_base_type_t base_type, diet_persistence_mode_t mode,
                size_t nb_r, size_t nb_c, diet_matrix_order_t order,
@@ -58,7 +58,7 @@ dagda_put_data(void *value, diet_data_type_t type,
  *
  * @return 0 (success), 1 (failure)
  */
-SHAREDLIB int
+DIET_API_LIB int
 dagda_get_data(const char *dataID, void **value,
                diet_data_type_t type, diet_base_type_t *base_type,
                size_t *nb_r, size_t *nb_c,
@@ -70,7 +70,7 @@ dagda_get_data(const char *dataID, void **value,
  *
  * @return 0 (success)
  */
-SHAREDLIB int
+DIET_API_LIB int
 dagda_delete_data(char *dataID);
 
 /**
@@ -204,7 +204,7 @@ dagda_id_from_alias(const char *alias, char **id);
  *
  * @return 0 (success), 1 (failure)
  */
-SHAREDLIB int
+DIET_API_LIB int
 dagda_replicate_data(const char *id, const char *rule);
 
 /**
@@ -214,7 +214,7 @@ dagda_replicate_data(const char *id, const char *rule);
  *
  * @return
  */
-SHAREDLIB int
+DIET_API_LIB int
 dagda_create_container(char **ID);
 
 /**
@@ -224,7 +224,7 @@ dagda_create_container(char **ID);
  *
  * @return 0 (success)
  */
-SHAREDLIB int
+DIET_API_LIB int
 dagda_init_container(diet_data_t *profile_data);
 
 /**
@@ -238,7 +238,7 @@ dagda_init_container(diet_data_t *profile_data);
  *
  * @return 0 (success), 1 (failure)
  */
-SHAREDLIB int
+DIET_API_LIB int
 dagda_add_container_element(const char *idContainer, const char *idElement,
                             int index);
 
@@ -252,7 +252,7 @@ dagda_add_container_element(const char *idContainer, const char *idElement,
  *
  * @return
  */
-SHAREDLIB int
+DIET_API_LIB int
 dagda_add_container_null_element(const char *idContainer, int index);
 
 /**
@@ -265,7 +265,7 @@ dagda_add_container_null_element(const char *idContainer, int index);
  *
  * @return  0 (success), 1 (failure)
  */
-SHAREDLIB int
+DIET_API_LIB int
 dagda_get_container_elements(const char *idContainer,
                              diet_container_t *content);
 

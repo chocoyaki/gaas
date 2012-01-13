@@ -8,9 +8,9 @@
 #ifndef OSINDEPENDANCY_HH_
 #define OSINDEPENDANCY_HH_
 #ifdef WIN32
-   #define SHAREDLIB __declspec(dllexport)
+   #define DIET_API_LIB __declspec(dllexport)
 #else
-   #define SHAREDLIB
+   #define DIET_API_LIB
 #endif
 #ifdef __WIN32__
 #pragma comment(lib, "Shlwapi")
@@ -46,17 +46,17 @@ typedef uint32_t u_int32_t;
 
 char * getlogin(void);
 
-SHAREDLIB int gettimeofday (struct timeval *tp, void *tz);
+DIET_API_LIB int gettimeofday (struct timeval *tp, void *tz);
 
-SHAREDLIB int gethostname(char *name, size_t namelen);
+DIET_API_LIB int gethostname(char *name, size_t namelen);
 
-SHAREDLIB char *strtok_r(char *ptr, const char *sep, char **end);
+DIET_API_LIB char *strtok_r(char *ptr, const char *sep, char **end);
 
-SHAREDLIB int strcasecmp(const char *s1, const char *s2);
+DIET_API_LIB int strcasecmp(const char *s1, const char *s2);
 
-SHAREDLIB char *strsep( char **ppsz_string, const char *psz_delimiters );
+DIET_API_LIB char *strsep( char **ppsz_string, const char *psz_delimiters );
 
-SHAREDLIB std::string tmpDir(void);
+DIET_API_LIB std::string tmpDir(void);
 
 /* getpagesize for windows */
 long getpagesize (void);

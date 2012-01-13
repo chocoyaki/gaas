@@ -17,9 +17,9 @@
 #include <string>
 #include <omniORB4/CORBA.h>
 #ifdef WIN32
-   #define SHAREDLIB __declspec(dllexport)
+   #define DIET_API_LIB __declspec(dllexport)
 #else
-   #define SHAREDLIB
+   #define DIET_API_LIB
 #endif
 typedef std::list<std::string> attributes_t;
 
@@ -38,7 +38,7 @@ public:
   exists(std::string key) = 0;
 };
 
-class SHAREDLIB MapDagdaCatalog : public DagdaCatalog {
+class DIET_API_LIB MapDagdaCatalog : public DagdaCatalog {
 public:
   virtual ~MapDagdaCatalog() {
   }

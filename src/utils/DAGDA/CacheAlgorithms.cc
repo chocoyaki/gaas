@@ -17,9 +17,14 @@
 #include "DIET_data_internal.hh"
 #include "debug.hh"
 
+#ifdef WIN32
+   #define DIET_API_LIB __declspec(dllexport)
+#else
+   #define DIET_API_LIB
+#endif
 using namespace std;
 
-extern "C" __declspec (dllexport) int
+extern "C" DIET_API_LIB int
 LRU(AdvancedDagdaComponent *manager, size_t size, dagda_object_type_t type) {
   TRACE_TEXT(TRACE_ALL_STEPS, "Needs more space for the data:" <<
              " Tries to remove one using LRU." << endl);

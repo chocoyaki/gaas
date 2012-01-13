@@ -30,6 +30,11 @@
 
 #include "DIET_Dagda.h"
 #include "OSIndependance.hh"
+#ifdef WIN32
+   #define DIET_API_LIB __declspec(dllexport)
+#else
+   #define DIET_API_LIB
+#endif
 
 size_t
 availableDiskSpace(const char *path) {
@@ -239,7 +244,7 @@ DagdaFactory::getDefaultName() {
   return CORBA::string_dup(name.str().c_str());
 } // getDefaultName
 
-__declspec (dllexport) DagdaImpl *
+DIET_API_LIB DagdaImpl *
 DagdaFactory::getClientDataManager() {
   if (!clientDataManager) {
     clientDataManager = createDataManager(DGD_CLIENT_MNGR);
@@ -252,7 +257,7 @@ DagdaFactory::getClientDataManager() {
   return clientDataManager;
 } // getClientDataManager
 
-__declspec (dllexport)DagdaImpl *
+DIET_API_LIB DagdaImpl *
 DagdaFactory::getSeDDataManager() {
   if (!sedDataManager) {
     const char *parentName = getParentName();
@@ -284,7 +289,7 @@ DagdaFactory::getSeDDataManager() {
   return sedDataManager;
 } // getSeDDataManager
 
-__declspec (dllexport) DagdaImpl *
+DIET_API_LIB DagdaImpl *
 DagdaFactory::getAgentDataManager() {
   if (!agentDataManager) {
     const char *parentName = getParentName();
@@ -325,7 +330,7 @@ DagdaFactory::getDataManager() {
   return localDataManager;
 }
 
-__declspec (dllexport) void
+DIET_API_LIB void
 DagdaFactory::reset() {
   // Reset everything to default value
   // TODO: Do not delete managers, otherwise we get a segfault...
