@@ -17,7 +17,7 @@
 #include "DagdaImpl.hh"
 
 /* A class factory to simplify the extensions of the Dagda object. */
-extern "C" class __declspec (dllexport) DagdaFactory {
+class __declspec (dllexport) DagdaFactory {
 public:
   static DagdaImpl *
   getClientDataManager();
