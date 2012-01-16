@@ -36,14 +36,18 @@ if(WIN32)
     ${LOG_LIBRARY_UTILS} ${LOG_LIBRARY_BASE}
     ${LOG_LIBRARY_TBASE} ${LOG_LIBRARY_CORBA})  
 else()
-  find_library(LOG_LIBRARY ${libName})
+  find_library(LOG_COMPONENT_LIBRARY ${libName})
+  find_library(LOG_UTILS_LIBRARY LogForwarderUtils)
+  set(LOG_LIBRARY ${LOG_COMPONENT_LIBRARY})
+  set(LOG_LIBRARIES ${LOG_COMPONENT_LIBRARY} ${LOG_UTILS_LIBRARY})
 endif()
   
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(LOGSERVICE DEFAULT_MSG LOG_INCLUDE_DIR LOG_LIBRARY)
 
 if(NOT LOGSERVICE_FOUND)
-  message("Log not found on this machine. DIET will not be able to use the log system.")
-  set(LOGSERVICE_DIR "" CACHE PATH "Root of log service tree installation".)
+  message(STATUS
+    "Log not found on this machine. DIET will not be able to use the log system.")
+  set(LOGSERVICE_DIR "" CACHE PATH "Root of log service tree installation.")
 endif()
 
