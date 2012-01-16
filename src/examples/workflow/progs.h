@@ -22,9 +22,9 @@
 #include <stdio.h>
 #include <string.h>
 #ifndef __WIN32__
-#define INLINE inline
+#define INLINE __inline
 #else
-#define INLINE _inline
+#define INLINE inline
 #endif
 
 

@@ -25,6 +25,12 @@
 #include <sys/time.h>
 #endif
 
+#ifdef WIN32
+#define INLINE __inline
+#else
+#define INLINE 
+#endif
+
 #if HAVE_STATISTICS
 
 enum stat_type {
@@ -33,12 +39,13 @@ enum stat_type {
   STAT_INFO
 };
 
+
 // Please, don't use those variables
 extern FILE *STAT_FILE;
 extern const char *const STAT_TYPE_STRING[3];
 
 // Don't call this, call stat_in, stat_out & stat_info instead
-inline void
+INLINE void
 gen_stat(int type, const char *myname, const char *message) {
   if (STAT_FILE != NULL) {
     struct timeval tv;

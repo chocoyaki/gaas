@@ -18,6 +18,12 @@
 #include <stdio.h>
 #include <string.h>
 
+#ifdef WIN32
+#define INLINE __inline
+#else 
+#define INLINE inline
+#endif
+
 
 #define print_matrix(mat, m, n, rm) {           \
     size_t i, j;                                \
@@ -40,7 +46,7 @@
  * Transpose a matrix (column-major <=> rm == 0)
  */
 
-inline int
+INLINE int
 T(int m, int n, double *A, int rm) {
   size_t i, j;
   double *tmp = NULL;
@@ -67,7 +73,7 @@ T(int m, int n, double *A, int rm) {
  * if tA == 'T', then A is row-major ...
  */
 
-inline int
+INLINE int
 MatSUM(char tA, char tB, int m, int n, double *A, double *B, double *C) {
   size_t i, j;
 
@@ -110,7 +116,7 @@ MatSUM(char tA, char tB, int m, int n, double *A, double *B, double *C) {
  * if tA == 'T', then A is row-major ...
  */
 
-inline int
+INLINE int
 MatPROD(char tA, char tB,
         int mA, int nA, double *A,
         int nB, double *B, double *C) {

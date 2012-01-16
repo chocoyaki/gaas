@@ -172,6 +172,12 @@
 
 #include "DIET_data.h"
 
+#ifdef WIN32
+#define INLINE __inline
+#else 
+#define INLINE inline
+#endif 
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -1475,7 +1481,7 @@ extern "C" {
      @sa DIET_grpc.h for error codes
 
   */
-  _inline int
+  INLINE int
   diet_generic_desc_set(struct diet_data_generic* desc,
                         diet_data_type_t type,
                         diet_base_type_t base_type) {
