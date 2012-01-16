@@ -1,12 +1,12 @@
 /**
 * @file ts_set.hh
-* 
-* @brief  Thread safe STL set header 
-* 
+*
+* @brief  Thread safe STL set header
+*
 * @author  Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)
-* 
+*
 * @section Licence
-*   |LICENCE|                                                                
+*   |LICENCE|
 */
 
 
@@ -159,7 +159,7 @@ public:
 #ifndef NDEBUG // only used by the assert
     assert(accessLocked);
 #endif  // NDEBUG
-    return begin();
+    return SetType::begin();
   }
 
   /**
@@ -169,7 +169,7 @@ public:
 #ifndef NDEBUG // only used by the assert
     assert(accessLocked);
 #endif  // NDEBUG
-    return end();
+    return SetType::end();
   }
 
   /**
