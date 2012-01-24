@@ -46,7 +46,7 @@ main(int argc, char *argv[]) {
     return 1;
   }
 
-  service = boost::str(boost::format("dyn_add_rem_%0%") % argv[2]);
+  service = boost::str(boost::format("dyn_add_rem_%1%") % argv[2]);
   p1 = boost::lexical_cast<int>(argv[3]);
 
   std::cout << "Will call service '" << service << "', with " << p1 <<

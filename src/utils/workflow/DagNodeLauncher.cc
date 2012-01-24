@@ -44,7 +44,7 @@ DagNodeLauncher::getSeDName() const {
 
 std::string
 DagNodeLauncher::toString() const {
-  boost::format fmter("DagNode Launcher ({0})");
+  boost::format fmter("DagNode Launcher (%1%)");
   return boost::str(fmter % myNode->getId());
 }
 
