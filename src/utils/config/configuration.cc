@@ -28,8 +28,8 @@ bool
 getConfigValue(diet::param_type_t param, std::string& value)
 {
   const std::string& key = (diet::params)[param].value;
-  ConfigMap::iterator it = configPtr->find(key);
-  if (configPtr->end() == it) {
+  ConfigMap::iterator it = GetConfigPtr()->find(key);
+  if (GetConfigPtr()->end() == it) {
     return false;
   } else {
     value = it->second;
@@ -46,8 +46,8 @@ getConfigValue(diet::param_type_t param, std::string& value)
 bool
 getAddressConfigValue(diet::param_type_t param, std::string& value) {
   const std::string& key = (diet::params)[param].value;
-  ConfigMap::iterator it = configPtr->find(key);
-  if (configPtr->end() == it) {
+  ConfigMap::iterator it = GetConfigPtr()->find(key);
+  if (GetConfigPtr()->end() == it) {
     return false;
   } else {
     std::string val = it->second;
@@ -76,8 +76,8 @@ getAddressConfigValue(diet::param_type_t param, std::string& value) {
 bool
 getAgentConfigValue(diet::param_type_t param, std::string& value) {
   const std::string& key = (diet::params)[param].value;
-  ConfigMap::iterator it = configPtr->find(key);
-  if (configPtr->end() == it) {
+  ConfigMap::iterator it = GetConfigPtr()->find(key);
+  if (GetConfigPtr()->end() == it) {
     return false;
   } else {
     std::string& val = it->second;

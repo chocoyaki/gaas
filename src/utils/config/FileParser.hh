@@ -19,6 +19,12 @@
 #include "FileException.hh"
 #include "CommonParser.hh"
 
+#ifdef __WIN32__
+#define DIET_API_LIB __declspec(dllexport)
+#else
+#define DIET_API_LIB
+#endif
+
 /**
  * @author Gael Le Mahec <gael.le.mahec@ens-lyon.fr)
  * @author hguemar <hguemar@sysfera.com>
@@ -28,7 +34,7 @@
  *
  * support ini-like format, options are stored in a std::map
  */
-class FileParser {
+class DIET_API_LIB FileParser {
 public:
   /**
    * @brief default constructor

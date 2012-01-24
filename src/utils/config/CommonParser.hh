@@ -25,7 +25,11 @@
 
 extern std::ostream debug;
 extern std::string nullString;
-
+#ifdef __WIN32__
+#define DIET_API_LIB __declspec(dllexport)
+#else
+#define DIET_API_LIB
+#endif
 /**
  *  @typedef std::map<std::string, std::string> ConfigMap
  *
@@ -96,4 +100,5 @@ private:
   std::string str_;
 };
 
+DIET_API_LIB ConfigMap * GetConfigPtr();
 #endif /* _COMMON_PARSER_HH_ */

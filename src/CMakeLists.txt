@@ -54,16 +54,16 @@ endif()
 macro(corba_header arg1 arg2)
   foreach(hdr ${IDL_GENERATED_HEADERS})
     string(REGEX MATCH ".*/${arg2}.hh" result ${hdr})
-    if (NOT ${result} EQUAL "")
+    if(NOT ${result} EQUAL "")
       set(${arg1} ${result})
-    endif (NOT ${result} EQUAL "")
+    endif(NOT ${result} EQUAL "")
   endforeach(hdr)
 endmacro(corba_header)
 
 # This macro extracts the complete paths to the generated header files
 # containing the names passed as arguments and stores them into arg1
 macro(corba_headers arg1)
-  foreach (arg ${ARGV})
+  foreach(arg ${ARGV})
     corba_header(tmp ${arg})
     set(res ${res} ${tmp})
   endforeach(arg)
@@ -136,7 +136,7 @@ if(DIET_USE_WORKFLOW)
 endif()
 
 if(DIET_USE_ALT_BATCH)
-  IF (WIN32)
+  if()
     set(UtilsBatch_SRCS
       utils/batch/BatchCreator.cc
       utils/batch/BatchSystem.cc
@@ -146,8 +146,8 @@ if(DIET_USE_ALT_BATCH)
       utils/batch/PBS_BatchSystem.cc
       utils/batch/SGE_BatchSystem.cc
       utils/batch/Slurm_BatchSystem.cc
-	  utils/batch/mkstemp.cc)
-  ELSE (WIN32)
+      utils/batch/mkstemp.cc)
+  else()
     set(UtilsBatch_SRCS
       utils/batch/BatchCreator.cc
       utils/batch/BatchSystem.cc
@@ -157,7 +157,7 @@ if(DIET_USE_ALT_BATCH)
       utils/batch/PBS_BatchSystem.cc
       utils/batch/SGE_BatchSystem.cc
       utils/batch/Slurm_BatchSystem.cc)  
-  ENDIF()
+  endif()
 endif()
 
 if(DIET_USE_USERSCHED)
@@ -180,7 +180,6 @@ if(DIET_USE_USERSCHED)
     utils/ts_container/ts_set.hh
     DESTINATION
     ${INCLUDE_INSTALL_DIR}/scheduler/ts_container)
-
 endif()
 
 generate_idl(OUTPUT DIET_IDL_OUTPUT
@@ -215,9 +214,9 @@ set(dietUtils_SRCS
   utils/DIET_compat.cc
   utils/DataRelationMgr.cc)
 
-IF (WIN32)
+if(WIN32)
   set(dietUtils_SRCS ${dietUtils_SRCS} utils/OSIndependance.cc)
-ENDIF (WIN32)  
+endif()  
 
 if(DIET_USE_USERSCHED)
   install(FILES
@@ -243,7 +242,6 @@ if(DIET_USE_CLOUD)
     ${GSOAP_SRC_DIR}/gsoap/plugin/smdevp.c
     ${GSOAP_SRC_DIR}/gsoap/plugin/wsseapi.c)
 endif()
-
 
 add_subdirectory(Testing)
 
@@ -300,6 +298,28 @@ if(DIET_USE_WORKFLOW)
     CORBA/forwarders/WfLogService.cc)
 endif()
 
+## UtilsNode
+set(UtilsNode_SRCS
+  utils/nodes/Counter.cc
+  utils/nodes/ServiceTable.cc)
+
+if(DIET_USE_LOG)
+  set(UtilsNode_SRCS ${UtilsNode_SRCS}
+    utils/nodes/MonitoringThread.cc)
+endif()
+
+## Cori
+set(cori_SRCS
+  utils/nodes/Cori_Data_Easy.cc
+  utils/nodes/Cori_Easy_CPU.cc
+  utils/nodes/Cori_Easy_Disk.cc
+  utils/nodes/Cori_Easy_Memory.cc
+  utils/nodes/Cori_Metric.cc
+  utils/nodes/CORIMgr.cc)
+if(DIET_USE_ALT_BATCH)
+  set(cori_SRCS ${cori_SRCS} utils/batch/Cori_batch.cc)
+endif()
+  
 ## library: DAGDA
 set(DAGDA_SRCS
   utils/DAGDA/DagdaImpl.cc
@@ -313,24 +333,32 @@ set(DAGDA_SRCS
   ${DIET_IDL_OUTPUT}
   ${config_SRCS}
   ${CorbaCommon_SRCS}
-  ${dietUtils_SRCS})
+  ${dietUtils_SRCS}
+  ${UtilsNode_SRCS}
+  ${cori_SRCS})
 if(DIET_TRANSFER_PROGRESSION)
   set(DAGDA_SRCS ${DAGDA_SRCS} utils/DAGDA/Transfers.cc)
+endif()
+if(DIET_USE_ALT_BATCH)
+  set(DAGDA_SRCS ${DAGDA_SRCS} ${UtilsBatch_SRCS})
 endif()
 if(DIET_USE_WORKFLOW)
   set(DAGDA_SRCS ${DAGDA_SRCS} ${UtilsWf_SRCS} ${UtilsEvents_SRCS})
 endif()
 
 set(DAGDA_LIBS ${OMNIORB4_LIBRARIES} ${Boost_LIBRARIES})
-
-if (WIN32)
-  set(DAGDA_Libs ${DAGDA_LIBS} Shlwapi ws2_32)
-endif (WIN32)
+if(DIET_USE_CLOUD)
+  set(DAGDA_SRCS ${DAGDA_SRCS} ${cloud_SRCS})
+  set(DAGDA_LIBS ${DAGDA_LIBS} ${GSOAP_LIBRARIES})
+endif()
+if(WIN32)
+  set(DAGDA_LIBS ${DAGDA_LIBS} Shlwapi ws2_32)
+endif()
 
 if(DIET_USE_LOG)
   set(DAGDA_SRCS ${DAGDA_SRCS} ${UtilsLog_SRCS})
   set(DAGDA_LIBS ${DAGDA_LIBS} ${LOG_LIBRARY})
-endif(DIET_USE_LOG)
+endif()
 
 if(DIET_USE_WORKFLOW)
   set(DAGDA_LIBS ${DAGDA_LIBS} ${XQILLA_LIBRARY} ${XERCES_LIBRARY})
@@ -362,15 +390,16 @@ set(dietForwarder_SRCS
   CORBA/DIETForwarder.cc
   ${ForwarderCommon_SRCS}
   ${AgentCommon_SRCS}
-  ${DIET_IDL_OUTPUT})
+  ${DIET_IDL_OUTPUT}
+  ${dietUtils_SRCS})
 
-IF (WIN32)
+if(WIN32)
   set(dietForwarder_LIBS DIET_Dagda DIET_SeD DIET_client
     ${OMNIORB4_LIBRARIES} ${CMAKE_DL_LIBS}  ws2_32 Iphlpapi)
-ELSE (WIN32)
+else()
   set(dietForwarder_LIBS DIET_Dagda DIET_SeD DIET_client
     ${OMNIORB4_LIBRARIES} ${CMAKE_DL_LIBS})
-ENDIF()
+endif()
 
 if(DIET_USE_WORKFLOW)
   set(dietForwarder_SRCS ${dietForwarder_SRCS}
@@ -397,11 +426,9 @@ install(TARGETS dietForwarder DESTINATION ${BIN_INSTALL_DIR})
 if(DIET_BUILD_TOOLS)
   set(dietObjects_SRCS CORBA/tools/dietObjects.cc)
   set(dietObjects_LIBS DIET_client DIET_SeD ${OMNIORB4_LIBRARIES})
-  IF (WIN32)
-    set(dietObjects_LIBS
-      ${dietObjects_LIBS}
-      ws2_32)  
-   ENDIF (WIN32)
+  if(WIN32)
+    set(dietObjects_LIBS ${dietObjects_LIBS} ws2_32)  
+   endif()
 
   if(DIET_USE_WORKFLOW)
     set(dietObjects_LIBS ${dietObjects_LIBS}
@@ -413,30 +440,12 @@ if(DIET_BUILD_TOOLS)
   install(TARGETS dietObjects DESTINATION ${BIN_INSTALL_DIR})
 endif()
 
-## UtilsNode
-set(UtilsNode_SRCS
-  utils/nodes/Counter.cc
-  utils/nodes/ServiceTable.cc)
-
-if(DIET_USE_LOG)
-  set(UtilsNode_SRCS ${UtilsNode_SRCS}
-    utils/nodes/MonitoringThread.cc)
-endif()
 
 ## Cori
-set(cori_SRCS
-  utils/nodes/Cori_Data_Easy.cc
-  utils/nodes/Cori_Easy_CPU.cc
-  utils/nodes/Cori_Easy_Disk.cc
-  utils/nodes/Cori_Easy_Memory.cc
-  utils/nodes/Cori_Metric.cc
-  utils/nodes/CORIMgr.cc)
-
 set(CORI_BATCH_CLEAN_COMPILE_FLAG "")
 if(DIET_USE_ALT_BATCH)      # Then extract from the lib SeD related
   set(CORI_BATCH_CLEAN_COMPILE_FLAG ${CORI_BATCH_CLEAN_COMPILE_FLAG}
     "-D CLEAN_CORILIB_FROM_BATCH_STAFF")
-  set(cori_SRCS ${cori_SRCS} utils/batch/Cori_batch.cc)
 endif()
 set_source_files_properties(Cori_Metric.cc
   PROPERTIES COMPILE_FLAGS "${CORI_BATCH_CLEAN_COMPILE_FLAG}")
@@ -451,7 +460,7 @@ if(CORI_HAVE_PROCMEM)
   set(CORI_EASY_MEMORY_COMPILE_FLAGS
     "${CORI_EASY_MEMORY_COMPILE_FLAGS} -D CORI_HAVE_PROCMEM")
 endif()
-if (CORI_HAVE_SYS_TYPES)
+if(CORI_HAVE_SYS_TYPES)
   set( CORI_EASY_CPU_COMPILE_FLAGS
     "${CORI_EASY_CPU_COMPILE_FLAGS} -D CORI_HAVE_SYS_TYPES")
 endif()
@@ -510,10 +519,15 @@ set(DIET_client_SRCS
   client/DIETCall.cc
   client/CallAsyncMgr.cc
   client/CallbackImpl.cc
-  ${DIET_IDL_OUTPUT})
+  ${DIET_IDL_OUTPUT}
+  ${config_SRCS}
+  ${dietUtils_SRCS}
+  ${ForwarderCommon_SRCS}
+  ${AgentCommon_SRCS})
 
 set(DIET_client_LIBS
   DIET_Dagda
+  DIET_SeD
   ${OMNIORB4_LIBRARIES})
 
 if(DIET_USE_MULTICALL)
@@ -533,18 +547,20 @@ if(DIET_USE_WORKFLOW)
   set(DIET_client_SRCS ${DIET_client_SRCS}
     ${ClientWf_SRCS} ${UtilsWf_SRCS} ${UtilsEvents_SRCS}) 
 
-  set(DIET_client_Libs ${DIET_client_Libs}
+  set(DIET_client_LIBS ${DIET_client_LIBS}
     ${XQILLA_LIBRARY} ${XERCES_LIBRARY})
 
   install(FILES utils/workflow/FWorkflow.dtd DESTINATION ${DATA_INSTALL_DIR})
 endif()
+if(DIET_USE_USERSCHED)
+  set(DIET_client_SRCS ${DIET_client_SRCS} agent/UserScheduler.cc)
+endif()
 
-if (WIN32)
-  set(DIET_client_Libs ${DIET_client_Libs} ws2_32 Shlwapi)
-endif (WIN32)
+if(WIN32)
+  set(DIET_client_LIBS ${DIET_client_LIBS} ws2_32 Shlwapi Iphlpapi)
+endif()
 
 add_library(DIET_client ${DIET_client_SRCS})
-
 set_target_properties(DIET_client  PROPERTIES VERSION ${DIET_VERSION})
 target_link_libraries(DIET_client ${DIET_client_LIBS})
 install(TARGETS DIET_client DESTINATION ${LIB_INSTALL_DIR})
@@ -565,7 +581,7 @@ if(DIET_USE_USERSCHED)
     agent/Schedulers.hh
     DESTINATION ${INCLUDE_INSTALL_DIR}/scheduler)
 endif()
-set(dietAgent_SRCS ${AgentCommon_SRCS} agent/dietAgent.cc)
+set(dietAgent_SRCS ${AgentCommon_SRCS} agent/dietAgent.cc ${DIET_IDL_OUTPUT} ${dietUtils_SRCS} ${config_SRCS})
 if(DIET_USE_WORKFLOW)
   set(dietAgent_SRCS ${dietAgent_SRCS} ${ClientWf_SRCS} ${MaDagCommon_SRCS})
   set(dietAgent_LIBS ${dietAgent_LIBS} ${XQILLA_LIBRARY} ${XERCES_LIBRARY})
@@ -580,9 +596,9 @@ if(DIET_USE_CLOUD)
   set(dietAgent_SRCS ${dietAgent_SRCS} ${cloud_SRCS})
   set(dietAgent_LIBS ${dietAgent_LIBS} ${GSOAP_LIBRARIES})
 endif()
-IF(WIN32)
+if(WIN32)
   set(dietAgent_LIBS ${dietAgent_LIBS} Shlwapi  ws2_32)
-ENDIF(WIN32)
+endif()
 
 add_executable(dietAgent ${dietAgent_SRCS})
 target_link_libraries(dietAgent ${dietAgent_LIBS})
@@ -590,11 +606,11 @@ install(TARGETS dietAgent DESTINATION ${BIN_INSTALL_DIR})
 
 ## executable: maDagAgent
 if(DIET_USE_WORKFLOW)
-  set(maDagAgent_LIBS DIET_Dagda ${XQILLA_LIBRARY} ${XERCES_LIBRARY}
+  set(maDagAgent_LIBS DIET_Dagda DIET_SeD ${XQILLA_LIBRARY} ${XERCES_LIBRARY}
     ${OMNIORB4_LIBRARIES})
-  IF (WIN32)
+  if(WIN32)
     set(maDagAgent_LIBS ${maDagAgent_LIBS} ws2_32 Shlwapi)
-  ENDIF (WIN32)  
+  endif()  
 
   add_executable(maDagAgent agent/workflow/maDagAgent.cc ${MaDagCommon_SRCS}
     ${UtilsEvents_SRCS})
@@ -609,11 +625,9 @@ if(DIET_USE_ALT_BATCH)
   set(DIET_SeD_SRCS ${DIET_SeD_SRCS} ${cori_SRCS} ${UtilsBatch_SRCS})
 endif()
 set(DIET_SeD_LIBS DIET_Dagda ${OMNIORB4_LIBRARIES})
-IF (WIN32)
-  set(DIET_SeD_LIBS
-    ${DIET_SeD_LIBS}
-    ws2_32)
-ENDIF (WIN32)  
+if(WIN32)
+  set(DIET_SeD_LIBS ${DIET_SeD_LIBS} ws2_32)
+endif()  
 if(DIET_USE_LOG)
   set(DIET_SeD_SRCS ${DIET_SeD_SRCS} ${UtilsLog_SRCS})
 endif()

@@ -29,12 +29,16 @@
 #ifndef DIET_VERSION
 #define DIET_VERSION "0.0.0"
 #endif
-
+#ifdef __WIN32__
+#define DIET_API_LIB __declspec(dllexport)
+#else
+#define DIET_API_LIB
+#endif
 
 // TODO: not thread-safe
-extern ConfigMap *configPtr;
+
 // simplify code using global configuration map
-#define CONFIGMAP (*configPtr)
+#define CONFIGMAP (* GetConfigPtr())
 
 /**
  * @class simple_cast_trait
@@ -77,10 +81,10 @@ T simple_cast(const S& arg) {
 
 template<typename T>
 bool
-getConfigValue(diet::param_type_t param, T& value) {
+DIET_API_LIB getConfigValue(diet::param_type_t param, T& value) {
   const std::string& key = (diet::params)[param].value;
-  ConfigMap::iterator it = configPtr->find(key);
-  if (configPtr->end() == it) {
+  ConfigMap::iterator it = GetConfigPtr()->find(key);
+  if (GetConfigPtr()->end() == it) {
     return false;
   } else {
     value = simple_cast<T>(it->second);
@@ -90,13 +94,13 @@ getConfigValue(diet::param_type_t param, T& value) {
 
 // TODO: not handled by generic method above
 template<> 
-bool
+DIET_API_LIB bool
 getConfigValue(diet::param_type_t param, std::string& value);
 
-bool
+DIET_API_LIB bool
 getAddressConfigValue(diet::param_type_t, std::string&);
 
-bool
+DIET_API_LIB bool
 getAgentConfigValue(diet::param_type_t, std::string&);
 
 #define CONFIG_BOOL(x, y) getConfigValue<bool>((x), (y))

@@ -26,10 +26,14 @@
 #include "response.hh"
 #include "DIET_data_internal.hh"
 #include "OSIndependance.hh"
-
+#ifdef WIN32
+   #define DIET_API_LIB __declspec(dllexport)
+#else
+   #define DIET_API_LIB
+#endif
 
 /** The trace level. */
-extern unsigned int TRACE_LEVEL;
+extern "C" DIET_API_LIB unsigned int TRACE_LEVEL;
 /** mutex used by the debug library to share the stderr and stdout */
 extern omni_mutex debug_log_mutex;
 

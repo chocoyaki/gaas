@@ -110,4 +110,4 @@ mkstemp (char *tmpl)
   errno = EEXIST;
   return -1;
 }
-#ENDIF 
+#endif

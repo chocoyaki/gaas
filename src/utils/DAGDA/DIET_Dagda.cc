@@ -882,10 +882,19 @@ eval(const char *str, long *type, char **rule, bool *replace) {
     free(S);
     return 1;
   }
+#ifdef __WIN32__
+  if (stricmp(t, "id") == 0) {
+#else
   if (strcasecmp(t, "id") == 0) {
+#endif
     *type = 1;
   } else {
+#ifdef __WIN32__
+    if (stricmp(t, "host") == 0) {
+#else
     if (strcasecmp(t, "host") == 0) {
+#endif
+
       *type = 0;
     } else {
       free(S);
@@ -902,10 +911,19 @@ eval(const char *str, long *type, char **rule, bool *replace) {
     free(S);
     return 1;
   }
+#ifdef __WIN32__
+  if (stricmp(repl, "replace") == 0) {
+#else
   if (strcasecmp(repl, "replace") == 0) {
+#endif
     *replace = true;
   } else {
+#ifdef __WIN32__
+    if (stricmp(repl, "noreplace") == 0) {
+#else
     if (strcasecmp(repl, "noreplace") == 0) {
+#endif
+
       *replace = false;
     } else {
       free(S);

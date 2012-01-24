@@ -39,5 +39,5 @@ ExitClass::exitFunction() {
   }
   TRACE_TEXT(TRACE_MAIN_STEPS, "Agent stopped !\n");
   /* We do not need the parsing results any more */
-  delete configPtr;
+  delete GetConfigPtr();
 } // exitFunction

@@ -22,10 +22,17 @@
 #include "marshalling.hh"
 #include "DIET_data_internal.hh"
 #include "DIET_server.h"
+
+#ifdef WIN32
+   #define DIET_API_LIB __declspec(dllexport)
+#else
+   #define DIET_API_LIB
+#endif
+
 /**
  * The trace level itself: it must be set by the Parsers.
  */
-unsigned int TRACE_LEVEL = TRACE_DEFAULT;
+DIET_API_LIB unsigned int TRACE_LEVEL = TRACE_DEFAULT;
 
 // see debug.hh
 omni_mutex debug_log_mutex;

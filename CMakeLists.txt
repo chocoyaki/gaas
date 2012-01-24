@@ -8,7 +8,10 @@ set(DIET_REVISION_VERSION 0)
 set(DIET_VERSION
   "${DIET_MAJOR_VERSION}.${DIET_MINOR_VERSION}.${DIET_REVISION_VERSION}")
 
-set(CMAKE_THREAD_LIBS_INIT pthread)
+if (NOT WIN32)
+  set(CMAKE_THREAD_LIBS_INIT pthread)
+endif (NOT WIN32)
+
 
 add_definitions(-DDIET_VERSION="${DIET_VERSION}")
 # Get Date
@@ -239,11 +242,10 @@ find_package(Boost 1.46.0 COMPONENTS filesystem regex system thread REQUIRED)
 add_definitions(-DBOOST_FILESYSTEM_VERSION=3)
 if(Boost_FOUND)
   if(WIN32)
-	link_directories(${Boost_LIBRARY_DIRS})
-  else()
-    set(THIRD_PARTY_LIBS ${THIRD_PARTY_LIBS} ${Boost_LIBRARIES})  
+    link_directories(${Boost_LIBRARY_DIRS})
   endif()
-  set(THIRD_PARTY_LIBS ${THIRD_PARTY_LIBS} ${CMAKE_THREAD_LIBS_INIT})
+    set(THIRD_PARTY_LIBS ${THIRD_PARTY_LIBS}
+      ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 endif()
 
 

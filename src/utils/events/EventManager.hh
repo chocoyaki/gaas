@@ -17,13 +17,17 @@
 #include "EventBase.hh"
 #include "EventHandler.hh"
 #include "EventObserver.hh"
-
+#ifdef WIN32
+   #define DIET_API_LIB __declspec(dllexport)
+#else
+   #define DIET_API_LIB
+#endif
 namespace events {
 // Singleton class for the global event manager
 // Implements the Mediator pattern to reduce coupling btw event producers and
 // event observers
 
-class EventManager {
+class DIET_API_LIB EventManager {
 public:
   virtual ~EventManager() {
   }

@@ -513,16 +513,10 @@ grpc_error_t
 grpc_build_profile(diet_profile_t * &profile,
                    char *pb_name, grpc_arg_stack_t *args) {
   int tmp;
-
   profile = diet_profile_alloc(pb_name, 0, 0, args->first);
-
   tmp = 0;
 
-#ifdef __WIN32__
   for (int mode = (int) DIET_IN; mode >= (int) DIET_OUT; mode++) {
-#else
-  for (int mode = (int) DIET_IN; mode >= (int) DIET_OUT; mode++) {
-#endif
     for (int i = 0; i <= args->first; i++) {
       if (args->stack[i].mode == (diet_grpc_arg_mode_t) mode) {
         profile->parameters[tmp] = (*args->stack[i].arg);
@@ -530,26 +524,20 @@ grpc_build_profile(diet_profile_t * &profile,
       }
     }
     switch (mode) {
-#ifdef __WIN32__
-	case DIET_IN:    profile->last_in    = tmp - 1; break;
-    case DIET_INOUT: profile->last_inout = tmp - 1; break;
-    case DIET_OUT:   {
-
-#else    
-    case IN:    profile->last_in = tmp - 1;
+    case DIET_IN:
+      profile->last_in = tmp - 1;
       break;
-    case INOUT: profile->last_inout = tmp - 1;
+    case DIET_INOUT:
+      profile->last_inout = tmp - 1;
       break;
-    case OUT:   {
-#endif
+    case DIET_OUT:
       if (profile->last_out != tmp - 1) {
         ERROR_DEBUG("argStack could not be converted into a profile", 1);
       }
     }
-    } // switch
   }
   return 0;
-} // grpc_build_profile
+}
 
 
 /****************************************************************************/

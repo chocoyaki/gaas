@@ -52,7 +52,7 @@ DIET_API_LIB int gethostname(char *name, size_t namelen);
 
 DIET_API_LIB char *strtok_r(char *ptr, const char *sep, char **end);
 
-DIET_API_LIB int strcasecmp(const char *s1, const char *s2);
+/*DIET_API_LIB int strcasecmp(const char *s1, const char *s2);*/
 
 DIET_API_LIB char *strsep( char **ppsz_string, const char *psz_delimiters );
 

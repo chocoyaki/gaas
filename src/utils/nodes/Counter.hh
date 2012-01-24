@@ -19,7 +19,11 @@
 #include <omnithread.h>
 #include <sys/types.h>
 #include <cassert>
-
+#ifdef WIN32
+   #define DIET_API_LIB __declspec(dllexport)
+#else
+   #define DIET_API_LIB
+#endif
 /**
  * This is a thread safe counter. The operators ++, -- and = are
  * defined. The counter accept only 32 bits positive value. The prefix
@@ -40,7 +44,7 @@
  * @author Sylvain DAHAN, LIFC Besan�on (France)
  */
 
-class Counter {
+class DIET_API_LIB Counter {
 public:
   /**
    * Creates a new Counter initialized with the value \c n. If no

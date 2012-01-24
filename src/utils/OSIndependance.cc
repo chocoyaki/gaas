@@ -90,9 +90,9 @@ strtok_r(char *ptr, const char *sep, char **end)
     return NULL;
 }
  
-int strcasecmp(const char *s1, const char *s2){
+/*int strcasecmp(const char *s1, const char *s2){
   return stricmp(s1,s2);
-}
+}*/
 
 
 char *strsep( char **ppsz_string, const char *psz_delimiters )

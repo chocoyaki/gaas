@@ -15,6 +15,7 @@
 
 #include <omniORB4/CORBA.h>
 
+
 /**
  * Duplicates the string given in argument with the \c
  * CORBA::string_dup() function. If there is no enough memory to

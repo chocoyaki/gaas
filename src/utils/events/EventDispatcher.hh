@@ -18,6 +18,11 @@
 #include <iostream>
 #include "TypeInfo.hh"
 #include "EventObserver.hh"
+#ifdef WIN32
+   #define DIET_API_LIB __declspec(dllexport)
+#else
+   #define DIET_API_LIB
+#endif
 
 namespace events {
 class HandlerFunctionBase {
@@ -37,7 +42,7 @@ private:
 
 
 template <class T, class EventT>
-class MemberFunctionHandler : public HandlerFunctionBase {
+class DIET_API_LIB MemberFunctionHandler : public HandlerFunctionBase {
 public:
   typedef void (T::*MemberFunc)(EventT *);
 
@@ -56,7 +61,7 @@ private:
 };
 
 
-class EventDispatcher : public EventObserver {
+class DIET_API_LIB EventDispatcher : public EventObserver {
 public:
   ~EventDispatcher();
 

@@ -38,66 +38,159 @@ find_path(OMNIORB4_INCLUDE_DIR omniORB4/CORBA.h)
 ##############################################################################
 # find libraries
 ##############################################################################
-find_library(OMNIORB4_LIBRARY_omniORB4
-  NAMES omniORB4
-  PATHS "${OMNIORB4_DIR}/lib${LIB_SUFFIX}" "$ENV{OMNIORB4_DIR}/lib${LIB_SUFFIX}"
-  NO_DEFAULT_PATH)
+if (WIN32)
+  find_library(OMNIORB4_LIBRARY_omniORB4
+	NAMES
+	${CMAKE_STATIC_LIBRARY_PREFIX}omniORB4${CMAKE_STATIC_LIBRARY_SUFFIX}
+	PATHS ${OMNIORB4_DIR}/lib/x86_win32 $ENV{OMNIORB4_DIR}/lib/x86_win32
+	NO_DEFAULT_PATH
+  )
+  find_library(OMNIORB4_LIBRARY_omniORB4 NAMES
+    ${CMAKE_STATIC_LIBRARY_PREFIX}omniORB4${CMAKE_STATIC_LIBRARY_SUFFIX}
+  )
+else (WIN32)
+  find_library(OMNIORB4_LIBRARY_omniORB4
+    NAMES omniORB4
+    PATHS "${OMNIORB4_DIR}/lib${LIB_SUFFIX}" "$ENV{OMNIORB4_DIR}/lib${LIB_SUFFIX}"
+    NO_DEFAULT_PATH)
 
-find_library(OMNIORB4_LIBRARY_omniORB4
-  NAMES omniORB4)
+  find_library(OMNIORB4_LIBRARY_omniORB4
+    NAMES omniORB4)
+endif (WIN32)   
+  
+if (WIN32)
+  FIND_LIBRARY( OMNIORB4_LIBRARY_omnithread
+	NAMES
+	${CMAKE_STATIC_LIBRARY_PREFIX}omnithread${CMAKE_STATIC_LIBRARY_SUFFIX}
+	PATHS ${OMNIORB4_DIR}/lib/x86_win32 $ENV{OMNIORB4_DIR}/lib/x86_win32
+	NO_DEFAULT_PATH
+  )
 
-find_library(OMNIORB4_LIBRARY_omnithread
-  NAMES omnithread
-  PATHS "${OMNIORB4_DIR}/lib${LIB_SUFFIX}" "$ENV{OMNIORB4_DIR}/lib${LIB_SUFFIX}"
-  NO_DEFAULT_PATH)
+  FIND_LIBRARY( OMNIORB4_LIBRARY_omnithread
+	NAMES
+	${CMAKE_STATIC_LIBRARY_PREFIX}omnithread${CMAKE_STATIC_LIBRARY_SUFFIX}
+  )
+else (WIN32)
+  find_library(OMNIORB4_LIBRARY_omnithread
+    NAMES omnithread
+    PATHS "${OMNIORB4_DIR}/lib${LIB_SUFFIX}" "$ENV{OMNIORB4_DIR}/lib${LIB_SUFFIX}"
+    NO_DEFAULT_PATH)
 
-find_library(OMNIORB4_LIBRARY_omnithread
-  NAMES omnithread)
+  find_library(OMNIORB4_LIBRARY_omnithread
+    NAMES omnithread)
+endif (WIN32)
 
-find_library(OMNIORB4_LIBRARY_omniDynamic4
-  NAMES omniDynamic4
-  PATHS "${OMNIORB4_DIR}/lib${LIB_SUFFIX}" "$ENV{OMNIORB4_DIR}/lib${LIB_SUFFIX}"
-  NO_DEFAULT_PATH)
 
-find_library(OMNIORB4_LIBRARY_omniDynamic4
-  NAMES omniDynamic4)
+if (WIN32)
+  FIND_LIBRARY( OMNIORB4_LIBRARY_omniDynamic4
+    NAMES
+      ${CMAKE_STATIC_LIBRARY_PREFIX}omniDynamic4${CMAKE_STATIC_LIBRARY_SUFFIX}
+    PATHS ${OMNIORB4_DIR}/lib/x86_win32 $ENV{OMNIORB4_DIR}/lib/x86_win32
+    NO_DEFAULT_PATH
+  )
+
+  FIND_LIBRARY( OMNIORB4_LIBRARY_omniDynamic4
+    NAMES
+      ${CMAKE_STATIC_LIBRARY_PREFIX}omniDynamic4${CMAKE_STATIC_LIBRARY_SUFFIX}
+  )
+else (WIN32)
+  find_library(OMNIORB4_LIBRARY_omniDynamic4
+    NAMES omniDynamic4
+    PATHS "${OMNIORB4_DIR}/lib${LIB_SUFFIX}" "$ENV{OMNIORB4_DIR}/lib${LIB_SUFFIX}"
+    NO_DEFAULT_PATH)
+
+  find_library(OMNIORB4_LIBRARY_omniDynamic4
+    NAMES omniDynamic4)
+endif (WIN32)    
 
 # optional libraries
-find_library(OMNIORB4_LIBRARY_COS4
-  NAMES COS4
-  PATHS "${OMNIORB4_DIR}/lib${LIB_SUFFIX}" "$ENV{OMNIORB4_DIR}/lib${LIB_SUFFIX}"
-  NO_DEFAULT_PATH)
 
-find_library(OMNIORB4_LIBRARY_COS4
-  NAMES COS4)
+if (WIN32)
+  FIND_LIBRARY( OMNIORB4_LIBRARY_COS4
+    NAMES
+      ${CMAKE_STATIC_LIBRARY_PREFIX}COS4${CMAKE_STATIC_LIBRARY_SUFFIX}
+    PATHS ${OMNIORB4_DIR}/lib/x86_win32 $ENV{OMNIORB4_DIR}/lib/x86_win32
+    NO_DEFAULT_PATH 
+  )
 
-find_library(OMNIORB4_LIBRARY_COSDynamic4
-  NAMES COSDynamic4
-  PATHS "${OMNIORB4_DIR}/lib${LIB_SUFFIX}" "$ENV{OMNIORB4_DIR}/lib${LIB_SUFFIX}"
-  NO_DEFAULT_PATH)
+  FIND_LIBRARY( OMNIORB4_LIBRARY_COS4
+    NAMES
+      ${CMAKE_STATIC_LIBRARY_PREFIX}COS4${CMAKE_STATIC_LIBRARY_SUFFIX}
+  )
+else (WIN32)
+  find_library(OMNIORB4_LIBRARY_COS4
+    NAMES COS4
+    PATHS "${OMNIORB4_DIR}/lib${LIB_SUFFIX}" "$ENV{OMNIORB4_DIR}/lib${LIB_SUFFIX}"
+    NO_DEFAULT_PATH)
 
-find_library(OMNIORB4_LIBRARY_COSDynamic4
-  NAMES COSDynamic4)
+  find_library(OMNIORB4_LIBRARY_COS4
+    NAMES COS4)
+endif (WIN32)
 
+if (WIN32)
+  FIND_LIBRARY( OMNIORB4_LIBRARY_COSDynamic4
+    NAMES
+      ${CMAKE_STATIC_LIBRARY_PREFIX}COSDynamic4${CMAKE_STATIC_LIBRARY_SUFFIX}
+    PATHS ${OMNIORB4_DIR}/lib/x86_win32 $ENV{OMNIORB4_DIR}/lib/x86_win32
+    NO_DEFAULT_PATH
+  )
+
+  FIND_LIBRARY( OMNIORB4_LIBRARY_COSDynamic4
+    NAMES
+      ${CMAKE_STATIC_LIBRARY_PREFIX}COSDynamic4${CMAKE_STATIC_LIBRARY_SUFFIX}
+  )
+
+else (WIN32)
+  find_library(OMNIORB4_LIBRARY_COSDynamic4
+    NAMES COSDynamic4
+    PATHS "${OMNIORB4_DIR}/lib${LIB_SUFFIX}" "$ENV{OMNIORB4_DIR}/lib${LIB_SUFFIX}"
+    NO_DEFAULT_PATH)
+
+  find_library(OMNIORB4_LIBRARY_COSDynamic4
+    NAMES COSDynamic4)
+endif (WIN32)
 ##############################################################################
 # find command line tools
 ##############################################################################
-find_program(OMNIORB4_IDL_COMPILER
+IF (WIN32)
+FIND_PROGRAM( OMNIORB4_IDL_COMPILER
   NAMES omniidl
-  PATHS "${OMNIORB4_DIR}/bin" "$ENV{OMNIORB4_DIR}/bin"
-  NO_DEFAULT_PATH)
-  
-find_program(OMNIORB4_IDL_COMPILER
-  NAMES omniidl)
+  PATHS ${OMNIORB4_DIR}/bin/x86_win32 $ENV{OMNIORB4_DIR}/bin/x86_win32
+  DOC "What is the path where omniidl (the idl compiler) can be found"
+  NO_DEFAULT_PATH
+)
+FIND_PROGRAM( OMNIORB4_IDL_COMPILER
+  NAMES omniidl
+  DOC "What is the path where omniidl (the idl compiler) can be found"
+)
 
-find_program(OMNIORB4_NAMESERVER
+FIND_PROGRAM( OMNIORB4_OMNINAMES_COMMAND
   NAMES omniNames
-  PATHS "${OMNIORB4_DIR}/bin" "$ENV{OMNIORB4_DIR}/bin"
-  NO_DEFAULT_PATH)
-  
-find_program(OMNIORB4_NAMESERVER
-  NAMES omniNames)
+  PATHS ${OMNIORB4_DIR}/bin/x86_win32 $ENV{OMNIORB4_DIR}/bin/x86_win32
+  DOC "What is the path where omniNames (the ORB server) can be found"
+  NO_DEFAULT_PATH
+)
+FIND_PROGRAM( OMNIORB4_OMNINAMES_COMMAND
+  NAMES omniNames
+  DOC "What is the path where omniNames (the ORB server) can be found"
+)
+ELSE(WIN32)
+  find_program(OMNIORB4_IDL_COMPILER
+    NAMES omniidl
+    PATHS "${OMNIORB4_DIR}/bin" "$ENV{OMNIORB4_DIR}/bin"
+    NO_DEFAULT_PATH)
+    
+  find_program(OMNIORB4_IDL_COMPILER
+    NAMES omniidl)
 
+  find_program(OMNIORB4_NAMESERVER
+    NAMES omniNames
+    PATHS "${OMNIORB4_DIR}/bin" "$ENV{OMNIORB4_DIR}/bin"
+    NO_DEFAULT_PATH)
+    
+  find_program(OMNIORB4_NAMESERVER
+    NAMES omniNames)
+ENDIF (WIN32)
 
 ##############################################################################
 # cook our stuff

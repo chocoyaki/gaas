@@ -1,21 +1,23 @@
 /**
-* @file constants.hh
-*
-* @brief  Configuration constants
-*
-* @author  Haikel Guemar (haikel.guemar@sysfera.com)
-*
-* @section Licence
-*   |LICENCE|
-*/
-
-
+ * @file constants.hh
+ *
+ * @brief  Configuration constants
+ *
+ * @author  Haikel Guemar (haikel.guemar@sysfera.com)
+ *
+ * @section Licence
+ *   |LICENCE|
+ */
 
 #ifndef _CONSTANTS_HH_
 #define _CONSTANTS_HH_
 
 #include <string>
-
+#ifdef __WIN32__
+#define DIET_API_LIB __declspec(dllexport)
+#else
+#define DIET_API_LIB
+#endif
 namespace diet {
 typedef enum {
   NONE_PARAMETER,
@@ -90,7 +92,7 @@ struct param_t {
   c_type_t type;
 };
 
-extern param_t params[];
+extern DIET_API_LIB param_t params[];
 }
 
 #endif /* _CONSTANTS_HH_ */

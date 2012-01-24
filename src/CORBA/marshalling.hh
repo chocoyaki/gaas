@@ -19,7 +19,11 @@
 
 #include "DIET_data_internal.hh"
 #include "common_types.hh"
-
+#ifdef WIN32
+   #define DIET_API_LIB __declspec(dllexport)
+#else
+   #define DIET_API_LIB
+#endif
 /*--------------------------------------------------------------------------*/
 /* <FIXME: This comments should be updated>                                 */
 /* These functions allow to copy the content of diet structures between     */
@@ -35,14 +39,14 @@
 /* but their name and prototype should be relevant enough.                  */
 /*--------------------------------------------------------------------------*/
 
-int
+DIET_API_LIB int
 __mrsh_data_desc_type(corba_data_desc_t *dest,
                       const diet_data_desc_t *const src);
 
 /*
  * Trace Level
  */
-void
+DIET_API_LIB void
 mrsh_set_trace_level(int level);
 
 
@@ -51,61 +55,61 @@ mrsh_set_trace_level(int level);
  */
 
 // To add a CORBA service into the SeD service table
-int
+DIET_API_LIB int
 mrsh_profile_desc(corba_profile_desc_t *dest, const diet_profile_desc_t *src);
 
 // To submit a request from the client DIET profile
-int
+DIET_API_LIB int
 mrsh_pb_desc(corba_pb_desc_t *dest, const diet_profile_t *const src);
 
 
 // To send the input data from client to SeD
-int
+DIET_API_LIB int
 mrsh_profile_to_in_args(corba_profile_t *dest, const diet_profile_t *src);
 
 // To convert client data profile to service profile
-int
+DIET_API_LIB int
 unmrsh_in_args_to_profile(diet_profile_t *dest, corba_profile_t *src,
                           const diet_convertor_t *cvt);
 /* Needed by DAGDA. */
-int
+DIET_API_LIB int
 mrsh_data_desc(corba_data_desc_t *dest, diet_data_desc_t *src);
 
 // To reconvert service output data to client data profile
-int
+DIET_API_LIB int
 mrsh_profile_to_out_args(corba_profile_t *dest, const diet_profile_t *src,
                          const diet_convertor_t *cvt);
 
 // To receive output data on the client
-int
+DIET_API_LIB int
 unmrsh_out_args_to_profile(diet_profile_t *dpb, corba_profile_t *cpb);
 
 // Force the unmarshalling of INOUT parameters (useful in async mdode)
-int
+DIET_API_LIB int
 unmrsh_inout_args_to_profile(diet_profile_t *dpb, corba_profile_t *cpb);
 
 // tmpDir is the prefix of where data are stored on server
 #if defined HAVE_ALT_BATCH
-int
+DIET_API_LIB int
 unmrsh_data(diet_data_t *dest, corba_data_t *src, int, const char *tmpDir);
 #else
-int
+DIET_API_LIB int
 unmrsh_data(diet_data_t *dest, corba_data_t *src, int);
 #endif
 
 // unmarshall only the data description (needed for custom
 // performance metrics)
-int
+DIET_API_LIB int
 unmrsh_data_desc(diet_data_desc_t *dest, const corba_data_desc_t *const src);
 
 
 #ifdef HAVE_WORKFLOW
 // Workflow structure marshaling
-int
+DIET_API_LIB int
 mrsh_wf_desc(corba_wf_desc_t *dest, const diet_wf_desc_t *const src);
 #endif
 
-int
+DIET_API_LIB int
 unmrsh_profile_desc(diet_profile_desc_t *dest,
                     const corba_profile_desc_t *src);
 

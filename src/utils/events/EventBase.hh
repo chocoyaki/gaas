@@ -14,8 +14,13 @@
 
 #include <iostream>
 #include <string>
+#ifdef WIN32
+   #define DIET_API_LIB __declspec(dllexport)
+#else
+   #define DIET_API_LIB
+#endif
 
-class EventBase {
+class DIET_API_LIB EventBase {
 public:
   enum Severity {
     TRACE,

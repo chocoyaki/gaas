@@ -1,12 +1,12 @@
 /**
 * @file DIET_data.h
-*
+* 
 * @brief  DIET data interface
-*
-* @author - Philippe COMBES (Philippe.Combes@ens-lyon.fr)
-*
+* 
+* @author - Philippe COMBES (Philippe.Combes@ens-lyon.fr) 
+* 
 * @section Licence
-*   |LICENCE|
+*   |LICENCE|                                                                
 
    \details
 
@@ -305,7 +305,7 @@
    // The file size is computed and stocked in a field of arg
    // ! Warning ! The path is not duplicated !!!
    int
-   diet_file_set(diet_arg_t* arg, const char* path, diet_persistence_mode_t mode);
+   diet_file_set(diet_arg_t* arg, char* path, diet_persistence_mode_t mode);
    \endcode
 
    \subsection AccessFunctions Access functions
@@ -691,7 +691,7 @@ extern "C" {
      If no OUT argument, please give last_inout for last_out.
      @return allocated profile
   */
-  diet_profile_t*
+  DIET_API_LIB diet_profile_t*
   diet_profile_alloc(const char* pb_name, int last_in,
                      int last_inout, int last_out);
 
@@ -709,7 +709,7 @@ extern "C" {
      @sa DIET_grpc.h for error codes
 
   */
-  int
+  DIET_API_LIB int
   diet_profile_free(diet_profile_t* profile);
 
 #if defined HAVE_ALT_BATCH
@@ -729,7 +729,7 @@ extern "C" {
      @sa DIET_grpc.h for error codes
 
   */
-  int
+  DIET_API_LIB int
   diet_profile_set_parallel(diet_profile_t * profile);
 
   /**
@@ -747,7 +747,7 @@ extern "C" {
      @sa DIET_grpc.h for error codes
 
   */
-  int
+  DIET_API_LIB int
   diet_profile_set_sequential(diet_profile_t * profile);
 
   /**
@@ -764,7 +764,7 @@ extern "C" {
      @todo error codes defined in DIET_grpc.h should better be used.
      @sa DIET_grpc.h for error codes
   */
-  int
+  DIET_API_LIB int
   diet_profile_set_nbprocs(diet_profile_t * profile, int nbprocs);
 #endif
 
@@ -816,7 +816,7 @@ extern "C" {
      @todo error codes defined in DIET_grpc.h should better be used.
      @sa DIET_grpc.h for error codes
   */
-  int
+  DIET_API_LIB int
   diet_scalar_set(diet_arg_t* arg, void* value,
                   diet_persistence_mode_t mode, diet_base_type_t base_type);
   /**
@@ -839,7 +839,7 @@ extern "C" {
      @todo error codes defined in DIET_grpc.h should better be used.
      @sa DIET_grpc.h for error codes
   */
-  int
+  DIET_API_LIB int
   diet_vector_set(diet_arg_t* arg, void* value,
                   diet_persistence_mode_t mode, diet_base_type_t base_type,
                   size_t size);
@@ -877,7 +877,7 @@ extern "C" {
      @todo error codes defined in DIET_grpc.h should better be used.
      @sa DIET_grpc.h for error codes
   */
-  int
+  DIET_API_LIB int
   diet_matrix_set(diet_arg_t* arg, void* value, diet_persistence_mode_t mode,
                   diet_base_type_t base_type, size_t nb_rows,
                   size_t nb_cols, diet_matrix_order_t order);
@@ -900,7 +900,7 @@ extern "C" {
      @todo error codes defined in DIET_grpc.h should better be used.
      @sa DIET_grpc.h for error codes
   */
-  int
+  DIET_API_LIB int
   diet_string_set(diet_arg_t* arg, char* value, diet_persistence_mode_t mode);
 
   /**
@@ -927,7 +927,7 @@ extern "C" {
      @todo error codes defined in DIET_grpc.h should better be used.
      @sa DIET_grpc.h for error codes
   */
-  int
+  DIET_API_LIB int
   diet_paramstring_set(diet_arg_t* arg, char* value,
                        diet_persistence_mode_t mode);
 
@@ -959,7 +959,7 @@ extern "C" {
      @todo error codes defined in DIET_grpc.h should better be used.
      @sa DIET_grpc.h for error codes
   */
-  int
+  DIET_API_LIB int
   diet_file_set(diet_arg_t* arg, const char* path,
                 diet_persistence_mode_t mode);
 
@@ -981,7 +981,7 @@ extern "C" {
      @todo error codes defined in DIET_grpc.h should better be used.
      @sa DIET_grpc.h for error codes
   */
-  int
+  DIET_API_LIB int
   diet_container_set(diet_arg_t* arg, diet_persistence_mode_t mode);
 
   /**

@@ -1,9 +1,9 @@
 /**
 * @file DIET_grpc.h
-* 
+*
 * @brief  GridRPC compliancy for the client interface of DIET
-* 
-* @author Philippe COMBES (Philippe.Combes@ens-lyon.fr) 
+*
+* @author Philippe COMBES (Philippe.Combes@ens-lyon.fr)
 *         Eddy CARON (Eddy.Caron@ens-lyon.fr
 *         Cedric TEDESCHI (Cedric.Tedeschi@ens-lyon.fr)
 * @section Licence
@@ -20,14 +20,14 @@
 #ifdef __WIN32__
 #include "windows/stdint.h"
 #include "windows/dirent.h"
-#else 
+#else
 #include <unistd.h>
 #endif
 
 #ifdef WIN32
-   #define DIET_API_LIB __declspec(dllexport)
+#define DIET_API_LIB __declspec(dllexport)
 #else
-   #define DIET_API_LIB
+#define DIET_API_LIB
 #endif
 
 #ifdef __cplusplus
@@ -213,20 +213,12 @@ extern "C" {
   /**
      Enumeration representing the argument mode
   */
-#ifdef __WIN32__
-	typedef enum {
-		DIET_IN, /*!< Input argument */
-		DIET_INOUT, /*!< Input/Output argument */
-		DIET_OUT /*!< Output argument */
-	} diet_grpc_arg_mode_t;
-#else
-	typedef enum {
-		IN, /*!< Input argument */
-		INOUT, /*!< Input/Output argument */
-		OUT /*!< Output argument */
-	} diet_grpc_arg_mode_t;
-#endif
- 
+  typedef enum {
+    DIET_IN, /*!< Input argument */
+    DIET_INOUT, /*!< Input/Output argument */
+    DIET_OUT /*!< Output argument */
+  } diet_grpc_arg_mode_t;
+
   /**
      Structure representing the argument
   */
@@ -636,7 +628,7 @@ extern "C" {
      @return string corresponding to the input error_code
 
   */
-  DIET_API_LIB const char * 
+  DIET_API_LIB const char *
   grpc_error_string(grpc_error_t error_code);
 
   /**
