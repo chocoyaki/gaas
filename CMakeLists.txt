@@ -42,7 +42,7 @@ if (UNIX AND NOT WIN32)
     exec_program(uname ARGS -m OUTPUT_VARIABLE SYSTEM_PROC_TYPE)
     set(SYSTEM_PROC_TYPE ${SYSTEM_PROC_TYPE} CACHE INTERNAL 
     	"processor type (i386 and x86_64)")
-    if (SYSTEM_PROC_TYPE MATCHES "x86_64|amd64")
+    if (SYSTEM_PROC_TYPE MATCHES "x86_64|amd64|ppc64")
       # TODO: Should be done only for libraries build
       add_definitions(-fPIC)
     endif()
