@@ -301,7 +301,7 @@ if(DIET_TRANSFER_PROGRESSION)
   set(DAGDA_SRCS ${DAGDA_SRCS} utils/DAGDA/Transfers.cc)
 endif()
 if(DIET_USE_WORKFLOW)
-  set(DAGDA_SRCS ${DAGDA_SRCS} ${UtilsWf_SRCS})
+  set(DAGDA_SRCS ${DAGDA_SRCS} ${UtilsWf_SRCS} ${UtilsEvents_SRCS})
 endif()
 
 set(DAGDA_LIBS ${OMNIORB4_LIBRARIES} ${Boost_LIBRARIES})
@@ -310,6 +310,11 @@ if(DIET_USE_LOG)
   set(DAGDA_SRCS ${DAGDA_SRCS} ${UtilsLog_SRCS})
   set(DAGDA_LIBS ${DAGDA_LIBS} ${LOG_LIBRARY})
 endif(DIET_USE_LOG)
+
+if(DIET_USE_WORKFLOW)
+  set(DAGDA_LIBS ${DAGDA_LIBS} ${XQILLA_LIBRARY} ${XERCES_LIBRARY})
+endif()
+
 
 add_library(DIET_Dagda ${DAGDA_SRCS})
 set_target_properties(DIET_Dagda PROPERTIES VERSION ${DIET_VERSION})
