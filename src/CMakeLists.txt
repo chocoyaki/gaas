@@ -428,7 +428,7 @@ if(DIET_BUILD_TOOLS)
   set(dietObjects_LIBS DIET_client DIET_SeD ${OMNIORB4_LIBRARIES})
   if(WIN32)
     set(dietObjects_LIBS ${dietObjects_LIBS} ws2_32)  
-   endif()
+  endif()
 
   if(DIET_USE_WORKFLOW)
     set(dietObjects_LIBS ${dietObjects_LIBS}
@@ -571,6 +571,7 @@ set(dietAgent_LIBS
   DIET_client
   DIET_SeD
   ${OMNIORB4_LIBRARIES}
+  ${Boost_LIBRARIES}
   ${CMAKE_DL_LIBS})
 
 if(DIET_USE_USERSCHED)
