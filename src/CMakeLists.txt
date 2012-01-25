@@ -425,7 +425,8 @@ install(TARGETS dietForwarder DESTINATION ${BIN_INSTALL_DIR})
 
 if(DIET_BUILD_TOOLS)
   set(dietObjects_SRCS CORBA/tools/dietObjects.cc)
-  set(dietObjects_LIBS DIET_client DIET_SeD ${OMNIORB4_LIBRARIES})
+  set(dietObjects_LIBS DIET_client DIET_SeD ${OMNIORB4_LIBRARIES}
+    ${Boost_LIBRARIES} ${CMAKE_DL_LIBS})
   if(WIN32)
     set(dietObjects_LIBS ${dietObjects_LIBS} ws2_32)  
   endif()
