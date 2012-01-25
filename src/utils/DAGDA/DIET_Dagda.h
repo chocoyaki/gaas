@@ -734,4 +734,4 @@ dagda_reset();
 #ifdef __cplusplus
 }
 #endif
-#endif // ifndef __DIET_DAGDA_H__
+#endif /* ifndef __DIET_DAGDA_H__ */
