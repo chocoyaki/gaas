@@ -136,27 +136,18 @@ if(DIET_USE_WORKFLOW)
 endif()
 
 if(DIET_USE_ALT_BATCH)
-  if()
-    set(UtilsBatch_SRCS
-      utils/batch/BatchCreator.cc
-      utils/batch/BatchSystem.cc
-      utils/batch/OAR1_6BatchSystem.cc
-      utils/batch/OAR2_XBatchSystem.cc
-      utils/batch/Loadleveler_BatchSystem.cc
-      utils/batch/PBS_BatchSystem.cc
-      utils/batch/SGE_BatchSystem.cc
-      utils/batch/Slurm_BatchSystem.cc
+  set(UtilsBatch_SRCS
+    utils/batch/BatchCreator.cc
+    utils/batch/BatchSystem.cc
+    utils/batch/OAR1_6BatchSystem.cc
+    utils/batch/OAR2_XBatchSystem.cc
+    utils/batch/Loadleveler_BatchSystem.cc
+    utils/batch/PBS_BatchSystem.cc
+    utils/batch/SGE_BatchSystem.cc
+    utils/batch/Slurm_BatchSystem.cc)
+  if(WIN32)
+    set(UtilsBatch_SRCS ${UtilsBatch_SRCS}
       utils/batch/mkstemp.cc)
-  else()
-    set(UtilsBatch_SRCS
-      utils/batch/BatchCreator.cc
-      utils/batch/BatchSystem.cc
-      utils/batch/OAR1_6BatchSystem.cc
-      utils/batch/OAR2_XBatchSystem.cc
-      utils/batch/Loadleveler_BatchSystem.cc
-      utils/batch/PBS_BatchSystem.cc
-      utils/batch/SGE_BatchSystem.cc
-      utils/batch/Slurm_BatchSystem.cc)  
   endif()
 endif()
 
@@ -609,14 +600,15 @@ install(TARGETS dietAgent DESTINATION ${BIN_INSTALL_DIR})
 
 ## executable: maDagAgent
 if(DIET_USE_WORKFLOW)
-  set(maDagAgent_LIBS DIET_Dagda DIET_SeD ${XQILLA_LIBRARY} ${XERCES_LIBRARY}
-    ${OMNIORB4_LIBRARIES})
+  set(maDagAgent_SRCS agent/workflow/maDagAgent.cc ${MaDagCommon_SRCS}
+    ${UtilsEvents_SRCS} ${UtilsWf_SRCS})
+  set(maDagAgent_LIBS DIET_Dagda ${XQILLA_LIBRARY} ${XERCES_LIBRARY}
+    ${OMNIORB4_LIBRARIES} ${Boost_LIBRARIES} DIET_SeD)
   if(WIN32)
     set(maDagAgent_LIBS ${maDagAgent_LIBS} ws2_32 Shlwapi)
-  endif()  
+  endif()
 
-  add_executable(maDagAgent agent/workflow/maDagAgent.cc ${MaDagCommon_SRCS}
-    ${UtilsEvents_SRCS})
+  add_executable(maDagAgent ${maDagAgent_SRCS})
   target_link_libraries(maDagAgent ${maDagAgent_LIBS})
   install(TARGETS maDagAgent DESTINATION ${BIN_INSTALL_DIR})
 endif()
