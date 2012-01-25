@@ -1,7 +1,8 @@
 #****************************************************************************#
 #* DIET cmake local file                                                    *#
 #****************************************************************************#
-set(COMMON_LIBRARIES ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
+set(COMMON_LIBRARIES ${Boost_LIBRARIES} 
+  ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 find_library(M_LIBRARY m)
 if(M_LIBRARY)
   set(COMMON_LIBRARIES ${COMMON_LIBRARIES} ${M_LIBRARY})
