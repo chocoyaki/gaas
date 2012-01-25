@@ -59,7 +59,7 @@ T(int m, int n, double *A, int rm) {
 
   free(tmp);
   return 0;
-} // T
+} /* T */
 
 /*
  * Sum 2 column-major matrices (modulo tA and tB):
@@ -100,7 +100,7 @@ MatSUM(char tA, char tB, int m, int n, double *A, double *B, double *C) {
   }
 
   return 0;
-} // MatSUM
+} /* MatSUM */
 
 
 /*
@@ -158,6 +158,6 @@ MatPROD(char tA, char tB,
   }
 
   return 0;
-} // MatPROD
+} /* MatPROD */
 
-#endif  // _PROGS_H_
+#endif  /* _PROGS_H_ */

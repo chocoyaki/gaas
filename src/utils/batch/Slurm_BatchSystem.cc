@@ -128,7 +128,7 @@ Slurm_BatchSystem::askBatchJobStatus(int batchJobID) {
     "TMP_VAL=`%s %d 2>/dev/null | %s`;if [ \"$TMP_VAL\" == \"\" ];then echo FAILED > %s;else %s %d | %s > %s;fi",
     wait4Command, batchJobID, waitFilter,
     filename,
-    wait4Command, batchJobID, waitFilter, filename, filename);
+    wait4Command, batchJobID, waitFilter, filename);
 #if defined YC_DEBUG
   TRACE_TEXT(TRACE_ALL_STEPS, "Execute:\n" << chaine << "\n");
 #endif

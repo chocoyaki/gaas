@@ -1,12 +1,12 @@
 /**
 * @file ORBMgr.cc
-* 
-* @brief  ORB manager v. 2.0 - CORBA management with DIET forwarders 
-* 
-* @author - Gaël Le Mahec (gael.le.mahec@ens-lyon.fr)  
-* 
+*
+* @brief  ORB manager v. 2.0 - CORBA management with DIET forwarders
+*
+* @author - Gaël Le Mahec (gael.le.mahec@ens-lyon.fr)
+*
 * @section Licence
-*   |LICENCE|                                                                
+*   |LICENCE|
 */
 
 #include <list>
@@ -426,12 +426,10 @@ CORBA::Object_ptr
 ORBMgr::simpleResolve(const std::string& context,
                       const std::string& name) const {
   std::string ctxt = context;
-  bool localAgent = false;
 
   /* The object to resolve is it a local agent ?*/
   if (ctxt == LOCALAGENT) {
     ctxt = AGENTCTXT;
-    localAgent = true;
   }
   if (ctxt == MASTERAGENT) {
     ctxt = AGENTCTXT;

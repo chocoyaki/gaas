@@ -367,7 +367,6 @@ int
 ServiceTable::rmChildService(const corba_profile_desc_t *profile,
                              CORBA::ULong childID) {
   ServiceReference_t ref(-1);
-  size_t i(0), j(0);
 
   if ((ref = lookupService(profile)) == -1) {
     SRVT_ERROR("attempting to rm a service that is not in table");
@@ -382,6 +381,7 @@ ServiceTable::rmChildService(const corba_profile_desc_t *profile,
      * Should we even be able to call this?? */
   } else {
     /* We need to verify that this child exists for this service */
+    size_t i(0), j(0);
     for (i = (size_t) 0;
          i < matching_children[ref].nb_children &&
          matching_children[ref].children[i] != childID;
@@ -616,7 +616,7 @@ ServiceTable::getChildren(const corba_pb_desc_t *pb_desc,
   }
 
   int first_found = -1;  // at most, two indices: // and seq
-  size_t i(0), j(0);
+  size_t i(0);
   ServiceTable::matching_children_t *mc = NULL;
 
   /* Search for 1rst occurence of service in table */
@@ -638,6 +638,8 @@ ServiceTable::getChildren(const corba_pb_desc_t *pb_desc,
   if (pb_desc->parallel_flag == 0) { /* Test if there is same profile with
                                          different parallel flag */
     int second_found = -1;
+    size_t j(0);
+
     i++;
     /* Search for 2nd occurence of service in table */
     while ((i < nb_s) && (!profile_match(&(profiles[i]), pb_desc))) {

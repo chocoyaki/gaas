@@ -1208,10 +1208,8 @@ SeDImpl::estimate(corba_estimation_t &estimation,
                    "resolution through " << batch->getBatchName() <<
                    " Batch scheduler\n");
       }
-      break;
       /* Set values like nb_resources, nb_free_resources, etc.
          See DIET_data.h */
-      WARNING("Set Batch information in vector");
       break;
     case SERIAL:
       /* Populate with random value */

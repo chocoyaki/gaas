@@ -978,12 +978,12 @@ main(int argc, char *argv[]) {
     std::cout << "s3:" << s3 << ", size=" << arg_size << std::endl;
 
     if ((status = stat(s2, &buf)) || !(buf.st_mode & S_IFREG)) {
-      std::cerr << "Problem on s2 in " << PB_FILE[0] << "!" << std::endl;
+      std::cerr << "Problem on s2 in " << PB_FILE[0] << "! (status=" << status << std::endl;
       error = error | (1 << errorPos);
     }
 
     if ((status = stat(s3, &buf)) || !(buf.st_mode & S_IFREG)) {
-      std::cerr << "Problem on s3 in " << PB_FILE[0] << "!" << std::endl;
+      std::cerr << "Problem on s3 in " << PB_FILE[0] << "! (status=" << status << std::endl;
       error = error | (1 << errorPos);
     }
 
