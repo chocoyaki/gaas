@@ -562,7 +562,7 @@ endif()
 
 ## library: DIET_SeD
 set(DIET_SeD_SRCS SeD/DIET_server.cc SeD/SeDImpl.cc
-  ${dietUtils_SRCS} ${cori_SRCS} ${UtilsNode_SRCS} ${CorbaCommon_SRCS})
+  ${dietUtils_SRCS} ${cori_SRCS} ${UtilsNode_SRCS})
 if(DIET_USE_ALT_BATCH)
   set(DIET_SeD_SRCS ${DIET_SeD_SRCS} ${cori_SRCS} ${UtilsBatch_SRCS})
 endif()
