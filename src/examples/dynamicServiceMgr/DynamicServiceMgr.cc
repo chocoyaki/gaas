@@ -34,10 +34,10 @@
 #include <dlfcn.h>
 #define GetFunctionFromModule dlsym
 #define CloseModule dlclose
-#define LoadModule(value1,value2) (dlopen(value1,value2))  
+#define LoadModule(value1,value2) (dlopen(value1,value2))
 #define GetDLError dlerror
-typedef (void*) LpHandleType;
-#else
+typedef void* LpHandleType;
+#else /* __WIN32__ */
 #include <windows.h>
 #define GetFunctionFromModule GetProcAddress
 #define LoadModule(value1,value2) (LoadLibrary(value1))
@@ -45,10 +45,10 @@ typedef (void*) LpHandleType;
 const char* GetDLError(){
 
 	const char* lpMsgBuf;
-    DWORD dw = GetLastError(); 
+    DWORD dw = GetLastError();
 	if(dw == 0) return NULL;
     FormatMessage(
-        FORMAT_MESSAGE_ALLOCATE_BUFFER | 
+        FORMAT_MESSAGE_ALLOCATE_BUFFER |
         FORMAT_MESSAGE_FROM_SYSTEM |
         FORMAT_MESSAGE_IGNORE_INSERTS,
         NULL,
@@ -59,7 +59,7 @@ const char* GetDLError(){
 	return lpMsgBuf;
 }
 typedef HINSTANCE LpHandleType;
-#endif
+#endif /* __WIN32__ */
 
 /** The default constructor. */
 DynamicServiceMgr::DynamicServiceMgr() {
@@ -176,3 +176,4 @@ int DynamicServiceMgr::removeServiceMgr(const std::string & name) {
   }
   return rmS();
 }
+
