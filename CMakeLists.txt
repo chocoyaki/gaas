@@ -204,7 +204,6 @@ endif()
 
 # OmniORB is mandatory:
 find_package(OmniORB4 REQUIRED)
-add_definitions(-D__OMNIORB4__)
 
 # --------------------------- Batch support ------------------------
 if (DIET_USE_ALT_BATCH)
