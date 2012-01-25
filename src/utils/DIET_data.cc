@@ -135,7 +135,7 @@ data_sizeof(const corba_data_desc_t *desc) {
     break;
   case DIET_CONTAINER:
     // size = desc->specific.cont().size;
-    break;
+    // break;
     size = 0;
     break;
   default:
@@ -623,46 +623,6 @@ int
 diet_scalar_desc_set(diet_data_t *data, void *value) {
   return diet_scalar_set(data, value,
                          data->desc.mode, data->desc.generic.base_type);
-
-  if (data->desc.generic.type != DIET_SCALAR) {
-    ERROR(__FUNCTION__ << " misused (wrong type)", 1);
-  }
-  if (!data->value) {
-    ERROR(__FUNCTION__ << " misused (data->value is NULL)", 1);
-  }
-  switch (data->desc.generic.base_type) {
-  case DIET_CHAR:
-    *((char *) data->value) = *((char *) value);
-    break;
-  case DIET_SHORT:
-    *((short *) data->value) = *((short *) value);
-    break;
-  case DIET_INT:
-    *((int *) data->value) = *((int *) value);
-    break;
-  case DIET_LONGINT:
-    *((long int *) data->value) = *((long int *) value);
-    break;
-  case DIET_FLOAT:
-    *((float *) data->value) = *((float *) value);
-    break;
-  case DIET_DOUBLE:
-    *((double *) data->value) = *((double *) value);
-    break;
-#if HAVE_COMPLEX
-  case DIET_SCOMPLEX:
-    *((complex *) data->value) = *((complex *) value);
-    break;
-  case DIET_DCOMPLEX:
-    *((double complex *) data->value) = *((double complex *) value);
-    break;
-#endif  // HAVE_COMPLEX
-  default: {
-    ERROR(__FUNCTION__ << " misused (wrong base type)", 1);
-  }
-  } // switch
-  data->desc.specific.scal.value = data->value;
-  return 0;
 } // diet_scalar_desc_set
 
 int

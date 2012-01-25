@@ -782,63 +782,10 @@ mrsh_profile_to_out_args(corba_profile_t *dest, const diet_profile_t *src,
 // (matrix dimensions, for instance)
 int
 unmrsh_out_args_to_profile(diet_profile_t *dpb, corba_profile_t *cpb) {
-  for (int i = cpb->last_in + 1; i <= cpb->last_out; ++i)
+  for (int i = cpb->last_in + 1; i <= cpb->last_out; ++i) {
     unmrsh_data_desc(&(dpb->parameters[i].desc), &(cpb->parameters[i].desc));
-  return 0;
-
-  int i;
-
-  if ((dpb->last_in != cpb->last_in)
-      || (dpb->last_inout != cpb->last_inout)
-      || (dpb->last_out != cpb->last_out)
-      ) {
-    return 1;
   }
 
-#if defined HAVE_ALT_BATCH
-  // In case client wants to know how many procs and process have been used
-  // but other info like walltime is useless
-  dpb->nbprocs = cpb->nbprocs;
-  dpb->nbprocess = cpb->nbprocess;
-#endif
-
-  // Unmarshal INOUT parameters descriptions only; indeed, the ORB has filled
-  // in the memory zone pointed at by the diet_data value field, since the
-  // marshalling was performed with replace method.
-  for (i = dpb->last_in + 1; i <= dpb->last_inout; i++) {
-    corba_data_desc_t *cdd = &(cpb->parameters[i].desc);
-
-    // Special case for INOUT files: rewrite in the same file.
-    if (cdd->specific._d() == (long) DIET_FILE) {
-      char *inout_path = dpb->parameters[i].desc.specific.file.path;
-
-      int size = cdd->specific.file().size;
-      std::ofstream inoutfile(inout_path);
-      dpb->parameters[i].desc.specific.file.size = size;
-      for (int j = 0; j < size; j++) {
-        inoutfile.put(cpb->parameters[i].value[j]);
-      }
-    } else {
-      if (cpb->parameters[i].desc.mode == DIET_VOLATILE) {
-        char *tmp = NULL;
-        cdd->id.idNumber = CORBA::string_dup(tmp);
-      }
-
-      unmrsh_data_desc(&(dpb->parameters[i].desc), cdd);
-    }
-  }
-
-  // Unmarshal OUT parameters
-  for (; i <= dpb->last_out; i++) {
-#if defined HAVE_ALT_BATCH
-    /* YC: for the moment, client always receives in /tmp/
-       -> see with Gael if can be changed with DagDA */
-    unmrsh_data(&(dpb->parameters[i]), &(cpb->parameters[i]), 1,
-                "/tmp/");
-#else
-    unmrsh_data(&(dpb->parameters[i]), &(cpb->parameters[i]), 1);
-#endif
-  }
   return 0;
 } // unmrsh_out_args_to_profile
 
