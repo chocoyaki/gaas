@@ -1,12 +1,12 @@
 /**
 * @file constants.hh
-* 
-* @brief  Configuration constants 
-* 
+*
+* @brief  Configuration constants
+*
 * @author  Haikel Guemar (haikel.guemar@sysfera.com)
-* 
+*
 * @section Licence
-*   |LICENCE|                                                                
+*   |LICENCE|
 */
 
 
@@ -55,7 +55,6 @@ typedef enum {
   // RequestID begins with this value
   INITREQUESTID,
   // file to touch at the end of the initialization
-  ACKFILE,
   MAXMSGSIZE,
   MAXDISKSPACE,
   MAXMEMSPACE,

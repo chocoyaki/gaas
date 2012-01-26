@@ -1,12 +1,12 @@
 /**
 * @file constants.cc
-* 
-* @brief  Configuration constants 
-* 
+*
+* @brief  Configuration constants
+*
 * @author  Haikel Guemar (haikel.guemar@sysfera.com)
-* 
+*
 * @section Licence
-*   |LICENCE|                                                                
+*   |LICENCE|
 */
 
 
@@ -56,7 +56,6 @@ param_t params[] =
   /* [31] */ {PATHTONFS, "pathToNFS", STRING_PARAMETER},
   /* [32] */ {PATHTOTMP, "pathToTmp", STRING_PARAMETER},
   /* [33] */ {INITREQUESTID, "initRequestID", INT_PARAMETER},
-  /* [34] */ {ACKFILE, "ackFile", STRING_PARAMETER},
   /* [35] */ {MAXMSGSIZE, "maxMsgSize", ULONG_PARAMETER},
   /* [36] */ {MAXDISKSPACE, "maxDiskSpace", ULONG_PARAMETER},
   /* [37] */ {MAXMEMSPACE, "maxMemSpace", ULONG_PARAMETER},
