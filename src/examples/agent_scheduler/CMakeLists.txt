@@ -3,9 +3,23 @@ include_directories(${DIET_DIR}/include
   ${DIET_DIR}/include/scheduler
   ${OMNIORB4_INCLUDE_DIR})
 
-set(HostnameRR_SRCS HostnameRR.cc)
+set(HostnameRR_SRCS
+  ../../agent/GlobalSchedulers.cc
+  ../../agent/Schedulers.cc
+  ../../agent/UserScheduler.cc
+  ../../utils/debug.cc
+  ../../utils/est_internal.cc
+  ../../utils/Vector.c
+  ../../utils/config/CommonParser.cc
+  ../../utils/config/constants.cc
+  ../../utils/config/configuration.cc
+
+  # FIXME: all the above sources shouldn't even be there!!! We need to have a library to easily create schedulers!
+  HostnameRR.cc
+  )
 
 add_library(HostnameRR MODULE ${HostnameRR_SRCS})
+target_link_libraries(HostnameRR ${Boost_LIBRARIES})
 
 if(APPLE)
   target_link_libraries(HostnameRR ${OMNIORB4_LIBRARIES})
