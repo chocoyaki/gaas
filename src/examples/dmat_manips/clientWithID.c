@@ -27,7 +27,7 @@
     size_t i, j;                                \
     printf("%s (%s-major) = \n", # mat,          \
            (rm) ? "row" : "column");            \
-    printf(" %zd %zd \n", m, n);                  \
+    printf(" %lu %lu \n", m, n);                  \
     for (i = 0; i < (m); i++) {                 \
       for (j = 0; j < (n); j++) {               \
         if (rm) {                                 \

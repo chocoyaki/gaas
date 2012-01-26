@@ -78,7 +78,7 @@ solve_MatSUM(diet_profile_t *pb) {
   tA = (oA == DIET_ROW_MAJOR) ? 'T' : 'N';
   tB = (oB == DIET_ROW_MAJOR) ? 'T' : 'N';
   if ((mA != mB) || (nA != nB)) {
-    fprintf(stderr, "MatSUM error: mA=%zd, nA=%zd; mB=%zd, nB=%zd\n",
+    fprintf(stderr, "MatSUM error: mA=%lu, nA=%lu; mB=%lu, nB=%lu\n",
             mA, nA, mB, nB);
     return 1;
   }

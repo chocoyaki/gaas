@@ -117,7 +117,7 @@ solve_ADD(diet_profile_t *pb) {
     diet_scalar_desc_set(diet_parameter(pb, 2), l3);
   }
 
-  // diet_free_data(diet_parameter(pb, 0));
+  /* diet_free_data(diet_parameter(pb, 0)); */
 
   printf("Solve ADD ... done\n");
   return res;

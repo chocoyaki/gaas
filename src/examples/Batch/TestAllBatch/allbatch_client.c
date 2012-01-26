@@ -68,7 +68,7 @@ main(int argc, char *argv[]) {
   *********************/
 
   gettimeofday(&tv, &tz);
-  printf("L'heure de soumission est %ld:%ld\n\n", tv.tv_sec, tv.tv_usec);
+  printf("L'heure de soumission est %ld:%ld\n\n", (long int) tv.tv_sec, (long int) tv.tv_usec);
 
   if (SUBMISSION_TYPE == 1) {
     /* To ask explicitely for a parallel submission */
@@ -78,7 +78,7 @@ main(int argc, char *argv[]) {
       server_found = 1;
       diet_file_get(diet_parameter(profile, 3), &path, NULL, &file_size);
       if (path && (*path != '\0')) {
-        printf("Location of returned file is %s, its size is %zd.\n",
+        printf("Location of returned file is %s, its size is %lu.\n",
                path, file_size);
       }
     } else {printf("Error in diet_parallel_call()\n");
@@ -90,7 +90,7 @@ main(int argc, char *argv[]) {
       server_found = 1;
       diet_file_get(diet_parameter(profile, 3), &path, NULL, &file_size);
       if (path && (*path != '\0')) {
-        printf("Location of returned file is %s, its size is %zd.\n",
+        printf("Location of returned file is %s, its size is %lu.\n",
                path, file_size);
       }
     } else {printf("Error in diet_call()\n");
@@ -102,7 +102,7 @@ main(int argc, char *argv[]) {
       server_found = 1;
       diet_file_get(diet_parameter(profile, 3), &path, NULL, &file_size);
       if (path && (*path != '\0')) {
-        printf("Location of returned file is %s, its size is %zd.\n",
+        printf("Location of returned file is %s, its size is %lu.\n",
                path, file_size);
       }
     } else {printf("Error in diet_sequential_call()\n");
@@ -110,7 +110,7 @@ main(int argc, char *argv[]) {
   }
 
   gettimeofday(&tv, &tz);
-  printf("L'heure de terminaison est %ld:%ld\n\n", tv.tv_sec, tv.tv_usec);
+  printf("L'heure de terminaison est %ld:%ld\n\n", (long int) tv.tv_sec, (long int) tv.tv_usec);
 
   if (server_found == 1) {
     /* If uncommented, the result file is removed */

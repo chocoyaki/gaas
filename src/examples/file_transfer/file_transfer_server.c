@@ -36,7 +36,7 @@ solve_size(diet_profile_t *pb) {
   fprintf(stderr, "Solve size ");
 
   diet_file_get(diet_parameter(pb, 0), &path1, NULL, &arg_size);
-  fprintf(stderr, "on %s (%zd) ", path1, arg_size);
+  fprintf(stderr, "on %s (%lu) ", path1, arg_size);
   if ((status = stat(path1, &buf))) {
     return status;
   }
@@ -49,7 +49,7 @@ solve_size(diet_profile_t *pb) {
   diet_scalar_set(diet_parameter(pb, 2), s1, DIET_VOLATILE, DIET_INT);
 
   diet_file_get(diet_parameter(pb, 1), &path2, NULL, &arg_size);
-  fprintf(stderr, "and %s (%zd) ...", path2, arg_size);
+  fprintf(stderr, "and %s (%lu) ...", path2, arg_size);
   if ((status = stat(path2, &buf))) {
     return status;
   }

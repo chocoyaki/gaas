@@ -49,7 +49,7 @@ main(int argc, char *argv[]) {
   * DIET Call
   *********************/
   gettimeofday(&tv, &tz);
-  printf("L'heure de soumission est %ld:%ld\n\n", tv.tv_sec, tv.tv_usec);
+  printf("L'heure de soumission est %ld:%ld\n\n", (long int) tv.tv_sec, (long int) tv.tv_usec);
 
   if (!diet_call_async(profile, &rst)) {
     printf("The job is beeing solved\n");
@@ -57,7 +57,7 @@ main(int argc, char *argv[]) {
   }
 
   gettimeofday(&tv, &tz);
-  printf("Return of the call is %ld:%ld\n\n", tv.tv_sec, tv.tv_usec);
+  printf("Return of the call is %ld:%ld\n\n", (long int) tv.tv_sec, (long int) tv.tv_usec);
 
   printf("request ID value = %d\n", rst);
   diet_wait(rst);
@@ -66,7 +66,7 @@ main(int argc, char *argv[]) {
   printf("The job has been solved on %d processor(s)\n", *nbprocs);
 
   gettimeofday(&tv, &tz);
-  printf("Completion time is %ld:%ld\n\n", tv.tv_sec, tv.tv_usec);
+  printf("Completion time is %ld:%ld\n\n", (long int) tv.tv_sec, (long int) tv.tv_usec);
 
   diet_profile_free(profile);
   diet_finalize();

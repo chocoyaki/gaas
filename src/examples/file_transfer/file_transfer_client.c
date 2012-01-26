@@ -67,7 +67,7 @@ main(int argc, char *argv[]) {
     }
     diet_file_get(diet_parameter(profile, 4), &path, NULL, &out_size);
     if (path && (*path != '\0')) {
-      printf("Location of returned file is %s, its size is %zd.\n",
+      printf("Location of returned file is %s, its size is %lu.\n",
              path, out_size);
       /* If uncommented, next line unlink file */
       /* diet_free_data(diet_parameter(profile, 4)); */

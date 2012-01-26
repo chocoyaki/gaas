@@ -49,7 +49,7 @@ main(int argc, char *argv[]) {
   *********************/
 
   gettimeofday(&tv, &tz);
-  printf("L'heure de soumission est %ld:%ld\n\n", tv.tv_sec, tv.tv_usec);
+  printf("L'heure de soumission est %ld:%ld\n\n", (long int) tv.tv_sec, (long int) tv.tv_usec);
 
   if (!diet_call(profile)) {
     diet_scalar_get(diet_parameter(profile, 0), &nbprocs, NULL);
@@ -60,7 +60,7 @@ main(int argc, char *argv[]) {
   }
 
   gettimeofday(&tv, &tz);
-  printf("L'heure de terminaison est %ld:%ld\n\n", tv.tv_sec, tv.tv_usec);
+  printf("L'heure de terminaison est %ld:%ld\n\n", (long int) tv.tv_sec, (long int) tv.tv_usec);
 
   diet_profile_free(profile);
   diet_finalize();

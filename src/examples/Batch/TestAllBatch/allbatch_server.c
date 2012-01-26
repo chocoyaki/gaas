@@ -252,8 +252,7 @@ solve_concatenation_seq(diet_profile_t *pb) {
                      concatenation $input_file1 %.2f \
                      $input_file2 $local_output_filename;;\n"                                                                                                                                                                          ,
     local_output_filename, *ptr_nbreel);
-  sprintf(cmd + strlen(
-            cmd),
+  sprintf(cmd + strlen(cmd),
           "  loadleveler) cd $WORKING_DIRECTORY\n"
           "          local_output_filename=%s\n"
           "          # Test if job is serial or parallel (usage of poe)\n"
