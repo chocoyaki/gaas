@@ -1,12 +1,12 @@
 /**
 * @file  FNodePort.hh
-* 
+*
 * @brief  The classes representing the ports the nodes of functional workflow
-* 
+*
 * @author  Benjamin ISNARD (Benjamin.Isnard@ens-lyon.fr)
-* 
+*
 * @section Licence
-*   |LICENCE|                                                                
+*   |LICENCE|
 */
 
 
@@ -310,13 +310,9 @@ public:
 
   /**
    * Method to setup ports connection on each side
-   * endOfLink is here to disambiguate cases where an inout port could be
-   * both in or out port:
-   * if enOfLink is set to true, then this port is an in port, otherwise it
-   * is an out port
    */
   virtual void
-  connectToPort(WfPort* remPort, bool endOfLink);
+  connectToPort(WfPort* remPort);
 
   /**
    * Instanciate the port as a real input/output port

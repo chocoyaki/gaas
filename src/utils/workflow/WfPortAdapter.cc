@@ -1,12 +1,12 @@
 /**
 * @file  WfPortAdapter.cc
-* 
-* @brief  Port adapter classes used to split or merge container content 
-* 
+*
+* @brief  Port adapter classes used to split or merge container content
+*
 * @author  Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)
-* 
+*
 * @section Licence
-*   |LICENCE|                                                                
+*   |LICENCE|
 */
 
 
@@ -208,19 +208,22 @@ WfSimplePortAdapter::connectPorts(WfPort* port, unsigned int adapterLevel)
   }
 
   this->portPtr = linkedPort;       // SET the port ref FOR THE ADAPTER
-  // SET the connection on my port
   if (port->getPortType() == WfPort::PORT_INOUT
-      && NULL != dynamic_cast<FNodeInOutPort*>(port)) {
-    dynamic_cast<FNodeInOutPort*>(port)->connectToPort(linkedPort, false);
-  } else {
-    port->connectToPort(linkedPort);
-  }
-
-  // SET the connection on remote port
-  if (linkedPort->getPortType() == WfPort::PORT_INOUT
+      && NULL != dynamic_cast<FNodeInOutPort*>(port)
+      && linkedPort->getPortType() == WfPort::PORT_INOUT
       && NULL != dynamic_cast<FNodeInOutPort*>(linkedPort)) {
-    dynamic_cast<FNodeInOutPort*>(linkedPort)->connectToPort(port, true);
+    /* As two INOUT ports cannot internally disambiguate inOut to inOut link
+     * we need to specifically set each side separately */
+    /* SET the connection on my port, use WfPort::connectToPort as it is
+     * an "IN" port */
+    dynamic_cast<FNodeInOutPort*>(port)->WfPort::connectToPort(linkedPort);
+    /* SET the connection on remote port, use FNodeOutPort::connectToPort as it
+     * is an "OUT" port */
+    dynamic_cast<FNodeInOutPort*>(linkedPort)->FNodeOutPort::connectToPort(port);
   } else {
+    // SET the connection on my port
+    port->connectToPort(linkedPort);
+    // SET the connection on remote port
     linkedPort->connectToPort(port);
   }
 
