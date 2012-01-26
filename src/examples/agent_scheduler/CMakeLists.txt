@@ -20,6 +20,7 @@ set(HostnameRR_SRCS
 
 add_library(HostnameRR MODULE ${HostnameRR_SRCS})
 target_link_libraries(HostnameRR ${Boost_LIBRARIES})
+add_dependencies(HostnameRR dietAgent) # fake dependency, but we need files generated from IDLs
 
 if(APPLE)
   target_link_libraries(HostnameRR ${OMNIORB4_LIBRARIES})
