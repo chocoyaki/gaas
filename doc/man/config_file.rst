@@ -213,13 +213,6 @@ configuration file:
 
   [Remark: Option used only by MAs]
 
-**ackFile**
-  Path to a file that will be created when the element is ready to execute.
-
-  [Remark: DIET must be compiled with the Acknowledge File option]
-
-  [Remark: Option used only by Agents and SeDs]
-
 **maxMsgSize**
   Integer setting the maximum size of CORBA messages sent by Dagda.
   By default, it's the same as the omniORB giopMaxMsgSize size.
