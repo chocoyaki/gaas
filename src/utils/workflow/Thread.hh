@@ -19,10 +19,14 @@
 #include <boost/noncopyable.hpp>
 #include <boost/scoped_ptr.hpp>
 #include <boost/thread.hpp>
-
+#ifdef WIN32
+#define DIET_API_LIB __declspec(dllexport)
+#else
+#define DIET_API_LIB
+#endif
 class Callable;
 
-class Thread : boost::noncopyable {
+class DIET_API_LIB Thread : boost::noncopyable {
 public:
   explicit Thread(bool isDetached = false);
 

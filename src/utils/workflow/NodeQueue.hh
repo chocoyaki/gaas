@@ -20,7 +20,11 @@
 #include <string>
 #include <list>
 #include <vector>
-
+#ifdef WIN32
+#define DIET_API_LIB __declspec(dllexport)
+#else
+#define DIET_API_LIB
+#endif
 /**
  * Class NodeQueue (ABSTRACT)
  *
@@ -39,7 +43,7 @@
 
 class DagNode;
 
-class NodeQueue {
+class DIET_API_LIB NodeQueue {
 public:
   NodeQueue();
 
@@ -85,7 +89,7 @@ private:
  * a chain of node queues where a specific state change in a node will
  * trigger a move from one queue to another one.
  */
-class ChainedNodeQueue : public NodeQueue {
+class DIET_API_LIB ChainedNodeQueue : public NodeQueue {
 public:
   explicit ChainedNodeQueue(NodeQueue * outputQ);
 
@@ -105,7 +109,7 @@ protected:
  * This class only provides a FIFO queue for nodes and does not implement
  * any action on state change
  */
-class OrderedNodeQueue : public NodeQueue {
+class DIET_API_LIB OrderedNodeQueue : public NodeQueue {
 public:
   OrderedNodeQueue();
 
@@ -152,7 +156,7 @@ protected:
  * to all nodes that follow it in the queue.
  */
 
-class PriorityNodeQueue : public OrderedNodeQueue {
+class DIET_API_LIB PriorityNodeQueue : public OrderedNodeQueue {
 public:
   PriorityNodeQueue();
 

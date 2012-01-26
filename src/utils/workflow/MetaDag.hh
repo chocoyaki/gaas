@@ -16,7 +16,11 @@
 #include <map>
 #include <string>
 #include "NodeSet.hh"
-
+#ifdef WIN32
+#define DIET_API_LIB __declspec(dllexport)
+#else
+#define DIET_API_LIB
+#endif
 class Dag;
 class DagScheduler;
 
@@ -29,7 +33,7 @@ class DagScheduler;
  * Used to manage inter-dag relationships
  */
 
-class MetaDag : public NodeSet {
+class DIET_API_LIB MetaDag : public NodeSet {
 public:
   explicit MetaDag(const std::string& id);
 

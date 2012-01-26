@@ -30,8 +30,12 @@
 
 #include "Forwarder.hh"
 #include "MaDagFwdr.hh"
-
-class MaDag_impl : public POA_MaDag,
+#ifdef WIN32
+#define DIET_API_LIB __declspec(dllexport)
+#else
+#define DIET_API_LIB
+#endif
+class DIET_API_LIB MaDag_impl : public POA_MaDag,
 public PortableServer::RefCountServantBase {
 public:
   enum MaDagSchedType {BASIC, GHEFT, GAHEFT, FOFT, SRPT, FCFS};
@@ -229,7 +233,7 @@ private:
   CORBA::Long dagIdCounter;
 };
 
-class MaDagFwdrImpl : public POA_MaDag,
+class DIET_API_LIB MaDagFwdrImpl : public POA_MaDag,
 public PortableServer::RefCountServantBase {
 public:
   MaDagFwdrImpl(Forwarder_ptr fwdr, const char *objName);

@@ -32,7 +32,11 @@
 #include "WfNode.hh"
 #include "MasterAgent.hh"
 #include "NodeSet.hh"
-
+#ifdef WIN32
+#define DIET_API_LIB __declspec(dllexport)
+#else
+#define DIET_API_LIB
+#endif
 class FWorkflow;
 class DagNode;
 class DagNodeOutPort;
@@ -42,7 +46,7 @@ class DagScheduler;
 /*                              CLASS Dag                                    */
 /*****************************************************************************/
 
-class Dag : public NodeSet {
+class DIET_API_LIB Dag : public NodeSet {
 public:
   /*********************************************************************/
   /* constructors/destructor                                           */

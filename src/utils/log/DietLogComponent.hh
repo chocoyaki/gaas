@@ -27,7 +27,11 @@
 #define PINGTHREAD_SYNCHRO_FREQUENCY 60
 #define PINGTHREAD_SLEEP_SEC 1
 #define PINGTHREAD_SLEEP_NSEC 0
-
+#ifdef WIN32
+#define DIET_API_LIB __declspec(dllexport)
+#else
+#define DIET_API_LIB
+#endif
 /**
  * This flag configures the behaviour when communication
  * errors occure during operation. If it is defined, the
@@ -169,7 +173,7 @@ private:
  * and the outBuffer. To query their status, logXXX functions just
  * check for the flag with the index that corresponds to their tag.
  */
-class DietLogComponent :  public POA_ComponentConfigurator,
+class DIET_API_LIB DietLogComponent :  public POA_ComponentConfigurator,
 public PortableServer::RefCountServantBase {
 public:
   /**

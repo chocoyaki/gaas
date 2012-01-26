@@ -22,10 +22,15 @@
 #include <vector>
 #include "WfUtils.hh"
 #include "WfPort.hh"
+#ifdef WIN32
+#define DIET_API_LIB __declspec(dllexport)
+#else
+#define DIET_API_LIB
+#endif
 
 class NodeSet;
 
-class WfNode  {
+class DIET_API_LIB WfNode  {
 public:
   /*********************************************************************/
   /* public methods                                                    */

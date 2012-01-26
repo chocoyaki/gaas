@@ -20,8 +20,13 @@
 #include "FWorkflow.hh"
 #include "WfPortAdapter.hh"
 #include "WfLogService.hh"
+#ifdef WIN32
+#define DIET_API_LIB __declspec(dllexport)
+#else
+#define DIET_API_LIB
+#endif
 
-class WfLogDispatcher : public events::EventDispatcher {
+class DIET_API_LIB WfLogDispatcher : public events::EventDispatcher {
 public:
   explicit WfLogDispatcher(std::ostream& output);
   void

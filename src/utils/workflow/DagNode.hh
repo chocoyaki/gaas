@@ -37,11 +37,16 @@
 #include "Thread.hh"
 #include "DagScheduler.hh"
 #include "DagNodeLauncher.hh"
+#ifdef WIN32
+#define DIET_API_LIB __declspec(dllexport)
+#else
+#define DIET_API_LIB
+#endif
 
 /*****************************************************************************/
 /*                         CLASS WfDataException                             */
 /*****************************************************************************/
-class WfDataException {
+class DIET_API_LIB WfDataException {
 public:
   enum WfDataErrorType { eNOTFOUND,
                          eNOTAVAIL,
@@ -84,7 +89,7 @@ class Dag;
 class FWorkflow;
 class FProcNode;
 
-class DagNode : public WfNode  {
+class DIET_API_LIB DagNode : public WfNode  {
 public:
   /**
    * The Dag Node default constructor

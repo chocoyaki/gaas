@@ -32,7 +32,7 @@ public:
 
   virtual void
   handleEvent(const EventBase *event) {
-    myOutput << *event << std::endl;
+    myOutput << event->toString() << std::endl;
   }
 
 private:

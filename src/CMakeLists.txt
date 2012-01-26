@@ -382,7 +382,8 @@ set(dietForwarder_SRCS
   ${ForwarderCommon_SRCS}
   ${AgentCommon_SRCS}
   ${DIET_IDL_OUTPUT}
-  ${dietUtils_SRCS})
+  ${dietUtils_SRCS}
+  ${config_SRCS})
 
 if(WIN32)
   set(dietForwarder_LIBS DIET_Dagda DIET_SeD DIET_client

@@ -20,13 +20,17 @@
 #include <omniconfig.h>
 #include <omnithread.h>
 #include "DIET_data.h"
-
+#ifdef WIN32
+#define DIET_API_LIB __declspec(dllexport)
+#else
+#define DIET_API_LIB
+#endif
 
 /*****************************************************************************/
 /*                        CLASS WfStructException                            */
 /*****************************************************************************/
 
-class WfStructException {
+class DIET_API_LIB WfStructException {
 public:
   enum WfStructErrorType { eUNKNOWN_DAG,
                            eUNKNOWN_NODE,
@@ -65,7 +69,7 @@ private:
 /*                              CLASS WfCst                                  */
 /*****************************************************************************/
 
-class WfCst {
+class DIET_API_LIB WfCst {
 public:
   /************************************************************/
   /** STATIC CONSTANTS                                       **/
@@ -210,7 +214,7 @@ getStringToken(std::string str);
 /**
  * return a string representation on an integer
  */
-std::string
+DIET_API_LIB std::string
 itoa(long l);
 
 #endif   /* not defined _WFUTILS_HH_ */

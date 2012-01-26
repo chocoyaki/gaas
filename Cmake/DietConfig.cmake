@@ -8,10 +8,10 @@ set(DIET_INCLUDE_DIR "C:/Program Files (x86)/DIET/include")
 
 # --------------------------------------------------------------------------
 # Version number
-set(DIET_BUILD_VERSION   "2012/01/24-18:35:06"")
+set(DIET_BUILD_VERSION   "2012/01/25-15:27:12"")
 set(DIET_VERSION         "2.8.0")
 set(DIET_USE_ALT_BATCH   "OFF")
-set(DIET_USE_WORKFLOW    "OFF")
+set(DIET_USE_WORKFLOW    "ON")
 set(DIET_WITH_STATISTICS "OFF")
 set(DIET_WITH_MULTI_MA   "OFF")
 set(DIET_USE_USERSCHED   "OFF")
@@ -28,8 +28,8 @@ else(CYGWIN AND BUILD_SHARED_LIBS)
 endif(CYGWIN AND BUILD_SHARED_LIBS)
 link_directories(${DIET_LIBRARY_DIR})
 # The DIET libraries to link against
-set(DIET_CLIENT_LIBRARIES DIET_client DIET_Dagda )
-set(DIET_SERVER_LIBRARIES DIET_SeD DIET_client DIET_Dagda )
+set(DIET_CLIENT_LIBRARIES DIET_client DIET_Dagda C:/Users/absila/Workspace/xerces-c-3.1.1-x86-windows-vc-9.0/lib/xerces-c_3D.lib;C:/Users/absila/Workspace/XQilla-2.3.0/build/windows/VC8/Win32/Release/xqilla23.lib)
+set(DIET_SERVER_LIBRARIES DIET_SeD DIET_client DIET_Dagda C:/Users/absila/Workspace/xerces-c-3.1.1-x86-windows-vc-9.0/lib/xerces-c_3D.lib;C:/Users/absila/Workspace/XQilla-2.3.0/build/windows/VC8/Win32/Release/xqilla23.lib)
 set(DIET_ADMIN_LIBRARIES DIET_admin ${DIET_SERVER_LIBRARIES})
 
 if(DIET_USE_ALT_BATCH)
