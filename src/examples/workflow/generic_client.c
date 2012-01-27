@@ -77,9 +77,9 @@ main(int argc, char *argv[]) {
   }
 
   if (wfType == DIET_WF_FUNCTIONAL) {
+    int curPos = 5;
     wfFileName = argv[3];
     dataFileName = argv[4];
-    int curPos = 5;
     if ((argc > curPos) && (strcmp(argv[curPos], "-name"))) {
       transcriptFileName = argv[curPos];
       curPos++;
@@ -127,8 +127,9 @@ main(int argc, char *argv[]) {
 
   printf("Try to execute the %s\n", wfTypeName);
   if (!diet_wf_call(profile)) {
+    float time;
     gettimeofday(&t2, NULL);
-    float time =
+    time =
       (t2.tv_sec - t1.tv_sec) + ((float) (t2.tv_usec - t1.tv_usec)) / 1000000;
     printf("The %s submission succeed / time= %f s\n", wfTypeName, time);
 
