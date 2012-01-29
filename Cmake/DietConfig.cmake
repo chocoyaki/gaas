@@ -8,14 +8,14 @@ set(DIET_INCLUDE_DIR "C:/Program Files (x86)/DIET/include")
 
 # --------------------------------------------------------------------------
 # Version number
-set(DIET_BUILD_VERSION   "2012/01/25-15:27:12"")
+set(DIET_BUILD_VERSION   "2012/01/27-11:30:25"")
 set(DIET_VERSION         "2.8.0")
-set(DIET_USE_ALT_BATCH   "OFF")
+set(DIET_USE_ALT_BATCH   "ON")
 set(DIET_USE_WORKFLOW    "ON")
-set(DIET_WITH_STATISTICS "OFF")
-set(DIET_WITH_MULTI_MA   "OFF")
-set(DIET_USE_USERSCHED   "OFF")
-set(DIET_USE_CCS         "OFF")
+set(DIET_WITH_STATISTICS "ON")
+set(DIET_WITH_MULTI_MA   "ON")
+set(DIET_USE_USERSCHED   "ON")
+set(DIET_USE_CCS         "ON")
 
 # --------------------------------------------------------------------------
 # Path to DIET libraries

@@ -1,12 +1,12 @@
 /**
 * @file DIET_data.h
-* 
+*
 * @brief  DIET data interface
-* 
-* @author - Philippe COMBES (Philippe.Combes@ens-lyon.fr) 
-* 
+*
+* @author - Philippe COMBES (Philippe.Combes@ens-lyon.fr)
+*
 * @section Licence
-*   |LICENCE|                                                                
+*   |LICENCE|
 
    \details
 
@@ -490,11 +490,11 @@
 
 #ifndef _DIET_DATA_H_
 #define _DIET_DATA_H_
-#ifdef WIN32
+#ifdef __WIN32__
    #define DIET_API_LIB __declspec(dllexport)
-#else
+#else /* __WIN32__ */
    #define DIET_API_LIB
-#endif
+#endif /* __WIN32__ */
 #include <sys/types.h>
 
 #ifdef __cplusplus
@@ -990,7 +990,7 @@ extern "C" {
      @param arg argument to modify
      @param id id of the data to set in the profile for the corresponding argument
   */
-  void
+  DIET_API_LIB void
   diet_use_data(diet_arg_t* arg, const char* id);
 
   /****************************************************************************/
@@ -1293,7 +1293,7 @@ extern "C" {
      @return scalar description or \c NULL if the underlying composite type
      is not the good one
   */
-  diet_scalar_desc_t
+  DIET_API_LIB diet_scalar_desc_t
   diet_scalar_get_desc(diet_arg_t* arg);
 
   /**
@@ -1303,7 +1303,7 @@ extern "C" {
      @return vector description or \c NULL if the underlying composite type is
      not the good one
   */
-  diet_vector_desc_t
+  DIET_API_LIB diet_vector_desc_t
   diet_vector_get_desc(diet_arg_t* arg);
 
   /**
@@ -1313,7 +1313,7 @@ extern "C" {
      @return matrix description or \c NULL if the underlying type is not the
      good one
   */
-  diet_matrix_desc_t
+  DIET_API_LIB diet_matrix_desc_t
   diet_matrix_get_desc(diet_arg_t* arg);
 
   /**
@@ -1323,7 +1323,7 @@ extern "C" {
      @return string description or \c NULL if the underlying type is not the
      good one
   */
-  diet_string_desc_t
+  DIET_API_LIB diet_string_desc_t
   diet_string_get_desc(diet_arg_t* arg);
 
   /**
@@ -1335,7 +1335,7 @@ extern "C" {
      @return paramstring description or \c NULL if the underlying type is
      not the good one
   */
-  diet_paramstring_desc_t
+  DIET_API_LIB diet_paramstring_desc_t
   diet_paramstring_get_desc(diet_arg_t* arg);
 
   /**
@@ -1345,7 +1345,7 @@ extern "C" {
      @return file description or \c NULL if the underlying type is not the
      good one
   */
-  diet_file_desc_t
+  DIET_API_LIB diet_file_desc_t
   diet_file_get_desc(diet_arg_t* arg);
 
   /*
@@ -1377,7 +1377,7 @@ extern "C" {
      @todo error codes defined in DIET_grpc.h should better be used.
      @sa DIET_grpc.h for error codes
   */
-  int
+  DIET_API_LIB int
   diet_free_data(diet_arg_t* arg);
 
   /****************************************************************************/
@@ -1422,7 +1422,7 @@ extern "C" {
      or \c (double**) etc. into \c (void**).
 
   */
-  int
+  DIET_API_LIB int
   _scalar_get(diet_arg_t* arg, void** value, diet_persistence_mode_t* mode);
 
   /**
@@ -1457,7 +1457,7 @@ extern "C" {
      or \c (double**) etc. into \c (void**).
 
   */
-  int
+  DIET_API_LIB int
   _vector_get(diet_arg_t* arg, void** value, diet_persistence_mode_t* mode,
               size_t* size);
 
@@ -1496,7 +1496,7 @@ extern "C" {
      or \c (double**) etc. into \c (void**).
 
   */
-  int
+  DIET_API_LIB int
   _matrix_get(diet_arg_t* arg, void** value, diet_persistence_mode_t* mode,
               size_t* nb_rows, size_t *nb_cols, diet_matrix_order_t* order);
 
@@ -1531,7 +1531,7 @@ extern "C" {
      or \c (double**) etc. into \c (void**).
 
   */
-  int
+  DIET_API_LIB int
   _string_get(diet_arg_t* arg, char** value, diet_persistence_mode_t* mode);
 
   /**
@@ -1566,7 +1566,7 @@ extern "C" {
      @remark these are macros that let the user not worry about casting its
      \c (int**) or \c (double**) etc. into \c (void**).
   */
-  int
+  DIET_API_LIB int
   _paramstring_get(diet_arg_t* arg, char** value,
                    diet_persistence_mode_t* mode);
 
@@ -1602,7 +1602,7 @@ extern "C" {
      or \c (double**) etc. into \c (void**).
 
   */
-  int
+  DIET_API_LIB int
   _file_get(diet_arg_t* arg, char** path, diet_persistence_mode_t* mode,
             size_t* size);
 
@@ -1936,7 +1936,7 @@ extern "C" {
      @param wf_level is the type of workflow
      @return the allocated workflow profile
   */
-  diet_wf_desc_t*
+  DIET_API_LIB diet_wf_desc_t*
   diet_wf_profile_alloc(const char* wf_file_name,
                         const char* wf_name,
                         wf_level_t wf_level);
@@ -1947,7 +1947,7 @@ extern "C" {
      @param profile is the functional wf profile ref
      @param data_file_name is the full name of the file containing data (in XML)
   */
-  void
+  DIET_API_LIB void
   diet_wf_set_data_file(diet_wf_desc_t * profile,
                         const char * data_file_name);
 
@@ -1981,7 +1981,7 @@ extern "C" {
      @param transcript_file_name is the path of the file to read
 
   */
-  void
+  DIET_API_LIB void
   diet_wf_set_transcript_file(diet_wf_desc_t * profile,
                               const char * transcript_file_name);
 
@@ -2011,7 +2011,7 @@ extern "C" {
 
      @param profile is the dag / functional wf profile ref
   */
-  void
+  DIET_API_LIB void
   diet_wf_profile_free(diet_wf_desc_t * profile);
 
   /**
@@ -2317,7 +2317,7 @@ extern "C" {
      @warning this function is declared in DIET_data.h but implemented in DIET_client.cc !
   */
 
-  int
+  DIET_API_LIB int
   diet_wf_sink_get(diet_wf_desc_t * profile,
                    const char * id,
                    char** dataID);
