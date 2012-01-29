@@ -311,8 +311,8 @@ if(DIET_USE_ALT_BATCH)
   set(cori_SRCS ${cori_SRCS} utils/batch/Cori_batch.cc)
 endif()
   
-## library: DAGDA
-set(DAGDA_SRCS
+## library: DIET_core
+set(CORE_SRCS
   utils/DAGDA/DagdaImpl.cc
   utils/DAGDA/DagdaFactory.cc
   utils/DAGDA/DagdaCatalog.cc
@@ -328,10 +328,10 @@ set(DAGDA_SRCS
   ${UtilsNode_SRCS}
   ${cori_SRCS})
 if(DIET_TRANSFER_PROGRESSION)
-  set(DAGDA_SRCS ${DAGDA_SRCS} utils/DAGDA/Transfers.cc)
+  set(CORE_SRCS ${CORE_SRCS} utils/DAGDA/Transfers.cc)
 endif()
 if(DIET_USE_ALT_BATCH)
-  set(DAGDA_SRCS ${DAGDA_SRCS} ${UtilsBatch_SRCS})
+  set(CORE_SRCS ${CORE_SRCS} ${UtilsBatch_SRCS})
 endif()
 if(DIET_USE_WORKFLOW)
   set(DAGDA_SRCS ${DAGDA_SRCS} ${UtilsWf_SRCS} ${UtilsEvents_SRCS})
@@ -339,8 +339,8 @@ endif()
 
 set(DAGDA_LIBS ${OMNIORB4_LIBRARIES} ${Boost_LIBRARIES})
 if(DIET_USE_CLOUD)
-  set(DAGDA_SRCS ${DAGDA_SRCS} ${cloud_SRCS})
-  set(DAGDA_LIBS ${DAGDA_LIBS} ${GSOAP_LIBRARIES})
+  set(CORE_SRCS ${CORE_SRCS} ${cloud_SRCS})
+  set(CORE_LIBS ${CORE_LIBS} ${GSOAP_LIBRARIES})
 endif()
 if(WIN32)
   set(DAGDA_LIBS ${DAGDA_LIBS} Shlwapi ws2_32)
@@ -355,12 +355,11 @@ if(DIET_USE_WORKFLOW)
   set(DAGDA_LIBS ${DAGDA_LIBS} ${XQILLA_LIBRARY} ${XERCES_LIBRARY})
 endif()
 
+add_library(DIET_core ${CORE_SRCS})
+set_target_properties(DIET_core PROPERTIES VERSION ${DIET_VERSION})
+target_link_libraries(DIET_core ${CORE_LIBS})
 
-add_library(DIET_Dagda ${DAGDA_SRCS})
-set_target_properties(DIET_Dagda PROPERTIES VERSION ${DIET_VERSION})
-target_link_libraries(DIET_Dagda ${DAGDA_LIBS})
-
-install(TARGETS DIET_Dagda DESTINATION ${LIB_INSTALL_DIR})
+install(TARGETS DIET_core DESTINATION ${LIB_INSTALL_DIR})
 install(FILES utils/DAGDA/DIET_Dagda.h DESTINATION ${INCLUDE_INSTALL_DIR})
 
 ## library: DIET_admin
@@ -519,7 +518,7 @@ set(DIET_client_SRCS
   ${AgentCommon_SRCS})
 
 set(DIET_client_LIBS
-  DIET_Dagda
+  DIET_core
   DIET_SeD
   ${OMNIORB4_LIBRARIES})
 
@@ -560,7 +559,7 @@ install(TARGETS DIET_client DESTINATION ${LIB_INSTALL_DIR})
 
 ## executable: agent
 set(dietAgent_LIBS
-  DIET_Dagda
+  DIET_core
   DIET_client
   DIET_SeD
   ${OMNIORB4_LIBRARIES}
@@ -602,9 +601,9 @@ install(TARGETS dietAgent DESTINATION ${BIN_INSTALL_DIR})
 ## executable: maDagAgent
 if(DIET_USE_WORKFLOW)
   set(maDagAgent_SRCS agent/workflow/maDagAgent.cc ${MaDagCommon_SRCS}
-    ${UtilsEvents_SRCS} ${UtilsWf_SRCS})
+    ${UtilsEvents_SRCS} ${UtilsWf_SRCS} ${config_SRCS})
   set(maDagAgent_LIBS DIET_Dagda ${XQILLA_LIBRARY} ${XERCES_LIBRARY}
-    ${OMNIORB4_LIBRARIES} ${Boost_LIBRARIES} DIET_SeD)
+    ${OMNIORB4_LIBRARIES} ${Boost_LIBRARIES} DIET_SeD DIET_core)
   if(WIN32)
     set(maDagAgent_LIBS ${maDagAgent_LIBS} ws2_32 Shlwapi)
   endif()
