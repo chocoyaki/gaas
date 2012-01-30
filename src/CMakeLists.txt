@@ -310,7 +310,11 @@ if(DIET_USE_ALT_BATCH)
   set(CORE_SRCS ${CORE_SRCS} ${UtilsBatch_SRCS})
 endif()
 if(DIET_USE_WORKFLOW)
+<<<<<<< HEAD
   set(CORE_SRCS ${CORE_SRCS} ${UtilsEvents_SRCS})
+=======
+  set(CORE_SRCS ${CORE_SRCS} ${UtilsWf_SRCS} ${UtilsEvents_SRCS})
+>>>>>>> c3db99149eb111bbdd663c36c4d2fda76690bfce
 endif()
 
 set(CORE_LIBS ${OMNIORB4_LIBRARIES} ${Boost_LIBRARIES})
@@ -324,7 +328,11 @@ endif()
 
 if(DIET_USE_LOG)
   set(CORE_SRCS ${CORE_SRCS} ${UtilsLog_SRCS})
+<<<<<<< HEAD
   set(CORE_LIBS ${CORE_LIBS} ${LOG_LIBRARY})
+=======
+  set(CORE_LIBS ${CORE_LIBS} ${LOG_LIBRARIES})
+>>>>>>> c3db99149eb111bbdd663c36c4d2fda76690bfce
 endif()
 
 if(DIET_USE_WORKFLOW)
