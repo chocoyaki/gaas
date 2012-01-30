@@ -360,12 +360,10 @@ set(dietForwarder_SRCS
   ${dietUtils_SRCS}
   ${config_SRCS})
 
+set(dietForwarder_LIBS DIET_core DIET_SeD DIET_client
+    ${OMNIORB4_LIBRARIES} ${Boost_LIBRARIES} ${CMAKE_DL_LIBS})
 if(WIN32)
-  set(dietForwarder_LIBS DIET_core DIET_SeD DIET_client
-    ${OMNIORB4_LIBRARIES} ${CMAKE_DL_LIBS}  ws2_32 Iphlpapi)
-else()
-  set(dietForwarder_LIBS DIET_core DIET_SeD DIET_client
-    ${OMNIORB4_LIBRARIES} ${CMAKE_DL_LIBS})
+  set(dietForwarder_LIBS ${dietForwarder_LIBS} ws2_32 Iphlpapi)
 endif()
 
 if(DIET_USE_WORKFLOW)
@@ -380,7 +378,6 @@ if(DIET_USE_LOG)
 endif()
 
 
-
 if(DIET_USE_USERSCHED)
   set(dietForwarder_SRCS ${dietForwarder_SRCS} agent/UserScheduler.cc )
   install(FILES CORBA/marshalling.hh
@@ -392,8 +389,8 @@ install(TARGETS dietForwarder DESTINATION ${BIN_INSTALL_DIR})
 
 if(DIET_BUILD_TOOLS)
   set(dietObjects_SRCS CORBA/tools/dietObjects.cc ${DIET_IDL_OUTPUT})
-  set(dietObjects_LIBS DIET_client DIET_SeD ${OMNIORB4_LIBRARIES}
-    ${Boost_LIBRARIES} ${CMAKE_DL_LIBS})
+  set(dietObjects_LIBS DIET_client DIET_SeD DIET_core 
+	${OMNIORB4_LIBRARIES} ${Boost_LIBRARIES} ${CMAKE_DL_LIBS})
   if(WIN32)
     set(dietObjects_LIBS ${dietObjects_LIBS} ws2_32)  
   endif()
@@ -403,6 +400,10 @@ if(DIET_BUILD_TOOLS)
       ${XERCES_LIBRARY} ${XQILLA_LIBRARY})
   endif()
 
+  if(DIET_USE_LOG)
+    set(dietObjects_LIBS ${dietObjects_LIBS}
+      ${LOG_LIBRARIES})
+  endif()
   add_executable(dietObjects ${dietObjects_SRCS})
   target_link_libraries(dietObjects ${dietObjects_LIBS})
   install(TARGETS dietObjects DESTINATION ${BIN_INSTALL_DIR})
@@ -584,6 +585,9 @@ if(DIET_USE_WORKFLOW)
   if(WIN32)
     set(maDagAgent_LIBS ${maDagAgent_LIBS} ws2_32 Shlwapi)
   endif()
+  if(DIET_USE_LOG)
+    set(maDagAgent_LIBS ${maDagAgent_LIBS} ${LOG_LIBRARIES})
+  endif()
 
   add_executable(maDagAgent ${maDagAgent_SRCS})
   target_link_libraries(maDagAgent ${maDagAgent_LIBS})
@@ -602,6 +606,7 @@ if(WIN32)
 endif()  
 if(DIET_USE_LOG)
   set(DIET_SeD_SRCS ${DIET_SeD_SRCS} ${UtilsLog_SRCS})
+  set(DIET_SeD_LIBS ${DIET_SeD_LIBS} ${LOG_LIBRARIES})
 endif()
 if(DIET_USE_CLOUD)
   set(DIET_SeD_SRCS ${DIET_SeD_SRCS} ${cloud_SRCS})
