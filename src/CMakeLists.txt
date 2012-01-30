@@ -363,10 +363,10 @@ set(dietForwarder_SRCS
   ${config_SRCS})
 
 if(WIN32)
-  set(dietForwarder_LIBS DIET_Dagda DIET_SeD DIET_client
+  set(dietForwarder_LIBS DIET_core DIET_SeD DIET_client
     ${OMNIORB4_LIBRARIES} ${CMAKE_DL_LIBS}  ws2_32 Iphlpapi)
 else()
-  set(dietForwarder_LIBS DIET_Dagda DIET_SeD DIET_client
+  set(dietForwarder_LIBS DIET_core DIET_SeD DIET_client
     ${OMNIORB4_LIBRARIES} ${CMAKE_DL_LIBS})
 endif()
 
@@ -580,7 +580,7 @@ install(TARGETS dietAgent DESTINATION ${BIN_INSTALL_DIR})
 if(DIET_USE_WORKFLOW)
   set(maDagAgent_SRCS agent/workflow/maDagAgent.cc ${MaDagCommon_SRCS}
     ${UtilsEvents_SRCS} ${UtilsWf_SRCS} ${config_SRCS})
-  set(maDagAgent_LIBS DIET_Dagda ${XQILLA_LIBRARY} ${XERCES_LIBRARY}
+  set(maDagAgent_LIBS DIET_core ${XQILLA_LIBRARY} ${XERCES_LIBRARY}
     ${OMNIORB4_LIBRARIES} ${Boost_LIBRARIES} DIET_SeD DIET_core)
   if(WIN32)
     set(maDagAgent_LIBS ${maDagAgent_LIBS} ws2_32 Shlwapi)
@@ -597,7 +597,7 @@ set(DIET_SeD_SRCS SeD/DIET_server.cc SeD/SeDImpl.cc
 if(DIET_USE_ALT_BATCH)
   set(DIET_SeD_SRCS ${DIET_SeD_SRCS} ${cori_SRCS} ${UtilsBatch_SRCS})
 endif()
-set(DIET_SeD_LIBS DIET_Dagda ${OMNIORB4_LIBRARIES})
+set(DIET_SeD_LIBS DIET_core ${OMNIORB4_LIBRARIES})
 if(WIN32)
   set(DIET_SeD_LIBS ${DIET_SeD_LIBS} ws2_32)
 endif()  
