@@ -636,7 +636,8 @@ BatchSystem::replaceAllOccurencesInString(char **input,
 size_t
 BatchSystem::writen(int fd, const char *buffer, size_t n) {
   size_t nleft;
-  ssize_t nwritten;
+  //ssize_t nwritten;
+  size_t nwritten;
   const char *ptr;
 
   ptr = buffer;

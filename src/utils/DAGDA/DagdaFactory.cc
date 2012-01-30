@@ -15,14 +15,13 @@
 #include <algorithm>
 #include <boost/filesystem.hpp>
 
-#ifdef __WIN32__
-#include <WinBase.h>
-#endif
-
 #include "configuration.hh"
 #include "DagdaFactory.hh"
 #include "debug.hh"
 #include "omniORB4/omniORB.h"
+#ifdef __WIN32__
+#include <WinBase.h>
+#endif
 
 #include "AdvancedDagdaComponent.hh"
 #include "CacheAlgorithms.hh"
