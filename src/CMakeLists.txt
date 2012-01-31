@@ -373,7 +373,7 @@ set(CORE_SRCS
   ${CorbaCommon_SRCS}
   ${dietUtils_SRCS}
   ${UtilsNode_SRCS}
-  ${cori_SRCS})
+  )
 if(DIET_TRANSFER_PROGRESSION)
   set(CORE_SRCS ${CORE_SRCS} utils/DAGDA/Transfers.cc)
 endif()
