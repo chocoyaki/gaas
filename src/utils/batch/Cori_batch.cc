@@ -20,12 +20,11 @@
 #include <string>
 #include <cmath>
 
-#define className Cori_batch
 
 using namespace std;
 
 void
-className::printMetric(estVector_t vector_v, int type_Info) {
+Cori_batch::printMetric(estVector_t vector_v, int type_Info) {
   switch (type_Info) {
   case EST_SERVER_TYPE: /* Value appears only once */
     cout << "In construction: EST_SERVER_TYPE" << endl << endl;
