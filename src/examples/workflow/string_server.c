@@ -175,12 +175,12 @@ void
 container_string_get(const char *contID, short depth, char *contStr) {
   diet_container_t content;
   char *eltStr;
-  unsigned int i;
   if (depth < 0) {
     fprintf(stderr, "Error in container_string_get: depth=%d\n", depth);
     exit(0);
   }
   if (!dagda_get_container_elements(contID, &content)) {
+    unsigned int i;
     strcat(contStr, parLeft_c);
     for (i = 0; i < content.size; i++) {
       if (content.elt_ids[i] == NULL) {

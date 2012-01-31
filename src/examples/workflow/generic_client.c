@@ -64,8 +64,6 @@ main(int argc, char *argv[]) {
   wf_level_t wfType;
   char wfTypeName[10];
   struct timeval t1, t2;
-  int curPos;
-  float time;
 
   checkUsage(argc, argv);
 
