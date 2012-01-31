@@ -286,6 +286,77 @@ set(cori_SRCS
   utils/nodes/Cori_Metric.cc
   utils/nodes/CORIMgr.cc)
 
+set(CORI_BATCH_CLEAN_COMPILE_FLAG "")
+if(DIET_USE_ALT_BATCH)      # Then extract from the lib SeD related
+  set(CORI_BATCH_CLEAN_COMPILE_FLAG ${CORI_BATCH_CLEAN_COMPILE_FLAG}
+    "-D CLEAN_CORILIB_FROM_BATCH_STAFF")
+  set(cori_SRCS ${cori_SRCS} utils/batch/Cori_batch.cc)
+endif()
+set_source_files_properties(Cori_Metric.cc
+  PROPERTIES COMPILE_FLAGS "${CORI_BATCH_CLEAN_COMPILE_FLAG}")
+# Refer to ConfigureCORI.cmake for definition of CORI_HAVE_* variables:
+set(CORI_EASY_CPU_COMPILE_FLAGS  "")
+set(CORI_EASY_MEMORY_COMPILE_FLAGS  "")
+if(CORI_HAVE_PROCCPU)
+  set( CORI_EASY_CPU_COMPILE_FLAGS
+    "${CORI_EASY_CPU_COMPILE_FLAGS} -D CORI_HAVE_PROCCPU")
+endif()
+if(CORI_HAVE_PROCMEM)
+  set(CORI_EASY_MEMORY_COMPILE_FLAGS
+    "${CORI_EASY_MEMORY_COMPILE_FLAGS} -D CORI_HAVE_PROCMEM")
+endif()
+if(CORI_HAVE_SYS_TYPES)
+  set( CORI_EASY_CPU_COMPILE_FLAGS
+    "${CORI_EASY_CPU_COMPILE_FLAGS} -D CORI_HAVE_SYS_TYPES")
+endif()
+if(CORI_HAVE_SYS_SYSCTL)
+  set(CORI_EASY_CPU_COMPILE_FLAGS
+    "${CORI_EASY_CPU_COMPILE_FLAGS} -D CORI_HAVE_SYS_SYSCTL")
+endif()
+if(CORI_HAVE_SYS_SYSINFO)
+  set(CORI_EASY_CPU_COMPILE_FLAGS
+    "${CORI_EASY_CPU_COMPILE_FLAGS} -D CORI_HAVE_SYS_SYSINFO")
+  set(CORI_EASY_MEMORY_COMPILE_FLAGS
+    "${CORI_EASY_MEMORY_COMPILE_FLAGS} -D CORI_HAVE_SYS_SYSINFO")
+endif()
+if(CORI_HAVE_get_avphys_pages)
+  set(CORI_EASY_MEMORY_COMPILE_FLAGS
+    "${CORI_EASY_MEMORY_COMPILE_FLAGS} -D CORI_HAVE_get_avphys_pages")
+endif()
+if(CORI_HAVE_get_nprocs)
+  set(CORI_EASY_CPU_COMPILE_FLAGS
+    "${CORI_EASY_CPU_COMPILE_FLAGS} -D CORI_HAVE_get_nprocs")
+endif()
+# FIXME: looks like never used !
+if(CORI_HAVE_get_phys_pages)
+  set(CORI_EASY_MEMORY_COMPILE_FLAGS
+    "${CORI_EASY_MEMORY_COMPILE_FLAGS} -D CORI_HAVE_get_phys_pages")
+endif()
+if(CORI_HAVE_getloadavg)
+  set(CORI_EASY_CPU_COMPILE_FLAGS
+    "${CORI_EASY_CPU_COMPILE_FLAGS} -D CORI_HAVE_getloadavg")
+endif()
+if(CORI_HAVE_getpagesize)
+  set(CORI_EASY_MEMORY_COMPILE_FLAGS
+    "${CORI_EASY_MEMORY_COMPILE_FLAGS} -D CORI_HAVE_getpagesize")
+endif()
+if(CORI_HAVE_sysconf)
+  set(CORI_EASY_CPU_COMPILE_FLAGS
+    "${CORI_EASY_CPU_COMPILE_FLAGS} -D CORI_HAVE_sysconf")
+endif()
+if(CORI_HAVE_sysctl)
+  set(CORI_EASY_CPU_COMPILE_FLAGS
+    "${CORI_EASY_CPU_COMPILE_FLAGS} -D CORI_HAVE_sysctl")
+endif()
+if(CORI_HAVE_sysctlbyname)
+  set(CORI_EASY_CPU_COMPILE_FLAGS
+    "${CORI_EASY_CPU_COMPILE_FLAGS} -D CORI_HAVE_sysctlbyname")
+endif()
+set_source_files_properties(Cori_Easy_CPU.cc
+  PROPERTIES COMPILE_FLAGS "${CORI_EASY_CPU_COMPILE_FLAGS}")
+set_source_files_properties( Cori_Easy_Memory.cc
+  PROPERTIES COMPILE_FLAGS "${CORI_EASY_MEMORY_COMPILE_FLAGS}")
+
   
 ## library: DIET_core
 set(CORE_SRCS
@@ -408,79 +479,6 @@ if(DIET_BUILD_TOOLS)
   target_link_libraries(dietObjects ${dietObjects_LIBS})
   install(TARGETS dietObjects DESTINATION ${BIN_INSTALL_DIR})
 endif()
-
-
-## Cori
-set(CORI_BATCH_CLEAN_COMPILE_FLAG "")
-if(DIET_USE_ALT_BATCH)      # Then extract from the lib SeD related
-  set(CORI_BATCH_CLEAN_COMPILE_FLAG ${CORI_BATCH_CLEAN_COMPILE_FLAG}
-    "-D CLEAN_CORILIB_FROM_BATCH_STAFF")
-  set(cori_SRCS ${cori_SRCS} utils/batch/Cori_batch.cc)  
-endif()
-set_source_files_properties(Cori_Metric.cc
-  PROPERTIES COMPILE_FLAGS "${CORI_BATCH_CLEAN_COMPILE_FLAG}")
-# Refer to ConfigureCORI.cmake for definition of CORI_HAVE_* variables:
-set(CORI_EASY_CPU_COMPILE_FLAGS  "")
-set(CORI_EASY_MEMORY_COMPILE_FLAGS  "")
-if(CORI_HAVE_PROCCPU)
-  set( CORI_EASY_CPU_COMPILE_FLAGS
-    "${CORI_EASY_CPU_COMPILE_FLAGS} -D CORI_HAVE_PROCCPU")
-endif()
-if(CORI_HAVE_PROCMEM)
-  set(CORI_EASY_MEMORY_COMPILE_FLAGS
-    "${CORI_EASY_MEMORY_COMPILE_FLAGS} -D CORI_HAVE_PROCMEM")
-endif()
-if(CORI_HAVE_SYS_TYPES)
-  set( CORI_EASY_CPU_COMPILE_FLAGS
-    "${CORI_EASY_CPU_COMPILE_FLAGS} -D CORI_HAVE_SYS_TYPES")
-endif()
-if(CORI_HAVE_SYS_SYSCTL)
-  set(CORI_EASY_CPU_COMPILE_FLAGS
-    "${CORI_EASY_CPU_COMPILE_FLAGS} -D CORI_HAVE_SYS_SYSCTL")
-endif()
-if(CORI_HAVE_SYS_SYSINFO)
-  set(CORI_EASY_CPU_COMPILE_FLAGS
-    "${CORI_EASY_CPU_COMPILE_FLAGS} -D CORI_HAVE_SYS_SYSINFO")
-  set(CORI_EASY_MEMORY_COMPILE_FLAGS
-    "${CORI_EASY_MEMORY_COMPILE_FLAGS} -D CORI_HAVE_SYS_SYSINFO")
-endif()
-if(CORI_HAVE_get_avphys_pages)
-  set(CORI_EASY_MEMORY_COMPILE_FLAGS
-    "${CORI_EASY_MEMORY_COMPILE_FLAGS} -D CORI_HAVE_get_avphys_pages")
-endif()
-if(CORI_HAVE_get_nprocs)
-  set(CORI_EASY_CPU_COMPILE_FLAGS
-    "${CORI_EASY_CPU_COMPILE_FLAGS} -D CORI_HAVE_get_nprocs")
-endif()
-# FIXME: looks like never used !
-if(CORI_HAVE_get_phys_pages)
-  set(CORI_EASY_MEMORY_COMPILE_FLAGS
-    "${CORI_EASY_MEMORY_COMPILE_FLAGS} -D CORI_HAVE_get_phys_pages")
-endif()
-if(CORI_HAVE_getloadavg)
-  set(CORI_EASY_CPU_COMPILE_FLAGS
-    "${CORI_EASY_CPU_COMPILE_FLAGS} -D CORI_HAVE_getloadavg")
-endif()
-if(CORI_HAVE_getpagesize)
-  set(CORI_EASY_MEMORY_COMPILE_FLAGS
-    "${CORI_EASY_MEMORY_COMPILE_FLAGS} -D CORI_HAVE_getpagesize")
-endif()
-if(CORI_HAVE_sysconf)
-  set(CORI_EASY_CPU_COMPILE_FLAGS
-    "${CORI_EASY_CPU_COMPILE_FLAGS} -D CORI_HAVE_sysconf")
-endif()
-if(CORI_HAVE_sysctl)
-  set(CORI_EASY_CPU_COMPILE_FLAGS
-    "${CORI_EASY_CPU_COMPILE_FLAGS} -D CORI_HAVE_sysctl")
-endif()
-if(CORI_HAVE_sysctlbyname)
-  set(CORI_EASY_CPU_COMPILE_FLAGS
-    "${CORI_EASY_CPU_COMPILE_FLAGS} -D CORI_HAVE_sysctlbyname")
-endif()
-set_source_files_properties(Cori_Easy_CPU.cc
-  PROPERTIES COMPILE_FLAGS "${CORI_EASY_CPU_COMPILE_FLAGS}")
-set_source_files_properties( Cori_Easy_Memory.cc
-  PROPERTIES COMPILE_FLAGS "${CORI_EASY_MEMORY_COMPILE_FLAGS}")
 
 ## library: DIET_client
 set(DIET_client_SRCS
