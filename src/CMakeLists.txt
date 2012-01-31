@@ -249,24 +249,6 @@ set(MaDagCommon_SRCS
   agent/workflow/MultiWfSRPT.cc
   agent/workflow/MultiWfFCFS.cc)
 
-## ForwarderCommon
-set(ForwarderCommon_SRCS
-  CORBA/SSHTunnel.cc
-  CORBA/Options.cc
-  CORBA/DIETForwarder.cc
-  CORBA/forwarders/Agent.cc
-  CORBA/forwarders/Callback.cc
-  CORBA/forwarders/MasterAgent.cc
-  CORBA/forwarders/SeD.cc
-  CORBA/forwarders/Dagda.cc)
-if(DIET_USE_WORKFLOW)
-  set(ForwarderCommon_SRCS ${ForwarderCommon_SRCS}
-    ${MaDagCommon_SRCS}
-    CORBA/forwarders/CltMan.cc
-    CORBA/forwarders/MaDag.cc
-    CORBA/forwarders/WfLogService.cc)
-endif()
-
 ## UtilsNode
 set(UtilsNode_SRCS
   utils/nodes/Counter.cc
@@ -421,10 +403,27 @@ target_link_libraries(DIET_admin DIET_SeD)
 set_target_properties(DIET_admin  PROPERTIES VERSION ${DIET_VERSION})
 install(TARGETS DIET_admin DESTINATION ${LIB_INSTALL_DIR})
 
+## ForwarderCommon
+set(ForwarderCommon_SRCS
+  CORBA/dietFwdr.cc
+  CORBA/SSHTunnel.cc
+  CORBA/Options.cc
+  CORBA/DIETForwarder.cc
+  CORBA/forwarders/Agent.cc
+  CORBA/forwarders/Callback.cc
+  CORBA/forwarders/MasterAgent.cc
+  CORBA/forwarders/SeD.cc
+  CORBA/forwarders/Dagda.cc)
+if(DIET_USE_WORKFLOW)
+  set(ForwarderCommon_SRCS ${ForwarderCommon_SRCS}
+    ${MaDagCommon_SRCS}
+    CORBA/forwarders/CltMan.cc
+    CORBA/forwarders/MaDag.cc
+    CORBA/forwarders/WfLogService.cc)
+endif()
+
 ## executable: dietForwarder
 set(dietForwarder_SRCS
-  CORBA/dietFwdr.cc
-  CORBA/DIETForwarder.cc
   ${ForwarderCommon_SRCS}
   ${AgentCommon_SRCS}
   ${DIET_IDL_OUTPUT}
@@ -490,12 +489,10 @@ set(DIET_client_SRCS
   ${DIET_IDL_OUTPUT}
   ${config_SRCS}
   ${dietUtils_SRCS}
-  ${ForwarderCommon_SRCS}
   ${AgentCommon_SRCS})
 
 set(DIET_client_LIBS
   DIET_core
-  DIET_SeD
   ${OMNIORB4_LIBRARIES})
 
 if(DIET_USE_MULTICALL)
