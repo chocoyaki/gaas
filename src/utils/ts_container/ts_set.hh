@@ -27,7 +27,9 @@
  * @author Sylvain DAHAN : LIFC Besancon (France)
  */
 
-
+#ifdef __aix__
+#include "ts_set_aix.hh"
+#else /* __aix__ */
 template <class Key, class CMP = std::less<Key>,
           class A = std::allocator<Key> >
 class ts_set : private std::set<Key, CMP, A> {
@@ -195,6 +197,6 @@ public:
 
   /**************************************************************************/
 
-};
-
+}
+#endif /* __aix__ */
 #endif  // _TS_SET_HH_
