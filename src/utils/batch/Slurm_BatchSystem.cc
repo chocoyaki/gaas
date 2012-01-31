@@ -13,6 +13,7 @@
 #include "debug.hh"
 #include "Slurm_BatchSystem.hh"
 #include <limits.h>
+#include <boost/format.hpp>
 
 const char *Slurm_BatchSystem::statusNames[] = {
   "FAILED", // not OK: there is no error state in Slurm, either the job is
@@ -42,13 +43,13 @@ Slurm_BatchSystem::Slurm_BatchSystem(int ID, const char *batchname) {
   // the -V option declares that all environment variables in the qsub
   // command's environment are to be exported to the batch job
   // the -J option is to set the name of the job (usefull to debug)
-  postfixe = strdup(
-    (std::string("\n#SBATCH -J DIET_SeD \n DIET_HOST_FILE=") +
-     std::string(pathToNFS) +
-     std::string("/slurm-${SLURM_JOB_ID}.hosts") +
-     std::string(
-       " \n srun hostname -s > $DIET_HOST_FILE \n if [ -z \"$SLURM_NPROCS\" ]; then \n if [ -z \"$SLURM_NTASKS_PER_NODE\" ]; then \n SLURM_NTASKS_PER_NODE = 1 \n fi \n SLURM_NPROCS=$(($SLURM_JOB_NUM_NODES * $SLURM_NTASKS_PER_NODE)) \n fi"))
-    .c_str());
+  boost::format fmtr("%1%");
+  std::string tmp =
+    boost::str(fmtr % "\n#SBATCH -J DIET_SeD \n DIET_HOST_FILE="
+               % pathToNFS
+               % "/slurm-${SLURM_JOB_ID}.hosts"
+               % " \n srun hostname -s > $DIET_HOST_FILE \n if [ -z \"$SLURM_NPROCS\" ]; then \n if [ -z \"$SLURM_NTASKS_PER_NODE\" ]; then \n SLURM_NTASKS_PER_NODE = 1 \n fi \n SLURM_NPROCS=$(($SLURM_JOB_NUM_NODES * $SLURM_NTASKS_PER_NODE)) \n fi");
+  postfixe = strdup(tmp.c_str());
   nodesNumber = "#SBATCH --nodes=";
   serial = "#SBATCH --nodes = 1";
   coresNumber = BatchSystem::emptyString;
@@ -82,9 +83,9 @@ Slurm_BatchSystem::Slurm_BatchSystem(int ID, const char *batchname) {
 
   /* Information for META_VARIABLES */
   batchJobID = "$SLURM_JOB_ID";
-  nodeFileName = strdup(
-    (std::string(pathToNFS) +
-     std::string("/slurm-${SLURM_JOB_ID}.hosts")).c_str());
+  fmtr.parse("%1%%2%");
+  tmp = boost::str(fmtr % pathToNFS % "/slurm-${SLURM_JOB_ID}.hosts");
+  nodeFileName = strdup(tmp.c_str());
   nodeIdentities = "$SLURM_JOB_NODELIST";
 }
 
