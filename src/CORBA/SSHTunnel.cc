@@ -634,7 +634,6 @@ SSHCopy::SSHCopy(const std::string &sshHost,
 bool
 SSHCopy::getFile() const {
   std::vector<std::string> tokens;
-  int status;
   std::string command;
 
   command = getSshPath();
@@ -651,9 +650,6 @@ SSHCopy::getFile() const {
   }
 
   command += " " + localFilename;
-
-
-
 
 #ifdef __WIN32__
   STARTUPINFO si;
@@ -715,6 +711,7 @@ SSHCopy::getFile() const {
     free(argv[i]);
   }
 
+  int status;
   if (waitpid(pid, &status, 0) == -1) {
     throw runtime_error("Error executing scp command");
   }
@@ -725,7 +722,6 @@ SSHCopy::getFile() const {
 bool
 SSHCopy::putFile() const {
   std::vector<std::string> tokens;
-  int status;
   std::string command;
 
   command = getSshPath();
@@ -802,6 +798,7 @@ SSHCopy::putFile() const {
     free(argv[i]);
   }
 
+  int status;
   if (waitpid(pid, &status, 0) == -1) {
     throw std::runtime_error("Error executing scp command");
   }
