@@ -713,11 +713,11 @@ WfValueAdapter::newString() {
   size_t sz = myValue.size() + 1;
   str = new char[sz];
 #ifdef __WIN32__
-  _snprintf(str, sz, myValue.c_str());
+  _strncpy(str, myValue.c_str(), sz);
 #else
-  snprintf(str, sz, myValue.c_str());
+  strncpy(str, myValue.c_str(), sz);
 #endif
-  
+
   return str;
 }
 

@@ -112,11 +112,11 @@ AgentImpl::run() {
   this->myName = new char[sz];
 
 #ifdef __WIN32__
-  _snprintf(this->myName, sz, name.c_str());
+  _strncpy(this->myName, name.c_str(), sz);
 #else
-  snprintf(this->myName, sz, name.c_str());
+  strncpy(this->myName, name.c_str(), sz);
 #endif
-  
+
   std::string agtType = "MA";
   CONFIG_AGENT(diet::AGENTTYPE, agtType);
 
@@ -399,7 +399,7 @@ AgentImpl::findServer(Request *req, size_t max_srv) {
              << " on problem " << creq.pb.path << "\n");
 #ifdef __WIN32__
   _snprintf(statMsg, 128, "findServer %ld", (unsigned long) creq.reqID);
-#else    
+#else
     snprintf(statMsg, 128, "findServer %ld", (unsigned long) creq.reqID);
 #endif
 
@@ -484,7 +484,7 @@ AgentImpl::findServer(Request *req, size_t max_srv) {
     delete[] mc->children;
     delete mc;
 #endif // if not defined HAVE_ALT_BATCH
-    
+
     /* if no alive server can solve the problem, return */
     if (!nbChildrenContacted) {
       WARNING("no service found for request " << creq.reqID);
@@ -535,10 +535,10 @@ AgentImpl::getResponse(const corba_response_t &resp) {
 #ifdef __WIN32__
   _snprintf(statMsg, 128, "getResponse %ld %ld",
            (unsigned long) resp.reqID, (long) resp.myID);
-#else    
+#else
     snprintf(statMsg, 128, "getResponse %ld %ld",
            (unsigned long) resp.reqID, (long) resp.myID);
-#endif 
+#endif
   stat_in(this->myName, statMsg);
   /* The response should be copied in the logs */
   /* Look for the concerned request in the logs */
