@@ -427,8 +427,7 @@ set(dietForwarder_SRCS
   ${ForwarderCommon_SRCS}
   ${AgentCommon_SRCS}
   ${DIET_IDL_OUTPUT}
-  ${dietUtils_SRCS}
-  ${config_SRCS})
+  ${dietUtils_SRCS})
 
 set(dietForwarder_LIBS DIET_core DIET_SeD DIET_client
     ${OMNIORB4_LIBRARIES} ${Boost_LIBRARIES} ${CMAKE_DL_LIBS})
@@ -487,7 +486,6 @@ set(DIET_client_SRCS
   client/CallAsyncMgr.cc
   client/CallbackImpl.cc
   ${DIET_IDL_OUTPUT}
-  ${config_SRCS}
   ${dietUtils_SRCS}
   ${AgentCommon_SRCS})
 
@@ -547,7 +545,7 @@ if(DIET_USE_USERSCHED)
     agent/Schedulers.hh
     DESTINATION ${INCLUDE_INSTALL_DIR}/scheduler)
 endif()
-set(dietAgent_SRCS ${AgentCommon_SRCS} agent/dietAgent.cc ${DIET_IDL_OUTPUT} ${dietUtils_SRCS} ${config_SRCS})
+set(dietAgent_SRCS ${AgentCommon_SRCS} agent/dietAgent.cc ${DIET_IDL_OUTPUT} ${dietUtils_SRCS})
 if(DIET_USE_WORKFLOW)
   set(dietAgent_SRCS ${dietAgent_SRCS} ${ClientWf_SRCS} ${MaDagCommon_SRCS})
   set(dietAgent_LIBS ${dietAgent_LIBS} ${XQILLA_LIBRARY} ${XERCES_LIBRARY})
@@ -574,7 +572,7 @@ install(TARGETS dietAgent DESTINATION ${BIN_INSTALL_DIR})
 ## executable: maDagAgent
 if(DIET_USE_WORKFLOW)
   set(maDagAgent_SRCS agent/workflow/maDagAgent.cc ${MaDagCommon_SRCS}
-     ${UtilsEvents_SRCS} ${DIET_IDL_OUTPUT} ${config_SRCS} ${dietUtils_SRCS})
+     ${UtilsEvents_SRCS} ${DIET_IDL_OUTPUT} ${dietUtils_SRCS})
   set(maDagAgent_LIBS DIET_core ${XQILLA_LIBRARY} ${XERCES_LIBRARY}
     ${OMNIORB4_LIBRARIES} ${Boost_LIBRARIES} DIET_SeD DIET_core DIET_client)
   if(WIN32)
@@ -591,7 +589,7 @@ endif()
 
 ## library: DIET_SeD
 set(DIET_SeD_SRCS SeD/DIET_server.cc SeD/SeDImpl.cc
-  ${dietUtils_SRCS} ${cori_SRCS} ${UtilsNode_SRCS} ${CorbaCommon_SRCS} ${DIET_IDL_OUTPUT} ${config_SRCS})
+  ${dietUtils_SRCS} ${cori_SRCS} ${UtilsNode_SRCS} ${CorbaCommon_SRCS} ${DIET_IDL_OUTPUT})
 if(DIET_USE_ALT_BATCH)
   set(DIET_SeD_SRCS ${DIET_SeD_SRCS} ${cori_SRCS} ${UtilsBatch_SRCS})
 endif()
