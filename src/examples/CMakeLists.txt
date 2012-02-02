@@ -1,8 +1,7 @@
 #****************************************************************************#
 #* DIET cmake local file                                                    *#
 #****************************************************************************#
-set(COMMON_LIBRARIES ${Boost_LIBRARIES} 
-  ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
+set(COMMON_LIBRARIES ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 find_library(M_LIBRARY m)
 if(M_LIBRARY)
   set(COMMON_LIBRARIES ${COMMON_LIBRARIES} ${M_LIBRARY})
@@ -11,8 +10,8 @@ if(DIET_USE_WORKFLOW)
   set(COMMON_LIBRARIES ${COMMON_LIBRARIES} ${XERCES_LIBRARY} ${XQILLA_LIBRARY})
 endif()
 
-set(DIET_CLIENT_LIBRARIES DIET_client DIET_core ${COMMON_LIBRARIES})
-set(DIET_SERVER_LIBRARIES DIET_SeD DIET_core DIET_client ${COMMON_LIBRARIES})
+set(DIET_CLIENT_LIBRARIES DIET_client ${COMMON_LIBRARIES})
+set(DIET_SERVER_LIBRARIES DIET_SeD ${COMMON_LIBRARIES})
 set(DIET_ADMIN_LIBRARIES DIET_admin ${DIET_CLIENT_LIBRARIES})
 
 IF(AIX)

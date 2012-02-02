@@ -200,7 +200,6 @@ if(DIET_USE_CLOUD)
     ${GSOAP_SRC_DIR}/gsoap/plugin/wsseapi.c)
 endif()
 
-add_subdirectory(Testing)
 
 if(DIET_BUILD_EXAMPLES)
   add_subdirectory(examples)
@@ -558,3 +557,6 @@ add_library(DIET_SeD ${DIET_SeD_SRCS})
 set_target_properties(DIET_SeD  PROPERTIES VERSION ${DIET_VERSION})
 target_link_libraries(DIET_SeD ${DIET_SeD_LIBS})
 install(TARGETS DIET_SeD DESTINATION ${LIB_INSTALL_DIR})
+
+## Tests
+add_subdirectory(Testing)
