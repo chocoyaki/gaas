@@ -607,5 +607,6 @@ if(DIET_USE_CLOUD)
 endif()
 
 add_library(DIET_SeD ${DIET_SeD_SRCS})
+set_target_properties(DIET_SeD  PROPERTIES VERSION ${DIET_VERSION})
 target_link_libraries(DIET_SeD ${DIET_SeD_LIBS})
 install(TARGETS DIET_SeD DESTINATION ${LIB_INSTALL_DIR})
