@@ -69,8 +69,8 @@ if(BUILD_TESTING)
   file(TO_NATIVE_PATH "/tmp/SeD_test-${TMPPATHUUID}" SED_DAGDA_DIR_NATIVE_PATH)
   file(TO_NATIVE_PATH "/tmp/Client_test-${TMPPATHUUID}" CLIENT_DAGDA_DIR_NATIVE_PATH)
 
-  set(TRANSFER_FILE_TEST1 "" CACHE PATH "File used for transfer tests")
-  set(TRANSFER_FILE_TEST2 "" CACHE PATH "File used for transfer tests")
+  set(TRANSFER_FILE_TEST1 "" CACHE FILEPATH "File used for transfer tests")
+  set(TRANSFER_FILE_TEST2 "" CACHE FILEPATH "File used for transfer tests")
 
   string(COMPARE EQUAL "${TRANSFER_FILE_TEST1}" "" TRANSFER_FILE_TEST1_EMPTY)
   string(COMPARE EQUAL "${TRANSFER_FILE_TEST2}" "" TRANSFER_FILE_TEST2_EMPTY)
