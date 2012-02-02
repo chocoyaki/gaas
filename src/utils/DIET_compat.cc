@@ -20,13 +20,13 @@
 
 namespace diet {
 #ifdef __WIN32__
-int 
+int
 usleep(unsigned int useconds) {
 	Sleep(useconds/1000);
 	return 0;
 }
 #else
-int 
+int
 usleep(unsigned int useconds) {
   struct timespec req = {0, 1000 * useconds};
   struct timespec rem = {0, 0};
