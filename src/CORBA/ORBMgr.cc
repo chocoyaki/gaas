@@ -15,10 +15,16 @@
 #include <stdexcept>
 #include <string>
 #include <iostream>
+#include <fstream>
 #include <csignal>
 
 #include <omniORB4/CORBA.h>
 #include <omniORB4/omniURI.h>
+
+#include <boost/filesystem.hpp>
+#include <boost/format.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/regex.hpp>
 
 #include "ORBMgr.hh"
 #include "Forwarder.hh"
@@ -36,6 +42,13 @@ sem_t ORBMgr::waitLock;
  * TODO: should be a parameter in the configuration file
  */
 static const unsigned int maxNbRetries = 3;
+
+/*
+ * minimal maxGIOPConnectionPerServer required by DIET to function
+ * correctly
+ */
+static const unsigned int MAXGIOPCONNECTIONPERSERVER_THRESHOLD = 1000;
+
 
 /* Handler for call resubmission when TRANSIENT exceptions occur */
 CORBA::Boolean
@@ -109,8 +122,75 @@ void ORBMgr::init(CORBA::ORB_ptr ORB) {
   omniORB::installCommFailureExceptionHandler(0, commFailureHandler);
 }
 
+namespace {
+
+// README: configuration files list should be null-terminated
+static char *conffiles[] = { "/etc/omniORB4.cfg",
+                             "/etc/omniORB.cfg",
+                             NULL };
+
+}
+
+
+
+std::string
+get_omniorb_configuration(const std::vector<std::string>& args,
+                          const std::string& key) {
+  // check command line arguments
+  for (int i = 0; i < args.size(); ++i) {
+    if ((args[i] == key) && !args[i + 1].empty()) {
+      return (args[i+1]);
+    }
+  }
+  // check environment variables
+  char * res = getenv(key.c_str());
+  if (res) {
+    return res;
+  }
+  // check configuration file
+  int i = 0;
+  boost::format fmtr("\\s*%1%\\s*=\\s*(\\d+)");
+  boost::regex e(boost::str(fmtr % key),
+                 boost::regex::perl);
+  boost::smatch group;
+  while (conffiles[i]) {
+    if (boost::filesystem::exists(conffiles[i])) {
+      std::ifstream ifs(conffiles[i]);
+      std::string content;
+      while (getline(ifs, content)) {
+        if (boost::regex_match(content, group, e)) {
+          return group[1];
+        }
+      }
+    }
+    i++;
+  }
+  return std::string();
+}
+
+
 ORBMgr::ORBMgr(int argc, char* argv[]) {
   const char* opts[][2]= {{0, 0}};
+  std::vector<std::string> args;
+  int j = 0;
+  for (int j = 0; j < argc; ++j) {
+    args.push_back(std::string(argv[j]));
+  }
+
+  int maxGIOPConnectionPerServer =
+  boost::lexical_cast<int>(
+    get_omniorb_configuration(args, "maxGIOPConnectionPerServer"));
+
+  if (maxGIOPConnectionPerServer < MAXGIOPCONNECTIONPERSERVER_THRESHOLD) {
+    std::cerr <<
+    boost::format(
+      "DIET WARNING: OmniORB maxGIOPConnectionPerServer is set to %1%.\n"
+      "Usually, DIET recommends that you set it to at least %2%.\n"
+      "You should request your sysadmin to increase its value "
+      "if you experience any troubles\n")
+    % maxGIOPConnectionPerServer
+    % MAXGIOPCONNECTIONPERSERVER_THRESHOLD;
+  }
 
   ORB = CORBA::ORB_init(argc, argv, "omniORB4", opts);
   init(ORB);
