@@ -231,7 +231,11 @@ Easy_Disk::gatherSizeDisks(int typeOfInfo, double *result,
   strcpy(str, "df ");
   strcat(str, path);
   strcat(str, " -k");
+#ifdef WIN32
+  FILE *myfile = _popen(str, "r");
+#else
   FILE *myfile = popen(str, "r");
+#endif
 
   mystring_t word;
   double number = 0;
@@ -250,7 +254,11 @@ Easy_Disk::gatherSizeDisks(int typeOfInfo, double *result,
         }
       }
     }
+#ifdef WIN32
+    _pclose(myfile);
+#else
     pclose(myfile);
+#endif
   }
   if (number == 0) {
     TRACE_TEXT(TRACE_MAX_VALUE,
@@ -358,14 +366,14 @@ Easy_Disk::get_Write_Speed_by_sig_alarm(const char *path,
   int sizeTab = BUFFSIZE / sizeofchar;
   long rounds = FILESIZE / sizeTab;
 
-  signal(SIGALRM, stop_count);
+//  signal(SIGALRM, stop_count);
   sigalarm = 0; /* reset alarm flag */
 
   char *buffer = new char[sizeTab];
   for (long j = 0; j < sizeTab; j++)
     buffer[j] = 'o';
   int i = 0;
-  alarm(seconds);
+//  alarm(seconds);
 
 #ifdef HAVE_GETTIMEOFDAY
   timeval tim;
@@ -522,12 +530,12 @@ Easy_Disk::get_Read_Speed_by_sig_alarm(const char *path,
   ifstream infile;
   infile.exceptions(ifstream::eofbit | ifstream::failbit | ifstream::badbit);
   double readspeed = 0;
-  signal(SIGALRM, stop_count);
+//  signal(SIGALRM, stop_count);
   sigalarm = 0; /* reset alarm flag */
   char *buffer = new char[sizeTab];
   double j = 0;
   double i = 0;
-  alarm(seconds);
+//  alarm(seconds);
   /*start clock*/
   infile.open(path_file, ifstream::in);
   if ((!infile.is_open()) || (infile.eof())) {

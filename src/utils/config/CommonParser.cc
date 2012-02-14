@@ -1,12 +1,12 @@
 /**
 * @file CommonParser.cc
-* 
-* @brief  Parser common utilities 
-* 
+*
+* @brief  Parser common utilities
+*
 * @author  Haikel Guemar (haikel.guemar@sysfera.com)
-* 
+*
 * @section Licence
-*   |LICENCE|                                                                
+*   |LICENCE|
 */
 
 
@@ -17,9 +17,14 @@ std::ostream debug(std::cerr.rdbuf());
 #else
 std::ostream debug(0);
 #endif
+#ifdef __WIN32__
+#define DIET_API_LIB __declspec(dllexport)
+#else
+#define DIET_API_LIB
+#endif
 
 std::string nullString("");
-ConfigMap *configPtr = new ConfigMap;
+static DIET_API_LIB ConfigMap *configPtr = new ConfigMap;
 
 bool StartsWith::operator() (const std::string& s2) const
 {
@@ -87,4 +92,9 @@ std::string& Splitter::operator() ()
   }
 
   return token_;
+}
+
+ConfigMap * GetConfigPtr()
+{
+ return configPtr;
 }

@@ -10,17 +10,35 @@
  */
 
 #include <string.h>
+#ifndef __WIN32__
 #include <unistd.h>
+#include <sys/time.h>
+#include <libgen.h>
+#else
+#include <Winsock2.h>
+#include <windows.h>
+#include <sys/timeb.h>
+#endif
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/stat.h>
 #include <time.h>
-#include <sys/time.h>
-#include <libgen.h> /* basename() */
+/*#include <libgen.h> basename() */
 #include "DIET_client.h"
+
 
 /* argv[1]: client config file path
    argv[2]: path of the worflow description file */
+#ifdef __WIN32__
+int gettimeofday (struct timeval *tp, void *tz)
+{
+	struct _timeb timebuffer;
+	_ftime (&timebuffer);
+	tp->tv_sec = timebuffer.time;
+	tp->tv_usec = timebuffer.millitm * 1000;
+	return 0;
+}
+#endif
 
 void
 usage(char *s) {
@@ -77,9 +95,9 @@ main(int argc, char *argv[]) {
   }
 
   if (wfType == DIET_WF_FUNCTIONAL) {
+    int curPos = 5;
     wfFileName = argv[3];
     dataFileName = argv[4];
-    int curPos = 5;
     if ((argc > curPos) && (strcmp(argv[curPos], "-name"))) {
       transcriptFileName = argv[curPos];
       curPos++;
@@ -92,7 +110,12 @@ main(int argc, char *argv[]) {
         wfName = "";
       }
     } else {
-      wfName = basename(wfFileName);
+#ifdef __WIN32__
+        _splitpath(wfFileName,NULL,NULL,wfName,NULL);
+#else
+        wfName = basename(wfFileName);
+#endif
+
     }
   } else {      /* DIET_WF_DAG */
     dagFileName = argv[3];
@@ -127,8 +150,9 @@ main(int argc, char *argv[]) {
 
   printf("Try to execute the %s\n", wfTypeName);
   if (!diet_wf_call(profile)) {
+    float time;
     gettimeofday(&t2, NULL);
-    float time =
+    time =
       (t2.tv_sec - t1.tv_sec) + ((float) (t2.tv_usec - t1.tv_usec)) / 1000000;
     printf("The %s submission succeed / time= %f s\n", wfTypeName, time);
 

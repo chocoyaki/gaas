@@ -18,6 +18,9 @@
 #include <fstream>
 #include <sstream>
 #include <boost/filesystem.hpp>
+#ifndef WIN32
+#include <dirent.h> // for opendir
+#endif
 
 #include "CommonParser.hh"
 

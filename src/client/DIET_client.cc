@@ -25,9 +25,9 @@
 #include <sstream>
 #include <stdexcept>
 #include <boost/scoped_ptr.hpp>
-#include <unistd.h> // For gethostname()
 #include <omniORB4/CORBA.h>
 
+#include "OSIndependance.hh"
 #include "debug.hh"
 #include "est_internal.hh"
 #include "DIET_data_internal.hh"
@@ -181,8 +181,10 @@ BEGIN_API
 
 diet_error_t
 diet_initialize(const char *config_file_name, int argc, char *argv[]) {
-  int myargc(0);
-  char **myargv(NULL);
+  /*int myargc(0);
+  char **myargv(NULL);*/
+  int    myargc = 0;
+  char ** myargv = NULL;
 
   // MA_MUTEX initialization
   if (MA_MUTEX == NULL) {
@@ -210,7 +212,7 @@ diet_initialize(const char *config_file_name, int argc, char *argv[]) {
   try {
     fileParser.parseFile(config_file_name);
   } catch (...) {
-    ERROR("while parsing " << config_file_name, GRPC_CONFIGFILE_ERROR);
+    ERROR_DEBUG("while parsing " << config_file_name, GRPC_CONFIGFILE_ERROR);
   }
   CONFIGMAP = fileParser.getConfiguration();
   // FIXME: should we also parse command line arguments?
@@ -234,7 +236,7 @@ diet_initialize(const char *config_file_name, int argc, char *argv[]) {
   /* Check the parameters */
   std::string tmpString;
   if (!CONFIG_STRING(diet::MANAME, tmpString)) {
-    ERROR("No MA name found in the configuration", GRPC_CONFIGFILE_ERROR);
+    ERROR_DEBUG("No MA name found in the configuration", GRPC_CONFIGFILE_ERROR);
   }
 
   if (CONFIG_STRING(diet::PARENTNAME, tmpString)) {
@@ -249,7 +251,7 @@ diet_initialize(const char *config_file_name, int argc, char *argv[]) {
   try {
     ORBMgr::init(myargc, (char **) myargv);
   } catch (...) {
-    ERROR("ORB initialization failed", GRPC_NOT_INITIALIZED);
+    ERROR_DEBUG("ORB initialization failed", GRPC_NOT_INITIALIZED);
   }
 
   // Create sole instance of synchronized CallAsyncMgr class
@@ -280,7 +282,7 @@ diet_initialize(const char *config_file_name, int argc, char *argv[]) {
     ORBMgr::getMgr()->fwdsBind(CLIENTCTXT, os.str(),
                                ORBMgr::getMgr()->getIOR(obj));
   } catch (...) {
-    ERROR("Connection to omniNames failed (Callback server bind)",
+    ERROR_DEBUG("Connection to omniNames failed (Callback server bind)",
           GRPC_NOT_INITIALIZED);
   }
   if (REF_CALLBACK_SERVER == NULL) {
@@ -394,7 +396,7 @@ diet_initialize(const char *config_file_name, int argc, char *argv[]) {
     // CORBA::string_dup(tmpString.c_str()));
 
     if (CORBA::is_nil(MA_DAG)) {
-      ERROR("Cannot locate MA DAG " << tmpString, GRPC_NOT_INITIALIZED);
+      ERROR_DEBUG("Cannot locate MA DAG " << tmpString, GRPC_NOT_INITIALIZED);
     } else {
       CltWfMgr::instance()->setMaDag(MA_DAG);
 #ifdef USE_LOG_SERVICE
@@ -412,7 +414,7 @@ diet_initialize(const char *config_file_name, int argc, char *argv[]) {
       ORBMgr::getMgr()->resolve<WfLogService, WfLogService_var>(WFLOGCTXT,
                                                                 "WfLogService");
     if (CORBA::is_nil(wfLogSrv)) {
-      ERROR("cannot locate the Workflow Log Service ", GRPC_NOT_INITIALIZED);
+      ERROR_DEBUG("cannot locate the Workflow Log Service ", GRPC_NOT_INITIALIZED);
     } else {
       CltWfMgr::instance()->setWfLogService(wfLogSrv);
     }
@@ -773,7 +775,7 @@ diet_wait(diet_reqID_t reqID) {
       WARNING(__FUNCTION__ << ": exception caught (" << tc->id() << ')');
     }
   } catch (const std::exception &e) {
-    ERROR(__FUNCTION__ << ": unexpected exception (what="
+    ERROR_DEBUG(__FUNCTION__ << ": unexpected exception (what="
                        << e.what() << ')', STATUS_ERROR);
   }
 
@@ -825,7 +827,7 @@ diet_wait_and(diet_reqID_t *IDs, size_t length) {
       WARNING(__FUNCTION__ << ": exception caught (" << tc->id() << ')');
     }
   } catch (const std::exception &e) {
-    ERROR(__FUNCTION__ << ": unexpected exception (what=" << e.what() << ')',
+    ERROR_DEBUG(__FUNCTION__ << ": unexpected exception (what=" << e.what() << ')',
           STATUS_ERROR);
   }
   return rst;
@@ -898,7 +900,7 @@ diet_wait_or(diet_reqID_t *IDs, size_t length, diet_reqID_t *IDptr) {
       WARNING(__FUNCTION__ << ": exception caught (" << tc->id() << ')');
     }
   } catch (const std::exception &e) {
-    ERROR(__FUNCTION__ << ": unexpected exception (what="
+    ERROR_DEBUG(__FUNCTION__ << ": unexpected exception (what="
                        << e.what() << ')', STATUS_ERROR);
   }
   return rst;
@@ -1012,7 +1014,7 @@ set_req_error(diet_reqID_t sessionID,
 diet_error_t
 diet_wf_call(diet_wf_desc_t *profile) {
   if (CORBA::is_nil(MA_DAG)) {
-    ERROR("No MA DAG defined", 1);
+    ERROR_DEBUG("No MA DAG defined", 1);
   }
   CltWfMgr::instance()->setMA(MA);
   switch (profile->level) {
@@ -1031,7 +1033,7 @@ diet_wf_call(diet_wf_desc_t *profile) {
 diet_error_t
 diet_wf_cancel_dag(const char *dagId) {
   if (CORBA::is_nil(MA_DAG)) {
-    ERROR("No MA DAG defined", 1);
+    ERROR_DEBUG("No MA DAG defined", 1);
   }
   return CltWfMgr::instance()->cancelDag(dagId);
 }
@@ -1042,7 +1044,7 @@ diet_wf_cancel_dag(const char *dagId) {
 int
 diet_wf_get_reqID() {
   if (CORBA::is_nil(MA_DAG)) {
-    ERROR("No MA DAG defined", 1);
+    ERROR_DEBUG("No MA DAG defined", 1);
   }
   return (int) CltWfMgr::instance()->getNewWfReqID();
 }
@@ -1057,7 +1059,7 @@ int
 wf_check_profile_level(diet_wf_desc_t *profile,
                        wf_level_t wf_level) {
   if (!profile) {
-    ERROR("Null workflow profile", 1);
+    ERROR_DEBUG("Null workflow profile", 1);
   }
   if (profile->level != wf_level) {
     WARNING("Invalid type of workflow (dag or functional)");

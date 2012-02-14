@@ -166,7 +166,7 @@ protected:
   corba_response_t *
   findServer(Request *req, size_t max_srv);
 
-#if not defined HAVE_ALT_BATCH
+#ifndef HAVE_ALT_BATCH
   /** Send the request structure \c req to the child whose ID is \c childID. */
   void
   sendRequest(CORBA::ULong childID, const corba_request_t *req);

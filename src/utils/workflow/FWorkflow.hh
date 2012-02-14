@@ -25,7 +25,11 @@
 
 #include "NodeSet.hh"
 #include "FNode.hh"
-
+#ifdef WIN32
+#define DIET_API_LIB __declspec(dllexport)
+#else
+#define DIET_API_LIB
+#endif
 /* The different types of nodes used in a functional workflow */
 
 class FActivityNode;
@@ -34,7 +38,7 @@ class FMergeNode;
 class FFilterNode;
 class FLoopNode;
 
-class FWorkflow : public NodeSet, public FProcNode {
+class DIET_API_LIB FWorkflow : public NodeSet, public FProcNode {
 public:
   /***************************************************/
   /* constructors/destructor                         */

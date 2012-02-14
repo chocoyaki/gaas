@@ -16,7 +16,11 @@
 #include <map>
 #include <string>
 #include <omniORB4/CORBA.h>
-
+#ifdef WIN32
+   #define DIET_API_LIB __declspec(dllexport)
+#else
+   #define DIET_API_LIB
+#endif
 typedef std::list<std::string> attributes_t;
 
 class DagdaCatalog {
@@ -34,7 +38,7 @@ public:
   exists(std::string key) = 0;
 };
 
-class MapDagdaCatalog : public DagdaCatalog {
+class DIET_API_LIB MapDagdaCatalog : public DagdaCatalog {
 public:
   virtual ~MapDagdaCatalog() {
   }

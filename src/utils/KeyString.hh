@@ -16,8 +16,9 @@
 
 
 #include <cstdlib>
-#include <sys/types.h>
 #include <iostream>
+
+#include "OSIndependance.hh"
 
 class KeyString {
 public:
@@ -29,8 +30,7 @@ public:
    *
    * @return the hash value of id.
    */
-  static u_int32_t
-  hash(const char *id);
+  static u_int32_t  hash(const char *id);
 
   /**
    * creates a new KeyString.

@@ -18,10 +18,14 @@
 #include "SeDImpl.hh"
 #include "Thread.hh"
 #include "DagScheduler.hh"
-
+#ifdef WIN32
+#define DIET_API_LIB __declspec(dllexport)
+#else
+#define DIET_API_LIB
+#endif
 class DagNode;
 
-class DagNodeLauncher : public Thread {
+class DIET_API_LIB DagNodeLauncher : public Thread {
 public:
   DagNodeLauncher(DagNode * parent, DagScheduler * scheduler = NULL);
 

@@ -1,12 +1,12 @@
 /**
-* @file  Thread.hh
-* 
-* @brief  C++ Thread class description 
-* 
-* @author  Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)
-* 
-* @section Licence
-*   |LICENCE|                                                                
+ * @file  Thread.hh
+ *
+ * @brief  C++ Thread class description
+ *
+ * @author  Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)
+ *
+ * @section Licence
+ *   |LICENCE|
 */
 
 
@@ -14,26 +14,20 @@
 #define _THREAD_HH_
 
 #include <iostream>
-#include <memory>
 #include <string>
+#include <memory>
+#include <boost/noncopyable.hpp>
+#include <boost/scoped_ptr.hpp>
+#include <boost/thread.hpp>
+#ifdef WIN32
+#define DIET_API_LIB __declspec(dllexport)
+#else
+#define DIET_API_LIB
+#endif
+class Callable;
 
-class Runnable {
+class DIET_API_LIB Thread : boost::noncopyable {
 public:
-  /*********************************************************************/
-  /* public methods                                                    */
-  /*********************************************************************/
-  virtual ~Runnable() = 0;
-
-  virtual void*
-  run() = 0;
-};
-
-class Thread {
-public:
-  /*********************************************************************/
-  /* public methods                                                    */
-  /*********************************************************************/
-  Thread(std::auto_ptr<Runnable> runnable_, bool isDetached = false);
   explicit Thread(bool isDetached = false);
 
   virtual ~Thread();
@@ -43,43 +37,21 @@ public:
   void* join();
 
 private:
-  /*********************************************************************/
-  /* private fields                                                    */
-  /*********************************************************************/
-  /**
-   * thread ID *
-   */
-  pthread_t PthreadThreadID;
-
-  std::auto_ptr<Runnable> runnable;
-
-  /**
-   * true if thread created in detached state;false otherwise *
-   */
-  bool detached;
-
-  pthread_attr_t threadAttribute;
-
-  Thread(const Thread&);
-
-  const Thread&
-  operator=(const Thread&);
-
-  void
-  setCompleted() const;
-
-  void* result;                      // stores return value of run()
+  friend class Callable;
 
   virtual void*
   run() {
     return NULL;
   }
 
-  static void*
-  startThreadRunnable(void* pVoid);
+  /**
+   * true if thread created in detached state;false otherwise *
+   */
+  bool detached;
 
-  static void*
-  startThread(void* pVoid);
+  boost::thread t;
+
+  void* result;                      // stores return value of run()
 
   void
   PrintError(std::string msg, int status,

@@ -29,34 +29,34 @@ LICENCE_eng.txt
 LICENCE_fr.txt
 COPYING
 
-# Cmake Section
+# cmake Section
 [Untemplated]
-Cmake/CMakeLists.txt
-Cmake/CheckCCompiler.cmake
-Cmake/CheckCCompilerConst.c
-Cmake/CheckCCompilerInline.c
-Cmake/ConfigureCCompiler.cmake
-Cmake/ConfigureCORI.cmake
-Cmake/DietConfig.cmake.in
-Cmake/DietDefaultBuildTypes.cmake
-Cmake/DisplaySummary.cmake
-Cmake/FindAppleSeeds.cmake
-Cmake/FindBLAS.cmake
-Cmake/FindDiet.cmake
-Cmake/FindGSOAP.cmake
-Cmake/FindJavaExtended.cmake
-Cmake/FindLOGSERVICE.cmake
-Cmake/FindOmniORB.cmake
-Cmake/FindPackageHandleStandardArgs.cmake
-Cmake/FindTestingUtils.cmake
-Cmake/FindXQilla.cmake
-Cmake/FindXerces.cmake
-Cmake/Makefile.inc.in
-Cmake/README
-Cmake/xercesv.cc.in
-Cmake/tests/CTestConfig.cmake
-Cmake/tests/DietTestingMacros.cmake
-Cmake/tests/runtest.cmake
+cmake/CMakeLists.txt
+cmake/CheckCCompiler.cmake
+cmake/CheckCCompilerConst.c
+cmake/CheckCCompilerInline.c
+cmake/ConfigureCCompiler.cmake
+cmake/ConfigureCORI.cmake
+cmake/DietConfig.cmake.in
+cmake/DietDefaultBuildTypes.cmake
+cmake/DisplaySummary.cmake
+cmake/FindAppleSeeds.cmake
+cmake/FindBLAS.cmake
+cmake/FindDiet.cmake
+cmake/FindGSOAP.cmake
+cmake/FindJavaExtended.cmake
+cmake/FindLOGSERVICE.cmake
+cmake/FindOmniORB.cmake
+cmake/FindPackageHandleStandardArgs.cmake
+cmake/FindTestingUtils.cmake
+cmake/FindXQilla.cmake
+cmake/FindXerces.cmake
+cmake/Makefile.inc.in
+cmake/README
+cmake/xercesv.cc.in
+cmake/tests/CTestConfig.cmake
+cmake/tests/DietTestingMacros.cmake
+cmake/tests/runtest.cmake
 
 # Include section
 [Untemplated]
@@ -838,9 +838,9 @@ src/Testing/workflows/loop_container.xml.in
 # Doc section
 [Untemplated]
 doc/CMakeLists.txt
-doc/Cmake/DisplayDocSummary.cmake
-doc/Cmake/FindTransfig.cmake
-doc/Cmake/UseLATEX.cmake
+doc/cmake/DisplayDocSummary.cmake
+doc/cmake/FindTransfig.cmake
+doc/cmake/UseLATEX.cmake
 
 # Doc/UserManual section
 [Untemplated]
@@ -905,7 +905,7 @@ doc/ExternalExample/Makefile
 doc/ExternalExample/README
 doc/ExternalExample/simple_client.c
 doc/ExternalExample/simple_server.c
-doc/ExternalExample/Cmake/FindDiet.cmake
+doc/ExternalExample/cmake/FindDiet.cmake
 
 # Doc/ProgrammersGuide section
 [Devel_Untemplated]
@@ -1003,9 +1003,9 @@ doc/Tutorial/solutions/exercise2/client_smprodAsync.c
 doc/Tutorial/solutions/exercise2/client_smprod_file.c
 doc/Tutorial/solutions/exercise2/server.c
 
-# Cmake Section
+# cmake Section
 [Devel_untemplated]
-Cmake/TODO
+cmake/TODO
 
 # bin/scripts section
 [Devel_Untemplated]

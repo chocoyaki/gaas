@@ -10,7 +10,12 @@
  */
 
 
+#ifndef __WIN32__
 #include <unistd.h>
+#else
+#include <Winsock2.h>
+#include <windows.h>
+#endif
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -36,7 +41,7 @@ solve_size(diet_profile_t *pb) {
   fprintf(stderr, "Solve size ");
 
   diet_file_get(diet_parameter(pb, 0), &path1, NULL, &arg_size);
-  fprintf(stderr, "on %s (%zd) ", path1, arg_size);
+  fprintf(stderr, "on %s (%lu) ", path1, arg_size);
   if ((status = stat(path1, &buf))) {
     return status;
   }
@@ -44,19 +49,19 @@ solve_size(diet_profile_t *pb) {
   if (!(buf.st_mode & S_IFREG)) {
     return 2;
   }
-  s1 = calloc(1, sizeof *s1);
+  s1 = (size_t *)calloc(1, sizeof *s1);
   *s1 = buf.st_size;
   diet_scalar_set(diet_parameter(pb, 2), s1, DIET_VOLATILE, DIET_INT);
 
   diet_file_get(diet_parameter(pb, 1), &path2, NULL, &arg_size);
-  fprintf(stderr, "and %s (%zd) ...", path2, arg_size);
+  fprintf(stderr, "and %s (%lu) ...", path2, arg_size);
   if ((status = stat(path2, &buf))) {
     return status;
   }
   if (!(buf.st_mode & S_IFREG)) {
     return 2;
   }
-  s2 = calloc(1, sizeof *s2);
+  s2 = (size_t *)calloc(1, sizeof *s2);
   *s2 = buf.st_size;
   diet_scalar_set(diet_parameter(pb, 3), s2, DIET_VOLATILE, DIET_INT);
 

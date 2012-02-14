@@ -30,15 +30,21 @@
 extern "C" {
 #endif
 
+#ifdef __WIN32__
+#define DIET_API_LIB __declspec(dllexport)
+#else
+#define DIET_API_LIB
+#endif
+
 // Allocates and initalizes a new soap structure with default settings for Eucalyptus i.e. with the SOAP_XML_CANONICAL | SOAP_XML_INDENT flags
-struct soap *
+DIET_API_LIB struct soap *
 soap_default_new() {
   return soap_new1(SOAP_XML_CANONICAL | SOAP_XML_INDENT);
 }
 
 // Reads a private key located at the specified path and returns it in the pointer parameter.
 // Returns 0 - OK; !=0 - error.
-int
+DIET_API_LIB int
 PEM_read_PK(char *pem_path, EVP_PKEY **pk_out) {
   FILE *fd;
   *pk_out = NULL;
@@ -57,7 +63,7 @@ PEM_read_PK(char *pem_path, EVP_PKEY **pk_out) {
 
 // Reads an X509 certificate located at the specified path and returns it in the pointer parameter.
 // Returns 0 - OK; !=0 - error
-int
+DIET_API_LIB int
 PEM_read_X509_cert(char *pem_path, X509 **cert_out) {
   FILE *fd;
   *cert_out = NULL;
@@ -79,7 +85,7 @@ PEM_read_X509_cert(char *pem_path, X509 **cert_out) {
 // 2. the private key
 // 3. the X509 certificate
 // Returns 0 - OK; !=0 - error
-int
+DIET_API_LIB int
 soap_wsse_add_security_header(struct soap *soap, EVP_PKEY *pk, X509 *cert) {
   return
     soap_wsse_add_BinarySecurityTokenX509(soap, "X509Token", cert)            // Add the binary security token

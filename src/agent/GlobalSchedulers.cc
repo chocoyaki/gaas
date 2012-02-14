@@ -9,12 +9,18 @@
  *   |LICENCE|
  */
 
-#include "GlobalSchedulers.hh"
+
 #include <cstdio>
 #include <cstring>
 #include <iostream>
+
+#include "GlobalSchedulers.hh"
 #include "debug.hh"
 #include "Vector.h"
+
+#if WIN32 
+#define snprintf sprintf_s 
+#endif 
 
 /* New : For scheduler load support. */
 #ifdef USERSCHED
@@ -120,7 +126,7 @@ GlobalScheduler::serialize(GlobalScheduler *GS) {
 #endif
     /*************************************/
   } else {
-    ERROR("unable to serialize global scheduler named " << GS->name, NULL);
+    ERROR_DEBUG("unable to serialize global scheduler named " << GS->name, NULL);
   }
 } // serialize
 
@@ -184,7 +190,7 @@ GlobalScheduler::chooseGlobalScheduler(const corba_request_t *req,
 #endif // ifdef USERSCHED
        /*************************************/
   } // switch
-  ERROR(__FUNCTION__ <<
+  ERROR_DEBUG(__FUNCTION__ <<
         ": unhandled aggregator (" <<
         agg.agg_specific._d() <<
         ")\n", 0);

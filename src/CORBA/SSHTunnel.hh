@@ -12,9 +12,11 @@
 #ifndef SSHTUNNEL_HH
 #define SSHTUNNEL_HH
 
+#include <stdio.h>
 #include <csignal>
 #include <string>
-#include <unistd.h>
+
+#include "OSIndependance.hh" /* for unistd.h */
 
 class SSHConnection {
 public:
@@ -185,7 +187,11 @@ private:
   std::string remotePortFrom;
 
   /* Process pid. */
-  pid_t pid;
+#ifdef __WIN32__
+	PROCESS_INFORMATION pid;
+#else
+	pid_t pid;
+#endif
 
   std::string
   makeCmd();
@@ -209,7 +215,12 @@ private:
   std::string localFilename;
 
   /* Process pid. */
-  mutable pid_t pid;
+#ifdef __WIN32__
+	PROCESS_INFORMATION pid;
+#else
+	mutable pid_t pid;
+#endif
+  
 };
 
 

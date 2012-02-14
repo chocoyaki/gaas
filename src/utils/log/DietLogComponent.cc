@@ -13,7 +13,11 @@
 
 #include <cstring>
 #include <cstdlib>
+#ifndef __WIN32__ 
 #include <unistd.h>   // For gethostname()
+#else
+#include "OSIndependance.hh"
+#endif
 #include <ctime>
 #include <iostream>
 #include <string>
@@ -243,7 +247,7 @@ DietLogComponent::run(const char *agentType,
       fprintf(stderr, "Failed to narrow the LCC ! \n");
     }
   } catch (...) {
-    ERROR("Problem while resolving LogServiceC/LCC", -1);
+    ERROR_DEBUG("Problem while resolving LogServiceC/LCC", -1);
   }
 
   try {
@@ -251,7 +255,7 @@ DietLogComponent::run(const char *agentType,
     LogORBMgr::getMgr()->fwdsBind(LOGCOMPCTXT, myName,
                                   LogORBMgr::getMgr()->getIOR(_this()));
   } catch (...) {
-    ERROR("Bind failed  in the LogService context", -1);
+    ERROR_DEBUG("Bind failed  in the LogService context", -1);
   }
 
   // Connect myself to the LogCentral
@@ -283,13 +287,13 @@ DietLogComponent::run(const char *agentType,
   } catch (CORBA::SystemException &e) {
     TRACE_TEXT(TRACE_MAIN_STEPS,
                "Error: could not connect to the LogCentral\n");
-    ERROR("SystemException", -1);
+    ERROR_DEBUG("SystemException", -1);
   }
   free(hostName);  // alloc'ed with new[]
   free(msg);       // alloc'ed with strdup (e.g. malloc)
 
   if (ret != LS_OK) {
-    ERROR("LogCentral refused connection", ret);
+    ERROR_DEBUG("LogCentral refused connection", ret);
   }
 
   setTagFilter(currentTagList);
@@ -571,7 +575,11 @@ DietLogComponent::createBoolArrayFalse(int size) {
 log_time_t
 DietLogComponent::getLocalTime() {
   struct timeval tv;
+#ifdef __WIN32__
+  struct timeval tz;
+#else
   struct timezone tz;
+#endif
   gettimeofday(&tv, &tz);
   log_time_t ret;
   ret.sec = tv.tv_sec;

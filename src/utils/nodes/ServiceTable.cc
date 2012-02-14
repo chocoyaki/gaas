@@ -240,7 +240,7 @@ ServiceTable::addService(const corba_profile_desc_t *profile,
       const corba_aggregator_desc_t *a1 = &(storedProfile->aggregator);
       const corba_aggregator_desc_t *a2 = &(profile->aggregator);
       if (a1->agg_specific._d() != a2->agg_specific._d()) {
-        ERROR(__FUNCTION__ << ": aggregator type mismatch" << endl, -2);
+        ERROR_DEBUG(__FUNCTION__ << ": aggregator type mismatch" << endl, -2);
       }
       switch (a1->agg_specific._d()) {
         /* New : The user aggregator case.                           */
@@ -255,7 +255,7 @@ ServiceTable::addService(const corba_profile_desc_t *profile,
         const corba_agg_priority_t *p1 = &(a1->agg_specific.agg_priority());
         const corba_agg_priority_t *p2 = &(a2->agg_specific.agg_priority());
         if (p1->priorityList.length() != p2->priorityList.length()) {
-          ERROR(__FUNCTION__ <<
+          ERROR_DEBUG(__FUNCTION__ <<
                 ": priority list length mismatch (" <<
                 p1->priorityList.length() <<
                 " != " <<
@@ -266,7 +266,7 @@ ServiceTable::addService(const corba_profile_desc_t *profile,
              pvIter < p1->priorityList.length();
              pvIter++) {
           if (p1->priorityList[pvIter] != p2->priorityList[pvIter]) {
-            ERROR(
+            ERROR_DEBUG(
               __FUNCTION__ <<
               ": priority list value mismatch, index " <<
               pvIter <<
@@ -282,7 +282,7 @@ ServiceTable::addService(const corba_profile_desc_t *profile,
       }
       break;
       default:
-        ERROR(__FUNCTION__ <<
+        ERROR_DEBUG(__FUNCTION__ <<
               ": unexpected aggregator type (" <<
               a1->agg_specific._d(), -2);
       } // switch
@@ -367,7 +367,6 @@ int
 ServiceTable::rmChildService(const corba_profile_desc_t *profile,
                              CORBA::ULong childID) {
   ServiceReference_t ref(-1);
-  size_t i(0), j(0);
 
   if ((ref = lookupService(profile)) == -1) {
     SRVT_ERROR("attempting to rm a service that is not in table");
@@ -382,6 +381,7 @@ ServiceTable::rmChildService(const corba_profile_desc_t *profile,
      * Should we even be able to call this?? */
   } else {
     /* We need to verify that this child exists for this service */
+    size_t i(0), j(0);
     for (i = (size_t) 0;
          i < matching_children[ref].nb_children &&
          matching_children[ref].children[i] != childID;
@@ -616,7 +616,7 @@ ServiceTable::getChildren(const corba_pb_desc_t *pb_desc,
   }
 
   int first_found = -1;  // at most, two indices: // and seq
-  size_t i(0), j(0);
+  size_t i(0);
   ServiceTable::matching_children_t *mc = NULL;
 
   /* Search for 1rst occurence of service in table */
@@ -638,6 +638,8 @@ ServiceTable::getChildren(const corba_pb_desc_t *pb_desc,
   if (pb_desc->parallel_flag == 0) { /* Test if there is same profile with
                                          different parallel flag */
     int second_found = -1;
+    size_t j(0);
+
     i++;
     /* Search for 2nd occurence of service in table */
     while ((i < nb_s) && (!profile_match(&(profiles[i]), pb_desc))) {

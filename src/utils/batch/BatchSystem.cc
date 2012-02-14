@@ -10,20 +10,28 @@
  */
 
 
-using namespace std;
+
 #include <cstring>
 #include <cstdlib>
 #include <sys/types.h>   // for chmod()
 #include <sys/stat.h>    // for S_IWUSR, S_IXUSR, chmod()
 #include <cerrno>       // for errno
-#include <unistd.h>      // for read()
+#ifndef __WIN32__
+#include <unistd.h>
+#else
+#include <Winsock2.h>
+#include <windows.h>
+#endif
 #include <fcntl.h>       // for O_RDONLY
 
 #include "debug.hh"      // ERROR
 #include "configuration.hh"
 #include "BatchSystem.hh"
 #include "BatchCreator.hh" // LOADLVELER, OAR1.6, etc. definition
-
+#ifdef __WIN32__
+#include "mkstemp.hh"
+#endif
+using namespace std;
 #define WAITING_BATCH_JOB_COMPLETION 30 // test all W_B_J_C sec if job completed
 
 const char *BatchSystem::emptyString = "";
@@ -148,7 +156,7 @@ BatchSystem::diet_submit_parallel(diet_profile_t *profile,
    */
   options = (char *) calloc(9000, sizeof(char)); /* FIXME: Reduce size */
   if (options == NULL) {
-    ERROR(
+   ERROR_DEBUG(
       "error allocating memory when building script (options)..." << endl <<
       "Service not launched", -1);
   }
@@ -225,7 +233,7 @@ BatchSystem::diet_submit_parallel(diet_profile_t *profile,
                                            + 1000
                                            + strlen(command)));
   if (script == NULL) {
-    ERROR("error allocating memory when building script..." << endl <<
+   ERROR_DEBUG("error allocating memory when building script..." << endl <<
           "Service not launched", -1);
   }
   switch ((int) batch_ID) {
@@ -267,7 +275,7 @@ BatchSystem::diet_submit_parallel(diet_profile_t *profile,
             );
     break;
   default:
-    ERROR("BatchSystem not managed?", -1);
+   ERROR_DEBUG("BatchSystem not managed?", -1);
   } // switch
     /* Replace DIET meta-variable in SeD programmer's command */
   sprintf(small_chaine, "%d", profile->nbprocs);
@@ -284,7 +292,7 @@ BatchSystem::diet_submit_parallel(diet_profile_t *profile,
 
   file_descriptor = mkstemp(filename);
   if (file_descriptor == -1) {
-    ERROR("Cannot create batch file", -1);
+   ERROR_DEBUG("Cannot create batch file", -1);
   }
 
 
@@ -293,7 +301,7 @@ BatchSystem::diet_submit_parallel(diet_profile_t *profile,
 #endif
 
   if (writen(file_descriptor, script, strlen(script)) != strlen(script)) {
-    ERROR("Cannot write the batch script on the filesystem", -1);
+   ERROR_DEBUG("Cannot write the batch script on the filesystem", -1);
   }
   /* Make the script runnable (OAR) */
   if (chmod(filename, S_IRUSR | S_IWUSR | S_IXUSR) != 0) {
@@ -307,7 +315,7 @@ BatchSystem::diet_submit_parallel(diet_profile_t *profile,
   sprintf(filename_2, "%sDIET_batch_launch.XXXXXX", pathToTmp);
   file_descriptor_2 = mkstemp(filename_2);
   if (file_descriptor_2 == -1) {
-    ERROR("Cannot create batch I/O redirection file."
+   ERROR_DEBUG("Cannot create batch I/O redirection file."
           " Verify that tmp path is ok", -1);
   }
   close(file_descriptor_2);
@@ -331,11 +339,11 @@ BatchSystem::diet_submit_parallel(diet_profile_t *profile,
 #endif
 
   if (system(chaine) == -1) {
-    ERROR("Cannot submit script", -1);
+   ERROR_DEBUG("Cannot submit script", -1);
   }
   file_descriptor_2 = open(filename_2, O_RDONLY);
   if (file_descriptor_2 == -1) {
-    ERROR("Cannot open batch I/O redirection file", -1);
+   ERROR_DEBUG("Cannot open batch I/O redirection file", -1);
   }
   /* Get batch Job ID */
   for (int i = 0; i <= NBDIGITS_MAX_BATCH_JOB_ID; i++)
@@ -343,7 +351,7 @@ BatchSystem::diet_submit_parallel(diet_profile_t *profile,
   if ((nbread =
          readn(file_descriptor_2, small_chaine, NBDIGITS_MAX_BATCH_JOB_ID))
       == 0) {
-    ERROR("Error during submission or with I/O file."
+   ERROR_DEBUG("Error during submission or with I/O file."
           " Cannot read the batch ID", -1);
   }
   /* Just in case */
@@ -352,7 +360,7 @@ BatchSystem::diet_submit_parallel(diet_profile_t *profile,
   }
   /* Store the JobID in correlation with DIET_taskID */
   if (storeBatchJobID(atoi(small_chaine), profile->dietReqID, filename) < 0) {
-    ERROR("Not enough memory to store new batch information", -1);
+   ERROR_DEBUG("Not enough memory to store new batch information", -1);
   }
 
   /* Remove temporary files by closing them */
@@ -378,7 +386,7 @@ int
 BatchSystem::diet_submit_parallel(int batchJobID, diet_profile_t *profile,
                                   const char *command) {
   {
-    ERROR("This function is not implemented yet", 1);
+   ERROR_DEBUG("This function is not implemented yet", 1);
   }
 }
 
@@ -468,7 +476,11 @@ BatchSystem::wait4BatchJobCompletion(int batchJobID) {
   status = isBatchJobCompleted(batchJobID);
 
   while (status == 0) {
+#ifndef __WIN32__
     sleep(WAITING_BATCH_JOB_COMPLETION);
+#else
+    Sleep(WAITING_BATCH_JOB_COMPLETION);
+#endif
     status = isBatchJobCompleted(batchJobID);
   }
   return status;
@@ -501,7 +513,7 @@ BatchSystem::updateBatchJobStatus(int batchJobID, batchJobState job_status) {
   index->status = job_status;
   if (((job_status == TERMINATED)
        || (job_status == CANCELED)
-       || (job_status == ERROR))
+       || (job_status == ERROR_JOB))
       && (index->scriptFileName != NULL)) {
     unlink(index->scriptFileName);
     free(index->scriptFileName);
@@ -516,7 +528,7 @@ int
 BatchSystem::getSimulatedProcAndWalltime(int *nbprocPtr, int *walltimePtr,
                                          diet_profile_t *profilePtr) {
   {
-    ERROR("This function is not implemented yet", 1);
+   ERROR_DEBUG("This function is not implemented yet", 1);
   }
 }
 
@@ -624,6 +636,7 @@ BatchSystem::replaceAllOccurencesInString(char **input,
 size_t
 BatchSystem::writen(int fd, const char *buffer, size_t n) {
   size_t nleft;
+  //ssize_t nwritten;
   size_t nwritten;
   const char *ptr;
 
@@ -662,15 +675,15 @@ BatchSystem::readn(int fd, char *buffer, int n) {
 #if defined YC_DEBUG_
       {switch (errno) {
        case EBADF:
-         ERROR("Descripteur de fichiers invalide ou pas ouvert en lecture", 0);
+        ERROR_DEBUG("Descripteur de fichiers invalide ou pas ouvert en lecture", 0);
        case EFAULT:
-         ERROR("Buffer pointe en dehors de l'espace d'adressage", 0);
+        ERROR_DEBUG("Buffer pointe en dehors de l'espace d'adressage", 0);
        case EINVAL:
-         ERROR("EINVAL", 0);
+        ERROR_DEBUG("EINVAL", 0);
        case EIO:
-         ERROR("EIO", 0);
+        ERROR_DEBUG("EIO", 0);
        default:
-         ERROR("Undefined", 0);
+        ERROR_DEBUG("Undefined", 0);
        }                 // switch
       }
 #endif // if defined YC_DEBUG_
@@ -691,7 +704,11 @@ BatchSystem::errorIfPathNotValid(const char *path) {
   char chaine[100];
 
   if (stat(path, &buf) == -1) {
+#ifndef __WIN32__
     snprintf(chaine, 99, "Cannot stat on file %s", path);
+#else
+    _snprintf(chaine, 99, "Cannot stat on file %s", path);
+#endif
     perror(chaine);
     exit(1);
   }
@@ -704,7 +721,11 @@ BatchSystem::errorIfPathNotValid(const char *path) {
     return;
   }
 
+#ifndef __WIN32__
   snprintf(chaine, 99, "file %s is not a directory", // , or rights problems",
+#else
+  _snprintf(chaine, 99, "file %s is not a directory", // , or rights problems",
+#endif
            path);
   ERROR_EXIT(chaine);
 } // errorIfPathNotValid
@@ -718,7 +739,7 @@ BatchSystem::createUniqueTemporaryTmpFile(const char *pattern) {
   sprintf(filename, "%s%s.XXXXXX", pathToTmp, pattern);
   file_descriptor = mkstemp(filename);
   if (file_descriptor == -1) {
-    ERROR("Cannot create batch I/O redirection file."
+   ERROR_DEBUG("Cannot create batch I/O redirection file."
           " Verify that tmp path is ok and that there is space left", 0);
   }
 #if defined YC_DEBUG
@@ -738,7 +759,7 @@ BatchSystem::createUniqueTemporaryNFSFile(const char *pattern) {
   sprintf(filename, "%s%s.XXXXXX", pathToNFS, pattern);
   file_descriptor = mkstemp(filename);
   if (file_descriptor == -1) {
-    ERROR("Cannot create batch I/O redirection file."
+   ERROR_DEBUG("Cannot create batch I/O redirection file."
           " Verify that tmp path is ok and that there is space left", 0);
   }
 #if defined YC_DEBUG
@@ -758,14 +779,14 @@ BatchSystem::readNumberInFile(const char *filename) {
 
   file_descriptor = open(filename, O_RDONLY);
   if (file_descriptor == -1) {
-    ERROR("Cannot open batch I/O redirection file", -1);
+   ERROR_DEBUG("Cannot open batch I/O redirection file", -1);
   }
 
   for (int i = 0; i <= NBDIGITS_MAX_RESOURCES; i++)
     small_chaine[i] = '\0';
   if ((nbread = readn(file_descriptor, small_chaine, NBDIGITS_MAX_RESOURCES))
       == 0) {
-    ERROR("Error during submission or with I/O file."
+   ERROR_DEBUG("Error during submission or with I/O file."
           " Cannot read the batch ID", 0);
   }
 
@@ -799,7 +820,7 @@ BatchSystem::launchCommandAndGetInt(const char *submitCommand,
 #endif
 
   if (system(chaine) == -1) {
-    ERROR("Cannot submit script", 0);
+   ERROR_DEBUG("Cannot submit script", 0);
   }
 
   nbread = readNumberInFile(filename);
@@ -833,7 +854,7 @@ BatchSystem::launchCommandAndGetResultFilename(const char *submitCommand,
 #endif
 
   if (system(chaine) == -1) {
-    ERROR("Cannot submit script", 0);
+   ERROR_DEBUG("Cannot submit script", 0);
   }
 
   /* Free memory */

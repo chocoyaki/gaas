@@ -218,7 +218,7 @@ MultiWfScheduler::run() {
   }
 
   TRACE_TEXT(TRACE_ALL_STEPS, "Multi-Workflow scheduler is running\n");
-  std::cout << setiosflags(std::ios_base::fixed) << std::setprecision(0);
+  std::cout << std::setiosflags(std::ios_base::fixed) << std::setprecision(0);
   // display double as int
   // / Start a ROUND of node ordering & mapping
   // / New rounds are started as long as some nodes can be mapped to ressources

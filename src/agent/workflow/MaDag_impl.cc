@@ -218,8 +218,14 @@ MaDag_impl::processDagWfCommon(const corba_wf_desc_t &dag_desc,
                                CORBA::Long wfReqId,
                                MetaDag *mDag) {
   char statMsg[128];
+#ifdef __WIN32__
+  _snprintf(statMsg, 128, "Start workflow request %ld",
+           static_cast<long int>(wfReqId));
+#else
   snprintf(statMsg, 128, "Start workflow request %ld",
            static_cast<long int>(wfReqId));
+#endif
+  
   stat_in("MA_DAG", statMsg);
 
   this->myMutex.lock();

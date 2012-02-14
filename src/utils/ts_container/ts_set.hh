@@ -1,12 +1,12 @@
 /**
 * @file ts_set.hh
-* 
-* @brief  Thread safe STL set header 
-* 
+*
+* @brief  Thread safe STL set header
+*
 * @author  Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)
-* 
+*
 * @section Licence
-*   |LICENCE|                                                                
+*   |LICENCE|
 */
 
 
@@ -27,7 +27,9 @@
  * @author Sylvain DAHAN : LIFC Besancon (France)
  */
 
-
+#ifdef __aix__
+#include "ts_set_aix.hh"
+#else /* __aix__ */
 template <class Key, class CMP = std::less<Key>,
           class A = std::allocator<Key> >
 class ts_set : private std::set<Key, CMP, A> {
@@ -155,7 +157,7 @@ public:
   /**
    * Returns an iterator pointing to the beginning of the set.
    */
-  inline iterator begin() const {
+  inline iterator begin() {
 #ifndef NDEBUG // only used by the assert
     assert(accessLocked);
 #endif  // NDEBUG
@@ -165,7 +167,7 @@ public:
   /**
    * Returns an iterator pointing to the end of the set.
    */
-  inline iterator end() const {
+  inline iterator end() {
 #ifndef NDEBUG // only used by the assert
     assert(accessLocked);
 #endif  // NDEBUG
@@ -196,5 +198,5 @@ public:
   /**************************************************************************/
 
 };
-
+#endif /* __aix__ */
 #endif  // _TS_SET_HH_

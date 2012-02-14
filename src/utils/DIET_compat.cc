@@ -10,10 +10,22 @@
  */
 
 
-#include "DIET_compat.hh"
+
 #include <time.h>
+#ifdef __WIN32__
+#include <Winsock2.h>
+#endif
+#include "DIET_compat.hh"
+
 
 namespace diet {
+#ifdef __WIN32__
+int
+usleep(unsigned int useconds) {
+	Sleep(useconds/1000);
+	return 0;
+}
+#else
 int
 usleep(unsigned int useconds) {
   struct timespec req = {0, 1000 * useconds};
@@ -21,4 +33,5 @@ usleep(unsigned int useconds) {
 
   return nanosleep(&req, &rem);
 }
+#endif
 }

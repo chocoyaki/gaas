@@ -10,7 +10,8 @@
  */
 
 
-using namespace std;
+
+
 #include <iostream>
 #include <CallbackImpl.hh>
 #define TRACE_LEVEL 50
@@ -18,6 +19,8 @@ using namespace std;
 
 #include "Forwarder.hh"
 #include "CallbackFwdr.hh"
+
+using namespace std;
 
 CallbackImpl::CallbackImpl() {
   // nothing

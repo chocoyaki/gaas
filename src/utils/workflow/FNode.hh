@@ -20,12 +20,17 @@
 #include "FNodePort.hh"
 #include "InputIterator.hh"
 #include "WfUtils.hh"
+#ifdef WIN32
+#define DIET_API_LIB __declspec(dllexport)
+#else
+#define DIET_API_LIB
+#endif
 class FWorkflow;
 
 /*****************************************************************************/
 /*                                 FNode                                     */
 /*****************************************************************************/
-class FNode : public WfNode {
+class DIET_API_LIB FNode : public WfNode {
 public:
   friend class FNodeInPort;
 

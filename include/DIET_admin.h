@@ -16,7 +16,11 @@
 
 
 
-
+#ifdef WIN32
+   #define DIET_API_LIB __declspec(dllexport)
+#else
+   #define DIET_API_LIB
+#endif
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -60,7 +64,7 @@ extern "C" {
    removed
    * @return DIET_SUCCESS on success, an error code otherwise
    */
-  int
+  DIET_API_LIB int
   diet_remove_from_hierarchy(dynamic_type_t type, const char *name,
                              int recursive);
 
@@ -73,7 +77,7 @@ extern "C" {
    (as recorded in the naming service)
    * @return DIET_SUCCESS on success, an error code otherwise
    */
-  int
+  DIET_API_LIB int
   diet_change_parent(dynamic_type_t type, const char *name,
                      const char *parent_name);
 
@@ -85,7 +89,7 @@ extern "C" {
    (as recorded in the naming service)
    * @return DIET_SUCCESS on success, an error code otherwise
    */
-  int
+  DIET_API_LIB int
   diet_disconnect_from_hierarchy(dynamic_type_t type, const char *name);
 
 #ifdef __cplusplus

@@ -1,12 +1,12 @@
 /**
 * @file  FNodePort.cc
-* 
+*
 * @brief  The classes representing the ports the nodes of functional workflow
-* 
+*
 * @author  Benjamin ISNARD (Benjamin.Isnard@ens-lyon.fr)
-* 
+*
 * @section Licence
-*   |LICENCE|                                                                
+*   |LICENCE|
 */
 
 
@@ -478,7 +478,7 @@ FNodeInOutPort::FNodeInOutPort(WfNode * parent,
 }
 
 void
-FNodeInOutPort::connectToPort(WfPort* remPort, bool endOfLink) {
+FNodeInOutPort::connectToPort(WfPort* remPort) {
   switch (remPort->getPortType()) {
   case WfPort::PORT_IN:
   case WfPort::PORT_IN_LOOP:
@@ -492,11 +492,7 @@ FNodeInOutPort::connectToPort(WfPort* remPort, bool endOfLink) {
     WfPort::connectToPort(remPort);
     break;
   default: {
-    if (endOfLink) {
-      FNodeOutPort::connectToPort(remPort);
-    } else {
-      WfPort::connectToPort(remPort);
-    }
+    INTERNAL_ERROR("Cannot disambiguate inOut to inOut link", 0);
   }
   }
 }

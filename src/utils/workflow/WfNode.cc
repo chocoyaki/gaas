@@ -13,6 +13,11 @@
 #include "debug.hh"
 #include "WfNode.hh"
 #include "Dag.hh"  // for NodeSet definition
+#ifdef WIN32
+#define DIET_API_LIB __declspec(dllexport)
+#else
+#define DIET_API_LIB
+#endif
 
 /****************************************************************************/
 /*                       Constructors/Destructor                            */
@@ -20,7 +25,7 @@
 
 WfNode::WfNode(const std::string& id) : myId(id) {}
 
-WfNode::~WfNode() {
+DIET_API_LIB WfNode::~WfNode() {
   // Free the ports map
   while (!ports.empty()) {
     WfPort * p = ports.begin()->second;
@@ -33,7 +38,7 @@ WfNode::~WfNode() {
 /*                              Basic GET/SET                               */
 /****************************************************************************/
 
-const std::string&
+DIET_API_LIB const std::string&
 WfNode::getId() const {
   return this->myId;
 }
@@ -46,7 +51,7 @@ WfNode::getId() const {
  * (protected)
  * add a new previous node id *
  */
-void
+DIET_API_LIB void
 WfNode::addPrevId(const std::string& nodeId) {
   if (nodeId.empty()) {
     INTERNAL_ERROR("WfNode::addPrevId Fatal Error: Empty node id", 1);
@@ -58,7 +63,7 @@ WfNode::addPrevId(const std::string& nodeId) {
  * (protected)
  * remove a previous node id *
  */
-void
+DIET_API_LIB void
 WfNode::remPrevId(const std::string& nodeId) {
   if (nodeId.empty()) {
     INTERNAL_ERROR("WfNode::remPrevId Fatal Error: Empty node id", 1);
@@ -72,7 +77,7 @@ WfNode::remPrevId(const std::string& nodeId) {
  * the control dependencies (<prec> tag) and the
  * data dependencies (ports links)
  */
-void
+DIET_API_LIB void
 WfNode::setNodePrecedence(NodeSet* nodeSet) throw(WfStructException) {
   // The predecessors defined by control links (<prec> tag) were
   // already added by the dag parser.
@@ -98,7 +103,7 @@ WfNode::setNodePrecedence(NodeSet* nodeSet) throw(WfStructException) {
  * (public) Add a new predecessor
  * (may check some constraints before adding the predecessor effectively)
  */
-void
+DIET_API_LIB void
 WfNode::addNodePredecessor(WfNode * node, const std::string& fullNodeId) {
   // no check is done in this class
   addPrevId(fullNodeId);
@@ -108,7 +113,7 @@ WfNode::addNodePredecessor(WfNode * node, const std::string& fullNodeId) {
  * (protected) Set a new previous node *
  * (does not check duplicates)
  */
-void
+DIET_API_LIB void
 WfNode::setPrev(int index, WfNode * node) {
   prevNodes[index] = node;
   node->addNext(this);
@@ -125,7 +130,7 @@ WfNode::prevNodesNb() const {
 /**
  * return an iterator on the first previous nodes
  */
-std::vector<WfNode*>::iterator
+DIET_API_LIB std::vector<WfNode*>::iterator
 WfNode::prevNodesBegin() {
   return prevNodes.begin();
 }
@@ -133,7 +138,7 @@ WfNode::prevNodesBegin() {
 /**
  * return an iterator on the end of previous nodes
  */
-std::vector<WfNode*>::iterator
+DIET_API_LIB std::vector<WfNode*>::iterator
 WfNode::prevNodesEnd() {
   return prevNodes.end();
 }
@@ -142,7 +147,7 @@ WfNode::prevNodesEnd() {
  * Add a next node reference *
  * @param node the node to add
  */
-void
+DIET_API_LIB void
 WfNode::addNext(WfNode *node) {
   nextNodes.push_back(node);
 }

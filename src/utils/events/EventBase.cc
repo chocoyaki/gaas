@@ -22,7 +22,7 @@ static const pair<short, string> severity2str_init[] = {
   pair<short, string>(EventBase::INFO, "INFO"),
   pair<short, string>(EventBase::NOTICE, "NOTICE"),
   pair<short, string>(EventBase::WARNING, "WARNING"),
-  pair<short, string>(EventBase::ERROR, "ERROR"),
+  pair<short, string>(EventBase::ERROR_EVENT, "ERROR"),
   pair<short, string>(EventBase::CRITICAL, "CRITICAL ERROR"),
   pair<short, string>(EventBase::FATAL, "FATAL ERROR")
 };

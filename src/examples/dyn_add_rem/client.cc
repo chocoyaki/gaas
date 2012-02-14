@@ -12,6 +12,9 @@
 #include <iostream>
 #include <cstring>
 #include <cstdlib>
+#include <boost/format.hpp>
+#include <boost/lexical_cast.hpp>
+#include <string>
 
 #include "DIET_client.h"
 #include "DIET_Dagda.h"
@@ -44,8 +47,8 @@ main(int argc, char *argv[]) {
     return 1;
   }
 
-  service = "dyn_add_rem_" + std::string(argv[2]);
-  p1 = atoi(argv[3]);
+  service = boost::str(boost::format("dyn_add_rem_%1%") % argv[2]);
+  p1 = boost::lexical_cast<int>(argv[3]);
 
   std::cout << "Will call service '" << service << "', with " << p1 <<
   std::endl;

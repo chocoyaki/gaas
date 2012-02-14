@@ -10,7 +10,13 @@
  */
 
 
+#ifndef __WIN32__
 #include <unistd.h>
+#else
+#include <Winsock2.h>
+#include <windows.h>
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -39,10 +45,10 @@ int
 solve_random(diet_profile_t *pb) {
   char *script = NULL;
   int result;
+  int *nbprocs = (int *) malloc(sizeof(int));
 
   printf("Resolving batch service random!\n\n");
 
-  int *nbprocs = (int *) malloc(sizeof(int));
   *nbprocs = pb->nbprocs;
   /* Set mandatory information, like walltime */
   make_perf(pb);
@@ -68,7 +74,7 @@ solve_random(diet_profile_t *pb) {
   result = diet_submit_parallel(pb, NULL, script);
 
   /* Free memory */
-  // free(script);
+  /* free(script); */
 
   if (result == -1) {
     printf("Error when submitting the script\n");

@@ -155,7 +155,7 @@ main(int argc, char *argv[], char *envp[]) {
   try {
     fileParser.parseFile(configFile);
   } catch (...) {
-    ERROR("while parsing " << configFile, GRPC_CONFIGFILE_ERROR);
+    ERROR_DEBUG("while parsing " << configFile, GRPC_CONFIGFILE_ERROR);
   }
 
   /* now merge our maps */
@@ -174,7 +174,7 @@ main(int argc, char *argv[], char *envp[]) {
   try {
     CONFIG_AGENT(diet::AGENTTYPE, agentType);
   } catch (std::runtime_error &e) {
-    ERROR(e.what(), GRPC_CONFIGFILE_ERROR);
+    ERROR_DEBUG(e.what(), GRPC_CONFIGFILE_ERROR);
   }
   // std::string& agentName = CONFIG_STRING("name"];  // UNUSED ?
   std::string parentName = "";
@@ -185,7 +185,7 @@ main(int argc, char *argv[], char *envp[]) {
   // parentName is mandatory for LA but unneeded for MA
   if (((agentType == "DIET_LOCAL_AGENT") || (agentType == "LA")) &&
       !hasParentName) {
-    ERROR("parsing " << configFile
+    ERROR_DEBUG("parsing " << configFile
                      << ": no parent name specified", GRPC_CONFIGFILE_ERROR);
   } else if (((agentType != "DIET_LOCAL_AGENT") && (agentType != "LA")) &&
              hasParentName) {
@@ -239,7 +239,7 @@ main(int argc, char *argv[], char *envp[]) {
     ORBMgr::init(argsTmp.size(), &argsTmp[0]);
   } catch (...) {
     std::for_each(args.begin(), args.end(), CStringDeleter());
-    ERROR("ORB initialization failed", 1);
+    ERROR_DEBUG("ORB initialization failed", 1);
   }
 
 #ifdef USE_LOG_SERVICE
@@ -298,7 +298,7 @@ main(int argc, char *argv[], char *envp[]) {
     dataManager->setLogComponent(dietLogComponent);  // modif bisnard_logs_1
 #endif /* USE_LOG_SERVICE */
   } catch (...) {
-    ERROR("Problem while instantiating the data manager."
+    ERROR_DEBUG("Problem while instantiating the data manager."
           << "Is omniNames running and"
           << " is OMNIORB_CONFIG variable correctly set?",
           GRPC_COMMUNICATION_FAILED);
@@ -331,7 +331,7 @@ main(int argc, char *argv[], char *envp[]) {
   /* Launch the agent */
   if (res) {
     std::for_each(args.begin(), args.end(), CStringDeleter());
-    ERROR("unable to launch the agent", 1);
+    ERROR_DEBUG("unable to launch the agent", 1);
   }
 
   ORBMgr::getMgr()->activate(dataManager);

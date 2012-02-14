@@ -18,7 +18,7 @@
 #include "progs.hh"
 
 
-const unsigned int SIZE = 3;
+const unsigned int SIZE3 = 3;
 
 static const unsigned int NB_PB = 6;
 static const char *PB[NB_PB] =
@@ -252,7 +252,7 @@ main(int argc, char *argv[]) {
   /**
    * Vector types
    */
-  size_t n = SIZE;
+  size_t n = SIZE3;
   void *A = NULL;
   void *B = NULL;
   void *C = NULL;
@@ -267,11 +267,11 @@ main(int argc, char *argv[]) {
   std::endl;
 
   /* Use the long type for all "integer" types. */
-  A = reinterpret_cast<long *>(malloc(sizeof(long) * SIZE));
-  B = reinterpret_cast<long *>(malloc(sizeof(long) * SIZE));
-  for (i = 0; i < SIZE; ++i) {
+  A = reinterpret_cast<long *>(malloc(sizeof(long) * SIZE3));
+  B = reinterpret_cast<long *>(malloc(sizeof(long) * SIZE3));
+  for (i = 0; i < SIZE3; ++i) {
     (reinterpret_cast<long *>(A))[i] = i;
-    (reinterpret_cast<long *>(B))[i] = i + SIZE;
+    (reinterpret_cast<long *>(B))[i] = i + SIZE3;
   }
 
   /* Characters */
@@ -308,8 +308,8 @@ main(int argc, char *argv[]) {
   diet_profile_free(profile);
 
   /* Short */
-  for (i = 0; i < SIZE; ++i) {
-    (reinterpret_cast<long *>(B))[i] = i + SIZE;
+  for (i = 0; i < SIZE3; ++i) {
+    (reinterpret_cast<long *>(B))[i] = i + SIZE3;
   }
   std::cout << "#### Shorts" << std::endl;
   profile = diet_profile_alloc(PB_VECTOR[1], 0, 1, 2);
@@ -344,8 +344,8 @@ main(int argc, char *argv[]) {
   diet_profile_free(profile);
 
   /* Integer */
-  for (i = 0; i < SIZE; ++i) {
-    (reinterpret_cast<long *>(B))[i] = i + SIZE;
+  for (i = 0; i < SIZE3; ++i) {
+    (reinterpret_cast<long *>(B))[i] = i + SIZE3;
   }
   std::cout << "#### Integers" << std::endl;
   profile = diet_profile_alloc(PB_VECTOR[2], 0, 1, 2);
@@ -380,8 +380,8 @@ main(int argc, char *argv[]) {
   diet_profile_free(profile);
 
   /* Long */
-  for (i = 0; i < SIZE; ++i) {
-    (reinterpret_cast<long *>(B))[i] = i + SIZE;
+  for (i = 0; i < SIZE3; ++i) {
+    (reinterpret_cast<long *>(B))[i] = i + SIZE3;
   }
   std::cout << "#### Long" << std::endl;
   profile = diet_profile_alloc(PB_VECTOR[3], 0, 1, 2);
@@ -419,11 +419,11 @@ main(int argc, char *argv[]) {
   free(B);
 
   /* Float */
-  A = reinterpret_cast<float *>(malloc(sizeof(float) * SIZE));
-  B = reinterpret_cast<float *>(malloc(sizeof(float) * SIZE));
-  for (i = 0; i < SIZE; ++i) {
+  A = reinterpret_cast<float *>(malloc(sizeof(float) * SIZE3));
+  B = reinterpret_cast<float *>(malloc(sizeof(float) * SIZE3));
+  for (i = 0; i < SIZE3; ++i) {
     (reinterpret_cast<float *>(A))[i] = i * 2.0;
-    (reinterpret_cast<float *>(B))[i] = (i + SIZE) * 2.0;
+    (reinterpret_cast<float *>(B))[i] = (i + SIZE3) * 2.0;
   }
   std::cout << "#### Floats" << std::endl;
   profile = diet_profile_alloc(PB_VECTOR[4], 0, 1, 2);
@@ -460,11 +460,11 @@ main(int argc, char *argv[]) {
   free(B);
 
   /* Double */
-  A = (double *) malloc(sizeof(double) * SIZE);
-  B = (double *) malloc(sizeof(double) * SIZE);
-  for (i = 0; i < SIZE; ++i) {
+  A = (double *) malloc(sizeof(double) * SIZE3);
+  B = (double *) malloc(sizeof(double) * SIZE3);
+  for (i = 0; i < SIZE3; ++i) {
     ((double *) A)[i] = i * 2.0;
-    ((double *) B)[i] = (i + SIZE) * 2.0;
+    ((double *) B)[i] = (i + SIZE3) * 2.0;
   }
   std::cout << "#### Doubles" << std::endl;
   profile = diet_profile_alloc(PB_VECTOR[5], 0, 1, 2);
@@ -518,7 +518,7 @@ main(int argc, char *argv[]) {
   /**
    * Matrix types
    */
-  size_t m = SIZE;
+  size_t m = SIZE3;
   diet_matrix_order_t oA, oB, oC;
   std::cout <<
   "######################################################################" <<
@@ -536,11 +536,11 @@ main(int argc, char *argv[]) {
 
 
   /* Use the long type for all "integer" types. */
-  A = reinterpret_cast<long *>(malloc(sizeof(long) * SIZE * SIZE));
-  B = reinterpret_cast<long *>(malloc(sizeof(long) * SIZE * SIZE));
-  for (i = 0; i < SIZE * SIZE; ++i) {
+  A = reinterpret_cast<long *>(malloc(sizeof(long) * SIZE3 * SIZE3));
+  B = reinterpret_cast<long *>(malloc(sizeof(long) * SIZE3 * SIZE3));
+  for (i = 0; i < SIZE3 * SIZE3; ++i) {
     (reinterpret_cast<long *>(A))[i] = i;
-    (reinterpret_cast<long *>(B))[i] = i + SIZE;
+    (reinterpret_cast<long *>(B))[i] = i + SIZE3;
   }
 
   /* Characters */
@@ -584,8 +584,8 @@ main(int argc, char *argv[]) {
 
 
   /* Short */
-  for (i = 0; i < SIZE * SIZE; ++i) {
-    (reinterpret_cast<long *>(B))[i] = i + SIZE;
+  for (i = 0; i < SIZE3 * SIZE3; ++i) {
+    (reinterpret_cast<long *>(B))[i] = i + SIZE3;
   }
   std::cout << "#### Shorts" << std::endl;
   profile = diet_profile_alloc(PB_MATRIX[1], 0, 1, 2);
@@ -625,8 +625,8 @@ main(int argc, char *argv[]) {
   free(C);
 
   /* Integer */
-  for (i = 0; i < SIZE * SIZE; ++i) {
-    (reinterpret_cast<long *>(B))[i] = i + SIZE;
+  for (i = 0; i < SIZE3 * SIZE3; ++i) {
+    (reinterpret_cast<long *>(B))[i] = i + SIZE3;
   }
   std::cout << "#### Integers" << std::endl;
   profile = diet_profile_alloc(PB_MATRIX[2], 0, 1, 2);
@@ -667,8 +667,8 @@ main(int argc, char *argv[]) {
 
 
   /* Long */
-  for (i = 0; i < SIZE * SIZE; ++i) {
-    (reinterpret_cast<long *>(B))[i] = i + SIZE;
+  for (i = 0; i < SIZE3 * SIZE3; ++i) {
+    (reinterpret_cast<long *>(B))[i] = i + SIZE3;
   }
   std::cout << "#### Longs" << std::endl;
   profile = diet_profile_alloc(PB_MATRIX[3], 0, 1, 2);
@@ -712,11 +712,11 @@ main(int argc, char *argv[]) {
 
   /* Float */
   std::cout << "#### Floats" << std::endl;
-  A = reinterpret_cast<float *>(malloc(sizeof(float) * SIZE * SIZE));
-  B = reinterpret_cast<float *>(malloc(sizeof(float) * SIZE * SIZE));
-  for (i = 0; i < SIZE * SIZE; ++i) {
+  A = reinterpret_cast<float *>(malloc(sizeof(float) * SIZE3 * SIZE3));
+  B = reinterpret_cast<float *>(malloc(sizeof(float) * SIZE3 * SIZE3));
+  for (i = 0; i < SIZE3 * SIZE3; ++i) {
     (reinterpret_cast<float *>(A))[i] = i * 2.0;
-    (reinterpret_cast<float *>(B))[i] = (i + SIZE) * 2.0;
+    (reinterpret_cast<float *>(B))[i] = (i + SIZE3) * 2.0;
   }
   profile = diet_profile_alloc(PB_MATRIX[4], 0, 1, 2);
 
@@ -758,11 +758,11 @@ main(int argc, char *argv[]) {
 
   /* Double */
   std::cout << "#### Doubles" << std::endl;
-  A = reinterpret_cast<double *>(malloc(sizeof(double) * SIZE * SIZE));
-  B = reinterpret_cast<double *>(malloc(sizeof(double) * SIZE * SIZE));
-  for (i = 0; i < SIZE * SIZE; ++i) {
+  A = reinterpret_cast<double *>(malloc(sizeof(double) * SIZE3 * SIZE3));
+  B = reinterpret_cast<double *>(malloc(sizeof(double) * SIZE3 * SIZE3));
+  for (i = 0; i < SIZE3 * SIZE3; ++i) {
     (reinterpret_cast<double *>(A))[i] = i * 2.0;
-    (reinterpret_cast<double *>(B))[i] = (i + SIZE) * 2.0;
+    (reinterpret_cast<double *>(B))[i] = (i + SIZE3) * 2.0;
   }
   profile = diet_profile_alloc(PB_MATRIX[5], 0, 1, 2);
 
@@ -832,14 +832,14 @@ main(int argc, char *argv[]) {
   char *s2;
   char *s3;
 
-  s1 = reinterpret_cast<char *>(malloc(sizeof(char) * (SIZE + 1)));
-  s2 = reinterpret_cast<char *>(malloc(sizeof(char) * (SIZE + 1)));
-  for (i = 0; i < SIZE; ++i) {
+  s1 = reinterpret_cast<char *>(malloc(sizeof(char) * (SIZE3 + 1)));
+  s2 = reinterpret_cast<char *>(malloc(sizeof(char) * (SIZE3 + 1)));
+  for (i = 0; i < SIZE3; ++i) {
     s1[i] = 'a';
     s2[i] = 'b';
   }
-  s1[SIZE] = '\0';
-  s2[SIZE] = '\0';
+  s1[SIZE3] = '\0';
+  s2[SIZE3] = '\0';
 
   /* Characters: no choice it has to be DIET_CHAR */
   std::cout << "#### Characters" << std::endl;
@@ -894,15 +894,15 @@ main(int argc, char *argv[]) {
   "######################################################################" <<
   std::endl;
 
-  s1 = reinterpret_cast<char *>(malloc(sizeof(char) * (SIZE + 1)));
-  s2 = reinterpret_cast<char *>(malloc(sizeof(char) * (SIZE + 1)));
+  s1 = reinterpret_cast<char *>(malloc(sizeof(char) * (SIZE3 + 1)));
+  s2 = reinterpret_cast<char *>(malloc(sizeof(char) * (SIZE3 + 1)));
   s3 = NULL;
-  for (i = 0; i < SIZE; ++i) {
+  for (i = 0; i < SIZE3; ++i) {
     s1[i] = 'a';
     s2[i] = 'b';
   }
-  s1[SIZE] = '\0';
-  s2[SIZE] = '\0';
+  s1[SIZE3] = '\0';
+  s2[SIZE3] = '\0';
 
   /* Characters: no choice it has to be DIET_CHAR */
   std::cout << "#### Characters" << std::endl;
@@ -978,12 +978,12 @@ main(int argc, char *argv[]) {
     std::cout << "s3:" << s3 << ", size=" << arg_size << std::endl;
 
     if ((status = stat(s2, &buf)) || !(buf.st_mode & S_IFREG)) {
-      std::cerr << "Problem on s2 in " << PB_FILE[0] << "!" << std::endl;
+      std::cerr << "Problem on s2 in " << PB_FILE[0] << "! (status=" << status << std::endl;
       error = error | (1 << errorPos);
     }
 
     if ((status = stat(s3, &buf)) || !(buf.st_mode & S_IFREG)) {
-      std::cerr << "Problem on s3 in " << PB_FILE[0] << "!" << std::endl;
+      std::cerr << "Problem on s3 in " << PB_FILE[0] << "! (status=" << status << std::endl;
       error = error | (1 << errorPos);
     }
 

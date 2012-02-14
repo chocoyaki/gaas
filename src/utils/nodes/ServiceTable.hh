@@ -19,7 +19,11 @@
 #include <omniORB4/CORBA.h>
 
 #include "common_types.hh"
-
+#ifdef WIN32
+   #define DIET_API_LIB __declspec(dllexport)
+#else
+   #define DIET_API_LIB
+#endif
 
 
 /* This class should implement an STL "map" or "multimap" container.
@@ -30,7 +34,7 @@
 #define MAX_NB_CHILDREN 10
 #define MAX_NB_SERVICES 20
 
-class ServiceTable {
+class DIET_API_LIB ServiceTable {
 public:
   typedef int ServiceReference_t;
 

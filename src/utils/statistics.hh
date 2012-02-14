@@ -19,7 +19,16 @@
 // even when the macro HAVE_STATISTICS is not defined
 
 #include <cstdio>
+#ifdef WIN32
+#include <time.h>
+#else
 #include <sys/time.h>
+#endif
+#ifdef __WIN32__
+#define DIET_API_LIB __declspec(dllexport)
+#else
+#define DIET_API_LIB
+#endif
 
 #if HAVE_STATISTICS
 
@@ -29,38 +38,21 @@ enum stat_type {
   STAT_INFO
 };
 
+
 // Please, don't use those variables
-extern FILE *STAT_FILE;
+extern FILE  *  STAT_FILE;
 extern const char *const STAT_TYPE_STRING[3];
 
 // Don't call this, call stat_in, stat_out & stat_info instead
-inline void
-gen_stat(int type, const char *myname, const char *message) {
-  if (STAT_FILE != NULL) {
-    struct timeval tv;
-    struct timezone tz;
-
-    if (gettimeofday(&tv, &tz) == 0) {
-      fprintf(STAT_FILE, "%10ld.%06ld|%s|[%s] %s\n",
-              (long int) tv.tv_sec, (long int) tv.tv_usec,
-              STAT_TYPE_STRING[type], myname, message);
-
-      /* Examples of generated trace :
-       * 123456.340569|IN  |[Name of DIET component] submission.start
-       * 123456.340867|INFO|[Name of DIET component] submission.phase1
-       * 123455.345986|INFO|[Name of DIET component] submission.phase2
-       * 123456.354032|OUT |[Name of DIET component] submission.end
-       */
-    }
-  }
-} /* gen_stat */
+DIET_API_LIB void
+gen_stat(int type, const char *myname, const char *message);
 
 // Don't call this, call init_stat instead!
-void
+DIET_API_LIB void
 do_stat_init();
-void
+DIET_API_LIB void
 do_stat_flush();
-void
+DIET_API_LIB void
 do_stat_finalize();
 
 // ///////////////////////////////

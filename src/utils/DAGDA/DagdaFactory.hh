@@ -16,8 +16,14 @@
 #include <string>
 #include "DagdaImpl.hh"
 
+#ifdef WIN32
+   #define DIET_API_LIB __declspec(dllexport)
+#else
+   #define DIET_API_LIB
+#endif
+
 /* A class factory to simplify the extensions of the Dagda object. */
-class DagdaFactory {
+class DIET_API_LIB DagdaFactory {
 public:
   static DagdaImpl *
   getClientDataManager();
@@ -58,7 +64,7 @@ public:
   static const char *
   getDefaultName();
 
-  static void
+ static void
   reset();
 
 private:

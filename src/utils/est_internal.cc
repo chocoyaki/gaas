@@ -22,10 +22,10 @@
 int
 diet_est_set_internal(estVector_t ev, int tag, double value) {
   if (ev == NULL) {
-    ERROR(__FUNCTION__ << ": NULL estimation vector", -1);
+    ERROR_DEBUG(__FUNCTION__ << ": NULL estimation vector", -1);
   }
   if (tag < 0) {
-    ERROR(__FUNCTION__ << ": tag must be non-negative (" << tag << ")\n", -1);
+    ERROR_DEBUG(__FUNCTION__ << ": tag must be non-negative (" << tag << ")\n", -1);
   }
 
   for (unsigned int valIter = 0; valIter < EV_LEN(ev); valIter++) {
@@ -47,10 +47,10 @@ diet_est_set_internal(estVector_t ev, int tag, double value) {
 double
 diet_est_get_internal(estVectorConst_t ev, int tag, double errVal) {
   if (ev == NULL) {
-    ERROR(__FUNCTION__ << ": NULL estimation vector", errVal);
+    ERROR_DEBUG(__FUNCTION__ << ": NULL estimation vector", errVal);
   }
   if (tag < 0) {
-    ERROR(__FUNCTION__ <<
+    ERROR_DEBUG(__FUNCTION__ <<
           ": tag must be non-negative (" <<
           tag <<
           ")\n",
@@ -70,10 +70,10 @@ diet_est_get_internal(estVectorConst_t ev, int tag, double errVal) {
 int
 diet_est_defined_internal(estVectorConst_t ev, int tag) {
   if (ev == NULL) {
-    ERROR(__FUNCTION__ << ": NULL estimation vector", -1);
+    ERROR_DEBUG(__FUNCTION__ << ": NULL estimation vector", -1);
   }
   if (tag < 0) {
-    ERROR(__FUNCTION__ << ": tag must be non-negative (" << tag << ")\n", -1);
+    ERROR_DEBUG(__FUNCTION__ << ": tag must be non-negative (" << tag << ")\n", -1);
   }
 
   // cout << "AS: [" << __FUNCTION__ << "] num values = " << EV_LEN(ev) << "\n";
@@ -91,10 +91,10 @@ diet_est_defined_internal(estVectorConst_t ev, int tag) {
 int
 diet_est_array_size_internal(estVectorConst_t ev, int tag) {
   if (ev == NULL) {
-    ERROR(__FUNCTION__ << ": NULL estimation vector", -1);
+    ERROR_DEBUG(__FUNCTION__ << ": NULL estimation vector", -1);
   }
   if (tag < 0) {
-    ERROR(__FUNCTION__ << ": tag must be non-negative (" << tag << ")\n", -1);
+    ERROR_DEBUG(__FUNCTION__ << ": tag must be non-negative (" << tag << ")\n", -1);
   }
 
   int maxIdx = -1;
@@ -111,13 +111,13 @@ diet_est_array_size_internal(estVectorConst_t ev, int tag) {
 int
 diet_est_array_set_internal(estVector_t ev, int tag, int idx, double value) {
   if (ev == NULL) {
-    ERROR(__FUNCTION__ << ": NULL estimation vector", -1);
+    ERROR_DEBUG(__FUNCTION__ << ": NULL estimation vector", -1);
   }
   if (tag < 0) {
-    ERROR(__FUNCTION__ << ": tag must be non-negative (" << tag << ")\n", -1);
+    ERROR_DEBUG(__FUNCTION__ << ": tag must be non-negative (" << tag << ")\n", -1);
   }
   if (idx < 0) {
-    ERROR(__FUNCTION__ << ": idx must be non-negative (" << idx << ")\n", -1);
+    ERROR_DEBUG(__FUNCTION__ << ": idx must be non-negative (" << idx << ")\n", -1);
   }
 
   for (unsigned int valIter = 0; valIter < EV_LEN(ev); valIter++) {
@@ -142,17 +142,17 @@ diet_est_array_get_internal(estVectorConst_t ev,
                             int idx,
                             double errVal) {
   if (ev == NULL) {
-    ERROR(__FUNCTION__ << ": NULL estimation vector", errVal);
+    ERROR_DEBUG(__FUNCTION__ << ": NULL estimation vector", errVal);
   }
   if (tag < 0) {
-    ERROR(__FUNCTION__ <<
+    ERROR_DEBUG(__FUNCTION__ <<
           ": tag must be non-negative (" <<
           tag <<
           ")\n",
           errVal);
   }
   if (idx < 0) {
-    ERROR(__FUNCTION__ <<
+    ERROR_DEBUG(__FUNCTION__ <<
           ": idx must be non-negative (" <<
           idx <<
           ")\n",
@@ -172,13 +172,13 @@ diet_est_array_get_internal(estVectorConst_t ev,
 int
 diet_est_array_defined_internal(estVectorConst_t ev, int tag, int idx) {
   if (ev == NULL) {
-    ERROR(__FUNCTION__ << ": NULL estimation vector", -1);
+    ERROR_DEBUG(__FUNCTION__ << ": NULL estimation vector", -1);
   }
   if (tag < 0) {
-    ERROR(__FUNCTION__ << ": tag must be non-negative (" << tag << ")\n", -1);
+    ERROR_DEBUG(__FUNCTION__ << ": tag must be non-negative (" << tag << ")\n", -1);
   }
   if (idx < 0) {
-    ERROR(__FUNCTION__ << ": idx must be non-negative (" << idx << ")\n", -1);
+    ERROR_DEBUG(__FUNCTION__ << ": idx must be non-negative (" << idx << ")\n", -1);
   }
 
   for (unsigned int valIter = 0; valIter < EV_LEN(ev); valIter++) {

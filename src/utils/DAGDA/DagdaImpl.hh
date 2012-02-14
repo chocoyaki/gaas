@@ -20,8 +20,9 @@
 #include <map>
 #include <sstream>
 #include <string>
-#include <unistd.h>
 #include <omnithread.h>
+
+#include "OSIndependance.hh"
 #include "Dagda.hh"
 #include "common_types.hh"
 #include "DIET_data.h"
@@ -33,7 +34,11 @@
 #include "Forwarder.hh"
 #include "DagdaFwdr.hh"
 #include "debug.hh"
-
+#ifdef WIN32
+   #define DIET_API_LIB __declspec(dllexport)
+#else
+   #define DIET_API_LIB
+#endif
 typedef enum {DGD_CLIENT_MNGR,
               DGD_AGENT_MNGR,
               DGD_SED_MNGR} dagda_manager_type_t;
@@ -681,7 +686,7 @@ private:
   dagda_manager_type_t type;
 };
 
-class DagdaFwdrImpl : public POA_DagdaFwdr,
+class DIET_API_LIB DagdaFwdrImpl : public POA_DagdaFwdr,
 public PortableServer::RefCountServantBase {
 public:
   DagdaFwdrImpl(Forwarder_ptr fwdr, const char *objName);

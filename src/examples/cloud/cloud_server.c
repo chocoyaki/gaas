@@ -162,7 +162,7 @@ main(int argc, char *argv[]) {
   if (!args(argc, argv)) {
     return 1;
   }
-  diet_profile_desc_t *profile;
+  diet_profile_desc_t * profile;
   diet_set_server_status(BATCH);
 
   /* Initialize table with maximum 1 service */

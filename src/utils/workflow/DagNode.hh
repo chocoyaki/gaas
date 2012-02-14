@@ -1,12 +1,12 @@
 /**
 * @file DagNode.hh
-* 
-* @brief  The node class used for dag execution 
-* 
+*
+* @brief  The node class used for dag execution
+*
 * @author  Benjamin ISNARD (Benjamin.Isnard@ens-lyon.fr)
-* 
+*
 * @section Licence
-*   |LICENCE|                                                                
+*   |LICENCE|
 */
 /****************************************************************************/
 /* The node class used for dag execution                                    */
@@ -20,7 +20,11 @@
 #include <string>
 #include <vector>
 
+#ifdef WIN32
+#include <time.h>
+#else
 #include <sys/time.h>
+#endif
 #include <ctime>
 
 // DIET core headers
@@ -33,11 +37,16 @@
 #include "Thread.hh"
 #include "DagScheduler.hh"
 #include "DagNodeLauncher.hh"
+#ifdef WIN32
+#define DIET_API_LIB __declspec(dllexport)
+#else
+#define DIET_API_LIB
+#endif
 
 /*****************************************************************************/
 /*                         CLASS WfDataException                             */
 /*****************************************************************************/
-class WfDataException {
+class DIET_API_LIB WfDataException {
 public:
   enum WfDataErrorType { eNOTFOUND,
                          eNOTAVAIL,
@@ -80,7 +89,7 @@ class Dag;
 class FWorkflow;
 class FProcNode;
 
-class DagNode : public WfNode  {
+class DIET_API_LIB DagNode : public WfNode  {
 public:
   /**
    * The Dag Node default constructor
@@ -250,55 +259,55 @@ public:
    * @param value the parameter value as a string
    */
   char *
-  newChar(const std::string value = "");
+  newChar(const std::string& value = "");
   /**
    * Allocate a new short *
    * @param value the parameter value as a string
    */
   short *
-  newShort(const std::string value = "");
+  newShort(const std::string& value = "");
 
   /**
    * Allocate a new int  *
    * @param value the parameter value as a string
    */
   int *
-  newInt(const std::string value = "");
+  newInt(const std::string& value = "");
 
   /**
    * Allocate a new long *
    * @param value the parameter value as a string
    */
   long *
-  newLong(const std::string value = "");
+  newLong(const std::string& value = "");
 
   /**
    * Allocate a new string *
    * @param value the parameter value as a string
    */
   char *
-  newString(const std::string value = "");
+  newString(const std::string& value = "");
 
   /**
    * Allocate a new float  *
    * @param value the parameter value as a string
    */
   float *
-  newFloat(const std::string value = "");
+  newFloat(const std::string& value = "");
 
   /**
    * Allocate a new double  *
    * @param value the parameter value as a string
    */
   double *
-  newDouble(const std::string value = "");
+  newDouble(const std::string& value = "");
 
   /**
    * Allocate a new filename  *
    * @param value the parameter value as a string
    */
   char *
-  newFile(const std::string value = "");
+  newFile(const std::string& value = "");
 
   /**
    * Display all results of the node

@@ -25,7 +25,11 @@ SET( DYNAMICSERVICEMGR_SERVER_SRC
   server.cc
   )
 ADD_EXECUTABLE( server_DynamicServiceMgr ${DYNAMICSERVICEMGR_SERVER_SRC} )
-TARGET_LINK_LIBRARIES( server_DynamicServiceMgr ${DIET_SERVER_LIBRARIES} dl)
+IF (WIN32)
+  TARGET_LINK_LIBRARIES( server_DynamicServiceMgr ${DIET_SERVER_LIBRARIES})
+ELSE (WIN32)
+  TARGET_LINK_LIBRARIES( server_DynamicServiceMgr ${DIET_SERVER_LIBRARIES} dl)
+ENDIF (WIN32)
 
 # install client and server 
 INSTALL( TARGETS client_DynamicServiceMgr server_DynamicServiceMgr DESTINATION ${EXAMPLE_INSTALL_DIR}/dynamicServiceMgr )

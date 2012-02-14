@@ -15,8 +15,14 @@
 
 #include <ctime>
 #include <iostream>
-#include <sys/time.h>
+#ifndef __WIN32__
 #include <unistd.h>
+#include <sys/time.h>
+#else
+#include <Winsock2.h>
+#include <windows.h>
+#include <sys/timeb.h>
+#endif
 #include <omniconfig.h>
 #include <omnithread.h>
 

@@ -1,0 +1,29 @@
+#****************************************************************************#
+#* DIET global options for User Makefiles                                   *#
+#*                                                                          *#
+#* $LICENSE$                                                                *#
+#****************************************************************************#
+
+# DIET variables
+DIET_INSTALLDIR  = @CMAKE_INSTALL_PREFIX@
+DIET_CPP_FLAGS   = -I$(DIET_INSTALLDIR)/include @COMPILE_FLAGS@
+
+DIET_CLIENT_LIBS = -L$(DIET_INSTALLDIR)/lib -lDIET_client -lDIET_core 
+DIET_SERVER_LIBS = -L$(DIET_INSTALLDIR)/lib -lDIET_SeD -lDIET_core
+
+# For checking dependencies towards Diet includes:
+DIET_CLIENT_PREREQ = \
+                   $(DIET_INSTALLDIR)/include/DIET_data.h   \
+                   $(DIET_INSTALLDIR)/include/DIET_client.h \
+                   $(DIET_INSTALLDIR)/include/DIET_Dagda.h  \
+                   $(DIET_INSTALLDIR)/include/DIET_grpc.h   \
+                   $(DIET_INSTALLDIR)/include/DIET_mutex.h
+DIET_SERVER_PREREQ = \
+                   $(DIET_INSTALLDIR)/include/DIET_data.h   \
+                   $(DIET_INSTALLDIR)/include/DIET_server.h \
+                   $(DIET_INSTALLDIR)/include/DIET_Dagda.h  \
+                   $(DIET_INSTALLDIR)/include/DIET_mutex.h
+
+# For compiler compatibility between Diet compilation and user's one:
+CC  = @CMAKE_C_COMPILER@
+CXX = @CMAKE_CXX_COMPILER@

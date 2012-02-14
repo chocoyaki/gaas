@@ -11,12 +11,22 @@
 
 
 #include <string.h>
+#ifndef __WIN32__
 #include <unistd.h>
+#else
+#include <Winsock2.h>
+#include <windows.h>
+#endif
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/stat.h>
 #include <time.h>
+#ifdef __WIN32__
+#include <sys/timeb.h>
+#else
 #include <sys/time.h>
+#endif
+
 
 #include "DIET_client.h"
 

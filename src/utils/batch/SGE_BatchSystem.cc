@@ -12,6 +12,9 @@
 
 #include "debug.hh"
 #include "SGE_BatchSystem.hh"
+#ifdef __WIN32__
+#include "mkstemp.hh"
+#endif
 
 const char *const SGE_BatchSystem::statusNames[] = {
   "E", // Error
@@ -91,15 +94,17 @@ SGE_BatchSystem::askBatchJobStatus(int batchJobID) {
 
   /* If job has completed, not ask batch system */
   status = getRecordedBatchJobStatus(batchJobID);
-  if ((status == TERMINATED) || (status == CANCELED) || (status == ERROR)) {
+  if ((status == TERMINATED) || (status == CANCELED) || (status == ERROR_JOB)) {
     return status;
   }
   /* create a temporary file to get results and batch job ID */
   filename = (char *) malloc(sizeof(char) * strlen(pathToTmp) + 30);
   sprintf(filename, "%sDIET_batch_finish.XXXXXX", pathToTmp);
+
   file_descriptor = mkstemp(filename);
+ 
   if (file_descriptor == -1) {
-    ERROR("Cannot create batch I/O redirection file", NB_STATUS);
+   ERROR_DEBUG("Cannot create batch I/O redirection file", NB_STATUS);
   }
 #if defined YC_DEBUG
   TRACE_TEXT(TRACE_ALL_STEPS, "Fichier_finish: " << filename << "\n");
@@ -123,7 +128,7 @@ SGE_BatchSystem::askBatchJobStatus(int batchJobID) {
   TRACE_TEXT(TRACE_ALL_STEPS, "Execute:\n" << chaine << "\n");
 #endif
   if (system(chaine) != 0) {
-    ERROR("Cannot submit script", NB_STATUS);
+   ERROR_DEBUG("Cannot submit script", NB_STATUS);
   }
 
   /* Get job status */
@@ -131,7 +136,7 @@ SGE_BatchSystem::askBatchJobStatus(int batchJobID) {
     chaine[i] = '\0';
   if ((nbread = readn(file_descriptor, chaine, NBDIGITS_MAX_JOB_STATUS))
       == 0) {
-    ERROR("Error with I/O file. Cannot read the batch status", NB_STATUS);
+   ERROR_DEBUG("Error with I/O file. Cannot read the batch status", NB_STATUS);
   }
   /* Adjust what have been read */
   if (chaine[nbread - 1] == '\n') {
@@ -144,7 +149,7 @@ SGE_BatchSystem::askBatchJobStatus(int batchJobID) {
   }
 
   if (i == NB_STATUS) {
-    ERROR("Cannot get batch job " << batchJobID << " status: " << chaine,
+   ERROR_DEBUG("Cannot get batch job " << batchJobID << " status: " << chaine,
           NB_STATUS);
   }
   /* Remove temporary file by closing it */
@@ -164,11 +169,11 @@ int
 SGE_BatchSystem::isBatchJobCompleted(int batchJobID) {
   int status = getRecordedBatchJobStatus(batchJobID);
 
-  if ((status == TERMINATED) || (status == CANCELED) || (status == ERROR)) {
+  if ((status == TERMINATED) || (status == CANCELED) || (status == ERROR_JOB)) {
     return 1;
   }
   status = askBatchJobStatus(batchJobID);
-  if ((status == TERMINATED) || (status == CANCELED) || (status == ERROR)) {
+  if ((status == TERMINATED) || (status == CANCELED) || (status == ERROR_JOB)) {
     return 1;
   } else if (status == NB_STATUS) {
     return -1;

@@ -13,6 +13,7 @@
 #include "GlobalSchedulers.hh"
 #include <list>
 
+
 /** Utility macro to simplify the user source code. */
 #define SCHEDULER_CLASS(T)                                      \
   extern "C" GlobalScheduler * constructor() {                   \

@@ -36,7 +36,7 @@
 class BatchSystem {
 public:
   typedef enum {
-    ERROR,
+	ERROR_JOB,
     CANCELED,
     TERMINATED,
     RUNNING,

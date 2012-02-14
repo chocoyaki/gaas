@@ -15,9 +15,9 @@
 #include <cstdlib>
 #include <cstring>
 #include <sys/types.h>
-#include <unistd.h>
 #include "debug.hh"
 #include "statistics.hh"
+#include "OSIndependance.hh"
 
 #if HAVE_STATISTICS
 
@@ -40,6 +40,31 @@ FILE *STAT_FILE = NULL;
 static int USING_STATS = 1;
 
 void
+gen_stat(int type, const char *myname, const char *message) {
+  if (STAT_FILE != NULL) {
+    struct timeval tv;
+#ifdef __WIN32__
+    struct timeval tz;
+#else
+	struct timezone tz;
+#endif
+
+    if (gettimeofday(&tv, &tz) == 0) {
+      fprintf(STAT_FILE, "%10ld.%06ld|%s|[%s] %s\n",
+              (long int) tv.tv_sec, (long int) tv.tv_usec,
+              STAT_TYPE_STRING[type], myname, message);
+
+      /* Examples of generated trace :
+       * 123456.340569|IN  |[Name of DIET component] submission.start
+       * 123456.340867|INFO|[Name of DIET component] submission.phase1
+       * 123455.345986|INFO|[Name of DIET component] submission.phase2
+       * 123456.354032|OUT |[Name of DIET component] submission.end
+       */
+    }
+  }
+} /* gen_stat */
+
+void
 do_stat_init() {
   if (STAT_FILE != NULL) {
     TRACE_TEXT(TRACE_STRUCTURES,
@@ -55,7 +80,7 @@ do_stat_init() {
           "Warning: do_stat_init() - Unable to open file " <<
           STAT_FILE_NAME
                                                            << ".\n");
-        ERROR("do_stat_init() - Check DIET_STAT_FILE_NAME env variable?", );
+        ERROR_DEBUG("do_stat_init() - Check DIET_STAT_FILE_NAME env variable?", );
       } else {
         TRACE_TEXT(TRACE_ALL_STEPS, "* Statistics collection: enabled "
                    << "(file" << STAT_FILE_NAME << ")\n");
@@ -80,7 +105,7 @@ do_stat_flush() {
         "Warning (do_stat_finalize): stats module is NOT initialized!\n");
     } else {
       if (fflush(STAT_FILE) != 0) {
-        ERROR("do_stat_flush() - Unable to flush stat file.", );
+        ERROR_DEBUG("do_stat_flush() - Unable to flush stat file.", );
       }
     }
   }
@@ -95,7 +120,7 @@ do_stat_finalize() {
         "Warning (do_stat_finalize): stats module is NOT initialized!\n");
     } else {
       if (fclose(STAT_FILE) < 0) {
-        ERROR("do_stat_finalize() - Unable to close stat file.", );
+        ERROR_DEBUG("do_stat_finalize() - Unable to close stat file.", );
       }
       STAT_FILE = NULL;
     }

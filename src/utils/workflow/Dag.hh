@@ -21,14 +21,22 @@
 #include <string>
 #include <vector>
 
+#ifdef WIN32
+#include <time.h>
+#else
 #include <sys/time.h>
+#endif
 #include "DIET_client.h"  // for diet_ReqID_t
 
 
 #include "WfNode.hh"
 #include "MasterAgent.hh"
 #include "NodeSet.hh"
-
+#ifdef WIN32
+#define DIET_API_LIB __declspec(dllexport)
+#else
+#define DIET_API_LIB
+#endif
 class FWorkflow;
 class DagNode;
 class DagNodeOutPort;
@@ -38,7 +46,7 @@ class DagScheduler;
 /*                              CLASS Dag                                    */
 /*****************************************************************************/
 
-class Dag : public NodeSet {
+class DIET_API_LIB Dag : public NodeSet {
 public:
   /*********************************************************************/
   /* constructors/destructor                                           */

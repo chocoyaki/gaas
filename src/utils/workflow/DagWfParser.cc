@@ -17,6 +17,9 @@
 
 
 #include <iostream>
+#include <string>
+#include <fstream>
+
 #include <sys/stat.h>
 
 #include <xercesc/framework/LocalFileInputSource.hpp>
@@ -29,9 +32,6 @@
 #include <xercesc/sax2/XMLReaderFactory.hpp>
 #include <xercesc/sax2/Attributes.hpp>
 #include <xercesc/dom/DOMLSParser.hpp>
-
-#include <string>
-#include <fstream>
 
 #include "debug.hh"
 #include "marshalling.hh"
@@ -46,13 +46,14 @@
 #include "EventTypes.hh"
 
 #ifndef XTOC
-#define XTOC(x) XMLString::transcode(x) // Use iff x is a XMLCh *
-#define CTOX(x) XMLString::transcode(x) // Use iff x is a char *
+#define XTOC(x) XMLString::transcode(x)  // Use iff x is a XMLCh *
+#define CTOX(x) XMLString::transcode(x)  // Use iff x is a char *
 #define XREL(x) XMLString::release(&x)
 #endif
 
 using namespace std;
 using namespace events;
+#undef interface
 
 /**
  * XML Parsing errors description
@@ -62,21 +63,29 @@ XMLParsingException::ErrorMsg() {
   std::string errorMsg;
   switch (Type()) {
   case eUNKNOWN:
-    errorMsg = "UNDEFINED ERROR (" + Info() + ")"; break;
+    errorMsg = "UNDEFINED ERROR (" + Info() + ")";
+    break;
   case eBAD_STRUCT :
-    errorMsg = "BAD XML STRUCTURE (" + Info() + ")"; break;
+    errorMsg = "BAD XML STRUCTURE (" + Info() + ")";
+    break;
   case eEMPTY_ATTR :
-    errorMsg = "MISSING DATA (" + Info() + ")"; break;
+    errorMsg = "MISSING DATA (" + Info() + ")";
+    break;
   case eUNKNOWN_TAG :
-    errorMsg = "UNKNOWN XML TAG ("+ Info() + ")"; break;
+    errorMsg = "UNKNOWN XML TAG ("+ Info() + ")";
+    break;
   case eUNKNOWN_ATTR :
-    errorMsg = "UNKNOWN XML ATTRIBUTE (" + Info() + ")"; break;
+    errorMsg = "UNKNOWN XML ATTRIBUTE (" + Info() + ")";
+    break;
   case eINVALID_REF :
-    errorMsg = "INVALID REFERENCE (" + Info() + ")"; break;
+    errorMsg = "INVALID REFERENCE (" + Info() + ")";
+    break;
   case eINVALID_DATA :
-    errorMsg = "INVALID DATA (" + Info() + ")"; break;
+    errorMsg = "INVALID DATA (" + Info() + ")";
+    break;
   case eFILENOTFOUND :
-    errorMsg = "FILE NOT FOUND (" + Info() + ")"; break;
+    errorMsg = "FILE NOT FOUND (" + Info() + ")";
+    break;
   }
   return errorMsg;
 }
@@ -85,14 +94,16 @@ XMLParsingException::ErrorMsg() {
  * Error handler for workflow parser
  */
 bool
-MyDOMErrorHandler::handleError (const DOMError &domError) {
+MyDOMErrorHandler::handleError(const DOMError &domError) {
   char* errorMsg = XTOC(domError.getMessage());
   WARNING("XML Error: " << errorMsg);
   XREL(errorMsg);
-  if (domError.getSeverity() == DOMError::DOM_SEVERITY_WARNING)
+  if (domError.getSeverity() == DOMError::DOM_SEVERITY_WARNING) {
     return true;
-  else  // exceptions cannot be thrown here - parser *should* stop if false
+  } else {
+    // exceptions cannot be thrown here - parser *should* stop if false
     return false;
+  }
 }
 
 /**
@@ -103,7 +114,7 @@ DagWfParser::DagWfParser() : content() {
 DagWfParser::DagWfParser(const char * wf_desc) : content(wf_desc) {
 }
 DagWfParser::DagWfParser(const std::string& fileName)
-  : content (), myXmlFileName(fileName) {
+  : content(), myXmlFileName(fileName) {
 }
 
 DagWfParser::~DagWfParser() {
@@ -117,21 +128,26 @@ DagWfParser::parseXml(bool checkValid) {
   const XMLCh gLS[] = { chLatin_L, chLatin_S, chNull };
 
   TRACE_TEXT(TRACE_ALL_STEPS, "INITIALIZE XML PARSER" << endl);
-  DOMImplementation *impl = DOMImplementationRegistry::getDOMImplementation(gLS);
-  DOMLSParser *parser = impl->createLSParser(DOMImplementationLS::MODE_SYNCHRONOUS, 0);
+  DOMImplementation *impl =
+    DOMImplementationRegistry::getDOMImplementation(gLS);
+  DOMLSParser *parser =
+    impl->createLSParser(DOMImplementationLS::MODE_SYNCHRONOUS, 0);
   MyDOMErrorHandler* errHandler = new MyDOMErrorHandler();
 
   // Validation
-  if (parser->getDomConfig()->canSetParameter(XMLUni::fgDOMValidateIfSchema, true)) {
+  if (parser->getDomConfig()->canSetParameter(XMLUni::fgDOMValidateIfSchema,
+                                              true)) {
     TRACE_TEXT(TRACE_ALL_STEPS, "Activating XML Validation" << endl);
     parser->getDomConfig()->setParameter(XMLUni::fgDOMValidateIfSchema, true);
-    parser->getDomConfig()->setParameter(XMLUni::fgXercesValidationErrorAsFatal, true);
+    parser->getDomConfig()->setParameter(XMLUni::fgXercesValidationErrorAsFatal,
+                                         true);
   } else {
     TRACE_TEXT(TRACE_ALL_STEPS, "XML Validation cannot be activated" << endl);
   }
 
   // Error handler
-  if (parser->getDomConfig()->canSetParameter(XMLUni::fgDOMErrorHandler, errHandler)) {
+  if (parser->getDomConfig()->canSetParameter(XMLUni::fgDOMErrorHandler,
+                                              errHandler)) {
     TRACE_TEXT(TRACE_ALL_STEPS, "Activating XML Error handler" << endl);
     parser->getDomConfig()->setParameter(XMLUni::fgDOMErrorHandler, errHandler);
   } else {
@@ -142,7 +158,6 @@ DagWfParser::parseXml(bool checkValid) {
   Wrapper4InputSource * wrapper;
   std::string errorMsgPfx;
   if (!content.empty()) {
-
     // INITIALIZE FROM BUFFER
     static const char * content_id = "workflow_description";
     MemBufInputSource* memBufIS = new MemBufInputSource
@@ -155,7 +170,6 @@ DagWfParser::parseXml(bool checkValid) {
     wrapper = new Wrapper4InputSource(memBufIS);
 
   } else if (!myXmlFileName.empty()) {
-
     // INITIALIZE FROM FILE
     TRACE_TEXT(TRACE_ALL_STEPS, "PARSING FROM FILE: " << myXmlFileName << endl);
     errorMsgPfx = "In file " + myXmlFileName + " : ";
@@ -177,21 +191,24 @@ DagWfParser::parseXml(bool checkValid) {
     throw XMLParsingException(XMLParsingException::eUNKNOWN, "");
   }
 
-  if (document == NULL)
+  if (document == NULL) {
     throw XMLParsingException(XMLParsingException::eFILENOTFOUND,
                               myXmlFileName);
+  }
 
   // Check if DTD was provided
   if (checkValid && !document->getDoctype()) {
     WARNING(errorMsgPfx << "XML is not validated (no DTD provided)\n"
-            << "Use <!DOCTYPE workflow SYSTEM \"[DIET_INSTALL_DIR]/share/diet/FWorkflow.dtd\">"
+            << "Use <!DOCTYPE workflow SYSTEM "
+            << "\"[DIET_INSTALL_DIR]/share/diet/FWorkflow.dtd\">"
             << " instruction to provide it");
   }
 
   DOMNode * root = (DOMNode*)(document->getDocumentElement());
-  if (root == NULL)
+  if (root == NULL) {
     throw XMLParsingException(XMLParsingException::eUNKNOWN,
                               "No details available");
+  }
 
   // Parse the root element
   parseRoot(root);
@@ -205,8 +222,8 @@ DagWfParser::parseXml(bool checkValid) {
  * parse a node element
  */
 void
-DagWfParser::parseNode (const DOMElement * element,
-                        const std::string& elementName) {
+DagWfParser::parseNode(const DOMElement * element,
+                       const std::string& elementName) {
   // parse the node start element and its attributes
   WfNode * newNode = this->createNode(element, elementName);
   // parse the node sub-elements
@@ -221,20 +238,18 @@ DagWfParser::parseNode (const DOMElement * element,
 
       if (child_name == "arg") {
         parseArg(child_elt, lastArg++, newNode);
-      } else
-        if (child_name == "in") {
-          parseIn(child_elt, lastArg++, newNode);
-        } else
-          if (child_name == "inOut") {
-            parseInOut(child_elt, lastArg++, newNode);
-          } else
-            if (child_name == "out") {
-              parseOut(child_elt, lastArg++, newNode);
-            } else
-              parseOtherNodeSubElt(child_elt, child_name, lastArg, newNode);
+      } else if (child_name == "in") {
+        parseIn(child_elt, lastArg++, newNode);
+      } else if (child_name == "inOut") {
+        parseInOut(child_elt, lastArg++, newNode);
+      } else if (child_name == "out") {
+        parseOut(child_elt, lastArg++, newNode);
+      } else {
+        parseOtherNodeSubElt(child_elt, child_name, lastArg, newNode);
+      }
     }
     child = child->getNextSibling();
-  } // end while
+  }  // end while
 }
 
 /**
@@ -258,10 +273,12 @@ DagWfParser::parseArg(const DOMElement * element, unsigned int lastArg,
   }
   // set the value
   DagNodeArgPort * dagPort = dynamic_cast<DagNodeArgPort*>(port);
-  if (dagPort)
+  if (dagPort) {
     dagPort->setValue(value);
-  else throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
-                                 "value attribute not valid for other ports than <arg> port");
+  } else {
+    throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
+                              "value attribute not valid for other ports than <arg> port");
+  }
 
   return port;
 }
@@ -286,10 +303,13 @@ DagWfParser::parseIn(const DOMElement * element, unsigned int lastArg,
   } else {
     port = createMatrixPort(element, WfPort::PORT_IN, name, lastArg, node);
   }
-  if (!source.empty())
+  if (!source.empty()) {
     port->setConnectionRef(source);
-  if (!interface.empty())
+  }
+  if (!interface.empty()) {
     port->setInterfaceRef(interface);
+  }
+
   return port;
 }
 
@@ -312,8 +332,10 @@ DagWfParser::parseInOut(const DOMElement * element, unsigned int lastArg,
   } else {
     port = createMatrixPort(element, WfPort::PORT_INOUT, name, lastArg, node);
   }
-  if (!source.empty())
+  if (!source.empty()) {
     port->setConnectionRef(source);
+  }
+
   return port;
 }
 
@@ -338,14 +360,17 @@ DagWfParser::parseOut(const DOMElement * element, unsigned int lastArg,
   } else {
     port = createMatrixPort(element, WfPort::PORT_OUT, name, lastArg, node);
   }
-  if (!sink.empty())
+  if (!sink.empty()) {
     port->setConnectionRef(sink);
-  if (!interface.empty())
+  }
+  if (!interface.empty()) {
     port->setInterfaceRef(interface);
+  }
   if (!dataId.empty()) {
     DagNodePort *DPort = dynamic_cast<DagNodePort*>(port);
     DPort->setDataID(dataId);
   }
+
   return port;
 }
 
@@ -354,11 +379,11 @@ DagWfParser::parseOut(const DOMElement * element, unsigned int lastArg,
  */
 WfPort *
 DagWfParser::createPort(const WfPort::WfPortType param_type,
-                         const std::string& name,
-                         const std::string& type,
-                         const std::string& depth,
-                         unsigned int lastArg,
-                         WfNode * node) {
+                        const std::string& name,
+                        const std::string& type,
+                        const std::string& depth,
+                        unsigned int lastArg,
+                        WfNode * node) {
   // Get the base type and the depth of the list structure (syntax 'LIST(LIST(<basetype>))')
   unsigned int typeDepth = 0;
   std::string curType = type;
@@ -369,22 +394,28 @@ DagWfParser::createPort(const WfPort::WfPortType param_type,
     ++typeDepth;
   }
   short baseType = WfCst::cvtStrToWfType(curType);
-  if (baseType == WfCst::TYPE_UNKNOWN)
+  if (baseType == WfCst::TYPE_UNKNOWN) {
     throw XMLParsingException(XMLParsingException::eINVALID_DATA,
                               "Unknown data type : "+type);
+  }
+
   // Use depth attribute (second syntax)
-  if (!depth.empty())
+  if (!depth.empty()) {
     typeDepth = atoi(depth.c_str());
+  }
+
   TRACE_TEXT(TRACE_ALL_STEPS, "Creating new port '" << name
-              << "' (base type=" << curType
-              << " , depth=" << typeDepth << " , idx=" << lastArg << ")" << endl);
+             << "' (base type=" << curType
+             << " , depth=" << typeDepth << " , idx=" << lastArg
+             << ")" << endl);
 
   // Initialize the profile with the appropriate parameter type
   // (and optionnally value: used only for Arg ports)
 
   WfPort *port;
   try {
-    port = node->newPort(name, lastArg, param_type, (WfCst::WfDataType) baseType, typeDepth);
+    port = node->newPort(name, lastArg, param_type,
+                         (WfCst::WfDataType) baseType, typeDepth);
   } catch (WfStructException& e) {
     throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
                               "Cannot create port : "+e.ErrorMsg());
@@ -455,9 +486,11 @@ DagParser::setCurrentDag(Dag& dag) {
 void
 DagParser::parseOneDag(DOMNode* root) {
   char * rootNodeName = XTOC(root->getNodeName());
-  if (strcmp(rootNodeName, "dag"))
+  if (strcmp(rootNodeName, "dag")) {
     throw XMLParsingException(XMLParsingException::eUNKNOWN_TAG,
                               "XML for DAG should begin with <dag>");
+  }
+
   XREL(rootNodeName);
   DOMNode * child = root->getFirstChild();
   while ((child != NULL)) {
@@ -476,11 +509,12 @@ DagParser::parseOneDag(DOMNode* root) {
       this->parseNode(child_elt, nodeName);
     }
     child = child->getNextSibling();
-  } // end while
+  }  // end while
 }
 
 WfNode *
-DagParser::createNode(const DOMElement* element, const std::string& elementName) {
+DagParser::createNode(const DOMElement* element,
+                      const std::string& elementName) {
   if (!myCurrDag) {
     INTERNAL_ERROR(__FUNCTION__ << "Null dag pointer" << endl, 1);
   }
@@ -499,10 +533,13 @@ DagParser::createNode(const DOMElement* element, const std::string& elementName)
                               "Cannot create node : "+e.ErrorMsg());
   }
   node->setPbName(pbName);
-  if (!estClass.empty())
+  if (!estClass.empty()) {
     node->setEstimationClass(estClass);
-  if (!status.empty())
+  }
+  if (!status.empty()) {
     node->setStatus(status);
+  }
+
   return node;
 }
 
@@ -513,9 +550,10 @@ DagParser::parseOtherNodeSubElt(const DOMElement * element,
                                 WfNode * node) {
   if (elementName == "prec") {
     parsePrec(element, node);
-  } else
+  } else {
     throw XMLParsingException(XMLParsingException::eUNKNOWN_TAG,
                               "Invalid tag within node (" + elementName + ")");
+  }
 }
 
 void
@@ -575,7 +613,7 @@ void
 MultiDagParser::parseRoot(DOMNode* root) {
   // Check root element
   char * _rootNodeName = XTOC(root->getNodeName());
-  if (strcmp (_rootNodeName, "dags")) {
+  if (strcmp(_rootNodeName, "dags")) {
     throw XMLParsingException(XMLParsingException::eUNKNOWN_TAG,
                               "XML for MultiDAG should begin with <dags>");
   }
@@ -628,7 +666,8 @@ FWfParser::~FWfParser() {
 std::string
 FWfParser::getWfClassName(const std::string& fileName) {
   std::string::size_type lastSlash = fileName.rfind("/");
-  std::string::size_type start = (lastSlash == std::string::npos) ? 0 : lastSlash+1;
+  std::string::size_type start =
+    (lastSlash == std::string::npos) ? 0 : lastSlash+1;
   std::string::size_type suffix = fileName.rfind(".xml");
   std::string::size_type end = (suffix == std::string::npos) ? 0 : suffix-1;
   return fileName.substr(start, end-start+1);
@@ -641,7 +680,7 @@ void
 FWfParser::parseRoot(DOMNode* root) {
   // Check the root node
   char * _rootNodeName = XMLString::transcode(root->getNodeName());
-  if (strcmp (_rootNodeName, "workflow")) {
+  if (strcmp(_rootNodeName, "workflow")) {
     throw XMLParsingException(XMLParsingException::eUNKNOWN_TAG,
                               "XML for Functional Workflow should begin with <workflow>");
   }
@@ -667,7 +706,8 @@ FWfParser::parseRoot(DOMNode* root) {
         }
       } else if (nodeName == "interface") {
         // Parse the interface
-        DOMNode * child2 = child->getFirstChild();  // sub-element of <interface>
+        // sub-element of <interface>
+        DOMNode * child2 = child->getFirstChild();
         while ((child2 != NULL)) {
           if (child2->getNodeType() == DOMNode::ELEMENT_NODE) {
             DOMElement * child_elt2 = (DOMElement*)child2;
@@ -679,10 +719,11 @@ FWfParser::parseRoot(DOMNode* root) {
             parseNode(child_elt2, nodeName2);
           }
           child2 = child2->getNextSibling();
-        } // end while
+        }  // end while
       } else if (nodeName == "processors") {
         // Parse the processors
-        DOMNode * child2 = child->getFirstChild();  // sub-element of <processors>
+        // sub-element of <processors>
+        DOMNode * child2 = child->getFirstChild();
         while ((child2 != NULL)) {
           if (child2->getNodeType() == DOMNode::ELEMENT_NODE) {
             DOMElement * child_elt2 = (DOMElement*)child2;
@@ -694,7 +735,7 @@ FWfParser::parseRoot(DOMNode* root) {
             parseNode(child_elt2, nodeName2);
           }
           child2 = child2->getNextSibling();
-        } // end while
+        }  // end while
       } else if (nodeName == "links") {
         // Parse the links
         DOMNode * child2 = child->getFirstChild();  // sub-element of <links>
@@ -709,21 +750,23 @@ FWfParser::parseRoot(DOMNode* root) {
             parseLink(child_elt2);
           }
           child2 = child2->getNextSibling();
-        } // end while
+        }  // end while
       } else {
         throw XMLParsingException(XMLParsingException::eUNKNOWN_TAG,
-                                  "Invalid element within <workflow> element (" + nodeName + ")");
+                                  "Invalid element within <workflow> element ("
+                                  + nodeName + ")");
       }
     }
     child = child->getNextSibling();
-  } // end while
+  }  // end while
 }
 
 /**
  * Workflow node creation for functional wf
  */
 WfNode *
-FWfParser::createNode(const DOMElement* element, const std::string& elementName) {
+FWfParser::createNode(const DOMElement* element,
+                      const std::string& elementName) {
   std::string name = getAttributeValue("name", element);
   std::string type = getAttributeValue("type", element);
   std::string depth = getAttributeValue("depth", element);
@@ -735,31 +778,37 @@ FWfParser::createNode(const DOMElement* element, const std::string& elementName)
   short dataType = 0;
   if (!type.empty()) {
     dataType = WfCst::cvtStrToWfType(type);
-    if (dataType == WfCst::TYPE_UNKNOWN)
+    if (dataType == WfCst::TYPE_UNKNOWN) {
       throw XMLParsingException(XMLParsingException::eINVALID_DATA,
                                 "Unknown data type : "+type);
+    }
   }
   // Convert depth
   unsigned int typeDepth = 0;
-  if (!depth.empty())
+  if (!depth.empty()) {
     typeDepth = atoi(depth.c_str());
+  }
   // Create node depending on element name
   WfNode * node;
   if (elementName == "source") {
     checkMandatoryAttr(elementName, "type", type);
-    node = workflow.createSource(name,(WfCst::WfDataType) dataType);
+    node = workflow.createSource(name, (WfCst::WfDataType) dataType);
 
   } else if (elementName == "constant") {
     string dataID = getAttributeValue("dataId", element);
     checkMandatoryAttr(elementName, "type", type);
-    if (!depth.empty())
+    if (!depth.empty()) {
       throw XMLParsingException(XMLParsingException::eUNKNOWN_ATTR,
                                 "Attribute depth is not applicable to constant tag");
-    FConstantNode* cstNode = workflow.createConstant(name,(WfCst::WfDataType) dataType);
-    if (!value.empty())
+    }
+    FConstantNode* cstNode =
+      workflow.createConstant(name, (WfCst::WfDataType) dataType);
+    if (!value.empty()) {
       cstNode->setValue(value);
-    if (!dataID.empty())
+    }
+    if (!dataID.empty()) {
       cstNode->setDataID(dataID);
+    }
     node = (WfNode*) cstNode;
 
   } else if (elementName == "sink") {
@@ -784,10 +833,14 @@ FWfParser::createNode(const DOMElement* element, const std::string& elementName)
   } else if (elementName == "subWorkflow") {
     // initialize workflow from XML file defined in the <include> tag
     checkMandatoryAttr(elementName, "class", nclass);
-    std::map<std::string, std::string>::iterator classIter = myClassFiles.find(nclass);
-    if (classIter == myClassFiles.end())
+    std::map<std::string, std::string>::iterator classIter =
+      myClassFiles.find(nclass);
+    if (classIter == myClassFiles.end()) {
       throw XMLParsingException(XMLParsingException::eINVALID_REF,
-                                "Unknown workflow class (missing include) : " + nclass);
+                                "Unknown workflow class (missing include) : "
+                                + nclass);
+    }
+
     // Create sub-workflow and parse the workflow XML
     std::string xmlWfFileName = (std::string) classIter->second;
     FWorkflow*  subWf = workflow.createSubWorkflow(name, nclass);
@@ -802,9 +855,11 @@ FWfParser::createNode(const DOMElement* element, const std::string& elementName)
     throw XMLParsingException(XMLParsingException::eUNKNOWN_TAG,
                               "Invalid element : " + elementName);
   }
-  if (node == NULL)
+  if (node == NULL) {
     throw XMLParsingException(XMLParsingException::eINVALID_REF,
                               "Duplicate node id : " + name);
+  }
+
   return node;
 }
 
@@ -872,9 +927,11 @@ FWfParser::parseParamPort(const DOMElement * element,
   checkMandatoryAttr("param", "type", name);
   checkLeafElement(element, "param");
 
-  if (WfCst::isMatrixType(type))
+  if (WfCst::isMatrixType(type)) {
     throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
                               "param port cannot have a matrix type");
+  }
+
   return createPort(WfPort::PORT_PARAM, name, type, "0", lastArg, node);
 }
 
@@ -885,7 +942,8 @@ void
 FWfParser::parseCardAttr(const DOMElement * element, WfPort* port) {
   const XMLCh * strCard  = element->getAttribute(XMLString::transcode("card"));
   // parse the semi-column separated list
-  XMLStringTokenizer *tkizer = new XMLStringTokenizer(strCard, XMLString::transcode(";"));
+  XMLStringTokenizer *tkizer =
+    new XMLStringTokenizer(strCard, XMLString::transcode(";"));
   list<std::string> * tklist = new list<std::string>();
   while (tkizer->hasMoreTokens()) {
     const char *item = XMLString::transcode(tkizer->nextToken());
@@ -926,10 +984,12 @@ FWfParser::parseLink(const DOMElement * element) {
  * Returns the node reference, and set the node name and the port name
  */
 FNode *
-FWfParser::parseLinkRef(const std::string& strRef, std::string& nodeName, std::string& portName) {
+FWfParser::parseLinkRef(const std::string& strRef,
+                        std::string& nodeName,
+                        std::string& portName) {
   FNode *node;
   std::string::size_type nodeSep = strRef.find(":");
-  if (nodeSep != std::string::npos) { // for processor nodes
+  if (nodeSep != std::string::npos) {  // for processor nodes
     nodeName = strRef.substr(0, nodeSep);
     portName = strRef.substr(nodeSep+1, strRef.length()-nodeSep-1);
     node = workflow.getProcNode(nodeName);
@@ -962,37 +1022,52 @@ FWfParser::parseIterationStrategy(const DOMElement * element,
         std::string portName = getAttributeValue("name", child_elt);
         checkMandatoryAttr("port", "name", portName);
         inputIds->push_back(portName);
-      } else
+      } else {
         if (child_name == "match") {
           std::vector<string>* opInputIds = parseIterationStrategy(child_elt, procNode);
-          if (opInputIds->size() > 2)
+          if (opInputIds->size() > 2) {
             throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
                                       "MATCH iterator only accepts 2 input ports");
-          const string& opId = procNode->createInputOperator(FProcNode::OPER_MATCH, *opInputIds);
+          }
+
+          const string& opId =
+            procNode->createInputOperator(FProcNode::OPER_MATCH, *opInputIds);
           inputIds->push_back(opId);
           delete opInputIds;
-        } else
+        } else {
           if (child_name == "cross") {
-            std::vector<std::string>* opInputIds = parseIterationStrategy(child_elt, procNode);
-            const std::string& opId = procNode->createInputOperator(FProcNode::OPER_CROSS, *opInputIds);
+            std::vector<std::string>* opInputIds =
+              parseIterationStrategy(child_elt, procNode);
+            const std::string& opId =
+              procNode->createInputOperator(FProcNode::OPER_CROSS, *opInputIds);
             inputIds->push_back(opId);
             delete opInputIds;
-          } else
+          } else {
             if (child_name == "flatcross") {
-              std::vector<std::string>* opInputIds = parseIterationStrategy(child_elt, procNode);
-              const std::string& opId = procNode->createInputOperator(FProcNode::OPER_FLATCROSS, *opInputIds);
+              std::vector<std::string>* opInputIds =
+                parseIterationStrategy(child_elt, procNode);
+              const std::string& opId =
+                procNode->createInputOperator(FProcNode::OPER_FLATCROSS,
+                                              *opInputIds);
               inputIds->push_back(opId);
               delete opInputIds;
-            } else
+            } else {
               if (child_name == "dot") {
-                std::vector<std::string>* opInputIds = parseIterationStrategy(child_elt, procNode);
-                const std::string& opId = procNode->createInputOperator(FProcNode::OPER_DOT, *opInputIds);
+                std::vector<std::string>* opInputIds =
+                  parseIterationStrategy(child_elt, procNode);
+                const std::string& opId =
+                  procNode->createInputOperator(FProcNode::OPER_DOT,
+                                                *opInputIds);
                 inputIds->push_back(opId);
                 delete opInputIds;
               }
-    }
+            }
+          }
+        }
+      }
+    }  // end if (child->getNodeType() == DOMNode::ELEMENT_NODE)
     child = child->getNextSibling();
-  } // end while
+  }  // end while
   return inputIds;
 }
 
@@ -1007,9 +1082,11 @@ FWfParser::parseOtherNodeSubElt(const DOMElement * element,
   // Diet service
   if (elementName == "diet") {
     FActivityNode* aNode = dynamic_cast<FActivityNode*>(node);
-    if (!aNode)
+    if (!aNode) {
       throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
                                 "<diet> element applied to non-activity element");
+    }
+
     // PATH attribute
     std::string path = getAttributeValue("path", element);
     checkMandatoryAttr("diet", "path", path);
@@ -1026,35 +1103,43 @@ FWfParser::parseOtherNodeSubElt(const DOMElement * element,
       aNode->setDIETEstimationOption(estimAttr);
     }
   } else if ((elementName == "beanshell") || (elementName == "gasw")) {
-   ;  // tags used by other workflow engines
+    // tags used by other workflow engines
     // VALUE of constants (may be replaced by a 'value' attribute within
     //  the <constant> tag)
   } else if (elementName == "value") {
     FConstantNode* cstNode = dynamic_cast<FConstantNode*>(node);
-    if (!cstNode)
+    if (!cstNode) {
       throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
                                 "<value> element defined outside a <constant>");
+    }
+
     std::string value;
     getTextContent(element, value);
     cstNode->setValue(value);
   } else if (elementName == "iterationstrategy") {
     FProcNode* procNode = dynamic_cast<FProcNode*>(node);
-    if (!procNode)
+    if (!procNode) {
       throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
                                 "<iterationstrategy> element applied to non-processor element");
+    }
+
     std::vector<std::string>* opInputId = parseIterationStrategy(element, procNode);
-    if (opInputId->size() != 1)
+    if (opInputId->size() != 1) {
       throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
                                 "<iterationstrategy> contains more than one root operator");
+    }
+
     procNode->setRootInputOperator((*opInputId)[0]);
     delete opInputId;
   } else if (elementName == "param") {
     parseParamPort(element, portIndex++, node);
   } else if (elementName == "if") {
     FIfNode* ifNode = dynamic_cast<FIfNode*>(node);
-    if (!ifNode)
+    if (!ifNode) {
       throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
                                 "<if> element applied to non-conditional element");
+    }
+
     std::string condition;
     getTextContent(element, condition);
     try {
@@ -1065,21 +1150,27 @@ FWfParser::parseOtherNodeSubElt(const DOMElement * element,
     }
   } else if (elementName == "outThen") {
     FIfNode* ifNode = dynamic_cast<FIfNode*>(node);
-    if (!ifNode)
+    if (!ifNode) {
       throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
                                 "<outThen> element applied to non-conditional element");
+    }
+
     parsePortCommon(element, portIndex++, ifNode, "outThen", WfPort::PORT_OUT_THEN);
   } else if (elementName == "outElse") {
     FIfNode* ifNode = dynamic_cast<FIfNode*>(node);
-    if (!ifNode)
+    if (!ifNode) {
       throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
                                 "<outElse> element applied to non-conditional element");
+    }
+
     parsePortCommon(element, portIndex++, ifNode, "outElse", WfPort::PORT_OUT_ELSE);
   } else if (elementName == "then") {
     FIfNode* ifNode = dynamic_cast<FIfNode*>(node);
-    if (!ifNode)
+    if (!ifNode) {
       throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
                                 "<then> element applied to non-conditional element");
+    }
+
     std::string thenMapStr;
     getTextContent(element, thenMapStr);
     std::map<std::string, std::string>  thenMap;
@@ -1091,9 +1182,11 @@ FWfParser::parseOtherNodeSubElt(const DOMElement * element,
     }
   } else if (elementName == "else") {
     FIfNode* ifNode = dynamic_cast<FIfNode*>(node);
-    if (!ifNode)
+    if (!ifNode) {
       throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
                                 "<else> element applied to non-conditional element");
+    }
+
     std::string elseMapStr;
     getTextContent(element, elseMapStr);
     std::map<std::string, std::string>  elseMap;
@@ -1105,9 +1198,11 @@ FWfParser::parseOtherNodeSubElt(const DOMElement * element,
     }
   } else if (elementName == "while") {
     FLoopNode* loopNode = dynamic_cast<FLoopNode*>(node);
-    if (!loopNode)
+    if (!loopNode) {
       throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
                                 "<while> element applied to non-loop element");
+    }
+
     std::string condition;
     getTextContent(element, condition);
     try {
@@ -1118,29 +1213,37 @@ FWfParser::parseOtherNodeSubElt(const DOMElement * element,
     }
   } else if (elementName == "inLoop") {
     FLoopNode* loopNode = dynamic_cast<FLoopNode*>(node);
-    if (!loopNode)
+    if (!loopNode) {
       throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
                                 "<inLoop> element applied to non-loop element");
-    WfPort *lPort = parsePortCommon(element, portIndex++, loopNode, "inLoop", WfPort::PORT_IN_LOOP);
+    }
+
+    WfPort *lPort = parsePortCommon(element, portIndex++, loopNode,
+                                    "inLoop", WfPort::PORT_IN_LOOP);
     // INIT attribute
     std::string init = getAttributeValue("init", element);
     checkMandatoryAttr("inLoop", "init", init);
     lPort->setInterfaceRef(init);
   } else if (elementName == "outLoop") {
     FLoopNode* loopNode = dynamic_cast<FLoopNode*>(node);
-    if (!loopNode)
+    if (!loopNode) {
       throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
                                 "<outLoop> element applied to non-loop element");
-    WfPort *lPort = parsePortCommon(element, portIndex++, loopNode, "outLoop", WfPort::PORT_OUT_LOOP);
+    }
+
+    WfPort *lPort = parsePortCommon(element, portIndex++, loopNode,
+                                    "outLoop", WfPort::PORT_OUT_LOOP);
     // FINAL attribute
     std::string final = getAttributeValue("final", element);
     checkMandatoryAttr("inLoop", "final", final);
     lPort->setInterfaceRef(final);
   } else if (elementName == "do") {
     FLoopNode* loopNode = dynamic_cast<FLoopNode*>(node);
-    if (!loopNode)
+    if (!loopNode) {
       throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
                                 "<do> element applied to non-loop element");
+    }
+
     std::string doMapStr;
     getTextContent(element, doMapStr);
     std::map<std::string, std::string>  doMap;
@@ -1168,19 +1271,22 @@ DataSourceParser::~DataSourceParser() {
 }
 
 void
-DataSourceParser::parseXml(const std::string& dataFileName) throw(XMLParsingException) {
+DataSourceParser::parseXml(const std::string& dataFileName)
+  throw(XMLParsingException) {
   //   const XMLCh gLS[] = { chLatin_L, chLatin_S, chNull };
 
   TRACE_TEXT(TRACE_ALL_STEPS, "PARSING XML START" << endl);
 
-  if (dataFileName.empty())
+  if (dataFileName.empty()) {
     throw XMLParsingException(XMLParsingException::eINVALID_DATA,
                               "Empty XML File name");
+  }
 
   struct stat buffer;
-  if (stat(dataFileName.c_str(), &buffer))
+  if (stat(dataFileName.c_str(), &buffer)) {
     throw XMLParsingException(XMLParsingException::eFILENOTFOUND,
                               "XML File '" + dataFileName + "' does not exist");
+  }
 
 
   SAX2XMLReader* parser = XMLReaderFactory::createXMLReader();
@@ -1225,11 +1331,21 @@ DataSourceHandler::startElement(const   XMLCh* const    uri,
                                 const   Attributes&     attrs) {
   char* eltName = XTOC(qname);
 
-  if (strcmp("source", eltName) == 0) startSource(attrs);
-  if (strcmp("array", eltName) == 0)  startList(attrs);
-  if (strcmp("list", eltName) == 0)   startList(attrs);  // obsolete
-  if (strcmp("item", eltName) == 0)   startItem(attrs);
-  if (strcmp("tag", eltName) == 0)    startTag(attrs);
+  if (strcmp("source", eltName) == 0) {
+    startSource(attrs);
+  }
+  if (strcmp("array", eltName) == 0) {
+    startList(attrs);
+  }
+  if (strcmp("list", eltName) == 0) {
+    startList(attrs);  // obsolete
+  }
+  if (strcmp("item", eltName) == 0) {
+    startItem(attrs);
+  }
+  if (strcmp("tag", eltName) == 0) {
+    startTag(attrs);
+  }
 
   XREL(eltName);
 }
@@ -1240,11 +1356,21 @@ DataSourceHandler::endElement(const   XMLCh* const    uri,
                               const   XMLCh* const    qname) {
   char* eltName = XTOC(qname);
 
-  if (strcmp("source", eltName) == 0) endSource();
-  if (strcmp("array", eltName) == 0)  endList();
-  if (strcmp("list", eltName) == 0)   endList();  // obsolete
-  if (strcmp("item", eltName) == 0)   endItem();
-  if (strcmp("tag", eltName) == 0)    endTag();
+  if (strcmp("source", eltName) == 0) {
+    endSource();
+  }
+  if (strcmp("array", eltName) == 0) {
+    endList();
+  }
+  if (strcmp("list", eltName) == 0) {
+    endList();  // obsolete
+  }
+  if (strcmp("item", eltName) == 0) {
+    endItem();
+  }
+  if (strcmp("tag", eltName) == 0) {
+    endTag();
+  }
 
   XREL(eltName);
 }
@@ -1277,10 +1403,10 @@ DataSourceHandler::endSource() {
 void
 DataSourceHandler::startList(const   Attributes&     attrs) {
   if (isSourceFound) {
-
     // only one <list> element (root tag) is possible
     if (isListFound && myCurrTag && myCurrTag->isEmpty()) {
-      std::string errorMsg = "Error in data source XML file (source must contain one array element)";
+      std::string errorMsg =
+        "Error in data source XML file (source must contain one array element)";
       throw XMLParsingException(XMLParsingException::eBAD_STRUCT, errorMsg);
     }
 
@@ -1297,8 +1423,9 @@ DataSourceHandler::startList(const   Attributes&     attrs) {
 
     // create my data handle & insert in the data tree
     myCurrListDH = myNode->createList(*myTag);
-    if (!myTag->isEmpty())
+    if (!myTag->isEmpty()) {
       myNode->insertData(myCurrListDH);
+    }
 
     // create tag for first child
     myCurrTag = new FDataTag(*myTag, 0, false);
@@ -1329,8 +1456,9 @@ void
 DataSourceHandler::endList() {
   if (isListFound) {
     myCurrTag->getParent();
-    if (!myCurrTag->isEmpty())
+    if (!myCurrTag->isEmpty()) {
       myCurrTag->getSuccessor();
+    }
   }
 }
 
@@ -1362,8 +1490,8 @@ DataSourceHandler::startItem(const   Attributes&     attrs) {
 }
 
 void
-DataSourceHandler::characters (const  XMLCh* const     chars,
-                               const  XMLSize_t     length) {
+DataSourceHandler::characters(const  XMLCh* const     chars,
+                              const  XMLSize_t     length) {
   // note that this test will work only for small chunks of text (only one call
   // of the handler)
   if (isItemFound) {
@@ -1377,10 +1505,12 @@ void
 DataSourceHandler::endItem() {
   if (isItemFound) {
     // update data ID and value
-    if (!myCurrItemDataID.empty())
+    if (!myCurrItemDataID.empty()) {
       myNode->setDataID(myCurrItemDH, myCurrItemDataID);
-    if (!myCurrItemValue.empty())
+    }
+    if (!myCurrItemValue.empty()) {
       myNode->setDataValue(myCurrItemDH, myCurrItemValue);
+    }
 
     myCurrTag->getSuccessor();
     isItemFound = false;
@@ -1406,15 +1536,16 @@ DataSourceHandler::startTag(const   Attributes&     attrs) {
     }
     // get the right current data handle
     FDataHandle* currDH = NULL;
-    if (isItemFound)
+    if (isItemFound) {
       currDH = myCurrItemDH;
-    else if (isListFound)
+    } else if (isListFound) {
       currDH = myCurrListDH;
+    }
 
     // store tag as DH property
-    if (currDH)
+    if (currDH) {
       currDH->addProperty(currTagKey, currTagValue);
-    else {
+    } else {
       INTERNAL_ERROR("Cannot store data tag: no current data", 1);
     }
   }
@@ -1432,8 +1563,7 @@ DataSourceHandler::fatalError(const SAXParseException& e) {
 }
 
 void
-DataSourceHandler::warning(const SAXParseException& e)
-{
+DataSourceHandler::warning(const SAXParseException& e) {
   std::string errorMsg = "Warning in data source XML file (line "
     + itoa(e.getLineNumber()) + ")";
   throw XMLParsingException(XMLParsingException::eBAD_STRUCT, errorMsg);
@@ -1469,9 +1599,11 @@ void
 DagWfParser::checkMandatoryAttr(const std::string& tagName,
                                 const std::string& attrName,
                                 const std::string& attrValue) {
-  if (attrValue.empty())
+  if (attrValue.empty()) {
     throw XMLParsingException(XMLParsingException::eEMPTY_ATTR,
-                              "Attribute " + attrName + " of tag " + tagName + " is empty");
+                              "Attribute " + attrName + " of tag "
+                              + tagName + " is empty");
+  }
 }
 
 /**
@@ -1491,11 +1623,14 @@ DagWfParser::getTextContent(const DOMElement * element, std::string& buffer) {
 }
 
 void
-DagWfParser::checkLeafElement(const DOMElement * element, const std::string& tagName) {
-  if (element->getFirstChild() != NULL)
+DagWfParser::checkLeafElement(const DOMElement * element,
+                              const std::string& tagName) {
+  if (element->getFirstChild() != NULL) {
     throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
-                              "The element '" + tagName +  "' does not accept a child element. \
+                              "The element '" + tagName
+                              +  "' does not accept a child element. \
           May be a </" + tagName + "> is forgotten");
+  }
 }
 
 /**
@@ -1507,9 +1642,13 @@ DagWfParser::stringTrim(std::string& str) {
   if (pos != std::string::npos) {
     str.erase(pos + 1);
     pos = str.find_first_not_of(' ');
-    if (pos != std::string::npos) str.erase(0, pos);
+    if (pos != std::string::npos) {
+      str.erase(0, pos);
+    }
+  } else {
+    str.erase(str.begin(), str.end());
   }
-  else str.erase(str.begin(), str.end());
+
   return str;
 }
 
@@ -1518,24 +1657,30 @@ DagWfParser::stringTrim(std::string& str) {
  */
 void
 DagWfParser::getPortMap(const std::string& thenMapStr,
-                        std::map<std::string, std::string>& thenMap) throw(XMLParsingException) {
+                        std::map<std::string, std::string>& thenMap)
+  throw(XMLParsingException) {
   std::string::size_type startPos = 0;
   std::string mapStr = thenMapStr;
   stringTrim(mapStr);
   while (startPos < mapStr.length()) {
     std::string::size_type sepPos = mapStr.find(";", startPos);
-    if (sepPos == std::string::npos)
+    if (sepPos == std::string::npos) {
       throw XMLParsingException(XMLParsingException::eINVALID_DATA,
                                 "missing semi-column at end of assignment in '"
                                 + mapStr +"'");
+    }
+
     std::string::size_type opPos = mapStr.find("=", startPos);
-    if (opPos > sepPos)
+    if (opPos > sepPos) {
       throw XMLParsingException(XMLParsingException::eINVALID_DATA,
                                 "missing assignment (=) operator in '"
                                 + mapStr + "'");
+    }
+
     std::string left(mapStr.substr(startPos, opPos-startPos));
     std::string right(mapStr.substr(opPos+1, sepPos-opPos-1));
-    thenMap.insert(std::pair<std::string, std::string>(stringTrim(left), stringTrim(right)));
+    thenMap.insert(std::pair<std::string, std::string>(stringTrim(left),
+                                                       stringTrim(right)));
     startPos = sepPos+1;
   }
 }

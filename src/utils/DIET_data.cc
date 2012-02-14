@@ -15,13 +15,14 @@
 #include <iostream>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <unistd.h>
+
 
 #include "DIET_server.h"
 #include "DIET_data_internal.hh"
 #include "DIET_client.h"
 #include "common_types.hh"
 #include "debug.hh"
+#include "OSIndependance.hh"
 
 #define DATA_INTERNAL_WARNING(formatted_msg)                            \
   INTERNAL_WARNING( \
@@ -135,7 +136,7 @@ data_sizeof(const corba_data_desc_t *desc) {
     break;
   case DIET_CONTAINER:
     // size = desc->specific.cont().size;
-    break;
+    // break;
     size = 0;
     break;
   default:
@@ -279,7 +280,7 @@ file_set_desc(diet_data_desc_t *desc, const char *id,
       return 2;
     }
     if (buf.st_size == 0) {
-      ERROR("One of the file that you want to transfer is of zero size", 1);
+      ERROR_DEBUG("One of the file that you want to transfer is of zero size", 1);
     }
     desc->specific.file.size = (size_t) buf.st_size;
   } else {
@@ -470,7 +471,7 @@ diet_profile_set_sequential(diet_profile_t *profile) {
 int
 diet_profile_set_nbprocs(diet_profile_t *profile, int nbprocs) {
   if (nbprocs <= 0) {
-    ERROR("the Number of procs must be greater than 0", 1);
+    ERROR_DEBUG("the Number of procs must be greater than 0", 1);
   }
   profile->nbprocs = nbprocs;
   return 0;
@@ -568,7 +569,7 @@ diet_paramstring_set(diet_arg_t *arg, char *value,
                      diet_persistence_mode_t mode) {
   int status(0);
   if (!value) {
-    ERROR(
+    ERROR_DEBUG(
       __FUNCTION__ << " misused (value is NULL).\n"
                    << "Make sure you allocated the paramstring pointer.\n"
                    <<
@@ -623,57 +624,17 @@ int
 diet_scalar_desc_set(diet_data_t *data, void *value) {
   return diet_scalar_set(data, value,
                          data->desc.mode, data->desc.generic.base_type);
-
-  if (data->desc.generic.type != DIET_SCALAR) {
-    ERROR(__FUNCTION__ << " misused (wrong type)", 1);
-  }
-  if (!data->value) {
-    ERROR(__FUNCTION__ << " misused (data->value is NULL)", 1);
-  }
-  switch (data->desc.generic.base_type) {
-  case DIET_CHAR:
-    *((char *) data->value) = *((char *) value);
-    break;
-  case DIET_SHORT:
-    *((short *) data->value) = *((short *) value);
-    break;
-  case DIET_INT:
-    *((int *) data->value) = *((int *) value);
-    break;
-  case DIET_LONGINT:
-    *((long int *) data->value) = *((long int *) value);
-    break;
-  case DIET_FLOAT:
-    *((float *) data->value) = *((float *) value);
-    break;
-  case DIET_DOUBLE:
-    *((double *) data->value) = *((double *) value);
-    break;
-#if HAVE_COMPLEX
-  case DIET_SCOMPLEX:
-    *((complex *) data->value) = *((complex *) value);
-    break;
-  case DIET_DCOMPLEX:
-    *((double complex *) data->value) = *((double complex *) value);
-    break;
-#endif  // HAVE_COMPLEX
-  default: {
-    ERROR(__FUNCTION__ << " misused (wrong base type)", 1);
-  }
-  } // switch
-  data->desc.specific.scal.value = data->value;
-  return 0;
-} // diet_scalar_desc_set
+}
 
 int
 diet_matrix_desc_set(diet_data_t *data, size_t nb_r, size_t nb_c,
                      diet_matrix_order_t order) {
   if (data->desc.generic.type != DIET_MATRIX) {
-    ERROR(__FUNCTION__ << " misused (wrong type)", 1);
+    ERROR_DEBUG(__FUNCTION__ << " misused (wrong type)", 1);
   }
   if ((nb_r * nb_c) >
       (data->desc.specific.mat.nb_r * data->desc.specific.mat.nb_c)) {
-    ERROR(__FUNCTION__
+    ERROR_DEBUG(__FUNCTION__
           << " misused (the new size cannot exceed the old one)", 1);
   }
   if (nb_r != 0) {
@@ -691,7 +652,7 @@ diet_matrix_desc_set(diet_data_t *data, size_t nb_r, size_t nb_c,
 int
 diet_file_desc_set(diet_data_t *data, char *path) {
   if ((data->desc.generic.type != DIET_FILE)) {
-    ERROR(__FUNCTION__ << " misused (wrong type)", 1);
+    ERROR_DEBUG(__FUNCTION__ << " misused (wrong type)", 1);
   }
   if (path != data->desc.specific.file.path) {
     /* FIXME: erase me if ok:
@@ -743,10 +704,10 @@ _scalar_get(diet_arg_t *arg, void **value, diet_persistence_mode_t *mode) {
   int res;
 
   if ((arg->desc.generic.type != DIET_SCALAR) || !arg) {
-    ERROR(__FUNCTION__ << " misused (wrong type or arg pointer is NULL)", 1);
+    ERROR_DEBUG(__FUNCTION__ << " misused (wrong type or arg pointer is NULL)", 1);
   }
   if ((res = get_value((diet_data_t *) arg, value))) {
-    ERROR(__FUNCTION__
+    ERROR_DEBUG(__FUNCTION__
           << " misused (wrong base type or arg pointer is NULL)", res);
   }
   if (mode) {
@@ -761,10 +722,10 @@ _vector_get(diet_arg_t *arg, void **value,
   int res;
 
   if (arg->desc.generic.type != DIET_VECTOR) {
-    ERROR(__FUNCTION__ << " misused (wrong type)", 1);
+    ERROR_DEBUG(__FUNCTION__ << " misused (wrong type)", 1);
   }
   if ((res = get_value((diet_data_t *) arg, value))) {
-    ERROR(__FUNCTION__
+    ERROR_DEBUG(__FUNCTION__
           << " misused (wrong base type or arg pointer is NULL)", res);
   }
   if (mode) {
@@ -782,11 +743,11 @@ _matrix_get(diet_arg_t *arg, void **value, diet_persistence_mode_t *mode,
   int res;
 
   if (arg->desc.generic.type != DIET_MATRIX) {
-    ERROR(__FUNCTION__ << " misused (wrong type)", 1);
+    ERROR_DEBUG(__FUNCTION__ << " misused (wrong type)", 1);
   }
 
   if ((res = get_value((diet_data_t *) arg, value))) {
-    ERROR(__FUNCTION__
+    ERROR_DEBUG(__FUNCTION__
           << " misused (wrong base type or arg pointer is NULL)", res);
   }
 
@@ -810,10 +771,10 @@ _string_get(diet_arg_t *arg, char **value, diet_persistence_mode_t *mode) {
   int res;
 
   if (arg->desc.generic.type != DIET_STRING) {
-    ERROR(__FUNCTION__ << " misused (wrong type)", 1);
+    ERROR_DEBUG(__FUNCTION__ << " misused (wrong type)", 1);
   }
   if ((res = get_value((diet_data_t *) arg, (void **) value))) {
-    ERROR(__FUNCTION__
+    ERROR_DEBUG(__FUNCTION__
           << " misused (wrong base type or arg pointer is NULL)", res);
   }
   if (mode) {
@@ -829,10 +790,10 @@ _paramstring_get(diet_arg_t *arg, char **value,
   int res;
 
   if (arg->desc.generic.type != DIET_PARAMSTRING) {
-    ERROR(__FUNCTION__ << " misused (wrong type)", 1);
+    ERROR_DEBUG(__FUNCTION__ << " misused (wrong type)", 1);
   }
   if ((res = get_value((diet_data_t *) arg, (void **) value))) {
-    ERROR(__FUNCTION__
+    ERROR_DEBUG(__FUNCTION__
           << " misused (wrong base type or arg pointer is NULL)", res);
   }
   if (mode) {
@@ -846,7 +807,7 @@ int
 _file_get(diet_arg_t *arg, char **path, diet_persistence_mode_t *mode,
           size_t *size) {
   if (arg->desc.generic.type != DIET_FILE) {
-    ERROR(__FUNCTION__ << " misused (wrong type)", 1);
+    ERROR_DEBUG(__FUNCTION__ << " misused (wrong type)", 1);
   }
   if (mode) {
     *mode = arg->desc.mode;
@@ -865,7 +826,7 @@ _file_get(diet_arg_t *arg, char **path, diet_persistence_mode_t *mode,
 diet_scalar_desc_t
 diet_scalar_get_desc(diet_arg_t *arg) {
   if (arg->desc.generic.type != DIET_SCALAR) {
-    ERROR(__FUNCTION__ << " misused (wrong type)", NULL);
+    ERROR_DEBUG(__FUNCTION__ << " misused (wrong type)", NULL);
   }
   return (&((arg->desc).specific.scal));
 }
@@ -873,7 +834,7 @@ diet_scalar_get_desc(diet_arg_t *arg) {
 diet_vector_desc_t
 diet_vector_get_desc(diet_arg_t *arg) {
   if (arg->desc.generic.type != DIET_VECTOR) {
-    ERROR(__FUNCTION__ << " misused (wrong type)", NULL);
+    ERROR_DEBUG(__FUNCTION__ << " misused (wrong type)", NULL);
   }
   return (&((arg->desc).specific.vect));
 }
@@ -881,7 +842,7 @@ diet_vector_get_desc(diet_arg_t *arg) {
 diet_matrix_desc_t
 diet_matrix_get_desc(diet_arg_t *arg) {
   if (arg->desc.generic.type != DIET_MATRIX) {
-    ERROR(__FUNCTION__ << " misused (wrong type)", NULL);
+    ERROR_DEBUG(__FUNCTION__ << " misused (wrong type)", NULL);
   }
   return (&((arg->desc).specific.mat));
 }
@@ -889,7 +850,7 @@ diet_matrix_get_desc(diet_arg_t *arg) {
 diet_string_desc_t
 diet_string_get_desc(diet_arg_t *arg) {
   if (arg->desc.generic.type != DIET_STRING) {
-    ERROR(__FUNCTION__ << " misused (wrong type)", NULL);
+    ERROR_DEBUG(__FUNCTION__ << " misused (wrong type)", NULL);
   }
   return (&((arg->desc).specific.str));
 }
@@ -897,7 +858,7 @@ diet_string_get_desc(diet_arg_t *arg) {
 diet_paramstring_desc_t
 diet_paramstring_get_desc(diet_arg_t *arg) {
   if (arg->desc.generic.type != DIET_PARAMSTRING) {
-    ERROR(__FUNCTION__ << " misused (wrong type)", NULL);
+    ERROR_DEBUG(__FUNCTION__ << " misused (wrong type)", NULL);
   }
   return (&((arg->desc).specific.pstr));
 }
@@ -905,7 +866,7 @@ diet_paramstring_get_desc(diet_arg_t *arg) {
 diet_file_desc_t
 diet_file_get_desc(diet_arg_t *arg) {
   if (arg->desc.generic.type != DIET_FILE) {
-    ERROR(__FUNCTION__ << " misused (wrong type)", NULL);
+    ERROR_DEBUG(__FUNCTION__ << " misused (wrong type)", NULL);
   }
   return (&((arg->desc).specific.file));
 }

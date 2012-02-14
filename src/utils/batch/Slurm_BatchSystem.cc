@@ -10,19 +10,21 @@
  */
 
 
-#include "debug.hh"
 #include "Slurm_BatchSystem.hh"
+#include <boost/format.hpp>
 #include <limits.h>
+#include "debug.hh"
 
 const char *Slurm_BatchSystem::statusNames[] = {
-  "FAILED", // not OK: there is no error state in Slurm, either the job is
-  "CANCELLED", // running, or it has exited
-  "COMPLETED", // So, how to decide if all is ok? Parse the error file?
-  "RUNNING", // Job is Running
-  "PENDING", // Job is Held
-  "PENDING", // Job is Queued, eligible to run or be routed
-  "SUSPENDED", // ?? Job is Suspended
-  "TIMEOUT"  // ?? Job is waiting for its requested execution time to be reached
+  "FAILED",     // not OK: there is no error state in Slurm, either the job is
+  "CANCELLED",  // running, or it has exited
+  "COMPLETED",  // So, how to decide if all is ok? Parse the error file?
+  "RUNNING",    // Job is Running
+  "PENDING",    // Job is Held
+  "PENDING",    // Job is Queued, eligible to run or be routed
+  "SUSPENDED",  // ?? Job is Suspended
+  "TIMEOUT"     // ?? Job is waiting for its requested execution time to
+                // be reached
   // or job specified a stage-in request which failed for some reason
 };
 
@@ -42,13 +44,18 @@ Slurm_BatchSystem::Slurm_BatchSystem(int ID, const char *batchname) {
   // the -V option declares that all environment variables in the qsub
   // command's environment are to be exported to the batch job
   // the -J option is to set the name of the job (usefull to debug)
-  postfixe = strdup(
-    (std::string("\n#SBATCH -J DIET_SeD \n DIET_HOST_FILE=") +
-     std::string(pathToNFS) +
-     std::string("/slurm-${SLURM_JOB_ID}.hosts") +
-     std::string(
-       " \n srun hostname -s > $DIET_HOST_FILE \n if [ -z \"$SLURM_NPROCS\" ]; then \n if [ -z \"$SLURM_NTASKS_PER_NODE\" ]; then \n SLURM_NTASKS_PER_NODE = 1 \n fi \n SLURM_NPROCS=$(($SLURM_JOB_NUM_NODES * $SLURM_NTASKS_PER_NODE)) \n fi"))
-    .c_str());
+  boost::format fmtr("%1%");
+  std::string tmp =
+    boost::str(fmtr % "\n#SBATCH -J DIET_SeD \n DIET_HOST_FILE="
+               % pathToNFS
+               % "/slurm-${SLURM_JOB_ID}.hosts"
+               % " \n srun hostname -s > $DIET_HOST_FILE \n"
+               % " if [ -z \"$SLURM_NPROCS\" ]; then \n"
+               % "if [ -z \"$SLURM_NTASKS_PER_NODE\" ]; then \n"
+               % " SLURM_NTASKS_PER_NODE = 1 \n fi \n"
+               % " SLURM_NPROCS=$(($SLURM_JOB_NUM_NODES *"
+               % " $SLURM_NTASKS_PER_NODE)) \n fi");
+  postfixe = strdup(tmp.c_str());
   nodesNumber = "#SBATCH --nodes=";
   serial = "#SBATCH --nodes = 1";
   coresNumber = BatchSystem::emptyString;
@@ -71,9 +78,12 @@ Slurm_BatchSystem::Slurm_BatchSystem(int ID, const char *batchname) {
 
   submitCommand = "sbatch ";
   killCommand = "scancel ";
-  wait4Command = "scontrol show job ";   // nom de la commande qui va prendre l'id du job pour en r�cup�rer les informations
-  waitFilter = "grep JobState | cut -d\"=\" -f2 | cut -d\" \" -f1";     // commande pour r�cup�rer l'�tat  du job dont l'info sort de wait4Command.
-  // Qui doit �tre l'un des statusNames
+  /* nom de la commande qui va prendre l'id du job pour en recuperer
+   * les informations */
+  wait4Command = "scontrol show job ";
+  // commande pour recuperer l'etat  du job dont l'info sort de wait4Command.
+  waitFilter = "grep JobState | cut -d\"=\" -f2 | cut -d\" \" -f1";
+  // Qui doit etre l'un des statusNames
   exitCode = "0";
 
   // nothing to do to retrieve the ID of the submission...
@@ -82,9 +92,9 @@ Slurm_BatchSystem::Slurm_BatchSystem(int ID, const char *batchname) {
 
   /* Information for META_VARIABLES */
   batchJobID = "$SLURM_JOB_ID";
-  nodeFileName = strdup(
-    (std::string(pathToNFS) +
-     std::string("/slurm-${SLURM_JOB_ID}.hosts")).c_str());
+  fmtr.parse("%1%%2%");
+  tmp = boost::str(fmtr % pathToNFS % "/slurm-${SLURM_JOB_ID}.hosts");
+  nodeFileName = strdup(tmp.c_str());
   nodeIdentities = "$SLURM_JOB_NODELIST";
 }
 
@@ -104,14 +114,14 @@ Slurm_BatchSystem::askBatchJobStatus(int batchJobID) {
 
   /* If job has completed, not ask batch system */
   status = getRecordedBatchJobStatus(batchJobID);
-  if ((status == TERMINATED) || (status == CANCELED) || (status == ERROR)) {
+  if ((status == TERMINATED) || (status == CANCELED) || (status == ERROR_JOB)) {
     return status;
   }
   /* create a temporary file to get results and batch job ID */
   filename = createUniqueTemporaryTmpFile("DIET_batch_finish");
   file_descriptor = open(filename, O_RDONLY);
   if (file_descriptor == -1) {
-    ERROR("Cannot open file", UNDETERMINED);
+    ERROR_DEBUG("Cannot open file", UNDETERMINED);
   }
 
   /*** Ask batch system the job status ***/
@@ -122,18 +132,19 @@ Slurm_BatchSystem::askBatchJobStatus(int batchJobID) {
                                            + 200 + 1));
   // cout << "First chaine : " << chaine << "\n";
   /* See EOF to get an example of what we parse */
-  // ugly trick to use a Slurm which does not keep the status of the batch once finished
+  /* ugly trick to use a Slurm which does not keep the status
+   * of the batch once finished */
   sprintf(
     chaine,
     "TMP_VAL=`%s %d 2>/dev/null | %s`;if [ \"$TMP_VAL\" == \"\" ];then echo FAILED > %s;else %s %d | %s > %s;fi",
     wait4Command, batchJobID, waitFilter,
     filename,
-    wait4Command, batchJobID, waitFilter, filename, filename);
+    wait4Command, batchJobID, waitFilter, filename);
 #if defined YC_DEBUG
   TRACE_TEXT(TRACE_ALL_STEPS, "Execute:\n" << chaine << "\n");
 #endif
   if (system(chaine) != 0) {
-    ERROR("Cannot submit script", NB_STATUS);
+    ERROR_DEBUG("Cannot submit script", NB_STATUS);
   }
   /* Get job status */
   for (int i = 0; i <= NBDIGITS_MAX_BATCH_JOB_ID; i++) {
@@ -141,8 +152,8 @@ Slurm_BatchSystem::askBatchJobStatus(int batchJobID) {
   }
 
   if ((nbread =
-         readn(file_descriptor, chaine, NBDIGITS_MAX_JOB_STATUS)) == 0) {
-    ERROR("Error with I/O file. Cannot read the batch status", NB_STATUS);
+       readn(file_descriptor, chaine, NBDIGITS_MAX_JOB_STATUS)) == 0) {
+    ERROR_DEBUG("Error with I/O file. Cannot read the batch status", NB_STATUS);
   }
 
   if (nbread == 0) {
@@ -159,8 +170,8 @@ Slurm_BatchSystem::askBatchJobStatus(int batchJobID) {
     }
   }
   if (i == NB_STATUS) {
-    ERROR("Cannot get batch job " << batchJobID << " status: " << chaine,
-          NB_STATUS);
+    ERROR_DEBUG("Cannot get batch job " << batchJobID << " status: " << chaine,
+                NB_STATUS);
   }
   /* Remove temporary file by closing it */
 #if REMOVE_BATCH_TEMPORARY_FILE
@@ -173,23 +184,23 @@ Slurm_BatchSystem::askBatchJobStatus(int batchJobID) {
   free(chaine);
   free(filename);
   return (batchJobState) i;
-} // askBatchJobStatus
+}  // askBatchJobStatus
 
 int
 Slurm_BatchSystem::isBatchJobCompleted(int batchJobID) {
   int status = getRecordedBatchJobStatus(batchJobID);
 
-  if ((status == TERMINATED) || (status == CANCELED) || (status == ERROR)) {
+  if ((status == TERMINATED) || (status == CANCELED) || (status == ERROR_JOB)) {
     return 1;
   }
   status = askBatchJobStatus(batchJobID);
-  if ((status == TERMINATED) || (status == CANCELED) || (status == ERROR)) {
+  if ((status == TERMINATED) || (status == CANCELED) || (status == ERROR_JOB)) {
     return 1;
   } else if (status == NB_STATUS) {
     return -1;
   }
   return 0;
-} // isBatchJobCompleted
+}  // isBatchJobCompleted
 
 /********** Batch static information accessing Functions **********/
 

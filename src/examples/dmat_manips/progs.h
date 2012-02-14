@@ -13,11 +13,21 @@
 #ifndef _PROGS_H_
 #define _PROGS_H_
 
+#ifndef __WIN32__
 #include <unistd.h>
+#else
+#include <Winsock2.h>
+#include <windows.h>
+#endif
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
+#ifndef __WIN32__
+#define INLINE __inline
+#else
+#define INLINE inline
+#endif
 
 #define print_matrix(mat, m, n, rm) {           \
     size_t i, j;                                \
@@ -40,12 +50,12 @@
  * Transpose a matrix (column-major <=> rm == 0)
  */
 
-inline int
+INLINE int
 T(int m, int n, double *A, int rm) {
   size_t i, j;
   double *tmp = NULL;
 
-  tmp = malloc(m * n * sizeof(tmp));
+  tmp = (double *)malloc(m * n * sizeof(tmp));
   memcpy(tmp, A, m * n * sizeof(tmp));
 
   for (i = 0; i < n; i++) {
@@ -60,14 +70,14 @@ T(int m, int n, double *A, int rm) {
 
   free(tmp);
   return 0;
-} // T
+} /* T */
 
 /*
  * Sum 2 column-major matrices (modulo tA and tB):
  * if tA == 'T', then A is row-major ...
  */
 
-inline int
+INLINE int
 MatSUM(char tA, char tB, int m, int n, double *A, double *B, double *C) {
   size_t i, j;
 
@@ -102,7 +112,7 @@ MatSUM(char tA, char tB, int m, int n, double *A, double *B, double *C) {
   }
 
   return 0;
-} // MatSUM
+} /* MatSUM */
 
 
 /*
@@ -110,7 +120,7 @@ MatSUM(char tA, char tB, int m, int n, double *A, double *B, double *C) {
  * if tA == 'T', then A is row-major ...
  */
 
-inline int
+INLINE int
 MatPROD(char tA, char tB,
         int mA, int nA, double *A,
         int nB, double *B, double *C) {
@@ -160,6 +170,6 @@ MatPROD(char tA, char tB,
   }
 
   return 0;
-} // MatPROD
+} /* MatPROD */
 
-#endif  // _PROGS_H_
+#endif  /* _PROGS_H_ */

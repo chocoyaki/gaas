@@ -43,6 +43,11 @@
 // Workflow related headers
 #include "WfUtils.hh"
 #include "WfNode.hh"
+#ifdef WIN32
+#define DIET_API_LIB __declspec(dllexport)
+#else
+#define DIET_API_LIB
+#endif
 class Dag;
 
 // Functional workflow classes
@@ -58,7 +63,7 @@ XERCES_CPP_NAMESPACE_USE
 /*****************************************************************************/
 /*                        CLASS XMLParsingException                          */
 /*****************************************************************************/
-class XMLParsingException {
+class DIET_API_LIB XMLParsingException {
 public:
   enum XMLParsingErrorType { eUNKNOWN,
                              eUNKNOWN_TAG,
@@ -96,7 +101,7 @@ private:
 /*                     ##ABSTRACT## CLASS DagWfParser                        */
 /*****************************************************************************/
 
-class DagWfParser {
+class DIET_API_LIB DagWfParser {
 public:
   /**
    * @brief Reader constructor
@@ -179,7 +184,7 @@ protected:
   /**
    * Xml document
    */
-  DOMDocument * document;
+  xercesc::DOMDocument * document;
 
 
   /****************/
@@ -302,7 +307,7 @@ protected:
 /*****************************************************************************/
 /*                         CLASS DagParser  *** ABSTRACT ***                 */
 /*****************************************************************************/
-class DagParser : public DagWfParser {
+class DIET_API_LIB DagParser : public DagWfParser {
 public:
   DagParser();
 
@@ -355,7 +360,7 @@ protected:
 /*                         CLASS SingleDagParser                             */
 /*****************************************************************************/
 
-class SingleDagParser : public DagParser {
+class DIET_API_LIB SingleDagParser : public DagParser {
 public:
   SingleDagParser(Dag& dag, const char * content);
 
@@ -371,7 +376,7 @@ protected:
 /*                         CLASS MultiDagParser                              */
 /*****************************************************************************/
 
-class MultiDagParser : public DagParser {
+class DIET_API_LIB MultiDagParser : public DagParser {
 public:
   MultiDagParser();
 
@@ -407,7 +412,7 @@ protected:
 /*****************************************************************************/
 /*                         CLASS FWfParser                                   */
 /*****************************************************************************/
-class FWfParser : public DagWfParser {
+class DIET_API_LIB FWfParser : public DagWfParser {
 public:
   FWfParser(FWorkflow& workflow, const char * content);
 
@@ -523,7 +528,7 @@ private:
 /*                    CLASS DataSourceParser                                 */
 /*****************************************************************************/
 
-class DataSourceParser {
+class DIET_API_LIB DataSourceParser {
 public:
   explicit DataSourceParser(FSourceNode* node);
 
@@ -547,7 +552,7 @@ private:
 /*                    CLASS DataSourceHandler                                */
 /*****************************************************************************/
 
-class DataSourceHandler : public DefaultHandler {
+class DIET_API_LIB DataSourceHandler : public DefaultHandler {
 public:
   explicit DataSourceHandler(FSourceNode* node);
 
@@ -609,7 +614,7 @@ private:
 /*                    CLASS MyDOMErrorHandler                                */
 /*****************************************************************************/
 
-class MyDOMErrorHandler : public DOMErrorHandler {
+class DIET_API_LIB MyDOMErrorHandler : public DOMErrorHandler {
   virtual bool
   handleError(const DOMError &domError);
 };

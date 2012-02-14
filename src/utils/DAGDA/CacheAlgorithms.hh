@@ -14,14 +14,19 @@
 #define __CACHEALGORITHMS_HH__
 
 #include "AdvancedDagdaComponent.hh"
+#ifdef WIN32
+   #define DIET_API_LIB __declspec(dllexport)
+#else
+   #define DIET_API_LIB
+#endif
 
-int
+extern "C" DIET_API_LIB int
 LRU(AdvancedDagdaComponent *manager, size_t size, dagda_object_type_t type);
 
-int
+DIET_API_LIB int
 LFU(AdvancedDagdaComponent *manager, size_t size, dagda_object_type_t type);
 
-int
+DIET_API_LIB int
 FIFO(AdvancedDagdaComponent *manager, size_t size, dagda_object_type_t type);
 
 #endif /* ifndef __CACHEALGORITHMS_HH__ */

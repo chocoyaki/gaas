@@ -13,14 +13,14 @@
 #include <sstream>
 #include <string>
 #include <algorithm>
-
 #include <boost/filesystem.hpp>
 
-#include "DagdaFactory.hh"
 #include "configuration.hh"
+#include "DagdaFactory.hh"
 #include "debug.hh"
-#ifdef __OMNIORB4__
 #include "omniORB4/omniORB.h"
+#ifdef __WIN32__
+#include <WinBase.h>
 #endif
 
 #include "AdvancedDagdaComponent.hh"
@@ -28,6 +28,12 @@
 #include "NetworkStats.hh"
 
 #include "DIET_Dagda.h"
+#include "OSIndependance.hh"
+#ifdef WIN32
+   #define DIET_API_LIB __declspec(dllexport)
+#else
+   #define DIET_API_LIB
+#endif
 
 size_t
 availableDiskSpace(const char *path) {
@@ -53,11 +59,7 @@ std::string DagdaFactory::storageDir = "";
 
 /* If somebody wants to use another ORB than omniORB... */
 unsigned long DagdaFactory::defaultMaxMsgSize =
-#ifdef __OMNIORB4__
   omniORB::giopMaxMsgSize() - 4096;  // For data structure...
-#else
-  1073741824; // (1 GB)
-#endif
 
 unsigned long DagdaFactory::defaultMaxDiskSpace = 0;
 unsigned long DagdaFactory::defaultMaxMemSpace = 0;
@@ -241,7 +243,7 @@ DagdaFactory::getDefaultName() {
   return CORBA::string_dup(name.str().c_str());
 } // getDefaultName
 
-DagdaImpl *
+DIET_API_LIB DagdaImpl *
 DagdaFactory::getClientDataManager() {
   if (!clientDataManager) {
     clientDataManager = createDataManager(DGD_CLIENT_MNGR);
@@ -254,7 +256,7 @@ DagdaFactory::getClientDataManager() {
   return clientDataManager;
 } // getClientDataManager
 
-DagdaImpl *
+DIET_API_LIB DagdaImpl *
 DagdaFactory::getSeDDataManager() {
   if (!sedDataManager) {
     const char *parentName = getParentName();
@@ -286,7 +288,7 @@ DagdaFactory::getSeDDataManager() {
   return sedDataManager;
 } // getSeDDataManager
 
-DagdaImpl *
+DIET_API_LIB DagdaImpl *
 DagdaFactory::getAgentDataManager() {
   if (!agentDataManager) {
     const char *parentName = getParentName();
@@ -327,7 +329,7 @@ DagdaFactory::getDataManager() {
   return localDataManager;
 }
 
-void
+DIET_API_LIB void
 DagdaFactory::reset() {
   // Reset everything to default value
   // TODO: Do not delete managers, otherwise we get a segfault...

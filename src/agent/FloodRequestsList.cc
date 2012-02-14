@@ -16,7 +16,12 @@
 
 #include <cassert>
 #include <set>
+#ifndef __WIN32__
 #include <unistd.h>
+#else
+#include <Winsock2.h>
+#include <windows.h>
+#endif
 #include "debug.hh"
 #include "DIET_compat.hh"
 

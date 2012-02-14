@@ -18,7 +18,8 @@
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
-#include <unistd.h>  // For gethostname()
+
+#include "OSIndependance.hh"// For gethostname()
 
 #include "common_types.hh"
 #include "configuration.hh"
@@ -27,6 +28,7 @@
 #include "ORBMgr.hh"
 #include "statistics.hh"
 #include "est_internal.hh"
+#include "GlobalSchedulers.hh"
 
 /** The trace level. */
 extern unsigned int TRACE_LEVEL;
@@ -94,7 +96,7 @@ AgentImpl::run() {
     strncpy(this->localHostName, host.c_str(), MAX_HOSTNAME_LENGTH - 1);
   } else {
     if (gethostname(this->localHostName, MAX_HOSTNAME_LENGTH)) {
-      ERROR("could not get hostname", 1);
+      ERROR_DEBUG("could not get hostname", 1);
     }
   }
 
@@ -108,7 +110,12 @@ AgentImpl::run() {
 
   size_t sz = name.length() + 1;
   this->myName = new char[sz];
-  snprintf(this->myName, sz, name.c_str());
+
+#ifdef __WIN32__
+  _strncpy(this->myName, name.c_str(), sz);
+#else
+  strncpy(this->myName, name.c_str(), sz);
+#endif
 
   std::string agtType = "MA";
   CONFIG_AGENT(diet::AGENTTYPE, agtType);
@@ -390,7 +397,12 @@ AgentImpl::findServer(Request *req, size_t max_srv) {
              "\n**************************************************\n"
              << "Got request " << creq.reqID
              << " on problem " << creq.pb.path << "\n");
-  snprintf(statMsg, 128, "findServer %ld", (unsigned long) creq.reqID);
+#ifdef __WIN32__
+  _snprintf(statMsg, 128, "findServer %ld", (unsigned long) creq.reqID);
+#else
+    snprintf(statMsg, 128, "findServer %ld", (unsigned long) creq.reqID);
+#endif
+
   stat_in(this->myName, statMsg);
 
   /* Add the new request to the list */
@@ -414,9 +426,11 @@ AgentImpl::findServer(Request *req, size_t max_srv) {
     size_t i;
 
     int nbChildrenContacted = 0;
-#if not defined HAVE_ALT_BATCH
+
+#ifndef HAVE_ALT_BATCH
+
     const ServiceTable::matching_children_t *SrvTmc;
-    ServiceTable::matching_children_t *mc;
+    ServiceTable::matching_children_t* mc;
 
     SrvTmc = SrvT->getChildren(serviceRef);
 
@@ -435,7 +449,7 @@ AgentImpl::findServer(Request *req, size_t max_srv) {
     srvTMutex.unlock();
 
     for (i = 0; i < (size_t) mc->nb_children; ++i) {
-      sendRequest(mc->children[i], &creq);
+      AgentImpl::sendRequest(mc->children[i], &creq);
     }
 
     delete[] mc->children;
@@ -445,7 +459,7 @@ AgentImpl::findServer(Request *req, size_t max_srv) {
     nbChildrenContacted = SrvTmc->nb_children;
     srvTMutex.unlock();
 
-#else // if not defined HAVE_ALT_BATCH
+#else // if  defined HAVE_ALT_BATCH
       /* Need to know children for parallel and/or seq.
          One service can be registered as parallel and as seq on a child.
          It then appears 2 times.
@@ -518,8 +532,13 @@ AgentImpl::getResponse(const corba_response_t &resp) {
                                              << "th child" <<
     " to request " << resp.reqID << "\n");
   char statMsg[128];
-  snprintf(statMsg, 128, "getResponse %ld %ld",
+#ifdef __WIN32__
+  _snprintf(statMsg, 128, "getResponse %ld %ld",
            (unsigned long) resp.reqID, (long) resp.myID);
+#else
+    snprintf(statMsg, 128, "getResponse %ld %ld",
+           (unsigned long) resp.reqID, (long) resp.myID);
+#endif
   stat_in(this->myName, statMsg);
   /* The response should be copied in the logs */
   /* Look for the concerned request in the logs */
@@ -549,7 +568,7 @@ AgentImpl::getHostname() {
   return CORBA::string_dup(localHostName);
 }
 
-#if not defined HAVE_ALT_BATCH
+#ifndef HAVE_ALT_BATCH
 /**
  * Send the request structure \c req to the child whose ID is \c childID.
  */
@@ -574,8 +593,13 @@ AgentImpl::sendRequest(CORBA::ULong *children, size_t numero_child,
   CORBA::ULong childID = children[numero_child];
 #endif
   char statMsg[128];
+#ifdef __WIN32__
+  _snprintf(statMsg, 128, "sendRequest %ld %ld",
+           (unsigned long) req->reqID, (unsigned long) childID);
+#else
   snprintf(statMsg, 128, "sendRequest %ld %ld",
            (unsigned long) req->reqID, (unsigned long) childID);
+#endif
   AGT_TRACE_FUNCTION(childID << ", " << req->pb.path);
 
   stat_in(this->myName, statMsg);
@@ -718,8 +742,14 @@ AgentImpl::aggregate(Request *request, size_t max_srv) {
   aggregResp->reqID = request->getRequest()->reqID;
   AGT_TRACE_FUNCTION(request->getRequest()->pb.path << ", " <<
                      request->getResponsesSize() << " responses, " << max_srv);
+#ifdef __WIN32__
+  _snprintf(statMsg, 128, "aggregate %ld",
+           (unsigned long) request->getRequest()->reqID);
+#else
   snprintf(statMsg, 128, "aggregate %ld",
            (unsigned long) request->getRequest()->reqID);
+#endif
+
   stat_in(this->myName, statMsg);
   GS->aggregate(aggregResp, max_srv,
                 request->getResponsesSize(), request->getResponses());

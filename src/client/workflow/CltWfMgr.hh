@@ -16,6 +16,10 @@
 // STL headers
 #include <map>
 #include <string>
+#ifdef __WIN32__
+#include<Winsock2.h>
+#endif
+
 
 // IDL headers
 #include "CltMan.hh"
@@ -34,13 +38,17 @@
 // Forwarder part
 #include "Forwarder.hh"
 #include "CltManFwdr.hh"
-
+#ifdef WIN32
+   #define DIET_API_LIB __declspec(dllexport)
+#else
+   #define DIET_API_LIB
+#endif
 class NodeSet;
 class FWorkflow;
 class Dag;
 class MetaDag;
 
-class CltWfMgr : public POA_CltMan,
+class DIET_API_LIB CltWfMgr : public POA_CltMan,
 public PortableServer::RefCountServantBase {
 public:
   /**
@@ -410,7 +418,7 @@ private:
 };
 
 /* Forwarder part. */
-class CltWfMgrFwdr : public POA_CltManFwdr,
+class DIET_API_LIB CltWfMgrFwdr : public POA_CltManFwdr,
 public PortableServer::RefCountServantBase {
 public:
   CltWfMgrFwdr(Forwarder_ptr fwdr, const char *objName);

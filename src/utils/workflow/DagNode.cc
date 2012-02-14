@@ -1,12 +1,12 @@
 /**
 * @file DagNode.cc
-* 
-* @brief  The node class used for dag execution 
-* 
+*
+* @brief  The node class used for dag execution
+*
 * @author  Benjamin ISNARD (Benjamin.Isnard@ens-lyon.fr)
-* 
+*
 * @section Licence
-*   |LICENCE|                                                                
+*   |LICENCE|
 */
 /****************************************************************************/
 /* The node class used for dag execution                                    */
@@ -478,7 +478,7 @@ DagNode::freeProfileAndData(MasterAgent_var& MA) {
  * Allocate a new char *
  */
 char *
-DagNode::newChar(const std::string value) {
+DagNode::newChar(const std::string& value) {
   if (value != "") {
     char * cx = new char;
     *cx = value.c_str()[0];
@@ -494,7 +494,7 @@ DagNode::newChar(const std::string value) {
  * Allocate a new short *
  */
 short *
-DagNode::newShort(const std::string value) {
+DagNode::newShort(const std::string& value) {
   if (value != "") {
     short * sx = new short;
     *sx = atoi(value.c_str());
@@ -510,7 +510,7 @@ DagNode::newShort(const std::string value) {
  * Allocate a new int  *
  */
 int *
-DagNode::newInt(const std::string value) {
+DagNode::newInt(const std::string& value) {
   if (value != "") {
     int * ix = new int;
     *ix = atoi(value.c_str());
@@ -526,7 +526,7 @@ DagNode::newInt(const std::string value) {
  * Allocate a new long *
  */
 long *
-DagNode::newLong(const std::string value) {
+DagNode::newLong(const std::string& value) {
   if (value != "") {
     long * lx = new long;
     *lx = atoi(value.c_str());
@@ -542,7 +542,7 @@ DagNode::newLong(const std::string value) {
  * Allocate a new string *
  */
 char *
-DagNode::newString (const std::string value) {
+DagNode::newString(const std::string& value) {
   char * str = new char[value.size()+1];
   strcpy(str, value.c_str());
   stringParams.push_back(str);
@@ -553,7 +553,7 @@ DagNode::newString (const std::string value) {
  * Allocate a new file *
  */
 char *
-DagNode::newFile (const std::string value) {
+DagNode::newFile(const std::string& value) {
   char * str = new char[value.size()+1];
   strcpy(str, value.c_str());
 
@@ -567,7 +567,7 @@ DagNode::newFile (const std::string value) {
  * Allocate a new float  *
  */
 float *
-DagNode::newFloat  (const std::string value) {
+DagNode::newFloat(const std::string& value) {
   float * fx = new float;
   *fx = (float)atof(value.c_str());
   floatParams.push_back(fx);
@@ -578,7 +578,7 @@ DagNode::newFloat  (const std::string value) {
  * Allocate a new double  *
  */
 double *
-DagNode::newDouble (const std::string value) {
+DagNode::newDouble(const std::string& value) {
   double * dx = new double;
   *dx = atof(value.c_str());
   doubleParams.push_back(dx);

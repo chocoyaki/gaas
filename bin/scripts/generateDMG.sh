@@ -4,7 +4,7 @@
 # and dylib files.
 
 
-FILES_BIN=`find . -type f \( -perm -u=x -o -perm -g=x -o -perm -o=x \) | grep -v -e CMakeFiles -e Cmake -e doc/`
+FILES_BIN=`find . -type f \( -perm -u=x -o -perm -g=x -o -perm -o=x \) | grep -v -e CMakeFiles -e cmake -e doc/`
 FILES_DYLIB=`find . -name *.dylib`
 FILES="${FILES_BIN} ${FILES_DYLIB}"
 FILES=`echo $FILES |sort | uniq`

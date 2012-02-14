@@ -11,15 +11,31 @@
 
 
 #include <string.h>
+#ifndef __WIN32__
 #include <unistd.h>
+#include <sys/time.h>
+#else
+#include <Winsock2.h>
+#include <windows.h>
+#include <sys/timeb.h>
+#endif
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/stat.h>
 #include <time.h>
 
 #include "DIET_client.h"
+#ifdef __WIN32__
+int gettimeofday (struct timeval *tp, void *tz)
+{
+	struct _timeb timebuffer;
+	_ftime (&timebuffer);
+	tp->tv_sec = timebuffer.time;
+	tp->tv_usec = timebuffer.millitm * 1000;
+	return 0;
+}
+#endif 
 
-#include <sys/time.h>
 
 int
 main(int argc, char *argv[]) {
@@ -27,7 +43,12 @@ main(int argc, char *argv[]) {
   diet_profile_t *profile = NULL;
   int *nbprocs;
   struct timeval tv;
+#ifdef __WIN32__
+  struct timeval tz;
+#else
   struct timezone tz;
+#endif
+  
 
   if (argc != 2) {
     fprintf(stderr, "Usage: %s <file.cfg>\n",
@@ -49,7 +70,7 @@ main(int argc, char *argv[]) {
   *********************/
 
   gettimeofday(&tv, &tz);
-  printf("L'heure de soumission est %ld:%ld\n\n", tv.tv_sec, tv.tv_usec);
+  printf("L'heure de soumission est %ld:%ld\n\n", (long int) tv.tv_sec, (long int) tv.tv_usec);
 
   if (!diet_call(profile)) {
     diet_scalar_get(diet_parameter(profile, 0), &nbprocs, NULL);
@@ -60,7 +81,7 @@ main(int argc, char *argv[]) {
   }
 
   gettimeofday(&tv, &tz);
-  printf("L'heure de terminaison est %ld:%ld\n\n", tv.tv_sec, tv.tv_usec);
+  printf("L'heure de terminaison est %ld:%ld\n\n", (long int) tv.tv_sec, (long int) tv.tv_usec);
 
   diet_profile_free(profile);
   diet_finalize();

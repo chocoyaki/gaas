@@ -36,7 +36,13 @@
 #define LOCALAGENT "localAgent"
 #define MASTERAGENT "masterAgent"
 
-class ORBMgr {
+#ifdef __WIN32__
+#define DIET_API_LIB __declspec(dllexport)
+#else
+#define DIET_API_LIB
+#endif
+
+class DIET_API_LIB ORBMgr {
 public:
   /* Constructors. */
   ORBMgr(int argc, char *argv[]);

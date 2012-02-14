@@ -4,28 +4,16 @@
 #* a dynamic library sent to the SeD and dynamically called.                *#
 #* ONLY WORKS WITH DAGDA                                                    *#
 #****************************************************************************#
-
-INCLUDE_DIRECTORIES(
-  ${OMNIORB4_INCLUDE_DIR}
-  ${DIET_SOURCE_DIR}/src/utils
-  ${DIET_BINARY_DIR}/src/CORBA/idl
-  ${DIET_SOURCE_DIR}/src/CORBA
-  ${DIET_SOURCE_DIR}/src/utils/DAGDA
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  ${DIET_SOURCE_DIR}/include
-)
-
-
 # Client to connect an element to a new parent
-ADD_EXECUTABLE( connect connect.cc )
-TARGET_LINK_LIBRARIES( connect DIET_admin )
+add_executable(connect connect.cc)
+target_link_libraries(connect ${DIET_ADMIN_LIBRARIES})
 
 # Client to disconnect an element from its parent
-ADD_EXECUTABLE( disconnect disconnect.cc )
-TARGET_LINK_LIBRARIES( disconnect DIET_admin )
+add_executable(disconnect disconnect.cc)
+target_link_libraries(disconnect ${DIET_ADMIN_LIBRARIES})
 
 # Client to kill part of a hierarchy
-ADD_EXECUTABLE( remove remove.cc )
-TARGET_LINK_LIBRARIES( remove DIET_admin )
+add_executable(remove remove.cc)
+target_link_libraries(remove ${DIET_ADMIN_LIBRARIES})
 
-INSTALL( TARGETS connect disconnect remove DESTINATION ${EXAMPLE_INSTALL_DIR}/dynamic_hierarchy )
+install(TARGETS connect disconnect remove DESTINATION ${EXAMPLE_INSTALL_DIR}/dynamic_hierarchy)

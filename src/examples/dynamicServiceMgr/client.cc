@@ -38,7 +38,6 @@ int
 main(int argc, char *argv[]) {
   diet_profile_t *profile = NULL;
   std::string service;
-  std::string tmp;
 
   checkUsage(argc, argv);
 

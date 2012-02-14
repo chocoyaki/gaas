@@ -385,7 +385,7 @@ typedef DietSeDFixture <SimpleAddSeD, SimpleAddSeDBinDir, ConfigSimpleAddSeDLA,
                         ConfigOmniORB, DietLAFixture>SimpleAddSeDFixture;
 
 char AllDataTransferAddSeD[] = "transfers_server";
-char AllDataTransferBinDir[] = EXAMPLES_DIR "/allDataTransfers";
+char AllDataTransferBinDir[] = BIN_DIR;
 typedef DietSeDFixture <AllDataTransferAddSeD, AllDataTransferBinDir,
                         ConfigSimpleAddSeDLA, ConfigOmniORB,
                         DietLAFixture>AllDataTransferSeDFixture;
@@ -395,14 +395,14 @@ typedef DietSeDFixture <AllDataTransferAddSeD, AllDataTransferBinDir,
 
 
 char DynamicAddRemoveServiceAddSeD[] = "server_dyn_add_rem";
-char DynamicAddRemoveServiceBinDir[] = EXAMPLES_DIR "/dyn_add_rem";
+char DynamicAddRemoveServiceBinDir[] = BIN_DIR;
 typedef DietSeDFixture <DynamicAddRemoveServiceAddSeD,
                         DynamicAddRemoveServiceBinDir, ConfigSimpleAddSeDLA,
                         ConfigOmniORB,
                         DietLAFixture>DynamicAddRemoveServiceSeDFixture;
 
 char GRPCAddSeD[] = "gridrpc_server";
-char GRPCBinDir[] = EXAMPLES_DIR "/GridRPC";
+char GRPCBinDir[] = BIN_DIR;
 typedef DietSeDFixture <GRPCAddSeD, GRPCBinDir, ConfigSimpleAddSeDLA,
                         ConfigOmniORB, DietLAFixture>GRPCSeDFixture;
 

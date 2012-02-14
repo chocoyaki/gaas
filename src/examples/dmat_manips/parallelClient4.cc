@@ -18,7 +18,12 @@ using namespace std;
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#ifndef __WIN32__
 #include <unistd.h>
+#else
+#include <Winsock2.h>
+#include <windows.h>
+#endif
 #include <string.h>
 
 #include "Global_macros.hh"
@@ -338,7 +343,7 @@ main(int argc, char *argv[]) {
   }
   // create pool thread and give job ....
   int incr = 0;
-  worker *tab[n_threads];
+  worker** tab = new worker*[n_threads];
   while (incr < (int) n_threads) {
     tab[incr] = new worker(incr);
     incr++;

@@ -18,7 +18,11 @@
 
 #include "Forwarder.hh"
 #include "CallbackFwdr.hh"
-
+#ifdef WIN32
+   #define DIET_API_LIB __declspec(dllexport)
+#else
+   #define DIET_API_LIB
+#endif
 class CallbackImpl : public POA_Callback,
 public PortableServer::RefCountServantBase {
 public:
@@ -41,7 +45,7 @@ public:
                CORBA::Long solve_res);
 };
 
-class CallbackFwdrImpl : public POA_CallbackFwdr,
+class DIET_API_LIB CallbackFwdrImpl : public POA_CallbackFwdr,
 public PortableServer::RefCountServantBase {
 public:
   CallbackFwdrImpl(Forwarder_ptr fwdr, const char *objName);

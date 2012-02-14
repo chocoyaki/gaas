@@ -11,11 +11,16 @@
 
 
 #include <string.h>
+#ifndef __WIN32__
 #include <unistd.h>
+#endif
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/stat.h>
+#ifndef __WIN32__
 #include <sys/time.h>
+#endif
+
 #include <time.h>
 
 #include "DIET_client.h"
@@ -27,7 +32,7 @@
     size_t i, j;                                \
     printf("%s (%s-major) = \n", # mat,          \
            (rm) ? "row" : "column");            \
-    printf(" %zd %zd \n", m, n);                  \
+    printf(" %lu %lu \n", m, n);                  \
     for (i = 0; i < (m); i++) {                 \
       for (j = 0; j < (n); j++) {               \
         if (rm) {                                 \

@@ -1,22 +1,26 @@
 /**
-* @file constants.cc
-* 
-* @brief  Configuration constants 
-* 
-* @author  Haikel Guemar (haikel.guemar@sysfera.com)
-* 
-* @section Licence
-*   |LICENCE|                                                                
-*/
+ * @file constants.cc
+ *
+ * @brief  Configuration constants
+ *
+ * @author  Haikel Guemar (haikel.guemar@sysfera.com)
+ *
+ * @section Licence
+ *   |LICENCE|
+ */
 
 
 
 #include "constants.hh"
-
+#ifdef __WIN32__
+#define DIET_API_LIB __declspec(dllexport)
+#else
+#define DIET_API_LIB
+#endif
 namespace diet {
 
 // !!! None of these keywords can be a prefix for another !!!
-param_t params[] =
+DIET_API_LIB param_t params[] =
 {
   {CONFIGFILE, "configFile", STRING_PARAMETER},
   /* [0]  */ {TRACELEVEL, "traceLevel", INT_PARAMETER},
@@ -56,7 +60,6 @@ param_t params[] =
   /* [31] */ {PATHTONFS, "pathToNFS", STRING_PARAMETER},
   /* [32] */ {PATHTOTMP, "pathToTmp", STRING_PARAMETER},
   /* [33] */ {INITREQUESTID, "initRequestID", INT_PARAMETER},
-  /* [34] */ {ACKFILE, "ackFile", STRING_PARAMETER},
   /* [35] */ {MAXMSGSIZE, "maxMsgSize", ULONG_PARAMETER},
   /* [36] */ {MAXDISKSPACE, "maxDiskSpace", ULONG_PARAMETER},
   /* [37] */ {MAXMEMSPACE, "maxMemSpace", ULONG_PARAMETER},
@@ -83,5 +86,6 @@ param_t params[] =
   /* [58] */ {SECURITYGROUP, "securityGroup", STRING_PARAMETER},
   /* [59] */ {USERNAME, "userName", STRING_PARAMETER}
 };
-}
+
+} /* namespace diet */
 

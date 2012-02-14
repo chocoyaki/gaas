@@ -11,7 +11,14 @@
 
 
 #include <string.h>
+#ifndef __WIN32__
 #include <unistd.h>
+#include <sys/time.h>
+#else
+#include <Winsock2.h>
+#include <windows.h>
+#include <sys/timeb.h>
+#endif
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/stat.h>
@@ -19,9 +26,21 @@
 
 #include "DIET_client.h"
 
-#include <sys/time.h>
+
+
 
 #define SUBMISSION_TYPE 0 /* 0: seq or //, 1: // only, 2: seq only */
+
+#ifdef __WIN32__
+int gettimeofday (struct timeval *tp, void *tz)
+{
+	struct _timeb timebuffer;
+	_ftime (&timebuffer);
+	tp->tv_sec = timebuffer.time;
+	tp->tv_usec = timebuffer.millitm * 1000;
+	return 0;
+}
+#endif 
 
 int
 main(int argc, char *argv[]) {
@@ -30,7 +49,11 @@ main(int argc, char *argv[]) {
   double nbreel = 0;
   size_t file_size = 0;
   struct timeval tv;
+#ifdef __WIN32__
+  struct timeval tz;
+#else
   struct timezone tz;
+#endif
   int server_found = 0;
 
   if (argc != 5) {
@@ -68,7 +91,7 @@ main(int argc, char *argv[]) {
   *********************/
 
   gettimeofday(&tv, &tz);
-  printf("L'heure de soumission est %ld:%ld\n\n", tv.tv_sec, tv.tv_usec);
+  printf("L'heure de soumission est %ld:%ld\n\n", (long int) tv.tv_sec, (long int) tv.tv_usec);
 
   if (SUBMISSION_TYPE == 1) {
     /* To ask explicitely for a parallel submission */
@@ -78,7 +101,7 @@ main(int argc, char *argv[]) {
       server_found = 1;
       diet_file_get(diet_parameter(profile, 3), &path, NULL, &file_size);
       if (path && (*path != '\0')) {
-        printf("Location of returned file is %s, its size is %zd.\n",
+        printf("Location of returned file is %s, its size is %lu.\n",
                path, file_size);
       }
     } else {printf("Error in diet_parallel_call()\n");
@@ -90,7 +113,7 @@ main(int argc, char *argv[]) {
       server_found = 1;
       diet_file_get(diet_parameter(profile, 3), &path, NULL, &file_size);
       if (path && (*path != '\0')) {
-        printf("Location of returned file is %s, its size is %zd.\n",
+        printf("Location of returned file is %s, its size is %lu.\n",
                path, file_size);
       }
     } else {printf("Error in diet_call()\n");
@@ -102,7 +125,7 @@ main(int argc, char *argv[]) {
       server_found = 1;
       diet_file_get(diet_parameter(profile, 3), &path, NULL, &file_size);
       if (path && (*path != '\0')) {
-        printf("Location of returned file is %s, its size is %zd.\n",
+        printf("Location of returned file is %s, its size is %lu.\n",
                path, file_size);
       }
     } else {printf("Error in diet_sequential_call()\n");
@@ -110,7 +133,7 @@ main(int argc, char *argv[]) {
   }
 
   gettimeofday(&tv, &tz);
-  printf("L'heure de terminaison est %ld:%ld\n\n", tv.tv_sec, tv.tv_usec);
+  printf("L'heure de terminaison est %ld:%ld\n\n", (long int) tv.tv_sec, (long int) tv.tv_usec);
 
   if (server_found == 1) {
     /* If uncommented, the result file is removed */

@@ -1,12 +1,12 @@
 /**
 * @file DIET_server.h
-* 
-* @brief  DIET server interface 
-* 
-* @author Philippe COMBES (Philippe.Combes@ens-lyon.fr) 
-* 
+*
+* @brief  DIET server interface
+*
+* @author Philippe COMBES (Philippe.Combes@ens-lyon.fr)
+*
 * @section Licence
-*   |LICENCE|                                                                
+*   |LICENCE|
 
    @details
 
@@ -172,6 +172,12 @@
 
 #include "DIET_data.h"
 
+#ifdef __WIN32__
+#define INLINE __inline
+#else /* __WIN32__ */
+#define INLINE inline
+#endif /* __WIN32__ */
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -283,7 +289,7 @@ extern "C" {
 
      @return the newly allocated diet_profile_desc
   */
-  diet_profile_desc_t*
+  DIET_API_LIB diet_profile_desc_t*
   diet_profile_desc_alloc(const char* path, int last_in,
                           int last_inout, int last_out);
 
@@ -302,7 +308,7 @@ extern "C" {
      This needs to defined new error codes
      @sa DIET_grpc.h for error codes
   */
-  int
+  DIET_API_LIB int
   diet_profile_desc_free(diet_profile_desc_t* desc);
 
 #if defined HAVE_ALT_BATCH
@@ -322,7 +328,7 @@ extern "C" {
      This needs to defined new error codes
      @sa DIET_grpc.h for error codes
   */
-  int
+  DIET_API_LIB int
   diet_profile_desc_set_sequential(diet_profile_desc_t * profile);
 
   /**
@@ -340,7 +346,7 @@ extern "C" {
      This needs to defined new error codes
      @sa DIET_grpc.h for error codes
   */
-  int
+  DIET_API_LIB int
   diet_profile_desc_set_parallel(diet_profile_desc_t * profile);
 
   /**
@@ -360,7 +366,7 @@ extern "C" {
      This needs to defined new error codes
      @sa DIET_grpc.h for error codes
   */
-  int
+  DIET_API_LIB int
   diet_wait_batch_job_completion(diet_profile_t * profile);
 #endif
 
@@ -376,7 +382,7 @@ extern "C" {
      @return aggregator aggregator of the profile or NULL if no aggregator
      was defined for the profile
   */
-  diet_aggregator_desc_t*
+  DIET_API_LIB diet_aggregator_desc_t*
   diet_profile_desc_aggregator(diet_profile_desc_t* profile);
 
   /**
@@ -395,7 +401,7 @@ extern "C" {
      This needs to defined new error codes
      @sa DIET_grpc.h for error codes
   */
-  int
+  DIET_API_LIB int
   diet_aggregator_set_type(diet_aggregator_desc_t* agg,
                            diet_aggregator_type_t atype);
   /**
@@ -418,7 +424,7 @@ extern "C" {
      This needs to defined new error codes
      @sa DIET_grpc.h for error codes
   */
-  int
+  DIET_API_LIB int
   diet_aggregator_priority_max(diet_aggregator_desc_t* agg, int tag);
 
   /**
@@ -442,7 +448,7 @@ extern "C" {
      @sa DIET_grpc.h for error codes
 
   */
-  int
+  DIET_API_LIB int
   diet_aggregator_priority_min(diet_aggregator_desc_t* agg, int tag);
 
   /**
@@ -465,7 +471,7 @@ extern "C" {
      This needs to defined new error codes
      @sa DIET_grpc.h for error codes
   */
-  int
+  DIET_API_LIB int
   diet_aggregator_priority_maxuser(diet_aggregator_desc_t* agg, int val);
 
   /**
@@ -489,7 +495,7 @@ extern "C" {
      @sa DIET_grpc.h for error codes
 
   */
-  int
+  DIET_API_LIB int
   diet_aggregator_priority_minuser(diet_aggregator_desc_t* agg, int val);
 
   /****************************************************************************/
@@ -560,7 +566,7 @@ extern "C" {
      This needs to defined new error codes
      @sa DIET_grpc.h for error codes
   */
-  int
+  DIET_API_LIB int
   diet_arg_cvt_set(diet_arg_convertor_t* arg_cvt, diet_convertor_function_t f,
                    int in_arg_idx, diet_arg_t* arg, int out_arg_idx);
 
@@ -631,7 +637,7 @@ extern "C" {
 
      @return the newly allocated convertor
   */
-  diet_convertor_t*
+  DIET_API_LIB diet_convertor_t*
   diet_convertor_alloc(const char* path, int last_in,
                        int last_inout, int last_out);
 
@@ -651,7 +657,7 @@ extern "C" {
      @sa DIET_grpc.h for error codes
 
   */
-  int
+  DIET_API_LIB int
   diet_convertor_free(diet_convertor_t* cvt);
 
 
@@ -735,7 +741,7 @@ extern "C" {
      @sa DIET_grpc.h for error codes
 
   */
-  int
+  DIET_API_LIB int
   diet_scalar_desc_set(diet_data_t* data, void* value);
 
   /* No use of diet_vector_desc_set: size should not be altered by server */
@@ -761,7 +767,7 @@ extern "C" {
 
      @warning the new size (nb_r * nb_c) must be equal to the previous one
   */
-  int
+  DIET_API_LIB int
   diet_matrix_desc_set(diet_data_t* data, size_t nb_r,
                        size_t nb_c, diet_matrix_order_t order);
 
@@ -782,7 +788,7 @@ extern "C" {
      This needs to defined new error codes
      @sa DIET_grpc.h for error codes
   */
-  int
+  DIET_API_LIB int
   diet_file_desc_set(diet_data_t* data, char* path);
 
   /****************************************************************************/
@@ -796,7 +802,7 @@ extern "C" {
      @param max_size the number of services for the SeD
      @return 0 in every case
   */
-  int
+  DIET_API_LIB int
   diet_service_table_init(int max_size);
 
   /* (cvt = NULL) is equivalent to "no conversion needed" */
@@ -807,10 +813,10 @@ extern "C" {
      @param fn performance metric function
      @return the current performance metric function
   */
-  diet_perfmetric_t
+  DIET_API_LIB diet_perfmetric_t
   diet_service_use_perfmetric(diet_perfmetric_t fn);
 
-  int
+  DIET_API_LIB int
   diet_service_table_add(const diet_profile_desc_t* const profile,
                          const diet_convertor_t* const cvt,
                          diet_solve_t solve_func);
@@ -836,7 +842,7 @@ extern "C" {
      @sa DIET_grpc.h for error codes
 
   */
-  int
+  DIET_API_LIB int
   diet_service_table_remove(const diet_profile_t* const profile);
 
   /**
@@ -861,7 +867,7 @@ extern "C" {
      @sa DIET_grpc.h for error codes
 
   */
-  int
+  DIET_API_LIB int
   diet_service_table_remove_desc(const diet_profile_desc_t* const profile);
 
   /* Unused !!!
@@ -882,13 +888,13 @@ extern "C" {
      @sa DIET_grpc.h for error codes
 
   */
-  int
+  DIET_API_LIB int
   diet_service_table_lookup_by_profile(const diet_profile_t* const profile);
 
   /**
      Function used to print the service table on the standard output.
   */
-  void
+  DIET_API_LIB void
   diet_print_service_table();
 
 
@@ -899,7 +905,7 @@ extern "C" {
   /* Most users should set argc to 0 and argv to NULL.
      Advanced omniORB users can set these arguments that are transmitted to
      the ORB initialization. */
-  int
+ DIET_API_LIB  int
   diet_SeD(const char* config_file_name, int argc, char* argv[]);
 
   /****************************************************************************/
@@ -918,7 +924,7 @@ extern "C" {
      is batch specific
      @param script particular script to execute (variables inseide the script will be filled automatically)
   */
-  int
+  DIET_API_LIB int
   diet_submit_parallel(diet_profile_t * profile,
                        const char * addon_prologue,
                        const char * command);
@@ -941,7 +947,7 @@ extern "C" {
      @param status the status to set for the server
 
   */
-  void
+  DIET_API_LIB void
   diet_set_server_status(diet_server_status_t status);
 
 #endif
@@ -972,7 +978,7 @@ extern "C" {
      @sa DIET_grpc.h for error codes
 
   */
-  int
+  DIET_API_LIB int
   diet_est_set(estVector_t ev, int userTag, double value);
 
   /**
@@ -997,7 +1003,7 @@ extern "C" {
      @sa DIET_grpc.h for error codes
 
   */
-  double
+  DIET_API_LIB double
   diet_est_get(estVectorConst_t ev, int userTag, double errVal);
 
   /**
@@ -1018,7 +1024,7 @@ extern "C" {
      @sa DIET_grpc.h for error codes
 
   */
-  double
+  DIET_API_LIB double
   diet_est_get_system(estVectorConst_t ev, int systemTag,
                       double errVal);
   /**
@@ -1042,7 +1048,7 @@ extern "C" {
      @sa DIET_grpc.h for error codes
 
   */
-  int
+  DIET_API_LIB int
   diet_est_defined(estVectorConst_t ev, int userTag);
 
   /**
@@ -1064,7 +1070,7 @@ extern "C" {
      @sa DIET_grpc.h for error codes
 
   */
-  int
+  DIET_API_LIB int
   diet_est_defined_system(estVectorConst_t ev, int systemTag);
 
   /**
@@ -1089,7 +1095,7 @@ extern "C" {
      @sa DIET_grpc.h for error codes
 
   */
-  int
+  DIET_API_LIB int
   diet_est_array_size(estVectorConst_t ev, int userTag);
 
   /**
@@ -1111,7 +1117,7 @@ extern "C" {
      @sa DIET_grpc.h for error codes
 
   */
-  int
+  DIET_API_LIB int
   diet_est_array_size_system(estVectorConst_t ev, int systemTag);
 
   /**
@@ -1137,7 +1143,7 @@ extern "C" {
      @sa DIET_grpc.h for error codes
 
   */
-  int
+  DIET_API_LIB int
   diet_est_array_set(estVector_t ev, int userTag, int idx, double value);
 
   /**
@@ -1161,7 +1167,7 @@ extern "C" {
      This needs to defined new error codes
      @sa DIET_grpc.h for error codes
   */
-  double
+  DIET_API_LIB double
   diet_est_array_get(estVectorConst_t ev, int userTag,
                      int idx, double errVal);
 
@@ -1183,7 +1189,7 @@ extern "C" {
      This needs to defined new error codes
      @sa DIET_grpc.h for error codes
   */
-  double
+  DIET_API_LIB double
   diet_est_array_get_system(estVectorConst_t ev, int systemTag,
                             int idx, double errVal);
 
@@ -1212,7 +1218,7 @@ extern "C" {
      This needs to defined new error codes
      @sa DIET_grpc.h for error codes
   */
-  int
+  DIET_API_LIB int
   diet_est_array_defined(estVectorConst_t ev, int userTag, int idx);
 
   /**
@@ -1237,7 +1243,7 @@ extern "C" {
      This needs to defined new error codes
      @sa DIET_grpc.h for error codes
   */
-  int
+  DIET_API_LIB int
   diet_est_array_defined_system(estVectorConst_t ev, int systemTag, int idx);
 
 #ifdef HAVE_ALT_BATCH
@@ -1256,7 +1262,7 @@ extern "C" {
 
      @return new estimation vector
   */
-  estVector_t
+  DIET_API_LIB estVector_t
   diet_new_estVect();
 
   /**
@@ -1269,7 +1275,7 @@ extern "C" {
      be written in C and not in C++...
      @todo Do they have to be integrated to the documented API at the moment?
   */
-  void
+  DIET_API_LIB void
   diet_destroy_estVect(estVector_t perfVect);
 #endif
 
@@ -1297,7 +1303,7 @@ extern "C" {
      @sa DIET_grpc.h for error codes
 
   */
-  int
+  DIET_API_LIB int
   diet_estimate_cori(estVector_t ev, int info_type,
                      diet_est_collect_tag_t collector_type, const void *data);
 
@@ -1316,14 +1322,14 @@ extern "C" {
      This needs to defined new error codes
      @sa DIET_grpc.h for error codes
   */
-  int
+  DIET_API_LIB int
   diet_estimate_cori_add_collector(diet_est_collect_tag_t collector_type,
                                    void* data);
 
   /**
      Function used to display data from CoRI Easy on the standard output
   */
-  void
+  DIET_API_LIB void
   diet_estimate_coriEasy_print();
 
   /**
@@ -1341,7 +1347,7 @@ extern "C" {
      This needs to defined new error codes
      @sa DIET_grpc.h for error codes
   */
-  int
+  DIET_API_LIB int
   diet_estimate_lastexec(estVector_t ev,
                          const diet_profile_t* const profilePtr);
 
@@ -1358,7 +1364,7 @@ extern "C" {
      @sa DIET_grpc.h for error codes
 
   */
-  int
+  DIET_API_LIB int
   diet_estimate_comptime(estVector_t ev, double value);
 
   /**
@@ -1376,7 +1382,7 @@ extern "C" {
  This needs to defined new error codes
      @sa DIET_grpc.h for error codes
   */
-  int
+  DIET_API_LIB int
   diet_estimate_waiting_jobs(estVector_t ev,
                              const diet_profile_t* const profilePtr);
 
@@ -1426,7 +1432,7 @@ extern "C" {
      @sa DIET_grpc.h for error codes
 
   */
-  int
+  DIET_API_LIB int
   diet_estimate_list_jobs(jobVector_t* jv, int* jobNb,
                           const diet_profile_t* const profilePtr);
 
@@ -1448,7 +1454,7 @@ extern "C" {
      @sa DIET_grpc.h for error codes
 
   */
-  int
+  DIET_API_LIB int
   diet_estimate_eft(estVector_t ev, double jobEstimatedCompTime,
                     const diet_profile_t* const profilePtr);
 
@@ -1475,7 +1481,7 @@ extern "C" {
      @sa DIET_grpc.h for error codes
 
   */
-  inline int
+  INLINE DIET_API_LIB int
   diet_generic_desc_set(struct diet_data_generic* desc,
                         diet_data_type_t type,
                         diet_base_type_t base_type) {
@@ -1507,7 +1513,7 @@ extern "C" {
      @param SeDName the name of the SeD.
      @return error code
   */
-  int
+  DIET_API_LIB int
   diet_get_SeD_services(int *services_number,
                         diet_profile_desc_t ***profiles,
                         const char *SeDName);

@@ -10,7 +10,12 @@
  */
 
 
+#ifndef __WIN32__
 #include <unistd.h>
+#else /* __WIN32__ */
+#include <Winsock2.h>
+#include <windows.h>
+#endif /* __WIN32__ */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -20,6 +25,19 @@
 
 #include "DIET_server.h"
 #include "DIET_Dagda.h"
+
+int
+usleep(unsigned int useconds) {
+#ifdef __WIN32__
+  Sleep(useconds/1000);
+  return 0;
+#else /* __WIN32__ */
+  struct timespec req = {0, 1000 * useconds};
+  struct timespec rem = {0, 0};
+
+  return nanosleep(&req, &rem);
+#endif /* __WIN32__ */
+}
 
 #define CONTAINER_ELT_NB 2  /* must be 1 digit */
 
@@ -162,8 +180,8 @@ container_string_get(const char *contID, short depth, char *contStr) {
     exit(0);
   }
   if (!dagda_get_container_elements(contID, &content)) {
-    strcat(contStr, parLeft_c);
     unsigned int i;
+    strcat(contStr, parLeft_c);
     for (i = 0; i < content.size; i++) {
       if (content.elt_ids[i] == NULL) {
         strcat(contStr, "[VOID]");
@@ -272,6 +290,7 @@ processor(diet_profile_t *pb) {
     }
     free(outputstr);
   }
+
 
   usleep(t * 100000);
 
