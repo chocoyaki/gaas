@@ -1,0 +1,344 @@
+
+\documentclass[12pt,a4paper]{book}
+%\makeatletter
+%\makeatother
+\usepackage{fancyhdr}
+\usepackage[headings]{fullpage}
+
+\usepackage[pdftex]{graphicx} % Pour l'insertion d'images
+\DeclareGraphicsExtensions{.jpg,.mps,.pdf,.png} % Formats d'images
+
+\usepackage[pdftex]{thumbpdf}      % Vignettes
+\usepackage{xcolor} % required for colors by hyperef
+\usepackage[pdftex,                %
+    bookmarks         = true,%     % Signets
+    bookmarksnumbered = true,%     % Signets numérotés
+    pdfpagemode       = true,%     % Signets/vignettes fermés à l'ouverture
+%   pdfpagemode       = Fullscreen,
+    pdfstartview      = FitV,%     % La page prend toute la hauteur
+    pdfpagelayout     = SinglePage,% Vue par page
+    colorlinks        = true,%     % Liens en couleur
+    linkbordercolor   = white, % Couleur de la boîte sur les liens normal 
+    citebordercolor   = white, % Couleur de la boîte sur les citations 
+    filebordercolor   = white, % Couleur sur la boîte sur les fichiers 
+    urlbordercolor    = white, % Couleur sur la boîte sur les URL
+    linkcolor         = cyan, % Liens internes
+    urlcolor          = blue, %  % Couleur des liens externes
+    pdfborder         = {0 0 0}%   % Style de bordure : ici, pas de bordure
+    ]{hyperref}%                   % Utilisation de HyperTeX
+
+
+\hypersetup{ % Modifiez la valeur des champs suivants
+    pdfauthor   = {Eddy Caron, Yves Caniou, Benjamin Depardon, Haïkel Guémar}
+    pdftitle    = {DIET Contributor's Guide},%
+    pdfsubject  = {Manual},%
+    pdfkeywords = {DIET, Grid-RPC},%
+    pdfcreator  = {PDFLaTeX},%
+    pdfproducer = {PDFLaTeX}}
+
+
+%\usepackage[french]{babel}
+%\usepackage[latin1]{inputenc}
+%\usepackage{multicol}
+\usepackage{verbatim}
+\usepackage{url}
+\usepackage{subfigure}
+\usepackage{listings}
+\usepackage{xspace}
+\usepackage{calc}
+\usepackage{marvosym} % More symbols
+\graphicspath{{./fig}}
+
+\usepackage{pifont} % for \ding{52} dagda
+
+\newsavebox{\logobox}
+\sbox{\logobox}{\includegraphics[scale=0.4]{fig/logo_DIET}}
+\newcommand{\logo}{\usebox{\logobox}}
+
+%%%%
+
+\newcounter{rmq}[section]
+\setcounter{rmq}{0}
+\newenvironment{remarque}{\addtocounter{rmq}{1}\textbf{N.B. \thermq:}}{}
+
+%%%%
+
+%%%%
+\renewcommand{\title}{DIET Contributor's Guide}
+%%%%
+
+\pagestyle{fancyplain}
+\fancyhead[L]{\title}
+% \lhead[\fancyplain{\title}{\title}]
+%       {\fancyplain{\title}{\title}}
+\chead{}
+\rhead[\fancyplain{\logo}{\logo}]{\fancyplain{\logo}{\logo}}
+
+\lfoot[\fancyplain{\scriptsize{\copyright} ~INRIA, ENS-Lyon, UCBL, CNRS, SysFera}{\scriptsize{\copyright} ~INRIA, ENS-Lyon, UCBL, CNRS, SysFera}]{\fancyplain{\scriptsize{\copyright} ~INRIA, ENS-Lyon, UCBL, CNRS, SysFera}{\scriptsize{\copyright} ~INRIA, ENS-Lyon, UCBL, CNRS, SysFera}}
+\cfoot[\fancyplain{}{}]{\fancyplain{}{}}
+\rfoot[\fancyplain{Page~\thepage}{Page~\thepage}]
+      {\fancyplain{Page~\thepage}{Page~\thepage}}
+
+\usepackage{todonotes}
+
+\newcommand{\todoall}[2][]{\todoinline[color=blue!20,#1]{\textbf{ALL:} #2}}
+\newcommand{\todohg}[2][]{\todoinline[color=purple!50,#1]{\textbf{Haïkel:} #2\
+}}
+\newcommand{\todoyc}[2][]{\todoinline[color=pink!70,#1]{\textbf{Yves:} \
+#2}}
+\newcommand{\todobd}[2][]{\todoinline[color=orange!25,#1]{\textbf{Ben:} \
+#2}}
+\newcommand{\todofd}[2][]{\todoinline[color=red!50,#1]{\textbf{Fred:} #2}}
+\newcommand{\todoam}[2][]{\todoinline[color=orange!50,#1]{\textbf{Adrian:\
+} #2}}
+\newcommand{\todoec}[2][]{\todoinline[color=yellow!50,#1]{\textbf{Eddy:} #2}}
+
+\newcommand{\todoinline}[2][]{\todo[inline,#1]{TODO: #2}}
+\definecolor{blgreen}{rgb}{0.,0.85,0.7}
+\newcommand{\todopages}[2][]{\todo[inline,color=blgreen,#1]{#2}}
+
+\newcommand{\diet}{\textsc{Diet}\xspace}
+\newcommand{\madag}{MA$_{DAG}$\xspace}
+\newcommand{\grpc}{GridRPC\xspace}
+
+
+\newcommand{\dietmaint}{\diet Maintainer\xspace}
+\newcommand{\dietbranch}{\diet Branch Master\xspace}
+\newcommand{\dietcontrib}{\diet Contributor\xspace}
+\newcommand{\dietguest}{\diet Guest\xspace}
+\newcommand{\dietpackage}{\diet Packager\xspace}
+\newcommand{\dietversion}{2.8}
+
+\begin{document}
+
+\thispagestyle{empty}
+\vspace*{3cm}
+\vspace*{3cm}
+
+\begin{center}
+\includegraphics[scale=.5]{fig/logo_DIET_big}\\[2ex]
+\textbf{\Huge USER'S MANUAL\\[2ex]}
+\end{center}
+
+\vfill
+
+\noindent
+\small{
+\begin{tabular}{ll}
+  \textbf{VERSION}  & \dietversion\\
+  \textbf{DATE}     & February 2012\\
+  \textbf{PROJECT MANAGER}  & Fr\'ed\'eric \textsc{Desprez}.\\
+
+  \textbf{EDITORIAL STAFF}  & Yves \textsc{Caniou}, Eddy
+  \textsc{Caron} and David ~\textsc{Loureiro}.\\
+
+  \textbf{AUTHORS STAFF}    & 
+\begin{minipage}[t]{12cm}
+  Abdelkader \textsc{Amar}, Rapha\"el \textsc{Bolze}, \'Eric
+  \textsc{Boix}, Yves \textsc{Caniou}, Eddy \textsc{Caron}, Pushpinder
+  Kaur \textsc{Chouhan}, Philippe ~\textsc{Combes}, Sylvain
+  \textsc{Dahan}, Holly \textsc{Dail}, Bruno \textsc{Delfabro}, Benjamin
+  \textsc{Depardon}, Peter
+  \textsc{Frauenkron}, Georg \textsc{Hoesch}, Benjamin \textsc{Isnard},
+  Mathieu \textsc{Jan}, Jean-Yves \textsc{L'Excellent}, Gaël \textsc{Le
+    Mahec}, Christophe \textsc{Pera}, Cyrille \textsc{Pontvieux}, Alan
+  \textsc{Su}, C\'edric \textsc{Tedeschi}, and Antoine
+  \textsc{Vernois}.
+\end{minipage} \\
+  \textbf{Copyright}& INRIA, ENS-Lyon, UCBL, SysFera
+\end{tabular}\\
+}
+\newpage
+\thispagestyle{empty}
+\ 
+\newpage
+\tableofcontents
+
+
+\section{Introduction}
+
+\section{Contributing to \diet}
+
+\todoall{Honteusement pompé sur
+  http://wiki.openbravo.com/wiki/Projects/POS/Contributor\%27s\_Guide
+  mais c'est pas mal d'avoir ce genre de motivation en entrée de document}.
+
+We truly believe that anyone can be personally benefit by contributing
+to \diet project. Whether you're an independent consultant, student,
+open source hacker, or even part of a company, contributing could be
+great for you.
+\begin{enumerate}
+\item Contributions to \diet are maintained by the \dietmaint: If you
+contribute your enhancements to \diet, they will be part of the product
+and will be maintained, documented and tested as part of the \diet
+software and all subsequent versions. This means that, after the
+initial development investment, you will not need to invest in
+upgrading these features anymore and that your upgrades to future
+versions will be smoother. 
+
+\item Free up Resources through Teamwork: Contributing to \diet and having
+developments supported by us leaves you more time for your own
+developments and installations. You develop, and let us take care of
+maintaining the code during versions. For example, think of the big
+changes occurring in each one of the versions. Whatever you put in our
+\diet core is monitored by us for life.
+
+\item Work with People with Common Goals: Whether by leveraging on
+other's work or collaborating on a project, push development in your
+own direction by leading it. The product will support what you want,
+and when you want it. This also helps ensure that your priorities,
+issues and features becomes the communities goals.
+
+\item Gain recognition and exposure: Make yourself known in a community
+of individuals and companies deploying professional open source
+solutions.
+
+\item Network: Work with and meet others just like yourself, while
+potentially getting job or professional opportunities worldwide.
+
+\item Learn and Apply Skills: Enhance your knowledge by working on open
+technologies like C++, CORBA, Java, ... These are today's industry
+standard tools for building professional software solutions.
+
+\end{enumerate}
+
+\section{Participate in the mailing list and help other user}
+
+Three different mailing lists are available on the
+website~\url{http://listes.ens-lyon.fr} :
+\begin{description}
+\item[diet-usr] Dedicated to the users of \diet. \url{https://listes.ens-lyon.fr/sympa/info/diet-usr}
+\item[diet-dev]  Dedicated to the developers and contributor of
+  \diet. \url{https://listes.ens-lyon.fr/sympa/info/diet-dev}
+\item[diet-commits] Dedicated to the commits sent by Git.  Contributor
+  s don't forget to add an explicit message when you commit
+  something. \url{https://listes.ens-lyon.fr/sympa/info/diet-commits}
+\end{description}
+
+\section{Bugs reports}
+
+Have you found a bug? Are you sure? Are you really sure? Then, please, report
+it to us using the bugzilla system for DIET available at this URL:
+\url{http://graal.ens-lyon.fr/bugzilla}. Even better, you can also
+propose a bug fix for the issue.
+
+\section{Contributing ideas and features requests}
+
+
+Do you have an idea for DIET? 
+\begin{itemize}
+\item You can fill up a feature request in the bugzilla system as a
+  feature (\url{http://graal.ens-lyon.fr/bugzilla}). Better way. 
+\item You can also send it to the diet-dev mailing list. 
+\end{itemize}
+
+This process just communicates an idea to DIET that will
+implement the idea at its discretion. Since DIET it is an open
+source project, you can implement an idea into the product. See the
+next sections.
+
+\section{Create or improve documentation}
+
+If you found a bug in the documentation or if you have a request or an
+idea to submit about the documentation. Please fill a bug report in
+the bugzilla system (http://graal.ens-lyon.fr/bugzilla) section
+documentation. 
+
+If you have created a significant piece of documentation regarding the
+implementation, development or use of \diet. You can contact at least
+one member of the \dietmaint. Also you can help improve the current
+documentation after registering in our GIT . 
+
+\todoall{Est-ce qu'on fait une branche documentation ?}
+
+\section{Translate documentation}
+
+\dietcontrib is authorized to modify and enhance the documentation,
+but also every one can translate the documentation into their
+language. Can you speak English and other language? Enjoy !
+
+\section{Organization}
+
+There are five status: 
+
+\begin{description} 
+\item \textbf{\dietmaint}. This group is composed of four persons: Eddy Caron
+  (Eddy.Caron@ens-lyon.fr), Yves Caniou (Yves.Caniou@ens-lyon.fr),
+  Benjamin Depardon (Benjamin.Depardon@sysfera.com) and Haïkel Guémar
+  (Haikel.Guemar@sysfera.com). The role of this group is to:
+\begin{itemize}
+  \item validate the creation of a new branch. 
+  \item nominate the \dietbranch for each official branch.
+  \item decide with the \dietbranch if a branch  can be merge to the
+    master. 
+    \item decide to publish a new release. 
+\end{itemize}
+
+\item \textbf{\dietbranch}. Each official DIET branch is lead by a
+  \dietbranch. His role is to:
+  \begin{itemize}
+    \item control the quality of the code
+    \item check the global  coherency of the \dietcontrib. 
+      \item define the roadmap for his branch according to the
+        \dietmaint.
+        \item informs the \dietmaint group when a branch is ready to merge. 
+\end{itemize}
+\item \textbf{\dietcontrib}. All contributors a person who have an authorized access to
+  write into a branch or into the master. His role is to:
+  \begin{itemize}
+    \item write a nice and amazing code. 
+    \item work in collaboration with his \dietbranch. 
+\end{itemize}
+ 
+\item \textbf{\dietguest}. It's a contributor without a write GIT
+  access. He can 
+\begin{itemize}
+  \item  send a patch to a \dietbranch or a member of the \dietmaint. 
+    \item become an DIET developer as soon as possible
+\end{itemize}
+
+\item \textbf{\dietpackage} He does the merge to the master with the
+  help of the \dietbranch. And he builds the package (tarball, Debian,
+  Fedora, ...) when a new release is announced by the \dietmaint. 
+\end{description}
+
+\section{Becoming an DIET developer}
+
+A DIET developer is an amazing person that is actively involved in
+DIET development. For example, if you have a significant contribution
+or write regularly enhancements for the product or planning to do it
+soon.
+
+\section{Obtaining Write Access to GIT branch}
+
+DIET source code lives in GIT. The main features under development
+exist under a GIT branch.  Everyone can read the source code but only
+developers can write on it. You need written access permission to DIET
+GIT to be able to push your code to the GIT.
+
+\section{Regression tests}
+
+\todobd{Des infos sur Jenkins ? Et comment ajouter de nouveau tests ou
+où trouver la doc pour le faire.}
+
+
+\section{Coding Standard}
+
+\todohg{Faire un lien sur le document de DIET Coding Standards fait
+  par Haïkel. Est-ce qu'on garde les 15 pages ? Je veux dire par là
+  que je vois bien une version pas trop rebuttante en version Lite
+  pour un coder beginner puis rapidement si ça mort on lui passe le
+  document en version FULL.}
+
+\section{Packages for distributions and installers}
+
+Can you help to prepare the necessary infrastructure to create
+packages for different distributions and installers for different
+platforms? We already build packages for Debian and Fedora. 
+
+\section{Legal Aspects}
+
+\todoec{Check avec Nicolas Jourdan en cours}
+
+\bibliographystyle{plain} 
+\end{document}
