@@ -20,9 +20,11 @@ set_property(DIRECTORY APPEND PROPERTY
 option(DIET_BUILD_USERMANUAL "Build DIET User Manual." ON)
 option(DIET_BUILD_USERFAQ "Build DIET User FAQ." ON)
 option(DIET_BUILD_PROGRAMMERGUIDE "Build DIET Programmer Guide." OFF)
+option(DIET_BUILD_CONTRIBUTORSGUIDE "Build DIET Contributors Guide." ON)
 mark_as_advanced(DIET_BUILD_PROGRAMMERGUIDE)
 option(DIET_BUILD_MANPAGE "Build DIET Manpages." ON)
 option(DIET_BUILD_DOXYGEN "Build DIET Doxygen." OFF)
+
 
 ##############################################################################
 # Doxygen is required for building API doc
@@ -75,10 +77,14 @@ if(ENABLE_GUIDE)
   if(DIET_BUILD_USERFAQ)
     add_subdirectory(UsersFAQ)
   endif()
+
+   if(DIET_BUILD_CONTRIBUTORSGUIDE)
+     add_subdirectory(ContributorsGuide)
+   endif()
+
 else()
   message(WARNING " Guides will not be built due to missing requirements.")
 endif()
-
 
 #############################################################################
 # man pages generation
