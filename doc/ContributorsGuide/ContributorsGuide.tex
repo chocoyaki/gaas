@@ -3,6 +3,9 @@
 %\makeatother
 \usepackage{fancyhdr}
 \usepackage[headings]{fullpage}
+\usepackage[T1]{fontenc}
+\usepackage[latin1]{inputenc}
+
 
 \usepackage[pdftex]{graphicx} % Pour l'insertion d'images
 \DeclareGraphicsExtensions{.jpg,.mps,.pdf,.png} % Formats d'images
@@ -27,11 +30,13 @@
     ]{hyperref}%                   % Utilisation de HyperTeX
 
 
+\newcommand{\diet}{\textsc{Diet}\xspace}
+
 \hypersetup{ % Modifiez la valeur des champs suivants
     pdfauthor   = {Eddy Caron, Yves Caniou, Benjamin Depardon, Haïkel Guémar}
-    pdftitle    = {DIET Contributor's Guide},%
+    pdftitle    = {\diet Contributor's Guide},%
     pdfsubject  = {Manual},%
-    pdfkeywords = {DIET, Grid-RPC},%
+    pdfkeywords = {\diet, Grid-RPC},%
     pdfcreator  = {PDFLaTeX},%
     pdfproducer = {PDFLaTeX}}
 
@@ -63,7 +68,7 @@
 %%%%
 
 %%%%
-\renewcommand{\title}{DIET Contributor's Guide}
+\renewcommand{\title}{\diet Contributor's Guide}
 %%%%
 
 \pagestyle{fancyplain}
@@ -96,7 +101,6 @@
 \definecolor{blgreen}{rgb}{0.,0.85,0.7}
 \newcommand{\todopages}[2][]{\todo[inline,color=blgreen,#1]{#2}}
 
-\newcommand{\diet}{\textsc{Diet}\xspace}
 \newcommand{\madag}{MA$_{DAG}$\xspace}
 \newcommand{\grpc}{GridRPC\xspace}
 
@@ -151,9 +155,9 @@
 
 \todoall{Honteusement pompé sur
   http://wiki.openbravo.com/wiki/Projects/POS/Contributor\%27s\_Guide
-  mais c'est pas mal d'avoir ce genre de motivation en entrée de document}.
+  mais c'est pas mal d'avoir ce genre de motivation en entrée de document.}
 
-We truly believe that anyone can be personally benefit by contributing
+We truly believe that anyone can personally benefit by contributing
 to \diet project. Whether you're an independent consultant, student,
 open source hacker, or even part of a company, contributing could be
 great for you.
@@ -187,17 +191,17 @@ solutions.
 potentially getting job or professional opportunities worldwide.
 
 \item Learn and Apply Skills: Enhance your knowledge by working on open
-technologies like C++, CORBA, Java, ... These are today's industry
+technologies like C++, CORBA, Java, \dots These are today's industry
 standard tools for building professional software solutions.
 
 \end{enumerate}
 
-\chapter{How to contribute ?}
+\chapter{How to contribute?}
 
-\section{Participate in the mailing list and help other user}
+\section{Participate in the mailing list and help other users}
 
 Three different mailing lists are available on the
-website~\url{http://listes.ens-lyon.fr} :
+website~\url{http://listes.ens-lyon.fr}:
 \begin{description}
 \item[diet-usr] Dedicated to the users of \diet. \url{https://listes.ens-lyon.fr/sympa/info/diet-usr}
 \item[diet-dev]  Dedicated to the developers and contributor of
@@ -210,22 +214,26 @@ website~\url{http://listes.ens-lyon.fr} :
 \section{Bugs reports}
 
 Have you found a bug? Are you sure? Are you really sure? Then, please, report
-it to us using the bugzilla system for DIET available at this URL:
+it to us using the bugzilla system for \diet available at this URL:
 \url{http://graal.ens-lyon.fr/bugzilla}. Even better, you can also
 propose a bug fix for the issue.
 
 \section{Contributing ideas and features requests}
 
 
-Do you have an idea for DIET? 
+Do you have an idea for \diet? 
 \begin{itemize}
 \item You can fill up a feature request in the bugzilla system as a
-  feature (\url{http://graal.ens-lyon.fr/bugzilla}). Better way. 
+  feature (\url{http://graal.ens-lyon.fr/bugzilla}). That's the better way. 
 \item You can also send it to the diet-dev mailing list. 
 \end{itemize}
+\todoall{Est-ce qu'on ne dirait pas plutôt d'envoyer sur diet-usr ? Tous les
+  users ne sont pas des devs, et n'ont donc pas accès à cette liste. D'ailleurs,
+la liste diet-dev on ne peut pas s'y inscrire comme ça. Je suppose que seul Eddy
+peut inscrire quelqu'un.}
 
-This process just communicates an idea to DIET that will
-implement the idea at its discretion. Since DIET it is an open
+This process just communicates an idea to \diet that will
+implement the idea at its discretion. Since \diet it is an open
 source project, you can implement an idea into the product. See the
 next sections.
 
@@ -233,21 +241,23 @@ next sections.
 
 If you found a bug in the documentation or if you have a request or an
 idea to submit about the documentation. Please fill a bug report in
-the bugzilla system (http://graal.ens-lyon.fr/bugzilla) section
+the bugzilla system (\url{http://graal.ens-lyon.fr/bugzilla}) section
 documentation. 
 
 If you have created a significant piece of documentation regarding the
-implementation, development or use of \diet. You can contact at least
+implementation, development or usage of \diet. You can contact at least
 one member of the \dietmaint. Also you can help improve the current
 documentation after registering in our GIT . 
 
-\todoall{Est-ce qu'on fait une branche documentation ?}
+\todoall{Est-ce qu'on fait une branche documentation ? Est-ce qu'on ouvre le GIT
+comme ça juste pour de la doc ? Est-ce qu'il ne faudrait pas que ça passe
+uniquement par le bugzilla ça ?}
 
 \section{Translate documentation}
 
 \dietcontrib is authorized to modify and enhance the documentation,
 but also every one can translate the documentation into their
-language. Can you speak English and other language? Enjoy !
+language. Can you speak English and other language? Enjoy!
 
 
 \chapter{Organization}
@@ -255,69 +265,73 @@ language. Can you speak English and other language? Enjoy !
 There are five status: 
 
 \begin{description} 
-\item \textbf{\dietmaint}. This group is composed of four persons: Eddy Caron
-  (Eddy.Caron@ens-lyon.fr), Yves Caniou (Yves.Caniou@ens-lyon.fr),
-  Benjamin Depardon (Benjamin.Depardon@sysfera.com) and Haïkel Guémar
-  (Haikel.Guemar@sysfera.com). The role of this group is to:
+\item \textbf{\dietmaint.} This group is composed of four persons: Eddy Caron
+  (\href{mailto:Eddy.Caron@ens-lyon.fr}{Eddy.Caron@ens-lyon.fr}), Yves Caniou
+  (\href{mailto:Yves.Caniou@ens-lyon.fr}{Yves.Caniou@ens-lyon.fr}), Benjamin
+  Depardon
+  (\href{mailto:Benjamin.Depardon@sysfera.com}{Benjamin.Depardon@sysfera.com}) and
+  Haïkel Guémar
+  (\href{mailto:Haikel.Guemar@sysfera.com}{Haikel.Guemar@sysfera.com}). The role
+  of this group is to:
 \begin{itemize}
-  \item validate the creation of a new branch. 
-  \item nominate the \dietbranch for each official branch.
-  \item decide with the \dietbranch if a branch  can be merge to the
-    master. 
+  \item validate the creation of a new branch;
+  \item nominate the \dietbranch for each official branch;
+  \item decide with the \dietbranch if a branch  can be merged to the
+    master;
     \item decide to publish a new release. 
 \end{itemize}
 
-\item \textbf{\dietbranch}. Each official DIET branch is lead by a
+\item \textbf{\dietbranch.} Each official \diet branch is lead by a
   \dietbranch. His role is to:
   \begin{itemize}
-    \item control the quality of the code
-    \item check the global  coherency of the \dietcontrib. 
+    \item control the quality of the code;
+    \item check the global  coherency of the \dietcontrib;
       \item define the roadmap for his branch according to the
-        \dietmaint.
+        \dietmaint;
         \item informs the \dietmaint group when a branch is ready to merge. 
 \end{itemize}
-\item \textbf{\dietcontrib}. All contributors a person who have an authorized access to
+\item \textbf{\dietcontrib.} A person who has an authorized access to
   write into a branch or into the master. His role is to:
   \begin{itemize}
-    \item write a nice and amazing code. 
+    \item write and document a nice and amazing code;
     \item work in collaboration with his \dietbranch. 
 \end{itemize}
  
-\item \textbf{\dietguest}. It's a contributor without a write GIT
+\item \textbf{\dietguest.} He's a contributor without  GIT write
   access. He can 
 \begin{itemize}
-  \item  send a patch to a \dietbranch or a member of the \dietmaint. 
-    \item become an DIET developer as soon as possible
+  \item  send a patch to a \dietbranch or a member of the \dietmaint;
+  \item become a \diet developer as soon as possible.
 \end{itemize}
 
-\item \textbf{\dietpackage} He does the merge to the master with the
+\item \textbf{\dietpackage.} He does the merge to the master with the
   help of the \dietbranch. And he builds the package (tarball, Debian,
-  Fedora, ...) when a new release is announced by the \dietmaint. 
+  Fedora, \dots) when a new release is announced by the \dietmaint. 
 \end{description}
 
-\chapter{Becoming an DIET developer}
+\chapter{Becoming a \diet developer}
 
-A DIET developer is an amazing person that is actively involved in
-DIET development. For example, if you have a significant contribution
+A \diet developer is an amazing person that is actively involved in
+the development of \diet. For example, if you have a significant contribution
 or write regularly enhancements for the product or planning to do it
 soon.
 
-\section{Obtaining Write Access to GIT branch}
+\section{Obtaining Write Access to a GIT branch}
 
-DIET source code lives in GIT. The main features under development
+\diet source code lives in GIT. The main features under development
 exist under a GIT branch.  Everyone can read the source code but only
-developers can write on it. You need written access permission to DIET
+developers can write on it. You need write access permission to \diet
 GIT to be able to push your code to the GIT.
 
 \section{Regression tests}
 
 \todobd{Des infos sur Jenkins ? Et comment ajouter de nouveau tests ou
-où trouver la doc pour le faire.}
+où trouver la doc pour le faire. Récupérer la doc de \url{http://graal.ens-lyon.fr/trac/sysfera/wiki/SysFeraPrivate/ContinuousIntegration}}
 
 
 \section{Coding Standard}
 
-\todohg{Faire un lien sur le document de DIET Coding Standards fait
+\todohg{Faire un lien sur le document de \diet Coding Standards fait
   par Haïkel. Est-ce qu'on garde les 15 pages ? Je veux dire par là
   que je vois bien une version pas trop rebuttante en version Lite
   pour un coder beginner puis rapidement si ça mort on lui passe le
@@ -327,7 +341,8 @@ où trouver la doc pour le faire.}
 
 Can you help to prepare the necessary infrastructure to create
 packages for different distributions and installers for different
-platforms? We already build packages for Debian and Fedora. 
+platforms? We already build packages for Debian and Fedora, but any new packages
+are welcome.
 
 \chapter{Legal Aspects}
 
