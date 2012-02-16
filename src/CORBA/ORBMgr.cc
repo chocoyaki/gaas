@@ -137,7 +137,7 @@ std::string
 get_omniorb_configuration(const std::vector<std::string>& args,
                           const std::string& key) {
   // check command line arguments
-  for (int i = 0; i < args.size(); ++i) {
+  for (unsigned int i = 0; i < args.size(); ++i) {
     if ((args[i] == key) && !args[i + 1].empty()) {
       return (args[i+1]);
     }
@@ -172,13 +172,12 @@ get_omniorb_configuration(const std::vector<std::string>& args,
 ORBMgr::ORBMgr(int argc, char* argv[]) {
   const char* opts[][2]= {{0, 0}};
   std::vector<std::string> args;
-  int j = 0;
   for (int j = 0; j < argc; ++j) {
     args.push_back(std::string(argv[j]));
   }
 
-  int maxGIOPConnectionPerServer =
-  boost::lexical_cast<int>(
+  unsigned int maxGIOPConnectionPerServer =
+  boost::lexical_cast<unsigned int>(
     get_omniorb_configuration(args, "maxGIOPConnectionPerServer"));
 
   if (maxGIOPConnectionPerServer < MAXGIOPCONNECTIONPERSERVER_THRESHOLD) {
