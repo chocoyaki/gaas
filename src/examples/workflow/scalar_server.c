@@ -45,7 +45,7 @@ performance_Exec_Time(diet_profile_t *pb, estVector_t perfValues) {
   tcomp = diet_est_get_system(perfValues, EST_TCOMP, 10000000);
   eft = diet_est_get_system(perfValues, EST_EFT, 10000000);
   printf("TCOMP=%f / EFT=%f\n", tcomp, eft);
-} /* performance_Exec_Time */
+}  /* performance_Exec_Time */
 
 void
 set_up_scheduler(diet_profile_desc_t *profile) {
@@ -77,10 +77,10 @@ succ(diet_profile_t *pb) {
   diet_scalar_desc_set(diet_parameter(pb, 1), jx);
   diet_scalar_desc_set(diet_parameter(pb, 2), kx);
 
-  //diet::usleep(t * 100000);
+  /* diet::usleep(t * 100000); */
 
   return 0;
-} /* succ */
+}  /* succ */
 
 /**
  * The DOUBLE service
@@ -99,10 +99,10 @@ double_int(diet_profile_t *pb) {
   fprintf(stderr, "j = 2i = %d\n", *(int *) jx);
   diet_scalar_desc_set(diet_parameter(pb, 1), jx);
 
-  //usleep(t * 100000);
+  /* usleep(t * 100000); */
 
   return 0;
-} /* double_int */
+}  /* double_int */
 
 
 /**
@@ -123,10 +123,10 @@ sum(diet_profile_t *pb) {
   fprintf(stderr, "k = i + j = %d\n", *(int *) kx);
   diet_scalar_desc_set(diet_parameter(pb, 2), kx);
 
-  //usleep(t * 100000);
+  /* usleep(t * 100000); */
 
   return 0;
-} /* sum */
+}  /* sum */
 
 /**
  * The SQUARE service
@@ -145,10 +145,10 @@ square(diet_profile_t *pb) {
   fprintf(stderr, "sqrt(i) = %f\n", *(double *) jx);
   diet_scalar_desc_set(diet_parameter(pb, 1), jx);
 
-  //usleep(t * 100000);
+  /* usleep(t * 100000); */
 
   return 0;
-} /* square */
+}  /* square */
 
 int
 main(int argc, char *argv[]) {
@@ -209,4 +209,4 @@ main(int argc, char *argv[]) {
   diet_print_service_table();
   res = diet_SeD(argv[1], argc, argv);
   return res;
-} /* main */
+}  /* main */
