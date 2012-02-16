@@ -147,15 +147,28 @@ get_omniorb_configuration(const std::vector<std::string>& args,
   if (res) {
     return res;
   }
+
   // check configuration file
-  int i = 0;
   boost::format fmtr("\\s*%1%\\s*=\\s*(\\d+)");
   boost::regex e(boost::str(fmtr % key),
                  boost::regex::perl);
   boost::smatch group;
-  while (conffiles[i]) {
-    if (boost::filesystem::exists(conffiles[i])) {
-      std::ifstream ifs(conffiles[i]);
+
+  // check configuration files
+  std::vector<std::string> files;
+  char * resFile = getenv("OMNIORB_CONFIG");
+  if (resFile) {
+    files.push_back(resFile);
+  }
+  for (unsigned int i = 0; conffiles[i] != NULL; ++i) {
+    files.push_back(conffiles[i]);
+  }
+
+
+  for (std::vector<std::string>::const_iterator it = files.begin();
+       it != files.end(); ++it) {
+    if (boost::filesystem::exists(*it)) {
+      std::ifstream ifs(it->c_str());
       std::string content;
       while (getline(ifs, content)) {
         if (boost::regex_match(content, group, e)) {
@@ -163,7 +176,6 @@ get_omniorb_configuration(const std::vector<std::string>& args,
         }
       }
     }
-    i++;
   }
   return std::string();
 }
@@ -176,20 +188,27 @@ ORBMgr::ORBMgr(int argc, char* argv[]) {
     args.push_back(std::string(argv[j]));
   }
 
-  unsigned int maxGIOPConnectionPerServer =
-  boost::lexical_cast<unsigned int>(
-    get_omniorb_configuration(args, "maxGIOPConnectionPerServer"));
+  try {
+    unsigned int maxGIOPConnectionPerServer =
+      boost::lexical_cast<unsigned int>(
+        get_omniorb_configuration(args, "maxGIOPConnectionPerServer"));
 
-  if (maxGIOPConnectionPerServer < MAXGIOPCONNECTIONPERSERVER_THRESHOLD) {
-    std::cerr <<
-    boost::format(
-      "DIET WARNING: OmniORB maxGIOPConnectionPerServer is set to %1%.\n"
-      "Usually, DIET recommends that you set it to at least %2%.\n"
-      "You should request your sysadmin to increase its value "
-      "if you experience any troubles\n")
-    % maxGIOPConnectionPerServer
-    % MAXGIOPCONNECTIONPERSERVER_THRESHOLD;
+    if (maxGIOPConnectionPerServer < MAXGIOPCONNECTIONPERSERVER_THRESHOLD) {
+      std::cerr <<
+        boost::format(
+          "DIET WARNING: OmniORB maxGIOPConnectionPerServer is set to %1%.\n"
+          "Usually, DIET recommends that you set it to at least %2%.\n"
+          "You should request your sysadmin to increase its value "
+          "if you experience any troubles\n")
+        % maxGIOPConnectionPerServer
+        % MAXGIOPCONNECTIONPERSERVER_THRESHOLD;
+    }
+  } catch (...) {
+    TRACE_TEXT(TRACE_ALL_STEPS,
+               "Unable to check OmniORB maxGIOPConnectionPerServer value.\n");
   }
+
+
 
   ORB = CORBA::ORB_init(argc, argv, "omniORB4", opts);
   init(ORB);
