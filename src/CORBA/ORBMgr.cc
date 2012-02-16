@@ -203,7 +203,7 @@ ORBMgr::ORBMgr(int argc, char* argv[]) {
         % maxGIOPConnectionPerServer
         % MAXGIOPCONNECTIONPERSERVER_THRESHOLD;
     }
-  } catch (...) {
+  } catch (boost::bad_lexical_cast& e) {
     TRACE_TEXT(TRACE_ALL_STEPS,
                "Unable to check OmniORB maxGIOPConnectionPerServer value.\n");
   }
