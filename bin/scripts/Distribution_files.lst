@@ -27,7 +27,7 @@ INSTALL.txt
 ChangeLog
 LICENCE_eng.txt
 LICENCE_fr.txt
-COPYING
+README.txt
 
 # cmake Section
 [Untemplated]
@@ -46,11 +46,13 @@ cmake/FindDiet.cmake
 cmake/FindGSOAP.cmake
 cmake/FindJavaExtended.cmake
 cmake/FindLOGSERVICE.cmake
-cmake/FindOmniORB.cmake
+cmake/FindOmniORB4.cmake
 cmake/FindPackageHandleStandardArgs.cmake
+cmake/FindSSH.cmake
 cmake/FindTestingUtils.cmake
 cmake/FindXQilla.cmake
 cmake/FindXerces.cmake
+cmake/UseOmniORB4.cmake
 cmake/Makefile.inc.in
 cmake/README
 cmake/xercesv.cc.in
@@ -77,7 +79,6 @@ src/CMakeLists.txt
 
 # CORBA section
 [Untemplated]
-src/CORBA/CMakeLists.txt
 [Templated]
 src/CORBA/DIETForwarder.cc
 src/CORBA/DIETForwarder.hh
@@ -94,7 +95,6 @@ src/CORBA/marshalling.hh
 
 # idl section
 [Untemplated]
-src/CORBA/idl/CMakeLists.txt
 [Templated]
 src/CORBA/idl/Agent.idl
 src/CORBA/idl/AgentFwdr.idl
@@ -135,12 +135,10 @@ src/CORBA/forwarders/WfLogService.cc
 
 # tools section
 [Untemplated]
-src/CORBA/tools/CMakeLists.txt
 src/CORBA/tools/dietObjects.cc
 
 # SeD section
 [Untemplated]
-src/SeD/CMakeLists.txt
 [Templated]
 src/SeD/DIET_server.cc
 src/SeD/SeDImpl.cc
@@ -148,7 +146,6 @@ src/SeD/SeDImpl.hh
 
 # agent section
 [Untemplated]
-src/agent/CMakeLists.txt
 [Templated]
 src/agent/AgentImpl.cc
 src/agent/AgentImpl.hh
@@ -182,7 +179,6 @@ src/agent/qsort.cc
 
 # agent workflow section
 [Untemplated]
-src/agent/workflow/CMakeLists.txt
 [Templated]
 src/agent/workflow/HEFTScheduler.cc
 src/agent/workflow/HEFTScheduler.hh
@@ -210,7 +206,6 @@ src/agent/workflow/maDagAgent.cc
 
 # utils admin section
 [Untemplated]
-src/utils/admin/CMakeLists.txt
 [Templated]
 src/utils/admin/connect.cc
 src/utils/admin/disconnect.cc
@@ -218,7 +213,6 @@ src/utils/admin/remove.cc
 
 # utils workflow section
 [Untemplated]
-src/utils/workflow/CMakeLists.txt
 src/utils/workflow/FWorkflow.dtd
 [Templated]
 src/utils/workflow/Dag.cc
@@ -274,7 +268,6 @@ src/utils/workflow/WfUtils.hh
 
 # client workflow section
 [Untemplated]
-src/client/workflow/CMakeLists.txt
 [Templated]
 src/client/workflow/CltDagNodeLauncher.cc
 src/client/workflow/CltDagNodeLauncher.hh
@@ -285,7 +278,6 @@ src/client/workflow/CltWfMgr.hh
 
 # Client section
 [Untemplated]
-src/client/CMakeLists.txt
 [Templated]
 src/client/CallAsyncMgr.cc
 src/client/CallAsyncMgr.hh
@@ -516,7 +508,6 @@ src/examples/cfgs/ldap_schema/nis.schema
 
 # Utils section
 [Untemplated]
-src/utils/CMakeLists.txt
 [Templated]
 src/utils/AccessController.cc
 src/utils/AccessController.hh
@@ -541,12 +532,13 @@ src/utils/est_internal.cc
 src/utils/est_internal.hh
 src/utils/ms_function.cc
 src/utils/ms_function.hh
+src/utils/OSIndependance.hh
+src/utils/OSIndependance.cc
 src/utils/statistics.cc
 src/utils/statistics.hh
 
 # utils/batch section
 [Untemplated]
-src/utils/batch/CMakeLists.txt
 [Templated]
 src/utils/batch/BatchCreator.cc
 src/utils/batch/BatchCreator.hh
@@ -586,7 +578,6 @@ src/utils/batch/EucaLib/soapStub.h
 
 # Utils/nodes section
 [Untemplated]
-src/utils/nodes/CMakeLists.txt
 [Templated]
 src/utils/nodes/CORIMgr.cc
 src/utils/nodes/CORIMgr.hh
@@ -609,7 +600,6 @@ src/utils/nodes/ServiceTable.hh
 
 # src/utils/log section
 [Untemplated]
-src/utils/log/CMakeLists.txt
 [Templated]
 src/utils/log/DietLogComponent.cc
 src/utils/log/DietLogComponent.hh
@@ -617,7 +607,6 @@ src/utils/log/DietLogComponent.hh
 
 # Utils/events section
 [Untemplated]
-src/utils/events/CMakeLists.txt
 [Templated]
 src/utils/events/EventBase.cc
 src/utils/events/EventBase.hh
@@ -639,7 +628,6 @@ src/utils/ts_container/ts_vector.hh
 
 # Utils/DAGDA section
 [Untemplated]
-src/utils/DAGDA/CMakeLists.txt
 [Templated]
 src/utils/DAGDA/AdvancedDagdaComponent.cc
 src/utils/DAGDA/AdvancedDagdaComponent.hh
@@ -663,7 +651,6 @@ src/utils/DAGDA/Transfers.hh
 
 # Utils/config section
 [Untemplated]
-src/utils/config/CMakeLists.txt
 [Templated]
 src/utils/config/CmdException.hh
 src/utils/config/CmdParser.cc
@@ -905,7 +892,6 @@ doc/ExternalExample/Makefile
 doc/ExternalExample/README
 doc/ExternalExample/simple_client.c
 doc/ExternalExample/simple_server.c
-doc/ExternalExample/cmake/FindDiet.cmake
 
 # Doc/ProgrammersGuide section
 [Devel_Untemplated]
