@@ -327,7 +327,7 @@ set_source_files_properties( Cori_Easy_Memory.cc
   PROPERTIES COMPILE_FLAGS "${CORI_EASY_MEMORY_COMPILE_FLAGS}")
 
   
-## library: DIET_core
+## library: DIET_Dagda
 set(CORE_SRCS
   utils/DAGDA/DagdaImpl.cc
   utils/DAGDA/DagdaFactory.cc
@@ -361,11 +361,11 @@ if(DIET_USE_WORKFLOW)
   set(CORE_LIBS ${CORE_LIBS} ${XQILLA_LIBRARY} ${XERCES_LIBRARY})
 endif()
 
-add_library(DIET_core ${CORE_SRCS})
-set_target_properties(DIET_core PROPERTIES VERSION ${DIET_VERSION})
-target_link_libraries(DIET_core ${CORE_LIBS})
+add_library(DIET_Dagda ${CORE_SRCS})
+set_target_properties(DIET_Dagda PROPERTIES VERSION ${DIET_VERSION})
+target_link_libraries(DIET_Dagda ${CORE_LIBS})
 
-install(TARGETS DIET_core DESTINATION ${LIB_INSTALL_DIR})
+install(TARGETS DIET_Dagda DESTINATION ${LIB_INSTALL_DIR})
 install(FILES utils/DAGDA/DIET_Dagda.h DESTINATION ${INCLUDE_INSTALL_DIR})
 
 ## library: DIET_admin
@@ -403,7 +403,7 @@ set(dietForwarder_SRCS
   ${AgentCommon_SRCS}
   )
 
-set(dietForwarder_LIBS DIET_core DIET_SeD DIET_client ${CMAKE_DL_LIBS})
+set(dietForwarder_LIBS DIET_Dagda DIET_SeD DIET_client ${CMAKE_DL_LIBS})
 if(WIN32)
   set(dietForwarder_LIBS ${dietForwarder_LIBS} ws2_32 Iphlpapi)
 endif()
@@ -453,7 +453,7 @@ set(DIET_client_SRCS
   client/CallbackImpl.cc
   ${AgentCommon_SRCS})
 
-set(DIET_client_LIBS DIET_core)
+set(DIET_client_LIBS DIET_Dagda)
 
 if(DIET_USE_MULTICALL)
   set(DIET_client_SRCS ${DIET_client_SRCS} client/MultiCall.cc)
@@ -488,7 +488,7 @@ install(TARGETS DIET_client DESTINATION ${LIB_INSTALL_DIR})
 
 ## executable: agent
 set(dietAgent_LIBS
-  DIET_core
+  DIET_Dagda
   DIET_client
   DIET_SeD
   ${CMAKE_DL_LIBS})
@@ -525,7 +525,7 @@ install(TARGETS dietAgent DESTINATION ${BIN_INSTALL_DIR})
 if(DIET_USE_WORKFLOW)
   set(maDagAgent_SRCS agent/workflow/maDagAgent.cc ${MaDagCommon_SRCS}
      ${UtilsEvents_SRCS})
-  set(maDagAgent_LIBS DIET_core ${XQILLA_LIBRARY} ${XERCES_LIBRARY}
+  set(maDagAgent_LIBS DIET_Dagda ${XQILLA_LIBRARY} ${XERCES_LIBRARY}
     DIET_SeD DIET_client)
   if(WIN32)
     set(maDagAgent_LIBS ${maDagAgent_LIBS} ws2_32 Shlwapi)
@@ -544,7 +544,7 @@ set(DIET_SeD_SRCS SeD/DIET_server.cc SeD/SeDImpl.cc ${cori_SRCS})
 if(DIET_USE_ALT_BATCH)
   set(DIET_SeD_SRCS ${DIET_SeD_SRCS} ${UtilsBatch_SRCS})
 endif()
-set(DIET_SeD_LIBS DIET_core)
+set(DIET_SeD_LIBS DIET_Dagda)
 if(WIN32)
   set(DIET_SeD_LIBS ${DIET_SeD_LIBS} ws2_32)
 endif()  
