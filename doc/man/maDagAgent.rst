@@ -9,7 +9,7 @@ DIET grid middleware agent
 :Author: benjamin.depardon@sysfera.com
 :Date:   2011-05-23
 :Copyright: DIET developers
-:License: GPLv3+
+:License: CeCILL
 :Version: 0.1
 :Manual section: 1
 :Manual group:

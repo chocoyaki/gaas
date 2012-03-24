@@ -9,7 +9,7 @@ DIET tool to manage ssh tunnels between DIET components
 :Author: haikel.guemar@sysfera.com
 :Date:   2011-01-10
 :Copyright: DIET developers
-:License: GPLv3
+:License: CeCILL
 :Version: 0.1
 :Manual section: 1
 
