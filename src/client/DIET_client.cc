@@ -366,7 +366,6 @@ diet_initialize(const char *config_file_name, int argc, char *argv[]) {
   // end modif bisnard_logs_1
 
   // create_file();
-  MA_MUTEX->unlock();
 
   /** get Num session*/
   num_Session = MA->get_session_num();
