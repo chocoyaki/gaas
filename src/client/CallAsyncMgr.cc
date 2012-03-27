@@ -184,7 +184,7 @@ CallAsyncMgr::addWaitAllRule() {
 int
 CallAsyncMgr::addWaitAnyRule(diet_reqID_t *IDptr) {
   try {
-    boost::scoped_ptr<Rule> rule(new Rule);
+    Rule *rule = new Rule;
     { // managing Reader lock
       ReaderLockGuard r(callAsyncListLock);
       CallAsyncList::iterator h = caList.begin();
@@ -208,7 +208,7 @@ CallAsyncMgr::addWaitAnyRule(diet_reqID_t *IDptr) {
     }
 
     // get lock on condition/waitRule
-    switch (CallAsyncMgr::Instance()->addWaitRule(rule.get())) {
+    switch (CallAsyncMgr::Instance()->addWaitRule(rule)) {
     case STATUS_DONE:
     {
       ReaderLockGuard r(callAsyncListLock);
