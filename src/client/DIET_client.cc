@@ -858,13 +858,13 @@ diet_wait_or(diet_reqID_t *IDs, size_t length, diet_reqID_t *IDptr) {
       simpleWait[k].reqID = IDs[k];
       simpleWait[k].op = WAITOPERATOR(OR);
     }
-    boost::scoped_ptr<Rule> rule(new Rule);
+    Rule *rule = new Rule; /* freed by addWaitRule */
     rule->length = length;
     rule->ruleElts = simpleWait;
 
     // get lock on condition/waitRule
     // and manage return rule status
-    switch (CallAsyncMgr::Instance()->addWaitRule(rule.get())) {
+    switch (CallAsyncMgr::Instance()->addWaitRule(rule)) {
     case STATUS_DONE:
       for (unsigned int k = 0; k < length; k++) {
         if (CallAsyncMgr::Instance()->getStatusReqID(IDs[k]) == STATUS_DONE) {
