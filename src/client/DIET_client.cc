@@ -24,7 +24,6 @@
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
-#include <boost/scoped_ptr.hpp>
 #include <omniORB4/CORBA.h>
 
 #include "OSIndependance.hh"
