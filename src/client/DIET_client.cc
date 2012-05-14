@@ -25,6 +25,9 @@
 #include <sstream>
 #include <stdexcept>
 #include <omniORB4/CORBA.h>
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_io.hpp>
+#include <boost/uuid/uuid_generators.hpp>
 
 #include "OSIndependance.hh"
 #include "debug.hh"
@@ -274,7 +277,9 @@ diet_initialize(const char *config_file_name, int argc, char *argv[]) {
   gethostname(host, 256);
   host[255] = '\0';
   std::transform(host, host + strlen(host), host, chgName);
-  os << "DIET-client-" << host << "-" << getpid();
+  boost::uuids::random_generator uuid_rg;
+  boost::uuids::uuid uuid = uuid_rg();
+  os << "DIET-client-" << host << "-" << uuid;
   REF_CALLBACK_SERVER = CORBA::string_dup(os.str().c_str());
   try {
     ORBMgr::getMgr()->bind(CLIENTCTXT, os.str(), obj);

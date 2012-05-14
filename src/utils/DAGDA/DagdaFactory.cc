@@ -14,6 +14,9 @@
 #include <string>
 #include <algorithm>
 #include <boost/filesystem.hpp>
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_io.hpp>
+#include <boost/uuid/uuid_generators.hpp>
 
 #include "configuration.hh"
 #include "DagdaFactory.hh"
@@ -203,43 +206,49 @@ chg(int c) {
 
 const char *
 DagdaFactory::getClientName() {
+  static boost::uuids::random_generator uuid_rg;
   std::ostringstream name;
   char host[256];
+  boost::uuids::uuid uuid = uuid_rg();
 
   gethostname(host, 256);
   host[255] = '\0';
 
   std::transform(host, host + strlen(host), host, chg);
 
-  name << "DAGDA-client-" << host << "-" << getpid();
+  name << "DAGDA-client-" << host << "-" << uuid;
   return CORBA::string_dup(name.str().c_str());
 } // getClientName
 
 const char *
 DagdaFactory::getSeDName() {
+  static boost::uuids::random_generator uuid_rg;
   std::ostringstream name;
   char host[256];
 
+  boost::uuids::uuid uuid = uuid_rg();
   gethostname(host, 256);
   host[255] = '\0';
 
   std::transform(host, host + strlen(host), host, chg);
 
-  name << "DAGDA-SeD-" << host << "-" << getpid();
+  name << "DAGDA-SeD-" << host << "-" << uuid;
   return CORBA::string_dup(name.str().c_str());
 } // getSeDName
 
 const char *
 DagdaFactory::getDefaultName() {
+  static boost::uuids::random_generator uuid_rg;
   std::ostringstream name;
   char host[256];
 
+  boost::uuids::uuid uuid = uuid_rg();
   gethostname(host, 256);
   host[255] = '\0';
 
   std::transform(host, host + strlen(host), host, chg);
 
-  name << "DAGDA-Agent-" << host << "-" << getpid();
+  name << "DAGDA-Agent-" << host << "-" << uuid;
   return CORBA::string_dup(name.str().c_str());
 } // getDefaultName
 

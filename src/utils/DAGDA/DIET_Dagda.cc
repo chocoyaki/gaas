@@ -503,7 +503,7 @@ get_data_id() {
     id << "DAGDA://id-" << uuid << "-" << name;
     CORBA::string_free(name);
   } else {
-    id << "DAGDA://id-" << uuid << "-client-" << getpid();
+    id << "DAGDA://id-" << uuid << "-client-" << uuid;
   }
 
   return CORBA::string_dup(id.str().c_str());

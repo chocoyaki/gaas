@@ -25,6 +25,9 @@
 #include <sstream>
 #include <fstream>
 #include <algorithm>
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_io.hpp>
+#include <boost/uuid/uuid_generators.hpp>
 
 #include <omniORB4/CORBA.h>
 
@@ -70,16 +73,17 @@ main(int argc, char *argv[], char *envp[]) {
   if (cfg.getName() == "") {
     std::ostringstream name;
     char host[256];
+    boost::uuids::random_generator uuid_rg;
+    boost::uuids::uuid uuid = uuid_rg();
 
     gethostname(host, 256);
     host[255] = '\0';
 
     std::transform(host, host + strlen(host), host, change);
-    name << "Forwarder-" << host << "-" << getpid();
+    name << "Forwarder-" << host << "-" << uuid;
     WARNING(
-      "Missing parameter: name (use --name to fix it)" << std::endl
-                                                       <<
-      "Use default name: " << name.str() << std::endl);
+      "Missing parameter: name (use --name to fix it)\n"
+      << "Use default name: " << name.str() << "\"n");
     cfg.setName(name.str());
   }
 
@@ -87,8 +91,8 @@ main(int argc, char *argv[], char *envp[]) {
     if (cfg.getPeerName() == ""
         || cfg.getSshHost() == "") {
       ERROR_DEBUG("Missing parameter(s) to create tunnel."
-            << " Mandatory parameters:" << std::endl
-            << '\t' << "- Peer name (--peer-name <name>)" << std::endl
+            << " Mandatory parameters:\n"
+            << '\t' << "- Peer name (--peer-name <name>)\n"
             << '\t' << "- SSH host (--ssh-host <host>)", EXIT_FAILURE);
     }
   }
