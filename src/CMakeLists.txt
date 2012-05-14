@@ -526,7 +526,7 @@ if(DIET_USE_WORKFLOW)
   set(maDagAgent_SRCS agent/workflow/maDagAgent.cc ${MaDagCommon_SRCS}
      ${UtilsEvents_SRCS})
   set(maDagAgent_LIBS DIET_Dagda ${XQILLA_LIBRARY} ${XERCES_LIBRARY}
-    DIET_SeD DIET_client)
+    DIET_SeD DIET_client ${CMAKE_DL_LIBS})
   if(WIN32)
     set(maDagAgent_LIBS ${maDagAgent_LIBS} ws2_32 Shlwapi)
   endif()
