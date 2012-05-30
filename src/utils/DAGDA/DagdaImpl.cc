@@ -291,6 +291,7 @@ char *
 DagdaImpl::recordData(const SeqChar &data,
                       const corba_data_desc_t &dataDesc,
                       CORBA::Boolean replace, CORBA::Long offset) {
+  dataMutex.lock();
   std::string dataId(dataDesc.id.idNumber);
 
   if (getData()->find(dataId) == getData()->end()) {
@@ -338,7 +339,9 @@ DagdaImpl::recordData(const SeqChar &data,
   (*getData())[dataId].value.replace(data_sizeof(&dataDesc),
                                      data_sizeof(&dataDesc), buffer, true);
 
-  return CORBA::string_dup((*getData())[dataId].desc.id.idNumber);
+  char *res = CORBA::string_dup((*getData())[dataId].desc.id.idNumber);
+  dataMutex.unlock();
+  return res;
 } // recordData
 
 
