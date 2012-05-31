@@ -117,7 +117,7 @@ DagdaFactory::getStorageDir() {
     // create the directory with rwxr-xr-x permissions
     // TODO: boost::filesystem does not support permissions
     boost::system::error_code ec;
-    if (boost::filesystem::create_directory(storageDir, ec)) {
+    if (!boost::filesystem::create_directory(storageDir, ec)) {
       ERROR_EXIT("The DAGDA storage directory '"
                  << storageDir << "' cannot be opened");
     }
