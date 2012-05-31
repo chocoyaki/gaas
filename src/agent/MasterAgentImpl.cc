@@ -16,8 +16,6 @@
 #include <iostream>
 
 #include <boost/format.hpp>
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_io.hpp>
 
 #include "configuration.hh"
 #include "MasterAgentImpl.hh"
@@ -25,6 +23,7 @@
 #include "statistics.hh"
 #include "ReferenceUpdateThread.hh"
 #include "FloodRequestsList.hh"
+#include "DIET_uuid.hh"
 
 #ifdef HAVE_MULTI_MA
 #include "ORBMgr.hh"
@@ -156,7 +155,7 @@ MasterAgentImpl::run() {
 char *
 MasterAgentImpl::get_data_id() {
   boost::format id("DAGDA://id-%1%-%2%");
-  boost::uuids::uuid uuid = uuid_rg();
+  boost::uuids::uuid uuid = diet_generate_uuid();
   id % uuid % myName;
 
   return CORBA::string_dup(id.str().c_str());

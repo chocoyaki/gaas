@@ -13,11 +13,9 @@
 #include <map>
 #include <sstream>
 #include <string>
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_io.hpp>
-#include <boost/uuid/uuid_generators.hpp>
 
 #include "DIET_Dagda.hh"
+#include "DIET_uuid.hh"
 #include "DagdaFactory.hh"
 
 #if DAGDA_PROGRESSION
@@ -492,11 +490,10 @@ dagda_reset() {
 // DAGDA should use the uuid library to avoid id's conflicts.
 char *
 get_data_id() {
-  static boost::uuids::random_generator uuid_rg;
   SimpleDagdaImpl *localManager =
     (SimpleDagdaImpl *) DagdaFactory::getDataManager();
   std::ostringstream id;
-  boost::uuids::uuid uuid = uuid_rg();
+  boost::uuids::uuid uuid = diet_generate_uuid();
   char *name = localManager->getID();
 
   if (name != NULL) {

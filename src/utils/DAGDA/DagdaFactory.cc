@@ -14,9 +14,6 @@
 #include <string>
 #include <algorithm>
 #include <boost/filesystem.hpp>
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_io.hpp>
-#include <boost/uuid/uuid_generators.hpp>
 
 #include "configuration.hh"
 #include "DagdaFactory.hh"
@@ -31,6 +28,7 @@
 #include "NetworkStats.hh"
 
 #include "DIET_Dagda.h"
+#include "DIET_uuid.hh"
 #include "OSIndependance.hh"
 #ifdef WIN32
    #define DIET_API_LIB __declspec(dllexport)
@@ -206,10 +204,9 @@ chg(int c) {
 
 const char *
 DagdaFactory::getClientName() {
-  static boost::uuids::random_generator uuid_rg;
   std::ostringstream name;
   char host[256];
-  boost::uuids::uuid uuid = uuid_rg();
+  boost::uuids::uuid uuid = diet_generate_uuid();
 
   gethostname(host, 256);
   host[255] = '\0';
@@ -222,11 +219,10 @@ DagdaFactory::getClientName() {
 
 const char *
 DagdaFactory::getSeDName() {
-  static boost::uuids::random_generator uuid_rg;
   std::ostringstream name;
   char host[256];
 
-  boost::uuids::uuid uuid = uuid_rg();
+  boost::uuids::uuid uuid = diet_generate_uuid();
   gethostname(host, 256);
   host[255] = '\0';
 
@@ -238,11 +234,10 @@ DagdaFactory::getSeDName() {
 
 const char *
 DagdaFactory::getDefaultName() {
-  static boost::uuids::random_generator uuid_rg;
   std::ostringstream name;
   char host[256];
 
-  boost::uuids::uuid uuid = uuid_rg();
+  boost::uuids::uuid uuid = diet_generate_uuid();
   gethostname(host, 256);
   host[255] = '\0';
 

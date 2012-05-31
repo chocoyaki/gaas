@@ -24,9 +24,6 @@
 
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/regex.hpp>
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_io.hpp>
-#include <boost/uuid/uuid_generators.hpp>
 #include <boost/detail/endian.hpp>
 
 #include "Dagda.hh"
@@ -35,6 +32,7 @@
 #include "ORBMgr.hh"
 #include "DIET_data.h"
 #include "DIET_data_internal.hh"
+#include "DIET_uuid.hh"
 #include "debug.hh"
 #include "marshalling.hh"
 
@@ -143,8 +141,6 @@ DagdaImpl::writeFile(const SeqChar &data, const char *basename,
 
 std::string
 gen_filename(std::string basename) {
-  static boost::uuids::random_generator uuid_rg;
-
   unsigned long int idx = basename.find_last_of('/');
   if (idx != std::string::npos) {
     basename = basename.substr(idx + 1);
@@ -156,7 +152,7 @@ gen_filename(std::string basename) {
     basename = basename.substr(0, dot);
   }
   std::ostringstream name;
-  boost::uuids::uuid uuid = uuid_rg();
+  boost::uuids::uuid uuid = diet_generate_uuid();
 
   name << basename << "-" << uuid << suffix;
 

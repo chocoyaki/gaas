@@ -19,10 +19,8 @@
 #include <sstream>
 #include <ctime>
 #include <sys/types.h>
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_io.hpp>
-#include <boost/uuid/uuid_generators.hpp>
 
+#include "DIET_uuid.hh"
 #include "OSIndependance.hh"   // For gethostname()
 
 
@@ -104,8 +102,7 @@ SeDImpl::initialize() {
   if (!CONFIG_STRING(diet::NAME, name)) {
     /* Generate a name for this SeD and print it */
     std::stringstream oss;
-    boost::uuids::random_generator uuid_rg;
-    boost::uuids::uuid uuid = uuid_rg();
+    boost::uuids::uuid uuid = diet_generate_uuid();
     oss << localHostName << "_" << uuid << "_" << rand() % 10000;
     name = oss.str();
   }

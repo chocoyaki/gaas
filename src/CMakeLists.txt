@@ -172,6 +172,7 @@ set(UtilsLog_SRCS utils/log/DietLogComponent.cc)
 set(dietUtils_SRCS 
   utils/debug.cc
   utils/DIET_data.cc
+  utils/DIET_uuid.cc
   utils/KeyString.cc
   utils/ms_function.cc
   utils/statistics.cc

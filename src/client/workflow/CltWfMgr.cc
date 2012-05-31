@@ -15,15 +15,13 @@
 #include <fstream>
 #include <sstream>
 #include <string>
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_io.hpp>
-#include <boost/uuid/uuid_generators.hpp>
 
 #include "CltWfMgr.hh"
 /* DIET */
 #include "debug.hh"
 #include "statistics.hh"
 #include "ORBMgr.hh"
+#include "DIET_uuid.hh"
 /* DAGDA */
 extern "C" {
 #include "DIET_Dagda.h"
@@ -168,8 +166,7 @@ CltWfMgr::instance() {
 
     gethostname(host, 256);
     host[255] = '\0';
-    boost::uuids::random_generator uuid_rg;
-    boost::uuids::uuid uuid = uuid_rg();
+    boost::uuids::uuid uuid = diet_generate_uuid();
     os << "CltWfMgr-" << host << "-" << uuid;
     myInstance = new CltWfMgr(os.str());
     ORBMgr::getMgr()->activate(myInstance);

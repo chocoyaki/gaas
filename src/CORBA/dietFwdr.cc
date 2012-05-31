@@ -25,13 +25,11 @@
 #include <sstream>
 #include <fstream>
 #include <algorithm>
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_io.hpp>
-#include <boost/uuid/uuid_generators.hpp>
 
 #include <omniORB4/CORBA.h>
 
 #include "OSIndependance.hh"     // For sleep function
+#include "DIET_uuid.hh"
 
 #ifdef __WIN32__
 #define sleep(value) (Sleep(value*1000))
@@ -73,8 +71,7 @@ main(int argc, char *argv[], char *envp[]) {
   if (cfg.getName() == "") {
     std::ostringstream name;
     char host[256];
-    boost::uuids::random_generator uuid_rg;
-    boost::uuids::uuid uuid = uuid_rg();
+    boost::uuids::uuid uuid = diet_generate_uuid();
 
     gethostname(host, 256);
     host[255] = '\0';
