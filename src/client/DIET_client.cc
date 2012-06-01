@@ -279,9 +279,16 @@ diet_initialize(const char *config_file_name, int argc, char *argv[]) {
   os << "DIET-client-" << host << "-" << uuid;
   REF_CALLBACK_SERVER = CORBA::string_dup(os.str().c_str());
   try {
-    ORBMgr::getMgr()->bind(CLIENTCTXT, os.str(), obj);
+    bool forceRebind(true);
+    CONFIG_BOOL(diet::FORCE_CLIENT_REBIND, forceRebind);
+    ORBMgr::getMgr()->bind(CLIENTCTXT, os.str(), obj, forceRebind);
     ORBMgr::getMgr()->fwdsBind(CLIENTCTXT, os.str(),
                                ORBMgr::getMgr()->getIOR(obj));
+  } catch (const std::runtime_error& e) {
+    std::cout << "Connection to omniNames failed (Callback server bind) : "
+              << e.what() << "\n";
+    ERROR_DEBUG("Connection to omniNames failed (Callback server bind)",
+          GRPC_NOT_INITIALIZED);
   } catch (...) {
     ERROR_DEBUG("Connection to omniNames failed (Callback server bind)",
           GRPC_NOT_INITIALIZED);

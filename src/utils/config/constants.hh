@@ -82,6 +82,7 @@ typedef enum {
   INSTANTIATEVMS,
   SECURITYGROUP,
   USERNAME,
+  FORCE_CLIENT_REBIND,
   NB_PARAM_TYPE
 } param_type_t;
 

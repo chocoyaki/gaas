@@ -84,8 +84,8 @@ DIET_API_LIB param_t params[] =
   /* [56] */ {PATHTOSSHKEY, "pathToSSHKey", STRING_PARAMETER},
   /* [57] */ {INSTANTIATEVMS, "instantiateVMs", INT_PARAMETER},
   /* [58] */ {SECURITYGROUP, "securityGroup", STRING_PARAMETER},
-  /* [59] */ {USERNAME, "userName", STRING_PARAMETER}
+  /* [59] */ {USERNAME, "userName", STRING_PARAMETER},
+  /* [60] */ {FORCE_CLIENT_REBIND, "forceRebind", BOOL_PARAMETER}
 };
 
 } /* namespace diet */
-
