@@ -516,6 +516,8 @@ src/utils/DIET_compat.cc
 src/utils/DIET_data.cc
 src/utils/DIET_data_internal.hh
 src/utils/DIET_mutex.cc
+src/utils/DIET_uuid.hh
+src/utils/DIET_uuid.cc
 src/utils/DataRelationMgr.cc
 src/utils/DataRelationMgr.hh
 src/utils/JobQueue.cc
