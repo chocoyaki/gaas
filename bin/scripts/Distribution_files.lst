@@ -40,6 +40,7 @@ cmake/ConfigureCORI.cmake
 cmake/DietConfig.cmake.in
 cmake/DietDefaultBuildTypes.cmake
 cmake/DisplaySummary.cmake
+cmake/Doxyfile.in
 cmake/FindAppleSeeds.cmake
 cmake/FindBLAS.cmake
 cmake/FindDiet.cmake
@@ -47,12 +48,15 @@ cmake/FindGSOAP.cmake
 cmake/FindJavaExtended.cmake
 cmake/FindLOGSERVICE.cmake
 cmake/FindOmniORB4.cmake
+cmake/FindOpenSSL.cmake
 cmake/FindPackageHandleStandardArgs.cmake
+cmake/FindPCRE.cmake
 cmake/FindSSH.cmake
 cmake/FindTestingUtils.cmake
 cmake/FindXQilla.cmake
 cmake/FindXerces.cmake
 cmake/UseOmniORB4.cmake
+cmake/UseDoxygen.cmake
 cmake/Makefile.inc.in
 cmake/README
 cmake/xercesv.cc.in
@@ -627,6 +631,12 @@ src/utils/events/TypeInfo.hh
 src/utils/ts_container/ts_map.hh
 src/utils/ts_container/ts_set.hh
 src/utils/ts_container/ts_vector.hh
+src/utils/ts_container/ts_set_aix.hh
+
+# Utils/windows section
+src/utils/windows/dirent.h
+src/utils/windows/inttypes.h
+src/utils/windows/stdint.h
 
 # Utils/DAGDA section
 [Untemplated]
