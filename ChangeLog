@@ -6,7 +6,8 @@
 	- ORBMgr: now warns users when maxGIOPConnectionPerServer setting
 	is too low (currently < 1000) to allow DIET working correctly
 	changed
-	- Also check the environment variable OMNIORB_CONFIG when searching for omniORB configuration files.
+	- Also check the environment variable OMNIORB_CONFIG when searching for omniORB configuration files
+	- add forceRebind configuration key to force client rebinding (default is true)
 * Bug Fix:
 	- Fixed compilation on Mac OS X
 	- Fixed tests binary locations
@@ -24,6 +25,8 @@
 	- Fixed: double free in diet_wait_or
 	- replace getpid() by uuid to prevent multiple elements to have
 	the same name
+	- Fixed: concurrency issue in DAGDA
+	- Fixed: DAGDA storage directory creation failure
 * Source code organization:
 	- Removed dead code
 	- A bit of code cleanup & indentation
@@ -31,7 +34,7 @@
 	- Removed some compilation warnings
 	- replace snprintf by strncpy where appropriate
 	- Improved build system
-	
+
 +----------+
 | diet 2.8 |
 +----------+

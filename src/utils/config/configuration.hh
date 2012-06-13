@@ -1,14 +1,12 @@
 /**
 * @file configuration.hh
-* 
-* @brief  Configuration manager 
-* 
+*
+* @brief  Configuration manager
+*
 * @author  Haikel Guemar (haikel.guemar@sysfera.com)
-* 
+*
 * @section Licence
-*   |LICENCE|                                                                
-*/
-
+*   |LICENCE|                                                            */
 
 
 #ifndef _CONFIGURATION_HH_
@@ -93,7 +91,7 @@ DIET_API_LIB getConfigValue(diet::param_type_t param, T& value) {
 }
 
 // TODO: not handled by generic method above
-template<> 
+template<>
 DIET_API_LIB bool
 getConfigValue(diet::param_type_t param, std::string& value);
 
