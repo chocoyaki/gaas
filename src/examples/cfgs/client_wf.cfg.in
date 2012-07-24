@@ -26,6 +26,13 @@ traceLevel = 2
 
 MAName = MA1
 
+#****************************************************************************#
+# dietPort: the listening port of the agent. If not specified, let the ORB
+#   get a port from the system (if the default 2809 was busy).
+# dietHostname : the listening interface of the agent. If not specified,
+#   let the ORB get the hostname from the system (the first one if several 
+#   one are available)
+#****************************************************************************#
 #dietPort = 2809
 #dietHostname = <hostname|IP>
 
@@ -35,3 +42,13 @@ MAName = MA1
 
 MADAGNAME = mad
 
+#****************************************************************************#
+# clientNbRetry: The maximum number times the client should automatically
+# retry a diet_call, whenever the solve function returns a non null value.
+# Default value is 0 (do not retry)
+#
+# Example: with a value of 2, the client will do at most 3 calls:
+# - the normal call
+# - 2 other calls (at most) to retry
+#****************************************************************************#
+# clientNbRetry = 2

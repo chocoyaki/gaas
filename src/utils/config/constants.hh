@@ -83,6 +83,7 @@ typedef enum {
   SECURITYGROUP,
   USERNAME,
   FORCE_CLIENT_REBIND,
+  NBRETRY,
   NB_PARAM_TYPE
 } param_type_t;
 
