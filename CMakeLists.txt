@@ -497,6 +497,10 @@ endif()
 # --------------------------------------------------------------------------
 include(${DIET_SOURCE_DIR}/cmake/DisplaySummary.cmake)
 
+# --------------------------------------------------------------------------
+# add an uninstall target to CMake
+include(CMakeUninstall)
+
 if(NOT WIN32)
   # --------------------------------------------------------------------------
   # Configuration of CPack to generate packages
