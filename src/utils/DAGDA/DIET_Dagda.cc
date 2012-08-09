@@ -975,6 +975,112 @@ dagda_put_data(void *value, diet_data_type_t type,
 } // dagda_put_data
 
 int
+dagda_get_data_description(const char *dataID, diet_data_type_t *type,
+                           diet_base_type_t *base_type,
+                           diet_persistence_mode_t* persistence_mode,
+                           size_t *nb_r, size_t *nb_c,
+                           diet_matrix_order_t *order) {
+  Dagda_var entryPoint = getEntryPoint();
+  DagdaImpl *manager = DagdaFactory::getDataManager();
+  char *src;
+  corba_data_t data;
+
+  data.desc.id.idNumber = CORBA::string_dup(dataID);
+
+  if (!manager->lclIsDataPresent(dataID)) {
+    // added because container elts are pre-downloaded
+    if (entryPoint != NULL) {
+      try {
+        data.desc = *entryPoint->pfmGetDataDesc(dataID);
+      } catch (CORBA::SystemException &e) {
+        std::cerr << "dagda_get_data/pfmGetDataDesc: Caught a CORBA "
+                  << e._name() << " exception ("
+                  << e.NP_minorString() << ")\n";
+        throw;
+      } catch (...) {
+        std::cerr << "dagda_get_data/pfmGetDataDesc: Caught exception\n";
+        throw;
+      }
+      try {
+        src = entryPoint->getBestSource(manager->getID(), dataID);
+
+        Dagda_var source =
+          ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT, src);
+        data.desc = *source->lclGetDataDesc(dataID);
+      } catch (Dagda::DataNotFound &ex) {
+        std::cerr << "dagda_get_data: data not found\n";
+        return 1;
+      } catch (CORBA::SystemException &e) {
+        std::cerr << "dagda_get_data: Caught a CORBA "
+                  << e._name() << " exception ("
+                  << e.NP_minorString() << ")\n";
+        return 1;
+      }
+    } else {
+      try {
+        data.desc = *manager->pfmGetDataDesc(dataID);
+        src = manager->getBestSource(manager->getID(), dataID);
+
+        Dagda_var source =
+          ORBMgr::getMgr()->resolve<Dagda, Dagda_var>(DAGDACTXT, src);
+        data.desc = *source->lclGetDataDesc(dataID);
+
+      } catch (Dagda::DataNotFound &ex) {
+        std::cerr << "dagda_get_data: data not found\n";
+        return 1;
+      }
+    }
+  } else {
+    data.desc = manager->getData(dataID)->desc;
+  }
+
+  *base_type = (diet_base_type_t)data.desc.base_type;
+  *persistence_mode = (diet_persistence_mode_t)data.desc.mode;
+
+  switch (data.desc.specific._d()) {
+  case 0:{
+    *type = DIET_SCALAR;
+    break;
+  }
+  case 1:{
+    *type = DIET_VECTOR;
+    *nb_c = (size_t)data.desc.specific.vect().size;
+    break;
+  }
+
+  case 2:{
+    *type = DIET_MATRIX;
+    *nb_r = (size_t)data.desc.specific.mat().nb_r;
+    *nb_c = (size_t)data.desc.specific.mat().nb_c;
+    *order = (diet_matrix_order_t) data.desc.specific.mat().order;
+    break;
+  }
+
+  case 3:{
+    *type = DIET_STRING;
+    break;
+  }
+
+  case 4:{
+    *type = DIET_PARAMSTRING;
+    break;
+  }
+
+  case 5:{
+    *type = DIET_FILE;
+    break;
+  }
+  case 6:{
+    *type = DIET_CONTAINER;
+    break;
+  }
+  default: break;
+  }
+  return 0;
+} // dagda_get_data_description
+
+
+int
 dagda_get_data(const char *dataID, void **value, diet_data_type_t type,
                diet_base_type_t *base_type, size_t *nb_r, size_t *nb_c,
                diet_matrix_order_t *order, char **path) {

@@ -44,6 +44,27 @@ dagda_put_data(void *value, diet_data_type_t type,
                size_t nb_r, size_t nb_c, diet_matrix_order_t order,
                char *path, char **ID);
 
+
+/**
+ * @brief get a data from platform
+ *
+ * @param dataID ID of the data to be retrieved
+ * @param type diet data type
+ * @param base_type basic data type
+ * @param persistence_mode persistence mode
+ * @param nb_r
+ * @param nb_c
+ * @param order
+ *
+ * @return 0 (success), 1 (failure)
+ */    
+DIET_API_LIB int
+dagda_get_data_description(const char *dataID, diet_data_type_t *type,
+                           diet_base_type_t *base_type, diet_persistence_mode_t* persistence_mode,
+                           size_t *nb_r, size_t *nb_c,
+                           diet_matrix_order_t *order);
+
+
 /**
  * @brief get a data from platform
  *
