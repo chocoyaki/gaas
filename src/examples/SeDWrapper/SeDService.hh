@@ -6,7 +6,7 @@
  * @author  Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)
  *
  * @section Licence
- *   |LICENCE|
+ *   |LICENSE|
  */
 
 #ifndef _SEDSERVICE_HH_

@@ -4,7 +4,7 @@
 *  @author  - Ludovic BERTSCH  (Ludovic.Bertsch@ens-lyon.fr)
 *           - Philippe COMBES  (Philippe.Combes@ens-lyon.fr)
 *  @section Licence 
-*    |LICENCE|
+*    |LICENSE|
 */
 
 

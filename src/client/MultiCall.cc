@@ -6,7 +6,7 @@
  * @author   Ghislain Charrier (Ghislain.Charrier@ens-lyon.fr)
  *
  * @section Licence
- *   |LICENCE|
+ *   |LICENSE|
  */
 
 

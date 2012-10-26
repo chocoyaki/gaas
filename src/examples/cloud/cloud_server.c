@@ -6,7 +6,7 @@
  * @author  Adrian Muresan (adrian.muresan@ens-lyon.fr)
  *
  * @section Licence
- *   |LICENCE|
+ *   |LICENSE|
  */
 
 #include <stdio.h>

@@ -6,7 +6,7 @@
  * @author  David Loureiro (david.loureiro@sysfera.com)
  *
  * @section Licence
- *   |LICENCE|
+ *   |LICENSE|
  */
 
 #include <map>

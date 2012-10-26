@@ -7,7 +7,7 @@
  *          Cyrille Pontvieux (cyrille.pontvieux@edu.univ-fcomte.fr)
  *
  * @section Licence
- *   |LICENCE|
+ *   |LICENSE|
  */
 
 #include "MonitoringThread.hh"

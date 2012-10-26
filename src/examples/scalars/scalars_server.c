@@ -6,7 +6,7 @@
  * @author  Philippe COMBES (Philippe.Combes@ens-lyon.fr)
  *
  * @section Licence
- *   |LICENCE|
+ *   |LICENSE|
  */
 
 #ifndef __WIN32__

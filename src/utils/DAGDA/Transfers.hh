@@ -5,7 +5,7 @@
  * @author Gael Le Mahec (lemahec@clermont.in2p3.fr)
  *
  * @section Licence
- *   |LICENCE|
+ *   |LICENSE|
  */
 
 

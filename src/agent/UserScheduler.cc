@@ -6,7 +6,7 @@
  * @author   Gael LE MAHEC (lemahec@clermont.in2p3.fr)
  *
  * @section Licence
- *   |LICENCE|
+ *   |LICENSE|
  */
 
 #include "UserScheduler.hh"

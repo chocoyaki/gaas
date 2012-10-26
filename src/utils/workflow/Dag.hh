@@ -7,7 +7,7 @@
 *          Benjamin ISNARD (Benjamin.Isnard@ens-lyon.fr)
 * 
 * @section Licence
-*   |LICENCE|                                                                
+*   |LICENSE|                                                                
 */
 
 

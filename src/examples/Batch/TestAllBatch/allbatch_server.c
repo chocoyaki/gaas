@@ -6,7 +6,7 @@
  * @author  Yves Caniou (Yves.Caniou@ens-lyon.fr)
  *
  * @section Licence
- *   |LICENCE|
+ *   |LICENSE|
  */
 
 #include <string.h>

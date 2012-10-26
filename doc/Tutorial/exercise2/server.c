@@ -5,7 +5,7 @@
 *           Eddy CARON  (Eddy.Caron@ens-lyon.fr)
 *           Philippe COMBES  (Philippe.Combes@ens-lyon.fr)
 *  @section Licence 
-*    |LICENCE|
+*    |LICENSE|
 */
 
 #include <unistd.h>

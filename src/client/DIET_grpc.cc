@@ -8,7 +8,7 @@
  *           Cedric Tedeschi (Cedric.Tedeschi@ens-lyon.fr)
  *
  * @section Licence
- *   |LICENCE|
+ *   |LICENSE|
  */
 
 

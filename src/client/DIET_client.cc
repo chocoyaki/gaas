@@ -8,7 +8,7 @@
  *           Christophe PERA (christophe.pera@ens-lyon.fr)
  *
  * @section Licence
- *   |LICENCE|
+ *   |LICENSE|
  */
 
 

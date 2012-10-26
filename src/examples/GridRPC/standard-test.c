@@ -6,7 +6,7 @@
  * @author  Yusuke Tanimura (yusuke.tanimura@aist.go.jp)
  *
  * @section Licence
- *   |LICENCE|
+ *   |LICENSE|
  */
 
 #include <stdio.h>

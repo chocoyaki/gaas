@@ -6,7 +6,7 @@
  * @author  Alan SU (Alan.Su@ens-lyon.fr)
  *
  * @section Licence
- *   |LICENCE|
+ *   |LICENSE|
  */
 /****************************************************************************/
 /* plugin_example, client side                                              */

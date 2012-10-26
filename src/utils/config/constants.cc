@@ -6,7 +6,7 @@
  * @author  Haikel Guemar (haikel.guemar@sysfera.com)
  *
  * @section Licence
- *   |LICENCE|
+ *   |LICENSE|
  */
 
 

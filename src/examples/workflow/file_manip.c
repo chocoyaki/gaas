@@ -6,7 +6,7 @@
  * @author  Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)
  *
  * @section Licence
- *   |LICENCE|
+ *   |LICENSE|
  */
 
 #ifndef __WIN32__
