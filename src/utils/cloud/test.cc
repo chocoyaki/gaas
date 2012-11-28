@@ -55,15 +55,15 @@ void test_destroy(IaasInterface * interf) {
 
 int main(int argc, const char *argv[]) {
   string base_url = "http://localhost:3001/api";
-  string username = "mockuser";
-  string password = "mockpassword";
+  string username = "toto";
+  string password = "titi";
 
   IaasInterface * interf = new Iaas_deltacloud(base_url, username, password);
   test_images(interf);
-  test_instances(interf);
+//  test_instances(interf);
   //test_create(interf);
-  test_destroy(interf);
-  test_instances(interf);
+//  test_destroy(interf);
+//  test_instances(interf);
 
   return 0;
 }
