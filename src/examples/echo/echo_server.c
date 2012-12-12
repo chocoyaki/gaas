@@ -22,109 +22,20 @@ int sendEcho(diet_profile_t *pb) {
 	char* name = NULL;
 	char result[80] ="Bonjour ";
 
-	diet_string_get(diet_parameter(pb, 0), name, NULL);
-	printf("Received : %s", name);
+	diet_string_get(diet_parameter(pb, 0), &name, DIET_VOLATILE);
+	printf("Received : %s\n", name);
 
 	strcat(result, name);
-	diet_string_set(diet_parameter(pb, 1), result, DIET_VOLATILE);
+	printf("Server : %s\n", result);
+	size_t length = diet_string_get_desc(diet_parameter(pb,1))->length;
+	printf("Server : %zx\n", length);
+	diet_free_data(diet_parameter(pb,0));
+	diet_string_get(diet_parameter(pb, 1), &name, DIET_VOLATILE);
+	strcpy(name, result);
 
+	diet_string_set(diet_parameter(pb, 1), name, DIET_VOLATILE);
 	return 0;
 }
-
-/*
- * SOLVE FUNCTION
- */
-
-int solve_ADD(diet_profile_t *pb) {
-	int res = 0;
-
-	printf("Solve ADD ...\n");
-
-	if (*(pb->pb_name) == 'F' || *(pb->pb_name) == 'D') {
-		switch ((diet_base_type_t) (diet_parameter(pb,
-				1))->desc.generic.base_type) {
-			case DIET_FLOAT: {
-				float *f1 = NULL;
-				float *f2 = NULL;
-				float *f3 = NULL;
-				diet_scalar_get(diet_parameter(pb, 0), &f1, NULL);
-				diet_scalar_get(diet_parameter(pb, 1), &f2, NULL);
-				diet_scalar_get(diet_parameter(pb, 2), &f3, NULL);
-				printf("f1=%g, f2=%g -> ", *(float *) f1, *(float *) f2);
-				*(float *) f3 = *(float *) f1 + *(float *) f2;
-				*(float *) f2 = *(float *) f3;
-				printf("f2=%g, f3=%g\n", *(float *) f2, *(float *) f3);
-				diet_scalar_desc_set(diet_parameter(pb, 1), f2);
-				diet_scalar_desc_set(diet_parameter(pb, 2), f3);
-				break;
-			}
-			case DIET_DOUBLE: {
-				double *d1 = NULL;
-				double *d2 = NULL;
-				double *d3 = NULL;
-				diet_scalar_get(diet_parameter(pb, 0), &d1, NULL);
-				diet_scalar_get(diet_parameter(pb, 1), &d2, NULL);
-				diet_scalar_get(diet_parameter(pb, 2), &d3, NULL);
-				printf("d1=%lg, d2=%lg -> ", *(double *) d1, *(double *) d2);
-				*(double *) d3 = *(double *) d1 + *(double *) d2;
-				*(double *) d2 = *(double *) d3;
-				printf("d2=%lg, d3=%lg\n", *(double *) d2, *(double *) d3);
-				diet_scalar_desc_set(diet_parameter(pb, 1), d2);
-				diet_scalar_desc_set(diet_parameter(pb, 2), d3);
-				break;
-			}
-			default:
-			res = 1;
-			break;
-		} /* switch */
-	} else {
-		/* For integers, we can use the longest type to store values
-		 of smaller types. */
-		long *l1 = NULL;
-		long *l2 = NULL;
-		long *l3 = NULL;
-		diet_scalar_get(diet_parameter(pb, 0), &l1, NULL);
-		diet_scalar_get(diet_parameter(pb, 1), &l2, NULL);
-		diet_scalar_get(diet_parameter(pb, 2), &l3, NULL);
-		switch ((diet_base_type_t) (diet_parameter(pb,
-								1))->desc.generic.base_type) {
-			case DIET_CHAR:
-			printf("l1 = 0x%hhX, l2 = 0x%hhX -> ", *(char *) l1, *(char *) l2);
-			*(char *) l3 = *(char *) l1 + *(char *) l2;
-			*(char *) l2 = *(char *) l3;
-			printf("l2 = 0x%hhX, l3 = 0x%hhX\n", *(char *) l2, *(char *) l3);
-			break;
-			case DIET_SHORT:
-			printf("l1 = 0x%hX, l2 = 0x%hX -> ", *(short *) l1, *(short *) l2);
-			*(short *) l3 = *(short *) l1 + *(short *) l2;
-			*(short *) l2 = *(short *) l3;
-			printf("l2 = 0x%hX, l3 = 0x%hX\n", *(short *) l2, *(short *) l3);
-			break;
-			case DIET_INT:
-			printf("l1 = 0x%X, l2 = 0x%X -> ", *(int *) l1, *(int *) l2);
-			*(int *) l3 = *(int *) l1 + *(int *) l2;
-			*(int *) l2 = *(int *) l3;
-			printf("l2 = 0x%X, l3 = 0x%X\n", *(int *) l2, *(int *) l3);
-			break;
-			case DIET_LONGINT:
-			printf("l1 = 0x%lX, l2 = 0x%lX -> ", *(long *) l1, *(long *) l2);
-			*(long *) l3 = *(long *) l1 + *(long *) l2;
-			*(long *) l2 = *(long *) l3;
-			printf("l2 = 0x%lX, l3 = 0x%lX\n", *(long *) l2, *(long *) l3);
-			break;
-			default:
-			res = 1;
-			break;
-		} /* switch */
-		diet_scalar_desc_set(diet_parameter(pb, 1), l2);
-		diet_scalar_desc_set(diet_parameter(pb, 2), l3);
-	}
-
-	/* diet_free_data(diet_parameter(pb, 0)); */
-
-	printf("Solve ADD ... done\n");
-	return res;
-} /* solve_ADD */
 
 int usage(char *cmd) {
 	fprintf(stderr, "Usage: %s <file.cfg>\n", cmd);
@@ -150,12 +61,13 @@ int main(int argc, char *argv[]) {
 	profile = diet_profile_desc_alloc("echo", 0, 0, 1);
 
 	diet_generic_desc_set(diet_param_desc(profile, 0),
-		DIET_STRING, DIET_BASE_TYPE_COUNT);
+		DIET_STRING, DIET_CHAR);
 	diet_generic_desc_set(diet_param_desc(profile, 1),
-		DIET_STRING, DIET_BASE_TYPE_COUNT);
+		DIET_STRING, DIET_CHAR);
 
 	if (diet_service_table_add(profile, NULL, sendEcho)) {
 		return 1;
+
 	}
 	diet_profile_desc_free(profile);
 
