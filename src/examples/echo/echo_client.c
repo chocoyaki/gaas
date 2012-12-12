@@ -59,7 +59,7 @@ int *pb = NULL;
   diet_string_set(diet_parameter(profile, 0), name, DIET_VOLATILE);
   diet_string_set(diet_parameter(profile, 1), NULL, DIET_VOLATILE);
 
-  if (!diet_call(profile)) {
+if (!diet_call(profile)) {
 	  diet_string_get(diet_parameter(profile, 1), echo, NULL);
 	  printf("Answer : %s\n", echo);
   }

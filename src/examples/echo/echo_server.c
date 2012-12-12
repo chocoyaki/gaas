@@ -156,6 +156,7 @@ int main(int argc, char *argv[]) {
 
 	if (diet_service_table_add(profile, NULL, sendEcho)) {
 		return 1;
+
 	}
 	diet_profile_desc_free(profile);
 

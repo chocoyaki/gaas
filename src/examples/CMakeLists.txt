@@ -40,6 +40,7 @@ add_subdirectory(cori)
 add_subdirectory(dmat_manips)
 add_subdirectory(file_transfer)
 add_subdirectory(scalars)
+add_subdirectory(echo)
 add_subdirectory(GridRPC)
 
 add_subdirectory(allDataTransfers)
