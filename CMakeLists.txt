@@ -86,9 +86,7 @@ endif()
 
 option(DIET_USE_DELTACLOUD "Build DIET with DeltaCloud support." OFF)
 
-if(DIET_USE_DELTACLOUD)
- find_package(LibDeltaCloud)
-endif()
+
 
 option(DIET_USE_WORKFLOW    "Build DIET with workflow support..." OFF)
 option(DIET_WITH_STATISTICS "Build DIET with generation of statistics." OFF)
@@ -547,6 +545,11 @@ if(NOT WIN32)
   
   # Finally include CPack
   include(CPack)
+endif()
+
+
+if(DIET_USE_DELTACLOUD)
+ find_package(LibDeltaCloud REQUIRED)
 endif()
 
 ## eof - CMakeLists.txt
