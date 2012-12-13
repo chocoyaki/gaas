@@ -87,7 +87,7 @@ endif()
 option(DIET_USE_DELTACLOUD "Build DIET with DeltaCloud support." OFF)
 
 if(DIET_USE_DELTACLOUD)
- find_package(TRUC)
+ find_package(LibDeltaCloud)
 endif()
 
 option(DIET_USE_WORKFLOW    "Build DIET with workflow support..." OFF)
