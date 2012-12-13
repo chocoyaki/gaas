@@ -38,7 +38,7 @@ void test_instances(IaasInterface * interf) {
 
 void test_create(IaasInterface * interf) {
   cout<<"Create"<<endl;
-  vector<string*> * insts = interf->run_instances("img1", 2);
+  vector<string*> * insts = interf->run_instances("3", 1);
   for_each(insts->begin(), insts->end(), print_str);
   cout<<endl;
 }
@@ -55,14 +55,14 @@ void test_destroy(IaasInterface * interf) {
 
 int main(int argc, const char *argv[]) {
   string base_url = "http://localhost:3001/api";
-  string username = "toto";
-  string password = "titi";
+  string username = "oneadmin";
+  string password = "passoneadmin";
 
   IaasInterface * interf = new Iaas_deltacloud(base_url, username, password);
   test_images(interf);
 //  test_instances(interf);
-  //test_create(interf);
-//  test_destroy(interf);
+  test_create(interf);
+  //test_destroy(interf);
 //  test_instances(interf);
 
   return 0;

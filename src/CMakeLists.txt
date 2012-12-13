@@ -49,6 +49,10 @@ if(DIET_USE_CLOUD)
   add_definitions("-DWITH_DOM -DWITH_OPENSSL")
 endif()
 
+if(DIET_USE_DELTACLOUD)
+ include_directories(utils/deta-cloud)
+endif()
+
 ## generate CORBA idl required by almost everyone
 set(DIET_IDL_SRCS
   CORBA/idl/common_types.idl

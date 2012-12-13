@@ -83,6 +83,13 @@ else()
   option(DIET_USE_ALT_BATCH  "Build DIET with Batch support." OFF)
 endif()
 
+
+option(DIET_USE_DELTACLOUD "Build DIET with DeltaCloud support." OFF)
+
+if(DIET_USE_DELTACLOUD)
+ find_package(TRUC)
+endif()
+
 option(DIET_USE_WORKFLOW    "Build DIET with workflow support..." OFF)
 option(DIET_WITH_STATISTICS "Build DIET with generation of statistics." OFF)
 option(DIET_WITH_MULTI_MA   "Build DIET with MULTI-Master-Agent support." OFF)
