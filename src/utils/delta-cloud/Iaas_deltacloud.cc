@@ -7,6 +7,9 @@
 #include "consts.hh"
 #include "Iaas_deltacloud.hh"
 #include "Image.hh"
+#include <stdio.h>
+#include <string.h>
+
 
 using namespace std;
 using namespace IaaS;
@@ -84,6 +87,63 @@ vector<Instance*> * Iaas_deltacloud::get_all_instanges() {
 
   return inst_arr;
 }
+
+void Iaas_deltacloud::getInstanceState(const std::string id, char * state) {
+  deltacloud_api api;
+  if(!init_api(&api)) {
+    return;
+  }
+  
+  struct deltacloud_instance instance;
+  
+	if(deltacloud_get_instance_by_id(&api, id.c_str(),
+				  &instance) < 0) {
+		cerr<<"Failed to get instance: " << id << endl;
+		sprintf(state, "%s", "ERROR");
+	}else {
+		sprintf(state, "%s", instance.state);
+	}
+				  
+  
+}
+
+
+Instance* Iaas_deltacloud::getInstanceById(const std::string& instanceId) {
+	deltacloud_api api;
+	if(!init_api(&api)) {
+    	return NULL;
+  	}
+  	
+  	struct deltacloud_instance instance;
+  	
+  	if(deltacloud_get_instance_by_id(&api, instanceId.c_str(),
+				  &instance) < 0) {
+		cerr<<"Failed to get instance: " << instanceId << endl;
+	}else {
+		return new Instance(instance.image_id, instance.id, instance.private_addresses->address, instance.public_addresses->address);
+	}
+  	
+}
+
+
+void Iaas_deltacloud::wait_instance_ready(const std::string& instanceId) {
+ 	bool ready = false;
+ 	char state[MAX_NAME];
+ 	do{
+ 		getInstanceState(instanceId, state);
+ 		
+ 		std::cout << "waiting : state " << instanceId << " = " << state << endl;
+ 		
+ 		if (strcmp(state, "RUNNING") == 0) {
+ 			ready = true;
+ 		}
+ 		else {
+ 			sleep(1);
+ 		}
+ 		
+ 	}while(!ready);
+ }
+
 
 vector<string*> * Iaas_deltacloud::run_instances(const string & image_id, int count) {
   deltacloud_api api;

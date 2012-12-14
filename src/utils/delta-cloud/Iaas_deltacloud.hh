@@ -3,7 +3,6 @@
 
 struct deltacloud_api;
 
-namespace IaaS {
 
 #include <vector>
 #include <string>
@@ -12,7 +11,11 @@ namespace IaaS {
 #include "Image.hh"
 #include "IaasInterface.hh"
 
-  using namespace IaaS;
+
+namespace IaaS {
+
+
+ // using namespace IaaS;
 
 
   class Iaas_deltacloud : public IaasInterface {
@@ -41,8 +44,20 @@ namespace IaaS {
 
       /* terminates a set of instances */
       virtual int terminate_instances(const std::vector<std::string> & instance_ids);
-
+	
+	  virtual Instance* getInstanceById(const std::string& instanceId);
+	
+	  virtual void wait_instance_ready(const std::string& instanceId);
+	
       virtual ~Iaas_deltacloud() {};
+      
+      
+     protected:
+	
+	 
+	 void getInstanceState(const std::string id, char * state);
+   	
+      
   };
 
 };

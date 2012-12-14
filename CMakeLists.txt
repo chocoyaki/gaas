@@ -549,7 +549,7 @@ endif()
 
 
 if(DIET_USE_DELTACLOUD)
- find_package(LibDeltaCloud REQUIRED)
+ find_package(LibDeltaCloud)
 endif()
 
 ## eof - CMakeLists.txt

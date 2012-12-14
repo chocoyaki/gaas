@@ -1,13 +1,22 @@
+/*
+
+
+authors : Adrian Muresan, Lamiel Toch
+
+*/
+
 #ifndef _IAAS_INTERFACE_HH_
 #define _IAAS_INTERFACE_HH_
-
-namespace IaaS {
 
 #include <vector>
 #include <string>
 
 #include "Instance.hh"
 #include "Image.hh"
+
+
+namespace IaaS {
+
 
 class IaasInterface {
 
@@ -25,7 +34,15 @@ class IaasInterface {
 
     /* terminates a set of instances */
     virtual int terminate_instances(const std::vector<std::string> & instance_ids) = 0;
-
+	
+	/* get an Instance by Selecting Id */
+	
+	virtual Instance* getInstanceById(const std::string& instanceId) = 0;
+	
+	/* wait that the instance get ready*/
+		
+	virtual void wait_instance_ready(const std::string& instanceId) = 0;
+	
     virtual ~IaasInterface() {};
 };
 

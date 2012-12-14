@@ -6,6 +6,7 @@
 #include "Instance.hh"
 #include "IaasInterface.hh"
 #include "Iaas_deltacloud.hh"
+#include <stdio.h>
 
 using namespace std;
 using namespace IaaS;
@@ -43,6 +44,7 @@ void test_create(IaasInterface * interf) {
   cout<<endl;
 }
 
+
 void test_destroy(IaasInterface * interf) {
   cout<<"Destroy"<<endl;
   vector<string> insts;
@@ -54,16 +56,32 @@ void test_destroy(IaasInterface * interf) {
 }
 
 int main(int argc, const char *argv[]) {
-  string base_url = "http://localhost:3001/api";
-  string username = "oneadmin";
-  string password = "passoneadmin";
+	string base_url = "http://localhost:3001/api";
+	string username = "oneadmin";
+	string password = "passoneadmin";
 
-  IaasInterface * interf = new Iaas_deltacloud(base_url, username, password);
-  test_images(interf);
-//  test_instances(interf);
-  test_create(interf);
-  //test_destroy(interf);
-//  test_instances(interf);
+	if (argc < 2) {
+		printf("usage : %s imageId\n", argv[0]);
+		exit(0);
+	}
 
-  return 0;
+	string imageId = argv[1];
+
+	IaasInterface * interf = new Iaas_deltacloud(base_url, username, password);
+	test_images(interf);
+	
+	vector<string*> * insts = interf->run_instances(imageId, 1);
+	string instanceId = *(*insts)[0];
+	
+	interf->wait_instance_ready(instanceId);
+	
+	
+	//  test_instances(interf);
+	//test_create(interf);
+	//test_destroy(interf);
+	//  test_instances(interf);
+	
+	delete insts;
+	delete interf;
+	return 0;
 }

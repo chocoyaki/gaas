@@ -50,7 +50,20 @@ if(DIET_USE_CLOUD)
 endif()
 
 if(DIET_USE_DELTACLOUD)
- include_directories(utils/deta-cloud)
+include_directories(${APACHE_DELTACLOUD_INCLUDE_DIR} utils/delta-cloud)
+	SET(DELTACLOUD_MODULE_SRCS 
+			utils/delta-cloud/consts.hh
+			utils/delta-cloud/Iaas_deltacloud.hh
+			utils/delta-cloud/Image.hh
+			utils/delta-cloud/Iaas_deltacloud.cc
+			utils/delta-cloud/IaasInterface.hh
+			utils/delta-cloud/Instance.cc
+			utils/delta-cloud/Instance.hh
+		)
+
+	add_library(DIET_DeltaCloud ${DELTACLOUD_MODULE_SRCS})
+	target_link_libraries(DIET_DeltaCloud ${APACHE_DELTACLOUD_LIBRARY})
+	install(TARGETS DIET_DeltaCloud DESTINATION ${LIB_INSTALL_DIR})
 endif()
 
 ## generate CORBA idl required by almost everyone
