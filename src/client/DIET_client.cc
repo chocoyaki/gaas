@@ -232,6 +232,14 @@ diet_initialize(const char *config_file_name, int argc, char *argv[]) {
     myargc = tmp_argc;
   }
 
+  /* Publish all interfaces */
+	{
+		int tmp_argc = myargc + 2;
+		myargv = (char **) realloc(myargv, tmp_argc * sizeof(char *));
+		myargv[myargc] = strdup("-ORBendPointPublish");
+		myargv[myargc + 1] = strdup("all(ipv4)");
+		myargc = tmp_argc;
+	}
 
   /* Check the parameters */
   std::string tmpString;

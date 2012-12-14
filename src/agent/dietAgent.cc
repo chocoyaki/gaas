@@ -218,6 +218,10 @@ main(int argc, char *argv[], char *envp[]) {
 
     ins(endpoint);
   }
+  else {
+	  ins("-ORBendPointPublish");
+	  ins("all(ipv4)");
+  }
 
   /* Get the traceLevel */
   if (TRACE_LEVEL >= TRACE_MAX_VALUE) {
