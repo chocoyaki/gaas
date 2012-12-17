@@ -7,6 +7,8 @@
 #include "IaasInterface.hh"
 #include "Iaas_deltacloud.hh"
 #include <stdio.h>
+#include <unistd.h>
+#include <signal.h>
 
 using namespace std;
 using namespace IaaS;
@@ -44,7 +46,7 @@ void test_create(IaasInterface * interf) {
   cout<<endl;
 }
 
-
+/*
 void test_destroy(IaasInterface * interf) {
   cout<<"Destroy"<<endl;
   vector<string> insts;
@@ -53,7 +55,7 @@ void test_destroy(IaasInterface * interf) {
   insts.push_back("inst4");
   int ret = interf->terminate_instances(insts);
   cout<<ret<<endl;
-}
+}*/
 
 int main(int argc, const char *argv[]) {
 	string base_url = "http://localhost:3001/api";
@@ -71,15 +73,36 @@ int main(int argc, const char *argv[]) {
 	test_images(interf);
 	
 	vector<string*> * insts = interf->run_instances(imageId, 1);
+	
 	string instanceId = *(*insts)[0];
 	
-	interf->wait_instance_ready(instanceId);
+	Instance *instance = interf->get_instance_by_id(instanceId);
 	
+	interf->wait_instance_running(instanceId);
+	
+	
+	int ret = -1;
+	do{
+		string cmd = "ssh user-vm@" + instance->public_ip + " -o StrictHostKeyChecking=no 'ls'";
+		cout << cmd << endl;
+		ret = system(cmd.c_str());
+		
+		
+		if (WIFSIGNALED(ret) &&
+            (WTERMSIG(ret) == SIGINT || WTERMSIG(ret) == SIGQUIT))
+                break;
+	}while(ret != 0);
+	
+	
+	
+	interf->terminate_instances(*insts);
 	
 	//  test_instances(interf);
 	//test_create(interf);
 	//test_destroy(interf);
 	//  test_instances(interf);
+	
+	cout << "Destruction instance : " << instanceId << ": OK" << endl;
 	
 	delete insts;
 	delete interf;

@@ -18,7 +18,7 @@ using namespace IaaS;
 
 
 
-
+/*
 bool Instance::isPingable() {
 	return false;
 }
@@ -28,4 +28,4 @@ bool Instance::isReady() {
 	return false;
 }
 
-
+*/

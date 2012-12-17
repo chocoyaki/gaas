@@ -21,17 +21,34 @@ class Instance {
   public:
     const std::string image_id;
     const std::string id;
-    const std::string private_ip;
-    const std::string public_ip;
+    std::string private_ip;
+    std::string public_ip;
 	
     /* ctor */
     Instance(const std::string & _image_id, const std::string & _id,
-        const std::string & _private_ip, const std::string & _public_ip) :
-      image_id(_image_id), id(_id), private_ip(_private_ip), public_ip(_public_ip) {
+        const char * _private_ip, const char * _public_ip) :
+      image_id(_image_id), id(_id) /*, private_ip(_private_ip), public_ip(_public_ip)*/ {
+      
+      if (_private_ip == NULL) {
+	      private_ip = std::string("???.???.???.???");
+      }
+      else {
+      	private_ip = std::string(_private_ip);
+      }
+      
+      if (_public_ip == NULL){  
+	  		public_ip = std::string("???.???.???.???");
+	  }
+	  else {
+	  	public_ip = std::string(_public_ip);
+	  }
+      
     };
     
-    bool isPingable();
-    bool isReady();
+    
+    
+    //bool isPingable();
+    //bool isReady();
 };
 
 }

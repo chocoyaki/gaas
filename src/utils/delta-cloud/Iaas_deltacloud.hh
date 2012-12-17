@@ -43,11 +43,13 @@ namespace IaaS {
       virtual std::vector<std::string*> * run_instances(const std::string & image_id, int count);
 
       /* terminates a set of instances */
-      virtual int terminate_instances(const std::vector<std::string> & instance_ids);
+      virtual int terminate_instances(const std::vector<std::string*> & instance_ids);
 	
-	  virtual Instance* getInstanceById(const std::string& instanceId);
+	  virtual Instance* get_instance_by_id(const std::string& instanceId);
 	
-	  virtual void wait_instance_ready(const std::string& instanceId);
+	  virtual void wait_instance_running(const std::string& instanceId);
+	
+	  
 	
       virtual ~Iaas_deltacloud() {};
       
@@ -55,9 +57,9 @@ namespace IaaS {
      protected:
 	
 	 
-	 void getInstanceState(const std::string id, char * state);
+	 void get_instance_state(const std::string id, char * state);
    	
-      
+     
   };
 
 };

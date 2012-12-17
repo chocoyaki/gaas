@@ -88,7 +88,7 @@ vector<Instance*> * Iaas_deltacloud::get_all_instanges() {
   return inst_arr;
 }
 
-void Iaas_deltacloud::getInstanceState(const std::string id, char * state) {
+void Iaas_deltacloud::get_instance_state(const std::string id, char * state) {
   deltacloud_api api;
   if(!init_api(&api)) {
     return;
@@ -108,7 +108,7 @@ void Iaas_deltacloud::getInstanceState(const std::string id, char * state) {
 }
 
 
-Instance* Iaas_deltacloud::getInstanceById(const std::string& instanceId) {
+Instance* Iaas_deltacloud::get_instance_by_id(const std::string& instanceId) {
 	deltacloud_api api;
 	if(!init_api(&api)) {
     	return NULL;
@@ -120,17 +120,29 @@ Instance* Iaas_deltacloud::getInstanceById(const std::string& instanceId) {
 				  &instance) < 0) {
 		cerr<<"Failed to get instance: " << instanceId << endl;
 	}else {
-		return new Instance(instance.image_id, instance.id, instance.private_addresses->address, instance.public_addresses->address);
+		
+		const char* public_address = NULL;
+		const char* private_address = NULL;
+		
+		if (instance.private_addresses != NULL) {
+			private_address = instance.private_addresses->address;
+		}
+		
+		if (instance.public_addresses != NULL) {
+			public_address = instance.public_addresses->address;
+		}
+		
+		return new Instance(instance.image_id, instance.id, private_address, public_address);
 	}
   	
 }
 
 
-void Iaas_deltacloud::wait_instance_ready(const std::string& instanceId) {
+void Iaas_deltacloud::wait_instance_running(const std::string& instanceId) {
  	bool ready = false;
  	char state[MAX_NAME];
  	do{
- 		getInstanceState(instanceId, state);
+ 		get_instance_state(instanceId, state);
  		
  		std::cout << "waiting : state " << instanceId << " = " << state << endl;
  		
@@ -164,7 +176,7 @@ vector<string*> * Iaas_deltacloud::run_instances(const string & image_id, int co
   return inst_arr;
 }
 
-int Iaas_deltacloud::terminate_instances(const vector<string> & instance_ids) {
+int Iaas_deltacloud::terminate_instances(const vector<string*> & instance_ids) {
   deltacloud_api api;
   if(!init_api(&api))
     return 2;
@@ -172,12 +184,12 @@ int Iaas_deltacloud::terminate_instances(const vector<string> & instance_ids) {
   /* delete all the instances in the array */
   deltacloud_instance instance;
   for(int i_nb = 0; i_nb < instance_ids.size() ; ++ i_nb) {
-    if(deltacloud_get_instance_by_id(&api, instance_ids[i_nb].c_str(), &instance) < 0) {
-      cerr<<"Failed to get info about instance "<<instance_ids[i_nb].c_str()<<endl;
+    if(deltacloud_get_instance_by_id(&api, instance_ids[i_nb]->c_str(), &instance) < 0) {
+      cerr<<"Failed to get info about instance "<< instance_ids[i_nb] <<endl;
     } else if(deltacloud_instance_stop(&api, &instance) < 0) {
-      cerr<<"Failed to stop instance "<<instance_ids[i_nb]<<endl;
+      cerr<<"Failed to stop instance "<< *instance_ids[i_nb]<<endl;
     } else if(deltacloud_instance_destroy(&api, &instance) < 0) {
-      cerr<<"Failed to destroy instance "<<instance_ids[i_nb]<<endl;
+      cerr<<"Failed to destroy instance "<< *instance_ids[i_nb]<<endl;
     }
   }
   

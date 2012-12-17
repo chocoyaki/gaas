@@ -33,15 +33,15 @@ class IaasInterface {
     virtual std::vector<std::string*> * run_instances(const std::string & image_id, int count) = 0;
 
     /* terminates a set of instances */
-    virtual int terminate_instances(const std::vector<std::string> & instance_ids) = 0;
+    virtual int terminate_instances(const std::vector<std::string*> & instance_ids) = 0;
 	
 	/* get an Instance by Selecting Id */
 	
-	virtual Instance* getInstanceById(const std::string& instanceId) = 0;
+	virtual Instance* get_instance_by_id(const std::string& instanceId) = 0;
 	
 	/* wait that the instance get ready*/
 		
-	virtual void wait_instance_ready(const std::string& instanceId) = 0;
+	virtual void wait_instance_running(const std::string& instanceId) = 0;
 	
     virtual ~IaasInterface() {};
 };
