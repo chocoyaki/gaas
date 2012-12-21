@@ -568,7 +568,6 @@ diet_SeD(const char *config_file_name, int argc, char *argv[]) {
     int tmp_argc = myargc + 2;
     myargv = (char **) realloc(myargv, tmp_argc * sizeof(char *));
     myargv[myargc] = strdup("-ORBendPoint");
-
     endpoint << "giop:tcp:" << host << ":";
     if (hasPort) {
       endpoint << port;
@@ -577,6 +576,13 @@ diet_SeD(const char *config_file_name, int argc, char *argv[]) {
     myargv[myargc + 1] = strdup(endpoint.str().c_str());
     myargc = tmp_argc;
   }
+  else {
+		int tmp_argc = myargc + 2;
+		myargv = (char **) realloc(myargv, tmp_argc * sizeof(char *));
+		myargv[myargc] = strdup("-ORBendPointPublish");
+		myargv[myargc + 1] = strdup("all(addr)");
+		myargc = tmp_argc;
+	}
 
   /* Get the traceLevel */
   unsigned long tmpTraceLevel = TRACE_DEFAULT;

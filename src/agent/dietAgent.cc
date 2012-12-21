@@ -220,7 +220,7 @@ main(int argc, char *argv[], char *envp[]) {
   }
   else {
 	  ins("-ORBendPointPublish");
-	  ins("all(ipv4)");
+	  ins("all(addr)");
   }
 
   /* Get the traceLevel */
