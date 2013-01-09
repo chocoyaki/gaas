@@ -15,6 +15,26 @@
 
 namespace IaaS {
 
+class Parameter{
+	public:
+	
+	 std::string name;
+	 std::string value;
+	
+	Parameter(const std::string& n, const std::string& v) : name(n), value(v) {
+		
+	}
+	
+	
+	Parameter(const Parameter& param) : name(param.name), value(param.value){
+		
+	}
+	
+	/*
+	Parameter& operator=(const Parameter& param) {
+		
+	}*/
+};
 
 
 class Instance {

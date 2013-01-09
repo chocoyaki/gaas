@@ -27,10 +27,10 @@ class IaasInterface {
     virtual std::vector<Image*> * get_all_images() = 0;
 
     /* retrieve all instances */
-    virtual std::vector<Instance*> * get_all_instanges() = 0;
+    virtual std::vector<Instance*> * get_all_instances() = 0;
 
     /* launches a specified number of instances from an image */
-    virtual std::vector<std::string*> * run_instances(const std::string & image_id, int count) = 0;
+    virtual std::vector<std::string*> * run_instances(const std::string & image_id, int count, const std::vector<Parameter>& params = std::vector<Parameter>()) = 0;
 
     /* terminates a set of instances */
     virtual int terminate_instances(const std::vector<std::string*> & instance_ids) = 0;

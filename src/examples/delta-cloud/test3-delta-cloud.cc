@@ -66,77 +66,34 @@ int main(int argc, const char *argv[]) {
 	string base_url = "http://localhost:3001/api";
 	string username = "admin+admin";
 	string password = "admin";
-	string user_vm = "cirros";
-	string keypair_param = "keyname";
+	string vm_user = "cirros";
+	//string keypair_param = "keyname";
 	string keypair_value = "key1";
 	//string vmname_param = "name";
 	//string vmname_value = "VMTruc";
 	//sigset_t signals_open;
 	int sleep_duration = 5;
+	int vms_count = 1;
 	
 	if (argc < 2) {
 		printf("usage : %s imageId\n", argv[0]);
 		exit(0);
 	}
 
-	string imageId = argv[1];
+	string image_id = argv[1];
 
-	IaasInterface * interf = new Iaas_deltacloud(base_url, username, password);
-	test_images(interf);
 	
-	//exit(0);
+	VMInstances* vm_instances = new OpenStackVMInstances(image_id, vms_count, base_url, username, password,
+	vm_user, keypair_value);
 	
-	std::vector<Parameter> params = std::vector<Parameter>();
-	Parameter public_key(keypair_param, keypair_value);
-	//Parameter vm_name(vmname_param, vmname_value);
-	params.push_back(public_key);
-	//params.push_back(vm_name);
+	vm_instances->wait_all_instances_running();
 	
-	vector<string*> * insts = interf->run_instances(imageId, 1, params);
+	vm_instances->wait_all_ssh_connection(true);
 	
-	string instanceId = *(*insts)[0];
-	
-	
-	
-	interf->wait_instance_running(instanceId);
-	
-	//we wait for obtaining ip_address
-	Instance *instance = interf->get_instance_by_id(instanceId);
-	
-	struct sigaction action;
-	action.sa_handler = donothing_on_sigint;
-	sigaction(SIGINT, &action, NULL);
-	
-	int ret = -1;
-	do{
-		//string cmd = "ssh user-vm@" + instance->public_ip + " -o StrictHostKeyChecking=no 'ls'";
-		string cmd = "ssh "  + user_vm + "@" + instance->private_ip + " -o StrictHostKeyChecking=no 'ls'";
-		cout << cmd << endl;
-		ret = system(cmd.c_str());
-		
-		
-		if(ret != 0) {
-			printf("retentative dans %d secondes\n", sleep_duration);
-			sleep(sleep_duration);
-		}
-		
-		if (WIFSIGNALED(ret) &&
-            (WTERMSIG(ret) == SIGINT || WTERMSIG(ret) == SIGQUIT))
-                break;
-        
-	}while(ret != 0);
-	
-	
-	cout << " SSH "+ instance->private_ip + " : OK " << endl;
+	printf("SSH : OK\n");
 	sleep(5);
+	printf("destruction of VM instances\n");
+	delete vm_instances;
 	
-	interf->terminate_instances(*insts);
-	
-	
-	cout << "Destruction instance : " << instanceId << ": OK" << endl;
-	
-	deleteStringVector(*insts);
-	delete insts;
-	delete interf;
 	return 0;
 }

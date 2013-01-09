@@ -54,7 +54,7 @@ vector<Image*> * Iaas_deltacloud::get_all_images() {
   return img_arr;
 }
 
-vector<Instance*> * Iaas_deltacloud::get_all_instanges() {
+vector<Instance*> * Iaas_deltacloud::get_all_instances() {
   deltacloud_api api;
   if(!init_api(&api)) {
     return NULL;
@@ -138,6 +138,8 @@ Instance* Iaas_deltacloud::get_instance_by_id(const std::string& instanceId) {
 }
 
 
+
+
 void Iaas_deltacloud::wait_instance_running(const std::string& instanceId) {
  	bool ready = false;
  	char state[MAX_NAME];
@@ -157,7 +159,47 @@ void Iaas_deltacloud::wait_instance_running(const std::string& instanceId) {
  }
 
 
-vector<string*> * Iaas_deltacloud::run_instances(const string & image_id, int count) {
+void IaaS::convert(const Parameter& src, struct deltacloud_create_parameter& dst) {
+	dst.name = new char [src.name.length() + 1];
+	strcpy(dst.name, src.name.c_str());
+	
+	dst.value = new char[src.value.length() + 1];
+	strcpy(dst.value, src.value.c_str());
+}
+
+void IaaS::free_delta_chars_in_param(struct deltacloud_create_parameter& param) {
+	delete [] param.name;
+	
+	param.name = NULL;
+	
+	delete [] param.value;
+	
+	param.value = NULL;
+}
+
+void IaaS::free_delta_params(struct deltacloud_create_parameter* params, int params_count) {
+	for(int i = 0; i < params_count; i++) {
+		free_delta_chars_in_param(params[i]);
+	}
+	
+	delete [] params;
+}
+
+struct deltacloud_create_parameter* IaaS::create_delta_params(const std::vector<Parameter>& params) {
+  struct deltacloud_create_parameter* delta_params = NULL;
+  if (params.size() > 0) {
+  	int params_count = params.size();
+  	delta_params = new struct deltacloud_create_parameter [params_count];
+  	for(int i = 0; i < params_count; i++) {
+  		convert(params[i], delta_params[i]);
+  	}
+  }
+  
+  
+  return delta_params;
+}
+
+vector<string*> * Iaas_deltacloud::run_instances(const string & image_id, int count, const std::vector<Parameter>& params) {
   deltacloud_api api;
   if(!init_api(&api))
     return NULL;
@@ -165,14 +207,23 @@ vector<string*> * Iaas_deltacloud::run_instances(const string & image_id, int co
   char * instance_id = new char[MAX_NAME];
   vector<string*> * inst_arr = new vector<string*>();
 
+  
+  int params_count = params.size();
+  struct deltacloud_create_parameter* delta_params = create_delta_params(params);
+  
+
   for(int i_nb = 0; i_nb < count ; ++ i_nb) {
-    if(deltacloud_create_instance(&api, image_id.c_str(), NULL, 0, &instance_id) < 0) {
+    if(deltacloud_create_instance(&api, image_id.c_str(), delta_params, params_count, &instance_id) < 0) {
       cerr<<"Failed to get deltacloud images: "<<deltacloud_get_last_error_string()<<endl;
     }
     inst_arr->push_back(new string(instance_id));
   }
   
   deltacloud_free(&api);
+  
+  if (delta_params != NULL) {
+  	free_delta_params(delta_params, params_count);
+  }
   return inst_arr;
 }
 

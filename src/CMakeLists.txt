@@ -59,6 +59,8 @@ include_directories(${APACHE_DELTACLOUD_INCLUDE_DIR} utils/delta-cloud)
 			utils/delta-cloud/IaasInterface.hh
 			utils/delta-cloud/Instance.cc
 			utils/delta-cloud/Instance.hh
+			utils/delta-cloud/Tools.hh
+			utils/delta-cloud/Tools.cc
 		)
 
 	add_library(DIET_DeltaCloud ${DELTACLOUD_MODULE_SRCS})

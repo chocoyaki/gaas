@@ -12,8 +12,14 @@ struct deltacloud_api;
 #include "IaasInterface.hh"
 
 
-namespace IaaS {
 
+
+namespace IaaS {
+	
+	void convert(const Parameter& src, struct deltacloud_create_parameter& dst);
+	struct deltacloud_create_parameter* create_delta_params(const std::vector<Parameter>& params);
+	void free_delta_chars_in_param(struct deltacloud_create_parameter& param);
+	void free_delta_params(struct deltacloud_create_parameter* params, int params_count);
 
  // using namespace IaaS;
 
@@ -37,10 +43,10 @@ namespace IaaS {
       virtual std::vector<Image*> * get_all_images();
 
       /* retrieve all instances */
-      virtual std::vector<Instance*> * get_all_instanges();
+      virtual std::vector<Instance*> * get_all_instances();
 
       /* launches a specified number of instances from an image */
-      virtual std::vector<std::string*> * run_instances(const std::string & image_id, int count);
+      virtual std::vector<std::string*> * run_instances(const std::string & image_id, int count, const std::vector<Parameter>& params);
 
       /* terminates a set of instances */
       virtual int terminate_instances(const std::vector<std::string*> & instance_ids);
@@ -58,6 +64,8 @@ namespace IaaS {
 	
 	 
 	 void get_instance_state(const std::string id, char * state);
+   	
+   	
    	
      
   };
