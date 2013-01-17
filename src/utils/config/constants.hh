@@ -84,7 +84,13 @@ typedef enum {
   USERNAME,
   FORCE_CLIENT_REBIND,
   NBRETRY,
-  NB_PARAM_TYPE
+  /* For Security support */
+   SECURITYLEVEL,
+   SSLROOTCERTIFICATE,
+   SSLPRIVATEKEY,
+   SSLPRIVATEKEYPASSWORD,
+
+   NB_PARAM_TYPE
 } param_type_t;
 
 struct param_t {

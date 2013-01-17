@@ -38,117 +38,57 @@ find_path(OMNIORB4_INCLUDE_DIR omniORB4/CORBA.h)
 ##############################################################################
 # find libraries
 ##############################################################################
-if (WIN32)
-  find_library(OMNIORB4_LIBRARY_omniORB4
-	NAMES
-	${CMAKE_STATIC_LIBRARY_PREFIX}omniORB4${CMAKE_STATIC_LIBRARY_SUFFIX}
-	PATHS ${OMNIORB4_DIR}/lib/x86_win32 $ENV{OMNIORB4_DIR}/lib/x86_win32
-	NO_DEFAULT_PATH
-  )
-  find_library(OMNIORB4_LIBRARY_omniORB4 NAMES
-    ${CMAKE_STATIC_LIBRARY_PREFIX}omniORB4${CMAKE_STATIC_LIBRARY_SUFFIX}
-  )
-else (WIN32)
-  find_library(OMNIORB4_LIBRARY_omniORB4
-    NAMES omniORB4
-    PATHS "${OMNIORB4_DIR}/lib${LIB_SUFFIX}" "$ENV{OMNIORB4_DIR}/lib${LIB_SUFFIX}"
-    NO_DEFAULT_PATH)
 
-  find_library(OMNIORB4_LIBRARY_omniORB4
-    NAMES omniORB4)
-endif (WIN32)   
-  
-if (WIN32)
-  FIND_LIBRARY( OMNIORB4_LIBRARY_omnithread
-	NAMES
-	${CMAKE_STATIC_LIBRARY_PREFIX}omnithread${CMAKE_STATIC_LIBRARY_SUFFIX}
-	PATHS ${OMNIORB4_DIR}/lib/x86_win32 $ENV{OMNIORB4_DIR}/lib/x86_win32
-	NO_DEFAULT_PATH
-  )
+set(OMNIORB4_LIBRARY_PREFIX "OMNIORB4_LIBRARY_")
 
-  FIND_LIBRARY( OMNIORB4_LIBRARY_omnithread
-	NAMES
-	${CMAKE_STATIC_LIBRARY_PREFIX}omnithread${CMAKE_STATIC_LIBRARY_SUFFIX}
-  )
-else (WIN32)
-  find_library(OMNIORB4_LIBRARY_omnithread
-    NAMES omnithread
-    PATHS "${OMNIORB4_DIR}/lib${LIB_SUFFIX}" "$ENV{OMNIORB4_DIR}/lib${LIB_SUFFIX}"
-    NO_DEFAULT_PATH)
+set(omni_libs 
+  omniORB4
+  omnithread
+  omniDynamic4)
 
-  find_library(OMNIORB4_LIBRARY_omnithread
-    NAMES omnithread)
-endif (WIN32)
-
-
-if (WIN32)
-  FIND_LIBRARY( OMNIORB4_LIBRARY_omniDynamic4
-    NAMES
-      ${CMAKE_STATIC_LIBRARY_PREFIX}omniDynamic4${CMAKE_STATIC_LIBRARY_SUFFIX}
-    PATHS ${OMNIORB4_DIR}/lib/x86_win32 $ENV{OMNIORB4_DIR}/lib/x86_win32
-    NO_DEFAULT_PATH
-  )
-
-  FIND_LIBRARY( OMNIORB4_LIBRARY_omniDynamic4
-    NAMES
-      ${CMAKE_STATIC_LIBRARY_PREFIX}omniDynamic4${CMAKE_STATIC_LIBRARY_SUFFIX}
-  )
-else (WIN32)
-  find_library(OMNIORB4_LIBRARY_omniDynamic4
-    NAMES omniDynamic4
-    PATHS "${OMNIORB4_DIR}/lib${LIB_SUFFIX}" "$ENV{OMNIORB4_DIR}/lib${LIB_SUFFIX}"
-    NO_DEFAULT_PATH)
-
-  find_library(OMNIORB4_LIBRARY_omniDynamic4
-    NAMES omniDynamic4)
-endif (WIN32)    
 
 # optional libraries
 
-if (WIN32)
-  FIND_LIBRARY( OMNIORB4_LIBRARY_COS4
-    NAMES
-      ${CMAKE_STATIC_LIBRARY_PREFIX}COS4${CMAKE_STATIC_LIBRARY_SUFFIX}
-    PATHS ${OMNIORB4_DIR}/lib/x86_win32 $ENV{OMNIORB4_DIR}/lib/x86_win32
-    NO_DEFAULT_PATH 
-  )
+set(opt_libs 
+    COS4
+    COSDynamic4)
 
-  FIND_LIBRARY( OMNIORB4_LIBRARY_COS4
-    NAMES
-      ${CMAKE_STATIC_LIBRARY_PREFIX}COS4${CMAKE_STATIC_LIBRARY_SUFFIX}
-  )
-else (WIN32)
-  find_library(OMNIORB4_LIBRARY_COS4
-    NAMES COS4
-    PATHS "${OMNIORB4_DIR}/lib${LIB_SUFFIX}" "$ENV{OMNIORB4_DIR}/lib${LIB_SUFFIX}"
-    NO_DEFAULT_PATH)
+if (DIET_USE_SECURITY)
+  set(omni_libs ${omni_libs} omnisslTP4)
+else(DIET_USE_SECURITY)
+#  set(opt_libs ${opt_libs} omnisslTP4)
+endif(DIET_USE_SECURITY)
 
-  find_library(OMNIORB4_LIBRARY_COS4
-    NAMES COS4)
-endif (WIN32)
 
-if (WIN32)
-  FIND_LIBRARY( OMNIORB4_LIBRARY_COSDynamic4
-    NAMES
-      ${CMAKE_STATIC_LIBRARY_PREFIX}COSDynamic4${CMAKE_STATIC_LIBRARY_SUFFIX}
-    PATHS ${OMNIORB4_DIR}/lib/x86_win32 $ENV{OMNIORB4_DIR}/lib/x86_win32
-    NO_DEFAULT_PATH
-  )
+foreach(lib_name ${omni_libs} ${opt_libs})
+    if (WIN32)
+      FIND_LIBRARY( ${OMNIORB4_LIBRARY_PREFIX}${lib_name}
+        NAMES
+        ${CMAKE_STATIC_LIBRARY_PREFIX}${lib_name}${CMAKE_STATIC_LIBRARY_SUFFIX}
+        PATHS ${OMNIORB4_DIR}/lib/x86_win32 $ENV{OMNIORB4_DIR}/lib/x86_win32
+        NO_DEFAULT_PATH 
+      )
 
-  FIND_LIBRARY( OMNIORB4_LIBRARY_COSDynamic4
-    NAMES
-      ${CMAKE_STATIC_LIBRARY_PREFIX}COSDynamic4${CMAKE_STATIC_LIBRARY_SUFFIX}
-  )
+      FIND_LIBRARY( ${OMNIORB4_LIBRARY_PREFIX}${lib_name}
+        NAMES
+        ${CMAKE_STATIC_LIBRARY_PREFIX}${lib_name}${CMAKE_STATIC_LIBRARY_SUFFIX}
+      )
+    else (WIN32)
+      find_library(${OMNIORB4_LIBRARY_PREFIX}${lib_name}
+        NAMES ${lib_name}
+        PATHS "${OMNIORB4_DIR}/lib${LIB_SUFFIX}" "$ENV{OMNIORB4_DIR}/lib${LIB_SUFFIX}"
+        NO_DEFAULT_PATH)
 
-else (WIN32)
-  find_library(OMNIORB4_LIBRARY_COSDynamic4
-    NAMES COSDynamic4
-    PATHS "${OMNIORB4_DIR}/lib${LIB_SUFFIX}" "$ENV{OMNIORB4_DIR}/lib${LIB_SUFFIX}"
-    NO_DEFAULT_PATH)
+      find_library(${OMNIORB4_LIBRARY_PREFIX}${lib_name}
+        NAMES ${lib_name})
+    endif (WIN32)
+    
+  
+endforeach(lib_name ${omni_libs} ${opt_libs})
 
-  find_library(OMNIORB4_LIBRARY_COSDynamic4
-    NAMES COSDynamic4)
-endif (WIN32)
+
+
+
 ##############################################################################
 # find command line tools
 ##############################################################################
@@ -197,34 +137,40 @@ ENDIF (WIN32)
 ##############################################################################
 set(OMNIORB4_FOUND "FALSE")
 
-if(OMNIORB4_INCLUDE_DIR AND
-    OMNIORB4_LIBRARY_omniORB4 AND
-    OMNIORB4_LIBRARY_omnithread AND
-    OMNIORB4_LIBRARY_omniDynamic4 AND
+if(OMNIORB4_INCLUDE_DIR AND 
     OMNIORB4_IDL_COMPILER)
   set(OMNIORB4_FOUND "TRUE")
+  
+  foreach(lib_name ${omni_libs})
+      if (NOT ${OMNIORB4_LIBRARY_PREFIX}${lib_name})
+          set(OMNIORB4_FOUND "FALSE")
+      endif()
+  endforeach(lib_name ${omni_libs})
+  
+  if(OMNIORB4_FOUND)
+  
   mark_as_advanced(OMNIORB4_DIR)
   mark_as_advanced(OMNIORB4_INCLUDE_DIR)
-  mark_as_advanced(OMNIORB4_LIBRARY_omniORB4)
-  mark_as_advanced(OMNIORB4_LIBRARY_omnithread)
-  mark_as_advanced(OMNIORB4_LIBRARY_omniDynamic4)
   mark_as_advanced(OMNIORB4_IDL_COMPILER)
   mark_as_advanced(OMNIORB4_NAMESERVER)
   mark_as_advanced(OMNIORB4_VERSION)
-  mark_as_advanced(OMNIORB4_LIBRARY_COS4)
-  mark_as_advanced(OMNIORB4_LIBRARY_COSDynamic4)
 
-  set(OMNIORB4_LIBRARIES
-    ${OMNIORB4_LIBRARY_omniORB4}
-    ${OMNIORB4_LIBRARY_omnithread}
-    ${OMNIORB4_LIBRARY_omniDynamic4})
+  foreach(lib_name ${omni_libs} ${opt_libs}) 
+    mark_as_advanced(${OMNIORB4_LIBRARY_PREFIX}${lib_name})
+  endforeach()
+  
+  set (OMNIORB4_LIBRARIES)
+  foreach(lib_name ${omni_libs})
+    set (OMNIORB4_LIBRARIES ${OMNIORB4_LIBRARIES} ${${OMNIORB4_LIBRARY_PREFIX}${lib_name}}) 
+  endforeach(lib_name ${omni_libs})
+  message(STATUS ${OMNIORB4_LIBRARIES})
+  
+  foreach(opt_lib ${opt_libs}) 
+    if(${OMNIORB4_LIBRARY_PREFIX}${opt_lib})
+      set(OMNIORB4_LIBRARIES ${OMNIORB4_LIBRARIES} ${${OMNIORB4_LIBRARY_PREFIX}${opt_lib}})
+    endif()
+  endforeach(opt_lib ${opt_libs})
 
-  if(OMNIORB4_LIBRARY_COS4)
-    set(OMNIORB4_LIBRARIES ${OMNIORB4_LIBRARIES} ${OMNIORB4_LIBRARY_COS4})
-  endif()
-  if(OMNIORB4_LIBRARY_COSDynamic4)
-    set(OMNIORB4_LIBRARIES ${OMNIORB4_LIBRARIES} ${OMNIORB4_LIBRARY_COSDynamic4})
-  endif()
 
   # Optionaly, extract the the version number from the acconfig.h file:
   if( EXISTS ${OMNIORB4_INCLUDE_DIR}/omniORB4/acconfig.h )
@@ -242,5 +188,8 @@ if(OMNIORB4_INCLUDE_DIR AND
   endif( EXISTS ${OMNIORB4_INCLUDE_DIR}/omniORB4/acconfig.h )
   set( OMNIORB4_VERSION ${OMNIORB4_VERSION}
       CACHE STRING "OmniORB version number." )
-
+    endif()
 endif()
+
+unset(omni_libs)
+unset(opt_libs)

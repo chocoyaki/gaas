@@ -18,6 +18,13 @@
 #include <fstream>
 #include <csignal>
 
+
+#include "security_config.h"
+
+#ifdef DIET_USE_SECURITY
+#include "SecurityManager.hh"
+#endif
+
 #include <omniORB4/CORBA.h>
 #include <omniORB4/omniURI.h>
 
@@ -125,7 +132,7 @@ void ORBMgr::init(CORBA::ORB_ptr ORB) {
 namespace {
 
 // README: configuration files list should be null-terminated
-static char *conffiles[] = { "/etc/omniORB4.cfg",
+static const char *conffiles[] = { "/etc/omniORB4.cfg",
                              "/etc/omniORB.cfg",
                              NULL };
 
@@ -182,6 +189,12 @@ get_omniorb_configuration(const std::vector<std::string>& args,
 
 
 ORBMgr::ORBMgr(int argc, char* argv[]) {
+
+#ifdef DIET_USE_SECURITY
+	SecurityManager secMgr = SecurityManager();
+	secMgr.enableSecureCommunicationsIfSet();
+#endif
+
   const char* opts[][2]= {{0, 0}};
   std::vector<std::string> args;
   for (int j = 0; j < argc; ++j) {

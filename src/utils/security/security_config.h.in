@@ -1,0 +1,6 @@
+#ifndef SECURITY_CONFIG_H
+#define SECURITY_CONFIG_H
+
+#cmakedefine DIET_USE_SECURITY
+
+#endif /* ifndef SECURITY_CONFIG_H */
