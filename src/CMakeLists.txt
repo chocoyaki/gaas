@@ -9,6 +9,7 @@ include_directories(
   ${IDL_INCLUDE_DIRECTORIES}
   ../include
   CORBA
+  CORBA/security
   utils
   utils/config
   utils/nodes
@@ -208,6 +209,10 @@ endif()
 
 ## CorbaCommon
 set(CorbaCommon_SRCS CORBA/ORBMgr.cc CORBA/marshalling.cc)
+
+if (DIET_USE_SECURITY)
+  set (CorbaCommon_SRCS ${CorbaCommon_SRCS} "CORBA/security/SecurityManager.cc")
+endif(DIET_USE_SECURITY)
 
 ## AgentCommon
 set(AgentCommon_SRCS

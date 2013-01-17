@@ -95,6 +95,9 @@ mark_as_advanced(DIET_USE_MULTICALL)
 
 option(DIET_BUILD_DOC "Build DIET documentation." OFF)
 
+option(DIET_USE_SECURITY "Use security layer." OFF)
+
+
 # --------------------- OPTIONS SET BY DEFAULT  ----------------------------
 # Are libraries dynamic libraries as opposed to library archives ?
 # Note: this variable is a cmake internal, hence not prefixed with DIET_.
@@ -259,6 +262,7 @@ endif()
 # OmniORB is mandatory:
 find_package(OmniORB4 REQUIRED)
 
+
 # --------------------------- Batch support ------------------------
 if(DIET_USE_ALT_BATCH)
   add_definitions(-DHAVE_ALT_BATCH)
@@ -376,6 +380,19 @@ endif(DIET_USE_CCS)
 if(DIET_USE_MULTICALL)
   add_definitions(-DHAVE_MULTICALL)
 endif(DIET_USE_MULTICALL)
+
+# --------------------------- Security support ------------------------
+# add_definitions -> full rebuild if the option is changed. How to avoid full rebuild?
+# tried configure_file, but same issue...
+#if(DIET_USE_SECURITY)
+#  add_definitions(-DHAVE_SECURITY)
+#endif(DIET_USE_SECURITY)
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/utils/security/security_config.h.in
+ ${CMAKE_CURRENT_BINARY_DIR}/src/utils/security/security_config.h)
+
+include_directories("${CMAKE_CURRENT_BINARY_DIR}/src/utils/security/")
+
 
 # --------------- OFFER BUILD MODE EXTENSIONS AND DEFAULTS  ----------------
 include(${DIET_SOURCE_DIR}/cmake/DietDefaultBuildTypes.cmake)

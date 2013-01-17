@@ -35,10 +35,37 @@
 #include "DagdaImpl.hh"
 #include "DagdaFactory.hh"
 
+#include "security_config.h"
+
+
 #define BEGIN_API extern "C" {
 #define END_API }   // extern "C"
 
 extern unsigned int TRACE_LEVEL;
+
+
+template <typename C>
+class CStringInserter {
+public:
+explicit
+CStringInserter(C &c): c_(c) {
+}
+
+void
+operator()(const char *cstr) {
+  c_.push_back(strdup(cstr));
+}
+
+void
+operator()(std::ostringstream &oss) {
+  char *cstr = strdup(oss.str().c_str());
+  c_.push_back(cstr);
+}
+
+private:
+C &c_;
+};
+
 
 BEGIN_API
 
@@ -56,6 +83,9 @@ static SeDImpl *sedImpl = NULL;
 #ifdef HAVE_ALT_BATCH
 static diet_server_status_t st = SERIAL;
 #endif
+
+
+
 
 int
 diet_service_table_init(int maxsize) {
@@ -518,8 +548,10 @@ diet_convertor_check(const diet_convertor_t *const cvt,
 int
 diet_SeD(const char *config_file_name, int argc, char *argv[]) {
   SeDImpl *SeD;
-  int myargc;
-  char **myargv;
+  // use std::vector instead of C array
+  // C++ standard guarantees that its storage is contiguous (C++ Faq 34.3)
+  std::vector<char *> args, argsTmp;
+  CStringInserter<std::vector<char *> > ins(args);
 #ifdef USE_LOG_SERVICE
   DietLogComponent *dietLogComponent;     /* LogService */
   MonitoringThread *monitoringThread;
@@ -532,10 +564,8 @@ diet_SeD(const char *config_file_name, int argc, char *argv[]) {
   }
 
   /* Set arguments for ORBMgr::init */
-  myargc = argc;
-  myargv = (char **) malloc(argc * sizeof(char *));
   for (int i = 0; i < argc; i++)
-    myargv[i] = argv[i];
+	  ins(argv[i]);
 
   /* Get configuration file parameters */
   FileParser fileParser;
@@ -557,6 +587,12 @@ diet_SeD(const char *config_file_name, int argc, char *argv[]) {
     WARNING("No need to specify an MA name for a SeD - ignored");
   }
 
+  std::vector<std::string> transports;
+  transports.push_back("tcp");
+#ifdef DIET_USE_SECURITY
+  transports.push_back("ssl");
+#endif
+
 
   /* Get listening port & hostname */
   int port;
@@ -564,25 +600,33 @@ diet_SeD(const char *config_file_name, int argc, char *argv[]) {
   bool hasPort = CONFIG_INT(diet::DIETPORT, port);
   bool hasHost = CONFIG_STRING(diet::DIETHOSTNAME, host);
   if (hasPort || hasHost) {
-    std::ostringstream endpoint;
-    int tmp_argc = myargc + 2;
-    myargv = (char **) realloc(myargv, tmp_argc * sizeof(char *));
-    myargv[myargc] = strdup("-ORBendPoint");
-    endpoint << "giop:tcp:" << host << ":";
-    if (hasPort) {
-      endpoint << port;
-    }
-
-    myargv[myargc + 1] = strdup(endpoint.str().c_str());
-    myargc = tmp_argc;
+	  for (int i = 0; i < transports.size(); ++i) {
+		  std::ostringstream endpoint;
+		  ins("-ORBendPoint");
+		  endpoint << "giop:"<< transports[i] <<":" << host << ":";
+		  if (hasPort) {
+			  endpoint << port;
+		  }
+		  ins(endpoint);
+	  }
   }
   else {
-		int tmp_argc = myargc + 2;
-		myargv = (char **) realloc(myargv, tmp_argc * sizeof(char *));
-		myargv[myargc] = strdup("-ORBendPointPublish");
-		myargv[myargc + 1] = strdup("all(addr)");
-		myargc = tmp_argc;
-	}
+#ifdef DIET_USE_SECURITY
+	  ins("-ORBendPoint");
+	  ins("giop:tcp::");
+	  ins("-ORBendPoint");
+	  ins("giop:ssl::");
+#endif
+	  ins("-ORBendPointPublish");
+	  ins("all(addr)");
+  }
+
+#ifdef DIET_USE_SECURITY
+  ins("-ORBserverTransportRule");
+  ins("* ssl,tcp");
+  ins("-ORBclientTransportRule");
+  ins("* ssl,tcp");
+#endif
 
   /* Get the traceLevel */
   unsigned long tmpTraceLevel = TRACE_DEFAULT;
@@ -590,17 +634,15 @@ diet_SeD(const char *config_file_name, int argc, char *argv[]) {
   TRACE_LEVEL = tmpTraceLevel;
   if (TRACE_LEVEL >= TRACE_MAX_VALUE) {
     char *level = (char *) calloc(48, sizeof(char *));
-    int tmp_argc = myargc + 2;
-    myargv = (char **) realloc(myargv, tmp_argc * sizeof(char *));
-    myargv[myargc] = strdup("-ORBtraceLevel");
+   ins("-ORBtraceLevel");
     sprintf(level, "%u", TRACE_LEVEL - TRACE_MAX_VALUE);
-    myargv[myargc + 1] = (char *) level;
-    myargc = tmp_argc;
+    ins(level);
   }
 
+  argsTmp = args;
   /* ORB initialization */
   try {
-    ORBMgr::init(myargc, (char **) myargv);
+    ORBMgr::init(argsTmp.size(), &argsTmp[0]);
   } catch (...) {
     ERROR_DEBUG("ORB initialization failed", 1);
   }

@@ -24,6 +24,7 @@
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
+#include <vector>
 #include <omniORB4/CORBA.h>
 
 #include "OSIndependance.hh"
@@ -38,6 +39,11 @@
 #include "statistics.hh"
 #include "configuration.hh"
 #include "DIET_grpc.h"
+#include "security_config.h"
+
+#ifdef DIET_USE_SECURITY
+#include "SecurityManager.hh"
+#endif
 
 #ifdef USE_LOG_SERVICE
 #include "DietLogComponent.hh"
@@ -60,6 +66,30 @@
 #include "workflow/CltWfMgr.hh"
 #include "workflow/DagWfParser.hh"
 #endif
+
+
+template <typename C>
+class CStringInserter {
+public:
+explicit
+CStringInserter(C &c): c_(c) {
+}
+
+void
+operator()(const char *cstr) {
+  c_.push_back(strdup(cstr));
+}
+
+void
+operator()(std::ostringstream &oss) {
+  char *cstr = strdup(oss.str().c_str());
+  c_.push_back(cstr);
+}
+
+private:
+C &c_;
+};
+
 
 #define BEGIN_API extern "C" {
 #define END_API }   // extern "C"
@@ -183,8 +213,8 @@ diet_error_t
 diet_initialize(const char *config_file_name, int argc, char *argv[]) {
   /*int myargc(0);
   char **myargv(NULL);*/
-  int    myargc = 0;
-  char ** myargv = NULL;
+  std::vector<char *> args, argsTmp;
+  CStringInserter<std::vector<char *> > ins(args);
 
   // MA_MUTEX initialization
   if (MA_MUTEX == NULL) {
@@ -201,10 +231,8 @@ diet_initialize(const char *config_file_name, int argc, char *argv[]) {
 
   /* Set arguments for ORBMgr::init */
   if (argc) {
-    myargc = argc;
-    myargv = (char **) malloc(argc * sizeof(char *));
     for (int i = 0; i < argc; i++)
-      myargv[i] = argv[i];
+      ins(argv[i]);
   }
 
   /* Get configuration file parameters */
@@ -223,23 +251,29 @@ diet_initialize(const char *config_file_name, int argc, char *argv[]) {
   CONFIG_ULONG(diet::TRACELEVEL, tmpTraceLevel);
   TRACE_LEVEL = tmpTraceLevel;
   if (TRACE_LEVEL >= TRACE_MAX_VALUE) {
-    char *level = (char *) calloc(48, sizeof(char *));
-    int tmp_argc = myargc + 2;
-    myargv = (char **) realloc(myargv, tmp_argc * sizeof(char *));
-    myargv[myargc] = strdup("-ORBtraceLevel");
-    sprintf(level, "%u", TRACE_LEVEL - TRACE_MAX_VALUE);
-    myargv[myargc + 1] = (char *) level;
-    myargc = tmp_argc;
+	  std::ostringstream level;
+	  ins("-ORBtraceLevel");
+	  level << (TRACE_LEVEL - TRACE_MAX_VALUE);
+	  ins(level);
   }
 
+#ifdef DIET_USE_SECURITY
+  ins("-ORBendPoint");
+  ins("giop:tcp::");
+  ins("-ORBendPoint");
+  ins("giop:ssl::");
+#endif
   /* Publish all interfaces */
-	{
-		int tmp_argc = myargc + 2;
-		myargv = (char **) realloc(myargv, tmp_argc * sizeof(char *));
-		myargv[myargc] = strdup("-ORBendPointPublish");
-		myargv[myargc + 1] = strdup("all(addr)");
-		myargc = tmp_argc;
-	}
+  ins("-ORBendPointPublish");
+  ins("all(addr)");
+
+#ifdef DIET_USE_SECURITY
+  ins("-ORBserverTransportRule");
+  ins("* ssl");
+  ins("-ORBclientTransportRule");
+  ins("* ssl,tcp");
+#endif
+
 
   /* Check the parameters */
   std::string tmpString;
@@ -255,9 +289,10 @@ diet_initialize(const char *config_file_name, int argc, char *argv[]) {
     WARNING("agentType is useless for a client - ignored");
   }
 
+  argsTmp = args;
   /* Initialize the ORB */
   try {
-    ORBMgr::init(myargc, (char **) myargv);
+    ORBMgr::init(argsTmp.size(), &argsTmp[0]);
   } catch (...) {
     ERROR_DEBUG("ORB initialization failed", GRPC_NOT_INITIALIZED);
   }

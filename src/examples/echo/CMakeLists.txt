@@ -1,6 +1,6 @@
 #****************************************************************************#
 #* DIET cmake local file                                                    *#
-#* Example devoted to the management of scalars (and their encoding length).*#
+#* Example of an Echo service                                               *#
 #****************************************************************************#
 
 INCLUDE_DIRECTORIES( ${DIET_SOURCE_DIR}/include )     # For DIET_client.h
