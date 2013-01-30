@@ -15,8 +15,6 @@
 // must be included first
 #include "ExitClass.hh"
 
-#include "security_config.h"
-
 #include <cstdlib>
 #include <csignal>
 #include <algorithm>
@@ -208,30 +206,10 @@ main(int argc, char *argv[], char *envp[]) {
                        << "an MA name for an agent - ignored");
   }
 
-  std::string securityLevel="";
-
-  if (CONFIG_STRING(diet::SECURITYLEVEL, securityLevel)) {
-#ifdef DIET_USE_SECURITY
-	  if (securityLevel == "COM") {
-
-	  }
-#else
-	  WARNING("parsing " << configFile << ": no security support : "
-	                         << "compile DIET with the DIET_USE_SECURITY flag ON - ignored");
-#endif
-  }
-
-
   /* Copy input parameters into internal structure */
   for (int i = 0; i < argc; i++) {
 	  ins(argv[i]);
   }
-
-  vector<string> transports;
-  transports.push_back("tcp");
-#ifdef DIET_USE_SECURITY
-  transports.push_back("ssl");
-#endif
 
 
   /* Get listening port & hostname */
@@ -240,37 +218,17 @@ main(int argc, char *argv[], char *envp[]) {
   bool hasPort = CONFIG_INT(diet::DIETPORT, port);
   bool hasHost = CONFIG_STRING(diet::DIETHOSTNAME, host);
   if (hasPort || hasHost) {
-	  for (int i = 0; i < transports.size(); ++i) {
-		  std::ostringstream endpoint;
-		  ins("-ORBendPoint");
-		  endpoint << "giop:"<< transports[i] <<":" << host << ":";
-		  if (hasPort) {
-			  endpoint << port;
-		  }
-		  ins(endpoint);
-	  }
+      std::ostringstream endpoint;
+      ins("-ORBendPoint");
+      endpoint << "giop:tcp:" << host << ":";
+      if (hasPort) {
+        endpoint << port;
+      }
+      ins(endpoint);
+  } else {
+    ins("-ORBendPointPublish");
+    ins("all(addr)");
   }
-  else {
-#ifdef DIET_USE_SECURITY
-	  ins("-ORBendPoint");
-	  ins("giop:tcp::");
-	  ins("-ORBendPoint");
-	  ins("giop:ssl::");
-#endif
-	  ins("-ORBendPointPublish");
-	  ins("all(addr)");
-  }
-
-#ifdef DIET_USE_SECURITY
-  //Only accept ssl communications
-  ins("-ORBserverTransportRule");
-  ins("* ssl");
-  // Prefer sending in ssl over plain tcp
-  ins("-ORBclientTransportRule");
-  ins("* ssl,tcp");
-#else
-#endif
-
 
 
   /* Get the traceLevel */

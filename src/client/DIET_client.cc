@@ -39,11 +39,7 @@
 #include "statistics.hh"
 #include "configuration.hh"
 #include "DIET_grpc.h"
-#include "security_config.h"
 
-#ifdef DIET_USE_SECURITY
-#include "SecurityManager.hh"
-#endif
 
 #ifdef USE_LOG_SERVICE
 #include "DietLogComponent.hh"
@@ -257,22 +253,10 @@ diet_initialize(const char *config_file_name, int argc, char *argv[]) {
 	  ins(level);
   }
 
-#ifdef DIET_USE_SECURITY
-  ins("-ORBendPoint");
-  ins("giop:tcp::");
-  ins("-ORBendPoint");
-  ins("giop:ssl::");
-#endif
   /* Publish all interfaces */
   ins("-ORBendPointPublish");
   ins("all(addr)");
 
-#ifdef DIET_USE_SECURITY
-  ins("-ORBserverTransportRule");
-  ins("* ssl");
-  ins("-ORBclientTransportRule");
-  ins("* ssl,tcp");
-#endif
 
 
   /* Check the parameters */

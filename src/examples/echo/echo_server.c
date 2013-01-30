@@ -20,7 +20,8 @@
 
 int sendEcho(diet_profile_t *pb) {
 	char* name = NULL;
-	char result[80] ="Bonjour ";
+	char* result =malloc(80*sizeof(char));
+	strcpy(result, "Bonjour ");
 
 	diet_string_get(diet_parameter(pb, 0), &name, DIET_VOLATILE);
 	printf("Received : %s\n", name);
@@ -30,10 +31,9 @@ int sendEcho(diet_profile_t *pb) {
 	size_t length = diet_string_get_desc(diet_parameter(pb,1))->length;
 	printf("Server : %zx\n", length);
 	diet_free_data(diet_parameter(pb,0));
-	diet_string_get(diet_parameter(pb, 1), &name, DIET_VOLATILE);
-	strcpy(name, result);
+//	diet_string_get(diet_parameter(pb, 1), &name, DIET_VOLATILE);
 
-	diet_string_set(diet_parameter(pb, 1), name, DIET_VOLATILE);
+	diet_string_set(diet_parameter(pb, 1), result, DIET_VOLATILE);
 	return 0;
 }
 

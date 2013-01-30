@@ -1,32 +1,48 @@
 /*
- * SecurityManager.hh
+ * @file SecurityManager.hh
  *
- *  Created on: 8 janv. 2013
- *      Author: gverger
+ * @brief  Utility class for handling security for DIET
+ *
+ * @author   Guillaume Verger(guillaume.verger@inria.fr)
  */
 
-#ifndef SECURITYMANAGER_HH_
-#define SECURITYMANAGER_HH_
+#ifndef _SECURITYMANAGER_HH_
+#define _SECURITYMANAGER_HH_
 
 #include "security_config.h"
 
 #ifdef DIET_USE_SECURITY
 
 #include <string>
+#include <vector>
 
 class SecurityManager {
 public:
-	SecurityManager();
-	virtual ~SecurityManager();
+  SecurityManager();
 
-	bool enableSecureCommunicationsIfSet();
+  virtual
+  ~SecurityManager();
+
+  bool
+  enableSecurity(int argc, char * argv[]);
+
+  std::vector<char *>
+  getORBOptions() const {return secuOptions; }
 
 private:
-	std::string cAFile;
-	std::string keyFile;
-	std::string passwordKey;
+  std::string cAFile;
+  std::string keyFile;
+  std::string passwordKey;
+
+  std::vector<char *> secuOptions;
+
+  bool
+  initSSLContext();
+
+  bool
+  secureORBOptions(int argc, char * argv[]);
 };
 
 #endif /* DIET_USE_SECURITY */
 
-#endif /* SECURITYMANAGER_HH_ */
+#endif /* _SECURITYMANAGER_HH_ */

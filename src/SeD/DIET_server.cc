@@ -35,8 +35,6 @@
 #include "DagdaImpl.hh"
 #include "DagdaFactory.hh"
 
-#include "security_config.h"
-
 
 #define BEGIN_API extern "C" {
 #define END_API }   // extern "C"
@@ -587,46 +585,25 @@ diet_SeD(const char *config_file_name, int argc, char *argv[]) {
     WARNING("No need to specify an MA name for a SeD - ignored");
   }
 
-  std::vector<std::string> transports;
-  transports.push_back("tcp");
-#ifdef DIET_USE_SECURITY
-  transports.push_back("ssl");
-#endif
-
-
   /* Get listening port & hostname */
   int port;
   std::string host;
   bool hasPort = CONFIG_INT(diet::DIETPORT, port);
   bool hasHost = CONFIG_STRING(diet::DIETHOSTNAME, host);
   if (hasPort || hasHost) {
-	  for (int i = 0; i < transports.size(); ++i) {
 		  std::ostringstream endpoint;
 		  ins("-ORBendPoint");
-		  endpoint << "giop:"<< transports[i] <<":" << host << ":";
+		  endpoint << "giop:tcp:" << host << ":";
 		  if (hasPort) {
 			  endpoint << port;
 		  }
 		  ins(endpoint);
-	  }
-  }
+	}
   else {
-#ifdef DIET_USE_SECURITY
-	  ins("-ORBendPoint");
-	  ins("giop:tcp::");
-	  ins("-ORBendPoint");
-	  ins("giop:ssl::");
-#endif
 	  ins("-ORBendPointPublish");
 	  ins("all(addr)");
   }
 
-#ifdef DIET_USE_SECURITY
-  ins("-ORBserverTransportRule");
-  ins("* ssl,tcp");
-  ins("-ORBclientTransportRule");
-  ins("* ssl,tcp");
-#endif
 
   /* Get the traceLevel */
   unsigned long tmpTraceLevel = TRACE_DEFAULT;

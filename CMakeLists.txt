@@ -240,7 +240,7 @@ endif()
 set(CMAKE_MODULE_PATH ${DIET_SOURCE_DIR}/cmake)
 
 # Boost is mandatory
-find_package(Boost 1.46.0 COMPONENTS filesystem regex system thread REQUIRED)
+find_package(Boost 1.46.0 COMPONENTS filesystem regex system thread program_options REQUIRED)
 # Boost Filesystem API v2 is deprecated will be removed after Boost 1.48 release
 add_definitions(-DBOOST_FILESYSTEM_VERSION=3)
 if(Boost_FOUND)
@@ -383,15 +383,13 @@ endif(DIET_USE_MULTICALL)
 
 # --------------------------- Security support ------------------------
 # add_definitions -> full rebuild if the option is changed. How to avoid full rebuild?
-# tried configure_file, but same issue...
 #if(DIET_USE_SECURITY)
 #  add_definitions(-DHAVE_SECURITY)
 #endif(DIET_USE_SECURITY)
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/utils/security/security_config.h.in
- ${CMAKE_CURRENT_BINARY_DIR}/src/utils/security/security_config.h)
-
-include_directories("${CMAKE_CURRENT_BINARY_DIR}/src/utils/security/")
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/utils/cmake_variables/security_config.h.in
+ ${CMAKE_CURRENT_BINARY_DIR}/src/utils/cmake_variables/security_config.h)
+include_directories("${CMAKE_CURRENT_BINARY_DIR}/src/utils/cmake_variables/")
 
 
 # --------------- OFFER BUILD MODE EXTENSIONS AND DEFAULTS  ----------------
