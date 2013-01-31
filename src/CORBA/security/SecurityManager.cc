@@ -62,28 +62,28 @@ SecurityManager::~SecurityManager() {
 void
 insertOptions(const std::string &option, const std::vector<std::string> &values, std::vector< char * > &toFill) {
 
-  char * name = new char[option.size()];
-  strcpy(name, option.c_str());
-  toFill.push_back(name);
   for (int i = 0; i < values.size(); ++i) {
-       char * o = new char[values[i].size()];
-       strcpy(o, values[i].c_str());
-       toFill.push_back(o);
-     }
+    char * name = new char[option.size()+1];
+    strcpy(name, option.c_str());
+    toFill.push_back(name);
+    char * o = new char[values[i].size()+1];
+    strcpy(o, values[i].c_str());
+    toFill.push_back(o);
+  }
 
 }
 
 void
 insertOptions(const std::string &option, const std::set<std::string> &values, std::vector< char * > &toFill) {
 
-  char * name = new char[option.size()];
-  strcpy(name, option.c_str());
-  toFill.push_back(name);
   for (std::set<std::string>::iterator it = values.begin(); it != values.end(); ++it) {
-       char * o = new char[it->size()];
-       strcpy(o, it->c_str());
-       toFill.push_back(o);
-     }
+    char * name = new char[option.size()+1];
+    strcpy(name, option.c_str());
+    toFill.push_back(name);
+    char * o = new char[it->size()+1];
+    strcpy(o, it->c_str());
+    toFill.push_back(o);
+  }
 
 }
 
@@ -116,8 +116,9 @@ SecurityManager::secureORBOptions(int argc, char * argv[]) {
 
     std::vector<std::string> unmodifiedOptions = po::collect_unrecognized(opts.options, po::include_positional);
 
+
     for (int i = 0; i < unmodifiedOptions.size(); ++i) {
-      char * o = new char[unmodifiedOptions[i].size()];
+      char * o = new char[unmodifiedOptions[i].size()+1];
       strcpy(o, unmodifiedOptions[i].c_str());
       secuOptions.push_back(o);
     }
@@ -147,12 +148,6 @@ SecurityManager::secureORBOptions(int argc, char * argv[]) {
           endPointToSet.insert(secuEP);
         }
         endPointToSet.insert(*iEndPoint);
-      }
-      TRACE_TEXT(TRACE_MAIN_STEPS, "End points are : " << std::endl);
-      for (std::set<std::string>::iterator iEndPointToSet =
-          endPointToSet.begin(); iEndPointToSet != endPointToSet.end();
-          ++iEndPointToSet) {
-        TRACE_TEXT(TRACE_MAIN_STEPS, *iEndPointToSet << std::endl);
       }
     }
 
@@ -212,11 +207,6 @@ SecurityManager::secureORBOptions(int argc, char * argv[]) {
 
     // Filling server rule options
     insertOptions("-ORBclientTransportRule", clientRuleToSet, secuOptions);
-
-
-    for (int i = 0; i < secuOptions.size(); ++i) {
-      std::cout << "opt : " << secuOptions[i] << std::endl;
-    }
 
   } catch (const std::exception &e) {
     WARNING("Exception raised while processing security options for the Orb : " << e.what() << std::endl);
