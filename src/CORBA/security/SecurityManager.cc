@@ -16,6 +16,7 @@
 #include <set>
 #include <vector>
 #include <boost/program_options.hpp>
+#include <boost/foreach.hpp>
 
 #include <omniORB4/CORBA.h>
 #include <omniORB4/sslContext.h>
@@ -53,21 +54,20 @@ SecurityManager::initSSLContext() {
 
 SecurityManager::~SecurityManager() {
   for (int i = 0; i < secuOptions.size(); ++i) {
-      free(secuOptions[i]);
+      delete[](secuOptions[i]);
     }
 }
-
 
 
 void
 insertOptions(const std::string &option, const std::vector<std::string> &values, std::vector< char * > &toFill) {
 
-  for (int i = 0; i < values.size(); ++i) {
+  BOOST_FOREACH(std::string val, values) {
     char * name = new char[option.size()+1];
     strcpy(name, option.c_str());
     toFill.push_back(name);
-    char * o = new char[values[i].size()+1];
-    strcpy(o, values[i].c_str());
+    char * o = new char[val.size()+1];
+    strcpy(o, val.c_str());
     toFill.push_back(o);
   }
 
@@ -76,12 +76,12 @@ insertOptions(const std::string &option, const std::vector<std::string> &values,
 void
 insertOptions(const std::string &option, const std::set<std::string> &values, std::vector< char * > &toFill) {
 
-  for (std::set<std::string>::iterator it = values.begin(); it != values.end(); ++it) {
+  BOOST_FOREACH(std::string val, values) {
     char * name = new char[option.size()+1];
     strcpy(name, option.c_str());
     toFill.push_back(name);
-    char * o = new char[it->size()+1];
-    strcpy(o, it->c_str());
+    char * o = new char[val.size()+1];
+    strcpy(o, val.c_str());
     toFill.push_back(o);
   }
 
@@ -116,22 +116,14 @@ SecurityManager::secureORBOptions(int argc, char * argv[]) {
 
     std::vector<std::string> unmodifiedOptions = po::collect_unrecognized(opts.options, po::include_positional);
 
-
-    for (int i = 0; i < unmodifiedOptions.size(); ++i) {
-      char * o = new char[unmodifiedOptions[i].size()+1];
-      strcpy(o, unmodifiedOptions[i].c_str());
+    BOOST_FOREACH(std::string uOpt, unmodifiedOptions) {
+      char * o = new char[uOpt.size()+1];
+      strcpy(o, uOpt.c_str());
       secuOptions.push_back(o);
     }
 
     po::store(opts, vm);
     po::notify(vm);
-
-    std::cout << "Variables : ("<< vm.size() <<")\n";
-    for (po::variables_map::iterator it = vm.begin(); it != vm.end(); ++it) {
-       std::cout << it->first  << std::endl;
-     }
-
-
 
     // Securing end points
     std::set<std::string> endPointToSet;
@@ -140,14 +132,13 @@ SecurityManager::secureORBOptions(int argc, char * argv[]) {
       endPointToSet.insert("giop:ssl::");
       TRACE_TEXT(TRACE_MAIN_STEPS, "Changing end point configuration : allowing ssl and tcp endpoints." << std::endl);
     } else {
-      for (std::vector<std::string>::iterator iEndPoint = oEndPoint.begin();
-          iEndPoint != oEndPoint.end(); ++iEndPoint) {
-        int idx = iEndPoint->find(":tcp:");
+      BOOST_FOREACH(std::string endPoint, oEndPoint) {
+        int idx = endPoint.find(":tcp:");
         if (idx != std::string::npos) {
-          std::string secuEP = std::string(*iEndPoint).replace(idx, 5, ":ssl:");
+          std::string secuEP = std::string(endPoint).replace(idx, 5, ":ssl:");
           endPointToSet.insert(secuEP);
         }
-        endPointToSet.insert(*iEndPoint);
+        endPointToSet.insert(endPoint);
       }
     }
 
@@ -158,13 +149,12 @@ SecurityManager::secureORBOptions(int argc, char * argv[]) {
     // Securing server rules: only accept incoming ssl requests
     std::vector<std::string> serverRuleToSet;
     if (!oServerTransportRule.empty()) {
-      for (std::vector<std::string>::iterator iServerTR = oServerTransportRule
-          .begin(); iServerTR != oServerTransportRule.end(); ++iServerTR) {
-        int idx = iServerTR->find("tcp");
+      BOOST_FOREACH(std::string serverTR, oServerTransportRule) {
+        int idx = serverTR.find("tcp");
         if (idx == std::string::npos) {
-          serverRuleToSet.push_back(*iServerTR);
+          serverRuleToSet.push_back(serverTR);
         } else {
-          WARNING("Ignoring server transport rule [" << *iServerTR
+          WARNING("Ignoring server transport rule [" << serverTR
               << "] : tcp is not allowed !" << std::endl);
         }
       }
@@ -179,22 +169,20 @@ SecurityManager::secureORBOptions(int argc, char * argv[]) {
     // Securing client rules: prefer sending ssl requests
     std::vector<std::string> clientRuleToSet;
     if (!oClientTransportRule.empty()) {
-      for (std::vector<std::string>::iterator iClientTR = oClientTransportRule
-          .begin(); iClientTR != oClientTransportRule.end(); ++iClientTR) {
-        int idxTCP = iClientTR->find("tcp");
-        std::string rule = *iClientTR;
+      BOOST_FOREACH(std::string clientTR, oClientTransportRule) {
+        int idxTCP = clientTR.find("tcp");
+        std::string rule = clientTR;
         if (idxTCP != std::string::npos) {
-          int idxSSL = iClientTR->find("ssl");
+          int idxSSL = clientTR.find("ssl");
           if (idxSSL == std::string::npos || idxSSL > idxTCP) {
             rule.replace(idxTCP, 3, "ssl");
-
             if (idxSSL > idxTCP) {
               rule.replace(idxSSL, 3, "tcp");
             }
             TRACE_TEXT(
                 TRACE_ALL_STEPS,
-                "Rewriting client transport rule [" << *iClientTR << "] to fit security needs into [" <<
-                rule << "]" << std::endl);
+                "Rewriting client transport rule [" << clientTR << "] into [" <<
+                rule << "] to fit security needs." << std::endl);
 
           }
         }
