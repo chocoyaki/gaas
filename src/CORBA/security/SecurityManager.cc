@@ -58,33 +58,27 @@ SecurityManager::~SecurityManager() {
     }
 }
 
+char *
+strToCharPtr(const std::string str) {
+  char * result = new char[str.size()+1];
+  strcpy(result, str.c_str());
+  return result;
+}
 
 void
 insertOptions(const std::string &option, const std::vector<std::string> &values, std::vector< char * > &toFill) {
-
   BOOST_FOREACH(std::string val, values) {
-    char * name = new char[option.size()+1];
-    strcpy(name, option.c_str());
-    toFill.push_back(name);
-    char * o = new char[val.size()+1];
-    strcpy(o, val.c_str());
-    toFill.push_back(o);
+    toFill.push_back(strToCharPtr(option));
+    toFill.push_back(strToCharPtr(val));
   }
-
 }
 
 void
 insertOptions(const std::string &option, const std::set<std::string> &values, std::vector< char * > &toFill) {
-
   BOOST_FOREACH(std::string val, values) {
-    char * name = new char[option.size()+1];
-    strcpy(name, option.c_str());
-    toFill.push_back(name);
-    char * o = new char[val.size()+1];
-    strcpy(o, val.c_str());
-    toFill.push_back(o);
+    toFill.push_back(strToCharPtr(option));
+    toFill.push_back(strToCharPtr(val));
   }
-
 }
 
 
@@ -114,12 +108,10 @@ SecurityManager::secureORBOptions(int argc, char * argv[]) {
         po::command_line_style::allow_long_disguise
             | po::command_line_style::long_allow_next).allow_unregistered().options(desc).run();
 
-    std::vector<std::string> unmodifiedOptions = po::collect_unrecognized(opts.options, po::include_positional);
 
+    std::vector<std::string> unmodifiedOptions = po::collect_unrecognized(opts.options, po::include_positional);
     BOOST_FOREACH(std::string uOpt, unmodifiedOptions) {
-      char * o = new char[uOpt.size()+1];
-      strcpy(o, uOpt.c_str());
-      secuOptions.push_back(o);
+      secuOptions.push_back(strToCharPtr(uOpt));
     }
 
     po::store(opts, vm);
