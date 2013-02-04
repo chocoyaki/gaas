@@ -260,10 +260,7 @@ flushed (\texttt{lsFlushinterval}, nanoseconds). It is recommended not to
 change the default parameters if you do not encounter problems. The buffer
 options will be ignored if \texttt{useLogService} is set to 0.
 
-
-\noindent
-\textbf{Multi-MA options}
-
+\subsubsection{Multi-MA options}
 \label{sec:multimaconfig}
 
 To federate resources, each MA tries periodically to contact other MAs. These
@@ -299,6 +296,24 @@ the connected MAs are alive every \texttt{updateLinkPeriod} seconds.\\
 use a specific port to be able to federate themselves. This port is only used
 for initializing connections between MAs. If this parameter is not set, the MA
 will not accept incoming connection.\\
+
+\subsubsection{Security options}
+\label{sec:securityconfig}
+
+Each entity needs to have access to a private key and a certificate signed by
+the diet authority.\\
+
+\noindent
+\texttt{sslRootCertificate} \ \ \emph{default}\texttt{ = none}\\
+This is a \textbf{mandatory} parameter when security is enabled. It indicates
+where to find the \diet certificate which comes from the authority.\\
+
+\noindent
+\texttt{sslPrivateKey} \ \ \emph{default}\texttt{ = none}\\
+This is a \textbf{mandatory} parameter when security is enabled. It indicates
+where to find the private key and the entity's certificate (a file containing
+the concatenation of the private key and the certificate). The certificate
+has to be signed by the authority with the Root Certificate.\\
 
 You can find the full set of \diet configuration file options in the chapter
 \ref{ch:appendix}.
