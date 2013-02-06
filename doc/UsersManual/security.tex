@@ -11,39 +11,38 @@
 \label{ch:Securityextension}
 
 In this chapter, we introduce the security extension of \diet. It is 
-possible to use encrypted communications between agents, \seds and 
-clients. To do so, we need and authority able to deliver signed
-certificates. Each entity will then have a certificate, which will
-ensure its authentication.
+possible to use encrypted communications between agents, \seds and clients. 
+To do so, we need and authority able to deliver signed certificates. Each 
+entity will then have a certificate, which will ensure its authentication.
 
 \section{Preparing the files}
 
-Communications in \diet are handled by Corba. In order to have
-secured communications in \diet, we have to specify Corba we
-use ssl, and then provides keys and certificates to use it.
+Communications in \diet are handled by Corba. In order to have secured 
+communications in \diet, we have to specify Corba we use ssl, and then 
+provides keys and certificates to use it.
 
 \subsection{Defining an authority}
 
-When a component will register to the \diet hierarchy, it will need
-to be authenticated for its parent to accept the connection. 
-This can be achieved by exhibiting a signed certificate from a known authority.
-We will now define the different steps to create your own certificate as an
-authority \auth.
+When a component will register to the \diet hierarchy, it will need to be 
+authenticated for its parent to accept the connection. This can be achieved 
+by exhibiting a signed certificate from a known authority. We will now 
+define the different steps to create your own certificate as an authority 
+\auth.
 
 \subsection{Getting a signed certificate}
 
-In order to prove a \diet entity as being authenticated, it needs to have a
-certificate signed by \auth.
-Suppose we have \verb+privatekey.pem+ the file containing the private key for
-the entity, and \verb+signedcert.pem+ the certificate which has been signed by
-\auth for the entity. The entity has to concatenate the two files into a single
-one, the key followed by the certificate.
+In order to prove a \diet entity as being authenticated, it needs to have a 
+certificate signed by \auth. Suppose we have \verb+privatekey.pem+ the file 
+containing the private key for the entity, and \verb+signedcert.pem+ the 
+certificate which has been signed by \auth for the entity. The entity has 
+to concatenate the two files into a single one, the key followed by the 
+certificate.
 
 \section{Setting the configuration files}
 
-The instructions about how to compile \diet with the Security
-extension are available in Section~\ref{sec:securityinstall} and the
-configuration instructions are available in Section~\ref{sec:securityconfig}.
+The instructions about how to compile \diet with the Security extension are 
+available in Section~\ref{sec:securityinstall} and the configuration 
+instructions are available in Section~\ref{sec:securityconfig}.
 
 
 
