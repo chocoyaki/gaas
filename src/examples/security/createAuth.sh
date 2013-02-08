@@ -4,6 +4,7 @@ function printUsage {
   echo "Usage: $BASH_SOURCE [OPTION...]"
   echo
   echo "  -d, --directory DIRECTORY set the output directory (default value is CA/)"
+  echo "  -n, --hostname HOSTNAME   set the hostname in the certificate"
   echo "  -h, --help                displays this help"  
   echo
   exit 0
@@ -17,7 +18,7 @@ function error {
 set -e # Stop on first error
 
 # Default values
-
+scriptDir=$(cd `dirname $0` && pwd)
 dir="CA"
 hostname=`hostname -I | cut -d" " -f1`
 
@@ -43,22 +44,29 @@ while test $i -lt $# ; do
 done
 
 
-# Preparing the folder for storing certificates
 if [ -e "${dir}" ]; then
   error "Folder '$dir' already exists"
 fi
 
-mkdir "$dir"
-cp openssl_ca.cnf "${dir}/openssl.cnf"
-cd "$dir"
-mkdir newcerts private
-echo '01' > serial
-touch index.txt
+echo "Executing commands:"
+echo "-------------------"
+(
+  PS4="> "
+  set -x
+  
+  # Preparing the folder for storing certificates
+  mkdir "$dir"
+  cp "$scriptDir/openssl_ca.cnf" "${dir}/openssl.cnf"
+  cd "$dir"
+  mkdir newcerts private
+  echo '01' > serial
+  touch index.txt
 
-# Creating the Authority certificate
-openssl req -new -x509 -extensions v3_ca    \
-  -keyout private/cakey.pem -out cacert.pem \
-  -days 3650 -config ./openssl.cnf -nodes \
-  -subj "/C=FR/O=DIET/OU=CA Management/CN=$hostname" 
- 
-echo "CA created in dir $dir"
+  # Creating the Authority certificate
+  openssl req -new -x509 -extensions v3_ca    \
+    -keyout private/cakey.pem -out cacert.pem \
+    -days 3650 -config ./openssl.cnf -nodes \
+    -subj "/C=FR/O=DIET/OU=CA Management/CN=$hostname" &>/dev/null
+)
+echo "-------------------" 
+echo "Certificate created in dir $dir"
