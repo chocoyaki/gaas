@@ -61,7 +61,7 @@ parent="$name"
 name="client"
 cfg="configs/$name.cfg"
 > "$cfg"
-echo "MAName = $parent" >> "$cfg"
+echo "MAName = $maname" >> "$cfg"
 "$scriptDir/createCert.sh" --agentname "$name"
 "$scriptDir/validateCert.sh" --agentname "$name" --authdir "$dir" --config-file "$cfg"
 
