@@ -51,7 +51,7 @@ endif()
 
 if(DIET_USE_DELTACLOUD)
 include_directories(${APACHE_DELTACLOUD_INCLUDE_DIR} utils/delta-cloud)
-	SET(DELTACLOUD_MODULE_SRCS 
+	SET(DELTACLOUD_MODULE_SRCS
 			utils/delta-cloud/consts.hh
 			utils/delta-cloud/Iaas_deltacloud.hh
 			utils/delta-cloud/Image.hh
@@ -61,10 +61,12 @@ include_directories(${APACHE_DELTACLOUD_INCLUDE_DIR} utils/delta-cloud)
 			utils/delta-cloud/Instance.hh
 			utils/delta-cloud/Tools.hh
 			utils/delta-cloud/Tools.cc
+			utils/delta-cloud/SeD_deltacloud.cc
+			utils/delta-cloud/SeD_deltacloud.hh
 		)
 
 	add_library(DIET_DeltaCloud ${DELTACLOUD_MODULE_SRCS})
-	target_link_libraries(DIET_DeltaCloud ${APACHE_DELTACLOUD_LIBRARY})
+	target_link_libraries(DIET_DeltaCloud ${APACHE_DELTACLOUD_LIBRARY} DIET_SeD)
 	install(TARGETS DIET_DeltaCloud DESTINATION ${LIB_INSTALL_DIR})
 endif()
 
@@ -94,12 +96,12 @@ if(DIET_USE_WORKFLOW)
     CORBA/idl/MaDagFwdr.idl
     CORBA/idl/WfLogService.idl
     CORBA/idl/WfLogServiceFwdr.idl)
-  
-  set(ClientWf_SRCS 
+
+  set(ClientWf_SRCS
     client/workflow/CltDagNodeLauncher.cc
     client/workflow/CltWfLogCentralDispatcher.cc
     client/workflow/CltWfMgr.cc)
-  
+
   set(UtilsWf_SRCS
     utils/workflow/WfLogDispatcher.cc
     utils/workflow/WfNode.cc
@@ -188,7 +190,7 @@ set(config_SRCS
 set(UtilsLog_SRCS utils/log/DietLogComponent.cc)
 
 ## dietUtils_SRCS
-set(dietUtils_SRCS 
+set(dietUtils_SRCS
   utils/debug.cc
   utils/DIET_data.cc
   utils/DIET_uuid.cc
@@ -205,7 +207,7 @@ set(dietUtils_SRCS
 
 if(WIN32)
   set(dietUtils_SRCS ${dietUtils_SRCS} utils/OSIndependance.cc)
-endif()  
+endif()
 
 
 if(DIET_USE_CLOUD)
@@ -346,7 +348,7 @@ set_source_files_properties(Cori_Easy_CPU.cc
 set_source_files_properties( Cori_Easy_Memory.cc
   PROPERTIES COMPILE_FLAGS "${CORI_EASY_MEMORY_COMPILE_FLAGS}")
 
-  
+
 ## library: DIET_Dagda
 set(CORE_SRCS
   utils/DAGDA/DagdaImpl.cc
@@ -451,7 +453,7 @@ if(DIET_BUILD_TOOLS)
   set(dietObjects_SRCS CORBA/tools/dietObjects.cc)
   set(dietObjects_LIBS DIET_client DIET_SeD ${CMAKE_DL_LIBS})
   if(WIN32)
-    set(dietObjects_LIBS ${dietObjects_LIBS} ws2_32)  
+    set(dietObjects_LIBS ${dietObjects_LIBS} ws2_32)
   endif()
 
   if(DIET_USE_WORKFLOW)
@@ -486,7 +488,7 @@ if(DIET_USE_ALT_BATCH)
 endif()
 if(DIET_USE_WORKFLOW)
   set(DIET_client_SRCS ${DIET_client_SRCS}
-    ${ClientWf_SRCS} ${UtilsWf_SRCS} ${UtilsEvents_SRCS}) 
+    ${ClientWf_SRCS} ${UtilsWf_SRCS} ${UtilsEvents_SRCS})
 
   set(DIET_client_LIBS ${DIET_client_LIBS}
     ${XQILLA_LIBRARY} ${XERCES_LIBRARY})
@@ -567,7 +569,7 @@ endif()
 set(DIET_SeD_LIBS DIET_Dagda)
 if(WIN32)
   set(DIET_SeD_LIBS ${DIET_SeD_LIBS} ws2_32)
-endif()  
+endif()
 if(DIET_USE_CLOUD)
   set(DIET_SeD_SRCS ${DIET_SeD_SRCS} ${cloud_SRCS})
   set(DIET_SeD_LIBS ${DIET_SeD_LIBS} ${GSOAP_LIBRARIES})

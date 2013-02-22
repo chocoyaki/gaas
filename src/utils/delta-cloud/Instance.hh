@@ -15,6 +15,10 @@
 
 namespace IaaS {
 
+#define KEYNAME_PARAM "keyname"
+#define HARDWARE_PROFILE_ID_PARAM "hwp_id"
+
+
 class Parameter{
 	public:
 	

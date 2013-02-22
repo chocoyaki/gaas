@@ -1,6 +1,6 @@
 /*
 	Authors :
-		- Lamiel Toch : lamiel.toch@ens-lyon.fr		
+		- Lamiel Toch : lamiel.toch@ens-lyon.fr
 */
 
 #include "Tools.hh"
@@ -9,6 +9,24 @@
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
+
+
+std::string get_ip_instance_by_id(IaaS::IaasInterface* interf, std::string instance_id, bool is_private_ip) {
+    IaaS::Instance* instance = interf->get_instance_by_id(instance_id);
+
+	std::string ip;
+
+	if (is_private_ip) {
+		ip = instance->private_ip;
+	}
+	else {
+		ip = instance->public_ip;
+	}
+
+	delete instance;
+
+	return ip;
+}
 
 void deleteStringVector(std::vector<std::string*>& v){
 	for(int i = 0; i < v.size(); i++) {
@@ -21,35 +39,46 @@ int test_ssh_connection(std::string ssh_user, std::string ip) {
 	std::string cmd = "ssh "  + ssh_user + "@" + ip + " -o StrictHostKeyChecking=no 'ls'";
 	std::cout << cmd << std::endl;
 	int ret = system(cmd.c_str());
-		
-	return ret;	
+
+	return ret;
 }
 
 
 int test_ssh_connection_by_id(IaaS::IaasInterface* interf, std::string vm_user, std::string instance_id, bool is_private_ip){
-	IaaS::Instance* instance = interf->get_instance_by_id(instance_id);
-	
-	std::string ip;
-	
-	if (is_private_ip) {
-		ip = instance->private_ip;
-	}
-	else {
-		ip = instance->public_ip;
-	}
-	
+
+    std::string ip = get_ip_instance_by_id(interf, instance_id, is_private_ip);
+
 	int ret = ::test_ssh_connection(vm_user, ip);
-	
-	delete instance;
-	
+
 	return ret;
 }
+
+int rsync_to_vm(std::string local_path, std::string remote_path, std::string user, std::string ip) {
+    int ret;
+
+    std::string cmd = "rsync -avz -e 'ssh -o StrictHostKeyChecking=no' " + local_path + " " + user + "@" + ip + ":" + remote_path;
+    std::cout << cmd << std::endl;
+    ret = system(cmd.c_str());
+
+    return ret;
+}
+
+int rsync_to_vm_by_id(IaaS::IaasInterface* interf, std::string vm_user, std::string instance_id, bool private_ip, std::string local_path, std::string remote_path) {
+
+    std::string ip = get_ip_instance_by_id(interf, instance_id, private_ip);
+
+    int ret = ::rsync_to_vm(local_path, remote_path, vm_user, ip);
+
+    return ret;
+}
+
+
 
 namespace IaaS {
 
 /*Instance * create_one_vm_instance(std::string base_url, std::string user_name, std::string password,
 	std::string vm_user, IaasInterface ** interf) {
-		
+
 }
 */
 
@@ -58,18 +87,18 @@ namespace IaaS {
 
 VMInstances::VMInstances(std::string image_id, int vm_count, std::string base_url, std::string user_name, std::string password,
 	std::string _vm_user, const std::vector<Parameter>& params) {
-	
+
 	vm_user = _vm_user;
-	
+
 	interf = new Iaas_deltacloud(base_url, user_name, password);
-	
+
 	insts = interf->run_instances(image_id, vm_count, params);
 }
 
 
 VMInstances::~VMInstances() {
 	interf->terminate_instances(*insts);
-	
+
 	delete interf;
 	deleteStringVector(*insts);
 	delete insts;
@@ -105,14 +134,14 @@ int VMInstances::test_all_ssh_connection(bool private_ips) {
 			return ret;
 		}
 	}
-	
+
 	return 0;
 }
 
 
 void VMInstances::wait_all_ssh_connection(bool private_ips) {
 	int ret;
-	
+
 	do{
 		ret = test_all_ssh_connection(private_ips);
 		sleep(1);
@@ -120,8 +149,11 @@ void VMInstances::wait_all_ssh_connection(bool private_ips) {
 }
 
 
+
+
+
 OpenStackVMInstances::OpenStackVMInstances(std::string image_id, int vm_count, std::string base_url, std::string user_name, std::string password, std::string vm_user, std::string key_name) : VMInstances(image_id, vm_count, base_url, user_name, password, vm_user, std::vector<Parameter>(1, Parameter("keyname", key_name))) {
-	
+
 }
 
 
