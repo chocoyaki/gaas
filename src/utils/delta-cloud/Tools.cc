@@ -44,6 +44,8 @@ int test_ssh_connection(std::string ssh_user, std::string ip) {
 }
 
 
+
+
 int test_ssh_connection_by_id(IaaS::IaasInterface* interf, std::string vm_user, std::string instance_id, bool is_private_ip){
 
     std::string ip = get_ip_instance_by_id(interf, instance_id, is_private_ip);
@@ -72,6 +74,20 @@ int rsync_to_vm_by_id(IaaS::IaasInterface* interf, std::string vm_user, std::str
     return ret;
 }
 
+int execute_command_in_vm(const std::string& remote_cmd, std::string vm_user, std::string ip, std::string args) {
+    std::string cmd = "ssh "  + vm_user+ "@" + ip + " -o StrictHostKeyChecking=no '" + remote_cmd + " " + args + "'";
+	std::cout << cmd << std::endl;
+	int ret = system(cmd.c_str());
+
+	return ret;
+}
+
+
+int execute_command_in_vm_by_id(IaaS::IaasInterface* interf, std::string vm_user, std::string instance_id, bool private_ip, std::string remote_cmd, std::string args) {
+    std::string ip = get_ip_instance_by_id(interf, instance_id, private_ip);
+
+    int ret = ::execute_command_in_vm(remote_cmd, vm_user, ip, args);
+}
 
 
 namespace IaaS {
@@ -149,7 +165,29 @@ void VMInstances::wait_all_ssh_connection(bool private_ips) {
 }
 
 
+int VMInstances::rsync_to_vm(int i, bool private_ip, std::string local_path, std::string remote_path) {
 
+    int ret;
+
+    ret = rsync_to_vm_by_id(interf, vm_user, get_instance_id(i), private_ip, local_path, remote_path);
+
+    return ret;
+}
+
+int VMInstances::execute_command_in_vm(int i, bool private_ip, const std::string& remote_path, int n) {
+
+    std::string remote_cmd = remote_path + "/exec.sh";
+    std::string args = "";
+
+    char arg[16];
+
+    for(int k = 0; k < n; k++) {
+        sprintf(arg, "%i", k);
+        args = args + " " + std::string(arg);
+    }
+
+    ::execute_command_in_vm_by_id(interf, vm_user, get_instance_id(i), private_ip, remote_cmd, args);
+}
 
 
 OpenStackVMInstances::OpenStackVMInstances(std::string image_id, int vm_count, std::string base_url, std::string user_name, std::string password, std::string vm_user, std::string key_name) : VMInstances(image_id, vm_count, base_url, user_name, password, vm_user, std::vector<Parameter>(1, Parameter("keyname", key_name))) {

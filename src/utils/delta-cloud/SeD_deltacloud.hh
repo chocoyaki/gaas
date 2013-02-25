@@ -11,8 +11,10 @@
 
 #include <string>
 #include <vector>
+#include <map>
 
 #include "Instance.hh"
+#include "Tools.hh"
 
 /**
      Function used to allocate a DIET profile descriptors with memory space
@@ -38,8 +40,23 @@
   dietcloud_profile_files_desc_alloc_and_set(const char* path, int last_in,
                           int last_inout, int last_out);
 
+class CloudServiceBinary {
+   public:
+    std::string local_path_of_binary;
+    std::string remote_path_of_binary;
+
+    //const int last_in;
+    //const int last_out;
+
+    CloudServiceBinary(const std::string& _local_path, const std::string& _remote_path /*, int last_in, int _last_out */);
+    CloudServiceBinary(const CloudServiceBinary& binary);
+    CloudServiceBinary();
+};
+
+
 class SeDCloud {
 private:
+    std::string image_id;
     std::string base_url; // eg : "http://localhost:3001/api";
 	std::string username; // eg : "oneadmin";
 	std::string password; //eg : "mypassword";
@@ -47,26 +64,44 @@ private:
 	int vm_count; // eg : 1;
 	//std::string profile; //eg :  "debian-rc";
 	std::vector<IaaS::Parameter> params; //parameters for instantiating a VM with deltacloud
+	IaaS::VMInstances* vm_instances;
+	bool is_ip_private;
+protected:
+    SeDCloud(const std::string& _image_id, const std::string& _base_url, const std::string& _username, const std::string& _password, const std::string& _vm_user,
+                          int _vm_count, bool _is_ip_private, const std::vector<IaaS::Parameter>& params = std::vector<IaaS::Parameter>());
+
+    ~SeDCloud();
 public:
-    SeDCloud(std::string _base_url, std::string _username, std::string _password, std::string _vm_user,
-                          int _vm_count, const std::vector<IaaS::Parameter>& params = std::vector<IaaS::Parameter>());
+    void addParameter(const std::string& param, const std::string& value);
 
-    void addParameter(std::string param, std::string value) {
-        params.push_back(IaaS::Parameter(param, value));
-    }
+    static void create(const std::string& _image_id, const std::string& _base_url, const std::string& _username, const std::string& _password, const std::string& _vm_user,
+                          int _vm_count, bool _is_ip_private, const std::vector<IaaS::Parameter>& params = std::vector<IaaS::Parameter>());
 
+    static void erase();
 
-    virtual void deployer_on_one_vm(const char* path_to_binary);
+    static SeDCloud* get();
+
+    virtual void deployer_on_one_vm(int vm_index, const char* path_to_binary);
 
     virtual DIET_API_LIB int
-        service_table_add(const diet_profile_desc_t* const profile,
+        service_table_add(const std::string& name_of_service,
+                          int last_in,
+                          int last_in_out,
+                          int last_out,
                          const diet_convertor_t* const cvt,
-                         diet_solve_t solve_func);
+                         const std::string& local_path_of_binary,
+                         const std::string& remote_path_of_binary);
 
+    bool using_private_ip();
+
+protected:
+    static int solve(diet_profile_t *pb);
+    static SeDCloud* instance;
+    static std::map<std::string, CloudServiceBinary> cloud_service_binaries;
  };
 
-
-
+std::map<std::string, CloudServiceBinary> SeDCloud::cloud_service_binaries;
+SeDCloud* SeDCloud::instance;
 
 
 
