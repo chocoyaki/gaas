@@ -74,6 +74,29 @@ int rsync_to_vm_by_id(IaaS::IaasInterface* interf, std::string vm_user, std::str
     return ret;
 }
 
+
+int rsync_from_vm(std::string remote_path, std::string local_path, std::string user, std::string ip) {
+    int ret;
+
+    std::string cmd = "rsync -avz -e 'ssh -o StrictHostKeyChecking=no' " + user + "@" + ip + ":" + remote_path + " " + local_path;
+    std::cout << cmd << std::endl;
+    ret = system(cmd.c_str());
+
+    return ret;
+}
+
+int rsync_from_vm_by_id(IaaS::IaasInterface* interf, std::string vm_user, std::string instance_id, bool private_ip, std::string remote_path, std::string local_path) {
+
+    std::string ip = get_ip_instance_by_id(interf, instance_id, private_ip);
+
+    int ret = ::rsync_from_vm(remote_path, local_path, vm_user, ip);
+
+    return ret;
+}
+
+
+
+
 int execute_command_in_vm(const std::string& remote_cmd, std::string vm_user, std::string ip, std::string args) {
     std::string cmd = "ssh "  + vm_user+ "@" + ip + " -o StrictHostKeyChecking=no '" + remote_cmd + " " + args + "'";
 	std::cout << cmd << std::endl;
@@ -174,17 +197,25 @@ int VMInstances::rsync_to_vm(int i, bool private_ip, std::string local_path, std
     return ret;
 }
 
-int VMInstances::execute_command_in_vm(int i, bool private_ip, const std::string& remote_path, int n) {
+int VMInstances::rsync_from_vm(int i, bool private_ip, std::string remote_path, std::string local_path) {
+    int ret;
+
+    ret = rsync_from_vm_by_id(interf, vm_user, get_instance_id(i), private_ip, remote_path, local_path);
+
+    return ret;
+}
+
+int VMInstances::execute_command_in_vm(int i, bool private_ip, const std::string& remote_path) {
 
     std::string remote_cmd = remote_path + "/exec.sh";
     std::string args = "";
 
-    char arg[16];
+    /*char arg[16];
 
     for(int k = 0; k < n; k++) {
         sprintf(arg, "%i", k);
         args = args + " " + std::string(arg);
-    }
+    }*/
 
     ::execute_command_in_vm_by_id(interf, vm_user, get_instance_id(i), private_ip, remote_cmd, args);
 }

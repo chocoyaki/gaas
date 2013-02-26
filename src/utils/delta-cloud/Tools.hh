@@ -65,9 +65,10 @@ class VMInstances {
 	int test_all_ssh_connection(bool private_ips = true);
 	void wait_all_ssh_connection(bool private_ips = true);
 
+    int rsync_from_vm(int i, bool private_ip, std::string remote_path, std::string local_path);
     int rsync_to_vm(int i, bool private_ip, std::string local_path, std::string remote_path);
     //command : remote_path/exec.sh 1 2 3 4 ...
-    int execute_command_in_vm(int i, bool private_ip, const std::string& remote_path, int n);
+    int execute_command_in_vm(int i, bool private_ip, const std::string& remote_path);
 	protected:
 
 	IaasInterface* interf;

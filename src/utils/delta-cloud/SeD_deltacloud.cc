@@ -1,5 +1,5 @@
 #include "SeD_deltacloud.hh"
-
+#include <stdio.h>
 
 
 DIET_API_LIB diet_profile_desc_t*
@@ -37,7 +37,6 @@ SeDCloud::SeDCloud(const std::string& _image_id, const std::string& _base_url, c
 DIET_API_LIB int
         SeDCloud::service_table_add(const std::string& name_of_service,
                           int last_in,
-                          int last_inout,
                           int last_out,
                          const diet_convertor_t* const cvt,
                          const std::string& local_path_of_binary,
@@ -45,7 +44,7 @@ DIET_API_LIB int
 
     diet_profile_desc_t* profile;
 
-    profile = diet_profile_desc_alloc(name_of_service.c_str(), last_in, last_inout, last_out);
+    profile = diet_profile_desc_alloc(name_of_service.c_str(), last_in, last_in, last_out);
 
     for(int i = 0; i <= last_out; i++) {
         diet_generic_desc_set(diet_param_desc(profile, i), DIET_FILE, DIET_CHAR);
@@ -64,6 +63,11 @@ DIET_API_LIB int
 
     SeDCloud::cloud_service_binaries[name_of_service] = CloudServiceBinary(local_path_of_binary, remote_path_of_binary);
 
+
+    diet_profile_desc_free(profile);
+    diet_print_service_table();
+
+    return 0;
 }
 
 
@@ -84,9 +88,46 @@ int SeDCloud::solve(diet_profile_t *pb) {
 
     std::string remote_path_of_binary = binary.remote_path_of_binary;
     int nb_args = pb->last_out + 1;
+    int last_in = pb->last_in;
+    size_t arg_size;
+    char* sz_local_path = NULL;
+    std::string local_path;
+    std::string arg_remote_path;
+    std::string arg_local_path;
+    char sz_i[512];
 
-    SeDCloud::instance->vm_instances->execute_command_in_vm(0, SeDCloud::instance->using_private_ip(), remote_path_of_binary, nb_args);
+    for(int i = 0; i <= last_in; i++) {
+        diet_file_get(diet_parameter(pb, i), &sz_local_path, NULL, &arg_size);
+        local_path = sz_local_path;
 
+        sprintf(sz_i, "%i", i);
+        //a disctinct remote folder for each request
+        arg_remote_path = remote_path_of_binary + "/" + sz_i;
+
+        SeDCloud::instance->vm_instances->rsync_to_vm(0, SeDCloud::instance->using_private_ip(), local_path, arg_remote_path);
+    }
+
+    SeDCloud::instance->vm_instances->execute_command_in_vm(0, SeDCloud::instance->using_private_ip(), remote_path_of_binary);
+
+    for(int i = last_in + 1 ; i < nb_args; i++) {
+        sprintf(sz_i, "/tmp/%i", i);
+        arg_local_path = sz_i;
+
+        sprintf(sz_i, "/%i", i);
+        arg_remote_path = remote_path_of_binary + sz_i;
+
+        SeDCloud::instance->vm_instances->rsync_from_vm(0, SeDCloud::instance->using_private_ip(), arg_remote_path, arg_local_path);
+
+
+        if (diet_file_set(diet_parameter(pb, i), arg_local_path.c_str(), DIET_VOLATILE)) {
+            printf("diet_file_desc_set error\n");
+            return 1;
+        }
+    }
+
+    for(int i = 0; i <= last_in; i++){
+        diet_free_data(diet_parameter(pb, i));
+    }
 }
 
 

@@ -86,7 +86,6 @@ public:
     virtual DIET_API_LIB int
         service_table_add(const std::string& name_of_service,
                           int last_in,
-                          int last_in_out,
                           int last_out,
                          const diet_convertor_t* const cvt,
                          const std::string& local_path_of_binary,
