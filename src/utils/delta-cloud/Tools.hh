@@ -27,6 +27,7 @@ int test_ssh_connection_by_id(IaaS::IaasInterface* interf, std::string vm_user, 
 int rsync_to_vm_by_id(IaaS::IaasInterface* interf, std::string vm_user, std::string instance_id, bool private_ip, std::string local_path, std::string remote_path);
 
 int rsync_to_vm(std::string local_path, std::string remote_path, std::string user, std::string ip);
+int rsync_from_vm(std::string remote_path, std::string local_path, std::string user, std::string ip);
 
 int execute_command_in_vm(const std::string& remote_cmd, std::string user, std::string ip, std::string args);
 int execute_command_in_vm_by_id(IaaS::IaasInterface* interf, std::string vm_user, std::string instance_id, bool private_ip, std::string remote_cmd, std::string args);
@@ -68,7 +69,7 @@ class VMInstances {
     int rsync_from_vm(int i, bool private_ip, std::string remote_path, std::string local_path);
     int rsync_to_vm(int i, bool private_ip, std::string local_path, std::string remote_path);
     //command : remote_path/exec.sh 1 2 3 4 ...
-    int execute_command_in_vm(int i, bool private_ip, const std::string& remote_path);
+    int execute_command_in_vm(int i, bool private_ip, const std::string& remote_cmd, const std::string& args);
 	protected:
 
 	IaasInterface* interf;

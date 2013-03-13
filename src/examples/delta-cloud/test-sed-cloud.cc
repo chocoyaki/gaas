@@ -1,9 +1,9 @@
 /**
- * @file cloud_server.c
+ * @file test-sed-cloud.cc
  *
- * @brief  Example server for the Cloud Batch System
+ * @brief  Example server for the SeDCloud
  *
- * @author  Adrian Muresan (adrian.muresan@ens-lyon.fr)
+ * @author  Lamiel Toch (lamiel.toch@ens-lyon.fr)
  *
  * @section Licence
  *   |LICENCE|
@@ -46,17 +46,19 @@ main(int argc, char *argv[]) {
   diet_service_table_init(2);
 
 
-    SeDCloud::create(image_id, base_url, username, password, vm_user,
+    SeDCloudAndVMLaunchedActions actions(image_id, base_url, username, password, vm_user,
                           vms_count, is_ip_private, params);
+
+    SeDCloud::create(&actions);
 
 
     SeDCloud::get()->service_table_add("matrixAdd", 1, 2, NULL, local_path_of_binary, remote_path_of_binary);
 
   /* Launch the SeD: no return call */
-  diet_SeD(argv[1], argc, argv);
+    SeDCloud::launch(argc, argv);
 
 
-    SeDCloud::erase();
+    //SeDCloud::erase();
 
   /* Dead code */
   return 0;

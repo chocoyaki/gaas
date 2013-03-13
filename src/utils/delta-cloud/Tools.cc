@@ -205,10 +205,10 @@ int VMInstances::rsync_from_vm(int i, bool private_ip, std::string remote_path, 
     return ret;
 }
 
-int VMInstances::execute_command_in_vm(int i, bool private_ip, const std::string& remote_path) {
+int VMInstances::execute_command_in_vm(int i, bool private_ip, const std::string& remote_cmd, const std::string& args) {
 
-    std::string remote_cmd = remote_path + "/exec.sh";
-    std::string args = "";
+    //std::string remote_cmd = remote_path + "/exec.sh";
+    //std::string args = "";
 
     /*char arg[16];
 

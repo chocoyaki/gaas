@@ -16,37 +16,24 @@
 #include "Instance.hh"
 #include "Tools.hh"
 
-/**
-     Function used to allocate a DIET profile descriptors with memory space
-     for its argument descriptors. All arguments are DIET_FILE of DIET_CHAR
-     @arg If no IN argument, please give -1 for last_in.
-     @arg If no INOUT argument, please give last_in for last_inout.
-     @arg If no OUT argument, please give last_inout for last_out.
+#include <stdio.h>
 
-     Once allocation is performed, please use set functions for each descriptor.
-     For example, the nth argument is a matrix of doubles:
-     \code
-     diet_generic_desc_set(diet_param_desc(profile, n), DIET_MATRIX; DIET_DOUBLE);
-     \endcode
 
-     @param path name of the service
-     @param last_in last_in : \f$-1\f$ + number of input data
-     @param last_inout last_inout : \e last_in \f$+\f$ number of inout data
-     @param last_out last_out : \e last_inout \f$+\f$ number of out data
-
-     @return the newly allocated diet_profile_desc
-  */
-  DIET_API_LIB diet_profile_desc_t*
-  dietcloud_profile_files_desc_alloc_and_set(const char* path, int last_in,
-                          int last_inout, int last_out);
-
+/*
+The folder must contains an executable and a shell script
+which call the executable. The name of this script is "exec.sh".
+The parameters are files and are named as follows :
+0 for the first parameter
+1 for the second parameter
+2 for the third and so on.
+*/
 class CloudServiceBinary {
    public:
+    //the local folder path which contains the executable
     std::string local_path_of_binary;
-    std::string remote_path_of_binary;
 
-    //const int last_in;
-    //const int last_out;
+    //the remote folder path which contains the executable (in Virtual Machine)
+    std::string remote_path_of_binary;
 
     CloudServiceBinary(const std::string& _local_path, const std::string& _remote_path /*, int last_in, int _last_out */);
     CloudServiceBinary(const CloudServiceBinary& binary);
@@ -54,8 +41,12 @@ class CloudServiceBinary {
 };
 
 
-class SeDCloud {
-private:
+
+
+class SeDCloudActions {
+protected:
+
+    /*******FOR DELTACLOUD********/
     std::string image_id;
     std::string base_url; // eg : "http://localhost:3001/api";
 	std::string username; // eg : "oneadmin";
@@ -66,22 +57,134 @@ private:
 	std::vector<IaaS::Parameter> params; //parameters for instantiating a VM with deltacloud
 	IaaS::VMInstances* vm_instances;
 	bool is_ip_private;
-protected:
-    SeDCloud(const std::string& _image_id, const std::string& _base_url, const std::string& _username, const std::string& _password, const std::string& _vm_user,
-                          int _vm_count, bool _is_ip_private, const std::vector<IaaS::Parameter>& params = std::vector<IaaS::Parameter>());
 
-    ~SeDCloud();
 public:
-    void addParameter(const std::string& param, const std::string& value);
+    //execute an action when the the client make a solve
+    virtual int perform_action_on_begin_solve(diet_profile_t *pb) = 0;
+    virtual int perform_action_on_end_solve(diet_profile_t *pb) = 0;
 
-    static void create(const std::string& _image_id, const std::string& _base_url, const std::string& _username, const std::string& _password, const std::string& _vm_user,
+    virtual void perform_action_on_sed_creation() = 0;
+
+    //at diet_SeD instruction
+    virtual void perform_action_on_sed_launch() = 0;
+
+    virtual int perform_action_after_service_table_add(const std::string& name_of_service) = 0;
+
+    virtual int send_arguments(const std::string& local_path, const std::string& remote_path);
+    virtual int receive_result(const std::string& result_remote_path, const std::string& result_local_path);
+    virtual int execute_remote_binary(const std::string& remote_path_of_binary, const std::string& args);
+
+    SeDCloudActions();
+
+    SeDCloudActions(const std::string& _image_id, const std::string& _base_url, const std::string& _username, const std::string& _password, const std::string& _vm_user,
                           int _vm_count, bool _is_ip_private, const std::vector<IaaS::Parameter>& params = std::vector<IaaS::Parameter>());
 
-    static void erase();
 
-    static SeDCloud* get();
+    ~SeDCloudActions() {
+        if (this->vm_instances != NULL){
+            delete this->vm_instances;
+            this->vm_instances = NULL;
+        }
+    }
 
-    virtual void deployer_on_one_vm(int vm_index, const char* path_to_binary);
+
+    bool using_private_ip() {
+        return this->is_ip_private;
+    }
+
+    static std::map<std::string, CloudServiceBinary> cloud_service_binaries;
+};
+
+
+class SeDCloudAndVMLaunchedActions : public SeDCloudActions {
+public:
+
+    virtual int perform_action_on_begin_solve(diet_profile_t *pb);
+    virtual int perform_action_on_end_solve(diet_profile_t *pb);
+
+    virtual void perform_action_on_sed_creation();
+    virtual void perform_action_on_sed_launch();
+
+
+    virtual int perform_action_after_service_table_add(const std::string& name_of_service);
+
+    SeDCloudAndVMLaunchedActions() : SeDCloudActions() {}
+
+    SeDCloudAndVMLaunchedActions(const std::string& _image_id, const std::string& _base_url, const std::string& _username, const std::string& _password, const std::string& _vm_user,
+                          int _vm_count, bool _is_ip_private, const std::vector<IaaS::Parameter>& _params = std::vector<IaaS::Parameter>()) :
+                          SeDCloudActions(_image_id, _base_url, _username, _password, _vm_user, _vm_count, _is_ip_private, _params){
+
+    }
+
+
+
+};
+
+class SeDCloudWithoutVMActions : public SeDCloudAndVMLaunchedActions {
+protected:
+    std::string address_ip;
+    std::string username;
+
+public:
+    virtual void perform_action_on_sed_creation();
+    virtual void perform_action_on_sed_launch();
+
+    virtual int send_arguments(const std::string& local_path, const std::string& remote_path);
+    virtual int receive_result(const std::string& result_remote_path, const std::string& result_local_path);
+    virtual int execute_remote_binary(const std::string& remote_path_of_binary, const std::string& args);
+
+    SeDCloudWithoutVMActions(const std::string& _address_ip,const std::string& _username) :
+                          SeDCloudAndVMLaunchedActions(){
+        address_ip = _address_ip;
+        username = _username;
+    }
+
+
+};
+
+
+
+class SeDCloud {
+
+
+protected:
+    SeDCloudActions* actions;
+
+    SeDCloud(SeDCloudActions* _actions) {
+            instance = NULL;
+            actions = _actions;
+            actions->perform_action_on_sed_creation();
+
+    }
+
+
+
+public:
+    //void addParameter(const std::string& param, const std::string& value);
+
+    static void launch(int argc, char* argv[]) {
+        SeDCloud::instance->actions->perform_action_on_sed_launch();
+        diet_SeD(argv[1], argc, argv);
+    }
+
+    static void create(SeDCloudActions* _actions) {
+        if (instance == NULL) {
+            SeDCloud::instance = new SeDCloud(_actions);
+        }
+    }
+
+    static void erase() {
+        if (instance != NULL) {
+            delete instance;
+            instance = NULL;
+        }
+    }
+
+    static SeDCloud* get() {
+
+        return SeDCloud::instance;
+
+    }
 
     virtual DIET_API_LIB int
         service_table_add(const std::string& name_of_service,
@@ -89,17 +192,102 @@ public:
                           int last_out,
                          const diet_convertor_t* const cvt,
                          const std::string& local_path_of_binary,
-                         const std::string& remote_path_of_binary);
+                         const std::string& remote_path_of_binary) {
 
-    bool using_private_ip();
+    diet_profile_desc_t* profile;
+
+    profile = diet_profile_desc_alloc(name_of_service.c_str(), last_in, last_in, last_out);
+
+    for(int i = 0; i <= last_out; i++) {
+        diet_generic_desc_set(diet_param_desc(profile, i), DIET_FILE, DIET_CHAR);
+    }
+
+    SeDCloudActions::cloud_service_binaries[name_of_service] = CloudServiceBinary(local_path_of_binary, remote_path_of_binary);
+
+    if (diet_service_table_add(profile, cvt, solve)) {
+        return 1;
+    }
+
+
+    diet_profile_desc_free(profile);
+    diet_print_service_table();
+
+    actions->perform_action_after_service_table_add(name_of_service);
+
+    return 0;
+}
+
+
+
 
 protected:
-    static int solve(diet_profile_t *pb);
+    static int solve(diet_profile_t *pb) {
+        std::string name(pb->pb_name);
+
+        CloudServiceBinary& binary = SeDCloudActions::cloud_service_binaries[name];
+
+        std::string remote_path_of_binary = binary.remote_path_of_binary;
+        int nb_args = pb->last_out + 1;
+        int last_in = pb->last_in;
+        size_t arg_size;
+        char* sz_local_path = NULL;
+        std::string local_path;
+        std::string arg_remote_path;
+        std::string arg_local_path;
+        char sz_i[512];
+
+        for(int i = 0; i <= last_in; i++) {
+            diet_file_get(diet_parameter(pb, i), &sz_local_path, NULL, &arg_size);
+            local_path = sz_local_path;
+
+            sprintf(sz_i, "%i", i);
+            //a disctinct remote folder for each request
+            arg_remote_path = remote_path_of_binary + "/" + sz_i;
+
+            //SeDCloud::instance->vm_instances->rsync_to_vm(0, SeDCloud::instance->using_private_ip(), local_path, arg_remote_path);
+            SeDCloud::instance->actions->send_arguments(local_path, arg_remote_path);
+        }
+
+        SeDCloud::instance->actions->execute_remote_binary(remote_path_of_binary, "");
+
+        for(int i = last_in + 1 ; i < nb_args; i++) {
+            sprintf(sz_i, "/tmp/%i", i);
+            arg_local_path = sz_i;
+
+            sprintf(sz_i, "/%i", i);
+            arg_remote_path = remote_path_of_binary + sz_i;
+
+            //SeDCloud::instance->vm_instances->rsync_from_vm(0, SeDCloud::instance->using_private_ip(), arg_remote_path, arg_local_path);
+            SeDCloud::instance->actions->receive_result(arg_remote_path, arg_local_path);
+
+            if (diet_file_set(diet_parameter(pb, i), arg_local_path.c_str(), DIET_VOLATILE)) {
+                printf("diet_file_desc_set error\n");
+                return 1;
+            }
+        }
+
+        for(int i = 0; i <= last_in; i++){
+            diet_free_data(diet_parameter(pb, i));
+        }
+    }
+
+
     static SeDCloud* instance;
-    static std::map<std::string, CloudServiceBinary> cloud_service_binaries;
+
+public:
+
+    //static std::map<std::string, CloudServiceBinary> cloud_service_binaries;
+
+    /*
+    void deployServiceBinary(std::string name) {
+
+    }
+    */
  };
 
-std::map<std::string, CloudServiceBinary> SeDCloud::cloud_service_binaries;
+//template <class Actions>
+std::map<std::string, CloudServiceBinary> SeDCloudActions::cloud_service_binaries;
+
 SeDCloud* SeDCloud::instance;
 
 
