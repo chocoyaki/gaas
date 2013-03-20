@@ -666,7 +666,7 @@ diet_SeD(const char *config_file_name, int argc, char *argv[]) {
     CONFIG_STRING(diet::PARENTNAME, parentName);
 
     dietLogComponent = new DietLogComponent(
-      SeD->getName(), outBufferSize, myargc, (char **) myargv);
+      SeD->getName(), outBufferSize, args.size(), &args[0]);
 
 
     ORBMgr::getMgr()->activate(dietLogComponent);

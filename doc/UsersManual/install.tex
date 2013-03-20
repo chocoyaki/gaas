@@ -303,7 +303,12 @@ then calling
 \item
   \label{sec:securityinstall}
   \verb+DIET_USE_SECURITY+ enables ssl communications between DIET entities
-  (agents, SeDs and clients). Keys and certificates will be specified in the
+  (agents, SeDs and clients). This extension uses the SSL part of OmniORB,
+  so you need the library omnisslTP to be installed. In order to do that
+  OmniORB should be compiled on an environment where OpenSSL is available.
+  Please refer to the OmniORB doc if necessary\footnote{Chapter 8.9 of
+  \url{http://omniorb.sourceforge.net/omni41/omniORB/omniORB008.html}}.
+  To run \diet with security on, keys and certificates will be specified in the
   configuration files of each entities (see Appendix~\ref{ch:appendix} page~\pageref{appendix_ssl})
 \end{itemize}
 
