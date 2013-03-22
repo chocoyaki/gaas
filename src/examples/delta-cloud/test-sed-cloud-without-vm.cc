@@ -1,7 +1,7 @@
 /**
  * @file test-sed-cloud.cc
  *
- * @brief  Example server for the SeDCloud
+ * @brief  Example server for the SeDCloud without vm
  *
  * @author  Lamiel Toch (lamiel.toch@ens-lyon.fr)
  *

@@ -64,6 +64,19 @@ int SeDCloudActions::execute_remote_binary(const std::string& remote_path_of_bin
 
 }
 
+void SeDCloudActions::copy_all_binaries_into_vm(int vm_index) {
+    vm_instances->wait_all_ssh_connection(this->is_ip_private);
+
+    std::map<std::string, CloudServiceBinary>::const_iterator iter;
+    std::map<std::string, CloudServiceBinary>& binaries = cloud_service_binaries;
+    for(iter = binaries.begin(); iter != binaries.end(); iter++) {
+        std::string name_of_service = iter->first;
+        CloudServiceBinary& binary = binaries[name_of_service];
+
+        //TODO : remplacer 0 par l'instance souhaitée dynamiquement
+        vm_instances->rsync_to_vm(vm_index, this->is_ip_private, binary.local_path_of_binary, binary.remote_path_of_binary);
+    }
+}
 
 
 int SeDCloudAndVMLaunchedActions::perform_action_on_begin_solve(diet_profile_t *pb) {
@@ -81,21 +94,12 @@ void SeDCloudAndVMLaunchedActions::perform_action_on_sed_creation() {
 
 
 
+
 /*
 On sed launch, we copy all binaries for each service
 */
 void SeDCloudAndVMLaunchedActions::perform_action_on_sed_launch() {
-    vm_instances->wait_all_ssh_connection(this->is_ip_private);
-
-    std::map<std::string, CloudServiceBinary>::const_iterator iter;
-    std::map<std::string, CloudServiceBinary>& binaries = cloud_service_binaries;
-    for(iter = binaries.begin(); iter != binaries.end(); iter++) {
-        std::string name_of_service = iter->first;
-        CloudServiceBinary& binary = binaries[name_of_service];
-
-        //TODO : remplacer 0 par l'instance souhaitée dynamiquement
-        vm_instances->rsync_to_vm(0, this->is_ip_private, binary.local_path_of_binary, binary.remote_path_of_binary);
-    }
+    copy_all_binaries_into_vm(0);
 }
 
 
@@ -146,3 +150,43 @@ int SeDCloudWithoutVMActions::execute_remote_binary(const std::string& remote_pa
     printf(">>>>>>>>>>>>>>>>EXECUTE BINARY\n");
     ::execute_command_in_vm(remote_path_of_binary + "/exec.sh", username, address_ip, args);
 }
+
+
+void SeDCloudVMLaunchedAtSolveActions::perform_action_on_sed_launch() {
+    std::map<std::string, CloudServiceBinary>::const_iterator iter;
+    std::map<std::string, CloudServiceBinary>& binaries = cloud_service_binaries;
+    for(iter = binaries.begin(); iter != binaries.end(); iter++) {
+        std::string name_of_service = iter->first;
+        printf("add service %s\n", name_of_service.c_str());
+        statistics_on_services.add_service(name_of_service);
+    }
+}
+
+
+
+int SeDCloudVMLaunchedAtFirstSolveActions::perform_action_on_begin_solve(diet_profile_t *pb){
+    std::string service_name = pb->pb_name;
+
+    printf("call solve for service %s\n", service_name.c_str());
+
+
+
+    if (!statistics_on_services.one_service_already_called()) {
+        statistics_on_services.increment_call_number(service_name);
+        this->vm_instances = new IaaS::VMInstances (this->image_id, this->vm_count, this->base_url, this->username, this->password, this->vm_user, this->params);
+        vm_instances->wait_all_ssh_connection(this->is_ip_private);
+        copy_all_binaries_into_vm(0);
+
+    }
+    else {
+        statistics_on_services.increment_call_number(service_name);
+    }
+
+
+}
+
+int SeDCloudVMLaunchedAtFirstSolveActions::perform_action_on_end_solve(diet_profile_t *pb) {
+
+}
+
+

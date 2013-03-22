@@ -17,7 +17,7 @@
 #include "Tools.hh"
 
 #include <stdio.h>
-
+#include <set>
 
 /*
 The folder must contains an executable and a shell script
@@ -41,7 +41,92 @@ class CloudServiceBinary {
 };
 
 
+class ServiceStatistics{
+public:
+    ServiceStatistics(const std::string _service_name) {
+        service_name = _service_name;
+        call_number = 0;
+    }
 
+    ServiceStatistics(const ServiceStatistics& stats) {
+        service_name = stats.service_name;
+        call_number = stats.call_number;
+    }
+
+    ServiceStatistics(){
+        service_name = "";
+        call_number = 0;
+    }
+
+    void increment_call_number() {
+        call_number++;
+    }
+
+    int call_count() const {
+        return call_number;
+    }
+
+
+
+
+    /*
+    bool operator< (const ServiceStatistics& other) const {
+        return service_name < other.service_name;
+    }*/
+
+protected:
+    std::string service_name;
+    int call_number;
+};
+
+
+
+class ServiceStatisticsMap{
+public:
+    ServiceStatisticsMap() {
+
+    }
+
+    void add_service(const std::string& service_name) {
+        stats_map[service_name] = ServiceStatistics(service_name);
+    }
+
+    bool service_exists(const std::string& service_name) const {
+        return stats_map.count(service_name) > 0;
+    }
+
+    void increment_call_number(const std::string& service_name) {
+        stats_map[service_name].increment_call_number();
+    }
+
+    const std::map<std::string, ServiceStatistics>& get() const {
+        return stats_map;
+    }
+
+    bool one_service_already_called(const std::string& service_name) const {
+        const ServiceStatistics stat = stats_map.at(service_name);
+        return stat.call_count() > 0;
+    }
+
+    //at least one service has already been called
+    bool one_service_already_called() const {
+        std::map<std::string, ServiceStatistics>::const_iterator iter;
+
+        for(iter = stats_map.begin(); iter != stats_map.end(); iter++){
+            const std::string& service_name = iter->first;
+            if (one_service_already_called(service_name)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+protected:
+    std::map<std::string, ServiceStatistics> stats_map;
+
+
+};
 
 class SeDCloudActions {
 protected:
@@ -57,7 +142,8 @@ protected:
 	std::vector<IaaS::Parameter> params; //parameters for instantiating a VM with deltacloud
 	IaaS::VMInstances* vm_instances;
 	bool is_ip_private;
-
+	ServiceStatisticsMap statistics_on_services;
+    void copy_all_binaries_into_vm(int vm_index);
 public:
     //execute an action when the the client make a solve
     virtual int perform_action_on_begin_solve(diet_profile_t *pb) = 0;
@@ -105,7 +191,6 @@ public:
     virtual void perform_action_on_sed_creation();
     virtual void perform_action_on_sed_launch();
 
-
     virtual int perform_action_after_service_table_add(const std::string& name_of_service);
 
     SeDCloudAndVMLaunchedActions() : SeDCloudActions() {}
@@ -143,7 +228,50 @@ public:
 };
 
 
+class SeDCloudVMLaunchedAtSolveActions : public SeDCloudActions {
+public:
+    virtual int perform_action_on_begin_solve(diet_profile_t *pb) = 0;
+    virtual int perform_action_on_end_solve(diet_profile_t *pb) = 0;
 
+    //virtual void perform_action_on_sed_creation();
+    virtual void perform_action_on_sed_launch();
+
+    virtual void perform_action_on_sed_creation() {};
+    virtual int perform_action_after_service_table_add(const std::string& name_of_service) {};
+
+
+    SeDCloudVMLaunchedAtSolveActions(const std::string& _image_id, const std::string& _base_url, const std::string& _username, const std::string& _password, const std::string& _vm_user,
+                          int _vm_count, bool _is_ip_private, const std::vector<IaaS::Parameter>& _params = std::vector<IaaS::Parameter>()) :
+                          SeDCloudActions(_image_id, _base_url, _username, _password, _vm_user, _vm_count, _is_ip_private, _params){
+
+    }
+
+protected:
+
+
+
+};
+
+
+class SeDCloudVMLaunchedAtFirstSolveActions : public SeDCloudVMLaunchedAtSolveActions {
+public:
+
+    virtual int perform_action_on_begin_solve(diet_profile_t *pb);
+    virtual int perform_action_on_end_solve(diet_profile_t *pb);
+
+
+    SeDCloudVMLaunchedAtFirstSolveActions(const std::string& _image_id, const std::string& _base_url, const std::string& _username, const std::string& _password, const std::string& _vm_user,
+                          int _vm_count, bool _is_ip_private, const std::vector<IaaS::Parameter>& _params = std::vector<IaaS::Parameter>()) :
+                          SeDCloudVMLaunchedAtSolveActions(_image_id, _base_url, _username, _password, _vm_user, _vm_count, _is_ip_private, _params) {
+    }
+
+};
+
+
+
+
+
+//the controller which calls actions
 class SeDCloud {
 
 
@@ -222,6 +350,8 @@ public:
 
 protected:
     static int solve(diet_profile_t *pb) {
+        SeDCloud::instance->actions->perform_action_on_begin_solve(pb);
+
         std::string name(pb->pb_name);
 
         CloudServiceBinary& binary = SeDCloudActions::cloud_service_binaries[name];
@@ -269,6 +399,9 @@ protected:
         for(int i = 0; i <= last_in; i++){
             diet_free_data(diet_parameter(pb, i));
         }
+
+
+        SeDCloud::instance->actions->perform_action_on_end_solve(pb);
     }
 
 
