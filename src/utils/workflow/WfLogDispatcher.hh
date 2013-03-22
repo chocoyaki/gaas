@@ -6,7 +6,7 @@
 * @author  Benjamin Isnard (benjamin.isnard@ens-lyon.fr)
 * 
 * @section Licence
-*   |LICENCE|                                                                
+*   |LICENSE|                                                                
 */
 
 

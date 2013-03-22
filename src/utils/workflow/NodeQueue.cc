@@ -6,7 +6,7 @@
 * @author  Benjamin ISNARD (Benjamin.Isnard@ens-lyon.fr)
 * 
 * @section Licence
-*   |LICENCE|                                                                
+*   |LICENSE|                                                                
 */
 /****************************************************************************/
 /* The base class for workflow node queueing container                      */

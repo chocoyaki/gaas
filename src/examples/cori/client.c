@@ -6,7 +6,7 @@
  * @author  Peter Frauenkron (Peter.Frauenkron@gmail.com)
  *
  * @section Licence
- *   |LICENCE|
+ *   |LICENSE|
  */
 
 

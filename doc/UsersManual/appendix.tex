@@ -3,7 +3,7 @@
 %*  @brief   DIET User's Manual: appendix file 
 %*  @author  - Philippe COMBES (philippe.COMBES@ens-lyon.fr)
 %*  @section Licence 
-%*    |LICENCE|
+%*    |LICENSE|
 
 \chapter{Appendix}
 \label{ch:appendix}
@@ -67,6 +67,20 @@ another one.
   \item Mode: All
   \item Type: Integer
   \item Description: The maximum number of \sed the client should receive.
+  \end{itemize}
+
+
+\item{\bf{clientNbRetry}}
+  \begin{itemize}
+  \item Component: Client
+  \item Mode: All
+  \item Type: Integer
+  \item Description: The maximum number times the client should automatically
+    retry a diet\_call, whenever the solve function returns a non null value. The
+    whole submission process is followed (SeD selection and real solve call). By
+    default, the value is 0 (do not retry). Example: with a value of 2, the client
+    will do at most 3 calls: the normal call, and 2 other calls (at most) to
+    retry.
   \end{itemize}
 
 %%%% D

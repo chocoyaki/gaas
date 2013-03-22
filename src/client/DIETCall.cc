@@ -6,7 +6,7 @@
  * @author   Philippe COMBES (Philippe.Combes@ens-lyon.fr)
  *
  * @section Licence
- *   |LICENCE|
+ *   |LICENSE|
  */
 
 
@@ -19,6 +19,7 @@
 
 #include "DIET_Dagda.hh"
 #include "DagdaFactory.hh"
+#include "configuration.hh"
 
 #ifdef HAVE_MULTICALL
 #include "MultiCall.hh"
@@ -193,45 +194,54 @@ diet_call_common(MasterAgent_var &MA,
                  estVector_t estimVect,
                  unsigned long maxServers) {
   diet_error_t res(0);
-  int solve_res(0);
+  int solve_res(1);
   corba_profile_t corba_profile;
   char statMsg[128];
   corba_estimation_t emptyEstimVect;
   stat_in("Client", "diet_call");
 
-  if (CORBA::is_nil(chosenServer)) {
-    if (!(res =
-            request_submission(MA, profile, chosenServer, estimVect,
+  // Retry loop
+  unsigned long nbRetry = 0;  // by default we do not retry
+  CONFIG_ULONG(diet::NBRETRY, nbRetry);
+  for (unsigned int i = 0; i <= nbRetry && solve_res; ++i) {
+    TRACE_TEXT(TRACE_ALL_STEPS, "Trying to call the service for the "
+               << i + 1 << " time\n");
+    SeD_var cs = chosenServer;
+
+    if (CORBA::is_nil(cs)) {
+      if (!(res =
+            request_submission(MA, profile, cs, estimVect,
                                maxServers))) {
-      corba_profile.estim = *estimVect;  // copy estimation vector
-      delete estimVect;  // vector was allocated in request_submission
-    } else { // error in request_submission
-      return res;
+        corba_profile.estim = *estimVect;  // copy estimation vector
+        delete estimVect;  // vector was allocated in request_submission
+      } else { // error in request_submission
+        return res;
+      }
+      if (CORBA::is_nil(cs)) {
+        return 1;
+      }
     }
-    if (CORBA::is_nil(chosenServer)) {
-      return 1;
+    /* Add estimation vector to the corba_profile */
+    /* (use an empty vector in case it is not provided, eg for grpc calls) */
+    else if (estimVect != NULL) {
+      corba_profile.estim = *estimVect;
+    } else {
+      corba_profile.estim = emptyEstimVect;
     }
-  }
-  /* Add estimation vector to the corba_profile */
-  /* (use an empty vector in case it is not provided, eg for grpc calls) */
-  else if (estimVect != NULL) {
-    corba_profile.estim = *estimVect;
-  } else {
-    corba_profile.estim = emptyEstimVect;
-  }
 
-  // Server is chosen, update its timeSinceLastSolve
-  chosenServer->updateTimeSinceLastSolve();
+    // Server is chosen, update its timeSinceLastSolve
+    cs->updateTimeSinceLastSolve();
 
-  dagda_mrsh_profile(&corba_profile, profile, MA);
+    dagda_mrsh_profile(&corba_profile, profile, MA);
 
-  /* Computation */
-  sprintf(statMsg, "computation %ld", (unsigned long) profile->dietReqID);
+    /* Computation */
+    sprintf(statMsg, "computation %ld", (unsigned long) profile->dietReqID);
 
-  stat_in("Client", statMsg);
-  TRACE_TEXT(TRACE_MAIN_STEPS, "Calling the ref Corba of the SeD\n");
-  /* CORBA CALL to SED */
-  solve_res = chosenServer->solve(profile->pb_name, corba_profile);
+    stat_in("Client", statMsg);
+    TRACE_TEXT(TRACE_MAIN_STEPS, "Calling the ref Corba of the SeD\n");
+    /* CORBA CALL to SED */
+    solve_res = cs->solve(profile->pb_name, corba_profile);
+  }  // end for retry
 
   stat_out("Client", statMsg);
 

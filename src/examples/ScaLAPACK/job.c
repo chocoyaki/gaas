@@ -6,7 +6,7 @@
  * @author  Bert VAN HEUKELOM  (Bert.Van-Heukelom@ens-lyon.fr)
  *
  * @section Licence
- *   |LICENCE|
+ *   |LICENSE|
  */
 
 

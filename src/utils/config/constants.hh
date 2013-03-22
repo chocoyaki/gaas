@@ -6,7 +6,7 @@
  * @author  Haikel Guemar (haikel.guemar@sysfera.com)
  *
  * @section Licence
- *   |LICENCE|
+ *   |LICENSE|
  */
 
 #ifndef _CONSTANTS_HH_
@@ -83,6 +83,7 @@ typedef enum {
   SECURITYGROUP,
   USERNAME,
   FORCE_CLIENT_REBIND,
+  NBRETRY,
   NB_PARAM_TYPE
 } param_type_t;
 

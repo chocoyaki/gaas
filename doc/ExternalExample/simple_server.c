@@ -3,7 +3,7 @@
 *  @brief  A Simple Client example
 *  @author
 *  @section Licence 
-*    |LICENCE|
+*    |LICENSE|
 */ 
 #include <stdio.h>
 #include "DIET_server.h"

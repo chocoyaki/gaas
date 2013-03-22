@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 2.8.5)
 project(DIET)
 
 set(DIET_MAJOR_VERSION 2)
@@ -501,6 +501,10 @@ endif()
 
 # --------------------------------------------------------------------------
 include(${DIET_SOURCE_DIR}/cmake/DisplaySummary.cmake)
+
+# --------------------------------------------------------------------------
+# add an uninstall target to CMake
+include(CMakeUninstall)
 
 if(NOT WIN32)
   # --------------------------------------------------------------------------

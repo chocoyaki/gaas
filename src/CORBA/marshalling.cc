@@ -7,7 +7,7 @@
  *          Frederic LOMBARD (Frederc.Lombard@lifc.univ-fcomte.fr)
  *
  * @section Licence
- *   |LICENCE|
+ *   |LICENSE|
  */
 
 

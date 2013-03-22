@@ -6,7 +6,7 @@
  * @author
  *
  * @section Licence
- *   |LICENCE|
+ *   |LICENSE|
  */
 
 

@@ -6,7 +6,7 @@
  * @author  Frauenkron Peter (Peter.Frauenkron@ens-lyon.fr)
  *
  * @section Licence
- *   |LICENCE|
+ *   |LICENSE|
  */
 
 #if CORI_HAVE_SYS_TIME

@@ -1,4 +1,12 @@
 +------------+
+| diet 2.8.2 |
++------------+
+* Features:
+	- Clients can automatically retry a diet_call certain number of
+	times given in the configuration file by the clientNbRetry
+	variable.
+	
++------------+
 | diet 2.8.1 |
 +------------+
 * Features:

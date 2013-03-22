@@ -18,6 +18,7 @@ set_property(DIRECTORY APPEND PROPERTY
 # Options
 ##############################################################################
 option(DIET_BUILD_USERMANUAL "Build DIET User Manual." ON)
+option(DIET_BUILD_QUICKSTART "Build DIET QuickStart." ON)
 option(DIET_BUILD_USERFAQ "Build DIET User FAQ." ON)
 option(DIET_BUILD_PROGRAMMERGUIDE "Build DIET Programmer Guide." OFF)
 option(DIET_BUILD_CONTRIBUTORSGUIDE "Build DIET Contributors Guide." ON)
@@ -72,6 +73,10 @@ if(ENABLE_GUIDE)
     # UsersManual correctly built but cmake may raise an error
     # due to latex number of warnings
     add_subdirectory(UsersManual)
+  endif()
+
+  if(DIET_BUILD_QUICKSTART)
+    add_subdirectory(QuickStart)
   endif()
 
   if(DIET_BUILD_USERFAQ)

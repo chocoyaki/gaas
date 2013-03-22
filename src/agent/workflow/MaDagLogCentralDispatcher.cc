@@ -6,7 +6,7 @@
  * @author  Benjamin Isnard (Benjamin.Isnard@ens-lyon.fr)
  *
  * @section Licence
- *   |LICENCE|
+ *   |LICENSE|
  */
 
 #include "MaDagLogCentralDispatcher.hh"

@@ -6,7 +6,7 @@
  * @author  Gaël Le Mahec (gael.le.mahec@ens-lyon.fr)
  *
  * @section Licence
- *   |LICENCE|
+ *   |LICENSE|
  */
 
 #ifndef _DIETFWDR_HH_

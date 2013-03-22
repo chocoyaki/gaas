@@ -6,7 +6,7 @@
  * @author  Holly DAIL (Holly.Dail@ens-lyon.fr)
  *
  * @section Licence
- *   |LICENCE|
+ *   |LICENSE|
  */
 
 

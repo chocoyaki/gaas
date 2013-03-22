@@ -6,7 +6,7 @@
  * @author  Frauenkron Peter (Peter.Frauenkron@ens-lyon.fr)
  *
  * @section Licence
- *   |LICENCE|
+ *   |LICENSE|
  */
 
 #ifndef _CORI_EASY_DISK_HH_

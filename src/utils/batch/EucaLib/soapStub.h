@@ -3,7 +3,7 @@
  * @brief  Auto-generated file by using gSOAP that provides aa SOAP client
  * @author Adrian Muresan (adrian.muresan@ens-lyon.fr)
  * @section Licence
- *   |LICENCE|
+ *   |LICENSE|
  */
 
 

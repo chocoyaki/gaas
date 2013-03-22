@@ -6,7 +6,7 @@
  * @author Adrian Muresan (adrian.muresan@ens-lyon.fr)
  *
  * @section Licence
- *   |LICENCE|
+ *   |LICENSE|
  */
 /****************************************************************************/
 /* Batch System implementation for Amazon EC2 compatible clouds             */
