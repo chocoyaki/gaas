@@ -528,13 +528,15 @@ int
 CallAsyncMgr::release() {
   WriterLockGuard r(callAsyncListLock);
   // all list/map will be clean...
-  CallAsyncList::iterator h = caList.begin();
+  // Make a copy of caList, as we'll call erase() on it 
+  CallAsyncList tmpCaList = caList;
   int rst = 0, tmp_rst = 0;
-  while (h != caList.end()) {
-    if ((tmp_rst = deleteAsyncCallWithoutLock(h->first)) < 0) {
+
+  for (CallAsyncList::iterator it = tmpCaList.begin(); it != tmpCaList.end(); it++) {
+    int32_t reqId = it->first;
+    if ((tmp_rst = deleteAsyncCallWithoutLock(reqId)) < 0) {
       rst = tmp_rst;
     }
-    ++h;
   }
   return rst;
 } // release
