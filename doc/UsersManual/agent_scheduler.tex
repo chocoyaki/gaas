@@ -376,7 +376,7 @@ ServerList CORBA_to_STL(const corba_response_t* responses, int nb_responses);
 void STL_to_CORBA(ServerList &servers, corba_response_t* &aggrResp);
 \end{verbatim}
 The first function converts the received CORBA sequence into a STL list. This
-function make the first aggregation of the results by marshalling all the
+function make the first aggregation of the results by marshaling all the
 sequences into one.
 
 \noindent The second function converts a STL list into a CORBA sequence that
@@ -507,8 +507,8 @@ needed to develop the basis class of the scheduler module.
 
 A scheduler module needs to be linked with some libraries to compile:
 \begin{itemize}
-  \item omniORB4: The basis omniORB library.
-  \item omnithread: The omniORB thread library.
+  \item OmniORB4: The basis OmniORB library.
+  \item omnithread: The OmniORB thread library.
   \item \diet libraries:
     \begin{itemize}
       \item CorbaCommon: The basis \diet Corba library.
@@ -652,3 +652,14 @@ int HostnameRR::aggregate(corba_response_t* aggrResp, size_t max_srv,
 
 SCHEDULER_CLASS(HostnameRR)
 \end{verbatim}
+
+% LocalWords: CoRI Matlab MAs LAs subtree subtrees DCOM CORBA corba OmniORB
+% LocalWords: Multi multi plugin plugins aggregator AGG
+% LocalWords: GlobalScheduler UserScheduler hh aggrResp
+% LocalWords: loc const nb loc hostname STL SeD idx hostName
+% LocalWords: IDL 
+% mode: latex
+% ispell-local-dictionary: "american"
+% mode: flyspell
+% fill-column: 79
+% End:
