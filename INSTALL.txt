@@ -6,7 +6,7 @@ This is a text help for DIET installation, extracted from the User's Manual.
 
 
 
-General remarks on DIET platform dependencies
+General remarks on DIET platform dependencies:
 
    DIET is itself written in C and C++. DIET is based on CORBA and thus
    depends on the chosen CORBA implementation.
