@@ -63,9 +63,12 @@ Software dependencies
    but some warnings may still appear.
 
    omniORB 4.1 itself also depends on OpenSSL in case you wish to secure 
-   your DIET platform. If you want to deploy a secure DIET platform, SSL
-   support is not yet implemented  in DIET, but an easy way to do so is to 
-   deploy DIET over a VPN.
+   your DIET platform. If you want to deploy a secure DIET platform, you
+   need omniORB to be linked with the OpenSSL library. It is usually
+   automatically done at omniORB compile time if OpenSSL is installed.
+   You can check it is well installed if the lib omnisslTP is available.
+   If you have trouble installing ssl support in omniORB, please refer
+   to the omniORB doc.
 
    In order to deploy CORBA services with omniORB, a configuration file
    and a log directory are required for a complete description of the 
