@@ -26,7 +26,7 @@ General remarks on DIET platform dependencies
    Nevertheless, if you encounter installation difficulties don't hesitate
    to post on DIET's users mailing list: \verb+diet-usr@listes.ens-lyon.fr+
    (for the archives refer to 
-   \url{http://graal.ens-lyon.fr/DIET/mail-lists.html}).
+   \url{http://graal.ens-lyon.fr/DIET/project/mailing-lists}).
 
    If you find a bug in DIET, please don't hesitate to submit a bug report on
    \url{http://graal.ens-lyon.fr/bugzilla}. If you have multiple bugs
@@ -36,7 +36,7 @@ General remarks on DIET platform dependencies
 Hardware dependencies
 
    DIET is fully tested on Linux/i386 and Linux/i686 platforms. DIET is known
-   to work on Linux/Sparc, Linux/i64, Linux/amd64, Linux/Alpha, 
+   to work on Linux/Scarp, Linux/i64, Linux/amd64, Linux/Alpha, 
    Linux/PowerPC AIX/powerPC and MacOS/PowerPC platforms. At some point
    in DIET history, DIET used to be tested on the Solaris/Sparc platforms ...
 
@@ -63,9 +63,12 @@ Software dependencies
    but some warnings may still appear.
 
    omniORB 4.1 itself also depends on OpenSSL in case you wish to secure 
-   your DIET platform. If you want to deploy a secure DIET platform, SSL
-   support is not yet implemented  in DIET, but an easy way to do so is to 
-   deploy DIET over a VPN.
+   your DIET platform. If you want to deploy a secure DIET platform, you
+   need omniORB to be linked with the OpenSSL library. It is usually
+   automatically done at omniORB compile time if OpenSSL is installed.
+   You can check it is well installed if the lib omnisslTP is available.
+   If you have trouble installing ssl support in omniORB, please refer
+   to the omniORB doc.
 
    In order to deploy CORBA services with omniORB, a configuration file
    and a log directory are required for a complete description of the 
@@ -441,3 +444,5 @@ Compiling the examples
    in src/examples/cfgs and then copied into <install_dir>/etc/cfgs.
 
 
+
+ LocalWords:  url amd PowerPC AIX powerPC
