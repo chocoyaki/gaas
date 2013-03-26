@@ -122,6 +122,12 @@ public:
         return false;
     }
 
+
+    int call_count(const std::string& service_name) const {
+        const ServiceStatistics stat = stats_map.at(service_name);
+        return stat.call_count();
+    }
+
 protected:
     std::map<std::string, ServiceStatistics> stats_map;
 
