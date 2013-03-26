@@ -274,7 +274,17 @@ public:
 };
 
 
+class SeDCloudVMLaunchedAtSolveThenDestroyedActions : public SeDCloudVMLaunchedAtSolveActions {
+public:
+    virtual int perform_action_on_begin_solve(diet_profile_t *pb);
+    virtual int perform_action_on_end_solve(diet_profile_t *pb);
 
+
+    SeDCloudVMLaunchedAtSolveThenDestroyedActions(const std::string& _image_id, const std::string& _base_url, const std::string& _username, const std::string& _password, const std::string& _vm_user,
+                          int _vm_count, bool _is_ip_private, const std::vector<IaaS::Parameter>& _params = std::vector<IaaS::Parameter>()) :
+                          SeDCloudVMLaunchedAtSolveActions(_image_id, _base_url, _username, _password, _vm_user, _vm_count, _is_ip_private, _params) {
+    }
+};
 
 
 //the controller which calls actions

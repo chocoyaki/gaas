@@ -17,7 +17,7 @@ ELSE( NOT DIET_USE_DELTACLOUD )
     INSTALL( TARGETS ${loop_var} DESTINATION ${EXAMPLE_INSTALL_DIR}/delta-cloud )
   ENDFOREACH( loop_var )
 
-  SET (CC_SERVER_EXAMPLES test-sed-cloud test-sed-cloud-without-vm test-sed-cloud-vm-launched-at-first-solve)
+  SET (CC_SERVER_EXAMPLES test-sed-cloud test-sed-cloud-without-vm test-sed-cloud-vm-launched-at-first-solve test-sed-cloud-vm-launched-at-solve-then-destroyed)
   FOREACH( loop_var ${CC_SERVER_EXAMPLES} )
     ADD_EXECUTABLE( ${loop_var} ${loop_var}.cc )
     TARGET_LINK_LIBRARIES( ${loop_var} DIET_DeltaCloud )

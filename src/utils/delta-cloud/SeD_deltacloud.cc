@@ -190,3 +190,20 @@ int SeDCloudVMLaunchedAtFirstSolveActions::perform_action_on_end_solve(diet_prof
 }
 
 
+int SeDCloudVMLaunchedAtSolveThenDestroyedActions::perform_action_on_begin_solve(diet_profile_t *pb) {
+    this->vm_instances = new IaaS::VMInstances (this->image_id, this->vm_count, this->base_url, this->username, this->password, this->vm_user, this->params);
+    vm_instances->wait_all_ssh_connection(this->is_ip_private);
+
+
+    std::string name_of_service = pb->pb_name;
+    CloudServiceBinary& binary = cloud_service_binaries[name_of_service];
+    vm_instances->rsync_to_vm(0, is_ip_private, binary.local_path_of_binary, binary.remote_path_of_binary);
+
+}
+
+
+int SeDCloudVMLaunchedAtSolveThenDestroyedActions::perform_action_on_end_solve(diet_profile_t *pb) {
+
+    delete this->vm_instances;
+    this->vm_instances = NULL;
+}
