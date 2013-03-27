@@ -2,6 +2,7 @@
 #* DIET cmake local file                                                    *#
 #****************************************************************************#
 include(UseOmniORB4)
+set(DIET_IDL_FLAGS "${DIET_IDL_FLAGS} -Wbuse_quotes")
 
 include_directories(
   ${OMNIORB4_INCLUDE_DIR}
