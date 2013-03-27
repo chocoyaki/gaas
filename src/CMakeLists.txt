@@ -145,6 +145,7 @@ if(DIET_USE_USERSCHED)
     utils/DIET_data_internal.hh
     utils/Vector.h
     utils/ms_function.hh
+    utils/OSIndependance.hh
     DESTINATION ${INCLUDE_INSTALL_DIR}/scheduler)
   install(FILES
     utils/ts_container/ts_set.hh
