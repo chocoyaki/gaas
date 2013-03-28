@@ -9,7 +9,7 @@
 #include "Image.hh"
 #include <stdio.h>
 #include <string.h>
-
+#include <unistd.h>
 
 using namespace std;
 using namespace IaaS;
