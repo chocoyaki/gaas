@@ -19,6 +19,7 @@ typedef sequence<double> SeqDouble;
 typedef sequence<long>   SeqLong;
 typedef sequence<char>   SeqChar;
 typedef sequence<string> SeqString;
+typedef sequence<octet>  SeqOctet;
 
 /* The object name is not valid. */
 exception BadNameException {
@@ -248,13 +249,23 @@ struct corba_request_t {
  */
 typedef short corba_est_tag_storage_t;
 
+enum est_data_type {scalar, str, bin};
+union est_data switch(est_data_type) {
+ case scalar:
+   double d;
+ case str:
+   string s;
+ case bin:
+   SeqOctet b;
+};
+
 /**
  * Custom estimation value
  */
 struct corba_est_value_t {
   corba_est_tag_storage_t v_tag;
   short                   v_idx;
-  double                  v_value;
+  est_data                v_value;
 };
 typedef sequence <corba_est_value_t> SeqEstValue_t;
 
