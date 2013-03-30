@@ -1,0 +1,9 @@
+#!/bin/bash
+
+scriptDir="$(cd `dirname $0` && pwd)"
+export OMNINAMES_LOGDIR="$scriptDir"
+export OMNIORB_CONFIG="$scriptDir/configs/omniORB4.cfg"
+cd "$scriptDir"
+rm -f omninames.log omninames.bak
+nohup omniNames -start 2815 -ignoreport -ORBendPoint giop:tcp::2809 -nohostname < /dev/null > OmniNames.out 2> OmniNames.err &
+/bin/echo ${!}
