@@ -27,7 +27,7 @@
 #include "ms_function.hh"
 #include "ORBMgr.hh"
 #include "statistics.hh"
-#include "est_internal.hh"
+#include "est_internal.h"
 #include "GlobalSchedulers.hh"
 
 /** The trace level. */

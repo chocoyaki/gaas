@@ -14,7 +14,7 @@
 
 #include "GlobalSchedulers.hh"
 #include "UserScheduler.hh"
-#include "est_internal.hh"
+#include "est_internal.h"
 
 std::map<std::string, unsigned int> hostCounter;
 

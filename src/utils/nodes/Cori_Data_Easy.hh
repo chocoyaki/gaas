@@ -15,7 +15,7 @@
 #include <vector>
 
 #include "DIET_data.h"
-#include "est_internal.hh"
+#include "est_internal.h"
 
 // include here other Info type
 #include "Cori_Easy_CPU.hh"

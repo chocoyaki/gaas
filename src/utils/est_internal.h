@@ -1,5 +1,5 @@
 /**
- * @file  est_internal.hh
+ * @file  est_internal.h
  *
  * @brief  Plug-in scheduler: DIET-internal estimation vector access functions
  *
@@ -14,6 +14,10 @@
 #define _EST_INTERNAL_HH_
 
 #include "DIET_data.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 /*
 ** Set of #define's for future "rules" for the scalar
@@ -60,6 +64,10 @@ diet_est_set_bin_internal(estVector_t ev, int tag, const unsigned char *buf, siz
 
 int
 diet_est_get_bin_internal(estVectorConst_t ev, int tag, const unsigned char **buf, size_t *size);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif  /* _EST_INTERNAL_HH_ */
 #endif  /* OLD_EV */

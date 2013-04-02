@@ -10,7 +10,7 @@
  */
 
 
-#include "est_internal.hh"
+#include "est_internal.h"
 #include "HEFTScheduler.hh"
 #include "DagNode.hh"
 #include "debug.hh"

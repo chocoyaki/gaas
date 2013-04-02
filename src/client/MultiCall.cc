@@ -15,7 +15,7 @@
 #include <string>
 
 #include "MultiCall.hh"
-#include "est_internal.hh"
+#include "est_internal.h"
 #include "ORBMgr.hh"
 
 using namespace std;

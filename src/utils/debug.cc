@@ -18,7 +18,7 @@
 
 #include "debug.hh"
 #include "common_types.hh"
-#include "est_internal.hh"
+#include "est_internal.h"
 #include "marshalling.hh"
 #include "DIET_data_internal.hh"
 #include "DIET_server.h"

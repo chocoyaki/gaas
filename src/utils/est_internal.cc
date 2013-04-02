@@ -13,7 +13,7 @@
 #include "DIET_data.h"
 
 #include "debug.hh"
-#include "est_internal.hh"
+#include "est_internal.h"
 
 #define EV_ELT(e, i) (((e)->estValues)[(i)])
 #define EV_LEN(e) ((e)->estValues.length())

@@ -18,7 +18,7 @@
 
 #include "OSIndependance.hh"
 #include "debug.hh"
-#include "est_internal.hh"
+#include "est_internal.h"
 #include "marshalling.hh"
 #include "ORBMgr.hh"
 #include "SeDImpl.hh"

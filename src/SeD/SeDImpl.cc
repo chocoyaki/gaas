@@ -45,7 +45,7 @@
 #include "Callback.hh"
 #include "common_types.hh"
 #include "debug.hh"
-#include "est_internal.hh"
+#include "est_internal.h"
 
 #include "CORIMgr.hh"
 
