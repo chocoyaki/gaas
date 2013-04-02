@@ -10,6 +10,7 @@
  *   |LICENSE|
  */
 
+#include "stats_config.h"
 
 #include <cstdio>
 #include <cstdlib>

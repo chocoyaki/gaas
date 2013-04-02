@@ -296,8 +296,13 @@ endif()
 # --------------------------- Statistic support ------------------------
 if(DIET_WITH_STATISTICS)
   # Enable generation of the statistics log:
-  add_definitions(-DHAVE_STATISTICS)
+  # add_definitions(-DHAVE_STATISTICS)
+  set(HAVE_STATISTICS ON)
 endif()
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/utils/cmake_variables/stats_config.h.in
+ ${CMAKE_CURRENT_BINARY_DIR}/src/utils/cmake_variables/stats_config.h)
+
 
 if(DIET_BUILD_BLAS_EXAMPLES)
   # BLAS (Basic Linear Algebric Subroutines) examples subdir requires...BLAS !

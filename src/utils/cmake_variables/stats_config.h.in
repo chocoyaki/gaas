@@ -1,0 +1,6 @@
+#ifndef STATS_CONFIG_H
+#define STATS_CONFIG_H
+
+#cmakedefine HAVE_STATISTICS 1
+
+#endif /* ifndef STATS_CONFIG_H */
