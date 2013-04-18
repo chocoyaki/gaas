@@ -870,6 +870,30 @@ diet_file_get_desc(diet_arg_t *arg) {
   }
   return (&((arg->desc).specific.file));
 }
+  
+/* Util function for setting data descriptors (service construction)
+ Every -1 argument implies that the corresponding field is not
+ modified.
+ */
+DIET_API_LIB int
+diet_generic_desc_set(struct diet_data_generic* desc,
+                      diet_data_type_t type,
+                      diet_base_type_t base_type) {
+  if (!desc) {
+    return 1;
+  }
+  
+  if (type != DIET_DATA_TYPE_COUNT) {
+    desc->type = type;
+  }
+  
+  if (base_type != DIET_BASE_TYPE_COUNT) {
+    desc->base_type = base_type;
+  }
+  
+  return 0;
+}
+
 
 
 /****************************************************************************/
