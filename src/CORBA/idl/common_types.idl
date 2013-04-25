@@ -236,6 +236,9 @@ struct corba_request_t {
   corba_pb_desc_t   pb;
   string            serialized_scheduler;
   long              max_srv;
+
+  string            user;
+
 };
 
 

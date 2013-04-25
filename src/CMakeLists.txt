@@ -214,6 +214,18 @@ if (DIET_USE_SECURITY)
   set (CorbaCommon_SRCS ${CorbaCommon_SRCS} "CORBA/security/SecurityManager.cc")
 endif(DIET_USE_SECURITY)
 
+if(DIET_USE_MAC_SECURITY)
+include_directories(${SELINUX_LIBRARY_INCLUDE_DIR} utils/mac_security)
+	SET(MAC_SECURITY_MODULE_SRCS
+			utils/mac_security/MACAbstractLayer.cc
+			utils/mac_security/MACAbstractLayer.hh)
+
+	add_library(DIET_MACSecurity ${MAC_SECURITY_MODULE_SRCS})
+	target_link_libraries(DIET_MACSecurity ${SELINUX_LIBRARY})
+	install(TARGETS DIET_MACSecurity DESTINATION ${LIB_INSTALL_DIR})
+endif()
+
+
 ## AgentCommon
 set(AgentCommon_SRCS
   agent/AgentImpl.cc
