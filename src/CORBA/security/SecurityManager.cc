@@ -46,16 +46,16 @@ SecurityManager::initSSLContext() {
   sslContext::key_file = keyFile.c_str();
   sslContext::key_file_password = passwordKey.c_str();
 
-  sslContext::verify_mode = SSL_VERIFY_FAIL_IF_NO_PEER_CERT;
+  sslContext::verify_mode = SSL_VERIFY_FAIL_IF_NO_PEER_CERT | SSL_VERIFY_PEER;
 
   return true;
 }
 
 
 SecurityManager::~SecurityManager() {
-  for (int i = 0; i < secuOptions.size(); ++i) {
-      delete[](secuOptions[i]);
-    }
+  BOOST_FOREACH(char * opt, secuOptions) {
+    delete[] opt;
+  }
 }
 
 char *
@@ -125,7 +125,7 @@ SecurityManager::secureORBOptions(int argc, char * argv[]) {
       TRACE_TEXT(TRACE_MAIN_STEPS, "Changing end point configuration : allowing ssl and tcp endpoints." << std::endl);
     } else {
       BOOST_FOREACH(std::string endPoint, oEndPoint) {
-        int idx = endPoint.find(":tcp:");
+        std::vector<std::string>::size_type idx = endPoint.find(":tcp:");
         if (idx != std::string::npos) {
           std::string secuEP = std::string(endPoint).replace(idx, 5, ":ssl:");
           endPointToSet.insert(secuEP);
@@ -142,7 +142,7 @@ SecurityManager::secureORBOptions(int argc, char * argv[]) {
     std::vector<std::string> serverRuleToSet;
     if (!oServerTransportRule.empty()) {
       BOOST_FOREACH(std::string serverTR, oServerTransportRule) {
-        int idx = serverTR.find("tcp");
+        std::vector<std::string>::size_type idx = serverTR.find("tcp");
         if (idx == std::string::npos) {
           serverRuleToSet.push_back(serverTR);
         } else {
@@ -162,10 +162,10 @@ SecurityManager::secureORBOptions(int argc, char * argv[]) {
     std::vector<std::string> clientRuleToSet;
     if (!oClientTransportRule.empty()) {
       BOOST_FOREACH(std::string clientTR, oClientTransportRule) {
-        int idxTCP = clientTR.find("tcp");
+        std::vector<std::string>::size_type idxTCP = clientTR.find("tcp");
         std::string rule = clientTR;
         if (idxTCP != std::string::npos) {
-          int idxSSL = clientTR.find("ssl");
+          std::vector<std::string>::size_type idxSSL = clientTR.find("ssl");
           if (idxSSL == std::string::npos || idxSSL > idxTCP) {
             rule.replace(idxTCP, 3, "ssl");
             if (idxSSL > idxTCP) {
