@@ -29,6 +29,16 @@
 
 #include <omniORB4/CORBA.h>
 #include <omniORB4/omniURI.h>
+#include <omniORB4/omniInterceptors.h>
+
+#ifdef DIET_USE_SECURITY
+#include <omniORB4/internal/giopStrand.h>
+#include <omniORB4/internal/giopStream.h>
+#include <omniORB4/internal/GIOP_S.h>
+
+#include <omniORB4/sslConnection.h>
+#endif
+
 
 #include <boost/filesystem.hpp>
 #include <boost/format.hpp>
@@ -57,6 +67,75 @@ static const unsigned int maxNbRetries = 3;
  * correctly
  */
 static const unsigned int MAXGIOPCONNECTIONPERSERVER_THRESHOLD = 1000;
+
+#ifdef DIET_USE_SECURITY
+
+/* interceptor for accepting connection */
+CORBA::Boolean
+onServerAcceptConnection(omni::omniInterceptors::serverAcceptConnection_T::info_T& info) {
+
+  // Displaying info on certificates
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Accept connection from " << info.strand.connection->peeridentity() <<  std::endl);
+  omni::sslConnection *con = dynamic_cast<omni::sslConnection*> (info.strand.connection);
+  if (con != NULL) {
+    if (con->ssl_handle() != NULL) {
+      X509* cert = SSL_get_certificate(con->ssl_handle());
+      if (cert != NULL) {
+        TRACE_TEXT(TRACE_MAIN_STEPS, "My CERT " << cert->name << std::endl);
+      }
+      else {
+        TRACE_TEXT(TRACE_MAIN_STEPS, "NO CERT " << std::endl);
+      }
+
+      cert = SSL_get_peer_certificate(con->ssl_handle());
+      if (cert != NULL) {
+        TRACE_TEXT(TRACE_MAIN_STEPS, "Peer CERT " << cert->name << std::endl);
+      }
+      else {
+        TRACE_TEXT(TRACE_MAIN_STEPS, "NO Peer CERT " << std::endl);
+      }
+
+    }
+  }
+
+  return true;
+}
+
+
+/* Interceptor which write different decoded addresses */
+CORBA::Boolean
+onDecodeIOR(omni::omniInterceptors::decodeIOR_T::info_T& info) {
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Decoding IOR" << std::endl);
+
+  omniIOR::IORInfo* iorInfo = info.ior.getIORInfo();
+  if (iorInfo != NULL) {
+    omni::giopAddressList &list = iorInfo->addresses();
+    omni::giopAddressList::const_iterator it = list.begin();
+    omni::giopAddressList::const_iterator last = list.end();
+    while (it != last) {
+      TRACE_TEXT(TRACE_MAIN_STEPS, (*it)->address()<< std::endl);
+      it ++;
+    }
+  }
+  return true;
+}
+
+/* Interceptor called when receiving the request */
+CORBA::Boolean
+onServerReceiveRequest(omni::omniInterceptors::serverReceiveRequest_T::info_T& info) {
+  //TRACE_TEXT(TRACE_MAIN_STEPS, __FUNCTION__ << std::endl);
+    TRACE_TEXT(TRACE_MAIN_STEPS, "Operation name : " << info.giop_s.operation_name() <<  std::endl);
+  /*  TRACE_TEXT(TRACE_MAIN_STEPS, "Peer (client) address : " << ( (omni::giopStrand&)info.giop_s
+      ).connection->peeraddress() <<  std::endl);*/
+    const char * peerid = ((omni::giopStrand&)info.giop_s).connection->peeridentity();
+    if (peerid) {
+      TRACE_TEXT(TRACE_MAIN_STEPS, "Peer (client) identity : " << peerid <<  std::endl);
+    }
+    /*   TRACE_TEXT(TRACE_MAIN_STEPS, "End " << __FUNCTION__ << std::endl);*/
+  return true;
+}
+
+#endif
 
 
 /* Handler for call resubmission when TRANSIENT exceptions occur */
@@ -129,6 +208,15 @@ void ORBMgr::init(CORBA::ORB_ptr ORB) {
   /* Install handlers for automatically handle call resubmissions */
   omniORB::installTransientExceptionHandler(0, transientHandler);
   omniORB::installCommFailureExceptionHandler(0, commFailureHandler);
+
+#ifdef DIET_USE_SECURITY
+  /* Add Interceptors */
+  omni::omniInterceptors* interceptors = omniORB::getInterceptors();
+  // interceptors->decodeIOR.add(&intercept);
+  // interceptors->serverReceiveRequest.add(&onServerReceiveRequest);
+  interceptors->serverAcceptConnection.add(&onServerAcceptConnection);
+#endif
+
 }
 
 namespace {
