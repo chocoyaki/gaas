@@ -11,7 +11,7 @@
 
 #include "CORIMgr.hh"
 #include <cmath>
-#include "est_internal.h"
+#include "est_internal.hh"
 
 #include <iostream>
 #include "debug.hh"

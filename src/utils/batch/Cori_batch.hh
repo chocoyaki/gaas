@@ -15,7 +15,7 @@
 #include <vector>
 
 #include "DIET_data.h"
-#include "est_internal.h"
+#include "est_internal.hh"
 #include "SeDImpl.hh"
 
 class SeDImpl;

@@ -535,7 +535,7 @@ src/utils/Vector.h
 src/utils/debug.cc
 src/utils/debug.hh
 src/utils/est_internal.cc
-src/utils/est_internal.h
+src/utils/est_internal.hh
 src/utils/ms_function.cc
 src/utils/ms_function.hh
 src/utils/OSIndependance.hh

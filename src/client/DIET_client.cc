@@ -28,7 +28,7 @@
 
 #include "OSIndependance.hh"
 #include "debug.hh"
-#include "est_internal.h"
+#include "est_internal.hh"
 #include "DIET_data_internal.hh"
 #include "DIET_uuid.hh"
 #include "marshalling.hh"

@@ -23,7 +23,7 @@ using namespace std;
 #include <cstring>
 #include <ctime>
 
-#include "est_internal.h"
+#include "est_internal.hh"
 #include "debug.hh"
 
 /** The trace level. */

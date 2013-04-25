@@ -139,7 +139,7 @@ if(DIET_USE_USERSCHED)
     ${IDL_INCLUDE_DIRECTORIES}/SeD.hh
     DESTINATION ${INCLUDE_INSTALL_DIR}/scheduler)
   install(FILES
-    utils/est_internal.h
+    utils/est_internal.hh
     utils/debug.hh
     utils/LinkedList.hh
     utils/DIET_data_internal.hh

@@ -12,7 +12,7 @@
 
 
 #include "marshalling.hh"
-#include "est_internal.h"
+#include "est_internal.hh"
 #include <cmath>
 #include <iomanip>
 #include "debug.hh"
