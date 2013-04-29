@@ -1,8 +1,15 @@
-/*
-	Authors :
-		- Adrian Muresan : adrian.muresan@ens-lyon.fr
-		- Lamiel Toch : lamiel.toch@ens-lyon.fr		
-*/
+/**
+ * @file Instance.hh
+ *
+ * @brief  DIET Instance class header
+ *
+ * @author  Adrian Muresan : adrian.muresan@ens-lyon.fr
+ * 			Lamiel TOCH (lamiel.toch@ens-lyon.fr)
+ *          Yulin ZHANG (huaxi.zhang@ens-lyon.fr)
+ *
+ * @section Licence
+ *   |LICENSE|
+ */
 
 
 #ifndef _INSTANCE_HH_
@@ -43,12 +50,20 @@ class Parameter{
 
 class Instance {
   public:
+
+	/*Image identity that this instance is instantiated from*/
     const std::string image_id;
+
+    /*Identity of the instance*/
     const std::string id;
+
+    /*Private ip address of the instance*/
     std::string private_ip;
+
+    /*Public ip address of the instance*/
     std::string public_ip;
 	
-    /* ctor */
+    /* Constructor of the instance with instantiated image identity, its identity, private and public ip addresses */
     Instance(const std::string & _image_id, const std::string & _id,
         const char * _private_ip, const char * _public_ip) :
       image_id(_image_id), id(_id) /*, private_ip(_private_ip), public_ip(_public_ip)*/ {

@@ -1,7 +1,14 @@
-/*
-	Authors :
-		- Lamiel Toch : lamiel.toch@ens-lyon.fr
-*/
+/**
+ * @file Sed_deltacloud.hh
+ *
+ * @brief  DIET SeD_deltacloud class header
+ *
+ * @author  Lamiel TOCH (lamiel.toch@ens-lyon.fr)
+ *          Yulin ZHANG (huaxi.zhang@ens-lyon.fr)
+ *
+ * @section Licence
+ *   |LICENSE|
+ */
 
 #ifndef _SED_DELTACLOUD_HH_
 #define _SED_DELTACLOUD_HH_
@@ -26,6 +33,7 @@ The parameters are files and are named as follows :
 0 for the first parameter
 1 for the second parameter
 2 for the third and so on.
+This executable script is created to launch a service. The parameters are the parameters of the service.
 */
 class CloudServiceBinary {
    public:
@@ -35,19 +43,24 @@ class CloudServiceBinary {
     //the remote folder path which contains the executable (in Virtual Machine)
     std::string remote_path_of_binary;
 
+    /*Constructor specified by given local_path and remote_path*/
     CloudServiceBinary(const std::string& _local_path, const std::string& _remote_path /*, int last_in, int _last_out */);
     CloudServiceBinary(const CloudServiceBinary& binary);
     CloudServiceBinary();
 };
 
-
+/*********************************************************************************************/
+/* A ServiceStatistics registers one service with how many times it has been called***********/
+/*********************************************************************************************/
 class ServiceStatistics{
 public:
+	/*Constructor to initiate a service with 0 time request*/
     ServiceStatistics(const std::string _service_name) {
         service_name = _service_name;
         call_number = 0;
     }
 
+    /*Copy constructor*/
     ServiceStatistics(const ServiceStatistics& stats) {
         service_name = stats.service_name;
         call_number = stats.call_number;
