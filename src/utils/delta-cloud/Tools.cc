@@ -28,6 +28,12 @@ std::string get_ip_instance_by_id(IaaS::IaasInterface* interf, std::string insta
 	return ip;
 }
 
+std::string IaaS::VMInstances::get_ip(int vm_index, bool is_private_ip) {
+	std::string id = get_instance_id(vm_index);
+	return get_ip_instance_by_id(interf, id, is_private_ip);
+}
+
+
 void deleteStringVector(std::vector<std::string*>& v){
 	for(int i = 0; i < v.size(); i++) {
 		delete v[i];
@@ -111,6 +117,22 @@ int execute_command_in_vm_by_id(IaaS::IaasInterface* interf, std::string vm_user
 
     int ret = ::execute_command_in_vm(remote_cmd, vm_user, ip, args);
 }
+
+
+
+int create_directory_in_vm(const std::string& remote_path, std::string user, std::string ip, std::string args) {
+  std::string cmd = "ssh "  + user + "@" + ip + " -o StrictHostKeyChecking=no 'mkdir " + args + remote_path + "'";
+
+  int ret = system(cmd.c_str());
+  return ret;
+}
+
+
+int create_directory_in_vm_by_id(IaaS::IaasInterface* interf, std::string vm_user, std::string instance_id, bool private_ip, std::string remote_path, std::string args) {
+  std::string ip = get_ip_instance_by_id(interf, instance_id, private_ip);
+  int ret = ::create_directory_in_vm(remote_path, vm_user, ip, args);
+}
+
 
 
 namespace IaaS {

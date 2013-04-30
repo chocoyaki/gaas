@@ -26,6 +26,9 @@
 #include <stdio.h>
 #include <set>
 
+#include "DagdaImpl.hh"
+#include "DagdaFactory.hh"
+
 /*
 The folder must contains an executable and a shell script
 which call the executable. The name of this script is "exec.sh".
@@ -43,10 +46,20 @@ class CloudServiceBinary {
     //the remote folder path which contains the executable (in Virtual Machine)
     std::string remote_path_of_binary;
 
+    //the relative path of the binary (relative to remote_path_of_binary)
+    std::string entry_point_relative_file_path;
+
+	//the remote folder which contains the data as parameters
+	std::string remote_path_of_arguments;
+
     /*Constructor specified by given local_path and remote_path*/
-    CloudServiceBinary(const std::string& _local_path, const std::string& _remote_path /*, int last_in, int _last_out */);
+    CloudServiceBinary(const std::string& _local_path, const std::string& _remote_path,
+					 const std::string& _entry_point_relative_file_path="exec.sh", const std::string& _remote_path_of_arguments = "");
     CloudServiceBinary(const CloudServiceBinary& binary);
     CloudServiceBinary();
+
+
+    int execute_remote(const std::string& ip, const std::string& user_name, const std::vector<std::string>& args) const;
 };
 
 /*********************************************************************************************/
@@ -175,9 +188,10 @@ public:
 
     virtual int perform_action_after_service_table_add(const std::string& name_of_service) = 0;
 
-    virtual int send_arguments(const std::string& local_path, const std::string& remote_path);
-    virtual int receive_result(const std::string& result_remote_path, const std::string& result_local_path);
-    virtual int execute_remote_binary(const std::string& remote_path_of_binary, const std::string& args);
+	virtual int send_arguments(const std::string& local_path, const std::string& remote_path, int vm_index = 0);
+    virtual int receive_result(const std::string& result_remote_path, const std::string& result_local_path, int vm_index = 0);
+	virtual int execute_remote_binary(const CloudServiceBinary& binary, const std::vector<std::string>& args, int vm_index = 0);
+	virtual int create_remote_directory(const std::string& remote_path, int vm_index = 0);
 
     SeDCloudActions();
 
@@ -233,9 +247,11 @@ public:
     virtual void perform_action_on_sed_creation();
     virtual void perform_action_on_sed_launch();
 
-    virtual int send_arguments(const std::string& local_path, const std::string& remote_path);
-    virtual int receive_result(const std::string& result_remote_path, const std::string& result_local_path);
-    virtual int execute_remote_binary(const std::string& remote_path_of_binary, const std::string& args);
+	//vm_index not used here because we use only one pm
+    virtual int send_arguments(const std::string& local_path, const std::string& remote_path, int vm_index);
+    virtual int receive_result(const std::string& result_remote_path, const std::string& result_local_path, int vm_index);
+    virtual int execute_remote_binary(const CloudServiceBinary& binary, const std::vector<std::string>& args, int vm_index);
+	virtual int create_remote_directory(const std::string& remote_path, int vm_index);
 
     SeDCloudWithoutVMActions(const std::string& _address_ip,const std::string& _username) :
                           SeDCloudAndVMLaunchedActions(){
@@ -378,61 +394,7 @@ public:
 
 
 protected:
-    static int solve(diet_profile_t *pb) {
-        SeDCloud::instance->actions->perform_action_on_begin_solve(pb);
-
-        std::string name(pb->pb_name);
-
-        CloudServiceBinary& binary = SeDCloudActions::cloud_service_binaries[name];
-
-        std::string remote_path_of_binary = binary.remote_path_of_binary;
-        int nb_args = pb->last_out + 1;
-        int last_in = pb->last_in;
-        size_t arg_size;
-        char* sz_local_path = NULL;
-        std::string local_path;
-        std::string arg_remote_path;
-        std::string arg_local_path;
-        char sz_i[512];
-
-        for(int i = 0; i <= last_in; i++) {
-            diet_file_get(diet_parameter(pb, i), &sz_local_path, NULL, &arg_size);
-            local_path = sz_local_path;
-
-            sprintf(sz_i, "%i", i);
-            //a disctinct remote folder for each request
-            arg_remote_path = remote_path_of_binary + "/" + sz_i;
-
-            //SeDCloud::instance->vm_instances->rsync_to_vm(0, SeDCloud::instance->using_private_ip(), local_path, arg_remote_path);
-            SeDCloud::instance->actions->send_arguments(local_path, arg_remote_path);
-        }
-
-        SeDCloud::instance->actions->execute_remote_binary(remote_path_of_binary, "");
-
-        for(int i = last_in + 1 ; i < nb_args; i++) {
-            sprintf(sz_i, "/tmp/%i", i);
-            arg_local_path = sz_i;
-
-            sprintf(sz_i, "/%i", i);
-            arg_remote_path = remote_path_of_binary + sz_i;
-
-            //SeDCloud::instance->vm_instances->rsync_from_vm(0, SeDCloud::instance->using_private_ip(), arg_remote_path, arg_local_path);
-            SeDCloud::instance->actions->receive_result(arg_remote_path, arg_local_path);
-
-            if (diet_file_set(diet_parameter(pb, i), arg_local_path.c_str(), DIET_VOLATILE)) {
-                printf("diet_file_desc_set error\n");
-                return 1;
-            }
-        }
-
-        for(int i = 0; i <= last_in; i++){
-            diet_free_data(diet_parameter(pb, i));
-        }
-
-
-        SeDCloud::instance->actions->perform_action_on_end_solve(pb);
-    }
-
+    static int solve(diet_profile_t *pb);
 
     static SeDCloud* instance;
 

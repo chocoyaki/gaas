@@ -32,6 +32,9 @@ int rsync_from_vm(std::string remote_path, std::string local_path, std::string u
 int execute_command_in_vm(const std::string& remote_cmd, std::string user, std::string ip, std::string args);
 int execute_command_in_vm_by_id(IaaS::IaasInterface* interf, std::string vm_user, std::string instance_id, bool private_ip, std::string remote_cmd, std::string args);
 
+int create_directory_in_vm(const std::string& remote_path, std::string user, std::string ip, std::string args = " -p ");
+int create_directory_in_vm_by_id(IaaS::IaasInterface* interf, std::string vm_user, std::string instance_id, bool private_ip, std::string remote_path, std::string args = " -p ");
+
 
 namespace IaaS {
 
@@ -61,10 +64,14 @@ class VMInstances {
 	std::string get_instance_id(int i);
 	Instance* get_instance(int i);
 
+
+
+
 	//connection to vm index i with private ip address by default, public address otherwise
 	int test_ssh_connection(int i, bool private_ip = true);
 	int test_all_ssh_connection(bool private_ips = true);
 	void wait_all_ssh_connection(bool private_ips = true);
+	std::string get_ip(int vm_index, bool private_ip = true);
 
     int rsync_from_vm(int i, bool private_ip, std::string remote_path, std::string local_path);
     int rsync_to_vm(int i, bool private_ip, std::string local_path, std::string remote_path);
