@@ -125,9 +125,9 @@ void ORBMgr::init(CORBA::ORB_ptr ORB) {
 namespace {
 
 // README: configuration files list should be null-terminated
-static char *conffiles[] = { "/etc/omniORB4.cfg",
-                             "/etc/omniORB.cfg",
-                             NULL };
+static const char *conffiles[] = { "/etc/omniORB4.cfg",
+                                   "/etc/omniORB.cfg",
+                                   NULL };
 
 }
 

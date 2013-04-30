@@ -29,6 +29,14 @@
 #define INLINE inline
 #endif
 
+/* For clang & C99/C11 compiler compatibility. */
+#ifdef __STDC_VERSION__
+#if (__STDC_VERSION__ == 199901L)
+#undef INLINE
+#define INLINE
+#endif
+#endif
+
 #define print_matrix(mat, m, n, rm) {           \
     size_t i, j;                                \
     printf("%s (%s-major) = \n", # mat,          \

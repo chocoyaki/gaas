@@ -172,12 +172,6 @@
 
 #include "DIET_data.h"
 
-#ifdef __WIN32__
-#define INLINE __inline
-#else /* __WIN32__ */
-#define INLINE inline
-#endif /* __WIN32__ */
-
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -1481,25 +1475,10 @@ extern "C" {
      @sa DIET_grpc.h for error codes
 
   */
-  INLINE DIET_API_LIB int
+  int
   diet_generic_desc_set(struct diet_data_generic* desc,
                         diet_data_type_t type,
-                        diet_base_type_t base_type) {
-    if (!desc) {
-      return 1;
-    }
-
-    if (type != DIET_DATA_TYPE_COUNT) {
-      desc->type = type;
-    }
-
-    if (base_type != DIET_BASE_TYPE_COUNT) {
-      desc->base_type = base_type;
-    }
-
-    return 0;
-  }
-
+                        diet_base_type_t base_type);
 
   /****************************************************************************/
   /*    get available Services on a SeD                                       */
