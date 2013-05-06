@@ -12,7 +12,8 @@
 
 
 CloudServiceBinary::CloudServiceBinary(const std::string& _local_path, const std::string& _remote_path, const std::string& _entry_point_relative_file_path ,
-									 const std::string& _remote_path_of_arguments) : local_path_of_binary(_local_path),
+									 const std::string& _remote_path_of_arguments, dietcloud_callback_t _prepocessing,
+                         dietcloud_callback_t _postprocessing) : local_path_of_binary(_local_path),
     remote_path_of_binary(_remote_path), entry_point_relative_file_path(_entry_point_relative_file_path){
 
 	//if _remote_path_of_arguments == "" we set the defaut location of data to the folder of the binary
@@ -23,6 +24,12 @@ CloudServiceBinary::CloudServiceBinary(const std::string& _local_path, const std
 		remote_path_of_arguments = _remote_path_of_arguments;
 	}
 
+	//default arguments trasnfer Method
+	argumentsTranferMethod = filesTransferMethod;
+
+	prepocessing = _prepocessing,
+	postprocessing = _postprocessing;
+
 }
 
 
@@ -31,12 +38,40 @@ CloudServiceBinary::CloudServiceBinary(const CloudServiceBinary& binary) {
     remote_path_of_binary = binary.remote_path_of_binary;
     entry_point_relative_file_path = binary.entry_point_relative_file_path;
 	remote_path_of_arguments = binary.remote_path_of_arguments;
+	argumentsTranferMethod = binary.argumentsTranferMethod;
+
+	prepocessing = binary.prepocessing;
+	postprocessing = binary.postprocessing;
 }
 
 
 CloudServiceBinary::CloudServiceBinary() {
 
 }
+
+
+int CloudServiceBinary::install(const std::string& ip, const std::string& user_name) {
+	if (!isPreinstalled()) {
+		return ::rsync_to_vm(local_path_of_binary, remote_path_of_binary, user_name, ip);
+	}
+
+	return 0;
+}
+
+
+bool CloudServiceBinary::isPreinstalled() {
+	return local_path_of_binary.compare("") == 0;
+}
+
+
+/*
+PreinstalledCloudServiceBinary::PreinstalledCloudServiceBinary(const std::string& _remote_path,
+					 const std::string& _entry_point_relative_file_path, const std::string& _remote_path_of_arguments) : CloudServiceBinary("", _remote_path,
+						_entry_point_relative_file_path, _remote_path_of_arguments) {
+
+}*/
+
+
 
 int CloudServiceBinary::execute_remote(const std::string& ip, const std::string& user_name, const std::vector<std::string>& args) const {
 	 printf(">>>>>>>>>>>>>>>>EXECUTE REMOTE\n");
@@ -89,6 +124,18 @@ int SeDCloudActions::create_remote_directory(const std::string& remote_path, int
 	create_directory_in_vm(remote_path, username, ip);
 }
 
+
+void SeDCloudActions::copy_binary_into_vm(std::string name_of_service, int vm_index) {
+	CloudServiceBinary& binary = cloud_service_binaries[name_of_service];
+
+	std::string ip = vm_instances->get_ip(vm_index, is_ip_private);
+	binary.install(ip, username);
+
+}
+
+
+
+
 void SeDCloudActions::copy_all_binaries_into_vm(int vm_index) {
     vm_instances->wait_all_ssh_connection(this->is_ip_private);
 
@@ -96,10 +143,7 @@ void SeDCloudActions::copy_all_binaries_into_vm(int vm_index) {
     std::map<std::string, CloudServiceBinary>& binaries = cloud_service_binaries;
     for(iter = binaries.begin(); iter != binaries.end(); iter++) {
         std::string name_of_service = iter->first;
-        CloudServiceBinary& binary = binaries[name_of_service];
-
-        //TODO : remplacer 0 par l'instance souhaitée dynamiquement
-        vm_instances->rsync_to_vm(vm_index, this->is_ip_private, binary.local_path_of_binary, binary.remote_path_of_binary);
+		copy_binary_into_vm(name_of_service, vm_index);
     }
 }
 
@@ -152,12 +196,7 @@ void SeDCloudWithoutVMActions::perform_action_on_sed_launch() {
     std::map<std::string, CloudServiceBinary>& binaries = cloud_service_binaries;
     for(iter = binaries.begin(); iter != binaries.end(); iter++) {
         std::string name_of_service = iter->first;
-        CloudServiceBinary& binary = binaries[name_of_service];
-
-        //TODO : remplacer 0 par l'instance souhaitée dynamiquement
-        //SeDCloud<SeDCloudAndVMLaunchedActions>::get()->vm_instances->rsync_to_vm(0, this->is_ip_private, binary.local_path_of_binary, binary.remote_path_of_binary);
-        printf("local_path_of_binary=%s remote_path_of_binary=%s\n", binary.local_path_of_binary.c_str(), binary.remote_path_of_binary.c_str() );
-        ::rsync_to_vm(binary.local_path_of_binary, binary.remote_path_of_binary, username, address_ip);
+		copy_binary_into_vm(name_of_service, 0);
     }
 }
 
@@ -229,7 +268,9 @@ int SeDCloudVMLaunchedAtSolveThenDestroyedActions::perform_action_on_begin_solve
 
     std::string name_of_service = pb->pb_name;
     CloudServiceBinary& binary = cloud_service_binaries[name_of_service];
-    vm_instances->rsync_to_vm(0, is_ip_private, binary.local_path_of_binary, binary.remote_path_of_binary);
+    //vm_instances->rsync_to_vm(0, is_ip_private, binary.local_path_of_binary, binary.remote_path_of_binary);
+	copy_binary_into_vm(name_of_service, 0);
+
 
 }
 
@@ -242,7 +283,75 @@ int SeDCloudVMLaunchedAtSolveThenDestroyedActions::perform_action_on_end_solve(d
 
 
 
+/*if argumentsTranferMethod == pathsTranferMethod
+ then one must have lastin+1==lastout, since pathsout are actually inputs, the result is a dummy string
+*/
+DIET_API_LIB int
+        SeDCloud::service_table_add(const std::string& name_of_service,
+                          int last_in,
+                          int last_out,
+                         const diet_convertor_t* const cvt,
+                         const std::string& local_path_of_binary,
+                         const std::string& remote_path_of_binary,
+                         const std::string& entryPoint,
+                         ArgumentsTranferMethod argumentsTransferMethod,
+                         dietcloud_callback_t prepocessing,
+                         dietcloud_callback_t postprocessing) {
+
+
+
+	diet_data_type_t type;
+	diet_base_type_t base_type;
+
+	switch (argumentsTransferMethod) {
+		case filesTransferMethod:
+			type = DIET_FILE;
+			base_type = DIET_CHAR;
+			break;
+		case pathsTransferMethod:
+			type = DIET_STRING;
+			base_type = DIET_CHAR;
+			last_out = last_in + 1;
+			break;
+		default:
+			printf("WARNING : %i argumentsTranferMethod not supported\n", argumentsTransferMethod);
+	}
+
+
+	diet_profile_desc_t* profile;
+
+	profile = diet_profile_desc_alloc(name_of_service.c_str(), last_in, last_in, last_out);
+
+	for(int i = 0; i <= last_out; i++) {
+		diet_generic_desc_set(diet_param_desc(profile, i), type, base_type);
+	}
+
+	SeDCloudActions::cloud_service_binaries[name_of_service] = CloudServiceBinary(local_path_of_binary, remote_path_of_binary, entryPoint);
+	SeDCloudActions::cloud_service_binaries[name_of_service].argumentsTranferMethod = argumentsTransferMethod;
+
+
+
+	if (diet_service_table_add(profile, cvt, solve)) {
+		return 1;
+	}
+
+
+	diet_profile_desc_free(profile);
+	diet_print_service_table();
+
+	actions->perform_action_after_service_table_add(name_of_service);
+
+	return 0;
+}
+
+
+
 int SeDCloud::solve(diet_profile_t *pb) {
+
+	std::string name(pb->pb_name);
+	CloudServiceBinary& binary = SeDCloudActions::cloud_service_binaries[name];
+	binary.prepocessing(pb);
+
 	int reqId = pb->dietReqID;
 
 	std::ostringstream string_stream;
@@ -260,13 +369,11 @@ int SeDCloud::solve(diet_profile_t *pb) {
 	local_results_folder.append(szReqId);
 	std::string cmd = "mkdir -p " + local_results_folder;
 	printf("CREATE LOCAL DIRECTORY : %s\n", local_results_folder.c_str());
-	system(cmd.c_str());
+	int env = system(cmd.c_str());
 
 	SeDCloud::instance->actions->perform_action_on_begin_solve(pb);
 
-	std::string name(pb->pb_name);
 
-	CloudServiceBinary& binary = SeDCloudActions::cloud_service_binaries[name];
 
 	std::string remote_path_of_binary = binary.remote_path_of_binary;
 	std::string remote_path_of_arguments = binary.remote_path_of_arguments;
@@ -282,6 +389,7 @@ int SeDCloud::solve(diet_profile_t *pb) {
 	int last_in = pb->last_in;
 	size_t arg_size;
 	char* sz_local_path = NULL;
+	char* sz_remote_path = NULL;
 	std::string local_path;
 	std::string arg_remote_path;
 	std::string arg_local_path;
@@ -291,19 +399,23 @@ int SeDCloud::solve(diet_profile_t *pb) {
 	for(int i = 0; i < nb_args; i++) {
 		sprintf(sz_i, "%i", i);
 
-
-		arg_remote_path = remote_request_folder + "/" + sz_i;
-		//printf("arg_remote_path = %s\n", arg_remote_path.c_str());
-		//printf("szReqId = %s\n", szReqId.c_str());
-		arguments_vector.push_back(arg_remote_path);
-
-		if (i <= last_in) {
-			diet_file_get(diet_parameter(pb, i), &sz_local_path, NULL, &arg_size);
-			local_path = sz_local_path;
-			SeDCloud::instance->actions->send_arguments(local_path, arg_remote_path);
+		if(binary.argumentsTranferMethod == filesTransferMethod) {
+			arg_remote_path = remote_request_folder + "/" + sz_i;
+			if (i <= last_in) {
+				diet_file_get(diet_parameter(pb, i), &sz_local_path, NULL, &arg_size);
+				local_path = sz_local_path;
+				SeDCloud::instance->actions->send_arguments(local_path, arg_remote_path);
+			}
+		}
+		else if (binary.argumentsTranferMethod == pathsTransferMethod) {
+			diet_string_get(diet_parameter(pb, i), &sz_remote_path, NULL);
+			arg_remote_path = sz_remote_path;
+		}
+		else {
+			arg_remote_path = "error";
 		}
 
-
+		arguments_vector.push_back(arg_remote_path);
 
 	}
 
@@ -322,9 +434,14 @@ int SeDCloud::solve(diet_profile_t *pb) {
 		//SeDCloud::instance->vm_instances->rsync_from_vm(0, SeDCloud::instance->using_private_ip(), arg_remote_path, arg_local_path);
 		SeDCloud::instance->actions->receive_result(arg_remote_path, arg_local_path);
 
-		if (diet_file_set(diet_parameter(pb, i), arg_local_path.c_str(), DIET_VOLATILE)) {
-			printf("diet_file_desc_set error\n");
-			return 1;
+		if(binary.argumentsTranferMethod == filesTransferMethod) {
+			if (diet_file_set(diet_parameter(pb, i), arg_local_path.c_str(), DIET_VOLATILE)) {
+				printf("diet_file_desc_set error\n");
+				return 1;
+			}
+		}
+		else if (binary.argumentsTranferMethod == pathsTransferMethod){
+
 		}
 	}
 
@@ -332,6 +449,7 @@ int SeDCloud::solve(diet_profile_t *pb) {
 		diet_free_data(diet_parameter(pb, i));
 	}
 
+	binary.postprocessing(pb);
 
 	SeDCloud::instance->actions->perform_action_on_end_solve(pb);
 }

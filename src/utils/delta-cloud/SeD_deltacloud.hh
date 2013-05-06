@@ -29,6 +29,17 @@
 #include "DagdaImpl.hh"
 #include "DagdaFactory.hh"
 
+typedef int (* dietcloud_callback_t)(diet_profile_t*);
+
+/**
+	The manner with which arguments are tranfered to vms
+
+*/
+enum ArgumentsTranferMethod {
+	filesTransferMethod = 0, //files are copied to SedCloud and tranfered to vms
+	pathsTransferMethod //files are located in one place (eg on a NFS Server), and vms and SedCloud access to this places
+};
+
 /*
 The folder must contains an executable and a shell script
 which call the executable. The name of this script is "exec.sh".
@@ -41,6 +52,7 @@ This executable script is created to launch a service. The parameters are the pa
 class CloudServiceBinary {
    public:
     //the local folder path which contains the executable
+    //if this attribute is set to "" then it is a preinstalled service binary
     std::string local_path_of_binary;
 
     //the remote folder path which contains the executable (in Virtual Machine)
@@ -52,15 +64,40 @@ class CloudServiceBinary {
 	//the remote folder which contains the data as parameters
 	std::string remote_path_of_arguments;
 
+	dietcloud_callback_t prepocessing;
+	dietcloud_callback_t postprocessing;
+
     /*Constructor specified by given local_path and remote_path*/
     CloudServiceBinary(const std::string& _local_path, const std::string& _remote_path,
-					 const std::string& _entry_point_relative_file_path="exec.sh", const std::string& _remote_path_of_arguments = "");
+					 const std::string& _entry_point_relative_file_path="exec.sh", const std::string& _remote_path_of_arguments = "", dietcloud_callback_t _prepocessing = NULL,
+                         dietcloud_callback_t _postprocessing = NULL);
     CloudServiceBinary(const CloudServiceBinary& binary);
     CloudServiceBinary();
 
 
+	ArgumentsTranferMethod argumentsTranferMethod;
+
+	int install(const std::string& ip, const std::string& user_name);
     int execute_remote(const std::string& ip, const std::string& user_name, const std::vector<std::string>& args) const;
+
+    bool isPreinstalled();
+
+
+
+
 };
+
+/*
+	PreinstalledCloudServiceBinary : this is a service which does not need to be deployed on the vm
+*/
+/*class PreinstalledCloudServiceBinary : public CloudServiceBinary {
+	public:
+
+	PreinstalledCloudServiceBinary(const std::string& _remote_path,
+					 const std::string& _entry_point_relative_file_path="exec.sh", const std::string& _remote_path_of_arguments = "");
+};*/
+
+
 
 /*********************************************************************************************/
 /* A ServiceStatistics registers one service with how many times it has been called***********/
@@ -176,6 +213,7 @@ protected:
 	bool is_ip_private;
 	ServiceStatisticsMap statistics_on_services;
     void copy_all_binaries_into_vm(int vm_index);
+    void copy_binary_into_vm(std::string name, int vm_index);
 public:
     //execute an action when the the client make a solve
     virtual int perform_action_on_begin_solve(diet_profile_t *pb) = 0;
@@ -365,30 +403,12 @@ public:
                           int last_out,
                          const diet_convertor_t* const cvt,
                          const std::string& local_path_of_binary,
-                         const std::string& remote_path_of_binary) {
-
-    diet_profile_desc_t* profile;
-
-    profile = diet_profile_desc_alloc(name_of_service.c_str(), last_in, last_in, last_out);
-
-    for(int i = 0; i <= last_out; i++) {
-        diet_generic_desc_set(diet_param_desc(profile, i), DIET_FILE, DIET_CHAR);
-    }
-
-    SeDCloudActions::cloud_service_binaries[name_of_service] = CloudServiceBinary(local_path_of_binary, remote_path_of_binary);
-
-    if (diet_service_table_add(profile, cvt, solve)) {
-        return 1;
-    }
-
-
-    diet_profile_desc_free(profile);
-    diet_print_service_table();
-
-    actions->perform_action_after_service_table_add(name_of_service);
-
-    return 0;
-}
+                         const std::string& remote_path_of_binary,
+                         const std::string& entryPoint = "exec.sh",
+                         ArgumentsTranferMethod argumentsTransferMethod = filesTransferMethod,
+                         dietcloud_callback_t prepocessing = NULL,
+                         dietcloud_callback_t postprocessing = NULL
+                         ) ;
 
 
 
