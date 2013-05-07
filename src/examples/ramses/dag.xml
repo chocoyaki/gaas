@@ -1,0 +1,35 @@
+<dag>
+  <node id="node-grafic1" path="grafic1">
+    <arg name="hostname" type="DIET_STRING" value="192.168.122.90" />
+    <arg name="level" type="DIET_STRING" value="4"/>
+    <arg name="run-dir" type="DIET_STRING" value="/home/adi/myOutput"/>
+    <out name="out-dir" type="DIET_STRING" />
+  </node>
+  
+  <node id="node-ramses3d" path="ramses3d">
+    <arg name="nodes-list" type="DIET_STRING" value="/home/adi/nodes.list" />
+    <arg name="nProcs" type="DIET_STRING" value="1" />
+    <in name="run-dir" type="DIET_STRING" source="node-grafic1#out-dir" />    
+    <out name="out-dir" type="DIET_STRING" />
+  </node>
+	
+	
+  <node id="node-halomaker" path="halomaker">
+    <arg name="hostname" type="DIET_STRING" value="192.168.122.90" />
+    <in name="run-dir" type="DIET_STRING" source="node-ramses3d#out-dir" />    
+    <out name="out-dir" type="DIET_STRING" />
+  </node>
+  
+  <node id="node-treemaker" path="treemaker">
+    <arg name="hostname" type="DIET_STRING" value="192.168.122.90" />
+    <in name="run-dir" type="DIET_STRING" source="node-halomaker#out-dir" />    
+    <out name="out-dir" type="DIET_STRING" />
+  </node>
+  
+  <node id="node-galaxymaker" path="galaxymaker">
+    <arg name="hostname" type="DIET_STRING" value="192.168.122.90" />
+    <in name="run-dir" type="DIET_STRING" source="node-treemaker#out-dir" />    
+    <out name="out-dir" type="DIET_STRING" />
+  </node>
+  
+</dag>

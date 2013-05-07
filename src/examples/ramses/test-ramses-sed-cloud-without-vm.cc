@@ -22,12 +22,15 @@
 
 #define RAMSES_HOME "/home/adi/scenario"
 
-static char* run_dir;
+char* output_dir;
 
 int dummyoutput(diet_profile_t *pb) {
 	int last_out = pb->last_out;
-	diet_string_set(diet_parameter(pb, last_out), run_dir, DIET_PERSISTENT_RETURN);
 
+	char* path = strdup(output_dir);
+
+	diet_string_set(diet_parameter(pb, last_out), path,  /*DIET_VOLATILE*/  DIET_PERSISTENT_RETURN);
+	printf("%d, called\n", last_out);
 }
 
 main(int argc, char *argv[]) {
@@ -35,13 +38,13 @@ main(int argc, char *argv[]) {
 
 
 	if (argc < 5) {
-		printf("usage : %s cfg username ip run_dir\n", argv[0]);
+		printf("usage : %s cfg username ip output_dir\n", argv[0]);
 		exit(0);
 	}
 
 	std::string username = argv[2];
 	std::string ip = argv[3];
-	std::string run_dir = argv[4];
+	output_dir = argv[4];
 
 
 
@@ -54,7 +57,11 @@ main(int argc, char *argv[]) {
 	SeDCloud::create(&actions);
 
 
-	SeDCloud::get()->service_table_add("grafic1", 2, 3, NULL, "", RAMSES_HOME, "call-grafic1", pathsTransferMethod, NULL, dummyoutput);
+	SeDCloud::get()->service_table_add("grafic1", 2, 3, NULL, "", RAMSES_HOME, "call-grafic1", "", pathsTransferMethod, NULL, dummyoutput);
+	SeDCloud::get()->service_table_add("ramses3d", 2, 3, NULL, "", RAMSES_HOME, "call-ramses3d", "", pathsTransferMethod, NULL, dummyoutput);
+	SeDCloud::get()->service_table_add("halomaker", 1, 2, NULL, "", RAMSES_HOME, "call-halomaker", "", pathsTransferMethod, NULL, dummyoutput);
+	SeDCloud::get()->service_table_add("treemaker", 1, 2, NULL, "", RAMSES_HOME, "call-treemaker", "", pathsTransferMethod, NULL, dummyoutput);
+	SeDCloud::get()->service_table_add("galaxymaker", 1, 2, NULL, "", RAMSES_HOME, "call-galaxymaker", "", pathsTransferMethod, NULL, dummyoutput);
 
 	/* Launch the SeD: no return call */
 	SeDCloud::launch(argc, argv);

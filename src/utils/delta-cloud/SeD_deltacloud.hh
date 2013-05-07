@@ -75,12 +75,12 @@ class CloudServiceBinary {
     CloudServiceBinary();
 
 
-	ArgumentsTranferMethod argumentsTranferMethod;
+	ArgumentsTranferMethod argumentsTransferMethod;
 
-	int install(const std::string& ip, const std::string& user_name);
+	int install(const std::string& ip, const std::string& user_name) const;
     int execute_remote(const std::string& ip, const std::string& user_name, const std::vector<std::string>& args) const;
 
-    bool isPreinstalled();
+    bool isPreinstalled() const;
 
 
 
@@ -405,6 +405,7 @@ public:
                          const std::string& local_path_of_binary,
                          const std::string& remote_path_of_binary,
                          const std::string& entryPoint = "exec.sh",
+                         const std::string& remote_path_of_arguments = "",
                          ArgumentsTranferMethod argumentsTransferMethod = filesTransferMethod,
                          dietcloud_callback_t prepocessing = NULL,
                          dietcloud_callback_t postprocessing = NULL
