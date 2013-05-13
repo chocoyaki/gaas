@@ -959,7 +959,7 @@ extern "C" {
   /****************************************************************************/
 
   /**
-     Function used to set a user-defined value in the estimation vector
+     Function used to set a user-defined double value in the estimation vector
 
      @param ev estimation vector where to set values
      @param userTag index in the estimation vector of the value to set
@@ -982,7 +982,7 @@ extern "C" {
   diet_est_set(estVector_t ev, int userTag, double value);
 
   /**
-     Function used to get a user-defined value from the estimation vector
+     Function used to get a user-defined double value from the estimation vector
 
      @param ev estimation vector
      @param userTag index in the estimation vector of the value to get
@@ -1007,7 +1007,7 @@ extern "C" {
   diet_est_get(estVectorConst_t ev, int userTag, double errVal);
 
   /**
-     Function used to get a system value from the estimation vector
+     Function used to get a system double value from the estimation vector
 
      @param ev estimation vector
      @param systemTag index in the estimation vector of the value to get
@@ -1245,6 +1245,140 @@ extern "C" {
   */
   DIET_API_LIB int
   diet_est_array_defined_system(estVectorConst_t ev, int systemTag, int idx);
+
+  /**
+     Function used to set a user-defined null-terminated string value in the estimation vector
+
+     @param ev estimation vector where to set values
+     @param userTag index in the estimation vector of the value to set
+     @warning the userTag must correspond to a user defined one
+     @param value the null-terminated string to set. It is internally copied.
+
+     @return error code telling whether the operation was successful or not:
+     @arg -1 if the estimation vector is null
+     @arg -1 if the userTag is negative
+
+     @remark userTag should start at 0 for the first user-defined value.
+     The code then translates the index to get userTag + EST_USERDEFINED.
+
+     @todo error codes defined in DIET_grpc.h should better be used.
+     This needs to defined new error codes
+     @sa DIET_grpc.h for error codes
+  */
+  DIET_API_LIB int
+  diet_est_set_str(estVector_t ev, int userTag, const char *value);
+
+  /**
+     Function used to get a user-defined null-terminated string value from the estimation vector
+
+     @param ev estimation vector
+     @param userTag index in the estimation vector of the value to get
+
+     @return null-terminated string pointer at the userTag +
+     EST_USERDEFINED position in the estimation vector, or NULL if
+     there was an error. The returned pointer points to memory owned
+     by corba, which will be valid as long as the estimation vector is
+     valid.
+
+     An error will appear if :
+     @arg the estimation vector is null
+     @arg the userTag is negative
+
+     @remark userTag should start at 0 for the first user-defined value.
+     The code then translates the index to get userTag + EST_USERDEFINED.
+
+     @todo error codes defined in DIET_grpc.h should better be used.
+     This needs to defined new error codes
+     @sa DIET_grpc.h for error codes
+  */
+  DIET_API_LIB const char*
+  diet_est_get_str(estVectorConst_t ev, int userTag);
+
+  /**
+     Function used to get a system null-terminated string value from the estimation vector
+
+     @param ev estimation vector
+     @param systemTag index in the estimation vector of the value to get
+
+     @return null-terminated string pointer at the systemTag position
+     in the estimation vector, or NULL if there was an error. The
+     returned pointer points to memory owned by corba, which will be
+     valid as long as the estimation vector is valid.
+
+     An error will appear if :
+     @arg the estimation vector is null
+     @arg the systemTag is negative
+     @arg the tag is greater than EST_USERDEFINED (in that case the value to get corresponds to a user-defined one)
+
+     @todo error codes defined in DIET_grpc.h should better be used. This needs to defined new error codes
+     @sa DIET_grpc.h for error codes
+  */
+  DIET_API_LIB const char*
+  diet_est_get_str_system(estVectorConst_t ev, int systemTag);
+
+  /**
+     Function used to set a user-defined chunk of opaque data (blob) in the estimation vector
+
+     @param ev estimation vector where to set values
+     @param userTag index in the estimation vector of the value to set
+     @warning the userTag must correspond to a user defined one
+     @param buf the pointer to the data chunk. It is internally copied.
+     @param size the size of the data chunk
+
+     @return error code telling whether the operation was successful or not:
+     @arg -1 if the estimation vector is null
+     @arg -1 if the userTag is negative
+
+     @remark userTag should start at 0 for the first user-defined value.
+     The code then translates the index to get userTag + EST_USERDEFINED.
+
+     @todo error codes defined in DIET_grpc.h should better be used.
+     This needs to defined new error codes
+     @sa DIET_grpc.h for error codes
+  */
+  DIET_API_LIB int
+  diet_est_set_bin(estVector_t ev, int userTag, const unsigned char *buf, size_t size);
+
+  /**
+     Function used to get a user-defined chunk of opaque data (blob) from the estimation vector
+
+     @param ev estimation vector
+     @param userTag index in the estimation vector of the value to get
+     @param buf address of a pointer to the data chunk. On return, it is set to point to memory owned by corba, which will be valid as long as the estimation vector is valid
+     @param size pointer to the returned chunk size
+
+     @return error code telling whether the operation was successful or not:
+     @arg -1 if the estimation vector is null
+     @arg -1 if the userTag is negative
+
+     @remark userTag should start at 0 for the first user-defined value.
+     The code then translates the index to get userTag + EST_USERDEFINED.
+
+     @todo error codes defined in DIET_grpc.h should better be used.
+     This needs to defined new error codes
+     @sa DIET_grpc.h for error codes
+  */
+  DIET_API_LIB int
+  diet_est_get_bin(estVectorConst_t ev, int userTag, const unsigned char **buf, size_t *size);
+
+  /**
+     Function used to get a system chunk of opaque data (blob) from the estimation vector
+
+     @param ev estimation vector
+     @param systemTag position in the estimation vector
+     @param buf address of a pointer to the data chunk. On return, it is set to point to memory owned by corba, which will be valid as long as the estimation vector is valid
+     @param size pointer to the returned chunk size
+
+     @return error code telling whether the operation was successful or not:
+     @arg -1 if the estimation vector is null
+     @arg -1 if the userTag is negative
+
+     @todo error codes defined in DIET_grpc.h should better be used.
+     This needs to defined new error codes
+     @sa DIET_grpc.h for error codes
+  */
+  DIET_API_LIB int
+  diet_est_get_bin_system(estVectorConst_t ev, int systemTag, const unsigned char **buf, size_t *size);
 
 #ifdef HAVE_ALT_BATCH
   /* These two functions shall be removed and a better mechanism found
