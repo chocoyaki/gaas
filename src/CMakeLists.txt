@@ -453,8 +453,7 @@ set(DIET_client_SRCS
   client/DIET_grpc.cc
   client/DIETCall.cc
   client/CallAsyncMgr.cc
-  client/CallbackImpl.cc
-  ${AgentCommon_SRCS})
+  client/CallbackImpl.cc)
 
 set(DIET_client_LIBS DIET_Dagda)
 
@@ -475,9 +474,6 @@ if(DIET_USE_WORKFLOW)
     ${XQILLA_LIBRARY} ${XERCES_LIBRARY})
 
   install(FILES utils/workflow/FWorkflow.dtd DESTINATION ${DATA_INSTALL_DIR})
-endif()
-if(DIET_USE_USERSCHED)
-  set(DIET_client_SRCS ${DIET_client_SRCS} agent/UserScheduler.cc)
 endif()
 
 if(WIN32)
