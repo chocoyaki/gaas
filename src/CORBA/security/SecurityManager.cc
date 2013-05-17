@@ -28,6 +28,7 @@ namespace po = boost::program_options;
 
 SecurityManager::SecurityManager() {
 
+  this->enabled = false;
   this->cAFile = "UNDEFINED";
   this->keyFile = "UNDEFINED";
   this->passwordKey = "";
@@ -38,16 +39,23 @@ SecurityManager::initSSLContext() {
   /*
    *  Setting SSL Contex
    */
-  CONFIG_STRING(diet::SSLROOTCERTIFICATE, this->cAFile);
-  CONFIG_STRING(diet::SSLPRIVATEKEY, this->keyFile);
-  CONFIG_STRING(diet::SSLPRIVATEKEYPASSWORD, this->passwordKey);
+  CONFIG_BOOL(diet::SSLENABLED, this->enabled);
 
-  sslContext::certificate_authority_file = cAFile.c_str();
-  sslContext::key_file = keyFile.c_str();
-  sslContext::key_file_password = passwordKey.c_str();
+  if (this->enabled) {
 
-  sslContext::verify_mode = SSL_VERIFY_FAIL_IF_NO_PEER_CERT | SSL_VERIFY_PEER;
+    CONFIG_STRING(diet::SSLROOTCERTIFICATE, this->cAFile);
+    CONFIG_STRING(diet::SSLPRIVATEKEY, this->keyFile);
+    CONFIG_STRING(diet::SSLPRIVATEKEYPASSWORD, this->passwordKey);
 
+    sslContext::certificate_authority_file = cAFile.c_str();
+    sslContext::key_file = keyFile.c_str();
+    sslContext::key_file_password = passwordKey.c_str();
+
+    sslContext::verify_mode = SSL_VERIFY_FAIL_IF_NO_PEER_CERT | SSL_VERIFY_PEER;
+  }
+  else {
+    sslContext::verify_mode = SSL_VERIFY_NONE;
+  }
   return true;
 }
 
@@ -85,8 +93,13 @@ insertOptions(const std::string &option, const std::set<std::string> &values, st
 bool
 SecurityManager::secureORBOptions(int argc, char * argv[]) {
 
-  // Updated options
-  //std::vector<char *> secuOptions;
+
+  if (!this-> enabled) {
+
+    this->secuOptions.insert(this->secuOptions.begin(), argv, argv+argc);
+    return true;
+  }
+
 
   std::vector<std::string> oEndPoint;
   //  std::vector<std::string> oEndPointPublish;
@@ -112,6 +125,7 @@ SecurityManager::secureORBOptions(int argc, char * argv[]) {
     std::vector<std::string> unmodifiedOptions = po::collect_unrecognized(opts.options, po::include_positional);
     BOOST_FOREACH(std::string uOpt, unmodifiedOptions) {
       secuOptions.push_back(strToCharPtr(uOpt));
+      TRACE_TEXT(TRACE_MAIN_STEPS, "unmodified option : " << uOpt << std::endl);
     }
 
     po::store(opts, vm);

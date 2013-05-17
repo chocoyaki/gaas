@@ -87,10 +87,11 @@ DIET_API_LIB param_t params[] =
   /* [59] */ {USERNAME, "userName", STRING_PARAMETER},
   /* [60] */ {FORCE_CLIENT_REBIND, "forceRebind", BOOL_PARAMETER},
   /* [61] */ {NBRETRY, "clientNbRetry", ULONG_PARAMETER},
-  /* [62] */ {SECURITYLEVEL, "securityLevel", STRING_PARAMETER},
-  /* [63] */ {SSLROOTCERTIFICATE, "sslRootCertificate", STRING_PARAMETER},
-  /* [64] */ {SSLPRIVATEKEY, "sslPrivateKey", STRING_PARAMETER},
-  /* [65] */ {SSLPRIVATEKEYPASSWORD, "sslPrivateKeyPassword", STRING_PARAMETER}
+  /* [62] */ {SSLENABLED, "sslEnabled", BOOL_PARAMETER},
+  /* [63] */ {SECURITYLEVEL, "securityLevel", STRING_PARAMETER},
+  /* [64] */ {SSLROOTCERTIFICATE, "sslRootCertificate", STRING_PARAMETER},
+  /* [65] */ {SSLPRIVATEKEY, "sslPrivateKey", STRING_PARAMETER},
+  /* [66] */ {SSLPRIVATEKEYPASSWORD, "sslPrivateKeyPassword", STRING_PARAMETER}
 };
 
 } /* namespace diet */

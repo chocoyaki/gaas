@@ -30,6 +30,8 @@ public:
   getORBOptions() const {return secuOptions; }
 
 private:
+  bool enabled;
+
   std::string cAFile;
   std::string keyFile;
   std::string passwordKey;
