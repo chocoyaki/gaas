@@ -64,7 +64,7 @@ class VMInstances {
 	std::string get_instance_id(int i);
 	Instance* get_instance(int i);
 
-
+	void get_ips(std::vector<std::string>& ips, bool private_ip);
 
 
 	//connection to vm index i with private ip address by default, public address otherwise

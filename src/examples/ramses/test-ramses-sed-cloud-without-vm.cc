@@ -49,7 +49,7 @@ main(int argc, char *argv[]) {
 
 
 	/* Initialize table with maximum 2 service */
-	diet_service_table_init(2);
+	diet_service_table_init(5);
 
 	SeDCloudWithoutVMActions actions(ip, username);
 

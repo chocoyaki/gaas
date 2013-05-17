@@ -26,14 +26,13 @@ int main(int argc, char ** argv) {
 
   wf_xml_file = argv[2];
 
-  /* note that the below does not have to be a DAG */
+
   profile = diet_wf_profile_alloc(wf_xml_file, "test-profile", DIET_WF_DAG);
-  /*diet_scalar_set(diet_parameter(profile, 0), &level, 0, DIET_INT);
-*/
+
 
   if(!diet_wf_call(profile)) {
     printf("Workflow successfuly run\n");
-    diet_wf_string_get(profile, "node_grafic1#out-dir", &output_dir);
+    diet_wf_string_get(profile, "node-galaxymaker#out-dir", &output_dir);
     if(output_dir != NULL) {
       printf("Got: %s\n", output_dir);
     } else {

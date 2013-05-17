@@ -1,12 +1,60 @@
 #include "SeD_deltacloud.hh"
 #include <stdio.h>
+#include "DIET_uuid.hh"
+
+
+int create_folder(const char* folder_path) {
+	std::string cmd = "";
+	cmd.append("mkdir -p ");
+	cmd.append(folder_path);
+	//printf("CREATE LOCAL DIRECTORY : %s\n", local_results_folder.c_str());
+	int env = system(cmd.c_str());
+
+	return env;
+}
+
+std::string get_folder_in_dagda_path(const char* folder_name) {
+	DagdaImpl *dataManager = DagdaFactory::getDataManager();
+	const char* dagda_path = dataManager->getDataPath();
 
 
 
+	std::string folder = "";
+	folder.append(dagda_path);
+	folder.append("/");
+	folder.append(folder_name);
+
+	return folder;
+}
+
+std::string int2string(int i) {
+	char s[512];
+	sprintf(s, "%i", i);
+	return std::string(s);
+}
+
+void append2path(std::string& path, const std::string& add) {
+	path.append("/");
+	path.append(add);
+}
+
+int create_folder_in_dagda_path(const char* folder_name) {
+	DagdaImpl *dataManager = DagdaFactory::getDataManager();
+	const char* dagda_path = dataManager->getDataPath();
 
 
+	//the local folder of datas
+	std::string local_results_folder = get_folder_in_dagda_path(folder_name);
+
+	int env = create_folder(local_results_folder.c_str());
+
+	return env;
+}
 
 
+int create_folder_in_dagda_path_with_request_id(int reqId) {
+	return create_folder_in_dagda_path(int2string(reqId).c_str());
+}
 
 
 
@@ -364,27 +412,16 @@ int SeDCloud::solve(diet_profile_t *pb) {
 	printf(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>%p\n", binary.postprocessing);
 
 	int reqId = pb->dietReqID;
-
-	std::ostringstream string_stream;
-	string_stream << reqId;
-	std::string szReqId = string_stream.str();
-
-	std::string remote_path_of_binary = binary.remote_path_of_binary;
-
-	DagdaImpl *dataManager = DagdaFactory::getDataManager();
-	const char* dagda_path = dataManager->getDataPath();
+	std::string szReqId = int2string(reqId);
 
 
-	//the local folder of datas
-	std::string local_results_folder = "";
-	local_results_folder.append(dagda_path);
-	local_results_folder.append("/");
-	local_results_folder.append(szReqId);
+
+
+	std::string local_results_folder = get_folder_in_dagda_path(szReqId.c_str());
+
 
 	if(binary.argumentsTransferMethod == filesTransferMethod) {
-		std::string cmd = "mkdir -p " + local_results_folder;
-		printf("CREATE LOCAL DIRECTORY : %s\n", local_results_folder.c_str());
-		int env = system(cmd.c_str());
+		int env = create_folder(local_results_folder.c_str());
 	}
 
 
@@ -465,6 +502,105 @@ int SeDCloud::solve(diet_profile_t *pb) {
 	}
 
 	SeDCloud::instance->actions->perform_action_on_end_solve(pb);
+
+	return 0;
+}
+
+
+/**
+	params :
+		IN:
+		0 vm collection name : STRING
+		1 vm count : INT
+		2 vm image : STRING
+		3 vm profile : STRING
+		4 delta cloud api url : STRING
+		5 deltacloud user name
+		6 deltacloud passwd
+		7 vm user
+		8 take private ips
+		OUT:
+		9 vm ips : FILE
+
+*/
+
+DIET_API_LIB int SeDCloud::service_homogeneous_vm_instanciation_add() {
+	diet_profile_desc_t* profile;
+
+	profile = diet_profile_desc_alloc("homogeneous_vm_instanciation", 3, 3, 4);
+	diet_generic_desc_set(diet_param_desc(profile, 0), DIET_STRING, DIET_CHAR);
+	diet_generic_desc_set(diet_param_desc(profile, 1), DIET_SCALAR, DIET_INT);
+	diet_generic_desc_set(diet_param_desc(profile, 2), DIET_STRING, DIET_CHAR);
+	diet_generic_desc_set(diet_param_desc(profile, 3), DIET_STRING, DIET_CHAR);
+	diet_generic_desc_set(diet_param_desc(profile, 4), DIET_FILE, DIET_CHAR);
+
+	diet_service_table_add(profile,  NULL, SeDCloud::homogeneous_vm_instanciation_solve);
+}
+
+int SeDCloud::homogeneous_vm_instanciation_solve(diet_profile_t *pb) {
+	char* vm_collection_name;
+	int vm_count;
+	char* vm_image;
+	char* vm_profile;
+	char* deltacloud_api_url;
+	char* deltacloud_user_name;
+	char* deltacloud_passwd;
+	char* vm_user;
+	//0 if we take the public ip 1 if we take the private ip
+	int is_ip_private;
+
+	diet_string_get(diet_parameter(pb, 0), &vm_collection_name, NULL);
+	diet_scalar_get(diet_parameter(pb, 1), &vm_count, NULL);
+	diet_string_get(diet_parameter(pb, 2), &vm_image, NULL);
+	diet_string_get(diet_parameter(pb, 3), &vm_profile, NULL);
+	diet_string_get(diet_parameter(pb, 4), &deltacloud_api_url, NULL);
+	diet_string_get(diet_parameter(pb, 5), &deltacloud_user_name, NULL);
+	diet_string_get(diet_parameter(pb, 6), &deltacloud_passwd, NULL);
+	diet_string_get(diet_parameter(pb, 7), &vm_user, NULL);
+	diet_scalar_get(diet_parameter(pb, 8), &is_ip_private, NULL);
+	//one creates the vm instances
+	//SeDCloudActions* actions = new SeDCloudActions();
+
+	std::vector<IaaS::Parameter> params;
+	params.push_back(IaaS::Parameter(HARDWARE_PROFILE_ID_PARAM, vm_profile));
+
+	IaaS::VMInstances* instances = new IaaS::VMInstances(vm_image, vm_count, deltacloud_api_url, deltacloud_user_name, deltacloud_passwd, vm_user, params);
+	reserved_vms[vm_collection_name] = instances;
+	instances->wait_all_instances_running();
+	instances->wait_all_ssh_connection(is_ip_private);
+
+	int reqId = pb->dietReqID;
+	std::string szReqId = int2string(reqId);
+	std::string local_results_folder = get_folder_in_dagda_path(szReqId.c_str());
+	int env = create_folder(local_results_folder.c_str());
+
+
+	std::ostringstream vm_ip_file_path;
+	boost::uuids::uuid uuid = diet_generate_uuid();
+
+	vm_ip_file_path << local_results_folder << "-" << uuid << ".txt";
+
+	std::vector<std::string> ips;
+	instances->get_ips(ips, is_ip_private);
+
+	//write ips in file
+	FILE* vm_ips_file = fopen(vm_ip_file_path.str().c_str(), "w");
+	if (vm_ips_file == NULL) {
+		return -1;
+	}
+	for(int i = 0; i < vm_count; i++) {
+		fprintf(vm_ips_file, "%s\n", ips[i].c_str());
+	}
+	fclose(vm_ips_file);
+
+	diet_file_set(diet_parameter(pb, 9), vm_ip_file_path.str().c_str(), DIET_PERSISTENT_RETURN);
+
+
+
+
+	for(int i=0; i < 8; i++) {
+		diet_free_data(diet_parameter(pb, i));
+	}
 
 	return 0;
 }

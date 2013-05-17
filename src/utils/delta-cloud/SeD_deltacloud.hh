@@ -29,6 +29,16 @@
 #include "DagdaImpl.hh"
 #include "DagdaFactory.hh"
 
+
+int create_folder(const char* folder_path);
+std::string get_folder_in_dagda_path(const char* folder_name);
+std::string int2string(int i);
+void append2path(std::string& path, const std::string& add);
+
+//0 iif succeeds
+int create_folder_in_dagda_path(const char* folder_name);
+int create_folder_in_dagda_path_with_request_id(int reqId);
+
 typedef int (* dietcloud_callback_t)(diet_profile_t*);
 
 /**
@@ -253,6 +263,23 @@ public:
 };
 
 
+class SedCloudActionsNULL : public SeDCloudActions {
+public:
+	SedCloudActionsNULL() {};
+
+	virtual int perform_action_on_begin_solve(diet_profile_t *pb) {return 0;};
+    virtual int perform_action_on_end_solve(diet_profile_t *pb) {return 0;};
+	virtual void perform_action_on_sed_creation() {};
+	virtual void perform_action_on_sed_launch() {};
+	virtual int perform_action_after_service_table_add(const std::string& name_of_service) { return 0;};
+	virtual int send_arguments(const std::string& local_path, const std::string& remote_path, int vm_index = 0) { return 0; };
+    virtual int receive_result(const std::string& result_remote_path, const std::string& result_local_path, int vm_index = 0) {return 0;};
+	virtual int execute_remote_binary(const CloudServiceBinary& binary, const std::vector<std::string>& args, int vm_index = 0) {return 0;};
+	virtual int create_remote_directory(const std::string& remote_path, int vm_index = 0) {return 0;};
+
+};
+
+
 class SeDCloudAndVMLaunchedActions : public SeDCloudActions {
 public:
 
@@ -379,8 +406,11 @@ public:
     }
 
     static void create(SeDCloudActions* _actions) {
-        if (instance == NULL) {
-            SeDCloud::instance = new SeDCloud(_actions);
+
+        if (_actions != NULL) {
+			if (instance == NULL) {
+				SeDCloud::instance = new SeDCloud(_actions);
+			}
         }
     }
 
@@ -389,6 +419,8 @@ public:
             delete instance;
             instance = NULL;
         }
+
+        //std::map<std::string, SeDCloudActions*>::iterator iter;
     }
 
     static SeDCloud* get() {
@@ -396,6 +428,8 @@ public:
         return SeDCloud::instance;
 
     }
+
+
 
     virtual DIET_API_LIB int
         service_table_add(const std::string& name_of_service,
@@ -411,13 +445,18 @@ public:
                          dietcloud_callback_t postprocessing = NULL
                          ) ;
 
-
+	//add a service which allows to instantiate homogeneous vms
+	DIET_API_LIB int service_homogeneous_vm_instanciation_add();
 
 
 protected:
     static int solve(diet_profile_t *pb);
 
     static SeDCloud* instance;
+
+	//solve the service which allows to instantiate homogeneous vms
+	static int homogeneous_vm_instanciation_solve(diet_profile_t *pb);
+	static std::map<std::string, IaaS::VMInstances*> reserved_vms;
 
 public:
 
@@ -434,7 +473,7 @@ public:
 std::map<std::string, CloudServiceBinary> SeDCloudActions::cloud_service_binaries;
 
 SeDCloud* SeDCloud::instance;
-
+std::map<std::string, IaaS::VMInstances*> SeDCloud::reserved_vms;
 
 
 

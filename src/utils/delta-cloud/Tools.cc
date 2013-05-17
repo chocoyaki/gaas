@@ -243,6 +243,12 @@ int VMInstances::execute_command_in_vm(int i, bool private_ip, const std::string
 }
 
 
+void VMInstances::get_ips(std::vector<std::string>& ips, bool private_ip) {
+	for(int i = 0; i < insts->size(); i++) {
+		ips.push_back(get_ip(i, private_ip));
+	}
+}
+
 OpenStackVMInstances::OpenStackVMInstances(std::string image_id, int vm_count, std::string base_url, std::string user_name, std::string password, std::string vm_user, std::string key_name) : VMInstances(image_id, vm_count, base_url, user_name, password, vm_user, std::vector<Parameter>(1, Parameter("keyname", key_name))) {
 
 }
