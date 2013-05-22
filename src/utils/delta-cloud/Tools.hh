@@ -29,12 +29,15 @@ int rsync_to_vm_by_id(IaaS::IaasInterface* interf, std::string vm_user, std::str
 int rsync_to_vm(std::string local_path, std::string remote_path, std::string user, std::string ip);
 int rsync_from_vm(std::string remote_path, std::string local_path, std::string user, std::string ip);
 
+
 int execute_command_in_vm(const std::string& remote_cmd, std::string user, std::string ip, std::string args);
 int execute_command_in_vm_by_id(IaaS::IaasInterface* interf, std::string vm_user, std::string instance_id, bool private_ip, std::string remote_cmd, std::string args);
 
 int create_directory_in_vm(const std::string& remote_path, std::string user, std::string ip, std::string args = " -p ");
 int create_directory_in_vm_by_id(IaaS::IaasInterface* interf, std::string vm_user, std::string instance_id, bool private_ip, std::string remote_path, std::string args = " -p ");
 
+
+char* readline(const char* path, int index);
 
 namespace IaaS {
 

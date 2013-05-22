@@ -41,6 +41,7 @@ main(int argc, char *argv[]) {
 
 
   SeDCloud::get()->service_homogeneous_vm_instanciation_add();
+  SeDCloud::get()->service_rsync_to_vm_add();
 
   /* Launch the SeD: no return call */
   SeDCloud::launch(argc, argv);

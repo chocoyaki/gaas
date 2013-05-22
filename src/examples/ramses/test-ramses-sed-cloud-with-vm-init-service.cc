@@ -37,21 +37,20 @@ main(int argc, char *argv[]) {
 
 
 
-	if (argc < 5) {
-		printf("usage : %s cfg username ip output_dir\n", argv[0]);
+	if (argc < 3) {
+		printf("usage : %s cfg output_dir\n", argv[0]);
 		exit(0);
 	}
 
-	std::string username = argv[2];
-	std::string ip = argv[3];
-	output_dir = argv[4];
+	output_dir = argv[2];
 
 
 
 	/* Initialize table with maximum 2 service */
-	diet_service_table_init(7);
+	diet_service_table_init(5);
 
-	SeDCloudWithoutVMActions actions(ip, username);
+	SedCloudActionsNULL actions;
+
 
 
 	SeDCloud::create(&actions);
@@ -62,6 +61,8 @@ main(int argc, char *argv[]) {
 	SeDCloud::get()->service_table_add("halomaker", 1, 2, NULL, "", RAMSES_HOME, "call-halomaker", "", pathsTransferMethod, NULL, dummyoutput);
 	SeDCloud::get()->service_table_add("treemaker", 1, 2, NULL, "", RAMSES_HOME, "call-treemaker", "", pathsTransferMethod, NULL, dummyoutput);
 	SeDCloud::get()->service_table_add("galaxymaker", 1, 2, NULL, "", RAMSES_HOME, "call-galaxymaker", "", pathsTransferMethod, NULL, dummyoutput);
+	SeDCloud::get()->service_homogeneous_vm_instanciation_add();
+	SeDCloud::get()->service_rsync_to_vm_add();
 
 	/* Launch the SeD: no return call */
 	SeDCloud::launch(argc, argv);

@@ -32,7 +32,8 @@ int main(int argc, char ** argv) {
 
   if(!diet_wf_call(profile)) {
     printf("Workflow successfuly run\n");
-    diet_wf_string_get(profile, "node-galaxymaker#out-dir", &output_dir);
+    //diet_wf_string_get(profile, "node-galaxymaker#out-dir", &output_dir);
+    diet_wf_string_get(profile, "copy-to-machine#ip", &output_dir);
     if(output_dir != NULL) {
       printf("Got: %s\n", output_dir);
     } else {

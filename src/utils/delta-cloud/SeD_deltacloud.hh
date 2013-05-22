@@ -30,6 +30,8 @@
 #include "DagdaFactory.hh"
 
 
+#define HOMOGENEOUS_VM_INSTANCIATION_SERVICE "homogeneous_vm_instanciation"
+
 int create_folder(const char* folder_path);
 std::string get_folder_in_dagda_path(const char* folder_name);
 std::string int2string(int i);
@@ -448,6 +450,7 @@ public:
 	//add a service which allows to instantiate homogeneous vms
 	DIET_API_LIB int service_homogeneous_vm_instanciation_add();
 
+	DIET_API_LIB int service_rsync_to_vm_add();
 
 protected:
     static int solve(diet_profile_t *pb);
@@ -456,6 +459,7 @@ protected:
 
 	//solve the service which allows to instantiate homogeneous vms
 	static int homogeneous_vm_instanciation_solve(diet_profile_t *pb);
+	static int rsync_to_vm_solve(diet_profile_t *pb);
 	static std::map<std::string, IaaS::VMInstances*> reserved_vms;
 
 public:

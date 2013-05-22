@@ -9,7 +9,8 @@
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <fstream>
+#include <string.h>
 
 std::string get_ip_instance_by_id(IaaS::IaasInterface* interf, std::string instance_id, bool is_private_ip) {
     IaaS::Instance* instance = interf->get_instance_by_id(instance_id);
@@ -70,6 +71,7 @@ int rsync_to_vm(std::string local_path, std::string remote_path, std::string use
 
     return ret;
 }
+
 
 int rsync_to_vm_by_id(IaaS::IaasInterface* interf, std::string vm_user, std::string instance_id, bool private_ip, std::string local_path, std::string remote_path) {
 
@@ -133,6 +135,40 @@ int create_directory_in_vm_by_id(IaaS::IaasInterface* interf, std::string vm_use
   int ret = ::create_directory_in_vm(remote_path, vm_user, ip, args);
 }
 
+char* readline(const char* path, int index) {
+	int i = 0;
+	bool end = false;
+	bool found = false;
+	std::fstream file;
+	file.open(path, std::ios_base::in);
+
+	char* line;
+	do {
+		std::string s;
+		try{
+			getline(file, s);
+			if (i >= index) {
+				line = strdup(s.c_str());
+				//std::cout << s << std::endl;
+				end = true;
+				found = true;
+			}
+		}
+		catch (std::ios_base::failure e) {
+			end = true;
+		}
+
+		i++;
+	} while (!end);
+
+	file.close();
+	if (!found) {
+		return NULL;
+	}
+
+
+	return line;
+}
 
 
 namespace IaaS {
