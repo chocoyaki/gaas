@@ -90,6 +90,10 @@ echo "-------------------"
     else
       error "File '$cfg' does not exist !"
     fi
+  else
+    echo "You can now use $agentdir/cacert.pem as a root certificate"
+    echo "and $agentdir/private/$agentname.pem as a private key"
+    echo "in the configuration of $agentname"
   fi
   
   
