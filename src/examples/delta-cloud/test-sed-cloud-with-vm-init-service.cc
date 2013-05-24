@@ -1,7 +1,7 @@
 /**
  * @file test-sed-cloud.cc
  *
- * @brief  Example server for the SeDCloud without vm
+ * @brief  Example server for the SeDCloud with a service which instantiates VM
  *
  * @author  Lamiel Toch (lamiel.toch@ens-lyon.fr)
  *
@@ -32,16 +32,18 @@ main(int argc, char *argv[]) {
 
 
 
-  /* Initialize table with maximum 2 service */
-  diet_service_table_init(2);
+  /* Initialize table with maximum 10 service */
+  diet_service_table_init(10);
 
-  SedCloudActionsNULL actions;
+  SedCloudActionsNULL* actions = new SedCloudActionsNULL();
 
-  SeDCloud::create(&actions);
+  SeDCloud::create(actions);
 
 
   SeDCloud::get()->service_homogeneous_vm_instanciation_add();
   SeDCloud::get()->service_rsync_to_vm_add();
+  SeDCloud::get()->service_use_vm_add();
+  SeDCloud::get()->service_table_add("date", 0, 0, NULL, "", "/bin", "date", "", pathsTransferMethod, NULL, NULL);
 
   /* Launch the SeD: no return call */
   SeDCloud::launch(argc, argv);

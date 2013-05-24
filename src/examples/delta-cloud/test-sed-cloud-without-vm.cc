@@ -38,7 +38,7 @@ main(int argc, char *argv[]) {
   /* Initialize table with maximum 2 service */
   diet_service_table_init(2);
 
-  SeDCloudWithoutVMActions actions(ip, username);
+  SeDCloudMachinesActions actions(ip, username);
 
 
   SeDCloud::create(&actions);

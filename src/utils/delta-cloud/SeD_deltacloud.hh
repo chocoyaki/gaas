@@ -224,9 +224,21 @@ protected:
 	IaaS::VMInstances* vm_instances;
 	bool is_ip_private;
 	ServiceStatisticsMap statistics_on_services;
+
+	//the index of the machine which is the master
+    int master_index;
     void copy_all_binaries_into_vm(int vm_index);
     void copy_binary_into_vm(std::string name, int vm_index);
 public:
+
+	void set_master_index(int index) {
+		master_index = index;
+	}
+
+    int get_master_index() {
+		return master_index;
+    }
+
     //execute an action when the the client make a solve
     virtual int perform_action_on_begin_solve(diet_profile_t *pb) = 0;
     virtual int perform_action_on_end_solve(diet_profile_t *pb) = 0;
@@ -305,10 +317,12 @@ public:
 
 };
 
-class SeDCloudWithoutVMActions : public SeDCloudAndVMLaunchedActions {
+class SeDCloudMachinesActions : public SeDCloudAndVMLaunchedActions {
 protected:
     std::string address_ip;
     std::string username;
+
+	std::vector<std::string> ips;
 
 public:
     virtual void perform_action_on_sed_creation();
@@ -320,13 +334,20 @@ public:
     virtual int execute_remote_binary(const CloudServiceBinary& binary, const std::vector<std::string>& args, int vm_index);
 	virtual int create_remote_directory(const std::string& remote_path, int vm_index);
 
-    SeDCloudWithoutVMActions(const std::string& _address_ip,const std::string& _username) :
+    SeDCloudMachinesActions(const std::string& _address_ip,const std::string& _username) :
                           SeDCloudAndVMLaunchedActions(){
         address_ip = _address_ip;
         username = _username;
+        ips.push_back(address_ip);
+        master_index = 0;
     }
 
-
+	SeDCloudMachinesActions(const std::vector<std::string>& _ips, const std::string& _username, int _master_index = 0) {
+		ips = _ips;
+		address_ip = ips[master_index];
+		master_index = _master_index;
+		username = _username;
+	}
 };
 
 
@@ -431,7 +452,13 @@ public:
 
     }
 
-
+	//warining : make sure that actions is destroyable (allocated by new)
+	void setActions(SeDCloudActions* _actions) {
+		if (actions != NULL) {
+			delete actions;
+		}
+		actions = _actions;
+	}
 
     virtual DIET_API_LIB int
         service_table_add(const std::string& name_of_service,
@@ -452,6 +479,8 @@ public:
 
 	DIET_API_LIB int service_rsync_to_vm_add();
 
+	DIET_API_LIB int service_use_vm_add();
+
 protected:
     static int solve(diet_profile_t *pb);
 
@@ -460,7 +489,10 @@ protected:
 	//solve the service which allows to instantiate homogeneous vms
 	static int homogeneous_vm_instanciation_solve(diet_profile_t *pb);
 	static int rsync_to_vm_solve(diet_profile_t *pb);
+	static int use_vm_solve(diet_profile_t* pb);
+	//TODO to link to user or group
 	static std::map<std::string, IaaS::VMInstances*> reserved_vms;
+
 
 public:
 

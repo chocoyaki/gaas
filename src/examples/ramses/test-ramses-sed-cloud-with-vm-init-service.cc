@@ -46,14 +46,14 @@ main(int argc, char *argv[]) {
 
 
 
-	/* Initialize table with maximum 2 service */
-	diet_service_table_init(5);
+	/* Initialize table with maximum 10 service */
+	diet_service_table_init(10);
 
-	SedCloudActionsNULL actions;
+	SedCloudActionsNULL *actions = new SedCloudActionsNULL();
 
 
 
-	SeDCloud::create(&actions);
+	SeDCloud::create(actions);
 
 
 	SeDCloud::get()->service_table_add("grafic1", 2, 3, NULL, "", RAMSES_HOME, "call-grafic1", "", pathsTransferMethod, NULL, dummyoutput);
@@ -63,6 +63,7 @@ main(int argc, char *argv[]) {
 	SeDCloud::get()->service_table_add("galaxymaker", 1, 2, NULL, "", RAMSES_HOME, "call-galaxymaker", "", pathsTransferMethod, NULL, dummyoutput);
 	SeDCloud::get()->service_homogeneous_vm_instanciation_add();
 	SeDCloud::get()->service_rsync_to_vm_add();
+	SeDCloud::get()->service_use_vm_add();
 
 	/* Launch the SeD: no return call */
 	SeDCloud::launch(argc, argv);

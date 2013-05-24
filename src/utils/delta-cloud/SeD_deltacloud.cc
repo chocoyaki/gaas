@@ -139,6 +139,7 @@ int CloudServiceBinary::execute_remote(const std::string& ip, const std::string&
 SeDCloudActions::SeDCloudActions(const std::string& _image_id, const std::string& _base_url, const std::string& _username, const std::string& _password, const std::string& _vm_user,
                           int _vm_count, bool _is_ip_private, const std::vector<IaaS::Parameter>& _params) {
 
+    master_index = 0;
     this->image_id = _image_id;
     this->base_url = _base_url;
     this->username = _username;
@@ -230,7 +231,7 @@ int SeDCloudAndVMLaunchedActions::perform_action_after_service_table_add(const s
 
 
 
-void SeDCloudWithoutVMActions::perform_action_on_sed_creation() {
+void SeDCloudMachinesActions::perform_action_on_sed_creation() {
     //rien pas de creation de vm
 }
 
@@ -240,7 +241,7 @@ void SeDCloudWithoutVMActions::perform_action_on_sed_creation() {
 /*
 On sed launch, we copy all binaries for each service
 */
-void SeDCloudWithoutVMActions::perform_action_on_sed_launch() {
+void SeDCloudMachinesActions::perform_action_on_sed_launch() {
     //SeDCloud<SeDCloudAndVMLaunchedActions>::get()->vm_instances->wait_all_ssh_connection(this->is_ip_private);
 
     std::map<std::string, CloudServiceBinary>::const_iterator iter;
@@ -257,22 +258,22 @@ void SeDCloudWithoutVMActions::perform_action_on_sed_launch() {
 
 
 
-int SeDCloudWithoutVMActions::send_arguments(const std::string& local_path, const std::string& remote_path, int vm_index) {
+int SeDCloudMachinesActions::send_arguments(const std::string& local_path, const std::string& remote_path, int vm_index) {
     ::rsync_to_vm(local_path, remote_path, username, address_ip);
 }
 
-int SeDCloudWithoutVMActions::receive_result(const std::string& result_remote_path, const std::string& result_local_path, int vm_index) {
+int SeDCloudMachinesActions::receive_result(const std::string& result_remote_path, const std::string& result_local_path, int vm_index) {
     ::rsync_from_vm(result_remote_path, result_local_path, username, address_ip);
 }
 
-int SeDCloudWithoutVMActions::execute_remote_binary(const CloudServiceBinary& binary, const std::vector<std::string>& args, int vm_index) {
+int SeDCloudMachinesActions::execute_remote_binary(const CloudServiceBinary& binary, const std::vector<std::string>& args, int vm_index) {
     printf(">>>>>>>>>>>>>>>>EXECUTE BINARY\n");
     //::execute_command_in_vm(remote_path_of_binary + "/exec.sh", username, address_ip, args);
     binary.execute_remote(address_ip, username, args);
 }
 
 
-int SeDCloudWithoutVMActions::create_remote_directory(const std::string& remote_path, int vm_index) {
+int SeDCloudMachinesActions::create_remote_directory(const std::string& remote_path, int vm_index) {
 	printf(">>>>>>>>>>>>>>>>CREATE DIRECTORY %s\n", remote_path.c_str());
 	create_directory_in_vm(remote_path, username, address_ip);
 }
@@ -460,8 +461,10 @@ int SeDCloud::solve(diet_profile_t *pb) {
 			}
 		}
 		else if (binary.argumentsTransferMethod == pathsTransferMethod) {
-			diet_string_get(diet_parameter(pb, i), &sz_remote_path, NULL);
-			arg_remote_path = sz_remote_path;
+			if (i <= last_in) {
+				diet_string_get(diet_parameter(pb, i), &sz_remote_path, NULL);
+				arg_remote_path = sz_remote_path;
+			}
 		}
 		else {
 			arg_remote_path = "error";
@@ -580,10 +583,26 @@ int SeDCloud::homogeneous_vm_instanciation_solve(diet_profile_t *pb) {
 	//VMInstances(std::string image_id, int vm_count, std::string base_url, std::string user_name, std::string password,
 	//std::string vm_user, const std::vector<Parameter>& params = std::vector<Parameter>())
 
-	IaaS::VMInstances* instances = new IaaS::VMInstances(vm_image, *vm_count, deltacloud_api_url, deltacloud_user_name, deltacloud_passwd, vm_user, params);
-	reserved_vms[vm_collection_name] = instances;
-	instances->wait_all_instances_running();
-	instances->wait_all_ssh_connection(*is_ip_private);
+	IaaS::VMInstances* instances;
+	std::vector<std::string> ips;
+
+
+	if (reserved_vms.count(vm_collection_name) == 0 ) {
+		instances = new IaaS::VMInstances(vm_image, *vm_count, deltacloud_api_url, deltacloud_user_name, deltacloud_passwd, vm_user, params);
+		reserved_vms[vm_collection_name] = instances;
+		instances->wait_all_instances_running();
+		instances->wait_all_ssh_connection(*is_ip_private);
+
+		instances->get_ips(ips, *is_ip_private);
+		SeDCloudMachinesActions* actions = new SeDCloudMachinesActions(ips, vm_user);
+		instance->setActions(actions);
+
+	}
+	else {
+		instances = reserved_vms[vm_collection_name];
+		instances->get_ips(ips, *is_ip_private);
+	}
+
 
 	int reqId = pb->dietReqID;
 	std::string szReqId = int2string(reqId);
@@ -593,11 +612,12 @@ int SeDCloud::homogeneous_vm_instanciation_solve(diet_profile_t *pb) {
 
 	std::ostringstream vm_ip_file_path;
 	boost::uuids::uuid uuid = diet_generate_uuid();
-
 	vm_ip_file_path << local_results_folder << "-" << uuid << ".txt";
 
-	std::vector<std::string> ips;
-	instances->get_ips(ips, *is_ip_private);
+
+
+
+
 
 	//write ips in file
 	FILE* vm_ips_file = fopen(vm_ip_file_path.str().c_str(), "w");
@@ -674,6 +694,8 @@ int SeDCloud::rsync_to_vm_solve(diet_profile_t *pb) {
 		return -1;
 	}
 
+	printf(">>>>>>>>>>>>>>rsync solve\n");
+
 	//rsync
 	::rsync_to_vm(to_copy, destination, vm_user, c_ip);
 
@@ -684,6 +706,57 @@ int SeDCloud::rsync_to_vm_solve(diet_profile_t *pb) {
 		diet_free_data(diet_parameter(pb, i));
 	}
 	//free(c_ip);
+
+	printf(">>>>>>>>>>>>>>rsync solve: OK\n");
+
+	return 0;
+}
+
+/*profile
+in 0 : ip
+in 1 : vmuser
+out 2 : ip (equal to parameter 0)
+*/
+DIET_API_LIB int SeDCloud::service_use_vm_add() {
+	diet_profile_desc_t* profile;
+
+	profile = diet_profile_desc_alloc("use_vm", 1, 1, 2);
+	diet_generic_desc_set(diet_param_desc(profile, 0), DIET_STRING, DIET_CHAR);
+	diet_generic_desc_set(diet_param_desc(profile, 1), DIET_STRING, DIET_CHAR);
+	diet_generic_desc_set(diet_param_desc(profile, 2), DIET_STRING, DIET_CHAR);
+
+	diet_service_table_add(profile,  NULL, SeDCloud::use_vm_solve);
+
+	diet_profile_desc_free(profile);
+	diet_print_service_table();
+}
+
+
+//TODO warning!!!
+//this is currently attached to this SeDCloud
+//so there may be a bug if there a 2 SeDClouds
+int SeDCloud::use_vm_solve(diet_profile_t* pb) {
+	char* ip;
+	char* vm_user;
+
+	diet_string_get(diet_parameter(pb, 0), &ip, NULL);
+	diet_string_get(diet_parameter(pb, 1), &vm_user, NULL);
+	char* c_ip = strdup(ip);
+
+	//test ssh connexion
+	int ret = test_ssh_connection(vm_user, ip);
+
+	if (ret) return -1;
+
+	SeDCloudMachinesActions* actions = new SeDCloudMachinesActions(ip, vm_user);
+	instance->setActions(actions);
+
+
+	diet_string_set(diet_parameter(pb, 2), c_ip, DIET_PERSISTENT_RETURN);
+
+	diet_free_data(diet_parameter(pb, 0));
+	diet_free_data(diet_parameter(pb, 1));
+
 
 	return 0;
 }
