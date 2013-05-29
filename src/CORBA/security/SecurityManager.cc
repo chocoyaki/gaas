@@ -96,7 +96,11 @@ SecurityManager::secureORBOptions(int argc, char * argv[]) {
 
   if (!this-> enabled) {
 
-    this->secuOptions.insert(this->secuOptions.begin(), argv, argv+argc);
+    for (int i = 0; i < argc; ++i) {
+      char * cpy = new char[std::strlen(argv[i])];
+      std::strcpy(cpy, argv[i]);
+      this->secuOptions.push_back(cpy);
+    }
     return true;
   }
 
