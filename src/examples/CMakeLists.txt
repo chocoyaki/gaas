@@ -47,6 +47,7 @@ add_subdirectory(allDataTransfers)
 add_subdirectory(containers)
 add_subdirectory(dyn_add_rem)
 add_subdirectory(dynamicServiceMgr)
+add_subdirectory(communicationSpy)
 
 if (DIET_USE_WORKFLOW)
   add_subdirectory (workflow)
