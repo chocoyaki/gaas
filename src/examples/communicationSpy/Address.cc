@@ -13,7 +13,7 @@
 
 namespace spy {
 
-Address::Address(std::string theIp, std::string thePort) :
+Address::Address(std::string theIp, ushort thePort) :
   ip(theIp), port(thePort)
 {
 }

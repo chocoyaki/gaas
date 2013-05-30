@@ -72,10 +72,7 @@ extractAddressList(omni::giopAddressList &list) {
     ushort p ;
     char * host = omni::omniURI::extractHostPort((*it)->address()+9, p); // giop:tcp: or giop:scp: skipped
 
-    std::ostringstream port;
-    port << p;
-
-    spy::Address a = spy::Address(std::string(host), port.str());
+    spy::Address a = spy::Address(std::string(host), p);
     addrs.push_back(a);
 
     TRACE_TEXT(TRACE_MAIN_STEPS, (*it)->address()<< " -> " << a << std::endl);
@@ -149,19 +146,18 @@ void Spy::spyOn(std::string & name) {
         omni::giopAddressList &list = iorInfo->addresses();
         std::vector<spy::Address> addresses = extractAddressList(list);
 
-        std::ostringstream portS;
-        portS << sslPort;
-
         uint nbA = addresses.size();
         for (uint i = 0; i < nbA; ++i) {
-          spy::Address a(addresses[i].getIp(), portS.str());
+          spy::Address a(addresses[i].getIp(), sslPort);
           addresses.push_back(a);
+          portOf[addresses[i].getPort()] = name;
+          portOf[sslPort] = name;
         }
 
        BOOST_FOREACH(spy::Address a, addresses) {
          std::cout << a << std::endl;
        }
-
+       watch[name] = addresses;
       }
   }
 }
@@ -186,4 +182,31 @@ void Spy::updateSpiedComponents() {
     }
   }
 
+}
+
+std::string Spy::createFilter() {
+  std::ostringstream b;
+  b << "tcp and (";
+  typedef std::map<std::string, std::vector<spy::Address> > mapAddress;
+  bool firstAgent = true;
+  BOOST_FOREACH(mapAddress::value_type & p , watch) {
+    std::cout << "Filter for " << p.first << std::endl;
+      if (!firstAgent) {
+        b << " or ";
+      }
+    bool firstAd = true;
+    BOOST_FOREACH(spy::Address& a , p.second) {
+      if (firstAd) {
+        b << "(host " << a.getIp() << " and (port "<< a.getPort() ;
+        firstAd = false;
+      }
+      else {
+        b << " or port " << a.getPort();
+      }
+    }
+    firstAgent = false;
+    b << "))";
+  }
+  b << ")";
+  return b.str();
 }
