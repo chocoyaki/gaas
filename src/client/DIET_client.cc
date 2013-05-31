@@ -528,7 +528,7 @@ diet_finalize() {
     ORBMgr *mgr = ORBMgr::getMgr();
     mgr->unbind(CLIENTCTXT, REF_CALLBACK_SERVER);
     mgr->fwdsUnbind(CLIENTCTXT, REF_CALLBACK_SERVER);
-    delete mgr;
+    ORBMgr::kill();
   } catch (std::runtime_error &e) {
     std::cerr << "Exception caugh: "
               << e.what()

@@ -915,6 +915,14 @@ ORBMgr::init(int argc, char* argv[]) {
   }
 }
 
+void
+ORBMgr::kill() {
+  if (theMgr) {
+    delete theMgr;
+    theMgr = NULL;
+  }
+}
+
 /* Translate the string passed as first argument in bytes and
  * record them into the buffer.
  */

@@ -281,7 +281,7 @@ main(int argc, char *argv[], char *envp[]) {
   /* shutdown and destroy the ORB
    * Servants will be deactivated and deleted automatically
    */
-  delete ORBMgr::getMgr();
+  ORBMgr::kill();
 
   TRACE_TEXT(TRACE_MAIN_STEPS, "Forwarder is now terminated" << std::endl);
 

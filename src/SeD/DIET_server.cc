@@ -711,7 +711,7 @@ diet_SeD(const char *config_file_name, int argc, char *argv[]) {
 
   /* shutdown and destroy the ORB
    * Servants will be deactivated and deleted automatically */
-  delete ORBMgr::getMgr();
+  ORBMgr::kill();
 
   TRACE_TEXT(TRACE_ALL_STEPS, "SeD has exited\n");
 

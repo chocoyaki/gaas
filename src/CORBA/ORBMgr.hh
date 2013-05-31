@@ -43,7 +43,7 @@
 #endif
 
 class DIET_API_LIB ORBMgr {
-public:
+private:
   /* Constructors. */
   ORBMgr(int argc, char *argv[]);
 
@@ -54,6 +54,7 @@ public:
 
   /* Destructor. */
   ~ORBMgr();
+public:
 
   /* Bind the object using its ctxt/name */
   void
@@ -158,6 +159,9 @@ public:
 
   static void
   init(int argc, char *argv[]);
+
+  static void
+  kill();
 
   static ORBMgr *
   getMgr();

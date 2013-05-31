@@ -392,7 +392,7 @@ main(int argc, char *argv[], char *envp[]) {
   /* shutdown and destroy the ORB
    * Servants will be deactivated and deleted automatically
    */
-  delete ORBMgr::getMgr();
+  ORBMgr::kill();
 
   std::for_each(args.begin(), args.end(), CStringDeleter());
 

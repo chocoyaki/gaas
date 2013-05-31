@@ -34,7 +34,7 @@ ExitClass::exitFunction() {
     if (ExitClass::agent) {
       delete ExitClass::agent;
     }
-    delete ORBMgr::getMgr();
+    ORBMgr::kill();
   } catch (...) {
   }
   TRACE_TEXT(TRACE_MAIN_STEPS, "Agent stopped !\n");
