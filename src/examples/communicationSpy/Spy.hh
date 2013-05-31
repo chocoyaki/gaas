@@ -18,14 +18,27 @@
 #include "Address.hh"
 
 class Spy {
-public:
-  Spy(int argc, char **argv);
+  typedef std::map<std::string, std::vector<spy::Address> > mapAgentAddresses;
+
+
+private:
+  explicit Spy(int argc, char **argv);
   virtual ~Spy();
 
+public:
+
+  static Spy * getSpy();
+  static void init(int argc, char **argv);
+  static void kill();
+
   void spyOn(std::string &name);
-  void listenToPort(int port);
-  void stopListeningPort(int port);
+  bool isListeningToPort(ushort port);
   std::string createFilter();
+  int run();
+  std::string isBindedToPort(ushort port);
+
+
+  friend void analysePacket(u_char *args, const struct pcap_pkthdr* pkthdr, const u_char* packet);
 
 private:
 
@@ -33,13 +46,17 @@ private:
   void updateSpiedComponents();
 
 
+
   std::set<std::string> spiedComponents;
-  std::vector<int> ports;
   DietLogComponent *dietLogComponent;
 
-  std::map<std::string, std::vector<spy::Address> > watch;
+  mapAgentAddresses watch;
   std::map<ushort, std::string> portOf;
 
+  static Spy * instance;
+
 };
+
+
 
 #endif /* _SPY_HH_ */
