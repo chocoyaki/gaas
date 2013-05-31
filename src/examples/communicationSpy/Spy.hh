@@ -31,7 +31,7 @@ public:
   static void init(int argc, char **argv);
   static void kill();
 
-  void spyOn(std::string &name);
+  void spyOn(std::string name);
   bool isListeningToPort(ushort port);
   std::string createFilter();
   int run();

@@ -32,6 +32,8 @@
 #include <vector>
 #include <algorithm> // for std::find
 #include <boost/foreach.hpp>
+#include <boost/algorithm/string.hpp>
+#include <boost/lexical_cast.hpp>
 #include <sstream>
 
 // Singleton instance
@@ -77,7 +79,7 @@ std::vector<spy::Address> extractAddressList(omni::giopAddressList &list) {
   return addrs;
 }
 
-void Spy::spyOn(std::string & name) {
+void Spy::spyOn(std::string name) {
   spiedComponents.find(name);
   const bool isIn = spiedComponents.find(name) != spiedComponents.end();
   if (isIn) {
@@ -87,86 +89,80 @@ void Spy::spyOn(std::string & name) {
   spiedComponents.insert(name);
 
   IOP::IOR theIOR;
-  omniIOR* ior = NULL;
-  char * cName = NULL;
-  cName = strToCharPtr(name);
-  try {
-    CORBA::Object_ptr o;
 
-    ORBMgr::theMgr->getIOR(o);
-    ORBMgr::theMgr->makeIOR(ORBMgr::theMgr->getIOR(o), theIOR);
+  bool elementFound = false;
 
-    Agent_var agentTmp = ORBMgr::getMgr()->resolve<Agent, Agent_var>(AGENTCTXT,
-                                                                     cName);
-    ior = agentTmp->_getIOR();
-  } catch (...) {
-    SeD_var sedTmp = ORBMgr::getMgr()->resolve<SeD, SeD_var>(SEDCTXT, cName);
-    ior = sedTmp->_getIOR();
+  std::vector<std::string> contextes;
+  contextes.push_back(AGENTCTXT);
+  contextes.push_back(SEDCTXT);
+  contextes.push_back(DAGDACTXT);
+  contextes.push_back(MADAGCTXT);
+  contextes.push_back(WFMGRCTXT);
+  contextes.push_back(CLIENTCTXT);
+  contextes.push_back(FWRDCTXT);
+
+  for (ushort i = 0; i < contextes.size() && !elementFound; ++i) {
+    try {
+      CORBA::Object_var o = ORBMgr::getMgr()
+          ->resolve<CORBA::Object, CORBA::Object_var>(contextes[i], name.c_str());
+      ORBMgr::getMgr()->makeIOR(ORBMgr::getMgr()->getIOR(o), theIOR);
+      elementFound = true;
+    } catch (...) {
+    }
   }
 
-  delete[] cName;
-  cName = NULL;
-
-  if (!ior) {
+  if (!elementFound) {
     WARNING("cannot locate element " << name << std::endl);
   } else {
     std::cout << "Spying element : " << name << std::endl;
 
-    omniIOR::IORInfo* iorInfo = ior->getIORInfo();
-    if (iorInfo != NULL) {
-      IIOP::ProfileBody body;
+    if (theIOR.profiles.length() == 0) {
+      return;
+    }
 
+    IIOP::ProfileBody body;
+    IIOP::unmarshalProfile(theIOR.profiles[0], body);
 
+    std::vector<spy::Address> addresses;
 
-      if (ior->iopProfiles().length() == 0) {
-        return;
+    addresses.push_back(
+        spy::Address(body.address.host._ptr, body.address.port));
+
+    //Assume there is only one ssl port
+    ushort sslPort;
+    bool isSSL = false;
+
+    for (_CORBA_ULong i = 0; i < body.components.length(); ++i) {
+      IOP::ComponentId tag = body.components.get_buffer()[i].tag;
+      if (tag == IOP::TAG_ALTERNATE_IIOP_ADDRESS) {
+        char * addr = omniIOR::dump_TAG_ALTERNATE_IIOP_ADDRESS(
+            body.components.get_buffer()[i]);
+
+        std::vector<std::string> tokens;
+        boost::split(tokens, addr, boost::is_any_of(" "));
+        ushort port = boost::lexical_cast<ushort>(tokens[2]);
+        addresses.push_back(spy::Address(tokens[1], port));
       }
-
-      IIOP::unmarshalProfile(ior->iopProfiles()[0], body);
-
-      //Assume there is only one ssl port
-      ushort sslPort;
-      bool isSSL = false;
-
-      for (_CORBA_ULong i = 0; i < body.components.length(); ++i) {
-        IOP::ComponentId tag = body.components.get_buffer()[i].tag;
-        if (tag == IOP::TAG_ALTERNATE_IIOP_ADDRESS) {
-          char * addr = omniIOR::dump_TAG_ALTERNATE_IIOP_ADDRESS(
-              body.components.get_buffer()[i]);
-          std::cout << addr << std::endl;
-        }
-        if (tag == IOP::TAG_SSL_SEC_TRANS) {
-          isSSL = true;
-          char * addr = omniIOR::dump_TAG_SSL_SEC_TRANS(
-              body.components.get_buffer()[i]);
-          std::string prefix = std::string("TAG_SSL_SEC_TRANS port = ");
-          std::istringstream ss(addr + prefix.length());
-          ss >> sslPort;
-
-          std::cout << sslPort << std::endl;
-        }
+      if (tag == IOP::TAG_SSL_SEC_TRANS) {
+        isSSL = true;
+        char * addr = omniIOR::dump_TAG_SSL_SEC_TRANS(
+            body.components.get_buffer()[i]);
+        std::string prefix = std::string("TAG_SSL_SEC_TRANS port = ");
+        std::istringstream ss(addr + prefix.length());
+        ss >> sslPort;
       }
+    }
 
-      omni::giopAddressList &list = iorInfo->addresses();
-      std::vector<spy::Address>  addresses = extractAddressList(list);
-
-      uint nbA = addresses.size();
-      for (uint i = 0; i < nbA; ++i) {
-        portOf.insert(std::make_pair(addresses[i].getPort(), name));
-        if (isSSL) {
-
+    uint nbA = addresses.size();
+    for (uint i = 0; i < nbA; ++i) {
+      portOf.insert(std::make_pair(addresses[i].getPort(), name));
+      if (isSSL) {
         spy::Address a(addresses[i].getIp(), sslPort);
         addresses.push_back(a);
-
-          portOf.insert(std::make_pair(sslPort, name));
-        }
+        portOf.insert(std::make_pair(sslPort, name));
       }
-
-      BOOST_FOREACH(spy::Address a, addresses) {
-        std::cout << a << std::endl;
-      }
-      watch[name] = addresses;
     }
+    watch[name] = addresses;
   }
 }
 
@@ -282,8 +278,7 @@ void Spy::kill() {
   }
 }
 
-std::string
-Spy::isBindedToPort(ushort port) {
+std::string Spy::isBindedToPort(ushort port) {
   return portOf[port];
 }
 
@@ -320,8 +315,15 @@ std::string Spy::createFilter() {
   std::ostringstream b;
   b << "tcp and (";
 
+  bool first = true;
+
   BOOST_FOREACH(mapAddressPorts::value_type & p, addresses ) {
     std::vector<ushort>::iterator portIt = p.second.begin();
+
+    if (!first) {
+      b << " or ";
+    }
+
     b << "(host " << p.first << " and (port " << (*portIt);
     ++portIt;
     while (portIt != p.second.end()) {
@@ -329,6 +331,7 @@ std::string Spy::createFilter() {
       ++portIt;
     }
     b << "))";
+    first = false;
   }
   b << ")";
   return b.str();
