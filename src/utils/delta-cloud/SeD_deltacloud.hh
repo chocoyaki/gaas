@@ -476,10 +476,15 @@ public:
 
 	//add a service which allows to instantiate homogeneous vms
 	DIET_API_LIB int service_homogeneous_vm_instanciation_add();
+	//add a service which allows to desytoy homogeneous vms
+	DIET_API_LIB int service_vm_destruction_add();
 
 	DIET_API_LIB int service_rsync_to_vm_add();
 
 	DIET_API_LIB int service_use_vm_add();
+
+	DIET_API_LIB int service_mount_nfs_add();
+
 
 protected:
     static int solve(diet_profile_t *pb);
@@ -488,8 +493,11 @@ protected:
 
 	//solve the service which allows to instantiate homogeneous vms
 	static int homogeneous_vm_instanciation_solve(diet_profile_t *pb);
+	static int vm_destruction_solve(diet_profile_t *pb);
 	static int rsync_to_vm_solve(diet_profile_t *pb);
 	static int use_vm_solve(diet_profile_t* pb);
+	static int mount_nfs_solve(diet_profile_t *pb);
+
 	//TODO to link to user or group
 	static std::map<std::string, IaaS::VMInstances*> reserved_vms;
 

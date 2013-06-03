@@ -15,6 +15,8 @@
 std::string get_ip_instance_by_id(IaaS::IaasInterface* interf, std::string instance_id, bool is_private_ip) {
     IaaS::Instance* instance = interf->get_instance_by_id(instance_id);
 
+	if (instance == NULL) return "???.???.???.???";
+
 	std::string ip;
 
 	if (is_private_ip) {
@@ -135,6 +137,7 @@ int create_directory_in_vm_by_id(IaaS::IaasInterface* interf, std::string vm_use
   int ret = ::create_directory_in_vm(remote_path, vm_user, ip, args);
 }
 
+
 char* readline(const char* path, int index) {
 	int i = 0;
 	bool end = false;
@@ -144,14 +147,21 @@ char* readline(const char* path, int index) {
 
 	char* line;
 	do {
-		std::string s;
+
 		try{
+			std::string s;
 			getline(file, s);
-			if (i >= index) {
-				line = strdup(s.c_str());
-				//std::cout << s << std::endl;
+			if (s.compare("") != 0 ){
+
+					if (i >= index) {
+						line = strdup(s.c_str());
+						//std::cout << s << std::endl;
+						end = true;
+						found = true;
+					}
+			}
+			else {
 				end = true;
-				found = true;
 			}
 		}
 		catch (std::ios_base::failure e) {

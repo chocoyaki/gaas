@@ -24,6 +24,9 @@
 
 char* output_dir;
 
+
+
+
 int dummyoutput(diet_profile_t *pb) {
 	int last_out = pb->last_out;
 
@@ -32,6 +35,9 @@ int dummyoutput(diet_profile_t *pb) {
 	diet_string_set(diet_parameter(pb, last_out), path,  /*DIET_VOLATILE*/  DIET_PERSISTENT_RETURN);
 	printf("%d, called\n", last_out);
 }
+
+
+
 
 main(int argc, char *argv[]) {
 
@@ -43,6 +49,7 @@ main(int argc, char *argv[]) {
 	}
 
 	output_dir = argv[2];
+
 
 
 
@@ -63,7 +70,9 @@ main(int argc, char *argv[]) {
 	SeDCloud::get()->service_table_add("galaxymaker", 1, 2, NULL, "", RAMSES_HOME, "call-galaxymaker", "", pathsTransferMethod, NULL, dummyoutput);
 	SeDCloud::get()->service_homogeneous_vm_instanciation_add();
 	SeDCloud::get()->service_rsync_to_vm_add();
-	SeDCloud::get()->service_use_vm_add();
+	SeDCloud::get()->service_mount_nfs_add();
+	//SeDCloud::get()->service_use_vm_add();
+	//SeDCloud::get()->service_table_add("mount-nfs", 0, 1, NULL, "", RAMSES_HOME, "mount-nfs", "", pathsTransferMethod, NULL, dummyoutput);
 
 	/* Launch the SeD: no return call */
 	SeDCloud::launch(argc, argv);

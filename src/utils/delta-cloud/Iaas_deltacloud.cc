@@ -93,9 +93,9 @@ void Iaas_deltacloud::get_instance_state(const std::string id, char * state) {
   if(!init_api(&api)) {
     return;
   }
-  
+
   struct deltacloud_instance instance;
-  
+
 	if(deltacloud_get_instance_by_id(&api, id.c_str(),
 				  &instance) < 0) {
 		cerr<<"Failed to get instance: " << id << endl;
@@ -103,8 +103,8 @@ void Iaas_deltacloud::get_instance_state(const std::string id, char * state) {
 	}else {
 		sprintf(state, "%s", instance.state);
 	}
-				  
-  
+
+
 }
 
 
@@ -113,28 +113,29 @@ Instance* Iaas_deltacloud::get_instance_by_id(const std::string& instanceId) {
 	if(!init_api(&api)) {
     	return NULL;
   	}
-  	
+
   	struct deltacloud_instance instance;
-  	
+
   	if(deltacloud_get_instance_by_id(&api, instanceId.c_str(),
 				  &instance) < 0) {
-		cerr<<"Failed to get instance: " << instanceId << endl;
+		cerr<<"Failed to get instance by Id: " << instanceId << endl;
+		return NULL;
 	}else {
-		
+
 		const char* public_address = NULL;
 		const char* private_address = NULL;
-		
+
 		if (instance.private_addresses != NULL) {
 			private_address = instance.private_addresses->address;
 		}
-		
+
 		if (instance.public_addresses != NULL) {
 			public_address = instance.public_addresses->address;
 		}
-		
+
 		return new Instance(instance.image_id, instance.id, private_address, public_address);
 	}
-  	
+
 }
 
 
@@ -145,16 +146,16 @@ void Iaas_deltacloud::wait_instance_running(const std::string& instanceId) {
  	char state[MAX_NAME];
  	do{
  		get_instance_state(instanceId, state);
- 		
+
  		std::cout << "waiting : state " << instanceId << " = " << state << endl;
- 		
+
  		if (strcmp(state, "RUNNING") == 0) {
  			ready = true;
  		}
  		else {
  			sleep(1);
  		}
- 		
+
  	}while(!ready);
  }
 
@@ -162,18 +163,18 @@ void Iaas_deltacloud::wait_instance_running(const std::string& instanceId) {
 void IaaS::convert(const Parameter& src, struct deltacloud_create_parameter& dst) {
 	dst.name = new char [src.name.length() + 1];
 	strcpy(dst.name, src.name.c_str());
-	
+
 	dst.value = new char[src.value.length() + 1];
 	strcpy(dst.value, src.value.c_str());
 }
 
 void IaaS::free_delta_chars_in_param(struct deltacloud_create_parameter& param) {
 	delete [] param.name;
-	
+
 	param.name = NULL;
-	
+
 	delete [] param.value;
-	
+
 	param.value = NULL;
 }
 
@@ -181,7 +182,7 @@ void IaaS::free_delta_params(struct deltacloud_create_parameter* params, int par
 	for(int i = 0; i < params_count; i++) {
 		free_delta_chars_in_param(params[i]);
 	}
-	
+
 	delete [] params;
 }
 
@@ -194,8 +195,8 @@ struct deltacloud_create_parameter* IaaS::create_delta_params(const std::vector<
   		convert(params[i], delta_params[i]);
   	}
   }
-  
-  
+
+
   return delta_params;
 }
 
@@ -207,10 +208,10 @@ vector<string*> * Iaas_deltacloud::run_instances(const string & image_id, int co
   char * instance_id = new char[MAX_NAME];
   vector<string*> * inst_arr = new vector<string*>();
 
-  
+
   int params_count = params.size();
   struct deltacloud_create_parameter* delta_params = create_delta_params(params);
-  
+
 
   for(int i_nb = 0; i_nb < count ; ++ i_nb) {
     if(deltacloud_create_instance(&api, image_id.c_str(), delta_params, params_count, &instance_id) < 0) {
@@ -218,9 +219,9 @@ vector<string*> * Iaas_deltacloud::run_instances(const string & image_id, int co
     }
     inst_arr->push_back(new string(instance_id));
   }
-  
+
   deltacloud_free(&api);
-  
+
   if (delta_params != NULL) {
   	free_delta_params(delta_params, params_count);
   }
@@ -243,7 +244,7 @@ int Iaas_deltacloud::terminate_instances(const vector<string*> & instance_ids) {
       cerr<<"Failed to destroy instance "<< *instance_ids[i_nb]<<endl;
     }
   }
-  
+
   deltacloud_free(&api);
   return 0;
 }

@@ -551,6 +551,23 @@ DIET_API_LIB int SeDCloud::service_homogeneous_vm_instanciation_add() {
 	diet_print_service_table();
 }
 
+
+DIET_API_LIB int SeDCloud::service_vm_destruction_add() {
+	diet_profile_desc_t* profile;
+
+	profile = diet_profile_desc_alloc("vm_destruction", 0, 0, 0);
+	//IN : collection name
+	diet_generic_desc_set(diet_param_desc(profile, 0), DIET_STRING, DIET_CHAR);
+
+
+	diet_service_table_add(profile, NULL, SeDCloud::vm_destruction_solve);
+
+	diet_profile_desc_free(profile);
+	diet_print_service_table();
+}
+
+
+//WARNING, TODO : this only works with services whose binaries are already preinstalled in the VM
 int SeDCloud::homogeneous_vm_instanciation_solve(diet_profile_t *pb) {
 	char* vm_collection_name;
 	int* vm_count;
@@ -573,15 +590,12 @@ int SeDCloud::homogeneous_vm_instanciation_solve(diet_profile_t *pb) {
 	diet_string_get(diet_parameter(pb, 7), &vm_user, NULL);
 	diet_scalar_get(diet_parameter(pb, 8), &is_ip_private, NULL);
 	//one creates the vm instances
-	//SeDCloudActions* actions = new SeDCloudActions();
+
 
 	printf("instanciation : image='%s', profile='%s', vm_count=%i\n", vm_image, vm_profile, *vm_count);
 
 	std::vector<IaaS::Parameter> params;
 	params.push_back(IaaS::Parameter(HARDWARE_PROFILE_ID_PARAM, vm_profile));
-
-	//VMInstances(std::string image_id, int vm_count, std::string base_url, std::string user_name, std::string password,
-	//std::string vm_user, const std::vector<Parameter>& params = std::vector<Parameter>())
 
 	IaaS::VMInstances* instances;
 	std::vector<std::string> ips;
@@ -592,6 +606,7 @@ int SeDCloud::homogeneous_vm_instanciation_solve(diet_profile_t *pb) {
 		reserved_vms[vm_collection_name] = instances;
 		instances->wait_all_instances_running();
 		instances->wait_all_ssh_connection(*is_ip_private);
+
 
 		instances->get_ips(ips, *is_ip_private);
 		SeDCloudMachinesActions* actions = new SeDCloudMachinesActions(ips, vm_user);
@@ -637,6 +652,26 @@ int SeDCloud::homogeneous_vm_instanciation_solve(diet_profile_t *pb) {
 	for(int i=0; i < 9; i++) {
 		diet_free_data(diet_parameter(pb, i));
 	}
+
+	return 0;
+}
+
+
+
+int SeDCloud::vm_destruction_solve(diet_profile_t *pb) {
+	char* vm_collection_name;
+
+	diet_string_get(diet_parameter(pb, 0), &vm_collection_name, NULL);
+
+
+	if (reserved_vms.count(vm_collection_name) == 0 ) {
+		printf("ERROR : vm collection called '%s' does not exist.\n", vm_collection_name);
+		return -1;
+	}
+
+	IaaS::VMInstances* instances = reserved_vms[vm_collection_name];
+	delete instances;
+	reserved_vms.erase(vm_collection_name);
 
 	return 0;
 }
@@ -757,6 +792,107 @@ int SeDCloud::use_vm_solve(diet_profile_t* pb) {
 	diet_free_data(diet_parameter(pb, 0));
 	diet_free_data(diet_parameter(pb, 1));
 
+
+	return 0;
+}
+
+
+/** SERVICE which mount a nfs shared folder
+	IN
+	0 file ips ips[0] machine  ip where shared folder is located
+	1 file ips machines ip under which one mounts the shared folder
+	2 shared folder path
+	3 destination folder path
+	OUT
+	4 same as arg 1
+*/
+DIET_API_LIB int SeDCloud::service_mount_nfs_add() {
+	diet_profile_desc_t* profile;
+
+	profile = diet_profile_desc_alloc("mount_nfs", 3, 3, 4);
+	diet_generic_desc_set(diet_param_desc(profile, 0), DIET_FILE, DIET_CHAR);
+	diet_generic_desc_set(diet_param_desc(profile, 1), DIET_FILE, DIET_CHAR);
+	diet_generic_desc_set(diet_param_desc(profile, 2), DIET_STRING, DIET_CHAR);
+	diet_generic_desc_set(diet_param_desc(profile, 3), DIET_STRING, DIET_CHAR);
+	diet_generic_desc_set(diet_param_desc(profile, 4), DIET_FILE, DIET_CHAR);
+
+	diet_service_table_add(profile,  NULL, SeDCloud::mount_nfs_solve);
+
+	diet_profile_desc_free(profile);
+	diet_print_service_table();
+}
+
+/**
+	IN
+	0 file ips ips[0] machine  ip where shared folder is located
+	1 file ips machines ip under which one mounts the shared folder
+	2 shared folder path
+	3 destination folder path
+	OUT
+	4 same as arg 1
+*/
+int SeDCloud::mount_nfs_solve(diet_profile_t *pb) {
+	char* source_ips;
+	char* destination_ips;
+	char* shared_folder;
+	char* mount_point_folder;
+	size_t out_size;
+
+
+	diet_file_get(diet_parameter(pb, 0), &source_ips, NULL, &out_size);
+	diet_file_get(diet_parameter(pb, 1), &destination_ips, NULL, &out_size);
+	diet_string_get(diet_parameter(pb, 2), &shared_folder, NULL);
+	diet_string_get(diet_parameter(pb, 3), &mount_point_folder, NULL);
+
+	//we get the first ip of source_ips
+	char* c_ip = readline(source_ips, 0);
+
+	printf("nfs server : %s\n", c_ip);
+
+	//we retrieve the ips of destination_ips
+	//and we mount the folder under each machine
+	std::fstream file;
+	file.open(destination_ips, std::ios_base::in);
+	bool end = false;
+	char* line;
+	do {
+		std::string s;
+
+
+		try{
+			getline(file, s);
+			if (s.compare("") != 0 ){
+				std::string cmd = "ssh root@" + s;
+				cmd.append(" 'mount -t nfs ");
+				cmd.append(c_ip);
+				cmd.append(":");
+				cmd.append(shared_folder);
+				cmd.append(" ");
+				cmd.append(mount_point_folder);
+				cmd.append("'");
+				printf("mount nfs... : %s\n", cmd.c_str());
+				int env = system(cmd.c_str());
+
+				if (env) return -1;
+			}
+			else {
+				end = true;
+			}
+		}
+		catch (std::ios_base::failure e) {
+			end = true;
+		}
+	} while (!end);
+
+
+
+	char* out = strdup(destination_ips);
+
+	diet_file_set(diet_parameter(pb, 4), out, DIET_PERSISTENT_RETURN);
+
+	for(int i=0; i < 4; i++) {
+		diet_free_data(diet_parameter(pb, i));
+	}
 
 	return 0;
 }
