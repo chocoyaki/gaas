@@ -5,6 +5,7 @@ function printUsage {
   echo
   echo "  -a, --agentname AGENTNAME set the name of the agent"
   echo "  -n, --hostname HOSTNAME   set the hostname in the certificate"
+  echo "  -w, --working-dir DIRECTORY the working directory (./ by default)"
   echo "  -h, --help                displays this help"  
   echo
   exit 0
@@ -38,12 +39,13 @@ while test $i -lt $# ; do
         -h|--help) printUsage;;
         -n|--hostname) i=$((i + 1)); hostname="${argv[$i]}";;
         -a|--agentname) i=$((i + 1)); agentname="${argv[$i]}";;
+        -w|--working-dir) i=$((i + 1)); workingDir="${argv[$i]}";;
         *) error "Unknown argument '$arg'";;
     esac
     i=$((i + 1))
 done
 
-dir="certificates/${agentname}"
+dir="$workingDir/certificates/${agentname}"
 
 if [ -e "${dir}" ]; then
   error "Folder '$dir' already exists: agent ${agentname} has got a certificate already"

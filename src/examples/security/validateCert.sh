@@ -6,6 +6,7 @@ function printUsage {
   echo "  -a, --agentname AGENTNAME   set the name of the agent"
   echo "  -c, --config-file FILENAME  set the cfg file to add ssl parameters"
   echo "  -d, --authdir DIRECTORY     the directory in which the authority has its certificates (CA by default)"
+  echo "  -w, --working-dir DIRECTORY the working directory (./ by default)"
   echo "  -h, --help                  displays this help"  
   echo
   exit 0
@@ -22,8 +23,9 @@ set -u # Stop if undefined variable
 
 # Default values
 scriptDir=$(cd `dirname $0` && pwd)
-authdir=$PWD/"CA"
+workingDir="$PWD"
 cfg=""
+debug=0
 
 # Parsing arguments
 
@@ -42,18 +44,25 @@ while test $i -lt $# ; do
         -c|--config-file) i=$((i + 1)); cfg="${argv[$i]}";;
         -d|--authdir) i=$((i + 1)); authdir="${argv[$i]}";;
         -a|--agentname) i=$((i + 1)); agentname="${argv[$i]}";;
+        -v|--verbose) debug=1;;
+        -w|--working-dir) i=$((i + 1)); workingDir="${argv[$i]}";;
         *) error "Unknown argument '$arg'";;
     esac
     i=$((i + 1))
 done
 
-agentdir="$PWD/certificates/${agentname}"
+authdir="$workingDir/CA"
+
+agentdir="$workingDir/certificates/${agentname}"
 if [[ ! "$authdir" == "/"* ]]; then
   authdir="$PWD/$authdir"
 fi
+if [[ ! "$agentdir" == "/"* ]]; then
+  agentdir="$PWD/$agentdir"
+fi
 if [ -e "$cfg" ]; then
   if [[ ! "$cfg" == "/"* ]]; then
-    cfg="$PWD/$cfg"
+    cfg="$workingDir/$cfg"
   fi
 fi
 if [ ! -e "${agentdir}" ]; then
@@ -64,7 +73,10 @@ echo "Executing commands:"
 echo "-------------------"
 (
   PS4="> "
-  set -x
+
+  if [ $debug == 1 ]; then
+        set -x
+  fi
 
   # Sending CA certificate
    cp "$authdir/cacert.pem" "$agentdir"

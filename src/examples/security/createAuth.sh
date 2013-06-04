@@ -5,6 +5,7 @@ function printUsage {
   echo
   echo "  -d, --directory DIRECTORY set the output directory (default value is CA/)"
   echo "  -n, --hostname HOSTNAME   set the hostname in the certificate"
+  echo "  -w, --working-dir DIRECTORY the working directory (./ by default)"
   echo "  -h, --help                displays this help"  
   echo
   exit 0
@@ -19,7 +20,6 @@ set -e # Stop on first error
 
 # Default values
 scriptDir=$(cd `dirname $0` && pwd)
-dir="CA"
 hostname=`hostname -I | cut -d" " -f1`
 
 # Parsing arguments
@@ -38,11 +38,13 @@ while test $i -lt $# ; do
         -d|--directory)   i=$((i + 1)); dir="${argv[$i]}";;
         -h|--help) printUsage;;
         -n|--hostname) i=$((i + 1)); hostname="${argv[$i]}";;
+        -w|--working-dir) i=$((i + 1)); workingDir="${argv[$i]}";;
         *) error "Unknown argument '$arg'";;
     esac
     i=$((i + 1))
 done
 
+dir="$workingDir/CA"
 
 if [ -e "${dir}" ]; then
   error "Folder '$dir' already exists"
@@ -55,7 +57,7 @@ echo "-------------------"
   set -x
   
   # Preparing the folder for storing certificates
-  mkdir "$dir"
+  mkdir -p "$dir"
   cp "$scriptDir/openssl_ca.cnf" "${dir}/openssl.cnf"
   cd "$dir"
   mkdir newcerts private
