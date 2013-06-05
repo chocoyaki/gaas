@@ -42,7 +42,6 @@ main(int argc, char *argv[]) {
 
   SeDCloud::get()->service_homogeneous_vm_instanciation_add();
   SeDCloud::get()->service_rsync_to_vm_add();
-  SeDCloud::get()->service_use_vm_add();
   SeDCloud::get()->service_table_add("date", 0, 0, NULL, "", "/bin", "date", "", pathsTransferMethod, NULL, NULL);
 
   /* Launch the SeD: no return call */

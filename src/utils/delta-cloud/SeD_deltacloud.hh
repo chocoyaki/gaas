@@ -344,8 +344,8 @@ public:
 
 	SeDCloudMachinesActions(const std::vector<std::string>& _ips, const std::string& _username, int _master_index = 0) {
 		ips = _ips;
-		address_ip = ips[master_index];
 		master_index = _master_index;
+		address_ip = ips[master_index];
 		username = _username;
 	}
 };
@@ -477,11 +477,10 @@ public:
 	//add a service which allows to instantiate homogeneous vms
 	DIET_API_LIB int service_homogeneous_vm_instanciation_add();
 	//add a service which allows to desytoy homogeneous vms
-	DIET_API_LIB int service_vm_destruction_add();
+	DIET_API_LIB int service_vm_destruction_by_ip_add();
 
 	DIET_API_LIB int service_rsync_to_vm_add();
-
-	DIET_API_LIB int service_use_vm_add();
+	DIET_API_LIB int service_get_tarball_from_vm_add();
 
 	DIET_API_LIB int service_mount_nfs_add();
 
@@ -493,13 +492,13 @@ protected:
 
 	//solve the service which allows to instantiate homogeneous vms
 	static int homogeneous_vm_instanciation_solve(diet_profile_t *pb);
-	static int vm_destruction_solve(diet_profile_t *pb);
+	static int vm_destruction_by_ip_solve(diet_profile_t *pb);
 	static int rsync_to_vm_solve(diet_profile_t *pb);
-	static int use_vm_solve(diet_profile_t* pb);
+	static int get_tarball_from_vm_solve(diet_profile_t* pb);
 	static int mount_nfs_solve(diet_profile_t *pb);
 
 	//TODO to link to user or group
-	static std::map<std::string, IaaS::VMInstances*> reserved_vms;
+	//static std::map<std::string, IaaS::VMInstances*> reserved_vms;
 
 
 public:
@@ -517,7 +516,7 @@ public:
 std::map<std::string, CloudServiceBinary> SeDCloudActions::cloud_service_binaries;
 
 SeDCloud* SeDCloud::instance;
-std::map<std::string, IaaS::VMInstances*> SeDCloud::reserved_vms;
+//std::map<std::string, IaaS::VMInstances*> SeDCloud::reserved_vms;
 
 
 

@@ -45,7 +45,7 @@ void deleteStringVector(std::vector<std::string*>& v){
 }
 
 int test_ssh_connection(std::string ssh_user, std::string ip) {
-	std::string cmd = "ssh "  + ssh_user + "@" + ip + " -o StrictHostKeyChecking=no 'ls'";
+	std::string cmd = "ssh "  + ssh_user + "@" + ip + " -o StrictHostKeyChecking=no PasswordAuthentication=no 'ls'";
 	std::cout << cmd << std::endl;
 	int ret = system(cmd.c_str());
 
@@ -179,6 +179,36 @@ char* readline(const char* path, int index) {
 
 	return line;
 }
+
+
+void readlines(const char* path, std::vector<std::string>& lines) {
+	int i = 0;
+	bool end = false;
+	std::fstream file;
+	file.open(path, std::ios_base::in);
+
+	char* line;
+	do {
+
+		try{
+			std::string s;
+			getline(file, s);
+			if (s.compare("") != 0 ){
+				lines.push_back(s);
+			}
+			else {
+				end = true;
+			}
+		}
+		catch (std::ios_base::failure e) {
+			end = true;
+		}
+
+		i++;
+	} while (!end);
+	file.close();
+}
+
 
 
 namespace IaaS {

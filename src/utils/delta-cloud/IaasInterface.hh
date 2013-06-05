@@ -34,15 +34,20 @@ class IaasInterface {
 
     /* terminates a set of instances */
     virtual int terminate_instances(const std::vector<std::string*> & instance_ids) = 0;
-	
+
+	virtual int terminate_instances_by_ips(const std::vector<std::string>& ips, bool select_private_ip = false) = 0;
+
+	/* get the instance id from the ip*/
+	virtual std::string get_id_from_ip(const std::string& ip, bool select_private_ip = false) = 0;
+
 	/* get an Instance by Selecting Id */
-	
+
 	virtual Instance* get_instance_by_id(const std::string& instanceId) = 0;
-	
+
 	/* wait that the instance get ready*/
-		
+
 	virtual void wait_instance_running(const std::string& instanceId) = 0;
-	
+
     virtual ~IaasInterface() {};
 };
 

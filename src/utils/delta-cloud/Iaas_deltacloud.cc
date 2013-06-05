@@ -10,6 +10,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include "Tools.hh"
+#include <assert.h>
 
 using namespace std;
 using namespace IaaS;
@@ -71,15 +73,17 @@ vector<Instance*> * Iaas_deltacloud::get_all_instances() {
   inst = instances;
   vector<Instance*> * inst_arr = new vector<Instance*>();
 
+
   while(inst != NULL) {
-    inst_arr->push_back(
-        new Instance(
-          inst->image_id,
-          inst->id,
-          inst->private_addresses->address,
-          inst->public_addresses->address)
-        );
-    inst = inst->next;
+
+
+		Instance* new_instance = new Instance(inst->image_id,
+											inst->id,
+											inst->private_addresses ? inst->private_addresses->address : NULL,
+											inst->public_addresses ? inst->public_addresses->address : NULL);
+
+        inst_arr->push_back(new_instance);
+		inst = inst->next;
   }
 
   deltacloud_free_instance_list(&instances);
@@ -228,24 +232,66 @@ vector<string*> * Iaas_deltacloud::run_instances(const string & image_id, int co
   return inst_arr;
 }
 
+std::string Iaas_deltacloud::get_id_from_ip(const std::string& ip, bool select_private_ip) {
+	std::vector<Instance*> * instances = get_all_instances();
+	std::string instance_id= "";
+
+	bool found = false;
+	for(int i = 0; i < instances->size() && (!found); i++) {
+		Instance* instance = (*instances)[i];
+		std::string instance_ip = instance->get_ip(select_private_ip);
+		if (instance_ip.compare(ip) == 0) {
+			found = true;
+			instance_id = instance->id;
+		}
+	}
+
+
+	for(int i = 0; i < instances->size(); i++) {
+		delete (*instances)[i];
+	}
+	delete instances;
+
+
+	return instance_id;
+}
+
+
 int Iaas_deltacloud::terminate_instances(const vector<string*> & instance_ids) {
   deltacloud_api api;
   if(!init_api(&api))
     return 2;
 
+  int env = 0;
   /* delete all the instances in the array */
   deltacloud_instance instance;
   for(int i_nb = 0; i_nb < instance_ids.size() ; ++ i_nb) {
     if(deltacloud_get_instance_by_id(&api, instance_ids[i_nb]->c_str(), &instance) < 0) {
       cerr<<"Failed to get info about instance "<< instance_ids[i_nb] <<endl;
+      env = -1;
     } else if(deltacloud_instance_stop(&api, &instance) < 0) {
       cerr<<"Failed to stop instance "<< *instance_ids[i_nb]<<endl;
+      env = -1;
     } else if(deltacloud_instance_destroy(&api, &instance) < 0) {
       cerr<<"Failed to destroy instance "<< *instance_ids[i_nb]<<endl;
+      env = -1;
     }
   }
 
   deltacloud_free(&api);
-  return 0;
+  return env;
 }
 
+int Iaas_deltacloud::terminate_instances_by_ips(const std::vector<std::string>& ips, bool select_private_ip) {
+	std::vector<std::string*> ids;
+	for(int i = 0 ; i < ips.size(); i++) {
+		std::string* id = new std::string(get_id_from_ip(ips[i], select_private_ip));
+		ids.push_back(id);
+	}
+
+	int env = terminate_instances(ids);
+
+	deleteStringVector(ids);
+
+	return env;
+}

@@ -3,7 +3,7 @@
 		
 		<node id="node-init-vms" path="homogeneous_vm_instanciation">
 		<arg name="vm_collection_name" type="DIET_STRING" value="ramsesCollection" />
-		<arg name="vm_count" type="DIET_INT" value="2" />
+		<arg name="vm_count" type="DIET_INT" value="1" />
 		<arg name="vm_image_id" type="DIET_STRING" value="20" />
 		<arg name="vm_profile" type="DIET_STRING" value="ramses" />
 		<arg name="deltacloud_api_url" type="DIET_STRING" value="http://localhost:3001/api" />
@@ -50,14 +50,14 @@
 
   <node id="node-grafic1" path="grafic1">
     <in name="hostname" type="DIET_STRING" source="copy-to-machine#ip" />
-    <arg name="level" type="DIET_STRING" value="5"/>
+    <arg name="level" type="DIET_STRING" value="4"/>
     <arg name="run-dir" type="DIET_STRING" value="/mnt/output"/>
     <out name="out-dir" type="DIET_STRING" />
   </node>
   
   <node id="node-ramses3d" path="ramses3d">
     <arg name="nodes-list" type="DIET_STRING" value="/home/adi/nodes.list" />
-    <arg name="mpirun-np" type="DIET_STRING" value="2" />
+    <arg name="mpirun-np" type="DIET_STRING" value="1" />
     <in name="run-dir" type="DIET_STRING" source="node-grafic1#out-dir" />    
     <out name="out-dir" type="DIET_STRING" />
   </node>
@@ -81,6 +81,12 @@
     <out name="out-dir" type="DIET_STRING" />
   </node>
   
-
+  <node id="node-get-results" path="get_tarball_from_vm">
+	<arg name="vm_user" type="DIET_STRING" value="adi" />
+	<in name="ips" type="DIET_FILE" source="node-init-vms#ips" />
+	<arg name="vm_index" type="DIET_INT" value="0" />
+	<in name="remote_path" type="DIET_STRING" source="node-galaxymaker#out-dir" />
+	<out name="file-tgz" type="DIET_FILE" />
+  </node>
   
 </dag>

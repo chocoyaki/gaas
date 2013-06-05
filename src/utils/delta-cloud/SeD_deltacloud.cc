@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "DIET_uuid.hh"
 #include <fstream>
-
+#include "Iaas_deltacloud.hh"
 
 
 
@@ -501,7 +501,7 @@ int SeDCloud::solve(diet_profile_t *pb) {
 		diet_free_data(diet_parameter(pb, i));
 	}
 
-	printf("h1\n");
+//	printf("h1\n");
 	if (binary.postprocessing != NULL){
 		printf("h2\n");
 		binary.postprocessing(pb);
@@ -552,15 +552,21 @@ DIET_API_LIB int SeDCloud::service_homogeneous_vm_instanciation_add() {
 }
 
 
-DIET_API_LIB int SeDCloud::service_vm_destruction_add() {
+DIET_API_LIB int SeDCloud::service_vm_destruction_by_ip_add() {
 	diet_profile_desc_t* profile;
 
-	profile = diet_profile_desc_alloc("vm_destruction", 0, 0, 0);
+	profile = diet_profile_desc_alloc("vm_destruction_by_ip", 4, 4, 4);
 	//IN : collection name
-	diet_generic_desc_set(diet_param_desc(profile, 0), DIET_STRING, DIET_CHAR);
+	//const std::string & _url_api_base, const std::string & _username, const std::string & _password
 
 
-	diet_service_table_add(profile, NULL, SeDCloud::vm_destruction_solve);
+	diet_generic_desc_set(diet_param_desc(profile, 0), DIET_STRING, DIET_CHAR); //url_api
+	diet_generic_desc_set(diet_param_desc(profile, 1), DIET_STRING, DIET_CHAR); //user_name
+	diet_generic_desc_set(diet_param_desc(profile, 2), DIET_STRING, DIET_CHAR); //password
+	diet_generic_desc_set(diet_param_desc(profile, 3), DIET_FILE, DIET_CHAR); //ips
+	diet_generic_desc_set(diet_param_desc(profile, 4), DIET_SCALAR, DIET_INT); //private or public ips
+
+	diet_service_table_add(profile, NULL, SeDCloud::vm_destruction_by_ip_solve);
 
 	diet_profile_desc_free(profile);
 	diet_print_service_table();
@@ -601,9 +607,9 @@ int SeDCloud::homogeneous_vm_instanciation_solve(diet_profile_t *pb) {
 	std::vector<std::string> ips;
 
 
-	if (reserved_vms.count(vm_collection_name) == 0 ) {
+	//if (reserved_vms.count(vm_collection_name) == 0 ) {
 		instances = new IaaS::VMInstances(vm_image, *vm_count, deltacloud_api_url, deltacloud_user_name, deltacloud_passwd, vm_user, params);
-		reserved_vms[vm_collection_name] = instances;
+		//reserved_vms[vm_collection_name] = instances;
 		instances->wait_all_instances_running();
 		instances->wait_all_ssh_connection(*is_ip_private);
 
@@ -612,11 +618,11 @@ int SeDCloud::homogeneous_vm_instanciation_solve(diet_profile_t *pb) {
 		SeDCloudMachinesActions* actions = new SeDCloudMachinesActions(ips, vm_user);
 		instance->setActions(actions);
 
-	}
-	else {
+	//}
+	/*else {
 		instances = reserved_vms[vm_collection_name];
 		instances->get_ips(ips, *is_ip_private);
-	}
+	}*/
 
 
 	int reqId = pb->dietReqID;
@@ -658,27 +664,39 @@ int SeDCloud::homogeneous_vm_instanciation_solve(diet_profile_t *pb) {
 
 
 
-int SeDCloud::vm_destruction_solve(diet_profile_t *pb) {
-	char* vm_collection_name;
+int SeDCloud::vm_destruction_by_ip_solve(diet_profile_t *pb) {
+	char* path;
+	size_t size;
+	char* url_api;
+	char* user_name;
+	char* password;
+	int* select_private_ips;
 
-	diet_string_get(diet_parameter(pb, 0), &vm_collection_name, NULL);
+	diet_string_get(diet_parameter(pb, 0), &url_api, NULL);
+	diet_string_get(diet_parameter(pb, 1), &user_name, NULL);
+	diet_string_get(diet_parameter(pb, 2), &password, NULL);
+	diet_file_get(diet_parameter(pb, 3), &path, NULL, &size);
+	diet_scalar_get(diet_parameter(pb, 4), &select_private_ips, NULL);
+
+	IaaS::IaasInterface* interface = new IaaS::Iaas_deltacloud(url_api, user_name, password);
+
+	std::vector<std::string> ips;
+	readlines(path, ips);
+	interface->terminate_instances_by_ips(ips, *select_private_ips);
 
 
-	if (reserved_vms.count(vm_collection_name) == 0 ) {
-		printf("ERROR : vm collection called '%s' does not exist.\n", vm_collection_name);
-		return -1;
+	for(int i=0; i <= 4; i++) {
+		diet_free_data(diet_parameter(pb, i));
 	}
 
-	IaaS::VMInstances* instances = reserved_vms[vm_collection_name];
-	delete instances;
-	reserved_vms.erase(vm_collection_name);
+	delete interface;
 
 	return 0;
 }
 
 
 /*
-	<node id="copy-to-machine" path="scp_to_vm" >
+	<node id="copy-to-machine" path="rsync_to_vm" >
 		<in name="file_to_copy" type="DIET_FILE" />
 		<in name="destination_folder" type="DIET_STRING" />
 		<in name="vm_user" type="DIET_STRING" />
@@ -703,6 +721,93 @@ DIET_API_LIB int SeDCloud::service_rsync_to_vm_add() {
 	diet_profile_desc_free(profile);
 	diet_print_service_table();
 }
+
+
+/**
+	IN:
+		0 : vm_user
+		1 : vm ips file
+		2 : vm index
+		3 : remote path
+		4 : file.tgz
+*/
+DIET_API_LIB int SeDCloud::service_get_tarball_from_vm_add() {
+	diet_profile_desc_t* profile;
+
+	profile = diet_profile_desc_alloc("get_tarball_from_vm", 3, 3, 4);
+	diet_generic_desc_set(diet_param_desc(profile, 0), DIET_STRING, DIET_CHAR);
+	diet_generic_desc_set(diet_param_desc(profile, 1), DIET_FILE, DIET_CHAR);
+	diet_generic_desc_set(diet_param_desc(profile, 2), DIET_SCALAR, DIET_INT);
+	diet_generic_desc_set(diet_param_desc(profile, 3), DIET_STRING, DIET_CHAR);
+	diet_generic_desc_set(diet_param_desc(profile, 4), DIET_FILE, DIET_CHAR);
+
+	diet_service_table_add(profile,  NULL, SeDCloud::get_tarball_from_vm_solve);
+
+	diet_profile_desc_free(profile);
+	diet_print_service_table();
+}
+
+int SeDCloud::get_tarball_from_vm_solve(diet_profile_t *pb) {
+	char* vm_user;
+	char* ips_file_path;
+	int* vm_index;
+	char* source_file_path;
+	char* out;
+	size_t size;
+
+	diet_string_get(diet_parameter(pb, 0), &vm_user, NULL);
+	diet_file_get(diet_parameter(pb, 1), &ips_file_path, NULL, &size);
+	diet_scalar_get(diet_parameter(pb, 2), &vm_index, NULL);
+	diet_string_get(diet_parameter(pb, 3), &source_file_path, NULL);
+
+	char* c_ip = readline(ips_file_path, *vm_index);
+
+	if (c_ip == NULL) {
+		return -1;
+	}
+
+	printf(">>>>>>>>>>>>>>get_tarball_from_vm solve\n");
+
+	printf(">>>>>>>>>>>>>>make tarball\n");
+
+	std::ostringstream remote_tarball_path;
+	boost::uuids::uuid uuid = diet_generate_uuid();
+	remote_tarball_path << "/tmp/tarball"<< uuid << ".tar.gz";
+
+	std::string remote_cmd = "tar cvzf ";
+	remote_cmd.append(remote_tarball_path.str() + " ");
+	remote_cmd.append(source_file_path);
+
+
+	int env = ::execute_command_in_vm(remote_cmd, vm_user, c_ip, "");
+
+	if (env) return -1;
+
+	int reqId = pb->dietReqID;
+	std::string szReqId = int2string(reqId);
+	std::string local_results_folder = get_folder_in_dagda_path(szReqId.c_str());
+	env = create_folder(local_results_folder.c_str());
+
+	if (env) return -1;
+
+	std::ostringstream out_path;
+	uuid = diet_generate_uuid();
+	out_path << local_results_folder << "/" << uuid << ".tar.gz";
+
+	env = rsync_from_vm(remote_tarball_path.str(), out_path.str().c_str(), vm_user, c_ip);
+
+	if (env) return -1;
+
+	diet_file_set(diet_parameter(pb, 4), out_path.str().c_str(), DIET_PERSISTENT_RETURN);
+
+
+	for(int i=0; i < 4; i++) {
+		diet_free_data(diet_parameter(pb, i));
+	}
+
+	return 0;
+}
+
 
 
 
@@ -747,54 +852,7 @@ int SeDCloud::rsync_to_vm_solve(diet_profile_t *pb) {
 	return 0;
 }
 
-/*profile
-in 0 : ip
-in 1 : vmuser
-out 2 : ip (equal to parameter 0)
-*/
-DIET_API_LIB int SeDCloud::service_use_vm_add() {
-	diet_profile_desc_t* profile;
 
-	profile = diet_profile_desc_alloc("use_vm", 1, 1, 2);
-	diet_generic_desc_set(diet_param_desc(profile, 0), DIET_STRING, DIET_CHAR);
-	diet_generic_desc_set(diet_param_desc(profile, 1), DIET_STRING, DIET_CHAR);
-	diet_generic_desc_set(diet_param_desc(profile, 2), DIET_STRING, DIET_CHAR);
-
-	diet_service_table_add(profile,  NULL, SeDCloud::use_vm_solve);
-
-	diet_profile_desc_free(profile);
-	diet_print_service_table();
-}
-
-
-//TODO warning!!!
-//this is currently attached to this SeDCloud
-//so there may be a bug if there a 2 SeDClouds
-int SeDCloud::use_vm_solve(diet_profile_t* pb) {
-	char* ip;
-	char* vm_user;
-
-	diet_string_get(diet_parameter(pb, 0), &ip, NULL);
-	diet_string_get(diet_parameter(pb, 1), &vm_user, NULL);
-	char* c_ip = strdup(ip);
-
-	//test ssh connexion
-	int ret = test_ssh_connection(vm_user, ip);
-
-	if (ret) return -1;
-
-	SeDCloudMachinesActions* actions = new SeDCloudMachinesActions(ip, vm_user);
-	instance->setActions(actions);
-
-
-	diet_string_set(diet_parameter(pb, 2), c_ip, DIET_PERSISTENT_RETURN);
-
-	diet_free_data(diet_parameter(pb, 0));
-	diet_free_data(diet_parameter(pb, 1));
-
-
-	return 0;
-}
 
 
 /** SERVICE which mount a nfs shared folder

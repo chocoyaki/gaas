@@ -71,6 +71,8 @@ main(int argc, char *argv[]) {
 	SeDCloud::get()->service_homogeneous_vm_instanciation_add();
 	SeDCloud::get()->service_rsync_to_vm_add();
 	SeDCloud::get()->service_mount_nfs_add();
+	SeDCloud::get()->service_vm_destruction_by_ip_add();
+	SeDCloud::get()->service_get_tarball_from_vm_add();
 	//SeDCloud::get()->service_use_vm_add();
 	//SeDCloud::get()->service_table_add("mount-nfs", 0, 1, NULL, "", RAMSES_HOME, "mount-nfs", "", pathsTransferMethod, NULL, dummyoutput);
 
