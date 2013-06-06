@@ -394,7 +394,7 @@ DIET_API_LIB int
 
 
 	diet_profile_desc_free(profile);
-	diet_print_service_table();
+	//diet_print_service_table();
 
 	actions->perform_action_after_service_table_add(name_of_service);
 
@@ -548,7 +548,7 @@ DIET_API_LIB int SeDCloud::service_homogeneous_vm_instanciation_add() {
 	diet_service_table_add(profile,  NULL, SeDCloud::homogeneous_vm_instanciation_solve);
 
 	diet_profile_desc_free(profile);
-	diet_print_service_table();
+	//diet_print_service_table();
 }
 
 
@@ -569,7 +569,7 @@ DIET_API_LIB int SeDCloud::service_vm_destruction_by_ip_add() {
 	diet_service_table_add(profile, NULL, SeDCloud::vm_destruction_by_ip_solve);
 
 	diet_profile_desc_free(profile);
-	diet_print_service_table();
+	//diet_print_service_table();
 }
 
 
@@ -719,7 +719,7 @@ DIET_API_LIB int SeDCloud::service_rsync_to_vm_add() {
 	diet_service_table_add(profile,  NULL, SeDCloud::rsync_to_vm_solve);
 
 	diet_profile_desc_free(profile);
-	diet_print_service_table();
+	//diet_print_service_table();
 }
 
 
@@ -744,7 +744,7 @@ DIET_API_LIB int SeDCloud::service_get_tarball_from_vm_add() {
 	diet_service_table_add(profile,  NULL, SeDCloud::get_tarball_from_vm_solve);
 
 	diet_profile_desc_free(profile);
-	diet_print_service_table();
+	//diet_print_service_table();
 }
 
 int SeDCloud::get_tarball_from_vm_solve(diet_profile_t *pb) {
@@ -877,7 +877,7 @@ DIET_API_LIB int SeDCloud::service_mount_nfs_add() {
 	diet_service_table_add(profile,  NULL, SeDCloud::mount_nfs_solve);
 
 	diet_profile_desc_free(profile);
-	diet_print_service_table();
+	//diet_print_service_table();
 }
 
 /**
@@ -951,6 +951,19 @@ int SeDCloud::mount_nfs_solve(diet_profile_t *pb) {
 	for(int i=0; i < 4; i++) {
 		diet_free_data(diet_parameter(pb, i));
 	}
+
+	return 0;
+}
+
+
+//for measuring time
+int time_solve(diet_profile_t *pb) {
+	int last_out = pb->last_out;
+
+	time_t seconds = time(NULL);
+	long* results = new long(seconds);
+
+	diet_scalar_set(diet_parameter(pb, last_out), results, DIET_PERSISTENT_RETURN, DIET_LONGINT);
 
 	return 0;
 }

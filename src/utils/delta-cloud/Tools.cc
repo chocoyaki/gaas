@@ -12,6 +12,14 @@
 #include <fstream>
 #include <string.h>
 
+
+char* cpp_strdup(const char* src) {
+	char* cpy = new char [strlen(src) + 1];
+	strcpy(cpy, src);
+	return cpy;
+}
+
+
 std::string get_ip_instance_by_id(IaaS::IaasInterface* interf, std::string instance_id, bool is_private_ip) {
     IaaS::Instance* instance = interf->get_instance_by_id(instance_id);
 
@@ -154,7 +162,7 @@ char* readline(const char* path, int index) {
 			if (s.compare("") != 0 ){
 
 					if (i >= index) {
-						line = strdup(s.c_str());
+						line = cpp_strdup(s.c_str());
 						//std::cout << s << std::endl;
 						end = true;
 						found = true;

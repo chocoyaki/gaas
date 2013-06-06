@@ -518,6 +518,6 @@ std::map<std::string, CloudServiceBinary> SeDCloudActions::cloud_service_binarie
 SeDCloud* SeDCloud::instance;
 //std::map<std::string, IaaS::VMInstances*> SeDCloud::reserved_vms;
 
-
+int time_solve(diet_profile_t *pb);
 
 #endif

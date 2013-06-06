@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "DIET_client.h"
 #include <string>
+#include <time.h>
 
 /* inputs:
  * <config_filename>
@@ -27,15 +28,18 @@ int destroy_vms(const char* ips_file_path, int select_private_ip) {
 }
 
 int main(int argc, char ** argv) {
+	time_t time_start = time(NULL);
+	time_t *time_alloc_end;
   diet_wf_desc_t * profile;
   diet_profile_t* profile_get_tarball_from_vm;
   int env;
 
   char * master_ip = NULL;
   char * wf_xml_file;
+  char* out_dir;
 
-  if (argc < 3) {
-	printf("usage %s cfg xml\n", argv[0]);
+  if (argc < 4) {
+	printf("usage %s cfg xml expe-file-path\n", argv[0]);
 	exit(-1);
   }
 
@@ -45,7 +49,7 @@ int main(int argc, char ** argv) {
   }
 
   wf_xml_file = argv[2];
-
+  char* expe_file_path = argv[3];
 
   profile = diet_wf_profile_alloc(wf_xml_file, "test-profile", DIET_WF_DAG);
 
@@ -57,10 +61,21 @@ int main(int argc, char ** argv) {
 
   if(!diet_wf_call(profile)) {
     printf("Workflow successfuly run\n");
+
+    time_t time_end = time(NULL);
+
     //diet_wf_string_get(profile, "node-galaxymaker#out-dir", &output_dir);
     diet_wf_string_get(profile, "copy-to-machine#ip", &master_ip);
+	diet_wf_string_get(profile, "node-galaxymaker#out-dir", &out_dir);
+	diet_wf_scalar_get(profile, "node-end-vm-alloc#time", &time_alloc_end);
 
 
+	time_t alloc_duration = *time_alloc_end - time_start;
+	time_t ramses_runtime = time_end - *time_alloc_end;
+
+	FILE* expe_file = fopen(expe_file_path, "w+");
+	fprintf(expe_file, "%ld %ld", alloc_duration, ramses_runtime);
+	fclose(expe_file);
 
 
 	if(master_ip != NULL) {
@@ -71,7 +86,7 @@ int main(int argc, char ** argv) {
 	  size_t size;
 
 
-
+		/*
 		char* pathTGZ;
 		diet_wf_file_get(profile, "node-get-results#file-tgz", &size, &pathTGZ);
 		printf("tar.gz is located in %s and its size is %zd\n", pathTGZ, size);
@@ -80,7 +95,7 @@ int main(int argc, char ** argv) {
 		std::string cmd = "/home/lamiel/ramses/demo-paris.sh ";
 		cmd.append(pathTGZ);
 		env = system(cmd.c_str());
-
+		*/
 
 
 		//destroy nfs vms

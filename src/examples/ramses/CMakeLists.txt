@@ -17,7 +17,7 @@ ELSE( NOT DIET_USE_DELTACLOUD )
     INSTALL( TARGETS ${loop_var} DESTINATION ${EXAMPLE_INSTALL_DIR}/ramses )
   ENDFOREACH( loop_var )
 
-  SET( CC_DIET_CLIENT_EXAMPLES test-ramses-client-cloud test-ramses3d-client-cloud test-ramses-client-wf)
+  SET( CC_DIET_CLIENT_EXAMPLES test-ramses-client-cloud test-ramses3d-client-cloud test-ramses-client-wf test-ramses-client-wf-expe)
 
   FOREACH( loop_var ${CC_DIET_CLIENT_EXAMPLES} )
     ADD_EXECUTABLE( ${loop_var} ${loop_var}.cc )

@@ -14,7 +14,7 @@
 
 
 void deleteStringVector(std::vector<std::string*>& v);
-
+char* cpp_strdup(const char* src);
 
 std::string get_ip_instance_by_id(IaaS::IaasInterface* interf, std::string instance_id, bool is_private_ip);
 
