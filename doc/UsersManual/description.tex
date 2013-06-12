@@ -32,7 +32,7 @@ following:
 
 \begin{description}
 %....[ Client ]................................................................
-\item \textbf{Client}\\ A client is an application which uses \diet to solve
+\item \textbf{Client}\\ A client is an application using \diet to remotely solve
   problems. Many types of clients are able to connect to \diet, from a
   web page, a \pse such as Matlab or \sci, or from a compiled program.
 %....[ Master Agent (MA) ].....................................................
@@ -179,7 +179,7 @@ will forward the request to other MAs of the federation. To read more about
 multi-MA, see Chapter~\ref{ch:multiMAextension}. 
 
 %====[ CoRI ]==============================================================
-\subsection{CoRI}
+\subsection{Performance prediction with CoRI}
 \label{sub:cori}
 
 Collector of Resource Information (CoRI) is a manager for collecting hardware
@@ -187,6 +187,64 @@ and performance information.  When \diet is compiled with the appropriate
 option, it is possible to get this information via different sub-modules like
  CoRI-Easy. (* if compiled and configured on the \sed machine). See
 Chapter~\ref{chapter:performance} for details on using CoRI.
+
+%====[ Batch ]==============================================================
+\subsection{Using Batch systems}
+\label{sub:batch}
+
+\diet is able to manage transparently job management in collaboration
+with Batch system. A client can explicitly ask for a sequential,
+parallel resolution or let \diet decide the best depending on the
+available resources. In the case of a parallel submission, the number
+of cores can be chosen by \diet according to the platform status. More
+details can be found in Chapter~\ref{chapter:parallelSubmission}.
+
+%====[ Cloud ]==============================================================
+\subsection{Using services in Clouds}
+\label{sub:Cloud}
+
+The Cloud being a technology attracting more and more people, in order
+to execute services or store data, it is thus possible to built a
+platform using resources coming from the Cloud with \diet. Some
+configurations are nonetheless needed and described in
+Chapter~\ref{chapter:cloudSubmission}.
+
+%====[ Scheduling ]=========================================================
+\subsection{Developing and deploying an application centric scheduling}
+\label{sub:scheduling}
+
+For some applications where the runtime may not be available, because
+it is simply not possible to compute beforehand in case of a
+convergence resolution for example, it might be interesting to provide
+some specific scheduling relying on the disk access speed for I/O
+intensive application, etc. Thus \diet provides the tools to build
+plugin schedulers, see Chapter~\ref{ch:plugin}.
+
+%====[ Data Management: DAGDA ]=============================================
+\subsection{Explicit data management with \dagda}
+\label{sub:dagda}
+
+Remote computations require and produce data. \diet relies on \dagda
+for data management: the framework is thus able to handle in a
+seamless way replication and consistency. But a client can also manage
+some explicit transfer, in order to prefetch data for example. More
+information can be found in Chapter~\ref{ch:dagda}.
+
+%====[ Worflow ]==============================================================
+\subsection{Building an application as a workflow}
+\label{sub:workflow}
+
+\subsection{And the rest}
+\label{sub:rest}
+
+Some features may not be considered as extensions even if they can be
+qualified from useful to mandatory requirements depending on your
+platform: they are tools to deploy \diet more or less dynamically
+(Chapter~\ref{ch:deploying} and the use of \godiet, and
+Chapter~\ref{ch:dynamic} to dynamically manage a hierarchy), to bypass
+firewalls with the help of ssh forwarders
+(Chapter~\ref{ch:forwarders}), and to visualize logs and submissions
+states with LogService and \vizdiet (Chapter~\ref{ch:dashboard}).
 
 %%%%%%%%%%%%%%%
 %% FIXME:
