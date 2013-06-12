@@ -26,7 +26,6 @@ mark_as_advanced(DIET_BUILD_PROGRAMMERGUIDE)
 option(DIET_BUILD_MANPAGE "Build DIET Manpages." ON)
 option(DIET_BUILD_DOXYGEN "Build DIET Doxygen." OFF)
 
-
 ##############################################################################
 # Doxygen is required for building API doc
 # no Doxygen, no API doc
@@ -36,7 +35,6 @@ if(DIET_BUILD_DOXYGEN)
   include(UseDoxygen)
   generate_doxygen(FORMATS ${DOXYGEN_FORMATS})
 endif()
-
 
 #############################################################################
 # Guides require latex, transfig and ImageMagick to be installed
@@ -98,10 +96,14 @@ endif()
 #############################################################################
 if(DIET_BUILD_MANPAGE)
   find_program(RST2MAN_BIN rst2man)
+  if(NOT RST2MAN_BIN)
+    # for at least gentoo, where rst2man.py has not been renamed
+    find_program(RST2MAN_BIN rst2man.py)
+  endif(NOT RST2MAN_BIN)
   if(RST2MAN_BIN)
     add_subdirectory(man)
   else()
     message(WARNING " Man pages will not be built due to missing requirements.")
-    message(WARNING " Please install rst2man (usually included in python-docutils package)")
+    message(WARNING " Please install rst2man (usually included in python-docutils package, and dev-python/docutils on gentoo)")
   endif()
 endif()
