@@ -95,12 +95,13 @@ class VMInstances {
 //	std::string vm_user, IaasInterface ** interf);
 
 
+/*
 class OpenStackVMInstances : public VMInstances{
 	public:
 		OpenStackVMInstances(std::string image_id, int vm_count, std::string base_url, std::string user_name, std::string password,
 	std::string vm_user, std::string key_name);
 };
-
+*/
 
 }
 

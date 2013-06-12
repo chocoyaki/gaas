@@ -474,6 +474,9 @@ public:
                          dietcloud_callback_t postprocessing = NULL
                          ) ;
 
+
+	DIET_API_LIB int service_homogeneous_vm_instanciation_with_keyname_add();
+
 	//add a service which allows to instantiate homogeneous vms
 	DIET_API_LIB int service_homogeneous_vm_instanciation_add();
 	//add a service which allows to desytoy homogeneous vms
@@ -496,6 +499,9 @@ protected:
 	static int rsync_to_vm_solve(diet_profile_t *pb);
 	static int get_tarball_from_vm_solve(diet_profile_t* pb);
 	static int mount_nfs_solve(diet_profile_t *pb);
+
+
+	static int homogeneous_vm_instanciation_with_keyname_solve(diet_profile_t *pb);
 
 	//TODO to link to user or group
 	//static std::map<std::string, IaaS::VMInstances*> reserved_vms;

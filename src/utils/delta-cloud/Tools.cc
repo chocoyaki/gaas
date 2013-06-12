@@ -333,9 +333,10 @@ void VMInstances::get_ips(std::vector<std::string>& ips, bool private_ip) {
 	}
 }
 
+/*
 OpenStackVMInstances::OpenStackVMInstances(std::string image_id, int vm_count, std::string base_url, std::string user_name, std::string password, std::string vm_user, std::string key_name) : VMInstances(image_id, vm_count, base_url, user_name, password, vm_user, std::vector<Parameter>(1, Parameter("keyname", key_name))) {
 
-}
+}*/
 
 
 }

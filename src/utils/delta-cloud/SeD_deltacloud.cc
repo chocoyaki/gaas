@@ -552,6 +552,49 @@ DIET_API_LIB int SeDCloud::service_homogeneous_vm_instanciation_add() {
 }
 
 
+/**
+	params :
+		IN:
+		0 vm collection name : STRING
+		1 vm count : INT
+		2 vm image : STRING
+		3 vm profile : STRING
+		4 delta cloud api url : STRING
+		5 deltacloud user name
+		6 deltacloud passwd
+		7 vm user
+		8 take private ips
+		9 keyname
+		OUT:
+		10 vm ips : FILE
+
+*/
+
+DIET_API_LIB int SeDCloud::service_homogeneous_vm_instanciation_with_keyname_add() {
+	diet_profile_desc_t* profile;
+
+	profile = diet_profile_desc_alloc("homogeneous_vm_instanciation", 9, 9, 10);
+	diet_generic_desc_set(diet_param_desc(profile, 0), DIET_STRING, DIET_CHAR);
+	diet_generic_desc_set(diet_param_desc(profile, 1), DIET_SCALAR, DIET_INT);
+	diet_generic_desc_set(diet_param_desc(profile, 2), DIET_STRING, DIET_CHAR);
+	diet_generic_desc_set(diet_param_desc(profile, 3), DIET_STRING, DIET_CHAR);
+	diet_generic_desc_set(diet_param_desc(profile, 4), DIET_STRING, DIET_CHAR);
+	diet_generic_desc_set(diet_param_desc(profile, 5), DIET_STRING, DIET_CHAR);
+	diet_generic_desc_set(diet_param_desc(profile, 6), DIET_STRING, DIET_CHAR);
+	diet_generic_desc_set(diet_param_desc(profile, 7), DIET_STRING, DIET_CHAR);
+	diet_generic_desc_set(diet_param_desc(profile, 8), DIET_SCALAR, DIET_INT);
+	diet_generic_desc_set(diet_param_desc(profile, 9), DIET_STRING, DIET_CHAR);
+	diet_generic_desc_set(diet_param_desc(profile, 10), DIET_FILE, DIET_CHAR);
+
+	diet_service_table_add(profile,  NULL, SeDCloud::homogeneous_vm_instanciation_with_keyname_solve);
+
+	diet_profile_desc_free(profile);
+	//diet_print_service_table();
+}
+
+
+
+
 DIET_API_LIB int SeDCloud::service_vm_destruction_by_ip_add() {
 	diet_profile_desc_t* profile;
 
@@ -661,6 +704,119 @@ int SeDCloud::homogeneous_vm_instanciation_solve(diet_profile_t *pb) {
 
 	return 0;
 }
+
+
+
+
+
+
+int SeDCloud::homogeneous_vm_instanciation_with_keyname_solve(diet_profile_t *pb) {
+	char* vm_collection_name;
+	int* vm_count;
+	char* vm_image;
+	char* vm_profile;
+	char* deltacloud_api_url;
+	char* deltacloud_user_name;
+	char* deltacloud_passwd;
+	char* vm_user;
+	//0 if we take the public ip 1 if we take the private ip
+	int* is_ip_private;
+	char* keyname;
+
+	diet_string_get(diet_parameter(pb, 0), &vm_collection_name, NULL);
+	diet_scalar_get(diet_parameter(pb, 1), &vm_count, NULL);
+	diet_string_get(diet_parameter(pb, 2), &vm_image, NULL);
+	diet_string_get(diet_parameter(pb, 3), &vm_profile, NULL);
+	diet_string_get(diet_parameter(pb, 4), &deltacloud_api_url, NULL);
+	diet_string_get(diet_parameter(pb, 5), &deltacloud_user_name, NULL);
+	diet_string_get(diet_parameter(pb, 6), &deltacloud_passwd, NULL);
+	diet_string_get(diet_parameter(pb, 7), &vm_user, NULL);
+	diet_scalar_get(diet_parameter(pb, 8), &is_ip_private, NULL);
+	diet_string_get(diet_parameter(pb, 9), &keyname, NULL);
+	//one creates the vm instances
+
+
+	printf("instanciation : image='%s', profile='%s', vm_count=%i, keyname=%s\n", vm_image, vm_profile, *vm_count, keyname);
+
+	std::vector<IaaS::Parameter> params;
+	params.push_back(IaaS::Parameter(HARDWARE_PROFILE_ID_PARAM, vm_profile));
+	params.push_back(IaaS::Parameter(KEYNAME_PARAM, keyname));
+
+	IaaS::VMInstances* instances;
+	std::vector<std::string> ips;
+
+
+	//if (reserved_vms.count(vm_collection_name) == 0 ) {
+		instances = new IaaS::VMInstances(vm_image, *vm_count, deltacloud_api_url, deltacloud_user_name, deltacloud_passwd, vm_user, params);
+		//reserved_vms[vm_collection_name] = instances;
+		instances->wait_all_instances_running();
+		instances->wait_all_ssh_connection(*is_ip_private);
+
+
+		instances->get_ips(ips, *is_ip_private);
+		SeDCloudMachinesActions* actions = new SeDCloudMachinesActions(ips, vm_user);
+		instance->setActions(actions);
+
+	//}
+	/*else {
+		instances = reserved_vms[vm_collection_name];
+		instances->get_ips(ips, *is_ip_private);
+	}*/
+
+
+	int reqId = pb->dietReqID;
+	std::string szReqId = int2string(reqId);
+	std::string local_results_folder = get_folder_in_dagda_path(szReqId.c_str());
+	int env = create_folder(local_results_folder.c_str());
+
+
+	std::ostringstream vm_ip_file_path;
+	boost::uuids::uuid uuid = diet_generate_uuid();
+	vm_ip_file_path << local_results_folder << "-" << uuid << ".txt";
+
+
+
+
+
+
+	//write ips in file
+	FILE* vm_ips_file = fopen(vm_ip_file_path.str().c_str(), "w");
+	if (vm_ips_file == NULL) {
+		return -1;
+	}
+	for(int i = 0; i < *vm_count; i++) {
+		fprintf(vm_ips_file, "%s\n", ips[i].c_str());
+	}
+	fclose(vm_ips_file);
+
+	diet_file_set(diet_parameter(pb, 10), vm_ip_file_path.str().c_str(), DIET_PERSISTENT_RETURN);
+
+
+
+
+	for(int i=0; i < 10; i++) {
+		diet_free_data(diet_parameter(pb, i));
+	}
+
+	return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

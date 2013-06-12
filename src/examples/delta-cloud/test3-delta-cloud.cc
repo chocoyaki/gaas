@@ -63,37 +63,42 @@ void donothing_on_sigint(int sig) {
 }
 
 int main(int argc, const char *argv[]) {
-	string base_url = "http://localhost:3001/api";
-	string username = "admin+admin";
-	string password = "admin";
-	string vm_user = "cirros";
+	string base_url = "http://graphene-35-kavlan-5.nancy.grid5000.fr:3001/api";
+	string username = "admin+openstack";
+	string password = "keystone_admin";
+	string vm_user = "root";
 	//string keypair_param = "keyname";
-	string keypair_value = "key1";
+	string keypair_value = "ramses_key";
 	//string vmname_param = "name";
 	//string vmname_value = "VMTruc";
 	//sigset_t signals_open;
 	int sleep_duration = 5;
 	int vms_count = 1;
-	
-	if (argc < 2) {
-		printf("usage : %s imageId\n", argv[0]);
+
+	if (argc < 3) {
+		printf("usage : %s imageId profileId\n", argv[0]);
 		exit(0);
 	}
 
 	string image_id = argv[1];
+	string profile_id = argv[2];
 
-	
-	VMInstances* vm_instances = new OpenStackVMInstances(image_id, vms_count, base_url, username, password,
-	vm_user, keypair_value);
-	
+	std::vector<Parameter> params;
+	params.push_back(Parameter(KEYNAME_PARAM, keypair_value));
+	params.push_back(Parameter(HARDWARE_PROFILE_ID_PARAM, profile_id));
+
+
+	VMInstances* vm_instances = new VMInstances(image_id, vms_count, base_url, username, password,
+	vm_user, params);
+
 	vm_instances->wait_all_instances_running();
-	
+
 	vm_instances->wait_all_ssh_connection(true);
-	
+
 	printf("SSH : OK\n");
 	sleep(5);
 	printf("destruction of VM instances\n");
 	delete vm_instances;
-	
+
 	return 0;
 }

@@ -15,9 +15,9 @@ int destroy_vms(const char* ips_file_path, int select_private_ip) {
 	diet_profile_t* profile_destroy_vm;
 
 	profile_destroy_vm = diet_profile_alloc( "vm_destruction_by_ip", 4, 4, 4);
-	diet_string_set(diet_parameter(profile_destroy_vm, 0), "http://localhost:3001/api", DIET_VOLATILE);
-	diet_string_set(diet_parameter(profile_destroy_vm, 1), "oneadmin", DIET_VOLATILE);
-	diet_string_set(diet_parameter(profile_destroy_vm, 2), "passoneadmin", DIET_VOLATILE);
+	diet_string_set(diet_parameter(profile_destroy_vm, 0), "http://graphene-35-kavlan-5.nancy.grid5000.fr:3001/api", DIET_VOLATILE);
+	diet_string_set(diet_parameter(profile_destroy_vm, 1), "admin+openstack", DIET_VOLATILE);
+	diet_string_set(diet_parameter(profile_destroy_vm, 2), "keystone_admin", DIET_VOLATILE);
 	diet_file_set(diet_parameter(profile_destroy_vm, 3), ips_file_path, DIET_VOLATILE);
 	diet_scalar_set(diet_parameter(profile_destroy_vm, 4), &select_private_ip, DIET_VOLATILE, DIET_INT);
 	int env = diet_call(profile_destroy_vm);
@@ -100,14 +100,14 @@ int main(int argc, char ** argv) {
 
 		//destroy nfs vms
 		diet_wf_file_get(profile, "node-init-vm-nfs-server#ips", &size, &nfs_ip_file_path);
-		env = destroy_vms(nfs_ip_file_path, 0);
+		env = destroy_vms(nfs_ip_file_path, 1);
 		printf("destruction of nfs-server vm : %s\n", env ? "fails" : "success");
 
 
 
 		//destroy ramses vms
 		diet_wf_file_get(profile, "node-init-vms#ips", &size, &ramses_ips_file_path);
-		env = destroy_vms(ramses_ips_file_path, 0);
+		env = destroy_vms(ramses_ips_file_path, 1);
 		printf("destruction of ramses vms : %s\n", env ? "fails" : "success");
 
 
