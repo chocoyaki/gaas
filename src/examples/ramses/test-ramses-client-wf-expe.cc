@@ -15,7 +15,7 @@ int destroy_vms(const char* ips_file_path, int select_private_ip) {
 	diet_profile_t* profile_destroy_vm;
 
 	profile_destroy_vm = diet_profile_alloc( "vm_destruction_by_ip", 4, 4, 4);
-	diet_string_set(diet_parameter(profile_destroy_vm, 0), "http://graphene-35-kavlan-5.nancy.grid5000.fr:3001/api", DIET_VOLATILE);
+	diet_string_set(diet_parameter(profile_destroy_vm, 0), "http://localhost:3001/api", DIET_VOLATILE);
 	diet_string_set(diet_parameter(profile_destroy_vm, 1), "admin+openstack", DIET_VOLATILE);
 	diet_string_set(diet_parameter(profile_destroy_vm, 2), "keystone_admin", DIET_VOLATILE);
 	diet_file_set(diet_parameter(profile_destroy_vm, 3), ips_file_path, DIET_VOLATILE);

@@ -1,0 +1,106 @@
+<dag>
+		
+		
+		
+		<!--here we instanciate 2 ramses VM-->
+		
+	<node id="node-init-vms" path="homogeneous_vm_instanciation">
+		<arg name="vm_collection_name" type="DIET_STRING" value="ramsesCollection"/>
+		<arg name="vm_count" type="DIET_INT" value="25"/>
+		<arg name="vm_image_id" type="DIET_STRING" value="66c118d3-a7a5-4df5-a578-c1dc7a2bfd39"/>
+		<arg name="vm_profile" type="DIET_STRING" value="10"/>
+		<arg name="deltacloud_api_url" type="DIET_STRING" value="http://localhost:3001/api"/>
+		<arg name="deltacloud_user_name" type="DIET_STRING" value="admin+openstack"/>
+		<arg name="deltacloud_passwd" type="DIET_STRING" value="keystone_admin"/>
+		<arg name="vm_user" type="DIET_STRING" value="adi"/>
+		<arg name="is_ip_private" type="DIET_INT" value="1"/>
+		<arg name="keyname" type="DIET_STRING" value="ramses_key"/>
+		<out name="ips" type="DIET_FILE"/>
+	</node>
+	
+	
+	<node id="node-init-vm-nfs-server" path="homogeneous_vm_instanciation">
+		<arg name="vm_collection_name" type="DIET_STRING" value="debianCollection"/>
+		<arg name="vm_count" type="DIET_INT" value="1"/>
+		<arg name="vm_image_id" type="DIET_STRING" value="bce9225d-5efa-41a1-8c6e-9a42a234eea8"/>
+		<arg name="vm_profile" type="DIET_STRING" value="9"/>
+		<arg name="deltacloud_api_url" type="DIET_STRING" value="http://localhost:3001/api"/>
+		<arg name="deltacloud_user_name" type="DIET_STRING" value="admin+openstack"/>
+		<arg name="deltacloud_passwd" type="DIET_STRING" value="keystone_admin"/>
+		<arg name="vm_user" type="DIET_STRING" value="root"/>
+		<arg name="is_ip_private" type="DIET_INT" value="1"/>
+		<arg name="keyname" type="DIET_STRING" value="ramses_key"/>
+		<out name="ips" type="DIET_FILE"/>
+	</node>
+	
+	
+	<node id="node-mount-nfs" path="mount_nfs">
+		<in name="nfs-server-ip" type="DIET_FILE" source="node-init-vm-nfs-server#ips"/>
+		<in name="nfs-client-ips" type="DIET_FILE" source="node-init-vms#ips"/>
+		<arg name="shared_folder" type="DIET_STRING" value="/home/lamiel/shared"/>
+		<arg name="mount_point" type="DIET_STRING" value="/mnt"/>
+		<out name="nfs-client-ips2" type="DIET_FILE"/>
+	</node>
+	
+	
+	<node id="copy-to-machine" path="rsync_to_vm">
+		<in name="to_copy" type="DIET_FILE" source="node-mount-nfs#nfs-client-ips2"/>
+		<arg name="destination" type="DIET_STRING" value="/home/adi/nodes.list"/>
+		<arg name="vm_user" type="DIET_STRING" value="adi"/>
+		<in name="ips" type="DIET_FILE" source="node-init-vms#ips"/>
+		<arg name="vm_index" type="DIET_INT" value="0"/>
+		<out name="ip" type="DIET_STRING"/>
+	</node>
+	
+	<node id="node-end-vm-alloc" path="time">
+		<in name="dummy_input" type="DIET_STRING" source="copy-to-machine#ip"/>
+		<out name="time" type="DIET_LONGINT"/>
+	</node>
+	
+
+  <node id="node-grafic1" path="grafic1">
+    <in name="hostname" type="DIET_STRING" source="copy-to-machine#ip"/>
+    <arg name="level" type="DIET_STRING" value="6"/>
+    <arg name="run-dir" type="DIET_STRING" value="/mnt/output"/>
+    <out name="out-dir" type="DIET_STRING"/>
+  </node>
+  
+  <node id="node-ramses3d" path="ramses3d">
+    <arg name="nodes-list" type="DIET_STRING" value="/home/adi/nodes.list"/>
+    <arg name="mpirun-np" type="DIET_STRING" value="25"/>
+    <in name="run-dir" type="DIET_STRING" source="node-grafic1#out-dir"/>    
+    <out name="out-dir" type="DIET_STRING"/>
+  </node>
+	
+	
+  <node id="node-halomaker" path="halomaker">
+    <in name="hostname" type="DIET_STRING" source="copy-to-machine#ip"/>
+    <in name="run-dir" type="DIET_STRING" source="node-ramses3d#out-dir"/>    
+    <out name="out-dir" type="DIET_STRING"/>
+  </node>
+  
+  <node id="node-treemaker" path="treemaker">
+    <in name="hostname" type="DIET_STRING" source="copy-to-machine#ip"/>
+    <in name="run-dir" type="DIET_STRING" source="node-halomaker#out-dir"/>    
+    <out name="out-dir" type="DIET_STRING"/>
+  </node>
+  
+  <node id="node-galaxymaker" path="galaxymaker">
+    <in name="hostname" type="DIET_STRING" source="copy-to-machine#ip"/>
+    <in name="run-dir" type="DIET_STRING" source="node-treemaker#out-dir"/>    
+    <out name="out-dir" type="DIET_STRING"/>
+  </node>
+  
+  <!--
+  
+  <node id="node-get-results" path="get_tarball_from_vm">
+	<arg name="vm_user" type="DIET_STRING" value="adi" />
+	<in name="ips" type="DIET_FILE" source="node-init-vms#ips" />
+	<arg name="vm_index" type="DIET_INT" value="0" />
+	<in name="remote_path" type="DIET_STRING" source="node-galaxymaker#out-dir" />
+	<out name="file-tgz" type="DIET_FILE" />
+  </node>
+  
+  -->
+  
+</dag>

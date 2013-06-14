@@ -9,7 +9,7 @@
 		<arg name="vm_count" type="DIET_INT" value="2" />
 		<arg name="vm_image_id" type="DIET_STRING" value="66c118d3-a7a5-4df5-a578-c1dc7a2bfd39" />
 		<arg name="vm_profile" type="DIET_STRING" value="10" />
-		<arg name="deltacloud_api_url" type="DIET_STRING" value="http://graphene-35-kavlan-5.nancy.grid5000.fr:3001/api" />
+		<arg name="deltacloud_api_url" type="DIET_STRING" value="http://localhost:3001/api" />
 		<arg name="deltacloud_user_name" type="DIET_STRING" value="admin+openstack" />
 		<arg name="deltacloud_passwd" type="DIET_STRING" value="keystone_admin" />
 		<arg name="vm_user" type="DIET_STRING" value="adi" />
@@ -24,7 +24,7 @@
 		<arg name="vm_count" type="DIET_INT" value="1" />
 		<arg name="vm_image_id" type="DIET_STRING" value="bce9225d-5efa-41a1-8c6e-9a42a234eea8" />
 		<arg name="vm_profile" type="DIET_STRING" value="9" />
-		<arg name="deltacloud_api_url" type="DIET_STRING" value="http://graphene-35-kavlan-5.nancy.grid5000.fr:3001/api" />
+		<arg name="deltacloud_api_url" type="DIET_STRING" value="http://localhost:3001/api" />
 		<arg name="deltacloud_user_name" type="DIET_STRING" value="admin+openstack" />
 		<arg name="deltacloud_passwd" type="DIET_STRING" value="keystone_admin" />
 		<arg name="vm_user" type="DIET_STRING" value="root" />

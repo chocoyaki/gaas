@@ -67,7 +67,7 @@ class Instance {
     Instance(const std::string & _image_id, const std::string & _id,
         const char * _private_ip, const char * _public_ip) {
 
-		printf("hi\n");
+		//printf("hi\n");
 
 	image_id = _image_id;
 	id =_id;

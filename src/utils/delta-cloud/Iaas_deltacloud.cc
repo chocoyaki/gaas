@@ -58,16 +58,26 @@ vector<Image*> * Iaas_deltacloud::get_all_images() {
 
 vector<Instance*> * Iaas_deltacloud::get_all_instances() {
   deltacloud_api api;
-  if(!init_api(&api)) {
-    return NULL;
-  }
 
-  deltacloud_instance * instances;
-  if (deltacloud_get_instances(&api, &instances) < 0) {
-    cerr<<"Failed to get deltacloud images: "<<deltacloud_get_last_error_string()<<endl;
-    deltacloud_free(&api);
-    return NULL;
-  }
+  if(!init_api(&api)) {
+		return NULL;
+	  }
+
+ deltacloud_instance * instances;
+ bool error = false;
+
+	//we do a loop to avoid : error Failed to get expected root element for instances
+	do {
+
+	  if (deltacloud_get_instances(&api, &instances) < 0) {
+		cerr<<"Warning!!!Failed to get deltacloud images: "<<deltacloud_get_last_error_string()<<endl;
+		deltacloud_free(&api);
+		sleep(1);
+		//return NULL;
+		error = true;
+	  }
+
+	}while (error);
 
   deltacloud_instance * inst = NULL;
   inst = instances;
@@ -108,7 +118,7 @@ void Iaas_deltacloud::get_instance_state(const std::string id, char * state) {
 		sprintf(state, "%s", instance.state);
 	}
 
-
+	deltacloud_free(&api);
 }
 
 
@@ -123,6 +133,7 @@ Instance* Iaas_deltacloud::get_instance_by_id(const std::string& instanceId) {
   	if(deltacloud_get_instance_by_id(&api, instanceId.c_str(),
 				  &instance) < 0) {
 		cerr<<"Failed to get instance by Id: " << instanceId << endl;
+		deltacloud_free(&api);
 		return NULL;
 	}else {
 
@@ -137,6 +148,7 @@ Instance* Iaas_deltacloud::get_instance_by_id(const std::string& instanceId) {
 			public_address = instance.public_addresses->address;
 		}
 
+		deltacloud_free(&api);
 		return new Instance(instance.image_id, instance.id, private_address, public_address);
 	}
 
@@ -218,10 +230,18 @@ vector<string*> * Iaas_deltacloud::run_instances(const string & image_id, int co
 
 
   for(int i_nb = 0; i_nb < count ; ++ i_nb) {
-    if(deltacloud_create_instance(&api, image_id.c_str(), delta_params, params_count, &instance_id) < 0) {
-      cerr<<"Failed to get deltacloud images: "<<deltacloud_get_last_error_string()<<endl;
-    }
-    inst_arr->push_back(new string(instance_id));
+    int env;
+    //we make a loop to avoid the error : Could not find instance name after instance creation
+    do {
+    	env = deltacloud_create_instance(&api, image_id.c_str(), delta_params, params_count, &instance_id);
+		if(env < 0) {
+		  cerr<<"[create inst]Failed to instanciate image (" << image_id << ") : err=" << env << " inst#" <<  i_nb + 1 << " " << deltacloud_get_last_error_string()<<endl;
+		  sleep(1);
+		}
+		else {
+			inst_arr->push_back(new string(instance_id));
+		}
+	} while(env);
   }
 
   deltacloud_free(&api);
@@ -246,6 +266,9 @@ std::string Iaas_deltacloud::get_id_from_ip(const std::string& ip, bool select_p
 		}
 	}
 
+	if (!found) {
+		printf("warning : %s not found.\n", ip.c_str());
+	}
 
 	for(int i = 0; i < instances->size(); i++) {
 		delete (*instances)[i];
@@ -285,7 +308,8 @@ int Iaas_deltacloud::terminate_instances(const vector<string*> & instance_ids) {
 int Iaas_deltacloud::terminate_instances_by_ips(const std::vector<std::string>& ips, bool select_private_ip) {
 	std::vector<std::string*> ids;
 	for(int i = 0 ; i < ips.size(); i++) {
-		std::string* id = new std::string(get_id_from_ip(ips[i], select_private_ip));
+		string inst_id = get_id_from_ip(ips[i], select_private_ip);
+		std::string* id = new std::string(inst_id);
 		ids.push_back(id);
 	}
 
