@@ -11,6 +11,8 @@
 
 #include "DIETForwarder.hh"
 #include "ORBMgr.hh"
+#include "configuration.hh"
+#include "DIET_grpc.h"
 #include "SSHTunnel.hh"
 #include "Options.hh"
 
@@ -53,6 +55,9 @@ main(int argc, char *argv[], char *envp[]) {
   /* Optionnal, set waiting time for tunnel creation */
   opt.setOptCallback("--tunnel-wait", tunnel_wait);
 
+  opt.setOptCallback("--net-config", cfg_path);
+
+
   /* Optionnal */
   opt.setOptCallback("--ssh-port", ssh_port);
   opt.setOptCallback("--ssh-login", ssh_login);
@@ -61,6 +66,7 @@ main(int argc, char *argv[], char *envp[]) {
   /* Optionnal parameters/flags. */
   opt.setOptCallback("--nb-retry", nb_retry);
   opt.setOptCallback("--peer-ior", peer_ior);
+
 
   opt.processOptions();
   if (cfg.getSshHost() != "") {
@@ -101,6 +107,19 @@ main(int argc, char *argv[], char *envp[]) {
   } catch (std::exception &e) {
     ERROR_DEBUG(e.what(), EXIT_FAILURE);
   }
+
+  // get configuration file
+  const std::string &configFile = cfg.getCfgPath();
+
+  FileParser fileParser;
+  try {
+    fileParser.parseFile(configFile);
+  } catch (...) {
+    ERROR_DEBUG("while parsing " << configFile, GRPC_CONFIGFILE_ERROR);
+  }
+
+  CONFIGMAP = fileParser.getConfiguration();
+
   ORBMgr::init(argc, argv);
   ORBMgr *mgr = ORBMgr::getMgr();
   std::string ior;
@@ -424,6 +443,11 @@ tunnel_wait(const std::string &time, Configuration *cfg) {
   int n;
   is >> n;
   static_cast<FwrdConfig *>(cfg)->setWaitingTime(n);
+}
+
+void
+cfg_path(const std::string &path, Configuration *cfg) {
+  static_cast<FwrdConfig *>(cfg)->setCfgPath(path);
 }
 
 void
