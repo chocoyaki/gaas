@@ -26,8 +26,11 @@ public:
   bool
   enableSecurity(int argc, char * argv[]);
 
-  std::vector<char *>
+  const std::vector<char *> &
   getORBOptions() const {return secuOptions; }
+
+  bool
+  isEnabled() const { return enabled; }
 
 private:
   bool enabled;

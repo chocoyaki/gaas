@@ -11,10 +11,16 @@
 
 #ifndef ORBMGR_HH
 #define ORBMGR_HH
+// CMake Variables
+#include "security_config.h"
 
 #include <string>
 #include <map>
 #include <list>
+
+#ifdef DIET_USE_SECURITY
+#include "SecurityManager.hh"
+#endif
 
 #include <omniORB4/CORBA.h>
 #include <sys/types.h>
@@ -241,6 +247,11 @@ private:
   mutable std::map<std::string, CORBA::Object_ptr> cache;
   /* Cache mutex. */
   mutable omni_mutex cacheMutex;
+
+#ifdef DIET_USE_SECURITY
+  /* Security Manager in charge of filtering connections */
+  SecurityManager secMgr;
+#endif
 
   /* The manager instance. */
   static ORBMgr *theMgr;

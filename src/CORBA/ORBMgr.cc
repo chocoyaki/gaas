@@ -22,11 +22,6 @@
 #include <fstream>
 #include <csignal>
 
-
-#ifdef DIET_USE_SECURITY
-#include "SecurityManager.hh"
-#endif
-
 #include <omniORB4/CORBA.h>
 #include <omniORB4/omniURI.h>
 #include <omniORB4/omniInterceptors.h>
@@ -75,7 +70,8 @@ CORBA::Boolean
 onServerAcceptConnection(omni::omniInterceptors::serverAcceptConnection_T::info_T& info) {
 
   // Displaying info on certificates
-  TRACE_TEXT(TRACE_MAIN_STEPS, "Accept connection from " << info.strand.connection->peeridentity() <<  std::endl);
+  if (info.strand.connection != NULL) {
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Connection from " << info.strand.connection->peeraddress() <<  std::endl);
   omni::sslConnection *con = dynamic_cast<omni::sslConnection*> (info.strand.connection);
   if (con != NULL) {
     if (con->ssl_handle() != NULL) {
@@ -94,7 +90,7 @@ onServerAcceptConnection(omni::omniInterceptors::serverAcceptConnection_T::info_
       else {
         TRACE_TEXT(TRACE_MAIN_STEPS, "NO Peer CERT " << std::endl);
       }
-
+    }
     }
   }
 
@@ -289,7 +285,6 @@ ORBMgr::ORBMgr(int argc, char* argv[]) {
   }
 
 #ifdef DIET_USE_SECURITY
-  SecurityManager secMgr = SecurityManager();
   secMgr.enableSecurity(argc, argv);
 #endif
 

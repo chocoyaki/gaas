@@ -61,8 +61,10 @@ SecurityManager::initSSLContext() {
 
 
 SecurityManager::~SecurityManager() {
-  BOOST_FOREACH(char * opt, secuOptions) {
-    delete[] opt;
+  if (this->enabled) {
+    BOOST_FOREACH(char * opt, secuOptions) {
+      delete[] opt;
+    }
   }
 }
 
@@ -97,9 +99,7 @@ SecurityManager::secureORBOptions(int argc, char * argv[]) {
   if (!this-> enabled) {
 
     for (int i = 0; i < argc; ++i) {
-      char * cpy = new char[std::strlen(argv[i])];
-      std::strcpy(cpy, argv[i]);
-      this->secuOptions.push_back(cpy);
+      this->secuOptions.push_back(argv[i]);
     }
     return true;
   }
@@ -170,6 +170,7 @@ SecurityManager::secureORBOptions(int argc, char * argv[]) {
       }
     }
     if (serverRuleToSet.empty()) {
+      serverRuleToSet.push_back("localhost unix,tcp,ssl");
       serverRuleToSet.push_back("* ssl");
     }
     // Filling server rule options
