@@ -158,6 +158,7 @@ SecurityManager::secureORBOptions(int argc, char * argv[]) {
 
     // Securing server rules: only accept incoming ssl requests
     std::vector<std::string> serverRuleToSet;
+
     if (!oServerTransportRule.empty()) {
       BOOST_FOREACH(std::string serverTR, oServerTransportRule) {
         std::vector<std::string>::size_type idx = serverTR.find("tcp");
@@ -201,7 +202,8 @@ SecurityManager::secureORBOptions(int argc, char * argv[]) {
       }
     }
     if (clientRuleToSet.empty()) {
-      clientRuleToSet.push_back("* ssl,tcp");
+      clientRuleToSet.push_back("localhost unix,tcp,ssl");
+      clientRuleToSet.push_back("* unix,ssl,tcp");
     }
 
     // Filling server rule options
