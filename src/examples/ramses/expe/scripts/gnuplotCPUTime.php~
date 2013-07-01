@@ -1,0 +1,226 @@
+#!/usr/bin/php -q
+<?php
+//define(BLACK_AND_WHITE, true);
+$tmpDATA = "./tmpDATA.dat";
+$tmpPLOT = "./tmpPLOT.plot";
+$TPL = 'set terminal fig
+set key left top
+set size 1.0, 1.0
+set output \'{OUT_FILE}\'
+set xlabel "number of jobs"  offset character 0, 0, 0 font "" norotate
+set title ""  offset character 0, 0, 0 font "" norotate
+set ylabel "Time (ms)" offset character 0, 0, 0 font "gh,5" textcolor lt -1 rotate by 90
+set logscale y
+plot {PLOT_CMD}
+';
+
+if ($argc < 3) {
+	echo "usage : ".$argv[0]. " workloadFolder simFolder\n";
+	exit(-1);
+}
+
+$NB_INSTANCES = 40;
+$NB_PROCS = 128;
+
+$simFolder = $argv[2];
+$workloadFolder = $argv[1];
+$outFile = "${NB_PROCS}procs-cpu-time.fig";
+
+/****************le mot makespan doit etre replacer par une autre metrique********************/
+
+//$fichierSortie = $outFile
+
+//tableau submit_times ne contient que les end-times....
+
+include_once('db_wldout.php');
+include_once('workloadTools.php');
+
+
+
+
+
+
+//set logscale x
+
+    include_once('db_wldout.php');
+    
+    
+    $programmes = array(0=>"_h_list", 1=>"_h_lp_leastsqueares");
+      
+    
+    $algo = array(0=> "LIST", 1=>"Gradient-Descent");
+    
+    $lambdas = array(16, 32, 48, 64, 96, 128);
+    
+    
+    $wantedAlgo = array(true, true);
+	$wantedAlgoOrder = array(0, 1);
+	
+	
+	for($instance=1; $instance<=$NB_INSTANCES; $instance++) {
+		for($l=0; $l < count($lambdas); $l++) {
+			
+			$fileIn = '_'.$lambdas[$l]."tasks_instance$instance.wld";
+			
+			$db_in[$instance][$l] = dbcsv_open_wld($workloadFolder."/".$fileIn);
+		
+			for($i=0; $i<count($programmes); $i++) {
+				if ($wantedAlgo[$i]){
+					$fileOut[$i][$instance][$l] = $simFolder."/$fileIn.".$programmes[$i].".out";
+					echo $fileOut[$i][$l]."\n";
+				}
+			}	
+		}
+	}
+	
+	
+	//$db = array();
+	for($instance=1; $instance<=$NB_INSTANCES; $instance++) {
+		for($a = 0; $a < count($wantedAlgo); $a++) {
+			if ($wantedAlgo[$a]) {
+				for($l=0; $l < count($lambdas); $l++) {
+					$db[$a][$instance][$l] = dbcsv_open($fileOut[$a][$instance][$l]);
+				}
+			}
+		}
+    }
+    
+    
+    for($instance=1; $instance<=$NB_INSTANCES; $instance++) {
+    	for($i=0; $i<count($programmes); $i++) {
+    		
+    		if ($wantedAlgo[$i]){	
+				for($l=0; $l < count($lambdas); $l++) {
+				
+				
+					//$sp = getMakespan($db[$i][$instance][$l]);
+					$sp = cpu_time($db[$i][$instance][$l], $lambdas[$l]);
+					$makespan[$i][$instance][$l] = $sp;
+					echo $algo[$i].".cpu[$i][$l] = $sp\n";
+					
+					
+				}
+    		}
+   		 }
+  	 } 
+    
+	//on calcule les couples avec erreurs    
+
+   $couplesErrones = "";
+   for($i=0; $i<count($programmes); $i++) {
+		
+		if ($wantedAlgo[$i]){
+			for($l=0; $l < count($lambdas); $l++) {
+				
+				$sumMakespan[$i][$l] = 0.0;
+				for($instance=1; $instance<=$NB_INSTANCES; $instance++) {
+					$mk = $makespan[$i][$instance][$l];
+				
+					if($mk < 0) {
+						$couplesErrones .= ' '.$instance.'_'.$l;
+						
+						echo "miss ".$i.".: instance($instance), "."lambda(".$lambdas[$l].")\n";
+					}
+					
+				}
+			 }
+		}
+	 } 
+    
+    
+    //on calcule les couples sans erreurs    
+    $couplesBons = array();
+	for($l=0; $l < count($lambdas); $l++) {
+		
+		$nbInstBons[$l] = 0;
+		for($instance=1; $instance<=$NB_INSTANCES; $instance++) {
+			
+			if(strpos($instance.'_'.$l, $couplesErrones) === false) {
+				$couplesBons[] = array($instance, $l);
+				$nbInstBons[$l]++;
+			}
+		}
+	 }
+	 
+	 
+    
+    for($i=0; $i<count($programmes); $i++) {
+    	
+    	if ($wantedAlgo[$i]){
+    	
+			for($c = 0; $c<count($couplesBons); $c++) {
+				$couple = $couplesBons[$c];
+				$instance = $couple[0];
+				$l = $couple[1];
+				
+				$sumMakespan[$i][$l] += $makespan[$i][$instance][$l];
+			}
+    	}
+    }
+    
+	
+	//calcul du makespan moyen par lambda
+	 for($i=0; $i<count($programmes); $i++) {
+    	
+    	if ($wantedAlgo[$i]){
+    		for($l=0; $l < count($lambdas); $l++) {
+    			$meanMakespan[$i][$l] = $sumMakespan[$i][$l] / $nbInstBons[$l];
+    		}
+    	}
+    }
+	
+	
+    $offset = 2;
+	$OFFSET=array();
+    $fDATA = fopen($tmpDATA, "w+");
+	fwrite($fDATA,"Algo");
+	for ($a = 0; $a < count($wantedAlgo); $a++) {
+		if ($wantedAlgo[$a]) {
+			fwrite($fDATA, "\t".$algo[$a]);
+			$OFFSET[$a] = $offset;
+			$offset++;
+		}
+	}
+	fwrite($fDATA, "\n");
+	
+	for ($s = 0; $s < count($lambdas); $s++) {
+    	fwrite($fDATA, $lambdas[$s]);
+		for ($a = 0; $a < count($wantedAlgo); $a++) {
+			if ($wantedAlgo[$a]) {
+
+				$improvement = $meanMakespan[$a][$s];
+				
+				//$val = $makespan[$a][$s];
+    			fwrite($fDATA, "\t".$improvement);
+			}
+		}
+    	fwrite($fDATA, "\n");
+	}
+    fclose($fDATA);
+
+    $plotCmd = "";
+	for ($a = 0; $a < count($wantedAlgoOrder); $a++) {
+		if ($wantedAlgo[$wantedAlgoOrder[$a]]) {
+			if (strlen($plotCmd) == 0)
+				$plotCmd .= '[1:'.($lambdas[count($lambdas) - 1]).']\''.$tmpDATA.'\' using 1:'.($OFFSET[$wantedAlgoOrder[$a]]).' t "'.$algo[$wantedAlgoOrder[$a]].'"';
+			else
+				$plotCmd .= ', \'\' u 1:'.($OFFSET[$wantedAlgoOrder[$a]]).' t "'.($algo[$wantedAlgoOrder[$a]]).'"';
+// 			$offset++;
+			//if (BLACK_AND_WHITE)
+				$plotCmd .= " with linespoints pointtype ".($a+1);
+		}
+		
+	}
+	
+	
+
+    $fPLOT = fopen($tmpPLOT, "w+");
+	
+	
+		
+    $buff = str_replace(array('{XTICS}', '{OUT_FILE}', '{PLOT_CMD}'), array($xtics, $outFile, $plotCmd), $TPL);
+    fwrite($fPLOT, $buff);
+    fclose($fPLOT);
+    system('gnuplot tmpPLOT.plot');
+
+?>

@@ -6,6 +6,7 @@ add_latex_document( ProgrammersGuide.tex
   CS.tex
   batch.tex
   cloud.tex
+  cloudnv.tex
   debug.tex
   package.tex
   Annexe1.tex
@@ -25,6 +26,8 @@ add_latex_document( ProgrammersGuide.tex
   fig/CallbackSynchronisationSequenceDiagram.png
   fig/CallAsyncProbeSequenceDiagram1.png
   fig/DietCancelSequenceDiagram.png
+  fig/ActivityDiagramSedCloud.png
+  fig/communicationDiagramSedCloud.png
   MANGLE_TARGET_NAMES
   DEFAULT_PDF )
 

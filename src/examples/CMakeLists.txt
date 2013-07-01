@@ -63,3 +63,8 @@ endif (DIET_USE_WORKFLOW)
 if (DIET_USE_MULTICALL)
   add_subdirectory (multicall)
 endif (DIET_USE_MULTICALL)
+
+if (DIET_USE_DELTACLOUD)
+	add_subdirectory (delta-cloud)
+	add_subdirectory (ramses)
+endif(DIET_USE_DELTACLOUD)
