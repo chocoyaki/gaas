@@ -1,0 +1,314 @@
+<?php
+define("SEPARATOR", "{SEP}");
+
+function dbcsv_open_swf($name, $locked = false) {
+    
+    
+    $lineNumber = 1;
+    $db = array();
+    $db['name'] = $name;
+	$db['locked'] = $locked;
+    $db['filename'] = $name;
+    $f = fopen($db['filename'], "r");
+	if ($locked) {
+		echo("Exclusive lock\n");
+		$db['fHandle'] = $f;
+		if (!flock($db['fHandle'] , LOCK_EX))
+			die("flock error\n");
+		echo("/Exclusive lock\n");
+	}
+    //$header = dbcsvp_cleanline(fgets($f));
+//    $db['header'] = explode(SEPARATOR, $header);
+    
+    $db['header'] = array(0 => 'job_number', 1 => 'submit_time', 2 => 'wait_time', 3=> 'run_time', 4=>'number_allocated_processors', 5=>'average_cpu_time_used', 6=>'used_memory', 7=>'requested_number_of_processors', 8=> 'requested_time', 9=>'requested_memory', 10=>'status', 11=>'user_id', 12=>'group_id', 13=>'executable_number', 14=>'queue_number', 15=>'partition_number', 16=>'preceding_job_number', 17=>'think_time_from_preceding_job');
+    
+    
+    for ($i = 0; $i < count($db['header']); $i++) {
+    	$db['header_column'][$db['header'][$i]] = $i;
+    }
+    
+    //$lineNumber++;
+    $db['numCol'] = count($db['header']);
+    $db['data'] = array();
+    while (!feof($f)) {
+    
+    	$pure_line = fgets($f);
+    	
+    	//echo "debut\n";
+    	
+    	
+    	if (strpos(';', $pure_line) === false)  {
+    		
+    		
+    		
+		    $line = dbcsvp_cleanline_swf($pure_line);
+		    
+		    //echo $line."\n";
+		    $data = explode(SEPARATOR, $line);
+		    
+		    //echo "count=".count($data)."\n";
+		    
+		    $lineNumber++;
+		        
+		    if (count($data) != $db['numCol']) {
+		        echo "warning!! @($lineNumber) : \n$line\n";    
+		        break;
+		    }
+		    
+		    
+		    $db['data'][] = $data;
+		    
+        }
+        
+    }
+	if (!$locked) {
+    	fclose($f);
+	}
+    $db['modified'] = false;
+    //test : $db['filename'] = 'table_'.$name.'.test.csv';
+    return $db;
+}
+
+
+
+//le in
+function dbcsv_open_wld($name, $locked = false) {
+    $lineNumber = 1;
+    $db = array();
+    $db['name'] = $name;
+	$db['locked'] = $locked;
+    $db['filename'] = $name;
+    $f = fopen($db['filename'], "r");
+	if ($locked) {
+		echo("Exclusive lock\n");
+		$db['fHandle'] = $f;
+		if (!flock($db['fHandle'] , LOCK_EX))
+			die("flock error\n");
+		echo("/Exclusive lock\n");
+	}
+    //$header = dbcsvp_cleanline(fgets($f));
+//    $db['header'] = explode(SEPARATOR, $header);
+    
+    $db['header'] = array('submitTime', 'runtime', 'inputSize', 'outputSize', 'requestedTime', 'nbProcs', 'priority');
+    
+    
+    for ($i = 0; $i < count($db['header']); $i++) {
+    	$db['header_column'][$db['header'][$i]] = $i;
+    }
+    
+    //$lineNumber++;
+    $db['numCol'] = count($db['header']);
+    $db['data'] = array();
+    while (!feof($f)) {
+        $line = dbcsvp_cleanline(fgets($f));
+        
+        //echo $line."\n";
+        $data = explode(SEPARATOR, $line);
+        
+        //echo "count=".count($data)."\n";
+        
+        $lineNumber++;
+            
+        if (count($data) != $db['numCol']) {
+           // echo "IN $name : warning!! @($lineNumber) : \n$line\n";    
+            break;
+        }
+        
+        
+        $db['data'][] = $data;
+        
+        
+        
+    }
+	if (!$locked) {
+    	fclose($f);
+	}
+    $db['modified'] = false;
+    //test : $db['filename'] = 'table_'.$name.'.test.csv';
+    return $db;
+}
+
+
+//le out
+function dbcsv_open($name, $locked = false) {
+    $lineNumber = 1;
+    $db = array();
+    $db['name'] = $name;
+	$db['locked'] = $locked;
+    $db['filename'] = $name;
+    $f = fopen($db['filename'], "r");
+	if ($locked) {
+		echo("Exclusive lock\n");
+		$db['fHandle'] = $f;
+		if (!flock($db['fHandle'] , LOCK_EX))
+			die("flock error\n");
+		echo("/Exclusive lock\n");
+	}
+    //$header = dbcsvp_cleanline(fgets($f));
+//    $db['header'] = explode(SEPARATOR, $header);
+    
+    $db['header'] = array('alloc', 'runtime');
+    
+    
+    for ($i = 0; $i < count($db['header']); $i++) {
+    	$db['header_column'][$db['header'][$i]] = $i;
+    }
+    
+    //$lineNumber++;
+    $db['numCol'] = count($db['header']);
+    $db['data'] = array();
+    while (!feof($f)) {
+        $line = dbcsvp_cleanline(fgets($f));
+        
+        //echo $line."\n";
+        $data = explode(SEPARATOR, $line);
+        
+        //echo "count=".count($data)."\n";
+        
+        $lineNumber++;
+            
+        if (count($data) < $db['numCol']) {
+            echo "OUT $name : warning!! @($lineNumber) : \n$line\n";    
+            break;
+        }
+        
+        
+        $db['data'][] = $data;
+        
+        
+        
+    }
+	if (!$locked) {
+    	fclose($f);
+	}
+    $db['modified'] = false;
+    //test : $db['filename'] = 'table_'.$name.'.test.csv';
+    return $db;
+}
+
+
+function dbcsv_commit(&$db) {
+	if ($db['locked'])
+		$f = $db['fHandle'];
+	else
+		$f = fopen($db['filename'], "w");
+    if ($db['modified']) {
+        for ($i = 0; $i < $db['numCol']; $i++) {
+            fwrite($f, $db['header'][$i]);
+            if ($i < $db['numCol'] - 1)
+                fwrite($f, ';');
+        }
+        $numRow = count($db['data']);
+        for ($a = 0; $a < $numRow; $a++) {
+            fwrite($f, "\n");
+            for ($i = 0; $i < $db['numCol']; $i++) {
+                fwrite($f, $db['data'][$a][$i]);
+                if ($i < $db['numCol'] - 1)
+                    fwrite($f, ';');
+            }
+        }
+        $db['modified'] = false;
+    }
+	if ($db['locked']) {
+		echo("Exclusive unlock\n");
+		if (!flock($db['fHandle'] , LOCK_UN))
+			die("funlock error\n");
+		echo("/Exclusive unlock\n");
+	}
+	fclose($f);
+}
+function dbcsv_add_line(&$db, &$cols) {
+    $ok = false;
+    if (count($cols) != $db['numCol'])
+        echo "Error : bad number of columns.\n";
+    else {
+        $db['modified'] = true;
+        $db['data'][] = $cols;
+        $ok = true;
+    }
+    return $ok;
+}
+function dbcsv_get_line(&$db, $numCol, $key) {
+    $line = null;
+    for ($i = 0; ($i < count($db['data'])) && ($line == null); $i++) {
+        if (strcmp($db['data'][$i][$numCol], $key) == 0)
+            $line = $db['data'][$i];
+    }
+    return $line;
+}
+function dbcsv_get_lines(&$db, $numCol, $key) {
+    $lines = array();
+    for ($i = 0; $i < count($db['data']); $i++) {
+        if (strcmp($db['data'][$i][$numCol], $key) == 0)
+            $lines[] = $db['data'][$i];
+    }
+    return $lines;
+}
+
+
+
+function dbcsvp_cleanline_swf($line) {
+	
+	
+	//echo "$line\n\n";
+	$ret = $line;
+	
+	$ret = str_replace(" ", "{SEP}", $ret);
+	$ret = preg_replace('/\s\s+/', "{SEP}", $ret);
+	
+	
+	$ret = str_replace("\t", "{SEP}", $ret);
+	$ret = preg_replace('/\t\t+/', "{SEP}", $ret);
+	
+	//do{
+    	
+    	$ret = str_replace(array("\r\n"     , "\r"     , "\n"),
+    					   array('FIN'      , 'FIN'    , 'FIN'), $ret, $nb1);
+    	
+    	$modif = ($nb1 != 0);
+    	
+    //} while ($modif);
+    
+    $ret = preg_replace('/[{SEP}]+/', "{SEP}", $ret);
+    $ret = preg_replace('/^[{SEP}]/', "", $ret);
+	$ret = str_replace("{SEP}FIN", '', $ret);
+    $ret = str_replace("FIN", '', $ret);
+    
+    return $ret;
+}
+
+
+function dbcsvp_cleanline($line) {
+	
+	
+	//echo "$line\n\n";
+	$ret = $line;
+	
+	
+	$ret = str_replace(" ", "{SEP}", $ret);
+	$ret = preg_replace('/\s\s+/', "{SEP}", $ret);
+	
+	//do{
+    	
+    	$ret = str_replace(array("\r\n"     , "\r"     , "\n"),
+    					   array('FIN'      , 'FIN'    , 'FIN'), $ret, $nb1);
+    	
+    	$modif = ($nb1 != 0);
+    	
+    //} while ($modif);
+    
+	
+	/*
+    $ret = preg_replace('/{SEP}{SEP}+/', "{SEP}", $ret);
+	$ret = str_replace("{SEP}FIN", '', $ret);
+    $ret = str_replace("FIN", '', $ret);
+	*/
+	$ret = preg_replace('/[{SEP}]+/', "{SEP}", $ret);
+    $ret = preg_replace('/^[{SEP}]/', "", $ret);
+	$ret = str_replace("{SEP}FIN", '', $ret);
+    $ret = str_replace("FIN", '', $ret);
+	    
+    return $ret;
+}
+
+?>

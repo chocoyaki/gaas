@@ -1,0 +1,23 @@
+<dag>
+	
+	
+
+	<node id="use-machine" path="use_vm" >
+		<arg name="ip" type="DIET_STRING" value="192.168.122.6" />
+		<arg name="vm_user" type="DIET_STRING" value="opennebula" />
+		<out name="c_ip" type="DIET_STRING" />
+	</node>
+
+
+
+
+
+  <node id="node-date" path="date">
+    <in name="uselessinput" type="DIET_STRING" source="use-machine#c_ip" />
+    <out name="uselessoutput" type="DIET_STRING" />
+  </node>
+  
+  
+
+  
+</dag>
