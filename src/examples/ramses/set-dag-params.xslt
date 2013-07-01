@@ -33,17 +33,6 @@
             <xsl:value-of select="$level"/>
         </xsl:attribute>
     </xsl:template>
-    
-    <xsl:template match="node[@id='node-init-vms']/arg[@name='vm_image_id']/@value">
-        <xsl:attribute name="value">
-            <xsl:value-of select="$ramses_vm_image_id"/>
-        </xsl:attribute>
-    </xsl:template>
-    
-    <xsl:template match="node[@id='node-init-vm-nfs-server']/arg[@name='vm_image_id']/@value">
-        <xsl:attribute name="value">
-            <xsl:value-of select="$nfs_vm_image_id"/>
-        </xsl:attribute>
-    </xsl:template>
+   
     
 </xsl:stylesheet>

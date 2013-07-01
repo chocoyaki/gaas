@@ -9,7 +9,7 @@ set size 1.0, 1.0
 set output \'{OUT_FILE}\'
 set xlabel "number of VMs"  offset character 0, 0, 0 font "" norotate
 set title ""  offset character 0, 0, 0 font "" norotate
-set ylabel "Time to allocate VMs (s)" offset character 0, 0, 0 font "gh,5" textcolor lt -1 rotate by 90
+set ylabel "Time to execute the workflow (s)" offset character 0, 0, 0 font "gh,5" textcolor lt -1 rotate by 90
 plot {PLOT_CMD}
 ';
 
@@ -75,7 +75,7 @@ include_once('workloadTools.php');
 				for($l=0; $l < count($lambdas); $l++) {
 				
 				
-					$time[$i][$l] = $db[$i][$l]['data'][0][0];
+					$time[$i][$l] = $db[$i][$l]['data'][0][1];
 					
 					//exit(0);
 					
