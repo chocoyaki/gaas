@@ -49,7 +49,7 @@ strToCharPtr(const std::string str) {
 
 Spy::Spy(int argc, char **argv) {
   initORB(argc, argv);
-
+  descr = NULL;
   dietLogComponent = new DietLogComponent("Spy", 0, 0, 0);
   ORBMgr::getMgr()->activate(dietLogComponent);
 
@@ -58,6 +58,9 @@ Spy::Spy(int argc, char **argv) {
 
 Spy::~Spy() {
   ORBMgr::kill();
+  if (descr != NULL) {
+    pcap_close(descr);
+  }
 }
 
 std::vector<spy::Address> extractAddressList(omni::giopAddressList &list) {
@@ -156,6 +159,7 @@ void Spy::spyOn(std::string name) {
     uint nbA = addresses.size();
     for (uint i = 0; i < nbA; ++i) {
       portOf.insert(std::make_pair(addresses[i].getPort(), name));
+      std::cout << addresses[i].getPort() << " --> " << name << std::endl;
       if (isSSL) {
         spy::Address a(addresses[i].getIp(), sslPort);
         addresses.push_back(a);
@@ -192,38 +196,46 @@ void analysePacket(u_char* args, const struct pcap_pkthdr* pkthdr,
   len -= tcp->th_off * 4;
 
   if (len > 0) {
-    printf("\n");
+//    printf("\n");
 
     ushort srcPort = ntohs(tcp->th_sport);
     ushort dstPort = ntohs(tcp->th_dport);
 
     Spy * theSpy = Spy::getSpy();
-    std::string src = "??";
+    if (!theSpy->isListeningToPort(srcPort) || !theSpy->isListeningToPort(dstPort)) {
+      theSpy->updateSpiedComponents();
+
+    }
+
+    std::ostringstream isS, isD;
+    isS << srcPort;
+
+    std::string src = isS.str();
     if (theSpy->isListeningToPort(srcPort)) {
       src = theSpy->isBindedToPort(srcPort);
     }
 
-    std::string dst = "??";
+    isD << dstPort;
+    std::string dst = isD.str();
     if (theSpy->isListeningToPort(dstPort)) {
       dst = theSpy->isBindedToPort(dstPort);
     }
 
     printf("%s --> %s : \n", src.c_str(), dst.c_str());
-    const u_char * data = (const u_char *) tcp + tcp->th_off * 4;
+/*    const u_char * data = (const u_char *) tcp + tcp->th_off * 4;
     for (int i = 0; i < len; i++) {
-      if (isprint(data[i])) /* Check if the packet data is printable */
-        printf("%c", data[i]); /* Print it */
+      if (isprint(data[i])) // Check if the packet data is printable *
+        printf("%c", data[i]);
       else
-        printf("."); /* If not print a . */
+        printf(".");
     }
+    printf("\n");*/
   }
 
 }
 
 int Spy::run() {
   char errbuf[PCAP_ERRBUF_SIZE];
-  pcap_t* descr;
-  struct bpf_program filter;
 
   /* open device for reading */
   descr = pcap_open_live("any", BUFSIZ, 0, -1, errbuf);
@@ -232,18 +244,9 @@ int Spy::run() {
     exit(1);
   }
 
-  const char * filter_str = createFilter().c_str();
-  std::cout << filter_str << std::endl;
-  if (pcap_compile(descr, &filter, filter_str, 1, PCAP_NETMASK_UNKNOWN) == -1) {
-    fprintf(stderr, "Error compiling pcap\n");
-    return (1);
+  if (updateFilter() != 0) {
+    return 1;
   }
-
-  if (pcap_setfilter(descr, &filter)) {
-    fprintf(stderr, "Error setting pcap filter\n");
-    return (1);
-  }
-
   /* allright here we call pcap_loop(..) and pass in our callback function */
   /* int pcap_loop(pcap_t *p, int cnt, pcap_handler callback, u_char *user)*/
   /* If you are wondering what the user argument is all about, so am I!!   */
@@ -284,6 +287,22 @@ std::string Spy::isBindedToPort(ushort port) {
 
 bool Spy::isListeningToPort(ushort port) {
   return (portOf.find(port) != portOf.end());
+}
+
+int Spy::updateFilter() {
+/*  struct bpf_program filter;
+  const char * filter_str = createFilter().c_str();
+  std::cout << filter_str << std::endl;
+  if (pcap_compile(descr, &filter, filter_str, 1, PCAP_NETMASK_UNKNOWN) == -1) {
+    fprintf(stderr, "Error compiling pcap\n");
+    return (1);
+  }
+
+  if (pcap_setfilter(descr, &filter)) {
+    fprintf(stderr, "Error setting pcap filter\n");
+    return (1);
+  }*/
+return 0;
 }
 
 void Spy::updateSpiedComponents() {

@@ -17,6 +17,8 @@
 #include "DietLogComponent.hh"
 #include "Address.hh"
 
+#include <pcap.h>
+
 class Spy {
   typedef std::map<std::string, std::vector<spy::Address> > mapAgentAddresses;
 
@@ -36,7 +38,7 @@ public:
   std::string createFilter();
   int run();
   std::string isBindedToPort(ushort port);
-
+  int updateFilter();
 
   friend void analysePacket(u_char *args, const struct pcap_pkthdr* pkthdr, const u_char* packet);
 
@@ -54,7 +56,7 @@ private:
   std::map<ushort, std::string> portOf;
 
   static Spy * instance;
-
+  pcap_t* descr;
 };
 
 
