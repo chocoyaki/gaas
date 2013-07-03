@@ -53,7 +53,7 @@ macro( diet_test NAME )
     
     string( REGEX REPLACE "DIET(.*)" "\\1" TEST_NAME ${NAME} )
     
-    add_test( ${TEST_NAME} ${BIN_DIR}/${NAME} )
+    add_test( ${TEST_NAME} ${BIN_DIR}/${NAME} --log_level=all)
     
     # prevent Boost.Test to catch unrelated exceptions 
     set_property( TEST ${TEST_NAME} 
@@ -112,7 +112,7 @@ macro( generate_replace_tests NAME FIXTURENAME TESTNAME POSTFIX INCLUDEFILE GENE
       
     string( REGEX REPLACE "DIET(.*)" "\\1" TEST_NAME ${NAME}${POSTFIX} )
 
-    add_test( ${TEST_NAME} ${BIN_DIR}/${NAME}${POSTFIX} )
+    add_test( ${TEST_NAME} ${BIN_DIR}/${NAME}${POSTFIX} --log_level=all)
 
     # prevent Boost.Test to catch unrelated exceptions 
     set_property( TEST ${TEST_NAME} 

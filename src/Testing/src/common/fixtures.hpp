@@ -108,8 +108,8 @@ OmniNamesFixture(): processNamingService(NULL) {
   ctx.env["ORBInitRef"] = initRef;
 
   // redirect output to /dev/null
-  ctx.streams[bp::stdout_id] = bp::behavior::null();
-  ctx.streams[bp::stderr_id] = bp::behavior::null();
+  ctx.streams[bp::stdout_id] = bp::behavior::inherit(STDOUT_FILENO);
+  ctx.streams[bp::stderr_id] = bp::behavior::inherit(STDERR_FILENO);
 
   // setup omniNames arguments
   std::vector<std::string> args = ba::list_of("-always")
@@ -182,8 +182,8 @@ DietAgentFixture(): processAgent(NULL) {
   ctx.env["OMNIORB_CONFIG"] = omniORBConfig;
 
   // redirect output to /dev/null
-  ctx.streams[bp::stdout_id] = bp::behavior::null();
-  ctx.streams[bp::stderr_id] = bp::behavior::null();
+  ctx.streams[bp::stdout_id] = bp::behavior::inherit(STDOUT_FILENO);
+  ctx.streams[bp::stderr_id] = bp::behavior::inherit(STDERR_FILENO);
 
 
   // setup dietAGent arguments
@@ -247,8 +247,8 @@ DietMADAGFixture(): processMADAG(NULL) {
   ctx.env["OMNIORB_CONFIG"] = omniORBConfig;
 
   // redirect output to /dev/null
-  ctx.streams[bp::stdout_id] = bp::behavior::null();
-  ctx.streams[bp::stderr_id] = bp::behavior::null();
+  ctx.streams[bp::stdout_id] = bp::behavior::inherit(STDOUT_FILENO);
+  ctx.streams[bp::stderr_id] = bp::behavior::inherit(STDERR_FILENO);
 
 
   // setup maDagAgent arguments
@@ -313,8 +313,8 @@ DietSeDFixture(): processSeD(NULL) {
   ctx.env["OMNIORB_CONFIG"] = omniORBConfig;
 
   // redirect output to /dev/null
-  ctx.streams[bp::stdout_id] = bp::behavior::null();
-  ctx.streams[bp::stderr_id] = bp::behavior::null();
+  ctx.streams[bp::stdout_id] = bp::behavior::inherit(STDOUT_FILENO);
+  ctx.streams[bp::stderr_id] = bp::behavior::inherit(STDERR_FILENO);
 
 
   // setup SeD arguments
