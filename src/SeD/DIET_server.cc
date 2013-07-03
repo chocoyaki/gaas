@@ -936,6 +936,102 @@ diet_est_array_defined_system(estVectorConst_t ev, int systemTag, int idx) {
                                          idx);
 } // diet_est_array_defined_system
 
+int
+diet_est_set_str(estVector_t ev, int userTag, const char *value) {
+  if (ev == NULL) {
+    ERROR_DEBUG(__FUNCTION__ << ": NULL estimation vector", -1);
+  }
+  if (userTag < 0) {
+    ERROR_DEBUG(__FUNCTION__ <<
+          ": userTag must be non-negative (" <<
+          userTag <<
+          ")", -1);
+  }
+  return (diet_est_set_str_internal(ev, userTag + EST_USERDEFINED, value));
+}
+
+const char*
+diet_est_get_str(estVectorConst_t ev, int userTag) {
+  if (ev == NULL) {
+    ERROR_DEBUG(__FUNCTION__ << ": NULL estimation vector", NULL);
+  }
+  if (userTag < 0) {
+    ERROR_DEBUG(__FUNCTION__ <<
+          ": userTag must be non-negative (" <<
+          userTag <<
+          ")", NULL);
+  }
+  return (diet_est_get_str_internal(ev, userTag + EST_USERDEFINED));
+}
+
+const char*
+diet_est_get_str_system(estVectorConst_t ev, int systemTag) {
+  if (ev == NULL) {
+    ERROR_DEBUG(__FUNCTION__ << ": NULL estimation vector", NULL);
+  }
+  if (systemTag < 0) {
+    ERROR_DEBUG(__FUNCTION__ <<
+          ": systemTag must be non-negative (" <<
+          systemTag <<
+          ")", NULL);
+  }
+  if (systemTag >= EST_USERDEFINED) {
+    ERROR_DEBUG(__FUNCTION__ <<
+          ": systemTag " << systemTag << " must be smaller than (" <<
+          EST_USERDEFINED <<
+          ")", NULL);
+  }
+  return (diet_est_get_str_internal(ev, systemTag));
+}
+
+int
+diet_est_set_bin(estVector_t ev, int userTag, const unsigned char *buf, size_t size) {
+  if (ev == NULL) {
+    ERROR_DEBUG(__FUNCTION__ << ": NULL estimation vector", -1);
+  }
+  if (userTag < 0) {
+    ERROR_DEBUG(__FUNCTION__ <<
+          ": userTag must be non-negative (" <<
+          userTag <<
+          ")", -1);
+  }
+  return (diet_est_set_bin_internal(ev, userTag + EST_USERDEFINED, buf, size));
+}
+
+int
+diet_est_get_bin(estVectorConst_t ev, int userTag, const unsigned char **buf, size_t *size) {
+  if (ev == NULL) {
+    ERROR_DEBUG(__FUNCTION__ << ": NULL estimation vector", -1);
+  }
+  if (userTag < 0) {
+    ERROR_DEBUG(__FUNCTION__ <<
+          ": userTag must be non-negative (" <<
+          userTag <<
+          ")", -1);
+  }
+  return (diet_est_get_bin_internal(ev, userTag + EST_USERDEFINED, buf, size));
+}
+
+int
+diet_est_get_bin_system(estVectorConst_t ev, int systemTag, const unsigned char **buf, size_t *size) {
+  if (ev == NULL) {
+    ERROR_DEBUG(__FUNCTION__ << ": NULL estimation vector", -1);
+  }
+  if (systemTag < 0) {
+    ERROR_DEBUG(__FUNCTION__ <<
+          ": systemTag must be non-negative (" <<
+          systemTag <<
+          ")", -1);
+  }
+  if (systemTag >= EST_USERDEFINED) {
+    ERROR_DEBUG(__FUNCTION__ <<
+          ": systemTag " << systemTag << " must be smaller than (" <<
+          EST_USERDEFINED <<
+          ")", -1);
+  }
+  return (diet_est_get_bin_internal(ev, systemTag, buf, size));
+}
+
 /* These two functions shall be removed and a better mechanism found
  * for example vhen and if CoRI is rewritten.
  */
