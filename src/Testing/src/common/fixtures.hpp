@@ -406,11 +406,14 @@ char GRPCBinDir[] = BIN_DIR;
 typedef DietSeDFixture <GRPCAddSeD, GRPCBinDir, ConfigSimpleAddSeDLA,
                         ConfigOmniORB, DietLAFixture>GRPCSeDFixture;
 
-
-
-
-
-
+char SchedConfigMA[] = SCHED_CONFIG_MA;
+typedef DietAgentFixture <SchedConfigMA, ConfigOmniORB,
+                          omniNamesFixture> SchedMAFixture;
+char SchedSedName[] = "DIETSchedTestsSeD";
+char SchedConfigSed[] = SCHED_CONFIG_SED;
+char SchedSedBinDir[] = BIN_DIR;
+typedef DietSeDFixture <SchedSedName, SchedSedBinDir, SchedConfigSed,
+                        ConfigOmniORB, SchedMAFixture> SchedSedFixture;
 
 
 #endif /* FIXTURES_HPP_ */

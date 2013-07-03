@@ -67,5 +67,9 @@
 // Workflows
 #define WF_DIRECTORY "@TEST_WORKFLOW_DIR_NATIVE_PATH@"
 
+// Cori
+#define SCHED_CONFIG_MA "@CONFIG_DIR_NATIVE_PATH@/SchedTestMA.cfg"
+#define SCHED_CONFIG_SED "@CONFIG_DIR_NATIVE_PATH@/SchedTestSeD.cfg"
+
 #endif /* _CONFIG_H_IN_ */
 
