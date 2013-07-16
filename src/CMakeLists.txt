@@ -211,7 +211,7 @@ endif()
 set(CorbaCommon_SRCS CORBA/ORBMgr.cc CORBA/marshalling.cc)
 
 if (DIET_USE_SECURITY)
-  set (CorbaCommon_SRCS ${CorbaCommon_SRCS} "CORBA/security/SecurityManager.cc")
+  set (CorbaCommon_SRCS ${CorbaCommon_SRCS} "CORBA/security/DIETSecurityManager.cc")
 endif(DIET_USE_SECURITY)
 
 if(DIET_USE_MAC_SECURITY)

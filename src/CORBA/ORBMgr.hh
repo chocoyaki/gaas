@@ -19,7 +19,7 @@
 #include <list>
 
 #ifdef DIET_USE_SECURITY
-#include "SecurityManager.hh"
+#include "DIETSecurityManager.hh"
 #endif
 
 #include <omniORB4/CORBA.h>
@@ -250,7 +250,7 @@ private:
 
 #ifdef DIET_USE_SECURITY
   /* Security Manager in charge of filtering connections */
-  SecurityManager secMgr;
+  DIETSecurityManager secMgr;
 #endif
 
   /* The manager instance. */

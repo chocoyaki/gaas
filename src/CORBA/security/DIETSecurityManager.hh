@@ -6,8 +6,8 @@
  * @author   Guillaume Verger(guillaume.verger@inria.fr)
  */
 
-#ifndef _SECURITYMANAGER_HH_
-#define _SECURITYMANAGER_HH_
+#ifndef _DIETSECURITYMANAGER_HH_
+#define _DIETSECURITYMANAGER_HH_
 
 #include "security_config.h"
 
@@ -16,12 +16,12 @@
 #include <string>
 #include <vector>
 
-class SecurityManager {
+class DIETSecurityManager {
 public:
-  SecurityManager();
+  DIETSecurityManager();
 
   virtual
-  ~SecurityManager();
+  ~DIETSecurityManager();
 
   bool
   enableSecurity(int argc, char * argv[]);
@@ -48,6 +48,7 @@ private:
   secureORBOptions(int argc, char * argv[]);
 };
 
+
 #endif /* DIET_USE_SECURITY */
 
-#endif /* _SECURITYMANAGER_HH_ */
+#endif /* _DIETSECURITYMANAGER_HH_ */

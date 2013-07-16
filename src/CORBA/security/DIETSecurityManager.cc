@@ -10,7 +10,7 @@
 #include "security_config.h"
 
 #ifdef DIET_USE_SECURITY
-#include "SecurityManager.hh"
+#include "DIETSecurityManager.hh"
 
 #include <string>
 #include <set>
@@ -26,7 +26,7 @@
 
 namespace po = boost::program_options;
 
-SecurityManager::SecurityManager() {
+DIETSecurityManager::DIETSecurityManager() {
 
   this->enabled = false;
   this->cAFile = "UNDEFINED";
@@ -35,7 +35,7 @@ SecurityManager::SecurityManager() {
 }
 
 bool
-SecurityManager::initSSLContext() {
+DIETSecurityManager::initSSLContext() {
   /*
    *  Setting SSL Contex
    */
@@ -60,7 +60,7 @@ SecurityManager::initSSLContext() {
 }
 
 
-SecurityManager::~SecurityManager() {
+DIETSecurityManager::~DIETSecurityManager() {
   if (this->enabled) {
     BOOST_FOREACH(char * opt, secuOptions) {
       delete[] opt;
@@ -93,7 +93,7 @@ insertOptions(const std::string &option, const std::set<std::string> &values, st
 
 
 bool
-SecurityManager::secureORBOptions(int argc, char * argv[]) {
+DIETSecurityManager::secureORBOptions(int argc, char * argv[]) {
 
 
   if (!this-> enabled) {
@@ -171,6 +171,7 @@ SecurityManager::secureORBOptions(int argc, char * argv[]) {
       }
     }
     if (serverRuleToSet.empty()) {
+      // Test with SSL Forwarder
       serverRuleToSet.push_back("localhost unix,tcp,ssl");
       serverRuleToSet.push_back("* ssl");
     }
@@ -202,6 +203,7 @@ SecurityManager::secureORBOptions(int argc, char * argv[]) {
       }
     }
     if (clientRuleToSet.empty()) {
+      // Test with SSL Forwarder
       clientRuleToSet.push_back("localhost unix,tcp,ssl");
       clientRuleToSet.push_back("* unix,ssl,tcp");
     }
@@ -216,7 +218,7 @@ SecurityManager::secureORBOptions(int argc, char * argv[]) {
   return true;
 }
 
-bool SecurityManager::enableSecurity(int argc, char * argv[]) {
+bool DIETSecurityManager::enableSecurity(int argc, char * argv[]) {
   this->initSSLContext();
   this->secureORBOptions(argc, argv);
 
