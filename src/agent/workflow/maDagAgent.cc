@@ -229,7 +229,7 @@ main(int argc, char *argv[]) {
 
   /* shutdown and destroy the ORB
    * Servants will be deactivated and deleted automatically */
-  delete ORBMgr::getMgr();
+  ORBMgr::kill();
 
   // FIXME: currently do not delete args as it produces a double free error
   // This is due to ORBMgr::init which adds elements in args.
