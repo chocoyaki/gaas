@@ -8,6 +8,7 @@ add_latex_document(UsersManual.tex
   server.tex
   batch.tex
   cloud.tex
+  delta-cloud.tex
   plugin.tex
   forwarder.tex
   prediction.tex

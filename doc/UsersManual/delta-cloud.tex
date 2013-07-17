@@ -1,0 +1,120 @@
+%**
+%*  @file  deltacloud.tex
+%*  @brief   DIET usage with cloud middlewares via deltacloud
+%*  @author  - Lamiel Toch (lamiel.toch@ens-lyon.fr)
+%*  @section Licence 
+%*    |LICENSE|
+
+
+\chapter{DIETCloud via Deltacloud}\label{chapter:Deltacloud}
+
+
+
+
+\section{SeDCloud}
+
+\subsection{Introduction}
+
+A \emph{SeDCloud} is a SeD which offers functionnalities to interact with
+different cloud middlewares. It relies on the Deltacloud
+layer~\cite{Deltacloud}.  A SeDCloud acts as a client which sends
+request to the Deltacloud server thanks to the C/C++ libdeltacloud
+API. This API is available in the git repository : \texttt{git clone
+  git://git.fedorahosted.org/deltacloud/libdeltacloud.git}.
+This version of DIET was tested with the libdeltacloud version 0.9.
+
+\subsection{Overview of different behaviours of SeDCloud}
+
+ 
+A \emph{SeDCloudAction} allow to modify the behaviour of a SeDCloud
+instance. A behaviour consists of some actions: 
+\begin{itemize}
+  \item perform\_action\_on\_sed\_creation: action performed as soon as the SeDCloud is instanciated
+  \item perform\_action\_after\_service\_table\_add: action performed when the SeD developper adds a service to the SeDCloud
+  \item perform\_action\_on\_sed\_launch: action performed as soon as the SeD is launched
+  \item perform\_action\_on\_begin\_solve: action performed just before a problem is solved
+  \item perform\_action\_on\_end\_solve: action performed just after a problem is solved
+  \item when the SeD is destroyed: action performed as soon as the
+    administrator presses the combination \texttt{Ctrl + C} on his keyboard to stop the SeD
+\end{itemize}
+Five \emph{SeDCloudAction}s are predefined.
+
+
+\begin{itemize}
+  \item \textbf{SeDCloudAndVMLaunchedActions}:
+    \begin{enumerate}
+      \item perform\_action\_on\_sed\_creation: \textbf{instanciation of VMs}
+      \item perform\_action\_after\_service\_table\_add: \textbf{no action}
+      \item perform\_action\_on\_sed\_launch: \textbf{copy binaries into the master (by default index=0) of VMs}
+      \item perform\_action\_on\_begin\_solve: \textbf{no action}
+      \item perform\_action\_on\_end\_solve: \textbf{no action}
+      \item when the SeD is destroyed (\texttt{Ctrl + C}): \textbf{destruction of VMs}
+    \end{enumerate}
+ 
+  \item \textbf{SeDCloudVMLaunchedAtFirstSolveActions}:
+    \begin{enumerate}
+        \item perform\_action\_on\_sed\_creation: \textbf{no action}
+        \item perform\_action\_after\_service\_table\_add: \textbf{no action}
+        \item perform\_action\_on\_sed\_launch: \textbf{record service names}
+        \item perform\_action\_on\_begin\_solve: \textbf{if number of calls to solve is equal to 1 then instanciation of VMs and copy all binaries into the master (by default index=0) of VMs}
+        \item perform\_action\_on\_end\_solve: \textbf{no action}
+        \item when the SeD is destroyed (\texttt{Ctrl + C}): \textbf{destruction of VMs if any}
+      \end{enumerate}
+  \item \textbf{SeDCloudVMLaunchedAtSolveThenDestroyedActions}:
+    \begin{enumerate}
+        \item perform\_action\_on\_sed\_creation: \textbf{no action}
+        \item perform\_action\_after\_service\_table\_add: \textbf{no action}
+        \item perform\_action\_on\_sed\_launch: \textbf{record service names}
+        \item perform\_action\_on\_begin\_solve: \textbf{instanciation of VMs and copy the corresponding binary into the master (by default index = 0) of VMs}
+        \item perform\_action\_on\_end\_solve: \textbf{destruction of VMs}
+        \item when the SeD is destroyed (\texttt{Ctrl + C}): \textbf{no action}
+      \end{enumerate}
+  \item \textbf{SeDCloudMachinesActions}:
+    \begin{enumerate}
+        \item perform\_action\_on\_sed\_creation: \textbf{no action}
+        \item perform\_action\_after\_service\_table\_add: \textbf{no action}
+        \item perform\_action\_on\_sed\_launch: \textbf{copy binaries into the master (by default index=0) of Machines}
+        \item perform\_action\_on\_begin\_solve: \textbf{no action}
+        \item perform\_action\_on\_end\_solve: \textbf{no action}
+        \item when the SeD is destroyed (\texttt{Ctrl + C}): \textbf{no action}
+   \end{enumerate}
+
+  \item \textbf{SedCloudActionsNULL}:
+    \begin{enumerate}
+        \item perform\_action\_on\_sed\_creation: \textbf{no action}
+        \item perform\_action\_after\_service\_table\_add: \textbf{no action}
+        \item perform\_action\_on\_sed\_launch: \textbf{no action}
+        \item perform\_action\_on\_begin\_solve: \textbf{no action}
+        \item perform\_action\_on\_end\_solve: \textbf{no action}
+        \item when the SeD is destroyed (\texttt{Ctrl + C}): \textbf{no action}
+   \end{enumerate}
+\end{itemize}
+
+do not forget $/$ at the end of the binaries folder path and give absolute path to the destination
+
+\section{Configuration of compilation}
+
+\subsection{Requirements}
+
+In order to enable the compilation and installation of the DIETCloud
+with Deltacloud support, you must enable the DIET\_USE\_DELTACLOUD
+flag. You also must have installed libdeltacloud.
+
+\subsection{Warnings}
+
+The library libdeltacloud depends on libcurl. If you use libcurl
+installed out of the box on your linux system, you may encounter a known bug
+in relationship with a synchronous DNS lookup. In order to work around
+this bug, you can compile libcurl with \emph{ares} support. You can find more
+information at this page
+\url{http://curl.haxx.se/dev/readme-ares.html} about the procedure.
+
+\subsection{Examples of clients/servers}
+
+In order to enable the compilation and installation of examples
+showing the principles of the DIETCloud with Deltacloud support, you
+must enable the DIET\_BUILD\_EXAMPLES flag. Sources of the examples
+can be found in : $<$diet\_src$>$/src/examples/delta-cloud.
+
+
+\section{List of services}
