@@ -7,7 +7,6 @@
 	<xsl:param name="nfs_vm_image_id" select="'1'" />
 	<xsl:param name="ramses_vm_image_id" select="'2'" />
 	
-	
     <xsl:template match="node()|@*">
         <xsl:copy>
             <xsl:apply-templates select="node()|@*"/>
@@ -44,6 +43,7 @@
             <xsl:value-of select="$level"/>
         </xsl:attribute>
     </xsl:template>
+    
     
     
     

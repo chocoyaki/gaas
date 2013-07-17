@@ -133,8 +133,8 @@ int execute_command_in_vm_by_id(IaaS::IaasInterface* interf, std::string vm_user
 
 
 int create_directory_in_vm(const std::string& remote_path, std::string user, std::string ip, std::string args) {
+  printf(">>>>>>>>create directory in machine : %s\n", ip.c_str());
   std::string cmd = "ssh "  + user + "@" + ip + " -o StrictHostKeyChecking=no 'mkdir " + args + remote_path + "'";
-
   int ret = system(cmd.c_str());
   return ret;
 }
