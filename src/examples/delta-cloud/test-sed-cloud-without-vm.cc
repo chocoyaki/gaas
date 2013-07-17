@@ -41,16 +41,19 @@ main(int argc, char *argv[]) {
   SeDCloudMachinesActions actions(ip, username);
 
 
+
+
   SeDCloud::create(&actions);
 
 
   SeDCloud::get()->service_table_add("matrixAdd", 1, 2, NULL, local_path_of_binary, remote_path_of_binary);
 
-  /* Launch the SeD: no return call */
+
+
   SeDCloud::launch(argc, argv);
 
-    //SeDCloud::erase();
 
-  /* Dead code */
+
+
   return 0;
 } /* main */
