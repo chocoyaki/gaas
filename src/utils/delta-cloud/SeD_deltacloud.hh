@@ -82,15 +82,15 @@ class CloudServiceBinary {
     /*Constructor specified by given local_path and remote_path*/
     CloudServiceBinary(const std::string& _local_path, const std::string& _remote_path,
 					 const std::string& _entry_point_relative_file_path="exec.sh", const std::string& _remote_path_of_arguments = "", dietcloud_callback_t _prepocessing = NULL,
-                         dietcloud_callback_t _postprocessing = NULL);
+                         dietcloud_callback_t _postprocessing = NULL, ArgumentsTranferMethod argsTranferMethod = filesTransferMethod);
     CloudServiceBinary(const CloudServiceBinary& binary);
     CloudServiceBinary();
 
 
 	ArgumentsTranferMethod argumentsTransferMethod;
 
-	int install(const std::string& ip, const std::string& user_name) const;
-    int execute_remote(const std::string& ip, const std::string& user_name, const std::vector<std::string>& args) const;
+	int install(const std::string& ip, const std::string& vm_user_name) const;
+    int execute_remote(const std::string& ip, const std::string& vm_user_name, const std::vector<std::string>& args) const;
 
     bool isPreinstalled() const;
 
@@ -210,14 +210,19 @@ protected:
 };
 
 class SeDCloudActions {
-protected:
 
+private:
     /*******FOR DELTACLOUD********/
-    std::string image_id;
-    std::string base_url; // eg : "http://localhost:3001/api";
 	std::string username; // eg : "oneadmin";
 	std::string password; //eg : "mypassword";
-	std::string vm_user; // eg : "opennebula";
+
+
+protected:
+    /*******FOR DELTACLOUD********/
+    std::string base_url; // eg : "http://localhost:3001/api";
+    std::string image_id;
+
+	std::string vm_user; // eg : "root";
 	int vm_count; // eg : 1;
 	//std::string profile; //eg :  "debian-rc";
 	std::vector<IaaS::Parameter> params; //parameters for instantiating a VM with deltacloud
@@ -225,10 +230,15 @@ protected:
 	bool is_ip_private;
 	ServiceStatisticsMap statistics_on_services;
 
+
+
 	//the index of the machine which is the master
     int master_index;
     void copy_all_binaries_into_vm(int vm_index);
     void copy_binary_into_vm(std::string name, int vm_index);
+
+
+    void launchVMs();
 public:
 
 	void set_master_index(int index) {
@@ -273,7 +283,21 @@ public:
         return this->is_ip_private;
     }
 
-    static std::map<std::string, CloudServiceBinary> cloud_service_binaries;
+	const std::map<std::string, CloudServiceBinary>& get_cloud_service_binaries() {
+		return cloud_service_binaries;
+	}
+
+	void set_cloud_service_binaries(const std::string& name, const CloudServiceBinary& binary) {
+		cloud_service_binaries[name] = binary;
+	}
+
+	void clone_service_binaries(const SeDCloudActions& src);
+protected:
+    std::map<std::string, CloudServiceBinary> cloud_service_binaries;
+
+
+
+
 };
 
 
@@ -320,7 +344,7 @@ public:
 class SeDCloudMachinesActions : public SeDCloudAndVMLaunchedActions {
 protected:
     std::string address_ip;
-    std::string username;
+    //std::string username;
 
 	std::vector<std::string> ips;
 
@@ -337,7 +361,7 @@ public:
     SeDCloudMachinesActions(const std::string& _address_ip,const std::string& _username) :
                           SeDCloudAndVMLaunchedActions(){
         address_ip = _address_ip;
-        username = _username;
+        vm_user = _username;
         ips.push_back(address_ip);
         master_index = 0;
     }
@@ -346,7 +370,7 @@ public:
 		ips = _ips;
 		master_index = _master_index;
 		address_ip = ips[master_index];
-		username = _username;
+		vm_user = _username;
 	}
 };
 
@@ -437,14 +461,14 @@ public:
         }
     }
 
-    static void erase() {
+    /*static void erase() {
         if (instance != NULL) {
             delete instance;
             instance = NULL;
         }
 
         //std::map<std::string, SeDCloudActions*>::iterator iter;
-    }
+    }*/
 
     static SeDCloud* get() {
 
@@ -458,6 +482,10 @@ public:
 			delete actions;
 		}
 		actions = _actions;
+	}
+
+	const SeDCloudActions& getActions(){
+		return *actions;
 	}
 
     virtual DIET_API_LIB int
@@ -519,7 +547,7 @@ public:
  };
 
 //template <class Actions>
-std::map<std::string, CloudServiceBinary> SeDCloudActions::cloud_service_binaries;
+//std::map<std::string, CloudServiceBinary> SeDCloudActions::cloud_service_binaries;
 
 SeDCloud* SeDCloud::instance;
 //std::map<std::string, IaaS::VMInstances*> SeDCloud::reserved_vms;

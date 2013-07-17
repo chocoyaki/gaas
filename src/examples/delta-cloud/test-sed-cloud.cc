@@ -23,10 +23,10 @@
 main(int argc, char *argv[]) {
     std::string base_url = "http://localhost:3001/api";
     std::string username = "oneadmin";
-    std::string password = "mypassword";
-    std::string vm_user = "opennebula";
+    std::string password = "passoneadmin";
+    std::string vm_user = "root";
     int vms_count = 1;
-    std::string profile = "debian-rc";
+    std::string profile = "nfs-server";
     std::vector<IaaS::Parameter> params;
     bool is_ip_private = false;
 

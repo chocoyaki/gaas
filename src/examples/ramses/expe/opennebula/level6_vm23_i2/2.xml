@@ -9,7 +9,7 @@
 		<arg name="vm_count" type="DIET_INT" value="2"/>
 		<arg name="vm_image_id" type="DIET_STRING" value="3"/>
 		<arg name="vm_profile" type="DIET_STRING" value="ramses"/>
-		<arg name="deltacloud_api_url" type="DIET_STRING" value="http://localhost:3001/api"/>
+		<arg name="deltacloud_api_url" type="DIET_STRING" value="http://griffon-6-kavlan-4:3001/api"/>
 		<arg name="deltacloud_user_name" type="DIET_STRING" value="oneadmin"/>
 		<arg name="deltacloud_passwd" type="DIET_STRING" value="mypassword"/>
 		<arg name="vm_user" type="DIET_STRING" value="adi"/>
@@ -23,7 +23,7 @@
 		<arg name="vm_count" type="DIET_INT" value="1"/>
 		<arg name="vm_image_id" type="DIET_STRING" value="2"/>
 		<arg name="vm_profile" type="DIET_STRING" value="nfs-server"/>
-		<arg name="deltacloud_api_url" type="DIET_STRING" value="http://localhost:3001/api"/>
+		<arg name="deltacloud_api_url" type="DIET_STRING" value="http://griffon-6-kavlan-4:3001/api"/>
 		<arg name="deltacloud_user_name" type="DIET_STRING" value="oneadmin"/>
 		<arg name="deltacloud_passwd" type="DIET_STRING" value="mypassword"/>
 		<arg name="vm_user" type="DIET_STRING" value="root"/>
