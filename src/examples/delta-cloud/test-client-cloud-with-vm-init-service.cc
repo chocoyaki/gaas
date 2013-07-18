@@ -14,21 +14,18 @@ main(int argc, char *argv[]) {
   size_t out_size = 0;
   char cmd[2048];
 
-  if (argc != 8) {
-    fprintf(stderr, "Usage: %s <file.cfg> vm_collection_name vm_count vm_image vm_profile vm_user is_ip_private\n", argv[0]);
+  if (argc < 7) {
+    fprintf(stderr, "Usage: %s <file.cfg> vm_count vm_image vm_profile vm_user is_ip_private\n", argv[0]);
     return 1;
   }
   const char* service = "homogeneous_vm_instanciation";
 
-	char* vm_collection_name = argv[2];
-	int vm_count = atoi(argv[3]);
-	char* vm_image = argv[4];
-	char* vm_profile = argv[5];
-	char* deltacloud_api_url = strdup("http://localhost:3001/api");
-	char* deltacloud_user_name = strdup("oneadmin");
-	char* deltacloud_passwd = strdup("mypassword");
-	char* vm_user = argv[6];
-	int is_ip_private = atoi(argv[7]);
+
+	int vm_count = atoi(argv[2]);
+	char* vm_image = argv[3];
+	char* vm_profile = argv[4];
+	char* vm_user = argv[5];
+	int is_ip_private = atoi(argv[6]);
 
 
 	printf("vm_count=%i\n", vm_count);
@@ -38,23 +35,17 @@ main(int argc, char *argv[]) {
 		return 1;
 	}
 
-	profile = diet_profile_alloc( service, 8, 8, 9);
-	diet_string_set(diet_parameter(profile, 0), vm_collection_name, DIET_VOLATILE);
-	diet_scalar_set(diet_parameter(profile, 1), &vm_count, DIET_VOLATILE, DIET_INT);
-	diet_string_set(diet_parameter(profile, 2), vm_image, DIET_VOLATILE);
-	diet_string_set(diet_parameter(profile, 3), vm_profile, DIET_VOLATILE);
-	diet_string_set(diet_parameter(profile, 4), deltacloud_api_url, DIET_VOLATILE);
-	diet_string_set(diet_parameter(profile, 5), deltacloud_user_name, DIET_VOLATILE);
-	diet_string_set(diet_parameter(profile, 6), deltacloud_passwd, DIET_VOLATILE);
-	diet_string_set(diet_parameter(profile, 7), vm_user, DIET_VOLATILE);
-	diet_scalar_set(diet_parameter(profile, 8), &is_ip_private, DIET_VOLATILE, DIET_INT);
-	diet_file_set(diet_parameter(profile, 9), NULL, DIET_PERSISTENT_RETURN);
+	profile = diet_profile_alloc( service, 4, 4, 5);
+	diet_scalar_set(diet_parameter(profile, 0), &vm_count, DIET_VOLATILE, DIET_INT);
+	diet_string_set(diet_parameter(profile, 1), vm_image, DIET_VOLATILE);
+	diet_string_set(diet_parameter(profile, 2), vm_profile, DIET_VOLATILE);
+	diet_string_set(diet_parameter(profile, 3), vm_user, DIET_VOLATILE);
+	diet_scalar_set(diet_parameter(profile, 4), &is_ip_private, DIET_VOLATILE, DIET_INT);
+	diet_file_set(diet_parameter(profile, 5), NULL, DIET_PERSISTENT_RETURN);
 
-  int env = diet_call(profile);
+	int env = diet_call(profile);
 
-
-
-    diet_file_get(diet_parameter(profile, 9), &path, NULL, &out_size);
+    diet_file_get(diet_parameter(profile, 5), &path, NULL, &out_size);
     if (path && (*path != '\0')) {
       printf("Location of returned file is %s, its size is %lu.\n",
              path, out_size);
@@ -64,14 +55,34 @@ main(int argc, char *argv[]) {
         int env = system(cmd);
     }
 
-	free(deltacloud_api_url);
-	free(deltacloud_user_name);
-	free(deltacloud_passwd);
+	diet_profile_free(profile);
 
-  diet_profile_free(profile);
 
-  diet_finalize();
 
-  return 0;
+	int s = 1;
+	printf("sleeping for %i seconds\n", s);
+	sleep(s);
+
+	printf("destruction of VMs\n");
+
+	const char* vm_destruction_service = "vm_destruction_by_ip";
+
+	profile = diet_profile_alloc(vm_destruction_service, 1, 1, 1);
+	diet_file_set(diet_parameter(profile, 0), path, DIET_VOLATILE);
+	diet_scalar_set(diet_parameter(profile, 1), &is_ip_private, DIET_VOLATILE, DIET_INT);
+	env = diet_call(profile);
+
+	if (env == 0) {
+		printf("vm destruction OK\n");
+	}
+	else {
+		printf("error in vm destruction\n");
+	}
+
+	diet_profile_free(profile);
+
+	diet_finalize();
+
+	return 0;
 } /* main */
 

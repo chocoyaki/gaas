@@ -69,7 +69,6 @@ main(int argc, char *argv[]) {
 	SeDCloud::get()->service_homogeneous_vm_instanciation_add();
 	SeDCloud::get()->service_rsync_to_vm_add();
 	SeDCloud::get()->service_mount_nfs_add();
-	SeDCloud::get()->service_vm_destruction_by_ip_add();
 	SeDCloud::get()->service_get_tarball_from_vm_add();
 	SeDCloud::get()->service_homogeneous_vm_instanciation_with_keyname_add();
 
