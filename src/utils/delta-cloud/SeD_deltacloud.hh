@@ -32,6 +32,10 @@
 
 #define HOMOGENEOUS_VM_INSTANCIATION_SERVICE "homogeneous_vm_instanciation"
 
+
+
+
+
 int create_folder(const char* folder_path);
 std::string get_folder_in_dagda_path(const char* folder_name);
 std::string int2string(int i);
@@ -42,6 +46,7 @@ int create_folder_in_dagda_path(const char* folder_name);
 int create_folder_in_dagda_path_with_request_id(int reqId);
 
 typedef int (* dietcloud_callback_t)(diet_profile_t*);
+typedef dietcloud_callback_t dietwrapper_callback_t;
 
 /**
 	The manner with which arguments are tranfered to vms
@@ -51,6 +56,39 @@ enum ArgumentsTranferMethod {
 	filesTransferMethod = 0, //files are copied to SedCloud and tranfered to vms
 	pathsTransferMethod //files are located in one place (eg on a NFS Server), and vms and SedCloud access to this places
 };
+
+class ServiceWrapper {
+
+public:
+	std::string name_of_service;
+	std::string executable_path;
+	dietwrapper_callback_t prepocessing;
+	dietwrapper_callback_t postprocessing;
+
+	ServiceWrapper(const std::string& _name_of_service,
+	const std::string& _executable_path,
+	dietwrapper_callback_t _prepocessing = NULL,
+	dietwrapper_callback_t _postprocessing = NULL) {
+		name_of_service = _name_of_service;
+		executable_path = _executable_path;
+		prepocessing = _prepocessing;
+		postprocessing = _postprocessing;
+	}
+	ServiceWrapper() {};
+
+
+	~ServiceWrapper() {}
+};
+
+
+DIET_API_LIB int
+        service_wrapper_table_add(const std::string& name_of_service,
+                          int last_in,
+                          int last_out,
+                         const std::string& path_of_binary,
+                         dietwrapper_callback_t prepocessing = NULL,
+                         dietwrapper_callback_t postprocessing = NULL
+                         );
 
 /*
 The folder must contains an executable and a shell script
@@ -208,6 +246,24 @@ protected:
 
 
 };
+
+class CloudAPIConnection{
+public:
+	CloudAPIConnection(const std::string& url, const std::string& usr, const std::string& passwd){
+		username = usr;
+		password = passwd;
+		base_url = url;
+	}
+
+	CloudAPIConnection() {};
+	~CloudAPIConnection(){};
+
+
+	std::string username; // eg : "oneadmin";
+	std::string password; //eg : "mypassword";
+    std::string base_url; // eg : "http://localhost:3001/api";
+} ;
+
 
 class SeDCloudActions {
 
@@ -506,9 +562,21 @@ public:
 	DIET_API_LIB int service_homogeneous_vm_instanciation_with_keyname_add();
 
 	//add a service which allows to instantiate homogeneous vms
+	//only for test
 	DIET_API_LIB int service_homogeneous_vm_instanciation_add();
-	//add a service which allows to desytoy homogeneous vms
+
+	//add a service which allows to instantiate homogeneous vms
+	//this sedCloud is linked to only one Cloud API
+	DIET_API_LIB int service_homogeneous_vm_instanciation_add(const CloudAPIConnection& cloud_api_connection);
+
+
+	//add a service which allows to destroy homogeneous vms
+	//only for test
 	DIET_API_LIB int service_vm_destruction_by_ip_add();
+
+
+	DIET_API_LIB int service_cloud_federation_vm_destruction_by_ip_add(const std::vector<CloudAPIConnection>& cloud_api_connection);
+
 
 	DIET_API_LIB int service_rsync_to_vm_add();
 	DIET_API_LIB int service_get_tarball_from_vm_add();
@@ -518,12 +586,16 @@ public:
 
 protected:
     static int solve(diet_profile_t *pb);
+	static std::vector<CloudAPIConnection> cloud_api_connection_for_vm_destruction;
+	static CloudAPIConnection cloud_api_connection_for_vm_instanciation;
 
     static SeDCloud* instance;
 
 	//solve the service which allows to instantiate homogeneous vms
 	static int homogeneous_vm_instanciation_solve(diet_profile_t *pb);
+	static int homogeneous_vm_instanciation_with_one_cloud_api_connection_solve(diet_profile_t* pb);
 	static int vm_destruction_by_ip_solve(diet_profile_t *pb);
+	static int cloud_federation_vm_destruction_by_ip_solve(diet_profile_t *pb);
 	static int rsync_to_vm_solve(diet_profile_t *pb);
 	static int get_tarball_from_vm_solve(diet_profile_t* pb);
 	static int mount_nfs_solve(diet_profile_t *pb);
@@ -551,7 +623,13 @@ public:
 
 SeDCloud* SeDCloud::instance;
 //std::map<std::string, IaaS::VMInstances*> SeDCloud::reserved_vms;
+std::vector<CloudAPIConnection> SeDCloud::cloud_api_connection_for_vm_destruction;
+CloudAPIConnection SeDCloud::cloud_api_connection_for_vm_instanciation;
 
 int time_solve(diet_profile_t *pb);
+
+
+
+
 
 #endif

@@ -559,6 +559,38 @@ DIET_API_LIB int SeDCloud::service_homogeneous_vm_instanciation_add() {
 	//diet_print_service_table();
 }
 
+/**
+	params :
+		IN:
+		0 vm count : INT
+		1 vm image : STRING
+		2 vm profile : STRING
+		3 vm user
+		4 take private ips : INT
+		OUT:
+		5 vm ips : FILE
+
+*/
+
+
+DIET_API_LIB int SeDCloud::service_homogeneous_vm_instanciation_add(const CloudAPIConnection& _cloud_api_connection) {
+	cloud_api_connection_for_vm_instanciation = _cloud_api_connection;
+
+	diet_profile_desc_t* profile;
+
+	profile = diet_profile_desc_alloc("homogeneous_vm_instanciation", 4, 4, 5);
+	diet_generic_desc_set(diet_param_desc(profile, 0), DIET_SCALAR, DIET_INT);
+	diet_generic_desc_set(diet_param_desc(profile, 1), DIET_STRING, DIET_CHAR);
+	diet_generic_desc_set(diet_param_desc(profile, 2), DIET_STRING, DIET_CHAR);
+	diet_generic_desc_set(diet_param_desc(profile, 3), DIET_STRING, DIET_CHAR);
+	diet_generic_desc_set(diet_param_desc(profile, 4), DIET_SCALAR, DIET_INT);
+	diet_generic_desc_set(diet_param_desc(profile, 5), DIET_FILE, DIET_CHAR);
+
+	diet_service_table_add(profile,  NULL, SeDCloud::homogeneous_vm_instanciation_with_one_cloud_api_connection_solve);
+
+	diet_profile_desc_free(profile);
+}
+
 
 /**
 	params :
@@ -622,6 +654,22 @@ DIET_API_LIB int SeDCloud::service_vm_destruction_by_ip_add() {
 	diet_profile_desc_free(profile);
 	//diet_print_service_table();
 }
+
+
+DIET_API_LIB int SeDCloud::service_cloud_federation_vm_destruction_by_ip_add(const std::vector<CloudAPIConnection>& _cloud_api_connection) {
+		cloud_api_connection_for_vm_destruction = _cloud_api_connection;
+
+		diet_profile_desc_t* profile;
+		profile = diet_profile_desc_alloc("vm_destruction_by_ip", 1, 1, 1);
+
+		diet_generic_desc_set(diet_param_desc(profile, 0), DIET_FILE, DIET_CHAR); //ips
+		diet_generic_desc_set(diet_param_desc(profile, 1), DIET_SCALAR, DIET_INT); //private or public ips
+
+		diet_service_table_add(profile, NULL, SeDCloud::cloud_federation_vm_destruction_by_ip_solve);
+		diet_profile_desc_free(profile);
+}
+
+
 
 
 //WARNING, TODO : this only works with services whose binaries are already preinstalled in the VM
@@ -715,7 +763,77 @@ int SeDCloud::homogeneous_vm_instanciation_solve(diet_profile_t *pb) {
 }
 
 
+int SeDCloud::homogeneous_vm_instanciation_with_one_cloud_api_connection_solve(diet_profile_t* pb) {
+	char* vm_collection_name;
+	int* vm_count;
+	char* vm_image;
+	char* vm_profile;
+	const char* deltacloud_api_url;
+	const char* deltacloud_user_name;
+	const char* deltacloud_passwd;
+	char* vm_user;
+	//0 if we take the public ip 1 if we take the private ip
+	int* is_ip_private;
 
+
+	deltacloud_api_url = cloud_api_connection_for_vm_instanciation.base_url.c_str();
+	deltacloud_user_name = cloud_api_connection_for_vm_instanciation.username.c_str();
+	deltacloud_passwd = cloud_api_connection_for_vm_instanciation.password.c_str();
+
+	diet_scalar_get(diet_parameter(pb, 0), &vm_count, NULL);
+	diet_string_get(diet_parameter(pb, 1), &vm_image, NULL);
+	diet_string_get(diet_parameter(pb, 2), &vm_profile, NULL);
+	diet_string_get(diet_parameter(pb, 3), &vm_user, NULL);
+	diet_scalar_get(diet_parameter(pb, 4), &is_ip_private, NULL);
+	//one creates the vm instances
+
+
+	printf("url = %s, instanciation : image='%s', profile='%s', vm_count=%i\n", deltacloud_api_url, vm_image, vm_profile, *vm_count);
+
+	std::vector<IaaS::Parameter> params;
+	params.push_back(IaaS::Parameter(HARDWARE_PROFILE_ID_PARAM, vm_profile));
+
+	IaaS::VMInstances* instances;
+	std::vector<std::string> ips;
+
+
+	//if (reserved_vms.count(vm_collection_name) == 0 ) {
+	instances = new IaaS::VMInstances(vm_image, *vm_count, deltacloud_api_url, deltacloud_user_name, deltacloud_passwd, vm_user, params);
+	//reserved_vms[vm_collection_name] = instances;
+	instances->wait_all_instances_running();
+	instances->wait_all_ssh_connection(*is_ip_private);
+
+	instances->get_ips(ips, *is_ip_private);
+
+	int reqId = pb->dietReqID;
+	std::string szReqId = int2string(reqId);
+	std::string local_results_folder = get_folder_in_dagda_path(szReqId.c_str());
+	int env = create_folder(local_results_folder.c_str());
+
+
+	std::ostringstream vm_ip_file_path;
+	boost::uuids::uuid uuid = diet_generate_uuid();
+	vm_ip_file_path << local_results_folder << "-" << uuid << ".txt";
+
+
+
+
+
+
+	//write ips in file
+	FILE* vm_ips_file = fopen(vm_ip_file_path.str().c_str(), "w");
+	if (vm_ips_file == NULL) {
+		return -1;
+	}
+	for(int i = 0; i < *vm_count; i++) {
+		fprintf(vm_ips_file, "%s\n", ips[i].c_str());
+	}
+	fclose(vm_ips_file);
+
+	diet_file_set(diet_parameter(pb, 5), vm_ip_file_path.str().c_str(), DIET_PERSISTENT_RETURN);
+
+	return 0;
+}
 
 
 
@@ -829,7 +947,7 @@ int SeDCloud::homogeneous_vm_instanciation_with_keyname_solve(diet_profile_t *pb
 
 
 
-
+//useless if there is a cloud federation
 int SeDCloud::vm_destruction_by_ip_solve(diet_profile_t *pb) {
 	char* path;
 	size_t size;
@@ -857,6 +975,42 @@ int SeDCloud::vm_destruction_by_ip_solve(diet_profile_t *pb) {
 
 	delete interface;
 
+
+	//TODO : check if vms are really freed
+	return 0;
+}
+
+
+//usefull if there is a cloud federation
+int SeDCloud::cloud_federation_vm_destruction_by_ip_solve(diet_profile_t *pb) {
+	char* path;
+	size_t size;
+	const char* url_api;
+	const char* user_name;
+	const char* password;
+	int* select_private_ips;
+
+	diet_file_get(diet_parameter(pb, 0), &path, NULL, &size);
+	diet_scalar_get(diet_parameter(pb, 1), &select_private_ips, NULL);
+
+	std::vector<std::string> ips;
+	readlines(path, ips);
+	int env = -1;
+	for(int i = 0; i < cloud_api_connection_for_vm_destruction.size(); i++) {
+
+		url_api = cloud_api_connection_for_vm_destruction[i].base_url.c_str();
+		user_name = cloud_api_connection_for_vm_destruction[i].username.c_str();
+		password = cloud_api_connection_for_vm_destruction[i].password.c_str();
+
+
+		IaaS::IaasInterface* interface = new IaaS::Iaas_deltacloud(url_api, user_name, password);
+		env = interface->terminate_instances_by_ips(ips, *select_private_ips);
+		delete interface;
+
+		if (env == 0) break;
+	}
+
+	//TODO : check if vms are really freed
 	return 0;
 }
 
@@ -1137,4 +1291,102 @@ int time_solve(diet_profile_t *pb) {
 
 void SeDCloudActions::clone_service_binaries(const SeDCloudActions& src) {
 	cloud_service_binaries = src.cloud_service_binaries;
+}
+
+
+static std::map<std::string, ServiceWrapper> service_name_to_executable;
+
+int service_wrapper_solve(diet_profile_t* pb) {
+	//SeDCloud::instance->actions->perform_action_on_begin_solve(pb);
+
+	std::string name(pb->pb_name);
+	//const std::map<std::string, CloudServiceBinary>& binaries = instance->actions->get_cloud_service_binaries();
+	const ServiceWrapper& binary = service_name_to_executable.at(name);
+	if (binary.prepocessing != NULL) {
+		binary.prepocessing(pb);
+	}
+
+	int nb_args = pb->last_out + 1;
+	int last_in = pb->last_in;
+	size_t arg_size;
+
+	const std::string& path_of_executable = binary.executable_path;
+
+	std::string cmd = path_of_executable;
+	for(int i = 0; i < nb_args; i++) {
+		if (i <= last_in) {
+				char* sz;
+				diet_string_get(diet_parameter(pb, i), &sz, NULL);
+				cmd.append(" ");
+				cmd.append(sz);
+		}
+	}
+
+	printf("EXECUTION of %s\n", cmd.c_str());
+	int env = system(cmd.c_str());
+
+
+
+	if (binary.postprocessing != NULL){
+		binary.postprocessing(pb);
+	}
+
+
+
+	return env;
+}
+
+DIET_API_LIB int
+        service_wrapper_table_add(const std::string& name_of_service,
+                          int last_in,
+                          int last_out,
+                         const std::string& path_of_binary,
+                         dietwrapper_callback_t prepocessing,
+                         dietwrapper_callback_t postprocessing
+                         ) {
+
+	diet_data_type_t type = DIET_STRING;
+	diet_base_type_t base_type = DIET_CHAR;
+
+	/*switch (argumentsTransferMethod) {
+		case filesTransferMethod:
+			type = DIET_FILE;
+			base_type = DIET_CHAR;
+			break;
+		case pathsTransferMethod:
+			type = DIET_STRING;
+			base_type = DIET_CHAR;
+			last_out = last_in + 1;
+			break;
+		default:
+			printf("WARNING : %i argumentsTranferMethod not supported\n", argumentsTransferMethod);
+	}*/
+
+	ServiceWrapper service_wrapper(name_of_service, path_of_binary, prepocessing, postprocessing);
+	service_name_to_executable[name_of_service] = service_wrapper;
+
+
+	diet_profile_desc_t* profile;
+
+	profile = diet_profile_desc_alloc(name_of_service.c_str(), last_in, last_in, last_out);
+
+	for(int i = 0; i <= last_out; i++) {
+		diet_generic_desc_set(diet_param_desc(profile, i), type, base_type);
+	}
+
+
+
+
+	if (diet_service_table_add(profile, NULL, service_wrapper_solve)) {
+		return 1;
+	}
+
+
+	diet_profile_desc_free(profile);
+	//diet_print_service_table();
+
+
+
+	return 0;
+
 }

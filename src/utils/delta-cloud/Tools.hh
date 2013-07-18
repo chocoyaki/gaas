@@ -40,6 +40,9 @@ int create_directory_in_vm_by_id(IaaS::IaasInterface* interf, std::string vm_use
 char* readline(const char* path, int index);
 void readlines(const char* path, std::vector<std::string>& lines);
 
+
+
+
 namespace IaaS {
 
 
