@@ -13,36 +13,26 @@ main(int argc, char *argv[]) {
   size_t out_size = 0;
   char cmd[2048];
 
-  if (argc < 5) {
-    fprintf(stderr, "Usage: %s <file.cfg> hostname_for_mpi level rundir\n", argv[0]);
+  if (argc < 3) {
+    fprintf(stderr, "Usage: %s <file.cfg> file\n", argv[0]);
     return 1;
   }
-  const char* service = "grafic1";
+  const char* service = "tar";
 
   if (diet_initialize(argv[1], argc, argv)) {
     fprintf(stderr, "DIET initialization failed !\n");
     return 1;
   }
 
-  profile = diet_profile_alloc( service, 2, 2, 3);
+  profile = diet_profile_alloc( service, 0, 0, 1);
   if (diet_string_set(diet_parameter(profile, 0), argv[2], DIET_VOLATILE)) {
-    printf("diet_string_set error : hostname_for_mpi 1\n");
-    return 1;
-  }
-  if (diet_string_set(diet_parameter(profile, 1), argv[3], DIET_VOLATILE)) {
-    printf("diet_string_set error : level 2\n");
+    printf("diet_string_set error : file_in\n");
     return 1;
   }
 
-  if (diet_string_set(diet_parameter(profile, 2), argv[4], DIET_VOLATILE)) {
-    printf("diet_string_set error : rundir\n");
-    return 1;
-  }
-
-
-  if (diet_string_set(diet_parameter(profile, 3), NULL, DIET_VOLATILE)) {
-    printf("diet_string_set error : rundir\n");
-    return 1;
+  if (diet_file_set(diet_parameter(profile, 1), NULL, DIET_PERSISTENT_RETURN)) {
+	printf("diet_file_set error : file_out");
+	return 1;
   }
 
 	int env = diet_call(profile);
@@ -52,10 +42,11 @@ main(int argc, char *argv[]) {
 		exit(env);
 	}
 
-    diet_string_get(diet_parameter(profile, 3), &path, NULL);
+
+    diet_file_get(diet_parameter(profile, 1), &path, NULL, &out_size);
     printf("path=%p\n", path);
-    if (path /*&& (*path != '\0')*/) {
-		printf("output dir is %s\n", path);
+    if (path) {
+		printf("output file is %s\n", path);
     }
 
 
