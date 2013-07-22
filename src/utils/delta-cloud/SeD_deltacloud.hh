@@ -46,7 +46,10 @@ int create_folder_in_dagda_path(const char* folder_name);
 int create_folder_in_dagda_path_with_request_id(int reqId);
 
 typedef int (* dietcloud_callback_t)(diet_profile_t*);
-typedef dietcloud_callback_t dietwrapper_callback_t;
+
+class ServiceWrapper;
+
+typedef int (*dietwrapper_callback_t)(ServiceWrapper*, diet_profile_t*);
 
 /**
 	The manner with which arguments are tranfered to vms
@@ -57,6 +60,25 @@ enum ArgumentsTranferMethod {
 	pathsTransferMethod //files are located in one place (eg on a NFS Server), and vms and SedCloud access to this places
 };
 
+enum ServiceWrapperArgumentType {
+	dietProfileArgType = 0,
+	commandLineArgType
+};
+
+/*typedef union {
+	int diet_profile_arg;
+	char* command_line_arg;
+} UServiceWrapperArgument;
+*/
+
+typedef struct{
+	ServiceWrapperArgumentType arg_type;
+	union{
+		int diet_profile_arg;
+		char* command_line_arg;
+	};
+} ServiceWrapperArgument;
+
 class ServiceWrapper {
 
 public:
@@ -65,30 +87,106 @@ public:
 	dietwrapper_callback_t prepocessing;
 	dietwrapper_callback_t postprocessing;
 
-	ServiceWrapper(const std::string& _name_of_service,
+
+
+
+
+	ServiceWrapper(
+	const std::string& _name_of_service,
 	const std::string& _executable_path,
 	dietwrapper_callback_t _prepocessing = NULL,
-	dietwrapper_callback_t _postprocessing = NULL) {
+	dietwrapper_callback_t _postprocessing = NULL,
+	int nb_args = 0) {
 		name_of_service = _name_of_service;
 		executable_path = _executable_path;
 		prepocessing = _prepocessing;
 		postprocessing = _postprocessing;
+		args = std::vector<ServiceWrapperArgument>(nb_args);
 	}
 	ServiceWrapper() {};
 
 
-	~ServiceWrapper() {}
+
+	void set_arg(int index, const std::string& arg) {
+
+		if (args[index].command_line_arg != NULL) {
+			free(args[index].command_line_arg);
+		}
+
+		args[index].command_line_arg = strdup(arg.c_str());
+		args[index].arg_type = commandLineArgType;
+	}
+
+	void set_arg(int index, int diet_profile_arg) {
+
+		if (args[index].command_line_arg != NULL) {
+			free(args[index].command_line_arg);
+			args[index].command_line_arg = NULL;
+		}
+
+
+		args[index].diet_profile_arg = diet_profile_arg;
+		args[index].arg_type = dietProfileArgType;
+	}
+
+	const ServiceWrapperArgument& get_arg(int index) const {
+		return args[index];
+	}
+
+	int get_last_diet_in() const {
+		int last_in = -1;
+
+		for(int index = 0; index < args.size(); index++){
+			if (args[index].arg_type == dietProfileArgType) {
+				if (last_in < args[index].diet_profile_arg) {
+					last_in = args[index].diet_profile_arg;
+				}
+			}
+		}
+
+		return last_in;
+	}
+
+	~ServiceWrapper() {
+		std::vector<ServiceWrapperArgument>::iterator iter;
+		for(int index = 0; index < args.size(); index++) {
+			ServiceWrapperArgument& arg = args[index];
+			if (arg.arg_type == commandLineArgType) {
+				if(arg.command_line_arg != NULL) {
+					free(arg.command_line_arg);
+					arg.command_line_arg = NULL;
+				}
+			}
+		}
+	}
+
+	const std::vector<ServiceWrapperArgument>& get_args() const {
+		return args;
+	}
+
+	int get_nb_args() const {
+		return args.size();
+	}
+private:
+	//key: the index of the argument in command line; value: the argument
+	std::vector<ServiceWrapperArgument> args;
 };
 
 
 DIET_API_LIB int
         service_wrapper_table_add(const std::string& name_of_service,
-                          int last_in,
-                          int last_out,
-                         const std::string& path_of_binary,
-                         dietwrapper_callback_t prepocessing = NULL,
-                         dietwrapper_callback_t postprocessing = NULL
+							int last_in,
+							const std::vector<std::pair<diet_data_type_t, diet_base_type_t> >& out_types,
+							const std::string& path_of_binary,
+							dietwrapper_callback_t prepocessing = NULL,
+							dietwrapper_callback_t postprocessing = NULL
                          );
+
+DIET_API_LIB int
+        service_wrapper_table_add(const ServiceWrapper& service_wrapper,
+							const std::vector<std::pair<diet_data_type_t, diet_base_type_t> >& out_types
+                         );
+
 
 /*
 The folder must contains an executable and a shell script
