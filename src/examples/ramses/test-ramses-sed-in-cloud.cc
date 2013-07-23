@@ -1,7 +1,7 @@
 /**
  * @file test-sed-cloud.cc
  *
- * @brief  Example server for the SeDCloud without vm : testing ramses
+ * @brief  Example server for the SeD in vm : testing ramses
  *
  * @author  Lamiel Toch (lamiel.toch@ens-lyon.fr)
  *
@@ -22,7 +22,7 @@
 #include "Instance.hh"
 
 
-#define RAMSES_HOME "/home/adi/scenario"
+#define RAMSES_HOME "/home/lamiel/scenario"
 
 
 int ouput_same_as_input(ServiceWrapper* sw, diet_profile_t *pb) {
@@ -79,11 +79,11 @@ main(int argc, char *argv[]) {
 
 
 
-	service_wrapper_table_add("grafic1", 2, out_types, RAMSES_HOME "/call-grafic1", NULL, ouput_same_as_input);
+	service_wrapper_table_add("grafic1", 1, out_types, RAMSES_HOME "/call-grafic1", NULL, ouput_same_as_input);
 	service_wrapper_table_add("ramses3d", 2, out_types, RAMSES_HOME "/call-ramses3d", NULL, ouput_same_as_input);
-	service_wrapper_table_add("halomaker", 1, out_types, RAMSES_HOME "/call-halomaker", NULL, ouput_same_as_input);
-	service_wrapper_table_add("treemaker", 1, out_types, RAMSES_HOME "/call-treemaker", NULL, ouput_same_as_input);
-	service_wrapper_table_add("galaxymaker", 1, out_types, RAMSES_HOME "/call-galaxymaker", NULL, ouput_same_as_input);
+	service_wrapper_table_add("halomaker", 0, out_types, RAMSES_HOME "/call-halomaker", NULL, ouput_same_as_input);
+	service_wrapper_table_add("treemaker", 0, out_types, RAMSES_HOME "/call-treemaker", NULL, ouput_same_as_input);
+	service_wrapper_table_add("galaxymaker", 0, out_types, RAMSES_HOME "/call-galaxymaker", NULL, ouput_same_as_input);
 
 	std::vector<std::pair<diet_data_type_t, diet_base_type_t> > no_out;
 	service_wrapper_table_add("ls", 0, no_out, "ls", NULL, NULL);
