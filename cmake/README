@@ -4,7 +4,7 @@ I/ For the (really) impatients:
   cd ..        [ relative to this README file i.e. cd the home of DIET sources ]
   mkdir dietbin
   cd dietbin
-  ccmake .. -DCMAKE_INSTALL_PREFIX:PATH=/tmp -DDIET_USE_CORI:BOOL=ON
+  ccmake .. -DCMAKE_INSTALL_PREFIX:PATH=/tmp
     [ deal with the interface options: help is at bottom of screen! ]
   make
   make install
@@ -71,7 +71,6 @@ IV/ DIET specific cmake parameters:
   - DIET_BUILD_EXAMPLES for ... building examples
   - DIET_BUILD_BLAS_EXAMPLES for ... BLAS based examples.
   - DIET_USE_BATCH for ... Appleseeds based batch extensions.
-  - DIET_USE_CORI for ... a built-in low-profile FAST surrogate.
   - DIET_USE_FAST for ... using FAST a grid aware dynamic forecasting library.
   - DIET_USE_JXTA for ... using JXTA for dynamic MULTI Master Agent support.
   - DIET_WITH_MULTI_MA for ... MULTI Master Agent based support.
@@ -81,8 +80,7 @@ IV/ DIET specific cmake parameters:
     Example: cmake .. -DOMNIORB4_DIR:PATH=/usr/local/omniORB-4.0.7
 
 V/ DIET [c]cmake invocation example:
- ccmake .. -DDIET_USE_CORI:BOOL=ON 
-           -DDIET_BUILD_BLAS_EXAMPLES:BOOL=ON -DDIET_USE_FAST:BOOL=ON
+ ccmake .. -DDIET_BUILD_BLAS_EXAMPLES:BOOL=ON -DDIET_USE_FAST:BOOL=ON
            -DDIET_USE_JXTA:BOOL=ON -DDIET_WITH_MULTI_MA:BOOL=ON
            -DDIET_BUILD_DOCUMENTATION:BOOL=ON
            -DDIET_BUILD_EXAMPLES:BOOL=ON 
