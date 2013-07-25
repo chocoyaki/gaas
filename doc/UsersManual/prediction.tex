@@ -18,59 +18,54 @@ defined in Chapter~\ref{ch:plugin} with the information it needs. The \sed
 returns the information and the agent can make the scheduling.\\ Performance
 prediction can be based on hardware information, the load of the \sed (the CPU
 load, the memory availability, \etc) or an advanced performance prediction can
-combine a set of basic performance predictions. A performance prediction 
+combine a set of basic performance predictions. Completely custom data can even be used for performance prediction, when using plugin schedulers. A performance prediction
 scheduler module named CoRI  is available.
 \\CoRI is described in Section~\ref{sec:CORI}.\\
-By default \diet is compiled with CoRI enabled.
 In table~\ref{t:depcompil} you can see which
-information is available with each compilation option.
+information is available by default with CoRI.
 
 \begin{table}[h]
  \tiny
  \centering
- \begin{tabular}[c]{|l|c|c||c||c|}\hline
+ \begin{tabular}[c]{|l|}\hline
 %Cori ligne
-   &
-  \multicolumn{4}{|c|}{\textbf{-DDIET\_USE\_CORI:}} \\[5pt]
-   &
-  \multicolumn{2}{|c||}{\textbf{BOOL=OFF}} &
-  \multicolumn{2}{|c|}{\textbf{BOOL=ON}}\\[5pt]
+  \textbf{always available:} \\[5pt]
   \hline
   \hline
 %TAGS lines
- \textit{TCOMP        }      &   & x &   &    \\[5pt]
+ \textit{TCOMP        } \\[5pt]
  \hline 
-%  \textit{TIMESINCELASTSOLVE} & x & x & x & x  \\[5pt]
+%  \textit{TIMESINCELASTSOLVE}\\[5pt]
 %  \hline
-  \textit{FREECPU      }      &   & x & x & x  \\[5pt]
+  \textit{FREECPU      } \\[5pt]
   \hline
-  \textit{FREEMEM      }      &   & x & x & x  \\[5pt]
+  \textit{FREEMEM      } \\[5pt]
   \hline
-  \textit{NBCPU        }      &   & x & x & x  \\[5pt]
+  \textit{NBCPU        } \\[5pt]
   \hline
-  \textit{CPUSPEED     }      &   &   & x & x  \\[5pt]
+  \textit{CPUSPEED     } \\[5pt]
   \hline
-  \textit{TOTALMEM     }      &   &   & x & x  \\[5pt]
+  \textit{TOTALMEM     } \\[5pt]
   \hline
-  \textit{AVGFREECPU   }      &   &   & x & x  \\[5pt]
+  \textit{AVGFREECPU   } \\[5pt]
   \hline
-  \textit{BOGOMIPS     }      &   &   & x & x  \\[5pt]
+  \textit{BOGOMIPS     } \\[5pt]
   \hline
-  \textit{CACHECPU     }      &   &   & x & x  \\[5pt]
+  \textit{CACHECPU     } \\[5pt]
   \hline
-  \textit{TOTALSIZEDISK}      &   &   & x & x  \\[5pt]
+  \textit{TOTALSIZEDISK} \\[5pt]
   \hline
-  \textit{FREESIZEDISK }      &   &   & x & x  \\[5pt]
+  \textit{FREESIZEDISK } \\[5pt]
   \hline
-  \textit{DISKACCESREAD}      &   &   & x & x  \\[5pt]
+  \textit{DISKACCESREAD} \\[5pt]
   \hline
-  \textit{DISKACCESWRITE}     &   &   & x & x  \\[5pt]
+  \textit{DISKACCESWRITE} \\[5pt]
   \hline
-  \textit{ALLINFOS     }      &   &   & x & x  \\[5pt]
+  \textit{ALLINFOS     } \\[5pt]
   \hline
   \hline
-  & \multicolumn{4}{|c|}{\textbf{-DDIET\_USE\_BATCH=ON}} \\[5pt]  
-  \textit{PARAL\_NB\_FREE\_RESOURCES\_IN\_DEFAULT\_QUEUE} & & & x & x  \\[5pt] 
+  \textbf{when compiled with -DDIET\_USE\_BATCH=ON} \\[5pt]  
+  \textit{PARAL\_NB\_FREE\_RESOURCES\_IN\_DEFAULT\_QUEUE} \\[5pt] 
   \hline
  \end{tabular}
  \caption{Dependencies of the available information on the
