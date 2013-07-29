@@ -10,19 +10,16 @@
  * <wf_xml_file>
  */
 
-char deltacloud_hostname[2048];
+
 
 int destroy_vms(const char* ips_file_path, int select_private_ip) {
 	//destruction of vms
 
 	diet_profile_t* profile_destroy_vm;
 
-	profile_destroy_vm = diet_profile_alloc( "vm_destruction_by_ip", 4, 4, 4);
-	diet_string_set(diet_parameter(profile_destroy_vm, 0), deltacloud_hostname, DIET_VOLATILE);
-	diet_string_set(diet_parameter(profile_destroy_vm, 1), "oneadmin", DIET_VOLATILE);
-	diet_string_set(diet_parameter(profile_destroy_vm, 2), "mypassword", DIET_VOLATILE);
-	diet_file_set(diet_parameter(profile_destroy_vm, 3), ips_file_path, DIET_VOLATILE);
-	diet_scalar_set(diet_parameter(profile_destroy_vm, 4), &select_private_ip, DIET_VOLATILE, DIET_INT);
+	profile_destroy_vm = diet_profile_alloc( "vm_destruction_by_ip", 1, 1, 1);
+	diet_file_set(diet_parameter(profile_destroy_vm, 0), ips_file_path, DIET_VOLATILE);
+	diet_scalar_set(diet_parameter(profile_destroy_vm, 1), &select_private_ip, DIET_VOLATILE, DIET_INT);
 	int env = diet_call(profile_destroy_vm);
 
 	diet_profile_free(profile_destroy_vm);
@@ -43,8 +40,8 @@ int main(int argc, char ** argv) {
   char * wf_xml_file;
   char* out_dir;
 
-  if (argc < 5) {
-	printf("usage %s cfg xml expe-file-path deltacloud_hostname\n", argv[0]);
+  if (argc < 4) {
+	printf("usage %s cfg xml expe-file-path\n", argv[0]);
 	exit(-1);
   }
 
@@ -55,7 +52,6 @@ int main(int argc, char ** argv) {
 
   wf_xml_file = argv[2];
   char* expe_file_path = argv[3];
-  strcpy(deltacloud_hostname, argv[4]);
 
   profile = diet_wf_profile_alloc(wf_xml_file, "test-profile", DIET_WF_DAG);
 

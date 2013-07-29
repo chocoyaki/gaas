@@ -267,7 +267,6 @@ endif()
 # OmniORB is mandatory:
 find_package(OmniORB4 REQUIRED)
 
-
 # --------------------------- Batch support ------------------------
 if(DIET_USE_ALT_BATCH)
   add_definitions(-DHAVE_ALT_BATCH)
@@ -400,6 +399,9 @@ endif(DIET_USE_MULTICALL)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/utils/cmake_variables/security_config.h.in
  ${CMAKE_CURRENT_BINARY_DIR}/src/utils/cmake_variables/security_config.h)
 include_directories("${CMAKE_CURRENT_BINARY_DIR}/src/utils/cmake_variables/")
+if(DIET_USE_DELTACLOUD)
+ find_package(LibDeltaCloud)
+endif()
 
 
 # --------------- OFFER BUILD MODE EXTENSIONS AND DEFAULTS  ----------------
@@ -572,8 +574,6 @@ if(NOT WIN32)
 endif()
 
 
-if(DIET_USE_DELTACLOUD)
- find_package(LibDeltaCloud)
-endif()
+
 
 ## eof - CMakeLists.txt
