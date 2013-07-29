@@ -78,7 +78,6 @@ main(int argc, char *argv[]) {
 
 
 
-
 	service_wrapper_table_add("grafic1", 1, out_types, RAMSES_HOME "/call-grafic1", NULL, ouput_same_as_input);
 	service_wrapper_table_add("ramses3d", 2, out_types, RAMSES_HOME "/call-ramses3d", NULL, ouput_same_as_input);
 	service_wrapper_table_add("halomaker", 0, out_types, RAMSES_HOME "/call-halomaker", NULL, ouput_same_as_input);

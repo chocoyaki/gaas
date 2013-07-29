@@ -382,6 +382,11 @@ if(DIET_USE_MULTICALL)
   add_definitions(-DHAVE_MULTICALL)
 endif(DIET_USE_MULTICALL)
 
+if(DIET_USE_DELTACLOUD)
+ find_package(LibDeltaCloud)
+endif()
+
+
 # --------------- OFFER BUILD MODE EXTENSIONS AND DEFAULTS  ----------------
 include(${DIET_SOURCE_DIR}/cmake/DietDefaultBuildTypes.cmake)
 
@@ -552,8 +557,6 @@ if(NOT WIN32)
 endif()
 
 
-if(DIET_USE_DELTACLOUD)
- find_package(LibDeltaCloud)
-endif()
+
 
 ## eof - CMakeLists.txt
