@@ -24,13 +24,17 @@ main(int argc, char *argv[]) {
 
 
 
-    if (argc < 2) {
-		printf("usage : %s cfg\n", argv[0]);
+    if (argc < 5) {
+		printf("usage : %s cfg delta_cloud_url usr mdp\n", argv[0]);
 		exit(0);
 	}
 
+	char* url = argv[2];
+	char* usr = argv[3];
+	char* mdp = argv[4];
+
 	std::vector<CloudAPIConnection> ctx;
-	CloudAPIConnection deltacloud_api("http://localhost:3001/api", "oneadmin", "passoneadmin");
+	CloudAPIConnection deltacloud_api(url, usr, mdp);
 	ctx.push_back(deltacloud_api);
 
 

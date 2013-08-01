@@ -370,6 +370,8 @@ private:
 	std::string username; // eg : "oneadmin";
 	std::string password; //eg : "mypassword";
 
+	IaaS::VMInstances* vm_instances;
+	void fill_ips();
 
 protected:
     /*******FOR DELTACLOUD********/
@@ -380,28 +382,29 @@ protected:
 	int vm_count; // eg : 1;
 	//std::string profile; //eg :  "debian-rc";
 	std::vector<IaaS::Parameter> params; //parameters for instantiating a VM with deltacloud
-	IaaS::VMInstances* vm_instances;
+
 	bool is_ip_private;
 	ServiceStatisticsMap statistics_on_services;
 
+	std::vector<std::string> ips;
+    std::string master_ip;
 
-
-	//the index of the machine which is the master
-    int master_index;
-    void copy_all_binaries_into_vm(int vm_index);
-    void copy_binary_into_vm(std::string name, int vm_index);
-
-
-    void launchVMs();
+	void copy_binary_into_vm(std::string name, int vm_index);
+	void copy_binary_into_all_vms(std::string name);
+	void copy_all_binaries_into_vm(int vm_index);
+	void copy_all_binaries_into_all_vms();
+    void launch_vms();
+    void destroy_vms();
+    int send_vm_ips_to_master();
 public:
 
-	void set_master_index(int index) {
-		master_index = index;
+	const std::vector<std::string>& get_ips() {
+		return ips;
 	}
 
-    int get_master_index() {
-		return master_index;
-    }
+	const std::string& get_master_ip() {
+		return master_ip;
+	}
 
     //execute an action when the the client make a solve
     virtual int perform_action_on_begin_solve(diet_profile_t *pb) = 0;
@@ -414,10 +417,12 @@ public:
 
     virtual int perform_action_after_service_table_add(const std::string& name_of_service) = 0;
 
-	virtual int send_arguments(const std::string& local_path, const std::string& remote_path, int vm_index = 0);
-    virtual int receive_result(const std::string& result_remote_path, const std::string& result_local_path, int vm_index = 0);
-	virtual int execute_remote_binary(const CloudServiceBinary& binary, const std::vector<std::string>& args, int vm_index = 0);
-	virtual int create_remote_directory(const std::string& remote_path, int vm_index = 0);
+
+
+	virtual int send_arguments(const std::string& local_path, const std::string& remote_path);
+    virtual int receive_result(const std::string& result_remote_path, const std::string& result_local_path);
+	virtual int execute_remote_binary(const CloudServiceBinary& binary, const std::vector<std::string>& args);
+	virtual int create_remote_directory(const std::string& remote_path);
 
     SeDCloudActions();
 
@@ -464,10 +469,10 @@ public:
 	virtual void perform_action_on_sed_creation() {};
 	virtual void perform_action_on_sed_launch() {};
 	virtual int perform_action_after_service_table_add(const std::string& name_of_service) { return 0;};
-	virtual int send_arguments(const std::string& local_path, const std::string& remote_path, int vm_index = 0) { return 0; };
-    virtual int receive_result(const std::string& result_remote_path, const std::string& result_local_path, int vm_index = 0) {return 0;};
-	virtual int execute_remote_binary(const CloudServiceBinary& binary, const std::vector<std::string>& args, int vm_index = 0) {return 0;};
-	virtual int create_remote_directory(const std::string& remote_path, int vm_index = 0) {return 0;};
+	virtual int send_arguments(const std::string& local_path, const std::string& remote_path) { return 0; };
+    virtual int receive_result(const std::string& result_remote_path, const std::string& result_local_path) {return 0;};
+	virtual int execute_remote_binary(const CloudServiceBinary& binary, const std::vector<std::string>& args) {return 0;};
+	virtual int create_remote_directory(const std::string& remote_path) {return 0;};
 
 };
 
@@ -496,34 +501,23 @@ public:
 };
 
 class SeDCloudMachinesActions : public SeDCloudAndVMLaunchedActions {
-protected:
-    std::string address_ip;
-    //std::string username;
 
-	std::vector<std::string> ips;
 
 public:
     virtual void perform_action_on_sed_creation();
     virtual void perform_action_on_sed_launch();
 
-	//vm_index not used here because we use only one pm
-    virtual int send_arguments(const std::string& local_path, const std::string& remote_path, int vm_index);
-    virtual int receive_result(const std::string& result_remote_path, const std::string& result_local_path, int vm_index);
-    virtual int execute_remote_binary(const CloudServiceBinary& binary, const std::vector<std::string>& args, int vm_index);
-	virtual int create_remote_directory(const std::string& remote_path, int vm_index);
-
     SeDCloudMachinesActions(const std::string& _address_ip,const std::string& _username) :
                           SeDCloudAndVMLaunchedActions(){
-        address_ip = _address_ip;
+        master_ip = _address_ip;
         vm_user = _username;
-        ips.push_back(address_ip);
-        master_index = 0;
+        ips.push_back(master_ip);
+
     }
 
-	SeDCloudMachinesActions(const std::vector<std::string>& _ips, const std::string& _username, int _master_index = 0) {
+	SeDCloudMachinesActions(const std::vector<std::string>& _ips, const std::string& _username) {
 		ips = _ips;
-		master_index = _master_index;
-		address_ip = ips[master_index];
+		master_ip = ips[0];
 		vm_user = _username;
 	}
 };
