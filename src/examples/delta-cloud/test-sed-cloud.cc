@@ -25,13 +25,13 @@ main(int argc, char *argv[]) {
     std::string username = "oneadmin";
     std::string password = "passoneadmin";
     std::string vm_user = "root";
-    int vms_count = 1;
+    int vms_count = 2;
     std::string profile = "nfs-server";
     std::vector<IaaS::Parameter> params;
     bool is_ip_private = false;
 
     if (argc < 5) {
-		printf("usage : %s cfg imageId local_path_of_binary remote_path_of_binary\n", argv[0]);
+		printf("usage : %s cfg imageId local_path_of_binary_matrix_add remote_path_of_binary_matrix_add\n", argv[0]);
 		exit(0);
 	}
 
@@ -52,7 +52,7 @@ main(int argc, char *argv[]) {
     SeDCloud::create(&actions);
 
 
-    SeDCloud::get()->service_table_add("matrixAdd", 1, 2, NULL, local_path_of_binary, remote_path_of_binary);
+    SeDCloud::get()->service_table_add("matrixAdd", 1, 2, NULL, local_path_of_binary, remote_path_of_binary, "matrixAdd.sh");
 
   /* Launch the SeD: no return call */
     SeDCloud::launch(argc, argv);

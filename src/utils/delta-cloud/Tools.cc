@@ -53,8 +53,8 @@ void deleteStringVector(std::vector<std::string*>& v){
 }
 
 int test_ssh_connection(std::string ssh_user, std::string ip) {
-	std::string cmd = "ssh "  + ssh_user + "@" + ip + " -o StrictHostKeyChecking=no PasswordAuthentication=no 'ls'";
-	std::cout << cmd << std::endl;
+	std::string cmd = "ssh "  + ssh_user + "@" + ip + " -o StrictHostKeyChecking=no PasswordAuthentication=no 'exit'";
+	//std::cout << cmd << std::endl;
 	int ret = system(cmd.c_str());
 
 	return ret;
