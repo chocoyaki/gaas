@@ -1,3 +1,3 @@
 
 all:
-	gcc -lmpi matrixMult.c -o matrixMult
+	mpic++ -lmpi matrixMult.cc -o matrixMult
