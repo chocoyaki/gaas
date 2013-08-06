@@ -17,7 +17,7 @@ public:
                 const size_t nb_responses, const corba_response_t* responses);
 };
 
-const char* DIETSchedTestScheduler::stName="DIETSchedTestScheduler";
+const char* DIETSchedTestScheduler::stName="UserGS";
 
 DIETSchedTestScheduler::~DIETSchedTestScheduler() {}
 
