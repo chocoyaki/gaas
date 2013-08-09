@@ -75,7 +75,7 @@ int create_folder_in_dagda_path_with_request_id(int reqId) {
 
 CloudServiceBinary::CloudServiceBinary(const std::string& _local_path, const std::string& _remote_path, const std::string& _entry_point_relative_file_path ,
 									 const std::string& _remote_path_of_arguments, dietcloud_callback_t _prepocessing,
-                         dietcloud_callback_t _postprocessing, ArgumentsTranferMethod _argsTranferMethod) : local_path_of_binary(_local_path),
+                         dietcloud_callback_t _postprocessing, ArgumentsTransferMethod _argsTranferMethod) : local_path_of_binary(_local_path),
     remote_path_of_binary(_remote_path), entry_point_relative_file_path(_entry_point_relative_file_path){
 
 	//if _remote_path_of_arguments == "" we set the defaut location of data to the folder of the binary
@@ -354,7 +354,7 @@ DIET_API_LIB int
                          const std::string& remote_path_of_binary,
                          const std::string& entryPoint,
                          const std::string& remote_path_of_arguments,
-                         ArgumentsTranferMethod arguments_transfer_method,
+                         ArgumentsTransferMethod arguments_transfer_method,
                          dietcloud_callback_t prepocessing,
                          dietcloud_callback_t postprocessing) {
 
@@ -562,7 +562,7 @@ DIET_API_LIB int SeDCloud::service_homogeneous_vm_instanciation_add() {
 		0 vm count : INT
 		1 vm image : STRING
 		2 vm profile : STRING
-		3 vm user
+		3 vm user : STRING
 		4 take private ips : INT
 		OUT:
 		5 vm ips : FILE
@@ -1046,6 +1046,7 @@ DIET_API_LIB int SeDCloud::service_rsync_to_vm_add() {
 		1 : vm ips file
 		2 : vm index
 		3 : remote path
+	OUT:
 		4 : file.tgz
 */
 DIET_API_LIB int SeDCloud::service_get_tarball_from_vm_add() {

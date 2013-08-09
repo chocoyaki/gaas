@@ -31,6 +31,8 @@ add_latex_document(UsersManual.tex
   fig/VizDIET.pdf
   fig/VizDIET_screenshot_2.png
   fig/logo_DIET_big.png
+  fig/SeDCloudVMInstanciator.png
+  fig/SeDCloudVMDestructor.png
   fig/multima.pdf
   fig/overviewCori.pdf
   fig/smprod.pdf

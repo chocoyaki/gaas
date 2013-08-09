@@ -23,11 +23,26 @@ API. This API is available in the git repository : \texttt{git clone
   git://git.fedorahosted.org/deltacloud/libdeltacloud.git}.
 This version of DIET was tested with the libdeltacloud version 0.9.
 
-\subsection{Overview of different behaviours of SeDCloud}
+\subsection{Overview of the SeDCloud class}
 
- 
-A \emph{SeDCloudAction} allow to modify the behaviour of a SeDCloud
-instance. A behaviour consists of some actions: 
+The SeDCloud class encapsulates the standard mechanism of DIET server.
+As a SeDCloud is a DIET server, this class was designed to be a
+singleton. So in a server up to one SeDCloud instance can be created.
+A SeDCloud instance is created by invoking the static method :
+\texttt{SeDCloud::create(\ldots)}.  The only SeDCloud instance can be
+obtained with the static method \texttt{SeDCloud::get()}.  In order to
+launch the DIET server, the static method \texttt{SeDCloud::launch()}
+must be called.
+
+\subsection{Overview of different behaviours of SeDCloud\label{sec:SeDCloudActions}}
+
+
+The \texttt{SeDCloudActions} class allows to modify the behaviour of a
+SeDCloud instance. To use a SeDCloud instance, a pointer to an
+instance of \texttt{SeDCloudActions} must be passed to the static
+method : \texttt{SeDCloud::create(SeDCloudActions*)}. A behaviour
+consists of some actions:
+
 \begin{itemize}
   \item perform\_action\_on\_sed\_creation: action performed as soon as the SeDCloud is instanciated
   \item perform\_action\_after\_service\_table\_add: action performed when the SeD developper adds a service to the SeDCloud
@@ -45,7 +60,7 @@ Five \emph{SeDCloudAction}s are predefined.
     \begin{enumerate}
       \item perform\_action\_on\_sed\_creation: \textbf{instanciation of VMs}
       \item perform\_action\_after\_service\_table\_add: \textbf{no action}
-      \item perform\_action\_on\_sed\_launch: \textbf{copy binaries into the master (by default index=0) of VMs}
+      \item perform\_action\_on\_sed\_launch: \textbf{copy binaries into all VMs}
       \item perform\_action\_on\_begin\_solve: \textbf{no action}
       \item perform\_action\_on\_end\_solve: \textbf{no action}
       \item when the SeD is destroyed (\texttt{Ctrl + C}): \textbf{destruction of VMs}
@@ -56,7 +71,7 @@ Five \emph{SeDCloudAction}s are predefined.
         \item perform\_action\_on\_sed\_creation: \textbf{no action}
         \item perform\_action\_after\_service\_table\_add: \textbf{no action}
         \item perform\_action\_on\_sed\_launch: \textbf{record service names}
-        \item perform\_action\_on\_begin\_solve: \textbf{if number of calls to solve is equal to 1 then instanciation of VMs and copy all binaries into the master (by default index=0) of VMs}
+        \item perform\_action\_on\_begin\_solve: \textbf{if number of calls to solve is equal to 1 then instanciation of VMs and copy all binaries into all VMs}
         \item perform\_action\_on\_end\_solve: \textbf{no action}
         \item when the SeD is destroyed (\texttt{Ctrl + C}): \textbf{destruction of VMs if any}
       \end{enumerate}
@@ -65,7 +80,7 @@ Five \emph{SeDCloudAction}s are predefined.
         \item perform\_action\_on\_sed\_creation: \textbf{no action}
         \item perform\_action\_after\_service\_table\_add: \textbf{no action}
         \item perform\_action\_on\_sed\_launch: \textbf{record service names}
-        \item perform\_action\_on\_begin\_solve: \textbf{instanciation of VMs and copy the corresponding binary into the master (by default index = 0) of VMs}
+        \item perform\_action\_on\_begin\_solve: \textbf{instanciation of VMs and copy the corresponding binary into all VMs}
         \item perform\_action\_on\_end\_solve: \textbf{destruction of VMs}
         \item when the SeD is destroyed (\texttt{Ctrl + C}): \textbf{no action}
       \end{enumerate}
@@ -73,7 +88,7 @@ Five \emph{SeDCloudAction}s are predefined.
     \begin{enumerate}
         \item perform\_action\_on\_sed\_creation: \textbf{no action}
         \item perform\_action\_after\_service\_table\_add: \textbf{no action}
-        \item perform\_action\_on\_sed\_launch: \textbf{copy binaries into the master (by default index=0) of Machines}
+        \item perform\_action\_on\_sed\_launch: \textbf{copy binaries into all Machines}
         \item perform\_action\_on\_begin\_solve: \textbf{no action}
         \item perform\_action\_on\_end\_solve: \textbf{no action}
         \item when the SeD is destroyed (\texttt{Ctrl + C}): \textbf{no action}
@@ -118,3 +133,101 @@ can be found in : $<$diet\_src$>$/src/examples/delta-cloud.
 
 
 \section{List of services}
+
+A SeDCloud offers a predefined set of service which can be registered
+thanks to methods with the shape service\_XXXX\_add().
+
+\subsection{Instanciation of Virtual Machines}
+
+The main important service offered by a SeDCloud is the instanciation
+of Virtual Machines. This service is registered by the method
+\texttt{service\_homogeneous\_vm\_instanciation\_add(const
+  CloudAPIConnection&)} of the only instance of the class
+\texttt{SeDCloud}. \texttt{CloudAPIConnection} is a class which stores
+credentials of the user of the cloud middleware linked to
+Deltacloud. The constructor of this class takes respectively as
+parameters, firstly, the exposed url of the Deltacloud server (e.g.
+\url{http://localhost:3001/api}), secondly, the name of the user of
+cloud middleware and finally, his password. In order to make a cloud
+federation, the administrator of the SeDClouds should launch serveral
+instance of Deltacloud, each of them connected to a cloud
+middleware. Figure~\ref{fig:SeDCloudVMInstanciator} shows a example of
+such a deployment of SeDClouds which act as VM instanciators.  Each
+SeDCloud knows the url of the Deltacloud server that it is linked
+to. Table~\ref{tab:homogeneous-vm-instanciation} shows the DIET
+profile of this service whose path is
+``homogeneous\_vm\_instanciation''.
+
+\begin{figure}[h!]
+ \begin{center}
+ \includegraphics[width=0.7\textwidth]{fig/SeDCloudVMInstanciator}
+  \caption{VMs instanciators over a federation of clouds}
+  \label{fig:SeDCloudVMInstanciator}
+ \end{center}
+\end{figure}
+
+\begin{table}[h!]
+\begin{tabular}{|c|c|c|p{0.5\textwidth}|} 
+  \hline
+  \multicolumn{4}{|c|}{Service name : \textbf{\texttt{homogeneous\_vm\_instanciation}}} \\
+  \hline
+    IN/OUT & Position & Type & Description \\
+    \hline
+    \multirow{5}{*}{IN} & 0 & DIET\_INT & Number of VMs to instanciate\\
+    \cline{2-4}
+                        & 1 & DIET\_STRING & Image's id of the VMs to instanciate\\
+    \cline{2-4}
+                        & 2 & DIET\_STRING & VM's profile\\
+    \cline{2-4}
+                        & 3 & DIET\_STRING & User login of the VMs\\
+    \cline{2-4}
+                        & 4 & DIET\_INT & If 0 then the ip addresses of the VMs are considered by Deltacloud as public ip, private ip otherwise\\
+    \hline
+    \multirow{1}{*}{OUT} & 5 & DIET\_FILE & A file containing ip addresses of VMs \\
+    \hline
+\end{tabular}
+\caption{DIET profile of the service ``homogeneous\_vm\_instanciation''}
+\label{tab:homogeneous-vm-instanciation}
+\end{table}
+
+
+
+\subsection{Destruction of Virtual Machines}
+
+A SeDCloud can destroy a set of virtual machines provided a file of ip
+addresses of VMs is given. This kind of service is registered by the
+method
+:\\ \texttt{service\_cloud\_federation\_vm\_destruction\_by\_ip\_add}
+of an instance of the class \texttt{SeDCloud}. This method takes as
+parameter a \texttt{std::vector} of \texttt{CloudAPIConnection}.  In
+fact, the credentials of a user of each cloud middleware must be
+informed in this vector. Figure~\ref{fig:SeDCloudDestructor} shows an
+example of a deployment of a SeDCloud which can destroy VMs over a
+federation of two clouds.  Table~\ref{tab:vm-destruction-by-ip} shows
+the DIET profile of this service whose path is
+``vm\_destruction\_by\_ip''.
+
+\begin{figure}[h!]
+ \begin{center}
+ \includegraphics[width=0.7\textwidth]{fig/SeDCloudVMDestructor}
+  \caption{VMs destructor over a federation of clouds}
+  \label{fig:SeDCloudDestructor}
+ \end{center}
+\end{figure}
+
+
+\begin{table}[h!]
+\begin{tabular}{|c|c|c|p{0.5\textwidth}|} 
+  \hline
+  \multicolumn{4}{|c|}{Service name : \textbf{\texttt{vm\_destruction\_by\_ip}}} \\
+  \hline
+    IN/OUT & Position & Type & Description \\
+    \hline
+    \multirow{2}{*}{IN} & 0 & DIET\_FILE & A file containing the ip addresses of the VM to destroy\\
+    \cline{2-4}
+                        & 1 & DIET\_INT & If 0 then the ip addresses of the VMs are considered by Deltacloud as public ip, private ip otherwise\\
+    \hline
+\end{tabular}
+\caption{DIET profile of the service ``vm\_destruction\_by\_ip''}
+\label{tab:vm-destruction-by-ip}
+\end{table}
