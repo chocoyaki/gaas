@@ -36,8 +36,35 @@
 #ifdef __WIN32__
 #define sleep(value) (Sleep(value*1000))
 #endif
+
+
+template <typename C>
+class CStringInserter {
+private:
+C &c_;
+public:
+explicit
+CStringInserter(C &c): c_(c) {
+}
+
+void
+operator()(const char *cstr) {
+  c_.push_back(strdup(cstr));
+}
+
+void
+operator()(std::ostringstream &oss) {
+  char *cstr = strdup(oss.str().c_str());
+  c_.push_back(cstr);
+}
+};
+
 int
 main(int argc, char *argv[], char *envp[]) {
+
+  std::vector<char *> args;
+  CStringInserter<std::vector<char *> > ins(args);
+
   /* Forwarder configuration. */
   FwrdConfig cfg(argv[0]);
 
@@ -120,7 +147,30 @@ main(int argc, char *argv[], char *envp[]) {
 
   CONFIGMAP = fileParser.getConfiguration();
 
-  ORBMgr::init(argc, argv);
+  /* Copy input parameters into internal structure */
+  for (int i = 0; i < argc; i++) {
+    ins(argv[i]);
+  }
+
+  /* Get listening port & hostname */
+  int port;
+  std::string host;
+  bool hasPort = CONFIG_INT(diet::DIETPORT, port);
+  bool hasHost = CONFIG_STRING(diet::DIETHOSTNAME, host);
+  if (hasPort || hasHost) {
+      std::ostringstream endpoint;
+      ins("-ORBendPoint");
+      endpoint << "giop:tcp:" << host << ":";
+      if (hasPort) {
+        endpoint << port;
+      }
+      ins(endpoint);
+  } else {
+    ins("-ORBendPointPublish");
+    ins("all(addr)");
+  }
+
+  ORBMgr::init(args.size(), &args[0]);
   ORBMgr *mgr = ORBMgr::getMgr();
   std::string ior;
   int count = 0;

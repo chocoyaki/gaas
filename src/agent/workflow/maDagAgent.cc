@@ -158,7 +158,6 @@ main(int argc, char *argv[]) {
     ERROR_DEBUG("No agentType found in the configuration", GRPC_CONFIGFILE_ERROR);
   }
 
-
   /* Choose interRoundDelay */
   IRD = false;
   if (argc >= 5) {
@@ -192,6 +191,24 @@ main(int argc, char *argv[]) {
     } else {
       schedType = MaDag_impl::BASIC;
     }
+  }
+
+  /* Get listening port & hostname */
+  int port;
+  std::string host;
+  bool hasPort = CONFIG_INT(diet::DIETPORT, port);
+  bool hasHost = CONFIG_STRING(diet::DIETHOSTNAME, host);
+  if (hasPort || hasHost) {
+      std::ostringstream endpoint;
+      ins("-ORBendPoint");
+      endpoint << "giop:tcp:" << host << ":";
+      if (hasPort) {
+        endpoint << port;
+      }
+      ins(endpoint);
+  } else {
+    ins("-ORBendPointPublish");
+    ins("all(addr)");
   }
 
   /* INIT ORB and CREATE MADAG CORBA OBJECT */

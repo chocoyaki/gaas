@@ -253,9 +253,23 @@ diet_initialize(const char *config_file_name, int argc, char *argv[]) {
 	  ins(level);
   }
 
-  /* Publish all interfaces */
-  ins("-ORBendPointPublish");
-  ins("all(addr)");
+  /* Get listening port & hostname */
+  int portListen;
+  std::string hostListen;
+  bool hasPort = CONFIG_INT(diet::DIETPORT, portListen);
+  bool hasHost = CONFIG_STRING(diet::DIETHOSTNAME, hostListen);
+  if (hasPort || hasHost) {
+      std::ostringstream endpoint;
+      ins("-ORBendPoint");
+      endpoint << "giop:tcp:" << hostListen << ":";
+      if (hasPort) {
+        endpoint << portListen;
+      }
+      ins(endpoint);
+  } else {
+    ins("-ORBendPointPublish");
+    ins("all(addr)");
+  }
 
 
 
