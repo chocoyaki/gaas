@@ -14,7 +14,9 @@
 
 #include <vector>
 #include <set>
+#include <map>
 #include "DietLogComponent.hh"
+#include "LogORBMgr.hh"
 #include "Address.hh"
 
 #include <pcap.h>
@@ -49,11 +51,12 @@ private:
 
 
 
-  std::set<std::string> spiedComponents;
-  DietLogComponent *dietLogComponent;
+  std::set<std::string> knownComponents;
+  DietLogComponent *logComponent;
 
   mapAgentAddresses watch;
   std::map<ushort, std::string> portOf;
+  std::set<std::string> myAddresses;
 
   static Spy * instance;
   pcap_t* descr;

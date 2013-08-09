@@ -18,10 +18,11 @@
 #include <pcap.h>
 #include <pcap/sll.h>
 #include <arpa/inet.h>
+#include <ifaddrs.h>
+#include <netdb.h>
 
 // DIET
 #include "debug.hh"
-#include "DietLogComponent.hh"
 #include "ORBMgr.hh"
 
 // CORBA
@@ -47,18 +48,62 @@ strToCharPtr(const std::string str) {
 
 }
 
+std::set<std::string> getIPAddresses() {
+  struct ifaddrs *ifaddr;
+
+   if (getifaddrs(&ifaddr) == -1) {
+     perror("getifaddrs");
+     exit(1);
+   }
+   std::set<std::string> addresses;
+   struct ifaddrs *ifa = ifaddr;
+   for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next) {
+     if (ifa->ifa_addr != NULL) {
+       int family = ifa->ifa_addr->sa_family;
+       if (family == AF_INET || family == AF_INET6) {
+         char ip_addr[NI_MAXHOST];
+         int s = getnameinfo(ifa->ifa_addr,
+                             ((family == AF_INET) ? sizeof(struct sockaddr_in) :
+                                                    sizeof(struct sockaddr_in6)),
+                             ip_addr, sizeof(ip_addr), NULL, 0, NI_NUMERICHOST);
+         if (s != 0) {
+           printf("getnameinfo() failed: %s\n", gai_strerror(s));
+           exit(1);
+         } else {
+           printf("%-7s: %s\n", ifa->ifa_name, ip_addr);
+           addresses.insert(std::string(ip_addr));
+         }
+       }
+     }
+   }
+
+   freeifaddrs(ifaddr);
+   return addresses;
+ }
+
+
 Spy::Spy(int argc, char **argv) {
+
+  myAddresses = getIPAddresses();
+
   initORB(argc, argv);
   descr = NULL;
-  dietLogComponent = new DietLogComponent("Spy", 0, 0, 0);
-  ORBMgr::getMgr()->activate(dietLogComponent);
 
   updateSpiedComponents();
+
+  char logname[1024];
+  logname[1023] = '\0';
+  gethostname(logname, 1000);
+  strcat(logname, "-spyLogComponent");
+  this->logComponent = new DietLogComponent(logname, 0, argc, argv);//new LogComponentBase(&success, argc, argv, 0,logname);
+  //ORBMgr::getMgr()->activate(this->logComponent);
+  LogORBMgr::getMgr()->activate(this->logComponent);
 }
 
 Spy::~Spy() {
-  ORBMgr::kill();
+  delete this->logComponent;
   if (descr != NULL) {
+    pcap_breakloop(descr);
     pcap_close(descr);
   }
 }
@@ -76,20 +121,20 @@ std::vector<spy::Address> extractAddressList(omni::giopAddressList &list) {
     spy::Address a = spy::Address(std::string(host), p);
     addrs.push_back(a);
 
-    TRACE_TEXT(TRACE_MAIN_STEPS, (*it)->address()<< " -> " << a << std::endl);
+    TRACE_TEXT(TRACE_MAIN_STEPS, (*it)->address()<< " : " << a << std::endl);
     it++;
   }
   return addrs;
 }
 
 void Spy::spyOn(std::string name) {
-  spiedComponents.find(name);
-  const bool isIn = spiedComponents.find(name) != spiedComponents.end();
+  knownComponents.find(name);
+  const bool isIn = knownComponents.find(name) != knownComponents.end();
   if (isIn) {
     return;
   }
 
-  spiedComponents.insert(name);
+  knownComponents.insert(name);
 
   IOP::IOR theIOR;
 
@@ -102,13 +147,13 @@ void Spy::spyOn(std::string name) {
   contextes.push_back(MADAGCTXT);
   contextes.push_back(WFMGRCTXT);
   contextes.push_back(CLIENTCTXT);
-  contextes.push_back(FWRDCTXT);
+  //contextes.push_back(FWRDCTXT);
 
   for (ushort i = 0; i < contextes.size() && !elementFound; ++i) {
     try {
-      CORBA::Object_var o = ORBMgr::getMgr()
+      CORBA::Object_var o = LogORBMgr::getMgr()
           ->resolve<CORBA::Object, CORBA::Object_var>(contextes[i], name.c_str());
-      ORBMgr::getMgr()->makeIOR(ORBMgr::getMgr()->getIOR(o), theIOR);
+      LogORBMgr::getMgr()->makeIOR(LogORBMgr::getMgr()->getIOR(o), theIOR);
       elementFound = true;
     } catch (...) {
     }
@@ -117,7 +162,6 @@ void Spy::spyOn(std::string name) {
   if (!elementFound) {
     WARNING("cannot locate element " << name << std::endl);
   } else {
-    std::cout << "Spying element : " << name << std::endl;
 
     if (theIOR.profiles.length() == 0) {
       return;
@@ -156,28 +200,54 @@ void Spy::spyOn(std::string name) {
       }
     }
 
-    uint nbA = addresses.size();
-    for (uint i = 0; i < nbA; ++i) {
-      portOf.insert(std::make_pair(addresses[i].getPort(), name));
-      std::cout << addresses[i].getPort() << " --> " << name << std::endl;
-      if (isSSL) {
-        spy::Address a(addresses[i].getIp(), sslPort);
-        addresses.push_back(a);
-        portOf.insert(std::make_pair(sslPort, name));
+    bool isOnHost = false;
+    BOOST_FOREACH(spy::Address a, addresses) {
+      if (myAddresses.find(a.getIp()) != myAddresses.end()) {
+        isOnHost = true;
+        break;
       }
     }
-    watch[name] = addresses;
+
+    if (isOnHost) {
+      uint nbA = addresses.size();
+      for (uint i = 0; i < nbA; ++i) {
+        portOf.insert(std::make_pair(addresses[i].getPort(), name));
+        std::cout << addresses[i].getPort() << " --> " << name << std::endl;
+        if (isSSL) {
+          spy::Address a(addresses[i].getIp(), sslPort);
+          addresses.push_back(a);
+          portOf.insert(std::make_pair(sslPort, name));
+        }
+      }
+
+      std::cout << "Spying element : " << name << std::endl;
+      watch[name] = addresses;
+
+    }
   }
 }
 
 int Spy::initORB(int argc, char **argv) {
   try {
-    ORBMgr::init(argc, argv);
+    LogORBMgr::init(argc, argv);
   } catch (...) {
     ERROR_DEBUG("ORB initialization failed", 0);
   }
   return 0;
 }
+
+void
+sigIntHandler(int sig) {
+  /* Prevent from raising a new SIGINT handler */
+  signal(SIGINT, SIG_IGN);
+  signal(SIGTERM, SIG_IGN);
+
+  Spy::kill();
+
+  signal(SIGINT, SIG_DFL);
+  signal(SIGTERM, SIG_DFL);
+}
+
 
 void analysePacket(u_char* args, const struct pcap_pkthdr* pkthdr,
     const u_char* packet) {
@@ -202,39 +272,65 @@ void analysePacket(u_char* args, const struct pcap_pkthdr* pkthdr,
     ushort dstPort = ntohs(tcp->th_dport);
 
     Spy * theSpy = Spy::getSpy();
-    if (!theSpy->isListeningToPort(srcPort) || !theSpy->isListeningToPort(dstPort)) {
+/*    if (!theSpy->isListeningToPort(srcPort) || !theSpy->isListeningToPort(dstPort)) {
       theSpy->updateSpiedComponents();
 
     }
-
+*/
     std::ostringstream isS, isD;
     isS << srcPort;
 
+    bool listening = false;
     std::string src = isS.str();
     if (theSpy->isListeningToPort(srcPort)) {
       src = theSpy->isBindedToPort(srcPort);
+      //listening = true;
     }
 
     isD << dstPort;
     std::string dst = isD.str();
     if (theSpy->isListeningToPort(dstPort)) {
       dst = theSpy->isBindedToPort(dstPort);
+      listening = true;
     }
 
-    printf("%s --> %s : \n", src.c_str(), dst.c_str());
-/*    const u_char * data = (const u_char *) tcp + tcp->th_off * 4;
-    for (int i = 0; i < len; i++) {
-      if (isprint(data[i])) // Check if the packet data is printable *
-        printf("%c", data[i]);
-      else
-        printf(".");
+    if (listening) {
+     // sprintf(buf, "%s --> %s : ", src.c_str(), dst.c_str());
+
+      const u_char * data = (const u_char *) tcp + tcp->th_off * 4;
+      char *msg = new char[(dst.size() + len + 2) * sizeof(char)];
+      sprintf(msg, "%s:", dst.c_str());
+      for (int i = 0; i < len; i++) {
+        if (isprint(data[i])) // Check if the packet data is printable *
+          msg[i+dst.size()+1] = data[i];
+          //sprintf(buf, "%c", data[i]);
+        else
+          msg[i+dst.size()+1] =  '.';
+          //buf[i] = '.';
+          //sprintf(buf, ".");
+      }
+      msg[len+dst.size()+1] = '\0';
+      //buf[len] = '\0';
+      //sprintf(buf, '\0');
+     /* if (Spy::getSpy()->logComponent->isLog("IN")) {
+        printf("Ok\n");
+      }
+      else {
+        printf("Not ok\n");
+      }
+*/
+      std::cout << msg << std::endl;
+      Spy::getSpy()->logComponent->log("MSG_RECEIVED", msg);
+      delete[] msg;
     }
-    printf("\n");*/
   }
 
 }
 
 int Spy::run() {
+  logComponent->run("Spy", NULL, 1);
+
+
   char errbuf[PCAP_ERRBUF_SIZE];
 
   /* open device for reading */
@@ -247,6 +343,15 @@ int Spy::run() {
   if (updateFilter() != 0) {
     return 1;
   }
+
+  short ret = pcap_setnonblock(descr, 1, errbuf);
+  if (ret != 0) {
+    printf("%s \n", errbuf);
+    exit(1);
+  }
+  signal(SIGINT, sigIntHandler);
+  signal(SIGTERM, sigIntHandler);
+
   /* allright here we call pcap_loop(..) and pass in our callback function */
   /* int pcap_loop(pcap_t *p, int cnt, pcap_handler callback, u_char *user)*/
   /* If you are wondering what the user argument is all about, so am I!!   */
@@ -290,7 +395,7 @@ bool Spy::isListeningToPort(ushort port) {
 }
 
 int Spy::updateFilter() {
-/*  struct bpf_program filter;
+  struct bpf_program filter;
   const char * filter_str = createFilter().c_str();
   std::cout << filter_str << std::endl;
   if (pcap_compile(descr, &filter, filter_str, 1, PCAP_NETMASK_UNKNOWN) == -1) {
@@ -301,7 +406,7 @@ int Spy::updateFilter() {
   if (pcap_setfilter(descr, &filter)) {
     fprintf(stderr, "Error setting pcap filter\n");
     return (1);
-  }*/
+  }
 return 0;
 }
 
@@ -309,7 +414,7 @@ void Spy::updateSpiedComponents() {
 
   std::string contexts[] = { AGENTCTXT, SEDCTXT, CLIENTCTXT };
   BOOST_FOREACH(std::string & ctx, contexts) {
-    std::list<std::string> result = ORBMgr::getMgr()->localObjects(ctx);
+    std::list<std::string> result = LogORBMgr::getMgr()->localObjects(ctx);
     BOOST_FOREACH(std::string s, result) {
       spyOn(s);
     }
@@ -320,14 +425,16 @@ void Spy::updateSpiedComponents() {
 std::string Spy::createFilter() {
   typedef std::map<std::string, std::vector<ushort> > mapAddressPorts;
 
-  mapAddressPorts addresses;
+  mapAddressPorts mapAddresses;
+  if (watch.empty())
+    return std::string();
 
   BOOST_FOREACH(mapAgentAddresses::value_type & p ,watch) {
     BOOST_FOREACH(spy::Address& a , p.second) {
-      if (addresses.find(a.getIp()) == addresses.end()) {
-        addresses[a.getIp()] = std::vector<ushort>();
+      if (mapAddresses.find(a.getIp()) == mapAddresses.end()) {
+        mapAddresses[a.getIp()] = std::vector<ushort>();
       }
-      addresses[a.getIp()].push_back(a.getPort());
+      mapAddresses[a.getIp()].push_back(a.getPort());
     }
   }
 
@@ -336,7 +443,7 @@ std::string Spy::createFilter() {
 
   bool first = true;
 
-  BOOST_FOREACH(mapAddressPorts::value_type & p, addresses ) {
+  BOOST_FOREACH(mapAddressPorts::value_type & p, mapAddresses ) {
     std::vector<ushort>::iterator portIt = p.second.begin();
 
     if (!first) {
