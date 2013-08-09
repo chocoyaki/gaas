@@ -34,7 +34,92 @@ obtained with the static method \texttt{SeDCloud::get()}.  In order to
 launch the DIET server, the static method \texttt{SeDCloud::launch()}
 must be called.
 
+\subsubsection{DIET services linked to binaries inside VMs}
+
+The SeDCloud instance may rely on VMs to execute remotely softwares and
+retrieve results from VMs. To define such a service which execute
+softwares in VMs the method \texttt{service\_table\_add()} can be used
+before launching the SeDCloud (SeDCloud::launch()).
+
+We define as ``binary'' a directory which contains executable files
+and data. A binary has an entry point which is an executable file.  A
+functionnality of the SeDCloud consists of copying a binary linked to
+a DIET service, into Virtual Machines. Nevertheless, a binary can
+already be preinstalled in Virtual Machines in which case no copy of
+the binary is required. 
+
+The method is defined as follows:
+
+\begin{verbatim}
+  int SeDCloud::service_table_add(
+         const std::string& name_of_service,
+         int last_in,
+         int last_out,
+         const diet_convertor_t* const cvt,
+         const std::string& local_path_of_binary,
+         const std::string& remote_path_of_binary,
+         const std::string& entryPoint = "exec.sh",
+         const std::string& remote_path_of_arguments = "",
+         ArgumentsTransferMethod argumentsTransferMethod = filesTransferMethod,
+         dietcloud_callback_t prepocessing = NULL,
+         dietcloud_callback_t postprocessing = NULL)
+\end{verbatim}
+
+In fact, the method \texttt{service\_table\_add()} makes an internal
+call to the classical\\ \texttt{diet\_service\_table\_add} ; among
+others, it takes as parameters, the name of the service, the index of
+the last input, the index of the last output. All arguments of the
+service are either \texttt{DIET\_FILE} or
+\texttt{DIET\_STRING}. Currently mixture of \texttt{DIET\_FILE} and
+\texttt{DIET\_STRING} arguments is not implemented yet. DIET client
+can invoke \texttt{diet\_call} with either \texttt{DIET\_FILE} for
+input and ouput arguments, in which case files are transfered between
+the SeDCloud and the VMs, or he can use \texttt{DIET\_STRING} for the
+path of files passed in arguments. Note that in case where DIET client
+uses \texttt{DIET\_STRING} for arguments, all files must be accessible
+to the Virtual Machine which need them: a simple way is to use a NFS
+server reachable from all Virtual Machines. Now, we describe the other
+parameters specific to the method.
+\texttt{SeDCloud::service\_table\_add()}:
+ \begin{itemize}
+   \item \texttt{local\_path\_of\_binary}: the local path of the
+     binary (folder) in the SeDCloud machine. If
+     \texttt{local\_path\_of\_binary} is set to \texttt{""} it means
+     that the service is linked to a preinstalled binary inside the
+     Virtual Machines.
+   \item \texttt{remote\_path\_of\_binary}: the absolute path of the
+     destination folder which will contains the binary files (or which
+     already contains the binary files)
+   \item \texttt{entryPoint}: the file which is the entry point of the
+     software which is linked to the service
+   \item \texttt{remote\_path\_of\_arguments} is the folder which will
+     receive the input file arguments, in case where arguments are
+     \texttt{DIET\_FILE}.  \texttt{remote\_path\_of\_arguments} is
+     ignored in case where arguments are \texttt{DIET\_STRING}.
+   \item \texttt{argumentsTransferMethod} is either
+     \texttt{filesTransferMethod} in which case, the arguments of the
+     service expect \texttt{DIET\_FILE} or
+     \texttt{pathsTransferMethod} in which case, the service's
+     arguments are expected to be \texttt{DIET\_STRING}.
+     \texttt{preprocessing} and \texttt{postprocessing} are pointers
+     to functions with the shape \texttt{int (*
+       myFunction)(diet\_profile\_t*)}. \texttt{preprocessing} is
+     called before executing remote software, and
+     \texttt{postprocessing} is called after.
+ \end{itemize}
+
+
+Since the SeDCloud perform a ``rsync'' to copy binaries, do not forget
+$/$ - which means a copy of the contents of the folder- at the end of
+the local binary folder path and give absolute path to the
+destination.
+
+\subsubsection{Installing binaries inside VMs with Puppet}
+
+
+
 \subsection{Overview of different behaviours of SeDCloud\label{sec:SeDCloudActions}}
+
 
 
 The \texttt{SeDCloudActions} class allows to modify the behaviour of a
@@ -52,7 +137,7 @@ consists of some actions:
   \item when the SeD is destroyed: action performed as soon as the
     administrator presses the combination \texttt{Ctrl + C} on his keyboard to stop the SeD
 \end{itemize}
-Five \emph{SeDCloudAction}s are predefined.
+Five classes which inherit from \texttt{SeDCloudActions} class are predefined.
 
 
 \begin{itemize}
@@ -105,7 +190,9 @@ Five \emph{SeDCloudAction}s are predefined.
    \end{enumerate}
 \end{itemize}
 
-do not forget $/$ at the end of the binaries folder path and give absolute path to the destination
+
+
+
 
 \section{Configuration of compilation}
 
