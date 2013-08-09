@@ -55,7 +55,7 @@ typedef int (*dietwrapper_callback_t)(ServiceWrapper*, diet_profile_t*);
 	The manner with which arguments are tranfered to vms
 
 */
-enum ArgumentsTranferMethod {
+enum ArgumentsTransferMethod {
 	filesTransferMethod = 0, //files are copied to SedCloud and tranfered to vms
 	pathsTransferMethod //files are located in one place (eg on a NFS Server), and vms and SedCloud access to this places
 };
@@ -218,12 +218,12 @@ class CloudServiceBinary {
     /*Constructor specified by given local_path and remote_path*/
     CloudServiceBinary(const std::string& _local_path, const std::string& _remote_path,
 					 const std::string& _entry_point_relative_file_path="exec.sh", const std::string& _remote_path_of_arguments = "", dietcloud_callback_t _prepocessing = NULL,
-                         dietcloud_callback_t _postprocessing = NULL, ArgumentsTranferMethod argsTranferMethod = filesTransferMethod);
+                         dietcloud_callback_t _postprocessing = NULL, ArgumentsTransferMethod argsTranferMethod = filesTransferMethod);
     CloudServiceBinary(const CloudServiceBinary& binary);
     CloudServiceBinary();
 
 
-	ArgumentsTranferMethod argumentsTransferMethod;
+	ArgumentsTransferMethod argumentsTransferMethod;
 
 	int install(const std::string& ip, const std::string& vm_user_name) const;
     int execute_remote(const std::string& ip, const std::string& vm_user_name, const std::vector<std::string>& args) const;
@@ -645,7 +645,7 @@ public:
                          const std::string& remote_path_of_binary,
                          const std::string& entryPoint = "exec.sh",
                          const std::string& remote_path_of_arguments = "",
-                         ArgumentsTranferMethod argumentsTransferMethod = filesTransferMethod,
+                         ArgumentsTransferMethod argumentsTransferMethod = filesTransferMethod,
                          dietcloud_callback_t prepocessing = NULL,
                          dietcloud_callback_t postprocessing = NULL
                          ) ;
