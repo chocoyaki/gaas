@@ -9,7 +9,7 @@ ELSE( NOT DIET_USE_DELTACLOUD )
   INCLUDE_DIRECTORIES( ${DIET_SOURCE_DIR}/include )
 
   ### ... and its respective client
-  SET( CC_SERVER_EXAMPLES test-ramses-sed-cloud-without-vm test-ramses-sed-cloud-with-vm-init-service test-ramses-sed-in-cloud)
+  SET( CC_SERVER_EXAMPLES test-ramses-sed-cloud-without-vm test-ramses-sed-cloud-with-vm-init-service test-ramses-sed-in-cloud test-ramses-sed-cloud-launched-after-vm-instanciation)
 
   FOREACH( loop_var ${CC_SERVER_EXAMPLES} )
     ADD_EXECUTABLE( ${loop_var} ${loop_var}.cc )

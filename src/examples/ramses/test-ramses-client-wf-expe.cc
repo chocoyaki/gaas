@@ -3,29 +3,31 @@
 #include "DIET_client.h"
 #include <string>
 #include <time.h>
+#include <string.h>
 
 /* inputs:
  * <config_filename>
  * <wf_xml_file>
  */
 
+
+
 int destroy_vms(const char* ips_file_path, int select_private_ip) {
 	//destruction of vms
 
 	diet_profile_t* profile_destroy_vm;
 
-	profile_destroy_vm = diet_profile_alloc( "vm_destruction_by_ip", 4, 4, 4);
-	diet_string_set(diet_parameter(profile_destroy_vm, 0), "http://localhost:3001/api", DIET_VOLATILE);
-	diet_string_set(diet_parameter(profile_destroy_vm, 1), "admin+openstack", DIET_VOLATILE);
-	diet_string_set(diet_parameter(profile_destroy_vm, 2), "keystone_admin", DIET_VOLATILE);
-	diet_file_set(diet_parameter(profile_destroy_vm, 3), ips_file_path, DIET_VOLATILE);
-	diet_scalar_set(diet_parameter(profile_destroy_vm, 4), &select_private_ip, DIET_VOLATILE, DIET_INT);
+	profile_destroy_vm = diet_profile_alloc( "vm_destruction_by_ip", 1, 1, 1);
+	diet_file_set(diet_parameter(profile_destroy_vm, 0), ips_file_path, DIET_VOLATILE);
+	diet_scalar_set(diet_parameter(profile_destroy_vm, 1), &select_private_ip, DIET_VOLATILE, DIET_INT);
 	int env = diet_call(profile_destroy_vm);
 
 	diet_profile_free(profile_destroy_vm);
 
 	return env;
 }
+
+//with OPENSTACK
 
 int main(int argc, char ** argv) {
 	time_t time_start = time(NULL);
@@ -84,18 +86,6 @@ int main(int argc, char ** argv) {
 	  char* ramses_ips_file_path;
 	  char* nfs_ip_file_path;
 	  size_t size;
-
-
-		/*
-		char* pathTGZ;
-		diet_wf_file_get(profile, "node-get-results#file-tgz", &size, &pathTGZ);
-		printf("tar.gz is located in %s and its size is %zd\n", pathTGZ, size);
-
-		//DEMO PARIS
-		std::string cmd = "/home/lamiel/ramses/demo-paris.sh ";
-		cmd.append(pathTGZ);
-		env = system(cmd.c_str());
-		*/
 
 
 		//destroy nfs vms

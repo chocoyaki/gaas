@@ -54,23 +54,20 @@ main(int argc, char *argv[]) {
 	/* Initialize table with maximum 20 service */
 	diet_service_table_init(20);
 
-	SedCloudActionsNULL *actions = new SedCloudActionsNULL();
+
+
+
+	SeDCloudActionsNULL *actions = new SeDCloudActionsNULL();
 
 
 
 	SeDCloud::create(actions);
 
 
-	SeDCloud::get()->service_table_add("grafic1", 2, 3, NULL, "", RAMSES_HOME, "call-grafic1", "", pathsTransferMethod, NULL, ouput_same_as_input);
-	SeDCloud::get()->service_table_add("ramses3d", 2, 3, NULL, "", RAMSES_HOME, "call-ramses3d", "", pathsTransferMethod, NULL, ouput_same_as_input);
-	SeDCloud::get()->service_table_add("halomaker", 1, 2, NULL, "", RAMSES_HOME, "call-halomaker", "", pathsTransferMethod, NULL, ouput_same_as_input);
-	SeDCloud::get()->service_table_add("treemaker", 1, 2, NULL, "", RAMSES_HOME, "call-treemaker", "", pathsTransferMethod, NULL, ouput_same_as_input);
-	SeDCloud::get()->service_table_add("galaxymaker", 1, 2, NULL, "", RAMSES_HOME, "call-galaxymaker", "", pathsTransferMethod, NULL, ouput_same_as_input);
+
 	SeDCloud::get()->service_homogeneous_vm_instanciation_add();
-	SeDCloud::get()->service_rsync_to_vm_add();
-	SeDCloud::get()->service_mount_nfs_add();
-	SeDCloud::get()->service_get_tarball_from_vm_add();
 	SeDCloud::get()->service_homogeneous_vm_instanciation_with_keyname_add();
+	SeDCloud::get()->service_launch_another_sed_add();
 
 	//for experiments
 	diet_profile_desc_t* profile;
