@@ -14,8 +14,24 @@
 #include "DIET_uuid.hh"
 #include <fstream>
 #include "Iaas_deltacloud.hh"
+#include <unistd.h>
+#include <libgen.h>
 
+std::string copy_to_tmp_file(const std::string& src, const std::string& ext) {
+	char* src_path = strdup(src.c_str());
+	char* dir = dirname(src_path);
 
+	std::ostringstream copy_file_path;
+	boost::uuids::uuid uuid = diet_generate_uuid();
+	copy_file_path << dir << "/" << uuid << ext;
+	std::string cmd = "cp " + src + " " + copy_file_path.str().c_str();
+	int env = system(cmd.c_str());
+	free(src_path);
+
+	if (env) return "";
+
+	return copy_file_path.str();
+}
 
 int create_folder(const char* folder_path) {
 	std::string cmd = "";
@@ -71,12 +87,47 @@ int create_folder_in_dagda_path_with_request_id(int reqId) {
 }
 
 
+std::string create_tmp_file(diet_profile_t* pb, const std::string ext) {
+	//create the tmp ip file
+	int reqId = pb->dietReqID;
+	std::string szReqId = int2string(reqId);
+	std::string local_results_folder = get_folder_in_dagda_path(szReqId.c_str());
+	int env = create_folder(local_results_folder.c_str());
+	std::ostringstream file_path;
+	boost::uuids::uuid uuid = diet_generate_uuid();
+	file_path << local_results_folder << "/" << uuid << ext;
 
+	FILE* vm_ips_file = fopen(file_path.str().c_str(), "w");
+	if (vm_ips_file == NULL) {
+		return "";
+	}
+
+	fclose(vm_ips_file);
+
+
+	return file_path.str();
+
+}
+
+
+int write_lines(const std::vector<std::string>& lines, const std::string& file_path) {
+	FILE* file = fopen(file_path.c_str(), "w");
+
+	if (file == NULL) return -1;
+
+	for(int i = 0; i < lines.size(); i++){
+		fprintf(file, "%s\n", lines[i].c_str());
+	}
+
+	fclose(file);
+
+	return 0;
+}
 
 CloudServiceBinary::CloudServiceBinary(const std::string& _local_path, const std::string& _remote_path, const std::string& _entry_point_relative_file_path ,
 									 const std::string& _remote_path_of_arguments, dietcloud_callback_t _prepocessing,
-                         dietcloud_callback_t _postprocessing, ArgumentsTransferMethod _argsTranferMethod) : local_path_of_binary(_local_path),
-    remote_path_of_binary(_remote_path), entry_point_relative_file_path(_entry_point_relative_file_path){
+                         dietcloud_callback_t _postprocessing, ArgumentsTransferMethod _argsTranferMethod, const std::string& _installer_relative_path) : local_path_of_binary(_local_path),
+    remote_path_of_binary(_remote_path), entry_point_relative_file_path(_entry_point_relative_file_path), installer_relative_path(_installer_relative_path){
 
 	//if _remote_path_of_arguments == "" we set the defaut location of data to the folder of the binary
 	if (_remote_path_of_arguments.compare("") == 0){
@@ -87,10 +138,11 @@ CloudServiceBinary::CloudServiceBinary(const std::string& _local_path, const std
 	}
 
 
-	argumentsTransferMethod = _argsTranferMethod;
+	arguments_transfer_method = _argsTranferMethod;
 
 	prepocessing = _prepocessing,
 	postprocessing = _postprocessing;
+
 
 }
 
@@ -100,10 +152,15 @@ CloudServiceBinary::CloudServiceBinary(const CloudServiceBinary& binary) {
     remote_path_of_binary = binary.remote_path_of_binary;
     entry_point_relative_file_path = binary.entry_point_relative_file_path;
 	remote_path_of_arguments = binary.remote_path_of_arguments;
-	argumentsTransferMethod = binary.argumentsTransferMethod;
+	arguments_transfer_method = binary.arguments_transfer_method;
 
 	prepocessing = binary.prepocessing;
 	postprocessing = binary.postprocessing;
+	installer_relative_path = binary.installer_relative_path;
+
+	name = binary.name;
+	last_in = binary.last_in;
+	last_out = binary.last_out;
 }
 
 
@@ -113,19 +170,31 @@ CloudServiceBinary::CloudServiceBinary() {
 
 
 int CloudServiceBinary::install(const std::string& ip, const std::string& vm_user_name) const {
-	if (!isPreinstalled()) {
-		return ::rsync_to_vm(local_path_of_binary, remote_path_of_binary, vm_user_name, ip);
+	int env = 0;
+
+	if (!is_preinstalled()) {
+		env = ::rsync_to_vm(local_path_of_binary, remote_path_of_binary, vm_user_name, ip);
+
+		if (env) return env;
+
+		if (has_installer()) {
+			std::string cmd = "cd " + remote_path_of_binary + "; ";
+			cmd.append("./" + installer_relative_path);
+			env = ::execute_command_in_vm(cmd, "root", ip, "");
+		}
 	}
 
-	return 0;
+	return env;
 }
 
 
-bool CloudServiceBinary::isPreinstalled() const {
+bool CloudServiceBinary::is_preinstalled() const {
 	return local_path_of_binary.compare("") == 0;
 }
 
-
+bool CloudServiceBinary::has_installer() const {
+	return installer_relative_path.compare("") != 0;
+}
 
 
 
@@ -136,15 +205,36 @@ int CloudServiceBinary::execute_remote(const std::string& ip, const std::string&
 		sz_args.append(" " + args[i]);
 	}
 
-    ::execute_command_in_vm("cd " + remote_path_of_binary + "; ./" + entry_point_relative_file_path, vm_user_name, ip, sz_args);
+	std::string cd;
+	if (remote_path_of_binary.compare("") == 0) {
+		cd = "";
+	}
+	else {
+		cd = "cd " + remote_path_of_binary + "; ./";
+	}
+
+    ::execute_command_in_vm(cd + entry_point_relative_file_path, vm_user_name, ip, sz_args);
 }
 
 
-void SeDCloudActions::launch_vms() {
-	vm_instances = new IaaS::VMInstances (this->image_id, this->vm_count, this->base_url, this->username, this->password, this->vm_user, this->params);
-	vm_instances->wait_all_ssh_connection(this->is_ip_private);
+int SeDCloudActions::launch_vms() {
+	IaaS::VMInstances* insts = new IaaS::VMInstances (this->image_id, this->vm_count, this->base_url, this->username, this->password, this->vm_user, this->params);
+
+	vm_instances.push_back(insts);
+
+	if (insts == NULL) return -1;
+
+
+	printf("%i\n", this->is_ip_private);
+	insts->wait_all_ssh_connection(this->is_ip_private);
 	fill_ips();
 	send_vm_ips_to_master();
+
+	int env = perform_action_on_vm_os_ready();
+
+	if (env)  return -1;
+
+	return 0;
 }
 
 
@@ -161,12 +251,12 @@ SeDCloudActions::SeDCloudActions(const std::string& _image_id, const std::string
     this->params = _params;
     this->is_ip_private = _is_ip_private;
 
-    this->vm_instances = NULL;
+    //this->vm_instances = NULL;
 }
 
 
 SeDCloudActions::SeDCloudActions() {
-     this->vm_instances = NULL;
+     //this->vm_instances = NULL;
 }
 
 int SeDCloudActions::send_arguments(const std::string& local_path, const std::string& remote_path) {
@@ -189,7 +279,7 @@ int SeDCloudActions::create_remote_directory(const std::string& remote_path) {
 void SeDCloudActions::copy_binary_into_vm(std::string name_of_service, int vm_index) {
 	CloudServiceBinary& binary = cloud_service_binaries[name_of_service];
 
-	std::string ip = vm_instances->get_ip(vm_index, is_ip_private);
+	std::string ip = vm_instances.back()->get_ip(vm_index, is_ip_private);
 	binary.install(ip, vm_user);
 
 }
@@ -203,7 +293,7 @@ void SeDCloudActions::copy_binary_into_all_vms(std::string name) {
 
 
 void SeDCloudActions::copy_all_binaries_into_vm(int vm_index) {
-    vm_instances->wait_all_ssh_connection(this->is_ip_private);
+    vm_instances.back()->wait_all_ssh_connection(this->is_ip_private);
 
     std::map<std::string, CloudServiceBinary>::const_iterator iter;
     std::map<std::string, CloudServiceBinary>& binaries = cloud_service_binaries;
@@ -276,6 +366,36 @@ void SeDCloudMachinesActions::perform_action_on_sed_launch() {
 			//copy_binary_into_vm(name_of_service, 0);
 		}
     }
+
+
+    //fork and wait until ssh connection is broken
+    pid_t pid = fork();
+
+    if (pid == 0){
+		//in the child
+		//std::ostringstream cmd;
+		//cmd << "ssh " << vm_user << "@" << get_master_ip() << " exit";
+
+		int env = 0;
+		do{
+			env = test_ssh_connection(vm_user, get_master_ip());
+			sleep(machine_alive_interval);
+		}while(env == 0);
+
+		printf("ssh error : lost connection\n");
+		printf("Destruction of one SeDCloudMachinesActions\n");
+
+		pid_t parent_pid = getppid();
+		kill(parent_pid, SIGTERM);
+
+		exit(0);
+    }
+    else {
+		//in the parent
+		//we do nothing
+    }
+
+
 }
 
 
@@ -342,24 +462,7 @@ int SeDCloudVMLaunchedAtSolveThenDestroyedActions::perform_action_on_end_solve(d
 
 
 
-/*if argumentsTranferMethod == pathsTranferMethod
- then one must have lastin+1==lastout, since pathsout are actually inputs, the result is a dummy string
-*/
-DIET_API_LIB int
-        SeDCloud::service_table_add(const std::string& name_of_service,
-                          int last_in,
-                          int last_out,
-                         const diet_convertor_t* const cvt,
-                         const std::string& local_path_of_binary,
-                         const std::string& remote_path_of_binary,
-                         const std::string& entryPoint,
-                         const std::string& remote_path_of_arguments,
-                         ArgumentsTransferMethod arguments_transfer_method,
-                         dietcloud_callback_t prepocessing,
-                         dietcloud_callback_t postprocessing) {
-
-
-
+diet_profile_desc_t* CloudServiceBinary::to_diet_profile() {
 	diet_data_type_t type;
 	diet_base_type_t base_type;
 
@@ -380,16 +483,45 @@ DIET_API_LIB int
 
 	diet_profile_desc_t* profile;
 
-	profile = diet_profile_desc_alloc(name_of_service.c_str(), last_in, last_in, last_out);
+	profile = diet_profile_desc_alloc(name.c_str(), last_in, last_in, last_out);
 
 	for(int i = 0; i <= last_out; i++) {
 		diet_generic_desc_set(diet_param_desc(profile, i), type, base_type);
 	}
 
-	actions->set_cloud_service_binaries(name_of_service, CloudServiceBinary(local_path_of_binary,
-														remote_path_of_binary, entryPoint, remote_path_of_arguments, prepocessing, postprocessing, arguments_transfer_method));
-	//SeDCloudActions::cloud_service_binaries[name_of_service].argumentsTransferMethod = arguments_transfer_method;
+	return profile;
+}
 
+/*if argumentsTranferMethod == pathsTranferMethod
+ then one must have lastin+1==lastout, since pathsout are actually inputs, the result is a dummy string
+*/
+DIET_API_LIB int
+        SeDCloud::service_table_add(const std::string& name_of_service,
+                          int last_in,
+                          int last_out,
+                         const diet_convertor_t* const cvt,
+                         const std::string& local_path_of_binary,
+                         const std::string& remote_path_of_binary,
+                         const std::string& entryPoint,
+                         const std::string& remote_path_of_arguments,
+                         ArgumentsTransferMethod arguments_transfer_method,
+                         dietcloud_callback_t prepocessing,
+                         dietcloud_callback_t postprocessing,
+                         const std::string& remote_path_of_binary_installer) {
+
+
+
+	CloudServiceBinary service_binary(local_path_of_binary,
+				remote_path_of_binary, entryPoint, remote_path_of_arguments, prepocessing, postprocessing,
+				arguments_transfer_method, remote_path_of_binary_installer);
+
+	service_binary.name = name_of_service;
+	service_binary.last_in = last_in;
+	service_binary.last_out = last_out;
+
+	diet_profile_desc_t* profile = service_binary.to_diet_profile();
+
+	actions->set_cloud_service_binary(name_of_service, service_binary);
 
 
 	if (diet_service_table_add(profile, cvt, solve)) {
@@ -429,7 +561,7 @@ int SeDCloud::solve(diet_profile_t *pb) {
 	std::string local_results_folder = get_folder_in_dagda_path(szReqId.c_str());
 
 
-	if(binary.argumentsTransferMethod == filesTransferMethod) {
+	if(binary.arguments_transfer_method == filesTransferMethod) {
 		int env = create_folder(local_results_folder.c_str());
 	}
 
@@ -438,7 +570,7 @@ int SeDCloud::solve(diet_profile_t *pb) {
 	//a disctinct remote folder for each request
 	//the remote folder where datas are stored
 	std::string remote_request_folder = remote_path_of_arguments + "/" + szReqId;
-	if(binary.argumentsTransferMethod == filesTransferMethod) {
+	if(binary.arguments_transfer_method == filesTransferMethod) {
 		SeDCloud::instance->actions->create_remote_directory(remote_request_folder);
 	}
 
@@ -457,7 +589,7 @@ int SeDCloud::solve(diet_profile_t *pb) {
 	for(int i = 0; i < nb_args; i++) {
 		sprintf(sz_i, "%i", i);
 
-		if(binary.argumentsTransferMethod == filesTransferMethod) {
+		if(binary.arguments_transfer_method == filesTransferMethod) {
 			arg_remote_path = remote_request_folder + "/" + sz_i;
 			if (i <= last_in) {
 				diet_file_get(diet_parameter(pb, i), &sz_local_path, NULL, &arg_size);
@@ -465,7 +597,7 @@ int SeDCloud::solve(diet_profile_t *pb) {
 				SeDCloud::instance->actions->send_arguments(local_path, arg_remote_path);
 			}
 		}
-		else if (binary.argumentsTransferMethod == pathsTransferMethod) {
+		else if (binary.arguments_transfer_method == pathsTransferMethod) {
 			if (i <= last_in) {
 				diet_string_get(diet_parameter(pb, i), &sz_remote_path, NULL);
 				arg_remote_path = sz_remote_path;
@@ -487,7 +619,7 @@ int SeDCloud::solve(diet_profile_t *pb) {
 
 
 
-		if(binary.argumentsTransferMethod == filesTransferMethod) {
+		if(binary.arguments_transfer_method == filesTransferMethod) {
 			sprintf(sz_i, "%s/%i", local_results_folder.c_str(), i);
 			arg_local_path = sz_i;
 			arg_remote_path = arguments_vector[i];
@@ -497,7 +629,7 @@ int SeDCloud::solve(diet_profile_t *pb) {
 				return 1;
 			}
 		}
-		else if (binary.argumentsTransferMethod == pathsTransferMethod){
+		else if (binary.arguments_transfer_method == pathsTransferMethod){
 
 		}
 	}
@@ -667,9 +799,81 @@ DIET_API_LIB int SeDCloud::service_cloud_federation_vm_destruction_by_ip_add(con
 }
 
 
+DIET_API_LIB int SeDCloud::service_launch_another_sed_add() {
+	diet_profile_desc_t* profile;
+	profile = diet_profile_desc_alloc("launch_another_sed", 3, 3, 4);
+	//IN
+	diet_generic_desc_set(diet_param_desc(profile, 0), DIET_STRING, DIET_CHAR); //sed_executable_path
+	diet_generic_desc_set(diet_param_desc(profile, 1), DIET_FILE, DIET_CHAR); //diet_cfg
+	diet_generic_desc_set(diet_param_desc(profile, 2), DIET_FILE, DIET_CHAR); //file data
+	diet_generic_desc_set(diet_param_desc(profile, 3), DIET_STRING, DIET_CHAR); //string data
+	//OUT
+	diet_generic_desc_set(diet_param_desc(profile, 4), DIET_SCALAR, DIET_INT); //result of the launch : 0 : KO, != 0 : success
+
+	diet_service_table_add(profile, NULL, SeDCloud::launch_another_sed_solve);
+	diet_profile_desc_free(profile);
+}
+
+int SeDCloud::launch_another_sed_solve(diet_profile_t* pb) {
+	char* cfg_path;
+	size_t size;
+	char* data_file_path;
+	char* sed_executable_path;
+	char* string_data;
+
+	diet_string_get(diet_parameter(pb, 0), &sed_executable_path, NULL);
+	diet_file_get(diet_parameter(pb, 1), &cfg_path, NULL, &size);
+	diet_file_get(diet_parameter(pb, 2), &data_file_path, NULL, &size);
+	diet_string_get(diet_parameter(pb, 3), &string_data, NULL);
+
+	std::string data_copy_path = copy_to_tmp_file(data_file_path, ".dat");
+
+	pid_t pid = fork();
+
+	if (pid == 0) {
+		//in the process child
+		int env;
+
+		int nb_args = pb->last_in + 1;
+		char** argv = new char* [nb_args + 2];
+		char* sed_path_base_name = basename(sed_executable_path);
+		argv[0] = sed_path_base_name;
+		argv[1] = cfg_path;
+		argv[2] = const_cast<char*> (data_copy_path.c_str());
+		argv[3] = string_data;
+		argv[4] = NULL;
 
 
-//WARNING, TODO : this only works with services whose binaries are already preinstalled in the VM
+		printf("inside fork\n");
+		std::string d_cmd = "cat ";
+		d_cmd.append(data_copy_path);
+		env = system(d_cmd.c_str());
+
+		env = execv(sed_executable_path, argv);
+
+		//should not arrive here
+		printf("erreur #%i execution execv inside children process\n", env);
+		exit(-1);
+	}
+	else {
+		if (pid > 0) {
+			printf("fork executing: success\n");
+			int* child_status = new int;
+
+			waitpid(pid, child_status, WNOHANG);
+
+
+			diet_scalar_set(diet_parameter(pb, 4), child_status, DIET_PERSISTENT_RETURN, DIET_INT);
+
+			return 0;
+		}
+	}
+
+
+
+
+}
+
 int SeDCloud::homogeneous_vm_instanciation_solve(diet_profile_t *pb) {
 	char* vm_collection_name;
 	int* vm_count;
@@ -693,68 +897,26 @@ int SeDCloud::homogeneous_vm_instanciation_solve(diet_profile_t *pb) {
 	diet_scalar_get(diet_parameter(pb, 8), &is_ip_private, NULL);
 	//one creates the vm instances
 
-
-	printf("instanciation : image='%s', profile='%s', vm_count=%i\n", vm_image, vm_profile, *vm_count);
-
 	std::vector<IaaS::Parameter> params;
 	params.push_back(IaaS::Parameter(HARDWARE_PROFILE_ID_PARAM, vm_profile));
 
+
+	printf("instanciation : image='%s', profile='%s', vm_count=%i, is_ip_private=%i\n", vm_image, vm_profile, *vm_count, *is_ip_private);
 	IaaS::VMInstances* instances;
 	std::vector<std::string> ips;
+	instances = new IaaS::VMInstances(vm_image, *vm_count, deltacloud_api_url, deltacloud_user_name, deltacloud_passwd, vm_user, params);
+	instances->wait_all_instances_running();
+	instances->wait_all_ssh_connection(*is_ip_private);
+	instances->get_ips(ips, *is_ip_private);
 
 
-	//if (reserved_vms.count(vm_collection_name) == 0 ) {
-		instances = new IaaS::VMInstances(vm_image, *vm_count, deltacloud_api_url, deltacloud_user_name, deltacloud_passwd, vm_user, params);
-		//reserved_vms[vm_collection_name] = instances;
-		instances->wait_all_instances_running();
-		instances->wait_all_ssh_connection(*is_ip_private);
-
-
-		instances->get_ips(ips, *is_ip_private);
-		SeDCloudMachinesActions* actions = new SeDCloudMachinesActions(ips, vm_user);
-		actions->clone_service_binaries(instance->getActions());
-		instance->setActions(actions);
-
-	//}
-	/*else {
-		instances = reserved_vms[vm_collection_name];
-		instances->get_ips(ips, *is_ip_private);
-	}*/
-
-
-	int reqId = pb->dietReqID;
-	std::string szReqId = int2string(reqId);
-	std::string local_results_folder = get_folder_in_dagda_path(szReqId.c_str());
-	int env = create_folder(local_results_folder.c_str());
-
-
-	std::ostringstream vm_ip_file_path;
-	boost::uuids::uuid uuid = diet_generate_uuid();
-	vm_ip_file_path << local_results_folder << "-" << uuid << ".txt";
+	std::string diet_tmp_ips_file = create_tmp_file(pb, ".txt");
+	write_lines(ips, diet_tmp_ips_file);
+	diet_file_set(diet_parameter(pb, 9), diet_tmp_ips_file.c_str(), DIET_PERSISTENT_RETURN);
 
 
 
 
-
-
-	//write ips in file
-	FILE* vm_ips_file = fopen(vm_ip_file_path.str().c_str(), "w");
-	if (vm_ips_file == NULL) {
-		return -1;
-	}
-	for(int i = 0; i < *vm_count; i++) {
-		fprintf(vm_ips_file, "%s\n", ips[i].c_str());
-	}
-	fclose(vm_ips_file);
-
-	diet_file_set(diet_parameter(pb, 9), vm_ip_file_path.str().c_str(), DIET_PERSISTENT_RETURN);
-
-
-
-
-	for(int i=0; i < 9; i++) {
-		diet_free_data(diet_parameter(pb, i));
-	}
 
 	return 0;
 }
@@ -794,9 +956,9 @@ int SeDCloud::homogeneous_vm_instanciation_with_one_cloud_api_connection_solve(d
 	std::vector<std::string> ips;
 
 
-	//if (reserved_vms.count(vm_collection_name) == 0 ) {
+
 	instances = new IaaS::VMInstances(vm_image, *vm_count, deltacloud_api_url, deltacloud_user_name, deltacloud_passwd, vm_user, params);
-	//reserved_vms[vm_collection_name] = instances;
+
 	instances->wait_all_instances_running();
 	instances->wait_all_ssh_connection(*is_ip_private);
 
@@ -875,53 +1037,63 @@ int SeDCloud::homogeneous_vm_instanciation_with_keyname_solve(diet_profile_t *pb
 		//reserved_vms[vm_collection_name] = instances;
 		instances->wait_all_instances_running();
 		instances->wait_all_ssh_connection(*is_ip_private);
-
-
 		instances->get_ips(ips, *is_ip_private);
-		SeDCloudMachinesActions* actions = new SeDCloudMachinesActions(ips, vm_user);
-		actions->clone_service_binaries(instance->getActions());
-		instance->setActions(actions);
 
-	//}
-	/*else {
-		instances = reserved_vms[vm_collection_name];
-		instances->get_ips(ips, *is_ip_private);
-	}*/
+		pid_t pid = fork();
 
+		if (pid == 0) {
+			//je suis le fils
 
-	int reqId = pb->dietReqID;
-	std::string szReqId = int2string(reqId);
-	std::string local_results_folder = get_folder_in_dagda_path(szReqId.c_str());
-	int env = create_folder(local_results_folder.c_str());
-
-
-	std::ostringstream vm_ip_file_path;
-	boost::uuids::uuid uuid = diet_generate_uuid();
-	vm_ip_file_path << local_results_folder << "-" << uuid << ".txt";
+			SeDCloudMachinesActions* actions = new SeDCloudMachinesActions(ips, vm_user);
+			actions->clone_service_binaries(instance->get_actions());
+			instance->setActions(actions);
 
 
 
+		}
+		else {
+			//je suis le pere
+
+			int reqId = pb->dietReqID;
+			std::string szReqId = int2string(reqId);
+			std::string local_results_folder = get_folder_in_dagda_path(szReqId.c_str());
+			int env = create_folder(local_results_folder.c_str());
 
 
-
-	//write ips in file
-	FILE* vm_ips_file = fopen(vm_ip_file_path.str().c_str(), "w");
-	if (vm_ips_file == NULL) {
-		return -1;
-	}
-	for(int i = 0; i < *vm_count; i++) {
-		fprintf(vm_ips_file, "%s\n", ips[i].c_str());
-	}
-	fclose(vm_ips_file);
-
-	diet_file_set(diet_parameter(pb, 10), vm_ip_file_path.str().c_str(), DIET_PERSISTENT_RETURN);
+			std::ostringstream vm_ip_file_path;
+			boost::uuids::uuid uuid = diet_generate_uuid();
+			vm_ip_file_path << local_results_folder << "-" << uuid << ".txt";
 
 
 
 
-	for(int i=0; i < 10; i++) {
-		diet_free_data(diet_parameter(pb, i));
-	}
+
+
+			//write ips in file
+			FILE* vm_ips_file = fopen(vm_ip_file_path.str().c_str(), "w");
+			if (vm_ips_file == NULL) {
+				return -1;
+			}
+			for(int i = 0; i < *vm_count; i++) {
+				fprintf(vm_ips_file, "%s\n", ips[i].c_str());
+			}
+			fclose(vm_ips_file);
+
+			diet_file_set(diet_parameter(pb, 10), vm_ip_file_path.str().c_str(), DIET_PERSISTENT_RETURN);
+
+
+
+
+			for(int i=0; i < 10; i++) {
+				diet_free_data(diet_parameter(pb, i));
+			}
+		}
+
+
+
+
+
+
 
 	return 0;
 }
@@ -1345,7 +1517,7 @@ DIET_API_LIB int
 
 
 
-	/*switch (argumentsTransferMethod) {
+	/*switch (arguments_transfer_method) {
 		case filesTransferMethod:
 			type = DIET_FILE;
 			base_type = DIET_CHAR;
@@ -1356,7 +1528,7 @@ DIET_API_LIB int
 			last_out = last_in + 1;
 			break;
 		default:
-			printf("WARNING : %i argumentsTranferMethod not supported\n", argumentsTransferMethod);
+			printf("WARNING : %i argumentsTranferMethod not supported\n", arguments_transfer_method);
 	}*/
 
 	ServiceWrapper service_wrapper(name_of_service, path_of_binary, prepocessing, postprocessing);
@@ -1525,16 +1697,86 @@ int SeDCloudActions::send_vm_ips_to_master() {
 
 
 void SeDCloudActions::destroy_vms() {
-	if (vm_instances != NULL) {
-		delete vm_instances;
-	}
+	std::list<IaaS::VMInstances*>::iterator iter;
 
-    vm_instances = NULL;
+	for(iter = vm_instances.begin(); iter != vm_instances.end(); iter++) {
+		IaaS::VMInstances* elt = *iter;
+		if (elt != NULL){
+			delete elt;
+			*iter = NULL;
+		}
+	}
 }
 
 
 void SeDCloudActions::fill_ips() {
 	ips = std::vector<std::string>();
-	vm_instances->get_ips(ips, is_ip_private);
+	vm_instances.back()->get_ips(ips, is_ip_private);
 	master_ip = ips[0];
 }
+
+
+int SeDCloudActions::launch_vms(const std::string& vm_image, int vm_count, const std::string& deltacloud_api_url,
+		const std::string& deltacloud_user_name, const std::string& deltacloud_passwd, const std::string& vm_user, bool is_ip_private,
+		const std::vector<IaaS::Parameter>& params) {
+	this->image_id = vm_image;
+	this->vm_count = vm_count;
+	this->base_url = deltacloud_api_url;
+	set_credentials(deltacloud_user_name, deltacloud_passwd);
+	this->vm_user = vm_user;
+	this->is_ip_private = is_ip_private;
+	this->params = params;
+
+	SeDCloudActions::launch_vms();
+}
+
+
+/*
+int SeDCloudVMLaunchedThenExecProgramActions::perform_action_on_vm_os_ready() {
+	pid_t pid = fork();
+
+	if (pid == 0) {
+		//in the process child
+		int env;
+
+		int nb_args = program_args.size();
+		char** argv = new char* [nb_args + 2];
+
+
+		argv[0] = basename(strdup(program_path.c_str()));
+		printf("execv : %s ", argv[0]);
+		for(int i = 0; i < nb_args; i++) {
+
+			argv[i + 1 ] = strdup(program_args[i].c_str());
+			printf(" %s", argv[i + 1]);
+		}
+		argv[nb_args + 1] = NULL;
+		printf("\n");
+
+		printf("inside fork\n");
+		std::string d_cmd = "cat ";
+		d_cmd.append(program_args[1].c_str());
+		printf("%s\n", d_cmd.c_str());
+		env = system(d_cmd.c_str());
+
+
+		//char* d_argv[] = {"ls", "-l", NULL};
+		//execv("/bin/ls", d_argv);
+		env = execv(program_path.c_str(), argv);
+
+		//should not arrive here
+		printf("erreur #%i execution execv inside children process\n", env);
+		return -1;
+
+	}
+	else {
+		if (pid > 0) {
+			printf("fork executing: success\n");
+			return 0;
+		}
+	}
+
+}*/
+
+
+

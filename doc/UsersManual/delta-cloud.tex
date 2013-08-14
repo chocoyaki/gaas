@@ -158,7 +158,8 @@ Five classes which inherit from \texttt{SeDCloudActions} class are predefined.
         \item perform\_action\_on\_sed\_launch: \textbf{record service names}
         \item perform\_action\_on\_begin\_solve: \textbf{if number of calls to solve is equal to 1 then instanciation of VMs and copy all binaries into all VMs}
         \item perform\_action\_on\_end\_solve: \textbf{no action}
-        \item when the SeD is destroyed (\texttt{Ctrl + C}): \textbf{destruction of VMs if any}
+        \item when the SeD is destroyed (\texttt{Ctrl + C}):
+          \textbf{destruction of VMs if there are any}
       \end{enumerate}
   \item \textbf{SeDCloudVMLaunchedAtSolveThenDestroyedActions}:
     \begin{enumerate}
@@ -190,7 +191,10 @@ Five classes which inherit from \texttt{SeDCloudActions} class are predefined.
    \end{enumerate}
 \end{itemize}
 
-
+N.B.: When $n$ Virtual Machines are instanciated, a Master VM is
+arbitrarily choosen and a file containing the $n$ ip addresses of VMs
+is send to it. This file is in a text format where each line is one ip
+address.
 
 
 

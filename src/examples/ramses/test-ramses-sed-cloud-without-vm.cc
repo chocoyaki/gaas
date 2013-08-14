@@ -50,8 +50,10 @@ main(int argc, char *argv[]) {
 
 	/* Initialize table with maximum 5 service */
 	diet_service_table_init(5);
+	std::vector<std::string> ips;
+	ips.push_back(ip);
 
-	SeDCloudMachinesActions actions(ip, username);
+	SeDCloudMachinesActions actions(ips, username);
 
 
 	SeDCloud::create(&actions);

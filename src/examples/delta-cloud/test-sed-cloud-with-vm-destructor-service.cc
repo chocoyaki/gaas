@@ -41,7 +41,7 @@ main(int argc, char *argv[]) {
 	/* Initialize table with maximum 10 service */
 	diet_service_table_init(10);
 
-	SedCloudActionsNULL* actions = new SedCloudActionsNULL();
+	SeDCloudActionsNULL* actions = new SeDCloudActionsNULL();
 
 	SeDCloud::create(actions);
 
