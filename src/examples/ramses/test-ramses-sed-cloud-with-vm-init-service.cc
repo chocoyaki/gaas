@@ -70,12 +70,9 @@ main(int argc, char *argv[]) {
 	SeDCloud::get()->service_launch_another_sed_add();
 
 	//for experiments
-	diet_profile_desc_t* profile;
-	profile = diet_profile_desc_alloc("time", 0, 0, 1);
-	diet_generic_desc_set(diet_param_desc(profile, 0), DIET_STRING, DIET_CHAR); //dummy input
-	diet_generic_desc_set(diet_param_desc(profile, 1), DIET_SCALAR, DIET_LONGINT); //time in seconds since 01/01/1970
-	diet_service_table_add(profile, NULL, time_solve);
-	diet_profile_desc_free(profile);
+	service_time_solve_add();
+	service_add_seq_in_data_xml_add();
+
 	diet_print_service_table();
 
 	//SeDCloud::get()->service_use_vm_add();

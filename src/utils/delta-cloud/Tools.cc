@@ -13,11 +13,36 @@
 #include <string.h>
 
 
+#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/classification.hpp>
+#include <xercesc/framework/LocalFileFormatTarget.hpp>
+#include <xercesc/dom/DOMLSSerializer.hpp>
+
+int read_properties_file(const std::string& path, std::map<std::string, std::string>& results) {
+    std::ifstream file(path.c_str());
+    std::string line;
+
+    while(std::getline(file, line))
+    {
+        std::vector<std::string> tokens;
+
+        if(line.length() == 0 || line.find("//") == 0)
+            continue;
+
+        boost::split(tokens, line, boost::is_any_of("="));
+
+        if(tokens.size() == 2)
+           results[tokens[0]] = tokens[1];
+    }
+}
+
 char* cpp_strdup(const char* src) {
 	char* cpy = new char [strlen(src) + 1];
 	strcpy(cpy, src);
 	return cpy;
 }
+
+
 
 
 std::string get_ip_instance_by_id(IaaS::IaasInterface* interf, std::string instance_id, bool is_private_ip) {
@@ -53,7 +78,7 @@ void deleteStringVector(std::vector<std::string*>& v){
 }
 
 int test_ssh_connection(std::string ssh_user, std::string ip) {
-	std::string cmd = "ssh "  + ssh_user + "@" + ip + " -o StrictHostKeyChecking=no PasswordAuthentication=no 'exit'";
+	std::string cmd = "ssh -q "  + ssh_user + "@" + ip + " -o StrictHostKeyChecking=no PasswordAuthentication=no 'exit'";
 	//std::cout << cmd << std::endl;
 	int ret = system(cmd.c_str());
 
@@ -340,3 +365,249 @@ OpenStackVMInstances::OpenStackVMInstances(std::string image_id, int vm_count, s
 
 
 }
+
+
+/******************* BEGIN : THIS CLASSES ARE REUSABLE**********************/
+
+
+static XmlDOMParser* domParser;
+
+XmlDOMParser* XmlDOMParser::get_instance()
+{
+    if (domParser == NULL) {
+        domParser = new XmlDOMParser();
+    }
+    return domParser;
+}
+
+
+XmlDOMParser::XmlDOMParser() : m_parser(NULL), m_errHandler(NULL)
+{
+    xercesc::XMLPlatformUtils::Initialize();
+    m_parser = new xercesc::XercesDOMParser();
+    m_errHandler = (xercesc::ErrorHandler*) new XmlDOMErrorHandler();
+    m_parser->setErrorHandler(m_errHandler);
+}
+
+XmlDOMParser::~XmlDOMParser()
+{
+    if (m_parser) {
+        delete m_parser;
+        xercesc::XMLPlatformUtils::Terminate();
+        domParser = NULL;
+	}
+}
+
+
+xercesc::DOMDocument* XmlDOMParser::parse(const char* xmlfile)
+{
+    m_parser->parse(xmlfile);
+    return m_parser->adoptDocument();
+}
+
+
+XmlDOMDocument::XmlDOMDocument(XmlDOMParser* parser,
+                               const char* xmlfile) : m_doc(NULL)
+{
+    m_doc = parser->parse(xmlfile);
+}
+
+
+XmlDOMDocument::~XmlDOMDocument()
+{
+    if (m_doc) m_doc->release();
+
+    m_doc = NULL;
+}
+
+std::string XmlDOMDocument::get_child_value(const char* parentTag,
+                                     int parentIndex,
+                                     const char* childTag)
+{
+    XMLCh* temp = xercesc::XMLString::transcode(parentTag);
+    xercesc::DOMNodeList* list = m_doc->getElementsByTagName(temp);
+    xercesc::XMLString::release(&temp);
+
+    xercesc::DOMElement* parent =
+        dynamic_cast<xercesc::DOMElement*>(list->item(parentIndex));
+    xercesc::DOMElement* child =
+        dynamic_cast<xercesc::DOMElement*>(parent->getElementsByTagName(
+                          xercesc::XMLString::transcode(childTag))->item(0));
+    std::string value;
+    if (child) {
+        char* temp2 = xercesc::XMLString::transcode(child->getTextContent());
+        value = temp2;
+        xercesc::XMLString::release(&temp2);
+    }
+    else {
+        value = "";
+    }
+    return value;
+}
+
+std::string XmlDOMDocument::get_value(const char* tag, int elt_index) {
+	XMLCh* temp = xercesc::XMLString::transcode(tag);
+    xercesc::DOMNodeList* list = m_doc->getElementsByTagName(temp);
+    xercesc::XMLString::release(&temp);
+
+	xercesc::DOMElement* node =
+        dynamic_cast<xercesc::DOMElement*>(list->item(elt_index));
+
+	std::string value;
+	if (node) {
+		char* temp2 = xercesc::XMLString::transcode(node->getTextContent());
+        value = temp2;
+        xercesc::XMLString::release(&temp2);
+	}
+	else {
+		return "";
+	}
+
+	return value;
+}
+
+std::string XmlDOMDocument::get_attribute_value(const char* elementTag,
+                                         int elementIndex,
+                                         const char* attributeTag)
+{
+    XMLCh* temp = xercesc::XMLString::transcode(elementTag);
+    xercesc::DOMNodeList* list = m_doc->getElementsByTagName(temp);
+    xercesc::XMLString::release(&temp);
+
+    xercesc::DOMElement* element =
+        dynamic_cast<xercesc::DOMElement*>(list->item(elementIndex));
+    temp = xercesc::XMLString::transcode(attributeTag);
+    char* temp2 = xercesc::XMLString::transcode(element->getAttribute(temp));
+
+    std::string value = temp2;
+    xercesc::XMLString::release(&temp);
+    xercesc::XMLString::release(&temp2);
+    return value;
+}
+
+
+int XmlDOMDocument::get_element_count(const char* elementName)
+{
+    xercesc::DOMNodeList* list =
+       m_doc->getElementsByTagName(xercesc::XMLString::transcode(elementName));
+    return (int)list->getLength();
+}
+
+
+XmlDOMDocument* read_xml_file(const char* path) {
+	 XmlDOMParser* parser = XmlDOMParser::get_instance();
+
+	 if (parser) {
+		XmlDOMDocument* doc = new XmlDOMDocument(parser, path);
+		return doc;
+	 }
+
+
+	 return NULL;
+}
+
+
+int read_elements_from_xml(const char* path, std::vector<std::string>& list, std::string elt){
+	std::string value;
+    XmlDOMParser* parser = XmlDOMParser::get_instance();
+    if (parser) {
+        XmlDOMDocument* doc = new XmlDOMDocument(parser, path);
+        if (doc) {
+            for (int i = 0; i < doc->get_element_count(elt.c_str()); i++) {
+                value = doc->get_value(elt.c_str(), i);
+				list.push_back(value);
+           }
+           delete doc;
+       }
+       else {
+			return -1;
+       }
+
+       delete parser;
+    }
+    else {
+		return -1;
+    }
+
+    return 0;
+}
+
+std::string read_element_from_xml(const char* path, std::string elt) {
+	std::vector<std::string> list;
+	std::string result;
+	int env = read_elements_from_xml(path, list, elt);
+	if (env) return "";
+	if (list.size() <= 0) return "";
+	result = list[0];
+
+	return result;
+}
+
+int XmlDOMDocument::add_child_content(const char* parent, int parentIndex, const char* child, std::string child_content) {
+	XMLCh* temp = xercesc::XMLString::transcode(parent);
+    xercesc::DOMNodeList* list = m_doc->getElementsByTagName(temp);
+    xercesc::XMLString::release(&temp);
+
+	xercesc::DOMElement* node =
+        dynamic_cast<xercesc::DOMElement*>(list->item(parentIndex));
+
+	temp = xercesc::XMLString::transcode(child);
+	xercesc::DOMElement* child_element = m_doc->createElement(temp);
+	xercesc::XMLString::release(&temp);
+
+	temp = xercesc::XMLString::transcode(child_content.c_str());
+	child_element->setTextContent(temp);
+	xercesc::XMLString::release(&temp);
+
+	node->appendChild(child_element);
+}
+
+
+void dom_to_xml_file(xercesc::DOMDocument* pDOMDocument, const char* path )
+{
+	const XMLCh gLS[] = { xercesc::chLatin_L, xercesc::chLatin_S, xercesc::chNull };
+	xercesc::DOMImplementation *pImplement = NULL;
+	xercesc::DOMLSSerializer *pSerializer = NULL; // @DOMWriter
+	xercesc::LocalFileFormatTarget *pTarget = NULL;
+
+	//Return the first registered implementation that has the desired features. In this case, we are after
+	//a DOM implementation that has the LS feature... or Load/Save.
+	pImplement = xercesc::DOMImplementationRegistry::getDOMImplementation(gLS);
+
+	//From the DOMImplementation, create a DOMWriter.
+	//DOMWriters are used to serialize a DOM tree [back] into an XML document.
+
+	pSerializer = ((xercesc::DOMImplementationLS*)pImplement)->createLSSerializer(); //@createDOMWriter();
+
+	//This line is optional. It just sets a feature of the Serializer to make the output
+	//more human-readable by inserting line-feeds, without actually inserting any new elements/nodes
+	//into the DOM tree. (There are many different features to set.) Comment it out and see the difference.
+
+	//pSerializer->setFeature(xercesc::XMLUni::fgDOMWRTFormatPrettyPrint, true); //
+	xercesc::DOMLSOutput *pOutput = ((xercesc::DOMImplementationLS*)pImplement)->createLSOutput();
+	xercesc::DOMConfiguration *pConfiguration = pSerializer->getDomConfig();
+
+	// Have a nice output
+	if (pConfiguration->canSetParameter(xercesc::XMLUni::fgDOMWRTFormatPrettyPrint, true))
+		pConfiguration->setParameter(xercesc::XMLUni::fgDOMWRTFormatPrettyPrint, true);
+
+	pTarget = new xercesc::LocalFileFormatTarget(path);
+	pOutput->setByteStream(pTarget);
+
+	// @pSerializer->write(pDOMDocument->getDocumentElement(), pOutput); // missing header "<xml ...>" if used
+	pSerializer->write(pDOMDocument, pOutput);
+
+	delete pTarget;
+	pOutput->release();
+	pSerializer->release();
+}
+
+
+void XmlDOMDocument::write(const char* path) {
+	dom_to_xml_file(m_doc, path);
+}
+
+
+
+
+/*******************END : THIS CLASSES ARE REUSABLE**********************/

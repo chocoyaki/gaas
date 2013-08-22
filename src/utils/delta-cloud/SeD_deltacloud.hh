@@ -41,6 +41,7 @@ std::string get_folder_in_dagda_path(const char* folder_name);
 std::string int2string(int i);
 void append2path(std::string& path, const std::string& add);
 
+std::string create_tmp_file(std::string directory_path, const std::string ext);
 std::string create_tmp_file(diet_profile_t* pb, const std::string ext);
 int write_lines(const std::vector<std::string>& ips, const std::string& file);
 
@@ -67,7 +68,8 @@ enum ArgumentsTransferMethod {
 
 enum ServiceWrapperArgumentType {
 	dietProfileArgType = 0,
-	commandLineArgType
+	commandLineArgType,
+	unknownArgType
 };
 
 /*typedef union {
@@ -76,39 +78,76 @@ enum ServiceWrapperArgumentType {
 } UServiceWrapperArgument;
 */
 
-typedef struct{
+class ServiceWrapperArgument{
+public:
 	ServiceWrapperArgumentType arg_type;
-	union{
+	//union{
 		int diet_profile_arg;
 		char* command_line_arg;
-	};
-} ServiceWrapperArgument;
+	//};
+
+	ServiceWrapperArgument() {
+		command_line_arg = NULL;
+		diet_profile_arg = -1;
+		arg_type = unknownArgType;
+	}
+
+	ServiceWrapperArgument(const ServiceWrapperArgument& obj) {
+		if (obj.command_line_arg != NULL){
+			this->command_line_arg = strdup(obj.command_line_arg);
+		}
+		else {
+			this->command_line_arg = NULL;
+		}
+
+		this->diet_profile_arg = obj.diet_profile_arg;
+		this->arg_type = obj.arg_type;
+	}
+
+	~ServiceWrapperArgument() {
+		if (command_line_arg != NULL){
+			free(command_line_arg);
+			command_line_arg = NULL;
+		}
+	}
+};
+
+std::ostream& operator <<(std::ostream& stream, const ServiceWrapperArgument& obj);
+
+
 
 class ServiceWrapper {
 
 public:
 	std::string name_of_service;
 	std::string executable_path;
-	dietwrapper_callback_t prepocessing;
+	dietwrapper_callback_t preprocessing;
 	dietwrapper_callback_t postprocessing;
 
 
-
-
+	ServiceWrapper(const ServiceWrapper& wrapper);
 
 	ServiceWrapper(
 	const std::string& _name_of_service,
 	const std::string& _executable_path,
-	dietwrapper_callback_t _prepocessing = NULL,
-	dietwrapper_callback_t _postprocessing = NULL,
-	int nb_args = 0) {
+	int nb_args,
+	dietwrapper_callback_t _preprocessing = NULL,
+	dietwrapper_callback_t _postprocessing = NULL) {
 		name_of_service = _name_of_service;
 		executable_path = _executable_path;
-		prepocessing = _prepocessing;
+		preprocessing = _preprocessing;
 		postprocessing = _postprocessing;
 		args = std::vector<ServiceWrapperArgument>(nb_args);
 	}
-	ServiceWrapper() {};
+
+	ServiceWrapper() {
+		name_of_service = "service_name_not_set";
+		executable_path = "????";
+		preprocessing = NULL;
+		postprocessing = NULL;
+		args = std::vector<ServiceWrapperArgument>(0);
+
+	};
 
 
 
@@ -177,6 +216,8 @@ private:
 	std::vector<ServiceWrapperArgument> args;
 };
 
+
+std::ostream& operator <<(std::ostream& stream, const ServiceWrapper& obj);
 
 DIET_API_LIB int
         service_wrapper_table_add(const std::string& name_of_service,
@@ -805,10 +846,15 @@ SeDCloud* SeDCloud::instance;
 std::vector<CloudAPIConnection> SeDCloud::cloud_api_connection_for_vm_destruction;
 CloudAPIConnection SeDCloud::cloud_api_connection_for_vm_instanciation;
 
+/**************BEGIN : classical DIET services**************/
+
+void service_time_solve_add();
 int time_solve(diet_profile_t *pb);
 
+void service_add_seq_in_data_xml_add();
+int add_seq_in_data_xml_solve(diet_profile_t *pb);
 
-
+/**************END : classical DIET services**************/
 
 
 #endif
