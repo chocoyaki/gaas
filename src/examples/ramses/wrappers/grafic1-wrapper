@@ -1,0 +1,10 @@
+#!/bin/sh
+
+
+username=$1
+ip=$2
+level=$3
+working_dir=$4
+
+
+ssh $username@$ip "cd /home/adi/scenario; ./call-grafic1 localhost $level $working_dir"

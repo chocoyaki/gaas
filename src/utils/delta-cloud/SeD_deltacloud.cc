@@ -17,6 +17,8 @@
 #include <unistd.h>
 #include <libgen.h>
 
+
+
 std::string copy_to_tmp_file(const std::string& src, const std::string& ext) {
 	char* src_path = strdup(src.c_str());
 	char* dir = dirname(src_path);
@@ -86,6 +88,23 @@ int create_folder_in_dagda_path_with_request_id(int reqId) {
 	return create_folder_in_dagda_path(int2string(reqId).c_str());
 }
 
+std::string create_tmp_file(std::string directory_path, const std::string ext) {
+
+	std::ostringstream file_path;
+	boost::uuids::uuid uuid = diet_generate_uuid();
+	file_path << directory_path << "/" << uuid << ext;
+
+	FILE* tmp_file = fopen(file_path.str().c_str(), "w");
+	if (tmp_file == NULL) {
+		return "";
+	}
+
+	fclose(tmp_file);
+
+
+	return file_path.str();
+}
+
 
 std::string create_tmp_file(diet_profile_t* pb, const std::string ext) {
 	//create the tmp ip file
@@ -93,19 +112,10 @@ std::string create_tmp_file(diet_profile_t* pb, const std::string ext) {
 	std::string szReqId = int2string(reqId);
 	std::string local_results_folder = get_folder_in_dagda_path(szReqId.c_str());
 	int env = create_folder(local_results_folder.c_str());
-	std::ostringstream file_path;
-	boost::uuids::uuid uuid = diet_generate_uuid();
-	file_path << local_results_folder << "/" << uuid << ext;
 
-	FILE* vm_ips_file = fopen(file_path.str().c_str(), "w");
-	if (vm_ips_file == NULL) {
-		return "";
-	}
+	if (env) return "";
 
-	fclose(vm_ips_file);
-
-
-	return file_path.str();
+	return create_tmp_file(local_results_folder, ext);
 
 }
 
@@ -801,14 +811,13 @@ DIET_API_LIB int SeDCloud::service_cloud_federation_vm_destruction_by_ip_add(con
 
 DIET_API_LIB int SeDCloud::service_launch_another_sed_add() {
 	diet_profile_desc_t* profile;
-	profile = diet_profile_desc_alloc("launch_another_sed", 3, 3, 4);
+	profile = diet_profile_desc_alloc("launch_another_sed", 2, 2, 3);
 	//IN
 	diet_generic_desc_set(diet_param_desc(profile, 0), DIET_STRING, DIET_CHAR); //sed_executable_path
 	diet_generic_desc_set(diet_param_desc(profile, 1), DIET_FILE, DIET_CHAR); //diet_cfg
 	diet_generic_desc_set(diet_param_desc(profile, 2), DIET_FILE, DIET_CHAR); //file data
-	diet_generic_desc_set(diet_param_desc(profile, 3), DIET_STRING, DIET_CHAR); //string data
 	//OUT
-	diet_generic_desc_set(diet_param_desc(profile, 4), DIET_SCALAR, DIET_INT); //result of the launch : 0 : KO, != 0 : success
+	diet_generic_desc_set(diet_param_desc(profile, 3), DIET_SCALAR, DIET_INT); //result of the launch : 0 : KO, != 0 : success
 
 	diet_service_table_add(profile, NULL, SeDCloud::launch_another_sed_solve);
 	diet_profile_desc_free(profile);
@@ -819,14 +828,13 @@ int SeDCloud::launch_another_sed_solve(diet_profile_t* pb) {
 	size_t size;
 	char* data_file_path;
 	char* sed_executable_path;
-	char* string_data;
 
 	diet_string_get(diet_parameter(pb, 0), &sed_executable_path, NULL);
 	diet_file_get(diet_parameter(pb, 1), &cfg_path, NULL, &size);
 	diet_file_get(diet_parameter(pb, 2), &data_file_path, NULL, &size);
-	diet_string_get(diet_parameter(pb, 3), &string_data, NULL);
 
 	std::string data_copy_path = copy_to_tmp_file(data_file_path, ".dat");
+	std::string cfg_copy_path = copy_to_tmp_file(cfg_path, ".cfg");
 
 	pid_t pid = fork();
 
@@ -838,10 +846,9 @@ int SeDCloud::launch_another_sed_solve(diet_profile_t* pb) {
 		char** argv = new char* [nb_args + 2];
 		char* sed_path_base_name = basename(sed_executable_path);
 		argv[0] = sed_path_base_name;
-		argv[1] = cfg_path;
+		argv[1] = const_cast<char*> (cfg_copy_path.c_str());
 		argv[2] = const_cast<char*> (data_copy_path.c_str());
-		argv[3] = string_data;
-		argv[4] = NULL;
+		argv[3] = NULL;
 
 
 		printf("inside fork\n");
@@ -863,7 +870,7 @@ int SeDCloud::launch_another_sed_solve(diet_profile_t* pb) {
 			waitpid(pid, child_status, WNOHANG);
 
 
-			diet_scalar_set(diet_parameter(pb, 4), child_status, DIET_PERSISTENT_RETURN, DIET_INT);
+			diet_scalar_set(diet_parameter(pb, 3), child_status, DIET_PERSISTENT_RETURN, DIET_INT);
 
 			return 0;
 		}
@@ -1471,9 +1478,9 @@ int service_wrapper_solve(diet_profile_t* pb) {
 
 	std::string name(pb->pb_name);
 	//const std::map<std::string, CloudServiceBinary>& binaries = instance->actions->get_cloud_service_binaries();
-	ServiceWrapper& binary = service_name_to_executable.at(name);
-	if (binary.prepocessing != NULL) {
-		binary.prepocessing(&binary, pb);
+	ServiceWrapper& binary = service_name_to_executable[name];
+	if (binary.preprocessing != NULL) {
+		binary.preprocessing(&binary, pb);
 	}
 
 	int nb_args = pb->last_out + 1;
@@ -1531,7 +1538,7 @@ DIET_API_LIB int
 			printf("WARNING : %i argumentsTranferMethod not supported\n", arguments_transfer_method);
 	}*/
 
-	ServiceWrapper service_wrapper(name_of_service, path_of_binary, prepocessing, postprocessing);
+	ServiceWrapper service_wrapper(name_of_service, path_of_binary, 0, prepocessing, postprocessing);
 	service_name_to_executable[name_of_service] = service_wrapper;
 
 
@@ -1573,12 +1580,14 @@ DIET_API_LIB int
 
 int service_wrapper_solve2(diet_profile_t* pb) {
 	//SeDCloud::instance->actions->perform_action_on_begin_solve(pb);
-
 	std::string name(pb->pb_name);
 	//const std::map<std::string, CloudServiceBinary>& binaries = instance->actions->get_cloud_service_binaries();
-	ServiceWrapper& binary = service_name_to_executable.at(name);
-	if (binary.prepocessing != NULL) {
-		binary.prepocessing(&binary, pb);
+	ServiceWrapper& binary = service_name_to_executable[name];
+
+	//std::cout << "test in solve2 " << binary << "\n";
+
+	if (binary.preprocessing != NULL) {
+		binary.preprocessing(&binary, pb);
 	}
 
 	int nb_args = binary.get_nb_args();
@@ -1631,6 +1640,8 @@ DIET_API_LIB int
 	std::string name_of_service = service_wrapper.name_of_service;
 	service_name_to_executable[name_of_service] = service_wrapper;
 
+	//std::cout << "test copy : " << service_name_to_executable[name_of_service] << "\n";
+
 	//std::map<int, ServiceWrapperArgument> args = service_wrapper.getArgs();
 
 	int last_in = service_wrapper.get_last_diet_in();
@@ -1663,7 +1674,7 @@ DIET_API_LIB int
 	diet_profile_desc_free(profile);
 	//diet_print_service_table();
 
-
+	//std::cout << "test copy 2: " << service_name_to_executable[name_of_service] << "\n";
 
 	return 0;
 
@@ -1779,4 +1790,91 @@ int SeDCloudVMLaunchedThenExecProgramActions::perform_action_on_vm_os_ready() {
 }*/
 
 
+std::ostream& operator <<(std::ostream& stream, const ServiceWrapperArgument& obj)
+{
+    if (obj.arg_type == dietProfileArgType){
+		stream<< "diet_param(" << obj.diet_profile_arg << ")";
+    }
+    else {
+		stream<< obj.command_line_arg;
+    }
+    return stream;
+}
 
+
+std::ostream& operator <<(std::ostream& stream, const ServiceWrapper& obj) {
+	stream << obj.name_of_service << "(" << obj.get_nb_args() << ")\n";
+	for(int i = 0; i < obj.get_nb_args(); i++) {
+		stream << i << ": " << obj.get_arg(i) << "\n";
+	}
+
+	return stream;
+}
+
+ServiceWrapper::ServiceWrapper(const ServiceWrapper& wrapper) {
+	this->name_of_service = wrapper.name_of_service;
+	this->executable_path = wrapper.executable_path;
+	this->args = wrapper.args;
+	this->preprocessing = wrapper.preprocessing;
+	this->postprocessing = wrapper.postprocessing;
+
+	//std::cout << "wrapper=\n" << wrapper << "\n";
+	//std::cout << "this=\n" << *this << "\n";
+}
+
+
+int add_seq_in_data_xml_solve(diet_profile_t *pb) {
+	char* xml_in_path;
+	char* lines_file_path;
+	size_t size;
+	char* tag_name;
+
+
+	diet_file_get(diet_parameter(pb, 0), &xml_in_path, NULL, &size);
+	diet_file_get(diet_parameter(pb, 1), &lines_file_path, NULL, &size);
+	diet_string_get(diet_parameter(pb, 2), &tag_name, NULL);
+
+	XmlDOMDocument* xml_in = read_xml_file(xml_in_path);
+
+	if (xml_in == NULL) return -1;
+	if (xml_in->get_element_count("data") <= 0) {
+		std::cout << "ERROR: the XML input file must contains <data> ... </data>\n";
+		return -1;
+	}
+	std::vector<std::string> lines;
+	readlines(lines_file_path, lines);
+
+	for(int i = 0; i < lines.size(); i++){
+		xml_in->add_child_content("data", 0, tag_name, lines[i]);
+	}
+
+	std::string diet_tmp_file = create_tmp_file(pb, ".xml");
+	xml_in->write(diet_tmp_file.c_str());
+	diet_file_set(diet_parameter(pb, 3), diet_tmp_file.c_str(), DIET_PERSISTENT_RETURN);
+
+	return 0;
+}
+
+
+void service_add_seq_in_data_xml_add() {
+	diet_profile_desc_t* profile;
+	profile = diet_profile_desc_alloc("add_seq_in_data_xml", 2, 2, 3);
+	diet_generic_desc_set(diet_param_desc(profile, 0), DIET_FILE, DIET_CHAR); //the  data XML file
+	diet_generic_desc_set(diet_param_desc(profile, 1), DIET_FILE, DIET_CHAR); //the lines file
+	diet_generic_desc_set(diet_param_desc(profile, 2), DIET_STRING, DIET_CHAR); //the xml tag name around each line
+	diet_generic_desc_set(diet_param_desc(profile, 3), DIET_FILE, DIET_CHAR); //the  resulting data xml file
+	diet_service_table_add(profile, NULL, add_seq_in_data_xml_solve);
+
+	diet_profile_desc_free(profile);
+}
+
+
+void service_time_solve_add() {
+	diet_profile_desc_t* profile;
+	profile = diet_profile_desc_alloc("time", 0, 0, 1);
+	diet_generic_desc_set(diet_param_desc(profile, 0), DIET_STRING, DIET_CHAR); //dummy input
+	diet_generic_desc_set(diet_param_desc(profile, 1), DIET_SCALAR, DIET_LONGINT); //time in seconds since 01/01/1970
+	diet_service_table_add(profile, NULL, time_solve);
+
+	diet_profile_desc_free(profile);
+}

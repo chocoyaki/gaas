@@ -1,0 +1,15 @@
+#!/bin/sh
+
+
+username=$1
+ip=$2
+hosts_file=$3
+nb_proc=$4
+working_dir=$5
+
+hosts_file_copy=/tmp/$RANDOM.txt
+
+echo "username=$username"
+
+rsync -avz -e 'ssh' $hosts_file $username@$ip:$hosts_file_copy
+ssh $username@$ip "cd /home/adi/scenario; ./call-ramses3d $hosts_file_copy $nb_proc $working_dir"

@@ -1,0 +1,9 @@
+#!/bin/sh
+
+
+username=$1
+ip=$2
+working_dir=$3
+executable_path=$4
+
+ssh $username@$ip "cd /home/adi/scenario; $executable_path localhost $working_dir"

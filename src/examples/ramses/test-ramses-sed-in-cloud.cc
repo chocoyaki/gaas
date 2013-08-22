@@ -89,7 +89,7 @@ main(int argc, char *argv[]) {
 
 	std::vector<std::pair<diet_data_type_t, diet_base_type_t> > tar_out;
 	tar_out.push_back(std::pair<diet_data_type_t, diet_base_type_t> (DIET_FILE, DIET_CHAR));
-	ServiceWrapper serviceWrapperTAR("tar", "tar", add_tar_arg, send_tar, 3);
+	ServiceWrapper serviceWrapperTAR("tar", "tar", 3, add_tar_arg, send_tar);
 	service_wrapper_table_add(serviceWrapperTAR, tar_out);
 
 	diet_print_service_table();

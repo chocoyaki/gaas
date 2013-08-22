@@ -11,12 +11,26 @@
 #include "Instance.hh"
 #include <string>
 #include <vector>
+#include <map>
 
+
+#include <xercesc/parsers/XercesDOMParser.hpp>
+#include <xercesc/dom/DOM.hpp>
+#include <xercesc/sax/HandlerBase.hpp>
+#include <xercesc/util/XMLString.hpp>
+#include <xercesc/util/PlatformUtils.hpp>
+
+#include <string>
+
+//using namespace std;
+//using namespace xercesc;
 
 void deleteStringVector(std::vector<std::string*>& v);
 char* cpp_strdup(const char* src);
 
 std::string get_ip_instance_by_id(IaaS::IaasInterface* interf, std::string instance_id, bool is_private_ip);
+int read_properties_file(const std::string& path, std::map<std::string, std::string>& results);
+
 
 /*
 
@@ -108,5 +122,67 @@ class OpenStackVMInstances : public VMInstances{
 
 }
 
+/******************* BEGIN : THIS CLASSES ARE REUSABLE**********************/
+class XmlDOMErrorHandler : public xercesc::HandlerBase
+{
+  public:
+    void fatal_error(const xercesc::SAXParseException &exc) {
+        printf("Parsing error at line %d\n",
+              (int)exc.getLineNumber());
+        exit(-1);
+    }
+};
+
+class XmlDOMParser
+{
+  protected:
+    xercesc::XercesDOMParser* m_parser;
+    xercesc::ErrorHandler*    m_errHandler;
+
+  public:
+    ~XmlDOMParser();
+
+    static XmlDOMParser* get_instance();
+    xercesc::DOMDocument* parse(const char* xmlfile);
+
+  private:
+    XmlDOMParser();
+};
+
+
+class XmlDOMDocument
+{
+ protected:
+    xercesc::DOMDocument* m_doc;
+
+  public:
+    XmlDOMDocument(XmlDOMParser* parser, const char* xmlfile);
+    ~XmlDOMDocument();
+
+    std::string get_child_value(const char* parentTag, int parentIndex,
+                         const char* childTag);
+
+	std::string get_value(const char* tag, int elt_index);
+    std::string get_attribute_value(const char* elementTag,
+                             int elementIndex,
+                             const char* attributeTag);
+    int get_element_count(const char* elementName);
+
+	int add_child_content(const char* parent, int parentIndex, const char* child, std::string child_content);
+
+	void write(const char* path);
+  private:
+    //XmlDOMDocument();
+    //XmlDOMDocument(const XmlDOMDocument&);
+};
+
+
+XmlDOMDocument* read_xml_file(const char* path);
+
+int read_elements_from_xml(const char* path, std::vector<std::string>& list, std::string elt);
+std::string read_element_from_xml(const char* path, std::string elt);
+
+
+/******************* END : THIS CLASSES ARE REUSABLE**********************/
 
 #endif
