@@ -416,6 +416,11 @@ public:
 	CloudAPIConnection() {};
 	~CloudAPIConnection(){};
 
+	CloudAPIConnection(const CloudAPIConnection& api){
+		this->username = api.username;
+		this->password = api.password;
+		this->base_url = api.base_url;
+	}
 
 	std::string username; // eg : "oneadmin";
 	std::string password; //eg : "mypassword";
@@ -579,7 +584,7 @@ public:
 
 };
 
-#define MACHINE_ALIVE_INTERVAL 5
+#define MACHINE_ALIVE_INTERVAL 2
 
 class SeDCloudMachinesActions : public SeDCloudAndVMLaunchedActions {
 protected:
@@ -601,6 +606,10 @@ public:
 		master_ip = ips[0];
 		vm_user = _username;
 		machine_alive_interval = MACHINE_ALIVE_INTERVAL;
+	}
+
+	void set_machine_alive_interval(int x) {
+		machine_alive_interval = x;
 	}
 };
 
@@ -746,17 +755,11 @@ public:
 
     }
 
-	//warining : make sure that actions is destroyable (allocated by new)
-	void setActions(SeDCloudActions* _actions) {
-		if (actions != NULL) {
-			delete actions;
-		}
-		actions = _actions;
-	}
 
-	SeDCloudActions& get_actions() const{
-		return *actions;
-	}
+
+//	SeDCloudActions& get_actions() const{
+//		return *actions;
+//	}
 
     virtual DIET_API_LIB int
         service_table_add(const std::string& name_of_service,
@@ -770,7 +773,7 @@ public:
                          ArgumentsTransferMethod arguments_transfer_method = filesTransferMethod,
                          dietcloud_callback_t prepocessing = NULL,
                          dietcloud_callback_t postprocessing = NULL,
-                         const std::string& remote_path_of_binary_installer = ""
+                         const std::string& _installer_relative_path = ""
                          ) ;
 
 
@@ -782,7 +785,7 @@ public:
 
 	//add a service which allows to instantiate homogeneous vms
 	//this sedCloud is linked to only one Cloud API
-	DIET_API_LIB int service_homogeneous_vm_instanciation_add(const CloudAPIConnection& cloud_api_connection);
+	DIET_API_LIB int service_homogeneous_vm_instanciation_add(CloudAPIConnection* cloud_api_connection);
 
 
 	//add a service which allows to destroy homogeneous vms
@@ -790,7 +793,7 @@ public:
 	DIET_API_LIB int service_vm_destruction_by_ip_add();
 
 
-	DIET_API_LIB int service_cloud_federation_vm_destruction_by_ip_add(const std::vector<CloudAPIConnection>& cloud_api_connection);
+	DIET_API_LIB int service_cloud_federation_vm_destruction_by_ip_add(std::vector<CloudAPIConnection>* cloud_api_connection);
 
 
 	DIET_API_LIB int service_rsync_to_vm_add();
@@ -801,8 +804,8 @@ public:
 	DIET_API_LIB int service_launch_another_sed_add();
 protected:
     static int solve(diet_profile_t *pb);
-	static std::vector<CloudAPIConnection> cloud_api_connection_for_vm_destruction;
-	static CloudAPIConnection cloud_api_connection_for_vm_instanciation;
+	static std::vector<CloudAPIConnection>* cloud_api_connection_for_vm_destruction;
+	static CloudAPIConnection* cloud_api_connection_for_vm_instanciation;
 
     static SeDCloud* instance;
 
@@ -843,8 +846,8 @@ public:
 
 SeDCloud* SeDCloud::instance;
 //std::map<std::string, IaaS::VMInstances*> SeDCloud::reserved_vms;
-std::vector<CloudAPIConnection> SeDCloud::cloud_api_connection_for_vm_destruction;
-CloudAPIConnection SeDCloud::cloud_api_connection_for_vm_instanciation;
+std::vector<CloudAPIConnection>* SeDCloud::cloud_api_connection_for_vm_destruction;
+CloudAPIConnection* SeDCloud::cloud_api_connection_for_vm_instanciation;
 
 /**************BEGIN : classical DIET services**************/
 

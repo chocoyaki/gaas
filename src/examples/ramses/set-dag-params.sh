@@ -11,5 +11,8 @@ level=$2
 output=$3
 
 
-xsltproc --param nb-vms $vms_count --param level $level set-dag-params.xslt dag-expe-base.xml > $output
+output_directory=$(dirname $output)
+output_file=$(basename $output)
 
+xsltproc --param level $level --param nb-vms $vms_count set-dag-params.xslt dag-expe-base.xml > $output
+xsltproc --param nb-vms $vms_count  set-dag-params.xslt dag-expe-base-bootstrap.xml > $output_directory/b_$output_file

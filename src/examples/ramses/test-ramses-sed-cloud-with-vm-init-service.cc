@@ -68,6 +68,10 @@ main(int argc, char *argv[]) {
 	SeDCloud::get()->service_homogeneous_vm_instanciation_add();
 	SeDCloud::get()->service_homogeneous_vm_instanciation_with_keyname_add();
 	SeDCloud::get()->service_launch_another_sed_add();
+	SeDCloud::get()->service_rsync_to_vm_add();
+	SeDCloud::get()->service_mount_nfs_add();
+	SeDCloud::get()->service_get_tarball_from_vm_add();
+
 
 	//for experiments
 	service_time_solve_add();

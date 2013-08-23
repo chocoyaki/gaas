@@ -46,7 +46,19 @@ and data. A binary has an entry point which is an executable file.  A
 functionnality of the SeDCloud consists of copying a binary linked to
 a DIET service, into Virtual Machines. Nevertheless, a binary can
 already be preinstalled in Virtual Machines in which case no copy of
-the binary is required. 
+the binary is required. Figure~\ref{fig:CloudServiceBinary-eg01} shows
+the principle of a CloudServiceBinary. A matrix addition is given.
+
+\begin{figure}[h!]
+ \begin{center}
+ \includegraphics[width=0.6\textwidth]{fig/CloudServiceBinary}
+  \caption{A CloudServiceBinary : a matrix addition}
+  \label{fig:CloudServiceBinary-eg01}
+ \end{center}
+\end{figure}
+
+
+
 
 The method is defined as follows:
 
@@ -62,7 +74,8 @@ The method is defined as follows:
          const std::string& remote_path_of_arguments = "",
          ArgumentsTransferMethod argumentsTransferMethod = filesTransferMethod,
          dietcloud_callback_t prepocessing = NULL,
-         dietcloud_callback_t postprocessing = NULL)
+         dietcloud_callback_t postprocessing = NULL,
+         const std::string& installer_relative_path = "")
 \end{verbatim}
 
 In fact, the method \texttt{service\_table\_add()} makes an internal
@@ -89,9 +102,9 @@ parameters specific to the method.
      Virtual Machines.
    \item \texttt{remote\_path\_of\_binary}: the absolute path of the
      destination folder which will contains the binary files (or which
-     already contains the binary files)
+     already contains the binary files).
    \item \texttt{entryPoint}: the file which is the entry point of the
-     software which is linked to the service
+     software which is linked to the service.
    \item \texttt{remote\_path\_of\_arguments} is the folder which will
      receive the input file arguments, in case where arguments are
      \texttt{DIET\_FILE}.  \texttt{remote\_path\_of\_arguments} is
@@ -106,6 +119,12 @@ parameters specific to the method.
        myFunction)(diet\_profile\_t*)}. \texttt{preprocessing} is
      called before executing remote software, and
      \texttt{postprocessing} is called after.
+   \item \texttt{installer\_relative\_path} is the path to the
+     executable installer. If the installation of the binary is
+     system-wide, the login used by DIET to connect to the Virtual
+     Machines must be root. By default
+     \texttt{installer\_relative\_path = ""}, it means that the binary
+     does not need any installation.
  \end{itemize}
 
 
@@ -114,7 +133,22 @@ $/$ - which means a copy of the contents of the folder- at the end of
 the local binary folder path and give absolute path to the
 destination.
 
+A simple example of binary is available at $<$diet
+src$>$/src/examples/delta-cloud/matrixAdd/. This path must be passed
+to parameter \texttt{local\_path\_of\_binary} of the method
+\texttt{SeDCloud::service\_table\_add()}. This example show a binary
+based on \texttt{awk} which can perform a matrix addition.
+
 \subsubsection{Installing binaries inside VMs with Puppet}
+
+Installation of a binaries can rely on whatever method you want (Chef,
+Puppet and so on). The binary located in $<$diet
+src$>$/src/examples/delta-cloud/mpi-with-pp/ can perform matrix
+multiplication with MPI on condition that it is installed in VMs.
+This example shows how to install the prerequisite packages with
+Puppet (mpi). Note that an internet connection is compulsory in VMs,
+to deploy such a binary, so think about adding a route to you internet
+access gateway in your instanciated VMs.
 
 
 
@@ -140,12 +174,13 @@ consists of some actions:
 Five classes which inherit from \texttt{SeDCloudActions} class are predefined.
 
 
+
 \begin{itemize}
   \item \textbf{SeDCloudAndVMLaunchedActions}:
     \begin{enumerate}
       \item perform\_action\_on\_sed\_creation: \textbf{instanciation of VMs}
       \item perform\_action\_after\_service\_table\_add: \textbf{no action}
-      \item perform\_action\_on\_sed\_launch: \textbf{copy binaries into all VMs}
+      \item perform\_action\_on\_sed\_launch: \textbf{copy binaries into all VMs and possibly install them}
       \item perform\_action\_on\_begin\_solve: \textbf{no action}
       \item perform\_action\_on\_end\_solve: \textbf{no action}
       \item when the SeD is destroyed (\texttt{Ctrl + C}): \textbf{destruction of VMs}
@@ -156,7 +191,9 @@ Five classes which inherit from \texttt{SeDCloudActions} class are predefined.
         \item perform\_action\_on\_sed\_creation: \textbf{no action}
         \item perform\_action\_after\_service\_table\_add: \textbf{no action}
         \item perform\_action\_on\_sed\_launch: \textbf{record service names}
-        \item perform\_action\_on\_begin\_solve: \textbf{if number of calls to solve is equal to 1 then instanciation of VMs and copy all binaries into all VMs}
+        \item perform\_action\_on\_begin\_solve: \textbf{if number of
+          calls to solve is equal to 1 then instanciation of VMs, copy
+          all binaries into all VMs and possibly install them}
         \item perform\_action\_on\_end\_solve: \textbf{no action}
         \item when the SeD is destroyed (\texttt{Ctrl + C}):
           \textbf{destruction of VMs if there are any}
@@ -166,7 +203,9 @@ Five classes which inherit from \texttt{SeDCloudActions} class are predefined.
         \item perform\_action\_on\_sed\_creation: \textbf{no action}
         \item perform\_action\_after\_service\_table\_add: \textbf{no action}
         \item perform\_action\_on\_sed\_launch: \textbf{record service names}
-        \item perform\_action\_on\_begin\_solve: \textbf{instanciation of VMs and copy the corresponding binary into all VMs}
+        \item perform\_action\_on\_begin\_solve: \textbf{instanciation
+          of VMs, copy the corresponding binary into all VMs, and
+          possibly install it}
         \item perform\_action\_on\_end\_solve: \textbf{destruction of VMs}
         \item when the SeD is destroyed (\texttt{Ctrl + C}): \textbf{no action}
       \end{enumerate}
@@ -174,7 +213,10 @@ Five classes which inherit from \texttt{SeDCloudActions} class are predefined.
     \begin{enumerate}
         \item perform\_action\_on\_sed\_creation: \textbf{no action}
         \item perform\_action\_after\_service\_table\_add: \textbf{no action}
-        \item perform\_action\_on\_sed\_launch: \textbf{copy binaries into all Machines}
+        \item perform\_action\_on\_sed\_launch: \textbf{copy binaries
+          into all Machines , possibly install them, and periodically
+          test if connections to the machines are feasible, otherwise
+          destroy the SeDCloud}
         \item perform\_action\_on\_begin\_solve: \textbf{no action}
         \item perform\_action\_on\_end\_solve: \textbf{no action}
         \item when the SeD is destroyed (\texttt{Ctrl + C}): \textbf{no action}
@@ -194,7 +236,8 @@ Five classes which inherit from \texttt{SeDCloudActions} class are predefined.
 N.B.: When $n$ Virtual Machines are instanciated, a Master VM is
 arbitrarily choosen and a file containing the $n$ ip addresses of VMs
 is send to it. This file is in a text format where each line is one ip
-address.
+address, its path is /home/VM\_user/nodes.txt where VM\_user denotes
+the login that DIET used to connect itself to the Virtual Machines.
 
 
 

@@ -46,7 +46,7 @@ main(int argc, char *argv[]) {
 	SeDCloud::create(actions);
 
 	//SeDCloud::get()->service_homogeneous_vm_instanciation_add(deltacloud_api);
-	SeDCloud::get()->service_cloud_federation_vm_destruction_by_ip_add(ctx);
+	SeDCloud::get()->service_cloud_federation_vm_destruction_by_ip_add(&ctx);
 
 	diet_print_service_table();
 

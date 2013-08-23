@@ -59,15 +59,17 @@ vector<Image*> * Iaas_deltacloud::get_all_images() {
 vector<Instance*> * Iaas_deltacloud::get_all_instances() {
   deltacloud_api api;
 
-  if(!init_api(&api)) {
-		return NULL;
-	  }
-
  deltacloud_instance * instances;
  bool error = false;
 
 	//we do a loop to avoid : error Failed to get expected root element for instances
 	do {
+
+
+	  if(!init_api(&api)) {
+	  	cerr << "Error: fail to init deltacloud api" << endl;
+		return NULL;
+	  }
 
 	  if (deltacloud_get_instances(&api, &instances) < 0) {
 		cerr<<"Warning!!!Failed to get deltacloud images: "<<deltacloud_get_last_error_string()<<endl;
@@ -76,6 +78,11 @@ vector<Instance*> * Iaas_deltacloud::get_all_instances() {
 		//return NULL;
 		error = true;
 	  }
+	  else {
+		error = false;
+	  }
+
+
 
 	}while (error);
 

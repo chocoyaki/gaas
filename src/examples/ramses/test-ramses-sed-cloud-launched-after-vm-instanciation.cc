@@ -85,9 +85,7 @@ void add_common_services(const std::string& username, const std::string& ip) {
 	service_wrapper_table_add(galaxy_maker_service_wrapper, out_types);
 
 
-	SeDCloud::get()->service_rsync_to_vm_add();
-	SeDCloud::get()->service_mount_nfs_add();
-	SeDCloud::get()->service_get_tarball_from_vm_add();
+
 	diet_print_service_table();
 
 	//std::cout << "<<<<<<<<<<<<<<<<<<<" << grafic1_service_wrapper << "\n";

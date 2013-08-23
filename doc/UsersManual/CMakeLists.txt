@@ -33,6 +33,7 @@ add_latex_document(UsersManual.tex
   fig/logo_DIET_big.png
   fig/SeDCloudVMInstanciator.png
   fig/SeDCloudVMDestructor.png
+  fig/CloudServiceBinary.png
   fig/multima.pdf
   fig/overviewCori.pdf
   fig/smprod.pdf
