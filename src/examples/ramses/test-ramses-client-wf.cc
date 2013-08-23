@@ -52,7 +52,7 @@ int main(int argc, char ** argv) {
 
 
 
-
+  printf("workflow execution\n");
 
 
   if(!diet_wf_call(profile)) {

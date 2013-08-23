@@ -561,7 +561,11 @@ DagParser::parsePrec(const DOMElement * element, WfNode* node) {
   std::string precNodeId = getAttributeValue("id", element);
   checkMandatoryAttr("prec", "id", precNodeId);
   checkLeafElement(element, "prec");
-  node->addNodePredecessor(NULL, precNodeId);
+
+  //bug found by Lamiel Toch
+  WfNode* precNode = myCurrDag->getNode(precNodeId);
+
+  node->addNodePredecessor(precNode, precNodeId);
 }
 
 

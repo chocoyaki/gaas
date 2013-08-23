@@ -389,10 +389,12 @@ void SeDCloudMachinesActions::perform_action_on_sed_launch() {
 		int env = 0;
 		do{
 			env = test_ssh_connection(vm_user, get_master_ip());
-			sleep(machine_alive_interval);
+			if(env == 0){
+				sleep(machine_alive_interval);
+			}
 		}while(env == 0);
 
-		printf("ssh error : lost connection\n");
+		printf("ssh : lost connection\n");
 		printf("Destruction of one SeDCloudMachinesActions\n");
 
 		pid_t parent_pid = getppid();
@@ -517,13 +519,13 @@ DIET_API_LIB int
                          ArgumentsTransferMethod arguments_transfer_method,
                          dietcloud_callback_t prepocessing,
                          dietcloud_callback_t postprocessing,
-                         const std::string& remote_path_of_binary_installer) {
+                         const std::string& _installer_relative_path) {
 
 
 
 	CloudServiceBinary service_binary(local_path_of_binary,
 				remote_path_of_binary, entryPoint, remote_path_of_arguments, prepocessing, postprocessing,
-				arguments_transfer_method, remote_path_of_binary_installer);
+				arguments_transfer_method, _installer_relative_path);
 
 	service_binary.name = name_of_service;
 	service_binary.last_in = last_in;
@@ -712,7 +714,7 @@ DIET_API_LIB int SeDCloud::service_homogeneous_vm_instanciation_add() {
 */
 
 
-DIET_API_LIB int SeDCloud::service_homogeneous_vm_instanciation_add(const CloudAPIConnection& _cloud_api_connection) {
+DIET_API_LIB int SeDCloud::service_homogeneous_vm_instanciation_add(CloudAPIConnection* _cloud_api_connection) {
 	cloud_api_connection_for_vm_instanciation = _cloud_api_connection;
 
 	diet_profile_desc_t* profile;
@@ -795,7 +797,7 @@ DIET_API_LIB int SeDCloud::service_vm_destruction_by_ip_add() {
 }
 
 
-DIET_API_LIB int SeDCloud::service_cloud_federation_vm_destruction_by_ip_add(const std::vector<CloudAPIConnection>& _cloud_api_connection) {
+DIET_API_LIB int SeDCloud::service_cloud_federation_vm_destruction_by_ip_add(std::vector<CloudAPIConnection>* _cloud_api_connection) {
 		cloud_api_connection_for_vm_destruction = _cloud_api_connection;
 
 		diet_profile_desc_t* profile;
@@ -851,10 +853,10 @@ int SeDCloud::launch_another_sed_solve(diet_profile_t* pb) {
 		argv[3] = NULL;
 
 
-		printf("inside fork\n");
-		std::string d_cmd = "cat ";
-		d_cmd.append(data_copy_path);
-		env = system(d_cmd.c_str());
+//		printf("inside fork\n");
+//		std::string d_cmd = "cat ";
+//		d_cmd.append(data_copy_path);
+//		env = system(d_cmd.c_str());
 
 		env = execv(sed_executable_path, argv);
 
@@ -867,6 +869,7 @@ int SeDCloud::launch_another_sed_solve(diet_profile_t* pb) {
 			printf("fork executing: success\n");
 			int* child_status = new int;
 
+			//TODO check if it always does its job
 			waitpid(pid, child_status, WNOHANG);
 
 
@@ -942,9 +945,9 @@ int SeDCloud::homogeneous_vm_instanciation_with_one_cloud_api_connection_solve(d
 	int* is_ip_private;
 
 
-	deltacloud_api_url = cloud_api_connection_for_vm_instanciation.base_url.c_str();
-	deltacloud_user_name = cloud_api_connection_for_vm_instanciation.username.c_str();
-	deltacloud_passwd = cloud_api_connection_for_vm_instanciation.password.c_str();
+	deltacloud_api_url = cloud_api_connection_for_vm_instanciation->base_url.c_str();
+	deltacloud_user_name = cloud_api_connection_for_vm_instanciation->username.c_str();
+	deltacloud_passwd = cloud_api_connection_for_vm_instanciation->password.c_str();
 
 	diet_scalar_get(diet_parameter(pb, 0), &vm_count, NULL);
 	diet_string_get(diet_parameter(pb, 1), &vm_image, NULL);
@@ -971,32 +974,11 @@ int SeDCloud::homogeneous_vm_instanciation_with_one_cloud_api_connection_solve(d
 
 	instances->get_ips(ips, *is_ip_private);
 
-	int reqId = pb->dietReqID;
-	std::string szReqId = int2string(reqId);
-	std::string local_results_folder = get_folder_in_dagda_path(szReqId.c_str());
-	int env = create_folder(local_results_folder.c_str());
+	std::string diet_tmp_ips_file = create_tmp_file(pb, ".txt");
+	write_lines(ips, diet_tmp_ips_file);
 
 
-	std::ostringstream vm_ip_file_path;
-	boost::uuids::uuid uuid = diet_generate_uuid();
-	vm_ip_file_path << local_results_folder << "-" << uuid << ".txt";
-
-
-
-
-
-
-	//write ips in file
-	FILE* vm_ips_file = fopen(vm_ip_file_path.str().c_str(), "w");
-	if (vm_ips_file == NULL) {
-		return -1;
-	}
-	for(int i = 0; i < *vm_count; i++) {
-		fprintf(vm_ips_file, "%s\n", ips[i].c_str());
-	}
-	fclose(vm_ips_file);
-
-	diet_file_set(diet_parameter(pb, 5), vm_ip_file_path.str().c_str(), DIET_PERSISTENT_RETURN);
+	diet_file_set(diet_parameter(pb, 5), diet_tmp_ips_file.c_str(), DIET_PERSISTENT_RETURN);
 
 	return 0;
 }
@@ -1038,69 +1020,15 @@ int SeDCloud::homogeneous_vm_instanciation_with_keyname_solve(diet_profile_t *pb
 	IaaS::VMInstances* instances;
 	std::vector<std::string> ips;
 
+	instances = new IaaS::VMInstances(vm_image, *vm_count, deltacloud_api_url, deltacloud_user_name, deltacloud_passwd, vm_user, params);
+	//reserved_vms[vm_collection_name] = instances;
+	instances->wait_all_instances_running();
+	instances->wait_all_ssh_connection(*is_ip_private);
+	instances->get_ips(ips, *is_ip_private);
 
-	//if (reserved_vms.count(vm_collection_name) == 0 ) {
-		instances = new IaaS::VMInstances(vm_image, *vm_count, deltacloud_api_url, deltacloud_user_name, deltacloud_passwd, vm_user, params);
-		//reserved_vms[vm_collection_name] = instances;
-		instances->wait_all_instances_running();
-		instances->wait_all_ssh_connection(*is_ip_private);
-		instances->get_ips(ips, *is_ip_private);
-
-		pid_t pid = fork();
-
-		if (pid == 0) {
-			//je suis le fils
-
-			SeDCloudMachinesActions* actions = new SeDCloudMachinesActions(ips, vm_user);
-			actions->clone_service_binaries(instance->get_actions());
-			instance->setActions(actions);
-
-
-
-		}
-		else {
-			//je suis le pere
-
-			int reqId = pb->dietReqID;
-			std::string szReqId = int2string(reqId);
-			std::string local_results_folder = get_folder_in_dagda_path(szReqId.c_str());
-			int env = create_folder(local_results_folder.c_str());
-
-
-			std::ostringstream vm_ip_file_path;
-			boost::uuids::uuid uuid = diet_generate_uuid();
-			vm_ip_file_path << local_results_folder << "-" << uuid << ".txt";
-
-
-
-
-
-
-			//write ips in file
-			FILE* vm_ips_file = fopen(vm_ip_file_path.str().c_str(), "w");
-			if (vm_ips_file == NULL) {
-				return -1;
-			}
-			for(int i = 0; i < *vm_count; i++) {
-				fprintf(vm_ips_file, "%s\n", ips[i].c_str());
-			}
-			fclose(vm_ips_file);
-
-			diet_file_set(diet_parameter(pb, 10), vm_ip_file_path.str().c_str(), DIET_PERSISTENT_RETURN);
-
-
-
-
-			for(int i=0; i < 10; i++) {
-				diet_free_data(diet_parameter(pb, i));
-			}
-		}
-
-
-
-
-
-
+	std::string diet_tmp_ips_file = create_tmp_file(pb, ".txt");
+	write_lines(ips, diet_tmp_ips_file);
+	diet_file_set(diet_parameter(pb, 10), diet_tmp_ips_file.c_str(), DIET_PERSISTENT_RETURN);
 
 	return 0;
 }
@@ -1172,11 +1100,11 @@ int SeDCloud::cloud_federation_vm_destruction_by_ip_solve(diet_profile_t *pb) {
 	std::vector<std::string> ips;
 	readlines(path, ips);
 	int env = -1;
-	for(int i = 0; i < cloud_api_connection_for_vm_destruction.size(); i++) {
+	for(int i = 0; i < cloud_api_connection_for_vm_destruction->size(); i++) {
 
-		url_api = cloud_api_connection_for_vm_destruction[i].base_url.c_str();
-		user_name = cloud_api_connection_for_vm_destruction[i].username.c_str();
-		password = cloud_api_connection_for_vm_destruction[i].password.c_str();
+		url_api = (*cloud_api_connection_for_vm_destruction)[i].base_url.c_str();
+		user_name = (*cloud_api_connection_for_vm_destruction)[i].username.c_str();
+		password = (*cloud_api_connection_for_vm_destruction)[i].password.c_str();
 
 
 		IaaS::IaasInterface* interface = new IaaS::Iaas_deltacloud(url_api, user_name, password);
