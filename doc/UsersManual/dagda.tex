@@ -1,7 +1,7 @@
 %**
 %*  @file  dagda.tex
 %*  @brief   DIET User's Manual: DAGDA 
-%*  @author  - Gaël Le Mahec (Gael.le.mahec@ens-lyon.fr)
+%*  @author  - Gaï¿½l Le Mahec (Gael.le.mahec@ens-lyon.fr)
 %*  @section Licence 
 %*    |LICENSE|
 
@@ -52,7 +52,7 @@ nodes. By not using dynamic information, it is unsure that \dagda really chose
 the ``best'' nodes for the transfers. In a future version, we will introduce some
 facilities to estimate the time needed to transfer a data and to improve the
 choice of a data stored on the grid. To do the data transfers, \dagda uses the
-pull model: it is the destination node that ask for the data transfer.
+pull model: it is the destination node that asks for the data transfer.
 \begin{figure}[h]
 \centerline{\includegraphics[width=0.7\linewidth]{fig/dagdaArch}}
 \caption{\dagda architecture in \diet.\label{fig:DAGDAarch}}
@@ -222,13 +222,13 @@ By compiling \diet with the \dagda extension activated, the
 directory.  This file contains some data management functions and
 macros.
 \subsection{Note on the memory management}
-On the \sed side, \dagda and the \sed share the same data pointers, that
-means that if the pointer is a local variable reference, when \dagda
-will use the data, it will read an unallocated variable. The users
-should allways allocate the data with a \textit{``malloc''/``calloc''} or
+On the \sed side, \dagda and the \sed share the same data pointers, which
+means that if the pointer is a local variable reference, it will read an unallocated variable when \dagda
+uses the data. Users
+should always allocate the data with a \textit{``malloc''/``calloc''} or
 \textit{``new''} call on the \sed and agent sides. Because \dagda takes
 the control of the data pointer, there is no risk of memory leak even
-if the service allocate a new pointer at each call. The data lifetime
+if the service allocates a new pointer at each call. The data lifetime
 is managed by \dagda and the data will be freed according to its
 persistence mode.\\[4mm]
 \begin{minipage}{2cm}
@@ -244,7 +244,7 @@ a transfer.}
 
 \subsection{Synchronous data transfers}
 All of the following functions return at the end of the transfer or
-if an error occured. They all return an integer value: 0 if the
+if an error occurred. They all return an integer value: 0 if the
 operation succeeds, another value if it fails.
 
 \subsubsection{\dagda \textit{put} data macros/functions}
