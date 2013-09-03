@@ -164,7 +164,7 @@ Instance* Iaas_deltacloud::get_instance_by_id(const std::string& instanceId) {
 
 
 
-void Iaas_deltacloud::wait_instance_running(const std::string& instanceId) {
+int Iaas_deltacloud::wait_instance_running(const std::string& instanceId) {
  	bool ready = false;
  	char state[MAX_NAME];
  	do{
@@ -175,11 +175,16 @@ void Iaas_deltacloud::wait_instance_running(const std::string& instanceId) {
  		if (strcmp(state, "RUNNING") == 0) {
  			ready = true;
  		}
+ 		if (strcmp(state, "ERROR") == 0) {
+			return -1;
+ 		}
  		else {
  			sleep(1);
  		}
 
  	}while(!ready);
+
+ 	return 0;
  }
 
 
@@ -326,3 +331,21 @@ int Iaas_deltacloud::terminate_instances_by_ips(const std::vector<std::string>& 
 
 	return env;
 }
+
+
+
+std::string Iaas_deltacloud::get_instance_state(const std::string& instance_id) {
+	std::string res;
+	char state[1024];
+	get_instance_state(instance_id, state);
+
+	res = state;
+
+	return res;
+}
+
+
+
+
+
+

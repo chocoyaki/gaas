@@ -69,6 +69,24 @@ std::string IaaS::VMInstances::get_ip(int vm_index, bool is_private_ip) {
 	return get_ip_instance_by_id(interf, id, is_private_ip);
 }
 
+std::set<std::string> IaaS::VMInstances::get_error_instance_ids() {
+	std::set<std::string> result;
+
+	for(int i = 0; i < insts->size(); i++) {
+		std::string& id = *(*insts)[i];
+
+		if (is_instance_in_error_state(id)) {
+			result.insert(id);
+		}
+	}
+
+	return result;
+}
+
+bool IaaS::VMInstances::is_instance_in_error_state(const std::string& id) {
+	return strcmp(interf->get_instance_state(id).c_str(), "ERROR") == 0;
+}
+
 
 void deleteStringVector(std::vector<std::string*>& v){
 	for(int i = 0; i < v.size(); i++) {
@@ -255,14 +273,22 @@ namespace IaaS {
 
 
 
-VMInstances::VMInstances(std::string image_id, int vm_count, std::string base_url, std::string user_name, std::string password,
-	std::string _vm_user, const std::vector<Parameter>& params) {
+VMInstances::VMInstances(std::string _image_id, int _vm_count, std::string base_url, std::string user_name, std::string password,
+	std::string _vm_user, const std::vector<Parameter>& _params) {
 
 	vm_user = _vm_user;
+	image_id = _image_id;
+	vm_count = _vm_count;
+	params = _params;
 
 	interf = new Iaas_deltacloud(base_url, user_name, password);
 
 	insts = interf->run_instances(image_id, vm_count, params);
+
+	//with openstack, error may happen, so we run other replacing instances
+	while(get_error_instance_ids().size() > 0){
+		terminate_failed_instances_and_run_others();
+	};
 }
 
 
@@ -274,10 +300,50 @@ VMInstances::~VMInstances() {
 	delete insts;
 }
 
+void VMInstances::terminate_failed_instances_and_run_others() {
+	std::set<std::string> failed_instances = get_error_instance_ids();
+	int failed_instances_count = failed_instances.size();
+
+	if (failed_instances_count > 0) {
+		printf("warning : there are %u failed instances\n", failed_instances_count);
+		std::vector<std::string*> v_failed_instances;
+		std::set<std::string>::iterator iter;
+		for(iter = failed_instances.begin(); iter != failed_instances.end(); iter++) {
+			v_failed_instances.push_back(new std::string(*iter));
+		}
+
+		//we terminate all failed instances
+		interf->terminate_instances(v_failed_instances);
+
+		//we run other instances with the same count
+		std::vector<std::string*>* new_insts = interf->run_instances(image_id, failed_instances_count, params);
+
+		wait_all_instances_running();
+
+		int index_new_inst = 0;
+
+		//we search the old instance id places
+		for(int i = 0 ; i < insts->size(); i++){
+			std::string id = *(*insts)[i];
+			if (failed_instances.count(id) > 0) {
+				//we add the new instance
+				(*insts)[i] = (*new_insts)[index_new_inst];
+				index_new_inst++;
+			}
+		}
+
+
+		deleteStringVector(v_failed_instances);
+		//we do not delete pointers to strings in new_insts
+		delete new_insts;
+
+	}
+}
+
 void VMInstances::wait_all_instances_running() {
 	for(int i = 0; i < insts->size(); i++) {
 		std::string instanceId = *(*insts)[i];
-		interf->wait_instance_running(instanceId);
+		int env = interf->wait_instance_running(instanceId);
 	}
 }
 

@@ -46,9 +46,11 @@ class IaasInterface {
 
 	/* wait that the instance get ready*/
 
-	virtual void wait_instance_running(const std::string& instanceId) = 0;
+	virtual int wait_instance_running(const std::string& instanceId) = 0;
 
     virtual ~IaasInterface() {};
+
+    virtual std::string get_instance_state(const std::string& instance_id) = 0;
 };
 
 }

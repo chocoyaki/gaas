@@ -2,7 +2,7 @@
 
   <node id="node-grafic1" path="grafic1">
     <arg name="level" type="DIET_STRING" value="4"/>
-    <arg name="run-dir" type="DIET_STRING" value="/mnt/output"/>
+    <arg name="run-dir" type="DIET_STRING" value="/home/adi/pub/output-01"/>
     <out name="out-dir" type="DIET_STRING" />
   </node>
   

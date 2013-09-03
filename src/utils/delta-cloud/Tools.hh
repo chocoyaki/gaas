@@ -12,7 +12,7 @@
 #include <string>
 #include <vector>
 #include <map>
-
+#include <set>
 
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <xercesc/dom/DOM.hpp>
@@ -98,13 +98,22 @@ class VMInstances {
     int rsync_to_vm(int i, bool private_ip, std::string local_path, std::string remote_path);
     //command : remote_path/exec.sh 1 2 3 4 ...
     int execute_command_in_vm(int i, bool private_ip, const std::string& remote_cmd, const std::string& args);
+
+
 	protected:
+
+	bool is_instance_in_error_state(const std::string& id);
+	std::set<std::string> get_error_instance_ids();
+	void terminate_failed_instances_and_run_others();
 
 	IaasInterface* interf;
 	//id of instances
 	std::vector<std::string*>* insts;
 
+	int vm_count;
+	std::string image_id;
 	std::string vm_user;
+	std::vector<Parameter> params;
 };
 
 

@@ -10,8 +10,8 @@
 		<arg name="vm_image_id" type="DIET_STRING" value="66c118d3-a7a5-4df5-a578-c1dc7a2bfd39" />
 		<arg name="vm_profile" type="DIET_STRING" value="10" />
 		<arg name="deltacloud_api_url" type="DIET_STRING" value="http://localhost:3001/api" />
-		<arg name="deltacloud_user_name" type="DIET_STRING" value="admin+openstack" />
-		<arg name="deltacloud_passwd" type="DIET_STRING" value="keystone_admin" />
+		<arg name="deltacloud_user_name" type="DIET_STRING" value="admin+admin" />
+		<arg name="deltacloud_passwd" type="DIET_STRING" value="changeme" />
 		<arg name="vm_user" type="DIET_STRING" value="adi" />
 		<arg name="is_ip_private" type="DIET_INT" value="1" />
 		<arg name="keyname" type="DIET_STRING" value="ramses_key" />
@@ -25,8 +25,8 @@
 		<arg name="vm_image_id" type="DIET_STRING" value="bce9225d-5efa-41a1-8c6e-9a42a234eea8" />
 		<arg name="vm_profile" type="DIET_STRING" value="9" />
 		<arg name="deltacloud_api_url" type="DIET_STRING" value="http://localhost:3001/api" />
-		<arg name="deltacloud_user_name" type="DIET_STRING" value="admin+openstack" />
-		<arg name="deltacloud_passwd" type="DIET_STRING" value="keystone_admin" />
+		<arg name="deltacloud_user_name" type="DIET_STRING" value="admin+admin" />
+		<arg name="deltacloud_passwd" type="DIET_STRING" value="changeme" />
 		<arg name="vm_user" type="DIET_STRING" value="root" />
 		<arg name="is_ip_private" type="DIET_INT" value="1" />
 		<arg name="keyname" type="DIET_STRING" value="ramses_key" />
@@ -38,7 +38,7 @@
 		<in name="nfs-server-ip" type="DIET_FILE" source="node-init-vm-nfs-server#ips" />
 		<in name="nfs-client-ips" type="DIET_FILE" source="node-init-vms#ips" />
 		<arg name="shared_folder" type="DIET_STRING" value="/home/lamiel/shared" />
-		<arg name="mount_point" type="DIET_STRING" value="/mnt" />
+		<arg name="mount_point" type="DIET_STRING" value="/home/adi/pub" />
 		<out name="nfs-client-ips2" type="DIET_FILE" />
 	</node>
 	
