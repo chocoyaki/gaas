@@ -7,6 +7,7 @@ struct deltacloud_api;
 #include <vector>
 #include <string>
 
+
 #include "Instance.hh"
 #include "Image.hh"
 #include "IaasInterface.hh"
@@ -59,18 +60,19 @@ namespace IaaS {
 
 	  virtual Instance* get_instance_by_id(const std::string& instanceId);
 
-	  virtual void wait_instance_running(const std::string& instanceId);
+	  virtual int wait_instance_running(const std::string& instanceId);
 
-
+	  virtual std::string get_instance_state(const std::string& instance_id);
 
       virtual ~Iaas_deltacloud() {};
+
+
 
 
      protected:
 
 
 	 void get_instance_state(const std::string id, char * state);
-
 
 
 

@@ -36,8 +36,8 @@ include_once('workloadTools.php');
     $cloudFolder = array("opennebula", "openstack");
     $cloud = array(0=> "OpenNebula", 1=>"OpenStack");
     
-    //nb vms
-    $lambdas = array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10 /*, 11*/, 12, 13, 14 /*, 15, 16, 17, 18*/);
+   //nb vms
+    $lambdas = array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10 , 11, 12, 13, 14, 15 /*, 16, 17, 18*/);
     
     
     $wantedCloud = array(true, true);
