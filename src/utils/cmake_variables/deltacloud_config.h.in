@@ -1,0 +1,6 @@
+#ifndef DELTACLOUD_CONFIG_H
+#define DELTACLOUD_CONFIG_H
+
+#cmakedefine DIET_USE_DELTACLOUD 1
+
+#endif

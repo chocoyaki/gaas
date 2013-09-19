@@ -399,9 +399,16 @@ endif(DIET_USE_MULTICALL)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/utils/cmake_variables/security_config.h.in
  ${CMAKE_CURRENT_BINARY_DIR}/src/utils/cmake_variables/security_config.h)
 include_directories("${CMAKE_CURRENT_BINARY_DIR}/src/utils/cmake_variables/")
+
+# --------------------- DIET DeltaCloud Support  ---------------------
 if(DIET_USE_DELTACLOUD)
  find_package(LibDeltaCloud)
 endif()
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/utils/cmake_variables/deltacloud_config.h.in
+ ${CMAKE_CURRENT_BINARY_DIR}/src/utils/cmake_variables/deltacloud_config.h)
+include_directories("${CMAKE_CURRENT_BINARY_DIR}/src/utils/cmake_variables/")
+
 
 
 # --------------- OFFER BUILD MODE EXTENSIONS AND DEFAULTS  ----------------
