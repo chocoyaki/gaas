@@ -27,7 +27,11 @@ using namespace std;
 #include "debug.hh"
 #include "DietLogComponent.hh"
 
-
+#ifdef DIET_USE_DELTACLOUD
+#include "Instance.hh"
+#include "Image.hh"
+#include "SeD_deltacloud.hh"
+#endif
 
 /**
  * Error message - exit with exit_value.
@@ -571,6 +575,33 @@ DietLogComponent::createBoolArrayFalse(int size) {
   }
   return ba;
 }
+
+#ifdef DIET_USE_DELTACLOUD
+
+void DietLogComponent::logVMDeployStart(const IaaS::Image& image,
+    const char* cloudName, const char* vmId, const char* sedName) {
+}
+
+void DietLogComponent::logVMRunning(const IaaS::Instance& vmInstance) {
+}
+
+void DietLogComponent::logVMOSReady(const IaaS::Instance& vmInstance) {
+  cout << vmInstance.id << endl;
+}
+
+void DietLogComponent::logVMDestroyStart(const IaaS::Instance& vmInstance) {
+}
+
+void DietLogComponent::logVMDestroyEnd(const IaaS::Instance& vmInstance) {
+}
+
+void DietLogComponent::logVMServiceWrapped(const char* sedName,
+    const ServiceWrapper& serviceWrapper, const char* vmIP,
+    const char* vmUserName) {
+}
+
+#endif
+
 
 log_time_t
 DietLogComponent::getLocalTime() {

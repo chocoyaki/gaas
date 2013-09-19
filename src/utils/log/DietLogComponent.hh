@@ -14,6 +14,8 @@
 #ifndef _DIETLOGCOMPONENT_HH_
 #define _DIETLOGCOMPONENT_HH_
 
+#include "deltacloud_config.h"
+
 #include <string>
 #include "LogComponent.hh"
 #include "DIET_data.h"
@@ -23,6 +25,17 @@
 #include "commonLogTypes.hh"
 #include "response.hh"
 #include "common_types.hh"
+
+#ifdef DIET_USE_DELTACLOUD
+
+namespace IaaS {
+  class Instance;
+  class Image;
+}
+class ServiceWrapper;
+
+#endif
+
 
 #define PINGTHREAD_SYNCHRO_FREQUENCY 60
 #define PINGTHREAD_SLEEP_SEC 1
@@ -404,6 +417,29 @@ public:
   void
   maDagSchedulerType(const char *msg);
 #endif  // HAVE_WORKFLOW
+
+#ifdef DIET_USE_DELTACLOUD
+
+  void
+  logVMDeployStart(const IaaS::Image & image, const char * cloudName, const char * vmId, const char * sedName);
+
+  void
+  logVMRunning(const IaaS::Instance & vmInstance);
+
+  void
+  logVMOSReady(const IaaS::Instance & vmInstance);
+
+  void
+  logVMDestroyStart(const IaaS::Instance & vmInstance);
+
+  void
+  logVMDestroyEnd(const IaaS::Instance & vmInstance);
+
+  void
+  logVMServiceWrapped(const char * sedName, const ServiceWrapper & serviceWrapper, const char * vmIP,const char * vmUserName);
+
+#endif
+
 
 private:
   /**
