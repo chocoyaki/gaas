@@ -18,7 +18,6 @@
 #include <libgen.h>
 
 
-
 std::string copy_to_tmp_file(const std::string& src, const std::string& ext) {
 	char* src_path = strdup(src.c_str());
 	char* dir = dirname(src_path);
@@ -71,9 +70,9 @@ void append2path(std::string& path, const std::string& add) {
 }
 
 int create_folder_in_dagda_path(const char* folder_name) {
-	DagdaImpl *dataManager = DagdaFactory::getDataManager();
+	/*DagdaImpl *dataManager = DagdaFactory::getDataManager();
 	const char* dagda_path = dataManager->getDataPath();
-
+*/
 
 	//the local folder of datas
 	std::string local_results_folder = get_folder_in_dagda_path(folder_name);
@@ -125,7 +124,7 @@ int write_lines(const std::vector<std::string>& lines, const std::string& file_p
 
 	if (file == NULL) return -1;
 
-	for(int i = 0; i < lines.size(); i++){
+	for(size_t i = 0; i < lines.size(); i++){
 		fprintf(file, "%s\n", lines[i].c_str());
 	}
 
@@ -211,7 +210,7 @@ bool CloudServiceBinary::has_installer() const {
 int CloudServiceBinary::execute_remote(const std::string& ip, const std::string& vm_user_name, const std::vector<std::string>& args) const {
 	 printf(">>>>>>>>>>>>>>>>EXECUTE REMOTE\n");
 	 std::string sz_args = "";
-	for(int i = 0; i < args.size(); i++) {
+	for(size_t i = 0; i < args.size(); i++) {
 		sz_args.append(" " + args[i]);
 	}
 
@@ -223,7 +222,7 @@ int CloudServiceBinary::execute_remote(const std::string& ip, const std::string&
 		cd = "cd " + remote_path_of_binary + "; ./";
 	}
 
-    ::execute_command_in_vm(cd + entry_point_relative_file_path, vm_user_name, ip, sz_args);
+  return ::execute_command_in_vm(cd + entry_point_relative_file_path, vm_user_name, ip, sz_args);
 }
 
 
@@ -270,19 +269,19 @@ SeDCloudActions::SeDCloudActions() {
 }
 
 int SeDCloudActions::send_arguments(const std::string& local_path, const std::string& remote_path) {
-    rsync_to_vm(local_path, remote_path, vm_user, master_ip);
+    return rsync_to_vm(local_path, remote_path, vm_user, master_ip);
 }
 
 int SeDCloudActions::receive_result(const std::string& result_remote_path, const std::string& result_local_path) {
-    rsync_from_vm(result_remote_path, result_local_path, vm_user, master_ip);
+  return rsync_from_vm(result_remote_path, result_local_path, vm_user, master_ip);
 }
 
 int SeDCloudActions::execute_remote_binary(const CloudServiceBinary& binary, const std::vector<std::string>& args) {
-	binary.execute_remote(master_ip, vm_user, args);
+  return binary.execute_remote(master_ip, vm_user, args);
 }
 
 int SeDCloudActions::create_remote_directory(const std::string& remote_path) {
-	create_directory_in_vm(remote_path, vm_user, master_ip);
+  return create_directory_in_vm(remote_path, vm_user, master_ip);
 }
 
 
@@ -321,11 +320,11 @@ void SeDCloudActions::copy_all_binaries_into_all_vms() {
 
 
 int SeDCloudAndVMLaunchedActions::perform_action_on_begin_solve(diet_profile_t *pb) {
-
+  return 0;
 }
 
 int SeDCloudAndVMLaunchedActions::perform_action_on_end_solve(diet_profile_t *pb) {
-
+ return 0;
 }
 
 void SeDCloudAndVMLaunchedActions::perform_action_on_sed_creation() {
@@ -345,7 +344,7 @@ void SeDCloudAndVMLaunchedActions::perform_action_on_sed_launch() {
 
 
 int SeDCloudAndVMLaunchedActions::perform_action_after_service_table_add(const std::string& name_of_service) {
-
+  return 0;
 }
 
 
@@ -370,7 +369,7 @@ void SeDCloudMachinesActions::perform_action_on_sed_launch() {
         std::string name_of_service = iter->first;
 		const CloudServiceBinary& binary = iter->second;
 
-		for(int i = 0; i < ips.size(); i++){
+		for(size_t i = 0; i < ips.size(); i++){
 			std::string ip = ips[i];
 			binary.install(ip, vm_user);
 			//copy_binary_into_vm(name_of_service, 0);
@@ -435,41 +434,42 @@ int SeDCloudVMLaunchedAtFirstSolveActions::perform_action_on_begin_solve(diet_pr
     if (!statistics_on_services.one_service_already_called()) {
         statistics_on_services.increment_call_number(service_name);
         //this->vm_instances = new IaaS::VMInstances (this->image_id, this->vm_count, this->base_url, this->username, this->password, this->vm_user, this->params);
-        launch_vms();
+        int res_launch = launch_vms();
 
         copy_all_binaries_into_all_vms();
-
+        return res_launch;
     }
     else {
         statistics_on_services.increment_call_number(service_name);
     }
-
+    return 0;
 
 }
 
 int SeDCloudVMLaunchedAtFirstSolveActions::perform_action_on_end_solve(diet_profile_t *pb) {
-
+  return 0;
 }
 
 
 int SeDCloudVMLaunchedAtSolveThenDestroyedActions::perform_action_on_begin_solve(diet_profile_t *pb) {
     //this->vm_instances = new IaaS::VMInstances (this->image_id, this->vm_count, this->base_url, this->username, this->password, this->vm_user, this->params);
-    launch_vms();
+    int res_launch =  launch_vms();
 
 
 
     std::string name_of_service = pb->pb_name;
-    CloudServiceBinary& binary = cloud_service_binaries[name_of_service];
+   // CloudServiceBinary& binary = cloud_service_binaries[name_of_service];
     //vm_instances->rsync_to_vm(0, is_ip_private, binary.local_path_of_binary, binary.remote_path_of_binary);
 	copy_binary_into_all_vms(name_of_service);
 
-
+	return res_launch;
 }
 
 
 int SeDCloudVMLaunchedAtSolveThenDestroyedActions::perform_action_on_end_solve(diet_profile_t *pb) {
 
    destroy_vms();
+   return 0;
 }
 
 
@@ -574,7 +574,7 @@ int SeDCloud::solve(diet_profile_t *pb) {
 
 
 	if(binary.arguments_transfer_method == filesTransferMethod) {
-		int env = create_folder(local_results_folder.c_str());
+		create_folder(local_results_folder.c_str());
 	}
 
 
@@ -698,6 +698,7 @@ DIET_API_LIB int SeDCloud::service_homogeneous_vm_instanciation_add() {
 
 	diet_profile_desc_free(profile);
 	//diet_print_service_table();
+	return 0;
 }
 
 /**
@@ -730,6 +731,8 @@ DIET_API_LIB int SeDCloud::service_homogeneous_vm_instanciation_add(CloudAPIConn
 	diet_service_table_add(profile,  NULL, SeDCloud::homogeneous_vm_instanciation_with_one_cloud_api_connection_solve);
 
 	diet_profile_desc_free(profile);
+
+	return 0;
 }
 
 
@@ -771,6 +774,7 @@ DIET_API_LIB int SeDCloud::service_homogeneous_vm_instanciation_with_keyname_add
 
 	diet_profile_desc_free(profile);
 	//diet_print_service_table();
+	return 0;
 }
 
 
@@ -794,6 +798,7 @@ DIET_API_LIB int SeDCloud::service_vm_destruction_by_ip_add() {
 
 	diet_profile_desc_free(profile);
 	//diet_print_service_table();
+	return 0;
 }
 
 
@@ -808,6 +813,7 @@ DIET_API_LIB int SeDCloud::service_cloud_federation_vm_destruction_by_ip_add(std
 
 		diet_service_table_add(profile, NULL, SeDCloud::cloud_federation_vm_destruction_by_ip_solve);
 		diet_profile_desc_free(profile);
+		return 0;
 }
 
 
@@ -823,6 +829,7 @@ DIET_API_LIB int SeDCloud::service_launch_another_sed_add() {
 
 	diet_service_table_add(profile, NULL, SeDCloud::launch_another_sed_solve);
 	diet_profile_desc_free(profile);
+	return 0;
 }
 
 int SeDCloud::launch_another_sed_solve(diet_profile_t* pb) {
@@ -880,7 +887,7 @@ int SeDCloud::launch_another_sed_solve(diet_profile_t* pb) {
 	}
 
 
-
+	return 0;
 
 }
 
@@ -933,7 +940,7 @@ int SeDCloud::homogeneous_vm_instanciation_solve(diet_profile_t *pb) {
 
 
 int SeDCloud::homogeneous_vm_instanciation_with_one_cloud_api_connection_solve(diet_profile_t* pb) {
-	char* vm_collection_name;
+	//char* vm_collection_name;
 	int* vm_count;
 	char* vm_image;
 	char* vm_profile;
@@ -983,7 +990,12 @@ int SeDCloud::homogeneous_vm_instanciation_with_one_cloud_api_connection_solve(d
 	return 0;
 }
 
-
+#ifdef USE_LOG_SERVICE
+const DietLogComponent*
+SeDCloud::get_log_component() const {
+  return DagdaFactory::getSeDDataManager()->getLogComponent();
+}
+#endif
 
 int SeDCloud::homogeneous_vm_instanciation_with_keyname_solve(diet_profile_t *pb) {
 	char* vm_collection_name;
@@ -1100,7 +1112,7 @@ int SeDCloud::cloud_federation_vm_destruction_by_ip_solve(diet_profile_t *pb) {
 	std::vector<std::string> ips;
 	readlines(path, ips);
 	int env = -1;
-	for(int i = 0; i < cloud_api_connection_for_vm_destruction->size(); i++) {
+	for(size_t i = 0; i < cloud_api_connection_for_vm_destruction->size(); i++) {
 
 		url_api = (*cloud_api_connection_for_vm_destruction)[i].base_url.c_str();
 		user_name = (*cloud_api_connection_for_vm_destruction)[i].username.c_str();
@@ -1144,6 +1156,7 @@ DIET_API_LIB int SeDCloud::service_rsync_to_vm_add() {
 
 	diet_profile_desc_free(profile);
 	//diet_print_service_table();
+	return 0;
 }
 
 
@@ -1170,6 +1183,7 @@ DIET_API_LIB int SeDCloud::service_get_tarball_from_vm_add() {
 
 	diet_profile_desc_free(profile);
 	//diet_print_service_table();
+	return 0;
 }
 
 int SeDCloud::get_tarball_from_vm_solve(diet_profile_t *pb) {
@@ -1177,7 +1191,7 @@ int SeDCloud::get_tarball_from_vm_solve(diet_profile_t *pb) {
 	char* ips_file_path;
 	int* vm_index;
 	char* source_file_path;
-	char* out;
+	//char* out;
 	size_t size;
 
 	diet_string_get(diet_parameter(pb, 0), &vm_user, NULL);
@@ -1303,6 +1317,7 @@ DIET_API_LIB int SeDCloud::service_mount_nfs_add() {
 
 	diet_profile_desc_free(profile);
 	//diet_print_service_table();
+	return 0;
 }
 
 /**
@@ -1337,7 +1352,7 @@ int SeDCloud::mount_nfs_solve(diet_profile_t *pb) {
 	std::fstream file;
 	file.open(destination_ips, std::ios_base::in);
 	bool end = false;
-	char* line;
+	//char* line;
 	do {
 		std::string s;
 
@@ -1413,7 +1428,7 @@ int service_wrapper_solve(diet_profile_t* pb) {
 
 	int nb_args = pb->last_out + 1;
 	int last_in = pb->last_in;
-	size_t arg_size;
+	//size_t arg_size;
 
 	const std::string& path_of_executable = binary.executable_path;
 
@@ -1482,7 +1497,7 @@ DIET_API_LIB int
 		diet_generic_desc_set(diet_param_desc(profile, i), type, base_type);
 	}
 
-	for(int j = 0; j < out_types.size(); j++) {
+	for(size_t j = 0; j < out_types.size(); j++) {
 		const std::pair<diet_data_type_t, diet_base_type_t>& type_pair = out_types[j];
 		type = type_pair.first;
 		base_type = type_pair.second;
@@ -1520,7 +1535,7 @@ int service_wrapper_solve2(diet_profile_t* pb) {
 
 	int nb_args = binary.get_nb_args();
 	int last_in = pb->last_in;
-	size_t arg_size;
+	//size_t arg_size;
 
 	const std::string& path_of_executable = binary.executable_path;
 
@@ -1542,6 +1557,8 @@ int service_wrapper_solve2(diet_profile_t* pb) {
 				cmd.append(" ");
 				cmd.append(service_wrapper_args[i].command_line_arg);
 				break;
+			default:
+			  break;
 		}
 
 	}
@@ -1586,7 +1603,7 @@ DIET_API_LIB int
 		diet_generic_desc_set(diet_param_desc(profile, i), type, base_type);
 	}
 
-	for(int j = 0; j < out_types.size(); j++) {
+	for(size_t j = 0; j < out_types.size(); j++) {
 		const std::pair<diet_data_type_t, diet_base_type_t>& type_pair = out_types[j];
 		type = type_pair.first;
 		base_type = type_pair.second;
@@ -1597,7 +1614,6 @@ DIET_API_LIB int
 	if (diet_service_table_add(profile, NULL, service_wrapper_solve2)) {
 		return 1;
 	}
-
 
 	diet_profile_desc_free(profile);
 	//diet_print_service_table();
@@ -1631,7 +1647,7 @@ int SeDCloudActions::send_vm_ips_to_master() {
 
 
 	remove(local_path);
-
+	return 0;
 }
 
 
@@ -1666,7 +1682,7 @@ int SeDCloudActions::launch_vms(const std::string& vm_image, int vm_count, const
 	this->is_ip_private = is_ip_private;
 	this->params = params;
 
-	SeDCloudActions::launch_vms();
+	return SeDCloudActions::launch_vms();
 }
 
 
@@ -1772,7 +1788,7 @@ int add_seq_in_data_xml_solve(diet_profile_t *pb) {
 	std::vector<std::string> lines;
 	readlines(lines_file_path, lines);
 
-	for(int i = 0; i < lines.size(); i++){
+	for(size_t i = 0; i < lines.size(); i++){
 		xml_in->add_child_content("data", 0, tag_name, lines[i]);
 	}
 

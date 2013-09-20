@@ -29,11 +29,11 @@
 #include "DagdaImpl.hh"
 #include "DagdaFactory.hh"
 
+#ifdef USE_LOG_SERVICE
+#include "DietLogComponent.hh"
+#endif
 
 #define HOMOGENEOUS_VM_INSTANCIATION_SERVICE "homogeneous_vm_instanciation"
-
-
-
 
 
 int create_folder(const char* folder_path);
@@ -180,7 +180,7 @@ public:
 	int get_last_diet_in() const {
 		int last_in = -1;
 
-		for(int index = 0; index < args.size(); index++){
+		for(size_t index = 0; index < args.size(); index++){
 			if (args[index].arg_type == dietProfileArgType) {
 				if (last_in < args[index].diet_profile_arg) {
 					last_in = args[index].diet_profile_arg;
@@ -193,7 +193,7 @@ public:
 
 	~ServiceWrapper() {
 		std::vector<ServiceWrapperArgument>::iterator iter;
-		for(int index = 0; index < args.size(); index++) {
+		for(size_t index = 0; index < args.size(); index++) {
 			ServiceWrapperArgument& arg = args[index];
 			if (arg.arg_type == commandLineArgType) {
 				if(arg.command_line_arg != NULL) {
@@ -623,7 +623,7 @@ public:
     virtual void perform_action_on_sed_launch();
 
     virtual void perform_action_on_sed_creation() {};
-    virtual int perform_action_after_service_table_add(const std::string& name_of_service) {};
+    virtual int perform_action_after_service_table_add(const std::string& name_of_service) { return 0;};
 
 
     SeDCloudVMLaunchedAtSolveActions(const std::string& _image_id, const std::string& _base_url, const std::string& _username, const std::string& _password, const std::string& _vm_user,
@@ -714,13 +714,15 @@ class SeDCloud {
 protected:
     SeDCloudActions* actions;
 
+#ifdef USE_LOG_SERVICE
+    const DietLogComponent* get_log_component() const;
+#endif
+
     SeDCloud(SeDCloudActions* _actions) {
             instance = NULL;
             actions = _actions;
             actions->perform_action_on_sed_creation();
-
     }
-
 
 
 public:
@@ -729,6 +731,7 @@ public:
     static void launch(int argc, char* argv[]) {
         SeDCloud::instance->actions->perform_action_on_sed_launch();
         diet_SeD(argv[1], argc, argv);
+
     }
 
     static void create(SeDCloudActions* _actions) {
