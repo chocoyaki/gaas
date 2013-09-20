@@ -166,7 +166,7 @@ DietLogComponent::DietLogComponent(const char *name,
   flushBufferThread = NULL;  // modif bisnard_logs_1
 
   // define tags
-  tagCount = 29;  // modif bisnard_logs_1
+  tagCount = 35;  // modif bisnard_logs_1
   tagFlags = createBoolArrayFalse(tagCount);
   tagNames = new char *[this->tagCount];
   tagNames[0] = strdup("ADD_SERVICE");
@@ -200,6 +200,15 @@ DietLogComponent::DietLogComponent(const char *name,
   tagNames[26] = strdup("DAGNODE_FINISH");      // modif bisnard_logs_1
   tagNames[27] = strdup("DAGNODE_FAILED");      // modif bisnard_logs_1
   tagNames[28] = strdup("END_DOWNLOAD");        // modif bisnard_logs_1
+
+  tagNames[29] = strdup("VM_DEPLOY_BEGIN");
+  tagNames[30] = strdup("VM_RUNNING");
+  tagNames[31] = strdup("VM_DEPLOY_END");
+  tagNames[32] = strdup("VM_WRAP_SERVICE");
+  tagNames[33] = strdup("VM_DESTROY_BEGIN");
+  tagNames[34] = strdup("VM_DESTROY_END");
+
+
 
   // CORBA::Object_ptr myLCCptr;
 
@@ -580,25 +589,60 @@ DietLogComponent::createBoolArrayFalse(int size) {
 
 void DietLogComponent::logVMDeployStart(const IaaS::Image& image,
     const char* cloudName, const char* vmId, const char* sedName) {
+  if (tagFlags[29]) {
+    ostringstream out;
+    out << cloudName << " " << vmId << " " << image.id;
+    log(tagNames[29], out.str().c_str());
+   }
 }
 
 void DietLogComponent::logVMRunning(const IaaS::Instance& vmInstance) {
+  if (tagFlags[30]) {
+    ostringstream out;
+    out << vmInstance.id;
+    log(tagNames[30], out.str().c_str());
+   }
 }
 
 void DietLogComponent::logVMOSReady(const IaaS::Instance& vmInstance) {
-  cout << vmInstance.id << endl;
-}
-
-void DietLogComponent::logVMDestroyStart(const IaaS::Instance& vmInstance) {
-}
-
-void DietLogComponent::logVMDestroyEnd(const IaaS::Instance& vmInstance) {
+  if (tagFlags[31]) {
+    ostringstream out;
+    out << vmInstance.id;
+    log(tagNames[31], out.str().c_str());
+   }
 }
 
 void DietLogComponent::logVMServiceWrapped(const char* sedName,
     const ServiceWrapper& serviceWrapper, const char* vmIP,
     const char* vmUserName) {
+  if (tagFlags[32]) {
+    ostringstream out;
+    out << sedName <<
+        " " << serviceWrapper.name_of_service <<
+        " " << serviceWrapper.executable_path <<
+        " " << vmUserName << " " << vmIP;
+    log(tagNames[32], out.str().c_str());
+   }
+
+
 }
+
+void DietLogComponent::logVMDestroyStart(const IaaS::Instance& vmInstance) {
+  if (tagFlags[33]) {
+    ostringstream out;
+    out << vmInstance.id;
+    log(tagNames[33], out.str().c_str());
+   }
+}
+
+void DietLogComponent::logVMDestroyEnd(const IaaS::Instance& vmInstance) {
+  if (tagFlags[34]) {
+    ostringstream out;
+    out << vmInstance.id;
+    log(tagNames[34], out.str().c_str());
+   }
+}
+
 
 #endif
 
