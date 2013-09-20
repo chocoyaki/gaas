@@ -22,6 +22,25 @@
 
 #include <string>
 
+#include "deltacloud_config.h"
+
+
+#ifdef USE_LOG_SERVICE
+
+#include "DietLogComponent.hh"
+
+#endif
+
+
+
+
+#ifdef USE_LOG_SERVICE
+
+DietLogComponent* get_log_component();
+
+#endif
+
+
 //using namespace std;
 //using namespace xercesc;
 

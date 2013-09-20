@@ -23,6 +23,12 @@
 
 
 
+
+
+
+
+
+
 static std::string RAMSES_WRAPPERS_HOME;
 
 
@@ -51,6 +57,7 @@ void add_common_services(const std::string& username, const std::string& ip) {
 	std::vector<std::pair<diet_data_type_t, diet_base_type_t> > out_types;
 	out_types.push_back(std::pair<diet_data_type_t, diet_base_type_t>(DIET_STRING, DIET_CHAR));
 
+	const char * sed_name = "sed";
 
 	ServiceWrapper grafic1_service_wrapper("grafic1", RAMSES_WRAPPERS_HOME + "/grafic1-wrapper", 4, NULL, output_same_as_input);
 	grafic1_service_wrapper.set_arg(0, username);
@@ -59,7 +66,9 @@ void add_common_services(const std::string& username, const std::string& ip) {
 	grafic1_service_wrapper.set_arg(3, 1); //working_dir
 	service_wrapper_table_add(grafic1_service_wrapper, out_types);
 
-
+#ifdef USE_LOG_SERVICE
+	get_log_component()->logVMServiceWrapped(sed_name, grafic1_service_wrapper, ip.c_str(), username.c_str());
+#endif
 
 	ServiceWrapper halo_maker_service_wrapper("halomaker", RAMSES_WRAPPERS_HOME + "/2-args-wrapper", 4, NULL, output_same_as_input);
 	halo_maker_service_wrapper.set_arg(0, username);
@@ -68,6 +77,9 @@ void add_common_services(const std::string& username, const std::string& ip) {
 	halo_maker_service_wrapper.set_arg(3, "./call-halomaker");
 	service_wrapper_table_add(halo_maker_service_wrapper, out_types);
 
+#ifdef USE_LOG_SERVICE
+	get_log_component()->logVMServiceWrapped(sed_name, halo_maker_service_wrapper, ip.c_str(), username.c_str());
+#endif
 
 	ServiceWrapper tree_maker_service_wrapper("treemaker", RAMSES_WRAPPERS_HOME + "/2-args-wrapper", 4, NULL, output_same_as_input);
 	tree_maker_service_wrapper.set_arg(0, username);
@@ -76,6 +88,9 @@ void add_common_services(const std::string& username, const std::string& ip) {
 	tree_maker_service_wrapper.set_arg(3, "./call-treemaker");
 	service_wrapper_table_add(tree_maker_service_wrapper, out_types);
 
+#ifdef USE_LOG_SERVICE
+	get_log_component()->logVMServiceWrapped(sed_name, tree_maker_service_wrapper, ip.c_str(), username.c_str());
+#endif
 
 	ServiceWrapper galaxy_maker_service_wrapper("galaxymaker", RAMSES_WRAPPERS_HOME + "/2-args-wrapper", 4, NULL, output_same_as_input);
 	galaxy_maker_service_wrapper.set_arg(0, username);
@@ -84,6 +99,9 @@ void add_common_services(const std::string& username, const std::string& ip) {
 	galaxy_maker_service_wrapper.set_arg(3, "./call-galaxymaker");
 	service_wrapper_table_add(galaxy_maker_service_wrapper, out_types);
 
+#ifdef USE_LOG_SERVICE
+	get_log_component()->logVMServiceWrapped(sed_name, galaxy_maker_service_wrapper, ip.c_str(), username.c_str());
+#endif
 
 
 	diet_print_service_table();
@@ -153,6 +171,12 @@ main(int argc, char *argv[]) {
 	ramses3d_service_wrapper.set_arg(3, 0); //number of processes
 	ramses3d_service_wrapper.set_arg(4, 1); //working_dir
 	service_wrapper_table_add(ramses3d_service_wrapper, out_types);
+
+#ifdef USE_LOG_SERVICE
+	const char * sed_name = "sed";
+	get_log_component()->logVMServiceWrapped(sed_name, ramses3d_service_wrapper, ips[0].c_str(), username);
+#endif
+
 
 	diet_print_service_table();
 	/* Launch the SeD: no return call */

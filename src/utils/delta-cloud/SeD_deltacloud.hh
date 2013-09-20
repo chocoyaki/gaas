@@ -728,6 +728,7 @@ protected:
 public:
     //void addParameter(const std::string& param, const std::string& value);
 
+
     static void launch(int argc, char* argv[]) {
         SeDCloud::instance->actions->perform_action_on_sed_launch();
         diet_SeD(argv[1], argc, argv);
