@@ -18,6 +18,9 @@
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
 #include <xercesc/dom/DOMLSSerializer.hpp>
 
+#include "DagdaImpl.hh"
+#include "DagdaFactory.hh"
+
 int read_properties_file(const std::string& path, std::map<std::string, std::string>& results) {
     std::ifstream file(path.c_str());
     std::string line;
@@ -360,7 +363,19 @@ Instance* VMInstances::get_instance(int i) {
 
 
 int VMInstances::test_ssh_connection(int i, bool is_private_ip) {
-	return test_ssh_connection_by_id(interf, vm_user, get_instance_id(i), is_private_ip);
+	bool result = test_ssh_connection_by_id(interf, vm_user, get_instance_id(i), is_private_ip);
+
+#ifdef USE_LOG_SERVICE
+	if (result == 0) {
+		Instance* instance = get_instance(i);
+		DietLogComponent* component = get_log_component();
+		component->logVMOSReady(*instance);
+		delete instance;
+	}
+#endif
+
+
+	return result;
 }
 
 int VMInstances::test_all_ssh_connection(bool private_ips) {
@@ -431,6 +446,29 @@ OpenStackVMInstances::OpenStackVMInstances(std::string image_id, int vm_count, s
 
 
 }
+
+
+
+
+#ifdef USE_LOG_SERVICE
+
+
+DietLogComponent*
+get_log_component() {
+  return DagdaFactory::getSeDDataManager()->getLogComponent();
+}
+
+
+
+#endif
+
+
+
+
+
+
+
+
 
 
 /******************* BEGIN : THIS CLASSES ARE REUSABLE**********************/

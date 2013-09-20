@@ -13,8 +13,23 @@
 #include "Tools.hh"
 #include <assert.h>
 
+#include "deltacloud_config.h"
+
+
+#ifdef USE_LOG_SERVICE
+
+#include "Tools.hh"
+
+#endif
+
+
+
+
 using namespace std;
 using namespace IaaS;
+
+
+
 
 bool Iaas_deltacloud::init_api(deltacloud_api * api) {
   if (deltacloud_initialize(api,
@@ -173,6 +188,15 @@ int Iaas_deltacloud::wait_instance_running(const std::string& instanceId) {
  		std::cout << "waiting : state " << instanceId << " = " << state << endl;
 
  		if (strcmp(state, "RUNNING") == 0) {
+#ifdef USE_LOG_SERVICE
+			//the user must call this method to write in the log
+ 			Instance* instance = get_instance_by_id(std::string(instanceId));
+
+			DietLogComponent* component = get_log_component();
+			component->logVMRunning(*instance);
+
+ 			delete instance;
+#endif
  			ready = true;
  		}
  		if (strcmp(state, "ERROR") == 0) {
@@ -251,6 +275,17 @@ vector<string*> * Iaas_deltacloud::run_instances(const string & image_id, int co
 		  sleep(1);
 		}
 		else {
+
+#ifdef USE_LOG_SERVICE
+			//TODO: get the image_name
+			IaaS::Image image("image_name", image_id);
+
+			//TODO : search the cloud middleware name
+			//TODO : search the name of the sed
+			DietLogComponent* diet_log_component = get_log_component();
+			diet_log_component->logVMDeployStart(image, "cloud-middleware", instance_id, "sed-name-X");
+#endif
+
 			inst_arr->push_back(new string(instance_id));
 		}
 	} while(env);
@@ -272,6 +307,7 @@ std::string Iaas_deltacloud::get_id_from_ip(const std::string& ip, bool select_p
 	for(int i = 0; i < instances->size() && (!found); i++) {
 		Instance* instance = (*instances)[i];
 		std::string instance_ip = instance->get_ip(select_private_ip);
+		//printf("instance id=%s : ip=%s\n", instance->id.c_str(), instance_ip.c_str());
 		if (instance_ip.compare(ip) == 0) {
 			found = true;
 			instance_id = instance->id;
@@ -299,18 +335,41 @@ int Iaas_deltacloud::terminate_instances(const vector<string*> & instance_ids) {
 
   int env = 0;
   /* delete all the instances in the array */
-  deltacloud_instance instance;
+  deltacloud_instance dc_instance;
   for(int i_nb = 0; i_nb < instance_ids.size() ; ++ i_nb) {
-    if(deltacloud_get_instance_by_id(&api, instance_ids[i_nb]->c_str(), &instance) < 0) {
+
+
+
+    if(deltacloud_get_instance_by_id(&api, instance_ids[i_nb]->c_str(), &dc_instance) < 0) {
       cerr<<"Failed to get info about instance "<< instance_ids[i_nb] <<endl;
       env = -1;
-    } else if(deltacloud_instance_stop(&api, &instance) < 0) {
+    } else if(deltacloud_instance_stop(&api, &dc_instance) < 0) {
       cerr<<"Failed to stop instance "<< *instance_ids[i_nb]<<endl;
       env = -1;
-    } else if(deltacloud_instance_destroy(&api, &instance) < 0) {
-      cerr<<"Failed to destroy instance "<< *instance_ids[i_nb]<<endl;
-      env = -1;
+    } else {
+
+		//OK the instance is stopped
+#ifdef USE_LOG_SERVICE
+		Instance* instance = get_instance_by_id(*instance_ids[i_nb]);
+
+		DietLogComponent* component = get_log_component();
+		component->logVMDestroyStart(*instance);
+#endif
+
+		if(deltacloud_instance_destroy(&api, &dc_instance) < 0) {
+			cerr<<"Failed to destroy instance "<< *instance_ids[i_nb]<<endl;
+			env = -1;
+		}
+#ifdef USE_LOG_SERVICE
+		else {
+			component->logVMDestroyEnd(*instance);
+		}
+		delete instance;
+#endif
+
+
     }
+
   }
 
   deltacloud_free(&api);
@@ -343,6 +402,7 @@ std::string Iaas_deltacloud::get_instance_state(const std::string& instance_id) 
 
 	return res;
 }
+
 
 
 

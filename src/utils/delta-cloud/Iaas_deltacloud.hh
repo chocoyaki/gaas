@@ -15,7 +15,11 @@ struct deltacloud_api;
 
 
 
+
+
+
 namespace IaaS {
+
 
 	void convert(const Parameter& src, struct deltacloud_create_parameter& dst);
 	struct deltacloud_create_parameter* create_delta_params(const std::vector<Parameter>& params);
@@ -73,6 +77,11 @@ namespace IaaS {
 
 
 	 void get_instance_state(const std::string id, char * state);
+
+
+
+
+
 
 
 
