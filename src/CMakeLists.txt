@@ -385,6 +385,10 @@ if(DIET_USE_WORKFLOW)
   set(CORE_LIBS ${CORE_LIBS} ${XQILLA_LIBRARY} ${XERCES_LIBRARY})
 endif()
 
+if(DIET_USE_DELTACLOUD)
+  set(CORE_LIBS ${CORE_LIBS} ${XERCES_LIBRARY})
+endif()
+
 add_library(DIET_Dagda ${CORE_SRCS})
 set_target_properties(DIET_Dagda PROPERTIES VERSION ${DIET_VERSION})
 target_link_libraries(DIET_Dagda ${CORE_LIBS})
@@ -438,7 +442,6 @@ if(DIET_USE_WORKFLOW)
   set(dietForwarder_LIBS ${dietForwarder_LIBS}
     ${XQILLA_LIBRARY} ${XERCES_LIBRARY})
 endif()
-
 
 if(DIET_USE_USERSCHED)
   set(dietForwarder_SRCS ${dietForwarder_SRCS} agent/UserScheduler.cc )

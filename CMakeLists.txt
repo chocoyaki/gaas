@@ -387,6 +387,30 @@ endif(DIET_USE_MULTICALL)
 # --------------------- DIET DeltaCloud Support  ---------------------
 if(DIET_USE_DELTACLOUD)
  find_package(LibDeltaCloud)
+ if (DELTACLOUD_FOUND)
+    find_package(Xerces)
+    if (XERCES_FOUND)
+        if(BUILD_SHARED_LIBS AND NOT AIX)
+	        # Link DIET to Xerces shared libs
+	      if(WIN32)
+	        set(XERCES_LIBRARY ${XERCES_LIBRARY_st})
+    	  else()
+    	    set(XERCES_LIBRARY ${XERCES_LIBRARY_sh})
+    	  endif()
+    	else()
+	        # Link DIET to Xerces static libs
+	        set(XERCES_LIBRARY ${XERCES_LIBRARY_st})
+    	endif()
+    	set(THIRD_PARTY_LIBS ${THIRD_PARTY_LIBS}
+          ${XERCES_LIBRARY})    	
+    else()
+        message("Xerces library not found. Disabling Deltacloud module.")
+        set(DIET_USE_DELTACLOUD OFF)
+    endif()
+ else(DELTACLOUD_FOUND)
+    message("Deltacloud library not found. Disabling Deltacloud module.")
+    set(DIET_USE_DELTACLOUD OFF)    
+ endif(DELTACLOUD_FOUND)
 endif()
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/utils/cmake_variables/deltacloud_config.h.in
