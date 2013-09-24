@@ -13,3 +13,7 @@ find_library(APACHE_DELTACLOUD_LIBRARY NAMES deltacloud)
 # find headers
 ##############################################################################
 find_path(APACHE_DELTACLOUD_INCLUDE_DIR libdeltacloud/libdeltacloud.h)
+
+if (APACHE_DELTACLOUD_LIBRARY)
+    set(DELTACLOUD_FOUND "TRUE")
+endif()
