@@ -21,6 +21,7 @@
 #include <ctime>
 #include <iostream>
 #include <string>
+#include <sstream>
 using namespace std;
 
 #include "LogORBMgr.hh"
@@ -30,7 +31,7 @@ using namespace std;
 #ifdef DIET_USE_DELTACLOUD
 #include "Instance.hh"
 #include "Image.hh"
-#include "SeD_deltacloud.hh"
+#include "ServiceWrapper.hh"
 #endif
 
 /**

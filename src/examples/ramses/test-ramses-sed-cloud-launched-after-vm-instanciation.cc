@@ -67,7 +67,7 @@ void add_common_services(const std::string& username, const std::string& ip) {
 	service_wrapper_table_add(grafic1_service_wrapper, out_types);
 
 #ifdef USE_LOG_SERVICE
-	get_log_component()->logVMServiceWrapped(sed_name, grafic1_service_wrapper, ip.c_str(), username.c_str());
+	logVMServiceWrapped(grafic1_service_wrapper, ip.c_str(), username.c_str());
 #endif
 
 	ServiceWrapper halo_maker_service_wrapper("halomaker", RAMSES_WRAPPERS_HOME + "/2-args-wrapper", 4, NULL, output_same_as_input);
@@ -78,7 +78,7 @@ void add_common_services(const std::string& username, const std::string& ip) {
 	service_wrapper_table_add(halo_maker_service_wrapper, out_types);
 
 #ifdef USE_LOG_SERVICE
-	get_log_component()->logVMServiceWrapped(sed_name, halo_maker_service_wrapper, ip.c_str(), username.c_str());
+	logVMServiceWrapped(halo_maker_service_wrapper, ip.c_str(), username.c_str());
 #endif
 
 	ServiceWrapper tree_maker_service_wrapper("treemaker", RAMSES_WRAPPERS_HOME + "/2-args-wrapper", 4, NULL, output_same_as_input);
@@ -89,7 +89,7 @@ void add_common_services(const std::string& username, const std::string& ip) {
 	service_wrapper_table_add(tree_maker_service_wrapper, out_types);
 
 #ifdef USE_LOG_SERVICE
-	get_log_component()->logVMServiceWrapped(sed_name, tree_maker_service_wrapper, ip.c_str(), username.c_str());
+	logVMServiceWrapped(tree_maker_service_wrapper, ip.c_str(), username.c_str());
 #endif
 
 	ServiceWrapper galaxy_maker_service_wrapper("galaxymaker", RAMSES_WRAPPERS_HOME + "/2-args-wrapper", 4, NULL, output_same_as_input);
@@ -100,7 +100,7 @@ void add_common_services(const std::string& username, const std::string& ip) {
 	service_wrapper_table_add(galaxy_maker_service_wrapper, out_types);
 
 #ifdef USE_LOG_SERVICE
-	get_log_component()->logVMServiceWrapped(sed_name, galaxy_maker_service_wrapper, ip.c_str(), username.c_str());
+	logVMServiceWrapped(galaxy_maker_service_wrapper, ip.c_str(), username.c_str());
 #endif
 
 
@@ -109,7 +109,7 @@ void add_common_services(const std::string& username, const std::string& ip) {
 	//std::cout << "<<<<<<<<<<<<<<<<<<<" << grafic1_service_wrapper << "\n";
 }
 
-
+int
 main(int argc, char *argv[]) {
 	printf("launch %s...\n", argv[0]);
 
@@ -173,8 +173,7 @@ main(int argc, char *argv[]) {
 	service_wrapper_table_add(ramses3d_service_wrapper, out_types);
 
 #ifdef USE_LOG_SERVICE
-	const char * sed_name = "sed";
-	get_log_component()->logVMServiceWrapped(sed_name, ramses3d_service_wrapper, ips[0].c_str(), username);
+	logVMServiceWrapped(ramses3d_service_wrapper, ips[0].c_str(), username);
 #endif
 
 

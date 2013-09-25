@@ -192,8 +192,9 @@ int Iaas_deltacloud::wait_instance_running(const std::string& instanceId) {
 			//the user must call this method to write in the log
  			Instance* instance = get_instance_by_id(std::string(instanceId));
 
-			DietLogComponent* component = get_log_component();
-			component->logVMRunning(*instance);
+//TODO Where to put the log ?
+			//DietLogComponent* component = get_log_component();
+			//component->logVMRunning(*instance);
 
  			delete instance;
 #endif
@@ -282,8 +283,8 @@ vector<string*> * Iaas_deltacloud::run_instances(const string & image_id, int co
 
 			//TODO : search the cloud middleware name
 			//TODO : search the name of the sed
-			DietLogComponent* diet_log_component = get_log_component();
-			diet_log_component->logVMDeployStart(image, "cloud-middleware", instance_id, "sed-name-X");
+			//DietLogComponent* diet_log_component = get_log_component();
+			//diet_log_component->logVMDeployStart(image, "cloud-middleware", instance_id, "sed-name-X");
 #endif
 
 			inst_arr->push_back(new string(instance_id));
@@ -352,8 +353,9 @@ int Iaas_deltacloud::terminate_instances(const vector<string*> & instance_ids) {
 #ifdef USE_LOG_SERVICE
 		Instance* instance = get_instance_by_id(*instance_ids[i_nb]);
 
-		DietLogComponent* component = get_log_component();
-		component->logVMDestroyStart(*instance);
+		//TODO Where to put the log
+		//DietLogComponent* component = get_log_component();
+		//component->logVMDestroyStart(*instance);
 #endif
 
 		if(deltacloud_instance_destroy(&api, &dc_instance) < 0) {
@@ -362,7 +364,9 @@ int Iaas_deltacloud::terminate_instances(const vector<string*> & instance_ids) {
 		}
 #ifdef USE_LOG_SERVICE
 		else {
-			component->logVMDestroyEnd(*instance);
+	    //TODO Where to put the log
+
+//			component->logVMDestroyEnd(*instance);
 		}
 		delete instance;
 #endif

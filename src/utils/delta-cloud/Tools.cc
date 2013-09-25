@@ -5,21 +5,21 @@
 
 #include "Tools.hh"
 #include "Iaas_deltacloud.hh"
+#include "SeD_deltacloud.hh"
+#include "DIET_uuid.hh"
 #include <unistd.h>
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
 #include <fstream>
 #include <string.h>
+#include <libgen.h>
 
 
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
 #include <xercesc/dom/DOMLSSerializer.hpp>
-
-#include "DagdaImpl.hh"
-#include "DagdaFactory.hh"
 
 int read_properties_file(const std::string& path, std::map<std::string, std::string>& results) {
     std::ifstream file(path.c_str());
@@ -37,6 +37,7 @@ int read_properties_file(const std::string& path, std::map<std::string, std::str
         if(tokens.size() == 2)
            results[tokens[0]] = tokens[1];
     }
+    return 0;
 }
 
 char* cpp_strdup(const char* src) {
@@ -75,7 +76,7 @@ std::string IaaS::VMInstances::get_ip(int vm_index, bool is_private_ip) {
 std::set<std::string> IaaS::VMInstances::get_error_instance_ids() {
 	std::set<std::string> result;
 
-	for(int i = 0; i < insts->size(); i++) {
+	for(size_t i = 0; i < insts->size(); i++) {
 		std::string& id = *(*insts)[i];
 
 		if (is_instance_in_error_state(id)) {
@@ -92,7 +93,7 @@ bool IaaS::VMInstances::is_instance_in_error_state(const std::string& id) {
 
 
 void deleteStringVector(std::vector<std::string*>& v){
-	for(int i = 0; i < v.size(); i++) {
+	for(size_t i = 0; i < v.size(); i++) {
 		delete v[i];
 		v[i] = NULL;
 	}
@@ -174,6 +175,7 @@ int execute_command_in_vm_by_id(IaaS::IaasInterface* interf, std::string vm_user
     std::string ip = get_ip_instance_by_id(interf, instance_id, private_ip);
 
     int ret = ::execute_command_in_vm(remote_cmd, vm_user, ip, args);
+    return ret;
 }
 
 
@@ -189,6 +191,7 @@ int create_directory_in_vm(const std::string& remote_path, std::string user, std
 int create_directory_in_vm_by_id(IaaS::IaasInterface* interf, std::string vm_user, std::string instance_id, bool private_ip, std::string remote_path, std::string args) {
   std::string ip = get_ip_instance_by_id(interf, instance_id, private_ip);
   int ret = ::create_directory_in_vm(remote_path, vm_user, ip, args);
+  return ret;
 }
 
 
@@ -241,7 +244,6 @@ void readlines(const char* path, std::vector<std::string>& lines) {
 	std::fstream file;
 	file.open(path, std::ios_base::in);
 
-	char* line;
 	do {
 
 		try{
@@ -263,6 +265,123 @@ void readlines(const char* path, std::vector<std::string>& lines) {
 	file.close();
 }
 
+
+
+std::string copy_to_tmp_file(const std::string& src, const std::string& ext) {
+  char* src_path = strdup(src.c_str());
+  char* dir = dirname(src_path);
+
+  std::ostringstream copy_file_path;
+  boost::uuids::uuid uuid = diet_generate_uuid();
+  copy_file_path << dir << "/" << uuid << ext;
+  std::string cmd = "cp " + src + " " + copy_file_path.str().c_str();
+  int env = system(cmd.c_str());
+  free(src_path);
+
+  if (env) return "";
+
+  return copy_file_path.str();
+}
+
+int create_folder(const char* folder_path) {
+  std::string cmd = "";
+  cmd.append("mkdir -p ");
+  cmd.append(folder_path);
+  //printf("CREATE LOCAL DIRECTORY : %s\n", local_results_folder.c_str());
+  int env = system(cmd.c_str());
+
+  return env;
+}
+
+std::string get_folder_in_dagda_path(const char* folder_name) {
+  DagdaImpl *dataManager = DagdaFactory::getDataManager();
+  const char* dagda_path = dataManager->getDataPath();
+
+
+
+  std::string folder = "";
+  folder.append(dagda_path);
+  folder.append("/");
+  folder.append(folder_name);
+
+  return folder;
+}
+
+std::string int2string(int i) {
+  char s[512];
+  sprintf(s, "%i", i);
+  return std::string(s);
+}
+
+void append2path(std::string& path, const std::string& add) {
+  path.append("/");
+  path.append(add);
+}
+
+int create_folder_in_dagda_path(const char* folder_name) {
+  /*DagdaImpl *dataManager = DagdaFactory::getDataManager();
+  const char* dagda_path = dataManager->getDataPath();
+*/
+
+  //the local folder of datas
+  std::string local_results_folder = get_folder_in_dagda_path(folder_name);
+
+  int env = create_folder(local_results_folder.c_str());
+
+  return env;
+}
+
+
+int create_folder_in_dagda_path_with_request_id(int reqId) {
+  return create_folder_in_dagda_path(int2string(reqId).c_str());
+}
+
+
+std::string create_tmp_file(std::string directory_path, const std::string ext) {
+
+  std::ostringstream file_path;
+  boost::uuids::uuid uuid = diet_generate_uuid();
+  file_path << directory_path << "/" << uuid << ext;
+
+  FILE* tmp_file = fopen(file_path.str().c_str(), "w");
+  if (tmp_file == NULL) {
+    return "";
+  }
+
+  fclose(tmp_file);
+
+
+  return file_path.str();
+}
+
+
+std::string create_tmp_file(diet_profile_t* pb, const std::string ext) {
+  //create the tmp ip file
+  int reqId = pb->dietReqID;
+  std::string szReqId = int2string(reqId);
+  std::string local_results_folder = get_folder_in_dagda_path(szReqId.c_str());
+  int env = create_folder(local_results_folder.c_str());
+
+  if (env) return "";
+
+  return create_tmp_file(local_results_folder, ext);
+
+}
+
+
+int write_lines(const std::vector<std::string>& lines, const std::string& file_path) {
+  FILE* file = fopen(file_path.c_str(), "w");
+
+  if (file == NULL) return -1;
+
+  for(size_t i = 0; i < lines.size(); i++){
+    fprintf(file, "%s\n", lines[i].c_str());
+  }
+
+  fclose(file);
+
+  return 0;
+}
 
 
 namespace IaaS {
@@ -326,7 +445,7 @@ void VMInstances::terminate_failed_instances_and_run_others() {
 		int index_new_inst = 0;
 
 		//we search the old instance id places
-		for(int i = 0 ; i < insts->size(); i++){
+		for(size_t i = 0 ; i < insts->size(); i++){
 			std::string id = *(*insts)[i];
 			if (failed_instances.count(id) > 0) {
 				//we add the new instance
@@ -344,9 +463,9 @@ void VMInstances::terminate_failed_instances_and_run_others() {
 }
 
 void VMInstances::wait_all_instances_running() {
-	for(int i = 0; i < insts->size(); i++) {
+	for(size_t i = 0; i < insts->size(); i++) {
 		std::string instanceId = *(*insts)[i];
-		int env = interf->wait_instance_running(instanceId);
+		interf->wait_instance_running(instanceId);
 	}
 }
 
@@ -368,8 +487,8 @@ int VMInstances::test_ssh_connection(int i, bool is_private_ip) {
 #ifdef USE_LOG_SERVICE
 	if (result == 0) {
 		Instance* instance = get_instance(i);
-		DietLogComponent* component = get_log_component();
-		component->logVMOSReady(*instance);
+		//DietLogComponent* component = get_log_component();
+		//component->logVMOSReady(*instance);
 		delete instance;
 	}
 #endif
@@ -379,7 +498,7 @@ int VMInstances::test_ssh_connection(int i, bool is_private_ip) {
 }
 
 int VMInstances::test_all_ssh_connection(bool private_ips) {
-	for(int i = 0; i < insts->size(); i++) {
+	for(size_t i = 0; i < insts->size(); i++) {
 		int ret = test_ssh_connection(i, private_ips);
 		if (ret != 0) {
 			return ret;
@@ -429,12 +548,12 @@ int VMInstances::execute_command_in_vm(int i, bool private_ip, const std::string
         args = args + " " + std::string(arg);
     }*/
 
-    ::execute_command_in_vm_by_id(interf, vm_user, get_instance_id(i), private_ip, remote_cmd, args);
+    return ::execute_command_in_vm_by_id(interf, vm_user, get_instance_id(i), private_ip, remote_cmd, args);
 }
 
 
 void VMInstances::get_ips(std::vector<std::string>& ips, bool private_ip) {
-	for(int i = 0; i < insts->size(); i++) {
+	for(size_t i = 0; i < insts->size(); i++) {
 		ips.push_back(get_ip(i, private_ip));
 	}
 }
@@ -452,13 +571,29 @@ OpenStackVMInstances::OpenStackVMInstances(std::string image_id, int vm_count, s
 
 #ifdef USE_LOG_SERVICE
 
+typedef struct
+{
+  ServiceWrapper* serviceWrapper;
+  char* vmIP;
+  char* vmUserName;
+} wrapped_service_log;
 
-DietLogComponent*
-get_log_component() {
-  return DagdaFactory::getSeDDataManager()->getLogComponent();
+std::vector<wrapped_service_log> wrappedServicesList;
+
+void
+logVMServiceWrapped(const ServiceWrapper& serviceWrapper, const char* vmIP,
+    const char* vmUserName) {
+  wrapped_service_log entry ;
+  entry.serviceWrapper = new ServiceWrapper(serviceWrapper);
+
+  entry.vmIP = (char*) malloc(sizeof(char) *strlen(vmIP));
+  strcpy(entry.vmIP, vmIP);
+
+  entry.vmUserName = (char*) malloc(sizeof(char) *strlen(vmUserName));
+  strcpy(entry.vmUserName, vmUserName);
+
+  wrappedServicesList.push_back(entry);
 }
-
-
 
 #endif
 
@@ -664,6 +799,7 @@ int XmlDOMDocument::add_child_content(const char* parent, int parentIndex, const
 	xercesc::XMLString::release(&temp);
 
 	node->appendChild(child_element);
+	return 0;
 }
 
 
