@@ -32,8 +32,8 @@ namespace IaaS {
   class Instance;
   class Image;
 }
-class ServiceWrapper;
 
+class ServiceWrapper;
 #endif
 
 

@@ -29,10 +29,12 @@ int dummyoutput(diet_profile_t *pb) {
 
 	char* path = strdup(output_dir);
 
-	diet_string_set(diet_parameter(pb, last_out), path,  /*DIET_VOLATILE*/  DIET_PERSISTENT_RETURN);
+	int ret = diet_string_set(diet_parameter(pb, last_out), path,  /*DIET_VOLATILE*/  DIET_PERSISTENT_RETURN);
 	printf("%d, called\n", last_out);
+	return ret;
 }
 
+int
 main(int argc, char *argv[]) {
 
 

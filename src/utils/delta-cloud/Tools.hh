@@ -9,6 +9,7 @@
 
 #include "IaasInterface.hh"
 #include "Instance.hh"
+#include "DIET_data.h"
 #include <string>
 #include <vector>
 #include <map>
@@ -24,21 +25,7 @@
 
 #include "deltacloud_config.h"
 
-
-#ifdef USE_LOG_SERVICE
-
-#include "DietLogComponent.hh"
-
-#endif
-
-
-
-
-#ifdef USE_LOG_SERVICE
-
-DietLogComponent* get_log_component();
-
-#endif
+class ServiceWrapper;
 
 
 //using namespace std;
@@ -74,6 +61,29 @@ char* readline(const char* path, int index);
 void readlines(const char* path, std::vector<std::string>& lines);
 
 
+
+int create_folder(const char* folder_path);
+std::string get_folder_in_dagda_path(const char* folder_name);
+std::string int2string(int i);
+void append2path(std::string& path, const std::string& add);
+
+std::string create_tmp_file(std::string directory_path, const std::string ext);
+std::string create_tmp_file(diet_profile_t* pb, const std::string ext);
+int write_lines(const std::vector<std::string>& ips, const std::string& file);
+
+//0 iif succeeds
+int create_folder_in_dagda_path(const char* folder_name);
+int create_folder_in_dagda_path_with_request_id(int reqId);
+
+std::string copy_to_tmp_file(const std::string& src, const std::string& ext);
+
+#ifdef USE_LOG_SERVICE
+// Log Utilities
+void
+logVMServiceWrapped(
+    const ServiceWrapper& serviceWrapper, const char* vmIP,
+    const char* vmUserName);
+#endif // USE_LOG_SERVICE
 
 
 namespace IaaS {

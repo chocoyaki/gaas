@@ -53,17 +53,17 @@ endif()
 if(DIET_USE_DELTACLOUD)
 include_directories(${APACHE_DELTACLOUD_INCLUDE_DIR} utils/delta-cloud)
 	SET(DELTACLOUD_MODULE_SRCS
-			utils/delta-cloud/consts.hh
-			utils/delta-cloud/Iaas_deltacloud.hh
-			utils/delta-cloud/Image.hh
+			utils/delta-cloud/CloudAPIConnection.cc
+			utils/delta-cloud/CloudServiceBinary.cc
 			utils/delta-cloud/Iaas_deltacloud.cc
-			utils/delta-cloud/IaasInterface.hh
 			utils/delta-cloud/Instance.cc
-			utils/delta-cloud/Instance.hh
-			utils/delta-cloud/Tools.hh
-			utils/delta-cloud/Tools.cc
 			utils/delta-cloud/SeD_deltacloud.cc
-			utils/delta-cloud/SeD_deltacloud.hh
+			utils/delta-cloud/SeDCloud.cc
+			utils/delta-cloud/SeDCloudActions.cc
+			utils/delta-cloud/ServiceStatisticsMap.cc
+			utils/delta-cloud/ServiceWrapper.cc
+			utils/delta-cloud/ServiceWrapperArgument.cc
+			utils/delta-cloud/Tools.cc
 		)
 
 	add_library(DIET_DeltaCloud ${DELTACLOUD_MODULE_SRCS})

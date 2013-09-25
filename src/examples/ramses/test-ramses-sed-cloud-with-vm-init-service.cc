@@ -40,7 +40,7 @@ int ouput_same_as_input(diet_profile_t *pb) {
 
 
 
-
+int
 main(int argc, char *argv[]) {
 
 
