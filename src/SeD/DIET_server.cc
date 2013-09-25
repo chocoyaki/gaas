@@ -35,6 +35,11 @@
 #include "DagdaImpl.hh"
 #include "DagdaFactory.hh"
 
+#ifdef DIET_USE_DELTACLOUD
+#include "Tools.hh"
+#include "boost/foreach.hpp"
+#endif
+
 #define BEGIN_API extern "C" {
 #define END_API }   // extern "C"
 
@@ -56,6 +61,7 @@ static SeDImpl *sedImpl = NULL;
 #ifdef HAVE_ALT_BATCH
 static diet_server_status_t st = SERIAL;
 #endif
+
 
 int
 diet_service_table_init(int maxsize) {
@@ -668,6 +674,13 @@ diet_SeD(const char *config_file_name, int argc, char *argv[]) {
   dataManager = DagdaFactory::getSeDDataManager();
 #ifdef USE_LOG_SERVICE
   dataManager->setLogComponent(dietLogComponent);  // modif bisnard_logs_1
+#ifdef DIET_USE_DELTACLOUD
+ BOOST_FOREACH(wrapped_service_log entry, wrappedServicesList) {
+   if (dietLogComponent != NULL) {
+     dietLogComponent->logVMServiceWrapped(*entry.serviceWrapper, entry.vmIP, entry.vmUserName);
+   }
+ }
+#endif // DIET_USE_DELTACLOUD
 #endif
 
   ORBMgr::getMgr()->activate(dataManager);

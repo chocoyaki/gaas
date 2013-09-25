@@ -436,7 +436,7 @@ public:
   logVMDestroyEnd(const IaaS::Instance & vmInstance);
 
   void
-  logVMServiceWrapped(const char * sedName, const ServiceWrapper & serviceWrapper, const char * vmIP,const char * vmUserName);
+  logVMServiceWrapped(const ServiceWrapper & serviceWrapper, const char * vmIP,const char * vmUserName);
 
 #endif
 

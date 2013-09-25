@@ -51,7 +51,7 @@ if(DIET_USE_CLOUD)
 endif()
 
 if(DIET_USE_DELTACLOUD)
-include_directories(${APACHE_DELTACLOUD_INCLUDE_DIR} utils/delta-cloud)
+    include_directories(${APACHE_DELTACLOUD_INCLUDE_DIR} utils/delta-cloud)
 	SET(DELTACLOUD_MODULE_SRCS
 			utils/delta-cloud/CloudAPIConnection.cc
 			utils/delta-cloud/CloudServiceBinary.cc
@@ -65,10 +65,10 @@ include_directories(${APACHE_DELTACLOUD_INCLUDE_DIR} utils/delta-cloud)
 			utils/delta-cloud/ServiceWrapperArgument.cc
 			utils/delta-cloud/Tools.cc
 		)
-
-	add_library(DIET_DeltaCloud ${DELTACLOUD_MODULE_SRCS})
-	target_link_libraries(DIET_DeltaCloud ${APACHE_DELTACLOUD_LIBRARY} DIET_SeD)
+    add_library(DIET_DeltaCloud ${DELTACLOUD_MODULE_SRCS})
+	target_link_libraries(DIET_DeltaCloud ${APACHE_DELTACLOUD_LIBRARY} ${XERCES_LIB} DIET_SeD)
 	install(TARGETS DIET_DeltaCloud DESTINATION ${LIB_INSTALL_DIR})
+		
 endif()
 
 ## generate CORBA idl required by almost everyone
@@ -443,6 +443,10 @@ if(DIET_USE_WORKFLOW)
     ${XQILLA_LIBRARY} ${XERCES_LIBRARY})
 endif()
 
+if(DIET_USE_DELTACLOUD)
+    set(dietForwarder_LIBS ${dietForwarder_LIBS} ${APACHE_DELTACLOUD_LIBRARY} ${XERCES_LIBRARY})
+endif()
+
 if(DIET_USE_USERSCHED)
   set(dietForwarder_SRCS ${dietForwarder_SRCS} agent/UserScheduler.cc )
   install(FILES CORBA/marshalling.hh
@@ -578,6 +582,10 @@ endif()
 if(DIET_USE_CLOUD)
   set(DIET_SeD_SRCS ${DIET_SeD_SRCS} ${cloud_SRCS})
   set(DIET_SeD_LIBS ${DIET_SeD_LIBS} ${GSOAP_LIBRARIES})
+endif()
+if (DIET_USE_DELTACLOUD)
+  set(DIET_SeD_SRCS ${DIET_SeD_SRCS} ${DELTACLOUD_MODULE_SRCS})
+  set(DIET_SeD_LIBS ${DIET_SeD_LIBS} ${XERCES_LIBRARY} ${APACHE_DELTACLOUD_LIBRARY})
 endif()
 
 add_library(DIET_SeD ${DIET_SeD_SRCS})

@@ -613,13 +613,12 @@ void DietLogComponent::logVMOSReady(const IaaS::Instance& vmInstance) {
    }
 }
 
-void DietLogComponent::logVMServiceWrapped(const char* sedName,
-    const ServiceWrapper& serviceWrapper, const char* vmIP,
+void DietLogComponent::logVMServiceWrapped(const ServiceWrapper& serviceWrapper,
+    const char* vmIP,
     const char* vmUserName) {
   if (tagFlags[32]) {
     ostringstream out;
-    out << sedName <<
-        " " << serviceWrapper.name_of_service <<
+    out << serviceWrapper.name_of_service <<
         " " << serviceWrapper.executable_path <<
         " " << vmUserName << " " << vmIP;
     log(tagNames[32], out.str().c_str());

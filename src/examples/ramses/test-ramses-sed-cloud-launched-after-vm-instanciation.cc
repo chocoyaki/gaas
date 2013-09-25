@@ -57,8 +57,6 @@ void add_common_services(const std::string& username, const std::string& ip) {
 	std::vector<std::pair<diet_data_type_t, diet_base_type_t> > out_types;
 	out_types.push_back(std::pair<diet_data_type_t, diet_base_type_t>(DIET_STRING, DIET_CHAR));
 
-	const char * sed_name = "sed";
-
 	ServiceWrapper grafic1_service_wrapper("grafic1", RAMSES_WRAPPERS_HOME + "/grafic1-wrapper", 4, NULL, output_same_as_input);
 	grafic1_service_wrapper.set_arg(0, username);
 	grafic1_service_wrapper.set_arg(1, ip);
