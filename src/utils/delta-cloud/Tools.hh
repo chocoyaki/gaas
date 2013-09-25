@@ -79,6 +79,16 @@ std::string copy_to_tmp_file(const std::string& src, const std::string& ext);
 
 #ifdef USE_LOG_SERVICE
 // Log Utilities
+typedef struct
+{
+  ServiceWrapper* serviceWrapper;
+  char* vmIP;
+  char* vmUserName;
+} wrapped_service_log;
+
+extern std::vector<wrapped_service_log> wrappedServicesList;
+
+
 void
 logVMServiceWrapped(
     const ServiceWrapper& serviceWrapper, const char* vmIP,

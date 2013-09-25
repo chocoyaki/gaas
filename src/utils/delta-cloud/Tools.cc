@@ -6,6 +6,7 @@
 #include "Tools.hh"
 #include "Iaas_deltacloud.hh"
 #include "SeD_deltacloud.hh"
+#include "DIET_server.h"
 #include "DIET_uuid.hh"
 #include <unistd.h>
 #include <iostream>
@@ -570,13 +571,6 @@ OpenStackVMInstances::OpenStackVMInstances(std::string image_id, int vm_count, s
 
 
 #ifdef USE_LOG_SERVICE
-
-typedef struct
-{
-  ServiceWrapper* serviceWrapper;
-  char* vmIP;
-  char* vmUserName;
-} wrapped_service_log;
 
 std::vector<wrapped_service_log> wrappedServicesList;
 

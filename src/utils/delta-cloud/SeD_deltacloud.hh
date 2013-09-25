@@ -40,8 +40,6 @@
 
 typedef int (* dietcloud_callback_t)(diet_profile_t*);
 
-class ServiceWrapper;
-
 /*typedef union {
 	int diet_profile_arg;
 	char* command_line_arg;
