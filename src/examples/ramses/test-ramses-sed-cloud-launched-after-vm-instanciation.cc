@@ -12,6 +12,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <iostream>
+#include <unistd.h>
 
 #include "SeD_deltacloud.hh"
 #include <string>

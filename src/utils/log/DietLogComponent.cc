@@ -589,7 +589,7 @@ DietLogComponent::createBoolArrayFalse(int size) {
 #ifdef DIET_USE_DELTACLOUD
 
 void DietLogComponent::logVMDeployStart(const IaaS::Image& image,
-    const char* cloudName, const char* vmId, const char* sedName) {
+    const char* cloudName, const char* vmId) {
   if (tagFlags[29]) {
     ostringstream out;
     out << cloudName << " " << vmId << " " << image.id;

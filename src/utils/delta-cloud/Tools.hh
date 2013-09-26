@@ -26,7 +26,7 @@
 #include "deltacloud_config.h"
 
 class ServiceWrapper;
-
+class DietLogComponent;
 
 //using namespace std;
 //using namespace xercesc;
@@ -79,6 +79,10 @@ std::string copy_to_tmp_file(const std::string& src, const std::string& ext);
 
 #ifdef USE_LOG_SERVICE
 // Log Utilities
+
+DietLogComponent*
+get_log_component();
+
 typedef struct
 {
   ServiceWrapper* serviceWrapper;
@@ -93,6 +97,8 @@ void
 logVMServiceWrapped(
     const ServiceWrapper& serviceWrapper, const char* vmIP,
     const char* vmUserName);
+
+
 #endif // USE_LOG_SERVICE
 
 
