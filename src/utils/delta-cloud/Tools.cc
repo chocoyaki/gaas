@@ -8,6 +8,8 @@
 #include "SeD_deltacloud.hh"
 #include "DIET_server.h"
 #include "DIET_uuid.hh"
+#include "DagdaFactory.hh"
+
 #include <unistd.h>
 #include <iostream>
 #include <stdio.h>
@@ -571,6 +573,14 @@ OpenStackVMInstances::OpenStackVMInstances(std::string image_id, int vm_count, s
 
 
 #ifdef USE_LOG_SERVICE
+
+DietLogComponent *
+get_log_component() {
+  if (DagdaFactory::getSeDDataManager() == NULL) {
+    return NULL;
+  }
+  return DagdaFactory::getSeDDataManager()->getLogComponent();
+}
 
 std::vector<wrapped_service_log> wrappedServicesList;
 

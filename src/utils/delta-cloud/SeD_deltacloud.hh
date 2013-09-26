@@ -19,33 +19,6 @@
 #include "ServiceWrapper.hh"
 #include "SeDCloud.hh"
 
-#include <string>
-#include <vector>
-#include <map>
-
-#include "Instance.hh"
-#include "Tools.hh"
-
-#include <stdio.h>
-#include <set>
-
-#include "DagdaImpl.hh"
-#include "DagdaFactory.hh"
-
-#ifdef USE_LOG_SERVICE
-#include "DietLogComponent.hh"
-#endif
-
-#define HOMOGENEOUS_VM_INSTANCIATION_SERVICE "homogeneous_vm_instanciation"
-
-typedef int (* dietcloud_callback_t)(diet_profile_t*);
-
-/*typedef union {
-	int diet_profile_arg;
-	char* command_line_arg;
-} UServiceWrapperArgument;
-*/
-
 
 
 

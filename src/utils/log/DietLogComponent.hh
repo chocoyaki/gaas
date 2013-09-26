@@ -421,7 +421,7 @@ public:
 #ifdef DIET_USE_DELTACLOUD
 
   void
-  logVMDeployStart(const IaaS::Image & image, const char * cloudName, const char * vmId, const char * sedName);
+  logVMDeployStart(const IaaS::Image & image, const char * cloudName, const char * vmId);
 
   void
   logVMRunning(const IaaS::Instance & vmInstance);
