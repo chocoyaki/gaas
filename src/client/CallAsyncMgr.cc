@@ -556,6 +556,7 @@ CallAsyncMgr::CallAsyncMgr() {
 void
 CallAsyncMgr::setReqErrorCode(const diet_reqID_t reqID,
                               const diet_error_t error) {
+  WriterLockGuard r(errorMapLock);
   TRACE_TEXT(TRACE_ALL_STEPS, "debug : setReqErrorCode; reqID =  " << reqID <<
              ", error = " << error << "\n");
   errorMap[reqID] = error;
@@ -592,6 +593,7 @@ CallAsyncMgr::setReqErrorCode(const diet_reqID_t reqID,
 **********************************************************************/
 diet_error_t
 CallAsyncMgr::getReqErrorCode(const diet_reqID_t reqID) {
+  ReaderLockGuard r(errorMapLock);
   // check if the request ID is valid
   if (caList.find(reqID) == caList.end()) {
     return GRPC_INVALID_SESSION_ID;
@@ -610,6 +612,7 @@ CallAsyncMgr::getReqErrorCode(const diet_reqID_t reqID) {
 **********************************************************************/
 diet_error_t
 CallAsyncMgr::getFailedSession(diet_reqID_t *reqIdPtr) {
+  WriterLockGuard r(errorMapLock);
   if (failedSessions.empty()) {
     *reqIdPtr = GRPC_SESSIONID_VOID;
     return GRPC_NO_ERROR;
