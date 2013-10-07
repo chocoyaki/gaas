@@ -1,0 +1,59 @@
+<dag>
+		
+		
+		
+		<!--here we instanciate 2 ramses VM-->
+		
+	<node id="node-init-vms" path="homogeneous_vm_instanciation">
+		<arg name="vm_collection_name" type="DIET_STRING" value="ramsesCollection"/>
+		<arg name="vm_count" type="DIET_INT" value="2"/>
+		<arg name="vm_image_id" type="DIET_STRING" value="66c118d3-a7a5-4df5-a578-c1dc7a2bfd39"/>
+		<arg name="vm_profile" type="DIET_STRING" value="10"/>
+		<arg name="deltacloud_api_url" type="DIET_STRING" value="http://localhost:3001/api"/>
+		<arg name="deltacloud_user_name" type="DIET_STRING" value="admin+admin"/>
+		<arg name="deltacloud_passwd" type="DIET_STRING" value="changeme"/>
+		<arg name="vm_user" type="DIET_STRING" value="adi"/>
+		<arg name="is_ip_private" type="DIET_INT" value="1"/>
+		<arg name="keyname" type="DIET_STRING" value="ramses_key"/>
+		<out name="ips" type="DIET_FILE"/>
+	</node>
+	
+	
+	<node id="node-init-vm-nfs-server" path="homogeneous_vm_instanciation">
+		<arg name="vm_collection_name" type="DIET_STRING" value="debianCollection"/>
+		<arg name="vm_count" type="DIET_INT" value="1"/>
+		<arg name="vm_image_id" type="DIET_STRING" value="bce9225d-5efa-41a1-8c6e-9a42a234eea8"/>
+		<arg name="vm_profile" type="DIET_STRING" value="9"/>
+		<arg name="deltacloud_api_url" type="DIET_STRING" value="http://localhost:3001/api"/>
+		<arg name="deltacloud_user_name" type="DIET_STRING" value="admin+admin"/>
+		<arg name="deltacloud_passwd" type="DIET_STRING" value="changeme"/>
+		<arg name="vm_user" type="DIET_STRING" value="root"/>
+		<arg name="is_ip_private" type="DIET_INT" value="1"/>
+		<arg name="keyname" type="DIET_STRING" value="ramses_key"/>
+		<out name="ips" type="DIET_FILE"/>
+	</node>
+	
+	
+	<node id="node-mount-nfs" path="mount_nfs">
+		<in name="nfs-server-ip" type="DIET_FILE" source="node-init-vm-nfs-server#ips"/>
+		<in name="nfs-client-ips" type="DIET_FILE" source="node-init-vms#ips"/>
+		<arg name="shared_folder" type="DIET_STRING" value="/home/lamiel/shared"/>
+		<arg name="mount_point" type="DIET_STRING" value="/home/adi/pub"/>
+		<out name="nfs-client-ips2" type="DIET_FILE"/>
+	</node>
+	
+	<node id="preprocess1" path="add_seq_in_data_xml">
+		<arg name="config_xml_in" type="DIET_FILE" value="/root/diet/src/examples/ramses/expe_sed_ramses_config.xml"/>
+		<in name="ips" type="DIET_FILE" source="node-init-vms#ips"/>
+		<arg name="tag_name" type="DIET_STRING" value="ip"/>
+		<out name="config_xml_out" type="DIET_FILE"/>
+	</node>
+	
+	<node id="launch-sed-ramses" path="launch_another_sed">
+		<arg name="sed-executable-path" type="DIET_STRING" value="/root/diet/build/bin/test-ramses-sed-cloud-launched-after-vm-instanciation"/>
+		<arg name="cfg" type="DIET_FILE" value="/root/diet/etc/SeDconnectToMa.cfg"/>
+		<in name="data_input_file" type="DIET_FILE" source="preprocess1#config_xml_out"/>
+		<out name="success01" type="DIET_INT"/>
+	</node>
+  
+</dag>
