@@ -696,11 +696,11 @@ diet_SeD(const char *config_file_name, int argc, char *argv[]) {
 #ifdef USE_LOG_SERVICE
   dataManager->setLogComponent(dietLogComponent);  // modif bisnard_logs_1
 #ifdef DIET_USE_DELTACLOUD
- BOOST_FOREACH(wrapped_service_log entry, wrappedServicesList) {
    if (dietLogComponent != NULL) {
-     dietLogComponent->logVMServiceWrapped(*entry.serviceWrapper, entry.vmIP, entry.vmUserName);
+     BOOST_FOREACH(wrapped_service_log entry, wrappedServicesList) {
+       dietLogComponent->logVMServiceWrapped(*entry.serviceWrapper, entry.vmIP, entry.vmUserName);
+     }
    }
- }
 #endif // DIET_USE_DELTACLOUD
 #endif
 

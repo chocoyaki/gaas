@@ -483,15 +483,16 @@ Instance* VMInstances::get_instance(int i) {
 
 
 
-
 int VMInstances::test_ssh_connection(int i, bool is_private_ip) {
 	bool result = test_ssh_connection_by_id(interf, vm_user, get_instance_id(i), is_private_ip);
 
 #ifdef USE_LOG_SERVICE
 	if (result == 0) {
 		Instance* instance = get_instance(i);
-		//DietLogComponent* component = get_log_component();
-		//component->logVMOSReady(*instance);
+		DietLogComponent* component = get_log_component();
+		if (component != NULL) {
+		  component->logVMOSReady(*instance);
+		}
 		delete instance;
 	}
 #endif
@@ -590,10 +591,10 @@ logVMServiceWrapped(const ServiceWrapper& serviceWrapper, const char* vmIP,
   wrapped_service_log entry ;
   entry.serviceWrapper = new ServiceWrapper(serviceWrapper);
 
-  entry.vmIP = (char*) malloc(sizeof(char) *strlen(vmIP));
+  entry.vmIP = (char*) malloc(sizeof(char) *(strlen(vmIP)+1));
   strcpy(entry.vmIP, vmIP);
 
-  entry.vmUserName = (char*) malloc(sizeof(char) *strlen(vmUserName));
+  entry.vmUserName = (char*) malloc(sizeof(char) *(strlen(vmUserName)+1));
   strcpy(entry.vmUserName, vmUserName);
 
   wrappedServicesList.push_back(entry);

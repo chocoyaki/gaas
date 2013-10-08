@@ -588,6 +588,14 @@ DietLogComponent::createBoolArrayFalse(int size) {
 
 #ifdef DIET_USE_DELTACLOUD
 
+std::string
+getInstanceIp(const IaaS::Instance& vmInstance) {
+  if (vmInstance.private_ip.compare("???.???.???.???") == 0) {
+    return vmInstance.public_ip;
+  }
+  return vmInstance.private_ip;
+}
+
 void DietLogComponent::logVMDeployStart(const IaaS::Image& image,
     const char* cloudName, const char* vmId) {
   if (tagFlags[29]) {
@@ -600,7 +608,7 @@ void DietLogComponent::logVMDeployStart(const IaaS::Image& image,
 void DietLogComponent::logVMRunning(const IaaS::Instance& vmInstance) {
   if (tagFlags[30]) {
     ostringstream out;
-    out << vmInstance.id;
+    out << vmInstance.id << " " << getInstanceIp(vmInstance);
     log(tagNames[30], out.str().c_str());
    }
 }

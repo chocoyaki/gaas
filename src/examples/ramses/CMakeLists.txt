@@ -26,7 +26,7 @@ endif()
   FOREACH( loop_var ${CC_DIET_CLIENT_EXAMPLES} )
     ADD_EXECUTABLE( ${loop_var} ${loop_var}.cc )
     TARGET_LINK_LIBRARIES( ${loop_var} ${DIET_CLIENT_LIBRARIES} )
-    INSTALL( TARGETS ${loop_var} DESTINATION ${EXAMPLE_INSTALL_DIR}/delta-cloud )
+    INSTALL( TARGETS ${loop_var} DESTINATION ${EXAMPLE_INSTALL_DIR}/ramses )
   ENDFOREACH( loop_var )
 
 

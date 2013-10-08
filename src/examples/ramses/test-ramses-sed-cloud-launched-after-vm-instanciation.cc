@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <iostream>
+#include <fstream>
 #include <unistd.h>
 
 #include "SeD_deltacloud.hh"
@@ -21,6 +22,9 @@
 
 #include "Instance.hh"
 #include "Tools.hh"
+
+#include "DIET_uuid.hh"
+#include <libgen.h>
 
 
 
@@ -104,7 +108,6 @@ void add_common_services(const std::string& username, const std::string& ip) {
 #endif
 
 
-	diet_print_service_table();
 
 	//std::cout << "<<<<<<<<<<<<<<<<<<<" << grafic1_service_wrapper << "\n";
 }
@@ -121,7 +124,7 @@ main(int argc, char *argv[]) {
 	}
 	config_xml = argv[2];
 
-	printf("argument number: Ok\n");
+	printf("argument number: Ok : %s, %s\n", argv[1],argv[2]);
 	/* Initialize table with maximum 20 service */
 	diet_service_table_init(20);
 
@@ -133,13 +136,13 @@ main(int argc, char *argv[]) {
 	username = strdup(read_element_from_xml(config_xml, "user_name").c_str());
 	std::cout<<"username=" << username << "\n";
 
-	for(int i = 1; i < ips.size(); i++) {
+	for(std::size_t i = 1; i < ips.size(); i++) {
 		pid_t pid = fork();
 		if (pid == 0) {
 			//child process
 			//we create a SedCloudMachinesActions
 			std::string ip = ips[i];
-
+//TODO Check environnement !!
 			std::vector<std::string> one_ip;
 			one_ip.push_back(ip);
 			SeDCloudMachinesActions* machine_action = new SeDCloudMachinesActions(one_ip, username);
@@ -148,6 +151,36 @@ main(int argc, char *argv[]) {
 			add_common_services(username, ip);
 
 			diet_print_service_table();
+
+		  char * cfg_path = new char[strlen(argv[1])+1];
+		  strcpy(cfg_path, argv[1]);
+
+		    boost::uuids::uuid uuid = diet_generate_uuid();
+		    std::ostringstream name;
+		    name << "SeDAppli-" << uuid;
+		    std::ostringstream cfg_copy_path;
+		    cfg_copy_path << dirname(cfg_path) << "/" << name.str() << ".cfg";
+		    // change the name in cfg
+		    std::ifstream cfg(argv[1]);
+		    std::ofstream tmp(cfg_copy_path.str().c_str());
+		    std::string line;
+
+		    std::cout << argv[1] << " -> " << cfg_copy_path.str().c_str() << std::endl;
+		    while(std::getline(cfg, line)) {
+		        if (line.find("name") != std::string::npos) {
+		            line = "name = " + name.str();
+		        }
+		        std::cout << line << std::endl;
+		        tmp << line << '\n';
+		    }
+
+		    cfg.close();
+		    tmp.close();
+		    //delete [] cfg_path;
+		    //delete[] argv[1];
+		    argv[1] = new char[cfg_copy_path.str().size()+1];
+		    strcpy(argv[1], cfg_copy_path.str().c_str());
+
 			SeDCloud::launch(argc, argv);
 			//dead code in the child
 

@@ -14,11 +14,14 @@
 #include "DagdaFactory.hh"
 #include "DIET_uuid.hh"
 #include "Iaas_deltacloud.hh"
-
+#include "boost/filesystem.hpp"
+#include "debug.hh"
 
 #include <wait.h>
 #include <unistd.h>
 #include <libgen.h>
+
+extern char ** environ;
 
 SeDCloud* SeDCloud::instance = NULL;
 std::vector<CloudAPIConnection>* SeDCloud::cloud_api_connection_for_vm_destruction = NULL;
@@ -354,47 +357,64 @@ DIET_API_LIB int SeDCloud::service_launch_another_sed_add() {
 }
 
 int SeDCloud::launch_another_sed_solve(diet_profile_t* pb) {
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Launching another sed\n")
   char* cfg_path;
   size_t size;
   char* data_file_path;
   char* sed_executable_path;
 
   diet_string_get(diet_parameter(pb, 0), &sed_executable_path, NULL);
-  diet_file_get(diet_parameter(pb, 1), &cfg_path, NULL, &size);
+  //diet_file_get(diet_parameter(pb, 1), &cfg_path, NULL, &size);
   diet_file_get(diet_parameter(pb, 2), &data_file_path, NULL, &size);
 
   std::string data_copy_path = copy_to_tmp_file(data_file_path, ".dat");
-  std::string cfg_copy_path = copy_to_tmp_file(cfg_path, ".cfg");
+  std::cout << "Copying data_file_path " << data_file_path << " to " << data_copy_path << std::endl;
+  cfg_path = new char[SeDCloud::instance->config_file.length()+1];
+  strcpy(cfg_path, SeDCloud::instance->config_file.c_str());
 
-  pid_t pid = fork();
+    boost::uuids::uuid uuid = diet_generate_uuid();
+    std::ostringstream name;
+    name << "SeDAppli-" << uuid;
+    std::ostringstream cfg_copy_path;
+    cfg_copy_path << dirname(cfg_path) << "/" << name.str() << ".cfg";
+    // change the name in cfg
+    std::ifstream cfg(SeDCloud::instance->config_file.c_str());
+    std::ofstream tmp(cfg_copy_path.str().c_str());
+    std::string line;
 
-  if (pid == 0) {
-    //in the process child
-    int env;
+    std::cout << SeDCloud::instance->config_file.c_str() << " -> " << cfg_copy_path.str().c_str() << std::endl;
+    while(std::getline(cfg, line)) {
+        if (line.find("name") != std::string::npos) {
+            line = "name = " + name.str();
+        }
+        std::cout << line << std::endl;
+        tmp << line << '\n';
+    }
 
+    cfg.close();
+    tmp.close();
     int nb_args = pb->last_in + 1;
     char** argv = new char* [nb_args + 2];
     char* sed_path_base_name = basename(sed_executable_path);
     argv[0] = sed_path_base_name;
-    argv[1] = const_cast<char*> (cfg_copy_path.c_str());
+    argv[1] = const_cast<char*> (cfg_copy_path.str().c_str());
     argv[2] = const_cast<char*> (data_copy_path.c_str());
     argv[3] = NULL;
 
+    pid_t pid = fork();
 
-//    printf("inside fork\n");
-//    std::string d_cmd = "cat ";
-//    d_cmd.append(data_copy_path);
-//    env = system(d_cmd.c_str());
+    if (pid == 0) {
+      //in the process child
 
-    env = execv(sed_executable_path, argv);
+    int resExec = execve(sed_executable_path, argv, environ);
 
     //should not arrive here
-    printf("erreur #%i execution execv inside children process\n", env);
+    printf("erreur #%i execution execv inside children process\n", resExec);
     exit(-1);
   }
   else {
     if (pid > 0) {
-      printf("fork executing: success\n");
+      TRACE_TEXT(TRACE_MAIN_STEPS, "fork executing: success\n");
       int* child_status = new int;
 
       //TODO check if it always does its job
@@ -439,20 +459,24 @@ int SeDCloud::homogeneous_vm_instanciation_solve(diet_profile_t *pb) {
   params.push_back(IaaS::Parameter(HARDWARE_PROFILE_ID_PARAM, vm_profile));
 
 
-  printf("instanciation : image='%s', profile='%s', vm_count=%i, is_ip_private=%i\n", vm_image, vm_profile, *vm_count, *is_ip_private);
+  printf("Instanciation : image='%s', profile='%s', vm_count=%i, is_ip_private=%i\n", vm_image, vm_profile, *vm_count, *is_ip_private);
+  printf("Instanciations starting\n");
   IaaS::VMInstances* instances;
   std::vector<std::string> ips;
   instances = new IaaS::VMInstances(vm_image, *vm_count, deltacloud_api_url, deltacloud_user_name, deltacloud_passwd, vm_user, params);
+  printf("Instanciations created\n");
   instances->wait_all_instances_running();
+  printf("Instanciations running\n");
   instances->wait_all_ssh_connection(*is_ip_private);
+  printf("Instanciations ssh ok\n");
   instances->get_ips(ips, *is_ip_private);
 
-
+  printf("Instanciation almost done\n");
   std::string diet_tmp_ips_file = create_tmp_file(pb, ".txt");
   write_lines(ips, diet_tmp_ips_file);
   diet_file_set(diet_parameter(pb, 9), diet_tmp_ips_file.c_str(), DIET_PERSISTENT_RETURN);
 
-
+  printf("Instanciation done");
 
 
 
@@ -544,7 +568,7 @@ int SeDCloud::homogeneous_vm_instanciation_with_keyname_solve(diet_profile_t *pb
   //one creates the vm instances
 
 
-  printf("instanciation : image='%s', profile='%s', vm_count=%i, keyname=%s\n", vm_image, vm_profile, *vm_count, keyname);
+  printf("Instanciation : image='%s', profile='%s', vm_count=%i, keyname=%s\n", vm_image, vm_profile, *vm_count, keyname);
 
   std::vector<IaaS::Parameter> params;
   params.push_back(IaaS::Parameter(HARDWARE_PROFILE_ID_PARAM, vm_profile));

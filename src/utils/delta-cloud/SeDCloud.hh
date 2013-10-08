@@ -47,6 +47,10 @@ public:
 
 
     static void launch(int argc, char* argv[]) {
+      // Assuming config file is the first arg
+      // We need the name to launch seds from SeDCloud
+      SeDCloud::instance->config_file = std::string(argv[1]);
+
         SeDCloud::instance->actions->perform_action_on_sed_launch();
         diet_SeD(argv[1], argc, argv);
 
@@ -141,6 +145,8 @@ protected:
   static int launch_another_sed_solve(diet_profile_t* pb);
 
   static int homogeneous_vm_instanciation_with_keyname_solve(diet_profile_t *pb);
+
+  std::string config_file;
 
   //TODO to link to user or group
   //static std::map<std::string, IaaS::VMInstances*> reserved_vms;
