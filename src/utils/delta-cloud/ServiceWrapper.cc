@@ -159,7 +159,8 @@ int service_wrapper_solve2(diet_profile_t* pb) {
 
   const std::string& path_of_executable = binary.executable_path;
 
-  std::string cmd = path_of_executable;
+  std::string cmd = "sh ";
+  cmd.append(path_of_executable);
   const std::vector<ServiceWrapperArgument>& service_wrapper_args = binary.get_args();
   for(int i = 0; i < nb_args; i++) {
 
