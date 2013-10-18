@@ -1,9 +1,9 @@
 /*
  * @file SeDCloud.cc
  *
- * @brief  
+ * @brief
  *
- * @author  Guillaume Verger (guillaume.verger@inria.fr)
+ * @author  Lamiel Toch (lamiel.toch@es-lyon.fr) Guillaume Verger (guillaume.verger@inria.fr)
  *
  * @section Licence
  *   |LICENCE|
@@ -20,6 +20,19 @@
 #include <wait.h>
 #include <unistd.h>
 #include <libgen.h>
+
+
+/*
+* TODO : create a service like "destroy_CloudX" when linking a SeDCloud to a CloudX...
+*
+*
+*
+*
+*
+*
+*
+*/
+
 
 extern char ** environ;
 
