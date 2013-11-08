@@ -97,9 +97,6 @@ option(DIET_BUILD_DOC "Build DIET documentation." OFF)
 
 option(DIET_USE_SECURITY "Use security layer." OFF)
 
-option(DIET_USE_MAC_SECURITY "Build DIET with Mandatory Access Control security support." OFF)
-
-
 
 # --------------------- OPTIONS SET BY DEFAULT  ----------------------------
 # Are libraries dynamic libraries as opposed to library archives ?
@@ -568,26 +565,5 @@ if(NOT WIN32)
   # Finally include CPack
   include(CPack)
 endif()
-
-
-if(DIET_USE_SELINUX)
-  find_package(SELinux)
-  add_definitions(-DHAVE_SELINUX)
-  
-  if(NOT DIET_USE_MAC_SECURITY)
-    set(DIET_USE_MAC_SECURITY ON CACHE BOOL "MAC support" FORCE)
-    message(WARNING "MAC security support was activated for SELinux support.")
-  endif()
-  option(DIET_USE_MAC_SECURITY "Build DIET with MAC support (Mandatory for SELinux support)." ON)
-else()
-  option(DIET_USE_MAC_SECURITY  "Build DIET with MAC support." OFF)
-endif()
-
-
-if(DIET_USE_MAC_SECURITY)
-    add_definitions(-DHAVE_MAC_SECURITY)
-endif()
-
-
 
 ## eof - CMakeLists.txt
