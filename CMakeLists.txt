@@ -95,6 +95,9 @@ mark_as_advanced(DIET_USE_MULTICALL)
 
 option(DIET_BUILD_DOC "Build DIET documentation." OFF)
 
+option(DIET_USE_SECURITY "Use security layer." OFF)
+
+
 # --------------------- OPTIONS SET BY DEFAULT  ----------------------------
 # Are libraries dynamic libraries as opposed to library archives ?
 # Note: this variable is a cmake internal, hence not prefixed with DIET_.
@@ -237,7 +240,7 @@ endif()
 set(CMAKE_MODULE_PATH ${DIET_SOURCE_DIR}/cmake)
 
 # Boost is mandatory
-find_package(Boost 1.46.0 COMPONENTS filesystem regex system thread REQUIRED)
+find_package(Boost 1.46.0 COMPONENTS filesystem regex system thread program_options REQUIRED)
 # Boost Filesystem API v2 is deprecated will be removed after Boost 1.48 release
 add_definitions(-DBOOST_FILESYSTEM_VERSION=3)
 if(Boost_FOUND)
@@ -258,6 +261,7 @@ endif()
 
 # OmniORB is mandatory:
 find_package(OmniORB4 REQUIRED)
+
 
 # --------------------------- Batch support ------------------------
 if(DIET_USE_ALT_BATCH)
@@ -292,8 +296,13 @@ endif()
 # --------------------------- Statistic support ------------------------
 if(DIET_WITH_STATISTICS)
   # Enable generation of the statistics log:
-  add_definitions(-DHAVE_STATISTICS)
+  # add_definitions(-DHAVE_STATISTICS)
+  set(HAVE_STATISTICS ON)
 endif()
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/utils/cmake_variables/stats_config.h.in
+ ${CMAKE_CURRENT_BINARY_DIR}/src/utils/cmake_variables/stats_config.h)
+
 
 if(DIET_BUILD_BLAS_EXAMPLES)
   # BLAS (Basic Linear Algebric Subroutines) examples subdir requires...BLAS !
@@ -376,6 +385,17 @@ endif(DIET_USE_CCS)
 if(DIET_USE_MULTICALL)
   add_definitions(-DHAVE_MULTICALL)
 endif(DIET_USE_MULTICALL)
+
+# --------------------------- Security support ------------------------
+# add_definitions -> full rebuild if the option is changed. How to avoid full rebuild?
+#if(DIET_USE_SECURITY)
+#  add_definitions(-DHAVE_SECURITY)
+#endif(DIET_USE_SECURITY)
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/utils/cmake_variables/security_config.h.in
+ ${CMAKE_CURRENT_BINARY_DIR}/src/utils/cmake_variables/security_config.h)
+include_directories("${CMAKE_CURRENT_BINARY_DIR}/src/utils/cmake_variables/")
+
 
 # --------------- OFFER BUILD MODE EXTENSIONS AND DEFAULTS  ----------------
 include(${DIET_SOURCE_DIR}/cmake/DietDefaultBuildTypes.cmake)

@@ -208,6 +208,9 @@ nb_retry(const std::string &nb, Configuration *cfg);
 void
 tunnel_wait(const std::string &time, Configuration *cfg);
 
+void
+cfg_path(const std::string &path, Configuration *cfg);
+
 /* Transformation function for the host name. */
 int
 change(int c);

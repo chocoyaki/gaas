@@ -14,6 +14,7 @@ add_latex_document(UsersManual.tex
   deploy.tex
   dashboard.tex
   multima.tex
+  security.tex
   workflow.tex
   xml_example.tex
   agent_scheduler.tex

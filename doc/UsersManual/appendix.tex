@@ -123,7 +123,7 @@ checkpointing is possible.
   \item Mode: All
   \item Type: Boolean
   \item Description: force clients rebinding into CORBA Naming Service
-    (default~: true).
+    (default:~true).
   \end{itemize}
 
 %%%% G
@@ -351,6 +351,24 @@ are 0 or 1. By default, no file loading on start - 0.
 (when the path is accessible by them, for example, if the storage directory is
 on a NFS partition). Value can be 0 or 1.  By default no file sharing - 0.
   \end{itemize}
+  
+
+\item{\bf{sslRootCertificate} \label{appendix_ssl}}
+  \begin{itemize}
+  \item Component: All
+  \item Mode: Security
+  \item Type: String
+  \item Description: The file containing the certificate of the authority
+  \end{itemize}
+  
+\item{\bf{sslPrivateKey}}
+  \begin{itemize}
+  \item Component: All
+  \item Mode: Security
+  \item Type: String
+  \item Description: The file containing the private key and the certificate signed by the authority
+  \end{itemize}
+  
 
 \item{\bf{storageDirectory}}
   \begin{itemize}
@@ -437,33 +455,6 @@ on a NFS partition). Value can be 0 or 1.  By default no file sharing - 0.
 %%%% Y
 
 %%%% Z
-
-
-
-
-
-% OUTDATED
-%
-% \item{\bf{USEWFLOGSERVICE}}
-%   \begin{itemize}
-%   \item Component: 
-%   \item Mode: Workflow
-%   \item Type: String
-%   \item Description: ?
-%   \end{itemize}
-% \fixme{USEWFLOGSERVICE a été supprimé, mais est ce que c'est bien plus utilisé,
-% j'ai fait un grep sur le code et je ne trouve d'occurence plus que dans le
-% parser, donc je dirais que c'est outdated. A valider}
-
-
-
-
-
-
-
-
-
-
 
 \end{description}
 

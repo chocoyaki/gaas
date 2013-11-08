@@ -11,10 +11,16 @@
 
 #ifndef ORBMGR_HH
 #define ORBMGR_HH
+// CMake Variables
+#include "security_config.h"
 
 #include <string>
 #include <map>
 #include <list>
+
+#ifdef DIET_USE_SECURITY
+#include "DIETSecurityManager.hh"
+#endif
 
 #include <omniORB4/CORBA.h>
 #include <sys/types.h>
@@ -43,7 +49,7 @@
 #endif
 
 class DIET_API_LIB ORBMgr {
-public:
+private:
   /* Constructors. */
   ORBMgr(int argc, char *argv[]);
 
@@ -54,6 +60,7 @@ public:
 
   /* Destructor. */
   ~ORBMgr();
+public:
 
   /* Bind the object using its ctxt/name */
   void
@@ -159,6 +166,9 @@ public:
   static void
   init(int argc, char *argv[]);
 
+  static void
+  kill();
+
   static ORBMgr *
   getMgr();
 
@@ -237,6 +247,11 @@ private:
   mutable std::map<std::string, CORBA::Object_ptr> cache;
   /* Cache mutex. */
   mutable omni_mutex cacheMutex;
+
+#ifdef DIET_USE_SECURITY
+  /* Security Manager in charge of filtering connections */
+  DIETSecurityManager secMgr;
+#endif
 
   /* The manager instance. */
   static ORBMgr *theMgr;

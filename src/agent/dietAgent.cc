@@ -129,11 +129,18 @@ main(int argc, char *argv[], char *envp[]) {
                                "parent name"};
 
   CmdEntry agentTraceLevelEntry = {CmdParser::Option,
-                                   CmdParser::Optional,
-                                   "traceLevel",
-                                   "trace-level",
-                                   "t",
-                                   "trace level (integer)"};
+                                     CmdParser::Optional,
+                                     "traceLevel",
+                                     "trace-level",
+                                     "t",
+                                     "trace level (integer)"};
+
+  CmdEntry securityLevelEntry = {CmdParser::Option,
+                                     CmdParser::Optional,
+                                     "securityLevel",
+                                     "security-level",
+                                     "s",
+                                     "security level (COM for encrypted communications"};
 
 
   CmdConfig cmdConfig;
@@ -142,6 +149,7 @@ main(int argc, char *argv[], char *envp[]) {
   cmdConfig.push_back(agentNameEntry);
   cmdConfig.push_back(agentParentEntry);
   cmdConfig.push_back(agentTraceLevelEntry);
+  cmdConfig.push_back(securityLevelEntry);
 
   cmdParser.setConfig(cmdConfig);
   cmdParser.enableHelp(true);
@@ -200,8 +208,9 @@ main(int argc, char *argv[], char *envp[]) {
 
   /* Copy input parameters into internal structure */
   for (int i = 0; i < argc; i++) {
-    ins(argv[i]);
+	  ins(argv[i]);
   }
+
 
   /* Get listening port & hostname */
   int port;
@@ -209,15 +218,18 @@ main(int argc, char *argv[], char *envp[]) {
   bool hasPort = CONFIG_INT(diet::DIETPORT, port);
   bool hasHost = CONFIG_STRING(diet::DIETHOSTNAME, host);
   if (hasPort || hasHost) {
-    std::ostringstream endpoint;
-    ins("-ORBendPoint");
-    endpoint << "giop:tcp:" << host << ":";
-    if (hasPort) {
-      endpoint << port;
-    }
-
-    ins(endpoint);
+      std::ostringstream endpoint;
+      ins("-ORBendPoint");
+      endpoint << "giop:tcp:" << host << ":";
+      if (hasPort) {
+        endpoint << port;
+      }
+      ins(endpoint);
+  } else {
+    ins("-ORBendPointPublish");
+    ins("all(addr)");
   }
+
 
   /* Get the traceLevel */
   if (TRACE_LEVEL >= TRACE_MAX_VALUE) {
@@ -349,7 +361,7 @@ main(int argc, char *argv[], char *envp[]) {
   /* shutdown and destroy the ORB
    * Servants will be deactivated and deleted automatically
    */
-  delete ORBMgr::getMgr();
+  ORBMgr::kill();
 
   std::for_each(args.begin(), args.end(), CStringDeleter());
 

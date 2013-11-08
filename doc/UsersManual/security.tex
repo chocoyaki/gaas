@@ -1,0 +1,45 @@
+%**
+%*  @file  security.tex
+%*  @brief   DIET User's Manual Security chapter file 
+%*  @author  - Guillaume Verger (guillaume.verger@inria.fr) 
+%*  @section Licence 
+%*    |LICENSE|
+
+\chapter{Security extension}
+\label{ch:Securityextension}
+
+In this chapter, we introduce the security extension of \diet. It is 
+possible to use encrypted communications between agents, \seds and clients. 
+To do so, we need and authority able to deliver signed certificates. Each 
+entity will then have a certificate, which will ensure its authentication.
+
+\section{Preparing the files}
+
+Communications in \diet are handled by Corba. In order to have secured 
+communications in \diet, we have to specify Corba we use ssl, and then 
+provides keys and certificates to use it.
+
+\subsection{Defining an authority}
+
+For a component to register to the \diet hierarchy, it will need to be 
+authenticated for its parent to accept the connection. This can be achieved 
+by exhibiting a signed certificate from a known authority. This means each
+entity has the certificate of the authority (which is public), a private key and
+a certificate generated thanks to this private key and signed by the authority.
+
+\section{Setting the configuration files}
+
+The instructions about how to compile \diet with the Security extension are 
+available in Section~\ref{sec:securityinstall} and the configuration 
+instructions are available in Section~\ref{sec:securityconfig}.
+An example of scripts generating the certificates and the configuration
+files is available in \verb+src/sexamples/security/+.
+
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% ispell-local-dictionary: "american"
+%%% mode: flyspell
+%%% fill-column: 79
+%%% End:

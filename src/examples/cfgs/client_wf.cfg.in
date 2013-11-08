@@ -6,6 +6,20 @@
 #****************************************************************************#
 
 #****************************************************************************#
+# ssl options for the DIET client
+# sslEnabled
+#		0 disable DIET secu
+#		1 enable DIET secu
+# 	
+# sslRootCertificate : The path of the root certificate
+# sslPrivateKey : The path of the client's private key
+#****************************************************************************#
+
+sslEnabled = 1
+sslRootCertificate = /home/avarga/Documents/diet.git/src/examples/security/certificates/client/cacert.pem
+sslPrivateKey = /home/avarga/Documents/diet.git/src/examples/security/certificates/client/private/client.pem
+
+#****************************************************************************#
 # traceLevel for the DIET client library:
 #    0  DIET do not print anything, not even warning and error messages.
 #    1  DIET only prints warnings and errors on the standard error output.

@@ -11,6 +11,8 @@
 
 #include "DIETForwarder.hh"
 #include "ORBMgr.hh"
+#include "configuration.hh"
+#include "DIET_grpc.h"
 #include "SSHTunnel.hh"
 #include "Options.hh"
 
@@ -34,8 +36,35 @@
 #ifdef __WIN32__
 #define sleep(value) (Sleep(value*1000))
 #endif
+
+
+template <typename C>
+class CStringInserter {
+private:
+C &c_;
+public:
+explicit
+CStringInserter(C &c): c_(c) {
+}
+
+void
+operator()(const char *cstr) {
+  c_.push_back(strdup(cstr));
+}
+
+void
+operator()(std::ostringstream &oss) {
+  char *cstr = strdup(oss.str().c_str());
+  c_.push_back(cstr);
+}
+};
+
 int
 main(int argc, char *argv[], char *envp[]) {
+
+  std::vector<char *> args;
+  CStringInserter<std::vector<char *> > ins(args);
+
   /* Forwarder configuration. */
   FwrdConfig cfg(argv[0]);
 
@@ -53,6 +82,9 @@ main(int argc, char *argv[], char *envp[]) {
   /* Optionnal, set waiting time for tunnel creation */
   opt.setOptCallback("--tunnel-wait", tunnel_wait);
 
+  opt.setOptCallback("--net-config", cfg_path);
+
+
   /* Optionnal */
   opt.setOptCallback("--ssh-port", ssh_port);
   opt.setOptCallback("--ssh-login", ssh_login);
@@ -61,6 +93,7 @@ main(int argc, char *argv[], char *envp[]) {
   /* Optionnal parameters/flags. */
   opt.setOptCallback("--nb-retry", nb_retry);
   opt.setOptCallback("--peer-ior", peer_ior);
+
 
   opt.processOptions();
   if (cfg.getSshHost() != "") {
@@ -101,7 +134,43 @@ main(int argc, char *argv[], char *envp[]) {
   } catch (std::exception &e) {
     ERROR_DEBUG(e.what(), EXIT_FAILURE);
   }
-  ORBMgr::init(argc, argv);
+
+  // get configuration file
+  const std::string &configFile = cfg.getCfgPath();
+
+  FileParser fileParser;
+  try {
+    fileParser.parseFile(configFile);
+  } catch (...) {
+    ERROR_DEBUG("while parsing " << configFile, GRPC_CONFIGFILE_ERROR);
+  }
+
+  CONFIGMAP = fileParser.getConfiguration();
+
+  /* Copy input parameters into internal structure */
+  for (int i = 0; i < argc; i++) {
+    ins(argv[i]);
+  }
+
+  /* Get listening port & hostname */
+  int port;
+  std::string host;
+  bool hasPort = CONFIG_INT(diet::DIETPORT, port);
+  bool hasHost = CONFIG_STRING(diet::DIETHOSTNAME, host);
+  if (hasPort || hasHost) {
+      std::ostringstream endpoint;
+      ins("-ORBendPoint");
+      endpoint << "giop:tcp:" << host << ":";
+      if (hasPort) {
+        endpoint << port;
+      }
+      ins(endpoint);
+  } else {
+    ins("-ORBendPointPublish");
+    ins("all(addr)");
+  }
+
+  ORBMgr::init(args.size(), &args[0]);
   ORBMgr *mgr = ORBMgr::getMgr();
   std::string ior;
   int count = 0;
@@ -281,7 +350,7 @@ main(int argc, char *argv[], char *envp[]) {
   /* shutdown and destroy the ORB
    * Servants will be deactivated and deleted automatically
    */
-  delete ORBMgr::getMgr();
+  ORBMgr::kill();
 
   TRACE_TEXT(TRACE_MAIN_STEPS, "Forwarder is now terminated" << std::endl);
 
@@ -424,6 +493,11 @@ tunnel_wait(const std::string &time, Configuration *cfg) {
   int n;
   is >> n;
   static_cast<FwrdConfig *>(cfg)->setWaitingTime(n);
+}
+
+void
+cfg_path(const std::string &path, Configuration *cfg) {
+  static_cast<FwrdConfig *>(cfg)->setCfgPath(path);
 }
 
 void

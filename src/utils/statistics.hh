@@ -10,7 +10,7 @@
  *   |LICENSE|
  */
 
-
+#include "stats_config.h"
 
 #ifndef _STATISTICS_HH_
 #define _STATISTICS_HH_

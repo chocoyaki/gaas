@@ -9,6 +9,10 @@
 *   |LICENSE|
 */
 
+// CMake Variables
+#include "security_config.h"
+
+
 #include <list>
 #include <map>
 #include <sstream>
@@ -182,11 +186,19 @@ get_omniorb_configuration(const std::vector<std::string>& args,
 
 
 ORBMgr::ORBMgr(int argc, char* argv[]) {
+
+
   const char* opts[][2]= {{0, 0}};
   std::vector<std::string> args;
+
   for (int j = 0; j < argc; ++j) {
     args.push_back(std::string(argv[j]));
   }
+
+#ifdef DIET_USE_SECURITY
+  secMgr.enableSecurity(argc, argv);
+#endif
+
 
   try {
     unsigned int maxGIOPConnectionPerServer =
@@ -208,9 +220,13 @@ ORBMgr::ORBMgr(int argc, char* argv[]) {
                "Unable to check OmniORB maxGIOPConnectionPerServer value.\n");
   }
 
-
-
+#ifdef DIET_USE_SECURITY
+  std::vector<char *> secuArgs = secMgr.getORBOptions();
+  int size = secuArgs.size();
+  ORB = CORBA::ORB_init(size, &secuArgs[0], "omniORB4", opts);
+#else
   ORB = CORBA::ORB_init(argc, argv, "omniORB4", opts);
+#endif
   init(ORB);
   down = false;
 }
@@ -802,6 +818,14 @@ void
 ORBMgr::init(int argc, char* argv[]) {
   if (!theMgr) {
     theMgr = new ORBMgr(argc, argv);
+  }
+}
+
+void
+ORBMgr::kill() {
+  if (theMgr) {
+    delete theMgr;
+    theMgr = NULL;
   }
 }
 
