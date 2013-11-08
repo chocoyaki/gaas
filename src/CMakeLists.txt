@@ -4,7 +4,7 @@
 include(UseOmniORB4)
 
 include_directories(
-  ${OMNIORB4_INCLUDE_DIRS}
+  ${OMNIORB4_INCLUDE_DIR}
   ${Boost_INCLUDE_DIRS}
   ${IDL_INCLUDE_DIRECTORIES}
   ../include

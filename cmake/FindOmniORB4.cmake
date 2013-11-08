@@ -140,9 +140,6 @@ set(OMNIORB4_FOUND "FALSE")
 if(OMNIORB4_INCLUDE_DIR AND 
     OMNIORB4_IDL_COMPILER)
   set(OMNIORB4_FOUND "TRUE")
-  set(OMNIORB4_INCLUDE_DIRS 
-      ${OMNIORB4_INCLUDE_DIR}
-      ${OMNIORB4_INCLUDE_DIR}/omniORB4/internal)
   
   foreach(lib_name ${omni_libs})
       if (NOT ${OMNIORB4_LIBRARY_PREFIX}${lib_name})

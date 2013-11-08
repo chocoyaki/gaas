@@ -328,37 +328,6 @@ main(int argc, char *argv[], char *envp[]) {
                "## MA_IOR " << ORBMgr::getMgr()->getIOR(Agt->_this())
                             << endl);
   }
-
-  IOP::IOR ior ;
-
-  ORBMgr::getMgr()->makeIOR(ORBMgr::getMgr()->getIOR(Agt->_this()), ior);
-
-  int l = ior.profiles.length();
-  TRACE_TEXT(TRACE_MAIN_STEPS, "Nb of profiles : " << l << endl);
-  for (int i = 0; i < l; ++i) {
-    IOP::TaggedProfile p = ior.profiles[i];
-
-    IIOP::ProfileBody body;
-    IIOP::unmarshalProfile(ior.profiles[i], body);
-    TRACE_TEXT(TRACE_MAIN_STEPS, "Address : " << body.address.host << " : " << body.address.port << endl);
-
-
-    TRACE_TEXT(TRACE_MAIN_STEPS, "buffer : " <<  body.components.length() << " : " <<//body.components[IOP::TAG_ALTERNATE_IIOP_ADDRESS].component_data.get_buffer()
-        endl);
-
-    for (int c = 0; c < body.components.length(); ++c) {
-      CORBA::String_var content;
-      content = IOP::dumpComponent(body.components[c]);
-      char * add = content;
-      TRACE_TEXT(TRACE_MAIN_STEPS, "buffer : " <<  body.components[c].tag<< " : " << add <<
-              endl);
-
-    }
-
-
-  }
-
-
   fsync(1);
   fflush(0);
 
