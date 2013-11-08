@@ -1,0 +1,8 @@
+agentType = DIET_MASTER_AGENT
+name = MA1
+traceLevel = 10
+useLogService = 0
+lsOutbuffersize = 0
+lsFlushinterval = 10000
+storageDirectory = @MA_DAGDA_DIR_NATIVE_PATH@
+schedulerModule = @PROJECT_BINARY_DIR@/lib/libDIETSchedTestsScheduler.so

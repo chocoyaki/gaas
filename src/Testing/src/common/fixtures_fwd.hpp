@@ -243,6 +243,10 @@ typedef DietSeDFixture<DynamicAddRemoveServiceAddSeD,
                        DietLAFixtureFwd> DynamicAddRemoveServiceSeDFixtureFwd;
 typedef DietSeDFixture<GRPCAddSeD, GRPCBinDir, ConfigSimpleAddSeDLA,
                        ConfigOmniORB2, DietLAFixtureFwd> GRPCSeDFixtureFwd;
+typedef DietAgentFixture <SchedConfigMA, ConfigOmniORB,
+                          DietFwdServerFixture> SchedMAFixtureFwd;
+typedef DietSeDFixture <SchedSedName, SchedSedBinDir, SchedConfigSed,
+                        ConfigOmniORB, SchedMAFixtureFwd> SchedSedFixtureFwd;
 
 
 #endif // FIXTURES_FWD_HPP_

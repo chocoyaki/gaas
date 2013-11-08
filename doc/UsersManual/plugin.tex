@@ -96,30 +96,46 @@ performance estimation metrics that are tailored to their individual needs.
 
 The type \texttt{estVector\_t} represents an \emph{estimation vector},
 logically a structure that can manage a dynamic collection of performance
-estimation values. It contains values that represent the performance profile
+estimation values, or metrics, or actually any data which can be used to take
+scheduling decisions. It contains values that represent the performance profile
 provided by a {\sed} in response to a \diet service request. This collection of
 values may include either standard performance measures that are available
 through \diet, or developer-defined values that are meaningful solely in the
-context of the application being developed.
+context of the application being developed. These values are associated with
+tags.
+
+The values contained in the estimation vector can be of the following types:
+\begin{itemize}
+\item floating point value: \verb+double+
+\item array of floating point values.
+\item NULL-terminated C string: \verb+char *+
+\item arbitrary binary object: \verb+unsigned char *+ and a \verb+size_t+ for
+  the length of the binary object.
+\end{itemize}
+
+The \diet runtime takes care of transferring the estimation vector from the
+\sed up to the agents in the hierarchy.
 
 \subsection{Standard Estimation Tags}\label{sect:estTags}
 
-To access to the different fields of the \texttt{estVector\_t}, it is necessary
-to specify the tag that correspond to a specific information type.
-Table~\ref{t:tags} describes this correspondence. Some tags represent a list of
-values, one has to use the \texttt{diet\_est\_array\_*} functions to have
-access to them. In Table~\ref{t:tags},  the second column marks these
-multi-value tags.
+Table~\ref{t:tags} lists the standard estimation tags provided by \diet. The
+tag \textit{ALLINFOS} is a special: his field is always empty, but it allows to
+fill the vector with all known tags by the particular collector.
 
-The tag \textit{ALLINFOS} is a special: his field is always empty, but it
-allows to fill the vector with all known tags  by the particular collector.
- 
+All standard estimation tags are associated with floating point values. \diet
+default schedulers can only do basic sorting the candidates \sed on some
+floating point tags, but custom plugin schedulers can make use of other types
+of performance data (which are opaque from the point of view of the \diet
+runtime).
+
 \begin{table}[h]
  \tiny
  \centering
  \begin{tabular}[c]{|l|c|l|}\hline
 %TAGS lines
- \textit{TCOMP        }&& the predicted time  to solve a problem \\[5pt]
+  \textbf{TAG} & \textbf{is array?} & \textbf{value} \\[5pt]
+  \hline
+  \textit{TCOMP        }&& the predicted time  to solve a problem \\[5pt]
   \hline
   \textit{TIMESINCELASTSOLVE} &   & time since last solve has been made (sec) \\[5pt]
   \hline
@@ -183,7 +199,7 @@ facilitate the construction of custom performance estimation functions:
 In the future, we plan to expand the suite of default estimation metrics to
 include dynamic internal \diet system state information (\eg queue lengths).
 
-\subsubsection{Developer-defined Performance Metrics}
+\subsection{Developer-defined Estimation tags}
 
 Application developers may also define performance values to be included in a
 \sed response to a client request.  For example, a \diet \sed that provides a
@@ -192,15 +208,48 @@ which databases are currently resident in its disk cache, in order that an
 appropriate server be identified for each client request.  To store such
 values, the \sed developer should first choose a unique integer identifier,
 referred to as the \emph{tag} to denote each logical datum to be stored.
-Values are associated with tags using the following interface:
+
+\subsection{Estimation Vector API}
+\label{section:est_vect_api}
+
+API functions (in \verb+DIET_server.h+) are provided to:
+\begin{itemize}
+\item Store a value, associated with a tag, in the estimation vector. These
+  functions are intended to be used in the \sed code:
 \begin{code}
-int diet\_est\_set(estVector\_t ev, int userTag, double value);
+int diet\_est\_set(estVector\_t ev, int userTag, double value); \\
+int diet\_est\_array\_set(estVector\_t ev, int userTag, int idx, double value); \\
+int diet\_est\_set\_str(estVector\_t ev, int userTag, const char *value); \\
+int diet\_est\_set\_bin(estVector\_t ev, int userTag, const unsigned char *buf, size\_t size);
 \end{code}
-The \texttt{ev} parameter is the estimation vector where the value will be
-stored, the \texttt{userTag} parameter denotes the chosen tag, and
-\texttt{value} indicates the value to be associated with the tag.  Tagged data
-are used to effect scheduling policies by defining custom server response
-aggregation methods, described in Section~\ref{sect:agg_methods}.
+\item Retrieve the value associated with a tag from the estimation
+  vector. These functions are intended to be used in a custom plugin scheduler
+  code:
+\begin{code}
+int double diet\_est\_get(estVectorConst\_t ev, int userTag, double errVal); \\
+double diet\_est\_get\_system(estVectorConst\_t ev, int systemTag, double errVal); \\
+double diet\_est\_array\_get(estVectorConst\_t ev, int userTag, int idx, double errVal); \\
+double diet\_est\_array\_get\_system(estVectorConst\_t ev, int systemTag, int idx, double errVal); \\
+const char* diet\_est\_get\_str(estVectorConst\_t ev, int userTag); \\
+const char* diet\_est\_get\_str\_system(estVectorConst\_t ev, int systemTag); \\
+int diet\_est\_get\_bin(estVectorConst\_t ev, int userTag, const unsigned char **buf, size\_t *size); \\
+int diet\_est\_get\_bin\_system(estVectorConst\_t ev, int systemTag, const unsigned char **buf, size\_t *size);
+\end{code}
+\item Some auxiliary functions also allow getting some informations about particular values in the estimation vector:
+\begin{code}
+int diet\_est\_defined(estVectorConst\_t ev, int userTag); \\
+int diet\_est\_defined\_system(estVectorConst\_t ev, int systemTag); \\
+int diet\_est\_array\_size(estVectorConst\_t ev, int userTag); \\
+int diet\_est\_array\_size\_system(estVectorConst\_t ev, int systemTag); \\
+int diet\_est\_array\_defined(estVectorConst\_t ev, int userTag, int idx); \\
+int diet\_est\_array\_defined\_system(estVectorConst\_t ev, int systemTag, int idx);
+\end{code}
+\end{itemize}
+Note that no function is provided to \textit{set} a standard estimation tag, it
+is intended that cori sets these tags.
+
+Tagged data are used to effect scheduling policies by defining custom server
+response aggregation methods, described in Section~\ref{sect:agg_methods}.
 
 \subsection{Estimation Function}\label{sect:est_fn}
 

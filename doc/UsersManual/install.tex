@@ -55,7 +55,7 @@ requires at least the version 2.96.
 
 \subsection{Operating system dependencies}
 \diet is fully tested on Linux [with varying distributions like Debian, Red Hat
-  Enterprise Linux (REL-ES-3), Fedora Core (5)], on AIX (5.3) on MacOSX
+  Enterprise Linux (REL-ES-3), Fedora Core (5), gentoo], on AIX (5.3) on MacOSX
 (Darwin 8) and on Windows (Cygwin 1.5.25 and Cygwin 1.7.1).
 
 \subsection{Software dependencies}
@@ -299,7 +299,11 @@ obtain the compilation of the desired extensions.
 then calling
   a client will generate the statistics for the client in the /tmp/client
   file.
-  
+
+\item
+  \verb+DIET_USE_USERSCHED+ allows using custom plugin schedulers at the \diet
+  agents level. See chapter~\ref{ch:plugin}.
+
 \item
   \label{sec:securityinstall}
   \verb+DIET_USE_SECURITY+ enables ssl communications between DIET entities
@@ -310,6 +314,7 @@ then calling
   \url{http://omniorb.sourceforge.net/omni41/omniORB/omniORB008.html}}.
   To run \diet with security on, keys and certificates will be specified in the
   configuration files of each entities (see Appendix~\ref{ch:appendix} page~\pageref{appendix_ssl})
+
 \end{itemize}
 
 %==================
@@ -331,7 +336,7 @@ compilation or some developers extensions:
   as static compilation of binaries seems to be forbidden on these
   systems)
 
-% \fixme{Sûrement à remplacer par l'équivalent pour CDash ou à enlever non ?}
+% \fixme{Sï¿½rement ï¿½ remplacer par l'ï¿½quivalent pour CDash ou ï¿½ enlever non ?}
 \item
   \verb+Maintainer+ By default cmake offers four different build modes
   that one toggles by positioning \verb+CMAKE_BUILD_TYPE+ built-in
@@ -494,7 +499,7 @@ archive, here are some of the provided examples:
 
 % \fixme{Rajouter les exemples dynamics, etc ou alors supprimer workflow et on
 %   laisse que les exemples de base? -> Ou on dit qu'on fournit notamment les
-%   exemples listés là ?}
+%   exemples listï¿½s lï¿½ ?}
 
 \subsection{Compiling the examples}
 \label{subsection:compiling-examples}

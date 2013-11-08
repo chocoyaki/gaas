@@ -768,9 +768,24 @@ DietLogComponent::logSedChosen(const corba_request_t *request,
           estim_string.append(getEstimationTags(valTagInt));
           estim_string.append("=");
           // char* v_value= new char[256];
-          char v_value[128];
-          sprintf(v_value, "%f",
-                  response->servers[i].estim.estValues[j].v_value);
+          #define BUFSIZE 128
+          char v_value[BUFSIZE];
+          switch(response->servers[i].estim.estValues[j].v_value._d()) {
+          case scalar:
+            snprintf(v_value, BUFSIZE, "%f",
+                     response->servers[i].estim.estValues[j].v_value.d());
+            break;
+          case str:
+            snprintf(v_value, BUFSIZE,
+                     response->servers[i].estim.estValues[j].v_value.s());
+            break;
+          case bin:
+            snprintf(v_value, BUFSIZE,
+                     reinterpret_cast<const char*>(response->servers[i].estim.estValues[j].v_value.b().get_buffer()));
+            break;
+          default:
+            sprintf(v_value, "<unknown type>");
+          }
           estim_string.append(v_value);
           // delete(v_value);
         }

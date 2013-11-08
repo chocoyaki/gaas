@@ -9,9 +9,10 @@
 
 \diet~\cite{Caron:2006gf} is built upon \emph{Server Daemons}. The process of
 scheduling the requests is distributed amongst a hierarchy of \emph{Local
-Agents} and \emph{Master Agents}. The scheduler can use resource availability
-information collected from different tools like CoRI Easy, which is based on 
-simple system calls and some basic performance tests (see
+  Agents} and \emph{Master Agents}. The scheduler can use resource availability
+information collected from different tools like CoRI (Collector of Resource
+Information) Easy, which is based on simple system calls and some basic
+performance tests (see
 Chapter~\ref{chapter:performance}). Figure~\ref{fig:platform} shows the
 hierarchical organization of \diet.
 
@@ -31,7 +32,7 @@ following:
 
 \begin{description}
 %....[ Client ]................................................................
-\item \textbf{Client}\\ A client is an application which uses \diet to solve
+\item \textbf{Client}\\ A client is an application using \diet to remotely solve
   problems. Many types of clients are able to connect to \diet, from a
   web page, a \pse such as Matlab or \sci, or from a compiled program.
 %....[ Master Agent (MA) ].....................................................
@@ -40,7 +41,7 @@ following:
   web page. Then the MA collects computation abilities from the servers and
   chooses the best one. The reference of the chosen server is returned to the
   client. A client can be connected to an MA by a specific name server or a web
-  page which stores the various MA locations.
+<  page which stores the various MA locations.
 
 %....[ Local Agent (LA) ]......................................................
 \item \textbf{Local Agent (LA)}\\ An LA transmits requests and information
@@ -59,7 +60,7 @@ following:
   locally, \ie on the server), the list of problems that can be solved on it,
   and performance-related information such as the amount of available memory or
   the number of resources available. When it registers, a \sed declares the
-  problems it can solve to its parent LA or MA.  A \sed can give perfomance and
+  problems it can solve to its parent LA or MA.  A \sed can give performance and
   hardware information by using the CoRI module or performance predictions for
   some types of problems by using the CoRI module.  Both modules are described
   in Chapter~\ref{chapter:performance}.
@@ -75,7 +76,7 @@ layer. Several problems to this approach have been pointed out such as the lack
 of portability or limits on the number of sockets that can be opened
 concurrently. Our aim is to implement and deploy a distributed \nes environment
 that works at a wider scale. Distributed object environments, such as
-\emph{Java}, \emph{DCOM} or CORBA have proven to be a good base for building
+\emph{Java}, \emph{DCOM} or CORBA have proved to be a good base for building
 applications that manage access to distributed services. They not only provide
 transparent communications in heterogeneous networks, but they also offer a
 framework for the large scale deployment of distributed applications. Being
@@ -124,7 +125,7 @@ The architecture of the hierarchy is described in configuration files (see
 Section~\ref{sec:diet_config_files}) and each component transmits the local
 configuration to its parent. Thus, the system administration can also be
 hierarchical. For instance, an MA can manage a domain like a university,
-providing prioritary access to users of this domain. Then each laboratory can
+providing priority access to users of this domain. Then each laboratory can
 run an LA, while each team of the laboratory can run some other LAs to
 administrate its own servers. This hierarchical administration of the system
 allows local changes in the configuration without interfering with the whole
@@ -175,18 +176,74 @@ In multi-MA mode, the behavior of a \diet hierarchy does not change when a
 client requests a service that is available under the queried MA. However, if a
 request sent to a MA does not found a \sed that can resolve its problem, \diet
 will forward the request to other MAs of the federation. To read more about
-multi-MA, see Chapter~\ref{ch:multiMAextension} and
-Chapter~\ref{ch:p2pextension}.
+multi-MA, see Chapter~\ref{ch:multiMAextension}. 
 
 %====[ CoRI ]==============================================================
-\subsection{CoRI}
+\subsection{Performance prediction with CoRI}
 \label{sub:cori}
 
-Collector of Resource Information (CoRI) is a manager for collecting hardware
-and performance information.  When \diet is compiled with the appropriate
-option, it is possible to get this information via different sub-modules like
- CoRI-Easy. (* if compiled and configured on the \sed machine). See
-Chapter~\ref{chapter:performance} for details on using CoRI.
+Collector of Resource Information (CoRI) is a manager for collecting
+hardware and performance information.  It is possible to get this
+information via different sub-modules like CoRI-Easy. See
+chapter~\ref{chapter:performance} for details on using CoRI.
+
+%====[ Batch ]==============================================================
+\subsection{Using Batch systems}
+\label{sub:batch}
+
+\diet is able to manage transparently job management in collaboration
+with Batch system. A client can explicitly ask for a sequential,
+parallel resolution or let \diet decide the best depending on the
+available resources. In the case of a parallel submission, the number
+of cores can be chosen by \diet according to the platform status. More
+details can be found in Chapter~\ref{chapter:parallelSubmission}.
+
+%====[ Cloud ]==============================================================
+\subsection{Using services in Clouds}
+\label{sub:Cloud}
+
+The Cloud being a technology attracting more and more people, in order
+to execute services or store data, it is thus possible to built a
+platform using resources coming from the Cloud with \diet. Some
+configurations are nonetheless needed and described in
+Chapter~\ref{chapter:cloudSubmission}.
+
+%====[ Scheduling ]=========================================================
+\subsection{Developing and deploying an application centric scheduling}
+\label{sub:scheduling}
+
+For some applications where the runtime may not be available, because
+it is simply not possible to compute beforehand in case of a
+convergence resolution for example, it might be interesting to provide
+some specific scheduling relying on the disk access speed for I/O
+intensive application, etc. Thus \diet provides the tools to build
+plugin schedulers, see Chapter~\ref{ch:plugin}.
+
+%====[ Data Management: DAGDA ]=============================================
+\subsection{Explicit data management with \dagda}
+\label{sub:dagda}
+
+Remote computations require and produce data. \diet relies on \dagda
+for data management: the framework is thus able to handle in a
+seamless way replication and consistency. But a client can also manage
+some explicit transfer, in order to prefetch data for example. More
+information can be found in Chapter~\ref{ch:dagda}.
+
+%====[ Worflow ]==============================================================
+\subsection{Building an application as a workflow}
+\label{sub:workflow}
+
+\subsection{And the rest}
+\label{sub:rest}
+
+Some features may not be considered as extensions even if they can be
+qualified from useful to mandatory requirements depending on your
+platform: they are tools to deploy \diet more or less dynamically
+(Chapter~\ref{ch:deploying} and the use of \godiet, and
+Chapter~\ref{ch:dynamic} to dynamically manage a hierarchy), to bypass
+firewalls with the help of ssh forwarders
+(Chapter~\ref{ch:forwarders}), and to visualize logs and submissions
+states with LogService and \vizdiet (Chapter~\ref{ch:dashboard}).
 
 %%%%%%%%%%%%%%%
 %% FIXME:
@@ -203,9 +260,10 @@ Chapter~\ref{chapter:performance} for details on using CoRI.
 % performed at this stage.
 %%%%%%%%%%%%%%%
 
-%%% Local Variables:
-%%% mode: latex
-%%% ispell-local-dictionary: "american"
-%%% mode: flyspell
-%%% fill-column: 79
-%%% End:
+% LocalWords: CoRI Matlab MAs LAs subtree subtrees DCOM CORBA OmniORB
+% LocalWords: Multi multi
+% mode: latex
+% ispell-local-dictionary: "american"
+% mode: flyspell
+% fill-column: 79
+% End:

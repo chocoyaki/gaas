@@ -199,6 +199,7 @@ private:
   ReqIDStateMap iDState;
   DietReadersWriterLock callAsyncListLock;
   DietReadersWriterLock waitRulesReqIDStateLock;
+  DietReadersWriterLock errorMapLock; /* protects errorMap and failedSessions */
 
   /*
    * A map to store the error code of the asynchronous requests

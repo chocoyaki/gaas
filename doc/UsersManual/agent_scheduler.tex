@@ -220,51 +220,10 @@ struct corba_estimation_t {
   void operator<<= (cdrStream &);
 };
 \end{verbatim}
-\textit{SeqEstValue\_t \bf estValues}: This field is a CORBA sequence of
-estimation values. These estimation values are accessed through the specific
-functions: \textit{diet\_est\_get\_internal} and \linebreak
-\textit{diet\_est\_array\_get\_internal} defined in scheduler/est\_internal.hh.
-
-\noindent These functions prototypes are:
-\begin{verbatim}
-double diet_est_get_internal(estVectorConst_t ev, int tag, double errVal);
-double diet_est_array_get_internal(estVectorConst_t ev, int tag,
-                                   int idx, double errVal);
-\end{verbatim}
-\begin{itemize}
-  \item \textit{ev}: the estimation vector to evaluate.
-  \item \textit{tag}: the estimation tag.
-  \item \textit{idx}: the index of the value when available. For example, to
-    obtain the frequency of the second processor, we have to set $idx$ to 1.
-  \item \textit{errVal}: the value returned by the function if an error
-    occurred.
-\end{itemize}
-
-\noindent The \textit{tag} argument may be assigned one of the following values:
-\begin{itemize}
-  \item[-] EST\_TIMESINCELASTSOLVE: The time elapsed since this {\sed} solved
-    a request. This value is used by the default Round-Robin scheduler when
-    available.
-  \item[-] EST\_COMMPROXIMITY:
-  \item[-] EST\_TRANSFEREFFORT:
-  \item[-] EST\_FREECPU: The free CPU computation power.
-  \item[-] EST\_FREEMEM: The free memory on the node.
-  \item[-] EST\_NBCPU: The number of CPU installed on the node.
-  \item[-] EST\_CPUSPEED\footnote{This value is accessed using the
-      \textit{diet\_est\_array\_get\_internal} function}: The frequencies
-    of the CPUs of the node.
-  \item[-] EST\_TOTALMEM: The total memory of the node.
-  \item[-] EST\_AVGFREEMEM: The average free memory on the node.
-  \item[-] EST\_AVGFREECPU: The average free CPU computation power on the node.
-  \item[-] EST\_BOGOMIPS\footnotemark[\value{footnote}]: The computation power
-    of the nodes CPUs given in bogomips.
-  \item[-] EST\_TOTALSIZEDISK: The total disk size on the node.
-  \item[-] EST\_FREESIZEDISK: The available disk space on the node.
-  \item[-] EST\_DISKACCESREAD: An evaluation of the disk read access performance.
-  \item[-] EST\_DISKACCESWRITE: An evaluation of the disk write access performance.
-  \item[-] EST\_USERDEFINED: The first user-defined value.
-  \item[-] EST\_USERDEFINED $+$ n: The n$^{th}$ user-defined value.
-\end{itemize}
+\textit{SeqEstValue\_t \bf estValues}: This field is a CORBA sequence
+of estimation values. Accessing the values in each
+\textit{corba\_estimation\_t} instance is done with the functions
+described in section~\ref{section:est_vect_api}
 
 To make the new scheduler class loadable by the GlobalScheduler class, the
 developer has to define these two functions outside the class definition:
@@ -376,7 +335,7 @@ ServerList CORBA_to_STL(const corba_response_t* responses, int nb_responses);
 void STL_to_CORBA(ServerList &servers, corba_response_t* &aggrResp);
 \end{verbatim}
 The first function converts the received CORBA sequence into a STL list. This
-function make the first aggregation of the results by marshalling all the
+function make the first aggregation of the results by marshaling all the
 sequences into one.
 
 \noindent The second function converts a STL list into a CORBA sequence that
@@ -507,8 +466,8 @@ needed to develop the basis class of the scheduler module.
 
 A scheduler module needs to be linked with some libraries to compile:
 \begin{itemize}
-  \item omniORB4: The basis omniORB library.
-  \item omnithread: The omniORB thread library.
+  \item OmniORB4: The basis OmniORB library.
+  \item omnithread: The OmniORB thread library.
   \item \diet libraries:
     \begin{itemize}
       \item CorbaCommon: The basis \diet Corba library.
@@ -652,3 +611,14 @@ int HostnameRR::aggregate(corba_response_t* aggrResp, size_t max_srv,
 
 SCHEDULER_CLASS(HostnameRR)
 \end{verbatim}
+
+% LocalWords: CoRI Matlab MAs LAs subtree subtrees DCOM CORBA corba OmniORB
+% LocalWords: Multi multi plugin plugins aggregator AGG
+% LocalWords: GlobalScheduler UserScheduler hh aggrResp
+% LocalWords: loc const nb loc hostname STL SeD idx hostName
+% LocalWords: IDL 
+% mode: latex
+% ispell-local-dictionary: "american"
+% mode: flyspell
+% fill-column: 79
+% End:

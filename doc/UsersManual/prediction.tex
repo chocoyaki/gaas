@@ -18,59 +18,54 @@ defined in Chapter~\ref{ch:plugin} with the information it needs. The \sed
 returns the information and the agent can make the scheduling.\\ Performance
 prediction can be based on hardware information, the load of the \sed (the CPU
 load, the memory availability, \etc) or an advanced performance prediction can
-combine a set of basic performance predictions. A performance prediction 
+combine a set of basic performance predictions. Completely custom data can even be used for performance prediction, when using plugin schedulers. A performance prediction
 scheduler module named CoRI  is available.
 \\CoRI is described in Section~\ref{sec:CORI}.\\
-By default \diet is compiled with CoRI enabled.
 In table~\ref{t:depcompil} you can see which
-information is available with each compilation option.
+information is available by default with CoRI.
 
 \begin{table}[h]
  \tiny
  \centering
- \begin{tabular}[c]{|l|c|c||c||c|}\hline
+ \begin{tabular}[c]{|l|}\hline
 %Cori ligne
-   &
-  \multicolumn{4}{|c|}{\textbf{-DDIET\_USE\_CORI:}} \\[5pt]
-   &
-  \multicolumn{2}{|c||}{\textbf{BOOL=OFF}} &
-  \multicolumn{2}{|c|}{\textbf{BOOL=ON}}\\[5pt]
+  \textbf{always available:} \\[5pt]
   \hline
   \hline
 %TAGS lines
- \textit{TCOMP        }      &   & x &   &    \\[5pt]
+ \textit{TCOMP        } \\[5pt]
  \hline 
-%  \textit{TIMESINCELASTSOLVE} & x & x & x & x  \\[5pt]
+%  \textit{TIMESINCELASTSOLVE}\\[5pt]
 %  \hline
-  \textit{FREECPU      }      &   & x & x & x  \\[5pt]
+  \textit{FREECPU      } \\[5pt]
   \hline
-  \textit{FREEMEM      }      &   & x & x & x  \\[5pt]
+  \textit{FREEMEM      } \\[5pt]
   \hline
-  \textit{NBCPU        }      &   & x & x & x  \\[5pt]
+  \textit{NBCPU        } \\[5pt]
   \hline
-  \textit{CPUSPEED     }      &   &   & x & x  \\[5pt]
+  \textit{CPUSPEED     } \\[5pt]
   \hline
-  \textit{TOTALMEM     }      &   &   & x & x  \\[5pt]
+  \textit{TOTALMEM     } \\[5pt]
   \hline
-  \textit{AVGFREECPU   }      &   &   & x & x  \\[5pt]
+  \textit{AVGFREECPU   } \\[5pt]
   \hline
-  \textit{BOGOMIPS     }      &   &   & x & x  \\[5pt]
+  \textit{BOGOMIPS     } \\[5pt]
   \hline
-  \textit{CACHECPU     }      &   &   & x & x  \\[5pt]
+  \textit{CACHECPU     } \\[5pt]
   \hline
-  \textit{TOTALSIZEDISK}      &   &   & x & x  \\[5pt]
+  \textit{TOTALSIZEDISK} \\[5pt]
   \hline
-  \textit{FREESIZEDISK }      &   &   & x & x  \\[5pt]
+  \textit{FREESIZEDISK } \\[5pt]
   \hline
-  \textit{DISKACCESREAD}      &   &   & x & x  \\[5pt]
+  \textit{DISKACCESREAD} \\[5pt]
   \hline
-  \textit{DISKACCESWRITE}     &   &   & x & x  \\[5pt]
+  \textit{DISKACCESWRITE} \\[5pt]
   \hline
-  \textit{ALLINFOS     }      &   &   & x & x  \\[5pt]
+  \textit{ALLINFOS     } \\[5pt]
   \hline
   \hline
-  & \multicolumn{4}{|c|}{\textbf{-DDIET\_USE\_BATCH=ON}} \\[5pt]  
-  \textit{PARAL\_NB\_FREE\_RESOURCES\_IN\_DEFAULT\_QUEUE} & & & x & x  \\[5pt] 
+  \textbf{when compiled with -DDIET\_USE\_BATCH=ON} \\[5pt]  
+  \textit{PARAL\_NB\_FREE\_RESOURCES\_IN\_DEFAULT\_QUEUE} \\[5pt] 
   \hline
  \end{tabular}
  \caption{Dependencies of the available information on the
@@ -178,10 +173,38 @@ files\\ \texttt{examples/dmat\_manips/server.c} and
 \section{CoRI: Collectors of Ressource Information}
 \label{sec:CORI}
 
-CoRI manages the access to different tools for collecting information about the
+CoRI manages access to different tools for collecting information about the
 \sed. Currently, various tools, called collectors, are implemented: CoRI
 Easy and CoRI batch. The user can choose which collector will provide the
 information.
+
+The idea is that there are various levels of expertise among users developing
+\sed code and \diet client code:
+\begin{enumerate}
+\item Basic usage will rely on default scheduling strategies.
+\item More advanced users will perhaps want to tweak the basic scheduling
+  strategies, by providing different priorities between performance metrics
+  (\verb+DIET_AGG_PRIORITY+), but still using the default performance metrics
+  provided by \diet.
+\item Even more advanced users can:
+\begin{itemize}
+\item ask CoRI to fill the estimation vector with particular sets of metrics,
+\item or explicitely add to the default metrics, or replace the default
+  metrics, with their own custom metrics in the estimation vector;
+\item and optionnaly implement their own custom plugin scheduler
+  (\verb+DIET_AGG_USER+), especially if opaque (not floating point, so
+  unsortable with \verb+DIET_AGG_PRIORITY+ style scheduling) metrics are set in
+  the estimation vector.
+\end{itemize}
+\end{enumerate}
+
+To allow all these use cases, CoRI, by default, fills the estimation vector
+with some default performance metrics. CoRI is also designed to allow managing
+high level CoRI performance metrics collectors (see
+figure~\ref{fig:cori-overview}), which will on demand fill the estimation
+vector with a set of predefined performance metrics. Finally, as seen in
+chapter~\ref{ch:plugin}, it is possible to manually fill the estimation vector
+with any custom metrics.
 
 \begin{figure}[h]
   \begin{center}

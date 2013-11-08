@@ -128,6 +128,10 @@ typedef DietSeDFixture <DynamicAddRemoveServiceAddSeD,
                         DietLAFixtureLog>DynamicAddRemoveServiceSeDFixtureLog;
 typedef DietSeDFixture <GRPCAddSeD, GRPCBinDir, ConfigSimpleAddSeDLA,
                         ConfigOmniORB, DietLAFixtureLog>GRPCSeDFixtureLog;
+typedef DietAgentFixture <SchedConfigMA, ConfigOmniORB,
+                          LogServiceFixtureConf> SchedMAFixtureLog;
+typedef DietSeDFixture <SchedSedName, SchedSedBinDir, SchedConfigSed,
+                        ConfigOmniORB, SchedMAFixtureLog> SchedSedFixtureLog;
 
 #endif // USE_LOG_SERVICE
 

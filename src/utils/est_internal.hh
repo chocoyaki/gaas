@@ -49,5 +49,17 @@ diet_est_array_get_internal(estVectorConst_t ev, int tag,
 int
 diet_est_array_defined_internal(estVectorConst_t ev, int tag, int idx);
 
+int
+diet_est_set_str_internal(estVector_t ev, int tag, const char *value);
+
+const char*
+diet_est_get_str_internal(estVectorConst_t ev, int tag);
+
+int
+diet_est_set_bin_internal(estVector_t ev, int tag, const unsigned char *buf, size_t size);
+
+int
+diet_est_get_bin_internal(estVectorConst_t ev, int tag, const unsigned char **buf, size_t *size);
+
 #endif  /* _EST_INTERNAL_HH_ */
 #endif  /* OLD_EV */

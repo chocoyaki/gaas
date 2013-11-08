@@ -26,7 +26,7 @@ General remarks on DIET platform dependencies
    Nevertheless, if you encounter installation difficulties don't hesitate
    to post on DIET's users mailing list: \verb+diet-usr@listes.ens-lyon.fr+
    (for the archives refer to 
-   \url{http://graal.ens-lyon.fr/DIET/mail-lists.html}).
+   \url{http://graal.ens-lyon.fr/DIET/project/mailing-lists}).
 
    If you find a bug in DIET, please don't hesitate to submit a bug report on
    \url{http://graal.ens-lyon.fr/bugzilla}. If you have multiple bugs
@@ -36,7 +36,7 @@ General remarks on DIET platform dependencies
 Hardware dependencies
 
    DIET is fully tested on Linux/i386 and Linux/i686 platforms. DIET is known
-   to work on Linux/Sparc, Linux/i64, Linux/amd64, Linux/Alpha, 
+   to work on Linux/Scarp, Linux/i64, Linux/amd64, Linux/Alpha, 
    Linux/PowerPC AIX/powerPC and MacOS/PowerPC platforms. At some point
    in DIET history, DIET used to be tested on the Solaris/Sparc platforms ...
 
@@ -442,3 +442,7 @@ Compiling the examples
    Likewise, the samples of configuration files located in src/examples/cfgs
    are processed by make install to create ready-to-use configuration files 
    in src/examples/cfgs and then copied into <install_dir>/etc/cfgs.
+
+
+
+ LocalWords:  url amd PowerPC AIX powerPC

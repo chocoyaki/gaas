@@ -130,8 +130,8 @@ namespace {
 
 // README: configuration files list should be null-terminated
 static const char *conffiles[] = { "/etc/omniORB4.cfg",
-                             "/etc/omniORB.cfg",
-                             NULL };
+                                   "/etc/omniORB.cfg",
+                                   NULL };
 
 }
 
