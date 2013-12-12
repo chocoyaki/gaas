@@ -304,6 +304,11 @@ Each entity needs to have access to a private key and a certificate signed by
 the diet authority.\\
 
 \noindent
+\texttt{sslEnabled} \ \ \emph{default}\texttt{ = 0}\\
+This indicates whether secure communications are enabled. Other security options
+will not be taken into account if the value is 0.
+
+\noindent
 \texttt{sslRootCertificate} \ \ \emph{default}\texttt{ = none}\\
 This is a \textbf{mandatory} parameter when security is enabled. It indicates
 where to find the \diet certificate which comes from the authority.\\
