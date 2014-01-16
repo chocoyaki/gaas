@@ -19,22 +19,22 @@
 namespace IaaS {
 
 
-/****************************************************************************/
-/* Image class                                                                */
-/****************************************************************************/
-class Image {
-  public:
+  /****************************************************************************/
+  /* Image class                                                                */
+  /****************************************************************************/
+  class Image {
+    public:
 
-	/*Name of an image*/
-    const std::string name;
+      /*Name of an image*/
+      const std::string name;
 
-    /*Identity of an image. It should be unique for each image.*/
-    const std::string id;
+      /*Identity of an image. It should be unique for each image.*/
+      const std::string id;
 
-    /* Contructor with a given image name and id */
-    Image(const std::string & _name, const std::string & _id) : name(_name), id(_id) {
-    };
-};
+      /* Contructor with a given image name and id */
+      Image(const std::string & _name, const std::string & _id) : name(_name), id(_id) {
+      };
+  };
 
 }
 
