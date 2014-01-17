@@ -356,13 +356,13 @@ DIET_API_LIB int SeDCloud::service_cloud_federation_vm_destruction_by_ip_add(std
 
 DIET_API_LIB int SeDCloud::service_launch_another_sed_add() {
   diet_profile_desc_t* profile;
-  profile = diet_profile_desc_alloc("launch_another_sed", 2, 2, 3);
+  profile = diet_profile_desc_alloc("launch_another_sed", 1, 1, 2);
   //IN
   diet_generic_desc_set(diet_param_desc(profile, 0), DIET_STRING, DIET_CHAR); //sed_executable_path
-  diet_generic_desc_set(diet_param_desc(profile, 1), DIET_FILE, DIET_CHAR); //diet_cfg
-  diet_generic_desc_set(diet_param_desc(profile, 2), DIET_FILE, DIET_CHAR); //file data
+//  diet_generic_desc_set(diet_param_desc(profile, 1), DIET_FILE, DIET_CHAR); //diet_cfg
+  diet_generic_desc_set(diet_param_desc(profile, 1), DIET_FILE, DIET_CHAR); //file data
   //OUT
-  diet_generic_desc_set(diet_param_desc(profile, 3), DIET_SCALAR, DIET_INT); //result of the launch : 0 : KO, != 0 : success
+  diet_generic_desc_set(diet_param_desc(profile, 2), DIET_SCALAR, DIET_INT); //result of the launch : 0 : KO, != 0 : success
 
   diet_service_table_add(profile, NULL, SeDCloud::launch_another_sed_solve);
   diet_profile_desc_free(profile);
@@ -370,19 +370,18 @@ DIET_API_LIB int SeDCloud::service_launch_another_sed_add() {
 }
 
 int SeDCloud::launch_another_sed_solve(diet_profile_t* pb) {
-  TRACE_TEXT(TRACE_MAIN_STEPS, "Launching another sed\n")
-    char* cfg_path;
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Launching another sed\n");
   size_t size;
   char* data_file_path;
   char* sed_executable_path;
 
   diet_string_get(diet_parameter(pb, 0), &sed_executable_path, NULL);
   //diet_file_get(diet_parameter(pb, 1), &cfg_path, NULL, &size);
-  diet_file_get(diet_parameter(pb, 2), &data_file_path, NULL, &size);
+  diet_file_get(diet_parameter(pb, 1), &data_file_path, NULL, &size);
 
   std::string data_copy_path = copy_to_tmp_file(data_file_path, ".dat");
   std::cout << "Copying data_file_path " << data_file_path << " to " << data_copy_path << std::endl;
-  cfg_path = new char[SeDCloud::instance->config_file.length()+1];
+  char * cfg_path = new char[SeDCloud::instance->config_file.length()+1];
   strcpy(cfg_path, SeDCloud::instance->config_file.c_str());
 
   boost::uuids::uuid uuid = diet_generate_uuid();
@@ -428,13 +427,13 @@ int SeDCloud::launch_another_sed_solve(diet_profile_t* pb) {
   else {
     if (pid > 0) {
       TRACE_TEXT(TRACE_MAIN_STEPS, "fork executing: success\n");
-      int* child_status = new int;
+      int child_status;
 
       //TODO check if it always does its job
-      waitpid(pid, child_status, WNOHANG);
+      waitpid(pid, &child_status, WNOHANG);
 
 
-      diet_scalar_set(diet_parameter(pb, 3), child_status, DIET_PERSISTENT_RETURN, DIET_INT);
+      diet_scalar_set(diet_parameter(pb, 3), &child_status, DIET_PERSISTENT_RETURN, DIET_INT);
 
       return 0;
     }

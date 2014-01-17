@@ -43,15 +43,18 @@ main(int argc, char *argv[]) {
 
 
 
-    diet_file_get(diet_parameter(profile, 2), &path, NULL, &out_size);
-    if (path && (*path != '\0')) {
-      printf("Location of returned file is %s, its size is %lu.\n",
-             path, out_size);
+  diet_file_get(diet_parameter(profile, 2), &path, NULL, &out_size);
+  if (path && (*path != '\0')) {
+    printf("Location of returned file is %s, its size is %lu.\n",
+        path, out_size);
 
-        sprintf(cmd, "cat %s", path);
+    sprintf(cmd, "cat %s", path);
 
-        system(cmd);
+    int ret_value = system(cmd);
+    if (! ret_value) {
+      printf("Error while running %s", cmd);
     }
+  }
 
 
   diet_profile_free(profile);

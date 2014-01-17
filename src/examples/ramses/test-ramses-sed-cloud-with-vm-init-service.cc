@@ -49,7 +49,6 @@ main(int argc, char *argv[]) {
 		exit(0);
 	}
 
-
 	/* Initialize table with maximum 20 service */
 	diet_service_table_init(20);
 

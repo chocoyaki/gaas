@@ -6,6 +6,7 @@
 #include "Tools.hh"
 #include "Iaas_deltacloud.hh"
 #include "SeDCloud.hh"
+#include "ServiceWrapper.hh"
 #include "DIET_server.h"
 #include "DIET_uuid.hh"
 #include "DagdaFactory.hh"
@@ -388,15 +389,6 @@ int write_lines(const std::vector<std::string>& lines, const std::string& file_p
 
 
 namespace IaaS {
-
-/*Instance * create_one_vm_instance(std::string base_url, std::string user_name, std::string password,
-	std::string vm_user, IaasInterface ** interf) {
-
-}
-*/
-
-
-
 
 VMInstances::VMInstances(std::string _image_id, int _vm_count, std::string base_url, std::string user_name, std::string password,
 	std::string _vm_user, const std::vector<Parameter>& _params) {

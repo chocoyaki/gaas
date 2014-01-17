@@ -33,7 +33,7 @@ public:
 
   std::string username; // eg : "oneadmin";
   std::string password; //eg : "mypassword";
-    std::string base_url; // eg : "http://localhost:3001/api";
+  std::string base_url; // eg : "http://localhost:3001/api";
 } ;
 
 #endif /* _CLOUDAPICONNECTION_HH_ */
