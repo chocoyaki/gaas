@@ -15,7 +15,8 @@
 
 #include <boost/lexical_cast.hpp>
 #include "DIET_uuid.hh"
-#include "SeD_deltacloud.hh"
+#include "SeDCloud.hh"
+#include "ServiceWrapper.hh"
 #include <string>
 #include <vector>
 

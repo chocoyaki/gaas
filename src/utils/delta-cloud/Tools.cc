@@ -5,7 +5,7 @@
 
 #include "Tools.hh"
 #include "Iaas_deltacloud.hh"
-#include "SeD_deltacloud.hh"
+#include "SeDCloud.hh"
 #include "DIET_server.h"
 #include "DIET_uuid.hh"
 #include "DagdaFactory.hh"

@@ -23,15 +23,15 @@
 
 
 /*
-* TODO : create a service like "destroy_CloudX" when linking a SeDCloud to a CloudX...
-*
-*
-*
-*
-*
-*
-*
-*/
+ * TODO : create a service like "destroy_CloudX" when linking a SeDCloud to a CloudX...
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ */
 
 
 extern char ** environ;
@@ -42,27 +42,27 @@ CloudAPIConnection* SeDCloud::cloud_api_connection_for_vm_instanciation = NULL;
 
 
 /*if argumentsTranferMethod == pathsTranferMethod
- then one must have lastin+1==lastout, since pathsout are actually inputs, the result is a dummy string
-*/
+  then one must have lastin+1==lastout, since pathsout are actually inputs, the result is a dummy string
+  */
 DIET_API_LIB int
-        SeDCloud::service_table_add(const std::string& name_of_service,
-                          int last_in,
-                          int last_out,
-                         const diet_convertor_t* const cvt,
-                         const std::string& local_path_of_binary,
-                         const std::string& remote_path_of_binary,
-                         const std::string& entryPoint,
-                         const std::string& remote_path_of_arguments,
-                         ArgumentsTransferMethod arguments_transfer_method,
-                         dietcloud_callback_t prepocessing,
-                         dietcloud_callback_t postprocessing,
-                         const std::string& _installer_relative_path) {
+SeDCloud::service_table_add(const std::string& name_of_service,
+    int last_in,
+    int last_out,
+    const diet_convertor_t* const cvt,
+    const std::string& local_path_of_binary,
+    const std::string& remote_path_of_binary,
+    const std::string& entryPoint,
+    const std::string& remote_path_of_arguments,
+    ArgumentsTransferMethod arguments_transfer_method,
+    dietcloud_callback_t prepocessing,
+    dietcloud_callback_t postprocessing,
+    const std::string& _installer_relative_path) {
 
 
 
   CloudServiceBinary service_binary(local_path_of_binary,
-        remote_path_of_binary, entryPoint, remote_path_of_arguments, prepocessing, postprocessing,
-        arguments_transfer_method, _installer_relative_path);
+      remote_path_of_binary, entryPoint, remote_path_of_arguments, prepocessing, postprocessing,
+      arguments_transfer_method, _installer_relative_path);
 
   service_binary.name = name_of_service;
   service_binary.last_in = last_in;
@@ -187,7 +187,7 @@ int SeDCloud::solve(diet_profile_t *pb) {
     diet_free_data(diet_parameter(pb, i));
   }
 
-//  printf("h1\n");
+  //  printf("h1\n");
   if (binary.postprocessing != NULL){
     printf("h2\n");
     binary.postprocessing(pb);
@@ -200,19 +200,19 @@ int SeDCloud::solve(diet_profile_t *pb) {
 
 
 /**
-  params :
-    IN:
-    0 vm collection name : STRING
-    1 vm count : INT
-    2 vm image : STRING
-    3 vm profile : STRING
-    4 delta cloud api url : STRING
-    5 deltacloud user name
-    6 deltacloud passwd
-    7 vm user
-    8 take private ips
-    OUT:
-    9 vm ips : FILE
+params :
+IN:
+0 vm collection name : STRING
+1 vm count : INT
+2 vm image : STRING
+3 vm profile : STRING
+4 delta cloud api url : STRING
+5 deltacloud user name
+6 deltacloud passwd
+7 vm user
+8 take private ips
+OUT:
+9 vm ips : FILE
 
 */
 
@@ -239,15 +239,15 @@ DIET_API_LIB int SeDCloud::service_homogeneous_vm_instanciation_add() {
 }
 
 /**
-  params :
-    IN:
-    0 vm count : INT
-    1 vm image : STRING
-    2 vm profile : STRING
-    3 vm user : STRING
-    4 take private ips : INT
-    OUT:
-    5 vm ips : FILE
+params :
+IN:
+0 vm count : INT
+1 vm image : STRING
+2 vm profile : STRING
+3 vm user : STRING
+4 take private ips : INT
+OUT:
+5 vm ips : FILE
 
 */
 
@@ -274,20 +274,20 @@ DIET_API_LIB int SeDCloud::service_homogeneous_vm_instanciation_add(CloudAPIConn
 
 
 /**
-  params :
-    IN:
-    0 vm collection name : STRING
-    1 vm count : INT
-    2 vm image : STRING
-    3 vm profile : STRING
-    4 delta cloud api url : STRING
-    5 deltacloud user name
-    6 deltacloud passwd
-    7 vm user
-    8 take private ips
-    9 keyname
-    OUT:
-    10 vm ips : FILE
+params :
+IN:
+0 vm collection name : STRING
+1 vm count : INT
+2 vm image : STRING
+3 vm profile : STRING
+4 delta cloud api url : STRING
+5 deltacloud user name
+6 deltacloud passwd
+7 vm user
+8 take private ips
+9 keyname
+OUT:
+10 vm ips : FILE
 
 */
 
@@ -340,17 +340,17 @@ DIET_API_LIB int SeDCloud::service_vm_destruction_by_ip_add() {
 
 
 DIET_API_LIB int SeDCloud::service_cloud_federation_vm_destruction_by_ip_add(std::vector<CloudAPIConnection>* _cloud_api_connection) {
-    cloud_api_connection_for_vm_destruction = _cloud_api_connection;
+  cloud_api_connection_for_vm_destruction = _cloud_api_connection;
 
-    diet_profile_desc_t* profile;
-    profile = diet_profile_desc_alloc("vm_destruction_by_ip", 1, 1, 1);
+  diet_profile_desc_t* profile;
+  profile = diet_profile_desc_alloc("vm_destruction_by_ip", 1, 1, 1);
 
-    diet_generic_desc_set(diet_param_desc(profile, 0), DIET_FILE, DIET_CHAR); //ips
-    diet_generic_desc_set(diet_param_desc(profile, 1), DIET_SCALAR, DIET_INT); //private or public ips
+  diet_generic_desc_set(diet_param_desc(profile, 0), DIET_FILE, DIET_CHAR); //ips
+  diet_generic_desc_set(diet_param_desc(profile, 1), DIET_SCALAR, DIET_INT); //private or public ips
 
-    diet_service_table_add(profile, NULL, SeDCloud::cloud_federation_vm_destruction_by_ip_solve);
-    diet_profile_desc_free(profile);
-    return 0;
+  diet_service_table_add(profile, NULL, SeDCloud::cloud_federation_vm_destruction_by_ip_solve);
+  diet_profile_desc_free(profile);
+  return 0;
 }
 
 
@@ -371,7 +371,7 @@ DIET_API_LIB int SeDCloud::service_launch_another_sed_add() {
 
 int SeDCloud::launch_another_sed_solve(diet_profile_t* pb) {
   TRACE_TEXT(TRACE_MAIN_STEPS, "Launching another sed\n")
-  char* cfg_path;
+    char* cfg_path;
   size_t size;
   char* data_file_path;
   char* sed_executable_path;
@@ -385,39 +385,39 @@ int SeDCloud::launch_another_sed_solve(diet_profile_t* pb) {
   cfg_path = new char[SeDCloud::instance->config_file.length()+1];
   strcpy(cfg_path, SeDCloud::instance->config_file.c_str());
 
-    boost::uuids::uuid uuid = diet_generate_uuid();
-    std::ostringstream name;
-    name << "SeDAppli-" << uuid;
-    std::ostringstream cfg_copy_path;
-    cfg_copy_path << dirname(cfg_path) << "/" << name.str() << ".cfg";
-    // change the name in cfg
-    std::ifstream cfg(SeDCloud::instance->config_file.c_str());
-    std::ofstream tmp(cfg_copy_path.str().c_str());
-    std::string line;
+  boost::uuids::uuid uuid = diet_generate_uuid();
+  std::ostringstream name;
+  name << "SeDAppli-" << uuid;
+  std::ostringstream cfg_copy_path;
+  cfg_copy_path << dirname(cfg_path) << "/" << name.str() << ".cfg";
+  // change the name in cfg
+  std::ifstream cfg(SeDCloud::instance->config_file.c_str());
+  std::ofstream tmp(cfg_copy_path.str().c_str());
+  std::string line;
 
-    std::cout << SeDCloud::instance->config_file.c_str() << " -> " << cfg_copy_path.str().c_str() << std::endl;
-    while(std::getline(cfg, line)) {
-        if (line.find("name") != std::string::npos) {
-            line = "name = " + name.str();
-        }
-        std::cout << line << std::endl;
-        tmp << line << '\n';
+  std::cout << SeDCloud::instance->config_file.c_str() << " -> " << cfg_copy_path.str().c_str() << std::endl;
+  while(std::getline(cfg, line)) {
+    if (line.find("name") != std::string::npos) {
+      line = "name = " + name.str();
     }
+    std::cout << line << std::endl;
+    tmp << line << '\n';
+  }
 
-    cfg.close();
-    tmp.close();
-    int nb_args = pb->last_in + 1;
-    char** argv = new char* [nb_args + 2];
-    char* sed_path_base_name = basename(sed_executable_path);
-    argv[0] = sed_path_base_name;
-    argv[1] = const_cast<char*> (cfg_copy_path.str().c_str());
-    argv[2] = const_cast<char*> (data_copy_path.c_str());
-    argv[3] = NULL;
+  cfg.close();
+  tmp.close();
+  int nb_args = pb->last_in + 1;
+  char** argv = new char* [nb_args + 2];
+  char* sed_path_base_name = basename(sed_executable_path);
+  argv[0] = sed_path_base_name;
+  argv[1] = const_cast<char*> (cfg_copy_path.str().c_str());
+  argv[2] = const_cast<char*> (data_copy_path.c_str());
+  argv[3] = NULL;
 
-    pid_t pid = fork();
+  pid_t pid = fork();
 
-    if (pid == 0) {
-      //in the process child
+  if (pid == 0) {
+    //in the process child
 
     int resExec = execve(sed_executable_path, argv, environ);
 
@@ -604,23 +604,6 @@ int SeDCloud::homogeneous_vm_instanciation_with_keyname_solve(diet_profile_t *pb
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 //useless if there is a cloud federation
 int SeDCloud::vm_destruction_by_ip_solve(diet_profile_t *pb) {
   char* path;
@@ -690,15 +673,15 @@ int SeDCloud::cloud_federation_vm_destruction_by_ip_solve(diet_profile_t *pb) {
 
 
 /*
-  <node id="copy-to-machine" path="rsync_to_vm" >
-    <in name="file_to_copy" type="DIET_FILE" />
-    <in name="destination_folder" type="DIET_STRING" />
-    <in name="vm_user" type="DIET_STRING" />
-    <in name="ips" type="DIET_FILE" />
-    <in name="vm_index" type="DIET_INT" value="0" />
-    <out name="ip" type="DIET_STRING" />
-  </node>
-*/
+   <node id="copy-to-machine" path="rsync_to_vm" >
+   <in name="file_to_copy" type="DIET_FILE" />
+   <in name="destination_folder" type="DIET_STRING" />
+   <in name="vm_user" type="DIET_STRING" />
+   <in name="ips" type="DIET_FILE" />
+   <in name="vm_index" type="DIET_INT" value="0" />
+   <out name="ip" type="DIET_STRING" />
+   </node>
+   */
 DIET_API_LIB int SeDCloud::service_rsync_to_vm_add() {
   diet_profile_desc_t* profile;
 
@@ -719,13 +702,13 @@ DIET_API_LIB int SeDCloud::service_rsync_to_vm_add() {
 
 
 /**
-  IN:
-    0 : vm_user
-    1 : vm ips file
-    2 : vm index
-    3 : remote path
-  OUT:
-    4 : file.tgz
+IN:
+0 : vm_user
+1 : vm ips file
+2 : vm index
+3 : remote path
+OUT:
+4 : file.tgz
 */
 DIET_API_LIB int SeDCloud::service_get_tarball_from_vm_add() {
   diet_profile_desc_t* profile;
@@ -860,7 +843,7 @@ int SeDCloud::rsync_to_vm_solve(diet_profile_t *pb) {
   3 destination folder path
   OUT
   4 same as arg 1
-*/
+  */
 DIET_API_LIB int SeDCloud::service_mount_nfs_add() {
   diet_profile_desc_t* profile;
 
@@ -886,7 +869,7 @@ DIET_API_LIB int SeDCloud::service_mount_nfs_add() {
   3 destination folder path
   OUT
   4 same as arg 1
-*/
+  */
 int SeDCloud::mount_nfs_solve(diet_profile_t *pb) {
   char* source_ips;
   char* destination_ips;
@@ -951,4 +934,60 @@ int SeDCloud::mount_nfs_solve(diet_profile_t *pb) {
   }
 
   return 0;
+}
+
+
+int add_seq_in_data_xml_solve(diet_profile_t *pb) {
+  char* xml_in_path;
+  char* lines_file_path;
+  size_t size;
+  char* tag_name;
+
+  diet_file_get(diet_parameter(pb, 0), &xml_in_path, NULL, &size);
+  diet_file_get(diet_parameter(pb, 1), &lines_file_path, NULL, &size);
+  diet_string_get(diet_parameter(pb, 2), &tag_name, NULL);
+
+  XmlDOMDocument* xml_in = read_xml_file(xml_in_path);
+
+  if (xml_in == NULL) return -1;
+  if (xml_in->get_element_count("data") <= 0) {
+    std::cout << "ERROR: the XML input file must contains <data> ... </data>\n";
+    return -1;
+  }
+  std::vector<std::string> lines;
+  readlines(lines_file_path, lines);
+
+  for(size_t i = 0; i < lines.size(); i++){
+    xml_in->add_child_content("data", 0, tag_name, lines[i]);
+  }
+
+  std::string diet_tmp_file = create_tmp_file(pb, ".xml");
+  xml_in->write(diet_tmp_file.c_str());
+  diet_file_set(diet_parameter(pb, 3), diet_tmp_file.c_str(), DIET_PERSISTENT_RETURN);
+
+  return 0;
+}
+
+
+void service_add_seq_in_data_xml_add() {
+  diet_profile_desc_t* profile;
+  profile = diet_profile_desc_alloc("add_seq_in_data_xml", 2, 2, 3);
+  diet_generic_desc_set(diet_param_desc(profile, 0), DIET_FILE, DIET_CHAR); //the  data XML file
+  diet_generic_desc_set(diet_param_desc(profile, 1), DIET_FILE, DIET_CHAR); //the lines file
+  diet_generic_desc_set(diet_param_desc(profile, 2), DIET_STRING, DIET_CHAR); //the xml tag name around each line
+  diet_generic_desc_set(diet_param_desc(profile, 3), DIET_FILE, DIET_CHAR); //the  resulting data xml file
+  diet_service_table_add(profile, NULL, add_seq_in_data_xml_solve);
+
+  diet_profile_desc_free(profile);
+}
+
+
+void service_time_solve_add() {
+  diet_profile_desc_t* profile;
+  profile = diet_profile_desc_alloc("time", 0, 0, 1);
+  diet_generic_desc_set(diet_param_desc(profile, 0), DIET_STRING, DIET_CHAR); //dummy input
+  diet_generic_desc_set(diet_param_desc(profile, 1), DIET_SCALAR, DIET_LONGINT); //time in seconds since 01/01/1970
+  diet_service_table_add(profile, NULL, time_solve);
+
+  diet_profile_desc_free(profile);
 }

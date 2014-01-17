@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "SeD_deltacloud.hh"
+#include "SeDCloud.hh"
 #include <string>
 #include <vector>
 

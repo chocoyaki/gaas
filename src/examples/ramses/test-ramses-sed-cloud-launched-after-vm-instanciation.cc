@@ -16,10 +16,11 @@
 #include <fstream>
 #include <unistd.h>
 
-#include "SeD_deltacloud.hh"
 #include <string>
 #include <vector>
 
+#include "SeDCloud.hh"
+#include "ServiceWrapper.hh"
 #include "Instance.hh"
 #include "Tools.hh"
 
