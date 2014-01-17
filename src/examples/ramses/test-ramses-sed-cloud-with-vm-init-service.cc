@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "SeD_deltacloud.hh"
+#include "SeDCloud.hh"
 #include <string>
 #include <vector>
 
@@ -34,6 +34,7 @@ int ouput_same_as_input(diet_profile_t *pb) {
 
 	diet_string_set(diet_parameter(pb, last_out), path, DIET_PERSISTENT_RETURN);
 	//printf("%d, called\n", last_out);
+  return 0;
 }
 
 
@@ -42,8 +43,6 @@ int ouput_same_as_input(diet_profile_t *pb) {
 
 int
 main(int argc, char *argv[]) {
-
-
 
 	if (argc < 2) {
 		printf("usage : %s cfg\n", argv[0]);
@@ -54,16 +53,8 @@ main(int argc, char *argv[]) {
 	/* Initialize table with maximum 20 service */
 	diet_service_table_init(20);
 
-
-
-
 	SeDCloudActionsNULL *actions = new SeDCloudActionsNULL();
-
-
-
 	SeDCloud::create(actions);
-
-
 
 	SeDCloud::get()->service_homogeneous_vm_instanciation_add();
 	SeDCloud::get()->service_homogeneous_vm_instanciation_with_keyname_add();
@@ -71,7 +62,6 @@ main(int argc, char *argv[]) {
 	SeDCloud::get()->service_rsync_to_vm_add();
 	SeDCloud::get()->service_mount_nfs_add();
 	SeDCloud::get()->service_get_tarball_from_vm_add();
-
 
 	//for experiments
 	service_time_solve_add();

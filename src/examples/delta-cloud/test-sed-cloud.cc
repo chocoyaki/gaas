@@ -13,13 +13,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "SeD_deltacloud.hh"
+#include "SeDCloud.hh"
 #include <string>
 #include <vector>
 
 #include "Instance.hh"
 
-
+int
 main(int argc, char *argv[]) {
     std::string base_url = "http://localhost:3001/api";
     std::string username = "oneadmin";

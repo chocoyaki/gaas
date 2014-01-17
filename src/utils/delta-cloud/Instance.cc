@@ -41,7 +41,7 @@ Instance::Instance(const std::string & _image_id, const std::string & _id,
 };
 
 std::string
-Instance::get_ip(bool select_private_ip = false) {
+Instance::get_ip(bool select_private_ip) {
   if (select_private_ip == true) {
     return private_ip;
   }

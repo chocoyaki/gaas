@@ -22,7 +22,11 @@
 
 #include <stdio.h>
 
-typedef int (* dietcloud_callback_t)(diet_profile_t*);
+
+void service_time_solve_add();
+int time_solve(diet_profile_t *pb);
+void service_add_seq_in_data_xml_add();
+int add_seq_in_data_xml_solve(diet_profile_t *pb);
 
 //the controller which calls actions
 class SeDCloud {
@@ -43,8 +47,6 @@ class SeDCloud {
 
 
   public:
-    //void addParameter(const std::string& param, const std::string& value);
-
 
     static void launch(int argc, char* argv[]) {
       // Assuming config file is the first arg
@@ -53,11 +55,9 @@ class SeDCloud {
 
       SeDCloud::instance->actions->perform_action_on_sed_launch();
       diet_SeD(argv[1], argc, argv);
-
     }
 
     static void create(SeDCloudActions* _actions) {
-
       if (_actions != NULL) {
         if (instance == NULL) {
           SeDCloud::instance = new SeDCloud(_actions);
@@ -65,26 +65,9 @@ class SeDCloud {
       }
     }
 
-    /*static void erase() {
-      if (instance != NULL) {
-      delete instance;
-      instance = NULL;
-      }
-
-    //std::map<std::string, SeDCloudActions*>::iterator iter;
-    }*/
-
     static SeDCloud* get() {
-
       return SeDCloud::instance;
-
     }
-
-
-
-    //  SeDCloudActions& get_actions() const{
-    //    return *actions;
-    //  }
 
     virtual DIET_API_LIB int
       service_table_add(const std::string& name_of_service,
@@ -151,16 +134,6 @@ class SeDCloud {
     //TODO to link to user or group
     //static std::map<std::string, IaaS::VMInstances*> reserved_vms;
 
-
-  public:
-
-    //static std::map<std::string, CloudServiceBinary> cloud_service_binaries;
-
-    /*
-       void deployServiceBinary(std::string name) {
-
-       }
-       */
 };
 
 #endif /* _SEDCLOUD_HH_ */

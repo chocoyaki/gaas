@@ -57,7 +57,6 @@ if(DIET_USE_DELTACLOUD)
 			utils/delta-cloud/CloudServiceBinary.cc
 			utils/delta-cloud/Iaas_deltacloud.cc
 			utils/delta-cloud/Instance.cc
-			utils/delta-cloud/SeD_deltacloud.cc
 			utils/delta-cloud/SeDCloud.cc
 			utils/delta-cloud/SeDCloudActions.cc
 			utils/delta-cloud/ServiceStatisticsMap.cc
