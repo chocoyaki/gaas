@@ -3,7 +3,8 @@
  *
  * @brief
  *
- * @author  Lamiel Toch (lamiel.toch@ens-lyon.fr) Guillaume Verger (guillaume.verger@inria.fr)
+ * @author  Lamiel Toch (lamiel.toch@ens-lyon.fr)
+ *          Guillaume Verger (guillaume.verger@inria.fr)
  *
  * @section Licence
  *   |LICENCE|
@@ -19,7 +20,8 @@
 #include <sstream>
 
 int SeDCloudActions::launch_vms() {
-  IaaS::VMInstances* insts = new IaaS::VMInstances (this->image_id, this->vm_count, this->base_url, this->username, this->password, this->vm_user, this->params);
+
+  IaaS::VMInstances* insts = new IaaS::VMInstances (this->image_id, this->vm_count, this->interface, this->vm_user, this->params);
 
   vm_instances.push_back(insts);
 
@@ -39,29 +41,31 @@ int SeDCloudActions::launch_vms() {
 }
 
 
-SeDCloudActions::SeDCloudActions(const std::string& _image_id, const std::string& _base_url, const std::string& _username, const std::string& _password, const std::string& _vm_user,
-                          int _vm_count, bool _is_ip_private, const std::vector<IaaS::Parameter>& _params) {
+SeDCloudActions::SeDCloudActions(const std::string& _image_id, const IaaS::IaasInterface * cloud_interface, const std::string& _vm_user,
+    int _vm_count, bool _is_ip_private, const std::vector<IaaS::Parameter>& _params) {
 
+  this->image_id = _image_id;
+  this->interface = cloud_interface->clone();
+  this->vm_user = _vm_user;
+  this->vm_count = _vm_count;
+  this->params = _params;
+  this->is_ip_private = _is_ip_private;
 
-    this->image_id = _image_id;
-    this->base_url = _base_url;
-    this->username = _username;
-    this->password = _password;
-    this->vm_user = _vm_user;
-    this->vm_count = _vm_count;
-    this->params = _params;
-    this->is_ip_private = _is_ip_private;
-
-    //this->vm_instances = NULL;
+  //this->vm_instances = NULL;
 }
 
 
 SeDCloudActions::SeDCloudActions() {
-     //this->vm_instances = NULL;
+  //this->vm_instances = NULL;
+}
+
+SeDCloudActions::~SeDCloudActions() {
+  destroy_vms();
+  delete interface;
 }
 
 int SeDCloudActions::send_arguments(const std::string& local_path, const std::string& remote_path) {
-    return rsync_to_vm(local_path, remote_path, vm_user, master_ip);
+  return rsync_to_vm(local_path, remote_path, vm_user, master_ip);
 }
 
 int SeDCloudActions::receive_result(const std::string& result_remote_path, const std::string& result_local_path) {
@@ -94,14 +98,14 @@ void SeDCloudActions::copy_binary_into_all_vms(std::string name) {
 
 
 void SeDCloudActions::copy_all_binaries_into_vm(int vm_index) {
-    vm_instances.back()->wait_all_ssh_connection(this->is_ip_private);
+  vm_instances.back()->wait_all_ssh_connection(this->is_ip_private);
 
-    std::map<std::string, CloudServiceBinary>::const_iterator iter;
-    std::map<std::string, CloudServiceBinary>& binaries = cloud_service_binaries;
-    for(iter = binaries.begin(); iter != binaries.end(); iter++) {
-        std::string name_of_service = iter->first;
+  std::map<std::string, CloudServiceBinary>::const_iterator iter;
+  std::map<std::string, CloudServiceBinary>& binaries = cloud_service_binaries;
+  for(iter = binaries.begin(); iter != binaries.end(); iter++) {
+    std::string name_of_service = iter->first;
     copy_binary_into_vm(name_of_service, vm_index);
-    }
+  }
 }
 
 void SeDCloudActions::copy_all_binaries_into_all_vms() {
@@ -116,11 +120,11 @@ int SeDCloudAndVMLaunchedActions::perform_action_on_begin_solve(diet_profile_t *
 }
 
 int SeDCloudAndVMLaunchedActions::perform_action_on_end_solve(diet_profile_t *pb) {
- return 0;
+  return 0;
 }
 
 void SeDCloudAndVMLaunchedActions::perform_action_on_sed_creation() {
-    launch_vms();
+  launch_vms();
 }
 
 
@@ -128,10 +132,10 @@ void SeDCloudAndVMLaunchedActions::perform_action_on_sed_creation() {
 
 
 /*
-On sed launch, we copy all binaries for each service
-*/
+   On sed launch, we copy all binaries for each service
+   */
 void SeDCloudAndVMLaunchedActions::perform_action_on_sed_launch() {
-    copy_all_binaries_into_all_vms();
+  copy_all_binaries_into_all_vms();
 }
 
 
@@ -143,22 +147,22 @@ int SeDCloudAndVMLaunchedActions::perform_action_after_service_table_add(const s
 
 
 void SeDCloudMachinesActions::perform_action_on_sed_creation() {
-    //rien pas de creation de vm
+  //rien pas de creation de vm
 }
 
 
 
 
 /*
-On sed launch, we copy all binaries for each service
-*/
+   On sed launch, we copy all binaries for each service
+   */
 void SeDCloudMachinesActions::perform_action_on_sed_launch() {
-    //SeDCloud<SeDCloudAndVMLaunchedActions>::get()->vm_instances->wait_all_ssh_connection(this->is_ip_private);
+  //SeDCloud<SeDCloudAndVMLaunchedActions>::get()->vm_instances->wait_all_ssh_connection(this->is_ip_private);
 
-    std::map<std::string, CloudServiceBinary>::const_iterator iter;
-    std::map<std::string, CloudServiceBinary>& binaries = cloud_service_binaries;
-    for(iter = binaries.begin(); iter != binaries.end(); iter++) {
-        std::string name_of_service = iter->first;
+  std::map<std::string, CloudServiceBinary>::const_iterator iter;
+  std::map<std::string, CloudServiceBinary>& binaries = cloud_service_binaries;
+  for(iter = binaries.begin(); iter != binaries.end(); iter++) {
+    std::string name_of_service = iter->first;
     const CloudServiceBinary& binary = iter->second;
 
     for(size_t i = 0; i < ips.size(); i++){
@@ -166,13 +170,13 @@ void SeDCloudMachinesActions::perform_action_on_sed_launch() {
       binary.install(ip, vm_user);
       //copy_binary_into_vm(name_of_service, 0);
     }
-    }
+  }
 
 
-    //fork and wait until ssh connection is broken
-    pid_t pid = fork();
+  //fork and wait until ssh connection is broken
+  pid_t pid = fork();
 
-    if (pid == 0){
+  if (pid == 0){
     //in the child
     //std::ostringstream cmd;
     //cmd << "ssh " << vm_user << "@" << get_master_ip() << " exit";
@@ -192,11 +196,11 @@ void SeDCloudMachinesActions::perform_action_on_sed_launch() {
     kill(parent_pid, SIGTERM);
 
     exit(0);
-    }
-    else {
+  }
+  else {
     //in the parent
     //we do nothing
-    }
+  }
 
 
 }
@@ -205,36 +209,36 @@ void SeDCloudMachinesActions::perform_action_on_sed_launch() {
 
 
 void SeDCloudVMLaunchedAtSolveActions::perform_action_on_sed_launch() {
-    std::map<std::string, CloudServiceBinary>::const_iterator iter;
-    std::map<std::string, CloudServiceBinary>& binaries = cloud_service_binaries;
-    for(iter = binaries.begin(); iter != binaries.end(); iter++) {
-        std::string name_of_service = iter->first;
-        printf("add service %s\n", name_of_service.c_str());
-        statistics_on_services.add_service(name_of_service);
-    }
+  std::map<std::string, CloudServiceBinary>::const_iterator iter;
+  std::map<std::string, CloudServiceBinary>& binaries = cloud_service_binaries;
+  for(iter = binaries.begin(); iter != binaries.end(); iter++) {
+    std::string name_of_service = iter->first;
+    printf("add service %s\n", name_of_service.c_str());
+    statistics_on_services.add_service(name_of_service);
+  }
 }
 
 
 
 int SeDCloudVMLaunchedAtFirstSolveActions::perform_action_on_begin_solve(diet_profile_t *pb){
-    std::string service_name = pb->pb_name;
+  std::string service_name = pb->pb_name;
 
-    printf("call solve for service %s\n", service_name.c_str());
+  printf("call solve for service %s\n", service_name.c_str());
 
 
 
-    if (!statistics_on_services.one_service_already_called()) {
-        statistics_on_services.increment_call_number(service_name);
-        //this->vm_instances = new IaaS::VMInstances (this->image_id, this->vm_count, this->base_url, this->username, this->password, this->vm_user, this->params);
-        int res_launch = launch_vms();
+  if (!statistics_on_services.one_service_already_called()) {
+    statistics_on_services.increment_call_number(service_name);
+    //this->vm_instances = new IaaS::VMInstances (this->image_id, this->vm_count, this->base_url, this->username, this->password, this->vm_user, this->params);
+    int res_launch = launch_vms();
 
-        copy_all_binaries_into_all_vms();
-        return res_launch;
-    }
-    else {
-        statistics_on_services.increment_call_number(service_name);
-    }
-    return 0;
+    copy_all_binaries_into_all_vms();
+    return res_launch;
+  }
+  else {
+    statistics_on_services.increment_call_number(service_name);
+  }
+  return 0;
 
 }
 
@@ -244,14 +248,14 @@ int SeDCloudVMLaunchedAtFirstSolveActions::perform_action_on_end_solve(diet_prof
 
 
 int SeDCloudVMLaunchedAtSolveThenDestroyedActions::perform_action_on_begin_solve(diet_profile_t *pb) {
-    //this->vm_instances = new IaaS::VMInstances (this->image_id, this->vm_count, this->base_url, this->username, this->password, this->vm_user, this->params);
-    int res_launch =  launch_vms();
+  //this->vm_instances = new IaaS::VMInstances (this->image_id, this->vm_count, this->base_url, this->username, this->password, this->vm_user, this->params);
+  int res_launch =  launch_vms();
 
 
 
-    std::string name_of_service = pb->pb_name;
-   // CloudServiceBinary& binary = cloud_service_binaries[name_of_service];
-    //vm_instances->rsync_to_vm(0, is_ip_private, binary.local_path_of_binary, binary.remote_path_of_binary);
+  std::string name_of_service = pb->pb_name;
+  // CloudServiceBinary& binary = cloud_service_binaries[name_of_service];
+  //vm_instances->rsync_to_vm(0, is_ip_private, binary.local_path_of_binary, binary.remote_path_of_binary);
   copy_binary_into_all_vms(name_of_service);
 
   return res_launch;
@@ -260,8 +264,8 @@ int SeDCloudVMLaunchedAtSolveThenDestroyedActions::perform_action_on_begin_solve
 
 int SeDCloudVMLaunchedAtSolveThenDestroyedActions::perform_action_on_end_solve(diet_profile_t *pb) {
 
-   destroy_vms();
-   return 0;
+  destroy_vms();
+  return 0;
 }
 
 
@@ -349,7 +353,7 @@ void SeDCloudActions::destroy_vms() {
 
   for(iter = vm_instances.begin(); iter != vm_instances.end(); iter++) {
     IaaS::VMInstances* elt = *iter;
-    if (elt != NULL){
+    if (elt != NULL) {
       delete elt;
       *iter = NULL;
     }
@@ -364,13 +368,10 @@ void SeDCloudActions::fill_ips() {
 }
 
 
-int SeDCloudActions::launch_vms(const std::string& vm_image, int vm_count, const std::string& deltacloud_api_url,
-    const std::string& deltacloud_user_name, const std::string& deltacloud_passwd, const std::string& vm_user, bool is_ip_private,
+int SeDCloudActions::launch_vms(const std::string& vm_image, int vm_count, const std::string& vm_user, bool is_ip_private,
     const std::vector<IaaS::Parameter>& params) {
   this->image_id = vm_image;
   this->vm_count = vm_count;
-  this->base_url = deltacloud_api_url;
-  set_credentials(deltacloud_user_name, deltacloud_passwd);
   this->vm_user = vm_user;
   this->is_ip_private = is_ip_private;
   this->params = params;
@@ -380,48 +381,48 @@ int SeDCloudActions::launch_vms(const std::string& vm_image, int vm_count, const
 
 
 /*
-int SeDCloudVMLaunchedThenExecProgramActions::perform_action_on_vm_os_ready() {
-  pid_t pid = fork();
+   int SeDCloudVMLaunchedThenExecProgramActions::perform_action_on_vm_os_ready() {
+   pid_t pid = fork();
 
-  if (pid == 0) {
-    //in the process child
-    int env;
+   if (pid == 0) {
+//in the process child
+int env;
 
-    int nb_args = program_args.size();
-    char** argv = new char* [nb_args + 2];
-
-
-    argv[0] = basename(strdup(program_path.c_str()));
-    printf("execv : %s ", argv[0]);
-    for(int i = 0; i < nb_args; i++) {
-
-      argv[i + 1 ] = strdup(program_args[i].c_str());
-      printf(" %s", argv[i + 1]);
-    }
-    argv[nb_args + 1] = NULL;
-    printf("\n");
-
-    printf("inside fork\n");
-    std::string d_cmd = "cat ";
-    d_cmd.append(program_args[1].c_str());
-    printf("%s\n", d_cmd.c_str());
-    env = system(d_cmd.c_str());
+int nb_args = program_args.size();
+char** argv = new char* [nb_args + 2];
 
 
-    //char* d_argv[] = {"ls", "-l", NULL};
-    //execv("/bin/ls", d_argv);
-    env = execv(program_path.c_str(), argv);
+argv[0] = basename(strdup(program_path.c_str()));
+printf("execv : %s ", argv[0]);
+for(int i = 0; i < nb_args; i++) {
 
-    //should not arrive here
-    printf("erreur #%i execution execv inside children process\n", env);
-    return -1;
+argv[i + 1 ] = strdup(program_args[i].c_str());
+printf(" %s", argv[i + 1]);
+}
+argv[nb_args + 1] = NULL;
+printf("\n");
 
-  }
-  else {
-    if (pid > 0) {
-      printf("fork executing: success\n");
-      return 0;
-    }
-  }
+printf("inside fork\n");
+std::string d_cmd = "cat ";
+d_cmd.append(program_args[1].c_str());
+printf("%s\n", d_cmd.c_str());
+env = system(d_cmd.c_str());
+
+
+//char* d_argv[] = {"ls", "-l", NULL};
+//execv("/bin/ls", d_argv);
+env = execv(program_path.c_str(), argv);
+
+//should not arrive here
+printf("erreur #%i execution execv inside children process\n", env);
+return -1;
+
+}
+else {
+if (pid > 0) {
+printf("fork executing: success\n");
+return 0;
+}
+}
 
 }*/

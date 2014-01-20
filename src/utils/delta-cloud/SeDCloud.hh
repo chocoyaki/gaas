@@ -31,31 +31,7 @@ int add_seq_in_data_xml_solve(diet_profile_t *pb);
 //the controller which calls actions
 class SeDCloud {
 
-
-  protected:
-    SeDCloudActions* actions;
-
-#ifdef USE_LOG_SERVICE
-    const DietLogComponent* get_log_component() const;
-#endif
-
-    SeDCloud(SeDCloudActions* _actions) {
-      instance = NULL;
-      actions = _actions;
-      actions->perform_action_on_sed_creation();
-    }
-
-
   public:
-
-    static void launch(int argc, char* argv[]) {
-      // Assuming config file is the first arg
-      // We need the name to launch seds from SeDCloud
-      SeDCloud::instance->config_file = std::string(argv[1]);
-
-      SeDCloud::instance->actions->perform_action_on_sed_launch();
-      diet_SeD(argv[1], argc, argv);
-    }
 
     static void create(SeDCloudActions* _actions) {
       if (_actions != NULL) {
@@ -67,6 +43,14 @@ class SeDCloud {
 
     static SeDCloud* get() {
       return SeDCloud::instance;
+    }
+
+    void launch(int argc, char* argv[]) {
+      // Assuming config file is the first arg
+      // We need the name to launch seds from SeDCloud
+      config_file = std::string(argv[1]);
+      actions->perform_action_on_sed_launch();
+      diet_SeD(argv[1], argc, argv);
     }
 
     virtual DIET_API_LIB int
@@ -111,6 +95,17 @@ class SeDCloud {
 
     DIET_API_LIB int service_launch_another_sed_add();
   protected:
+
+#ifdef USE_LOG_SERVICE
+    const DietLogComponent* get_log_component() const;
+#endif
+
+    SeDCloud(SeDCloudActions* _actions) {
+      instance = NULL;
+      actions = _actions;
+      actions->perform_action_on_sed_creation();
+    }
+
     static int solve(diet_profile_t *pb);
     static std::vector<CloudAPIConnection>* cloud_api_connection_for_vm_destruction;
     static CloudAPIConnection* cloud_api_connection_for_vm_instanciation;
@@ -129,6 +124,7 @@ class SeDCloud {
 
     static int homogeneous_vm_instanciation_with_keyname_solve(diet_profile_t *pb);
 
+    SeDCloudActions* actions;
     std::string config_file;
 
     //TODO to link to user or group

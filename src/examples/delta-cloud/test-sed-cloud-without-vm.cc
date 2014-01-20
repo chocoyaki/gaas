@@ -53,7 +53,7 @@ main(int argc, char *argv[]) {
 
 
 
-  SeDCloud::launch(argc, argv);
+  SeDCloud::get()->launch(argc, argv);
 
 
 

@@ -13,7 +13,7 @@ authors : Adrian Muresan, Lamiel Toch
 
 #include "Instance.hh"
 #include "Image.hh"
-
+#include "CloudAPIConnection.hh"
 
 namespace IaaS {
 
@@ -51,8 +51,20 @@ namespace IaaS {
       virtual ~IaasInterface() {};
 
       virtual std::string get_instance_state(const std::string& instance_id) = 0;
-  };
 
+      virtual IaasInterface * clone() const = 0;
+
+      CloudAPIConnection get_cloud_api_connection() {
+        return cloud_connection;
+      }
+
+      void set_cloud_api_connection(const CloudAPIConnection& cloud_connection) {
+        this->cloud_connection = cloud_connection;
+      }
+
+    protected:
+      CloudAPIConnection cloud_connection;
+  };
 }
 
 #endif // _IAAS_INTERFACE_HH_

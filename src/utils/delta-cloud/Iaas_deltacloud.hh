@@ -10,6 +10,7 @@ struct deltacloud_api;
 #include "Instance.hh"
 #include "Image.hh"
 #include "IaasInterface.hh"
+#include "CloudAPIConnection.hh"
 
 namespace IaaS {
 
@@ -20,19 +21,19 @@ namespace IaaS {
 
   class Iaas_deltacloud : public IaasInterface {
 
-    /* config parameters */
-    std::string url_api_base;
-    std::string username;
-    std::string password;
-
     /* initializes the API structure - repetitie stuff */
     bool init_api(deltacloud_api * api);
 
     public:
 
-    Iaas_deltacloud(const std::string & _url_api_base, const std::string & _username, const std::string & _password)
-      : url_api_base(_url_api_base), username(_username), password(_password) {
-      }
+    Iaas_deltacloud(const std::string & _url_api_base, const std::string & _username, const std::string & _password) {
+      this->set_cloud_api_connection(CloudAPIConnection(_url_api_base, _username, _password)); 
+    }
+
+    Iaas_deltacloud(const CloudAPIConnection& cloud_connection) {
+      this->set_cloud_api_connection(cloud_connection);
+    }
+
 
     virtual ~Iaas_deltacloud() {};
 
@@ -59,6 +60,8 @@ namespace IaaS {
     virtual int wait_instance_running(const std::string& instanceId);
 
     virtual std::string get_instance_state(const std::string& instance_id);
+
+    virtual Iaas_deltacloud * clone() const;
 
     protected:
 
