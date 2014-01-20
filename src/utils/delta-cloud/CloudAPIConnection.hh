@@ -3,7 +3,8 @@
  *
  * @brief  
  *
- * @author  Guillaume Verger (guillaume.verger@inria.fr)
+ * @author  Lamiel Toch (lamiel.toch@ens-lyon.fr)
+ *          Guillaume Verger (guillaume.verger@inria.fr)
  *
  * @section Licence
  *   |LICENCE|
@@ -25,7 +26,7 @@ public:
   CloudAPIConnection() {};
   ~CloudAPIConnection(){};
 
-  CloudAPIConnection(const CloudAPIConnection& api){
+  CloudAPIConnection(const CloudAPIConnection& api) {
     this->username = api.username;
     this->password = api.password;
     this->base_url = api.base_url;

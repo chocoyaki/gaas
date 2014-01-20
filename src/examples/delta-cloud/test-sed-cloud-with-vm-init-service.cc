@@ -45,7 +45,7 @@ main(int argc, char *argv[]) {
   SeDCloud::get()->service_table_add("date", 0, 0, NULL, "", "/bin", "date", "", pathsTransferMethod, NULL, NULL);
 
   /* Launch the SeD: no return call */
-  SeDCloud::launch(argc, argv);
+  SeDCloud::get()->launch(argc, argv);
 
     //SeDCloud::erase();
 

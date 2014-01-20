@@ -34,9 +34,9 @@ using namespace IaaS;
 
 bool Iaas_deltacloud::init_api(deltacloud_api * api) {
   if (deltacloud_initialize(api,
-        const_cast<char*>(url_api_base.c_str()),
-        const_cast<char*>(username.c_str()),
-        const_cast<char*>(password.c_str())) < 0) {
+        const_cast<char*>(cloud_connection.base_url.c_str()),
+        const_cast<char*>(cloud_connection.username.c_str()),
+        const_cast<char*>(cloud_connection.password.c_str())) < 0) {
     cerr<<"Failed to initialize libdeltacloud: "<<deltacloud_get_last_error_string()<<endl;
     return false;
   }
@@ -411,7 +411,11 @@ std::string Iaas_deltacloud::get_instance_state(const std::string& instance_id) 
   return res;
 }
 
-
+Iaas_deltacloud *
+Iaas_deltacloud::clone() const {
+  Iaas_deltacloud * the_clone = new Iaas_deltacloud(*this);
+  return the_clone;
+}
 
 
 

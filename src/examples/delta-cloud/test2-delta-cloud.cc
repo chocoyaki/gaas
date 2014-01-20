@@ -81,7 +81,7 @@ int main(int argc, const char *argv[]) {
 	}
 
 	string image_id = argv[1];
-
+  IaaS::IaasInterface * interface = new IaaS::Iaas_deltacloud(base_url, username, password);
 	
 	
 	
@@ -94,7 +94,7 @@ int main(int argc, const char *argv[]) {
 	//params.push_back(vm_name);
 	
 	
-	VMInstances* vm_instances = new VMInstances(image_id, vms_count, base_url, username, password,
+	VMInstances* vm_instances = new VMInstances(image_id, vms_count, interface,
 	vm_user, params);
 	
 	vm_instances->wait_all_instances_running();

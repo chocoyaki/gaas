@@ -72,7 +72,7 @@ main(int argc, char *argv[]) {
 	//SeDCloud::get()->service_table_add("mount-nfs", 0, 1, NULL, "", RAMSES_HOME, "mount-nfs", "", pathsTransferMethod, NULL, dummyoutput);
 
 	/* Launch the SeD: no return call */
-	SeDCloud::launch(argc, argv);
+	SeDCloud::get()->launch(argc, argv);
 
 	//SeDCloud::erase();
 

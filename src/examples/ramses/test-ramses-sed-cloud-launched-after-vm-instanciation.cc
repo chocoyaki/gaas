@@ -27,17 +27,7 @@
 #include "DIET_uuid.hh"
 #include <libgen.h>
 
-
-
-
-
-
-
-
-
-
 static std::string RAMSES_WRAPPERS_HOME;
-
 
 int output_same_as_input(ServiceWrapper* sw, diet_profile_t *pb) {
 	int last_out = pb->last_out;
@@ -182,7 +172,7 @@ main(int argc, char *argv[]) {
 		    argv[1] = new char[cfg_copy_path.str().size()+1];
 		    strcpy(argv[1], cfg_copy_path.str().c_str());
 
-			SeDCloud::launch(argc, argv);
+			SeDCloud::get()->launch(argc, argv);
 			//dead code in the child
 
 			exit(-1);
@@ -213,7 +203,7 @@ main(int argc, char *argv[]) {
 
 	diet_print_service_table();
 	/* Launch the SeD: no return call */
-	SeDCloud::launch(argc, argv);
+	SeDCloud::get()->launch(argc, argv);
 
 
 

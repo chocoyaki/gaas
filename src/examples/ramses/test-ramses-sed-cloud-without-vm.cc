@@ -68,7 +68,7 @@ main(int argc, char *argv[]) {
 	SeDCloud::get()->service_table_add("galaxymaker", 1, 2, NULL, "", RAMSES_HOME, "call-galaxymaker", "", pathsTransferMethod, NULL, dummyoutput);
 
 	/* Launch the SeD: no return call */
-	SeDCloud::launch(argc, argv);
+	SeDCloud::get()->launch(argc, argv);
 
 	//SeDCloud::erase();
 

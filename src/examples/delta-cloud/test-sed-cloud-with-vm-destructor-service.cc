@@ -19,7 +19,7 @@
 
 #include "Instance.hh"
 
-
+int
 main(int argc, char *argv[]) {
 
 
@@ -51,7 +51,7 @@ main(int argc, char *argv[]) {
 	diet_print_service_table();
 
 	/* Launch the SeD: no return call */
-	SeDCloud::launch(argc, argv);
+	SeDCloud::get()->launch(argc, argv);
 
 	/* Dead code */
 	return 0;

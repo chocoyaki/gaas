@@ -87,8 +87,8 @@ int main(int argc, const char *argv[]) {
 	params.push_back(Parameter(KEYNAME_PARAM, keypair_value));
 	params.push_back(Parameter(HARDWARE_PROFILE_ID_PARAM, profile_id));
 
-
-	VMInstances* vm_instances = new VMInstances(image_id, vms_count, base_url, username, password,
+  IaaS::IaasInterface * interface = new IaaS::Iaas_deltacloud(base_url, username, password);
+	VMInstances* vm_instances = new VMInstances(image_id, vms_count, interface,
 	vm_user, params);
 
 	vm_instances->wait_all_instances_running();
