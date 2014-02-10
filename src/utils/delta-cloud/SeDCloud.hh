@@ -50,7 +50,7 @@ class SeDCloud {
       // We need the name to launch seds from SeDCloud
       config_file = std::string(argv[1]);
       actions->perform_action_on_sed_launch();
-      diet_SeD(argv[1], argc, argv);
+      diet_SeD(&config_file[0], argc, argv);
     }
 
     virtual DIET_API_LIB int
