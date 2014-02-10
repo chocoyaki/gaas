@@ -405,12 +405,15 @@ int SeDCloud::launch_another_sed_solve(diet_profile_t* pb) {
 
   cfg.close();
   tmp.close();
-  int nb_args = pb->last_in + 1;
-  char** argv = new char* [nb_args + 2];
-  char* sed_path_base_name = basename(sed_executable_path);
+  int nb_args = 4;
+  char** argv = new char* [nb_args];
+  char* sed_path_base_name = new char[strlen(basename(sed_executable_path))+1];
+  strcpy(sed_path_base_name, basename(sed_executable_path));
   argv[0] = sed_path_base_name;
-  argv[1] = const_cast<char*> (cfg_copy_path.str().c_str());
-  argv[2] = const_cast<char*> (data_copy_path.c_str());
+  argv[1] = new char[cfg_copy_path.str().size()+1];
+  strcpy(argv[1], cfg_copy_path.str().c_str());
+  argv[2] = new char[data_copy_path.size()+1];
+  strcpy(argv[2], data_copy_path.c_str());
   argv[3] = NULL;
 
   pid_t pid = fork();
@@ -433,8 +436,15 @@ int SeDCloud::launch_another_sed_solve(diet_profile_t* pb) {
       waitpid(pid, &child_status, WNOHANG);
 
 
-      diet_scalar_set(diet_parameter(pb, 3), &child_status, DIET_PERSISTENT_RETURN, DIET_INT);
+      diet_scalar_set(diet_parameter(pb, 2), &child_status, DIET_PERSISTENT_RETURN, DIET_INT);
 
+      for (int idx_arg = 0; idx_arg < nb_args ; ++idx_arg)
+      {
+        delete [] argv[idx_arg]; 
+        argv[idx_arg] = NULL;
+      }
+      delete [] argv;
+      argv = NULL;
       return 0;
     }
   }
