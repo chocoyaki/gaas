@@ -110,7 +110,6 @@ namespace IaaS {
 
       /*
        * create VM instances
-       * This constructor takes the ownership of cloud_interface
        */
       
       VMInstances(std::string image_id, int vm_count, IaasInterface* cloud_interface,
