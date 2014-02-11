@@ -1,6 +1,5 @@
 #include "deltacloud_config.h"
 
-
 #include <vector>
 #include <string>
 #include <iostream>
@@ -16,15 +15,11 @@
 #include "Tools.hh"
 #include <assert.h>
 
-
 #ifdef USE_LOG_SERVICE
 #include "DietLogComponent.hh"
 #include "Tools.hh"
 
 #endif
-
-
-
 
 using namespace std;
 using namespace IaaS;
@@ -56,8 +51,7 @@ vector<Image*> * Iaas_deltacloud::get_all_images() {
     return NULL;
   }
 
-  deltacloud_image * img = NULL;
-  img = images;
+  deltacloud_image * img = images;
   vector<Image*> * img_arr = new vector<Image*>();
 
   /* now traverse the list and add the images to the array */
@@ -97,7 +91,6 @@ vector<Instance*> * Iaas_deltacloud::get_all_instances() {
     else {
       error = false;
     }
-
 
 
   }while (error);

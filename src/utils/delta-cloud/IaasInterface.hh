@@ -14,6 +14,7 @@ authors : Adrian Muresan, Lamiel Toch
 #include "Instance.hh"
 #include "Image.hh"
 #include "CloudAPIConnection.hh"
+#include "Parameter.hh"
 
 namespace IaaS {
 

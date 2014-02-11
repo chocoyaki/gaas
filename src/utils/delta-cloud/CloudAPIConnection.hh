@@ -1,7 +1,7 @@
 /*
  * @file CloudAPIConnection.hh
  *
- * @brief  
+ * @brief 
  *
  * @author  Lamiel Toch (lamiel.toch@ens-lyon.fr)
  *          Guillaume Verger (guillaume.verger@inria.fr)

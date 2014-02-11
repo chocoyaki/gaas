@@ -22,28 +22,6 @@
 
 namespace IaaS {
 
-#define KEYNAME_PARAM "keyname"
-#define HARDWARE_PROFILE_ID_PARAM "hwp_id"
-
-
-  class Parameter{
-    public:
-
-      std::string name;
-      std::string value;
-
-      Parameter(const std::string& n, const std::string& v) : name(n), value(v) {
-
-      }
-
-
-      Parameter(const Parameter& param) : name(param.name), value(param.value){
-
-      }
-
-  };
-
-
   class Instance {
     public:
 

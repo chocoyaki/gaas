@@ -13,11 +13,9 @@
 #ifndef _IMAGE_HH_
 #define _IMAGE_HH_
 
-#include <vector>
 #include <string>
 
 namespace IaaS {
-
 
   /****************************************************************************/
   /* Image class                                                                */
