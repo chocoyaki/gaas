@@ -44,7 +44,9 @@ while test $i -lt $# ; do
     i=$((i + 1))
 done
 
-dir="$workingDir/CA"
+if [ -z $dir ]; then
+  dir="$workingDir/CA"
+fi
 
 if [ -e "${dir}" ]; then
   error "Folder '$dir' already exists"

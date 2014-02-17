@@ -49,7 +49,7 @@ function create() {
   fi
 
   cat "$scriptDir/launch-scripts/Agent.launch" | sed "s/\#NAME\#/$name/g" \
-    | sed "s/\#BINARY\#/$binary/g" \
+    | sed "s/\#BINARY\#/$binary/g" | sed "s/\#BINARGS\#/$args/g" \
     > "$name.launch"
   chmod +x "$name.launch"
  
@@ -69,10 +69,10 @@ function readFile {
     hostname[$nb]=$hostname
     binary[$nb]=$bin_name
     binargs[$nb]=$bin_args
-    echo "${parent[$nb]} -> ${agentname[$nb]} ( ${agenttype[$nb]} ) : ${hostname[$nb]}"
+    echo "${parent[$nb]} -> ${agentname[$nb]} ${bin_args} ( ${agenttype[$nb]} ) : ${hostname[$nb]}"
   done < $file
   nbelements=$nb
- echo "No implemented yet"
+  echo "No implemented yet"
 }
 
 set -e
@@ -102,7 +102,7 @@ while test $i -lt $# ; do
 done
 
 scriptDir=$(cd `dirname $0` && pwd)
-dir="$PWD/Auth"
+dir="$PWD/CA"
 mkdir -p "$PWD/configs"
 hostname=`hostname -I | cut -d" " -f1`
 

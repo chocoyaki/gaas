@@ -97,6 +97,7 @@ echo "-------------------"
   
   if [ -n "$cfg" ]; then
     if [ -f "$cfg" ]; then
+        echo "sslEnabled = 1" >> "$cfg"
       echo "sslRootCertificate = $agentdir/cacert.pem" >> "$cfg"
       echo "sslPrivateKey = $agentdir/private/$agentname.pem" >> "$cfg"
     else

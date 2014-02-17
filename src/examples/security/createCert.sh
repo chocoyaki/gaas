@@ -33,6 +33,7 @@ for arg in "$@"; do
 done
 
 i=0
+workingDir=`pwd`
 while test $i -lt $# ; do
     arg="${argv[$i]}"
     case "$arg" in
