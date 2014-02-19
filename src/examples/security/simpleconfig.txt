@@ -1,0 +1,3 @@
+;MA;MA1;localhost;dietAgent
+MA1;LA;LA1;localhost
+LA1;SeD;sed_dmat;localhost;dmat_manips_server;T
