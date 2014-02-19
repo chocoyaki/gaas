@@ -5,6 +5,7 @@
 	- Clients can automatically retry a diet_call certain number of
 	times given in the configuration file by the clientNbRetry
 	variable.
+	- SSL communications are now available.
 	
 +------------+
 | diet 2.8.1 |
