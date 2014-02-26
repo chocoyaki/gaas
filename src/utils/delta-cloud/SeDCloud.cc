@@ -3,7 +3,8 @@
  *
  * @brief
  *
- * @author  Lamiel Toch (lamiel.toch@es-lyon.fr) Guillaume Verger (guillaume.verger@inria.fr)
+ * @author  Lamiel Toch (lamiel.toch@es-lyon.fr)
+ *          Guillaume Verger (guillaume.verger@inria.fr)
  *
  * @section Licence
  *   |LICENCE|
@@ -37,7 +38,7 @@
 extern char ** environ;
 
 SeDCloud* SeDCloud::instance = NULL;
-std::vector<CloudAPIConnection>* SeDCloud::cloud_api_connection_for_vm_destruction = NULL;
+std::vector<CloudAPIConnection> SeDCloud::cloud_api_connection_for_vm_destruction;
 CloudAPIConnection* SeDCloud::cloud_api_connection_for_vm_instanciation = NULL;
 
 
@@ -339,7 +340,7 @@ DIET_API_LIB int SeDCloud::service_vm_destruction_by_ip_add() {
 }
 
 
-DIET_API_LIB int SeDCloud::service_cloud_federation_vm_destruction_by_ip_add(std::vector<CloudAPIConnection>* _cloud_api_connection) {
+DIET_API_LIB int SeDCloud::service_cloud_federation_vm_destruction_by_ip_add(std::vector<CloudAPIConnection> _cloud_api_connection) {
   cloud_api_connection_for_vm_destruction = _cloud_api_connection;
 
   diet_profile_desc_t* profile;
@@ -634,7 +635,9 @@ int SeDCloud::vm_destruction_by_ip_solve(diet_profile_t *pb) {
 
   std::vector<std::string> ips;
   readlines(path, ips);
+  std::cout << "Destroying ips..." <<std::endl;
   interface->terminate_instances_by_ips(ips, *select_private_ips);
+  std::cout << "End destroying ips..." <<std::endl;
 
 
   for(int i=0; i <= 4; i++) {
@@ -653,9 +656,6 @@ int SeDCloud::vm_destruction_by_ip_solve(diet_profile_t *pb) {
 int SeDCloud::cloud_federation_vm_destruction_by_ip_solve(diet_profile_t *pb) {
   char* path;
   size_t size;
-  const char* url_api;
-  const char* user_name;
-  const char* password;
   int* select_private_ips;
 
   diet_file_get(diet_parameter(pb, 0), &path, NULL, &size);
@@ -664,20 +664,19 @@ int SeDCloud::cloud_federation_vm_destruction_by_ip_solve(diet_profile_t *pb) {
   std::vector<std::string> ips;
   readlines(path, ips);
   int env = -1;
-  for(size_t i = 0; i < cloud_api_connection_for_vm_destruction->size(); i++) {
+  for(size_t i = 0; i < cloud_api_connection_for_vm_destruction.size(); i++) {
 
-    url_api = (*cloud_api_connection_for_vm_destruction)[i].base_url.c_str();
-    user_name = (*cloud_api_connection_for_vm_destruction)[i].username.c_str();
-    password = (*cloud_api_connection_for_vm_destruction)[i].password.c_str();
-
-
-    IaaS::IaasInterface* interface = new IaaS::Iaas_deltacloud(url_api, user_name, password);
+    IaaS::IaasInterface* interface = new IaaS::Iaas_deltacloud(cloud_api_connection_for_vm_destruction[i]);
     env = interface->terminate_instances_by_ips(ips, *select_private_ips);
     delete interface;
 
     if (env == 0) break;
   }
 
+
+  for(int i=0; i <= 1; i++) {
+    diet_free_data(diet_parameter(pb, i));
+  }
   //TODO : check if vms are really freed
   return 0;
 }

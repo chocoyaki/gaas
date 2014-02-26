@@ -54,7 +54,7 @@ char* cpp_strdup(const char* src) {
 
 
 std::string get_ip_instance_by_id(IaaS::IaasInterface* interf, std::string instance_id, bool is_private_ip) {
-  IaaS::Instance* instance = interf->get_instance_by_id(instance_id);
+  IaaS::pInstance_t instance = IaaS::pInstance_t(interf->get_instance_by_id(instance_id));
 
   if (instance == NULL) return "???.???.???.???";
 
@@ -67,8 +67,6 @@ std::string get_ip_instance_by_id(IaaS::IaasInterface* interf, std::string insta
     ip = instance->public_ip;
   }
 
-  delete instance;
-
   return ip;
 }
 
@@ -80,8 +78,8 @@ std::string IaaS::VMInstances::get_ip(int vm_index, bool is_private_ip) {
 std::set<std::string> IaaS::VMInstances::get_error_instance_ids() {
   std::set<std::string> result;
 
-  for(size_t i = 0; i < insts->size(); i++) {
-    std::string& id = *(*insts)[i];
+  for(size_t i = 0; i < insts.size(); i++) {
+    std::string& id = insts[i];
 
     if (is_instance_in_error_state(id)) {
       result.insert(id);
@@ -95,13 +93,6 @@ bool IaaS::VMInstances::is_instance_in_error_state(const std::string& id) {
   return strcmp(interf->get_instance_state(id).c_str(), "ERROR") == 0;
 }
 
-
-void deleteStringVector(std::vector<std::string*>& v){
-  for(size_t i = 0; i < v.size(); i++) {
-    delete v[i];
-    v[i] = NULL;
-  }
-}
 
 int test_ssh_connection(std::string ssh_user, std::string ip) {
   std::string cmd = "ssh -q "  + ssh_user + "@" + ip + " -o StrictHostKeyChecking=no PasswordAuthentication=no 'exit'";
@@ -410,11 +401,9 @@ namespace IaaS {
 
 
   VMInstances::~VMInstances() {
-    interf->terminate_instances(*insts);
+    interf->terminate_instances(insts);
 
     delete interf;
-    deleteStringVector(*insts);
-    delete insts;
   }
 
   void VMInstances::terminate_failed_instances_and_run_others() {
@@ -423,57 +412,48 @@ namespace IaaS {
 
     if (failed_instances_count > 0) {
       printf("warning : there are %u failed instances\n", failed_instances_count);
-      std::vector<std::string*> v_failed_instances;
+      std::vector<std::string> v_failed_instances;
       std::set<std::string>::iterator iter;
       for(iter = failed_instances.begin(); iter != failed_instances.end(); iter++) {
-        v_failed_instances.push_back(new std::string(*iter));
+        v_failed_instances.push_back(std::string(*iter));
       }
 
       //we terminate all failed instances
       interf->terminate_instances(v_failed_instances);
 
       //we run other instances with the same count
-      std::vector<std::string*>* new_insts = interf->run_instances(image_id, failed_instances_count, params);
+      std::vector<std::string> new_insts = interf->run_instances(image_id, failed_instances_count, params);
 
       wait_all_instances_running();
 
       int index_new_inst = 0;
 
       //we search the old instance id places
-      for(size_t i = 0 ; i < insts->size(); i++){
-        std::string id = *(*insts)[i];
+      for(size_t i = 0 ; i < insts.size(); i++){
+        std::string id = insts[i];
         if (failed_instances.count(id) > 0) {
           //we add the new instance
-          (*insts)[i] = (*new_insts)[index_new_inst];
+          insts[i] = new_insts[index_new_inst];
           index_new_inst++;
         }
       }
-
-
-      deleteStringVector(v_failed_instances);
-      //we do not delete pointers to strings in new_insts
-      delete new_insts;
-
     }
   }
 
   void VMInstances::wait_all_instances_running() {
-    for(size_t i = 0; i < insts->size(); i++) {
-      std::string instanceId = *(*insts)[i];
-      interf->wait_instance_running(instanceId);
+    for(size_t i = 0; i < insts.size(); i++) {
+      interf->wait_instance_running(insts[i]);
     }
   }
 
   std::string VMInstances::get_instance_id(int i) {
-    return *(*insts)[i];
+    return insts[i];
   }
 
 
   Instance* VMInstances::get_instance(int i) {
     return interf->get_instance_by_id(get_instance_id(i));
   }
-
-
 
   int VMInstances::test_ssh_connection(int i, bool is_private_ip) {
     bool result = test_ssh_connection_by_id(interf, vm_user, get_instance_id(i), is_private_ip);
@@ -494,7 +474,7 @@ namespace IaaS {
   }
 
   int VMInstances::test_all_ssh_connection(bool private_ips) {
-    for(size_t i = 0; i < insts->size(); i++) {
+    for(size_t i = 0; i < insts.size(); i++) {
       int ret = test_ssh_connection(i, private_ips);
       if (ret != 0) {
         return ret;
@@ -549,7 +529,7 @@ namespace IaaS {
 
 
   void VMInstances::get_ips(std::vector<std::string>& ips, bool private_ip) {
-    for(size_t i = 0; i < insts->size(); i++) {
+    for(size_t i = 0; i < insts.size(); i++) {
       ips.push_back(get_ip(i, private_ip));
     }
   }

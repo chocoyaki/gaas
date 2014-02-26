@@ -14,36 +14,36 @@
 using namespace std;
 using namespace IaaS;
 
-void print_str(const string * str) {
-  cout<<*str<<endl;
+void print_str(const string & str) {
+  cout<<str<<endl;
 }
 
-void print_instance(Instance * ins) {
+void print_instance(pInstance_t ins) {
   cout<<ins->id<<" "<<" "<<ins->image_id<<endl;
 }
 
-void print_image(Image * img) {
+void print_image(pImage_t img) {
   cout<<img->id<<" "<<img->name<<endl;
 }
 
 void test_images(IaasInterface * interf) {
-  vector<Image*> * images = interf->get_all_images();
-  cout<<"Images "<<images->size()<<endl;
-  for_each(images->begin(), images->end(), print_image);
+  vector<pImage_t> images = interf->get_all_images();
+  cout<<"Images "<<images.size()<<endl;
+  for_each(images.begin(), images.end(), print_image);
   cout<<endl;
 }
 
 void test_instances(IaasInterface * interf) {
-  vector<Instance*> * instances = interf->get_all_instances();
-  cout<<"Instances "<<instances->size()<<endl;
-  for_each(instances->begin(), instances->end(), print_instance);
+  vector<pInstance_t> instances = interf->get_all_instances();
+  cout<<"Instances "<<instances.size()<<endl;
+  for_each(instances.begin(), instances.end(), print_instance);
   cout<<endl;
 }
 
 void test_create(IaasInterface * interf) {
   cout<<"Create"<<endl;
-  vector<string*> * insts = interf->run_instances("3", 1);
-  for_each(insts->begin(), insts->end(), print_str);
+  vector<string> insts = interf->run_instances("3", 1);
+  for_each(insts.begin(), insts.end(), print_str);
   cout<<endl;
 }
 
