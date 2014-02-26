@@ -1,0 +1,7 @@
+#ifndef CLOUD_EC2_CONFIG_H
+#define CLOUD_EC2_CONFIG_H
+
+#cmakedefine DIET_USE_CLOUD_EC2 1
+
+#endif
+

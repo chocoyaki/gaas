@@ -5,7 +5,7 @@ add_latex_document( ProgrammersGuide.tex
   source_tree.tex
   CS.tex
   batch.tex
-  cloud.tex
+  cloud_ec2.tex
   cloudnv.tex
   debug.tex
   package.tex

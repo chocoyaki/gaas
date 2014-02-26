@@ -9,6 +9,7 @@
  *   |LICENSE|
  */
 
+#include "BatchCreator.hh"
 
 // #include <cstring>
 #include "OAR1_6BatchSystem.hh"
@@ -17,11 +18,10 @@
 #include "PBS_BatchSystem.hh"
 #include "Slurm_BatchSystem.hh"
 
-#ifdef HAVE_CLOUD
+#ifdef DIET_USE_CLOUD_EC2
 #include "Eucalyptus_BatchSystem.hh"
 #endif
 
-#include "BatchCreator.hh"
 
 #include <cstring>
 
@@ -37,7 +37,7 @@ const char *const BatchCreator::batchNames[NUMBER_OF_SUPPORTED_BATCH] = {
   "oar2.x",
   "slurm",
 
-#ifdef HAVE_CLOUD
+#ifdef DIET_USE_CLOUD_EC2
   "eucalyptus"
 #endif
 };
@@ -73,7 +73,7 @@ BatchCreator::getBatchSystem(const char *batchName) {
   case SLURM:
     return new Slurm_BatchSystem(batchID, batchNames[batchID]);
 
-#ifdef HAVE_CLOUD
+#ifdef DIET_USE_CLOUD_EC2
   case EUCALYPTUS:
     return new Eucalyptus_BatchSystem(batchID, batchNames[batchID]);
 

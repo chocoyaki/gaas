@@ -271,7 +271,7 @@ DIET's extensions configuration flags
    
    -- DIET_USE_CCS enables client custom scheduling
    
-   -- DIET_USE_CLOUD enables cloud support (supported: Amazon EC2/Eucalyptus)
+   -- DIET_USE_CLOUD_EC2 enables cloud support (supported: Amazon EC2/Eucalyptus)
 
    -- DIET_USE_LOG enables LogService logging extension
 

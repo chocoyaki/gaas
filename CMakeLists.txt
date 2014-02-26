@@ -58,7 +58,7 @@ endif()
 # --------------------- OPTIONS OF THE PROJECT -----------------------------
 # Options dependencies:
 #    - DIET_BUILD_BLAS_EXAMPLES => DIET_BUILD_EXAMPLES
-#    - DIET_USE_CLOUD => DIET_USE_ALT_BATCH
+#    - DIET_USE_CLOUD_EC2 => DIET_USE_ALT_BATCH
 
 option(DIET_BUILD_BLAS_EXAMPLES "Build BLAS based DIET examples." OFF)
 if(DIET_BUILD_BLAS_EXAMPLES)
@@ -71,9 +71,9 @@ else()
   option(DIET_BUILD_EXAMPLES "Build DIET examples." OFF)
 endif()
 
-option(DIET_USE_CLOUD "Build DIET with Cloud (EC2 compatible) support." OFF)
+option(DIET_USE_CLOUD_EC2 "Build DIET with Cloud (EC2 compatible) support." OFF)
 
-if(DIET_USE_CLOUD)
+if(DIET_USE_CLOUD_EC2)
   if(NOT DIET_USE_ALT_BATCH)
     set(DIET_USE_ALT_BATCH ON CACHE BOOL "Batch support" FORCE)
     message(WARNING "Batch was activated for cloud support.")
@@ -270,8 +270,8 @@ if(DIET_USE_ALT_BATCH)
 endif()
 
 # --------------------------- Cloud support ------------------------
-if(DIET_USE_CLOUD)
-  add_definitions(-DHAVE_CLOUD)
+if(DIET_USE_CLOUD_EC2)
+  #  add_definitions(-DHAVE_CLOUD_EC2)
   set(GSOAP_SRC_DIR "~" CACHE PATH "Root of gSOAP source tree.")
   find_package(GSOAP)
   find_package(OpenSSL)
@@ -282,6 +282,8 @@ if(DIET_USE_CLOUD)
     ${OPENSSL_LIBRARIES} ${ZLIB_LIBRARIES})
 endif()
 
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/utils/cmake_variables/cloud_ec2_config.h.in
+ ${CMAKE_CURRENT_BINARY_DIR}/src/utils/cmake_variables/cloud_ec2_config.h)
 
 # --------------------------- CORI support ------------------------
 # CORI (COllector of Resource Information) is heavily dependant on

@@ -13,6 +13,8 @@
 #ifndef _BATCH_CREATOR_HH_
 #define _BATCH_CREATOR_HH_
 
+#include "cloud_ec2_config.h"
+
 class BatchSystem;
 
 class BatchCreator {
@@ -24,7 +26,7 @@ public:
     PBS,
     OAR2_X,
     SLURM,
-#ifdef HAVE_CLOUD
+#ifdef DIET_USE_CLOUD_EC2
     EUCALYPTUS,
 #endif
     NUMBER_OF_SUPPORTED_BATCH

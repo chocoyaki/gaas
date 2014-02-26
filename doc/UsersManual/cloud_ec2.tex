@@ -1,5 +1,5 @@
 %**
-%*  @file  cloud.tex
+%*  @file  cloud_ec2.tex
 %*  @brief   diet Programmer's guide, Cloud submission 
 %*  @author  - Adrian Muresan (adrian.muresan@ens-lyon.fr)
 %*  @section Licence 
@@ -63,7 +63,7 @@ when performing reservations.
 \section{Configuration for compilation}
 
 In order to enable the compilation and installation of the \diet Cloud system, its corresponding make flag
-must be enabled when configuring. This flag is named \verb!DIET_USE_CLOUD!. This is a part of
+must be enabled when configuring. This flag is named \verb!DIET_USE_CLOUD_EC2!. This is a part of
 the alternate batch system so it also needs to be installed (the \verb!DIET_USE_ALT_BATCH! flag). The \diet
 batch system is dependent on CORI so it also needs to be installed (the \verb!DIET_USE_CORI! flag).
 
@@ -154,7 +154,7 @@ with a list of the IP addresses of all the instantiated virtual resources.
 
 The \diet sources also contain working examples for the \sed Cloud. These can be
 found in: \verb!<diet_src>/src/examples/cloud!. The examples are built automatically
-if the \verb!DIET_BUILD_EXAMPLES! and \verb!DIET_HAVE_CLOUD! make flags are selected.
+if the \verb!DIET_BUILD_EXAMPLES! and \verb!DIET_HAVE_CLOUD_EC2! make flags are selected.
 Note that the user {\it must change} the service configuration file to match his
 own Cloud installation.
 
