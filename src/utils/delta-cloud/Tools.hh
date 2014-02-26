@@ -9,6 +9,7 @@ Authors :
 
 #include "IaasInterface.hh"
 #include "Instance.hh"
+#include "Parameter.hh"
 #include "DIET_data.h"
 #include <string>
 #include <vector>
@@ -144,7 +145,7 @@ namespace IaaS {
 
       IaasInterface * interf;
       //id of instances
-      std::vector<std::string*>* insts;
+      std::vector<std::string> insts;
 
       int vm_count;
       std::string image_id;

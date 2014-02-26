@@ -85,7 +85,7 @@ class SeDCloud {
     DIET_API_LIB int service_vm_destruction_by_ip_add();
 
 
-    DIET_API_LIB int service_cloud_federation_vm_destruction_by_ip_add(std::vector<CloudAPIConnection>* cloud_api_connection);
+    DIET_API_LIB int service_cloud_federation_vm_destruction_by_ip_add(std::vector<CloudAPIConnection> cloud_api_connection);
 
 
     DIET_API_LIB int service_rsync_to_vm_add();
@@ -107,7 +107,7 @@ class SeDCloud {
     }
 
     static int solve(diet_profile_t *pb);
-    static std::vector<CloudAPIConnection>* cloud_api_connection_for_vm_destruction;
+    static std::vector<CloudAPIConnection> cloud_api_connection_for_vm_destruction;
     static CloudAPIConnection* cloud_api_connection_for_vm_instanciation;
 
     static SeDCloud* instance;

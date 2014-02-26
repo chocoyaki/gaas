@@ -1,62 +1,59 @@
 #include "deltacloud_config.h"
 
-#include <vector>
-#include <string>
-#include <iostream>
-#include <cstdlib>
-#include <libdeltacloud/libdeltacloud.h>
+#include "Iaas_deltacloud.hh"
 
 #include "consts.hh"
-#include "Iaas_deltacloud.hh"
 #include "Image.hh"
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
-#include "Tools.hh"
-#include <assert.h>
 
 #ifdef USE_LOG_SERVICE
 #include "DietLogComponent.hh"
 #include "Tools.hh"
-
 #endif
+
+#include <libdeltacloud/libdeltacloud.h>
+#include <boost/current_function.hpp>
+
+#include <vector>
+#include <string>
+#include <iostream>
 
 using namespace std;
 using namespace IaaS;
 
 
-
-
 bool Iaas_deltacloud::init_api(deltacloud_api * api) {
-  if (deltacloud_initialize(api,
-        const_cast<char*>(cloud_connection.base_url.c_str()),
-        const_cast<char*>(cloud_connection.username.c_str()),
-        const_cast<char*>(cloud_connection.password.c_str())) < 0) {
+  char * url = strdup(cloud_connection.base_url.c_str());
+  char * username = strdup(cloud_connection.username.c_str());
+  char * password = strdup(cloud_connection.password.c_str());
+  int res_init = deltacloud_initialize(api, url, username, password);
+  free(url);
+  free(username);
+  free(password);
+  if (res_init < 0) {
     cerr<<"Failed to initialize libdeltacloud: "<<deltacloud_get_last_error_string()<<endl;
     return false;
   }
   return true;
 }
 
-vector<Image*> * Iaas_deltacloud::get_all_images() {
+vector<pImage_t> Iaas_deltacloud::get_all_images() {
   deltacloud_api api;
   if(!init_api(&api)) {
-    return NULL;
+    throw deltacloud_exception(BOOST_CURRENT_FUNCTION, "Deltacloud API is not initialized");
   }
-
   deltacloud_image * images = NULL;
   if (deltacloud_get_images(&api, &images) < 0) {
-    cerr<<"Failed to get deltacloud images: "<<deltacloud_get_last_error_string()<<endl;
+    std::string message = deltacloud_get_last_error_string();
     deltacloud_free(&api);
-    return NULL;
+    throw deltacloud_exception(BOOST_CURRENT_FUNCTION, deltacloud_get_last_error_string());
   }
 
   deltacloud_image * img = images;
-  vector<Image*> * img_arr = new vector<Image*>();
+  vector<pImage_t> img_arr;
 
   /* now traverse the list and add the images to the array */
   while(img != NULL) {
-    img_arr->push_back(new Image(img->name, img->id));
+    img_arr.push_back(pImage_t(new Image(img->name, img->id)));
     img = img->next;
   }
 
@@ -66,7 +63,7 @@ vector<Image*> * Iaas_deltacloud::get_all_images() {
   return img_arr;
 }
 
-vector<Instance*> * Iaas_deltacloud::get_all_instances() {
+vector<pInstance_t> Iaas_deltacloud::get_all_instances() {
   deltacloud_api api;
 
   deltacloud_instance * instances;
@@ -75,10 +72,8 @@ vector<Instance*> * Iaas_deltacloud::get_all_instances() {
   //we do a loop to avoid : error Failed to get expected root element for instances
   do {
 
-
     if(!init_api(&api)) {
-      cerr << "Error: fail to init deltacloud api" << endl;
-      return NULL;
+      throw deltacloud_exception(BOOST_CURRENT_FUNCTION, "Deltacloud API is not initialized");
     }
 
     if (deltacloud_get_instances(&api, &instances) < 0) {
@@ -92,12 +87,11 @@ vector<Instance*> * Iaas_deltacloud::get_all_instances() {
       error = false;
     }
 
-
   }while (error);
 
   deltacloud_instance * inst = NULL;
   inst = instances;
-  vector<Instance*> * inst_arr = new vector<Instance*>();
+  vector<pInstance_t> inst_arr;
 
 
   while(inst != NULL) {
@@ -108,7 +102,7 @@ vector<Instance*> * Iaas_deltacloud::get_all_instances() {
         inst->private_addresses ? inst->private_addresses->address : NULL,
         inst->public_addresses ? inst->public_addresses->address : NULL);
 
-    inst_arr->push_back(new_instance);
+    inst_arr.push_back(boost::shared_ptr<Instance>(new_instance));
     inst = inst->next;
   }
 
@@ -121,15 +115,16 @@ vector<Instance*> * Iaas_deltacloud::get_all_instances() {
 void Iaas_deltacloud::get_instance_state(const std::string id, char * state) {
   deltacloud_api api;
   if(!init_api(&api)) {
-    return;
+    sprintf(state, "%s", "ERROR");
+    throw deltacloud_exception(BOOST_CURRENT_FUNCTION, "Deltacloud API not initialized.");
   }
 
   struct deltacloud_instance instance;
 
   if(deltacloud_get_instance_by_id(&api, id.c_str(),
         &instance) < 0) {
-    cerr<<"Failed to get instance: " << id << endl;
     sprintf(state, "%s", "ERROR");
+    throw deltacloud_exception(BOOST_CURRENT_FUNCTION, "Deltacloud cannot retrive instance id");
   }else {
     sprintf(state, "%s", instance.state);
   }
@@ -141,16 +136,15 @@ void Iaas_deltacloud::get_instance_state(const std::string id, char * state) {
 Instance* Iaas_deltacloud::get_instance_by_id(const std::string& instanceId) {
   deltacloud_api api;
   if(!init_api(&api)) {
-    return NULL;
+    throw deltacloud_exception(BOOST_CURRENT_FUNCTION, "Deltacloud API not initialized.");
   }
 
   struct deltacloud_instance instance;
 
   if(deltacloud_get_instance_by_id(&api, instanceId.c_str(),
         &instance) < 0) {
-    cerr<<"Failed to get instance by Id: " << instanceId << endl;
     deltacloud_free(&api);
-    return NULL;
+    throw deltacloud_exception(BOOST_CURRENT_FUNCTION, "Deltacloud cannot find instance.");
   }else {
 
     const char* public_address = NULL;
@@ -184,14 +178,17 @@ int Iaas_deltacloud::wait_instance_running(const std::string& instanceId) {
     if (strcmp(state, "RUNNING") == 0) {
 #ifdef USE_LOG_SERVICE
       //the user must call this method to write in the log
-      Instance* instance = get_instance_by_id(std::string(instanceId));
+      try {
+      pInstance_t instance = pInstance_t(get_instance_by_id(std::string(instanceId)));
 
       DietLogComponent* component = get_log_component();
       if (component != NULL) {
         component->logVMRunning(*instance);
       }
-
-      delete instance;
+      }
+      catch(deltacloud_exception & e) {
+        cerr << e.what();
+      }
 #endif
       ready = true;
     }
@@ -248,18 +245,17 @@ struct deltacloud_create_parameter* IaaS::create_delta_params(const std::vector<
   return delta_params;
 }
 
-vector<string*> * Iaas_deltacloud::run_instances(const string & image_id, int count, const std::vector<Parameter>& params) {
+vector<string> Iaas_deltacloud::run_instances(const string & image_id, int count, const std::vector<Parameter>& params) {
   deltacloud_api api;
-  if(!init_api(&api))
-    return NULL;
+  if(!init_api(&api)) {
+    throw deltacloud_exception(BOOST_CURRENT_FUNCTION, "Deltacloud API is not initialized");
+  }
 
-  char * instance_id = new char[MAX_NAME];
-  vector<string*> * inst_arr = new vector<string*>();
-
+  char * instance_id = NULL;
+  vector<string> inst_arr;
 
   int params_count = params.size();
   struct deltacloud_create_parameter* delta_params = create_delta_params(params);
-
 
   for(int i_nb = 0; i_nb < count ; ++ i_nb) {
     int env;
@@ -283,7 +279,7 @@ vector<string*> * Iaas_deltacloud::run_instances(const string & image_id, int co
         }
 #endif
 
-        inst_arr->push_back(new string(instance_id));
+        inst_arr.push_back(std::string(instance_id));
       }
     } while(env);
   }
@@ -293,39 +289,31 @@ vector<string*> * Iaas_deltacloud::run_instances(const string & image_id, int co
   if (delta_params != NULL) {
     free_delta_params(delta_params, params_count);
   }
+  free(instance_id);
   return inst_arr;
 }
 
 std::string Iaas_deltacloud::get_id_from_ip(const std::string& ip, bool select_private_ip) {
-  std::vector<Instance*> * instances = get_all_instances();
+  std::vector<pInstance_t> instances = get_all_instances();
   std::string instance_id= "";
 
   bool found = false;
-  for(int i = 0; i < instances->size() && (!found); i++) {
-    Instance* instance = (*instances)[i];
-    std::string instance_ip = instance->get_ip(select_private_ip);
-    //printf("instance id=%s : ip=%s\n", instance->id.c_str(), instance_ip.c_str());
-    if (instance_ip.compare(ip) == 0) {
+  for(int i = 0; i < instances.size() && (!found); i++) {
+    std::string instance_ip = instances[i]->get_ip(select_private_ip);
+    if (instance_ip == ip) {
       found = true;
-      instance_id = instance->id;
+      instance_id = instances[i]->id;
     }
   }
 
   if (!found) {
     printf("warning : %s not found.\n", ip.c_str());
   }
-
-  for(int i = 0; i < instances->size(); i++) {
-    delete (*instances)[i];
-  }
-  delete instances;
-
-
   return instance_id;
 }
 
 
-int Iaas_deltacloud::terminate_instances(const vector<string*> & instance_ids) {
+int Iaas_deltacloud::terminate_instances(const vector<string> & instance_ids) {
   deltacloud_api api;
   if(!init_api(&api))
     return 2;
@@ -333,39 +321,42 @@ int Iaas_deltacloud::terminate_instances(const vector<string*> & instance_ids) {
   int env = 0;
   /* delete all the instances in the array */
   deltacloud_instance dc_instance;
-  for(int i_nb = 0; i_nb < instance_ids.size() ; ++ i_nb) {
+  for(size_t i_nb = 0; i_nb < instance_ids.size() ; ++ i_nb) {
 
-
-
-    if(deltacloud_get_instance_by_id(&api, instance_ids[i_nb]->c_str(), &dc_instance) < 0) {
+    if(deltacloud_get_instance_by_id(&api, instance_ids[i_nb].c_str(), &dc_instance) < 0) {
       cerr<<"Failed to get info about instance "<< instance_ids[i_nb] <<endl;
       env = -1;
     } else if(deltacloud_instance_stop(&api, &dc_instance) < 0) {
-      cerr<<"Failed to stop instance "<< *instance_ids[i_nb]<<endl;
+      cerr<<"Failed to stop instance "<< instance_ids[i_nb]<<endl;
       env = -1;
     } else {
 
       //OK the instance is stopped
 #ifdef USE_LOG_SERVICE
-      Instance* instance = get_instance_by_id(*instance_ids[i_nb]);
-
       DietLogComponent* component = get_log_component();
-      if (component != NULL) {
-        component->logVMDestroyStart(*instance);
+      try {
+        if (component != NULL) {
+          pInstance_t instance = pInstance_t(get_instance_by_id(instance_ids[i_nb]));
+          component->logVMDestroyStart(*instance);
+        }
+      }
+      catch(deltacloud_exception & e) {
+        cerr << e.what();
       }
 #endif
 
       if(deltacloud_instance_destroy(&api, &dc_instance) < 0) {
-        cerr<<"Failed to destroy instance "<< *instance_ids[i_nb]<<endl;
+        cerr<<"Failed to destroy instance "<< instance_ids[i_nb]<<endl;
         env = -1;
       }
 #ifdef USE_LOG_SERVICE
       else {
         if (component != NULL) {
+          pInstance_t instance = pInstance_t(get_instance_by_id(instance_ids[i_nb]));
           component->logVMDestroyEnd(*instance);
         }
       }
-      delete instance;
+
 #endif
 
 
@@ -378,21 +369,16 @@ int Iaas_deltacloud::terminate_instances(const vector<string*> & instance_ids) {
 }
 
 int Iaas_deltacloud::terminate_instances_by_ips(const std::vector<std::string>& ips, bool select_private_ip) {
-  std::vector<std::string*> ids;
+  std::vector<std::string> ids;
   for(int i = 0 ; i < ips.size(); i++) {
     string inst_id = get_id_from_ip(ips[i], select_private_ip);
-    std::string* id = new std::string(inst_id);
-    ids.push_back(id);
+    ids.push_back(inst_id);
   }
 
   int env = terminate_instances(ids);
 
-  deleteStringVector(ids);
-
   return env;
 }
-
-
 
 std::string Iaas_deltacloud::get_instance_state(const std::string& instance_id) {
   std::string res;
@@ -409,8 +395,3 @@ Iaas_deltacloud::clone() const {
   Iaas_deltacloud * the_clone = new Iaas_deltacloud(*this);
   return the_clone;
 }
-
-
-
-
-

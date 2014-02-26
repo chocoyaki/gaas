@@ -11,13 +11,17 @@ authors : Adrian Muresan, Lamiel Toch
 #include <vector>
 #include <string>
 
-#include "Instance.hh"
-#include "Image.hh"
 #include "CloudAPIConnection.hh"
-#include "Parameter.hh"
+#include <boost/shared_ptr.hpp>
 
 namespace IaaS {
 
+  class Instance;
+  class Image;
+  class Parameter;
+
+  typedef boost::shared_ptr<Instance> pInstance_t;
+  typedef boost::shared_ptr<Image> pImage_t;
 
   class IaasInterface {
 
@@ -25,16 +29,16 @@ namespace IaaS {
       IaasInterface() {};
 
       /* retrieve all images */
-      virtual std::vector<Image*> * get_all_images() = 0;
+      virtual std::vector<pImage_t> get_all_images() = 0;
 
       /* retrieve all instances */
-      virtual std::vector<Instance*> * get_all_instances() = 0;
+      virtual std::vector<pInstance_t> get_all_instances() = 0;
 
       /* launches a specified number of instances from an image */
-      virtual std::vector<std::string*> * run_instances(const std::string & image_id, int count, const std::vector<Parameter>& params = std::vector<Parameter>()) = 0;
+      virtual std::vector<std::string> run_instances(const std::string & image_id, int count, const std::vector<Parameter>& params = std::vector<Parameter>()) = 0;
 
       /* terminates a set of instances */
-      virtual int terminate_instances(const std::vector<std::string*> & instance_ids) = 0;
+      virtual int terminate_instances(const std::vector<std::string> & instance_ids) = 0;
 
       virtual int terminate_instances_by_ips(const std::vector<std::string>& ips, bool select_private_ip = false) = 0;
 

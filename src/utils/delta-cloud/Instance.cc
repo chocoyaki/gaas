@@ -19,23 +19,21 @@ using namespace IaaS;
 Instance::Instance(const std::string & _image_id, const std::string & _id,
     const char * _private_ip, const char * _public_ip) {
 
-  //printf("hi\n");
-
   image_id = _image_id;
   id =_id;
 
   if (_private_ip == NULL) {
-    private_ip = std::string("???.???.???.???");
+    private_ip = "???.???.???.???";
   }
   else {
-    private_ip = std::string(_private_ip);
+    private_ip = _private_ip;
   }
 
   if (_public_ip == NULL){
-    public_ip = std::string("???.???.???.???");
+    public_ip = "???.???.???.???";
   }
   else {
-    public_ip = std::string(_public_ip);
+    public_ip = _public_ip;
   }
 
 };
