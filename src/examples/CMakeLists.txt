@@ -26,9 +26,9 @@ add_subdirectory(dynamic_hierarchy)
 
 if(DIET_USE_ALT_BATCH)
   add_subdirectory(Batch)
-  if(DIET_USE_CLOUD)
+  if(DIET_USE_CLOUD_EC2)
     add_subdirectory(cloud)
-  endif(DIET_USE_CLOUD)
+  endif(DIET_USE_CLOUD_EC2)
 endif(DIET_USE_ALT_BATCH)
 
 if(DIET_USE_USERSCHED)

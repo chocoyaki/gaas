@@ -7,7 +7,7 @@ add_latex_document(UsersManual.tex
   client.tex
   server.tex
   batch.tex
-  cloud.tex
+  cloud_ec2.tex
   delta-cloud.tex
   plugin.tex
   forwarder.tex
