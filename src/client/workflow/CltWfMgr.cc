@@ -437,7 +437,7 @@ CltWfMgr::wfDagCallCommon(diet_wf_desc_t *dagProfile, Dag *dag, bool parse,
   }
   UNLOCK;  /** UNLOCK (End of critical section for MaDAG call) */
 
-  delete dagProfile->abstract_wf;
+  free(dagProfile->abstract_wf);
   delete corba_profile;
 
   return res;
@@ -706,7 +706,7 @@ CltWfMgr::release(const char *dag_id, bool successful) {
   TRACE_TEXT(TRACE_ALL_STEPS, traceHeader << "message: |" << message.str()
                                           << "| " << message.str().size() <<
              endl);
-  char *ret = (char *) malloc(message.str().size() * sizeof(char) + 1);
+  char *ret = new char[message.str().size()+1];//(char *) malloc(message.str().size() * sizeof(char) + 1);
   sprintf(ret, "%s", message.str().c_str());
 
   // UPDATE DAG COUNTER

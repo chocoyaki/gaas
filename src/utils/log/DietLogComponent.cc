@@ -349,8 +349,8 @@ DietLogComponent::~DietLogComponent() {
   for (int i = 0; i < tagCount; i++) {
     free(tagNames[i]);
   }
-  delete tagNames;
-  delete tagFlags;
+  delete[] tagNames;
+  delete[] tagFlags;
   // delete LogORBMgr::getMgr();  // FIXME: this does not work
 }
 
