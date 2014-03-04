@@ -26,7 +26,7 @@ main(int argc, char *argv[]) {
   std::string base_url = "http://localhost:3001/api";
   std::string username = "oneadmin";
   std::string password = "passoneadmin";
-  IaaS::IaasInterface * interface = new IaaS::Iaas_deltacloud(base_url, username, password);
+  IaaS::pIaasInterface interface = IaaS::pIaasInterface(new IaaS::Iaas_deltacloud(base_url, username, password));
 
   //user name of vm
   std::string vm_user = "root";

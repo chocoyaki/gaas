@@ -41,11 +41,11 @@ int SeDCloudActions::launch_vms() {
 }
 
 
-SeDCloudActions::SeDCloudActions(const std::string& _image_id, const IaaS::IaasInterface * cloud_interface, const std::string& _vm_user,
+SeDCloudActions::SeDCloudActions(const std::string& _image_id, const IaaS::pIaasInterface & cloud_interface, const std::string& _vm_user,
     int _vm_count, bool _is_ip_private, const std::vector<IaaS::Parameter>& _params) {
 
   this->image_id = _image_id;
-  this->interface = cloud_interface->clone();
+  this->interface = cloud_interface;
   this->vm_user = _vm_user;
   this->vm_count = _vm_count;
   this->params = _params;
@@ -61,7 +61,6 @@ SeDCloudActions::SeDCloudActions() {
 
 SeDCloudActions::~SeDCloudActions() {
   destroy_vms();
-  delete interface;
 }
 
 int SeDCloudActions::send_arguments(const std::string& local_path, const std::string& remote_path) {

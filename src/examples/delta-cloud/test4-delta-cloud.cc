@@ -36,7 +36,7 @@ int main(int argc, const char *argv[]) {
 
 	params.push_back(Parameter(HARDWARE_PROFILE_ID_PARAM, profile));
 	
-  IaaS::IaasInterface * interface = new IaaS::Iaas_deltacloud(base_url, username, password);
+  IaaS::pIaasInterface interface = IaaS::pIaasInterface(new IaaS::Iaas_deltacloud(base_url, username, password));
 	VMInstances* vm_instances = new VMInstances(image_id, vms_count, interface,
 	vm_user, params);
 	

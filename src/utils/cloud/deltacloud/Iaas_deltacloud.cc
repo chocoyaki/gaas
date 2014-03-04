@@ -4,6 +4,8 @@
 
 #include "consts.hh"
 #include "Image.hh"
+#include "Instance.hh"
+#include "Parameter.hh"
 
 #ifdef USE_LOG_SERVICE
 #include "DietLogComponent.hh"
@@ -16,6 +18,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <string.h>
 
 using namespace std;
 using namespace IaaS;
@@ -36,7 +39,8 @@ bool Iaas_deltacloud::init_api(deltacloud_api * api) {
   return true;
 }
 
-vector<pImage_t> Iaas_deltacloud::get_all_images() {
+vector<pImage_t>
+Iaas_deltacloud::do_get_all_images() {
   deltacloud_api api;
   if(!init_api(&api)) {
     throw deltacloud_exception(BOOST_CURRENT_FUNCTION, "Deltacloud API is not initialized");
@@ -63,7 +67,8 @@ vector<pImage_t> Iaas_deltacloud::get_all_images() {
   return img_arr;
 }
 
-vector<pInstance_t> Iaas_deltacloud::get_all_instances() {
+vector<pInstance_t>
+Iaas_deltacloud::do_get_all_instances() {
   deltacloud_api api;
 
   deltacloud_instance * instances;
@@ -133,7 +138,8 @@ void Iaas_deltacloud::get_instance_state(const std::string id, char * state) {
 }
 
 
-Instance* Iaas_deltacloud::get_instance_by_id(const std::string& instanceId) {
+Instance*
+Iaas_deltacloud::do_get_instance_by_id(const std::string& instanceId) {
   deltacloud_api api;
   if(!init_api(&api)) {
     throw deltacloud_exception(BOOST_CURRENT_FUNCTION, "Deltacloud API not initialized.");
@@ -167,7 +173,8 @@ Instance* Iaas_deltacloud::get_instance_by_id(const std::string& instanceId) {
 
 
 
-int Iaas_deltacloud::wait_instance_running(const std::string& instanceId) {
+int
+Iaas_deltacloud::do_wait_instance_running(const std::string& instanceId) {
   bool ready = false;
   char state[MAX_NAME];
   do{
@@ -245,7 +252,8 @@ struct deltacloud_create_parameter* IaaS::create_delta_params(const std::vector<
   return delta_params;
 }
 
-vector<string> Iaas_deltacloud::run_instances(const string & image_id, int count, const std::vector<Parameter>& params) {
+vector<string>
+Iaas_deltacloud::do_run_instances(const string & image_id, int count, const std::vector<Parameter>& params) {
   deltacloud_api api;
   if(!init_api(&api)) {
     throw deltacloud_exception(BOOST_CURRENT_FUNCTION, "Deltacloud API is not initialized");
@@ -293,12 +301,13 @@ vector<string> Iaas_deltacloud::run_instances(const string & image_id, int count
   return inst_arr;
 }
 
-std::string Iaas_deltacloud::get_id_from_ip(const std::string& ip, bool select_private_ip) {
+std::string
+Iaas_deltacloud::do_get_id_from_ip(const std::string& ip, bool select_private_ip) {
   std::vector<pInstance_t> instances = get_all_instances();
   std::string instance_id= "";
 
   bool found = false;
-  for(int i = 0; i < instances.size() && (!found); i++) {
+  for(size_t i = 0; i < instances.size() && (!found); i++) {
     std::string instance_ip = instances[i]->get_ip(select_private_ip);
     if (instance_ip == ip) {
       found = true;
@@ -313,7 +322,8 @@ std::string Iaas_deltacloud::get_id_from_ip(const std::string& ip, bool select_p
 }
 
 
-int Iaas_deltacloud::terminate_instances(const vector<string> & instance_ids) {
+int
+Iaas_deltacloud::do_terminate_instances(const vector<string> & instance_ids) {
   deltacloud_api api;
   if(!init_api(&api))
     return 2;
@@ -368,9 +378,10 @@ int Iaas_deltacloud::terminate_instances(const vector<string> & instance_ids) {
   return env;
 }
 
-int Iaas_deltacloud::terminate_instances_by_ips(const std::vector<std::string>& ips, bool select_private_ip) {
+int
+Iaas_deltacloud::do_terminate_instances_by_ips(const std::vector<std::string>& ips, bool select_private_ip) {
   std::vector<std::string> ids;
-  for(int i = 0 ; i < ips.size(); i++) {
+  for(size_t i = 0 ; i < ips.size(); i++) {
     string inst_id = get_id_from_ip(ips[i], select_private_ip);
     ids.push_back(inst_id);
   }
@@ -380,7 +391,8 @@ int Iaas_deltacloud::terminate_instances_by_ips(const std::vector<std::string>& 
   return env;
 }
 
-std::string Iaas_deltacloud::get_instance_state(const std::string& instance_id) {
+std::string
+Iaas_deltacloud::do_get_instance_state(const std::string& instance_id) {
   std::string res;
   char state[1024];
   get_instance_state(instance_id, state);
@@ -390,8 +402,8 @@ std::string Iaas_deltacloud::get_instance_state(const std::string& instance_id) 
   return res;
 }
 
-Iaas_deltacloud *
+/*Iaas_deltacloud *
 Iaas_deltacloud::clone() const {
   Iaas_deltacloud * the_clone = new Iaas_deltacloud(*this);
   return the_clone;
-}
+}*/

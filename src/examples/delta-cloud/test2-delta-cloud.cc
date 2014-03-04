@@ -81,7 +81,7 @@ int main(int argc, const char *argv[]) {
 	}
 
 	string image_id = argv[1];
-  IaaS::IaasInterface * interface = new IaaS::Iaas_deltacloud(base_url, username, password);
+  IaaS::pIaasInterface interface = IaaS::pIaasInterface(new IaaS::Iaas_deltacloud(base_url, username, password));
 	
 	
 	
