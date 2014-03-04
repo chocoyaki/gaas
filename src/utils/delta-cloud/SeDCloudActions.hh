@@ -12,10 +12,11 @@
 #ifndef _SEDCLOUDACTIONS_HH_
 #define _SEDCLOUDACTIONS_HH_
 
-#include "Tools.hh"
 #include "CloudServiceBinary.hh"
 #include "ServiceStatisticsMap.hh"
 #include "IaasInterface.hh"
+#include "VMsDeployment.hh"
+#include "Tools.hh"
 
 #include <boost/shared_ptr.hpp>
 #include <string>
@@ -27,7 +28,7 @@ class SeDCloudActions {
   private:
     IaaS::pIaasInterface interface;
     //a list of vm_instances;
-    std::list<IaaS::VMInstances*> vm_instances;
+    std::list<IaaS::VMsDeployment*> vm_instances;
     void fill_ips();
 
   protected:

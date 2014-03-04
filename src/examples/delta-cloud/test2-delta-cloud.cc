@@ -7,6 +7,7 @@
 #include "IaasInterface.hh"
 #include "Iaas_deltacloud.hh"
 #include "Tools.hh"
+#include "VMsDeployment.hh"
 #include <stdio.h>
 #include <unistd.h>
 #include <signal.h>
@@ -72,7 +73,6 @@ int main(int argc, const char *argv[]) {
 	//string vmname_param = "name";
 	//string vmname_value = "VMTruc";
 	//sigset_t signals_open;
-	int sleep_duration = 5;
 	int vms_count = 1;
 	
 	if (argc < 2) {
@@ -94,7 +94,7 @@ int main(int argc, const char *argv[]) {
 	//params.push_back(vm_name);
 	
 	
-	VMInstances* vm_instances = new VMInstances(image_id, vms_count, interface,
+	VMsDeployment* vm_instances = new VMsDeployment(image_id, vms_count, interface,
 	vm_user, params);
 	
 	vm_instances->wait_all_instances_running();

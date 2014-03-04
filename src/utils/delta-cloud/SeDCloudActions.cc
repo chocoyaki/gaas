@@ -11,6 +11,7 @@
  */
 
 #include "SeDCloudActions.hh"
+#include "RemoteAccess.hh"
 
 #include "DIET_data.h"
 #include "DIET_uuid.hh"
@@ -21,7 +22,7 @@
 
 int SeDCloudActions::launch_vms() {
 
-  IaaS::VMInstances* insts = new IaaS::VMInstances (this->image_id, this->vm_count, this->interface, this->vm_user, this->params);
+  IaaS::VMsDeployment* insts = new IaaS::VMsDeployment (this->image_id, this->vm_count, this->interface, this->vm_user, this->params);
 
   vm_instances.push_back(insts);
 
@@ -228,7 +229,7 @@ int SeDCloudVMLaunchedAtFirstSolveActions::perform_action_on_begin_solve(diet_pr
 
   if (!statistics_on_services.one_service_already_called()) {
     statistics_on_services.increment_call_number(service_name);
-    //this->vm_instances = new IaaS::VMInstances (this->image_id, this->vm_count, this->base_url, this->username, this->password, this->vm_user, this->params);
+    //this->vm_instances = new IaaS::VMsDeployment (this->image_id, this->vm_count, this->base_url, this->username, this->password, this->vm_user, this->params);
     int res_launch = launch_vms();
 
     copy_all_binaries_into_all_vms();
@@ -247,7 +248,7 @@ int SeDCloudVMLaunchedAtFirstSolveActions::perform_action_on_end_solve(diet_prof
 
 
 int SeDCloudVMLaunchedAtSolveThenDestroyedActions::perform_action_on_begin_solve(diet_profile_t *pb) {
-  //this->vm_instances = new IaaS::VMInstances (this->image_id, this->vm_count, this->base_url, this->username, this->password, this->vm_user, this->params);
+  //this->vm_instances = new IaaS::VMsDeployment (this->image_id, this->vm_count, this->base_url, this->username, this->password, this->vm_user, this->params);
   int res_launch =  launch_vms();
 
 
@@ -348,10 +349,10 @@ int SeDCloudActions::send_vm_ips_to_master() {
 
 
 void SeDCloudActions::destroy_vms() {
-  std::list<IaaS::VMInstances*>::iterator iter;
+  std::list<IaaS::VMsDeployment*>::iterator iter;
 
   for(iter = vm_instances.begin(); iter != vm_instances.end(); iter++) {
-    IaaS::VMInstances* elt = *iter;
+    IaaS::VMsDeployment* elt = *iter;
     if (elt != NULL) {
       delete elt;
       *iter = NULL;

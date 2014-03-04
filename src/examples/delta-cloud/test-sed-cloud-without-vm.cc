@@ -18,8 +18,9 @@
 #include <vector>
 
 #include "Instance.hh"
+#include "VMsDeployment.hh"
 
-
+int
 main(int argc, char *argv[]) {
 
 
