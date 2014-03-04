@@ -3,7 +3,8 @@
  *
  * @brief  
  *
- * @author  Guillaume Verger (guillaume.verger@inria.fr)
+ * @author  Lamiel Toch (lamiel.toch@es-lyon.fr)
+ *          Guillaume Verger (guillaume.verger@inria.fr)
  *
  * @section Licence
  *   |LICENCE|

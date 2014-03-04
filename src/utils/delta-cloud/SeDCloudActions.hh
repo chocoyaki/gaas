@@ -17,6 +17,7 @@
 #include "ServiceStatisticsMap.hh"
 #include "IaasInterface.hh"
 
+#include <boost/shared_ptr.hpp>
 #include <string>
 #include <list>
 #include <vector>
@@ -24,7 +25,7 @@
 class SeDCloudActions {
 
   private:
-    IaaS::IaasInterface * interface;
+    IaaS::pIaasInterface interface;
     //a list of vm_instances;
     std::list<IaaS::VMInstances*> vm_instances;
     void fill_ips();
@@ -93,7 +94,7 @@ class SeDCloudActions {
 
     SeDCloudActions();
 
-    SeDCloudActions(const std::string& _image_id, const IaaS::IaasInterface * cloud_interface, const std::string& _vm_user,
+    SeDCloudActions(const std::string& _image_id, const IaaS::pIaasInterface & cloud_interface, const std::string& _vm_user,
         int _vm_count, bool _is_ip_private, const std::vector<IaaS::Parameter>& params = std::vector<IaaS::Parameter>());
 
 
@@ -158,7 +159,7 @@ class SeDCloudAndVMLaunchedActions : public SeDCloudActions {
 
     SeDCloudAndVMLaunchedActions() : SeDCloudActions() {}
 
-    SeDCloudAndVMLaunchedActions(const std::string& _image_id, const IaaS::IaasInterface * interface, const std::string& _vm_user,
+    SeDCloudAndVMLaunchedActions(const std::string& _image_id, const IaaS::pIaasInterface & interface, const std::string& _vm_user,
         int _vm_count, bool _is_ip_private, const std::vector<IaaS::Parameter>& _params = std::vector<IaaS::Parameter>()) :
       SeDCloudActions(_image_id, interface, _vm_user, _vm_count, _is_ip_private, _params){
 
@@ -192,6 +193,7 @@ class SeDCloudMachinesActions : public SeDCloudAndVMLaunchedActions {
       machine_alive_interval = MACHINE_ALIVE_INTERVAL;
     }
 
+
     void set_machine_alive_interval(int x) {
       machine_alive_interval = x;
     }
@@ -210,7 +212,7 @@ class SeDCloudVMLaunchedAtSolveActions : public SeDCloudActions {
     virtual int perform_action_after_service_table_add(const std::string& name_of_service) { return 0;};
 
 
-    SeDCloudVMLaunchedAtSolveActions(const std::string& _image_id, const IaaS::IaasInterface * interface, const std::string& _vm_user,
+    SeDCloudVMLaunchedAtSolveActions(const std::string& _image_id, const IaaS::pIaasInterface & interface, const std::string& _vm_user,
         int _vm_count, bool _is_ip_private, const std::vector<IaaS::Parameter>& _params = std::vector<IaaS::Parameter>()) :
       SeDCloudActions(_image_id, interface, _vm_user, _vm_count, _is_ip_private, _params) {
 
@@ -230,7 +232,7 @@ class SeDCloudVMLaunchedAtFirstSolveActions : public SeDCloudVMLaunchedAtSolveAc
     virtual int perform_action_on_end_solve(diet_profile_t *pb);
 
 
-    SeDCloudVMLaunchedAtFirstSolveActions(const std::string& _image_id, const IaaS::IaasInterface * interface, const std::string& _vm_user,
+    SeDCloudVMLaunchedAtFirstSolveActions(const std::string& _image_id, const IaaS::pIaasInterface & interface, const std::string& _vm_user,
         int _vm_count, bool _is_ip_private, const std::vector<IaaS::Parameter>& _params = std::vector<IaaS::Parameter>()) :
       SeDCloudVMLaunchedAtSolveActions(_image_id, interface, _vm_user, _vm_count, _is_ip_private, _params) {
       }
@@ -244,7 +246,7 @@ class SeDCloudVMLaunchedAtSolveThenDestroyedActions : public SeDCloudVMLaunchedA
     virtual int perform_action_on_end_solve(diet_profile_t *pb);
 
 
-    SeDCloudVMLaunchedAtSolveThenDestroyedActions(const std::string& _image_id, const IaaS::IaasInterface * interface, const std::string& _vm_user,
+    SeDCloudVMLaunchedAtSolveThenDestroyedActions(const std::string& _image_id, const IaaS::pIaasInterface & interface, const std::string& _vm_user,
         int _vm_count, bool _is_ip_private, const std::vector<IaaS::Parameter>& _params = std::vector<IaaS::Parameter>()) :
       SeDCloudVMLaunchedAtSolveActions(_image_id, interface, _vm_user, _vm_count, _is_ip_private, _params) {
       }

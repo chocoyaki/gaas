@@ -51,12 +51,16 @@ if(DIET_USE_CLOUD)
 endif()
 
 if(DIET_USE_DELTACLOUD)
-    include_directories(${APACHE_DELTACLOUD_INCLUDE_DIR} utils/delta-cloud)
+    include_directories(${APACHE_DELTACLOUD_INCLUDE_DIR}
+      utils/cloud
+      utils/delta-cloud
+      utils/cloud/deltacloud)
 	SET(DELTACLOUD_MODULE_SRCS
-			utils/delta-cloud/CloudAPIConnection.cc
+			utils/cloud/CloudAPIConnection.cc
 			utils/delta-cloud/CloudServiceBinary.cc
-			utils/delta-cloud/Iaas_deltacloud.cc
-			utils/delta-cloud/Instance.cc
+      utils/cloud/IaasInterface.cc
+			utils/cloud/deltacloud/Iaas_deltacloud.cc
+			utils/cloud/Instance.cc
 			utils/delta-cloud/SeDCloud.cc
 			utils/delta-cloud/SeDCloudActions.cc
 			utils/delta-cloud/ServiceStatisticsMap.cc

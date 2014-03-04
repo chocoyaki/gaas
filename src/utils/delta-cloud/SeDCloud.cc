@@ -486,7 +486,7 @@ int SeDCloud::homogeneous_vm_instanciation_solve(diet_profile_t *pb) {
   printf("Instanciations starting\n");
   IaaS::VMInstances* instances;
   std::vector<std::string> ips;
-  IaaS::IaasInterface * cloud_interface = new IaaS::Iaas_deltacloud(deltacloud_api_url, deltacloud_user_name, deltacloud_passwd);
+  IaaS::pIaasInterface cloud_interface = IaaS::pIaasInterface(new IaaS::Iaas_deltacloud(deltacloud_api_url, deltacloud_user_name, deltacloud_passwd));
   instances = new IaaS::VMInstances(vm_image, *vm_count, cloud_interface, vm_user, params);
   printf("Instanciations created\n");
   instances->wait_all_instances_running();
@@ -542,7 +542,7 @@ int SeDCloud::homogeneous_vm_instanciation_with_one_cloud_api_connection_solve(d
   std::vector<std::string> ips;
 
 
-  IaaS::IaasInterface* cloud_interface = new IaaS::Iaas_deltacloud(deltacloud_api_url, deltacloud_user_name, deltacloud_passwd);
+  IaaS::pIaasInterface cloud_interface = IaaS::pIaasInterface(new IaaS::Iaas_deltacloud(deltacloud_api_url, deltacloud_user_name, deltacloud_passwd));
   instances = new IaaS::VMInstances(vm_image, *vm_count, cloud_interface, vm_user, params);
 
   instances->wait_all_instances_running();
@@ -601,7 +601,7 @@ int SeDCloud::homogeneous_vm_instanciation_with_keyname_solve(diet_profile_t *pb
   IaaS::VMInstances* instances;
   std::vector<std::string> ips;
 
-  IaaS::IaasInterface * cloud_interface = new IaaS::Iaas_deltacloud(std::string(deltacloud_api_url), std::string(deltacloud_user_name), std::string(deltacloud_passwd));
+  IaaS::pIaasInterface cloud_interface = IaaS::pIaasInterface(new IaaS::Iaas_deltacloud(std::string(deltacloud_api_url), std::string(deltacloud_user_name), std::string(deltacloud_passwd)));
   instances = new IaaS::VMInstances(vm_image, *vm_count, cloud_interface, vm_user, params);
   //reserved_vms[vm_collection_name] = instances;
   instances->wait_all_instances_running();
@@ -631,7 +631,7 @@ int SeDCloud::vm_destruction_by_ip_solve(diet_profile_t *pb) {
   diet_file_get(diet_parameter(pb, 3), &path, NULL, &size);
   diet_scalar_get(diet_parameter(pb, 4), &select_private_ips, NULL);
 
-  IaaS::IaasInterface* interface = new IaaS::Iaas_deltacloud(url_api, user_name, password);
+  IaaS::pIaasInterface interface = IaaS::pIaasInterface(new IaaS::Iaas_deltacloud(url_api, user_name, password));
 
   std::vector<std::string> ips;
   readlines(path, ips);
@@ -643,8 +643,6 @@ int SeDCloud::vm_destruction_by_ip_solve(diet_profile_t *pb) {
   for(int i=0; i <= 4; i++) {
     diet_free_data(diet_parameter(pb, i));
   }
-
-  delete interface;
 
 
   //TODO : check if vms are really freed

@@ -35,7 +35,7 @@ class DietLogComponent;
 void deleteStringVector(std::vector<std::string*>& v);
 char* cpp_strdup(const char* src);
 
-std::string get_ip_instance_by_id(IaaS::IaasInterface* interf, std::string instance_id, bool is_private_ip);
+std::string get_ip_instance_by_id(const IaaS::pIaasInterface & interf, std::string instance_id, bool is_private_ip);
 int read_properties_file(const std::string& path, std::map<std::string, std::string>& results);
 
 
@@ -44,18 +44,18 @@ int read_properties_file(const std::string& path, std::map<std::string, std::str
    return 0 iif success
    */
 int test_ssh_connection(std::string ssh_user, std::string ip);
-int test_ssh_connection_by_id(IaaS::IaasInterface* interf, std::string vm_user, std::string instance_id, bool private_ip = true);
-int rsync_to_vm_by_id(IaaS::IaasInterface* interf, std::string vm_user, std::string instance_id, bool private_ip, std::string local_path, std::string remote_path);
+int test_ssh_connection_by_id(const IaaS::IaasInterface & interf, std::string vm_user, std::string instance_id, bool private_ip = true);
+int rsync_to_vm_by_id(const IaaS::IaasInterface & interf, std::string vm_user, std::string instance_id, bool private_ip, std::string local_path, std::string remote_path);
 
 int rsync_to_vm(std::string local_path, std::string remote_path, std::string user, std::string ip);
 int rsync_from_vm(std::string remote_path, std::string local_path, std::string user, std::string ip);
 
 
 int execute_command_in_vm(const std::string& remote_cmd, std::string user, std::string ip, std::string args);
-int execute_command_in_vm_by_id(IaaS::IaasInterface* interf, std::string vm_user, std::string instance_id, bool private_ip, std::string remote_cmd, std::string args);
+int execute_command_in_vm_by_id(const IaaS::pIaasInterface & interf, std::string vm_user, std::string instance_id, bool private_ip, std::string remote_cmd, std::string args);
 
 int create_directory_in_vm(const std::string& remote_path, std::string user, std::string ip, std::string args = " -p ");
-int create_directory_in_vm_by_id(IaaS::IaasInterface* interf, std::string vm_user, std::string instance_id, bool private_ip, std::string remote_path, std::string args = " -p ");
+int create_directory_in_vm_by_id(const IaaS::pIaasInterface & interf, std::string vm_user, std::string instance_id, bool private_ip, std::string remote_path, std::string args = " -p ");
 
 
 char* readline(const char* path, int index);
@@ -112,8 +112,8 @@ namespace IaaS {
       /*
        * create VM instances
        */
-      
-      VMInstances(std::string image_id, int vm_count, IaasInterface* cloud_interface,
+
+      VMInstances(std::string image_id, int vm_count, const IaaS::pIaasInterface & cloud_interface,
           std::string vm_user, const std::vector<Parameter>& params = std::vector<Parameter>());
 
       ~VMInstances();
@@ -143,7 +143,7 @@ namespace IaaS {
       std::set<std::string> get_error_instance_ids();
       void terminate_failed_instances_and_run_others();
 
-      IaasInterface * interf;
+      pIaasInterface interf;
       //id of instances
       std::vector<std::string> insts;
 

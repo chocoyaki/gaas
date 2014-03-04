@@ -9,6 +9,8 @@
  * @section Licence
  *   |LICENSE|
  */
+#ifndef _IAAS_PARAMETER_HH_
+#define _IAAS_PARAMETER_HH_
 
 #include <string>
 
@@ -31,3 +33,5 @@ namespace IaaS {
 
   };
 }
+
+#endif

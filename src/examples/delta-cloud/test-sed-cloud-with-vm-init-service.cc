@@ -19,7 +19,7 @@
 
 #include "Instance.hh"
 
-
+int
 main(int argc, char *argv[]) {
 
 

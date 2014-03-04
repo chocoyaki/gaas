@@ -46,7 +46,7 @@ main(int argc, char *argv[]) {
   /* Initialize table with maximum 2 service */
   diet_service_table_init(2);
 
-  IaaS::Iaas_deltacloud * interface = new IaaS::Iaas_deltacloud(base_url, username, password);
+  IaaS::pIaasInterface interface = IaaS::pIaasInterface(new IaaS::Iaas_deltacloud(base_url, username, password));
   SeDCloudAndVMLaunchedActions actions(image_id, interface, vm_user,
       vms_count, is_ip_private, params);
 

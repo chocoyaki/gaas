@@ -53,7 +53,7 @@ char* cpp_strdup(const char* src) {
 
 
 
-std::string get_ip_instance_by_id(IaaS::IaasInterface* interf, std::string instance_id, bool is_private_ip) {
+std::string get_ip_instance_by_id(const IaaS::pIaasInterface & interf, std::string instance_id, bool is_private_ip) {
   IaaS::pInstance_t instance = IaaS::pInstance_t(interf->get_instance_by_id(instance_id));
 
   if (instance == NULL) return "???.???.???.???";
@@ -105,7 +105,7 @@ int test_ssh_connection(std::string ssh_user, std::string ip) {
 
 
 
-int test_ssh_connection_by_id(IaaS::IaasInterface* interf, std::string vm_user, std::string instance_id, bool is_private_ip){
+int test_ssh_connection_by_id(const IaaS::pIaasInterface & interf, std::string vm_user, std::string instance_id, bool is_private_ip){
 
   std::string ip = get_ip_instance_by_id(interf, instance_id, is_private_ip);
 
@@ -125,7 +125,7 @@ int rsync_to_vm(std::string local_path, std::string remote_path, std::string use
 }
 
 
-int rsync_to_vm_by_id(IaaS::IaasInterface* interf, std::string vm_user, std::string instance_id, bool private_ip, std::string local_path, std::string remote_path) {
+int rsync_to_vm_by_id(const IaaS::pIaasInterface & interf, std::string vm_user, std::string instance_id, bool private_ip, std::string local_path, std::string remote_path) {
 
   std::string ip = get_ip_instance_by_id(interf, instance_id, private_ip);
 
@@ -145,7 +145,7 @@ int rsync_from_vm(std::string remote_path, std::string local_path, std::string u
   return ret;
 }
 
-int rsync_from_vm_by_id(IaaS::IaasInterface* interf, std::string vm_user, std::string instance_id, bool private_ip, std::string remote_path, std::string local_path) {
+int rsync_from_vm_by_id(const IaaS::pIaasInterface & interf, std::string vm_user, std::string instance_id, bool private_ip, std::string remote_path, std::string local_path) {
 
   std::string ip = get_ip_instance_by_id(interf, instance_id, private_ip);
 
@@ -166,7 +166,7 @@ int execute_command_in_vm(const std::string& remote_cmd, std::string vm_user, st
 }
 
 
-int execute_command_in_vm_by_id(IaaS::IaasInterface* interf, std::string vm_user, std::string instance_id, bool private_ip, std::string remote_cmd, std::string args) {
+int execute_command_in_vm_by_id(const IaaS::pIaasInterface & interf, std::string vm_user, std::string instance_id, bool private_ip, std::string remote_cmd, std::string args) {
   std::string ip = get_ip_instance_by_id(interf, instance_id, private_ip);
 
   int ret = ::execute_command_in_vm(remote_cmd, vm_user, ip, args);
@@ -183,7 +183,7 @@ int create_directory_in_vm(const std::string& remote_path, std::string user, std
 }
 
 
-int create_directory_in_vm_by_id(IaaS::IaasInterface* interf, std::string vm_user, std::string instance_id, bool private_ip, std::string remote_path, std::string args) {
+int create_directory_in_vm_by_id(const IaaS::pIaasInterface & interf, std::string vm_user, std::string instance_id, bool private_ip, std::string remote_path, std::string args) {
   std::string ip = get_ip_instance_by_id(interf, instance_id, private_ip);
   int ret = ::create_directory_in_vm(remote_path, vm_user, ip, args);
   return ret;
@@ -381,7 +381,7 @@ int write_lines(const std::vector<std::string>& lines, const std::string& file_p
 
 namespace IaaS {
 
-  VMInstances::VMInstances(std::string _image_id, int _vm_count, IaaS::IaasInterface* cloud_interface,
+  VMInstances::VMInstances(std::string _image_id, int _vm_count, const IaaS::pIaasInterface & cloud_interface,
       std::string _vm_user, const std::vector<Parameter>& _params) {
 
     vm_user = _vm_user;
@@ -389,7 +389,7 @@ namespace IaaS {
     vm_count = _vm_count;
     params = _params;
 
-    interf = cloud_interface->clone();
+    interf = cloud_interface;
 
     insts = interf->run_instances(image_id, vm_count, params);
 
@@ -403,7 +403,6 @@ namespace IaaS {
   VMInstances::~VMInstances() {
     interf->terminate_instances(insts);
 
-    delete interf;
   }
 
   void VMInstances::terminate_failed_instances_and_run_others() {
