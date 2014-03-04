@@ -128,7 +128,7 @@ class SeDCloud {
     std::string config_file;
 
     //TODO to link to user or group
-    //static std::map<std::string, IaaS::VMInstances*> reserved_vms;
+    //static std::map<std::string, IaaS::VMsDeployment*> reserved_vms;
 
 };
 

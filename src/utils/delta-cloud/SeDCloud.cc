@@ -11,7 +11,10 @@
  */
 
 #include "SeDCloud.hh"
+
 #include "Instance.hh"
+#include "RemoteAccess.hh"
+
 #include "DagdaFactory.hh"
 #include "DIET_uuid.hh"
 #include "Iaas_deltacloud.hh"
@@ -484,10 +487,10 @@ int SeDCloud::homogeneous_vm_instanciation_solve(diet_profile_t *pb) {
 
   printf("Instanciation : image='%s', profile='%s', vm_count=%i, is_ip_private=%i\n", vm_image, vm_profile, *vm_count, *is_ip_private);
   printf("Instanciations starting\n");
-  IaaS::VMInstances* instances;
+  IaaS::VMsDeployment* instances;
   std::vector<std::string> ips;
   IaaS::pIaasInterface cloud_interface = IaaS::pIaasInterface(new IaaS::Iaas_deltacloud(deltacloud_api_url, deltacloud_user_name, deltacloud_passwd));
-  instances = new IaaS::VMInstances(vm_image, *vm_count, cloud_interface, vm_user, params);
+  instances = new IaaS::VMsDeployment(vm_image, *vm_count, cloud_interface, vm_user, params);
   printf("Instanciations created\n");
   instances->wait_all_instances_running();
   printf("Instanciations running\n");
@@ -538,12 +541,12 @@ int SeDCloud::homogeneous_vm_instanciation_with_one_cloud_api_connection_solve(d
   std::vector<IaaS::Parameter> params;
   params.push_back(IaaS::Parameter(HARDWARE_PROFILE_ID_PARAM, vm_profile));
 
-  IaaS::VMInstances* instances;
+  IaaS::VMsDeployment* instances;
   std::vector<std::string> ips;
 
 
   IaaS::pIaasInterface cloud_interface = IaaS::pIaasInterface(new IaaS::Iaas_deltacloud(deltacloud_api_url, deltacloud_user_name, deltacloud_passwd));
-  instances = new IaaS::VMInstances(vm_image, *vm_count, cloud_interface, vm_user, params);
+  instances = new IaaS::VMsDeployment(vm_image, *vm_count, cloud_interface, vm_user, params);
 
   instances->wait_all_instances_running();
   instances->wait_all_ssh_connection(*is_ip_private);
@@ -598,11 +601,11 @@ int SeDCloud::homogeneous_vm_instanciation_with_keyname_solve(diet_profile_t *pb
   params.push_back(IaaS::Parameter(HARDWARE_PROFILE_ID_PARAM, vm_profile));
   params.push_back(IaaS::Parameter(KEYNAME_PARAM, keyname));
 
-  IaaS::VMInstances* instances;
+  IaaS::VMsDeployment* instances;
   std::vector<std::string> ips;
 
   IaaS::pIaasInterface cloud_interface = IaaS::pIaasInterface(new IaaS::Iaas_deltacloud(std::string(deltacloud_api_url), std::string(deltacloud_user_name), std::string(deltacloud_passwd)));
-  instances = new IaaS::VMInstances(vm_image, *vm_count, cloud_interface, vm_user, params);
+  instances = new IaaS::VMsDeployment(vm_image, *vm_count, cloud_interface, vm_user, params);
   //reserved_vms[vm_collection_name] = instances;
   instances->wait_all_instances_running();
   instances->wait_all_ssh_connection(*is_ip_private);

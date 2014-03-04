@@ -57,11 +57,13 @@ if(DIET_USE_DELTACLOUD)
       utils/delta-cloud
       utils/cloud/deltacloud)
 	SET(DELTACLOUD_MODULE_SRCS
+    utils/cloud/RemoteAccess.cc
 			utils/cloud/CloudAPIConnection.cc
 			utils/delta-cloud/CloudServiceBinary.cc
       utils/cloud/IaasInterface.cc
 			utils/cloud/deltacloud/Iaas_deltacloud.cc
 			utils/cloud/Instance.cc
+      utils/cloud/VMsDeployment.cc
 			utils/delta-cloud/SeDCloud.cc
 			utils/delta-cloud/SeDCloudActions.cc
 			utils/delta-cloud/ServiceStatisticsMap.cc

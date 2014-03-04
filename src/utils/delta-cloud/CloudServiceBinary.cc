@@ -12,7 +12,7 @@
 
 #include "CloudServiceBinary.hh"
 
-#include "Tools.hh"
+#include "RemoteAccess.hh"
 
 #include <string>
 
@@ -66,7 +66,7 @@ int CloudServiceBinary::install(const std::string& ip, const std::string& vm_use
   int env = 0;
 
   if (!is_preinstalled()) {
-    env = ::rsync_to_vm(local_path_of_binary, remote_path_of_binary, vm_user_name, ip);
+    env = rsync_to_vm(local_path_of_binary, remote_path_of_binary, vm_user_name, ip);
 
     if (env) return env;
 

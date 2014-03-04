@@ -7,6 +7,7 @@
 #include "IaasInterface.hh"
 #include "Iaas_deltacloud.hh"
 #include "Tools.hh"
+#include "VMsDeployment.hh"
 #include <stdio.h>
 #include <unistd.h>
 #include <signal.h>
@@ -37,7 +38,7 @@ int main(int argc, const char *argv[]) {
 	params.push_back(Parameter(HARDWARE_PROFILE_ID_PARAM, profile));
 	
   IaaS::pIaasInterface interface = IaaS::pIaasInterface(new IaaS::Iaas_deltacloud(base_url, username, password));
-	VMInstances* vm_instances = new VMInstances(image_id, vms_count, interface,
+	VMsDeployment* vm_instances = new VMsDeployment(image_id, vms_count, interface,
 	vm_user, params);
 	
 	vm_instances->wait_all_instances_running();
