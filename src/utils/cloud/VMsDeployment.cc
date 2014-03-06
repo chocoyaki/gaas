@@ -3,6 +3,11 @@
 #include "Instance.hh"
 #include "RemoteAccess.hh"
 
+#ifdef USE_LOG_SERVICE
+#include "Tools.hh" // For get_log_component().
+#include "DietLogComponent.hh"
+#endif
+
 #include <string.h>
 
 std::string get_ip_instance_by_id(const IaaS::pIaasInterface & interf, std::string instance_id, bool is_private_ip) {
