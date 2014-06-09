@@ -28,6 +28,11 @@
 #include <iterator>
 #include <vector>
 
+#include <string>
+#include <iostream>
+#include <stdio.h>
+#include <string.h>
+
 /*
  * TODO : create a service like "destroy_CloudX" when linking a SeDCloud to a CloudX...
  *
@@ -263,19 +268,103 @@ OUT:
 
 */
 
+MetricsAggregator metrics;
+
+static double
+check_img(std::string vm_name){
+	std::string cmd = "";
+	    cmd = "glance index | grep -w " + vm_name + " "+" | sed 's/.*=//;s/ .*//'";
+	    FILE* pipe = popen(cmd.c_str(), "r");
+	        if (!pipe) return 0; //Erreur sur l'exécution de la commande
+	        char buffer[128];
+	        std::string result = "";
+	        while(!feof(pipe)) {
+	        	if(fgets(buffer, 128, pipe) != NULL)
+	        		result += buffer;
+	        }
+	        pclose(pipe);
+	        //return result;
+	        cout << cmd << std::endl;
+	        if (result.size() == 0)
+	        	return 0;
+	        else
+	        	return 1;
+
+
+
+} /* computeMismatches */
+
+static std::string
+get_img(std::string vm_name){
+	std::string cmd = "";
+	    cmd = "glance index | grep -w " + vm_name + " "+ " | sed 's/.*=//;s/ .*//'";
+	    FILE* pipe = popen(cmd.c_str(), "r");
+	        if (!pipe) return 0; //Erreur sur l'exécution de la commande
+	        char buffer[128];
+	        std::string result = "";
+	        while(!feof(pipe)) {
+	        	if(fgets(buffer, 128, pipe) != NULL)
+	        		result += buffer;
+	        }
+	        pclose(pipe);
+
+	        // Delete \n from the string
+	        result.erase(std::remove(result.begin(), result.end(), '\n'), result.end());
+	        return result;
+}
+
+void myperfmetric(diet_profile_t *profile, estVector_t estvec) {
+//  diet_est_set_internal(estvec, EST_CPUIDLE, metrics.get_avg_cpu_idle());
+//  diet_est_set_internal(estvec, EST_CONSO, metrics.get_avg_pdu());
+//  diet_est_set_internal(estvec, EST_NODEFLOPS, metrics.get_node_flops());
+//  diet_est_set_internal(estvec, EST_COREFLOPS, metrics.get_core_flops());
+//  diet_est_set_internal(estvec, EST_NUMCORES, double(metrics.get_num_cores()));
+//  diet_est_set_internal(estvec, EST_CURRENTJOBS, double(metrics.get_current_jobs()));
+//  diet_est_set_internal(estvec, EST_CONSOJOB, double(metrics.get_bench_conso()));
+	//char target[1024];
+	//diet_string_get(diet_parameter(profile, 2,target,NULL));
+  //diet_est_set_internal(estvec, EST_IMGPRESENT, double(metrics.get_image_id(target)));
+  printf("Appel de la fonction myPerfMetric\n");
+  const char *target;
+  double img_avalaible;
+  /* string value must be fetched from description; value is NULL */
+  target = (diet_paramstring_get_desc(diet_parameter(profile, 1)))->param;
+  img_avalaible = check_img(target);
+
+  /*
+  ** store the mismatch value in the user estimate space,
+  ** using tag value 0
+  */
+  diet_est_set_internal(estvec, EST_IMGPRESENT, img_avalaible);
+  cout << target << std::endl;
+  cout << img_avalaible << std::endl;
+//  diet_est_set_internal(estvec, EST_IMGPRESENT, 15);
+}
 
 DIET_API_LIB int SeDCloud::service_homogeneous_vm_instanciation_add(CloudAPIConnection* _cloud_api_connection) {
   cloud_api_connection_for_vm_instanciation = _cloud_api_connection;
 
   diet_profile_desc_t* profile;
+  diet_aggregator_desc_t *agg;
 
   profile = diet_profile_desc_alloc("homogeneous_vm_instanciation", 4, 4, 5);
   diet_generic_desc_set(diet_param_desc(profile, 0), DIET_SCALAR, DIET_INT);
-  diet_generic_desc_set(diet_param_desc(profile, 1), DIET_STRING, DIET_CHAR);
+  //diet_generic_desc_set(diet_param_desc(profile, 1), DIET_STRING, DIET_CHAR);
+  diet_generic_desc_set(diet_param_desc(profile, 1),
+                        DIET_PARAMSTRING,
+                        DIET_CHAR);
+
   diet_generic_desc_set(diet_param_desc(profile, 2), DIET_STRING, DIET_CHAR);
+
+
+
   diet_generic_desc_set(diet_param_desc(profile, 3), DIET_STRING, DIET_CHAR);
   diet_generic_desc_set(diet_param_desc(profile, 4), DIET_SCALAR, DIET_INT);
   diet_generic_desc_set(diet_param_desc(profile, 5), DIET_FILE, DIET_CHAR);
+
+  agg = diet_profile_desc_aggregator(profile);
+  diet_aggregator_set_type(agg, DIET_AGG_USER);
+  diet_service_use_perfmetric(myperfmetric);
 
   printf("Ajout à la table des services\n");
   diet_service_table_add(profile,  NULL, SeDCloud::homogeneous_vm_instanciation_with_one_cloud_api_connection_solve);
@@ -522,9 +611,9 @@ int SeDCloud::homogeneous_vm_instanciation_solve(diet_profile_t *pb) {
 
 int SeDCloud::homogeneous_vm_instanciation_with_one_cloud_api_connection_solve(diet_profile_t* pb) {
 	printf("Entrée dans la fonction SOLVE (homogeneous_vm_instanciation_with_one_cloud_api_connection_solve)\n");
-  //char* vm_collection_name;
+//  //char* vm_collection_name;
   int* vm_count;
-  char* vm_image;
+  //char* vm_image;
   char* vm_profile;
   const char* deltacloud_api_url;
   const char* deltacloud_user_name;
@@ -533,19 +622,35 @@ int SeDCloud::homogeneous_vm_instanciation_with_one_cloud_api_connection_solve(d
   //0 if we take the public ip 1 if we take the private ip
   int* is_ip_private;
 
+  //char * vm_image;
+  char * img_id;
+
   printf("Récupération des arguments IAAS\n");
   deltacloud_api_url = cloud_api_connection_for_vm_instanciation->base_url.c_str();
   deltacloud_user_name = cloud_api_connection_for_vm_instanciation->username.c_str();
   deltacloud_passwd = cloud_api_connection_for_vm_instanciation->password.c_str();
 
-  printf("Récupéraion des arguments DIET\n");
+  printf("Récupération des arguments DIET\n");
   diet_scalar_get(diet_parameter(pb, 0), &vm_count, NULL);
-  diet_string_get(diet_parameter(pb, 1), &vm_image, NULL);
+  //diet_string_get(diet_parameter(pb, 1), &vm_image, NULL);
+
+  // Get the parameter from the client (could be the name or the id instance)
+  diet_paramstring_get(diet_parameter(pb, 1), &img_id, NULL);
+  std::string buf = get_img(img_id);
+
+  char * vm_image = new char[buf.length() + 1];
+  strcpy(vm_image, buf.c_str());
+  // do stuff
+  //delete [] vm_image;
+
   diet_string_get(diet_parameter(pb, 2), &vm_profile, NULL);
   diet_string_get(diet_parameter(pb, 3), &vm_user, NULL);
   diet_scalar_get(diet_parameter(pb, 4), &is_ip_private, NULL);
-  //one creates the vm instances
 
+  //diet_est_set_internal(estvec, EST_IMGPRESENT, 12);
+
+  //  //one creates the vm instances
+//
   printf("url deltacloud = %s,\n instanciation : image='%s',\n profile(flavor)='%s',\n vm_count=%i\n", deltacloud_api_url, vm_image, vm_profile, *vm_count);
 
   std::vector<IaaS::Parameter> params;
@@ -564,7 +669,7 @@ int SeDCloud::homogeneous_vm_instanciation_with_one_cloud_api_connection_solve(d
 
   printf("Attente du statut RUNNINNG pour la machine virtuelle\n");
   instances->wait_all_instances_running();
-
+//
   printf("Attente de l'accès SSH (DESACTIVE)\n");
   //instances->wait_all_ssh_connection(*is_ip_private);
 
@@ -583,6 +688,7 @@ int SeDCloud::homogeneous_vm_instanciation_with_one_cloud_api_connection_solve(d
   printf("");
   diet_file_set(diet_parameter(pb, 5), diet_tmp_ips_file.c_str(), DIET_PERSISTENT_RETURN);
 
+  delete [] vm_image;
   return 0;
 }
 

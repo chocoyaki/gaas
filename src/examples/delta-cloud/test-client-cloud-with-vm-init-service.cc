@@ -7,6 +7,9 @@
 /* argv[1]: client config file path
    argv[2]: path of the file to transfer */
 
+static char *
+constructVmName(int num, char **strings);
+
 int
 main(int argc, char *argv[]) {
   char *path = NULL;
@@ -15,18 +18,18 @@ main(int argc, char *argv[]) {
   char cmd[2048];
 
   if (argc < 7) {
-    fprintf(stderr, "Usage: %s <file.cfg> vm_count vm_image vm_profile vm_user is_ip_private\n", argv[0]);
+    fprintf(stderr, "Usage: %s <file.cfg> vm_count vm_name vm_profile vm_user is_ip_private\n", argv[0]);
     return 1;
   }
   const char* service = "homogeneous_vm_instanciation";
 
 
 	int vm_count = atoi(argv[2]);
-	char* vm_image = argv[3];
+	//char* vm_image = argv[3];
 	char* vm_profile = argv[4];
 	char* vm_user = argv[5];
 	int is_ip_private = atoi(argv[6]);
-
+	char *vm_name =argv[3];
 
 	printf("vm_count=%i\n", vm_count);
 
@@ -37,11 +40,18 @@ main(int argc, char *argv[]) {
 
 	profile = diet_profile_alloc( service, 4, 4, 5);
 	diet_scalar_set(diet_parameter(profile, 0), &vm_count, DIET_VOLATILE, DIET_INT);
-	diet_string_set(diet_parameter(profile, 1), vm_image, DIET_VOLATILE);
+	//diet_string_set(diet_parameter(profile, 1), vm_image, DIET_VOLATILE);
 	diet_string_set(diet_parameter(profile, 2), vm_profile, DIET_VOLATILE);
 	diet_string_set(diet_parameter(profile, 3), vm_user, DIET_VOLATILE);
 	diet_scalar_set(diet_parameter(profile, 4), &is_ip_private, DIET_VOLATILE, DIET_INT);
 	diet_file_set(diet_parameter(profile, 5), NULL, DIET_PERSISTENT_RETURN);
+
+	//targetString = constructTargetString(argc - 2, &(argv[2]));
+	  if (diet_paramstring_set(diet_parameter(profile,1 ),
+			  vm_name,DIET_VOLATILE) != 0) {
+	    fprintf(stderr, "%s: unable to set target vm_name\n", argv[0]);
+	    exit(1);
+	  }
 
 	int env = diet_call(profile);
 
@@ -85,4 +95,31 @@ main(int argc, char *argv[]) {
 
 	return 0;
 } /* main */
+
+///*
+//** constructVmName: create colon-separated string from an
+//**   argv-style series of elements
+//*/
+//static char *
+//constructVmName(int num, char **strings) {
+//  char *s;
+//  int stringLengthCount = 0;
+//  int strIter;
+//
+//  assert(num > 0);
+//  assert(strings != NULL);
+//
+//  for (strIter = 0; strIter < num; strIter++) {
+//    stringLengthCount += strlen(strings[strIter]);
+//  }
+//  s = calloc(num + stringLengthCount, sizeof(char));
+//  assert(s != NULL);
+//
+//  for (strIter = 0; strIter < num - 1; strIter++) {
+//    sprintf(s + strlen(s), "%s:", strings[strIter]);
+//  }
+//  sprintf(s + strlen(s), "%s", strings[num - 1]);
+//
+//  return (s);
+//} /* constructVmName */
 

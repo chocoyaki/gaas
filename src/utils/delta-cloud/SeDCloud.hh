@@ -22,6 +22,22 @@
 
 #include <stdio.h>
 
+//#include "server.hh"
+#include <iostream>
+#include "common.hh"
+#include "server_metrics.hh"
+#include "server_utils.hh"
+#include "DIET_server.h"
+#include "scheduler/est_internal.hh"
+#include <fstream>
+#include <cmath>
+#include <stdio.h>
+#include <iostream>
+#include <fstream>
+#include <istream>
+#include <cstdlib>
+#include <string>
+
 
 void service_time_solve_add();
 int time_solve(diet_profile_t *pb);

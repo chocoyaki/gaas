@@ -22,7 +22,7 @@
 int
 main(int argc, char *argv[]) {
 
-
+	//metrics.init(argc > 1 ? argv[3] : "");
 
     if (argc < 5) {
 		printf("usage : %s cfg delta_cloud_url usr mdp\n", argv[0]);
