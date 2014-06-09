@@ -24,7 +24,9 @@
 #include <wait.h>
 #include <unistd.h>
 #include <libgen.h>
-
+#include <algorithm>
+#include <iterator>
+#include <vector>
 
 /*
  * TODO : create a service like "destroy_CloudX" when linking a SeDCloud to a CloudX...
@@ -43,6 +45,12 @@ extern char ** environ;
 SeDCloud* SeDCloud::instance = NULL;
 std::vector<CloudAPIConnection> SeDCloud::cloud_api_connection_for_vm_destruction;
 CloudAPIConnection* SeDCloud::cloud_api_connection_for_vm_instanciation = NULL;
+
+void display_vector(std::vector<std::string> &v)
+{
+    std::copy(v.begin(), v.end(),
+        std::ostream_iterator<std::string>(std::cout, " "));
+}
 
 
 /*if argumentsTranferMethod == pathsTranferMethod
@@ -269,6 +277,7 @@ DIET_API_LIB int SeDCloud::service_homogeneous_vm_instanciation_add(CloudAPIConn
   diet_generic_desc_set(diet_param_desc(profile, 4), DIET_SCALAR, DIET_INT);
   diet_generic_desc_set(diet_param_desc(profile, 5), DIET_FILE, DIET_CHAR);
 
+  printf("Ajout à la table des services\n");
   diet_service_table_add(profile,  NULL, SeDCloud::homogeneous_vm_instanciation_with_one_cloud_api_connection_solve);
 
   diet_profile_desc_free(profile);
@@ -512,6 +521,7 @@ int SeDCloud::homogeneous_vm_instanciation_solve(diet_profile_t *pb) {
 
 
 int SeDCloud::homogeneous_vm_instanciation_with_one_cloud_api_connection_solve(diet_profile_t* pb) {
+	printf("Entrée dans la fonction SOLVE (homogeneous_vm_instanciation_with_one_cloud_api_connection_solve)\n");
   //char* vm_collection_name;
   int* vm_count;
   char* vm_image;
@@ -523,11 +533,12 @@ int SeDCloud::homogeneous_vm_instanciation_with_one_cloud_api_connection_solve(d
   //0 if we take the public ip 1 if we take the private ip
   int* is_ip_private;
 
-
+  printf("Récupération des arguments IAAS\n");
   deltacloud_api_url = cloud_api_connection_for_vm_instanciation->base_url.c_str();
   deltacloud_user_name = cloud_api_connection_for_vm_instanciation->username.c_str();
   deltacloud_passwd = cloud_api_connection_for_vm_instanciation->password.c_str();
 
+  printf("Récupéraion des arguments DIET\n");
   diet_scalar_get(diet_parameter(pb, 0), &vm_count, NULL);
   diet_string_get(diet_parameter(pb, 1), &vm_image, NULL);
   diet_string_get(diet_parameter(pb, 2), &vm_profile, NULL);
@@ -535,28 +546,41 @@ int SeDCloud::homogeneous_vm_instanciation_with_one_cloud_api_connection_solve(d
   diet_scalar_get(diet_parameter(pb, 4), &is_ip_private, NULL);
   //one creates the vm instances
 
-
-  printf("url = %s, instanciation : image='%s', profile='%s', vm_count=%i\n", deltacloud_api_url, vm_image, vm_profile, *vm_count);
+  printf("url deltacloud = %s,\n instanciation : image='%s',\n profile(flavor)='%s',\n vm_count=%i\n", deltacloud_api_url, vm_image, vm_profile, *vm_count);
 
   std::vector<IaaS::Parameter> params;
   params.push_back(IaaS::Parameter(HARDWARE_PROFILE_ID_PARAM, vm_profile));
 
+  //printf("HARDWARE_PROFILE_ID_PARAM = %s\n",HARDWARE_PROFILE_ID_PARAM);
+
   IaaS::VMsDeployment* instances;
   std::vector<std::string> ips;
 
-
+  printf("Création de l'interface vers Deltacloud\n");
   IaaS::pIaasInterface cloud_interface = IaaS::pIaasInterface(new IaaS::Iaas_deltacloud(deltacloud_api_url, deltacloud_user_name, deltacloud_passwd));
+
+  printf("Lancement du déploiement de la machine virtuelle\n");
   instances = new IaaS::VMsDeployment(vm_image, *vm_count, cloud_interface, vm_user, params);
 
+  printf("Attente du statut RUNNINNG pour la machine virtuelle\n");
   instances->wait_all_instances_running();
-  instances->wait_all_ssh_connection(*is_ip_private);
 
+  printf("Attente de l'accès SSH (DESACTIVE)\n");
+  //instances->wait_all_ssh_connection(*is_ip_private);
+
+  printf("Récupération des adresses IPs\n");
   instances->get_ips(ips, *is_ip_private);
 
+  printf("Affichage des adresses IPs\n");
+  display_vector(ips);
+
+  printf("Création d'un fichier avec les IPs\n");
   std::string diet_tmp_ips_file = create_tmp_file(pb, ".txt");
+
+  printf("\n");
   write_lines(ips, diet_tmp_ips_file);
 
-
+  printf("");
   diet_file_set(diet_parameter(pb, 5), diet_tmp_ips_file.c_str(), DIET_PERSISTENT_RETURN);
 
   return 0;

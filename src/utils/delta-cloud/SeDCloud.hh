@@ -48,8 +48,13 @@ class SeDCloud {
     void launch(int argc, char* argv[]) {
       // Assuming config file is the first arg
       // We need the name to launch seds from SeDCloud
+    	printf("get()->launch SedCloud!\n");
       config_file = std::string(argv[1]);
+
+      printf("Perfom actions on sed launch\n");
       actions->perform_action_on_sed_launch();
+
+      printf("Call diet_Sed (Le SeD est maintenant en attente!)\n");
       diet_SeD(&config_file[0], argc, argv);
     }
 
