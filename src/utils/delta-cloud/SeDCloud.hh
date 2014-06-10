@@ -28,7 +28,7 @@
 #include "server_metrics.hh"
 #include "server_utils.hh"
 #include "DIET_server.h"
-#include "scheduler/est_internal.hh"
+#include "est_internal.hh"
 #include <fstream>
 #include <cmath>
 #include <stdio.h>
