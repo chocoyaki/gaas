@@ -338,7 +338,8 @@ void myperfmetric(diet_profile_t *profile, estVector_t estvec) {
   diet_est_set_internal(estvec, EST_IMGPRESENT, img_avalaible);
   cout << target << std::endl;
   cout << img_avalaible << std::endl;
-//  diet_est_set_internal(estvec, EST_IMGPRESENT, 15);
+
+  //diet_est_set_internal(estvec, EST_ALERT, double(metrics.check_alerts());
 }
 
 DIET_API_LIB int SeDCloud::service_homogeneous_vm_instanciation_add(CloudAPIConnection* _cloud_api_connection) {
