@@ -1,0 +1,36 @@
+<dag>
+	<node id="node-init-vms" path="homogeneous_vm_instanciation">
+		<arg name="vm_collection_name" type="DIET_STRING" value="ramsesCollection" />
+		<arg name="vm_count" type="DIET_INT" value="1" />
+		<arg name="vm_image_id" type="DIET_STRING" value="4" />
+		<arg name="vm_profile" type="DIET_STRING" value="debian-rc" />
+		<arg name="deltacloud_api_url" type="DIET_STRING" value="http://localhost:3001/api" />
+		<arg name="deltacloud_user_name" type="DIET_STRING" value="oneadmin" />
+		<arg name="deltacloud_passwd" type="DIET_STRING" value="mypassword" />
+		<arg name="vm_user" type="DIET_STRING" value="opennebula" />
+		<arg name="is_ip_private" type="DIET_INT" value="0" />
+		<out name="ips" type="DIET_FILE" />
+	</node>
+
+	<node id="copy-to-machine" path="rsync_to_vm" >
+		<in name="to_copy" type="DIET_FILE" source="node-init-vms#ips" />
+		<arg name="destination" type="DIET_STRING" value="/home/opennebula/nodes.list" />
+		<arg name="vm_user" type="DIET_STRING" value="opennebula" />
+		<in name="ips" type="DIET_FILE" source="node-init-vms#ips" />
+		<arg name="vm_index" type="DIET_INT" value="0" />
+		<out name="ip" type="DIET_STRING" />
+	</node>
+
+
+
+
+
+  <node id="node-date" path="date">
+    <in name="uselessinput" type="DIET_STRING" source="copy-to-machine#ip" />
+    <out name="uselessoutput" type="DIET_STRING" />
+  </node>
+  
+  
+
+  
+</dag>

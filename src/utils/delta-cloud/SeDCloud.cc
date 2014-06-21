@@ -33,6 +33,8 @@
 #include <stdio.h>
 #include <string.h>
 
+
+
 /*
  * TODO : create a service like "destroy_CloudX" when linking a SeDCloud to a CloudX...
  *
@@ -268,8 +270,6 @@ OUT:
 
 */
 
-MetricsAggregator metrics;
-
 static double
 check_img(std::string vm_name){
 	std::string cmd = "";
@@ -314,7 +314,11 @@ get_img(std::string vm_name){
 }
 
 void myperfmetric(diet_profile_t *profile, estVector_t estvec) {
-//  diet_est_set_internal(estvec, EST_CPUIDLE, metrics.get_avg_cpu_idle());
+	MetricsAggregator metrics;
+	std::string site_name = "";
+	//metrics.init(site_name);
+
+	//  diet_est_set_internal(estvec, EST_CPUIDLE, metrics.get_avg_cpu_idle());
 //  diet_est_set_internal(estvec, EST_CONSO, metrics.get_avg_pdu());
 //  diet_est_set_internal(estvec, EST_NODEFLOPS, metrics.get_node_flops());
 //  diet_est_set_internal(estvec, EST_COREFLOPS, metrics.get_core_flops());
@@ -335,7 +339,7 @@ void myperfmetric(diet_profile_t *profile, estVector_t estvec) {
   ** store the mismatch value in the user estimate space,
   ** using tag value 0
   */
-  diet_est_set_internal(estvec, EST_IMGPRESENT, img_avalaible);
+  diet_est_set_internal(estvec, EST_IAAS_IMGPRESENT, img_avalaible);
   cout << target << std::endl;
   cout << img_avalaible << std::endl;
 

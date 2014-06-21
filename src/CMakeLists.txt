@@ -70,6 +70,7 @@ if(DIET_USE_DELTACLOUD)
 			utils/delta-cloud/ServiceWrapper.cc
 			utils/delta-cloud/ServiceWrapperArgument.cc
 			utils/delta-cloud/Tools.cc
+			utils/delta-cloud/server_metrics.cc
 		)
     add_library(DIET_DeltaCloud ${DELTACLOUD_MODULE_SRCS})
 	target_link_libraries(DIET_DeltaCloud ${APACHE_DELTACLOUD_LIBRARY} ${XERCES_LIB} DIET_SeD)
