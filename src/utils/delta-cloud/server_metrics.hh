@@ -26,16 +26,7 @@ class MetricsAggregator {
 
 protected:
 
-  exec_records execs;
-  std::string node_name;
-  std::string cluster_name;
   std::string site_name;
-  double core_flops;
-  double node_flops;
-  int num_cores;
-  int current_jobs;
-  double conso_job;
-
 
   void flush();
 
@@ -44,6 +35,7 @@ public:
   std::string image_id;
 
   void init(std::string node_name = std::string(""));
+  double check_img(std::string vm_name);
 };
 
 

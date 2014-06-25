@@ -38,6 +38,13 @@
 #include <cstdlib>
 #include <string>
 
+//pexec
+#include <stdint.h>
+#include <deque>
+#include <vector>
+#include <utility>
+#include <string>
+
 
 void service_time_solve_add();
 int time_solve(diet_profile_t *pb);
@@ -48,6 +55,9 @@ int add_seq_in_data_xml_solve(diet_profile_t *pb);
 class SeDCloud {
 
   public:
+
+
+
 
     static void create(SeDCloudActions* _actions) {
       if (_actions != NULL) {
@@ -147,6 +157,7 @@ class SeDCloud {
 
     SeDCloudActions* actions;
     std::string config_file;
+
 
     //TODO to link to user or group
     //static std::map<std::string, IaaS::VMsDeployment*> reserved_vms;

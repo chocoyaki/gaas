@@ -25,7 +25,7 @@ main(int argc, char *argv[]) {
 	//metrics.init(argc > 1 ? argv[3] : "");
 
     if (argc < 5) {
-		printf("usage : %s cfg delta_cloud_url usr mdp\n", argv[0]);
+		printf("usage : %s cfg delta_cloud_url usr mdp zone\n", argv[0]);
 		exit(0);
 	}
 
@@ -34,6 +34,7 @@ main(int argc, char *argv[]) {
 	char* url = argv[2];
 	char* usr = argv[3];
 	char* mdp = argv[4];
+	char* zone = argv[5];
 
 //	Déclaration d'un ensemble de connections au serveur deltacloud (url,user,password)
 	std::vector<CloudAPIConnection> ctx;
@@ -48,7 +49,7 @@ main(int argc, char *argv[]) {
 	SeDCloudActionsNULL* actions = new SeDCloudActionsNULL();
 
 // Création d'une instance unique (Pattern Singleton)
-	printf("Création de la classe SedCloud\n");
+	printf("Création de la classe SedCloud pour la zone %s\n",zone);
 	SeDCloud::create(actions);
 
 // get() retourne l'instance

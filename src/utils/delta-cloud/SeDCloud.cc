@@ -33,6 +33,24 @@
 #include <stdio.h>
 #include <string.h>
 
+//pexec
+//#include <curl/curl.h>
+#include <jsoncpp/json/json.h>
+#include <sstream>
+#include <unistd.h>
+#include <iostream>
+#include <boost/algorithm/string.hpp>
+#include <cassert>
+#include "server_metrics.hh"
+#include "server_utils.hh"
+#include <string>
+#include <fstream>
+#include <iostream>
+#include <iomanip>
+#include <fstream>
+#include <istream>
+using namespace std;
+
 
 
 /*
@@ -270,29 +288,7 @@ OUT:
 
 */
 
-static double
-check_img(std::string vm_name){
-	std::string cmd = "";
-	    cmd = "glance index | grep -w " + vm_name + " "+" | sed 's/.*=//;s/ .*//'";
-	    FILE* pipe = popen(cmd.c_str(), "r");
-	        if (!pipe) return 0; //Erreur sur l'exécution de la commande
-	        char buffer[128];
-	        std::string result = "";
-	        while(!feof(pipe)) {
-	        	if(fgets(buffer, 128, pipe) != NULL)
-	        		result += buffer;
-	        }
-	        pclose(pipe);
-	        //return result;
-	        cout << cmd << std::endl;
-	        if (result.size() == 0)
-	        	return 0;
-	        else
-	        	return 1;
-
-
-
-} /* computeMismatches */
+ /* computeMismatches */
 
 static std::string
 get_img(std::string vm_name){
@@ -314,36 +310,19 @@ get_img(std::string vm_name){
 }
 
 void myperfmetric(diet_profile_t *profile, estVector_t estvec) {
+	printf("Appel de la fonction myPerfMetric\n");
+	const char *target;
+	double img_avalaible;
+
 	MetricsAggregator metrics;
-	std::string site_name = "";
-	//metrics.init(site_name);
+	metrics.init("grid5000");
 
-	//  diet_est_set_internal(estvec, EST_CPUIDLE, metrics.get_avg_cpu_idle());
-//  diet_est_set_internal(estvec, EST_CONSO, metrics.get_avg_pdu());
-//  diet_est_set_internal(estvec, EST_NODEFLOPS, metrics.get_node_flops());
-//  diet_est_set_internal(estvec, EST_COREFLOPS, metrics.get_core_flops());
-//  diet_est_set_internal(estvec, EST_NUMCORES, double(metrics.get_num_cores()));
-//  diet_est_set_internal(estvec, EST_CURRENTJOBS, double(metrics.get_current_jobs()));
-//  diet_est_set_internal(estvec, EST_CONSOJOB, double(metrics.get_bench_conso()));
-	//char target[1024];
-	//diet_string_get(diet_parameter(profile, 2,target,NULL));
-  //diet_est_set_internal(estvec, EST_IMGPRESENT, double(metrics.get_image_id(target)));
-  printf("Appel de la fonction myPerfMetric\n");
-  const char *target;
-  double img_avalaible;
-  /* string value must be fetched from description; value is NULL */
-  target = (diet_paramstring_get_desc(diet_parameter(profile, 1)))->param;
-  img_avalaible = check_img(target);
 
-  /*
-  ** store the mismatch value in the user estimate space,
-  ** using tag value 0
-  */
-  diet_est_set_internal(estvec, EST_IAAS_IMGPRESENT, img_avalaible);
-  cout << target << std::endl;
-  cout << img_avalaible << std::endl;
-
-  //diet_est_set_internal(estvec, EST_ALERT, double(metrics.check_alerts());
+	target = (diet_paramstring_get_desc(diet_parameter(profile, 1)))->param;
+	img_avalaible = metrics.check_img(target);
+	diet_est_set_internal(estvec, EST_IAAS_IMGPRESENT, img_avalaible);
+	cout << target << std::endl;
+	cout << img_avalaible << std::endl;
 }
 
 DIET_API_LIB int SeDCloud::service_homogeneous_vm_instanciation_add(CloudAPIConnection* _cloud_api_connection) {
@@ -613,6 +592,26 @@ int SeDCloud::homogeneous_vm_instanciation_solve(diet_profile_t *pb) {
   return 0;
 }
 
+std::string cmd_exec(char* cmd) {
+    FILE* pipe = popen(cmd, "r");
+    if (!pipe) return "ERROR";
+    char buffer[128];
+    std::string result = "";
+    while(!feof(pipe)) {
+    	if(fgets(buffer, 128, pipe) != NULL)
+    		result += buffer;
+    }
+    pclose(pipe);
+    return result;
+}
+
+std::string bufferToString(char* buffer, int bufflen)
+{
+    std::string ret(buffer, bufflen);
+
+    return ret;
+}
+
 
 int SeDCloud::homogeneous_vm_instanciation_with_one_cloud_api_connection_solve(diet_profile_t* pb) {
 	printf("Entrée dans la fonction SOLVE (homogeneous_vm_instanciation_with_one_cloud_api_connection_solve)\n");
@@ -657,6 +656,7 @@ int SeDCloud::homogeneous_vm_instanciation_with_one_cloud_api_connection_solve(d
   //  //one creates the vm instances
 //
   printf("url deltacloud = %s,\n instanciation : image='%s',\n profile(flavor)='%s',\n vm_count=%i\n", deltacloud_api_url, vm_image, vm_profile, *vm_count);
+  //printf("zone de creation = %s\n",zone);
 
   std::vector<IaaS::Parameter> params;
   params.push_back(IaaS::Parameter(HARDWARE_PROFILE_ID_PARAM, vm_profile));
@@ -670,8 +670,23 @@ int SeDCloud::homogeneous_vm_instanciation_with_one_cloud_api_connection_solve(d
   IaaS::pIaasInterface cloud_interface = IaaS::pIaasInterface(new IaaS::Iaas_deltacloud(deltacloud_api_url, deltacloud_user_name, deltacloud_passwd));
 
   printf("Lancement du déploiement de la machine virtuelle\n");
-  instances = new IaaS::VMsDeployment(vm_image, *vm_count, cloud_interface, vm_user, params);
 
+  std::string zone = "lyon";
+  char cmd[200];
+  strcpy(cmd,"python /root/create_vms.py");
+  strcat(cmd," ");
+  strcat(cmd,img_id);
+  strcat(cmd," ");
+  strcat(cmd,vm_profile);
+  strcat(cmd," ");
+  strcat(cmd,"nom_vm");
+  strcat(cmd,"\0");
+  std::string ip = cmd_exec(cmd);
+  //std::string ip = cmd_exec("python /root/create_vms.py "+vm_image+" "+vm_profile+" "+"NOM_DE_LA_VM");
+  cout << ip << endl;
+
+  //boost::algorithm::trim(ip);
+  /*instances = new IaaS::VMsDeployment(vm_image, *vm_count, cloud_interface, vm_user, params);
   printf("Attente du statut RUNNINNG pour la machine virtuelle\n");
   instances->wait_all_instances_running();
 //
@@ -681,6 +696,7 @@ int SeDCloud::homogeneous_vm_instanciation_with_one_cloud_api_connection_solve(d
   printf("Récupération des adresses IPs\n");
   instances->get_ips(ips, *is_ip_private);
 
+
   printf("Affichage des adresses IPs\n");
   display_vector(ips);
 
@@ -689,9 +705,14 @@ int SeDCloud::homogeneous_vm_instanciation_with_one_cloud_api_connection_solve(d
 
   printf("\n");
   write_lines(ips, diet_tmp_ips_file);
+  */
 
-  printf("");
-  diet_file_set(diet_parameter(pb, 5), diet_tmp_ips_file.c_str(), DIET_PERSISTENT_RETURN);
+  std::ofstream out("output.txt");
+  out << ip;
+  out.close();
+  diet_file_set(diet_parameter(pb, 5), "output.txt", DIET_PERSISTENT_RETURN);
+
+  //diet_file_set(diet_parameter(pb, 5), diet_tmp_ips_file.c_str(), DIET_PERSISTENT_RETURN);
 
   delete [] vm_image;
   return 0;
