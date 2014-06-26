@@ -1,5 +1,5 @@
-#include "myscheduler.hh"
-#include <scheduler/est_internal.hh>
+#include "power_scheduler.hh"
+#include <est_internal.hh>
 #include <boost/foreach.hpp>
 #include <iostream>
 #include "common.hh"
@@ -7,11 +7,7 @@
 #include <list>
 
 struct has_not_image {
-  bool operator() (const corba_server_estimation_t& e) { return diet_est_get_internal(&(e.estim), EST_IMGPRESENT, 0.0) == 0; }
-};
-
-struct is_busy_multicores {
- bool operator() (const corba_server_estimation_t& e) { return diet_est_get_internal(&(e.estim), EST_CURRENTJOBS, 0.0) == diet_est_get_internal(&(e.estim), EST_NUMCORES, 0.0); }
+  bool operator() (const corba_server_estimation_t& e) { return diet_est_get_internal(&(e.estim), EST_IAAS_IMGPRESENT, 0.0) == 0; }
 };
 
 class MyScheduler : public UserScheduler {
@@ -53,7 +49,7 @@ int MyScheduler::aggregate(corba_response_t* aggrResp, size_t max_srv,
 //    double core_flops = diet_est_get_internal(&(e.estim), EST_COREFLOPS, 0.0);
 	  double avg_cpu = diet_est_get_internal(&(e.estim), EST_PERFORMANCE_AVGCPU, 0.0);
 //    int current_jobs = diet_est_get_internal(&(e.estim), EST_CURRENTJOBS, 0.0);
-	  double img = diet_est_get_internal(&(e.estim), EST_IMGPRESENT, 0.0);
+	  double img = diet_est_get_internal(&(e.estim), EST_IAAS_IMGPRESENT, 0.0);
 //    std::cout << "metrics for server " << e.loc.hostName << std::endl;
 //    std::cout << "  cpu_idle   = " << cpu_idle << std::endl;
 //    std::cout << "  conso      = " << conso << std::endl;
@@ -78,8 +74,8 @@ int MyScheduler::aggregate(corba_response_t* aggrResp, size_t max_srv,
   int i = 0;
   BOOST_FOREACH(corba_server_estimation_t &e, candidates) {
     i += 1;
-    double conso = diet_est_get_internal(&(e.estim), EST_CONSOJOB, 0.0);
-    std::cout << i << " : metrics CONSOCLOUD (J) for server " << e.loc.hostName << " = " << conso << std::endl;
+
+    std::cout << i << " : metrics CONSOCLOUD (J) for server " << e.loc.hostName << " = " << 0 << std::endl;
   }
     
   return 0;

@@ -33,6 +33,7 @@ endif(DIET_USE_ALT_BATCH)
 
 if(DIET_USE_USERSCHED)
   add_subdirectory(agent_scheduler)
+  add_subdirectory(nuage_scheduler)
 endif()
 
 add_subdirectory(BLAS)

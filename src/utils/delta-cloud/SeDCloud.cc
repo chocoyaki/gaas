@@ -315,8 +315,11 @@ void myperfmetric(diet_profile_t *profile, estVector_t estvec) {
 	double img_avalaible;
 
 	MetricsAggregator metrics;
-	metrics.init("grid5000");
+	metrics.init("marylin");
 
+	/*diet_est_set_internal(estvec, EST_ALERT, metrics.get_alert());
+	diet_est_set_internal(estvec, EST_ENERGY_INSTANT, metrics.get_instant_energy());*/
+	diet_est_set_internal(estvec, EST_PERFORMANCE_AVGCPU, metrics.get_avg_cpu());
 
 	target = (diet_paramstring_get_desc(diet_parameter(profile, 1)))->param;
 	img_avalaible = metrics.check_img(target);
@@ -339,8 +342,6 @@ DIET_API_LIB int SeDCloud::service_homogeneous_vm_instanciation_add(CloudAPIConn
                         DIET_CHAR);
 
   diet_generic_desc_set(diet_param_desc(profile, 2), DIET_STRING, DIET_CHAR);
-
-
 
   diet_generic_desc_set(diet_param_desc(profile, 3), DIET_STRING, DIET_CHAR);
   diet_generic_desc_set(diet_param_desc(profile, 4), DIET_SCALAR, DIET_INT);

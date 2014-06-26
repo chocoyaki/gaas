@@ -51,3 +51,17 @@ double MetricsAggregator::check_img(std::string vm_name){
 	        else
 	        	return 1;
 }
+
+double MetricsAggregator::get_avg_cpu(){
+	double avg_cpu = 0;
+	return avg_cpu;
+}/*
+double MetricsAggregator::get_alert(){
+	double avg_cpu = 0;
+	return avg_cpu;
+}
+double MetricsAggregator::get_instant_energy(){
+	double avg_cpu = 0;
+	return avg_cpu;
+}
+*/

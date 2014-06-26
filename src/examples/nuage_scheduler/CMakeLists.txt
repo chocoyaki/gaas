@@ -1,0 +1,18 @@
+#****************************************************************************#
+#* DIET cmake local file                                                    *#
+#****************************************************************************#
+
+INCLUDE_DIRECTORIES( ${DIET_SOURCE_DIR}/include ${DIET_SOURCE_DIR}/include/scheduler ${OMNIORB4_INCLUDE_DIR} 
+${OMNIORB4_INCLUDE_DIR}
+  ${Boost_INCLUDE_DIRS}
+  ${IDL_INCLUDE_DIRECTORIES}
+  )
+INCLUDE_DIRECTORIES( ${DIET_DIR}/include )
+
+### A plugin scheduler
+SET( Power_SRCS
+  power_scheduler.cc power_scheduler.hh common.hh 
+   )
+ADD_LIBRARY( nuage_scheduler MODULE ${Power_SRCS} )
+TARGET_LINK_LIBRARIES( nuage_scheduler ${DIET_SERVER_LIBRARIES} ${Boost_LIBRARIES} ${OMNIORB4_LIBRARIES} )
+INSTALL( TARGETS nuage_scheduler DESTINATION ${EXAMPLE_INSTALL_DIR}/nuage_scheduler )

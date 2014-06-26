@@ -28,14 +28,25 @@ protected:
 
   std::string site_name;
 
+  double alert_flag;
+
+  double instant_energy;
+
+  double cpu_avg;
+
   void flush();
 
 public:
 
   std::string image_id;
 
-  void init(std::string node_name = std::string(""));
+  void init(std::string site_name = std::string(""));
   double check_img(std::string vm_name);
+
+  double get_avg_cpu();
+  /*double get_alert();
+  double get_instant_energy();
+   */
 };
 
 

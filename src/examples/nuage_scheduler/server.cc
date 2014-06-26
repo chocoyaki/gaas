@@ -48,7 +48,7 @@ main(int argc, char *argv[]) {
 	SeDCloudActionsNULL* actions = new SeDCloudActionsNULL();
 
 // Création d'une instance unique (Pattern Singleton)
-	printf("Création de la classe SedCloud pour la zone %s\n");
+	printf("Création de la classe SedCloud\n");
 	SeDCloud::create(actions);
 
 // get() retourne l'instance
